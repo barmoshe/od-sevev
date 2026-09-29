@@ -28,11 +28,18 @@ def sheets():
     L.hline(1, W - 2, H - 2, "ui_scrim"); L.vline(W - 2, 2, H - 2, "ui_scrim")
     chamfer(L, 0, 0, W, H, 2)
     outline_inplace(L)
-    save(L, "sheet_modal", "sheet", slice=[6, 22, 6, 6], content=[6, 22, W - 12, H - 28], label="white",
+    # wave 6 (F9): a 1 px suit_hi edge OUTSIDE the outline, following the chamfer, so the dark sheet lifts off the
+    # near-black scrim (3.6:1 on the scrimmed dark; the ui_panel body alone was 1.1:1). The PNG grows 1 px per side.
+    L = L.outlined("suit_hi", pad=1)
+    W, H = L.w, L.h
+    save(L, "sheet_modal", "sheet", slice=[7, 23, 7, 7], content=[7, 23, W - 14, H - 30], label="white",
          notes="Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round "
-               "card. Title band y 1..18 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body "
+               "card. Title band y 2..19 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body "
                "ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map "
-               "§7.1 D23; never the fork's grape, which lifts the dark base).")
+               "§7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the "
+               "outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece "
+               "is 38x38 and every margin grew by 1. Draw it at the card rect grown by 4 logical px per side to keep the "
+               "title band and body exactly where they were.")
     P = panel(24, 24, "ui_panel", "ui_bub_hi", "ui_scrim", corner=2)
     save(P, "sheet_plain", "sheet", slice=[5, 5, 5, 5], content=[4, 3, 16, 17], label="white",
          notes="Title-less sheet (toast stacks, the pardon desk form behind the stamp, tooltips).")

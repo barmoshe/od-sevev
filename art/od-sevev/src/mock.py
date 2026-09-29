@@ -12,8 +12,7 @@ from kit import ROOT, PROOFS
 from sheet import nine
 import hebfont
 
-SHOW = os.path.normpath(os.path.join(ROOT, "..", "..", "..", "..", "artifacts", "creative-pack", "od-sevev", "art",
-                                     "showcase", "out"))
+from keyart import SHOW, frame as cast_frame   # the creative pack as the pipeline resolves it
 _K = {}
 
 
@@ -35,6 +34,13 @@ def P(pid, frame=None):
 def N(pid, w, h):
     e = _kit()[pid]
     return nine(P(pid), e["slice"], w, h, e.get("mode", "stretch"))
+
+
+def _bibi_1x():
+    """The Magician's idle frame 0 on the 1x art grid of these proofs: the main render (d 3 since the 3x cast)
+    sampled nearest at 1/d. Proof-only; the game and the key art draw a density render 1:1."""
+    f, d, _ = cast_frame("idle", 0)
+    return f.resize((f.width // d, f.height // d), Image.NEAREST) if d > 1 else f
 
 
 def S(name):
@@ -122,7 +128,7 @@ def hud():
     put(img, th, 4, 66)
     put(img, P("thermo_icon_magnifier"), 5, 52)
     # the Magician on the slot, the Suitcase in its band
-    f = S("bibi_idle.png").crop((0, 0, 71, 125))
+    f = _bibi_1x()
     put(img, f, 90 - 35, 216 - 124)
     put(img, P("suitcase"), 128, 188)
     # ticker
@@ -311,7 +317,7 @@ def receipt():
 def result():
     img = P("share_result_frame").copy()
     z = _kit()["share_result_frame"]["zones"]
-    f = S("bibi_idle.png").crop((0, 0, 71, 125))
+    f = _bibi_1x()
     ax, ay = z["castAnchor"]
     put(img, f, ax - 35, ay - 124)
     text_c(img, "שרדתי 6 סבבי בחירות", 108, 43, "white")

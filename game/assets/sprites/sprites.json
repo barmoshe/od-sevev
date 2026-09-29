@@ -3529,6 +3529,31 @@
      }
     }
    }
+  },
+  "nophoto": {
+   "anims": {
+    "idle": {
+     "texture": "nophoto_idle.png",
+     "frames": 1,
+     "fps": 1,
+     "loop": true,
+     "events": {},
+     "density": 1,
+     "cols": 1,
+     "rows": 1
+    }
+   },
+   "avatar": "avatar_nophoto",
+   "avatar24": "avatar24_nophoto",
+   "standIn": "hand-drawn stand-in for a partner with no ref (sprites.json aliases name who uses it)",
+   "frameW": 40,
+   "frameH": 97,
+   "anchor": [
+    20,
+    96
+   ],
+   "origin": "hand-drawn",
+   "density": 1
   }
  },
  "aliases": {
@@ -3537,7 +3562,8 @@
   "maygolan": "may-golan",
   "may_golan": "may-golan",
   "dubimic": "dubi-mic",
-  "dubi_mic": "dubi-mic"
+  "dubi_mic": "dubi-mic",
+  "almog": "nophoto"
  },
  "props": {
   "bill": "prop_bill",
@@ -5340,6 +5366,36 @@
     "yBottom": 43
    }
   },
+  "avatar24_nophoto": {
+   "id": "avatar24_nophoto",
+   "group": "nophoto",
+   "w": 24,
+   "h": 24
+  },
+  "avatar_nophoto": {
+   "id": "avatar_nophoto",
+   "group": "nophoto",
+   "w": 32,
+   "h": 32
+  },
+  "nophoto_idle": {
+   "id": "nophoto_idle",
+   "group": "nophoto",
+   "w": 40,
+   "h": 97,
+   "frames": 1,
+   "frameW": 40,
+   "pivot": [
+    20,
+    96
+   ],
+   "fps": 1,
+   "loop": true,
+   "events": {},
+   "char": "nophoto",
+   "anim": "idle",
+   "standIn": true
+  },
   "dubi_placeholder_avatar": {
    "id": "dubi_placeholder_avatar",
    "group": "props",
@@ -5485,18 +5541,18 @@
   "sheet_modal": {
    "id": "sheet_modal",
    "group": "sheet",
-   "w": 36,
-   "h": 36,
+   "w": 38,
+   "h": 38,
    "slice": [
-    6,
-    22,
-    6,
-    6
+    7,
+    23,
+    7,
+    7
    ],
    "mode": "stretch",
    "content": [
-    6,
-    22,
+    7,
+    23,
     24,
     8
    ],
@@ -6296,6 +6352,14 @@
     24
    ]
   },
+  "avatar24_nophoto.png": {
+   "bytes": 344,
+   "sha": "817a45da2889916d",
+   "size": [
+    24,
+    24
+   ]
+  },
   "avatar24_regev.png": {
    "bytes": 1134,
    "sha": "151ce029c72522b1",
@@ -6483,6 +6547,14 @@
   "avatar_may-golan.png": {
    "bytes": 1953,
    "sha": "71418636f37065e0",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_nophoto.png": {
+   "bytes": 442,
+   "sha": "7425fd5dfef67449",
    "size": [
     32,
     32
@@ -7968,6 +8040,14 @@
     9
    ]
   },
+  "nophoto_idle.png": {
+   "bytes": 970,
+   "sha": "78e6de9adee39997",
+   "size": [
+    40,
+    97
+   ]
+  },
   "opp_timer_fill.png": {
    "bytes": 100,
    "sha": "531e9f2d3b5d0072",
@@ -8169,11 +8249,11 @@
    ]
   },
   "sheet_modal.png": {
-   "bytes": 239,
-   "sha": "5e1f5d02a89ad10d",
+   "bytes": 259,
+   "sha": "9c73eef216f018ca",
    "size": [
-    36,
-    36
+    38,
+    38
    ]
   },
   "sheet_plain.png": {
@@ -9089,16 +9169,16 @@
    ]
   },
   "trophy_moon.png": {
-   "bytes": 230,
-   "sha": "b2df3abeb023a567",
+   "bytes": 262,
+   "sha": "cd72203eac1f209d",
    "size": [
     15,
     15
    ]
   },
   "trophy_moon_locked.png": {
-   "bytes": 215,
-   "sha": "89574f3cfe727d49",
+   "bytes": 246,
+   "sha": "b5feaeb732ff35be",
    "size": [
     15,
     15

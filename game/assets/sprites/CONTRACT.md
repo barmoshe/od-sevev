@@ -17,7 +17,7 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun 
 | `sprites/prop_<name>.png` | `prop_hat`, `prop_rabbit`, `prop_coin0-3` (a 4-frame spin), `prop_bill`, `prop_spark` | `Art.tex(id)` |
 | `sprites/stage_<era>.png` | `stage_balfour`, `stage_knesset`, `stage_courthouse`, `stage_washington`, 180×320 | `eras.list[].background` |
 | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
-| `sprites/<ui id>.png` | The 2D Artist's UI kit, 89 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
+| `sprites/<ui id>.png` | The 2D Artist's UI kit, 212 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
 | `fonts/sevev9.fnt` | **Sevev 9**, the Hebrew pixel font (a BMFont; Godot imports it as a `FontFile`) | `load("res://assets/fonts/sevev9.fnt")` |
 | `fonts/sevev9_outline.fnt` | The same font with a baked 1 px ink ring | the same |
 | `fonts/sevev9@2.fnt` | **Sevev 9 @2**, the density-2 companion: every glyph redrawn on a 2× grid, drawn at half the scale into the same box (§6.1) | `fonts.json` `fonts["sevev9@2"]` (`density: 2`) |
@@ -191,6 +191,15 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
     sprite px; at `artScale / 3` it is 264×385 logical px). Its anims are `idle` 20
     @ 10 loop and `talk` 2. The rest pose has the beak closed; `talk.f1` opens it.
   - The avatar is `avatar_dubi`.
+
+- **The no-photo stand-in, `chars.nophoto`** (2D Artist, wave 6 polish): a hand-drawn character (`origin:
+  "hand-drawn"`, `standIn`, d = 1) for a partner with no ref, so nobody's likeness is drawn without one.
+  - **Art:** `nophoto_idle` (1 frame, 40×97, anchor [20, 96]: a featureless figure in a suit), `avatar_nophoto`
+    32×32 and `avatar24_nophoto` 24×24 (a featureless head and shoulders on a grey disc).
+  - **Wiring (data only):** the pipeline adds `aliases[<partner id>] = "nophoto"` for every `design/content.json`
+    partner whose id and content `avatar` resolve to no character (today `almog`), so `SpriteStrip.resolve`,
+    `ChatView.avatar_art` / `char_for`, the partner card and the ultimatum cameo draw it instead of the "?"
+    card. When the partner's own render lands, its `chars` entry wins and the alias disappears on the rerun.
 
 ## 4b. Money sources (`sprites.json.sources[id]`)
 ```jsonc
