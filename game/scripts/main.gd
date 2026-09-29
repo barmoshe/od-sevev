@@ -94,6 +94,7 @@ var cottage: CottageCup             # Row A's Cottage Index (ui/views/view_cotta
 var dossier: DossierView            # T4 "תיקים" + the pardon desk (ui/views/view_dossier.gd)
 var court: CourtView                # the O2 court card + its ticker chip (ui/views/view_court.gd)
 var thermo: Thermo                  # the suspicion thermometer + the sweat (ui/views/view_thermo.gd)
+var court_echo: CourtEcho            # the courthouse window on the stage (Bibi's rounds; ui/court_echo.gd)
 ## Every cue sent to the Audio, by name (tests and tools listen; nothing in the game does).
 signal audio_sent(name: String, arg: Variant)
 var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
@@ -157,6 +158,14 @@ func _boot() -> void:
 		state.investigation["aideHolding"] = float(_dev["aide"])
 	if float(_dev.get("chat", 0.0)) > 0.0:
 		_dev_chat(int(_dev["chat"]))
+	if float(_dev.get("court", 0.0)) > 0.0:   # &court=N: a court day of N s from the first frame (motion checks)
+		state.investigation["revealed"] = true
+		state.investigation["suspicion"] = 100.0
+		state.investigation["phase"] = "summons"
+		Investigation.testify(state)
+		state.investigation["leftSec"] = float(_dev["court"])
+	if float(_dev.get("slow", 0.0)) > 1.0:    # &slow=N: the whole game at 1/N speed (frame-strip captures)
+		Engine.time_scale = 1.0 / float(_dev["slow"])
 	d = Economy.derive(state)
 	_build()
 	_apply_settings()
@@ -219,6 +228,8 @@ func _read_content_override() -> void:
 ## &flash=N opens Dubi's news flash for round N on the first tap (view checks).
 ## &susp=N reveals the thermometer at N% suspicion (100 = a summons on the first step), &aide=N
 ## puts N ₪ of suitcase money on an aide (the "אני לא מכיר אותו" button).
+## &court=N starts a court day of N s at boot (Bibi's exit / hat / return), &slow=N runs the whole
+## game at 1/N speed (Engine.time_scale) for frame-strip captures (tools/web/motion_web.mjs).
 func _read_dev_params() -> void:
 	if not OS.has_feature("web"):
 		return
@@ -231,7 +242,7 @@ func _read_dev_params() -> void:
 		PxText.set_sharp_text(get_tree(), false)
 	for part in q.trim_prefix("?").split("&"):
 		var kv := part.split("=")
-		if kv.size() == 2 and kv[0] in ["speed", "grant", "evo", "flash", "susp", "aide", "chat"]:
+		if kv.size() == 2 and kv[0] in ["speed", "grant", "evo", "flash", "susp", "aide", "chat", "court", "slow"]:
 			_dev[kv[0]] = maxf(0.0, float(kv[1]))
 	if float(_dev["speed"]) <= 0.0:
 		_dev["speed"] = 1.0
@@ -244,8 +255,18 @@ func _default_settings() -> Dictionary:
 
 func _os_reduced_motion() -> bool:
 	if OS.has_feature("web"):
-		var v: Variant = JavaScriptBridge.eval("window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches", true)
-		return v == true
+		return js_bool(JavaScriptBridge.eval("window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches", true))
+	return false
+
+
+## A JS boolean through JavaScriptBridge.eval. The 4.7 web bridge hands a boolean back as the int 1 / 0
+## (seen in Chromium, animator audit 2026-09-29), and `1 == true` is false in GDScript, so the OS
+## reduced-motion preference was never followed on the web. Truthy numbers and bools count.
+static func js_bool(v: Variant) -> bool:
+	if v is bool:
+		return v
+	if v is int or v is float:
+		return float(v) != 0.0
 	return false
 
 
@@ -285,6 +306,7 @@ func _build() -> void:
 	prop_fx = PropFx.new()
 	_stage.add_child(prop_fx)
 	bb.on_hero_event = _on_hero_event
+	bb.on_court_fx = _on_court_fx
 	fx_stage = FxPlayer.new()
 	_stage.add_child(fx_stage)
 	diorama.play_fx = func(id: String, x: float, y: float) -> void: fx_stage.play(id, x, y)
@@ -439,6 +461,9 @@ func _build_investigation() -> void:
 	thermo = Thermo.new().setup(self, bb)
 	_stage.add_child(thermo)
 	_stage.move_child(thermo, bb.get_index() + 1)
+	court_echo = CourtEcho.new()
+	_stage.add_child(court_echo)
+	_stage.move_child(court_echo, bb.get_index())   # over the stage art, behind the Magician
 	dossier = DossierView.new().setup(self)
 	_lower.add_child(dossier)
 	court = CourtView.new().setup(self)
@@ -533,6 +558,7 @@ func _relayout() -> void:
 	dossier.relayout()
 	court.relayout()
 	thermo.relayout()
+	court_echo.relayout()
 	buffs.set_stage_rect(-_ox, float(L.STAGE["y"]), _vs.x, L.stage_h)
 	bb.relayout()
 	var W := _vs.x
@@ -552,7 +578,7 @@ func _relayout() -> void:
 		var hat := L.magician_hit().get_center() + Vector2(_ox, _stage_y)
 		JavaScriptBridge.eval("window.odDisplay = %s" % JSON.stringify({"k": Display.k, "f": Display.f,
 			"integer": Display.integer, "logical": [_vs.x, _vs.y], "ox": _ox, "stageY": _stage_y,
-			"lowerY": _lower_y, "hat": [hat.x, hat.y]}), true)
+			"lowerY": _lower_y, "hat": [hat.x, hat.y], "reducedMotion": bool(settings.get("reducedMotion", false))}), true)
 
 
 func _set_fill(k: String, r: Rect2) -> void:
@@ -616,6 +642,7 @@ func _apply_settings() -> void:
 	dossier.reduced_motion = rm
 	court.reduced_motion = rm
 	thermo.reduced_motion = rm
+	court_echo.reduced_motion = rm
 	ftue.reduced_motion = rm
 	title_view.set_reduced_motion(rm)
 	fx_stage.reduced_motion = rm
@@ -840,7 +867,10 @@ func _process(delta: float) -> void:
 	_check_headlines()
 	_check_reveals()
 	_apply_reveals()
+	# Bibi's court day on the stage (the exit, the hat, the return): polled from the sim's phase
+	bb.court_sync(running and BigBanana.wants_court(state), tx.running)
 	bb.update_view(dt)
+	court_echo.update_view(dt, state, str(Story.era_for(state.evolutions).get("id", "")), running and Leaders.has_court())
 	toasts.update_view(dt)
 	prop_fx.update_view(dt)
 	golden.update_view(dt, modal or not running)
@@ -1101,6 +1131,8 @@ func _on_politics_event(e: Dictionary) -> void:
 	match String(e.get("ev", "")):
 		"summons":
 			_audio("courtSummons")
+			if Leaders.has_court():
+				bb.court_flinch()   # the summons flinch (motion/state-graph-magician.md §1.3)
 		"courtStart":
 			_audio("courtStart")
 		"courtEnd":
@@ -1112,6 +1144,18 @@ func _on_politics_event(e: Dictionary) -> void:
 				toasts.show_toast(Strings.s("TOAST_COURT_END"))
 		"transfer":
 			_audio("transfer")
+
+
+## The court day's stage FX from the Magician (BigBanana.on_court_fx): the zip's dust at his feet, the
+## hat's coins (fewer than his: the ×0.5 income, shown) and the rabbit's cue on a hat crit.
+func _on_court_fx(kind: String, at: Vector2, n: int) -> void:
+	match kind:
+		"dust":
+			fx_stage.play("dustPuff", at.x, at.y)
+		"coins":
+			prop_fx.coins(at, n)
+		"rabbit":
+			_audio("rabbit")
 
 
 func _spawn_suitcase() -> void:
@@ -1497,7 +1541,7 @@ func _handle_tap(at: Vector2) -> void:
 		state.stats["bestTapFrenzyTaps"] = maxf(float(state.stats.get("bestTapFrenzyTaps", 0.0)), float(_tap_frenzy_taps))
 	else:
 		_tap_frenzy_taps = 0
-	bb.tap(crit)
+	bb.tap(crit, bool(r.get("paused", false)))
 	_coin_batch += 1
 	_audio("tapCrit" if crit else "tap")
 	if state.taps_lifetime == 1:
@@ -1868,6 +1912,7 @@ func _do_reset() -> void:
 	top_bar.reset_rate()
 	shop.switch_tab("producers")
 	bb.set_aura("plain")
+	bb.court_reset()
 	_audio_call("set_evolutions", [0])
 	_evolve_was_visible = false
 	_autosave_ms = 0.0
