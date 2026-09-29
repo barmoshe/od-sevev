@@ -1,4 +1,30 @@
 # binary files changed (not carried):
+diff --git a/ux/tools/mobile_layout.py b/ux/tools/mobile_layout.py
+index e09f455..0cf8550 100644
+--- a/ux/tools/mobile_layout.py
++++ b/ux/tools/mobile_layout.py
+@@ -134,17 +134,17 @@ def layout(d):
+         "clip": clip, "floor88Css": round(88 / lpc, 1),
+         "pickFirst": picker(H, cw, k, "first"), "pickAfter": picker(H, cw, k, "after"),
+         "modalW": 624 + min(max(delta, 0), 64),
+-        "sheet": floor4(0.8 * vsy),
+-        "sharePreview": share_a(cw, floor4(0.8 * vsy), f),
++        "sheet": floor4(vsy) - ins_t,
++        "sharePreview": share_a(cw, floor4(vsy) - ins_t, f),
+     }
+ 
+ 
+ def share_a(cw, sheet_h, f):
+-    # the largest a (logical px per card art px) with a·f whole, 216·a ≤ cw − 48, 270·a ≤ sheet − 520
++    # §5.12: the largest a (logical px per card art px) with a·f whole, 216·a ≤ cw − 32, 270·a ≤ sheet − 520
+     best = 0
+     for m in range(1, 40):
+         a = m / f
+-        if 216 * a <= cw - 48 and 270 * a <= sheet_h - 520:
++        if 216 * a <= cw - 32 and 270 * a <= sheet_h - 520:
+             best = a
+     return round(best, 3)
+ 
 # untracked binary: ux/mockups/mobile-first-360x780at3.png
 # untracked binary: ux/mockups/mobile-first-390x844at3.png
 # untracked binary: ux/mockups/mobile-first-430x932at3.png
