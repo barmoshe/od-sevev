@@ -66,7 +66,7 @@ func _ready() -> void:
 			s.texture = Art.tex(_sprite_of(id), 0)
 			s.centered = false
 			s.offset = _pivot_of(id)       # pivot bottom-centre of the critter
-			s.scale = Vector2(4, 4)
+			_scale_sprite(s, id)
 			s.position = Vector2(x + 32, y + 64)
 			s.visible = false
 			(_front if row == "F" else _back).add_child(s)
@@ -180,7 +180,7 @@ func _add_crowd(id: String, slots: Array) -> void:
 		s.texture = Art.tex(_sprite_of(id), 0)
 		s.centered = false
 		s.offset = _pivot_of(id)
-		s.scale = Vector2(4, 4)
+		_scale_sprite(s, id)
 		s.position = Vector2(x + 32, y + 64)
 		s.visible = false
 		(_front if front else _back).add_child(s)
@@ -192,6 +192,18 @@ func _add_crowd(id: String, slots: Array) -> void:
 static func _sprite_of(id: String) -> String:
 	var src := Art.source(id)
 	return Art.sprite_or(String(Content.producer(id).get("sprite", src.get("sprite", "critter_" + id))))
+
+
+## A money source's stage sprite at artScale / density (sprites.json sources[id].density: the
+## rendered sources go to d = 3 with the cast; the fork's critter_* art is d = 1), sampled per
+## SpriteStrip.apply_filter so a non-integer device ratio stays even.
+static func _scale_sprite(s: Sprite2D, id: String) -> void:
+	var src := Art.source(id)
+	var sc := float(SpriteStrip.art_scale())
+	if not src.is_empty() and String(src.get("sprite", "")) == _sprite_of(id):
+		sc = SpriteStrip.scale_of(src)
+	s.scale = Vector2(sc, sc)
+	SpriteStrip.apply_filter(s, sc)
 
 
 func _pivot_of(id: String) -> Vector2:
