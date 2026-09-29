@@ -1,10 +1,67 @@
-# HANDOFF: "עוד סבב" (2026-09-29, end of session 2)
+# HANDOFF: "עוד סבב" (2026-09-29, end of session 3; Bar paused for the day, "continue tomorrow")
 
-Bar stopped the studio loop. No agent is running and the loop lock is released. Everything below
-is committed and pushed to `claude/magical-ride-ntn3u5` (last commit `8d28ac1`).
-`STATUS.md` is the full agent log: every request, objection and decision, newest at the bottom.
+No agent is running and the loop lock is released. Everything is committed and pushed to
+`claude/magical-ride-ntn3u5`. `STATUS.md` is the full agent log, newest at the bottom.
+`HANDOFF-LIVE.md` is the last minute-by-minute snapshot of the loop (agents, slices, notes).
 
-**Session 3 (running):** while the studio loop runs, `HANDOFF-LIVE.md` is rewritten every minute with the live state (agents, their slices, unmerged work) and `handoff-wip/` holds patches of every agent's unmerged work. If the session died mid-loop, start there.
+## Session 3: where it stopped
+
+**Health of the branch:** `tools/test.sh` 340/340; `node design/sim/content-lint.mjs --strict`
+0/0; strict `tools/build_web.sh` green at the last merges. Live site: https://od-sevev.vercel.app
+serves build `d13256e` (Bibi only; the picker is not deployed yet).
+
+**Merged today:**
+- Audio v1.3: `leaderPick` (safe as the first iOS sound), `Audio.crit_for`, per-leader squawks, coverage of every view.
+- Animator: Bibi's court-day exit and return, the `court_window` echo, the motion audit, the brawl boil, and the web reduced-motion fix. The `LeaderWalk` helper is ready but not wired.
+- **The leader picker** (`ui/views/view_pick.gd`, `ui/leader_ui.gd`): all 8 leaders playable end to end, with per-leader views and the press skin for non-Bibi. `tools/web/picker_web.mjs` passes.
+- Designer:
+  - leader-sim fixes (Liberman's `mk_returner`, the G1 median);
+  - every leader's median first election is 7:51-8:50;
+  - R17 slots, Bibi's rule, the "רוב" lint, neutral `DAYS_*`;
+  - the web-driver bench, which explains the 34-vs-8 minutes: the browser script is a slow player.
+- UX: `ux/mobile-first-layout.md` (Bar: "the mobile layout isn't good, it must be mobile first") and `tools/web/mobile_web.mjs`. Today's build fails its 108 layout checks; the baseline passes.
+- The live site was redeployed from `d13256e`. It fixes the relative `og:image` (WhatsApp previews had no image) and a dirty old build.
+
+**Stopped mid-slice (work is NOT merged; restore it first):**
+
+| Slice | Branch (local, this container only) | Patch in this repo |
+|---|---|---|
+| Game Developer: implement the mobile-first layout (spec §8, §3-§7, §5) | `worktree-agent-a8bd968153c51c052` (4 commits after the merges) | `handoff-wip/Game-Developer-(mobile).commits.patch` |
+| 2D Artist + TA: lane tile, plaza, stage wings, XL pick avatars, brawl cut, court spots | `worktree-agent-ab7cb5f96a4c16bc8` (last commit a wip checkpoint) | `handoff-wip/2D-Artist-+-TA.commits.patch` |
+
+- **The developer** committed the art grid, the split and the fluid chrome core, the tall tabs, modals and sheets, the merge-ready chat line (`CHAT_SYS_MERGE_READY`) and the per-device layout tests. It was about to build and run the full `mobile_web.mjs` matrix. Not done:
+  - the matrix pass;
+  - the picker's bottom-anchored layout check;
+  - the before/after sheet;
+  - the crowd x-clamp and right-wing slots (the Designer's R17 objection, accepted by the orchestrator).
+- **The artist** made the art. Its final merge, `tools/test.sh` and the strict build were not re-run.
+
+**Restore:** if the branches still exist locally, merge them. Otherwise:
+```
+git checkout -b restore-mobile claude/magical-ride-ntn3u5
+git am --3way "handoff-wip/Game-Developer-(mobile).commits.patch"
+git am --3way "handoff-wip/2D-Artist-+-TA.commits.patch"
+```
+The patches include binaries, and they include merge-base commits already on the branch, so skip any that `am` reports as already applied. Then run the tests, the strict build and `mobile_web.mjs` on the whole matrix.
+
+## Next, in order (session 4)
+1. Restore both stopped slices, then finish the mobile implementation until `tools/web/mobile_web.mjs` passes all its layout checks on the whole matrix. Review the §9.2 visual checklist at 375×667@2, 390×844@3, 430×932@3 and 412×915@2.625.
+2. The Animator's second slice: wire `LeaderWalk` (walk-out at the election, walk-in on the pick; it currently fights the court-pose code, which sets the position every frame), and M1, the ticker page transition.
+3. A UX review of the picker and the mobile build on the full build; fix what it finds.
+4. Strict build, a browser pass (the picker, the mobile matrix, the share cards), then redeploy (see "Deploy" below). Only then does the live site show all 8 leaders.
+5. A final handoff, releasing the lock and deleting `handoff-wip/`.
+
+**Watch:** Eisenkot's casual first election is at 9:00, the gate's edge. The worst partner seats for Bennett and Ben Gvir run past 10:00.
+
+**Waiting on Bar:**
+- permission to push the agents' wip branches to GitHub as backup (so far only patches in `handoff-wip/`);
+- whether to document the od-sevev external-repo exception to the studio's I13 in `gamestudio/`;
+- the pre-launch list at the bottom.
+
+**Studio notes:** `validate`, `dog-audit` and `cross-ref-audit` are all clean. The gamestudio Stop hook isn't loaded when the session runs outside `gamestudio/`, so the orchestrator keeps the loop by discipline. Agent work is snapshotted every minute into `HANDOFF-LIVE.md` and `handoff-wip/` by a scratchpad script. Recreate it next session if wanted.
+
+---
+*Session 2's handoff follows; it is still accurate except where session 3 above supersedes it (its "Next" items 1-3 are done).*
 
 ## Where things are
 

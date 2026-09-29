@@ -1,0 +1,77 @@
+# binary files changed (not carried):
+diff --git a/game/assets/sprites/sprites.json b/game/assets/sprites/sprites.json
+index 6c6137a..4ad1363 100644
+--- a/game/assets/sprites/sprites.json
++++ b/game/assets/sprites/sprites.json
+@@ -1211,7 +1211,7 @@
+    "avatar24": "avatar24_bibi",
+    "avatarPick": "avatar_pick_bibi",
+    "avatar24Pick": "avatar24_pick_bibi",
+-   "avatarPick96": "avatar_pick_bibi_d3",
++   "avatarPickXL": "avatar_pick_bibi_d3",
+    "avatarPick64": "avatar_pick_bibi_d2"
+   },
+   "sara": {
+@@ -2121,7 +2121,7 @@
+    "avatar24": "avatar24_bennett",
+    "avatarPick": "avatar_pick_bennett",
+    "avatar24Pick": "avatar24_pick_bennett",
+-   "avatarPick96": "avatar_pick_bennett_d3",
++   "avatarPickXL": "avatar_pick_bennett_d3",
+    "avatarPick64": "avatar_pick_bennett_d2"
+   },
+   "regev": {
+@@ -3093,7 +3093,7 @@
+    "avatar24": "avatar24_deri",
+    "avatarPick": "avatar_pick_deri",
+    "avatar24Pick": "avatar24_pick_deri",
+-   "avatarPick96": "avatar_pick_deri_d3",
++   "avatarPickXL": "avatar_pick_deri_d3",
+    "avatarPick64": "avatar_pick_deri_d2"
+   },
+   "levin": {
+@@ -3973,7 +3973,7 @@
+    "avatar24": "avatar24_ben-gvir",
+    "avatarPick": "avatar_pick_ben-gvir",
+    "avatar24Pick": "avatar24_pick_ben-gvir",
+-   "avatarPick96": "avatar_pick_ben-gvir_d3",
++   "avatarPickXL": "avatar_pick_ben-gvir_d3",
+    "avatarPick64": "avatar_pick_ben-gvir_d2"
+   },
+   "goldknopf": {
+@@ -5073,7 +5073,7 @@
+    "avatar24": "avatar24_smotrich",
+    "avatarPick": "avatar_pick_smotrich",
+    "avatar24Pick": "avatar24_pick_smotrich",
+-   "avatarPick96": "avatar_pick_smotrich_d3",
++   "avatarPickXL": "avatar_pick_smotrich_d3",
+    "avatarPick64": "avatar_pick_smotrich_d2"
+   },
+   "amsalem": {
+@@ -6045,7 +6045,7 @@
+    "avatar24": "avatar24_eisenkot",
+    "avatarPick": "avatar_pick_eisenkot",
+    "avatar24Pick": "avatar24_pick_eisenkot",
+-   "avatarPick96": "avatar_pick_eisenkot_d3",
++   "avatarPickXL": "avatar_pick_eisenkot_d3",
+    "avatarPick64": "avatar_pick_eisenkot_d2"
+   },
+   "gantz": {
+@@ -6999,7 +6999,7 @@
+    "avatar24": "avatar24_liberman",
+    "avatarPick": "avatar_pick_liberman",
+    "avatar24Pick": "avatar24_pick_liberman",
+-   "avatarPick96": "avatar_pick_liberman_d3",
++   "avatarPickXL": "avatar_pick_liberman_d3",
+    "avatarPick64": "avatar_pick_liberman_d2"
+   },
+   "golan": {
+@@ -7787,7 +7787,7 @@
+    "avatar24": "avatar24_golan",
+    "avatarPick": "avatar_pick_golan",
+    "avatar24Pick": "avatar24_pick_golan",
+-   "avatarPick96": "avatar_pick_golan_d3",
++   "avatarPickXL": "avatar_pick_golan_d3",
+    "avatarPick64": "avatar_pick_golan_d2"
+   },
+   "abbas": {
