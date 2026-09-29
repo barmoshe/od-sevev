@@ -36,6 +36,11 @@ pipeline/od-sevev/font/sevev9@2.glyphs ────────────┴�
 - **2026-09-29 (Bibi's d 2 alternate, engine request):** `bibi_{idle,tap,crit}_d2.png` joined
   the approved `out/` (a second render of the same motion at 192 px); the d 3 files did not move
   (0 changed).
+- **2026-09-29 (d 2 for everything rendered, Bar: "sharp characters on every phone"):** every rig
+  in `build.py` is now a function of the density d, and `DENSITIES = (3, 2)` renders each
+  character and money source at both from the same function (`render_char`, `source`). 46
+  character strips and 5 source strips (`*_d2.png`) joined the approved `out/`; a full render
+  gives 0 changed, 0 new: the d 3 files and atlas entries did not move.
 - **If a render drifts:** the build fails. `--allow-drift` exists only for a change Bar approved.
 
 **It fails loudly on:**
@@ -45,8 +50,12 @@ pipeline/od-sevev/font/sevev9@2.glyphs ────────────┴�
 - a strip wider than 2048 (the WebGL2 floor);
 - a frame that does not read back pixel-exact through its `frameMap` cell (repeated frames share
   a texture cell; CONTRACT §4);
-- a density alternate (`chars[c].densities`, today Bibi's d 2) whose frames, fps, loop, events
-  or point tracks differ from the main render's, or a point track that leaves its frame;
+- a density alternate (`chars[c].densities` / `sources[id].densities`: every rendered character
+  and source has a d 2) whose frames, fps, loop or events (sources: frames, fps, loop, point names)
+  differ from the main render's, whose landmarks (`hatMouth`, `temple`, source `points`) sit more
+  than half an art px from the main render's relative to the feet, or a point track that leaves its
+  frame (checked twice: in the render, `same_motion`, and at import, `validate_char` /
+  `validate_source_alt`);
 - an event outside its anim;
 - a UI-kit piece whose PNG doesn't match its declared size or 9-slice;
 - a `design/content.json` money source that doesn't resolve to shipped art (stage strip, shop icon, locked

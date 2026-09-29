@@ -17,6 +17,12 @@ ART_H = 96   # every character is 96 art px tall in its rest pose
 D = 3        # density: sprite px per art px for the rendered cast (Bar, 2026-09-29: 3x, a 288-px source)
 NC = 96      # palette size per character at 3x (quantisation error -38% vs 44; flattens past 96)
 H = ART_H * D
+# Density alternates (Bar, 2026-09-29: "sharp characters on every phone"): every rendered character
+# and money source is also rendered at each of these densities, from the ref (a first-generation
+# render at 96·d px, never a resample of the d = 3 strips). With d 2 beside the main d 3, a sprite px
+# is a whole number of device px at every art scale k that is a multiple of 2 or 3.
+ALT_DENSITIES = (2,)
+DENSITIES = (D,) + ALT_DENSITIES
 atlas = {'artHeight': ART_H, 'density': D, 'chars': {}, 'props': {}}
 
 
@@ -31,6 +37,65 @@ def save(name, frames, fps, loop, rig, events=None, extra=None):
                         'events': events or {}, 'density': dens}
     if extra:
         a['anims'][anim].update(extra)
+
+
+def put_render(char, d, anims):
+    """Write one render of a character. anims = [(anim, frames, fps, loop, events, extra)] from a
+    render function of d. The main render (d == D) is <char>_<anim>.png and atlas chars[char]; an
+    alternate is <char>_<anim>_d<d>.png and chars[char].densities["<d>"], with its own frame size,
+    anchor and per-frame tracks (extra), in its own sprite px."""
+    alt = d != D
+    entry = None
+    for anim, frames, fps, loop, events, extra in anims:
+        name = char + '_' + anim + ('_d%d' % d if alt else '')
+        strip(frames).save(os.path.join(OUT, name + '.png'))
+        w, h = frames[0].size
+        if entry is None:
+            entry = {'frameW': w, 'frameH': h, 'anchor': [w // 2, h - 1], 'density': d, 'anims': {}}
+        elif (w, h) != (entry['frameW'], entry['frameH']):
+            raise SystemExit(f'{name}: frame {w}x{h} differs from the other anims\' '
+                             f'{entry["frameW"]}x{entry["frameH"]}')
+        entry['anims'][anim] = {'file': name + '.png', 'frames': len(frames), 'fps': fps, 'loop': loop,
+                                'events': events or {}, 'density': d, **(extra or {})}
+    if alt:
+        atlas['chars'][char].setdefault('densities', {})[str(d)] = entry
+    else:
+        atlas['chars'][char] = entry
+
+
+TIMING = ('frames', 'fps', 'loop', 'events')
+
+
+def same_motion(what, main, alts):
+    """Fail unless every density alternate plays exactly like the main render: the same anims with the
+    same frames, fps, loop and events (only pixels and sprite-px data may differ), and the same named
+    point tracks / points."""
+    bad = []
+    for dk, v in alts.items():
+        if 'anims' in main:
+            if set(v['anims']) != set(main['anims']):
+                bad.append(f'd{dk} anims {sorted(v["anims"])} != {sorted(main["anims"])}')
+            for an, m in main['anims'].items():
+                a = v['anims'].get(an, {})
+                bad += [f'd{dk}.{an}.{k}: {a.get(k)} != {m[k]}' for k in TIMING if a.get(k) != m[k]]
+                bad += [f'd{dk}.{an}: {k} in one render only' for k in ('hatMouth', 'temple') if (k in m) != (k in a)]
+        else:
+            bad += [f'd{dk}.{k}: {v.get(k)} != {main.get(k)}' for k in ('frames', 'fps', 'loop') if v.get(k) != main.get(k)]
+            if set(v.get('points', {})) != set(main.get('points', {})):
+                bad.append(f'd{dk} points {sorted(v.get("points", {}))} != {sorted(main.get("points", {}))}')
+    if bad:
+        raise SystemExit(f'{what}: a density alternate differs from the main render:\n  ' + '\n  '.join(bad))
+
+
+def render_char(char, fn, avatar_args=None):
+    """Render a character at every density in DENSITIES from one render function fn(d) -> (rig, anims);
+    the avatars come from the main render's rig (its palette), exactly as before the alternates."""
+    for d in DENSITIES:
+        rig, anims = fn(d)
+        put_render(char, d, anims)
+        if d == D and avatar_args:
+            avatar(rig, *avatar_args)
+    same_motion(char, atlas['chars'][char], atlas['chars'][char].get('densities', {}))
 
 
 def breath(i, n):
@@ -128,14 +193,6 @@ for n, im in [('hat', HAT), ('rabbit', RABBIT), ('spark', SPARK), ('bill', BILL)
         [('coin%d' % i, c) for i, c in enumerate(COIN)]:
     im.save(os.path.join(OUT, 'prop_' + n + '.png'))
     atlas['props'][n] = {'file': 'prop_' + n + '.png', 'w': im.width, 'h': im.height}
-
-
-def x3(im):
-    """A 1x art prop at the cast's density (nearest), so it matches the stage's pixel size."""
-    return im.resize((im.width * D, im.height * D), Image.NEAREST)
-
-
-SPARK3 = x3(SPARK)
 
 
 def paste_c(frame, im, cx, bottom):
@@ -268,124 +325,115 @@ def magician(d):
     return rig, anims
 
 
-bibi, _anims = magician(D)
-for _a, _fr, _fps, _loop, _ev, _ex in _anims:
-    save('bibi_' + _a, _fr, _fps, _loop, bibi, events=_ev, extra=_ex)
-avatar(bibi, (285, 150, 745, 610), 'bibi', (0, 56, 184, 255))
+import sys as _sys
+_only = [a for a in _sys.argv[1:]]           # build.py [name ...]: re-render only these (atlas.json keeps the rest)
 
-# The d = 2 alternate (engine request, 2026-09-29): every DPR-2 phone runs at k 4 (and a few at k 8, the
-# desktop at k 2), where a d = 3 sprite px is a fractional 4/3 device px. A d = 2 render is 2 device px
-# per sprite px at k 4: crisp. Files bibi_<anim>_d2.png; atlas chars.bibi.densities["2"] carries its own
-# frame size, anchor and per-frame tracks (the engine's SpriteStrip.pick_variant merges it over the main
-# entry). Bibi only: he is always on screen; partners stay on the "aa" path (their VRAM, not worth it).
-ALT_DENSITIES = (2,)
-for _d in ALT_DENSITIES:
-    _rig, _anims = magician(_d)
-    _alt = None
-    for _a, _fr, _fps, _loop, _ev, _ex in _anims:
-        _name = 'bibi_%s_d%d' % (_a, _d)
-        strip(_fr).save(os.path.join(OUT, _name + '.png'))
-        w, h = _fr[0].size
-        _alt = _alt or {'frameW': w, 'frameH': h, 'anchor': [w // 2, h - 1], 'density': _d, 'anims': {}}
-        _alt['anims'][_a] = {'file': _name + '.png', 'frames': len(_fr), 'fps': _fps, 'loop': _loop,
-                             'events': _ev or {}, 'density': _d, **_ex}
-    atlas['chars']['bibi'].setdefault('densities', {})[str(_d)] = _alt
+# Every rendered character goes through render_char: its render function takes the density d, the
+# main render (D) and each ALT_DENSITIES alternate come from the same function (same motion, own pixels).
+if not _only or 'bibi' in _only:
+    render_char('bibi', magician, ((285, 150, 745, 610), 'bibi', (0, 56, 184, 255)))
+
 
 # ================================================================ SARA
-sara = Rig('sara', H, pad=(0.20, 0.12), ncolors=NC)
-sara.density = D
-S = dict(neck=sara.c(0, 640)[1], waist=sara.c(0, 1000)[1],
-         hand=(*sara.c(140, 360), *sara.c(283, 800)), pivot=sara.c(236, 815),
-         eyes=[(*sara.c(440, 283), 42, 20), (*sara.c(577, 305), 50, 19)], skin=(246, 156, 108, 255))
-STEP_S = round(D / sara.s)
+def sara(d):
+    rig = Rig('sara', ART_H * d, pad=(0.20, 0.12), ncolors=NC)
+    rig.density = d
+    S = dict(neck=rig.c(0, 640)[1], waist=rig.c(0, 1000)[1],
+             hand=(*rig.c(140, 360), *rig.c(283, 800)), pivot=rig.c(236, 815),
+             eyes=[(*rig.c(440, 283), 42, 20), (*rig.c(577, 305), 50, 19)], skin=(246, 156, 108, 255))
+    st = round(d / rig.s)
+    spark = xd(SPARK, d)
+
+    def pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, lift=0):
+        cv = rig.canvas()
+        if blink:
+            rig.eyelids(cv, S['eyes'], S['skin'], amount=blink)
+        cv = rig.rotate_region(cv, S['hand'], S['pivot'], ang)
+        if lift:  # chin up: raise everything above the neck, stretch the seam row to close the gap
+            cut = S['neck']; dy = lift * st
+            upper = Rig.band(cv, 0, cut); lower = Rig.band(cv, cut, cv.height)
+            seam = cv.crop((0, cut, cv.width, cut + 1)).resize((cv.width, dy + 1))
+            cv = Image.new('RGBA', cv.size, (0, 0, 0, 0))
+            cv.alpha_composite(lower); cv.alpha_composite(seam, (0, cut - dy))
+            cv.paste(upper, (0, -dy), upper)
+        cv = rig.shift_above(cv, S['neck'], head * st)
+        cv = rig.shift_above(cv, S['waist'], body * st)
+        cv = rig.squash(cv, sx, sy)
+        return rig.down(cv)
+
+    N = 20
+    idle = []
+    for i in range(N):
+        b = breath(i, N)
+        ang = -6 * max(0, math.sin(2 * math.pi * i / N))  # a slow sip-ward lift of the glass
+        blink = {6: 0.5, 7: 1.0, 8: 0.5}.get(i, 0)
+        f = pose(body=b, head=breath((i - 1) % N, N), ang=ang, blink=blink)
+        if i in (2, 3, 12, 13):  # glint on the champagne glass (1x art, a d x d block per art px)
+            g = rig.to_art(*rig.c(200, 400))
+            paste_c(f, spark, g[0], g[1] + 2 * d)
+        idle.append(f)
+    # offended: chin up, a little huff, eyes shut in disdain. 12 frames @12fps
+    OFF = [(0, 0, 0, 1, 1), (0, 0, 4, 1.03, 0.96), (1, 0.5, 6, 0.98, 1.03), (1, 1, 8, 1, 1.01),
+           (1, 1, 8, 1, 1), (1, 1, 8, 1, 1), (1, 1, 8, 1, 1), (1, 1, 8, 1, 1), (1, 0.5, 6, 1, 1),
+           (0, 0, 3, 1, 1), (0, 0, 1, 1, 1), (0, 0, 0, 1, 1)]
+    off = [pose(lift=l, blink=bl, ang=a, sx=sx, sy=sy) for l, bl, a, sx, sy in OFF]
+    return rig, [('idle', idle, 10, True, None, None), ('offended', off, 12, False, {'huff': 2}, None)]
 
 
-def sara_pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, lift=0):
-    cv = sara.canvas()
-    if blink:
-        sara.eyelids(cv, S['eyes'], S['skin'], amount=blink)
-    cv = sara.rotate_region(cv, S['hand'], S['pivot'], ang)
-    if lift:  # chin up: raise everything above the neck, stretch the seam row to close the gap
-        cut = S['neck']; dy = lift * STEP_S
-        upper = Rig.band(cv, 0, cut); lower = Rig.band(cv, cut, cv.height)
-        seam = cv.crop((0, cut, cv.width, cut + 1)).resize((cv.width, dy + 1))
-        cv = Image.new('RGBA', cv.size, (0, 0, 0, 0))
-        cv.alpha_composite(lower); cv.alpha_composite(seam, (0, cut - dy))
-        cv.paste(upper, (0, -dy), upper)
-    cv = sara.shift_above(cv, S['neck'], head * STEP_S)
-    cv = sara.shift_above(cv, S['waist'], body * STEP_S)
-    cv = sara.squash(cv, sx, sy)
-    return sara.down(cv)
+if not _only or 'sara' in _only:
+    render_char('sara', sara, ((300, 120, 720, 540), 'sara', (224, 96, 150, 255)))
 
-
-N = 20
-idle = []
-for i in range(N):
-    b = breath(i, N)
-    ang = -6 * max(0, math.sin(2 * math.pi * i / N))  # a slow sip-ward lift of the glass
-    blink = {6: 0.5, 7: 1.0, 8: 0.5}.get(i, 0)
-    f = sara_pose(body=b, head=breath((i - 1) % N, N), ang=ang, blink=blink)
-    if i in (2, 3, 12, 13):  # glint on the champagne glass
-        g = sara.to_art(*sara.c(200, 400))
-        paste_c(f, SPARK3, g[0], g[1] + 2 * D)
-    idle.append(f)
-save('sara_idle', idle, 10, True, sara)
-
-# offended: chin up, a little huff, eyes shut in disdain. 12 frames @12fps
-OFF = [(0, 0, 0, 1, 1), (0, 0, 4, 1.03, 0.96), (1, 0.5, 6, 0.98, 1.03), (1, 1, 8, 1, 1.01),
-       (1, 1, 8, 1, 1), (1, 1, 8, 1, 1), (1, 1, 8, 1, 1), (1, 1, 8, 1, 1), (1, 0.5, 6, 1, 1),
-       (0, 0, 3, 1, 1), (0, 0, 1, 1, 1), (0, 0, 0, 1, 1)]
-off = [sara_pose(lift=l, blink=bl, ang=a, sx=sx, sy=sy) for l, bl, a, sx, sy in OFF]
-save('sara_offended', off, 12, False, sara, events={'huff': 2})
-avatar(sara, (300, 120, 720, 540), 'sara', (224, 96, 150, 255))
 
 # ================================================================ BENNETT
-ben = Rig('bennett', H, pad=(0.20, 0.12), ncolors=NC)
-ben.density = D
-N_ = dict(neck=ben.c(0, 675)[1], waist=ben.c(0, 1050)[1],
-          hand=(*ben.c(80, 640), *ben.c(262, 880)), pivot=ben.c(250, 880),
-          eyes=[(*ben.c(390, 356), 32, 19), (*ben.c(545, 389), 36, 19)], skin=(238, 166, 118, 255))
-STEP_B = round(D / ben.s)
+def bennett(d):
+    rig = Rig('bennett', ART_H * d, pad=(0.20, 0.12), ncolors=NC)
+    rig.density = d
+    N_ = dict(neck=rig.c(0, 675)[1], waist=rig.c(0, 1050)[1],
+              hand=(*rig.c(80, 640), *rig.c(262, 880)), pivot=rig.c(250, 880),
+              eyes=[(*rig.c(390, 356), 32, 19), (*rig.c(545, 389), 36, 19)], skin=(238, 166, 118, 255))
+    st = round(d / rig.s)
+
+    def pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, flip=False):
+        cv = rig.canvas()
+        if blink:
+            rig.eyelids(cv, N_['eyes'], N_['skin'], amount=blink)
+        cv = rig.rotate_region(cv, N_['hand'], N_['pivot'], ang)
+        cv = rig.shift_above(cv, N_['neck'], head * st)
+        cv = rig.shift_above(cv, N_['waist'], body * st)
+        if flip:
+            cv = rig.mirror(cv)
+        cv = rig.squash(cv, sx, sy)
+        return rig.down(cv)
+
+    N = 20
+    idle = []
+    for i in range(N):
+        b = breath(i, N)
+        ang = 8 * math.sin(4 * math.pi * i / N)  # the "let me explain" hand, twice per loop
+        blink = {12: 0.5, 13: 1.0, 14: 0.5}.get(i, 0)
+        idle.append(pose(body=b, head=breath((i - 1) % N, N), ang=ang, blink=blink))
+    # the pledge flip: he signs, then turns to face the other way. 10 frames @12fps (play forward, then reverse)
+    FL = [(1, False), (0.75, False), (0.45, False), (0.22, False),
+          (0.22, True), (0.45, True), (0.75, True), (1, True)]
+    flip = [pose(sx=s, sy=1 + (1 - s) * 0.04, flip=m) for s, m in FL]
+    return rig, [('idle', idle, 10, True, None, None), ('flip', flip, 12, False, {'whoosh': 3}, None)]
 
 
-def ben_pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, flip=False):
-    cv = ben.canvas()
-    if blink:
-        ben.eyelids(cv, N_['eyes'], N_['skin'], amount=blink)
-    cv = ben.rotate_region(cv, N_['hand'], N_['pivot'], ang)
-    cv = ben.shift_above(cv, N_['neck'], head * STEP_B)
-    cv = ben.shift_above(cv, N_['waist'], body * STEP_B)
-    if flip:
-        cv = ben.mirror(cv)
-    cv = ben.squash(cv, sx, sy)
-    return ben.down(cv)
-
-
-N = 20
-idle = []
-for i in range(N):
-    b = breath(i, N)
-    ang = 8 * math.sin(4 * math.pi * i / N)  # the "let me explain" hand, twice per loop
-    blink = {12: 0.5, 13: 1.0, 14: 0.5}.get(i, 0)
-    idle.append(ben_pose(body=b, head=breath((i - 1) % N, N), ang=ang, blink=blink))
-save('bennett_idle', idle, 10, True, ben)
-
-# the pledge flip: he signs, then turns to face the other way. 10 frames @12fps (play forward, then reverse)
-FL = [(1, False), (0.75, False), (0.45, False), (0.22, False),
-      (0.22, True), (0.45, True), (0.75, True), (1, True)]
-flip = [ben_pose(sx=s, sy=1 + (1 - s) * 0.04, flip=m) for s, m in FL]
-save('bennett_flip', flip, 12, False, ben, events={'whoosh': 3})
-avatar(ben, (330, 60, 830, 560), 'bennett', (40, 70, 140, 255))
+if not _only or 'bennett' in _only:
+    render_char('bennett', bennett, ((330, 60, 830, 560), 'bennett', (40, 70, 140, 255)))
 
 # ================================================================ the rest of the cast (generic rig)
 from cast import CAST
 from PIL import Image as _I
 
+RINGS = {'hop': (242, 193, 78, 255), 'jab': (208, 42, 54, 255), 'bang': (122, 74, 40, 255),
+         'sneak': (60, 60, 70, 255), 'no': (90, 90, 100, 255)}
 
-def generic(name, cfg):
-    rig = Rig(name, H, pad=(0.14, 0.10), ncolors=NC)
-    rig.density = D
-    st = round(D / rig.s)
+
+def generic(name, cfg, d):
+    rig = Rig(name, ART_H * d, pad=(0.14, 0.10), ncolors=NC)
+    rig.density = d
+    st = round(d / rig.s)
     neck, waist = rig.c(0, cfg['neck'])[1], rig.c(0, cfg['waist'])[1]
     eyes = [(*rig.c(x, y), rx, ry) for x, y, rx, ry in cfg['eyes']]
     src = _I.open(os.path.join(os.path.dirname(__file__), '..', '..', 'refs', name + '.png')).convert('RGB')
@@ -422,38 +470,35 @@ def generic(name, cfg):
         ang = 3 * math.sin(2 * math.pi * i / n) if arm else 0
         blink = {9: 0.5, 10: 1.0, 11: 0.5}.get(i, 0)
         idle.append(pose(body=breath(i, n), head=breath((i - 1) % n, n), ang=ang, blink=blink))
-    save(name + '_idle', idle, 10, True, rig)
+    anims = [('idle', idle, 10, True, None, None)]
     if cfg['react'] == 'no':  # a slow, final head shake
         seq = [0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 0]
         react = [pose(hdx=h, blink=1.0 if i in (5, 6) else 0) for i, h in enumerate(seq)]
-        save(name + '_react', react, 10, False, rig, events={'no': 1})
+        anims.append(('react', react, 10, False, {'no': 1}, None))
     elif cfg['react'] == 'sneak':  # tiptoes out of the plenum, peeks back, returns
         seq = [(0, 0), (1, 1), (2, 0), (3, 1), (4, 0), (5, 1), (6, 0), (6, 0), (6, 0), (4, 0), (2, 1), (0, 0)]
         react = [pose(dx=dx, dy=dy) for dx, dy in seq]
-        save(name + '_react', react, 10, False, rig, events={'step': 1})
+        anims.append(('react', react, 10, False, {'step': 1}, None))
     elif cfg['react'] == 'bang':
         seq = [(0, 1, 1), (-10, 1, 1.02), (-16, 1, 1.03), (8, 1.04, .95), (12, 1.05, .94), (6, 1, 1),
                (-10, 1, 1.02), (8, 1.04, .95), (12, 1.05, .94), (4, 1, 1), (0, 1, 1), (0, 1, 1)]
         react = [pose(ang=a, sx=sx, sy=sy) for a, sx, sy in seq]
-        save(name + '_react', react, 14, False, rig, events={'bang': 4, 'bang2': 8})
+        anims.append(('react', react, 14, False, {'bang': 4, 'bang2': 8}, None))
     elif cfg['react'] == 'jab':
         seq = [(0, 0, 1, 1, 0), (-6, 0, 1.02, .97, 0), (8, 0, 1, 1.01, 1), (-4, 0, 1, 1, -1), (8, 0, 1, 1.01, 1),
                (-4, 0, 1, 1, -1), (8, 0, 1, 1.01, 1), (2, 0, 1, 1, 0), (0, 0, 1, 1, 0), (0, 0, 1, 1, 0)]
         react = [pose(ang=a, sx=sx, sy=sy, dx=dx) for a, _, sx, sy, dx in seq]
-        save(name + '_react', react, 14, False, rig, events={'shout': 2})
+        anims.append(('react', react, 14, False, {'shout': 2}, None))
     else:
         seq = [(1, 1, 0), (1.05, .94, 0), (.97, 1.05, 2), (.99, 1.02, 4), (1, 1, 3), (1, 1, 1), (1.04, .95, 0), (1, 1, 0)]
         react = [pose(sx=sx, sy=sy, dy=dy) for sx, sy, dy in seq]
-        save(name + '_react', react, 14, False, rig, events={'land': 6})
-    ring = {'hop': (242, 193, 78, 255), 'jab': (208, 42, 54, 255), 'bang': (122, 74, 40, 255), 'sneak': (60, 60, 70, 255), 'no': (90, 90, 100, 255)}[cfg['react']]
-    avatar(rig, cfg['head'], name, ring)
+        anims.append(('react', react, 14, False, {'land': 6}, None))
+    return rig, anims
 
 
-import sys as _sys
-_only = [a for a in _sys.argv[1:]]
 for _n, _cfg in CAST.items():
     if not _only or _n in _only:
-        generic(_n, _cfg)
+        render_char(_n, lambda d, n=_n, c=_cfg: generic(n, c, d), (_cfg['head'], _n, RINGS[_cfg['react']]))
 
 # ================================================================ DUBI (motion/state-graph-dubi.md §1)
 from cast import DUBI as DB, SOURCES, SOURCE_ALIASES
@@ -513,11 +558,11 @@ def dubi_small():
                        pose(hx=-1, hy=1), pose()], 12, False, rig, events={'peck': 2})
 
 
-def dubi_mic():
+def dubi_mic(d):
     """96 art px, the O3b flash-card pose, mic kept. The rest pose has the beak closed; talk.f1 is the ref."""
-    rig = Rig('dubi-mic', H, pad=(0.14, 0.10), ref='dubi', ncolors=NC)
-    rig.density = D
-    st = round(D / rig.s)
+    rig = Rig('dubi-mic', ART_H * d, pad=(0.14, 0.10), ref='dubi', ncolors=NC)
+    rig.density = d
+    st = round(d / rig.s)
     neck, waist = rig.c(0, DB['neck'])[1], rig.c(0, DB['waist'])[1]
     eyes = [(*rig.c(x, y), rx, ry) for x, y, rx, ry in DB['eyes']]
     skin = tuple(DB['skin']) + (255,)
@@ -538,9 +583,8 @@ def dubi_mic():
     n = 20
     idle = [pose(body=breath(i, n), head=breath((i - 1) % n, n), ang=3 * math.sin(2 * math.pi * i / n),
                  blink={9: 0.5, 10: 1.0, 11: 0.5}.get(i, 0)) for i in range(n)]
-    save('dubi-mic_idle', idle, 10, True, rig)
-    save('dubi-mic_talk', [pose(), pose(beak=-DB['closed'])], 16, False, rig)
-    avatar(rig, DB['avatar_head'], 'dubi', (40, 70, 140, 255))
+    talk = [pose(), pose(beak=-DB['closed'])]
+    return rig, [('idle', idle, 10, True, None, None), ('talk', talk, 16, False, None, None)]
 
 
 # ================================================================ the money sources (diorama-motion.md §1)
@@ -550,10 +594,22 @@ MISSING = []
 
 
 def source(sid, cfg):
+    """A money source at every density in DENSITIES (the main D strip + its icons, then each alternate)."""
     if not os.path.exists(os.path.join(os.path.dirname(__file__), '..', '..', 'refs', sid + '.png')):
         MISSING.append(sid)
         return
-    rig = Rig(sid, 38 * D, pad=(0.14, 0.0), ncolors=64)   # 38 art + the 2-art-px rim = 40 art tall (120 sprite px)
+    for d in DENSITIES:
+        source_at(sid, cfg, d)
+    main = atlas['sources'][sid]
+    same_motion('source ' + sid, main, main.get('densities', {}))
+
+
+def source_at(sid, cfg, d):
+    """One render of a source's 2-frame strip at density d (40·d sprite px tall). The main render (d == D)
+    is source_<id>.png plus the 1x icon + silhouette; an alternate is source_<id>_d<d>.png in
+    atlas sources[id].densities["<d>"] with its own frame size, anchor and points."""
+    D = d                                                  # this render's density (the module's D is the main)
+    rig = Rig(sid, 38 * D, pad=(0.14, 0.0), ncolors=64)   # 38 art + the 2-art-px rim = 40 art tall (120 sprite px at 3)
     rig.density = D
     st = round(D / rig.s)
     def rimD(im):                                          # a 1-art-px rim = D sprite px
@@ -589,6 +645,16 @@ def source(sid, cfg):
         ImageDraw.Draw(f1).rectangle([X, Y, X + D - 1, Y + D - 1], fill=tuple(rgb) + (255,))
     f1 = rimD(f1)
     w, h = f0.size
+    pts = {}
+    for name, (x, y) in cfg.get('points', {}).items():
+        ax, ay = rig.to_art(*rig.c(x, y))
+        pts[name] = [int(round(ax)) + D, int(round(ay)) + D]
+    if d != DENSITIES[0]:                                  # an alternate: the strip and its own geometry only
+        strip([f0, f1]).save(os.path.join(OUT, f'source_{sid}_d{d}.png'))
+        atlas['sources'][sid].setdefault('densities', {})[str(d)] = {
+            'file': f'source_{sid}_d{d}.png', 'frames': 2, 'frameW': w, 'frameH': h, 'fps': None, 'density': d,
+            'loop': True, 'anchor': [w // 2, h - 1], 'points': pts}
+        return
     strip([f0, f1]).save(os.path.join(OUT, f'source_{sid}.png'))
     # the shop icon + silhouette are UI (Bar: the UI stays 1x chunky), so they come from a 1x render of
     # f0 (a 38-art-px rig of the same ref, the pre-density pipeline's 32 colours, so the approved icons
@@ -614,10 +680,6 @@ def source(sid, cfg):
     sa[al & near_clear] = RIM
     sil = _I.fromarray(sa, 'RGBA')
     sil.save(os.path.join(OUT, f'source_{sid}_icon_sil.png'))
-    pts = {}
-    for name, (x, y) in cfg.get('points', {}).items():
-        ax, ay = rig.to_art(*rig.c(x, y))
-        pts[name] = [int(round(ax)) + D, int(round(ay)) + D]
     atlas['sources'][sid] = {'file': f'source_{sid}.png', 'frames': 2, 'frameW': w, 'frameH': h, 'fps': None, 'density': D,
                              'loop': True, 'anchor': [w // 2, h - 1], 'icon': f'source_{sid}_icon.png',
                              'sil': f'source_{sid}_icon_sil.png', 'iconDensity': 1, 'points': pts,
@@ -626,8 +688,8 @@ def source(sid, cfg):
 
 REFS_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'refs')
 if not _only or 'dubi' in _only:
-    dubi_small()
-    dubi_mic()
+    dubi_small()                                  # 18 art px, d 1 (replaced by the 2D Artist's hand-drawn strips)
+    render_char('dubi-mic', dubi_mic, (DB['avatar_head'], 'dubi', (40, 70, 140, 255)))
 for _n, _cfg in SOURCES.items():
     if not _only or _n in _only:
         source(_n, _cfg)

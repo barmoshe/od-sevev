@@ -142,14 +142,21 @@ the scaled-input tests) gets `size_2d_override = W/f × H/f` instead. Why not th
   back to logical px through it, so hit tests never see device px
   (`tests/unit/test_display.gd` pushes device-px touches through a scaled viewport at DPR 2 and 3).
 
-| Phone (CSS, DPR) | Backing store | k | Stage/UI | 3× cast (sprite px) |
+| Phone (CSS, DPR) | Backing store | k | Stage/UI | Rendered cast + sources at the stage's ×4 (d 2 + d 3 renders) |
 |---|---|---|---|---|
-| 390×844, 393×852, 412×915, 430×932 @2 | 780-860 wide | **4** | 4 dp | 1.33 dp: `SpriteStrip.fractional_filter` "aa" |
-| 390×844 @3, 393×852 @3, 360×800 @3 | 1080-1179 | **6** | 6 dp | **2 dp, crisp** |
-| 412×915 @2.625 (Pixel), 412 @3 | 1081, 1236 | **6** | 6 dp | **2 dp, crisp** |
-| 430×932 @3 (Pro Max / Plus) | 1290 | **7** | 7 dp | 2.33 dp: "aa" |
-| 412×915 @3.5 (QHD Android) | 1442 | **8** | 8 dp | 2.67 dp: "aa" |
-| a 1280×800 desktop window @1 | 1280×800 | **2** (height-bound) | 2 dp | 0.67 dp: "aa" (minified) |
+| 390×844, 393×852, 412×915, 430×932 @2 | 780-860 wide | **4** | 4 dp | **d 2 at 2 dp, crisp** |
+| 390×844 @3, 393×852 @3, 360×800 @3 | 1080-1179 | **6** | 6 dp | **d 3 at 2 dp, crisp** |
+| 412×915 @2.625 (Pixel), 412 @3 | 1081, 1236 | **6** | 6 dp | **d 3 at 2 dp, crisp** |
+| 430×932 @3 (Pro Max / Plus) | 1290 | **7** | 7 dp | d 3 at 2.33 dp: `SpriteStrip.fractional_filter` "aa" |
+| 412×915 @3.5 (QHD Android) | 1442 | **8** | 8 dp | **d 2 at 4 dp, crisp** |
+| a 1280×800 desktop window @1 | 1280×800 | **2** (height-bound) | 2 dp | **d 2 at 1 dp, crisp** |
+
+Since 2026-09-29 every rendered character and money source ships a d 2 alternate beside its main
+d 3 (CONTRACT §3), so **every k that is a multiple of 2 or 3 is crisp**; only k 5 and 7 (and 1)
+fall back to "aa". A view that draws a figure at its own art scale (the partner card ×3, the
+ultimatum cameo ×3/×2, Dubi's flash ×4/×3/×2) picks the variant for ITS device px per art px
+(`SpriteStrip.set_art_px`): the partner card at k 4 draws the d 3 at 1 dp, Dubi's flash at k 4
+draws ×4 on the d 2 at 2 dp.
 
 - **Density comes from the data:** `SpriteStrip.density_of()` reads `density` on the char (or its
   picked `densities` alternate), then the manifest top level, else 1; `scale_of()` = artScale /

@@ -132,17 +132,22 @@ func kit(id: String) -> Dictionary:
 	for src: Dictionary in m.get("sources", {}).values():
 		if String(src.get("sprite", "")) == id:
 			return src
+		for dk: Variant in src.get("densities", {}):     # a density alternate's strip (source_<id>_d2)
+			if String(src["densities"][dk].get("sprite", "")) == id:
+				return SpriteStrip.pick_variant(src, int(str(dk)))
 	return {}
 
 
-## The TA's art for a money source (sprites.json sources[id], through sourceAliases), or {}.
-func source(id: String) -> Dictionary:
+## The TA's art for a money source (sprites.json sources[id], through sourceAliases), or {}: the
+## density variant crisp at the device scale (SpriteStrip.pick_variant, CONTRACT.md §4b), so the
+## diorama draws a rendered source's d 2 alternate at k 4 and its main d 3 at k 6.
+## `picked` false: the main entry as the manifest lists it.
+func source(id: String, picked: bool = true) -> Dictionary:
 	var m := SpriteStrip.manifest()
 	var srcs: Dictionary = m.get("sources", {})
-	if srcs.has(id):
-		return srcs[id]
 	var al := String(m.get("sourceAliases", {}).get(id, ""))
-	return srcs.get(al, {})
+	var e: Dictionary = srcs.get(id, srcs.get(al, {}))
+	return SpriteStrip.pick_variant(e, Display.k) if picked and not e.is_empty() else e
 
 
 ## A 16x16 neutral stand-in: an ink-outlined grey card with a "?" (art pending).

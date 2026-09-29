@@ -74,13 +74,21 @@
   "sprites/card_spin.png": 194,
   "sprites/card_spin_locked.png": 167,
   "sprites/cast/abbas_idle.png": 71106,
+  "sprites/cast/abbas_idle_d2.png": 38747,
   "sprites/cast/abbas_react.png": 63611,
+  "sprites/cast/abbas_react_d2.png": 33622,
   "sprites/cast/amsalem_idle.png": 241595,
+  "sprites/cast/amsalem_idle_d2.png": 122015,
   "sprites/cast/amsalem_react.png": 179804,
+  "sprites/cast/amsalem_react_d2.png": 96674,
   "sprites/cast/ben-gvir_idle.png": 244883,
+  "sprites/cast/ben-gvir_idle_d2.png": 128575,
   "sprites/cast/ben-gvir_react.png": 171480,
+  "sprites/cast/ben-gvir_react_d2.png": 93794,
   "sprites/cast/bennett_flip.png": 206026,
+  "sprites/cast/bennett_flip_d2.png": 111970,
   "sprites/cast/bennett_idle.png": 138435,
+  "sprites/cast/bennett_idle_d2.png": 46554,
   "sprites/cast/bibi_crit.png": 186029,
   "sprites/cast/bibi_crit_d2.png": 100543,
   "sprites/cast/bibi_idle.png": 163306,
@@ -88,43 +96,81 @@
   "sprites/cast/bibi_tap.png": 211715,
   "sprites/cast/bibi_tap_d2.png": 113896,
   "sprites/cast/deri_idle.png": 217721,
+  "sprites/cast/deri_idle_d2.png": 78499,
   "sprites/cast/deri_react.png": 255460,
+  "sprites/cast/deri_react_d2.png": 125803,
   "sprites/cast/distel_idle.png": 193133,
+  "sprites/cast/distel_idle_d2.png": 96064,
   "sprites/cast/distel_react.png": 153239,
+  "sprites/cast/distel_react_d2.png": 80246,
   "sprites/cast/dubi-mic_idle.png": 252450,
+  "sprites/cast/dubi-mic_idle_d2.png": 124038,
   "sprites/cast/dubi-mic_talk.png": 56455,
+  "sprites/cast/dubi-mic_talk_d2.png": 31524,
   "sprites/cast/eisenkot_idle.png": 65819,
+  "sprites/cast/eisenkot_idle_d2.png": 36716,
   "sprites/cast/eisenkot_react.png": 228681,
+  "sprites/cast/eisenkot_react_d2.png": 125468,
   "sprites/cast/gafni_idle.png": 78862,
+  "sprites/cast/gafni_idle_d2.png": 42142,
   "sprites/cast/gafni_react.png": 208306,
+  "sprites/cast/gafni_react_d2.png": 94718,
   "sprites/cast/gantz_idle.png": 147728,
+  "sprites/cast/gantz_idle_d2.png": 50124,
   "sprites/cast/gantz_react.png": 113917,
+  "sprites/cast/gantz_react_d2.png": 59123,
   "sprites/cast/golan_idle.png": 74309,
+  "sprites/cast/golan_idle_d2.png": 38849,
   "sprites/cast/golan_react.png": 224251,
+  "sprites/cast/golan_react_d2.png": 119793,
   "sprites/cast/goldknopf_idle.png": 81656,
+  "sprites/cast/goldknopf_idle_d2.png": 42554,
   "sprites/cast/goldknopf_react.png": 263908,
+  "sprites/cast/goldknopf_react_d2.png": 138259,
   "sprites/cast/gotliv_idle.png": 260612,
+  "sprites/cast/gotliv_idle_d2.png": 128332,
   "sprites/cast/gotliv_react.png": 181349,
+  "sprites/cast/gotliv_react_d2.png": 95515,
   "sprites/cast/herzog_idle.png": 198386,
+  "sprites/cast/herzog_idle_d2.png": 99843,
   "sprites/cast/herzog_react.png": 188382,
+  "sprites/cast/herzog_react_d2.png": 97523,
   "sprites/cast/karhi_idle.png": 179922,
+  "sprites/cast/karhi_idle_d2.png": 94957,
   "sprites/cast/karhi_react.png": 145791,
+  "sprites/cast/karhi_react_d2.png": 75201,
   "sprites/cast/lapid_idle.png": 249386,
+  "sprites/cast/lapid_idle_d2.png": 90127,
   "sprites/cast/lapid_react.png": 258363,
+  "sprites/cast/lapid_react_d2.png": 122062,
   "sprites/cast/levin_idle.png": 250900,
+  "sprites/cast/levin_idle_d2.png": 115674,
   "sprites/cast/levin_react.png": 198482,
+  "sprites/cast/levin_react_d2.png": 101013,
   "sprites/cast/liberman_idle.png": 80823,
+  "sprites/cast/liberman_idle_d2.png": 42333,
   "sprites/cast/liberman_react.png": 63606,
+  "sprites/cast/liberman_react_d2.png": 33768,
   "sprites/cast/may-golan_idle.png": 106307,
+  "sprites/cast/may-golan_idle_d2.png": 55442,
   "sprites/cast/may-golan_react.png": 328019,
+  "sprites/cast/may-golan_react_d2.png": 170579,
   "sprites/cast/regev_idle.png": 97924,
+  "sprites/cast/regev_idle_d2.png": 50140,
   "sprites/cast/regev_react.png": 306855,
+  "sprites/cast/regev_react_d2.png": 161669,
   "sprites/cast/sara_idle.png": 197709,
+  "sprites/cast/sara_idle_d2.png": 67008,
   "sprites/cast/sara_offended.png": 235506,
+  "sprites/cast/sara_offended_d2.png": 120133,
   "sprites/cast/smotrich_idle.png": 87703,
+  "sprites/cast/smotrich_idle_d2.png": 44186,
   "sprites/cast/smotrich_react.png": 154346,
+  "sprites/cast/smotrich_react_d2.png": 81736,
   "sprites/cast/trump_idle.png": 267776,
+  "sprites/cast/trump_idle_d2.png": 137419,
   "sprites/cast/trump_react.png": 176222,
+  "sprites/cast/trump_react_d2.png": 89706,
   "sprites/chat_bubble_in.png": 166,
   "sprites/chat_bubble_out.png": 175,
   "sprites/chat_bubble_ultimatum.png": 255,
@@ -214,24 +260,29 @@
   "sprites/source_checkbook_icon.png": 329,
   "sprites/source_checkbook_icon_sil.png": 145,
   "sprites/source_cigars.png": 16777,
+  "sprites/source_cigars_d2.png": 8988,
   "sprites/source_cigars_icon.png": 1257,
   "sprites/source_cigars_icon_sil.png": 246,
   "sprites/source_hitech.png": 12936,
+  "sprites/source_hitech_d2.png": 6618,
   "sprites/source_hitech_icon.png": 947,
   "sprites/source_hitech_icon_sil.png": 233,
   "sprites/source_poison.png": 589,
   "sprites/source_poison_icon.png": 230,
   "sprites/source_poison_icon_sil.png": 96,
   "sprites/source_qatari.png": 16142,
+  "sprites/source_qatari_d2.png": 8333,
   "sprites/source_qatari_icon.png": 1239,
   "sprites/source_qatari_icon_sil.png": 257,
   "sprites/source_submarine.png": 1084,
   "sprites/source_submarine_icon.png": 446,
   "sprites/source_submarine_icon_sil.png": 232,
   "sprites/source_taxpayer.png": 14730,
+  "sprites/source_taxpayer_d2.png": 7576,
   "sprites/source_taxpayer_icon.png": 899,
   "sprites/source_taxpayer_icon_sil.png": 205,
   "sprites/source_vat.png": 16207,
+  "sprites/source_vat_d2.png": 9063,
   "sprites/source_vat_icon.png": 1340,
   "sprites/source_vat_icon_sil.png": 158,
   "sprites/spin_s01.png": 407,
@@ -350,17 +401,316 @@
   "fonts/sevev9@2.png": 2727,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 112358228,
+ "vramBytes": 155166340,
+ "vramByDensity": {
+  "bibi": {
+   "3": 9697848,
+   "2": 4355640
+  },
+  "sara": {
+   "3": 4144800,
+   "2": 1874928
+  },
+  "bennett": {
+   "3": 4536752,
+   "2": 2031392
+  },
+  "regev": {
+   "3": 3277872,
+   "2": 1456832
+  },
+  "gotliv": {
+   "3": 5840000,
+   "2": 2613000
+  },
+  "deri": {
+   "3": 4921560,
+   "2": 2180304
+  },
+  "levin": {
+   "3": 5239080,
+   "2": 2349648
+  },
+  "ben-gvir": {
+   "3": 5372800,
+   "2": 2398500
+  },
+  "goldknopf": {
+   "3": 3036852,
+   "2": 1339000
+  },
+  "gafni": {
+   "3": 2649024,
+   "2": 1190280
+  },
+  "smotrich": {
+   "3": 1787040,
+   "2": 803400
+  },
+  "amsalem": {
+   "3": 5956800,
+   "2": 2671500
+  },
+  "lapid": {
+   "3": 7030800,
+   "2": 3136968
+  },
+  "eisenkot": {
+   "3": 2369640,
+   "2": 1060488
+  },
+  "gantz": {
+   "3": 3591600,
+   "2": 1599000
+  },
+  "liberman": {
+   "3": 1805672,
+   "2": 798248
+  },
+  "golan": {
+   "3": 2683356,
+   "2": 1199744
+  },
+  "abbas": {
+   "3": 1843820,
+   "2": 832216
+  },
+  "distel": {
+   "3": 5489600,
+   "2": 2437500
+  },
+  "karhi": {
+   "3": 4526000,
+   "2": 2028000
+  },
+  "herzog": {
+   "3": 5245992,
+   "2": 2364120
+  },
+  "trump": {
+   "3": 5606400,
+   "2": 2515500
+  },
+  "may-golan": {
+   "3": 3288480,
+   "2": 1456832
+  },
+  "dubi": {
+   "1": 64400
+  },
+  "dubi-mic": {
+   "3": 5035536,
+   "2": 2258872
+  }
+ },
  "vramBibi": {
   "3": 9697848,
   "2": 4355640
  },
- "vramTypicalByBibiDensity": {
+ "vramTypicalByK": {
+  "2": 6427304,
   "3": 12031912,
-  "2": 6689704
+  "4": 6427304,
+  "6": 12031912,
+  "7": 12031912,
+  "8": 6427304,
+  "9": 12031912
+ },
+ "vramSourcesByK": {
+  "2": 211840,
+  "3": 474240,
+  "4": 211840,
+  "6": 474240,
+  "7": 474240,
+  "8": 211840,
+  "9": 474240
+ },
+ "vramPerPartnerByK": {
+  "2": {
+   "sara": 1874928,
+   "bennett": 2031392,
+   "regev": 1456832,
+   "gotliv": 2613000,
+   "deri": 2180304,
+   "levin": 2349648,
+   "ben-gvir": 2398500,
+   "goldknopf": 1339000,
+   "gafni": 1190280,
+   "smotrich": 803400,
+   "amsalem": 2671500,
+   "lapid": 3136968,
+   "eisenkot": 1060488,
+   "gantz": 1599000,
+   "liberman": 798248,
+   "golan": 1199744,
+   "abbas": 832216,
+   "distel": 2437500,
+   "karhi": 2028000,
+   "herzog": 2364120,
+   "trump": 2515500,
+   "may-golan": 1456832,
+   "dubi": 64400,
+   "dubi-mic": 2258872
+  },
+  "3": {
+   "sara": 4144800,
+   "bennett": 4536752,
+   "regev": 3277872,
+   "gotliv": 5840000,
+   "deri": 4921560,
+   "levin": 5239080,
+   "ben-gvir": 5372800,
+   "goldknopf": 3036852,
+   "gafni": 2649024,
+   "smotrich": 1787040,
+   "amsalem": 5956800,
+   "lapid": 7030800,
+   "eisenkot": 2369640,
+   "gantz": 3591600,
+   "liberman": 1805672,
+   "golan": 2683356,
+   "abbas": 1843820,
+   "distel": 5489600,
+   "karhi": 4526000,
+   "herzog": 5245992,
+   "trump": 5606400,
+   "may-golan": 3288480,
+   "dubi": 64400,
+   "dubi-mic": 5035536
+  },
+  "4": {
+   "sara": 1874928,
+   "bennett": 2031392,
+   "regev": 1456832,
+   "gotliv": 2613000,
+   "deri": 2180304,
+   "levin": 2349648,
+   "ben-gvir": 2398500,
+   "goldknopf": 1339000,
+   "gafni": 1190280,
+   "smotrich": 803400,
+   "amsalem": 2671500,
+   "lapid": 3136968,
+   "eisenkot": 1060488,
+   "gantz": 1599000,
+   "liberman": 798248,
+   "golan": 1199744,
+   "abbas": 832216,
+   "distel": 2437500,
+   "karhi": 2028000,
+   "herzog": 2364120,
+   "trump": 2515500,
+   "may-golan": 1456832,
+   "dubi": 64400,
+   "dubi-mic": 2258872
+  },
+  "6": {
+   "sara": 4144800,
+   "bennett": 4536752,
+   "regev": 3277872,
+   "gotliv": 5840000,
+   "deri": 4921560,
+   "levin": 5239080,
+   "ben-gvir": 5372800,
+   "goldknopf": 3036852,
+   "gafni": 2649024,
+   "smotrich": 1787040,
+   "amsalem": 5956800,
+   "lapid": 7030800,
+   "eisenkot": 2369640,
+   "gantz": 3591600,
+   "liberman": 1805672,
+   "golan": 2683356,
+   "abbas": 1843820,
+   "distel": 5489600,
+   "karhi": 4526000,
+   "herzog": 5245992,
+   "trump": 5606400,
+   "may-golan": 3288480,
+   "dubi": 64400,
+   "dubi-mic": 5035536
+  },
+  "7": {
+   "sara": 4144800,
+   "bennett": 4536752,
+   "regev": 3277872,
+   "gotliv": 5840000,
+   "deri": 4921560,
+   "levin": 5239080,
+   "ben-gvir": 5372800,
+   "goldknopf": 3036852,
+   "gafni": 2649024,
+   "smotrich": 1787040,
+   "amsalem": 5956800,
+   "lapid": 7030800,
+   "eisenkot": 2369640,
+   "gantz": 3591600,
+   "liberman": 1805672,
+   "golan": 2683356,
+   "abbas": 1843820,
+   "distel": 5489600,
+   "karhi": 4526000,
+   "herzog": 5245992,
+   "trump": 5606400,
+   "may-golan": 3288480,
+   "dubi": 64400,
+   "dubi-mic": 5035536
+  },
+  "8": {
+   "sara": 1874928,
+   "bennett": 2031392,
+   "regev": 1456832,
+   "gotliv": 2613000,
+   "deri": 2180304,
+   "levin": 2349648,
+   "ben-gvir": 2398500,
+   "goldknopf": 1339000,
+   "gafni": 1190280,
+   "smotrich": 803400,
+   "amsalem": 2671500,
+   "lapid": 3136968,
+   "eisenkot": 1060488,
+   "gantz": 1599000,
+   "liberman": 798248,
+   "golan": 1199744,
+   "abbas": 832216,
+   "distel": 2437500,
+   "karhi": 2028000,
+   "herzog": 2364120,
+   "trump": 2515500,
+   "may-golan": 1456832,
+   "dubi": 64400,
+   "dubi-mic": 2258872
+  },
+  "9": {
+   "sara": 4144800,
+   "bennett": 4536752,
+   "regev": 3277872,
+   "gotliv": 5840000,
+   "deri": 4921560,
+   "levin": 5239080,
+   "ben-gvir": 5372800,
+   "goldknopf": 3036852,
+   "gafni": 2649024,
+   "smotrich": 1787040,
+   "amsalem": 5956800,
+   "lapid": 7030800,
+   "eisenkot": 2369640,
+   "gantz": 3591600,
+   "liberman": 1805672,
+   "golan": 2683356,
+   "abbas": 1843820,
+   "distel": 5489600,
+   "karhi": 4526000,
+   "herzog": 5245992,
+   "trump": 5606400,
+   "may-golan": 3288480,
+   "dubi": 64400,
+   "dubi-mic": 5035536
+  }
  },
  "vramTypical": 12031912,
- "vramCastAll": 109332964,
+ "vramCastAll": 151929236,
  "vramPerPartner": {
   "sara": 4144800,
   "bennett": 4536752,
@@ -759,9 +1109,19 @@
    "imported": 20112
   },
   {
+   "file": "assets/sprites/cast/abbas_idle_d2.png",
+   "source": 38747,
+   "imported": 11350
+  },
+  {
    "file": "assets/sprites/cast/abbas_react.png",
    "source": 63611,
    "imported": 21158
+  },
+  {
+   "file": "assets/sprites/cast/abbas_react_d2.png",
+   "source": 33622,
+   "imported": 11214
   },
   {
    "file": "assets/sprites/cast/amsalem_idle.png",
@@ -769,9 +1129,19 @@
    "imported": 78230
   },
   {
+   "file": "assets/sprites/cast/amsalem_idle_d2.png",
+   "source": 122015,
+   "imported": 39086
+  },
+  {
    "file": "assets/sprites/cast/amsalem_react.png",
    "source": 179804,
    "imported": 69118
+  },
+  {
+   "file": "assets/sprites/cast/amsalem_react_d2.png",
+   "source": 96674,
+   "imported": 36360
   },
   {
    "file": "assets/sprites/cast/ben-gvir_idle.png",
@@ -779,9 +1149,19 @@
    "imported": 73698
   },
   {
+   "file": "assets/sprites/cast/ben-gvir_idle_d2.png",
+   "source": 128575,
+   "imported": 37324
+  },
+  {
    "file": "assets/sprites/cast/ben-gvir_react.png",
    "source": 171480,
    "imported": 60214
+  },
+  {
+   "file": "assets/sprites/cast/ben-gvir_react_d2.png",
+   "source": 93794,
+   "imported": 32198
   },
   {
    "file": "assets/sprites/cast/bennett_flip.png",
@@ -789,9 +1169,19 @@
    "imported": 78224
   },
   {
+   "file": "assets/sprites/cast/bennett_flip_d2.png",
+   "source": 111970,
+   "imported": 44470
+  },
+  {
    "file": "assets/sprites/cast/bennett_idle.png",
    "source": 138435,
    "imported": 44154
+  },
+  {
+   "file": "assets/sprites/cast/bennett_idle_d2.png",
+   "source": 46554,
+   "imported": 14574
   },
   {
    "file": "assets/sprites/cast/bibi_crit.png",
@@ -829,9 +1219,19 @@
    "imported": 69978
   },
   {
+   "file": "assets/sprites/cast/deri_idle_d2.png",
+   "source": 78499,
+   "imported": 24678
+  },
+  {
    "file": "assets/sprites/cast/deri_react.png",
    "source": 255460,
    "imported": 93792
+  },
+  {
+   "file": "assets/sprites/cast/deri_react_d2.png",
+   "source": 125803,
+   "imported": 47638
   },
   {
    "file": "assets/sprites/cast/distel_idle.png",
@@ -839,9 +1239,19 @@
    "imported": 59216
   },
   {
+   "file": "assets/sprites/cast/distel_idle_d2.png",
+   "source": 96064,
+   "imported": 31682
+  },
+  {
    "file": "assets/sprites/cast/distel_react.png",
    "source": 153239,
    "imported": 57990
+  },
+  {
+   "file": "assets/sprites/cast/distel_react_d2.png",
+   "source": 80246,
+   "imported": 31924
   },
   {
    "file": "assets/sprites/cast/dubi-mic_idle.png",
@@ -849,9 +1259,19 @@
    "imported": 72706
   },
   {
+   "file": "assets/sprites/cast/dubi-mic_idle_d2.png",
+   "source": 124038,
+   "imported": 35320
+  },
+  {
    "file": "assets/sprites/cast/dubi-mic_talk.png",
    "source": 56455,
    "imported": 20526
+  },
+  {
+   "file": "assets/sprites/cast/dubi-mic_talk_d2.png",
+   "source": 31524,
+   "imported": 10914
   },
   {
    "file": "assets/sprites/cast/eisenkot_idle.png",
@@ -859,9 +1279,19 @@
    "imported": 20954
   },
   {
+   "file": "assets/sprites/cast/eisenkot_idle_d2.png",
+   "source": 36716,
+   "imported": 11660
+  },
+  {
    "file": "assets/sprites/cast/eisenkot_react.png",
    "source": 228681,
    "imported": 83764
+  },
+  {
+   "file": "assets/sprites/cast/eisenkot_react_d2.png",
+   "source": 125468,
+   "imported": 44780
   },
   {
    "file": "assets/sprites/cast/gafni_idle.png",
@@ -869,9 +1299,19 @@
    "imported": 24298
   },
   {
+   "file": "assets/sprites/cast/gafni_idle_d2.png",
+   "source": 42142,
+   "imported": 12388
+  },
+  {
    "file": "assets/sprites/cast/gafni_react.png",
    "source": 208306,
    "imported": 70098
+  },
+  {
+   "file": "assets/sprites/cast/gafni_react_d2.png",
+   "source": 94718,
+   "imported": 29900
   },
   {
    "file": "assets/sprites/cast/gantz_idle.png",
@@ -879,9 +1319,19 @@
    "imported": 46810
   },
   {
+   "file": "assets/sprites/cast/gantz_idle_d2.png",
+   "source": 50124,
+   "imported": 15596
+  },
+  {
    "file": "assets/sprites/cast/gantz_react.png",
    "source": 113917,
    "imported": 42652
+  },
+  {
+   "file": "assets/sprites/cast/gantz_react_d2.png",
+   "source": 59123,
+   "imported": 23110
   },
   {
    "file": "assets/sprites/cast/golan_idle.png",
@@ -889,9 +1339,19 @@
    "imported": 24086
   },
   {
+   "file": "assets/sprites/cast/golan_idle_d2.png",
+   "source": 38849,
+   "imported": 12534
+  },
+  {
    "file": "assets/sprites/cast/golan_react.png",
    "source": 224251,
    "imported": 79118
+  },
+  {
+   "file": "assets/sprites/cast/golan_react_d2.png",
+   "source": 119793,
+   "imported": 42306
   },
   {
    "file": "assets/sprites/cast/goldknopf_idle.png",
@@ -899,9 +1359,19 @@
    "imported": 23162
   },
   {
+   "file": "assets/sprites/cast/goldknopf_idle_d2.png",
+   "source": 42554,
+   "imported": 12100
+  },
+  {
    "file": "assets/sprites/cast/goldknopf_react.png",
    "source": 263908,
    "imported": 88050
+  },
+  {
+   "file": "assets/sprites/cast/goldknopf_react_d2.png",
+   "source": 138259,
+   "imported": 46740
   },
   {
    "file": "assets/sprites/cast/gotliv_idle.png",
@@ -909,9 +1379,19 @@
    "imported": 82576
   },
   {
+   "file": "assets/sprites/cast/gotliv_idle_d2.png",
+   "source": 128332,
+   "imported": 41878
+  },
+  {
    "file": "assets/sprites/cast/gotliv_react.png",
    "source": 181349,
    "imported": 66568
+  },
+  {
+   "file": "assets/sprites/cast/gotliv_react_d2.png",
+   "source": 95515,
+   "imported": 35780
   },
   {
    "file": "assets/sprites/cast/herzog_idle.png",
@@ -919,9 +1399,19 @@
    "imported": 67690
   },
   {
+   "file": "assets/sprites/cast/herzog_idle_d2.png",
+   "source": 99843,
+   "imported": 33760
+  },
+  {
    "file": "assets/sprites/cast/herzog_react.png",
    "source": 188382,
    "imported": 69298
+  },
+  {
+   "file": "assets/sprites/cast/herzog_react_d2.png",
+   "source": 97523,
+   "imported": 36844
   },
   {
    "file": "assets/sprites/cast/karhi_idle.png",
@@ -929,9 +1419,19 @@
    "imported": 51096
   },
   {
+   "file": "assets/sprites/cast/karhi_idle_d2.png",
+   "source": 94957,
+   "imported": 26322
+  },
+  {
    "file": "assets/sprites/cast/karhi_react.png",
    "source": 145791,
    "imported": 51902
+  },
+  {
+   "file": "assets/sprites/cast/karhi_react_d2.png",
+   "source": 75201,
+   "imported": 26056
   },
   {
    "file": "assets/sprites/cast/lapid_idle.png",
@@ -939,9 +1439,19 @@
    "imported": 76130
   },
   {
+   "file": "assets/sprites/cast/lapid_idle_d2.png",
+   "source": 90127,
+   "imported": 25566
+  },
+  {
    "file": "assets/sprites/cast/lapid_react.png",
    "source": 258363,
    "imported": 82874
+  },
+  {
+   "file": "assets/sprites/cast/lapid_react_d2.png",
+   "source": 122062,
+   "imported": 42574
   },
   {
    "file": "assets/sprites/cast/levin_idle.png",
@@ -949,9 +1459,19 @@
    "imported": 76674
   },
   {
+   "file": "assets/sprites/cast/levin_idle_d2.png",
+   "source": 115674,
+   "imported": 38138
+  },
+  {
    "file": "assets/sprites/cast/levin_react.png",
    "source": 198482,
    "imported": 69012
+  },
+  {
+   "file": "assets/sprites/cast/levin_react_d2.png",
+   "source": 101013,
+   "imported": 37830
   },
   {
    "file": "assets/sprites/cast/liberman_idle.png",
@@ -959,9 +1479,19 @@
    "imported": 26204
   },
   {
+   "file": "assets/sprites/cast/liberman_idle_d2.png",
+   "source": 42333,
+   "imported": 13624
+  },
+  {
    "file": "assets/sprites/cast/liberman_react.png",
    "source": 63606,
    "imported": 21982
+  },
+  {
+   "file": "assets/sprites/cast/liberman_react_d2.png",
+   "source": 33768,
+   "imported": 11614
   },
   {
    "file": "assets/sprites/cast/may-golan_idle.png",
@@ -969,9 +1499,19 @@
    "imported": 33578
   },
   {
+   "file": "assets/sprites/cast/may-golan_idle_d2.png",
+   "source": 55442,
+   "imported": 17140
+  },
+  {
    "file": "assets/sprites/cast/may-golan_react.png",
    "source": 328019,
    "imported": 111878
+  },
+  {
+   "file": "assets/sprites/cast/may-golan_react_d2.png",
+   "source": 170579,
+   "imported": 58048
   },
   {
    "file": "assets/sprites/cast/regev_idle.png",
@@ -979,9 +1519,19 @@
    "imported": 28770
   },
   {
+   "file": "assets/sprites/cast/regev_idle_d2.png",
+   "source": 50140,
+   "imported": 15188
+  },
+  {
    "file": "assets/sprites/cast/regev_react.png",
    "source": 306855,
    "imported": 98442
+  },
+  {
+   "file": "assets/sprites/cast/regev_react_d2.png",
+   "source": 161669,
+   "imported": 53542
   },
   {
    "file": "assets/sprites/cast/sara_idle.png",
@@ -989,9 +1539,19 @@
    "imported": 56440
   },
   {
+   "file": "assets/sprites/cast/sara_idle_d2.png",
+   "source": 67008,
+   "imported": 18522
+  },
+  {
    "file": "assets/sprites/cast/sara_offended.png",
    "source": 235506,
    "imported": 80386
+  },
+  {
+   "file": "assets/sprites/cast/sara_offended_d2.png",
+   "source": 120133,
+   "imported": 41692
   },
   {
    "file": "assets/sprites/cast/smotrich_idle.png",
@@ -999,9 +1559,19 @@
    "imported": 25306
   },
   {
+   "file": "assets/sprites/cast/smotrich_idle_d2.png",
+   "source": 44186,
+   "imported": 12582
+  },
+  {
    "file": "assets/sprites/cast/smotrich_react.png",
    "source": 154346,
    "imported": 51276
+  },
+  {
+   "file": "assets/sprites/cast/smotrich_react_d2.png",
+   "source": 81736,
+   "imported": 26558
   },
   {
    "file": "assets/sprites/cast/trump_idle.png",
@@ -1009,9 +1579,19 @@
    "imported": 87124
   },
   {
+   "file": "assets/sprites/cast/trump_idle_d2.png",
+   "source": 137419,
+   "imported": 41510
+  },
+  {
    "file": "assets/sprites/cast/trump_react.png",
    "source": 176222,
    "imported": 65400
+  },
+  {
+   "file": "assets/sprites/cast/trump_react_d2.png",
+   "source": 89706,
+   "imported": 31838
   },
   {
    "file": "assets/sprites/chat_bubble_in.png",
@@ -1140,7 +1720,7 @@
   },
   {
    "file": "assets/sprites/depboard.png",
-   "source": 1446,
+   "source": 1509,
    "imported": 580
   },
   {
@@ -1459,6 +2039,11 @@
    "imported": 4894
   },
   {
+   "file": "assets/sprites/source_cigars_d2.png",
+   "source": 8988,
+   "imported": 2636
+  },
+  {
    "file": "assets/sprites/source_cigars_icon.png",
    "source": 1257,
    "imported": 530
@@ -1472,6 +2057,11 @@
    "file": "assets/sprites/source_hitech.png",
    "source": 12936,
    "imported": 4338
+  },
+  {
+   "file": "assets/sprites/source_hitech_d2.png",
+   "source": 6618,
+   "imported": 2312
   },
   {
    "file": "assets/sprites/source_hitech_icon.png",
@@ -1504,6 +2094,11 @@
    "imported": 5478
   },
   {
+   "file": "assets/sprites/source_qatari_d2.png",
+   "source": 8333,
+   "imported": 2910
+  },
+  {
    "file": "assets/sprites/source_qatari_icon.png",
    "source": 1239,
    "imported": 536
@@ -1534,6 +2129,11 @@
    "imported": 4670
   },
   {
+   "file": "assets/sprites/source_taxpayer_d2.png",
+   "source": 7576,
+   "imported": 2454
+  },
+  {
    "file": "assets/sprites/source_taxpayer_icon.png",
    "source": 899,
    "imported": 462
@@ -1547,6 +2147,11 @@
    "file": "assets/sprites/source_vat.png",
    "source": 16207,
    "imported": 4996
+  },
+  {
+   "file": "assets/sprites/source_vat_d2.png",
+   "source": 9063,
+   "imported": 2828
   },
   {
    "file": "assets/sprites/source_vat_icon.png",
@@ -2137,7 +2742,137 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 3135562,
+ "pckBytes": 4495154,
+ "pckByAsset": {
+  "bibi": {
+   "3": 193236,
+   "2": 105682
+  },
+  "sara": {
+   "3": 136826,
+   "2": 60214
+  },
+  "bennett": {
+   "3": 122378,
+   "2": 59044
+  },
+  "regev": {
+   "3": 127212,
+   "2": 68730
+  },
+  "gotliv": {
+   "3": 149144,
+   "2": 77658
+  },
+  "deri": {
+   "3": 163770,
+   "2": 72316
+  },
+  "levin": {
+   "3": 145686,
+   "2": 75968
+  },
+  "ben-gvir": {
+   "3": 133912,
+   "2": 69522
+  },
+  "goldknopf": {
+   "3": 111212,
+   "2": 58840
+  },
+  "gafni": {
+   "3": 94396,
+   "2": 42288
+  },
+  "smotrich": {
+   "3": 76582,
+   "2": 39140
+  },
+  "amsalem": {
+   "3": 147348,
+   "2": 75446
+  },
+  "lapid": {
+   "3": 159004,
+   "2": 68140
+  },
+  "eisenkot": {
+   "3": 104718,
+   "2": 56440
+  },
+  "gantz": {
+   "3": 89462,
+   "2": 38706
+  },
+  "liberman": {
+   "3": 48186,
+   "2": 25238
+  },
+  "golan": {
+   "3": 103204,
+   "2": 54840
+  },
+  "abbas": {
+   "3": 41270,
+   "2": 22564
+  },
+  "distel": {
+   "3": 117206,
+   "2": 63606
+  },
+  "karhi": {
+   "3": 102998,
+   "2": 52378
+  },
+  "herzog": {
+   "3": 136988,
+   "2": 70604
+  },
+  "trump": {
+   "3": 152524,
+   "2": 73348
+  },
+  "may-golan": {
+   "3": 145456,
+   "2": 75188
+  },
+  "dubi": {
+   "1": 2624
+  },
+  "dubi-mic": {
+   "3": 93232,
+   "2": 46234
+  },
+  "source_taxpayer": {
+   "3": 4670,
+   "2": 2454
+  },
+  "source_hitech": {
+   "3": 4338,
+   "2": 2312
+  },
+  "source_vat": {
+   "3": 4996,
+   "2": 2828
+  },
+  "source_cigars": {
+   "3": 4894,
+   "2": 2636
+  },
+  "source_qatari": {
+   "3": 5478,
+   "2": 2910
+  },
+  "source_checkbook": {
+   "1": 434
+  },
+  "source_poison": {
+   "1": 376
+  },
+  "source_submarine": {
+   "1": 548
+  }
+ },
  "specimenVisual": [
   {
    "tofu": 0,
@@ -2237,5 +2972,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 9284276
+ "sourceTotal": 13355154
 }

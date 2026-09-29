@@ -10,7 +10,8 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun 
 |---|---|---|
 | `sprites/sprites.json` | The manifest: every key below, frame data, anchors, events, 9-slices | `FileAccess` + `JSON` |
 | `sprites/cast/<char>_<anim>.png` | Character strips: a grid of texture cells (`cols` × `rows`); frame *i* draws cell `frameMap[i]` (or cell *i* without one), §4 | `SpriteStrip` via `chars[char].anims[anim].texture` |
-| `sprites/cast/<char>_<anim>_d<d>.png` | A density alternate's strips (today only Bibi's d = 2: `bibi_idle_d2`, `bibi_tap_d2`, `bibi_crit_d2`) | `chars[char].densities["<d>"].anims[anim].texture` (§3) |
+| `sprites/cast/<char>_<anim>_d<d>.png` | A density alternate's strips: a d = 2 render of every rendered character (Bibi, Sara, Bennett, the 20 partners incl. May Golan, the mic Dubi), e.g. `bibi_idle_d2`, `may-golan_react_d2` | `chars[char].densities["<d>"].anims[anim].texture` (§3) |
+| `sprites/source_<id>_d<d>.png` | A money source's d = 2 stage strip (the 5 rendered sources) | `sources[id].densities["<d>"].sprite` (§4b) |
 | `sprites/avatar_<char>.png`, `sprites/avatar24_<char>.png` | Chat avatars (round, with a ring): 32×32, and 24×24 for the UX's 48-logical-px chat avatar at ×2 | `Art.tex("avatar_<char>")`, `chars[char].avatar24` |
 | `sprites/source_<id>.png` (+ `_icon`, `_icon_sil`) | The 8 money sources: a 2-frame idle strip 40 art px tall (120 sprite px for the 5 rendered ones at d = 3), a 24×24 shop icon and its locked silhouette (always d = 1). 5 are rendered from refs, 3 are hand-drawn by the 2D Artist; one table covers both | `sprites.json.sources[id]` (§4b) |
 | `sprites/prop_<name>.png` | `prop_hat`, `prop_rabbit`, `prop_coin0-3` (a 4-frame spin), `prop_bill`, `prop_spark` | `Art.tex(id)` |
@@ -54,23 +55,44 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
   - A reader that ignores `density` draws a d = 3 texture 3× too big: every reader of
     `chars` or `sources` sprites must divide by it (SpriteStrip does; the diorama's critters
     read `sources[id].density` since 2026-09-29).
-  - **Density alternates** (shipped 2026-09-29, engine request): `chars[c].densities =
-    {"<d>": {frameW, frameH, anchor, density, anims}}`, a complete second render of the
-    character. `SpriteStrip.pick_variant` shallow-merges it over the main entry (so `avatar`,
-    `avatar24` come from the main one) and picks the largest density that divides the device
-    scale k; the main render otherwise.
-    - **Today: Bibi only, d = 2**, beside his main d = 3. k 2 (desktop), 4 (every DPR-2
-      phone) and 8 draw the d 2 (2 device px per sprite px at k 4, crisp); k 6 and 9 draw
-      the d 3; k 7 (430 @3) has no divisor and stays on the main d 3 via the "aa" path.
-    - **Same motion, own pixels:** the alternate is rendered from the ref at 192 px (not
-      resampled from the d 3), so its frame size, anchor, `hatMouth` and `temple` are its
-      own, in its own sprite px. `frames`, `fps`, `loop` and `events` are identical to the
-      main render (the pipeline fails otherwise); the landmarks agree with the d 3 to within
-      half an art px relative to the feet.
+  - **Density alternates** (Bibi 2026-09-29 on the engine's request; the whole rendered cast
+    and the 5 rendered sources the same day, Bar: "sharp characters on every phone"):
+    `chars[c].densities = {"<d>": {frameW, frameH, anchor, density, anims}}`, a complete second
+    render of the character, and `sources[id].densities = {"<d>": {sprite, frameW, frameH,
+    pivot, points, density}}` (§4b). `SpriteStrip.pick_variant(entry, k)` shallow-merges one
+    over the main entry (so `avatar`, `avatar24`, `icon`, `silhouette` come from the main one).
+    - **Today: every rendered character and source is d 3 (main) + d 2 (alternate).** The
+      hand-drawn ones (the small Dubi, checkbook, poison, submarine) are d 1 and need none.
+    - **The pick rule** (`pick_variant`, read 2026-09-29): among the main render and its
+      alternates, the **largest density d that divides k** wins; none divides k → the main
+      render on SpriteStrip's `fractional_filter` ("aa"). A sprite px is then k / d device px.
+      | k | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 12 |
+      |---|---|---|---|---|---|---|---|---|---|
+      | picked | d 2 | d 3 | d 2 | d 3 "aa" | d 3 | d 3 "aa" | d 2 | d 3 | d 3 |
+      | dp per sprite px | 1 | 1 | 2 | 1.67 | 2 | 2.33 | 4 | 3 | 4 |
+
+      So **the crisp scales are every k that is a multiple of 2 or 3**; k 5 and 7 are the
+      only phone scales left on "aa". Restricting k to that set (k 5 → 4, k 7 → 6) makes
+      every rendered sprite crisp everywhere.
+    - **k is the device px per art px the figure actually gets.** On the stage (×4 logical
+      per art px) that is `Display.k`. A view that draws a figure at its own art scale *s*
+      (the partner card ×3, the ultimatum cameo ×3/×2, Dubi's flash ×4/×3/×2) gets s · f,
+      and picks with that: `SpriteStrip.set_art_px(s)`. Example: the partner card at k 4 is
+      3 dp per art px → the d 3 at 1 dp; Dubi's flash at k 4 is ×4 → the d 2 at 2 dp.
+      Setting `scale_px` by hand from `chars[c].density` draws the picked d 2 at the wrong
+      size: don't.
+    - **Same motion, own pixels:** the alternate is rendered from the ref at 96·d px (not
+      resampled from the d 3) by the same render function (`build.py`: every rig takes d), so
+      its frame size, anchor, points, `hatMouth` and `temple` are its own, in its own sprite
+      px. `frames`, `fps`, `loop` and `events` (sources: `frames`, `fps`, `loop` and the point
+      names) are identical to the main render, and every landmark agrees with the d 3 to
+      within half an art px relative to the feet: the pipeline fails otherwise.
     - **Read everything from the picked variant** (SpriteStrip's `_c` / `_a`, `point()`,
-      `frame_size()`), never from `chars[c]` directly: `chars.bibi.frameW` is the d 3 frame.
-    - **Only the picked variant is loaded**, so a device holds one of Bibi's renders at a
-      time (§7). Partners have no alternate (they stay on "aa" at k 4 and 7).
+      `frame_size()`; `Art.source(id)` for sources), never from `chars[c]` directly:
+      `chars.bibi.frameW` is the d 3 frame. For layout, `frameH / density` of either render
+      is the same art height to within one art px.
+    - **Only the picked variant is loaded**, so a device holds one render of each character
+      or source at a time (§7). The alternates cost download, not resident VRAM.
   - **To draw:** a density-*d* texture draws at `artScale / d` per sprite px. It is crisp when
     the device scale k is a multiple of *d* (art ×6 → 3× sprites at ×2; art ×4 → 2× sprites at
     ×2); otherwise SpriteStrip's `fractional_filter` applies.
@@ -149,8 +171,8 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
   eye's top. Place the 2D Artist's `sweat_drop` with its pivot there.
 - **Bibi is 201×326 sprite px at d = 3** (anchor [120, 325]; 67×109 art px, hat included),
   and **135×218 at d = 2** (his `densities["2"]`, the same 67.5×109 art px).
-  The partners are 123-210 px wide and 289-310 tall. No frame touches its edge, and every
-  character passes the edge check with no waivers.
+  The partners are 123-210 px wide and 289-310 tall at d 3, 82-141 × 193-206 at d 2. No frame
+  of either render touches its edge, and every character passes the edge check with no waivers.
 - **The hat, rabbit and coins stay 1× art** (drawn into Bibi's strips as d×d blocks: 3×3 in
   the d 3, 2×2 in the d 2; the loose props are d = 1), so they match the stage's pixel size.
 - **Dubi, two figures:**
@@ -173,8 +195,15 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
 ```jsonc
 "taxpayer": { "sprite": "source_taxpayer", "frames": 2, "frameW": 76, "frameH": 120, "pivot": [38, 119],
               "icon": "source_taxpayer_icon", "silhouette": "source_taxpayer_icon_sil",
-              "points": { "hand": [23, 80] }, "origin": "render-down", "density": 3, "iconDensity": 1 }
+              "points": { "hand": [23, 80] }, "origin": "render-down", "density": 3, "iconDensity": 1,
+              "densities": { "2": { "sprite": "source_taxpayer_d2", "frameW": 51, "frameH": 80, "pivot": [25, 79],
+                                    "points": { "hand": [15, 54] }, "density": 2 } } }
 ```
+- **Density alternates:** each rendered source carries a d = 2 strip in `densities["2"]` (the
+  same shape as `chars[c].densities`, §3), 80 sprite px = 40 art px, the same 2 frames and
+  point names. `Art.source(id)` returns the variant `SpriteStrip.pick_variant` picks for
+  `Display.k` (d 2 at k 2/4/8, d 3 at k 3/6/9); `Art.source(id, false)` the main entry. The
+  diorama re-points its critters at the picked strip when k changes (`_repick_density`).
 - **Density:** `frameW`, `frameH`, `pivot` and `points` are sprite px of the strip (d = 3 for
   the 5 rendered sources, d = 1 for the hand-drawn three). Draw the strip at `artScale /
   density`. The icon and silhouette are always 24×24 at d = 1 (`iconDensity`).
@@ -291,34 +320,41 @@ ascender 4, body 10, descender 4), so at the same box each @2 px is 2×2 device 
 - **Cost:** a 256×128 page (128 KB VRAM), 10.8 KB of `.pck`.
 
 ## 7. Budget (measured, `pipeline/od-sevev/budget.json`, rerun with `--godot`)
-- **Web `.pck` bytes added:** 3.12 MB for all our art (2026-09-29, frameMap + Bibi's d 2; it
-  was 3.30 MB for the 3× cast before, 489 KB at 1×). That covers:
-  - 25 characters, including both Dubis, May Golan and Bibi's d 2 alternate: 3.00 MB;
-  - the UI kit (197 pieces, the 3 hand-drawn sources included): 43 KB;
-  - the 5 rendered sources (3× strips + 1× icons): 28 KB;
+- **Web `.pck` bytes added:** 4.50 MB for all our art (2026-09-29, d 2 alternates for the whole
+  rendered cast and the 5 rendered sources; it was 3.14 MB with Bibi's d 2 only, 3.30 MB for the
+  3× cast before the frameMap, 489 KB at 1×). That covers:
+  - 25 characters, including both Dubis, May Golan and 24 d 2 alternates: 4.35 MB (the d 2
+    renders are 1.45 MB of it);
+  - the UI kit (the 3 hand-drawn sources included): about 45 KB;
+  - the 5 rendered sources (3× + 2× strips + 1× icons): 41 KB (the d 2 strips 13 KB);
   - both avatar sizes: 27 KB;
   - the fonts: 16 KB for Sevev 9 and its outline cut, plus 11 KB for Sevev 9 @2;
   - props, stages and FX: 6 KB.
 
-  With audio at ~10.9 MB, that is about a fifth of the payload. The frameMap's smaller grids
-  saved 287 KB, more than Bibi's d 2 costs (106 KB).
-- **Per character:** a 3× character costs 41-164 KB of `.pck` (median 125 KB). Bibi is
-  299 KB: 193 KB for the d 3 and 106 KB for the d 2.
-- **VRAM (RGBA8):** everything resident at once would be 112 MB (was 153 MB; the cast alone
-  is 109 MB, 105 MB without Bibi's d 2, was 150 MB), so **never preload the cast**:
-  - **Keep resident:** Bibi, the current stage, the rendered sources (0.5 MB), the UI kit,
-    the fonts and the avatars. That is 2.2 MB plus Bibi, and **only the render SpriteStrip
-    picks is loaded**:
-    - **k 6, 7, 9** (d 3, 20 + 7 + 10 cells of 201×326; 9.7 MB): **11.9 MB** (was 13.2);
-    - **k 2, 4, 8** (d 2, 20 + 7 + 10 cells of 135×218; 4.4 MB): **6.5 MB**.
-    
-    The d 2 adds no resident VRAM on any device (the engine's +4.9 MB estimate assumed both
-    renders loaded). It costs download only. A code path that `load()`s both of Bibi's
-    textures would hold 14.1 MB of Bibi, so don't preload by file name.
-  - **Load on demand:** a partner's two strips when their card or scene opens (1.8-7.0 MB,
-    median 4.5 MB, was 4.3-7.6 / 6.1; May Golan 3.3 MB, was 7.1), and drop the reference
-    when it closes. The chat only needs the avatars. At most one partner body should be
-    alive at a time besides Bibi (≤ 19 MB total).
+  With audio at ~10.9 MB, that is about 29% of the payload (was 22%). The d 2 renders cost
+  **+1.33 MB** of download in all: that is the whole price of crisp sprites at k 2, 4 and 8.
+- **Per character:** a partner costs 41-164 KB of `.pck` for its d 3 (median 122 KB) plus
+  23-78 KB for its d 2 (median 60 KB, about half: a quarter fewer texels per px², and PNG
+  compresses the smaller frames a little less well). Bibi is 292 KB: 189 KB d 3 + 103 KB d 2.
+  A rendered source is 4-5 KB d 3 + 2-3 KB d 2.
+- **VRAM (RGBA8):** everything resident at once would be 155 MB (was 112 MB; the cast alone is
+  152 MB: 105 MB of d 3, 47 MB of d 2), so **never preload the cast**, and never both renders:
+  - **Keep resident:** Bibi, the current stage, the rendered sources, the UI kit, the fonts
+    and the avatars. That is 1.9 MB plus Bibi and the sources, and **only the render
+    `pick_variant` picks is loaded** (SpriteStrip; the diorama through `Art.source`):
+    - **k 6, 7, 9** (Bibi d 3, 9.7 MB; sources d 3, 0.46 MB): **12.0 MB** (unchanged);
+    - **k 2, 4, 8** (Bibi d 2, 4.4 MB; sources d 2, 0.21 MB): **6.4 MB** (was 6.7 MB with the
+      sources on d 3).
+
+    The alternates add no resident VRAM on any device: at every k one render of each figure
+    is loaded, and the d 2 one is 44% of the d 3's texels. A code path that `load()`s both
+    renders by file name would hold both, so don't.
+  - **Load on demand:** a partner's two strips when their card or scene opens, and drop the
+    reference when it closes. The chat only needs the avatars. The render loaded is the one
+    picked for that view's scale: on the partner card (×3) the d 3 at k 4, 6 and 8 (1.8-7.0
+    MB, median 4.5 MB; May Golan 3.3 MB, all unchanged); where a view picks the d 2 (the
+    cameo at ×2 on k 4, Dubi's flash at ×4 on k 4) 0.8-3.1 MB, median 2.0 MB (May Golan
+    1.5 MB, the mic Dubi 2.3 MB). At most one partner body alive besides Bibi (≤ 19 MB).
   - **frameMap** (§4): idle strips repeat frames, so a still-armed partner's idle is 6
     cells of 20 (Abbas 5.4 → 1.8 MB), and every react strip ending on its first pose shares
     that cell. Together with the fewest-cells grid it cuts the cast's VRAM by **30%**
@@ -335,5 +371,6 @@ ascender 4, body 10, descender 4), so at the same box each @2 px is 2×2 device 
     static frame and the coins need a 16 fps spin. Run it as pooled per-coin tweens, capped at
     **36 coins alive** (the animator's budget), using the textures `prop_coin0-3`.
 - **Texture size:** every strip must be ≤ 2048 px wide and tall, WebGL2's guaranteed floor.
-  The widest today is 2040 (Amsalem's 10-column idle), the tallest 1240 (Lapid's 5×4 idle).
+  The widest today is 2040 (Amsalem's 10-column idle), the tallest 1240 (Lapid's 5×4 idle); the
+  widest d 2 grid is 1960 (Deri's idle), the tallest 436 (Bibi's idle).
   The pipeline fails on anything bigger.

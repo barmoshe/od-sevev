@@ -125,16 +125,27 @@ func test_density_one_and_three_from_the_manifest() -> void:
 		SpriteStrip.refresh_all(tree)
 		runner.check(Display.k == k and s3.material == null and s3.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
 			"k %d: a sprite px is %d device px, nearest" % [k, k / 3])
-	# the money sources on the stage: taxpayer rendered (d 3), washington → the hand-drawn checkbook (d 1)
+	# the money sources on the stage: taxpayer rendered (d 3 + a d 2 alternate), washington → the
+	# hand-drawn checkbook (d 1). Art.source picks the variant crisp at k, like SpriteStrip does.
 	Display.update(Vector2(780, 1688))
 	var spr := Sprite2D.new()
 	parent.add_child(spr)
 	Diorama._scale_sprite(spr, "taxpayer")
-	runner.check(spr.scale.is_equal_approx(Vector2.ONE * 4.0 / 3.0), "a d 3 source draws at 4/3, got %s" % spr.scale)
-	runner.check(spr.material is ShaderMaterial, "and gets the fallback filter at k 4")
+	runner.check(Diorama._sprite_of("taxpayer").ends_with("_d2"), "k 4 draws the taxpayer's d 2 strip (%s)" % Diorama._sprite_of("taxpayer"))
+	runner.check(spr.scale.is_equal_approx(Vector2.ONE * 2.0), "a d 2 source draws at ×2 at k 4, got %s" % spr.scale)
+	runner.check(spr.material == null and spr.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "and nearest (2 device px per sprite px)")
+	runner.check(int(Art.kit(Diorama._sprite_of("taxpayer")).get("frames", 0)) == 2, "the d 2 strip cuts into its 2 frames (Art.kit)")
 	Display.update(Vector2(1170, 2532))
 	SpriteStrip.refresh_all(tree)
 	runner.check(spr.material == null, "and nearest at k 6 after a scale change")
+	runner.check(not Diorama._sprite_of("taxpayer").ends_with("_d2") and is_equal_approx(Diorama._scale_of("taxpayer").x, 4.0 / 3.0),
+		"k 6 draws the taxpayer's main d 3 strip at 4/3")
+	Display.update(Vector2(1284, 2778))
+	var spr7 := Sprite2D.new()
+	parent.add_child(spr7)
+	Diorama._scale_sprite(spr7, "taxpayer")
+	runner.check(spr7.material is ShaderMaterial, "k 7 (no divisor): the main d 3 on the fallback filter")
+	Display.update(Vector2(1170, 2532))
 	var spr1 := Sprite2D.new()
 	parent.add_child(spr1)
 	Diorama._scale_sprite(spr1, "washington")
@@ -186,6 +197,61 @@ func test_density_one_and_three_from_the_manifest() -> void:
 	runner.check(int(SpriteStrip.pick_variant(alt, 4)["density"]) == 2, "k 4 picks the d 2 alternate")
 	runner.check(int(SpriteStrip.pick_variant(alt, 6)["density"]) == 3, "k 6 keeps the d 3 render")
 	runner.check(int(SpriteStrip.pick_variant(alt, 7).get("density", 0)) == 3, "k 7 (no divisor) keeps the main render")
+	parent.queue_free()
+
+
+## Every rendered character and money source ships a d 2 alternate beside its main d 3 (the TA,
+## 2026-09-29: "sharp characters on every phone"), so every k that is a multiple of 2 or 3 is
+## crisp; the hand-drawn ones (the small Dubi, 3 sources) are d 1 and crisp everywhere.
+func test_every_rendered_asset_has_a_crisp_variant_at_every_k_of_2_or_3() -> void:
+	var man := SpriteStrip.manifest()
+	var entries: Dictionary = {}
+	for slug: String in man["chars"]:
+		entries["chars." + slug] = man["chars"][slug]
+	for sid: String in man["sources"]:
+		entries["sources." + sid] = man["sources"][sid]
+	for key: String in entries:
+		var e: Dictionary = entries[key]
+		var d := SpriteStrip.density_of(e)
+		if d == 1:
+			runner.check(not e.has("densities"), "%s is d 1: no alternate needed" % key)
+			continue
+		runner.check(d == 3 and (e.get("densities", {}) as Dictionary).has("2"), "%s: main d 3 + a d 2 alternate" % key)
+		for k: int in [2, 3, 4, 6, 8, 9, 12]:
+			var v := SpriteStrip.pick_variant(e, k)
+			runner.check(k % SpriteStrip.density_of(v) == 0, "%s at k %d: d %d is crisp" % [key, k, SpriteStrip.density_of(v)])
+		for k: int in [5, 7]:
+			runner.check(SpriteStrip.density_of(SpriteStrip.pick_variant(e, k)) == 3, "%s at k %d: the main d 3 (aa)" % [key, k])
+		if e.has("anims"):   # the same motion: frames, fps, loop and events (the pipeline fails otherwise)
+			var alt: Dictionary = e["densities"]["2"]
+			for an: String in e["anims"]:
+				for f: String in ["frames", "fps", "loop", "events"]:
+					runner.check(str(alt["anims"][an][f]) == str(e["anims"][an][f]), "%s.%s d 2 %s == d 3" % [key, an, f])
+
+
+## A view that draws a figure at its own art scale (the partner card ×3, the cameo, Dubi's flash)
+## gets the variant crisp at ITS device px per art px, not at Display.k.
+func test_set_art_px_picks_the_variant_for_the_views_own_scale() -> void:
+	var parent := Node2D.new()
+	tree.root.add_child(parent)
+	await tree.process_frame
+	Display.update(Vector2(780, 1688))   # k 4, f 1
+	var s := SpriteStrip.make(parent, "may-golan", Vector2(360, 900))
+	runner.check(s.density == 2 and is_equal_approx(s.scale_px, 2.0), "on the stage scale (×4) k 4 draws the d 2 at ×2 (d %d)" % s.density)
+	s.set_art_px(3.0)   # the partner card: 3 device px per art px at k 4 → the d 3, 1 device px per sprite px
+	runner.check(s.density == 3 and is_equal_approx(s.scale_px, 1.0) and s.material == null, "×3 at k 4: the d 3 at 1 dp, nearest (d %d)" % s.density)
+	var c: Dictionary = SpriteStrip.manifest()["chars"]["may-golan"]
+	runner.check(s.frame_size().is_equal_approx(Vector2(float(c["frameW"]), float(c["frameH"]))), "and the figure is 3 logical px per art px")
+	s.set_art_px(2.0)   # the short cameo: 2 device px per art px → the d 2
+	runner.check(s.density == 2 and is_equal_approx(s.scale_px, 1.0) and s.material == null, "×2 at k 4: the d 2 at 1 dp (d %d)" % s.density)
+	s.set_art_px(4.0)
+	runner.check(s.density == 2 and is_equal_approx(s.scale_px, 2.0), "×4 at k 4: the d 2, exact 2×2 device px per sprite px")
+	s.set_art_px(3.0)
+	Display.update(Vector2(1170, 2532))  # k 6, f 1.5: ×3 is 4.5 dp per art px, nothing divides it
+	SpriteStrip.refresh_all(tree)
+	runner.check(is_equal_approx(s.art_px, 3.0) and is_equal_approx(s.scale_px, 3.0 / s.density), "refresh_all keeps the view's ×3")
+	runner.check(s.density == 3 and s.material is ShaderMaterial, "×3 at k 6: the main d 3 on the fallback filter")
+	Display.update(Vector2(780, 1688))
 	parent.queue_free()
 
 

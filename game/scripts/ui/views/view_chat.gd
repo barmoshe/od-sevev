@@ -1505,11 +1505,8 @@ func _update_cameo(dt: float, allowed: bool) -> void:
 			if art <= 0.0:
 				show = false
 			else:
-				var sp := art / float(_cameo_strip.density)
-				if not is_equal_approx(_cameo_strip.scale_px, sp):
-					_cameo_strip.scale_px = sp
-					_cameo_strip._setup_filter()
-					_cameo_strip.queue_redraw()
+				if not is_equal_approx(_cameo_strip.art_px, art):
+					_cameo_strip.set_art_px(art)   # re-picks the density variant for art ×art
 				_cameo_strip.position = feet
 				_cameo_strip.update_view(dt)
 				var h := fh * art
@@ -1591,8 +1588,7 @@ class PartnerCard:
 		if slug != "":
 			_strip = SpriteStrip.make(panel, slug, Vector2(360, cy + fig_h), "idle")
 			if _strip != null:
-				_strip.scale_px = 3.0 / float(dens)
-				_strip._setup_filter()
+				_strip.set_art_px(3.0)   # art ×3: the density variant picked for this card's device px per art px
 				if gone:
 					_strip.paused = true
 					_strip.play("idle")

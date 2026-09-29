@@ -101,6 +101,10 @@ func test_the_art_scale_is_integer_and_crisp_where_it_can_be() -> void:
 	var none := func(_s: int) -> bool: return false
 	runner.check(FlashCard.pick_art_scale(4, 3, none) == 2, "nothing fits: the smallest scale, never a fraction")
 	runner.check(FlashCard.pick_art_scale(4, 1, all) == 4, "a d 1 figure at k 4: ×4 is already crisp")
+	# the mic Dubi ships d 3 + a d 2 alternate: any of them dividing s·k/4 makes ×s crisp
+	for k: int in {2: 4, 4: 4, 6: 4, 8: 4, 7: 4}:
+		runner.check(FlashCard.pick_art_scale(k, [3, 2], all) == 4, "d 3 + d 2 at k %d: ×4" % k)
+	runner.check(FlashCard.pick_art_scale(4, [3, 2], func(sc: int) -> bool: return sc <= 3) == 3, "k 4, ×4 too tall: ×3 (the d 3 at 1 dp)")
 
 
 func test_dubi_talking_points_are_found_in_the_beats() -> void:
@@ -149,9 +153,8 @@ func test_the_flash_shows_after_an_election_and_closes() -> void:
 	if f == null:
 		return
 	runner.check(f.strip != null and f.strip.char_id == "dubi-mic", "the mic Dubi is on the card")
-	var c: Dictionary = SpriteStrip.manifest()["chars"]["dubi-mic"]
-	var dens := int(c.get("density", 1))
-	runner.check(f.strip.density == dens and is_equal_approx(f.strip.scale_px, float(f.art_scale) / dens),
+	var dens := f.strip.density   # the variant set_art_px picked for ×art_scale (d 3 or its d 2)
+	runner.check([2, 3].has(dens) and is_equal_approx(f.strip.scale_px, float(f.art_scale) / dens),
 		"×%d art: %s logical px per sprite px of a d %d strip" % [f.art_scale, str(f.strip.scale_px), dens])
 	runner.check([2, 3, 4].has(f.art_scale), "an integer art scale (%d)" % f.art_scale)
 	var fig := f.strip.rect()
