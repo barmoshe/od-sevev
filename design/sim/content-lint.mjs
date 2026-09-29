@@ -94,13 +94,30 @@ for (const s of [...game, ...uiStrings, ...aboutLines]) {
 
 // ---------- 3. poll-number rule (UX §6.3.4) ----------
 const pollKw = ['מנדט', 'מנדטים', 'סקר', 'סקרים', 'מוביל', 'מובילה', 'אחוז החסימה', 'החסימה'];
+// "רוב" (a majority) with a number reads as a seat forecast ("רוב של 64"). It is matched as a whole
+// word after up to two prefix letters (רוב, הרוב, לרוב, ברוב, ורוב), never as a substring: the
+// letters hide inside ordinary words (קרוב, סירוב, סירובים: "1,000 סירובים" is Liberman's tap count).
+// The Knesset's own numbers are rules, not polls: 61 (the majority) and 120 (its size) may stand
+// next to it ("צריך רוב של 61").
+const pollStems = ['רוב'];
+const KNESSET_RULE_NUMBERS = new Set(['61', '120']);
+// (No כ prefix here: כרוב is a cabbage.)
+const stemOf = w => w.replace(/[^֐-׿]/g, '').replace(/^[והבלמש]{0,2}(?=רוב$)/, '');
+const pollHit = (words, i) => {
+  const w = words[i];
+  if (pollKw.some(k => w.replace(/[^֐-׿]/g, '').replace(new RegExp(`^[${pre}]{0,2}`), '') === k || w.includes(k)))
+    return /\d/.test(words.slice(Math.max(0, i - 3), i + 4).join(' '));
+  if (pollStems.includes(stemOf(w))) {
+    const nums = words.slice(Math.max(0, i - 3), i + 4).join(' ').match(/\d[\d,.]*/g) || [];
+    return nums.some(n => !KNESSET_RULE_NUMBERS.has(n.replace(/[.,]+$/, '')));
+  }
+  return false;
+};
 for (const s of game) {
   if (s.holder.poll_like === true) continue;
   const words = s.text.split(/\s+/);
   words.forEach((w, i) => {
-    if (!pollKw.some(k => w.replace(/[^֐-׿]/g, '').replace(new RegExp(`^[${pre}]{0,2}`), '') === k || w.includes(k))) return;
-    const near = words.slice(Math.max(0, i - 3), i + 4).join(' ');
-    if (/\d/.test(near)) err(s.path, `poll-number rule: digit near '${w}' without poll_like:true: ${s.text}`);
+    if (pollHit(words, i)) err(s.path, `poll-number rule: digit near '${w}' without poll_like:true: ${s.text}`);
   });
 }
 
@@ -142,8 +159,7 @@ for (const f of F.facts) {
   for (const term of R.reviewTerms.terms) if (hits(a, term)) warn(p, `review term '${term}': ${a}`);
   const words = a.split(/\s+/);
   words.forEach((w, i) => {
-    if (!pollKw.some(k => w.includes(k))) return;
-    if (/\d/.test(words.slice(Math.max(0, i - 3), i + 4).join(' '))) err(p, `poll-number rule: digit near '${w}' (the About page is public during the blackout): ${a}`);
+    if (pollHit(words, i)) err(p, `poll-number rule: digit near '${w}' (the About page is public during the blackout): ${a}`);
   });
 }
 
@@ -329,6 +345,8 @@ if (C.leaderSelect || C.leaders) {
     if (SPR && !charOf(L.art)) err(P, `art ${L.art} is not in sprites.json chars`);
     if (!ready) { if (L.status !== 'backlog') warn(P, 'not contentReady and not marked backlog'); continue; }
     for (const k of ['blurb', 'line']) if (!hebStr(L.pick?.[k])) err(P, `pick.${k} missing`);
+    // Every leader, the default included, shows one signature rule on the picker's long-press and in T4.
+    for (const k of ['name', 'text']) if (!hebStr(L.rule?.[k])) err(`${P}.rule`, `${k} missing (the picker and T4 show every leader's rule, Bibi's too)`);
     const K = L.kit || {};
     const stringsBefore = strings.filter(s => s.path.startsWith(`.leaders[`) && s.path.includes(`.${L.id}.`) && heb.test(s.text)).length;
     let facts = new Set();

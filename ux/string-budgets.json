@@ -4547,37 +4547,41 @@
       "surface": "label",
       "spec": "§5.2 ICU days =0",
       "joke": true,
+      "note": "Leader-neutral (game-designer 2026-09-29): {n} = court days + press days (Investigation.hazard_days), so every leader's days count and the words fit both skins; was 'ימי משפט' (Bibi's court only)",
       "box": "result.head",
       "maxChars": 26,
       "worstPx": {
-        "1": 65
+        "1": 82
       }
     },
     "DAYS_ONE": {
       "surface": "label",
       "spec": "§5.2 ICU days one",
+      "note": "Leader-neutral, see DAYS_ZERO",
       "box": "result.head",
       "maxChars": 26,
       "worstPx": {
-        "1": 65
+        "1": 76
       }
     },
     "DAYS_TWO": {
       "surface": "label",
       "spec": "§5.2 ICU days two",
+      "note": "Leader-neutral, see DAYS_ZERO",
       "box": "result.head",
       "maxChars": 26,
       "worstPx": {
-        "1": 60
+        "1": 77
       }
     },
     "DAYS_OTHER": {
       "surface": "label",
       "spec": "§5.2 ICU days other",
+      "note": "Leader-neutral, see DAYS_ZERO",
       "box": "result.head",
       "maxChars": 26,
       "worstPx": {
-        "1": 66
+        "1": 83
       }
     },
     "RECEIPT_BRAND": {

@@ -103,8 +103,9 @@ static func rounds_days(s: GameState) -> Array:
 	return [Strings.plural("ROUNDS", rounds), Strings.plural("DAYS", days)]
 
 
+## Court days plus press days (leader-neutral, like the DAYS_* words): every leader's days count.
 static func court_days(s: GameState) -> int:
-	return int((s.investigation if s.investigation is Dictionary else {}).get("courtDays", 0))
+	return Investigation.hazard_days(s)
 
 
 # ------------------------------------------------------------------ the receipt (O4, §5.1)
