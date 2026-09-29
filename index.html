@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<!-- "עוד סבב" web shell (forked from Monkey Bananas v2.1.0): Godot 4.7.2's godot.html (via
+     wandcraft), changed to fill a phone screen as a Home Screen app (viewport-fit=cover, fixed
+     full-screen canvas), to report the CSS safe-area insets to the game (window.mbSafeArea, read
+     by Layout), to make sound work on iPhone (mixing with other audio), and to carry the Home
+     Screen manifest (no service worker). Hebrew, RTL: lang/dir on <html>; the link-preview tags
+     follow ux/first-minute.md §5.4. The internal JS names (mbBuild, mbSafeArea, mbAudioState)
+     keep the fork's "mb" prefix on purpose: the engine reads them by name. -->
+<html lang="he" dir="rtl">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
+		<title>עוד סבב: הבחירות שלא נגמרות</title>
+		<meta name="description" content="שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.">
+		<meta name="theme-color" content="#2a2340">
+		<meta property="og:title" content="עוד סבב: הבחירות שלא נגמרות">
+		<meta property="og:description" content="שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.">
+		<meta property="og:image" content="og.jpg">
+		<meta property="og:image:width" content="1200">
+		<meta property="og:image:height" content="630">
+		<meta property="og:image:alt" content="ביבי בפיקסלים שולף שקלים מכובע, ומזוודה עם מדבקת DOHA עפה ברקע">
+		<meta property="og:locale" content="he_IL">
+		<meta property="og:type" content="website">
+		<meta property="og:site_name" content="עוד סבב">
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="עוד סבב: הבחירות שלא נגמרות">
+		<meta name="twitter:description" content="שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.">
+		<meta name="twitter:image" content="og.jpg">
+		<meta name="twitter:image:alt" content="ביבי בפיקסלים שולף שקלים מכובע, ומזוודה עם מדבקת DOHA עפה ברקע">
+		<style>
+html, body, #canvas {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+html, body {
+	width: 100%;
+	height: 100%;
+	background-color: #2a2340;
+}
+
+body {
+	color: white;
+	background-color: #2a2340;
+	overflow: hidden;
+	overscroll-behavior: none;
+	touch-action: none;
+}
+
+#canvas {
+	display: block;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+#safe-probe {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	visibility: hidden;
+	pointer-events: none;
+	padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+
+#canvas:focus {
+	outline: none;
+}
+
+#status, #status-splash, #status-progress {
+	position: absolute;
+	left: 0;
+	right: 0;
+}
+
+#status, #status-splash {
+	top: 0;
+	bottom: 0;
+}
+
+#status {
+	background-color: #4a2552;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	visibility: hidden;
+}
+
+#status-splash {
+	max-height: 100%;
+	max-width: 100%;
+	margin: auto;
+}
+
+#status-splash.show-image--false {
+	display: none;
+}
+
+#status-splash.fullsize--true {
+	height: 100%;
+	width: 100%;
+	object-fit: contain;
+}
+
+#status-splash.use-filter--false {
+	image-rendering: pixelated;
+}
+
+#status-progress, #status-notice {
+	display: none;
+}
+
+#status-progress {
+	bottom: 10%;
+	width: 50%;
+	margin: 0 auto;
+}
+
+#status-notice {
+	background-color: #5b3943;
+	border-radius: 0.5rem;
+	border: 1px solid #9b3943;
+	color: #e0e0e0;
+	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+	line-height: 1.3;
+	margin: 0 2rem;
+	overflow: hidden;
+	padding: 1rem;
+	text-align: center;
+	z-index: 1;
+}
+
+/* od-sevev N1 disclaimer / N0 splash / hand-off bar (ux/first-minute.md §2.1, §6.1;
+   ux/rtl-map.md §9). HTML so it paints in ~1.5 s while the engine downloads behind it, and so
+   screen readers, translators and crawlers read it. Strings are templated from
+   ux/ui-strings.json by tools/build_web.sh (tools/lib/render_shell.py). */
+#od-gate {
+	position: fixed;
+	inset: 0;
+	z-index: 20;
+	background: #140c24;
+	color: #f7f4ec;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.5;
+	text-align: right;
+	transition: opacity 300ms ease-out;
+	padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px) 16px;
+	box-sizing: border-box;
+	overflow-y: auto;
+}
+#od-gate.od-out { opacity: 0; pointer-events: none; }
+#od-gate .od-card { width: 100%; max-width: 358px; }
+#od-gate img.od-wordmark { display: block; margin: 0 auto 20px; width: 286px; height: 58px; image-rendering: pixelated; }
+#od-gate h1 { font-size: 22px; margin: 0 0 12px; text-align: center; }
+#od-gate p { margin: 0 0 10px; }
+#od-gate .od-by { font-size: 14px; color: #c9c3d6; margin-top: 14px; }
+#od-gate a { color: #f7f4ec; }
+#od-gate .od-buttons { display: flex; gap: 12px; margin-top: 22px; direction: rtl; }
+#od-gate .od-btn { flex: 1; display: flex; flex-direction: column; align-items: stretch; }
+#od-gate button { min-height: 52px; width: 100%; font: inherit; font-size: 18px; font-weight: 600; color: #f7f4ec;
+	background: #0038b8; border: 3px solid #1b1426; border-radius: 6px; cursor: pointer; }
+#od-gate button:focus-visible { outline: 3px solid #f7f4ec; outline-offset: 2px; }
+#od-gate .od-cap { font-size: 14px; color: #c9c3d6; text-align: center; margin-top: 4px; min-height: 21px; }
+#od-gate .od-bar { height: 52px; border: 3px solid #1b1426; border-radius: 6px; background: #2a2340; position: relative; overflow: hidden; }
+#od-gate .od-bar i { position: absolute; top: 0; bottom: 0; right: 0; width: 0; background: #0038b8; transition: width 200ms linear; }
+#od-gate .od-line { text-align: center; margin-top: 10px; min-height: 24px; }
+#od-gate .od-splash { text-align: center; }
+#od-about { position: fixed; inset: 0; z-index: 30; background: #140c24; color: #f7f4ec; overflow-y: auto;
+	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.5;
+	padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 32px; box-sizing: border-box; display: none; }
+#od-about .od-card { max-width: 520px; margin: 0 auto; }
+#od-about h1 { font-size: 22px; margin: 0 0 12px; }
+#od-about h2 { font-size: 18px; margin: 20px 0 8px; }
+#od-about ul { padding: 0 20px 0 0; margin: 0; text-align: right; }
+#od-about li { margin-bottom: 8px; }
+#od-about .od-src { font-size: 14px; color: #c9c3d6; }
+#od-about a, #od-about a:visited { color: #9fc3ff; text-decoration: underline; }
+#od-about button { min-height: 48px; padding: 0 20px; font: inherit; color: #f7f4ec; background: #2a2340; border: 3px solid #f7f4ec; border-radius: 6px; cursor: pointer; }
+/* ABOUT_BACK sticks to the top-left of the page (ux/rtl-map.md §9, review R2): the left end of the
+   RTL row, 48 CSS tall, over a strip of the page colour so the list scrolls under it */
+#od-about .od-back { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 1; display: flex;
+	justify-content: flex-end; padding: 8px 0; margin: 0 0 4px; background: #140c24;
+	box-shadow: 0 calc(-16px - env(safe-area-inset-top, 0px)) 0 0 #140c24; }   /* also covers the page padding above it */
+
+/* od-sevev desktop phone frame (ux/first-minute.md §1.3, ux/rtl-map.md §1): on a wide window with a
+   mouse the canvas is a 390-CSS phone column, centred, in a bezel. odFit() below places both; the
+   bezel is decoration only (no input, no text). */
+html.od-framed, html.od-framed body {
+	background-color: #140c24;
+}
+#od-phone {
+	display: none;
+	position: fixed;
+	box-sizing: border-box;
+	border-radius: 40px;
+	background: #0b0714;
+	border: 3px solid #3a2f55;
+	box-shadow: 0 24px 72px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #000;
+	pointer-events: none;
+}
+html.od-framed #od-phone {
+	display: block;
+}
+		</style>
+		<link rel="manifest" href="index.manifest.json">
+		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="עוד סבב">
+	</head>
+	<body>
+		<div id="od-phone" aria-hidden="true"></div>
+		<canvas id="canvas">
+			הדפדפן הזה לא תומך במשחק.
+		</canvas>
+
+		<div id="safe-probe"></div>
+
+		<noscript>
+			<h1>רגע לפני הסבב</h1>
+			<p>זו סאטירה. הדמויות הן קריקטורות פיקסל, ומה שהן עושות כאן בדיוני.</p>
+			<p>אין כאן טענה עובדתית על אף אחד. ציטוטים אמיתיים מסומנים כציטוט, עם מקור.</p>
+			<p>המשחק לא קשור לאף מפלגה או מועמד, ולא ממומן על ידי אף מפלגה, מועמד או מזוודה.</p>
+			<p>ואין כאן המלצה להצביע לאף אחד.</p>
+			<p>עוד סבב הוא משחק סאטירה. כדי לשחק צריך להפעיל JavaScript.</p>
+		</noscript>
+
+		<!-- N1 (first launch) / N0 (returning) : ux/rtl-map.md §9 -->
+		<div id="od-gate" role="dialog" aria-modal="true" aria-labelledby="od-title">
+			<div class="od-card" id="od-n1" hidden>
+				<img class="od-wordmark" src="wordmark.png" alt="עוד סבב">
+				<h1 id="od-title">רגע לפני הסבב</h1>
+				<p>זו סאטירה. הדמויות הן קריקטורות פיקסל, ומה שהן עושות כאן בדיוני.</p>
+				<p>אין כאן טענה עובדתית על אף אחד. ציטוטים אמיתיים מסומנים כציטוט, עם מקור.</p>
+				<p>המשחק לא קשור לאף מפלגה או מועמד, ולא ממומן על ידי אף מפלגה, מועמד או מזוודה.</p>
+				<p>ואין כאן המלצה להצביע לאף אחד.</p>
+				<p class="od-by">מאת base67 · <a href="#" id="od-about-link">אודות</a></p>
+				<div class="od-buttons">
+					<div class="od-btn" id="od-sound-wrap"><button id="od-sound" type="button">עם סאונד</button><div class="od-cap"></div></div>
+					<div class="od-btn" id="od-quiet-wrap"><button id="od-quiet" type="button">בשקט</button><div class="od-cap">אני בישיבה</div></div>
+				</div>
+				<div class="od-line" id="od-line" aria-live="polite"></div>
+			</div>
+			<div class="od-card od-splash" id="od-n0" hidden>
+				<img class="od-wordmark" src="wordmark.png" alt="עוד סבב">
+				<div class="od-line">רגע, ביבי מתלבש…</div>
+			</div>
+		</div>
+		<!-- O8 About: HTML over the canvas (ux/first-minute.md §6.2) -->
+		<div id="od-about" role="dialog" aria-modal="true" aria-labelledby="od-about-title" dir="rtl">
+			<div class="od-card">
+				<div class="od-back"><button id="od-about-back" type="button">חזרה</button></div>
+				<h1 id="od-about-title">אודות</h1>
+				<p>עוד סבב הוא משחק סאטירה. הדמויות הן קריקטורות פיקסל של אנשי ציבור, ומה שהן עושות ואומרות במשחק בדיוני.</p>
+				<p>אין במשחק טענות עובדתיות על אף אדם. ציטוטים אמיתיים מופיעים במירכאות, מסומנים ״ציטוט״ ומקושרים למקור. פרשות משפטיות מתוארות כמו ברשומות: נאשם, לכאורה, בחקירה.</p>
+				<p>המשחק לא קשור לאף מפלגה, רשימה או מועמד, ולא ממומן על ידם. גם לא על ידי מזוודה.</p>
+				<p>אין כאן המלצה להצביע לאף אחד, ואין כאן סקרים.</p>
+				<p>אין כאן מה לקנות: אין פרסומות, אין רכישות, אין פרסים.</p>
+				<p>לקראת הבחירות: מ־23.10 ועד סגירת הקלפיות לא יוצגו במשחק מספרי מנדטים.</p>
+				<p>ההתקדמות נשמרת רק במכשיר שלך.</p>
+				<h2>מקורות וציטוטים</h2>
+				<ul dir="rtl"><li>הבחירות לכנסת נקבעו ל־27.10.2026, בתום קדנציה מלאה.<br><span class="od-src"><bdi>Wikipedia</bdi> · <bdi>2026-10-27</bdi></span> <a href="https://en.wikipedia.org/wiki/2026_Israeli_legislative_election" target="_blank" rel="noopener">למקור</a></li>
+<li>המפלגות החרדיות פרשו מהממשלה ביולי 2025 על רקע המחלוקת על חוק הגיוס.<br><span class="od-src"><bdi>Wikipedia</bdi> · <bdi>2025-07</bdi></span> <a href="https://en.wikipedia.org/wiki/2026_Israeli_legislative_election" target="_blank" rel="noopener">למקור</a></li>
+<li>המפלגה של גדי אייזנקוט נקראת &quot;ישר&quot;.<br><span class="od-src"><bdi>IDI</bdi> · <bdi>2026</bdi></span> <a href="https://en.idi.org.il/articles/64068" target="_blank" rel="noopener">למקור</a></li>
+<li>באפריל 2026 התאחדה מפלגת &quot;ביחד&quot; של נפתלי בנט עם &quot;יש עתיד&quot; של יאיר לפיד.<br><span class="od-src"><bdi>IDI</bdi> · <bdi>2026-04</bdi></span> <a href="https://en.idi.org.il/articles/64068" target="_blank" rel="noopener">למקור</a></li>
+<li>יאיר גולן עומד בראש מפלגת &quot;הדמוקרטים&quot;.<br><span class="od-src"><bdi>IDI</bdi> · <bdi>2026</bdi></span> <a href="https://en.idi.org.il/articles/64068" target="_blank" rel="noopener">למקור</a></li>
+<li>העבודה ומרצ התאחדו למפלגת &quot;הדמוקרטים&quot; בראשות יאיר גולן: האיחוד הוכרז ב־30.6.2024 ואושר ב־12.7.2024.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2024-07-12</bdi></span> <a href="https://www.timesofisrael.com/labor-and-meretz-merge-into-united-liberal-democratic-zionist-party-the-democrats/" target="_blank" rel="noopener">למקור</a></li>
+<li>בפרשת &quot;קטארגייט&quot; חשודים יועצים של נתניהו שקידמו מסרים קטאריים תמורת תשלום דרך מתווכים, ולפי הדיווחים היועמ״ש צפוי להגיש נגדם כתב אישום; נתניהו אינו חשוד בפרשה.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2026-08-11</bdi></span> <a href="https://www.timesofisrael.com/report-ag-expected-to-charge-netanyahu-aides-with-security-offenses-in-qatargate-affair/" target="_blank" rel="noopener">למקור</a></li>
+<li>נתניהו כינה את פרשת &quot;קטארגייט&quot; ציד מכשפות.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2026-08-11</bdi></span> <a href="https://www.timesofisrael.com/report-ag-expected-to-charge-netanyahu-aides-with-security-offenses-in-qatargate-affair/" target="_blank" rel="noopener">למקור</a></li>
+<li>נגד נתניהו הוגש כתב אישום בתיקים 1000, 2000 ו־4000, ועדותו במשפט נשמעה מדצמבר 2024 עד יוני 2026.<br><span class="od-src"><bdi>JPost</bdi> · <bdi>2026-06</bdi></span> <a href="https://www.jpost.com/israel-news/article-900364" target="_blank" rel="noopener">למקור</a></li>
+<li>ב־30.11.2025 הגיש נתניהו לנשיא המדינה בקשת חנינה.<br><span class="od-src"><bdi>JPost</bdi> · <bdi>2025-11-30</bdi></span> <a href="https://www.jpost.com/israel-news/article-900364" target="_blank" rel="noopener">למקור</a></li>
+<li>ב־26.4.2026 הקפיא הנשיא הרצוג, לפחות לעת עתה, את ההחלטה בבקשת החנינה של נתניהו וקרא לחדש את המגעים להסדר טיעון.<br><span class="od-src"><bdi>ToI; Ynet</bdi> · <bdi>2026-04-26</bdi></span> <a href="https://www.timesofisrael.com/herzog-pushes-for-new-plea-deal-talks-says-he-wont-consider-netanyahu-pardon-request-yet/" target="_blank" rel="noopener">למקור</a></li>
+<li>בדצמבר 2025 הציג נתניהו בובה של באגס באני וכינה את ההליך נגדו משפט באגס באני.<br><span class="od-src"><bdi>RTE</bdi> · <bdi>2025-12</bdi></span> <a href="https://www.rte.ie/news/world/2025/1205/1547433-netanyahu-trial/" target="_blank" rel="noopener">למקור</a></li>
+<li>בתיק 1000 נטען שנתניהו קיבל סיגרים ושמפניה ורודה במתנה מאנשי עסקים פרטיים.<br><span class="od-src"><bdi>SBS</bdi> · <bdi>2025</bdi></span> <a href="https://www.sbs.com.au/news/article/netanyahu-corruption-case-trump-pardon/v4gxdetkv" target="_blank" rel="noopener">למקור</a></li>
+<li>בנאומו בכנסת ב־13.10.2025 קרא טראמפ לנשיא הרצוג לחון את נתניהו, ושאל באנגלית למי לעזאזל אכפת מסיגרים ושמפניה.<br><span class="od-src"><bdi>ToI; N12</bdi> · <bdi>2025-10-13</bdi></span> <a href="https://www.timesofisrael.com/trump-urges-herzog-to-pardon-netanyahu-who-cares-about-cigars-and-champagne/" target="_blank" rel="noopener">למקור</a></li>
+<li>בפרשת הצוללות (תיק 3000) שלחה ועדת חקירה ממלכתית מכתבי אזהרה, ולא הוגש בה כתב אישום נגד נתניהו.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2025</bdi></span> <a href="https://www.timesofisrael.com/submarine-affair-inquiry-finds-netanyahus-decisions-compromised-national-security/" target="_blank" rel="noopener">למקור</a></li>
+<li>ב־2016 דווח על פרשת החזרי פיקדון הבקבוקים ממעון ראש הממשלה, ו־4,000 ₪ הוחזרו לקופת המדינה.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2016</bdi></span> <a href="https://www.timesofisrael.com/pms-wife-accused-of-pocketing-thousands-in-bottle-refunds/" target="_blank" rel="noopener">למקור</a></li>
+<li>תקציב של 10,000 ₪ בשנה לגלידת פיסטוק במעון ראש הממשלה בוטל ב־2013.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2013</bdi></span> <a href="https://www.timesofisrael.com/netanyahu-freezes-ice-cream-budget/" target="_blank" rel="noopener">למקור</a></li>
+<li>ב־2020 דיווח &quot;וושינגטון פוסט&quot; שנתניהו הביא מזוודות כביסה בנסיעותיו לוושינגטון, וישראל הכחישה.<br><span class="od-src"><bdi>Washington Post</bdi> · <bdi>2020-09-23</bdi></span> <a href="https://www.washingtonpost.com/national-security/benjamin-netanyahu-us-visits-dirty-laundry/2020/09/23/8407f52c-fdb3-11ea-830c-a160b331ca62_story.html" target="_blank" rel="noopener">למקור</a></li>
+<li>הסבת מטוס ראש הממשלה &quot;כנף ציון&quot; עלתה כ־750 מיליון ₪.<br><span class="od-src"><bdi>Ynet</bdi> · <bdi>2025</bdi></span> <a href="https://www.ynetnews.com/article/hjxthemhme" target="_blank" rel="noopener">למקור</a></li>
+<li>בפברואר 2025 העניק נתניהו לטראמפ ביפר מוזהב.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2025-02</bdi></span> <a href="https://www.timesofisrael.com/pms-office-confirms-netanyahu-gifted-trump-a-golden-pager-at-white-house-meeting/" target="_blank" rel="noopener">למקור</a></li>
+<li>בספטמבר 2025 אמר נתניהו, בהקשר כלכלי, שישראל עשויה להפוך ל&quot;סופר־ספרטה&quot;.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2025-09</bdi></span> <a href="https://www.timesofisrael.com/under-fire-netanyahu-scrambles-to-explain-claim-israel-may-become-super-sparta/" target="_blank" rel="noopener">למקור</a></li>
+<li>נתניהו על החקירות נגדו, ב־2017: &quot;לא יהיה כלום כי אין כלום&quot;.<br><span class="od-src"><bdi>Haaretz</bdi> · <bdi>2017-01-08</bdi></span> <a href="https://www.haaretz.co.il/news/politi/2017-01-08/ty-article/0000017f-e8fd-df5f-a17f-fbff5e830000" target="_blank" rel="noopener">למקור</a></li>
+<li>תשדיר הבחירות &quot;ביביסיטר&quot; של נתניהו עלה ב־2015.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2015</bdi></span> <a href="https://www.timesofisrael.com/netanyahu-elections-ad-wins-international-award/" target="_blank" rel="noopener">למקור</a></li>
+<li>&quot;ביבי או טיבי&quot; הייתה סיסמת בחירות של הליכוד ב־2019.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2019</bdi></span> <a href="https://www.timesofisrael.com/adl-criticizes-politicians-demonization-of-israeli-arabs/" target="_blank" rel="noopener">למקור</a></li>
+<li>לפי מנסור עבאס, ב־2021 הקריא לו נתניהו נאום שתכנן לשאת על השותפות ביניהם.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2021</bdi></span> <a href="https://www.timesofisrael.com/raam-chief-netanyahu-read-me-wonderful-speech-hed-give-on-our-partnership/" target="_blank" rel="noopener">למקור</a></li>
+<li>תקציב 2026 הוא 850.6 מיליארד ₪, הגדול אי־פעם, ותוספת של 800 מיליון ₪ אושרה בו כי חברי כנסת מהאופוזיציה הצביעו בעדה בטעות.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2026</bdi></span> <a href="https://www.timesofisrael.com/opposition-mks-voted-to-allocate-nis-800-million-for-haredi-schools-how-did-it-happen/" target="_blank" rel="noopener">למקור</a></li>
+<li>המע״מ עלה ל־18% בינואר 2025.<br><span class="od-src"><bdi>JNS</bdi> · <bdi>2025-01</bdi></span> <a href="https://www.jns.org/israel-raises-vat-to-18-as-part-of-effort-to-rein-in-deficit/" target="_blank" rel="noopener">למקור</a></li>
+<li>בינואר 2023 פסל בג״ץ את כהונתו של אריה דרעי כשר.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2023-01</bdi></span> <a href="https://www.timesofisrael.com/in-bombshell-ruling-high-court-nixes-shas-head-deri-from-serving-as-minister/" target="_blank" rel="noopener">למקור</a></li>
+<li>ב־2021 חתם נפתלי בנט בשידור טלוויזיה על התחייבות שלא לאפשר ליאיר לפיד לכהן כראש ממשלה, ובהמשך הקים איתו ממשלת רוטציה שבה לפיד כיהן כראש הממשלה.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2021</bdi></span> <a href="https://www.timesofisrael.com/bennett-signs-pledge-not-to-join-government-with-yair-lapid-as-prime-minister/amp/" target="_blank" rel="noopener">למקור</a></li>
+<li>הרוטציה בין נתניהו לבני גנץ, שסוכמה ב־2020, לא יצאה לפועל.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2020</bdi></span> <a href="https://www.timesofisrael.com/israel-calls-4th-election-in-2-years-as-netanyahu-gantz-coalition-collapses/amp/" target="_blank" rel="noopener">למקור</a></li>
+<li>&quot;איפה הכסף?&quot; היא שאלה מזוהה של יאיר לפיד מ־2013.<br><span class="od-src"><bdi>Wikipedia</bdi> · <bdi>2013</bdi></span> <a href="https://en.wikipedia.org/wiki/Yair_Lapid" target="_blank" rel="noopener">למקור</a></li>
+<li>בין אפריל 2019 לנובמבר 2022 נערכו חמש מערכות בחירות לכנסת, בפחות מארבע שנים.<br><span class="od-src"><bdi>IDI</bdi> · <bdi>2022-11</bdi></span> <a href="https://en.idi.org.il/articles/39154" target="_blank" rel="noopener">למקור</a></li>
+<li>טלי גוטליב נבחרה למקום ה־12 בפריימריז של הליכוד והוזזה למקום ה־20 בגלל שריונים, ובספטמבר 2026 עברה בהסדר עם הליכוד למקום השני ברשימת עוצמה יהודית בלי שהוכרזה כפורשת; את מה שנעשה לה בפריימריז כינתה &quot;סיכול ממוקד&quot;.<br><span class="od-src"><bdi>Ynet; Walla; Kan; ToI; JPost</bdi> · <bdi>2026-09-03</bdi></span> <a href="https://www.ynet.co.il/news/article/rk11xnoeogg" target="_blank" rel="noopener">למקור</a></li>
+<li>בישיבת הממשלה ב־18.1.2026 התווכחו השרים סמוטריץ׳ ואמסלם על סגירת חברות ממשלתיות, ולפי הדיווחים נתניהו אמר לשניהם לצאת החוצה ולהמשיך להתווכח שם.<br><span class="od-src"><bdi>JPost; Ynet; Walla; Kipa</bdi> · <bdi>2026-01-18</bdi></span> <a href="https://www.jpost.com/israel-news/politics-and-diplomacy/article-883783" target="_blank" rel="noopener">למקור</a></li>
+<li>בספטמבר 2025 איים השר שלמה קרעי על תקציב &quot;כאן&quot; בגלל סרט שלא צפה בו, וביולי 2026 עבר חוק התקשורת שלו, שלפיו 25 מיליון ₪ בשנה אמורים לעבור מתקציב &quot;כאן&quot;; בג״ץ הקפיא חלקים מהחוק.<br><span class="od-src"><bdi>ToI; Haaretz; JPost</bdi> · <bdi>2026-07-16</bdi></span> <a href="https://www.timesofisrael.com/karhi-threatens-to-cut-public-broadcasters-funding-over-documentary-about-1948-war/" target="_blank" rel="noopener">למקור</a></li>
+<li>המשטרה המליצה להעמיד לדין את השרה מאי גולן בחשד למשרות פיקטיביות במשרדה; גולן מכחישה, וההחלטה בידי הפרקליטות.<br><span class="od-src"><bdi>ToI; Haaretz</bdi> · <bdi>2026-06-10</bdi></span> <a href="https://www.timesofisrael.com/police-recommend-minister-golan-stand-trial-over-job-fixing-allegations/" target="_blank" rel="noopener">למקור</a></li>
+<li>באפריל 2026 לא אפשרה ח״כ גלית דיסטל־אטבריאן, יו״ר הוועדה לחוק השידורים, ליועצים המשפטיים של הוועדה לדבר, והם יצאו מהדיון.<br><span class="od-src"><bdi>ToI; Ynet; TheMarker</bdi> · <bdi>2026-04</bdi></span> <a href="https://www.timesofisrael.com/liveblog_entry/legal-advisers-walk-out-of-knesset-media-bill-panel-after-chair-bars-them-from-speaking/" target="_blank" rel="noopener">למקור</a></li>
+<li>אלמוג כהן הוצא מקבוצות הצ׳אט של עוצמה יהודית אחרי שהצביע נגד עמדת המפלגה, ובאוגוסט 2026 נבחר למקום ה־8 בפריימריז של הליכוד.<br><span class="od-src"><bdi>ToI</bdi> · <bdi>2026-08</bdi></span> <a href="https://www.timesofisrael.com/liveblog_entry/otzma-yehudit-removed-cohen-from-whatsapp-groups-after-he-defied-party-line-on-votes-report/" target="_blank" rel="noopener">למקור</a></li>
+<li>באוגוסט 2026, כשעבר מהליכוד לישראל ביתנו, אמר ח״כ דן אילוז שהליכוד הפך לקבלן משנה של דרעי וגולדקנופף.<br><span class="od-src"><bdi>INN; JPost</bdi> · <bdi>2026-08-05</bdi></span> <a href="https://www.israelnationalnews.com/news/431309" target="_blank" rel="noopener">למקור</a></li>
+<li>לפי &quot;הארץ&quot;, בתוך יממה מראיון של נתניהו בתוכנית &quot;הפטריוטים&quot; קידם משרד התקשורת הקלה בתשלומי האגרה של ערוץ 14.<br><span class="od-src"><bdi>Haaretz; TheMarker</bdi> · <bdi>2026-07-01</bdi></span> <a href="https://www.haaretz.com/israel-news/israel-politics/2026-07-02/ty-article/.premium/israeli-govt-seeks-benefits-for-channel-14-after-flattering-netanyahu-interview/0000019f-1e98-d257-adbf-5ede85270000" target="_blank" rel="noopener">למקור</a></li>
+<li>סרטון המערכון &quot;אני ביביסט&quot; נוצר בידי יוצרי תוכן ופורסם בידי נתניהו ב־21.5.2026; דובר הליכוד אמר שהמפלגה לא הפיקה אותו, והוא זכה לעשרות מיליוני צפיות.<br><span class="od-src"><bdi>ToI; Walla</bdi> · <bdi>2026-05-21</bdi></span> <a href="https://www.timesofisrael.com/netanyahu-posts-skit-of-young-man-coming-out-as-his-supporter-to-his-parents-horror/" target="_blank" rel="noopener">למקור</a></li>
+<li>מחיר הקוטג׳ משמש מדד עממי ליוקר המחיה מאז מחאת הקוטג׳ ב־2011.<br><span class="od-src"><bdi>Walla</bdi> · <bdi>2025</bdi></span> <a href="https://finance.walla.co.il/item/3799723" target="_blank" rel="noopener">למקור</a></li>
+<li>באפריל ובמאי 2026 בוטלו ימי עדות של נתניהו בשל לו״ז ביטחוני והתייעצויות ביטחוניות.<br><span class="od-src"><bdi>Haaretz; ToI</bdi> · <bdi>2026-05-04</bdi></span> <a href="https://www.haaretz.co.il/news/law/netanyahutrial/2026-05-04/ty-article/.premium/0000019d-f128-de36-abfd-fd2a33f10000" target="_blank" rel="noopener">למקור</a></li>
+<li>מחיר בנזין 95 הגיע לשיא של 8.25 ₪ לליטר ב־1.9.2026, ובהמשך ירד לכ־8.01 ₪.<br><span class="od-src"><bdi>Ynet; JFeed</bdi> · <bdi>2026-09-01</bdi></span> <a href="https://www.ynetnews.com/business/article/s1bvi811dmx" target="_blank" rel="noopener">למקור</a></li></ul>
+			</div>
+		</div>
+
+		<div id="status">
+			<img id="status-splash" class="show-image--true fullsize--false use-filter--false" src="index.png" alt="">
+			<progress id="status-progress"></progress>
+			<div id="status-notice"></div>
+		</div>
+
+		<script>
+// Build stamp (the git commit), written in by tools/build_web.sh; Settings shows it.
+window.mbBuild = '5df9291+';
+
+// The game has no service worker. Drop any left on this origin, so a phone never keeps
+// serving a stale cached copy of the game.
+if ('serviceWorker' in navigator) {
+	navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((r) => r.unregister())).catch(() => {});
+}
+
+// Sound (wandcraft decisions 0008, 0009):
+// - The game plays like a game, not a music app: the "ambient" audio session mixes with
+//   whatever the phone is playing (Spotify keeps going, no lock-screen player) and the
+//   silent switch mutes it.
+// - iOS only unlocks audio on a touch's END (and may leave it "interrupted" after a call
+//   or the app going to the background), so every audio context the engine makes is
+//   resumed on touchend / click / keydown and when the page becomes visible again.
+// - mbAudioState() is the settings screen's one-line sound report.
+(function () {
+	try {
+		if (navigator.audioSession) {
+			navigator.audioSession.type = 'ambient';
+		}
+	} catch (e) { /* older iOS: ambient is already the default for web audio */ }
+	const contexts = [];
+	const Base = window.AudioContext || window.webkitAudioContext;
+	if (Base) {
+		const Tracked = class extends Base {
+			constructor(...args) {
+				super(...args);
+				contexts.push(this);
+			}
+		};
+		window.AudioContext = Tracked;
+		window.webkitAudioContext = Tracked;
+	}
+	// the engine's audio goes through its worklet: record whether it loaded
+	let worklet = 'none';
+	if (window.AudioWorklet && AudioWorklet.prototype.addModule) {
+		const addModule = AudioWorklet.prototype.addModule;
+		AudioWorklet.prototype.addModule = function (...args) {
+			worklet = 'loading';
+			return addModule.apply(this, args).then((v) => {
+				worklet = 'ok';
+				return v;
+			}, (err) => {
+				worklet = 'fail';
+				throw err;
+			});
+		};
+	}
+	const resumeAll = function () {
+		contexts.forEach((c) => {
+			if (c.state !== 'running') {
+				c.resume().catch(() => {});
+			}
+		});
+	};
+	['touchend', 'click', 'keydown'].forEach((ev) => window.addEventListener(ev, resumeAll, { capture: true, passive: true }));
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'visible') {
+			resumeAll();
+		}
+	});
+	window.mbAudioState = function () {
+		let session = 'n/a';
+		try {
+			session = navigator.audioSession ? navigator.audioSession.type : 'n/a';
+		} catch (e) { /* ignore */ }
+		const ctx = contexts.map((c) => c.state + ' ' + c.sampleRate).join(',') || 'no ctx';
+		return ctx + ' / session ' + session + ' / worklet ' + worklet;
+	};
+}());
+		</script>
+		<script>
+// ---- od-sevev: N1 disclaimer, N0 splash, hand-off (ux/first-minute.md §2.1, ux/ftue.md §1) ----
+// The engine starts downloading at once, behind the gate. The disclaimer tap is t=0: it stores
+// the sound choice (the engine reads odsevev.sound at hand-off) and the disclaimer version. The
+// gate fades only when both the tap happened and the engine is ready; then
+// window.mbHandoffDone = the hand-off time, which starts the FTUE clocks in the engine.
+(function () {
+	const DISC_V = '1';
+	const store = {
+		get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+		set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: in-memory only */ } },
+	};
+	const gate = document.getElementById('od-gate');
+	const n1 = document.getElementById('od-n1');
+	const n0 = document.getElementById('od-n0');
+	const line = document.getElementById('od-line');
+	const LOAD = ['מקפל מזוודות…', 'מחמם את הכובע…', 'מתייעץ ביטחונית…'];
+	let engineReady = false;
+	let tapped = false;
+	let bar = null;
+	let loadTimer = 0;
+	window.mbHandoffDone = 0;
+	window.odSound = store.get('odsevev.sound') || '';
+	const firstLaunch = store.get('odsevev.disclaimer') !== DISC_V;
+	if (firstLaunch) {
+		n1.hidden = false;
+	} else {
+		n0.hidden = false;
+		tapped = true;
+	}
+	function handoff() {
+		if (!engineReady || !tapped || window.mbHandoffDone) {
+			return;
+		}
+		clearInterval(loadTimer);
+		gate.classList.add('od-out');
+		setTimeout(() => {
+			gate.remove();
+			window.mbHandoffDone = performance.now();
+			const c = document.getElementById('canvas');
+			if (c) {
+				c.focus();
+			}
+		}, 300);
+	}
+	function choose(sound, btn) {
+		if (tapped) {
+			return;
+		}
+		tapped = true;
+		window.odSound = sound;
+		store.set('odsevev.sound', sound);
+		store.set('odsevev.disclaimer', DISC_V);
+		if (engineReady) {
+			handoff();
+			return;
+		}
+		// cold: the tapped button becomes the hand-off bar (fills right to left)
+		const other = btn === 'od-sound' ? 'od-quiet-wrap' : 'od-sound-wrap';
+		document.getElementById(other).style.visibility = 'hidden';
+		const wrap = document.getElementById(btn).parentElement;
+		wrap.innerHTML = '<div class="od-bar" role="progressbar" aria-label="טוען את המשחק"><i></i></div><div class="od-cap"></div>';
+		bar = wrap.querySelector('.od-bar i');
+		let k = 0;
+		line.textContent = LOAD[0];
+		loadTimer = setInterval(() => { k = (k + 1) % LOAD.length; line.textContent = LOAD[k]; }, 1500);
+	}
+	document.getElementById('od-sound').addEventListener('click', () => choose('on', 'od-sound'));
+	document.getElementById('od-quiet').addEventListener('click', () => choose('off', 'od-quiet'));
+	window.odGateProgress = function (cur, total) {
+		if (bar && total > 0) {
+			bar.style.width = Math.min(100, Math.round(100 * cur / total)) + '%';
+		}
+	};
+	window.odGateReady = function () {
+		engineReady = true;
+		if (bar) {
+			bar.style.width = '100%';
+		}
+		handoff();
+	};
+	// O8 About: opened from the disclaimer link or by the engine (settings) through odOpenAbout()
+	const about = document.getElementById('od-about');
+	window.odOpenAbout = function () {
+		about.style.display = 'block';
+		about.scrollTop = 0;
+		try { history.pushState({ layer: 'about' }, ''); } catch (e) { /* ignore */ }
+	};
+	let aboutPopPending = false;   // our own history.back() for About's entry: not a layer back
+	function closeAbout(fromPop) {
+		if (about.style.display !== 'block') {
+			return;
+		}
+		about.style.display = 'none';
+		if (!fromPop) {
+			aboutPopPending = true;
+			try { history.back(); } catch (e) { aboutPopPending = false; }
+		}
+	}
+	document.getElementById('od-about-back').addEventListener('click', () => closeAbout(false));
+	// One history entry per open layer (ux/rtl-map.md §7.1, review R9): About's own entry closes
+	// About; every other popstate goes to the engine (window.odOnPop, main.gd LayerHistory), which
+	// closes the top game layer exactly as ✕/Esc does, or ignores the echo of its own history.go.
+	window.addEventListener('popstate', () => {
+		if (aboutPopPending) {
+			aboutPopPending = false;
+			return;
+		}
+		if (about.style.display === 'block') {
+			closeAbout(true);
+			return;
+		}
+		if (typeof window.odOnPop === 'function') {
+			window.odOnPop();
+		}
+	});
+	const aboutLink = document.getElementById('od-about-link');
+	if (aboutLink) {
+		aboutLink.addEventListener('click', (e) => { e.preventDefault(); window.odOpenAbout(); });
+	}
+}());
+		</script>
+		<script src="index.js"></script>
+		<script>
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":17188100,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_THREADS_ENABLED = false;
+
+// The canvas size is the shell's (od-sevev): a phone gets the whole window, a desktop window a
+// centred 390-CSS phone frame (ux/first-minute.md §1.3). Either way the backing store is exactly
+// the canvas's CSS box × devicePixelRatio and the box sits on whole device px, so the engine's
+// integer art scale (game/scripts/core/display.gd: k = min(floor(W / 180), floor(H / 267)) on the
+// backing store) reaches the screen 1:1, with no browser resample. Godot's own "adaptive" policy
+// fills the window only, so the shell takes the canvas over (policy 0 = Godot reads canvas.width
+// and canvas.height every frame and follows them).
+//   ?frame=1 / ?frame=0 force the frame on / off (view checks); window.odFrame = the last fit.
+const OD_FRAME = { w: 390, h: 844, minWindowW: 600, margin: 24, bezel: 16 };
+GODOT_CONFIG['canvasResizePolicy'] = 0;
+window.odFrameWanted = function () {
+	const q = window.location.search;
+	if (/[?&]frame=1(&|$)/.test(q)) {
+		return true;
+	}
+	if (/[?&]frame=0(&|$)/.test(q)) {
+		return false;
+	}
+	// a desktop: a mouse (fine pointer) and room for a phone column; a phone or tablet in any
+	// orientation keeps the whole screen
+	const fine = !!(window.matchMedia && window.matchMedia('(pointer: fine)').matches);
+	return fine && window.innerWidth >= OD_FRAME.minWindowW;
+};
+window.odFit = function () {
+	const c = document.getElementById('canvas');
+	if (!c) {
+		return;
+	}
+	const dpr = window.devicePixelRatio || 1;
+	const iw = window.innerWidth;
+	const ih = window.innerHeight;
+	const framed = window.odFrameWanted();
+	let dw, dh, left, top;
+	if (framed) {
+		dw = Math.round(OD_FRAME.w * dpr);
+		dh = Math.floor(Math.max(1, Math.min(OD_FRAME.h, ih - 2 * OD_FRAME.margin)) * dpr);
+		left = Math.round((iw * dpr - dw) / 2) / dpr;
+		top = Math.round((ih * dpr - dh) / 2) / dpr;
+	} else {
+		dw = Math.floor(iw * dpr);
+		dh = Math.floor(ih * dpr);
+		left = 0;
+		top = 0;
+	}
+	document.documentElement.classList.toggle('od-framed', framed);
+	if (c.width !== dw || c.height !== dh) {
+		c.width = dw;
+		c.height = dh;
+	}
+	c.style.width = (dw / dpr) + 'px';
+	c.style.height = (dh / dpr) + 'px';
+	c.style.left = left + 'px';
+	c.style.top = top + 'px';
+	const ph = document.getElementById('od-phone');
+	if (ph && framed) {
+		const b = OD_FRAME.bezel;
+		ph.style.left = (left - b) + 'px';
+		ph.style.top = (top - b) + 'px';
+		ph.style.width = (dw / dpr + 2 * b) + 'px';
+		ph.style.height = (dh / dpr + 2 * b) + 'px';
+	}
+	window.odFrame = { framed, dpr, css: [dw / dpr, dh / dpr], device: [dw, dh], left, top };
+};
+window.odFit();
+window.addEventListener('resize', window.odFit);
+if (window.visualViewport) {
+	window.visualViewport.addEventListener('resize', window.odFit);
+}
+const engine = new Engine(GODOT_CONFIG);
+
+// The safe-area insets (Dynamic Island, rounded corners, home bar) as fractions of the
+// window: "top,right,bottom,left". Game.safe_rect turns them into game pixels. Inside the
+// desktop phone frame there are none.
+window.mbSafeArea = function () {
+	if (window.odFrame && window.odFrame.framed) {
+		return '0,0,0,0';
+	}
+	const s = getComputedStyle(document.getElementById('safe-probe'));
+	const w = Math.max(1, window.innerWidth);
+	const h = Math.max(1, window.innerHeight);
+	return [parseFloat(s.paddingTop) / h, parseFloat(s.paddingRight) / w,
+		parseFloat(s.paddingBottom) / h, parseFloat(s.paddingLeft) / w].join(',');
+};
+
+(function () {
+	const statusOverlay = document.getElementById('status');
+	const statusProgress = document.getElementById('status-progress');
+	const statusNotice = document.getElementById('status-notice');
+
+	let initializing = true;
+	let statusMode = '';
+
+	function setStatusMode(mode) {
+		if (statusMode === mode || !initializing) {
+			return;
+		}
+		if (mode === 'hidden') {
+			statusOverlay.remove();
+			initializing = false;
+			return;
+		}
+		statusOverlay.style.visibility = 'visible';
+		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
+		statusMode = mode;
+	}
+
+	function setStatusNotice(text) {
+		while (statusNotice.lastChild) {
+			statusNotice.removeChild(statusNotice.lastChild);
+		}
+		const lines = text.split('\n');
+		lines.forEach((line) => {
+			statusNotice.appendChild(document.createTextNode(line));
+			statusNotice.appendChild(document.createElement('br'));
+		});
+	}
+
+	function displayFailureNotice(err) {
+		console.error(err);
+		if (err instanceof Error) {
+			setStatusNotice(err.message);
+		} else if (typeof err === 'string') {
+			setStatusNotice(err);
+		} else {
+			setStatusNotice('An unknown error occurred.');
+		}
+		setStatusMode('notice');
+		initializing = false;
+	}
+
+	const missing = Engine.getMissingFeatures({
+		threads: GODOT_THREADS_ENABLED,
+	});
+
+	if (missing.length !== 0) {
+		if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
+			let serviceWorkerRegistrationPromise;
+			try {
+				serviceWorkerRegistrationPromise = navigator.serviceWorker.getRegistration();
+			} catch (err) {
+				serviceWorkerRegistrationPromise = Promise.reject(new Error('Service worker registration failed.'));
+			}
+			// There's a chance that installing the service worker would fix the issue
+			Promise.race([
+				serviceWorkerRegistrationPromise.then((registration) => {
+					if (registration != null) {
+						return Promise.reject(new Error('Service worker already exists.'));
+					}
+					return registration;
+				}).then(() => engine.installServiceWorker()),
+				// For some reason, `getRegistration()` can stall
+				new Promise((resolve) => {
+					setTimeout(() => resolve(), 2000);
+				}),
+			]).then(() => {
+				// Reload if there was no error.
+				window.location.reload();
+			}).catch((err) => {
+				console.error('Error while registering service worker:', err);
+			});
+		} else {
+			// Display the message as usual
+			const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
+			displayFailureNotice(missingMsg + missing.join('\n'));
+		}
+	} else {
+		setStatusMode('progress');
+		engine.startGame({
+			'onProgress': function (current, total) {
+				if (window.odGateProgress) {
+					window.odGateProgress(current, total);
+				}
+				if (current > 0 && total > 0) {
+					statusProgress.value = current;
+					statusProgress.max = total;
+				} else {
+					statusProgress.removeAttribute('value');
+					statusProgress.removeAttribute('max');
+				}
+			},
+		}).then(() => {
+			setStatusMode('hidden');
+			if (window.odGateReady) {
+				window.odGateReady();
+			}
+		}, displayFailureNotice);
+	}
+}());
+		</script>
+	</body>
+</html>
+
