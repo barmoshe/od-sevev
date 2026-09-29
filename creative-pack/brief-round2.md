@@ -74,9 +74,11 @@ never-ending elections, is now the title.
   gets nipped and misses a vote.
 - **The Pink Front drum line**: Saturday nights by device clock, a pink drum line crosses Balfour
   and the Knesset; tap to the beat. Depicts the movement, not individuals.
-- **"אני ביביסט" campaign video** (May 2026; tens of millions of views, ~0.01% engagement, Walla):
-  the poison machine's view counter balloons while a tiny "real likes" counter barely moves.
-  Parodies the campaign, never the coming-out premise.
+- **"אני ביביסט" video** (a skit by content creators that Netanyahu posted on 21 May 2026; not a
+  Likud campaign video, and Likud's spokesman says the party did not make it; tens of millions of
+  views, ~0.01% engagement per one expert quoted by Walla; corrected 2026-09-29,
+  `design/facts-verification.md`): the poison machine's view counter balloons while a tiny "real
+  likes" counter barely moves. Parodies the view-count hype, never the coming-out premise.
 - **The swing voter who wants sauces on the toast**: idea only from an N12 anecdote; the
   commenter is private, never quoted or named. A voter NPC who switches sides over toast.
 - **"הוצאות נסיעה" shop** (JPost 16-17 Sep 2026): $13,519 hair and make-up for one trip, a $500
