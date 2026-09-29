@@ -12,7 +12,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 
 | Deliverable | File |
 |---|---|
-| UI kit, 242 pieces (leader select 2026-09-29: 30; wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
+| UI kit, 255 pieces (mobile-first wave 7, 2026-09-29: 13 + the 4 lanes redrawn; leader select 2026-09-29: 30; wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
 | 9-slice / frame / pivot manifest | `ui-kit.json` |
 | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
 | App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (master `icon-128-art.png` = 64 art px at d 2) |
@@ -513,6 +513,21 @@ hierarchy.
     party or bloc colours on the picker (UX: "never a party colour or a bloc colour"). The app icon uses the same heads.
   - **Press skin icons (UX §4.3):** `thermo_icon_press` 11x11 and `chip_icon_press` 9x9, a folded newspaper (masthead
     bar, columns), so the press has its own non-colour sign; the gavel stays the court's (Bibi's).
+
+### 17.1 Wave 7: the mobile-first layout (`src/wave7.py`, `ux/mobile-first-layout.md` §10, 2026-09-29)
+
+The stages stay the approved 180x320 art; nothing repaints them. The phones' extra columns and rows get art that is
+drawn *around* (wings) and *over* (lane, plaza) the stage on its own x4 grid. Proof: `proofs/kit-w7-mobile.png`
+(every era at 215 and 260 columns), `proofs/kit-w7-brawl-cue.png`.
+
+| Need (UX) | Pieces | Rules |
+|---|---|---|
+| A1 the lane | `lane_<era>` redrawn **32x28** (same ids) | The lip, its dither and the course seams stay; added running-bond joints (8-px slabs far, 16 near), a lit top-left pixel per slab, the press cable (every era: the TV crews are always there), a flyer / spike-tape X / dropped page / carpet weave. Every swatch ≥ 4.5:1 against `rim` (asserted), so the flying Suitcase keeps its edge. |
+| A1 the plaza | `plaza_<era>` **128x96** tile | The floor from art row 258 to the screen bottom. The apron's own base with one-value-step texture: 12-row courses (nearer than the lane's 4-7), slabs 32 wide, broken lit edges, 50 % checker scuffs, sparse litter, the cable meandering off. 128 wide so a phone shows under two copies across and the litter never reads as wallpaper. **No barrier or fence** in it (a fence repeated down the screen would read as a border fence: do/don't 13), no gold, no text. |
+| A2 the wings | `wing_<era>_l` / `_r`, W x 230 | Each era's rows 0-229 continued past the art's edges, tileable with period W = a multiple of the era's rhythm (Balfour 20: wall panels every 10; Knesset 22: the lawn's specks every 11; courthouse 60: panels 30, tubes 60; Washington 36: specks every 9). Drawn in art coordinates on a canvas that wraps x mod W, so an element crossing the art's edge (Balfour's tree and protester, the courthouse benches, Washington's blossom trees) continues exactly and repeats every W; wing-native elements (more protesters with blank signs, an olive tree, an aisle between benches) never cross the wing's own edges. Balfour's protesters are the art's own seeded crowd; its barrier posts go every 10 (the art's are 9 apart, which does not tile). |
+| A3 the XL picker heads | `avatar_pick_<c>_d3` 96, `_d2` 64 (TA render-down, `showcase/src/build.py` `avatar_pick_xl`) | First-generation crops from the ref (never an upscale of the 32), the leader's locked d 3 palette, binary alpha, the same neutral `rim` ring (4 px: 8 logical at the picker's 2 logical per px, the 32's weight at x4) and cream disc. |
+| Animator: brawl cue | `brawl_cloud_cue` 26x20 x 4 | `brawl_cloud`'s loop redrawn at half size so the stage cue draws at x4 (the grid) instead of x2: the same puffs, shading bands, sleeves with cuffs and fists, shoes, the flying page and star; limbs keep their fist inside the frame. |
+| Animator: court echo | `court_window` `spots` (data) | Moved out of the sky band (the phones crop art rows < ~110 under Row A and the toast dock) to the right side, clear of the leader: Balfour (167, 167) behind the wall, right of the lamp; Knesset (158, 166) on the lawn at the colonnade's end; Washington (162, 152) in the horizon band right of the mansion. |
 
 ## 18. Foundations (referenced, not paraphrased)
 

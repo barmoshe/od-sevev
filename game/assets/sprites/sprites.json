@@ -1210,7 +1210,9 @@
    "avatar": "avatar_bibi",
    "avatar24": "avatar24_bibi",
    "avatarPick": "avatar_pick_bibi",
-   "avatar24Pick": "avatar24_pick_bibi"
+   "avatar24Pick": "avatar24_pick_bibi",
+   "avatarPickXL": "avatar_pick_bibi_d3",
+   "avatarPick64": "avatar_pick_bibi_d2"
   },
   "sara": {
    "frameW": 157,
@@ -2118,7 +2120,9 @@
    "avatar": "avatar_bennett",
    "avatar24": "avatar24_bennett",
    "avatarPick": "avatar_pick_bennett",
-   "avatar24Pick": "avatar24_pick_bennett"
+   "avatar24Pick": "avatar24_pick_bennett",
+   "avatarPickXL": "avatar_pick_bennett_d3",
+   "avatarPick64": "avatar_pick_bennett_d2"
   },
   "regev": {
    "frameW": 204,
@@ -3088,7 +3092,9 @@
    "avatar": "avatar_deri",
    "avatar24": "avatar24_deri",
    "avatarPick": "avatar_pick_deri",
-   "avatar24Pick": "avatar24_pick_deri"
+   "avatar24Pick": "avatar24_pick_deri",
+   "avatarPickXL": "avatar_pick_deri_d3",
+   "avatarPick64": "avatar_pick_deri_d2"
   },
   "levin": {
    "frameW": 165,
@@ -3966,7 +3972,9 @@
    "avatar": "avatar_ben-gvir",
    "avatar24": "avatar24_ben-gvir",
    "avatarPick": "avatar_pick_ben-gvir",
-   "avatar24Pick": "avatar24_pick_ben-gvir"
+   "avatar24Pick": "avatar24_pick_ben-gvir",
+   "avatarPickXL": "avatar_pick_ben-gvir_d3",
+   "avatarPick64": "avatar_pick_ben-gvir_d2"
   },
   "goldknopf": {
    "frameW": 189,
@@ -5064,7 +5072,9 @@
    "avatar": "avatar_smotrich",
    "avatar24": "avatar24_smotrich",
    "avatarPick": "avatar_pick_smotrich",
-   "avatar24Pick": "avatar24_pick_smotrich"
+   "avatar24Pick": "avatar24_pick_smotrich",
+   "avatarPickXL": "avatar_pick_smotrich_d3",
+   "avatarPick64": "avatar_pick_smotrich_d2"
   },
   "amsalem": {
    "frameW": 204,
@@ -6034,7 +6044,9 @@
    "avatar": "avatar_eisenkot",
    "avatar24": "avatar24_eisenkot",
    "avatarPick": "avatar_pick_eisenkot",
-   "avatar24Pick": "avatar24_pick_eisenkot"
+   "avatar24Pick": "avatar24_pick_eisenkot",
+   "avatarPickXL": "avatar_pick_eisenkot_d3",
+   "avatarPick64": "avatar_pick_eisenkot_d2"
   },
   "gantz": {
    "frameW": 123,
@@ -6986,7 +6998,9 @@
    "avatar": "avatar_liberman",
    "avatar24": "avatar24_liberman",
    "avatarPick": "avatar_pick_liberman",
-   "avatar24Pick": "avatar24_pick_liberman"
+   "avatar24Pick": "avatar24_pick_liberman",
+   "avatarPickXL": "avatar_pick_liberman_d3",
+   "avatarPick64": "avatar_pick_liberman_d2"
   },
   "golan": {
    "frameW": 119,
@@ -7772,7 +7786,9 @@
    "avatar": "avatar_golan",
    "avatar24": "avatar24_golan",
    "avatarPick": "avatar_pick_golan",
-   "avatar24Pick": "avatar24_pick_golan"
+   "avatar24Pick": "avatar24_pick_golan",
+   "avatarPickXL": "avatar_pick_golan_d3",
+   "avatarPick64": "avatar_pick_golan_d2"
   },
   "abbas": {
    "frameW": 145,
@@ -9951,6 +9967,18 @@
     36
    ]
   },
+  "brawl_cloud_cue": {
+   "id": "brawl_cloud_cue",
+   "group": "events",
+   "w": 104,
+   "h": 20,
+   "frames": 4,
+   "frameW": 26,
+   "pivot": [
+    13,
+    18
+   ]
+  },
   "chip_court": {
    "id": "chip_court",
    "group": "events",
@@ -11257,7 +11285,21 @@
    "pivot": [
     12,
     21
-   ]
+   ],
+   "spots": {
+    "balfour": [
+     167,
+     167
+    ],
+    "knesset": [
+     158,
+     166
+    ],
+    "washington": [
+     162,
+     152
+    ]
+   }
   },
   "court_window_glow": {
    "id": "court_window_glow",
@@ -11272,25 +11314,25 @@
   "lane_balfour": {
    "id": "lane_balfour",
    "group": "stage",
-   "w": 2,
+   "w": 32,
    "h": 28
   },
   "lane_courthouse": {
    "id": "lane_courthouse",
    "group": "stage",
-   "w": 2,
+   "w": 32,
    "h": 28
   },
   "lane_knesset": {
    "id": "lane_knesset",
    "group": "stage",
-   "w": 2,
+   "w": 32,
    "h": 28
   },
   "lane_washington": {
    "id": "lane_washington",
    "group": "stage",
-   "w": 2,
+   "w": 32,
    "h": 28
   },
   "laundry_bag": {
@@ -11339,6 +11381,34 @@
     4
    ]
   },
+  "plaza_balfour": {
+   "id": "plaza_balfour",
+   "group": "stage",
+   "w": 128,
+   "h": 96,
+   "artRow": 258
+  },
+  "plaza_courthouse": {
+   "id": "plaza_courthouse",
+   "group": "stage",
+   "w": 128,
+   "h": 96,
+   "artRow": 258
+  },
+  "plaza_knesset": {
+   "id": "plaza_knesset",
+   "group": "stage",
+   "w": 128,
+   "h": 96,
+   "artRow": 258
+  },
+  "plaza_washington": {
+   "id": "plaza_washington",
+   "group": "stage",
+   "w": 128,
+   "h": 96,
+   "artRow": 258
+  },
   "sweat_drop": {
    "id": "sweat_drop",
    "group": "stage",
@@ -11348,6 +11418,102 @@
     2,
     5
    ]
+  },
+  "wing_balfour_l": {
+   "id": "wing_balfour_l",
+   "group": "stage",
+   "w": 20,
+   "h": 230,
+   "pivot": [
+    20,
+    0
+   ],
+   "artRow": 0,
+   "period": 20
+  },
+  "wing_balfour_r": {
+   "id": "wing_balfour_r",
+   "group": "stage",
+   "w": 20,
+   "h": 230,
+   "pivot": [
+    0,
+    0
+   ],
+   "artRow": 0,
+   "period": 20
+  },
+  "wing_courthouse_l": {
+   "id": "wing_courthouse_l",
+   "group": "stage",
+   "w": 60,
+   "h": 230,
+   "pivot": [
+    60,
+    0
+   ],
+   "artRow": 0,
+   "period": 60
+  },
+  "wing_courthouse_r": {
+   "id": "wing_courthouse_r",
+   "group": "stage",
+   "w": 60,
+   "h": 230,
+   "pivot": [
+    0,
+    0
+   ],
+   "artRow": 0,
+   "period": 60
+  },
+  "wing_knesset_l": {
+   "id": "wing_knesset_l",
+   "group": "stage",
+   "w": 22,
+   "h": 230,
+   "pivot": [
+    22,
+    0
+   ],
+   "artRow": 0,
+   "period": 22
+  },
+  "wing_knesset_r": {
+   "id": "wing_knesset_r",
+   "group": "stage",
+   "w": 22,
+   "h": 230,
+   "pivot": [
+    0,
+    0
+   ],
+   "artRow": 0,
+   "period": 22
+  },
+  "wing_washington_l": {
+   "id": "wing_washington_l",
+   "group": "stage",
+   "w": 36,
+   "h": 230,
+   "pivot": [
+    36,
+    0
+   ],
+   "artRow": 0,
+   "period": 36
+  },
+  "wing_washington_r": {
+   "id": "wing_washington_r",
+   "group": "stage",
+   "w": 36,
+   "h": 230,
+   "pivot": [
+    0,
+    0
+   ],
+   "artRow": 0,
+   "period": 36
   },
   "ticker_bar": {
    "id": "ticker_bar",
@@ -12139,12 +12305,44 @@
     32
    ]
   },
+  "avatar_pick_ben-gvir_d2.png": {
+   "bytes": 6385,
+   "sha": "5190419319a3c7bf",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_pick_ben-gvir_d3.png": {
+   "bytes": 12507,
+   "sha": "098b6f23b0688abc",
+   "size": [
+    96,
+    96
+   ]
+  },
   "avatar_pick_bennett.png": {
    "bytes": 1821,
    "sha": "f384a9f7b39d138f",
    "size": [
     32,
     32
+   ]
+  },
+  "avatar_pick_bennett_d2.png": {
+   "bytes": 4949,
+   "sha": "e9e7b571d8afb5d5",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_pick_bennett_d3.png": {
+   "bytes": 9645,
+   "sha": "0a18704faac2a337",
+   "size": [
+    96,
+    96
    ]
   },
   "avatar_pick_bibi.png": {
@@ -12155,12 +12353,44 @@
     32
    ]
   },
+  "avatar_pick_bibi_d2.png": {
+   "bytes": 5917,
+   "sha": "f790743904ce278f",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_pick_bibi_d3.png": {
+   "bytes": 10889,
+   "sha": "94c9269267bc38c4",
+   "size": [
+    96,
+    96
+   ]
+  },
   "avatar_pick_deri.png": {
    "bytes": 1770,
    "sha": "354059125d77367b",
    "size": [
     32,
     32
+   ]
+  },
+  "avatar_pick_deri_d2.png": {
+   "bytes": 5041,
+   "sha": "a57b405a2c57d1d2",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_pick_deri_d3.png": {
+   "bytes": 9745,
+   "sha": "b88b16010bb7b159",
+   "size": [
+    96,
+    96
    ]
   },
   "avatar_pick_eisenkot.png": {
@@ -12171,12 +12401,44 @@
     32
    ]
   },
+  "avatar_pick_eisenkot_d2.png": {
+   "bytes": 4502,
+   "sha": "20dd78edc3735da7",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_pick_eisenkot_d3.png": {
+   "bytes": 8253,
+   "sha": "156d26228e880a4e",
+   "size": [
+    96,
+    96
+   ]
+  },
   "avatar_pick_golan.png": {
    "bytes": 1617,
    "sha": "c7080d90fe34a384",
    "size": [
     32,
     32
+   ]
+  },
+  "avatar_pick_golan_d2.png": {
+   "bytes": 4557,
+   "sha": "40dde157c3cf7265",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_pick_golan_d3.png": {
+   "bytes": 8378,
+   "sha": "e5f2ca659d8f1420",
+   "size": [
+    96,
+    96
    ]
   },
   "avatar_pick_liberman.png": {
@@ -12187,12 +12449,44 @@
     32
    ]
   },
+  "avatar_pick_liberman_d2.png": {
+   "bytes": 4477,
+   "sha": "d7819e4d271d9582",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_pick_liberman_d3.png": {
+   "bytes": 8399,
+   "sha": "138f96ae0b1bdd4d",
+   "size": [
+    96,
+    96
+   ]
+  },
   "avatar_pick_smotrich.png": {
    "bytes": 1564,
    "sha": "8edd1ce05dd28acb",
    "size": [
     32,
     32
+   ]
+  },
+  "avatar_pick_smotrich_d2.png": {
+   "bytes": 4710,
+   "sha": "5c59d1bea5c1836d",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_pick_smotrich_d3.png": {
+   "bytes": 9186,
+   "sha": "d735457c19db3c0f",
+   "size": [
+    96,
+    96
    ]
   },
   "avatar_regev.png": {
@@ -12241,6 +12535,14 @@
    "size": [
     208,
     40
+   ]
+  },
+  "brawl_cloud_cue.png": {
+   "bytes": 1174,
+   "sha": "601df87448f3c8d8",
+   "size": [
+    104,
+    20
    ]
   },
   "button_danger_default.png": {
@@ -13724,34 +14026,34 @@
    ]
   },
   "lane_balfour.png": {
-   "bytes": 131,
-   "sha": "14e9fa1fb928852b",
+   "bytes": 311,
+   "sha": "ab566101e00cd42e",
    "size": [
-    2,
+    32,
     28
    ]
   },
   "lane_courthouse.png": {
-   "bytes": 120,
-   "sha": "5c1fa75cd75c75fb",
+   "bytes": 296,
+   "sha": "2911b46976f6b508",
    "size": [
-    2,
+    32,
     28
    ]
   },
   "lane_knesset.png": {
-   "bytes": 132,
-   "sha": "eedb8ae412374ba4",
+   "bytes": 287,
+   "sha": "b6682441d9c7c39c",
    "size": [
-    2,
+    32,
     28
    ]
   },
   "lane_washington.png": {
-   "bytes": 116,
-   "sha": "c2334541c2b6a0bf",
+   "bytes": 273,
+   "sha": "fcbe9f69c671eb70",
    "size": [
-    2,
+    32,
     28
    ]
   },
@@ -13889,6 +14191,38 @@
    "size": [
     26,
     26
+   ]
+  },
+  "plaza_balfour.png": {
+   "bytes": 1119,
+   "sha": "9c3cd3734e66988a",
+   "size": [
+    128,
+    96
+   ]
+  },
+  "plaza_courthouse.png": {
+   "bytes": 1049,
+   "sha": "503102bd09053b0f",
+   "size": [
+    128,
+    96
+   ]
+  },
+  "plaza_knesset.png": {
+   "bytes": 1209,
+   "sha": "af2199d945389ff4",
+   "size": [
+    128,
+    96
+   ]
+  },
+  "plaza_washington.png": {
+   "bytes": 1446,
+   "sha": "409a2770e43ca9c8",
+   "size": [
+    128,
+    96
    ]
   },
   "prop_bill.png": {
@@ -15353,6 +15687,70 @@
    "size": [
     15,
     15
+   ]
+  },
+  "wing_balfour_l.png": {
+   "bytes": 567,
+   "sha": "c611d46253f3710b",
+   "size": [
+    20,
+    230
+   ]
+  },
+  "wing_balfour_r.png": {
+   "bytes": 533,
+   "sha": "785d9bd097645508",
+   "size": [
+    20,
+    230
+   ]
+  },
+  "wing_courthouse_l.png": {
+   "bytes": 590,
+   "sha": "23788575fd0d6ac6",
+   "size": [
+    60,
+    230
+   ]
+  },
+  "wing_courthouse_r.png": {
+   "bytes": 583,
+   "sha": "b16dbcc6c2d1fff9",
+   "size": [
+    60,
+    230
+   ]
+  },
+  "wing_knesset_l.png": {
+   "bytes": 549,
+   "sha": "a8072054e8d1cbf3",
+   "size": [
+    22,
+    230
+   ]
+  },
+  "wing_knesset_r.png": {
+   "bytes": 558,
+   "sha": "edc7d4de38a4fac6",
+   "size": [
+    22,
+    230
+   ]
+  },
+  "wing_washington_l.png": {
+   "bytes": 712,
+   "sha": "81c5f35b7dc9f3b4",
+   "size": [
+    36,
+    230
+   ]
+  },
+  "wing_washington_r.png": {
+   "bytes": 679,
+   "sha": "b726ae587c51ed8f",
+   "size": [
+    36,
+    230
    ]
   },
   "wordmark.png": {

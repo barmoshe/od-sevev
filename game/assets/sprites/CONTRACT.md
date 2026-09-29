@@ -18,6 +18,9 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun 
 | `sprites/prop_<name>.png` (kit) | The leaders' tap props (2D Artist, 2026-09-29): `prop_pen`, `prop_phone`, `prop_chair`, `prop_ruler`, `prop_calculator`, `prop_coffee`, `prop_stapler`: 2-frame strips (rest, squash), d 1, a `pivot` for `propMouth` and `points.mouth` per frame (§4c) | `sprites.json.ui[id]`, `chars[c].prop` |
 | `sprites/<leader-select ui id>.png` | `suitcase_plain` (+ `_norim`), `spin_slot_{A,B,C,D,E,G,H,I}` (24×24), `pick_tile_{idle,pressed,focus,selected}` (9-slice; focus/selected 1 art px larger each side), `pick_random`, `thermo_icon_press`, `chip_icon_press`, `source_donor`, `source_funds` (+ icons, silhouettes) | `Art.tex(id)`, `sprites.json.ui[id]`, `sources[id]` |
 | `sprites/stage_<era>.png` | `stage_balfour`, `stage_knesset`, `stage_courthouse`, `stage_washington`, 180×320 | `eras.list[].background` |
+| `sprites/lane_<era>.png`, `plaza_<era>.png`, `wing_<era>_{l,r}.png` | The stage's floor and sides for the mobile-first layout (2D Artist, 2026-09-29, UX A1/A2): the lane 32×28, the plaza 128×96, the wings W×230 (W: balfour 20, knesset 22, courthouse 60, washington 36). All tiles, §3 | `diorama.gd` `_place_lane` / `_place_plaza` / `_place_wings` (data-driven: no piece, nothing drawn) |
+| `sprites/avatar_pick_<c>_d3.png`, `avatar_pick_<c>_d2.png` | The picker's XL heads (UX A3), 96×96 and 64×64, the 8 leaders | `chars[c].avatarPickXL` / `avatarPick64` (§4c) |
+| `sprites/brawl_cloud_cue.png` | The brawl cloud cut for the stage cue: 4 frames of 26×20 (UX / Animator) | `Art.tex("brawl_cloud_cue", f)`, `sprites.json.ui` |
 | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
 | `sprites/<ui id>.png` | The 2D Artist's UI kit, 212 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
 | `fonts/sevev9.fnt` | **Sevev 9**, the Hebrew pixel font (a BMFont; Godot imports it as a `FontFile`) | `load("res://assets/fonts/sevev9.fnt")` |
@@ -111,9 +114,30 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
   skeleton keeps rows 0-40 and 230-320 flat for exactly this.
   - `padBottom` is the apron's colour (art rows 240-318), not the 1-row rule at row 319
     (fixed 2026-09-29: it differed in every era, a grey strip beside the Suitcase lane).
-  - **The lane floor** (2D Artist, 2026-09-29): kit `lane_<era>` is a 2×28 horizontal-only
-    tile from art row 230 (the apron lip) down; `diorama.gd` `_place_lane` tiles it across the
-    whole canvas width at ×4, x-phase on an even stage-art column, above the stage art.
+  - **The lane floor** (2D Artist, 2026-09-29; redrawn for the mobile-first layout the same day):
+    kit `lane_<era>` is a **32×28** tile from art row 230 (the apron lip) to 257, with horizontal
+    detail (slab/board joints, the press cable, a flyer), so no lane row is one colour (UX S8).
+    `diorama.gd` `_place_lane` tiles it across the whole canvas width at ×4, tile column 0 on
+    stage-art column 0 (it reads the width), above the stage art. Every lane swatch keeps ≥ 4.5:1
+    against the Suitcase's rim.
+  - **The plaza** (UX A1): kit `plaza_<era>`, a **128×96** tile (both axes, `artRow: 258`), drawn by
+    `_place_plaza` from art row 258 (under the lane) down `PLAZA_ROWS` = 320 art rows (1280 logical;
+    more than any canvas of the matrix shows), across the whole width, tile column 0 on art column 0,
+    **over** the stage art's flat apron rows 258-319. It is what the pre-tap state and the picker's
+    scrim show below the stage (ux/mobile-first-layout.md §3.3, §5.9). `diorama.floor_reach()` =
+    the logical px of floor art under the stage bottom (1280 when the stages ship a plaza, else 0);
+    `main.gd` starts its flat `_title_floor` there, so the fill never covers the plaza. The base is
+    the apron colour, so `padBottom` (the clear colour) stays right.
+  - **The wings** (UX A2): kit `wing_<era>_l` / `wing_<era>_r`, **W×230** (art rows 0-229), W per era
+    (balfour 20, knesset 22, courthouse 60, washington 36: a multiple of the era's own horizontal
+    rhythm; `period` in the entry). `_place_wings` tiles the left one leftward so its **last** column
+    abuts art column 0, the right one rightward from art column **180**, out to ±`_extend_x`, at ×4
+    with the top on art row 0 (`artRow: 0`). They sit beside the art (never over it), over the sky
+    pads, under the lane; seam-exact against the art's edge column and against themselves. The
+    canvas is up to 215 art columns on the matrix (17.5 beside the art per side), so one copy covers
+    every phone; wider canvases tile.
+  - **Washington's rows 154-169** are unpainted in the approved art (277 transparent px beside the
+    trees): the padTop sky shows there, as it always has. Its wings paint `sky` in those rows to match.
 - **The Magician's feet** go at `magicianFeet` = (94, 219) art px on every stage, which is the
   approved showcase placement: x 94 on the floor line.
 
@@ -228,6 +252,12 @@ its react / crit, tap), at d 3 and d 2.
   `avatar24_pick_<c>`, the 8 leaders): the chat avatars' heads on one neutral ring. Use these on the picker tiles
   (UX §8.3: L = 32 at ×4, M = 24 at ×4, S = 32 at ×2), never the chat avatars, whose react-coloured rings read as
   party or bloc colours.
+  - **XL (UX mobile-first §5.8, A3; 2026-09-29):** `chars[c].avatarPickXL` = `avatar_pick_<c>_d3` (96×96, cropped from
+    the ref for the d 3 cast, quantised to its d 3 palette) for **A = 192**, and `chars[c].avatarPick64` =
+    `avatar_pick_<c>_d2` (64×64) for **A = 128**. Draw either at **2 logical px per sprite px** (A / size), which is
+    k / 2 device px: crisp at every even k. The same head crop, the same neutral `rim` ring (4 px = 8 logical, the 32's
+    2 px at ×4) and cream disc as the 32. A = 96 / 64 keep the 32 at ×3 / ×2. Only the size the device picks needs to
+    be loaded, and only while the picker is open.
 - **`chars[c].prop`** = `{"id": <kit id>, "baked": bool, "track": "propMouth" | "hatMouth", "path": "held" | "hop" |
   "push"}`:
   - `baked: true` (Bibi's hat, Smotrich's calculator, Deri's cup): the prop is in the render. **Draw no loose prop**;
@@ -309,6 +339,14 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for 
 - `pivot`: the anchor point in art px.
 - `state`, `label`, `liquid`, `zones`, `textColumn`, `exportScale`: the 2D Artist's data. See
   their notes in `art/od-sevev/ui-kit.json`.
+- `spots` (on `court_window`): the courthouse echo's pivot per era, stage-art px
+  (`CourtEcho.spot` reads it; moved 2026-09-29 to Balfour (167, 167), Knesset (158, 166),
+  Washington (162, 152), so the house is below art row 110 and stays in place on phones).
+- `artRow`, `period` (on `plaza_<era>` / `wing_<era>_*`): the art row the piece's top sits on, and
+  a wing's tile period (= its width), §3.
+- `brawl_cloud_cue` (26×20, 4 frames, pivot [13, 18]): the brawl cloud for the stage cue at the
+  stage's own ×4 (104×80 logical, the box the ×2 `brawl_cloud` fills today); same frame count,
+  order and 8 fps. `brawl_cloud` (52×40) stays for the thread's inline cloud at ×4.
 
 ## 6. Fonts: Sevev 9
 - **Where it's used:** every Hebrew or mixed string goes through a `Label` or `RichTextLabel`
@@ -417,6 +455,13 @@ ascender 4, body 10, descender 4), so at the same box each @2 px is 2×2 device 
     **12.30 MB** at k 3/6/7/9 (was 12.05) and **6.64 MB** at k 2/4/8 (was 6.45). Web `.pck` art:
     **5.29 MB** (was 4.48; +0.77 MB the 7 leaders' tap strips, +25 KB the kit pieces, advisers and
     picker avatars).
+  - **Mobile-first art (2026-09-29):** the lanes, 4 plazas, 8 wings, the brawl cue and the 16 XL
+    picker avatars. `budget.json` counts every kit piece and every avatar as resident, so it reads
+    **13.20 MB** at k 3/6/7/9 and **7.54 MB** at k 2/4/8 (+0.90 MB). What is really resident is one
+    era's lane + plaza + two wings (≤ 0.16 MB, the courthouse's; 0.09 MB for Balfour) and, only while
+    the picker is open, one XL size (96: 0.29 MB, 64: 0.13 MB). Web `.pck` art **5.34 MB** (+44 KB).
+    Fill: the plaza is one extra textured layer under the lower panels (off-screen or covered in
+    the main state); the wings add two small quads.
   - **Keep resident:** Bibi, the current stage, the rendered sources, the UI kit, the fonts
     and the avatars. That is 1.9 MB plus Bibi and the sources, and **only the render
     `pick_variant` picks is loaded** (SpriteStrip; the diorama through `Art.source`):

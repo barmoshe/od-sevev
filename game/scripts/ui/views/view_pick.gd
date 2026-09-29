@@ -43,7 +43,7 @@ const STRIP_H := 112.0              # 12 + 2 lines × 44 + 12
 ## mobile-first §5.8 A3: the XL pick avatar (96×96 at d3, drawn 2 logical px per sprite px); until
 ## the 2D Artist's piece lands (manifest chars.<art>.avatarPickXL, else this id) the 32-px pick
 ## avatar draws at ×6 (1.5 art px per sprite px: whole device px at every even k).
-const XL_PREFIX := "avatar_pick_xl_"
+const XL_PREFIX := "avatar_pick_xl_"   # only when the manifest names no avatarPickXL (it ships avatar_pick_<c>_d3)
 
 var host: Node
 var reduced_motion := false
@@ -415,11 +415,12 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 	var ch: Dictionary = SpriteStrip.manifest().get("chars", {}).get(art, {})
 	var av := str(ch.get("avatar24Pick", "avatar24_pick_" + art)) if avatar == 96.0 else str(ch.get("avatarPick", "avatar_pick_" + art))
 	var sc := 2.0 if avatar == 64.0 else (6.0 if avatar == 192.0 else 4.0)
-	if avatar == 192.0:
-		var xl := str(ch.get("avatarPickXL", XL_PREFIX + art))
-		if Art.has_sprite(xl):
-			av = xl
-			sc = 192.0 / float(maxi(1, Art.sprite_size(xl).x))
+	# the 2D Artist's denser heads (A3): 96×96 d3 for A 192, 64×64 d2 for A 128 (at an even k), at
+	# 2 logical px per sprite px; else the 32-px head at ×6 / ×4
+	var dense := str(ch.get("avatarPickXL", XL_PREFIX + art)) if avatar == 192.0 else (str(ch.get("avatarPick64", "")) if avatar == 128.0 else "")
+	if dense != "" and Art.has_sprite(dense) and (avatar == 192.0 or Display.k % 2 == 0):
+		av = dense
+		sc = avatar / float(maxi(1, Art.sprite_size(dense).x))
 	var top := _block_top(r.size.y) if three else 12.0
 	if Art.has_sprite(av):
 		var asz := Vector2(Art.sprite_size(av)) * sc

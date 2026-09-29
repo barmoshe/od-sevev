@@ -218,7 +218,9 @@ func _ready() -> void:
 	add_child(_brawl_cue)
 	_brawl_cue.visible = false
 	Ui.nine(_brawl_cue, BRAWL_CUE, Art.sprite_or("chat_bubble_in"))
-	_brawl_cloud = Ui.img(_brawl_cue, BRAWL_CLOUD, Art.sprite_or("brawl_cloud"), 0, 2)
+	# the 2D Artist's 26×20 cue cut at ×4 (4 frames), else the 52×40 brawl cloud at ×2: the same 104×80
+	var cue_id := "brawl_cloud_cue" if Art.has_sprite("brawl_cloud_cue") else Art.sprite_or("brawl_cloud")
+	_brawl_cloud = Ui.img(_brawl_cue, BRAWL_CLOUD, cue_id, 0, 4 if cue_id == "brawl_cloud_cue" else 2)
 	_header = Ui.nine(_panel, Rect2(0, 0, L.W, HEADER_H), Art.sprite_or("chat_header"))
 	var chev_id := Art.sprite_or("chat_icon_chevron")
 	var cs := Vector2(Art.sprite_size(chev_id)) * 4.0

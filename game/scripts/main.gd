@@ -673,7 +673,9 @@ func _apply_slots(animate: bool) -> void:
 
 
 func _place_title_floor() -> void:
-	var fy := _stage_y + L.stage_bottom()
+	# the diorama's own floor art (the 2D plaza, mobile-first A1) runs floor_reach() below the stage
+	# bottom; the engine's paving only backs it up beyond that (a stage art without a plaza)
+	var fy := _stage_y + L.stage_bottom() + diorama.floor_reach()
 	_title_floor.texture = Diorama.paving_texture(diorama.pad_bottom, false)
 	# the tile's phase follows the stage column, so the floor continues the lane's joints
 	var ph := fposmod(_sx, 64.0)
