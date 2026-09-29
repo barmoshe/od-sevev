@@ -345,6 +345,8 @@ if (C.leaderSelect || C.leaders) {
     if (SPR && !charOf(L.art)) err(P, `art ${L.art} is not in sprites.json chars`);
     if (!ready) { if (L.status !== 'backlog') warn(P, 'not contentReady and not marked backlog'); continue; }
     for (const k of ['blurb', 'line']) if (!hebStr(L.pick?.[k])) err(P, `pick.${k} missing`);
+    // The picker shows no numbers at all (spec §3.2, L9: safe in the blackout): a tile's blurb and line carry no digit.
+    for (const k of ['blurb', 'line']) if (/\d/.test(L.pick?.[k] || '')) err(`${P}.pick.${k}`, `a number on the picker (spec §3.2): ${L.pick[k]}`);
     // Every leader, the default included, shows one signature rule on the picker's long-press and in T4.
     for (const k of ['name', 'text']) if (!hebStr(L.rule?.[k])) err(`${P}.rule`, `${k} missing (the picker and T4 show every leader's rule, Bibi's too)`);
     const K = L.kit || {};

@@ -94,3 +94,25 @@ func test_the_early_round_fills_the_right_half() -> void:
 	var tx := float(L.DIORAMA["xs"][t.substr(0, 1)][int(t.substr(1))]) + 32.0
 	var left := tx - _extent(src, str(Content.producer("taxpayer")["sprite"])).x - WANDER
 	runner.check(left >= hit_right, "the first taxpayer (%s, wandering) clears the Magician's hit (x ≥ %d, got %d)" % [t, int(hit_right), int(left)])
+
+
+## UX mobile-first-layout §5.4 G1 (producerReveal.fillSilhouettes): after the first reveal, the
+## sources past the one priced silhouette come back as `fill`, priceless rows, in tier order.
+func test_the_pane_fills_with_silhouettes() -> void:
+	runner.check(Content.data()["producerReveal"].get("fillSilhouettes") == true, "the content turns the fill on")
+	var s := GameState.fresh()
+	var r0 := Economy.producer_rows(s)
+	runner.check((r0["fill"] as PackedStringArray).is_empty(), "nothing fills before the first reveal (%s)" % str(r0))
+	s.owned["taxpayer"] = 1
+	var r := Economy.producer_rows(s)
+	var ids := Content.producer_ids()
+	var want := PackedStringArray()
+	for id in ids:
+		if not (r["revealed"] as PackedStringArray).has(id) and id != str(r["silhouette"]):
+			want.append(id)
+	runner.check(r["revealed"] == PackedStringArray(["taxpayer"]) and str(r["silhouette"]) == ids[1], "one real row, the next one priced (%s)" % str(r))
+	runner.check(r["fill"] == want and (r["fill"] as PackedStringArray).size() == ids.size() - 2, "the rest fill the pane, in tier order (%s)" % str(r["fill"]))
+	var c: Dictionary = Content.data().duplicate(true)
+	c["producerReveal"]["fillSilhouettes"] = false
+	Content.replace(c)
+	runner.check((Economy.producer_rows(s)["fill"] as PackedStringArray).is_empty(), "off: today's single silhouette")

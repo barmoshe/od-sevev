@@ -197,8 +197,10 @@
  "producerReveal": {
   "revealAtRunBananasFracOfBaseCost": 0.5,
   "showNextAsSilhouette": true,
+  "fillSilhouettes": true,
   "silhouetteName": "מקור עלום",
-  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible."
+  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
+  "_fillRule": "UX mobile-first-layout §5.4 / §10 G1 (game-designer 2026-09-29): after the first reveal, every source not yet revealed and past the silhouette draws as a dim priceless row ('מקור עלום', no price, no pill, not a target), so the pane is never shorter than its content early on. Economy.producer_rows(s).fill lists them in tier order; false = today's single silhouette."
  },
  "upgrades": [
   {
@@ -6426,7 +6428,7 @@
    "art": "liberman",
    "avatar": "liberman_avatar",
    "pick": {
-    "blurb": "לא יושב כמעט עם אף אחד. צריך 61 בכל זאת.",
+    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
     "line": "לא יושב! לא יושב!",
     "src": [
      "liberman-wont-sit"
