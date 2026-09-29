@@ -114,7 +114,7 @@ Every node reaches `MAIN` in ≤ 2 player steps. Every modal except `RESET_CONFI
 | localStorage unavailable | `setItem` throws | Normal flow; ticker line `F_NO_SAVE` once per session | as above |
 | Deep link / share / ad return | none exist (single URL, no monetization) | n/a | n/a |
 
-**Audio unlock:** see `audio/audio-cue-spec.md` §5 (U1–U10). Every gesture retries until the context runs, and the unlocking tap sounds its own cue. Returning players do **not** see `TITLE`: an idle game lives on short check-ins, so skipping it saves one tap every session.
+**Audio unlock:** see `audio/legacy/audio-cue-spec.md` §5 (U1–U10). Every gesture retries until the context runs, and the unlocking tap sounds its own cue. Returning players do **not** see `TITLE`: an idle game lives on short check-ins, so skipping it saves one tap every session.
 
 ## 7. Locatedness (per node)
 

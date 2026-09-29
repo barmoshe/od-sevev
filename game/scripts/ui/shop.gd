@@ -32,6 +32,14 @@ const TAB_ICONS := ["tabicon_sources", "tabicon_spins", "tabicon_coalition", "ta
 ## stays hidden even when revealed.
 const TAB_BUILT := [true, true, true, false]
 const TALL_TABS := ["coalition", "dossier"]
+## S08 "השלט" (karhiLine): its two bars live on the card only. One 2-art-px split track under
+## line 2 (card-local): "שידור ציבורי" fills from the right, "ערוץ ידידותי" takes the rest. The
+## labels wait for UX keys (STATUS request); the palette letters are the art.json palette.
+const SPIN_BARS := Rect2(220, 104, 360, 8)
+## The spin tag's stamp: the bottom band of the plate (kit card_plate at 588-692 × 8-112).
+const SPIN_TAG := Rect2(592, 72, 96, 40)
+const SPIN_BAR_PUBLIC := "e"
+const SPIN_BAR_FRIENDLY := "O"
 
 var tab := "producers"
 ## The tall tab currently open over the panel ("" = none): its slot shows as the active one.
@@ -237,9 +245,21 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 	var flash := Ui.rect(c, Rect2(lx, 0, lw, row_h), th["row"]["affordFlash"], 0.0)
 	var dim := Ui.rect(c, Rect2(lx, 0, lw, row_h), th["scrim"], 0.0)
 	var glint := Ui.rect(c, Rect2(lx, 4, 8, row_h - 8), th["row"]["affordFlash"], 0.0)
+	# S08's card-only bars (Spins.card bars): one split track under line 2, "public" from the right
+	var sb: Rect2 = SPIN_BARS
+	# a spin's tag ("שחוק", a line's "1/5"): a stamp over the plate's bottom edge (rtl-map §6.1)
+	var tag_bg := Ui.rect(content, SPIN_TAG, th["scrim"], 0.85)
+	var tag := PxText.make(content, Vector2(SPIN_TAG.position.x, SPIN_TAG.position.y + 2.0), "", L.TEXT, "plain", "w")
+	tag_bg.visible = false
+	tag.visible = false
+	var bar_pub := Ui.rect(content, sb, Art.col(SPIN_BAR_PUBLIC))
+	var bar_fr := Ui.rect(content, Rect2(sb.position, Vector2(0, sb.size.y)), Art.col(SPIN_BAR_FRIENDLY))
+	bar_pub.visible = false
+	bar_fr.visible = false
 	c.visible = false
 	return {
 		"c": c, "panel": panel, "content": content, "plate": plate, "icon": icon, "iconFlash": icon_flash,
+		"barPublic": bar_pub, "barFriendly": bar_fr, "tag": tag, "tagBg": tag_bg,
 		"name": name, "line2": line2, "owned": owned, "pill": pill, "fill": fill, "pill1": pill1, "pill2": pill2,
 		"flash": flash, "dim": dim, "glint": glint, "index": k, "model": {"kind": "none", "id": ""}, "key": "",
 		"afford": null, "glintReadyAt": 0.0, "pressP": 0.0, "pressed": false, "shakeT": -1.0, "hopT": -1.0,
@@ -387,6 +407,8 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	var l2 := ""
 	var price := 0.0
 	var wide := false
+	var bars: Dictionary = {}
+	var tag_s := ""
 	var id: String = m["id"]
 	match String(m["kind"]):
 		"producer":
@@ -422,15 +444,20 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			var bm2: Variant = s.buy_mode
 			l2 = Strings.s("BUYMODE_1" if (bm2 is int and bm2 == 1) else ("BUYMODE_10" if (bm2 is int and bm2 == 10) else "BUYMODE_MAX"))
 		_:
+			# the sim's price and buy rule (sim/README "Buy a spin"): a line's next level, S07's
+			# income-scaled price; never u.cost / s.upgrades (a consumable or a line is never there)
 			var u := Content.upgrade(id)
-			price = float(u["cost"])
-			afford = s.bananas >= price and not s.upgrades.has(id)
+			var card := spin_card(s, id, d)
+			price = float(card["price"])
+			afford = bool(card["canBuy"])
 			icon = Art.sprite_or(String(u.get("icon", "icon_" + id)))
 			nm = Strings.upgrade_name(id)
 			line2 = Strings.upgrade_effect(id)
+			tag_s = String(card["tag"])
 			wide = true
 			l1 = Strings.s("SPIN_VERB")
-			l2 = Strings.s("CARD_PRICE", {"price": Fmt.cost(price)})
+			l2 = Strings.s("CARD_PRICE", {"price": Fmt.cost(price)}) if price >= 0.0 else Strings.s("SPIN_OWNED")
+			bars = card.get("bars", {})
 	var key := "%s:%s" % [m["kind"], id]
 	var ic: Sprite2D = v["icon"]
 	var is_btn: bool = m["kind"] == "buymode"
@@ -495,6 +522,50 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.86, 0.84, 0.9)
 	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.72, 0.7, 0.78)
 	(v["owned"] as PxText).tint = Color(0.86, 0.84, 0.9)
+	_render_bars(v, bars)
+	var tg: PxText = v["tag"]
+	if tg.text != tag_s:
+		tg.text = tag_s
+		tg.center_in(SPIN_TAG.position.x, SPIN_TAG.size.x)
+	tg.visible = tag_s != ""
+	(v["tagBg"] as ColorRect).visible = tg.visible
+
+
+## S08's split bar: "public" from the right (the RTL fill side), the drained share after it.
+func _render_bars(v: Dictionary, bars: Dictionary) -> void:
+	var pub: ColorRect = v["barPublic"]
+	var fr: ColorRect = v["barFriendly"]
+	pub.visible = not bars.is_empty()
+	fr.visible = pub.visible
+	if not pub.visible:
+		return
+	var sb := SPIN_BARS
+	var wp := Ui.snap(sb.size.x * clampf(float(bars.get("public", 100.0)) / 100.0, 0.0, 1.0), 4)
+	pub.position = Vector2(L.bar_x(sb, wp), sb.position.y)
+	pub.size = Vector2(wp, sb.size.y)
+	var wf := sb.size.x - wp
+	fr.position = Vector2(sb.position.x if L.RTL else sb.position.x + wp, sb.position.y)
+	fr.size = Vector2(wf, sb.size.y)
+
+
+## The spin card's model (rtl-map §6.1 "Spin card"), from the sim's reads only:
+## {price (-1 = nothing left), canBuy, tag (the owned-badge slot: "שחוק" on a worn consumable, a
+## line's "level/levels"; "" = none), bars (S08), flightPct (S10), kind}.
+static func spin_card(s: GameState, id: String, d: Economy.Derived = null) -> Dictionary:
+	var c := Spins.card(s, id, d)
+	if c.is_empty():
+		return {"price": -1.0, "canBuy": false, "tag": "", "kind": "once"}
+	var tag := ""
+	if c["kind"] == "line" and int(c["levels"]) > 1:
+		tag = Strings.s("PERK_LEVEL", {"lv": int(c["level"]), "max": int(c["levels"])})
+	elif c["worn"]:
+		tag = Strings.s("SPIN_FATIGUE")
+	var out := {"price": float(c["price"]), "canBuy": Economy.can_buy_upgrade(s, id), "tag": tag, "kind": c["kind"]}
+	if c.has("bars"):
+		out["bars"] = c["bars"]
+	if c.has("flightPct"):
+		out["flightPct"] = c["flightPct"]
+	return out
 
 
 func _start_hello(v: Dictionary) -> void:
@@ -898,8 +969,11 @@ func _commit(v: Dictionary, s: GameState) -> void:
 			var res2: Array = [false]
 			buy_upgrade_requested.emit(m["id"], res2)
 			if res2[0]:
-				_success_fx(v, true)
-				_start_reflow(before, idx)
+				if Economy.available_upgrades(s).any(func(u: Dictionary) -> bool: return u["id"] == m["id"]):
+					_success_fx(v, false)   # a line's next level: the card stays, so no pop-out and no reflow
+				else:
+					_success_fx(v, true)
+					_start_reflow(before, idx)
 			else:
 				_cant_afford_fx(v)
 				cant_afford.emit()

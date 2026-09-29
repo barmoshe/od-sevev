@@ -4,7 +4,7 @@ extends Node2D
 ## headline-ticker. The scroll region is a clipping Control (x112..704) instead of v1's
 ## occluders. Milestone glyphs hop once as they enter (J8). Reduced motion pages the text.
 ## od-sevev (ux/rtl-map.md §5): an 84-px row, `_lower`-local. The red "מבזק" anchor on the right,
-## the crawl clip x 192-552 running LEFT → RIGHT (a Hebrew line's first word enters first), one
+## the crawl clip from x 192 to Dubi's left edge (Ticker.anchor_layout) running LEFT → RIGHT (a Hebrew line's first word enters first), one
 ## art px (4 logical) every 3 frames = 80 px/s (the Animator's even cadence), the date chip on the
 ## left. When the election gate opens the whole row becomes the gold "עוד סבב!" button; the crawl
 ## pauses with its queue intact.
@@ -39,6 +39,10 @@ var dubi: SpriteStrip
 var _chip: Array[CanvasItem] = []
 var _anchor: Array[CanvasItem] = []
 var _cta_on := false
+var _tag_plate: ColorRect
+var _tag_text: PxText
+var _tag_w := 0.0
+var _clip_x1 := float(L.TICKER["clipX1"])
 
 
 func _ready() -> void:
@@ -56,15 +60,16 @@ func _ready() -> void:
 		_pool.append(l)
 	# the anchor: a red plate with "מבזק", right-aligned (rtl-map §5.1)
 	var tag: Rect2 = L.TICKER["tag"]
-	_anchor.append(Ui.rect(self, tag, Color("#d02a36")))
-	var tt := PxText.make(self, Vector2(0, tag.position.y + 4.0), Strings.s("TICKER_TAG"), SCALE, "plain", "w")
-	tt.right_at(float(L.TICKER["tagRight"]) - 8.0)
-	_anchor.append(tt)
+	_tag_plate = Ui.rect(self, tag, Color("#d02a36"))
+	_anchor.append(_tag_plate)
+	_tag_text = PxText.make(self, Vector2(0, float(L.TICKER["textY"])), Strings.s("TICKER_TAG"), SCALE, "plain", "w")
+	_anchor.append(_tag_text)
 	# Dubi at the anchor (rtl-map §5.1): the TA's small Dubi (chars.dubi), feet on the row floor
 	dubi = SpriteStrip.make(self, "dubi", L.TICKER["dubiFeet"])
 	if dubi != null:
 		dubi.finished.connect(func(_a: String) -> void: dubi.play("idle"))
 		_anchor.append(dubi)
+	_layout_anchor()
 	# the date chip: kit chip_countdown, the calendar icon at its right, "27.10" left of it
 	var cr: Rect2 = L.TICKER["chip"]
 	_chip.append(Ui.nine(self, cr, Art.sprite_or("chip_countdown")))
@@ -80,6 +85,45 @@ func _ready() -> void:
 	cta.set_visible(false)
 	var hp := float(Tune.MC["tickerHopPx"])
 	_hop = [-hp / 2.0, -hp, -hp, -hp / 2.0, 0.0]
+
+
+## The anchor, right → left (rtl-map §5.1): the red plate hugging "מבזק" (text right-aligned at
+## tagRight, 8 px padding), then Dubi's whole frame, then the crawl clip. Nothing overlaps: the
+## plate grows with the measured tag (×4 or large text ×5) and the clip ends where Dubi starts.
+## Pure (tests pin it). tag_w = the tag's drawn width; dubi = Dubi's node-local frame rect ({}
+## without the sprite). Returns {plate: Rect2, textRight, dubiFeet: Vector2, clipX1}.
+static func anchor_layout(tag_w: float, dubi: Rect2) -> Dictionary:
+	var T: Dictionary = L.TICKER
+	var tag: Rect2 = T["tag"]
+	var right := float(T["tagRight"])
+	var pad := float(T["tagPad"])
+	var gap := float(T["anchorGap"])
+	var plate := Rect2(right - tag_w - pad, tag.position.y, tag_w + 2.0 * pad, tag.size.y)
+	var feet: Vector2 = T["dubiFeet"]
+	var left := plate.position.x
+	if dubi.size.x > 0.0:
+		feet.x = plate.position.x - gap - dubi.end.x   # the frame's right edge sits gap px left of the plate
+		left = feet.x + dubi.position.x
+	return {"plate": plate, "textRight": right, "dubiFeet": feet, "clipX1": minf(float(T["clipX1"]), left - gap)}
+
+
+func _layout_anchor() -> void:
+	_tag_w = float(_tag_text.width())
+	var lay := anchor_layout(_tag_w, dubi.rect() if dubi != null else Rect2())
+	var plate: Rect2 = lay["plate"]
+	_tag_plate.position = plate.position
+	_tag_plate.size = plate.size
+	_tag_text.right_at(float(lay["textRight"]))
+	_tag_text.position.y = float(L.TICKER["textY"])
+	if dubi != null:
+		dubi.position = lay["dubiFeet"]
+	_clip_x1 = float(lay["clipX1"])
+	_clip.size.x = _clip_x1 - float(L.TICKER["clipX0"])
+
+
+## The crawl clip's right edge (the anchor's left edge), `_lower`-local.
+func clip_x1() -> float:
+	return _clip_x1
 
 
 ## One beak movement per babble syllable (the Audio's dubi_blip signal).
@@ -101,11 +145,6 @@ func set_cta(on: bool) -> void:
 
 func cta_on() -> bool:
 	return _cta_on
-
-
-## Local x of the text in the clip, from a design-space x.
-func _cx(x: float) -> float:
-	return x - float(L.TICKER["clipX0"])
 
 
 func _text_y() -> float:
@@ -212,13 +251,15 @@ func _start_item(it: Dictionary) -> void:
 	line.tint = Art.col(K["milestoneText"] if milestone else K["text"])
 	line.visible = true
 	line.h_anchor = 0
-	var x0 := -float(line.width()) if L.RTL else _cx(L.TICKER["clipX1"])
+	var x0 := -float(line.width()) if L.RTL else _clip.size.x
 	line.position = Vector2(x0, _text_y())
 	_live.append({"item": it, "line": line, "x0": x0, "t": 0.0, "w": line.width(), "hop": milestone, "hopAt": {}})
 
 
 func update_view(dt_ms: float) -> void:
 	_now += dt_ms
+	if float(_tag_text.width()) != _tag_w:
+		_layout_anchor()   # the text size changed (large text): the plate, Dubi and the clip follow
 	if dubi != null:
 		dubi.update_view(dt_ms)
 	if _cta_on:

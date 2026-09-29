@@ -197,7 +197,7 @@ static func trophy_icon(icon: String, earned: bool) -> String:
 ## A secret trophy shows the secret plate and no icon until earned; a neverAwarded one (Gantz's
 ## rotation) is never earned and shows its fakeProgress.
 static func trophy_model(s: GameState, a: Dictionary) -> Dictionary:
-	var earned := s.achievements.has(a.get("id", "")) and not a.get("neverAwarded", false)
+	var earned: bool = s.achievements.has(a.get("id", "")) and not a.get("neverAwarded", false)
 	var secret: bool = a.get("secret", false) == true and not earned
 	var m := {"id": a.get("id", ""), "earned": earned, "secret": secret,
 		"plate": "trophy_plate_earned" if earned else ("trophy_plate_secret" if secret else "trophy_plate_locked"),

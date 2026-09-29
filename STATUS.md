@@ -128,6 +128,17 @@ Cross-slice requests go under **Requests** with the owner named.
   - **Tests:** `tools/test.sh` 141/141 (+4 `test_display.gd`, +1 `test_audio.gd`); strict web build green (lint 0 failures).
   - **Files:** `game/scripts/{core/display,main,ui/sprite_strip,ui/diorama,autoload/audio}.gd`, `game/tests/unit/{test_display,test_audio}.gd`, `tools/web/res_web.mjs`, `HOW-TO-RUN.md`. Shots: `build/shots/` (untracked).
 - 2026-09-29 · game-designer · **sources before ship**: all 13 shipping facts now have URLs (9 verified, 4 corrected: gotliv not formally a defector, brawl on 18 Jan not 19, bibist was a creators' skit Netanyahu posted, cottage source re-dated). Quote Hebrew: Trump (as N12 reported it) and Gotliv verified; the brawl's Netanyahu line and Illouz unverified, both already reported speech. No in-game copy changed. The About page (which renders `facts.json` `text`) now has source links and the corrected texts, and Gotliv's "covert officer" guardrail moved out of the public `text`. 1 objection (brawl `script[6]` → "צאו החוצה ותמשיכו להתווכח שם."). Checked through search results only (the sandbox blocks page fetches), so a human should open each `url` once before ship. Content lint 0 errors, and the URL-needed warnings are gone · `design/facts.json`, `design/facts-verification.md`
+- 2026-09-29 · game-developer (engine), wave 3 · the sim hooks, the audio asks, `view_rules.gd`, the ticker anchor. **Closed:** sim → engine asks 1, 2, 4, 6 (3 and 5 were already in or stay open, below); audio-director's collapse, `achievement` and legacy-move items; views dev (T3) item 3; O-A3's leftover "collapse still plays the motif".
+  - **Spin pill:** `Shop.spin_card()` reads `Spins.card` + `Economy.can_buy_upgrade`, so the price is `Economy.upgrade_price`: S07's costBpsSeconds price, S08's next level. Gold only when the sim would sell, so a tap never does nothing silently. A line level-up keeps the card: a flash and a hop, no pop-out or reflow.
+  - **Card extras and buff views:** the plate's bottom stamp shows "שחוק" (worn) or a line's "1/5". S08's two bars are one 2-art-px split track under line 2 (public from the right). The buff chip shows the live spin that ends first (`SPIN_ACTIVE`, the timer bar, the last-3 s blink); a Suitcase frenzy still wins it. The rate line reads 0 while S07 pours. S10 shows a "+15%" floater on each flight catch. S08's ticker line is its level's own `flavor`.
+  - **Also wired:** `Politics.tick` gets `hour` + `weekday` (device local). Ambient `trophiesAtLeast` = `Meta.trophy_count`. `view_rules.gd` compiles (`earned: bool`).
+  - **Audio:** `_collapse()` fades the bed over 1 bar with no stinger. `achievement` → `milestone`; `trophy` stays the album's.
+  - **Legacy move, done in one step:** `sync_data.sh` and `test_data_sync` `PAIRS` dropped `cues`/`music`. `audio/{cues,music}.json`, `audio-cue-spec.md`, `mix-bus-topology.md`, `sonic-brief.md`, `preview.html` and their two tools are now in `audio/legacy/`; `game/data/{cues,music}.json` are deleted (nothing read them). A new test pins it.
+  - **Ticker (rtl-map §5.1):** the plate grows to hug the measured "מבזק" (text right at x 700), Dubi's whole frame stands 4 px left of it, and the crawl ends 4 px before Dubi (`Ticker.anchor_layout`). At ×4: plate 604-708, Dubi 520-600, crawl 192-516. Objection to UX below. **The band under the stage is intended:** it is the Suitcase lane (§4.1, S−116…S−4), drawn with the stage art's flat floor, empty until 2 sources are owned. It is not integer-scaling padding (the extra height goes to `padTop`).
+  - **Checks:** `tools/test.sh` **186/186** (+9 `test_spin_card`, +2 `test_ticker_anchor`, +1 `test_audio`, +1 `test_data_sync`), no SCRIPT ERROR. The strict `tools/build_web.sh` is green (lint 499/0).
+  - **Chromium, 390×844 @2 (`?dev=1&grant=100000&evo=1`):** S08 bought by touch. Pill 60.0K gold "0/5" → 600K "1/5", bar 80/20. `res_web.mjs` @2 and @3 passes; @3 needed a rerun, because a 967 ms SwiftShader frame put O-A3's check 1 ms over its one-frame tolerance. 0 page errors.
+  - **Still open for the engine:** sim ask 5 (Dubi's word salad); `spinsEnded` has no view beyond the chip leaving.
+  - **Files:** `game/scripts/{main,ui/shop,ui/buff_views,ui/ticker,ui/layout,core/ambient,ui/views/view_rules,autoload/audio}.gd`, `game/tests/unit/{test_spin_card,test_ticker_anchor}.gd` (new), `test_{audio,data_sync}.gd`, `tools/{sync_data,audio}.sh`, `audio/legacy/` (moved), `audio/od/cue-spec.md` (one line), `ux/screen-graph.md` (a path), `HOW-TO-RUN.md`.
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 
@@ -219,6 +230,33 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
 - 2026-09-29 · 2d-artist · wave 4: small Dubi hand-drawn as layered grids, 35 frames (idle 16@8, talk 2, squawk 4, fly 4, land 3, peck 6), 20x23, anchor [10,22], events unchanged; qatari-folder maroon waiver logged in style guide §2.2 · `art/od-sevev/out/ui/dubi/`, `art/od-sevev/src/dubi_small.py`, `ui-kit.json` (197 pieces)
 
 ## Requests
+- **→ ux-designer, from game-developer (engine), wave 3: OBJECTION (ticker anchor):**
+  ```yaml
+  objection:
+    skill_or_agent: game-developer (engine)
+    against_artifact: ux/rtl-map.md §5.1 (ticker anchor)
+    reason: |
+      §5.1 puts TICKER_TAG right-aligned at x 700 and Dubi's 16×16 head at (576, 10), inside
+      Rect2(560, 0, 160, 84), with the crawl ending at 552. Your own budget (string-budgets
+      ticker.tag) measures the tag at 88 px at ×4 (110 at ×5), so it spans 612-700 and overlaps a
+      head at 576-640. What shipped is the 2D Artist's full-body small Dubi, 20×23 art = 80×92,
+      not a head. At the old placement (feet 580) he covered the tag's last letter and 12 px of
+      the crawl (the 390×844 shot). 88 + 16 padding + 80 does not fit in 160.
+    proposed_alternative: |
+      Size the anchor from its contents, right → left: the plate hugs the tag (8 px padding, text
+      right at 700), Dubi's whole frame goes 4 px left of it, and the crawl ends 4 px before Dubi.
+      At ×4 that is plate 604-708, Dubi 520-600, crawl 192-516 (324 px, the same width §5.1
+      already accepts on court day). Built this way in `Ticker.anchor_layout` (one data table,
+      L.TICKER), so a revision is a data edit.
+      Please ratify it in §5.1, or give the numbers you prefer. Two related asks:
+        (a) the budget says the tag steps down to ×4 under large text, but PxText has no
+            step-down, so it draws at ×5 and the crawl drops to 302 px;
+        (b) Dubi is 92 px tall in an 84-px row, so his head pokes 8 px into the Suitcase lane.
+      If you want a head-only Dubi instead, that is a 2D Artist crop (16×16), and the crawl then
+      gets back 16 px.
+  ```
+  Also, not objections: (1) keys for S08's bar labels ("שידור ציבורי" / "ערוץ ידידותי"; the bars ship unlabeled) and for S10's flight bonus (the floater is the numeral "+15%" today); (2) the S08 split bar under line 2 (`Shop.SPIN_BARS`) and the spin tag on the plate's bottom edge (`Shop.SPIN_TAG`) are my reading of §6.1 "Spin card"; correct them freely.
+- **→ technical-artist / 2d-artist, from game-developer (engine):** (1) Balfour's `padBottom` `#2f3042` doesn't match the art's floor `#2a2340`, so on wide phones a grey strip shows beside the column in the Suitcase lane (the 390×844 @3 shot). (2) The lane is the art's flat floor, and it reads as an empty band before the Suitcase unlocks; a ground texture there would help. (3) The spin cards show the "?" placeholder: no `icon_s01`…`icon_s15` in the kit.
 - **From game-developer (views), T3:**
   - **→ ux-designer:** (1) a key for the ceremony pill (Regev); today it reads `CHAT_PAY` "סגרנו · 0 ₪" and fills over the 3 s ribbon. (2) A label for the partner card's upkeep (`PARTNER_UPKEEP`, e.g. "דמי אחזקה"); the card shows the value "−2%" unlabeled until it exists (the code already uses the key when present). (3) C1's fallbacks F1/F2 (badge bounce, bold label) are not built: `ftue.gd` has no C1 state.
   - **→ game-developer (engine):** (1) my one-line `shop.gd` fix (the row `key` reset in `refresh`) is in your file; please keep it in your merge. (2) `test_buy_a_producer_by_touch` fails because the headless window lays out P = 0 (`list_rect` height 0), not because of input. (3) `game/scripts/ui/views/view_rules.gd` does not compile once something references it ("Cannot infer the type of `earned`" in `trophy_model`); T3 does not use it.

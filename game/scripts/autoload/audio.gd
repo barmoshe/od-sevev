@@ -80,8 +80,10 @@ const EVENT_CUE := {
 	"photobomb": "shutter", "transfer": "transferWhistle", "postponement": "gavelWeak",
 }
 ## Event names -> a stinger.
+## General trophies (`achievement`) take the brass 1-2-♭3 `milestone` (Audio Director v1.2: too short
+## to read as the anthem, so safe on satirical trophies); only the album trophy plays `trophy`.
 const EVENT_STINGER := {"milestone": "milestone", "evolveReady": "milestone", "electionReady": "milestone",
-	"storyCard": "dubiFlash", "trophy": "trophy"}
+	"achievement": "milestone", "storyCard": "dubiFlash", "trophy": "trophy"}
 ## Cues whose variant is random (never the same one twice in a row).
 const RANDOM_VARIANT := ["suitcaseSpawn", "gavel", "transferWhistle", "shutter"]
 ## Cues whose variant alternates.
@@ -343,7 +345,7 @@ func event(name: String, arg: Variant = null) -> void:
 				_cue_alt(name, now, "_" if arg == null else str(arg))
 			elif _man.get("stingers", {}).has(name) and name != "fanfare":
 				_stinger(name, now)
-			# anything else (achievement, frenzy*, trickCue, ceremonyEnd, ...) is silent by design
+			# anything else (frenzy*, trickCue, ceremonyEnd, ...) is silent by design
 
 
 func set_sfx_enabled(on: bool) -> void:
@@ -978,12 +980,12 @@ func _court_out(now: float, reason: String) -> void:
 		_cue("courtOut", now)
 
 
-## Coalition collapse: the music fades over a bar, the motif ends on the ♭2, then nothing until
-## the next tap restarts the music at bar 1.
-func _collapse(now: float) -> void:
+## Coalition collapse (cue-spec §2.6, v1.2): the music fades out over one bar, then silence, with
+## no stinger (the motif is the anthem's contour and is never a loss sting). The next tap restarts
+## the music at bar 1.
+func _collapse(_now_ms: float) -> void:
 	if _music_live:
 		_ramp_bed(0.0, OdAudio.bar_seconds(_man, _track) * 1000.0, true)
-	_stinger("motif", now)
 	_restart_at = -1.0
 	_restart_on_tap = true
 

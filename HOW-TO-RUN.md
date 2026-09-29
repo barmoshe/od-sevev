@@ -9,7 +9,7 @@ binary even when an older `godot` is first on `PATH`.
 |---|---|
 | `tools/test.sh` | Headless unit tests (`game/tests/unit/`): economy, save v2, formatter, meta, story, audio |
 | `tools/balance.sh` | Pacing bench: plays whole one-hour sessions through the real economy and checks the gates (about 2 minutes) |
-| `tools/sync_data.sh` | Copies `design/content.json`, `ux/ui-strings.json` and `audio/*.json` into `game/data/` (the tests fail when they drift) |
+| `tools/sync_data.sh` | Copies `design/content.json` and `ux/ui-strings.json` into `game/data/` (the tests fail when they drift). The audio needs no copy; the Monkey Bananas audio specs are in `audio/legacy/` |
 | `node art/tools/export-godot-data.mjs` | Rebuilds `game/data/art.json` from `art/sprites.ts`, `pipeline/` and `art/v2-sprites.json` |
 | `tools/audio.sh` | Regenerates every עוד סבב sound into `game/assets/audio/od/` with `tools/gen_od_sevev.gd` (`--check` proves two runs are byte-identical). The fork's `gen_audio.gd`/`gen_music.gd` are retired (`MB_LEGACY_AUDIO=1` still runs them) |
 | `tools/icon.sh` | Regenerates the app icons from the Big Banana sprite |
@@ -165,6 +165,7 @@ the scaled-input tests) gets `size_2d_override = W/f × H/f` instead. Why not th
 
 **Documented assumptions.**
 - **The Outside drum line is a separate player on the Outside bus,** started on the same frame and position as the Balfour stems.
-- **General trophies are silent** until the Audio Director names a cue; only the album trophy has one.
+- **General trophies play `milestone`** (the brass 1-2-♭3, Audio Director v1.2); the album trophy keeps `trophy`.
+- **Coalition collapse** fades the music out over one bar, then silence, with no stinger (cue-spec §2.6); the next tap restarts it at bar 1.
 - **Pink Front tap-to-beat** counts a hit within ±120 ms of a judge beat, measured after the output latency.
 - **The fork's renders** are kept in `game/assets/audio/legacy/`. Its `.gdignore` keeps them out of every import and export.
