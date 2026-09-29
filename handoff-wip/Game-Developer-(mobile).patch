@@ -554,6 +554,28 @@ index a451b22..0ac088b 100644
  
  
  ## Card internals, card-local (rtl-map §6.1).
+diff --git a/game/scripts/ui/px_button.gd b/game/scripts/ui/px_button.gd
+index 6be5226..5e578e7 100644
+--- a/game/scripts/ui/px_button.gd
++++ b/game/scripts/ui/px_button.gd
+@@ -252,3 +252,17 @@ func set_alpha(a: float) -> void:
+ 	bg.modulate.a = a
+ 	if label:
+ 		label.modulate.a = a
++
++
++## Moves the button (a relayout, mobile-first §4 anchors): the visual, the hit, the plate and the
++## label (re-centred, its fit box following the new width).
++func set_rects(visual_: Rect2, hit_: Rect2) -> void:
++	visual = visual_
++	hit = hit_
++	if bg != null:
++		Ui.set_nine_rect(bg, visual)
++	if label != null:
++		_label_y = visual.position.y + floorf((visual.size.y - 7 * label.px) / 2.0 / 4.0) * 4.0
++		label.position.y = _label_y
++		label.fit_width = maxf(0.0, visual.size.x - 16.0)
++		_place_label()
 diff --git a/game/scripts/ui/top_bar.gd b/game/scripts/ui/top_bar.gd
 index 062c418..d7f4f07 100644
 --- a/game/scripts/ui/top_bar.gd
