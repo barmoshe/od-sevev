@@ -9,7 +9,8 @@ extends Node2D
 ## with a dim fill growing from the right as the treasury approaches the price.
 ## Tabs (rtl-map §6.2): four fixed slots, reading order right → left (מקורות, ספינים, קואליציה,
 ## תיקים); each appears when its reveal fires (ux/ftue.md §3) and never moves. The coalition and
-## dossier tabs are tall tabs of a later wave: their slots stay empty until those views exist.
+## dossier tabs are tall tabs: their slot emits tall_tab_requested (the controller opens the view);
+## the dossier slot stays empty until its view exists.
 ## Juice kept from the fork: press squish, pill hello and nudge, glint, can't-afford shake,
 ## success flash, icon hop and cascade, the upgrade shelf reflow, momentum scroll.
 
@@ -21,14 +22,20 @@ signal tab_switched(tab: String)
 signal became_affordable
 signal producer_revealed
 signal list_interaction
+## A tall tab's slot was chosen (T3 "coalition"; T4 later): the controller opens that view.
+signal tall_tab_requested(tab: String)
 
 const TABS := ["producers", "upgrades", "coalition", "dossier"]
 const TAB_KEYS := ["TAB_SOURCES", "TAB_SPINS", "TAB_COALITION", "TAB_DOSSIER"]
 const TAB_ICONS := ["tabicon_sources", "tabicon_spins", "tabicon_coalition", "tabicon_cases"]
-## Tall tabs are not built yet: their slots stay hidden even when revealed.
-const TAB_BUILT := [true, true, false, false]
+## T3 (the coalition chat, ui/views/view_chat.gd) is built; T4 (dossier) is not yet, so its slot
+## stays hidden even when revealed.
+const TAB_BUILT := [true, true, true, false]
+const TALL_TABS := ["coalition", "dossier"]
 
 var tab := "producers"
+## The tall tab currently open over the panel ("" = none): its slot shows as the active one.
+var tall := ""
 var reduced_motion := false
 var nudge_blocked: Callable    # func() -> bool
 var list_rect: Rect2
@@ -156,7 +163,7 @@ func _refresh_tabs() -> void:
 	for i in 4:
 		var d: Dictionary = _slots[i]
 		var on := _slot_shown(i)
-		var active: bool = on and TABS[i] == tab
+		var active: bool = on and (TABS[i] == tall if tall != "" else TABS[i] == tab)
 		(d["plate"] as NinePatchRect).visible = active
 		var ic: Sprite2D = d["icon"]
 		ic.visible = on
@@ -336,6 +343,7 @@ func refresh(s: GameState, dt_ms: float, animate_reveal: bool, d: Economy.Derive
 			if k >= models.size():
 				c.visible = false
 				v["model"] = {"kind": "none", "id": ""}
+				v["key"] = ""   # a row hidden here (the FTUE's single card) re-reads its model when it returns
 				v["afford"] = null
 				continue
 			c.visible = true
@@ -711,6 +719,9 @@ func switch_slot(slot: int) -> void:
 
 
 func switch_tab(t: String) -> void:
+	if TALL_TABS.has(t):
+		tall_tab_requested.emit(t)
+		return
 	if t == tab:
 		tab_switched.emit(t)
 		return
