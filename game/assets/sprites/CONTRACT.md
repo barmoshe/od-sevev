@@ -15,6 +15,8 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun 
 | `sprites/avatar_<char>.png`, `sprites/avatar24_<char>.png` | Chat avatars (round, with a ring): 32×32, and 24×24 for the UX's 48-logical-px chat avatar at ×2 | `Art.tex("avatar_<char>")`, `chars[char].avatar24` |
 | `sprites/source_<id>.png` (+ `_icon`, `_icon_sil`) | The 8 money sources: a 2-frame idle strip 40 art px tall (120 sprite px for the 5 rendered ones at d = 3), a 24×24 shop icon and its locked silhouette (always d = 1). 5 are rendered from refs, 3 are hand-drawn by the 2D Artist; one table covers both | `sprites.json.sources[id]` (§4b) |
 | `sprites/prop_<name>.png` | `prop_hat`, `prop_rabbit`, `prop_coin0-3` (a 4-frame spin), `prop_bill`, `prop_spark` | `Art.tex(id)` |
+| `sprites/prop_<name>.png` (kit) | The leaders' tap props (2D Artist, 2026-09-29): `prop_pen`, `prop_phone`, `prop_chair`, `prop_ruler`, `prop_calculator`, `prop_coffee`, `prop_stapler`: 2-frame strips (rest, squash), d 1, a `pivot` for `propMouth` and `points.mouth` per frame (§4c) | `sprites.json.ui[id]`, `chars[c].prop` |
+| `sprites/<leader-select ui id>.png` | `suitcase_plain` (+ `_norim`), `spin_slot_{A,B,C,D,E,G,H,I}` (24×24), `pick_tile_{idle,pressed,focus,selected}` (9-slice; focus/selected 1 art px larger each side), `pick_random`, `thermo_icon_press`, `chip_icon_press`, `source_donor`, `source_funds` (+ icons, silhouettes) | `Art.tex(id)`, `sprites.json.ui[id]`, `sources[id]` |
 | `sprites/stage_<era>.png` | `stage_balfour`, `stage_knesset`, `stage_courthouse`, `stage_washington`, 180×320 | `eras.list[].background` |
 | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
 | `sprites/<ui id>.png` | The 2D Artist's UI kit, 212 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
@@ -161,13 +163,13 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
   - `land`, `shout`, `no`, `step` (the generic reacts).
 
   The set grows with the cast, so treat an unknown name as a no-op, not an error.
-- **`hatMouth`** (Bibi only, on `idle`, `tap` and `crit`): per frame, the hat's opening in frame
+- **`hatMouth`** (Bibi only, on `idle`, `tap` and `crit`; every leader's generic twin is `propMouth`, §4c): per frame, the hat's opening in frame
   px. Coins and the rabbit spawn at `origin + hatMouth[i] · artScale / density`.
   - All three tracks come from the render's own hat placement, so they are exact.
 - **Ids:** `chars` keys are the art slugs, which contain hyphens (`ben-gvir`, `may-golan`).
   `sprites.json.aliases` maps the unhyphenated form to the slug (`bengvir → ben-gvir`), so
   content ids resolve either way.
-- **`temple`** (Bibi only, on `idle`, `tap` and `crit`): per frame, where the sweat bead sits, in
+- **`temple`** (every leader since 2026-09-29, on every anim, §4c): per frame, where the sweat bead sits, in
   frame px. It is the first transparent pixel right of the screen-right eye, on the row of that
   eye's top. Place the 2D Artist's `sweat_drop` with its pivot there.
 - **Bibi is 201×326 sprite px at d = 3** (anchor [120, 325]; 67×109 art px, hat included),
@@ -200,6 +202,60 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
     partner whose id and content `avatar` resolve to no character (today `almog`), so `SpriteStrip.resolve`,
     `ChatView.avatar_art` / `char_for`, the partner card and the ultimatum cameo draw it instead of the "?"
     card. When the partner's own render lands, its `chars` entry wins and the alias disappears on the rerun.
+
+## 4c. Leaders: `tap`, `propMouth`, `temple`, the tap prop (leader select, 2026-09-29)
+
+Every launch leader (`design/content.json` `leaderSelect.roster`: bibi, bennett, ben-gvir, smotrich, deri,
+eisenkot, liberman, golan) has a **`tap`** anim and two **per-frame point tracks on every anim** it has (idle,
+its react / crit, tap), at d 3 and d 2.
+
+- **`tap`** (the generic tap rig, `showcase/src/cast.py` `TAP_DOC`, `build.py` `TAP_SQUASH`): 8 frames @ 15 fps,
+  one-shot, `events: {"coins": 3}`, the same squash-and-stretch table as Bibi's (the same feel in every round). Per
+  leader only the arm swing, a head lean on the stretch frames and a nudge differ: Bennett's explaining hand makes a
+  signing stroke, Ben Gvir's raised hand thumbs the phone, Deri's cup hand lifts, Smotrich's calculator jolts 1 art px
+  (a key press), Eisenkot / Liberman / Golan lean toward (Liberman: away from) the prop. Bibi's `tap` is his approved
+  hat tap, unchanged. Return to `idle` on `finished`, as today.
+- **The crit** is the leader's react (`kit.tap.critAnim`): `crit` (Bibi), `flip` (Bennett), `react` (the rest).
+  Its own event (`whoosh` / `shout` / `no` / `land`) is the crit cue.
+- **`propMouth`** `[[x, y] per frame]`, sprite px of the anim's frame: where the tap prop's **pivot** sits and where the
+  coins leave. Bibi: identical to `hatMouth` (his hat is baked into his strips). Others: the screen-left hand holding
+  the prop; where the ref shows no hand (Eisenkot's crossed arms) 6 art px screen-left of the body edge at the chest
+  line; Liberman's chair stands on the floor (the feet row), 6 art px screen-left of his legs. It rides the breath,
+  the arm and the react like the body. A floating/standing prop's point can lie beside the body: the trimmed frame
+  grows to hold every track point (so `0 <= x < frameW` always holds).
+- **`temple`**: as Bibi's (§4), now on every leader: place `sweat_drop` with its pivot there.
+- **Picker avatars** (`chars[c].avatarPick` 32×32 / `avatar24Pick` 24×24, files `avatar_pick_<c>` /
+  `avatar24_pick_<c>`, the 8 leaders): the chat avatars' heads on one neutral ring. Use these on the picker tiles
+  (UX §8.3: L = 32 at ×4, M = 24 at ×4, S = 32 at ×2), never the chat avatars, whose react-coloured rings read as
+  party or bloc colours.
+- **`chars[c].prop`** = `{"id": <kit id>, "baked": bool, "track": "propMouth" | "hatMouth", "path": "held" | "hop" |
+  "push"}`:
+  - `baked: true` (Bibi's hat, Smotrich's calculator, Deri's cup): the prop is in the render. **Draw no loose prop**;
+    spawn coins at the track.
+  - `baked: false` (pen, phone, ruler, chair, stapler): draw the kit prop (`ui[id]`, d 1, `artScale`) with its
+    `pivot` on `propMouth` every frame of every anim; frame 1 (the squash) on the pointer-down frame, then frame 0.
+    Its `points.mouth[f]` (kit art px) is the coin origin of that prop frame; `propMouth` itself is a fine fallback.
+    Draw the prop **above** the leader (it is in their hand).
+- **Read any track by name** (`SpriteStrip.point("propMouth")`); the pipeline treats every `[[x, y]] × frames` key
+  as a track (re-based on trim, checked across densities within ½ art px, kept in the frame). New names need no code.
+- **Frame sizes** (sprite px; every anim of a character shares them, so the tap's stretch and the prop points grew
+  the shared frame; the pixels relative to the anchor did not move). Read them from the data; today:
+
+  | leader | d 3 (was) | d 2 (was) | tap cells | VRAM all anims d 3 / d 2 (was) | tap .pck d 3 + d 2 |
+  |---|---|---|---|---|---|
+  | bibi | 201×326 (=) | 135×218 (=) | 7, 7×1 | 9.70 / 4.36 MB (=) | 116 KB (shipped) |
+  | bennett | 180×304 (173×298) | 120×203 (116×199) | 7 | 6.35 / 2.83 (4.54 / 2.03) | 111 KB |
+  | ben-gvir | 186×304 (184×292) | 125×202 (123×195) | 7 | 7.24 / 3.23 (5.37 / 2.40) | 123 KB |
+  | smotrich | 154×304 (153×292) | 103×202 (103×195) | 6 | 3.00 / 1.33 (1.79 / 0.80) | 111 KB |
+  | deri | 147×310 (=) | 99×206 (98×206) | 7 | 6.20 / 2.77 (4.92 / 2.18) | 116 KB |
+  | eisenkot | 162×310 (147×310) | 108×206 (99×206) | 6 | 3.82 / 1.69 (2.37 / 1.06) | 110 KB |
+  | liberman | 157×304 (142×289) | 104×202 (94×193) | 6 | 3.25 / 1.43 (1.81 / 0.80) | 109 KB |
+  | golan | 119×310 (=) | 81×206 (=) | 6 | 2.80 / 1.27 (1.92 / 0.87) | 91 KB |
+
+  Eisenkot's and Liberman's width is the prop point beside the body (5 art px); the height is the tap's stretch.
+- **Budget:** only the round's leader is resident (§7); Bibi is still the heaviest (9.7 MB at d 3), so the resident
+  worst case does not move. The other seven load like a partner (the picker tile needs one idle frame of each: load
+  the d 2 idle strips while the picker is open and drop them after). The 7 new tap pairs cost **+0.77 MB of .pck**.
 
 ## 4b. Money sources (`sprites.json.sources[id]`)
 ```jsonc
@@ -235,6 +291,11 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
   - **vat:** the ref has no hanging 18% tag.
   - **cigars:** the ref has no smoke or bubbles.
 - **qatari's glance** is both heads leaning 1 ap. The ref shows two aides and no phone.
+- **`advisers`** (leader select, the generic t6 of every leader but Bibi): the qatari render with the maroon folder
+  recoloured slate (`cast.py` `recolor`; the maroon waiver is Qatar-only). Same recipe, frames, `points` and icon
+  crop, its own d 3 + d 2 strips, icon and silhouette (`source_advisers*`). The generic t4 / t5 are the 2D Artist's
+  hand-drawn `source_donor` / `source_funds` (d 1, hand-drawn rows in the same table); t7 / t8 reuse `poison` /
+  `checkbook` (`leaderSelect.sourceTiers.genericSprites`).
 
 ## 5. UI kit pieces (`sprites.json.ui[id]`)
 The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for `file` and
@@ -350,6 +411,12 @@ ascender 4, body 10, descender 4), so at the same box each @2 px is 2×2 device 
   A rendered source is 4-5 KB d 3 + 2-3 KB d 2.
 - **VRAM (RGBA8):** everything resident at once would be 155 MB (was 112 MB; the cast alone is
   152 MB: 105 MB of d 3, 47 MB of d 2), so **never preload the cast**, and never both renders:
+  - **Leader select (2026-09-29):** "Bibi" below means **the round's leader** (`budget.json`
+    `vramLeaderByK` per leader and k; `vramTypicalByK` takes the heaviest, still Bibi). With the
+    advisers strips, the 30 new kit pieces and the 16 picker avatars resident, the typical set is
+    **12.30 MB** at k 3/6/7/9 (was 12.05) and **6.64 MB** at k 2/4/8 (was 6.45). Web `.pck` art:
+    **5.29 MB** (was 4.48; +0.77 MB the 7 leaders' tap strips, +25 KB the kit pieces, advisers and
+    picker avatars).
   - **Keep resident:** Bibi, the current stage, the rendered sources, the UI kit, the fonts
     and the avatars. That is 1.9 MB plus Bibi and the sources, and **only the render
     `pick_variant` picks is loaded** (SpriteStrip; the diorama through `Art.source`):

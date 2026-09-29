@@ -1,17 +1,23 @@
 """Key art: the app icon (1024 + the 60 px check) and the 1200x630 OG share image.
 
-Both are composed on integer grids and upscaled nearest-neighbour ONLY. The Magician is the APPROVED
-render-down (creative-pack showcase/out), pasted 1:1 at one of its densities, never resampled. Since the 3x cast
-(2026-09-29) he ships at density d = 3 (main) and d = 2 (alternate): d sprite px per art px. So each image is
-composed on a FINE grid of d px per art px (the stage, the ring, the props and the wordmark drawn at art px and
-scaled x d; the Magician pasted 1:1), then scaled by the whole number (output px per art px) / d:
-  icon  64x64 art, d 2:  128x128 fine  x8 = 1024   (master icon-128-art.png; 60 / 29 px checks are LANCZOS
-                                                     downsamples, as the OS does)
-  OG    200x105 art, d 3: 600x315 fine x2 = 1200x630 (6 output px per art px, 2 per sprite px; the key art
-                                                     inside the centre 105x105 art = 630x630 square, UX 5.4)
-The frame data (file, frameW/H, density, hatMouth) is read from the showcase atlas.json, main render or its
-`densities` entry, so a re-render at another density never cuts the wrong frames again (the 1x crop of the 3x
-strips was the wave-5 break). The OG moved from 240x126 art at x5 to 200x105 at x6 because no d > 1 divides 5.
+Bar, 2026-09-29 (leader select): the Bibi-with-hat key art is replaced by the LINEUP of the 8 launch leaders
+(design/content.json leaderSelect.roster). Nobody is the "winner": the row is Hebrew-alphabetical by the name the
+picker shows, read right to left (אייזנקוט, ביבי, בן גביר, בנט, גולן, דרעי, ליברמן, סמוטריץ׳), an even count so no
+one stands in the middle, every figure the same height on the same floor line under the same spot, each with the
+tap prop the round gives them. The icon is the same eight as a ring of heads around the gold "again" loop: a
+rotation, in a mark with no text.
+
+Both are composed on integer grids and upscaled nearest-neighbour ONLY. The cast is the APPROVED render-down
+(creative-pack showcase/out), pasted 1:1 at one of its densities, never resampled; the stage, the props, the ring
+and the wordmark are drawn at art px and scaled x d:
+  icon  64x64 art, d 2 fine grid (128x128) x8 = 1024: the eight leader heads (showcase `<c>_avatar_pick.png`, the
+        32x32 chat-avatar render-down on a neutral rim ring, also the picker's) pasted 1:1 on the fine grid, i.e. 16 art px each at
+        d 2; master icon-128-art.png; the 60 / 29 px checks are LANCZOS downsamples, as the OS does
+  OG    400x210 art at x3, d 3: the cast at 1 output px per sprite px (400x210 x 3 = 1200x630). The wordmark and
+        the middle four stand inside the centre 210x210 art = the 630x630 square crop (UX 5.4).
+The frame data (file, frameW/H, density, anchor, propMouth) is read from the showcase atlas.json, main render or its
+`densities` entry (`frame()`), so a re-render at another density never cuts the wrong frames.
+Nothing that echoes October 7 (style guide do/don't 13): a curtained stage, ballot slips and coins, Dubi.
 """
 import json
 import math
@@ -34,8 +40,11 @@ CREATIVE = os.path.abspath(os.environ.get(
 SHOW = os.path.join(CREATIVE, "art", "showcase", "out")
 KEY = os.path.join(OUT, "key")
 ICON_D = 2        # 1024 / 64 = 16 output px per art px: d 2 -> 8 per sprite px (d 3 would be 5.33)
-OG_D = 3          # 6 output px per art px: d 3 -> 2 per sprite px (the full face detail at 1200 px; d 2 -> 3)
-OG_ART = (200, 105, 6)
+OG_D = 3          # 3 output px per art px: d 3 -> 1 per sprite px (eight full figures across 1200 px)
+OG_ART = (400, 210, 3)
+# the launch 8, Hebrew-alphabetical by `short` (the picker's name), index 0 = the RIGHTMOST (RTL reading order)
+LINEUP = ["eisenkot", "bibi", "ben-gvir", "bennett", "golan", "deri", "liberman", "smotrich"]
+KIT_JSON = os.path.join(OUT, "..", "ui-kit.json")
 
 
 def cast(char="bibi", d=None):
@@ -99,30 +108,40 @@ def outline_ring(L, colors=("gold", "gold_sh", "gold_hi")):
                     break
 
 
+def kit_prop(pid, f=0):
+    """A kit prop's frame f (d 1) and its pivot, from ui-kit.json."""
+    e = {p["id"]: p for p in json.load(open(KIT_JSON))["pieces"]}[pid]
+    im = Image.open(os.path.join(OUT, "..", e["file"])).convert("RGBA")
+    w = e.get("frameW", im.width)
+    return im.crop((f * w, 0, f * w + w, im.height)), e.get("pivot", [w // 2, im.height - 1])
+
+
 def icon(key=KEY, proofs=PROOFS):
     N, d = 64, ICON_D
     L = Layer(N, N, fill="plum")
-    # follow-spot field, two value steps with a checker seam
-    for y in range(N):
+    for y in range(N):                                   # one follow-spot, centred: the ring shares it equally
         for x in range(N):
-            dd = math.hypot(x - 36, y - 28)
-            if dd < 26:
+            dd = math.hypot(x + 0.5 - 32, y + 0.5 - 32)
+            if dd < 29:
                 L.set(x, y, "plum_hi")
-            elif dd < 28.5 and (x + y) % 2 == 0:
+            elif dd < 31 and (x + y) % 2 == 0:
                 L.set(x, y, "plum_hi")
-    ring(L, 34, 34, 24.0, 28.6, gap=(-72, -36))
-    # arrowhead at the gap's top end, pointing clockwise (= 'again', not 'undo')
-    head = ["#.....", "###...", "#####.", "######", "#####.", "###...", "#....."]
-    for j, row in enumerate(head):
+    ring(L, 32, 32, 7.2, 11.0, gap=(-110, -62))          # the gold "again" loop in the middle
+    head = ["#....", "##...", "###..", "####.", "###..", "##...", "#...."]
+    for j, row in enumerate(head):                       # its arrowhead at the gap's leading end, clockwise
         for i, ch in enumerate(row):
             if ch == "#":
-                L.set(38 + i, 3 + j, "gold" if j < 5 else "gold_sh")
+                L.set(33 + i, 18 + j, "gold" if j < 5 else "gold_sh")
     outline_ring(L)
     img = up(L.to_image(1), d)
-    # the Magician: idle frame 0 (finger up, hat spinning on it), the bust: art rows 28-92, columns 0-64
-    f, fd, _ = frame("idle", 0, d)
-    assert fd == d, (fd, d)
-    img.alpha_composite(f.crop((0, 28 * d, 64 * d, 92 * d)), (5 * d, 7 * d))
+    # the eight heads on a circle of radius 23 art px, starting at 22.5 deg right of the top and going clockwise in
+    # the lineup's order: no one sits at 12 o'clock, no one in the middle
+    for k, c in enumerate(LINEUP):
+        a = math.radians(-90 + 22.5 + 45 * k)
+        cx, cy = 32 + 23 * math.cos(a), 32 + 23 * math.sin(a)
+        av = Image.open(os.path.join(SHOW, f"{c}_avatar_pick.png")).convert("RGBA")   # 32 px = 16 art px at d 2
+        assert av.size == (16 * d, 16 * d), av.size
+        img.alpha_composite(av, (int(round(cx - 8)) * d, int(round(cy - 8)) * d))
     big = img.resize((N * 16, N * 16), Image.NEAREST).convert("RGB")
     os.makedirs(key, exist_ok=True)
     big.save(os.path.join(key, "icon-1024.png"))
@@ -134,68 +153,137 @@ def icon(key=KEY, proofs=PROOFS):
     return img
 
 
+def lineup_positions(d, x0, x1):
+    """[(char, frame, anchor, paste x in fine px)] for LINEUP laid right to left between art x0 and x1, with the
+    seam between the 4th and 5th leaders on the canvas centre line, so nobody stands in the middle: each half's
+    visible widths (idle frame 0's alpha box) are packed with one equal gap (negative = a shoulder overlap).
+    Returns the positions and each half's gap in art px (right half, left half)."""
+    items = []
+    for c in LINEUP:
+        f, fd, _ = frame("idle", 0, d, c)
+        assert fd == d, (c, fd, d)
+        items.append((c, f, cast(c, d)["anchor"], f.getchannel("A").getbbox()))
+    mid = (x0 + x1) / 2 * d
+    half = len(items) // 2
+    out, gaps = [], []
+    for grp, hi, lo in ((items[:half], x1 * d, mid), (items[half:], mid, x0 * d)):
+        widths = [bb[2] - bb[0] for *_, bb in grp]
+        # half a gap on the seam side, so the seam gap equals the others
+        gap = ((hi - lo) - sum(widths)) / (len(grp) - 0.5)
+        right = hi - (gap / 2 if hi == mid else 0)
+        for (c, f, anc, bb), w in zip(grp, widths):
+            left = right - w
+            out.append((c, f, anc, int(round(left - bb[0]))))
+            right = left - gap
+        gaps.append(gap / d)
+    return out, gaps
+
+
 def og(key=KEY, proofs=PROOFS, d=OG_D):
+    import random
     W, H, S = OG_ART
     assert S % d == 0, f"OG: {S} output px per art px is not a whole number of density-{d} sprite px"
+    FEET = 200                                            # the floor line every leader stands on (art row)
     L = Layer(W, H, fill="plum")
-    cx = W // 2
-    # follow-spot onto the centre
-    for y in range(H):
-        half = 18 + y * 0.30
-        for x in range(W):
-            e = half - abs(x - cx)
-            if e > 1.5 or (e > 0 and (x + y) % 2 == 0):
+    for x in range(W):                                    # the back curtain's folds: soft vertical light planes
+        m = x % 20
+        for y in range(8, FEET - 12):
+            if 2 <= m <= 6 or (m in (1, 7) and (x + y) % 2 == 0):
                 L.set(x, y, "plum_hi")
-    # curtains: 34 art each side, draped back to ~57% of the height at their inner edge
-    CW = 34
+    L.rect(0, FEET - 12, W, H - FEET + 12, "night")       # the stage floor
+    L.hline(0, W - 1, FEET - 12, "plum_hi")
+    for x in range(0, W, 2):
+        L.set(x, FEET - 11, "plum_hi")
+    CW = 16                                               # the side curtains, draped back
     for side in (0, 1):
         for x in range(CW):
             xx = x if side == 0 else W - 1 - x
-            c = "plum_hi" if (x // 6) % 2 else "plum"
-            yb = H - (x * x) // 24
-            for y in range(0, H):
-                if y < yb:
+            c = "plum_hi" if (x // 5) % 2 else "plum"
+            yb = H - (x * x) // 3
+            for y in range(0, max(yb, 0)):
+                if y < H:
                     L.set(xx, y, c)
             if 0 <= yb - 1 < H:
                 L.set(xx, yb - 1, "outline")
-    L.rect(0, 0, W, 6, "plum")
+    L.rect(0, 0, W, 7, "plum")                            # the valance
     for x in range(0, W, 10):
-        L.ellipse(x + 4.5, 5, 5, 3, "plum")
-        L.ellipse(x + 4.5, 4, 4, 2, "plum_hi")
+        L.ellipse(x + 4.5, 6, 5, 3, "plum")
+        L.ellipse(x + 4.5, 5, 4, 2, "plum_hi")
     L.hline(0, W - 1, 0, "outline")
-    img = up(L.to_image(1), d)                               # the fine grid: d px per art px
-    # the Magician: tap frame 3 (the hat at its highest), feet centred on the stage, cut at the hips
-    f, fd, hm = frame("tap", 3, d)
-    assert fd == d, (fd, d)
-    anchor = cast("bibi", d)["anchor"]
-    top, feet_x = 23, cx + 4                                 # art row of the frame's top edge; the feet's column
-    fx = feet_x * d - anchor[0]
-    img.alpha_composite(f, (fx, top * d))
-    # shekels and a bill leaping out of the hat, on the art grid (1x props, x d)
-    hx, hy = (fx + hm[0]) // d, top + hm[1] // d
-    coins = [prop("coin0"), prop("coin1"), prop("coin2"), prop("coin3"), prop("bill")]
-    for k, (dx, dy) in enumerate([(2, -9), (9, -14), (-2, -17), (15, -8), (6, -21), (19, -15), (13, -20)]):
-        img.alpha_composite(up(coins[k % len(coins)], d), ((hx + dx) * d, (hy + dy) * d))
-    # the Suitcase drifting through, upper left of the centre square, with a speed trail
-    sc = Image.open(os.path.join(OUT, "ui", "props", "suitcase.png")).convert("RGBA")
-    sx, sy = cx - 52, 28
-    tr = Layer(W, H)
-    for i in range(3):
-        tr.hline(sx - 18 + i * 2, sx - 2 + i * 2, sy + 6 + i * 5, "rim")
-    img.alpha_composite(up(tr.to_image(1), d))
-    img.alpha_composite(up(sc, d), (sx * d, sy * d))
-    # wordmark over the top of the centre square
-    wm = display("עוד סבב", 16, 3, ext=2)
-    img.alpha_composite(up(wm.to_image(1), d), ((W - wm.w) // 2 * d, 5 * d))
+    pos, gap = lineup_positions(d, CW + 2, W - CW - 2)
+    for c, f, anc, px in pos:                             # one follow-spot pool per leader, all the same
+        cx = (px + anc[0]) / d
+        for y in range(FEET - 4, FEET + 4):
+            for x in range(int(cx - 22), int(cx + 23)):
+                e = ((x + 0.5 - cx) / 21) ** 2 + ((y + 0.5 - FEET) / 4.2) ** 2
+                if e <= 1 and (e < 0.6 or (x + y) % 2 == 0):
+                    L.set(x, y, "plum_hi")
+    # ballot slips and coins raining over the stage (no letters on the slips), seeded
+    rnd = random.Random(1027)
+    confetti = Layer(W, H)
+    for _ in range(46):
+        x, y = rnd.randrange(CW + 4, W - CW - 8), rnd.randrange(60, 104)
+        if 120 <= x <= 280 and y < 70:
+            continue
+        if rnd.random() < 0.6:
+            shape = [(0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2)] if rnd.random() < 0.5 else [(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)]
+            for i, (a, b) in enumerate(shape):
+                confetti.set(x + a, y + b, "white" if i < 4 else "paper")
+    img = up(L.to_image(1), d)
+    img.alpha_composite(up(confetti.to_image(1), d))
+    for _ in range(14):
+        x, y = rnd.randrange(CW + 6, W - CW - 10), rnd.randrange(58, 102)
+        if 120 <= x <= 280 and y < 70:
+            continue
+        img.alpha_composite(up(prop("coin%d" % rnd.randrange(4)), d), (x * d, y * d))
+    # the leaders, right to left, feet on the floor line, each with the tap prop the round gives them
+    for c, f, anc, px in pos:
+        img.alpha_composite(f, (px, FEET * d - anc[1]))
+    # the loose tap props, where they don't cover a neighbour (a prop on someone else's chest reads as theirs)
+    import numpy as np
+    bodies = {}
+    for c, f, anc, px in pos:
+        m = np.zeros((img.height, img.width), bool)
+        a_ = np.asarray(f.getchannel("A")) > 0
+        y0 = FEET * d - anc[1]
+        ys, xs = np.nonzero(a_)
+        ok = (ys + y0 >= 0) & (ys + y0 < img.height) & (xs + px >= 0) & (xs + px < img.width)
+        m[ys[ok] + y0, xs[ok] + px] = True
+        bodies[c] = m
+    for c, f, anc, px in pos:
+        a = cast(c, d)
+        pr = a.get("prop", {})
+        pm = a["anims"]["idle"].get("propMouth")
+        if pr and not pr.get("baked") and pm:
+            pim, piv = kit_prop(pr["id"])
+            x = px + pm[0][0] - piv[0] * d
+            y = FEET * d - anc[1] + pm[0][1] - piv[1] * d
+            box = np.zeros_like(bodies[c])
+            box[max(y, 0):y + pim.height * d, max(x, 0):x + pim.width * d] = True
+            if any((box & m).any() for o, m in bodies.items() if o != c):
+                continue
+            img.alpha_composite(up(pim, d), (x, y))
+    # Dubi, the office's parrot (everyone's spokesman), flying across the top right to left
+    dubi = Image.open(os.path.join(OUT, "ui", "dubi", "dubi_small_fly.png")).convert("RGBA")
+    dubi = dubi.crop((0, 0, 20, dubi.height))
+    img.alpha_composite(up(dubi, d), ((W - CW - 58) * d, 60 * d))
+    # the wordmark over the top of the centre square
+    wm = display("עוד סבב", 32, 6, ext=4)
+    assert wm.w <= 206, wm.w                              # inside the 630x630 square crop
+    img.alpha_composite(up(wm.to_image(1), d), ((W - wm.w) // 2 * d, 10 * d))
     k = S // d
     big = img.resize((img.width * k, img.height * k), Image.NEAREST).convert("RGB")
     assert big.size == (1200, 630), big.size
     os.makedirs(key, exist_ok=True)
     big.save(os.path.join(key, "og-1200x630.png"))
-    big.save(os.path.join(key, "og-1200x630.jpg"), quality=90, optimize=True, subsampling=0)
+    # q 82 at 4:4:4 (sharp chroma on pixel edges): ~200 KB for eight figures, well under WhatsApp's 300 KB
+    big.save(os.path.join(key, "og-1200x630.jpg"), quality=82, optimize=True, subsampling=0)
     # the square-crop check (WhatsApp / Telegram thumbnails)
     sq = big.crop((285, 0, 915, 630))
     sq.resize((200, 200), Image.LANCZOS).save(os.path.join(proofs, "og-square-crop-200.png"))
+    for old in os.listdir(key):                           # the previous grid's art file
+        if old.startswith("og-") and old.endswith(f"-art-d{d}.png") and old != f"og-{W}x{H}-art-d{d}.png":
+            os.remove(os.path.join(key, old))
     img.save(os.path.join(key, f"og-{W}x{H}-art-d{d}.png"))
     return img, wm
 

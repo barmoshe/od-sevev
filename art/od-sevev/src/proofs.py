@@ -59,6 +59,8 @@ def build():
         sheet.contact(groups, name, z)
     wave6.proof()
     wave6.proof_polish()
+    import leaders
+    leaders.proof()
     h, c, o, over, yend = mock.build()
     row = Image.new("RGB", (180 * 6 + 40, 320), (0, 0, 0))
     for i, im in enumerate((h, c)):

@@ -1194,6 +1194,14 @@
    "notes": "9x9 gavel for chip_court (the 11x11 thermo_icon_gavel is the large one)."
   },
   {
+   "id": "chip_icon_press",
+   "group": "events",
+   "file": "out/ui/events/chip_icon_press.png",
+   "w": 9,
+   "h": 9,
+   "notes": "9x9 folded newspaper for the press-day chip (chip_court with PRESS_CHIP_TITLE 'יום תחקיר'), at the RIGHT like chip_icon_gavel."
+  },
+  {
    "id": "court_frame",
    "group": "events",
    "file": "out/ui/events/court_frame.png",
@@ -1741,6 +1749,15 @@
    "notes": "Suspicion < 75 %: 'being looked at'. Sits centred above the tube."
   },
   {
+   "id": "thermo_icon_press",
+   "group": "meters",
+   "file": "out/ui/meters/thermo_icon_press.png",
+   "w": 11,
+   "h": 11,
+   "state": "press",
+   "notes": "The thermometer's icon in the press skin (every leader but Bibi; UX rtl-map §4.3): a folded newspaper, 11x11 like thermo_icon_magnifier / _gavel. The gavel means the court and stays Bibi's."
+  },
+  {
    "id": "thermo_meniscus",
    "group": "meters",
    "file": "out/ui/meters/thermo_meniscus.png",
@@ -1821,6 +1838,106 @@
    "standIn": true
   },
   {
+   "id": "pick_random",
+   "group": "picker",
+   "file": "out/ui/picker/pick_random.png",
+   "w": 24,
+   "h": 24,
+   "notes": "The הפתעה tile's icon (UX §8.3: 24 art at x4 = 96, or x2 = 48 when A = S, centred in the avatar slot): a folded paper slip with a violet question mark (Dubi picks). No letters, no party mark, never a slip going into a box (v1 do/don't 6)."
+  },
+  {
+   "id": "pick_tile_focus",
+   "group": "picker",
+   "file": "out/ui/picker/pick_tile_focus.png",
+   "w": 34,
+   "h": 34,
+   "state": "focus",
+   "slice": [
+    5,
+    5,
+    5,
+    6
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    4,
+    26,
+    24
+   ],
+   "label": "white",
+   "notes": "Leader-picker tile plate (UX rtl-map §8.3, spec §9.2.5), focus (keyboard focus, mouse hover): a 9-slice [5, 5, 5, 6] (stretch). Holds the round avatar (y 3 art px), the name (`white` 13.6:1) and the party (#9e99ad 5.2:1 on the ui_bubble face). No party or bloc colour, no number. A dashed 1-px white ring outside the outline: the focus channel, a different shape from selected's solid rim. 34x34: draw at the tile rect grown by 1 art px."
+  },
+  {
+   "id": "pick_tile_idle",
+   "group": "picker",
+   "file": "out/ui/picker/pick_tile_idle.png",
+   "w": 32,
+   "h": 32,
+   "state": "idle",
+   "slice": [
+    4,
+    4,
+    4,
+    5
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    3,
+    26,
+    24
+   ],
+   "label": "white",
+   "notes": "Leader-picker tile plate (UX rtl-map §8.3, spec §9.2.5), idle: a 9-slice [4, 4, 4, 5] (stretch). Holds the round avatar (y 3 art px), the name (`white` 13.6:1) and the party (#9e99ad 5.2:1 on the ui_bubble face). No party or bloc colour, no number. Raised: a 1-row ui_scrim lip under the face."
+  },
+  {
+   "id": "pick_tile_pressed",
+   "group": "picker",
+   "file": "out/ui/picker/pick_tile_pressed.png",
+   "w": 32,
+   "h": 32,
+   "state": "pressed",
+   "slice": [
+    4,
+    4,
+    4,
+    5
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    3,
+    26,
+    24
+   ],
+   "label": "white",
+   "notes": "Leader-picker tile plate (UX rtl-map §8.3, spec §9.2.5), pressed: a 9-slice [4, 4, 4, 5] (stretch). Holds the round avatar (y 3 art px), the name (`white` 13.6:1) and the party (#9e99ad 5.2:1 on the ui_bubble face). No party or bloc colour, no number. The face 1 art px down into the lip, a ui_panel inner shadow on top (UX: 'pressed = a 1-art-px offset'). Move the tile's content down 1 art px with it."
+  },
+  {
+   "id": "pick_tile_selected",
+   "group": "picker",
+   "file": "out/ui/picker/pick_tile_selected.png",
+   "w": 34,
+   "h": 34,
+   "state": "selected",
+   "slice": [
+    5,
+    5,
+    5,
+    6
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    4,
+    26,
+    24
+   ],
+   "label": "white",
+   "notes": "Leader-picker tile plate (UX rtl-map §8.3, spec §9.2.5), selected (the commit frame): a 9-slice [5, 5, 5, 6] (stretch). Holds the round avatar (y 3 art px), the name (`white` 13.6:1) and the party (#9e99ad 5.2:1 on the ui_bubble face). No party or bloc colour, no number. A solid 1-art-px pale `rim` ring outside the outline (UX §8.4), then the Animator's 120 ms pop and the others dim. 34x34: draw at the tile rect grown by 1 art px."
+  },
+  {
    "id": "dubi_placeholder_avatar",
    "group": "props",
    "file": "out/ui/props/dubi_placeholder_avatar.png",
@@ -1841,6 +1958,202 @@
    "notes": "PLACEHOLDER full-body slot, 64x100 with the pivot at the feet line (96 art px tall, like the cast). Replace with the rendered-down ChatGPT Dubi (REQUESTS.md 'dubi'). Dashed border = not final."
   },
   {
+   "id": "prop_calculator",
+   "group": "props",
+   "file": "out/ui/props/prop_calculator.png",
+   "w": 32,
+   "h": 17,
+   "frames": 2,
+   "frameW": 16,
+   "pivot": [
+    8,
+    13
+   ],
+   "notes": "Smotrich's tap prop (leader-select-spec §5.2): d 1, 16x17 art px incl. outline + rim, 2 frames: f0 rest, f1 squash (x1.12 / y0.88 about the grip; play f1 on the pointer-down frame, the hat's timing). pivot = the grip: draw the frame with its pivot on the leader's propMouth point (chars[c].anims[a].propMouth / density, per frame). points.mouth = where the coins leave. A plain calculator (אין כסף), no digits. His is baked into his render (chars.smotrich.prop.baked): use this one for UI only (chips, the picker).",
+   "points": {
+    "mouth": [
+     [
+      8,
+      3
+     ],
+     [
+      8,
+      4
+     ]
+    ]
+   },
+   "density": 1,
+   "leader": "Smotrich"
+  },
+  {
+   "id": "prop_chair",
+   "group": "props",
+   "file": "out/ui/props/prop_chair.png",
+   "w": 40,
+   "h": 20,
+   "frames": 2,
+   "frameW": 20,
+   "pivot": [
+    10,
+    17
+   ],
+   "notes": "Liberman's tap prop (leader-select-spec §5.2): d 1, 20x20 art px incl. outline + rim, 2 frames: f0 rest, f1 squash (x1.12 / y0.88 about the grip; play f1 on the pointer-down frame, the hat's timing). pivot = the grip: draw the frame with its pivot on the leader's propMouth point (chars[c].anims[a].propMouth / density, per frame). points.mouth = where the coins leave. An empty office swivel chair he won't sit in (לא יושב). It stands on the stage floor, pivot = the wheels' floor line: his propMouth is on the feet row, 6 art px screen-left of his legs. One chair, never at a table (style guide do/don't 13). Coins leave from the seat.",
+   "points": {
+    "mouth": [
+     [
+      10,
+      10
+     ],
+     [
+      10,
+      11
+     ]
+    ]
+   },
+   "density": 1,
+   "leader": "Liberman"
+  },
+  {
+   "id": "prop_coffee",
+   "group": "props",
+   "file": "out/ui/props/prop_coffee.png",
+   "w": 30,
+   "h": 19,
+   "frames": 2,
+   "frameW": 15,
+   "pivot": [
+    7,
+    12
+   ],
+   "notes": "Deri's tap prop (leader-select-spec §5.2): d 1, 15x19 art px incl. outline + rim, 2 frames: f0 rest, f1 squash (x1.12 / y0.88 about the grip; play f1 on the pointer-down frame, the hat's timing). pivot = the grip: draw the frame with its pivot on the leader's propMouth point (chars[c].anims[a].propMouth / density, per frame). points.mouth = where the coins leave. A takeaway coffee with a sleeve and steam (☕, ידידי). His is baked into his render (chars.deri.prop.baked): use this one for UI only (the ☕ tap-buff chip).",
+   "points": {
+    "mouth": [
+     [
+      7,
+      5
+     ],
+     [
+      7,
+      6
+     ]
+    ]
+   },
+   "density": 1,
+   "leader": "Deri"
+  },
+  {
+   "id": "prop_pen",
+   "group": "props",
+   "file": "out/ui/props/prop_pen.png",
+   "w": 40,
+   "h": 18,
+   "frames": 2,
+   "frameW": 20,
+   "pivot": [
+    10,
+    8
+   ],
+   "notes": "Bennett's tap prop (leader-select-spec §5.2): d 1, 20x18 art px incl. outline + rim, 2 frames: f0 rest, f1 squash (x1.12 / y0.88 about the grip; play f1 on the pointer-down frame, the hat's timing). pivot = the grip: draw the frame with its pivot on the leader's propMouth point (chars[c].anims[a].propMouth / density, per frame). points.mouth = where the coins leave. A fat black pen signing a small sheet (his pledges). Grip mid-barrel; coins leave at the nib.",
+   "points": {
+    "mouth": [
+     [
+      5,
+      13
+     ],
+     [
+      4,
+      12
+     ]
+    ]
+   },
+   "density": 1,
+   "leader": "Bennett"
+  },
+  {
+   "id": "prop_phone",
+   "group": "props",
+   "file": "out/ui/props/prop_phone.png",
+   "w": 30,
+   "h": 18,
+   "frames": 2,
+   "frameW": 15,
+   "pivot": [
+    7,
+    12
+   ],
+   "notes": "Ben Gvir's tap prop (leader-select-spec §5.2): d 1, 15x18 art px incl. outline + rim, 2 frames: f0 rest, f1 squash (x1.12 / y0.88 about the grip; play f1 on the pointer-down frame, the hat's timing). pivot = the grip: draw the frame with its pivot on the leader's propMouth point (chars[c].anims[a].propMouth / density, per frame). points.mouth = where the coins leave. A plain phone, a curved forward arrow on the screen (העברה), no app marks or colours. Grip low in the palm; coins leave at the top.",
+   "points": {
+    "mouth": [
+     [
+      7,
+      2
+     ],
+     [
+      7,
+      3
+     ]
+    ]
+   },
+   "density": 1,
+   "leader": "Ben Gvir"
+  },
+  {
+   "id": "prop_ruler",
+   "group": "props",
+   "file": "out/ui/props/prop_ruler.png",
+   "w": 40,
+   "h": 9,
+   "frames": 2,
+   "frameW": 20,
+   "pivot": [
+    10,
+    4
+   ],
+   "notes": "Eisenkot's tap prop (leader-select-spec §5.2): d 1, 20x9 art px incl. outline + rim, 2 frames: f0 rest, f1 squash (x1.12 / y0.88 about the grip; play f1 on the pointer-down frame, the hat's timing). pivot = the grip: draw the frame with its pivot on the leader's propMouth point (chars[c].anims[a].propMouth / density, per frame). points.mouth = where the coins leave. A plain wooden ruler (ישר). It floats at his chest line beside his crossed arms; pivot = the centre.",
+   "points": {
+    "mouth": [
+     [
+      10,
+      2
+     ],
+     [
+      10,
+      2
+     ]
+    ]
+   },
+   "density": 1,
+   "leader": "Eisenkot"
+  },
+  {
+   "id": "prop_stapler",
+   "group": "props",
+   "file": "out/ui/props/prop_stapler.png",
+   "w": 40,
+   "h": 12,
+   "frames": 2,
+   "frameW": 20,
+   "pivot": [
+    10,
+    6
+   ],
+   "notes": "Golan's tap prop (leader-select-spec §5.2): d 1, 20x12 art px incl. outline + rim, 2 frames: f0 rest, f1 squash (x1.12 / y0.88 about the grip; play f1 on the pointer-down frame, the hat's timing). pivot = the grip: draw the frame with its pivot on the leader's propMouth point (chars[c].anims[a].propMouth / density, per frame). points.mouth = where the coins leave. A plain desk stapler (איחוד), held in his hanging hand. Coins leave at the nose.",
+   "points": {
+    "mouth": [
+     [
+      4,
+      5
+     ],
+     [
+      3,
+      5
+     ]
+    ]
+   },
+   "density": 1,
+   "leader": "Golan"
+  },
+  {
    "id": "suitcase",
    "group": "props",
    "file": "out/ui/props/suitcase.png",
@@ -1859,6 +2172,26 @@
    "w": 24,
    "h": 18,
    "notes": "The DOHA Suitcase without the rim (for cards/icons on light grounds)."
+  },
+  {
+   "id": "suitcase_plain",
+   "group": "props",
+   "file": "out/ui/props/suitcase_plain.png",
+   "w": 26,
+   "h": 20,
+   "pivot": [
+    13,
+    10
+   ],
+   "notes": "THE running gag, every round but Bibi's (content leaderSelect.suitcase.plainSprite): the kit Suitcase pixel for pixel with the DOHA sticker removed (the DOHA sticker is Bibi's only, spec §5.9). Maroon stays (the Suitcase is the one maroon thing), rim, 26x20, pivot and hit area as `suitcase`."
+  },
+  {
+   "id": "suitcase_plain_norim",
+   "group": "props",
+   "file": "out/ui/props/suitcase_plain_norim.png",
+   "w": 24,
+   "h": 18,
+   "notes": "The plain Suitcase without the rim (cards, icons on light grounds)."
   },
   {
    "id": "receipt_body",
@@ -2063,6 +2396,66 @@
    "notes": "Locked shop-card silhouette for 'פנקס הצ׳קים הזהוב' (the next source to reveal): the icon's mask in `suit`, its edge pixels in `rim`, the same rule as the five rendered sources' _icon_sil (wave 6; the id was in sprites.json but never shipped, so the locked card drew the '?' placeholder)."
   },
   {
+   "id": "source_donor",
+   "group": "sources",
+   "file": "out/ui/sources/source_donor.png",
+   "w": 56,
+   "h": 40,
+   "frames": 2,
+   "frameW": 28,
+   "pivot": [
+    14,
+    39
+   ],
+   "notes": "Money source 'תורם (כללי)' for the diorama: 40 art px tall incl. outline + pale rim (x4 in game). 2-frame idle, equal holds, idleFrameMs 700: f1 = the envelope's flap lifts 2 ap (the money is about to change hands). Pivot = bottom-centre. Hand-drawn graphic tier (ChatGPT budget exhausted), matched to the rendered critters' density."
+  },
+  {
+   "id": "source_donor_icon",
+   "group": "sources",
+   "file": "out/ui/sources/source_donor_icon.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Shop-card icon for 'תורם (כללי)': a 24x24 crop of f0 at 1:1 (no rescale), centred on card_plate (26x26)."
+  },
+  {
+   "id": "source_donor_icon_sil",
+   "group": "sources",
+   "file": "out/ui/sources/source_donor_icon_sil.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Locked shop-card silhouette for 'תורם (כללי)' (the next source to reveal): the icon's mask in `suit`, its edge pixels in `rim`, the same rule as the five rendered sources' _icon_sil (wave 6; the id was in sprites.json but never shipped, so the locked card drew the '?' placeholder)."
+  },
+  {
+   "id": "source_funds",
+   "group": "sources",
+   "file": "out/ui/sources/source_funds.png",
+   "w": 60,
+   "h": 40,
+   "frames": 2,
+   "frameW": 30,
+   "pivot": [
+    15,
+    39
+   ],
+   "notes": "Money source 'קופה (כללי)' for the diorama: 40 art px tall incl. outline + pale rim (x4 in game). 2-frame idle, equal holds, idleFrameMs 600: f1 = one coin hops 2 ap off the pile. Pivot = bottom-centre. Hand-drawn graphic tier (ChatGPT budget exhausted), matched to the rendered critters' density."
+  },
+  {
+   "id": "source_funds_icon",
+   "group": "sources",
+   "file": "out/ui/sources/source_funds_icon.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Shop-card icon for 'קופה (כללי)': a 24x24 crop of f0 at 1:1 (no rescale), centred on card_plate (26x26)."
+  },
+  {
+   "id": "source_funds_icon_sil",
+   "group": "sources",
+   "file": "out/ui/sources/source_funds_icon_sil.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Locked shop-card silhouette for 'קופה (כללי)' (the next source to reveal): the icon's mask in `suit`, its edge pixels in `rim`, the same rule as the five rendered sources' _icon_sil (wave 6; the id was in sprites.json but never shipped, so the locked card drew the '?' placeholder)."
+  },
+  {
    "id": "source_poison",
    "group": "sources",
    "file": "out/ui/sources/source_poison.png",
@@ -2241,6 +2634,70 @@
    "w": 24,
    "h": 24,
    "notes": "Spin s15 'ביקור ממלכתי' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
+  },
+  {
+   "id": "spin_slot_A",
+   "group": "spins",
+   "file": "out/ui/spins/spin_slot_A.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Generic spin icon for slot A (s01 tapAdd; content leaderSelect.spinSlots): the fallback when a leader's spin skin names no icon of its own. 24x24 at d 1 on card_plate, like spin_s01..s15. Slot F keeps spin_s12 (shared as-is). No flag, emblem, party colour, text beyond digits."
+  },
+  {
+   "id": "spin_slot_B",
+   "group": "spins",
+   "file": "out/ui/spins/spin_slot_B.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Generic spin icon for slot B (s02 tapBuff; content leaderSelect.spinSlots): the fallback when a leader's spin skin names no icon of its own. 24x24 at d 1 on card_plate, like spin_s01..s15. Slot F keeps spin_s12 (shared as-is). No flag, emblem, party colour, text beyond digits."
+  },
+  {
+   "id": "spin_slot_C",
+   "group": "spins",
+   "file": "out/ui/spins/spin_slot_C.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Generic spin icon for slot C (s03 offlineMult; content leaderSelect.spinSlots): the fallback when a leader's spin skin names no icon of its own. 24x24 at d 1 on card_plate, like spin_s01..s15. Slot F keeps spin_s12 (shared as-is). No flag, emblem, party colour, text beyond digits."
+  },
+  {
+   "id": "spin_slot_D",
+   "group": "spins",
+   "file": "out/ui/spins/spin_slot_D.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Generic spin icon for slot D (s04 heat x0.75; content leaderSelect.spinSlots): the fallback when a leader's spin skin names no icon of its own. 24x24 at d 1 on card_plate, like spin_s01..s15. Slot F keeps spin_s12 (shared as-is). No flag, emblem, party colour, text beyond digits."
+  },
+  {
+   "id": "spin_slot_E",
+   "group": "spins",
+   "file": "out/ui/spins/spin_slot_E.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Generic spin icon for slot E (s11 crit chance; content leaderSelect.spinSlots): the fallback when a leader's spin skin names no icon of its own. 24x24 at d 1 on card_plate, like spin_s01..s15. Slot F keeps spin_s12 (shared as-is). No flag, emblem, party colour, text beyond digits."
+  },
+  {
+   "id": "spin_slot_G",
+   "group": "spins",
+   "file": "out/ui/spins/spin_slot_G.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Generic spin icon for slot G (s13 +10% base this round; content leaderSelect.spinSlots): the fallback when a leader's spin skin names no icon of its own. 24x24 at d 1 on card_plate, like spin_s01..s15. Slot F keeps spin_s12 (shared as-is). No flag, emblem, party colour, text beyond digits."
+  },
+  {
+   "id": "spin_slot_H",
+   "group": "spins",
+   "file": "out/ui/spins/spin_slot_H.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Generic spin icon for slot H (s06 income x1.5; content leaderSelect.spinSlots): the fallback when a leader's spin skin names no icon of its own. 24x24 at d 1 on card_plate, like spin_s01..s15. Slot F keeps spin_s12 (shared as-is). No flag, emblem, party colour, text beyond digits."
+  },
+  {
+   "id": "spin_slot_I",
+   "group": "spins",
+   "file": "out/ui/spins/spin_slot_I.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Generic spin icon for slot I (s05 base per rival card; content leaderSelect.spinSlots): the fallback when a leader's spin skin names no icon of its own. 24x24 at d 1 on card_plate, like spin_s01..s15. Slot F keeps spin_s12 (shared as-is). No flag, emblem, party colour, text beyond digits."
   },
   {
    "id": "court_window",

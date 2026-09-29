@@ -41,6 +41,13 @@ pipeline/od-sevev/font/sevev9@2.glyphs ────────────┴�
   character and money source at both from the same function (`render_char`, `source`). 46
   character strips and 5 source strips (`*_d2.png`) joined the approved `out/`; a full render
   gives 0 changed, 0 new: the d 3 files and atlas entries did not move.
+- **2026-09-29 (leader select, the generic tap rig):** a `tap` recipe on a `cast.py` entry (`TAP_DOC`)
+  renders a `tap` anim from Bibi's squash table and exports `propMouth` + `temple` on every anim of that
+  character. 14 tap strips (7 leaders × d 3 + d 2), the `source_advisers` recolour (4 files) and the
+  8 leaders' neutral-ring picker avatars (`<c>_avatar_pick.png` 32, `<c>_avatar24_pick.png` 24; also the
+  app icon's heads) joined `out/`; a full render gives 0 changed: every existing
+  strip is pixel-exact and `atlas.json` only gained keys. `budget.json` now counts the heaviest
+  leader as the resident body (`vramLeaderByK`), not Bibi.
 - **If a render drifts:** the build fails. `--allow-drift` exists only for a change Bar approved.
 
 **It fails loudly on:**
@@ -52,10 +59,12 @@ pipeline/od-sevev/font/sevev9@2.glyphs ────────────┴�
   a texture cell; CONTRACT §4);
 - a density alternate (`chars[c].densities` / `sources[id].densities`: every rendered character
   and source has a d 2) whose frames, fps, loop or events (sources: frames, fps, loop, point names)
-  differ from the main render's, whose landmarks (`hatMouth`, `temple`, source `points`) sit more
-  than half an art px from the main render's relative to the feet, or a point track that leaves its
-  frame (checked twice: in the render, `same_motion`, and at import, `validate_char` /
-  `validate_source_alt`);
+  differ from the main render's, whose landmarks (any named per-frame point track: `hatMouth`,
+  `temple`, `propMouth`, ...; source `points`) sit more than half an art px from the main render's
+  relative to the feet, or a point track that leaves its frame (checked twice: in the render,
+  `same_motion`, and at import, `validate_char` / `validate_source_alt`). Tracks are found by shape
+  (`sprites.is_track`: one `[x, y]` per frame), never by name, so a new track needs no pipeline code;
+  the trimmed frame grows to hold every track point (a loose prop's anchor can sit beside the body);
 - an event outside its anim;
 - a UI-kit piece whose PNG doesn't match its declared size or 9-slice;
 - a `design/content.json` money source that doesn't resolve to shipped art (stage strip, shop icon, locked

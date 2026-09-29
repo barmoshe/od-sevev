@@ -12,7 +12,8 @@ from kit import save, outline_inplace, micro, with_rim, grid_layer
 G = "props"
 
 
-def suitcase():
+def suitcase(sticker=True):
+    """sticker=False: the plain Suitcase (every leader but Bibi, leaders.suitcase_plain); the rest is identical."""
     W, H = 24, 18
     L = Layer(W, H)
     # handle (behind the body top)
@@ -34,10 +35,11 @@ def suitcase():
         L.rect(x, y, 2, 2, "slate")
         L.set(x, y, "grey")
     # DOHA sticker: label 17x7, text 15x5 in the micro font
-    L.rect(4, 8, 17, 7, "white")
-    L.hline(4, 20, 14, "paper"); L.vline(20, 8, 14, "paper")
-    micro(L, "DOHA", 5, 9, "ink", gap=1)
-    L.set(4, 8, "paper")                                                 # a peeling corner
+    if sticker:
+        L.rect(4, 8, 17, 7, "white")
+        L.hline(4, 20, 14, "paper"); L.vline(20, 8, 14, "paper")
+        micro(L, "DOHA", 5, 9, "ink", gap=1)
+        L.set(4, 8, "paper")                                             # a peeling corner
     # luggage tag on the handle
     L.rect(16, 0, 3, 3, "paper"); L.set(16, 0, "white")
     L.set(15, 1, "slate")
