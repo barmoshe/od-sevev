@@ -130,6 +130,13 @@
       "linesLarge": 1,
       "where": "Ticker chip line: date (+ calendar icon) or court day (2 lines)"
     },
+    "ticker.chipWide": {
+      "widthPx": 168,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Press-day chip line 1 (rtl-map §5.1: the chip widens to 220, the crawl clip becomes x 236-516 = 280)"
+    },
     "ticker.crawl": {
       "widthPx": null,
       "scale": 4,
@@ -521,6 +528,62 @@
       "lines": 1,
       "linesLarge": 1,
       "where": "Result footer band line"
+    },
+    "pick.title": {
+      "widthPx": 656,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Leader pick title, centred x 32-688"
+    },
+    "pick.chip": {
+      "widthPx": 560,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Fresh-face chip under the after-election title (kit chat_system_pill, visual <= 592)"
+    },
+    "pick.name": {
+      "widthPx": 192,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Pick tile: the leader's short name, centred (tile 216, padding 12)"
+    },
+    "pick.party": {
+      "widthPx": 192,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 2,
+      "where": "Pick tile: the party, centred, <= 2 lines at pitch 40"
+    },
+    "pick.strip": {
+      "widthPx": 656,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 2,
+      "where": "Caption strip under the grid (reading cut): the focused / pressed tile's blurb, else the default line"
+    },
+    "pick.again": {
+      "widthPx": 560,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "'Again' button label (kit button_primary 672 wide: 48 face + 16 gap + label, centred as a group)"
+    },
+    "pick.undo": {
+      "widthPx": 352,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Undo chip on the stage after a pick (kit button_secondary, visual 392 x 80)"
+    },
+    "pick.card": {
+      "widthPx": 560,
+      "scale": 4,
+      "lines": 6,
+      "linesLarge": 8,
+      "where": "Leader card (long-press / I): rule text; the card grows"
     }
   },
   "worstCasePlaceholders": {
@@ -576,7 +639,16 @@
     "publisher": "",
     "mail": "",
     "preview": "",
-    "mood": ""
+    "mood": "",
+    "short": "סמוטריץ׳",
+    "party": "הציונות הדתית",
+    "verb": "העברה",
+    "verbPlural": "העברות",
+    "critName": "לא מוחלט",
+    "critPlural": "לא מוחלטים",
+    "banner": "טורבו בהעברות!",
+    "rule": "לוח הזמנים",
+    "postpone": "התחייבות להגיב"
   },
   "numericPlaceholders": [
     "after",
@@ -685,7 +757,7 @@
       "surface": "label",
       "spec": "rate line while S07 (idleToTap) runs",
       "joke": true,
-      "note": "Replaces '+0.0 ₪ לשנייה', which reads as broken while S07 pours the income into taps",
+      "note": "Replaces '+0.0 ₪ לשנייה', which reads as broken while S07 pours the income into taps. Bibi-only by construction: S07 is in leaderSelect.bibiOnly.upgrades (leader-select-spec §8), so no leader form is needed",
       "box": "rowA.rate",
       "maxChars": 14,
       "worstPx": {
@@ -767,6 +839,7 @@
     },
     "BUFF_CHIP_TAPFRENZY": {
       "surface": "label",
+      "note": "Pre-picker (Bibi) form. When the picker ships the view draws BUFF_CHIP_TAPFRENZY_LEADER for every leader, Bibi included (his kit verb is שליפה)",
       "box": "stage.buffChip",
       "maxChars": 16,
       "worstPx": {
@@ -788,6 +861,7 @@
     "BANNER_FRENZY": {
       "surface": "label",
       "joke": true,
+      "note": "Pre-picker (Bibi) form; BANNER_FRENZY_LEADER replaces it when the picker ships (Bibi's kit frenzyBanner is the same text)",
       "box": "stage.banner",
       "maxChars": 20,
       "worstPx": {
@@ -798,6 +872,7 @@
     "BANNER_TAPFRENZY": {
       "surface": "label",
       "joke": true,
+      "note": "Shared by every leader: an idiom, not Bibi's name (Bar 2026-09-29)",
       "box": "stage.banner",
       "maxChars": 20,
       "worstPx": {
@@ -1092,13 +1167,13 @@
     },
     "SET_KEYS": {
       "surface": "label",
-      "spec": "first-minute §7.4",
-      "note": "Desktop only",
+      "spec": "first-minute §7.4; leader-select-spec §10.3",
+      "note": "Desktop only. Neutral: the tap verb differs per leader",
       "box": "sheet.note",
       "maxChars": 27,
       "worstPx": {
-        "4": 844,
-        "5": 1055
+        "4": 832,
+        "5": 1040
       }
     },
     "SET_VERSION": {
@@ -1351,11 +1426,12 @@
     },
     "EVO_RULE_2": {
       "surface": "label",
+      "spec": "leader-select-spec §10.3",
       "box": "modal.body",
       "maxChars": 23,
       "worstPx": {
-        "4": 536,
-        "5": 670
+        "4": 688,
+        "5": 860
       }
     },
     "EVO_GROW": {
@@ -1456,11 +1532,12 @@
     },
     "OFF_NOTE_1": {
       "surface": "label",
+      "spec": "leader-select-spec §10.3",
       "box": "modal.body",
       "maxChars": 23,
       "worstPx": {
-        "4": 672,
-        "5": 840
+        "4": 736,
+        "5": 920
       }
     },
     "OFF_NOTE_2": {
@@ -1494,14 +1571,14 @@
     },
     "F1_TAP": {
       "surface": "label",
-      "note": "Text fallback only; the od-sevev P0 prompt is textless (ux/ftue.md)",
+      "note": "Text fallback only; the od-sevev P0 prompt is textless (ux/ftue.md). Neutral (leader-select-spec §10.3)",
       "box": "ticker.crawl",
       "maxChars": 60
     },
     "F1_TAP_IDLE": {
       "surface": "label",
       "joke": true,
-      "note": "Text fallback only",
+      "note": "Text fallback only. Neutral (leader-select-spec §10.3)",
       "box": "ticker.crawl",
       "maxChars": 60
     },
@@ -1753,29 +1830,35 @@
     },
     "ST_ALLTIME": {
       "surface": "label",
+      "spec": "leader-select-spec §10.3",
       "box": "dos.row",
       "maxChars": 27,
       "worstPx": {
-        "4": 336,
-        "5": 420
+        "4": 308,
+        "5": 385
       }
     },
     "ST_TAPS": {
       "surface": "label",
+      "spec": "leader-select-spec §10.3",
+      "note": "Lifetime taps across every leader, so the neutral word; a leader's own row uses kit.tap.verbPlural (DOS_LEADER_TAPS)",
       "box": "dos.row",
       "maxChars": 27,
       "worstPx": {
-        "4": 120,
-        "5": 150
+        "4": 108,
+        "5": 135
       }
     },
     "ST_CRITS": {
       "surface": "label",
+      "spec": "leader-select-spec §10.3",
+      "joke": true,
+      "note": "Lifetime crits across every leader (rabbits, flips, threats...); a leader's own row uses kit.tap.critPlural",
       "box": "dos.row",
       "maxChars": 27,
       "worstPx": {
-        "4": 120,
-        "5": 150
+        "4": 128,
+        "5": 160
       }
     },
     "ST_GOLDENS": {
@@ -1973,11 +2056,12 @@
     },
     "OFF_NOTE_1_PCT": {
       "surface": "label",
+      "spec": "leader-select-spec §10.3",
       "box": "modal.body",
       "maxChars": 23,
       "worstPx": {
-        "4": 752,
-        "5": 940
+        "4": 816,
+        "5": 1020
       }
     },
     "OFF_NOTE_2_H": {
@@ -2068,8 +2152,9 @@
     },
     "LOAD_2": {
       "surface": "html",
-      "spec": "load.2",
+      "spec": "load.2; leader-select-spec §10.3",
       "joke": true,
+      "note": "Singular like LOAD_1 / LOAD_3",
       "maxChars": 18
     },
     "LOAD_3": {
@@ -2137,9 +2222,10 @@
     },
     "SPLASH_LOADING": {
       "surface": "html",
-      "spec": "N0 splash loading line",
+      "spec": "N0 splash loading line; leader-select-spec §10.3",
       "joke": true,
-      "maxChars": 18
+      "note": "One line under the wordmark (system font 16, 358 CSS wide): 24 chars fit",
+      "maxChars": 24
     },
     "TITLE_ROUND": {
       "surface": "label",
@@ -2338,6 +2424,7 @@
     "HUD_SUSP": {
       "surface": "label",
       "spec": "hud.susp",
+      "note": "Court skin (Bibi). Every other leader: PRESS_SUSP / _HOT / _BOIL",
       "box": "stage.thermo",
       "maxChars": 5,
       "worstPx": {
@@ -2433,6 +2520,7 @@
       "spec": "dubi.firsttap",
       "joke": true,
       "deckWords": true,
+      "note": "Bibi's squawk. Other leaders: kit.dubi.squawks.firsttap (content), at their first tap (ftue.md H1 / H1L)",
       "box": "stage.toast",
       "maxChars": 26,
       "worstPx": {
@@ -2481,6 +2569,7 @@
       "spec": "dubi.drop",
       "joke": true,
       "deckWords": true,
+      "note": "Bibi-only (the aide drop)",
       "box": "stage.toast",
       "maxChars": 26,
       "worstPx": {
@@ -2555,13 +2644,13 @@
     },
     "SYS_OFFLINE": {
       "surface": "label",
-      "spec": "sys.offline",
+      "spec": "sys.offline; leader-select-spec §10.3",
       "joke": true,
       "box": "stage.toast",
       "maxChars": 26,
       "worstPx": {
-        "4": 528,
-        "5": 660
+        "4": 552,
+        "5": 690
       }
     },
     "TOAST_SPIN_END": {
@@ -3024,11 +3113,12 @@
       "surface": "label",
       "spec": "chat.reply.3",
       "joke": true,
+      "note": "The player's own reply: 'אין כלום' is Bibi's catchphrase and read wrong in any other leader's mouth",
       "box": "chat.bubble",
       "maxChars": 17,
       "worstPx": {
-        "4": 264,
-        "5": 330
+        "4": 440,
+        "5": 550
       }
     },
     "CHAT_ULTIMATUM": {
@@ -3077,12 +3167,13 @@
     },
     "CHAT_SYS_CREATED": {
       "surface": "label",
-      "spec": "chat.sys.created",
+      "spec": "chat.sys.created; leader-select-spec §10.3",
+      "note": "Second person, as a chat app tells the group's creator: the player IS this round's leader. Needs no {name} (works in the Bibi-only build and after the picker) and no gender form (יצרת is spelled the same for m/f)",
       "box": "chat.sys",
       "maxChars": 23,
       "worstPx": {
-        "4": 612,
-        "5": 765
+        "4": 548,
+        "5": 685
       }
     },
     "CHAT_SYS_JOINED_M": {
@@ -3278,13 +3369,14 @@
     },
     "CHAT_SYS_CLEARED": {
       "surface": "label",
-      "spec": "chat.sys.cleared",
+      "spec": "chat.sys.cleared; leader-select-spec §10.3",
       "joke": true,
+      "note": "Second person (see CHAT_SYS_CREATED); ניקית is spelled the same for m/f",
       "box": "chat.sys",
       "maxChars": 23,
       "worstPx": {
-        "4": 792,
-        "5": 990
+        "4": 716,
+        "5": 895
       }
     },
     "CHAT_EMPTY": {
@@ -3380,6 +3472,7 @@
       "spec": "copy deck §G",
       "joke": true,
       "deckWords": true,
+      "note": "Bibi-only (the aide drop): hidden on the press card",
       "box": "modal.btnFull",
       "maxChars": 21,
       "worstPx": {
@@ -3517,6 +3610,7 @@
     "COURT_BODY": {
       "surface": "label",
       "spec": "court.body",
+      "note": "Bibi-only: the court skin is his (leader-select-spec §5.6); every other leader draws PRESS_BODY_M/_F",
       "box": "court.body",
       "maxChars": 26,
       "worstPx": {
@@ -3636,7 +3730,7 @@
       "surface": "label",
       "spec": "court card body while phase == summons",
       "joke": true,
-      "note": "COURT_BODY ('ביבי בדוכן העדים. ההכנסות מואטות.') is true only once testimony runs",
+      "note": "COURT_BODY ('ביבי בדוכן העדים. ההכנסות מואטות.') is true only once testimony runs. Bibi-only; others draw PRESS_SUMMONS_BODY",
       "box": "court.body",
       "maxChars": 26,
       "worstPx": {
@@ -3677,6 +3771,7 @@
     "PARDON_ROW": {
       "surface": "label",
       "spec": "pitch §2 launch spine",
+      "note": "Bibi-only: the T4 row is hidden in every other leader's round (leader-select-spec §5.6)",
       "box": "dos.btn",
       "maxChars": 26,
       "worstPx": {
@@ -4025,13 +4120,13 @@
     },
     "RET_CAP": {
       "surface": "label",
-      "spec": "ret.cap",
+      "spec": "ret.cap; leader-select-spec §10.3",
       "joke": true,
       "box": "modal.body",
       "maxChars": 23,
       "worstPx": {
-        "4": 728,
-        "5": 910
+        "4": 764,
+        "5": 955
       }
     },
     "RET_BTN": {
@@ -4791,6 +4886,7 @@
       "surface": "share-text",
       "spec": "§5.3 invite",
       "joke": true,
+      "note": "Kept until the picker ships: game/tests/unit/test_share_view.gd pins 'ביבי' in the invite. Replaced then by SHARE_TEXT_INVITE_NEXT (engine developer updates the test)",
       "maxChars": 70
     },
     "OG_TITLE": {
@@ -4804,11 +4900,13 @@
       "spec": "§5.4 og:description",
       "joke": true,
       "legal": true,
+      "note": "True of the shipped build; OG_DESCRIPTION_NEXT replaces it on picker ship day (it describes the pick). shell.html hard-codes the value today",
       "maxChars": 110
     },
     "OG_IMAGE_ALT": {
       "surface": "og",
       "spec": "§5.4 og:image:alt",
+      "note": "Describes the shipped og.jpg; OG_IMAGE_ALT_NEXT ships with the lineup key art (Bar 2026-09-29)",
       "maxChars": 90
     },
     "OG_SITE_NAME": {
@@ -4869,12 +4967,12 @@
     },
     "DOS_TOTAL": {
       "surface": "label",
-      "spec": "dos.stats",
+      "spec": "dos.stats; leader-select-spec §10.3",
       "box": "dos.row",
       "maxChars": 27,
       "worstPx": {
-        "4": 544,
-        "5": 680
+        "4": 516,
+        "5": 645
       }
     },
     "DOS_CAUGHT": {
@@ -4942,13 +5040,13 @@
     },
     "SYS_ROTATE_CAP": {
       "surface": "label",
-      "spec": "sys.rotate.cap",
+      "spec": "sys.rotate.cap; leader-select-spec §10.3",
       "joke": true,
       "box": "modal.body",
       "maxChars": 23,
       "worstPx": {
-        "4": 388,
-        "5": 485
+        "4": 520,
+        "5": 650
       }
     },
     "SYS_ERROR": {
@@ -4989,11 +5087,580 @@
     },
     "SYS_ERA_PACK_LATE": {
       "surface": "label",
-      "spec": "first-minute §2.1 [GD] suggestion",
+      "spec": "first-minute §2.1 [GD] suggestion; leader-select-spec §10.3",
       "joke": true,
       "deckWords": true,
       "box": "ticker.crawl",
       "maxChars": 60
+    },
+    "LEADER_PICK_TITLE": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.title",
+      "note": "First launch: under the wordmark",
+      "box": "pick.title",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 488,
+        "5": 610
+      }
+    },
+    "LEADER_PICK_TITLE_AFTER": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.titleAfter",
+      "note": "After every election",
+      "box": "pick.title",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 620,
+        "5": 775
+      }
+    },
+    "LEADER_PICK_FRESH_CHIP": {
+      "surface": "label",
+      "spec": "spec §3.3 fresh face (D9); Bar 2026-09-29 keeps +10%",
+      "note": "After an election only: ONE chip under the title, never on a tile (a percent beside a face reads as a poll swing). {pct} = leaderSelect.pick.freshFaceBasePct",
+      "box": "pick.chip",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 516,
+        "5": 645
+      },
+      "largeText": "step-down"
+    },
+    "LEADER_PICK_AGAIN": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.again",
+      "note": "The last round's leader, with their 24 avatar at x2 as the leading icon. Esc / back = this button",
+      "box": "pick.again",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 372,
+        "5": 465
+      }
+    },
+    "LEADER_PICK_RANDOM": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.random",
+      "joke": true,
+      "note": "The random tile: the grid centre (3x3) or the full-width bar (wave 1, 2x2)",
+      "box": "pick.name",
+      "maxChars": 8,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "LEADER_PICK_RANDOM_CAP": {
+      "surface": "label",
+      "spec": "rtl-map §8.4",
+      "joke": true,
+      "note": "The strip line while the random tile is focused or pressed (its 'blurb')",
+      "box": "pick.strip",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 804,
+        "5": 1005
+      }
+    },
+    "LEADER_PICK_RANDOM_LINE": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.randomLine",
+      "joke": true,
+      "note": "Dubi's bubble after a random pick, instead of DUBI_LEARNED",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 468,
+        "5": 585
+      }
+    },
+    "LEADER_PICK_DISCLAIMER": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.disclaimer",
+      "legal": true,
+      "note": "The strip's default line (nothing focused or pressed)",
+      "box": "pick.strip",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 764,
+        "5": 955
+      }
+    },
+    "LEADER_PICK_UNDO": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.undo ('להחליף'); rtl-map §8.6",
+      "note": "The stage chip for undoSec after a pick, until the first tap. 'להחליף' alone does not say what changes, at the bottom of a stage",
+      "box": "pick.undo",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 332,
+        "5": 415
+      },
+      "largeText": "step-down"
+    },
+    "LEADER_PICK_FRESH": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.freshFace",
+      "joke": true,
+      "note": "Toast after a pick that differs from the last round's leader",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 788,
+        "5": 985
+      }
+    },
+    "LEADER_PICK_PLATE": {
+      "surface": "label",
+      "spec": "rtl-map §8.6 (the round-start lower third)",
+      "note": "The first toast of a round, as the leader walks in",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 432,
+        "5": 540
+      }
+    },
+    "LEADER_PICK_CARD_RULE": {
+      "surface": "label",
+      "spec": "spec §5.1 (rule.name; rule.text under it, box pick.card)",
+      "note": "Leader card only; hidden for a leader without a `rule` (Bibi: his signature is the court)",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 448,
+        "5": 560
+      }
+    },
+    "LEADER_PICK_CARD_GO": {
+      "surface": "label",
+      "spec": "rtl-map §8.5",
+      "note": "Role play, never 'לבחור ב…' (reads as 'elect X': an endorsement)",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 352,
+        "5": 440
+      }
+    },
+    "DUBI_LEARNED": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.dubiLearned",
+      "joke": true,
+      "note": "Dubi's bubble at every pick (D8)",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 412,
+        "5": 515
+      }
+    },
+    "F9_PICK": {
+      "surface": "label",
+      "spec": "leaderSelect.pick.copy.ftueAfterFirstElection; ftue.md LP",
+      "note": "The strip's default line on the first picker after election 1 (ftue.lp), in place of LEADER_PICK_DISCLAIMER",
+      "box": "pick.strip",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 988,
+        "5": 1235
+      },
+      "largeText": "step-down"
+    },
+    "ELECT_LEADER": {
+      "surface": "label",
+      "spec": "spec §6.1 (the election card names the leader)",
+      "note": "O3: a line under ELECT_TITLE ('סבב בחירות מס׳ 999 · סמוטריץ׳' is 536 px, over the 432 title box)",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 432,
+        "5": 540
+      }
+    },
+    "DOS_STATUS_LEADER": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 T4 header",
+      "note": "T4 header status line: this round's leader",
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 432,
+        "5": 540
+      }
+    },
+    "DOS_LEADERS": {
+      "surface": "label",
+      "spec": "spec §6.2 T4 section",
+      "note": "Section header; one row per leader played, in first-played order (never sorted by a count: that is a ranking)",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 200,
+        "5": 250
+      }
+    },
+    "DOS_LEADER_ROUNDS_ONE": {
+      "surface": "label",
+      "spec": "spec §6.2 leaders.<id>.rounds",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 476,
+        "5": 595
+      }
+    },
+    "DOS_LEADER_ROUNDS_TWO": {
+      "surface": "label",
+      "spec": "spec §6.2",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 468,
+        "5": 585
+      }
+    },
+    "DOS_LEADER_ROUNDS_OTHER": {
+      "surface": "label",
+      "spec": "spec §6.2",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 476,
+        "5": 595
+      }
+    },
+    "DOS_LEADER_TAPS": {
+      "surface": "label",
+      "spec": "spec §6.2 leaders.<id>.taps / crits",
+      "note": "Muted second line of a leader row, in the kit's own nouns",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 524,
+        "5": 655
+      }
+    },
+    "BUFF_CHIP_TAPFRENZY_LEADER": {
+      "surface": "label",
+      "spec": "spec §10.3 BUFF_CHIP_TAPFRENZY",
+      "note": "{verb} = kit.tap.verb",
+      "box": "stage.buffChip",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 332,
+        "5": 415
+      },
+      "largeText": "step-down"
+    },
+    "BANNER_FRENZY_LEADER": {
+      "surface": "label",
+      "spec": "spec §10.3 BANNER_FRENZY",
+      "joke": true,
+      "note": "{banner} = kit.tap.frenzyBanner",
+      "box": "stage.banner",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 340,
+        "5": 425
+      }
+    },
+    "SPIN_EFFECT_S01_LEADER": {
+      "surface": "label",
+      "spec": "spec §10.3 spin s01 (slot A)",
+      "note": "Replaces upgradeEffects.s01 for every leader once the picker ships",
+      "box": "card.line2wide",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 352,
+        "5": 440
+      }
+    },
+    "SPIN_EFFECT_S02_LEADER": {
+      "surface": "label",
+      "spec": "spec §10.3 spin s02 (slot B)",
+      "box": "card.line2wide",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 304,
+        "5": 380
+      }
+    },
+    "SPIN_EFFECT_S11_LEADER": {
+      "surface": "label",
+      "spec": "spec §10.3 spin s11 (slot E)",
+      "note": "s07 is Bibi-only, so upgradeEffects.s07 keeps 'שליפה'",
+      "box": "card.line2wide",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 352,
+        "5": 440
+      }
+    },
+    "PRESS_SUSP": {
+      "surface": "label",
+      "spec": "hazardSkins.press.meterName",
+      "box": "stage.thermo",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      },
+      "largeText": "step-down"
+    },
+    "PRESS_SUSP_HOT": {
+      "surface": "label",
+      "spec": "hazardSkins.press.hotWords[0]",
+      "box": "stage.thermo",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 48,
+        "5": 60
+      }
+    },
+    "PRESS_SUSP_BOIL": {
+      "surface": "label",
+      "spec": "hazardSkins.press.hotWords[1]",
+      "box": "stage.thermo",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 80,
+        "5": 100
+      }
+    },
+    "PRESS_REVEAL": {
+      "surface": "label",
+      "spec": "hazardSkins.press.revealToast",
+      "joke": true,
+      "note": "K2 for a press leader (instead of TOAST_DOSSIER)",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 312,
+        "5": 390
+      }
+    },
+    "PRESS_TITLE": {
+      "surface": "label",
+      "spec": "hazardSkins.press.dayTitle",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 168,
+        "5": 210
+      }
+    },
+    "PRESS_BODY_M": {
+      "surface": "label",
+      "spec": "hazardSkins.press.dayBody",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 696,
+        "5": 870
+      }
+    },
+    "PRESS_BODY_F": {
+      "surface": "label",
+      "spec": "hazardSkins.press.dayBodyF",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 720,
+        "5": 900
+      }
+    },
+    "PRESS_EFFECT": {
+      "surface": "label",
+      "spec": "hazardSkins.press.dayEffect",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 576,
+        "5": 720
+      }
+    },
+    "PRESS_TIMER": {
+      "surface": "label",
+      "spec": "COURT_TIMER's twin",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 212,
+        "5": 265
+      }
+    },
+    "PRESS_SUMMONS_TITLE": {
+      "surface": "label",
+      "spec": "hazardSkins.press.summonsTitle",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 208,
+        "5": 260
+      }
+    },
+    "PRESS_SUMMONS_BODY": {
+      "surface": "label",
+      "spec": "hazardSkins.press.summonsBody",
+      "joke": true,
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 888,
+        "5": 1110
+      }
+    },
+    "PRESS_SUMMONS_EFFECT": {
+      "surface": "label",
+      "spec": "COURT_SUMMONS_EFFECT's twin",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 532,
+        "5": 665
+      }
+    },
+    "PRESS_SUMMONS_TIMER": {
+      "surface": "label",
+      "spec": "COURT_SUMMONS_TIMER's twin",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 476,
+        "5": 595
+      }
+    },
+    "PRESS_TESTIFY": {
+      "surface": "label",
+      "spec": "hazardSkins.press.testifyVerb",
+      "box": "court.btn2",
+      "maxChars": 8,
+      "worstPx": {
+        "4": 100,
+        "5": 125
+      }
+    },
+    "PRESS_POSTPONE": {
+      "surface": "html",
+      "spec": "COURT_POSTPONE's twin",
+      "note": "Accessible label; drawn as kit.hazard.postponeVerb over CARD_PRICE",
+      "maxChars": 40
+    },
+    "PRESS_CHIP": {
+      "surface": "html",
+      "spec": "COURT_CHIP's twin (a11y)",
+      "maxChars": 20
+    },
+    "PRESS_CHIP_TITLE": {
+      "surface": "label",
+      "spec": "hazardSkins.press.dayTitle (chip line 1)",
+      "box": "ticker.chipWide",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 168,
+        "5": 210
+      },
+      "largeText": "step-down"
+    },
+    "PRESS_CHIP_SUMMONS": {
+      "surface": "label",
+      "spec": "hazardSkins.press.chip (chip line 1 during the summons)",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 104,
+        "5": 130
+      }
+    },
+    "PRESS_END": {
+      "surface": "label",
+      "spec": "hazardSkins.press.endToast",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 472,
+        "5": 590
+      }
+    },
+    "PRESS_SUSP_FLOOR": {
+      "surface": "label",
+      "spec": "DOS_SUSP_FLOOR's twin",
+      "joke": true,
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 636,
+        "5": 795
+      }
+    },
+    "PRESS_DAYS": {
+      "surface": "label",
+      "spec": "DOS_COURT_DAYS's twin",
+      "note": "Needs a press-day count in the sim (stats); DOS_COURT_DAYS then shows only when > 0",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 252,
+        "5": 315
+      }
+    },
+    "CHAT_PILL_DECLINE": {
+      "surface": "label",
+      "spec": "leaders.liberman.rule.copy.pill",
+      "joke": true,
+      "note": "Second pill under a member demand's pay pill (rtl-map §6.3), Liberman's round only; never on an ultimatum or a join demand",
+      "box": "chat.pill",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 136,
+        "5": 170
+      }
+    },
+    "CHAT_PILL_DECLINE_CD": {
+      "surface": "label",
+      "spec": "leaders.liberman.rule.copy.cooldown",
+      "note": "The same pill, disabled, during the 90 s cooldown",
+      "box": "chat.pill",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 280,
+        "5": 350
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_SYS_DECLINED": {
+      "surface": "label",
+      "spec": "leaders.liberman.rule.copy.sys",
+      "joke": true,
+      "note": "Gender-free: one key",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 868,
+        "5": 1085
+      }
+    },
+    "SHARE_TEXT_INVITE_NEXT": {
+      "surface": "share-text",
+      "spec": "spec §10.3 SHARE_TEXT_INVITE",
+      "joke": true,
+      "note": "Replaces SHARE_TEXT_INVITE on picker ship day",
+      "maxChars": 70
+    },
+    "OG_DESCRIPTION_NEXT": {
+      "surface": "og",
+      "spec": "spec §10.3 OG_DESCRIPTION",
+      "joke": true,
+      "legal": true,
+      "note": "Replaces OG_DESCRIPTION (shell.html og:description / twitter:description) on picker ship day",
+      "maxChars": 110
+    },
+    "OG_IMAGE_ALT_NEXT": {
+      "surface": "og",
+      "spec": "spec §10.3 OG_IMAGE_ALT; Bar 2026-09-29 lineup key art",
+      "note": "Ships with the lineup og.jpg; re-read it against the delivered art first",
+      "maxChars": 90
     },
     "HUD_RATE": {
       "aliasOf": "HUD_BPS",
