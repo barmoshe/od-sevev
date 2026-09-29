@@ -68,8 +68,14 @@ static func breath(lvl: String, t_ms: float, reduced: bool) -> float:
 	return 1.0 - (1.0 - BREATH_LOW) * (0.5 - 0.5 * cos(TAU * ph))
 
 
-## The era's spot in stage-art px, or (-1, -1) when the era shows no courthouse. Pure.
+## The era's spot in stage-art px, or (-1, -1) when the era shows no courthouse. The 2D Artist's kit
+## data first (sprites.json ui.court_window.spots, moved 2026-09-29 to art rows the phones keep), then
+## SPOTS (the old sky-band spots) when the manifest has none. Pure.
 static func spot(era_id: String) -> Vector2:
+	var kit: Dictionary = SpriteStrip.manifest().get("ui", {}).get("court_window", {}).get("spots", {})
+	if not kit.is_empty():
+		var p: Variant = kit.get(era_id, null)
+		return Vector2(float(p[0]), float(p[1])) if p is Array and (p as Array).size() == 2 else Vector2(-1, -1)
 	return SPOTS.get(era_id, Vector2(-1, -1))
 
 
