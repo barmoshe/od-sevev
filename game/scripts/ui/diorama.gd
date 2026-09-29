@@ -39,6 +39,7 @@ var _has_bg := false
 ## producer id -> ms to its next set piece (od-sevev: which producers have one is content data,
 ## producers[].setPiece; the first-run delays keep the fork's per-kind values).
 var _piece_timers := {}
+var _density_k := -1              # the Display.k the critters' density variants were picked for
 const PIECE_FIRST_MS := {"lob": 4000.0, "launch": 9000.0, "blink": 6000.0}
 
 
@@ -220,7 +221,10 @@ func _add_crowd(id: String, slots: Array) -> void:
 ## placeholder (a new id never crashes the stage while its art is pending).
 static func _sprite_of(id: String) -> String:
 	var src := Art.source(id)
-	return Art.sprite_or(String(Content.producer(id).get("sprite", src.get("sprite", "critter_" + id))))
+	var sp := String(Content.producer(id).get("sprite", src.get("sprite", "critter_" + id)))
+	if sp != "" and sp == String(Art.source(id, false).get("sprite", "")):
+		sp = String(src.get("sprite", sp))   # the TA's source: its density variant for this k (d 2 at k 4)
+	return Art.sprite_or(sp)
 
 
 ## Logical px per sprite px of a critter: ×4 art scale ÷ the TA's density (sprites.json
@@ -431,6 +435,9 @@ func clear_all() -> void:
 
 func update_view(dt_ms: float) -> void:
 	_now += dt_ms
+	if Display.k != _density_k:
+		_density_k = Display.k
+		_repick_density()
 	if not reduced_motion:
 		for st in _stars:
 			st["t"] = float(st["t"]) + dt_ms
@@ -465,6 +472,22 @@ func update_view(dt_ms: float) -> void:
 		_last_hop = _now
 		c["nextHop"] = _now + _hop_interval()
 		_start_hop(c)
+
+
+## The device scale changed (or the critters were built before it was known): a TA source with
+## density variants draws the one crisp at the new k (Art.source → SpriteStrip.pick_variant,
+## CONTRACT.md §4b), so re-point each critter at it: texture, pivot, scale and filter.
+func _repick_density() -> void:
+	for c in _critters:
+		var id := String(c["type"])
+		var sp := _sprite_of(id)
+		if sp == String(c["sprite"]):
+			continue
+		c["sprite"] = sp
+		var s: Sprite2D = c["s"]
+		Ui.set_frame(s, sp, int(c["frame"]))
+		s.offset = _pivot_of(id)
+		_scale_sprite(s, id)
 
 
 func _animate(c: Dictionary, dt_ms: float) -> void:

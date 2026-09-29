@@ -809,6 +809,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 137,
+     "frameH": 215,
+     "anchor": [
+      68,
+      214
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "sara_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "offended": {
+       "file": "sara_offended_d2.png",
+       "frames": 12,
+       "fps": 12,
+       "loop": false,
+       "events": {
+        "huff": 2
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "bennett": {
@@ -837,6 +868,37 @@
       "whoosh": 3
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 156,
+     "frameH": 215,
+     "anchor": [
+      78,
+      214
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "bennett_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "flip": {
+       "file": "bennett_flip_d2.png",
+       "frames": 8,
+       "fps": 12,
+       "loop": false,
+       "events": {
+        "whoosh": 3
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -867,6 +929,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 164,
+     "frameH": 211,
+     "anchor": [
+      82,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "regev_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "regev_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "gotliv": {
@@ -896,6 +989,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 163,
+     "frameH": 211,
+     "anchor": [
+      81,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "gotliv_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "gotliv_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "deri": {
@@ -924,6 +1048,37 @@
       "land": 6
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 118,
+     "frameH": 211,
+     "anchor": [
+      59,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "deri_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "deri_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -955,6 +1110,38 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 121,
+     "frameH": 211,
+     "anchor": [
+      60,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "levin_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "levin_react_d2.png",
+       "frames": 12,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "bang": 4,
+        "bang2": 8
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "ben-gvir": {
@@ -983,6 +1170,37 @@
       "shout": 2
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 149,
+     "frameH": 211,
+     "anchor": [
+      74,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "ben-gvir_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "ben-gvir_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -1013,6 +1231,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 151,
+     "frameH": 211,
+     "anchor": [
+      75,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "goldknopf_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "goldknopf_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "gafni": {
@@ -1041,6 +1290,37 @@
       "step": 1
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 121,
+     "frameH": 211,
+     "anchor": [
+      60,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "gafni_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "gafni_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "step": 1
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -1071,6 +1351,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 123,
+     "frameH": 211,
+     "anchor": [
+      61,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "smotrich_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "smotrich_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "amsalem": {
@@ -1099,6 +1410,37 @@
       "shout": 2
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 167,
+     "frameH": 211,
+     "anchor": [
+      83,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "amsalem_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "amsalem_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -1129,6 +1471,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 169,
+     "frameH": 211,
+     "anchor": [
+      84,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "lapid_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "lapid_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "eisenkot": {
@@ -1157,6 +1530,37 @@
       "land": 6
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 118,
+     "frameH": 211,
+     "anchor": [
+      59,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "eisenkot_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "eisenkot_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -1187,6 +1591,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 98,
+     "frameH": 211,
+     "anchor": [
+      49,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "gantz_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "gantz_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "liberman": {
@@ -1215,6 +1650,37 @@
       "no": 1
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 118,
+     "frameH": 211,
+     "anchor": [
+      59,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "liberman_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "liberman_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -1245,6 +1711,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 134,
+     "frameH": 211,
+     "anchor": [
+      67,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "golan_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "golan_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "abbas": {
@@ -1273,6 +1770,37 @@
       "no": 1
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 122,
+     "frameH": 211,
+     "anchor": [
+      61,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "abbas_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "abbas_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -1303,6 +1831,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 153,
+     "frameH": 211,
+     "anchor": [
+      76,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "distel_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "distel_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "karhi": {
@@ -1331,6 +1890,37 @@
       "shout": 2
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 121,
+     "frameH": 211,
+     "anchor": [
+      60,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "karhi_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "karhi_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -1362,6 +1952,38 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 124,
+     "frameH": 211,
+     "anchor": [
+      62,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "herzog_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "herzog_react_d2.png",
+       "frames": 12,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "bang": 4,
+        "bang2": 8
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "trump": {
@@ -1391,6 +2013,37 @@
      },
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 157,
+     "frameH": 211,
+     "anchor": [
+      78,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "trump_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "trump_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2
+      }
+     }
+    }
    }
   },
   "may-golan": {
@@ -1419,6 +2072,37 @@
       "land": 6
      },
      "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 164,
+     "frameH": 211,
+     "anchor": [
+      82,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "may-golan_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "may-golan_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
     }
    }
   },
@@ -1514,6 +2198,35 @@
      "events": {},
      "density": 3
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 166,
+     "frameH": 211,
+     "anchor": [
+      83,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "dubi-mic_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "talk": {
+       "file": "dubi-mic_talk_d2.png",
+       "frames": 2,
+       "fps": 16,
+       "loop": false,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
    }
   }
  },
@@ -1586,7 +2299,28 @@
     "head",
     "eyelids"
    ],
-   "fallback": null
+   "fallback": null,
+   "densities": {
+    "2": {
+     "file": "source_taxpayer_d2.png",
+     "frames": 2,
+     "frameW": 51,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      25,
+      79
+     ],
+     "points": {
+      "hand": [
+       15,
+       54
+      ]
+     }
+    }
+   }
   },
   "hitech": {
    "file": "source_hitech.png",
@@ -1613,7 +2347,28 @@
     "move",
     "px"
    ],
-   "fallback": null
+   "fallback": null,
+   "densities": {
+    "2": {
+     "file": "source_hitech_d2.png",
+     "frames": 2,
+     "frameW": 67,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      33,
+      79
+     ],
+     "points": {
+      "laptop": [
+       16,
+       35
+      ]
+     }
+    }
+   }
   },
   "vat": {
    "file": "source_vat.png",
@@ -1634,7 +2389,23 @@
    "recipe": [
     "body"
    ],
-   "fallback": "the ref has no hanging \"18%\" tag (the plate is bolted on): bob"
+   "fallback": "the ref has no hanging \"18%\" tag (the plate is bolted on): bob",
+   "densities": {
+    "2": {
+     "file": "source_vat_d2.png",
+     "frames": 2,
+     "frameW": 71,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      35,
+      79
+     ],
+     "points": {}
+    }
+   }
   },
   "cigars": {
    "file": "source_cigars.png",
@@ -1655,7 +2426,23 @@
    "recipe": [
     "body"
    ],
-   "fallback": "the ref has no smoke wisp or champagne bubbles: bob"
+   "fallback": "the ref has no smoke wisp or champagne bubbles: bob",
+   "densities": {
+    "2": {
+     "file": "source_cigars_d2.png",
+     "frames": 2,
+     "frameW": 68,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      34,
+      79
+     ],
+     "points": {}
+    }
+   }
   },
   "qatari": {
    "file": "source_qatari.png",
@@ -1676,7 +2463,23 @@
    "recipe": [
     "headx"
    ],
-   "fallback": "two aides, no phone: the glance is both heads leaning 1 ap toward the whisper"
+   "fallback": "two aides, no phone: the glance is both heads leaning 1 ap toward the whisper",
+   "densities": {
+    "2": {
+     "file": "source_qatari_d2.png",
+     "frames": 2,
+     "frameW": 74,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      37,
+      79
+     ],
+     "points": {}
+    }
+   }
   }
  },
  "sourceAliases": {
