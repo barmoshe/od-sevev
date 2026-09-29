@@ -57,6 +57,7 @@ func _ready() -> void:
 	add_child(_clip)
 	for i in 3:
 		var l := PxText.make(_clip, Vector2.ZERO, "", SCALE, "plain", K["text"])
+		l.reading = true   # the crawl reads on the @2 cut where crisp; the tag and chip stay display
 		l.visible = false
 		_pool.append(l)
 	# the anchor: a red plate with "מבזק", right-aligned (rtl-map §5.1)

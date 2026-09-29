@@ -195,6 +195,7 @@ func _read_content_override() -> void:
 ## Dev-only URL params on the web build (all ignored without ?dev=1): &speed=N multiplies game
 ## time, &grant=N adds bananas at boot, &evo=N sets the evolution count (era checks). Same contract as v1.1 (HOW-TO-RUN.md).
 ## &forkscale=1 shows the fork's fractional stretch (the "before" of integer art scaling).
+## &sharp=0 draws every reading text on Sevev 9 (the "before" of the @2 reading cut, PxText.reading).
 ## &flash=N opens Dubi's news flash for round N on the first tap (view checks).
 ## &susp=N reveals the thermometer at N% suspicion (100 = a summons on the first step), &aide=N
 ## puts N ₪ of suitcase money on an aide (the "אני לא מכיר אותו" button).
@@ -206,6 +207,8 @@ func _read_dev_params() -> void:
 		return
 	_dev["on"] = true
 	_dev["forkscale"] = q.contains("forkscale=1")
+	if q.contains("sharp=0"):
+		PxText.set_sharp_text(get_tree(), false)
 	for part in q.trim_prefix("?").split("&"):
 		var kv := part.split("=")
 		if kv.size() == 2 and kv[0] in ["speed", "grant", "evo", "flash", "susp", "aide"]:

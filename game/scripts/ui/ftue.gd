@@ -123,19 +123,10 @@ static func badge_on(_s: GameState) -> bool:
 	return false
 
 
+## Sources owned in total (3 taxpayers = 3), the sim's own count (Conditions.sources_owned), so
+## the HUD's reveals and the sim's gates (C1's openAtSourcesOwned) can never disagree.
 static func owned_total(s: GameState) -> int:
-	var n := 0
-	for id in Content.producer_ids():
-		n += s.owned_of(id)
-	return n
-
-
-static func _sources(s: GameState) -> int:
-	var n := 0
-	for id in Content.producer_ids():
-		if s.owned_of(id) > 0:
-			n += 1
-	return n
+	return Conditions.sources_owned(s)
 
 
 ## What the HUD shows (ux/ftue.md §1.1 flags, derived from state so they never regress within a
@@ -175,7 +166,9 @@ static func reveals(s: GameState) -> Dictionary:
 	var c: Dictionary = Content.data().get("coalition", {})
 	var paid := int(float((s.coalition as Dictionary).get("paidLifetime", 0))) if s.coalition is Dictionary else 0
 	var open_at := int(c.get("openAtSourcesOwned", 3))
-	var tabs := played or _sources(s) >= open_at or paid >= 1
+	# C1: the tab bar appears when the sim opens the group (Coalition: openAtSourcesOwned counts the
+	# sources owned in TOTAL, not the kinds), so 3 taxpayers show the קואליציה tab with the C1 ping
+	var tabs := played or owned >= open_at or paid >= 1
 	return {
 		"counter": played or s.taps_lifetime >= 1,
 		"card1": played or owned > 0 or s.taps_lifetime >= 3,

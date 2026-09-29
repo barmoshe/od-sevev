@@ -15,6 +15,14 @@ extends Node2D
 ##   RTL paragraphs start-align to the right. `wrap_width` wraps (body copy: max_lines, then
 ##   ellipsis); labels ellipsize at `wrap_width` with max_lines 1 (O-U3: no fractional shrink).
 ## Both routes draw at font size × px through the canvas transform, never a fractional size.
+##
+## The reading role (`reading = true`, CONTRACT.md §6.1, the 2D Artist's role split): body copy
+## draws with Sevev 9 @2, shaped at size 18 and drawn at eff_px() / 2, wherever one Sevev 9 px is an
+## EVEN number of device px (so an @2 px is whole: k 2, 4, 6, 8 at ×4); elsewhere (k 3, 9, large
+## text ×5 at k 4, the fractional fallback) it draws Sevev 9. Every @2 metric is exactly 2× Sevev 9's,
+## so both cuts wrap, ellipsise and measure identically: layout never moves. Display text (the
+## counter, prices, titles, tabs, the ticker tag, chips, buttons, badges, anything dimmed or over
+## art) keeps the default `reading = false`. The outline variants never use it (no @2 outline cut).
 
 var text := "":
 	set(v):
@@ -88,11 +96,19 @@ var fit_width := 0.0:
 ## Optional per-glyph vertical offset: func(glyph_index: int, glyph_x: float) -> float (the
 ## ticker's J8 hop). glyph_x is the glyph's left edge in node px.
 var glyph_dy: Callable
+## The reading role (above): this text may draw with Sevev 9 @2 where that is crisp.
+var reading := false:
+	set(v):
+		if v != reading:
+			reading = v
+			if text != "":
+				_relayout()
 
 var _ft := ""                      # bitmap route: the font_text string
 var _para: TextParagraph           # shaped route (null on the bitmap route)
 var _box_w := 0.0                  # shaped route: box width in font units
 var _up := false                   # large text: this string draws one whole scale up
+var _u := 1                        # shaped font units per Sevev 9 px: 2 on the @2 cut, else 1
 
 
 static func make(parent: Node, pos: Vector2, t: String, scale_px: int = 3, var_: String = "plain", c: Variant = "w") -> PxText:
@@ -118,6 +134,15 @@ const BITMAP_ROUTE := false
 ## (the crawl, a floater) always draws ×5. Views that stack text measure line_count() and
 ## eff_px() after setting the text, so rows grow to the scale actually drawn.
 static var large_text := false
+## Master switch for the @2 reading cut (on; `?dev=1&sharp=0` and the before/after shots turn it off).
+static var sharp_text := true
+
+
+static func set_sharp_text(tree: SceneTree, on: bool) -> void:
+	if on == sharp_text:
+		return
+	sharp_text = on
+	relayout_all(tree)
 
 
 static func set_large_text(tree: SceneTree, on: bool) -> void:
@@ -141,6 +166,29 @@ static func relayout_all(tree: SceneTree) -> void:
 ## pixel is crisp at any k.
 func eff_px() -> float:
 	return Display.text_scale(float(px + 1 if _up else px))
+
+
+## True when this text draws with Sevev 9 @2 now (the reading role, crisp at this scale).
+func is_sharp() -> bool:
+	return _u == HeFont.SHARP_DENSITY
+
+
+## Device px per Sevev 9 px for this text as drawn (a whole number on an integer surface).
+func device_px() -> float:
+	return eff_px() * Display.f
+
+
+## The @2 pick rule (CONTRACT.md §6.1): a reading text on the plain cut, the @2 font shipped, and one
+## Sevev 9 px an even number (≥ 2) of whole device px.
+func _wants_sharp() -> bool:
+	if not reading or not sharp_text or variant != "plain" or not Display.integer:
+		return false
+	var spec: Dictionary = Art.data.get("font", {}).get("variants", {}).get(variant, {})
+	if spec.get("outline") != null or HeFont.sharp() == null:
+		return false
+	var dp := device_px()
+	var n := int(roundf(dp))
+	return is_equal_approx(dp, float(n)) and n >= HeFont.SHARP_DENSITY and n % HeFont.SHARP_DENSITY == 0
 
 
 ## True when large text draws this string one scale up (rtl-map §0.2).
@@ -233,31 +281,48 @@ func is_shaped() -> bool:
 
 func _relayout() -> void:
 	_up = _steps_up()
+	_u = 1
 	if text == "" or bitmap_ok(text):
 		_para = null
 		_ft = Art.font_text(text, uppercase)
 	else:
 		_ft = ""
+		# the @2 cut shapes at 18 in units half a Sevev 9 px wide: every box below is in shaped
+		# units, i.e. the Sevev 9 box × _u (floored in Sevev 9 px first, so both cuts wrap alike)
+		_u = HeFont.SHARP_DENSITY if _wants_sharp() else 1
 		_para = TextParagraph.new()
 		_para.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(text) else TextServer.DIRECTION_LTR
 		_para.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
 		_para.justification_flags = TextServer.JUSTIFICATION_NONE
-		_para.add_string(text, _shaped_font(), HeFont.size())
+		if _u > 1:
+			_para.add_string(text, HeFont.sharp(), HeFont.sharp_size())
+		else:
+			_para.add_string(text, _shaped_font(), HeFont.size())
 		if wrap_width > 0.0:
-			_para.width = floorf(wrap_width / float(eff_px()))
+			_para.width = _wrap_units()
 			_para.max_lines_visible = maxi(1, max_lines_large if (_up and max_lines_large > 0) else max_lines)
 			_para.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		_box_w = 0.0
 		for i in _para.get_line_count():
 			_box_w = maxf(_box_w, _para.get_line_width(i))
 		if wrap_width > 0.0:
-			_box_w = minf(_box_w, floorf(wrap_width / float(eff_px())))
+			_box_w = minf(_box_w, _wrap_units())
 	queue_redraw()
+
+
+## The wrap box in shaped units: whole Sevev 9 px at the drawn scale, × _u.
+func _wrap_units() -> float:
+	return floorf(wrap_width / float(eff_px())) * _u
+
+
+## Logical px per shaped unit (eff_px() on Sevev 9, eff_px() / 2 on @2).
+func _unit_px() -> float:
+	return eff_px() / float(_u)
 
 
 func width() -> int:
 	if _para != null:
-		return int(ceilf(_box_w * eff_px()))
+		return int(ceilf(_box_w * _unit_px()))
 	return Art.measure(_ft, px)
 
 
@@ -275,9 +340,19 @@ func truncated() -> bool:
 	if _para.get_line_count() > _para.max_lines_visible:
 		return true
 	for i in _para.get_line_count():
-		if _para.get_line_width(i) > floorf(wrap_width / float(eff_px())) + 0.01:
+		if _para.get_line_width(i) > _wrap_units() + 0.01:
 			return true
 	return false
+
+
+## The shaped lines' character ranges and widths in Sevev 9 px (tests: both cuts lay out alike).
+func line_layout() -> Array:
+	var out: Array = []
+	if _para == null:
+		return out
+	for i in line_count():
+		out.append([_para.get_line_range(i), _para.get_line_width(i) / float(_u)])
+	return out
 
 
 ## Centres the current text horizontally inside [region_x, region_x + region_w), on a 4-px grid.
@@ -347,14 +422,15 @@ func _draw_shaped() -> void:
 		fill = Art.col(spec["fill"]) * tint
 		ring = Art.col(spec["outline"])
 		ring.a *= tint.a
-	var pitch := float(line_pitch) / float(eff_px()) if line_pitch > 0 else float(HeFont.line_height())
+	var sc := _unit_px()
+	var pitch := float(line_pitch) / sc if line_pitch > 0 else float(HeFont.line_height() * _u)
 	var rtl := _para.direction == TextServer.DIRECTION_RTL
 	var a := align if align >= 0 else (2 if rtl else 0)
 	# The fork placed a 7-row capital box at the node's top. Sevev's letter body sits lower in its
 	# 11-row line (ascender band above it), so lift the line until the body's centre lands where
 	# the capitals' centre was: every fork text position keeps its visual line.
 	var lift := float(maxi(0, HeFont.ascent() - 6)) * eff_px()
-	draw_set_transform(Vector2(_anchor_dx(_box_w * eff_px()), -lift), 0.0, Vector2(eff_px(), eff_px()))
+	draw_set_transform(Vector2(_anchor_dx(_box_w * sc), -lift), 0.0, Vector2(sc, sc))
 	var ci := get_canvas_item()
 	var ts := TextServerManager.get_primary_interface()
 	var n := line_count()
@@ -362,9 +438,10 @@ func _draw_shaped() -> void:
 	for li in n:
 		var rid := _para.get_line_rid(li)
 		var lw := minf(_para.get_line_width(li), _box_w)
-		var x := 0.0 if a == 0 else ((_box_w - lw) if a == 2 else floorf((_box_w - lw) / 2.0))
+		# centring floors in whole Sevev 9 px, so the @2 cut centres exactly where Sevev 9 does
+		var x := 0.0 if a == 0 else ((_box_w - lw) if a == 2 else floorf((_box_w - lw) / (2.0 * _u)) * _u)
 		var top := li * pitch
-		var base := top + float(HeFont.ascent())
+		var base := top + float(HeFont.ascent() * _u)
 		if glyph_dy.is_valid():
 			gi = _draw_glyphs(ts, ci, rid, Vector2(x, base), fill, ring, gi)
 			continue
@@ -378,13 +455,15 @@ func _draw_shaped() -> void:
 ## Glyph by glyph (visual order), for per-glyph offsets. Returns the next glyph index.
 func _draw_glyphs(ts: TextServer, ci: RID, rid: RID, pos: Vector2, fill: Color, ring: Color, gi: int) -> int:
 	var x := pos.x
+	var sc := _unit_px()
+	var ax := _anchor_dx(_box_w * sc)
 	for g: Dictionary in ts.shaped_text_get_glyphs(rid):
 		var adv := float(g["advance"])
 		var reps := int(g.get("repeat", 1))
 		var frid: RID = g["font_rid"]
 		for _r in reps:
 			if frid.is_valid() and int(g["index"]) != 0:
-				var dy: float = glyph_dy.call(gi, (x + _anchor_dx(_box_w * eff_px()) / eff_px()) * eff_px()) / float(eff_px())
+				var dy: float = glyph_dy.call(gi, x * sc + ax) / sc
 				var p := Vector2(x, pos.y + dy) + Vector2(g["offset"])
 				if ring.a > 0.0:
 					for o: Vector2 in [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:

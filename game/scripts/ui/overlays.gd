@@ -86,6 +86,7 @@ class SettingsOverlay:
 	## or a caption (2 lines, 3 at ×5), string-budgets sheet.label / sheet.caption.
 	func _sheet_text(parent: Node, pos: Vector2, s: String, role: Variant, caption: bool, right: float = 656.0) -> PxText:
 		var t := PxText.make(parent, pos, s, L.TEXT, "plain", role)
+		t.reading = true   # settings labels and captions: the @2 reading cut where crisp
 		t.wrap_width = TEXT_W
 		t.max_lines = 2 if caption else 1
 		t.max_lines_large = 3 if caption else 2

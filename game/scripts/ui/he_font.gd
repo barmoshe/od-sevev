@@ -22,10 +22,16 @@ const SIZE := 9
 const ZERO_WIDTH := [0x2066, 0x2067, 0x2068, 0x2069, 0x200E, 0x200F, 0x200B, 0x200C, 0x200D, 0x2060, 0xFEFF]
 
 const OUTLINE_FILE := "sevev9_outline.fnt"
+## Sevev 9 @2 (CONTRACT.md §6.1): the density-2 reading cut, every glyph redrawn on a 2× grid with
+## every metric exactly 2× Sevev 9's (checked at build), drawn at half the scale into the same box.
+const SHARP_FILE := "sevev9@2.fnt"
+const SHARP_DENSITY := 2
 
 static var _font: FontFile
 static var _outline: FontFile
 static var _outline_loaded := false
+static var _sharp: FontFile
+static var _sharp_loaded := false
 static var _source := ""
 static var _size := SIZE
 static var _ascent := 7
@@ -51,6 +57,32 @@ static func outline() -> FontFile:
 				_outline.fixed_size_scale_mode = TextServer.FIXED_SIZE_SCALE_INTEGER_ONLY
 				_outline.allow_system_fallback = false
 	return _outline
+
+
+## The TA's Sevev 9 @2 (shaped at sharp_size() = 2 × size(), drawn at half the scale), or null
+## with the stand-in font or when the file's metrics are not 2× Sevev 9's (then every reading text
+## simply stays on Sevev 9: the swap is layout-free, so a missing cut costs sharpness, nothing else).
+static func sharp() -> FontFile:
+	if not _sharp_loaded:
+		_sharp_loaded = true
+		font()
+		if _source.begins_with("ta:") and ResourceLoader.exists(FONT_DIR + SHARP_FILE):
+			var f: Variant = load(FONT_DIR + SHARP_FILE)
+			if f is FontFile and (f as FontFile).fixed_size == _size * SHARP_DENSITY:
+				var ff := f as FontFile
+				ff.fixed_size_scale_mode = TextServer.FIXED_SIZE_SCALE_INTEGER_ONLY
+				ff.allow_system_fallback = false
+				var sz := _size * SHARP_DENSITY
+				if int(roundf(ff.get_height(sz))) == _line_h * SHARP_DENSITY and int(roundf(ff.get_ascent(sz))) == _ascent * SHARP_DENSITY:
+					_sharp = ff
+				else:
+					push_warning("[font] %s metrics are not 2x Sevev 9's; reading text stays on Sevev 9" % SHARP_FILE)
+	return _sharp
+
+
+## The size the @2 cut shapes at (its own fixed size, 18).
+static func sharp_size() -> int:
+	return size() * SHARP_DENSITY
 
 
 ## The font size to shape at (the bitmap's own size: never scaled by TextServer).

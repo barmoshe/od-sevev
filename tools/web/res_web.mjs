@@ -60,7 +60,11 @@ for (const d of DEVICES) {
 	const fr = await page.evaluate(() => window.odFrame || { framed: false, left: 0, top: 0 });
 	check(canvas[0] === (fr.framed ? Math.round(390 * d.dpr) : Math.floor(d.w * d.dpr)), `the backing store is CSS × DPR wide (${canvas[0]}${fr.framed ? ', phone frame' : ''})`);
 	if (tag !== 'before') {
-		check(disp.integer && disp.k === Math.min(Math.floor(canvas[0] / 180), Math.floor(canvas[1] / 267)), `k = floor(W/180) (height-bound on landscape): ${disp.k}`);
+		// the crisp rule (display.gd crisp_k): the largest multiple of 2 or 3 ≤ the k that fits
+		const fit = Math.min(Math.floor(canvas[0] / 180), Math.floor(canvas[1] / 267));
+		let ck = fit;
+		while (ck > 1 && ck % 2 !== 0 && ck % 3 !== 0) ck--;
+		check(disp.integer && disp.k === ck, `k = crisp(min(floor(W/180), floor(H/267))) = crisp(${fit}) = ${disp.k}`);
 	}
 	await shot('title');
 	const css = (lx, ly) => [fr.left + lx * disp.f / d.dpr, fr.top + ly * disp.f / d.dpr];

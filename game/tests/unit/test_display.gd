@@ -64,18 +64,29 @@ func _d1_manifest() -> Dictionary:
 
 func test_k_is_the_whole_device_px_per_art_px() -> void:
 	# device backing stores (CSS × DPR) → k
-	var cases := {Vector2(780, 1688): 4, Vector2(1170, 2532): 6, Vector2(750, 1624): 4, Vector2(1284, 2778): 7,
-		Vector2(390, 844): 2, Vector2(720, 1280): 4, Vector2(1080, 2340): 6, Vector2(1280, 800): 2, Vector2(750, 1096): 4}
+	# (the crisp rule: the fitting k drops to the largest multiple of 2 or 3, so 430 @3 fits 7 → 6)
+	var cases := {Vector2(780, 1688): 4, Vector2(1170, 2532): 6, Vector2(750, 1624): 4, Vector2(1284, 2778): 6,
+		Vector2(1290, 2796): 6, Vector2(390, 844): 2, Vector2(720, 1280): 4, Vector2(1080, 2340): 6, Vector2(1280, 800): 2,
+		Vector2(750, 1096): 4, Vector2(1442, 3202): 8, Vector2(1440, 900): 3, Vector2(900, 1600): 4, Vector2(1980, 4000): 10}
 	for dev: Vector2 in cases:
 		Display.update(dev)
 		runner.check(Display.integer and Display.k == int(cases[dev]), "%s → k %d, got %d" % [dev, cases[dev], Display.k])
 		runner.check(is_equal_approx(Display.device_per_art(), float(Display.k)), "%s: one art px = k device px" % dev)
-	# every integer surface keeps the layout's minimum logical canvas (720 × 1068)
-	for w in range(180, 1500, 37):
-		for h in [267, 640, 1096, 1688, 2532, 2778]:
+	# every integer surface keeps the layout's minimum logical canvas (720 × 1068), and its k is the
+	# largest crisp one (a multiple of 2 or 3) not above the one that fits
+	for w in range(180, 3000, 37):
+		for h in [267, 640, 1096, 1688, 2532, 2778, 4000]:
 			Display.update(Vector2(w, h))
 			var lg := Display.logical_size(Vector2(w, h))
 			runner.check(lg.x >= 720.0 - 1e-3 and lg.y >= 1068.0 - 1e-3, "%dx%d keeps 720×1068 logical, got %s" % [w, h, lg])
+			var fit := Display.fit_k(Vector2(w, h))
+			var ok := Display.k <= fit and (Display.k == 1 or Display.is_crisp(Display.k))
+			for c in range(Display.k + 1, fit + 1):
+				ok = ok and not Display.is_crisp(c)
+			runner.check(ok, "%dx%d: fit %d → k %d is the largest crisp k" % [w, h, fit, Display.k])
+	var table := {1: 1, 2: 2, 3: 3, 4: 4, 5: 4, 6: 6, 7: 6, 8: 8, 9: 9, 10: 10, 11: 10, 12: 12, 13: 12, 14: 14}
+	for fk: int in table:
+		runner.check(Display.crisp_k(fk) == int(table[fk]), "crisp_k(%d) = %d, got %d" % [fk, table[fk], Display.crisp_k(fk)])
 	# too small for k = 1 (the 64×64 headless window): the fork's fractional stretch
 	Display.update(Vector2(64, 64))
 	runner.check(not Display.integer and is_equal_approx(Display.f, 0.05), "64×64 falls back to canvas_items + expand, f %f" % Display.f)
@@ -110,16 +121,20 @@ func test_density_one_and_three_from_the_manifest() -> void:
 	runner.check(String(s3._a["texture"]).ends_with("_d2.png"), "and the d 2 texture (%s)" % s3._a["texture"])
 	var o: Vector2 = s3.rect().position * Display.f
 	runner.check(o.is_equal_approx(o.round()), "the frame's top-left sits on a whole device px (%s)" % o)
-	# k 7 (430 @3): no density divides it, so the main d 3 render on the 'aa' fallback
+	# 430 @3 (fits k 7): the crisp rule gives k 6, so the main d 3 render at 2 device px, nearest
 	Display.update(Vector2(1284, 2778))
 	SpriteStrip.refresh_all(tree)
-	runner.check(s3.density == 3 and is_equal_approx(s3.scale_px, 4.0 / 3.0), "k 7: Bibi d 3, 4/3 logical px per sprite px (d %d)" % s3.density)
+	runner.check(Display.k == 6 and s3.density == 3 and is_equal_approx(s3.scale_px, 4.0 / 3.0), "430 @3 → k 6: Bibi d 3, 4/3 logical px per sprite px (k %d, d %d)" % [Display.k, s3.density])
 	runner.check(s3.frame_size().is_equal_approx(Vector2(float(c["frameW"]), float(c["frameH"])) * 4.0 / 3.0), "Bibi's d 3 frame is frameW·4/3 logical")
-	runner.check(s3.material is ShaderMaterial, "k 7 is not a multiple of 3: the 'aa' fallback filter")
+	runner.check(s3.material == null and s3.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "k 6: 2 device px per sprite px, nearest")
+	# the fallback filter still serves a view scale nothing divides (×3 at k 6 = 4.5 dp per art px)
+	s3.set_art_px(3.0)
+	runner.check(s3.density == 3 and s3.material is ShaderMaterial, "×3 at k 6: the main d 3 on the 'aa' fallback filter")
 	SpriteStrip.fractional_filter = "nearest"
 	SpriteStrip.refresh_all(tree)
 	runner.check(s3.material == null and s3.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "fractional_filter 'nearest' is honoured")
 	SpriteStrip.fractional_filter = "aa"
+	s3.set_art_px(0.0)
 	for k: int in [6, 9]:
 		Display.update(Vector2(180 * k, 2800))
 		SpriteStrip.refresh_all(tree)
@@ -144,7 +159,7 @@ func test_density_one_and_three_from_the_manifest() -> void:
 	var spr7 := Sprite2D.new()
 	parent.add_child(spr7)
 	Diorama._scale_sprite(spr7, "taxpayer")
-	runner.check(spr7.material is ShaderMaterial, "k 7 (no divisor): the main d 3 on the fallback filter")
+	runner.check(Display.k == 6 and spr7.material == null, "430 @3 is k 6 now: the d 3 source is crisp, no fallback filter")
 	Display.update(Vector2(1170, 2532))
 	var spr1 := Sprite2D.new()
 	parent.add_child(spr1)

@@ -5,14 +5,23 @@ extends RefCounted
 ## wide next to one 5 px wide. The leftover width and height go to the aspect-`expand` area (the
 ## column is centred; the stage's padTop / padBottom and the extended backdrops fill the rest).
 ##
-##   k = min(floor(W / 180), floor(H / MIN_ART_H))      W, H = the backing store, DPR included
-##   f = k / 4   device px per logical px
+##   fit = min(floor(W / 180), floor(H / MIN_ART_H))    W, H = the backing store, DPR included
+##   k   = crisp(fit): the largest k ≤ fit that is a multiple of 2 or 3 (1 stays 1)
+##   f   = k / 4   device px per logical px
+##
+## The crisp rule (Bar, "sharp characters on every phone", 2026-09-29): every rendered character and
+## money source ships a d 3 render and a d 2 alternate (CONTRACT.md §3), and SpriteStrip picks the
+## largest density dividing k, so a sprite px is a whole number of device px exactly when k is a
+## multiple of 2 or 3. k 5 → 4, 7 → 6, 11 → 10, 13 → 12; the remainder is letterboxed like any
+## other leftover (the aspect-`expand` area). k 1 (a sub-360-px surface) has no crisp alternative
+## and stays 1 (it is the unit tests' smallest integer surface, never a phone).
 ##
 ## The logical viewport becomes W/f × H/f: at least 720 wide and at least MIN_ART_H·4 tall, the
 ## smallest height the rtl-map flex rule lays out (Row A + Row B + ticker + tabs + the minimum
 ## stage and list = 1068 logical). The height bound only bites on landscape windows (desktop).
 ## Examples: 390×844 @2 (780×1688) → k 4; @3 (1170×2532) → k 6; 375×812 @2 → k 4; 428×926 @3
-## → k 7; 390×844 @1 → k 2; a 1280×800 desktop window → k 2 (height-bound).
+## (fit 7) → k 6; 412×915 @3.5 (fit 8) → k 8; 390×844 @1 → k 2; a 1280×800 desktop window → k 2
+## (height-bound); 1440×900 @1 → k 3; 1440×900 @2 (fit 6) → k 6.
 ##
 ## Fallback: a surface too small for k = 1 (under 180×267 device px: the 64×64 headless window of
 ## the unit tests, a thumbnail) cannot hold the layout at any integer scale, so it keeps the fork's
@@ -36,11 +45,33 @@ static var f := 1.0
 static var integer := true
 
 
-## The integer art scale for a device size; 0 when not even k = 1 fits.
+## The integer art scale for a device size (crisp_k of the largest that fits); 0 when not even
+## k = 1 fits.
 static func art_px_for(win: Vector2) -> int:
+	return crisp_k(fit_k(win))
+
+
+## The largest integer art scale that fits a device size, before the crisp rule; 0 when none.
+static func fit_k(win: Vector2) -> int:
 	if win.x <= 0.0 or win.y <= 0.0:
 		return 0
 	return maxi(0, mini(int(floorf(win.x / ART_W)), int(floorf(win.y / MIN_ART_H))))
+
+
+## The crisp rule: the largest k' ≤ k that is a multiple of 2 or 3, where every density the art
+## ships (d 1, d 2, d 3) has a variant drawing whole device px per sprite px. 0 and 1 pass through.
+static func crisp_k(k: int) -> int:
+	if k <= 1:
+		return maxi(0, k)
+	var c := k
+	while c % 2 != 0 and c % 3 != 0:
+		c -= 1
+	return c
+
+
+## True when k is on the crisp set (a multiple of 2 or 3).
+static func is_crisp(k: int) -> bool:
+	return k >= 2 and (k % 2 == 0 or k % 3 == 0)
 
 
 ## The fork's fractional stretch factor (canvas_items + expand): device px per logical px.

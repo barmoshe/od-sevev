@@ -150,6 +150,11 @@ func expanded() -> bool:
 	return _mode == "open" and String(_anim.get("kind", "")) != "collapse"
 
 
+## The card is folding into its chip (the collapse motion runs): no longer a layer, takes no input.
+func folding() -> bool:
+	return _mode == "open" and String(_anim.get("kind", "")) == "collapse"
+
+
 func card_rect() -> Rect2:
 	return Rect2(CARD_X, L.tabs_y() - _card_h, CARD_W, _card_h)
 
@@ -434,7 +439,7 @@ func _build_card() -> void:
 		_prefix.right_at(CARD_X + TEXT_RIGHT)
 		_prefix.position.y = y
 		y += _lh(_prefix)
-		_excuse = _t(excuse(int(_pp.get("step", 1))), Color.WHITE, TEXT_W, 8)
+		_excuse = _t(excuse(int(_pp.get("step", 1))), Color.WHITE, TEXT_W, 8, true)
 		_excuse.right_at(CARD_X + TEXT_RIGHT)
 		_excuse.position.y = y
 		_excuse.set_meta("y0", y)
@@ -447,11 +452,11 @@ func _build_card() -> void:
 		_stamp.position = Vector2(CARD_X + 24.0 + ssz.x / 2.0, 12.0 + ssz.y / 2.0).snapped(Vector2(4, 4))
 		y += 24.0
 	else:
-		_body = _t(Strings.s(keys["body"]), Color.WHITE, TEXT_W, 3)
+		_body = _t(Strings.s(keys["body"]), Color.WHITE, TEXT_W, 3, true)
 		_body.right_at(CARD_X + TEXT_RIGHT)
 		_body.position.y = y
 		y += _lh(_body) * maxf(1.0, float(_body.line_count()))
-		_effect = _t(Strings.s(keys["effect"]), Color("#fff1a6"), TEXT_W, 2)
+		_effect = _t(Strings.s(keys["effect"]), Color("#fff1a6"), TEXT_W, 2, true)
 		_effect.right_at(CARD_X + TEXT_RIGHT)
 		_effect.position.y = y
 		y += _lh(_effect) * maxf(1.0, float(_effect.line_count()))
@@ -486,8 +491,10 @@ func _place_card() -> void:
 		_inner.position = Vector2(0, L.tabs_y() - _card_h)
 
 
-func _t(s: String, col: Variant, wrap: float, lines: int) -> PxText:
+## `reading`: the card's body copy (excuse, body, effect) on the @2 reading cut where crisp.
+func _t(s: String, col: Variant, wrap: float, lines: int, reading: bool = false) -> PxText:
 	var t := PxText.make(_inner, Vector2.ZERO, s, L.TEXT, "plain", col)
+	t.reading = reading
 	t.wrap_width = wrap
 	t.max_lines = lines
 	return t
@@ -741,7 +748,11 @@ func pointer_down(p: Vector2) -> bool:
 	if _chip.visible and Ui.in_rect(chip_hit(), p):
 		_press = {"kind": "chip"}
 		return true
-	if not _card.visible or _mode == "exit":
+	# a card folding into its chip (Esc / back / ✕, motion court-card-collapse) or leaving takes no
+	# press: its rect is still the expanded card's, so the first tap into T3/T4 right after Esc
+	# landed on the folding card and did nothing (views dev, seen in Chromium, where a slow frame
+	# stretches the 200 ms fold over several taps' worth of wall time)
+	if not _card.visible or _mode == "exit" or folding():
 		return false
 	var cr := card_rect()
 	if not Ui.in_rect(cr, p):
@@ -852,7 +863,7 @@ class AideConfirm:
 		title.wrap_width = 432.0
 		title.max_lines = 1
 		title.center_in(pr.position.x + 96.0, 432.0)
-		var bt := text(Vector2(0, y + 104.0), body, L.TEXT, th["modal"]["body"])
+		var bt := body_text(Vector2(0, y + 104.0), body, L.TEXT, th["modal"]["body"])
 		bt.wrap_width = 560.0
 		bt.max_lines = 6
 		bt.right_at(pr.end.x - 32.0)
