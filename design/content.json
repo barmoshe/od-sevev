@@ -244,14 +244,12 @@
    },
    "fatigue": 0.8,
    "unlock": {
-    "runBananasAtLeast": 5000,
-    "evolutionsBelow": 0
+    "runBananasAtLeast": 5000
    },
    "visualHook": "a pistachio-green ice-cream cone, melting",
    "src": [
     "pistachio"
-   ],
-   "_pendingEngine": "consumable spins + tapBuff"
+   ]
   },
   {
    "id": "s03",
@@ -302,14 +300,12 @@
     "add": 1
    },
    "unlock": {
-    "evolutionsAtLeast": 1,
-    "evolutionsBelow": 0
+    "evolutionsAtLeast": 1
    },
    "visualHook": "a butterfly net with nothing in it",
    "src": [
     "witch-hunt"
-   ],
-   "_pendingEngine": "basePerOppositionCard"
+   ]
   },
   {
    "id": "s06",
@@ -344,15 +340,13 @@
    },
    "fatigue": 0.8,
    "unlock": {
-    "runBananasAtLeast": 50000,
-    "evolutionsBelow": 0
+    "runBananasAtLeast": 50000
    },
    "visualHook": "a single finger in a gladiator helmet",
    "src": [
     "super-sparta"
    ],
-   "_rule": "For durationSec the passive income stops and every tap pays tapValue + bps × pourSecPerTap. Above 2 taps/s it beats idling: a skill reward.",
-   "_pendingEngine": "consumable spins + idleToTap"
+   "_rule": "For durationSec the passive income stops and every tap pays tapValue + bps × pourSecPerTap. Above 2 taps/s it beats idling: a skill reward."
   },
   {
    "id": "s08",
@@ -390,15 +384,13 @@
     "suspicionAdd": 4
    },
    "unlock": {
-    "evolutionsAtLeast": 1,
-    "evolutionsBelow": 0
+    "evolutionsAtLeast": 1
    },
    "visualHook": "a big TV remote with one oversized button",
    "src": [
     "karhi-remote"
    ],
-   "_rule": "Each level drains the 'שידור ציבורי' bar by 20 points into the 'ערוץ ידידותי' bar (both live on this card, never in the HUD), adds +2% to this round's base payout and +4 suspicion. Resets on election.",
-   "_pendingEngine": "line spins + karhiLine"
+   "_rule": "Each level drains the 'שידור ציבורי' bar by 20 points into the 'ערוץ ידידותי' bar (both live on this card, never in the HUD), adds +2% to this round's base payout and +4 suspicion. Resets on election."
   },
   {
    "id": "s09",
@@ -434,15 +426,13 @@
     "capPct": 50
    },
    "unlock": {
-    "era": "washington",
-    "evolutionsBelow": 0
+    "era": "washington"
    },
    "visualHook": "a laundry bag with a luggage tag",
    "src": [
     "laundry"
    ],
-   "_rule": "In the Washington era every Suitcase is a 'flight'. With this spin, each caught Suitcase adds +5% global income for the rest of the round, up to +50%.",
-   "_pendingEngine": "flightIncome"
+   "_rule": "In the Washington era every Suitcase is a 'flight'. With this spin, each caught Suitcase adds +5% global income for the rest of the round, up to +50%."
   },
   {
    "id": "s11",
@@ -552,7 +542,7 @@
    "_rule": "One use per round: removes all suspicion the cigars source added this round, and the cigars source adds none for the rest of the round (pitch §6)."
   }
  ],
- "_upgradeRules": "Spins (ספינים). The tab unlocks at lifetime_earned 1,500 (UX K3). kind: once = bought once per round (persistsAcrossElections keeps it); consumable = rebuyable, each rebuy in a round scales the effect (or duration) by fatigue^n and the card shows the 'שחוק' tag; line = levels bought in order. costBpsSeconds = price in seconds of current income (rounded up to 3 significant digits). Unlock conditions are ANDed (the full condition vocabulary). Safety valve: a spin whose effect the sim does not implement yet carries unlock.evolutionsBelow: 0 (never true) plus _pendingEngine naming the missing piece, so it stays off the shelf and nobody pays for a no-op. The developer deletes that key when the effect lands. Pending (sim STATUS 'not yet implemented'): consumable/line kinds and fatigue, tapBuff, idleToTap, karhiLine, flightIncome, basePerOppositionCard. ",
+ "_upgradeRules": "Spins (ספינים). The tab unlocks at lifetime_earned 1,500 (UX K3). kind: once = bought once per round (persistsAcrossElections keeps it); consumable = rebuyable, each buy starts a timed effect and the card leaves the shelf until it ends; each rebuy in a round fades the effect's bonus (or its duration, when the effect has no mult) by fatigue^n and the card shows the 'שחוק' tag; line = levels bought in order at each level's cost, off the shelf after the last. costBpsSeconds = price in seconds of current income (at least cost, rounded up to 3 significant digits). Unlock conditions are ANDed (the full condition vocabulary). Safety valve: a spin whose effect the sim does not implement yet carries unlock.pendingEngine: true (never true) plus _pendingEngine naming the missing piece, so it stays off the shelf and nobody pays for a no-op; the developer deletes both when the effect lands. Pending: none (all 15 spins are live).",
  "prestige": {
   "currencyId": "base",
   "name": "הבסיס",
@@ -623,6 +613,7 @@
    "ראש ממשלת מעבר אמריטוס",
    "ראש ממשלת מעבר נצחי"
   ],
+  "speciesNumber": " מס׳ {n}",
   "_speciesRule": "The Magician's title on the round card. Index = min(evolutions, 7); at index 7 append ' מס׳ ' + (evolutions - 6)."
  },
  "flags": {
@@ -2741,7 +2732,8 @@
     "trigger": {
      "type": "stat",
      "key": "gafniPaid",
-     "value": 5
+     "value": 5,
+     "countPartnerPaid": "gafni"
     }
    },
    {
@@ -2810,7 +2802,8 @@
     "trigger": {
      "type": "stat",
      "key": "wingOfZionBought",
-     "value": 1
+     "value": 1,
+     "countUpgrade": "s06"
     },
     "src": [
      "wing-of-zion"
@@ -2916,7 +2909,8 @@
     "trigger": {
      "type": "stat",
      "key": "lapidCards",
-     "value": 10
+     "value": 10,
+     "countEvent": "lapid"
     },
     "secret": true,
     "src": [

@@ -105,7 +105,7 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 				events.append([t, "milestone:" + key])
 		d = Economy.derive(s)
 		# Nothing is affordable -> the greedy player can't buy this frame; skip ranking (same result).
-		var best := {} if s.bananas < _cheapest(s) else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {})
+		var best := {} if s.bananas < _cheapest(s, d) else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {})
 		if not best.is_empty() and s.bananas >= float(best["cost"]):
 			if best.has("upgrade"):
 				Economy.buy_upgrade(s, best["upgrade"])
@@ -129,13 +129,15 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 	return {"t": t, "gate_t": gate_t, "first": first, "state": s}
 
 
-static func _cheapest(s: GameState) -> float:
+static func _cheapest(s: GameState, d: Economy.Derived) -> float:
 	var c := INF
 	for id in Content.producer_ids():
 		if Economy.is_revealed(s, id):
 			c = minf(c, Economy.producer_cost(s, id, 1))
 	for u: Dictionary in Economy.available_upgrades(s):
-		c = minf(c, float(u["cost"]))
+		var p := Economy.upgrade_price(s, u["id"], d)
+		if p >= 0.0:
+			c = minf(c, p)
 	return c
 
 
@@ -158,6 +160,15 @@ static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_go
 			best = {"producer": id, "cost": c}
 	for u: Dictionary in Economy.available_upgrades(s):
 		var e: Dictionary = u["effect"]
+		var c := Economy.upgrade_price(s, u["id"], d)
+		if c < 0.0:
+			continue
+		if Spins.kind(u) == "consumable":
+			# A timed burst is not a payback investment: buy it the moment it is affordable and its
+			# own timer returns at least twice its price (the fatigue fades each rebuy).
+			if s.bananas >= c and _burst_return(s, u, d, tapping) >= 2.0 * c:
+				return {"upgrade": u["id"], "cost": c}
+			continue
 		var gain := 0.0
 		match String(e["type"]):
 			"critChance":
@@ -169,12 +180,27 @@ static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_go
 				var d2 := Economy.derive(s)
 				s.upgrades.remove_at(s.upgrades.size() - 1)
 				gain = d2.bps + tapping * d2.tap_value_no_crit - inc0
-		var c := float(u["cost"])
 		var pb := c / maxf(gain, 1e-12) + maxf(0.0, c - s.bananas) / maxf(inc0, 1e-9)
 		if pb < best_pb:
 			best_pb = pb
 			best = {"upgrade": u["id"], "cost": c}
 	return best
+
+
+## What a consumable's timer earns over its whole duration at this tap rate (income with it live
+## minus income without), through the real derive.
+static func _burst_return(s: GameState, u: Dictionary, d: Economy.Derived, tapping: float) -> float:
+	var f := Spins.faded(s, u)
+	var fe: Dictionary = f["effect"]
+	if not ["tapBuff", "idleToTap"].has(str(fe.get("type", ""))):
+		return 0.0
+	var inc := d.bps_effective + tapping * d.tap_value_no_crit
+	var act: Array = s.spins["active"]
+	act.append({"id": u["id"], "type": fe["type"], "leftSec": 1.0, "durationSec": 1.0,
+		"mult": float(fe.get("mult", 1.0)), "pour": float(fe.get("pourSecPerTap", 0.0))})
+	var d2 := Economy.derive(s)
+	act.pop_back()
+	return (d2.bps_effective + tapping * d2.tap_value_no_crit - inc) * float(f["durationSec"])
 
 
 ## The simulated player's answers to the politics this frame (see the header for the strategies).

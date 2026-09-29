@@ -275,6 +275,7 @@ static func fire(s: GameState, id: String, d: Economy.Derived, rng: Callable = r
 	if not (st["round"] as Array).has(id):
 		(st["round"] as Array).append(id)
 	st["counts"][id] = int(st["counts"].get(id, 0)) + 1
+	Meta.count(s, "countEvent", id)   # "lapidCards" (trophy "בכובע!")
 	if e.get("side", "") == "opposition":
 		var bonus := 0
 		for uid in s.upgrades:

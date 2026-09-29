@@ -41,6 +41,10 @@ var investigation: Dictionary = {}  # Investigation: suspicion, court, postponem
 var events: Dictionary = {}         # Events: scheduler, cooldowns, live effects
 var album: Dictionary = {}          # Events: the photobomb album (lifetime)
 var calendar: Dictionary = {}       # Calendar: the clock's high-water mark, mode, notices
+var spins: Dictionary = {}          # Spins: consumable buys and live timers, line levels, flights (round)
+
+## Not saved: the lifetime tap count Politics.tick last saw (tapsAt2to4 counts the difference).
+var taps_seen := -1
 
 
 static func fresh() -> GameState:
@@ -50,12 +54,15 @@ static func fresh() -> GameState:
 	s.golden_timer_sec = float(Content.data()["golden"]["firstSpawnDelaySec"])
 	s.ftue = new_ftue()
 	s.ui = {"buyModeRevealed": false, "evolveRevealed": false, "tabsTouched": false}
-	s.stats = {"playtimeSec": 0.0, "bestBps": 0.0, "fastestRunSec": 0.0, "goldenMissed": 0}
+	s.stats = {"playtimeSec": 0.0, "bestBps": 0.0, "fastestRunSec": 0.0, "goldenMissed": 0.0, "streakUnder240sNow": 0.0}
+	for k: String in Meta.STATS:
+		s.stats[k] = 0.0
 	s.coalition = Coalition.fresh_state()
 	s.investigation = Investigation.fresh_state()
 	s.events = Events.fresh_state()
 	s.album = Events.fresh_album()
 	s.calendar = Calendar.fresh_state()
+	s.spins = Spins.fresh_state()
 	return s
 
 
@@ -91,6 +98,7 @@ func to_dict() -> Dictionary:
 		"ftue": ftue.duplicate(true), "ui": ui.duplicate(), "stats": stats.duplicate(),
 		"coalition": coalition.duplicate(true), "investigation": investigation.duplicate(true),
 		"events": events.duplicate(true), "album": album.duplicate(), "calendar": calendar.duplicate(),
+		"spins": spins.duplicate(true),
 	}
 
 
@@ -150,12 +158,27 @@ static func from_dict(raw: Variant) -> GameState:
 	if st is Dictionary:
 		for k in s.stats.keys():
 			s.stats[k] = _num((st as Dictionary).get(k), s.stats[k])
+		# Counters the engine adds by name (bestTapFrenzyTaps, evolvedNoInterns, ...) persist too:
+		# any plain key with a valid number, at most MAX_EXTRA_STATS of them.
+		var extra := 0
+		for k: Variant in st:
+			if extra >= MAX_EXTRA_STATS:
+				break
+			if k is String and not s.stats.has(k) and _STAT_KEY.search(k) != null and _num((st as Dictionary)[k], -1.0) >= 0.0:
+				s.stats[k] = _num((st as Dictionary)[k])
+				extra += 1
 	s.coalition = Coalition.sanitize(r.get("coalition"))
 	s.investigation = Investigation.sanitize(r.get("investigation"))
 	s.events = Events.sanitize(r.get("events"))
 	s.album = Events.sanitize_album(r.get("album"))
 	s.calendar = Calendar.sanitize(r.get("calendar"))
+	s.spins = Spins.sanitize(r.get("spins"))
+	Meta.seed_stats(s)
 	return s
+
+
+const MAX_EXTRA_STATS := 64
+static var _STAT_KEY := RegEx.create_from_string("^[A-Za-z][A-Za-z0-9_]{0,47}$")
 
 
 static func _num(v: Variant, dflt: float = 0.0) -> float:

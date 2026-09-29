@@ -49,6 +49,7 @@ static func fresh_state() -> Dictionary:
 		"suspicion": 0.0, "phase": "idle", "leftSec": 0.0, "summonsSec": 0.0, "frozenSec": 0.0,
 		"postponements": 0, "postponementsLifetime": 0, "courtDays": 0,
 		"aideHolding": 0.0, "aideDrops": 0, "pardons": 0, "lastStamp": 0, "revealed": false,
+		"courtReason": "testified",   # how the running court day began: testified | served
 	}
 
 
@@ -121,7 +122,10 @@ static func _apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 # Time
 # ---------------------------------------------------------------------------------------------
 
-## One visible frame. Returns UI events: {ev: revealed|summons|courtStart|courtEnd}.
+## One visible frame. Returns UI events: {ev: revealed|summons|courtStart|courtEnd}. courtEnd
+## carries `reason`: "testified" (the player pressed להעיד) or "served" (the summons was left
+## alone and testified by itself). A postponement's courtEnd {reason: "postponed"} comes back in
+## postpone()'s result, since it is the player's action, not the clock's.
 static func tick(s: GameState, dt: float, d: Economy.Derived) -> Array:
 	var out: Array = []
 	if not active():
@@ -143,13 +147,13 @@ static func tick(s: GameState, dt: float, d: Economy.Derived) -> Array:
 			st["summonsSec"] = float(st["summonsSec"]) + dt
 			var auto := _num("summonsAutoTestifySec", 0.0)
 			if auto > 0.0 and float(st["summonsSec"]) >= auto:
-				out.append_array(testify(s))
+				out.append_array(testify(s, true))
 		"court":
 			st["leftSec"] = maxf(0.0, float(st["leftSec"]) - dt)
 			if float(st["leftSec"]) <= 0.0:
 				st["phase"] = "idle"
 				st["suspicion"] = floor_pct(s)
-				out.append({"ev": "courtEnd"})
+				out.append({"ev": "courtEnd", "reason": str(st.get("courtReason", "testified"))})
 		"postponed":
 			st["leftSec"] = maxf(0.0, float(st["leftSec"]) - dt)
 			if float(st["leftSec"]) <= 0.0:
@@ -168,15 +172,17 @@ static func _summon(s: GameState, out: Array) -> void:
 # Player actions
 # ---------------------------------------------------------------------------------------------
 
-## "להעיד": court day starts now.
-static func testify(s: GameState) -> Array:
+## "להעיד": court day starts now. `auto`: the summons testified by itself (summonsAutoTestifySec).
+static func testify(s: GameState, auto: bool = false) -> Array:
 	var st := _i(s)
 	if phase(s) != "summons":
 		return []
 	st["phase"] = "court"
 	st["leftSec"] = _num("courtDaySec", 30.0)
 	st["courtDays"] = int(st["courtDays"]) + 1
-	return [{"ev": "courtStart"}]
+	st["courtReason"] = "served" if auto else "testified"
+	Meta.bump(s, "courtDays")
+	return [{"ev": "courtStart", "reason": st["courtReason"]}]
 
 
 ## The postponement's price: treasuryPct × growth^n % of the treasury (pitch §10.1: the 5th costs
@@ -198,6 +204,7 @@ static func can_postpone(s: GameState, d: Economy.Derived) -> bool:
 
 
 ## "התייעצות ביטחונית": pay, and the summons comes back after a cooldown that shrinks each time.
+## Returns {cost, step, cooldownSec, events: [{ev: courtEnd, reason: postponed}]} ({} when it can't).
 static func postpone(s: GameState, d: Economy.Derived) -> Dictionary:
 	if not can_postpone(s, d):
 		return {}
@@ -209,7 +216,9 @@ static func postpone(s: GameState, d: Economy.Derived) -> Dictionary:
 	var cds: Array = _pp().get("cooldownSec", [60])
 	st["phase"] = "postponed"
 	st["leftSec"] = float(cds[mini(int(st["postponements"]) - 1, cds.size() - 1)])
-	return {"cost": cost, "step": excuse_step(s), "cooldownSec": st["leftSec"]}
+	Meta.stat_at_least(s, "maxPostponesInRound", float(st["postponements"]))   # trophy "הבורקס סווג"
+	return {"cost": cost, "step": excuse_step(s), "cooldownSec": st["leftSec"],
+		"events": [{"ev": "courtEnd", "reason": "postponed"}]}
 
 
 ## Which excuse line (deck §H, 1-based) the court card shows: one sentence longer per
@@ -262,6 +271,7 @@ static func drop_aide(s: GameState) -> bool:
 	st["leftSec"] = 0.0
 	st["aideHolding"] = 0.0
 	st["aideDrops"] = int(st["aideDrops"]) + 1
+	Meta.bump(s, "aideDrops")
 	return true
 
 
@@ -275,6 +285,7 @@ static func request_pardon(s: GameState, rng: Callable = randf) -> int:
 		k = k % n + 1
 	st["lastStamp"] = k
 	st["pardons"] = int(st["pardons"]) + 1
+	Meta.bump(s, "pardonRequests")
 	return k
 
 
@@ -306,6 +317,7 @@ static func sanitize(raw: Variant) -> Dictionary:
 	for k in ["postponements", "postponementsLifetime", "courtDays", "aideDrops", "pardons", "lastStamp"]:
 		out[k] = int(Coalition._n(r.get(k)))
 	out["revealed"] = r.get("revealed") == true
+	out["courtReason"] = "served" if r.get("courtReason") == "served" else "testified"
 	return out
 
 

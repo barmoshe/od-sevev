@@ -137,14 +137,24 @@ static func achievement_pct(s: GameState) -> float:
 
 
 static func morale_mult(s: GameState) -> float:
-	return 1.0 + achievement_pct(s) * s.achievements.size()
+	return 1.0 + achievement_pct(s) * trophy_count(s)
+
+
+## Earned trophies that count (for the bonus and `trophiesAtLeast`): a `neverAwarded` one never
+## does, even if a hand-edited save lists it (Gantz's rotation, `fakeProgress` 0.99 forever).
+static func trophy_count(s: GameState) -> int:
+	var n := 0
+	for id in s.achievements:
+		if not achievement(id).get("neverAwarded", false):
+			n += 1
+	return n
 
 
 ## Newly earned achievement ids (appends them to the state). Pass the frame's derived values.
 static func check_achievements(s: GameState, d: Economy.Derived) -> PackedStringArray:
 	var out := PackedStringArray()
 	for a: Dictionary in achievements():
-		if s.achievements.has(a["id"]):
+		if s.achievements.has(a["id"]) or a.get("neverAwarded", false):
 			continue
 		if _earned(s, d, a["trigger"]):
 			s.achievements.append(a["id"])
@@ -182,6 +192,8 @@ static func _earned(s: GameState, d: Economy.Derived, t: Dictionary) -> bool:
 			return float(s.stats.get(t["key"], 0.0)) >= v
 		"bananasAtOnce":
 			return s.bananas >= v
+		"never":
+			return false
 	return false
 
 
@@ -276,3 +288,81 @@ static func auto_buy(s: GameState) -> String:
 
 static func auto_catch(s: GameState) -> bool:
 	return has_effect(s, "autoCatch")
+
+
+# ---------------------------------------------------------------------------------------------
+# Trophy stats (GameState.stats; the designer's stat keys, STATUS.md designer ask (c))
+# ---------------------------------------------------------------------------------------------
+
+## Every stat key a trophy or headline reads. GameState.fresh() starts them at 0 so they persist
+## through from_dict. Counted by the sim where it can see the act; the rest are the engine's
+## (capHits, goldenMissed) or come through a sim hook the engine calls (wordSaladSeen:
+## Story.roll_word_salad; tapsAt2to4: Politics.tick's clock).
+const STATS := ["partnersPaid", "demandsPaid", "courtDays", "maxPostponesInRound", "pardonRequests", "aideDrops",
+	"brawlsEnded", "corridorMessages", "gafniPaid", "cleanRounds", "wingOfZionBought", "streakRoundsUnder240s",
+	"wordSaladSeen", "tapsAt2to4", "lapidCards", "capHits", "goldenMissed"]
+
+
+static func bump(s: GameState, key: String, n: float = 1.0) -> void:
+	s.stats[key] = float(s.stats.get(key, 0.0)) + n
+
+
+static func stat_at_least(s: GameState, key: String, v: float) -> void:
+	if v > float(s.stats.get(key, 0.0)):
+		s.stats[key] = v
+
+
+static var _count_src: Array = []
+static var _count_size := -1
+static var _count_index: Dictionary = {}
+
+
+## Content-driven counters: a trophy or headline trigger {type: stat, key, <source>: id} counts
+## every time that thing happens. Sources: countEvent (events[].id fired, "lapidCards"),
+## countUpgrade (a spin bought, "wingOfZionBought"), countPartnerPaid (a partner paid, "gafniPaid").
+static func count(s: GameState, source: String, id: String) -> void:
+	var all: Array = [achievements(), _c().get("headlines", [])]
+	if not is_same(all[0], _count_src) or (all[0] as Array).size() != _count_size:
+		_count_src = all[0]
+		_count_size = (all[0] as Array).size()
+		_count_index = {}
+		for list: Variant in all:
+			for a: Variant in (list if list is Array else []):
+				var tr: Variant = (a as Dictionary).get("trigger") if a is Dictionary else null
+				if not tr is Dictionary or str((tr as Dictionary).get("type", "")) != "stat":
+					continue
+				for src: String in ["countEvent", "countUpgrade", "countPartnerPaid"]:
+					if (tr as Dictionary).has(src):
+						var k := "%s:%s" % [src, str(tr[src])]
+						if not _count_index.has(k):
+							_count_index[k] = []
+						if not (_count_index[k] as Array).has(str(tr["key"])):
+							(_count_index[k] as Array).append(str(tr["key"]))
+	for key: String in _count_index.get("%s:%s" % [source, id], []):
+		bump(s, key)
+
+
+## Economy.evolve, before the run resets: the round-shaped stats.
+##   cleanRounds            the round ended with no court.sources (shady) source ever owned
+##                          (sources are never sold, so owning none at the end means none all round)
+##   streakRoundsUnder240s  consecutive rounds each under 240 s; a slower round restarts the streak
+##                          at 0 (the trophy fires at 5; the stat keeps the best streak reached)
+static func on_round_end(s: GameState, run_sec: float) -> void:
+	if Investigation.active() and Investigation.shady_owned(s) == 0:
+		bump(s, "cleanRounds")
+	var cur := float(s.stats.get("streakUnder240sNow", 0.0))
+	cur = cur + 1.0 if run_sec < 240.0 else 0.0
+	s.stats["streakUnder240sNow"] = cur
+	stat_at_least(s, "streakRoundsUnder240s", cur)
+
+
+## A save from before these keys existed: lifetime counters the modules already kept seed their
+## stat (never lower one). partnersPaid seeds from paid demands, the engine's old reading of it.
+static func seed_stats(s: GameState) -> void:
+	var paid := float(s.coalition.get("paidLifetime", 0))
+	stat_at_least(s, "demandsPaid", paid)
+	stat_at_least(s, "partnersPaid", minf(paid, float(Coalition.partners().size())) if paid > 0.0 else 0.0)
+	stat_at_least(s, "courtDays", float(s.investigation.get("courtDays", 0)))
+	stat_at_least(s, "pardonRequests", float(s.investigation.get("pardons", 0)))
+	stat_at_least(s, "aideDrops", float(s.investigation.get("aideDrops", 0)))
+	stat_at_least(s, "corridorMessages", float(s.coalition.get("corridorMsgs", 0)))

@@ -15,6 +15,7 @@ same game as the player.
 | `investigation.gd` | Suspicion, court day, "התייעצות ביטחונית", the aide drop, the pardon desk |
 | `events.gd` | The event scheduler (opposition cards, the brawl, the leak, easter eggs), the photobomb album |
 | `calendar.gd` | The countdown to 27.10.2026, the blackout, post-election mode, the clock that can't be rewound |
+| `spins.gd` | Spin kinds (once / consumable / line), prices, fatigue, and the spin effects that aren't passive modifiers |
 | `conditions.gd` | The one condition vocabulary (`unlock`, `when`) |
 | `game_state.gd` / `save_store.gd` | What is saved (save v3), validation at load, migration |
 | `pacing_sim.gd` | The headless player for `tools/balance.sh` |
@@ -36,7 +37,10 @@ for e in ev: match e.ev: ...   # see the event list below
 | Pay a pill (demand, ultimatum, rejoin, poach) | `Coalition.pay(state, seq, ceremony_done)`. A ceremony (Regev) needs the 3 s ribbon first. `Coalition.can_pay(state, seq)` gives the pill state. |
 | "צאו החוצה" | `Coalition.resolve_brawl(state, Coalition.open_brawl(state).seq)` |
 | Chat opened | `Coalition.on_chat_opened(state)` (clears unread, grows "המסדרון") |
-| Court card | `Investigation.testify(state)` / `Investigation.postpone(state, d)`; price `Investigation.postpone_cost(state, d)` (−1 = testify only); excuse line `Investigation.excuse_step(state)` (1-6) |
+| Court card | `Investigation.testify(state)` / `Investigation.postpone(state, d)`; price `Investigation.postpone_cost(state, d)` (−1 = testify only); excuse line `Investigation.excuse_step(state)` (1-6). `postpone` returns `events: [{ev: courtEnd, reason: "postponed"}]` |
+| Buy a spin | `Economy.buy_upgrade(state, id)`. The pill reads `Economy.upgrade_price(state, id)` (a line's next level, S07's `costBpsSeconds`; −1 = done) and `Economy.can_buy_upgrade(state, id)`, **not** `u.cost` / `s.upgrades.has(id)` |
+| Spin card extras | `Spins.card(state, id)` → {kind, price, level, levels, worn (the "שחוק" tag), liveSec, bars {public, friendly} (S08), flights, flightPct (S10)}; live timers `Spins.active_effects(state)`; `Economy.tick` returns `spinsEnded: [ids]` |
+| Dubi's word salad | before a talking point: `Story.roll_word_salad(state)` → true: show `Story.word_salad(last_three_points)` (counts `wordSaladSeen`) |
 | "אני לא מכיר אותו" | `Investigation.can_drop_aide(state)` → confirm → `Investigation.drop_aide(state)` |
 | Pardon request | `Investigation.request_pardon(state)` → stamp line 1..8 |
 | Kaia / drum line | `Events.act(state, "kaia", "feed", d)` / `Events.act(state, "drumline", "beat", d)` |
@@ -50,7 +54,9 @@ for e in ev: match e.ev: ...   # see the event list below
 | Seats "מנדטים X/61" | `Coalition.seat_info(state)` → {own, partners, total, gate, effective, gateSeats}; show `effective`/`gateSeats`. `Calendar.seats_numeral_hidden(state)` → stamp "חסוי עד 27.10" |
 | The gate | `d.seats_gate_open`; `d.evolve_enabled` includes it |
 | The chat log | `state.coalition.chat` (see Messages); `state.coalition.unread`; `Coalition.threat_count(state)` |
-| Partner rows | `Coalition.roster(state)` → [{id, status, counts, seats, upkeepPct, frozen, benched, carry, meter 0..1 (Gotliv's ring), excluded, side, corridor}] |
+| Partner rows | `Coalition.roster(state)` → [{id, status, counts, seats, upkeepPct, frozen, benched, carry, meter 0..1 (Gotliv's ring), excluded, side, corridor, cardHidden}]. `cardHidden` (= `Coalition.card_hidden(state, id)`): a `pollLike` partner's card (`copy.card`) in the blackout; her membership and bubbles stay |
+| Title | `Content.species_title(n)`: the last title + `prestige.speciesNumber` (" מס׳ {n}") |
+| Trophy stats | `state.stats[key]` for every `Meta.STATS` key (the sim counts them; the engine keeps `capHits`, `goldenMissed`). `Meta.trophy_count(state)` skips `neverAwarded` |
 | Thermometer | `Investigation.suspicion(state)` (0..100), `Investigation.floor_pct(state)` (hatched), `state.investigation.revealed`, `.phase` idle / summons / court / postponed, `.leftSec` |
 | Live cards | `Events.active_effects(state)` → [{type, leftSec, …}] |
 | Countdown chip | `Calendar.days_left(now)`; mode `Calendar.mode(state)` campaign / blackout / negotiation |
@@ -59,7 +65,8 @@ for e in ev: match e.ev: ...   # see the event list below
 **UI events** from `Politics.tick`:
 - chat: `message {msg}`, `ultimatumMark {seq, partner, left: 60|30}`, `partnerLeft`, `partnerJoined`,
   `standIn`, `transfer {partner, to}`, `groupOpened`
-- court: `revealed`, `summons`, `courtStart`, `courtEnd`
+- court: `revealed`, `summons`, `courtStart {reason}`, `courtEnd {reason}`; reason `testified` (the
+  player pressed להעיד) or `served` (the summons testified by itself); `postponed` comes from `postpone()`
 - events: `event {id, kind, side, result}`, `eventEnd {type}`, `pledgeFlip {baseAdd}`, `invoice`,
   `followUp {upgrade}`, `kaiaNip {partner}`
 - calendar: `modeChanged {mode, was}`
@@ -74,7 +81,9 @@ for e in ev: match e.ev: ...   # see the event list below
 - `brawl` {a, b} (the button)
 - `sys` {key: the UX string id chat.sys.* / chat.brawl.after, partner, to, a, b, n, payable rejoin|poach, price}
 
-Line text is `partners[].linesVariants[line][variant]` (or `.lines`). The sim never holds Hebrew.
+Line text is `partners[].linesVariants[line][variant]` (or `.lines` when there are no variants). The
+variants rotate in order per partner and line (`coalition.rot`, lifetime; C1 is always variant 0).
+The sim never holds Hebrew.
 
 ## The data contract (v1, binding)
 
@@ -144,9 +153,29 @@ An unknown key is false, and the lint flags it.
   `suspicionFreeze` / `wipeSourceSuspicion`.
 - `upgrades[].followUp.fallbackAfterSec`.
 
-**Not implemented yet** (spins slice): the effects `tapBuff`, `idleToTap`, `karhiLine`, `flightIncome`,
-and the upgrade kinds `consumable` / `line` / `fatigue`. They do nothing, and the sim warns once
-per type. `Politics.unimplemented_effects()` lists them, and the bench prints the list.
+### Spins (`upgrades[]`, `spins.gd`)
+- `kind`: `once` (default; into `s.upgrades`), `consumable` (rebuyable; each buy starts a timer and
+  the card leaves the shelf until it ends; the n-th rebuy in a round fades by `fatigue`^n: the
+  effect's bonus when it has `mult`, else its duration; `fatigueScales` overrides), `line`
+  (`levels[{cost}]` in order; into `s.upgrades` at the last level).
+- `costBpsSeconds`: a consumable's price is max(`cost`, that many seconds of ₪/s, 3 significant digits up).
+- Effects: `tapBuff {mult, durationSec}`, `idleToTap {durationSec, pourSecPerTap}` (income stops, each
+  tap adds bps × pour; a rabbit never multiplies the pour), `karhiLine {broadcasterDrainPct,
+  basePctThisRound, suspicionAdd}` per level, `flightIncome {addPct, capPct}` per Suitcase caught
+  after buying, `basePerOppositionCard {add}` per opposition card (Events). All reset with the round.
+- The hold: `unlock.pendingEngine: true` keeps a spin off the shelf; `Politics.validate()` fails on an
+  unimplemented effect that isn't held. `Politics.unimplemented_effects()` is empty on the shipped content.
+- Save: `GameState.spins {buys, levels, active, flights}` (additive; an older v3 save starts fresh).
+
+### Trophy stats (`GameState.stats`)
+`Meta.STATS` start at 0 and persist (any other plain numeric stat key the engine adds persists too).
+Counted by the sim: `partnersPaid` (a payment that brought a partner in), `demandsPaid` (demands +
+ultimatums), `courtDays`, `maxPostponesInRound`, `pardonRequests`, `aideDrops`, `brawlsEnded`,
+`corridorMessages`, `cleanRounds`, `streakRoundsUnder240s` (best streak; `streakUnder240sNow` is the
+live one), `tapsAt2to4` (Politics.tick: ctx.hour, else Israel time from nowMs), `wordSaladSeen`
+(`Story.roll_word_salad`). Content-driven through the trigger: `countEvent` (`lapidCards`),
+`countUpgrade` (`wingOfZionBought`), `countPartnerPaid` (`gafniPaid`). An older save seeds the lifetime
+ones from the modules' own counters.
 
 ## Save v3
 `GameState` gained `coalition`, `investigation`, `events`, `album` and `calendar`. Each module owns

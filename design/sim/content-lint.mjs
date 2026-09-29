@@ -169,10 +169,12 @@ for (const o of C.ambientHeadlinesV2.list) for (const k of Object.keys(o.when ||
 // politics contract v1 (binding, STATUS.md): an unknown key or type fails Politics.validate()
 const condKeys = new Set(['era', 'evolutionsAtLeast', 'evolutionsBelow', 'runBananasAtLeast', 'allTimeAtLeast', 'ownedAtLeast', 'sourcesOwnedAtLeast', 'shadyOwnedAtLeast',
   'seatsAtLeast', 'seatsBelow', 'membersAtLeast', 'partnerMember', 'partnerNotMember', 'suspicionAtLeast', 'suspicionBelow', 'courtDaysAtLeast', 'critsLifetimeAtLeast',
-  'goldenCaughtLifetimeAtLeast', 'playSecAtLeast', 'weekday', 'hour', 'mode']);
+  'goldenCaughtLifetimeAtLeast', 'playSecAtLeast', 'runSecAtLeast', 'partnersInAtLeast', 'weekday', 'hour', 'mode', 'pendingEngine']);
 const eventEffects = new Set(['none', 'suspicion', 'noCrit', 'brawl', 'leak', 'interview', 'pardonDesk', 'seatDrain', 'roulette', 'kaia', 'drumline', 'loseRandomPartner', 'pledge']);
 const econEffects = new Set(['tapMult', 'tapPctOfBps', 'critChance', 'goldenIntervalMult', 'goldenLifeMult', 'globalMult', 'producerMult', 'suspicionGainMult', 'baseMult', 'bpsMult',
-  'tapAdd', 'offlineMult', 'basePctThisRound', 'suspicionFreeze', 'wipeSourceSuspicion']);
+  'tapAdd', 'offlineMult', 'basePctThisRound', 'suspicionFreeze', 'wipeSourceSuspicion',
+  // spin effects in game/scripts/sim/spins.gd (Spins.TYPES)
+  'tapBuff', 'idleToTap', 'karhiLine', 'flightIncome', 'basePerOppositionCard']);
 for (const e of C.events) {
   for (const k of Object.keys(e.when || {})) if (!condKeys.has(k)) err(`events.${e.id}`, `when key ${k} unknown to Conditions`);
   if (!eventEffects.has(e.effect?.type)) err(`events.${e.id}`, `effect ${e.effect?.type} unknown to Events.EFFECTS`);
@@ -191,8 +193,9 @@ if (!C.partners.some(p => p.id === C.coalition.firstPartner)) err('coalition.fir
 for (const id of Object.keys(C.court.sources)) if (!C.producers.some(p => p.id === id)) err('court.sources', `unknown producer ${id}`);
 for (const p of C.producers) if (!!p.shady !== (p.id in C.court.sources)) err(`producers.${p.id}`, 'shady flag disagrees with court.sources');
 for (const u of C.upgrades) for (const k of Object.keys(u.unlock || {})) if (!condKeys.has(k)) err(`upgrades.${u.id}`, `unlock key ${k} unknown (Politics.validate fails)`);
-const held = u => u.unlock?.evolutionsBelow === 0;
-for (const u of C.upgrades) if (!held(u) && !econEffects.has(u.effect?.type)) err(`upgrades.${u.id}`, `effect ${u.effect?.type} not implemented; hold it with unlock.evolutionsBelow: 0 + _pendingEngine`);
+const held = u => u.unlock?.pendingEngine === true || u.unlock?.evolutionsBelow === 0;
+for (const u of C.upgrades) if (!held(u) && !econEffects.has(u.effect?.type)) err(`upgrades.${u.id}`, `effect ${u.effect?.type} not implemented; hold it with unlock.pendingEngine: true + _pendingEngine`);
+for (const u of C.upgrades) if (!['once', 'consumable', 'line', undefined].includes(u.kind)) err(`upgrades.${u.id}`, `kind ${u.kind} unknown (once | consumable | line)`);
 const eraIds = new Set(C.eras.list.map(e => e.id));
 for (const o of ambientAll) if (o.when?.era && ![o.when.era].flat().every(e => eraIds.has(e))) err(o.id, `unknown era ${o.when.era}`);
 for (const o of C.golden.outcomes) if (!['instant', 'bpsFrenzy', 'tapFrenzy'].includes(o.type)) err(`golden.${o.id}`, `type ${o.type} unknown`);
@@ -207,7 +210,7 @@ const tick = C.headlines.length + ambientAll.length;
 const bubbles = C.partners.reduce((a, p) => a + new Set([...Object.values(p.lines || {}), ...Object.values(p.linesVariants || {})].flat().filter(x => typeof x === 'string' && heb.test(x))).size, 0);
 console.log(`strings (Hebrew, player-facing): ${game.length}`);
 console.log(`ticker lines: ${tick} (milestones ${C.headlines.length}, ambient ${C.ambientHeadlinesV2.list.length} live + ${(C.ambientHeadlinesV2.listPolitics || []).length} politics-conditional); opposition-targeted ambient: ${ambientAll.filter(o => o.target).length}`);
-console.log(`sources ${C.producers.length} · spins ${C.upgrades.length} (${C.upgrades.filter(u => u.unlock?.evolutionsBelow === 0).length} held until their effect lands) · partners ${C.partners.length} (bubbles ${bubbles}) · events ${C.events.length} (opposition ${C.events.filter(e => e.side === 'opposition').length}) · trophies ${C.achievements.list.length} · perks ${C.perks.list.length} · facts ${F.facts.length}`);
+console.log(`sources ${C.producers.length} · spins ${C.upgrades.length} (${C.upgrades.filter(held).length} held until their effect lands) · partners ${C.partners.length} (bubbles ${bubbles}) · events ${C.events.length} (opposition ${C.events.filter(e => e.side === 'opposition').length}) · trophies ${C.achievements.list.length} · perks ${C.perks.list.length} · facts ${F.facts.length}`);
 console.log(`src-tagged strings: ${game.filter(s => (s.holder.src || []).length).length}`);
 console.log(`approved pictograms in use (2D Artist draws them as glyphs): ${[...pictUsed].join(' ')}`);
 console.log(`ticker lines over the 45-char ideal (≤ 60 enforced): ${over45.length}` + (verbose ? '\n  ' + over45.join('\n  ') : ' (--verbose lists them)'));

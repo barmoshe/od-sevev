@@ -63,6 +63,39 @@ static func pick_ambient(s: GameState, recent: Array, hour: int, rng: Callable =
 	return t
 
 
+## Dubi's word salad (content dubi.wordSalad {when, chance}; deck §I spin fatigue): whether his
+## next talking point comes out scrambled. The engine calls it when Dubi is about to speak; true
+## counts the stat "wordSaladSeen" (secret trophy "אין! ציד! כלום!"), so call it once per line shown.
+static func roll_word_salad(s: GameState, rng: Callable = randf, ctx: Dictionary = {}) -> bool:
+	var ws: Variant = _c().get("dubi", {}).get("wordSalad")
+	if not ws is Dictionary or not Conditions.ok(s, (ws as Dictionary).get("when", {}), ctx):
+		return false
+	if float(rng.call()) >= float((ws as Dictionary).get("chance", 0.0)):
+		return false
+	Meta.bump(s, "wordSaladSeen")
+	return true
+
+
+## The salad itself: the words of `lines` (his last three talking points), shuffled, each keeping or
+## losing its "!" at random, the last always shouting. No Hebrew is authored here.
+static func word_salad(lines: Array, rng: Callable = randf) -> String:
+	var words: Array = []
+	for l: Variant in lines:
+		for w: String in str(l).split(" ", false):
+			var bare := w.replace("!", "")
+			if bare != "":
+				words.append(bare)
+	for i in range(words.size() - 1, 0, -1):
+		var j := int(float(rng.call()) * (i + 1)) % (i + 1)
+		var tmp: Variant = words[i]
+		words[i] = words[j]
+		words[j] = tmp
+	var out := PackedStringArray()
+	for i in words.size():
+		out.append(str(words[i]) + ("!" if i == words.size() - 1 or float(rng.call()) < 0.5 else ""))
+	return " ".join(out)
+
+
 static func _when(s: GameState, w: Dictionary, era_id: String, hour: int) -> bool:
 	if w.has("era") and w["era"] != era_id:
 		return false
@@ -76,7 +109,7 @@ static func _when(s: GameState, w: Dictionary, era_id: String, hour: int) -> boo
 		return false
 	if w.has("perk") and Meta.perk_level(s, w["perk"]) <= 0:
 		return false
-	if w.has("trophiesAtLeast") and s.achievements.size() < int(w["trophiesAtLeast"]):
+	if w.has("trophiesAtLeast") and Meta.trophy_count(s) < int(w["trophiesAtLeast"]):
 		return false
 	if w.has("allTimeAtLeast") and s.all_time_bananas < float(w["allTimeAtLeast"]):
 		return false
