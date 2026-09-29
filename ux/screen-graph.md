@@ -1,4 +1,76 @@
-> **Superseded for "עוד סבב" (2026-09-28):** this is the Monkey Bananas v2 record the fork inherited. Implement from rtl-map.md (layout) and ftue.md (prompts). Kept for engine history only.
+> **Superseded for "עוד סבב" (2026-09-28):** this is the Monkey Bananas v2 record the fork inherited. Implement from rtl-map.md (layout) and ftue.md (prompts). Kept for engine history only. **Exception: §0 below is live for "עוד סבב"** (rev 4, 2026-09-29). It is the leader-select delta to the approved graph in `creative-pack/ux/first-minute.md` §1.
+
+## §0. "עוד סבב": `LEADER_PICK` in the screen graph (live; `design/leader-select-spec.md`, Bar 2026-09-29)
+
+**What changes:** one node is added, `LEADER_PICK` (layout: `rtl-map.md` §8), plus the leader card over it. The title state of first-minute §1 **no longer exists** as a screen: the picker replaces it, and after the pick the stage waits for tap 1 in the *pre-tap state* (the title state without its lines). Every other node and rule of first-minute §1.1-§1.3 is unchanged.
+
+```
+ first ever:  N1 disclaimer ──[hand-off bar]──► LEADER_PICK(first) ──pick──► N2 pre-tap ──tap 1──► N2 play
+                                                  ▲   │ long-press / I
+                                    undo chip ≤5 s │   ▼
+                                  (before tap 1)   │ leader card ──✕/backdrop/Esc/back──► LEADER_PICK
+                                                   │        └──"לשחק בתור…"──► (pick)
+ every election:  O3 ──לפזר──► EVOLVE_TX ──► O3b flash* ──► LEADER_PICK(after) ──pick / again / Esc / back──► N2 play (round N+1)
+ after reset:     O10 ──למחוק──► LEADER_PICK(first)
+ reload:          N0 ──(leaderPickPending)──► LEADER_PICK ──► N2 (+ O1 queued after the pick)
+ migrated v3 save: N0 ──► N2 (Bibi's round) … its next election ──► LEADER_PICK(after)
+```
+\* when a story beat is due. Otherwise `EVOLVE_TX` leads straight to `LEADER_PICK`.
+
+### §0.1 Node table (additions)
+
+| Node | Kind | How the player knows where they are | Visible exits | Host back | Esc |
+|---|---|---|---|---|---|
+| `LEADER_PICK` (first) | a full-screen stage mode (`mode == "pick"`); the HUD is hidden and the economy frozen | The wordmark plus "מי מקים את הממשלה הפעם?"; the face grid | any tile (הפתעה included) | Root, as the title state was: leaves the page (nothing is lost; no save exists yet, or the save is flushed on `pagehide`) | nothing |
+| `LEADER_PICK` (after) | the same mode, with one history entry | "סבב בחירות חדש. מי בראש הרשימה?" plus the fresh chip | any tile, **"עוד סבב עם {short}"** | = again (the same leader) | = again |
+| Leader card | a modal card over the picker (depth 1) | The leader's face, name and party | "לשחק בתור {short}" (= pick), ✕, the backdrop | closes, back to the picker | closes |
+| Undo chip | not a node: a stage control for ≤ 5 s after a pick, until tap 1 | "להחליף ראש רשימה" plus the draining bar | tap → `LEADER_PICK`, same variant and order | — (the stage's rule) | — |
+
+**No dead end:**
+- **First launch:** every one of the tiles, a single tap each, reaches the stage.
+- **After an election:** Esc and back are also exits (= again), so a player who wants no choice is one keypress away.
+- **The leader card:** it has four exits, and its primary exit picks.
+
+**Steps to resume play:**
+- after an election: 1 (again, or any tile);
+- first launch: 1 (the tile), and that same tap unlocks audio, so the whole pick costs 0 taps over the old title.
+
+### §0.2 Rules
+
+1. **The pick is idempotent.** Input locks on the commit frame, and `leader` / `seatDeal` / `leaderHistory` are saved before the stage returns. A reload after the commit lands in the round. A reload before it lands in the picker again (`leaderPickPending`), with a new order.
+2. **Modal queue** (first-minute §1.2 rule 3):
+   - `LEADER_PICK` is a mode, below every modal.
+   - The one-time legal notices O11/O12 may open over it at first launch. They push their history entry on the first touch, as today, and the pick waits under them.
+   - O1 (return) is **queued until after the pick**: the round's money starts at the pick.
+   - Nothing else can open while the picker shows, because no system runs.
+3. **Tap-burst rule:** the picker opens with a 300 ms input guard. The O3b flash's last tap, or the transition's, can't land on a tile.
+4. **History:**
+   - (after): one `pushState` when it opens. A `popstate` = again. A pick through the UI calls `history.back()` with the echo ignored, as a closed layer does.
+   - (first): no entry.
+   - Leader card: one entry.
+5. **The election flow is fixed.** It always runs O3 → `EVOLVE_TX` (the old leader walks out) → [O3b] → `LEADER_PICK` → the new leader walks in → round N+1. The round's economy starts on the pick frame, never during the flash or the picker (spec §3.1).
+6. **The undo returns to the same picker, not a new draw:** the same order and seat seed, with focus on the tile just picked. It is available until tap 1 or the first buy, for at most 5 s.
+
+### §0.3 Entry-point matrix (deltas to first-minute §1.3)
+
+| Entry | Lands on | Back stack |
+|---|---|---|
+| Cold, first ever | N1 → [bar] → **`LEADER_PICK` (first)** → N2 pre-tap | [N2] |
+| Share link, new player | N1 → `LEADER_PICK` (first) → N2, with `SHARE_DEEPLINK` queued after H1 (unchanged) | [N2] |
+| Cold, returning, `leaderPickPending` | N0 → `LEADER_PICK` (variant by `evolutions`) → N2 (+ O1 if due) | [N2, (O1)] |
+| After a reset | **`LEADER_PICK` (first)** (no disclaimer) | [N2] |
+| After an election | O3 → `EVOLVE_TX` → [O3b] → **`LEADER_PICK` (after)** → N2 | [N2] |
+
+### §0.4 Funnel events (names only; the developer plumbs them)
+
+- `leader_pick_shown{variant, n_tiles, order}`
+- `leader_pick_committed{leader, via: tile|random|again|key|card, ms_to_pick, fresh: bool, switched: bool}`
+- `leader_card_opened{leader, via: hold|key}`
+- `leader_pick_undo{from, ms_since_pick}`
+
+`order` is logged so the balance rule (`rtl-map.md` §8.3.1) and position bias can be checked from real picks. If one position wins well above chance, the shuffle is not neutral enough (spec §1's "shaky claim": watch the first playtest).
+
+---
 
 # screen-graph + navigation-contract — Monkey Bananas
 

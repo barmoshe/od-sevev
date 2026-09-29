@@ -988,3 +988,44 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - **→ audio:** a `leaderPick` sting and crit cues by react event; no leader motifs (the leitmotif stays non-partisan).
   - **→ Bar:** spec §12.
 - **Bar, 2026-09-29, leader select (spec §12):** (1) the 8 launch leaders are approved (ביבי, בן גביר, סמוטריץ׳, דרעי · בנט, אייזנקוט, ליברמן, גולן), including בן גביר as playable; Lapid rides inside Bennett's round; Gantz, Abbas and UTJ stay out. (2) The picker comes before the first tap and replaces the title. (3) Keep the +10% base for switching leaders. (4) Replace the Bibi-with-hat key art, OG image and app icon with a lineup of the leaders. Orchestrator default for §12.4: Bibi's lineup keeps today's partner numbers (no reshuffle), since the lint pins it.
+- 2026-09-29 · ux-designer · **Leader select: the `LEADER_PICK` screen, the per-leader HUD, the press skin and the strings.** Spec: `ux/rtl-map.md` §8 (the picker, replacing the title state) and §4.3 (the per-leader stage, HUD and press skin), `ux/screen-graph.md` §0 (live), `ux/ftue.md` §8; deviations D26-D35.
+  - **The picker:**
+    - **Layout:** a full-screen stage mode; the HUD is hidden and the economy frozen. Wave 1 is a 2 × 2 grid with a הפתעה bar under it. Eight leaders are a 3 × 3 with הפתעה in the centre, so the centre cell is no leader's.
+    - **Order:** shuffled on every open and **bloc-balanced**: diagonals in the 2 × 2, a checkerboard in the 3 × 3, so the right and left columns always hold the same bloc mix. No bloc is named or coloured.
+    - **Tiles:** avatar, `short` and `party`. The blurb goes to a caption strip on press, focus or hover; long-press or `I` opens a leader card with the rule.
+    - **Avatar sizes:** L 128, M 96 or S 64, all crisp, chosen by a fit rule. Resolved: 390×844 L, 375×548 M on first launch and S after an election.
+    - **Commit on release:** that tap is the audio unlock.
+    - **After an election:** "עוד סבב עם {short}" is the foot button and the Esc/back default. The flow is `EVOLVE_TX` → O3b flash → picker.
+    - **The +10%:** one chip under the title, never on a tile (a percent beside a face reads as a poll).
+    - **Undo:** a "להחליף ראש רשימה" chip for 5 s, until the first tap, after every pick. It reopens the same order and seat seed.
+  - **FTUE:** the clocks start at the pick. P0 taps the leader (the prop pulses). At the pick Dubi says only `DUBI_LEARNED`; the firsttap squawk waits for the leader's first tap (H1L). `F9_PICK` is the strip line on the first after-election picker (`ftue.lp`).
+  - **HUD:**
+    - **Name:** no persistent label on the HUD (a name beside the seat numeral reads as a poll). The name shows in the round's lower third, the T4 header, O3 and the share cards.
+    - **Bibi-only surfaces** (aide, pardon, Sara, the DOHA sticker, s07/s09/s10/s14/s15) are hidden in other rounds.
+    - **The press skin** mirrors the court key by key; its chip widens to 220 for "יום תחקיר".
+    - **Liberman:** a "לא יושב" pill under the pay pill.
+  - **Strings (`gen_strings.py`, shipping-font widths):**
+    - **54 new keys:**
+      - `LEADER_PICK_*` (13), `F9_PICK`, `DUBI_LEARNED`;
+      - `PRESS_*` (21);
+      - `ELECT_LEADER`, `DOS_STATUS_LEADER`, `DOS_LEADERS`, `DOS_LEADER_*` (4);
+      - `CHAT_PILL_DECLINE(_CD)`, `CHAT_SYS_DECLINED`;
+      - `_LEADER` forms (5): the tap-frenzy chip and banner, spin effects s01/s02/s11;
+      - `_NEXT` forms (3): the invite and the OG description/alt, which describe the picker or the lineup art, so they ship with them.
+    - **Rewritten now to neutral, parameter-free text** (the engine calls these without `{verb}` today, and `Strings.s` would print it):
+      - `SET_KEYS`, `EVO_RULE_2`, `OFF_NOTE_1(_PCT)`, `RET_CAP`, `SYS_OFFLINE`, `LOAD_2`, `SPLASH_LOADING`, `F1_TAP(_IDLE)`;
+      - `ST_ALLTIME`/`ST_TAPS`/`ST_CRITS`, `DOS_TOTAL`, `SYS_ROTATE_CAP`, `SYS_ERA_PACK_LATE`, `CHAT_REPLY_3`;
+      - `CHAT_SYS_CREATED`/`CLEARED` in the second person ("יצרת", "ניקית").
+    - **Kept as Bibi-only, with notes:** `COURT_*`, `HUD_BPS_POUR` (s07), `AIDE_*`, `PARDON_ROW`, `DUBI_FIRSTTAP`.
+    - **Lint additions:** worst-case `{short}`, `{party}`, `{verb}`, … are measured from `content.json` and exported to `worstCasePlaceholders`. The roster's short, party, blurb, rule text, kit words and squawks are linted against the new boxes (57 checks). 26 UI keys that mirror the designer's copy are drift-checked.
+  - **Checks:** `gen_strings` 0 errors / 0 warnings (551 keys); `content-lint --strict` no errors; `tools/lint_text.sh` 574 checked, 0 failures; `tools/test.sh` 270/270; strict `tools/build_web.sh` green.
+  - **→ game-developer (engine):** `test_share_view.gd:99` pins "ביבי" in the invite, so `SHARE_TEXT_INVITE` keeps its text; on picker ship day switch it to `SHARE_TEXT_INVITE_NEXT` and update the test. Swap the `_LEADER` / `_NEXT` keys at ship. Use a new sim key for the leader's own chat lines if any (never `CHAT_SYS_CREATED_M`: `sys_text` would pick it up today).
+  - **→ game-designer:**
+    - **(objection)** Bennett's `rule.text` "הרוב עולה ל־62" puts a seat count on the picker's leader card and T4, including during the 23.10-27.10 blackout, when the game removes its own seat numeral. Suggested: "…לרגע צריך עוד מנדט לרוב, ואז היא מתהפכת ומוסיפה לבסיס." (no digit).
+    - A one-line `rule` for ביבי, so every leader card has the same shape.
+    - Release wave-2 kits in bloc pairs (`shipRule`), so the balanced order always has a solution.
+    - `DAYS_*` "ימי משפט" on the result card and deep link counts Bibi's court across mixed rounds: give it a leader-neutral count.
+    - `PRESS_DAYS` needs a press-day stat.
+  - **→ 2d-artist:** `pick_tile` (idle, pressed, focus, selected rim), `pick_random`, `thermo_icon_press` 11×11 and `chip_icon_press` 9×9 (a folded newspaper). Confirm the party grey on the tile fill is ≥ 4.5:1.
+  - **→ animator:** the walk-in moves from `EVOLVE_TX` to the pick (D30); the walk-out stays.
+  - **→ audio:** the `leaderPick` sting is now the game's first sound.

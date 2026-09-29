@@ -1,6 +1,6 @@
 # "עוד סבב": FTUE and prompt triggers on the fork (`ftue-flow` + `prompt-trigger-spec`, engine-concrete)
 
-**Owner:** UX Designer · **Consumers:** Game Developer (`game/scripts/ui/ftue.gd`, `main.gd`, `sim/game_state.gd`), Game Designer (tuning values in `design/content.json`), Animator (prompt motion), Audio Director (cue moments) · **Date:** 2026-09-28
+**Owner:** UX Designer · **Consumers:** Game Developer (`game/scripts/ui/ftue.gd`, `main.gd`, `sim/game_state.gd`), Game Designer (tuning values in `design/content.json`), Animator (prompt motion), Audio Director (cue moments) · **Date:** 2026-09-28 · **Rev 4 (2026-09-29, leader select):** the FTUE starts at the leader pick (§8); P0 taps the leader; H1L; LP.
 
 **Above this file:** `creative-pack/od-sevev/ux/first-minute.md` §2 (approved beats and triggers) and `pitch.md` §5 and §11 (the numbers). This file restates every trigger as a predicate over the fork's **real** state fields, names the fields the developer must add, and says what replaces each of the fork's P1-P7 prompts. Layout references (`§n` of `rtl-map.md`) are the geometry. **Supersedes** the fork's `ux/ftue-flow.md` for od-sevev.
 
@@ -29,7 +29,7 @@
 | `no_modal` | `not overlays.is_open()` | also `not tx.running` | — |
 | C1 and U1 gates | `Coalition.c1_ready(s)`, `Coalition.ultimatums_unlocked(s)` (sim) | — | The sim already implements the state halves of C1 and U1; the controller adds the UI half through `ctx.allowPing` (below). |
 | `idle` | `Ftue._idle_ms` | — | Advances only while in the stage state (title or main) with no overlay and no tall tab; reset by `on_input()`. |
-| hand-off moment | — | `Ftue.handoff_ms` | Set when `shell.html` reports the disclaimer / hand-off bar has faded out (a JS bridge flag, e.g. `window.mbHandoffDone`). **All FTUE clocks start here**, so a player still reading the HTML disclaimer is never counted as idle. |
+| hand-off moment | — | `Ftue.handoff_ms` | **Rev 4:** set when the `LEADER_PICK` has faded out after a commit (rtl-map §8.6), not when `shell.html` reports the gate gone (`window.mbHandoffDone` now only enables the picker). **All FTUE clocks start here**, so a player still reading the disclaimer, or the tiles, is never counted as idle. |
 
 ### 1.1 Persistent FTUE and reveal flags (`GameState.new_ftue()` and `fresh().ui`)
 
@@ -45,6 +45,7 @@ ftue = {
   "e1": "",            # first election CTA       "" | "shown" | "done"
   "r2": "",            # round-2 orientation      "" | "done"
   "pk": "",            # coalition agreement hint "" | "done"
+  "lp": "",            # leader pick teaching line (F9_PICK) "" | "done"   (rev 4)
 }
 ui = {
   "rateRevealed": false, "tabsRevealed": false, "seatsRevealed": false,
@@ -61,7 +62,7 @@ ui = {
 
 | Fork prompt (`ftue.gd`) | Fork form | od-sevev | Form |
 |---|---|---|---|
-| P1 tap the banana | ticker text `F1_TAP`, banana emphasis, hand after idle | **P0** tap the hat | Textless: idle loop, then Dubi pecks the hat, then the hand (§3). It runs in the **title state**, where the ticker does not exist yet. |
+| P1 tap the banana | ticker text `F1_TAP`, banana emphasis, hand after idle | **P0** tap the leader (was: the hat) | Textless: idle loop, then Dubi pecks the tap object (Bibi: the hat; others: their prop), then the hand (§3). It runs in the **pre-tap state** after the pick (rev 4; the title state without its lines), where the ticker does not exist yet. |
 | P2 hire | ticker `F2_HIRE`, hand on the row | **P1** first buy | Card and pill; then Dubi on the card with `DUBI_BUY`; then the hand |
 | P3 upgrade | ticker + badge | **K3** spins unlock | Toast `TOAST_SPINS` + tab slot 2 appears. No hand. |
 | P4 golden | callout `CALLOUT_GOLDEN` + ticker | **S1** first Suitcase | Textless: slow first flight + sparkle. No callout. |
@@ -81,9 +82,9 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
 
 | ID | Stage | Predicate (fork fields) | Form | Fallback ladder | Done when | Funnel events |
 |---|---|---|---|---|---|---|
-| **P0** tap the hat | introduce(tap) | `mode == "title" and taps_lifetime == 0 and handoff_ms > 0` | Diegetic: the Magician's idle loop (wand taps hat, a coin peeks and sinks) + 1 Hz hat brightness pulse (`BigBanana.emphasize`; static rim under reduced motion). **No text.** | **F1** `idle ≥ 3 s`: Dubi flies in and pecks the hat; one coin pops with "+1 ₪" (a demonstration, not credited). **F2** `idle ≥ 9 s` (F1 + 6): the pixel hand (`Ftue.hand`) taps the hat on loop, pointing from the lower-right (`dir "upleft"`, hand at the hat's right side, since a right thumb comes from there). **F3** `idle ≥ 20 s`: the hand stays; the hat pulse doubles to 2 Hz (≤ 3 Hz, photosensitivity rule). No modal, ever. | `taps_lifetime ≥ 1` | `ftue_step_entered{step:"tap"}`, `ftue_first_agency` |
+| **P0** tap the leader | introduce(tap) | `mode == "title" and taps_lifetime == 0 and handoff_ms > 0` (rev 4: "title" = the pre-tap stage after the pick; `handoff_ms` = the pick, §8) | Diegetic: the leader's idle loop (Bibi: wand taps hat, a coin peeks and sinks) + 1 Hz brightness pulse on the **tap object**: the hat for Bibi, the prop at `propMouth` for every other leader (`BigBanana.emphasize`; static rim under reduced motion). **No text.** The target is the leader's whole hit (rtl-map §4.3), never the prop alone. | **F1** `idle ≥ 3 s` **and Dubi's pick lines are done** (rtl-map §8.6): Dubi pecks the tap object; one coin pops with "+1 ₪" (a demonstration, not credited). **F2** `idle ≥ 9 s` (F1 + 6): the pixel hand (`Ftue.hand`) taps the hat on loop, pointing from the lower-right (`dir "upleft"`, hand at the hat's right side, since a right thumb comes from there). **F3** `idle ≥ 20 s`: the hand stays; the hat pulse doubles to 2 Hz (≤ 3 Hz, photosensitivity rule). No modal, ever. | `taps_lifetime ≥ 1` | `ftue_step_entered{step:"tap"}`, `ftue_first_agency` |
 | **I0** idle coin-peek (main mode) | — | `mode == "main" and evolutions == 0 and owned_total < 3 and idle ≥ 20 s and stage_unobstructed()` | The Animator's `idleInvite`: one coin peek every 10 s. **Not** after `owned_total ≥ 3`: from then on tapping is optional and a recurring peek is a nag (rtl-map §4.2). | — | any tap, or the predicate turns false | — |
-| **H1** first laugh | — | `taps_lifetime == 1` (edge) | Dubi bubble `DUBI_FIRSTTAP` over the Magician for 1.6 s; ticker docks and enqueues H1 (deck T25) at `ftue` priority; Row A fades in with the counter only | — | edge fires once | `ftue_step_completed{step:"tap"}` |
+| **H1** first laugh | — | `taps_lifetime == 1` (edge) | Dubi bubble: the leader's `kit.dubi.squawks.firsttap` (Bibi: `DUBI_FIRSTTAP` "אין כלום! אין כלום!") over the leader for 1.6 s; ticker docks and enqueues H1 (deck T25) at `ftue` priority; Row A fades in with the counter only | — | edge fires once | `ftue_step_completed{step:"tap"}` |
 | **H2** first rabbit | introduce(crit) | `taps_lifetime == 7 and crits_lifetime == 0` (the 7th registered tap) | `Economy.tap(state, force_crit = true)` pays ×4 (pitch §11 Q5); rabbit hop; ticker H2 (deck T03) | — | edge | — |
 | **card 1 reveal** | — | `taps_lifetime ≥ 3 and owned_total == 0 and evolutions == 0` | Panel slides up with one card (`producerNames.intern`), pill at 40% opacity, fill growing right → left (rtl-map §6.1) | — | card shown (it never hides again this run) | — |
 | **P1** first buy | introduce(buy) | `bananas ≥ cost(intern) and owned_of("intern") == 0 and evolutions == 0` | Pill full, 100% opacity, gold, one brightness pulse; `becameAffordable` cue | **F1** affordable-and-ignored `≥ 5 s` while taps continue: Dubi hops onto the card and squawks `DUBI_BUY` "לקנות! לקנות!". **F2** `+8 s` (13 s): the hand on the card, at the pill's centre, `dir "right"`, pointing at the pill from its right. **F3** after 2 more ignored 8-s windows: the card bounces once each time `bananas` crosses a multiple of the price. | `owned_of("intern") ≥ 1` | `ftue_step_entered{step:"buy"}`, `ftue_step_completed{step:"buy"}` |
@@ -100,12 +101,12 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
 | **Q1** cottage | — | `all_time_bananas ≥ 1,000` | The cup appears in Row A (`ui.cottageRevealed`); first pixel drops; ticker H-cottage (deck T02). It re-fires at every ×10 (10,000, 100,000 …) as a pixel drop. | — | flag | — |
 | **B1** buy mode | — | any `owned_of(id) ≥ 10`, or `evolutions ≥ 1` (the fork's rule) | Buy-mode row 0 appears in T1 (rtl-map §6.1); ticker `F8_BULK` | — | `ui.buyModeRevealed` | — |
 | **E1** first election | introduce(prestige) | `Coalition.gate_open(s) and evolutions == 0` | The ticker row becomes the gold `HUD_CTA_ELECTION` "עוד סבב!" (rtl-map §5.3); seats bar gold rim; fanfare cue | Ignored for 60 s of play: Dubi squawks `DUBI_ELECT` "בחירות! בחירות!" once, then again every 120 s of play, at most 3 times | O3 confirmed | `ftue_first_prestige` |
-| **R2** round 2 | — | `evolutions == 1` and `EvolveTx` done and the O3b flash closed | Ticker `F7_RUN2` (`{pmult}`), then `F7_RUN2_GATE` | — | `r2 = "done"` | — |
+| **R2** round 2 | — | `evolutions == 1` and `EvolveTx` done and the O3b flash closed **and the round-2 pick committed** (rev 4) | Ticker `F7_RUN2` (`{pmult}`), then `F7_RUN2_GATE` | — | `r2 = "done"` | — |
 | **PK** coalition agreement | — | `evolutions ≥ 1 and thumbs_available() ≥ cheapest clause cost and pk == ""` | Toast `F_PERKS_HINT`; `!` badge on the T3 pinned bar and on tab slot 3 | — | agreement sheet opened once | — |
 
 ### 3.1 Order, spacing and suppression (replaces `ORDER` and the spacing rule in `ftue.gd`)
 
-- **One prompt at a time.** Priority: P0 > P1 > C1 > S1 > E1 > P2 > K2 > Q1 > K3 > B1 > R2 > PK. A higher prompt may pre-empt a lower one's *fallback* ladder; it never cancels an animation mid-flight.
+- **One prompt at a time.** Priority: P0 > P1 > C1 > S1 > E1 > P2 > K2 > Q1 > K3 > B1 > R2 > PK. (LP lives inside `LEADER_PICK` and H1L is an edge, so neither is in the queue; §8.) A higher prompt may pre-empt a lower one's *fallback* ladder; it never cancels an animation mid-flight.
 - **Spacing.** A new prompt (not an edge like H1-H3 or C2) waits for ≥ 3 registered actions since the previous one resolved, exactly as the fork's `_actions >= 3`. P0 and S1 are exempt (as the fork exempts P1 and P4).
 - **Toast queue.** One toast at a time; each shows ≥ 3 s (or until tapped), 1 s gap between toasts. A toast never spawns while its rect would sit over a Suitcase in flight (the dock is at the stage top, so in practice only the 2-line dock at the floor viewport matters).
 - **Tap-burst rule.** No overlay auto-opens while the last tap is < 1 s old, except O1 at launch (first-minute §1.2 rule 3). Toasts may appear during a burst.
@@ -117,7 +118,7 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
 
 | t after hand-off | Player state | Fires |
 |---|---|---|
-| 0 | title state, `taps_lifetime 0` | P0 (idle loop) |
+| 0 | the pick has committed (rev 4: t = 0 is the pick, §8); pre-tap stage, `taps_lifetime 0` | P0 (idle loop); the lower third and Dubi's `DUBI_LEARNED` play over the first ~2.5 s, and P0's F1 waits for them |
 | ~2 | tap 1 | H1 (Dubi, ticker, counter) |
 | ~3 | tap 3 | card 1 reveal (dim) |
 | ~5 | tap 7 | H2 (rabbit ×4) |
@@ -144,9 +145,9 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
 
 | Situation | FTUE behaviour |
 |---|---|
-| Reload mid-FTUE | Every prompt and reveal state is in `state.ftue` / `state.ui`, saved on every purchase and payment (U14). Nothing re-teaches. If `taps_lifetime == 0` the game re-enters the title state and P0 restarts its idle clock from the new hand-off. |
-| After an election | `ui` flags persist, so the HUD, tabs and thermometer stay where they were. Card 1 shows at once (the tap-3 wait applies only when `evolutions == 0`). P1, P2, S1, C1 never re-fire. The chat is cleared with `CHAT_SYS_CLEARED`. R2 fires once after the first election. |
-| After a reset | Fresh `GameState`: title state, the full FTUE runs again. The disclaimer is not shown again (its version flag lives in `localStorage`, outside the save). |
+| Reload mid-FTUE | Every prompt and reveal state is in `state.ftue` / `state.ui`, saved on every purchase and payment (U14). Nothing re-teaches. If `leaderPickPending`, the picker shows first. If `taps_lifetime == 0` the game re-enters the pre-tap state with the saved leader (no second pick) and P0 restarts its idle clock from the new hand-off. |
+| After an election | `LEADER_PICK` (after) follows `EVOLVE_TX` and the O3b flash (§8). `ui` flags persist, so the HUD, tabs and thermometer stay where they were. Card 1 shows at once (the tap-3 wait applies only when `evolutions == 0`). P1, P2, S1, C1 never re-fire. The chat is cleared with `CHAT_SYS_CLEARED` ("ניקית את הצ׳אט…"). R2 fires once after the first election, after the pick. |
+| After a reset | Fresh `GameState`: `LEADER_PICK` (first), then the full FTUE runs again. The disclaimer is not shown again (its version flag lives in `localStorage`, outside the save). |
 | Away ≥ 60 s | O1 return card first; FTUE fallback clocks were paused (they run on play time). |
 | Share-link entry, new player | The deep-link toast `SHARE_DEEPLINK` is queued **after** H1 (it would otherwise be text before first agency). |
 
@@ -205,3 +206,33 @@ Every event carries: `step`, `t_since_handoff_ms`, `taps_lifetime`, `owned_total
 | First election | ≈ 7-9 min | E1 |
 
 If a tuning value moves, the predicates above do not change; only the timing in §3.2 does.
+
+---
+
+## 8. Leader select in the FTUE (rev 4, 2026-09-29; `design/leader-select-spec.md`, `rtl-map.md` §8)
+
+**Principle:** the pick is the game's first decision, and it is **pre-verb and textless**:
+- the tiles are faces and names;
+- the blurb shows only while a finger is on a tile;
+- the only line read by default is the one-sentence equal-footing promise.
+
+It takes the tap the title state already needed (the WebAudio gesture), so the first minute gains **0 taps**. The clocks start after it (§1 `handoff_ms`), so the §3.2 timings are unchanged from t = 0.
+
+| ID | Stage | Predicate | Form | Done when | Funnel |
+|---|---|---|---|---|---|
+| **PK0** the first pick | introduce(choose) | first launch or after a reset, `mode == "pick"` | `LEADER_PICK` (first). Initial focus on הפתעה; no leader is pre-selected. **No fallback ladder**: a player who stalls on eight faces has הפתעה at the centre and a 5 s undo after any tap (spec §1's shaky claim; watch the first playtest's `ms_to_pick`). | a commit | `leader_pick_shown`, `leader_pick_committed` |
+| **H1L** a leader's first laugh | — | the first registered tap of a round whose leader has `leaders[id].taps == 0` (for the very first round this *is* H1) | Dubi's bubble with the leader's `kit.dubi.squawks.firsttap` over the leader for 1.6 s, while their coins pour. At the pick Dubi said only `DUBI_LEARNED`, so the squawk lands on the coin spray (rtl-map D31). | edge, once per leader | — |
+| **LP** you can switch | isolate(choose) | the first `LEADER_PICK` (after) with `evolutions == 1` and `ftue.lp == ""` (a migrated v3 save: its first after-election picker) | The strip's default line is `F9_PICK` "בכל סבב בחירות אפשר להחליף ראש רשימה. הבסיס נשאר." instead of the disclaimer. The fresh chip above says what switching pays. No toast: the line sits where the choice is, before it is made. | that picker commits (`lp = "done"`) | `ftue_step_completed{step:"switch"}` |
+| **R2** round 2 | — | as §3, after the pick | unchanged (`F7_RUN2`, `F7_RUN2_GATE`) | — | — |
+
+**What each variant teaches:**
+- **The first picker** teaches nothing about switching; there is nothing to switch from yet.
+- **The second picker** teaches the whole rule in one line (LP) plus one chip, in context.
+- **Every later picker** repeats only the chip.
+
+**Timing seams:**
+- **The pick sequence** (rtl-map §8.6: the lower third, then Dubi's line, then the fresh toast) runs before P0's F1 can fire. P0's F1 requires "Dubi's pick lines done", so Dubi never pecks the prop while he is still talking.
+- **The undo chip** is gone by P0's F2 (9 s).
+- **C1's chat ping and every other prompt** wait on their own predicates, all ≥ 40 s in.
+
+**Accessibility:** the pick holds no timer (the undo's 5 s is optional, and the undo is recoverable by playing on), no hold is required (the long-press card has the keyboard key `I` and is optional), and it has a keyboard path and a reduced-motion path (rtl-map §8.5). Sound off: the pick sting's visual twin is the selection pop and rim.

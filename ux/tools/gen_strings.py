@@ -38,6 +38,7 @@ BOXES = {
     "stage.cameoChip":(128, 4, 1, 1, "Ultimatum chip over the stage cameo (PxText)"),
     "ticker.tag":     (88, 4, 1, 1, "Ticker anchor label"),
     "ticker.chip":    (160, 4, 1, 1, "Ticker chip line: date (+ calendar icon) or court day (2 lines)"),
+    "ticker.chipWide":(168, 4, 1, 1, "Press-day chip line 1 (rtl-map §5.1: the chip widens to 220, the crawl clip becomes x 236-516 = 280)"),
     "ticker.crawl":   (None, 4, 1, 1, "Crawl: no width limit; paged by the live clip width under reduced motion (324 at x4, 302 at x5; 288 / 266 on court day)"),
     "cta.election":   (688, 4, 1, 1, "Election CTA"),
     "card.name":      (360, 4, 1, 2, "Card name x 220-580"),
@@ -95,6 +96,16 @@ BOXES = {
     "result.head":    (160, 1, 2, 2, "Result headline plate (2 lines)"),
     "result.line":    (168, 1, 1, 1, "Result stat strip"),
     "result.foot":    (200, 1, 1, 1, "Result footer band line"),
+    # LEADER_PICK (rtl-map.md §8, design/leader-select-spec.md §3). Tile boxes are the 3-column tile (216 wide,
+    # 12 padding); the 2-column wave-1 tile (336) is roomier, so these are the worst case.
+    "pick.title":     (656, 4, 1, 2, "Leader pick title, centred x 32-688"),
+    "pick.chip":      (560, 4, 1, 1, "Fresh-face chip under the after-election title (kit chat_system_pill, visual <= 592)"),
+    "pick.name":      (192, 4, 1, 1, "Pick tile: the leader's short name, centred (tile 216, padding 12)"),
+    "pick.party":     (192, 4, 2, 2, "Pick tile: the party, centred, <= 2 lines at pitch 40"),
+    "pick.strip":     (656, 4, 2, 2, "Caption strip under the grid (reading cut): the focused / pressed tile's blurb, else the default line"),
+    "pick.again":     (560, 4, 1, 1, "'Again' button label (kit button_primary 672 wide: 48 face + 16 gap + label, centred as a group)"),
+    "pick.undo":      (352, 4, 1, 1, "Undo chip on the stage after a pick (kit button_secondary, visual 392 x 80)"),
+    "pick.card":      (560, 4, 6, 8, "Leader card (long-press / I): rule text; the card grows"),
 }
 LARGE_OK = True  # every canvas label may step down from the large scale to the base scale
 
@@ -119,6 +130,37 @@ NUMERIC_PH = {"n", "price", "x", "xr", "rate", "cost", "mult", "pmult", "s", "d"
 
 HEB = re.compile(r"[א-ת]")
 
+# ---------------------------------------------------------------- leader-select worst cases (from the designer's content)
+# Every {short}/{party}/{verb}/... placeholder is linted with the WIDEST value any roster leader has, measured on the
+# shipping font, so a new leader whose word is wider shows up here (and in the engine lint via worstCasePlaceholders).
+_FNT0 = os.path.normpath(os.path.join(OUT, "..", "game", "assets", "fonts", "sevev9.fnt"))
+_XADV0 = {}
+for _ln in open(_FNT0, encoding="utf-8"):
+    if _ln.startswith("char "):
+        _kv = dict(x.split("=", 1) for x in _ln.split()[1:] if "=" in x)
+        _XADV0[chr(int(_kv["id"]))] = int(_kv["xadvance"])
+def _w0(t):
+    return sum(_XADV0.get(ch, 8) for ch in t if ch not in (LRI, PDI))
+def _widest(vals, fallback):
+    vals = [v for v in vals if isinstance(v, str) and v]
+    return max(vals, key=_w0) if vals else fallback
+_CJ = os.path.normpath(os.path.join(OUT, "..", "design", "content.json"))
+LEADERS = json.load(open(_CJ, encoding="utf-8")).get("leaders", []) if os.path.exists(_CJ) else []
+_KITS = [L["kit"] for L in LEADERS if isinstance(L.get("kit"), dict)]
+_TAPS = [k.get("tap", {}) for k in _KITS]
+_HAZ = [k.get("hazard") for k in _KITS if isinstance(k.get("hazard"), dict)]
+PH.update({
+    "short": _widest([L.get("short") for L in LEADERS], "סמוטריץ׳"),
+    "party": _widest([L.get("party") for L in LEADERS], "הציונות הדתית"),
+    "verb": _widest([t.get("verb") for t in _TAPS], "העברה"),
+    "verbPlural": _widest([t.get("verbPlural") for t in _TAPS], "סירובים"),
+    "critName": _widest([t.get("critName") for t in _TAPS], "לא מוחלט"),
+    "critPlural": _widest([t.get("critPlural") for t in _TAPS], "לא מוחלטים"),
+    "banner": _widest([t.get("frenzyBanner") for t in _TAPS], "טורבו בסירובים!"),
+    "rule": _widest([L.get("rule", {}).get("name") for L in LEADERS if isinstance(L.get("rule"), dict)], "לוח הזמנים"),
+    "postpone": _widest([h.get("postponeVerb") for h in _HAZ], "לא יושב באולפן"),
+})
+
 # ---------------------------------------------------------------- entries
 # (key, value, box_or_surface, flags, spec)
 #   box: a BOXES name -> canvas Label (or PxText when the value has no Hebrew and no ₪)
@@ -138,7 +180,7 @@ e("TITLE_KEYHINT", "", "unused", note="Intentionally empty (same reason)")
 e("TITLE_FOOTER", "", "unused", note="Intentionally empty (same reason); the save note lives in About")
 e("HUD_BPS", "⟦+{rate}⟧~₪ לשנייה", "rowA.rate", "", "hud.rate")
 e("HUD_BPS_FRENZY", "⟦+{rate}⟧~₪ לשנייה", "rowA.rate", note="Same text as HUD_BPS in the frenzy tint; the multiplier is on the buff chip")
-e("HUD_BPS_POUR", "הכסף הולך לשליפה", "rowA.rate", "*", "rate line while S07 (idleToTap) runs", "Replaces '+0.0 ₪ לשנייה', which reads as broken while S07 pours the income into taps")
+e("HUD_BPS_POUR", "הכסף הולך לשליפה", "rowA.rate", "*", "rate line while S07 (idleToTap) runs", "Replaces '+0.0 ₪ לשנייה', which reads as broken while S07 pours the income into taps. Bibi-only by construction: S07 is in leaderSelect.bibiOnly.upgrades (leader-select-spec §8), so no leader form is needed")
 e("HUD_THUMBS","הבסיס: ⟦{thumbs}⟧ · ⟦×{pmult}⟧", "dos.row", note="Not in the persistent HUD; shown in T4")
 e("EVOLVE_BTN", "עוד סבב", "unused", note="The not-ready Evolve button no longer exists; the seats bar carries progress")
 e("EVOLVE_BTN_READY", "עוד סבב!", "cta.election", "*", "hud.cta.election")
@@ -148,10 +190,10 @@ e("EVOLVE_BADGE", "!", "tab.badge")
 e("FLOATER", "⟦+{n}⟧~₪", "stage.floater", "", "first-minute §2.2 '+1 ₪'")
 e("FLOATER_CRIT", "⟦+{n}!⟧~₪", "stage.floater")
 e("BUFF_CHIP_FRENZY", "הכנסה ⟦×{mult}⟧ · ⟦{s}⟧ שנ׳", "stage.buffChip")
-e("BUFF_CHIP_TAPFRENZY", "שליפה ⟦×{mult}⟧ · ⟦{s}⟧ שנ׳", "stage.buffChip")
+e("BUFF_CHIP_TAPFRENZY", "שליפה ⟦×{mult}⟧ · ⟦{s}⟧ שנ׳", "stage.buffChip", note="Pre-picker (Bibi) form. When the picker ships the view draws BUFF_CHIP_TAPFRENZY_LEADER for every leader, Bibi included (his kit verb is שליפה)")
 e("BANNER_BUNCH", "מזוודה! ⟦+{n}⟧~₪", "stage.banner", "*")
-e("BANNER_FRENZY", "טורבו בכובע! ⟦×{mult}⟧", "stage.banner", "*")
-e("BANNER_TAPFRENZY", "ידיים של קוסם! ⟦×{mult}⟧", "stage.banner", "*")
+e("BANNER_FRENZY", "טורבו בכובע! ⟦×{mult}⟧", "stage.banner", "*", note="Pre-picker (Bibi) form; BANNER_FRENZY_LEADER replaces it when the picker ships (Bibi's kit frenzyBanner is the same text)")
+e("BANNER_TAPFRENZY", "ידיים של קוסם! ⟦×{mult}⟧", "stage.banner", "*", note="Shared by every leader: an idiom, not Bibi's name (Bar 2026-09-29)")
 e("CALLOUT_GOLDEN", "תפוס אותה!", "stage.toast", note="Not used by the od-sevev FTUE (S1 is textless)")
 e("TICKER_TAG", "מבזק", "ticker.tag", "", "hud.ticker.tag")
 e("TAB_PRODUCERS", "מקורות", "tab.label", "*", "tab.sources")
@@ -182,7 +224,7 @@ e("SET_RESET", "איפוס התקדמות", "sheet.label", "", "set.reset")
 e("SET_RESET_BTN", "איפוס", "unused", note="The whole danger row is the button")
 e("SET_ON", "פועל", "sheet.state", "", "set.on")
 e("SET_OFF", "כבוי", "sheet.state", "", "set.off")
-e("SET_KEYS", "רווח: שליפה · S: מזוודה · ⟦1-4⟧: לשוניות · ESC: חזרה", "sheet.note", "", "first-minute §7.4", "Desktop only")
+e("SET_KEYS", "רווח: הקשה · S: מזוודה · ⟦1-4⟧: לשוניות · ESC: חזרה", "sheet.note", "", "first-minute §7.4; leader-select-spec §10.3", "Desktop only. Neutral: the tap verb differs per leader")
 e("SET_VERSION", "עוד סבב · גרסה ⟦{version}⟧", "sheet.note")
 e("RST_TITLE", "בטוח?", "modal.title", "", "reset.title")
 e("RST_BODY_1", "זה כמו פיזור הכנסת, רק בלי בחירות חוזרות.", "modal.body", "*", "reset.joke")
@@ -210,7 +252,7 @@ e("EVO_K3", "התיקים", "modal.body")
 e("EVO_K4", "ההגדרות", "modal.body")
 e("EVO_NEED", "צריך רוב כדי לפזר את הכנסת.", "modal.body")
 e("EVO_RULE_1", "הבסיס הנאמן נשאר אחרי הבחירות,", "modal.body")
-e("EVO_RULE_2", "וגדל עם כל שקל שנשלף בסבב.", "modal.body")
+e("EVO_RULE_2", "וגדל עם כל שקל שנכנס בסבב הבחירות.", "modal.body", "", "leader-select-spec §10.3")
 e("EVO_GROW", "הבחירות עוברות. הבסיס נשאר.", "modal.body", "*")
 e("EVO_BACK", "עוד לא", "modal.btnFull", "", "elect.cancel")
 e("EVO_CONFIRM", "לפזר את הכנסת", "modal.btnFull", "", "elect.go")
@@ -221,12 +263,12 @@ e("OFF_AWAY", "לא היית פה {dur}.", "modal.body")
 e("OFF_AWAY_CAPPED", "לא היית פה יותר מ־⟦8⟧ שעות.", "modal.body")
 e("OFF_HARVESTED", "בינתיים נכנס לקופה:", "modal.body")
 e("OFF_AMOUNT", "⟦+{n}⟧~₪", "modal.big", "", "ret.gain")
-e("OFF_NOTE_1", "כשאתה לא פה, הכובע שולף בחצי קצב,", "modal.body")
+e("OFF_NOTE_1", "כשאתה לא פה, הקופה מתמלאת בחצי קצב,", "modal.body", "", "leader-select-spec §10.3")
 e("OFF_NOTE_2", "ורק עד ⟦8⟧ שעות.", "modal.body")
 e("OFF_COLLECT", "לאסוף", "modal.btnFull", "", "ret.btn")
 e("ROTATE", "תחזיק את הטלפון לאורך.", "modal.title", "", "sys.rotate")
-e("F1_TAP", "מבזק: כובע נצפה בלשכה. מקורות: יש בו משהו.", "ticker.crawl", note="Text fallback only; the od-sevev P0 prompt is textless (ux/ftue.md)")
-e("F1_TAP_IDLE", "הכובע עדיין מחכה. יש לו סבלנות. יש לו גם שקלים.", "ticker.crawl", "*", note="Text fallback only")
+e("F1_TAP", "מבזק: ראש הרשימה נכנס ללשכה. הקופה פתוחה.", "ticker.crawl", note="Text fallback only; the od-sevev P0 prompt is textless (ux/ftue.md). Neutral (leader-select-spec §10.3)")
+e("F1_TAP_IDLE", "הקופה עדיין מחכה. יש לה סבלנות. יש לה גם שקלים.", "ticker.crawl", "*", note="Text fallback only. Neutral (leader-select-spec §10.3)")
 e("F2_HIRE", "לקנות! לקנות!", "ticker.crawl", "*G", "dubi.buy")
 e("F2_HIRE_NUDGE", "משלם המסים מחכה בכרטיס. הוא כבר נאנח.", "ticker.crawl", "*", note="Text fallback only")
 e("F3_UPGRADE", "נפתחו ספינים. דובי כבר חוזר עליהם.", "stage.toast", "*", "toast.spins")
@@ -256,9 +298,9 @@ e("TROPHY_SECRET", "תיק חסוי", "dos.row", "*")
 e("TROPHY_LOCKED", "עוד לא נפתח", "dos.row")
 e("TROPHY_DONE", "נפתח", "dos.row", "*")
 e("ST_PLAYTIME", "זמן במשחק", "dos.row")
-e("ST_ALLTIME", "סה״כ נשלף מהכובע", "dos.row")
-e("ST_TAPS", "שליפות", "dos.row")
-e("ST_CRITS", "ארנבים", "dos.row")
+e("ST_ALLTIME", "סה״כ נכנס לקופה", "dos.row", "", "leader-select-spec §10.3")
+e("ST_TAPS", "הקשות", "dos.row", "", "leader-select-spec §10.3", "Lifetime taps across every leader, so the neutral word; a leader's own row uses kit.tap.verbPlural (DOS_LEADER_TAPS)")
+e("ST_CRITS", "הברקות", "dos.row", "*", "leader-select-spec §10.3", "Lifetime crits across every leader (rabbits, flips, threats...); a leader's own row uses kit.tap.critPlural")
 e("ST_GOLDENS", "מזוודות שנתפסו", "dos.row")
 e("ST_MISSED", "מזוודות שהגיעו ליעדן", "dos.row", "*")
 e("ST_EVOLUTIONS", "סבבי בחירות", "dos.row")
@@ -291,7 +333,7 @@ e("IMP_BODY_3", "", "unused")
 e("IMP_CONFIRM", "לטעון", "unused")
 e("IMP_PROMPT", "הדביקו כאן את קוד השמירה (HK1:…)", "html:40", "", "main.gd import_save window.prompt", "System prompt text; reachable only if the save-code row returns (not in the od-sevev settings)")
 e("OFF_AWAY_CAPPED_H", "לא היית פה יותר מ־⟦{h}⟧ שעות.", "modal.body")
-e("OFF_NOTE_1_PCT", "כשאתה לא פה, הכובע שולף ב־⟦{pct}%⟧ מהקצב,", "modal.body")
+e("OFF_NOTE_1_PCT", "כשאתה לא פה, הקופה מתמלאת ב־⟦{pct}%⟧ מהקצב,", "modal.body", "", "leader-select-spec §10.3")
 e("OFF_NOTE_2_H", "ורק עד ⟦{h}⟧ שעות.", "modal.body")
 e("OFF_CAP_TIP", "סעיפים בהסכם הקואליציוני מאריכים את המגבלה.", "modal.body", note="Param-free (main.gd passes no params)")
 e("CLOSE", "סגור", "modal.btnFull", "", "sys.close")
@@ -305,7 +347,7 @@ e("F_ERA", "תחנה חדשה: {era}.", "ticker.crawl")
 # ================= new keys (first-minute §8 IDs -> UPPER_SNAKE) =================
 # --- HTML: loading, disclaimer
 e("LOAD_1", "מקפל מזוודות…", "html:18", "*", "load.1")
-e("LOAD_2", "מחמם את הכובע…", "html:18", "*", "load.2")
+e("LOAD_2", "מחמם את הקלפי…", "html:18", "*", "load.2; leader-select-spec §10.3", "Singular like LOAD_1 / LOAD_3")
 e("LOAD_3", "מתייעץ ביטחונית…", "html:18", "*", "load.3")
 e("LOAD_BAR_LABEL", "טוען את המשחק", "html:14", "", "load.bar.label")
 e("DISC_TITLE", "רגע לפני הסבב", "html:16", "", "disc.title")
@@ -317,7 +359,7 @@ e("DISC_BY", "מאת {publisher} · {mail} · אודות", "html:50", "L", "disc
 e("DISC_BTN_SOUND", "עם סאונד", "html:10", "", "disc.btn.sound")
 e("DISC_BTN_QUIET", "בשקט", "html:8", "", "disc.btn.quiet")
 e("DISC_BTN_QUIET_CAP", "אני בישיבה", "html:12", "*", "disc.btn.quiet.cap")
-e("SPLASH_LOADING", "רגע, ביבי מתלבש…", "html:18", "*", "N0 splash loading line")
+e("SPLASH_LOADING", "רגע, מסדרים את הרשימה…", "html:24", "*", "N0 splash loading line; leader-select-spec §10.3", "One line under the wordmark (system font 16, 358 CSS wide): 24 chars fit")
 # --- title / rounds / moods
 e("TITLE_ROUND", "סבב בחירות מס׳ ⟦{n}⟧", "modal.title", "", "title.round line 1")
 e("MOOD_1", "הציבור נרגש", "modal.body", "*", "mood.1")
@@ -338,7 +380,7 @@ e("HUD_COUNTDOWN_AFTER", "יום ⟦{n}⟧", "ticker.chip", "", "hud.countdown.a
 e("HUD_SEATS", "מנדטים", "rowB.label", "", "hud.seats")
 e("HUD_SEATS_VALUE", "{seats}/61", "rowB.value", "", "first-minute §3.2 #2")
 e("HUD_SEATS_BLACKOUT", "חסוי עד ⟦27.10⟧", "rowB.stamp", "L", "hud.seats.blackout")
-e("HUD_SUSP", "חשד", "stage.thermo", "", "hud.susp")
+e("HUD_SUSP", "חשד", "stage.thermo", "", "hud.susp", "Court skin (Bibi). Every other leader: PRESS_SUSP / _HOT / _BOIL")
 e("HUD_SUSP_HOT", "מבעבע", "stage.thermo", "", "hud.susp.hot")
 e("HUD_SUSP_BOIL", "רותח!", "stage.thermo", "", "hud.susp.boil")
 e("HUD_COTTAGE_TIP", "מדד הקוטג׳: הקופה שלך גדלה. הקוטג׳ קטן.", "stage.toast", "*", "hud.cottage.tip")
@@ -349,11 +391,11 @@ e("HUD_MUTE", "השתקה", "html:12", "", "hud.mute", "Accessible label (not dr
 e("HUD_UNMUTE", "ביטול השתקה", "html:12", "", "hud.unmute", "Accessible label (not drawn)")
 e("HUD_SETTINGS", "הגדרות", "html:7", "", "hud.settings", "Accessible label (not drawn)")
 # --- Dubi squawks (words owned by the copy deck)
-e("DUBI_FIRSTTAP", "אין כלום! אין כלום!", "stage.toast", "*G", "dubi.firsttap")
+e("DUBI_FIRSTTAP", "אין כלום! אין כלום!", "stage.toast", "*G", "dubi.firsttap", "Bibi's squawk. Other leaders: kit.dubi.squawks.firsttap (content), at their first tap (ftue.md H1 / H1L)")
 e("DUBI_BUY", "לקנות! לקנות!", "stage.toast", "*G", "dubi.buy")
 e("DUBI_ELECT", "בחירות! בחירות!", "stage.toast", "*G", "dubi.elect")
 e("DUBI_MISS", "לא ידענו! לא ידענו!", "stage.toast", "*G", "dubi.miss")
-e("DUBI_DROP", "מי? מי?", "stage.toast", "*G", "dubi.drop")
+e("DUBI_DROP", "מי? מי?", "stage.toast", "*G", "dubi.drop", "Bibi-only (the aide drop)")
 # --- tabs, toasts
 e("TAB_SOURCES", "מקורות", "tab.label", "*", "tab.sources")
 e("TAB_SPINS", "ספינים", "tab.label", "", "tab.spins")
@@ -361,7 +403,7 @@ e("TAB_COALITION", "קואליציה", "tab.label", "", "tab.coalition")
 e("TAB_DOSSIER", "תיקים", "tab.label", "*", "tab.dossier")
 e("TOAST_SPINS", "נפתחו ספינים. דובי כבר חוזר עליהם.", "stage.toast", "*", "toast.spins")
 e("TOAST_DOSSIER", "נפתח לך תיק.", "stage.toast", "*", "toast.dossier")
-e("SYS_OFFLINE", "אין חיבור. הכובע עובד גם בלי.", "stage.toast", "*", "sys.offline")
+e("SYS_OFFLINE", "אין חיבור. הקופה עובדת גם בלי.", "stage.toast", "*", "sys.offline; leader-select-spec §10.3")
 e("TOAST_SPIN_END", "הספין ״{NAME}״ ירד מהכותרות.", "stage.toast", "*", "a timed spin (S02, S07, S10, S12 ...) ends (new)", "The subject is הספין (m), so any spin name agrees")
 e("TOAST_COURT_END", "העדות הסתיימה. הקצב חזר.", "stage.toast", "", "court day end (new)")
 e("RESET_DONE", "נמחק. אין כלום.", "stage.toast", "*", "reset.done")
@@ -408,12 +450,12 @@ e("TOAST_CHAT_HEAD", "{name} · בקבוצה", "stage.toastHead", "", "C1 chat t
 e("CHAT_PAID", "שולם", "chat.label", "", "chat.paid")
 e("CHAT_REPLY_1", "העברתי.", "chat.bubble", "*", "chat.reply.1")
 e("CHAT_REPLY_2", "סגור.", "chat.bubble", "*", "chat.reply.2")
-e("CHAT_REPLY_3", "בוצע. אין כלום.", "chat.bubble", "*", "chat.reply.3")
+e("CHAT_REPLY_3", "בוצע. תמחקו אחרי קריאה.", "chat.bubble", "*", "chat.reply.3", "The player's own reply: 'אין כלום' is Bibi's catchphrase and read wrong in any other leader's mouth")
 e("CHAT_ULTIMATUM", "אולטימטום", "chat.label", "", "chat.ultimatum")
 e("CHAT_ULT_TIMER", "{mmss}", "chat.timer", "", "first-minute §4.2")
 e("CHAT_FORWARDED", "הועברה פעמים רבות", "chat.name", "*", "pitch §6 Ben Gvir")
 e("CHAT_DELETED", "ההודעה נמחקה", "chat.bubble", "*", "chat.deleted")
-e("CHAT_SYS_CREATED", "ביבי יצר את הקבוצה ״קואליציה ⟦61⟧״", "chat.sys", "", "chat.sys.created")
+e("CHAT_SYS_CREATED", "יצרת את הקבוצה ״קואליציה ⟦61⟧״", "chat.sys", "", "chat.sys.created; leader-select-spec §10.3", "Second person, as a chat app tells the group's creator: the player IS this round's leader. Needs no {name} (works in the Bibi-only build and after the picker) and no gender form (יצרת is spelled the same for m/f)")
 e("CHAT_SYS_JOINED_M", "{name} הצטרף לקבוצה", "chat.sys", "", "chat.sys.joined")
 e("CHAT_SYS_JOINED_F", "{name} הצטרפה לקבוצה", "chat.sys", "", "chat.sys.joined")
 e("CHAT_SYS_LEFT_M", "{name} עזב את הקבוצה", "chat.sys", "", "chat.sys.left")
@@ -432,7 +474,7 @@ e("CHAT_BRAWL_BTN", "צאו החוצה", "chat.btn", "*", "chat.brawl.btn")
 e("CHAT_BRAWL_AFTER", "נוצרה קבוצה חדשה: ״המסדרון״ · ⟦2⟧ משתתפים", "chat.sys", "*G", "chat.brawl.after (deck wording)")
 e("CHAT_CORRIDOR_COUNT", "⟦{n}⟧ הודעות", "chat.label", "*", "chat.brawl.after muted counter")
 e("CHAT_SYS_MUTED", "{who} ביקשו רשות דיבור · נדחה", "chat.sys", "", "chat.sys.muted", "{who} = partners[distel].copy.mutedWho (\"היועצים המשפטיים\"), never Distel's name")
-e("CHAT_SYS_CLEARED", "ביבי ניקה את הצ׳אט. לקראת סבב בחירות ⟦{n}⟧.", "chat.sys", "*", "chat.sys.cleared")
+e("CHAT_SYS_CLEARED", "ניקית את הצ׳אט. לקראת סבב בחירות ⟦{n}⟧.", "chat.sys", "*", "chat.sys.cleared; leader-select-spec §10.3", "Second person (see CHAT_SYS_CREATED); ניקית is spelled the same for m/f")
 e("CHAT_EMPTY", "שקט בקבוצה. זה לא יחזיק.", "chat.sys", "*", "chat.empty")
 e("CHAT_COMPOSER", "פה מדברים רק בשקלים", "chat.composer", "*", "chat.composer")
 e("CHAT_TRANSFER_TITLE", "חלון העברות", "chat.banner", "", "chat.transfer.title")
@@ -443,7 +485,7 @@ e("CHAT_PINNED_OPEN", "לפתוח את ההסכם", "html:16", "", "rtl-map §7.
 e("CHAT_COLLAPSE", "לסגור את הקבוצה", "html:16", "", "rtl-map §6.3", "Accessible label of the chevron (not drawn)")
 # --- aide drop (the button words are the copy deck's)
 e("AIDE_HOLDS", "הכסף אצל יועץ", "card.line2wide", "", "copy deck §G", "State line on the aide's card")
-e("AIDE_BTN", "אני לא מכיר אותו", "modal.btnFull", "*G", "copy deck §G")
+e("AIDE_BTN", "אני לא מכיר אותו", "modal.btnFull", "*G", "copy deck §G", "Bibi-only (the aide drop): hidden on the press card")
 e("AIDE_CONFIRM_TITLE", "לנתק מגע?", "modal.title", "", "new: confirm (pitch §11 Q4)")
 e("AIDE_CONFIRM_BODY", "החשד יורד לרצפה של הסבב. הבסיס יורד ב־⟦3%⟧, לתמיד.", "modal.body", "", "new: honest cost")
 e("AIDE_CONFIRM_GO", "לא מכיר אותו", "modal.btnFull", "*", "new")
@@ -458,7 +500,7 @@ e("LEAK_OPEN", "להציץ", "modal.btnHalf", "*", "new: opens the leak")
 e("LEAK_READONLY", "קריאה בלבד", "chat.label", "", "new")
 # --- court day
 e("COURT_TITLE", "יום משפט", "modal.title", "", "court.title")
-e("COURT_BODY", "ביבי בדוכן העדים. ההכנסות מואטות.", "court.body", "", "court.body")
+e("COURT_BODY", "ביבי בדוכן העדים. ההכנסות מואטות.", "court.body", "", "court.body", "Bibi-only: the court skin is his (leader-select-spec §5.6); every other leader draws PRESS_BODY_M/_F")
 e("COURT_EFFECT", "כל ההכנסות: ⟦×0.5⟧ עד סוף העדות", "court.body", "", "new: legible effect (pitch §10)")
 e("COURT_TIMER", "עדות: ⟦{mmss}⟧", "court.body", "", "court.timer")
 e("COURT_POSTPONE", "התייעצות ביטחונית · ⟦{price}⟧~₪", "html:40", "*", "court.postpone", "Accessible label; drawn as COURT_POSTPONE_VERB over CARD_PRICE")
@@ -470,12 +512,12 @@ e("COURT_CHIP_TIMER", "{mmss}", "ticker.chip", "", "court.chip line 2")
 e("COURT_STAMP", "נדחה", "modal.title", "*", "court.stamp")
 e("COURT_POSTPONED_PREFIX", "הדיון נדחה:", "court.body", "G", "copy deck §H prefix")
 e("COURT_SUMMONS_TITLE", "זימון לעדות", "modal.title", "", "court card title while phase == summons")
-e("COURT_SUMMONS_BODY", "ביבי זומן לדוכן העדים. אפשר לדחות, אפשר להעיד.", "court.body", "*", "court card body while phase == summons", "COURT_BODY ('ביבי בדוכן העדים. ההכנסות מואטות.') is true only once testimony runs")
+e("COURT_SUMMONS_BODY", "ביבי זומן לדוכן העדים. אפשר לדחות, אפשר להעיד.", "court.body", "*", "court card body while phase == summons", "COURT_BODY ('ביבי בדוכן העדים. ההכנסות מואטות.') is true only once testimony runs. Bibi-only; others draw PRESS_SUMMONS_BODY")
 e("COURT_SUMMONS_EFFECT", "בזמן העדות: כל ההכנסות ⟦×0.5⟧", "court.body", "", "court card effect line while phase == summons")
 e("COURT_SUMMONS_TIMER", "העדות מתחילה בעוד ⟦{mmss}⟧", "court.body", "", "court card timer while phase == summons (the auto-testify countdown)")
 e("COURT_CHIP_SUMMONS", "זימון", "ticker.chip", "", "court chip line 1 while phase == summons")
 # --- pardon desk (the "stamp mini-game", launch as text)
-e("PARDON_ROW", "בקשת חנינה", "dos.btn", "", "pitch §2 launch spine")
+e("PARDON_ROW", "בקשת חנינה", "dos.btn", "", "pitch §2 launch spine", "Bibi-only: the T4 row is hidden in every other leader's round (leader-select-spec §5.6)")
 e("PARDON_TITLE", "בקשת חנינה", "modal.title")
 e("PARDON_FORM", "טופס בקשה לחנינה · עותק ⟦{n}⟧", "modal.body", "*")
 e("PARDON_SUBMIT", "להגיש בקשה", "modal.btnFull")
@@ -512,7 +554,7 @@ e("RET_BODY_GONE", "תרגיל ההעלמה הכי טוב שלך עד היום."
 e("RET_GAIN", "⟦+{x}⟧~₪", "modal.big", "", "ret.gain")
 e("RET_CHAT_ONE", "הודעה חדשה אחת בקואליציה", "modal.body", "", "ret.chat")
 e("RET_CHAT_OTHER", "⟦{n}⟧ הודעות חדשות בקואליציה", "modal.body", "", "ret.chat")
-e("RET_CAP", "הכובע סופר עד ⟦{h}⟧ שעות. גם לו יש גבולות.", "modal.body", "*", "ret.cap")
+e("RET_CAP", "הקופה סופרת עד ⟦{h}⟧ שעות. גם לה יש גבולות.", "modal.body", "*", "ret.cap; leader-select-spec §10.3")
 e("RET_BTN", "לאסוף", "modal.btnFull", "", "ret.btn")
 # --- duration formatters (Fmt.dur, Fmt.secs)
 e("FMT_DUR_M", "⟦{m}⟧ דק׳", "modal.body", "", "Fmt.dur < 1 h")
@@ -617,11 +659,11 @@ e("RESULT_DISC", "סאטירה. לא קשור לאף מפלגה או מועמד.
 # --- share texts (plain text into WhatsApp; plural address)
 e("SHARE_TEXT_RESULT", "שרדתי {rounds} {days} ב״עוד סבב״. מישהו פה עושה יותר? {url}", "share-text:90", "*", "§5.3 result")
 e("SHARE_TEXT_RECEIPT", "הקיסרות שלי ב״עוד סבב״ עלתה למשפחה הממוצעת {amount} ₪ החודש. (במשחק. בינתיים.) {url}", "share-text:100", "*L", "§5.3 receipt")
-e("SHARE_TEXT_INVITE", "משחק סאטירה על הבחירות שלא נגמרות. תורכם להיות ביבי. {url}", "share-text:70", "*", "§5.3 invite")
+e("SHARE_TEXT_INVITE", "משחק סאטירה על הבחירות שלא נגמרות. תורכם להיות ביבי. {url}", "share-text:70", "*", "§5.3 invite", "Kept until the picker ships: game/tests/unit/test_share_view.gd pins 'ביבי' in the invite. Replaced then by SHARE_TEXT_INVITE_NEXT (engine developer updates the test)")
 # --- OG / manifest
 e("OG_TITLE", "עוד סבב: הבחירות שלא נגמרות", "og:45", "*", "§5.4 og:title")
-e("OG_DESCRIPTION", "שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.", "og:110", "L*", "§5.4 og:description")
-e("OG_IMAGE_ALT", "ביבי בפיקסלים שולף שקלים מכובע, ומזוודה עם מדבקת DOHA עפה ברקע", "og:90", "", "§5.4 og:image:alt")
+e("OG_DESCRIPTION", "שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.", "og:110", "L*", "§5.4 og:description", "True of the shipped build; OG_DESCRIPTION_NEXT replaces it on picker ship day (it describes the pick). shell.html hard-codes the value today")
+e("OG_IMAGE_ALT", "ביבי בפיקסלים שולף שקלים מכובע, ומזוודה עם מדבקת DOHA עפה ברקע", "og:90", "", "§5.4 og:image:alt", "Describes the shipped og.jpg; OG_IMAGE_ALT_NEXT ships with the lineup key art (Bar 2026-09-29)")
 e("OG_SITE_NAME", "עוד סבב", "og:12", "", "§5.4 og:site_name")
 e("MANIFEST_SHORT_NAME", "עוד סבב", "og:12", "", "§5.5 short_name")
 e("MANIFEST_NAME", "עוד סבב · משחק סאטירה", "og:30", "", "§5.5 name")
@@ -630,7 +672,7 @@ e("DOS_TITLE", "תיקים", "tall.title", "*", "dos.title")
 e("DOS_ROUNDS", "סבבי בחירות: ⟦{n}⟧", "dos.row", "", "dos.stats")
 e("DOS_COURT_DAYS", "ימי משפט: ⟦{n}⟧", "dos.row", "", "dos.stats")
 e("DOS_POSTPONES", "בקשות דחייה: ⟦{n}⟧", "dos.row", "", "dos.stats")
-e("DOS_TOTAL", "סה״כ נשלף מהכובע: ⟦{x}⟧~₪", "dos.row", "", "dos.stats")
+e("DOS_TOTAL", "סה״כ נכנס לקופה: ⟦{x}⟧~₪", "dos.row", "", "dos.stats; leader-select-spec §10.3")
 e("DOS_CAUGHT", "מזוודות שנתפסו: ⟦{n}⟧", "dos.row", "", "dos.stats")
 e("DOS_ARRIVED", "שהגיעו ליעדן: ⟦{n}⟧", "dos.row", "*", "dos.stats (the punchline row)")
 e("DOS_BASE", "הבסיס הנאמן: ⟦{n}⟧ · ⟦+{pct}%⟧ לכל הכנסה", "dos.row", "", "new")
@@ -639,12 +681,76 @@ e("DOS_SUSP_FLOOR", "חשד שנשאר מסבבים קודמים: ⟦{pct}%⟧",
 e("ALBUM_TITLE", "אלבום: תמיד בפריים", "sheet.title", "", "album.title")
 e("ALBUM_TROPHY", "שלום בית בפריים", "dos.row", "", "album.trophy")
 # --- system
-e("SYS_ROTATE_CAP", "ביבי עובד רק בעמידה.", "modal.body", "*", "sys.rotate.cap")
+e("SYS_ROTATE_CAP", "הקואליציה עובדת רק בעמידה.", "modal.body", "*", "sys.rotate.cap; leader-select-spec §10.3")
 e("SYS_ERROR", "משהו נתקע.", "modal.title", "", "sys.error")
 e("SYS_RELOAD", "לרענן", "modal.btnFull", "", "sys.reload")
 e("SYS_CLOSE", "סגור", "sheet.btn", "", "sys.close")
 e("SYS_BACK", "חזרה", "html:5", "", "sys.back", "Accessible label of the chevron")
-e("SYS_ERA_PACK_LATE", "הכנסת בשיפוצים. ביבי עובד מהבית.", "ticker.crawl", "*G", "first-minute §2.1 [GD] suggestion")
+e("SYS_ERA_PACK_LATE", "הכנסת בשיפוצים. הממשלה עובדת מהבית.", "ticker.crawl", "*G", "first-minute §2.1 [GD] suggestion; leader-select-spec §10.3")
+
+# ================= leader select (design/leader-select-spec.md; ux/rtl-map.md §8, ux/screen-graph.md §0, ux/ftue.md §8) =================
+# Words that are the designer's (leaderSelect.pick.copy, hazardSkins.press, leaders.liberman.rule.copy) are mirrored here
+# verbatim and checked for drift below; the view draws these keys. The per-leader nouns ({short}, {party}, {verb}, ...)
+# come from design/content.json leaders[] at runtime; their worst cases are measured from the content (PH above).
+# --- the picker screen (LEADER_PICK)
+e("LEADER_PICK_TITLE", "מי מקים את הממשלה הפעם?", "pick.title", "", "leaderSelect.pick.copy.title", "First launch: under the wordmark")
+e("LEADER_PICK_TITLE_AFTER", "סבב בחירות חדש. מי בראש הרשימה?", "pick.title", "", "leaderSelect.pick.copy.titleAfter", "After every election")
+e("LEADER_PICK_FRESH_CHIP", "ראש רשימה חדש: ⟦+{pct}%⟧ לבסיס", "pick.chip", "", "spec §3.3 fresh face (D9); Bar 2026-09-29 keeps +10%", "After an election only: ONE chip under the title, never on a tile (a percent beside a face reads as a poll swing). {pct} = leaderSelect.pick.freshFaceBasePct")
+e("LEADER_PICK_AGAIN", "עוד סבב עם {short}", "pick.again", "", "leaderSelect.pick.copy.again", "The last round's leader, with their 24 avatar at x2 as the leading icon. Esc / back = this button")
+e("LEADER_PICK_RANDOM", "הפתעה", "pick.name", "*", "leaderSelect.pick.copy.random", "The random tile: the grid centre (3x3) or the full-width bar (wave 1, 2x2)")
+e("LEADER_PICK_RANDOM_CAP", "דובי בוחר בשבילך. גם הוא עוד לא יודע את מי.", "pick.strip", "*", "rtl-map §8.4", "The strip line while the random tile is focused or pressed (its 'blurb')")
+e("LEADER_PICK_RANDOM_LINE", "דובי בחר. הוא יחזור על זה.", "stage.toast", "*", "leaderSelect.pick.copy.randomLine", "Dubi's bubble after a random pick, instead of DUBI_LEARNED")
+e("LEADER_PICK_DISCLAIMER", "כולם מקבלים אותו משחק. אף אחד לא מנצח.", "pick.strip", "L", "leaderSelect.pick.copy.disclaimer", "The strip's default line (nothing focused or pressed)")
+e("LEADER_PICK_UNDO", "להחליף ראש רשימה", "pick.undo", "", "leaderSelect.pick.copy.undo ('להחליף'); rtl-map §8.6", "The stage chip for undoSec after a pick, until the first tap. 'להחליף' alone does not say what changes, at the bottom of a stage")
+e("LEADER_PICK_FRESH", "פנים חדשות: ⟦+{pct}%⟧ לבסיס בסבב הבחירות הזה", "stage.toast", "*", "leaderSelect.pick.copy.freshFace", "Toast after a pick that differs from the last round's leader")
+e("LEADER_PICK_PLATE", "{short} · {party}", "stage.toast", "", "rtl-map §8.6 (the round-start lower third)", "The first toast of a round, as the leader walks in")
+e("LEADER_PICK_CARD_RULE", "הכלל המיוחד: {rule}", "modal.body", "", "spec §5.1 (rule.name; rule.text under it, box pick.card)", "Leader card only; hidden for a leader without a `rule` (Bibi: his signature is the court)")
+e("LEADER_PICK_CARD_GO", "לשחק בתור {short}", "modal.btnFull", "", "rtl-map §8.5", "Role play, never 'לבחור ב…' (reads as 'elect X': an endorsement)")
+e("DUBI_LEARNED", "דובי למד מסרים חדשים.", "stage.toast", "*", "leaderSelect.pick.copy.dubiLearned", "Dubi's bubble at every pick (D8)")
+e("F9_PICK", "בכל סבב בחירות אפשר להחליף ראש רשימה. הבסיס נשאר.", "pick.strip", "", "leaderSelect.pick.copy.ftueAfterFirstElection; ftue.md LP", "The strip's default line on the first picker after election 1 (ftue.lp), in place of LEADER_PICK_DISCLAIMER")
+# --- HUD and screens around the leader
+e("ELECT_LEADER", "{short} · {party}", "modal.body", "", "spec §6.1 (the election card names the leader)", "O3: a line under ELECT_TITLE ('סבב בחירות מס׳ 999 · סמוטריץ׳' is 536 px, over the 432 title box)")
+e("DOS_STATUS_LEADER", "{short} · {party}", "tall.status", "", "rtl-map §6.3 T4 header", "T4 header status line: this round's leader")
+e("DOS_LEADERS", "ראשי רשימה", "dos.row", "", "spec §6.2 T4 section", "Section header; one row per leader played, in first-played order (never sorted by a count: that is a ranking)")
+e("DOS_LEADER_ROUNDS_ONE", "{short} · סבב בחירות אחד", "dos.row", "", "spec §6.2 leaders.<id>.rounds")
+e("DOS_LEADER_ROUNDS_TWO", "{short} · שני סבבי בחירות", "dos.row", "", "spec §6.2")
+e("DOS_LEADER_ROUNDS_OTHER", "{short} · ⟦{n}⟧ סבבי בחירות", "dos.row", "", "spec §6.2")
+e("DOS_LEADER_TAPS", "{verbPlural}: ⟦{n}⟧ · {critPlural}: ⟦{c}⟧", "dos.row", "", "spec §6.2 leaders.<id>.taps / crits", "Muted second line of a leader row, in the kit's own nouns")
+e("BUFF_CHIP_TAPFRENZY_LEADER", "{verb} ⟦×{mult}⟧ · ⟦{s}⟧ שנ׳", "stage.buffChip", "", "spec §10.3 BUFF_CHIP_TAPFRENZY", "{verb} = kit.tap.verb")
+e("BANNER_FRENZY_LEADER", "{banner} ⟦×{mult}⟧", "stage.banner", "*", "spec §10.3 BANNER_FRENZY", "{banner} = kit.tap.frenzyBanner")
+e("SPIN_EFFECT_S01_LEADER", "⟦+0.30⟧~₪ לכל {verb}", "card.line2wide", "", "spec §10.3 spin s01 (slot A)", "Replaces upgradeEffects.s01 for every leader once the picker ships")
+e("SPIN_EFFECT_S02_LEADER", "{verb} ⟦×1.5⟧ לדקה", "card.line2wide", "", "spec §10.3 spin s02 (slot B)")
+e("SPIN_EFFECT_S11_LEADER", "{critName}: סיכוי ⟦+5%⟧", "card.line2wide", "", "spec §10.3 spin s11 (slot E)", "s07 is Bibi-only, so upgradeEffects.s07 keeps 'שליפה'")
+# --- the press skin (every leader but Bibi; spec §5.6, leaderSelect.hazardSkins.press). Same geometry as the court.
+e("PRESS_SUSP", "כותרות", "stage.thermo", "", "hazardSkins.press.meterName")
+e("PRESS_SUSP_HOT", "חם", "stage.thermo", "", "hazardSkins.press.hotWords[0]")
+e("PRESS_SUSP_BOIL", "רותח", "stage.thermo", "", "hazardSkins.press.hotWords[1]")
+e("PRESS_REVEAL", "נפתח עליך תחקיר.", "stage.toast", "*", "hazardSkins.press.revealToast", "K2 for a press leader (instead of TOAST_DOSSIER)")
+e("PRESS_TITLE", "יום תחקיר", "modal.title", "", "hazardSkins.press.dayTitle")
+e("PRESS_BODY_M", "{short} מגיב לתחקיר. ההכנסות מואטות.", "court.body", "", "hazardSkins.press.dayBody")
+e("PRESS_BODY_F", "{short} מגיבה לתחקיר. ההכנסות מואטות.", "court.body", "", "hazardSkins.press.dayBodyF")
+e("PRESS_EFFECT", "כל ההכנסות: ⟦×0.5⟧ עד סוף התגובה", "court.body", "", "hazardSkins.press.dayEffect")
+e("PRESS_TIMER", "תגובה: ⟦{mmss}⟧", "court.body", "", "COURT_TIMER's twin")
+e("PRESS_SUMMONS_TITLE", "תחקיר בדרך", "modal.title", "", "hazardSkins.press.summonsTitle")
+e("PRESS_SUMMONS_BODY", "תחקיר עליך עולה הערב. אפשר לדחות, אפשר להגיב.", "court.body", "*", "hazardSkins.press.summonsBody")
+e("PRESS_SUMMONS_EFFECT", "בזמן התגובה: כל ההכנסות ⟦×0.5⟧", "court.body", "", "COURT_SUMMONS_EFFECT's twin")
+e("PRESS_SUMMONS_TIMER", "התגובה מתחילה בעוד ⟦{mmss}⟧", "court.body", "", "COURT_SUMMONS_TIMER's twin")
+e("PRESS_TESTIFY", "להגיב", "court.btn2", "", "hazardSkins.press.testifyVerb")
+e("PRESS_POSTPONE", "{postpone} · ⟦{price}⟧~₪", "html:40", "", "COURT_POSTPONE's twin", "Accessible label; drawn as kit.hazard.postponeVerb over CARD_PRICE")
+e("PRESS_CHIP", "יום תחקיר · ⟦{mmss}⟧", "html:20", "", "COURT_CHIP's twin (a11y)")
+e("PRESS_CHIP_TITLE", "יום תחקיר", "ticker.chipWide", "", "hazardSkins.press.dayTitle (chip line 1)")
+e("PRESS_CHIP_SUMMONS", "תחקיר", "ticker.chip", "", "hazardSkins.press.chip (chip line 1 during the summons)")
+e("PRESS_END", "התגובה פורסמה. הקצב חזר.", "stage.toast", "", "hazardSkins.press.endToast")
+e("PRESS_SUSP_FLOOR", "כותרות שנשארו מסבבים קודמים: ⟦{pct}%⟧", "dos.row", "*", "DOS_SUSP_FLOOR's twin")
+e("PRESS_DAYS", "ימי תחקיר: ⟦{n}⟧", "dos.row", "", "DOS_COURT_DAYS's twin", "Needs a press-day count in the sim (stats); DOS_COURT_DAYS then shows only when > 0")
+# --- Liberman's rule (spec §9.4.3; the words are leaders.liberman.rule.copy)
+e("CHAT_PILL_DECLINE", "לא יושב", "chat.pill", "*", "leaders.liberman.rule.copy.pill", "Second pill under a member demand's pay pill (rtl-map §6.3), Liberman's round only; never on an ultimatum or a join demand")
+e("CHAT_PILL_DECLINE_CD", "לא יושב · ⟦{s}⟧ שנ׳", "chat.pill", "", "leaders.liberman.rule.copy.cooldown", "The same pill, disabled, during the 90 s cooldown")
+e("CHAT_SYS_DECLINED", "הדרישה של {name} נדחתה · לא יושב", "chat.sys", "*", "leaders.liberman.rule.copy.sys", "Gender-free: one key")
+# --- staged replacements: they describe the picker or the lineup art, so they ship with them
+e("SHARE_TEXT_INVITE_NEXT", "משחק סאטירה על הבחירות שלא נגמרות. תורכם להקים ממשלה. {url}", "share-text:70", "*", "spec §10.3 SHARE_TEXT_INVITE", "Replaces SHARE_TEXT_INVITE on picker ship day")
+e("OG_DESCRIPTION_NEXT", "בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה.", "og:110", "L*", "spec §10.3 OG_DESCRIPTION", "Replaces OG_DESCRIPTION (shell.html og:description / twitter:description) on picker ship day")
+e("OG_IMAGE_ALT_NEXT", "ראשי רשימות בפיקסלים, כתף אל כתף, וקלפי באמצע", "og:90", "", "spec §10.3 OG_IMAGE_ALT; Bar 2026-09-29 lineup key art", "Ships with the lineup og.jpg; re-read it against the delivered art first")
 
 # ---------------------------------------------------------------- content names (copy deck §C, §D)
 PRODUCERS = [  # fork id -> (deck name, plural)
@@ -872,6 +978,68 @@ if os.path.exists(CONTENT):
             if grp == "upgrades" and it.get("id") not in upg_effects:
                 errors.append(f"content upgrade {it.get('id')} has no UI effect label in SPINS")
     print("content names linted:", sum(len(cj.get(g, [])) for g in ("producers", "upgrades")))
+
+    # ---- leader select: the roster's words in the picker and HUD boxes (rtl-map §8), on the shipping font
+    def lint_content(path, text, box, joke=False):
+        bw, sc, ln, lnl, _ = BOXES[box]
+        t = plain_for_measure(text)
+        n = wrap_lines(t, bw, sc) if measure(t) * sc > bw else 1
+        if n > ln:
+            (errors if joke or ln == 1 else warnings).append(f"content {path}: {measure(t) * sc}px @x{sc} in {box} ({bw}px, {ln} line) -> {n} lines")
+        return n
+    nl = 0
+    for L in cj.get("leaders", []):
+        lid = L.get("id")
+        for fld, box in (("short", "pick.name"), ("party", "pick.party")):
+            lint_content(f"leaders.{lid}.{fld}", str(L.get(fld, "")), box); nl += 1
+        pk = L.get("pick") or {}
+        if pk.get("blurb"):
+            lint_content(f"leaders.{lid}.pick.blurb", pk["blurb"], "pick.strip"); nl += 1
+        if pk.get("line"):
+            lint_content(f"leaders.{lid}.pick.line", pk["line"], "stage.toast", True); nl += 1
+        r = L.get("rule")
+        if isinstance(r, dict):
+            lint_content(f"leaders.{lid}.rule.text", r.get("text", ""), "pick.card"); nl += 1
+        k = L.get("kit")
+        if isinstance(k, dict):
+            tp = k.get("tap", {})
+            for fld in ("verbPlural", "critPlural"):
+                lint_content(f"leaders.{lid}.kit.tap.{fld}", tp.get(fld, ""), "dos.row"); nl += 1
+            lint_content(f"leaders.{lid}.kit.tap.critName", tp.get("critName", ""), "stage.floater", True); nl += 1
+            hz = k.get("hazard")
+            if isinstance(hz, dict):
+                lint_content(f"leaders.{lid}.kit.hazard.postponeVerb", hz.get("postponeVerb", ""), "court.btn", True); nl += 1
+                lint_content(f"leaders.{lid}.kit.hazard.postponePrefix", hz.get("postponePrefix", ""), "court.body"); nl += 1
+            sq = (k.get("dubi") or {}).get("squawks") if isinstance(k.get("dubi"), dict) else None
+            for sk, sv in (sq or {}).items():
+                lint_content(f"leaders.{lid}.kit.dubi.squawks.{sk}", sv, "stage.toast", True); nl += 1
+    print("leader words linted:", nl)
+
+    # ---- drift: the UI keys that mirror the designer's leader-select copy must say the same thing
+    ls = cj.get("leaderSelect", {})
+    pc = (ls.get("pick") or {}).get("copy", {})
+    pr = (ls.get("hazardSkins") or {}).get("press", {})
+    lib = next((L.get("rule", {}).get("copy", {}) for L in cj.get("leaders", []) if L.get("id") == "liberman"), {})
+    MIRROR = {
+        "LEADER_PICK_TITLE": pc.get("title"), "LEADER_PICK_TITLE_AFTER": pc.get("titleAfter"),
+        "LEADER_PICK_AGAIN": pc.get("again"), "LEADER_PICK_RANDOM": pc.get("random"),
+        "LEADER_PICK_RANDOM_LINE": pc.get("randomLine"), "LEADER_PICK_FRESH": pc.get("freshFace"),
+        "LEADER_PICK_DISCLAIMER": pc.get("disclaimer"), "DUBI_LEARNED": pc.get("dubiLearned"),
+        "F9_PICK": pc.get("ftueAfterFirstElection"),
+        "PRESS_SUSP": pr.get("meterName"), "PRESS_REVEAL": pr.get("revealToast"), "PRESS_TITLE": pr.get("dayTitle"),
+        "PRESS_CHIP_TITLE": pr.get("dayTitle"), "PRESS_BODY_M": pr.get("dayBody"), "PRESS_BODY_F": pr.get("dayBodyF"),
+        "PRESS_EFFECT": pr.get("dayEffect"), "PRESS_SUMMONS_TITLE": pr.get("summonsTitle"),
+        "PRESS_SUMMONS_BODY": pr.get("summonsBody"), "PRESS_TESTIFY": pr.get("testifyVerb"),
+        "PRESS_CHIP_SUMMONS": pr.get("chip"), "PRESS_END": pr.get("endToast"),
+        "PRESS_SUSP_HOT": (pr.get("hotWords") or [None, None])[0], "PRESS_SUSP_BOIL": (pr.get("hotWords") or [None, None])[1],
+        "CHAT_PILL_DECLINE": lib.get("pill"), "CHAT_SYS_DECLINED": lib.get("sys"), "CHAT_PILL_DECLINE_CD": lib.get("cooldown"),
+    }
+    for key, want in MIRROR.items():
+        if want is None:
+            warnings.append(f"drift: {key} mirrors a content field that no longer exists")
+        elif strings.get(key, "").replace(NBSP, " ") != str(want).replace(NBSP, " "):
+            warnings.append(f"drift: {key} = {strings.get(key)!r} but the content says {want!r}")
+    print("leader-select copy mirrored:", len(MIRROR))
 
 # glyphs drawn by the pixel font = every canvas surface (label, pxtext) + content names
 glyphs = set(" ")
