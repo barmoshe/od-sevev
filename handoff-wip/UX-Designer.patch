@@ -1,10 +1,10 @@
 # binary files changed (not carried):
 diff --git a/tools/web/mobile_web.mjs b/tools/web/mobile_web.mjs
 new file mode 100644
-index 0000000..d28aef9
+index 0000000..6b9dd7d
 --- /dev/null
 +++ b/tools/web/mobile_web.mjs
-@@ -0,0 +1,301 @@
+@@ -0,0 +1,319 @@
 +// Mobile-first layout check (ux/mobile-first-layout.md §9): plays the web build in headless Chromium
 +// at every phone of the device matrix (and the desktop phone frame), through the real UI with real
 +// touches, and asserts what can be measured:
@@ -156,15 +156,32 @@ index 0000000..d28aef9
 +		console.log('  shot', p);
 +		return buf;
 +	};
-+	// the dead-band rule on one screenshot: bands outside [skyTop, skyBottom) (the stage sky, logical)
-+	const bandCheck = async (step, buf, skyTop, skyBottom, why) => {
++	// The dead-band rule on one screenshot (§9.1). Exempt, in logical y: the stage sky, from Row A's
++	// bottom (Row B's slot shows the sky until C2) to the leader's hit top, except a band there in the
++	// HUD fill #140c24 (an empty, covered Row B slot is never sky); Row B itself once revealed (the
++	// whole row is one target); `opts.exempt` replaces the sky interval (the picker).
++	const hudFill = [0x14, 0x0c, 0x24];
++	const bandCheck = async (step, buf, why, opts = {}) => {
 +		if (!buf || framed) return;   // the frame's bezel and page margin are not the game's
 +		const img = readPng(buf);
-+		const k = disp.k;   // device px per art px (the screenshot is in device px)
++		const k = disp.k;             // device px per art px (the screenshot is in device px)
 +		const toLog = (dy) => dy / disp.f;
-+		const bands = deadBands(img, k).filter(([a, b]) => !(toLog(a) >= skyTop - 4 && toLog(b) <= skyBottom + 4));
-+		const fmt = bands.map(([a, b]) => `${Math.round(toLog(a))}-${Math.round(toLog(b))} (${Math.round((b - a) / k)} art)`).join(', ');
-+		check('spec', bands.length === 0, `${step}: no band of ≥ 8 art px without content outside the stage sky${why ? ` (${why})` : ''}${bands.length ? `: logical y ${fmt}` : ''}`);
++		const top = disp.stageY + 160 - ROW_A - ROW_B;
++		const hitTop = disp.lowerY - ((disp.lowerY - disp.stageY - 160) >= S_FULL ? 556 : 452);
++		const sky = opts.exempt || [[top + ROW_A, hitTop]];
++		const bad = [];
++		for (const [a, b] of deadBands(img, k)) {
++			const i = a * img.w * img.bpp;
++			const col = [img.px[i], img.px[i + 1], img.px[i + 2]];
++			const isHud = col.every((v, j) => Math.abs(v - hudFill[j]) <= 3);
++			const la = toLog(a), lb = toLog(b);
++			let left = lb - la;
++			const cover = (ea, eb) => { left -= Math.max(0, Math.min(lb, eb + 4) - Math.max(la, ea - 4)); };
++			if (!(isHud && !opts.exempt)) for (const [ea, eb] of sky) cover(ea, eb);
++			if (opts.rowB) cover(top + ROW_A, top + ROW_A + ROW_B);
++			if (left >= 32) bad.push(`${Math.round(la)}-${Math.round(lb)} (${Math.round((b - a) / k)} art, #${col.map((v) => v.toString(16).padStart(2, '0')).join('')})`);
++		}
++		check('spec', bad.length === 0, `${step}: no band of ≥ 8 art px without content outside the stage sky${why ? ` (${why})` : ''}${bad.length ? `: logical y ${bad.join(', ')}` : ''}`);
 +	};
 +
 +	await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&grant=500`);
@@ -211,7 +228,7 @@ index 0000000..d28aef9
 +		const wantA = ([...(disp.k % 2 === 0 ? [192] : []), 128, 96, 64]).find((a) => a + 24 <= tw && 3 * (156 + a) + 24 <= avail) || 64;
 +		check('spec', pk.avatar === wantA, `the avatar is the largest crisp size that fits: ${wantA} (got ${pk.avatar})`);
 +		const gridTop = Math.min(...pk.cells.map((c) => c[1])) - (th || 0) / 2;
-+		await bandCheck('pick', buf, 0, gridTop - 72, 'grid, strip and foot; the scrimmed stage above the title line is the exempt sky');
++		await bandCheck('pick', buf, 'grid, strip and foot; the scrimmed stage above the title line is the exempt sky', { exempt: [[0, gridTop - 72]] });
 +		// pick הפתעה (the centre cell, id "")
 +		const rnd = pk.cells.find((c) => c[2] === '') || pk.cells[0];
 +		await tap(css(rnd[0], rnd[1]));
@@ -220,7 +237,7 @@ index 0000000..d28aef9
 +		await refresh();
 +	}
 +	const pre = await shot('pretap');
-+	await bandCheck('pre-tap', pre, disp.stageY + 160, disp.lowerY - (E.leader === 4 ? 556 : 452), 'the pre-tap stage paints the apron below the stage');
++	await bandCheck('pre-tap', pre, 'the pre-tap stage paints the apron below the stage');
 +
 +	// ---- the verticals (the engine publishes lowerY today)
 +	check('spec', disp.lowerY === E.lowerY, `lowerY (stage bottom) = ${E.lowerY} (S ${E.S}; got ${disp.lowerY}, S ${disp.lowerY - E.stageTop})`);
@@ -233,7 +250,7 @@ index 0000000..d28aef9
 +	await wait(1200);
 +	await refresh();
 +	const card1 = await shot('card1');
-+	await bandCheck('card 1', card1, disp.stageY + 160, disp.lowerY - (E.leader === 4 ? 556 : 452), 'card 1 + silhouettes fill the pane; the pane covers the tab slot before C1');
++	await bandCheck('card 1', card1, 'card 1 + silhouettes fill the pane; the pane covers the tab slot before C1');
 +	let s = await probe();
 +	const buyRow = async () => {
 +		s = await probe();
@@ -245,7 +262,7 @@ index 0000000..d28aef9
 +	await wait(1500);
 +	await refresh();
 +	const bought = await shot('bought');
-+	await bandCheck('bought', bought, disp.stageY + 160, disp.lowerY - (E.leader === 4 ? 556 : 452), 'Row B shows the sky before C2; the pane fills to the safe bottom before C1');
++	await bandCheck('bought', bought, 'Row B shows the sky before C2; the pane fills to the safe bottom before C1');
 +
 +	// ---- C1: three kinds of source (the tab bar), then T3 and a paid demand (C2: Row B)
 +	for (let i = 0; i < 8; i++) {
@@ -269,10 +286,11 @@ index 0000000..d28aef9
 +		const all = s.shop.all || s.shop.rows || [];
 +		const vis = all.filter((r) => r[1] - 60 >= lt - 1 && r[1] + 60 <= lb + 1).length;
 +		const partial = all.map((r) => Math.max(0, Math.min(lb, r[1] + 60) - Math.max(lt, r[1] - 60))).filter((v) => v > 0 && v < 119);
-+		check('spec', vis >= Math.min(E.n, all.length) && (all.length > E.n || true), `≥ ${E.n} whole card rows visible (got ${vis} of ${all.length} cards)`);
++		const silh = (s.shop.silhouettes || 0);   // §4.4: the engine publishes the teaser rows it draws
++		check('spec', vis + silh >= E.n, `the pane shows ≥ ${E.n} whole rows: cards + silhouettes (got ${vis} cards of ${all.length} + ${silh} silhouettes)`);
 +		check('spec', partial.every((v) => v <= PEEK + 4), `a cut card shows ≤ ${PEEK} px (the peek), never its pill (partials ${JSON.stringify(partial.map(Math.round))})`);
 +	}
-+	await bandCheck('C1', c1, disp.stageY + 160, disp.lowerY - (E.leader === 4 ? 556 : 452));
++	await bandCheck('C1', c1, 'the tab bar is up');
 +	// T3 (tab slot 3), pay the first demand
 +	const tabX = (i) => (E.cw > 0 && disp.cw ? (disp.cw - (disp.cw / 4) * i + disp.cw / 8) : disp.ox + 540 - 180 * (i - 1) + 90);
 +	const tabsY = s && s.shop && s.shop.list ? s.shop.list[1] + 52 : floor4(disp.logical[1]) - 52;
@@ -288,7 +306,7 @@ index 0000000..d28aef9
 +	await wait(1200);
 +	await refresh();
 +	const c2 = await shot('c2-rowb');
-+	await bandCheck('C2', c2, disp.stageY + 160, disp.lowerY - (E.leader === 4 ? 556 : 452));
++	await bandCheck('C2', c2, 'Row B is up', { rowB: true });
 +	// the settings sheet (gear, Row A left)
 +	await tap(css(disp.ox + 52, 48));
 +	await wait(1200);
