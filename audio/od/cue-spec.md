@@ -1,7 +1,7 @@
 # עוד סבב: cue-spec and mix-bus-topology
 
 **Artifacts:** `cue-spec`, `mix-bus-topology`, `music-stem`, `sfx-asset`.
-**Owner:** Audio Director. **Consumer:** Game Developer (the engine). **Date:** 2026-09-28, rev v1.2 on 2026-09-29.
+**Owner:** Audio Director. **Consumer:** Game Developer (the engine). **Date:** 2026-09-28, rev v1.2 and v1.3 on 2026-09-29.
 
 > **v1.2 (2026-09-29), a client direction from Bar:** the music now alludes to HaTikva.
 >
@@ -16,6 +16,20 @@
 > **Behaviour changes for the engine:**
 > - §2.6: coalition collapse no longer plays `motif`.
 > - The keys' `mode` values in the manifest now read `minor` (D, E, G) and `mixolydian` (F).
+> **v1.3 (2026-09-29), the Audio Director: leader select and the session-2 views.**
+>
+> **What changed:**
+> - A cue coverage audit of every view and modal added in session 2 (§4.1). Each event now has a cue or is listed as silent on purpose (`Audio.SILENT`), and a test fails on any event the game sends that is neither.
+> - New cues: `leaderPick`, `critReact` (whoosh, shout, no, land), `decline`, `merge`, `suspicionHot`, plus `chatPing`'s new `brawl` variant (§4, §4.2). No shipped file changed: each new cue is its own family, and `brawl` stays under the ping family's peak and burst.
+> - A crit is keyed by the leader's react event (the manifest's `crits` table, spec §9.5). Bibi keeps `rabbitCrit`.
+> - First sounds: `leaderPick` and `returnAway` play before the first-tap gate (§2.6).
+> - Press day (every leader but Bibi) opens with the shutter, not the gavel (§2.3).
+> - `gameReset` restarts the audio like a new game.
+> - Canned Dubi contours for every leader's squawks.
+> - The mix pass is in §3.1 and the payload in §7.
+>
+> **What did not change:** every v1.2 id, file, level and rule, the anthem guardrail (§6), and the music.
+
 **Brief:** `sonic-brief` v1.1 (`artifacts/creative-pack/od-sevev/audio/sonic-brief.md`), with the resolutions in `engine/feasibility.md` (O-A1, O-A2, A3, A12, A13, A14, A18).
 
 ## Sources of truth
@@ -126,6 +140,11 @@
 
 **Court day inside the Courthouse era:** only the L2 mute, plus `courtIn` at the next bar line.
 
+**Press day (v1.3):** every leader but Bibi has the press hazard skin (leader-select spec §5.6).
+- Its day opens with `shutter` (a random variant) in place of `gavel`. The cameras are the press; a judge's gavel would be Bibi's trial.
+- Everything after that is shared: the courthouse hush, `courtIn`, `gavelWeak` on a postponement, and `courtOut`.
+- The skin comes from the leader's `kit.hazard.skin`. `event("courtSummons", "press" | "court")` overrides it.
+
 **The court hush:** the courthouse sits 1 LU under the other eras (−18.3 against −17.3 LUFS). This is intended: the drop is the mock-solemn hush.
 
 ### 2.4 Election fanfare
@@ -166,6 +185,23 @@ All the keyed stingers use the current key.
 | `dubiFlash` | A story-flash card opens (the head 5-1-5 on BLIP) | Voice |
 | `trophy` | The "שלום בית בפריים" trophy: the shutter, then a BLIP "ta-da" (5-♭7-1'). **Never the anthem on Dubi's chip voice.** | UI |
 | `courtIn` | §2.3 | SFX-Critical |
+
+**First sounds (v1.3).** The leader picker comes before the first tap and replaces the title, so the pick is now the game's first gesture.
+- **The flag:** a cue with `firstSound: true` in the manifest plays before the first-tap gate. Two cues have it:
+  - `leaderPick`, the picker's commit;
+  - `returnAway`, the return card's collect. After a reload the card comes before any tap, so v1.2's gate swallowed it.
+- **The gate:** a first sound does **not** open the first-tap gate. The picker's browsing (tile presses, long-press) stays silent, and the first Magician tap still plays `motif`, the anthem's statement.
+- **iOS:** the pick commits on touchend, which is the gesture that unlocks audio. While the context is still locked, a first sound is **held** (up to 5 s, like the motif) and plays on the unlock, where any other cue would be dropped after 180 ms (U8).
+- **Why `leaderPick` is safe as the first sound:**
+  - It starts on its first roll hit at t=0, with no silent lead-in.
+  - It is ≤ 1 s (843 ms).
+  - Its level is burst −15 LUFS: no louder than the motif and no startle. The heard true peak is −5.7 dBTP.
+  - It has no sub-bass: its lowest note is the TRI 1 in octave 3, crushed, so a phone speaker plays its harmonics.
+  - Its four key files are warmed in `_warm()`, before any gesture.
+- **A quick first tap:** it may land while the pick is still sounding, and the motif then starts over it.
+  - The pick's musical content ends 0.39 s + 0.22 s in.
+  - From 0.6 s the tail is high-passed crash under −32 LUFS (burst). At 0.5 s it measures −19.2 LUFS.
+  - So the anthem's statement stays clear.
 
 ## 3. mix-bus-topology
 
@@ -216,6 +252,39 @@ Master ── HardLimiter (ceiling -1.0 dB, pre-gain 0, release 0.1 s) - nothing
   - −0.47 to −1.62 dBFS in all four eras (v1.2).
   - The master limiter takes at most 0.5 dB off isolated transients.
 
+### 3.1 Mix pass v1.3 (the new cues)
+
+**Method:**
+- Each new cue takes its target from the family it sits beside, so the mix is unchanged: the pick at the milestone's burst, a crit at the rabbit's, the chat actions at the chat's, and a warning at the quiet UI floor.
+- `play_db` comes from the generator (K-weighted BS.1770, dual mono, capped by the bus ceiling).
+- The heard values were re-measured independently on the `OD_AUDIO_PREVIEW` renders: 4× oversampled true peak, and the tail from the peak down to −60 dB.
+- Ranges cover the four keys.
+
+| Cue | Bus | Target | play_db | Burst (100 ms) | M-max (400 ms) | Heard sample / true peak | Length | Tail after the peak |
+|---|---|---|---|---|---|---|---|---|
+| `leaderPick` | SFX-Critical | burst −15 (= `milestone`) | −4.68 | −15.00 | −17.94 | −5.7 / −5.7 dBTP | 843 ms | 270-279 ms |
+| `critReact` | SFX-Critical | burst −12 (= `rabbitCrit`) | −5.47 | −12.00 | −14.64 | −6.5 / −6.5 | 364-534 ms | 181-368 ms |
+| `decline` | SFX-Frequent | burst −16 (= chat) | −5.11 | −16.00 | −19.47 | −6.1 / −6.0 | 264 ms | 108-250 ms |
+| `merge` | SFX-Frequent | burst −16 (= chat) | −4.00 (ceiling) | −16.08 | −18.92 | −5.0 / −4.9 | 274 ms | 98-256 ms |
+| `suspicionHot` | SFX-Frequent | burst −20 (near `cantAfford`'s −21) | −10.63 | −20.00 | −25.86 | −11.6 / −11.2 | 168 ms | 146 ms |
+| `chatPing` `brawl` | UI (the ping family's level) | inherits −6.81 | −6.81 | −19.4 | −23.0 | −8.2 / −8.2 | 244 ms | 229 ms |
+
+**Reference points:**
+- `rabbitCrit` measures −12.0 burst and −13.2 M-max.
+- The ping family is −16 burst, `motif` −15 momentary, and `cantAfford` −21 burst.
+
+**Clipping:**
+- No file clips.
+- The loudest heard true peak of any new cue is −4.86 dBTP (`merge_G`), 0.14 dB of inter-sample over its −5 dBFS sample-peak ceiling and 3.9 dB under the −1 dB master limiter.
+- The worst coincidence, a pick at its peak on a music peak ducked 4 dB, sums to +1.0 dBFS before the master. That is within the v1.2 full mix's measured −0.7 to +0.3 dBTP range of coincident transients, and the limiter takes it.
+
+**Tails:**
+- Every UI-bus cue ends by 0.4 s. `compose_od.py` now fails a UI cue that runs longer.
+- `brawl` ends at 244 ms, the longest v1.2 ping at 244 ms.
+- The only long tail is the pick's crash, 0.42 s of high-passed noise. It is the fanfare's own crash, shortened from 0.8 s.
+
+**The brawl sits 3 dB under a demand ping.** Two half-gain voices keep the pair at one ping's peak, so the family's files and `play_db` do not move. It is also right by meaning: a brawl is the partners' business, not a demand on the player.
+
 ## 4. Cues
 
 Levels, files and lengths are in the manifest. Bus and priority are repeated here for the voice allocator.
@@ -247,10 +316,74 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 | `cantAfford` | a buy is refused | UI / 1 / 1 | none |
 | `uiClick` | any UI press | UI / 1 / 2 | none |
 | `coin` | the settings "צ'ינג" preview, and any explicit payout burst | SFX-Frequent / 1 / 3 | `a` / `b` alternate. **At most 6 per event, never scaled by the amount** (the deadpan rule). |
+| `leaderPick` (v1.3) | the picker's commit (and a re-pick inside the undo window) | SFX-Critical / 5 / 1, steal oldest, Music −4 dB | none. **A first sound** (§2.6). It is the fanfare's material cut to its arrival: the darbuka roll (roll2-roll4), the C#-D lift with P2 brass a sixth below, and the downbeat on 1 over i with a shortened crash. It resolves, and never states the rise. |
+| `critReact` (v1.3) | a crit, for every leader but Bibi | SFX-Critical / 5 / 1, never, Music −4 dB | **Variant:** the react event (`whoosh`, `shout`, `no`, `land`; see the `crits` table). The event's transient comes first, then `rabbitCrit`'s head (5-1′-5′), the crit's signature. It fires on the event's strip frame. |
+| `chatPing` `brawl` (v1.3) | a brawl opens (two members at each other; two rows frozen) | as `chatPing` | Two pings talk over each other: 1+♭2, ♭6+5, 1+♭2. It goes through the ping rate limit and waits for Dubi. |
+| `decline` (v1.3) | Liberman's "לא יושב" pill | SFX-Frequent / 2 / 1 | none. "No. No.": two flat TRI staccatos, 1 then ♭7 below. It closes, where `cantAfford` hangs on the leading tone. |
+| `merge` (v1.3) | Golan's "לאחד" pill | SFX-Frequent / 2 / 1 | none. Two P2 voices a third apart glide into one note (♭3↑4, 5↓4). Then the stapler, Golan's prop. |
+| `suspicionHot` (v1.3) | the thermometer crosses 75 % upward | SFX-Frequent / 2 / 1, never, no duck | none. A dry TRI gulp (5↓4) and one sweat drip. At most once per live crossing, never on a restore. |
 
 **Babble plan:**
 - `babbleContours` replaces `Audio.babble_plan`'s F-pentatonic table for canned lines.
 - For headlines, keep the fork's pure `babble_plan` for the timing. Map its pitch index into the 10-blip era bank of degrees × octaves.
+- **v1.3:** every leader's four squawks (`kit.dubi.squawks` firsttap, buy, elect and miss) have a canned contour.
+  - They use bank degrees only, so there is no 2 or ♭6, and no line leaps 5→5′ (the anthem's leap). `compose_od.py` checks both.
+  - `Audio.squawk_text(id, kind)` returns the line, and `event("squawk", kind)` speaks the current leader's line. `event("babble", text)` still takes any text.
+
+### 4.1 Coverage audit v1.3: every session-2 view and modal
+
+**How to read it:**
+- "Silent on purpose" events are in `Audio.SILENT`.
+- `test_every_event_the_game_sends_has_a_cue_or_is_silent_on_purpose` scans `res://scripts` for every event the game sends. It fails on any event that is not handled, not a cue or stinger, and not in `SILENT`.
+- **Hook** marks a one-line call this pass added to a view.
+
+| View / moment | Event → sound | Decision |
+|---|---|---|
+| **Coalition chat (T3)**: open / close | `panelOpen` / `panelClose` → `uiClick` | covered (v1.2) |
+| T3: a bubble lands (open) or its preview toast (closed) | `chatPing(partner)` | covered. New partners (lapid, bennett, …) play `default`, on purpose: D11 allows no leader motifs, and the minor sigh is a demand. |
+| T3: ultimatum ticks / zero / left | `ultimatumTick`, `ultimatumZero`, `chatLeft` | covered |
+| T3: pay / ceremony ribbon | `stamp` + `ultimatumPaid`; the ribbon start is `uiClick` | covered |
+| T3: **the brawl** (the stage cloud, the preview toast, a brawl row landing in the open thread) | `chatBrawl` → `chatPing:brawl` (**hook**, 2 lines in `view_chat.gd`; it was `chatPing(a)`, the plain demand sigh) | **new cue** |
+| T3: brawl cue tap / "צאו החוצה" | `uiClick` | covered; the rows unfreezing are visual |
+| T3: **the pending chip** "{n} ממתינים ↑" | press → `uiClick`; the chip appearing is **silent on purpose** (every pending message already pinged) | covered |
+| **The partner card** | `panelOpen`, pay → `stamp`, close → `panelClose` | covered |
+| Liberman's decline pill / Golan's merge pill (being built) | `decline` / `merge` (manifest cue ids, accepted by name) | **new cues**; the developer calls them on commit |
+| **Dossier (T4)** and **the pardon desk** | `panelOpen` / `panelClose` / `uiClick`; the pardon's impact frame → `stamp` (its home) | covered |
+| **Thermometer**: the fill, the reveal, the bubbles | silent on purpose (continuous; the visual carries it; no slot at 5 taps/s) | silent |
+| Thermometer crosses **75 %** (magnifier → gavel icon) | `suspicionHot` (**hook**, 2 lines in `view_thermo.gd`) | **new cue**: the warning had no sound, and the gavel came unannounced |
+| Thermometer ≥ 95 % (boil); **the sweat** | silent on purpose (the boil and the drops are the visual twin; the gavel is next) | silent |
+| **Court card** open / chip tap / close / testify / aide drop | `panelOpen` / `uiClick` / `panelClose`; a refused postponement → `cantAfford` | covered |
+| Court: summons / start / end / postponement | `gavel` (Bibi) or `shutter` (the press, v1.3) → `courtIn`; `courtOut`; `gavelWeak` | covered, plus the press skin |
+| **Dubi's news flash** | `storyCard` → `dubiFlash`, then `babble` (Dubi waits 600 ms); close → `panelClose` | covered |
+| **The cottage cup** | `cottagePixel` silent on purpose (v1.2 null: its meaning is visual); the button → `uiClick` | silent |
+| **Election modal** open / close / confirm | `evolveOpen` / `evolveClose` → `uiClick`; `electionConfirm` → the fanfare | covered |
+| The leader walk-out / walk-in (the election transition, the pick) | `leaderSwap` silent on purpose (spec §9.5: optional; the fanfare bridges the walk-out and `leaderPick` lands the walk-in) | silent |
+| **Return modal** | `panelOpen`; collect → `returnAway` (**v1.3: a first sound**, audible after a reload); close → `panelClose` | fixed: it was gated silent after every reload |
+| **Reset modal**: cancel | `uiClick` + `panelClose` | covered |
+| Reset modal: confirm (the wipe) | `panelClose` + `gameReset` (**hook**, 1 line in `main.gd`): the music fades over a bar and the gate closes | **new behaviour**; no sting, because a wipe is not a loss sting |
+| **Share cards** (receipt / result): open, buttons, WhatsApp, close | `panelOpen` / `uiClick` / `panelClose`; the OS share sheet's result is **silent on purpose** (the sheet's status line and the OS carry it) | covered |
+| **Spin-end toast** | `spinEnd` silent on purpose (§4 v1.2: a buff ending is a loss moment, and the brief has no fail stings; the toast carries it) | silent |
+| Frenzy start / end, trick cue, ceremony end, milestone headline, affordable, reveal | silent on purpose (v1.2) | silent |
+| **The leader picker** (being built): browsing, long-press | silent (the first-tap gate: the pick is the first sound) | silent |
+| The picker's commit / a re-pick / undo | `leaderPick` (with the leader id) / `leaderPick` / `leaderUndo` silent | **new cue** |
+| A crit, per leader | `tapCrit`, then the leader's react event → `crit_for(id)` | **new mapping** (§4.2) |
+
+### 4.2 Leader select: the engine API (spec §9.5, §10)
+
+| Call | What it does |
+|---|---|
+| `Audio.event("leaderPick", leader_id)` | Plays `leaderPick` (a first sound) and sets the leader. Call it on the commit, and again on a re-pick. |
+| `Audio.set_leader(id)` | Sets the round's leader: on install, on load and after an undo. It warms that leader's crit files. Without a call, the Audio reads `current_scene.state.leader`, else the content's default (Bibi). |
+| `Audio.crit_for(id) -> Dictionary` | `{leader, event, cue, variant, art, anim, delayMs}`. `variant` "roundRobin" means rabbitCrit's slide lengths in turn. `delayMs` is the tap → the event's strip frame. Every leader, from their content kit: |
+| | ביבי: `rabbit` → `rabbitCrit` (250 ms) · בנט: `whoosh` → `critReact:whoosh` (167 ms) · בן גביר, סמוטריץ׳: `shout` → `critReact:shout` (71 ms) · ליברמן: `no` → `critReact:no` (0 ms) · אייזנקוט, דרעי, גולן: `land` → `critReact:land` (357 ms) |
+| `Audio.event("tapCrit")` | As before: `tap` at f0. The leader's crit cue then plays at `delayMs` (a third in reduced motion) or at once on the strip event. |
+| `Audio.event("heroEvent", ev)`, `Audio.event(ev)` | `ev` is the leader's react event (`rabbit`, `whoosh`, `shout`, `no` or `land`) on its frame. Another leader's event name is ignored. |
+| `Audio.squawk_text(id, kind)` / `Audio.event("squawk", kind)` | Dubi's line for the leader (`firsttap`, `buy`, `elect` or `miss`). The first-tap line still waits for the motif (O-A3). |
+| `Audio.event("courtSummons", "press")` | The press day's shutter. The leader's skin picks it anyway. |
+| `Audio.event("gameReset")` | After a wipe. |
+| `Audio.route(name)` | "handler", "cue:<id>", "stinger:<id>", "silent" or "unknown" (tests and the dev probe). |
+
+**Eisenkot:** `straightTaps` puts his crit chance at 0, so `critReact:land` never fires as his crit. The react he plays once at tap 7 (`rule.copy.tap7`) is a joke about there being no magic. It stays silent on purpose: the tap cue only, with no crit head, because a ta-da would contradict the joke.
 
 ## 5. Markers and the animator's checklist (`motion/event-markers.md` §6)
 
@@ -283,6 +416,7 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
    **Why so many nulls:**
    - Each would add a sound whose meaning is already carried: by the gavel, the courtIn/courtOut pair, the stamp, the chat ping, or the visual twin.
    - At 5 taps per second the mix has no free slot for decoration. The brief's "polite in the pocket" pillar wins.
+   **v1.3:** the strip events `whoosh`, `shout`, `no` and `land` sound only as a crit's react event (`critReact`, §4.2). Anywhere else (a walk-in, a non-crit react) they stay null. The brawl bed and the brawl exit click stay null: the brawl has its ping (`chatPing:brawl`), not a bed.
 8. **Polyphony:** `tap` has poly 4 with steal-oldest, and fires once per registered tap. The files are 68 ms, so even at 16 taps/s at most 2 overlap.
 
 ## 6. HaTikva: where it is, and the guardrail (v1.2)
@@ -317,6 +451,16 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 - Music: 8.81 MB.
 - Stingers: 1.42 MB. This is smaller than v1.1 because the `motif` and `trophy` files no longer carry a silent lead-in bar.
 - SFX: 0.59 MB.
+
+**Totals (v1.3):**
+- The folder is **11.06 MB** (11,645,654 bytes, +202,676 over v1.2) and still under the ~11.3 MB budget.
+- The growth is SFX alone: 0.59 → 0.78 MB, from 36 new files:
+  - `leaderPick` ×4;
+  - `critReact` ×16 (4 events × 4 keys);
+  - `decline`, `merge` and `suspicionHot`, ×4 each;
+  - `chatPing` `brawl` ×4.
+- Music and stingers are unchanged.
+- **The web export:** `index.pck` grew from 18,327,576 to 18,535,096 bytes (+207,520, +1.1 %); `index.wasm` is unchanged.
 
 **How it fits:**
 - The courthouse stems render at 22,044 Hz, where a step is 5,010 samples.

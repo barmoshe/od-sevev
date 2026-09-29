@@ -465,6 +465,8 @@ func _advance_reveal() -> void:
 	_arrive_at[seq] = _now
 	if is_partner_bubble(m):
 		_audio("chatPing", str(m["partner"]))
+	elif str(m.get("type", "")) == "brawl" and str(m.get("state", "")) == "open":
+		_audio("chatBrawl")   # Audio v1.3: a brawl landing in the open thread
 	_next_at = _now + (0.0 if reduced_motion or m.get("type", "") != "sys" else mc("chatCascadeGapMs"))
 
 
@@ -1234,7 +1236,7 @@ func on_politics_event(e: Dictionary) -> void:
 			elif not _open and str(msg.get("type", "")) == "brawl":
 				# the brawl freezes two rows until "צאו החוצה" (a button inside T3 only): with the
 				# chat closed, say so on the stage (a tap opens T3), and the tab badge counts it
-				_audio("chatPing", str(msg.get("a", "")))
+				_audio("chatBrawl")   # Audio v1.3: the brawl's own ping (two voices at once)
 				if host != null and "toasts" in host and host.get("toasts") != null:
 					(host.get("toasts") as Toasts).show_toast(sys_text({"key": "chat.sys.brawl", "a": msg.get("a", ""), "b": msg.get("b", "")}), "chat")
 		"partnerLeft":

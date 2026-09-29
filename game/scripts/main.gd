@@ -1900,6 +1900,7 @@ func _show_offline() -> void:
 func _do_reset() -> void:
 	store.wipe_game()
 	_audio("panelClose")
+	_audio("gameReset")   # Audio v1.3: the music fades over a bar; the next first tap plays the motif again
 	overlays.close_all()
 	state = GameState.fresh()
 	d = Economy.derive(state)
