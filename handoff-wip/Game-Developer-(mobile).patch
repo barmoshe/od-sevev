@@ -1,0 +1,953 @@
+# binary files changed (not carried):
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index d3c4e96..27dd5b4 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -601,7 +601,7 @@ func _relayout() -> void:
+ 	# §2: the chrome spans whole art columns (Display.cw); a landscape window (out of the matrix)
+ 	# keeps a portrait-proportioned canvas, centred
+ 	var cw := Display.cw() if Display.integer and not _shot.has("target") else float(L.W)
+-	L.set_width(minf(minf(cw, L.floor4(_vs.x)), maxf(float(L.W), L.floor4(0.75 * _vs.y))))
++	L.set_width(L.canvas_w(cw, _vs))
+ 	_bottom_inset = bottom_inset
+ 	_ox = L.floor4((_vs.x - L.cw) / 2.0)
+ 	_sx = _ox + L.sox()
+diff --git a/game/scripts/ui/layout.gd b/game/scripts/ui/layout.gd
+index 0ac088b..f5f76c8 100644
+--- a/game/scripts/ui/layout.gd
++++ b/game/scripts/ui/layout.gd
+@@ -81,6 +81,13 @@ static func set_split(r: float, top: float = 0.0, vh: float = 0.0) -> void:
+ 	rows_whole = v["n"]
+ 
+ 
++## The chrome's width for a logical viewport `vs` and the art grid's width `grid_w` (Display.cw()):
++## the whole grid, never wider than the viewport; a landscape window (out of the matrix, §2) keeps a
++## portrait-proportioned canvas (≤ 0.75 · height), centred by the controller.
++static func canvas_w(grid_w: float, vs: Vector2) -> float:
++	return maxf(float(W), minf(minf(grid_w, floor4(vs.x)), maxf(float(W), floor4(0.75 * vs.y))))
++
++
+ ## The canvas width (>= 720, on the 4-px grid) and dx.
+ static func set_width(w: float) -> void:
+ 	cw = maxf(float(W), floor4(w))
+diff --git a/game/tests/fixtures/mobile_layout.json b/game/tests/fixtures/mobile_layout.json
+new file mode 100644
+index 0000000..8f7bf42
+--- /dev/null
++++ b/game/tests/fixtures/mobile_layout.json
+@@ -0,0 +1,914 @@
++[
++ {
++  "name": "SE 375×667@2",
++  "css": [
++   375,
++   667
++  ],
++  "dpr": 2,
++  "device": [
++   750,
++   1334
++  ],
++  "k": 4,
++  "f": 1.0,
++  "artCss": 2.0,
++  "logical": [
++   750.0,
++   1334.0
++  ],
++  "cw": 748,
++  "delta": 28,
++  "cols": 187,
++  "rows": 333,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 964,
++  "S": 564,
++  "P": 400,
++  "rowsWhole": 3,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 744,
++  "tabsY": 1228,
++  "leaderScale": 4,
++  "hit": [
++   188,
++   604
++  ],
++  "hitCenterCss": 198.0,
++  "hitCenterPct": 30,
++  "hitBottomCss": 302,
++  "hitBottomPct": 45,
++  "listCss": [
++   414,
++   614
++  ],
++  "tabsCss": 614,
++  "pane_before_c1": 504,
++  "rows_before_c1": 4,
++  "tallTab": 1048,
++  "chatThread": 800,
++  "clip": 352,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1008,
++   "tw": 224,
++   "A": 128,
++   "th": 328,
++   "grid": 1008,
++   "spare": 0
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 972,
++   "tw": 224,
++   "A": 128,
++   "th": 316,
++   "grid": 972,
++   "spare": 0
++  },
++  "modalW": 652,
++  "sheet": 1332,
++  "sharePreview": 3.0
++ },
++ {
++  "name": "390×844@3",
++  "css": [
++   390,
++   844
++  ],
++  "dpr": 3,
++  "device": [
++   1170,
++   2532
++  ],
++  "k": 6,
++  "f": 1.5,
++  "artCss": 2.0,
++  "logical": [
++   780.0,
++   1688.0
++  ],
++  "cw": 780,
++  "delta": 60,
++  "cols": 195,
++  "rows": 422,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 1320,
++  "S": 680,
++  "P": 640,
++  "rowsWhole": 5,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 860,
++  "tabsY": 1584,
++  "leaderScale": 4,
++  "hit": [
++   304,
++   720
++  ],
++  "hitCenterCss": 256.0,
++  "hitCenterPct": 30,
++  "hitBottomCss": 360,
++  "hitBottomPct": 43,
++  "listCss": [
++   472,
++   792
++  ],
++  "tabsCss": 792,
++  "pane_before_c1": 744,
++  "rows_before_c1": 6,
++  "tallTab": 1404,
++  "chatThread": 1156,
++  "clip": 384,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1364,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 212
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 1328,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 176
++  },
++  "modalW": 684,
++  "sheet": 1688,
++  "sharePreview": 3.333
++ },
++ {
++  "name": "393×852@3",
++  "css": [
++   393,
++   852
++  ],
++  "dpr": 3,
++  "device": [
++   1179,
++   2556
++  ],
++  "k": 6,
++  "f": 1.5,
++  "artCss": 2.0,
++  "logical": [
++   786.0,
++   1704.0
++  ],
++  "cw": 784,
++  "delta": 64,
++  "cols": 196,
++  "rows": 426,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 1336,
++  "S": 696,
++  "P": 640,
++  "rowsWhole": 5,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 876,
++  "tabsY": 1600,
++  "leaderScale": 4,
++  "hit": [
++   320,
++   736
++  ],
++  "hitCenterCss": 264.0,
++  "hitCenterPct": 31,
++  "hitBottomCss": 368,
++  "hitBottomPct": 43,
++  "listCss": [
++   480,
++   800
++  ],
++  "tabsCss": 800,
++  "pane_before_c1": 744,
++  "rows_before_c1": 6,
++  "tallTab": 1420,
++  "chatThread": 1172,
++  "clip": 388,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1380,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 228
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 1344,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 192
++  },
++  "modalW": 688,
++  "sheet": 1704,
++  "sharePreview": 3.333
++ },
++ {
++  "name": "430×932@3",
++  "css": [
++   430,
++   932
++  ],
++  "dpr": 3,
++  "device": [
++   1290,
++   2796
++  ],
++  "k": 6,
++  "f": 1.5,
++  "artCss": 2.0,
++  "logical": [
++   860.0,
++   1864.0
++  ],
++  "cw": 860,
++  "delta": 140,
++  "cols": 215,
++  "rows": 466,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 1496,
++  "S": 736,
++  "P": 760,
++  "rowsWhole": 6,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 916,
++  "tabsY": 1760,
++  "leaderScale": 4,
++  "hit": [
++   360,
++   776
++  ],
++  "hitCenterCss": 284.0,
++  "hitCenterPct": 30,
++  "hitBottomCss": 388,
++  "hitBottomPct": 42,
++  "listCss": [
++   500,
++   880
++  ],
++  "tabsCss": 880,
++  "pane_before_c1": 864,
++  "rows_before_c1": 7,
++  "tallTab": 1580,
++  "chatThread": 1332,
++  "clip": 464,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1540,
++   "tw": 260,
++   "A": 192,
++   "th": 416,
++   "grid": 1272,
++   "spare": 268
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 1504,
++   "tw": 260,
++   "A": 192,
++   "th": 416,
++   "grid": 1272,
++   "spare": 232
++  },
++  "modalW": 688,
++  "sheet": 1864,
++  "sharePreview": 3.333
++ },
++ {
++  "name": "360×780@3",
++  "css": [
++   360,
++   780
++  ],
++  "dpr": 3,
++  "device": [
++   1080,
++   2340
++  ],
++  "k": 6,
++  "f": 1.5,
++  "artCss": 2.0,
++  "logical": [
++   720.0,
++   1560.0
++  ],
++  "cw": 720,
++  "delta": 0,
++  "cols": 180,
++  "rows": 390,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 1192,
++  "S": 672,
++  "P": 520,
++  "rowsWhole": 4,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 852,
++  "tabsY": 1456,
++  "leaderScale": 4,
++  "hit": [
++   296,
++   712
++  ],
++  "hitCenterCss": 252.0,
++  "hitCenterPct": 32,
++  "hitBottomCss": 356,
++  "hitBottomPct": 46,
++  "listCss": [
++   468,
++   728
++  ],
++  "tabsCss": 728,
++  "pane_before_c1": 624,
++  "rows_before_c1": 5,
++  "tallTab": 1276,
++  "chatThread": 1028,
++  "clip": 324,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1236,
++   "tw": 216,
++   "A": 192,
++   "th": 348,
++   "grid": 1068,
++   "spare": 168
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 1200,
++   "tw": 216,
++   "A": 192,
++   "th": 348,
++   "grid": 1068,
++   "spare": 132
++  },
++  "modalW": 624,
++  "sheet": 1560,
++  "sharePreview": 2.667
++ },
++ {
++  "name": "412×915@2.625",
++  "css": [
++   412,
++   915
++  ],
++  "dpr": 2.625,
++  "device": [
++   1081,
++   2401
++  ],
++  "k": 6,
++  "f": 1.5,
++  "artCss": 2.286,
++  "logical": [
++   720.67,
++   1600.67
++  ],
++  "cw": 720,
++  "delta": 0,
++  "cols": 180,
++  "rows": 400,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 1232,
++  "S": 712,
++  "P": 520,
++  "rowsWhole": 4,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 892,
++  "tabsY": 1496,
++  "leaderScale": 4,
++  "hit": [
++   336,
++   752
++  ],
++  "hitCenterCss": 310.9,
++  "hitCenterPct": 34,
++  "hitBottomCss": 430,
++  "hitBottomPct": 47,
++  "listCss": [
++   558,
++   855
++  ],
++  "tabsCss": 855,
++  "pane_before_c1": 624,
++  "rows_before_c1": 5,
++  "tallTab": 1316,
++  "chatThread": 1068,
++  "clip": 324,
++  "floor88Css": 50.3,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1276,
++   "tw": 216,
++   "A": 192,
++   "th": 348,
++   "grid": 1068,
++   "spare": 208
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 1240,
++   "tw": 216,
++   "A": 192,
++   "th": 348,
++   "grid": 1068,
++   "spare": 172
++  },
++  "modalW": 624,
++  "sheet": 1600,
++  "sharePreview": 2.667
++ },
++ {
++  "name": "frame 390×844@1",
++  "css": [
++   390,
++   844
++  ],
++  "dpr": 1,
++  "device": [
++   390,
++   844
++  ],
++  "k": 2,
++  "f": 0.5,
++  "artCss": 2.0,
++  "logical": [
++   780.0,
++   1688.0
++  ],
++  "cw": 780,
++  "delta": 60,
++  "cols": 195,
++  "rows": 422,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 1320,
++  "S": 680,
++  "P": 640,
++  "rowsWhole": 5,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 860,
++  "tabsY": 1584,
++  "leaderScale": 4,
++  "hit": [
++   304,
++   720
++  ],
++  "hitCenterCss": 256.0,
++  "hitCenterPct": 30,
++  "hitBottomCss": 360,
++  "hitBottomPct": 43,
++  "listCss": [
++   472,
++   792
++  ],
++  "tabsCss": 792,
++  "pane_before_c1": 744,
++  "rows_before_c1": 6,
++  "tallTab": 1404,
++  "chatThread": 1156,
++  "clip": 384,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1364,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 212
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 1328,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 176
++  },
++  "modalW": 684,
++  "sheet": 1688,
++  "sharePreview": 2.0
++ },
++ {
++  "name": "frame 390×844@2",
++  "css": [
++   390,
++   844
++  ],
++  "dpr": 2,
++  "device": [
++   780,
++   1688
++  ],
++  "k": 4,
++  "f": 1.0,
++  "artCss": 2.0,
++  "logical": [
++   780.0,
++   1688.0
++  ],
++  "cw": 780,
++  "delta": 60,
++  "cols": 195,
++  "rows": 422,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 1320,
++  "S": 680,
++  "P": 640,
++  "rowsWhole": 5,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 860,
++  "tabsY": 1584,
++  "leaderScale": 4,
++  "hit": [
++   304,
++   720
++  ],
++  "hitCenterCss": 256.0,
++  "hitCenterPct": 30,
++  "hitBottomCss": 360,
++  "hitBottomPct": 43,
++  "listCss": [
++   472,
++   792
++  ],
++  "tabsCss": 792,
++  "pane_before_c1": 744,
++  "rows_before_c1": 6,
++  "tallTab": 1404,
++  "chatThread": 1156,
++  "clip": 384,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1364,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 212
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 1328,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 176
++  },
++  "modalW": 684,
++  "sheet": 1688,
++  "sharePreview": 3.0
++ },
++ {
++  "name": "390×664@3 Safari bars",
++  "css": [
++   390,
++   664
++  ],
++  "dpr": 3,
++  "device": [
++   1170,
++   1992
++  ],
++  "k": 6,
++  "f": 1.5,
++  "artCss": 2.0,
++  "logical": [
++   780.0,
++   1328.0
++  ],
++  "cw": 780,
++  "delta": 60,
++  "cols": 195,
++  "rows": 332,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 960,
++  "S": 560,
++  "P": 400,
++  "rowsWhole": 3,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 740,
++  "tabsY": 1224,
++  "leaderScale": 4,
++  "hit": [
++   184,
++   600
++  ],
++  "hitCenterCss": 196.0,
++  "hitCenterPct": 30,
++  "hitBottomCss": 300,
++  "hitBottomPct": 45,
++  "listCss": [
++   412,
++   612
++  ],
++  "tabsCss": 612,
++  "pane_before_c1": 504,
++  "rows_before_c1": 4,
++  "tallTab": 1044,
++  "chatThread": 796,
++  "clip": 384,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1004,
++   "tw": 236,
++   "A": 128,
++   "th": 324,
++   "grid": 996,
++   "spare": 8
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 968,
++   "tw": 236,
++   "A": 128,
++   "th": 312,
++   "grid": 960,
++   "spare": 8
++  },
++  "modalW": 684,
++  "sheet": 1328,
++  "sharePreview": 2.667
++ },
++ {
++  "name": "SE 375×548@2 Safari bars",
++  "css": [
++   375,
++   548
++  ],
++  "dpr": 2,
++  "device": [
++   750,
++   1096
++  ],
++  "k": 4,
++  "f": 1.0,
++  "artCss": 2.0,
++  "logical": [
++   750.0,
++   1096.0
++  ],
++  "cw": 748,
++  "delta": 28,
++  "cols": 187,
++  "rows": 274,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 728,
++  "S": 460,
++  "P": 268,
++  "rowsWhole": 2,
++  "peek": 28,
++  "stageTop": 180,
++  "lowerY": 640,
++  "tabsY": 992,
++  "leaderScale": 3,
++  "hit": [
++   188,
++   500
++  ],
++  "hitCenterCss": 172.0,
++  "hitCenterPct": 31,
++  "hitBottomCss": 250,
++  "hitBottomPct": 46,
++  "listCss": [
++   362,
++   496
++  ],
++  "tabsCss": 496,
++  "pane_before_c1": 372,
++  "rows_before_c1": 3,
++  "tallTab": 812,
++  "chatThread": 564,
++  "clip": 352,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 144,
++   "avail": 824,
++   "tw": 224,
++   "A": 96,
++   "th": 264,
++   "grid": 816,
++   "spare": 8
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 736,
++   "tw": 224,
++   "A": 64,
++   "th": 236,
++   "grid": 732,
++   "spare": 4
++  },
++  "modalW": 652,
++  "sheet": 1096,
++  "sharePreview": 2.0
++ },
++ {
++  "name": "360×640@3 Chrome bars",
++  "css": [
++   360,
++   640
++  ],
++  "dpr": 3,
++  "device": [
++   1080,
++   1920
++  ],
++  "k": 6,
++  "f": 1.5,
++  "artCss": 2.0,
++  "logical": [
++   720.0,
++   1280.0
++  ],
++  "cw": 720,
++  "delta": 0,
++  "cols": 180,
++  "rows": 320,
++  "insets": [
++   0,
++   0
++  ],
++  "R": 912,
++  "S": 512,
++  "P": 400,
++  "rowsWhole": 3,
++  "peek": 40,
++  "stageTop": 180,
++  "lowerY": 692,
++  "tabsY": 1176,
++  "leaderScale": 3,
++  "hit": [
++   240,
++   552
++  ],
++  "hitCenterCss": 198.0,
++  "hitCenterPct": 31,
++  "hitBottomCss": 276,
++  "hitBottomPct": 43,
++  "listCss": [
++   388,
++   588
++  ],
++  "tabsCss": 588,
++  "pane_before_c1": 504,
++  "rows_before_c1": 4,
++  "tallTab": 996,
++  "chatThread": 748,
++  "clip": 324,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 956,
++   "tw": 216,
++   "A": 128,
++   "th": 308,
++   "grid": 948,
++   "spare": 8
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 920,
++   "tw": 216,
++   "A": 128,
++   "th": 296,
++   "grid": 912,
++   "spare": 8
++  },
++  "modalW": 624,
++  "sheet": 1280,
++  "sharePreview": 2.667
++ },
++ {
++  "name": "393×852@3 home screen",
++  "css": [
++   393,
++   852
++  ],
++  "dpr": 3,
++  "device": [
++   1179,
++   2556
++  ],
++  "k": 6,
++  "f": 1.5,
++  "artCss": 2.0,
++  "logical": [
++   786.0,
++   1704.0
++  ],
++  "cw": 784,
++  "delta": 64,
++  "cols": 196,
++  "rows": 426,
++  "insets": [
++   120,
++   68
++  ],
++  "R": 1148,
++  "S": 748,
++  "P": 400,
++  "rowsWhole": 3,
++  "peek": 40,
++  "stageTop": 300,
++  "lowerY": 1048,
++  "tabsY": 1532,
++  "leaderScale": 4,
++  "hit": [
++   492,
++   908
++  ],
++  "hitCenterCss": 350.0,
++  "hitCenterPct": 41,
++  "hitBottomCss": 454,
++  "hitBottomPct": 53,
++  "listCss": [
++   566,
++   766
++  ],
++  "tabsCss": 766,
++  "pane_before_c1": 504,
++  "rows_before_c1": 4,
++  "tallTab": 1232,
++  "chatThread": 984,
++  "clip": 388,
++  "floor88Css": 44.0,
++  "pickFirst": {
++   "header": 196,
++   "avail": 1192,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 40
++  },
++  "pickAfter": {
++   "header": 132,
++   "avail": 1156,
++   "tw": 236,
++   "A": 192,
++   "th": 376,
++   "grid": 1152,
++   "spare": 4
++  },
++  "modalW": 688,
++  "sheet": 1584,
++  "sharePreview": 3.333
++ }
++]
+# untracked binary: game/tests/fixtures/mobile_layout.json

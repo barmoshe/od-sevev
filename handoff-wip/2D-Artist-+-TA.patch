@@ -15,6 +15,28 @@ Binary files a/art/od-sevev/out/ui/stage/lane_knesset.png and b/art/od-sevev/out
 diff --git a/art/od-sevev/out/ui/stage/lane_washington.png b/art/od-sevev/out/ui/stage/lane_washington.png
 index 797fcb3..18581b2 100644
 Binary files a/art/od-sevev/out/ui/stage/lane_washington.png and b/art/od-sevev/out/ui/stage/lane_washington.png differ
+diff --git a/art/od-sevev/src/build_all.py b/art/od-sevev/src/build_all.py
+index 9c75af6..6b90cb2 100644
+--- a/art/od-sevev/src/build_all.py
++++ b/art/od-sevev/src/build_all.py
+@@ -1,14 +1,15 @@
+ """Rebuild every od-sevev graphic-tier asset, the manifest, and the proofs:  python3 build_all.py"""
+ import palette  # noqa: F401  (writes nothing on import)
+-import ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, leaders, keyart, proofs
++import ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, wave7, leaders, keyart, proofs
+ from kit import write_manifest, REGISTRY
+ 
+ if __name__ == "__main__":
+     import runpy, os
+     runpy.run_path(os.path.join(os.path.dirname(__file__), "palette.py"), run_name="__main__")
+-    for m in (ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, leaders):
++    for m in (ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, wave7, leaders):
+         m.build()
+     print(write_manifest(), len(REGISTRY), "pieces")
++    print(wave7.proof())
+     keyart.build()
+     fails, over = proofs.build()
+     print("contrast fails:", fails, "| receipt overflow:", over)
 diff --git a/art/od-sevev/src/wave2.py b/art/od-sevev/src/wave2.py
 index 1b5d2db..680c62a 100644
 --- a/art/od-sevev/src/wave2.py
@@ -185,7 +207,7 @@ index 43805a5..6da0bf8 100644
  
  def build():
 diff --git a/art/od-sevev/ui-kit.json b/art/od-sevev/ui-kit.json
-index dfab1ed..1da35be 100644
+index dfab1ed..a99a8cb 100644
 --- a/art/od-sevev/ui-kit.json
 +++ b/art/od-sevev/ui-kit.json
 @@ -1163,6 +1163,20 @@
@@ -209,7 +231,30 @@ index dfab1ed..1da35be 100644
    {
     "id": "chip_court",
     "group": "events",
-@@ -2729,33 +2743,33 @@
+@@ -2711,7 +2725,21 @@
+     12,
+     21
+    ],
+-   "notes": "The diegetic echo of suspicion (UX 3.2 #3): a small courthouse in the stage's landmark band whose one window lights at >= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no rim. Suggested spots (art px, pivot): Balfour (150, 70), Knesset (156, 96), Washington (34, 96); the courthouse stage uses its own clock panel instead."
++   "notes": "The diegetic echo of suspicion (UX 3.2 #3): a small courthouse on the stage whose one window lights at >= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no rim. `spots` = the pivot per era in stage-art px (the courthouse stage uses its own clock panel: none). Moved 2026-09-29 (the Animator's ask, mobile-first) from the sky band (Balfour (150, 70), Knesset (156, 96), Washington (34, 96)), which the phones crop under Row A / the toast dock, to the stage's right side, clear of the leader: Balfour behind the wall right of the lamp, Knesset on the lawn at the colonnade's end, Washington in the horizon band right of the mansion. Sprite tops at art rows 146 / 145 / 131, so the house sits unclamped under the toast dock on every stage S >= 552 / 556 / 612 logical px.",
++   "spots": {
++    "balfour": [
++     167,
++     167
++    ],
++    "knesset": [
++     158,
++     166
++    ],
++    "washington": [
++     162,
++     152
++    ]
++   }
+   },
+   {
+    "id": "court_window_glow",
+@@ -2729,33 +2757,33 @@
     "id": "lane_balfour",
     "group": "stage",
     "file": "out/ui/stage/lane_balfour.png",
@@ -251,7 +296,7 @@ index dfab1ed..1da35be 100644
    },
    {
     "id": "laundry_bag",
-@@ -2813,6 +2827,42 @@
+@@ -2813,6 +2841,42 @@
     ],
     "notes": "Washington era: laundry flying out of the 'מזוודות כביסה' (WaPo 2020, denied). Decorative, no rim. Tumble/drift is the Animator's."
    },
@@ -294,7 +339,7 @@ index dfab1ed..1da35be 100644
    {
     "id": "sweat_drop",
     "group": "stage",
-@@ -2825,6 +2875,118 @@
+@@ -2825,6 +2889,118 @@
     ],
     "notes": "The Magician's sweat drop at suspicion >= 75% (Animator's optional echo). Placement on his temple: the Animator's anchor."
    },
@@ -426,13 +471,14 @@ index dfab1ed..1da35be 100644
 # untracked binary: art/od-sevev/out/ui/stage/wing_knesset_r.png
 # untracked binary: art/od-sevev/out/ui/stage/wing_washington_l.png
 # untracked binary: art/od-sevev/out/ui/stage/wing_washington_r.png
+# untracked binary: art/od-sevev/proofs/kit-w7-brawl-cue.png
 # untracked binary: art/od-sevev/proofs/kit-w7-mobile.png
 diff --git a/art/od-sevev/src/wave7.py b/art/od-sevev/src/wave7.py
 new file mode 100644
-index 0000000..7fa1788
+index 0000000..9349d26
 --- /dev/null
 +++ b/art/od-sevev/src/wave7.py
-@@ -0,0 +1,491 @@
+@@ -0,0 +1,498 @@
 +"""Wave 7: the art the mobile-first layout needs (ux/mobile-first-layout.md §10, 2026-09-29).
 +
 +  A1  lane_<era>                (wave5.py, redrawn 32x28)  the Suitcase lane, now with horizontal detail
@@ -576,10 +622,6 @@ index 0000000..7fa1788
 +        ph = (x - (-1 if side == "l" else SW)) / W
 +        top = edge - round(3 * math.sin(math.pi * ph) ** 2)
 +        L.vline(x, top, 168, "teal_hi")
-+    # one small olive tree per tile, inside the tile
-+    cx = x0 + W // 2
-+    L.vline(cx, 176, 211, "wood_dk"); L.vline(cx + 1, 182, 211, "wood")
-+    L.ellipse(cx, 172, 7, 6, "green_sh"); L.ellipse(cx - 2, 169, 3, 3, "green")
 +    # the lawn, exactly the art's pattern (the lime specks repeat every 11 columns: W = 22)
 +    L.rect(x0, 169, W, 47, "green")
 +    L.dither(x0, 169, W, 2, "green", "green_sh")
@@ -587,9 +629,10 @@ index 0000000..7fa1788
 +        for x in L.span():
 +            if (x - (y * 7) % 11) % 11 == 0:
 +                L.set(x, y, "lime")
-+    # the tree again over the lawn (it stands on it)
-+    L.vline(cx, 176, 211, "wood_dk"); L.vline(cx + 1, 182, 211, "wood")
-+    L.ellipse(cx, 172, 7, 6, "green_sh"); L.ellipse(cx - 2, 169, 3, 3, "green")
++    # one olive tree per tile, standing on the lawn, inside the tile (the art's olive at 2/3 size)
++    cx = x0 + W // 2
++    L.vline(cx, 174, 211, "wood_dk"); L.vline(cx + 1, 180, 211, "wood")
++    L.ellipse(cx, 170, 9, 7, "green_sh"); L.ellipse(cx - 3, 166, 5, 3, "green")
 +    L.rect(x0, 216, W, 14, "stone_sh")
 +    return L
 +
@@ -914,6 +957,16 @@ index 0000000..7fa1788
 +        sheet.paste(s, (x, 0)); x += s.width + gap
 +    p = os.path.join(PROOFS, "kit-w7-mobile.png")
 +    sheet.resize((W * 2, 466 * 2), Image.NEAREST).save(p)
++    # the brawl cue: brawl_cloud at x2 (today's cue) over brawl_cloud_cue at x4, both 104x80 per frame, on the bubble
++    old = Image.open(os.path.join(ROOT, "out", "ui", "events", "brawl_cloud.png")).convert("RGBA")
++    new = strip([brawl_cue_frame(k) for k in range(4)]).to_image()
++    bw = 4 * 104 + 3 * 8
++    cue = Image.new("RGBA", (bw + 16, 2 * 80 + 24), rgb("ui_bubble") + (255,))
++    for k in range(4):
++        cue.alpha_composite(old.crop((k * 52, 0, k * 52 + 52, 40)).resize((104, 80), Image.NEAREST), (8 + k * 112, 8))
++        cue.alpha_composite(new.crop((k * CW, 0, k * CW + CW, CH)).resize((104, 80), Image.NEAREST), (8 + k * 112, 96))
++    p2 = os.path.join(PROOFS, "kit-w7-brawl-cue.png")
++    cue.resize((cue.width * 2, cue.height * 2), Image.NEAREST).save(p2)
 +    return p
 +
 +
