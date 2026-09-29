@@ -378,6 +378,11 @@ def main():
     manifest, warns = S.import_sprites(src, log, provenance)
     if not a.no_render:                       # the staging copy is disposable once imported
         shutil.rmtree(os.path.abspath(os.path.join(src, "..", "..", "..")), ignore_errors=True)
+    bad = S.check_content_sources(manifest)
+    if bad:
+        raise SystemExit("FAIL content money sources that don't resolve to shipped art (design/content.json "
+                         "producers[]):\n  " + "\n  ".join(bad))
+    log("sources: every content money source resolves (stage strip, icon, silhouette, set-piece art)")
     icons = S.import_icons(log)
     log(f"sprites: {len(manifest['chars'])} characters, {len(manifest['props'])} props, "
         f"{len(manifest['stages'])} stages -> {S.DEST}")

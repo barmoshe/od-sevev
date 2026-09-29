@@ -5,12 +5,12 @@
   "maxPrefixLetters": 2,
   "wholeWord": true,
   "englishCaseInsensitive": true,
-  "fields": "every string in design/content.json except keys starting with '_' and keys named visualHook, id, src, avatar, icon"
+  "fields": "every string in design/content.json except keys starting with '_' and keys named visualHook, id, src, avatar, icon; also every value in ux/ui-strings.json and every facts[].aboutHe"
  },
  "categories": [
   {
    "id": "oct7-hostages",
-   "why": "October 7, the hostages, fallen soldiers and their families are never jokes or game elements (brief).",
+   "why": "October 7, the hostages, fallen soldiers and their families are never jokes or game elements (brief). Bar, 2026-09-29: no mention of October 7 anywhere in the game, direct or by date. The lint also scans ux/ui-strings.json and facts[].aboutHe, and rejects the date written as 7.10 / 07.10 / 7/10 (27.10, the election date, is fine).",
    "terms": [
     "7 באוקטובר",
     "שבעה באוקטובר",
@@ -30,7 +30,17 @@
     "October 7",
     "hostage",
     "hostages",
-    "Nova"
+    "Nova",
+    "השבת השחורה",
+    "חרבות ברזל",
+    "מלחמת חרבות ברזל",
+    "שמחת תורה",
+    "Swords of Iron",
+    "Oct 7",
+    "Oct. 7",
+    "7th of October",
+    "October 7th",
+    "massacre"
    ]
   },
   {

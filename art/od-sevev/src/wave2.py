@@ -31,13 +31,39 @@ def sheets():
     save(L, "sheet_modal", "sheet", slice=[6, 22, 6, 6], content=[6, 22, W - 12, H - 28], label="white",
          notes="Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round "
                "card. Title band y 1..18 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body "
-               "ui_panel (white 15.6:1). Engine scrim under it: outline swatch at 60% (UX).")
+               "ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map "
+               "§7.1 D23; never the fork's grape, which lifts the dark base).")
     P = panel(24, 24, "ui_panel", "ui_bub_hi", "ui_scrim", corner=2)
     save(P, "sheet_plain", "sheet", slice=[5, 5, 5, 5], content=[4, 3, 16, 17], label="white",
          notes="Title-less sheet (toast stacks, the pardon desk form behind the stamp, tooltips).")
-    x = grid_layer(["kk.....kk", "kwk...kwk", ".kwk.kwk.", "..kwkwk..", "...kwk...", "..kwkwk..", ".kwk.kwk.",
-                    "kwk...kwk", "kk.....kk"], LEG)
-    save(x, "icon_close", "sheet", notes="Close ✕ for sheets, 9x9; hit area 20x20 art (44 CSS).")
+    # wave 6 (UX R26: "one ✕ style for every card"): the round ✕. Same silhouette and ✕ as the modals' round ✕
+    # (the fork's ui_close16, pixel for pixel), recoloured into the kit's raised language: rim-lit top arc,
+    # ui_bub_hi face (one step above a ui_bubble title band, so it never vanishes into it), ui_bubble shadow.
+    x = grid_layer(CLOSE16, {"k": "outline", "j": "rim", "u": "ui_bub_hi", "U": "ui_bubble", "w": "white"})
+    save(x, "icon_close", "sheet", notes="Close ✕ for every card and sheet (UX R26: one ✕ style): 16x16, drawn x4 = the "
+         "64x64 visual of rtl-map §7.1, centred in its 104 (or the court card's 88) hit. Same silhouette as the modals' "
+         "round ✕; white ✕ on ui_bub_hi 8.6:1. Reads on the court header wood, a ui_bubble title band, the dark sheet "
+         "body and a cream card (wave 6; was a thin 9x9 X).")
+    t = grid_layer(TRASH9, {"k": "outline", "w": "white", "l": "slate"})
+    save(t, "icon_trash", "sheet", notes="Trash can, 9x9 inline icon (one text cell tall): the settings danger row "
+         "'SET_RESET' (rtl-map §7.4), leading the label on the RIGHT, and optionally leading 'למחוק הכול' on "
+         "button_danger. Never mirrored (rtl-map §1 'keep'). White lid and can + slate ribs: white on ui_panel 15.6:1, "
+         "outline on paper 13.5:1, so it reads on the dark sheet and on a cream card alike (wave 6).")
+
+
+CLOSE16 = [".....kkkkkk.....", "...kkjjjjjjkk...", "..kjjuuuuuujjk..", ".kjuuuuuuuuuujk.", ".kuuuwuuuuwuuuk.",
+           "kjuuuwwuuwwuuujk", "kuuuuuwwwwuuuuuk", "kuuuuuuwwuuuuuuk", "kuuuuuwwwwuuuuuk", "kUuuuwwuuwwuuuUk",
+           "kUuuuwuuuuwuuuUk", ".kUuuuuuuuuuuUk.", ".kUUUuuuuuuUUUk.", "..kUUUUUUUUUUk..", "...kkUUUUUUkk...",
+           ".....kkkkkk....."]
+TRASH9 = ["...kkk...",      # the lid's knob
+          "kkkwwwkkk",
+          "kwwwwwwwk",      # the lid, wider than the can
+          "kkkkkkkkk",
+          ".kwlwlwk.",      # the can: white with slate ribs
+          ".kwlwlwk.",
+          ".kwlwlwk.",
+          ".kwlwlwk.",
+          "..kkkkk.."]
 
 
 # ------------------------------------------------------------------ 2. ticker
