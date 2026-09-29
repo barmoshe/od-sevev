@@ -1086,3 +1086,17 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
     - call `decline` / `merge` on the new pills;
     - send the leader's react event through `heroEvent`, and `set_leader` on install and load;
     - switch the first-tap babble to `squawk_text(leader, "firsttap")`.
+- 2026-09-29 · animator · slice 1 of the re-run (court day, the view motion audit, the brawl boil) · `game/scripts/ui/court_motion.gd`, `court_echo.gd`, `leader_walk.gd`, `big_banana.gd`, `toasts.gd`, `views/view_chat.gd`, `views/view_thermo.gd`, `main.gd`, `motion/motion-audit-2026-09-29.md`, `tools/web/motion_web.mjs`
+  - **Court day (Bibi only):**
+    - The exit and return are built to `state-graph-magician.md` §1.3/§3/§5 in `CourtMotion`, a pure timeline read by `BigBanana`: the startle, the zip left with smears and dust, and the hat hovering on his mark and taking the taps (hop and coins; a crit raises the rabbit). Then the fetch, the empty beat, the zip back and the land. There are early and quick returns, and a reset cuts him home.
+    - It is polled from the sim's phase and gated on `Leaders.has_court()`. The summons flinches him.
+    - The sweat no longer beads on the empty stage.
+    - The `court_window` echo: lit at ≥ 75 %, a steady halo at ≥ 95 %, and while the summons or the court day is open the window breathes 100 → 60 → 100 % every 1.6 s (0.63 Hz). It is lowered under the toast dock where the flex rule crops the art's top rows.
+  - **Audit:** the table is in `motion/motion-audit-2026-09-29.md`.
+    - Fixed: the pending chip and the brawl cue ease in instead of popping; toasts ease in and fade out on scene time; the brawl cloud boils (8 fps plus a whole-px 1-ap ring with a rest).
+    - **Bug fixed:** the web game never followed `prefers-reduced-motion`. The 4.7 bridge returns `1`, and `== true` is false (`MainController.js_bool`).
+  - **Prepared, not wired:** `LeaderWalk`, a walk that takes a leader id (560 ms out, 640 ms in, stepped bob; reduced motion fades), for the EVOLVE_TX swap.
+  - **Dev params:** `&court=N` (a court day at boot) and `&slow=N` (Engine.time_scale), for `tools/web/motion_web.mjs`.
+  - **Checks:** `tools/test.sh` 323/323 (+14); strict `tools/build_web.sh` green; `motion_web.mjs` PASS (390×844@2, motion and reduced motion). Shots: `scratchpad/shots/motion/`.
+  - **→ game-developer:** `view_court.gd` is untouched. The court-day stage follows `Leaders.has_court()`. Call `LeaderWalk` from EVOLVE_TX when the picker lands (the Animator's slice 2).
+  - **→ 2d-artist:** the kit's `court_window` spots sit in art rows the flex rule crops on phones. A spot at or below art row 110 would keep it in place. The ×2 brawl cue still wants a 26×20 cut at ×4.

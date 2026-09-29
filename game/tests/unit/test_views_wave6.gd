@@ -170,7 +170,9 @@ func test_an_open_brawl_puts_a_cloud_under_row_b() -> void:
 	await tree.process_frame
 	runner.check(chat.brawl_cue_visible(), "the brawl is open and T3 closed: the cloud stands under Row B")
 	var cloud: Sprite2D = chat._brawl_cloud
-	runner.check(cloud.position == ChatView.BRAWL_CLOUD and is_equal_approx(cloud.scale.x, 2.0) and ChatView.BRAWL_CUE.encloses(Rect2(cloud.position, Vector2(104, 80))),
+	# the boil (animator 2026-09-29) steps the cloud around a 1-ap ring (4 logical) off its rest
+	var boil := cloud.position - ChatView.BRAWL_CLOUD
+	runner.check(absf(boil.x) + absf(boil.y) <= 4.0 and is_equal_approx(cloud.scale.x, 2.0) and ChatView.BRAWL_CUE.encloses(Rect2(cloud.position, Vector2(104, 80))),
 		"the cloud at ×2 inside its bubble at the stage's top-left (%s)" % str(cloud.position))
 	runner.check(ChatView.BRAWL_CUE_HIT.size.y >= 88.0 and ChatView.BRAWL_CUE_HIT.encloses(ChatView.BRAWL_CUE), "its hit is ≥ 88 tall and covers it")
 	var brawl := Coalition.open_brawl(m.state)

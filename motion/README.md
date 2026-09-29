@@ -17,6 +17,7 @@
 | [`state-graph-dubi.md`](state-graph-dubi.md) | `state-graph-spec` | Dubi: perches, flight, squawk and talk driven by the AD's cues, the FTUE fly-in and peck, and his strip spec. |
 | [`diorama-motion.md`](diorama-motion.md) | ad hoc: `object-motion` | The 8 money sources: the 2-frame idle per source, the `lob` set piece, and the taxpayer's walk-on. |
 | [`render-requests.md`](render-requests.md) | ad hoc: render list | Every strip, prop and landmark motion needs rendered: frames, fps, events, rig recipes. |
+| [`motion-audit-2026-09-29.md`](motion-audit-2026-09-29.md) | ad hoc: motion audit | The session-2 views against these rules (a table with the fixes), plus the court-day exit and return, the court-window echo, the brawl boil and the prepared leader walk as built. |
 
 ## Legacy (Monkey Bananas v2.1.0, kept for the port)
 
