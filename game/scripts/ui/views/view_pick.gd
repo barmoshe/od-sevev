@@ -278,6 +278,7 @@ func _build() -> void:
 	var cw := L.cw
 	var has_again := variant == "after" and again_id != ""
 	var plan := grid_plan(H, cw, Display.k if Display.integer else 2, variant, has_again)
+	var wm_bottom := _top
 	# the wordmark (first launch), pinned at top + 12, centred on the canvas
 	if variant == "first":
 		var wm := Art.sprite_or("wordmark" if H >= 1280.0 else "wordmark_small")
@@ -285,6 +286,7 @@ func _build() -> void:
 			wm = Art.sprite_or("wordmark")
 		var wsz := Vector2(Art.sprite_size(wm)) * 4.0
 		Ui.img(_layer, Vector2(Ui.snap((cw - wsz.x) / 2.0, 4), _top + 12.0), wm, 0, 4)
+		wm_bottom = _top + 12.0 + wsz.y
 	# the caption strip and the foot, pinned to the bottom
 	var foot := float(plan["foot"])
 	var sy := _bot - foot - STRIP_H
@@ -328,6 +330,14 @@ func _build() -> void:
 				break
 		th = maxf(tile_h(avatar, false), minf(L.floor4((avail - ROW_GAP - 12.0 - 96.0) / 2.0), L.floor4(1.6 * tw)))
 		gh = 2.0 * th + ROW_GAP + 12.0 + 96.0
+	# the title (and chip) never ride up into the wordmark: §5.8's `avail` leaves out the 12 above the
+	# strip and counts 12 (not 16) under the title, so where the tile height is capped by avail (the SE,
+	# the toolbar viewports) the tiles give back those 16 px instead
+	var tl_est := clampf(ceilf(float(PxText.measure(_title_text(), L.TEXT)) / (656.0 + L.dx)), 1.0, 2.0)
+	var gmin := wm_bottom + 12.0 + LH * tl_est + 16.0 + (64.0 if variant == "after" else 0.0)
+	if three and gb - gh < gmin:
+		th = maxf(tile_h(avatar, true), L.floor4((gb - gmin - 2.0 * ROW_GAP) / 3.0))
+		gh = 3.0 * th + 2.0 * ROW_GAP
 	var gy := gb - gh
 	tile = Vector2(tw, th)
 	grid = Vector2(gy, gb)

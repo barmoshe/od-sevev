@@ -190,7 +190,12 @@ func _check_booted(dev: Vector2i, name: String) -> void:
 	runner.check(m.ticker.clip_rect().size.x == float(row["clip"]), "%s: the ticker clip %d (got %d)" % [name, int(row["clip"]), m.ticker.clip_rect().size.x])
 	runner.check(m.mode == "pick" and m.picker.visible, "%s: a fresh game boots into LEADER_PICK" % name)
 	var pf: Dictionary = row["pickFirst"]
-	runner.check(m.picker.tile == Vector2(float(pf["tw"]), float(pf["th"])) and m.picker.avatar == float(pf["A"]), "%s: pick tiles %s, A %d (got %s, %d)" % [name, [pf["tw"], pf["th"]], int(pf["A"]), m.picker.tile, m.picker.avatar])
+	# th: §5.8's value, or up to 16 less where the tiles fill `avail` (the spec's header counts 12 under
+	# the title and not the 12 above the strip; the engine keeps the title clear of the wordmark)
+	var th_ok: bool = m.picker.tile.y <= float(pf["th"]) and m.picker.tile.y >= float(pf["th"]) - 16.0
+	runner.check(m.picker.tile.x == float(pf["tw"]) and th_ok and m.picker.avatar == float(pf["A"]), "%s: pick tiles %s, A %d (got %s, %d)" % [name, [pf["tw"], pf["th"]], int(pf["A"]), m.picker.tile, m.picker.avatar])
+	var title_top: float = m.picker.grid.x - 16.0 - 44.0
+	runner.check(title_top >= 12.0 + (116.0 if m._vs.y >= 1280.0 else 64.0) + 12.0 - 0.5, "%s: the title line clears the wordmark (%d)" % [name, title_top])
 	var H: float = float(m._vs.y) - float(m._bottom_inset)
 	runner.check(m.picker.grid.y + 12.0 == H - 16.0 - PickView.STRIP_H, "%s: the grid sits on the strip (bottom %d)" % [name, m.picker.grid.y])
 	var cb := TopBar.counter_box()

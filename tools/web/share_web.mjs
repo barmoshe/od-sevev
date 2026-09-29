@@ -163,6 +163,16 @@ const btn = (m, i) => m.buttons[i];
 {
 	const P = await boot('dev=1&grant=50000&chat=14');
 	await handoff(P);
+	// LEADER_PICK comes first: pick ביבי (the seeded brawl is his lineup's Amsalem and Smotrich), not
+	// whichever tile the random order puts under the Magician
+	const pk = await P.page.evaluate(() => window.odPick || null);
+	if (pk && pk.open) {
+		const c = pk.cells.find((q) => q[2] === 'bibi') || pk.cells[0];
+		await P.wait(500);
+		await tap(P, css(P, c[0], c[1]));
+		await P.page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
+		await P.wait(1200);
+	}
 	await tap(P, hat(P));
 	await P.page.waitForFunction(() => window.odDev && window.odDev.brawlCue && window.odDev.brawlCue.visible, null, { timeout: 20000 }).catch(() => {});
 	await P.wait(600);
