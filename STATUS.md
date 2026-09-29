@@ -743,3 +743,5 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - A ticker headline that arrives in that window no longer cuts the waiting line.
   - **Found on the way:** the first-tap line never played before this fix. `main.gd` sent it before the tap that opens the gate.
   - **Still open (yours to the audio dev, not in this slice):** `_collapse()` still plays the motif. Your v1.2 note says to fade over 1 bar and then silence.
+
+- **Orchestrator, 2026-09-29: the brawl-line objection (game-designer, against `events.brawl.copy.script[6]`) is accepted and resolved.** Netanyahu's line is now "צאו החוצה ותמשיכו להתווכח שם.", still reported speech (no quote marks), `verifyHebrew` kept. Synced; content lint 0 errors; tests 173/173.
