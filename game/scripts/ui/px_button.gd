@@ -52,6 +52,7 @@ static func kinds() -> Dictionary:
 		"kit_primary": _kit_kind("button_primary"),
 		"kit_secondary": _kit_kind("button_secondary"),
 		"kit_gold": _kit_kind("button_gold"),
+		"kit_danger": _kit_kind("button_danger") if Art.has_sprite("button_danger_default") else _kit_kind("button_secondary"),
 		"evolve": {
 			"normal": [th["evolve"]["ready"]["sprite"], th["evolve"]["ready"]["frames"]["normal"], th["evolve"]["labelReady"]],
 			"pressed": [th["evolve"]["ready"]["sprite"], th["evolve"]["ready"]["frames"]["pressed"], th["evolve"]["labelReady"]],

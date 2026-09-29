@@ -725,6 +725,8 @@ func _process(delta: float) -> void:
 	tx.update_view(dt)
 	ftue.update_view(dt, state, d, _ftue_ctx(running))
 	_update_shake(dt)
+	if bool(_dev["on"]):
+		DevProbe.publish(self, dt)   # window.odDev for the browser drivers (tools/web/round_web.mjs)
 	_audio_clocks(dt)
 	Juice.tick(dt)
 	_follow_os_motion(dt)
@@ -1108,7 +1110,9 @@ func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			if not overlays.back() and mode == "main" and _gameplay_input():
-				if chat.is_open():
+				if court.esc_collapse():   # rtl-map §6.4: the expanded court card folds first
+					pass
+				elif chat.is_open():
 					chat.close()
 				elif dossier.is_open():
 					dossier.close()
@@ -1313,7 +1317,9 @@ func _on_key(e: InputEventKey) -> void:
 			if golden.on_screen() and not chat.is_open() and not dossier.is_open():
 				_catch_golden()
 		KEY_ESCAPE:
-			if chat.is_open():
+			if court.esc_collapse():   # rtl-map §6.4: the expanded court card folds first
+				pass
+			elif chat.is_open():
 				chat.close()
 			elif dossier.is_open():
 				dossier.close()
@@ -1752,7 +1758,7 @@ func _start_evolve() -> void:
 	diorama.poof_all()
 	var new_era := Story.era_for(nxt.evolutions)
 	var era_name: String = new_era.get("name", "") if new_era.get("id", "") != Story.era_for(state.evolutions).get("id", "") else ""
-	tx.start({"species": Content.species_title(nxt.evolutions), "multBefore": res["multBefore"], "multAfter": res["multAfter"], "gained": res["gained"], "era": era_name},
+	tx.start({"round": nxt.evolutions + 1, "multBefore": res["multBefore"], "multAfter": res["multAfter"], "gained": res["gained"], "era": era_name},
 		bool(settings["reducedMotion"]), {
 		"seam": func() -> void:
 			state = _next_state
