@@ -11,6 +11,38 @@ index a495ecd..39dc571 100644
      "HUD_RATE": "⁦+{rate}⁩ ₪ לשנייה",
      "HUD_TICKER_TAG": "מבזק",
      "CARD_LOCKED_NAME": "מקור עלום",
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index a17f2d0..d3c4e96 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -640,6 +640,7 @@ func _relayout() -> void:
+ 	buffs.set_stage_rect(-_sx, float(L.STAGE["y"]), _vs.x, L.stage_h)
+ 	bb.relayout()
+ 	overlays.relayout()
++	tx.position.x = L.sox()   # EVOLVE_TX: full bleed, its lines centred on the canvas (§5.13)
+ 	# TITLE: the dirt continues to the bottom of the screen (the fork's jungle; hidden under stage art)
+ 	var gy := _stage_y + L.stage_bottom() - 64.0
+ 	_title_ground.position = Vector2(0, gy)
+@@ -693,6 +694,19 @@ func _publish_display() -> void:
+ 		"ticker": ticker.web_info()}), true)
+ 
+ 
++## The safe band in modal space (y top, y bottom): the sheet cards and the flash place in it.
++func modal_band() -> Vector2:
++	return Vector2(_top_y - _ovl_y, _vs.y - _bottom_inset - _ovl_y)
++
++
++## mobile-first §5.10: the y (modal space) of the tab bar's top while it is up, else the band bottom:
++## a centred card keeps ≥ 24 above it.
++func modal_floor() -> float:
++	if mode == "main" and _tabs_up:
++		return _lower_y + L.tabs_y() - _ovl_y
++	return _vs.y - _bottom_inset - _ovl_y
++
++
+ func _set_fill(k: String, r: Rect2) -> void:
+ 	var c: ColorRect = _fills[k]
+ 	c.position = r.position
 diff --git a/game/scripts/ui/big_banana.gd b/game/scripts/ui/big_banana.gd
 index b3b6b41..43b06f8 100644
 --- a/game/scripts/ui/big_banana.gd
@@ -101,6 +133,68 @@ index 75913c5..798b04f 100644
  	_extend_x = extend_x
  	_extend_top = extend_top
  	for c in _bg.get_children():
+diff --git a/game/scripts/ui/overlays.gd b/game/scripts/ui/overlays.gd
+index 853d6b6..ebb8757 100644
+--- a/game/scripts/ui/overlays.gd
++++ b/game/scripts/ui/overlays.gd
+@@ -22,8 +22,11 @@ class SettingsOverlay:
+ 	const TEXT_W := 360.0        # string-budgets sheet.label / sheet.caption (x 296-656)
+ 	const LABEL_DY := 26.0
+ 
++	## mobile-first §5.11: a full-bleed sheet; labels, their captions and the danger icon R-anchored
++	## (656 + dx), the switches left (L), the title centred, the rows and the bottom "סגור" stretched.
+ 	func build() -> SettingsOverlay:
+ 		id = "SETTINGS"
++		full_bleed = true
+ 		_built_large = PxText.large_text
+ 		var th := Art.theme
+ 		var rows: Array = [["g", "SET_GROUP_SOUND"], ["t", "sfx", "SET_SFX", ""], ["t", "music", "SET_MUSIC", ""],
+@@ -58,7 +61,7 @@ class SettingsOverlay:
+ 				"g":
+ 					var g := PxText.make(body, Vector2(0, ry + 8.0), Strings.s(r[1]), L.TEXT, "plain", th["modal"]["groupLabel"])
+ 					g.fit_width = TEXT_W   # sheet.group
+-					g.right_at(656.0)
++					g.right_at(656.0 + L.dx)
+ 				"t":
+ 					_toggle(ry, h, r[1], r[2], r[3])
+ 				"about":
+@@ -72,11 +75,11 @@ class SettingsOverlay:
+ 					var trash := Art.has_sprite("icon_trash")
+ 					_row_button(ry, h, Strings.s("SET_RESET"), func() -> void:
+ 						host.audio_event("uiClick")
+-						open_reset.call(), th["modal"]["title"], 656.0 - (48.0 if trash else 0.0))
++						open_reset.call(), th["modal"]["title"], 656.0 + L.dx - (48.0 if trash else 0.0))
+ 					if trash:
+-						Ui.img(body, Vector2(620.0, ry + LABEL_DY), "icon_trash", 0, 4)
++						Ui.img(body, Vector2(620.0 + L.dx, ry + LABEL_DY), "icon_trash", 0, 4)
+ 		content_bottom = y0 + y + 8.0
+-		var sc := button(Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Strings.s("SYS_CLOSE"),
++		var sc := button(Rect2(pr.position.x + 24, close_y + 12.0, 672.0 + L.dx, 88), Rect2(pr.position.x + 24, close_y + 12.0, 672.0 + L.dx, 88), Strings.s("SYS_CLOSE"),
+ 			func() -> void: cancel("close"), "kit_secondary", L.TEXT)
+ 		focusables.append(close)
+ 		sync()
+@@ -84,7 +87,9 @@ class SettingsOverlay:
+ 
+ 	## A settings text in its box (right-aligned at x 656, 360 wide): a label (1 line, 2 at ×5)
+ 	## or a caption (2 lines, 3 at ×5), string-budgets sheet.label / sheet.caption.
+-	func _sheet_text(parent: Node, pos: Vector2, s: String, role: Variant, caption: bool, right: float = 656.0) -> PxText:
++	func _sheet_text(parent: Node, pos: Vector2, s: String, role: Variant, caption: bool, right: float = -1.0) -> PxText:
++		if right < 0.0:
++			right = 656.0 + L.dx
+ 		var t := PxText.make(parent, pos, s, L.TEXT, "plain", role)
+ 		t.reading = true   # settings labels and captions: the @2 reading cut where crisp
+ 		t.wrap_width = TEXT_W
+@@ -120,8 +125,8 @@ class SettingsOverlay:
+ 		probe_parent.free()
+ 		return ceilf(h / 4.0) * 4.0   # up to the 4-px grid: a row never cuts its last line
+ 
+-	func _row_button(y: float, h: float, label: String, on_commit: Callable, role: Variant = null, right: float = 656.0) -> void:
+-		var b := PxButton.make(body, Rect2(24, y, 672, h), {"hit": Rect2(24, y, 672, h), "ghost": true, "on_commit": on_commit})
++	func _row_button(y: float, h: float, label: String, on_commit: Callable, role: Variant = null, right: float = -1.0) -> void:
++		var b := PxButton.make(body, Rect2(24, y, 672.0 + L.dx, h), {"hit": Rect2(24, y, 672.0 + L.dx, h), "ghost": true, "on_commit": on_commit})
+ 		focusables.append(b)
+ 		body_focusables.append(b)
+ 		_sheet_text(body, Vector2(0, y + LABEL_DY), label, role if role != null else Art.theme["modal"]["body"], false, right)
 diff --git a/game/scripts/ui/shop.gd b/game/scripts/ui/shop.gd
 index 1079323..f034888 100644
 --- a/game/scripts/ui/shop.gd
@@ -775,6 +869,142 @@ index e9dcc58..1455db6 100644
  				close()
  		"body":
  			if pr["dragging"]:
+diff --git a/game/scripts/ui/views/view_flash.gd b/game/scripts/ui/views/view_flash.gd
+index 0d935b9..29f8b2b 100644
+--- a/game/scripts/ui/views/view_flash.gd
++++ b/game/scripts/ui/views/view_flash.gd
+@@ -209,7 +209,9 @@ func build() -> FlashCard:
+ 		func(sc: int) -> bool: return fixed + _screen_h(fig_art_h * sc) <= avail)
+ 	var screen_h := _screen_h(fig_art_h * art_scale)
+ 	var h := fixed + screen_h
+-	var y := Ui.snap((band.x + band.y) / 2.0 - h / 2.0, 4)
++	# mobile-first §5.13: the stacked FLASH_NEXT over FLASH_SKIP sit in the thumb zone: the card is
++	# bottom-anchored, the skip's bottom 24 above the safe bottom (its PAD included)
++	var y := Ui.snap(maxf(band.x + BAND_MARGIN, band.y - (24.0 - PAD) - h), 4)
+ 	# the panel: the kit's dark sheet (white labels), title band on top
+ 	panel_rect = Rect2(CARD_X, y, CARD_W, h)
+ 	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
+@@ -303,13 +305,12 @@ func _screen_h(fig_h: float) -> float:
+ 	return ceilf((fig_h + HEADROOM + FEET_UP) / 4.0) * 4.0
+ 
+ 
+-## The visible band of the modal space (y top, y bottom): MainController centres the 1280-tall
+-## modal space between the insets (_ovl_y), so the band is symmetric around 640.
++## The visible band of the modal space (y top, y bottom): the safe band, less the modal node's y
++## (MainController.modal_band: _ovl_y puts the 1280 space's centre at 50% / 55% of the band).
+ func _band() -> Vector2:
+-	if host == null or not ("_ovl_y" in host and "_top_y" in host):
++	if host == null or not host.has_method("modal_band"):
+ 		return Vector2(0.0, float(L.H))
+-	var over := float(host.get("_ovl_y")) - float(host.get("_top_y"))
+-	return Vector2(-over, float(L.H) + over)
++	return host.call("modal_band")
+ 
+ 
+ func _lh(t: PxText) -> float:
+diff --git a/game/scripts/ui/views/view_sheet_card.gd b/game/scripts/ui/views/view_sheet_card.gd
+index 3681d3b..62b5f87 100644
+--- a/game/scripts/ui/views/view_sheet_card.gd
++++ b/game/scripts/ui/views/view_sheet_card.gd
+@@ -68,13 +68,14 @@ func para(t: String, col: Color = C_TEXT, centre: bool = false, lines: int = 8)
+ 		return null
+ 	var p := PxText.make(_holder, Vector2(0, _y), t, L.TEXT, "plain", col)
+ 	p.reading = not centre   # a body paragraph reads on @2; a centred number or mood line is display
+-	p.wrap_width = TEXT_W
++	var g2 := grow_half()   # mobile-first §4.1: the body box grows with the card (≤ 624)
++	p.wrap_width = TEXT_W + 2.0 * g2
+ 	p.max_lines = lines
+ 	if centre:
+ 		p.align = 1
+-		p.center_in(CARD_X + (CARD_W - TEXT_W) / 2.0, TEXT_W)
++		p.center_in(CARD_X + (CARD_W - TEXT_W) / 2.0 - g2, TEXT_W + 2.0 * g2)
+ 	else:
+-		p.right_at(TEXT_RIGHT)
++		p.right_at(TEXT_RIGHT + g2)
+ 	paras.append(p)
+ 	_y += Ui.snap(_lh(p) * maxf(1.0, float(p.line_count())), 4) + PARA_GAP
+ 	return p
+@@ -116,14 +117,24 @@ func one_button(label: String, kind: String, on_commit: Callable) -> void:
+ 	_y += BTN_H
+ 
+ 
+-## Sizes the sheet to the content, centres it in the visible band, moves the texts there and
++## Sizes the sheet to the content, places it in the visible band, moves the texts there and
+ ## builds the buttons (in declaration order into `buttons`, then the ✕) at their final rects.
++## mobile-first §5.10 (D43): centred on a safe band ≤ 1400, else its centre at 55% of the band
++## (the buttons into the lower half), never closer than 24 to the tab bar's top; the card grows
++## by min(dx, 64) (g/2 each side; the node sits at the canvas centre, anchor C), its body box and
++## its full-width buttons with it.
+ func finish() -> void:
+ 	var h := Ui.snap(_y + PAD, 4)
+ 	var band := _band()
+ 	var lo := band.x + BAND_MARGIN
+-	var y := Ui.snap(clampf((band.x + band.y) / 2.0 - h / 2.0, lo, maxf(lo, band.y - BAND_MARGIN - h)), 4)
+-	panel_rect = Rect2(CARD_X, y, CARD_W, h)
++	var hi := band.y - BAND_MARGIN
++	if host != null and host.has_method("modal_floor"):
++		hi = minf(hi, float(host.call("modal_floor")) - 24.0)
++	var centre := band.x + (band.y - band.x) * (0.55 if band.y - band.x > 1400.0 else 0.5)
++	var y := Ui.snap(clampf(centre - h / 2.0, lo, maxf(lo, hi - h)), 4)
++	var g2 := grow_half()
++	_holder.position.x = 0.0
++	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
+ 	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
+ 	panel.move_child(frame, 0)
+ 	_holder.position.y = y
+@@ -131,6 +142,7 @@ func finish() -> void:
+ 	for sp: Array in _specs:
+ 		var r: Rect2 = sp[0]
+ 		r.position.y += y
++		r = _grow_btn(r, g2)
+ 		var b := PxButton.make(panel, r, {"hit": r, "label": sp[1], "label_scale": L.TEXT, "kind": sp[2], "on_commit": sp[3]})
+ 		if b.label != null:
+ 			b.label.wrap_width = r.size.x - 32.0
+@@ -141,23 +153,37 @@ func finish() -> void:
+ 	if _close_cb.is_valid():
+ 		var id := Art.sprite_or("icon_close")
+ 		var sz := Vector2(Art.sprite_size(id)) * 4.0
+-		var vis := Rect2(CARD_X + 16.0, y + 16.0, 64.0, 64.0)
+-		close_btn = PxButton.make(panel, vis, {"hit": Rect2(CARD_X, y, 104.0, 104.0), "ghost": true, "on_commit": _close_cb})
++		var vis := Rect2(CARD_X - g2 + 16.0, y + 16.0, 64.0, 64.0)
++		close_btn = PxButton.make(panel, vis, {"hit": Rect2(CARD_X - g2, y, 104.0, 104.0), "ghost": true, "on_commit": _close_cb})
+ 		Ui.img(panel, (vis.position + (vis.size - sz) / 2.0).snapped(Vector2(4, 4)), id, 0, 4)
+ 		focusables.append(close_btn)
+ 
+ 
++## Half the card's growth (mobile-first §5.10: the width is 624 + min(dx, 64)), on the 4-px grid.
++static func grow_half() -> float:
++	return L.floor4(minf(L.dx, 64.0) / 2.0)
++
++
++## A button spec (card-local x, 720 design) widened with the card: a full-width button grows by the
++## whole growth; a half (side by side) by half of it, the gap kept.
++static func _grow_btn(r: Rect2, g2: float) -> Rect2:
++	if r.size.x >= 500.0:
++		return Rect2(r.position.x - g2, r.position.y, r.size.x + 2.0 * g2, r.size.y)
++	if r.position.x < 360.0:
++		return Rect2(r.position.x - g2, r.position.y, r.size.x + g2, r.size.y)
++	return Rect2(r.position.x, r.position.y, r.size.x + g2, r.size.y)
++
++
+ func _lh(t: PxText) -> float:
+ 	return float(HeFont.line_height()) * t.eff_px()
+ 
+ 
+-## The visible band of the modal space (y top, y bottom), as FlashCard: the 1280-tall modal space
+-## is centred between the insets (MainController._ovl_y).
++## The visible band of the modal space (y top, y bottom): the safe band, less the modal node's y
++## (MainController.modal_band: _ovl_y puts the 1280 space's centre at 50% / 55% of the band).
+ func _band() -> Vector2:
+-	if host == null or not ("_ovl_y" in host and "_top_y" in host):
++	if host == null or not host.has_method("modal_band"):
+ 		return Vector2(0.0, float(L.H))
+-	var over := float(host.get("_ovl_y")) - float(host.get("_top_y"))
+-	return Vector2(-over, float(L.H) + over)
++	return host.call("modal_band")
+ 
+ 
+ ## Viewport logical px of a modal-space point (tests and the web driver aim with it).
 diff --git a/game/scripts/ui/views/view_thermo.gd b/game/scripts/ui/views/view_thermo.gd
 index 70cfa5d..2443726 100644
 --- a/game/scripts/ui/views/view_thermo.gd
