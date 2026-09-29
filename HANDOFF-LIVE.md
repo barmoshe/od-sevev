@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `8f56bc1` docs(od-sevev): live handoff snapshot 21:14
+- Branch head: `a4339f8` docs(od-sevev): live handoff snapshot 21:15
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -16,6 +16,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 - Bar (session 3): "the mobile layout is not good; it must be mobile first". Observed: dead bands on tall phones (fixed 180x267 column), list cut on SE, ticker text truncated, small money/buy. UX Designer dispatched for ux/mobile-first-layout.md; the Game Developer implements it right after the picker merges (same files). Shots: scratchpad/shots/mobile/.
 - Picker merged (337/337). Open from its report: Liberman's blurb shows "61" on the picker (spec §3.2: no numbers), for the Designer. LeaderWalk is unwired because the court pose sets the position every frame, so it needs Animator wave B. Golan's pill sits on the partner card; UX to confirm. §10.2 neutralCopy/notUsed facts are the Designer's.
 - Next: when UX delivers ux/mobile-first-layout.md, dispatch the Game Developer to implement it; Animator wave B (LeaderWalk into pick/election); Designer pending.
+- UX spec ux/mobile-first-layout.md committed on worktree-agent-afa76d8266b2e2b6f (UX still running its matrix check). Game Developer dispatched to implement it from that branch (port 8816).
 
 ## Agents
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
@@ -25,6 +26,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | Animator | DONE, merged (court day, motion audit, brawl boil, reduced-motion fix; LeaderWalk helper ready, unwired) | `worktree-agent-a4cee2a31acb16b09` | 0 | 0 | - |
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
 | UX Designer | mobile-first layout spec (ux/mobile-first-layout.md) + tools/web/mobile_web.mjs; Bar: "the mobile layout is not good, must be mobile first" | `worktree-agent-afa76d8266b2e2b6f` | 4 | 0 | `UX-Designer.commits.patch`  |
+| Game Developer (mobile) | implement ux/mobile-first-layout.md §8 + screens §3-§7 (from the UX branch worktree-agent-afa76d8266b2e2b6f) | `worktree-agent-a8bd968153c51c052` | 5 | 0 | `Game-Developer-(mobile).commits.patch`  |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
