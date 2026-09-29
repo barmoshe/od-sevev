@@ -21,7 +21,9 @@ creative-pack art/src/locations.py ───────────────
 art/od-sevev/ui-kit.json + out/ui/** (2D Artist) ─┐
 art/od-sevev/out/key/icon-64-art.png ─────────────┤
                                                    ├─ validate ─▶ game/assets/sprites/** + sprites.json
-pipeline/od-sevev/font/sevev9.glyphs ──────────────┴─ font ─────▶ game/assets/fonts/sevev9{,_outline}.fnt/.png
+pipeline/od-sevev/font/sevev9.glyphs ──────────────┤
+pipeline/od-sevev/font/sevev9@2.glyphs ────────────┴─ font ─────▶ game/assets/fonts/sevev9{,_outline,@2}.fnt/.png
+                                                                 game/assets/fonts/fonts.json (cuts + density)
                                                                  game/assets/icon/*.png
                                                                  pipeline/od-sevev/proofs/*.png, budget.json
 ```
@@ -52,11 +54,19 @@ pipeline/od-sevev/font/sevev9.glyphs ──────────────�
 - an id collision;
 - a missing required glyph;
 - two glyphs with identical bitmaps. That guard caught ז = T in the draft; T is now 5 px wide.
+- **Sevev 9 @2 breaking the ×2 metric rule** (`font.check_companion`, on the written `.fnt` files): any
+  code point whose `xadvance` is not exactly 2 × Sevev 9's, an ink box (width, height, offsets) that is not
+  2 × its twin's, a line height or baseline not 2 ×, a different code-point set, or different kerning. With
+  `--godot` it also shapes the proof lines through TextServer and fails unless every @2 width is 2 × Sevev 9's.
 
 **Adding things:**
 - A new character (ref + `cast.py` entry, by the render owner) or a new UI piece (a `ui-kit.json`
   row, by the 2D Artist) lands with a rerun. No code change.
-- A new glyph is a block in `font/sevev9.glyphs`.
+- A new glyph is a block in `font/sevev9.glyphs` **and** its 2× redraw in `font/sevev9@2.glyphs` (18 rows,
+  exactly twice as wide); the build fails until both exist.
+- `--godot` needs a display (it opens a window): on a headless Linux box run it under
+  `xvfb-run -a python3 pipeline/od-sevev/build.py --no-render --godot`. It writes
+  `proofs/font-density2.png` (Sevev 9 vs @2, every glyph and the real strings in their boxes, ×4 on a k 4 device).
 
 **The contract for the engine** is `game/assets/sprites/CONTRACT.md`.
 

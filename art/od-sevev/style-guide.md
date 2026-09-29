@@ -144,6 +144,22 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 - **Readability measured** (`proofs/phone-390css-read.png`): at 390 CSS px the body is ~11 CSS px tall:
   fine for labels, chat, the ticker, card lines.
 - Label colours and their contrast: §11.4.
+- **Sevev 9 @2 (2026-09-29, Bar's "sharper text"):** the reading cut. Every glyph redrawn on a 2× grid
+  (`pipeline/od-sevev/font/sevev9@2.glyphs`) and drawn at half the scale, so it covers **the same box**
+  with every metric exactly 2× Sevev 9's (the build checks it). It is not a smaller font and not a second
+  text size: it is the same letters at twice the pixel density.
+  - **Stroke model:** the Hebrew square script's contrast. Horizontals (roofs, bases, bars) are 2 @2 px,
+    Sevev 9's weight; vertical stems are 1 @2 px; diagonals are 2 px per row, stepping 1. Round corners
+    get a 1-px chamfer, square corners stay square. Dots and commas stay 2×2.
+  - **Letter logic, sharpened:** ב square with its base tail past the stem vs כ rounded with no tail;
+    ד's roof overhangs vs ר/ך rounded (ך descends); ה's left leg detached (2-row gap) and inset vs ח
+    attached vs ת inset with a 2-row foot; ו hook + stem vs ז bar over a stem vs ן descending; ס rounded
+    vs ם square; ע's base kicks left vs צ's crossed top on a full base; ׳ and ״ are raised tapered ticks.
+  - **Where:** reading text (chat, toasts, card descriptions, the ticker crawl, settings, modal bodies,
+    About). Display text stays the chunky Sevev 9: the counter, prices, titles, tab labels, the ticker
+    tag, chips, buttons, badges and anything dimmed or over art (CONTRACT §6.1 has the list and the
+    crispness rule: @2 only when a Sevev 9 px is an even number of device px).
+  - **Proof:** `pipeline/od-sevev/proofs/font-density2.png` (×4 on a k 4 device: 4-dp vs 2-dp px).
 
 ## 8. The wordmark "עוד סבב" (v2)
 
@@ -188,7 +204,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 | 9 | The active tab = raised plate + pale underline + white label + the only coloured icon | A gold underline (gold = money) |
 | 10 | Can't-afford = a sunken well with a dim gold fill and a white label | The same raised pill in grey (colour-only state change) |
 | 11 | Hand-draw anything whose read is a word or a number (the Suitcase's DOHA) | Render-down a sticker at 24 px |
-| 12 | A long string wraps inside a taller 9-slice | Shrinking the font, or a second pixel scale for text |
+| 12 | A long string wraps inside a taller 9-slice | Shrinking the font, or a second pixel scale for text (Sevev 9 @2 is not one: same box, same metrics, a 2× grid; §7) |
 | 13 | A committee, a delay, a freeze drawn as its objects: a binder, a stamp, frost, a cobweb, a clock | Anything that can echo October 7 (Bar, 2026-09-29; `design/redlines.json` `oct7-hostages`, visual echoes included): empty chairs at a table or an empty set table, a yellow ribbon or yellow pin, missing-person posters or portrait grids, a day counter, sirens, rockets, uniforms or army green, a border fence. Yellow stays gold (money) and never becomes a ribbon or a loop pinned to a chest. |
 
 ## 11. UI: the kit

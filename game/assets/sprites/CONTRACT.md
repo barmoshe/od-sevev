@@ -19,6 +19,8 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun 
 | `sprites/<ui id>.png` | The 2D Artist's UI kit, 89 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
 | `fonts/sevev9.fnt` | **Sevev 9**, the Hebrew pixel font (a BMFont; Godot imports it as a `FontFile`) | `load("res://assets/fonts/sevev9.fnt")` |
 | `fonts/sevev9_outline.fnt` | The same font with a baked 1 px ink ring | the same |
+| `fonts/sevev9@2.fnt` | **Sevev 9 @2**, the density-2 companion: every glyph redrawn on a 2× grid, drawn at half the scale into the same box (§6.1) | `fonts.json` `fonts["sevev9@2"]` (`density: 2`) |
+| `fonts/fonts.json` | The font manifest: every cut with its `density`, size, line height, baseline and role, plus the build's metric check | `FileAccess` + `JSON` |
 | `icon/*.png` | App icons, from the 2D Artist's 64 art-px master (file names unchanged) | `export_presets.cfg` |
 
 Every id is unique across all of `sprites/`; the pipeline fails on a collision. Single-frame ids
@@ -253,8 +255,40 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for 
   - A missing required glyph **fails the build**.
 - **Wordmark and title:** the logo is the kit's `wordmark` sprite (143×29 art px, drawn at ×4).
   Screen titles use `sevev9_outline` at 45 or 54.
-- **Adding glyphs:** add a block to `pipeline/od-sevev/font/sevev9.glyphs` and rerun. It is a
-  content edit, with no code change.
+- **Adding glyphs:** add a block to `pipeline/od-sevev/font/sevev9.glyphs` and its 2× redraw to
+  `sevev9@2.glyphs`, then rerun. It is a content edit, with no code change.
+
+### 6.1 Sevev 9 @2 (density 2): sharper reading text, same box
+
+Bar's "sharper text" (2026-09-29). Sevev 9 at ×4 logical on a k 4 phone draws each font px as a
+4×4 device block. `sevev9@2.fnt` has the same 171 code points redrawn on a 2× grid (18-row cell:
+ascender 4, body 10, descender 4), so at the same box each @2 px is 2×2 device px.
+
+- **The metric rule (checked at build, fails loudly):** for every code point, `xadvance@2 = 2 ×
+  xadvance@1`, the ink box (width, height, xoffset, yoffset) is 2 × its twin's, `lineHeight` 22 =
+  2 × 11, `base` 16 = 2 × 8, and kerning is identical (none today). So every string measures
+  **exactly twice as wide in @2 px**: drawn at half the scale, it lays out, wraps and ellipsizes
+  exactly like Sevev 9. `ux/string-budgets.json`, `tools/lint_text.sh` and every layout keep
+  measuring with `sevev9.fnt` and hold for both cuts. The pipeline also shapes its proof lines
+  through TextServer and fails unless every @2 width is exactly 2 × Sevev 9's.
+- **Drawing it:** shape at `font_size` 18 (its `fixed_size`), scale by (the Sevev 9 scale) / 2.
+  PxText today shapes at `HeFont.size()` (9) and scales by `eff_px()`; for @2 that is size 18 and
+  `eff_px() / 2`. `HeFont.ascent()` / `line_height()` of the @2 FontFile are 16 / 22: divide by 2,
+  or keep using Sevev 9's values (they are identical in logical px).
+- **Crispness (the pick rule):** an @2 px is (device px per Sevev 9 px) / 2. Use @2 only when that
+  is a whole number, i.e. when `Display.text_scale(s) * Display.f` (device px per Sevev 9 px) is
+  **even**; otherwise draw Sevev 9. At ×4: k 2, 4, 6, 8 → @2 is 1, 2, 3, 4 device px (crisp);
+  k 7, 9 → 3.5, 4.5 (use Sevev 9). Large text ×5: k 4 gives 5 device px per Sevev 9 px, so a
+  large-text body falls back to Sevev 9 there; k 8 gives 10 (@2 = 5, crisp). Because the metrics
+  are identical, the fallback never moves a pixel of layout.
+- **Which text uses it (2D Artist's role split):** reading text: chat bubbles and chat toasts,
+  card descriptions, the ticker crawl, settings labels and captions, modal and court-card bodies,
+  toasts, About. Display text keeps Sevev 9: the Row A counter and rate, prices and pay pills,
+  titles (the outline cut), tab labels, the ticker tag, chips and timers, button labels, badges,
+  stamps and anything dimmed or over art. There is no @2 outline cut: outlined text is display.
+- **Stroke model:** horizontals 2 @2 px (Sevev 9's weight), verticals 1 @2 px, so @2 is the
+  lighter, sharper reading cut; the proof is `pipeline/od-sevev/proofs/font-density2.png`.
+- **Cost:** a 256×128 page (128 KB VRAM), 10.8 KB of `.pck`.
 
 ## 7. Budget (measured, `pipeline/od-sevev/budget.json`, rerun with `--godot`)
 - **Web `.pck` bytes added:** 3.12 MB for all our art (2026-09-29, frameMap + Bibi's d 2; it
@@ -263,7 +297,7 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for 
   - the UI kit (197 pieces, the 3 hand-drawn sources included): 43 KB;
   - the 5 rendered sources (3× strips + 1× icons): 28 KB;
   - both avatar sizes: 27 KB;
-  - both fonts: 16 KB;
+  - the fonts: 16 KB for Sevev 9 and its outline cut, plus 11 KB for Sevev 9 @2;
   - props, stages and FX: 6 KB.
 
   With audio at ~10.9 MB, that is about a fifth of the payload. The frameMap's smaller grids
