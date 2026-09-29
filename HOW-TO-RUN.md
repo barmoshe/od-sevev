@@ -52,6 +52,19 @@ every chat pill including those scrolled above the fold, "להעיד", the "עו
 <url> <dir>` screenshots the summons card and chip, the court card over T3, a partner card, O10,
 About and O1 (a cold load 3 h later). Both read `window.odDev` (dev only, `ui/dev_probe.gd`: the
 targets in viewport logical px) and `window.odModal` (the open sheet card's buttons).
+`&chat=N` opens the coalition group at boot with N join lines after the first demand and an open
+Amsalem–Smotrich brawl (the brawl cue under Row B, the "{n} ממתינים ↑" chip in T3). `node
+tools/web/share_web.mjs <url> <dir> [WxH@DPR]` opens O4 and O5 from T4, saves the exported PNGs
+("לשמור תמונה" downloads them), checks "לשתף" (headless Chromium has no `navigator.share`: download
++ clipboard) and "לשתף בוואטסאפ" (a desktop opens `wa.me/?text=` in a new tab; the text must decode
+back), the brawl cue, the pending chip, About's WhatsApp invite and the absolute OG tags.
+
+**Sharing (O4 / O5, the invite).** `ui/share_kit.gd` holds the model and the one site URL
+(`ShareKit.SITE_URL`); `ui/views/view_share.gd` renders the card once when the sheet opens (the kit
+piece + engine text at 5 card px per art px in a 1080×1350 SubViewport, read back to a PNG) and
+shows that image as the preview. The shell's `window.odShare` does the platform work (file share →
+text share → download + clipboard; wa.me in a new tab on a desktop, in place on a phone) and answers
+through `window.odShareDone`; `window.odShareLog` records every result.
 
 ## Source map
 
@@ -78,7 +91,7 @@ decisions/                 the v2 ADRs
 |---|---|
 | `tools/lint_text.sh` | Pixel-width lint: every `ux/ui-strings.json` key (plus producer/upgrade names and the story beats) measured with the shipped font against its `ux/string-budgets.json` box. `tools/build_web.sh` runs it first and **fails the build** on an overflow or a missing glyph |
 | `OD_LINT=warn tools/build_web.sh` | Interim build while a string fix is pending with its owner: the lint reports and the export continues |
-| `OD_SITE_URL=https://…/ tools/build_web.sh` | Makes the `og:image` / `twitter:image` URLs absolute (crawlers need that); without it they stay relative |
+| `OD_SITE_URL=https://…/ tools/build_web.sh` | The deployed origin: absolute `og:url` / `og:image` / `twitter:image` (WhatsApp's preview needs them), the link on the share cards and texts (`window.odSiteUrl`). Defaults to `ShareKit.SITE_URL` (`https://od-sevev.vercel.app/`); `OD_SITE_URL=` (empty) keeps the tags relative for a throwaway host |
 | `OD_VERCEL_PROJECT=<name> tools/deploy_web.sh` | Deploy target. **No default**: the deploy is Bar's gated call (studio I5) |
 | `python3 tools/gen_sevev_glyphs.py` | Regenerates the engine's stand-in Hebrew font (`game/scripts/ui/sevev_glyphs.gd`) from the creative pack's `hebfont.py`. Only used when `game/assets/fonts/sevev9.fnt` is absent |
 | `godot --path game -- --content=res://tests/fixtures/content.fork.json` | Desktop dev run on another content file (the web build never reads it) |

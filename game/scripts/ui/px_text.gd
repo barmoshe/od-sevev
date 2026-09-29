@@ -104,6 +104,15 @@ var reading := false:
 			if text != "":
 				_relayout()
 
+## Draws at exactly `px` logical px per font px: no device-px snap, no large-text step, no @2
+## (a SubViewport that renders 1:1, e.g. the share cards' PNG export, ui/views/view_share.gd).
+var exact := false:
+	set(v):
+		if v != exact:
+			exact = v
+			if text != "":
+				_relayout()
+
 var _ft := ""                      # bitmap route: the font_text string
 var _para: TextParagraph           # shaped route (null on the bitmap route)
 var _box_w := 0.0                  # shaped route: box width in font units
@@ -165,6 +174,8 @@ static func relayout_all(tree: SceneTree) -> void:
 ## mode where it fits (_steps_up), snapped to whole device px (Display.text_scale), so every glyph
 ## pixel is crisp at any k.
 func eff_px() -> float:
+	if exact:
+		return float(px)
 	return Display.text_scale(float(px + 1 if _up else px))
 
 
@@ -181,7 +192,7 @@ func device_px() -> float:
 ## The @2 pick rule (CONTRACT.md §6.1): a reading text on the plain cut, the @2 font shipped, and one
 ## Sevev 9 px an even number (≥ 2) of whole device px.
 func _wants_sharp() -> bool:
-	if not reading or not sharp_text or variant != "plain" or not Display.integer:
+	if exact or not reading or not sharp_text or variant != "plain" or not Display.integer:
 		return false
 	var spec: Dictionary = Art.data.get("font", {}).get("variants", {}).get(variant, {})
 	if spec.get("outline") != null or HeFont.sharp() == null:
@@ -225,7 +236,7 @@ static func fits(t: String, box_w: float, lines: int, scale_px: int) -> bool:
 
 
 func _steps_up() -> bool:
-	if not large_text or px != L.TEXT or text == "":
+	if exact or not large_text or px != L.TEXT or text == "":
 		return false
 	if wrap_width > 0.0:
 		return fits(text, wrap_width, max_lines_large if max_lines_large > 0 else max_lines, px + 1)

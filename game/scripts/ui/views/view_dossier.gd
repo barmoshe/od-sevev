@@ -13,7 +13,7 @@ extends Node2D
 ## Layout, tall-local: the kit chat_header (DOS_TITLE right-aligned at x 616, the › chevron hit
 ## Rect2(632, 8, 88, 88)); under it one scrolling body: 88-px stat rows (labels right-aligned at
 ## x 688, a 4-px divider), the aide row while an aide holds money, the full-width buttons (hit
-## 688×88) SHARE_RECEIPT_TITLE / SHARE_RESULT_BTN (only once those cards exist) / PARDON_ROW /
+## 688×88) SHARE_RECEIPT_TITLE / SHARE_RESULT_BTN (O4 / O5, ui/views/view_share.gd) / PARDON_ROW /
 ## BOOK_STORY, then the BOOK_TROPHIES section (104-px rows: icon right, name, description).
 ##
 ## K2 (ux/ftue.md): the tab slot appears when the case is open (the thermometer revealed and the

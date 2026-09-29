@@ -65,6 +65,7 @@ BOXES = {
     "chat.label":     (300, 4, 1, 1, "Ultimatum label / forwarded label"),
     "chat.timer":     (120, 4, 1, 1, "Timer (PxText)"),
     "chat.divider":   (480, 4, 1, 1, "Day / unread divider"),
+    "chat.pending":   (216, 4, 1, 1, "The '{n} ממתינים' chip on the thread's top edge (chip 296: text 216 + the 7x9 up-arrow icon 28 + air), game-developer views 2026-09-29"),
     "chat.composer":  (640, 4, 1, 1, "Disabled composer"),
     "dos.row":        (656, 4, 1, 2, "Dossier row"),
     "dos.btn":        (624, 4, 1, 1, "Dossier full-width button"),
@@ -110,7 +111,7 @@ PH = {
     "to": "עוצמה יהודית", "from": "הליכוד", "era": "וושינגטון", "outlet": "ידיעות אחרונות",
     "NAME": "פנקס הצ׳קים הזהוב", "UPGRADE_NAME": "הוחלט להקים ועדה", "FLAVOR": "",
     "title": "הקוסם", "dur": "23 שע׳ 59 דק׳", "rounds": "99 סבבי בחירות", "days": "ו־99 ימי משפט",
-    "amount": "999.9 מיליון", "url": "odsevev.co.il", "publisher": "", "mail": "", "preview": "", "mood": "",
+    "amount": "999.9 מיליון", "url": "od-sevev.vercel.app", "publisher": "", "mail": "", "preview": "", "mood": "",
 }
 NUMERIC_PH = {"n", "price", "x", "xr", "rate", "cost", "mult", "pmult", "s", "d", "h", "m", "mmss", "owned",
               "qty", "pending", "needed", "seats", "version", "date", "pct", "k", "lv", "max", "count",
@@ -361,6 +362,7 @@ e("TAB_DOSSIER", "תיקים", "tab.label", "*", "tab.dossier")
 e("TOAST_SPINS", "נפתחו ספינים. דובי כבר חוזר עליהם.", "stage.toast", "*", "toast.spins")
 e("TOAST_DOSSIER", "נפתח לך תיק.", "stage.toast", "*", "toast.dossier")
 e("SYS_OFFLINE", "אין חיבור. הכובע עובד גם בלי.", "stage.toast", "*", "sys.offline")
+e("TOAST_SPIN_END", "הספין ״{NAME}״ ירד מהכותרות.", "stage.toast", "*", "a timed spin (S02, S07, S10, S12 ...) ends (new)", "The subject is הספין (m), so any spin name agrees")
 e("TOAST_COURT_END", "העדות הסתיימה. הקצב חזר.", "stage.toast", "", "court day end (new)")
 e("RESET_DONE", "נמחק. אין כלום.", "stage.toast", "*", "reset.done")
 e("ALBUM_NEW", "נכנס לאלבום.", "stage.toast", "", "album.new")
@@ -435,6 +437,8 @@ e("CHAT_EMPTY", "שקט בקבוצה. זה לא יחזיק.", "chat.sys", "*", "
 e("CHAT_COMPOSER", "פה מדברים רק בשקלים", "chat.composer", "*", "chat.composer")
 e("CHAT_TRANSFER_TITLE", "חלון העברות", "chat.banner", "", "chat.transfer.title")
 e("CHAT_TRANSFER_LINE", "{from} ← {to} · כולל דמי אחזקה", "chat.banner", "", "chat.transfer.line")
+e("CHAT_PENDING_ONE", "ממתין אחד", "chat.pending", "", "views dev 2026-09-29: an open pill or brawl above the thread's viewport", "Tap = scroll to the nearest one above; the ↑ is a pixel icon (the font has no U+2191)")
+e("CHAT_PENDING_OTHER", "⟦{n}⟧ ממתינים", "chat.pending", "", "views dev 2026-09-29")
 e("CHAT_PINNED_OPEN", "לפתוח את ההסכם", "html:16", "", "rtl-map §7.3", "Accessible label (not drawn)")
 e("CHAT_COLLAPSE", "לסגור את הקבוצה", "html:16", "", "rtl-map §6.3", "Accessible label of the chevron (not drawn)")
 # --- aide drop (the button words are the copy deck's)
@@ -560,6 +564,8 @@ e("SHARE_COPIED", "הקישור הועתק.", "stage.toast", "", "share.copied")
 e("SHARE_SAVED", "התמונה נשמרה.", "stage.toast", "", "share.saved")
 e("SHARE_FAIL", "השיתוף לא עבד. נסה שוב.", "stage.toast", "", "share.fail")
 e("SHARE_DEEPLINK", "מישהו שרד {rounds} {days}. תורך.", "stage.toast", "*", "share.deeplink")
+e("SHARE_WA", "לשתף בוואטסאפ", "modal.btnFull", "", "Bar 2026-09-29: WhatsApp share (wa.me) on O4 / O5", "Full-width button with the speech-bubble icon; wa.me carries text only, so the link preview (OG) does the visual work")
+e("ABOUT_SHARE_WA", "לשתף בוואטסאפ", "html:16", "", "Bar 2026-09-29: the invite's WhatsApp link in About (O8)")
 # --- plural fragments for the result line and the deep-link toast
 e("ROUNDS_ONE", "סבב בחירות אחד", "result.head", "", "§5.2 ICU rounds one")
 e("ROUNDS_TWO", "שני סבבי בחירות", "result.head", "", "§5.2 ICU rounds two")
@@ -606,7 +612,7 @@ e("RESULT_HEADLINE", "שרדתי {rounds} {days}", "result.head", "*", "§5.2")
 e("RESULT_ZERO_TAG", "בינתיים.", "result.head", "*", "§5.2 appended when days = 0")
 e("RESULT_SUB", "והציבור? נרגש.", "result.line", "*", "§5.2")
 e("RESULT_STATS", "מזוודות שנתפסו: ⟦{s}⟧ · בקשות דחייה: ⟦{n}⟧", "result.line", "", "§5.2")
-e("RESULT_FOOT", "עוד סבב · משחק סאטירה · {url}", "result.foot", "L", "§5.2", "The URL MUST be on the image (see RECEIPT_FOOT_URL)")
+e("RESULT_FOOT", "משחק סאטירה · {url}", "result.foot", "L", "§5.2", "The URL MUST be on the image (see RECEIPT_FOOT_URL). 'עוד סבב · ' dropped (game-developer 2026-09-29): with the real host od-sevev.vercel.app the line is 209 px in the 200 band; the wordmark at the card's top carries the name")
 e("RESULT_DISC", "סאטירה. לא קשור לאף מפלגה או מועמד.", "result.foot", "L", "§5.2")
 # --- share texts (plain text into WhatsApp; plural address)
 e("SHARE_TEXT_RESULT", "שרדתי {rounds} {days} ב״עוד סבב״. מישהו פה עושה יותר? {url}", "share-text:90", "*", "§5.3 result")
@@ -768,7 +774,7 @@ for key, value, box, flags, spec, note in E:
     if "G" in flags: b["deckWords"] = True
     if note: b["note"] = note
     if surf in ("html", "share-text", "og"):
-        n = len(plain_for_measure(value).replace("{url}", ""))
+        n = len(plain_for_measure(value.replace(" {url}", "").replace("{url}", "")))   # "≤ N + URL" (first-minute §5.3): the URL is not counted
         b["maxChars"] = cap
         if n > cap:
             errors.append(f"{key}: {n} chars > {cap}")
