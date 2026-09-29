@@ -1,11 +1,11 @@
 {
-  "_doc": "Per-key budgets for ux/ui-strings.json, for the Game Developer's build-time pixel-width lint (first-minute §8, engine review O-U3). LINT: substitute worstCasePlaceholders, drop LRI/PDI, measure with the real Sevev 5x9 advances (glyph width + 1, space 3) times the box's scale. PASS if it fits the box in `lines` lines at the base scale, and at base+1 (large text) either fits in `linesLarge` or may step down to the base scale. A key with joke:true must never need truncation (its punchline is last). html/share-text/og keys are checked by maxChars only (system font). surface 'unused' keys are not rendered in od-sevev. Box geometry is ux/rtl-map.md.",
+  "_doc": "Per-key budgets for ux/ui-strings.json, for the Game Developer's build-time pixel-width lint (first-minute §8, engine review O-U3). LINT: substitute worstCasePlaceholders, drop LRI/PDI, measure with the shipping font (game/assets/fonts/sevev9.fnt: the sum of xadvance, space 4, ₪ 8) times the box's scale. PASS if it fits the box in `lines` lines at the base scale, and at base+1 (large text) either fits in `linesLarge` or carries largeText: 'step-down'. RUNTIME RULE for step-down keys (ux/rtl-map.md §0.2): under large text the view draws the key at x5 only when it fits its box in linesLarge at x5, else at x4; it never ellipsises a step-down key. A key with joke:true must never need truncation (its punchline is last). html/share-text/og keys are checked by maxChars only (system font). surface 'unused' keys are not rendered in od-sevev. Box geometry is ux/rtl-map.md.",
   "fontMetrics": {
-    "font": "Sevev 5x9 (art/src/hebfont.py)",
+    "font": "Sevev 9 (game/assets/fonts/sevev9.fnt)",
     "cellRows": 9,
     "lineHeight": 11,
-    "space": 3,
-    "advance": "glyph width + 1",
+    "space": 4,
+    "advance": "fnt xadvance (glyph width + 1; ₪ 8, T 6)",
     "baseScale": 4,
     "largeScale": 5,
     "shareCards": "art scale 1 on the x5 card grid"
@@ -54,18 +54,25 @@
       "where": "Blackout stamp inner (baked art; text is the a11y fallback)"
     },
     "stage.toast": {
-      "widthPx": 656,
+      "widthPx": 644,
       "scale": 4,
       "lines": 2,
       "linesLarge": 3,
-      "where": "Toast text x 32-688"
+      "where": "Toast text x 32-676 (the kit toast's content box ends 6 art px = 24 before the plate's right edge, 704; 4 px air)"
     },
     "stage.toastChat": {
-      "widthPx": 528,
+      "widthPx": 564,
       "scale": 4,
       "lines": 2,
       "linesLarge": 3,
-      "where": "Chat toast text (avatar at right)"
+      "where": "Chat toast text x 32-596 (the 16x16 avatar crop, 64 px, at x 612-676 inside the accent)"
+    },
+    "stage.toastHead": {
+      "widthPx": 564,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Chat toast line 1: sender + group, x 32-596"
     },
     "stage.courtChip": {
       "widthPx": 256,
@@ -128,7 +135,7 @@
       "scale": 4,
       "lines": 1,
       "linesLarge": 1,
-      "where": "Crawl: no width limit; paged by width 384 under reduced motion"
+      "where": "Crawl: no width limit; paged by the live clip width under reduced motion (324 at x4, 302 at x5; 288 / 266 on court day)"
     },
     "cta.election": {
       "widthPx": 688,
@@ -255,6 +262,13 @@
       "lines": 1,
       "linesLarge": 1,
       "where": "Pay pill inner (kit 9-slice stretched to 82x17 art)"
+    },
+    "partner.label": {
+      "widthPx": 400,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Partner card row label, right-aligned at the card's right − 32; its value sits at the left"
     },
     "chat.pillWide": {
       "widthPx": 480,
@@ -660,6 +674,19 @@
       },
       "largeText": "step-down"
     },
+    "HUD_BPS_POUR": {
+      "surface": "label",
+      "spec": "rate line while S07 (idleToTap) runs",
+      "joke": true,
+      "note": "Replaces '+0.0 ₪ לשנייה', which reads as broken while S07 pours the income into taps",
+      "box": "rowA.rate",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 336,
+        "5": 420
+      },
+      "largeText": "step-down"
+    },
     "HUD_THUMBS": {
       "surface": "label",
       "note": "Not in the persistent HUD; shown in T4",
@@ -775,7 +802,7 @@
       "surface": "label",
       "note": "Not used by the od-sevev FTUE (S1 is textless)",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 192,
         "5": 240
@@ -1491,7 +1518,7 @@
       "spec": "toast.spins",
       "joke": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 628,
         "5": 785
@@ -1542,7 +1569,7 @@
     "F_NO_SAVE": {
       "surface": "label",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 992,
         "5": 1240
@@ -1551,7 +1578,7 @@
     "F_SAVE_CORRUPT": {
       "surface": "label",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 784,
         "5": 980
@@ -1618,6 +1645,18 @@
         "4": 216,
         "5": 270
       }
+    },
+    "PARTNER_UPKEEP": {
+      "surface": "label",
+      "spec": "partner card upkeep row (rtl-map §6.3)",
+      "note": "Label; the value '−{upkeepPct}%' is drawn at the card's left (the share of ₪/s the partner costs)",
+      "box": "partner.label",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 364,
+        "5": 455
+      },
+      "largeText": "step-down"
     },
     "BOOK_TITLE": {
       "surface": "label",
@@ -1818,7 +1857,7 @@
       "surface": "label",
       "joke": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 532,
         "5": 665
@@ -1837,7 +1876,7 @@
     "F_PERKS_HINT": {
       "surface": "label",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 768,
         "5": 960
@@ -1847,7 +1886,7 @@
       "surface": "label",
       "joke": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 820,
         "5": 1025
@@ -1909,6 +1948,12 @@
     },
     "IMP_CONFIRM": {
       "surface": "unused"
+    },
+    "IMP_PROMPT": {
+      "surface": "html",
+      "spec": "main.gd import_save window.prompt",
+      "note": "System prompt text; reachable only if the save-code row returns (not in the od-sevev settings)",
+      "maxChars": 40
     },
     "OFF_AWAY_CAPPED_H": {
       "surface": "label",
@@ -2319,7 +2364,7 @@
       "spec": "hud.cottage.tip",
       "joke": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 732,
         "5": 915
@@ -2328,12 +2373,23 @@
     "HUD_COTTAGE_MINUS": {
       "surface": "pxtext",
       "spec": "motion cottage-pixel-loss",
-      "note": "The lost pixel's '−1' over the cup (game-developer views, 2026-09-29; UX to confirm)",
+      "note": "The lost pixel's '−1' over the cup (U+2212, PxText). Confirmed by UX 2026-09-29: numerals only, no ₪ (the cup loses a pixel, not money)",
       "box": "rowA.cottageMinus",
       "maxChars": 3,
       "worstPx": {
         "4": 44,
         "5": 55
+      }
+    },
+    "FLOATER_FLIGHT": {
+      "surface": "label",
+      "spec": "S10 flightIncome floater",
+      "note": "S10: the round's running flight bonus, over the caught Suitcase (was the bare '+15%')",
+      "box": "stage.floater",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 244,
+        "5": 305
       }
     },
     "HUD_CTA_ELECTION": {
@@ -2371,7 +2427,7 @@
       "joke": true,
       "deckWords": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 328,
         "5": 410
@@ -2383,7 +2439,7 @@
       "joke": true,
       "deckWords": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 232,
         "5": 290
@@ -2395,7 +2451,7 @@
       "joke": true,
       "deckWords": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 264,
         "5": 330
@@ -2407,7 +2463,7 @@
       "joke": true,
       "deckWords": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 336,
         "5": 420
@@ -2419,7 +2475,7 @@
       "joke": true,
       "deckWords": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 120,
         "5": 150
@@ -2473,7 +2529,7 @@
       "spec": "toast.spins",
       "joke": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 628,
         "5": 785
@@ -2484,7 +2540,7 @@
       "spec": "toast.dossier",
       "joke": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 232,
         "5": 290
@@ -2495,7 +2551,7 @@
       "spec": "sys.offline",
       "joke": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 528,
         "5": 660
@@ -2505,7 +2561,7 @@
       "surface": "label",
       "spec": "court day end (new)",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 472,
         "5": 590
@@ -2516,7 +2572,7 @@
       "spec": "reset.done",
       "joke": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 268,
         "5": 335
@@ -2526,7 +2582,7 @@
       "surface": "label",
       "spec": "album.new",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 236,
         "5": 295
@@ -2537,7 +2593,7 @@
       "spec": "card.buy.first",
       "note": "Single-line form (a11y label, toasts); the pill uses VERB + PRICE on two lines",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 304,
         "5": 380
@@ -2549,7 +2605,7 @@
       "joke": true,
       "note": "Single-line form",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 352,
         "5": 440
@@ -2650,7 +2706,7 @@
       "spec": "spin.buy",
       "note": "Single-line form",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 308,
         "5": 385
@@ -2698,6 +2754,31 @@
         "4": 80,
         "5": 100
       }
+    },
+    "SPIN_BARS_LINE": {
+      "surface": "label",
+      "spec": "S08 card line 2 at level >= 1",
+      "joke": true,
+      "note": "Replaces the effect label once S08 has a level; {pct} = bars.friendly. The split bar under it keeps both parts (public from the right)",
+      "box": "card.line2",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 312,
+        "5": 390
+      },
+      "largeText": "step-down"
+    },
+    "SPIN_BAR_PUBLIC": {
+      "surface": "html",
+      "spec": "S08 bar a11y",
+      "note": "Accessible name of the bar's public part (not drawn)",
+      "maxChars": 14
+    },
+    "SPIN_BAR_FRIENDLY": {
+      "surface": "html",
+      "spec": "S08 bar a11y",
+      "note": "Accessible name of the bar's friendly part (not drawn)",
+      "maxChars": 14
     },
     "CHAT_TITLE": {
       "surface": "label",
@@ -2852,6 +2933,41 @@
         "4": 192,
         "5": 240
       }
+    },
+    "CHAT_CEREMONY": {
+      "surface": "label",
+      "spec": "ceremony demand pill (Regev)",
+      "joke": true,
+      "note": "A ceremony costs 0 ₪, so the money pill read 'סגרנו · 0 ₪'. Tap starts the 3 s ribbon fill",
+      "box": "chat.pill",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 220,
+        "5": 275
+      }
+    },
+    "CHAT_CEREMONY_CUTTING": {
+      "surface": "label",
+      "spec": "ceremony pill while the ribbon fills",
+      "joke": true,
+      "box": "chat.pill",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 124,
+        "5": 155
+      }
+    },
+    "TOAST_CHAT_HEAD": {
+      "surface": "label",
+      "spec": "C1 chat toast line 1 (ftue.md C1: avatar, name, preview)",
+      "note": "Line 1 of a chat toast; line 2 is the message preview, one line, ellipsised",
+      "box": "stage.toastHead",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 528,
+        "5": 660
+      },
+      "largeText": "step-down"
     },
     "CHAT_PAID": {
       "surface": "label",
@@ -3462,6 +3578,58 @@
       "worstPx": {
         "4": 196,
         "5": 245
+      }
+    },
+    "COURT_SUMMONS_TITLE": {
+      "surface": "label",
+      "spec": "court card title while phase == summons",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 200,
+        "5": 250
+      }
+    },
+    "COURT_SUMMONS_BODY": {
+      "surface": "label",
+      "spec": "court card body while phase == summons",
+      "joke": true,
+      "note": "COURT_BODY ('הקוסם בדוכן העדים. ההכנסות מואטות.') is true only once testimony runs",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 912,
+        "5": 1140
+      }
+    },
+    "COURT_SUMMONS_EFFECT": {
+      "surface": "label",
+      "spec": "court card effect line while phase == summons",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 516,
+        "5": 645
+      }
+    },
+    "COURT_SUMMONS_TIMER": {
+      "surface": "label",
+      "spec": "court card timer while phase == summons (the auto-testify countdown)",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 460,
+        "5": 575
+      }
+    },
+    "COURT_CHIP_SUMMONS": {
+      "surface": "label",
+      "spec": "court chip line 1 while phase == summons",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 76,
+        "5": 95
       }
     },
     "PARDON_ROW": {
@@ -4158,7 +4326,7 @@
       "surface": "label",
       "spec": "share.copied",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 248,
         "5": 310
@@ -4168,7 +4336,7 @@
       "surface": "label",
       "spec": "share.saved",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 256,
         "5": 320
@@ -4178,7 +4346,7 @@
       "surface": "label",
       "spec": "share.fail",
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 440,
         "5": 550
@@ -4189,7 +4357,7 @@
       "spec": "share.deeplink",
       "joke": true,
       "box": "stage.toast",
-      "maxChars": 27,
+      "maxChars": 26,
       "worstPx": {
         "4": 836,
         "5": 1045

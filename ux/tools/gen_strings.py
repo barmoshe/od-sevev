@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generates ux/ui-strings.json and ux/string-budgets.json for "עוד סבב" and self-lints every
-canvas string against its box with the real Sevev 5x9 metrics (hebfont.py).
+canvas string against its box with the shipping font's metrics (game/assets/fonts/sevev9.fnt xadvance,
+the same sum TextServer and tools/lint_text.sh use).
 
 Run: python3 ux/tools/gen_strings.py   (edit strings HERE, never in the JSON; exit code 1 on lint errors)
 
@@ -12,13 +13,6 @@ import json, re, sys, math, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.dirname(HERE)  # ux/
-# the approved Hebrew pixel font (creative pack): gamestudio/output/artifacts/creative-pack/od-sevev/art/src
-# the Hebrew pixel font: prefer the 2D Artist's current cut (art/od-sevev/src), else the creative-pack draft
-ART = os.path.normpath(os.path.join(OUT, "..", "art", "od-sevev", "src"))
-if not os.path.exists(os.path.join(ART, "hebfont.py")):
-    ART = os.path.normpath(os.path.join(OUT, "..", "..", "..", "artifacts", "creative-pack", "od-sevev", "art", "src"))
-sys.path.insert(0, ART)
-import hebfont  # noqa: E402
 
 LRI, PDI, NBSP = "⁦", "⁩", " "
 
@@ -33,8 +27,9 @@ BOXES = {
     "rowB.label":     (128, 4, 1, 1, "Row B label x 576-704"),
     "rowB.value":     (120, 4, 1, 1, "Row B numeral x 16-136 (PxText)"),
     "rowB.stamp":     (256, 4, 1, 1, "Blackout stamp inner (baked art; text is the a11y fallback)"),
-    "stage.toast":    (656, 4, 2, 3, "Toast text x 32-688"),
-    "stage.toastChat":(528, 4, 2, 3, "Chat toast text (avatar at right)"),
+    "stage.toast":    (644, 4, 2, 3, "Toast text x 32-676 (the kit toast's content box ends 6 art px = 24 before the plate's right edge, 704; 4 px air)"),
+    "stage.toastChat":(564, 4, 2, 3, "Chat toast text x 32-596 (the 16x16 avatar crop, 64 px, at x 612-676 inside the accent)"),
+    "stage.toastHead":(564, 4, 1, 1, "Chat toast line 1: sender + group, x 32-596"),
     "stage.courtChip":(256, 4, 1, 1, "Court chip inner"),
     "stage.thermo":   (120, 4, 1, 1, "Thermometer state word, x 12-132"),
     "stage.floater":  (400, 4, 1, 1, "Tap floater"),
@@ -43,7 +38,7 @@ BOXES = {
     "stage.cameoChip":(128, 4, 1, 1, "Ultimatum chip over the stage cameo (PxText)"),
     "ticker.tag":     (88, 4, 1, 1, "Ticker anchor label"),
     "ticker.chip":    (160, 4, 1, 1, "Ticker chip line: date (+ calendar icon) or court day (2 lines)"),
-    "ticker.crawl":   (None, 4, 1, 1, "Crawl: no width limit; paged by width 384 under reduced motion"),
+    "ticker.crawl":   (None, 4, 1, 1, "Crawl: no width limit; paged by the live clip width under reduced motion (324 at x4, 302 at x5; 288 / 266 on court day)"),
     "cta.election":   (688, 4, 1, 1, "Election CTA"),
     "card.name":      (360, 4, 1, 2, "Card name x 220-580"),
     "card.line2":     (348, 4, 1, 1, "Card line 2, x 220-568 (the owned badge overlaps the plate corner at x 572+)"),
@@ -62,6 +57,7 @@ BOXES = {
     "chat.bubble":    (416, 4, 99, 99, "Bubble text column (104 art px, 17 glyphs)"),
     "chat.name":      (416, 4, 1, 1, "Sender name in a bubble"),
     "chat.pill":      (296, 4, 1, 1, "Pay pill inner (kit 9-slice stretched to 82x17 art)"),
+    "partner.label":  (400, 4, 1, 1, "Partner card row label, right-aligned at the card's right − 32; its value sits at the left"),
     "chat.pillWide":  (480, 4, 1, 1, "Rejoin / poach pill on a system line (visual 512)"),
     "chat.sys":       (568, 4, 2, 3, "System pill inner"),
     "chat.banner":    (656, 4, 2, 3, "Transfer / brawl banner line (the card grows)"),
@@ -141,7 +137,8 @@ e("TITLE_KEYHINT", "", "unused", note="Intentionally empty (same reason)")
 e("TITLE_FOOTER", "", "unused", note="Intentionally empty (same reason); the save note lives in About")
 e("HUD_BPS", "⟦+{rate}⟧~₪ לשנייה", "rowA.rate", "", "hud.rate")
 e("HUD_BPS_FRENZY", "⟦+{rate}⟧~₪ לשנייה", "rowA.rate", note="Same text as HUD_BPS in the frenzy tint; the multiplier is on the buff chip")
-e("HUD_THUMBS", "הבסיס: ⟦{thumbs}⟧ · ⟦×{pmult}⟧", "dos.row", note="Not in the persistent HUD; shown in T4")
+e("HUD_BPS_POUR", "הכסף הולך לשליפה", "rowA.rate", "*", "rate line while S07 (idleToTap) runs", "Replaces '+0.0 ₪ לשנייה', which reads as broken while S07 pours the income into taps")
+e("HUD_THUMBS","הבסיס: ⟦{thumbs}⟧ · ⟦×{pmult}⟧", "dos.row", note="Not in the persistent HUD; shown in T4")
 e("EVOLVE_BTN", "עוד סבב", "unused", note="The not-ready Evolve button no longer exists; the seats bar carries progress")
 e("EVOLVE_BTN_READY", "עוד סבב!", "cta.election", "*", "hud.cta.election")
 e("EVOLVE_BTN_PROGRESS", "{pending}/{needed}", "unused", note="Seats progress is HUD_SEATS_VALUE")
@@ -248,6 +245,7 @@ e("PERKS_NOTE", "חתימה על סעיף לא מקטינה את הבונוס.",
 e("PERK_LEVEL", "{lv}/{max}", "perk.level")
 e("PERK_MAX", "סופי", "card.pill")
 e("PERK_MAXED", "נחתם. באמת.", "card.line2", "*")
+e("PARTNER_UPKEEP", "דמי אחזקה מההכנסה", "partner.label", "", "partner card upkeep row (rtl-map §6.3)", "Label; the value '−{upkeepPct}%' is drawn at the card's left (the share of ₪/s the partner costs)")
 e("BOOK_TITLE", "תיקים", "tall.title", "*", "tab.dossier")
 e("BOOK_TROPHIES", "תיק הישגים", "dos.row", "*")
 e("BOOK_STATS", "נתונים", "dos.row")
@@ -290,6 +288,7 @@ e("IMP_BODY_1", "המשחק הנוכחי יוחלף", "unused")
 e("IMP_BODY_2", "במשחק שבקוד.", "unused")
 e("IMP_BODY_3", "", "unused")
 e("IMP_CONFIRM", "לטעון", "unused")
+e("IMP_PROMPT", "הדביקו כאן את קוד השמירה (HK1:…)", "html:40", "", "main.gd import_save window.prompt", "System prompt text; reachable only if the save-code row returns (not in the od-sevev settings)")
 e("OFF_AWAY_CAPPED_H", "לא היית פה יותר מ־⟦{h}⟧ שעות.", "modal.body")
 e("OFF_NOTE_1_PCT", "כשאתה לא פה, הכובע שולף ב־⟦{pct}%⟧ מהקצב,", "modal.body")
 e("OFF_NOTE_2_H", "ורק עד ⟦{h}⟧ שעות.", "modal.body")
@@ -342,7 +341,8 @@ e("HUD_SUSP", "חשד", "stage.thermo", "", "hud.susp")
 e("HUD_SUSP_HOT", "מבעבע", "stage.thermo", "", "hud.susp.hot")
 e("HUD_SUSP_BOIL", "רותח!", "stage.thermo", "", "hud.susp.boil")
 e("HUD_COTTAGE_TIP", "מדד הקוטג׳: הקופה שלך גדלה. הקוטג׳ קטן.", "stage.toast", "*", "hud.cottage.tip")
-e("HUD_COTTAGE_MINUS", "−1", "rowA.cottageMinus", "", "motion cottage-pixel-loss", "The lost pixel's '−1' over the cup (game-developer views, 2026-09-29; UX to confirm)")
+e("HUD_COTTAGE_MINUS", "−1", "rowA.cottageMinus", "", "motion cottage-pixel-loss", "The lost pixel's '−1' over the cup (U+2212, PxText). Confirmed by UX 2026-09-29: numerals only, no ₪ (the cup loses a pixel, not money)")
+e("FLOATER_FLIGHT", "⟦+{pct}%⟧ להכנסה", "stage.floater", "", "S10 flightIncome floater", "S10: the round's running flight bonus, over the caught Suitcase (was the bare '+15%')")
 e("HUD_CTA_ELECTION", "עוד סבב!", "cta.election", "*", "hud.cta.election")
 e("HUD_MUTE", "השתקה", "html:12", "", "hud.mute", "Accessible label (not drawn)")
 e("HUD_UNMUTE", "ביטול השתקה", "html:12", "", "hud.unmute", "Accessible label (not drawn)")
@@ -382,6 +382,9 @@ e("SPIN_FATIGUE", "שחוק", "card.pill", "*", "spin.fatigue")
 e("SPIN_FATIGUE_CAP", "כבר שמעו את זה", "card.line2", "*", "spin.fatigue.cap")
 e("SPIN_ACTIVE", "פעיל · עוד ⟦{s}⟧ שנ׳", "card.line2wide", "", "new: timed spin")
 e("SPIN_OWNED", "הופץ", "card.pill", "", "new: one-time spin bought")
+e("SPIN_BARS_LINE", "ערוץ ידידותי: ⟦{pct}%⟧", "card.line2", "*", "S08 card line 2 at level >= 1", "Replaces the effect label once S08 has a level; {pct} = bars.friendly. The split bar under it keeps both parts (public from the right)")
+e("SPIN_BAR_PUBLIC", "שידור ציבורי", "html:14", "", "S08 bar a11y", "Accessible name of the bar's public part (not drawn)")
+e("SPIN_BAR_FRIENDLY", "ערוץ ידידותי", "html:14", "", "S08 bar a11y", "Accessible name of the bar's friendly part (not drawn)")
 # --- coalition chat
 e("CHAT_TITLE", "קואליציה ⟦61⟧", "tall.title", "", "chat.title")
 e("CHAT_MEMBERS_ONE", "משתתף אחד", "tall.status", "", "chat.members")
@@ -397,6 +400,9 @@ e("CHAT_UNREAD_ONE", "הודעה אחת שלא נקראה", "chat.divider", "", 
 e("CHAT_UNREAD_OTHER", "⟦{n}⟧ הודעות שלא נקראו", "chat.divider", "", "chat.unread")
 e("CHAT_PAY", "סגרנו · ⟦{price}⟧~₪", "chat.pill", "*", "chat.pay")
 e("CHAT_PAY_SHORT", "חסר ⟦{n}⟧~₪", "chat.pill", "", "chat.pay.short")
+e("CHAT_CEREMONY", "לגזור סרט ✂", "chat.pill", "*", "ceremony demand pill (Regev)", "A ceremony costs 0 ₪, so the money pill read 'סגרנו · 0 ₪'. Tap starts the 3 s ribbon fill")
+e("CHAT_CEREMONY_CUTTING", "גוזרים…", "chat.pill", "*", "ceremony pill while the ribbon fills")
+e("TOAST_CHAT_HEAD", "{name} · בקבוצה", "stage.toastHead", "", "C1 chat toast line 1 (ftue.md C1: avatar, name, preview)", "Line 1 of a chat toast; line 2 is the message preview, one line, ellipsised")
 e("CHAT_PAID", "שולם", "chat.label", "", "chat.paid")
 e("CHAT_REPLY_1", "העברתי.", "chat.bubble", "*", "chat.reply.1")
 e("CHAT_REPLY_2", "סגור.", "chat.bubble", "*", "chat.reply.2")
@@ -459,6 +465,11 @@ e("COURT_CHIP_TITLE", "יום משפט", "ticker.chip", "", "court.chip line 1")
 e("COURT_CHIP_TIMER", "{mmss}", "ticker.chip", "", "court.chip line 2")
 e("COURT_STAMP", "נדחה", "modal.title", "*", "court.stamp")
 e("COURT_POSTPONED_PREFIX", "הדיון נדחה:", "court.body", "G", "copy deck §H prefix")
+e("COURT_SUMMONS_TITLE", "זימון לעדות", "modal.title", "", "court card title while phase == summons")
+e("COURT_SUMMONS_BODY", "הקוסם זומן לדוכן העדים. אפשר לדחות, אפשר להעיד.", "court.body", "*", "court card body while phase == summons", "COURT_BODY ('הקוסם בדוכן העדים. ההכנסות מואטות.') is true only once testimony runs")
+e("COURT_SUMMONS_EFFECT", "בזמן העדות: כל ההכנסות ⟦×0.5⟧", "court.body", "", "court card effect line while phase == summons")
+e("COURT_SUMMONS_TIMER", "העדות מתחילה בעוד ⟦{mmss}⟧", "court.body", "", "court card timer while phase == summons (the auto-testify countdown)")
+e("COURT_CHIP_SUMMONS", "זימון", "ticker.chip", "", "court chip line 1 while phase == summons")
 # --- pardon desk (the "stamp mini-game", launch as text)
 e("PARDON_ROW", "בקשת חנינה", "dos.btn", "", "pitch §2 launch spine")
 e("PARDON_TITLE", "בקשת חנינה", "modal.title")
@@ -895,13 +906,15 @@ ui = {
 }
 bud = {
     "_doc": ("Per-key budgets for ux/ui-strings.json, for the Game Developer's build-time pixel-width lint (first-minute §8, "
-             "engine review O-U3). LINT: substitute worstCasePlaceholders, drop LRI/PDI, measure with the real Sevev 5x9 advances "
-             "(glyph width + 1, space 3) times the box's scale. PASS if it fits the box in `lines` lines at the base scale, and at "
-             "base+1 (large text) either fits in `linesLarge` or may step down to the base scale. A key with joke:true must never "
+             "engine review O-U3). LINT: substitute worstCasePlaceholders, drop LRI/PDI, measure with the shipping font "
+             "(game/assets/fonts/sevev9.fnt: the sum of xadvance, space 4, ₪ 8) times the box's scale. PASS if it fits the box in "
+             "`lines` lines at the base scale, and at base+1 (large text) either fits in `linesLarge` or carries largeText: "
+             "'step-down'. RUNTIME RULE for step-down keys (ux/rtl-map.md §0.2): under large text the view draws the key at x5 only "
+             "when it fits its box in linesLarge at x5, else at x4; it never ellipsises a step-down key. A key with joke:true must never "
              "need truncation (its punchline is last). html/share-text/og keys are checked by maxChars only (system font). "
              "surface 'unused' keys are not rendered in od-sevev. Box geometry is ux/rtl-map.md."),
-    "fontMetrics": {"font": "Sevev 5x9 (art/src/hebfont.py)", "cellRows": 9, "lineHeight": 11, "space": 3,
-                    "advance": "glyph width + 1", "baseScale": 4, "largeScale": 5, "shareCards": "art scale 1 on the x5 card grid"},
+    "fontMetrics": {"font": "Sevev 9 (game/assets/fonts/sevev9.fnt)", "cellRows": 9, "lineHeight": 11, "space": 4,
+                    "advance": "fnt xadvance (glyph width + 1; ₪ 8, T 6)", "baseScale": 4, "largeScale": 5, "shareCards": "art scale 1 on the x5 card grid"},
     "boxes": {k: {"widthPx": v[0], "scale": v[1], "lines": v[2], "linesLarge": v[3], "where": v[4]} for k, v in BOXES.items()},
     "worstCasePlaceholders": PH,
     "numericPlaceholders": sorted(NUMERIC_PH),
