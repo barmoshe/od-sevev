@@ -44,7 +44,7 @@ const OVERRIDABLE := ["rejoinMult", "poachSec", "patienceSec", "demandSec", "min
 
 # ---- the installed round (a cache of the state's leader + deal over the loaded content) ----
 static var _c: Dictionary = {}          # the content object it was built from (is_same)
-static var _key := "\u0000"
+static var _key := ""           # no built key is "" (each holds "|"); a NUL sentinel printed "Unicode parsing error"
 static var _state_id := 0
 static var _state_ver := -1
 static var _leader := ""
@@ -208,7 +208,7 @@ static func first_partner() -> String:
 static func _refresh_content() -> void:
 	if not is_same(_c, Content.data()):
 		_c = Content.data()
-		_key = "\u0000"
+		_key = ""
 		_state_id = 0
 		_state_ver = -1
 		_leader = default_leader()

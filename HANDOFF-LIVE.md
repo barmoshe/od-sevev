@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `2f9a4c1` docs(od-sevev): live handoff snapshot 21:26
+- Branch head: `855d8ef` docs(od-sevev): live handoff snapshot 21:32
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -23,11 +23,11 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
 |---|---|---|---|---|---|
 | Game Developer | DONE, merged (leader picker + per-leader views, 337 tests) | `worktree-agent-a5ac76f3d34023987` | 0 | 0 | - |
-| Game Designer | review leaders.gd; balance.sh + per-leader bench; 34-vs-8 min gap; R17 slots; ביבי rule; "רוב" poll lint; neutral DAYS_* | `worktree-agent-aaa48164b1454821d` | 6 | 0 | `Game-Designer.commits.patch`  |
+| Game Designer | review leaders.gd; balance.sh + per-leader bench; 34-vs-8 min gap; R17 slots; ביבי rule; "רוב" poll lint; neutral DAYS_* | `worktree-agent-aaa48164b1454821d` | 0 | 0 | - |
 | Animator | DONE, merged (court day, motion audit, brawl boil, reduced-motion fix; LeaderWalk helper ready, unwired) | `worktree-agent-a4cee2a31acb16b09` | 0 | 0 | - |
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
 | UX Designer | DONE, merged (ux/mobile-first-layout.md, tools/web/mobile_web.mjs: baseline PASS, 108 layout checks open until the implementation lands) | `worktree-agent-afa76d8266b2e2b6f` | 0 | 0 | - |
-| Game Developer (mobile) | implement ux/mobile-first-layout.md §8 + screens §3-§7 (from the UX branch worktree-agent-afa76d8266b2e2b6f) | `worktree-agent-a8bd968153c51c052` | 1 | 9 | `Game-Developer-(mobile).patch` |
+| Game Developer (mobile) | implement ux/mobile-first-layout.md §8 + screens §3-§7 (from the UX branch worktree-agent-afa76d8266b2e2b6f) | `worktree-agent-a8bd968153c51c052` | 3 | 0 | `Game-Developer-(mobile).commits.patch`  |
 | 2D Artist + TA | mobile art asks A1 lane tile + plaza, A2 stage wings, A3 96x96 d3 pick avatars; court_window spots row>=110; 26x20 brawl cut x4 | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
