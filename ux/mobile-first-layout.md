@@ -1,0 +1,589 @@
+# "עוד סבב": mobile-first layout (`hud-layout` + `localization-layout-spec`, engine-concrete)
+
+**Owner:** UX Designer · **Consumers:** Game Developer (implements after the picker merge), 2D Artist (§10 asks), Animator (the ticker page transition, §5.2), Game Designer (the silhouette rows, §4.4) · **Date:** 2026-09-29 · **Built against:** `claude/magical-ride-ntn3u5` with the picker merged (`ui/views/view_pick.gd`, `ui/leader_ui.gd`).
+
+**Why:** Bar: "the mobile layout isn't good; it must be mobile first." The game is laid out as a fixed 720-logical (180-art) column, centred, with a flex rule that grows the stage and leaves reveal slots empty. On real phones that wastes 15-20% of the screen.
+
+**Supersedes:** `rtl-map.md` §1 (the flex rule), §5.2 (the crawl), §8.2-§8.3 (the picker's vertical placement and tile width). **Amends:** `rtl-map.md` §2 (the counter scale), §6.1 (the pill), §6.2 (the tab slots), §7.1 (modal width and placement). Everything else in `rtl-map.md`, `ftue.md` and `screen-graph.md` §0 stands: the RTL rules, the reveal order, the red lines, the name "ביבי".
+
+**Reference implementation of every number here:** `ux/tools/mobile_layout.py` (the tables in §2-§5 are its output). **Check:** `tools/web/mobile_web.mjs` (§9). **Wireframes:** `ux/mockups/mobile-first-*.png` (`ux/tools/mobile_mockup.py`).
+
+---
+
+## 0. The rules on one screen
+
+1. **The scale is unchanged.** k = crisp(min(floor(W/180), floor(H/267))) on the backing store. On every portrait phone of the matrix the width binds, so k is already "chosen by width". What changes is what the engine does with the leftover: **the art grid is `floor(W/k)` columns by `floor(H/k)` rows** (180-215 × 274-466 on the matrix), and the layout fills that grid instead of centring a 180 × 267 column in it.
+2. **Chrome is fluid, the stage is centred.** Row A, Row B, the ticker, the cards, the tab bar, the tall tabs and the sheets span the whole canvas width `cw = floor4(vs.x)` (720-860 logical). Each element has an anchor (right, left, centre, stretch; §4). Only the stage art stays a centred 720 column, extended to the edges.
+3. **Bottom-up vertical budget.** From the safe bottom up: the tab bar (26 art, pinned), the card pane (whole cards plus a 10-art peek), the ticker (21), the stage (the rest, ≥ 160 art when it can be), Row B (21), Row A (24), the safe top. Extra height buys **whole card rows**, never a taller stage, as long as the stage keeps its 160-art composition (§3.2).
+4. **No reserved slot is ever an empty band.**
+   - Row B's slot shows the stage sky until C2.
+   - The card pane covers the tab bar's slot until C1.
+   - The pane fills with dim silhouette rows of the sources still to come.
+   - The Suitcase lane and the pre-tap floor get textured art.
+5. **A cut card shows ≤ 40 logical px** (10 art: its top edge and the top of its name, never its pill).
+6. **The ticker pages; it does not crawl.** Two lines, whole words, in a clip that grows with the width. No word is ever cut (§5.2).
+7. **The money readout goes to ×6** (15 CSS px digits). The buy pill grows with the width and shows its price at ×5 when it fits (§5.1).
+8. **The picker grid is bottom-anchored** in the thumb zone, with fluid tiles and the 192-logical avatar on every phone of the matrix but the SE (§5.8).
+
+![390×844@3 today vs spec](mockups/mobile-first-390x844at3.png)
+
+---
+
+## 1. What is wrong today (verified at build `af18f9e` + the picker, 2026-09-29)
+
+**Method:**
+- The strict `tools/build_web.sh` export, served on :8815.
+- `tools/web/mobile_web.mjs` (new, §9) at 390×844@3, 375×667@2 and the desktop frame: real touches, the picker, the first buy, C1, T3 and a paid demand, C2, settings.
+- The orchestrator's four captures in `scratchpad/shots/mobile/`.
+- Bands were measured on the pixels. A "band" is a run of rows where ≥ 98.5% of the samples (one per art px) are one colour.
+
+| # | Observation (orchestrator) | Verified | What it actually is |
+|---|---|---|---|
+| V1 | Empty dark band under the list on tall phones (15-20%) | **Yes.** 390@3: logical 1504-1688 (46 art, 11% of H); 430@3: 73 art (16%); 360@3: 27 art (7%). | Two things. (a) **The pane is taller than its content.** The flex rule gives the pane P = 560 at 390@3 (4.7 rows), but after the first buy the list has 3 cards and 1 silhouette. (b) **The tab bar's slot (104) is empty until C1.** |
+| V2 | "The list shows only 4 rows while the screen has room for more" | **Partly.** No cap: P holds 4.7 rows at 390 and 5.6 at 430. | Content-limited: 3 cards + 1 silhouette exist. The fix is to fill the pane (§4.4), not to raise a cap. |
+| V3 | Dead band under the HUD | **Yes.** Logical 76/80-180 (25-26 art) on every phone, in the HUD fill #140c24. | Row B's slot, reserved and painted, with nothing in it until C2 (the first paid demand, ≈ 50-60 s). |
+| V4 | Striped dead strip between the stage and the ticker | **Yes.** 24 art (logical 844-940 at 390; 724-820 at the SE). | **The Suitcase lane.** The kit tile `lane_<era>` is 2×28 px: horizontal stripes only, so every row is one colour. The stage art's own bottom 90 rows (below the apron lip at row 230) are flat `padBottom` #2a2340. |
+| V5 | SE: the list is cut mid third card | **Yes.** 375×667@2 at C1: the third card shows 86 of 120 px, including half of its gold pill (a tappable half-button). | The flex rule sizes P from the height, not in whole cards. |
+| V6 | Ticker truncates ("בע.", "יש כובע.") | **Yes.** At every size the clip (x 192-516 in the 720 column = 162 CSS px) shows fragments at both edges, e.g. "…נרכע" cut at the left while ", יש כובע." exits. | The crawl moves a median 928-px headline (49 characters) through a 324-px window. No headline fits the window (the shortest is 512 px), so every frame shows cut words. |
+| V7 | Money readout and buy buttons small; HUD right side empty | **Yes.** The counter is ×5: 12.5 CSS digits, only 1.25× the 10-CSS body text. The pill is 184×88 logical (92×44 CSS). The HUD's right slot is the cottage cup, which appears at Q1 (1,000 ₪ lifetime, ≈ 1:30). | The hierarchy is weak, and the empty cottage slot is transient. |
+| V8 | The bottom nav isn't visible early | **Expected by the FTUE:** tab slots 1 and 3 appear at **C1** (3 sources + 60 ₪, ≈ 40-50 s after the pick), slot 2 at **K3** (≈ 2:00-2:30), slot 4 at **K2** (≈ 3:00). | The slot stays reserved and empty until then (V1b). |
+| **V9** (new) | — | The chrome is a 720 column: at 390 the ticker, cards and tab bar leave 30 logical (15 CSS) flat margins per side, and at 430 70 logical (35 CSS). The stage art (180 art) leaves flat `padBottom` side bands of 7.5 art (390) and 17.5 art (430). | Width is not used. |
+| **V10** (new, orchestrator) | Picker: dead band under the 3 × 3 grid | **Yes.** 390×844: 65 art (logical 1316-1576) between the grid and the caption strip; the SE: 21 art. The avatars are L (128), in 216-wide tiles inside a 780 canvas. | `rtl-map.md` §8.2 said "the grid centred in what is left". The engine did exactly that. **The spec was wrong** (§5.8). |
+| **V11** (new, orchestrator) | The round's first screen before tap 1 leaves the lower half empty | **Yes.** 390@3 pre-tap: logical 924-1688 is one colour (191 art, 45% of H), with only the undo chip in it. | The pre-tap state hides the ticker, pane and tabs by design (ftue P0), and paints the floor colour (R16). |
+
+Shots: `scratchpad/shots/mobile-ux/` (`390x844@3-{pick,pretap,card1,bought,c1-tabs,t3-chat,c2-rowb,settings}.png`, the same for `375x667@2` and `frame-1440x900@1`; `overview-390.png`).
+
+---
+
+## 2. Device matrix and scale (portrait only)
+
+**Scale (unchanged):** `Display.art_px_for` stays as it is. In portrait the `floor(H/267)` bound never binds on the matrix. It only binds on landscape and desktop windows (the frame is portrait by construction).
+
+**New in `display.gd`** (exact):
+
+```gdscript
+static var cols := 180          # art columns: floor(W_dev / k)
+static var rows := 267          # art rows:    floor(H_dev / k)
+
+## in update(), right after nk / ni are computed and BEFORE the "unchanged" early return: two
+## phones with the same k (390@3 and 430@3 are both k 6) differ only here. The fallback keeps
+## 180 × 320.
+cols = int(floorf(win.x / nk)) if ni else ART_W
+rows = int(floorf(win.y / nk)) if ni else 320
+
+## The layout width in logical px: whole art columns, on the 4-px grid (720 at 180 cols).
+static func cw() -> float:
+    return float(cols * ART_PX)
+```
+
+`L.W` (720) stays the **design width** of every rect in `rtl-map.md`. The engine adds `L.cw` (a static var set by `_relayout` from `Display.cw()`, clamped to ≥ 720) and `L.dx = L.cw − 720`. §4 says how each rect uses `dx`.
+
+**The matrix** (`ux/tools/mobile_layout.py`; insets 0 unless named; logical px unless the column says CSS):
+
+| Device | device px | k | CSS/art | logical | cw (Δ) | R | **S** | **P** | whole rows + peek | leader | stage top / lowerY / tabsY | leader hit centre · bottom, CSS y (% of H) | list CSS y | 88 logical = CSS |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| SE 375×667@2 | 750×1334 | 4 | 2.0 | 750×1334 | 748 (+28) | 964 | **564** | **400** | 3 + 40 | ×4 | 180 / 744 / 1228 | 198 (30%) · 302 (45%) | 414-614 | 44.0 |
+| 390×844@3 | 1170×2532 | 6 | 2.0 | 780×1688 | 780 (+60) | 1320 | **680** | **640** | 5 + 40 | ×4 | 180 / 860 / 1584 | 256 (30%) · 360 (43%) | 472-792 | 44.0 |
+| 393×852@3 | 1179×2556 | 6 | 2.0 | 786×1704 | 784 (+64) | 1336 | **696** | **640** | 5 + 40 | ×4 | 180 / 876 / 1600 | 264 (31%) · 368 (43%) | 480-800 | 44.0 |
+| 430×932@3 | 1290×2796 | 6 | 2.0 | 860×1864 | 860 (+140) | 1496 | **736** | **760** | 6 + 40 | ×4 | 180 / 916 / 1760 | 284 (30%) · 388 (42%) | 500-880 | 44.0 |
+| 360×780@3 | 1080×2340 | 6 | 2.0 | 720×1560 | 720 (+0) | 1192 | **672** | **520** | 4 + 40 | ×4 | 180 / 852 / 1456 | 252 (32%) · 356 (46%) | 468-728 | 44.0 |
+| 412×915@2.625 | 1081×2401 | 6 | 2.286 | 720.67×1600.67 | 720 (+0) | 1232 | **712** | **520** | 4 + 40 | ×4 | 180 / 892 / 1496 | 311 (34%) · 430 (47%) | 558-855 | 50.3 |
+| frame 390×844@1 | 390×844 | 2 | 2.0 | 780×1688 | 780 (+60) | 1320 | **680** | **640** | 5 + 40 | ×4 | 180 / 860 / 1584 | 256 (30%) · 360 (43%) | 472-792 | 44.0 |
+| frame 390×844@2 | 780×1688 | 4 | 2.0 | 780×1688 | 780 (+60) | 1320 | **680** | **640** | 5 + 40 | ×4 | 180 / 860 / 1584 | 256 (30%) · 360 (43%) | 472-792 | 44.0 |
+| 390×664@3 Safari bars | 1170×1992 | 6 | 2.0 | 780×1328 | 780 (+60) | 960 | **560** | **400** | 3 + 40 | ×4 | 180 / 740 / 1224 | 196 (30%) · 300 (45%) | 412-612 | 44.0 |
+| SE 375×548@2 Safari bars | 750×1096 | 4 | 2.0 | 750×1096 | 748 (+28) | 728 | **460** | **268** | 2 + 28 | ×3 | 180 / 640 / 992 | 172 (31%) · 250 (46%) | 362-496 | 44.0 |
+| 360×640@3 Chrome bars | 1080×1920 | 6 | 2.0 | 720×1280 | 720 (+0) | 912 | **512** | **400** | 3 + 40 | ×3 | 180 / 692 / 1176 | 198 (31%) · 276 (43%) | 388-588 | 44.0 |
+| 393×852@3 home screen (insets 59 / 34 CSS) | 1179×2556 | 6 | 2.0 | 786×1704 | 784 (+64) | 1148 | **748** | **400** | 3 + 40 | ×4 | 300 / 1048 / 1532 | 350 (41%) · 454 (53%) | 566-766 | 44.0 |
+
+**What the table guarantees:**
+- **One art px is ≥ 2 CSS px on every phone of the matrix,** so the 88-logical touch floor (`rtl-map.md` §0) is ≥ 44 CSS pt everywhere (50 at the 2.625 DPR).
+- **The desktop frame at @1 and @2 gets exactly the 390×844@3 layout** (the same logical canvas).
+
+**The non-integer DPR (412×915@2.625):**
+- The shell already sizes the backing store to `floor(CSS × DPR)` = 1081×2401. The canvas box is 411.81 CSS px, so the browser composites 1:1: no resample, `cols` 180, `rows` 400.
+- The last 0.67 logical px of width and height are the aspect-`expand` remainder.
+- **Rule:** every full-bleed fill (`_fills`, the ticker panel, the tab bar plate) is sized to `vs.x`/`vs.y` (not `cw`), so no 1-px seam shows at the right or bottom edge.
+
+**Out of the matrix, by decision:**
+- 320-CSS phones: 640 device px gives k 3 and 1.5 CSS per art px, so the 44-pt floor fails.
+- Landscape.
+- Tablets: they get the frame's rule only when a fine pointer is present. A portrait tablet gets the phone layout at its own k.
+
+---
+
+## 3. Vertical budget
+
+### 3.1 The stack (screen-logical, top → bottom)
+
+| Region | Height | Rule |
+|---|---|---|
+| Top inset | `ins_t` = ceil4(safe top) | The Row A fill continues under it |
+| **Row A** | 96 (24 art) | Fixed |
+| **Row B** | 84 (21 art) | Fixed slot. **Before C2 its fill is not drawn: the stage sky shows through** (§3.3) |
+| **Stage** | `S` | §3.2; bottom-anchored content (leader, lane, thermometer) as today |
+| **Ticker** | 84 (21 art) | Fixed |
+| **Card pane** | `P` | §3.2: whole cards + a peek. **Before C1 it runs to the safe bottom** (`P + 104`) |
+| **Tab bar** | 104 (26 art) | **Pinned: its bottom = `vs.y − ins_b`**, always. It slides up over the pane at C1 |
+| Bottom inset | `ins_b` = ceil4(safe bottom) | The tab bar's fill continues under it |
+
+Fixed = 368, and `R = floor4(vs.y) − ins_t − ins_b − 368` is shared by the stage and the pane.
+
+### 3.2 The split (replaces `L.flex`)
+
+```
+CARD = 120, PEEK = 40, S_PREF = 640, S_FULL = 560, S_MIN = 460
+n = max(3, floor((R − S_PREF − PEEK) / CARD))   if R − (3·CARD + PEEK) ≥ S_MIN
+  = 2                                            otherwise
+while n > 3 and (ins_t + 180 + (R − n·CARD − PEEK) − 140) < 0.40 · floor4(vs.y):   # reach guard (§6)
+    n −= 1
+P = n·CARD + PEEK;   S = R − P
+if S < S_MIN:  S = S_MIN;  P = R − S          # the floor viewport: the peek shrinks (28 at 375×548)
+leader art ×4 when S ≥ 560, else ×3 (rtl-map §4, unchanged)
+```
+
+**In words:**
+- The stage keeps its designed 160-art composition (`S_PREF`) and takes the remainder (< 30 art), which is all sky above a bottom-anchored leader.
+- Every further 30 art of height buys one more whole card row.
+- Short viewports keep 3 rows as long as the stage can stay ≥ 460. The leader goes ×3 under 560, as today.
+- The pane always ends in a 40-px peek when the list overflows: the top edge of the next card and the top of its name. That is the scroll signifier, and it never shows the pill.
+
+**Result vs today** (whole card rows visible once the tab bar is up):
+
+| | SE 375×667 | 390×844 | 393×852 | 430×932 | 360×780 | 412×915 | 390×664 bars | 375×548 bars |
+|---|---|---|---|---|---|---|---|---|
+| Today (flex rule) | 2 + 86 cut (pill half shown) | 4 + 80 cut | 4 + 92 cut | 5 + 68 cut | 4 + 4 | 4 + 29 | 2 + 80 cut | 2 + 0 |
+| **Spec** | **3 + 40** | **5 + 40** | **5 + 40** | **6 + 40** | **4 + 40** | **4 + 40** | **3 + 40** | **2 + 28** |
+| Before C1 (pane to the bottom) | 4 + 24 | 6 + 24 | 6 + 24 | 7 + 24 | 5 + 24 | 5 + 24 | 4 + 24 | 3 + 12 |
+
+### 3.3 Reveal states: nothing reserved is empty
+
+| State | Today | Spec |
+|---|---|---|
+| **Pre-tap** (after the pick, before tap 1; ftue P0) | Ticker, pane and tabs hidden; the rest is the floor colour (R16): 191 art of one colour at 390. | The region below the stage shows **the stage's apron art continued to the safe bottom** (2D ask A1, §10). Interim, engine only: the stage art's bottom rows are drawn instead of `_title_floor` (the art is 320 rows tall and its rows 254-319 are under the lane today), plus the lane. **Nothing interactive moves:** the leader stays where tap 1 will find him. The undo chip stays in the lane (rtl-map §8.6). |
+| **Tap 1 → 2** | The ticker appears (H1) | Unchanged |
+| **Card 1** (tap 3) | The pane slides up with one card over an empty pane | The pane slides up to the **safe bottom** (it covers the tab slot) holding card 1 and **dim silhouette rows** for the sources still to come (§4.4). Card 1's pill is the only lit object, so first-minute's "one card, one price" holds. |
+| **First buy → C1** | Empty pane below the cards; an empty tab slot | Pane full to the safe bottom |
+| **C1** | The tab bar appears in its slot | **The tab bar slides up from the screen bottom over the pane's last 104 px** (the pane's clip shrinks by 104). Nothing above moves; the list keeps its scroll offset. |
+| **Before C2** | Row B's slot painted #140c24, empty (25 art) | Row B's slot is **not filled**: the diorama sky, already drawn behind it (`diorama.extend`), shows through. `_fills["top"]` height = `ins_t + 96` (not `+ 180`). The toast dock and the stage items keep their screen positions. |
+| **C2** | Row B appears | Row B's fill fades in (150 ms; reduced motion: instant) with the seats, as the pips land. Nothing moves. |
+| **After an election** | The `ui` flags persist | Unchanged: every slot is already revealed |
+
+### 3.4 Toasts over the leader on short stages
+
+At S < 640 the toast dock (stage-local y 8-96, or 8-140 for two lines) overlaps the top of the leader's hit by up to 92 px. **During a tap burst** (the last leader tap < 1 s ago), a toast's hit is disabled, so taps on it pass to the leader. The toast stays visible. A chat toast is opened from the tab badge or by tapping it after the burst. This extends ftue §3.1's "tap-burst rule" (no overlay auto-opens during a burst) to toast hits.
+
+---
+
+## 4. Horizontal: fluid chrome
+
+`dx = cw − 720` (0-140 on the matrix). Every rect in `rtl-map.md` keeps its 720-design numbers; the engine applies one of five anchors:
+
+| Anchor | Transform | Use |
+|---|---|---|
+| **R** (right) | `x + dx` | Everything first in RTL reading order: labels, plates, icons at the right edge |
+| **L** (left) | `x` | Trailing items: pills, numerals, the gear/mute, the date chip |
+| **C** (centre) | `x + floor4(dx / 2)` | Centred content: the counter, titles, modal cards, the stage column |
+| **S** (stretch) | `x`, `w + dx` | Panels, tracks, clips, text boxes between an L and an R item |
+| **F** (full bleed) | `0 … vs.x` | Background fills, the ticker panel, the tab bar plate, the lane |
+
+Helpers in `L`: `ra(r)`, `ca(r)`, `sa(r)` return the transformed `Rect2`, and `rx(x)`, `cx(x)` do the same for a single x. `mx()` keeps mirroring across 720 (the design space) and is applied **before** the anchor.
+
+### 4.1 Per region
+
+| Region | R | L | C | S | F |
+|---|---|---|---|---|---|
+| **Row A** | cottage hit/icon | gear, mute | counter, rate | counter box, rate box (`w + dx`) | fill |
+| **Row B** | label "מנדטים" | numeral / blackout stamp | — | track (`x 144`, `w 424 + dx`), notches recomputed on the new width | hit (0 … vs.x), fill |
+| **Stage** | — | thermometer (x 12: it is HUD-like and must not drift inward) | the 720 stage column (`stage_ox = floor4(dx/2)`): leader, props, diorama slots, cameo, Sara, buff chip, banner | toast dock (`x 16`, `w 688 + dx`; text box right edge `676 + dx`) | sky bands, lane, stage-art wings (2D ask A2) |
+| **Suitcase** | enters at `x 760 + dx` | exits at x −104 | — | band `w 720 + dx` | — |
+| **Ticker** | tag plate, Dubi (`anchor_layout` with `tagRight 700 + dx`) | date / court / press chip | — | crawl clip `x 192 … 516 + dx` (court 228, press 236) | panel |
+| **Election CTA** | — | — | label | visual `Rect2(8, 2, 704 + dx, 80)` | hit |
+| **Card** | plate, icon, owned badge, name and line 2 right edges | pill | — | card `Rect2(16, 0, 688 + dx, 120)`; name/line 2 boxes `w + dx − pill_growth` | — |
+| **Buy-mode row** | label | button | — | row | — |
+| **Tab bar** | — | — | icon and label per slot | 4 slots of `floor4(cw / 4)`, slot i at `x = cw − i·slot_w` (right → left); the remainder goes to slot 4 | plate |
+| **T3 / T4** | header chevron, title, status right edge `616 + dx`; incoming avatar and bubble (right edge `568 + dx`); T4 row labels | player replies (`x 16`), the scrollbar | system pills, brawl slot, transfer banner | thread, composer, pinned bar, T4 rows | backgrounds |
+| **Court / press card** | ✕ stays top-left (L); header, body, timer | primary button | — | card `w 688 + dx`; body boxes; primary `w 416 + dx` | — |
+| **Modal card** | — | — | card, width `624 + min(dx, 64)` | body box `560 + min(dx, 64)` | scrim |
+| **Sheet** | labels, switches' state text | switch visuals, ✕ | titles | rows, the bottom "סגור" | sheet plate (0 … vs.x) |
+
+**Bubble and text measures do not grow past readability:** a chat bubble's text column stays ≤ 416 + min(dx, 64) (≤ 20 glyphs per line), and a modal body stays ≤ 624 (≈ 24 glyphs).
+
+### 4.2 Budgets
+
+- `string-budgets.json` boxes stay measured at 720, the worst case. A wider canvas only adds room, so no string can newly overflow.
+- `gen_strings.py` needs no change.
+- The lint's worst case is `dx = 0`: 360-wide phones and 412@2.625.
+
+---
+
+## 5. Screens
+
+### 5.1 Main screen (HUD, cards)
+
+**Row A** (24 art):
+- **The counter goes from ×5 to ×6** (`TopBar.COUNTER_SCALE = 6`):
+  - glyph ink: digits 5 font px, so 30 logical = **15 CSS**, 1.5× the body text; ₪ is 6 font px, so 36;
+  - cell top at y 0, rate line at y 52 (×4, ink 56-92). Row A stays 96.
+  - Worst "₪ 8.888mm" = 46 font px × 6 = 276 ≤ the 328 box. At dx = 0 the box, centred, runs x 196-524, clear of the mute hit (100-188) and the cottage hit (624-712).
+  - ×6 is 1.5 art px per font px: whole device px at every even k (4 → 6 px, 6 → 9, 2 → 3), which is every phone of the matrix. On an odd k, `PxText.text_scale` snaps it.
+  - **Rejected alternative:** ×8 would need Row A at 28 art, which costs the SE its ×4 leader.
+- **The cottage slot is empty until Q1 (≈ 1:30).** Accepted: it is an 88×88 corner, not a band, and the counter stays centred on the canvas, above the leader.
+
+**Row B:** as rtl-map §3 with §4.1's anchors. The label/numeral baseline stays at y 120.
+
+**Cards** (rtl-map §6.1, amended):
+- **The pill grows with the width:**
+  - `pill_w = 184 + min(dx, 40)`: 224 at cw ≥ 760, which is every 375+ phone;
+  - the pill text box is `pill_w − 16`;
+  - the name and line-2 boxes shrink by the pill's growth, but grow by `dx`, so they never lose width against 720.
+- **Price at ×5** when the filled `CARD_PRICE` fits the pill box at ×5 (the §0.2 step-down rule, applied always, not only in large text):
+  - "₪ 110" ×5 = 115;
+  - at 224 the worst "8.88mm ₪" ×5 = 205 fits;
+  - at 184 (dx = 0) it steps down to ×4.
+  - The verb line stays ×4.
+- **Hit:** the whole card, 688 + dx × 120 (344-430 × 60 CSS), as today. The pill is the signifier, not the target.
+
+### 5.2 The ticker: paged, two lines, never cut
+
+Replaces rtl-map §5.2 (the crawl). The Animator's D16 cadence is retired with it; the page transition below is the Animator's to tune.
+
+| Property | Value |
+|---|---|
+| Clip | `x 192 … 516 + dx` (324-464; court day 288 + dx, press 280 + dx) |
+| Lines | **2**, at pitch 40 (the "tight UI" pitch): line 1 cell at y 2, line 2 at y 42, so the full ink including ascenders and descenders runs 6-42 and 46-82 in the 84 row. Right-aligned at the clip's right edge. The @2 reading cut, as today. |
+| Paging | The headline is broken at spaces into lines ≤ clip width, then into pages of 2 lines. **A word is never split.** The widest word in the content today is "ההייטקיסטים" at 216, which is < 280, the narrowest clip. The lint (`content-lint.mjs`) adds: every ticker word ≤ 280 px at ×4. |
+| Dwell | max(3.5 s, 55 ms × the page's characters); an ftue line: max(4.5 s, …) |
+| Transition | The new page enters from the **left** edge of the clip and pushes the old one out to the right, in 300 ms (the old crawl's direction, so the "first word enters first" metaphor holds). The curve is the Animator's. Reduced motion: the existing 200 ms cross-fade. |
+| Tap | As today: the row opens O6 while a headline shows |
+| Large text | One line at ×5 (two ×5 lines are 100 > 84), paged the same way |
+| Numbers (390 / 430 / 360) | 2-line pages per headline: mean 1.84 / 1.56 / 1.97, max 3 / 2 / 3 (measured on all 173 ticker lines in `content.json`). Today's crawl takes 15.6 s per median headline through a keyhole; paging takes ≈ 7 s, with every word still. |
+| Publish | `window.odDisplay.ticker = {mode: "page", clipW, lines: 2}` (the check reads it) |
+
+### 5.3 Tab bar
+
+- The bar is pinned to the safe bottom (§3.1), with 4 fluid slots (§4.1).
+- Per slot: the icon 60×60 centred at `slot_w/2 − 30`, y 8; the label centred at y 64 (box `slot_w − 16`); the badge at the icon's top-left (RTL trailing), (icon.x − 16, 0).
+- The hit is the whole slot, `slot_w × 104` (180-215 × 104 logical = 90-108 × 52 CSS).
+- Slot order, reveal and badges are unchanged (ftue).
+
+### 5.4 T1 sources and T2 spins (the list)
+
+- **Silhouette rows (fill the pane):**
+  - After card 1's reveal, the pane draws, after the real rows, one **silhouette row** per source not yet revealed. These rows are:
+    - the kit `card_row` at 50% opacity;
+    - the plate with the `nophoto`-style silhouette icon;
+    - `ROW_LOCKED_NAME` "מקור עלום" on the name line;
+    - **no price, no pill, not a target**.
+  - The first locked source keeps today's rule: it is a real row with its price visible (`producerReveal.showNextAsSilhouette`).
+  - The silhouettes stop at the content's last source: 8 at launch. That is enough on every phone of the matrix (the most rows are 7 + 24 px before C1 at 430).
+  - **Ask to the Game Designer (G1):** add `producerReveal.fillSilhouettes: true` so this is a content decision, not a view default.
+- **Buy-mode row** (B1): row 0 as today, full width.
+- **T2 spins:** the same card geometry, the same peek rule. The spin list is long (15 lines), so it always overflows and needs no silhouettes.
+- **Scrolling:** the peek (§3.2) is the signifier. The scroll track stays at the left (`x 4`) in both the pane and the tall tabs.
+
+### 5.5 T3 coalition chat (tall tab)
+
+- `H_T = S + 84 + P`, from Row B's bottom to the tab bar: 1048 (SE) … 1580 (430).
+- The thread is `H_T − 248`: 800-1332 logical, roughly 4-7 two-line bubbles.
+- Full width per §4.1; the composer stays at the bottom, directly above the tab bar, in the thumb zone.
+- **Golan's "לאחד" (the orchestrator's question): the partner card is the right *second* entry, and it is not enough on its own.**
+  - **Why the partner card is right:** the merge is a relation between members, and the partner card is a member's home. The engine's pill there is correct: kit `button_secondary`, "לאחד" / "איחוד · N שנ׳" in the cooldown, disabled when no pair qualifies, opening the `MergeCard` pair prompt (a bottom sheet, which is right for reach).
+  - **Why it is not enough:** it is Golan's signature rule, and the only path to it is tapping an avatar, which the FTUE never teaches. A player who never opens a partner card never meets the rule.
+  - **Add a thread entry**, the same pattern as `CHAT_SYS_REJOIN` / `CHAT_SYS_POACH`:
+    - When `Coalition.merge_candidates` first becomes non-empty with the cooldown at 0 (and again after each cooldown, at most once per 120 s), post a system pill `CHAT_SYS_MERGE_READY`, then the `CHAT_PILL_MERGE` pill under it: visual 512×68, hit 536×88, centred.
+    - Proposed copy: "{a} ו{b} יכולים להתאחד" (UX writes the key with the next strings pass; ≤ 568 at ×4, `chat.sys`).
+    - The pill opens the same `MergeCard`, with that pair pre-selected first.
+  - **Hit:** the partner-card pill is 328×68 grown by (12, 10, 12, 10) = 352×88, which meets the pill floor (rtl-map §10) as built. Keep it C-anchored in the card.
+
+### 5.6 T4 dossier (tall tab)
+
+- Rows are 88 tall and full width; labels are R-anchored at `688 + dx`.
+- The full-width buttons (the receipt, the result card, the pardon row, the story) are hit `688 + dx × 88`.
+- The "ראשי רשימה" section's avatar24 sits at ×2 at the right.
+- The same height as T3.
+
+### 5.7 Court / press card (O2)
+
+- `Rect2(16, y0, 688 + dx, 356)`, bottom-anchored to the tab bar.
+- With the spec's P (≥ 400 wherever S ≥ 560), the card sits **inside the pane** on every phone of the matrix except 375×548 (P 268: it extends 88 px over the ticker, as rtl-map §6.4 allows).
+- The primary button (L) is `416 + dx` wide, the secondary (R) 224; both are ≥ 104 tall. The card sits in the thumb zone on every device.
+
+### 5.8 `LEADER_PICK` (replaces rtl-map §8.2-§8.3 placement; everything else in §8 stands)
+
+**What's wrong (V10):**
+- The grid is centred in the leftover height (a 65-art band under it at 390×844).
+- The tiles are fixed at 216 in a 780 canvas.
+- The avatar tops out at L (128) on a phone with room for more.
+
+**Vertical (safe band `top … bot`, `H = bot − top`):**
+
+| Block | Rule |
+|---|---|
+| Wordmark (first launch) | **Pinned** at `top + 12`: `wordmark` when H ≥ 1280, else `wordmark_small`, C-anchored |
+| Caption strip | **Pinned** above the foot: box `x 32 … 688 + dx`, 2 lines, the reading cut, 12 above and 12 below. Its last line's ink is ≤ 28 above the foot. |
+| Foot | first: 16; after: the again button, `Rect2(24, bot − 100, 672 + dx, 80)`, hit `Rect2(16, bot − 104, 688 + dx, 88)` |
+| **Grid** | **Bottom-anchored:** its bottom = strip top − 12 |
+| Title line (+ the fresh chip after an election) | **Attached to the grid:** the title's cell bottom is 16 above the grid's top. The chip goes between the title and the grid (8 + 56 + 16). The title names the choice, so it belongs to it. |
+| The space between the wordmark and the title | **The scrimmed stage.** It is the exempt "sky": the stage the leader is about to walk onto. On the matrix it is 0-268 logical. |
+
+**Tiles (3 × 3 at n = 8; the 2 × 2 of wave 1 follows the same rules):**
+
+```
+tw  = floor4((cw − 32 − 40) / 3)              # 216 (dx 0) · 224 (SE) · 236 (390/393) · 260 (430)
+x   = right: cw − 16 − tw,  centre: floor4((cw − tw) / 2),  left: 16      (reading order right → left)
+avail = H − header − strip(112) − foot        # header = 12 + WM + 12 + 44 + 12 (first) or 12 + 44 + 8 + 56 + 12 (after)
+A   = the first of [192 (even k only), 128, 96, 64] with A + 24 ≤ tw and 3·(156 + A) + 24 ≤ avail
+th  = max(156 + A, min(floor4((avail − 24) / 3), floor4(1.6 · tw)))
+      # the tile grows to fill, up to a 1.6:1 portrait card; the content block (A + 8 + 44 + 80)
+      # is centred vertically in it
+2 × 2: tw2 = floor4((cw − 48) / 2), the הפתעה bar Rect2(16, y, 688 + dx, 96)
+```
+
+**A = 192** is the new XL avatar:
+- the 32-px pick avatar at ×6: 1.5 art px per sprite px, whole device px at every even k;
+- **2D ask A3:** a d3 `avatar_pick_<art>` at 96×96, drawn at 2 logical per sprite px, which is crisp at every even k and matches the stage cast's d3 pixel size;
+- until it lands, the d1 avatar at ×6.
+
+**Resolved** (first launch / after an election):
+
+| Device | cw | tw | first: avail / A / th / sky above the title | after: avail / A / th / sky |
+|---|---|---|---|---|
+| SE 375×667@2 | 748 | 224 | 1008 / 128 / 328 / 0 | 972 / 128 / 316 / 0 |
+| 390×844@3 | 780 | 236 | 1364 / **192** / 376 / 212 | 1328 / 192 / 376 / 176 |
+| 393×852@3 | 784 | 236 | 1380 / 192 / 376 / 228 | 1344 / 192 / 376 / 192 |
+| 430×932@3 | 860 | 260 | 1540 / 192 / 416 / 268 | 1504 / 192 / 416 / 232 |
+| 360×780@3 | 720 | 216 | 1236 / 192 / 348 / 168 | 1200 / 192 / 348 / 132 |
+| 412×915@2.625 | 720 | 216 | 1276 / 192 / 348 / 208 | 1240 / 192 / 348 / 172 |
+| frame 390×844 | 780 | 236 | = 390×844@3 | = 390×844@3 |
+| 390×664@3 bars | 780 | 236 | 1004 / 128 / 324 / 8 | 968 / 128 / 312 / 8 |
+| 375×548@2 bars | 748 | 224 | 824 / 96 / 264 / 8 | 736 / 64 / 236 / 4 |
+| 360×640@3 bars | 720 | 216 | 956 / 128 / 308 / 8 | 920 / 128 / 296 / 8 |
+
+The tile hit is the whole tile: 216-260 × 236-416 logical, ≥ 108 CSS on the short side.
+
+**Unchanged:** the order, bloc balance, הפתעה in the centre, the strip, the commit feedback, the undo chip, the keyboard and a11y rules (rtl-map §8.3.1-§8.8).
+
+**Publish:** `window.odPick.tile = [tw, th]` and `window.odPick.grid = [top, bottom]` (the check reads them).
+
+![picker today vs spec](mockups/mobile-first-picker.png)
+
+**Leader card (§8.7):** a modal card, width `624 + min(dx, 64)`; the ✕ hit 104; the button full width at the bottom, which is the thumb zone. It is centred per §5.10.
+
+**The undo chip** (§8.6): its visual `Rect2(16, S−96, 392, 80)` is L-anchored in the lane, unchanged.
+
+### 5.9 Pre-tap stage (V11)
+
+See §3.3: the apron art below the stage, the undo chip in the lane, the leader where tap 1 will find him. Nothing else is added: first-minute's "one moving, glowing object" is the whole screen until tap 1, and the apron is scenery, not UI.
+
+### 5.10 Modals (O1, O3, O6, O10, O11/O12, O15, the leader card, the partner card, the aide confirm)
+
+- **Width:** `624 + min(dx, 64)`, C-anchored.
+- **Height:** grows with content, as today.
+- **Vertical placement, mobile-first:**
+  - on canvases with a safe height ≤ 1400 logical, centred as today (`_ovl_y`);
+  - on taller ones, the card's **centre sits at 55% of the safe height** (not 50%), so its button row lands in the lower half: O10's buttons move from 56% to ≈ 61% of H at 390×844.
+  - Never closer than 24 to the tab bar's top.
+- Button rules (side by side vs stacked) are unchanged. Stacked commit-over-cancel puts the cancel nearest the thumb, which is right for destructive modals.
+
+### 5.11 Sheets (O7 settings, the coalition agreement, `MergeCard`, `SheetCard`s)
+
+- Full bleed (0 … vs.x).
+- **Height:** `min(content, floor4(0.70 · vs.y))`, as today (settings: 1072 content → no scroll at 390×844 and larger; it scrolls at the SE and the "bars" viewports).
+- The bottom "סגור" is full width, `Rect2(24, h − 112, 672 + dx, 88)`, fixed.
+- Rows use §4.1's sheet anchors.
+
+### 5.12 Share cards (O4 receipt, O5 result)
+
+- **The sheet may use the full safe height** (`vs.y − ins_t`, not 0.8 · vs.y): sharing is a focused task, and the preview is the product.
+- **Preview scale:** `a` = the largest value with `a · f` whole, `216a ≤ cw − 32` and `270a ≤ sheet − 520`:
+
+| Device | SE | 390 / 393 / 430 | 360 / 412 | frame @1 / @2 | 390×664 | 375×548 |
+|---|---|---|---|---|---|---|
+| a | 3 | 3.333 | 2.667 | 2 / 3 | 2.667 | 2 |
+
+  At 390×844 the preview is 720×900 logical (360×450 CSS). The receipt's 1-card-px text is then ≈ 8 CSS: a preview of the image, legible enough to check before sending.
+- **Button order, bottom-up** (thumb first): "סגור" (fixed); **"לשתף בוואטסאפ" full width** (Bar: WhatsApp is the main channel, so it is the nearest action); "לשתף" and "לשמור תמונה" side by side above it; the status line above them. This swaps today's order of the WhatsApp row and the side-by-side pair.
+
+### 5.13 Full-screen moments (EVOLVE_TX, O3b flash)
+
+- They are full bleed. Their content is C-anchored, at integer art scale as today (the flash's ×4 at k 6 and ×3 at k 4 are unchanged).
+- The flash's stacked `FLASH_NEXT` over `FLASH_SKIP` (rtl-map §7.2) is bottom-anchored to the safe bottom (the skip's bottom 24 above it), full width `672 + dx`, in the thumb zone.
+
+---
+
+## 6. Thumb reach (right hand; mirrored for the left, since all primary targets span the width)
+
+| Target | Where (390×844, CSS y) | Zone | Rule |
+|---|---|---|---|
+| Leader (the primary verb, first minutes) | hit 152-360, centre 256 | OK / stretch at the head | **Reach guard:** the hit's bottom edge ≥ 40% of H (43-47% on the matrix; §3.2). The lower half of the figure, where rapid tapping lands, is in the OK zone. The hit is 188×208 CSS: Fitts's index ≈ 1.5 bits from the resting thumb. |
+| Cards (the verb from minute 2) | 472-792 | **Easy** | The whole card is the hit. The pill is at the left (RTL trailing) but never the only target. |
+| Tab bar | 792-844 | Easy (bottom edge) | Pinned to the safe bottom |
+| Ticker / election CTA | 430-472 | Easy / OK | The CTA "עוד סבב!" is full width |
+| Suitcase | 372-428 | OK | Its band is full width |
+| Chat pills, composer, sheet "סגור", share buttons, again button, undo chip | bottom 40% | Easy | Bottom-anchored by §5 |
+| Gear, mute, cottage, Row B | 0-90 | Stretch | Rare or read-only by design (rtl-map §10) |
+
+**Tap targets:** every hit is ≥ 88 logical = ≥ 44 CSS on the matrix (§2). New hits in this spec:
+- tab slots 180-215 × 104;
+- pick tiles ≥ 216 × 236;
+- the thread merge pill 536 × 88;
+- the pill growth (visual only).
+
+---
+
+## 7. Readability minimums (CSS px, measured as glyph ink height; 1 art px = 2.0-2.29 CSS on the matrix)
+
+| Text | Scale | Hebrew body / digits (ink) | Minimum on the matrix | Rule |
+|---|---|---|---|---|
+| **Money counter** | ×6 | digits 5 → **15 CSS**; ₪ 18 | 15 | ≥ 1.5× the body text. Never below ×5. |
+| **Rate line** | ×4 | **10 CSS** | 10 | = body |
+| **Card name, line 2** | ×4 (reading cut on line 2) | **10 CSS** body, 14 with ascenders | 10 | Never ×3 |
+| **Card price** | ×5 when it fits, else ×4 | 12.5 / 10 | 10 | §5.1 |
+| **Ticker** | ×4, reading cut, **static while read** | **10 CSS** | 10 | §5.2: no motion during reading, no cut glyph |
+| Tab labels | ×4 | 10 | 10 | — |
+| Chat bubbles, sheets, modal bodies | ×4 (reading cut) | 10 | 10 | Line measure ≤ 20 glyphs (bubbles), ≤ 24 (bodies) |
+| Pick tile name / party | ×4 | 10 | 10 | Party in #9e99ad (4.9:1) |
+| Share preview text | card px × a/4 | ≈ 8 (a 3.333), 5 (a 2) | 5 | A preview of an image; the shared image is the artifact |
+| Large text | ×5 per §0.2 | 12.5 | — | Unchanged |
+
+"10 CSS ink" for a 5-row Hebrew body is about the size of a 17-18 px system font (Hebrew x-height ≈ 0.55-0.6 em). **No text on the main screen, the tabs or the modals is below 10 CSS ink on any phone of the matrix.**
+
+---
+
+## 8. Engine changes (the Game Developer's list, in order)
+
+1. **`core/display.gd`:** `cols`, `rows`, `cw()` (§2). No change to `art_px_for`, `fit_k`, `crisp_k`, `MIN_ART_H`.
+2. **`ui/layout.gd`:**
+   - `static var cw := 720.0`, `static var dx := 0.0`;
+   - the helpers `ra`, `ca`, `sa`, `rx`, `cx` (§4);
+   - **replace `flex()` / `set_flex()` with `split(r, top, vh)`** (§3.2, the constants `CARD 120`, `PEEK 40`, `S_PREF 640`, `S_FULL 560`, `S_MIN 460`);
+   - `tab_rect(slot)` uses `floor4(cw/4)` slots;
+   - `tabs_y()` = `SHOP.listY + panel_h`, plus `TABS_H` while `!tabsRevealed` (the pane runs under the unrevealed slot).
+3. **`main.gd` `_relayout`:**
+   - `L.cw = maxf(720, Display.cw())`, `L.dx = L.cw − 720`;
+   - **`_ox = 0`** for `_top`, `_lower`, `_modal` and the chrome; `_stage.position.x = floor4(dx / 2)` (the stage column);
+   - `_fills["top"]` height `ins_t + 96` until `ui.seatsRevealed`, then `+ 180` (§3.3);
+   - `_fills["shop"]` to the safe bottom until `ui.tabsRevealed`;
+   - the tab bar at `vs.y − ins_b − 104`;
+   - `_ovl_y` per §5.10;
+   - `_title_floor` replaced by the stage art's bottom rows plus the lane (§3.3; 2D A1 replaces it);
+   - `odDisplay` gains `cw`, `S`, `P`, `rows` (whole card rows), `ticker`.
+4. **Views: apply §4.1's anchors.**
+   - `top_bar.gd` (counter ×6, box stretch, cottage R);
+   - `ticker.gd` (clip `516 + dx`, `tagRight 700 + dx`, the pager of §5.2 in place of the crawl; the reduced-motion pager is the base);
+   - `shop.gd` (card stretch, pill growth and ×5 price, silhouette rows, the peek, the tab slots);
+   - `toasts.gd` (dock stretch, the burst pass-through of §3.4);
+   - `golden.gd` (the band and the entry x);
+   - `view_chat.gd`, `view_dossier.gd`, `view_court.gd`, `view_thermo.gd` (x 12, L);
+   - `overlay.gd` / `overlays.gd` / `view_sheet_card.gd` / `view_share.gd` (§5.10-§5.12);
+   - `view_flash.gd`, `evolve_tx.gd`.
+5. **`ui/views/view_pick.gd`:**
+   - `_build()` per §5.8: fluid `tw` and the column x's;
+   - the `A` list with 192;
+   - `th` grows to fill;
+   - the grid bottom-anchored;
+   - the title (and chip) attached to the grid;
+   - the wordmark pinned;
+   - the content block centred in the tile;
+   - `web_info()` adds `tile` and `grid`.
+6. **`ui/views/view_chat.gd`:** the merge-ready system pill (§5.5).
+7. **Tests:**
+   - `test_layout.gd` (or the flex test): `split()` against `ux/tools/mobile_layout.py --json` for every device row;
+   - `test_leader_pick.gd`: the A/th/tw table of §5.8;
+   - `tools/web/mobile_web.mjs` green (§9).
+
+**Isolated fixes I did not make:** each of these touches shared layout, so none is "small and isolated"; they belong to one coherent change after the picker merge.
+
+---
+
+## 9. Acceptance
+
+### 9.1 The measurable checklist (`tools/web/mobile_web.mjs`, every device of the matrix)
+
+```
+python3 -m http.server <port> --directory build/web
+node tools/web/mobile_web.mjs http://127.0.0.1:<port>/ <out dir>            # baseline + spec
+MOBILE_BASELINE=1 node tools/web/mobile_web.mjs …                           # today's build: gate on baseline only
+```
+
+Default matrix: 375×667@2, 390×844@3, 393×852@3, 430×932@3, 360×780@3, 412×915@2.625, the desktop frame (1440×900@1 → 390×844), 390×664@3, 375×548@2.
+
+**Baseline** (must hold today, and holds on `af18f9e` + the picker):
+- **B1** backing store = floor(CSS × DPR), or 390 × DPR in the frame;
+- **B2** the canvas box covers the viewport, or the frame is on;
+- **B3** `odDisplay.integer`, k = crisp(fit);
+- **B4** 1 art px ≥ 2 CSS, so 88 logical ≥ 44 CSS;
+- **B5** logical = device / f;
+- **B6** C1 opens the group through real taps;
+- **B7** T3 opens from tab slot 3;
+- **B8** no page errors.
+
+**Spec** (fail today; the Game Developer's done-line):
+
+| # | Check | Pass when |
+|---|---|---|
+| S1 | fluid width | `odDisplay.cw == floor4(logical width)` |
+| S2 | paged ticker | `odDisplay.ticker = {mode: "page", clipW: 324 + dx}` |
+| S3 | the split | `odDisplay.lowerY == ins_t + 180 + S` (§2 table) |
+| S4 | reach | `(lowerY − 140) / H` in 40-60% |
+| S5 | tab bar on the safe bottom | list bottom + 104 == `floor4(vs.y) − ins_b` (± 4) |
+| S6 | rows visible (tabs up) | whole cards + silhouettes in the pane ≥ **n**: SE 3, 390 5, 393 5, 430 6, 360 4, 412 4, frame 5, 390×664 3, 375×548 2 |
+| S7 | no cut pill | every partially visible card shows ≤ 40 px |
+| S8 | **no dead band** | no band ≥ 8 art px of one colour anywhere except the stage sky (Row A's bottom → the leader's hit top; a band in the HUD fill #140c24 there does not count as sky) and Row B once revealed. Checked at pre-tap, card 1, the first buy, C1 and C2. |
+| S9 | picker tiles | `odPick.tile[0] == floor4((cw − 72) / 3)` |
+| S10 | picker grid | the last row's bottom + 12 == the strip top (± 4) |
+| S11 | picker avatar | `odPick.avatar` == §5.8's A for the device |
+| S12 | picker band | S8 over the grid, strip and foot |
+
+**Today's run** (`scratchpad/shots/mobile-ux/`): baseline 0 failures at 390×844@3, 375×667@2 and the frame. Spec: 13 / 13 / 7 open. Every V-finding of §1 shows up as a spec failure: S8 reports the Row B slot, the lane, the empty pane and the pre-tap floor; S7 the SE's 86-px cut; S10/S12 the picker band.
+
+### 9.2 Visual checklist per device (the reviewer's pass on the tool's shots)
+
+For **each** device of the matrix:
+- [ ] Row A: the counter is ×6, centred on the canvas, clear of the mute and cottage hits; the rate line whole.
+- [ ] Before C2, the Row B slot shows the sky; after C2, Row B spans the full width, its track stretched and its label at the right edge.
+- [ ] The stage art is centred; no flat side bands wider than 2 art px (after 2D A2; before it, the pad colour is accepted).
+- [ ] The lane reads as floor, not stripes (after 2D A1).
+- [ ] The ticker panel spans the width; the text is whole words on ≤ 2 lines; no glyph is cut at either clip edge in any shot.
+- [ ] The cards span the width; the pill is at the left; the price is ×5 where it fits; no cut pill.
+- [ ] The silhouettes fill the pane below the real cards; they have no price.
+- [ ] The tab bar sits on the safe bottom with 4 equal slots; the revealed labels and icons are centred per slot.
+- [ ] T3: the header, pinned bar, thread and composer span the width; the incoming bubbles are right, the replies left; the merge pill (Golan's round) is in the thread.
+- [ ] Settings: a full-width sheet, the bottom "סגור" in reach, no clipped caption.
+- [ ] The picker: tiles fill the width; the grid sits on the strip; the title sits on the grid; A per §5.8; no party line clipped ("הדמוקרטים" and "הציונות הדתית" fit their boxes).
+- [ ] The modals: centred at 55% on tall canvases; no button closer than 24 to the tab bar.
+- [ ] Share: the preview at §5.12's a; WhatsApp nearest the thumb.
+- [ ] No clipped text anywhere (the text lint stays 0; no ellipsis appears on a step-down key).
+
+---
+
+## 10. Asks to other roles
+
+| # | To | Ask | Why |
+|---|---|---|---|
+| A1 | **2D Artist** | **The lane and apron:** re-cut `lane_<era>` as a tileable 32×28 art tile (horizontal detail: paving joints, a cable, flyers, the crowd's barrier feet), and give each stage art's rows 254-319 a plaza foreground (pavement, the front row's shadows, a barrier) instead of flat `padBottom`. Balfour first: it is the only era the pre-tap state ever shows (first launch and reset). | V4 and V11: today the lane rows are single colours and the apron is flat; both read as dead bands. |
+| A2 | **2D Artist** | **Stage wings:** per era, a tileable 16-art-wide strip of the fence/crowd/ground rows (art rows ~180-254) for each side, which the diorama tiles outward from the 180-art art to the canvas edge. The sky already extends. | V9: 7.5-17.5 art flat side bands on 390-430 phones |
+| A3 | **2D Artist / TA** | `avatar_pick_<art>` at **d3 (96×96)** for the 8 leaders, cropped from the d3 cast renders. The engine draws it at 2 logical per sprite px (A = 192). | The XL pick avatar, crisp at every even k and matching the cast's pixel size |
+| G1 | **Game Designer** | `producerReveal.fillSilhouettes: true`: the unrevealed sources show as priceless silhouette rows. | §5.4: the pane is never shorter than its content early on |
+| M1 | **Animator** | The ticker page transition (§5.2: push from the left, 300 ms; your curve), which replaces the crawl cadence (D16) | §5.2 |
+| S1 | **UX (me), next strings pass** | `CHAT_SYS_MERGE_READY`, measured into `chat.sys` | §5.5 |
+
+---
+
+## 11. Deviations (continuing `rtl-map.md` §12)
+
+| # | Was | Now | Reason |
+|---|---|---|---|
+| D36 | §1 flex rule: the stage takes 40% of the extra height; the list is P = R − S in any size | §3.2 split: the stage stays near 160 art, extra height buys whole card rows, a 40-px peek | V1, V2, V5: buying is the verb from minute 2, and a half-cut pill is a false target |
+| D37 | The 720 column centred (`_ox`) for all chrome | Fluid chrome with anchors (§4); only the stage column is centred | V9 |
+| D38 | Reserved slots stay empty until their reveal | Row B shows the sky, the pane covers the tab slot, silhouettes fill the pane (§3.3) | V1, V3; nothing moves at the reveal |
+| D39 | The ticker crawl through a 324 clip (D16) | 2-line pages, whole words, a clip of 324 + dx (§5.2) | V6: no headline fits the window, so every frame showed cut words |
+| D40 | Counter ×5 | ×6 | V7: the hierarchy |
+| D41 | Pill 184, price ×4 | `184 + min(dx, 40)`, price ×5 when it fits | V7 |
+| D42 | §8.2: the picker grid centred in the leftover; tiles 216; A ≤ 128 | Bottom-anchored grid, fluid tiles that grow to 1.6:1, A 192, the title attached to the grid (§5.8) | V10: my own spec made the band; the engine built it faithfully |
+| D43 | Modals centred | Centre at 55% of the safe height on canvases > 1400 (§5.10) | Buttons into the lower half |
+| D44 | Share sheet 0.8 · vs.y | The full safe height; WhatsApp nearest the thumb (§5.12) | A larger preview; the main channel first |
+| D45 | Toasts always take taps | No toast hit during a tap burst (§3.4) | Short stages put the dock over the leader's head |
+| D46 | Golan's merge only from the partner card | Plus a merge-ready system pill in the thread (§5.5) | Discoverability of the leader's signature rule |
+
+**No objection is outstanding.** The one design error found (the picker's centred grid, V10) is this role's own §8.2, revised here as D42. It is not an objection against the engine, which built §8.2 as written.
