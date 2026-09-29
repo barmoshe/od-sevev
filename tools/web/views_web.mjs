@@ -58,7 +58,11 @@ for (const d of DEVICES) {
 	}
 	check(Math.abs(cv.cw * d.dpr - cv.w) < 1e-6 && Math.abs(cv.ch * d.dpr - cv.h) < 1e-6, 'the canvas box is exactly its backing store / DPR (no browser resample)');
 	check(Math.abs(cv.x * d.dpr - Math.round(cv.x * d.dpr)) < 1e-6 && Math.abs(cv.y * d.dpr - Math.round(cv.y * d.dpr)) < 1e-6, 'the canvas sits on whole device px');
-	check(disp.integer && disp.k === Math.min(Math.floor(cv.w / 180), Math.floor(cv.h / 267)), `k = min(floor(W/180), floor(H/267)) = ${disp.k}`);
+	// the crisp rule (display.gd crisp_k): the largest multiple of 2 or 3 ≤ the k that fits
+	const fit = Math.min(Math.floor(cv.w / 180), Math.floor(cv.h / 267));
+	let ck = fit;
+	while (ck > 1 && ck % 2 !== 0 && ck % 3 !== 0) ck--;
+	check(disp.integer && disp.k === ck, `k = crisp(min(floor(W/180), floor(H/267))) = crisp(${fit}) = ${disp.k}`);
 	await shot('title');
 	const css = (lx, ly) => [cv.x + lx * disp.f / d.dpr, cv.y + ly * disp.f / d.dpr];
 	const [hx, hy] = css(disp.hat[0], disp.hat[1]);

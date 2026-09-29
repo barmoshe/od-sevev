@@ -128,6 +128,37 @@ static func device_k(art: float) -> int:
 	return int(roundf(dev)) if is_equal_approx(dev, roundf(dev)) else Display.k
 
 
+## Every density a character ships (its main render's and its `densities` alternates'), e.g. [3, 2].
+static func densities_of(id: String) -> Array:
+	var slug := resolve(id)
+	if slug == "":
+		return [1]
+	var c: Dictionary = manifest()["chars"][slug]
+	var out: Array = [density_of(c)]
+	for key: Variant in c.get("densities", {}):
+		var d := int(str(key))
+		if d > 0 and not out.has(d):
+			out.append(d)
+	return out
+
+
+## The largest logical art scale ≤ `want` that draws a figure crisp: its device px per art px
+## (art · Display.f) is a whole number divisible by one of the figure's densities, so pick_variant
+## finds a render at whole device px per sprite px (the partner cameo at ×3 on k 6 is 4.5 dp, soft:
+## this gives 8/3 logical = 4 dp, the d 2 at 2 dp). `want` itself when none is crisp (below 2 dp per
+## art px for a d 2 / d 3 figure) or on the fractional fallback surface.
+static func crisp_art_px(want: float, dens: Array) -> float:
+	if not Display.integer or want <= 0.0:
+		return want
+	var dp := int(floorf(want * Display.f + 1e-4))
+	while dp >= 1:
+		for d: Variant in dens:
+			if dp % maxi(1, int(d)) == 0:
+				return dp / Display.f
+		dp -= 1
+	return want
+
+
 ## Draws this strip at `art` logical px per art px (0 = the stage's artScale): re-picks the density
 ## variant for the device px per art px that gives (device_k), sets scale_px = art / density and
 ## the filter, and restarts the current anim on the new variant's texture.

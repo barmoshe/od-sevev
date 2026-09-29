@@ -236,6 +236,7 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 	content.add_child(icon_flash)
 	var name := PxText.make(content, Vector2(float(R["nameRight"]), float(R["nameY"])), "", L.TEXT, "plain", "w")
 	var line2 := PxText.make(content, Vector2(float(R["line2Right"]), float(R["line2Y"])), "", L.TEXT, "plain", "w")
+	line2.reading = true   # the card's description (line 2): the @2 reading cut where crisp
 	for t: PxText in [name, line2]:
 		t.max_lines = 1
 		t.h_anchor = 2

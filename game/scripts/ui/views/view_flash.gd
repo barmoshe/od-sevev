@@ -19,8 +19,9 @@ extends Overlay
 ## the largest that makes one sprite px a whole number of device px for one of the figure's
 ## densities wins (d 3 main + d 2 alternate: k 2, 4, 6, 8 → ×4 = 1, 2, 2, 4 dp per sprite px on
 ## the d 2, d 2, d 3, d 2),
-## and the strip draws that density (SpriteStrip.set_art_px); with none (k 7) the largest that
-## fits, on SpriteStrip's "aa" filter. The size and densities come from the manifest
+## and the strip draws that density (SpriteStrip.set_art_px); with none (only when just ×2 fits at
+## k 2, 3 or 9: Display's crisp rule keeps k a multiple of 2 or 3) the largest that fits, on
+## SpriteStrip's "aa" filter. The size and densities come from the manifest
 ## (sprites.json), never from here.
 ##
 ## Talk: the beak follows the Audio's `dubi_blip` (state-graph-dubi §3): talk.f1 for 60 ms per
@@ -180,6 +181,7 @@ func build() -> FlashCard:
 	var body_h := 0.0
 	for t: String in line_texts:
 		var p := PxText.make(body, Vector2.ZERO, t, L.TEXT, "plain", C_BODY)
+		p.reading = true   # the flash's lines: the @2 reading cut where crisp
 		p.wrap_width = TEXT_W
 		p.max_lines = TEXT_LINES
 		p.right_at(TEXT_RIGHT)

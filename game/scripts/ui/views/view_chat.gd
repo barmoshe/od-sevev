@@ -655,8 +655,11 @@ func _lh(t: PxText) -> float:
 	return float(HeFont.line_height()) * t.eff_px()
 
 
-func _text(parent: Node, s: String, col: Variant, wrap: float, lines: int) -> PxText:
+## `reading`: a message body (PxText.reading, the @2 cut where crisp); names, labels, pills and
+## dimmed lines stay display text.
+func _text(parent: Node, s: String, col: Variant, wrap: float, lines: int, reading: bool = false) -> PxText:
 	var t := PxText.make(parent, Vector2.ZERO, s, L.TEXT, "plain", col)
+	t.reading = reading
 	t.max_lines = lines
 	t.wrap_width = wrap
 	return t
@@ -724,10 +727,11 @@ func _build_bubble(row: Dictionary, y: float) -> Dictionary:
 		w = maxf(w, float(fw.width()))
 		cy += _lh(fw)
 	var body := Strings.s("CHAT_DELETED") if kind == "deleted" else line_text(m, _state, _d)
-	var tx := _text(root, body, C_MUTED if kind == "deleted" else Color.WHITE, TEXT_W, 99)
+	var dimmed := (ult and st == "expired") or (kind == "in" and st == "expired")
+	var tx := _text(root, body, C_MUTED if kind == "deleted" else Color.WHITE, TEXT_W, 99, kind != "deleted" and not dimmed)
 	tx.right_at(inner_r)
 	tx.position.y = cy
-	if (ult and st == "expired") or (kind == "in" and st == "expired"):
+	if dimmed:
 		tx.modulate.a = 0.5
 	w = maxf(w, float(tx.width()))
 	cy += _lh(tx) * maxf(1.0, float(tx.line_count()))
@@ -793,7 +797,7 @@ func _build_out(row: Dictionary, y: float) -> Dictionary:
 	var root := _root(y)
 	var n := clampi(int(m.get("n", 1)), 1, 3)
 	var bubble := Ui.nine(root, Rect2(16, 0, 64, 64), Art.sprite_or("chat_bubble_out"))
-	var tx := _text(root, Strings.s("CHAT_REPLY_%d" % n), Color.WHITE, TEXT_W, 99)
+	var tx := _text(root, Strings.s("CHAT_REPLY_%d" % n), Color.WHITE, TEXT_W, 99, true)
 	var tw := float(tx.width())
 	var bw := clampf(Ui.snap(tw + 36.0 + 16.0 + 2.0, 4), 96.0, 480.0)
 	tx.right_at(16.0 + bw - 16.0)
@@ -814,7 +818,7 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
 	if str(m.get("key", "")) == "chat.sys.muted" and Art.has_sprite("chat_icon_mute"):
 		icon = Ui.img(root, Vector2.ZERO, "chat_icon_mute", 0, 4)
 		icon_w = float(Art.sprite_size("chat_icon_mute").x) * 4.0 + 12.0
-	var tx := _text(root, text, Color.WHITE, SYS_TEXT_W - icon_w, 2)
+	var tx := _text(root, text, Color.WHITE, SYS_TEXT_W - icon_w, 2, true)
 	tx.align = 1
 	var lines := maxf(1.0, float(tx.line_count()))
 	var w := Ui.snap(float(tx.width()) + icon_w + 48.0, 4)
@@ -857,7 +861,7 @@ func _build_transfer(row: Dictionary, y: float) -> Dictionary:
 	nm.wrap_width = 640.0
 	nm.max_lines = 1
 	nm.right_at(672)
-	var ln := _text(root, Strings.s("CHAT_TRANSFER_LINE", {"from": partner_name(str(m.get("partner", ""))), "to": partner_name(str(m.get("to", "")))}), Color.WHITE, 640.0, 2)
+	var ln := _text(root, Strings.s("CHAT_TRANSFER_LINE", {"from": partner_name(str(m.get("partner", ""))), "to": partner_name(str(m.get("to", "")))}), Color.WHITE, 640.0, 2, true)
 	ln.right_at(672)
 	ln.position.y = 148.0 + _lh(nm) + 4.0
 	var ch := Ui.snap(20.0 + _lh(nm) + 4.0 + _lh(ln) * maxf(1.0, float(ln.line_count())) + 16.0, 4)
@@ -1501,7 +1505,12 @@ func _update_cameo(dt: float, allowed: bool) -> void:
 			var feet := Vector2(644, L.stage_h - 140.0)
 			var fh := float(_cameo_strip._c.get("frameH", 0)) / float(_cameo_strip.density)   # art px
 			var room := feet.y - 140.0 - CHIP_H - 8.0    # between the toast dock bottom and S − 140
-			var art := 3.0 if fh * 3.0 <= room else (2.0 if fh * 2.0 <= room else 0.0)
+			# ×3 / ×2, each lowered to the largest scale that stays whole device px on one of the
+			# figure's densities (SpriteStrip.crisp_art_px: ×3 at k 6 is 4.5 dp, so 8/3 = 4 dp on the d 2)
+			var dens := SpriteStrip.densities_of(slug)
+			var a3 := SpriteStrip.crisp_art_px(3.0, dens)
+			var a2 := SpriteStrip.crisp_art_px(2.0, dens)
+			var art := a3 if fh * a3 <= room else (a2 if fh * a2 <= room else 0.0)
 			if art <= 0.0:
 				show = false
 			else:

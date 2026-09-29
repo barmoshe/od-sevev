@@ -53,6 +53,13 @@ func text(pos: Vector2, s: String, sc: int, role: Variant = null) -> PxText:
 	return PxText.make(panel, pos, s, sc, "plain", role if role != null else Art.theme["modal"]["body"])
 
 
+## A modal body paragraph: the reading role (PxText.reading, Sevev 9 @2 where crisp).
+func body_text(pos: Vector2, s: String, sc: int, role: Variant = null) -> PxText:
+	var t := text(pos, s, sc, role)
+	t.reading = true
+	return t
+
+
 func centered(y: float, s: String, sc: int, role: Variant = null, region: Vector2 = Vector2(-1, -1)) -> PxText:
 	if region.x < 0:
 		region = Vector2(panel_rect.position.x, panel_rect.size.x)

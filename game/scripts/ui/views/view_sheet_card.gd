@@ -67,6 +67,7 @@ func para(t: String, col: Color = C_TEXT, centre: bool = false, lines: int = 8) 
 	if t == "":
 		return null
 	var p := PxText.make(_holder, Vector2(0, _y), t, L.TEXT, "plain", col)
+	p.reading = not centre   # a body paragraph reads on @2; a centred number or mood line is display
 	p.wrap_width = TEXT_W
 	p.max_lines = lines
 	if centre:

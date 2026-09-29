@@ -49,12 +49,14 @@ const BUBBLE_INK := "w"
 func _ready() -> void:
 	_plate = Ui.nine(self, Rect2(16, float(L.STAGE["y"]) + 8.0, 688, 88), Art.sprite_or("toast"))
 	_text = PxText.make(self, Vector2(TEXT_RIGHT, float(L.STAGE["y"]) + 24.0), "", L.TEXT, "plain", "w")
+	_text.reading = true   # toasts and Dubi's bubble read on the @2 cut where crisp (CONTRACT §6.1)
 	_text.h_anchor = 2
 	_text.wrap_width = TEXT_W
 	_text.max_lines = 2
 	_text.max_lines_large = 3   # string-budgets stage.toast linesLarge
 	_bubble = Ui.nine(self, Rect2(0, 0, 64, 64), Art.sprite_or("chat_bubble_in"))
 	_btext = PxText.make(self, Vector2.ZERO, "", L.TEXT, "plain", BUBBLE_INK)
+	_btext.reading = true
 	for n: CanvasItem in [_plate, _text, _bubble, _btext]:
 		n.visible = false
 	_build_chat_nodes()
@@ -105,6 +107,7 @@ func _build_chat_nodes() -> void:
 	_head.right_at(CHAT_TEXT_RIGHT)
 	_head.visible = false
 	_preview = PxText.make(self, Vector2(CHAT_TEXT_RIGHT, y0 + 60.0), "", L.TEXT, "plain", "w")
+	_preview.reading = true   # the chat toast's line (its head, the sender, stays display)
 	_preview.wrap_width = CHAT_TEXT_W
 	_preview.max_lines = 1
 	_preview.right_at(CHAT_TEXT_RIGHT)

@@ -112,20 +112,25 @@ const tab = (P, i) => col(P, 540 - 180 * (i - 1) + 90, P.d.logical[1] - 104 + 52
 	s = await probe(P);
 	check(s.chat.open && s.court.mode === 'chip', `Esc folds the card first, T3 stays (${s.court.mode})`);
 	await shot(P, 'r22-chat-header');
+	// Aim at a settled thread. The live group keeps posting, and T3 follows the newest message while
+	// it is at the bottom, so an avatar read from odDev (published 4×/s) can have scrolled away by the
+	// time the tap lands: that, not the fold, was the "first tap after Esc not taken" (traced
+	// 2026-09-29: the tap reached the thread, 16 px off the avatar the thread had just scrolled). A
+	// press during the fold itself is the engine bug fixed then (a folding card takes no press).
+	let last = '';
+	for (let i = 0; i < 20; i++) {
+		s = await probe(P);
+		const now = JSON.stringify(s.chat.avatars);
+		if (now === last) break;
+		last = now;
+		await P.wait(400);
+	}
 	const av = s.chat.avatars[0];   // the topmost avatar in view
 	if (av) {
 		await tap(P, css(P, av[0], av[1]));
 		await P.wait(900);
 		s = await probe(P);
-		if (s.modal !== 'PARTNER_CARD') {
-			// seen at runtime: the first tap after Esc folded the court card over T3 did not reach
-			// the thread (not reproduced headless); report it and try once more
-			console.log('  note: the first avatar tap after the fold was not taken; retrying');
-			await tap(P, css(P, av[0], av[1]));
-			await P.wait(900);
-			s = await probe(P);
-		}
-		check(s.modal === 'PARTNER_CARD', `an avatar opens the partner card (${s.modal})`);
+		check(s.modal === 'PARTNER_CARD', `the first tap after the fold opens the partner card (${s.modal})`);
 		await shot(P, 'r12-partner-card');
 		await P.page.keyboard.press('Escape');
 		await P.wait(500);

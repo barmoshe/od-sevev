@@ -125,9 +125,11 @@ producer's slots empty).
 ## Integer art scaling (game-developer engine, 2026-09-29)
 
 Bar's decision: one art px (the 180-wide art grid, 4 logical px) is always a whole number **k** of
-device px, `k = min(floor(W / 180), floor(H / 267))` with W × H the backing store (CSS × DPR). The
-stage and the UI stay 1× chunky (k device px per art px); the d = 3 cast draws at k/3 device px per
-sprite px.
+device px, `fit = min(floor(W / 180), floor(H / 267))` with W × H the backing store (CSS × DPR), and
+**k = the largest multiple of 2 or 3 ≤ fit** (`Display.crisp_k`; fit 5 → 4, 7 → 6, 11 → 10; 1 stays
+1), so every rendered figure has a density (d 2 or d 3) drawing whole device px: "sharp characters on
+every phone" (Bar, 2026-09-29). The remainder is letterboxed into the aspect-`expand` area like any
+other leftover. The stage and the UI stay 1× chunky (k device px per art px).
 
 **Where it lives: the host viewport's own stretch transform** (`main.gd _apply_display`,
 `scripts/core/display.gd`). On the window (the web canvas, desktop, a phone) the stretch mode is
@@ -142,21 +144,38 @@ the scaled-input tests) gets `size_2d_override = W/f × H/f` instead. Why not th
   back to logical px through it, so hit tests never see device px
   (`tests/unit/test_display.gd` pushes device-px touches through a scaled viewport at DPR 2 and 3).
 
-| Phone (CSS, DPR) | Backing store | k | Stage/UI | Rendered cast + sources at the stage's ×4 (d 2 + d 3 renders) |
-|---|---|---|---|---|
-| 390×844, 393×852, 412×915, 430×932 @2 | 780-860 wide | **4** | 4 dp | **d 2 at 2 dp, crisp** |
-| 390×844 @3, 393×852 @3, 360×800 @3 | 1080-1179 | **6** | 6 dp | **d 3 at 2 dp, crisp** |
-| 412×915 @2.625 (Pixel), 412 @3 | 1081, 1236 | **6** | 6 dp | **d 3 at 2 dp, crisp** |
-| 430×932 @3 (Pro Max / Plus) | 1290 | **7** | 7 dp | d 3 at 2.33 dp: `SpriteStrip.fractional_filter` "aa" |
-| 412×915 @3.5 (QHD Android) | 1442 | **8** | 8 dp | **d 2 at 4 dp, crisp** |
-| a 1280×800 desktop window @1 | 1280×800 | **2** (height-bound) | 2 dp | **d 2 at 1 dp, crisp** |
+| Phone (CSS, DPR) | Backing store | fit → **k** (was) | Stage/UI | Rendered cast + sources at ×4 | Body text (×4): Sevev 9 @2 |
+|---|---|---|---|---|---|
+| 390×844, 393×852, 412×915, 430×932 @2 | 780-860 wide | 4 → **4** (4) | 4 dp | **d 2 at 2 dp** | **@2 at 2 dp** |
+| 390×844 @3, 393×852 @3, 360×800 @3 | 1080-1179 | 6 → **6** (6) | 6 dp | **d 3 at 2 dp** | **@2 at 3 dp** |
+| 412×915 @2.625 (Pixel), 412 @3 | 1081, 1236 | 6 → **6** (6) | 6 dp | **d 3 at 2 dp** | **@2 at 3 dp** |
+| 430×932 @3, 428×926 @3 (Pro Max / Plus) | 1284-1290 | 7 → **6** (7, "aa") | 6 dp | **d 3 at 2 dp** (was 2.33 dp "aa") | **@2 at 3 dp** (was Sevev 9 at 7) |
+| 412×915 @3.5 (QHD Android) | 1442 | 8 → **8** (8) | 8 dp | **d 2 at 4 dp** | **@2 at 4 dp** |
+| a 900×1600 surface (tablet split, 5-fit) | 900 | 5 → **4** (5, "aa") | 4 dp | **d 2 at 2 dp** | **@2 at 2 dp** |
+| 1440×900 desktop @1 (the phone frame, 390×844) | 390×844 | 2 → **2** (2) | 2 dp | **d 2 at 1 dp** | **@2 at 1 dp** |
+| 1440×900 desktop @2 (the phone frame) | 780×1688 | 4 → **4** (4) | 4 dp | **d 2 at 2 dp** | **@2 at 2 dp** |
+| 960×600 desktop @1.5 (the phone frame) | 585×828 | 3 → **3** (3) | 3 dp | **d 3 at 1 dp** | Sevev 9 at 3 dp |
 
-Since 2026-09-29 every rendered character and money source ships a d 2 alternate beside its main
-d 3 (CONTRACT §3), so **every k that is a multiple of 2 or 3 is crisp**; only k 5 and 7 (and 1)
-fall back to "aa". A view that draws a figure at its own art scale (the partner card ×3, the
-ultimatum cameo ×3/×2, Dubi's flash ×4/×3/×2) picks the variant for ITS device px per art px
-(`SpriteStrip.set_art_px`): the partner card at k 4 draws the d 3 at 1 dp, Dubi's flash at k 4
-draws ×4 on the d 2 at 2 dp.
+Every rendered character and money source ships a d 2 alternate beside its main d 3 (CONTRACT §3),
+and k is always a multiple of 2 or 3 now, so **every figure on the stage is whole-block at every
+size** ("aa" is left only for a view scale nothing divides, e.g. a card forced to ×3 at k 6). A view
+that draws a figure at its own art scale picks the variant for ITS device px per art px
+(`SpriteStrip.set_art_px`): the partner card and Dubi's flash pick ×4/×3/×2 per k
+(`FlashCard.pick_art_scale`: ×4 at k 4 = the d 2 at 2 dp, ×4 at k 6 = the d 3 at 2 dp); the
+ultimatum cameo's ×3/×2 is lowered to the largest scale whole on one of its densities
+(`SpriteStrip.crisp_art_px`: ×3 at k 6 is 4.5 dp, so ×8/3 = 4 dp, the d 2 at 2 dp).
+
+**Sevev 9 @2, the reading cut (CONTRACT §6.1).** `PxText.reading = true` marks body copy: the chat
+bubbles, system lines and chat toasts' line, card descriptions (line 2), the ticker crawl, settings
+labels and captions, modal and court-card bodies (`Overlay.body_text`, `SheetCard.para`), toasts
+and Dubi's bubble, and the flash's lines. Such a text shapes with `sevev9@2.fnt` at 18 and draws at
+`eff_px() / 2` **only where one Sevev 9 px is an even number of device px** (k 2, 4, 6, 8 at ×4;
+large text ×5 at k 6 and 8), else Sevev 9 (k 3, 9, and ×5 at k 4). Every @2 metric is exactly 2×
+Sevev 9's, so the swap never moves layout (`tests/unit/test_sharp.gd` lays out the whole UI deck
+both ways at k 4 and 6 in five boxes and compares widths, line breaks and ellipsis). Display text
+keeps Sevev 9: the counter and rate line, prices and pay pills, titles (outline cut), tab labels,
+the ticker tag, chips, timers, badges, buttons, names, and anything dimmed or over art. Web dev:
+`?dev=1&sharp=0` draws every reading text on Sevev 9 (the before/after).
 
 - **Density comes from the data:** `SpriteStrip.density_of()` reads `density` on the char (or its
   picked `densities` alternate), then the manifest top level, else 1; `scale_of()` = artScale /
