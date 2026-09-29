@@ -82,9 +82,11 @@ const TOP := {
 const TICKER := {
 	"panel": Rect2(0, 0, 720, 84),
 	"anchor": Rect2(560, 0, 160, 84),
-	"tag": Rect2(616, 18, 96, 48),
-	"dubiFeet": Vector2(580, 84),
-	"tagRight": 696,
+	"tag": Rect2(616, 18, 96, 48),   # y and height; x and width follow the measured tag (Ticker.anchor_layout)
+	"dubiFeet": Vector2(580, 84),    # y = the row floor; x is placed left of the plate
+	"tagRight": 700,                  # rtl-map §5.1: TICKER_TAG right-aligned at x 700
+	"tagPad": 8,
+	"anchorGap": 4,
 	"textY": 24,
 	"clipX0": 192,
 	"clipX1": 552,
