@@ -1,7 +1,7 @@
-# "עוד סבב": style guide v2 (the approved detailed look + the UI kit)
+# "עוד סבב": style guide v3 (the approved detailed look + the UI kit, in Israel's blue and white)
 
 **Artifact:** `style-guide` (+ `ui-artwork`, `wordmark`, `key-art`). **Owner:** 2D Artist.
-**Status:** v2, supersedes the creative-pack v1 where they differ. Bar approved the look (the cast in
+**Status:** v3 (2026-09-29, palette only: Bar, "the design should be more in Israel's palette, with blue and white"; §2.3) on v2, which supersedes the creative-pack v1 where they differ. Bar approved the look (the cast in
 `creative-pack/od-sevev/art/showcase/out/`); v2 codifies it and adds the UI.
 **Consumers:** Technical Artist, Game Developer, UX Designer, Animator, Audio Director (key-art pairing).
 **v1:** `gamestudio/output/artifacts/creative-pack/od-sevev/art/style-guide.md`. Sections v2 does not
@@ -17,7 +17,8 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
 | App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (master `icon-128-art.png` = 64 art px at d 2) |
 | OG image 1200x630 | `out/key/og-1200x630.jpg` (203 KB at q 82 4:4:4 since the lineup, WhatsApp needs ≤ 300 KB) + `.png`; shipped as `game/web/og.jpg` |
-| Graphic-tier palette | `out/palette-v2.gpl`, `out/palette-v2.png`, source `src/palette.py` |
+| Graphic-tier palette | `out/palette-v3.gpl`, `out/palette-v3.png`, source `src/palette.py` |
+| Colour map for code (v2 → v3) | `palette-v3-map.json`, applied by `tools/apply_palette_map.py` (§2.3) |
 | Proofs | `proofs/` (see §15) |
 
 ---
@@ -43,7 +44,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 | What | The Magician, partners, opposition, Dubi, critters, photobombers | UI kit, wordmark, icons, the Suitcase, stamps, stages, props with text |
 | Made by | ChatGPT reference → `showcase/src/rig.py` render-down (orchestrator + Bar) | Hand-authored char-grids and primitives in `art/od-sevev/src/` |
 | Height | 96 art px (the partner idle); avatars 32x32 | Per piece, on the 1x grid |
-| Palette | **One locked palette per character**, ≤ 48 colours (measured 44-57 incl. props), locked from the rest pose so frames never flicker | The **62-swatch graphic palette** (§2); nothing off-list |
+| Palette | **One locked palette per character**, ≤ 48 colours (measured 44-57 incl. props), locked from the rest pose so frames never flicker | The **64-swatch graphic palette** (§2); nothing off-list |
 | Rendering | Dense painterly shading from the ref, no dithering added | 3-band cel (light / base / shadow) + an extra glint or deep band where it earns it (§4) |
 | Outline | Near-black, from the ref (measured `#000000`–`#0e0f13`) | `outline` `#0b0a12`, 1 art px |
 | Rim | Pale `#d6ccec` on the Magician and his props | `rim` `#d6ccec` on stage-touchables (§3) |
@@ -56,8 +57,9 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 
 ## 2. Palette (graphic tier)
 
-- **62 swatches in 19 families** = v1's 45 unchanged + 17 v2 additions. Well inside the ≤ 24-family cap.
-- Source: `src/palette.py`; export `out/palette-v2.gpl` / `.png`. v1's table (§2 there) still describes
+- **64 swatches in 19 families** = v1's 45 + 17 v2 additions + 2 v3 additions (`ui_mute`, `ui_rule`); v3 re-values 7
+  ids in place (§2.3). Well inside the ≤ 24-family cap.
+- Source: `src/palette.py`; export `out/palette-v3.gpl` / `.png`. v1's table (§2 there) still describes
   the first 45.
 
 ### 2.1 v2 additions
@@ -83,10 +85,70 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 |---|---|---|
 | `maroon`, `maroon_dk` | The Suitcase (**+ one waiver:** the Qatari aides' folder, source `qatari`, orchestrator decision 2026-09-29: maroon is Qatar's colour, the same Qatar thread as the DOHA Suitcase, so it reinforces the joke. The waiver covers that folder only; it is a folder, never a case shape, and never catchable) | No maroon UI, rings, badges or tints. **Open flag:** the showcase avatars `ben-gvir_avatar` and `gotliv_avatar` have a maroon ring (`build.py` 'jab' ring `(138,21,56)`); recolour it to `red` `#d02a36` (§16). |
 | `gold` ramp | Money, reward moments, the wordmark | Pay pills, the price pill, the "עוד סבב!" button, the ≥ 61 seats frame, the transfer banner (it is about money: "כולל דמי אחזקה"). **Not** tab underlines, focus rings or decoration. |
-| `flag` (+ `flag_dk`) | The Magician's tie/pin, Dubi's tie, THE primary button | One `button_primary` per screen. Seats use `sky`, never `flag`. |
+| `flag` (+ `flag_dk`) | The Magician's tie/pin, Dubi's tie, THE primary button; **v3: also the chrome's national frame** (flat title bands, the stripes) | One `button_primary` per screen (raised, lipped: the shape tells it from a flat band). Seats use `sky`, never `flag`. **Never flag-blue text on navy** (1.6-1.8:1). |
 | `navy_hi` | The Magician's suit light plane | Not used anywhere in the UI. |
 | `stamp` violet | Bureaucracy (v2) | Stamps, the pinned-bar edge, the pin head, the "filed" mark on the תיקים icon. |
 | `red` ramp | Danger | Ultimatum, thermometer, court tint, count badge, "מבזק" plate. Always paired with a shape (hatch, clock, icon, number). |
+
+### 2.3 v3: Israel's blue and white (2026-09-29)
+
+**Direction (Bar):** "the design should be more in Israel's palette, with blue and white". **Scope (orchestrator):** the
+chrome goes blue and white on a navy base, with white panels or white text on blue, like a flag or an official notice:
+the HUD, cards and panels, the tab bar, modals, sheets, the picker tiles, the ticker, toasts, the chat chrome, the share
+cards, settings, the title, the app icon background, the OG frame, and the HTML shell (the gate, About, the phone frame,
+`theme-color`). **Stays:** gold = money (the buy pill is the one warm call to action), red = alerts only (the flash
+badge, ultimatums, the court), the stages' identity, and the cast (no re-render: a full render reports 0 drift).
+
+**Re-valued in place (ids stable, every sprite legend and grid keeps working):**
+
+| Swatch | v2 | v3 | Role in v3 | L (v2 → v3) |
+|---|---|---|---|---|
+| `ui_scrim` | `#140c24` | `#061029` | Deep navy: HUD Row A/B, wells, the deepest surface, the shell pages | .005 → .006 |
+| `ui_panel` | `#1e1636` | `#0a1a42` | Navy: panels, headers, the tab bar, the sheet body | .011 → .012 |
+| `night` | `#2a2340` | `#0f2350` | Navy night: Balfour's sky, text plates, the shop pane, the shell page | .021 → .019 |
+| `ui_bubble` | `#2e2250` | `#112a64` | Raised navy: cards, picker tiles, incoming bubbles, secondary buttons | .023 → .027 |
+| `ui_bub_hi` | `#4a3c7c` | `#26499c` | The raised bevel light; the ✕ face | .061 → .076 |
+| `plum` | `#4a2552` | `#16357a` | Velvet blue: the curtain (title, OG, icon), Balfour's mid sky | .034 → .041 |
+| `plum_hi` | `#7a3a7d` | `#2a57a6` | The curtain's fold light, Balfour's horizon | .086 → .101 |
+
+**Added:** `ui_mute` `#a3b3d3` (secondary labels on navy: the picker's party line, idle tab labels; replaces UX's
+lavender `#9e99ad`), `ui_rule` `#1c3876` (dividers on navy; the phone-frame bezel). **Unchanged on purpose:** `flag`,
+`flag_hi`, `flag_dk`, `sky`, `white`, the cream `#fff8ec` / `#fff4e0`, the gold ramp, the red ramp, `ink` and `outline`
+(the stages share them, so a shift would drift all four), `rim` (baked into the cast), `stamp` / `stamp_lt` (rubber-stamp
+violet is the real ink of Israeli bureaucracy and a satirical prop, not chrome).
+
+Every v3 value keeps its v2 luminance within ±.015, so every §11.4 label contrast holds (the table is regenerated:
+`proofs/contrast-table.md`, 0 fails). `night`, `plum`, `plum_hi` move in the creative pack's `art/src/palette.py` too:
+Balfour's night sky is navy (`stage_balfour`), Washington's 1-row lower rule follows (`stage_washington`), and Knesset and
+the courthouse do not move.
+
+**Drawn (the white in blue and white):** the white-over-flag stripe pair is the chrome's national frame: the tab bar's
+top edge, the ticker's top (was red: red is alerts only), the chat header's bottom, the gate's and About's heading
+rule. `sheet_modal`'s title band is flat `flag` with a `flag_hi` light and a white stripe under it (the title white on
+flag 8.5:1): an official notice's header. Pink accents move to the blue family: the spin card's stripe (`flag_hi` + a
+`sky` edge), the spins tab's arcs and spin slot G's arcs (`sky` / `flag_hi`), the s14 play glyph (`flag_hi` / `flag`).
+The fork's cream `ui_card` modal (settings) becomes the "white panel": its letters move grape → navy, violet → flag,
+lavender → pale blue and pink → sky / flag_dk (`art/sprites.ts` → `game/data/art.json`), so it reads as a white notice
+with a blue frame and blue section heads.
+
+**Code:** the colours the scripts hard-code are mapped in `palette-v3-map.json` (17 pairs, roles, the colours left alone,
+the file:line sites); `tools/apply_palette_map.py` applies it (dry run by default). The shell is applied; `game/scripts/**`
+is applied by the orchestrator after the mobile-first merge.
+
+**Rules (v3):**
+- **Blue-on-navy is never text.** `flag` on navy is 1.6-1.8:1 and `flag_hi` on `ui_scrim` 4.4:1: blue text goes on white
+  or cream (`flag` on cream 8.5:1), text on navy is white, `silver`, `grey`, `ui_mute` or `sky` (10.0:1 on `ui_scrim`).
+  Blue on navy is for shapes (stripes, bevels, fills that also carry a shape).
+- **Gold stays the one warm thing.** The buy pill on a navy card is 10.4:1 (gold vs `ui_panel`) and the only warm hue in
+  the chrome; a flag-blue pill would sit at 1.5:1 on `ui_bubble` and vanish (tested; §16 F10). Gold on white is 1.48:1:
+  a gold control on a white panel must keep its `outline` edge (17.9:1).
+- **Party neutrality.** Blue and white here is the national flag's, never a party's: no white-Hebrew-on-blue wordmark
+  (the wordmark stays gold, extruded, with the rim), no party logo shapes (no כחול לבן / Likud / Yesh Atid letterforms,
+  arcs or boxes), no star of David and no flag as an object or a joke element, least of all on a character. The colours
+  are the frame (bands, stripes, the stage), never the punchline.
+- **Colour-blind redundancy holds** without the old hue split: under deuteranopia and protanopia navy and flag stay blue
+  (the axis both keep), gold stays yellow, red goes olive but keeps its hatch, clock, badge number and word; the
+  flag-blue title band vs the navy body differs by the white stripe as well as by value (1.8:1).
 
 ## 3. Outline and rim (v2)
 
@@ -187,7 +249,7 @@ icon and OG (the game is no longer "the Bibi game"; design/leader-select-spec.md
 figure is the approved idle frame 0, the same height, on the same floor line, under the same spot.
 
 **Icon** (`out/key/icon-1024.png`, 64x64 art x16; `icon-60.png` is the real LANCZOS downsample):
-- **What:** the eight heads in a ring around the gold clockwise "again" loop, on a plum stage with one follow-spot.
+- **What:** the eight heads in a ring around the gold clockwise "again" loop, on a stage (v3: velvet blue, the re-valued `plum`) with one follow-spot.
   A rotation (סבב) in a mark with no text: the loop is the brand, the ring is the roster. The ring starts 22.5° right
   of 12 o'clock and runs clockwise in the lineup order, so no head sits at the top or in the middle.
 - **Heads:** `showcase/out/<c>_avatar_pick.png`, the 32x32 chat-avatar render-down (the same head box and palette as
@@ -205,7 +267,7 @@ figure is the approved idle frame 0, the same height, on the same floor line, un
 
 **OG** (`out/key/og-1200x630.jpg`, **400x210 art x3** since leader select, d 3 at 1 output px per sprite px; it was
 200x105 x6 with Bibi alone, but eight full figures need the width):
-- The wordmark (cap 32, stroke 6) over a curtained plum stage, ballot slips (no letters) and coins raining, Dubi
+- The wordmark (cap 32, stroke 6) over a curtained stage (v3: the velvet-blue curtain), ballot slips (no letters) and coins raining, Dubi
   (the office's parrot, everyone's spokesman) flying across, and the eight leaders standing shoulder to shoulder on
   the floor line, each on the same spot pool. The seam between the 4th and 5th leader (Bennett | Golan) is the canvas
   centre (`keyart.lineup_positions` packs each half on its own): nobody is centred.
@@ -273,18 +335,19 @@ figure is the approved idle frame 0, the same height, on the same floor line, un
 The grayscale proof (`proofs/cvd-deut-prot-and-squint-x2.png`, right two panels) is the falsification
 test: every row above stays distinguishable with colour removed.
 
-### 11.4 Label contrast (all pass; `proofs/contrast-table.md` is regenerated by the build)
+### 11.4 Label contrast (all pass; `proofs/contrast-table.md` is regenerated by the build; v3 values)
 
 | Label on surface | Contrast |
 |---|---|
-| `white` on `ui_bubble` / `ui_out` / `ui_panel` / `ui_scrim` | 13.1 / 10.0 / 15.6 / 17.3:1 |
+| `white` on `ui_bubble` / `ui_out` / `ui_panel` / `ui_scrim` | 12.4 / 10.0 / 15.4 / 17.2:1 (v2: 13.1 / 10.0 / 15.6 / 17.3) |
 | `white` on `flag` / `flag_dk` / `red` / `teal_dk` / `wood` / `gold_dk` | 8.5 / 12.6 / 4.7 / 11.1 / 5.5 / 6.1:1 |
 | `ink` on `gold` / `gold_sh` (pressed) | 11.0 / 6.0:1 |
 | `grey` on `suit_dk` / `ui_scrim` | 5.5 / 8.1:1 |
-| `stamp` on paper / receipt; `stamp_lt` on `ui_bubble` / `ui_out` / `ui_scrim` | 5.6 / 7.3; 6.4 / 4.9 / 8.4:1 |
-| `red_hi` ("אולטימטום") on `ui_bubble` | 5.0:1 |
-| Non-text (≥ 3:1): seats fill `sky` vs its well; thermometer `red` vs its well / the hatch's black | 7.9; 3.7 / 3.8:1 |
-| `white` on `red_dk` (`button_danger` pressed); the ✕ `white` on `ui_bub_hi` | 8.1; 8.6:1 |
+| `stamp` on paper / receipt; `stamp_lt` on `ui_bubble` / `ui_out` / `ui_scrim` | 5.6 / 7.3; 6.1 / 4.9 / 8.4:1 |
+| `red_hi` ("אולטימטום") on `ui_bubble` | 4.7:1 (v2 5.0) |
+| Non-text (≥ 3:1): seats fill `sky` vs its well; thermometer `red` vs its well / the hatch's black | 10.0; 3.7 / 3.8:1 |
+| `white` on `red_dk` (`button_danger` pressed); the ✕ `white` on `ui_bub_hi` | 8.1; 7.6:1 |
+| **v3** labels: `ui_mute` on `ui_bubble` / `ui_panel`; `grey` on `ui_bubble`; `sky` on `ui_scrim`; `white` on `flag` / `night` / `plum` / `plum_hi`; `flag` on cream `#fff4e0` | 6.5 / 8.0; 5.8; 10.0; 8.5 / 13.9 / 10.5 / 6.3; 8.5:1 |
 | **On the scrim** (outline at 60% takes `ui_scrim` to `#0f0b19`, the brightest possible ground `#ffffff` to `#6d6c71`): white text on the scrimmed dark / the scrimmed brightest ground; the spin tag plate (scrim at 85% on `ui_bubble` = `#100e1b`) under white; the fork's cream card vs the scrimmed dark | 17.7 / 4.7; 17.4; 17.8:1 |
 | Edges on the scrim (non-text): the dark sheet body `ui_panel` / title band `ui_bubble` / its `ui_bub_hi` bevel vs the scrimmed dark ground; `sheet_modal`'s `suit_hi` edge (wave 6, F9) | 1.1 / 1.4 / 2.1:1; **3.6:1** (F9 closed) |
 
@@ -361,7 +424,7 @@ test: every row above stays distinguishable with colour removed.
 
 - **Sources** are code in `art/od-sevev/src/`. Do not edit the PNGs. `build_all.py` rebuilds everything
   deterministically (seeded speckle and erosion).
-- **Export 1x from `out/ui/`.** Every pixel is a `palette-v2` swatch with alpha 0/255, so they index
+- **Export 1x from `out/ui/`.** Every pixel is a `palette-v3` swatch with alpha 0/255, so they index
   cleanly into an atlas. The `share/` and `key/` images are *composites* and are not atlased.
 - **Pivots** are in `ui-kit.json` where they matter (thermometer bottom, stamp tool, suitcase centre,
   brawl, cup, Dubi placeholder feet line).
@@ -403,6 +466,10 @@ hierarchy.
 | F6 | TA / orchestrator | `ben-gvir_avatar.png` and `gotliv_avatar.png` have a **maroon** ring (reserved for the Suitcase) | In `showcase/src/build.py`, change the 'jab' ring `(138,21,56)` to `red` `(208,42,54)`. |
 | F7 | Orchestrator | The `suitcase` ChatGPT row | Not needed in-game: hand-drawn (`props/suitcase.png`); keep it only for a large key-art version. |
 | F8 | Animator | Stamp tool, brawl, cottage pixel drop, bubbles, clock hand, seats pulse | Key poses / frames are here; timing, easing and the reduced-motion behaviour are yours. |
+| F10 | Orchestrator / UX | **v3 tested: the buy pill stays gold.** Bar's blue-white direction invites a blue pill; a flag pill on a `ui_bubble` card is 1.47:1 and would stop reading as the call to action, and gold vs `ui_panel` is 10.4:1 and the chrome's only warm hue | Keep gold (shipped). No objection raised. |
+| F11 | UX / engine | v3 primary (`flag`) and secondary (`ui_bubble`) buttons differ by value 1.47:1 (v2 had a hue split too); shape, the `flag_hi` bevel (3.2:1 vs `ui_bubble`) and the white label carry it | If a review finds them confusable, give `button_secondary` a 1 px `white` inner ring (a kit-only redraw, same ids). |
+| F12 | Views (cast) | The chat avatars' blue react ring (`flag_hi`) now sits on navy chrome (3.9:1 vs `ui_panel`, was a hue contrast on violet) | Holds ≥ 3:1; if it reads as chrome, the TA can move the blue ring to `sky` in `showcase/src/build.py` (a cast-ring recolour, not a re-render). |
+| F13 | Key art | The OG and icon curtain (`plum`, now velvet blue) vs the cast's navy suits is 1.15:1 by value (v2 was 1.06:1, carried by hue) | The outlines, white shirts, lit faces and the spot pool carry every figure at 1200 and at the 630 square; if a thumbnail reads muddy, lift the curtain body to `plum_hi` (a keyart.py change, no cast change). |
 | F9 | Views / UX | **Closed (wave 6 polish): `sheet_modal` carries the 1 px `suit_hi` edge outside its outline (38x38, margins +1).** On the outline scrim a dark kit sheet's edge nearly vanishes over a dark stage (`ui_panel` 1.1:1, `ui_bubble` 1.4:1, the `ui_bub_hi` bevel 2.1:1 vs `#0f0b19`); the cream fork cards are unaffected (17.8:1) | When the modals move to `sheet_modal` (UX R7/R8), give the sheet's top and side edges a 1 px `suit_hi` line **outside** the outline (3.6:1 on the scrimmed dark; `ui_bub_hi` would be only 2.1:1, `slate` 5.2:1 reads as a grey frame). The modal then reads as lifted, not cut out. I'll redraw `sheet_modal` / `sheet_plain` that way when the views developer adopts them for the modals; the scrim stays the outline. Not a WCAG failure (a dialog's region is not a control), a figure/ground one. |
 
 ## 17. Wave 2 (the flat UI the TA found missing + the Animator's art needs)
@@ -448,7 +515,7 @@ hierarchy.
     the engine tiles it across the full canvas width (the side bands match), no vertical edge ever sits behind the
     flying Suitcase, and every lane swatch is at least as dark as the era's apron, so the Suitcase rim keeps its
     contrast. `stages[era].padBottom` is now the apron colour (was the 1-row bottom rule, wrong in all four eras).
-- **The curtain is plum, not maroon.** The Animator asked for "ticker maroon"; maroon is the Suitcase's
+- **The curtain is plum (v3: the id `plum` is velvet blue), not maroon.** The Animator asked for "ticker maroon"; maroon is the Suitcase's
   alone (§2.2), and plum is already the game's stage-curtain ramp. The valance carries the election
   signifier: a row of ballot-box lids with their slots (never a slip going in, v1 do/don't 6).
 - **Pictograms in Sevev 9** (`pipeline/od-sevev/font/sevev9.glyphs`, TA-approved write): 📺 ⬅ ☕ ⭐ ⏳ ⚖ ✂ 🔥
