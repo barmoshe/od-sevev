@@ -3,7 +3,7 @@
  "version": 1,
  "root": "res://assets/sprites/",
  "artScale": 4,
- "densityNote": "density d = sprite px per art px. A density-d texture draws at artScale/d logical px per sprite px; it is crisp when the device scale k is a multiple of d. chars[c].densities holds alternates (Bibi: d 2 for k 2/4/8 beside the main d 3); frameMap maps a frame to its texture cell.",
+ "densityNote": "density d = sprite px per art px. A density-d texture draws at artScale/d logical px per sprite px; it is crisp when the device scale k is a multiple of d. chars[c].densities and sources[id].densities hold alternates (every rendered character and source: d 2 beside the main d 3, so every k that is a multiple of 2 or 3 is crisp); frameMap maps a frame to its texture cell.",
  "artHeight": 96,
  "magicianFeet": [
   94,
@@ -924,6 +924,77 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 106,
+     "frameH": 201,
+     "anchor": [
+      54,
+      200
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/sara_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 14,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        12,
+        11,
+        13,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "offended": {
+       "texture": "cast/sara_offended_d2.png",
+       "frames": 12,
+       "fps": 12,
+       "loop": false,
+       "events": {
+        "huff": 2
+       },
+       "density": 2,
+       "cols": 8,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        4,
+        4,
+        4,
+        5,
+        6,
+        7,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_sara",
    "avatar24": "avatar24_sara"
   },
@@ -979,6 +1050,63 @@
      "density": 3,
      "cols": 8,
      "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 116,
+     "frameH": 199,
+     "anchor": [
+      59,
+      198
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/bennett_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 14,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        2,
+        1,
+        3,
+        4,
+        5,
+        5,
+        4,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        13,
+        12
+       ]
+      },
+      "flip": {
+       "texture": "cast/bennett_flip_d2.png",
+       "frames": 8,
+       "fps": 12,
+       "loop": false,
+       "events": {
+        "whoosh": 3
+       },
+       "density": 2,
+       "cols": 8,
+       "rows": 1
+      }
+     }
     }
    },
    "avatar": "avatar_bennett",
@@ -1048,6 +1176,73 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 136,
+     "frameH": 206,
+     "anchor": [
+      68,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/regev_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/regev_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_regev",
    "avatar24": "avatar24_regev"
   },
@@ -1095,6 +1290,53 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 134,
+     "frameH": 195,
+     "anchor": [
+      66,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/gotliv_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "react": {
+       "texture": "cast/gotliv_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        4,
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_gotliv",
    "avatar24": "avatar24_gotliv"
   },
@@ -1138,6 +1380,51 @@
       6,
       0
      ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 98,
+     "frameH": 206,
+     "anchor": [
+      49,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/deri_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 20,
+       "rows": 1
+      },
+      "react": {
+       "texture": "cast/deri_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
     }
    },
    "avatar": "avatar_deri",
@@ -1190,6 +1477,56 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 111,
+     "frameH": 196,
+     "anchor": [
+      60,
+      195
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/levin_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "react": {
+       "texture": "cast/levin_react_d2.png",
+       "frames": 12,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "bang": 4,
+        "bang2": 8
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        1,
+        3,
+        4,
+        6,
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_levin",
    "avatar24": "avatar24_levin"
   },
@@ -1235,6 +1572,53 @@
       0,
       0
      ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 123,
+     "frameH": 195,
+     "anchor": [
+      61,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/ben-gvir_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "react": {
+       "texture": "cast/ben-gvir_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        4,
+        0,
+        0
+       ]
+      }
+     }
     }
    },
    "avatar": "avatar_ben-gvir",
@@ -1302,6 +1686,73 @@
       6,
       0
      ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 125,
+     "frameH": 206,
+     "anchor": [
+      62,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/goldknopf_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/goldknopf_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
     }
    },
    "avatar": "avatar_goldknopf",
@@ -1375,6 +1826,77 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 109,
+     "frameH": 195,
+     "anchor": [
+      48,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/gafni_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/gafni_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "step": 1
+       },
+       "density": 2,
+       "cols": 8,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        6,
+        6,
+        4,
+        7,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_gafni",
    "avatar24": "avatar24_gafni"
   },
@@ -1444,6 +1966,75 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 103,
+     "frameH": 195,
+     "anchor": [
+      51,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/smotrich_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/smotrich_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2,
+       "cols": 4,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        0,
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_smotrich",
    "avatar24": "avatar24_smotrich"
   },
@@ -1491,6 +2082,53 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 137,
+     "frameH": 195,
+     "anchor": [
+      68,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/amsalem_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "react": {
+       "texture": "cast/amsalem_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        4,
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_amsalem",
    "avatar24": "avatar24_amsalem"
   },
@@ -1534,6 +2172,51 @@
       6,
       0
      ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 141,
+     "frameH": 206,
+     "anchor": [
+      70,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/lapid_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "react": {
+       "texture": "cast/lapid_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
     }
    },
    "avatar": "avatar_lapid",
@@ -1603,6 +2286,73 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 99,
+     "frameH": 206,
+     "anchor": [
+      50,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/eisenkot_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/eisenkot_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_eisenkot",
    "avatar24": "avatar24_eisenkot"
   },
@@ -1648,6 +2398,53 @@
       0,
       0
      ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 82,
+     "frameH": 195,
+     "anchor": [
+      41,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/gantz_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 20,
+       "rows": 1
+      },
+      "react": {
+       "texture": "cast/gantz_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        4,
+        0,
+        0
+       ]
+      }
+     }
     }
    },
    "avatar": "avatar_gantz",
@@ -1721,6 +2518,77 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 94,
+     "frameH": 193,
+     "anchor": [
+      47,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/liberman_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/liberman_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        1,
+        0,
+        2,
+        3,
+        4,
+        1,
+        1,
+        0,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_liberman",
    "avatar24": "avatar24_liberman"
   },
@@ -1786,6 +2654,73 @@
       6,
       0
      ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 112,
+     "frameH": 206,
+     "anchor": [
+      56,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/golan_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/golan_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
     }
    },
    "avatar": "avatar_golan",
@@ -1859,6 +2794,77 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 98,
+     "frameH": 193,
+     "anchor": [
+      49,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/abbas_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/abbas_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        1,
+        0,
+        2,
+        3,
+        4,
+        1,
+        1,
+        0,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_abbas",
    "avatar24": "avatar24_abbas"
   },
@@ -1906,6 +2912,53 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 125,
+     "frameH": 195,
+     "anchor": [
+      62,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/distel_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "react": {
+       "texture": "cast/distel_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        4,
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_distel",
    "avatar24": "avatar24_distel"
   },
@@ -1951,6 +3004,53 @@
       0,
       0
      ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 104,
+     "frameH": 195,
+     "anchor": [
+      53,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/karhi_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "react": {
+       "texture": "cast/karhi_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        4,
+        0,
+        0
+       ]
+      }
+     }
     }
    },
    "avatar": "avatar_karhi",
@@ -2003,6 +3103,56 @@
      ]
     }
    },
+   "densities": {
+    "2": {
+     "frameW": 110,
+     "frameH": 199,
+     "anchor": [
+      58,
+      198
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/herzog_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "react": {
+       "texture": "cast/herzog_react_d2.png",
+       "frames": 12,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "bang": 4,
+        "bang2": 8
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        1,
+        3,
+        4,
+        6,
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
    "avatar": "avatar_herzog",
    "avatar24": "avatar24_herzog"
   },
@@ -2048,6 +3198,53 @@
       0,
       0
      ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 129,
+     "frameH": 195,
+     "anchor": [
+      64,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/trump_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "react": {
+       "texture": "cast/trump_react_d2.png",
+       "frames": 10,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "shout": 2
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        2,
+        3,
+        2,
+        4,
+        0,
+        0
+       ]
+      }
+     }
     }
    },
    "avatar": "avatar_trump",
@@ -2115,6 +3312,73 @@
       6,
       0
      ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 136,
+     "frameH": 206,
+     "anchor": [
+      68,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/may-golan_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/may-golan_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
     }
    },
    "avatar": "avatar_may-golan",
@@ -2231,6 +3495,39 @@
      "cols": 2,
      "rows": 1
     }
+   },
+   "densities": {
+    "2": {
+     "frameW": 133,
+     "frameH": 193,
+     "anchor": [
+      67,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/dubi-mic_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 10,
+       "rows": 2
+      },
+      "talk": {
+       "texture": "cast/dubi-mic_talk_d2.png",
+       "frames": 2,
+       "fps": 16,
+       "loop": false,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
    }
   }
  },
@@ -2294,7 +3591,25 @@
    },
    "origin": "render-down",
    "density": 3,
-   "iconDensity": 1
+   "iconDensity": 1,
+   "densities": {
+    "2": {
+     "sprite": "source_taxpayer_d2",
+     "frameW": 51,
+     "frameH": 80,
+     "pivot": [
+      25,
+      79
+     ],
+     "points": {
+      "hand": [
+       15,
+       54
+      ]
+     },
+     "density": 2
+    }
+   }
   },
   "hitech": {
    "sprite": "source_hitech",
@@ -2315,7 +3630,25 @@
    },
    "origin": "render-down",
    "density": 3,
-   "iconDensity": 1
+   "iconDensity": 1,
+   "densities": {
+    "2": {
+     "sprite": "source_hitech_d2",
+     "frameW": 67,
+     "frameH": 80,
+     "pivot": [
+      33,
+      79
+     ],
+     "points": {
+      "laptop": [
+       16,
+       35
+      ]
+     },
+     "density": 2
+    }
+   }
   },
   "vat": {
    "sprite": "source_vat",
@@ -2332,7 +3665,20 @@
    "origin": "render-down",
    "density": 3,
    "iconDensity": 1,
-   "fallback": "the ref has no hanging \"18%\" tag (the plate is bolted on): bob"
+   "fallback": "the ref has no hanging \"18%\" tag (the plate is bolted on): bob",
+   "densities": {
+    "2": {
+     "sprite": "source_vat_d2",
+     "frameW": 71,
+     "frameH": 80,
+     "pivot": [
+      35,
+      79
+     ],
+     "points": {},
+     "density": 2
+    }
+   }
   },
   "cigars": {
    "sprite": "source_cigars",
@@ -2349,7 +3695,20 @@
    "origin": "render-down",
    "density": 3,
    "iconDensity": 1,
-   "fallback": "the ref has no smoke wisp or champagne bubbles: bob"
+   "fallback": "the ref has no smoke wisp or champagne bubbles: bob",
+   "densities": {
+    "2": {
+     "sprite": "source_cigars_d2",
+     "frameW": 68,
+     "frameH": 80,
+     "pivot": [
+      34,
+      79
+     ],
+     "points": {},
+     "density": 2
+    }
+   }
   },
   "qatari": {
    "sprite": "source_qatari",
@@ -2366,7 +3725,20 @@
    "origin": "render-down",
    "density": 3,
    "iconDensity": 1,
-   "fallback": "two aides, no phone: the glance is both heads leaning 1 ap toward the whisper"
+   "fallback": "two aides, no phone: the glance is both heads leaning 1 ap toward the whisper",
+   "densities": {
+    "2": {
+     "sprite": "source_qatari_d2",
+     "frameW": 74,
+     "frameH": 80,
+     "pivot": [
+      37,
+      79
+     ],
+     "points": {},
+     "density": 2
+    }
+   }
   },
   "checkbook": {
    "sprite": "source_checkbook",
@@ -5356,12 +6728,28 @@
     289
    ]
   },
+  "cast/abbas_idle_d2.png": {
+   "bytes": 38747,
+   "sha": "0d5d4d53ccbded26",
+   "size": [
+    588,
+    193
+   ]
+  },
   "cast/abbas_react.png": {
    "bytes": 63611,
    "sha": "4b0a185bf1840999",
    "size": [
     725,
     289
+   ]
+  },
+  "cast/abbas_react_d2.png": {
+   "bytes": 33622,
+   "sha": "697312995664e66f",
+   "size": [
+    490,
+    193
    ]
   },
   "cast/amsalem_idle.png": {
@@ -5372,12 +6760,28 @@
     584
    ]
   },
+  "cast/amsalem_idle_d2.png": {
+   "bytes": 122015,
+   "sha": "4597c22bd929a790",
+   "size": [
+    1370,
+    390
+   ]
+  },
   "cast/amsalem_react.png": {
    "bytes": 179804,
    "sha": "92a9b6965695a779",
    "size": [
     1020,
     292
+   ]
+  },
+  "cast/amsalem_react_d2.png": {
+   "bytes": 96674,
+   "sha": "32d8eb126f7f33cb",
+   "size": [
+    685,
+    195
    ]
   },
   "cast/ben-gvir_idle.png": {
@@ -5388,12 +6792,28 @@
     584
    ]
   },
+  "cast/ben-gvir_idle_d2.png": {
+   "bytes": 128575,
+   "sha": "870fe7299983a970",
+   "size": [
+    1230,
+    390
+   ]
+  },
   "cast/ben-gvir_react.png": {
    "bytes": 171480,
    "sha": "ba3eeb472966d1e2",
    "size": [
     920,
     292
+   ]
+  },
+  "cast/ben-gvir_react_d2.png": {
+   "bytes": 93794,
+   "sha": "20534242d7764bef",
+   "size": [
+    615,
+    195
    ]
   },
   "cast/bennett_flip.png": {
@@ -5404,12 +6824,28 @@
     298
    ]
   },
+  "cast/bennett_flip_d2.png": {
+   "bytes": 111970,
+   "sha": "77f40dd6a9d415f2",
+   "size": [
+    928,
+    199
+   ]
+  },
   "cast/bennett_idle.png": {
    "bytes": 138435,
    "sha": "c38d380765b4e67d",
    "size": [
     1211,
     596
+   ]
+  },
+  "cast/bennett_idle_d2.png": {
+   "bytes": 46554,
+   "sha": "b4c8370c3481d202",
+   "size": [
+    1624,
+    199
    ]
   },
   "cast/bibi_crit.png": {
@@ -5468,12 +6904,28 @@
     620
    ]
   },
+  "cast/deri_idle_d2.png": {
+   "bytes": 78499,
+   "sha": "55c6b7347aa21c6b",
+   "size": [
+    1960,
+    206
+   ]
+  },
   "cast/deri_react.png": {
    "bytes": 255460,
    "sha": "7fb8cf538f4a79cf",
    "size": [
     1029,
     310
+   ]
+  },
+  "cast/deri_react_d2.png": {
+   "bytes": 125803,
+   "sha": "899af2c1626478cd",
+   "size": [
+    686,
+    206
    ]
   },
   "cast/distel_idle.png": {
@@ -5484,12 +6936,28 @@
     584
    ]
   },
+  "cast/distel_idle_d2.png": {
+   "bytes": 96064,
+   "sha": "1841d2c8f7fd92fc",
+   "size": [
+    1250,
+    390
+   ]
+  },
   "cast/distel_react.png": {
    "bytes": 153239,
    "sha": "2e7b8740a29fe988",
    "size": [
     940,
     292
+   ]
+  },
+  "cast/distel_react_d2.png": {
+   "bytes": 80246,
+   "sha": "8c0cf43effad0318",
+   "size": [
+    625,
+    195
    ]
   },
   "cast/dubi-mic_idle.png": {
@@ -5500,12 +6968,28 @@
     578
    ]
   },
+  "cast/dubi-mic_idle_d2.png": {
+   "bytes": 124038,
+   "sha": "581acdb760961775",
+   "size": [
+    1330,
+    386
+   ]
+  },
   "cast/dubi-mic_talk.png": {
    "bytes": 56455,
    "sha": "1e1142d058503541",
    "size": [
     396,
     289
+   ]
+  },
+  "cast/dubi-mic_talk_d2.png": {
+   "bytes": 31524,
+   "sha": "7bf1f932e21a8baa",
+   "size": [
+    266,
+    193
    ]
   },
   "cast/eisenkot_idle.png": {
@@ -5516,12 +7000,28 @@
     310
    ]
   },
+  "cast/eisenkot_idle_d2.png": {
+   "bytes": 36716,
+   "sha": "8013f3c86550b3b5",
+   "size": [
+    594,
+    206
+   ]
+  },
   "cast/eisenkot_react.png": {
    "bytes": 228681,
    "sha": "a0f13212c57f4ae9",
    "size": [
     1029,
     310
+   ]
+  },
+  "cast/eisenkot_react_d2.png": {
+   "bytes": 125468,
+   "sha": "ea853b8e18b5d377",
+   "size": [
+    693,
+    206
    ]
   },
   "cast/gafni_idle.png": {
@@ -5532,12 +7032,28 @@
     292
    ]
   },
+  "cast/gafni_idle_d2.png": {
+   "bytes": 42142,
+   "sha": "f5bbda46782b3c62",
+   "size": [
+    654,
+    195
+   ]
+  },
   "cast/gafni_react.png": {
    "bytes": 208306,
    "sha": "22cc14f78aa9c9d5",
    "size": [
     1296,
     292
+   ]
+  },
+  "cast/gafni_react_d2.png": {
+   "bytes": 94718,
+   "sha": "4d509a5c1133391d",
+   "size": [
+    872,
+    195
    ]
   },
   "cast/gantz_idle.png": {
@@ -5548,12 +7064,28 @@
     584
    ]
   },
+  "cast/gantz_idle_d2.png": {
+   "bytes": 50124,
+   "sha": "130cf8257cf5fc24",
+   "size": [
+    1640,
+    195
+   ]
+  },
   "cast/gantz_react.png": {
    "bytes": 113917,
    "sha": "e7a81dee92789429",
    "size": [
     615,
     292
+   ]
+  },
+  "cast/gantz_react_d2.png": {
+   "bytes": 59123,
+   "sha": "e15340428a7db134",
+   "size": [
+    410,
+    195
    ]
   },
   "cast/golan_idle.png": {
@@ -5564,12 +7096,28 @@
     309
    ]
   },
+  "cast/golan_idle_d2.png": {
+   "bytes": 38849,
+   "sha": "5d576c25a891485c",
+   "size": [
+    672,
+    206
+   ]
+  },
   "cast/golan_react.png": {
    "bytes": 224251,
    "sha": "34c07f28d36f7a6d",
    "size": [
     1169,
     309
+   ]
+  },
+  "cast/golan_react_d2.png": {
+   "bytes": 119793,
+   "sha": "5cd5b601eee2f930",
+   "size": [
+    784,
+    206
    ]
   },
   "cast/goldknopf_idle.png": {
@@ -5580,12 +7128,28 @@
     309
    ]
   },
+  "cast/goldknopf_idle_d2.png": {
+   "bytes": 42554,
+   "sha": "1aa8026eb324a4e7",
+   "size": [
+    750,
+    206
+   ]
+  },
   "cast/goldknopf_react.png": {
    "bytes": 263908,
    "sha": "a09f0a31913c3905",
    "size": [
     1323,
     309
+   ]
+  },
+  "cast/goldknopf_react_d2.png": {
+   "bytes": 138259,
+   "sha": "fe2a314201c9d29f",
+   "size": [
+    875,
+    206
    ]
   },
   "cast/gotliv_idle.png": {
@@ -5596,12 +7160,28 @@
     584
    ]
   },
+  "cast/gotliv_idle_d2.png": {
+   "bytes": 128332,
+   "sha": "37efc788a5bf2e04",
+   "size": [
+    1340,
+    390
+   ]
+  },
   "cast/gotliv_react.png": {
    "bytes": 181349,
    "sha": "fe5a7d3996e9a2d5",
    "size": [
     1000,
     292
+   ]
+  },
+  "cast/gotliv_react_d2.png": {
+   "bytes": 95515,
+   "sha": "dc7efbba0f2433fb",
+   "size": [
+    670,
+    195
    ]
   },
   "cast/herzog_idle.png": {
@@ -5612,12 +7192,28 @@
     596
    ]
   },
+  "cast/herzog_idle_d2.png": {
+   "bytes": 99843,
+   "sha": "dcd91a7f766a9896",
+   "size": [
+    1100,
+    398
+   ]
+  },
   "cast/herzog_react.png": {
    "bytes": 188382,
    "sha": "10333fcddfe93b1f",
    "size": [
     1141,
     298
+   ]
+  },
+  "cast/herzog_react_d2.png": {
+   "bytes": 97523,
+   "sha": "4217b9e884d5029e",
+   "size": [
+    770,
+    199
    ]
   },
   "cast/karhi_idle.png": {
@@ -5628,12 +7224,28 @@
     584
    ]
   },
+  "cast/karhi_idle_d2.png": {
+   "bytes": 94957,
+   "sha": "b2bfb032dc9b2f34",
+   "size": [
+    1040,
+    390
+   ]
+  },
   "cast/karhi_react.png": {
    "bytes": 145791,
    "sha": "cbeb225bded65ba5",
    "size": [
     775,
     292
+   ]
+  },
+  "cast/karhi_react_d2.png": {
+   "bytes": 75201,
+   "sha": "f3adc7dddcb51443",
+   "size": [
+    520,
+    195
    ]
   },
   "cast/lapid_idle.png": {
@@ -5644,12 +7256,28 @@
     1240
    ]
   },
+  "cast/lapid_idle_d2.png": {
+   "bytes": 90127,
+   "sha": "869727b52503cea2",
+   "size": [
+    1410,
+    412
+   ]
+  },
   "cast/lapid_react.png": {
    "bytes": 258363,
    "sha": "87bb37c7286c506d",
    "size": [
     1470,
     310
+   ]
+  },
+  "cast/lapid_react_d2.png": {
+   "bytes": 122062,
+   "sha": "2793ed7ac1bc23ab",
+   "size": [
+    987,
+    206
    ]
   },
   "cast/levin_idle.png": {
@@ -5660,12 +7288,28 @@
     588
    ]
   },
+  "cast/levin_idle_d2.png": {
+   "bytes": 115674,
+   "sha": "0be9deb44abdc939",
+   "size": [
+    1110,
+    392
+   ]
+  },
   "cast/levin_react.png": {
    "bytes": 198482,
    "sha": "31bdec7f20cd2714",
    "size": [
     1155,
     294
+   ]
+  },
+  "cast/levin_react_d2.png": {
+   "bytes": 101013,
+   "sha": "8f5a14f444985177",
+   "size": [
+    777,
+    196
    ]
   },
   "cast/liberman_idle.png": {
@@ -5676,12 +7320,28 @@
     289
    ]
   },
+  "cast/liberman_idle_d2.png": {
+   "bytes": 42333,
+   "sha": "7320873e432a096e",
+   "size": [
+    564,
+    193
+   ]
+  },
   "cast/liberman_react.png": {
    "bytes": 63606,
    "sha": "0c4f3f7abbcbaf9f",
    "size": [
     710,
     289
+   ]
+  },
+  "cast/liberman_react_d2.png": {
+   "bytes": 33768,
+   "sha": "aaee52075a25afbc",
+   "size": [
+    470,
+    193
    ]
   },
   "cast/may-golan_idle.png": {
@@ -5692,12 +7352,28 @@
     310
    ]
   },
+  "cast/may-golan_idle_d2.png": {
+   "bytes": 55442,
+   "sha": "bd0e94a0394f7b64",
+   "size": [
+    816,
+    206
+   ]
+  },
   "cast/may-golan_react.png": {
    "bytes": 328019,
    "sha": "889e5e5922efa2c5",
    "size": [
     1428,
     310
+   ]
+  },
+  "cast/may-golan_react_d2.png": {
+   "bytes": 170579,
+   "sha": "f4a29f2adcbbdda6",
+   "size": [
+    952,
+    206
    ]
   },
   "cast/regev_idle.png": {
@@ -5708,12 +7384,28 @@
     309
    ]
   },
+  "cast/regev_idle_d2.png": {
+   "bytes": 50140,
+   "sha": "8828b498051ae924",
+   "size": [
+    816,
+    206
+   ]
+  },
   "cast/regev_react.png": {
    "bytes": 306855,
    "sha": "0a65d8aa94df79b3",
    "size": [
     1428,
     309
+   ]
+  },
+  "cast/regev_react_d2.png": {
+   "bytes": 161669,
+   "sha": "568d494c82898e69",
+   "size": [
+    952,
+    206
    ]
   },
   "cast/sara_idle.png": {
@@ -5724,12 +7416,28 @@
     600
    ]
   },
+  "cast/sara_idle_d2.png": {
+   "bytes": 67008,
+   "sha": "ae0524622125a7c5",
+   "size": [
+    1484,
+    201
+   ]
+  },
   "cast/sara_offended.png": {
    "bytes": 235506,
    "sha": "cacc79641a511a33",
    "size": [
     1256,
     300
+   ]
+  },
+  "cast/sara_offended_d2.png": {
+   "bytes": 120133,
+   "sha": "2c0ae31428eb0663",
+   "size": [
+    848,
+    201
    ]
   },
   "cast/smotrich_idle.png": {
@@ -5740,12 +7448,28 @@
     292
    ]
   },
+  "cast/smotrich_idle_d2.png": {
+   "bytes": 44186,
+   "sha": "baa357abfa18913e",
+   "size": [
+    618,
+    195
+   ]
+  },
   "cast/smotrich_react.png": {
    "bytes": 154346,
    "sha": "36591dfd2e7266fa",
    "size": [
     612,
     292
+   ]
+  },
+  "cast/smotrich_react_d2.png": {
+   "bytes": 81736,
+   "sha": "204e5328f6980042",
+   "size": [
+    412,
+    195
    ]
   },
   "cast/trump_idle.png": {
@@ -5756,12 +7480,28 @@
     584
    ]
   },
+  "cast/trump_idle_d2.png": {
+   "bytes": 137419,
+   "sha": "2b6812cdb84d52a8",
+   "size": [
+    1290,
+    390
+   ]
+  },
   "cast/trump_react.png": {
    "bytes": 176222,
    "sha": "222b04f36f943ff2",
    "size": [
     960,
     292
+   ]
+  },
+  "cast/trump_react_d2.png": {
+   "bytes": 89706,
+   "sha": "2db6f45138434760",
+   "size": [
+    645,
+    195
    ]
   },
   "chat_bubble_in.png": {
@@ -6476,6 +8216,14 @@
     120
    ]
   },
+  "source_cigars_d2.png": {
+   "bytes": 8988,
+   "sha": "05fa539ca253e057",
+   "size": [
+    136,
+    80
+   ]
+  },
   "source_cigars_icon.png": {
    "bytes": 1257,
    "sha": "f23a73b42d2c3948",
@@ -6498,6 +8246,14 @@
    "size": [
     200,
     120
+   ]
+  },
+  "source_hitech_d2.png": {
+   "bytes": 6618,
+   "sha": "1ef6f7028b3a7160",
+   "size": [
+    134,
+    80
    ]
   },
   "source_hitech_icon.png": {
@@ -6548,6 +8304,14 @@
     120
    ]
   },
+  "source_qatari_d2.png": {
+   "bytes": 8333,
+   "sha": "613732a9794971e8",
+   "size": [
+    148,
+    80
+   ]
+  },
   "source_qatari_icon.png": {
    "bytes": 1239,
    "sha": "471e1bf7744bb212",
@@ -6596,6 +8360,14 @@
     120
    ]
   },
+  "source_taxpayer_d2.png": {
+   "bytes": 7576,
+   "sha": "14951ef1bba68a6c",
+   "size": [
+    102,
+    80
+   ]
+  },
   "source_taxpayer_icon.png": {
    "bytes": 899,
    "sha": "a4db00e41f1355b5",
@@ -6618,6 +8390,14 @@
    "size": [
     212,
     120
+   ]
+  },
+  "source_vat_d2.png": {
+   "bytes": 9063,
+   "sha": "caebcf89cb971c45",
+   "size": [
+    142,
+    80
    ]
   },
   "source_vat_icon.png": {

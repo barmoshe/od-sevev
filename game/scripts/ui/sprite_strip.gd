@@ -29,6 +29,11 @@ var frame := 0
 var scale_px := 4.0
 ## Sprite px per art px of the variant in use (sprites.json density; 1 when absent).
 var density := 1
+## Logical px per ART px this strip is drawn at; 0 = the stage's artScale. A view that draws a
+## figure at its own integer art scale (the partner card ×3, the ultimatum cameo, Dubi's flash)
+## sets it through set_art_px, so the density variant is picked for the device px per art px the
+## figure actually gets (art_px · Display.f), not for Display.k (CONTRACT.md §3).
+var art_px := 0.0
 ## How a sprite is sampled when a sprite px is not a whole number of device px (k % density != 0):
 ## "aa" (default) = nearest texels with a one-device-px antialiased seam (the pixel-art AA shader:
 ## every sprite px keeps its size, edges get one blended device px instead of a 1-or-2 px stutter);
@@ -113,23 +118,42 @@ static func pick_variant(c: Dictionary, k: int) -> Dictionary:
 	return best
 
 
-## The device scale changed (Display.k): every strip re-picks its density variant and filter,
-## and every other density-aware sprite (apply_filter) re-picks its filter.
+## The device px per art px a figure drawn at `art` logical px per art px gets, as the k that
+## pick_variant keys on: Display.k at the stage's artScale; for a view's own art scale, art · f
+## when that is a whole number of device px, else Display.k (no variant is crisp there anyway).
+static func device_k(art: float) -> int:
+	if art <= 0.0 or is_equal_approx(art, float(art_scale())) or not Display.integer:
+		return Display.k
+	var dev := art * Display.f
+	return int(roundf(dev)) if is_equal_approx(dev, roundf(dev)) else Display.k
+
+
+## Draws this strip at `art` logical px per art px (0 = the stage's artScale): re-picks the density
+## variant for the device px per art px that gives (device_k), sets scale_px = art / density and
+## the filter, and restarts the current anim on the new variant's texture.
+func set_art_px(art: float) -> void:
+	art_px = art
+	var a := art if art > 0.0 else float(art_scale())
+	_c = pick_variant(manifest()["chars"][char_id], device_k(art))
+	density = density_of(_c)
+	scale_px = a / density
+	_setup_filter()
+	var cur := anim
+	anim = ""
+	if cur != "":
+		play(cur)
+	queue_redraw()
+
+
+## The device scale changed (Display.k): every strip re-picks its density variant and filter (at
+## its own art_px), and every other density-aware sprite (apply_filter) re-picks its filter.
 static func refresh_all(tree: SceneTree) -> void:
 	if tree == null:
 		return
 	for n in tree.get_nodes_in_group("density_art"):
 		apply_filter(n as CanvasItem, float(n.get_meta("scale_px", float(art_scale()))))
 	for n in tree.get_nodes_in_group("spritestrip"):
-		var st := n as SpriteStrip
-		st._c = pick_variant(manifest()["chars"][st.char_id], Display.k)
-		st.density = density_of(st._c)
-		st.scale_px = scale_of(st._c)
-		st._setup_filter()
-		var a := st.anim
-		st.anim = ""
-		if a != "":
-			st.play(a)
+		(n as SpriteStrip).set_art_px((n as SpriteStrip).art_px)
 
 
 func _setup_filter() -> void:

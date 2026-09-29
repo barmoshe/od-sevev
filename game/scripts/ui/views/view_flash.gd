@@ -16,9 +16,12 @@ extends Overlay
 ##                 replay (T4) has SYS_CLOSE only. Backdrop / Esc / back = FLASH_SKIP.
 ##
 ## Dubi's scale: ×4, ×3 or ×2 art px (always an integer art scale). Of the ones that fit the band,
-## the largest that makes one sprite px a whole number of device px wins (k 4 → ×3 = 1 dp, k 6 →
-## ×4 = 2 dp, k 8 → ×3 = 2 dp); with none (k 2, 7) the largest that fits, on SpriteStrip's "aa"
-## filter. The size and density come from the manifest (sprites.json), never from here.
+## the largest that makes one sprite px a whole number of device px for one of the figure's
+## densities wins (d 3 main + d 2 alternate: k 2, 4, 6, 8 → ×4 = 1, 2, 2, 4 dp per sprite px on
+## the d 2, d 2, d 3, d 2),
+## and the strip draws that density (SpriteStrip.set_art_px); with none (k 7) the largest that
+## fits, on SpriteStrip's "aa" filter. The size and densities come from the manifest
+## (sprites.json), never from here.
 ##
 ## Talk: the beak follows the Audio's `dubi_blip` (state-graph-dubi §3): talk.f1 for 60 ms per
 ## blip, then talk.f0; idle again 250 ms after the last blip.
@@ -83,10 +86,15 @@ static var recent_points: Array[String] = []
 # =============================================================================================
 
 ## The art scale for the mic Dubi (see the header): `fits(s)` says whether the card fits at ×s.
-static func pick_art_scale(k: int, density: int, fits: Callable, scales: Array = ART_SCALES) -> int:
+## `density` is the figure's density, or an Array of every density it ships (the main render and
+## its `densities` alternates): a scale is crisp when any of them divides its device px per art px.
+static func pick_art_scale(k: int, density: Variant, fits: Callable, scales: Array = ART_SCALES) -> int:
+	var ds: Array = density if density is Array else [density]
 	for s: int in scales:
-		if fits.call(s) and (s * k) % (4 * maxi(1, density)) == 0:
-			return s
+		if fits.call(s):
+			for d: Variant in ds:
+				if (s * k) % (4 * maxi(1, int(d))) == 0:
+					return s
 	for s: int in scales:
 		if fits.call(s):
 			return s
@@ -186,7 +194,10 @@ func build() -> FlashCard:
 	var dens := SpriteStrip.density_of(c) if not c.is_empty() else 1
 	var fig_art_h := float(c.get("frameH", 0)) / float(dens)
 	var avail := band.y - band.x - 2.0 * BAND_MARGIN
-	art_scale = pick_art_scale(Display.k, dens,
+	var all_dens: Array = [dens]
+	for dk: Variant in c.get("densities", {}):
+		all_dens.append(int(str(dk)))
+	art_scale = pick_art_scale(Display.k, all_dens,
 		func(sc: int) -> bool: return fixed + _screen_h(fig_art_h * sc) <= avail)
 	var screen_h := _screen_h(fig_art_h * art_scale)
 	var h := fixed + screen_h
@@ -261,8 +272,7 @@ func _build_screen(_s: GameState) -> void:
 	strip = SpriteStrip.make(clip, "dubi-mic", Vector2.ZERO, "idle")
 	if strip != null:
 		strip.remove_from_group("spritestrip")   # its scale is the card's, not artScale/d
-		strip.scale_px = float(art_scale) / float(strip.density)
-		strip._setup_filter()
+		strip.set_art_px(float(art_scale))   # the density variant crisp at ×art_scale (d 2 at ×4 on k 4)
 		var fw := strip.frame_size().x
 		strip.position = Vector2(Ui.snap(maxf(fw / 2.0 + 24.0, SCREEN_W * 0.3), 4), feet_y)
 		strip.queue_redraw()
@@ -332,7 +342,7 @@ func update_view(dt_ms: float) -> void:
 		return
 	if Display.k != _k:
 		_k = Display.k
-		strip._setup_filter()
+		strip.set_art_px(float(art_scale))   # re-pick the density variant (and filter) for the new k
 	if strip.anim == "talk":
 		if _talk_open > 0.0:
 			_talk_open -= dt_ms

@@ -338,13 +338,25 @@ def _frame(tex, spec, i=0):
     return tex.crop((x, y, x + fw, y + fh))
 
 
-def proof_cast(manifest, Z=3):
+def pick(entry, k):
+    """SpriteStrip.pick_variant in Python: the render (main or a `densities` alternate) with the largest
+    density dividing k, merged over the main entry; the main render when none divides k."""
+    best, best_d = entry, (entry.get("density", 1) if k % entry.get("density", 1) == 0 else 0)
+    for dk, alt in entry.get("densities", {}).items():
+        if k % int(dk) == 0 and int(dk) > best_d:
+            best, best_d = {**{x: y for x, y in entry.items() if x != "densities"}, **alt, "density": int(dk)}, int(dk)
+    return best
+
+
+def proof_cast(manifest, Z=3, k=None, name="sprites-contact.png"):
     """Everything on one sheet at ART x Z (a density-d texture at Z/d per sprite px), so the cast's 3x
-    detail and the 1x stage, props and UI sit on one grid, the way the renderer will draw them."""
+    detail and the 1x stage, props and UI sit on one grid, the way the renderer will draw them.
+    k: draw each character and source as SpriteStrip picks it for device scale k (Z = k = 4: the d 2
+    alternates, as a DPR-2 phone draws them)."""
     D_ = S.DEST
     load = lambda sid: Image.open(os.path.join(D_, sid + ".png")).convert("RGBA")
     up = lambda im, d: im.resize((im.width * Z // d, im.height * Z // d), Image.NEAREST)
-    chars = manifest["chars"]
+    chars = {n: (pick(c, k) if k else c) for n, c in manifest["chars"].items()}
     per_row, cell_w, cell_h = 8, 90 * Z, 150 * Z
     rows = -(-len(chars) // per_row)
     W = 180 * Z + 8 * Z + per_row * cell_w
@@ -368,6 +380,7 @@ def proof_cast(manifest, Z=3):
             img.alpha_composite(av, (cx - av.width // 2, base + 2 * Z))
     x, y = 4 * Z, max(320 * Z, rows * cell_h) + 4 * Z
     for sid, s in sorted(manifest.get("sources", {}).items()):
+        s = pick(s, k) if k else s
         strip = load(s["sprite"])
         for i in range(2):
             fr = up(_frame(strip, s, i), s.get("density", 1))
@@ -378,7 +391,7 @@ def proof_cast(manifest, Z=3):
         im = up(load(sid), 1)
         img.alpha_composite(im, (x, y))
         x += im.width + 4 * Z
-    p = os.path.join(PROOFS, "sprites-contact.png")
+    p = os.path.join(PROOFS, name)
     img.save(p)
     return p
 
@@ -600,6 +613,7 @@ def main():
     font, font2, fstats = build_font()
     log("proof: " + proof_glyphs(font))
     log("proof: " + proof_cast(manifest))
+    log("proof: " + proof_cast(manifest, Z=4, k=4, name="sprites-contact-k4.png"))   # the d 2 renders, as k 4 draws them
     log("proof: " + proof_stage(manifest))
     for dk in manifest["chars"].get("bibi", {}).get("densities", {}):
         z = next(k for k in (4, 2, 8) if k % int(dk) == 0)      # the phone scale the alternate is for
@@ -617,29 +631,44 @@ def main():
 
     # typical resident set (lazy per-character loading): the Magician's strips, one stage, the small Dubi,
     # every money source, the UI kit, avatars, props/FX and the fonts. Partners load when their scene opens.
+    # SpriteStrip loads only the render pick_variant picks for the device's k, so one density of each
+    # character (and, once the diorama picks too, of each source) is resident at a time: the budget is per k.
     def resident(rel):
         n = os.path.basename(rel)
+        if n.startswith("source_") and not n.endswith(("_icon.png", "_icon_sil.png")) and rel in src_strips:
+            return False                                   # the rendered sources' stage strips: per k, below
         return (n.startswith(("stage_balfour", "dubi_small_", "source_", "avatar", "prop_", "fx_"))
                 or os.path.splitext(n)[0] in manifest["ui"])
+    src_strips = {v["sprite"] + ".png" for s_ in manifest["sources"].values() if s_.get("origin") == "render-down"
+                  for v in [s_] + list(s_.get("densities", {}).values())}
     tex = lambda rel: manifest["files"][rel]["size"][0] * manifest["files"][rel]["size"][1] * 4
-    # the Magician: SpriteStrip loads only the render pick_variant picks for the device's k, so one
-    # of his densities is resident at a time (d 2 at k 2/4/8, d 3 at k 6/9 and on the "aa" path at k 7)
-    bibi = manifest["chars"].get("bibi", {})
-    bibi_sets = {str(bibi.get("density", 1)): {a["texture"] for a in bibi.get("anims", {}).values()}}
-    bibi_sets.update({k: {a["texture"] for a in v["anims"].values()} for k, v in bibi.get("densities", {}).items()})
-    budget["vramBibi"] = {k: sum(tex(r) for r in s) for k, s in bibi_sets.items()}
+    char_tex = lambda c: sum(tex(a["texture"]) for a in c["anims"].values() if a["texture"] in manifest["files"])
+    budget["vramByDensity"] = {n: {str(v.get("density", 1)): char_tex({**c, **v}) for v in [c] + list(c.get("densities", {}).values())}
+                               for n, c in manifest["chars"].items()}
+    budget["vramBibi"] = budget["vramByDensity"].get("bibi", {})
     base = sum(tex(rel) for rel in manifest["files"] if resident(rel)) + sum(st["page"][0] * st["page"][1] * 4 for st in fstats)
-    budget["vramTypicalByBibiDensity"] = {k: base + v for k, v in budget["vramBibi"].items()}
-    budget["vramTypical"] = max(budget["vramTypicalByBibiDensity"].values())      # the worst k
+    budget["vramTypicalByK"], budget["vramSourcesByK"], budget["vramPerPartnerByK"] = {}, {}, {}
+    for k in (2, 3, 4, 6, 7, 8, 9):
+        budget["vramSourcesByK"][str(k)] = sum(tex(pick(s_, k)["sprite"] + ".png") for s_ in manifest["sources"].values()
+                                               if pick(s_, k)["sprite"] + ".png" in src_strips)
+        budget["vramTypicalByK"][str(k)] = base + budget["vramSourcesByK"][str(k)] + char_tex(pick(manifest["chars"]["bibi"], k))
+        budget["vramPerPartnerByK"][str(k)] = {n: char_tex(pick(c, k)) for n, c in manifest["chars"].items() if n != "bibi"}
+    budget["vramTypical"] = max(budget["vramTypicalByK"].values())      # the worst k
     budget["vramCastAll"] = sum(tex(rel) for rel in manifest["files"] if rel.startswith("cast/"))
-    budget["vramPerPartner"] = {n: sum(manifest["files"][c["anims"][k]["texture"]]["size"][0] *
-                                       manifest["files"][c["anims"][k]["texture"]]["size"][1] * 4 for k in c["anims"])
-                                for n, c in manifest["chars"].items() if n != "bibi"}
+    budget["vramPerPartner"] = budget["vramPerPartnerByK"]["6"]          # the main (d 3) renders
     if a.godot:
         godot_import()
         rows = measure(manifest)
         budget["imported"] = rows
         budget["pckBytes"] = sum(r["imported"] or 0 for r in rows)
+        imp = {r["file"]: r["imported"] or 0 for r in rows}
+        budget["pckByAsset"] = {}                         # per rendered character / source: {density: .pck bytes}
+        for n, c in manifest["chars"].items():
+            budget["pckByAsset"][n] = {str(v["density"]): sum(imp.get("assets/sprites/" + t["texture"], 0) for t in v["anims"].values())
+                                       for v in [c] + list(c.get("densities", {}).values())}
+        for sid, s_ in manifest["sources"].items():
+            budget["pckByAsset"]["source_" + sid] = {str(v["density"]): imp.get(f"assets/sprites/{v['sprite']}.png", 0)
+                                                     for v in [s_] + list(s_.get("densities", {}).values())}
         missing = [r["file"] for r in rows if r["imported"] is None]
         if missing:
             raise SystemExit("FAIL Godot did not import: " + ", ".join(missing))
@@ -671,7 +700,7 @@ def main():
     budget["sourceTotal"] = sum(budget["sourceBytes"].values())
     json.dump(budget, open(os.path.join(HERE, "budget.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     log(f"budget: source {budget['sourceTotal']:,} B, VRAM typical {budget['vramTypical']:,} B "
-        f"(by Bibi density {budget['vramTypicalByBibiDensity']}; cast all {budget['vramCastAll']:,} B; "
+        f"(by k {budget['vramTypicalByK']}; cast all {budget['vramCastAll']:,} B; "
         f"all resident {budget['vramBytes']:,} B)"
         + (f", web .pck {budget['pckBytes']:,} B" if "pckBytes" in budget else ""))
     log(f"done in {time.time() - t0:.1f}s" + (f" with {len(warns)} waived warnings" if warns else ""))

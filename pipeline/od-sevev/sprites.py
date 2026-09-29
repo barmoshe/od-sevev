@@ -140,6 +140,14 @@ def variants(d):
     return [("", d)] + [(f"@d{k}", v) for k, v in sorted(d.get("densities", {}).items())]
 
 
+LANDMARK_TOL = 0.5   # art px: a density alternate's landmark vs the main render's, relative to the feet
+
+
+def _art_rel(p, anchor, dens):
+    """A sprite-px point as art px relative to the feet (anchor), so two densities compare."""
+    return ((p[0] - anchor[0]) / dens, (p[1] - anchor[1]) / dens)
+
+
 def validate_char(name, d, src):
     errs, warns = [], []
     for label, v in variants(d):
@@ -153,13 +161,54 @@ def validate_char(name, d, src):
         for anim, m in v["anims"].items():
             base = d["anims"].get(anim, {})
             for key in ("frames", "fps", "loop", "events"):
-                if key in base and m.get(key, {} if key == "events" else None) != base[key]:
-                    errs.append(f"{name}{label}.{anim}: {key} {m.get(key)} != the main render's {base[key]} "
+                if key not in base or m.get(key, {} if key == "events" else None) != base[key]:
+                    errs.append(f"{name}{label}.{anim}: {key} {m.get(key)} != the main render's {base.get(key)} "
                                 "(a density alternate is the same motion: only pixels and sprite-px data differ)")
             for key in POINT_TRACKS:
                 if (key in base) != (key in m):
                     errs.append(f"{name}{label}.{anim}: {key} present in one render and not the other")
+                elif key in m and len(m[key]) == len(base[key]):
+                    off = max(max(abs(a - b) for a, b in zip(_art_rel(p, v["anchor"], v["density"]),
+                                                             _art_rel(q, d["anchor"], d["density"])))
+                              for p, q in zip(m[key], base[key]))
+                    if off > LANDMARK_TOL:
+                        errs.append(f"{name}{label}.{anim}: {key} is {off:.2f} art px off the main render's "
+                                    f"(max {LANDMARK_TOL})")
     return errs, warns
+
+
+def validate_source_alt(sid, main, alt, src):
+    """A money source's density alternate: its own strip, the same timing and named points as the main one."""
+    errs = []
+    dens = alt.get("density", 1)
+    for key in ("frames", "fps", "loop"):
+        if alt.get(key) != main.get(key):
+            errs.append(f"{key} {alt.get(key)} != the main render's {main.get(key)}")
+    if set(alt.get("points", {})) != set(main.get("points", {})):
+        errs.append(f"points {sorted(alt.get('points', {}))} != the main render's {sorted(main.get('points', {}))}")
+    for k, p in alt.get("points", {}).items():
+        q = main["points"].get(k)
+        if q is not None:
+            off = max(abs(a - b) for a, b in zip(_art_rel(p, alt["anchor"], dens),
+                                                 _art_rel(q, main["anchor"], main.get("density", 1))))
+            if off > LANDMARK_TOL:
+                errs.append(f"point {k} is {off:.2f} art px off the main render's")
+    p = os.path.join(src, alt["file"])
+    if not os.path.exists(p):
+        return errs + [f"missing {alt['file']}"]
+    im = Image.open(p)
+    a = _alpha(im)
+    if im.size != (alt["frameW"] * alt["frames"], alt["frameH"]):
+        errs.append(f"strip is {im.size}, expected {(alt['frameW'] * alt['frames'], alt['frameH'])}")
+    if im.width > MAX_TEX or im.height > MAX_TEX:
+        errs.append(f"strip is {im.size}, over {MAX_TEX}")
+    if ((a > 0) & (a < 255)).any():
+        errs.append("semi-transparent pixels")
+    errs += [f"content on the frame edge in frame {i}" for i in range(alt["frames"])
+             if a[:, i * alt["frameW"]].any() or a[:, (i + 1) * alt["frameW"] - 1].any()]
+    if alt["frameH"] != 40 * dens:
+        errs.append(f"frameH is {alt['frameH']}, expected {40 * dens} (40 art px x density)")
+    return [f"source {sid}@d{alt.get('density')}: {e}" for e in errs]
 
 
 def _validate_variant(name, d, src, waived=False):
@@ -366,6 +415,9 @@ def import_sprites(src, log, provenance):
         p = os.path.join(src, f"{name}_avatar.png")
         if os.path.exists(p) and Image.open(p).size != (32, 32):
             errs.append(f"{name}_avatar.png is not 32x32")
+    for sid, s in atlas.get("sources", {}).items():
+        for alt in s.get("densities", {}).values():
+            errs += validate_source_alt(sid, s, alt, src)
     if errs:
         raise SpriteError("\n  ".join(["sprite validation failed:"] + errs))
     for w in warns:
@@ -454,6 +506,16 @@ def import_sprites(src, log, provenance):
                         "iconDensity": s.get("iconDensity", 1)}
         if s.get("fallback"):
             sources[sid]["fallback"] = s["fallback"]
+        # density alternates (a second render at d, CONTRACT §4b): the same shape as chars[c].densities,
+        # so SpriteStrip.pick_variant(sources[id], k) merges one over the main entry
+        alts = {}
+        for dk, alt in sorted(s.get("densities", {}).items()):
+            aid = os.path.splitext(alt["file"])[0]
+            put(os.path.join(src, alt["file"]), f"{aid}.png")
+            alts[dk] = {"sprite": aid, "frameW": alt["frameW"], "frameH": alt["frameH"], "pivot": alt["anchor"],
+                        "points": alt.get("points", {}), "density": alt["density"]}
+        if alts:
+            sources[sid]["densities"] = alts
 
     # the 2D Artist's UI kit (art/od-sevev/ui-kit.json): flat, one PNG per piece id
     ui = {}
@@ -525,6 +587,12 @@ def import_sprites(src, log, provenance):
             c.update({"frameW": fw, "frameH": fh, "anchor": list(piv) or [fw // 2, fh - 1], "origin": "hand-drawn",
                       "density": 1})
             c.pop("placeholder", None)
+            for alt in c.pop("densities", {}).values():      # a render-down alternate of a hand-drawn character
+                for a in alt["anims"].values():
+                    for f in (a["texture"], a["texture"] + ".import"):
+                        if os.path.exists(os.path.join(DEST, f)):
+                            os.remove(os.path.join(DEST, f))
+                    written.remove(a["texture"])
             log(f"chars: {name} uses the 2D Artist's hand-drawn strips ({len(anims)} anims)")
         for pid, pc in ui.items():                       # hand-drawn sources join the same table
             if pc.get("group") == "sources" and pid.startswith("source_") and "frames" in pc:
@@ -552,8 +620,10 @@ def import_sprites(src, log, provenance):
         "root": "res://assets/sprites/",
         "artScale": 4,
         "densityNote": "density d = sprite px per art px. A density-d texture draws at artScale/d logical px per sprite "
-                       "px; it is crisp when the device scale k is a multiple of d. chars[c].densities holds alternates "
-                       "(Bibi: d 2 for k 2/4/8 beside the main d 3); frameMap maps a frame to its texture cell.",
+                       "px; it is crisp when the device scale k is a multiple of d. chars[c].densities and "
+                       "sources[id].densities hold alternates (every rendered character and source: d 2 beside the "
+                       "main d 3, so every k that is a multiple of 2 or 3 is crisp); frameMap maps a frame to its "
+                       "texture cell.",
         "artHeight": atlas.get("artHeight", 96),
         "magicianFeet": MAGICIAN_FEET,
         "chars": chars,
