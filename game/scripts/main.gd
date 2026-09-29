@@ -104,18 +104,12 @@ func _ready() -> void:
 
 
 ## `--device=WxH` shots: the whole scene renders into an offscreen SubViewport of exactly that many
-## device pixels (a phone's backing store can be taller than this monitor), with the same
-## content scale the window would get (size_2d_override = W/f × H/f).
+## device pixels (a phone's backing store can be taller than this monitor); `_apply_display`
+## gives it the same scale the window would get.
 func _enter_device_viewport() -> void:
 	var dev: Vector2i = _shot["device"]
-	Display.update(Vector2(dev))
 	var sv := SubViewport.new()
 	sv.size = dev
-	var sc := Display.f
-	if _shot.has("fork_scale"):
-		sc = minf(dev.x / float(L.W), dev.y / float(L.H))   # the fork's canvas_items + expand stretch
-	sv.size_2d_override = Vector2i(roundi(dev.x / sc), roundi(dev.y / sc))
-	sv.size_2d_override_stretch = true
 	sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	sv.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 	sv.snap_2d_transforms_to_pixel = true
@@ -184,6 +178,7 @@ func _read_content_override() -> void:
 
 ## Dev-only URL params on the web build (all ignored without ?dev=1): &speed=N multiplies game
 ## time, &grant=N adds bananas at boot, &evo=N sets the evolution count (era checks). Same contract as v1.1 (HOW-TO-RUN.md).
+## &forkscale=1 shows the fork's fractional stretch (the "before" of integer art scaling).
 func _read_dev_params() -> void:
 	if not OS.has_feature("web"):
 		return
@@ -191,6 +186,7 @@ func _read_dev_params() -> void:
 	if not q.contains("dev=1"):
 		return
 	_dev["on"] = true
+	_dev["forkscale"] = q.contains("forkscale=1")
 	for part in q.trim_prefix("?").split("&"):
 		var kv := part.split("=")
 		if kv.size() == 2 and (kv[0] == "speed" or kv[0] == "grant" or kv[0] == "evo"):
@@ -327,20 +323,36 @@ func _build_chat() -> void:
 var _in_relayout := false
 
 
-## Integer art scaling (core/display.gd): the window draws the logical canvas at f = k/4 device px
-## per logical px, so 1 art px = k whole device px at every size and DPR. Store screenshots with
-## --target keep their own viewport stretch.
+## Integer art scaling (core/display.gd, HOW-TO-RUN "Integer art scaling"): the viewport this
+## scene renders into draws the logical canvas at f = k/4 device px per logical px, one uniform
+## stretch transform, so 1 art px = k whole device px at every size and DPR, and Godot maps every
+## input event back to logical px through the same transform (hit tests never see device px).
+## - The window (web canvas, desktop, phone): stretch mode disabled + content_scale_factor f, so
+##   the logical viewport is W/f × H/f (the aspect-`expand` area grows instead of the scale).
+## - A SubViewport host (`--device` shots, the scaled-input tests): size_2d_override W/f × H/f.
+## - Too small for k = 1 (the headless test window), or `--fork-scale`: the fork's fractional
+##   canvas_items + expand stretch. Store shots with --target keep their own viewport stretch.
 func _apply_display() -> void:
-	if _shot.has("target") or _shot.has("fork_scale") or _shot.has("device"):
-		return   # store shots stretch to their target; --fork-scale shows the old fractional stretch;
-		# --device shots set the scale on their own SubViewport
-	var w := get_window()
-	var win := Vector2(w.size)
-	var changed := Display.update(win)
-	if w.content_scale_mode != Window.CONTENT_SCALE_MODE_DISABLED or not is_equal_approx(w.content_scale_factor, Display.f):
-		w.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
-		w.content_scale_factor = Display.f
-		changed = true
+	if _shot.has("target"):
+		return
+	var sv := get_viewport() as SubViewport
+	var dev := Vector2(sv.size) if sv else Vector2(get_window().size)
+	var changed := Display.update(dev, _shot.has("fork_scale") or bool(_dev.get("forkscale", false)))
+	if sv:
+		var ov := Vector2i(Display.logical_size(dev).floor())
+		if sv.size_2d_override != ov or not sv.size_2d_override_stretch:
+			sv.size_2d_override = ov
+			sv.size_2d_override_stretch = true
+			changed = true
+	else:
+		var w := get_window()
+		var mode := Window.CONTENT_SCALE_MODE_DISABLED if Display.integer else Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+		var fac := Display.f if Display.integer else 1.0
+		if w.content_scale_mode != mode or not is_equal_approx(w.content_scale_factor, fac):
+			w.content_scale_mode = mode
+			w.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+			w.content_scale_factor = fac
+			changed = true
 	if changed:
 		PxText.relayout_all(get_tree())
 		SpriteStrip.refresh_all(get_tree())
@@ -389,6 +401,12 @@ func _relayout() -> void:
 	var gy := _stage_y + L.stage_bottom() - 64.0
 	_title_ground.position = Vector2(0, gy)
 	_title_ground.size = Vector2(ceilf(W / 64.0) + 1.0, ceilf((_vs.y - gy) / 64.0) + 1.0) * 16.0
+	if OS.has_feature("web"):
+		# web debug, like window.odCueLog: the device scale and the section origins (logical px)
+		var hat := L.magician_hit().get_center() + Vector2(_ox, _stage_y)
+		JavaScriptBridge.eval("window.odDisplay = %s" % JSON.stringify({"k": Display.k, "f": Display.f,
+			"integer": Display.integer, "logical": [_vs.x, _vs.y], "ox": _ox, "stageY": _stage_y,
+			"lowerY": _lower_y, "hat": [hat.x, hat.y]}), true)
 
 
 func _set_fill(k: String, r: Rect2) -> void:
@@ -1228,9 +1246,11 @@ func _handle_tap(at: Vector2) -> void:
 		_tap_frenzy_taps = 0
 	bb.tap(crit)
 	_coin_batch += 1
-	if state.taps_lifetime == 1:
-		_audio("babble", Strings.s("DUBI_FIRSTTAP"))   # Dubi's first squawk at f0 of tap 1 (ux/ftue.md H1)
 	_audio("tapCrit" if crit else "tap")
+	if state.taps_lifetime == 1:
+		# after the tap, which opens the audio gate: the Audio holds Dubi's first line until the
+		# motif's musicalSeconds (O-A3); the ticker/toast line stays at f0 (ux/ftue.md H1)
+		_audio("babble", Strings.s("DUBI_FIRSTTAP"))
 	top_bar.set_bank(state.bananas)
 	top_bar.pop_bank()
 	var n := Fmt.amount(float(r["value"]))

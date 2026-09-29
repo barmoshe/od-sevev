@@ -66,7 +66,7 @@ func _ready() -> void:
 			s.texture = Art.tex(_sprite_of(id), 0)
 			s.centered = false
 			s.offset = _pivot_of(id)       # pivot bottom-centre of the critter
-			s.scale = _scale_of(id)
+			_scale_sprite(s, id)
 			s.position = Vector2(x + 32, y + 64)
 			s.visible = false
 			(_front if row == "F" else _back).add_child(s)
@@ -180,7 +180,7 @@ func _add_crowd(id: String, slots: Array) -> void:
 		s.texture = Art.tex(_sprite_of(id), 0)
 		s.centered = false
 		s.offset = _pivot_of(id)
-		s.scale = _scale_of(id)
+		_scale_sprite(s, id)
 		s.position = Vector2(x + 32, y + 64)
 		s.visible = false
 		(_front if front else _back).add_child(s)
@@ -195,13 +195,20 @@ static func _sprite_of(id: String) -> String:
 
 
 ## Logical px per sprite px of a critter: ×4 art scale ÷ the TA's density (sprites.json
-## sources[id].density, CONTRACT.md §3: the rendered sources are 3 sprite px per art px).
+## sources[id].density, CONTRACT.md §3: the rendered sources are 3 sprite px per art px; the
+## hand-drawn ones and the fork's critter_* art are 1).
 static func _scale_of(id: String) -> Vector2:
 	var src := Art.source(id)
-	var d := 1
 	if not src.is_empty() and _sprite_of(id) == String(src.get("sprite", "")):
-		d = maxi(1, int(src.get("density", 1)))
-	return Vector2.ONE * (4.0 / d)
+		return Vector2.ONE * SpriteStrip.scale_of(src)
+	return Vector2.ONE * float(SpriteStrip.art_scale())
+
+
+## Scales a critter sprite (_scale_of) and picks its sampling with SpriteStrip.apply_filter: nearest
+## when a sprite px is a whole number of device px (k % density == 0), else the fallback filter.
+static func _scale_sprite(s: Sprite2D, id: String) -> void:
+	s.scale = _scale_of(id)
+	SpriteStrip.apply_filter(s, s.scale.x)
 
 
 func _pivot_of(id: String) -> Vector2:
@@ -595,7 +602,7 @@ func _start_piece(id: String) -> void:
 			_piece_timers[id] = randf_range(10000, 16000)
 			var x := Ui.snap(randf_range(40, L.W - 104), 4)
 			var r := Ui.img(_fx, Vector2(x, ground_y - 64), _sprite_of(id), 0, 4)
-			r.scale = _scale_of(id)
+			_scale_sprite(r, id)
 			if play_fx.is_valid():
 				play_fx.call("critterSpawnDust", x + 32.0, float(ground_y))
 			_pieces.append({"kind": "launch", "s": r, "t": 0.0, "dur": 1600.0, "x0": x, "y0": float(ground_y) - 64.0,

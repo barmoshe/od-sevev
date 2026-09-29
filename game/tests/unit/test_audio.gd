@@ -156,7 +156,8 @@ func test_first_tap_plays_the_motif_then_the_music_at_bar_one() -> void:
 	a.start_music()
 	runner.check(not a.is_music_playing(), "start_music does not cut the motif short")
 	await _frames(3)
-	runner.check(a.duck_db("voice") < -1.0, "the motif ducks Dubi's voice (his first squawk lands under it)")
+	runner.check(a.duck_db("voice") > -0.5, "the motif ducks no voice: nothing of Dubi's sits under it (O-A3)")
+	runner.check(a.dubi_waits_ms() > 0.0, "Dubi waits for the motif (O-A3)")
 	a.debug_skip_wait()
 	await _frames(2)
 	runner.check(a.is_music_playing() and a.bar() == 1 and a.loop_index() == 1, "the music starts at bar 1 of loop 1")
@@ -345,6 +346,7 @@ func test_chat_pings_rate_limit_and_wait_for_dubi() -> void:
 	runner.check(OdAudio.ping_variant(_man, "bennett") == "default", "anyone else pings the default")
 	var a := _audio()
 	a.event("tap")
+	a.debug_skip_wait()   # past the motif, which holds Dubi (O-A3)
 	a.event("chatPing", "smotrich")
 	runner.check(_last(a) == "chatPing_D_smotrich.res", "the first ping plays at once, got %s" % _last(a))
 	a.event("chatPing", "deri")
@@ -399,9 +401,43 @@ func test_babble_plans() -> void:
 	runner.check((OdAudio.babble_plan(_man, "  ")["blips"] as Array).is_empty(), "an empty line says nothing")
 
 
+## O-A3 (Audio Director, accepted): tap 1 plays the motif, the anthem's statement; Dubi's first
+## line ("אין כלום!"), sent by the controller right after that tap, starts only when the motif's
+## musicalSeconds have elapsed (2.33 s in D), never under it.
+func test_first_tap_squawk_waits_for_the_motif() -> void:
+	var a := _audio()
+	a.set_evolutions(0)
+	a.event("tap")                                   # tap 1: the motif
+	var t_tap: float = a.get("_clock")
+	a.event("babble", "אין כלום! אין כלום!")          # main.gd: right after tap 1
+	var e := OdAudio.stinger_entry(_man, "motif", "D")
+	var want := float(e["musicalSeconds"]) * 1000.0
+	runner.check(absf(want - 2327.6) < 1.0, "the D motif's musicalSeconds is 2.33 s, got %.1f ms" % want)
+	runner.check(a.is_babbling(), "the first line is queued, not dropped")
+	a.event("headline", "מבזק: הקואליציה יציבה")      # a milestone headline inside the motif
+	await _frames(3)
+	var dubi := func() -> bool: return a.recent_files().any(func(f: String) -> bool: return f.begins_with("dubi"))
+	runner.check(not dubi.call(), "no squawk or blip under the motif, got %s" % str(a.recent_files()))
+	runner.check(a.active_voices("dubiBlip") == 0, "no blip under the motif")
+	var at := -1.0
+	var t0 := Time.get_ticks_msec()
+	while at < 0.0 and Time.get_ticks_msec() - t0 < want + 2000.0:
+		await (runner as SceneTree).process_frame
+		if dubi.call():
+			at = float(a.get("_clock"))
+	runner.check(at >= 0.0, "Dubi speaks after the motif")
+	var first: String = a.recent_files().filter(func(f: String) -> bool: return f.begins_with("dubi"))[0] if at >= 0.0 else ""
+	runner.check(first == "dubiSquawk_D_down.res", "the squawk comes first, got %s" % first)
+	runner.check(at - t_tap >= want - 0.5 and at - t_tap < want + 120.0,
+		"the squawk starts at musicalSeconds (%.0f ms after the tap), got %.0f" % [want, at - t_tap])
+	a.stop_babble()
+	await _release()
+
+
 func test_dubi_speaks_and_headlines_are_rationed() -> void:
 	var a := _audio()
 	a.event("tap")
+	a.debug_skip_wait()   # past the motif (O-A3)
 	var beaks := [0]
 	a.dubi_blip.connect(func(_b: String) -> void: beaks[0] += 1)
 	a.event("headline", "מבזק: הקואליציה יציבה")

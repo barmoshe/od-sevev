@@ -18,8 +18,10 @@ extends Node
 ##   alternate; ±1.5 dB (§4, A3). A crit plays `tap` at f0 and `rabbitCrit` on the crit strip's
 ##   rabbit frame (+250 ms, +83 in reduced motion), or at once on event("rabbit").
 ## - Unity buses under a limiter-only master; the slider's default position is 0 dB (§3).
-## - Ducks from `cues.<id>.ducks` (and per bus for the stingers), deepest wins (§3). The motif
-##   also ducks the Voice bus, so Dubi's first squawk can land with it at f0.
+## - Ducks from `cues.<id>.ducks` (and per bus for the stingers), deepest wins (§3).
+## - Dubi never speaks over the motif, the anthem's statement (§2.6, O-A3): a line that arrives
+##   while it sounds (tap 1's "אין כלום!") starts when its `musicalSeconds` has elapsed (2.33 s
+##   in D), and a line after a motif still held for the web unlock waits for that motif too.
 ## - Layers L0/L1/L2 switch at the next bar line and ramp over one bar; the 4-loop mute cycle
 ##   (antiFatigue) on a loop counter that resets with the track (§2.1, §2.2).
 ## - Era switches and court day cross-fade (400 ms, equal power) onto the same bar of the new
@@ -50,7 +52,6 @@ const HOLD_MAX_MS := 180.0          # U8: a cue made while the web context is lo
 const MOTIF_HOLD_MAX_MS := 5000.0   # the first-tap motif waits this long for the unlock (iOS: touchend)
 const BED_STOP_MS := 30.0           # the fanfare replaces the bed
 const TOGGLE_RAMP_MS := 30.0
-const MOTIF_VOICE_DUCK_DB := -6.0   # orchestrator: Dubi's first squawk sits under the motif at f0
 const PING_GAP_MS := 700.0
 const PING_AFTER_DUBI_MS := 300.0
 const HEADLINE_GAP_MS := 20000.0
@@ -104,6 +105,7 @@ var _last_var: Dictionary = {}        # cue -> the last random variant
 var _ducks: Dictionary = {}           # "music" | "voice" -> Array of {db, start, end, attack, release}
 var _duck_db: Dictionary = {"music": 0.0, "voice": 0.0}
 var _log: Array[String] = []          # the last played files (web: window.odCueLog)
+var _log_t: Array[float] = []         # when each was played, audio clock ms (web: window.odCueLogMs)
 
 # ---- the player's state as the audio sees it
 var _first_tap := false
@@ -174,6 +176,7 @@ var _web_running := true
 var _web_poll := 0.0
 var _held: Dictionary = {}
 var _held_motif := -1.0
+var _motif_end := -1e12               # ms: the last motif's musicalSeconds end (Dubi waits, O-A3)
 var _unlocked := false
 var _pub_t := 0.0
 
@@ -608,10 +611,23 @@ func debug_seek(song_s: float) -> void:
 		_song_clock = song_s
 
 
-## Test hook: the pending bar-1 start (after the motif or the fanfare) happens on the next frame.
+## Test hook: the pending bar-1 start (after the motif or the fanfare) happens on the next frame,
+## and the motif's hold on Dubi (O-A3) ends now.
 func debug_skip_wait() -> void:
 	if _restart_at >= 0.0:
 		_restart_at = _now()
+	_motif_end = minf(_motif_end, _now())
+
+
+## Milliseconds until Dubi may speak over the motif's end (O-A3); 0 when he may speak now, INF
+## while the first-tap motif is held for the web unlock.
+func dubi_waits_ms() -> float:
+	return maxf(0.0, _dubi_clear_at() - _now())
+
+
+## When Dubi may start a line: after the last motif's musicalSeconds, never under a held motif.
+func _dubi_clear_at() -> float:
+	return INF if _held_motif >= 0.0 else _motif_end
 
 
 # ================================================================== the tap and the first sound
@@ -794,7 +810,8 @@ func _stinger(id: String, now: float, key_ := "", tags := "_") -> bool:
 	elif bus == "SFX-Critical" and not ["motif", "courtIn"].has(id):
 		_duck("music", -4.0, 50.0, 200.0, now, len_ms)
 	if id == "motif":
-		_duck("voice", MOTIF_VOICE_DUCK_DB, 30.0, 250.0, now, len_ms)
+		# O-A3: Dubi waits for the motif's musical end (the file's tail may ring on)
+		_motif_end = now + float(e.get("musicalSeconds", len_ms / 1000.0)) * 1000.0
 	return true
 
 
@@ -826,8 +843,10 @@ func _voice(id: String, file: String, bus: String, db: float, prio: int, poly: i
 		length = len_ms
 	_voices.append({"p": p, "cue": id, "start": now, "end": now + length, "prio": prio})
 	_log.append(file)
+	_log_t.append(roundf(now))
 	if _log.size() > 24:
 		_log.pop_front()
+		_log_t.pop_front()
 	return true
 
 
@@ -1067,6 +1086,8 @@ func _update_pings(now: float) -> void:
 ## ticker; at most one per 20 s, the rest are silent). A squawk first ('up' before a headline,
 ## 'down' before a canned line or a flash), then the blips.
 func _dubi_speak(now: float, text: String, kind: String) -> void:
+	if kind == "headline" and not _babble.is_empty() and not bool(_babble["squawked"]):
+		return   # a line still waiting for the motif (O-A3: tap 1's "אין כלום!") is not cut by a headline
 	stop_babble()
 	if not _gate_open() or text.strip_edges() == "":
 		return
@@ -1091,6 +1112,15 @@ func _update_babble(now: float) -> void:
 	if _babble.is_empty():
 		return
 	var t0 := float(_babble["t0"])
+	if not bool(_babble["squawked"]):
+		# O-A3: a line that would start under the motif moves, whole, to the motif's end
+		var clear := _dubi_clear_at()
+		if is_inf(clear):
+			return
+		if t0 < clear:
+			_babble["end"] = float(_babble["end"]) + (clear - t0)
+			t0 = clear
+			_babble["t0"] = t0
 	if now < t0:
 		return
 	if not bool(_babble["squawked"]):
@@ -1491,5 +1521,5 @@ func _update_web(now: float, dt: float) -> void:
 	_pub_t = WEB_POLL_S
 	var bus := AudioServer.get_bus_index("Music")
 	var db := maxf(AudioServer.get_bus_peak_volume_left_db(bus, 0), -200.0) if bus >= 0 else -200.0
-	JavaScriptBridge.eval("window.mbMusicPeak = %.1f; window.mbMusicTrack = %s; window.odCueLog = %s; window.odAudioKey = %s;"
-		% [db, JSON.stringify(track_name()), JSON.stringify(_log), JSON.stringify(key())], true)
+	JavaScriptBridge.eval("window.mbMusicPeak = %.1f; window.mbMusicTrack = %s; window.odCueLogMs = %s; window.odCueLog = %s; window.odAudioKey = %s;"
+		% [db, JSON.stringify(track_name()), JSON.stringify(_log_t), JSON.stringify(_log), JSON.stringify(key())], true)

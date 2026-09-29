@@ -4,8 +4,9 @@ extends Node2D
 ## (res://assets/sprites/sprites.json, loader contract res://assets/sprites/CONTRACT.md §4).
 ##
 ## - The node position is the character's FEET point: the strip's `anchor` pixel sits there.
-## - Frame i of an anim is Rect2(i·frameW, 0, frameW, frameH) of its texture, drawn at the one
-##   art scale (×4, sprites.json artScale).
+## - Frame i of an anim is Rect2((i % cols)·frameW, (i / cols)·frameH, frameW, frameH) of its
+##   texture, drawn at artScale / density logical px per sprite px (×4 for d = 1, ×4/3 for the
+##   d = 3 cast); density comes from the manifest (char, variant, or top level; 1 when absent).
 ## - Each anim steps at its own fps. loop:true wraps; loop:false holds its last frame for one
 ##   frame time and then emits `finished` (the caller returns to idle).
 ## - `events` {name: frame} fire when playback ENTERS that frame, once per play, in order even
@@ -80,8 +81,8 @@ static func make(parent: Node, id: String, feet: Vector2, first_anim: String = "
 	var s := SpriteStrip.new()
 	s.char_id = slug
 	s._c = pick_variant(manifest()["chars"][slug], Display.k)
-	s.density = maxi(1, int(s._c.get("density", manifest().get("density", 1))))
-	s.scale_px = float(art_scale()) / s.density
+	s.density = density_of(s._c)
+	s.scale_px = scale_of(s._c)
 	s._setup_filter()
 	s.add_to_group("spritestrip")
 	s.position = feet
@@ -96,7 +97,7 @@ static func make(parent: Node, id: String, feet: Vector2, first_anim: String = "
 static func pick_variant(c: Dictionary, k: int) -> Dictionary:
 	var best := c
 	var best_d := 0
-	var main_d := maxi(1, int(c.get("density", manifest().get("density", 1))))
+	var main_d := density_of(c)
 	if k % main_d == 0:
 		best_d = main_d
 	var alts: Dictionary = c.get("densities", {})
@@ -112,15 +113,18 @@ static func pick_variant(c: Dictionary, k: int) -> Dictionary:
 	return best
 
 
-## The device scale changed (Display.k): every strip re-picks its density variant and filter.
+## The device scale changed (Display.k): every strip re-picks its density variant and filter,
+## and every other density-aware sprite (apply_filter) re-picks its filter.
 static func refresh_all(tree: SceneTree) -> void:
 	if tree == null:
 		return
+	for n in tree.get_nodes_in_group("density_art"):
+		apply_filter(n as CanvasItem, float(n.get_meta("scale_px", float(art_scale()))))
 	for n in tree.get_nodes_in_group("spritestrip"):
 		var st := n as SpriteStrip
 		st._c = pick_variant(manifest()["chars"][st.char_id], Display.k)
-		st.density = maxi(1, int(st._c.get("density", manifest().get("density", 1))))
-		st.scale_px = float(art_scale()) / st.density
+		st.density = density_of(st._c)
+		st.scale_px = scale_of(st._c)
 		st._setup_filter()
 		var a := st.anim
 		st.anim = ""
@@ -129,24 +133,48 @@ static func refresh_all(tree: SceneTree) -> void:
 
 
 func _setup_filter() -> void:
-	var dev := scale_px * Display.f           # device px per sprite px
-	if is_equal_approx(dev, roundf(dev)):
-		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		material = null
+	apply_filter(self, scale_px)
+
+
+## The density of a manifest entry (a char variant, a money source): sprite px per art px.
+static func density_of(entry: Dictionary) -> int:
+	return maxi(1, int(entry.get("density", manifest().get("density", 1))))
+
+
+## Logical px per sprite px for a manifest entry: artScale / density (CONTRACT.md §3).
+static func scale_of(entry: Dictionary) -> float:
+	return float(art_scale()) / density_of(entry)
+
+
+## Samples a node that draws sprite px at `scale` logical px each: nearest when a sprite px is a
+## whole number of device px (scale · Display.f), else `fractional_filter`. The fractional
+## fallback surface (Display.integer false) draws everything nearest, as the fork did. A node
+## that is not a SpriteStrip joins the "density_art" group, so a device-scale change re-applies it.
+static func apply_filter(ci: CanvasItem, scale: float) -> void:
+	if not ci is SpriteStrip:
+		ci.set_meta("scale_px", scale)
+		if not ci.is_in_group("density_art"):
+			ci.add_to_group("density_art")
+	var dev := scale * Display.f           # device px per sprite px
+	if not Display.integer or is_equal_approx(dev, roundf(dev)):
+		ci.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		ci.material = null
 		return
 	match fractional_filter:
 		"nearest":
-			texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			ci.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			ci.material = null
 		"linear":
-			texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+			ci.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+			ci.material = null
 		_:
-			texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+			ci.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 			if _aa_shader == null:
 				_aa_shader = Shader.new()
 				_aa_shader.code = AA_SHADER
 			var m := ShaderMaterial.new()
 			m.shader = _aa_shader
-			material = m
+			ci.material = m
 
 
 ## Pixel-art AA: sample the texel centre except within one device px of a texel seam, where the
@@ -250,8 +278,7 @@ func _anchor() -> Vector2:
 
 ## The draw origin (logical), snapped so the frame's top-left sits on a whole device px.
 func _origin() -> Vector2:
-	var o := -_anchor() * scale_px
-	return (o * Display.f).round() / Display.f
+	return Display.snap(-_anchor() * scale_px)
 
 
 ## The frame's rect in node-local logical px (the feet at the origin).
@@ -270,14 +297,17 @@ func point(name: String, fallback: Vector2 = Vector2.ZERO) -> Vector2:
 
 
 ## Frame i of a strip, or of a grid when the anim wraps (cols x rows, row-major; the TA wraps
-## strips wider than 2048 px).
+## strips wider than 2048 px). An optional `frameMap` (one texture cell per frame) lets repeated
+## frames share a cell (the TA's VRAM offer); without it frame i is cell i.
 func _src(i: int) -> Rect2:
 	var fw := float(_c["frameW"])
 	var fh := float(_c["frameH"])
 	var cols := int(_a.get("cols", frame_count()))
 	if cols <= 0:
 		cols = frame_count()
-	return Rect2((i % cols) * fw, (i / cols) * fh, fw, fh)
+	var fm: Variant = _a.get("frameMap")
+	var cell := int(fm[i]) if fm is Array and i < (fm as Array).size() else i
+	return Rect2((cell % cols) * fw, (cell / cols) * fh, fw, fh)
 
 
 func _draw() -> void:

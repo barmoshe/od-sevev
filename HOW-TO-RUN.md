@@ -44,7 +44,8 @@ count (to look at the eras). Example: `/?dev=1&grant=2000000`.
 
 ```
 game/
-  project.godot            portrait 720x1280, stretch canvas_items + aspect expand, Mobile renderer
+  project.godot            portrait 720x1280, stretch canvas_items + aspect expand (the boot default;
+                           main.gd switches to integer art scaling, see below), Mobile renderer
   data/                    copies of the specs (synced) + art.json (exported)
   scripts/sim/             pure rules, no nodes: content, game_state, economy, meta, story,
                            save_store, fmt, tap_limiter, pacing_sim
@@ -97,6 +98,56 @@ producer's slots empty).
 - The Suitcase keeps the fork's drift for now (the art is swapped); its band flight from
   `ux/rtl-map.md` §4.1 is the next wave.
 
+## Integer art scaling (game-developer engine, 2026-09-29)
+
+Bar's decision: one art px (the 180-wide art grid, 4 logical px) is always a whole number **k** of
+device px, `k = min(floor(W / 180), floor(H / 267))` with W × H the backing store (CSS × DPR). The
+stage and the UI stay 1× chunky (k device px per art px); the d = 3 cast draws at k/3 device px per
+sprite px.
+
+**Where it lives: the host viewport's own stretch transform** (`main.gd _apply_display`,
+`scripts/core/display.gd`). On the window (the web canvas, desktop, a phone) the stretch mode is
+switched to `disabled` with `content_scale_factor = k/4`, so the logical viewport is W/f × H/f and
+the extra width and height go to the aspect-`expand` area (the centred 720 column, the extended
+backdrops, the stage's `padTop` / `padBottom`). A scene hosted in a SubViewport (`--device` shots,
+the scaled-input tests) gets `size_2d_override = W/f × H/f` instead. Why not the alternatives:
+- Godot's `canvas_items` + `scale_mode = integer` floors the scale against the 720 base, so it can
+  only give k = 4, 8, … (a 1170-px iPhone would get k 4 and 450 px of padding, not k 6).
+- A SubViewport + TextureRect costs a full-screen render target and copy per frame on phones and
+  needs the input re-mapped by hand. The window transform is free, and Godot maps every input event
+  back to logical px through it, so hit tests never see device px
+  (`tests/unit/test_display.gd` pushes device-px touches through a scaled viewport at DPR 2 and 3).
+
+| Phone (CSS, DPR) | Backing store | k | Stage/UI | 3× cast (sprite px) |
+|---|---|---|---|---|
+| 390×844, 393×852, 412×915, 430×932 @2 | 780-860 wide | **4** | 4 dp | 1.33 dp: `SpriteStrip.fractional_filter` "aa" |
+| 390×844 @3, 393×852 @3, 360×800 @3 | 1080-1179 | **6** | 6 dp | **2 dp, crisp** |
+| 412×915 @2.625 (Pixel), 412 @3 | 1081, 1236 | **6** | 6 dp | **2 dp, crisp** |
+| 430×932 @3 (Pro Max / Plus) | 1290 | **7** | 7 dp | 2.33 dp: "aa" |
+| 412×915 @3.5 (QHD Android) | 1442 | **8** | 8 dp | 2.67 dp: "aa" |
+| a 1280×800 desktop window @1 | 1280×800 | **2** (height-bound) | 2 dp | 0.67 dp: "aa" (minified) |
+
+- **Density comes from the data:** `SpriteStrip.density_of()` reads `density` on the char (or its
+  picked `densities` alternate), then the manifest top level, else 1; `scale_of()` = artScale /
+  density. The diorama's money sources use the same (`Diorama._scale_of`, `_scale_sprite`). A d = 1
+  and a d = 3 manifest both work; so does a mix.
+- **Filter:** nearest whenever k/4 · scale is a whole number of device px; otherwise
+  `SpriteStrip.fractional_filter` ("aa" = even texels with a one-device-px blended seam; "nearest";
+  "linear"). A `densities` alternate that divides k wins over the main render.
+- **Fallback:** a surface under 180×267 device px (the 64×64 headless test window) cannot hold the
+  layout at any integer k, so it keeps the fork's `canvas_items` + `expand` stretch at 720×1280
+  (`Display.integer` false, everything nearest, no snapping).
+- **Before/after on the web:** `?dev=1&forkscale=1` shows the fork's fractional stretch on the same
+  build. `window.odDisplay` = `{k, f, integer, logical, ox, stageY, lowerY, hat}` (logical px).
+- **Runtime-origin check:** `node tools/web/res_web.mjs <url> build/shots [before|after]
+  [WxH@DPR,...]` serves nothing itself (run `python3 -m http.server --directory build/web`):
+  headless Chromium at each size passes the disclaimer, taps the Magician, checks O-A3 on the
+  Audio clock (`window.odCueLogMs`), buys card 1 by touch and saves title/main/bought screenshots.
+  `python3 tools/lib/pixel_runs.py <png>` reports the art-px widths.
+- **Headless Chromium note:** SwiftShader draws a 1170×2532 frame in 150-450 ms. Godot then
+  advances game time by at most 8/60 s a frame, so wall-clock timings stretch there; read the
+  Audio clock, not the wall.
+
 ## od-sevev audio notes (game-developer audio, 2026-09-29)
 
 | What | Where |
@@ -104,10 +155,11 @@ producer's slots empty).
 | The spec (behaviour) | `audio/od/cue-spec.md` (Audio Director) |
 | Every runtime number | `game/assets/audio/od/od_manifest.json` (written by `tools/gen_od_sevev.gd`); the runtime hard-codes no pitch, scale or level |
 | Buses | `game/default_bus_layout.tres`: Master = HardLimiter −1 dB only; Music → Outside (LPF 800 Hz, pan −0.3); SFX-Critical → Suitcase (panner); SFX-Frequent; UI; Voice; all 0 dB |
-| Web debug | `window.odCueLog` (the last 24 files played), `window.odAudioKey`, `window.mbMusicTrack` (`<era>:L0+L1+L2`), `window.mbMusicPeak` |
+| Web debug | `window.odCueLog` (the last 24 files played) and `window.odCueLogMs` (when each played, Audio clock ms), `window.odAudioKey`, `window.mbMusicTrack` (`<era>:L0+L1+L2`), `window.mbMusicPeak` |
 
 **Behaviour you will notice.**
-- Nothing sounds until the first Magician tap. That tap plays the motif, and the era's music starts at bar 1 where the motif resolves (about 4 s later).
+- Nothing sounds until the first Magician tap. That tap plays the motif, and the era's music starts at bar 1 where the motif resolves (about 2.3 s later in D).
+- Dubi never speaks over the motif (O-A3): tap 1's "אין כלום!" starts at the motif's `musicalSeconds` (2.33 s in D); its toast shows at f0. A headline that arrives meanwhile does not cut that waiting line.
 - Taps walk the era's scale, one step per tap, and the walk resets after 400 ms.
 - The lead (L2) follows your tapping at the bar lines. L1 comes in with the first money source.
 

@@ -112,6 +112,21 @@ Cross-slice requests go under **Requests** with the owner named.
   - **Deviations, stated:** the timer digits stay white on the red chip (the spec's alert red would not read on it); the cameo draws at art ×3 when body + chip fit between the toast dock and S − 140, else ×2 (at S 640 ×3 fits the body but not the chip), else it is skipped; a ceremony (Regev) pays after a 3 s "ribbon" fill on its pill.
   - **Checks:** `tools/test.sh` **144 passed, 1 failed** (the known `test_input.gd::test_buy_a_producer_by_touch`: headless lays out P = 0, so the card is off-screen; unrelated). New `test_chat_view.gd` (9): run grouping, content lines / gendered system lines / Distel's `{who}`, the avatar size from the manifest, three Ben Gvir bubbles = one avatar, a pill tap pays through `Coalition.pay` (+ stamp), no money = no payment, the ultimatum chip's timer + urgency + paying it deletes it, Row B / slot 3 / Esc / a list tab, C1 opens with allowPing live, the typing telegraph rule. Web build (`OD_LINT=warn`) at 390×844 DPR 2 in Chromium: C1 toast, cascade, pay → stamp + reply + thanks + Row B 33/61, ultimatum with a running timer, cameo, partner card; no page errors.
   - **Files:** `game/scripts/ui/views/view_chat.gd` (new), `game/tests/unit/test_chat_view.gd` (new), `game/scripts/main.gd` (a `_build_chat()` hook + input / key / allowPing lines), `game/scripts/ui/shop.gd` (tall-tab signal + active slot + the row-key fix), `game/scripts/ui/toasts.gd` (toast tag + `on_tap`).
+- 2026-09-29 · game-developer (engine) · **integer art scaling landed, the input test is fixed, O-A3 resolved; the 3× cast is merged and verified in Chromium:**
+  - **The failing test:** the half-landed scaling fed the 64×64 headless window to `Display` → k 1, f 0.25, a 256×256 canvas and a 0-px shop panel. Now a surface under 180×267 device px keeps the fork's `canvas_items` + `expand` stretch (`Display.integer` false). `test_buy_a_producer_by_touch` is unchanged and passes.
+  - **Scaling:** `k = min(floor(W/180), floor(H/267))`, applied as the host viewport's stretch (window: stretch `disabled` + `content_scale_factor k/4`; SubViewport: `size_2d_override`). Input maps back through the same transform. The reasons are in HOW-TO-RUN "Integer art scaling".
+  - **Density from the data:** `SpriteStrip.density_of/scale_of/apply_filter`. The TA's `Diorama._scale_of` is kept and reads `scale_of`; every critter, crowd and launch sprite gets the filter via `_scale_sprite`. Nearest when k/4·scale is whole, else `fractional_filter` ("aa").
+  - **Measured in Chromium** (`tools/web/res_web.mjs`, headless, SwiftShader; horizontal runs on the stage art beside the Magician). Before is the same build with `?dev=1&forkscale=1`.
+    - **390×844 @2:** before, art px 4.33 dp (runs 4 and 5, 6% whole); after k 4, 4 dp, 100% whole.
+    - **@3:** before 6.5 dp (6/7); after k 6, 6 dp, 100%.
+    - **430×932 @3:** before 7.17 (7/8); after k 7, 100%.
+    - **1280×800 desktop:** before 2.5 (2/3); after k 2, 100%.
+    - **393/412 @2 and @3:** 100% at k 4 / 6.
+    - **The 3× cast:** crisp at k 6 (2 dp per sprite px, 100% whole). At k 4, k 7 and on desktop it is on the "aa" fallback: even texels with a one-dp blended seam, where before they were uneven 1/2 dp.
+  - **Core verb in the browser, every size:** passed the disclaimer, tapped the Magician (motif), bought card 1 by touch (`buy_D_d25`), 0 page errors.
+  - **O-A3:** Dubi never speaks over the motif. Tap 1's line starts at `musicalSeconds` (unit test: ±1 frame; browser, Audio clock: 2.332-2.457 s against 2.328). A headline does not cut the waiting line. `main.gd` now sends the line *after* the tap: before, it arrived while the gate was closed and was silently dropped. The motif's Voice duck is gone (nothing sits under it). The toast stays at f0.
+  - **Tests:** `tools/test.sh` 141/141 (+4 `test_display.gd`, +1 `test_audio.gd`); strict web build green (lint 0 failures).
+  - **Files:** `game/scripts/{core/display,main,ui/sprite_strip,ui/diorama,autoload/audio}.gd`, `game/tests/unit/{test_display,test_audio}.gd`, `tools/web/res_web.mjs`, `HOW-TO-RUN.md`. Shots: `build/shots/` (untracked).
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 
@@ -709,3 +724,21 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
       tools/balance.sh, not economy-sim.mjs. The candidates are coalition.unlockScalePerElection /
       runSecAtLeast, demandSec, and the ownSeats curve (the seat gate is what opens early).
   ```
+- **→ technical-artist, from game-developer (engine), re the 3× cast (your k question):** integer scaling is in and your `_scale_of` is kept (it now reads `SpriteStrip.scale_of`).
+  - **The k values in use:**
+    - **k 4:** every DPR-2 phone (390/393/412/430 @2);
+    - **k 6:** 360/390/393/412 @3 and the 412 @2.625 Pixel;
+    - **k 7:** 430 @3 (Pro Max / Plus);
+    - **k 8:** 412 @3.5;
+    - **k 2:** a desktop window.
+  - **How the cast looks:** crisp only at k 6. Everywhere else it is on "aa": even texels with a one-dp seam. It reads fine at phone distance and is clearly softer than the stage in a zoom (`build/shots/zoom-*.png`).
+  - **Ask (Bibi only):** a `densities: {"2": …}` alternate. Bibi is always on screen and always resident. `pick_variant` already takes it at k 4 and k 8, for about +4.9 MB of resident VRAM (11.0 × 4/9). Partners stay on "aa" unless Bar wants to spend 2-3 MB each.
+  - **k 7:** no density divides it (only 1 or 7). It stays on "aa" unless Bar prefers to cap k at 6 on those phones (14% smaller, crisp).
+  - **frameMap: yes.** The reader is in `SpriteStrip._src()`: `anims[a].frameMap` is one cell index per frame, cells in the same row-major `cols` grid, and `frames` stays the playback count. It is tested (`test_display.gd`) and a no-op without the key, so emit it when ready.
+- **→ audio-director, from game-developer (engine): O-A3 resolved as proposed.**
+  - Tap 1's squawk and babble start at `stingers.motif.files[key]._.musicalSeconds`: 2.33 s in D, on the audio clock, within one frame, and measured in the browser.
+  - The f0 line is visual only: the toast.
+  - The motif's Voice duck is removed, because nothing of Dubi's sits under it any more.
+  - A ticker headline that arrives in that window no longer cuts the waiting line.
+  - **Found on the way:** the first-tap line never played before this fix. `main.gd` sent it before the tap that opens the gate.
+  - **Still open (yours to the audio dev, not in this slice):** `_collapse()` still plays the motif. Your v1.2 note says to fade over 1 bar and then silence.
