@@ -239,6 +239,222 @@
 #   art/od-sevev/proofs/share-result-sample-1080.png
 #   creative-pack/art/showcase/out/stage_balfour.png
 #   creative-pack/art/showcase/out/stage_washington.png
+#   game/assets/icon/android_192.png
+#   game/assets/icon/android_bg_432.png
+#   game/assets/icon/android_fg_432.png
+#   game/assets/icon/icon_1024.png
+#   game/assets/icon/pwa_144.png
+#   game/assets/icon/pwa_180.png
+#   game/assets/icon/pwa_512.png
+#   game/assets/sprites/badge_count.png
+#   game/assets/sprites/brawl_cloud.png
+#   game/assets/sprites/button_gold_default.png
+#   game/assets/sprites/button_gold_disabled.png
+#   game/assets/sprites/button_gold_pressed.png
+#   game/assets/sprites/button_primary_default.png
+#   game/assets/sprites/button_primary_disabled.png
+#   game/assets/sprites/button_primary_pressed.png
+#   game/assets/sprites/button_secondary_default.png
+#   game/assets/sprites/button_secondary_disabled.png
+#   game/assets/sprites/button_secondary_pressed.png
+#   game/assets/sprites/card_back_mark.png
+#   game/assets/sprites/card_opposition.png
+#   game/assets/sprites/card_opposition_back.png
+#   game/assets/sprites/card_plate.png
+#   game/assets/sprites/card_row.png
+#   game/assets/sprites/card_row_locked.png
+#   game/assets/sprites/card_source_affordable.png
+#   game/assets/sprites/card_source_locked.png
+#   game/assets/sprites/card_source_unaffordable.png
+#   game/assets/sprites/card_spin.png
+#   game/assets/sprites/card_spin_locked.png
+#   game/assets/sprites/chat_bubble_in.png
+#   game/assets/sprites/chat_bubble_out.png
+#   game/assets/sprites/chat_bubble_ultimatum.png
+#   game/assets/sprites/chat_composer_disabled.png
+#   game/assets/sprites/chat_header.png
+#   game/assets/sprites/chat_icon_chevron.png
+#   game/assets/sprites/chat_icon_lock.png
+#   game/assets/sprites/chat_icon_mute.png
+#   game/assets/sprites/chat_icon_pin.png
+#   game/assets/sprites/chat_pinned.png
+#   game/assets/sprites/chat_system_pill.png
+#   game/assets/sprites/chip_countdown.png
+#   game/assets/sprites/chip_court.png
+#   game/assets/sprites/chip_icon_calendar.png
+#   game/assets/sprites/chip_icon_gavel.png
+#   game/assets/sprites/chip_owned.png
+#   game/assets/sprites/chip_ultimatum.png
+#   game/assets/sprites/cottage_cup.png
+#   game/assets/sprites/court_frame.png
+#   game/assets/sprites/court_window.png
+#   game/assets/sprites/court_window_glow.png
+#   game/assets/sprites/curtain_hem.png
+#   game/assets/sprites/curtain_panel.png
+#   game/assets/sprites/curtain_valance.png
+#   game/assets/sprites/depboard.png
+#   game/assets/sprites/dubi_placeholder_avatar.png
+#   game/assets/sprites/dubi_placeholder_body.png
+#   game/assets/sprites/dubi_small_fly.png
+#   game/assets/sprites/dubi_small_idle.png
+#   game/assets/sprites/dubi_small_land.png
+#   game/assets/sprites/dubi_small_peck.png
+#   game/assets/sprites/dubi_small_squawk.png
+#   game/assets/sprites/dubi_small_talk.png
+#   game/assets/sprites/ftue_hand.png
+#   game/assets/sprites/ftue_tap_ring.png
+#   game/assets/sprites/icon_clock.png
+#   game/assets/sprites/icon_close.png
+#   game/assets/sprites/icon_coin9.png
+#   game/assets/sprites/icon_gear.png
+#   game/assets/sprites/icon_sound_off.png
+#   game/assets/sprites/icon_sound_on.png
+#   game/assets/sprites/lane_balfour.png
+#   game/assets/sprites/lane_washington.png
+#   game/assets/sprites/laundry_bag.png
+#   game/assets/sprites/laundry_shirt.png
+#   game/assets/sprites/laundry_shorts.png
+#   game/assets/sprites/laundry_sock.png
+#   game/assets/sprites/laundry_towel.png
+#   game/assets/sprites/nophoto_idle.png
+#   game/assets/sprites/opp_timer_fill.png
+#   game/assets/sprites/pay_pill_default.png
+#   game/assets/sprites/pay_pill_fill.png
+#   game/assets/sprites/pay_pill_pressed.png
+#   game/assets/sprites/pay_pill_track.png
+#   game/assets/sprites/pick_tile_focus.png
+#   game/assets/sprites/pick_tile_idle.png
+#   game/assets/sprites/pick_tile_pressed.png
+#   game/assets/sprites/pick_tile_selected.png
+#   game/assets/sprites/plate_silhouette.png
+#   game/assets/sprites/plaza_balfour.png
+#   game/assets/sprites/plaza_washington.png
+#   game/assets/sprites/prop_calculator.png
+#   game/assets/sprites/prop_chair.png
+#   game/assets/sprites/prop_phone.png
+#   game/assets/sprites/receipt_body.png
+#   game/assets/sprites/receipt_bottom.png
+#   game/assets/sprites/receipt_rule.png
+#   game/assets/sprites/receipt_top.png
+#   game/assets/sprites/seats_fill.png
+#   game/assets/sprites/seats_goal_frame.png
+#   game/assets/sprites/seats_tick.png
+#   game/assets/sprites/seats_track.png
+#   game/assets/sprites/share_receipt_bg.png
+#   game/assets/sprites/share_result_frame.png
+#   game/assets/sprites/sheet_modal.png
+#   game/assets/sprites/sheet_plain.png
+#   game/assets/sprites/source_checkbook.png
+#   game/assets/sprites/source_checkbook_icon.png
+#   game/assets/sprites/source_donor.png
+#   game/assets/sprites/source_funds.png
+#   game/assets/sprites/source_funds_icon.png
+#   game/assets/sprites/source_poison.png
+#   game/assets/sprites/source_poison_icon.png
+#   game/assets/sprites/source_submarine.png
+#   game/assets/sprites/source_submarine_icon.png
+#   game/assets/sprites/spin_s09.png
+#   game/assets/sprites/spin_s13.png
+#   game/assets/sprites/spin_s14.png
+#   game/assets/sprites/spin_slot_G.png
+#   game/assets/sprites/spin_slot_I.png
+#   game/assets/sprites/stage_balfour.png
+#   game/assets/sprites/stage_washington.png
+#   game/assets/sprites/stamp_blackout_dark.png
+#   game/assets/sprites/stamp_blackout_dark_rot.png
+#   game/assets/sprites/stamp_blackout_paper.png
+#   game/assets/sprites/stamp_blackout_paper_rot.png
+#   game/assets/sprites/stamp_camera.png
+#   game/assets/sprites/stamp_frame_dark.png
+#   game/assets/sprites/stamp_frame_paper.png
+#   game/assets/sprites/stamp_paid_dark.png
+#   game/assets/sprites/stamp_paid_dark_rot.png
+#   game/assets/sprites/stamp_paid_paper.png
+#   game/assets/sprites/stamp_paid_paper_rot.png
+#   game/assets/sprites/stamp_pardon_dark.png
+#   game/assets/sprites/stamp_pardon_dark_rot.png
+#   game/assets/sprites/stamp_pardon_paper.png
+#   game/assets/sprites/stamp_pardon_paper_rot.png
+#   game/assets/sprites/stamp_postponed_dark.png
+#   game/assets/sprites/stamp_postponed_dark_rot.png
+#   game/assets/sprites/stamp_postponed_paper.png
+#   game/assets/sprites/stamp_postponed_paper_rot.png
+#   game/assets/sprites/stamp_tool_down.png
+#   game/assets/sprites/stamp_tool_up.png
+#   game/assets/sprites/suitcase.png
+#   game/assets/sprites/suitcase_norim.png
+#   game/assets/sprites/sweat_drop.png
+#   game/assets/sprites/tab_active.png
+#   game/assets/sprites/tabbar.png
+#   game/assets/sprites/tabicon_cases_active.png
+#   game/assets/sprites/tabicon_cases_idle.png
+#   game/assets/sprites/tabicon_coalition_active.png
+#   game/assets/sprites/tabicon_coalition_idle.png
+#   game/assets/sprites/tabicon_sources_active.png
+#   game/assets/sprites/tabicon_sources_idle.png
+#   game/assets/sprites/tabicon_spins_active.png
+#   game/assets/sprites/tabicon_spins_idle.png
+#   game/assets/sprites/tag_worn.png
+#   game/assets/sprites/thermo_bubble.png
+#   game/assets/sprites/thermo_fill.png
+#   game/assets/sprites/thermo_floor_hatch.png
+#   game/assets/sprites/thermo_icon_gavel.png
+#   game/assets/sprites/thermo_icon_magnifier.png
+#   game/assets/sprites/thermo_meniscus.png
+#   game/assets/sprites/thermo_tube.png
+#   game/assets/sprites/thermo_tube_short.png
+#   game/assets/sprites/ticker_bar.png
+#   game/assets/sprites/ticker_flash_plate.png
+#   game/assets/sprites/ticker_flash_plate_text.png
+#   game/assets/sprites/toast.png
+#   game/assets/sprites/transfer_banner.png
+#   game/assets/sprites/transfer_card.png
+#   game/assets/sprites/trophy_aide.png
+#   game/assets/sprites/trophy_aide_locked.png
+#   game/assets/sprites/trophy_ballot.png
+#   game/assets/sprites/trophy_ballot_locked.png
+#   game/assets/sprites/trophy_clock.png
+#   game/assets/sprites/trophy_clock_locked.png
+#   game/assets/sprites/trophy_coin.png
+#   game/assets/sprites/trophy_coin_locked.png
+#   game/assets/sprites/trophy_cottage.png
+#   game/assets/sprites/trophy_cottage_locked.png
+#   game/assets/sprites/trophy_folder.png
+#   game/assets/sprites/trophy_folder_locked.png
+#   game/assets/sprites/trophy_gavel.png
+#   game/assets/sprites/trophy_gavel_locked.png
+#   game/assets/sprites/trophy_hat.png
+#   game/assets/sprites/trophy_hat_locked.png
+#   game/assets/sprites/trophy_parrot.png
+#   game/assets/sprites/trophy_parrot_locked.png
+#   game/assets/sprites/trophy_phone.png
+#   game/assets/sprites/trophy_phone_locked.png
+#   game/assets/sprites/trophy_pin.png
+#   game/assets/sprites/trophy_pin_locked.png
+#   game/assets/sprites/trophy_plane.png
+#   game/assets/sprites/trophy_plane_locked.png
+#   game/assets/sprites/trophy_plate_earned.png
+#   game/assets/sprites/trophy_plate_locked.png
+#   game/assets/sprites/trophy_plate_secret.png
+#   game/assets/sprites/trophy_rabbit.png
+#   game/assets/sprites/trophy_rabbit_locked.png
+#   game/assets/sprites/trophy_stamp.png
+#   game/assets/sprites/trophy_stamp_locked.png
+#   game/assets/sprites/trophy_suitcase.png
+#   game/assets/sprites/trophy_suitcase_locked.png
+#   game/assets/sprites/trophy_wand.png
+#   game/assets/sprites/trophy_wand_locked.png
+#   game/assets/sprites/wing_balfour_l.png
+#   game/assets/sprites/wing_balfour_r.png
+#   game/assets/sprites/wordmark.png
+#   game/assets/sprites/wordmark_mono.png
+#   game/assets/sprites/wordmark_norim.png
+#   game/assets/sprites/wordmark_small.png
+#   pipeline/od-sevev/proofs/font-density2.png
+#   pipeline/od-sevev/proofs/sprites-contact-k4.png
+#   pipeline/od-sevev/proofs/sprites-contact.png
+#   pipeline/od-sevev/proofs/stage-x4-bibi-d2.png
+#   pipeline/od-sevev/proofs/stage-x6-bibi.png
 diff --git a/art/od-sevev/out/key/icon-1024.png b/art/od-sevev/out/key/icon-1024.png
 index e53ba00..660827c 100644
 Binary files a/art/od-sevev/out/key/icon-1024.png and b/art/od-sevev/out/key/icon-1024.png differ
@@ -1308,6 +1524,5953 @@ index a7d34df..a6b9610 100644
  ]
  
  PAL = OrderedDict((n, h) for n, h, _, _ in SWATCHES)
+diff --git a/game/assets/icon/android_192.png b/game/assets/icon/android_192.png
+index 3b65eac..f889596 100644
+Binary files a/game/assets/icon/android_192.png and b/game/assets/icon/android_192.png differ
+diff --git a/game/assets/icon/android_bg_432.png b/game/assets/icon/android_bg_432.png
+index 47e7c6d..f05b36f 100644
+Binary files a/game/assets/icon/android_bg_432.png and b/game/assets/icon/android_bg_432.png differ
+diff --git a/game/assets/icon/android_fg_432.png b/game/assets/icon/android_fg_432.png
+index 2e3f315..1912f22 100644
+Binary files a/game/assets/icon/android_fg_432.png and b/game/assets/icon/android_fg_432.png differ
+diff --git a/game/assets/icon/icon_1024.png b/game/assets/icon/icon_1024.png
+index c899428..7c2f106 100644
+Binary files a/game/assets/icon/icon_1024.png and b/game/assets/icon/icon_1024.png differ
+diff --git a/game/assets/icon/pwa_144.png b/game/assets/icon/pwa_144.png
+index 881551e..5c25e97 100644
+Binary files a/game/assets/icon/pwa_144.png and b/game/assets/icon/pwa_144.png differ
+diff --git a/game/assets/icon/pwa_180.png b/game/assets/icon/pwa_180.png
+index bd9de5c..6f745ae 100644
+Binary files a/game/assets/icon/pwa_180.png and b/game/assets/icon/pwa_180.png differ
+diff --git a/game/assets/icon/pwa_512.png b/game/assets/icon/pwa_512.png
+index 745eb19..eff83e6 100644
+Binary files a/game/assets/icon/pwa_512.png and b/game/assets/icon/pwa_512.png differ
+diff --git a/game/assets/sprites/badge_count.png b/game/assets/sprites/badge_count.png
+index 89a1b25..5a96cf9 100644
+Binary files a/game/assets/sprites/badge_count.png and b/game/assets/sprites/badge_count.png differ
+diff --git a/game/assets/sprites/brawl_cloud.png b/game/assets/sprites/brawl_cloud.png
+index d4871c4..f24fd20 100644
+Binary files a/game/assets/sprites/brawl_cloud.png and b/game/assets/sprites/brawl_cloud.png differ
+diff --git a/game/assets/sprites/button_gold_default.png b/game/assets/sprites/button_gold_default.png
+index 63ebcd5..c06b1f4 100644
+Binary files a/game/assets/sprites/button_gold_default.png and b/game/assets/sprites/button_gold_default.png differ
+diff --git a/game/assets/sprites/button_gold_disabled.png b/game/assets/sprites/button_gold_disabled.png
+index 372254d..11550b6 100644
+Binary files a/game/assets/sprites/button_gold_disabled.png and b/game/assets/sprites/button_gold_disabled.png differ
+diff --git a/game/assets/sprites/button_gold_pressed.png b/game/assets/sprites/button_gold_pressed.png
+index f6d0595..2fa7f96 100644
+Binary files a/game/assets/sprites/button_gold_pressed.png and b/game/assets/sprites/button_gold_pressed.png differ
+diff --git a/game/assets/sprites/button_primary_default.png b/game/assets/sprites/button_primary_default.png
+index 12025ca..46b8c42 100644
+Binary files a/game/assets/sprites/button_primary_default.png and b/game/assets/sprites/button_primary_default.png differ
+diff --git a/game/assets/sprites/button_primary_disabled.png b/game/assets/sprites/button_primary_disabled.png
+index 372254d..11550b6 100644
+Binary files a/game/assets/sprites/button_primary_disabled.png and b/game/assets/sprites/button_primary_disabled.png differ
+diff --git a/game/assets/sprites/button_primary_pressed.png b/game/assets/sprites/button_primary_pressed.png
+index 4c3ee8c..33c447b 100644
+Binary files a/game/assets/sprites/button_primary_pressed.png and b/game/assets/sprites/button_primary_pressed.png differ
+diff --git a/game/assets/sprites/button_secondary_default.png b/game/assets/sprites/button_secondary_default.png
+index 9dad0cb..95178cb 100644
+Binary files a/game/assets/sprites/button_secondary_default.png and b/game/assets/sprites/button_secondary_default.png differ
+diff --git a/game/assets/sprites/button_secondary_disabled.png b/game/assets/sprites/button_secondary_disabled.png
+index 372254d..11550b6 100644
+Binary files a/game/assets/sprites/button_secondary_disabled.png and b/game/assets/sprites/button_secondary_disabled.png differ
+diff --git a/game/assets/sprites/button_secondary_pressed.png b/game/assets/sprites/button_secondary_pressed.png
+index a2132eb..198ce24 100644
+Binary files a/game/assets/sprites/button_secondary_pressed.png and b/game/assets/sprites/button_secondary_pressed.png differ
+diff --git a/game/assets/sprites/card_back_mark.png b/game/assets/sprites/card_back_mark.png
+index c64002c..9a7b7b0 100644
+Binary files a/game/assets/sprites/card_back_mark.png and b/game/assets/sprites/card_back_mark.png differ
+diff --git a/game/assets/sprites/card_opposition.png b/game/assets/sprites/card_opposition.png
+index bb1dd35..beb2aaf 100644
+Binary files a/game/assets/sprites/card_opposition.png and b/game/assets/sprites/card_opposition.png differ
+diff --git a/game/assets/sprites/card_opposition_back.png b/game/assets/sprites/card_opposition_back.png
+index cc132f0..b08f0f2 100644
+Binary files a/game/assets/sprites/card_opposition_back.png and b/game/assets/sprites/card_opposition_back.png differ
+diff --git a/game/assets/sprites/card_plate.png b/game/assets/sprites/card_plate.png
+index 207a18d..1119187 100644
+Binary files a/game/assets/sprites/card_plate.png and b/game/assets/sprites/card_plate.png differ
+diff --git a/game/assets/sprites/card_row.png b/game/assets/sprites/card_row.png
+index f7dddc8..41bb51e 100644
+Binary files a/game/assets/sprites/card_row.png and b/game/assets/sprites/card_row.png differ
+diff --git a/game/assets/sprites/card_row_locked.png b/game/assets/sprites/card_row_locked.png
+index 17f7e7b..0946cda 100644
+Binary files a/game/assets/sprites/card_row_locked.png and b/game/assets/sprites/card_row_locked.png differ
+diff --git a/game/assets/sprites/card_source_affordable.png b/game/assets/sprites/card_source_affordable.png
+index 4064425..56c65cb 100644
+Binary files a/game/assets/sprites/card_source_affordable.png and b/game/assets/sprites/card_source_affordable.png differ
+diff --git a/game/assets/sprites/card_source_locked.png b/game/assets/sprites/card_source_locked.png
+index 17f7e7b..0946cda 100644
+Binary files a/game/assets/sprites/card_source_locked.png and b/game/assets/sprites/card_source_locked.png differ
+diff --git a/game/assets/sprites/card_source_unaffordable.png b/game/assets/sprites/card_source_unaffordable.png
+index f7dddc8..41bb51e 100644
+Binary files a/game/assets/sprites/card_source_unaffordable.png and b/game/assets/sprites/card_source_unaffordable.png differ
+diff --git a/game/assets/sprites/card_spin.png b/game/assets/sprites/card_spin.png
+index 3ab9034..b1d0328 100644
+Binary files a/game/assets/sprites/card_spin.png and b/game/assets/sprites/card_spin.png differ
+diff --git a/game/assets/sprites/card_spin_locked.png b/game/assets/sprites/card_spin_locked.png
+index 99d87e0..5b82b7d 100644
+Binary files a/game/assets/sprites/card_spin_locked.png and b/game/assets/sprites/card_spin_locked.png differ
+diff --git a/game/assets/sprites/chat_bubble_in.png b/game/assets/sprites/chat_bubble_in.png
+index 01cef6c..89030d8 100644
+Binary files a/game/assets/sprites/chat_bubble_in.png and b/game/assets/sprites/chat_bubble_in.png differ
+diff --git a/game/assets/sprites/chat_bubble_out.png b/game/assets/sprites/chat_bubble_out.png
+index 5d698dd..d97cdcf 100644
+Binary files a/game/assets/sprites/chat_bubble_out.png and b/game/assets/sprites/chat_bubble_out.png differ
+diff --git a/game/assets/sprites/chat_bubble_ultimatum.png b/game/assets/sprites/chat_bubble_ultimatum.png
+index 6a124ba..e38fa64 100644
+Binary files a/game/assets/sprites/chat_bubble_ultimatum.png and b/game/assets/sprites/chat_bubble_ultimatum.png differ
+diff --git a/game/assets/sprites/chat_composer_disabled.png b/game/assets/sprites/chat_composer_disabled.png
+index ef77a77..a5ded9a 100644
+Binary files a/game/assets/sprites/chat_composer_disabled.png and b/game/assets/sprites/chat_composer_disabled.png differ
+diff --git a/game/assets/sprites/chat_header.png b/game/assets/sprites/chat_header.png
+index f54e24d..62d0345 100644
+Binary files a/game/assets/sprites/chat_header.png and b/game/assets/sprites/chat_header.png differ
+diff --git a/game/assets/sprites/chat_icon_chevron.png b/game/assets/sprites/chat_icon_chevron.png
+index 547884d..d5b464c 100644
+Binary files a/game/assets/sprites/chat_icon_chevron.png and b/game/assets/sprites/chat_icon_chevron.png differ
+diff --git a/game/assets/sprites/chat_icon_lock.png b/game/assets/sprites/chat_icon_lock.png
+index c753659..fde74ff 100644
+Binary files a/game/assets/sprites/chat_icon_lock.png and b/game/assets/sprites/chat_icon_lock.png differ
+diff --git a/game/assets/sprites/chat_icon_mute.png b/game/assets/sprites/chat_icon_mute.png
+index cf2d411..3a4d0ab 100644
+Binary files a/game/assets/sprites/chat_icon_mute.png and b/game/assets/sprites/chat_icon_mute.png differ
+diff --git a/game/assets/sprites/chat_icon_pin.png b/game/assets/sprites/chat_icon_pin.png
+index b25ab63..1b69ecb 100644
+Binary files a/game/assets/sprites/chat_icon_pin.png and b/game/assets/sprites/chat_icon_pin.png differ
+diff --git a/game/assets/sprites/chat_pinned.png b/game/assets/sprites/chat_pinned.png
+index ae8501d..e890c73 100644
+Binary files a/game/assets/sprites/chat_pinned.png and b/game/assets/sprites/chat_pinned.png differ
+diff --git a/game/assets/sprites/chat_system_pill.png b/game/assets/sprites/chat_system_pill.png
+index 09194c0..423b809 100644
+Binary files a/game/assets/sprites/chat_system_pill.png and b/game/assets/sprites/chat_system_pill.png differ
+diff --git a/game/assets/sprites/chip_countdown.png b/game/assets/sprites/chip_countdown.png
+index 0557a56..8ed878c 100644
+Binary files a/game/assets/sprites/chip_countdown.png and b/game/assets/sprites/chip_countdown.png differ
+diff --git a/game/assets/sprites/chip_court.png b/game/assets/sprites/chip_court.png
+index 44a3197..bc20a26 100644
+Binary files a/game/assets/sprites/chip_court.png and b/game/assets/sprites/chip_court.png differ
+diff --git a/game/assets/sprites/chip_icon_calendar.png b/game/assets/sprites/chip_icon_calendar.png
+index 891ab96..b10c31d 100644
+Binary files a/game/assets/sprites/chip_icon_calendar.png and b/game/assets/sprites/chip_icon_calendar.png differ
+diff --git a/game/assets/sprites/chip_icon_gavel.png b/game/assets/sprites/chip_icon_gavel.png
+index ba46527..2283575 100644
+Binary files a/game/assets/sprites/chip_icon_gavel.png and b/game/assets/sprites/chip_icon_gavel.png differ
+diff --git a/game/assets/sprites/chip_owned.png b/game/assets/sprites/chip_owned.png
+index 76db105..b7bc360 100644
+Binary files a/game/assets/sprites/chip_owned.png and b/game/assets/sprites/chip_owned.png differ
+diff --git a/game/assets/sprites/chip_ultimatum.png b/game/assets/sprites/chip_ultimatum.png
+index f11f009..20a0d13 100644
+Binary files a/game/assets/sprites/chip_ultimatum.png and b/game/assets/sprites/chip_ultimatum.png differ
+diff --git a/game/assets/sprites/cottage_cup.png b/game/assets/sprites/cottage_cup.png
+index 177e3e4..9d3601e 100644
+Binary files a/game/assets/sprites/cottage_cup.png and b/game/assets/sprites/cottage_cup.png differ
+diff --git a/game/assets/sprites/court_frame.png b/game/assets/sprites/court_frame.png
+index 12f7c28..6a10dcd 100644
+Binary files a/game/assets/sprites/court_frame.png and b/game/assets/sprites/court_frame.png differ
+diff --git a/game/assets/sprites/court_window.png b/game/assets/sprites/court_window.png
+index a009fe3..765d860 100644
+Binary files a/game/assets/sprites/court_window.png and b/game/assets/sprites/court_window.png differ
+diff --git a/game/assets/sprites/court_window_glow.png b/game/assets/sprites/court_window_glow.png
+index 4fbb79e..fe1029e 100644
+Binary files a/game/assets/sprites/court_window_glow.png and b/game/assets/sprites/court_window_glow.png differ
+diff --git a/game/assets/sprites/curtain_hem.png b/game/assets/sprites/curtain_hem.png
+index c923487..8a9693a 100644
+Binary files a/game/assets/sprites/curtain_hem.png and b/game/assets/sprites/curtain_hem.png differ
+diff --git a/game/assets/sprites/curtain_panel.png b/game/assets/sprites/curtain_panel.png
+index 443b9b7..ba115e7 100644
+Binary files a/game/assets/sprites/curtain_panel.png and b/game/assets/sprites/curtain_panel.png differ
+diff --git a/game/assets/sprites/curtain_valance.png b/game/assets/sprites/curtain_valance.png
+index 08602cb..b81e160 100644
+Binary files a/game/assets/sprites/curtain_valance.png and b/game/assets/sprites/curtain_valance.png differ
+diff --git a/game/assets/sprites/depboard.png b/game/assets/sprites/depboard.png
+index 154febd..1549c47 100644
+Binary files a/game/assets/sprites/depboard.png and b/game/assets/sprites/depboard.png differ
+diff --git a/game/assets/sprites/dubi_placeholder_avatar.png b/game/assets/sprites/dubi_placeholder_avatar.png
+index d1b1c39..cf0fbd7 100644
+Binary files a/game/assets/sprites/dubi_placeholder_avatar.png and b/game/assets/sprites/dubi_placeholder_avatar.png differ
+diff --git a/game/assets/sprites/dubi_placeholder_body.png b/game/assets/sprites/dubi_placeholder_body.png
+index 1562e6f..23429e8 100644
+Binary files a/game/assets/sprites/dubi_placeholder_body.png and b/game/assets/sprites/dubi_placeholder_body.png differ
+diff --git a/game/assets/sprites/dubi_small_fly.png b/game/assets/sprites/dubi_small_fly.png
+index 345349e..8938e43 100644
+Binary files a/game/assets/sprites/dubi_small_fly.png and b/game/assets/sprites/dubi_small_fly.png differ
+diff --git a/game/assets/sprites/dubi_small_idle.png b/game/assets/sprites/dubi_small_idle.png
+index 83d98fc..f951435 100644
+Binary files a/game/assets/sprites/dubi_small_idle.png and b/game/assets/sprites/dubi_small_idle.png differ
+diff --git a/game/assets/sprites/dubi_small_land.png b/game/assets/sprites/dubi_small_land.png
+index 90d0762..8e14061 100644
+Binary files a/game/assets/sprites/dubi_small_land.png and b/game/assets/sprites/dubi_small_land.png differ
+diff --git a/game/assets/sprites/dubi_small_peck.png b/game/assets/sprites/dubi_small_peck.png
+index 51520ad..61076c6 100644
+Binary files a/game/assets/sprites/dubi_small_peck.png and b/game/assets/sprites/dubi_small_peck.png differ
+diff --git a/game/assets/sprites/dubi_small_squawk.png b/game/assets/sprites/dubi_small_squawk.png
+index b062eb2..37f8f35 100644
+Binary files a/game/assets/sprites/dubi_small_squawk.png and b/game/assets/sprites/dubi_small_squawk.png differ
+diff --git a/game/assets/sprites/dubi_small_talk.png b/game/assets/sprites/dubi_small_talk.png
+index 07b6c28..64b9f37 100644
+Binary files a/game/assets/sprites/dubi_small_talk.png and b/game/assets/sprites/dubi_small_talk.png differ
+diff --git a/game/assets/sprites/ftue_hand.png b/game/assets/sprites/ftue_hand.png
+index 46d60d0..c92d994 100644
+Binary files a/game/assets/sprites/ftue_hand.png and b/game/assets/sprites/ftue_hand.png differ
+diff --git a/game/assets/sprites/ftue_tap_ring.png b/game/assets/sprites/ftue_tap_ring.png
+index 6f57f54..ee644b7 100644
+Binary files a/game/assets/sprites/ftue_tap_ring.png and b/game/assets/sprites/ftue_tap_ring.png differ
+diff --git a/game/assets/sprites/icon_clock.png b/game/assets/sprites/icon_clock.png
+index ef20bc7..6a05b94 100644
+Binary files a/game/assets/sprites/icon_clock.png and b/game/assets/sprites/icon_clock.png differ
+diff --git a/game/assets/sprites/icon_close.png b/game/assets/sprites/icon_close.png
+index 5034e98..e9065cc 100644
+Binary files a/game/assets/sprites/icon_close.png and b/game/assets/sprites/icon_close.png differ
+diff --git a/game/assets/sprites/icon_coin9.png b/game/assets/sprites/icon_coin9.png
+index 35e8d62..91e9519 100644
+Binary files a/game/assets/sprites/icon_coin9.png and b/game/assets/sprites/icon_coin9.png differ
+diff --git a/game/assets/sprites/icon_gear.png b/game/assets/sprites/icon_gear.png
+index 519a709..92e7b54 100644
+Binary files a/game/assets/sprites/icon_gear.png and b/game/assets/sprites/icon_gear.png differ
+diff --git a/game/assets/sprites/icon_sound_off.png b/game/assets/sprites/icon_sound_off.png
+index 63e53f0..a40c5f7 100644
+Binary files a/game/assets/sprites/icon_sound_off.png and b/game/assets/sprites/icon_sound_off.png differ
+diff --git a/game/assets/sprites/icon_sound_on.png b/game/assets/sprites/icon_sound_on.png
+index 95711bb..6758576 100644
+Binary files a/game/assets/sprites/icon_sound_on.png and b/game/assets/sprites/icon_sound_on.png differ
+diff --git a/game/assets/sprites/lane_balfour.png b/game/assets/sprites/lane_balfour.png
+index 4c54a3c..a22986f 100644
+Binary files a/game/assets/sprites/lane_balfour.png and b/game/assets/sprites/lane_balfour.png differ
+diff --git a/game/assets/sprites/lane_washington.png b/game/assets/sprites/lane_washington.png
+index 18581b2..3a9c9f2 100644
+Binary files a/game/assets/sprites/lane_washington.png and b/game/assets/sprites/lane_washington.png differ
+diff --git a/game/assets/sprites/laundry_bag.png b/game/assets/sprites/laundry_bag.png
+index d9b6830..7b128fd 100644
+Binary files a/game/assets/sprites/laundry_bag.png and b/game/assets/sprites/laundry_bag.png differ
+diff --git a/game/assets/sprites/laundry_shirt.png b/game/assets/sprites/laundry_shirt.png
+index 50a3977..b9e42f8 100644
+Binary files a/game/assets/sprites/laundry_shirt.png and b/game/assets/sprites/laundry_shirt.png differ
+diff --git a/game/assets/sprites/laundry_shorts.png b/game/assets/sprites/laundry_shorts.png
+index 71ca026..920360d 100644
+Binary files a/game/assets/sprites/laundry_shorts.png and b/game/assets/sprites/laundry_shorts.png differ
+diff --git a/game/assets/sprites/laundry_sock.png b/game/assets/sprites/laundry_sock.png
+index 6961106..a945d01 100644
+Binary files a/game/assets/sprites/laundry_sock.png and b/game/assets/sprites/laundry_sock.png differ
+diff --git a/game/assets/sprites/laundry_towel.png b/game/assets/sprites/laundry_towel.png
+index 617736d..0e99d38 100644
+Binary files a/game/assets/sprites/laundry_towel.png and b/game/assets/sprites/laundry_towel.png differ
+diff --git a/game/assets/sprites/nophoto_idle.png b/game/assets/sprites/nophoto_idle.png
+index 71daf51..9138c9b 100644
+Binary files a/game/assets/sprites/nophoto_idle.png and b/game/assets/sprites/nophoto_idle.png differ
+diff --git a/game/assets/sprites/opp_timer_fill.png b/game/assets/sprites/opp_timer_fill.png
+index 55b5daa..9388032 100644
+Binary files a/game/assets/sprites/opp_timer_fill.png and b/game/assets/sprites/opp_timer_fill.png differ
+diff --git a/game/assets/sprites/pay_pill_default.png b/game/assets/sprites/pay_pill_default.png
+index 0bc16a7..0ef57dc 100644
+Binary files a/game/assets/sprites/pay_pill_default.png and b/game/assets/sprites/pay_pill_default.png differ
+diff --git a/game/assets/sprites/pay_pill_fill.png b/game/assets/sprites/pay_pill_fill.png
+index fabcf0d..91caf03 100644
+Binary files a/game/assets/sprites/pay_pill_fill.png and b/game/assets/sprites/pay_pill_fill.png differ
+diff --git a/game/assets/sprites/pay_pill_pressed.png b/game/assets/sprites/pay_pill_pressed.png
+index 2419756..79da56c 100644
+Binary files a/game/assets/sprites/pay_pill_pressed.png and b/game/assets/sprites/pay_pill_pressed.png differ
+diff --git a/game/assets/sprites/pay_pill_track.png b/game/assets/sprites/pay_pill_track.png
+index ef00df0..87ecfd4 100644
+Binary files a/game/assets/sprites/pay_pill_track.png and b/game/assets/sprites/pay_pill_track.png differ
+diff --git a/game/assets/sprites/pick_tile_focus.png b/game/assets/sprites/pick_tile_focus.png
+index 5a8c553..f188523 100644
+Binary files a/game/assets/sprites/pick_tile_focus.png and b/game/assets/sprites/pick_tile_focus.png differ
+diff --git a/game/assets/sprites/pick_tile_idle.png b/game/assets/sprites/pick_tile_idle.png
+index b8c63e5..22a8dc8 100644
+Binary files a/game/assets/sprites/pick_tile_idle.png and b/game/assets/sprites/pick_tile_idle.png differ
+diff --git a/game/assets/sprites/pick_tile_pressed.png b/game/assets/sprites/pick_tile_pressed.png
+index 8edf7bd..33176bd 100644
+Binary files a/game/assets/sprites/pick_tile_pressed.png and b/game/assets/sprites/pick_tile_pressed.png differ
+diff --git a/game/assets/sprites/pick_tile_selected.png b/game/assets/sprites/pick_tile_selected.png
+index c58467f..f9650b0 100644
+Binary files a/game/assets/sprites/pick_tile_selected.png and b/game/assets/sprites/pick_tile_selected.png differ
+diff --git a/game/assets/sprites/plate_silhouette.png b/game/assets/sprites/plate_silhouette.png
+index 86c5f7b..0ff0b0b 100644
+Binary files a/game/assets/sprites/plate_silhouette.png and b/game/assets/sprites/plate_silhouette.png differ
+diff --git a/game/assets/sprites/plaza_balfour.png b/game/assets/sprites/plaza_balfour.png
+index 6d78932..2ee0bb3 100644
+Binary files a/game/assets/sprites/plaza_balfour.png and b/game/assets/sprites/plaza_balfour.png differ
+diff --git a/game/assets/sprites/plaza_washington.png b/game/assets/sprites/plaza_washington.png
+index 8789d0c..c0e4a93 100644
+Binary files a/game/assets/sprites/plaza_washington.png and b/game/assets/sprites/plaza_washington.png differ
+diff --git a/game/assets/sprites/prop_calculator.png b/game/assets/sprites/prop_calculator.png
+index 191a12f..cfd1da9 100644
+Binary files a/game/assets/sprites/prop_calculator.png and b/game/assets/sprites/prop_calculator.png differ
+diff --git a/game/assets/sprites/prop_chair.png b/game/assets/sprites/prop_chair.png
+index 13e6f24..9023a36 100644
+Binary files a/game/assets/sprites/prop_chair.png and b/game/assets/sprites/prop_chair.png differ
+diff --git a/game/assets/sprites/prop_phone.png b/game/assets/sprites/prop_phone.png
+index 632ffd9..682a240 100644
+Binary files a/game/assets/sprites/prop_phone.png and b/game/assets/sprites/prop_phone.png differ
+diff --git a/game/assets/sprites/receipt_body.png b/game/assets/sprites/receipt_body.png
+index 92a43e7..1dd7659 100644
+Binary files a/game/assets/sprites/receipt_body.png and b/game/assets/sprites/receipt_body.png differ
+diff --git a/game/assets/sprites/receipt_bottom.png b/game/assets/sprites/receipt_bottom.png
+index 0aa26c7..cc0b4f2 100644
+Binary files a/game/assets/sprites/receipt_bottom.png and b/game/assets/sprites/receipt_bottom.png differ
+diff --git a/game/assets/sprites/receipt_rule.png b/game/assets/sprites/receipt_rule.png
+index 798b08b..2ebacaa 100644
+Binary files a/game/assets/sprites/receipt_rule.png and b/game/assets/sprites/receipt_rule.png differ
+diff --git a/game/assets/sprites/receipt_top.png b/game/assets/sprites/receipt_top.png
+index 8a3b456..2d7cc20 100644
+Binary files a/game/assets/sprites/receipt_top.png and b/game/assets/sprites/receipt_top.png differ
+diff --git a/game/assets/sprites/seats_fill.png b/game/assets/sprites/seats_fill.png
+index ba8e073..d1d9997 100644
+Binary files a/game/assets/sprites/seats_fill.png and b/game/assets/sprites/seats_fill.png differ
+diff --git a/game/assets/sprites/seats_goal_frame.png b/game/assets/sprites/seats_goal_frame.png
+index c012782..c50d4e6 100644
+Binary files a/game/assets/sprites/seats_goal_frame.png and b/game/assets/sprites/seats_goal_frame.png differ
+diff --git a/game/assets/sprites/seats_tick.png b/game/assets/sprites/seats_tick.png
+index d85a571..e282360 100644
+Binary files a/game/assets/sprites/seats_tick.png and b/game/assets/sprites/seats_tick.png differ
+diff --git a/game/assets/sprites/seats_track.png b/game/assets/sprites/seats_track.png
+index 1270601..f56bf48 100644
+Binary files a/game/assets/sprites/seats_track.png and b/game/assets/sprites/seats_track.png differ
+diff --git a/game/assets/sprites/share_receipt_bg.png b/game/assets/sprites/share_receipt_bg.png
+index c309e63..94e5376 100644
+Binary files a/game/assets/sprites/share_receipt_bg.png and b/game/assets/sprites/share_receipt_bg.png differ
+diff --git a/game/assets/sprites/share_result_frame.png b/game/assets/sprites/share_result_frame.png
+index 15b04c2..4ad98a4 100644
+Binary files a/game/assets/sprites/share_result_frame.png and b/game/assets/sprites/share_result_frame.png differ
+diff --git a/game/assets/sprites/sheet_modal.png b/game/assets/sprites/sheet_modal.png
+index a1bac98..351376b 100644
+Binary files a/game/assets/sprites/sheet_modal.png and b/game/assets/sprites/sheet_modal.png differ
+diff --git a/game/assets/sprites/sheet_plain.png b/game/assets/sprites/sheet_plain.png
+index 861b279..6838101 100644
+Binary files a/game/assets/sprites/sheet_plain.png and b/game/assets/sprites/sheet_plain.png differ
+diff --git a/game/assets/sprites/source_checkbook.png b/game/assets/sprites/source_checkbook.png
+index e645092..f55bcfe 100644
+Binary files a/game/assets/sprites/source_checkbook.png and b/game/assets/sprites/source_checkbook.png differ
+diff --git a/game/assets/sprites/source_checkbook_icon.png b/game/assets/sprites/source_checkbook_icon.png
+index f8f05a0..47b1147 100644
+Binary files a/game/assets/sprites/source_checkbook_icon.png and b/game/assets/sprites/source_checkbook_icon.png differ
+diff --git a/game/assets/sprites/source_donor.png b/game/assets/sprites/source_donor.png
+index 403d5f5..87aba9b 100644
+Binary files a/game/assets/sprites/source_donor.png and b/game/assets/sprites/source_donor.png differ
+diff --git a/game/assets/sprites/source_funds.png b/game/assets/sprites/source_funds.png
+index f0d4a76..e480a26 100644
+Binary files a/game/assets/sprites/source_funds.png and b/game/assets/sprites/source_funds.png differ
+diff --git a/game/assets/sprites/source_funds_icon.png b/game/assets/sprites/source_funds_icon.png
+index 49638d1..e3931a2 100644
+Binary files a/game/assets/sprites/source_funds_icon.png and b/game/assets/sprites/source_funds_icon.png differ
+diff --git a/game/assets/sprites/source_poison.png b/game/assets/sprites/source_poison.png
+index 547b886..21e318b 100644
+Binary files a/game/assets/sprites/source_poison.png and b/game/assets/sprites/source_poison.png differ
+diff --git a/game/assets/sprites/source_poison_icon.png b/game/assets/sprites/source_poison_icon.png
+index 40251d8..6429eed 100644
+Binary files a/game/assets/sprites/source_poison_icon.png and b/game/assets/sprites/source_poison_icon.png differ
+diff --git a/game/assets/sprites/source_submarine.png b/game/assets/sprites/source_submarine.png
+index d3c2617..d3bacf7 100644
+Binary files a/game/assets/sprites/source_submarine.png and b/game/assets/sprites/source_submarine.png differ
+diff --git a/game/assets/sprites/source_submarine_icon.png b/game/assets/sprites/source_submarine_icon.png
+index 1f823fb..936c088 100644
+Binary files a/game/assets/sprites/source_submarine_icon.png and b/game/assets/sprites/source_submarine_icon.png differ
+diff --git a/game/assets/sprites/spin_s09.png b/game/assets/sprites/spin_s09.png
+index 403c5ab..fce55dd 100644
+Binary files a/game/assets/sprites/spin_s09.png and b/game/assets/sprites/spin_s09.png differ
+diff --git a/game/assets/sprites/spin_s13.png b/game/assets/sprites/spin_s13.png
+index fe666b3..eda7eb0 100644
+Binary files a/game/assets/sprites/spin_s13.png and b/game/assets/sprites/spin_s13.png differ
+diff --git a/game/assets/sprites/spin_s14.png b/game/assets/sprites/spin_s14.png
+index 3fc29c0..e15afd5 100644
+Binary files a/game/assets/sprites/spin_s14.png and b/game/assets/sprites/spin_s14.png differ
+diff --git a/game/assets/sprites/spin_slot_G.png b/game/assets/sprites/spin_slot_G.png
+index 017221e..2f87cd3 100644
+Binary files a/game/assets/sprites/spin_slot_G.png and b/game/assets/sprites/spin_slot_G.png differ
+diff --git a/game/assets/sprites/spin_slot_I.png b/game/assets/sprites/spin_slot_I.png
+index a08aae8..9373aa7 100644
+Binary files a/game/assets/sprites/spin_slot_I.png and b/game/assets/sprites/spin_slot_I.png differ
+diff --git a/game/assets/sprites/sprites.json b/game/assets/sprites/sprites.json
+index 4ad1363..baf2900 100644
+--- a/game/assets/sprites/sprites.json
++++ b/game/assets/sprites/sprites.json
+@@ -8642,8 +8642,8 @@
+  "stages": {
+   "balfour": {
+    "sprite": "stage_balfour",
+-   "padTop": "#2a2340",
+-   "padBottom": "#2a2340"
++   "padTop": "#0f2350",
++   "padBottom": "#0f2350"
+   },
+   "knesset": {
+    "sprite": "stage_knesset",
+@@ -12522,16 +12522,16 @@
+    ]
+   },
+   "badge_count.png": {
+-   "bytes": 152,
+-   "sha": "3d6f15b4d27d2ebb",
++   "bytes": 158,
++   "sha": "12c84950c79a3208",
+    "size": [
+     11,
+     11
+    ]
+   },
+   "brawl_cloud.png": {
+-   "bytes": 2133,
+-   "sha": "d8906748188d349e",
++   "bytes": 2327,
++   "sha": "3933be72f9fc318d",
+    "size": [
+     208,
+     40
+@@ -12570,160 +12570,160 @@
+    ]
+   },
+   "button_gold_default.png": {
+-   "bytes": 153,
+-   "sha": "7692fcba7528a5ed",
++   "bytes": 158,
++   "sha": "a0d7ada1d5492d6a",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_gold_disabled.png": {
+-   "bytes": 126,
+-   "sha": "8a26fb5158bc0f06",
++   "bytes": 123,
++   "sha": "87eb38efa6bf4ea9",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_gold_pressed.png": {
+-   "bytes": 139,
+-   "sha": "1d18ca511f4d12bf",
++   "bytes": 136,
++   "sha": "2e52e696bc901748",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_primary_default.png": {
+-   "bytes": 155,
+-   "sha": "3249928715eb2e64",
++   "bytes": 151,
++   "sha": "6c35f3263a7e3310",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_primary_disabled.png": {
+-   "bytes": 126,
+-   "sha": "8a26fb5158bc0f06",
++   "bytes": 123,
++   "sha": "87eb38efa6bf4ea9",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_primary_pressed.png": {
+-   "bytes": 133,
+-   "sha": "2111ead0edb25b90",
++   "bytes": 127,
++   "sha": "6708ec3f54533279",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_secondary_default.png": {
+-   "bytes": 153,
+-   "sha": "ee7b7bf08ce828dc",
++   "bytes": 160,
++   "sha": "350ceb773270d06a",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_secondary_disabled.png": {
+-   "bytes": 126,
+-   "sha": "8a26fb5158bc0f06",
++   "bytes": 123,
++   "sha": "87eb38efa6bf4ea9",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_secondary_pressed.png": {
+-   "bytes": 133,
+-   "sha": "5ae533f526b4df56",
++   "bytes": 128,
++   "sha": "14c2bc8be8362eb9",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "card_back_mark.png": {
+-   "bytes": 121,
+-   "sha": "6dd58ffb9071b73a",
++   "bytes": 116,
++   "sha": "f868d9bd4cd160b2",
+    "size": [
+     16,
+     16
+    ]
+   },
+   "card_opposition.png": {
+-   "bytes": 283,
+-   "sha": "f87536f24a7275d1",
++   "bytes": 289,
++   "sha": "b45da398e39e7d96",
+    "size": [
+     40,
+     40
+    ]
+   },
+   "card_opposition_back.png": {
+-   "bytes": 302,
+-   "sha": "60ff668936ad9d05",
++   "bytes": 315,
++   "sha": "d99a99cecefd94cb",
+    "size": [
+     40,
+     40
+    ]
+   },
+   "card_plate.png": {
+-   "bytes": 174,
+-   "sha": "2ce5971b4b8bb2bc",
++   "bytes": 156,
++   "sha": "6a88eeeb4ebe1de3",
+    "size": [
+     26,
+     26
+    ]
+   },
+   "card_row.png": {
+-   "bytes": 175,
+-   "sha": "9a5bee69dae0d257",
++   "bytes": 171,
++   "sha": "ee42afe7cbe0c6c0",
+    "size": [
+     32,
+     30
+    ]
+   },
+   "card_row_locked.png": {
+-   "bytes": 144,
+-   "sha": "9ce09cd643026b17",
++   "bytes": 138,
++   "sha": "c6e99c47ca9dce52",
+    "size": [
+     32,
+     30
+    ]
+   },
+   "card_source_affordable.png": {
+-   "bytes": 210,
+-   "sha": "b6c9b67b66707e7c",
++   "bytes": 215,
++   "sha": "859922ff33c96acb",
+    "size": [
+     32,
+     30
+    ]
+   },
+   "card_source_locked.png": {
+-   "bytes": 144,
+-   "sha": "9ce09cd643026b17",
++   "bytes": 138,
++   "sha": "c6e99c47ca9dce52",
+    "size": [
+     32,
+     30
+    ]
+   },
+   "card_source_unaffordable.png": {
+-   "bytes": 175,
+-   "sha": "9a5bee69dae0d257",
++   "bytes": 171,
++   "sha": "ee42afe7cbe0c6c0",
+    "size": [
+     32,
+     30
+    ]
+   },
+   "card_spin.png": {
+-   "bytes": 194,
+-   "sha": "3de64e16e991f53c",
++   "bytes": 190,
++   "sha": "d3c194823850420d",
+    "size": [
+     32,
+     30
+    ]
+   },
+   "card_spin_locked.png": {
+-   "bytes": 167,
+-   "sha": "d032933e4963a9fe",
++   "bytes": 159,
++   "sha": "dc9fbc249dd18fee",
+    "size": [
+     32,
+     30
+@@ -13626,120 +13626,120 @@
+    ]
+   },
+   "chat_bubble_in.png": {
+-   "bytes": 166,
+-   "sha": "27316edea469820d",
++   "bytes": 162,
++   "sha": "0206141bee6b5fc1",
+    "size": [
+     26,
+     16
+    ]
+   },
+   "chat_bubble_out.png": {
+-   "bytes": 175,
+-   "sha": "7ca977ac34cdc4c7",
++   "bytes": 174,
++   "sha": "02615a097e9cc487",
+    "size": [
+     26,
+     16
+    ]
+   },
+   "chat_bubble_ultimatum.png": {
+-   "bytes": 255,
+-   "sha": "a3a8f984ce110491",
++   "bytes": 269,
++   "sha": "28171dcb8c453be5",
+    "size": [
+     33,
+     24
+    ]
+   },
+   "chat_composer_disabled.png": {
+-   "bytes": 238,
+-   "sha": "823d80cafedf7296",
++   "bytes": 246,
++   "sha": "8fafa7d800cf9fa1",
+    "size": [
+     180,
+     22
+    ]
+   },
+   "chat_header.png": {
+-   "bytes": 181,
+-   "sha": "843d67a80ed6ce0f",
++   "bytes": 187,
++   "sha": "fd30c2a7790d378c",
+    "size": [
+     180,
+     26
+    ]
+   },
+   "chat_icon_chevron.png": {
+-   "bytes": 99,
+-   "sha": "617e102aaf1e48bb",
++   "bytes": 108,
++   "sha": "c7846979735b17f5",
+    "size": [
+     6,
+     9
+    ]
+   },
+   "chat_icon_lock.png": {
+-   "bytes": 148,
+-   "sha": "f5a91b319dbac595",
++   "bytes": 161,
++   "sha": "7e7e643a8e2843d3",
+    "size": [
+     7,
+     9
+    ]
+   },
+   "chat_icon_mute.png": {
+-   "bytes": 134,
+-   "sha": "038f1e0abb5502a6",
++   "bytes": 148,
++   "sha": "123ccc6891d6e3a9",
+    "size": [
+     9,
+     9
+    ]
+   },
+   "chat_icon_pin.png": {
+-   "bytes": 146,
+-   "sha": "414352723609635b",
++   "bytes": 149,
++   "sha": "4ffb51349dd12a1d",
+    "size": [
+     9,
+     9
+    ]
+   },
+   "chat_pinned.png": {
+-   "bytes": 151,
+-   "sha": "233ba5c866a18223",
++   "bytes": 148,
++   "sha": "be31238a1d7066fe",
+    "size": [
+     180,
+     14
+    ]
+   },
+   "chat_system_pill.png": {
+-   "bytes": 148,
+-   "sha": "d1e3234ff5c030bf",
++   "bytes": 150,
++   "sha": "471e4305e62a8fb5",
+    "size": [
+     20,
+     13
+    ]
+   },
+   "chip_countdown.png": {
+-   "bytes": 151,
+-   "sha": "2295be113d154a82",
++   "bytes": 153,
++   "sha": "5fa2a11745a4fc2a",
+    "size": [
+     20,
+     13
+    ]
+   },
+   "chip_court.png": {
+-   "bytes": 148,
+-   "sha": "ffd7933accabf787",
++   "bytes": 147,
++   "sha": "994fb84075d7ff1d",
+    "size": [
+     20,
+     13
+    ]
+   },
+   "chip_icon_calendar.png": {
+-   "bytes": 139,
+-   "sha": "8042c080b6f05881",
++   "bytes": 147,
++   "sha": "52bf63f4d2486c8b",
+    "size": [
+     9,
+     9
+    ]
+   },
+   "chip_icon_gavel.png": {
+-   "bytes": 146,
+-   "sha": "f0a97b32640708bd",
++   "bytes": 163,
++   "sha": "277a2da1e47a59f8",
+    "size": [
+     9,
+     9
+@@ -13754,24 +13754,24 @@
+    ]
+   },
+   "chip_owned.png": {
+-   "bytes": 135,
+-   "sha": "e590c79dfa821f4a",
++   "bytes": 140,
++   "sha": "db28143bec0c1d11",
+    "size": [
+     14,
+     11
+    ]
+   },
+   "chip_ultimatum.png": {
+-   "bytes": 147,
+-   "sha": "f07da355b96f56e6",
++   "bytes": 150,
++   "sha": "36b1d56511e001e3",
+    "size": [
+     20,
+     13
+    ]
+   },
+   "cottage_cup.png": {
+-   "bytes": 881,
+-   "sha": "5e3e7ea67d8dbeb7",
++   "bytes": 947,
++   "sha": "564213daddd5ba37",
+    "size": [
+     208,
+     18
+@@ -13786,40 +13786,40 @@
+    ]
+   },
+   "court_frame.png": {
+-   "bytes": 288,
+-   "sha": "563ae303761aeaa2",
++   "bytes": 297,
++   "sha": "a1095c722591279a",
+    "size": [
+     40,
+     36
+    ]
+   },
+   "court_window.png": {
+-   "bytes": 309,
+-   "sha": "29d2b55e0618e8e0",
++   "bytes": 335,
++   "sha": "8bd34e67a69df9ad",
+    "size": [
+     48,
+     22
+    ]
+   },
+   "court_window_glow.png": {
+-   "bytes": 148,
+-   "sha": "1ab117074a6f8cd5",
++   "bytes": 138,
++   "sha": "6e897e1323d0b920",
+    "size": [
+     20,
+     20
+    ]
+   },
+   "curtain_hem.png": {
+-   "bytes": 170,
+-   "sha": "e6998932347f3efc",
++   "bytes": 184,
++   "sha": "dce5c83cd711b091",
+    "size": [
+     30,
+     6
+    ]
+   },
+   "curtain_panel.png": {
+-   "bytes": 171,
+-   "sha": "5ab5e599518a7d08",
++   "bytes": 140,
++   "sha": "8eb996641dff3ff1",
+    "size": [
+     30,
+     40
+@@ -13827,87 +13827,87 @@
+   },
+   "curtain_valance.png": {
+    "bytes": 294,
+-   "sha": "185f7bea89a78f90",
++   "sha": "60e44075d441bdf5",
+    "size": [
+     180,
+     22
+    ]
+   },
+   "depboard.png": {
+-   "bytes": 1509,
+-   "sha": "1eb60f74b6fcfda0",
++   "bytes": 1525,
++   "sha": "d91867e8d52cd24d",
+    "size": [
+     288,
+     48
+    ]
+   },
+   "dubi_placeholder_avatar.png": {
+-   "bytes": 329,
+-   "sha": "ed687121d63fdd1c",
++   "bytes": 334,
++   "sha": "82004875957cb6c1",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "dubi_placeholder_body.png": {
+-   "bytes": 452,
+-   "sha": "dda129c77a4393e1",
++   "bytes": 461,
++   "sha": "2b12d59973cdfbeb",
+    "size": [
+     64,
+     100
+    ]
+   },
+   "dubi_small_fly.png": {
+-   "bytes": 603,
+-   "sha": "7480e9c19b64ef48",
++   "bytes": 641,
++   "sha": "f09098e6f5a94ca2",
+    "size": [
+     80,
+     23
+    ]
+   },
+   "dubi_small_idle.png": {
+-   "bytes": 986,
+-   "sha": "272914c70b550a25",
++   "bytes": 1066,
++   "sha": "3a01f72d870653a5",
+    "size": [
+     320,
+     23
+    ]
+   },
+   "dubi_small_land.png": {
+-   "bytes": 646,
+-   "sha": "12eff76b0c8c3174",
++   "bytes": 720,
++   "sha": "4752d73badc54a92",
+    "size": [
+     60,
+     23
+    ]
+   },
+   "dubi_small_peck.png": {
+-   "bytes": 891,
+-   "sha": "81c7a8a6dce6ef89",
++   "bytes": 967,
++   "sha": "5fc6ef39c891cbc1",
+    "size": [
+     120,
+     23
+    ]
+   },
+   "dubi_small_squawk.png": {
+-   "bytes": 776,
+-   "sha": "6f7b1fed008b1ba3",
++   "bytes": 832,
++   "sha": "393980acfe9541f5",
+    "size": [
+     80,
+     23
+    ]
+   },
+   "dubi_small_talk.png": {
+-   "bytes": 522,
+-   "sha": "0d2f828796f33f44",
++   "bytes": 574,
++   "sha": "e84e36a9ef617c23",
+    "size": [
+     40,
+     23
+    ]
+   },
+   "ftue_hand.png": {
+-   "bytes": 357,
+-   "sha": "c39306da450311aa",
++   "bytes": 375,
++   "sha": "3a0db2e4fd6d7ebc",
+    "size": [
+     36,
+     20
+@@ -13915,7 +13915,7 @@
+   },
+   "ftue_tap_ring.png": {
+    "bytes": 141,
+-   "sha": "2814265ea0bda826",
++   "sha": "970d84bc7c734501",
+    "size": [
+     13,
+     13
+@@ -13970,48 +13970,48 @@
+    ]
+   },
+   "icon_clock.png": {
+-   "bytes": 189,
+-   "sha": "1e3e05f2c7bbb5e1",
++   "bytes": 192,
++   "sha": "b96074d8b569865a",
+    "size": [
+     36,
+     9
+    ]
+   },
+   "icon_close.png": {
+-   "bytes": 286,
+-   "sha": "535503ce1d6436d5",
++   "bytes": 289,
++   "sha": "e70df19dc634042a",
+    "size": [
+     16,
+     16
+    ]
+   },
+   "icon_coin9.png": {
+-   "bytes": 169,
+-   "sha": "7afd82f1f6923c76",
++   "bytes": 180,
++   "sha": "782723a688f1f85c",
+    "size": [
+     9,
+     9
+    ]
+   },
+   "icon_gear.png": {
+-   "bytes": 229,
+-   "sha": "a0efddf5622cd9cb",
++   "bytes": 244,
++   "sha": "8c643dc0aa379dc3",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "icon_sound_off.png": {
+-   "bytes": 190,
+-   "sha": "081a5783a6981998",
++   "bytes": 211,
++   "sha": "1ba8a4e7dee75a60",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "icon_sound_on.png": {
+-   "bytes": 191,
+-   "sha": "75615018e786c11a",
++   "bytes": 202,
++   "sha": "bdf0939a2711ae45",
+    "size": [
+     15,
+     15
+@@ -14026,8 +14026,8 @@
+    ]
+   },
+   "lane_balfour.png": {
+-   "bytes": 311,
+-   "sha": "ab566101e00cd42e",
++   "bytes": 299,
++   "sha": "80747dff3e7cf816",
+    "size": [
+     32,
+     28
+@@ -14050,80 +14050,80 @@
+    ]
+   },
+   "lane_washington.png": {
+-   "bytes": 273,
+-   "sha": "fcbe9f69c671eb70",
++   "bytes": 286,
++   "sha": "794aa64df4d659c7",
+    "size": [
+     32,
+     28
+    ]
+   },
+   "laundry_bag.png": {
+-   "bytes": 251,
+-   "sha": "6d2afd7239457b94",
++   "bytes": 270,
++   "sha": "45eb11aaee688def",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "laundry_shirt.png": {
+-   "bytes": 172,
+-   "sha": "3c5312cf8afa276b",
++   "bytes": 184,
++   "sha": "1db4ee38df2abe0c",
+    "size": [
+     11,
+     10
+    ]
+   },
+   "laundry_shorts.png": {
+-   "bytes": 123,
+-   "sha": "94e8e9b53a9ecc69",
++   "bytes": 126,
++   "sha": "ac1fd65bd16f60d3",
+    "size": [
+     9,
+     7
+    ]
+   },
+   "laundry_sock.png": {
+-   "bytes": 124,
+-   "sha": "d6228594030bd916",
++   "bytes": 141,
++   "sha": "c64dda14a963a7ef",
+    "size": [
+     6,
+     9
+    ]
+   },
+   "laundry_towel.png": {
+-   "bytes": 126,
+-   "sha": "436aad3c933ec768",
++   "bytes": 130,
++   "sha": "b4cbcba17664892c",
+    "size": [
+     10,
+     9
+    ]
+   },
+   "nophoto_idle.png": {
+-   "bytes": 970,
+-   "sha": "78e6de9adee39997",
++   "bytes": 975,
++   "sha": "eeef5eeef10ea58d",
+    "size": [
+     40,
+     97
+    ]
+   },
+   "opp_timer_fill.png": {
+-   "bytes": 100,
+-   "sha": "531e9f2d3b5d0072",
++   "bytes": 105,
++   "sha": "d2514696c1601223",
+    "size": [
+     6,
+     7
+    ]
+   },
+   "pay_pill_default.png": {
+-   "bytes": 165,
+-   "sha": "252422f01362c238",
++   "bytes": 172,
++   "sha": "590f3b81cb757680",
+    "size": [
+     24,
+     17
+    ]
+   },
+   "pay_pill_fill.png": {
+-   "bytes": 87,
+-   "sha": "5a7a6b0bd824d46b",
++   "bytes": 89,
++   "sha": "452cbec0a94a3f6a",
+    "size": [
+     6,
+     11
+@@ -14131,15 +14131,15 @@
+   },
+   "pay_pill_pressed.png": {
+    "bytes": 150,
+-   "sha": "08009c2ca5a51766",
++   "sha": "5030b41536fc9f4d",
+    "size": [
+     24,
+     17
+    ]
+   },
+   "pay_pill_track.png": {
+-   "bytes": 144,
+-   "sha": "161f62a60aefa5fe",
++   "bytes": 146,
++   "sha": "96b17bc732330696",
+    "size": [
+     24,
+     17
+@@ -14154,48 +14154,48 @@
+    ]
+   },
+   "pick_tile_focus.png": {
+-   "bytes": 243,
+-   "sha": "6d8d041de47bc25c",
++   "bytes": 248,
++   "sha": "00dcf19b56887a65",
+    "size": [
+     34,
+     34
+    ]
+   },
+   "pick_tile_idle.png": {
+-   "bytes": 167,
+-   "sha": "1d407be8225c56b4",
++   "bytes": 173,
++   "sha": "f4f7f1366de8135d",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "pick_tile_pressed.png": {
+-   "bytes": 168,
+-   "sha": "ca990d2670c825ce",
++   "bytes": 174,
++   "sha": "bdc73d223fc1163d",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "pick_tile_selected.png": {
+-   "bytes": 216,
+-   "sha": "2dd2aae0384a139b",
++   "bytes": 225,
++   "sha": "6ef7e868764da3be",
+    "size": [
+     34,
+     34
+    ]
+   },
+   "plate_silhouette.png": {
+-   "bytes": 223,
+-   "sha": "2090abe4edb5dbb1",
++   "bytes": 240,
++   "sha": "bcc2fba1f91f0b3d",
+    "size": [
+     26,
+     26
+    ]
+   },
+   "plaza_balfour.png": {
+-   "bytes": 1119,
+-   "sha": "9c3cd3734e66988a",
++   "bytes": 1086,
++   "sha": "4eccea008b335be1",
+    "size": [
+     128,
+     96
+@@ -14218,8 +14218,8 @@
+    ]
+   },
+   "plaza_washington.png": {
+-   "bytes": 1446,
+-   "sha": "409a2770e43ca9c8",
++   "bytes": 1455,
++   "sha": "927a6917bb2aec50",
+    "size": [
+     128,
+     96
+@@ -14234,8 +14234,8 @@
+    ]
+   },
+   "prop_calculator.png": {
+-   "bytes": 366,
+-   "sha": "8a87a39ba1c8de51",
++   "bytes": 375,
++   "sha": "bef962db8145d571",
+    "size": [
+     32,
+     17
+@@ -14243,7 +14243,7 @@
+   },
+   "prop_chair.png": {
+    "bytes": 478,
+-   "sha": "ba4557e06a8810c0",
++   "sha": "a129fb0610d2a3dd",
+    "size": [
+     40,
+     20
+@@ -14314,8 +14314,8 @@
+    ]
+   },
+   "prop_phone.png": {
+-   "bytes": 381,
+-   "sha": "063ddb1d3b3eff85",
++   "bytes": 372,
++   "sha": "f179398e15ef9874",
+    "size": [
+     30,
+     18
+@@ -14354,48 +14354,48 @@
+    ]
+   },
+   "receipt_body.png": {
+-   "bytes": 107,
+-   "sha": "2391195a47713474",
++   "bytes": 106,
++   "sha": "adbb96a403c6dd44",
+    "size": [
+     168,
+     4
+    ]
+   },
+   "receipt_bottom.png": {
+-   "bytes": 281,
+-   "sha": "c40f07758ef2e06e",
++   "bytes": 279,
++   "sha": "05d4ba46234d3bda",
+    "size": [
+     168,
+     6
+    ]
+   },
+   "receipt_rule.png": {
+-   "bytes": 76,
+-   "sha": "9686c9acffd00ad3",
++   "bytes": 78,
++   "sha": "e21eeafccd09d57c",
+    "size": [
+     8,
+     1
+    ]
+   },
+   "receipt_top.png": {
+-   "bytes": 285,
+-   "sha": "5b2aace5ca45f099",
++   "bytes": 289,
++   "sha": "aebddf340369c316",
+    "size": [
+     168,
+     6
+    ]
+   },
+   "seats_fill.png": {
+-   "bytes": 98,
+-   "sha": "cad4bc2d19c1c3f2",
++   "bytes": 106,
++   "sha": "7620865b8fbbec17",
+    "size": [
+     6,
+     7
+    ]
+   },
+   "seats_goal_frame.png": {
+-   "bytes": 174,
+-   "sha": "48bf61947039faea",
++   "bytes": 181,
++   "sha": "dff368b3976dd83f",
+    "size": [
+     20,
+     17
+@@ -14403,47 +14403,47 @@
+   },
+   "seats_tick.png": {
+    "bytes": 77,
+-   "sha": "100ede535d366f40",
++   "sha": "9c98522b07fecae5",
+    "size": [
+     1,
+     7
+    ]
+   },
+   "seats_track.png": {
+-   "bytes": 116,
+-   "sha": "e62dc4d5a992658c",
++   "bytes": 122,
++   "sha": "ae3eef825ddd5b9f",
+    "size": [
+     12,
+     9
+    ]
+   },
+   "share_receipt_bg.png": {
+-   "bytes": 2142,
+-   "sha": "6aa193b664747ae4",
++   "bytes": 2147,
++   "sha": "cea1605221765b90",
+    "size": [
+     216,
+     270
+    ]
+   },
+   "share_result_frame.png": {
+-   "bytes": 3083,
+-   "sha": "9841cea1b33c9838",
++   "bytes": 3120,
++   "sha": "493f991399c9670b",
+    "size": [
+     216,
+     270
+    ]
+   },
+   "sheet_modal.png": {
+-   "bytes": 259,
+-   "sha": "9c73eef216f018ca",
++   "bytes": 273,
++   "sha": "316d53a48e9b44a5",
+    "size": [
+     38,
+     38
+    ]
+   },
+   "sheet_plain.png": {
+-   "bytes": 167,
+-   "sha": "391db5119c6b7ca9",
++   "bytes": 164,
++   "sha": "dd1d9b6c36e64eaa",
+    "size": [
+     24,
+     24
+@@ -14482,16 +14482,16 @@
+    ]
+   },
+   "source_checkbook.png": {
+-   "bytes": 743,
+-   "sha": "68830329dffffcd7",
++   "bytes": 781,
++   "sha": "d9bf599be298a82f",
+    "size": [
+     84,
+     40
+    ]
+   },
+   "source_checkbook_icon.png": {
+-   "bytes": 329,
+-   "sha": "e6e50e8b6ea9054e",
++   "bytes": 355,
++   "sha": "69cbd15560c4296f",
+    "size": [
+     24,
+     24
+@@ -14538,8 +14538,8 @@
+    ]
+   },
+   "source_donor.png": {
+-   "bytes": 867,
+-   "sha": "61c0cd97ae247674",
++   "bytes": 871,
++   "sha": "0c58eb887a1bdfd5",
+    "size": [
+     56,
+     40
+@@ -14563,7 +14563,7 @@
+   },
+   "source_funds.png": {
+    "bytes": 615,
+-   "sha": "7451bb7f0e8857dd",
++   "sha": "302014fcd52aee67",
+    "size": [
+     60,
+     40
+@@ -14571,7 +14571,7 @@
+   },
+   "source_funds_icon.png": {
+    "bytes": 297,
+-   "sha": "59a3275446a07287",
++   "sha": "801c1ba0e35c5f21",
+    "size": [
+     24,
+     24
+@@ -14618,16 +14618,16 @@
+    ]
+   },
+   "source_poison.png": {
+-   "bytes": 589,
+-   "sha": "aa041308eaed2f24",
++   "bytes": 634,
++   "sha": "bb1938eda522c547",
+    "size": [
+     68,
+     40
+    ]
+   },
+   "source_poison_icon.png": {
+-   "bytes": 230,
+-   "sha": "e8c7a46040b74043",
++   "bytes": 241,
++   "sha": "bf7cde734b061c21",
+    "size": [
+     24,
+     24
+@@ -14674,16 +14674,16 @@
+    ]
+   },
+   "source_submarine.png": {
+-   "bytes": 1084,
+-   "sha": "bc4485f2e2bc0b3f",
++   "bytes": 1192,
++   "sha": "eb096a9457e4a904",
+    "size": [
+     100,
+     40
+    ]
+   },
+   "source_submarine_icon.png": {
+-   "bytes": 446,
+-   "sha": "b2561d7d8d63ad32",
++   "bytes": 471,
++   "sha": "1e796fe34e7c8b6b",
+    "size": [
+     24,
+     24
+@@ -14826,8 +14826,8 @@
+    ]
+   },
+   "spin_s09.png": {
+-   "bytes": 429,
+-   "sha": "ff573f77f9f24fcc",
++   "bytes": 430,
++   "sha": "6c0f725b5d41019c",
+    "size": [
+     24,
+     24
+@@ -14858,16 +14858,16 @@
+    ]
+   },
+   "spin_s13.png": {
+-   "bytes": 443,
+-   "sha": "c4e8bcb83da417fe",
++   "bytes": 441,
++   "sha": "4ba507d191e97a76",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "spin_s14.png": {
+-   "bytes": 402,
+-   "sha": "f54d1dbef94c08be",
++   "bytes": 397,
++   "sha": "58d8a8422b3d782f",
+    "size": [
+     24,
+     24
+@@ -14923,7 +14923,7 @@
+   },
+   "spin_slot_G.png": {
+    "bytes": 350,
+-   "sha": "3acffa7dcfcc782a",
++   "sha": "633a4ab310bacafe",
+    "size": [
+     24,
+     24
+@@ -14939,15 +14939,15 @@
+   },
+   "spin_slot_I.png": {
+    "bytes": 363,
+-   "sha": "a210d4b770b8e945",
++   "sha": "e26bd96ad2804abb",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "stage_balfour.png": {
+-   "bytes": 4377,
+-   "sha": "52a08a9f2ab45e34",
++   "bytes": 4388,
++   "sha": "12b9df6eeb784320",
+    "size": [
+     180,
+     320
+@@ -14970,192 +14970,192 @@
+    ]
+   },
+   "stage_washington.png": {
+-   "bytes": 2831,
+-   "sha": "1847aeb3734e093a",
++   "bytes": 2830,
++   "sha": "8bbddc6c4c33ee2e",
+    "size": [
+     180,
+     320
+    ]
+   },
+   "stamp_blackout_dark.png": {
+-   "bytes": 307,
+-   "sha": "9fcf1ec01eae67dd",
++   "bytes": 312,
++   "sha": "d752a0f5d5ba01ab",
+    "size": [
+     70,
+     17
+    ]
+   },
+   "stamp_blackout_dark_rot.png": {
+-   "bytes": 444,
+-   "sha": "1c2e70fe80a5704d",
++   "bytes": 459,
++   "sha": "1c65f5ce459c79aa",
+    "size": [
+     72,
+     26
+    ]
+   },
+   "stamp_blackout_paper.png": {
+-   "bytes": 306,
+-   "sha": "bee1ffecd6b4e337",
++   "bytes": 311,
++   "sha": "1b9182427b44776d",
+    "size": [
+     70,
+     17
+    ]
+   },
+   "stamp_blackout_paper_rot.png": {
+-   "bytes": 444,
+-   "sha": "2d24bf2ff0db98e3",
++   "bytes": 458,
++   "sha": "4b444bbe9461f011",
+    "size": [
+     72,
+     26
+    ]
+   },
+   "stamp_camera.png": {
+-   "bytes": 166,
+-   "sha": "0a80028ed49b8aff",
++   "bytes": 177,
++   "sha": "2c773f3f01756906",
+    "size": [
+     9,
+     8
+    ]
+   },
+   "stamp_frame_dark.png": {
+-   "bytes": 149,
+-   "sha": "7bbc9188d37f1333",
++   "bytes": 156,
++   "sha": "0b21a7cac8c638ce",
+    "size": [
+     16,
+     14
+    ]
+   },
+   "stamp_frame_paper.png": {
+-   "bytes": 149,
+-   "sha": "275987447491f3e1",
++   "bytes": 156,
++   "sha": "082428e14ec0df97",
+    "size": [
+     16,
+     14
+    ]
+   },
+   "stamp_paid_dark.png": {
+-   "bytes": 219,
+-   "sha": "1eb754069071b812",
++   "bytes": 225,
++   "sha": "b7bbae580521a15f",
+    "size": [
+     32,
+     17
+    ]
+   },
+   "stamp_paid_dark_rot.png": {
+-   "bytes": 276,
+-   "sha": "cad3e239427ad80c",
++   "bytes": 272,
++   "sha": "e4f49d7035be8135",
+    "size": [
+     34,
+     20
+    ]
+   },
+   "stamp_paid_paper.png": {
+-   "bytes": 218,
+-   "sha": "744d5cc68377e37b",
++   "bytes": 225,
++   "sha": "fa595a7635bd92ac",
+    "size": [
+     32,
+     17
+    ]
+   },
+   "stamp_paid_paper_rot.png": {
+-   "bytes": 275,
+-   "sha": "6688cfcaa56209c1",
++   "bytes": 272,
++   "sha": "46ad53e4f0043b9d",
+    "size": [
+     34,
+     20
+    ]
+   },
+   "stamp_pardon_dark.png": {
+-   "bytes": 378,
+-   "sha": "eef725398fbf1cb8",
++   "bytes": 386,
++   "sha": "04eb76c26b7a038e",
+    "size": [
+     78,
+     27
+    ]
+   },
+   "stamp_pardon_dark_rot.png": {
+-   "bytes": 594,
+-   "sha": "27af56babf992709",
++   "bytes": 610,
++   "sha": "39c15ceeed9ba50d",
+    "size": [
+     82,
+     37
+    ]
+   },
+   "stamp_pardon_paper.png": {
+-   "bytes": 377,
+-   "sha": "1a5eb8b090f43aea",
++   "bytes": 385,
++   "sha": "0782e6a0d60875b9",
+    "size": [
+     78,
+     27
+    ]
+   },
+   "stamp_pardon_paper_rot.png": {
+-   "bytes": 593,
+-   "sha": "53358ceed06aef18",
++   "bytes": 610,
++   "sha": "4c243e95e43526d1",
+    "size": [
+     82,
+     37
+    ]
+   },
+   "stamp_postponed_dark.png": {
+-   "bytes": 204,
+-   "sha": "8668bbf2415ad71d",
++   "bytes": 212,
++   "sha": "ca1b85e228600e41",
+    "size": [
+     33,
+     17
+    ]
+   },
+   "stamp_postponed_dark_rot.png": {
+-   "bytes": 286,
+-   "sha": "dd4290bfd3ad3b87",
++   "bytes": 282,
++   "sha": "4de85daaf5ca4b26",
+    "size": [
+     34,
+     21
+    ]
+   },
+   "stamp_postponed_paper.png": {
+-   "bytes": 204,
+-   "sha": "5d33fd907f51af1d",
++   "bytes": 211,
++   "sha": "c9077c5b3fdaef67",
+    "size": [
+     33,
+     17
+    ]
+   },
+   "stamp_postponed_paper_rot.png": {
+-   "bytes": 285,
+-   "sha": "ca948c98d1356e9a",
++   "bytes": 281,
++   "sha": "c0848994c339f321",
+    "size": [
+     34,
+     21
+    ]
+   },
+   "stamp_tool_down.png": {
+-   "bytes": 262,
+-   "sha": "3b4df259b9ef22c1",
++   "bytes": 282,
++   "sha": "b0e21c9c17cce5d7",
+    "size": [
+     18,
+     24
+    ]
+   },
+   "stamp_tool_up.png": {
+-   "bytes": 273,
+-   "sha": "f4612fd2ed26efb4",
++   "bytes": 295,
++   "sha": "959c0ab28c08dec5",
+    "size": [
+     18,
+     24
+    ]
+   },
+   "suitcase.png": {
+-   "bytes": 452,
+-   "sha": "c4dc4f41aa55f4e0",
++   "bytes": 475,
++   "sha": "9e91a4b7fb81a3a9",
+    "size": [
+     26,
+     20
+    ]
+   },
+   "suitcase_norim.png": {
+-   "bytes": 373,
+-   "sha": "f487e3ed7262e705",
++   "bytes": 414,
++   "sha": "0f4ecf98befe5e2d",
+    "size": [
+     24,
+     18
+@@ -15178,136 +15178,136 @@
+    ]
+   },
+   "sweat_drop.png": {
+-   "bytes": 114,
+-   "sha": "8c4af61549f2863a",
++   "bytes": 129,
++   "sha": "f6ec00038c5f768e",
+    "size": [
+     5,
+     6
+    ]
+   },
+   "tab_active.png": {
+-   "bytes": 188,
+-   "sha": "a981476ccc9348fb",
++   "bytes": 179,
++   "sha": "195a1545e18d4f0c",
+    "size": [
+     45,
+     26
+    ]
+   },
+   "tabbar.png": {
+-   "bytes": 193,
+-   "sha": "1f28299ec7dfff32",
++   "bytes": 196,
++   "sha": "3345dd60a2bc88a4",
+    "size": [
+     180,
+     26
+    ]
+   },
+   "tabicon_cases_active.png": {
+-   "bytes": 195,
+-   "sha": "7fb7e4c7506dff84",
++   "bytes": 213,
++   "sha": "a533764d1c17ab23",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_cases_idle.png": {
+-   "bytes": 194,
+-   "sha": "4fb7c1f980bd3a2d",
++   "bytes": 210,
++   "sha": "a7b1f6b741216d94",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_coalition_active.png": {
+-   "bytes": 191,
+-   "sha": "6917a92916083001",
++   "bytes": 207,
++   "sha": "f44501adb87c9fc0",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_coalition_idle.png": {
+-   "bytes": 181,
+-   "sha": "0a4f7962145deb21",
++   "bytes": 200,
++   "sha": "6ec9ed807e5f4225",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_sources_active.png": {
+-   "bytes": 229,
+-   "sha": "abe8e1cd354b1d64",
++   "bytes": 239,
++   "sha": "dd87bf2a44737eda",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_sources_idle.png": {
+-   "bytes": 205,
+-   "sha": "614bc63969f18458",
++   "bytes": 206,
++   "sha": "5585a1af24ce9690",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_spins_active.png": {
+-   "bytes": 269,
+-   "sha": "f489d95b671e5499",
++   "bytes": 299,
++   "sha": "cab2c23b669932ab",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_spins_idle.png": {
+-   "bytes": 244,
+-   "sha": "9d6f033fe78943ea",
++   "bytes": 269,
++   "sha": "3d55d6d59112c221",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tag_worn.png": {
+-   "bytes": 243,
+-   "sha": "bb1593ed21186f01",
++   "bytes": 257,
++   "sha": "b218672c6e49d41d",
+    "size": [
+     30,
+     13
+    ]
+   },
+   "thermo_bubble.png": {
+-   "bytes": 106,
+-   "sha": "003f6aab79dec3eb",
++   "bytes": 109,
++   "sha": "91a1c4c91dd40caa",
+    "size": [
+     15,
+     5
+    ]
+   },
+   "thermo_fill.png": {
+-   "bytes": 80,
+-   "sha": "63f6eb6446f7418d",
++   "bytes": 83,
++   "sha": "520af38913d03e09",
+    "size": [
+     4,
+     1
+    ]
+   },
+   "thermo_floor_hatch.png": {
+-   "bytes": 100,
+-   "sha": "9a0609e871b5a242",
++   "bytes": 105,
++   "sha": "dfb82a7c53b31f06",
+    "size": [
+     4,
+     4
+    ]
+   },
+   "thermo_icon_gavel.png": {
+-   "bytes": 159,
+-   "sha": "52a78bf2d18f967c",
++   "bytes": 170,
++   "sha": "b6edf8970343a1da",
+    "size": [
+     11,
+     11
+    ]
+   },
+   "thermo_icon_magnifier.png": {
+-   "bytes": 175,
+-   "sha": "dd4bae49036096de",
++   "bytes": 188,
++   "sha": "2956b113e21eee3c",
+    "size": [
+     11,
+     11
+@@ -15322,200 +15322,200 @@
+    ]
+   },
+   "thermo_meniscus.png": {
+-   "bytes": 80,
+-   "sha": "963268d57c378444",
++   "bytes": 83,
++   "sha": "2527d1a05fcb9d50",
+    "size": [
+     4,
+     1
+    ]
+   },
+   "thermo_tube.png": {
+-   "bytes": 363,
+-   "sha": "200bf47524cc8d2b",
++   "bytes": 364,
++   "sha": "4e0d33fd89b14136",
+    "size": [
+     14,
+     88
+    ]
+   },
+   "thermo_tube_short.png": {
+-   "bytes": 345,
+-   "sha": "5daa478c69eaf34a",
++   "bytes": 349,
++   "sha": "a7cf93a0820426b3",
+    "size": [
+     14,
+     58
+    ]
+   },
+   "ticker_bar.png": {
+-   "bytes": 175,
+-   "sha": "e20e1b3fe0c4cbfd",
++   "bytes": 165,
++   "sha": "121ac2e7d25eea4b",
+    "size": [
+     180,
+     20
+    ]
+   },
+   "ticker_flash_plate.png": {
+-   "bytes": 154,
+-   "sha": "1ed6a96fcabd1027",
++   "bytes": 160,
++   "sha": "277e56f69baa03b8",
+    "size": [
+     32,
+     14
+    ]
+   },
+   "ticker_flash_plate_text.png": {
+-   "bytes": 222,
+-   "sha": "e820ad15eb29f4e7",
++   "bytes": 236,
++   "sha": "0ed0382e3cf47b31",
+    "size": [
+     32,
+     14
+    ]
+   },
+   "toast.png": {
+-   "bytes": 176,
+-   "sha": "e99b88159df89f5f",
++   "bytes": 179,
++   "sha": "b819080181807d18",
+    "size": [
+     32,
+     20
+    ]
+   },
+   "transfer_banner.png": {
+-   "bytes": 718,
+-   "sha": "760f7650ce77fe6a",
++   "bytes": 767,
++   "sha": "3e9c359e5d8210d6",
+    "size": [
+     180,
+     30
+    ]
+   },
+   "transfer_card.png": {
+-   "bytes": 151,
+-   "sha": "b17a63dcf8a4a238",
++   "bytes": 157,
++   "sha": "d4e03a7ded2c90cf",
+    "size": [
+     24,
+     16
+    ]
+   },
+   "trophy_aide.png": {
+-   "bytes": 270,
+-   "sha": "c3550613763c84e9",
++   "bytes": 298,
++   "sha": "37acad317edd5ba9",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_aide_locked.png": {
+-   "bytes": 234,
+-   "sha": "3d7287ceaf912ccd",
++   "bytes": 248,
++   "sha": "2da783254f8d46ff",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_ballot.png": {
+-   "bytes": 207,
+-   "sha": "24a421696a2e40e0",
++   "bytes": 218,
++   "sha": "79780afdc8cef321",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_ballot_locked.png": {
+-   "bytes": 189,
+-   "sha": "7d24616da360bf6b",
++   "bytes": 200,
++   "sha": "d1f55dd8def4cead",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_clock.png": {
+-   "bytes": 212,
+-   "sha": "eb1331d2e8496173",
++   "bytes": 224,
++   "sha": "9aab40464b1fd3e8",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_clock_locked.png": {
+-   "bytes": 190,
+-   "sha": "2baf10831f391729",
++   "bytes": 192,
++   "sha": "29d968d73098e37a",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_coin.png": {
+-   "bytes": 218,
+-   "sha": "a307cf89831557c0",
++   "bytes": 238,
++   "sha": "86f3d22dac1519e9",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_coin_locked.png": {
+-   "bytes": 212,
+-   "sha": "52b7795f470c986f",
++   "bytes": 226,
++   "sha": "1f9bedbcfab67db4",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_cottage.png": {
+-   "bytes": 108,
+-   "sha": "9aec5abd303a2fec",
++   "bytes": 102,
++   "sha": "b15c65e0e1a2e12b",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_cottage_locked.png": {
+-   "bytes": 108,
+-   "sha": "c81533e8ef364665",
++   "bytes": 102,
++   "sha": "9e1a4a6f0f9e6efc",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_folder.png": {
+-   "bytes": 190,
+-   "sha": "2a9941e7e0fb56b5",
++   "bytes": 208,
++   "sha": "75becb44456416d9",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_folder_locked.png": {
+-   "bytes": 190,
+-   "sha": "00748f8abab6079e",
++   "bytes": 205,
++   "sha": "2e749a0a4b70965c",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_gavel.png": {
+-   "bytes": 188,
+-   "sha": "942014c79559a974",
++   "bytes": 193,
++   "sha": "de182c6227db761e",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_gavel_locked.png": {
+-   "bytes": 189,
+-   "sha": "1e1a08f876916caf",
++   "bytes": 197,
++   "sha": "37fa0895aa1478b7",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_hat.png": {
+-   "bytes": 189,
+-   "sha": "1e5f92af3463069a",
++   "bytes": 206,
++   "sha": "4d3d94ba28bb2f6d",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_hat_locked.png": {
+-   "bytes": 148,
+-   "sha": "ef0e68f2504d4b52",
++   "bytes": 157,
++   "sha": "fb0c1a4a4f872fe7",
+    "size": [
+     15,
+     15
+@@ -15538,168 +15538,168 @@
+    ]
+   },
+   "trophy_parrot.png": {
+-   "bytes": 289,
+-   "sha": "23b74c7d8660cfbc",
++   "bytes": 325,
++   "sha": "a1b75784f129c18e",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_parrot_locked.png": {
+-   "bytes": 240,
+-   "sha": "2317797f236afc99",
++   "bytes": 253,
++   "sha": "8266b66d743d056d",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_phone.png": {
+-   "bytes": 234,
+-   "sha": "3fafe164851d583c",
++   "bytes": 252,
++   "sha": "c4f63a701d440b01",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_phone_locked.png": {
+-   "bytes": 192,
+-   "sha": "71cbd1e4fa32b456",
++   "bytes": 195,
++   "sha": "ef4729c9240f3430",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_pin.png": {
+-   "bytes": 190,
+-   "sha": "ac2c85bcee5cdb63",
++   "bytes": 196,
++   "sha": "df793b9b1c9e48a6",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_pin_locked.png": {
+-   "bytes": 184,
+-   "sha": "81cb4d11c9492806",
++   "bytes": 189,
++   "sha": "cebbcef35f720f0f",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_plane.png": {
+-   "bytes": 177,
+-   "sha": "f94f0539786c43a0",
++   "bytes": 196,
++   "sha": "325bbc4f7ecc2fea",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_plane_locked.png": {
+-   "bytes": 172,
+-   "sha": "7e71a181496a55ba",
++   "bytes": 185,
++   "sha": "f8b127de507cfc3e",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_plate_earned.png": {
+-   "bytes": 187,
+-   "sha": "f66ef097e8962053",
++   "bytes": 190,
++   "sha": "b9b5d4dfd295252a",
+    "size": [
+     21,
+     21
+    ]
+   },
+   "trophy_plate_locked.png": {
+-   "bytes": 163,
+-   "sha": "560d05fbbf9e8319",
++   "bytes": 164,
++   "sha": "d37c054d58f14ea1",
+    "size": [
+     21,
+     21
+    ]
+   },
+   "trophy_plate_secret.png": {
+-   "bytes": 198,
+-   "sha": "40ee0779144abf20",
++   "bytes": 206,
++   "sha": "001cb556a96579bb",
+    "size": [
+     21,
+     21
+    ]
+   },
+   "trophy_rabbit.png": {
+-   "bytes": 242,
+-   "sha": "97307c2a41d06aa7",
++   "bytes": 268,
++   "sha": "aee77c868cc21aef",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_rabbit_locked.png": {
+-   "bytes": 230,
+-   "sha": "2e3090377b5a544f",
++   "bytes": 244,
++   "sha": "45dd43c05e54165b",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_stamp.png": {
+-   "bytes": 227,
+-   "sha": "ef0402892589117c",
++   "bytes": 237,
++   "sha": "97494f80acb316be",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_stamp_locked.png": {
+-   "bytes": 200,
+-   "sha": "f64fc50a7efaeace",
++   "bytes": 217,
++   "sha": "4c1692c0d1ec7288",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_suitcase.png": {
+-   "bytes": 220,
+-   "sha": "5c612daf198d4305",
++   "bytes": 224,
++   "sha": "5ba0134ff8434254",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_suitcase_locked.png": {
+-   "bytes": 189,
+-   "sha": "de2e489e443939b2",
++   "bytes": 195,
++   "sha": "3f637cfab27b58fe",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_wand.png": {
+-   "bytes": 175,
+-   "sha": "79813d52c8f76115",
++   "bytes": 182,
++   "sha": "07f2679d6b9ee39c",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_wand_locked.png": {
+-   "bytes": 171,
+-   "sha": "4107bb7ec03372d5",
++   "bytes": 183,
++   "sha": "6c981ef2aba713bb",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "wing_balfour_l.png": {
+-   "bytes": 567,
+-   "sha": "c611d46253f3710b",
++   "bytes": 570,
++   "sha": "06869c41daafebf8",
+    "size": [
+     20,
+     230
+    ]
+   },
+   "wing_balfour_r.png": {
+-   "bytes": 533,
+-   "sha": "785d9bd097645508",
++   "bytes": 535,
++   "sha": "92df8f2c94e1af0a",
+    "size": [
+     20,
+     230
+@@ -15754,32 +15754,32 @@
+    ]
+   },
+   "wordmark.png": {
+-   "bytes": 1072,
+-   "sha": "98a09428e6f14d56",
++   "bytes": 1128,
++   "sha": "24b26451495ba765",
+    "size": [
+     143,
+     29
+    ]
+   },
+   "wordmark_mono.png": {
+-   "bytes": 440,
+-   "sha": "eac07bf3e262eae3",
++   "bytes": 454,
++   "sha": "6f987e6c40cdf9e9",
+    "size": [
+     141,
+     27
+    ]
+   },
+   "wordmark_norim.png": {
+-   "bytes": 961,
+-   "sha": "2982e899d55c6aac",
++   "bytes": 1024,
++   "sha": "de998e2e6d3e7468",
+    "size": [
+     141,
+     27
+    ]
+   },
+   "wordmark_small.png": {
+-   "bytes": 607,
+-   "sha": "b9b08c1304da7ea3",
++   "bytes": 640,
++   "sha": "172c0a3a2cbd79f4",
+    "size": [
+     66,
+     16
+diff --git a/game/assets/sprites/stage_balfour.png b/game/assets/sprites/stage_balfour.png
+index e227899..664b693 100644
+Binary files a/game/assets/sprites/stage_balfour.png and b/game/assets/sprites/stage_balfour.png differ
+diff --git a/game/assets/sprites/stage_washington.png b/game/assets/sprites/stage_washington.png
+index 28c1cc3..4634db6 100644
+Binary files a/game/assets/sprites/stage_washington.png and b/game/assets/sprites/stage_washington.png differ
+diff --git a/game/assets/sprites/stamp_blackout_dark.png b/game/assets/sprites/stamp_blackout_dark.png
+index 1270cbd..8a63aea 100644
+Binary files a/game/assets/sprites/stamp_blackout_dark.png and b/game/assets/sprites/stamp_blackout_dark.png differ
+diff --git a/game/assets/sprites/stamp_blackout_dark_rot.png b/game/assets/sprites/stamp_blackout_dark_rot.png
+index c6a7ff7..0203199 100644
+Binary files a/game/assets/sprites/stamp_blackout_dark_rot.png and b/game/assets/sprites/stamp_blackout_dark_rot.png differ
+diff --git a/game/assets/sprites/stamp_blackout_paper.png b/game/assets/sprites/stamp_blackout_paper.png
+index c9fd47c..88ef278 100644
+Binary files a/game/assets/sprites/stamp_blackout_paper.png and b/game/assets/sprites/stamp_blackout_paper.png differ
+diff --git a/game/assets/sprites/stamp_blackout_paper_rot.png b/game/assets/sprites/stamp_blackout_paper_rot.png
+index ff98038..bf1d36b 100644
+Binary files a/game/assets/sprites/stamp_blackout_paper_rot.png and b/game/assets/sprites/stamp_blackout_paper_rot.png differ
+diff --git a/game/assets/sprites/stamp_camera.png b/game/assets/sprites/stamp_camera.png
+index 367239e..592d310 100644
+Binary files a/game/assets/sprites/stamp_camera.png and b/game/assets/sprites/stamp_camera.png differ
+diff --git a/game/assets/sprites/stamp_frame_dark.png b/game/assets/sprites/stamp_frame_dark.png
+index 450e154..cc7b0f0 100644
+Binary files a/game/assets/sprites/stamp_frame_dark.png and b/game/assets/sprites/stamp_frame_dark.png differ
+diff --git a/game/assets/sprites/stamp_frame_paper.png b/game/assets/sprites/stamp_frame_paper.png
+index 921fe5a..4f4ce89 100644
+Binary files a/game/assets/sprites/stamp_frame_paper.png and b/game/assets/sprites/stamp_frame_paper.png differ
+diff --git a/game/assets/sprites/stamp_paid_dark.png b/game/assets/sprites/stamp_paid_dark.png
+index 97b3820..e3824a6 100644
+Binary files a/game/assets/sprites/stamp_paid_dark.png and b/game/assets/sprites/stamp_paid_dark.png differ
+diff --git a/game/assets/sprites/stamp_paid_dark_rot.png b/game/assets/sprites/stamp_paid_dark_rot.png
+index c614eb6..bee99fe 100644
+Binary files a/game/assets/sprites/stamp_paid_dark_rot.png and b/game/assets/sprites/stamp_paid_dark_rot.png differ
+diff --git a/game/assets/sprites/stamp_paid_paper.png b/game/assets/sprites/stamp_paid_paper.png
+index 6a8b734..5bcb6eb 100644
+Binary files a/game/assets/sprites/stamp_paid_paper.png and b/game/assets/sprites/stamp_paid_paper.png differ
+diff --git a/game/assets/sprites/stamp_paid_paper_rot.png b/game/assets/sprites/stamp_paid_paper_rot.png
+index 29b54aa..8e8a1db 100644
+Binary files a/game/assets/sprites/stamp_paid_paper_rot.png and b/game/assets/sprites/stamp_paid_paper_rot.png differ
+diff --git a/game/assets/sprites/stamp_pardon_dark.png b/game/assets/sprites/stamp_pardon_dark.png
+index e168961..641c846 100644
+Binary files a/game/assets/sprites/stamp_pardon_dark.png and b/game/assets/sprites/stamp_pardon_dark.png differ
+diff --git a/game/assets/sprites/stamp_pardon_dark_rot.png b/game/assets/sprites/stamp_pardon_dark_rot.png
+index 1ccd4e3..c36e3e3 100644
+Binary files a/game/assets/sprites/stamp_pardon_dark_rot.png and b/game/assets/sprites/stamp_pardon_dark_rot.png differ
+diff --git a/game/assets/sprites/stamp_pardon_paper.png b/game/assets/sprites/stamp_pardon_paper.png
+index d4992b1..6839623 100644
+Binary files a/game/assets/sprites/stamp_pardon_paper.png and b/game/assets/sprites/stamp_pardon_paper.png differ
+diff --git a/game/assets/sprites/stamp_pardon_paper_rot.png b/game/assets/sprites/stamp_pardon_paper_rot.png
+index 874f61e..8b691c5 100644
+Binary files a/game/assets/sprites/stamp_pardon_paper_rot.png and b/game/assets/sprites/stamp_pardon_paper_rot.png differ
+diff --git a/game/assets/sprites/stamp_postponed_dark.png b/game/assets/sprites/stamp_postponed_dark.png
+index 3f5c0b1..b7eb44c 100644
+Binary files a/game/assets/sprites/stamp_postponed_dark.png and b/game/assets/sprites/stamp_postponed_dark.png differ
+diff --git a/game/assets/sprites/stamp_postponed_dark_rot.png b/game/assets/sprites/stamp_postponed_dark_rot.png
+index 3868026..5212167 100644
+Binary files a/game/assets/sprites/stamp_postponed_dark_rot.png and b/game/assets/sprites/stamp_postponed_dark_rot.png differ
+diff --git a/game/assets/sprites/stamp_postponed_paper.png b/game/assets/sprites/stamp_postponed_paper.png
+index 220a783..706c893 100644
+Binary files a/game/assets/sprites/stamp_postponed_paper.png and b/game/assets/sprites/stamp_postponed_paper.png differ
+diff --git a/game/assets/sprites/stamp_postponed_paper_rot.png b/game/assets/sprites/stamp_postponed_paper_rot.png
+index 85073e5..94be245 100644
+Binary files a/game/assets/sprites/stamp_postponed_paper_rot.png and b/game/assets/sprites/stamp_postponed_paper_rot.png differ
+diff --git a/game/assets/sprites/stamp_tool_down.png b/game/assets/sprites/stamp_tool_down.png
+index c0e8776..ac7cf63 100644
+Binary files a/game/assets/sprites/stamp_tool_down.png and b/game/assets/sprites/stamp_tool_down.png differ
+diff --git a/game/assets/sprites/stamp_tool_up.png b/game/assets/sprites/stamp_tool_up.png
+index 0aa7bd7..70c5185 100644
+Binary files a/game/assets/sprites/stamp_tool_up.png and b/game/assets/sprites/stamp_tool_up.png differ
+diff --git a/game/assets/sprites/suitcase.png b/game/assets/sprites/suitcase.png
+index c9b4af2..a4b1438 100644
+Binary files a/game/assets/sprites/suitcase.png and b/game/assets/sprites/suitcase.png differ
+diff --git a/game/assets/sprites/suitcase_norim.png b/game/assets/sprites/suitcase_norim.png
+index fdddac6..2e5e8d6 100644
+Binary files a/game/assets/sprites/suitcase_norim.png and b/game/assets/sprites/suitcase_norim.png differ
+diff --git a/game/assets/sprites/sweat_drop.png b/game/assets/sprites/sweat_drop.png
+index b4e12a8..5d85242 100644
+Binary files a/game/assets/sprites/sweat_drop.png and b/game/assets/sprites/sweat_drop.png differ
+diff --git a/game/assets/sprites/tab_active.png b/game/assets/sprites/tab_active.png
+index ca5c86c..a1ce916 100644
+Binary files a/game/assets/sprites/tab_active.png and b/game/assets/sprites/tab_active.png differ
+diff --git a/game/assets/sprites/tabbar.png b/game/assets/sprites/tabbar.png
+index f5dfb8a..5696a74 100644
+Binary files a/game/assets/sprites/tabbar.png and b/game/assets/sprites/tabbar.png differ
+diff --git a/game/assets/sprites/tabicon_cases_active.png b/game/assets/sprites/tabicon_cases_active.png
+index f4b8655..ed8ce1a 100644
+Binary files a/game/assets/sprites/tabicon_cases_active.png and b/game/assets/sprites/tabicon_cases_active.png differ
+diff --git a/game/assets/sprites/tabicon_cases_idle.png b/game/assets/sprites/tabicon_cases_idle.png
+index 8d49593..f0b4ff0 100644
+Binary files a/game/assets/sprites/tabicon_cases_idle.png and b/game/assets/sprites/tabicon_cases_idle.png differ
+diff --git a/game/assets/sprites/tabicon_coalition_active.png b/game/assets/sprites/tabicon_coalition_active.png
+index c1aebbe..26427f7 100644
+Binary files a/game/assets/sprites/tabicon_coalition_active.png and b/game/assets/sprites/tabicon_coalition_active.png differ
+diff --git a/game/assets/sprites/tabicon_coalition_idle.png b/game/assets/sprites/tabicon_coalition_idle.png
+index 8a8af37..b4556e6 100644
+Binary files a/game/assets/sprites/tabicon_coalition_idle.png and b/game/assets/sprites/tabicon_coalition_idle.png differ
+diff --git a/game/assets/sprites/tabicon_sources_active.png b/game/assets/sprites/tabicon_sources_active.png
+index b4e964c..e0f98bb 100644
+Binary files a/game/assets/sprites/tabicon_sources_active.png and b/game/assets/sprites/tabicon_sources_active.png differ
+diff --git a/game/assets/sprites/tabicon_sources_idle.png b/game/assets/sprites/tabicon_sources_idle.png
+index d9f7d33..30e2d99 100644
+Binary files a/game/assets/sprites/tabicon_sources_idle.png and b/game/assets/sprites/tabicon_sources_idle.png differ
+diff --git a/game/assets/sprites/tabicon_spins_active.png b/game/assets/sprites/tabicon_spins_active.png
+index 09aec75..ee2ec46 100644
+Binary files a/game/assets/sprites/tabicon_spins_active.png and b/game/assets/sprites/tabicon_spins_active.png differ
+diff --git a/game/assets/sprites/tabicon_spins_idle.png b/game/assets/sprites/tabicon_spins_idle.png
+index 7b5b795..a90a84d 100644
+Binary files a/game/assets/sprites/tabicon_spins_idle.png and b/game/assets/sprites/tabicon_spins_idle.png differ
+diff --git a/game/assets/sprites/tag_worn.png b/game/assets/sprites/tag_worn.png
+index 97572c6..3d79ff9 100644
+Binary files a/game/assets/sprites/tag_worn.png and b/game/assets/sprites/tag_worn.png differ
+diff --git a/game/assets/sprites/thermo_bubble.png b/game/assets/sprites/thermo_bubble.png
+index 0d78f9c..a82f459 100644
+Binary files a/game/assets/sprites/thermo_bubble.png and b/game/assets/sprites/thermo_bubble.png differ
+diff --git a/game/assets/sprites/thermo_fill.png b/game/assets/sprites/thermo_fill.png
+index 7ac0157..a5d0e42 100644
+Binary files a/game/assets/sprites/thermo_fill.png and b/game/assets/sprites/thermo_fill.png differ
+diff --git a/game/assets/sprites/thermo_floor_hatch.png b/game/assets/sprites/thermo_floor_hatch.png
+index b8aa1d5..b9801c1 100644
+Binary files a/game/assets/sprites/thermo_floor_hatch.png and b/game/assets/sprites/thermo_floor_hatch.png differ
+diff --git a/game/assets/sprites/thermo_icon_gavel.png b/game/assets/sprites/thermo_icon_gavel.png
+index 69a7050..fdb490d 100644
+Binary files a/game/assets/sprites/thermo_icon_gavel.png and b/game/assets/sprites/thermo_icon_gavel.png differ
+diff --git a/game/assets/sprites/thermo_icon_magnifier.png b/game/assets/sprites/thermo_icon_magnifier.png
+index bdd939d..be07aab 100644
+Binary files a/game/assets/sprites/thermo_icon_magnifier.png and b/game/assets/sprites/thermo_icon_magnifier.png differ
+diff --git a/game/assets/sprites/thermo_meniscus.png b/game/assets/sprites/thermo_meniscus.png
+index f1f69a9..9eae6ae 100644
+Binary files a/game/assets/sprites/thermo_meniscus.png and b/game/assets/sprites/thermo_meniscus.png differ
+diff --git a/game/assets/sprites/thermo_tube.png b/game/assets/sprites/thermo_tube.png
+index dd6b679..a0b6b3e 100644
+Binary files a/game/assets/sprites/thermo_tube.png and b/game/assets/sprites/thermo_tube.png differ
+diff --git a/game/assets/sprites/thermo_tube_short.png b/game/assets/sprites/thermo_tube_short.png
+index 114c8f3..78f31f7 100644
+Binary files a/game/assets/sprites/thermo_tube_short.png and b/game/assets/sprites/thermo_tube_short.png differ
+diff --git a/game/assets/sprites/ticker_bar.png b/game/assets/sprites/ticker_bar.png
+index 2e317df..06a559e 100644
+Binary files a/game/assets/sprites/ticker_bar.png and b/game/assets/sprites/ticker_bar.png differ
+diff --git a/game/assets/sprites/ticker_flash_plate.png b/game/assets/sprites/ticker_flash_plate.png
+index 5e5630d..08ca906 100644
+Binary files a/game/assets/sprites/ticker_flash_plate.png and b/game/assets/sprites/ticker_flash_plate.png differ
+diff --git a/game/assets/sprites/ticker_flash_plate_text.png b/game/assets/sprites/ticker_flash_plate_text.png
+index 44a8ca8..382daf3 100644
+Binary files a/game/assets/sprites/ticker_flash_plate_text.png and b/game/assets/sprites/ticker_flash_plate_text.png differ
+diff --git a/game/assets/sprites/toast.png b/game/assets/sprites/toast.png
+index e658edf..d3b8dc5 100644
+Binary files a/game/assets/sprites/toast.png and b/game/assets/sprites/toast.png differ
+diff --git a/game/assets/sprites/transfer_banner.png b/game/assets/sprites/transfer_banner.png
+index 581040e..bb46264 100644
+Binary files a/game/assets/sprites/transfer_banner.png and b/game/assets/sprites/transfer_banner.png differ
+diff --git a/game/assets/sprites/transfer_card.png b/game/assets/sprites/transfer_card.png
+index 9a596ca..cc463ee 100644
+Binary files a/game/assets/sprites/transfer_card.png and b/game/assets/sprites/transfer_card.png differ
+diff --git a/game/assets/sprites/trophy_aide.png b/game/assets/sprites/trophy_aide.png
+index 47c274c..cda440f 100644
+Binary files a/game/assets/sprites/trophy_aide.png and b/game/assets/sprites/trophy_aide.png differ
+diff --git a/game/assets/sprites/trophy_aide_locked.png b/game/assets/sprites/trophy_aide_locked.png
+index 903ab37..d5a151b 100644
+Binary files a/game/assets/sprites/trophy_aide_locked.png and b/game/assets/sprites/trophy_aide_locked.png differ
+diff --git a/game/assets/sprites/trophy_ballot.png b/game/assets/sprites/trophy_ballot.png
+index 4ec1bd6..b5e4f9d 100644
+Binary files a/game/assets/sprites/trophy_ballot.png and b/game/assets/sprites/trophy_ballot.png differ
+diff --git a/game/assets/sprites/trophy_ballot_locked.png b/game/assets/sprites/trophy_ballot_locked.png
+index 6b7b4d6..722e89c 100644
+Binary files a/game/assets/sprites/trophy_ballot_locked.png and b/game/assets/sprites/trophy_ballot_locked.png differ
+diff --git a/game/assets/sprites/trophy_clock.png b/game/assets/sprites/trophy_clock.png
+index c54382d..ecc5cbc 100644
+Binary files a/game/assets/sprites/trophy_clock.png and b/game/assets/sprites/trophy_clock.png differ
+diff --git a/game/assets/sprites/trophy_clock_locked.png b/game/assets/sprites/trophy_clock_locked.png
+index 8450b48..ed4206e 100644
+Binary files a/game/assets/sprites/trophy_clock_locked.png and b/game/assets/sprites/trophy_clock_locked.png differ
+diff --git a/game/assets/sprites/trophy_coin.png b/game/assets/sprites/trophy_coin.png
+index eb382a6..a84d5e3 100644
+Binary files a/game/assets/sprites/trophy_coin.png and b/game/assets/sprites/trophy_coin.png differ
+diff --git a/game/assets/sprites/trophy_coin_locked.png b/game/assets/sprites/trophy_coin_locked.png
+index e0c75f8..f81ce1b 100644
+Binary files a/game/assets/sprites/trophy_coin_locked.png and b/game/assets/sprites/trophy_coin_locked.png differ
+diff --git a/game/assets/sprites/trophy_cottage.png b/game/assets/sprites/trophy_cottage.png
+index 03e2255..291bc98 100644
+Binary files a/game/assets/sprites/trophy_cottage.png and b/game/assets/sprites/trophy_cottage.png differ
+diff --git a/game/assets/sprites/trophy_cottage_locked.png b/game/assets/sprites/trophy_cottage_locked.png
+index 39f94fe..5f05490 100644
+Binary files a/game/assets/sprites/trophy_cottage_locked.png and b/game/assets/sprites/trophy_cottage_locked.png differ
+diff --git a/game/assets/sprites/trophy_folder.png b/game/assets/sprites/trophy_folder.png
+index 815816b..ef7f0c1 100644
+Binary files a/game/assets/sprites/trophy_folder.png and b/game/assets/sprites/trophy_folder.png differ
+diff --git a/game/assets/sprites/trophy_folder_locked.png b/game/assets/sprites/trophy_folder_locked.png
+index e90a7b8..a6f7609 100644
+Binary files a/game/assets/sprites/trophy_folder_locked.png and b/game/assets/sprites/trophy_folder_locked.png differ
+diff --git a/game/assets/sprites/trophy_gavel.png b/game/assets/sprites/trophy_gavel.png
+index 2f35848..b587cc0 100644
+Binary files a/game/assets/sprites/trophy_gavel.png and b/game/assets/sprites/trophy_gavel.png differ
+diff --git a/game/assets/sprites/trophy_gavel_locked.png b/game/assets/sprites/trophy_gavel_locked.png
+index afc69af..b59cfb0 100644
+Binary files a/game/assets/sprites/trophy_gavel_locked.png and b/game/assets/sprites/trophy_gavel_locked.png differ
+diff --git a/game/assets/sprites/trophy_hat.png b/game/assets/sprites/trophy_hat.png
+index 63769b6..1af0926 100644
+Binary files a/game/assets/sprites/trophy_hat.png and b/game/assets/sprites/trophy_hat.png differ
+diff --git a/game/assets/sprites/trophy_hat_locked.png b/game/assets/sprites/trophy_hat_locked.png
+index 0fdac67..3ccdeaf 100644
+Binary files a/game/assets/sprites/trophy_hat_locked.png and b/game/assets/sprites/trophy_hat_locked.png differ
+diff --git a/game/assets/sprites/trophy_parrot.png b/game/assets/sprites/trophy_parrot.png
+index b9151d0..a1c9f05 100644
+Binary files a/game/assets/sprites/trophy_parrot.png and b/game/assets/sprites/trophy_parrot.png differ
+diff --git a/game/assets/sprites/trophy_parrot_locked.png b/game/assets/sprites/trophy_parrot_locked.png
+index e1745a6..3fbeae0 100644
+Binary files a/game/assets/sprites/trophy_parrot_locked.png and b/game/assets/sprites/trophy_parrot_locked.png differ
+diff --git a/game/assets/sprites/trophy_phone.png b/game/assets/sprites/trophy_phone.png
+index 69bb8e5..f22232f 100644
+Binary files a/game/assets/sprites/trophy_phone.png and b/game/assets/sprites/trophy_phone.png differ
+diff --git a/game/assets/sprites/trophy_phone_locked.png b/game/assets/sprites/trophy_phone_locked.png
+index d33091c..ee27ccf 100644
+Binary files a/game/assets/sprites/trophy_phone_locked.png and b/game/assets/sprites/trophy_phone_locked.png differ
+diff --git a/game/assets/sprites/trophy_pin.png b/game/assets/sprites/trophy_pin.png
+index 1d02f81..1b0d64c 100644
+Binary files a/game/assets/sprites/trophy_pin.png and b/game/assets/sprites/trophy_pin.png differ
+diff --git a/game/assets/sprites/trophy_pin_locked.png b/game/assets/sprites/trophy_pin_locked.png
+index 8ad95bd..2b71212 100644
+Binary files a/game/assets/sprites/trophy_pin_locked.png and b/game/assets/sprites/trophy_pin_locked.png differ
+diff --git a/game/assets/sprites/trophy_plane.png b/game/assets/sprites/trophy_plane.png
+index 6117e5e..6992c61 100644
+Binary files a/game/assets/sprites/trophy_plane.png and b/game/assets/sprites/trophy_plane.png differ
+diff --git a/game/assets/sprites/trophy_plane_locked.png b/game/assets/sprites/trophy_plane_locked.png
+index a555008..01a7686 100644
+Binary files a/game/assets/sprites/trophy_plane_locked.png and b/game/assets/sprites/trophy_plane_locked.png differ
+diff --git a/game/assets/sprites/trophy_plate_earned.png b/game/assets/sprites/trophy_plate_earned.png
+index 51035e6..2e408bf 100644
+Binary files a/game/assets/sprites/trophy_plate_earned.png and b/game/assets/sprites/trophy_plate_earned.png differ
+diff --git a/game/assets/sprites/trophy_plate_locked.png b/game/assets/sprites/trophy_plate_locked.png
+index 94156d1..621595d 100644
+Binary files a/game/assets/sprites/trophy_plate_locked.png and b/game/assets/sprites/trophy_plate_locked.png differ
+diff --git a/game/assets/sprites/trophy_plate_secret.png b/game/assets/sprites/trophy_plate_secret.png
+index c0753b7..2bfaa57 100644
+Binary files a/game/assets/sprites/trophy_plate_secret.png and b/game/assets/sprites/trophy_plate_secret.png differ
+diff --git a/game/assets/sprites/trophy_rabbit.png b/game/assets/sprites/trophy_rabbit.png
+index 45aa9a6..fbb4b36 100644
+Binary files a/game/assets/sprites/trophy_rabbit.png and b/game/assets/sprites/trophy_rabbit.png differ
+diff --git a/game/assets/sprites/trophy_rabbit_locked.png b/game/assets/sprites/trophy_rabbit_locked.png
+index ddaf15d..82acde0 100644
+Binary files a/game/assets/sprites/trophy_rabbit_locked.png and b/game/assets/sprites/trophy_rabbit_locked.png differ
+diff --git a/game/assets/sprites/trophy_stamp.png b/game/assets/sprites/trophy_stamp.png
+index cd9f460..0506c20 100644
+Binary files a/game/assets/sprites/trophy_stamp.png and b/game/assets/sprites/trophy_stamp.png differ
+diff --git a/game/assets/sprites/trophy_stamp_locked.png b/game/assets/sprites/trophy_stamp_locked.png
+index 5463c1c..550eef3 100644
+Binary files a/game/assets/sprites/trophy_stamp_locked.png and b/game/assets/sprites/trophy_stamp_locked.png differ
+diff --git a/game/assets/sprites/trophy_suitcase.png b/game/assets/sprites/trophy_suitcase.png
+index b988f4d..49913db 100644
+Binary files a/game/assets/sprites/trophy_suitcase.png and b/game/assets/sprites/trophy_suitcase.png differ
+diff --git a/game/assets/sprites/trophy_suitcase_locked.png b/game/assets/sprites/trophy_suitcase_locked.png
+index 7dd3b18..f229262 100644
+Binary files a/game/assets/sprites/trophy_suitcase_locked.png and b/game/assets/sprites/trophy_suitcase_locked.png differ
+diff --git a/game/assets/sprites/trophy_wand.png b/game/assets/sprites/trophy_wand.png
+index af2043a..7a677c6 100644
+Binary files a/game/assets/sprites/trophy_wand.png and b/game/assets/sprites/trophy_wand.png differ
+diff --git a/game/assets/sprites/trophy_wand_locked.png b/game/assets/sprites/trophy_wand_locked.png
+index cf6dc9f..6d6ac38 100644
+Binary files a/game/assets/sprites/trophy_wand_locked.png and b/game/assets/sprites/trophy_wand_locked.png differ
+diff --git a/game/assets/sprites/wing_balfour_l.png b/game/assets/sprites/wing_balfour_l.png
+index 4c01607..b808bf8 100644
+Binary files a/game/assets/sprites/wing_balfour_l.png and b/game/assets/sprites/wing_balfour_l.png differ
+diff --git a/game/assets/sprites/wing_balfour_r.png b/game/assets/sprites/wing_balfour_r.png
+index 7843423..ae366f3 100644
+Binary files a/game/assets/sprites/wing_balfour_r.png and b/game/assets/sprites/wing_balfour_r.png differ
+diff --git a/game/assets/sprites/wordmark.png b/game/assets/sprites/wordmark.png
+index eb8ab02..b6baa73 100644
+Binary files a/game/assets/sprites/wordmark.png and b/game/assets/sprites/wordmark.png differ
+diff --git a/game/assets/sprites/wordmark_mono.png b/game/assets/sprites/wordmark_mono.png
+index f2f8211..13d565a 100644
+Binary files a/game/assets/sprites/wordmark_mono.png and b/game/assets/sprites/wordmark_mono.png differ
+diff --git a/game/assets/sprites/wordmark_norim.png b/game/assets/sprites/wordmark_norim.png
+index 7b996af..6fdc438 100644
+Binary files a/game/assets/sprites/wordmark_norim.png and b/game/assets/sprites/wordmark_norim.png differ
+diff --git a/game/assets/sprites/wordmark_small.png b/game/assets/sprites/wordmark_small.png
+index b56c353..86ab1ac 100644
+Binary files a/game/assets/sprites/wordmark_small.png and b/game/assets/sprites/wordmark_small.png differ
+diff --git a/pipeline/od-sevev/budget.json b/pipeline/od-sevev/budget.json
+index 653fa42..d39e617 100644
+--- a/pipeline/od-sevev/budget.json
++++ b/pipeline/od-sevev/budget.json
+@@ -82,32 +82,32 @@
+   "sprites/avatar_sara.png": 2073,
+   "sprites/avatar_smotrich.png": 1560,
+   "sprites/avatar_trump.png": 1703,
+-  "sprites/badge_count.png": 152,
+-  "sprites/brawl_cloud.png": 2133,
++  "sprites/badge_count.png": 158,
++  "sprites/brawl_cloud.png": 2327,
+   "sprites/brawl_cloud_cue.png": 1174,
+   "sprites/button_danger_default.png": 152,
+   "sprites/button_danger_disabled.png": 123,
+   "sprites/button_danger_pressed.png": 128,
+-  "sprites/button_gold_default.png": 153,
+-  "sprites/button_gold_disabled.png": 126,
+-  "sprites/button_gold_pressed.png": 139,
+-  "sprites/button_primary_default.png": 155,
+-  "sprites/button_primary_disabled.png": 126,
+-  "sprites/button_primary_pressed.png": 133,
+-  "sprites/button_secondary_default.png": 153,
+-  "sprites/button_secondary_disabled.png": 126,
+-  "sprites/button_secondary_pressed.png": 133,
+-  "sprites/card_back_mark.png": 121,
+-  "sprites/card_opposition.png": 283,
+-  "sprites/card_opposition_back.png": 302,
+-  "sprites/card_plate.png": 174,
+-  "sprites/card_row.png": 175,
+-  "sprites/card_row_locked.png": 144,
+-  "sprites/card_source_affordable.png": 210,
+-  "sprites/card_source_locked.png": 144,
+-  "sprites/card_source_unaffordable.png": 175,
+-  "sprites/card_spin.png": 194,
+-  "sprites/card_spin_locked.png": 167,
++  "sprites/button_gold_default.png": 158,
++  "sprites/button_gold_disabled.png": 123,
++  "sprites/button_gold_pressed.png": 136,
++  "sprites/button_primary_default.png": 151,
++  "sprites/button_primary_disabled.png": 123,
++  "sprites/button_primary_pressed.png": 127,
++  "sprites/button_secondary_default.png": 160,
++  "sprites/button_secondary_disabled.png": 123,
++  "sprites/button_secondary_pressed.png": 128,
++  "sprites/card_back_mark.png": 116,
++  "sprites/card_opposition.png": 289,
++  "sprites/card_opposition_back.png": 315,
++  "sprites/card_plate.png": 156,
++  "sprites/card_row.png": 171,
++  "sprites/card_row_locked.png": 138,
++  "sprites/card_source_affordable.png": 215,
++  "sprites/card_source_locked.png": 138,
++  "sprites/card_source_unaffordable.png": 171,
++  "sprites/card_spin.png": 190,
++  "sprites/card_spin_locked.png": 159,
+   "sprites/cast/abbas_idle.png": 71106,
+   "sprites/cast/abbas_idle_d2.png": 38747,
+   "sprites/cast/abbas_react.png": 63611,
+@@ -220,42 +220,42 @@
+   "sprites/cast/trump_idle_d2.png": 137419,
+   "sprites/cast/trump_react.png": 176222,
+   "sprites/cast/trump_react_d2.png": 89706,
+-  "sprites/chat_bubble_in.png": 166,
+-  "sprites/chat_bubble_out.png": 175,
+-  "sprites/chat_bubble_ultimatum.png": 255,
+-  "sprites/chat_composer_disabled.png": 238,
+-  "sprites/chat_header.png": 181,
+-  "sprites/chat_icon_chevron.png": 99,
+-  "sprites/chat_icon_lock.png": 148,
+-  "sprites/chat_icon_mute.png": 134,
+-  "sprites/chat_icon_pin.png": 146,
+-  "sprites/chat_pinned.png": 151,
+-  "sprites/chat_system_pill.png": 148,
+-  "sprites/chip_countdown.png": 151,
+-  "sprites/chip_court.png": 148,
+-  "sprites/chip_icon_calendar.png": 139,
+-  "sprites/chip_icon_gavel.png": 146,
++  "sprites/chat_bubble_in.png": 162,
++  "sprites/chat_bubble_out.png": 174,
++  "sprites/chat_bubble_ultimatum.png": 269,
++  "sprites/chat_composer_disabled.png": 246,
++  "sprites/chat_header.png": 187,
++  "sprites/chat_icon_chevron.png": 108,
++  "sprites/chat_icon_lock.png": 161,
++  "sprites/chat_icon_mute.png": 148,
++  "sprites/chat_icon_pin.png": 149,
++  "sprites/chat_pinned.png": 148,
++  "sprites/chat_system_pill.png": 150,
++  "sprites/chip_countdown.png": 153,
++  "sprites/chip_court.png": 147,
++  "sprites/chip_icon_calendar.png": 147,
++  "sprites/chip_icon_gavel.png": 163,
+   "sprites/chip_icon_press.png": 155,
+-  "sprites/chip_owned.png": 135,
+-  "sprites/chip_ultimatum.png": 147,
+-  "sprites/cottage_cup.png": 881,
++  "sprites/chip_owned.png": 140,
++  "sprites/chip_ultimatum.png": 150,
++  "sprites/cottage_cup.png": 947,
+   "sprites/cottage_pixel.png": 70,
+-  "sprites/court_frame.png": 288,
+-  "sprites/court_window.png": 309,
+-  "sprites/court_window_glow.png": 148,
+-  "sprites/curtain_hem.png": 170,
+-  "sprites/curtain_panel.png": 171,
++  "sprites/court_frame.png": 297,
++  "sprites/court_window.png": 335,
++  "sprites/court_window_glow.png": 138,
++  "sprites/curtain_hem.png": 184,
++  "sprites/curtain_panel.png": 140,
+   "sprites/curtain_valance.png": 294,
+-  "sprites/depboard.png": 1509,
+-  "sprites/dubi_placeholder_avatar.png": 329,
+-  "sprites/dubi_placeholder_body.png": 452,
+-  "sprites/dubi_small_fly.png": 603,
+-  "sprites/dubi_small_idle.png": 986,
+-  "sprites/dubi_small_land.png": 646,
+-  "sprites/dubi_small_peck.png": 891,
+-  "sprites/dubi_small_squawk.png": 776,
+-  "sprites/dubi_small_talk.png": 522,
+-  "sprites/ftue_hand.png": 357,
++  "sprites/depboard.png": 1525,
++  "sprites/dubi_placeholder_avatar.png": 334,
++  "sprites/dubi_placeholder_body.png": 461,
++  "sprites/dubi_small_fly.png": 641,
++  "sprites/dubi_small_idle.png": 1066,
++  "sprites/dubi_small_land.png": 720,
++  "sprites/dubi_small_peck.png": 967,
++  "sprites/dubi_small_squawk.png": 832,
++  "sprites/dubi_small_talk.png": 574,
++  "sprites/ftue_hand.png": 375,
+   "sprites/ftue_tap_ring.png": 141,
+   "sprites/fx_ink.png": 70,
+   "sprites/fx_ink2.png": 74,
+@@ -263,40 +263,40 @@
+   "sprites/fx_puff1.png": 90,
+   "sprites/fx_slip.png": 87,
+   "sprites/fx_slip_tilt.png": 82,
+-  "sprites/icon_clock.png": 189,
+-  "sprites/icon_close.png": 286,
+-  "sprites/icon_coin9.png": 169,
+-  "sprites/icon_gear.png": 229,
+-  "sprites/icon_sound_off.png": 190,
+-  "sprites/icon_sound_on.png": 191,
++  "sprites/icon_clock.png": 192,
++  "sprites/icon_close.png": 289,
++  "sprites/icon_coin9.png": 180,
++  "sprites/icon_gear.png": 244,
++  "sprites/icon_sound_off.png": 211,
++  "sprites/icon_sound_on.png": 202,
+   "sprites/icon_trash.png": 134,
+-  "sprites/lane_balfour.png": 311,
++  "sprites/lane_balfour.png": 299,
+   "sprites/lane_courthouse.png": 296,
+   "sprites/lane_knesset.png": 287,
+-  "sprites/lane_washington.png": 273,
+-  "sprites/laundry_bag.png": 251,
+-  "sprites/laundry_shirt.png": 172,
+-  "sprites/laundry_shorts.png": 123,
+-  "sprites/laundry_sock.png": 124,
+-  "sprites/laundry_towel.png": 126,
+-  "sprites/nophoto_idle.png": 970,
+-  "sprites/opp_timer_fill.png": 100,
+-  "sprites/pay_pill_default.png": 165,
+-  "sprites/pay_pill_fill.png": 87,
++  "sprites/lane_washington.png": 286,
++  "sprites/laundry_bag.png": 270,
++  "sprites/laundry_shirt.png": 184,
++  "sprites/laundry_shorts.png": 126,
++  "sprites/laundry_sock.png": 141,
++  "sprites/laundry_towel.png": 130,
++  "sprites/nophoto_idle.png": 975,
++  "sprites/opp_timer_fill.png": 105,
++  "sprites/pay_pill_default.png": 172,
++  "sprites/pay_pill_fill.png": 89,
+   "sprites/pay_pill_pressed.png": 150,
+-  "sprites/pay_pill_track.png": 144,
++  "sprites/pay_pill_track.png": 146,
+   "sprites/pick_random.png": 208,
+-  "sprites/pick_tile_focus.png": 243,
+-  "sprites/pick_tile_idle.png": 167,
+-  "sprites/pick_tile_pressed.png": 168,
+-  "sprites/pick_tile_selected.png": 216,
+-  "sprites/plate_silhouette.png": 223,
+-  "sprites/plaza_balfour.png": 1119,
++  "sprites/pick_tile_focus.png": 248,
++  "sprites/pick_tile_idle.png": 173,
++  "sprites/pick_tile_pressed.png": 174,
++  "sprites/pick_tile_selected.png": 225,
++  "sprites/plate_silhouette.png": 240,
++  "sprites/plaza_balfour.png": 1086,
+   "sprites/plaza_courthouse.png": 1049,
+   "sprites/plaza_knesset.png": 1209,
+-  "sprites/plaza_washington.png": 1446,
++  "sprites/plaza_washington.png": 1455,
+   "sprites/prop_bill.png": 140,
+-  "sprites/prop_calculator.png": 366,
++  "sprites/prop_calculator.png": 375,
+   "sprites/prop_chair.png": 478,
+   "sprites/prop_coffee.png": 373,
+   "sprites/prop_coin0.png": 130,
+@@ -306,35 +306,35 @@
+   "sprites/prop_hat.png": 325,
+   "sprites/prop_hat_glow.png": 174,
+   "sprites/prop_pen.png": 500,
+-  "sprites/prop_phone.png": 381,
++  "sprites/prop_phone.png": 372,
+   "sprites/prop_rabbit.png": 266,
+   "sprites/prop_ruler.png": 244,
+   "sprites/prop_spark.png": 89,
+   "sprites/prop_stapler.png": 304,
+-  "sprites/receipt_body.png": 107,
+-  "sprites/receipt_bottom.png": 281,
+-  "sprites/receipt_rule.png": 76,
+-  "sprites/receipt_top.png": 285,
+-  "sprites/seats_fill.png": 98,
+-  "sprites/seats_goal_frame.png": 174,
++  "sprites/receipt_body.png": 106,
++  "sprites/receipt_bottom.png": 279,
++  "sprites/receipt_rule.png": 78,
++  "sprites/receipt_top.png": 289,
++  "sprites/seats_fill.png": 106,
++  "sprites/seats_goal_frame.png": 181,
+   "sprites/seats_tick.png": 77,
+-  "sprites/seats_track.png": 116,
+-  "sprites/share_receipt_bg.png": 2142,
+-  "sprites/share_result_frame.png": 3083,
+-  "sprites/sheet_modal.png": 259,
+-  "sprites/sheet_plain.png": 167,
++  "sprites/seats_track.png": 122,
++  "sprites/share_receipt_bg.png": 2147,
++  "sprites/share_result_frame.png": 3120,
++  "sprites/sheet_modal.png": 273,
++  "sprites/sheet_plain.png": 164,
+   "sprites/source_advisers.png": 16290,
+   "sprites/source_advisers_d2.png": 8308,
+   "sprites/source_advisers_icon.png": 1346,
+   "sprites/source_advisers_icon_sil.png": 264,
+-  "sprites/source_checkbook.png": 743,
+-  "sprites/source_checkbook_icon.png": 329,
++  "sprites/source_checkbook.png": 781,
++  "sprites/source_checkbook_icon.png": 355,
+   "sprites/source_checkbook_icon_sil.png": 145,
+   "sprites/source_cigars.png": 16777,
+   "sprites/source_cigars_d2.png": 8988,
+   "sprites/source_cigars_icon.png": 1362,
+   "sprites/source_cigars_icon_sil.png": 248,
+-  "sprites/source_donor.png": 867,
++  "sprites/source_donor.png": 871,
+   "sprites/source_donor_icon.png": 541,
+   "sprites/source_donor_icon_sil.png": 228,
+   "sprites/source_funds.png": 615,
+@@ -344,15 +344,15 @@
+   "sprites/source_hitech_d2.png": 6618,
+   "sprites/source_hitech_icon.png": 1019,
+   "sprites/source_hitech_icon_sil.png": 238,
+-  "sprites/source_poison.png": 589,
+-  "sprites/source_poison_icon.png": 230,
++  "sprites/source_poison.png": 634,
++  "sprites/source_poison_icon.png": 241,
+   "sprites/source_poison_icon_sil.png": 96,
+   "sprites/source_qatari.png": 16142,
+   "sprites/source_qatari_d2.png": 8333,
+   "sprites/source_qatari_icon.png": 1344,
+   "sprites/source_qatari_icon_sil.png": 264,
+-  "sprites/source_submarine.png": 1084,
+-  "sprites/source_submarine_icon.png": 446,
++  "sprites/source_submarine.png": 1192,
++  "sprites/source_submarine_icon.png": 471,
+   "sprites/source_submarine_icon_sil.png": 232,
+   "sprites/source_taxpayer.png": 14730,
+   "sprites/source_taxpayer_d2.png": 7576,
+@@ -370,12 +370,12 @@
+   "sprites/spin_s06.png": 361,
+   "sprites/spin_s07.png": 411,
+   "sprites/spin_s08.png": 371,
+-  "sprites/spin_s09.png": 429,
++  "sprites/spin_s09.png": 430,
+   "sprites/spin_s10.png": 432,
+   "sprites/spin_s11.png": 457,
+   "sprites/spin_s12.png": 523,
+-  "sprites/spin_s13.png": 443,
+-  "sprites/spin_s14.png": 402,
++  "sprites/spin_s13.png": 441,
++  "sprites/spin_s14.png": 397,
+   "sprites/spin_s15.png": 418,
+   "sprites/spin_slot_A.png": 384,
+   "sprites/spin_slot_B.png": 347,
+@@ -385,111 +385,111 @@
+   "sprites/spin_slot_G.png": 350,
+   "sprites/spin_slot_H.png": 361,
+   "sprites/spin_slot_I.png": 363,
+-  "sprites/stage_balfour.png": 4377,
++  "sprites/stage_balfour.png": 4388,
+   "sprites/stage_courthouse.png": 3212,
+   "sprites/stage_knesset.png": 1959,
+-  "sprites/stage_washington.png": 2831,
+-  "sprites/stamp_blackout_dark.png": 307,
+-  "sprites/stamp_blackout_dark_rot.png": 444,
+-  "sprites/stamp_blackout_paper.png": 306,
+-  "sprites/stamp_blackout_paper_rot.png": 444,
+-  "sprites/stamp_camera.png": 166,
+-  "sprites/stamp_frame_dark.png": 149,
+-  "sprites/stamp_frame_paper.png": 149,
+-  "sprites/stamp_paid_dark.png": 219,
+-  "sprites/stamp_paid_dark_rot.png": 276,
+-  "sprites/stamp_paid_paper.png": 218,
+-  "sprites/stamp_paid_paper_rot.png": 275,
+-  "sprites/stamp_pardon_dark.png": 378,
+-  "sprites/stamp_pardon_dark_rot.png": 594,
+-  "sprites/stamp_pardon_paper.png": 377,
+-  "sprites/stamp_pardon_paper_rot.png": 593,
+-  "sprites/stamp_postponed_dark.png": 204,
+-  "sprites/stamp_postponed_dark_rot.png": 286,
+-  "sprites/stamp_postponed_paper.png": 204,
+-  "sprites/stamp_postponed_paper_rot.png": 285,
+-  "sprites/stamp_tool_down.png": 262,
+-  "sprites/stamp_tool_up.png": 273,
+-  "sprites/suitcase.png": 452,
+-  "sprites/suitcase_norim.png": 373,
++  "sprites/stage_washington.png": 2830,
++  "sprites/stamp_blackout_dark.png": 312,
++  "sprites/stamp_blackout_dark_rot.png": 459,
++  "sprites/stamp_blackout_paper.png": 311,
++  "sprites/stamp_blackout_paper_rot.png": 458,
++  "sprites/stamp_camera.png": 177,
++  "sprites/stamp_frame_dark.png": 156,
++  "sprites/stamp_frame_paper.png": 156,
++  "sprites/stamp_paid_dark.png": 225,
++  "sprites/stamp_paid_dark_rot.png": 272,
++  "sprites/stamp_paid_paper.png": 225,
++  "sprites/stamp_paid_paper_rot.png": 272,
++  "sprites/stamp_pardon_dark.png": 386,
++  "sprites/stamp_pardon_dark_rot.png": 610,
++  "sprites/stamp_pardon_paper.png": 385,
++  "sprites/stamp_pardon_paper_rot.png": 610,
++  "sprites/stamp_postponed_dark.png": 212,
++  "sprites/stamp_postponed_dark_rot.png": 282,
++  "sprites/stamp_postponed_paper.png": 211,
++  "sprites/stamp_postponed_paper_rot.png": 281,
++  "sprites/stamp_tool_down.png": 282,
++  "sprites/stamp_tool_up.png": 295,
++  "sprites/suitcase.png": 475,
++  "sprites/suitcase_norim.png": 414,
+   "sprites/suitcase_plain.png": 380,
+   "sprites/suitcase_plain_norim.png": 320,
+-  "sprites/sweat_drop.png": 114,
+-  "sprites/tab_active.png": 188,
+-  "sprites/tabbar.png": 193,
+-  "sprites/tabicon_cases_active.png": 195,
+-  "sprites/tabicon_cases_idle.png": 194,
+-  "sprites/tabicon_coalition_active.png": 191,
+-  "sprites/tabicon_coalition_idle.png": 181,
+-  "sprites/tabicon_sources_active.png": 229,
+-  "sprites/tabicon_sources_idle.png": 205,
+-  "sprites/tabicon_spins_active.png": 269,
+-  "sprites/tabicon_spins_idle.png": 244,
+-  "sprites/tag_worn.png": 243,
+-  "sprites/thermo_bubble.png": 106,
+-  "sprites/thermo_fill.png": 80,
+-  "sprites/thermo_floor_hatch.png": 100,
+-  "sprites/thermo_icon_gavel.png": 159,
+-  "sprites/thermo_icon_magnifier.png": 175,
++  "sprites/sweat_drop.png": 129,
++  "sprites/tab_active.png": 179,
++  "sprites/tabbar.png": 196,
++  "sprites/tabicon_cases_active.png": 213,
++  "sprites/tabicon_cases_idle.png": 210,
++  "sprites/tabicon_coalition_active.png": 207,
++  "sprites/tabicon_coalition_idle.png": 200,
++  "sprites/tabicon_sources_active.png": 239,
++  "sprites/tabicon_sources_idle.png": 206,
++  "sprites/tabicon_spins_active.png": 299,
++  "sprites/tabicon_spins_idle.png": 269,
++  "sprites/tag_worn.png": 257,
++  "sprites/thermo_bubble.png": 109,
++  "sprites/thermo_fill.png": 83,
++  "sprites/thermo_floor_hatch.png": 105,
++  "sprites/thermo_icon_gavel.png": 170,
++  "sprites/thermo_icon_magnifier.png": 188,
+   "sprites/thermo_icon_press.png": 176,
+-  "sprites/thermo_meniscus.png": 80,
+-  "sprites/thermo_tube.png": 363,
+-  "sprites/thermo_tube_short.png": 345,
+-  "sprites/ticker_bar.png": 175,
+-  "sprites/ticker_flash_plate.png": 154,
+-  "sprites/ticker_flash_plate_text.png": 222,
+-  "sprites/toast.png": 176,
+-  "sprites/transfer_banner.png": 718,
+-  "sprites/transfer_card.png": 151,
+-  "sprites/trophy_aide.png": 270,
+-  "sprites/trophy_aide_locked.png": 234,
+-  "sprites/trophy_ballot.png": 207,
+-  "sprites/trophy_ballot_locked.png": 189,
+-  "sprites/trophy_clock.png": 212,
+-  "sprites/trophy_clock_locked.png": 190,
+-  "sprites/trophy_coin.png": 218,
+-  "sprites/trophy_coin_locked.png": 212,
+-  "sprites/trophy_cottage.png": 108,
+-  "sprites/trophy_cottage_locked.png": 108,
+-  "sprites/trophy_folder.png": 190,
+-  "sprites/trophy_folder_locked.png": 190,
+-  "sprites/trophy_gavel.png": 188,
+-  "sprites/trophy_gavel_locked.png": 189,
+-  "sprites/trophy_hat.png": 189,
+-  "sprites/trophy_hat_locked.png": 148,
++  "sprites/thermo_meniscus.png": 83,
++  "sprites/thermo_tube.png": 364,
++  "sprites/thermo_tube_short.png": 349,
++  "sprites/ticker_bar.png": 165,
++  "sprites/ticker_flash_plate.png": 160,
++  "sprites/ticker_flash_plate_text.png": 236,
++  "sprites/toast.png": 179,
++  "sprites/transfer_banner.png": 767,
++  "sprites/transfer_card.png": 157,
++  "sprites/trophy_aide.png": 298,
++  "sprites/trophy_aide_locked.png": 248,
++  "sprites/trophy_ballot.png": 218,
++  "sprites/trophy_ballot_locked.png": 200,
++  "sprites/trophy_clock.png": 224,
++  "sprites/trophy_clock_locked.png": 192,
++  "sprites/trophy_coin.png": 238,
++  "sprites/trophy_coin_locked.png": 226,
++  "sprites/trophy_cottage.png": 102,
++  "sprites/trophy_cottage_locked.png": 102,
++  "sprites/trophy_folder.png": 208,
++  "sprites/trophy_folder_locked.png": 205,
++  "sprites/trophy_gavel.png": 193,
++  "sprites/trophy_gavel_locked.png": 197,
++  "sprites/trophy_hat.png": 206,
++  "sprites/trophy_hat_locked.png": 157,
+   "sprites/trophy_moon.png": 262,
+   "sprites/trophy_moon_locked.png": 246,
+-  "sprites/trophy_parrot.png": 289,
+-  "sprites/trophy_parrot_locked.png": 240,
+-  "sprites/trophy_phone.png": 234,
+-  "sprites/trophy_phone_locked.png": 192,
+-  "sprites/trophy_pin.png": 190,
+-  "sprites/trophy_pin_locked.png": 184,
+-  "sprites/trophy_plane.png": 177,
+-  "sprites/trophy_plane_locked.png": 172,
+-  "sprites/trophy_plate_earned.png": 187,
+-  "sprites/trophy_plate_locked.png": 163,
+-  "sprites/trophy_plate_secret.png": 198,
+-  "sprites/trophy_rabbit.png": 242,
+-  "sprites/trophy_rabbit_locked.png": 230,
+-  "sprites/trophy_stamp.png": 227,
+-  "sprites/trophy_stamp_locked.png": 200,
+-  "sprites/trophy_suitcase.png": 220,
+-  "sprites/trophy_suitcase_locked.png": 189,
+-  "sprites/trophy_wand.png": 175,
+-  "sprites/trophy_wand_locked.png": 171,
+-  "sprites/wing_balfour_l.png": 567,
+-  "sprites/wing_balfour_r.png": 533,
++  "sprites/trophy_parrot.png": 325,
++  "sprites/trophy_parrot_locked.png": 253,
++  "sprites/trophy_phone.png": 252,
++  "sprites/trophy_phone_locked.png": 195,
++  "sprites/trophy_pin.png": 196,
++  "sprites/trophy_pin_locked.png": 189,
++  "sprites/trophy_plane.png": 196,
++  "sprites/trophy_plane_locked.png": 185,
++  "sprites/trophy_plate_earned.png": 190,
++  "sprites/trophy_plate_locked.png": 164,
++  "sprites/trophy_plate_secret.png": 206,
++  "sprites/trophy_rabbit.png": 268,
++  "sprites/trophy_rabbit_locked.png": 244,
++  "sprites/trophy_stamp.png": 237,
++  "sprites/trophy_stamp_locked.png": 217,
++  "sprites/trophy_suitcase.png": 224,
++  "sprites/trophy_suitcase_locked.png": 195,
++  "sprites/trophy_wand.png": 182,
++  "sprites/trophy_wand_locked.png": 183,
++  "sprites/wing_balfour_l.png": 570,
++  "sprites/wing_balfour_r.png": 535,
+   "sprites/wing_courthouse_l.png": 590,
+   "sprites/wing_courthouse_r.png": 583,
+   "sprites/wing_knesset_l.png": 549,
+   "sprites/wing_knesset_r.png": 558,
+   "sprites/wing_washington_l.png": 712,
+   "sprites/wing_washington_r.png": 679,
+-  "sprites/wordmark.png": 1072,
+-  "sprites/wordmark_mono.png": 440,
+-  "sprites/wordmark_norim.png": 961,
+-  "sprites/wordmark_small.png": 607,
++  "sprites/wordmark.png": 1128,
++  "sprites/wordmark_mono.png": 454,
++  "sprites/wordmark_norim.png": 1024,
++  "sprites/wordmark_small.png": 640,
+   "fonts/sevev9.png": 1207,
+   "fonts/sevev9.fnt": 14781,
+   "fonts/sevev9_outline.png": 2443,
+@@ -926,2733 +926,5 @@
+   "dubi-mic": 5035536,
+   "nophoto": 15520
+  },
+- "imported": [
+-  {
+-   "file": "assets/sprites/avatar24_abbas.png",
+-   "source": 956,
+-   "imported": 438
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_amsalem.png",
+-   "source": 1128,
+-   "imported": 478
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_ben-gvir.png",
+-   "source": 1147,
+-   "imported": 472
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_bennett.png",
+-   "source": 1088,
+-   "imported": 518
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_bibi.png",
+-   "source": 1185,
+-   "imported": 486
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_deri.png",
+-   "source": 1062,
+-   "imported": 456
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_distel.png",
+-   "source": 901,
+-   "imported": 424
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_dubi.png",
+-   "source": 1187,
+-   "imported": 544
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_eisenkot.png",
+-   "source": 903,
+-   "imported": 408
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_gafni.png",
+-   "source": 1143,
+-   "imported": 494
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_gantz.png",
+-   "source": 771,
+-   "imported": 386
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_golan.png",
+-   "source": 1012,
+-   "imported": 432
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_goldknopf.png",
+-   "source": 1112,
+-   "imported": 488
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_gotliv.png",
+-   "source": 1169,
+-   "imported": 522
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_herzog.png",
+-   "source": 1069,
+-   "imported": 478
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_karhi.png",
+-   "source": 918,
+-   "imported": 442
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_lapid.png",
+-   "source": 913,
+-   "imported": 420
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_levin.png",
+-   "source": 1135,
+-   "imported": 484
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_liberman.png",
+-   "source": 981,
+-   "imported": 440
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_may-golan.png",
+-   "source": 1117,
+-   "imported": 480
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_nophoto.png",
+-   "source": 344,
+-   "imported": 248
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_ben-gvir.png",
+-   "source": 1158,
+-   "imported": 476
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_bennett.png",
+-   "source": 1087,
+-   "imported": 514
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_bibi.png",
+-   "source": 1193,
+-   "imported": 486
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_deri.png",
+-   "source": 1057,
+-   "imported": 454
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_eisenkot.png",
+-   "source": 905,
+-   "imported": 412
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_golan.png",
+-   "source": 1012,
+-   "imported": 440
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_liberman.png",
+-   "source": 977,
+-   "imported": 442
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_smotrich.png",
+-   "source": 944,
+-   "imported": 432
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_regev.png",
+-   "source": 1186,
+-   "imported": 498
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_sara.png",
+-   "source": 1163,
+-   "imported": 510
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_smotrich.png",
+-   "source": 945,
+-   "imported": 430
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_trump.png",
+-   "source": 1004,
+-   "imported": 484
+-  },
+-  {
+-   "file": "assets/sprites/avatar_abbas.png",
+-   "source": 1573,
+-   "imported": 614
+-  },
+-  {
+-   "file": "assets/sprites/avatar_amsalem.png",
+-   "source": 1854,
+-   "imported": 668
+-  },
+-  {
+-   "file": "assets/sprites/avatar_ben-gvir.png",
+-   "source": 2128,
+-   "imported": 740
+-  },
+-  {
+-   "file": "assets/sprites/avatar_bennett.png",
+-   "source": 1828,
+-   "imported": 766
+-  },
+-  {
+-   "file": "assets/sprites/avatar_bibi.png",
+-   "source": 2056,
+-   "imported": 720
+-  },
+-  {
+-   "file": "assets/sprites/avatar_deri.png",
+-   "source": 1771,
+-   "imported": 662
+-  },
+-  {
+-   "file": "assets/sprites/avatar_distel.png",
+-   "source": 1423,
+-   "imported": 590
+-  },
+-  {
+-   "file": "assets/sprites/avatar_dubi.png",
+-   "source": 1953,
+-   "imported": 770
+-  },
+-  {
+-   "file": "assets/sprites/avatar_eisenkot.png",
+-   "source": 1543,
+-   "imported": 582
+-  },
+-  {
+-   "file": "assets/sprites/avatar_gafni.png",
+-   "source": 1919,
+-   "imported": 704
+-  },
+-  {
+-   "file": "assets/sprites/avatar_gantz.png",
+-   "source": 1219,
+-   "imported": 504
+-  },
+-  {
+-   "file": "assets/sprites/avatar_golan.png",
+-   "source": 1613,
+-   "imported": 606
+-  },
+-  {
+-   "file": "assets/sprites/avatar_goldknopf.png",
+-   "source": 1868,
+-   "imported": 706
+-  },
+-  {
+-   "file": "assets/sprites/avatar_gotliv.png",
+-   "source": 1986,
+-   "imported": 790
+-  },
+-  {
+-   "file": "assets/sprites/avatar_herzog.png",
+-   "source": 1723,
+-   "imported": 650
+-  },
+-  {
+-   "file": "assets/sprites/avatar_karhi.png",
+-   "source": 1392,
+-   "imported": 574
+-  },
+-  {
+-   "file": "assets/sprites/avatar_lapid.png",
+-   "source": 1473,
+-   "imported": 576
+-  },
+-  {
+-   "file": "assets/sprites/avatar_levin.png",
+-   "source": 1888,
+-   "imported": 718
+-  },
+-  {
+-   "file": "assets/sprites/avatar_liberman.png",
+-   "source": 1612,
+-   "imported": 614
+-  },
+-  {
+-   "file": "assets/sprites/avatar_may-golan.png",
+-   "source": 1953,
+-   "imported": 714
+-  },
+-  {
+-   "file": "assets/sprites/avatar_nophoto.png",
+-   "source": 442,
+-   "imported": 292
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_ben-gvir.png",
+-   "source": 2094,
+-   "imported": 736
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_ben-gvir_d2.png",
+-   "source": 6385,
+-   "imported": 1958
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_ben-gvir_d3.png",
+-   "source": 12507,
+-   "imported": 3982
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bennett.png",
+-   "source": 1821,
+-   "imported": 770
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bennett_d2.png",
+-   "source": 4949,
+-   "imported": 1808
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bennett_d3.png",
+-   "source": 9645,
+-   "imported": 3472
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bibi.png",
+-   "source": 2048,
+-   "imported": 720
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bibi_d2.png",
+-   "source": 5917,
+-   "imported": 1874
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bibi_d3.png",
+-   "source": 10889,
+-   "imported": 3554
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_deri.png",
+-   "source": 1770,
+-   "imported": 662
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_deri_d2.png",
+-   "source": 5041,
+-   "imported": 1680
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_deri_d3.png",
+-   "source": 9745,
+-   "imported": 3264
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_eisenkot.png",
+-   "source": 1538,
+-   "imported": 580
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_eisenkot_d2.png",
+-   "source": 4502,
+-   "imported": 1422
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_eisenkot_d3.png",
+-   "source": 8253,
+-   "imported": 2646
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_golan.png",
+-   "source": 1617,
+-   "imported": 606
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_golan_d2.png",
+-   "source": 4557,
+-   "imported": 1512
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_golan_d3.png",
+-   "source": 8378,
+-   "imported": 2770
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_liberman.png",
+-   "source": 1619,
+-   "imported": 614
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_liberman_d2.png",
+-   "source": 4477,
+-   "imported": 1480
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_liberman_d3.png",
+-   "source": 8399,
+-   "imported": 2760
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_smotrich.png",
+-   "source": 1564,
+-   "imported": 600
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_smotrich_d2.png",
+-   "source": 4710,
+-   "imported": 1546
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_smotrich_d3.png",
+-   "source": 9186,
+-   "imported": 2956
+-  },
+-  {
+-   "file": "assets/sprites/avatar_regev.png",
+-   "source": 2060,
+-   "imported": 760
+-  },
+-  {
+-   "file": "assets/sprites/avatar_sara.png",
+-   "source": 2073,
+-   "imported": 828
+-  },
+-  {
+-   "file": "assets/sprites/avatar_smotrich.png",
+-   "source": 1560,
+-   "imported": 602
+-  },
+-  {
+-   "file": "assets/sprites/avatar_trump.png",
+-   "source": 1703,
+-   "imported": 704
+-  },
+-  {
+-   "file": "assets/sprites/badge_count.png",
+-   "source": 152,
+-   "imported": 158
+-  },
+-  {
+-   "file": "assets/sprites/brawl_cloud.png",
+-   "source": 2133,
+-   "imported": 1428
+-  },
+-  {
+-   "file": "assets/sprites/brawl_cloud_cue.png",
+-   "source": 1174,
+-   "imported": 676
+-  },
+-  {
+-   "file": "assets/sprites/button_danger_default.png",
+-   "source": 152,
+-   "imported": 158
+-  },
+-  {
+-   "file": "assets/sprites/button_danger_disabled.png",
+-   "source": 123,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/button_danger_pressed.png",
+-   "source": 128,
+-   "imported": 138
+-  },
+-  {
+-   "file": "assets/sprites/button_gold_default.png",
+-   "source": 153,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/button_gold_disabled.png",
+-   "source": 126,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/button_gold_pressed.png",
+-   "source": 139,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/button_primary_default.png",
+-   "source": 155,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/button_primary_disabled.png",
+-   "source": 126,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/button_primary_pressed.png",
+-   "source": 133,
+-   "imported": 140
+-  },
+-  {
+-   "file": "assets/sprites/button_secondary_default.png",
+-   "source": 153,
+-   "imported": 156
+-  },
+-  {
+-   "file": "assets/sprites/button_secondary_disabled.png",
+-   "source": 126,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/button_secondary_pressed.png",
+-   "source": 133,
+-   "imported": 136
+-  },
+-  {
+-   "file": "assets/sprites/card_back_mark.png",
+-   "source": 121,
+-   "imported": 108
+-  },
+-  {
+-   "file": "assets/sprites/card_opposition.png",
+-   "source": 283,
+-   "imported": 206
+-  },
+-  {
+-   "file": "assets/sprites/card_opposition_back.png",
+-   "source": 302,
+-   "imported": 236
+-  },
+-  {
+-   "file": "assets/sprites/card_plate.png",
+-   "source": 174,
+-   "imported": 146
+-  },
+-  {
+-   "file": "assets/sprites/card_row.png",
+-   "source": 175,
+-   "imported": 156
+-  },
+-  {
+-   "file": "assets/sprites/card_row_locked.png",
+-   "source": 144,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/card_source_affordable.png",
+-   "source": 210,
+-   "imported": 178
+-  },
+-  {
+-   "file": "assets/sprites/card_source_locked.png",
+-   "source": 144,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/card_source_unaffordable.png",
+-   "source": 175,
+-   "imported": 156
+-  },
+-  {
+-   "file": "assets/sprites/card_spin.png",
+-   "source": 194,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/card_spin_locked.png",
+-   "source": 167,
+-   "imported": 140
+-  },
+-  {
+-   "file": "assets/sprites/cast/abbas_idle.png",
+-   "source": 71106,
+-   "imported": 20112
+-  },
+-  {
+-   "file": "assets/sprites/cast/abbas_idle_d2.png",
+-   "source": 38747,
+-   "imported": 11350
+-  },
+-  {
+-   "file": "assets/sprites/cast/abbas_react.png",
+-   "source": 63611,
+-   "imported": 21158
+-  },
+-  {
+-   "file": "assets/sprites/cast/abbas_react_d2.png",
+-   "source": 33622,
+-   "imported": 11214
+-  },
+-  {
+-   "file": "assets/sprites/cast/amsalem_idle.png",
+-   "source": 241595,
+-   "imported": 78230
+-  },
+-  {
+-   "file": "assets/sprites/cast/amsalem_idle_d2.png",
+-   "source": 122015,
+-   "imported": 39086
+-  },
+-  {
+-   "file": "assets/sprites/cast/amsalem_react.png",
+-   "source": 179804,
+-   "imported": 69118
+-  },
+-  {
+-   "file": "assets/sprites/cast/amsalem_react_d2.png",
+-   "source": 96674,
+-   "imported": 36360
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_idle.png",
+-   "source": 245706,
+-   "imported": 73698
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_idle_d2.png",
+-   "source": 128933,
+-   "imported": 37430
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_react.png",
+-   "source": 172053,
+-   "imported": 59780
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_react_d2.png",
+-   "source": 94087,
+-   "imported": 32290
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_tap.png",
+-   "source": 235633,
+-   "imported": 81322
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_tap_d2.png",
+-   "source": 127850,
+-   "imported": 44376
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_flip.png",
+-   "source": 206846,
+-   "imported": 78430
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_flip_d2.png",
+-   "source": 112240,
+-   "imported": 44434
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_idle.png",
+-   "source": 138900,
+-   "imported": 44060
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_idle_d2.png",
+-   "source": 46789,
+-   "imported": 14648
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_tap.png",
+-   "source": 196646,
+-   "imported": 73224
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_tap_d2.png",
+-   "source": 108772,
+-   "imported": 40794
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_crit.png",
+-   "source": 186029,
+-   "imported": 64400
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_crit_d2.png",
+-   "source": 100543,
+-   "imported": 35086
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_idle.png",
+-   "source": 163306,
+-   "imported": 52158
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_idle_d2.png",
+-   "source": 87271,
+-   "imported": 28900
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_tap.png",
+-   "source": 211715,
+-   "imported": 76678
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_tap_d2.png",
+-   "source": 113896,
+-   "imported": 41696
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_idle.png",
+-   "source": 217721,
+-   "imported": 69978
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_idle_d2.png",
+-   "source": 78558,
+-   "imported": 24688
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_react.png",
+-   "source": 255460,
+-   "imported": 93792
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_react_d2.png",
+-   "source": 125886,
+-   "imported": 47662
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_tap.png",
+-   "source": 208344,
+-   "imported": 78114
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_tap_d2.png",
+-   "source": 106764,
+-   "imported": 41046
+-  },
+-  {
+-   "file": "assets/sprites/cast/distel_idle.png",
+-   "source": 193133,
+-   "imported": 59216
+-  },
+-  {
+-   "file": "assets/sprites/cast/distel_idle_d2.png",
+-   "source": 96064,
+-   "imported": 31682
+-  },
+-  {
+-   "file": "assets/sprites/cast/distel_react.png",
+-   "source": 153239,
+-   "imported": 57990
+-  },
+-  {
+-   "file": "assets/sprites/cast/distel_react_d2.png",
+-   "source": 80246,
+-   "imported": 31924
+-  },
+-  {
+-   "file": "assets/sprites/cast/dubi-mic_idle.png",
+-   "source": 252450,
+-   "imported": 72706
+-  },
+-  {
+-   "file": "assets/sprites/cast/dubi-mic_idle_d2.png",
+-   "source": 124038,
+-   "imported": 35320
+-  },
+-  {
+-   "file": "assets/sprites/cast/dubi-mic_talk.png",
+-   "source": 56455,
+-   "imported": 20526
+-  },
+-  {
+-   "file": "assets/sprites/cast/dubi-mic_talk_d2.png",
+-   "source": 31524,
+-   "imported": 10914
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_idle.png",
+-   "source": 66446,
+-   "imported": 21004
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_idle_d2.png",
+-   "source": 36937,
+-   "imported": 11716
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_react.png",
+-   "source": 231175,
+-   "imported": 84264
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_react_d2.png",
+-   "source": 126592,
+-   "imported": 44950
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_tap.png",
+-   "source": 197739,
+-   "imported": 72952
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_tap_d2.png",
+-   "source": 108419,
+-   "imported": 39318
+-  },
+-  {
+-   "file": "assets/sprites/cast/gafni_idle.png",
+-   "source": 78862,
+-   "imported": 24298
+-  },
+-  {
+-   "file": "assets/sprites/cast/gafni_idle_d2.png",
+-   "source": 42142,
+-   "imported": 12388
+-  },
+-  {
+-   "file": "assets/sprites/cast/gafni_react.png",
+-   "source": 208306,
+-   "imported": 70098
+-  },
+-  {
+-   "file": "assets/sprites/cast/gafni_react_d2.png",
+-   "source": 94718,
+-   "imported": 29900
+-  },
+-  {
+-   "file": "assets/sprites/cast/gantz_idle.png",
+-   "source": 147728,
+-   "imported": 46810
+-  },
+-  {
+-   "file": "assets/sprites/cast/gantz_idle_d2.png",
+-   "source": 50124,
+-   "imported": 15596
+-  },
+-  {
+-   "file": "assets/sprites/cast/gantz_react.png",
+-   "source": 113917,
+-   "imported": 42652
+-  },
+-  {
+-   "file": "assets/sprites/cast/gantz_react_d2.png",
+-   "source": 59123,
+-   "imported": 23110
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_idle.png",
+-   "source": 53397,
+-   "imported": 18422
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_idle_d2.png",
+-   "source": 27592,
+-   "imported": 9984
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_react.png",
+-   "source": 186119,
+-   "imported": 73106
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_react_d2.png",
+-   "source": 97352,
+-   "imported": 38570
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_tap.png",
+-   "source": 150269,
+-   "imported": 60754
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_tap_d2.png",
+-   "source": 79835,
+-   "imported": 32340
+-  },
+-  {
+-   "file": "assets/sprites/cast/goldknopf_idle.png",
+-   "source": 81656,
+-   "imported": 23162
+-  },
+-  {
+-   "file": "assets/sprites/cast/goldknopf_idle_d2.png",
+-   "source": 42554,
+-   "imported": 12100
+-  },
+-  {
+-   "file": "assets/sprites/cast/goldknopf_react.png",
+-   "source": 263908,
+-   "imported": 88050
+-  },
+-  {
+-   "file": "assets/sprites/cast/goldknopf_react_d2.png",
+-   "source": 138259,
+-   "imported": 46740
+-  },
+-  {
+-   "file": "assets/sprites/cast/gotliv_idle.png",
+-   "source": 260612,
+-   "imported": 82576
+-  },
+-  {
+-   "file": "assets/sprites/cast/gotliv_idle_d2.png",
+-   "source": 128332,
+-   "imported": 41878
+-  },
+-  {
+-   "file": "assets/sprites/cast/gotliv_react.png",
+-   "source": 181349,
+-   "imported": 66568
+-  },
+-  {
+-   "file": "assets/sprites/cast/gotliv_react_d2.png",
+-   "source": 95515,
+-   "imported": 35780
+-  },
+-  {
+-   "file": "assets/sprites/cast/herzog_idle.png",
+-   "source": 198386,
+-   "imported": 67690
+-  },
+-  {
+-   "file": "assets/sprites/cast/herzog_idle_d2.png",
+-   "source": 99843,
+-   "imported": 33760
+-  },
+-  {
+-   "file": "assets/sprites/cast/herzog_react.png",
+-   "source": 188382,
+-   "imported": 69298
+-  },
+-  {
+-   "file": "assets/sprites/cast/herzog_react_d2.png",
+-   "source": 97523,
+-   "imported": 36844
+-  },
+-  {
+-   "file": "assets/sprites/cast/karhi_idle.png",
+-   "source": 179922,
+-   "imported": 51096
+-  },
+-  {
+-   "file": "assets/sprites/cast/karhi_idle_d2.png",
+-   "source": 94957,
+-   "imported": 26322
+-  },
+-  {
+-   "file": "assets/sprites/cast/karhi_react.png",
+-   "source": 145791,
+-   "imported": 51902
+-  },
+-  {
+-   "file": "assets/sprites/cast/karhi_react_d2.png",
+-   "source": 75201,
+-   "imported": 26056
+-  },
+-  {
+-   "file": "assets/sprites/cast/lapid_idle.png",
+-   "source": 249386,
+-   "imported": 76130
+-  },
+-  {
+-   "file": "assets/sprites/cast/lapid_idle_d2.png",
+-   "source": 90127,
+-   "imported": 25566
+-  },
+-  {
+-   "file": "assets/sprites/cast/lapid_react.png",
+-   "source": 258363,
+-   "imported": 82874
+-  },
+-  {
+-   "file": "assets/sprites/cast/lapid_react_d2.png",
+-   "source": 122062,
+-   "imported": 42574
+-  },
+-  {
+-   "file": "assets/sprites/cast/levin_idle.png",
+-   "source": 250900,
+-   "imported": 76674
+-  },
+-  {
+-   "file": "assets/sprites/cast/levin_idle_d2.png",
+-   "source": 115674,
+-   "imported": 38138
+-  },
+-  {
+-   "file": "assets/sprites/cast/levin_react.png",
+-   "source": 198482,
+-   "imported": 69012
+-  },
+-  {
+-   "file": "assets/sprites/cast/levin_react_d2.png",
+-   "source": 101013,
+-   "imported": 37830
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_idle.png",
+-   "source": 81922,
+-   "imported": 26120
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_idle_d2.png",
+-   "source": 42765,
+-   "imported": 13712
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_react.png",
+-   "source": 64373,
+-   "imported": 21920
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_react_d2.png",
+-   "source": 34108,
+-   "imported": 11574
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_tap.png",
+-   "source": 199588,
+-   "imported": 73266
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_tap_d2.png",
+-   "source": 105004,
+-   "imported": 38738
+-  },
+-  {
+-   "file": "assets/sprites/cast/may-golan_idle.png",
+-   "source": 106307,
+-   "imported": 33578
+-  },
+-  {
+-   "file": "assets/sprites/cast/may-golan_idle_d2.png",
+-   "source": 55442,
+-   "imported": 17140
+-  },
+-  {
+-   "file": "assets/sprites/cast/may-golan_react.png",
+-   "source": 328019,
+-   "imported": 111878
+-  },
+-  {
+-   "file": "assets/sprites/cast/may-golan_react_d2.png",
+-   "source": 170579,
+-   "imported": 58048
+-  },
+-  {
+-   "file": "assets/sprites/cast/regev_idle.png",
+-   "source": 97924,
+-   "imported": 28770
+-  },
+-  {
+-   "file": "assets/sprites/cast/regev_idle_d2.png",
+-   "source": 50140,
+-   "imported": 15188
+-  },
+-  {
+-   "file": "assets/sprites/cast/regev_react.png",
+-   "source": 306855,
+-   "imported": 98442
+-  },
+-  {
+-   "file": "assets/sprites/cast/regev_react_d2.png",
+-   "source": 161669,
+-   "imported": 53542
+-  },
+-  {
+-   "file": "assets/sprites/cast/sara_idle.png",
+-   "source": 197709,
+-   "imported": 56440
+-  },
+-  {
+-   "file": "assets/sprites/cast/sara_idle_d2.png",
+-   "source": 67008,
+-   "imported": 18522
+-  },
+-  {
+-   "file": "assets/sprites/cast/sara_offended.png",
+-   "source": 235506,
+-   "imported": 80386
+-  },
+-  {
+-   "file": "assets/sprites/cast/sara_offended_d2.png",
+-   "source": 120133,
+-   "imported": 41692
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_idle.png",
+-   "source": 87909,
+-   "imported": 25118
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_idle_d2.png",
+-   "source": 44288,
+-   "imported": 12594
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_react.png",
+-   "source": 154638,
+-   "imported": 50984
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_react_d2.png",
+-   "source": 81812,
+-   "imported": 26560
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_tap.png",
+-   "source": 225284,
+-   "imported": 73952
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_tap_d2.png",
+-   "source": 120221,
+-   "imported": 39650
+-  },
+-  {
+-   "file": "assets/sprites/cast/trump_idle.png",
+-   "source": 267776,
+-   "imported": 87124
+-  },
+-  {
+-   "file": "assets/sprites/cast/trump_idle_d2.png",
+-   "source": 137419,
+-   "imported": 41510
+-  },
+-  {
+-   "file": "assets/sprites/cast/trump_react.png",
+-   "source": 176222,
+-   "imported": 65400
+-  },
+-  {
+-   "file": "assets/sprites/cast/trump_react_d2.png",
+-   "source": 89706,
+-   "imported": 31838
+-  },
+-  {
+-   "file": "assets/sprites/chat_bubble_in.png",
+-   "source": 166,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/chat_bubble_out.png",
+-   "source": 175,
+-   "imported": 160
+-  },
+-  {
+-   "file": "assets/sprites/chat_bubble_ultimatum.png",
+-   "source": 255,
+-   "imported": 220
+-  },
+-  {
+-   "file": "assets/sprites/chat_composer_disabled.png",
+-   "source": 238,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/chat_header.png",
+-   "source": 181,
+-   "imported": 122
+-  },
+-  {
+-   "file": "assets/sprites/chat_icon_chevron.png",
+-   "source": 99,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/chat_icon_lock.png",
+-   "source": 148,
+-   "imported": 156
+-  },
+-  {
+-   "file": "assets/sprites/chat_icon_mute.png",
+-   "source": 134,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/chat_icon_pin.png",
+-   "source": 146,
+-   "imported": 168
+-  },
+-  {
+-   "file": "assets/sprites/chat_pinned.png",
+-   "source": 151,
+-   "imported": 122
+-  },
+-  {
+-   "file": "assets/sprites/chat_system_pill.png",
+-   "source": 148,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/chip_countdown.png",
+-   "source": 151,
+-   "imported": 142
+-  },
+-  {
+-   "file": "assets/sprites/chip_court.png",
+-   "source": 148,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/chip_icon_calendar.png",
+-   "source": 139,
+-   "imported": 168
+-  },
+-  {
+-   "file": "assets/sprites/chip_icon_gavel.png",
+-   "source": 146,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/chip_icon_press.png",
+-   "source": 155,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/chip_owned.png",
+-   "source": 135,
+-   "imported": 136
+-  },
+-  {
+-   "file": "assets/sprites/chip_ultimatum.png",
+-   "source": 147,
+-   "imported": 156
+-  },
+-  {
+-   "file": "assets/sprites/cottage_cup.png",
+-   "source": 881,
+-   "imported": 556
+-  },
+-  {
+-   "file": "assets/sprites/cottage_pixel.png",
+-   "source": 70,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/court_frame.png",
+-   "source": 288,
+-   "imported": 202
+-  },
+-  {
+-   "file": "assets/sprites/court_window.png",
+-   "source": 309,
+-   "imported": 238
+-  },
+-  {
+-   "file": "assets/sprites/court_window_glow.png",
+-   "source": 148,
+-   "imported": 202
+-  },
+-  {
+-   "file": "assets/sprites/curtain_hem.png",
+-   "source": 170,
+-   "imported": 166
+-  },
+-  {
+-   "file": "assets/sprites/curtain_panel.png",
+-   "source": 171,
+-   "imported": 128
+-  },
+-  {
+-   "file": "assets/sprites/curtain_valance.png",
+-   "source": 294,
+-   "imported": 208
+-  },
+-  {
+-   "file": "assets/sprites/depboard.png",
+-   "source": 1509,
+-   "imported": 580
+-  },
+-  {
+-   "file": "assets/sprites/dubi_placeholder_avatar.png",
+-   "source": 329,
+-   "imported": 294
+-  },
+-  {
+-   "file": "assets/sprites/dubi_placeholder_body.png",
+-   "source": 452,
+-   "imported": 372
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_fly.png",
+-   "source": 603,
+-   "imported": 418
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_idle.png",
+-   "source": 986,
+-   "imported": 522
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_land.png",
+-   "source": 646,
+-   "imported": 378
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_peck.png",
+-   "source": 891,
+-   "imported": 484
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_squawk.png",
+-   "source": 776,
+-   "imported": 466
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_talk.png",
+-   "source": 522,
+-   "imported": 356
+-  },
+-  {
+-   "file": "assets/sprites/ftue_hand.png",
+-   "source": 357,
+-   "imported": 260
+-  },
+-  {
+-   "file": "assets/sprites/ftue_tap_ring.png",
+-   "source": 141,
+-   "imported": 120
+-  },
+-  {
+-   "file": "assets/sprites/fx_ink.png",
+-   "source": 70,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/fx_ink2.png",
+-   "source": 74,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/fx_puff0.png",
+-   "source": 106,
+-   "imported": 122
+-  },
+-  {
+-   "file": "assets/sprites/fx_puff1.png",
+-   "source": 90,
+-   "imported": 120
+-  },
+-  {
+-   "file": "assets/sprites/fx_slip.png",
+-   "source": 87,
+-   "imported": 104
+-  },
+-  {
+-   "file": "assets/sprites/fx_slip_tilt.png",
+-   "source": 82,
+-   "imported": 104
+-  },
+-  {
+-   "file": "assets/sprites/icon_clock.png",
+-   "source": 189,
+-   "imported": 188
+-  },
+-  {
+-   "file": "assets/sprites/icon_close.png",
+-   "source": 286,
+-   "imported": 208
+-  },
+-  {
+-   "file": "assets/sprites/icon_coin9.png",
+-   "source": 169,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/icon_gear.png",
+-   "source": 229,
+-   "imported": 176
+-  },
+-  {
+-   "file": "assets/sprites/icon_sound_off.png",
+-   "source": 190,
+-   "imported": 192
+-  },
+-  {
+-   "file": "assets/sprites/icon_sound_on.png",
+-   "source": 191,
+-   "imported": 190
+-  },
+-  {
+-   "file": "assets/sprites/icon_trash.png",
+-   "source": 134,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/lane_balfour.png",
+-   "source": 311,
+-   "imported": 194
+-  },
+-  {
+-   "file": "assets/sprites/lane_courthouse.png",
+-   "source": 296,
+-   "imported": 192
+-  },
+-  {
+-   "file": "assets/sprites/lane_knesset.png",
+-   "source": 287,
+-   "imported": 192
+-  },
+-  {
+-   "file": "assets/sprites/lane_washington.png",
+-   "source": 273,
+-   "imported": 190
+-  },
+-  {
+-   "file": "assets/sprites/laundry_bag.png",
+-   "source": 251,
+-   "imported": 200
+-  },
+-  {
+-   "file": "assets/sprites/laundry_shirt.png",
+-   "source": 172,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/laundry_shorts.png",
+-   "source": 123,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/laundry_sock.png",
+-   "source": 124,
+-   "imported": 146
+-  },
+-  {
+-   "file": "assets/sprites/laundry_towel.png",
+-   "source": 126,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/nophoto_idle.png",
+-   "source": 970,
+-   "imported": 492
+-  },
+-  {
+-   "file": "assets/sprites/opp_timer_fill.png",
+-   "source": 100,
+-   "imported": 138
+-  },
+-  {
+-   "file": "assets/sprites/pay_pill_default.png",
+-   "source": 165,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/pay_pill_fill.png",
+-   "source": 87,
+-   "imported": 100
+-  },
+-  {
+-   "file": "assets/sprites/pay_pill_pressed.png",
+-   "source": 150,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/pay_pill_track.png",
+-   "source": 144,
+-   "imported": 142
+-  },
+-  {
+-   "file": "assets/sprites/pick_random.png",
+-   "source": 208,
+-   "imported": 178
+-  },
+-  {
+-   "file": "assets/sprites/pick_tile_focus.png",
+-   "source": 243,
+-   "imported": 196
+-  },
+-  {
+-   "file": "assets/sprites/pick_tile_idle.png",
+-   "source": 167,
+-   "imported": 156
+-  },
+-  {
+-   "file": "assets/sprites/pick_tile_pressed.png",
+-   "source": 168,
+-   "imported": 148
+-  },
+-  {
+-   "file": "assets/sprites/pick_tile_selected.png",
+-   "source": 216,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/plate_silhouette.png",
+-   "source": 223,
+-   "imported": 190
+-  },
+-  {
+-   "file": "assets/sprites/plaza_balfour.png",
+-   "source": 1119,
+-   "imported": 512
+-  },
+-  {
+-   "file": "assets/sprites/plaza_courthouse.png",
+-   "source": 1049,
+-   "imported": 502
+-  },
+-  {
+-   "file": "assets/sprites/plaza_knesset.png",
+-   "source": 1209,
+-   "imported": 570
+-  },
+-  {
+-   "file": "assets/sprites/plaza_washington.png",
+-   "source": 1446,
+-   "imported": 726
+-  },
+-  {
+-   "file": "assets/sprites/prop_bill.png",
+-   "source": 140,
+-   "imported": 128
+-  },
+-  {
+-   "file": "assets/sprites/prop_calculator.png",
+-   "source": 366,
+-   "imported": 294
+-  },
+-  {
+-   "file": "assets/sprites/prop_chair.png",
+-   "source": 478,
+-   "imported": 336
+-  },
+-  {
+-   "file": "assets/sprites/prop_coffee.png",
+-   "source": 373,
+-   "imported": 276
+-  },
+-  {
+-   "file": "assets/sprites/prop_coin0.png",
+-   "source": 130,
+-   "imported": 142
+-  },
+-  {
+-   "file": "assets/sprites/prop_coin1.png",
+-   "source": 109,
+-   "imported": 118
+-  },
+-  {
+-   "file": "assets/sprites/prop_coin2.png",
+-   "source": 100,
+-   "imported": 120
+-  },
+-  {
+-   "file": "assets/sprites/prop_coin3.png",
+-   "source": 103,
+-   "imported": 118
+-  },
+-  {
+-   "file": "assets/sprites/prop_hat.png",
+-   "source": 325,
+-   "imported": 232
+-  },
+-  {
+-   "file": "assets/sprites/prop_hat_glow.png",
+-   "source": 174,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/prop_pen.png",
+-   "source": 500,
+-   "imported": 332
+-  },
+-  {
+-   "file": "assets/sprites/prop_phone.png",
+-   "source": 381,
+-   "imported": 290
+-  },
+-  {
+-   "file": "assets/sprites/prop_rabbit.png",
+-   "source": 266,
+-   "imported": 212
+-  },
+-  {
+-   "file": "assets/sprites/prop_ruler.png",
+-   "source": 244,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/prop_spark.png",
+-   "source": 89,
+-   "imported": 120
+-  },
+-  {
+-   "file": "assets/sprites/prop_stapler.png",
+-   "source": 304,
+-   "imported": 258
+-  },
+-  {
+-   "file": "assets/sprites/receipt_body.png",
+-   "source": 107,
+-   "imported": 108
+-  },
+-  {
+-   "file": "assets/sprites/receipt_bottom.png",
+-   "source": 281,
+-   "imported": 256
+-  },
+-  {
+-   "file": "assets/sprites/receipt_rule.png",
+-   "source": 76,
+-   "imported": 96
+-  },
+-  {
+-   "file": "assets/sprites/receipt_top.png",
+-   "source": 285,
+-   "imported": 250
+-  },
+-  {
+-   "file": "assets/sprites/seats_fill.png",
+-   "source": 98,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/seats_goal_frame.png",
+-   "source": 174,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/seats_tick.png",
+-   "source": 77,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/seats_track.png",
+-   "source": 116,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/share_receipt_bg.png",
+-   "source": 2142,
+-   "imported": 686
+-  },
+-  {
+-   "file": "assets/sprites/share_result_frame.png",
+-   "source": 3083,
+-   "imported": 1038
+-  },
+-  {
+-   "file": "assets/sprites/sheet_modal.png",
+-   "source": 259,
+-   "imported": 190
+-  },
+-  {
+-   "file": "assets/sprites/sheet_plain.png",
+-   "source": 167,
+-   "imported": 142
+-  },
+-  {
+-   "file": "assets/sprites/source_advisers.png",
+-   "source": 16290,
+-   "imported": 5544
+-  },
+-  {
+-   "file": "assets/sprites/source_advisers_d2.png",
+-   "source": 8308,
+-   "imported": 2916
+-  },
+-  {
+-   "file": "assets/sprites/source_advisers_icon.png",
+-   "source": 1346,
+-   "imported": 534
+-  },
+-  {
+-   "file": "assets/sprites/source_advisers_icon_sil.png",
+-   "source": 264,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_checkbook.png",
+-   "source": 743,
+-   "imported": 434
+-  },
+-  {
+-   "file": "assets/sprites/source_checkbook_icon.png",
+-   "source": 329,
+-   "imported": 252
+-  },
+-  {
+-   "file": "assets/sprites/source_checkbook_icon_sil.png",
+-   "source": 145,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/source_cigars.png",
+-   "source": 16777,
+-   "imported": 4894
+-  },
+-  {
+-   "file": "assets/sprites/source_cigars_d2.png",
+-   "source": 8988,
+-   "imported": 2636
+-  },
+-  {
+-   "file": "assets/sprites/source_cigars_icon.png",
+-   "source": 1362,
+-   "imported": 530
+-  },
+-  {
+-   "file": "assets/sprites/source_cigars_icon_sil.png",
+-   "source": 248,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/source_donor.png",
+-   "source": 867,
+-   "imported": 490
+-  },
+-  {
+-   "file": "assets/sprites/source_donor_icon.png",
+-   "source": 541,
+-   "imported": 316
+-  },
+-  {
+-   "file": "assets/sprites/source_donor_icon_sil.png",
+-   "source": 228,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/source_funds.png",
+-   "source": 615,
+-   "imported": 396
+-  },
+-  {
+-   "file": "assets/sprites/source_funds_icon.png",
+-   "source": 297,
+-   "imported": 270
+-  },
+-  {
+-   "file": "assets/sprites/source_funds_icon_sil.png",
+-   "source": 132,
+-   "imported": 130
+-  },
+-  {
+-   "file": "assets/sprites/source_hitech.png",
+-   "source": 12936,
+-   "imported": 4338
+-  },
+-  {
+-   "file": "assets/sprites/source_hitech_d2.png",
+-   "source": 6618,
+-   "imported": 2312
+-  },
+-  {
+-   "file": "assets/sprites/source_hitech_icon.png",
+-   "source": 1019,
+-   "imported": 444
+-  },
+-  {
+-   "file": "assets/sprites/source_hitech_icon_sil.png",
+-   "source": 238,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_poison.png",
+-   "source": 589,
+-   "imported": 376
+-  },
+-  {
+-   "file": "assets/sprites/source_poison_icon.png",
+-   "source": 230,
+-   "imported": 208
+-  },
+-  {
+-   "file": "assets/sprites/source_poison_icon_sil.png",
+-   "source": 96,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/source_qatari.png",
+-   "source": 16142,
+-   "imported": 5478
+-  },
+-  {
+-   "file": "assets/sprites/source_qatari_d2.png",
+-   "source": 8333,
+-   "imported": 2910
+-  },
+-  {
+-   "file": "assets/sprites/source_qatari_icon.png",
+-   "source": 1344,
+-   "imported": 536
+-  },
+-  {
+-   "file": "assets/sprites/source_qatari_icon_sil.png",
+-   "source": 264,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_submarine.png",
+-   "source": 1084,
+-   "imported": 548
+-  },
+-  {
+-   "file": "assets/sprites/source_submarine_icon.png",
+-   "source": 446,
+-   "imported": 316
+-  },
+-  {
+-   "file": "assets/sprites/source_submarine_icon_sil.png",
+-   "source": 232,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_taxpayer.png",
+-   "source": 14730,
+-   "imported": 4670
+-  },
+-  {
+-   "file": "assets/sprites/source_taxpayer_d2.png",
+-   "source": 7576,
+-   "imported": 2454
+-  },
+-  {
+-   "file": "assets/sprites/source_taxpayer_icon.png",
+-   "source": 978,
+-   "imported": 462
+-  },
+-  {
+-   "file": "assets/sprites/source_taxpayer_icon_sil.png",
+-   "source": 208,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_vat.png",
+-   "source": 16207,
+-   "imported": 4996
+-  },
+-  {
+-   "file": "assets/sprites/source_vat_d2.png",
+-   "source": 9063,
+-   "imported": 2828
+-  },
+-  {
+-   "file": "assets/sprites/source_vat_icon.png",
+-   "source": 1417,
+-   "imported": 548
+-  },
+-  {
+-   "file": "assets/sprites/source_vat_icon_sil.png",
+-   "source": 160,
+-   "imported": 138
+-  },
+-  {
+-   "file": "assets/sprites/spin_s01.png",
+-   "source": 407,
+-   "imported": 266
+-  },
+-  {
+-   "file": "assets/sprites/spin_s02.png",
+-   "source": 452,
+-   "imported": 284
+-  },
+-  {
+-   "file": "assets/sprites/spin_s03.png",
+-   "source": 399,
+-   "imported": 292
+-  },
+-  {
+-   "file": "assets/sprites/spin_s04.png",
+-   "source": 274,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/spin_s05.png",
+-   "source": 407,
+-   "imported": 278
+-  },
+-  {
+-   "file": "assets/sprites/spin_s06.png",
+-   "source": 361,
+-   "imported": 268
+-  },
+-  {
+-   "file": "assets/sprites/spin_s07.png",
+-   "source": 411,
+-   "imported": 286
+-  },
+-  {
+-   "file": "assets/sprites/spin_s08.png",
+-   "source": 371,
+-   "imported": 292
+-  },
+-  {
+-   "file": "assets/sprites/spin_s09.png",
+-   "source": 429,
+-   "imported": 274
+-  },
+-  {
+-   "file": "assets/sprites/spin_s10.png",
+-   "source": 432,
+-   "imported": 308
+-  },
+-  {
+-   "file": "assets/sprites/spin_s11.png",
+-   "source": 457,
+-   "imported": 308
+-  },
+-  {
+-   "file": "assets/sprites/spin_s12.png",
+-   "source": 523,
+-   "imported": 344
+-  },
+-  {
+-   "file": "assets/sprites/spin_s13.png",
+-   "source": 443,
+-   "imported": 318
+-  },
+-  {
+-   "file": "assets/sprites/spin_s14.png",
+-   "source": 402,
+-   "imported": 284
+-  },
+-  {
+-   "file": "assets/sprites/spin_s15.png",
+-   "source": 418,
+-   "imported": 334
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_A.png",
+-   "source": 384,
+-   "imported": 262
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_B.png",
+-   "source": 347,
+-   "imported": 260
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_C.png",
+-   "source": 305,
+-   "imported": 244
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_D.png",
+-   "source": 315,
+-   "imported": 246
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_E.png",
+-   "source": 322,
+-   "imported": 234
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_G.png",
+-   "source": 350,
+-   "imported": 284
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_H.png",
+-   "source": 361,
+-   "imported": 252
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_I.png",
+-   "source": 363,
+-   "imported": 272
+-  },
+-  {
+-   "file": "assets/sprites/stage_balfour.png",
+-   "source": 4377,
+-   "imported": 1334
+-  },
+-  {
+-   "file": "assets/sprites/stage_courthouse.png",
+-   "source": 3212,
+-   "imported": 1004
+-  },
+-  {
+-   "file": "assets/sprites/stage_knesset.png",
+-   "source": 1959,
+-   "imported": 536
+-  },
+-  {
+-   "file": "assets/sprites/stage_washington.png",
+-   "source": 2831,
+-   "imported": 1068
+-  },
+-  {
+-   "file": "assets/sprites/stamp_blackout_dark.png",
+-   "source": 307,
+-   "imported": 206
+-  },
+-  {
+-   "file": "assets/sprites/stamp_blackout_dark_rot.png",
+-   "source": 444,
+-   "imported": 286
+-  },
+-  {
+-   "file": "assets/sprites/stamp_blackout_paper.png",
+-   "source": 306,
+-   "imported": 206
+-  },
+-  {
+-   "file": "assets/sprites/stamp_blackout_paper_rot.png",
+-   "source": 444,
+-   "imported": 286
+-  },
+-  {
+-   "file": "assets/sprites/stamp_camera.png",
+-   "source": 166,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/stamp_frame_dark.png",
+-   "source": 149,
+-   "imported": 122
+-  },
+-  {
+-   "file": "assets/sprites/stamp_frame_paper.png",
+-   "source": 149,
+-   "imported": 122
+-  },
+-  {
+-   "file": "assets/sprites/stamp_paid_dark.png",
+-   "source": 219,
+-   "imported": 160
+-  },
+-  {
+-   "file": "assets/sprites/stamp_paid_dark_rot.png",
+-   "source": 276,
+-   "imported": 182
+-  },
+-  {
+-   "file": "assets/sprites/stamp_paid_paper.png",
+-   "source": 218,
+-   "imported": 160
+-  },
+-  {
+-   "file": "assets/sprites/stamp_paid_paper_rot.png",
+-   "source": 275,
+-   "imported": 182
+-  },
+-  {
+-   "file": "assets/sprites/stamp_pardon_dark.png",
+-   "source": 378,
+-   "imported": 260
+-  },
+-  {
+-   "file": "assets/sprites/stamp_pardon_dark_rot.png",
+-   "source": 594,
+-   "imported": 388
+-  },
+-  {
+-   "file": "assets/sprites/stamp_pardon_paper.png",
+-   "source": 377,
+-   "imported": 260
+-  },
+-  {
+-   "file": "assets/sprites/stamp_pardon_paper_rot.png",
+-   "source": 593,
+-   "imported": 388
+-  },
+-  {
+-   "file": "assets/sprites/stamp_postponed_dark.png",
+-   "source": 204,
+-   "imported": 150
+-  },
+-  {
+-   "file": "assets/sprites/stamp_postponed_dark_rot.png",
+-   "source": 286,
+-   "imported": 184
+-  },
+-  {
+-   "file": "assets/sprites/stamp_postponed_paper.png",
+-   "source": 204,
+-   "imported": 150
+-  },
+-  {
+-   "file": "assets/sprites/stamp_postponed_paper_rot.png",
+-   "source": 285,
+-   "imported": 184
+-  },
+-  {
+-   "file": "assets/sprites/stamp_tool_down.png",
+-   "source": 262,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/stamp_tool_up.png",
+-   "source": 273,
+-   "imported": 220
+-  },
+-  {
+-   "file": "assets/sprites/suitcase.png",
+-   "source": 452,
+-   "imported": 282
+-  },
+-  {
+-   "file": "assets/sprites/suitcase_norim.png",
+-   "source": 373,
+-   "imported": 258
+-  },
+-  {
+-   "file": "assets/sprites/suitcase_plain.png",
+-   "source": 380,
+-   "imported": 234
+-  },
+-  {
+-   "file": "assets/sprites/suitcase_plain_norim.png",
+-   "source": 320,
+-   "imported": 212
+-  },
+-  {
+-   "file": "assets/sprites/sweat_drop.png",
+-   "source": 114,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/tab_active.png",
+-   "source": 188,
+-   "imported": 142
+-  },
+-  {
+-   "file": "assets/sprites/tabbar.png",
+-   "source": 193,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_cases_active.png",
+-   "source": 195,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_cases_idle.png",
+-   "source": 194,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_coalition_active.png",
+-   "source": 191,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_coalition_idle.png",
+-   "source": 181,
+-   "imported": 166
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_sources_active.png",
+-   "source": 229,
+-   "imported": 206
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_sources_idle.png",
+-   "source": 205,
+-   "imported": 176
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_spins_active.png",
+-   "source": 269,
+-   "imported": 244
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_spins_idle.png",
+-   "source": 244,
+-   "imported": 200
+-  },
+-  {
+-   "file": "assets/sprites/tag_worn.png",
+-   "source": 243,
+-   "imported": 202
+-  },
+-  {
+-   "file": "assets/sprites/thermo_bubble.png",
+-   "source": 106,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/thermo_fill.png",
+-   "source": 80,
+-   "imported": 118
+-  },
+-  {
+-   "file": "assets/sprites/thermo_floor_hatch.png",
+-   "source": 100,
+-   "imported": 106
+-  },
+-  {
+-   "file": "assets/sprites/thermo_icon_gavel.png",
+-   "source": 159,
+-   "imported": 168
+-  },
+-  {
+-   "file": "assets/sprites/thermo_icon_magnifier.png",
+-   "source": 175,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/thermo_icon_press.png",
+-   "source": 176,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/thermo_meniscus.png",
+-   "source": 80,
+-   "imported": 118
+-  },
+-  {
+-   "file": "assets/sprites/thermo_tube.png",
+-   "source": 363,
+-   "imported": 282
+-  },
+-  {
+-   "file": "assets/sprites/thermo_tube_short.png",
+-   "source": 345,
+-   "imported": 262
+-  },
+-  {
+-   "file": "assets/sprites/ticker_bar.png",
+-   "source": 175,
+-   "imported": 130
+-  },
+-  {
+-   "file": "assets/sprites/ticker_flash_plate.png",
+-   "source": 154,
+-   "imported": 166
+-  },
+-  {
+-   "file": "assets/sprites/ticker_flash_plate_text.png",
+-   "source": 222,
+-   "imported": 194
+-  },
+-  {
+-   "file": "assets/sprites/toast.png",
+-   "source": 176,
+-   "imported": 150
+-  },
+-  {
+-   "file": "assets/sprites/transfer_banner.png",
+-   "source": 718,
+-   "imported": 424
+-  },
+-  {
+-   "file": "assets/sprites/transfer_card.png",
+-   "source": 151,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/trophy_aide.png",
+-   "source": 270,
+-   "imported": 226
+-  },
+-  {
+-   "file": "assets/sprites/trophy_aide_locked.png",
+-   "source": 234,
+-   "imported": 188
+-  },
+-  {
+-   "file": "assets/sprites/trophy_ballot.png",
+-   "source": 207,
+-   "imported": 202
+-  },
+-  {
+-   "file": "assets/sprites/trophy_ballot_locked.png",
+-   "source": 189,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/trophy_clock.png",
+-   "source": 212,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/trophy_clock_locked.png",
+-   "source": 190,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/trophy_coin.png",
+-   "source": 218,
+-   "imported": 188
+-  },
+-  {
+-   "file": "assets/sprites/trophy_coin_locked.png",
+-   "source": 212,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/trophy_cottage.png",
+-   "source": 108,
+-   "imported": 116
+-  },
+-  {
+-   "file": "assets/sprites/trophy_cottage_locked.png",
+-   "source": 108,
+-   "imported": 116
+-  },
+-  {
+-   "file": "assets/sprites/trophy_folder.png",
+-   "source": 190,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/trophy_folder_locked.png",
+-   "source": 190,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/trophy_gavel.png",
+-   "source": 188,
+-   "imported": 186
+-  },
+-  {
+-   "file": "assets/sprites/trophy_gavel_locked.png",
+-   "source": 189,
+-   "imported": 176
+-  },
+-  {
+-   "file": "assets/sprites/trophy_hat.png",
+-   "source": 189,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/trophy_hat_locked.png",
+-   "source": 148,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/trophy_moon.png",
+-   "source": 262,
+-   "imported": 210
+-  },
+-  {
+-   "file": "assets/sprites/trophy_moon_locked.png",
+-   "source": 246,
+-   "imported": 192
+-  },
+-  {
+-   "file": "assets/sprites/trophy_parrot.png",
+-   "source": 289,
+-   "imported": 246
+-  },
+-  {
+-   "file": "assets/sprites/trophy_parrot_locked.png",
+-   "source": 240,
+-   "imported": 198
+-  },
+-  {
+-   "file": "assets/sprites/trophy_phone.png",
+-   "source": 234,
+-   "imported": 200
+-  },
+-  {
+-   "file": "assets/sprites/trophy_phone_locked.png",
+-   "source": 192,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/trophy_pin.png",
+-   "source": 190,
+-   "imported": 218
+-  },
+-  {
+-   "file": "assets/sprites/trophy_pin_locked.png",
+-   "source": 184,
+-   "imported": 192
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plane.png",
+-   "source": 177,
+-   "imported": 184
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plane_locked.png",
+-   "source": 172,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plate_earned.png",
+-   "source": 187,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plate_locked.png",
+-   "source": 163,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plate_secret.png",
+-   "source": 198,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/trophy_rabbit.png",
+-   "source": 242,
+-   "imported": 202
+-  },
+-  {
+-   "file": "assets/sprites/trophy_rabbit_locked.png",
+-   "source": 230,
+-   "imported": 184
+-  },
+-  {
+-   "file": "assets/sprites/trophy_stamp.png",
+-   "source": 227,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/trophy_stamp_locked.png",
+-   "source": 200,
+-   "imported": 188
+-  },
+-  {
+-   "file": "assets/sprites/trophy_suitcase.png",
+-   "source": 220,
+-   "imported": 212
+-  },
+-  {
+-   "file": "assets/sprites/trophy_suitcase_locked.png",
+-   "source": 189,
+-   "imported": 182
+-  },
+-  {
+-   "file": "assets/sprites/trophy_wand.png",
+-   "source": 175,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/trophy_wand_locked.png",
+-   "source": 171,
+-   "imported": 168
+-  },
+-  {
+-   "file": "assets/sprites/wing_balfour_l.png",
+-   "source": 567,
+-   "imported": 320
+-  },
+-  {
+-   "file": "assets/sprites/wing_balfour_r.png",
+-   "source": 533,
+-   "imported": 302
+-  },
+-  {
+-   "file": "assets/sprites/wing_courthouse_l.png",
+-   "source": 590,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/wing_courthouse_r.png",
+-   "source": 583,
+-   "imported": 220
+-  },
+-  {
+-   "file": "assets/sprites/wing_knesset_l.png",
+-   "source": 549,
+-   "imported": 296
+-  },
+-  {
+-   "file": "assets/sprites/wing_knesset_r.png",
+-   "source": 558,
+-   "imported": 300
+-  },
+-  {
+-   "file": "assets/sprites/wing_washington_l.png",
+-   "source": 712,
+-   "imported": 300
+-  },
+-  {
+-   "file": "assets/sprites/wing_washington_r.png",
+-   "source": 679,
+-   "imported": 292
+-  },
+-  {
+-   "file": "assets/sprites/wordmark.png",
+-   "source": 1072,
+-   "imported": 710
+-  },
+-  {
+-   "file": "assets/sprites/wordmark_mono.png",
+-   "source": 440,
+-   "imported": 318
+-  },
+-  {
+-   "file": "assets/sprites/wordmark_norim.png",
+-   "source": 961,
+-   "imported": 652
+-  },
+-  {
+-   "file": "assets/sprites/wordmark_small.png",
+-   "source": 607,
+-   "imported": 380
+-  },
+-  {
+-   "file": "assets/fonts/sevev9.fnt",
+-   "source": 14781,
+-   "imported": 7381
+-  },
+-  {
+-   "file": "assets/fonts/sevev9.png",
+-   "source": 1207,
+-   "imported": 0,
+-   "note": "embedded in the .fontdata"
+-  },
+-  {
+-   "file": "assets/fonts/sevev9@2.fnt",
+-   "source": 15149,
+-   "imported": 10807
+-  },
+-  {
+-   "file": "assets/fonts/sevev9@2.png",
+-   "source": 2799,
+-   "imported": 0,
+-   "note": "embedded in the .fontdata"
+-  },
+-  {
+-   "file": "assets/fonts/sevev9_outline.fnt",
+-   "source": 15106,
+-   "imported": 8905
+-  },
+-  {
+-   "file": "assets/fonts/sevev9_outline.png",
+-   "source": 2443,
+-   "imported": 0,
+-   "note": "embedded in the .fontdata"
+-  }
+- ],
+- "pckBytes": 5338089,
+- "pckByAsset": {
+-  "bibi": {
+-   "3": 193236,
+-   "2": 105682
+-  },
+-  "sara": {
+-   "3": 136826,
+-   "2": 60214
+-  },
+-  "bennett": {
+-   "3": 195714,
+-   "2": 99876
+-  },
+-  "regev": {
+-   "3": 127212,
+-   "2": 68730
+-  },
+-  "gotliv": {
+-   "3": 149144,
+-   "2": 77658
+-  },
+-  "deri": {
+-   "3": 241884,
+-   "2": 113396
+-  },
+-  "levin": {
+-   "3": 145686,
+-   "2": 75968
+-  },
+-  "ben-gvir": {
+-   "3": 214800,
+-   "2": 114096
+-  },
+-  "goldknopf": {
+-   "3": 111212,
+-   "2": 58840
+-  },
+-  "gafni": {
+-   "3": 94396,
+-   "2": 42288
+-  },
+-  "smotrich": {
+-   "3": 150054,
+-   "2": 78804
+-  },
+-  "amsalem": {
+-   "3": 147348,
+-   "2": 75446
+-  },
+-  "lapid": {
+-   "3": 159004,
+-   "2": 68140
+-  },
+-  "eisenkot": {
+-   "3": 178220,
+-   "2": 95984
+-  },
+-  "gantz": {
+-   "3": 89462,
+-   "2": 38706
+-  },
+-  "liberman": {
+-   "3": 121306,
+-   "2": 64024
+-  },
+-  "golan": {
+-   "3": 152282,
+-   "2": 80894
+-  },
+-  "abbas": {
+-   "3": 41270,
+-   "2": 22564
+-  },
+-  "distel": {
+-   "3": 117206,
+-   "2": 63606
+-  },
+-  "karhi": {
+-   "3": 102998,
+-   "2": 52378
+-  },
+-  "herzog": {
+-   "3": 136988,
+-   "2": 70604
+-  },
+-  "trump": {
+-   "3": 152524,
+-   "2": 73348
+-  },
+-  "may-golan": {
+-   "3": 145456,
+-   "2": 75188
+-  },
+-  "dubi": {
+-   "1": 2624
+-  },
+-  "dubi-mic": {
+-   "3": 93232,
+-   "2": 46234
+-  },
+-  "nophoto": {
+-   "1": 492
+-  },
+-  "source_taxpayer": {
+-   "3": 4670,
+-   "2": 2454
+-  },
+-  "source_hitech": {
+-   "3": 4338,
+-   "2": 2312
+-  },
+-  "source_vat": {
+-   "3": 4996,
+-   "2": 2828
+-  },
+-  "source_cigars": {
+-   "3": 4894,
+-   "2": 2636
+-  },
+-  "source_qatari": {
+-   "3": 5478,
+-   "2": 2910
+-  },
+-  "source_advisers": {
+-   "3": 5544,
+-   "2": 2916
+-  },
+-  "source_checkbook": {
+-   "1": 434
+-  },
+-  "source_donor": {
+-   "1": 490
+-  },
+-  "source_funds": {
+-   "1": 396
+-  },
+-  "source_poison": {
+-   "1": 376
+-  },
+-  "source_submarine": {
+-   "1": 548
+-  }
+- },
+- "specimenVisual": [
+-  {
+-   "tofu": 0,
+-   "visual": "תשרקץצףפעסןנםמלךכיטחזוהדגבא",
+-   "width": 143.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "בבס דוע",
+-   "width": 37.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": ".שגרנ רוביצה .6 ׳סמ תוריחב בבס",
+-   "width": 138.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "היינשל ₪  +1.2K ",
+-   "width": 64.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "₪  12,400  · ונרגס",
+-   "width": 70.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "3־ו · ש״מעוי · כ״הס · *18% מ״עמ",
+-   "width": 136.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "תידוהי המצוע ← דוכילה",
+-   "width": 102.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "{םש} [הטויט] (טפשמה תיב)",
+-   "width": 113.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "…םולכ ןיא יכ םולכ היהי אל",
+-   "width": 119.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "DOHA · OK · 1.2K 3M 4B 5T · +12 − 3 × 2 = 30",
+-   "width": 191.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "— – 0123456789 ?!:;~|`_^\\@&$#",
+-   "width": 129.0
+-  }
+- ],
+- "densityProofWidths": [
+-  {
+-   "w1": 183.0,
+-   "w2": 366.0
+-  },
+-  {
+-   "w1": 33.0,
+-   "w2": 66.0
+-  },
+-  {
+-   "w1": 282.0,
+-   "w2": 564.0
+-  },
+-  {
+-   "w1": 62.0,
+-   "w2": 124.0
+-  },
+-  {
+-   "w1": 164.0,
+-   "w2": 328.0
+-  },
+-  {
+-   "w1": 47.0,
+-   "w2": 94.0
+-  },
+-  {
+-   "w1": 89.0,
+-   "w2": 178.0
+-  },
+-  {
+-   "w1": 143.0,
+-   "w2": 286.0
+-  },
+-  {
+-   "w1": 209.0,
+-   "w2": 418.0
+-  },
+-  {
+-   "w1": 147.0,
+-   "w2": 294.0
+-  }
+- ],
+- "sourceTotal": 15638781
++ "sourceTotal": 15641091
+ }
+\ No newline at end of file
+diff --git a/pipeline/od-sevev/proofs/font-density2.png b/pipeline/od-sevev/proofs/font-density2.png
+index 6dbff58..a3da542 100644
+Binary files a/pipeline/od-sevev/proofs/font-density2.png and b/pipeline/od-sevev/proofs/font-density2.png differ
+diff --git a/pipeline/od-sevev/proofs/sprites-contact-k4.png b/pipeline/od-sevev/proofs/sprites-contact-k4.png
+index 7599a45..5ce4a5d 100644
+Binary files a/pipeline/od-sevev/proofs/sprites-contact-k4.png and b/pipeline/od-sevev/proofs/sprites-contact-k4.png differ
+diff --git a/pipeline/od-sevev/proofs/sprites-contact.png b/pipeline/od-sevev/proofs/sprites-contact.png
+index c930794..a3f00f6 100644
+Binary files a/pipeline/od-sevev/proofs/sprites-contact.png and b/pipeline/od-sevev/proofs/sprites-contact.png differ
+diff --git a/pipeline/od-sevev/proofs/stage-x4-bibi-d2.png b/pipeline/od-sevev/proofs/stage-x4-bibi-d2.png
+index 8a2788e..9919ffe 100644
+Binary files a/pipeline/od-sevev/proofs/stage-x4-bibi-d2.png and b/pipeline/od-sevev/proofs/stage-x4-bibi-d2.png differ
+diff --git a/pipeline/od-sevev/proofs/stage-x6-bibi.png b/pipeline/od-sevev/proofs/stage-x6-bibi.png
+index 1f98bfd..db39c51 100644
+Binary files a/pipeline/od-sevev/proofs/stage-x6-bibi.png and b/pipeline/od-sevev/proofs/stage-x6-bibi.png differ
 diff --git a/art/od-sevev/out/palette-v3.gpl b/art/od-sevev/out/palette-v3.gpl
 new file mode 100644
 index 0000000..28e660d
