@@ -39,6 +39,349 @@ index ffacf1f..eb3ffcc 100644
  ## The logical viewport size for a device size at the current f.
  static func logical_size(win: Vector2) -> Vector2:
  	return win / f
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index f0d0809..e24b530 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -12,9 +12,10 @@ extends Node2D
+ ## state without its lines), an after-election pick straight in the round. It owns the one GameState, ticks the pure economy on a fixed 1/60 s
+ ## step, routes every pointer and key through one input boundary, and drives the views.
+ ##
+-## v2 layout: the 720x1280 design canvas is split into sections (top bar, stage, ticker + shop,
+-## overlays), each offset as a whole. On tall phones the extra height goes to the stage (sky) and
+-## the shop list (more rows); wide screens centre the column and extend the backdrops.
++## Layout (ux/mobile-first-layout.md): the canvas is split into sections (top bar, stage, ticker +
++## shop, overlays), each offset as a whole. The chrome spans the whole canvas width (L.cw, fluid
++## anchors), only the stage art stays a centred 720 column (_sx); the vertical budget is
++## bottom-up: the tab bar pinned to the safe bottom, whole card rows, the stage takes the rest.
+ 
+ const STEP_MS := 1000.0 / 60.0
+ const AWAY_GAP_SEC := 2.0          # a wall-clock gap longer than this between frames = time away
+@@ -59,7 +60,8 @@ var _coin_batch := 0                # taps since the Magician's last coin burst
+ 
+ # layout
+ var _vs := Vector2(L.W, L.H)
+-var _ox := 0.0
++var _ox := 0.0                      # the chrome's x (0 on a phone: the canvas is the chrome)
++var _sx := 0.0                      # the stage column's x (_ox + L.sox(): centred)
+ var _top_y := 0.0
+ var _stage_y := 0.0
+ var _stage_extra := 0.0
+@@ -117,7 +119,12 @@ signal audio_sent(name: String, arg: Variant)
+ var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
+ var _fills := {}
+ var _title_ground: TextureRect
+-var _title_floor: ColorRect          # the title state's floor under the stage (review R16)
++var _title_floor: TextureRect        # the pre-tap / pick floor under the stage: paving (mobile-first §3.3)
++var _bottom_inset := 0.0
++var _seats_up := false               # the Row B fill is drawn (C2, mobile-first §3.3)
++var _tabs_up := false                # the tab bar is revealed (C1)
++var _slots_known := false
++var _tab_slide: Tween
+ ## R9 (rtl-map §7.1 "History"): one browser history entry per open layer (web only).
+ var history := LayerHistory.new()
+ var _js_pop_cb: JavaScriptObject     # kept alive: the shell calls window.odOnPop on popstate
+@@ -322,9 +329,12 @@ func _build() -> void:
+ 	_title_ground.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ 	_root.add_child(_title_ground)
+ 	_root.move_child(_title_ground, 0)
+-	# R16 (rtl-map §8): in the title state the lane, ticker, panel and tabs are reserved but empty;
+-	# one flat floor from the stage bottom to the screen bottom, no inner rect
+-	_title_floor = ColorRect.new()
++	# mobile-first §3.3 (V11): in the pre-tap and pick states the ticker, pane and tabs are hidden;
++	# the region under the stage is the apron continued to the safe bottom (interim for 2D ask A1:
++	# the engine's paving tile in the era's floor colour, never one flat colour)
++	_title_floor = TextureRect.new()
++	_title_floor.stretch_mode = TextureRect.STRETCH_TILE
++	_title_floor.scale = Vector2(4, 4)
+ 	_title_floor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ 	_title_floor.visible = false
+ 	_root.add_child(_title_floor)
+@@ -576,59 +586,110 @@ func _relayout() -> void:
+ 	_in_relayout = false
+ 	_vs = get_viewport_rect().size
+ 	var ins := _safe_insets()
+-	var top_inset := float(ins.x)
+-	var bottom_inset := float(ins.y)
+-	# rtl-map §1: Row A, Row B, the ticker and the tabs never shrink; the stage and the panel flex
+-	var r := _vs.y - top_inset - bottom_inset - float(L.FIXED_H)
+-	if r < float(L.STAGE_MIN + L.LIST_MIN) and top_inset > 0.0:
+-		var give := minf(top_inset, float(L.STAGE_MIN + L.LIST_MIN) - r)
++	var top_inset := ceilf(float(ins.x) / 4.0) * 4.0
++	var bottom_inset := ceilf(float(ins.y) / 4.0) * 4.0
++	var vh := L.floor4(_vs.y)
++	# mobile-first §3.1: Row A, Row B, the ticker and the tabs never shrink; the stage and the pane
++	# split the rest bottom-up (§3.2)
++	var r := vh - top_inset - bottom_inset - float(L.FIXED_H)
++	var need := float(L.S_MIN + 2 * L.CARD)
++	if r < need and top_inset > 0.0:
++		var give := minf(top_inset, need - r)
+ 		top_inset -= give
+ 		r += give
+-	L.set_flex(r)
+-	_ox = floorf((_vs.x - L.W) / 2.0 / 4.0) * 4.0
+-	_top_y = floorf(top_inset / 4.0) * 4.0
++	L.set_split(r, top_inset, vh)
++	# §2: the chrome spans whole art columns (Display.cw); a landscape window (out of the matrix)
++	# keeps a portrait-proportioned canvas, centred
++	var cw := Display.cw() if Display.integer and not _shot.has("target") else float(L.W)
++	L.set_width(minf(minf(cw, L.floor4(_vs.x)), maxf(float(L.W), L.floor4(0.75 * _vs.y))))
++	_bottom_inset = bottom_inset
++	_ox = L.floor4((_vs.x - L.cw) / 2.0)
++	_sx = _ox + L.sox()
++	_top_y = top_inset
+ 	var st := _top_y + float(L.ROW_A_H + L.ROW_B_H)
+ 	_stage_y = st - float(L.STAGE["y"])          # the stage node: design y 160 = the stage top
+ 	_stage_extra = 0.0
+ 	_shop_extra = 0.0
+ 	_lower_y = st + L.stage_h
+ 	_top.position = Vector2(_ox, _top_y)
+-	_stage.position = Vector2(_ox, _stage_y)
++	_stage.position = Vector2(_sx, _stage_y)
+ 	_lower.position = Vector2(_ox, _lower_y)
+-	_ui.position = Vector2(_ox, _stage_y)
+-	_ovl_y = floorf((_top_y + (_vs.y - bottom_inset - _top_y - L.H) / 2.0) / 4.0) * 4.0
++	_ui.position = Vector2(_sx, _stage_y)
++	# §5.10: the 1280 modal space in the safe band; on a tall canvas (safe height > 1400) its centre
++	# sits at 55% of the band, so centred cards put their buttons in the lower half
++	var hs := _vs.y - bottom_inset - _top_y
++	var centre := _top_y + (0.55 if hs > 1400.0 else 0.5) * hs
++	_ovl_y = L.floor4(clampf(centre - float(L.H) / 2.0, minf(_top_y, _vs.y - bottom_inset - float(L.H)), maxf(_top_y, _vs.y - bottom_inset - float(L.H))))
+ 	_modal.position = Vector2(_ox, _ovl_y)
+-	diorama.extend(_ox + 8.0, _top_y + float(L.ROW_A_H + L.ROW_B_H) + 8.0)
+-	shop.set_list_height(L.panel_h)
++	diorama.extend(_sx + 8.0, _top_y + float(L.ROW_A_H + L.ROW_B_H) + 8.0)
++	_apply_slots(false)
+ 	title_view.refit()
+ 	picker.position = Vector2(_ox, 0)
+-	picker.layout(_top_y, _vs.y - float(ins.y), _vs.x, _ox)
++	picker.layout(_top_y, _vs.y - bottom_inset, _vs.x, _ox)
+ 	_place_undo_chip()
++	top_bar.relayout()
++	ticker.relayout()
++	toasts.relayout()
++	golden.relayout()
+ 	chat.relayout()
+ 	dossier.relayout()
+ 	court.relayout()
+ 	thermo.relayout()
+ 	court_echo.relayout()
+-	buffs.set_stage_rect(-_ox, float(L.STAGE["y"]), _vs.x, L.stage_h)
++	buffs.set_stage_rect(-_sx, float(L.STAGE["y"]), _vs.x, L.stage_h)
+ 	bb.relayout()
+-	var W := _vs.x
+-	_set_fill("top", Rect2(-_ox, -_top_y - 8, W, _top_y + 8 + float(L.ROW_A_H + L.ROW_B_H)))
+-	_set_fill("shop", Rect2(-_ox, float(L.SHOP["listY"]), W, L.panel_h))
+-	_set_fill("bottom", Rect2(-_ox, L.tabs_y() + float(L.TABS_H) - 4.0, W, _vs.y - (_lower_y + L.tabs_y() + float(L.TABS_H)) + 12.0))
++	overlays.relayout()
+ 	# TITLE: the dirt continues to the bottom of the screen (the fork's jungle; hidden under stage art)
+ 	var gy := _stage_y + L.stage_bottom() - 64.0
+ 	_title_ground.position = Vector2(0, gy)
+-	_title_ground.size = Vector2(ceilf(W / 64.0) + 1.0, ceilf((_vs.y - gy) / 64.0) + 1.0) * 16.0
++	_title_ground.size = Vector2(ceilf(_vs.x / 64.0) + 1.0, ceilf((_vs.y - gy) / 64.0) + 1.0) * 16.0
++	_place_title_floor()
++	_publish_display()
++
++
++## The reveal-dependent slots (mobile-first §3.3): Row B's fill only from C2 (before it the stage
++## sky shows through the slot); the pane runs to the safe bottom until C1, when the tab bar slides
++## up over its last 104 px (nothing above moves). `animate`: the reveal itself (150 ms / 200 ms;
++## reduced motion: instant).
++func _apply_slots(animate: bool) -> void:
++	L.tabs_up = _tabs_up
++	var W := _vs.x
++	var row_b := float(L.ROW_B_H) if _seats_up else 0.0
++	_set_fill("top", Rect2(-_ox, -_top_y - 8, W, _top_y + 8 + float(L.ROW_A_H) + row_b))
++	var list_h := L.tabs_y() - float(L.SHOP["listY"])
++	var shop_bottom := _vs.y - _lower_y + 8.0 if not _tabs_up else list_h
++	_set_fill("shop", Rect2(-_ox, float(L.SHOP["listY"]), W, shop_bottom))
++	_set_fill("bottom", Rect2(-_ox, L.tabs_y() + float(L.TABS_H) - 4.0, W, _vs.y - (_lower_y + L.tabs_y() + float(L.TABS_H)) + 12.0))
++	(_fills["bottom"] as ColorRect).visible = _tabs_up
++	shop.set_list_height(list_h)
++	if animate and _tabs_up and not bool(settings.get("reducedMotion", false)):
++		shop.slide_tabs(float(L.TABS_H) + _bottom_inset, 0.2)
++	if animate and _seats_up:
++		var f: ColorRect = _fills["top"]
++		f.modulate.a = 0.0 if not bool(settings.get("reducedMotion", false)) else 1.0
++		create_tween().tween_property(f, "modulate:a", 1.0, 0.15)
++
++
++func _place_title_floor() -> void:
+ 	var fy := _stage_y + L.stage_bottom()
+-	_title_floor.position = Vector2(0, fy)
+-	_title_floor.size = Vector2(W, maxf(0.0, _vs.y - fy))
+-	_title_floor.color = diorama.pad_bottom
+-	if OS.has_feature("web"):
+-		# web debug, like window.odCueLog: the device scale and the section origins (logical px)
+-		var hat := L.magician_hit().get_center() + Vector2(_ox, _stage_y)
+-		JavaScriptBridge.eval("window.odDisplay = %s" % JSON.stringify({"k": Display.k, "f": Display.f,
+-			"integer": Display.integer, "logical": [_vs.x, _vs.y], "ox": _ox, "stageY": _stage_y,
+-			"lowerY": _lower_y, "hat": [hat.x, hat.y], "reducedMotion": bool(settings.get("reducedMotion", false))}), true)
++	_title_floor.texture = Diorama.paving_texture(diorama.pad_bottom, false)
++	# the tile's phase follows the stage column, so the floor continues the lane's joints
++	var ph := fposmod(_sx, 64.0)
++	_title_floor.position = Vector2(ph - 64.0, fy)
++	_title_floor.size = Vector2(ceilf((_vs.x + 64.0) / 64.0) * 16.0, ceilf(maxf(0.0, _vs.y - fy) / 4.0) + 1.0)
++
++
++## window.odDisplay (web debug, like window.odCueLog): the device scale, the section origins and
++## the mobile-first split (logical px); tools/web/mobile_web.mjs reads it.
++func _publish_display() -> void:
++	if not OS.has_feature("web"):
++		return
++	var hat := L.magician_hit().get_center() + Vector2(_sx, _stage_y)
++	JavaScriptBridge.eval("window.odDisplay = %s" % JSON.stringify({"k": Display.k, "f": Display.f,
++		"integer": Display.integer, "logical": [_vs.x, _vs.y], "ox": _ox, "sx": _sx, "stageY": _stage_y,
++		"lowerY": _lower_y, "hat": [hat.x, hat.y], "reducedMotion": bool(settings.get("reducedMotion", false)),
++		"cw": L.cw, "S": L.stage_h, "P": L.panel_h, "rows": L.rows_whole, "cols": Display.cols, "artRows": Display.rows,
++		"ticker": ticker.web_info()}), true)
+ 
+ 
+ func _set_fill(k: String, r: Rect2) -> void:
+@@ -658,7 +719,7 @@ func _safe_insets() -> Vector2:
+ 
+ ## Design-space point of a viewport point, for one section.
+ func _in_stage(p: Vector2) -> Vector2:
+-	return p - Vector2(_ox, _stage_y) - _root.position
++	return p - Vector2(_sx, _stage_y) - _root.position
+ 
+ 
+ func _in_top(p: Vector2) -> Vector2:
+@@ -745,7 +806,7 @@ func set_setting(key: String, value: Variant) -> void:
+ func sheet_rect(content_h: float) -> Rect2:
+ 	var h := minf(content_h, floorf(0.70 * _vs.y / 4.0) * 4.0)
+ 	var bi := bottom_inset()
+-	return Rect2(0, _vs.y - bi - h - _ovl_y, L.W, h + bi)
++	return Rect2(0, _vs.y - bi - h - _ovl_y, L.cw, h + bi)
+ 
+ 
+ func bottom_inset() -> float:
+@@ -863,12 +924,12 @@ func _set_mode(m: String, animate: bool) -> void:
+ 		_title_ground.visible = not diorama.has_background()
+ 		_title_floor.visible = true
+ 		_title_floor.modulate.a = 1.0
+-		_title_floor.color = diorama.pad_bottom
++		_place_title_floor()
+ 		return
+ 	bb.visible = true
+ 	_bg.visible = main
+ 	_title_ground.visible = not main and not diorama.has_background()
+-	_title_floor.color = diorama.pad_bottom
++	_place_title_floor()
+ 	_title_floor.modulate.a = 1.0
+ 	_title_floor.visible = not main or animate   # fades out with the title (below)
+ 	if not main:
+@@ -1008,7 +1069,7 @@ func _ftue_ctx(running: bool) -> Dictionary:
+ 	var k := shop.row_index_of(state, "producer", first) if bool(_reveals.get("card1", false)) else -1
+ 	var pill: Variant = null
+ 	if k >= 0 and shop.row_screen_y(k, "producers") >= 0.0 and shop.tab == "producers":
+-		pill = shop.pill_pos(k) + Vector2(0, float(L.STAGE["y"]) + L.stage_h)
++		pill = shop.pill_pos(k) + Vector2(-L.sox(), float(L.STAGE["y"]) + L.stage_h)   # `_lower` → the stage column
+ 	return {
+ 		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open() or dossier.is_open() or mode == "pick",
+ 		"hat": L.magician_feet() - Vector2(0, 380), "pill": pill,
+@@ -1035,6 +1096,19 @@ func _apply_reveals() -> void:
+ 	# ux/ftue.md C1: the tab bar appears only with C1 ("tabs"); spins (K3) and the dossier (K2)
+ 	# fill their fixed slots once it is there
+ 	shop.set_tabs_revealed(bool(_reveals["tabs"]), [true, bool(_reveals["spins"]), bool(_reveals["tabs"]), dos])
++	# mobile-first §3.3: the reserved slots fill at their reveals; nothing above them moves
++	var seats_up := bool(_reveals["seats"])
++	var tabs_up := bool(_reveals["tabs"])
++	if seats_up != _seats_up or tabs_up != _tabs_up:
++		var anim := _slots_known and mode == "main" and ((seats_up and not _seats_up) or (tabs_up and not _tabs_up))
++		_seats_up = seats_up
++		_tabs_up = tabs_up
++		_apply_slots(anim)
++		chat.relayout()
++		dossier.relayout()
++		court.relayout()
++		_publish_display()
++	_slots_known = true
+ 	ticker.visible = main and bool(_reveals["counter"])
+ 	ticker.set_cta(main and state.evolutions >= 0 and Coalition.gate_open(state) and Coalition.active())
+ 	if bool(_reveals["seats"]):
+@@ -1569,7 +1643,7 @@ func _update_hover(p: Vector2) -> void:
+ 		var on_banana := not on_golden and Ui.in_rect(bb.hit_rect(), sp)
+ 		_set_hover_banana(on_banana)
+ 		pointer = on_golden or on_banana or top_bar.gear_contains(tp) or top_bar.mute_contains(tp) or cottage.contains(tp) or shop.in_list(lp) \
+-			or (shop.visible and Ui.in_rect(Rect2(0, L.tabs_y(), L.W, L.TABS_H), lp)) or (ticker.cta_on() and ticker.cta.contains(lp))
++			or (shop.visible and Ui.in_rect(Rect2(0, L.tabs_y(), L.cw, L.TABS_H), lp)) or (ticker.cta_on() and ticker.cta.contains(lp))
+ 	if not _gameplay_input():
+ 		_set_hover_banana(false)
+ 	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND if pointer else Input.CURSOR_ARROW)
+@@ -2283,14 +2357,16 @@ func _build_undo_chip() -> void:
+ func _place_undo_chip() -> void:
+ 	if _undo_btn == null:
+ 		return
++	# rtl-map §8.6 / mobile-first §5.8: L-anchored in the lane (canvas x 16; `_ui` is the stage column)
+ 	var y := L.stage_bottom() - 96.0
+-	_undo_btn.visual = Rect2(16, y, 392, 80)
+-	_undo_btn.hit = Rect2(8, y - 4.0, 408, 88)
++	var x := 16.0 - L.sox()
++	_undo_btn.visual = Rect2(x, y, 392, 80)
++	_undo_btn.hit = Rect2(x - 8.0, y - 4.0, 408, 88)
+ 	Ui.set_nine_rect(_undo_btn.bg, _undo_btn.visual)
+ 	if _undo_btn.label != null:
+ 		_undo_btn.label.position.y = y + Ui.snap((80.0 - 28.0) / 2.0, 4)
+-		_undo_btn.label.center_in(16, 392)
+-	_undo_bar.position = Vector2(24, y + 64.0)
++		_undo_btn.label.center_in(x, 392)
++	_undo_bar.position = Vector2(x + 8.0, y + 64.0)
+ 	_undo_bar.size = Vector2(376, 8)
+ 
+ 
+diff --git a/game/scripts/ui/diorama.gd b/game/scripts/ui/diorama.gd
+index bb0e4a5..75913c5 100644
+--- a/game/scripts/ui/diorama.gd
++++ b/game/scripts/ui/diorama.gd
+@@ -164,6 +164,47 @@ func _place_lane(era_id: String, art_origin: Vector2) -> void:
+ 	tr.scale = Vector2(4, 4)
+ 	tr.set_meta("lane", id)
+ 	_props.add_child(tr)
++	# mobile-first §3.3 (V4, interim for 2D ask A1): the kit lane is horizontal stripes only, so it
++	# reads as a dead strip; the engine lays paving joints over it below the apron lip (4 art rows),
++	# in the tile's own phase so the pre-tap floor under the stage continues them
++	var jt := TextureRect.new()
++	jt.texture = paving_texture(pad_bottom, true)
++	jt.stretch_mode = TextureRect.STRETCH_TILE
++	jt.mouse_filter = Control.MOUSE_FILTER_IGNORE
++	var jx := -_extend_x - fposmod(-_extend_x, 64.0)
++	jt.position = Vector2(jx, art_origin.y + (LANE_ART_ROW + 4) * 4.0)
++	jt.size = Vector2(ceilf((L.W + _extend_x - jx) / 64.0) * 16.0 + 16.0, sz.y - 4.0)
++	jt.scale = Vector2(4, 4)
++	jt.set_meta("laneJoints", id)
++	_props.add_child(jt)
++
++
++static var _paving_cache := {}
++
++
++## The engine's interim paving tile (mobile-first §3.3, until the 2D Artist's plaza lands, ask A1):
++## a 16 × 8 art-px running bond of 8 × 4 setts in `base`, with darker joints and a lit top edge, so
++## every row of the floor has horizontal detail. `joints_only`: the joints alone on a transparent
++## tile (laid over the kit lane).
++static func paving_texture(base: Color, joints_only: bool) -> ImageTexture:
++	var key := "%s:%s" % [base.to_html(false), joints_only]
++	if _paving_cache.has(key):
++		return _paving_cache[key]
++	var img := Image.create(16, 8, false, Image.FORMAT_RGBA8)
++	var joint := base.darkened(0.35)
++	var lit := base.lightened(0.10)
++	img.fill(Color(0, 0, 0, 0) if joints_only else base)
++	for y in 8:
++		var off := 0 if y < 4 else 8
++		for x in 16:
++			var jx := (x + off) % 8 == 7
++			if y % 4 == 3 or jx:
++				img.set_pixel(x, y, Color(joint, 0.55) if joints_only else joint)
++			elif y % 4 == 0 and not joints_only and (x + off) % 8 < 3:
++				img.set_pixel(x, y, lit)
++	var t := ImageTexture.create_from_image(img)
++	_paving_cache[key] = t
++	return t
+ 
+ 
+ func _place_prop(sp: Dictionary) -> void:
 diff --git a/game/scripts/ui/layout.gd b/game/scripts/ui/layout.gd
 index a451b22..0ac088b 100644
 --- a/game/scripts/ui/layout.gd
