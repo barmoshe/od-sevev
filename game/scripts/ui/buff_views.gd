@@ -2,6 +2,8 @@ class_name BuffViews
 extends Node2D
 ## Buff chip, banner and Frenzy edge glow (feel-spec §2, motion-spec buff-banner / buff-presence).
 
+const CHIP_SCALE := 3
+
 var reduced_motion := false
 var _chip_bg: NinePatchRect
 var _chip_text: PxText
@@ -24,7 +26,7 @@ func _ready() -> void:
 	var th := Art.theme
 	var C: Dictionary = th["buffChip"]
 	_chip_bg = Ui.nine(self, L.BUFF["chip"], C["sprite"], int(C["frame"]))
-	_chip_text = PxText.make(self, L.BUFF["chipText"], "", 3, "plain", C["text"])
+	_chip_text = PxText.make(self, L.BUFF["chipText"], "", CHIP_SCALE, "plain", C["text"])
 	var bar: Rect2 = L.BUFF["chipBar"]
 	_chip_track = Ui.rect(self, bar, C["barTrack"])
 	_chip_top = Ui.rect(self, Rect2(bar.position, Vector2(bar.size.x, bar.size.y / 2)), C["barFillTop"])
@@ -57,19 +59,30 @@ func _set_chip_visible(v: bool) -> void:
 		o.visible = v
 
 
-## One chip (buffs never overlap, E5). remaining in seconds.
-func update_chip(frenzy: float, tap_frenzy: float, stage_visible: bool) -> void:
+## One chip (buffs never overlap, E5). remaining in seconds. A Suitcase frenzy wins; otherwise
+## the live timed spin that ends first (Spins.active_effects: motion-spec buff-presence "only for
+## timed spins": the timer bar and the last-3 s blink).
+func update_chip(frenzy: float, tap_frenzy: float, stage_visible: bool, spins: Array = []) -> void:
 	var kind := "tapFrenzy" if tap_frenzy > 0.0 else ("frenzy" if frenzy > 0.0 else "")
-	if kind == "" or not stage_visible:
+	var spin := first_spin(spins) if kind == "" else {}
+	if (kind == "" and spin.is_empty()) or not stage_visible:
 		_set_chip_visible(false)
 		return
 	_set_chip_visible(true)
-	var o := Content.outcome_of_type("bpsFrenzy" if kind == "frenzy" else "tapFrenzy")
-	var rem := frenzy if kind == "frenzy" else tap_frenzy
-	_chip_text.text = Strings.s("BUFF_CHIP_FRENZY" if kind == "frenzy" else "BUFF_CHIP_TAPFRENZY",
-		{"mult": int(o.get("mult", 1)), "s": Fmt.secs(rem).replace("S", "")})
+	var rem: float
+	var total: float
+	if kind == "":
+		rem = float(spin["leftSec"])
+		total = maxf(1e-3, float(spin.get("durationSec", rem)))
+		_chip_text.text = spin_chip_text(String(spin["id"]), rem, (L.BUFF["chipBar"] as Rect2).size.x)
+	else:
+		var o := Content.outcome_of_type("bpsFrenzy" if kind == "frenzy" else "tapFrenzy")
+		rem = frenzy if kind == "frenzy" else tap_frenzy
+		total = float(o.get("durationSec", 1))
+		_chip_text.text = Strings.s("BUFF_CHIP_FRENZY" if kind == "frenzy" else "BUFF_CHIP_TAPFRENZY",
+			{"mult": int(o.get("mult", 1)), "s": Fmt.secs(rem).replace("S", "")})
 	var bar: Rect2 = L.BUFF["chipBar"]
-	var w := Ui.snap(bar.size.x * minf(1.0, rem / float(o.get("durationSec", 1))), 4)
+	var w := Ui.snap(bar.size.x * minf(1.0, rem / total), 4)
 	_chip_top.size.x = w
 	_chip_bot.size.x = w
 	# RTL: the bar drains toward the right edge (ux/first-minute.md §3.5 "Bars fill from the right")
@@ -81,6 +94,23 @@ func update_chip(frenzy: float, tap_frenzy: float, stage_visible: bool) -> void:
 		a = 1.0 if int(floorf(rem * 1000.0 / half)) % 2 == 0 else 0.4
 	_chip_top.modulate.a = a
 	_chip_bot.modulate.a = a
+
+
+## The live spin that ends first ({} when none).
+static func first_spin(spins: Array) -> Dictionary:
+	var out: Dictionary = {}
+	for a: Variant in spins:
+		if a is Dictionary and float((a as Dictionary).get("leftSec", 0.0)) > 0.0:
+			if out.is_empty() or float(a["leftSec"]) < float(out["leftSec"]):
+				out = a
+	return out
+
+
+## "{name} · SPIN_ACTIVE" when it fits the chip's text box at the chip scale, else SPIN_ACTIVE alone.
+static func spin_chip_text(id: String, left_sec: float, box_w: float) -> String:
+	var active := Strings.s("SPIN_ACTIVE", {"s": Fmt.secs(left_sec).replace("S", "")})
+	var full := Strings.upgrade_name(id) + " · " + active
+	return full if PxText.measure(full, CHIP_SCALE) <= box_w else active
 
 
 ## buff-banner: enter, hold, exit. J6 enter falls from above and lands with a squash.

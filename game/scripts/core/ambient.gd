@@ -65,7 +65,7 @@ static func ok(s: GameState, w: Variant, ctx: Dictionary, now_ms: float) -> bool
 			"perk":
 				hit = Meta.perk_level(s, str(v)) > 0
 			"trophiesAtLeast":
-				hit = s.achievements.size() >= int(v)
+				hit = Meta.trophy_count(s) >= int(v)   # a neverAwarded trophy (Gantz) never counts
 			"goldenAtLeast":
 				hit = s.golden_caught_lifetime >= int(v)
 			"courtPhase":

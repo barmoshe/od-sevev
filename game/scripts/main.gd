@@ -850,7 +850,7 @@ func _step_economy(dt_sec: float, modal: bool) -> void:
 	# the politics sim (sim/politics.gd): calendar, coalition, court, events. C1's controller half
 	# (ux/ftue.md): no modal, the last purchase ≥ 2 s ago, no toast showing, Dubi not speaking.
 	var ping := not modal and _now - _last_buy_ms >= 2000.0 and toasts.idle() and not toasts.saying()
-	for pe: Variant in Politics.tick(state, dt_sec, d, {"nowMs": SaveStore.now_ms(), "allowPing": ping}):
+	for pe: Variant in Politics.tick(state, dt_sec, d, politics_ctx(SaveStore.now_ms(), ping, Time.get_datetime_dict_from_system())):
 		if pe is Dictionary:
 			_on_politics_event(pe)
 	if ev["frenzyEnded"]:
@@ -866,6 +866,12 @@ func _step_economy(dt_sec: float, modal: bool) -> void:
 		Economy.schedule_next_golden(state)
 		if not golden.is_visible_state():
 			_spawn_suitcase()
+
+
+## The Politics.tick context (sim/README "Controller wiring"): the device's local hour and weekday
+## (the night trophy "לילה לבן", the Pink Front drum line), the resolved clock and the ping gate.
+static func politics_ctx(now_ms: float, allow_ping: bool, local: Dictionary) -> Dictionary:
+	return {"nowMs": now_ms, "allowPing": allow_ping, "hour": int(local.get("hour", 0)), "weekday": int(local.get("weekday", 0))}
 
 
 ## Politics events the engine shows or voices this wave. The Audio runtime (another developer)
@@ -966,7 +972,7 @@ func _check_reveals() -> void:
 func _refresh_all(dt: float) -> void:
 	var main := mode == "main"
 	top_bar.set_bank(state.bananas)
-	top_bar.set_bps(d.bps, d.frenzy_mult)
+	top_bar.set_bps(0.0 if d.tap_pour_sec > 0.0 else d.bps, d.frenzy_mult)   # S07 pours the income into taps: 0 ₪/s
 	top_bar.set_thumbs(state.thumbs_owned, d.prestige_mult)
 	var vis := Economy.evolve_visible(state) and main
 	var reveal := vis and not _evolve_was_visible
@@ -979,7 +985,7 @@ func _refresh_all(dt: float) -> void:
 		_audio("evolveReady")
 	_evolve_was_visible = vis
 	top_bar.set_evolve_badge(Ftue.badge_on(state) and vis)
-	buffs.update_chip(state.buff_frenzy, state.buff_tap_frenzy, main)
+	buffs.update_chip(state.buff_frenzy, state.buff_tap_frenzy, main, Spins.active_effects(state))
 	buffs.update_view(dt, main)
 	shop.refresh(state, dt, main and dt > 0.0, d)
 
@@ -1266,13 +1272,23 @@ func _handle_tap(at: Vector2) -> void:
 	ftue.on_registered_action()
 
 
+## S10's running income bonus as an LTR token ("+15%").
+static func flight_label(pct: float) -> String:
+	return "\u2066+%d%%\u2069" % int(roundf(pct))
+
+
 func _catch_golden() -> void:
 	var gp := Vector2(golden.gx, golden.gy)
 	if not golden.catch_it():
 		return
 	var id := Economy.roll_golden_outcome()
 	var kind := Content.outcome_type(id)   # instant | bpsFrenzy | tapFrenzy (content data)
+	var flight0 := Spins.flight_pct(state)
 	var award := Economy.apply_golden(state, id)
+	var flight1 := Spins.flight_pct(state)
+	if flight1 > flight0:
+		# S10: this flight's income bonus, as the running total (numerals only; a UX key is requested)
+		floaters.spawn(gp.x, gp.y - 64.0, flight_label(flight1), false, false)
 	# The audio cue variants keep the fork's names (cues.json goldenCatch bunch/frenzy/tapFrenzy).
 	_audio("goldenCatch", {"instant": "bunch", "bpsFrenzy": "frenzy", "tapFrenzy": "tapFrenzy"}[kind])
 	if kind == "bpsFrenzy":
@@ -1339,6 +1355,16 @@ func _on_buy_producer(id: String, is_repeat: bool, result: Array) -> void:
 	_mark_dirty()
 
 
+## The ticker flavor of a spin just bought: a line's level carries its own line (S08 levels[n].flavor).
+static func spin_flavor(s: GameState, id: String) -> String:
+	var u := Content.upgrade(id)
+	var lv := Spins.levels_of(u)
+	var n := Spins.level(s, id)
+	if Spins.kind(u) == "line" and n >= 1 and n <= lv.size() and lv[n - 1] is Dictionary and (lv[n - 1] as Dictionary).has("flavor"):
+		return String(lv[n - 1]["flavor"])
+	return String(u.get("flavor", ""))
+
+
 func _on_buy_upgrade(id: String, result: Array) -> void:
 	if not _gameplay_input():
 		return
@@ -1351,8 +1377,7 @@ func _on_buy_upgrade(id: String, result: Array) -> void:
 	var k := shop.row_index_of(state, "upgrade", id)
 	var ip := shop.icon_pos(maxi(0, k))
 	fx_ui.play("purchaseConfetti", ip.x, ip.y, "upgrade")
-	var u := Content.upgrade(id)
-	ticker.enqueue("flavor", Strings.s("F_UPGRADE_FLAVOR", {"UPGRADE_NAME": Strings.upgrade_name(id), "FLAVOR": u["flavor"]}))
+	ticker.enqueue("flavor", Strings.s("F_UPGRADE_FLAVOR", {"UPGRADE_NAME": Strings.upgrade_name(id), "FLAVOR": spin_flavor(state, id)}))
 	ftue.on_buy_upgrade()
 	_mark_dirty()
 
