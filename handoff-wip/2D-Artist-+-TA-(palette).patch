@@ -1,0 +1,181 @@
+# binary files changed (not carried):
+diff --git a/art/od-sevev/src/palette.py b/art/od-sevev/src/palette.py
+index f16bf7c..0ca1e33 100644
+--- a/art/od-sevev/src/palette.py
++++ b/art/od-sevev/src/palette.py
+@@ -1,7 +1,10 @@
+-"""The 'Od Sevev' GRAPHIC-TIER palette, v2 (UI kit, wordmark, key art, hand-drawn props).
++"""The 'Od Sevev' GRAPHIC-TIER palette, v3 (UI kit, wordmark, key art, hand-drawn props).
+ 
+-v1 (creative pack) had 45 swatches in 15 families. v2 keeps all 45 unchanged and adds the
+-UI / new-look swatches at the bottom (see style-guide.md section 2). The CAST tier (rendered-down
++v1 (creative pack) had 45 swatches in 15 families. v2 kept all 45 and added the UI / new-look
++swatches. v3 (2026-09-29, Bar: "more in Israel's palette, with blue and white") re-values the
++plum/violet chrome darks into a navy family around the flag blue (#0038b8), keeping every id, and
++adds `ui_mute` and `ui_rule` (style-guide.md section 2.3). `night`, `plum` and `plum_hi` shift in the
++creative pack's palette too, so Balfour's sky and the curtain move with the chrome. The CAST tier (rendered-down
+ caricatures) does not draw from this list: each character has its own locked palette.
+ Every pixel in every graphic-tier asset is one of these.
+ Names are the swatch keys used in every sprite legend; hex values are sRGB.
+@@ -13,7 +16,7 @@ from collections import OrderedDict
+ SWATCHES = [
+     # --- inks & neutrals -------------------------------------------------
+     ("ink",       "#1b1426", "ink",     "Outline for every sprite and glyph. Darkest value; never pure black."),
+-    ("night",     "#2a2340", "ink",     "Night sky base, deepest background, text plates."),
++    ("night",     "#0f2350", "ink",     "v3 navy (was #2a2340): night sky base (Balfour), deepest background, text plates, the shop pane."),
+     ("suit_dk",   "#2f3042", "neutral", "Dark-suit shadow; interior lines on suits."),
+     ("suit",      "#454a60", "neutral", "Dark-suit base (the Magician, most politicians)."),
+     ("suit_hi",   "#636a86", "neutral", "Dark-suit light plane (top-left)."),
+@@ -63,15 +66,15 @@ SWATCHES = [
+     ("wood",      "#8a5632", "wood",    "Court benches, the Balfour gate, podium."),
+     ("wood_dk",   "#55331f", "wood",    "Wood shadow."),
+     # --- stage purple ---------------------------------------------------------
+-    ("plum",      "#4a2552", "plum",    "Stage curtain base (title screen)."),
+-    ("plum_hi",   "#7a3a7d", "plum",    "Curtain fold light plane."),
++    ("plum",      "#16357a", "plum",    "v3 velvet blue (was #4a2552): stage curtain base (title, OG, icon), Balfour's mid sky. Id kept."),
++    ("plum_hi",   "#2a57a6", "plum",    "v3 (was #7a3a7d): curtain fold light plane, Balfour's horizon band. Id kept."),
+     # --- v2 additions: the new look (dark outline, pale rim) and the UI kit ----------
+     ("outline",   "#0b0a12", "ink",     "v2: outer silhouette of every graphic-tier sprite and UI piece; matches the cast's near-black outline."),
+     ("rim",       "#d6ccec", "rim",     "v2: pale 1px rim outside the outline on things the player touches on the stage (the Magician, hat, rabbit, the Suitcase)."),
+-    ("ui_scrim",  "#140c24", "ui",      "v2: HUD row A scrim, wells (meter tracks), the deepest UI surface."),
+-    ("ui_panel",  "#1e1636", "ui",      "v2: panel / header / tab-bar body."),
+-    ("ui_bubble", "#2e2250", "ui",      "v2: incoming chat bubble (UX), secondary button face."),
+-    ("ui_bub_hi", "#4a3c7c", "ui",      "v2: top/left bevel light on ui_bubble and ui_panel."),
++    ("ui_scrim",  "#061029", "ui",      "v3 deep navy (was #140c24): HUD row A scrim, wells (meter tracks), the deepest UI surface."),
++    ("ui_panel",  "#0a1a42", "ui",      "v3 navy (was #1e1636): panel / header / tab-bar body."),
++    ("ui_bubble", "#112a64", "ui",      "v3 raised navy (was #2e2250): incoming chat bubble (UX), cards, secondary button face."),
++    ("ui_bub_hi", "#26499c", "ui",      "v3 (was #4a3c7c): top/left bevel light on ui_bubble and ui_panel."),
+     ("ui_out",    "#4a3a10", "gold",    "v2: the player's own chat bubble (UX: dark gold, because the player is the one paying)."),
+     ("ui_out_hi", "#72601f", "gold",    "v2: bevel light on ui_out."),
+     ("gold_dk",   "#7d5412", "gold",    "v2: gold lip / pressed gold face edge (money controls only)."),
+@@ -83,6 +86,9 @@ SWATCHES = [
+     ("receipt",   "#f4f1e8", "receipt", "v2: thermal-receipt paper (UX 5.1)."),
+     ("receipt_sh","#d8d1bf", "receipt", "v2: receipt paper shadow, curl, tear-edge fibre."),
+     ("receipt_ink","#1a1a1a","receipt", "v2: thermal print ink (UX 5.1: 15.4:1 on receipt). The one near-neutral black; used only on the receipt."),
++    # --- v3 additions: the blue-and-white chrome (Bar, 2026-09-29) ---------------------------------
++    ("ui_mute",   "#a3b3d3", "ui",      "v3: secondary labels on navy (the party line on a picker tile, idle tab labels); replaces UX's lavender #9e99ad. 6.5:1 on ui_bubble."),
++    ("ui_rule",   "#1c3876", "ui",      "v3: dividers and hairlines on navy (replaces #2e2548); the phone-frame bezel."),
+ ]
+ 
+ 
+@@ -115,8 +121,8 @@ if __name__ == "__main__":
+     here = os.path.dirname(os.path.abspath(__file__))
+     out = os.path.join(here, "..", "out")
+     # GIMP / Aseprite palette
+-    with open(os.path.join(out, "palette-v2.gpl"), "w") as f:
+-        f.write("GIMP Palette\nName: od-sevev-graphic-v2\nColumns: 8\n#\n")
++    with open(os.path.join(out, "palette-v3.gpl"), "w") as f:
++        f.write("GIMP Palette\nName: od-sevev-graphic-v3\nColumns: 8\n#\n")
+         for n, h, fam, role in SWATCHES:
+             r, g, b = rgb(n)
+             f.write(f"{r:3d} {g:3d} {b:3d}\t{n}\n")
+@@ -134,5 +140,5 @@ if __name__ == "__main__":
+         d.rectangle([x + 4, y + 4, x + 40, y + sh - 4], fill=rgb(n))
+         d.text((x + 48, y + 8), n, fill=(240, 240, 240), font=font)
+         d.text((x + 48, y + 24), f"{h}  L={luminance(n):.2f}", fill=(170, 170, 185), font=font)
+-    img.save(os.path.join(out, "palette-v2.png"))
++    img.save(os.path.join(out, "palette-v3.png"))
+     print(len(SWATCHES), "swatches,", len({s[2] for s in SWATCHES}), "families")
+diff --git a/art/od-sevev/src/ui_controls.py b/art/od-sevev/src/ui_controls.py
+index 11342fe..191384d 100644
+--- a/art/od-sevev/src/ui_controls.py
++++ b/art/od-sevev/src/ui_controls.py
+@@ -60,11 +60,13 @@ def tabbar():
+     B = Layer(180, 26)
+     B.rect(0, 0, 180, 26, "ui_panel")
+     B.hline(0, 179, 0, "outline")
+-    B.hline(0, 179, 1, "ui_bub_hi")
++    B.hline(0, 179, 1, "white")                   # v3: the flag's white stripe over a flag-blue one, the bar's top edge
++    B.hline(0, 179, 2, "flag")
+     for x in (44, 89, 134):                       # hairline separators between the four tabs
+         B.vline(x, 5, 20, "ui_scrim")
+     save(B, "tabbar", G, slice=[2, 3, 2, 2], notes="Tab bar body, 180x26 (4 tabs x 45). Separators at x 44/89/134. "
+-         "Order RIGHT to LEFT (RTL): מקורות · ספינים · קואליציה · תיקים.")
++         "Order RIGHT to LEFT (RTL): מקורות · ספינים · קואליציה · תיקים. "
++         "v3: the top edge is a white stripe over a flag-blue one (rows 1-2), the chrome's national frame.")
+     a = Layer(45, 26)
+     a.rect(0, 0, 45, 26, "ui_bubble")
+     a.hline(0, 44, 0, "outline")
+@@ -161,7 +163,7 @@ def dim(L):
+ 
+ 
+ def spins_icon():
+-    """Dubi's microphone broadcasting two pink arcs: 'spins' = talking points on repeat."""
++    """Dubi's microphone broadcasting two sky-blue arcs (v3; were pink): 'spins' = talking points on repeat."""
+     import math
+     L = Layer(15, 15)
+     head = ["..kkkk..",
+@@ -184,7 +186,7 @@ def spins_icon():
+     for r in (6.2, 8.8):
+         for a in range(-42, 43, 3):
+             x = cx + r * math.cos(math.radians(a)); y = cy + r * math.sin(math.radians(a))
+-            L.set(int(round(x)), int(round(y)), "pink")
++            L.set(int(round(x)), int(round(y)), "sky")      # v3: pink accents move to the blue family
+     return L
+ 
+ 
+diff --git a/art/od-sevev/src/wave2.py b/art/od-sevev/src/wave2.py
+index 680c62a..4232e7d 100644
+--- a/art/od-sevev/src/wave2.py
++++ b/art/od-sevev/src/wave2.py
+@@ -22,9 +22,9 @@ def sheets():
+     W = H = 36
+     L = Layer(W, H)
+     L.rect(0, 0, W, H, "ui_panel")
+-    L.rect(1, 1, W - 2, 18, "ui_bubble")                      # the title band
+-    L.hline(1, W - 2, 1, "ui_bub_hi"); L.vline(1, 1, H - 2, "ui_bub_hi")
+-    L.hline(1, W - 2, 19, "outline"); L.hline(1, W - 2, 20, "ui_scrim")
++    L.rect(1, 1, W - 2, 18, "flag")                           # the title band: v3 flag blue, an official notice's header
++    L.vline(1, 1, H - 2, "ui_bub_hi"); L.hline(1, W - 2, 1, "flag_hi")
++    L.hline(1, W - 2, 19, "white"); L.hline(1, W - 2, 20, "ui_scrim")   # v3: the white stripe under the band
+     L.hline(1, W - 2, H - 2, "ui_scrim"); L.vline(W - 2, 2, H - 2, "ui_scrim")
+     chamfer(L, 0, 0, W, H, 2)
+     outline_inplace(L)
+@@ -34,7 +34,7 @@ def sheets():
+     W, H = L.w, L.h
+     save(L, "sheet_modal", "sheet", slice=[7, 23, 7, 7], content=[7, 23, W - 14, H - 30], label="white",
+          notes="Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round "
+-               "card. Title band y 2..19 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body "
++               "card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20, the close ✕ at the band's LEFT end in RTL); body "
+                "ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map "
+                "§7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the "
+                "outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece "
+@@ -78,11 +78,11 @@ def ticker():
+     T = Layer(180, 20)
+     T.rect(0, 0, 180, 20, "ui_panel")
+     T.hline(0, 179, 0, "outline")
+-    T.hline(0, 179, 1, "red")                                  # the lower-third's red top rule
+-    T.hline(0, 179, 2, "ui_bub_hi")
++    T.hline(0, 179, 1, "white")                                # v3: the lower third's white rule over flag blue
++    T.hline(0, 179, 2, "flag")                                 # (red stays for alerts: the 'מבזק' plate only)
+     T.hline(0, 179, 19, "outline")
+     save(T, "ticker_bar", "ticker", slice=[2, 4, 2, 2], content=[2, 5, 176, 12], label="silver",
+-         notes="Dubi's lower third (UX 3.1 ticker, 44 CSS = 20 art). Crawl text silver on ui_panel 11.8:1, y 6. The "
++         notes="Dubi's lower third (UX 3.1 ticker, 44 CSS = 20 art). Crawl text silver on ui_panel 11.7:1, y 6. v3: a white rule over a flag-blue one on top (was red; red is alerts only). The "
+                "'מבזק' plate sits at the RIGHT end (RTL start), Dubi's avatar just left of it, the 27.10 chip at the left.")
+     W, H = 32, 14
+     p = Layer(W, H)
+diff --git a/creative-pack/art/src/palette.py b/creative-pack/art/src/palette.py
+index a7d34df..a6b9610 100644
+--- a/creative-pack/art/src/palette.py
++++ b/creative-pack/art/src/palette.py
+@@ -10,7 +10,7 @@ from collections import OrderedDict
+ SWATCHES = [
+     # --- inks & neutrals -------------------------------------------------
+     ("ink",       "#1b1426", "ink",     "Outline for every sprite and glyph. Darkest value; never pure black."),
+-    ("night",     "#2a2340", "ink",     "Night sky base, deepest background, text plates."),
++    ("night",     "#0f2350", "ink",     "v3 (od-sevev, 2026-09-29; was #2a2340): navy night sky base, deepest background, text plates."),
+     ("suit_dk",   "#2f3042", "neutral", "Dark-suit shadow; interior lines on suits."),
+     ("suit",      "#454a60", "neutral", "Dark-suit base (the Magician, most politicians)."),
+     ("suit_hi",   "#636a86", "neutral", "Dark-suit light plane (top-left)."),
+@@ -60,8 +60,8 @@ SWATCHES = [
+     ("wood",      "#8a5632", "wood",    "Court benches, the Balfour gate, podium."),
+     ("wood_dk",   "#55331f", "wood",    "Wood shadow."),
+     # --- stage purple ---------------------------------------------------------
+-    ("plum",      "#4a2552", "plum",    "Stage curtain base (title screen)."),
+-    ("plum_hi",   "#7a3a7d", "plum",    "Curtain fold light plane."),
++    ("plum",      "#16357a", "plum",    "v3 (od-sevev; was #4a2552): velvet-blue curtain base, Balfour mid sky."),
++    ("plum_hi",   "#2a57a6", "plum",    "v3 (od-sevev; was #7a3a7d): curtain fold light plane, Balfour horizon."),
+ ]
+ 
+ PAL = OrderedDict((n, h) for n, h, _, _ in SWATCHES)
