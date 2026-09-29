@@ -7,7 +7,6 @@
 #   game/assets/sprites/lane_courthouse.png
 #   game/assets/sprites/lane_knesset.png
 #   game/assets/sprites/lane_washington.png
-#   pipeline/od-sevev/proofs/font-density2.png
 diff --git a/art/od-sevev/out/ui/stage/lane_balfour.png b/art/od-sevev/out/ui/stage/lane_balfour.png
 index 1f20c25..4c54a3c 100644
 Binary files a/art/od-sevev/out/ui/stage/lane_balfour.png and b/art/od-sevev/out/ui/stage/lane_balfour.png differ
@@ -1186,6 +1185,110 @@ index edddefc..63bfb26 100644
    "wordmark.png": {
     "bytes": 1072,
     "sha": "98a09428e6f14d56",
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index f0d0809..0322f44 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -619,7 +619,8 @@ func _relayout() -> void:
+ 	var gy := _stage_y + L.stage_bottom() - 64.0
+ 	_title_ground.position = Vector2(0, gy)
+ 	_title_ground.size = Vector2(ceilf(W / 64.0) + 1.0, ceilf((_vs.y - gy) / 64.0) + 1.0) * 16.0
+-	var fy := _stage_y + L.stage_bottom()
++	# the flat floor starts where the diorama's own floor art (the 2D plaza, mobile-first A1) ends
++	var fy := _stage_y + L.stage_bottom() + diorama.floor_reach()
+ 	_title_floor.position = Vector2(0, fy)
+ 	_title_floor.size = Vector2(W, maxf(0.0, _vs.y - fy))
+ 	_title_floor.color = diorama.pad_bottom
+diff --git a/game/scripts/ui/diorama.gd b/game/scripts/ui/diorama.gd
+index bb0e4a5..a636753 100644
+--- a/game/scripts/ui/diorama.gd
++++ b/game/scripts/ui/diorama.gd
+@@ -102,6 +102,7 @@ func set_era(era: Dictionary) -> void:
+ 		_sky[i].color = Color.html(bands[i])
+ 	for c in _props.get_children():
+ 		c.queue_free()
++	_plaza = false
+ 	_stars.clear()
+ 	var specs: Array = []
+ 	for p: Variant in era.get("props", []):
+@@ -137,6 +138,8 @@ func set_era(era: Dictionary) -> void:
+ 		var bg := Ui.img(_props, feet - Vector2(float(mf[0]), float(mf[1])) * 4.0, bg_key, 0, 4)
+ 		bg.set_meta("background", true)
+ 		_place_lane(String(era.get("id", "")), bg.position)
++		_place_wings(String(era.get("id", "")), bg.position)
++		_place_plaza(String(era.get("id", "")), bg.position)
+ 	for sp: Dictionary in specs:
+ 		_place_prop(sp)
+ 
+@@ -166,6 +169,68 @@ func _place_lane(era_id: String, art_origin: Vector2) -> void:
+ 	_props.add_child(tr)
+ 
+ 
++## The stage's side wings (2D Artist, ux/mobile-first-layout.md A2; art/od-sevev/src/wave7.py): kit tiles
++## `wing_<era>_l` / `wing_<era>_r`, the era's art rows 0-229 continued past the 180-column art. The left one
++## is tiled leftward so its last column abuts art column 0, the right one rightward from column 180, out to
++## the canvas edge (±_extend_x), at ×4 on the art's grid. Their width is the tile's period (read, per era).
++## No piece: nothing drawn (the pads show, as before).
++func _place_wings(era_id: String, art_origin: Vector2) -> void:
++	for side in ["l", "r"]:
++		var id := "wing_%s_%s" % [era_id, side]
++		if era_id == "" or not Art.has_sprite(id):
++			continue
++		var sz := Vector2(Art.sprite_size(id))
++		var period := sz.x * 4.0
++		var reach := (art_origin.x + _extend_x) if side == "l" else (L.W + _extend_x - art_origin.x - float(ART_COLS) * 4.0)
++		var n := maxf(0.0, ceilf(reach / period))
++		if n <= 0.0:
++			continue
++		var tr := TextureRect.new()
++		tr.texture = Art.tex(id)
++		tr.stretch_mode = TextureRect.STRETCH_TILE
++		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
++		tr.position = Vector2(art_origin.x - n * period if side == "l" else art_origin.x + float(ART_COLS) * 4.0, art_origin.y)
++		tr.size = Vector2(n * sz.x, sz.y)
++		tr.scale = Vector2(4, 4)
++		tr.set_meta("wing", id)
++		_props.add_child(tr)
++
++
++## The plaza in front of the stage (2D Artist, mobile-first A1; wave7.py): kit tile `plaza_<era>`, both axes,
++## from art row PLAZA_ART_ROW (right under the lane) down PLAZA_ROWS art rows, across the whole canvas width,
++## x-phased on art column 0, over the stage art's flat apron. It shows before tap 1 and under the picker's scrim
++## (§3.3, §5.9); the ticker and the panes cover it the rest of the time. No piece: nothing drawn.
++const PLAZA_ART_ROW := 258
++const PLAZA_ROWS := 320               # art rows below the stage: more than any canvas of the matrix shows (≤ 306)
++const ART_COLS := 180
++var _plaza := false
++
++
++func _place_plaza(era_id: String, art_origin: Vector2) -> void:
++	var id := "plaza_" + era_id
++	_plaza = era_id != "" and Art.has_sprite(id)
++	if not _plaza:
++		return
++	var sz := Vector2(Art.sprite_size(id))
++	var period := sz.x * 4.0
++	var x0 := art_origin.x - ceilf((art_origin.x + _extend_x) / period) * period
++	var tr := TextureRect.new()
++	tr.texture = Art.tex(id)
++	tr.stretch_mode = TextureRect.STRETCH_TILE
++	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
++	tr.position = Vector2(x0, art_origin.y + PLAZA_ART_ROW * 4.0)
++	tr.size = Vector2(ceilf((L.W + _extend_x - x0) / period) * sz.x, float(PLAZA_ROWS))
++	tr.scale = Vector2(4, 4)
++	tr.set_meta("plaza", id)
++	_props.add_child(tr)
++
++
++## Logical px of floor art the diorama draws below the stage's bottom (the plaza), 0 without one. A flat
++## floor fill under the stage (main.gd's title floor) starts below this, so it never covers the plaza.
++func floor_reach() -> float:
++	return float(PLAZA_ROWS) * 4.0 if _plaza else 0.0
++
++
+ func _place_prop(sp: Dictionary) -> void:
+ 	var key := Art.sprite_or(String(sp.get("sprite", "")))
+ 	var sc := int(sp.get("scale", 4))
 diff --git a/pipeline/od-sevev/budget.json b/pipeline/od-sevev/budget.json
 index 99f0181..2dda83d 100644
 --- a/pipeline/od-sevev/budget.json
@@ -3898,9 +4001,6 @@ index 99f0181..2dda83d 100644
 + "sourceTotal": 15636795
  }
 \ No newline at end of file
-diff --git a/pipeline/od-sevev/proofs/font-density2.png b/pipeline/od-sevev/proofs/font-density2.png
-index 6dbff58..a3da542 100644
-Binary files a/pipeline/od-sevev/proofs/font-density2.png and b/pipeline/od-sevev/proofs/font-density2.png differ
 diff --git a/pipeline/od-sevev/sprites.py b/pipeline/od-sevev/sprites.py
 index 59b44e1..82fec7c 100644
 --- a/pipeline/od-sevev/sprites.py
@@ -4450,6 +4550,22 @@ index 0000000..3d13cc7
 +    for k, v in seam_report().items():
 +        print("seam", k, len(v), "rows differ", v[:40])
 # untracked binary: art/od-sevev/src/wave7.py
+# untracked binary: creative-pack/art/showcase/out/ben-gvir_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/ben-gvir_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/bennett_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/bennett_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/bibi_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/bibi_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/deri_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/deri_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/eisenkot_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/eisenkot_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/golan_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/golan_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/liberman_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/liberman_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/smotrich_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/smotrich_avatar_pick_d3.png
 # untracked binary: game/assets/sprites/avatar_pick_ben-gvir_d2.png
 diff --git a/game/assets/sprites/avatar_pick_ben-gvir_d2.png.import b/game/assets/sprites/avatar_pick_ben-gvir_d2.png.import
 new file mode 100644
