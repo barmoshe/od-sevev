@@ -110,6 +110,7 @@ def render_char(char, fn, avatar_args=None):
             avatar(rig, *avatar_args)
             if char in LEADERS:
                 avatar(rig, avatar_args[0], avatar_args[1], (214, 204, 236, 255), sizes=((32, 2, '_pick'), (24, 1, '24_pick')))
+                avatar_pick_xl(rig, avatar_args[0], avatar_args[1])
     snap_tracks(atlas['chars'][char])
     same_motion(char, atlas['chars'][char], atlas['chars'][char].get('densities', {}))
 
@@ -165,6 +166,40 @@ def avatar(rig, head_box_ref, name, ring, sizes=((32, 2, ''), (24, 1, '24'))):
         face.alpha_composite(rgb, (1, fy))
         m = Image.new('L', (size, size), 0)
         ImageDraw.Draw(m).ellipse([2, 2, size - 3, size - 3], fill=255)
+        out.paste(face, (0, 0), Image.composite(face.getchannel('A'), Image.new('L', (size, size), 0), m))
+        out.save(os.path.join(OUT, name + '_avatar' + suffix + '.png'))
+
+
+PICK_XL = ((96, '_pick_d3'), (64, '_pick_d2'))   # (size, suffix): the picker's XL avatars (UX mobile-first A3)
+
+
+def avatar_pick_xl(rig, head_box_ref, name, ring=(214, 204, 236, 255)):
+    """The leader picker's large avatars (ux/mobile-first-layout.md §5.8, A3): the same head crop, neutral ring and
+    cream disc as <name>_avatar_pick.png (32), rendered from the ref at 96 px (<name>_avatar_pick_d3.png, for the
+    192-logical avatar) and 64 px (<name>_avatar_pick_d2.png, for the 128-logical one), each drawn at 2 logical px per
+    sprite px, so crisp at every even k. First-generation crops from the ref (never an upscale of the 32), quantised
+    to the character's locked d 3 palette, binary alpha. The ring is 4 px at both sizes (8 logical, the 32's 2 px at
+    x4); the face sits where the 32's does, scaled (x offset size/32, y offset size/16)."""
+    for size, suffix in PICK_XL:
+        u = size / 32
+        cv = rig.canvas()
+        x0, y0 = rig.c(head_box_ref[0], head_box_ref[1])
+        x1, y1 = rig.c(head_box_ref[2], head_box_ref[3])
+        side = max(x1 - x0, y1 - y0)
+        fw = round(30 * u)
+        crop = cv.crop((x0, y0, x0 + side, y0 + side)).resize((fw, fw), Image.LANCZOS)
+        a = crop.getchannel('A').point(lambda v: 255 if v > 118 else 0)
+        rgb = crop.convert('RGB').quantize(palette=rig.palette, dither=Image.Dither.NONE).convert('RGBA')
+        rgb.putalpha(a)
+        r = 4
+        out = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        d = ImageDraw.Draw(out)
+        d.ellipse([0, 0, size - 1, size - 1], fill=ring)
+        d.ellipse([r, r, size - 1 - r, size - 1 - r], fill=(236, 228, 214, 255))
+        face = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        face.alpha_composite(rgb, (round(u), round(2 * u)))
+        m = Image.new('L', (size, size), 0)
+        ImageDraw.Draw(m).ellipse([r, r, size - 1 - r, size - 1 - r], fill=255)
         out.paste(face, (0, 0), Image.composite(face.getchannel('A'), Image.new('L', (size, size), 0), m))
         out.save(os.path.join(OUT, name + '_avatar' + suffix + '.png'))
 
