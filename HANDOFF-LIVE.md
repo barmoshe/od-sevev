@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `bfe0325` docs(od-sevev): live handoff snapshot 20:47
+- Branch head: `b8d025a` docs(od-sevev): live handoff snapshot 20:48
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -14,11 +14,13 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 - Bar asked (session 3): update the handoff every minute (this file). Pushing agents' wip branches to GitHub still needs Bar's OK; until then text patches of agent work are saved in handoff-wip/.
 - Animator wave A merged (323/323). Its asks for the 2D Artist (in STATUS.md): court_window spots to art row >=110; a 26x20 brawl-cloud cut at x4. Wave B Animator: wire LeaderWalk into the pick + election transition.
 - Bar (session 3): "the mobile layout is not good; it must be mobile first". Observed: dead bands on tall phones (fixed 180x267 column), list cut on SE, ticker text truncated, small money/buy. UX Designer dispatched for ux/mobile-first-layout.md; the Game Developer implements it right after the picker merges (same files). Shots: scratchpad/shots/mobile/.
+- Picker merged (337/337). Open from its report: Liberman's blurb shows "61" on the picker (spec §3.2: no numbers), for the Designer. LeaderWalk is unwired because the court pose sets the position every frame, so it needs Animator wave B. Golan's pill sits on the partner card; UX to confirm. §10.2 neutralCopy/notUsed facts are the Designer's.
+- Next: when UX delivers ux/mobile-first-layout.md, dispatch the Game Developer to implement it; Animator wave B (LeaderWalk into pick/election); Designer pending.
 
 ## Agents
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
 |---|---|---|---|---|---|
-| Game Developer | build the leader picker (LEADER_PICK) + spec §10 views/engine; wire audio hooks | `worktree-agent-a5ac76f3d34023987` | 0 | 0 | - |
+| Game Developer | DONE, merged (leader picker + per-leader views, 337 tests) | `worktree-agent-a5ac76f3d34023987` | 0 | 0 | - |
 | Game Designer | review leaders.gd; balance.sh + per-leader bench; 34-vs-8 min gap; R17 slots; ביבי rule; "רוב" poll lint; neutral DAYS_* | `worktree-agent-aaa48164b1454821d` | 3 | 5 | `Game-Designer.commits.patch` `Game-Designer.patch` |
 | Animator | DONE, merged (court day, motion audit, brawl boil, reduced-motion fix; LeaderWalk helper ready, unwired) | `worktree-agent-a4cee2a31acb16b09` | 0 | 0 | - |
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
