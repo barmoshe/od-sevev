@@ -120,7 +120,7 @@ func test_lines_and_system_text_come_from_content_and_ui_strings() -> void:
 	runner.check(s == Strings.s("CHAT_SYS_LEFT_F", {"name": ChatView.partner_name("regev")}), "a system line picks the partner's gender (%s)" % s)
 	var mu := ChatView.sys_text({"type": "sys", "key": "chat.sys.muted", "partner": "distel"})
 	runner.check(mu.begins_with("היועצים המשפטיים"), "Distel's muted line names the legal advisers, not her (%s)" % mu)
-	runner.check(ChatView.char_for("bengvir") == "ben-gvir" and ChatView.char_for("maygolan") == "golan", "partner ids resolve to the cast slugs")
+	runner.check(ChatView.char_for("bengvir") == "ben-gvir" and ChatView.char_for("maygolan") == "may-golan" and ChatView.char_for("golan") == "golan", "partner ids resolve to the cast slugs; May Golan is never Yair Golan")
 	var av: Array = ChatView.avatar_art("bengvir")
 	var px := Vector2(Art.sprite_size(av[0])) * float(av[1])
 	runner.check(px == Vector2(128, 128), "the chat avatar is 32 art px drawn at artScale/density = 128 logical (%s)" % str(px))

@@ -516,17 +516,14 @@ static func sys_text(m: Dictionary) -> String:
 
 
 ## The manifest character slug for a partner id: SpriteStrip.resolve (aliases), then the
-## content's `avatar` art id without "_avatar", then its last hyphen part ("may-golan" → "golan").
+## content's `avatar` art id without "_avatar". Never a partial-name match: "may-golan" and
+## "golan" are different people, so a missing slug draws the neutral card instead.
 static func char_for(id: String) -> String:
 	var slug := SpriteStrip.resolve(id)
 	if slug != "":
 		return slug
 	var av := str(Coalition.partner(id).get("avatar", "")).trim_suffix("_avatar")
-	if av != "":
-		slug = SpriteStrip.resolve(av)
-		if slug == "" and av.contains("-"):
-			slug = SpriteStrip.resolve(av.get_slice("-", av.get_slice_count("-") - 1))
-	return slug
+	return SpriteStrip.resolve(av) if av != "" else ""
 
 
 ## The chat avatar's art id and its logical draw scale (artScale / density; never hard-coded:
