@@ -3665,29 +3665,26 @@ index 892ab22..95a03e9 100644
  
  func test_the_echo_on_the_stage() -> void:
 diff --git a/game/tests/unit/test_review_engine.gd b/game/tests/unit/test_review_engine.gd
-index dbc7716..99038c6 100644
+index dbc7716..efef3ad 100644
 --- a/game/tests/unit/test_review_engine.gd
 +++ b/game/tests/unit/test_review_engine.gd
-@@ -311,6 +311,7 @@ func test_r16_title_floor_fills_the_reserved_sections() -> void:
+@@ -311,14 +311,13 @@ func test_r16_title_floor_fills_the_reserved_sections() -> void:
  	# to screen bottom, full width (TextureRect at ×4: its size is in art px)
  	var f: TextureRect = m._title_floor
  	var sb: float = m._stage_y + L.stage_bottom()
-+<<<<<<< HEAD
- 	runner.check(f.visible and is_equal_approx(f.position.y, sb) and f.position.y + f.size.y * 4.0 >= m._vs.y, "one floor from the stage bottom (%s) to the screen bottom (%s)" % [f.position.y, f.position.y + f.size.y * 4.0])
- 	runner.check(f.position.x <= 0.0 and f.position.x + f.size.x * 4.0 >= m._vs.x, "full width, no inner rect")
- 	runner.check(f.texture == Diorama.paving_texture(m.diorama.pad_bottom, false), "the paving in the stage's floor colour")
-@@ -319,6 +320,14 @@ func test_r16_title_floor_fills_the_reserved_sections() -> void:
- 	for x in img.get_width():
- 		cols[img.get_pixel(x, 1).to_html()] = true
- 	runner.check(cols.size() >= 2, "every paving row has horizontal detail (%d colours in row 1)" % cols.size())
-+=======
-+	# mobile-first A1: the 2D plaza (diorama, from the stage bottom) is the floor; the flat fill only continues it
+-	runner.check(f.visible and is_equal_approx(f.position.y, sb) and f.position.y + f.size.y * 4.0 >= m._vs.y, "one floor from the stage bottom (%s) to the screen bottom (%s)" % [f.position.y, f.position.y + f.size.y * 4.0])
++	# mobile-first A1: the 2D plaza (diorama, from the stage bottom) is the floor; the engine's paving
++	# only continues it past floor_reach() (never one flat colour)
 +	var reach: float = m.diorama.floor_reach()
 +	runner.check(reach > 0.0 and sb + reach >= m._vs.y, "the plaza art runs from the stage bottom (%s) past the screen bottom (%s)" % [sb, sb + reach])
-+	runner.check(f.visible and is_equal_approx(f.position.y, sb + reach) and is_equal_approx(f.position.y + f.size.y, maxf(m._vs.y, sb + reach)), "the flat floor starts where the plaza ends (%s) and reaches the screen bottom" % f.position.y)
-+	runner.check(f.position.x <= 0.0 and f.size.x >= m._vs.x, "full width, no inner rect")
-+	runner.check(f.color == m.diorama.pad_bottom, "in the stage's floor colour")
-+>>>>>>> claude/magical-ride-ntn3u5
++	runner.check(f.visible and is_equal_approx(f.position.y, sb + reach), "the paving starts where the plaza ends (%s)" % f.position.y)
+ 	runner.check(f.position.x <= 0.0 and f.position.x + f.size.x * 4.0 >= m._vs.x, "full width, no inner rect")
+ 	runner.check(f.texture == Diorama.paving_texture(m.diorama.pad_bottom, false), "the paving in the stage's floor colour")
+-	var img := f.texture.get_image()
+-	var cols := {}
+-	for x in img.get_width():
+-		cols[img.get_pixel(x, 1).to_html()] = true
+-	runner.check(cols.size() >= 2, "every paving row has horizontal detail (%d colours in row 1)" % cols.size())
  	m._set_mode("main", false)
  	runner.check(not f.visible, "gone in the main state")
  
