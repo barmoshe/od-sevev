@@ -180,6 +180,45 @@ func timer_sec() -> float:
 	return 0.0
 
 
+## The card's and the chip's texts by phase (rtl-map §6.4 "Two phases, two texts", review R10):
+## the summons is the choice, nothing is slowed yet and its timer is the countdown to the
+## automatic testimony; the court phase is the testimony itself. The card rebuilds on the phase
+## edge (the layout signature carries the phase).
+static func phase_keys(ph: String) -> Dictionary:
+	if ph == "summons":
+		return {"title": "COURT_SUMMONS_TITLE", "body": "COURT_SUMMONS_BODY", "effect": "COURT_SUMMONS_EFFECT",
+			"timer": "COURT_SUMMONS_TIMER", "chip": "COURT_CHIP_SUMMONS"}
+	return {"title": "COURT_TITLE", "body": "COURT_BODY", "effect": "COURT_EFFECT", "timer": "COURT_TIMER", "chip": "COURT_CHIP_TITLE"}
+
+
+## The expanded card's height while it sits over a tall tab (T3 / T4): that tab's list pads its
+## bottom by it so its last rows scroll clear (rtl-map §6.4 "Depth", review R21). 0 when the card
+## is folded, hidden or leaving.
+func pad_height() -> float:
+	return _card_h if _card.visible and (_mode == "open" or _mode == "postponed") else 0.0
+
+
+## The court view of a host (the tall tabs ask it for their padding), or null.
+static func of(h: Node) -> CourtView:
+	if h == null or not "court" in h:
+		return null
+	var c: Variant = h.get("court")
+	return c as CourtView if c is CourtView else null
+
+
+## Esc / back with the card expanded: it folds to the chip before any other layer rule
+## (rtl-map §6.4). Returns true when the key was spent here.
+func esc_collapse() -> bool:
+	if _mode != "open" or not _card.visible or String(_anim.get("kind", "")) == "collapse":
+		return false
+	var ph := phase()
+	if ph != "summons" and ph != "court":
+		return false
+	_audio("uiClick")
+	collapse()
+	return true
+
+
 ## The excuse line for a postponement step (content copy, court.postpone.copy.excuses; the sim
 ## holds no Hebrew). Steps past the list hold on the last line ("loops at step 6").
 static func excuse(step: int) -> String:
@@ -393,7 +432,8 @@ func _build_card() -> void:
 	# kit court_frame: the gavel at the header's right, x w − 18 art, y 5 art (frame-local)
 	var gid := Art.sprite_or("thermo_icon_gavel")
 	_gavel = Ui.img(_inner, Vector2(CARD_X + CARD_W - 18.0 * 4.0, 20), gid, 0, 4)
-	_title = _t(Strings.s("COURT_TITLE"), Color.WHITE, 432.0, 1)
+	var keys := phase_keys(phase())
+	_title = _t(Strings.s(keys["title"]), Color.WHITE, 432.0, 1)
 	_title.right_at(_gavel.position.x - 12.0)
 	_title.position.y = 24.0
 	var y := 96.0
@@ -415,11 +455,11 @@ func _build_card() -> void:
 		_stamp.position = Vector2(CARD_X + 24.0 + ssz.x / 2.0, 12.0 + ssz.y / 2.0).snapped(Vector2(4, 4))
 		y += 24.0
 	else:
-		_body = _t(Strings.s("COURT_BODY"), Color.WHITE, TEXT_W, 3)
+		_body = _t(Strings.s(keys["body"]), Color.WHITE, TEXT_W, 3)
 		_body.right_at(CARD_X + TEXT_RIGHT)
 		_body.position.y = y
 		y += _lh(_body) * maxf(1.0, float(_body.line_count()))
-		_effect = _t(Strings.s("COURT_EFFECT"), Color("#fff1a6"), TEXT_W, 2)
+		_effect = _t(Strings.s(keys["effect"]), Color("#fff1a6"), TEXT_W, 2)
 		_effect.right_at(CARD_X + TEXT_RIGHT)
 		_effect.position.y = y
 		y += _lh(_effect) * maxf(1.0, float(_effect.line_count()))
@@ -467,7 +507,7 @@ func _lh(t: PxText) -> float:
 
 func _update_card_live() -> void:
 	if _timer != null:
-		var txt := Strings.s("COURT_TIMER", {"mmss": ChatView.mmss(timer_sec())})
+		var txt := Strings.s(phase_keys(phase())["timer"], {"mmss": ChatView.mmss(timer_sec())})
 		if _timer.text != txt:
 			_timer.text = txt
 			_timer.right_at(CARD_X + TEXT_RIGHT)
@@ -498,6 +538,9 @@ func _sync_chip() -> void:
 	var show := _mode == "chip" and (ph == "summons" or ph == "court") and not _covered \
 		and not (ticker != null and ticker.cta_on())
 	if show:
+		var ct := Strings.s(phase_keys(ph)["chip"])
+		if _chip_title.text != ct:
+			_chip_title.text = ct
 		var tw := maxf(float(_chip_title.width()), float(_chip_timer.width()))
 		var icon_w := float(Art.sprite_size(_chip_icon.get_meta("sprite")).x) * 4.0
 		_chip_w = maxf(CHIP_MIN_W, Ui.snap(16.0 + tw + 12.0 + icon_w + 12.0, 4))

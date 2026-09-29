@@ -71,6 +71,7 @@ var _scroll := 0.0
 var _vel := 0.0
 var _press: Dictionary = {}
 var _text_ms := 0.0
+var _last_pad := 0.0
 
 # K2
 var _ready_since := -1.0     # ms (view clock) when the case opened this session; -2 = ready at load
@@ -474,7 +475,14 @@ func _audio(name: String, arg: Variant = null) -> void:
 # ------------------------------------------------------------------ scroll
 
 func _max_scroll() -> float:
-	return maxf(0.0, _content_h - body_h())
+	return maxf(0.0, _content_h + bottom_pad() - body_h())
+
+
+## rtl-map §6.4 "Depth" (review R21): the expanded court card over T4 pads the list's bottom by
+## its height, so the last trophies scroll clear of it.
+func bottom_pad() -> float:
+	var c := CourtView.of(host)
+	return c.pad_height() if c != null and _open else 0.0
 
 
 func _set_scroll(v: float) -> void:
@@ -487,12 +495,16 @@ func _update_scroll(dt: float) -> void:
 		_vel *= pow(float(Tune.MC.get("listMomentumDecay", 0.92)), dt / Tune.FRAME_MS)
 		if absf(_vel) < float(Tune.MC.get("listMomentumStop", 0.1)):
 			_vel = 0.0
+	var pad := bottom_pad()
+	if pad != _last_pad:
+		_last_pad = pad
+		_set_scroll(_scroll)
 	_content.position.y = Ui.snap(-_scroll, 4)
 	var th := body_h()
-	var scrollable := _content_h > th
+	var scrollable := _content_h + pad > th
 	_thumb.visible = scrollable
 	if scrollable:
-		var tl := maxf(48.0, th * th / _content_h)
+		var tl := maxf(48.0, th * th / (_content_h + pad))
 		_thumb.size.y = Ui.snap(tl, 4)
 		_thumb.position.y = Ui.snap(BODY_Y + (th - tl) * (_scroll / maxf(1.0, _max_scroll())), 4)
 		var dragging: bool = not _press.is_empty() and _press.get("dragging", false)
