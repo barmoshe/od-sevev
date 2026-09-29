@@ -90,6 +90,7 @@ var ftue: Ftue
 var overlays: OverlayManager
 var tx: EvolveTx
 var chat: ChatView                  # T3 "קואליציה 61" (ui/views/view_chat.gd)
+var cottage: CottageCup             # Row A's Cottage Index (ui/views/view_cottage.gd)
 var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
 var _fills := {}
 var _title_ground: TextureRect
@@ -179,6 +180,7 @@ func _read_content_override() -> void:
 ## Dev-only URL params on the web build (all ignored without ?dev=1): &speed=N multiplies game
 ## time, &grant=N adds bananas at boot, &evo=N sets the evolution count (era checks). Same contract as v1.1 (HOW-TO-RUN.md).
 ## &forkscale=1 shows the fork's fractional stretch (the "before" of integer art scaling).
+## &flash=N opens Dubi's news flash for round N on the first tap (view checks).
 func _read_dev_params() -> void:
 	if not OS.has_feature("web"):
 		return
@@ -189,7 +191,7 @@ func _read_dev_params() -> void:
 	_dev["forkscale"] = q.contains("forkscale=1")
 	for part in q.trim_prefix("?").split("&"):
 		var kv := part.split("=")
-		if kv.size() == 2 and (kv[0] == "speed" or kv[0] == "grant" or kv[0] == "evo"):
+		if kv.size() == 2 and (kv[0] == "speed" or kv[0] == "grant" or kv[0] == "evo" or kv[0] == "flash"):
 			_dev[kv[0]] = maxf(0.0, float(kv[1]))
 	if float(_dev["speed"]) <= 0.0:
 		_dev["speed"] = 1.0
@@ -256,6 +258,10 @@ func _build() -> void:
 	_stage.add_child(title_view)
 	top_bar = TopBar.new()
 	_top.add_child(top_bar)
+	cottage = CottageCup.new().setup(self)
+	_top.add_child(cottage)
+	# every Dubi squawk is a talking point: the sim may scramble it (word salad, wordSaladSeen)
+	toasts.dubi_line = func(t: String) -> String: return FlashCard.dubi_says(state, t)
 	ticker = Ticker.new()
 	_lower.add_child(ticker)
 	ticker.on_milestone_start = func(text: String) -> void:
@@ -466,6 +472,7 @@ func _apply_settings() -> void:
 	ticker.set_reduced_motion(rm)
 	shop.reduced_motion = rm
 	chat.reduced_motion = rm
+	cottage.reduced_motion = rm
 	ftue.reduced_motion = rm
 	title_view.set_reduced_motion(rm)
 	fx_stage.reduced_motion = rm
@@ -615,6 +622,8 @@ func _start_from_title(tap_at: Vector2, tapped: bool) -> void:
 	_load_kind = "none"
 	_save_now()
 	_audio_call("start_music", [])
+	if int(_dev.get("flash", 0)) > 0:
+		show_flash(int(_dev["flash"]))
 
 
 # ================================================================== loop
@@ -659,6 +668,7 @@ func _process(delta: float) -> void:
 	fx_stage.update_view(dt)
 	fx_ui.update_view(dt)
 	top_bar.update_view(dt)
+	cottage.update_view(dt, state, running and bool(_reveals.get("counter", false)))
 	_refresh_all(dt)
 	shop.tick_hold(dt, state)
 	chat.update_view(dt, state, d, {"main": running and not tx.running and not _tx_locked, "overlay": overlays.is_open()})
@@ -1080,6 +1090,9 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		if on_hat:
 			_start_from_title(sp, true)
 		return
+	if cottage.contains(tp):
+		_presses[idx] = {"kind": "cottage"}
+		return
 	if top_bar.gear_contains(tp):
 		_presses[idx] = {"kind": "gear"}
 		return
@@ -1152,6 +1165,9 @@ func _pointer_up(idx: int, p: Vector2) -> void:
 		"gear":
 			if top_bar.gear_contains(tp) and _gameplay_input():
 				_open_settings()
+		"cottage":
+			if cottage.contains(tp) and _gameplay_input():
+				cottage.tap()
 		"mute":
 			if top_bar.mute_contains(tp) and _gameplay_input():
 				_toggle_mute()
@@ -1180,7 +1196,7 @@ func _update_hover(p: Vector2) -> void:
 		var on_golden := golden.hit_test(sp)
 		var on_banana := not on_golden and Ui.in_rect(bb.hit_rect(), sp)
 		_set_hover_banana(on_banana)
-		pointer = on_golden or on_banana or top_bar.gear_contains(tp) or top_bar.mute_contains(tp) or shop.in_list(lp) \
+		pointer = on_golden or on_banana or top_bar.gear_contains(tp) or top_bar.mute_contains(tp) or cottage.contains(tp) or shop.in_list(lp) \
 			or (shop.visible and Ui.in_rect(Rect2(0, L.tabs_y(), L.W, L.TABS_H), lp)) or (ticker.cta_on() and ticker.cta.contains(lp))
 	if not _gameplay_input():
 		_set_hover_banana(false)
@@ -1422,13 +1438,18 @@ func _show_story_beat() -> void:
 	if state.story_seen.has(bid):
 		return
 	state.story_seen.append(bid)
+	show_flash(state.evolutions)
+
+
+## O3b, Dubi's news flash for round n (ui/views/view_flash.gd; it sends its own storyCard +
+## babble). `archive` = a replay from T4 (SYS_CLOSE only, no word-salad roll).
+func show_flash(n: int, archive := false) -> void:
 	overlays.request(func() -> Overlay:
-		var o := Overlays.StoryOverlay.new()
+		var o := FlashCard.new()
 		o.setup(self, overlays)
-		o.evolutions = state.evolutions
+		o.evolutions = n
+		o.archive = archive
 		return o.build())
-	_audio("storyCard")
-	_audio("babble", " ".join(Story.beat_for(state.evolutions)))
 
 
 func stop_babble() -> void:

@@ -626,38 +626,7 @@ class BookOverlay:
 		mgr.close(self, via)
 
 
+## O3b: the fork's story card is rebuilt as Dubi's news flash (ui/views/view_flash.gd, rtl-map
+## §7.2); this name stays so every caller (the election, the store shots, a T4 archive) gets it.
 class StoryOverlay:
-	extends Overlay
-	var evolutions := 1
-
-	func build() -> StoryOverlay:
-		id = "STORY"
-		var th := Art.theme
-		var pr := Rect2(48, 360, 624, 560)
-		make_panel(pr)
-		var nc: Dictionary = Content.data().get("narrator", {})
-		# od-sevev: the narrator is Dubi. content narrator.sprite, else the TA's Dubi stand-in, else
-		# the fork's CHIP; the new art draws at x4 (one scale per frame), the fork's at its x6.
-		var key := Art.sprite_or(String(nc.get("sprite", "dubi_placeholder_avatar" if Art.has_sprite("dubi_placeholder_avatar") else "narrator_chip")))
-		var sc := 6 if key == "narrator_chip" else 4
-		var sz := Vector2(Art.sprite_size(key)) * sc
-		var nx := L.mx(80.0, sz.x)
-		Ui.img(panel, Vector2(nx, 392), key, 0, sc)
-		var t1 := text(Vector2(200, 408), str(nc.get("name", "CHIP")), 4, th["modal"]["title"])
-		var t2 := text(Vector2(200, 452), str(nc.get("title", "")), 3, th["modal"]["note"])
-		if L.RTL:
-			t1.right_at(nx - 24.0)
-			t2.right_at(nx - 24.0)
-		var era: Dictionary = Story.era_for(evolutions)
-		centered(520, Strings.s("STORY_EVOLUTION", {"n": evolutions, "era": era.get("name", "")}), 3, th["modal"]["groupLabel"])
-		var lines := Story.beat_for(evolutions)
-		for i in lines.size():
-			centered(572 + i * 40, lines[i], 3)
-		button(Rect2(212, 784, 296, 96), Rect2(212, 780, 296, 104), Strings.s("STORY_CONTINUE"), func() -> void: cancel("close"))
-		return self
-
-	func cancel(via: String) -> void:
-		if host.has_method("stop_babble"):
-			host.stop_babble()
-		host.audio_event("panelClose")
-		mgr.close(self, via)
+	extends FlashCard

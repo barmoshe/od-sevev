@@ -39,6 +39,10 @@ only through `tools/deploy_web.sh`.
 
 `&speed=N` multiplies game time, `&grant=N` adds bananas at boot, `&evo=N` sets the evolution
 count (to look at the eras). Example: `/?dev=1&grant=2000000`.
+`&flash=N` opens Dubi's news flash for round N on the first tap. `?frame=1` / `?frame=0` (no `dev`
+needed) force the desktop phone frame on or off (the shell's `odFit`: a window ≥ 600 CSS with a
+mouse gets a centred 390-CSS canvas; `window.odFrame`). `node tools/web/views_web.mjs <url> <dir>
+[WxH@DPR,...]` screenshots the flash, the cottage cup and the frame in Chromium.
 
 ## Source map
 

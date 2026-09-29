@@ -11,6 +11,9 @@ const GAP_MS := 1000.0
 var reduced_motion := false
 ## Called with the shown toast's tag when it is tapped (T3: a "chat" toast opens the chat).
 var on_tap: Callable
+## Dubi's line filter, func(text) -> String: every squawk is a talking point, so the controller
+## routes it through FlashCard.dubi_says (the sim's word salad).
+var dubi_line: Callable
 var _queue: Array[String] = []
 var _tags: Array[String] = []
 var _tag := ""
@@ -63,7 +66,7 @@ func tap(p: Vector2) -> bool:
 
 ## Dubi's bubble over a point (stage coordinates, the bubble's bottom centre), for `ms`.
 func say(text: String, at: Vector2, ms: float = 1600.0) -> void:
-	_btext.text = text
+	_btext.text = dubi_line.call(text) if dubi_line.is_valid() else text
 	var w := float(_btext.width()) + 48.0
 	var h := float(HeFont.line_height() * L.TEXT) + 24.0
 	var x := clampf(Ui.snap(at.x - w / 2.0, 4), 16.0, L.W - 16.0 - w)

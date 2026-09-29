@@ -29,6 +29,7 @@ BOXES = {
     # exception to the grid). Share cards use their own art grid (x5 image, text at art scale 1).
     "rowA.counter":   (328, 4, 1, 1, "Row A counter (7-row numeral cut), centred x 196-524"),
     "rowA.rate":      (344, 4, 1, 1, "Row A rate line, centred x 188-532"),
+    "rowA.cottageMinus": (88, 4, 1, 1, "The '−1' rising over the cottage cup on a pixel drop (motion cottage-pixel-loss), PxText"),
     "rowB.label":     (128, 4, 1, 1, "Row B label x 576-704"),
     "rowB.value":     (120, 4, 1, 1, "Row B numeral x 16-136 (PxText)"),
     "rowB.stamp":     (256, 4, 1, 1, "Blackout stamp inner (baked art; text is the a11y fallback)"),
@@ -341,6 +342,7 @@ e("HUD_SUSP", "חשד", "stage.thermo", "", "hud.susp")
 e("HUD_SUSP_HOT", "מבעבע", "stage.thermo", "", "hud.susp.hot")
 e("HUD_SUSP_BOIL", "רותח!", "stage.thermo", "", "hud.susp.boil")
 e("HUD_COTTAGE_TIP", "מדד הקוטג׳: הקופה שלך גדלה. הקוטג׳ קטן.", "stage.toast", "*", "hud.cottage.tip")
+e("HUD_COTTAGE_MINUS", "−1", "rowA.cottageMinus", "", "motion cottage-pixel-loss", "The lost pixel's '−1' over the cup (game-developer views, 2026-09-29; UX to confirm)")
 e("HUD_CTA_ELECTION", "עוד סבב!", "cta.election", "*", "hud.cta.election")
 e("HUD_MUTE", "השתקה", "html:12", "", "hud.mute", "Accessible label (not drawn)")
 e("HUD_UNMUTE", "ביטול השתקה", "html:12", "", "hud.unmute", "Accessible label (not drawn)")

@@ -183,11 +183,32 @@ body {
 #od-about li { margin-bottom: 8px; }
 #od-about .od-src { font-size: 14px; color: #c9c3d6; }
 #od-about button { min-height: 48px; padding: 0 20px; font: inherit; color: #f7f4ec; background: #2a2340; border: 3px solid #f7f4ec; border-radius: 6px; cursor: pointer; }
+
+/* od-sevev desktop phone frame (ux/first-minute.md §1.3, ux/rtl-map.md §1): on a wide window with a
+   mouse the canvas is a 390-CSS phone column, centred, in a bezel. odFit() below places both; the
+   bezel is decoration only (no input, no text). */
+html.od-framed, html.od-framed body {
+	background-color: #140c24;
+}
+#od-phone {
+	display: none;
+	position: fixed;
+	box-sizing: border-box;
+	border-radius: 40px;
+	background: #0b0714;
+	border: 3px solid #3a2f55;
+	box-shadow: 0 24px 72px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #000;
+	pointer-events: none;
+}
+html.od-framed #od-phone {
+	display: block;
+}
 		</style>
 		<link rel="manifest" href="index.manifest.json">
 		$GODOT_HEAD_INCLUDE
 	</head>
 	<body>
+		<div id="od-phone" aria-hidden="true"></div>
 		<canvas id="canvas">
 			הדפדפן הזה לא תומך במשחק.
 		</canvas>
@@ -430,11 +451,84 @@ if ('serviceWorker' in navigator) {
 		<script>
 const GODOT_CONFIG = $GODOT_CONFIG;
 const GODOT_THREADS_ENABLED = $GODOT_THREADS_ENABLED;
+
+// The canvas size is the shell's (od-sevev): a phone gets the whole window, a desktop window a
+// centred 390-CSS phone frame (ux/first-minute.md §1.3). Either way the backing store is exactly
+// the canvas's CSS box × devicePixelRatio and the box sits on whole device px, so the engine's
+// integer art scale (game/scripts/core/display.gd: k = min(floor(W / 180), floor(H / 267)) on the
+// backing store) reaches the screen 1:1, with no browser resample. Godot's own "adaptive" policy
+// fills the window only, so the shell takes the canvas over (policy 0 = Godot reads canvas.width
+// and canvas.height every frame and follows them).
+//   ?frame=1 / ?frame=0 force the frame on / off (view checks); window.odFrame = the last fit.
+const OD_FRAME = { w: 390, h: 844, minWindowW: 600, margin: 24, bezel: 16 };
+GODOT_CONFIG['canvasResizePolicy'] = 0;
+window.odFrameWanted = function () {
+	const q = window.location.search;
+	if (/[?&]frame=1(&|$)/.test(q)) {
+		return true;
+	}
+	if (/[?&]frame=0(&|$)/.test(q)) {
+		return false;
+	}
+	// a desktop: a mouse (fine pointer) and room for a phone column; a phone or tablet in any
+	// orientation keeps the whole screen
+	const fine = !!(window.matchMedia && window.matchMedia('(pointer: fine)').matches);
+	return fine && window.innerWidth >= OD_FRAME.minWindowW;
+};
+window.odFit = function () {
+	const c = document.getElementById('canvas');
+	if (!c) {
+		return;
+	}
+	const dpr = window.devicePixelRatio || 1;
+	const iw = window.innerWidth;
+	const ih = window.innerHeight;
+	const framed = window.odFrameWanted();
+	let dw, dh, left, top;
+	if (framed) {
+		dw = Math.round(OD_FRAME.w * dpr);
+		dh = Math.floor(Math.max(1, Math.min(OD_FRAME.h, ih - 2 * OD_FRAME.margin)) * dpr);
+		left = Math.round((iw * dpr - dw) / 2) / dpr;
+		top = Math.round((ih * dpr - dh) / 2) / dpr;
+	} else {
+		dw = Math.floor(iw * dpr);
+		dh = Math.floor(ih * dpr);
+		left = 0;
+		top = 0;
+	}
+	document.documentElement.classList.toggle('od-framed', framed);
+	if (c.width !== dw || c.height !== dh) {
+		c.width = dw;
+		c.height = dh;
+	}
+	c.style.width = (dw / dpr) + 'px';
+	c.style.height = (dh / dpr) + 'px';
+	c.style.left = left + 'px';
+	c.style.top = top + 'px';
+	const ph = document.getElementById('od-phone');
+	if (ph && framed) {
+		const b = OD_FRAME.bezel;
+		ph.style.left = (left - b) + 'px';
+		ph.style.top = (top - b) + 'px';
+		ph.style.width = (dw / dpr + 2 * b) + 'px';
+		ph.style.height = (dh / dpr + 2 * b) + 'px';
+	}
+	window.odFrame = { framed, dpr, css: [dw / dpr, dh / dpr], device: [dw, dh], left, top };
+};
+window.odFit();
+window.addEventListener('resize', window.odFit);
+if (window.visualViewport) {
+	window.visualViewport.addEventListener('resize', window.odFit);
+}
 const engine = new Engine(GODOT_CONFIG);
 
 // The safe-area insets (Dynamic Island, rounded corners, home bar) as fractions of the
-// window: "top,right,bottom,left". Game.safe_rect turns them into game pixels.
+// window: "top,right,bottom,left". Game.safe_rect turns them into game pixels. Inside the
+// desktop phone frame there are none.
 window.mbSafeArea = function () {
+	if (window.odFrame && window.odFrame.framed) {
+		return '0,0,0,0';
+	}
 	const s = getComputedStyle(document.getElementById('safe-probe'));
 	const w = Math.max(1, window.innerWidth);
 	const h = Math.max(1, window.innerHeight);
