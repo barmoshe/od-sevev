@@ -1,7 +1,7 @@
 From 805f809f20374159d8faa4f0283efa9fa91e9f6b Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:07:31 +0000
-Subject: [PATCH 1/3] feat(od-sevev): ship the leader picker (LEADER_PICK) and
+Subject: [PATCH 1/4] feat(od-sevev): ship the leader picker (LEADER_PICK) and
  the per-leader views
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -3635,7 +3635,7 @@ index b829bba..aa4c444 100644
 From f494f768bc578c7e2eceb1e809ee380f62c47223 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:24:25 +0000
-Subject: [PATCH 2/3] fix(od-sevev): read a null tap-kit field as missing in
+Subject: [PATCH 2/4] fix(od-sevev): read a null tap-kit field as missing in
  LeaderUi.tap
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
@@ -3664,7 +3664,7 @@ index 6b3acbd..d692c83 100644
 From 38d6d4d07650a1a6d32dad187874f4b7e235be11 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:25:03 +0000
-Subject: [PATCH 3/3] test(od-sevev): let picker_web pay the chat every loop
+Subject: [PATCH 3/4] test(od-sevev): let picker_web pay the chat every loop
  once the group exists
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
@@ -3686,6 +3686,80 @@ index 7a526f3..93ded7b 100644
  	if (!wantChat) continue;
  	if (!s.chat.open) { await tapAt(tab(3)); await wait(600); }
  	for (let guard = 0; guard < 14; guard++) {
+-- 
+2.43.0
+
+
+From 632c96f7a29e24a1c9acc1375287449b935eab6b Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 20:34:39 +0000
+Subject: [PATCH 4/4] test(od-sevev): retry the election in picker_web when the
+ gate slips under the card
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ tools/web/picker_web.mjs | 26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
+
+diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
+index 93ded7b..d663e10 100644
+--- a/tools/web/picker_web.mjs
++++ b/tools/web/picker_web.mjs
+@@ -57,7 +57,7 @@ const tab = (i) => col(540 - 180 * (i - 1) + 90, tabsY() + 52);
+ const log = (...a) => console.log(...a);
+ const checks = [];
+ const check = (ok, what) => { checks.push([ok, what]); log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}`); };
+-const cellOf = (p, id) => (p.cells || []).find((c) => c[2] === id);
++const cellOf = (p, id) => ((p && p.cells) || []).find((c) => c[2] === id) || [-1, -1, ""];
+ 
+ await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&speed=${speed}`);
+ await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
+@@ -103,6 +103,7 @@ let paid = 0;
+ let rounds = 0;
+ let lastBuy = 0;
+ let shotRound = false;
++async function playToGate() {
+ while (Date.now() - t0 < budget) {
+ 	rounds++;
+ 	s = await probe();
+@@ -162,11 +163,14 @@ while (Date.now() - t0 < budget) {
+ 	await page.keyboard.press('Escape');
+ 	await wait(300);
+ }
+-s = await probe();
+-log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${paid} pills, loops ${rounds}`);
+-let elected = s.ready && s.cta;
+-check(elected, 'Bennett reaches the election gate');
+-if (elected) {
++}
++// the gate can slip (a walkout) between the CTA and the card: play on and try again
++let called = false;
++for (let attempt = 0; attempt < 6 && !called && Date.now() - t0 < budget; attempt++) {
++	await playToGate();
++	s = await probe();
++	log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${paid} pills, loops ${rounds}`);
++	if (!(s.ready && s.cta)) continue;
+ 	for (let i = 0; i < 3 && s.modal !== 'EVOLUTION' && (s.chat.open || s.modal !== ''); i++) {
+ 		await page.keyboard.press('Escape');
+ 		await wait(400);
+@@ -181,6 +185,16 @@ if (elected) {
+ 	md = await modal();
+ 	if (md && md.open && md.id === 'EVOLUTION' && md.ready) {
+ 		await tapAt(css(md.buttons[0][0], md.buttons[0][1]));
++		called = true;
++	} else {
++		log('  the gate slipped under the card: back to the round');
++		await page.keyboard.press('Escape');
++		await wait(500);
++	}
++}
++check(called, 'Bennett calls the election (O3 "לפזר את הכנסת")');
++if (called) {
++	{
+ 		await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open), null, { timeout: 40000 }).catch(() => {});
+ 		await wait(1500);
+ 		const fl = await page.evaluate(() => window.odFlash || null);
 -- 
 2.43.0
 
