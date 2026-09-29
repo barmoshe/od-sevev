@@ -1,4 +1,16 @@
 # binary files changed (not carried):
+diff --git a/game/data/ui-strings.json b/game/data/ui-strings.json
+index a495ecd..39dc571 100644
+--- a/game/data/ui-strings.json
++++ b/game/data/ui-strings.json
+@@ -539,6 +539,7 @@
+     "CHAT_PILL_MERGE_CD": "איחוד · ⁦{s}⁩ שנ׳",
+     "MERGE_PICK_TITLE": "לאחד עם…",
+     "CHAT_SYS_MERGED": "{a} ו{b} התאחדו. מעכשיו: {a}־{b}.",
++    "CHAT_SYS_MERGE_READY": "{a} ו{b} יכולים להתאחד",
+     "HUD_RATE": "⁦+{rate}⁩ ₪ לשנייה",
+     "HUD_TICKER_TAG": "מבזק",
+     "CARD_LOCKED_NAME": "מקור עלום",
 diff --git a/game/scripts/ui/diorama.gd b/game/scripts/ui/diorama.gd
 index 75913c5..798b04f 100644
 --- a/game/scripts/ui/diorama.gd
@@ -460,3 +472,173 @@ index df3b59e..961266d 100644
  		_y = Ui.snap(_y - PARA_GAP + PAD, 4)
  		for b: Variant in cands:
  			var bid := str(b)
+diff --git a/game/scripts/ui/views/view_dossier.gd b/game/scripts/ui/views/view_dossier.gd
+index e9dcc58..1455db6 100644
+--- a/game/scripts/ui/views/view_dossier.gd
++++ b/game/scripts/ui/views/view_dossier.gd
+@@ -115,10 +115,22 @@ func relayout() -> void:
+ 		return
+ 	_bg.position = Vector2(-_ox - 8.0, 0)
+ 	_bg.size = Vector2(_vs_w + 16.0, _h)
+-	_clip.size = Vector2(L.W, body_h())
++	_clip.size = Vector2(L.cw, body_h())
++	# mobile-first §4.1 / §5.6: the header stretches, its chevron and title R-anchored; the rows
++	# rebuild with their labels at 688 + dx and full-width buttons 688 + dx
++	Ui.set_nine_rect(_header, Rect2(0, 0, L.cw + 4.0, HEADER_H))
++	var cs := Vector2(Art.sprite_size(_chev.get_meta("sprite"))) * 4.0
++	_chev.position = (L.ra(CHEVRON_HIT).get_center() - cs / 2.0).snapped(Vector2(4, 4))
++	_title.right_at(TITLE_RIGHT + L.dx)
++	_sig = ""
+ 	_set_scroll(_scroll)
+ 
+ 
++## The rows' label right edge (R-anchored, mobile-first §5.6).
++static func label_right() -> float:
++	return LABEL_RIGHT + L.dx
++
++
+ func body_h() -> float:
+ 	return maxf(0.0, _h - BODY_Y)
+ 
+@@ -345,14 +357,14 @@ func _build() -> void:
+ 	var y := 8.0
+ 	for r: Dictionary in rows(_state, _d):
+ 		var t := _text(_content, str(r["text"]), C_LABEL, 656.0, 1)
+-		t.right_at(LABEL_RIGHT)
++		t.right_at(label_right())
+ 		t.position.y = y + 24.0
+-		Ui.rect(_content, Rect2(32, y + ROW_H - 4.0, 656, 4), C_DIVIDER)
++		Ui.rect(_content, Rect2(32, y + ROW_H - 4.0, 656.0 + L.dx, 4), C_DIVIDER)
+ 		_row_texts.append({"key": r["key"], "text": t})
+ 		y += ROW_H
+ 	if Investigation.can_drop_aide(_state):
+ 		var ah := _text(_content, Strings.s("AIDE_HOLDS"), C_LOCKED, 656.0, 1)
+-		ah.right_at(LABEL_RIGHT)
++		ah.right_at(label_right())
+ 		ah.position.y = y + 24.0
+ 		y += ROW_H
+ 		y = _add_button(y, "aide", Strings.s("AIDE_BTN"), "kit_primary")
+@@ -362,12 +374,12 @@ func _build() -> void:
+ 	y += 24.0
+ 	# the trophies section (BOOK_TROPHIES): the fork's Troop Book list in the dossier's frame
+ 	var hd := _text(_content, Strings.s("BOOK_TROPHIES"), C_LABEL, 656.0, 1)
+-	hd.right_at(LABEL_RIGHT)
++	hd.right_at(label_right())
+ 	hd.position.y = y + 8.0
+ 	var n := Meta.trophy_count(_state)
+ 	var pct := Meta.achievement_pct(_state) * n * 100.0
+ 	var sm := _text(_content, Strings.s("TROPHY_SUMMARY", {"n": n, "total": Meta.achievements().size(), "pct": Fmt.mult(pct).trim_suffix(".0")}), C_MUTED, 656.0, 1)
+-	sm.right_at(LABEL_RIGHT)
++	sm.right_at(label_right())
+ 	sm.position.y = y + 52.0
+ 	y += ROW_H + 8.0
+ 	for a: Dictionary in Meta.achievements():
+@@ -376,13 +388,13 @@ func _build() -> void:
+ 
+ 
+ func _add_button(y: float, kind: String, label: String, look: String) -> float:
+-	var vis := Rect2(16, y + 4.0, 688, 80)
+-	var btn := PxButton.make(_content, vis, {"hit": Rect2(16, y, 688, 88), "label": label, "kind": look})
++	var vis := Rect2(16, y + 4.0, 688.0 + L.dx, 80)
++	var btn := PxButton.make(_content, vis, {"hit": Rect2(16, y, 688.0 + L.dx, 88), "label": label, "kind": look})
+ 	if btn.label != null:
+ 		btn.label.wrap_width = 624.0
+ 		btn.label.max_lines = 1
+ 		btn.label.center_in(vis.position.x, vis.size.x)
+-	_hits.append({"rect": Rect2(16, y, 688, 88), "kind": kind, "button": btn})
++	_hits.append({"rect": Rect2(16, y, 688.0 + L.dx, 88), "kind": kind, "button": btn})
+ 	return y + BTN_PITCH
+ 
+ 
+@@ -407,7 +419,7 @@ func _add_trophy(y: float, a: Dictionary) -> float:
+ 	var secret: bool = a.get("secret", false)
+ 	var shown := got or not secret
+ 	var art := trophy_art(a, got)
+-	var plate_x := LABEL_RIGHT - 84.0
++	var plate_x := label_right() - 84.0
+ 	Ui.img(_content, Vector2(plate_x, y + 10.0), art[0], 0, 4)
+ 	if str(art[1]) != "":
+ 		Ui.img(_content, Vector2(plate_x + 12.0, y + 22.0), art[1], 0, 4)
+@@ -417,7 +429,7 @@ func _add_trophy(y: float, a: Dictionary) -> float:
+ 	var ds := _text(_content, str(a["desc"]) if shown else Strings.s("TROPHY_SECRET"), C_MUTED, 556.0, 1)
+ 	ds.right_at(plate_x - 16.0)
+ 	ds.position.y = y + 56.0
+-	Ui.rect(_content, Rect2(32, y + TROPHY_H - 4.0, 656, 4), C_DIVIDER)
++	Ui.rect(_content, Rect2(32, y + TROPHY_H - 4.0, 656.0 + L.dx, 4), C_DIVIDER)
+ 	return y + TROPHY_H
+ 
+ 
+@@ -437,7 +449,7 @@ func _refresh_texts() -> void:
+ 		var txt := str(model[i]["text"])
+ 		if t.text != txt:
+ 			t.text = txt
+-			t.right_at(LABEL_RIGHT)
++			t.right_at(label_right())
+ 
+ 
+ ## Test / tool hook: the stat rows as drawn, [{key, text}].
+@@ -570,7 +582,7 @@ func pointer_down(p: Vector2) -> bool:
+ 		return false
+ 	_vel = 0.0
+ 	_press = {"kind": "body", "y0": q.y, "x0": q.x, "scroll0": _scroll, "dragging": false, "lastT": _now, "vel": 0.0, "hit": {}}
+-	if Ui.in_rect(CHEVRON_HIT, q):
++	if Ui.in_rect(L.ra(CHEVRON_HIT), q):
+ 		_press["kind"] = "chevron"
+ 		return true
+ 	var c := _content_pt(q)
+@@ -610,7 +622,7 @@ func pointer_up(p: Vector2) -> void:
+ 	var q := _tall(p)
+ 	match String(pr["kind"]):
+ 		"chevron":
+-			if Ui.in_rect(CHEVRON_HIT, q):
++			if Ui.in_rect(L.ra(CHEVRON_HIT), q):
+ 				close()
+ 		"body":
+ 			if pr["dragging"]:
+diff --git a/ux/string-budgets.json b/ux/string-budgets.json
+index d8ed815..3a6f3c3 100644
+--- a/ux/string-budgets.json
++++ b/ux/string-budgets.json
+@@ -5692,6 +5692,18 @@
+         "5": 1120
+       }
+     },
++    "CHAT_SYS_MERGE_READY": {
++      "surface": "label",
++      "spec": "ux mobile-first-layout §5.5",
++      "joke": true,
++      "note": "The thread's merge-ready notice (Golan's round): a system line with the לאחד pill under it; posted when a pair first qualifies with the cooldown at 0, again after each cooldown (≥ 120 s apart). Gender-free: one key",
++      "box": "chat.sys",
++      "maxChars": 23,
++      "worstPx": {
++        "4": 576,
++        "5": 720
++      }
++    },
+     "HUD_RATE": {
+       "aliasOf": "HUD_BPS",
+       "surface": "label",
+diff --git a/ux/tools/gen_strings.py b/ux/tools/gen_strings.py
+index 62a3ebe..fb42dff 100644
+--- a/ux/tools/gen_strings.py
++++ b/ux/tools/gen_strings.py
+@@ -754,6 +754,7 @@ e("CHAT_PILL_MERGE", "לאחד", "chat.pill", "*", "leaders.golan.rule.copy.pill
+ e("CHAT_PILL_MERGE_CD", "איחוד · ⟦{s}⟧ שנ׳", "chat.pill", "", "leaders.golan.rule.copy.cooldown", "The same pill, disabled, during the 120 s cooldown")
+ e("MERGE_PICK_TITLE", "לאחד עם…", "modal.title", "", "leaders.golan.rule.copy.pickPrompt", "The pair prompt: one full-width button per candidate (Coalition.merge_candidates)")
+ e("CHAT_SYS_MERGED", "{a} ו{b} התאחדו. מעכשיו: {a}־{b}.", "chat.sys", "*", "leaders.golan.rule.copy.sys", "Gender-free: one key")
++e("CHAT_SYS_MERGE_READY", "{a} ו{b} יכולים להתאחד", "chat.sys", "*", "ux mobile-first-layout §5.5", "The thread's merge-ready notice (Golan's round): a system line with the לאחד pill under it; posted when a pair first qualifies with the cooldown at 0, again after each cooldown (≥ 120 s apart). Gender-free: one key")
+ 
+ # ---------------------------------------------------------------- content names (copy deck §C, §D)
+ PRODUCERS = [  # fork id -> (deck name, plural)
+diff --git a/ux/ui-strings.json b/ux/ui-strings.json
+index a495ecd..39dc571 100644
+--- a/ux/ui-strings.json
++++ b/ux/ui-strings.json
+@@ -539,6 +539,7 @@
+     "CHAT_PILL_MERGE_CD": "איחוד · ⁦{s}⁩ שנ׳",
+     "MERGE_PICK_TITLE": "לאחד עם…",
+     "CHAT_SYS_MERGED": "{a} ו{b} התאחדו. מעכשיו: {a}־{b}.",
++    "CHAT_SYS_MERGE_READY": "{a} ו{b} יכולים להתאחד",
+     "HUD_RATE": "⁦+{rate}⁩ ₪ לשנייה",
+     "HUD_TICKER_TAG": "מבזק",
+     "CARD_LOCKED_NAME": "מקור עלום",
