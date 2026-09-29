@@ -1,0 +1,3839 @@
+# binary files changed (not carried):
+#   art/od-sevev/out/ui/stage/lane_balfour.png
+#   art/od-sevev/out/ui/stage/lane_courthouse.png
+#   art/od-sevev/out/ui/stage/lane_knesset.png
+#   art/od-sevev/out/ui/stage/lane_washington.png
+#   game/assets/sprites/lane_balfour.png
+#   game/assets/sprites/lane_courthouse.png
+#   game/assets/sprites/lane_knesset.png
+#   game/assets/sprites/lane_washington.png
+diff --git a/art/od-sevev/out/ui/stage/lane_balfour.png b/art/od-sevev/out/ui/stage/lane_balfour.png
+index 1f20c25..4c54a3c 100644
+Binary files a/art/od-sevev/out/ui/stage/lane_balfour.png and b/art/od-sevev/out/ui/stage/lane_balfour.png differ
+diff --git a/art/od-sevev/out/ui/stage/lane_courthouse.png b/art/od-sevev/out/ui/stage/lane_courthouse.png
+index cbf78a2..ce5add6 100644
+Binary files a/art/od-sevev/out/ui/stage/lane_courthouse.png and b/art/od-sevev/out/ui/stage/lane_courthouse.png differ
+diff --git a/art/od-sevev/out/ui/stage/lane_knesset.png b/art/od-sevev/out/ui/stage/lane_knesset.png
+index 842fd06..6a18c03 100644
+Binary files a/art/od-sevev/out/ui/stage/lane_knesset.png and b/art/od-sevev/out/ui/stage/lane_knesset.png differ
+diff --git a/art/od-sevev/out/ui/stage/lane_washington.png b/art/od-sevev/out/ui/stage/lane_washington.png
+index 797fcb3..18581b2 100644
+Binary files a/art/od-sevev/out/ui/stage/lane_washington.png and b/art/od-sevev/out/ui/stage/lane_washington.png differ
+diff --git a/art/od-sevev/src/build_all.py b/art/od-sevev/src/build_all.py
+index 9c75af6..6b90cb2 100644
+--- a/art/od-sevev/src/build_all.py
++++ b/art/od-sevev/src/build_all.py
+@@ -1,14 +1,15 @@
+ """Rebuild every od-sevev graphic-tier asset, the manifest, and the proofs:  python3 build_all.py"""
+ import palette  # noqa: F401  (writes nothing on import)
+-import ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, leaders, keyart, proofs
++import ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, wave7, leaders, keyart, proofs
+ from kit import write_manifest, REGISTRY
+ 
+ if __name__ == "__main__":
+     import runpy, os
+     runpy.run_path(os.path.join(os.path.dirname(__file__), "palette.py"), run_name="__main__")
+-    for m in (ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, leaders):
++    for m in (ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, wave7, leaders):
+         m.build()
+     print(write_manifest(), len(REGISTRY), "pieces")
++    print(wave7.proof())
+     keyart.build()
+     fails, over = proofs.build()
+     print("contrast fails:", fails, "| receipt overflow:", over)
+diff --git a/art/od-sevev/src/wave2.py b/art/od-sevev/src/wave2.py
+index 1b5d2db..680c62a 100644
+--- a/art/od-sevev/src/wave2.py
++++ b/art/od-sevev/src/wave2.py
+@@ -287,6 +287,11 @@ def hand_toast_coin():
+ 
+ 
+ # ------------------------------------------------------------------ 11. courthouse window overlay
++# the courthouse echo's spot per era (art px, the sprite's pivot = its bottom centre); read by the engine from
++# sprites.json ui.court_window.spots (court_echo.gd), so a move is an art change
++COURT_SPOTS = {"balfour": [167, 167], "knesset": [158, 166], "washington": [162, 152]}
++
++
+ def court_window():
+     frames = []
+     for lit in (0, 1):
+@@ -309,10 +314,15 @@ def court_window():
+         outline_inplace(L)
+         frames.append(L)
+     save(strip(frames), "court_window", "stage", frames=2, frame_w=24, pivot=[12, 21],
+-         notes="The diegetic echo of suspicion (UX 3.2 #3): a small courthouse in the stage's landmark band whose one window "
+-               "lights at >= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no "
+-               "rim. Suggested spots (art px, pivot): Balfour (150, 70), Knesset (156, 96), Washington (34, 96); the "
+-               "courthouse stage uses its own clock panel instead.")
++         extra={"spots": COURT_SPOTS},
++         notes="The diegetic echo of suspicion (UX 3.2 #3): a small courthouse on the stage whose one window lights at "
++               ">= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no rim. "
++               "`spots` = the pivot per era in stage-art px (the courthouse stage uses its own clock panel: none). Moved "
++               "2026-09-29 (the Animator's ask, mobile-first) from the sky band (Balfour (150, 70), Knesset (156, 96), "
++               "Washington (34, 96)), which the phones crop under Row A / the toast dock, to the stage's right side, clear "
++               "of the leader: Balfour behind the wall right of the lamp, Knesset on the lawn at the colonnade's end, "
++               "Washington in the horizon band right of the mansion. Sprite tops at art rows 146 / 145 / 131, so the "
++               "house sits unclamped under the toast dock on every stage S >= 552 / 556 / 612 logical px.")
+     g = Layer(20, 20)
+     for y in range(20):
+         for x in range(20):
+diff --git a/art/od-sevev/src/wave5.py b/art/od-sevev/src/wave5.py
+index 43805a5..6da0bf8 100644
+--- a/art/od-sevev/src/wave5.py
++++ b/art/od-sevev/src/wave5.py
+@@ -1,25 +1,30 @@
+ """Wave 5: the art gaps the engine and views developers reported (2026-09-29).
+ 
+-  lane_<era>          the Suitcase lane's floor, one horizontal-only tile per era
++  lane_<era>          the Suitcase lane's floor, one 32x28 tile per era (mobile-first A1: was 2x28, horizontal-only)
+   thermo_tube_short   lives in ui_meters.py (the tube is parametric now)
+   spin_s01..s15       redrawn at 24x24 in icons24.py, saved by wave2.spin_cards
+ 
+ The lane. The Suitcase flies in the band S-116..S-4 under the stage, which is the stage art's apron
+ (creative-pack locations.py lower_band: art rows 230-320, a lip on top, flat below). With the new layout
+-that apron is no longer under a UX panel, so a flat dark band reads as missing art. The treatment stays
+-inside the skeleton's rule for that band (flat colour family, extendable) by being HORIZONTAL ONLY: the
+-apron's own lip and dither, a 1-row shadow the lip casts, then paving courses / boards whose spacing
+-grows toward the viewer (4, 5, 6, 7 rows), so it reads as a floor plane in front of the stage. Every
+-column of the tile is the same except the lip dither's 2-px phase, so the engine can tile it across the
+-whole canvas width and a wide phone's side bands carry the same floor as the 720 column (the stage art
+-alone stops at the column edge). No vertical edge ever sits behind the flying Suitcase, and every lane
+-swatch is at least as dark as the era's apron, so the Suitcase's rim keeps its contrast (§3).
++that apron is no longer under a UX panel, so a flat dark band reads as missing art.
++
++v1 of the tile (wave 5) was horizontal-only: every column the same. On the phones the UX measured
++(ux/mobile-first-layout.md V4) that read as a 24-art striped dead strip, because every row was one
++colour. The mobile-first redraw (A1, 2026-09-29) keeps the lip, its dither, the lip's shadow and the
++course seams whose spacing grows toward the viewer (4, 5, 6, 7 rows), and adds horizontal detail:
++running-bond joints (short slabs in the far course, long ones near), a lit pixel on each slab's
++top-left, the press cable that runs across every lane (the TV crews are always there), and a flyer /
++spike-tape mark / dropped page / carpet weave per era. The tile is 32 wide, x-phased on stage-art
++column 0, so the column and a wide phone's side bands carry the same floor. Every lane swatch keeps
++>= 4.5:1 against the Suitcase's pale rim (asserted), so the flying Suitcase still reads on it.
+ 
+ Tile rows 0..27 = stage art rows 230..257 (art row 230 is the lip; the Magician's feet are row 219 =
+-S-156, so S = row 258). Tile col 0 = an even art x (the lip dither's phase: base on even x).
++S-156, so S = row 258). Tile col 0 = stage-art col 0 (mod 32): even, the lip dither's phase.
++plaza_<era> (wave7.py) continues the floor below, from art row 258 down.
+ """
+ from pix import Layer
+ from kit import save
++from palette import contrast
+ 
+ LANES = {
+     # era: (line, base, lip shadow, course top edge, course gap)  -- line/base are the stage art's own
+@@ -28,33 +33,74 @@ LANES = {
+     "courthouse": ("teal_dk", "ink",     "outline", "teal_dk", "outline"),   # corridor tiles under fluorescent teal
+     "washington": ("night",   "navy",    "night",   "night",   "night"),     # a navy carpet with woven stripes
+ }
++# per era: (joint, light, cable, (detail 1, detail 2)); every one >= 4.5:1 against `rim`
++DETAIL = {
++    "balfour":    ("ink",     "suit_dk", "ink",     ("suit", "suit_dk")),     # paving slabs, the cable, a flyer
++    "knesset":    ("ink",     "hair_br", "ink",     ("hair_br", "hair_dk")),  # board ends + nails, the cable, a spike-tape X
++    "courthouse": ("outline", "teal_dk", "outline", ("suit_dk", "teal_dk")),  # corridor tiles, the cable, a dropped page
++    "washington": ("night",   "suit_dk", "ink",     ("night", "suit_dk")),    # the carpet's woven diamonds, the cable
++}
+ COURSES = (7, 12, 18, 25)          # the top row of each course seam (tile rows)
+ H = 28
++W = 32                             # the tile period (art px)
++JOINTS = ((9, 11, 8, 3), (14, 17, 16, 11), (20, 24, 16, 3))   # (first row, last row, spacing, x offset) per course
+ 
+ 
+ def lane(era):
+     line, base, shadow, top, gap = LANES[era]
+-    L = Layer(2, H)
+-    L.rect(0, 0, 2, H, base)
+-    L.hline(0, 1, 0, line)                         # the lip (art row 230)
+-    L.set(1, 1, line)                              # its dither (art row 231: line on odd x)
+-    L.hline(0, 1, 2, shadow)                       # the shadow the lip casts
+-    L.set(0, 3, shadow)                            # ... softening into the floor (50 % checker)
++    joint, light, cable, (d1, d2) = DETAIL[era]
++    L = Layer(W, H)
++    L.rect(0, 0, W, H, base)
++    L.hline(0, W - 1, 0, line)                     # the lip (art row 230)
++    for x in range(1, W, 2):
++        L.set(x, 1, line)                          # its dither (art row 231: line on odd x)
++    L.hline(0, W - 1, 2, shadow)                   # the shadow the lip casts
++    for x in range(0, W, 2):
++        L.set(x, 3, shadow)                        # ... softening into the floor (50 % checker)
+     for y in COURSES:
+-        L.hline(0, 1, y, top)
++        L.hline(0, W - 1, y, top)
+         if gap != top:
+-            L.hline(0, 1, y + 1, gap)
++            L.hline(0, W - 1, y + 1, gap)
++    for (y0, y1, step, off) in JOINTS:             # running bond, key light top-left
++        for x in range(off, W, step):
++            L.vline(x, y0, y1, joint)
++            L.set(x + 1, y0, light)
++    if era == "washington":                        # the carpet: a woven row of small diamonds, a dotted weave
++        for x in range(7, W, 16):
++            for (dx, dy) in ((0, -1), (-1, 0), (1, 0), (0, 1)):
++                L.set(x + dx, 15 + dy, d1)
++        for x in range(0, W, 4):
++            L.set(x, 5, d2)
++    elif era == "knesset":                         # a spike-tape X on the stage floor, nail heads by the board ends
++        for (x, y) in ((22, 4), (24, 4), (23, 5), (22, 6), (24, 6)):
++            L.set(x, y, d1)
++        for x in range(2, W, 8):
++            L.set(x, 10, d2)
++        L.set(12, 15, d2); L.set(28, 15, d2)
++    else:                                          # a flyer (Balfour) / a dropped page (courthouse), and scuffs
++        L.rect(21, 4, 3, 2, d1)
++        L.set(21, 4, light)
++        L.rect(26, 15, 2, 2, d1)
++        L.set(8, 5, d2); L.set(10, 5, d2)
++    # the press cable: across the whole tile, sagging one row in the middle; it enters and leaves on row 22, so it tiles
++    for x in range(W):
++        L.set(x, 23 if 9 <= x < 23 else 22, cable)
++    for c in L.colors():
++        assert contrast("rim", c) >= 4.5, (era, c, contrast("rim", c))
+     return L
+ 
+ 
+ def lanes():
+     for era in LANES:
+         save(lane(era), f"lane_{era}", "stage", mode="tile",
+-             notes=f"Suitcase-lane floor for the {era} stage: a 2x{H} horizontal-only TILE. Draw it at x4 from the stage "
+-                   "art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole "
+-                   "canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the "
+-                   "critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour "
+-                   "(= stages[era].padBottom) plus course seams, so the column and the side bands match.")
++             notes=f"Suitcase-lane floor for the {era} stage: a {W}x{H} TILE (redrawn 2026-09-29 for the mobile-first "
++                   "layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at "
++                   "x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical "
++                   "px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; "
++                   "diorama._place_lane does this for any tile width), above the stage art and pads, under the critters "
++                   "and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= "
++                   "stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> "
++                   "continues the floor below (art row 258 down).")
+ 
+ 
+ def build():
+diff --git a/art/od-sevev/style-guide.md b/art/od-sevev/style-guide.md
+index 5fe2ac3..70effc0 100644
+--- a/art/od-sevev/style-guide.md
++++ b/art/od-sevev/style-guide.md
+@@ -12,7 +12,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
+ 
+ | Deliverable | File |
+ |---|---|
+-| UI kit, 242 pieces (leader select 2026-09-29: 30; wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
++| UI kit, 255 pieces (mobile-first wave 7, 2026-09-29: 13 + the 4 lanes redrawn; leader select 2026-09-29: 30; wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
+ | 9-slice / frame / pivot manifest | `ui-kit.json` |
+ | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
+ | App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (master `icon-128-art.png` = 64 art px at d 2) |
+@@ -514,6 +514,21 @@ hierarchy.
+   - **Press skin icons (UX §4.3):** `thermo_icon_press` 11x11 and `chip_icon_press` 9x9, a folded newspaper (masthead
+     bar, columns), so the press has its own non-colour sign; the gavel stays the court's (Bibi's).
+ 
++### 17.1 Wave 7: the mobile-first layout (`src/wave7.py`, `ux/mobile-first-layout.md` §10, 2026-09-29)
++
++The stages stay the approved 180x320 art; nothing repaints them. The phones' extra columns and rows get art that is
++drawn *around* (wings) and *over* (lane, plaza) the stage on its own x4 grid. Proof: `proofs/kit-w7-mobile.png`
++(every era at 215 and 260 columns), `proofs/kit-w7-brawl-cue.png`.
++
++| Need (UX) | Pieces | Rules |
++|---|---|---|
++| A1 the lane | `lane_<era>` redrawn **32x28** (same ids) | The lip, its dither and the course seams stay; added running-bond joints (8-px slabs far, 16 near), a lit top-left pixel per slab, the press cable (every era: the TV crews are always there), a flyer / spike-tape X / dropped page / carpet weave. Every swatch ≥ 4.5:1 against `rim` (asserted), so the flying Suitcase keeps its edge. |
++| A1 the plaza | `plaza_<era>` **128x96** tile | The floor from art row 258 to the screen bottom. The apron's own base with one-value-step texture: 12-row courses (nearer than the lane's 4-7), slabs 32 wide, broken lit edges, 50 % checker scuffs, sparse litter, the cable meandering off. 128 wide so a phone shows under two copies across and the litter never reads as wallpaper. **No barrier or fence** in it (a fence repeated down the screen would read as a border fence: do/don't 13), no gold, no text. |
++| A2 the wings | `wing_<era>_l` / `_r`, W x 230 | Each era's rows 0-229 continued past the art's edges, tileable with period W = a multiple of the era's rhythm (Balfour 20: wall panels every 10; Knesset 22: the lawn's specks every 11; courthouse 60: panels 30, tubes 60; Washington 36: specks every 9). Drawn in art coordinates on a canvas that wraps x mod W, so an element crossing the art's edge (Balfour's tree and protester, the courthouse benches, Washington's blossom trees) continues exactly and repeats every W; wing-native elements (more protesters with blank signs, an olive tree, an aisle between benches) never cross the wing's own edges. Balfour's protesters are the art's own seeded crowd; its barrier posts go every 10 (the art's are 9 apart, which does not tile). |
++| A3 the XL picker heads | `avatar_pick_<c>_d3` 96, `_d2` 64 (TA render-down, `showcase/src/build.py` `avatar_pick_xl`) | First-generation crops from the ref (never an upscale of the 32), the leader's locked d 3 palette, binary alpha, the same neutral `rim` ring (4 px: 8 logical at the picker's 2 logical per px, the 32's weight at x4) and cream disc. |
++| Animator: brawl cue | `brawl_cloud_cue` 26x20 x 4 | `brawl_cloud`'s loop redrawn at half size so the stage cue draws at x4 (the grid) instead of x2: the same puffs, shading bands, sleeves with cuffs and fists, shoes, the flying page and star; limbs keep their fist inside the frame. |
++| Animator: court echo | `court_window` `spots` (data) | Moved out of the sky band (the phones crop art rows < ~110 under Row A and the toast dock) to the right side, clear of the leader: Balfour (167, 167) behind the wall, right of the lamp; Knesset (158, 166) on the lawn at the colonnade's end; Washington (162, 152) in the horizon band right of the mansion. |
++
+ ## 18. Foundations (referenced, not paraphrased)
+ 
+ v1 §15's list stands (colour theory, palette construction, squint test, colour-blindness redundancy,
+diff --git a/art/od-sevev/ui-kit.json b/art/od-sevev/ui-kit.json
+index dfab1ed..11cf7aa 100644
+--- a/art/od-sevev/ui-kit.json
++++ b/art/od-sevev/ui-kit.json
+@@ -1163,6 +1163,20 @@
+    ],
+    "notes": "Dust-cloud brawl (brief round 2: Amsalem vs Smotrich, recurring for any pair). 4-frame loop; the cloud sits over the two frozen income rows / the chat line. Sleeves, fists, shoes, a flying page: NO faces, no kippot, no religious markers, no weapons. Suggested 8 fps; timing is the Animator's; reduced motion = frame 0."
+   },
++  {
++   "id": "brawl_cloud_cue",
++   "group": "events",
++   "file": "out/ui/events/brawl_cloud_cue.png",
++   "w": 104,
++   "h": 20,
++   "frames": 4,
++   "frameW": 26,
++   "pivot": [
++    13,
++    18
++   ],
++   "notes": "The brawl cloud cut for the STAGE CUE (the Animator's ask): brawl_cloud's 4-frame loop redrawn at 26x20 so the cue draws at the stage's own x4 (104x80 logical, the same box as brawl_cloud at x2) and is crisp at every k. Same frames, order and timing as brawl_cloud (8 fps; reduced motion = frame 0); the same choreography of sleeves, fists, shoes, a page and a star at half size. No faces, no markers. brawl_cloud (52x40) stays for the thread's inline cloud at x4."
++  },
+   {
+    "id": "chip_court",
+    "group": "events",
+@@ -2711,7 +2725,21 @@
+     12,
+     21
+    ],
+-   "notes": "The diegetic echo of suspicion (UX 3.2 #3): a small courthouse in the stage's landmark band whose one window lights at >= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no rim. Suggested spots (art px, pivot): Balfour (150, 70), Knesset (156, 96), Washington (34, 96); the courthouse stage uses its own clock panel instead."
++   "notes": "The diegetic echo of suspicion (UX 3.2 #3): a small courthouse on the stage whose one window lights at >= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no rim. `spots` = the pivot per era in stage-art px (the courthouse stage uses its own clock panel: none). Moved 2026-09-29 (the Animator's ask, mobile-first) from the sky band (Balfour (150, 70), Knesset (156, 96), Washington (34, 96)), which the phones crop under Row A / the toast dock, to the stage's right side, clear of the leader: Balfour behind the wall right of the lamp, Knesset on the lawn at the colonnade's end, Washington in the horizon band right of the mansion. Sprite tops at art rows 146 / 145 / 131, so the house sits unclamped under the toast dock on every stage S >= 552 / 556 / 612 logical px.",
++   "spots": {
++    "balfour": [
++     167,
++     167
++    ],
++    "knesset": [
++     158,
++     166
++    ],
++    "washington": [
++     162,
++     152
++    ]
++   }
+   },
+   {
+    "id": "court_window_glow",
+@@ -2729,33 +2757,33 @@
+    "id": "lane_balfour",
+    "group": "stage",
+    "file": "out/ui/stage/lane_balfour.png",
+-   "w": 2,
++   "w": 32,
+    "h": 28,
+-   "notes": "Suitcase-lane floor for the balfour stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
++   "notes": "Suitcase-lane floor for the balfour stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
+   },
+   {
+    "id": "lane_courthouse",
+    "group": "stage",
+    "file": "out/ui/stage/lane_courthouse.png",
+-   "w": 2,
++   "w": 32,
+    "h": 28,
+-   "notes": "Suitcase-lane floor for the courthouse stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
++   "notes": "Suitcase-lane floor for the courthouse stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
+   },
+   {
+    "id": "lane_knesset",
+    "group": "stage",
+    "file": "out/ui/stage/lane_knesset.png",
+-   "w": 2,
++   "w": 32,
+    "h": 28,
+-   "notes": "Suitcase-lane floor for the knesset stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
++   "notes": "Suitcase-lane floor for the knesset stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
+   },
+   {
+    "id": "lane_washington",
+    "group": "stage",
+    "file": "out/ui/stage/lane_washington.png",
+-   "w": 2,
++   "w": 32,
+    "h": 28,
+-   "notes": "Suitcase-lane floor for the washington stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
++   "notes": "Suitcase-lane floor for the washington stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
+   },
+   {
+    "id": "laundry_bag",
+@@ -2813,6 +2841,42 @@
+    ],
+    "notes": "Washington era: laundry flying out of the 'מזוודות כביסה' (WaPo 2020, denied). Decorative, no rim. Tumble/drift is the Animator's."
+   },
++  {
++   "id": "plaza_balfour",
++   "group": "stage",
++   "file": "out/ui/stage/plaza_balfour.png",
++   "w": 128,
++   "h": 96,
++   "notes": "The plaza in front of the balfour stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_balfour) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "artRow": 258
++  },
++  {
++   "id": "plaza_courthouse",
++   "group": "stage",
++   "file": "out/ui/stage/plaza_courthouse.png",
++   "w": 128,
++   "h": 96,
++   "notes": "The plaza in front of the courthouse stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_courthouse) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "artRow": 258
++  },
++  {
++   "id": "plaza_knesset",
++   "group": "stage",
++   "file": "out/ui/stage/plaza_knesset.png",
++   "w": 128,
++   "h": 96,
++   "notes": "The plaza in front of the knesset stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_knesset) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "artRow": 258
++  },
++  {
++   "id": "plaza_washington",
++   "group": "stage",
++   "file": "out/ui/stage/plaza_washington.png",
++   "w": 128,
++   "h": 96,
++   "notes": "The plaza in front of the washington stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_washington) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "artRow": 258
++  },
+   {
+    "id": "sweat_drop",
+    "group": "stage",
+@@ -2825,6 +2889,118 @@
+    ],
+    "notes": "The Magician's sweat drop at suspicion >= 75% (Animator's optional echo). Placement on his temple: the Animator's anchor."
+   },
++  {
++   "id": "wing_balfour_l",
++   "group": "stage",
++   "file": "out/ui/stage/wing_balfour_l.png",
++   "w": 20,
++   "h": 230,
++   "pivot": [
++    20,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), left: the balfour stage's art rows 0-229 continued past the 180-column art, a 20x230 horizontal TILE (period 20: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 20
++  },
++  {
++   "id": "wing_balfour_r",
++   "group": "stage",
++   "file": "out/ui/stage/wing_balfour_r.png",
++   "w": 20,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), right: the balfour stage's art rows 0-229 continued past the 180-column art, a 20x230 horizontal TILE (period 20: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 20
++  },
++  {
++   "id": "wing_courthouse_l",
++   "group": "stage",
++   "file": "out/ui/stage/wing_courthouse_l.png",
++   "w": 60,
++   "h": 230,
++   "pivot": [
++    60,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), left: the courthouse stage's art rows 0-229 continued past the 180-column art, a 60x230 horizontal TILE (period 60: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 60
++  },
++  {
++   "id": "wing_courthouse_r",
++   "group": "stage",
++   "file": "out/ui/stage/wing_courthouse_r.png",
++   "w": 60,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), right: the courthouse stage's art rows 0-229 continued past the 180-column art, a 60x230 horizontal TILE (period 60: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 60
++  },
++  {
++   "id": "wing_knesset_l",
++   "group": "stage",
++   "file": "out/ui/stage/wing_knesset_l.png",
++   "w": 22,
++   "h": 230,
++   "pivot": [
++    22,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), left: the knesset stage's art rows 0-229 continued past the 180-column art, a 22x230 horizontal TILE (period 22: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 22
++  },
++  {
++   "id": "wing_knesset_r",
++   "group": "stage",
++   "file": "out/ui/stage/wing_knesset_r.png",
++   "w": 22,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), right: the knesset stage's art rows 0-229 continued past the 180-column art, a 22x230 horizontal TILE (period 22: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 22
++  },
++  {
++   "id": "wing_washington_l",
++   "group": "stage",
++   "file": "out/ui/stage/wing_washington_l.png",
++   "w": 36,
++   "h": 230,
++   "pivot": [
++    36,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), left: the washington stage's art rows 0-229 continued past the 180-column art, a 36x230 horizontal TILE (period 36: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 36
++  },
++  {
++   "id": "wing_washington_r",
++   "group": "stage",
++   "file": "out/ui/stage/wing_washington_r.png",
++   "w": 36,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), right: the washington stage's art rows 0-229 continued past the 180-column art, a 36x230 horizontal TILE (period 36: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 36
++  },
+   {
+    "id": "ticker_bar",
+    "group": "ticker",
+diff --git a/creative-pack/art/showcase/src/build.py b/creative-pack/art/showcase/src/build.py
+index 9e73968..30dcc6d 100644
+--- a/creative-pack/art/showcase/src/build.py
++++ b/creative-pack/art/showcase/src/build.py
+@@ -110,6 +110,7 @@ def render_char(char, fn, avatar_args=None):
+             avatar(rig, *avatar_args)
+             if char in LEADERS:
+                 avatar(rig, avatar_args[0], avatar_args[1], (214, 204, 236, 255), sizes=((32, 2, '_pick'), (24, 1, '24_pick')))
++                avatar_pick_xl(rig, avatar_args[0], avatar_args[1])
+     snap_tracks(atlas['chars'][char])
+     same_motion(char, atlas['chars'][char], atlas['chars'][char].get('densities', {}))
+ 
+@@ -169,6 +170,40 @@ def avatar(rig, head_box_ref, name, ring, sizes=((32, 2, ''), (24, 1, '24'))):
+         out.save(os.path.join(OUT, name + '_avatar' + suffix + '.png'))
+ 
+ 
++PICK_XL = ((96, '_pick_d3'), (64, '_pick_d2'))   # (size, suffix): the picker's XL avatars (UX mobile-first A3)
++
++
++def avatar_pick_xl(rig, head_box_ref, name, ring=(214, 204, 236, 255)):
++    """The leader picker's large avatars (ux/mobile-first-layout.md §5.8, A3): the same head crop, neutral ring and
++    cream disc as <name>_avatar_pick.png (32), rendered from the ref at 96 px (<name>_avatar_pick_d3.png, for the
++    192-logical avatar) and 64 px (<name>_avatar_pick_d2.png, for the 128-logical one), each drawn at 2 logical px per
++    sprite px, so crisp at every even k. First-generation crops from the ref (never an upscale of the 32), quantised
++    to the character's locked d 3 palette, binary alpha. The ring is 4 px at both sizes (8 logical, the 32's 2 px at
++    x4); the face sits where the 32's does, scaled (x offset size/32, y offset size/16)."""
++    for size, suffix in PICK_XL:
++        u = size / 32
++        cv = rig.canvas()
++        x0, y0 = rig.c(head_box_ref[0], head_box_ref[1])
++        x1, y1 = rig.c(head_box_ref[2], head_box_ref[3])
++        side = max(x1 - x0, y1 - y0)
++        fw = round(30 * u)
++        crop = cv.crop((x0, y0, x0 + side, y0 + side)).resize((fw, fw), Image.LANCZOS)
++        a = crop.getchannel('A').point(lambda v: 255 if v > 118 else 0)
++        rgb = crop.convert('RGB').quantize(palette=rig.palette, dither=Image.Dither.NONE).convert('RGBA')
++        rgb.putalpha(a)
++        r = 4
++        out = Image.new('RGBA', (size, size), (0, 0, 0, 0))
++        d = ImageDraw.Draw(out)
++        d.ellipse([0, 0, size - 1, size - 1], fill=ring)
++        d.ellipse([r, r, size - 1 - r, size - 1 - r], fill=(236, 228, 214, 255))
++        face = Image.new('RGBA', (size, size), (0, 0, 0, 0))
++        face.alpha_composite(rgb, (round(u), round(2 * u)))
++        m = Image.new('L', (size, size), 0)
++        ImageDraw.Draw(m).ellipse([r, r, size - 1 - r, size - 1 - r], fill=255)
++        out.paste(face, (0, 0), Image.composite(face.getchannel('A'), Image.new('L', (size, size), 0), m))
++        out.save(os.path.join(OUT, name + '_avatar' + suffix + '.png'))
++
++
+ # ---------------------------------------------------------------- props (drawn at art resolution)
+ P = {'K': (20, 16, 24, 255), 'D': (42, 36, 51, 255), 'M': (61, 53, 71, 255), 'H': (98, 88, 112, 255),
+      'I': (8, 6, 12, 255), 'B': (0, 56, 184, 255), 'b': (58, 104, 222, 255),
+diff --git a/game/assets/sprites/CONTRACT.md b/game/assets/sprites/CONTRACT.md
+index e653f76..c556aa6 100644
+--- a/game/assets/sprites/CONTRACT.md
++++ b/game/assets/sprites/CONTRACT.md
+@@ -18,6 +18,9 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun
+ | `sprites/prop_<name>.png` (kit) | The leaders' tap props (2D Artist, 2026-09-29): `prop_pen`, `prop_phone`, `prop_chair`, `prop_ruler`, `prop_calculator`, `prop_coffee`, `prop_stapler`: 2-frame strips (rest, squash), d 1, a `pivot` for `propMouth` and `points.mouth` per frame (§4c) | `sprites.json.ui[id]`, `chars[c].prop` |
+ | `sprites/<leader-select ui id>.png` | `suitcase_plain` (+ `_norim`), `spin_slot_{A,B,C,D,E,G,H,I}` (24×24), `pick_tile_{idle,pressed,focus,selected}` (9-slice; focus/selected 1 art px larger each side), `pick_random`, `thermo_icon_press`, `chip_icon_press`, `source_donor`, `source_funds` (+ icons, silhouettes) | `Art.tex(id)`, `sprites.json.ui[id]`, `sources[id]` |
+ | `sprites/stage_<era>.png` | `stage_balfour`, `stage_knesset`, `stage_courthouse`, `stage_washington`, 180×320 | `eras.list[].background` |
++| `sprites/lane_<era>.png`, `plaza_<era>.png`, `wing_<era>_{l,r}.png` | The stage's floor and sides for the mobile-first layout (2D Artist, 2026-09-29, UX A1/A2): the lane 32×28, the plaza 128×96, the wings W×230 (W: balfour 20, knesset 22, courthouse 60, washington 36). All tiles, §3 | `diorama.gd` `_place_lane` / `_place_plaza` / `_place_wings` (data-driven: no piece, nothing drawn) |
++| `sprites/avatar_pick_<c>_d3.png`, `avatar_pick_<c>_d2.png` | The picker's XL heads (UX A3), 96×96 and 64×64, the 8 leaders | `chars[c].avatarPick96` / `avatarPick64` (§4c) |
++| `sprites/brawl_cloud_cue.png` | The brawl cloud cut for the stage cue: 4 frames of 26×20 (UX / Animator) | `Art.tex("brawl_cloud_cue", f)`, `sprites.json.ui` |
+ | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
+ | `sprites/<ui id>.png` | The 2D Artist's UI kit, 212 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
+ | `fonts/sevev9.fnt` | **Sevev 9**, the Hebrew pixel font (a BMFont; Godot imports it as a `FontFile`) | `load("res://assets/fonts/sevev9.fnt")` |
+@@ -111,9 +114,30 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
+   skeleton keeps rows 0-40 and 230-320 flat for exactly this.
+   - `padBottom` is the apron's colour (art rows 240-318), not the 1-row rule at row 319
+     (fixed 2026-09-29: it differed in every era, a grey strip beside the Suitcase lane).
+-  - **The lane floor** (2D Artist, 2026-09-29): kit `lane_<era>` is a 2×28 horizontal-only
+-    tile from art row 230 (the apron lip) down; `diorama.gd` `_place_lane` tiles it across the
+-    whole canvas width at ×4, x-phase on an even stage-art column, above the stage art.
++  - **The lane floor** (2D Artist, 2026-09-29; redrawn for the mobile-first layout the same day):
++    kit `lane_<era>` is a **32×28** tile from art row 230 (the apron lip) to 257, with horizontal
++    detail (slab/board joints, the press cable, a flyer), so no lane row is one colour (UX S8).
++    `diorama.gd` `_place_lane` tiles it across the whole canvas width at ×4, tile column 0 on
++    stage-art column 0 (it reads the width), above the stage art. Every lane swatch keeps ≥ 4.5:1
++    against the Suitcase's rim.
++  - **The plaza** (UX A1): kit `plaza_<era>`, a **128×96** tile (both axes, `artRow: 258`), drawn by
++    `_place_plaza` from art row 258 (under the lane) down `PLAZA_ROWS` = 320 art rows (1280 logical;
++    more than any canvas of the matrix shows), across the whole width, tile column 0 on art column 0,
++    **over** the stage art's flat apron rows 258-319. It is what the pre-tap state and the picker's
++    scrim show below the stage (ux/mobile-first-layout.md §3.3, §5.9). `diorama.floor_reach()` =
++    the logical px of floor art under the stage bottom (1280 when the stages ship a plaza, else 0);
++    `main.gd` starts its flat `_title_floor` there, so the fill never covers the plaza. The base is
++    the apron colour, so `padBottom` (the clear colour) stays right.
++  - **The wings** (UX A2): kit `wing_<era>_l` / `wing_<era>_r`, **W×230** (art rows 0-229), W per era
++    (balfour 20, knesset 22, courthouse 60, washington 36: a multiple of the era's own horizontal
++    rhythm; `period` in the entry). `_place_wings` tiles the left one leftward so its **last** column
++    abuts art column 0, the right one rightward from art column **180**, out to ±`_extend_x`, at ×4
++    with the top on art row 0 (`artRow: 0`). They sit beside the art (never over it), over the sky
++    pads, under the lane; seam-exact against the art's edge column and against themselves. The
++    canvas is up to 215 art columns on the matrix (17.5 beside the art per side), so one copy covers
++    every phone; wider canvases tile.
++  - **Washington's rows 154-169** are unpainted in the approved art (277 transparent px beside the
++    trees): the padTop sky shows there, as it always has. Its wings paint `sky` in those rows to match.
+ - **The Magician's feet** go at `magicianFeet` = (94, 219) art px on every stage, which is the
+   approved showcase placement: x 94 on the floor line.
+ 
+@@ -228,6 +252,12 @@ its react / crit, tap), at d 3 and d 2.
+   `avatar24_pick_<c>`, the 8 leaders): the chat avatars' heads on one neutral ring. Use these on the picker tiles
+   (UX §8.3: L = 32 at ×4, M = 24 at ×4, S = 32 at ×2), never the chat avatars, whose react-coloured rings read as
+   party or bloc colours.
++  - **XL (UX mobile-first §5.8, A3; 2026-09-29):** `chars[c].avatarPick96` = `avatar_pick_<c>_d3` (96×96, cropped from
++    the ref for the d 3 cast, quantised to its d 3 palette) for **A = 192**, and `chars[c].avatarPick64` =
++    `avatar_pick_<c>_d2` (64×64) for **A = 128**. Draw either at **2 logical px per sprite px** (A / size), which is
++    k / 2 device px: crisp at every even k. The same head crop, the same neutral `rim` ring (4 px = 8 logical, the 32's
++    2 px at ×4) and cream disc as the 32. A = 96 / 64 keep the 32 at ×3 / ×2. Only the size the device picks needs to
++    be loaded, and only while the picker is open.
+ - **`chars[c].prop`** = `{"id": <kit id>, "baked": bool, "track": "propMouth" | "hatMouth", "path": "held" | "hop" |
+   "push"}`:
+   - `baked: true` (Bibi's hat, Smotrich's calculator, Deri's cup): the prop is in the render. **Draw no loose prop**;
+@@ -309,6 +339,14 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for
+ - `pivot`: the anchor point in art px.
+ - `state`, `label`, `liquid`, `zones`, `textColumn`, `exportScale`: the 2D Artist's data. See
+   their notes in `art/od-sevev/ui-kit.json`.
++- `spots` (on `court_window`): the courthouse echo's pivot per era, stage-art px
++  (`CourtEcho.spot` reads it; moved 2026-09-29 to Balfour (167, 167), Knesset (158, 166),
++  Washington (162, 152), so the house is below art row 110 and stays in place on phones).
++- `artRow`, `period` (on `plaza_<era>` / `wing_<era>_*`): the art row the piece's top sits on, and
++  a wing's tile period (= its width), §3.
++- `brawl_cloud_cue` (26×20, 4 frames, pivot [13, 18]): the brawl cloud for the stage cue at the
++  stage's own ×4 (104×80 logical, the box the ×2 `brawl_cloud` fills today); same frame count,
++  order and 8 fps. `brawl_cloud` (52×40) stays for the thread's inline cloud at ×4.
+ 
+ ## 6. Fonts: Sevev 9
+ - **Where it's used:** every Hebrew or mixed string goes through a `Label` or `RichTextLabel`
+@@ -417,6 +455,13 @@ ascender 4, body 10, descender 4), so at the same box each @2 px is 2×2 device
+     **12.30 MB** at k 3/6/7/9 (was 12.05) and **6.64 MB** at k 2/4/8 (was 6.45). Web `.pck` art:
+     **5.29 MB** (was 4.48; +0.77 MB the 7 leaders' tap strips, +25 KB the kit pieces, advisers and
+     picker avatars).
++  - **Mobile-first art (2026-09-29):** the lanes, 4 plazas, 8 wings, the brawl cue and the 16 XL
++    picker avatars. `budget.json` counts every kit piece and every avatar as resident, so it reads
++    **13.07 MB** at k 3/6/7/9 and **7.41 MB** at k 2/4/8 (+0.77 MB). What is really resident is one
++    era's lane + plaza + two wings (≤ 0.17 MB, the courthouse's; 0.09 MB for Balfour) and, only while
++    the picker is open, one XL size (96: 0.29 MB, 64: 0.13 MB). Web `.pck` art **5.34 MB** (+43 KB).
++    Fill: the plaza is one extra textured layer under the lower panels (off-screen or covered in
++    the main state); the wings add two small quads.
+   - **Keep resident:** Bibi, the current stage, the rendered sources, the UI kit, the fonts
+     and the avatars. That is 1.9 MB plus Bibi and the sources, and **only the render
+     `pick_variant` picks is loaded** (SpriteStrip; the diorama through `Art.source`):
+diff --git a/game/assets/sprites/lane_balfour.png b/game/assets/sprites/lane_balfour.png
+index 1f20c25..4c54a3c 100644
+Binary files a/game/assets/sprites/lane_balfour.png and b/game/assets/sprites/lane_balfour.png differ
+diff --git a/game/assets/sprites/lane_courthouse.png b/game/assets/sprites/lane_courthouse.png
+index cbf78a2..ce5add6 100644
+Binary files a/game/assets/sprites/lane_courthouse.png and b/game/assets/sprites/lane_courthouse.png differ
+diff --git a/game/assets/sprites/lane_knesset.png b/game/assets/sprites/lane_knesset.png
+index 842fd06..6a18c03 100644
+Binary files a/game/assets/sprites/lane_knesset.png and b/game/assets/sprites/lane_knesset.png differ
+diff --git a/game/assets/sprites/lane_washington.png b/game/assets/sprites/lane_washington.png
+index 797fcb3..18581b2 100644
+Binary files a/game/assets/sprites/lane_washington.png and b/game/assets/sprites/lane_washington.png differ
+diff --git a/game/assets/sprites/sprites.json b/game/assets/sprites/sprites.json
+index edddefc..6c6137a 100644
+--- a/game/assets/sprites/sprites.json
++++ b/game/assets/sprites/sprites.json
+@@ -1210,7 +1210,9 @@
+    "avatar": "avatar_bibi",
+    "avatar24": "avatar24_bibi",
+    "avatarPick": "avatar_pick_bibi",
+-   "avatar24Pick": "avatar24_pick_bibi"
++   "avatar24Pick": "avatar24_pick_bibi",
++   "avatarPick96": "avatar_pick_bibi_d3",
++   "avatarPick64": "avatar_pick_bibi_d2"
+   },
+   "sara": {
+    "frameW": 157,
+@@ -2118,7 +2120,9 @@
+    "avatar": "avatar_bennett",
+    "avatar24": "avatar24_bennett",
+    "avatarPick": "avatar_pick_bennett",
+-   "avatar24Pick": "avatar24_pick_bennett"
++   "avatar24Pick": "avatar24_pick_bennett",
++   "avatarPick96": "avatar_pick_bennett_d3",
++   "avatarPick64": "avatar_pick_bennett_d2"
+   },
+   "regev": {
+    "frameW": 204,
+@@ -3088,7 +3092,9 @@
+    "avatar": "avatar_deri",
+    "avatar24": "avatar24_deri",
+    "avatarPick": "avatar_pick_deri",
+-   "avatar24Pick": "avatar24_pick_deri"
++   "avatar24Pick": "avatar24_pick_deri",
++   "avatarPick96": "avatar_pick_deri_d3",
++   "avatarPick64": "avatar_pick_deri_d2"
+   },
+   "levin": {
+    "frameW": 165,
+@@ -3966,7 +3972,9 @@
+    "avatar": "avatar_ben-gvir",
+    "avatar24": "avatar24_ben-gvir",
+    "avatarPick": "avatar_pick_ben-gvir",
+-   "avatar24Pick": "avatar24_pick_ben-gvir"
++   "avatar24Pick": "avatar24_pick_ben-gvir",
++   "avatarPick96": "avatar_pick_ben-gvir_d3",
++   "avatarPick64": "avatar_pick_ben-gvir_d2"
+   },
+   "goldknopf": {
+    "frameW": 189,
+@@ -5064,7 +5072,9 @@
+    "avatar": "avatar_smotrich",
+    "avatar24": "avatar24_smotrich",
+    "avatarPick": "avatar_pick_smotrich",
+-   "avatar24Pick": "avatar24_pick_smotrich"
++   "avatar24Pick": "avatar24_pick_smotrich",
++   "avatarPick96": "avatar_pick_smotrich_d3",
++   "avatarPick64": "avatar_pick_smotrich_d2"
+   },
+   "amsalem": {
+    "frameW": 204,
+@@ -6034,7 +6044,9 @@
+    "avatar": "avatar_eisenkot",
+    "avatar24": "avatar24_eisenkot",
+    "avatarPick": "avatar_pick_eisenkot",
+-   "avatar24Pick": "avatar24_pick_eisenkot"
++   "avatar24Pick": "avatar24_pick_eisenkot",
++   "avatarPick96": "avatar_pick_eisenkot_d3",
++   "avatarPick64": "avatar_pick_eisenkot_d2"
+   },
+   "gantz": {
+    "frameW": 123,
+@@ -6986,7 +6998,9 @@
+    "avatar": "avatar_liberman",
+    "avatar24": "avatar24_liberman",
+    "avatarPick": "avatar_pick_liberman",
+-   "avatar24Pick": "avatar24_pick_liberman"
++   "avatar24Pick": "avatar24_pick_liberman",
++   "avatarPick96": "avatar_pick_liberman_d3",
++   "avatarPick64": "avatar_pick_liberman_d2"
+   },
+   "golan": {
+    "frameW": 119,
+@@ -7772,7 +7786,9 @@
+    "avatar": "avatar_golan",
+    "avatar24": "avatar24_golan",
+    "avatarPick": "avatar_pick_golan",
+-   "avatar24Pick": "avatar24_pick_golan"
++   "avatar24Pick": "avatar24_pick_golan",
++   "avatarPick96": "avatar_pick_golan_d3",
++   "avatarPick64": "avatar_pick_golan_d2"
+   },
+   "abbas": {
+    "frameW": 145,
+@@ -9951,6 +9967,18 @@
+     36
+    ]
+   },
++  "brawl_cloud_cue": {
++   "id": "brawl_cloud_cue",
++   "group": "events",
++   "w": 104,
++   "h": 20,
++   "frames": 4,
++   "frameW": 26,
++   "pivot": [
++    13,
++    18
++   ]
++  },
+   "chip_court": {
+    "id": "chip_court",
+    "group": "events",
+@@ -11257,7 +11285,21 @@
+    "pivot": [
+     12,
+     21
+-   ]
++   ],
++   "spots": {
++    "balfour": [
++     167,
++     167
++    ],
++    "knesset": [
++     158,
++     166
++    ],
++    "washington": [
++     162,
++     152
++    ]
++   }
+   },
+   "court_window_glow": {
+    "id": "court_window_glow",
+@@ -11272,25 +11314,25 @@
+   "lane_balfour": {
+    "id": "lane_balfour",
+    "group": "stage",
+-   "w": 2,
++   "w": 32,
+    "h": 28
+   },
+   "lane_courthouse": {
+    "id": "lane_courthouse",
+    "group": "stage",
+-   "w": 2,
++   "w": 32,
+    "h": 28
+   },
+   "lane_knesset": {
+    "id": "lane_knesset",
+    "group": "stage",
+-   "w": 2,
++   "w": 32,
+    "h": 28
+   },
+   "lane_washington": {
+    "id": "lane_washington",
+    "group": "stage",
+-   "w": 2,
++   "w": 32,
+    "h": 28
+   },
+   "laundry_bag": {
+@@ -11339,6 +11381,34 @@
+     4
+    ]
+   },
++  "plaza_balfour": {
++   "id": "plaza_balfour",
++   "group": "stage",
++   "w": 128,
++   "h": 96,
++   "artRow": 258
++  },
++  "plaza_courthouse": {
++   "id": "plaza_courthouse",
++   "group": "stage",
++   "w": 128,
++   "h": 96,
++   "artRow": 258
++  },
++  "plaza_knesset": {
++   "id": "plaza_knesset",
++   "group": "stage",
++   "w": 128,
++   "h": 96,
++   "artRow": 258
++  },
++  "plaza_washington": {
++   "id": "plaza_washington",
++   "group": "stage",
++   "w": 128,
++   "h": 96,
++   "artRow": 258
++  },
+   "sweat_drop": {
+    "id": "sweat_drop",
+    "group": "stage",
+@@ -11349,6 +11419,102 @@
+     5
+    ]
+   },
++  "wing_balfour_l": {
++   "id": "wing_balfour_l",
++   "group": "stage",
++   "w": 20,
++   "h": 230,
++   "pivot": [
++    20,
++    0
++   ],
++   "artRow": 0,
++   "period": 20
++  },
++  "wing_balfour_r": {
++   "id": "wing_balfour_r",
++   "group": "stage",
++   "w": 20,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "artRow": 0,
++   "period": 20
++  },
++  "wing_courthouse_l": {
++   "id": "wing_courthouse_l",
++   "group": "stage",
++   "w": 60,
++   "h": 230,
++   "pivot": [
++    60,
++    0
++   ],
++   "artRow": 0,
++   "period": 60
++  },
++  "wing_courthouse_r": {
++   "id": "wing_courthouse_r",
++   "group": "stage",
++   "w": 60,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "artRow": 0,
++   "period": 60
++  },
++  "wing_knesset_l": {
++   "id": "wing_knesset_l",
++   "group": "stage",
++   "w": 22,
++   "h": 230,
++   "pivot": [
++    22,
++    0
++   ],
++   "artRow": 0,
++   "period": 22
++  },
++  "wing_knesset_r": {
++   "id": "wing_knesset_r",
++   "group": "stage",
++   "w": 22,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "artRow": 0,
++   "period": 22
++  },
++  "wing_washington_l": {
++   "id": "wing_washington_l",
++   "group": "stage",
++   "w": 36,
++   "h": 230,
++   "pivot": [
++    36,
++    0
++   ],
++   "artRow": 0,
++   "period": 36
++  },
++  "wing_washington_r": {
++   "id": "wing_washington_r",
++   "group": "stage",
++   "w": 36,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "artRow": 0,
++   "period": 36
++  },
+   "ticker_bar": {
+    "id": "ticker_bar",
+    "group": "ticker",
+@@ -12139,6 +12305,22 @@
+     32
+    ]
+   },
++  "avatar_pick_ben-gvir_d2.png": {
++   "bytes": 6385,
++   "sha": "5190419319a3c7bf",
++   "size": [
++    64,
++    64
++   ]
++  },
++  "avatar_pick_ben-gvir_d3.png": {
++   "bytes": 12507,
++   "sha": "098b6f23b0688abc",
++   "size": [
++    96,
++    96
++   ]
++  },
+   "avatar_pick_bennett.png": {
+    "bytes": 1821,
+    "sha": "f384a9f7b39d138f",
+@@ -12147,6 +12329,22 @@
+     32
+    ]
+   },
++  "avatar_pick_bennett_d2.png": {
++   "bytes": 4949,
++   "sha": "e9e7b571d8afb5d5",
++   "size": [
++    64,
++    64
++   ]
++  },
++  "avatar_pick_bennett_d3.png": {
++   "bytes": 9645,
++   "sha": "0a18704faac2a337",
++   "size": [
++    96,
++    96
++   ]
++  },
+   "avatar_pick_bibi.png": {
+    "bytes": 2048,
+    "sha": "fddb4fab51b45338",
+@@ -12155,6 +12353,22 @@
+     32
+    ]
+   },
++  "avatar_pick_bibi_d2.png": {
++   "bytes": 5917,
++   "sha": "f790743904ce278f",
++   "size": [
++    64,
++    64
++   ]
++  },
++  "avatar_pick_bibi_d3.png": {
++   "bytes": 10889,
++   "sha": "94c9269267bc38c4",
++   "size": [
++    96,
++    96
++   ]
++  },
+   "avatar_pick_deri.png": {
+    "bytes": 1770,
+    "sha": "354059125d77367b",
+@@ -12163,6 +12377,22 @@
+     32
+    ]
+   },
++  "avatar_pick_deri_d2.png": {
++   "bytes": 5041,
++   "sha": "a57b405a2c57d1d2",
++   "size": [
++    64,
++    64
++   ]
++  },
++  "avatar_pick_deri_d3.png": {
++   "bytes": 9745,
++   "sha": "b88b16010bb7b159",
++   "size": [
++    96,
++    96
++   ]
++  },
+   "avatar_pick_eisenkot.png": {
+    "bytes": 1538,
+    "sha": "6b55291f81dcd92e",
+@@ -12171,6 +12401,22 @@
+     32
+    ]
+   },
++  "avatar_pick_eisenkot_d2.png": {
++   "bytes": 4502,
++   "sha": "20dd78edc3735da7",
++   "size": [
++    64,
++    64
++   ]
++  },
++  "avatar_pick_eisenkot_d3.png": {
++   "bytes": 8253,
++   "sha": "156d26228e880a4e",
++   "size": [
++    96,
++    96
++   ]
++  },
+   "avatar_pick_golan.png": {
+    "bytes": 1617,
+    "sha": "c7080d90fe34a384",
+@@ -12179,6 +12425,22 @@
+     32
+    ]
+   },
++  "avatar_pick_golan_d2.png": {
++   "bytes": 4557,
++   "sha": "40dde157c3cf7265",
++   "size": [
++    64,
++    64
++   ]
++  },
++  "avatar_pick_golan_d3.png": {
++   "bytes": 8378,
++   "sha": "e5f2ca659d8f1420",
++   "size": [
++    96,
++    96
++   ]
++  },
+   "avatar_pick_liberman.png": {
+    "bytes": 1619,
+    "sha": "9a2fd555ded5ecd7",
+@@ -12187,6 +12449,22 @@
+     32
+    ]
+   },
++  "avatar_pick_liberman_d2.png": {
++   "bytes": 4477,
++   "sha": "d7819e4d271d9582",
++   "size": [
++    64,
++    64
++   ]
++  },
++  "avatar_pick_liberman_d3.png": {
++   "bytes": 8399,
++   "sha": "138f96ae0b1bdd4d",
++   "size": [
++    96,
++    96
++   ]
++  },
+   "avatar_pick_smotrich.png": {
+    "bytes": 1564,
+    "sha": "8edd1ce05dd28acb",
+@@ -12195,6 +12473,22 @@
+     32
+    ]
+   },
++  "avatar_pick_smotrich_d2.png": {
++   "bytes": 4710,
++   "sha": "5c59d1bea5c1836d",
++   "size": [
++    64,
++    64
++   ]
++  },
++  "avatar_pick_smotrich_d3.png": {
++   "bytes": 9186,
++   "sha": "d735457c19db3c0f",
++   "size": [
++    96,
++    96
++   ]
++  },
+   "avatar_regev.png": {
+    "bytes": 2060,
+    "sha": "9df2477ee564fb89",
+@@ -12243,6 +12537,14 @@
+     40
+    ]
+   },
++  "brawl_cloud_cue.png": {
++   "bytes": 1174,
++   "sha": "601df87448f3c8d8",
++   "size": [
++    104,
++    20
++   ]
++  },
+   "button_danger_default.png": {
+    "bytes": 152,
+    "sha": "e7250e926fd54fcd",
+@@ -13724,34 +14026,34 @@
+    ]
+   },
+   "lane_balfour.png": {
+-   "bytes": 131,
+-   "sha": "14e9fa1fb928852b",
++   "bytes": 311,
++   "sha": "ab566101e00cd42e",
+    "size": [
+-    2,
++    32,
+     28
+    ]
+   },
+   "lane_courthouse.png": {
+-   "bytes": 120,
+-   "sha": "5c1fa75cd75c75fb",
++   "bytes": 296,
++   "sha": "2911b46976f6b508",
+    "size": [
+-    2,
++    32,
+     28
+    ]
+   },
+   "lane_knesset.png": {
+-   "bytes": 132,
+-   "sha": "eedb8ae412374ba4",
++   "bytes": 287,
++   "sha": "b6682441d9c7c39c",
+    "size": [
+-    2,
++    32,
+     28
+    ]
+   },
+   "lane_washington.png": {
+-   "bytes": 116,
+-   "sha": "c2334541c2b6a0bf",
++   "bytes": 273,
++   "sha": "fcbe9f69c671eb70",
+    "size": [
+-    2,
++    32,
+     28
+    ]
+   },
+@@ -13891,6 +14193,38 @@
+     26
+    ]
+   },
++  "plaza_balfour.png": {
++   "bytes": 1119,
++   "sha": "9c3cd3734e66988a",
++   "size": [
++    128,
++    96
++   ]
++  },
++  "plaza_courthouse.png": {
++   "bytes": 1049,
++   "sha": "503102bd09053b0f",
++   "size": [
++    128,
++    96
++   ]
++  },
++  "plaza_knesset.png": {
++   "bytes": 1209,
++   "sha": "af2199d945389ff4",
++   "size": [
++    128,
++    96
++   ]
++  },
++  "plaza_washington.png": {
++   "bytes": 1446,
++   "sha": "409a2770e43ca9c8",
++   "size": [
++    128,
++    96
++   ]
++  },
+   "prop_bill.png": {
+    "bytes": 140,
+    "sha": "c8728a35a70171e9",
+@@ -15355,6 +15689,70 @@
+     15
+    ]
+   },
++  "wing_balfour_l.png": {
++   "bytes": 567,
++   "sha": "c611d46253f3710b",
++   "size": [
++    20,
++    230
++   ]
++  },
++  "wing_balfour_r.png": {
++   "bytes": 533,
++   "sha": "785d9bd097645508",
++   "size": [
++    20,
++    230
++   ]
++  },
++  "wing_courthouse_l.png": {
++   "bytes": 590,
++   "sha": "23788575fd0d6ac6",
++   "size": [
++    60,
++    230
++   ]
++  },
++  "wing_courthouse_r.png": {
++   "bytes": 583,
++   "sha": "b16dbcc6c2d1fff9",
++   "size": [
++    60,
++    230
++   ]
++  },
++  "wing_knesset_l.png": {
++   "bytes": 549,
++   "sha": "a8072054e8d1cbf3",
++   "size": [
++    22,
++    230
++   ]
++  },
++  "wing_knesset_r.png": {
++   "bytes": 558,
++   "sha": "edc7d4de38a4fac6",
++   "size": [
++    22,
++    230
++   ]
++  },
++  "wing_washington_l.png": {
++   "bytes": 712,
++   "sha": "81c5f35b7dc9f3b4",
++   "size": [
++    36,
++    230
++   ]
++  },
++  "wing_washington_r.png": {
++   "bytes": 679,
++   "sha": "b726ae587c51ed8f",
++   "size": [
++    36,
++    230
++   ]
++  },
+   "wordmark.png": {
+    "bytes": 1072,
+    "sha": "98a09428e6f14d56",
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index f0d0809..0322f44 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -619,7 +619,8 @@ func _relayout() -> void:
+ 	var gy := _stage_y + L.stage_bottom() - 64.0
+ 	_title_ground.position = Vector2(0, gy)
+ 	_title_ground.size = Vector2(ceilf(W / 64.0) + 1.0, ceilf((_vs.y - gy) / 64.0) + 1.0) * 16.0
+-	var fy := _stage_y + L.stage_bottom()
++	# the flat floor starts where the diorama's own floor art (the 2D plaza, mobile-first A1) ends
++	var fy := _stage_y + L.stage_bottom() + diorama.floor_reach()
+ 	_title_floor.position = Vector2(0, fy)
+ 	_title_floor.size = Vector2(W, maxf(0.0, _vs.y - fy))
+ 	_title_floor.color = diorama.pad_bottom
+diff --git a/game/scripts/ui/court_echo.gd b/game/scripts/ui/court_echo.gd
+index 8ba2a58..2242af9 100644
+--- a/game/scripts/ui/court_echo.gd
++++ b/game/scripts/ui/court_echo.gd
+@@ -68,8 +68,14 @@ static func breath(lvl: String, t_ms: float, reduced: bool) -> float:
+ 	return 1.0 - (1.0 - BREATH_LOW) * (0.5 - 0.5 * cos(TAU * ph))
+ 
+ 
+-## The era's spot in stage-art px, or (-1, -1) when the era shows no courthouse. Pure.
++## The era's spot in stage-art px, or (-1, -1) when the era shows no courthouse. The 2D Artist's kit
++## data first (sprites.json ui.court_window.spots, moved 2026-09-29 to art rows the phones keep), then
++## SPOTS (the old sky-band spots) when the manifest has none. Pure.
+ static func spot(era_id: String) -> Vector2:
++	var kit: Dictionary = SpriteStrip.manifest().get("ui", {}).get("court_window", {}).get("spots", {})
++	if not kit.is_empty():
++		var p: Variant = kit.get(era_id, null)
++		return Vector2(float(p[0]), float(p[1])) if p is Array and (p as Array).size() == 2 else Vector2(-1, -1)
+ 	return SPOTS.get(era_id, Vector2(-1, -1))
+ 
+ 
+diff --git a/game/scripts/ui/diorama.gd b/game/scripts/ui/diorama.gd
+index bb0e4a5..c838cb7 100644
+--- a/game/scripts/ui/diorama.gd
++++ b/game/scripts/ui/diorama.gd
+@@ -102,6 +102,7 @@ func set_era(era: Dictionary) -> void:
+ 		_sky[i].color = Color.html(bands[i])
+ 	for c in _props.get_children():
+ 		c.queue_free()
++	_plaza = false
+ 	_stars.clear()
+ 	var specs: Array = []
+ 	for p: Variant in era.get("props", []):
+@@ -137,6 +138,8 @@ func set_era(era: Dictionary) -> void:
+ 		var bg := Ui.img(_props, feet - Vector2(float(mf[0]), float(mf[1])) * 4.0, bg_key, 0, 4)
+ 		bg.set_meta("background", true)
+ 		_place_lane(String(era.get("id", "")), bg.position)
++		_place_wings(String(era.get("id", "")), bg.position)
++		_place_plaza(String(era.get("id", "")), bg.position)
+ 	for sp: Dictionary in specs:
+ 		_place_prop(sp)
+ 
+@@ -166,6 +169,75 @@ func _place_lane(era_id: String, art_origin: Vector2) -> void:
+ 	_props.add_child(tr)
+ 
+ 
++## The stage's side wings (2D Artist, ux/mobile-first-layout.md A2; art/od-sevev/src/wave7.py): kit tiles
++## `wing_<era>_l` / `wing_<era>_r`, the era's art rows 0-229 continued past the 180-column art. The left one
++## is tiled leftward so its last column abuts art column 0, the right one rightward from column 180, out to
++## the canvas edge (±_extend_x), at ×4 on the art's grid. Their width is the tile's period (read, per era).
++## No piece: nothing drawn (the pads show, as before).
++func _place_wings(era_id: String, art_origin: Vector2) -> void:
++	for side in ["l", "r"]:
++		var id := "wing_%s_%s" % [era_id, side]
++		if era_id == "" or not Art.has_sprite(id):
++			continue
++		var sz := Vector2(Art.sprite_size(id))
++		var period := sz.x * 4.0
++		var reach := (art_origin.x + _extend_x) if side == "l" else (L.W + _extend_x - art_origin.x - float(ART_COLS) * 4.0)
++		var n := maxf(0.0, ceilf(reach / period))
++		if n <= 0.0:
++			continue
++		var tr := TextureRect.new()
++		tr.texture = Art.tex(id)
++		tr.stretch_mode = TextureRect.STRETCH_TILE
++		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
++		tr.position = Vector2(art_origin.x - n * period if side == "l" else art_origin.x + float(ART_COLS) * 4.0, art_origin.y)
++		tr.size = Vector2(n * sz.x, sz.y)
++		tr.scale = Vector2(4, 4)
++		tr.set_meta("wing", id)
++		_props.add_child(tr)
++
++
++## The plaza in front of the stage (2D Artist, mobile-first A1; wave7.py): kit tile `plaza_<era>`, both axes,
++## from art row PLAZA_ART_ROW (right under the lane) down PLAZA_ROWS art rows, across the whole canvas width,
++## x-phased on art column 0, over the stage art's flat apron. It shows before tap 1 and under the picker's scrim
++## (§3.3, §5.9); the ticker and the panes cover it the rest of the time. No piece: nothing drawn.
++const PLAZA_ART_ROW := 258
++const PLAZA_ROWS := 320               # art rows below the stage: more than any canvas of the matrix shows (≤ 306)
++const ART_COLS := 180
++var _plaza := false
++
++
++func _place_plaza(era_id: String, art_origin: Vector2) -> void:
++	var id := "plaza_" + era_id
++	_plaza = era_id != "" and Art.has_sprite(id)
++	if not _plaza:
++		return
++	var sz := Vector2(Art.sprite_size(id))
++	var period := sz.x * 4.0
++	var x0 := art_origin.x - ceilf((art_origin.x + _extend_x) / period) * period
++	var tr := TextureRect.new()
++	tr.texture = Art.tex(id)
++	tr.stretch_mode = TextureRect.STRETCH_TILE
++	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
++	tr.position = Vector2(x0, art_origin.y + PLAZA_ART_ROW * 4.0)
++	tr.size = Vector2(ceilf((L.W + _extend_x - x0) / period) * sz.x, float(PLAZA_ROWS))
++	tr.scale = Vector2(4, 4)
++	tr.set_meta("plaza", id)
++	_props.add_child(tr)
++
++
++## Logical px of floor art the diorama draws below the stage's bottom (the plaza), 0 without one. A flat
++## floor fill under the stage (main.gd's title floor) starts below this, so it never covers the plaza.
++## Era-independent (main.gd lays out before the first set_era): true when the stages ship plaza art. Where a
++## plaza is missing, the clear colour under it is the era's padBottom, the flat floor's own colour.
++func floor_reach() -> float:
++	if _plaza:
++		return float(PLAZA_ROWS) * 4.0
++	for era_id: Variant in SpriteStrip.manifest().get("stages", {}):
++		if Art.has_sprite("plaza_" + String(era_id)):
++			return float(PLAZA_ROWS) * 4.0
++	return 0.0
++
++
+ func _place_prop(sp: Dictionary) -> void:
+ 	var key := Art.sprite_or(String(sp.get("sprite", "")))
+ 	var sc := int(sp.get("scale", 4))
+diff --git a/game/tests/unit/test_motion_court.gd b/game/tests/unit/test_motion_court.gd
+index a423dad..bef45e3 100644
+--- a/game/tests/unit/test_motion_court.gd
++++ b/game/tests/unit/test_motion_court.gd
+@@ -292,7 +292,15 @@ func test_the_court_window_echo() -> void:
+ 	runner.check(lo >= CourtEcho.BREATH_LOW - 0.001 and hi <= 1.0 and hi - lo > 0.3, "the open window breathes between 60 %% and 100 %% (%.2f-%.2f)" % [lo, hi])
+ 	runner.check(max_step < 0.05 and CourtEcho.BREATH_MS >= 1000.0 / 3.0, "a slow ease (≤ 5 %% per frame, %.2f Hz), never a flicker" % (1000.0 / CourtEcho.BREATH_MS))
+ 	runner.check(CourtEcho.breath("open", 800.0, true) == 1.0 and CourtEcho.breath("boil", 800.0, false) == 1.0, "reduced motion (and every other level): held lit")
+-	runner.check(CourtEcho.spot("courthouse").x < 0.0 and CourtEcho.spot("balfour") == Vector2(150, 70), "the courthouse era has its own clock panel: no echo")
++	runner.check(CourtEcho.spot("courthouse").x < 0.0, "the courthouse era has its own clock panel: no echo")
++	# the 2D Artist's spots (kit data, ui.court_window.spots): the whole house at or below art row 110, where the
++	# phones keep the stage art, and inside the 180-column art (sprite 24×22, pivot bottom centre)
++	var kit: Dictionary = SpriteStrip.manifest().get("ui", {}).get("court_window", {}).get("spots", {})
++	for era in ["balfour", "knesset", "washington"]:
++		var sp := CourtEcho.spot(era)
++		runner.check(kit.has(era) and sp == Vector2(float(kit[era][0]), float(kit[era][1])), "%s: the spot is the kit's data (%s)" % [era, sp])
++		runner.check(sp.y - CourtEcho.PIVOT.y >= 110.0 and sp.x - CourtEcho.PIVOT.x >= 0.0 and sp.x - CourtEcho.PIVOT.x + 24.0 <= 180.0,
++			"%s: the house (top row %d) sits at or below art row 110, inside the art" % [era, int(sp.y - CourtEcho.PIVOT.y)])
+ 
+ 
+ func test_the_echo_on_the_stage() -> void:
+diff --git a/game/tests/unit/test_review_engine.gd b/game/tests/unit/test_review_engine.gd
+index 2bd1fe8..c6ac9db 100644
+--- a/game/tests/unit/test_review_engine.gd
++++ b/game/tests/unit/test_review_engine.gd
+@@ -309,7 +309,10 @@ func test_r16_title_floor_fills_the_reserved_sections() -> void:
+ 	runner.check(m.mode == "title", "the pick lands in the pre-tap (title) state")
+ 	var f: ColorRect = m._title_floor
+ 	var sb: float = m._stage_y + L.stage_bottom()
+-	runner.check(f.visible and is_equal_approx(f.position.y, sb) and is_equal_approx(f.position.y + f.size.y, m._vs.y), "one floor from the stage bottom (%s) to the screen bottom (%s)" % [f.position.y, f.position.y + f.size.y])
++	# mobile-first A1: the 2D plaza (diorama, from the stage bottom) is the floor; the flat fill only continues it
++	var reach: float = m.diorama.floor_reach()
++	runner.check(reach > 0.0 and sb + reach >= m._vs.y, "the plaza art runs from the stage bottom (%s) past the screen bottom (%s)" % [sb, sb + reach])
++	runner.check(f.visible and is_equal_approx(f.position.y, sb + reach) and is_equal_approx(f.position.y + f.size.y, maxf(m._vs.y, sb + reach)), "the flat floor starts where the plaza ends (%s) and reaches the screen bottom" % f.position.y)
+ 	runner.check(f.position.x <= 0.0 and f.size.x >= m._vs.x, "full width, no inner rect")
+ 	runner.check(f.color == m.diorama.pad_bottom, "in the stage's floor colour")
+ 	m._set_mode("main", false)
+diff --git a/pipeline/od-sevev/README.md b/pipeline/od-sevev/README.md
+index f94ceb0..1e942cf 100644
+--- a/pipeline/od-sevev/README.md
++++ b/pipeline/od-sevev/README.md
+@@ -48,6 +48,10 @@ pipeline/od-sevev/font/sevev9@2.glyphs ────────────┴
+   app icon's heads) joined `out/`; a full render gives 0 changed: every existing
+   strip is pixel-exact and `atlas.json` only gained keys. `budget.json` now counts the heaviest
+   leader as the resident body (`vramLeaderByK`), not Bibi.
++- **2026-09-29 (the mobile-first picker, UX A3):** each launch leader's XL picker heads,
++  `<char>_avatar_pick_d3.png` (96) and `<char>_avatar_pick_d2.png` (64), joined `out/`
++  (`build.py` `avatar_pick_xl`: the same head crop and neutral ring, cut from the ref); a full
++  render gives 0 changed. Imported as `avatar_pick_<c>_d3` / `_d2`, `chars[c].avatarPick96` / `avatarPick64`.
+ - **If a render drifts:** the build fails. `--allow-drift` exists only for a change Bar approved.
+ 
+ **It fails loudly on:**
+diff --git a/pipeline/od-sevev/budget.json b/pipeline/od-sevev/budget.json
+index 99f0181..653fa42 100644
+--- a/pipeline/od-sevev/budget.json
++++ b/pipeline/od-sevev/budget.json
+@@ -55,19 +55,36 @@
+   "sprites/avatar_may-golan.png": 1953,
+   "sprites/avatar_nophoto.png": 442,
+   "sprites/avatar_pick_ben-gvir.png": 2094,
++  "sprites/avatar_pick_ben-gvir_d2.png": 6385,
++  "sprites/avatar_pick_ben-gvir_d3.png": 12507,
+   "sprites/avatar_pick_bennett.png": 1821,
++  "sprites/avatar_pick_bennett_d2.png": 4949,
++  "sprites/avatar_pick_bennett_d3.png": 9645,
+   "sprites/avatar_pick_bibi.png": 2048,
++  "sprites/avatar_pick_bibi_d2.png": 5917,
++  "sprites/avatar_pick_bibi_d3.png": 10889,
+   "sprites/avatar_pick_deri.png": 1770,
++  "sprites/avatar_pick_deri_d2.png": 5041,
++  "sprites/avatar_pick_deri_d3.png": 9745,
+   "sprites/avatar_pick_eisenkot.png": 1538,
++  "sprites/avatar_pick_eisenkot_d2.png": 4502,
++  "sprites/avatar_pick_eisenkot_d3.png": 8253,
+   "sprites/avatar_pick_golan.png": 1617,
++  "sprites/avatar_pick_golan_d2.png": 4557,
++  "sprites/avatar_pick_golan_d3.png": 8378,
+   "sprites/avatar_pick_liberman.png": 1619,
++  "sprites/avatar_pick_liberman_d2.png": 4477,
++  "sprites/avatar_pick_liberman_d3.png": 8399,
+   "sprites/avatar_pick_smotrich.png": 1564,
++  "sprites/avatar_pick_smotrich_d2.png": 4710,
++  "sprites/avatar_pick_smotrich_d3.png": 9186,
+   "sprites/avatar_regev.png": 2060,
+   "sprites/avatar_sara.png": 2073,
+   "sprites/avatar_smotrich.png": 1560,
+   "sprites/avatar_trump.png": 1703,
+   "sprites/badge_count.png": 152,
+   "sprites/brawl_cloud.png": 2133,
++  "sprites/brawl_cloud_cue.png": 1174,
+   "sprites/button_danger_default.png": 152,
+   "sprites/button_danger_disabled.png": 123,
+   "sprites/button_danger_pressed.png": 128,
+@@ -253,10 +270,10 @@
+   "sprites/icon_sound_off.png": 190,
+   "sprites/icon_sound_on.png": 191,
+   "sprites/icon_trash.png": 134,
+-  "sprites/lane_balfour.png": 131,
+-  "sprites/lane_courthouse.png": 120,
+-  "sprites/lane_knesset.png": 132,
+-  "sprites/lane_washington.png": 116,
++  "sprites/lane_balfour.png": 311,
++  "sprites/lane_courthouse.png": 296,
++  "sprites/lane_knesset.png": 287,
++  "sprites/lane_washington.png": 273,
+   "sprites/laundry_bag.png": 251,
+   "sprites/laundry_shirt.png": 172,
+   "sprites/laundry_shorts.png": 123,
+@@ -274,6 +291,10 @@
+   "sprites/pick_tile_pressed.png": 168,
+   "sprites/pick_tile_selected.png": 216,
+   "sprites/plate_silhouette.png": 223,
++  "sprites/plaza_balfour.png": 1119,
++  "sprites/plaza_courthouse.png": 1049,
++  "sprites/plaza_knesset.png": 1209,
++  "sprites/plaza_washington.png": 1446,
+   "sprites/prop_bill.png": 140,
+   "sprites/prop_calculator.png": 366,
+   "sprites/prop_chair.png": 478,
+@@ -457,6 +478,14 @@
+   "sprites/trophy_suitcase_locked.png": 189,
+   "sprites/trophy_wand.png": 175,
+   "sprites/trophy_wand_locked.png": 171,
++  "sprites/wing_balfour_l.png": 567,
++  "sprites/wing_balfour_r.png": 533,
++  "sprites/wing_courthouse_l.png": 590,
++  "sprites/wing_courthouse_r.png": 583,
++  "sprites/wing_knesset_l.png": 549,
++  "sprites/wing_knesset_r.png": 558,
++  "sprites/wing_washington_l.png": 712,
++  "sprites/wing_washington_r.png": 679,
+   "sprites/wordmark.png": 1072,
+   "sprites/wordmark_mono.png": 440,
+   "sprites/wordmark_norim.png": 961,
+@@ -468,7 +497,7 @@
+   "fonts/sevev9@2.png": 2799,
+   "fonts/sevev9@2.fnt": 15149
+  },
+- "vramBytes": 168730564,
++ "vramBytes": 169628836,
+  "vramByDensity": {
+   "bibi": {
+    "3": 9697848,
+@@ -588,13 +617,13 @@
+   "golan"
+  ],
+  "vramTypicalByK": {
+-  "2": 6639608,
+-  "3": 12302456,
+-  "4": 6639608,
+-  "6": 12302456,
+-  "7": 12302456,
+-  "8": 6639608,
+-  "9": 12302456
++  "2": 7537880,
++  "3": 13200728,
++  "4": 7537880,
++  "6": 13200728,
++  "7": 13200728,
++  "8": 7537880,
++  "9": 13200728
+  },
+  "vramSourcesByK": {
+   "2": 259200,
+@@ -868,7 +897,7 @@
+    "golan": 2803640
+   }
+  },
+- "vramTypical": 12302456,
++ "vramTypical": 13200728,
+  "vramCastAll": 165175556,
+  "vramPerPartner": {
+   "sara": 4144800,
+@@ -1173,41 +1202,121 @@
+    "source": 2094,
+    "imported": 736
+   },
++  {
++   "file": "assets/sprites/avatar_pick_ben-gvir_d2.png",
++   "source": 6385,
++   "imported": 1958
++  },
++  {
++   "file": "assets/sprites/avatar_pick_ben-gvir_d3.png",
++   "source": 12507,
++   "imported": 3982
++  },
+   {
+    "file": "assets/sprites/avatar_pick_bennett.png",
+    "source": 1821,
+    "imported": 770
+   },
++  {
++   "file": "assets/sprites/avatar_pick_bennett_d2.png",
++   "source": 4949,
++   "imported": 1808
++  },
++  {
++   "file": "assets/sprites/avatar_pick_bennett_d3.png",
++   "source": 9645,
++   "imported": 3472
++  },
+   {
+    "file": "assets/sprites/avatar_pick_bibi.png",
+    "source": 2048,
+    "imported": 720
+   },
++  {
++   "file": "assets/sprites/avatar_pick_bibi_d2.png",
++   "source": 5917,
++   "imported": 1874
++  },
++  {
++   "file": "assets/sprites/avatar_pick_bibi_d3.png",
++   "source": 10889,
++   "imported": 3554
++  },
+   {
+    "file": "assets/sprites/avatar_pick_deri.png",
+    "source": 1770,
+    "imported": 662
+   },
++  {
++   "file": "assets/sprites/avatar_pick_deri_d2.png",
++   "source": 5041,
++   "imported": 1680
++  },
++  {
++   "file": "assets/sprites/avatar_pick_deri_d3.png",
++   "source": 9745,
++   "imported": 3264
++  },
+   {
+    "file": "assets/sprites/avatar_pick_eisenkot.png",
+    "source": 1538,
+    "imported": 580
+   },
++  {
++   "file": "assets/sprites/avatar_pick_eisenkot_d2.png",
++   "source": 4502,
++   "imported": 1422
++  },
++  {
++   "file": "assets/sprites/avatar_pick_eisenkot_d3.png",
++   "source": 8253,
++   "imported": 2646
++  },
+   {
+    "file": "assets/sprites/avatar_pick_golan.png",
+    "source": 1617,
+    "imported": 606
+   },
++  {
++   "file": "assets/sprites/avatar_pick_golan_d2.png",
++   "source": 4557,
++   "imported": 1512
++  },
++  {
++   "file": "assets/sprites/avatar_pick_golan_d3.png",
++   "source": 8378,
++   "imported": 2770
++  },
+   {
+    "file": "assets/sprites/avatar_pick_liberman.png",
+    "source": 1619,
+    "imported": 614
+   },
++  {
++   "file": "assets/sprites/avatar_pick_liberman_d2.png",
++   "source": 4477,
++   "imported": 1480
++  },
++  {
++   "file": "assets/sprites/avatar_pick_liberman_d3.png",
++   "source": 8399,
++   "imported": 2760
++  },
+   {
+    "file": "assets/sprites/avatar_pick_smotrich.png",
+    "source": 1564,
+    "imported": 600
+   },
++  {
++   "file": "assets/sprites/avatar_pick_smotrich_d2.png",
++   "source": 4710,
++   "imported": 1546
++  },
++  {
++   "file": "assets/sprites/avatar_pick_smotrich_d3.png",
++   "source": 9186,
++   "imported": 2956
++  },
+   {
+    "file": "assets/sprites/avatar_regev.png",
+    "source": 2060,
+@@ -1238,6 +1347,11 @@
+    "source": 2133,
+    "imported": 1428
+   },
++  {
++   "file": "assets/sprites/brawl_cloud_cue.png",
++   "source": 1174,
++   "imported": 676
++  },
+   {
+    "file": "assets/sprites/button_danger_default.png",
+    "source": 152,
+@@ -2165,23 +2279,23 @@
+   },
+   {
+    "file": "assets/sprites/lane_balfour.png",
+-   "source": 131,
+-   "imported": 128
++   "source": 311,
++   "imported": 194
+   },
+   {
+    "file": "assets/sprites/lane_courthouse.png",
+-   "source": 120,
+-   "imported": 124
++   "source": 296,
++   "imported": 192
+   },
+   {
+    "file": "assets/sprites/lane_knesset.png",
+-   "source": 132,
+-   "imported": 130
++   "source": 287,
++   "imported": 192
+   },
+   {
+    "file": "assets/sprites/lane_washington.png",
+-   "source": 116,
+-   "imported": 106
++   "source": 273,
++   "imported": 190
+   },
+   {
+    "file": "assets/sprites/laundry_bag.png",
+@@ -2268,6 +2382,26 @@
+    "source": 223,
+    "imported": 190
+   },
++  {
++   "file": "assets/sprites/plaza_balfour.png",
++   "source": 1119,
++   "imported": 512
++  },
++  {
++   "file": "assets/sprites/plaza_courthouse.png",
++   "source": 1049,
++   "imported": 502
++  },
++  {
++   "file": "assets/sprites/plaza_knesset.png",
++   "source": 1209,
++   "imported": 570
++  },
++  {
++   "file": "assets/sprites/plaza_washington.png",
++   "source": 1446,
++   "imported": 726
++  },
+   {
+    "file": "assets/sprites/prop_bill.png",
+    "source": 140,
+@@ -3183,6 +3317,46 @@
+    "source": 171,
+    "imported": 168
+   },
++  {
++   "file": "assets/sprites/wing_balfour_l.png",
++   "source": 567,
++   "imported": 320
++  },
++  {
++   "file": "assets/sprites/wing_balfour_r.png",
++   "source": 533,
++   "imported": 302
++  },
++  {
++   "file": "assets/sprites/wing_courthouse_l.png",
++   "source": 590,
++   "imported": 224
++  },
++  {
++   "file": "assets/sprites/wing_courthouse_r.png",
++   "source": 583,
++   "imported": 220
++  },
++  {
++   "file": "assets/sprites/wing_knesset_l.png",
++   "source": 549,
++   "imported": 296
++  },
++  {
++   "file": "assets/sprites/wing_knesset_r.png",
++   "source": 558,
++   "imported": 300
++  },
++  {
++   "file": "assets/sprites/wing_washington_l.png",
++   "source": 712,
++   "imported": 300
++  },
++  {
++   "file": "assets/sprites/wing_washington_r.png",
++   "source": 679,
++   "imported": 292
++  },
+   {
+    "file": "assets/sprites/wordmark.png",
+    "source": 1072,
+@@ -3237,7 +3411,7 @@
+    "note": "embedded in the .fontdata"
+   }
+  ],
+- "pckBytes": 5293885,
++ "pckBytes": 5338089,
+  "pckByAsset": {
+   "bibi": {
+    "3": 193236,
+@@ -3480,5 +3654,5 @@
+    "w2": 294.0
+   }
+  ],
+- "sourceTotal": 15509805
++ "sourceTotal": 15638781
+ }
+\ No newline at end of file
+diff --git a/pipeline/od-sevev/sprites.py b/pipeline/od-sevev/sprites.py
+index 59b44e1..82fec7c 100644
+--- a/pipeline/od-sevev/sprites.py
++++ b/pipeline/od-sevev/sprites.py
+@@ -468,13 +468,18 @@ def import_sprites(src, log, provenance):
+                 put(ap, f"{key}_{name}.png")
+                 chars[name][key] = f"{key}_{name}"
+         # a launch leader's picker avatars: the same heads on one neutral ring (CONTRACT §4c)
+-        for suffix, key, file_key, size in (("_pick", "avatarPick", "avatar_pick", 32), ("24_pick", "avatar24Pick", "avatar24_pick", 24)):
++        # + the picker's XL heads (UX mobile-first A3): 96 (from the d 3 render; the 192-logical avatar) and 64 (the
++        # 128-logical one), both drawn at 2 logical px per sprite px
++        for suffix, key, file_key, size in (("_pick", "avatarPick", "avatar_pick", 32), ("24_pick", "avatar24Pick", "avatar24_pick", 24),
++                                            ("_pick_d3", "avatarPick96", "avatar_pick_{}_d3", 96),
++                                            ("_pick_d2", "avatarPick64", "avatar_pick_{}_d2", 64)):
+             ap = os.path.join(src, f"{name}_avatar{suffix}.png")
+             if os.path.exists(ap):
+                 if Image.open(ap).size != (size, size):
+                     raise SpriteError(f"{name}_avatar{suffix}.png is not {size}x{size}")
+-                put(ap, f"{file_key}_{name}.png")
+-                chars[name][key] = f"{file_key}_{name}"
++                sid = file_key.format(name) if "{}" in file_key else f"{file_key}_{name}"
++                put(ap, f"{sid}.png")
++                chars[name][key] = sid
+ 
+     # single-frame sprites, flat, one PNG per engine id (Art.tex(id) -> res://assets/sprites/<id>.png)
+     props = {}
+# untracked binary: art/od-sevev/out/ui/events/brawl_cloud_cue.png
+# untracked binary: art/od-sevev/out/ui/stage/plaza_balfour.png
+# untracked binary: art/od-sevev/out/ui/stage/plaza_courthouse.png
+# untracked binary: art/od-sevev/out/ui/stage/plaza_knesset.png
+# untracked binary: art/od-sevev/out/ui/stage/plaza_washington.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_balfour_l.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_balfour_r.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_courthouse_l.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_courthouse_r.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_knesset_l.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_knesset_r.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_washington_l.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_washington_r.png
+# untracked binary: art/od-sevev/proofs/kit-w7-brawl-cue.png
+# untracked binary: art/od-sevev/proofs/kit-w7-mobile.png
+diff --git a/art/od-sevev/src/wave7.py b/art/od-sevev/src/wave7.py
+new file mode 100644
+index 0000000..c075223
+--- /dev/null
++++ b/art/od-sevev/src/wave7.py
+@@ -0,0 +1,510 @@
++"""Wave 7: the art the mobile-first layout needs (ux/mobile-first-layout.md §10, 2026-09-29).
++
++  A1  lane_<era>                (wave5.py, redrawn 32x28)  the Suitcase lane, now with horizontal detail
++  A1  plaza_<era>               128x96 TILE  the floor in front of the stage, from art row 258 to the screen bottom
++  A2  wing_<era>_l / _r         Wx230       the stage's side wings: art rows 0-229 continued past columns 0 / 179
++  --  brawl_cloud_cue           26x20 x 4   the brawl cloud cut for the stage cue at x4 (the Animator's ask)
++  --  court_window spots        (wave2.py)  moved to art rows the phones keep (the Animator's ask)
++
++The stages stay the approved 180x320 art: nothing here repaints them. Everything is additive and drawn
++by the diorama around (wings) and over (lane, plaza) the art, on the art's own x4 grid.
++
++Wings (A2). The canvas is up to 215 art columns (430x932), so up to 17.5 columns show beside the art on
++each side. Each wing is a strip of the era's rows 0-229 (the lane covers 230-257, the plaza 258 on), TILEABLE
++horizontally with its own period W (a multiple of the era's own horizontal rhythm: Balfour's wall panels 10,
++the Knesset lawn's specks 11, the courthouse's panels 30 and tubes 60, Washington's specks 9). The engine tiles
++wing_<era>_l leftward from art column 0 (its last column abuts column 0) and wing_<era>_r rightward from
++column 180 (its first column abuts column 179). Seamless both ways by construction: every wing is drawn in
++stage-art coordinates on a canvas that wraps x mod W (`Wrap`), so an element that crosses the art's edge (a
++tree, a protester, a bench, a sign) is continued exactly and repeats every W; wing-native elements never cross
++the wing's own edges. `seam_report()` checks the column next to the art against the art's edge column.
++
++Plaza (A1). The rows under the lane were flat padBottom. The plaza tile is the apron's own base colour with
++slab / board / tile / carpet texture at one value step, plus the odd flyer, a drain grate and the press cable
++leaving the lane. No row is one colour (UX S8's dead-band rule), no barrier or fence (do/don't 13: nothing that
++reads as a border fence), no gold, no ribbons, no text. It is scenery, not UI: it shows before tap 1 and under
++the picker's scrim, and the panels cover it the rest of the time.
++"""
++import os
++import random
++
++from pix import Layer
++from kit import save, strip, outline_inplace, ROOT, PROOFS
++from palette import rgb
++
++ERAS = ("balfour", "knesset", "courthouse", "washington")
++WING_H = 230                 # art rows 0-229 (the lane starts at 230)
++PLAZA_ROW = 258              # the first art row under the lane (lane rows 230-257)
++PW, PH = 128, 96             # the plaza tile
++WING_W = {"balfour": 20, "knesset": 22, "courthouse": 60, "washington": 36}
++SW = 180
++
++
++class Wrap(Layer):
++    """A W-wide strip addressed in stage-art x: art x lands on column (x - x0) mod W. Anything drawn tiles with
++    period W by construction."""
++    def __init__(self, w, h, x0):
++        super().__init__(w, h)
++        self.x0 = x0
++
++    def set(self, x, y, c):
++        super().set((x - self.x0) % self.w, y, c)
++
++    def get(self, x, y):
++        return super().get((x - self.x0) % self.w, y)
++
++    def span(self):
++        """The art-x range the strip is placed at (one period)."""
++        return range(self.x0, self.x0 + self.w)
++
++
++def _wing(era, side):
++    W = WING_W[era]
++    return Wrap(W, WING_H, -W if side == "l" else SW)
++
++
++# ------------------------------------------------------------------ Balfour (creative-pack locations.py balfour())
++def _balfour_crowd():
++    """The art's own protesters (the same seeded draw as locations.balfour): [(side, i, x, h, sign x or None)]."""
++    r = random.Random(7)
++    out = []
++    for side in (0, 1):
++        xs = range(2, 56, 7) if side == 0 else range(126, 178, 7)
++        for i, x in enumerate(xs):
++            h = 20 + r.randrange(0, 6)
++            sx = x + r.choice((-2, 1)) if i % 2 == 0 else None
++            out.append((side, i, x, h, sx))
++    return out
++
++
++def _protester(L, x, h, sign=None, pink=True, floor=216):
++    top = floor - h
++    L.rect(x - 3, top + 6, 7, h - 6, "night")
++    L.ellipse(x, top + 3, 2.6, 3, "skin_sh")
++    for dx in (-1, 0, 1):
++        L.set(x + dx, top + 1, "hair_dk")
++    if sign is not None:                                  # a blank sign on a stick (never lettered)
++        L.vline(sign + 2, top - 6, top + 6, "wood")
++        L.rect(sign - 2, top - 14, 10, 8, "pink" if pink else "white")
++        L.hline(sign - 2, sign + 7, top - 7, "pink_sh" if pink else "paper")
++
++
++def wing_balfour(side):
++    L = _wing("balfour", side)
++    x0, W = L.x0, L.w
++    L.bands(x0, 0, W, [("night", 110), ("plum", 60), ("plum_hi", 60)])
++    r = random.Random(71 if side == "l" else 72)          # a few stars (the art has 26 over 180 columns)
++    for _ in range(max(2, W // 7)):
++        L.set(x0 + r.randrange(1, W - 1), r.randrange(4, 96), "white" if r.random() < .5 else "slate")
++    # the dark trees that frame the villa: the art's edge trees, continued (they wrap into a treeline)
++    trees = [(8, 140), (18, 120)] if side == "l" else [(166, 124), (176, 142)]
++    for (cx, cy) in trees:
++        L.ellipse(cx, cy, 14, 22, "night")
++    # the perimeter wall: lamp-lit slate, a grey coping, a panel joint every 10 columns (x % 10 == 0, as the art)
++    L.rect(x0, 168, W, 48, "slate")
++    L.rect(x0, 168, W, 3, "grey")
++    for x in L.span():
++        if x % 10 == 0:
++            L.vline(x, 171, 215, "suit_hi")
++    # the crowd: the art's protester that crosses the seam, continued; then wing-native protesters, 6-7 apart,
++    # never crossing the wing's own edges (so a copy never lands on the art)
++    crowd = _balfour_crowd()
++    if side == "l":
++        seam = [c for c in crowd if c[0] == 0 and (c[2] - 3 < 0 or (c[4] is not None and c[4] - 2 < 0))]
++        native = [(-11, 23, None, True), (-5, 21, -11, False)]
++    else:
++        seam = [c for c in crowd if c[0] == 1 and (c[2] + 3 > SW - 1 or (c[4] is not None and c[4] + 7 > SW - 1))]
++        native = [(183, 22, 182, False), (190, 24, None, True), (196, 21, 192, True)]
++    for (sd, i, x, h, sx) in seam:
++        _protester(L, x, h, sx, pink=(i // 2) % 2 == 0)
++    for (x, h, sx, pink) in native:
++        _protester(L, x, h, sx, pink=pink)
++    # the police barrier in front of them: two grey rails, a post every 10 (the art's are 9 apart; 10 tiles)
++    L.hline(x0, x0 + W - 1, 209, "grey")
++    L.hline(x0, x0 + W - 1, 213, "grey")
++    for x in L.span():
++        if x % 10 == (2 if side == "l" else 8):
++            L.vline(x, 208, 216, "slate")
++    L.rect(x0, 216, W, 14, "suit_dk")                     # the street
++    return L
++
++
++# ------------------------------------------------------------------ Knesset
++def wing_knesset(side):
++    L = _wing("knesset", side)
++    x0, W = L.x0, L.w
++    L.bands(x0, 0, W, [("sky", 118), ("white", 30)])
++    # the hills (Jerusalem), continued as a low rolling ridge: the art's edge height at the seam, a 3-row swell
++    import math
++    edge = 129 if side == "l" else 133
++    for x in L.span():
++        ph = (x - (-1 if side == "l" else SW)) / W
++        top = edge - round(3 * math.sin(math.pi * ph) ** 2)
++        L.vline(x, top, 168, "teal_hi")
++    # the lawn, exactly the art's pattern (the lime specks repeat every 11 columns: W = 22)
++    L.rect(x0, 169, W, 47, "green")
++    L.dither(x0, 169, W, 2, "green", "green_sh")
++    for y in range(172, 216, 3):
++        for x in L.span():
++            if (x - (y * 7) % 11) % 11 == 0:
++                L.set(x, y, "lime")
++    # one olive tree per tile, standing on the lawn, inside the tile (the art's olive at 2/3 size)
++    cx = x0 + W // 2
++    L.vline(cx, 174, 211, "wood_dk"); L.vline(cx + 1, 180, 211, "wood")
++    L.ellipse(cx, 170, 9, 7, "green_sh"); L.ellipse(cx - 3, 166, 5, 3, "green")
++    L.rect(x0, 216, W, 14, "stone_sh")
++    return L
++
++
++# ------------------------------------------------------------------ the courthouse
++def wing_courthouse(side):
++    L = _wing("courthouse", side)
++    x0, W = L.x0, L.w
++    L.rect(x0, 0, W, 40, "teal_dk")
++    for x in L.span():                                     # the fluorescent tubes, every 60 (the art's phase)
++        if x % 60 == 20:
++            L.rect(x, 10, 22, 2, "white"); L.hline(x - 1, x + 22, 12, "teal_hi")
++    L.rect(x0, 40, W, 176, "teal")
++    L.dither(x0, 40, W, 2, "teal", "teal_dk")
++    for x in L.span():                                     # wall panelling every 30
++        if x % 30 == 0:
++            L.vline(x, 42, 215, "teal_dk")
++    L.rect(x0, 148, W, 68, "teal")                         # the floor
++    for y in range(152, 216, 8):
++        L.hline(x0, x0 + W - 1, y, "teal_dk")
++    L.rect(x0, 148, W, 3, "teal_dk")
++    # the public benches: the art's edge benches continue to the canvas edge, with a 4-column aisle per tile
++    aisle = range(-27, -23) if side == "l" else range(200, 204)
++    for x in L.span():
++        if x in aisle:
++            continue
++        L.set(x, 184, "stone_sh")
++        L.vline(x, 185, 191, "wood")
++        L.vline(x, 192, 215, "wood_dk")
++    L.rect(x0, 216, W, 14, "teal")
++    return L
++
++
++# ------------------------------------------------------------------ Washington
++def _blossom(L, cx, cy):
++    L.vline(cx, cy, cy + 30, "wood_dk")
++    L.ellipse(cx, cy - 6, 15, 10, "pink"); L.ellipse(cx + 4, cy - 2, 8, 5, "pink_sh")
++    L.ellipse(cx - 5, cy - 10, 6, 4, "white")
++
++
++def wing_washington(side):
++    L = _wing("washington", side)
++    x0, W = L.x0, L.w
++    L.bands(x0, 0, W, [("sky", 124), ("white", 30)])
++    L.rect(x0, 154, W, 16, "sky")          # rows 154-169 are unpainted in the art: the engine's padTop sky shows there
++    L.rect(x0, 170, W, 46, "green")
++    for y in range(172, 216, 3):
++        for x in L.span():
++            if (x - (y * 5) % 9) % 9 == 0:
++                L.set(x, y, "lime")
++    # the art's edge blossom tree, continued; its copy one period out stands whole in the wing
++    tree = (14, 170) if side == "l" else (168, 168)
++    _blossom(L, *tree)
++    L.rect(x0, 216, W, 14, "stone_sh")
++    return L
++
++
++WINGS = {"balfour": wing_balfour, "knesset": wing_knesset, "courthouse": wing_courthouse, "washington": wing_washington}
++
++
++# ------------------------------------------------------------------ the plaza (A1)
++PLAZA = {
++    # era: (base, joint, light, details...)  -- base = the apron (stages[era].padBottom)
++    "balfour":    ("night",   "ink",     "suit_dk", "suit", "pink_sh"),   # night paving, flyers
++    "knesset":    ("wood_dk", "ink",     "hair_br", "hair_dk", "wood"),    # stage boards
++    "courthouse": ("ink",     "outline", "teal_dk", "suit_dk", "teal"),    # corridor tiles
++    "washington": ("navy",    "night",   "suit_dk", "ink", "night"),       # carpet
++}
++
++
++def plaza(era):
++    """One plaza tile. 128x96: at most ~1.7 x 3 tiles show on a phone, so the litter never reads as wallpaper.
++    Courses are 12 rows (the lane's run 4, 5, 6, 7 near the stage; the plaza is nearer still), slabs 32 wide in
++    running bond, so it reads as a floor seen from above, not a brick wall: the joints are one value step from the
++    base, and a slab's lit edge is broken (worn)."""
++    import math
++    base, joint, light, d1, d2 = PLAZA[era]
++    L = Layer(PW, PH)
++    L.rect(0, 0, PW, PH, base)
++    r = random.Random(ERAS.index(era) + 580)
++    course = 12
++    if era == "washington":
++        # the carpet: a woven diamond lattice (32 x 12) in the shadow tone, a dotted weave row between
++        for y in range(PH):
++            for x in range(PW):
++                u, v = x % 32, y % course
++                if abs(u - 16) == abs(v - 6) * 2 + 4 or (abs(u - 16) <= 1 and v == 6):
++                    L.set(x, y, joint)
++                elif v == 0 and x % 4 == 0:
++                    L.set(x, y, light)
++    else:
++        for c in range(PH // course):
++            y0 = c * course
++            L.hline(0, PW - 1, y0, joint)                  # the seam
++            if era == "knesset":                            # boards: long, ends every 64, staggered
++                step, off = 64, (c * 23) % 64
++            elif era == "courthouse":                       # corridor tiles: a grid, 32 wide
++                step, off = 32, 0
++            else:                                           # paving slabs: running bond, 32 wide
++                step, off = 32, (c % 2) * 16 + 5
++            for x in range(off, PW, step):
++                L.vline(x, y0 + 1, y0 + course - 1, joint)
++                L.set(x + 1, y0 + 1, light)                 # the slab's lit top-left corner
++                if era == "knesset":                        # two nail heads by each board end
++                    L.set(x - 2, y0 + 3, d1); L.set(x + 2, y0 + 8, d1)
++            for x in range(0, PW):                          # the lit top edge, broken (worn)
++                if (x * 7 + c * 5) % 13 < 3 and L.get(x, y0 + 1) == base:
++                    L.set(x, y0 + 1, light)
++    # scuffs: one-step 50 % checker patches, so no two slabs are the same
++    for _ in range(9):
++        x, y = r.randrange(0, PW - 7), r.randrange(0, PH - 4)
++        for yy in range(y + 1, y + 3):
++            for xx in range(x, x + r.choice((4, 5, 7))):
++                if (xx + yy) % 2 == 0 and L.get(xx, yy) == base:
++                    L.set(xx, yy, light)
++    # per-era litter, sparse and irregular (never lettered, never gold)
++    if era == "balfour":
++        for (x, y, w, h, c) in ((14, 17, 4, 3, d1), (83, 40, 3, 2, d2), (101, 71, 4, 3, d1), (39, 62, 3, 2, "suit_dk"),
++                                (66, 86, 3, 2, d2), (118, 22, 3, 2, "suit_dk")):
++            L.rect(x, y, w, h, c)
++            L.set(x, y, "suit_hi" if c == d1 else c)
++        L.rect(56, 28, 8, 5, "suit_dk")                     # a drain grate
++        for x in range(57, 63, 2):
++            L.vline(x, 29, 31, "ink")
++    elif era == "knesset":
++        for (x, y) in ((28, 30), (92, 65)):                 # spike-tape Xs (stage marks)
++            for (dx, dy) in ((0, 0), (2, 0), (1, 1), (0, 2), (2, 2)):
++                L.set(x + dx, y + dy, "hair_br")
++        L.rect(70, 16, 4, 3, d2); L.set(70, 16, "hair_br")  # a dropped order paper, face down
++        L.rect(16, 80, 3, 2, d2)
++    elif era == "courthouse":
++        L.rect(22, 45, 5, 3, d1); L.set(22, 45, "suit")     # dropped pages
++        L.rect(90, 19, 3, 2, d1)
++        L.rect(76, 80, 4, 2, d1)
++        for (x, y) in ((9, 29), (61, 65), (115, 7), (104, 52)):   # floor-polish glints
++            L.set(x, y, d2)
++    else:
++        L.rect(47, 44, 4, 2, "suit_dk"); L.set(47, 44, "suit")     # a dropped lanyard card, blank
++        L.rect(100, 79, 3, 2, "suit_dk")
++    # the press cable, leaving the lane and wandering down the plaza: a slow meander that enters and leaves at the
++    # same x (so it tiles vertically), 1 px, stepped (never a diagonal staircase thicker than 1 px)
++    cab = "ink" if base != "ink" else "outline"
++    prev = None
++    for y in range(PH):
++        x = 24 + round(10 * math.sin(2 * math.pi * y / PH) + 5 * math.sin(4 * math.pi * y / PH + 1.0) - 5 * math.sin(1.0))
++        if prev is not None:
++            for xx in range(min(prev, x), max(prev, x) + 1):
++                L.set(xx, y, cab)
++        L.set(x, y, cab)
++        prev = x
++    return L
++
++
++# ------------------------------------------------------------------ the brawl cloud cue (26x20 at x4)
++CW, CH = 26, 20
++CPUFFS = [
++    [(8, 11, 4), (12, 7, 4.5), (17, 8, 4), (19, 12, 3.5), (13, 13, 4.5), (7, 14, 3), (16, 15, 3)],
++    [(7, 10, 4), (12, 7, 4), (17, 8, 4.5), (19, 13, 3.5), (13, 13, 4.5), (7, 14, 3.5), (16, 15, 3)],
++    [(8, 11, 4.5), (12, 8, 4), (16, 7, 4), (19, 11, 3), (14, 13, 4.5), (6, 14, 3), (17, 15, 3.5)],
++    [(8, 10, 3.5), (11, 7, 4.5), (17, 7, 4), (19, 12, 4), (13, 13, 4), (7, 15, 3.5), (16, 15, 3)],
++]
++# (kind, dx, dy) rays out of the cloud per frame: the same choreography as brawl_cloud, at half size
++CLIMBS = [[("arm", -1, -1), ("leg", 1, 1)], [("arm", 1, -1), ("leg", -1, 1)],
++          [("arm", -1, 1), ("arm", 1, 0)], [("arm", 0, -1), ("leg", 1, 1), ("arm", -1, 0)]]
++CSPOTS = [[(21, 1), (14, 1)], [(1, 3), (12, 1)], [(21, 1), (2, 2)], [(1, 13), (23, 4)]]
++
++
++def _carm(L, x, y, dx, dy):
++    for i in range(3):                                     # a 2-px suit sleeve
++        cx, cy = x + dx * i, y + dy * i
++        L.rect(cx - 1, cy - 1, 2, 2, "suit_hi")
++        L.set(cx, cy, "suit")
++    cx, cy = x + dx * 3, y + dy * 3
++    L.set(cx, cy, "white"); L.set(cx - (dy != 0), cy - (dx != 0), "white")   # the cuff
++    fx, fy = x + dx * 4 + (dx > 0), y + dy * 4 + (dy > 0)
++    L.rect(fx - 1, fy - 1, 3, 3, "skin")                    # the fist
++    L.set(fx + 1, fy + 1, "skin_sh"); L.set(fx - 1, fy - 1, "skin_hi")
++
++
++def _cleg(L, x, y, dx, dy):
++    for i in range(2):
++        cx, cy = x + dx * i, y + dy * i
++        L.rect(cx - 1, cy - 1, 2, 2, "suit_hi")
++    sx, sy = x + dx * 2, y + dy * 2
++    x0 = sx - 1 if dx >= 0 else sx - 3
++    L.rect(x0, sy - 1, 4, 2, "hair_dk")                    # the shoe
++    L.set(x0 + 1, sy - 1, "slate")
++
++
++def brawl_cue_frame(k):
++    puffs = [(13 + (x - 13) * 0.85, 10 + (y - 11) * 0.8, r * 0.74) for (x, y, r) in CPUFFS[k]]   # room for the limbs
++    cloud = Layer(CW, CH)
++    for (cx, cy, r) in puffs:
++        cloud.ellipse(cx, cy, r, r, "paper")
++    back = Layer(CW, CH)
++    for (kind, dx, dy) in CLIMBS[k]:
++        x, y = 13, 11
++        while cloud.get(x, y) is not None:
++            x += dx; y += dy
++        x -= dx; y -= dy
++        reach = 5 if kind == "arm" else 3               # keep the fist / shoe (and its outline) inside the frame
++        while not (2 <= x + dx * reach < CW - 2 and 2 <= y + dy * reach < CH - 2):
++            x -= dx; y -= dy
++        (_carm if kind == "arm" else _cleg)(back, x, y, dx, dy)
++    back = back.outlined("outline", pad=0)             # outside the 2-px sleeves (inside would eat them)
++    for y in range(CH):
++        for x in range(CW):
++            if cloud.get(x, y) != "paper":
++                continue
++            best = min(puffs, key=lambda p: ((x - p[0]) ** 2 + (y - p[1]) ** 2) / (p[2] ** 2))
++            ddx, ddy = (x - best[0]) / best[2], (y - best[1]) / best[2]
++            if ddx + ddy > 0.75:
++                cloud.set(x, y, "stone_sh")
++            elif ddx + ddy < -0.95:
++                cloud.set(x, y, "white")
++            elif ddx + ddy > 0.35:
++                cloud.set(x, y, "stone")
++    outline_inplace(cloud)
++    L = Layer(CW, CH)
++    L.paste(back, 0, 0)
++    L.paste(cloud, 0, 0)
++    fx = Layer(CW, CH)
++    (px, py), (sx, sy) = CSPOTS[k]
++    fx.rect(px, py, 3, 3, "white"); fx.set(px + 1, py + 1, "paper")     # a flying page
++    for (dx, dy) in ((0, -1), (-1, 0), (0, 0), (1, 0), (0, 1)):          # a star
++        fx.set(sx + dx, sy + dy, "white")
++    L.paste(fx.outlined(pad=0), 0, 0)
++    return L
++
++
++# ------------------------------------------------------------------ build + proofs
++def build():
++    for era in ERAS:
++        W = WING_W[era]
++        for side in ("l", "r"):
++            L = WINGS[era](side)
++            edge = "its LAST column abuts stage-art column 0; tile it leftward" if side == "l" else \
++                   "its FIRST column abuts stage-art column 179; tile it rightward"
++            save(L, f"wing_{era}_{side}", "stage", mode="tile", pivot=[W if side == "l" else 0, 0],
++                 extra={"artRow": 0, "period": W},
++                 notes=f"Stage side wing (UX mobile-first A2), {'left' if side == 'l' else 'right'}: the {era} stage's art "
++                       f"rows 0-229 continued past the 180-column art, a {W}x{WING_H} horizontal TILE (period {W}: a multiple "
++                       f"of the era's own rhythm). Draw at x4 with its top on stage-art row 0; {edge} (x4, on the art "
++                       "grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against "
++                       "the art's edge column and against itself.")
++        save(plaza(era), f"plaza_{era}", "stage", mode="tile", extra={"artRow": PLAZA_ROW},
++             notes=f"The plaza in front of the {era} stage (UX mobile-first A1): a {PW}x{PH} TILE, both axes. Draw it at x4 "
++                   f"from stage-art row {PLAZA_ROW} (right under lane_{era}) down to the canvas bottom, across the whole "
++                   "canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the "
++                   "art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: "
++                   "base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.")
++    frames = [brawl_cue_frame(k) for k in range(4)]
++    save(strip(frames), "brawl_cloud_cue", "events", frames=4, frame_w=CW, pivot=[CW // 2, CH - 2],
++         notes="The brawl cloud cut for the STAGE CUE (the Animator's ask): brawl_cloud's 4-frame loop redrawn at "
++               "26x20 so the cue draws at the stage's own x4 (104x80 logical, the same box as brawl_cloud at x2) and is "
++               "crisp at every k. Same frames, order and timing as brawl_cloud (8 fps; reduced motion = frame 0); the "
++               "same choreography of sleeves, fists, shoes, a page and a star at half size. No faces, no markers. "
++               "brawl_cloud (52x40) stays for the thread's inline cloud at x4.")
++
++
++STAGES = os.path.normpath(os.path.join(ROOT, "..", "..", "creative-pack", "art", "showcase", "out"))
++
++
++def compose(era, cols, rows=466, lane=True, plaza_on=True):
++    """The stage as the engine draws it at `cols` art columns: the art centred (stage_ox = floor((cols-180)/2)),
++    the wings tiled out to the edges, the lane over rows 230-257 and the plaza from 258 to `rows`, all x-phased on
++    art column 0. Returns (PIL image at 1x, art x of canvas column 0)."""
++    from PIL import Image
++    ox = (cols - SW) // 2
++    img = Image.new("RGBA", (cols, rows), rgb("night") + (255,))
++    art = Image.open(os.path.join(STAGES, f"stage_{era}.png")).convert("RGBA")
++    pad_top = art.getpixel((0, 0))
++    img.paste(Image.new("RGBA", (cols, rows), pad_top))          # the diorama's sky pads (padTop)
++    img.alpha_composite(art, (ox, 0))
++    wl, wr = WINGS[era]("l").to_image(), WINGS[era]("r").to_image()
++    W = wl.width
++    x = ox - W
++    while x > -W:
++        img.alpha_composite(wl, (x, 0)) if x >= 0 else img.paste(wl.crop((-x, 0, W, WING_H)), (0, 0))
++        x -= W
++    x = ox + SW
++    while x < cols:
++        img.paste(wr, (x, 0))
++        x += W
++    def tile(tex, y0, h):
++        t = tex.width
++        x = ox - ((ox + t - 1) // t) * t
++        while x < cols:
++            for y in range(y0, y0 + h, tex.height):
++                img.paste(tex.crop((0, 0, t, min(tex.height, y0 + h - y))), (x, y))
++            x += t
++    if lane:
++        tile(Layer_img(f"lane_{era}"), 230, 28)
++    if plaza_on:
++        tile(plaza(era).to_image(), PLAZA_ROW, rows - PLAZA_ROW)
++    return img, -ox
++
++
++def Layer_img(pid):
++    from PIL import Image
++    return Image.open(os.path.join(ROOT, "out", "ui", "stage", pid + ".png")).convert("RGBA")
++
++
++def seam_report():
++    """Per era and side: the rows where the wing's column next to the art differs from the art's edge column
++    (a different swatch on both sides of the seam is a visible cut unless it continues an edge)."""
++    from PIL import Image
++    out = {}
++    for era in ERAS:
++        art = Image.open(os.path.join(STAGES, f"stage_{era}.png")).convert("RGBA")
++        for side in ("l", "r"):
++            w = WINGS[era](side).to_image()
++            wc = w.width - 1 if side == "l" else 0
++            ac = 0 if side == "l" else SW - 1
++            diff = [y for y in range(WING_H) if w.getpixel((wc, y))[:3] != art.getpixel((ac, y))[:3]
++                    and art.getpixel((ac, y))[3] == 255]
++            out[f"{era}_{side}"] = diff
++    return out
++
++
++def proof():
++    """proofs/kit-w7-mobile.png: every era at 215 columns (the widest phone) and at 260 (the wings tiling), with
++    the lane and the plaza, at x2."""
++    from PIL import Image
++    shots = []
++    for era in ERAS:
++        for cols in (215, 260):
++            shots.append(compose(era, cols)[0])
++    gap = 6
++    W = sum(s.width for s in shots) + gap * (len(shots) - 1)
++    sheet = Image.new("RGBA", (W, 466), (255, 255, 255, 255))
++    x = 0
++    for s in shots:
++        sheet.paste(s, (x, 0)); x += s.width + gap
++    p = os.path.join(PROOFS, "kit-w7-mobile.png")
++    sheet.resize((W * 2, 466 * 2), Image.NEAREST).save(p)
++    # the brawl cue: brawl_cloud at x2 (today's cue) over brawl_cloud_cue at x4, both 104x80 per frame, on the bubble
++    old = Image.open(os.path.join(ROOT, "out", "ui", "events", "brawl_cloud.png")).convert("RGBA")
++    new = strip([brawl_cue_frame(k) for k in range(4)]).to_image()
++    bw = 4 * 104 + 3 * 8
++    cue = Image.new("RGBA", (bw + 16, 2 * 80 + 24), rgb("ui_bubble") + (255,))
++    for k in range(4):
++        cue.alpha_composite(old.crop((k * 52, 0, k * 52 + 52, 40)).resize((104, 80), Image.NEAREST), (8 + k * 112, 8))
++        cue.alpha_composite(new.crop((k * CW, 0, k * CW + CW, CH)).resize((104, 80), Image.NEAREST), (8 + k * 112, 96))
++    p2 = os.path.join(PROOFS, "kit-w7-brawl-cue.png")
++    cue.resize((cue.width * 2, cue.height * 2), Image.NEAREST).save(p2)
++    return p
++
++
++if __name__ == "__main__":
++    build()
++    from kit import write_manifest
++    print(write_manifest())
++    print(proof())
++    for k, v in seam_report().items():
++        print("seam", k, len(v), "rows differ", v[:40])
+# untracked binary: art/od-sevev/src/wave7.py
+# untracked binary: creative-pack/art/showcase/out/ben-gvir_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/ben-gvir_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/bennett_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/bennett_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/bibi_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/bibi_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/deri_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/deri_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/eisenkot_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/eisenkot_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/golan_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/golan_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/liberman_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/liberman_avatar_pick_d3.png
+# untracked binary: creative-pack/art/showcase/out/smotrich_avatar_pick_d2.png
+# untracked binary: creative-pack/art/showcase/out/smotrich_avatar_pick_d3.png
+# untracked binary: game/assets/sprites/avatar_pick_ben-gvir_d2.png
+diff --git a/game/assets/sprites/avatar_pick_ben-gvir_d2.png.import b/game/assets/sprites/avatar_pick_ben-gvir_d2.png.import
+new file mode 100644
+index 0000000..3be21a3
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_ben-gvir_d2.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://c3up6jb4g0n71"
++path="res://.godot/imported/avatar_pick_ben-gvir_d2.png-c47d6a42e7142b373a66951f57780206.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_ben-gvir_d2.png"
++dest_files=["res://.godot/imported/avatar_pick_ben-gvir_d2.png-c47d6a42e7142b373a66951f57780206.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_ben-gvir_d2.png.import
+# untracked binary: game/assets/sprites/avatar_pick_ben-gvir_d3.png
+diff --git a/game/assets/sprites/avatar_pick_ben-gvir_d3.png.import b/game/assets/sprites/avatar_pick_ben-gvir_d3.png.import
+new file mode 100644
+index 0000000..d60a6a0
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_ben-gvir_d3.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://bcsswsi0jsxia"
++path="res://.godot/imported/avatar_pick_ben-gvir_d3.png-2094822792a7b6b8e5b96da0df4d906a.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_ben-gvir_d3.png"
++dest_files=["res://.godot/imported/avatar_pick_ben-gvir_d3.png-2094822792a7b6b8e5b96da0df4d906a.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_ben-gvir_d3.png.import
+# untracked binary: game/assets/sprites/avatar_pick_bennett_d2.png
+diff --git a/game/assets/sprites/avatar_pick_bennett_d2.png.import b/game/assets/sprites/avatar_pick_bennett_d2.png.import
+new file mode 100644
+index 0000000..7a316d7
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_bennett_d2.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://chyq8m1l5vlar"
++path="res://.godot/imported/avatar_pick_bennett_d2.png-dedd81f5bbc1ce0bef580d82d11fb35b.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_bennett_d2.png"
++dest_files=["res://.godot/imported/avatar_pick_bennett_d2.png-dedd81f5bbc1ce0bef580d82d11fb35b.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_bennett_d2.png.import
+# untracked binary: game/assets/sprites/avatar_pick_bennett_d3.png
+diff --git a/game/assets/sprites/avatar_pick_bennett_d3.png.import b/game/assets/sprites/avatar_pick_bennett_d3.png.import
+new file mode 100644
+index 0000000..102c119
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_bennett_d3.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://bgfpmxq1sy50y"
++path="res://.godot/imported/avatar_pick_bennett_d3.png-45e581452f3358df2f39ef45eea535ab.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_bennett_d3.png"
++dest_files=["res://.godot/imported/avatar_pick_bennett_d3.png-45e581452f3358df2f39ef45eea535ab.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_bennett_d3.png.import
+# untracked binary: game/assets/sprites/avatar_pick_bibi_d2.png
+diff --git a/game/assets/sprites/avatar_pick_bibi_d2.png.import b/game/assets/sprites/avatar_pick_bibi_d2.png.import
+new file mode 100644
+index 0000000..ad35b72
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_bibi_d2.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://b3fk7klhqx453"
++path="res://.godot/imported/avatar_pick_bibi_d2.png-91f1a1ffdb532e069f8835cff9d51bd7.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_bibi_d2.png"
++dest_files=["res://.godot/imported/avatar_pick_bibi_d2.png-91f1a1ffdb532e069f8835cff9d51bd7.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_bibi_d2.png.import
+# untracked binary: game/assets/sprites/avatar_pick_bibi_d3.png
+diff --git a/game/assets/sprites/avatar_pick_bibi_d3.png.import b/game/assets/sprites/avatar_pick_bibi_d3.png.import
+new file mode 100644
+index 0000000..24caa94
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_bibi_d3.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://ckssg2qvxri6m"
++path="res://.godot/imported/avatar_pick_bibi_d3.png-92661c440f674fd596601c2a93ccc94b.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_bibi_d3.png"
++dest_files=["res://.godot/imported/avatar_pick_bibi_d3.png-92661c440f674fd596601c2a93ccc94b.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_bibi_d3.png.import
+# untracked binary: game/assets/sprites/avatar_pick_deri_d2.png
+diff --git a/game/assets/sprites/avatar_pick_deri_d2.png.import b/game/assets/sprites/avatar_pick_deri_d2.png.import
+new file mode 100644
+index 0000000..85f94f6
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_deri_d2.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://j134rgmf0bbl"
++path="res://.godot/imported/avatar_pick_deri_d2.png-5cfd91d9dbd2108fa55a001dc3e0c44d.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_deri_d2.png"
++dest_files=["res://.godot/imported/avatar_pick_deri_d2.png-5cfd91d9dbd2108fa55a001dc3e0c44d.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_deri_d2.png.import
+# untracked binary: game/assets/sprites/avatar_pick_deri_d3.png
+diff --git a/game/assets/sprites/avatar_pick_deri_d3.png.import b/game/assets/sprites/avatar_pick_deri_d3.png.import
+new file mode 100644
+index 0000000..4e51a4a
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_deri_d3.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://cc0ni26tdo3rk"
++path="res://.godot/imported/avatar_pick_deri_d3.png-8c2fedc51b6879f05afa5cd9b0379a0a.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_deri_d3.png"
++dest_files=["res://.godot/imported/avatar_pick_deri_d3.png-8c2fedc51b6879f05afa5cd9b0379a0a.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_deri_d3.png.import
+# untracked binary: game/assets/sprites/avatar_pick_eisenkot_d2.png
+diff --git a/game/assets/sprites/avatar_pick_eisenkot_d2.png.import b/game/assets/sprites/avatar_pick_eisenkot_d2.png.import
+new file mode 100644
+index 0000000..aee0e4f
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_eisenkot_d2.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://buwa7bflt76n0"
++path="res://.godot/imported/avatar_pick_eisenkot_d2.png-6d8bdfb2a7c41e6bd5be2ae34155b03b.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_eisenkot_d2.png"
++dest_files=["res://.godot/imported/avatar_pick_eisenkot_d2.png-6d8bdfb2a7c41e6bd5be2ae34155b03b.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_eisenkot_d2.png.import
+# untracked binary: game/assets/sprites/avatar_pick_eisenkot_d3.png
+diff --git a/game/assets/sprites/avatar_pick_eisenkot_d3.png.import b/game/assets/sprites/avatar_pick_eisenkot_d3.png.import
+new file mode 100644
+index 0000000..50d4227
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_eisenkot_d3.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://bhrdh8c52emrv"
++path="res://.godot/imported/avatar_pick_eisenkot_d3.png-8d0657a849778a2cca232856fd0ed088.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_eisenkot_d3.png"
++dest_files=["res://.godot/imported/avatar_pick_eisenkot_d3.png-8d0657a849778a2cca232856fd0ed088.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_eisenkot_d3.png.import
+# untracked binary: game/assets/sprites/avatar_pick_golan_d2.png
+diff --git a/game/assets/sprites/avatar_pick_golan_d2.png.import b/game/assets/sprites/avatar_pick_golan_d2.png.import
+new file mode 100644
+index 0000000..9450bcc
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_golan_d2.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://8ajalb22p0jl"
++path="res://.godot/imported/avatar_pick_golan_d2.png-9e0e1fcfad34ee7441cb9aa7695ee4e7.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_golan_d2.png"
++dest_files=["res://.godot/imported/avatar_pick_golan_d2.png-9e0e1fcfad34ee7441cb9aa7695ee4e7.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_golan_d2.png.import
+# untracked binary: game/assets/sprites/avatar_pick_golan_d3.png
+diff --git a/game/assets/sprites/avatar_pick_golan_d3.png.import b/game/assets/sprites/avatar_pick_golan_d3.png.import
+new file mode 100644
+index 0000000..c29ed77
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_golan_d3.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://yeexsis5ddh7"
++path="res://.godot/imported/avatar_pick_golan_d3.png-1d9019f33850c605af8551eea6c7d176.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_golan_d3.png"
++dest_files=["res://.godot/imported/avatar_pick_golan_d3.png-1d9019f33850c605af8551eea6c7d176.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_golan_d3.png.import
+# untracked binary: game/assets/sprites/avatar_pick_liberman_d2.png
+diff --git a/game/assets/sprites/avatar_pick_liberman_d2.png.import b/game/assets/sprites/avatar_pick_liberman_d2.png.import
+new file mode 100644
+index 0000000..2e10d13
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_liberman_d2.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://cgfyah3q4hnrb"
++path="res://.godot/imported/avatar_pick_liberman_d2.png-51b35ba9599ca85581ff238366e38ce0.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_liberman_d2.png"
++dest_files=["res://.godot/imported/avatar_pick_liberman_d2.png-51b35ba9599ca85581ff238366e38ce0.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_liberman_d2.png.import
+# untracked binary: game/assets/sprites/avatar_pick_liberman_d3.png
+diff --git a/game/assets/sprites/avatar_pick_liberman_d3.png.import b/game/assets/sprites/avatar_pick_liberman_d3.png.import
+new file mode 100644
+index 0000000..ce888e6
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_liberman_d3.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://dwd5epfk4dmqw"
++path="res://.godot/imported/avatar_pick_liberman_d3.png-2b49ac7d4064d95c5f68b4e672d56879.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_liberman_d3.png"
++dest_files=["res://.godot/imported/avatar_pick_liberman_d3.png-2b49ac7d4064d95c5f68b4e672d56879.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_liberman_d3.png.import
+# untracked binary: game/assets/sprites/avatar_pick_smotrich_d2.png
+diff --git a/game/assets/sprites/avatar_pick_smotrich_d2.png.import b/game/assets/sprites/avatar_pick_smotrich_d2.png.import
+new file mode 100644
+index 0000000..cf9579a
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_smotrich_d2.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://dott7yph42ac8"
++path="res://.godot/imported/avatar_pick_smotrich_d2.png-5f322eeb5690956f9b0fda147a355f94.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_smotrich_d2.png"
++dest_files=["res://.godot/imported/avatar_pick_smotrich_d2.png-5f322eeb5690956f9b0fda147a355f94.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_smotrich_d2.png.import
+# untracked binary: game/assets/sprites/avatar_pick_smotrich_d3.png
+diff --git a/game/assets/sprites/avatar_pick_smotrich_d3.png.import b/game/assets/sprites/avatar_pick_smotrich_d3.png.import
+new file mode 100644
+index 0000000..807078e
+--- /dev/null
++++ b/game/assets/sprites/avatar_pick_smotrich_d3.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://bri7vt5hpu82q"
++path="res://.godot/imported/avatar_pick_smotrich_d3.png-5b68b375878ab9a6aa468b2a3bc62c8f.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/avatar_pick_smotrich_d3.png"
++dest_files=["res://.godot/imported/avatar_pick_smotrich_d3.png-5b68b375878ab9a6aa468b2a3bc62c8f.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/avatar_pick_smotrich_d3.png.import
+# untracked binary: game/assets/sprites/brawl_cloud_cue.png
+diff --git a/game/assets/sprites/brawl_cloud_cue.png.import b/game/assets/sprites/brawl_cloud_cue.png.import
+new file mode 100644
+index 0000000..6ec35d7
+--- /dev/null
++++ b/game/assets/sprites/brawl_cloud_cue.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://2wepeyg4sv2i"
++path="res://.godot/imported/brawl_cloud_cue.png-17b9f64b14f309addd19884223643343.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/brawl_cloud_cue.png"
++dest_files=["res://.godot/imported/brawl_cloud_cue.png-17b9f64b14f309addd19884223643343.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/brawl_cloud_cue.png.import
+# untracked binary: game/assets/sprites/plaza_balfour.png
+diff --git a/game/assets/sprites/plaza_balfour.png.import b/game/assets/sprites/plaza_balfour.png.import
+new file mode 100644
+index 0000000..93481e1
+--- /dev/null
++++ b/game/assets/sprites/plaza_balfour.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://ddfx73wm5s0mi"
++path="res://.godot/imported/plaza_balfour.png-3cec76b8415bb8fda99f30ff2154eeba.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/plaza_balfour.png"
++dest_files=["res://.godot/imported/plaza_balfour.png-3cec76b8415bb8fda99f30ff2154eeba.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/plaza_balfour.png.import
+# untracked binary: game/assets/sprites/plaza_courthouse.png
+diff --git a/game/assets/sprites/plaza_courthouse.png.import b/game/assets/sprites/plaza_courthouse.png.import
+new file mode 100644
+index 0000000..1d16ce6
+--- /dev/null
++++ b/game/assets/sprites/plaza_courthouse.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://ds8imoa5ctwm2"
++path="res://.godot/imported/plaza_courthouse.png-18a54402dcc8b95a93423592e5577943.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/plaza_courthouse.png"
++dest_files=["res://.godot/imported/plaza_courthouse.png-18a54402dcc8b95a93423592e5577943.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/plaza_courthouse.png.import
+# untracked binary: game/assets/sprites/plaza_knesset.png
+diff --git a/game/assets/sprites/plaza_knesset.png.import b/game/assets/sprites/plaza_knesset.png.import
+new file mode 100644
+index 0000000..591ddb8
+--- /dev/null
++++ b/game/assets/sprites/plaza_knesset.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://dhbi8tcf4esyq"
++path="res://.godot/imported/plaza_knesset.png-6ffdfcbbf1880582d304e132cdb27f82.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/plaza_knesset.png"
++dest_files=["res://.godot/imported/plaza_knesset.png-6ffdfcbbf1880582d304e132cdb27f82.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/plaza_knesset.png.import
+# untracked binary: game/assets/sprites/plaza_washington.png
+diff --git a/game/assets/sprites/plaza_washington.png.import b/game/assets/sprites/plaza_washington.png.import
+new file mode 100644
+index 0000000..bd514c2
+--- /dev/null
++++ b/game/assets/sprites/plaza_washington.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://cf35btl1km8d2"
++path="res://.godot/imported/plaza_washington.png-9bf075b8b5b839977e6b2f6d56378d60.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/plaza_washington.png"
++dest_files=["res://.godot/imported/plaza_washington.png-9bf075b8b5b839977e6b2f6d56378d60.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/plaza_washington.png.import
+# untracked binary: game/assets/sprites/wing_balfour_l.png
+diff --git a/game/assets/sprites/wing_balfour_l.png.import b/game/assets/sprites/wing_balfour_l.png.import
+new file mode 100644
+index 0000000..ca2cf7e
+--- /dev/null
++++ b/game/assets/sprites/wing_balfour_l.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://dp03oeinxsqbc"
++path="res://.godot/imported/wing_balfour_l.png-854033c37ecff39ff6b5d8e00b587da1.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/wing_balfour_l.png"
++dest_files=["res://.godot/imported/wing_balfour_l.png-854033c37ecff39ff6b5d8e00b587da1.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/wing_balfour_l.png.import
+# untracked binary: game/assets/sprites/wing_balfour_r.png
+diff --git a/game/assets/sprites/wing_balfour_r.png.import b/game/assets/sprites/wing_balfour_r.png.import
+new file mode 100644
+index 0000000..7b675cf
+--- /dev/null
++++ b/game/assets/sprites/wing_balfour_r.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://bq8y2mnk411sx"
++path="res://.godot/imported/wing_balfour_r.png-7ad2ff8251d2882f2a8211b892aca43b.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/wing_balfour_r.png"
++dest_files=["res://.godot/imported/wing_balfour_r.png-7ad2ff8251d2882f2a8211b892aca43b.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/wing_balfour_r.png.import
+# untracked binary: game/assets/sprites/wing_courthouse_l.png
+diff --git a/game/assets/sprites/wing_courthouse_l.png.import b/game/assets/sprites/wing_courthouse_l.png.import
+new file mode 100644
+index 0000000..bdf6e76
+--- /dev/null
++++ b/game/assets/sprites/wing_courthouse_l.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://b0ysmxoikv6sy"
++path="res://.godot/imported/wing_courthouse_l.png-8be1c74123f5f9628eabb2cf05bb7f6a.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/wing_courthouse_l.png"
++dest_files=["res://.godot/imported/wing_courthouse_l.png-8be1c74123f5f9628eabb2cf05bb7f6a.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/wing_courthouse_l.png.import
+# untracked binary: game/assets/sprites/wing_courthouse_r.png
+diff --git a/game/assets/sprites/wing_courthouse_r.png.import b/game/assets/sprites/wing_courthouse_r.png.import
+new file mode 100644
+index 0000000..22f5c3c
+--- /dev/null
++++ b/game/assets/sprites/wing_courthouse_r.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://1s2d5e888i5j"
++path="res://.godot/imported/wing_courthouse_r.png-02c2a5f4912edf8bddeeb30af372b03e.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/wing_courthouse_r.png"
++dest_files=["res://.godot/imported/wing_courthouse_r.png-02c2a5f4912edf8bddeeb30af372b03e.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/wing_courthouse_r.png.import
+# untracked binary: game/assets/sprites/wing_knesset_l.png
+diff --git a/game/assets/sprites/wing_knesset_l.png.import b/game/assets/sprites/wing_knesset_l.png.import
+new file mode 100644
+index 0000000..913f273
+--- /dev/null
++++ b/game/assets/sprites/wing_knesset_l.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://cxhcu42guqu8k"
++path="res://.godot/imported/wing_knesset_l.png-f346c20f2cc57ab869718bda65769f35.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/wing_knesset_l.png"
++dest_files=["res://.godot/imported/wing_knesset_l.png-f346c20f2cc57ab869718bda65769f35.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/wing_knesset_l.png.import
+# untracked binary: game/assets/sprites/wing_knesset_r.png
+diff --git a/game/assets/sprites/wing_knesset_r.png.import b/game/assets/sprites/wing_knesset_r.png.import
+new file mode 100644
+index 0000000..ccd2d2d
+--- /dev/null
++++ b/game/assets/sprites/wing_knesset_r.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://dcap732wcuycf"
++path="res://.godot/imported/wing_knesset_r.png-64fa24201ba21c5772b57db850284e14.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/wing_knesset_r.png"
++dest_files=["res://.godot/imported/wing_knesset_r.png-64fa24201ba21c5772b57db850284e14.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/wing_knesset_r.png.import
+# untracked binary: game/assets/sprites/wing_washington_l.png
+diff --git a/game/assets/sprites/wing_washington_l.png.import b/game/assets/sprites/wing_washington_l.png.import
+new file mode 100644
+index 0000000..be197d3
+--- /dev/null
++++ b/game/assets/sprites/wing_washington_l.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://cih2nqh4lyphp"
++path="res://.godot/imported/wing_washington_l.png-140e0517af66a7915939e363c3830527.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/wing_washington_l.png"
++dest_files=["res://.godot/imported/wing_washington_l.png-140e0517af66a7915939e363c3830527.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/wing_washington_l.png.import
+# untracked binary: game/assets/sprites/wing_washington_r.png
+diff --git a/game/assets/sprites/wing_washington_r.png.import b/game/assets/sprites/wing_washington_r.png.import
+new file mode 100644
+index 0000000..b64eb18
+--- /dev/null
++++ b/game/assets/sprites/wing_washington_r.png.import
+@@ -0,0 +1,40 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++uid="uid://csiiertbq72ua"
++path="res://.godot/imported/wing_washington_r.png-eee787972a7dca2d0d4a1e3d5ece1168.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/wing_washington_r.png"
++dest_files=["res://.godot/imported/wing_washington_r.png-eee787972a7dca2d0d4a1e3d5ece1168.ctex"]
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
++mipmaps/generate=false
++mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/wing_washington_r.png.import

@@ -100,7 +100,7 @@ func test_share_texts_are_prose_with_the_url_last() -> void:
 	runner.check(ShareKit.share_text("invite", s, d, 0.0, u).contains("תורכם להקים ממשלה") and not ShareKit.share_text("invite", s, d, 0.0, u).contains("ביבי"),
 		"the invite (SHARE_TEXT_INVITE, was _NEXT): תורכם להקים ממשלה, no leader named")
 	var r := ShareKit.share_text("result", s, d, 0.0, u)
-	runner.check(r.begins_with("שרדתי 3 סבבי בחירות ושני ימי משפט ב״עוד סבב״."), "the result text: rounds and days in words (%s)" % r)
+	runner.check(r.begins_with("שרדתי 3 סבבי בחירות ושני ימים בכותרות ב״עוד סבב״."), "the result text: rounds and days in words (%s)" % r)
 	var total := float(ShareKit.receipt(s, d, 0.0)["total"])
 	var rc := ShareKit.share_text("receipt", s, d, 0.0, u)
 	runner.check(rc.contains(ShareKit.word_amount(total) + " ₪ החודש") and rc.contains("(במשחק. בינתיים.)"),
@@ -161,8 +161,12 @@ func test_the_result_card_model() -> void:
 	var r := ShareKit.result(s)
 	runner.check(str(r["head"]) == Strings.s("RESULT_HEADLINE", {"rounds": Strings.plural("ROUNDS", 3), "days": Strings.plural("DAYS", 2)}), "the headline (%s)" % r["head"])
 	runner.check(str(r["stats"]).contains("12") and str(r["stats"]).contains("9"), "suitcases caught and postponement requests (%s)" % r["stats"])
+	s.investigation["pressDays"] = 3   # another leader's press days count too (leader-neutral DAYS_*)
+	runner.check(str(ShareKit.result(s)["head"]).contains(Strings.plural("DAYS", 5)) and Strings.plural("DAYS", 5).contains("בכותרות"),
+		"court + press days, in words that fit every leader (%s)" % ShareKit.result(s)["head"])
 	s.investigation["courtDays"] = 0
-	runner.check(str(ShareKit.result(s)["head"]).ends_with(Strings.s("RESULT_ZERO_TAG")), "zero court days: '... ואפס ימי משפט בינתיים.'")
+	s.investigation["pressDays"] = 0
+	runner.check(str(ShareKit.result(s)["head"]).ends_with(Strings.s("RESULT_ZERO_TAG")), "zero days: '... ואפס ימים בכותרות בינתיים.'")
 	for v: Variant in ShareKit.result(s).values():
 		runner.check(not str(v).contains("61") and not str(v).contains("מנדט"), "no seat number on a card (§5 global rule): %s" % v)
 

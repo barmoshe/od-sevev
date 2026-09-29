@@ -612,10 +612,10 @@ e("ABOUT_SHARE_WA", "לשתף בוואטסאפ", "html:16", "", "Bar 2026-09-29:
 e("ROUNDS_ONE", "סבב בחירות אחד", "result.head", "", "§5.2 ICU rounds one")
 e("ROUNDS_TWO", "שני סבבי בחירות", "result.head", "", "§5.2 ICU rounds two")
 e("ROUNDS_OTHER", "⟦{n}⟧ סבבי בחירות", "result.head", "", "§5.2 ICU rounds other")
-e("DAYS_ZERO", "ואפס ימי משפט", "result.head", "*", "§5.2 ICU days =0")
-e("DAYS_ONE", "ויום משפט אחד", "result.head", "", "§5.2 ICU days one")
-e("DAYS_TWO", "ושני ימי משפט", "result.head", "", "§5.2 ICU days two")
-e("DAYS_OTHER", "ו־⟦{n}⟧ ימי משפט", "result.head", "", "§5.2 ICU days other")
+e("DAYS_ZERO", "ואפס ימים בכותרות", "result.head", "*", "§5.2 ICU days =0", "Leader-neutral (game-designer 2026-09-29): {n} = court days + press days (Investigation.hazard_days), so every leader's days count and the words fit both skins; was 'ימי משפט' (Bibi's court only)")
+e("DAYS_ONE", "ויום אחד בכותרות", "result.head", "", "§5.2 ICU days one", "Leader-neutral, see DAYS_ZERO")
+e("DAYS_TWO", "ושני ימים בכותרות", "result.head", "", "§5.2 ICU days two", "Leader-neutral, see DAYS_ZERO")
+e("DAYS_OTHER", "ו־⟦{n}⟧ ימים בכותרות", "result.head", "", "§5.2 ICU days other", "Leader-neutral, see DAYS_ZERO")
 # --- receipt card: 216x270 art at x5, print column 152 art px, <= 22 lines (2D Artist style guide §13, flag F3)
 # Layout, top to bottom (19 text lines + 3 rules = 21.7 of 22): BRAND, KIND, ROUND, rule, HEAD (2 lines), TOTAL_LINE,
 # rule, VAT, FUEL + FUEL_NOTE, WING, PISTACHIO, COALITION, rule, SUM, PAID_BY, COUNTDOWN, FOOT_REAL,

@@ -199,6 +199,13 @@ static func testify(s: GameState, auto: bool = false) -> Array:
 	return [{"ev": "courtStart", "reason": st["courtReason"]}]
 
 
+## Lifetime court days (Bibi's rounds) plus press days (everyone else's): the leader-neutral count
+## the result card's DAYS_* ("ו־{n} ימים בכותרות") and the deep-link toast read (ShareKit.rounds_days).
+static func hazard_days(s: GameState) -> int:
+	var st: Dictionary = s.investigation if s.investigation is Dictionary else {}
+	return int(st.get("courtDays", 0)) + int(st.get("pressDays", 0))
+
+
 ## The postponement's price: treasuryPct × growth^n % of the treasury (pitch §10.1: the 5th costs
 ## 80%), and never less than minCostBpsSec × growth^n seconds of ₪/s, so an empty treasury isn't a
 ## free pass. -1 when the percentage passes maxPct: the player has to testify.
