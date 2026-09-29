@@ -12,7 +12,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 
 | Deliverable | File |
 |---|---|
-| UI kit, 197 pieces (wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
+| UI kit, 202 pieces (wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
 | 9-slice / frame / pivot manifest | `ui-kit.json` |
 | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
 | App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (source `icon-64-art.png`) |
@@ -246,6 +246,8 @@ test: every row above stays distinguishable with colour removed.
 
 ### 11.5 Icons
 
+- **Shop icons 24x24** (money sources and, since wave 5, spins): they fill `card_plate` (26x26) edge to edge.
+  Spins are built from outlined parts back to front (`src/icons24.py`), no rim (UI, not a stage touchable).
 - **Tab icons 15x15** (active + idle): מקורות = a faucet dripping a shekel (what you tap); ספינים = Dubi's
   microphone broadcasting two pink arcs; קואליציה = a chat bubble that says 61; תיקים = a manila case file
   with a violet "filed" mark. Four different silhouettes, four different dominant hues; idle collapses
@@ -361,7 +363,7 @@ hierarchy.
 | Sheet / modal | `sheet_modal` [6,22,6,6] (title band), `sheet_plain`, `icon_close` | Settings, About, return card, the election modal, the round card |
 | Ticker | `ticker_bar` 180x20 (red top rule = TV lower third), `ticker_flash_plate` (+ `_text`, "מבזק" baked) | Slanted leading edge faces the crawl |
 | Source card | `card_source_{unaffordable,affordable,locked}` 32x30, `chip_owned`, `plate_silhouette` | Affordable adds a gold edge; the pill (`pay_pill_*`) carries the state |
-| Spins | `card_spin` (pink stripe = talking point), `card_spin_locked`, `tag_worn` "שחוק", `spin_s01`…`spin_s15` | **15** icons: content.json has s01-s15 (s15 "ביקור ממלכתי" was added after the 14 in the brief) |
+| Spins | `card_spin` (pink stripe = talking point), `card_spin_locked`, `tag_worn` "שחוק", `spin_s01`…`spin_s15` | **15** icons: content.json has s01-s15 (s15 "ביקור ממלכתי" was added after the 14 in the brief). **Wave 5:** redrawn at 24x24 (the shop icon size) and wired through `upgrades[].icon` |
 | Opposition | `card_opposition` [6,17,6,6], `card_opposition_back` (tile) + `card_back_mark`, `opp_timer_fill` | Neutral riveted steel: never a party colour, never the coalition's violet |
 | Trophies | `trophy_<icon>` + `_locked` for all **17** icon ids in content.json, `trophy_plate_{earned,locked,secret}` | The brief said 5; the achievements list uses 17 ids, so all 17 are drawn |
 | Controls | `icon_gear`, `icon_sound_on`, `icon_sound_off` | 15x15; off = a red x (shape, not colour) |
@@ -381,6 +383,21 @@ hierarchy.
   open jaw with a red mouth. Seams are asserted by the build (every action f0 and one-shot end = idle.f0; fly.f0 =
   land.f0). Deviations, forced by whole pixels: the ±3° idle sway is below 1 ap (carried by nothing); peck strikes −1
   forward / +2 down (−2 forward reaches the frame edge); every rig squash is the waist cut moving 1 ap.
+- **Wave 5, the reported art gaps** (`src/wave5.py`, `src/icons24.py`, `src/ui_meters.py`):
+  - `spin_s01`…`s15` at 24x24, each with its joke's second beat: the deposit tag reads "0.30"; the pistachio drips; the
+    baby monitor wears the top hat; the empty bubble is stamped "0" (violet, axis-aligned); the net is empty mid-swing;
+    the jet has one lit window seat; one finger in a Spartan helmet; the remote's one big button; the pager is
+    gift-wrapped; a laundry sack with a sock out and a luggage tag; the rabbit's carrot mic; three empty chairs, a gavel
+    and a cobweb; the friendly couch with a heart mug; 999 views and 1 like; two armchairs and a cigar. Content ids and
+    kit ids now agree through `upgrades[].icon` (the engine's default `icon_<id>` never existed).
+  - `thermo_tube_short` 14x58: the full tube with 30 rows of column removed (bulb, neck, glint, ticks identical;
+    40 rows of travel). `thermo_tube` is bit-identical to wave 1.
+  - `lane_<era>` 2x28 tiles: the Suitcase lane's floor. **Amends v1 §8's "y 230-320 flat":** the band stays one
+    colour family and extendable, but may carry HORIZONTAL-ONLY structure (the lip, the shadow it casts, course seams
+    at 4-5-6-7 rows toward the viewer) because the lane is now open stage, not under a UX panel. Horizontal-only means
+    the engine tiles it across the full canvas width (the side bands match), no vertical edge ever sits behind the
+    flying Suitcase, and every lane swatch is at least as dark as the era's apron, so the Suitcase rim keeps its
+    contrast. `stages[era].padBottom` is now the apron colour (was the 1-row bottom rule, wrong in all four eras).
 - **The curtain is plum, not maroon.** The Animator asked for "ticker maroon"; maroon is the Suitcase's
   alone (§2.2), and plum is already the game's stage-curtain ramp. The valance carries the election
   signifier: a row of ballot-box lids with their slots (never a slip going in, v1 do/don't 6).

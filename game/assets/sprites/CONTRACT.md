@@ -82,6 +82,11 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
 - **Aspect `expand`:** when the canvas grows taller than 1280, fill the extra band above the
   stage with `stages[era].padTop` and the band below with `padBottom`. The style guide's stage
   skeleton keeps rows 0-40 and 230-320 flat for exactly this.
+  - `padBottom` is the apron's colour (art rows 240-318), not the 1-row rule at row 319
+    (fixed 2026-09-29: it differed in every era, a grey strip beside the Suitcase lane).
+  - **The lane floor** (2D Artist, 2026-09-29): kit `lane_<era>` is a 2×28 horizontal-only
+    tile from art row 230 (the apron lip) down; `diorama.gd` `_place_lane` tiles it across the
+    whole canvas width at ×4, x-phase on an even stage-art column, above the stage art.
 - **The Magician's feet** go at `magicianFeet` = (94, 219) art px on every stage, which is the
   approved showcase placement: x 94 on the floor line.
 

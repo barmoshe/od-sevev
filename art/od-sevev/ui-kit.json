@@ -146,7 +146,7 @@
     24
    ],
    "label": "white",
-   "notes": "Spin card (ספינים tab). Pink stripe on the RIGHT = 'this is a talking point' (spins own pink; money cards don't have it). Icon 15x15 on card_plate at the right, price pill left."
+   "notes": "Spin card (ספינים tab). Pink stripe on the RIGHT = 'this is a talking point' (spins own pink; money cards don't have it). Icon 24x24 (spin_<id>, upgrades[].icon) on card_plate at the right, price pill left."
   },
   {
    "id": "card_spin_locked",
@@ -1698,6 +1698,24 @@
    }
   },
   {
+   "id": "thermo_tube_short",
+   "group": "meters",
+   "file": "out/ui/meters/thermo_tube_short.png",
+   "w": 14,
+   "h": 58,
+   "pivot": [
+    6,
+    57
+   ],
+   "notes": "The same thermometer for stages under 560 logical px (UX rtl-map §4), 14x58: bulb, neck, glint and ticks identical to thermo_tube, the column shortened to 40 rows of travel. Liquid column x 5..8, y 3..43; y_top(p) = 43 - round(p * 40). Every other thermo_* piece (fill, meniscus, floor hatch, icons, bubbles) is shared. Icon sits centred above at y -13, as on the full tube.",
+   "liquid": {
+    "x": 5,
+    "w": 4,
+    "yTop": 3,
+    "yBottom": 43
+   }
+  },
+  {
    "id": "dubi_placeholder_avatar",
    "group": "props",
    "file": "out/ui/props/dubi_placeholder_avatar.png",
@@ -1971,121 +1989,121 @@
    "id": "spin_s01",
    "group": "spins",
    "file": "out/ui/spins/spin_s01.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s01 'פיקדון על בקבוקים' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s01 'פיקדון על בקבוקים' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s02",
    "group": "spins",
    "file": "out/ui/spins/spin_s02.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s02 'גלידת פיסטוק' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s02 'גלידת פיסטוק' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s03",
    "group": "spins",
    "file": "out/ui/spins/spin_s03.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s03 'ביביסיטר' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s03 'ביביסיטר' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s04",
    "group": "spins",
    "file": "out/ui/spins/spin_s04.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s04 'לא יהיה כלום' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s04 'לא יהיה כלום' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s05",
    "group": "spins",
    "file": "out/ui/spins/spin_s05.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s05 'ציד מכשפות' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s05 'ציד מכשפות' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s06",
    "group": "spins",
    "file": "out/ui/spins/spin_s06.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s06 'כנף ציון' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s06 'כנף ציון' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s07",
    "group": "spins",
    "file": "out/ui/spins/spin_s07.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s07 'סופר־ספרטה' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s07 'סופר־ספרטה' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s08",
    "group": "spins",
    "file": "out/ui/spins/spin_s08.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s08 'השלט' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s08 'השלט' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s09",
    "group": "spins",
    "file": "out/ui/spins/spin_s09.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s09 'פייג׳ר זהב' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s09 'פייג׳ר זהב' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s10",
    "group": "spins",
    "file": "out/ui/spins/spin_s10.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s10 'מזוודות כביסה' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s10 'מזוודות כביסה' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s11",
    "group": "spins",
    "file": "out/ui/spins/spin_s11.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s11 'באגס באני' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s11 'באגס באני' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s12",
    "group": "spins",
    "file": "out/ui/spins/spin_s12.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s12 'הוחלט להקים ועדה' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s12 'הוחלט להקים ועדה' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s13",
    "group": "spins",
    "file": "out/ui/spins/spin_s13.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s13 'ראיון בערוץ ידידותי' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s13 'ראיון בערוץ ידידותי' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s14",
    "group": "spins",
    "file": "out/ui/spins/spin_s14.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s14 'סרטון ויראלי' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s14 'סרטון ויראלי' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "spin_s15",
    "group": "spins",
    "file": "out/ui/spins/spin_s15.png",
-   "w": 15,
-   "h": 15,
-   "notes": "Spin s15 'ביקור ממלכתי' (content.json upgrades). 15x15, on card_plate."
+   "w": 24,
+   "h": 24,
+   "notes": "Spin s15 'ביקור ממלכתי' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15."
   },
   {
    "id": "court_window",
@@ -2112,6 +2130,38 @@
     10
    ],
    "notes": "50% checker halo drawn BEHIND the lit window (the style's only glow; checker, never alpha)."
+  },
+  {
+   "id": "lane_balfour",
+   "group": "stage",
+   "file": "out/ui/stage/lane_balfour.png",
+   "w": 2,
+   "h": 28,
+   "notes": "Suitcase-lane floor for the balfour stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
+  },
+  {
+   "id": "lane_courthouse",
+   "group": "stage",
+   "file": "out/ui/stage/lane_courthouse.png",
+   "w": 2,
+   "h": 28,
+   "notes": "Suitcase-lane floor for the courthouse stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
+  },
+  {
+   "id": "lane_knesset",
+   "group": "stage",
+   "file": "out/ui/stage/lane_knesset.png",
+   "w": 2,
+   "h": 28,
+   "notes": "Suitcase-lane floor for the knesset stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
+  },
+  {
+   "id": "lane_washington",
+   "group": "stage",
+   "file": "out/ui/stage/lane_washington.png",
+   "w": 2,
+   "h": 28,
+   "notes": "Suitcase-lane floor for the washington stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
   },
   {
    "id": "laundry_bag",

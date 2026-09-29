@@ -106,7 +106,7 @@ def spin_cards():
     c.rect(W - 4, 2, 2, H - 5, "pink_sh"); c.vline(W - 4, 2, H - 4, "pink")   # the spin stripe (RTL start)
     save(c, "card_spin", "cards", state="default", slice=[4, 4, 6, 4], content=[3, 2, W - 9, H - 6], label="white",
          notes="Spin card (ספינים tab). Pink stripe on the RIGHT = 'this is a talking point' (spins own pink; money "
-               "cards don't have it). Icon 15x15 on card_plate at the right, price pill left.")
+               "cards don't have it). Icon 24x24 (spin_<id>, upgrades[].icon) on card_plate at the right, price pill left.")
     b = Layer(W, H)
     b.paste(panel(W, H - 1, "suit_dk", "suit_dk", "night", bevel=0), 0, 1)
     b.rect(W - 4, 3, 2, H - 6, "pink_sh")
@@ -119,8 +119,11 @@ def spin_cards():
         t.px[y][x] = None                                        # frayed edge: the talking point is worn out
     save(t, "tag_worn", "cards", notes="Spin-fatigue tag 'שחוק' (UX/pitch 13), baked text, grey on suit_dk 5.5:1; the "
          "frayed edge is the shape channel.")
-    for sid, (name, L) in I.SPINS.items():
-        save(L, f"spin_{sid}", "spins", notes=f"Spin {sid} '{name}' (content.json upgrades). 15x15, on card_plate.")
+    import icons24
+    for sid, (name, L) in icons24.build_all().items():
+        save(L, f"spin_{sid}", "spins",
+             notes=f"Spin {sid} '{name}' (content.json upgrades[].icon). 24x24 at d = 1, the shop icon size: centred on "
+                   "card_plate (26x26) like a money source's icon. Wave 5 redraw (icons24.py); was 15x15.")
 
 
 # ------------------------------------------------------------------ 5. opposition card
