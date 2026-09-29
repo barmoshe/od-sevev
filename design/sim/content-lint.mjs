@@ -73,11 +73,23 @@ function hits(text, term) {
   // Word boundary = anything but a Hebrew letter: a maqaf, geresh or gershayim is not a letter, so "ב־7 באוקטובר" still hits.
   return new RegExp(`(^|[^\\u05D0-\\u05EA])[${pre}]{0,${R.match.maxPrefixLetters}}${t}(?=$|[^\\u05D0-\\u05EA])`).test(text);
 }
-for (const s of game) {
+// The red lines cover every player-facing string, not only content.json: the UI strings and the
+// About page's public fact lines too (Bar, 2026-09-29: no mention of October 7 anywhere).
+const U = JSON.parse(readFileSync(new URL('../../ux/ui-strings.json', import.meta.url)));
+const uiStrings = [];
+(function walkUi(o, path) {
+  if (typeof o === 'string') { if (heb.test(o) || /[A-Za-z]/.test(o)) uiStrings.push({ path, text: o }); return; }
+  if (o && typeof o === 'object') for (const [k, v] of Object.entries(o)) if (!k.startsWith('_')) walkUi(v, `${path}.${k}`);
+})(U, '.ui');
+const aboutLines = F.facts.filter(f => typeof f.aboutHe === 'string').map(f => ({ path: `.facts.${f.id}.aboutHe`, text: f.aboutHe }));
+// October 7 written as a date (7.10, 07.10, 7/10, 7.10.23, any year): a digit may not precede it, so 27.10 (the election) passes.
+const oct7Date = /(^|[^\d])0?7\s*[./]\s*10(?![\d])/;
+for (const s of [...game, ...uiStrings, ...aboutLines]) {
   const allowed = allowFor(s.path);
   for (const cat of R.categories) for (const term of cat.terms)
     if (!allowed.includes(term) && hits(s.text, term)) err(s.path, `red line [${cat.id}] '${term}' in: ${s.text}`);
-  for (const term of R.reviewTerms.terms) if (hits(s.text, term)) warn(s.path, `review term '${term}' (group-as-punchline check): ${s.text}`);
+  if (oct7Date.test(s.text)) err(s.path, `red line [oct7-hostages] the date 7.10 in: ${s.text}`);
+  if (s.holder) for (const term of R.reviewTerms.terms) if (hits(s.text, term)) warn(s.path, `review term '${term}' (group-as-punchline check): ${s.text}`);
 }
 
 // ---------- 3. poll-number rule (UX §6.3.4) ----------
