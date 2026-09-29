@@ -702,6 +702,7 @@ func _build_bubble(row: Dictionary, y: float) -> Dictionary:
 		cy += 16.0
 		var pr := Rect2(inner_r - PILL_W, cy, PILL_W, PILL_H)
 		var pill := _make_pill(root, pr, int(m["seq"]), false)
+		pill["key"] = "CHAT_CEREMONY" if str(m.get("kind", "")) == "ceremony" else ""   # UX: a 0 ₪ ceremony is not "סגרנו · 0 ₪"
 		r["pills"].append(pill)
 		w = maxf(w, PILL_W)
 		if st == "open":
