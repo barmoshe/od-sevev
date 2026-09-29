@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `6bf9f86` docs(od-sevev): live handoff snapshot 22:39
+- Branch head: `877c958` docs(od-sevev): live handoff snapshot 22:40
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -22,6 +22,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 - 22:20 Bar: stop for today, continue tomorrow. Both running agents stopped; their work is committed on their branches and carried in handoff-wip/*.commits.patch. HANDOFF.md has the session-3 stop section and session 4's order. Lock released.
 - 22:21 Bar: continue the loop. Lock re-taken; both stopped agents resumed with their context (artist: finish + verify; dev: finish the mobile matrix, then merge the artist's branch).
 - Art merged. The snapshot script now has a pause switch (/tmp/claude-0/-home-user/8fc63aec-cb0c-55e7-b2d4-be5e5ff14015/scratchpad/live/pause): touch it before merging into the main worktree, remove after (a snapshot git add raced a merge once).
+- 22:40 Bar: the design must be more in Israel's palette, blue and white. The orchestrator's scope: chrome and the HTML shell go blue/white on navy; gold stays for money/buy; red for alerts only; stages keep their identity (Balfour's sky goes navy); cast untouched; flag colours as the frame, no party-logo look. The code colour map is applied after the mobile merge.
 
 ## Agents
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
@@ -33,6 +34,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | UX Designer | DONE, merged (ux/mobile-first-layout.md, tools/web/mobile_web.mjs: baseline PASS, 108 layout checks open until the implementation lands) | `worktree-agent-afa76d8266b2e2b6f` | 0 | 0 | - |
 | Game Developer (mobile) | RESUMED, finishing: core grid/split/fluid chrome, tall tabs, modals, sheets, merge-ready line and layout tests are committed; the full mobile_web matrix run, picker layout check and before/after sheet were not done | `worktree-agent-a8bd968153c51c052` | 8 | 121 | `Game-Developer-(mobile).commits.patch` `Game-Developer-(mobile).patch` |
 | 2D Artist + TA | DONE, merged (lane, plaza, wings, XL pick heads avatar_pick_<c>_d3/_d2, brawl_cloud_cue x4, court spots as kit data) | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
+| 2D Artist + TA (palette) | Bar: "more Israel palette, blue and white": palette v3 (flag blue #0038b8, white, navy replacing plum; gold kept for money/buy), UI kit + shell + icons + OG re-render, palette-v3-map.json for code (applied after the mobile merge) | `worktree-agent-a5e8cafeb35582361` | 0 | 0 | - |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
