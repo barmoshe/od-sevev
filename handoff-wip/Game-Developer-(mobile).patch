@@ -1,4 +1,57 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/ui/views/view_pick.gd b/game/scripts/ui/views/view_pick.gd
+index 6fa0f69..be77586 100644
+--- a/game/scripts/ui/views/view_pick.gd
++++ b/game/scripts/ui/views/view_pick.gd
+@@ -278,6 +278,7 @@ func _build() -> void:
+ 	var cw := L.cw
+ 	var has_again := variant == "after" and again_id != ""
+ 	var plan := grid_plan(H, cw, Display.k if Display.integer else 2, variant, has_again)
++	var wm_bottom := _top
+ 	# the wordmark (first launch), pinned at top + 12, centred on the canvas
+ 	if variant == "first":
+ 		var wm := Art.sprite_or("wordmark" if H >= 1280.0 else "wordmark_small")
+@@ -285,6 +286,7 @@ func _build() -> void:
+ 			wm = Art.sprite_or("wordmark")
+ 		var wsz := Vector2(Art.sprite_size(wm)) * 4.0
+ 		Ui.img(_layer, Vector2(Ui.snap((cw - wsz.x) / 2.0, 4), _top + 12.0), wm, 0, 4)
++		wm_bottom = _top + 12.0 + wsz.y
+ 	# the caption strip and the foot, pinned to the bottom
+ 	var foot := float(plan["foot"])
+ 	var sy := _bot - foot - STRIP_H
+@@ -328,6 +330,14 @@ func _build() -> void:
+ 				break
+ 		th = maxf(tile_h(avatar, false), minf(L.floor4((avail - ROW_GAP - 12.0 - 96.0) / 2.0), L.floor4(1.6 * tw)))
+ 		gh = 2.0 * th + ROW_GAP + 12.0 + 96.0
++	# the title (and chip) never ride up into the wordmark: §5.8's `avail` leaves out the 12 above the
++	# strip and counts 12 (not 16) under the title, so where the tile height is capped by avail (the SE,
++	# the toolbar viewports) the tiles give back those 16 px instead
++	var tl_est := clampf(ceilf(float(PxText.measure(_title_text(), L.TEXT)) / (656.0 + L.dx)), 1.0, 2.0)
++	var gmin := wm_bottom + 12.0 + LH * tl_est + 16.0 + (64.0 if variant == "after" else 0.0)
++	if three and gb - gh < gmin:
++		th = maxf(tile_h(avatar, true), L.floor4((gb - gmin - 2.0 * ROW_GAP) / 3.0))
++		gh = 3.0 * th + 2.0 * ROW_GAP
+ 	var gy := gb - gh
+ 	tile = Vector2(tw, th)
+ 	grid = Vector2(gy, gb)
+diff --git a/game/tests/unit/test_mobile_layout.gd b/game/tests/unit/test_mobile_layout.gd
+index 3d59bf0..5977a79 100644
+--- a/game/tests/unit/test_mobile_layout.gd
++++ b/game/tests/unit/test_mobile_layout.gd
+@@ -190,7 +190,12 @@ func _check_booted(dev: Vector2i, name: String) -> void:
+ 	runner.check(m.ticker.clip_rect().size.x == float(row["clip"]), "%s: the ticker clip %d (got %d)" % [name, int(row["clip"]), m.ticker.clip_rect().size.x])
+ 	runner.check(m.mode == "pick" and m.picker.visible, "%s: a fresh game boots into LEADER_PICK" % name)
+ 	var pf: Dictionary = row["pickFirst"]
+-	runner.check(m.picker.tile == Vector2(float(pf["tw"]), float(pf["th"])) and m.picker.avatar == float(pf["A"]), "%s: pick tiles %s, A %d (got %s, %d)" % [name, [pf["tw"], pf["th"]], int(pf["A"]), m.picker.tile, m.picker.avatar])
++	# th: §5.8's value, or up to 16 less where the tiles fill `avail` (the spec's header counts 12 under
++	# the title and not the 12 above the strip; the engine keeps the title clear of the wordmark)
++	var th_ok: bool = m.picker.tile.y <= float(pf["th"]) and m.picker.tile.y >= float(pf["th"]) - 16.0
++	runner.check(m.picker.tile.x == float(pf["tw"]) and th_ok and m.picker.avatar == float(pf["A"]), "%s: pick tiles %s, A %d (got %s, %d)" % [name, [pf["tw"], pf["th"]], int(pf["A"]), m.picker.tile, m.picker.avatar])
++	var title_top: float = m.picker.grid.x - 16.0 - 44.0
++	runner.check(title_top >= 12.0 + (116.0 if m._vs.y >= 1280.0 else 64.0) + 12.0 - 0.5, "%s: the title line clears the wordmark (%d)" % [name, title_top])
+ 	var H: float = float(m._vs.y) - float(m._bottom_inset)
+ 	runner.check(m.picker.grid.y + 12.0 == H - 16.0 - PickView.STRIP_H, "%s: the grid sits on the strip (bottom %d)" % [name, m.picker.grid.y])
+ 	var cb := TopBar.counter_box()
 diff --git a/tools/web/share_web.mjs b/tools/web/share_web.mjs
 index 3a4268c..6709375 100644
 --- a/tools/web/share_web.mjs
