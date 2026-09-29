@@ -1,3 +1,11 @@
+// RETIRED 2026-09-29: NON-AUTHORITATIVE. Its numbers ran about 2x slower than the shipped code
+// (7:22 first election at 1.5 taps/s here, 5:00 in the real PacingSim on the same content), because
+// it approximates the rules: its buyer stops buying sources while a demand is queued, it has no
+// stand-in (Gantz), spins, suitcases or perks, and it ignores runSecAtLeast. The pacing check is
+// tools/balance.sh (game/tests/bench/test_session.gd), which plays the shipped GDScript. Kept only
+// as a quick paper sketch of the first-five-minutes beats; never quote its timings as the game's.
+// See design/progression-curve.md §0.
+//
 // "עוד סבב" pacing sanity sim (Game Designer paper check, not a test suite; studio invariant I1).
 // Reads ../content.json, so the simulated numbers ARE the shipped numbers. It approximates the
 // simulation developer's rules (game/scripts/sim: coalition.gd, investigation.gd) closely enough
@@ -96,6 +104,7 @@ function round({ tps, k, base, clean = false, seed = 1 }) {
 
 const gain = run => Math.floor(Math.pow(run / PR.payout.divisor, 1 / PR.payout.rootDegree) + PR.payout.epsilon);
 
+console.log('# RETIRED, NON-AUTHORITATIVE sketch: the pacing numbers are tools/balance.sh (design/progression-curve.md §0).\n');
 console.log('# Round 1 beats (pitch §5, UX §2), greedy buyer that pays every demand at once');
 for (const tps of [1, 1.5, 3]) {
   const r = round({ tps, k: 0, base: 0 }); const b = r.beats;

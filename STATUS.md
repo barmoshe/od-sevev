@@ -184,6 +184,17 @@ Cross-slice requests go under **Requests** with the owner named.
     - `HOW-TO-RUN.md`'s k table still says the cast is "aa" at k 4: Bibi is crisp there now, the partners are not.
     - The partner card (`view_chat.gd` `PartnerCard.build`) sizes from `chars[slug].density` and `frameH`, not from the picked variant: fine today (no partner has an alternate), wrong the day one does. Read `_strip.density` / `_strip.frame_size()` instead.
   - **Files:** creative-pack `art/showcase/src/build.py` (`magician(d)` + `ALT_DENSITIES`), `art/showcase/out/{bibi_*_d2.png,atlas.json}`; `pipeline/od-sevev/{sprites.py,build.py,README.md,budget.json,proofs/*}`; `game/assets/sprites/**` + `CONTRACT.md` §1, §3, §4, §7; `game/tests/unit/test_display.gd`
+- 2026-09-29 · game-designer · **resolved the sim developer's pacing objection** (its alternative, accepted by the orchestrator). The pacing check is now only `tools/balance.sh`; `design/sim/economy-sim.mjs` is retired as non-authoritative.
+  - **Bench:** a `median` profile (1.5 taps/s). The fork's "first Evolve 9:30-15" gate is replaced by the pitch's gates S0-S7 + Q3, each with its source line, in `design/progression-curve.md` §0.
+  - **Bench clock fix:** a purchase frame ticked the economy without advancing `t`, so bench times ran about 5% short of play time. Also fixed `fmt_t`, which printed 179.75 s as "2:00".
+  - **First election (seed 7), before → after:** median 5:00 → 8:01 · engaged 3:15 → 7:28 · casual 4:10 → 7:35 · idle 7:44 → 10:07. Median rounds 2-5: 4:30, 5:37, 4:05, 4:50 (was 1:30-2:36). Seeds 1-9 put the median at 7:34-8:25.
+  - **Content (tuning fields only):**
+    - `ownSeats` 20/2/36 → 21/1/28 (C1 still 34/61).
+    - The 8 late partners' `runBananasAtLeast` ×4.9-49.5: goldknopf 16K → 225K … almog 80K → 562.5K.
+    - New `runSecAtLeast` 240-420 on the late partners, plus `unlockTimeScalePerElection` 0.9.
+  - **Checks:** `tools/balance.sh` 5/0 (G1-G4 still pass). `tools/test.sh` 167/1 (the known `test_input.gd::test_buy_a_producer_by_touch`). Content lint and `Politics.validate()` 0 errors.
+  - **Open finding:** the clean route's first round is 21:19 (the default's is 7:21), against pitch §10.3's "about 40% slower". It was already 2.3× before this change, and no gate covers it.
+  - **Files:** `design/content.json` (+ `game/data/`), `design/progression-curve.md` §0, `design/sim/economy-sim.mjs` (retired banner), `game/scripts/sim/pacing_sim.gd`, `game/tests/bench/test_session.gd`
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 
