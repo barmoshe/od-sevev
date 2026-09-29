@@ -1,0 +1,36 @@
+# binary files changed (not carried):
+diff --git a/game/scripts/sim/economy.gd b/game/scripts/sim/economy.gd
+index 6a9ce1f..06719d6 100644
+--- a/game/scripts/sim/economy.gd
++++ b/game/scripts/sim/economy.gd
+@@ -392,17 +392,27 @@ static func is_revealed(s: GameState, id: String) -> bool:
+ 	return s.owned_of(id) > 0 or s.run_bananas >= frac * float(p["baseCost"])
+ 
+ 
+-## Revealed producer ids in tier order, and the single silhouette id ("" if none).
++## Revealed producer ids in tier order, the single silhouette id ("" if none: a real row with its
++## price), and `fill`: every later unrevealed id when producerReveal.fillSilhouettes is on (UX
++## mobile-first-layout §5.4, G1: priceless, untappable rows that fill the pane; only once a source
++## is revealed, and never past the content's last source).
+ static func producer_rows(s: GameState) -> Dictionary:
+ 	var revealed := PackedStringArray()
+ 	var silhouette := ""
+-	var show_sil: bool = Content.data()["producerReveal"]["showNextAsSilhouette"]
++	var fill := PackedStringArray()
++	var pr: Dictionary = Content.data()["producerReveal"]
++	var show_sil: bool = pr["showNextAsSilhouette"]
++	var fill_on: bool = pr.get("fillSilhouettes", false) == true
+ 	for id in Content.producer_ids():
+ 		if is_revealed(s, id):
+ 			revealed.append(id)
+ 		elif silhouette == "" and show_sil:
+ 			silhouette = id
+-	return {"revealed": revealed, "silhouette": silhouette}
++		elif fill_on:
++			fill.append(id)
++	if revealed.is_empty():
++		fill = PackedStringArray()
++	return {"revealed": revealed, "silhouette": silhouette, "fill": fill}
+ 
+ 
+ # ---------------------------------------------------------------------------------------------
