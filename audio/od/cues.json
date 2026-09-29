@@ -1,0 +1,3378 @@
+{
+ "version": "od-1",
+ "_doc": "עוד סבב SFX cues. Owner: Audio Director. Written by audio/tools/compose_od.py; rendered by tools/gen_od_sevev.gd to game/assets/audio/od/<cue>_<key>_<pitch>_<variant>.res (QOA one-shots). Layers use the lib_dsp layer schema; tonal layers with followPitch (the default) are authored with A4 = the cue's root, i.e. degree 1 of the key in rootOctave (A4 = 1, B4 = 2, C5 = b3, D5 = 4, E5 = 5, F5 = b6, G5 = b7, G#4 = the raised 7 below, A5 = 1'). The 'degrees' pitch type counts scale steps of the key's mode ('3' = the mode's third, minor in D/E/G, major in F Mixolydian). The generator computes each cue's play_db from its loudness target (K-weighted, BS.1770, measured as dual mono), capped by the bus ceiling; the manifest carries it. Target types: burst = the loudest 100 ms (transients shorter than the 400 ms momentary window), momentary = the loudest 400 ms, shortTerm = the loudest 3 s of a steady stream at rateHz, stream = integrated over 12 s at rateHz, relative = burst dB under another cue.",
+ "rate": 32000,
+ "keys": {
+  "_doc": "The four playing keys. Taps, pings, Dubi and every keyed cue render once per key; the runtime plays the key of the track that is playing (G during court day).",
+  "D": {
+   "root": "D",
+   "mode": "minor",
+   "era": "balfour",
+   "tempoBpm": 116
+  },
+  "E": {
+   "root": "E",
+   "mode": "minor",
+   "era": "knesset",
+   "tempoBpm": 132
+  },
+  "G": {
+   "root": "G",
+   "mode": "minor",
+   "era": "courthouse",
+   "tempoBpm": 88
+  },
+  "F": {
+   "root": "F",
+   "mode": "mixolydian",
+   "era": "washington",
+   "tempoBpm": 144
+  }
+ },
+ "modes": {
+  "minor": [
+   0,
+   2,
+   3,
+   5,
+   7,
+   8,
+   10
+  ],
+  "mixolydian": [
+   0,
+   2,
+   4,
+   5,
+   7,
+   9,
+   10
+  ],
+  "_doc": "minor = HaTikva's natural minor (the tap walk and Dubi's bank); the music raises the 7th at cadences. Washington (F) stays Mixolydian so its taps agree with its stride body."
+ },
+ "degrees": {
+  "1": 0,
+  "b2": 1,
+  "2": 2,
+  "3": 4,
+  "4": 5,
+  "5": 7,
+  "b6": 8,
+  "6": 9,
+  "b7": 10
+ },
+ "buses": {
+  "_doc": "mix-bus-topology (audio/od/cue-spec.md §3). Levels live in play_db; buses sit at 0 dB.",
+  "Music": {
+   "children": [
+    "Outside"
+   ],
+   "db": 0
+  },
+  "Outside": {
+   "parent": "Music",
+   "effects": [
+    "LowPass 800 Hz",
+    "Panner -0.3"
+   ]
+  },
+  "SFX-Critical": {
+   "db": 0
+  },
+  "SFX-Frequent": {
+   "db": 0
+  },
+  "UI": {
+   "db": 0
+  },
+  "Voice": {
+   "db": 0
+  },
+  "Suitcase": {
+   "parent": "SFX-Critical",
+   "effects": [
+    "Panner (set at spawn)"
+   ]
+  }
+ },
+ "ceilings": {
+  "_doc": "Heard sample-peak ceiling per bus (dBFS at the bus, before the master): play_db is capped so a file's peak lands at or under it, whatever its loudness target asks. Keeps SFX + music under the -1 dB master limiter in normal play.",
+  "SFX-Critical": -3.0,
+  "SFX-Frequent": -5.0,
+  "UI": -6.0,
+  "Voice": -6.0,
+  "Music": -3.0
+ },
+ "babbleContours": {
+  "_doc": "Canned squawks (voice/copy-deck §H): the parrot repeats what he was told, so each line has a fixed contour of [degree, octave] per blip; a doubled line repeats its contour after a 150 ms gap.",
+  "אין כלום!": [
+   [
+    "5",
+    6
+   ],
+   [
+    "5",
+    6
+   ],
+   [
+    "1",
+    6
+   ]
+  ],
+  "אין כובע!": [
+   [
+    "5",
+    6
+   ],
+   [
+    "5",
+    6
+   ],
+   [
+    "3",
+    6
+   ]
+  ],
+  "ציד מכשפות!": [
+   [
+    "5",
+    5
+   ],
+   [
+    "5",
+    5
+   ],
+   [
+    "b7",
+    5
+   ],
+   [
+    "1",
+    6
+   ]
+  ],
+  "כספים קואליציוניים!": [
+   [
+    "5",
+    5
+   ],
+   [
+    "4",
+    5
+   ],
+   [
+    "3",
+    5
+   ],
+   [
+    "5",
+    5
+   ],
+   [
+    "4",
+    5
+   ],
+   [
+    "3",
+    5
+   ],
+   [
+    "b7",
+    5
+   ],
+   [
+    "1",
+    6
+   ]
+  ],
+  "לקנות!": [
+   [
+    "3",
+    6
+   ],
+   [
+    "5",
+    6
+   ]
+  ],
+  "בחירות!": [
+   [
+    "1",
+    6
+   ],
+   [
+    "3",
+    6
+   ],
+   [
+    "5",
+    6
+   ]
+  ],
+  "לא ידענו!": [
+   [
+    "5",
+    6
+   ],
+   [
+    "4",
+    6
+   ],
+   [
+    "3",
+    6
+   ],
+   [
+    "1",
+    6
+   ]
+  ],
+  "מי?": [
+   [
+    "5",
+    5
+   ],
+   [
+    "1",
+    6
+   ]
+  ],
+  "בכובע!": [
+   [
+    "1",
+    6
+   ],
+   [
+    "b7",
+    5
+   ],
+   [
+    "1",
+    6
+   ]
+  ]
+ },
+ "cues": {
+  "tap": {
+   "meaning": "The trick worked; money came out.",
+   "bus": "SFX-Frequent",
+   "priority": 2,
+   "poly": 4,
+   "steal": "oldest",
+   "ducks": [],
+   "jitterDb": 1.5,
+   "pitch": {
+    "type": "walk",
+    "fromDegree": 5,
+    "steps": 8,
+    "rootOctave": 4
+   },
+   "variants": {
+    "d25": [
+     {
+      "id": "puff",
+      "wave": "noiseMetal",
+      "clockStart": 40000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 5000,
+       "Q": 0.9
+      },
+      "attack": 0.001,
+      "decay": 0.015,
+      "sustain": 0.0,
+      "duration": 0.015,
+      "release": 0.004,
+      "gain": 0.35
+     },
+     {
+      "id": "blip",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": "A4",
+      "delay": 0.012,
+      "attack": 0.001,
+      "decay": 0.03,
+      "sustain": 0.45,
+      "duration": 0.04,
+      "release": 0.012,
+      "gain": 1.0,
+      "filter": {
+       "type": "highpass",
+       "freq": 1000,
+       "Q": -3.0103
+      }
+     }
+    ],
+    "d12": [
+     {
+      "id": "puff",
+      "wave": "noiseMetal",
+      "clockStart": 40000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 5000,
+       "Q": 0.9
+      },
+      "attack": 0.001,
+      "decay": 0.015,
+      "sustain": 0.0,
+      "duration": 0.015,
+      "release": 0.004,
+      "gain": 0.35
+     },
+     {
+      "id": "blip",
+      "wave": "pulse",
+      "duty": 0.125,
+      "freqStart": "A4",
+      "delay": 0.012,
+      "attack": 0.001,
+      "decay": 0.03,
+      "sustain": 0.45,
+      "duration": 0.04,
+      "release": 0.012,
+      "gain": 1.0,
+      "filter": {
+       "type": "highpass",
+       "freq": 1000,
+       "Q": -3.0103
+      }
+     }
+    ]
+   },
+   "runtime": "Step = the tap streak index mod 8 (walk and wrap); the streak resets after 400 ms without a tap. Variant alternates d25 / d12 per tap. Gain jitter +-1.5 dB. One file = one tap.",
+   "lengthMs": 80,
+   "target": {
+    "type": "stream",
+    "rateHz": 5,
+    "lufs": -21.0
+   }
+  },
+  "rabbitCrit": {
+   "meaning": "The trick went spectacularly right (rare).",
+   "bus": "SFX-Critical",
+   "priority": 5,
+   "poly": 1,
+   "steal": "never",
+   "ducks": [
+    {
+     "bus": "Music",
+     "db": -4,
+     "attackMs": 50,
+     "releaseMs": 200
+    }
+   ],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 4
+   },
+   "variants": {
+    "s120": [
+     {
+      "id": "boing",
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 440,
+      "freqEnd": 220,
+      "freqCurve": "exp",
+      "glide": 0.2,
+      "followPitch": false,
+      "attack": 0.001,
+      "decay": 0.2,
+      "sustain": 0.3,
+      "duration": 0.2,
+      "release": 0.03,
+      "gain": 0.9,
+      "vibrato": {
+       "rateHz": 12,
+       "depthCents": 40,
+       "delay": 0.0
+      }
+     },
+     {
+      "id": "slide",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": "E4",
+      "freqEnd": "A4",
+      "freqCurve": "exp",
+      "glide": 0.12,
+      "delay": 0.12,
+      "attack": 0.001,
+      "decay": 0.12,
+      "sustain": 0.6,
+      "duration": 0.12,
+      "release": 0.01,
+      "gain": 0.7
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.25,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.8,
+      "duty": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.325,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.8,
+      "duty": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E6",
+      "delay": 0.4,
+      "attack": 0.001,
+      "decay": 0.07,
+      "sustain": 0.4,
+      "duration": 0.08,
+      "release": 0.04,
+      "gain": 0.75,
+      "duty": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E4",
+      "delay": 0.25,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.5,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.325,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.5,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.4,
+      "attack": 0.001,
+      "decay": 0.07,
+      "sustain": 0.4,
+      "duration": 0.08,
+      "release": 0.04,
+      "gain": 0.45,
+      "duty": 0.125
+     }
+    ],
+    "s150": [
+     {
+      "id": "boing",
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 440,
+      "freqEnd": 220,
+      "freqCurve": "exp",
+      "glide": 0.2,
+      "followPitch": false,
+      "attack": 0.001,
+      "decay": 0.2,
+      "sustain": 0.3,
+      "duration": 0.2,
+      "release": 0.03,
+      "gain": 0.9,
+      "vibrato": {
+       "rateHz": 12,
+       "depthCents": 40,
+       "delay": 0.0
+      }
+     },
+     {
+      "id": "slide",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": "E4",
+      "freqEnd": "A4",
+      "freqCurve": "exp",
+      "glide": 0.15,
+      "delay": 0.12,
+      "attack": 0.001,
+      "decay": 0.15,
+      "sustain": 0.6,
+      "duration": 0.15,
+      "release": 0.01,
+      "gain": 0.7
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.28,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.8,
+      "duty": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.355,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.8,
+      "duty": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E6",
+      "delay": 0.43,
+      "attack": 0.001,
+      "decay": 0.07,
+      "sustain": 0.4,
+      "duration": 0.08,
+      "release": 0.04,
+      "gain": 0.75,
+      "duty": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E4",
+      "delay": 0.28,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.5,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.355,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.5,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.43,
+      "attack": 0.001,
+      "decay": 0.07,
+      "sustain": 0.4,
+      "duration": 0.08,
+      "release": 0.04,
+      "gain": 0.45,
+      "duty": 0.125
+     }
+    ],
+    "s180": [
+     {
+      "id": "boing",
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 440,
+      "freqEnd": 220,
+      "freqCurve": "exp",
+      "glide": 0.2,
+      "followPitch": false,
+      "attack": 0.001,
+      "decay": 0.2,
+      "sustain": 0.3,
+      "duration": 0.2,
+      "release": 0.03,
+      "gain": 0.9,
+      "vibrato": {
+       "rateHz": 12,
+       "depthCents": 40,
+       "delay": 0.0
+      }
+     },
+     {
+      "id": "slide",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": "E4",
+      "freqEnd": "A4",
+      "freqCurve": "exp",
+      "glide": 0.18,
+      "delay": 0.12,
+      "attack": 0.001,
+      "decay": 0.18,
+      "sustain": 0.6,
+      "duration": 0.18,
+      "release": 0.01,
+      "gain": 0.7
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.31,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.8,
+      "duty": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.385,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.8,
+      "duty": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E6",
+      "delay": 0.46,
+      "attack": 0.001,
+      "decay": 0.07,
+      "sustain": 0.4,
+      "duration": 0.08,
+      "release": 0.04,
+      "gain": 0.75,
+      "duty": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E4",
+      "delay": 0.31,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.5,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.385,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.5,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.46,
+      "attack": 0.001,
+      "decay": 0.07,
+      "sustain": 0.4,
+      "duration": 0.08,
+      "release": 0.04,
+      "gain": 0.45,
+      "duty": 0.125
+     }
+    ]
+   },
+   "markers": {
+    "s120": {
+     "slide": 0.12,
+     "head": 0.25
+    },
+    "s150": {
+     "slide": 0.12,
+     "head": 0.28
+    },
+    "s180": {
+     "slide": 0.12,
+     "head": 0.31
+    }
+   },
+   "runtime": "Round-robin s120 -> s150 -> s180. The head's 16ths are a fixed 75 ms in every era so the whole cue stays <= 600 ms (brief §5 cue 2).",
+   "target": {
+    "type": "burst",
+    "lufs": -12.0
+   }
+  },
+  "suitcaseSpawn": {
+   "meaning": "A catchable opportunity is on screen.",
+   "bus": "SFX-Critical",
+   "priority": 4,
+   "poly": 1,
+   "steal": "never",
+   "ducks": [
+    {
+     "bus": "Music",
+     "db": -4,
+     "attackMs": 50,
+     "releaseMs": 200
+    }
+   ],
+   "pan": "the suitcase's x mapped to -0.4..+0.4 on the 'Suitcase' bus panner, set at spawn",
+   "pitch": {
+    "type": "none"
+   },
+   "variants": {
+    "g25": [
+     {
+      "id": "whoosh",
+      "wave": "noise",
+      "clockStart": 16000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 700,
+       "freqEnd": 2400,
+       "Q": 1.2
+      },
+      "attack": 0.12,
+      "decay": 0.08,
+      "sustain": 0.0,
+      "duration": 0.18,
+      "release": 0.03,
+      "gain": 0.45
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 2600,
+       "Q": 0.7
+      },
+      "delay": 0.15,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.5
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3029,
+       "Q": 0.7
+      },
+      "delay": 0.19,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.567
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3529,
+       "Q": 0.7
+      },
+      "delay": 0.23,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.633
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 4111,
+       "Q": 0.7
+      },
+      "delay": 0.27,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.7
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 4789,
+       "Q": 0.7
+      },
+      "delay": 0.31,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.767
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 5579,
+       "Q": 0.7
+      },
+      "delay": 0.35,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.833
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 6500,
+       "Q": 0.7
+      },
+      "delay": 0.39,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.9
+     }
+    ],
+    "g28": [
+     {
+      "id": "whoosh",
+      "wave": "noise",
+      "clockStart": 16000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 700,
+       "freqEnd": 2400,
+       "Q": 1.2
+      },
+      "attack": 0.12,
+      "decay": 0.08,
+      "sustain": 0.0,
+      "duration": 0.18,
+      "release": 0.03,
+      "gain": 0.45
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 2600,
+       "Q": 0.7
+      },
+      "delay": 0.15,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.5
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 2964,
+       "Q": 0.7
+      },
+      "delay": 0.1857,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.557
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3378,
+       "Q": 0.7
+      },
+      "delay": 0.2214,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.614
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3851,
+       "Q": 0.7
+      },
+      "delay": 0.2571,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.671
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 4389,
+       "Q": 0.7
+      },
+      "delay": 0.2929,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.729
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 5003,
+       "Q": 0.7
+      },
+      "delay": 0.3286,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.786
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 5702,
+       "Q": 0.7
+      },
+      "delay": 0.3643,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.843
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 6500,
+       "Q": 0.7
+      },
+      "delay": 0.4,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.9
+     }
+    ],
+    "g31": [
+     {
+      "id": "whoosh",
+      "wave": "noise",
+      "clockStart": 16000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 700,
+       "freqEnd": 2400,
+       "Q": 1.2
+      },
+      "attack": 0.12,
+      "decay": 0.08,
+      "sustain": 0.0,
+      "duration": 0.18,
+      "release": 0.03,
+      "gain": 0.45
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 2600,
+       "Q": 0.7
+      },
+      "delay": 0.15,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.5
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 2916,
+       "Q": 0.7
+      },
+      "delay": 0.1823,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.55
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3269,
+       "Q": 0.7
+      },
+      "delay": 0.2145,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.6
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3666,
+       "Q": 0.7
+      },
+      "delay": 0.2468,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.65
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 4111,
+       "Q": 0.7
+      },
+      "delay": 0.279,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.7
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 4610,
+       "Q": 0.7
+      },
+      "delay": 0.3113,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.75
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 5169,
+       "Q": 0.7
+      },
+      "delay": 0.3435,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.8
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 5797,
+       "Q": 0.7
+      },
+      "delay": 0.3758,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.85
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 6500,
+       "Q": 0.7
+      },
+      "delay": 0.4081,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.9
+     }
+    ]
+   },
+   "runtime": "Random variant (gate rate 25/28/31 Hz). The whoosh is UX's spawn twin (first-minute §3).",
+   "target": {
+    "type": "burst",
+    "lufs": -14.0
+   }
+  },
+  "suitcaseCatch": {
+   "meaning": "Got it.",
+   "bus": "SFX-Critical",
+   "priority": 4,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [
+    {
+     "bus": "Music",
+     "db": -4,
+     "attackMs": 50,
+     "releaseMs": 200
+    }
+   ],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 5
+   },
+   "variants": {
+    "": [
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 6500,
+       "Q": 0.7
+      },
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.2
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 4266,
+       "Q": 0.7
+      },
+      "delay": 0.0303,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.525
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 2800,
+       "Q": 0.7
+      },
+      "delay": 0.0606,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.85
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.13,
+      "attack": 0.001,
+      "decay": 0.06,
+      "sustain": 0.4,
+      "duration": 0.07,
+      "release": 0.02,
+      "gain": 0.7,
+      "duty": 0.5
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.2,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.45,
+      "duration": 0.16,
+      "release": 0.06,
+      "gain": 0.75,
+      "duty": 0.5
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 5000,
+       "Q": 0.7
+      },
+      "delay": 0.2,
+      "attack": 0.0008,
+      "decay": 0.01,
+      "sustain": 0.0,
+      "duration": 0.01,
+      "release": 0.004,
+      "gain": 0.5
+     }
+    ]
+   },
+   "markers": {
+    "_": {
+     "zipperEnd": 0.12,
+     "chaChing": 0.13,
+     "chaChing2": 0.2
+    }
+   },
+   "runtime": "Also the first half of the 'while you were away' return (returnAway).",
+   "target": {
+    "type": "burst",
+    "lufs": -13.0
+   }
+  },
+  "suitcaseMiss": {
+   "meaning": "It reached its destination. Nobody knew. (deadpan)",
+   "bus": "SFX-Frequent",
+   "priority": 1,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 3
+   },
+   "variants": {
+    "": [
+     {
+      "id": "bwomp",
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": "A4",
+      "freqEnd": "Ab4",
+      "freqCurve": "exp",
+      "glide": 0.12,
+      "attack": 0.004,
+      "decay": 0.16,
+      "sustain": 0.2,
+      "duration": 0.18,
+      "release": 0.05,
+      "gain": 1.0
+     }
+    ]
+   },
+   "runtime": "One quiet TRI bwomp down a semitone, under the ticker line. Nothing else.",
+   "target": {
+    "type": "burst",
+    "lufs": -21.0
+   }
+  },
+  "chatPing": {
+   "meaning": "A partner posted a demand.",
+   "bus": "UI",
+   "priority": 3,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 5
+   },
+   "variants": {
+    "default": [
+     {
+      "wave": "pulse",
+      "freqStart": "F5",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     }
+    ],
+    "benGvir": [
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.15,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.8,
+      "duty": 0.125
+     }
+    ],
+    "smotrich": [
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "D5",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     }
+    ],
+    "deri": [
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E4",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     }
+    ],
+    "goldknopf": [
+     {
+      "wave": "pulse",
+      "freqStart": "D5",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     }
+    ],
+    "gafni": [
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.02,
+      "gain": 0.18,
+      "duty": 0.125
+     }
+    ],
+    "levin": [
+     {
+      "wave": "pulse",
+      "freqStart": "C5",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "B4",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     }
+    ],
+    "regev": [
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     }
+    ],
+    "gotliv": [
+     {
+      "wave": "pulse",
+      "freqStart": "C5",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "G#4",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     }
+    ],
+    "left": [
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "Bb4",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.08,
+      "sustain": 0.4,
+      "duration": 0.09,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "id": "door",
+      "wave": "noise",
+      "clockStart": 26000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2200,
+       "Q": 2.0
+      },
+      "delay": 0.19,
+      "attack": 0.0005,
+      "decay": 0.01,
+      "sustain": 0.0,
+      "duration": 0.01,
+      "release": 0.003,
+      "gain": 0.6
+     }
+    ],
+    "burst": [
+     {
+      "wave": "pulse",
+      "freqStart": "F5",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "F5",
+      "delay": 0.15,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.9,
+      "duty": 0.125
+     }
+    ]
+   },
+   "shapes": {
+    "default": "b6 -> 5, the minor sigh",
+    "benGvir": "1 1 1: he threatens more than once",
+    "smotrich": "1 -> 4: raises (VAT)",
+    "deri": "1 -> 5 below: settled, not going anywhere",
+    "goldknopf": "4 -> 5: a little more, every time",
+    "gafni": "1, then the second note left the room",
+    "levin": "b3 -> 2: petitioning, left hanging",
+    "regev": "5 -> 1': the ribbon-cut ta-da",
+    "gotliv": "b3 -> the raised 7 below: a diminished fourth, between rows",
+    "left": "1 -> b2 up, unresolved, and a door click",
+    "burst": "a burst coalesced: b6 5 b6 (x3)"
+   },
+   "runtime": "Variant = the partner id (unknown partners: default). At most one ping per 700 ms; pings inside that window coalesce into one 'burst'. Never during a Dubi squawk: queue it until 300 ms after Dubi stops (UX first-minute §9). 'left' = left the group.",
+   "target": {
+    "type": "burst",
+    "lufs": -16.0
+   }
+  },
+  "ultimatumTick": {
+   "meaning": "Pay before zero or they walk.",
+   "bus": "SFX-Critical",
+   "priority": 3,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "none"
+   },
+   "variants": {
+    "tick": [
+     {
+      "id": "t",
+      "wave": "noiseMetal",
+      "clockStart": 46000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 4800,
+       "Q": 3.0
+      },
+      "attack": 0.0005,
+      "decay": 0.008,
+      "sustain": 0.0,
+      "duration": 0.008,
+      "release": 0.003,
+      "gain": 1.0
+     }
+    ],
+    "tock": [
+     {
+      "id": "t",
+      "wave": "noiseMetal",
+      "clockStart": 46000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 3300,
+       "Q": 3.0
+      },
+      "attack": 0.0005,
+      "decay": 0.008,
+      "sustain": 0.0,
+      "duration": 0.008,
+      "release": 0.003,
+      "gain": 1.0
+     }
+    ]
+   },
+   "runtime": "One per displayed second, alternating tick/tock. In the last 3 s: two per second, and force L2 off (tension by subtraction). No duck (a tick every 500 ms would pump the music).",
+   "target": {
+    "type": "relative",
+    "to": "tap",
+    "db": -6.0
+   }
+  },
+  "ultimatumZero": {
+   "meaning": "Time ran out: they left the group.",
+   "bus": "SFX-Critical",
+   "priority": 4,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [
+    {
+     "bus": "Music",
+     "db": -4,
+     "attackMs": 50,
+     "releaseMs": 200
+    }
+   ],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 4
+   },
+   "variants": {
+    "": [
+     {
+      "id": "deflate",
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": "C5",
+      "freqEnd": "A4",
+      "freqCurve": "exp",
+      "glide": 0.18,
+      "attack": 0.003,
+      "decay": 0.2,
+      "sustain": 0.2,
+      "duration": 0.2,
+      "release": 0.05,
+      "gain": 1.0
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.32,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.5,
+      "duration": 0.06,
+      "release": 0.02,
+      "gain": 0.8,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "Bb5",
+      "delay": 0.395,
+      "attack": 0.001,
+      "decay": 0.08,
+      "sustain": 0.4,
+      "duration": 0.09,
+      "release": 0.03,
+      "gain": 0.8,
+      "duty": 0.125
+     },
+     {
+      "id": "door",
+      "wave": "noise",
+      "clockStart": 26000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2200,
+       "Q": 2.0
+      },
+      "delay": 0.51,
+      "attack": 0.0005,
+      "decay": 0.01,
+      "sustain": 0.0,
+      "duration": 0.01,
+      "release": 0.003,
+      "gain": 0.5
+     }
+    ]
+   },
+   "markers": {
+    "_": {
+     "deflate": 0.0,
+     "leftPing": 0.32,
+     "door": 0.51
+    }
+   },
+   "runtime": "A TRI deflate a minor third down (b3 -> 1), then the 'left the group' ping. No alarm beep, ever.",
+   "target": {
+    "type": "burst",
+    "lufs": -14.0
+   }
+  },
+  "gavel": {
+   "meaning": "Court day starts.",
+   "bus": "SFX-Critical",
+   "priority": 5,
+   "poly": 1,
+   "steal": "never",
+   "ducks": [
+    {
+     "bus": "Music",
+     "db": -4,
+     "attackMs": 50,
+     "releaseMs": 200
+    }
+   ],
+   "pitch": {
+    "type": "none"
+   },
+   "variants": {
+    "a": [
+     {
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 110.0,
+      "freqEnd": 45.0,
+      "freqCurve": "exp",
+      "glide": 0.08,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.0,
+      "duration": 0.1,
+      "release": 0.01,
+      "gain": 0.22
+     },
+     {
+      "wave": "triangle",
+      "crush": 3,
+      "freqStart": 396.0,
+      "freqEnd": 330.0,
+      "freqCurve": "exp",
+      "glide": 0.04,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.75
+     },
+     {
+      "wave": "noise",
+      "clockStart": 34000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2000,
+       "Q": 0.9
+      },
+      "delay": 0.002,
+      "attack": 0.0005,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.006,
+      "gain": 1.0
+     },
+     {
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 110.0,
+      "freqEnd": 45.0,
+      "freqCurve": "exp",
+      "glide": 0.08,
+      "followPitch": false,
+      "delay": 0.18,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.0,
+      "duration": 0.1,
+      "release": 0.01,
+      "gain": 0.22
+     },
+     {
+      "wave": "triangle",
+      "crush": 3,
+      "freqStart": 396.0,
+      "freqEnd": 330.0,
+      "freqCurve": "exp",
+      "glide": 0.04,
+      "followPitch": false,
+      "delay": 0.18,
+      "attack": 0.0008,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.75
+     },
+     {
+      "wave": "noise",
+      "clockStart": 34000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2000,
+       "Q": 0.9
+      },
+      "delay": 0.182,
+      "attack": 0.0005,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.006,
+      "gain": 1.0
+     }
+    ],
+    "b": [
+     {
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 110.0,
+      "freqEnd": 45.0,
+      "freqCurve": "exp",
+      "glide": 0.08,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.0,
+      "duration": 0.1,
+      "release": 0.01,
+      "gain": 0.2134
+     },
+     {
+      "wave": "triangle",
+      "crush": 3,
+      "freqStart": 396.0,
+      "freqEnd": 330.0,
+      "freqCurve": "exp",
+      "glide": 0.04,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.7275
+     },
+     {
+      "wave": "noise",
+      "clockStart": 34000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2000,
+       "Q": 0.9
+      },
+      "delay": 0.002,
+      "attack": 0.0005,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.006,
+      "gain": 0.97
+     },
+     {
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 110.0,
+      "freqEnd": 45.0,
+      "freqCurve": "exp",
+      "glide": 0.08,
+      "followPitch": false,
+      "delay": 0.18,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.0,
+      "duration": 0.1,
+      "release": 0.01,
+      "gain": 0.22
+     },
+     {
+      "wave": "triangle",
+      "crush": 3,
+      "freqStart": 396.0,
+      "freqEnd": 330.0,
+      "freqCurve": "exp",
+      "glide": 0.04,
+      "followPitch": false,
+      "delay": 0.18,
+      "attack": 0.0008,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.75
+     },
+     {
+      "wave": "noise",
+      "clockStart": 34000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2000,
+       "Q": 0.9
+      },
+      "delay": 0.182,
+      "attack": 0.0005,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.006,
+      "gain": 1.0
+     }
+    ],
+    "c": [
+     {
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 110.0,
+      "freqEnd": 45.0,
+      "freqCurve": "exp",
+      "glide": 0.08,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.0,
+      "duration": 0.1,
+      "release": 0.01,
+      "gain": 0.22
+     },
+     {
+      "wave": "triangle",
+      "crush": 3,
+      "freqStart": 396.0,
+      "freqEnd": 330.0,
+      "freqCurve": "exp",
+      "glide": 0.04,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.75
+     },
+     {
+      "wave": "noise",
+      "clockStart": 34000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2000,
+       "Q": 0.9
+      },
+      "delay": 0.002,
+      "attack": 0.0005,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.006,
+      "gain": 1.0
+     },
+     {
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 110.0,
+      "freqEnd": 45.0,
+      "freqCurve": "exp",
+      "glide": 0.08,
+      "followPitch": false,
+      "delay": 0.18,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.0,
+      "duration": 0.1,
+      "release": 0.01,
+      "gain": 0.209
+     },
+     {
+      "wave": "triangle",
+      "crush": 3,
+      "freqStart": 396.0,
+      "freqEnd": 330.0,
+      "freqCurve": "exp",
+      "glide": 0.04,
+      "followPitch": false,
+      "delay": 0.18,
+      "attack": 0.0008,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.7124999999999999
+     },
+     {
+      "wave": "noise",
+      "clockStart": 34000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2000,
+       "Q": 0.9
+      },
+      "delay": 0.182,
+      "attack": 0.0005,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.006,
+      "gain": 0.95
+     }
+    ]
+   },
+   "markers": {
+    "_": {
+     "knock1": 0.0,
+     "knock2": 0.18
+    }
+   },
+   "runtime": "Then the music moves to the courthouse track at the next bar line, where courtIn starts.",
+   "target": {
+    "type": "burst",
+    "lufs": -12.0
+   }
+  },
+  "gavelWeak": {
+   "meaning": "Postponement granted.",
+   "bus": "SFX-Frequent",
+   "priority": 2,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "none"
+   },
+   "variants": {
+    "": [
+     {
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 220.0,
+      "freqEnd": 90.0,
+      "freqCurve": "exp",
+      "glide": 0.08,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.0,
+      "duration": 0.1,
+      "release": 0.01,
+      "gain": 0.11
+     },
+     {
+      "wave": "triangle",
+      "crush": 3,
+      "freqStart": 792.0,
+      "freqEnd": 660.0,
+      "freqCurve": "exp",
+      "glide": 0.04,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.375
+     },
+     {
+      "wave": "noise",
+      "clockStart": 34000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2000,
+       "Q": 0.9
+      },
+      "delay": 0.002,
+      "attack": 0.0005,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.006,
+      "gain": 0.5
+     }
+    ]
+   },
+   "runtime": "One weak knock, an octave up. The 'tik'.",
+   "target": {
+    "type": "relative",
+    "to": "gavel",
+    "db": -6.0
+   }
+  },
+  "courtOut": {
+   "meaning": "Court day is over; back to the era.",
+   "bus": "SFX-Frequent",
+   "priority": 2,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 4
+   },
+   "variants": {
+    "": [
+     {
+      "wave": "triangle",
+      "freqStart": "E5",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.4,
+      "duration": 0.05,
+      "release": 0.02,
+      "gain": 1.0,
+      "crush": 4
+     },
+     {
+      "wave": "triangle",
+      "freqStart": "A5",
+      "delay": 0.14,
+      "attack": 0.001,
+      "decay": 0.06,
+      "sustain": 0.4,
+      "duration": 0.07,
+      "release": 0.04,
+      "gain": 1.0,
+      "crush": 4
+     }
+    ]
+   },
+   "runtime": "Two TRI tiptoe notes, 5 -> 1' in the era key being returned to, on the crossfade bar line.",
+   "target": {
+    "type": "burst",
+    "lufs": -18.0
+   }
+  },
+  "stamp": {
+   "meaning": "Request bounced. Again. (נדרשים מסמכים נוספים)",
+   "bus": "SFX-Frequent",
+   "priority": 2,
+   "poly": 2,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "none"
+   },
+   "variants": {
+    "": [
+     {
+      "id": "thump",
+      "wave": "noise",
+      "clockStart": 30000,
+      "filter": {
+       "type": "highpass",
+       "freq": 2500,
+       "Q": 0.7
+      },
+      "attack": 0.0005,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.006,
+      "gain": 0.7
+     },
+     {
+      "id": "hit",
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 90,
+      "followPitch": false,
+      "attack": 0.001,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.5
+     },
+     {
+      "id": "ink",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": 660,
+      "freqEnd": 588,
+      "freqCurve": "exp",
+      "glide": 0.06,
+      "followPitch": false,
+      "delay": 0.035,
+      "attack": 0.002,
+      "decay": 0.06,
+      "sustain": 0.2,
+      "duration": 0.07,
+      "release": 0.02,
+      "gain": 0.55
+     }
+    ],
+    "bell": [
+     {
+      "id": "thump",
+      "wave": "noise",
+      "clockStart": 30000,
+      "filter": {
+       "type": "highpass",
+       "freq": 2500,
+       "Q": 0.7
+      },
+      "attack": 0.0005,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.006,
+      "gain": 0.7
+     },
+     {
+      "id": "hit",
+      "wave": "triangle",
+      "crush": 4,
+      "freqStart": 90,
+      "followPitch": false,
+      "attack": 0.001,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.5
+     },
+     {
+      "id": "ink",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": 660,
+      "freqEnd": 588,
+      "freqCurve": "exp",
+      "glide": 0.06,
+      "followPitch": false,
+      "delay": 0.035,
+      "attack": 0.002,
+      "decay": 0.06,
+      "sustain": 0.2,
+      "duration": 0.07,
+      "release": 0.02,
+      "gain": 0.55
+     },
+     {
+      "id": "bell",
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2000,
+      "followPitch": false,
+      "delay": 0.12,
+      "attack": 0.001,
+      "decay": 0.2,
+      "sustain": 0.0,
+      "duration": 0.2,
+      "release": 0.03,
+      "gain": 0.4
+     },
+     {
+      "id": "bell2",
+      "wave": "sine",
+      "freqStart": 4000,
+      "followPitch": false,
+      "delay": 0.12,
+      "attack": 0.001,
+      "decay": 0.12,
+      "sustain": 0.0,
+      "duration": 0.12,
+      "release": 0.02,
+      "gain": 0.2
+     }
+    ]
+   },
+   "runtime": "Deliberately identical (+-0.5 dB at most). Every 5th stamp plays the 'bell' variant.",
+   "target": {
+    "type": "burst",
+    "lufs": -15.0
+   }
+  },
+  "transferWhistle": {
+   "meaning": "A partner switched jerseys (the transfer window).",
+   "bus": "SFX-Critical",
+   "priority": 4,
+   "poly": 1,
+   "steal": "never",
+   "ducks": [
+    {
+     "bus": "Music",
+     "db": -4,
+     "attackMs": 50,
+     "releaseMs": 200
+    }
+   ],
+   "pitch": {
+    "type": "none"
+   },
+   "variants": {
+    "w26": [
+     {
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2800,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.004,
+      "decay": 0.02,
+      "sustain": 0.85,
+      "duration": 0.12,
+      "release": 0.02,
+      "gain": 1.0,
+      "vibrato": {
+       "rateHz": 26,
+       "depthCents": 30,
+       "delay": 0.0
+      }
+     },
+     {
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2800,
+      "followPitch": false,
+      "delay": 0.16,
+      "attack": 0.004,
+      "decay": 0.02,
+      "sustain": 0.85,
+      "duration": 0.12,
+      "release": 0.02,
+      "gain": 1.0,
+      "vibrato": {
+       "rateHz": 26,
+       "depthCents": 30,
+       "delay": 0.0
+      }
+     },
+     {
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2800,
+      "followPitch": false,
+      "delay": 0.32,
+      "attack": 0.004,
+      "decay": 0.02,
+      "sustain": 0.85,
+      "duration": 0.4,
+      "release": 0.02,
+      "gain": 1.0,
+      "vibrato": {
+       "rateHz": 26,
+       "depthCents": 30,
+       "delay": 0.0
+      }
+     }
+    ],
+    "w28": [
+     {
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2800,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.004,
+      "decay": 0.02,
+      "sustain": 0.85,
+      "duration": 0.12,
+      "release": 0.02,
+      "gain": 1.0,
+      "vibrato": {
+       "rateHz": 28,
+       "depthCents": 30,
+       "delay": 0.0
+      }
+     },
+     {
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2800,
+      "followPitch": false,
+      "delay": 0.16,
+      "attack": 0.004,
+      "decay": 0.02,
+      "sustain": 0.85,
+      "duration": 0.12,
+      "release": 0.02,
+      "gain": 1.0,
+      "vibrato": {
+       "rateHz": 28,
+       "depthCents": 30,
+       "delay": 0.0
+      }
+     },
+     {
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2800,
+      "followPitch": false,
+      "delay": 0.32,
+      "attack": 0.004,
+      "decay": 0.02,
+      "sustain": 0.85,
+      "duration": 0.4,
+      "release": 0.02,
+      "gain": 1.0,
+      "vibrato": {
+       "rateHz": 28,
+       "depthCents": 30,
+       "delay": 0.0
+      }
+     }
+    ],
+    "w30": [
+     {
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2800,
+      "followPitch": false,
+      "delay": 0.0,
+      "attack": 0.004,
+      "decay": 0.02,
+      "sustain": 0.85,
+      "duration": 0.12,
+      "release": 0.02,
+      "gain": 1.0,
+      "vibrato": {
+       "rateHz": 30,
+       "depthCents": 30,
+       "delay": 0.0
+      }
+     },
+     {
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2800,
+      "followPitch": false,
+      "delay": 0.16,
+      "attack": 0.004,
+      "decay": 0.02,
+      "sustain": 0.85,
+      "duration": 0.12,
+      "release": 0.02,
+      "gain": 1.0,
+      "vibrato": {
+       "rateHz": 30,
+       "depthCents": 30,
+       "delay": 0.0
+      }
+     },
+     {
+      "wave": "pulse",
+      "duty": 0.5,
+      "freqStart": 2800,
+      "followPitch": false,
+      "delay": 0.32,
+      "attack": 0.004,
+      "decay": 0.02,
+      "sustain": 0.85,
+      "duration": 0.4,
+      "release": 0.02,
+      "gain": 1.0,
+      "vibrato": {
+       "rateHz": 30,
+       "depthCents": 30,
+       "delay": 0.0
+      }
+     }
+    ]
+   },
+   "markers": {
+    "_": {
+     "w1": 0.0,
+     "w2": 0.16,
+     "w3": 0.32
+    }
+   },
+   "runtime": "Random variant. Pitch-stable, no glide, 740 ms in total: siren-safe (brief §2).",
+   "target": {
+    "type": "burst",
+    "lufs": -15.0
+   }
+  },
+  "shutter": {
+   "meaning": "You caught the people who live in our cameras (photobomb).",
+   "bus": "UI",
+   "priority": 3,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "none"
+   },
+   "variants": {
+    "m1": [
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3000,
+       "Q": 0.7
+      },
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.012,
+      "sustain": 0.0,
+      "duration": 0.012,
+      "release": 0.004,
+      "gain": 0.9
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3000,
+       "Q": 0.7
+      },
+      "delay": 0.07,
+      "attack": 0.0008,
+      "decay": 0.012,
+      "sustain": 0.0,
+      "duration": 0.012,
+      "release": 0.004,
+      "gain": 0.8
+     },
+     {
+      "id": "pip",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": 3775.5,
+      "followPitch": false,
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.008,
+      "gain": 0.4
+     }
+    ],
+    "p0": [
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3000,
+       "Q": 0.7
+      },
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.012,
+      "sustain": 0.0,
+      "duration": 0.012,
+      "release": 0.004,
+      "gain": 0.9
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3000,
+       "Q": 0.7
+      },
+      "delay": 0.07,
+      "attack": 0.0008,
+      "decay": 0.012,
+      "sustain": 0.0,
+      "duration": 0.012,
+      "release": 0.004,
+      "gain": 0.8
+     },
+     {
+      "id": "pip",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": 4000.0,
+      "followPitch": false,
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.008,
+      "gain": 0.4
+     }
+    ],
+    "p1": [
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3000,
+       "Q": 0.7
+      },
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.012,
+      "sustain": 0.0,
+      "duration": 0.012,
+      "release": 0.004,
+      "gain": 0.9
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 3000,
+       "Q": 0.7
+      },
+      "delay": 0.07,
+      "attack": 0.0008,
+      "decay": 0.012,
+      "sustain": 0.0,
+      "duration": 0.012,
+      "release": 0.004,
+      "gain": 0.8
+     },
+     {
+      "id": "pip",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": 4237.85,
+      "followPitch": false,
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.03,
+      "sustain": 0.0,
+      "duration": 0.03,
+      "release": 0.008,
+      "gain": 0.4
+     }
+    ]
+   },
+   "runtime": "Random variant (the pip +-1 semitone). The 'שלום בית בפריים' trophy plays the trophy stinger instead (shutter + the full motif on BLIP).",
+   "target": {
+    "type": "burst",
+    "lufs": -16.0
+   }
+  },
+  "dubiSquawk": {
+   "meaning": "Dubi is about to speak.",
+   "bus": "Voice",
+   "priority": 4,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [
+    {
+     "bus": "Music",
+     "db": -6,
+     "attackMs": 30,
+     "releaseMs": 250
+    }
+   ],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 5
+   },
+   "variants": {
+    "up": [
+     {
+      "id": "chirp",
+      "wave": "pulse",
+      "duty": 0.125,
+      "freqStart": "E5",
+      "freqEnd": "B5",
+      "freqCurve": "exp",
+      "glide": 0.08,
+      "attack": 0.002,
+      "decay": 0.08,
+      "sustain": 0.3,
+      "duration": 0.085,
+      "release": 0.02,
+      "gain": 1.0
+     },
+     {
+      "id": "rasp",
+      "wave": "noiseMetal",
+      "clockStart": 24000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2600,
+       "Q": 1.5
+      },
+      "attack": 0.004,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.35
+     }
+    ],
+    "down": [
+     {
+      "id": "chirp",
+      "wave": "pulse",
+      "duty": 0.125,
+      "freqStart": "B5",
+      "freqEnd": "E5",
+      "freqCurve": "exp",
+      "glide": 0.08,
+      "attack": 0.002,
+      "decay": 0.08,
+      "sustain": 0.3,
+      "duration": 0.085,
+      "release": 0.02,
+      "gain": 1.0
+     },
+     {
+      "id": "rasp",
+      "wave": "noiseMetal",
+      "clockStart": 24000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 2600,
+       "Q": 1.5
+      },
+      "attack": 0.004,
+      "decay": 0.06,
+      "sustain": 0.0,
+      "duration": 0.06,
+      "release": 0.01,
+      "gain": 0.35
+     }
+    ]
+   },
+   "runtime": "Before a spoken line: 'up' before a headline, 'down' before a flash. +-7 semitones over 80 ms.",
+   "target": {
+    "type": "burst",
+    "lufs": -15.0
+   }
+  },
+  "dubiBlip": {
+   "meaning": "One syllable of Dubi's babble.",
+   "bus": "Voice",
+   "priority": 4,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [
+    {
+     "bus": "Music",
+     "db": -6,
+     "attackMs": 30,
+     "releaseMs": 250
+    }
+   ],
+   "pitch": {
+    "type": "degrees",
+    "degrees": [
+     "1",
+     "3",
+     "4",
+     "5",
+     "b7"
+    ],
+    "octaves": [
+     5,
+     6
+    ]
+   },
+   "variants": {
+    "": [
+     {
+      "id": "blip",
+      "wave": "pulse",
+      "duty": 0.125,
+      "freqStart": "A4",
+      "attack": 0.001,
+      "decay": 0.045,
+      "sustain": 0.35,
+      "duration": 0.055,
+      "release": 0.012,
+      "gain": 1.0
+     }
+    ]
+   },
+   "runtime": "Replaces the F-pentatonic babble bank (ADR 0003). One blip per displayed syllable (about 1 per 2 Hebrew letters) at 8 per second; degrees drawn from the bank (seeded by the text), a final '!' steps up to the next higher degree. Capped at 1.6 s. The ticker babbles on at most one headline per 20 s. Canned lines use babbleContours instead.",
+   "target": {
+    "type": "shortTerm",
+    "rateHz": 8,
+    "lufs": -18.0
+   }
+  },
+  "returnAway": {
+   "meaning": "While you were away (the return).",
+   "bus": "SFX-Critical",
+   "priority": 3,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [
+    {
+     "bus": "Music",
+     "db": -4,
+     "attackMs": 50,
+     "releaseMs": 200
+    }
+   ],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 5
+   },
+   "variants": {
+    "": [
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 6500,
+       "Q": 0.7
+      },
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.2
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 4266,
+       "Q": 0.7
+      },
+      "delay": 0.0303,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.525
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 2800,
+       "Q": 0.7
+      },
+      "delay": 0.0606,
+      "attack": 0.0008,
+      "decay": 0.014,
+      "sustain": 0.0,
+      "duration": 0.014,
+      "release": 0.004,
+      "gain": 0.85
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.13,
+      "attack": 0.001,
+      "decay": 0.06,
+      "sustain": 0.4,
+      "duration": 0.07,
+      "release": 0.02,
+      "gain": 0.7,
+      "duty": 0.5
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.2,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.45,
+      "duration": 0.16,
+      "release": 0.06,
+      "gain": 0.75,
+      "duty": 0.5
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 5000,
+       "Q": 0.7
+      },
+      "delay": 0.2,
+      "attack": 0.0008,
+      "decay": 0.01,
+      "sustain": 0.0,
+      "duration": 0.01,
+      "release": 0.004,
+      "gain": 0.5
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.52,
+      "attack": 0.001,
+      "decay": 0.06,
+      "sustain": 0.4,
+      "duration": 0.08,
+      "release": 0.02,
+      "gain": 0.7,
+      "duty": 0.5
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.6,
+      "attack": 0.001,
+      "decay": 0.12,
+      "sustain": 0.45,
+      "duration": 0.18,
+      "release": 0.06,
+      "gain": 0.75,
+      "duty": 0.5
+     }
+    ]
+   },
+   "runtime": "The catch's cha-ching, then the motif head (5-1).",
+   "target": {
+    "type": "burst",
+    "lufs": -14.0
+   }
+  },
+  "buy": {
+   "meaning": "Bought a source or a spin.",
+   "bus": "SFX-Frequent",
+   "priority": 3,
+   "poly": 2,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 4
+   },
+   "variants": {
+    "d25": [
+     {
+      "id": "puff",
+      "wave": "noiseMetal",
+      "clockStart": 40000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 5000,
+       "Q": 0.9
+      },
+      "attack": 0.001,
+      "decay": 0.015,
+      "sustain": 0.0,
+      "duration": 0.015,
+      "release": 0.004,
+      "gain": 0.35
+     },
+     {
+      "id": "blip",
+      "wave": "pulse",
+      "duty": 0.25,
+      "freqStart": "E5",
+      "delay": 0.012,
+      "attack": 0.001,
+      "decay": 0.03,
+      "sustain": 0.45,
+      "duration": 0.04,
+      "release": 0.012,
+      "gain": 1.0,
+      "filter": {
+       "type": "highpass",
+       "freq": 1000,
+       "Q": -3.0103
+      }
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.07,
+      "attack": 0.001,
+      "decay": 0.08,
+      "sustain": 0.4,
+      "duration": 0.1,
+      "release": 0.04,
+      "gain": 0.9,
+      "duty": 0.25
+     }
+    ],
+    "d12": [
+     {
+      "id": "puff",
+      "wave": "noiseMetal",
+      "clockStart": 40000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 5000,
+       "Q": 0.9
+      },
+      "attack": 0.001,
+      "decay": 0.015,
+      "sustain": 0.0,
+      "duration": 0.015,
+      "release": 0.004,
+      "gain": 0.35
+     },
+     {
+      "id": "blip",
+      "wave": "pulse",
+      "duty": 0.125,
+      "freqStart": "E5",
+      "delay": 0.012,
+      "attack": 0.001,
+      "decay": 0.03,
+      "sustain": 0.45,
+      "duration": 0.04,
+      "release": 0.012,
+      "gain": 1.0,
+      "filter": {
+       "type": "highpass",
+       "freq": 1000,
+       "Q": -3.0103
+      }
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.07,
+      "attack": 0.001,
+      "decay": 0.08,
+      "sustain": 0.4,
+      "duration": 0.1,
+      "release": 0.04,
+      "gain": 0.9,
+      "duty": 0.125
+     }
+    ]
+   },
+   "runtime": "The tap blip on 5, then the motif's first bar note (1') on P1. Alternate d25 / d12.",
+   "target": {
+    "type": "burst",
+    "lufs": -16.0
+   }
+  },
+  "cantAfford": {
+   "meaning": "Not enough money.",
+   "bus": "UI",
+   "priority": 1,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 4
+   },
+   "variants": {
+    "": [
+     {
+      "wave": "pulse",
+      "freqStart": "G#4",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.04,
+      "sustain": 0.3,
+      "duration": 0.045,
+      "release": 0.02,
+      "gain": 1.0,
+      "duty": 0.125
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "G#4",
+      "delay": 0.075,
+      "attack": 0.001,
+      "decay": 0.04,
+      "sustain": 0.3,
+      "duration": 0.045,
+      "release": 0.02,
+      "gain": 0.8,
+      "duty": 0.125
+     }
+    ]
+   },
+   "runtime": "Two quiet P2 staccatos on the raised leading tone, left hanging.",
+   "target": {
+    "type": "burst",
+    "lufs": -21.0
+   }
+  },
+  "uiClick": {
+   "meaning": "A UI press.",
+   "bus": "UI",
+   "priority": 1,
+   "poly": 2,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 6
+   },
+   "variants": {
+    "": [
+     {
+      "wave": "pulse",
+      "freqStart": "A4",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.025,
+      "sustain": 0.0,
+      "duration": 0.025,
+      "release": 0.008,
+      "gain": 1.0,
+      "duty": 0.5
+     }
+    ]
+   },
+   "runtime": "One P2 blip on degree 1 in octave 6 (1.2-1.6 kHz).",
+   "target": {
+    "type": "burst",
+    "lufs": -21.0
+   }
+  },
+  "coin": {
+   "meaning": "Coins (the settings 'צ'ינג' preview; payout sparkle, at most 6 per tap).",
+   "bus": "SFX-Frequent",
+   "priority": 1,
+   "poly": 3,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 5
+   },
+   "variants": {
+    "a": [
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 7000,
+       "Q": 0.7
+      },
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.04,
+      "sustain": 0.0,
+      "duration": 0.04,
+      "release": 0.004,
+      "gain": 0.4
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E6",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.2,
+      "duration": 0.05,
+      "release": 0.02,
+      "gain": 0.5,
+      "duty": 0.5
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A6",
+      "delay": 0.045,
+      "attack": 0.001,
+      "decay": 0.08,
+      "sustain": 0.1,
+      "duration": 0.08,
+      "release": 0.03,
+      "gain": 0.5,
+      "duty": 0.5
+     }
+    ],
+    "b": [
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 7500,
+       "Q": 0.7
+      },
+      "delay": 0.0,
+      "attack": 0.0008,
+      "decay": 0.04,
+      "sustain": 0.0,
+      "duration": 0.04,
+      "release": 0.004,
+      "gain": 0.4
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "C6",
+      "delay": 0.0,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.2,
+      "duration": 0.05,
+      "release": 0.02,
+      "gain": 0.5,
+      "duty": 0.5
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E6",
+      "delay": 0.045,
+      "attack": 0.001,
+      "decay": 0.08,
+      "sustain": 0.1,
+      "duration": 0.08,
+      "release": 0.03,
+      "gain": 0.5,
+      "duty": 0.5
+     }
+    ]
+   },
+   "runtime": "The deadpan rule: the payout never scales loudness or count (<= 6 coins per tap, whatever the sum).",
+   "target": {
+    "type": "burst",
+    "lufs": -19.0
+   }
+  }
+ }
+}

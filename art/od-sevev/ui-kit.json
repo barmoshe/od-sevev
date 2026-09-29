@@ -1,0 +1,2603 @@
+{
+ "artifact": "ui-artwork",
+ "owner": "2d-artist",
+ "game": "od-sevev",
+ "units": "art px (1 art px = 4 logical px in the 720x1280 canvas)",
+ "slice": "[left, top, right, bottom] 9-slice patch margins",
+ "mode": "stretch | tile  (Godot NinePatchRect axis_stretch STRETCH | TILE_FIT)",
+ "content": "[x, y, w, h] text-safe box in the base PNG; grows with the centre patch",
+ "pieces": [
+  {
+   "id": "card_back_mark",
+   "group": "cards",
+   "file": "out/ui/cards/card_back_mark.png",
+   "w": 16,
+   "h": 16,
+   "pivot": [
+    8,
+    8
+   ],
+   "notes": "The '?' mark centred on card_opposition_back."
+  },
+  {
+   "id": "card_opposition",
+   "group": "cards",
+   "file": "out/ui/cards/card_opposition.png",
+   "w": 40,
+   "h": 40,
+   "slice": [
+    6,
+    17,
+    6,
+    6
+   ],
+   "mode": "stretch",
+   "content": [
+    5,
+    17,
+    30,
+    17
+   ],
+   "label": "white",
+   "notes": "Opposition event card (content.json opposition.cards, 8 cards). Neutral steel frame: NOT a party colour, NOT the coalition's violet. Name band y 3..14 (white on suit_dk 11.8:1), avatar (32x32 on a 34x34 card_plate) at the RIGHT under the band, text left of it, opp timer along the bottom."
+  },
+  {
+   "id": "card_opposition_back",
+   "group": "cards",
+   "file": "out/ui/cards/card_opposition_back.png",
+   "w": 40,
+   "h": 40,
+   "slice": [
+    6,
+    6,
+    6,
+    6
+   ],
+   "mode": "tile",
+   "notes": "The card's back (Bennett's pledge flip, Golan's merge shuffle). Diagonal stripe period 6: TILE. Centre card_back_mark on it (never inside the 9-slice, or it would repeat)."
+  },
+  {
+   "id": "card_source_affordable",
+   "group": "cards",
+   "file": "out/ui/cards/card_source_affordable.png",
+   "w": 32,
+   "h": 30,
+   "state": "affordable",
+   "slice": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    3,
+    25,
+    23
+   ],
+   "label": "white",
+   "notes": "Affordable: the same card plus a gold edge (top + right). The pill carries the state (raised gold pay_pill_default); the edge is the redundant channel. The WHOLE card is the buy target."
+  },
+  {
+   "id": "card_source_locked",
+   "group": "cards",
+   "file": "out/ui/cards/card_source_locked.png",
+   "w": 32,
+   "h": 30,
+   "state": "locked",
+   "slice": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    3,
+    26,
+    24
+   ],
+   "label": "grey",
+   "notes": "Not revealed: sunk + flat, name '???', icon plate = plate_silhouette."
+  },
+  {
+   "id": "card_source_unaffordable",
+   "group": "cards",
+   "file": "out/ui/cards/card_source_unaffordable.png",
+   "w": 32,
+   "h": 30,
+   "state": "unaffordable",
+   "slice": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    26,
+    24
+   ],
+   "label": "white",
+   "notes": "Money-source row (shop), not yet affordable: plain raised card; its price pill is pay_pill_track + pay_pill_fill."
+  },
+  {
+   "id": "card_spin",
+   "group": "cards",
+   "file": "out/ui/cards/card_spin.png",
+   "w": 32,
+   "h": 30,
+   "state": "default",
+   "slice": [
+    4,
+    4,
+    6,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    23,
+    24
+   ],
+   "label": "white",
+   "notes": "Spin card (ספינים tab). Pink stripe on the RIGHT = 'this is a talking point' (spins own pink; money cards don't have it). Icon 15x15 on card_plate at the right, price pill left."
+  },
+  {
+   "id": "card_spin_locked",
+   "group": "cards",
+   "file": "out/ui/cards/card_spin_locked.png",
+   "w": 32,
+   "h": 30,
+   "state": "locked",
+   "slice": [
+    4,
+    4,
+    6,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    3,
+    23,
+    24
+   ],
+   "label": "grey",
+   "notes": "A spin not yet unlocked / a once-spin already aired: sunk and flat, the stripe dimmed."
+  },
+  {
+   "id": "chip_owned",
+   "group": "cards",
+   "file": "out/ui/cards/chip_owned.png",
+   "w": 14,
+   "h": 11,
+   "slice": [
+    4,
+    3,
+    4,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    1,
+    8,
+    9
+   ],
+   "label": "white",
+   "notes": "Owned count on a source card ('×12'), top-left corner of the plate. white on night 13.5:1."
+  },
+  {
+   "id": "opp_timer_fill",
+   "group": "cards",
+   "file": "out/ui/cards/opp_timer_fill.png",
+   "w": 6,
+   "h": 7,
+   "slice": [
+    1,
+    1,
+    1,
+    2
+   ],
+   "mode": "stretch",
+   "notes": "Opposition timer: draw inside seats_track (same well), anchored RIGHT, shrinking as durationSec runs out. Steel, so it never reads as seats (sky) or suspicion (red)."
+  },
+  {
+   "id": "plate_silhouette",
+   "group": "cards",
+   "file": "out/ui/cards/plate_silhouette.png",
+   "w": 26,
+   "h": 26,
+   "notes": "Icon plate for a locked source: dashed ring + '?'. The engine may instead draw the next critter's mask in `night` on card_plate (UX's silhouette rule)."
+  },
+  {
+   "id": "tag_worn",
+   "group": "cards",
+   "file": "out/ui/cards/tag_worn.png",
+   "w": 30,
+   "h": 13,
+   "notes": "Spin-fatigue tag 'שחוק' (UX/pitch 13), baked text, grey on suit_dk 5.5:1; the frayed edge is the shape channel."
+  },
+  {
+   "id": "curtain_hem",
+   "group": "ceremony",
+   "file": "out/ui/ceremony/curtain_hem.png",
+   "w": 30,
+   "h": 6,
+   "notes": "Curtain bottom edge with a gold fringe (the election is the game's reward moment). Tile horizontally."
+  },
+  {
+   "id": "curtain_panel",
+   "group": "ceremony",
+   "file": "out/ui/ceremony/curtain_panel.png",
+   "w": 30,
+   "h": 40,
+   "notes": "Election-ceremony curtain body: vertical folds, period 10 px; TILE both axes. PLUM, the stage-curtain ramp (v1 title), not maroon: maroon is the Suitcase's alone (see the flag in the report)."
+  },
+  {
+   "id": "curtain_valance",
+   "group": "ceremony",
+   "file": "out/ui/ceremony/curtain_valance.png",
+   "w": 180,
+   "h": 22,
+   "slice": [
+    4,
+    2,
+    4,
+    3
+   ],
+   "mode": "tile",
+   "notes": "The valance across the top: a row of ballot-box lids with their slots (the election signifier, never a slip going in), gold rope trim. 16 px motif period; TILE horizontally."
+  },
+  {
+   "id": "chat_bubble_in",
+   "group": "chat",
+   "file": "out/ui/chat/chat_bubble_in.png",
+   "w": 26,
+   "h": 16,
+   "slice": [
+    3,
+    6,
+    8,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    3,
+    13,
+    10
+   ],
+   "label": "white",
+   "notes": "Incoming partner bubble, right-aligned; tail at top-right points at the avatar. Name line sits ABOVE the bubble (engine text, grey). white on ui_bubble 13.1:1."
+  },
+  {
+   "id": "chat_bubble_out",
+   "group": "chat",
+   "file": "out/ui/chat/chat_bubble_out.png",
+   "w": 26,
+   "h": 16,
+   "slice": [
+    8,
+    6,
+    3,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    9,
+    3,
+    13,
+    10
+   ],
+   "label": "white",
+   "notes": "The player's auto-reply, left-aligned, dark gold (UX). white on ui_out 10.0:1."
+  },
+  {
+   "id": "chat_bubble_ultimatum",
+   "group": "chat",
+   "file": "out/ui/chat/chat_bubble_ultimatum.png",
+   "w": 33,
+   "h": 24,
+   "slice": [
+    8,
+    8,
+    13,
+    8
+   ],
+   "mode": "tile",
+   "content": [
+    6,
+    6,
+    16,
+    12
+   ],
+   "label": "white",
+   "notes": "Ultimatum = hatched hazard border (shape) + 'אולטימטום' label (text) + timer chip (text) + red (4th channel). TILE_FIT on both axes: the hatch period is 4, keep the stretched centre a multiple of 4 or let TILE_FIT round it. No flashing: the band is static (UX: nothing above 3 Hz)."
+  },
+  {
+   "id": "chat_composer_disabled",
+   "group": "chat",
+   "file": "out/ui/chat/chat_composer_disabled.png",
+   "w": 180,
+   "h": 22,
+   "slice": [
+    9,
+    6,
+    9,
+    6
+   ],
+   "mode": "stretch",
+   "content": [
+    9,
+    6,
+    162,
+    10
+   ],
+   "label": "slate",
+   "notes": "Disabled composer: sunken well, no send button. Placeholder 'פה מדברים רק בשקלים' in slate (4.2:1 on ui_scrim: it is deliberately a disabled-hint colour, still >= 3:1)."
+  },
+  {
+   "id": "chat_header",
+   "group": "chat",
+   "file": "out/ui/chat/chat_header.png",
+   "w": 180,
+   "h": 26,
+   "slice": [
+    2,
+    2,
+    2,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    3,
+    172,
+    20
+   ],
+   "label": "white",
+   "notes": "Full-width tall-tab header (UX 4.1). Right 22 px: collapse chevron (chat_icon_chevron) centred in a 20x26 hit column (hit area 44 CSS = 20 art). Title line y=4, status line y=14 (both 9-row cells)."
+  },
+  {
+   "id": "chat_icon_chevron",
+   "group": "chat",
+   "file": "out/ui/chat/chat_icon_chevron.png",
+   "w": 6,
+   "h": 9,
+   "notes": "Collapse chevron › at the header's right edge (RTL start)."
+  },
+  {
+   "id": "chat_icon_lock",
+   "group": "chat",
+   "file": "out/ui/chat/chat_icon_lock.png",
+   "w": 7,
+   "h": 9,
+   "notes": "Title lock (UX: 🔒 is a pixel icon, never emoji)."
+  },
+  {
+   "id": "chat_icon_mute",
+   "group": "chat",
+   "file": "out/ui/chat/chat_icon_mute.png",
+   "w": 9,
+   "h": 9,
+   "notes": "Muted advisers system line (Distel). The crossed wave carries it, not colour."
+  },
+  {
+   "id": "chat_icon_pin",
+   "group": "chat",
+   "file": "out/ui/chat/chat_icon_pin.png",
+   "w": 9,
+   "h": 9,
+   "notes": "Pinned-bar pin (📌 as pixel icon). Head in stamp_lt: the 'official' violet."
+  },
+  {
+   "id": "chat_pinned",
+   "group": "chat",
+   "file": "out/ui/chat/chat_pinned.png",
+   "w": 180,
+   "h": 14,
+   "slice": [
+    2,
+    2,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    172,
+    10
+   ],
+   "label": "grey",
+   "notes": "'נעוץ: ההסכם הקואליציוני · טיוטה {n}'. Pin icon right, text right-aligned after it. grey on ui_scrim 8.5:1."
+  },
+  {
+   "id": "chat_system_pill",
+   "group": "chat",
+   "file": "out/ui/chat/chat_system_pill.png",
+   "w": 20,
+   "h": 13,
+   "slice": [
+    4,
+    3,
+    4,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    14,
+    9
+   ],
+   "label": "white",
+   "notes": "System lines, day divider 'היום', unread divider, 'ההודעה נמחקה'. white on suit_dk 11.8:1. Text cell is 9 rows (5x9 cut): exactly the content height."
+  },
+  {
+   "id": "icon_clock",
+   "group": "chat",
+   "file": "out/ui/chat/icon_clock.png",
+   "w": 36,
+   "h": 9,
+   "frames": 4,
+   "frameW": 9,
+   "notes": "Timer clock (⏱ as pixel icon) for the ultimatum chip and the court chip. 4 static hand states (the red sweep hand at 12/3/6/9); the Animator owns whether/when it steps. Reduced motion: frame 0."
+  },
+  {
+   "id": "pay_pill_default",
+   "group": "chat",
+   "file": "out/ui/chat/pay_pill_default.png",
+   "w": 24,
+   "h": 17,
+   "state": "afford",
+   "slice": [
+    3,
+    3,
+    3,
+    5
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    2,
+    16,
+    11
+   ],
+   "label": "ink",
+   "notes": "'סגרנו · {price} ₪' — affordable. Raised gold (gold = money). ink on gold 11.0:1. Visual 78x17 art (UX 170x36 CSS); hit 84x22 art (182x48 CSS)."
+  },
+  {
+   "id": "pay_pill_fill",
+   "group": "chat",
+   "file": "out/ui/chat/pay_pill_fill.png",
+   "w": 6,
+   "h": 11,
+   "slice": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mode": "stretch",
+   "label": "white",
+   "notes": "Progress fill for pay_pill_track (and the source-card price pill). Anchor RIGHT; width = inner_w x progress. Deliberately DIM gold: the pill only turns bright gold when it is payable."
+  },
+  {
+   "id": "pay_pill_pressed",
+   "group": "chat",
+   "file": "out/ui/chat/pay_pill_pressed.png",
+   "w": 24,
+   "h": 17,
+   "state": "pressed",
+   "slice": [
+    3,
+    5,
+    3,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    4,
+    16,
+    11
+   ],
+   "label": "ink",
+   "notes": "Pressed: the face drops 2 art px (label y +2), no lip, inner shadow on top. ink on gold_sh 5.8:1."
+  },
+  {
+   "id": "pay_pill_track",
+   "group": "chat",
+   "file": "out/ui/chat/pay_pill_track.png",
+   "w": 24,
+   "h": 17,
+   "state": "cant_afford",
+   "slice": [
+    3,
+    5,
+    3,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    4,
+    16,
+    11
+   ],
+   "label": "white",
+   "notes": "Can't afford yet: a SUNKEN well (shape), label 'חסר {n} ₪' in white. The fill below grows from the RIGHT (RTL, UX 3.5) inside content x 2..W-3, y 4..H-3. white on ui_scrim 17.3:1, on the fill 6.4:1."
+  },
+  {
+   "id": "badge_count",
+   "group": "controls",
+   "file": "out/ui/controls/badge_count.png",
+   "w": 11,
+   "h": 11,
+   "slice": [
+    5,
+    4,
+    5,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    2,
+    1,
+    7,
+    9
+   ],
+   "label": "white",
+   "notes": "Unread / demand count on a tab: top-right of the icon. 1-2 digits in the 5x9 cut (body rows only). white on red 4.7:1; the number itself is the non-colour channel."
+  },
+  {
+   "id": "button_gold_default",
+   "group": "controls",
+   "file": "out/ui/controls/button_gold_default.png",
+   "w": 24,
+   "h": 20,
+   "state": "default",
+   "slice": [
+    3,
+    3,
+    3,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    18,
+    14
+   ],
+   "label": "ink",
+   "notes": "Money / reward only: the full-width 'עוד סבב!' election button (replaces the ticker at >= 61 seats). ink on gold 11.0:1. Text cell (9 rows) centred in rows 2..15."
+  },
+  {
+   "id": "button_gold_disabled",
+   "group": "controls",
+   "file": "out/ui/controls/button_gold_disabled.png",
+   "w": 24,
+   "h": 20,
+   "state": "disabled",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "grey",
+   "notes": "Disabled: sunk, flat, no bevel light; label grey (5.5:1 on suit_dk). Same for every kind, so 'disabled' never masquerades as a colour variant."
+  },
+  {
+   "id": "button_gold_pressed",
+   "group": "controls",
+   "file": "out/ui/controls/button_gold_pressed.png",
+   "w": 24,
+   "h": 20,
+   "state": "pressed",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "ink",
+   "notes": "Pressed: label moves +2 art px down with the face."
+  },
+  {
+   "id": "button_primary_default",
+   "group": "controls",
+   "file": "out/ui/controls/button_primary_default.png",
+   "w": 24,
+   "h": 20,
+   "state": "default",
+   "slice": [
+    3,
+    3,
+    3,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    18,
+    14
+   ],
+   "label": "white",
+   "notes": "Primary action: 'התייעצות ביטחונית · {price} ₪', 'לשתף', 'להתחיל'. flag blue is reserved for the Magician's tie and THE primary button; one primary per screen. white on flag 8.5:1. Text cell (9 rows) centred in rows 2..15."
+  },
+  {
+   "id": "button_primary_disabled",
+   "group": "controls",
+   "file": "out/ui/controls/button_primary_disabled.png",
+   "w": 24,
+   "h": 20,
+   "state": "disabled",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "grey",
+   "notes": "Disabled: sunk, flat, no bevel light; label grey (5.5:1 on suit_dk). Same for every kind, so 'disabled' never masquerades as a colour variant."
+  },
+  {
+   "id": "button_primary_pressed",
+   "group": "controls",
+   "file": "out/ui/controls/button_primary_pressed.png",
+   "w": 24,
+   "h": 20,
+   "state": "pressed",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "white",
+   "notes": "Pressed: label moves +2 art px down with the face."
+  },
+  {
+   "id": "button_secondary_default",
+   "group": "controls",
+   "file": "out/ui/controls/button_secondary_default.png",
+   "w": 24,
+   "h": 20,
+   "state": "default",
+   "slice": [
+    3,
+    3,
+    3,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    18,
+    14
+   ],
+   "label": "white",
+   "notes": "Secondary: 'להעיד', 'סגור', 'לשמור תמונה', 'צאו החוצה', 'להחזיר לקבוצה'. white on ui_bubble 13.1:1. Text cell (9 rows) centred in rows 2..15."
+  },
+  {
+   "id": "button_secondary_disabled",
+   "group": "controls",
+   "file": "out/ui/controls/button_secondary_disabled.png",
+   "w": 24,
+   "h": 20,
+   "state": "disabled",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "grey",
+   "notes": "Disabled: sunk, flat, no bevel light; label grey (5.5:1 on suit_dk). Same for every kind, so 'disabled' never masquerades as a colour variant."
+  },
+  {
+   "id": "button_secondary_pressed",
+   "group": "controls",
+   "file": "out/ui/controls/button_secondary_pressed.png",
+   "w": 24,
+   "h": 20,
+   "state": "pressed",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "white",
+   "notes": "Pressed: label moves +2 art px down with the face."
+  },
+  {
+   "id": "card_plate",
+   "group": "controls",
+   "file": "out/ui/controls/card_plate.png",
+   "w": 26,
+   "h": 26,
+   "slice": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "mode": "stretch",
+   "notes": "Recessed plate for the 24x24 source icon or the 32x32 cast avatar (then 34x34, slice keeps the bevel)."
+  },
+  {
+   "id": "card_row",
+   "group": "controls",
+   "file": "out/ui/controls/card_row.png",
+   "w": 32,
+   "h": 30,
+   "state": "default",
+   "slice": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    26,
+    24
+   ],
+   "label": "white",
+   "notes": "Source / partner card: 169x30 art in the panel. RTL: the 26x26 plate (card_plate) at the RIGHT (x w-29, y 2), name + line 2 right-aligned after it, the price pill (pay_pill_*) at the LEFT end, 54x17 art."
+  },
+  {
+   "id": "card_row_locked",
+   "group": "controls",
+   "file": "out/ui/controls/card_row_locked.png",
+   "w": 32,
+   "h": 30,
+   "state": "locked",
+   "slice": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    3,
+    26,
+    24
+   ],
+   "label": "grey",
+   "notes": "The silhouette / not-yet-revealed card: flat, sunk, grey label '???'."
+  },
+  {
+   "id": "icon_gear",
+   "group": "controls",
+   "file": "out/ui/controls/icon_gear.png",
+   "w": 15,
+   "h": 15,
+   "notes": "⚙ settings, 15x15, hit 20x20 art (UX row A corner)."
+  },
+  {
+   "id": "icon_sound_off",
+   "group": "controls",
+   "file": "out/ui/controls/icon_sound_off.png",
+   "w": 15,
+   "h": 15,
+   "notes": "🔊 sound off: speaker + a red x (the x is the channel, not the red)."
+  },
+  {
+   "id": "icon_sound_on",
+   "group": "controls",
+   "file": "out/ui/controls/icon_sound_on.png",
+   "w": 15,
+   "h": 15,
+   "notes": "🔊 sound on: speaker + two arcs."
+  },
+  {
+   "id": "tab_active",
+   "group": "controls",
+   "file": "out/ui/controls/tab_active.png",
+   "w": 45,
+   "h": 26,
+   "slice": [
+    5,
+    3,
+    5,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    2,
+    2,
+    41,
+    20
+   ],
+   "notes": "Active tab: raised plate + 2px pale underline + white label (inactive tabs: no plate, grey label, dimmed icon). Icon 15x15 at (15, 2); label cell (9 rows) at y 16. Deviation from UX 'gold underline': gold stays money-only."
+  },
+  {
+   "id": "tabbar",
+   "group": "controls",
+   "file": "out/ui/controls/tabbar.png",
+   "w": 180,
+   "h": 26,
+   "slice": [
+    2,
+    3,
+    2,
+    2
+   ],
+   "mode": "stretch",
+   "notes": "Tab bar body, 180x26 (4 tabs x 45). Separators at x 44/89/134. Order RIGHT to LEFT (RTL): מקורות · ספינים · קואליציה · תיקים."
+  },
+  {
+   "id": "tabicon_cases_active",
+   "group": "controls",
+   "file": "out/ui/controls/tabicon_cases_active.png",
+   "w": 15,
+   "h": 15,
+   "state": "active",
+   "notes": "Tab 'תיקים', active (15x15)."
+  },
+  {
+   "id": "tabicon_cases_idle",
+   "group": "controls",
+   "file": "out/ui/controls/tabicon_cases_idle.png",
+   "w": 15,
+   "h": 15,
+   "state": "idle",
+   "notes": "Tab 'תיקים', inactive: slate ramp."
+  },
+  {
+   "id": "tabicon_coalition_active",
+   "group": "controls",
+   "file": "out/ui/controls/tabicon_coalition_active.png",
+   "w": 15,
+   "h": 15,
+   "state": "active",
+   "notes": "Tab 'קואליציה', active (15x15)."
+  },
+  {
+   "id": "tabicon_coalition_idle",
+   "group": "controls",
+   "file": "out/ui/controls/tabicon_coalition_idle.png",
+   "w": 15,
+   "h": 15,
+   "state": "idle",
+   "notes": "Tab 'קואליציה', inactive: slate ramp."
+  },
+  {
+   "id": "tabicon_sources_active",
+   "group": "controls",
+   "file": "out/ui/controls/tabicon_sources_active.png",
+   "w": 15,
+   "h": 15,
+   "state": "active",
+   "notes": "Tab 'מקורות', active (15x15)."
+  },
+  {
+   "id": "tabicon_sources_idle",
+   "group": "controls",
+   "file": "out/ui/controls/tabicon_sources_idle.png",
+   "w": 15,
+   "h": 15,
+   "state": "idle",
+   "notes": "Tab 'מקורות', inactive: slate ramp."
+  },
+  {
+   "id": "tabicon_spins_active",
+   "group": "controls",
+   "file": "out/ui/controls/tabicon_spins_active.png",
+   "w": 15,
+   "h": 15,
+   "state": "active",
+   "notes": "Tab 'ספינים', active (15x15)."
+  },
+  {
+   "id": "tabicon_spins_idle",
+   "group": "controls",
+   "file": "out/ui/controls/tabicon_spins_idle.png",
+   "w": 15,
+   "h": 15,
+   "state": "idle",
+   "notes": "Tab 'ספינים', inactive: slate ramp."
+  },
+  {
+   "id": "dubi_small_fly",
+   "group": "dubi",
+   "file": "out/ui/dubi/dubi_small_fly.png",
+   "w": 80,
+   "h": 23,
+   "frames": 4,
+   "frameW": 20,
+   "pivot": [
+    10,
+    22
+   ],
+   "notes": "chars.dubi 'fly': 4 frames @ 12 fps, loop=True, events={'flap': 2}. 20x23 frames, anchor [10,22] (feet). Hand-drawn layered replacement for the 18-px render-down placeholder.",
+   "fps": 12,
+   "loop": true,
+   "events": {
+    "flap": 2
+   },
+   "char": "dubi",
+   "anim": "fly"
+  },
+  {
+   "id": "dubi_small_idle",
+   "group": "dubi",
+   "file": "out/ui/dubi/dubi_small_idle.png",
+   "w": 320,
+   "h": 23,
+   "frames": 16,
+   "frameW": 20,
+   "pivot": [
+    10,
+    22
+   ],
+   "notes": "chars.dubi 'idle': 16 frames @ 8 fps, loop=True, events={}. 20x23 frames, anchor [10,22] (feet). Hand-drawn layered replacement for the 18-px render-down placeholder.",
+   "fps": 8,
+   "loop": true,
+   "events": {},
+   "char": "dubi",
+   "anim": "idle"
+  },
+  {
+   "id": "dubi_small_land",
+   "group": "dubi",
+   "file": "out/ui/dubi/dubi_small_land.png",
+   "w": 60,
+   "h": 23,
+   "frames": 3,
+   "frameW": 20,
+   "pivot": [
+    10,
+    22
+   ],
+   "notes": "chars.dubi 'land': 3 frames @ 12 fps, loop=False, events={'touch': 1}. 20x23 frames, anchor [10,22] (feet). Hand-drawn layered replacement for the 18-px render-down placeholder.",
+   "fps": 12,
+   "loop": false,
+   "events": {
+    "touch": 1
+   },
+   "char": "dubi",
+   "anim": "land"
+  },
+  {
+   "id": "dubi_small_peck",
+   "group": "dubi",
+   "file": "out/ui/dubi/dubi_small_peck.png",
+   "w": 120,
+   "h": 23,
+   "frames": 6,
+   "frameW": 20,
+   "pivot": [
+    10,
+    22
+   ],
+   "notes": "chars.dubi 'peck': 6 frames @ 12 fps, loop=False, events={'peck': 2}. 20x23 frames, anchor [10,22] (feet). Hand-drawn layered replacement for the 18-px render-down placeholder.",
+   "fps": 12,
+   "loop": false,
+   "events": {
+    "peck": 2
+   },
+   "char": "dubi",
+   "anim": "peck"
+  },
+  {
+   "id": "dubi_small_squawk",
+   "group": "dubi",
+   "file": "out/ui/dubi/dubi_small_squawk.png",
+   "w": 80,
+   "h": 23,
+   "frames": 4,
+   "frameW": 20,
+   "pivot": [
+    10,
+    22
+   ],
+   "notes": "chars.dubi 'squawk': 4 frames @ 12 fps, loop=False, events={'squawk': 1}. 20x23 frames, anchor [10,22] (feet). Hand-drawn layered replacement for the 18-px render-down placeholder.",
+   "fps": 12,
+   "loop": false,
+   "events": {
+    "squawk": 1
+   },
+   "char": "dubi",
+   "anim": "squawk"
+  },
+  {
+   "id": "dubi_small_talk",
+   "group": "dubi",
+   "file": "out/ui/dubi/dubi_small_talk.png",
+   "w": 40,
+   "h": 23,
+   "frames": 2,
+   "frameW": 20,
+   "pivot": [
+    10,
+    22
+   ],
+   "notes": "chars.dubi 'talk': 2 frames @ 16 fps, loop=False, events={}. 20x23 frames, anchor [10,22] (feet). Hand-drawn layered replacement for the 18-px render-down placeholder.",
+   "fps": 16,
+   "loop": false,
+   "events": {},
+   "char": "dubi",
+   "anim": "talk"
+  },
+  {
+   "id": "brawl_cloud",
+   "group": "events",
+   "file": "out/ui/events/brawl_cloud.png",
+   "w": 208,
+   "h": 40,
+   "frames": 4,
+   "frameW": 52,
+   "pivot": [
+    26,
+    36
+   ],
+   "notes": "Dust-cloud brawl (brief round 2: Amsalem vs Smotrich, recurring for any pair). 4-frame loop; the cloud sits over the two frozen income rows / the chat line. Sleeves, fists, shoes, a flying page: NO faces, no kippot, no religious markers, no weapons. Suggested 8 fps; timing is the Animator's; reduced motion = frame 0."
+  },
+  {
+   "id": "chip_court",
+   "group": "events",
+   "file": "out/ui/events/chip_court.png",
+   "w": 20,
+   "h": 13,
+   "slice": [
+    4,
+    3,
+    13,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    5,
+    9
+   ],
+   "label": "white",
+   "notes": "Collapsed court card: 'יום משפט · {mm:ss}' + chip_icon_gavel at the RIGHT (x w-12, y 2). white on teal_dk 11.1:1."
+  },
+  {
+   "id": "chip_icon_gavel",
+   "group": "events",
+   "file": "out/ui/events/chip_icon_gavel.png",
+   "w": 9,
+   "h": 9,
+   "notes": "9x9 gavel for chip_court (the 11x11 thermo_icon_gavel is the large one)."
+  },
+  {
+   "id": "court_frame",
+   "group": "events",
+   "file": "out/ui/events/court_frame.png",
+   "w": 40,
+   "h": 36,
+   "slice": [
+    6,
+    20,
+    6,
+    6
+   ],
+   "mode": "stretch",
+   "content": [
+    6,
+    20,
+    28,
+    10
+   ],
+   "label": "white",
+   "notes": "Court-day card (UX O2, non-modal, over the panel). Header plate y 4..16: title 'יום משפט' white on wood 5.6:1, gavel icon (thermo_icon_gavel) at the RIGHT, x w-18 y 5. Body teal_dk: body text white 11.1:1, timer 'עדות: mm:ss'. The red inner line is the steady court tint (UX: no strobe). Buttons: button_primary ('התייעצות ביטחונית · {price} ₪') + button_secondary ('להעיד')."
+  },
+  {
+   "id": "stamp_blackout_dark",
+   "group": "events",
+   "file": "out/ui/events/stamp_blackout_dark.png",
+   "w": 70,
+   "h": 17,
+   "state": "dark",
+   "notes": "Row B during the poll blackout, in place of the 58/61 numeral (UX 6.3 hud.seats.blackout). Ink stamp_lt for dark surfaces (6.4:1 on ui_bubble, 4.9:1 on ui_out)."
+  },
+  {
+   "id": "stamp_blackout_dark_rot",
+   "group": "events",
+   "file": "out/ui/events/stamp_blackout_dark_rot.png",
+   "w": 72,
+   "h": 26,
+   "state": "dark_rotated",
+   "pivot": [
+    36,
+    13
+   ],
+   "notes": "The same impression PRE-ROTATED 8 deg counter-clockwise (Godot rotation -8 deg; Animator's ask: no runtime rotation of pixel text). Three-shear rotation: every ink pixel moved, none invented or smeared. Pivot = centre (the slam lands on it)."
+  },
+  {
+   "id": "stamp_blackout_paper",
+   "group": "events",
+   "file": "out/ui/events/stamp_blackout_paper.png",
+   "w": 70,
+   "h": 17,
+   "state": "paper",
+   "notes": "Row B during the poll blackout, in place of the 58/61 numeral (UX 6.3 hud.seats.blackout). Ink stamp for paper surfaces (5.6:1 on paper, 7.3:1 on receipt)."
+  },
+  {
+   "id": "stamp_blackout_paper_rot",
+   "group": "events",
+   "file": "out/ui/events/stamp_blackout_paper_rot.png",
+   "w": 72,
+   "h": 26,
+   "state": "paper_rotated",
+   "pivot": [
+    36,
+    13
+   ],
+   "notes": "The same impression PRE-ROTATED 8 deg counter-clockwise (Godot rotation -8 deg; Animator's ask: no runtime rotation of pixel text). Three-shear rotation: every ink pixel moved, none invented or smeared. Pivot = centre (the slam lands on it)."
+  },
+  {
+   "id": "stamp_frame_dark",
+   "group": "events",
+   "file": "out/ui/events/stamp_frame_dark.png",
+   "w": 16,
+   "h": 14,
+   "slice": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "mode": "tile",
+   "content": [
+    4,
+    3,
+    8,
+    8
+   ],
+   "label": "stamp_lt",
+   "notes": "Double-line stamp border for the other 7 pardon lines (copy deck). TILE so the speckle never smears; draw the text in the same ink; add no rotation."
+  },
+  {
+   "id": "stamp_frame_paper",
+   "group": "events",
+   "file": "out/ui/events/stamp_frame_paper.png",
+   "w": 16,
+   "h": 14,
+   "slice": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "mode": "tile",
+   "content": [
+    4,
+    3,
+    8,
+    8
+   ],
+   "label": "stamp",
+   "notes": "Double-line stamp border for the other 7 pardon lines (copy deck). TILE so the speckle never smears; draw the text in the same ink; add no rotation."
+  },
+  {
+   "id": "stamp_paid_dark",
+   "group": "events",
+   "file": "out/ui/events/stamp_paid_dark.png",
+   "w": 32,
+   "h": 17,
+   "state": "dark",
+   "notes": "Replaces the pay pill in the chat after paying (UX chat.paid). Ink stamp_lt for dark surfaces (6.4:1 on ui_bubble, 4.9:1 on ui_out)."
+  },
+  {
+   "id": "stamp_paid_dark_rot",
+   "group": "events",
+   "file": "out/ui/events/stamp_paid_dark_rot.png",
+   "w": 34,
+   "h": 20,
+   "state": "dark_rotated",
+   "pivot": [
+    17,
+    10
+   ],
+   "notes": "The same impression PRE-ROTATED 8 deg counter-clockwise (Godot rotation -8 deg; Animator's ask: no runtime rotation of pixel text). Three-shear rotation: every ink pixel moved, none invented or smeared. Pivot = centre (the slam lands on it)."
+  },
+  {
+   "id": "stamp_paid_paper",
+   "group": "events",
+   "file": "out/ui/events/stamp_paid_paper.png",
+   "w": 32,
+   "h": 17,
+   "state": "paper",
+   "notes": "Replaces the pay pill in the chat after paying (UX chat.paid). Ink stamp for paper surfaces (5.6:1 on paper, 7.3:1 on receipt)."
+  },
+  {
+   "id": "stamp_paid_paper_rot",
+   "group": "events",
+   "file": "out/ui/events/stamp_paid_paper_rot.png",
+   "w": 34,
+   "h": 20,
+   "state": "paper_rotated",
+   "pivot": [
+    17,
+    10
+   ],
+   "notes": "The same impression PRE-ROTATED 8 deg counter-clockwise (Godot rotation -8 deg; Animator's ask: no runtime rotation of pixel text). Three-shear rotation: every ink pixel moved, none invented or smeared. Pivot = centre (the slam lands on it)."
+  },
+  {
+   "id": "stamp_pardon_dark",
+   "group": "events",
+   "file": "out/ui/events/stamp_pardon_dark.png",
+   "w": 78,
+   "h": 27,
+   "state": "dark",
+   "notes": "The pardon desk's answer (brief round 2; copy deck 'stamp lines' #1). Ink stamp_lt for dark surfaces (6.4:1 on ui_bubble, 4.9:1 on ui_out)."
+  },
+  {
+   "id": "stamp_pardon_dark_rot",
+   "group": "events",
+   "file": "out/ui/events/stamp_pardon_dark_rot.png",
+   "w": 82,
+   "h": 37,
+   "state": "dark_rotated",
+   "pivot": [
+    41,
+    18
+   ],
+   "notes": "The same impression PRE-ROTATED 8 deg counter-clockwise (Godot rotation -8 deg; Animator's ask: no runtime rotation of pixel text). Three-shear rotation: every ink pixel moved, none invented or smeared. Pivot = centre (the slam lands on it)."
+  },
+  {
+   "id": "stamp_pardon_paper",
+   "group": "events",
+   "file": "out/ui/events/stamp_pardon_paper.png",
+   "w": 78,
+   "h": 27,
+   "state": "paper",
+   "notes": "The pardon desk's answer (brief round 2; copy deck 'stamp lines' #1). Ink stamp for paper surfaces (5.6:1 on paper, 7.3:1 on receipt)."
+  },
+  {
+   "id": "stamp_pardon_paper_rot",
+   "group": "events",
+   "file": "out/ui/events/stamp_pardon_paper_rot.png",
+   "w": 82,
+   "h": 37,
+   "state": "paper_rotated",
+   "pivot": [
+    41,
+    18
+   ],
+   "notes": "The same impression PRE-ROTATED 8 deg counter-clockwise (Godot rotation -8 deg; Animator's ask: no runtime rotation of pixel text). Three-shear rotation: every ink pixel moved, none invented or smeared. Pivot = centre (the slam lands on it)."
+  },
+  {
+   "id": "stamp_postponed_dark",
+   "group": "events",
+   "file": "out/ui/events/stamp_postponed_dark.png",
+   "w": 33,
+   "h": 17,
+   "state": "dark",
+   "notes": "Court card after a postponement (UX court.stamp). Ink stamp_lt for dark surfaces (6.4:1 on ui_bubble, 4.9:1 on ui_out)."
+  },
+  {
+   "id": "stamp_postponed_dark_rot",
+   "group": "events",
+   "file": "out/ui/events/stamp_postponed_dark_rot.png",
+   "w": 34,
+   "h": 21,
+   "state": "dark_rotated",
+   "pivot": [
+    17,
+    10
+   ],
+   "notes": "The same impression PRE-ROTATED 8 deg counter-clockwise (Godot rotation -8 deg; Animator's ask: no runtime rotation of pixel text). Three-shear rotation: every ink pixel moved, none invented or smeared. Pivot = centre (the slam lands on it)."
+  },
+  {
+   "id": "stamp_postponed_paper",
+   "group": "events",
+   "file": "out/ui/events/stamp_postponed_paper.png",
+   "w": 33,
+   "h": 17,
+   "state": "paper",
+   "notes": "Court card after a postponement (UX court.stamp). Ink stamp for paper surfaces (5.6:1 on paper, 7.3:1 on receipt)."
+  },
+  {
+   "id": "stamp_postponed_paper_rot",
+   "group": "events",
+   "file": "out/ui/events/stamp_postponed_paper_rot.png",
+   "w": 34,
+   "h": 21,
+   "state": "paper_rotated",
+   "pivot": [
+    17,
+    10
+   ],
+   "notes": "The same impression PRE-ROTATED 8 deg counter-clockwise (Godot rotation -8 deg; Animator's ask: no runtime rotation of pixel text). Three-shear rotation: every ink pixel moved, none invented or smeared. Pivot = centre (the slam lands on it)."
+  },
+  {
+   "id": "stamp_tool_down",
+   "group": "events",
+   "file": "out/ui/events/stamp_tool_down.png",
+   "w": 18,
+   "h": 24,
+   "state": "down",
+   "pivot": [
+    8,
+    23
+   ],
+   "notes": "Key pose DOWN: handle 2 px lower, block 1 row squashed, pad spread to full width."
+  },
+  {
+   "id": "stamp_tool_up",
+   "group": "events",
+   "file": "out/ui/events/stamp_tool_up.png",
+   "w": 18,
+   "h": 24,
+   "state": "up",
+   "pivot": [
+    8,
+    23
+   ],
+   "notes": "The pardon desk's rubber stamp, key pose UP. Timing and squash are the Animator's."
+  },
+  {
+   "id": "transfer_banner",
+   "group": "events",
+   "file": "out/ui/events/transfer_banner.png",
+   "w": 180,
+   "h": 30,
+   "slice": [
+    40,
+    3,
+    40,
+    3
+   ],
+   "mode": "stretch",
+   "notes": "Football-style transfer strip (UX 4.2): black, gold display lettering 'חלון העברות' (letters.py, cap 11). Centre patch holds the lettering: stretch only by widening beyond 180 via the stripe patches' edges. Below it the engine sets the name large + '{from} ← {to} · כולל דמי אחזקה' on transfer_card."
+  },
+  {
+   "id": "transfer_card",
+   "group": "events",
+   "file": "out/ui/events/transfer_card.png",
+   "w": 24,
+   "h": 16,
+   "slice": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    3,
+    16,
+    10
+   ],
+   "label": "white",
+   "notes": "The card body under transfer_banner. white on ui_panel 15.0:1; the name line may use gold_hi (money)."
+  },
+  {
+   "id": "ftue_hand",
+   "group": "ftue",
+   "file": "out/ui/ftue/ftue_hand.png",
+   "w": 36,
+   "h": 20,
+   "frames": 2,
+   "frameW": 18,
+   "pivot": [
+    7,
+    1
+   ],
+   "notes": "FTUE pointer (UX F2, P0 tap loop): the Magician's own lecturing finger, navy cuff, pale rim so it reads on every stage. Frame 0 = hover, frame 1 = pressed (2 px down). Pivot = the fingertip. Loop timing: Animator."
+  },
+  {
+   "id": "ftue_tap_ring",
+   "group": "ftue",
+   "file": "out/ui/ftue/ftue_tap_ring.png",
+   "w": 13,
+   "h": 13,
+   "pivot": [
+    6,
+    6
+   ],
+   "notes": "Tap ring under the fingertip on frame 1 (scale/fade = Animator)."
+  },
+  {
+   "id": "icon_coin9",
+   "group": "ftue",
+   "file": "out/ui/ftue/icon_coin9.png",
+   "w": 9,
+   "h": 9,
+   "notes": "9x9 shekel coin for the counter ('₪ 12.4K'), one text cell tall. Gold = money."
+  },
+  {
+   "id": "toast",
+   "group": "ftue",
+   "file": "out/ui/ftue/toast.png",
+   "w": 32,
+   "h": 20,
+   "slice": [
+    4,
+    4,
+    6,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    3,
+    23,
+    13
+   ],
+   "label": "white",
+   "notes": "Toast / banner ('נפתח לך תיק', 'נפתחו ספינים…', the chat preview). Docks under HUD row B. Optional icon or 32px avatar at the right, inside the accent. white on ui_panel 15.6:1."
+  },
+  {
+   "id": "wordmark",
+   "group": "key",
+   "file": "out/ui/key/wordmark.png",
+   "w": 143,
+   "h": 29,
+   "pivot": [
+    71,
+    28
+   ],
+   "notes": "Title-screen wordmark, 1x art px (x4 in game = 572x116 logical). Custom lettering on the parametric Hebrew block skeleton (letters.py) shared with the banners and the 5x9 UI cut's letter logic."
+  },
+  {
+   "id": "wordmark_mono",
+   "group": "key",
+   "file": "out/ui/key/wordmark_mono.png",
+   "w": 141,
+   "h": 27,
+   "notes": "One-colour stamp/print version (the silhouette test)."
+  },
+  {
+   "id": "wordmark_norim",
+   "group": "key",
+   "file": "out/ui/key/wordmark_norim.png",
+   "w": 141,
+   "h": 27,
+   "notes": "For light or busy backgrounds where the pale rim would halo."
+  },
+  {
+   "id": "wordmark_small",
+   "group": "key",
+   "file": "out/ui/key/wordmark_small.png",
+   "w": 66,
+   "h": 16,
+   "notes": "Small cut (cap 11, stroke 2) for the result card and the receipt header."
+  },
+  {
+   "id": "chip_countdown",
+   "group": "meters",
+   "file": "out/ui/meters/chip_countdown.png",
+   "w": 20,
+   "h": 13,
+   "slice": [
+    4,
+    3,
+    13,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    5,
+    9
+   ],
+   "label": "white",
+   "notes": "'27.10 · עוד 29 ימים' (UX: 60% alpha, 100% on the first view of a day). Calendar icon at the RIGHT (x w-12, y 2). white on ui_panel 15.0:1."
+  },
+  {
+   "id": "chip_icon_calendar",
+   "group": "meters",
+   "file": "out/ui/meters/chip_icon_calendar.png",
+   "w": 9,
+   "h": 9,
+   "notes": "Tear-off calendar page, 9x9 (the 27.10 chip and the receipt's countdown line)."
+  },
+  {
+   "id": "chip_ultimatum",
+   "group": "meters",
+   "file": "out/ui/meters/chip_ultimatum.png",
+   "w": 20,
+   "h": 13,
+   "slice": [
+    4,
+    3,
+    13,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    5,
+    9
+   ],
+   "label": "white",
+   "notes": "Ultimatum countdown '0:45' with icon_clock at the RIGHT (x w-12, y 2). white on red 4.7:1. Channels: the clock (shape), the digits (text), red (colour), and it sits in the hatched bubble."
+  },
+  {
+   "id": "seats_fill",
+   "group": "meters",
+   "file": "out/ui/meters/seats_fill.png",
+   "w": 6,
+   "h": 7,
+   "slice": [
+    1,
+    1,
+    1,
+    2
+   ],
+   "mode": "stretch",
+   "label": "ink",
+   "notes": "Seats fill: sky ramp (not flag blue, which is the Magician's; not gold, which is money). Anchor RIGHT, width = round(104 * seats / 61). Fill vs empty well: sky on night 7.8:1."
+  },
+  {
+   "id": "seats_goal_frame",
+   "group": "meters",
+   "file": "out/ui/meters/seats_goal_frame.png",
+   "w": 20,
+   "h": 17,
+   "slice": [
+    5,
+    5,
+    5,
+    5
+   ],
+   "mode": "stretch",
+   "notes": "At >= 61 seats: a gold frame whose 4px ring sits OUTSIDE the track (place it at track -4,-4, size +8,+8) (gold = the reward moment). The pulse is the Animator's; the frame alone carries the state under reduced motion."
+  },
+  {
+   "id": "seats_tick",
+   "group": "meters",
+   "file": "out/ui/meters/seats_tick.png",
+   "w": 1,
+   "h": 7,
+   "notes": "Segment notch, drawn every 10 seats at x = right - round(104 * n / 61), n = 10..60. It shows only over the fill (on the empty well it is the well colour): the segmented read of UX 3.2."
+  },
+  {
+   "id": "seats_track",
+   "group": "meters",
+   "file": "out/ui/meters/seats_track.png",
+   "w": 12,
+   "h": 9,
+   "slice": [
+    2,
+    2,
+    2,
+    2
+   ],
+   "mode": "stretch",
+   "notes": "Seats bar well. UX 228x16 CSS -> 105x7 art; ship it at 106x9 (fill area x1..104, y1..7 = 7 rows). Fill grows from the RIGHT edge (RTL). Row B is one 180x20 hit row that opens the chat."
+  },
+  {
+   "id": "thermo_bubble",
+   "group": "meters",
+   "file": "out/ui/meters/thermo_bubble.png",
+   "w": 15,
+   "h": 5,
+   "frames": 3,
+   "frameW": 5,
+   "notes": "Boil bubbles inside/above the column at >= 75 %. Frame 2 is the static bubble icon for reduced motion."
+  },
+  {
+   "id": "thermo_fill",
+   "group": "meters",
+   "file": "out/ui/meters/thermo_fill.png",
+   "w": 4,
+   "h": 1,
+   "notes": "Live suspicion: stretch this 4x1 row vertically from the floor's top to y_top(p)."
+  },
+  {
+   "id": "thermo_floor_hatch",
+   "group": "meters",
+   "file": "out/ui/meters/thermo_floor_hatch.png",
+   "w": 4,
+   "h": 4,
+   "notes": "The carried-over floor (pitch 11 Q8: min(5% x n, 40%)): TILE this 4x4 from y_bottom up to y_top(floor). Diagonal red/black stripes = a SHAPE channel: 'this part came with you from the last round' (the same hazard stripe as the ultimatum border). Live fill stacks above it: red vs the black stripe 3.8:1, red vs empty 3.7:1."
+  },
+  {
+   "id": "thermo_icon_gavel",
+   "group": "meters",
+   "file": "out/ui/meters/thermo_icon_gavel.png",
+   "w": 11,
+   "h": 11,
+   "state": "75_plus",
+   "notes": "Suspicion >= 75 % (and the court card): the icon swap is a non-colour channel."
+  },
+  {
+   "id": "thermo_icon_magnifier",
+   "group": "meters",
+   "file": "out/ui/meters/thermo_icon_magnifier.png",
+   "w": 11,
+   "h": 11,
+   "state": "below_75",
+   "notes": "Suspicion < 75 %: 'being looked at'. Sits centred above the tube."
+  },
+  {
+   "id": "thermo_meniscus",
+   "group": "meters",
+   "file": "out/ui/meters/thermo_meniscus.png",
+   "w": 4,
+   "h": 1,
+   "notes": "1 row drawn at y_top(p): the liquid's lit surface."
+  },
+  {
+   "id": "thermo_tube",
+   "group": "meters",
+   "file": "out/ui/meters/thermo_tube.png",
+   "w": 14,
+   "h": 88,
+   "pivot": [
+    6,
+    87
+   ],
+   "notes": "Suspicion thermometer ('חשד'), fixed size 14x88; left edge of the stage (UX hit 44x218 CSS = 20x100 art). Liquid column x 5..8, y 3..73 (bottom-up). y_top(p) = 73 - round(p * 70). Ticks at 25/50/75/100 %. Icon (magnifier / gavel) sits centred above at y -13.",
+   "liquid": {
+    "x": 5,
+    "w": 4,
+    "yTop": 3,
+    "yBottom": 73
+   }
+  },
+  {
+   "id": "dubi_placeholder_avatar",
+   "group": "props",
+   "file": "out/ui/props/dubi_placeholder_avatar.png",
+   "w": 32,
+   "h": 32,
+   "notes": "PLACEHOLDER until the ChatGPT 'dubi' request lands: 32x32, same slot as the cast avatars (showcase/out/*_avatar.png). Grey on purpose: it must never ship looking finished."
+  },
+  {
+   "id": "dubi_placeholder_body",
+   "group": "props",
+   "file": "out/ui/props/dubi_placeholder_body.png",
+   "w": 64,
+   "h": 100,
+   "pivot": [
+    32,
+    96
+   ],
+   "notes": "PLACEHOLDER full-body slot, 64x100 with the pivot at the feet line (96 art px tall, like the cast). Replace with the rendered-down ChatGPT Dubi (REQUESTS.md 'dubi'). Dashed border = not final."
+  },
+  {
+   "id": "suitcase",
+   "group": "props",
+   "file": "out/ui/props/suitcase.png",
+   "w": 26,
+   "h": 20,
+   "pivot": [
+    13,
+    10
+   ],
+   "notes": "THE running gag: maroon (reserved: nothing else is maroon), DOHA sticker, 24x18 + 1px pale rim = 26x20. Rim = 'you can touch this' (same rim as the Magician, hat and rabbit). UX hit area 72x64 CSS = 33x30 art, centred. Crosses right-to-left; the bob and drift are the Animator's. Mirror it only if the sticker is re-drawn (never flip text)."
+  },
+  {
+   "id": "suitcase_norim",
+   "group": "props",
+   "file": "out/ui/props/suitcase_norim.png",
+   "w": 24,
+   "h": 18,
+   "notes": "The DOHA Suitcase without the rim (for cards/icons on light grounds)."
+  },
+  {
+   "id": "receipt_body",
+   "group": "share",
+   "file": "out/ui/share/receipt_body.png",
+   "w": 168,
+   "h": 4,
+   "notes": "Receipt paper body, tile vertically. Paper #F4F1E8, ink #1A1A1A (UX 5.1, 15.4:1)."
+  },
+  {
+   "id": "receipt_bottom",
+   "group": "share",
+   "file": "out/ui/share/receipt_bottom.png",
+   "w": 168,
+   "h": 6,
+   "notes": "Torn bottom edge."
+  },
+  {
+   "id": "receipt_rule",
+   "group": "share",
+   "file": "out/ui/share/receipt_rule.png",
+   "w": 8,
+   "h": 1,
+   "notes": "Dashed divider (the '────' rows), tile horizontally across the 152 px column."
+  },
+  {
+   "id": "receipt_top",
+   "group": "share",
+   "file": "out/ui/share/receipt_top.png",
+   "w": 168,
+   "h": 6,
+   "notes": "Torn top edge of the thermal receipt, 168 art px wide. Stack: top + body (tiled) + bottom."
+  },
+  {
+   "id": "share_receipt_bg",
+   "group": "share",
+   "file": "out/ui/share/share_receipt_bg.png",
+   "w": 216,
+   "h": 270,
+   "notes": "Receipt share card at 1x (x5 = 1080x1350). Paper x 24..191, y 12..257; print column x 32..183 (152 px = 25 glyphs of the 5x9 cut), y 22..247 = 22 rows: UX's fit is 19 text lines + 3 dashed rules (ux/string-budgets.json receipt boxes), ending with the full 2-line disclaimer and the URL line.",
+   "textColumn": [
+    32,
+    22,
+    152,
+    226
+   ],
+   "exportScale": 5,
+   "export": "1080x1350"
+  },
+  {
+   "id": "share_result_frame",
+   "group": "share",
+   "file": "out/ui/share/share_result_frame.png",
+   "w": 216,
+   "h": 270,
+   "pivot": [
+    108,
+    198
+   ],
+   "notes": "Result card frame (UX 5.2) at 1x (x5 = 1080x1350). Stage curtains + follow-spot; paste the Magician (showcase bibi_idle frame 0 or bibi_tap last frame) bottom-centre at castAnchor. Headline 2 lines + sub-line (white on night 13.5:1); stat strip; the band holds RESULT_FOOT WITH THE URL (iOS WhatsApp drops the share text, so the image carries the link) and the full RESULT_DISC. No seat numbers (UX 5 global rule).",
+   "zones": {
+    "wordmark": [
+     75,
+     18,
+     66,
+     16
+    ],
+    "headline": [
+     28,
+     43,
+     160,
+     20
+    ],
+    "sub": [
+     24,
+     67,
+     168,
+     10
+    ],
+    "castAnchor": [
+     108,
+     198
+    ],
+    "stats": [
+     24,
+     215,
+     168,
+     10
+    ],
+    "footer": [
+     8,
+     238,
+     200,
+     10
+    ],
+    "disclaimer": [
+     8,
+     251,
+     200,
+     10
+    ]
+   },
+   "exportScale": 5,
+   "export": "1080x1350"
+  },
+  {
+   "id": "stamp_camera",
+   "group": "share",
+   "file": "out/ui/share/stamp_camera.png",
+   "w": 9,
+   "h": 8,
+   "notes": "The 📸 photobomber stamp (UX 5.2), 9x8, for when both photobombers are in frame."
+  },
+  {
+   "id": "icon_close",
+   "group": "sheet",
+   "file": "out/ui/sheet/icon_close.png",
+   "w": 9,
+   "h": 9,
+   "notes": "Close ✕ for sheets, 9x9; hit area 20x20 art (44 CSS)."
+  },
+  {
+   "id": "sheet_modal",
+   "group": "sheet",
+   "file": "out/ui/sheet/sheet_modal.png",
+   "w": 36,
+   "h": 36,
+   "slice": [
+    6,
+    22,
+    6,
+    6
+   ],
+   "mode": "stretch",
+   "content": [
+    6,
+    22,
+    24,
+    8
+   ],
+   "label": "white",
+   "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 1..18 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: outline swatch at 60% (UX)."
+  },
+  {
+   "id": "sheet_plain",
+   "group": "sheet",
+   "file": "out/ui/sheet/sheet_plain.png",
+   "w": 24,
+   "h": 24,
+   "slice": [
+    5,
+    5,
+    5,
+    5
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    3,
+    16,
+    17
+   ],
+   "label": "white",
+   "notes": "Title-less sheet (toast stacks, the pardon desk form behind the stamp, tooltips)."
+  },
+  {
+   "id": "source_checkbook",
+   "group": "sources",
+   "file": "out/ui/sources/source_checkbook.png",
+   "w": 84,
+   "h": 40,
+   "frames": 2,
+   "frameW": 42,
+   "pivot": [
+    21,
+    39
+   ],
+   "notes": "Money source 'פנקס הצ׳קים הזהוב' for the diorama: 40 art px tall incl. outline + pale rim (x4 in game). 2-frame idle, equal holds, idleFrameMs 700: f1 = a 2-px white glint on the gold edge + the right page's top corner lifted 1 ap. Pivot = bottom-centre. Hand-drawn graphic tier (ChatGPT budget exhausted), matched to the rendered critters' density."
+  },
+  {
+   "id": "source_checkbook_icon",
+   "group": "sources",
+   "file": "out/ui/sources/source_checkbook_icon.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Shop-card icon for 'פנקס הצ׳קים הזהוב': a 24x24 crop of f0 at 1:1 (no rescale), centred on card_plate (26x26)."
+  },
+  {
+   "id": "source_poison",
+   "group": "sources",
+   "file": "out/ui/sources/source_poison.png",
+   "w": 68,
+   "h": 40,
+   "frames": 2,
+   "frameW": 34,
+   "pivot": [
+    17,
+    39
+   ],
+   "notes": "Money source 'מכונת הרעל' for the diorama: 40 art px tall incl. outline + pale rim (x4 in game). 2-frame idle, equal holds, idleFrameMs 400: f1 = the LED column swaps (even shelves lit -> odd shelves lit); a small area, under 3 Hz. Pivot = bottom-centre. Hand-drawn graphic tier (ChatGPT budget exhausted), matched to the rendered critters' density."
+  },
+  {
+   "id": "source_poison_icon",
+   "group": "sources",
+   "file": "out/ui/sources/source_poison_icon.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Shop-card icon for 'מכונת הרעל': a 24x24 crop of f0 at 1:1 (no rescale), centred on card_plate (26x26)."
+  },
+  {
+   "id": "source_submarine",
+   "group": "sources",
+   "file": "out/ui/sources/source_submarine.png",
+   "w": 100,
+   "h": 40,
+   "frames": 2,
+   "frameW": 50,
+   "pivot": [
+    25,
+    39
+   ],
+   "notes": "Money source 'הצוללת' for the diorama: 40 art px tall incl. outline + pale rim (x4 in game). 2-frame idle, equal holds, idleFrameMs 800: f1 = the hull (sail, cash, face) 1 ap up while the periscope and the water hold still. Pivot = bottom-centre. Hand-drawn graphic tier (ChatGPT budget exhausted), matched to the rendered critters' density."
+  },
+  {
+   "id": "source_submarine_icon",
+   "group": "sources",
+   "file": "out/ui/sources/source_submarine_icon.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Shop-card icon for 'הצוללת': a 24x24 crop of f0 at 1:1 (no rescale), centred on card_plate (26x26)."
+  },
+  {
+   "id": "spin_s01",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s01.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s01 'פיקדון על בקבוקים' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s02",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s02.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s02 'גלידת פיסטוק' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s03",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s03.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s03 'ביביסיטר' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s04",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s04.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s04 'לא יהיה כלום' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s05",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s05.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s05 'ציד מכשפות' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s06",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s06.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s06 'כנף ציון' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s07",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s07.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s07 'סופר־ספרטה' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s08",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s08.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s08 'השלט' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s09",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s09.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s09 'פייג׳ר זהב' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s10",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s10.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s10 'מזוודות כביסה' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s11",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s11.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s11 'באגס באני' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s12",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s12.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s12 'הוחלט להקים ועדה' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s13",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s13.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s13 'ראיון בערוץ ידידותי' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s14",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s14.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s14 'סרטון ויראלי' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "spin_s15",
+   "group": "spins",
+   "file": "out/ui/spins/spin_s15.png",
+   "w": 15,
+   "h": 15,
+   "notes": "Spin s15 'ביקור ממלכתי' (content.json upgrades). 15x15, on card_plate."
+  },
+  {
+   "id": "court_window",
+   "group": "stage",
+   "file": "out/ui/stage/court_window.png",
+   "w": 48,
+   "h": 22,
+   "frames": 2,
+   "frameW": 24,
+   "pivot": [
+    12,
+    21
+   ],
+   "notes": "The diegetic echo of suspicion (UX 3.2 #3): a small courthouse in the stage's landmark band whose one window lights at >= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no rim. Suggested spots (art px, pivot): Balfour (150, 70), Knesset (156, 96), Washington (34, 96); the courthouse stage uses its own clock panel instead."
+  },
+  {
+   "id": "court_window_glow",
+   "group": "stage",
+   "file": "out/ui/stage/court_window_glow.png",
+   "w": 20,
+   "h": 20,
+   "pivot": [
+    10,
+    10
+   ],
+   "notes": "50% checker halo drawn BEHIND the lit window (the style's only glow; checker, never alpha)."
+  },
+  {
+   "id": "laundry_bag",
+   "group": "stage",
+   "file": "out/ui/stage/laundry_bag.png",
+   "w": 15,
+   "h": 15,
+   "notes": "The laundry bag the pieces fly out of (same art as spin_s10)."
+  },
+  {
+   "id": "laundry_shirt",
+   "group": "stage",
+   "file": "out/ui/stage/laundry_shirt.png",
+   "w": 11,
+   "h": 10,
+   "pivot": [
+    5,
+    5
+   ],
+   "notes": "Washington era: laundry flying out of the 'מזוודות כביסה' (WaPo 2020, denied). Decorative, no rim. Tumble/drift is the Animator's."
+  },
+  {
+   "id": "laundry_shorts",
+   "group": "stage",
+   "file": "out/ui/stage/laundry_shorts.png",
+   "w": 9,
+   "h": 7,
+   "pivot": [
+    4,
+    3
+   ],
+   "notes": "Washington era: laundry flying out of the 'מזוודות כביסה' (WaPo 2020, denied). Decorative, no rim. Tumble/drift is the Animator's."
+  },
+  {
+   "id": "laundry_sock",
+   "group": "stage",
+   "file": "out/ui/stage/laundry_sock.png",
+   "w": 6,
+   "h": 9,
+   "pivot": [
+    3,
+    4
+   ],
+   "notes": "Washington era: laundry flying out of the 'מזוודות כביסה' (WaPo 2020, denied). Decorative, no rim. Tumble/drift is the Animator's."
+  },
+  {
+   "id": "laundry_towel",
+   "group": "stage",
+   "file": "out/ui/stage/laundry_towel.png",
+   "w": 10,
+   "h": 9,
+   "pivot": [
+    5,
+    4
+   ],
+   "notes": "Washington era: laundry flying out of the 'מזוודות כביסה' (WaPo 2020, denied). Decorative, no rim. Tumble/drift is the Animator's."
+  },
+  {
+   "id": "sweat_drop",
+   "group": "stage",
+   "file": "out/ui/stage/sweat_drop.png",
+   "w": 5,
+   "h": 6,
+   "pivot": [
+    2,
+    5
+   ],
+   "notes": "The Magician's sweat drop at suspicion >= 75% (Animator's optional echo). Placement on his temple: the Animator's anchor."
+  },
+  {
+   "id": "ticker_bar",
+   "group": "ticker",
+   "file": "out/ui/ticker/ticker_bar.png",
+   "w": 180,
+   "h": 20,
+   "slice": [
+    2,
+    4,
+    2,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    2,
+    5,
+    176,
+    12
+   ],
+   "label": "silver",
+   "notes": "Dubi's lower third (UX 3.1 ticker, 44 CSS = 20 art). Crawl text silver on ui_panel 11.8:1, y 6. The 'מבזק' plate sits at the RIGHT end (RTL start), Dubi's avatar just left of it, the 27.10 chip at the left."
+  },
+  {
+   "id": "ticker_flash_plate",
+   "group": "ticker",
+   "file": "out/ui/ticker/ticker_flash_plate.png",
+   "w": 32,
+   "h": 14,
+   "slice": [
+    7,
+    3,
+    3,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    6,
+    2,
+    23,
+    9
+   ],
+   "label": "white",
+   "notes": "The red 'מבזק' label plate (blank, for engine text). white on red 4.7:1. Slanted leading edge faces the crawl."
+  },
+  {
+   "id": "ticker_flash_plate_text",
+   "group": "ticker",
+   "file": "out/ui/ticker/ticker_flash_plate_text.png",
+   "w": 32,
+   "h": 14,
+   "notes": "The same plate with 'מבזק' baked in the 5x9 cut."
+  },
+  {
+   "id": "trophy_aide",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_aide.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_aide' (content.json achievements)."
+  },
+  {
+   "id": "trophy_aide_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_aide_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_aide', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_ballot",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_ballot.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_ballot' (content.json achievements)."
+  },
+  {
+   "id": "trophy_ballot_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_ballot_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_ballot', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_clock",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_clock.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_clock' (content.json achievements)."
+  },
+  {
+   "id": "trophy_clock_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_clock_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_clock', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_coin",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_coin.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_coin' (content.json achievements)."
+  },
+  {
+   "id": "trophy_coin_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_coin_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_coin', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_cottage",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_cottage.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_cottage' (content.json achievements)."
+  },
+  {
+   "id": "trophy_cottage_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_cottage_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_cottage', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_folder",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_folder.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_folder' (content.json achievements)."
+  },
+  {
+   "id": "trophy_folder_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_folder_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_folder', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_gavel",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_gavel.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_gavel' (content.json achievements)."
+  },
+  {
+   "id": "trophy_gavel_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_gavel_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_gavel', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_hat",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_hat.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_hat' (content.json achievements)."
+  },
+  {
+   "id": "trophy_hat_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_hat_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_hat', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_moon",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_moon.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_moon' (content.json achievements)."
+  },
+  {
+   "id": "trophy_moon_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_moon_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_moon', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_parrot",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_parrot.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_parrot' (content.json achievements)."
+  },
+  {
+   "id": "trophy_parrot_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_parrot_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_parrot', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_phone",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_phone.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_phone' (content.json achievements)."
+  },
+  {
+   "id": "trophy_phone_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_phone_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_phone', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_pin",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_pin.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_pin' (content.json achievements)."
+  },
+  {
+   "id": "trophy_pin_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_pin_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_pin', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_plane",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_plane.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_plane' (content.json achievements)."
+  },
+  {
+   "id": "trophy_plane_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_plane_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_plane', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_plate_earned",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_plate_earned.png",
+   "w": 21,
+   "h": 21,
+   "pivot": [
+    10,
+    10
+   ],
+   "notes": "Earned trophy: gold ring (a reward moment) around a night well; the 15x15 icon sits at (3,3)."
+  },
+  {
+   "id": "trophy_plate_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_plate_locked.png",
+   "w": 21,
+   "h": 21,
+   "notes": "Not yet earned: flat grey ring, icon *_locked inside."
+  },
+  {
+   "id": "trophy_plate_secret",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_plate_secret.png",
+   "w": 21,
+   "h": 21,
+   "notes": "Secret trophy until earned: '???' (content.json secret:true)."
+  },
+  {
+   "id": "trophy_rabbit",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_rabbit.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_rabbit' (content.json achievements)."
+  },
+  {
+   "id": "trophy_rabbit_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_rabbit_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_rabbit', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_stamp",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_stamp.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_stamp' (content.json achievements)."
+  },
+  {
+   "id": "trophy_stamp_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_stamp_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_stamp', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_suitcase",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_suitcase.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_suitcase' (content.json achievements)."
+  },
+  {
+   "id": "trophy_suitcase_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_suitcase_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_suitcase', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "trophy_wand",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_wand.png",
+   "w": 15,
+   "h": 15,
+   "state": "earned",
+   "notes": "Trophy icon 'icon_wand' (content.json achievements)."
+  },
+  {
+   "id": "trophy_wand_locked",
+   "group": "trophies",
+   "file": "out/ui/trophies/trophy_wand_locked.png",
+   "w": 15,
+   "h": 15,
+   "state": "locked",
+   "notes": "'icon_wand', not yet earned: slate ramp. Secret trophies use trophy_plate_secret instead."
+  },
+  {
+   "id": "cottage_cup",
+   "group": "widgets",
+   "file": "out/ui/widgets/cottage_cup.png",
+   "w": 208,
+   "h": 18,
+   "frames": 13,
+   "frameW": 16,
+   "pivot": [
+    8,
+    17
+   ],
+   "notes": "Cottage Index (מדד הקוטג׳), 13 states (Animator asked >= 12). Frame k = the k-th x10 of lifetime treasury: frame 1 at 1,000 ₪ ... frame 12 at 10^14 ₪ = trophy a_cottage 'מדד הקוטג׳: 0' (a dotted ghost of the cup). Cumulative missing pixels 0,1,3,6,10,16,24,34,46,62,82,106 of 131, then all: literally one pixel first, then inflation. HUD corner, 50% alpha idle / 100% for 3 s on a drop (UX). Holes are true alpha 0."
+  },
+  {
+   "id": "cottage_pixel",
+   "group": "widgets",
+   "file": "out/ui/widgets/cottage_pixel.png",
+   "w": 1,
+   "h": 1,
+   "notes": "The pixel that just left: the engine drops it from the hole with the '−1' puff (motion is the Animator's). Recolour to the hole's source colour if the TA prefers; white matches frame 1's."
+  },
+  {
+   "id": "depboard",
+   "group": "widgets",
+   "file": "out/ui/widgets/depboard.png",
+   "w": 288,
+   "h": 48,
+   "frames": 4,
+   "frameW": 72,
+   "notes": "Ben Gurion 'המראות' board, stage-background prop (decorative class: no rim). Frame k = k departures shown (0..3), driven by the taxpayer / high-tech squeeze; prestige never resets it (brief round 2). Amber = orange (never gold: gold is money). Destinations are cities, never people."
+  }
+ ]
+}

@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monkey Bananas Audio</title>
+<style>
+  :root { --bg:#fff8ec; --fg:#2b1b24; --muted:#6f5f73; --card:#fff; --line:#e6d9c6; --accent:#d9a21c; --accent2:#4f9f3a; --bad:#d8433a; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1d141a; --fg:#fff3e0; --muted:#bdb4c2; --card:#2b1f27; --line:#452c3e; --accent:#ffd23a; --accent2:#a8d85a; --bad:#ff7a70; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 20px; margin: 4px 0 2px; } h2 { font-size: 15px; margin: 0 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  p.lede { color: var(--muted); margin: 0 0 16px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 0 0 12px; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  button, select { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; cursor: pointer; min-height: 40px; }
+  button:hover { border-color: var(--accent); } button.on { background: var(--accent); color: #2b1b24; border-color: var(--accent); }
+  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+  .grid button { text-align:left; } .grid small { display:block; color: var(--muted); font-size: 11px; }
+  .meter { font-variant-numeric: tabular-nums; } .meter b { display:inline-block; min-width: 7ch; text-align:right; }
+  pre { white-space: pre-wrap; margin: 8px 0 0; font-size: 12.5px; max-height: 360px; overflow:auto; }
+  .ok { color: var(--accent2); } .bad { color: var(--bad); }
+  #lock { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 2; background: var(--accent); color:#2b1b24; padding: 10px 12px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+  main { padding-bottom: 72px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Monkey Bananas: procedural audio</h1>
+  <p class="lede">An audition page and the reference synth for <code>cues.json</code> and <code>music.json</code>. Zero audio files. The code in this page is the developer's guide (<code>ChipAudio</code>, <code>MusicPlayer</code>).</p>
+  <div id="lock">Audio is suspended by the browser. Tap, click or press a key anywhere: every gesture retries until it runs (audio-cue-spec §5).</div>
+  <p class="lede">AudioContext: <b id="ctxState">not created</b> · <span id="unlockLog">audioUnlock not fired yet</span></p>
+
+  <section>
+    <h2>Music</h2>
+    <div class="row">
+      <button id="mPlay">Play</button><button id="mStop">Stop</button>
+      <button id="mFrenzy">Frenzy layer</button>
+      <label>Evolutions <select id="mEvo"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+      <button id="mDlg">Evolve dialog (duck)</button>
+      <button id="mEvolve">Evolve sequence</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button id="tSfx" class="on">SFX on</button><button id="tMusic" class="on">Music on</button>
+      <span class="meter">peak <b id="mtPeak">-inf</b> dBFS · ≈momentary <b id="mtM">-inf</b> LUFS · ≈short-term <b id="mtS">-inf</b> LUFS · bar <b id="mtBar">-</b></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Stress tests</h2>
+    <div class="row">
+      <button data-stress="tap4">Tap 4/s × 6 s</button>
+      <button data-stress="tap16">Tap 16/s × 6 s (cap)</button>
+      <button data-stress="hold">Hold-buy 10/s × 2 s</button>
+      <button id="tTapFrenzy">Tap Frenzy flag</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Cues</h2>
+    <div class="grid" id="cueGrid"></div>
+  </section>
+
+  <section>
+    <h2>Offline loudness (BS.1770 K-weighted, gated)</h2>
+    <div class="row"><button id="measure">Measure all scenarios</button><span id="measureStatus"></span></div>
+    <pre id="report"></pre>
+  </section>
+
+  <section>
+    <h2>Phone-speaker translation (300 Hz high-pass proxy)</h2>
+    <div class="row"><button id="phoneBtn">Check every cue</button></div>
+    <pre id="phone"></pre>
+  </section>
+
+  <section>
+    <h2>Balance vs music bed (cues.json → mix.balance)</h2>
+    <div class="row"><button id="balanceBtn">Check foreground cues</button></div>
+    <pre id="balance"></pre>
+  </section>
+
+  <section>
+    <h2>Data validation</h2>
+    <pre id="valid"></pre>
+  </section>
+</main>
+
+<script type="application/json" id="cues-json">{"version":1,"_doc":"Monkey Bananas cue-spec (machine-readable). Owner: Audio Director. The developer implements this directly: no audio files exist. Keys that start with '_' are documentation, so ignore them at runtime. The full field reference is in audio-cue-spec.md section 3, and the reference implementation is preview.html (function ChipAudio).","_schema":{"pitch":"Every frequency is either a number (Hz) or a note name in scientific pitch ('A4' = globals.a4Hz, sharps '#', flats 'b', e.g. 'Bb3').","cue":{"event":"mechanic-spec event id(s) that fire this cue (see the 'events' map for the full mapping)","bus":"'sfx' | 'ui'   (music has its own bus, driven by music.json)","gainDb":"cue level in dB applied to the cue instance (layers are linear and relative inside it)","priority":"1 critical, 2 high, 3 normal, 4 low. Used for global voice stealing","polyphony":"max simultaneous instances of THIS cue","steal":"'oldest' = fade the oldest instance over globals.stealFadeMs and play the new one | 'none' = drop the new trigger","cooldownMs":"minimum time between two starts of this cue; triggers inside the window are dropped","followsKey":"true = add the music key offset (music.json keyOffsetByEvolutions) to every followPitch layer","loadBearingBandHz":"[lo, hi] band where the cue is recognizable (frequency-slot contract)","lengthMs":"longest layer end (delay + duration + release) in ms, informational","randomize.pitch":"{mode:'none'} | {mode:'scale', scaleSemis:[..], window:n, noRepeat:bool}: pick scaleSemis[i] with i random in [base, base+window-1] (base = streak step), never the same i twice in a row if noRepeat","randomize.gainDb":"+/- uniform random dB added per trigger","streak":"{gapMs, tapsPerStep, maxSteps}: consecutive triggers closer than gapMs build a streak; step = min(maxSteps, floor((count-1)/tapsPerStep)); a gap >= gapMs resets count to 0","rateComp":"{windowMs, startRate, fullRate, maxCutDb}: rate = triggers in the last windowMs; gain cut = maxCutDb * clamp((rate-startRate)/(fullRate-startRate), 0, 1)","replaces":"cue ids this cue plays INSTEAD of for the same input (the caller must not also play them)","duck":"[{target:'bus:music'|'cue:<id>', db, attackMs, holdMs | until:'<eventId>', releaseMs}] applied when the cue starts; overlapping ducks on one target take the minimum (deepest) dB","conditionalLayers":"[{when:'<flag>', layers:[..]}]: extra layers added while the runtime flag is true at trigger time","layers":"array of layer objects, see 'layer'"},"layer":{"id":"readable name","wave":"'pulse' | 'square' | 'triangle' | 'sine' | 'noise' | 'noiseMetal'   ('sawtooth' is legal in the engine but banned by sonic-brief.md)","duty":"pulse only: 0.125 | 0.25 (use wave 'square' for 0.5). Built as a PeriodicWave, see globals.pulseWave","freqStart / freqEnd":"tonal waves. freqEnd defaults to freqStart","freqCurve":"'exp' (default) | 'lin' | 'step' shape of the freqStart->freqEnd move","glide":"seconds for the freqStart->freqEnd move (default = duration)","clockStart / clockEnd":"noise waves only: LFSR clock in Hz; playbackRate = clock / ctx.sampleRate. Higher = brighter. clockEnd defaults to clockStart","followPitch":"default true for tonal waves, false for noise: whether the cue pitch offset (key + random + streak + param) multiplies this layer's frequency","detuneJitterSemis":"optional +/- continuous random detune for this layer only (used on percussive thumps, never on tonal notes)","gain":"linear 0..1, relative within the cue","attack":"s, linear ramp 0 -> gain","decay":"s, ramp gain -> gain*sustain (shape = envCurve)","sustain":"0..1 level held until duration ends","duration":"s from onset to release start; MUST be >= attack + decay. In music.json instruments it may be the string 'note' (= note length * instrument gate)","release":"s, ramp to silence (shape = envCurve)","envCurve":"'exp' (default, exponentialRamp to 0.0001 floor) | 'lin'","delay":"s offset from the cue start (default 0)","filter":"optional {type:'lowpass'|'highpass'|'bandpass', freq, freqEnd?, Q}; freqEnd sweeps exponentially over duration. Q is passed straight to BiquadFilterNode.Q, i.e. Web Audio semantics: for lowpass/highpass it is resonance in dB (0.7 = +0.7 dB, a mild bump), for bandpass it is the linear Q","vibrato":"optional {rateHz, depthCents, delay}: sine LFO into the oscillator's detune, ramps in over 50 ms after 'delay'","arpeggio":"optional [semitone offsets], stepped with setValueAtTime every 1/arpRateHz s. Overrides freqEnd (a layer has a sweep OR an arpeggio, never both)","arpRateHz":"steps per second","arpLoop":"default true (cycle the list until the voice ends); false = play the list once and hold the last value","crush":"optional int bits (4 = 16 levels): staircase WaveShaper on the raw oscillator BEFORE the envelope. 4 on a triangle = NES triangle"}},"globals":{"a4Hz":440,"maxCueInstances":20,"stealFadeMs":6,"pulseWave":"PeriodicWave with real[n] = (2/(n*PI))*sin(n*PI*duty), imag[n] = 0 for n = 1..64 (real[0] = imag[0] = 0), default normalization ON. Cache one wave per duty.","noise":"Pre-generate once per AudioContext: 'noise' = 15-bit LFSR long mode (feedback = bit0 XOR bit1), 'noiseMetal' = short mode (bit0 XOR bit6); seed 1; output bit0 ? -1 : +1; one LFSR step per sample; buffer length = exactly one LFSR period (32767 samples in long mode; the detected period in short mode), loop = true, start at a random offset.","crushCurve":"Mid-tread staircase WaveShaper curve (0 maps to 0, so there is no DC): N = 4096 points, H = 2^(bits-1): for i in 0..N-1 { x = 2*i/(N-1) - 1; curve[i] = Math.round(x*H)/H }. That is 2^bits + 1 levels (17 for crush 4). oversample 'none' (the aliasing grit is intended). Cache one curve per bit depth.","flags":["tapFrenzyActive","frenzyActive"]},"mix":{"_doc":"mix-bus-topology, machine-readable. Human spec and rationale: mix-bus-topology.md. Graph: cue instance -> cueGroup[cueId] (duckable) -> busUser[bus] (settings toggle, 0|1) -> bus[bus] (gainDb) -> master (preGainDb) -> DynamicsCompressor -> outputTrim -> destination. Music: channel -> layerGain -> musicMix -> musicState (evolve fades) -> musicDuck (ducks) -> busUser.music -> bus.music.","buses":{"music":{"gainDb":-12.5,"toggle":"settings.music"},"sfx":{"gainDb":0,"toggle":"settings.sfx"},"ui":{"gainDb":0,"toggle":"settings.sfx"}},"master":{"preGainDb":-1.7,"compressor":{"threshold":-14,"knee":8,"ratio":6,"attack":0.002,"release":0.2},"outputTrimDb":0},"toggleRampMs":30,"balance":{"_doc":"Foreground/bed balance targets (rebalance 2026-09-27, mix-bus-topology.md section 7). Metric: max K-weighted loudness of the cue in any 100 ms window, minus the median 100 ms K-weighted loudness of the base music bed (sections A A2 B B2, evolutions 0), both through the full engine chain, randomize.gainDb off. 'phone' = both renders through a 300 Hz Butterworth high-pass (small-speaker proxy, the design baseline); 'full' = no filter (headphones). preview.html -> 'Balance vs music bed' measures it.","windowMs":100,"phoneHighpassHz":300,"minOverBedLU":{"tap":{"phone":3,"full":-1},"tapCrit":{"phone":5,"full":1},"buy":{"phone":3,"full":-1},"uiClick":{"phone":-1,"full":-6},"uiToggleOn":{"phone":-3,"full":-9}}}},"unlock":{"_doc":"Autoplay-unlock and audio-session contract, machine-readable. Human rules U1-U10: audio-cue-spec.md section 5. Reference implementation: preview.html -> class AudioUnlock.","gestureEvents":["pointerdown","pointerup","touchend","click","keydown"],"listenerOptions":{"capture":true,"passive":true},"listenersLifetime":"page","firstCueDeferMaxMs":180,"firstCueQueueSlots":1,"kickBufferSamples":1,"iosSession":{"musicOn":"playback","musicOff":"ambient"},"legacySilentElement":{"when":"iOS WebKit without navigator.audioSession, and settings.music is on","wav":{"sampleRate":8000,"bitDepth":16,"channels":1,"seconds":0.5},"loop":true,"playsinline":true}},"cues":{"tap":{"event":"tap","bus":"sfx","gainDb":-7.5,"priority":3,"polyphony":3,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[880,2100],"lengthMs":81,"randomize":{"pitch":{"mode":"scale","scaleSemis":[0,3,5,8,10,12,15,17],"window":3,"noRepeat":true},"gainDb":1.5},"streak":{"gapMs":350,"tapsPerStep":6,"maxSteps":4},"rateComp":{"windowMs":1000,"startRate":6,"fullRate":16,"maxCutDb":6},"_design":"Root A5. The pool is F-major pentatonic (A C D F G A C D). Each tap picks one of 3 adjacent degrees, never repeating, so 100 taps are never a machine-gun. The streak climbs one degree per 6 fast taps, up to +4 degrees (G6-A6-C7 at the top). Above 6 taps/s the level drops by up to 6 dB (full cut at 16/s), so a 16/s stream stays within about 2 LU of a 4/s one (rebalance 2026-09-27, mix-bus-topology.md section 7).","layers":[{"id":"plink","wave":"triangle","freqStart":"G5","freqEnd":"A5","freqCurve":"exp","glide":0.012,"gain":1.0,"attack":0.001,"decay":0.07,"sustain":0,"duration":0.071,"release":0.01},{"id":"click","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":5000,"Q":0.7},"gain":0.3,"attack":0.0005,"decay":0.012,"sustain":0,"duration":0.0125,"release":0.004},{"id":"thump","wave":"triangle","freqStart":420,"freqEnd":150,"freqCurve":"exp","glide":0.035,"followPitch":false,"detuneJitterSemis":1,"gain":0.45,"attack":0.001,"decay":0.045,"sustain":0,"duration":0.046,"release":0.008}],"conditionalLayers":[{"when":"tapFrenzyActive","layers":[{"id":"frenzySparkle","wave":"pulse","duty":0.125,"freqStart":"A6","delay":0.012,"gain":0.35,"attack":0.001,"decay":0.05,"sustain":0,"duration":0.051,"release":0.01}]}]},"tapCrit":{"event":"tapCrit","bus":"sfx","gainDb":-6.5,"priority":2,"polyphony":2,"steal":"oldest","cooldownMs":0,"followsKey":true,"replaces":["tap"],"loadBearingBandHz":[700,2400],"lengthMs":231,"randomize":{"pitch":{"mode":"scale","scaleSemis":[0,2,4,7],"window":4,"noRepeat":true},"gainDb":1},"_design":"'BONK!': a root+fifth pulse stab with a 2-semitone drop-in, a band-passed noise burst, a stepped-triangle thump and a delayed octave ding (the crit colour). Plays INSTEAD of tap for that pointer-down.","layers":[{"id":"stabRoot","wave":"pulse","duty":0.25,"freqStart":"G5","freqEnd":"F5","freqCurve":"lin","glide":0.03,"gain":0.4,"attack":0.001,"decay":0.2,"sustain":0,"duration":0.201,"release":0.02},{"id":"stabFifth","wave":"pulse","duty":0.25,"freqStart":"D6","freqEnd":"C6","freqCurve":"lin","glide":0.03,"gain":0.3,"attack":0.001,"decay":0.2,"sustain":0,"duration":0.201,"release":0.02},{"id":"burst","wave":"noise","clockStart":16000,"filter":{"type":"bandpass","freq":2200,"Q":0.8},"gain":0.55,"attack":0.001,"decay":0.09,"sustain":0,"duration":0.091,"release":0.01},{"id":"thump","wave":"triangle","crush":4,"freqStart":300,"freqEnd":70,"freqCurve":"exp","glide":0.08,"followPitch":false,"gain":0.8,"attack":0.001,"decay":0.14,"sustain":0,"duration":0.141,"release":0.01},{"id":"ding","wave":"pulse","duty":0.125,"freqStart":"F6","arpeggio":[0,12],"arpRateHz":25,"arpLoop":false,"delay":0.03,"gain":0.22,"attack":0.001,"decay":0.18,"sustain":0,"duration":0.181,"release":0.02}]},"buy":{"event":"buy","bus":"sfx","gainDb":-8,"priority":3,"polyphony":3,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[780,1400],"lengthMs":127,"randomize":{"pitch":{"mode":"scale","scaleSemis":[0,2,5,7,10,12,14,17],"window":1,"noRepeat":false},"gainDb":1},"streak":{"gapMs":400,"tapsPerStep":1,"maxSteps":7},"_design":"A rising 4th 'bi-ding' (a coin blip). Hold-to-repeat at 10/s climbs the pentatonic one step per buy (a cash register walking upstairs) and resets after a 400 ms gap. A single buy always plays the root.","layers":[{"id":"chirp","wave":"pulse","duty":0.25,"freqStart":"G5","arpeggio":[0,5],"arpRateHz":22,"arpLoop":false,"gain":1.0,"attack":0.002,"decay":0.11,"sustain":0,"duration":0.112,"release":0.015},{"id":"tick","wave":"noise","clockStart":40000,"filter":{"type":"highpass","freq":4000,"Q":0.7},"gain":0.25,"attack":0.0005,"decay":0.015,"sustain":0,"duration":0.016,"release":0.004}]},"buyBulk":{"event":"buyBulk","bus":"sfx","gainDb":-8,"priority":3,"polyphony":2,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[390,1600],"lengthMs":270,"randomize":{"pitch":{"mode":"none"},"gainDb":1},"_design":"A purchase of more than 1 unit (x10 or MAX). A 4-note rolled chord doubled an octave down, with a short shimmer tail: 'a crate of monkeys arrives'.","layers":[{"id":"roll","wave":"pulse","duty":0.25,"freqStart":"G5","arpeggio":[0,5,9,12],"arpRateHz":32,"arpLoop":false,"gain":0.8,"attack":0.002,"decay":0.1,"sustain":0.3,"duration":0.16,"release":0.06},{"id":"under","wave":"pulse","duty":0.125,"freqStart":"G4","arpeggio":[0,5,9,12],"arpRateHz":32,"arpLoop":false,"gain":0.4,"attack":0.002,"decay":0.1,"sustain":0.3,"duration":0.16,"release":0.06},{"id":"tick","wave":"noise","clockStart":40000,"filter":{"type":"highpass","freq":4000,"Q":0.7},"gain":0.3,"attack":0.0005,"decay":0.02,"sustain":0,"duration":0.021,"release":0.005},{"id":"shimmer","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":7000,"Q":0.7},"delay":0.06,"gain":0.12,"attack":0.01,"decay":0.15,"sustain":0,"duration":0.16,"release":0.05}]},"upgradeBuy":{"event":"upgradeBuy","bus":"sfx","gainDb":-10,"priority":2,"polyphony":2,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[520,1320],"lengthMs":301,"randomize":{"pitch":{"mode":"none"},"gainDb":0.5},"_design":"A classic power-up: a square arpeggio C-E-G-C-E over a stepped-triangle double, ending on a high sparkle. Must read as 'permanent improvement', a step above a producer buy.","layers":[{"id":"rise","wave":"square","freqStart":"C5","arpeggio":[0,4,7,12,16],"arpRateHz":28,"arpLoop":false,"vibrato":{"rateHz":7,"depthCents":15,"delay":0.15},"gain":0.6,"attack":0.002,"decay":0.08,"sustain":0.5,"duration":0.2,"release":0.1},{"id":"body","wave":"triangle","crush":4,"freqStart":"C4","arpeggio":[0,4,7,12,16],"arpRateHz":28,"arpLoop":false,"gain":0.6,"attack":0.002,"decay":0.1,"sustain":0.6,"duration":0.2,"release":0.08},{"id":"sparkle","wave":"pulse","duty":0.125,"freqStart":"C7","delay":0.16,"gain":0.18,"attack":0.001,"decay":0.12,"sustain":0,"duration":0.121,"release":0.02}]},"cantAfford":{"event":"cantAfford","bus":"sfx","gainDb":-13,"priority":3,"polyphony":1,"steal":"oldest","cooldownMs":120,"followsKey":false,"loadBearingBandHz":[200,1400],"lengthMs":210,"randomize":{"pitch":{"mode":"none"},"gainDb":0.5},"_design":"A soft low-passed 'nuh-uh' (A3 down to F3). A shrug, never a buzzer or a sad trombone (sonic-brief no-go).","layers":[{"id":"nuhuh","wave":"pulse","duty":0.25,"freqStart":"A3","arpeggio":[0,-4],"arpRateHz":11,"arpLoop":false,"filter":{"type":"lowpass","freq":1400,"Q":1},"gain":1.0,"attack":0.003,"decay":0.05,"sustain":0.7,"duration":0.17,"release":0.04}]},"affordGlint":{"event":"becameAffordable","bus":"sfx","gainDb":-24,"priority":4,"polyphony":1,"steal":"none","cooldownMs":2500,"followsKey":true,"loadBearingBandHz":[2000,2900],"lengthMs":101,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"_design":"A barely-there glint that tells the idle player 'you can buy something'. The global 2.5 s cooldown matters more than the per-row 5 s rule: many rows cross their cost at once in the late game.","layers":[{"id":"glint","wave":"pulse","duty":0.125,"freqStart":"C7","arpeggio":[0,5],"arpRateHz":25,"arpLoop":false,"gain":1.0,"attack":0.001,"decay":0.08,"sustain":0,"duration":0.081,"release":0.02}]},"producerReveal":{"event":"producerReveal","bus":"sfx","gainDb":-12,"priority":2,"polyphony":1,"steal":"oldest","cooldownMs":300,"followsKey":true,"loadBearingBandHz":[520,5000],"lengthMs":340,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"_design":"The '???' silhouette becomes a real row: a curious rising 5th-octave-10th with a filtered whoosh.","layers":[{"id":"rise","wave":"pulse","duty":0.25,"freqStart":"C5","arpeggio":[0,7,12,16],"arpRateHz":16,"arpLoop":false,"vibrato":{"rateHz":6,"depthCents":20,"delay":0.2},"gain":0.7,"attack":0.002,"decay":0.1,"sustain":0.45,"duration":0.26,"release":0.08},{"id":"whoosh","wave":"noise","clockStart":30000,"filter":{"type":"bandpass","freq":1200,"freqEnd":5000,"Q":1.2},"gain":0.25,"attack":0.08,"decay":0.12,"sustain":0,"duration":0.2,"release":0.05}]},"goldenSpawn":{"event":"goldenSpawn","bus":"sfx","gainDb":-9,"priority":2,"polyphony":1,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[1300,5300],"lengthMs":450,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"duck":[{"target":"cue:tap","db":-6,"attackMs":10,"holdMs":300,"releaseMs":200}],"_design":"The attention reward must cut through a 16/s tap stream that shares its band. It is buzzy (12.5 %), has vibrato and moves (arpeggio), where the tap is a pure, static triangle, and it ducks the tap cue by 6 dB for 300 ms.","layers":[{"id":"twinkle","wave":"pulse","duty":0.125,"freqStart":"E6","arpeggio":[0,5,8,12,8,12],"arpRateHz":22,"arpLoop":false,"vibrato":{"rateHz":7,"depthCents":25,"delay":0.12},"gain":0.8,"attack":0.002,"decay":0.12,"sustain":0.35,"duration":0.3,"release":0.15},{"id":"echo","wave":"triangle","freqStart":"E7","arpeggio":[0,5,8,12,8,12],"arpRateHz":22,"arpLoop":false,"delay":0.07,"gain":0.35,"attack":0.002,"decay":0.1,"sustain":0.3,"duration":0.25,"release":0.12},{"id":"glint","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":8000,"Q":0.7},"gain":0.15,"attack":0.002,"decay":0.05,"sustain":0,"duration":0.052,"release":0.01}]},"goldenDespawn":{"event":"goldenDespawn","bus":"sfx","gainDb":-21,"priority":4,"polyphony":1,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[650,1320],"lengthMs":280,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"_design":"Soft by design (mechanic-spec: nothing is lost). A quiet octave droop on a pure triangle, 12 dB under the spawn.","layers":[{"id":"droop","wave":"triangle","freqStart":"E6","freqEnd":"E5","freqCurve":"exp","glide":0.22,"gain":1.0,"attack":0.005,"decay":0.05,"sustain":0.6,"duration":0.22,"release":0.06}]},"goldenCatchBunch":{"event":"goldenCatch (outcome = bunch)","bus":"sfx","gainDb":-6,"priority":1,"polyphony":1,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[520,7000],"lengthMs":490,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"duck":[{"target":"bus:music","db":-6,"attackMs":30,"holdMs":500,"releaseMs":400},{"target":"cue:tap","db":-4,"attackMs":10,"holdMs":400,"releaseMs":200}],"_design":"Lucky Bunch: a pop, then a pentatonic coin cascade with an echo and shimmer. Bananas raining down.","layers":[{"id":"pop","wave":"triangle","crush":4,"freqStart":500,"freqEnd":140,"freqCurve":"exp","glide":0.05,"followPitch":false,"gain":0.6,"attack":0.001,"decay":0.07,"sustain":0,"duration":0.071,"release":0.01},{"id":"popNoise","wave":"noise","clockStart":32000,"filter":{"type":"bandpass","freq":3000,"Q":1},"gain":0.3,"attack":0.001,"decay":0.04,"sustain":0,"duration":0.041,"release":0.01},{"id":"cascade","wave":"pulse","duty":0.25,"freqStart":"C6","arpeggio":[0,2,5,7,9,12,14,17],"arpRateHz":30,"arpLoop":false,"gain":0.6,"attack":0.002,"decay":0.06,"sustain":0.5,"duration":0.3,"release":0.1},{"id":"echo","wave":"pulse","duty":0.125,"freqStart":"C6","arpeggio":[0,2,5,7,9,12,14,17],"arpRateHz":30,"arpLoop":false,"delay":0.09,"gain":0.35,"attack":0.002,"decay":0.06,"sustain":0.5,"duration":0.3,"release":0.1},{"id":"shimmer","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":6500,"Q":0.7},"delay":0.05,"gain":0.12,"attack":0.01,"decay":0.35,"sustain":0,"duration":0.36,"release":0.05}]},"goldenCatchFrenzy":{"event":"goldenCatch (outcome = frenzy)","bus":"sfx","gainDb":-6,"priority":1,"polyphony":1,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[260,6000],"lengthMs":570,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"duck":[{"target":"bus:music","db":-6,"attackMs":30,"holdMs":500,"releaseMs":400},{"target":"cue:tap","db":-4,"attackMs":10,"holdMs":400,"releaseMs":200}],"_design":"Banana Frenzy: a pop, an octave trill, a stepped-triangle bongo roll and a band-pass riser. It hands off to the music's frenzy layer, which enters on the next beat.","layers":[{"id":"pop","wave":"triangle","crush":4,"freqStart":500,"freqEnd":140,"freqCurve":"exp","glide":0.05,"followPitch":false,"gain":0.6,"attack":0.001,"decay":0.07,"sustain":0,"duration":0.071,"release":0.01},{"id":"trill","wave":"pulse","duty":0.25,"freqStart":"F5","arpeggio":[0,12],"arpRateHz":20,"arpLoop":true,"gain":0.5,"attack":0.002,"decay":0.05,"sustain":0.7,"duration":0.45,"release":0.12},{"id":"bongoRoll","wave":"triangle","crush":4,"freqStart":"C5","arpeggio":[0,-5],"arpRateHz":15,"arpLoop":true,"gain":0.45,"attack":0.002,"decay":0.04,"sustain":0.6,"duration":0.45,"release":0.05},{"id":"riser","wave":"noise","clockStart":30000,"filter":{"type":"bandpass","freq":800,"freqEnd":6000,"Q":1.5},"gain":0.3,"attack":0.3,"decay":0.1,"sustain":0,"duration":0.4,"release":0.05}]},"goldenCatchTapFrenzy":{"event":"goldenCatch (outcome = tapFrenzy)","bus":"sfx","gainDb":-6,"priority":1,"polyphony":1,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[175,2800],"lengthMs":420,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"duck":[{"target":"bus:music","db":-6,"attackMs":30,"holdMs":500,"releaseMs":400},{"target":"cue:tap","db":-4,"attackMs":10,"holdMs":400,"releaseMs":200}],"_design":"Tap Frenzy: a pop and a very fast 8-note upward sweep over two octaves plus a doubled lower line. It says 'your finger is now a weapon'. While the flag is on, every tap gains its frenzySparkle layer.","layers":[{"id":"pop","wave":"triangle","crush":4,"freqStart":500,"freqEnd":140,"freqCurve":"exp","glide":0.05,"followPitch":false,"gain":0.6,"attack":0.001,"decay":0.07,"sustain":0,"duration":0.071,"release":0.01},{"id":"sweep","wave":"square","freqStart":"F4","arpeggio":[0,4,7,12,16,19,24,28],"arpRateHz":36,"arpLoop":false,"gain":0.55,"attack":0.002,"decay":0.1,"sustain":0.45,"duration":0.3,"release":0.12},{"id":"under","wave":"pulse","duty":0.125,"freqStart":"F3","arpeggio":[0,4,7,12,16,19,24,28],"arpRateHz":36,"arpLoop":false,"gain":0.35,"attack":0.002,"decay":0.1,"sustain":0.45,"duration":0.3,"release":0.12},{"id":"sparkle","wave":"pulse","duty":0.125,"freqStart":"F7","delay":0.23,"gain":0.2,"attack":0.001,"decay":0.15,"sustain":0,"duration":0.151,"release":0.03}]},"buffEnd":{"event":"frenzyEnd, tapFrenzyEnd","bus":"sfx","gainDb":-14,"priority":2,"polyphony":1,"steal":"oldest","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[520,1100],"lengthMs":400,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"_design":"A wind-down: C-A-F falling (the motif backwards). Quiet, so the end of a buff is noted without feeling like a loss.","layers":[{"id":"fall","wave":"pulse","duty":0.125,"freqStart":"C6","arpeggio":[0,-3,-7],"arpRateHz":10,"arpLoop":false,"gain":0.8,"attack":0.002,"decay":0.1,"sustain":0.4,"duration":0.3,"release":0.1},{"id":"under","wave":"triangle","crush":4,"freqStart":"C5","arpeggio":[0,-3,-7],"arpRateHz":10,"arpLoop":false,"gain":0.4,"attack":0.002,"decay":0.1,"sustain":0.4,"duration":0.3,"release":0.1}]},"milestoneHeadline":{"event":"milestoneHeadline","bus":"sfx","gainDb":-14,"priority":2,"polyphony":1,"steal":"none","cooldownMs":1500,"followsKey":true,"loadBearingBandHz":[1500,4400],"lengthMs":571,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"duck":[{"target":"bus:music","db":-3,"attackMs":20,"holdMs":350,"releaseMs":300}],"_design":"'Extra! Extra!': three teletype ticks and a newsroom bell (a pulse plus an inharmonic 2.76x partial). The first headline fires on the very first tap, so it must not mask the tap: it starts with noise and the bell arrives 170 ms later.","layers":[{"id":"tick1","wave":"noise","clockStart":36000,"filter":{"type":"highpass","freq":3000,"Q":0.7},"gain":0.5,"attack":0.0005,"decay":0.012,"sustain":0,"duration":0.013,"release":0.004},{"id":"tick2","wave":"noise","clockStart":36000,"filter":{"type":"highpass","freq":3000,"Q":0.7},"delay":0.055,"gain":0.5,"attack":0.0005,"decay":0.012,"sustain":0,"duration":0.013,"release":0.004},{"id":"tick3","wave":"noise","clockStart":36000,"filter":{"type":"highpass","freq":3000,"Q":0.7},"delay":0.11,"gain":0.5,"attack":0.0005,"decay":0.012,"sustain":0,"duration":0.013,"release":0.004},{"id":"bell","wave":"pulse","duty":0.125,"freqStart":"G6","delay":0.17,"gain":0.6,"attack":0.001,"decay":0.35,"sustain":0,"duration":0.351,"release":0.05},{"id":"bellPartial","wave":"sine","freqStart":4327,"delay":0.17,"gain":0.2,"attack":0.001,"decay":0.2,"sustain":0,"duration":0.201,"release":0.03}]},"evolveReady":{"event":"evolveReady","bus":"sfx","gainDb":-10,"priority":2,"polyphony":1,"steal":"none","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[175,1050],"lengthMs":700,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"duck":[{"target":"bus:music","db":-4,"attackMs":30,"holdMs":500,"releaseMs":400}],"_design":"The gate opens: the motif as a proud fast arpeggio C-A-F-C over an F chord. Fires once per run.","layers":[{"id":"motif","wave":"pulse","duty":0.25,"freqStart":"C5","arpeggio":[0,9,5,12],"arpRateHz":8,"arpLoop":false,"vibrato":{"rateHz":6,"depthCents":20,"delay":0.4},"gain":0.7,"attack":0.003,"decay":0.06,"sustain":0.7,"duration":0.55,"release":0.15},{"id":"harmony","wave":"pulse","duty":0.125,"freqStart":"F4","arpeggio":[0,4,0,7],"arpRateHz":8,"arpLoop":false,"gain":0.35,"attack":0.003,"decay":0.06,"sustain":0.7,"duration":0.55,"release":0.15},{"id":"bass","wave":"triangle","crush":4,"freqStart":"F3","gain":0.6,"attack":0.002,"decay":0.1,"sustain":0.8,"duration":0.55,"release":0.1}]},"evolveOpen":{"event":"evolveOpen","bus":"sfx","gainDb":-10,"priority":2,"polyphony":1,"steal":"oldest","cooldownMs":300,"followsKey":true,"loadBearingBandHz":[260,3000],"lengthMs":700,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"duck":[{"target":"bus:music","db":-8,"attackMs":80,"until":"evolveClose|evolveConfirm","releaseMs":300}],"_design":"The Evolution screen opens: a whole-tone rise (deliberately outside the key, so it sounds mysterious) over a stepped-triangle pad. The music sits 8 dB down while the dialog is open.","layers":[{"id":"wholeTone","wave":"pulse","duty":0.125,"freqStart":"C5","arpeggio":[0,2,4,6,8,10,12],"arpRateHz":18,"arpLoop":false,"vibrato":{"rateHz":5,"depthCents":30,"delay":0.3},"gain":0.6,"attack":0.005,"decay":0.1,"sustain":0.5,"duration":0.45,"release":0.2},{"id":"pad","wave":"triangle","crush":4,"freqStart":"C4","gain":0.5,"attack":0.08,"decay":0.1,"sustain":0.7,"duration":0.45,"release":0.25},{"id":"whoosh","wave":"noise","clockStart":30000,"filter":{"type":"bandpass","freq":600,"freqEnd":3000,"Q":1},"gain":0.15,"attack":0.2,"decay":0.2,"sustain":0,"duration":0.4,"release":0.1}]},"evolveConfirm":{"event":"evolveConfirm","bus":"sfx","gainDb":-8,"priority":1,"polyphony":1,"steal":"none","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[87,1050],"lengthMs":1470,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"_design":"Fanfare, sized to the 1,500 ms Evolve transition (feel-spec: fade-out 400 + title card 800 + fade-in 300). It is the motif augmented: C-C-C triplet pickup, A (long), F, then C6 held over an F-major chord with a crash. The music fades to silence over 400 ms at the same moment (see the events map) and restarts at bar 1 in the new key at evolveTransitionEnd.","layers":[{"id":"p1","wave":"pulse","duty":0.25,"freqStart":"C5","delay":0.0,"gain":0.6,"attack":0.002,"decay":0.03,"sustain":0.7,"duration":0.07,"release":0.015},{"id":"p2","wave":"pulse","duty":0.25,"freqStart":"C5","delay":0.09,"gain":0.6,"attack":0.002,"decay":0.03,"sustain":0.7,"duration":0.07,"release":0.015},{"id":"p3","wave":"pulse","duty":0.25,"freqStart":"C5","delay":0.18,"gain":0.6,"attack":0.002,"decay":0.03,"sustain":0.7,"duration":0.07,"release":0.015},{"id":"leadA","wave":"pulse","duty":0.25,"freqStart":"A5","delay":0.27,"gain":0.6,"attack":0.003,"decay":0.05,"sustain":0.75,"duration":0.28,"release":0.03},{"id":"leadF","wave":"pulse","duty":0.25,"freqStart":"F5","delay":0.57,"gain":0.6,"attack":0.003,"decay":0.05,"sustain":0.75,"duration":0.13,"release":0.02},{"id":"leadC","wave":"pulse","duty":0.25,"freqStart":"C6","delay":0.72,"vibrato":{"rateHz":6,"depthCents":22,"delay":0.15},"gain":0.6,"attack":0.003,"decay":0.08,"sustain":0.75,"duration":0.55,"release":0.2},{"id":"harmF","wave":"pulse","duty":0.125,"freqStart":"F5","delay":0.27,"gain":0.35,"attack":0.003,"decay":0.05,"sustain":0.75,"duration":0.28,"release":0.03},{"id":"harmA","wave":"pulse","duty":0.125,"freqStart":"A5","delay":0.72,"vibrato":{"rateHz":6,"depthCents":22,"delay":0.15},"gain":0.35,"attack":0.003,"decay":0.08,"sustain":0.75,"duration":0.55,"release":0.2},{"id":"harmF2","wave":"pulse","duty":0.125,"freqStart":"F5","delay":0.72,"gain":0.3,"attack":0.003,"decay":0.08,"sustain":0.75,"duration":0.55,"release":0.2},{"id":"bass1","wave":"triangle","crush":4,"freqStart":"F3","delay":0.27,"gain":0.7,"attack":0.002,"decay":0.1,"sustain":0.8,"duration":0.42,"release":0.03},{"id":"bass2","wave":"triangle","crush":4,"freqStart":"F2","delay":0.72,"gain":0.7,"attack":0.002,"decay":0.1,"sustain":0.8,"duration":0.55,"release":0.2},{"id":"kick","wave":"triangle","crush":4,"freqStart":160,"freqEnd":48,"freqCurve":"exp","glide":0.09,"followPitch":false,"delay":0.72,"gain":0.7,"attack":0.001,"decay":0.12,"sustain":0,"duration":0.121,"release":0.01},{"id":"crash","wave":"noise","clockStart":36000,"filter":{"type":"highpass","freq":4000,"Q":0.7},"delay":0.72,"gain":0.25,"attack":0.002,"decay":0.6,"sustain":0,"duration":0.602,"release":0.1}]},"offlineCollect":{"event":"offlineCollect","bus":"sfx","gainDb":-7,"priority":1,"polyphony":1,"steal":"none","cooldownMs":0,"followsKey":true,"loadBearingBandHz":[260,7000],"lengthMs":880,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"duck":[{"target":"bus:music","db":-6,"attackMs":40,"holdMs":700,"releaseMs":400}],"_design":"Welcome back, here is your pay: a two-octave pentatonic coin roll, then a 'ka-ching' 4th with shimmer. See the Objection in audio-cue-spec.md section 7: on a cold load this must fire on the Collect press, not at the end of the auto-roll.","layers":[{"id":"roll","wave":"pulse","duty":0.25,"freqStart":"C5","arpeggio":[0,2,5,7,9,12,14,17,19,21,24],"arpRateHz":24,"arpLoop":false,"gain":0.55,"attack":0.002,"decay":0.05,"sustain":0.55,"duration":0.46,"release":0.05},{"id":"rollUnder","wave":"pulse","duty":0.125,"freqStart":"C4","arpeggio":[0,2,5,7,9,12,14,17,19,21,24],"arpRateHz":24,"arpLoop":false,"gain":0.3,"attack":0.002,"decay":0.05,"sustain":0.55,"duration":0.46,"release":0.05},{"id":"ching","wave":"pulse","duty":0.125,"freqStart":"G6","arpeggio":[0,5],"arpRateHz":16,"arpLoop":false,"delay":0.47,"gain":0.45,"attack":0.001,"decay":0.3,"sustain":0,"duration":0.301,"release":0.05},{"id":"shimmer","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":6500,"Q":0.7},"delay":0.47,"gain":0.15,"attack":0.005,"decay":0.35,"sustain":0,"duration":0.36,"release":0.05}]},"uiClick":{"event":"uiClick","bus":"ui","gainDb":-13,"priority":3,"polyphony":2,"steal":"oldest","cooldownMs":40,"followsKey":false,"loadBearingBandHz":[1300,1800],"lengthMs":37,"randomize":{"pitch":{"mode":"none"},"gainDb":0.5},"_design":"A generic button press (close, collect, settings rows). A tiny square tick with a downward chirp. It never follows the key: UI is the constant frame around a changing song.","layers":[{"id":"tick","wave":"square","freqStart":"A6","freqEnd":"F6","freqCurve":"exp","glide":0.02,"gain":1.0,"attack":0.001,"decay":0.03,"sustain":0,"duration":0.031,"release":0.006},{"id":"click","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":6000,"Q":0.7},"gain":0.2,"attack":0.0005,"decay":0.006,"sustain":0,"duration":0.0065,"release":0.003}]},"uiToggleOn":{"event":"uiToggle (value true), buyModeCycle","bus":"ui","gainDb":-13,"priority":3,"polyphony":2,"steal":"oldest","cooldownMs":40,"followsKey":false,"loadBearingBandHz":[1300,1800],"lengthMs":81,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"_design":"Rising 4th blip. The buy-mode toggle passes opts.semis = [0, 4, 7] for x1, x10 and MAX, so the three modes are three rungs of one ladder.","layers":[{"id":"blip","wave":"pulse","duty":0.25,"freqStart":"E6","arpeggio":[0,5],"arpRateHz":30,"arpLoop":false,"gain":1.0,"attack":0.001,"decay":0.07,"sustain":0,"duration":0.071,"release":0.01}]},"uiToggleOff":{"event":"uiToggle (value false)","bus":"ui","gainDb":-13,"priority":3,"polyphony":2,"steal":"oldest","cooldownMs":40,"followsKey":false,"loadBearingBandHz":[1300,1800],"lengthMs":81,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"_design":"Falling 4th blip, the mirror of uiToggleOn.","layers":[{"id":"blip","wave":"pulse","duty":0.25,"freqStart":"E6","arpeggio":[5,0],"arpRateHz":30,"arpLoop":false,"gain":1.0,"attack":0.001,"decay":0.07,"sustain":0,"duration":0.071,"release":0.01}]},"panelOpen":{"event":"panelOpen","bus":"ui","gainDb":-14,"priority":3,"polyphony":1,"steal":"oldest","cooldownMs":60,"followsKey":false,"loadBearingBandHz":[440,5000],"lengthMs":122,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"_design":"An upward 'fwip' for any overlay opening (settings, stats, offline modal, and the Evolution screen's panel under evolveOpen).","layers":[{"id":"sweep","wave":"pulse","duty":0.125,"freqStart":"A4","freqEnd":"E6","freqCurve":"exp","glide":0.08,"gain":0.8,"attack":0.002,"decay":0.1,"sustain":0,"duration":0.102,"release":0.02},{"id":"air","wave":"noise","clockStart":40000,"filter":{"type":"bandpass","freq":1500,"freqEnd":5000,"Q":1},"gain":0.2,"attack":0.03,"decay":0.06,"sustain":0,"duration":0.09,"release":0.02}]},"panelClose":{"event":"panelClose, evolveClose","bus":"ui","gainDb":-14,"priority":3,"polyphony":1,"steal":"oldest","cooldownMs":60,"followsKey":false,"loadBearingBandHz":[440,5000],"lengthMs":122,"randomize":{"pitch":{"mode":"none"},"gainDb":0},"_design":"The mirror 'fwoop' down.","layers":[{"id":"sweep","wave":"pulse","duty":0.125,"freqStart":"E6","freqEnd":"A4","freqCurve":"exp","glide":0.08,"gain":0.8,"attack":0.002,"decay":0.1,"sustain":0,"duration":0.102,"release":0.02},{"id":"air","wave":"noise","clockStart":40000,"filter":{"type":"bandpass","freq":5000,"freqEnd":1500,"Q":1},"gain":0.2,"attack":0.03,"decay":0.06,"sustain":0,"duration":0.09,"release":0.02}]}},"events":{"_doc":"Gameplay event -> audio action. 'cue' = cue id to play (null = none). 'music' = a MusicPlayer call (see music.json 'transitions'). 'flag' = runtime flag set or cleared. 'added': true marks events that are NOT in mechanic-spec section 9's list; the developer must emit them (derivations are given in audio-cue-spec.md section 4).","tap":{"cue":"tap"},"tapCrit":{"cue":"tapCrit","note":"Play INSTEAD of 'tap' for the same pointer-down (cues.tapCrit.replaces). Count it toward tap's streak and rateComp."},"buy":{"cue":"buy","note":"Exactly 1 unit bought (x1 mode, or a hold-to-repeat tick)."},"buyBulk":{"cue":"buyBulk","note":"More than 1 unit in one commit (x10 / MAX)."},"cantAfford":{"cue":"cantAfford"},"upgradeBuy":{"cue":"upgradeBuy"},"goldenSpawn":{"cue":"goldenSpawn"},"goldenCatch":{"cueByOutcome":{"bunch":"goldenCatchBunch","frenzy":"goldenCatchFrenzy","tapFrenzy":"goldenCatchTapFrenzy"}},"goldenDespawn":{"cue":"goldenDespawn","note":"Missed Golden only (not on catch)."},"frenzyStart":{"cue":null,"music":"layerOn:frenzy","flag":"frenzyActive=true","note":"The catch cue is the audible start. A re-roll that refreshes the timer is a no-op here."},"frenzyEnd":{"cue":"buffEnd","music":"layerOff:frenzy","flag":"frenzyActive=false"},"tapFrenzyStart":{"cue":null,"music":"layerOn:frenzy","flag":"tapFrenzyActive=true"},"tapFrenzyEnd":{"cue":"buffEnd","music":"layerOff:frenzy","flag":"tapFrenzyActive=false"},"milestoneHeadline":{"cue":"milestoneHeadline","note":"Milestones only (the once-ever headlines), never ambient ticker text."},"evolveReady":{"cue":"evolveReady","added":true},"evolveOpen":{"cue":"evolveOpen","note":"Also starts the 'until' duck on bus:music."},"evolveClose":{"cue":"panelClose","added":true,"note":"Dialog dismissed without evolving: releases the evolveOpen duck."},"evolveConfirm":{"cue":"evolveConfirm","music":"fadeOutStop:400","note":"Releases the evolveOpen duck at the same time (the fade takes over)."},"evolveTransitionEnd":{"cue":null,"added":true,"music":"restart","restartNotBefore":{"event":"evolveConfirm","plusMs":1470},"note":"Emitted when input unlocks: evolveConfirm + 1500 ms normally, + 1200 ms under reduced motion (the Animator's dark crossfade). The music restart is scheduled at max(now, evolveConfirm time + 1470 ms = the fanfare's end), so it never overlaps the old-key fanfare tail. It restarts at bar 1 with the new keyOffset and fades in over 300 ms."},"offlineCollect":{"cue":"offlineCollect"},"producerReveal":{"cue":"producerReveal","added":true},"becameAffordable":{"cue":"affordGlint","added":true},"uiClick":{"cue":"uiClick","added":true},"uiToggle":{"cueByValue":{"true":"uiToggleOn","false":"uiToggleOff"},"added":true},"buyModeCycle":{"cue":"uiToggleOn","semisByMode":{"1":0,"10":4,"max":7},"added":true},"panelOpen":{"cue":"panelOpen","added":true},"panelClose":{"cue":"panelClose","added":true},"audioUnlock":{"cue":null,"added":true,"music":"start","note":"Fired exactly once per page session, on the first transition of the AudioContext to state running (after a gesture retry, or at boot if the context was created running). Rules U1-U10 in audio-cue-spec.md section 5; numbers in the top-level unlock block."}}}</script>
+<script type="application/json" id="music-json">{"version":1,"_doc":"Monkey Bananas procedural chiptune loop. Owner: Audio Director. Generated by audio/tools/gen_music.py (edit the script, not this file). Instruments use the cues.json layer schema. Reference player: preview.html (class MusicPlayer). Keys that start with '_' are documentation.","title":"Banana Republic Shuffle","tempoBpm":126,"timeSignature":[4,4],"stepsPerBeat":3,"stepsPerBar":12,"_grid":"One step = one 8th-note triplet = 60/126/3 s = 0.1587 s. Swung 8ths are written long-short on beat positions 0 and 2 ('X - Y'). A bar lasts 1.905 s and the 32-bar loop lasts 60.95 s.","key":"F major","a4Hz":440,"noteFormat":{"_doc":"Each bar is ONE string of exactly 12 whitespace-separated tokens (the extra spaces between beats are cosmetic).","note":"Scientific pitch, e.g. 'F4', 'Bb3', 'C#5'. Starts a note on that step.","chord":"Notes joined by '+', e.g. 'A3+C4'. Starts all of them on that step (the comp channel only).","instrumentOverride":"'NOTE@inst', e.g. 'A4@ook', plays that note with instruments[inst] instead of the channel's instrument.","hold":"'-' extends the previous note by one step (ties may cross bar lines but never the loop point).","rest":"'.' is silence; any sounding note is released at this step.","drums":"On a channel with a 'kit', each character of a token is one simultaneous hit looked up in that kit ('KH' = kick + hat). '.' = nothing.","length":"noteSeconds = heldSteps * stepSeconds * instrument.gate. A layer with duration 'note' uses noteSeconds (floored at attack + decay)."},"instruments":{"_doc":"Layer schema = cues.json _schema.layer. Tonal layers are authored at A4 (440 Hz): at play time frequency *= noteHz / 440 for followPitch layers. Drum layers use absolute Hz (followPitch false).","lead":{"gate":0.92,"layers":[{"id":"pulse","wave":"pulse","duty":0.25,"freqStart":"A4","attack":0.004,"decay":0.12,"sustain":0.55,"duration":"note","release":0.05,"gain":1.0,"vibrato":{"rateHz":5.5,"depthCents":15,"delay":0.2}}]},"ook":{"gate":0.92,"layers":[{"id":"slide","wave":"pulse","duty":0.25,"freqStart":"E4","freqEnd":"A4","freqCurve":"exp","glide":0.07,"attack":0.003,"decay":0.08,"sustain":0.5,"duration":"note","release":0.04,"gain":1.0}]},"bass":{"gate":0.85,"layers":[{"id":"tri","wave":"triangle","crush":4,"freqStart":"A4","attack":0.002,"decay":0.06,"sustain":0.85,"duration":"note","release":0.02,"gain":1.0},{"id":"growl","wave":"pulse","duty":0.125,"freqStart":"A4","filter":{"type":"lowpass","freq":1200,"Q":0.7},"attack":0.002,"decay":0.08,"sustain":0.4,"duration":"note","release":0.02,"gain":0.12}]},"comp":{"gate":1.0,"layers":[{"id":"chk","wave":"pulse","duty":0.125,"freqStart":"A4","attack":0.002,"decay":0.07,"sustain":0,"duration":0.072,"release":0.01,"gain":1.0}]},"arp":{"gate":0.8,"layers":[{"id":"pulse","wave":"pulse","duty":0.125,"freqStart":"A4","attack":0.002,"decay":0.09,"sustain":0.25,"duration":"note","release":0.03,"gain":1.0}]},"kick":{"gate":1.0,"layers":[{"id":"body","wave":"triangle","crush":4,"freqStart":160,"freqEnd":48,"freqCurve":"exp","glide":0.09,"followPitch":false,"attack":0.001,"decay":0.13,"sustain":0,"duration":0.131,"release":0.01,"gain":1.0},{"id":"click","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":3000,"Q":0.7},"attack":0.0005,"decay":0.008,"sustain":0,"duration":0.0085,"release":0.003,"gain":0.25}]},"snare":{"gate":1.0,"layers":[{"id":"noise","wave":"noise","clockStart":24000,"filter":{"type":"bandpass","freq":1900,"Q":0.9},"attack":0.001,"decay":0.13,"sustain":0,"duration":0.131,"release":0.02,"gain":1.0},{"id":"body","wave":"triangle","crush":4,"freqStart":240,"freqEnd":170,"freqCurve":"exp","glide":0.05,"followPitch":false,"attack":0.001,"decay":0.06,"sustain":0,"duration":0.061,"release":0.01,"gain":0.35}]},"hatC":{"gate":1.0,"layers":[{"id":"noise","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":7500,"Q":0.7},"attack":0.0005,"decay":0.03,"sustain":0,"duration":0.031,"release":0.005,"gain":0.6}]},"hatO":{"gate":1.0,"layers":[{"id":"noise","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":7000,"Q":0.7},"attack":0.0005,"decay":0.14,"sustain":0,"duration":0.141,"release":0.02,"gain":0.45}]},"shaker":{"gate":1.0,"layers":[{"id":"noise","wave":"noise","clockStart":48000,"filter":{"type":"highpass","freq":5500,"Q":0.7},"attack":0.012,"decay":0.045,"sustain":0,"duration":0.058,"release":0.01,"gain":0.5}]},"bongoHi":{"gate":1.0,"layers":[{"id":"tri","wave":"triangle","crush":4,"freqStart":560,"freqEnd":420,"freqCurve":"exp","glide":0.04,"followPitch":false,"attack":0.001,"decay":0.08,"sustain":0,"duration":0.081,"release":0.01,"gain":0.9}]},"bongoLo":{"gate":1.0,"layers":[{"id":"tri","wave":"triangle","crush":4,"freqStart":380,"freqEnd":280,"freqCurve":"exp","glide":0.05,"followPitch":false,"attack":0.001,"decay":0.1,"sustain":0,"duration":0.101,"release":0.01,"gain":0.9}]}},"kits":{"drums":{"K":"kick","S":"snare","H":"hatC","O":"hatO"},"perc":{"B":"bongoHi","b":"bongoLo","s":"shaker"}},"channels":{"_doc":"gain is linear inside the music submix. 'layer' names the adaptive layer the channel belongs to. sections[sectionId] = 4 bar strings.","lead":{"instrument":"lead","gain":0.34,"layer":"base","sections":{"A":["A4 - -  F4 - .  C4 - F4  A4 - .","G4 - A4  G4 - F4  D4 - -  C4 - .","D4 - -  Bb3 - D4  F4 - D4  Bb3 - .","C4 - E4  G4 - Bb4  A4 - G4  E4 - C4"],"A2":["A4 - -  F4 - .  C4 - F4  A4 - C5","Bb4 - -  G4 - Eb4  G4 - -  Bb4 - .","D4 - F4  Bb4 - A4  G4 - E4  C4 - E4","F4 - -  A4 - G4  F4 - .  . . C4"],"B":["D4 . D4  F4 . D4  A4 - -  F4 . .","D4 . D4  F4 . D4  Bb4 - -  A4 . .","G4 - Bb4  A4 - G4  F4 - D4  Bb3 - .","C4 - -  E4 - -  G4 - -  Bb4 - ."],"B2":["A4 . A4  F4 . D4  A4 - -  D5 . .","D5 - C5  Bb4 - A4  F4 - -  D4 . .","G4 - A4  Bb4 - G4  E4 - G4  C5 - .","C5 . Bb4  A4 . G4  F4 . E4  D4 - C4"],"C":[". . .  D4 . F4  . . .  Bb4 . .",". . .  D4 . F4  . . .  A4@ook - .",". . .  E4 . G4  . . .  C5@ook - .",". . .  E4 . G4  Bb4 . G4  E4 - C4"]}},"bass":{"instrument":"bass","gain":0.4,"layer":"base","sections":{"A":["F2 - F3  C3 - F3  F2 - F3  C3 - E2","F2 - F3  C3 - F3  F2 - F3  C3 - A2","Bb2 - Bb3  F3 - Bb3  Bb2 - Bb3  F3 - Bb2","C3 - C4  G3 - C4  C3 - C4  G3 - E2"],"A2":["F2 - F3  C3 - F3  F2 - F3  C3 - D2","Eb2 - Eb3  Bb2 - Eb3  Eb2 - Eb3  Bb2 - A2","Bb2 - Bb3  F3 - Bb3  C3 - C4  G3 - E2","F2 - F3  C3 - F3  F2 - F3  C3 - C3"],"B":["D3 - D4  A3 - D4  D3 - D4  A3 - A2","Bb2 - Bb3  F3 - Bb3  Bb2 - Bb3  F3 - F2","G2 - G3  D3 - G3  G2 - G3  D3 - Bb2","C3 - C4  G3 - C4  C3 - C4  G3 - C3"],"B2":["D3 - D4  A3 - D4  D3 - D4  A3 - A2","Bb2 - Bb3  F3 - Bb3  Bb2 - Bb3  F3 - F2","G2 - G3  D3 - G3  C3 - C4  G3 - Bb2","C3 - C4  G3 - C4  C3 - C4  G3 - E2"],"C":["Bb2 - -  . . Bb3  Bb2 - -  . . A2","Bb2 - -  . . Bb3  Bb2 - -  . . Bb2","C3 - -  . . C4  C3 - -  . . Bb2","C3 - -  . . C4  C3 - -  . . E2"]}},"drums":{"kit":"drums","gain":0.4,"layer":"base","sections":{"A":["K . H  S . H  K . H  S . H","K . H  S . H  K . H  S . H","K . H  S . H  K . H  S . H","K . H  S . H  K . K  S S S"],"A2":["K . H  S . H  K . H  S . H","K . H  S . H  K . H  S . H","K . H  S . H  K . H  S . H","K . H  S . H  K . K  S . O"],"B":["K . H  S . K  . . H  S . H","K . H  S . K  . . H  S . H","K . H  S . K  . . H  S . H","K . H  S . H  K . K  S S S"],"B2":["K . H  S . K  . . H  S . H","K . H  S . K  . . H  S . H","K . H  S . K  . . H  S . H","K . H  S . H  S . S  S S S"],"C":["K . .  . . H  S . .  . . H","K . .  . . H  S . .  . . H","K . .  . . H  S . .  . . H","K . .  . . H  S . S  S S S"]}},"comp":{"instrument":"comp","gain":0.16,"layer":"evolved","sections":{"A":[". . A3+C4  . . A3+C4  . . A3+C4  . . A3+C4",". . A3+C4  . . A3+C4  . . A3+C4  . . A3+C4",". . D4+F4  . . D4+F4  . . D4+F4  . . D4+F4",". . Bb3+E4  . . Bb3+E4  . . Bb3+E4  . . Bb3+E4"],"A2":[". . A3+C4  . . A3+C4  . . A3+C4  . . A3+C4",". . G3+Bb3  . . G3+Bb3  . . G3+Bb3  . . G3+Bb3",". . D4+F4  . . D4+F4  . . E4+G4  . . E4+G4",". . A3+C4  . . A3+C4  . . A3+C4  . . A3+C4"],"B":[". . F4+A4  . . F4+A4  . . F4+A4  . . F4+A4",". . D4+F4  . . D4+F4  . . D4+F4  . . D4+F4",". . Bb3+D4  . . Bb3+D4  . . Bb3+D4  . . Bb3+D4",". . Bb3+E4  . . Bb3+E4  . . Bb3+E4  . . Bb3+E4"],"B2":[". . F4+A4  . . F4+A4  . . F4+A4  . . F4+A4",". . D4+F4  . . D4+F4  . . D4+F4  . . D4+F4",". . Bb3+D4  . . Bb3+D4  . . E4+G4  . . E4+G4",". . Bb3+E4  . . Bb3+E4  . . Bb3+E4  . . Bb3+E4"],"C":[". . .  . . D4+F4  . . .  . . D4+F4",". . .  . . D4+F4  . . .  . . D4+F4",". . .  . . E4+G4  . . .  . . E4+G4",". . .  . . E4+G4  . . .  . . E4+G4"]}},"perc":{"kit":"perc","gain":0.3,"layer":"frenzy","sections":{"A":["Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs"],"A2":["Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs"],"B":["Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs"],"B2":["Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs"],"C":["Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs","Bs s bs  s Bs bs  Bs s bs  Bs bs Bs"]}},"arpFrenzy":{"instrument":"arp","gain":0.14,"layer":"frenzy","sections":{"A":["F4 A4 C5  F5 C5 A4  F4 A4 C5  F5 C5 A4","F4 A4 C5  F5 C5 A4  F4 A4 C5  F5 C5 A4","Bb4 D5 F5  Bb5 F5 D5  Bb4 D5 F5  Bb5 F5 D5","C4 E4 G4  Bb4 G4 E4  C4 E4 G4  Bb4 G4 E4"],"A2":["F4 A4 C5  F5 C5 A4  F4 A4 C5  F5 C5 A4","Eb4 G4 Bb4  Eb5 Bb4 G4  Eb4 G4 Bb4  Eb5 Bb4 G4","Bb4 D5 F5  Bb5 F5 D5  C4 E4 G4  C5 G4 E4","F4 A4 C5  F5 C5 A4  F4 A4 C5  F5 C5 A4"],"B":["D4 F4 A4  D5 A4 F4  D4 F4 A4  D5 A4 F4","Bb4 D5 F5  Bb5 F5 D5  Bb4 D5 F5  Bb5 F5 D5","G4 Bb4 D5  G5 D5 Bb4  G4 Bb4 D5  G5 D5 Bb4","C4 E4 G4  Bb4 G4 E4  C4 E4 G4  Bb4 G4 E4"],"B2":["D4 F4 A4  D5 A4 F4  D4 F4 A4  D5 A4 F4","Bb4 D5 F5  Bb5 F5 D5  Bb4 D5 F5  Bb5 F5 D5","G4 Bb4 D5  G5 D5 Bb4  C4 E4 G4  C5 G4 E4","C4 E4 G4  Bb4 G4 E4  C4 E4 G4  Bb4 G4 E4"],"C":["Bb4 D5 F5  Bb5 F5 D5  Bb4 D5 F5  Bb5 F5 D5","Bb4 D5 F5  Bb5 F5 D5  Bb4 D5 F5  Bb5 F5 D5","C4 E4 G4  C5 G4 E4  C4 E4 G4  C5 G4 E4","C4 E4 G4  C5 G4 E4  C4 E4 G4  C5 G4 E4"]}}},"form":{"_doc":"The song is ORDER expanded to 32 bars. After bar 32 it wraps to bar 1 (no intro, no outro). Seam: bar 32 ends with the C4 pickup at pos 11 that leads into the A4 of bar 1 (the 'Ba-NA-na' motif), so the loop point sits INSIDE a phrase, which makes it inaudible.","sectionBars":4,"order":["A","A2","B","B2","A","A2","C","A2"],"chords":{"A":["F","F","Bb","C7"],"A2":["F","Eb","Bb|C","F"],"B":["Dm","Bb","Gm","C7"],"B2":["Dm","Bb","Gm|C","C7"],"C":["Bb","Bb","C","C"]},"totalBars":32,"cuePoints":{"loopStart":"1:1","motif":["1:1","5:1","17:1","21:1","29:1"],"breakdown":"25:1","loopEnd":"32:12"}},"adaptive":{"layers":{"base":{"channels":["lead","bass","drums"],"default":true},"evolved":{"channels":["comp"],"default":false,"_rule":"ON when evolutions >= 1 AND the frenzy layer is off. (Slightly Smarter Monkeys have discovered the off-beat.)"},"frenzy":{"channels":["perc","arpFrenzy"],"default":false,"_rule":"ON while frenzyActive OR tapFrenzyActive. While on, 'evolved' is forced off (the arp replaces the comp)."}},"transitions":{"layerOn":{"quantize":"beat","fadeInMs":40,"_doc":"The first step >= the next unscheduled step that is a multiple of stepsPerBeat. Notes are only scheduled for enabled layers; the layer GainNode ramps 0->1 over fadeInMs at that step. The pattern is indexed by the global step, so a layer always enters in phase."},"layerOff":{"quantize":"bar","fadeOutMs":200,"_doc":"Stop scheduling from the next bar boundary; ramp the layer GainNode 1->0 over fadeOutMs starting there to cut ringing tails."},"fadeOutStop":{"_doc":"evolveConfirm: ramp the music 'state' gain linearly to 0 over the given ms (400 = evolveFadeOutMs), then stop the scheduler and reset stepIndex to 0."},"restart":{"fadeInMs":300,"_doc":"evolveTransitionEnd: set keyOffset from keyOffsetByEvolutions, set 'evolved' per its rule, start at step 0 (bar 1), and ramp the state gain 0->1 over 300 ms (evolveFadeInMs)."},"start":{"_doc":"audioUnlock (or the music toggle turned on): start at step 0 if never started; otherwise continue."},"fallback":"If a transition cannot be quantized (the scheduler is stopped), apply it immediately with the same ramp."},"keyOffsetByEvolutions":{"table":[0,2,4,5],"index":"evolutions % 4","_doc":"Semitones added to every note of every tonal channel AND to SFX cues with followsKey:true, so taps stay in the song's key. Every Evolve lifts the key (the classic 'truck driver's modulation', played for laughs); every 4th Evolve the monkeys forget and it resets. Capped at +5 so the lead peaks at G5 and the tap pool at F7."}},"scheduler":{"lookaheadMs":100,"timerMs":25,"_doc":"Chris Wilson's 'A Tale of Two Clocks' pattern: a 25 ms setInterval schedules every step whose time is < ctx.currentTime + 0.100 with start(when). Never use setTimeout per note. On resume from a suspended context, if nextStepTime < currentTime then nextStepTime = currentTime + 0.05."},"mix":{"_doc":"Measured with preview.html's offline meter (K-weighted, BS.1770 gating, stereo sum of the mono signal). See mix-bus-topology.md section 5."}}</script>
+
+<script>
+'use strict';
+/* =====================================================================
+ * Reference synth for Monkey Bananas. Plain Web Audio, no libraries.
+ * The Game Developer may port this to TypeScript as-is. Every behaviour
+ * here is specified in audio-cue-spec.md; if the two disagree, the spec wins.
+ * ===================================================================== */
+const CUES = JSON.parse(document.getElementById('cues-json').textContent);
+const MUSIC = JSON.parse(document.getElementById('music-json').textContent);
+
+const dbToGain = db => Math.pow(10, db / 20);
+const NOTE_RE = /^([A-G])(#|b)?(-?\d)$/;
+const PC = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 };
+function toHz(v, a4) {
+  if (typeof v === 'number') return v;
+  const m = NOTE_RE.exec(v);
+  if (!m) throw new Error('bad note "' + v + '"');
+  const semis = PC[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0) + (parseInt(m[3], 10) - 4) * 12;
+  return (a4 || 440) * Math.pow(2, semis / 12);
+}
+const isNoise = w => w === 'noise' || w === 'noiseMetal';
+function ramp(param, v, time, curve) {
+  if (curve === 'lin') param.linearRampToValueAtTime(v, time);
+  else if (curve === 'step') param.setValueAtTime(v, time);
+  else param.exponentialRampToValueAtTime(v, time);
+}
+
+class ChipAudio {
+  constructor(ctx, cues, music) {
+    this.ctx = ctx; this.cues = cues; this.music = music;
+    this.a4 = cues.globals.a4Hz;
+    this.keyOffset = 0;            // semitones, from music.adaptive.keyOffsetByEvolutions
+    this.flags = {};               // tapFrenzyActive, frenzyActive
+    this.state = {};               // per-cue runtime state
+    this.all = [];                 // every live cue instance (global voice cap)
+    this.ducks = {};               // target -> active ducks
+    this.cueGroups = {};
+    this._buildGraph();
+    this._buildSources();
+  }
+
+  _buildGraph() {
+    const c = this.ctx, mix = this.cues.mix;
+    this.out = c.createGain(); this.out.gain.value = dbToGain(mix.master.outputTrimDb);
+    this.comp = c.createDynamicsCompressor();
+    const k = mix.master.compressor;
+    this.comp.threshold.value = k.threshold; this.comp.knee.value = k.knee; this.comp.ratio.value = k.ratio;
+    this.comp.attack.value = k.attack; this.comp.release.value = k.release;
+    this.master = c.createGain(); this.master.gain.value = dbToGain(mix.master.preGainDb);
+    this.master.connect(this.comp); this.comp.connect(this.out); this.out.connect(c.destination);
+    this.bus = {}; this.busUser = {};
+    for (const [name, b] of Object.entries(mix.buses)) {
+      const level = c.createGain(); level.gain.value = dbToGain(b.gainDb);
+      const user = c.createGain(); user.connect(level); level.connect(this.master);
+      this.bus[name] = level; this.busUser[name] = user;
+    }
+    this.musicDuck = c.createGain(); this.musicDuck.connect(this.busUser.music);
+    this.musicState = c.createGain(); this.musicState.connect(this.musicDuck);
+    this.musicMix = c.createGain(); this.musicMix.connect(this.musicState);
+  }
+
+  _buildSources() {
+    const c = this.ctx;
+    this.pulse = {};
+    for (const duty of [0.125, 0.25]) {
+      const N = 64, re = new Float32Array(N + 1), im = new Float32Array(N + 1);
+      for (let n = 1; n <= N; n++) re[n] = (2 / (n * Math.PI)) * Math.sin(n * Math.PI * duty);
+      this.pulse[duty] = c.createPeriodicWave(re, im);   // normalization ON (peak 1)
+    }
+    this.noise = { noise: this._lfsr(1), noiseMetal: this._lfsr(6) };
+    this.crushCurves = {};
+  }
+
+  // 15-bit LFSR, NES style. tap 1 = long mode (period 32767), tap 6 = short mode (93 from seed 1).
+  _lfsr(tap) {
+    let s = 1; const v = [];
+    do {
+      v.push((s & 1) ? -1 : 1);
+      const fb = (s & 1) ^ ((s >> tap) & 1);
+      s = (s >> 1) | (fb << 14);
+    } while (s !== 1 && v.length < 40000);
+    const b = this.ctx.createBuffer(1, v.length, this.ctx.sampleRate);
+    b.getChannelData(0).set(v);
+    return b;
+  }
+
+  _crush(bits) {
+    if (!this.crushCurves[bits]) {
+      const N = 4096, H = 1 << (bits - 1), a = new Float32Array(N);
+      for (let i = 0; i < N; i++) { const x = 2 * i / (N - 1) - 1; a[i] = Math.round(x * H) / H; }
+      this.crushCurves[bits] = a;
+    }
+    return this.crushCurves[bits];
+  }
+
+  _cueGroup(id) {
+    if (!this.cueGroups[id]) {
+      const g = this.ctx.createGain();
+      g.connect(this.busUser[this.cues.cues[id].bus]);
+      this.cueGroups[id] = g;
+    }
+    return this.cueGroups[id];
+  }
+
+  /** Schedules one layer. ratio multiplies followPitch frequencies. Returns the end time. */
+  _layer(L, t0, ratio, dest, noteSec) {
+    const c = this.ctx;
+    const t = t0 + (L.delay || 0);
+    const attack = Math.max(L.attack, 0.0005), decay = L.decay, sustain = L.sustain, release = Math.max(L.release, 0.002);
+    let dur = L.duration === 'note' ? noteSec : L.duration;
+    dur = Math.max(dur, attack + decay);
+    const tEnd = t + dur + release;
+    const follow = L.followPitch !== undefined ? L.followPitch : !isNoise(L.wave);
+    const k = follow ? ratio : 1;
+    let src;
+    if (isNoise(L.wave)) {
+      src = c.createBufferSource(); src.buffer = this.noise[L.wave]; src.loop = true;
+      const r0 = (L.clockStart / c.sampleRate) * k;
+      src.playbackRate.setValueAtTime(r0, t);
+      if (L.clockEnd !== undefined) ramp(src.playbackRate, (L.clockEnd / c.sampleRate) * k, t + (L.glide || dur), L.clockCurve);
+    } else {
+      src = c.createOscillator();
+      if (L.wave === 'pulse') src.setPeriodicWave(this.pulse[L.duty]); else src.type = L.wave;
+      const f0 = toHz(L.freqStart, this.a4) * k, fp = src.frequency;
+      if (L.arpeggio) {
+        const step = 1 / L.arpRateHz, loop = L.arpLoop !== false, A = L.arpeggio;
+        for (let i = 0; ; i++) {
+          const ti = t + i * step;
+          if (ti >= tEnd || (!loop && i >= A.length)) break;
+          fp.setValueAtTime(f0 * Math.pow(2, A[i % A.length] / 12), ti);
+        }
+      } else {
+        fp.setValueAtTime(f0, t);
+        if (L.freqEnd !== undefined) ramp(fp, toHz(L.freqEnd, this.a4) * k, t + (L.glide || dur), L.freqCurve);
+      }
+    }
+    if (L.detuneJitterSemis) src.detune.setValueAtTime((Math.random() * 2 - 1) * L.detuneJitterSemis * 100, t);
+
+    let node = src;
+    if (L.crush) { const ws = c.createWaveShaper(); ws.curve = this._crush(L.crush); ws.oversample = 'none'; node.connect(ws); node = ws; }
+    if (L.filter) {
+      const f = c.createBiquadFilter(); f.type = L.filter.type; f.Q.value = L.filter.Q !== undefined ? L.filter.Q : 0.7;
+      f.frequency.setValueAtTime(L.filter.freq, t);
+      if (L.filter.freqEnd) f.frequency.exponentialRampToValueAtTime(L.filter.freqEnd, t + dur);
+      node.connect(f); node = f;
+    }
+    // ADSR on a dedicated GainNode.
+    const env = c.createGain(), g = env.gain, peak = L.gain !== undefined ? L.gain : 1;
+    const lin = L.envCurve === 'lin', FLOOR = 0.0001, sLevel = peak * sustain;
+    g.setValueAtTime(0, t);
+    g.linearRampToValueAtTime(peak, t + attack);
+    if (lin) g.linearRampToValueAtTime(sLevel, t + attack + decay);
+    else g.exponentialRampToValueAtTime(Math.max(sLevel, FLOOR), t + attack + decay);
+    g.setValueAtTime(lin ? sLevel : Math.max(sLevel, FLOOR), t + dur);
+    if (lin) g.linearRampToValueAtTime(0, tEnd); else g.exponentialRampToValueAtTime(FLOOR, tEnd);
+    g.setValueAtTime(0, tEnd);
+    node.connect(env); env.connect(dest);
+
+    if (L.vibrato && !isNoise(L.wave)) {
+      const lfo = c.createOscillator(), lg = c.createGain(), vd = t + (L.vibrato.delay || 0);
+      lfo.frequency.value = L.vibrato.rateHz;
+      lg.gain.setValueAtTime(0, t);
+      if (vd < tEnd) { lg.gain.setValueAtTime(0, vd); lg.gain.linearRampToValueAtTime(L.vibrato.depthCents, Math.min(vd + 0.05, tEnd)); }
+      lfo.connect(lg); lg.connect(src.detune);
+      lfo.start(t); lfo.stop(tEnd + 0.02);
+    }
+    if (isNoise(L.wave)) src.start(t, Math.random() * src.buffer.duration); else src.start(t);
+    src.stop(tEnd + 0.02);
+    return tEnd;
+  }
+
+  _st(id) {
+    return this.state[id] || (this.state[id] = { last: -1e9, sCount: 0, sLast: -1e9, lastIdx: -1, times: [], inst: [] });
+  }
+
+  /** Updates a cue's streak and rate history without playing it (a crit counts as a tap). */
+  touch(id, when) {
+    const cue = this.cues.cues[id], st = this._st(id), t = when !== undefined ? when : this.ctx.currentTime;
+    if (cue.streak) { if ((t - st.sLast) * 1000 >= cue.streak.gapMs) st.sCount = 0; st.sCount++; st.sLast = t; }
+    if (cue.rateComp) { st.times = st.times.filter(x => (t - x) * 1000 < cue.rateComp.windowMs); st.times.push(t); }
+  }
+
+  _steal(rec, t) {
+    const fade = this.cues.globals.stealFadeMs / 1000, g = rec.gainNode.gain;
+    g.setValueAtTime(rec.level, t);
+    g.linearRampToValueAtTime(0, t + fade);
+    rec.end = t + fade;
+  }
+
+  /** play(cueId, { when, semis }) -> instance record or null if dropped. */
+  play(id, opts) {
+    opts = opts || {};
+    const cue = this.cues.cues[id];
+    if (!cue) throw new Error('unknown cue ' + id);
+    const t = opts.when !== undefined ? opts.when : this.ctx.currentTime;
+    const st = this._st(id);
+    if ((t - st.last) * 1000 < (cue.cooldownMs || 0)) return null;
+
+    st.inst = st.inst.filter(i => i.end > t);
+    if (st.inst.length >= cue.polyphony) {
+      if (cue.steal === 'none') return null;
+      this._steal(st.inst.shift(), t);
+    }
+    this.all = this.all.filter(i => i.end > t);
+    if (this.all.length >= this.cues.globals.maxCueInstances) {
+      let victim = null;
+      for (const i of this.all) if (i.priority >= cue.priority && (!victim || i.priority > victim.priority || (i.priority === victim.priority && i.start < victim.start))) victim = i;
+      if (!victim) return null;
+      this._steal(victim, t);
+      this.all = this.all.filter(i => i !== victim);
+    }
+    st.last = t;
+
+    // Pitch: key + caller offset + scale-quantized random, with the streak as the window base.
+    let semis = (cue.followsKey ? this.keyOffset : 0) + (opts.semis || 0), step = 0;
+    if (cue.streak) {
+      if ((t - st.sLast) * 1000 >= cue.streak.gapMs) st.sCount = 0;
+      st.sCount++; st.sLast = t;
+      step = Math.min(cue.streak.maxSteps, Math.floor((st.sCount - 1) / cue.streak.tapsPerStep));
+    }
+    const rp = cue.randomize && cue.randomize.pitch;
+    if (rp && rp.mode === 'scale') {
+      const S = rp.scaleSemis, w = rp.window || 1;
+      const lo = Math.min(step, S.length - 1), hi = Math.min(lo + w - 1, S.length - 1);
+      let idx;
+      do { idx = lo + Math.floor(Math.random() * (hi - lo + 1)); } while (rp.noRepeat && hi > lo && idx === st.lastIdx);
+      st.lastIdx = idx; semis += S[idx];
+    } else if (rp && rp.mode === 'continuous') semis += (Math.random() * 2 - 1) * rp.semis;
+
+    // Gain: cue level + jitter - rate compensation.
+    let db = cue.gainDb + (cue.randomize && cue.randomize.gainDb ? (Math.random() * 2 - 1) * cue.randomize.gainDb : 0);
+    if (cue.rateComp) {
+      const rc = cue.rateComp;
+      st.times = st.times.filter(x => (t - x) * 1000 < rc.windowMs); st.times.push(t);
+      const rate = st.times.length * 1000 / rc.windowMs;
+      db -= rc.maxCutDb * Math.min(1, Math.max(0, (rate - rc.startRate) / (rc.fullRate - rc.startRate)));
+    }
+
+    const inst = this.ctx.createGain(), level = dbToGain(db);
+    inst.gain.value = level; inst.connect(this._cueGroup(id));
+    const ratio = Math.pow(2, semis / 12);
+    let layers = cue.layers;
+    if (cue.conditionalLayers) for (const cl of cue.conditionalLayers) if (this.flags[cl.when]) layers = layers.concat(cl.layers);
+    let end = t;
+    for (const L of layers) end = Math.max(end, this._layer(L, t, ratio, inst, 0));
+    const rec = { id, start: t, end, priority: cue.priority, gainNode: inst, level };
+    st.inst.push(rec); this.all.push(rec);
+    if (cue.duck) for (const d of cue.duck) this.duck(d, t);
+    return rec;
+  }
+
+  /** Fires an event from cues.events (the mapping the game uses). */
+  event(name, arg, player) {
+    const ev = this.cues.events[name]; if (!ev) throw new Error('unknown event ' + name);
+    const t = this.ctx.currentTime;
+    if (ev.flag) { const [f, v] = ev.flag.split('='); this.flags[f] = v === 'true'; }
+    this.lastEventTime = this.lastEventTime || {}; this.lastEventTime[name] = t;
+    if (ev.restartNotBefore) { const ref = this.lastEventTime[ev.restartNotBefore.event]; this.restartAt = ref !== undefined ? Math.max(t, ref + ev.restartNotBefore.plusMs / 1000) : t; }
+    this.releaseDucks(name, t);
+    let id = ev.cue, semis = 0;
+    if (ev.cueByOutcome) id = ev.cueByOutcome[arg];
+    if (ev.cueByValue) id = ev.cueByValue[String(arg)];
+    if (ev.semisByMode) semis = ev.semisByMode[String(arg)] || 0;
+    if (id) this.play(id, { semis });
+    if (ev.music && player) player.command(ev.music, this);
+  }
+
+  // ---- Ducking: deepest active duck wins; attack/release via setTargetAtTime (tc = ms/3). ----
+  _duckParam(target) { return target === 'bus:music' ? this.musicDuck.gain : this._cueGroup(target.slice(4)).gain; }
+  duck(d, t) {
+    const list = this.ducks[d.target] || (this.ducks[d.target] = []);
+    const end = d.until ? Infinity : t + (d.attackMs + (d.holdMs || 0)) / 1000;
+    list.push({ db: d.db, start: t, end, attack: d.attackMs / 1000, release: d.releaseMs / 1000, until: d.until ? d.until.split('|') : null });
+    this._applyDuck(d.target, t);
+  }
+  releaseDucks(eventName, t) {
+    for (const [target, list] of Object.entries(this.ducks)) {
+      let hit = false;
+      for (const x of list) if (x.until && x.end === Infinity && x.until.includes(eventName)) { x.end = t; hit = true; }
+      if (hit) this._applyDuck(target, t);
+    }
+  }
+  _applyDuck(target, t) {
+    const param = this._duckParam(target);
+    const list = (this.ducks[target] || []).filter(x => x.end === Infinity || x.end + x.release * 5 > t);
+    this.ducks[target] = list;
+    const times = [...new Set([t, ...list.flatMap(x => [x.start, x.end]).filter(v => v > t && v !== Infinity)])].sort((a, b) => a - b);
+    param.cancelScheduledValues(t);
+    for (const tp of times) {
+      const act = list.filter(x => x.start <= tp && x.end > tp);
+      const db = act.length ? Math.min(...act.map(x => x.db)) : 0;
+      const ended = list.filter(x => x.end <= tp);
+      const tc = act.length ? Math.min(...act.map(x => x.attack)) / 3 : Math.max(0.05, ...ended.map(x => x.release)) / 3;
+      param.setTargetAtTime(dbToGain(db), tp, Math.max(tc, 0.001));
+    }
+  }
+
+  // ---- Settings toggles (UX owns the UI; audio owns what they do). ----
+  setEnabled(group, on) {   // group: 'sfx' (sfx + ui buses) | 'music'
+    const t = this.ctx.currentTime, tc = this.cues.mix.toggleRampMs / 3000;
+    for (const [bus, b] of Object.entries(this.cues.mix.buses)) if (b.toggle === 'settings.' + group) this.busUser[bus].gain.setTargetAtTime(on ? 1 : 0, t, tc);
+  }
+
+  /** Music instruments reuse the cue layer schema. hz = note frequency or null for drums. */
+  playInstrument(name, hz, t, noteSec, dest) {
+    const inst = this.music.instruments[name];
+    const ratio = hz ? hz / this.music.a4Hz : 1;
+    for (const L of inst.layers) this._layer(L, t, ratio, dest, noteSec * (inst.gate || 1));
+  }
+}
+
+class MusicPlayer {
+  constructor(engine, music) {
+    this.e = engine; this.m = music; this.ctx = engine.ctx;
+    this.stepDur = 60 / music.tempoBpm / music.stepsPerBeat;
+    this.spb = music.stepsPerBar;
+    this.total = music.form.totalBars * this.spb;
+    this.lookahead = music.scheduler.lookaheadMs / 1000;
+    this.layerGain = {}; this.win = {}; this.want = {};
+    for (const [name, L] of Object.entries(music.adaptive.layers)) {
+      const g = this.ctx.createGain(); g.connect(engine.musicMix);
+      this.layerGain[name] = g; this.want[name] = !!L.default;
+      this.win[name] = L.default ? { from: 0, until: Infinity } : { from: Infinity, until: Infinity };
+      g.gain.value = L.default ? 1 : 0;
+    }
+    this.channels = [];
+    for (const [id, ch] of Object.entries(music.channels)) {
+      if (id.startsWith('_')) continue;
+      const node = this.ctx.createGain(); node.gain.value = ch.gain; node.connect(this.layerGain[ch.layer]);
+      this.channels.push({ id, layer: ch.layer, node, events: this._compile(ch) });
+    }
+    this.playing = false; this.step = 0; this.next = 0; this.timer = null; this.evolutions = 0;
+  }
+
+  _compile(ch) {
+    const toks = [];
+    for (const sec of this.m.form.order) for (const bar of ch.sections[sec]) toks.push(...bar.split(/\s+/).filter(Boolean));
+    const ev = new Array(this.total).fill(null), kit = ch.kit ? this.m.kits[ch.kit] : null;
+    for (let i = 0; i < this.total; i++) {
+      const tok = toks[i];
+      if (tok === '.' || tok === '-') continue;
+      if (kit) { ev[i] = { hits: [...tok].map(c => kit[c]) }; continue; }
+      const [notes, over] = tok.split('@');
+      let len = 1; while (i + len < this.total && toks[i + len] === '-') len++;
+      ev[i] = { notes: notes.split('+').map(n => toHz(n, this.m.a4Hz)), inst: over || ch.instrument, len };
+    }
+    return ev;
+  }
+
+  scheduleStep(s, time) {
+    const idx = s % this.total, key = Math.pow(2, this.e.keyOffset / 12);
+    for (const ch of this.channels) {
+      const w = this.win[ch.layer];
+      if (!(s >= w.from && s < w.until)) continue;
+      const ev = ch.events[idx]; if (!ev) continue;
+      if (ev.hits) for (const inst of ev.hits) this.e.playInstrument(inst, null, time, this.stepDur, ch.node);
+      else for (const hz of ev.notes) this.e.playInstrument(ev.inst, hz * key, time, ev.len * this.stepDur, ch.node);
+    }
+  }
+
+  tick() {
+    if (!this.playing) return;
+    const now = this.ctx.currentTime;
+    while (this.next < now) { this.step++; this.next += this.stepDur; }   // main thread stalled: skip, keep phase
+    while (this.next < now + this.lookahead) { this.scheduleStep(this.step, this.next); this.step++; this.next += this.stepDur; }
+  }
+
+  stepTime(s) { return this.next + (s - this.step) * this.stepDur; }
+  get bar() { return Math.floor((this.step % this.total) / this.spb) + 1; }
+
+  start(at) {
+    this.stop();
+    this.step = 0; this.next = at !== undefined ? at : this.ctx.currentTime + 0.06;
+    for (const name of Object.keys(this.win)) {
+      this.win[name] = this.want[name] ? { from: 0, until: Infinity } : { from: Infinity, until: Infinity };
+      this.layerGain[name].gain.cancelScheduledValues(0);
+      this.layerGain[name].gain.setValueAtTime(this.want[name] ? 1 : 0, this.ctx.currentTime);
+    }
+    this.playing = true;
+    this.timer = setInterval(() => this.tick(), this.m.scheduler.timerMs);
+    this.tick();
+  }
+  stop() { if (this.timer) clearInterval(this.timer); this.timer = null; this.playing = false; }
+
+  /** Quantized vertical layer switch (music.adaptive.transitions). */
+  setLayer(name, on) {
+    this.want[name] = on;
+    const tr = this.m.adaptive.transitions[on ? 'layerOn' : 'layerOff'];
+    if (!this.playing) { this.win[name] = on ? { from: 0, until: Infinity } : { from: Infinity, until: Infinity }; this.layerGain[name].gain.value = on ? 1 : 0; return; }
+    const q = tr.quantize === 'bar' ? this.spb : this.m.stepsPerBeat;
+    const b = Math.ceil(this.step / q) * q, tb = this.stepTime(b), w = this.win[name], g = this.layerGain[name].gain;
+    if (on) {
+      if (w.until === Infinity && w.from <= b) return;
+      this.win[name] = { from: (w.until !== Infinity && w.until >= b && w.from <= b) ? w.from : b, until: Infinity };
+      g.cancelScheduledValues(tb); g.setTargetAtTime(1, tb, tr.fadeInMs / 3000);
+    } else {
+      if (w.from === Infinity || w.until !== Infinity) return;
+      this.win[name] = { from: w.from, until: b };
+      g.cancelScheduledValues(tb); g.setTargetAtTime(0, tb, tr.fadeOutMs / 3000);
+    }
+  }
+
+  setFrenzy(on) { this.setLayer('frenzy', on); this.setLayer('evolved', !on && this.evolutions >= 1); }
+  setEvolutions(n) {
+    this.evolutions = n;
+    const kt = this.m.adaptive.keyOffsetByEvolutions.table;
+    this.e.keyOffset = kt[n % kt.length];
+    this.want.evolved = n >= 1 && !this.want.frenzy;
+  }
+
+  /** Executes an events-map music command: start | restart | layerOn:x | layerOff:x | fadeOutStop:ms */
+  command(cmd) {
+    const [op, arg] = cmd.split(':'), g = this.e.musicState.gain, t = this.ctx.currentTime;
+    if (op === 'start') { if (!this.playing) { g.cancelScheduledValues(t); g.setValueAtTime(1, t); this.start(); } }
+    else if (op === 'layerOn' || op === 'layerOff') { if (arg === 'frenzy') this.setFrenzy(op === 'layerOn'); else this.setLayer(arg, op === 'layerOn'); }
+    else if (op === 'fadeOutStop') {
+      const ms = +arg; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + ms / 1000);
+      setTimeout(() => this.stop(), ms + 50);
+    } else if (op === 'restart') {
+      const ms = this.m.adaptive.transitions.restart.fadeInMs;
+      const t0 = Math.max(t, this.e.restartAt || 0);   // never before the fanfare's end (events.evolveTransitionEnd.restartNotBefore)
+      g.cancelScheduledValues(t); g.setValueAtTime(0, t0); g.linearRampToValueAtTime(1, t0 + ms / 1000);
+      this.start(t0 + 0.02);
+    }
+  }
+}
+
+/* ============================ loudness ============================ */
+// BS.1770-4 K-weighting biquads at 48 kHz, 400 ms blocks with 75 % overlap, -70 LUFS absolute
+// and -10 LU relative gates. Channels are summed (the mono game signal plays on both speakers).
+function measureLoudness(buf) {
+  const sr = buf.sampleRate, n = buf.length;
+  if (sr !== 48000) throw new Error('K-weighting coefficients are for 48 kHz');
+  const S1 = { b: [1.53512485958697, -2.69169618940638, 1.19839281085285], a: [-1.69065929318241, 0.73248077421585] };
+  const S2 = { b: [1, -2, 1], a: [-1.99004745483398, 0.99007225036621] };
+  let peak = 0;
+  const prefix = new Float64Array(n + 1);
+  for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+    const x = buf.getChannelData(ch);
+    let x1 = 0, x2 = 0, y1 = 0, y2 = 0, u1 = 0, u2 = 0, z1 = 0, z2 = 0, acc = 0;
+    for (let i = 0; i < n; i++) {
+      const xi = x[i]; if (Math.abs(xi) > peak) peak = Math.abs(xi);
+      const y = S1.b[0] * xi + S1.b[1] * x1 + S1.b[2] * x2 - S1.a[0] * y1 - S1.a[1] * y2;
+      x2 = x1; x1 = xi; y2 = y1; y1 = y;
+      const z = S2.b[0] * y + S2.b[1] * u1 + S2.b[2] * u2 - S2.a[0] * z1 - S2.a[1] * z2;
+      u2 = u1; u1 = y; z2 = z1; z1 = z;
+      acc += z * z; prefix[i + 1] += acc;
+    }
+  }
+  const L = z => -0.691 + 10 * Math.log10(Math.max(z, 1e-20));
+  const win = (s, len) => (prefix[s + len] - prefix[s]) / len;
+  const B = Math.round(0.4 * sr), H = Math.round(0.1 * sr), blocks = [];
+  for (let s = 0; s + B <= n; s += H) blocks.push(win(s, B));
+  const g1 = blocks.filter(z => L(z) > -70);
+  const mean = a => a.reduce((p, q) => p + q, 0) / Math.max(a.length, 1);
+  const rel = L(mean(g1)) - 10, g2 = g1.filter(z => L(z) > rel);
+  const ST = 3 * sr; let stMax = -Infinity, mMax = -Infinity;
+  for (let s = 0; s + ST <= n; s += H) stMax = Math.max(stMax, L(win(s, ST)));
+  for (const z of blocks) mMax = Math.max(mMax, L(z));
+  return { integrated: L(mean(g2)), shortTermMax: stMax, momentaryMax: mMax, samplePeakDb: 20 * Math.log10(peak || 1e-9) };
+}
+
+async function renderScenario(sc) {
+  const sr = 48000, oc = new OfflineAudioContext(2, Math.ceil(sr * sc.secs), sr);
+  const e = new ChipAudio(oc, CUES, MUSIC), mp = new MusicPlayer(e, MUSIC);
+  mp.setEvolutions(sc.evolutions || 0);
+  if (!sc.music) e.busUser.music.gain.value = 0;
+  mp.want.frenzy = !!sc.frenzy; mp.want.evolved = !sc.frenzy && (sc.evolutions || 0) >= 1;
+  for (const k of Object.keys(mp.win)) { mp.win[k] = mp.want[k] ? { from: 0, until: Infinity } : { from: Infinity, until: Infinity }; mp.layerGain[k].gain.value = mp.want[k] ? 1 : 0; }
+  if (sc.music) for (let s = 0, t = 0.05; t < sc.secs; s++, t += mp.stepDur) mp.scheduleStep(s, t);
+  if (sc.tapRate) {
+    e.flags.tapFrenzyActive = !!sc.tapFrenzy;
+    for (let t = 0.1; t < sc.secs - 0.3; t += 1 / sc.tapRate) {
+      if (Math.random() < (sc.crit || 0)) { e.touch('tap', t); e.play('tapCrit', { when: t }); } else e.play('tap', { when: t });
+    }
+  }
+  if (sc.cue) e.play(sc.cue, { when: 0.1 });
+  return measureLoudness(await oc.startRendering());
+}
+
+const SCENARIOS = [   // 16 bars = sections A A2 B B2 (the breakdown is quieter, so this is the louder case)
+  { name: 'music only (16 bars)', music: true, secs: 30.5 },
+  { name: 'music, frenzy layer, evo 3 (+5 st)', music: true, frenzy: true, evolutions: 3, secs: 30.5 },
+  { name: 'music + tap 4/s (5% crit)', music: true, tapRate: 4, crit: 0.05, secs: 30.5 },
+  { name: 'music + tap 16/s (10% crit)', music: true, tapRate: 16, crit: 0.10, secs: 30.5 },
+  { name: 'tap 16/s alone (10% crit)', tapRate: 16, crit: 0.10, secs: 15 },
+  { name: 'tap 16/s alone, Tap Frenzy', tapRate: 16, crit: 0.10, tapFrenzy: true, secs: 15 },
+  { name: 'evolveConfirm alone', cue: 'evolveConfirm', secs: 2 },
+  { name: 'goldenCatchFrenzy alone', cue: 'goldenCatchFrenzy', secs: 1 },
+];
+
+async function runMeasure() {
+  const out = [], pad = (s, n) => (s + ' '.repeat(n)).slice(0, n), f = v => (isFinite(v) ? v.toFixed(1) : '-inf').padStart(6);
+  out.push(pad('scenario', 38) + '  integ  stMax  mMax  sPeak');
+  const results = [];
+  for (const sc of SCENARIOS) {
+    document.getElementById('measureStatus').textContent = 'rendering: ' + sc.name;
+    const r = await renderScenario(sc); results.push({ name: sc.name, ...r });
+    out.push(pad(sc.name, 38) + ' ' + f(r.integrated) + ' ' + f(r.shortTermMax) + ' ' + f(r.momentaryMax) + ' ' + f(r.samplePeakDb));
+    document.getElementById('report').textContent = out.join('\n');
+  }
+  out.push('', 'Units: LUFS (integrated, short-term max, momentary max); sample peak in dBFS.');
+  document.getElementById('report').textContent = out.join('\n');
+  document.getElementById('measureStatus').textContent = 'done';
+  window.__measure = results;
+  return results;
+}
+
+/* ===================== phone-speaker translation ===================== */
+// Renders each cue alone. Channel 0 = full band, channel 1 = through a 300 Hz high-pass (phone-speaker
+// proxy). Reports the energy kept above 300 Hz and the time from cue start to the transient peak.
+async function phoneCheck() {
+  const sr = 48000, rows = [];
+  for (const [id, cue] of Object.entries(CUES.cues)) {
+    const secs = cue.lengthMs / 1000 + 0.15, oc = new OfflineAudioContext(2, Math.ceil(sr * secs), sr);
+    const e = new ChipAudio(oc, CUES, MUSIC);
+    e.out.disconnect();
+    const merger = oc.createChannelMerger(2), hp = oc.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 300; hp.Q.value = -3.01;   // Web Audio HP/LP Q is in dB: -3.01 dB = Butterworth
+    e.out.connect(merger, 0, 0); e.out.connect(hp); hp.connect(merger, 0, 1); merger.connect(oc.destination);
+    e.play(id, { when: 0.05 });
+    const buf = await oc.startRendering(), a = buf.getChannelData(0), b = buf.getChannelData(1);
+    let ea = 0, eb = 0, pk = 0;
+    for (let i = 0; i < a.length; i++) { ea += a[i] * a[i]; eb += b[i] * b[i]; if (Math.abs(a[i]) > pk) pk = Math.abs(a[i]); }
+    // onset = first sample within 6 dB of the cue's overall peak (the category-defining transient)
+    let onI = 0; for (let i = Math.round(0.05 * sr); i < a.length; i++) if (Math.abs(a[i]) >= pk * 0.5) { onI = i; break; }
+    rows.push({ id, keptDb: 10 * Math.log10(eb / ea), onsetMs: (onI / sr - 0.05) * 1000 });
+  }
+  window.__phone = rows;
+  document.getElementById('phone').textContent = ['cue                    kept>300Hz  onset (includes the compressor\'s ~6 ms lookahead)',
+    ...rows.map(r => (r.id + ' '.repeat(24)).slice(0, 24) + (r.keptDb.toFixed(1) + ' dB').padStart(9) + (r.onsetMs.toFixed(1) + ' ms').padStart(10))].join('\n');
+  return rows;
+}
+
+/* ===================== balance vs music bed ===================== */
+// cues.json -> mix.balance. Max K-weighted loudness of a cue in any 100 ms window, minus the median
+// 100 ms K-weighted loudness of the base music bed; full band and through a 300 Hz high-pass (phone
+// proxy). 100 ms approximates the ear's integration time for short sounds; a 400 ms momentary window
+// would under-read an 81 ms tap by about 6 LU. randomize.gainDb is switched off so the numbers repeat.
+function kWindows(x, sr, winS) {
+  const S1 = { b: [1.53512485958697, -2.69169618940638, 1.19839281085285], a: [-1.69065929318241, 0.73248077421585] };
+  const S2 = { b: [1, -2, 1], a: [-1.99004745483398, 0.99007225036621] };
+  let x1 = 0, x2 = 0, y1 = 0, y2 = 0, u1 = 0, u2 = 0, z1 = 0, z2 = 0, acc = 0;
+  const pre = new Float64Array(x.length + 1);
+  for (let i = 0; i < x.length; i++) {
+    const xi = x[i], y = S1.b[0] * xi + S1.b[1] * x1 + S1.b[2] * x2 - S1.a[0] * y1 - S1.a[1] * y2; x2 = x1; x1 = xi; y2 = y1; y1 = y;
+    const z = S2.b[0] * y + S2.b[1] * u1 + S2.b[2] * u2 - S2.a[0] * z1 - S2.a[1] * z2; u2 = u1; u1 = y; z2 = z1; z1 = z;
+    acc += 2 * z * z; pre[i + 1] = acc;   // x2: the mono signal plays on L and R
+  }
+  const B = Math.round(winS * sr), H = Math.round(0.01 * sr), out = [];
+  for (let s = 0; s + B <= x.length; s += H) out.push(-0.691 + 10 * Math.log10(Math.max((pre[s + B] - pre[s]) / B, 1e-20)));
+  return out.sort((a, b) => a - b);
+}
+async function renderBalance(kind, hpHz, what) {
+  const sr = 48000, secs = kind === 'bed' ? 20 : 1, oc = new OfflineAudioContext(1, Math.ceil(sr * secs), sr);
+  const C = JSON.parse(JSON.stringify(CUES)); for (const c of Object.values(C.cues)) if (c.randomize) c.randomize.gainDb = 0;
+  const e = new ChipAudio(oc, C, MUSIC), mp = new MusicPlayer(e, MUSIC);
+  e.out.disconnect();
+  if (hpHz) { const hp = oc.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = hpHz; hp.Q.value = -3.01; e.out.connect(hp); hp.connect(oc.destination); }
+  else e.out.connect(oc.destination);
+  if (kind === 'bed') {
+    mp.setEvolutions(0); mp.want.frenzy = false; mp.want.evolved = false;
+    for (const k of Object.keys(mp.win)) { mp.win[k] = mp.want[k] ? { from: 0, until: Infinity } : { from: Infinity, until: Infinity }; mp.layerGain[k].gain.value = mp.want[k] ? 1 : 0; }
+    for (let s = 0, t = 0.05; t < secs; s++, t += mp.stepDur) mp.scheduleStep(s, t);
+  } else e.play(what, { when: 0.1 });
+  const x = (await oc.startRendering()).getChannelData(0);
+  return kind === 'bed' ? x.subarray(sr) : x;   // skip the first second of the bed
+}
+async function balanceCheck() {
+  const B = CUES.mix.balance, sr = 48000, w = B.windowMs / 1000, rows = [], res = {};
+  const paths = { full: 0, phone: B.phoneHighpassHz }, bed = {};
+  for (const [p, hz] of Object.entries(paths)) { const k = kWindows(await renderBalance('bed', hz), sr, w); bed[p] = k[Math.floor(k.length / 2)]; }
+  rows.push('bed median (100 ms): full ' + bed.full.toFixed(1) + ' LUFS, phone ' + bed.phone.toFixed(1) + ' LUFS', '',
+    'cue           phone  (min)   full  (min)');
+  for (const [id, min] of Object.entries(B.minOverBedLU)) {
+    const r = {};
+    for (const [p, hz] of Object.entries(paths)) { const k = kWindows(await renderBalance('cue', hz, id), sr, w); r[p] = k[k.length - 1] - bed[p]; }
+    const ok = r.phone >= min.phone && r.full >= min.full; res[id] = { ...r, ok };
+    rows.push((id + ' '.repeat(12)).slice(0, 12) + r.phone.toFixed(1).padStart(7) + ('(' + min.phone + ')').padStart(6) + r.full.toFixed(1).padStart(7) + ('(' + min.full + ')').padStart(6) + (ok ? '  ok' : '  BELOW TARGET'));
+    $('balance').textContent = rows.join('\n');
+  }
+  rows.push('', 'LU over the bed. Targets: cues.json -> mix.balance.minOverBedLU.');
+  $('balance').textContent = rows.join('\n');
+  window.__balance = { bed, cues: res };
+  return window.__balance;
+}
+
+/* ============================ validation ============================ */
+function validateAll() {
+  const errs = [], warns = [];
+  const WAVES = ['pulse', 'square', 'triangle', 'sine', 'noise', 'noiseMetal', 'sawtooth'];
+  const checkLayer = (L, where, inMusic) => {
+    if (!WAVES.includes(L.wave)) errs.push(where + ': bad wave ' + L.wave);
+    if (L.wave === 'sawtooth') warns.push(where + ': sawtooth is on the sonic-brief no-go list');
+    if (L.wave === 'pulse' && ![0.125, 0.25].includes(L.duty)) errs.push(where + ': pulse needs duty 0.125 | 0.25');
+    if (L.wave !== 'pulse' && L.duty !== undefined) errs.push(where + ': duty is only valid on pulse');
+    if (isNoise(L.wave)) {
+      if (!(L.clockStart > 0)) errs.push(where + ': noise needs clockStart');
+      if (L.freqStart !== undefined || L.arpeggio) errs.push(where + ': noise takes clockStart, not freqStart or arpeggio');
+    } else {
+      try { toHz(L.freqStart); if (L.freqEnd !== undefined) toHz(L.freqEnd); } catch (x) { errs.push(where + ': ' + x.message); }
+    }
+    if (L.arpeggio && L.freqEnd !== undefined) errs.push(where + ': arpeggio and freqEnd are exclusive');
+    if (L.arpeggio && !(L.arpRateHz > 0)) errs.push(where + ': arpeggio needs arpRateHz');
+    for (const k of ['attack', 'decay', 'sustain', 'release']) if (typeof L[k] !== 'number') errs.push(where + ': missing ' + k);
+    if (L.sustain < 0 || L.sustain > 1) errs.push(where + ': sustain out of 0..1');
+    if (L.duration === 'note') { if (!inMusic) errs.push(where + ": duration 'note' is only valid in music instruments"); }
+    else if (typeof L.duration !== 'number' || L.duration + 1e-9 < L.attack + L.decay) errs.push(where + ': duration must be >= attack + decay');
+    if (L.filter && !['lowpass', 'highpass', 'bandpass'].includes(L.filter.type)) errs.push(where + ': bad filter type');
+    if (L.crush !== undefined && !(L.crush >= 2 && L.crush <= 8)) errs.push(where + ': crush must be 2..8 bits');
+    if (typeof L.gain !== 'number' || L.gain < 0 || L.gain > 1) errs.push(where + ': gain must be 0..1');
+    const end = (L.delay || 0) + (typeof L.duration === 'number' ? L.duration : 0) + L.release;
+    return end;
+  };
+  const cues = CUES.cues;
+  for (const [id, c] of Object.entries(cues)) {
+    const w = 'cue ' + id;
+    if (!CUES.mix.buses[c.bus] || c.bus === 'music') errs.push(w + ': bus must be sfx | ui');
+    if (![1, 2, 3, 4].includes(c.priority)) errs.push(w + ': priority 1..4');
+    if (!(c.polyphony >= 1)) errs.push(w + ': polyphony >= 1');
+    if (!['oldest', 'none'].includes(c.steal)) errs.push(w + ': steal oldest | none');
+    if (typeof c.gainDb !== 'number' || c.gainDb > 0) errs.push(w + ': gainDb must be <= 0');
+    if (!Array.isArray(c.loadBearingBandHz)) errs.push(w + ': loadBearingBandHz missing');
+    if (!c.event) errs.push(w + ': event missing');
+    const rp = c.randomize && c.randomize.pitch;
+    if (!rp || !['none', 'scale', 'continuous'].includes(rp.mode)) errs.push(w + ': randomize.pitch.mode');
+    if (rp && rp.mode === 'scale' && !(rp.window >= 1 && rp.window <= rp.scaleSemis.length)) errs.push(w + ': scale window');
+    for (const r of c.replaces || []) if (!cues[r]) errs.push(w + ': replaces unknown cue ' + r);
+    for (const d of c.duck || []) {
+      if (!(d.target === 'bus:music' || (d.target.startsWith('cue:') && cues[d.target.slice(4)]))) errs.push(w + ': bad duck target ' + d.target);
+      if (!d.until && typeof d.holdMs !== 'number') errs.push(w + ': duck needs holdMs or until');
+    }
+    let end = 0;
+    c.layers.forEach((L, i) => { end = Math.max(end, checkLayer(L, w + '.layers[' + i + ']', false)); });
+    (c.conditionalLayers || []).forEach(cl => cl.layers.forEach((L, i) => { end = Math.max(end, checkLayer(L, w + '.cond[' + i + ']', false)); }));
+    if (Math.abs(end * 1000 - c.lengthMs) > 5) warns.push(w + ': lengthMs ' + c.lengthMs + ' but layers end at ' + Math.round(end * 1000));
+    if (c.lengthMs > 1500) warns.push(w + ': longer than 1.5 s');
+  }
+  for (const [name, ev] of Object.entries(CUES.events)) {
+    if (name.startsWith('_')) continue;
+    const ids = [ev.cue, ...Object.values(ev.cueByOutcome || {}), ...Object.values(ev.cueByValue || {})].filter(Boolean);
+    for (const id of ids) if (!cues[id]) errs.push('event ' + name + ': unknown cue ' + id);
+  }
+  for (const id of Object.keys(cues)) {
+    const used = Object.entries(CUES.events).some(([n, ev]) => !n.startsWith('_') && [ev.cue, ...Object.values(ev.cueByOutcome || {}), ...Object.values(ev.cueByValue || {})].includes(id));
+    if (!used) warns.push('cue ' + id + ' is not reachable from any event');
+  }
+  for (const [name, inst] of Object.entries(MUSIC.instruments)) {
+    if (name.startsWith('_')) continue;
+    inst.layers.forEach((L, i) => checkLayer(L, 'instrument ' + name + '.layers[' + i + ']', true));
+  }
+  for (const [id, ch] of Object.entries(MUSIC.channels)) {
+    if (id.startsWith('_')) continue;
+    for (const sec of MUSIC.form.order) {
+      const bars = ch.sections[sec];
+      if (!bars || bars.length !== MUSIC.form.sectionBars) { errs.push('channel ' + id + ': section ' + sec + ' missing or wrong length'); continue; }
+      bars.forEach((b, i) => {
+        const t = b.split(/\s+/).filter(Boolean);
+        if (t.length !== MUSIC.stepsPerBar) errs.push(id + '.' + sec + '[' + i + ']: ' + t.length + ' tokens');
+        for (const tok of t) {
+          if (tok === '.' || tok === '-') continue;
+          if (ch.kit) { for (const c of tok) if (!MUSIC.kits[ch.kit][c]) errs.push(id + ': unknown kit char ' + c); continue; }
+          const [n, over] = tok.split('@');
+          for (const x of n.split('+')) { try { toHz(x); } catch (e) { errs.push(id + '.' + sec + '[' + i + ']: ' + e.message); } }
+          if (over && !MUSIC.instruments[over]) errs.push(id + ': unknown instrument ' + over);
+        }
+      });
+    }
+    if (!ch.kit && !MUSIC.instruments[ch.instrument]) errs.push('channel ' + id + ': unknown instrument');
+    if (!MUSIC.adaptive.layers[ch.layer]) errs.push('channel ' + id + ': unknown layer ' + ch.layer);
+  }
+  const lines = [(errs.length ? 'ERRORS: ' : 'OK: ') + errs.length + ' errors, ' + warns.length + ' warnings', ...errs.map(x => '  E ' + x), ...warns.map(x => '  W ' + x)];
+  const el = document.getElementById('valid'); el.textContent = lines.join('\n'); el.className = errs.length ? 'bad' : 'ok';
+  window.__validation = { errors: errs, warnings: warns };
+  return { errors: errs, warnings: warns };
+}
+
+/* ===================== AudioUnlock: reference for audio-cue-spec §5 (rules U1-U10) ===================== */
+// The game's AudioEngine must behave exactly like this class. Numbers live in cues.json -> unlock.
+// Why it exists: user activation is granted only by keydown (not Esc), mousedown, pointerdown with
+// pointerType "mouse", pointerup (non-mouse) and touchend (HTML spec, "activation triggering input
+// event"). A touch pointerdown does NOT grant it, so a one-shot unlock on the first pointerdown never
+// unlocks a phone. Every gesture therefore retries until the context actually runs.
+const IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+// 16-bit mono PCM WAV of silence, built in memory (the game ships zero audio files; this is not an asset).
+function silentWavUrl(spec) {
+  const n = Math.round(spec.sampleRate * spec.seconds), buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+  const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE'); str(12, 'fmt '); v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, spec.sampleRate, true); v.setUint32(28, spec.sampleRate * 2, true);
+  v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, 'data'); v.setUint32(40, n * 2, true);   // samples stay 0
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+
+class AudioUnlock {
+  constructor(ctx, U, { music = true, onFirstRun = () => {}, onState = () => {} } = {}) {
+    this.ctx = ctx; this.U = U; this.music = music; this.onFirstRun = onFirstRun; this.onState = onState;
+    this.everRan = false;        // U3: audioUnlock fires exactly once per page session
+    this.autoplayAllowed = ctx.state === 'running';   // U4: created running = the browser already allows sound, no gesture needed
+    this.selfSuspended = false;  // U6: true only while WE suspended the context for a hidden tab
+    this.pending = null;         // U8: one-slot first-cue queue { fn, t }
+    this.silentEl = null; this.kickBuf = null;
+    this.onGesture = () => this.gesture();
+    // U2: listeners live for the whole page and are a no-op while running. They are never detached,
+    // because every loss case (U5 interruption, U6 tab return, bfcache) needs them again.
+    for (const t of U.gestureEvents) window.addEventListener(t, this.onGesture, U.listenerOptions);
+    ctx.addEventListener('statechange', () => this.stateChanged());          // U3, U5
+    document.addEventListener('visibilitychange', () => this.visibility());  // U6
+    window.addEventListener('pageshow', e => { if (e.persisted) this.visibility(); });
+    this.applySession();                                                     // U7: before any resume
+    if (ctx.state === 'running') {                                           // U4: created running (autoplay allowed)
+      if (document.hidden) this.visibility(); else queueMicrotask(() => this.stateChanged());
+    }
+  }
+  get running() { return this.ctx.state === 'running'; }
+  get sessionType() { return navigator.audioSession ? navigator.audioSession.type : (this.silentEl && !this.silentEl.paused ? 'legacy-playback' : 'default'); }
+
+  // U2: every activation-capable gesture retries, synchronously inside the handler, until running.
+  gesture() {
+    if (document.hidden) return;
+    this.startSilentElement();                          // U7 legacy path; needs the gesture, cheap no-op otherwise
+    if (this.running) return;
+    this.ctx.resume().then(() => this.stateChanged(), () => {});   // never await before the kick
+    this.kick();
+  }
+  // U2: older WebKit only unlocks when a source starts inside the gesture. 1 silent sample.
+  kick() {
+    if (!this.kickBuf) this.kickBuf = this.ctx.createBuffer(1, this.U.kickBufferSamples, this.ctx.sampleRate);
+    const s = this.ctx.createBufferSource(); s.buffer = this.kickBuf; s.connect(this.ctx.destination); s.start(0);
+  }
+  stateChanged() {
+    this.onState(this.ctx.state);
+    if (this.running) {
+      this.flush();                                                        // U8 before U3: the gesture's own cue leads
+      if (!this.everRan) { this.everRan = true; this.onFirstRun(); }       // U3: 'audioUnlock'
+      return;
+    }
+    // U5: 'interrupted' (iOS: call, Siri, another app) or a suspend we did not ask for, while visible:
+    // one ungestured retry now (often enough once the interruption ends); the armed listeners cover the rest.
+    if (!document.hidden && !this.selfSuspended && this.everRan) this.ctx.resume().catch(() => {});
+  }
+  // U6: hidden -> suspend (ours); visible -> resume attempt; a failed attempt is covered by the listeners.
+  visibility() {
+    if (document.hidden) {
+      this.selfSuspended = true; this.pending = null;
+      this.ctx.suspend().catch(() => {});
+      if (this.silentEl) this.silentEl.pause();
+      return;
+    }
+    this.selfSuspended = false;
+    if (this.silentEl && this.music) this.silentEl.play().catch(() => {});
+    if ((this.everRan || this.autoplayAllowed) && !this.running) this.ctx.resume().then(() => this.stateChanged(), () => {});
+  }
+  // U7: game music on -> 'playback' (plays with the ringer switch on silent; the game takes the audio stage).
+  // Music off -> 'ambient' (mixes under the player's own audio and obeys the ringer switch).
+  applySession() {
+    const s = navigator.audioSession;
+    if (s) { try { s.type = this.music ? this.U.iosSession.musicOn : this.U.iosSession.musicOff; } catch (e) {} return; }
+    if (!this.music && this.silentEl) this.silentEl.pause();
+  }
+  setMusic(on) {
+    this.music = on; this.applySession();
+    if (on && this.silentEl && !document.hidden) this.silentEl.play().catch(() => {});
+  }
+  // U7 legacy (iOS WebKit without navigator.audioSession): a playing media element switches the page's
+  // audio session to playback, so Web Audio then ignores the ringer switch.
+  startSilentElement() {
+    if (navigator.audioSession || !IS_IOS || !this.music) return;
+    if (this.silentEl && !this.silentEl.paused) return;
+    if (!this.silentEl) {
+      const a = document.createElement('audio'), L = this.U.legacySilentElement;
+      a.src = silentWavUrl(L.wav); a.loop = L.loop; a.preload = 'auto'; a.setAttribute('playsinline', ''); a.disableRemotePlayback = true;
+      this.silentEl = a;
+    }
+    this.silentEl.play().catch(() => {});
+  }
+  // U8: every cue trigger goes through here. Running: play now. Not running: hold ONE (newest wins),
+  // replayed on the transition to running only if it is at most firstCueDeferMaxMs old.
+  run(fn) {
+    if (this.running) { fn(); return; }
+    if (document.hidden) return;
+    this.pending = { fn, t: performance.now() };
+  }
+  flush() {
+    const p = this.pending; this.pending = null;
+    if (p && performance.now() - p.t <= this.U.firstCueDeferMaxMs) p.fn();
+  }
+}
+
+/* ============================ page wiring ============================ */
+let ctx = null, engine = null, player = null, analyser = null, kAnalyser = null, stEnergy = 0, gate = null;
+const $ = id => document.getElementById(id);
+
+// Same boot order as the game (U1): create the (usually suspended) context and apply settings at load.
+function initAudio() {
+  if (ctx) return;
+  ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+  engine = new ChipAudio(ctx, CUES, MUSIC);
+  player = new MusicPlayer(engine, MUSIC);
+  analyser = ctx.createAnalyser(); analyser.fftSize = 2048; engine.out.connect(analyser);
+  const hs = ctx.createBiquadFilter(); hs.type = 'highshelf'; hs.frequency.value = 1681; hs.gain.value = 4;
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 38; hp.Q.value = 0.5;
+  kAnalyser = ctx.createAnalyser(); kAnalyser.fftSize = 16384;
+  engine.out.connect(hs); hs.connect(hp); hp.connect(kAnalyser);
+  gate = new AudioUnlock(ctx, CUES.unlock, {
+    music: $('tMusic').classList.contains('on'),
+    onFirstRun: () => { $('unlockLog').textContent = 'audioUnlock fired at ' + Math.round(performance.now()) + ' ms (the game starts the music here)'; },
+    onState: st => {
+      $('lock').style.display = st === 'running' ? 'none' : '';
+      $('lock').textContent = st === 'interrupted'
+        ? 'Audio was interrupted by the system (call, Siri or another app). Tap anywhere to resume.'
+        : 'Audio is suspended by the browser. Tap, click or press a key anywhere: every gesture retries until it runs (audio-cue-spec §5).';
+      $('ctxState').textContent = st + ' · session ' + gate.sessionType;
+    },
+  });
+  $('ctxState').textContent = ctx.state + ' · session ' + gate.sessionType;
+  requestAnimationFrame(meter);
+}
+
+function meter() {
+  const a = new Float32Array(analyser.fftSize); analyser.getFloatTimeDomainData(a);
+  let pk = 0; for (const v of a) pk = Math.max(pk, Math.abs(v));
+  const k = new Float32Array(kAnalyser.fftSize); kAnalyser.getFloatTimeDomainData(k);
+  let ms = 0; for (const v of k) ms += v * v; ms /= k.length;
+  stEnergy = stEnergy * 0.98 + ms * 0.02;   // about 3 s smoothing at 60 fps
+  const lufs = z => -0.691 + 10 * Math.log10(Math.max(2 * z, 1e-12));   // x2: the mono signal plays on L and R
+  $('mtPeak').textContent = pk > 0 ? (20 * Math.log10(pk)).toFixed(1) : '-inf';
+  $('mtM').textContent = lufs(ms).toFixed(1); $('mtS').textContent = lufs(stEnergy).toFixed(1);
+  $('mtBar').textContent = player && player.playing ? player.bar : '-';
+  requestAnimationFrame(meter);
+}
+
+function buildCueGrid() {
+  const grid = $('cueGrid');
+  for (const [id, c] of Object.entries(CUES.cues)) {
+    const b = document.createElement('button');
+    b.innerHTML = id + '<small>' + c.bus + ' · ' + c.gainDb + ' dB · ' + c.lengthMs + ' ms</small>';
+    b.addEventListener('click', () => { initAudio(); gate.run(() => engine.play(id)); });   // U8: a first-gesture cue is deferred, not dropped
+    grid.appendChild(b);
+  }
+}
+
+function wire() {
+  $('mPlay').onclick = () => { initAudio(); gate.run(() => { engine.musicState.gain.cancelScheduledValues(0); engine.musicState.gain.value = 1; player.start(); }); };
+  $('mStop').onclick = () => player && player.stop();
+  $('mFrenzy').onclick = e => { initAudio(); const on = !e.target.classList.contains('on'); e.target.classList.toggle('on', on); player.setFrenzy(on); engine.flags.frenzyActive = on; };
+  $('mEvo').onchange = e => { initAudio(); player.setEvolutions(+e.target.value); if (player.playing) player.start(); };
+  $('mDlg').onclick = e => {
+    initAudio(); const on = !e.target.classList.contains('on'); e.target.classList.toggle('on', on);
+    engine.event(on ? 'evolveOpen' : 'evolveClose', null, player);
+  };
+  $('mEvolve').onclick = () => {
+    initAudio();
+    $('mDlg').classList.remove('on');
+    engine.event('evolveConfirm', null, player);
+    setTimeout(() => {
+      const n = (+$('mEvo').value + 1) % 5; $('mEvo').value = String(n);
+      player.setEvolutions(n); engine.event('evolveTransitionEnd', null, player);
+    }, 1500);
+  };
+  $('tSfx').onclick = e => { initAudio(); const on = !e.target.classList.contains('on'); e.target.classList.toggle('on', on); e.target.textContent = 'SFX ' + (on ? 'on' : 'off'); engine.setEnabled('sfx', on); };
+  $('tMusic').onclick = e => { initAudio(); const on = !e.target.classList.contains('on'); e.target.classList.toggle('on', on); e.target.textContent = 'Music ' + (on ? 'on' : 'off'); engine.setEnabled('music', on); gate.setMusic(on); $('ctxState').textContent = ctx.state + ' · session ' + gate.sessionType; };   // U7
+  $('tTapFrenzy').onclick = e => { initAudio(); const on = !e.target.classList.contains('on'); e.target.classList.toggle('on', on); engine.flags.tapFrenzyActive = on; };
+  document.querySelectorAll('[data-stress]').forEach(b => b.onclick = () => { initAudio(); gate.run(() => stress(b.dataset.stress)); });
+  function stress(kind) {
+    const t0 = ctx.currentTime + 0.05;
+    if (kind === 'hold') { for (let i = 0; i < 20; i++) engine.play('buy', { when: t0 + i * 0.1 }); return; }
+    const rate = kind === 'tap16' ? 16 : 4, critP = engine.flags.tapFrenzyActive ? 0.1 : 0.05;
+    for (let t = 0; t < 6; t += 1 / rate) {
+      if (Math.random() < critP) { engine.touch('tap', t0 + t); engine.play('tapCrit', { when: t0 + t }); } else engine.play('tap', { when: t0 + t });
+    }
+  }
+  $('measure').onclick = () => runMeasure();
+  $('phoneBtn').onclick = () => phoneCheck();
+  $('balanceBtn').onclick = () => balanceCheck();
+}
+
+buildCueGrid(); wire(); validateAll(); initAudio();
+</script>
+</body>
+</html>

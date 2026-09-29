@@ -1,0 +1,748 @@
+# motion-spec (UI + screen + reward FX): "עוד סבב"
+# Owner: Animator. Consumers: Game Developer (Godot tweens), Audio Director (cue alignment: event-markers.md),
+# UX Designer (flow owner: first-minute.md), Technical Artist (fx-data ids named here), 2D Artist (pending art named here).
+# Template: gamestudio ui-and-screen-motion/tools/motion-spec-yaml-template.md (one YAML document per motion).
+# Global rules (framerate, units, snap, easing → Godot names, reduced motion): motion/README.md. Not restated here.
+#
+# Field extensions (as in the fork's legacy spec; flagged for adoption in contracts/artifacts.md):
+#   snap          positions are rounded to this grid AFTER easing: "4" = the 4-px logical UI grid, "S" / "Sp" / "aap" = one
+#                 art px of the moved sprite (README §2)
+#   quantize      a driver value mapped to integer render scales (pixel art never draws at a fractional scale > 180 ms)
+#   frames_at_60  the frame-by-frame result at 60 Hz
+#   reduced_motion keep | reduce | disable, with reduced_motion_alternative when not keep
+#   anchor        a timeline anchored to an AUDIO marker rather than to f0 (the fanfare): the AD publishes the marker
+# Numbers written <like.this> are Game Designer / UX values read by name from content.json / ui-strings, not Animator-owned.
+---
+motion-id: _globals
+type: rules
+runtime: godot-tween
+rules:
+  fps_reference: 60
+  logical_canvas: "720 wide (stretch expand); 1 CSS px = 1.846 logical px (UX §3.1). UX CSS numbers are restated on the 4-px grid below."
+  press_on_pointerdown: "press visuals are applied synchronously in the input handler (f0), never on the first tween tick"
+  commit_on_release: "every button commits on pointer-up inside bounds (UX); drag > 10 px cancels (UX §3.3)"
+  one_modal_at_a_time: "motion never overlaps two modal enters; the UX modal queue (first-minute §1.2 rule 3) orders them"
+  no_auto_open_in_tap_burst: "no modal / court card / toast ENTERS while the last registered tap is < 1000 ms old (UX rule 3); it waits, then plays in full"
+  flash_ceiling: "no luminance flash above 3 Hz anywhere; every 'flash' below is a one-shot of ≤ 2 frames, ≤ 1 per second per element"
+  reduced_motion_policy: |
+    UX §7.3 is binding: ticker paged (no crawl); screen shake 0; coin bursts → 3 coins, no arcs; the rabbit appears
+    instead of hopping; parallax off; transitions ≤ 200 ms cross-fades; bubbles → static icons; the Suitcase still moves
+    (×0.8 speed, no bob); no flash > 3 Hz; the court-day red is a steady tint.
+motion-constants:          # Animator-owned (not feel tunables). Mirror to game/scripts/core/tune.gd MC (developer).
+  # the Magician (state-graph-magician.md)
+  magicianStartleKnockMs: 180
+  magicianTakeEndMs: 330
+  magicianZipOutMs: 200
+  magicianZipInMs: 220
+  magicianZipQuickMs: 150
+  magicianEmptyBeatMs: 150
+  hatSummonDelayMs: 250
+  hatZipInMs: 300
+  hatZipOutMs: 150
+  hatZipOutQuickMs: 120
+  hatBobPeriodMs: 1600
+  hatBobAp: 2
+  hatTapRiseMs: 80
+  hatTapFallMs: 120
+  hatTapHopAp: 4
+  tapFrame3MinShowMs: 33
+  critSpillMinGapMs: 67
+  postCritTapWindowMs: 150
+  coinBurstBase: 3
+  coinBurstCap: 6
+  critCoinBase: 10
+  critCoinCap: 12
+  hatCoinBase: 2
+  hatCoinCap: 4
+  trickLeadMs: 333            # crit f1 → f5 at 12 fps; the sting lands on rollEnd
+  trembleHz: 8
+  coinPeekRiseAp: 5
+  coinPeekRiseMs: 200
+  coinPeekHoldMs: 150
+  idleInviteAfterMs: 20000
+  idleInviteEveryMs: 10000
+  saraOffendDelayMs: 150
+  saraOffendCooldownMs: 8000
+  partnerReactQueueMaxAgeMs: 1500
+  # chat
+  chatBubbleInMs: 180
+  chatBubbleInOffsetPx: 16
+  chatScrollMs: 180
+  chatToastInMs: 240
+  chatToastHoldMs: 3500
+  chatToastOutMs: 180
+  stampSlamMs: 90
+  seatPipMax: 6
+  seatPipStaggerMs: 50
+  seatPipFlightMs: 450
+  ultimatumNudgeFromSec: 10
+  ultimatumUrgentFromSec: 3
+  leftGroupLineStartMs: 140      # the system line lands at 320 = ultimatumZero's ping onset (AD cues.json)
+  leftGroupDoorMs: 510           # ultimatumZero's door click
+  seatUnfillStepMs: 40
+  # ticker
+  tickerStepHz: 20            # one font-texel step every 3 render frames → speed = 20 × fontScale logical px/s
+  # court
+  courtCardInMs: 280
+  courtTintAlpha: 0.18
+  courtTintMs: 400
+  courtCardOutMs: 180
+  excuseReadMsPerChar: 60
+  excuseReadMinMs: 2000
+  # rewards
+  curtainCoverMs: 300
+  curtainHoldMinMs: 600
+  curtainUncoverMs: 300
+  receiptFeedBursts: 10
+  receiptFeedBurstMs: 70
+  coinFlyMs: 380
+  coinFlyStaggerMs: 35
+  coinFlyHangMs: 250
+  coinFlyMax: 10
+  suitcaseBobAp: 4
+  suitcaseBobPeriodMs: 1200
+  suitcaseTrailEveryMs: 120
+---
+motion-id: _carryover
+type: rules
+source: motion/legacy/motion-spec.monkey-bananas.yaml + motion/legacy/ui-juice.monkey-bananas.yaml
+rule: "Only the ids below bind. KEEP = binding as written there, with the note applied. ADAPT = re-specified in this file. RETIRE = gone."
+table:
+  button-press:        { verdict: KEEP, note: "every ui_button; plus J1 variant A" }
+  buy-row-press:       { verdict: KEEP, note: "applies to the source cards (T1) and spin cards (T2): the whole 366×64 CSS card is the target (UX §3.1)" }
+  purchase-row-flash:  { verdict: KEEP, note: "flash + owned pop + icon hop on a source/spin buy; the critter plop is RETIRED (the stage shows the source walking on, a 2D/UX beat outside this file)" }
+  upgrade-buy-pop:     { verdict: KEEP, note: "for spins if T2 renders as a shelf; if T2 is cards, purchase-row-flash covers it" }
+  cant-afford-shake:   { verdict: KEEP }
+  afford-glint:        { verdict: ADAPT, note: "the glint band sweeps RIGHT → LEFT (RTL reading start, matching the pill fill direction); all else as legacy" }
+  producer-row-reveal: { verdict: ADAPT, note: "'מקור עלום' reveal fires when shekels ≥ 50% of the price (UX P2), not on unlock; unmask + hop as legacy" }
+  shop-drawer:         { verdict: RETIRE, note: "replaced by tall-tab below" }
+  shop-tab-switch:     { verdict: KEEP, note: "4 tabs; incoming list enters from the side of the tapped tab (mirrored for RTL); + J7" }
+  modal-enter:         { verdict: KEEP, note: "O1 return, O3 election card, O3b Dubi flash, O6 headline, O10, O11, O12; + J6" }
+  modal-exit:          { verdict: KEEP }
+  evolve-button-reveal: { verdict: RETIRE, note: "→ election-cta" }
+  evolve-button-ready: { verdict: ADAPT, note: "→ election-cta (unlock beat + 3 s ready pulse reused)" }
+  hud-bank-counter:    { verdict: ADAPT, note: "passive accrual redraws at ≤ 10 Hz (UX §3.2 #1); any player action (tap, buy, pay, catch, collect) snaps on its own f0. Anchor fixed; LRI…PDI isolation (dev)" }
+  hud-bank-pop:        { verdict: KEEP }
+  tap-floater:         { verdict: KEEP, note: "'+1 ₪' (number first, ₪ after, in logical order; UX §3.5)" }
+  crit-floater:        { verdict: KEEP, note: "the rabbit crit's '+N ₪!'; appears at the tap's f0 (never waits for the rabbit)" }
+  buff-banner:         { verdict: ADAPT, note: "→ event-toast (Suitcase outcomes, spin unlock, 'נפתח לך תיק', etc.) = J6 drop-in, 2000 ms total" }
+  buff-presence:       { verdict: ADAPT, note: "only for timed spins (e.g. S07 'סופר-ספרטה', 30 s): edge glow + timer bar + last-3 s 2 Hz blink as legacy" }
+  headline-ticker:     { verdict: ADAPT, note: "→ headline-ticker below (RTL crawl, step cadence, paged RM)" }
+  offline-count-up:    { verdict: KEEP, note: "O1 return card; plus coin-fly-to-counter on 'לאסוף'" }
+  evolve-ceremony:     { verdict: RETIRE, note: "→ election-ceremony" }
+  J1-ui-pill-squish:   { verdict: KEEP, note: "incl. the chat pay pill (variant A)" }
+  J2-hud-stat-gain:    { verdict: KEEP, note: "shekel counter big-gain squash-pop; the bps bump applies to the rate line" }
+  J3-shop-hop-cascade: { verdict: KEEP }
+  J4-pill-hello:       { verdict: KEEP }
+  J5-badge-pop:        { verdict: KEEP, note: "the coalition tab badge" }
+  J6-bouncy-drop-in:   { verdict: KEEP, note: "modals, toasts, banners" }
+  J7-tab-switch-bounce: { verdict: KEEP }
+  J8-ticker-letter-hop: { verdict: RETIRE, note: "Hebrew is shaped by TextServer in a Label/RichTextLabel; per-glyph hops break word shapes and bidi runs. UX rtl-map §5.2 left it to the Animator: no whole-line hop either (a 360-px line jumping reads as a glitch at crawl speed). The milestone uses the flash only" }
+---
+# =====================================================================================================================
+# TITLE → PLAY (UX asks: the logo exit on tap 1)
+# =====================================================================================================================
+motion-id: title-to-play
+type: screen-transition
+applies_to: "N2 title state → play state, on the FIRST registered Magician tap ever (and after a progress reset)"
+runtime: godot-tween
+total_duration_ms: 450
+phases:
+  counter_pop_in: { start: 0, action: "shekel counter appears at top centre showing the tap's +1 at f0; integer scale ×(s+1) for f0-f4 then ×s (cut at 80 ms); opacity 0 → 1 over 50 ms Linear", quantize: integer }
+  dubi_squawk:    { start: "the dubiSquawk cue (AD cue-spec §2.6: after the first-tap motif ends, 4138 ms in D; UX first-minute wants it at f0; seam flagged)", ref: dubi-squawk-bubble, text: "dubi.firsttap 'אין כלום! אין כלום!'" }
+  logo_exit:
+    start: 0
+    duration_ms: 350
+    ease: 'Back.In'             # the built-in pull-back (≈ 10% dip) is the anticipation before it flies
+    transform:
+      - { property: logo.translateY, from: 0, to: "-(logo.bottom + 16)" }
+      - { property: logo.opacity, from: 1, to: 0, start_ms: 250, duration_ms: 100, ease: 'Linear' }
+    snap: 4
+  round_line_out: { start: 0, duration_ms: 150, ease: 'Quad.In', transform: [ { property: opacity, from: 1, to: 0 } ] }
+  ticker_dock:
+    start: 150
+    duration_ms: 250
+    ease: 'Quad.Out'
+    transform: [ { property: ticker.translateY, from: "+80 (44 CSS)", to: 0 } ]
+    snap: 4
+  chip_dock:
+    start: 150
+    duration_ms: 300
+    ease: 'Quad.InOut'          # a traversal between two resting places
+    transform: [ { property: countdownChip.position, from: "title slot", to: "ticker slot (left end)" } ]
+    snap: 4
+  first_headline: { start: 450, action: "ticker H1 (deck T25) starts crawling" }
+frames_at_60: "f0 counter + squawk + logo starts | f9 ticker and chip start | f24 ticker docked | f27 chip docked, H1 crawls"
+input: "taps keep registering throughout (the verb is never blocked)"
+audio:
+  - { on: "f0", cue_id: "motif stinger (AD: the first tap plays it INSTEAD of tap)", bus: SFX-Critical }
+  - { on: "motif end", cue_id: "dubiSquawk down + dubiBlip babble (canned contour 5-5-1, doubled)", bus: Voice }
+reduced_motion: reduce
+reduced_motion_alternative: "logo + round line cross-fade out 200 ms; ticker and chip cross-fade in at their final slots 200 ms; counter appears at ×s (no pop)"
+---
+motion-id: dubi-squawk-bubble
+type: notification
+applies_to: "Dubi's cream speech bubble (first tap, P1 fallback, E1 fallback, Suitcase miss follow-up, aide drop)"
+runtime: godot-tween
+anchor: "the frame the engine plays dubiSquawk (state-graph-dubi.md §3); the bubble, the squawk strip and the voice start together"
+enter: { duration_ms: 150, ease: 'Back.Out', transform: [ { property: translateY, from: 8, to: 0 }, { property: opacity, from: 0, to: 1 } ], snap: 4 }
+hold_ms: "babble length (≤ 1600, AD cap) + 400"
+exit: { duration_ms: 150, ease: 'Quad.In', transform: [ { property: opacity, from: 1, to: 0 } ] }
+beak: "Dubi art pending (2D). When it lands: beak-open frame for 55 ms on each babble blip onset (AD: 'beak-flap frame = one blip')"
+reduced_motion: reduce
+reduced_motion_alternative: "fade in/out 120 ms, no translate"
+---
+motion-id: coin-burst
+type: fx
+applies_to: "coins out of the Magician's hat (tap / crit / celebration), out of the prop hat (court day), and the Suitcase"
+runtime: "godot-tween per coin (pooled Sprite2D, shared atlas) — or TA fx-data emitter with the same numbers (TA's call)"
+spawn: "hatMouth.<strip>[frame] of the frame on screen when the marker fires (state-graph-magician.md), in world space"
+sprite: "prop coin0..coin3 flipbook at 16 fps (a spin), random start frame; bills (prop_bill) do not spin: x flutter ±1 ap sine 4 Hz"
+count: "per state graph: tap min(3 + (batch - 1), 6); crit min(10 + (batch - 1), 12) + 2 bills; hat min(2 + (batch - 1), 4); celebration 16 + 6 bills"
+physics:             # in ap of the emitting sprite (×S logical px)
+  angle_deg: "U(-165, -95)  (0 = screen right, -90 = up: an up-and-left fan away from his head; the hat is on his screen-left)"
+  speed_ap_s: { tap: "U(70, 110)", crit: "U(90, 140)", celebration: "U(90, 150)" }
+  gravity_ap_s2: 320
+  life_ms: { tap: 450, crit: 600, celebration: 700 }
+  fade: "alpha 1 until life − 150 ms, then → 0 Linear"
+snap: S
+depth: "in front of the Magician, behind the HUD"
+budget: "max 36 coins alive (16 taps/s worst case ≈ 15 alive + a crit 14); TA folds this into fx-data gameplayMaxAliveTotal"
+audio: []            # the tap/crit cues are on the input f0 and the rabbit marker (event-markers.md); coins themselves are silent
+reduced_motion: reduce
+reduced_motion_alternative: "3 coins at x offsets −4, 0, +4 ap rise straight up 6 ap over 250 ms Quad.Out, fade over the last 100 ms; no spin, no arcs (UX §7.3)"
+---
+# =====================================================================================================================
+# COALITION CHAT "קואליציה 61" (UX first-minute §4)
+# =====================================================================================================================
+motion-id: tall-tab
+type: modal
+applies_to: "T3 קואליציה and T4 תיקים (tall tabs; HUD rows A+B stay visible above)"
+runtime: godot-tween
+open:  { duration_ms: 280, ease: 'Cubic.Out', transform: [ { property: panel.translateY, from: "+panelH", to: 0 } ], snap: 4 }
+close: { duration_ms: 200, ease: 'Quad.In',   transform: [ { property: panel.translateY, from: 0, to: "+panelH" } ], snap: 4 }
+swipe_down: "the panel follows the finger 1:1 (snap 4); release past 30% of panelH → close from the current y (duration scaled by remaining distance, min 80 ms); otherwise back to 0 in 150 ms Quad.Out"
+input: "thread accepts taps from 140 ms after open start; the stage is covered from f0 (Suitcase spawn guard: UX rule 4)"
+audio:
+  - { on: open, cue_id: "panelOpen (AD)", bus: ui }
+  - { on: close, cue_id: "panelClose (AD)", bus: ui }
+reduced_motion: reduce
+reduced_motion_alternative: "opacity fade 150 ms open / 120 ms close, no slide"
+---
+motion-id: chat-toast
+type: notification
+applies_to: "chat-preview toast when a partner posts and the chat is closed (C1 and every later ping); docks at y 163-223 CSS"
+runtime: godot-tween
+enter: { duration_ms: 240, ease: 'Back.Out', transform: [ { property: translateY, from: -24, to: 0 }, { property: opacity, from: 0, to: 1, duration_ms: 120 } ], snap: 4, note: "= J6 drop-in" }
+avatar: "partner-avatar arrival echo at enter end (240 ms)"
+hold_ms: 3500
+exit: { duration_ms: 180, ease: 'Quad.In', transform: [ { property: translateY, from: 0, to: -12 }, { property: opacity, from: 1, to: 0 } ], snap: 4 }
+tap: "opens the chat (tall-tab open); the toast exits in 120 ms"
+replace: "a new ping while shown: content cuts to the new message + 1-ap bump (translateY −4 → 0, 100 ms Quad.Out); hold restarts"
+badge: "tab badge: J5 badge-pop on each increment; C1 F1 fallback = one J5 bounce + bold label (UX)"
+audio:
+  - { on: enter.start, cue_id: "chatPing (sonic brief #4; per-partner interval; coalesced ≤ 1 per 700 ms; never inside a Dubi squawk: queue ≥ 300 ms)", bus: ui }
+reduced_motion: reduce
+reduced_motion_alternative: "fade in 150 / out 150, no drop, no bump"
+---
+motion-id: chat-typing
+type: microinteraction
+applies_to: "header status line '{name} מקליד/ה…', shown 1200 ms (UX) before every partner bubble — the telegraph"
+runtime: godot-tween
+status_line: "cut to the typing text at f0; cut back to '{n} משתתפים' / '{k} איומי פרישה פתוחים' when the bubble lands"
+ellipsis: "0 → 1 → 2 → 3 dots, Stepped, 300 ms per step, looping (3.3 Hz text change, not a luminance flash)"
+leaked_opposition_chat: "Gantz's header 'בני גנץ מקליד…' runs this loop forever (copy deck E.2): the visual twin of his 99% bar"
+reduced_motion: reduce
+reduced_motion_alternative: "static '…'"
+---
+motion-id: chat-message-arrival
+type: notification
+applies_to: "every bubble and system line entering the thread"
+runtime: godot-tween
+f0: "typing telegraph ends (partners) / commit (player replies, no typing) / event (system lines)"
+scroll: "if the thread is at the bottom: content translateY −bubbleH over 180 ms Quad.Out, snap 4. If the player has scrolled up: no scroll; the unread divider / 'new messages' pill does a J5 bump"
+bubble:
+  duration_ms: 180
+  ease: 'Quad.Out'
+  transform:
+    - { property: translateX, from: "+16 for incoming (from the right edge side), −16 for the player's replies (left), 0 for centred system lines", to: 0 }
+    - { property: translateY, from: "+8 (system lines only)", to: 0 }
+    - { property: opacity, from: 0, to: 1 }
+  snap: 4
+avatar_echo: "starts at 180 ms (landing): arrival echo for plain messages; the partner's react echo for emphatic ones (state-graph-cast.md §1)"
+ultimatum_landing: "ultimatum bubbles land heavier: at 180 ms translateY +4 → 0 over 100 ms Quad.Out (a 1-ap thud)"
+audio:
+  - { on: "landing (180 ms), chat open", cue_id: chatPing, bus: ui, note: "when the chat is closed the ping is on chat-toast instead; never both" }
+reduced_motion: reduce
+reduced_motion_alternative: "opacity 0 → 1 over 120 ms, no translate; scroll cuts; no avatar echo"
+---
+motion-id: chat-pay-pill
+type: microinteraction
+applies_to: "demand / ultimatum / 'להחזיר לקבוצה' pay pills (170×36 CSS visual, 182×48 hit)"
+runtime: godot-tween
+press: "button-press (frame cut + label +2 ap at f0) + J1 variant A squish (w +8, h −8), held while down; release rebound 67 ms"
+fill_while_unaffordable: "the pill's 'חסר {n} ₪' progress fill grows RIGHT → LEFT; width tween 200 ms Linear on each change (a progress bar), snap 4"
+became_affordable: "afford-glint (RTL sweep) + J4 pill-hello, same f0; label cuts to 'סגרנו · {price} ₪'"
+commit_affordable: "→ chat-paid"
+commit_unaffordable: "cant-afford-shake (legacy, ±4 px, 180 ms); J1 rebound skipped"
+reduced_motion: reduce
+reduced_motion_alternative: "press frame cut + label drop kept (affordance); no squish, no glint; fill width cuts"
+---
+motion-id: chat-paid
+type: stinger
+applies_to: "a partner paid from the thread (demand, ultimatum, or rejoin)"
+runtime: godot-tween
+f0: "commit (pointer-up inside the pill). Seats numeral + treasury update at f0 (truth)"
+beats:
+  - { t: 0,   action: "pill content cuts out; stamp-slam 'שולם' on the pill's spot (label chat.paid)" }
+  - { t: 90,  action: "stamp impact (bubble jolts 1 ap); seat-pip-flight launches from the stamp centre" }
+  - { t: 90,  action: "ultimatum only: chat-ultimatum-collapse starts ('ההודעה נמחקה')" }
+  - { t: 300, action: "the player's auto-reply bubble lands (chat-message-arrival, left side, no typing): 'העברתי.' / 'סגור.' / 'בוצע. אין כלום.'" }
+  - { t: 790, action: "last seat pip lands (6 pips); if seats ≥ 61 now → election-cta at +100" }
+audio:
+  - { on: "t=90 (impact)", cue_id: "OPEN: the AD cue-spec assigns no cue to paying a partner ('stamp' is scoped to Herzog's desk). Proposed: 'stamp' (the same family; the thump is at its 0 ms) or 'buy'", bus: SFX-Frequent }
+reduced_motion: reduce
+reduced_motion_alternative: "stamp cuts in at rest scale (no slam, no jolt); pips skipped: the bar's new segments fade in over 150 ms at t=0; auto-reply fades in at 300"
+---
+motion-id: seat-pip-flight
+type: fx
+applies_to: "seat pips from a paid bubble (or rejoin) to the seats bar in HUD Row B (UX asks). C2 seats_reveal: the first ever flight also reveals the bar"
+runtime: godot-tween
+count: "k = min(partner seats, 6); each pip represents seats/k"
+sprite: "a 3×3 ap seat-bar segment square in the seats blue (2D palette)"
+path: "quadratic Bezier: p0 = the pay pill / stamp centre; p2 = the bar's FILL HEAD (the bar fills from the RIGHT, so p2 is the left end of the filled run; UX rtl-map §3); control = (p0.x + 0.3·(p2.x − p0.x), min(p0.y, p2.y) − 160)"
+per_pip: { duration_ms: 450, ease: 'Quad.In', stagger_ms: 50, snap: 4 }     # Quad.In on the path parameter: sucked into the bar
+arrival: "the bar's fill extends by seats/k at each arrival (cut; whole segments where possible). NO per-pip flash (6 arrivals in 250 ms would break the 3 Hz ceiling). On the LAST arrival: bar translateY −4 → 0 over 100 ms Quad.Out + a single 2-frame white edge flash"
+first_reveal: "C2: the bar itself enters (J6 drop-in) at pip launch so the pips have somewhere to land; UX: 'the seats bar appears at 34/61'"
+frames_at_60: "launch f5 (t=90) | pip 1 lands f32 | pip 6 lands f47 (t=790)"
+audio:
+  - { on: "last arrival", cue_id: "seatsGain (AD: proposed; null acceptable)", bus: ui }
+reduced_motion: reduce
+reduced_motion_alternative: "no pips; new segments fade in 150 ms at the commit f0; no bump, no flash"
+---
+motion-id: chat-ultimatum-countdown
+type: ambient
+applies_to: "ultimatum bubble: hatched border + 'אולטימטום' label + timer pill '0:45' (90 s; pauses while hidden)"
+runtime: godot-tween
+digits: "cut once per displayed second (LTR digits, isolated)"
+urgency:
+  calm:   { when: "> 10 s", motion: none }
+  nudge:  { when: "≤ 10 s", motion: "timer pill translateY +4 → 0 over 100 ms Quad.Out on each second tick (1 Hz)" }
+  urgent:
+    when: "≤ 3 s"
+    motion:
+      - "nudge on every half-second tick (2 Hz), in step with the AD's doubled tick rate"
+      - "hatched border marches: the hatch pattern offset shifts 1 ap per tick (2 Hz)"
+      - "timer text cuts to the alert palette index (steady; not flashing)"
+header: "status line '{k} איומי פרישה פתוחים' while any ultimatum is open (UX)"
+chat_closed: "the stage cameo (state-graph-cast.md §2b, pending UX) carries the countdown diegetically; the tab badge carries the count"
+audio:
+  - { on: "each displayed second", cue_id: "ultimatumTick tick/tock (sonic brief #5)", bus: sfx, note: "doubled in the last 3 s; the visual nudge fires on the SAME tick event, never on its own timer" }
+reduced_motion: reduce
+reduced_motion_alternative: "no nudges, no march; the alert colour at ≤ 10 s (steady) and the digits carry it"
+---
+motion-id: chat-ultimatum-collapse
+type: microinteraction
+applies_to: "a paid ultimatum bubble collapsing to 'ההודעה נמחקה' (UX)"
+runtime: godot-tween
+start: "chat-paid t=90 (stamp impact)"
+phases:
+  content_out: { duration_ms: 150, ease: 'Quad.Out', transform: [ { property: content.opacity, from: 1, to: 0 } ] }
+  border:      { at: 0, action: "hatched border cuts to the plain bubble border" }
+  height:      { start: 90, duration_ms: 200, ease: 'Quad.InOut', transform: [ { property: bubble.height, from: current, to: "one-line height" } ], snap: 4 }
+  deleted_in:  { start: 200, duration_ms: 120, ease: 'Quad.Out', transform: [ { property: deletedLabel.opacity, from: 0, to: 1 } ] }
+reduced_motion: reduce
+reduced_motion_alternative: "content + border + height cut; label fades in 120 ms"
+---
+motion-id: chat-left-group
+type: stinger
+applies_to: "an ultimatum timer reaching 0: the partner leaves (UX §4.2; recoverable via 'להחזיר לקבוצה')"
+runtime: godot-tween
+f0: "timer hits 0:00. Seats numeral drops at f0 (truth)"
+beats:
+  - { t: 0,   action: "timer pill holds '0:00'; the bubble SAGS with the deflate (0-200 ms): panel height −2 ap and translateY +2 ap in 2 Stepped steps (0, 100 ms); text alpha → 0.5 (cut)" }
+  - { t: 140, action: "system line '{name} עזב/ה את הקבוצה' + pill 'להחזיר לקבוצה · {price} ₪' starts arriving (chat-message-arrival, system variant): it LANDS at 320, on the cue's 'left' ping" }
+  - { t: 510, action: "ON THE DOOR CLICK: partner-avatar → absent (all their avatars grey); header count rolls down (150 ms Quad.Out); the seats bar un-fills the partner's segments, 40 ms per segment (Stepped), from the fill's left end; partner-body → leaving" }
+audio:
+  - { on: "t=0", cue_id: "ultimatumZero (AD audio/od: deflate 0-200 ms, the 'left' ping at 320/395, the door click at 510; ONE cue)", bus: SFX-Critical }
+reduced_motion: reduce
+reduced_motion_alternative: "bubble alpha → 0.5 cut, no sag; system line fades in 120 ms at 250; bar un-fill cuts; count cuts"
+---
+motion-id: chat-returned
+type: stinger
+applies_to: "'להחזיר לקבוצה' paid (1.5× the missed demand)"
+runtime: godot-tween
+beats:
+  - { t: 0,   action: "chat-paid beats on the rejoin pill (stamp 'שולם', impact 90, pips)" }
+  - { t: 300, action: "system line '{name} צורף/ה על ידי מנהל' arrives" }
+  - { t: 300, action: "partner-avatar absent → reacting (colour restored at f0 + signature echo); partner-body gone → entering; header count rolls up" }
+reduced_motion: reduce
+reduced_motion_alternative: "as chat-paid RM; avatars recolour by cut"
+---
+# =====================================================================================================================
+# EVENTS
+# =====================================================================================================================
+motion-id: transfer-window-banner
+type: stinger
+applies_to: "Gotliv's 'חלון העברות' football-style full-width card in the thread (UX §4.2), then the system line and Ben Gvir's ultimatum"
+runtime: godot-tween
+anchor: "the AD's transfer-whistle markers w1/w2/w3 (short/short/long onsets). From the AD's transferWhistle recipe (audio/od/cues.json, all variants): w1 = 0, w2 = 160, w3 = 320 (the long note, 400 ms)"
+beats:
+  - { t: w1,        action: "black strip enters from the right edge: translateX +W → 0, 250 ms Expo.Out, snap 4" }
+  - { t: w2,        action: "gold 'חלון העברות' wipes in RIGHT → LEFT (a mask reveal), 150 ms Quad.Out" }
+  - { t: w3,        action: "the name drops in large: translateY −12 → 0, 220 ms Back.Out, snap 4; Gotliv's partner-body react (jab) + avatar echo start here" }
+  - { t: "w3+240",  action: "'{from} ← {to} · כולל דמי אחזקה' fades in 150 ms Quad.Out; the ← glyph slides 2 ap LEFT (the RTL direction of motion) over 300 ms Quad.InOut, once" }
+  - { t: "w3+240",  action: "if the member list / partner cards are visible: her row translates to Ben Gvir's group slot, 300 ms Quad.InOut, snap 4" }
+  - { t: "w3+540",  action: "system line '{name} עזבה · צורפה ל״{to}״' arrives; Ben Gvir's welcome + 90 s ultimatum follow as normal messages (copy deck §E)" }
+ticker: "'מבזק ספורט: גוטליב החליפה חולצה. הווליום נשאר.' pre-empts at w1"
+audio:
+  - { on: w1, cue_id: "transferWhistle (w26 / w28 / w30 random; 740 ms total)", bus: SFX-Critical }
+reduced_motion: reduce
+reduced_motion_alternative: "the whole banner fades in 150 ms at w1; no wipe, no drop, no arrow slide; row moves by cut"
+---
+motion-id: brawl-cloud
+type: ambient
+applies_to: "a partner pair brawling (Amsalem × Smotrich, and any recurring pair): the dust-cloud card between the brawl system line and the 'צאו החוצה' button (UX places the slot; proposed inline in the thread, ≈ 240×96 logical)"
+runtime: godot-tween
+art: "5 puffs (TA dust-puff frame at ×2), both partners' avatars, spark props; no new strip needed"
+loop:
+  period_ms: 1200
+  puffs: "each puff toggles between two keyed offsets ±2 ap every 100 ms (Stepped), phase-shifted per puff: the boil. During the last 300 ms of each period the amplitude halves (the fight breathes, so the loop doesn't fatigue)"
+  avatars: "avatar A peeks out of the cloud's right edge (translateX +6 ap, cut) for 200 ms every 600 ms, playing its react echo (jab/bang/hop, compressed to 200 ms); avatar B the same on the left edge, offset 300 ms"
+  stars: "one spark at a random cloud-edge point every 400 ms (2.5 Hz), visible 150 ms, cut in/out: under the 3 Hz ceiling"
+row_freeze:
+  enter: "each frozen row (the brawling partners' rows, wherever UX shows them): ice overlay (palette light cyan) alpha 0 → 0.35 over 150 ms Quad.Out + one 2-frame white edge flash; live motion in the row pauses (pill fill, glints)"
+  exit:  "overlay → 0 over 200 ms Quad.In + thaw nudge translateX +4 → 0 (2 Stepped steps, 100 ms)"
+exit_on_button:
+  trigger: "'צאו החוצה' commit (J1 press)"
+  beats:
+    - { t: 0,   action: "cloud + avatars translate off the RIGHT edge ('outside'), 400 ms Quad.In, snap 4; 2 puffs stay behind and fade 300 ms" }
+    - { t: 0,   action: "row_freeze exit" }
+    - { t: 400, action: "the card slot collapses height to 0, 200 ms Quad.InOut; system lines follow (copy deck §E)" }
+  corridor_counter: "'המסדרון' muted counter '{n} הודעות': a digit roll (150 ms Quad.Out) +1 every time the chat opens"
+audio:
+  - { on: "brawl start", cue_id: "brawl (AD: none in the sonic brief yet; must obey the no-gunfire rule: no noise trains ≥ 6 Hz with low body)", bus: sfx }
+reduced_motion: reduce
+reduced_motion_alternative: "one static composed cloud with both avatars side by side; no boil, no peeks, no stars; freeze = overlay cut; exit = fade 150 ms"
+---
+motion-id: stamp-slam
+type: microinteraction
+applies_to: "every rubber stamp: 'שולם' (chat.paid), 'נדחה' (court.stamp), the pardon desk lines, 'חסוי עד 27.10' (first blackout view only)"
+runtime: godot-tween
+art: "the 2D Artist draws each stamp PRE-ROTATED (≈ −8°). Runtime rotation of pixel text is banned (README §2)"
+duration_ms: 90
+ease: 'Quad.In'                   # it accelerates into the paper
+transform:
+  - { property: renderScale, from: "s + 2", to: s }
+  - { property: opacity, from: 0.6, to: 1 }
+quantize: "integer: s+2 (f0-f1) → s+1 (f2-f3) → s (from f4 = 67 ms)"
+impact:                            # t = 90 ms (f5): THE contact frame
+  - "host (bubble / card) translateY +1 ap for 2 frames, then back (cut)"
+  - "4 ink specks (1-ap squares, stamp ink colour) burst radially 3-5 ap over 150 ms Quad.Out, fading"
+repeat_rule: "the pardon desk's endless stamps play IDENTICALLY every time: the sameness is the joke (mirrors the AD's sanctioned exception)"
+audio:
+  - { on: "impact (90 ms)", cue_id: "stamp (sonic brief #7; every 5th adds the typewriter ding)", bus: sfx, note: "the thump is the contact, NOT f0" }
+reduced_motion: reduce
+reduced_motion_alternative: "the stamp cuts in at s at f0; no jolt, no specks; the cue moves to f0"
+---
+motion-id: opposition-card
+type: modal
+applies_to: "opposition event cards (template; one per figure) — from the Knesset era on, about every 3 min (pitch §9). Non-modal; UX places the slot"
+runtime: godot-tween
+enter: { duration_ms: 320, ease: 'Back.Out', transform: [ { property: translateX, from: "-(W + 16)", to: 0 } ], snap: 4, note: "from the LEFT edge: the other side of the house" }
+figure: "opposition-figure graph (state-graph-cast.md §5): idle strip, or the static avatar while art is pending"
+exit: { duration_ms: 220, ease: 'Quad.In', transform: [ { property: translateX, from: 0, to: "-(W + 16)" } ], snap: 4 }
+twists:
+  lapid:     "at enter + 400: a 2-ap light band sweeps the revealed shady-source card RIGHT → LEFT, 300 ms Quad.InOut; the card hops (J3 icon hop); the suspicion thermometer ticks (suspicion-thermometer fill)"
+  eisenkot:  "the rabbit ear-duck on the Magician's hat at enter + 320 (state-graph-cast.md §5); rabbitsAllowed = false while shown"
+  gantz:     "rotation bar 0 → 99% at enter + 300 over 800 ms Quad.Out; then every U(4000, 6000) ms it creeps to 99.4% (+1 ap) over 600 ms Sine.InOut, holds 400 ms, and CUTS back to 99%. It never arrives"
+  liberman:  "every button renders its disabled frame; a tap plays cant-afford-shake with no cost and no deduction ('לא יושב')"
+  golan:     "merger: the two target cards translate to the merged slot (300 ms Quad.InOut each), overlap; at 300 one 2-frame white flash, cut to the single merged card, translateY −4 → 0 over 100 ms Quad.Out"
+  abbas:     "no slide: fades in 200 ms Quad.Out at Ben Gvir's 'left the group' + 600 ms; fades out 200 ms Quad.In at Ben Gvir's return f0"
+  bennett:   "the pledge flip (state-graph-cast.md §4); the pledge timer bar is Linear; text swap on the first mirrored frame"
+audio:
+  - { on: enter.start, cue_id: "oppositionCard (AD: proposed; null acceptable)", bus: sfx }
+reduced_motion: reduce
+reduced_motion_alternative: "enter/exit = 150 ms fades; lapid band off (the card highlight cuts on for 600 ms); gantz static at 99%; golan cross-fade 150 ms; bennett unchanged (it carries the mechanic)"
+---
+# =====================================================================================================================
+# COURT DAY (O2, non-modal card over the panel ⇄ chip)
+# =====================================================================================================================
+motion-id: court-overlay-in
+type: modal
+applies_to: "court day starts (suspicion 100%): the O2 card + the stage tint. f0 = the frame the card actually opens (after the UX modal queue and the tap-burst guard). The same f0 emits courtStart to the Magician graph"
+runtime: godot-tween
+card:
+  duration_ms: 280
+  ease: 'Back.Out'
+  transform:
+    - { property: translateY, from: 24, to: 0 }
+    - { property: opacity, from: 0, to: 1, duration_ms: 120, ease: 'Quad.Out' }
+  snap: 4
+  knock_2: "at 180 ms (gavel knock 2) the card jolts translateY +4 for 2 frames, then back (cut)"
+stage_tint: "a full-stage overlay in the court red: alpha 0 → 0.18 over 400 ms Sine.InOut; STEADY while court day lasts (UX: a tint, not a strobe)"
+timer: "'עדות: {mm:ss}' digits cut once per second"
+magician: "state-graph-magician.md §5.1 (startle on knock 1, stretch on knock 2, zip at 330)"
+ticker: "H-court 'יום משפט. הכל מאט. הארנב מתחבא בכובע.' pre-empts at f0"
+audio:
+  - { on: f0, cue_id: "gavel (variants a/b/c; knocks at 0 and 180 ms: confirmed against audio/od/cues.json)", bus: SFX-Critical }
+  - { on: "next bar line", cue_id: "courtIn stinger (G) + the 400 ms crossfade to the Courthouse track (AD cue-spec §2.3); motion does not wait for it", bus: SFX-Critical }
+reduced_motion: reduce
+reduced_motion_alternative: "card fades in 150 ms; no jolt; the tint fades in 200 ms (the tint itself stays: it is information)"
+---
+motion-id: court-card-collapse
+type: microinteraction
+applies_to: "'להעיד' or ✕ collapses the card to the chip 'יום משפט · {mm:ss}'; tapping the chip re-expands"
+runtime: godot-tween
+collapse:
+  duration_ms: 200
+  ease: 'Quad.In'
+  transform: [ { property: card.position, from: rest, to: "chip slot" }, { property: card.height, from: rest, to: "chip height" }, { property: card.opacity, from: 1, to: 0, start_ms: 120, duration_ms: 80 } ]
+  chip_in: { start: 160, duration_ms: 150, ease: 'Back.Out', transform: [ { property: chip.translateY, from: 8, to: 0 }, { property: chip.opacity, from: 0, to: 1 } ] }
+  snap: 4
+expand: { duration_ms: 240, ease: 'Quad.Out', transform: "the reverse, from the chip slot to rest; the chip cuts out at f0" }
+reduced_motion: reduce
+reduced_motion_alternative: "cross-fade card ⇄ chip 120 ms"
+---
+motion-id: court-postpone
+type: stinger
+applies_to: "'התייעצות ביטחונית · {price} ₪' paid: the postponement (it always works; its excuse grows by one sentence each time, copy deck §H)"
+runtime: godot-tween
+f0: "commit"
+beats:
+  - { t: 0,   action: "stamp-slam 'נדחה' on the card" }
+  - { t: 90,  action: "stamp impact → the dev emits courtEnd(postponed): the Magician's return timeline starts (state-graph-magician.md §5.2); stage tint → 0 over 400 ms Sine.InOut" }
+  - { t: 200, action: "'הדיון נדחה:' + the excuse reveals sentence by sentence: each sentence fades in 120 ms Quad.Out, staggered 150 ms; the NEWEST sentence (the one added this time) lands last with a 1-ap hop (translateY −4 → 0, 100 ms Quad.Out): the growing joke gets its beat" }
+  - { t: "200 + reveal", action: "hold for reading: max(excuseReadMinMs 2000, 60 ms × chars); a tap on the card skips; then court-overlay-out (card only; the tint is already out)" }
+audio:
+  - { on: "t=90", cue_id: "gavelWeak (AD: one weak knock at its 0 ms)", bus: SFX-Frequent, note: "the AD's stamp cue is scoped to Herzog's desk, so the 'נדחה' slam lands on gavelWeak alone" }
+  - { on: "court day end", cue_id: "courtOut (AD: on the crossfade bar line back to the era; not frame-synced to motion)", bus: SFX-Frequent }
+reduced_motion: reduce
+reduced_motion_alternative: "stamp cut (stamp-slam RM); the whole excuse fades in 150 ms at t=0, no stagger, no hop; same reading hold"
+---
+motion-id: court-overlay-out
+type: modal
+applies_to: "court day ends: testimony timer elapsed (courtEnd(testified) at f0), or after the postpone reading hold"
+runtime: godot-tween
+card: { duration_ms: 180, ease: 'Quad.In', transform: [ { property: translateY, from: 0, to: 24 }, { property: opacity, from: 1, to: 0 } ], snap: 4 }
+chip: "if collapsed: chip exits translateY 0 → 8 + fade, 150 ms Quad.In"
+stage_tint: "→ 0 over 400 ms Sine.InOut (testified path; the postpone path already started it)"
+magician: "testified: courtEnd at f0 → the return timeline"
+audio:
+  - { on: f0, cue_id: null, note: "music: back to the era track at the next bar (AD)" }
+reduced_motion: reduce
+reduced_motion_alternative: "card/chip fade 120 ms; tint fade 200 ms"
+---
+motion-id: suspicion-thermometer
+type: ambient
+applies_to: "HUD suspicion thermometer 'חשד' (left edge, 44×218 CSS hit area)"
+runtime: godot-tween
+reveal: "K1 (first shady source): slides in from the left edge, translateX −(W + 12) → 0, 280 ms Back.Out, snap 4; then one fill tick"
+fill: "height to the new value over 300 ms Quad.Out, snap ap (bottom → up; the floor's hatched segment is static art)"
+opacity: "60% ↔ 100% per UX's fade rule, 200 ms Quad.InOut"
+states:
+  bubbling: "≥ 75% ('מבעבע'): 3 bubble sprites rise 8 ap in the tube over 900 ms Linear, staggered 300 ms, fading in their last 150 ms; the icon swaps magnifier → gavel (cut + a 1-ap hop, 100 ms)"
+  boiling:  "≥ 95% ('רותח!'): the bubbles rise in 450 ms (×2 rate); no shake"
+  full:     "100% → court day (court-overlay-in when the card opens)"
+magician_sweat: "state-graph-magician.md §8 (magician-sweat: drops from the temple landmark at ≥ 75%, faster at ≥ 95%)"
+courthouse_window: "the stage's courthouse-window light-up overlay (2D, TA list item 11): alpha 0 → 1 over 400 ms Sine.InOut at ≥ 75%; at ≥ 95% its brighter frame cuts in (steady, never flickering); out over 400 ms below 75%. RM: the same fades at 200 ms (a state change, not motion)"
+reduced_motion: reduce
+reduced_motion_alternative: "reveal fade 150 ms; fill cuts; bubbles → static bubble icons (UX §3.2 #3)"
+---
+# =====================================================================================================================
+# REWARDS
+# =====================================================================================================================
+motion-id: election-cta
+type: stinger
+applies_to: "seats ≥ 61 (E1 and every round): the ticker row is replaced by the gold 'עוד סבב!' button (390×44 CSS); the seats bar gets its gold rim"
+runtime: godot-tween
+f0: "the last seat pip lands (+100 ms), or the seats change if no pips flew"
+beats:
+  - { t: 0,   action: "ticker slides down out: translateY 0 → +80, 200 ms Quad.In, snap 4" }
+  - { t: 150, action: "the button rises into the slot: translateY +80 → 0, 280 ms Back.Out, snap 4" }
+  - { t: 430, action: "unlock beat (legacy evolve-button-ready): 2-frame white fill-tint + hop translateY 0,−4,−8,−4,0 over 160 ms" }
+  - { t: 430, action: "seats bar gold rim cuts on; rim alpha pulses 0.4 ↔ 1.0 Sine.InOut, 1000 ms period (1 Hz, UX rtl-map §3)" }
+ready_pulse: "legacy: rim glow 0 → 1 → 0 Sine.InOut 600 ms every 3000 ms; every 3rd pulse a 1-ap hop; stops while pressed / a modal is open"
+press: "J1 variant A → opens O3 (modal-enter + J6)"
+fallback: "E1 ignored for 60 s of play: Dubi squawk 'בחירות! בחירות!' (dubi-squawk-bubble)"
+audio:
+  - { on: "t=430", cue_id: "electionReady (AD: proposed, reusing the motif head on P2)", bus: sfx }
+reduced_motion: reduce
+reduced_motion_alternative: "swap by cross-fade 150 ms; no hop, no pulses; the rim is static at 1.0"
+---
+motion-id: election-ceremony
+type: screen-transition
+applies_to: "O3 'לפזר את הכנסת' confirmed → the ballot-curtain ceremony → the new round; O3b Dubi flash follows"
+runtime: "godot-tween + timers, one Timeline driven by the FANFARE CLOCK"
+anchor: |
+  The AD's election fanfare (audio/od cue-spec §2.4; manifest stingers.fanfare.files[<incoming key>][<tags>]).
+  Derived from od_manifest.json, all in ms from the fanfare's start, with T0 = musicalSeconds of the 0-tag file
+  (2 bars at the incoming era's tempo: D 4138, E 3636, F 3333, G 5455):
+    rollEnd      = T0 / 2                       (1 bar: D 2069, E 1818, F 1667, G 2727)
+    tagOnsets[i] = T0 + (i − 1) × T0 / 4        (i = 1..tags; tags = min(round − 1, 4))
+    fanfareEnd   = musicalSeconds of the <tags> file (the incoming era starts at bar 1 exactly there)
+  The t values below are on that clock. The AD's cue-spec starts the fanfare at the NEXT BAR LINE after confirm (the bed
+  stops with a 30 ms fade), so t = 0 below is fanfareStart, which lags the confirm by 0 to 1 bar. The confirm itself
+  runs the card exit and the anticipate crouch; the anticipate hold absorbs the wait (see OBJECTION O-M3 in STATUS).
+curtain: "a full-screen panel in the ticker maroon (#7A1426 or the 2D Artist's pick) with a ballot-slot motif; it travels RIGHT → LEFT (the RTL 'forward') the whole way: enters from the right edge, leaves off the left"
+beats:
+  - { t: "confirm (≤ 0)",    beat: confirm,     action: "O3 modal-exit (160 ms); input LOCKED; the 'עוד סבב!' button fades 200 ms; Magician → anticipate (tap.f1 crouch)" }
+  - { t: 0,                  beat: fanfareStart, action: "the roll begins (the next bar line after confirm)" }
+  - { t: "(rollEnd−333)/2",  beat: tremble,     action: "Magician tremble ±1 ap at 8 Hz starts (with the roll's crescendo)" }
+  - { t: "rollEnd − 333",    beat: trick,       action: "Magician → trick (crit.f1)" }
+  - { t: "rollEnd − 83",     beat: rabbit,      action: "crit.f4: the rabbit is out (the pickup)" }
+  - { t: rollEnd,            beat: IMPACT,      action: "crit.f5 sting (wink). ballotConfetti fx from hatMouth.crit[5] (TA fx-data: 24 white slips 2×3 ap, flutter, 900 ms); coin-burst celebration (16 + 6 bills); camera punch stage y +2 ap (1 frame), +1 ap (1 frame), 0; seats bar one 2-frame white flash" }
+  - { t: "C = min(rollEnd + 750, fanfareEnd − 1200)", beat: cover, action: "Curtain enters from the right: translateX +W → 0, 300 ms Quad.In (it slams shut at the left edge). If C < rollEnd + 750 (fast keys E/F with 0 tags) the curtain closes over the tail of the trick (the rabbit sinking), and the body goes to bow under the cover" }
+  - { t: "C + 300",          beat: reset-seam,  action: "RESET SEAM under full cover: money, sources, spins, coalition; chat cleared (partner-avatar chatCleared) + the system line; era swap (stage bg, Sara); suspicion → the round's floor; hat-prop hidden" }
+  - { t: "C + 450",          beat: round-card,  action: "on the curtain, 'סבב בחירות מס׳ {n}': the changing digits roll (old digit translateY 0 → −8 ap + fade, new digit +8 ap → 0), 200 ms Quad.Out, then translateY −4 → 0 bounce 100 ms" }
+  - { t: "C + 750",          beat: mood,        action: "mood line (mood.{n}) fades in 150 ms Quad.Out" }
+  - { t: "each tagOnset",    beat: tag,         action: "the round number hops 1 ap (translateY −4 → 0, 100 ms Quad.Out): 'the public is thrilled', once per tag" }
+  - { t: "fanfareEnd − 300",  beat: uncover,     action: "curtain leaves off the LEFT edge: translateX 0 → −W, 300 ms Quad.In; the new round's stage is revealed. The hold (C + 300 → here) is ≥ 600 ms by construction" }
+  - { t: "fanfareEnd",       beat: ceremonyEnd, action: "input UNLOCKED; Magician bow → idle; the reveal completes ON the resolution downbeat (the incoming era's bar 1)" }
+  - { t: "ceremonyEnd + 200", beat: flash,     action: "O3b Dubi flash opens (modal-enter + J6; UX order)" }
+skip: "from C + 900 (cover complete + 600 ms) a tap on the curtain starts the uncover at once; the fanfare keeps playing and still resolves on the new loop (AD). Only reachable with tags (the 0-tag hold is exactly 600-1378 ms)"
+worked_example: |
+  On the fanfare clock; add w (0 ≤ w < 1 bar) for the time after the confirm.
+  D, 0 tags: trick 1736 | IMPACT 2069 | cover 2819 | seam 3119 | uncover 3838 | unlock 4138 (hold 719)
+  E, 0 tags: trick 1485 | IMPACT 1818 | cover 2436 | seam 2736 | uncover 3336 | unlock 3636 (hold 600)
+  F, 0 tags: trick 1334 | IMPACT 1667 | cover 2133 | seam 2433 | uncover 3033 | unlock 3333 (hold 600)
+  G, 0 tags: trick 2394 | IMPACT 2727 | cover 3477 | seam 3777 | uncover 5155 | unlock 5455 (hold 1378)
+  D, 4 tags: … cover 2819 | uncover 7976 | unlock 8276 (hold 4857; skippable from 3719)
+dog_note: |
+  Not a reward stinger (≤ 800 ms): it is a screen transition that has to hide a full-board reset. The peak (IMPACT) is
+  the pay-off of the AD's one-bar roll, not dead time, because the Magician's crouch and tremble ride it. The playable
+  return is fanfareEnd (0 tags: 3.3-5.5 s after fanfareStart). With tags it is skippable from C + 900, so a longer wait
+  happens only when the player chooses to watch the round card.
+input_lock: "t = 0 → ceremonyEnd (or the skip); the curtain swallows taps (skip gesture only)"
+audio:
+  - { on: "t=0 (fanfareStart)", cue_id: "fanfare stinger (incoming key, <tags> file; replaces the bed)", bus: Music }
+  - { on: "rollEnd", cue_id: null, note: "the motif head / crash is INSIDE the fanfare; the visual IMPACT is timed to it, not the other way round" }
+reduced_motion: reduce
+reduced_motion_alternative: |
+  No tremble, no camera punch. The Magician's RM crit (cut to crit.f7, held 500 ms) at rollEnd. Confetti: 6 slips fall
+  straight 12 ap over 400 ms, no flutter; 3 coins. Curtain = a full-screen maroon cross-fade IN over 200 ms at
+  rollEnd + 750; the same reset seam under it; the round card digits and the mood line cut in (no roll, no tag hops);
+  cross-fade OUT over 200 ms ending at fanfareEnd (or on skip). O3b at +200.
+---
+motion-id: receipt-print
+type: stinger
+applies_to: "O4 'הקבלה החודשית' sheet: the preview while the card renders (SubViewport → PNG, 100-300 ms, UX §5.1 / engine U9), then the print-out"
+runtime: godot-tween
+sheet: "modal-enter (sheet variant: translateY +H → 0, 280 ms Cubic.Out)"
+printing: "at sheet-enter end: the preview shows a 2-ap dark printer slot across its top, a blank paper stub 8 ap out of the slot, and 'מדפיס…' (chat-typing ellipsis loop)"
+feed:
+  trigger: "receiptReady (PNG in memory)"
+  motion: "the receipt image, masked by the slot's top edge, feeds DOWN out of it in 10 bursts: each burst moves H/10 over 50 ms Quad.Out, then pauses 20 ms (70 ms per burst, 700 ms total); snap 4"
+  tear: "at feed end: the receipt drops 2 ap (60 ms Quad.In), then a 1-ap settle bounce (80 ms Quad.Out); the zig-zag tear edge is 2D art at the top"
+share_button: "'לשתף' enables at receiptReady (disabled → default frame cut + J4 pill-hello); it does NOT wait for the feed to finish (the file, not the preview, is what gets shared)"
+result_card: "O5 uses the same printing state, then the card fades in 150 ms Quad.Out (it is a card, not a receipt)"
+audio:
+  - { on: "each feed burst", cue_id: "printerFeed (AD: proposed NOI-S tick, high-passed ≥ 2.5 kHz)", bus: ui }
+  - { on: "tear", cue_id: "receiptTear (AD: proposed; null acceptable)", bus: ui }
+reduced_motion: reduce
+reduced_motion_alternative: "'מדפיס…' static (UX: 'no roll animation, just the text'); at receiptReady the receipt cuts in whole"
+---
+motion-id: suitcase-flight
+type: ambient
+applies_to: "the DOHA Suitcase crossing the band y 440-500 CSS (UX §3.4). Sprite: 2D art pending (≥ 20×16 ap at ×2); until then a maroon placeholder rect with the cream outline"
+runtime: godot-tween
+entry_exit: "starts fully off-screen at one edge and exits fully off the other; no pop-in"
+direction: "first flight RIGHT → LEFT (a Hebrew reader's eye starts right); later flights alternate"
+x: { ease: 'Linear', duration_ms: "first flight 6000; regular U(3500, 4500); floor 3000 (UX / Designer numbers, edge to edge)", note: "Linear on purpose: a catch target must move predictably (the timing-critical exception)" }
+bob: "y = −suitcaseBobAp · sin(2π t / 1200 ms): 4 ap at ×2 = ±8 logical px (UX rtl-map §4.1); snap 2; no rotation, ever"
+sparkle_trail: "while caught == 0 (first flights): one prop_spark at the trailing edge every 120 ms; it drifts down 4 ap over 300 ms Linear and fades; max 4 alive"
+three_miss_hover: "UX S1 fallback: at the band centre, x eases into a 1000 ms stop (300 ms Quad.Out), then back to speed (300 ms Quad.In); the bob continues"
+hit_area: "72×64 CSS centred on the sprite; it follows the sprite, bob included"
+miss: "exits off the far edge; the ticker's H-miss line pre-empts on the exit frame; Dubi's follow-up squawk 1200 ms later"
+audio:
+  - { on: "entry start", cue_id: "suitcaseSpawn zipper (sonic brief #3, panned to x)", bus: sfx }
+  - { on: "exit (miss)", cue_id: "suitcaseMiss 'bwomp' under the ticker line", bus: sfx }
+reduced_motion: reduce
+reduced_motion_alternative: "still moves (it is essential, UX): speed ×0.8 (durations × 1.25), no bob; sparkles fade in place (no drift); the hover-stop cuts to 0 and back"
+---
+motion-id: suitcase-catch
+type: stinger
+applies_to: "pointer-down (or the S key) inside the Suitcase hit area"
+runtime: godot-tween
+f0: "catch registered; payout credited at f0 (truth); outcome rolled BEFORE f0 renders (the cue and the fly target depend on it)"
+beats:
+  - { t: 0,   action: "flight stops; integer scale ×2 → ×3 (cut) + a 2-frame white fill on the sprite ONLY (local, ≤ 2 frames: UX photosensitivity rule); held while the zipper runs backwards" }
+  - { t: 130, action: "BURST on the 'cha' (AD suitcaseCatch: reversed zipper clicks 0/30/61 ms, 'cha' at 130, 'ching' + tick at 200): sprite hidden; 12 coins + 4 bills radial (angles U(0, 360), speed U(80, 140) ap/s, gravity 200 ap/s², drag so they hang); the 'ching' lands while they are mid-air" }
+  - { t: 380, action: "coin-fly-to-counter for 8 coins (cash); the rest fade over 200 ms" }
+outcomes:
+  cash:    "coins fly to the shekel counter"
+  aide:    "coins fly to the aide target (the dev supplies the aide card's position; if it isn't on screen they fly off the RIGHT edge 'to an aide'); the event-toast carries the line"
+  laundry: "Washington only: the burst uses laundry sprites (2D pending; fallback: bills); they fall and fade, no fly"
+toast: "event-toast (J6) with the copy deck §G line; ticker H-catch"
+shake: "none (the sonic brief's 'polite in the pocket'; the local flash is the hit)"
+audio:
+  - { on: "t=0", cue_id: "suitcaseCatch", bus: SFX-Critical, note: "confirmed against audio/od/cues.json: the burst sits on the 'cha' (130)" }
+reduced_motion: reduce
+reduced_motion_alternative: "no pop, no flash; the sprite fades out 120 ms; 3 coins (coin-burst RM); no fly; the counter snaps"
+---
+motion-id: coin-fly-to-counter
+type: fx
+applies_to: "reward coins that go INTO the treasury: Suitcase catch (cash), O1 'לאסוף' (10 coins from the card's big number), future rewards. NOT the Magician's tap coins (those spray and fall)"
+runtime: godot-tween
+count: "≤ coinFlyMax (10)"
+per_coin:
+  start: "its burst position after coinFlyHangMs (250 ms), or its spawn point for O1"
+  path: "quadratic Bezier: control = (p0.x + 0.25·(p2.x − p0.x), min(p0.y, p2.y) − 96); p2 = the counter's coin icon"
+  duration_ms: 380
+  ease: 'Quad.In'                 # accelerates into the counter: sucked in
+  stagger_ms: 35
+  spin: "keeps its 16 fps spin"
+  snap: S
+arrival: "coin hidden; counter hud-bank-pop (no restart while running); one 3-ap spark on the counter's coin icon, at most one per 100 ms"
+truth: "the counter already shows the new value from f0; the fly is illustrative and never gates the number"
+frames_at_60: "10 coins: first lands at 630 ms, last at 945 ms after the burst"
+audio:
+  - { on: "arrival", cue_id: "coin (AD: variants a/b alternate; at most 6 per event; poly 3): play on arrivals 1, 3, 5, 7, 9, 10 (≤ 6, ≥ 60 ms apart at the 35 ms stagger)", bus: SFX-Frequent }
+reduced_motion: disable
+reduced_motion_alternative: "no coins fly; the counter's number change is the feedback (hud-bank-pop is also RM-disabled)"
+---
+motion-id: cottage-pixel-loss
+type: notification
+applies_to: "Cottage Index (HUD Row A corner, 44×44 CSS): first appearance at lifetime 1,000 ₪; −1 pixel at every ×10 (copy deck A.1 H-cottage)"
+runtime: godot-tween
+appear: "opacity 0 → 1 over 200 ms Quad.Out + hop translateY 0 → −4 → 0 (160 ms); then UX's rule: 100% for 3000 ms, → 50% over 300 ms Quad.InOut"
+pixel_loss:
+  f0: "the cup's frame cuts to state k+1 (2D: ≥ 12 states); opacity 50% → 100% over 150 ms Quad.Out"
+  particle: "a 1-ap pixel in the cup's colour leaves from the lost pixel's position: up 2 ap (120 ms Quad.Out), then down 14 ap (380 ms Quad.In) with x drift U(−2, 2) ap; fades over its last 150 ms; 500 ms total; snap ap"
+  minus_one: "'−1' in the small numeral font rises 6 ap over 600 ms Cubic.Out above the cup, fading over its last 250 ms"
+  settle: "hold 100% for 3000 ms, then → 50% over 300 ms Quad.InOut"
+ticker: "H-cottage headline at f0"
+audio:
+  - { on: f0, cue_id: "cottagePixel (AD: proposed tiny P2 blip; null acceptable)", bus: ui }
+reduced_motion: reduce
+reduced_motion_alternative: "frame cut, no particle; '−1' appears static and fades over 600 ms; opacity changes kept (not motion)"
+---
+motion-id: event-toast
+type: notification
+applies_to: "one-line toasts (Suitcase outcomes, 'נפתח לך תיק.', 'נפתחו ספינים…', share-link welcome), docking at y 163-223 CSS"
+runtime: godot-tween
+note: "= J6 drop-in banner: enter 200 ms Back.Out from −24; hold 1600 ms; exit 200 ms Quad.In to −12 + fade (total 2000 ms)"
+queue: "one toast at a time; a chat-toast outranks an event-toast"
+reduced_motion: reduce
+reduced_motion_alternative: "fade only, 150 ms in / out"
+---
+# =====================================================================================================================
+# TICKER (Dubi's crawl)
+# =====================================================================================================================
+motion-id: headline-ticker
+type: ambient
+applies_to: "HUD ticker row (44 CSS tall): the crawl, the milestone pre-empt, Dubi's beak"
+runtime: per-frame update
+crawl:
+  direction: "LEFT → RIGHT (the RTL mirror; a Hebrew line's first word, its rightmost, enters from the left edge first)"
+  cadence: "one font-texel step every 3 render frames (tickerStepHz 20): x = x0 + snap(20 × fontScale × t, fontScale); time-based accumulator so 120 Hz displays step identically"
+  speed: "×3 font (default) = 60 logical px/s (32.5 CSS px/s); ×4 font ('טקסט גדול') = 80 logical px/s (43.3 CSS px/s). See OBJECTION O-M2 against UX rtl-map §5.2 (v = 74 logical px/s with snap 3 = 24.7 steps/s, an uneven 2-3-2-3 frame cadence)"
+  headline_every: "8-12 s (pitch §9); conditional lines jump the queue"
+milestone: "legacy flash (whiteOverlay 0.8 → 0, 120 ms Quad.Out) on pre-empting lines; at most one flash per 8 s"
+dubi: "beak-open frame for 55 ms on each babble blip (AD), when Dubi's art lands"
+replaced_by: "election-cta at seats ≥ 61"
+tap: "opens O6 headline card (modal-enter + J6)"
+audio:
+  - { on: "milestone pre-empt", cue_id: "milestoneHeadline / Dubi babble (AD: babble on ≤ 1 headline per 20 s)", bus: voice }
+reduced_motion: reduce
+reduced_motion_alternative: "PAGED (UX §7.3): one headline at a time, static, left-aligned; a 200 ms cross-fade to the next after max(4000, 60 ms × chars); a tap shows the next; pre-empts cut in with no flash"

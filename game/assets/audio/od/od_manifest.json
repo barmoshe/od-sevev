@@ -1,0 +1,2097 @@
+{
+	"a4Hz": 440.0,
+	"antiFatigue": {
+		"_doc": "0-byte variety (sonic brief v1.1, O-A1): a loop counter (1-based, counting completed passes of bar 32 -> bar 1) picks a mute plan, applied at bar lines with the normal 1-bar fade.",
+		"cycle": [
+			{
+				"loop": 1.0,
+				"mute": []
+			},
+			{
+				"loop": 2.0,
+				"mute": [
+					{
+						"bars": [
+							17.0,
+							24.0
+						],
+						"layer": "L2"
+					}
+				]
+			},
+			{
+				"loop": 3.0,
+				"mute": []
+			},
+			{
+				"loop": 4.0,
+				"mute": [
+					{
+						"bars": [
+							9.0,
+							16.0
+						],
+						"layer": "L1"
+					},
+					{
+						"bars": [
+							9.0,
+							16.0
+						],
+						"layer": "L2"
+					}
+				]
+			}
+		]
+	},
+	"babbleContours": {
+		"_doc": "Canned squawks (voice/copy-deck §H): the parrot repeats what he was told, so each line has a fixed contour of [degree, octave] per blip; a doubled line repeats its contour after a 150 ms gap.",
+		"אין כובע!": [
+			[
+				"5",
+				6.0
+			],
+			[
+				"5",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			]
+		],
+		"אין כלום!": [
+			[
+				"5",
+				6.0
+			],
+			[
+				"5",
+				6.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
+		"בחירות!": [
+			[
+				"1",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			],
+			[
+				"5",
+				6.0
+			]
+		],
+		"בכובע!": [
+			[
+				"1",
+				6.0
+			],
+			[
+				"b7",
+				5.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
+		"כספים קואליציוניים!": [
+			[
+				"5",
+				5.0
+			],
+			[
+				"4",
+				5.0
+			],
+			[
+				"3",
+				5.0
+			],
+			[
+				"5",
+				5.0
+			],
+			[
+				"4",
+				5.0
+			],
+			[
+				"3",
+				5.0
+			],
+			[
+				"b7",
+				5.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
+		"לא ידענו!": [
+			[
+				"5",
+				6.0
+			],
+			[
+				"4",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
+		"לקנות!": [
+			[
+				"3",
+				6.0
+			],
+			[
+				"5",
+				6.0
+			]
+		],
+		"מי?": [
+			[
+				"5",
+				5.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
+		"ציד מכשפות!": [
+			[
+				"5",
+				5.0
+			],
+			[
+				"5",
+				5.0
+			],
+			[
+				"b7",
+				5.0
+			],
+			[
+				"1",
+				6.0
+			]
+		]
+	},
+	"buses": {
+		"Music": {
+			"children": [
+				"Outside"
+			],
+			"db": 0.0
+		},
+		"Outside": {
+			"effects": [
+				"LowPass 800 Hz",
+				"Panner -0.3"
+			],
+			"parent": "Music"
+		},
+		"SFX-Critical": {
+			"db": 0.0
+		},
+		"SFX-Frequent": {
+			"db": 0.0
+		},
+		"Suitcase": {
+			"effects": [
+				"Panner (set at spawn)"
+			],
+			"parent": "SFX-Critical"
+		},
+		"UI": {
+			"db": 0.0
+		},
+		"Voice": {
+			"db": 0.0
+		},
+		"_doc": "mix-bus-topology (audio/od/cue-spec.md §3). Levels live in play_db; buses sit at 0 dB."
+	},
+	"courtDay": {
+		"_doc": "Sonic brief v1.1 (O-A2). At the next bar line: equal-power crossfade (400 ms) onto the same bar of the courthouse track, L2 forced off, and the courtIn stinger starts on that bar line. Taps, pings and Dubi use the G files while court day lasts. On exit: the same crossfade back to the era's track at the next bar line, courtOut on that bar line. In the courthouse era itself: only the L2 mute and the stinger.",
+		"forceOff": [
+			"L2"
+		],
+		"track": "courthouse",
+		"xfadeMs": 400.0
+	},
+	"cues": {
+		"buy": {
+			"burstMax": -16.0,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"d12": "buy_D_d12.res",
+						"d25": "buy_D_d25.res"
+					}
+				},
+				"E": {
+					"_": {
+						"d12": "buy_E_d12.res",
+						"d25": "buy_E_d25.res"
+					}
+				},
+				"F": {
+					"_": {
+						"d12": "buy_F_d12.res",
+						"d25": "buy_F_d25.res"
+					}
+				},
+				"G": {
+					"_": {
+						"d12": "buy_G_d12.res",
+						"d25": "buy_G_d25.res"
+					}
+				}
+			},
+			"lengthMs": 214.0,
+			"limitedBy": "target",
+			"meaning": "Bought a source or a spin.",
+			"momentaryMax": -20.72,
+			"play_db": -6.94,
+			"poly": 2.0,
+			"priority": 3.0,
+			"runtime": "The tap blip on 5, then the motif's first bar note (1') on P1. Alternate d25 / d12.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -16.0,
+				"type": "burst"
+			}
+		},
+		"cantAfford": {
+			"burstMax": -21.0,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "cantAfford_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "cantAfford_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "cantAfford_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "cantAfford_G.res"
+					}
+				}
+			},
+			"lengthMs": 144.0,
+			"limitedBy": "target",
+			"meaning": "Not enough money.",
+			"momentaryMax": -26.71,
+			"play_db": -8.08,
+			"poly": 1.0,
+			"priority": 1.0,
+			"runtime": "Two quiet P2 staccatos on the raised leading tone, left hanging.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -21.0,
+				"type": "burst"
+			}
+		},
+		"chatPing": {
+			"burstMax": -16.0,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"benGvir": "chatPing_D_benGvir.res",
+						"burst": "chatPing_D_burst.res",
+						"default": "chatPing_D_default.res",
+						"deri": "chatPing_D_deri.res",
+						"gafni": "chatPing_D_gafni.res",
+						"goldknopf": "chatPing_D_goldknopf.res",
+						"gotliv": "chatPing_D_gotliv.res",
+						"left": "chatPing_D_left.res",
+						"levin": "chatPing_D_levin.res",
+						"regev": "chatPing_D_regev.res",
+						"smotrich": "chatPing_D_smotrich.res"
+					}
+				},
+				"E": {
+					"_": {
+						"benGvir": "chatPing_E_benGvir.res",
+						"burst": "chatPing_E_burst.res",
+						"default": "chatPing_E_default.res",
+						"deri": "chatPing_E_deri.res",
+						"gafni": "chatPing_E_gafni.res",
+						"goldknopf": "chatPing_E_goldknopf.res",
+						"gotliv": "chatPing_E_gotliv.res",
+						"left": "chatPing_E_left.res",
+						"levin": "chatPing_E_levin.res",
+						"regev": "chatPing_E_regev.res",
+						"smotrich": "chatPing_E_smotrich.res"
+					}
+				},
+				"F": {
+					"_": {
+						"benGvir": "chatPing_F_benGvir.res",
+						"burst": "chatPing_F_burst.res",
+						"default": "chatPing_F_default.res",
+						"deri": "chatPing_F_deri.res",
+						"gafni": "chatPing_F_gafni.res",
+						"goldknopf": "chatPing_F_goldknopf.res",
+						"gotliv": "chatPing_F_gotliv.res",
+						"left": "chatPing_F_left.res",
+						"levin": "chatPing_F_levin.res",
+						"regev": "chatPing_F_regev.res",
+						"smotrich": "chatPing_F_smotrich.res"
+					}
+				},
+				"G": {
+					"_": {
+						"benGvir": "chatPing_G_benGvir.res",
+						"burst": "chatPing_G_burst.res",
+						"default": "chatPing_G_default.res",
+						"deri": "chatPing_G_deri.res",
+						"gafni": "chatPing_G_gafni.res",
+						"goldknopf": "chatPing_G_goldknopf.res",
+						"gotliv": "chatPing_G_gotliv.res",
+						"left": "chatPing_G_left.res",
+						"levin": "chatPing_G_levin.res",
+						"regev": "chatPing_G_regev.res",
+						"smotrich": "chatPing_G_smotrich.res"
+					}
+				}
+			},
+			"lengthMs": 234.0,
+			"limitedBy": "target",
+			"meaning": "A partner posted a demand.",
+			"momentaryMax": -19.65,
+			"play_db": -6.81,
+			"poly": 1.0,
+			"priority": 3.0,
+			"runtime": "Variant = the partner id (unknown partners: default). At most one ping per 700 ms; pings inside that window coalesce into one 'burst'. Never during a Dubi squawk: queue it until 300 ms after Dubi stops (UX first-minute §9). 'left' = left the group.",
+			"shapes": {
+				"benGvir": "1 1 1: he threatens more than once",
+				"burst": "a burst coalesced: b6 5 b6 (x3)",
+				"default": "b6 -> 5, the minor sigh",
+				"deri": "1 -> 5 below: settled, not going anywhere",
+				"gafni": "1, then the second note left the room",
+				"goldknopf": "4 -> 5: a little more, every time",
+				"gotliv": "b3 -> the raised 7 below: a diminished fourth, between rows",
+				"left": "1 -> b2 up, unresolved, and a door click",
+				"levin": "b3 -> 2: petitioning, left hanging",
+				"regev": "5 -> 1': the ribbon-cut ta-da",
+				"smotrich": "1 -> 4: raises (VAT)"
+			},
+			"steal": "oldest",
+			"target": {
+				"lufs": -16.0,
+				"type": "burst"
+			}
+		},
+		"coin": {
+			"burstMax": -19.0,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"a": "coin_D_a.res",
+						"b": "coin_D_b.res"
+					}
+				},
+				"E": {
+					"_": {
+						"a": "coin_E_a.res",
+						"b": "coin_E_b.res"
+					}
+				},
+				"F": {
+					"_": {
+						"a": "coin_F_a.res",
+						"b": "coin_F_b.res"
+					}
+				},
+				"G": {
+					"_": {
+						"a": "coin_G_a.res",
+						"b": "coin_G_b.res"
+					}
+				}
+			},
+			"lengthMs": 160.0,
+			"limitedBy": "target",
+			"meaning": "Coins (the settings 'צ'ינג' preview; payout sparkle, at most 6 per tap).",
+			"momentaryMax": -24.93,
+			"play_db": -11.22,
+			"poly": 3.0,
+			"priority": 1.0,
+			"runtime": "The deadpan rule: the payout never scales loudness or count (<= 6 coins per tap, whatever the sum).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -19.0,
+				"type": "burst"
+			}
+		},
+		"courtOut": {
+			"burstMax": -18.0,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "courtOut_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "courtOut_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "courtOut_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "courtOut_G.res"
+					}
+				}
+			},
+			"lengthMs": 254.0,
+			"limitedBy": "target",
+			"meaning": "Court day is over; back to the era.",
+			"momentaryMax": -21.57,
+			"play_db": -9.61,
+			"poly": 1.0,
+			"priority": 2.0,
+			"runtime": "Two TRI tiptoe notes, 5 -> 1' in the era key being returned to, on the crossfade bar line.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -18.0,
+				"type": "burst"
+			}
+		},
+		"dubiBlip": {
+			"burstMax": -17.34,
+			"bus": "Voice",
+			"ducks": [
+				{
+					"attackMs": 30.0,
+					"bus": "Music",
+					"db": -6.0,
+					"releaseMs": 250.0
+				}
+			],
+			"files": {
+				"D": {
+					"1_5": {
+						"_": "dubiBlip_D_1_5.res"
+					},
+					"1_6": {
+						"_": "dubiBlip_D_1_6.res"
+					},
+					"3_5": {
+						"_": "dubiBlip_D_3_5.res"
+					},
+					"3_6": {
+						"_": "dubiBlip_D_3_6.res"
+					},
+					"4_5": {
+						"_": "dubiBlip_D_4_5.res"
+					},
+					"4_6": {
+						"_": "dubiBlip_D_4_6.res"
+					},
+					"5_5": {
+						"_": "dubiBlip_D_5_5.res"
+					},
+					"5_6": {
+						"_": "dubiBlip_D_5_6.res"
+					},
+					"b7_5": {
+						"_": "dubiBlip_D_b7_5.res"
+					},
+					"b7_6": {
+						"_": "dubiBlip_D_b7_6.res"
+					}
+				},
+				"E": {
+					"1_5": {
+						"_": "dubiBlip_E_1_5.res"
+					},
+					"1_6": {
+						"_": "dubiBlip_E_1_6.res"
+					},
+					"3_5": {
+						"_": "dubiBlip_E_3_5.res"
+					},
+					"3_6": {
+						"_": "dubiBlip_E_3_6.res"
+					},
+					"4_5": {
+						"_": "dubiBlip_E_4_5.res"
+					},
+					"4_6": {
+						"_": "dubiBlip_E_4_6.res"
+					},
+					"5_5": {
+						"_": "dubiBlip_E_5_5.res"
+					},
+					"5_6": {
+						"_": "dubiBlip_E_5_6.res"
+					},
+					"b7_5": {
+						"_": "dubiBlip_E_b7_5.res"
+					},
+					"b7_6": {
+						"_": "dubiBlip_E_b7_6.res"
+					}
+				},
+				"F": {
+					"1_5": {
+						"_": "dubiBlip_F_1_5.res"
+					},
+					"1_6": {
+						"_": "dubiBlip_F_1_6.res"
+					},
+					"3_5": {
+						"_": "dubiBlip_F_3_5.res"
+					},
+					"3_6": {
+						"_": "dubiBlip_F_3_6.res"
+					},
+					"4_5": {
+						"_": "dubiBlip_F_4_5.res"
+					},
+					"4_6": {
+						"_": "dubiBlip_F_4_6.res"
+					},
+					"5_5": {
+						"_": "dubiBlip_F_5_5.res"
+					},
+					"5_6": {
+						"_": "dubiBlip_F_5_6.res"
+					},
+					"b7_5": {
+						"_": "dubiBlip_F_b7_5.res"
+					},
+					"b7_6": {
+						"_": "dubiBlip_F_b7_6.res"
+					}
+				},
+				"G": {
+					"1_5": {
+						"_": "dubiBlip_G_1_5.res"
+					},
+					"1_6": {
+						"_": "dubiBlip_G_1_6.res"
+					},
+					"3_5": {
+						"_": "dubiBlip_G_3_5.res"
+					},
+					"3_6": {
+						"_": "dubiBlip_G_3_6.res"
+					},
+					"4_5": {
+						"_": "dubiBlip_G_4_5.res"
+					},
+					"4_6": {
+						"_": "dubiBlip_G_4_6.res"
+					},
+					"5_5": {
+						"_": "dubiBlip_G_5_5.res"
+					},
+					"5_6": {
+						"_": "dubiBlip_G_5_6.res"
+					},
+					"b7_5": {
+						"_": "dubiBlip_G_b7_5.res"
+					},
+					"b7_6": {
+						"_": "dubiBlip_G_b7_6.res"
+					}
+				}
+			},
+			"lengthMs": 71.0,
+			"limitedBy": "ceiling",
+			"meaning": "One syllable of Dubi's babble.",
+			"momentaryMax": -23.36,
+			"play_db": -5.0,
+			"poly": 1.0,
+			"priority": 4.0,
+			"runtime": "Replaces the F-pentatonic babble bank (ADR 0003). One blip per displayed syllable (about 1 per 2 Hebrew letters) at 8 per second; degrees drawn from the bank (seeded by the text), a final '!' steps up to the next higher degree. Capped at 1.6 s. The ticker babbles on at most one headline per 20 s. Canned lines use babbleContours instead.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -18.0,
+				"rateHz": 8.0,
+				"type": "shortTerm"
+			}
+		},
+		"dubiSquawk": {
+			"burstMax": -16.56,
+			"bus": "Voice",
+			"ducks": [
+				{
+					"attackMs": 30.0,
+					"bus": "Music",
+					"db": -6.0,
+					"releaseMs": 250.0
+				}
+			],
+			"files": {
+				"D": {
+					"_": {
+						"down": "dubiSquawk_D_down.res",
+						"up": "dubiSquawk_D_up.res"
+					}
+				},
+				"E": {
+					"_": {
+						"down": "dubiSquawk_E_down.res",
+						"up": "dubiSquawk_E_up.res"
+					}
+				},
+				"F": {
+					"_": {
+						"down": "dubiSquawk_F_down.res",
+						"up": "dubiSquawk_F_up.res"
+					}
+				},
+				"G": {
+					"_": {
+						"down": "dubiSquawk_G_down.res",
+						"up": "dubiSquawk_G_up.res"
+					}
+				}
+			},
+			"lengthMs": 109.0,
+			"limitedBy": "ceiling",
+			"meaning": "Dubi is about to speak.",
+			"momentaryMax": -22.58,
+			"play_db": -5.0,
+			"poly": 1.0,
+			"priority": 4.0,
+			"runtime": "Before a spoken line: 'up' before a headline, 'down' before a flash. +-7 semitones over 80 ms.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -15.0,
+				"type": "burst"
+			}
+		},
+		"gavel": {
+			"burstMax": -21.5,
+			"bus": "SFX-Critical",
+			"ducks": [
+				{
+					"attackMs": 50.0,
+					"bus": "Music",
+					"db": -4.0,
+					"releaseMs": 200.0
+				}
+			],
+			"files": {
+				"_": {
+					"_": {
+						"a": "gavel_a.res",
+						"b": "gavel_b.res",
+						"c": "gavel_c.res"
+					}
+				}
+			},
+			"lengthMs": 295.0,
+			"limitedBy": "ceiling",
+			"markers": {
+				"_": {
+					"knock1": 0.0,
+					"knock2": 0.18
+				}
+			},
+			"meaning": "Court day starts.",
+			"momentaryMax": -24.6,
+			"play_db": -2.0,
+			"poly": 1.0,
+			"priority": 5.0,
+			"runtime": "Then the music moves to the courthouse track at the next bar line, where courtIn starts.",
+			"steal": "never",
+			"target": {
+				"lufs": -12.0,
+				"type": "burst"
+			}
+		},
+		"gavelWeak": {
+			"burstMax": -27.5,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"_": {
+					"_": {
+						"_": "gavelWeak.res"
+					}
+				}
+			},
+			"lengthMs": 115.0,
+			"limitedBy": "target",
+			"meaning": "Postponement granted.",
+			"momentaryMax": -33.52,
+			"play_db": -11.92,
+			"poly": 1.0,
+			"priority": 2.0,
+			"runtime": "One weak knock, an octave up. The 'tik'.",
+			"steal": "oldest",
+			"target": {
+				"db": -6.0,
+				"to": "gavel",
+				"type": "relative"
+			}
+		},
+		"rabbitCrit": {
+			"burstMax": -12.0,
+			"bus": "SFX-Critical",
+			"ducks": [
+				{
+					"attackMs": 50.0,
+					"bus": "Music",
+					"db": -4.0,
+					"releaseMs": 200.0
+				}
+			],
+			"files": {
+				"D": {
+					"_": {
+						"s120": "rabbitCrit_D_s120.res",
+						"s150": "rabbitCrit_D_s150.res",
+						"s180": "rabbitCrit_D_s180.res"
+					}
+				},
+				"E": {
+					"_": {
+						"s120": "rabbitCrit_E_s120.res",
+						"s150": "rabbitCrit_E_s150.res",
+						"s180": "rabbitCrit_E_s180.res"
+					}
+				},
+				"F": {
+					"_": {
+						"s120": "rabbitCrit_F_s120.res",
+						"s150": "rabbitCrit_F_s150.res",
+						"s180": "rabbitCrit_F_s180.res"
+					}
+				},
+				"G": {
+					"_": {
+						"s120": "rabbitCrit_G_s120.res",
+						"s150": "rabbitCrit_G_s150.res",
+						"s180": "rabbitCrit_G_s180.res"
+					}
+				}
+			},
+			"lengthMs": 584.0,
+			"limitedBy": "target",
+			"markers": {
+				"s120": {
+					"head": 0.25,
+					"slide": 0.12
+				},
+				"s150": {
+					"head": 0.28,
+					"slide": 0.12
+				},
+				"s180": {
+					"head": 0.31,
+					"slide": 0.12
+				}
+			},
+			"meaning": "The trick went spectacularly right (rare).",
+			"momentaryMax": -13.21,
+			"play_db": -3.8,
+			"poly": 1.0,
+			"priority": 5.0,
+			"runtime": "Round-robin s120 -> s150 -> s180. The head's 16ths are a fixed 75 ms in every era so the whole cue stays <= 600 ms (brief §5 cue 2).",
+			"steal": "never",
+			"target": {
+				"lufs": -12.0,
+				"type": "burst"
+			}
+		},
+		"returnAway": {
+			"burstMax": -14.0,
+			"bus": "SFX-Critical",
+			"ducks": [
+				{
+					"attackMs": 50.0,
+					"bus": "Music",
+					"db": -4.0,
+					"releaseMs": 200.0
+				}
+			],
+			"files": {
+				"D": {
+					"_": {
+						"_": "returnAway_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "returnAway_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "returnAway_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "returnAway_G.res"
+					}
+				}
+			},
+			"lengthMs": 844.0,
+			"limitedBy": "target",
+			"meaning": "While you were away (the return).",
+			"momentaryMax": -17.64,
+			"play_db": -9.66,
+			"poly": 1.0,
+			"priority": 3.0,
+			"runtime": "The catch's cha-ching, then the motif head (5-1).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -14.0,
+				"type": "burst"
+			}
+		},
+		"shutter": {
+			"burstMax": -22.81,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"_": {
+					"_": {
+						"m1": "shutter_m1.res",
+						"p0": "shutter_p0.res",
+						"p1": "shutter_p1.res"
+					}
+				}
+			},
+			"lengthMs": 118.0,
+			"limitedBy": "ceiling",
+			"meaning": "You caught the people who live in our cameras (photobomb).",
+			"momentaryMax": -28.83,
+			"play_db": -5.0,
+			"poly": 1.0,
+			"priority": 3.0,
+			"runtime": "Random variant (the pip +-1 semitone). The 'שלום בית בפריים' trophy plays the trophy stinger instead (shutter + the full motif on BLIP).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -16.0,
+				"type": "burst"
+			}
+		},
+		"stamp": {
+			"burstMax": -18.53,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"_": {
+					"_": {
+						"_": "stamp.res",
+						"bell": "stamp_bell.res"
+					}
+				}
+			},
+			"lengthMs": 355.0,
+			"limitedBy": "ceiling",
+			"meaning": "Request bounced. Again. (נדרשים מסמכים נוספים)",
+			"momentaryMax": -22.12,
+			"play_db": -4.0,
+			"poly": 2.0,
+			"priority": 2.0,
+			"runtime": "Deliberately identical (+-0.5 dB at most). Every 5th stamp plays the 'bell' variant.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -15.0,
+				"type": "burst"
+			}
+		},
+		"suitcaseCatch": {
+			"burstMax": -13.0,
+			"bus": "SFX-Critical",
+			"ducks": [
+				{
+					"attackMs": 50.0,
+					"bus": "Music",
+					"db": -4.0,
+					"releaseMs": 200.0
+				}
+			],
+			"files": {
+				"D": {
+					"_": {
+						"_": "suitcaseCatch_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "suitcaseCatch_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "suitcaseCatch_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "suitcaseCatch_G.res"
+					}
+				}
+			},
+			"lengthMs": 424.0,
+			"limitedBy": "target",
+			"markers": {
+				"_": {
+					"chaChing": 0.13,
+					"chaChing2": 0.2,
+					"zipperEnd": 0.12
+				}
+			},
+			"meaning": "Got it.",
+			"momentaryMax": -16.69,
+			"play_db": -7.49,
+			"poly": 1.0,
+			"priority": 4.0,
+			"runtime": "Also the first half of the 'while you were away' return (returnAway).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -13.0,
+				"type": "burst"
+			}
+		},
+		"suitcaseMiss": {
+			"burstMax": -21.0,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "suitcaseMiss_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "suitcaseMiss_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "suitcaseMiss_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "suitcaseMiss_G.res"
+					}
+				}
+			},
+			"lengthMs": 234.0,
+			"limitedBy": "target",
+			"meaning": "It reached its destination. Nobody knew. (deadpan)",
+			"momentaryMax": -26.46,
+			"play_db": -13.74,
+			"poly": 1.0,
+			"priority": 1.0,
+			"runtime": "One quiet TRI bwomp down a semitone, under the ticker line. Nothing else.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -21.0,
+				"type": "burst"
+			}
+		},
+		"suitcaseSpawn": {
+			"burstMax": -18.71,
+			"bus": "SFX-Critical",
+			"ducks": [
+				{
+					"attackMs": 50.0,
+					"bus": "Music",
+					"db": -4.0,
+					"releaseMs": 200.0
+				}
+			],
+			"files": {
+				"_": {
+					"_": {
+						"g25": "suitcaseSpawn_g25.res",
+						"g28": "suitcaseSpawn_g28.res",
+						"g31": "suitcaseSpawn_g31.res"
+					}
+				}
+			},
+			"lengthMs": 430.9,
+			"limitedBy": "ceiling",
+			"meaning": "A catchable opportunity is on screen.",
+			"momentaryMax": -20.95,
+			"pan": "the suitcase's x mapped to -0.4..+0.4 on the 'Suitcase' bus panner, set at spawn",
+			"play_db": -2.0,
+			"poly": 1.0,
+			"priority": 4.0,
+			"runtime": "Random variant (gate rate 25/28/31 Hz). The whoosh is UX's spawn twin (first-minute §3).",
+			"steal": "never",
+			"target": {
+				"lufs": -14.0,
+				"type": "burst"
+			}
+		},
+		"tap": {
+			"burstMax": -16.59,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"s0": {
+						"d12": "tap_D_s0_d12.res",
+						"d25": "tap_D_s0_d25.res"
+					},
+					"s1": {
+						"d12": "tap_D_s1_d12.res",
+						"d25": "tap_D_s1_d25.res"
+					},
+					"s2": {
+						"d12": "tap_D_s2_d12.res",
+						"d25": "tap_D_s2_d25.res"
+					},
+					"s3": {
+						"d12": "tap_D_s3_d12.res",
+						"d25": "tap_D_s3_d25.res"
+					},
+					"s4": {
+						"d12": "tap_D_s4_d12.res",
+						"d25": "tap_D_s4_d25.res"
+					},
+					"s5": {
+						"d12": "tap_D_s5_d12.res",
+						"d25": "tap_D_s5_d25.res"
+					},
+					"s6": {
+						"d12": "tap_D_s6_d12.res",
+						"d25": "tap_D_s6_d25.res"
+					},
+					"s7": {
+						"d12": "tap_D_s7_d12.res",
+						"d25": "tap_D_s7_d25.res"
+					}
+				},
+				"E": {
+					"s0": {
+						"d12": "tap_E_s0_d12.res",
+						"d25": "tap_E_s0_d25.res"
+					},
+					"s1": {
+						"d12": "tap_E_s1_d12.res",
+						"d25": "tap_E_s1_d25.res"
+					},
+					"s2": {
+						"d12": "tap_E_s2_d12.res",
+						"d25": "tap_E_s2_d25.res"
+					},
+					"s3": {
+						"d12": "tap_E_s3_d12.res",
+						"d25": "tap_E_s3_d25.res"
+					},
+					"s4": {
+						"d12": "tap_E_s4_d12.res",
+						"d25": "tap_E_s4_d25.res"
+					},
+					"s5": {
+						"d12": "tap_E_s5_d12.res",
+						"d25": "tap_E_s5_d25.res"
+					},
+					"s6": {
+						"d12": "tap_E_s6_d12.res",
+						"d25": "tap_E_s6_d25.res"
+					},
+					"s7": {
+						"d12": "tap_E_s7_d12.res",
+						"d25": "tap_E_s7_d25.res"
+					}
+				},
+				"F": {
+					"s0": {
+						"d12": "tap_F_s0_d12.res",
+						"d25": "tap_F_s0_d25.res"
+					},
+					"s1": {
+						"d12": "tap_F_s1_d12.res",
+						"d25": "tap_F_s1_d25.res"
+					},
+					"s2": {
+						"d12": "tap_F_s2_d12.res",
+						"d25": "tap_F_s2_d25.res"
+					},
+					"s3": {
+						"d12": "tap_F_s3_d12.res",
+						"d25": "tap_F_s3_d25.res"
+					},
+					"s4": {
+						"d12": "tap_F_s4_d12.res",
+						"d25": "tap_F_s4_d25.res"
+					},
+					"s5": {
+						"d12": "tap_F_s5_d12.res",
+						"d25": "tap_F_s5_d25.res"
+					},
+					"s6": {
+						"d12": "tap_F_s6_d12.res",
+						"d25": "tap_F_s6_d25.res"
+					},
+					"s7": {
+						"d12": "tap_F_s7_d12.res",
+						"d25": "tap_F_s7_d25.res"
+					}
+				},
+				"G": {
+					"s0": {
+						"d12": "tap_G_s0_d12.res",
+						"d25": "tap_G_s0_d25.res"
+					},
+					"s1": {
+						"d12": "tap_G_s1_d12.res",
+						"d25": "tap_G_s1_d25.res"
+					},
+					"s2": {
+						"d12": "tap_G_s2_d12.res",
+						"d25": "tap_G_s2_d25.res"
+					},
+					"s3": {
+						"d12": "tap_G_s3_d12.res",
+						"d25": "tap_G_s3_d25.res"
+					},
+					"s4": {
+						"d12": "tap_G_s4_d12.res",
+						"d25": "tap_G_s4_d25.res"
+					},
+					"s5": {
+						"d12": "tap_G_s5_d12.res",
+						"d25": "tap_G_s5_d25.res"
+					},
+					"s6": {
+						"d12": "tap_G_s6_d12.res",
+						"d25": "tap_G_s6_d25.res"
+					},
+					"s7": {
+						"d12": "tap_G_s7_d12.res",
+						"d25": "tap_G_s7_d25.res"
+					}
+				}
+			},
+			"jitterDb": 1.5,
+			"lengthMs": 68.0,
+			"limitedBy": "ceiling",
+			"meaning": "The trick worked; money came out.",
+			"momentaryMax": -22.61,
+			"play_db": -4.0,
+			"poly": 4.0,
+			"priority": 2.0,
+			"runtime": "Step = the tap streak index mod 8 (walk and wrap); the streak resets after 400 ms without a tap. Variant alternates d25 / d12 per tap. Gain jitter +-1.5 dB. One file = one tap.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -21.0,
+				"rateHz": 5.0,
+				"type": "stream"
+			}
+		},
+		"transferWhistle": {
+			"burstMax": -15.0,
+			"bus": "SFX-Critical",
+			"ducks": [
+				{
+					"attackMs": 50.0,
+					"bus": "Music",
+					"db": -4.0,
+					"releaseMs": 200.0
+				}
+			],
+			"files": {
+				"_": {
+					"_": {
+						"w26": "transferWhistle_w26.res",
+						"w28": "transferWhistle_w28.res",
+						"w30": "transferWhistle_w30.res"
+					}
+				}
+			},
+			"lengthMs": 744.0,
+			"limitedBy": "target",
+			"markers": {
+				"_": {
+					"w1": 0.0,
+					"w2": 0.16,
+					"w3": 0.32
+				}
+			},
+			"meaning": "A partner switched jerseys (the transfer window).",
+			"momentaryMax": -15.35,
+			"play_db": -16.62,
+			"poly": 1.0,
+			"priority": 4.0,
+			"runtime": "Random variant. Pitch-stable, no glide, 740 ms in total: siren-safe (brief §2).",
+			"steal": "never",
+			"target": {
+				"lufs": -15.0,
+				"type": "burst"
+			}
+		},
+		"uiClick": {
+			"burstMax": -21.0,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "uiClick_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "uiClick_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "uiClick_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "uiClick_G.res"
+					}
+				}
+			},
+			"lengthMs": 38.0,
+			"limitedBy": "target",
+			"meaning": "A UI press.",
+			"momentaryMax": -27.02,
+			"play_db": -5.1,
+			"poly": 2.0,
+			"priority": 1.0,
+			"runtime": "One P2 blip on degree 1 in octave 6 (1.2-1.6 kHz).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -21.0,
+				"type": "burst"
+			}
+		},
+		"ultimatumTick": {
+			"burstMax": -23.24,
+			"bus": "SFX-Critical",
+			"ducks": [],
+			"files": {
+				"_": {
+					"_": {
+						"tick": "ultimatumTick_tick.res",
+						"tock": "ultimatumTick_tock.res"
+					}
+				}
+			},
+			"lengthMs": 15.5,
+			"limitedBy": "ceiling",
+			"meaning": "Pay before zero or they walk.",
+			"momentaryMax": -29.26,
+			"play_db": -2.0,
+			"poly": 1.0,
+			"priority": 3.0,
+			"runtime": "One per displayed second, alternating tick/tock. In the last 3 s: two per second, and force L2 off (tension by subtraction). No duck (a tick every 500 ms would pump the music).",
+			"steal": "oldest",
+			"target": {
+				"db": -6.0,
+				"to": "tap",
+				"type": "relative"
+			}
+		},
+		"ultimatumZero": {
+			"burstMax": -14.0,
+			"bus": "SFX-Critical",
+			"ducks": [
+				{
+					"attackMs": 50.0,
+					"bus": "Music",
+					"db": -4.0,
+					"releaseMs": 200.0
+				}
+			],
+			"files": {
+				"D": {
+					"_": {
+						"_": "ultimatumZero_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "ultimatumZero_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "ultimatumZero_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "ultimatumZero_G.res"
+					}
+				}
+			},
+			"lengthMs": 527.5,
+			"limitedBy": "target",
+			"markers": {
+				"_": {
+					"deflate": 0.0,
+					"door": 0.51,
+					"leftPing": 0.32
+				}
+			},
+			"meaning": "Time ran out: they left the group.",
+			"momentaryMax": -18.38,
+			"play_db": -7.61,
+			"poly": 1.0,
+			"priority": 4.0,
+			"runtime": "A TRI deflate a minor third down (b3 -> 1), then the 'left the group' ping. No alarm beep, ever.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -14.0,
+				"type": "burst"
+			}
+		}
+	},
+	"degrees": {
+		"1": 0.0,
+		"2": 2.0,
+		"3": 4.0,
+		"4": 5.0,
+		"5": 7.0,
+		"6": 9.0,
+		"b2": 1.0,
+		"b6": 8.0,
+		"b7": 10.0
+	},
+	"eras": {
+		"balfour": {
+			"barSamples": 66000,
+			"key": "D",
+			"layers": {
+				"L0": "music_balfour_L0.res",
+				"L1": "music_balfour_L1.res",
+				"L2": "music_balfour_L2.res"
+			},
+			"loopSamples": 2112000,
+			"loopSeconds": 66.2069,
+			"lufs": {
+				"L0": -20.23,
+				"L1": -23.33,
+				"L2": -21.03,
+				"full": -17.3
+			},
+			"mode": "minor",
+			"outside": {
+				"_doc": "judgeSamples: tap-to-beat targets inside the Outside loop (beats 1 and 3 of each bar).",
+				"file": "music_balfour_outside.res",
+				"judgeSamples": [
+					0,
+					33000,
+					66000,
+					99000
+				],
+				"loopSamples": 132000,
+				"play_db": -7.35
+			},
+			"play_db": -3.96,
+			"rate": 31900,
+			"stepSamples": 4125,
+			"stepsPerBar": 16,
+			"sumPeakDbfs": -0.97,
+			"tempoBpm": 116.0
+		},
+		"courthouse": {
+			"barSamples": 60120,
+			"key": "G",
+			"layers": {
+				"L0": "music_courthouse_L0.res",
+				"L1": "music_courthouse_L1.res",
+				"L2": "music_courthouse_L2.res"
+			},
+			"loopSamples": 1923840,
+			"loopSeconds": 87.2727,
+			"lufs": {
+				"L0": -21.96,
+				"L1": -25.71,
+				"L2": -20.05,
+				"full": -18.3
+			},
+			"mode": "minor",
+			"play_db": -3.61,
+			"rate": 22044,
+			"stepSamples": 5010,
+			"stepsPerBar": 12,
+			"sumPeakDbfs": -0.47,
+			"tempoBpm": 88.0
+		},
+		"knesset": {
+			"barSamples": 58240,
+			"key": "E",
+			"layers": {
+				"L0": "music_knesset_L0.res",
+				"L1": "music_knesset_L1.res",
+				"L2": "music_knesset_L2.res"
+			},
+			"loopSamples": 1863680,
+			"loopSeconds": 58.1818,
+			"lufs": {
+				"L0": -19.73,
+				"L1": -24.45,
+				"L2": -20.68,
+				"full": -17.3
+			},
+			"mode": "minor",
+			"play_db": -3.8,
+			"rate": 32032,
+			"stepSamples": 3640,
+			"stepsPerBar": 16,
+			"sumPeakDbfs": -1.62,
+			"tempoBpm": 132.0
+		},
+		"washington": {
+			"barSamples": 53280,
+			"key": "F",
+			"layers": {
+				"L0": "music_washington_L0.res",
+				"L1": "music_washington_L1.res",
+				"L2": "music_washington_L2.res"
+			},
+			"loopSamples": 1704960,
+			"loopSeconds": 53.3333,
+			"lufs": {
+				"L0": -20.02,
+				"L1": -23.93,
+				"L2": -19.67,
+				"full": -17.3
+			},
+			"mode": "mixolydian",
+			"play_db": -2.69,
+			"rate": 31968,
+			"stepSamples": 3330,
+			"stepsPerBar": 16,
+			"sumPeakDbfs": -0.77,
+			"tempoBpm": 144.0
+		}
+	},
+	"generator": "tools/gen_od_sevev.gd",
+	"keys": {
+		"D": {
+			"era": "balfour",
+			"mode": "minor",
+			"root": "D",
+			"tempoBpm": 116.0
+		},
+		"E": {
+			"era": "knesset",
+			"mode": "minor",
+			"root": "E",
+			"tempoBpm": 132.0
+		},
+		"F": {
+			"era": "washington",
+			"mode": "mixolydian",
+			"root": "F",
+			"tempoBpm": 144.0
+		},
+		"G": {
+			"era": "courthouse",
+			"mode": "minor",
+			"root": "G",
+			"tempoBpm": 88.0
+		},
+		"_doc": "The four playing keys. Taps, pings, Dubi and every keyed cue render once per key; the runtime plays the key of the track that is playing (G during court day)."
+	},
+	"layers": {
+		"L0": {
+			"default": true,
+			"rule": "always on while music plays",
+			"voices": "TRI bass + darbuka (NOI-L tek, NOI-S riq, TRI dum)"
+		},
+		"L1": {
+			"default": false,
+			"rule": "on once the first money source is bought (sources_owned >= 1); stays on",
+			"voices": "P2 (hora/maqsum/stride stabs; the complete B melody)"
+		},
+		"L2": {
+			"default": false,
+			"rule": "on while the last tap was < 3000 ms ago; off otherwise. Forced off during court day and during the ultimatum's last 3 s",
+			"voices": "P1 lead"
+		},
+		"fade": {
+			"_doc": "Every layer change starts at the next bar line and ramps linearly over one bar.",
+			"fadeBars": 1.0,
+			"quantize": "bar"
+		}
+	},
+	"outsideSpec": {
+		"_doc": "Balfour only. A 2-bar loop on its own sub-bus 'Outside' (-> Music): AudioEffectLowPassFilter 800 Hz, AudioEffectPanner -0.3, mono. Starts with Balfour's music, locked to its bar grid. Level: the manifest's out play_db (-14 LU under L0 after the 800 Hz filter), rising by up to +6 dB with era progress (0..1). Pink Front (Saturday night, device clock): the cutoff sweeps 800 -> 4000 Hz over 2 bars (exponential) and +8 dB; tap-to-beat judges against beats 1 and 3 of each bar (the manifest lists the downbeat sample positions).",
+		"era": "balfour",
+		"lpfHz": 800.0,
+		"pan": -0.3,
+		"pinkFront": {
+			"boostDb": 8.0,
+			"lpfHz": 4000.0,
+			"sweepBars": 2.0
+		},
+		"riseDb": 6.0,
+		"underL0Db": -14.0
+	},
+	"sizes": {
+		"files": {
+			"music": 12,
+			"outside": 1,
+			"sfx": 229,
+			"stingers": 37
+		},
+		"music_bytes": 9237588,
+		"outside_bytes": 53847,
+		"sfx_bytes": 622851,
+		"stinger_bytes": 1486635
+	},
+	"stingers": {
+		"courtIn": {
+			"bus": "SFX-Critical",
+			"files": {
+				"G": {
+					"_": {
+						"file": "stinger_courtIn_G.res",
+						"musicalSamples": 180409,
+						"musicalSeconds": 8.1818,
+						"rate": 22050
+					}
+				}
+			},
+			"limitedBy": "target",
+			"play_db": -10.68,
+			"target": {
+				"lufs": -16.0,
+				"type": "momentary"
+			}
+		},
+		"dubiFlash": {
+			"bus": "Voice",
+			"files": {
+				"D": {
+					"_": {
+						"file": "stinger_dubiFlash_D.res",
+						"musicalSamples": 45621,
+						"musicalSeconds": 2.069,
+						"rate": 22050
+					}
+				},
+				"E": {
+					"_": {
+						"file": "stinger_dubiFlash_E.res",
+						"musicalSamples": 40091,
+						"musicalSeconds": 1.8182,
+						"rate": 22050
+					}
+				},
+				"F": {
+					"_": {
+						"file": "stinger_dubiFlash_F.res",
+						"musicalSamples": 36750,
+						"musicalSeconds": 1.6667,
+						"rate": 22050
+					}
+				},
+				"G": {
+					"_": {
+						"file": "stinger_dubiFlash_G.res",
+						"musicalSamples": 60136,
+						"musicalSeconds": 2.7273,
+						"rate": 22050
+					}
+				}
+			},
+			"limitedBy": "ceiling",
+			"play_db": -5.0,
+			"target": {
+				"lufs": -15.0,
+				"type": "burst"
+			}
+		},
+		"fanfare": {
+			"bus": "Music",
+			"files": {
+				"D": {
+					"0": {
+						"file": "stinger_fanfare_D_t0.res",
+						"markers": {
+							"fanfareEnd": 4.1379,
+							"pickup": 1.8103,
+							"rollEnd": 2.069,
+							"tagOnsets": []
+						},
+						"musicalSamples": 91241,
+						"musicalSeconds": 4.1379,
+						"rate": 22050
+					},
+					"1": {
+						"file": "stinger_fanfare_D_t1.res",
+						"markers": {
+							"fanfareEnd": 5.1724,
+							"pickup": 1.8103,
+							"rollEnd": 2.069,
+							"tagOnsets": [
+								4.1379
+							]
+						},
+						"musicalSamples": 114052,
+						"musicalSeconds": 5.1724,
+						"rate": 22050
+					},
+					"2": {
+						"file": "stinger_fanfare_D_t2.res",
+						"markers": {
+							"fanfareEnd": 6.2069,
+							"pickup": 1.8103,
+							"rollEnd": 2.069,
+							"tagOnsets": [
+								4.1379,
+								5.1724
+							]
+						},
+						"musicalSamples": 136862,
+						"musicalSeconds": 6.2069,
+						"rate": 22050
+					},
+					"3": {
+						"file": "stinger_fanfare_D_t3.res",
+						"markers": {
+							"fanfareEnd": 7.2414,
+							"pickup": 1.8103,
+							"rollEnd": 2.069,
+							"tagOnsets": [
+								4.1379,
+								5.1724,
+								6.2069
+							]
+						},
+						"musicalSamples": 159672,
+						"musicalSeconds": 7.2414,
+						"rate": 22050
+					},
+					"4": {
+						"file": "stinger_fanfare_D_t4.res",
+						"markers": {
+							"fanfareEnd": 8.2759,
+							"pickup": 1.8103,
+							"rollEnd": 2.069,
+							"tagOnsets": [
+								4.1379,
+								5.1724,
+								6.2069,
+								7.2414
+							]
+						},
+						"musicalSamples": 182483,
+						"musicalSeconds": 8.2759,
+						"rate": 22050
+					}
+				},
+				"E": {
+					"0": {
+						"file": "stinger_fanfare_E_t0.res",
+						"markers": {
+							"fanfareEnd": 3.6364,
+							"pickup": 1.5909,
+							"rollEnd": 1.8182,
+							"tagOnsets": []
+						},
+						"musicalSamples": 80182,
+						"musicalSeconds": 3.6364,
+						"rate": 22050
+					},
+					"1": {
+						"file": "stinger_fanfare_E_t1.res",
+						"markers": {
+							"fanfareEnd": 4.5454,
+							"pickup": 1.5909,
+							"rollEnd": 1.8182,
+							"tagOnsets": [
+								3.6364
+							]
+						},
+						"musicalSamples": 100227,
+						"musicalSeconds": 4.5454,
+						"rate": 22050
+					},
+					"2": {
+						"file": "stinger_fanfare_E_t2.res",
+						"markers": {
+							"fanfareEnd": 5.4546,
+							"pickup": 1.5909,
+							"rollEnd": 1.8182,
+							"tagOnsets": [
+								3.6364,
+								4.5455
+							]
+						},
+						"musicalSamples": 120273,
+						"musicalSeconds": 5.4546,
+						"rate": 22050
+					},
+					"3": {
+						"file": "stinger_fanfare_E_t3.res",
+						"markers": {
+							"fanfareEnd": 6.3636,
+							"pickup": 1.5909,
+							"rollEnd": 1.8182,
+							"tagOnsets": [
+								3.6364,
+								4.5455,
+								5.4545
+							]
+						},
+						"musicalSamples": 140318,
+						"musicalSeconds": 6.3636,
+						"rate": 22050
+					},
+					"4": {
+						"file": "stinger_fanfare_E_t4.res",
+						"markers": {
+							"fanfareEnd": 7.2727,
+							"pickup": 1.5909,
+							"rollEnd": 1.8182,
+							"tagOnsets": [
+								3.6364,
+								4.5455,
+								5.4545,
+								6.3636
+							]
+						},
+						"musicalSamples": 160364,
+						"musicalSeconds": 7.2727,
+						"rate": 22050
+					}
+				},
+				"F": {
+					"0": {
+						"file": "stinger_fanfare_F_t0.res",
+						"markers": {
+							"fanfareEnd": 3.3333,
+							"pickup": 1.4583,
+							"rollEnd": 1.6667,
+							"tagOnsets": []
+						},
+						"musicalSamples": 73500,
+						"musicalSeconds": 3.3333,
+						"rate": 22050
+					},
+					"1": {
+						"file": "stinger_fanfare_F_t1.res",
+						"markers": {
+							"fanfareEnd": 4.1667,
+							"pickup": 1.4583,
+							"rollEnd": 1.6667,
+							"tagOnsets": [
+								3.3333
+							]
+						},
+						"musicalSamples": 91875,
+						"musicalSeconds": 4.1667,
+						"rate": 22050
+					},
+					"2": {
+						"file": "stinger_fanfare_F_t2.res",
+						"markers": {
+							"fanfareEnd": 5.0,
+							"pickup": 1.4583,
+							"rollEnd": 1.6667,
+							"tagOnsets": [
+								3.3333,
+								4.1667
+							]
+						},
+						"musicalSamples": 110250,
+						"musicalSeconds": 5.0,
+						"rate": 22050
+					},
+					"3": {
+						"file": "stinger_fanfare_F_t3.res",
+						"markers": {
+							"fanfareEnd": 5.8333,
+							"pickup": 1.4583,
+							"rollEnd": 1.6667,
+							"tagOnsets": [
+								3.3333,
+								4.1667,
+								5.0
+							]
+						},
+						"musicalSamples": 128625,
+						"musicalSeconds": 5.8333,
+						"rate": 22050
+					},
+					"4": {
+						"file": "stinger_fanfare_F_t4.res",
+						"markers": {
+							"fanfareEnd": 6.6667,
+							"pickup": 1.4583,
+							"rollEnd": 1.6667,
+							"tagOnsets": [
+								3.3333,
+								4.1667,
+								5.0,
+								5.8333
+							]
+						},
+						"musicalSamples": 147000,
+						"musicalSeconds": 6.6667,
+						"rate": 22050
+					}
+				},
+				"G": {
+					"0": {
+						"file": "stinger_fanfare_G_t0.res",
+						"markers": {
+							"fanfareEnd": 5.4546,
+							"pickup": 2.3864,
+							"rollEnd": 2.7273,
+							"tagOnsets": []
+						},
+						"musicalSamples": 120273,
+						"musicalSeconds": 5.4546,
+						"rate": 22050
+					},
+					"1": {
+						"file": "stinger_fanfare_G_t1.res",
+						"markers": {
+							"fanfareEnd": 6.8182,
+							"pickup": 2.3864,
+							"rollEnd": 2.7273,
+							"tagOnsets": [
+								5.4545
+							]
+						},
+						"musicalSamples": 150341,
+						"musicalSeconds": 6.8182,
+						"rate": 22050
+					},
+					"2": {
+						"file": "stinger_fanfare_G_t2.res",
+						"markers": {
+							"fanfareEnd": 8.1818,
+							"pickup": 2.3864,
+							"rollEnd": 2.7273,
+							"tagOnsets": [
+								5.4545,
+								6.8182
+							]
+						},
+						"musicalSamples": 180409,
+						"musicalSeconds": 8.1818,
+						"rate": 22050
+					},
+					"3": {
+						"file": "stinger_fanfare_G_t3.res",
+						"markers": {
+							"fanfareEnd": 9.5454,
+							"pickup": 2.3864,
+							"rollEnd": 2.7273,
+							"tagOnsets": [
+								5.4545,
+								6.8182,
+								8.1818
+							]
+						},
+						"musicalSamples": 210477,
+						"musicalSeconds": 9.5454,
+						"rate": 22050
+					},
+					"4": {
+						"file": "stinger_fanfare_G_t4.res",
+						"markers": {
+							"fanfareEnd": 10.9091,
+							"pickup": 2.3864,
+							"rollEnd": 2.7273,
+							"tagOnsets": [
+								5.4545,
+								6.8182,
+								8.1818,
+								9.5455
+							]
+						},
+						"musicalSamples": 240545,
+						"musicalSeconds": 10.9091,
+						"rate": 22050
+					}
+				}
+			},
+			"limitedBy": "target",
+			"play_db": -2.6,
+			"target": {
+				"lufs": -17.0,
+				"type": "integrated"
+			}
+		},
+		"milestone": {
+			"bus": "SFX-Critical",
+			"files": {
+				"D": {
+					"_": {
+						"file": "stinger_milestone_D.res",
+						"musicalSamples": 45621,
+						"musicalSeconds": 2.069,
+						"rate": 22050
+					}
+				},
+				"E": {
+					"_": {
+						"file": "stinger_milestone_E.res",
+						"musicalSamples": 40091,
+						"musicalSeconds": 1.8182,
+						"rate": 22050
+					}
+				},
+				"F": {
+					"_": {
+						"file": "stinger_milestone_F.res",
+						"musicalSamples": 36750,
+						"musicalSeconds": 1.6667,
+						"rate": 22050
+					}
+				},
+				"G": {
+					"_": {
+						"file": "stinger_milestone_G.res",
+						"musicalSamples": 60136,
+						"musicalSeconds": 2.7273,
+						"rate": 22050
+					}
+				}
+			},
+			"limitedBy": "target",
+			"play_db": -13.01,
+			"target": {
+				"lufs": -15.0,
+				"type": "burst"
+			}
+		},
+		"motif": {
+			"bus": "SFX-Critical",
+			"files": {
+				"D": {
+					"_": {
+						"file": "stinger_motif_D.res",
+						"musicalSamples": 51323,
+						"musicalSeconds": 2.3276,
+						"rate": 22050
+					}
+				},
+				"E": {
+					"_": {
+						"file": "stinger_motif_E.res",
+						"musicalSamples": 45102,
+						"musicalSeconds": 2.0454,
+						"rate": 22050
+					}
+				},
+				"F": {
+					"_": {
+						"file": "stinger_motif_F.res",
+						"musicalSamples": 41344,
+						"musicalSeconds": 1.875,
+						"rate": 22050
+					}
+				},
+				"G": {
+					"_": {
+						"file": "stinger_motif_G.res",
+						"musicalSamples": 67653,
+						"musicalSeconds": 3.0682,
+						"rate": 22050
+					}
+				}
+			},
+			"limitedBy": "target",
+			"play_db": -8.38,
+			"target": {
+				"lufs": -15.0,
+				"type": "momentary"
+			}
+		},
+		"trophy": {
+			"bus": "UI",
+			"files": {
+				"D": {
+					"_": {
+						"file": "stinger_trophy_D.res",
+						"musicalSamples": 34216,
+						"musicalSeconds": 1.5517,
+						"rate": 22050
+					}
+				},
+				"E": {
+					"_": {
+						"file": "stinger_trophy_E.res",
+						"musicalSamples": 30068,
+						"musicalSeconds": 1.3636,
+						"rate": 22050
+					}
+				},
+				"F": {
+					"_": {
+						"file": "stinger_trophy_F.res",
+						"musicalSamples": 27563,
+						"musicalSeconds": 1.25,
+						"rate": 22050
+					}
+				},
+				"G": {
+					"_": {
+						"file": "stinger_trophy_G.res",
+						"musicalSamples": 45102,
+						"musicalSeconds": 2.0454,
+						"rate": 22050
+					}
+				}
+			},
+			"limitedBy": "ceiling",
+			"play_db": -5.0,
+			"target": {
+				"lufs": -18.0,
+				"type": "momentary"
+			}
+		}
+	},
+	"version": "od-1"
+}

@@ -1,0 +1,559 @@
+# motion-spec (UI + screen) — Monkey Bananas
+# Owner: Animator. Consumers: Game Developer (Phaser 4 tweens/timers), Audio Director (cue alignment), UX Designer (flow).
+# Template: gamestudio ui-and-screen-motion/tools/motion-spec-yaml-template.md (one YAML document per motion).
+# Numeric authority: design/feel-spec.md §8 `feel-tunables`. Any value written as `<tunable>` below is read from
+# src/core/tuning.ts by name. The number shown beside it is only a reminder. Values under `motion-constants`
+# are owned by the Animator (see doc 0) and go in src/core/motion.ts.
+#
+# Ad-hoc field extensions (flagged for adoption in contracts/artifacts.md):
+#   snap_px          positions are rounded to this multiple of logical px after easing (see GLOBAL RULES)
+#   quantize         a continuous "driver" value is mapped to baked frames or integer render scales
+#   frames_at_60     the frame-by-frame result at 60 fps, so the reviewer can check it without a stopwatch
+#   reduced_motion   keep | reduce | disable (settings.reducedMotion, owned by UX; default = prefers-reduced-motion)
+#
+# v1.1 UI JUICE: motion/ui-juice.yaml (J1-J8) adds a whole-pixel, rounded, toy-like juice layer on top of this file.
+# Docs below that it extends or supersedes carry a `v1_1_juice:` pointer. Where they conflict, ui-juice.yaml wins for
+# the named property only; all timings, input windows and audio in this file still hold.
+---
+motion-id: _globals
+type: rules
+runtime: phaser-tween
+rules:
+  fps_reference: 60                # f0 = trigger frame; fN = N × 16.67 ms
+  art_px: 4                        # 1 art-px = 4 logical px on the 180×320 stage grid
+  snap: |
+    snap(v, g) = Math.round(v / g) * g, applied in onUpdate AFTER easing. g is the sprite's own render scale:
+    g=4 for ×4 sprites, UI and ×4 text; g=5 for the Big Banana (drawn ×5); g=3 for ×3 text; g=2 for ×2 text.
+    Camera offsets use integer logical px (rigid whole-frame move, so there is no intra-sprite tearing).
+    Big Banana rest anchor: x and y are multiples of 20 (LCM of 4 and 5) so at rest it sits on both grids.
+  quantized_driver_pattern: |
+    Scale tunables (squash, spawn/catch/upgrade pops) drive an invisible number with a normal Phaser tween.
+    The renderer maps that number to a legal pixel representation: either (a) the nearest baked frame, or
+    (b) the nearest INTEGER render scale, where renderScale = Math.round(driver * baseScale). Every tunable
+    is still read by code, and pixel art is never drawn at a fractional scale for longer than a transient.
+  fractional_scale_allowed: |
+    Only for text pops of <= 180 ms that cannot quantize visibly: the bank pop (bankPopScale 1.06 → ×4.24
+    rounds back to ×4). Such a pop never restarts while running (see hud-bank-pop).
+  stepped_ease_warning: |
+    Phaser 4 'Stepped' (easeParams [n]) rounds UP: the first step shows on the first update and the final
+    value is reached at p = (n-1)/n. NEVER use yoyo with 'Stepped' (it holds the far value for the whole
+    cycle). Square-wave loops use a looped TimerEvent toggle.
+  ease_names: "'Back.Out' resolves to Back.easeOut, 'Quad.InOut' to Quad.easeInOut (Phaser 4 GetEaseFunction)."
+  press_on_pointerdown: "Press visuals are applied synchronously in the pointerdown handler (f0), not on the first tween tick."
+motion-constants:                  # Animator-owned (not feel-tunables). Mirror to src/core/motion.ts.
+  # REMOVED in v1.1 (spec sync: code reads no such value; delete them from MC if present):
+  #   uiReleaseMs 80        : button-press release is a frame cut (duration 0); buy-row-press release reads the <buyReleaseMs> tunable.
+  #   tabIndicatorMs 150    : there is no sliding indicator. Tabs swap raised/sunken ui_tab frames as a cut (see shop-tab-switch).
+  #   modalEnterOffsetPx 64 : superseded by ui-juice.yaml dropInOffsetPx (J6, falls from -64).
+  uiPressMinHoldMs: 60             # a pressed look stays at least this long even if pointer-up comes sooner
+  uiLabelPressDropArtPx: 2         # 2D Artist's ui_button convention: label +2 art-px on the pressed frame
+  modalEnterMs: 240
+  modalExitMs: 160
+  modalExitOffsetPx: 32
+  backdropAlpha: 0.6
+  drawerOpenMs: 240
+  drawerCloseMs: 180
+  tabSwitchOutMs: 60
+  tabSwitchInMs: 140
+  tabSwitchOffsetPx: 32
+  evolveRevealPopMs: 170
+  evolveRevealGlintDelayMs: 300
+  evolveReadyPeriodMs: 3000
+  evolveReadyGlowMs: 600
+  luckyBunchRollMs: 500
+  bannerEnterOffsetPx: 16
+  buffEndWarnMs: 3000
+  buffEndBlinkHz: 2
+  headlineDeferAfterEvolveMs: 300
+---
+motion-id: button-press
+v1_1_juice: "ui-juice.yaml: extended by J1-ui-pill-squish variant A (press w+8/h-8, release rebound 67 ms)"
+type: microinteraction
+applies_to: every ui_button 9-slice (tabs, modal buttons, Evolve, buy-mode toggle, settings, close)
+runtime: phaser-tween
+duration_ms: 0                     # a cut: a 2-art-px travel has no legal in-between
+ease: 'Stepped'
+transform:
+  - { property: frame, from: default, to: pressed }            # ui_button frame 1
+  - { property: label.translateY, from: 0, to: 8 }             # uiLabelPressDropArtPx × 4
+snap_px: 4
+release:
+  min_hold_ms: 60                  # uiPressMinHoldMs
+  duration_ms: 0                   # cut back after max(pointer-up, min hold)
+  ease: 'Stepped'
+  transform:
+    - { property: frame, from: pressed, to: default }
+    - { property: label.translateY, from: 8, to: 0 }
+hover:                             # mouse only
+  transform: [ { property: frame, from: default, to: hover } ]  # ui_button frame 3; cut
+  duration_ms: 0
+disabled: "frame 2, label at 50% alpha, no press response (no frame swap), cantAfford-style shake NOT used on generic buttons"
+frames_at_60: "f0 pressed; release is visible on the first frame after max(pointer-up, f4)"
+audio:
+  - { on: "commit (pointer-up inside bounds)", cue_id: uiClick, bus: ui }   # AD cues.json; buy-mode toggle uses buyModeCycle, settings toggles uiToggle
+reduced_motion: keep
+notes: The press is essential affordance feedback (DOG press band 100-150 ms is met at 0 ms). Commit on pointer-up inside bounds.
+---
+motion-id: buy-row-press
+v1_1_juice: "ui-juice.yaml: extended by J1-ui-pill-squish variant B (cost pill h-8 centred while pressed)"
+type: microinteraction
+applies_to: shop producer rows and upgrade shelf items
+runtime: phaser-tween
+duration_ms: 60                    # <buyPressMs>
+ease: 'Quad.Out'
+transform:
+  - { property: frame, from: default, to: pressed }            # cut at f0
+  - property: nineSlice.insetX     # buyPressScale realized as a 9-slice resize, never setScale
+    from: 0
+    to: "max(1, round(W * (1 - <buyPressScale>) / 2 / 4)) art-px per side   # W=688 → 4 art-px = 16 px"
+  - property: nineSlice.insetY
+    from: 0
+    to: "max(1, round(H * (1 - <buyPressScale>) / 2 / 4)) art-px per side   # H=96 → 1 art-px = 4 px"
+  - { property: content.translateY, from: 0, to: 8 }           # icon/text unscaled, +2 art-px
+snap_px: 4
+snap_mode: ceil                    # during press; f0 is set synchronously to 1 art-px per side (never 0)
+release:
+  duration_ms: 80                  # <buyReleaseMs>
+  ease: 'Quad.Out'
+  snap_mode: round
+  transform:
+    - { property: nineSlice.insetX, to: 0 }
+    - { property: nineSlice.insetY, to: 0 }
+    - { property: content.translateY, to: 0 }
+    - { property: frame, to: default }                         # cut at release end
+frames_at_60: "insetX (4 art-px case): press f0 1, f1 2, f2+ 4; release f0 4, f1 3, f2-f3 1, f4 0. insetY: 1 art-px from f0, 0 from release f2"
+cancel: "pointer moved > <buyDragCancelPx> (10) → release motion plays, no commit, no cue"
+audio: []                          # buy / cantAfford cues fire on COMMIT (pointer-up), see purchase-row-flash / cant-afford-shake
+reduced_motion: keep
+notes: |
+  buyPressScale 0.95 on a Container would scale the pixel font and icons fractionally for the whole hold-to-repeat
+  (seconds). The 9-slice resize reads the same tunable and stays on the grid. The rows stay pressed while held
+  (hold-to-repeat after <holdRepeatDelayMs>, every <holdRepeatIntervalMs>). Each repeat plays purchase-row-flash
+  but not another press.
+---
+motion-id: purchase-row-flash
+v1_1_juice: "ui-juice.yaml: extended by J3-shop-hop-cascade (neighbour icons ripple on fresh/bulk commits)"
+type: microinteraction
+applies_to: shop row on a successful buy (commit f0 = pointer-up, or each hold-to-repeat tick)
+runtime: phaser-tween
+duration_ms: 150                   # longest part (owned pop)
+parts:
+  flash:     { target: row white overlay (ui_panel lightest palette index), property: opacity, from: 0.6, to: 0, duration_ms: 80, ease: 'Quad.Out' }   # <buyFlashAlpha>, <buyFlashMs>
+  owned_pop: { target: owned-count text (×4), property: renderScale, from: 1.25, to: 1.0, duration_ms: 150, ease: 'Quad.Out', quantize: "integer: round(driver*4) → ×5 then ×4" }  # <ownedPopScale>, <ownedPopMs>
+  icon_hop:  { target: row icon (×4), property: translateY, keyframes_px: [0, -4, -8, -8, -4, 0], duration_ms: 120, ease: "'Quad.Out' up 60 ms, 'Quad.In' down 60 ms", snap_px: 4 }  # <iconHopPx> 8, <iconHopMs>
+frames_at_60: "flash f0 .6 → f5 0; owned ×5 for f0-f2 (driver ≥ 1.125 until 44 ms), ×4 from f3; hop 0,-4,-8,-8,-4,0 over f0-f6"
+bulk: "×10 / MAX plays one flash + pop + hop (not N), and fires buyBulk instead of buy"
+audio:
+  - { on: TWEEN_START, cue_id: buy, bus: sfx, condition: "exactly 1 unit (×1 or a hold-to-repeat tick)" }
+  - { on: TWEEN_START, cue_id: buyBulk, bus: sfx, condition: "more than 1 unit in one commit" }
+reduced_motion: reduce
+reduced_motion_alternative: "flash kept (alpha only); owned pop and icon hop off (ux/settings-and-a11y.md §4)"
+---
+motion-id: upgrade-buy-pop
+v1_1_juice: "ui-juice.yaml: extended by J3-shop-hop-cascade upgrade_buy (reflow land bump + icon ripple)"
+type: microinteraction
+applies_to: upgrade shelf icon on a successful buy
+runtime: phaser-tween
+duration_ms: 200                   # <upgradePopMs>
+ease: 'Quad.In'
+transform:
+  - { property: renderScale, from: 1.3, to: 0 }                # <upgradePopScale>
+quantize: "integer render scale round(driver*4): ×5 (0-73 ms) → ×4 (-114) → ×3 (-144) → ×2 (-169) → ×1 (-190) → hidden"
+then:
+  shelf_reflow: { property: translateX, duration_ms: 150, ease: 'Cubic.Out', snap_px: 4 }  # <shelfReflowMs>, starts at pop end
+audio:
+  - { on: TWEEN_START, cue_id: upgradeBuy, bus: sfx }
+reduced_motion: reduce
+reduced_motion_alternative: "icon cut to hidden at f0; instant shelf reflow (UX §4)"
+notes: A 200 ms fractional scale would break the 180 ms transient rule. Integer steps keep the tunable and the grid.
+---
+motion-id: cant-afford-shake
+type: microinteraction
+applies_to: the row, item or Evolve button that was committed without enough bananas
+runtime: phaser-tween
+duration_ms: 180                   # <cantAffordShakeMs>
+ease: 'Stepped'
+transform:
+  - property: translateX
+    keyframes: "6 half-cycles × 30 ms: +4, -4, +4, -4, +4, -4, then 0 at 180 ms"   # ±<cantAffordShakePx> = ±1 art-px, <cantAffordShakeCycles>=3
+snap_px: 4
+implementation: "offset(t) = t < 180 ? 4 * (floor(t / 30) % 2 === 0 ? 1 : -1) : 0, sampled per frame; restart resets t"
+frames_at_60: "f0 +4, f1 +4, f2 -4, f3 -4, f4 +4, f5 +4, f6 -4, f7 -4, f8 +4, f9 -4, f10 -4, f11 0 (the time-sampled square wave)"
+audio:
+  - { on: TWEEN_START, cue_id: cantAfford, bus: sfx }
+reduced_motion: reduce
+reduced_motion_alternative: "no translation; row flashes the disabled tint (dark overlay alpha 0.4 → 0 over 180 ms, 'Quad.Out')"
+notes: Whole art-px only (never 1-3 px). Nothing is deducted. Hold-to-repeat stops on the first can't-afford.
+---
+motion-id: afford-glint
+v1_1_juice: "ui-juice.yaml: paired with J4-pill-hello trigger a (same f0, same cooldown)"
+type: microinteraction
+applies_to: shop row on the not-affordable → affordable edge
+runtime: phaser-tween
+duration_ms: 250                   # <affordGlintMs>
+ease: 'Quad.InOut'
+transform:
+  - { property: glintBand.translateX, from: "-8", to: "W + 8" }  # a 2-art-px diagonal light band, masked to the row
+snap_px: 4
+cooldown_ms: 5000                  # <affordGlintCooldownMs>, per row
+audio:
+  - { on: TWEEN_START, cue_id: affordGlint, bus: sfx, note: "AD adds a global 2.5 s cooldown; the visual keeps the per-row 5 s" }
+reduced_motion: disable
+reduced_motion_alternative: "none; the row's affordable colour state carries the information"
+---
+motion-id: producer-row-reveal
+type: stinger
+applies_to: shop producer list, when the "???" silhouette row becomes a real row (mechanic-spec rule 6) and the next silhouette appears
+runtime: phaser-tween
+total_duration_ms: 320
+phases:
+  unmask:
+    start: 0
+    duration_ms: 33
+    action: "silhouette content cuts to the real icon/name/cost at f0; fill-tint white on the icon + name for f0-f1"
+  hop:
+    start: 0
+    duration_ms: 120
+    transform: [ { property: icon.translateY, keyframes_px: [0, -4, -8, -8, -4, 0] } ]   # same hop as purchase-row-flash (<iconHopMs>)
+    snap_px: 4
+  next_silhouette:
+    start: 120
+    duration_ms: 200
+    ease: 'Quad.Out'
+    transform:
+      - { property: translateY, from: 16, to: 0 }
+      - { property: opacity, from: 0, to: 1 }
+    snap_px: 4
+audio:
+  - { on: phase:unmask:start, cue_id: producerReveal, bus: sfx }
+reduced_motion: reduce
+reduced_motion_alternative: "unmask cut + 2-frame tint kept; no hop; the next silhouette fades in over 120 ms"
+---
+motion-id: shop-drawer
+type: modal
+applies_to: "N/A in the MVP: ux/hud-layout.md uses a fixed shop panel (y 712-1280) with tabs. Kept only in case a drawer is added"
+runtime: phaser-tween
+duration_ms: 240                   # drawerOpenMs
+ease: 'Cubic.Out'
+transform:
+  - { property: translateY, from: collapsedY, to: openY }
+snap_px: 4
+close:
+  duration_ms: 180                 # drawerCloseMs
+  ease: 'Quad.In'
+  transform: [ { property: translateY, from: openY, to: collapsedY } ]
+interrupt: "a toggle mid-tween reverses from the current y with the other ease; duration scales by remaining distance (min 60 ms)"
+audio:
+  - { on: TWEEN_START, cue_id: panelOpen, bus: ui }
+  - { on: close:TWEEN_START, cue_id: panelClose, bus: ui }
+reduced_motion: reduce
+reduced_motion_alternative: "opacity fade 120 ms, no slide (UX §4: overlays ≤ 150 ms fade)"
+---
+motion-id: shop-tab-switch
+v1_1_juice: "ui-juice.yaml: incoming translateX SUPERSEDED by J7-tab-switch-bounce (1-art-px overshoot)"
+type: screen-transition
+pattern: shared-axis-x
+applies_to: shop tabs (Producers | Upgrades)
+runtime: phaser-tween
+duration_ms: 200                   # 60 out + 140 in (sequential)
+phases:
+  tab_frames: { action: "selected tab ui_tab raised / other sunken, frame CUT at f0 (no sliding indicator; tabIndicatorMs removed)", start: 0 }
+  outgoing:  { property: list.opacity, from: 1, to: 0, duration_ms: 60, ease: 'Linear', start: 0 }
+  incoming:
+    start: 60
+    duration_ms: 140
+    ease: 'Quad.Out'
+    transform:
+      - { property: list.translateX, from: "±32 (direction of the tab)", to: 0 }
+      - { property: list.opacity, from: 0, to: 1 }
+    snap_px: 4
+input: "the new tab's rows accept taps from 60 ms (tapping rows mid-slide is allowed)"
+audio:
+  - { on: TWEEN_START, cue_id: uiClick, bus: ui }
+reduced_motion: reduce
+reduced_motion_alternative: "tab frame cut (as always); list cross-fade 100 ms, no translate"
+---
+motion-id: modal-enter
+v1_1_juice: "ui-juice.yaml: panel translate SUPERSEDED by J6-bouncy-drop-in (falls from -64, lands with a squash; still 240 ms)"
+type: modal
+applies_to: Evolution screen, Offline "While you were away", Settings
+runtime: phaser-tween
+duration_ms: 240                   # modalEnterMs
+ease: 'Back.Out'                   # easeParams [1.2]; the overshoot is 1 art-px at most after snap
+transform:
+  - { property: panel.translateY, from: 64, to: 0 }            # 16 art-px up into place
+  - { property: panel.opacity, from: 0, to: 1, duration_ms: 120, ease: 'Quad.Out' }
+  - { property: backdrop.opacity, from: 0, to: 0.6, duration_ms: 200, ease: 'Quad.Out' }
+snap_px: 4
+input: "modal buttons accept taps from 120 ms; the gameplay layer is blocked from f0"
+audio:
+  - { on: TWEEN_START, cue_id: evolveOpen, bus: sfx, condition: "Evolution screen (it replaces panelOpen there)" }
+  - { on: TWEEN_START, cue_id: panelOpen, bus: ui, condition: "Settings, Offline" }
+reduced_motion: reduce
+reduced_motion_alternative: "no translate or scale; panel + backdrop fade 120 ms 'Quad.Out' (UX §4: ≤ 150 ms)"
+notes: No panel scale (a 9-slice panel of pixel text would scale fractionally for 240 ms, over the 180 ms rule).
+---
+motion-id: modal-exit
+type: modal
+applies_to: same as modal-enter
+runtime: phaser-tween
+duration_ms: 160                   # modalExitMs
+ease: 'Quad.In'
+transform:
+  - { property: panel.translateY, from: 0, to: 32 }
+  - { property: panel.opacity, from: 1, to: 0 }
+  - { property: backdrop.opacity, from: 0.6, to: 0 }
+snap_px: 4
+input: "gameplay input re-enabled at 80 ms (the backdrop is < 0.3 alpha)"
+audio:
+  - { on: TWEEN_START, cue_id: panelClose, bus: ui, condition: "any dismiss, including the Evolution screen closed WITHOUT evolving (AD event evolveClose). Not on Evolve confirm." }
+reduced_motion: reduce
+reduced_motion_alternative: "fade 100 ms, no translate (UX §4: ≤ 150 ms)"
+---
+motion-id: evolve-button-reveal
+type: stinger
+applies_to: HUD Evolve button, on the edge allTimeBananas >= content.prestige.showEvolveButtonAtAllTimeBananas (250,000). Fires once ever per save; reloads show it statically.
+runtime: phaser-tween
+total_duration_ms: 550
+phases:
+  pop:
+    start: 0
+    duration_ms: 170               # evolveRevealPopMs (< 180 ms transient)
+    ease: 'Back.Out'
+    transform:
+      - { property: scale, from: 0.6, to: 1.0 }                # fractional-scale transient, allowed (<180 ms)
+      - { property: opacity, from: 0, to: 1, duration_ms: 80 }
+  settle: { start: 170, transform: "cut to scale 1.0 exactly (setScale(1)) so the disabled state is grid-true" }
+  glint:
+    start: 300                     # evolveRevealGlintDelayMs
+    duration_ms: 250
+    ease: 'Quad.InOut'
+    transform: [ { property: glintBand.translateX, from: -8, to: "W + 8" } ]
+    snap_px: 4
+resting_state: "disabled frame (ui_button 2) + progress bar pending/needed; NO loop (a disabled control must not beg)"
+progress_bar: "width tweens to the new pending/needed ratio over 200 ms 'Linear', snapped to whole art-px (progress = Linear allowed)"
+audio:
+  - { on: phase:pop:start, cue_id: producerReveal, bus: sfx, note: "no dedicated cue in cues.json; proposed reuse (AD's call, null is acceptable)" }
+reduced_motion: reduce
+reduced_motion_alternative: "fade 120 ms, no pop, no glint"
+---
+motion-id: evolve-button-ready
+v1_1_juice: "ui-juice.yaml: the Evolve !-badge pops at unlock f0 (J5-badge-pop appear)"
+type: ambient
+applies_to: HUD Evolve button on the edge evolveEnabled false → true (pending >= max(10, thumbsOwned))
+runtime: phaser-tween
+unlock_beat:
+  duration_ms: 240
+  parts:
+    - { at: 0,  action: "frame disabled → default (cut); white fill-tint 2 frames (33 ms)" }
+    - { at: 0,  property: translateY, keyframes_px: [0, -4, -8, -4, 0], duration_ms: 160, ease: "'Quad.Out' up / 'Quad.In' down", snap_px: 4 }
+ready_pulse:                       # loops while enabled and no modal is open
+  period_ms: 3000                  # evolveReadyPeriodMs (>= 3 s: the DOG's ambient-fatigue floor)
+  glow: { target: rim-light overlay (palette-swapped outline), property: opacity, from: 0, to: 1, duration_ms: 300, yoyo: true, ease: 'Sine.InOut' }  # 600 ms visible, 2400 ms rest
+  hop:  { every_nth_pulse: 3, property: translateY, keyframes_px: [0, -4, 0], duration_ms: 120, snap_px: 4 }
+  stops_when: "button pressed, evolve modal open, or evolveEnabled false"
+audio:
+  - { on: unlock_beat:start, cue_id: evolveReady, bus: sfx }   # cues.json; once per run
+reduced_motion: reduce
+reduced_motion_alternative: "unlock = frame cut (no tint flash, no hop); no pulse, no glint: a static rim at opacity 1 (UX §4: the enabled glint is off)"
+---
+motion-id: hud-bank-counter
+v1_1_juice: "ui-juice.yaml: see J2-hud-stat-gain for the big-gain squash-pop and the bps bump"
+type: notification
+applies_to: HUD bananas counter (and the bps readout)
+runtime: per-frame text update
+behaviour:
+  tap_and_passive: "SNAP. displayed = floor(bananas) every frame. setText only when the formatted string changes."
+  purchase: "SNAP. The decrement shows on the commit frame (feel-spec: the bank decrements the same frame)."
+  lucky_bunch: "ROLL. displayed = floor(bananas - remainder), where remainder starts at the award and decays to 0 over 500 ms 'Cubic.Out' (luckyBunchRollMs). Purchases during the roll change `bananas` at once, so the display drops with them and never lies. The counter text uses the gold palette index for the roll's duration."
+  offline: "no roll on the HUD (the modal owns the count-up, see offline-count-up); the HUD snaps when the modal closes"
+  rate: "60 Hz (every rendered frame); no throttling"
+  anchor: "digits anchored to a fixed edge (UX picks left or right) so a digit-count change never shifts the column; x snapped to 4"
+reduced_motion: keep
+notes: A rolling count for taps would show income 100-500 ms late and fight the feel-spec rule that feedback never lies.
+---
+motion-id: hud-bank-pop
+v1_1_juice: "ui-juice.yaml: suppressed while J2-hud-stat-gain bank_big_gain runs"
+type: microinteraction
+applies_to: HUD bananas counter, on every registered tap
+runtime: phaser-tween
+duration_ms: 80                    # <bankPopMs>
+ease: 'Quad.Out'
+transform:
+  - { property: scale, from: 1.06, to: 1.0 }                   # <bankPopScale>; fractional transient (80 ms < 180 ms)
+no_restart: "a tap during a running pop is ignored by the pop (at 16 taps/s the pop plays on every 2nd tap, each one completes). The value still snaps every tap."
+end: "setScale(1) exactly on complete"
+pivot: "the counter's anchor edge, so the pop never covers the bps line"
+reduced_motion: disable
+reduced_motion_alternative: "none; the number change is the feedback"
+---
+motion-id: tap-floater
+type: notification
+applies_to: pooled "+N" BitmapText (<floaterMaxConcurrent> 24, the oldest recycled)
+runtime: phaser-tween
+duration_ms: 700                   # <floaterRiseMs>
+ease: 'Cubic.Out'
+spawn: "pointer position + random X in [-<floaterJitterXPx>, +<floaterJitterXPx>] (±24), snapped to 4; keyboard: Big Banana centre"
+font: "5×7 pixel font at ×4 = 28 px (<floaterTextHeightPx>)"
+transform:
+  - { property: translateY, from: 0, to: "-<floaterRisePx>" }  # 88 = 22 texels at ×4
+  - { property: opacity, from: 1, to: 0, start_ms: 400, duration_ms: 300, ease: 'Linear' }   # <floaterFadeStartMs>
+snap_px: 4
+color: "normal floater colour; during Tap Frenzy, the crit colour (feel-spec §2)"
+frames_at_60: "rise 0 → -52 by f10 (Cubic.Out is front-loaded), -88 at f42"
+reduced_motion: reduce
+reduced_motion_alternative: "static (UX §4): appears at the spawn point (jitter kept), no rise; opacity 1 → 0 over 500 ms 'Linear'; pool capped at 8 concurrent, the oldest recycled"
+notes: The number still appears under reduced motion, because it is information.
+---
+motion-id: crit-floater
+type: notification
+applies_to: pooled "+N!" BitmapText on a crit tap
+runtime: phaser-tween
+duration_ms: 900                   # <critFloaterRiseMs>
+font: "5×7 pixel font at ×6 = 42 px (<critFloaterTextHeightPx> 42)"
+phases:
+  pop:
+    duration_ms: 120               # <critFloaterPopMs>
+    ease: 'Quad.Out'               # not Back.Out: Back front-loads the shrink, so ×8 would show for < 1 frame
+    transform: [ { property: renderScale, from: 1.3, to: 1.0 } ]  # <critFloaterPopScale>
+    quantize: "integer round(driver*6): ×8 (f0) → ×7 (f1-f3) → ×6 (from f4, 57 ms)"
+  rise:
+    start: 0
+    ease: 'Cubic.Out'
+    transform:
+      - { property: translateY, from: 0, to: "-<critFloaterRisePx>" }  # 120 = 20 texels at ×6
+      - { property: opacity, from: 1, to: 0, start_ms: 600, duration_ms: 300, ease: 'Linear' }
+snap_px: 6
+color: "crit colour (2D Artist)"
+reduced_motion: reduce
+reduced_motion_alternative: "static: appears at ×6 at its spawn point, no pop, no rise; opacity 1 → 0 over 700 ms 'Linear' (UX §4)"
+---
+motion-id: buff-banner
+v1_1_juice: "ui-juice.yaml: enter translate SUPERSEDED by J6-bouncy-drop-in banner (still 200 ms)"
+type: notification
+position: top-centre, below the HUD
+applies_to: 'buff banner: "LUCKY BUNCH! +N" / "BANANA FRENZY ×5!" / "TAP FRENZY ×10!"'
+runtime: phaser-tween
+phases:
+  enter:
+    duration_ms: 200               # <buffBannerFadeMs>
+    ease: 'Quad.Out'
+    transform:
+      - { property: translateY, from: -16, to: 0 }             # bannerEnterOffsetPx, 4 art-px drop
+      - { property: opacity, from: 0, to: 1 }
+  hold: { duration_ms: 1600 }      # <buffBannerHoldMs>
+  exit:
+    duration_ms: 200               # <buffBannerFadeMs>
+    ease: 'Quad.In'
+    transform:
+      - { property: translateY, from: 0, to: -8 }
+      - { property: opacity, from: 1, to: 0 }
+snap_px: 4
+total_duration_ms: 2000
+start: "catch f0 (the Golden pop plays over it)"
+audio: []                          # the outcome cue is on the Golden catch timeline (event-markers.md), not here
+reduced_motion: reduce
+reduced_motion_alternative: "fade only, no translate"
+---
+motion-id: buff-presence
+type: ambient
+applies_to: active buff indicators
+runtime: phaser-tween
+frenzy:
+  edge_glow: { target: screen-edge gold band (2 art-px), property: opacity, from: 0.2, to: 0.6, frequency_hz: 2, ease: 'Sine.InOut', yoyo: true, half_period_ms: 250 }  # <frenzyEdgePulseHz>
+  bps_readout: "gold palette index (cut on start and end)"
+tap_frenzy:
+  big_banana_halo: { property: opacity, from: 0.35, to: 0.85, frequency: "<tapFrenzyGlowPulseHz>", ease: 'Sine.InOut', yoyo: true, half_period_ms: "1000 / (2 × Hz): 167 at 3 Hz (UX OBJ-2, pending), 125 at 4 Hz" }  # read from tuning; see object-motion.md
+timer_bar: "depletes by width, whole art-px, 'Linear' (a progress bar). In the last 3000 ms (buffEndWarnMs) it blinks: opacity 1 ↔ 0.4, square wave at 2 Hz (buffEndBlinkHz)"
+end: "glow/halo opacity → 0 over 300 ms 'Quad.In'; the gold readout cuts back"
+audio:
+  - { on: "buff start (catch f0)", cue_id: null, note: "the goldenCatch<Outcome> cue at catch f0 is the audible start (cues.json events.frenzyStart.cue = null); the music frenzy layer enters on its next beat" }
+  - { on: "buff end (glow fade start)", cue_id: buffEnd, bus: sfx }
+reduced_motion: reduce
+reduced_motion_alternative: "edge glow and halo static at opacity 0.5; timer blink kept at 2 Hz (it carries essential information; UX caps blinks at ≤ 2 Hz)"
+---
+motion-id: headline-ticker
+v1_1_juice: "ui-juice.yaml: milestone letters hop at the entry edge (J8-ticker-letter-hop)"
+type: ambient
+applies_to: HUD headline ticker bar
+runtime: per-frame update
+scroll:
+  speed_px_s: 90                   # <tickerScrollSpeed>
+  font_scale: 3                    # REQUIRED for a smooth stepped scroll: 90 px/s ÷ 3 px = exactly 1 texel every 2 frames at 60 Hz
+  position: "x = x0 - snap(speed * t, 3)  (time-based accumulator, so 120 Hz displays step at the same speed)"
+  if_font_is_x4: "90/4 = 22.5 steps/s → an uneven 3-3-2 frame cadence (visible stutter). Then ask the Designer for tickerScrollSpeed 120 (1 step every 2 frames)."
+milestone:
+  flash: { target: ticker bar, property: whiteOverlay.opacity, from: 0.8, to: 0, duration_ms: 120, ease: 'Quad.Out' }  # <headlineFlashMs>
+  sequence: |
+    f0: flash; ambient text cut away; the milestone text enters at the right edge.
+    If the text fits the bar: it scrolls in at 90 px/s until left-aligned, holds content.ticker.headlineHoldSec (6 s), then scrolls out.
+    If it is longer than the bar: it scrolls through at 90 px/s and repeats until 6 s have elapsed and the pass is complete.
+  queue: "one milestone at a time; after an Evolve the first headline is deferred until inputUnlock + 300 ms (headlineDeferAfterEvolveMs)"
+ambient: "a new ambient headline every content.ticker.ambientIntervalSec (20 s), same scroll, no flash"
+audio:
+  - { on: milestone:flash:start, cue_id: milestoneHeadline, bus: sfx }
+reduced_motion: reduce
+reduced_motion_alternative: "paged (UX §4): the headline is word-wrapped into pages of ≤ 33 chars (the 600-px clip at ×3), each shown static and left-aligned for 3000 ms, with an instant swap between pages. A milestone still pre-empts ambient text, but with NO flash (a cut). No scroll."
+---
+motion-id: offline-count-up
+type: stinger
+applies_to: Offline "While you were away" modal award number
+runtime: phaser-tween
+start: "modal-enter complete (240 ms after the modal opens)"
+duration_ms: 800                   # <offlineRollMs>
+ease: 'Cubic.Out'
+transform:
+  - { property: displayedValue, from: 0, to: award }
+format: "floor + numberFormat every frame; the text anchor is fixed (no jitter as digits are added)"
+end_beat: "at roll end the number cuts to integer scale ×5 for 60 ms, then back to ×4 (cut)"
+collect_button: "enabled from modal-enter 120 ms. Tapping Collect mid-roll snaps to the award, fires offlineCollect once, then modal-exit."
+audio:
+  - { on: TWEEN_START, cue_id: panelOpen, bus: ui, note: "modal open (modal-enter)" }
+  - { on: TWEEN_COMPLETE, cue_id: offlineCollect, bus: sfx, note: "or at the Collect tap if that comes first; never twice" }
+reduced_motion: keep
+notes: A number change is not spatial motion; the 800 ms is the Designer's number.
+---
+motion-id: evolve-ceremony
+type: screen-transition
+applies_to: full screen, from the Evolution screen's Confirm commit (save already completed, input locked from t=0)
+runtime: phaser-tween + TimerEvents (one Timeline)
+total_duration_ms: 1500            # <evolveFadeOutMs> 400 + <evolveTitleCardMs> 800 + <evolveFadeInMs> 300
+audio_sync: |
+  Visual beats land on the note onsets of the AD's evolveConfirm fanfare (audio/cues.json, lengthMs 1470):
+  p1 0, p2 90, p3 180 (triplet pickup), leadA+bass1 270, leadF 570, leadC+kick+crash 720.
+  If the AD retimes those layers, these beat times follow them. The three feel-spec phase boundaries (400 / 1200 / 1500) do not move.
+overlay: "full-screen rectangle in the palette's lightest colour (the 2D Artist may pick cream over #FFFFFF to cut glare)"
+beats:
+  - { t: 0,    beat: confirm,         action: "Evolve modal-exit starts (160 ms, under the rising overlay); Big Banana plays the crit-depth squash once (visual only; body state `locked`)" }
+  - { t: 0,    beat: fade-out,        action: "overlay.opacity in 4 hard steps on the triplet + downbeat: 0.25 @0, 0.50 @90, 0.75 @180, 1.00 @270 (keyframes, no easing between them). Holds full white until 400 (end of <evolveFadeOutMs>)" }
+  - { t: 0,    beat: critters-poof,   action: "every visible critter poofs: shuffled order, start delay i × 180/max(N-1,1) ms (all start within 0-180 ms); poof = critter hidden + 3-frame puff (60 ms/frame = 180 ms); the last poof ends by 360 ms" }
+  - { t: 270,  beat: white-peak,      action: "first fully-white frame (on leadA). RESET SEAM: the dev resets the run (bananas, producers, upgrades, buffs, Golden despawned without FX, diorama cleared) during 270-400 ms under full white" }
+  - { t: 400,  beat: title-card,      action: "'EVOLUTION N' label (×2 text) cuts in; species title (content.prestige.speciesTitles[min(evolutions,7)]) at ×4 cuts in 32 px (8 art-px) above its rest y" }
+  - { t: 400,  beat: title-drop,      action: "title translateY -32 → 0 over 170 ms 'Quad.In' (it accelerates into the landing), snap 4" }
+  - { t: 570,  beat: title-land,      action: "IMPACT FRAME f34, on leadF. Bounce: translateY 0 → -4 → 0 over 120 ms ('Quad.Out' / 'Quad.In')" }
+  - { t: 720,  beat: multiplier,      action: "IMPACT FRAME f43, on leadC + kick + crash. The line '×<old> → ×<new>' and '+<gained>' + icon_thumb: the old value, arrow and thumbs cut in; the NEW multiplier pops via integer scale ×6 (f0-f1) → ×5 (f2-f4) → ×4 (from 80 ms) over 160 ms ('Quad.Out', quantized driver 1.5 → 1.0), gold palette" }
+  - { t: 880,  beat: hold,            action: "static read while the fanfare's C6 is held: title visible 480 ms so far, multiplier 160 ms; hold until 1200" }
+  - { t: 1200, beat: fade-in,         action: "overlay.opacity 1 → 0 over 300 ms, 'Stepped' easeParams [3] → 0.67 at 1200+, 0.33 at 1300, 0 at 1400 (the card texts fade with the overlay layer)" }
+  - { t: 1300, beat: fresh-run-hello, action: "the Big Banana shows the stretch frame (4) for 50 ms, then rest (a 'hello' bounce, visible through 33% white)" }
+  - { t: 1500, beat: input-unlock,    action: "input unlocked; body `locked` → `idle`; the idle bob resumes after its 600 ms delay. = AD event evolveTransitionEnd (music restarts at bar 1)" }
+  - { t: 1800, beat: first-headline,  action: "the h_evolve_* milestone headline may flash (headline-ticker)" }
+frames_at_60: "f0 confirm | f5 0.5 | f11 0.75 | f16 white peak (270) | f24 card (400) | f34 title land (570) | f43 multiplier (720) | f72 fade-in (1200) | f90 unlock (1500)"
+audio:
+  - { on: "t=0",    cue_id: evolveConfirm, bus: sfx, note: "AD events: music fadeOutStop 400 at the same moment" }
+  - { on: "t=1500", cue_id: null, event: evolveTransitionEnd, note: "AD: music restart at bar 1 in the new key, 300 ms fade-in" }
+input_lock: "t = 0 .. 1500 inclusive, as the feel-spec requires. The 100 ms of full visibility (1400-1500) before unlock also swallows the leftover confirm-mash taps."
+reduced_motion: reduce
+reduced_motion_alternative: |
+  UX §4 (EVOLVE_TX reduced): a DARK crossfade, no white flash, total 1200 ms:
+    t=0      evolveConfirm cue; modal and critters fade out over 150 ms (no poofs, no Big Banana squash)
+    t=0-200  crossfade to the dark card (overlay = palette darkest, opacity 0 → 1, 'Linear')
+    t=200    card fully dark: RESET SEAM 200-400 under the card; 'EVOLUTION N' + species title cut in (no drop)
+    t=720    the new multiplier + thumbs cut in at ×4 (no pop), still on the fanfare's leadC + crash onset
+    t=1000-1200 crossfade back to the game ('Linear')
+    t=1200   input unlock. The dev emits evolveTransitionEnd here (not at +1500), so the music restart
+             follows the shorter transition; the fanfare tail (to 1470) overlaps it, which is the AD's call.
+  No hello bounce; the headline defer (+300 ms) counts from 1200.
+notes: |
+  The feel-spec's 3 phases (fade-out 400 / card 800 / fade-in 300) are kept exactly; the inner beats live inside them.
+  Reading time: the species title was already previewed on the Evolution screen, so the card is recognition, not a
+  first read. Any title up to 28 chars fits at ×4 (5×7 font + 1 px spacing: 28 × 24 - 4 = 668 px ≤ 720 - 2×24 margin).

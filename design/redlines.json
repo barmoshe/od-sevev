@@ -1,0 +1,275 @@
+{
+ "_doc": "Banned-terms list for the content lint (design/sim/content-lint.mjs today; the developer's build lint later). Any hit fails the build unless the string's id is in allow[] with a reason. Owned by the Game Designer.",
+ "match": {
+  "hebrewPrefixes": "והבלמשכ",
+  "maxPrefixLetters": 2,
+  "wholeWord": true,
+  "englishCaseInsensitive": true,
+  "fields": "every string in design/content.json except keys starting with '_' and keys named visualHook, id, src, avatar, icon"
+ },
+ "categories": [
+  {
+   "id": "oct7-hostages",
+   "why": "October 7, the hostages, fallen soldiers and their families are never jokes or game elements (brief).",
+   "terms": [
+    "7 באוקטובר",
+    "שבעה באוקטובר",
+    "ז׳ באוקטובר",
+    "שבת השחורה",
+    "טבח",
+    "חטופים",
+    "חטוף",
+    "חטופה",
+    "שבי",
+    "השבה",
+    "עסקת חטופים",
+    "משפחות החטופים",
+    "נובה",
+    "עוטף",
+    "קיבוץ",
+    "October 7",
+    "hostage",
+    "hostages",
+    "Nova"
+   ]
+  },
+  {
+   "id": "fallen-soldiers",
+   "why": "Fallen soldiers, cemeteries, bereavement (brief).",
+   "terms": [
+    "חללים",
+    "חלל",
+    "נופלים",
+    "נפל",
+    "שכול",
+    "שכולה",
+    "משפחות שכולות",
+    "בית קברות",
+    "הר הרצל",
+    "לוויה",
+    "יזכור",
+    "אזכרה",
+    "fallen"
+   ]
+  },
+  {
+   "id": "military",
+   "why": "Soldiers, uniforms, reserve duty, weapons, war; nothing that looks military sits near 'סבב' (brief; pitch §1).",
+   "terms": [
+    "חייל",
+    "חיילת",
+    "חיילים",
+    "צה״ל",
+    "צהל",
+    "מילואים",
+    "מילואימניק",
+    "מילואימניקים",
+    "המילואימניקים",
+    "מדים",
+    "טיל",
+    "טילים",
+    "רקטה",
+    "רקטות",
+    "יירוט",
+    "כיפת ברזל",
+    "אזעקה",
+    "אזעקות",
+    "סירנה",
+    "מקלט",
+    "ממ״ד",
+    "הפצצה",
+    "הפגזה",
+    "תקיפה",
+    "פיגוע",
+    "מחבל",
+    "מחבלים",
+    "מלחמה",
+    "מבצע",
+    "חזית",
+    "סיכול ממוקד",
+    "שב״כ",
+    "גדוד",
+    "פלוגה",
+    "טנק",
+    "רובה",
+    "נשק",
+    "soldier",
+    "IDF",
+    "reservist",
+    "missile",
+    "rocket",
+    "siren",
+    "war"
+   ]
+  },
+  {
+   "id": "war-places-and-foes",
+   "why": "Gaza, the 2018 Qatari cash, Iran war, named enemies (pitch §2.4; round 2 'Still out').",
+   "terms": [
+    "עזה",
+    "רצועה",
+    "רצועת עזה",
+    "חמאס",
+    "חיזבאללה",
+    "איראן",
+    "טהרן",
+    "לבנון",
+    "חות׳ים",
+    "Gaza",
+    "Hamas",
+    "Hezbollah",
+    "Iran"
+   ]
+  },
+  {
+   "id": "war-slogans",
+   "why": "War slogans and premises (pitch §2.5, §2.6).",
+   "terms": [
+    "ניצחון מוחלט",
+    "ביבי הישנוני",
+    "Sleepy Bibi",
+    "Total Victory",
+    "מנהיגות עולה כסף",
+    "leadership comes with a price",
+    "פחות מ־24",
+    "fewer than 24"
+   ]
+  },
+  {
+   "id": "children",
+   "why": "Children are never game elements (brief).",
+   "terms": [
+    "ילד",
+    "ילדה",
+    "ילדים",
+    "ילדות",
+    "תינוק",
+    "תינוקת",
+    "תינוקות",
+    "גן ילדים",
+    "child",
+    "children",
+    "kid",
+    "kids",
+    "baby"
+   ]
+  },
+  {
+   "id": "private-people-and-off-cast",
+   "why": "Private individuals and flagged/off people (round 2; pitch §2.9-2.10; fact sheet 'Stay away from').",
+   "terms": [
+    "הדס קליין",
+    "יאיר נתניהו",
+    "מרדכי דוד",
+    "אוריך",
+    "פלדשטיין",
+    "מילצ׳ן",
+    "פאקר",
+    "הבן של אייזנקוט",
+    "Hadas Klein",
+    "Urich",
+    "Feldstein",
+    "Milchan",
+    "Packer"
+   ]
+  },
+  {
+   "id": "emblems-and-brands",
+   "why": "No state emblems, party logos, or messaging-app branding (brief; UX §4.3).",
+   "terms": [
+    "סמל המדינה",
+    "המנורה",
+    "מנורת הכנסת",
+    "וואטסאפ",
+    "WhatsApp",
+    "טלגרם",
+    "Telegram"
+   ]
+  },
+  {
+   "id": "campaign",
+   "why": "Satire, not a campaign: no 'vote for', no party links (brief).",
+   "terms": [
+    "תצביעו",
+    "הצביעו ל",
+    "תצביע ל",
+    "vote for",
+    "תמכו ב"
+   ]
+  },
+  {
+   "id": "eretz-nehederet-bits",
+   "why": "Their current bits are theirs (round 2 'Still out').",
+   "terms": [
+    "סנטה",
+    "Santa",
+    "טראמפ המלחמה",
+    "טראמפ השלום",
+    "הסרת האשמה"
+   ]
+  }
+ ],
+ "reviewTerms": {
+  "_doc": "Not banned, but every hit needs a human read: a group of people must never be the punchline (brief).",
+  "terms": [
+   "ערבים",
+   "ערבי",
+   "ערביה",
+   "חרדים",
+   "חרדי",
+   "חרדית",
+   "מתנחלים",
+   "מתנחל",
+   "דתיים",
+   "חילונים",
+   "מזרחים",
+   "אשכנזים",
+   "רוסים",
+   "עולים",
+   "מהגרים",
+   "יורדים"
+  ]
+ },
+ "rules": [
+  {
+   "id": "poll-number",
+   "why": "UX §6.3 item 4: default deny.",
+   "rule": "A digit within 3 words of מנדט/מנדטים/סקר/סקרים/מוביל/מובילה/אחוז החסימה fails unless the string is tagged poll_like:true."
+  },
+  {
+   "id": "svav-election",
+   "why": "'סבב' alone means a round of fighting (pitch §1).",
+   "rule": "'סבב' must be followed by 'בחירות' or 'הבחירות', except in the title phrase 'עוד סבב' and in 'סבבי בחירות'. 'סבב' never shares a string with a military-category term."
+  },
+  {
+   "id": "real-quote-marks",
+   "why": "Real quotes are exact and marked (brief); invented speech of a real person never sits in quote marks in the ticker.",
+   "rule": "A ticker string that names a real person and contains quotation marks must carry src with a [Q] fact, or reportedSpeech. Chat bubbles are exempt (they are the character's invented voice in a fictional chat, deck §E)."
+  },
+  {
+   "id": "src-exists",
+   "why": "Anything presented as real stays inside the fact sheet (brief).",
+   "rule": "Every src id exists in design/facts.json; facts with usedIn == [] are reported."
+  },
+  {
+   "id": "glyph-coverage",
+   "why": "Sevev 9 has no emoji; a missing glyph draws a box (TA objection).",
+   "rule": "See glyphs: every character is ASCII, Hebrew, a font character, or an approved pictogram."
+  }
+ ],
+ "glyphs": {
+  "_doc": "The Sevev 9 bitmap font has no colour emoji and no fallback (TA objection, 2026-09-28). Every character in a non-underscore string of design/content.json must be printable ASCII, a Hebrew letter, one of fontNonAscii, or one of the 12 approved pictograms (drawn by the 2D Artist as 7-row glyphs). Emoji stay allowed only in share texts and OG tags, which are UX's and not drawn by the font. fontNonAscii mirrors pipeline/od-sevev/font/sevev9.glyphs on 2026-09-28; the TA build's coverage check stays authoritative.",
+  "fontNonAscii": " ·×־אבגדהוזחטיךכלםמןנסעףפץצקרשת׳״​‌‍‎‏–—‘’“”„•…‪‫‬‭‮⁦⁧⁨⁩₪←→−✕︎️﻿",
+  "approvedPictograms": "📺⬅☕⭐⏳⚖✂🔥👻📈🔇💸"
+ },
+ "allow": [
+  {
+   "id": "gotliv.copy.card",
+   "terms": [
+    "שב״כ",
+    "סיכול ממוקד"
+   ],
+   "why": "Her own quote [Q] from the fact sheet (brief round 2), reported speech, poll_like:true, hidden in the blackout. Never mention the covert officer."
+  }
+ ]
+}

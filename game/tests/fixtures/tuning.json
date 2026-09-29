@@ -1,0 +1,21 @@
+{
+  "_doc": "The sim's bench-tuned pacing (game-developer sim; sim/README.md 'Tuning'). tools/balance.sh measures design/content.json with these values laid over it and prints every field where the live content differs, so the Game Designer can mirror them. Partners arrive on round time (runSecAtLeast), not on round earnings: earnings grow exponentially with the base, so an earnings ladder collapses later rounds to ~0 s (measured: rounds 3-13 under 1 s with runBananasAtLeast × 5^n).",
+  "coalition": {"unlockScalePerElection": 1, "unlockTimeScalePerElection": 0.96},
+  "unlocks": {
+    "bengvir": {},
+    "smotrich": {"runSecAtLeast": 100},
+    "levin": {"runSecAtLeast": 200},
+    "regev": {"runSecAtLeast": 300},
+    "amsalem": {"runSecAtLeast": 400},
+    "goldknopf": {"runSecAtLeast": 500},
+    "deri": {"runSecAtLeast": 600},
+    "maygolan": {"runSecAtLeast": 700},
+    "gafni": {"runSecAtLeast": 800},
+    "almog": {"runSecAtLeast": 900},
+    "karhi": {"evolutionsAtLeast": 1, "runSecAtLeast": 250},
+    "abbas": {"evolutionsAtLeast": 1, "runSecAtLeast": 350},
+    "distel": {"evolutionsAtLeast": 1, "runSecAtLeast": 450},
+    "gotliv": {"evolutionsAtLeast": 2, "runSecAtLeast": 550},
+    "gantz": {}
+  }
+}

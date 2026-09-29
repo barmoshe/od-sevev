@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://bjdyhlrrhydtm"
+path="res://.godot/imported/sevev9_outline.fnt-6d828914dffe211f67294ffee31b7ccc.fontdata"
+
+[deps]
+
+source_file="res://assets/fonts/sevev9_outline.fnt"
+dest_files=["res://.godot/imported/sevev9_outline.fnt-6d828914dffe211f67294ffee31b7ccc.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=1

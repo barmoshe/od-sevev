@@ -1,0 +1,576 @@
+{
+  "schema": "fx-data/v1",
+  "_doc": "Monkey Bananas runtime FX. Owner: Technical Artist. Consumer: Game Developer (texture-baker.ts createFxPlayer, or your own loader via resolveEmitter). Shape follows gamestudio particle-and-fx-authoring/references/fx-data-schema.md, with these project extensions: 'count' is the burst size passed to emitter.explode(count, x, y); 'bindings' map config fields (or 'count') to feel-tunable keys in src/core/tuning.ts, so tuning.ts stays the single source of truth and the numbers written here are fallbacks equal to today's tunables; 'spread' turns a bound scalar into a {min,max} of +/- that fraction; 'arc' builds the angle range (Phaser angles: 0 = right, 90 = down, 270 = straight up); 'tintChars' are PALETTE chars resolved at runtime (exact palette colours, no hex duplicated here); 'pixelSnap' is the render grid in logical px (= the particle's integer scale, README per-sprite snap rule); 'reducedMotion' may only disable an emitter or scale its count (countFactor = number or a tuning key). Every emitter: texture mb_atlas, blend NORMAL (no ADD: it would break the batch and push colours off-palette), constant integer scale (no scale-over-life: no fractional pixel art), no rotation (rotated pixel art crawls), fade by alpha only. Emitters live at (0,0) and burst at world coordinates. 'events' are cross-references only (fireFromFx false): the gameplay event wiring in motion/event-markers.md already fires the cue and the shake, so the FX player never double-fires them.",
+  "atlas": "mb_atlas",
+  "budget": {
+    "targetDevice": "min-spec mobile (2019 mid-range Android, Mali-G52 class), 60 fps",
+    "perFxPeakParticlesCap": 200,
+    "perEmitterMaxAliveCap": 100,
+    "gameplayMaxAliveTotal": 160,
+    "gameplayMaxAliveTotal_note": "Sum of maxAliveParticles over every gameplay emitter (tap 40 + critChips 32 + critSparks 16 + goldChips 16 + goldSparks 8 + confetti 36 + dust 12 = 160). evolvePoof is a flipbook (<= 24 sprites) and runs under the evolve input lock.",
+    "fillratePerFxCapMpx": 1.0,
+    "sceneFxFillrateCapMpxPerFrame": 4.0,
+    "drawCalls": "0 extra: every emitter uses mb_atlas + NORMAL blend + the default quad batch, so particles join the same batch as the sprites and text around them",
+    "worstCaseSustained": "16 taps/s with Lucky Peel (10% crit) and a golden catch: about 17 tap chips + 7 crit chips + 3 crit sparks + 24 golden = 51 alive, 0.006 Mpx/frame",
+    "odSevev_note": "od-sevev adds ballotConfetti 24 (ceremony input lock, runs alone) + dustPuff 8 + inkSpecks 12 = 44 alive at most, inside the 160-sprite pool. The coin-burst (motion-spec coin-burst: a 16 fps spin per coin) is NOT a particle emitter, because the player gives each particle one static frame: it runs as the engine's pooled per-coin tween with its own cap of 36 alive (animator budget), 36 Sprite2D, one texture per spin frame (prop_coin0-3). Everything uses flat NORMAL-blend sprites; no ADD blend anywhere."
+  },
+  "fx": [
+    {
+      "id": "tapChips",
+      "version": 1,
+      "trigger": "Big Banana tap registered (pointer-down f0; keyboard: banana centre with the floater jitter). Not fired for dropped taps (> 16/s).",
+      "anchor": "pointer position",
+      "layer": "stage",
+      "vehicle": "particle",
+      "vehicle_rationale": "3 tiny chips at up to 16 bursts/s: a pooled particle burst is the cheapest thing that reads; a flipbook would need 16 concurrent sprites.",
+      "anticipation": { "duration": 0 },
+      "impact": { "frame": 0 },
+      "decay": { "duration": 350 },
+      "emitters": [
+        {
+          "name": "chips",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 3,
+          "bindings": { "count": "tapChipCount", "speed": "tapChipSpeed", "lifespan": "tapChipLifeMs", "gravityY": "chipGravity" },
+          "spread": { "speed": 0.15 },
+          "arc": { "centerDeg": 270, "widthDeg": 180, "widthParam": "tapChipArcDeg" },
+          "reducedMotion": { "countFactor": "reducedMotionChipFactor" },
+          "config": {
+            "frame": ["particle_chip/0"],
+            "frequency": -1,
+            "speed": 220,
+            "lifespan": 350,
+            "gravityY": 600,
+            "scale": 4,
+            "alpha": { "values": [1, 1, 0] },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 40,
+            "reserve": 40
+          }
+        }
+      ],
+      "events": [
+        { "phase": "impact", "frame": 0, "kind": "audio", "ref": "tap", "fireFromFx": false }
+      ],
+      "costs": { "peakParticles": 3, "maxAlive": 40, "particlePx": "8x8 (2x2 particle_chip at x4 = the feel-spec 2x2 art-px footprint, on the art grid)", "fillratePeakMpx": 0.0026 }
+    },
+    {
+      "id": "critBurst",
+      "version": 1,
+      "trigger": "crit tap (replaces tapChips for that pointer-down)",
+      "anchor": "pointer position (keyboard: banana centre)",
+      "layer": "stage",
+      "vehicle": "particle",
+      "vehicle_rationale": "Same chip language as the tap, bigger and louder (x4 chips on the art grid, wider arc) plus a ring of sparkles so the crit reads in a 200 ms glance even with the floater on top.",
+      "anticipation": { "duration": 0 },
+      "impact": { "frame": 0 },
+      "decay": { "duration": 450 },
+      "emitters": [
+        {
+          "name": "chips",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 10,
+          "bindings": { "count": "critChipCount", "speed": "critChipSpeed", "lifespan": "critChipLifeMs", "gravityY": "chipGravity" },
+          "spread": { "speed": 0.2 },
+          "arc": { "centerDeg": 270, "widthDeg": 220 },
+          "reducedMotion": { "countFactor": "reducedMotionChipFactor" },
+          "config": {
+            "frame": ["particle_chunk/0"],
+            "frequency": -1,
+            "speed": 320,
+            "lifespan": 450,
+            "gravityY": 600,
+            "scale": 4,
+            "alpha": { "values": [1, 1, 0] },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 32,
+            "reserve": 32
+          }
+        },
+        {
+          "name": "sparks",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 6,
+          "reducedMotion": { "countFactor": "reducedMotionChipFactor" },
+          "config": {
+            "frame": ["particle_sparkle/0", "particle_sparkle/1"],
+            "frequency": -1,
+            "speed": { "min": 120, "max": 180 },
+            "angle": { "min": 0, "max": 360 },
+            "lifespan": { "min": 260, "max": 340 },
+            "gravityY": 0,
+            "scale": 4,
+            "alpha": { "values": [1, 1, 0] },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 16,
+            "reserve": 16
+          }
+        }
+      ],
+      "events": [
+        { "phase": "impact", "frame": 0, "kind": "audio", "ref": "tapCrit", "fireFromFx": false },
+        { "phase": "impact", "frame": 0, "kind": "screen-shake", "ref": "critShakePx/critShakeMs (offsets +3,-3,+2,-2,+1,-1,0)", "fireFromFx": false }
+      ],
+      "costs": { "peakParticles": 16, "maxAlive": 48, "particlePx": "chips 16x16, sparks 12x12", "fillratePeakMpx": 0.0034 }
+    },
+    {
+      "id": "goldenCatch",
+      "version": 1,
+      "trigger": "Golden Banana caught (state caught f0)",
+      "anchor": "Golden centre",
+      "layer": "stage",
+      "vehicle": "particle",
+      "vehicle_rationale": "A radial gold burst is the reward beat; particle_gold is hue-reserved for this FX only (style-guide). Light gravity so the gold hangs longer than tap chips (reward reads as special, not as debris).",
+      "anticipation": { "duration": 0 },
+      "impact": { "frame": 0 },
+      "decay": { "duration": 600 },
+      "emitters": [
+        {
+          "name": "gold",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 16,
+          "bindings": { "count": "goldenBurstCount", "speed": "goldenBurstSpeed", "lifespan": "goldenBurstLifeMs" },
+          "spread": { "speed": 0.25 },
+          "reducedMotion": { "countFactor": "reducedMotionChipFactor" },
+          "config": {
+            "frame": ["particle_gold/0"],
+            "frequency": -1,
+            "speed": 360,
+            "angle": { "min": 0, "max": 360 },
+            "lifespan": 600,
+            "gravityY": 300,
+            "scale": 4,
+            "alpha": { "values": [1, 1, 1, 0] },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 16,
+            "reserve": 16
+          }
+        },
+        {
+          "name": "sparkle",
+          "phase": "impact",
+          "delayMs": 60,
+          "pixelSnap": 4,
+          "count": 8,
+          "reducedMotion": { "countFactor": "reducedMotionChipFactor" },
+          "config": {
+            "frame": ["particle_sparkle/0", "particle_sparkle/1"],
+            "frequency": -1,
+            "speed": { "min": 40, "max": 110 },
+            "angle": { "min": 0, "max": 360 },
+            "lifespan": { "min": 380, "max": 520 },
+            "gravityY": -40,
+            "scale": 4,
+            "alpha": { "values": [1, 1, 0] },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 8,
+            "reserve": 8
+          }
+        }
+      ],
+      "events": [
+        { "phase": "impact", "frame": 0, "kind": "audio", "ref": "goldenCatchBunch | goldenCatchFrenzy | goldenCatchTapFrenzy", "fireFromFx": false },
+        { "phase": "impact", "frame": 0, "kind": "screen-shake", "ref": "goldenCatchShakePx/goldenCatchShakeMs (4,4,3,3,2,2,1,1,0)", "fireFromFx": false }
+      ],
+      "costs": { "peakParticles": 24, "maxAlive": 24, "particlePx": "12x12 each", "fillratePeakMpx": 0.0035 }
+    },
+    {
+      "id": "purchaseConfetti",
+      "version": 1,
+      "trigger": "buy commit f0 (producer row, every hold-repeat tick) and upgrade commit f0",
+      "anchor": "the row icon centre in the shop",
+      "layer": "ui",
+      "vehicle": "particle",
+      "vehicle_rationale": "Small confetti pop that survives 10 buys/s hold-repeat without piling up (6 per buy, 36 alive cap). Colours are red, leaf-highlight and warm white only: yellow means bananas and blue is reserved for the intern (style-guide hue rules), so neither appears.",
+      "anticipation": { "duration": 0 },
+      "impact": { "frame": 0 },
+      "decay": { "duration": 560 },
+      "emitters": [
+        {
+          "name": "confetti",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 6,
+          "tintChars": ["R", "L", "w"],
+          "reducedMotion": { "countFactor": 0.5 },
+          "config": {
+            "frame": ["fx_confetti/0", "fx_confetti/1"],
+            "frequency": -1,
+            "speed": { "min": 150, "max": 230 },
+            "angle": { "min": 230, "max": 310 },
+            "lifespan": { "min": 420, "max": 560 },
+            "gravityY": 520,
+            "scale": 4,
+            "alpha": { "values": [1, 1, 0] },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 36,
+            "reserve": 36
+          }
+        }
+      ],
+      "variants": {
+        "bulk": { "emitters": { "confetti": { "count": 12 } } },
+        "upgrade": { "emitters": { "confetti": { "count": 10 } } }
+      },
+      "events": [
+        { "phase": "impact", "frame": 0, "kind": "audio", "ref": "buy | buyBulk | upgradeBuy", "fireFromFx": false }
+      ],
+      "costs": { "peakParticles": 12, "maxAlive": 36, "particlePx": "8x8 (2x2 mask, one row or column lit, at x4)", "fillratePeakMpx": 0.0008 }
+    },
+    {
+      "id": "evolvePoof",
+      "version": 1,
+      "trigger": "evolve-ceremony beat critters-poof: per visible critter, staggered start i x 180/max(N-1,1) ms (the developer schedules the stagger, one play() per critter)",
+      "anchor": "critter sprite centre",
+      "layer": "stage",
+      "vehicle": "flipbook",
+      "vehicle_rationale": "The Animator specifies an exact 3-frame puff at 60 ms/frame; the silhouette is art-directed and frame-locked to the fanfare, so a flipbook is exact where particles would only approximate it. Cost: at most 24 pooled sprites for 180 ms, zero particles.",
+      "anticipation": { "duration": 0 },
+      "impact": { "frame": 0 },
+      "decay": { "duration": 180 },
+      "emitters": [],
+      "flipbooks": [
+        { "name": "puff", "sprite": "fx_poof", "frameMs": 60, "scale": 4, "pixelSnap": 4, "reducedMotion": { "disabled": true } }
+      ],
+      "events": [
+        { "phase": "impact", "frame": 0, "kind": "audio", "ref": "evolveConfirm (fires once at t=0 for the whole ceremony)", "fireFromFx": false }
+      ],
+      "costs": { "peakParticles": 0, "maxAlive": 0, "flipbookSprites": 24, "particlePx": "64x64 per puff", "fillratePeakMpx": 0.098 }
+    },
+    {
+      "id": "critterSpawnDust",
+      "version": 1,
+      "trigger": "critter plop landing (buy flow, event-markers frame 7 / 120 ms after commit)",
+      "anchor": "critter feet (bottom-centre pivot of the new critter)",
+      "layer": "stage",
+      "vehicle": "particle",
+      "vehicle_rationale": "Two puffs, one each side, sliding out along the ground; separate left/right emitters guarantee the pair is symmetric (a single random-angle emitter can send both the same way).",
+      "anticipation": { "duration": 0 },
+      "impact": { "frame": 0 },
+      "decay": { "duration": 280 },
+      "emitters": [
+        {
+          "name": "left",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 1,
+          "reducedMotion": { "disabled": true },
+          "config": {
+            "frame": ["fx_dust/0", "fx_dust/1"],
+            "frequency": -1,
+            "speed": { "min": 36, "max": 48 },
+            "angle": 190,
+            "lifespan": 280,
+            "gravityY": 0,
+            "scale": 4,
+            "alpha": { "values": [1, 1, 0] },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 6,
+            "reserve": 6
+          }
+        },
+        {
+          "name": "right",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 1,
+          "reducedMotion": { "disabled": true },
+          "config": {
+            "frame": ["fx_dust/0", "fx_dust/1"],
+            "frequency": -1,
+            "speed": { "min": 36, "max": 48 },
+            "angle": 350,
+            "lifespan": 280,
+            "gravityY": 0,
+            "scale": 4,
+            "alpha": { "values": [1, 1, 0] },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 6,
+            "reserve": 6
+          }
+        }
+      ],
+      "events": [
+        { "phase": "impact", "frame": 0, "kind": "audio", "ref": null, "note": "no plop cue by design (event-markers.md)", "fireFromFx": false }
+      ],
+      "costs": { "peakParticles": 2, "maxAlive": 12, "particlePx": "24x20 each", "fillratePeakMpx": 0.001 }
+    },
+    {
+      "id": "ballotConfetti",
+      "version": 1,
+      "game": "od-sevev",
+      "trigger": "election ceremony IMPACT (rollEnd): crit.f5 sting, motion-spec.yaml election ceremony",
+      "anchor": "hatMouth.crit[5] in world space (sprites.json chars.bibi.anims.crit.hatMouth)",
+      "layer": "stage",
+      "vehicle": "particle",
+      "vehicle_rationale": "24 identical slips thrown once, under the ceremony input lock: one pooled burst is the cheapest thing that reads. Slips are pre-coloured white/paper sprites (fx_slip, fx_slip_tilt), so no tint and no off-palette colour. Flutter is approximated by two sprite orientations and low gravity; a true x-sine flutter needs a player feature (requested of the developer, optional).",
+      "anticipation": {
+        "duration": 0
+      },
+      "impact": {
+        "frame": 0
+      },
+      "decay": {
+        "duration": 900
+      },
+      "emitters": [
+        {
+          "name": "slips",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 24,
+          "reducedMotion": {
+            "countFactor": 0.33
+          },
+          "config": {
+            "frame": [
+              "fx_slip/0",
+              "fx_slip_tilt/0"
+            ],
+            "frequency": -1,
+            "speed": {
+              "min": 200,
+              "max": 440
+            },
+            "angle": {
+              "min": 200,
+              "max": 340
+            },
+            "lifespan": {
+              "min": 780,
+              "max": 900
+            },
+            "gravityY": 260,
+            "scale": 4,
+            "alpha": {
+              "values": [
+                1,
+                1,
+                1,
+                0
+              ]
+            },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 24,
+            "reserve": 24
+          }
+        }
+      ],
+      "events": [
+        {
+          "phase": "impact",
+          "frame": 0,
+          "kind": "audio",
+          "ref": "electionFanfare (the crash is inside the fanfare)",
+          "fireFromFx": false
+        }
+      ],
+      "costs": {
+        "peakParticles": 24,
+        "maxAlive": 24,
+        "particlePx": "8x12 / 12x8 (2x3 ap at x4)",
+        "fillratePeakMpx": 0.0023
+      }
+    },
+    {
+      "id": "dustPuff",
+      "version": 1,
+      "game": "od-sevev",
+      "trigger": "the Magician lands from a zip (state-graph-magician land on_entry, returnZip/returnQuick → land)",
+      "anchor": "the Magician's feet (magicianFeet in sprites.json, world space)",
+      "layer": "stage",
+      "vehicle": "particle",
+      "vehicle_rationale": "Two puffs each side sliding out along the floor, like the fork's critterSpawnDust; separate emitters keep the pair symmetric.",
+      "anticipation": {
+        "duration": 0
+      },
+      "impact": {
+        "frame": 0
+      },
+      "decay": {
+        "duration": 320
+      },
+      "emitters": [
+        {
+          "name": "left",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 2,
+          "reducedMotion": {
+            "disabled": true
+          },
+          "config": {
+            "frame": [
+              "fx_puff0/0",
+              "fx_puff1/0"
+            ],
+            "frequency": -1,
+            "speed": {
+              "min": 60,
+              "max": 140
+            },
+            "angle": {
+              "min": 180,
+              "max": 196
+            },
+            "lifespan": {
+              "min": 240,
+              "max": 320
+            },
+            "gravityY": -40,
+            "scale": 4,
+            "alpha": {
+              "values": [
+                1,
+                1,
+                0
+              ]
+            },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 4,
+            "reserve": 4
+          }
+        },
+        {
+          "name": "right",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 2,
+          "reducedMotion": {
+            "disabled": true
+          },
+          "config": {
+            "frame": [
+              "fx_puff0/0",
+              "fx_puff1/0"
+            ],
+            "frequency": -1,
+            "speed": {
+              "min": 60,
+              "max": 140
+            },
+            "angle": {
+              "min": 344,
+              "max": 360
+            },
+            "lifespan": {
+              "min": 240,
+              "max": 320
+            },
+            "gravityY": -40,
+            "scale": 4,
+            "alpha": {
+              "values": [
+                1,
+                1,
+                0
+              ]
+            },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 4,
+            "reserve": 4
+          }
+        }
+      ],
+      "events": [],
+      "costs": {
+        "peakParticles": 4,
+        "maxAlive": 8,
+        "particlePx": "16x12 max",
+        "fillratePeakMpx": 0.0008
+      }
+    },
+    {
+      "id": "inkSpecks",
+      "version": 1,
+      "game": "od-sevev",
+      "trigger": "a rubber stamp lands (stamp_tool_down contact frame: paid / postponed / pardon / blackout stamps)",
+      "anchor": "the stamp's contact point (ui-kit stamp_tool_down pivot, world space)",
+      "layer": "ui",
+      "vehicle": "particle",
+      "vehicle_rationale": "A few ink specks sell the slam in 250 ms; 1x1 and 2x1 ink sprites keep the palette exact.",
+      "anticipation": {
+        "duration": 0
+      },
+      "impact": {
+        "frame": 0
+      },
+      "decay": {
+        "duration": 260
+      },
+      "emitters": [
+        {
+          "name": "specks",
+          "phase": "impact",
+          "delayMs": 0,
+          "pixelSnap": 4,
+          "count": 6,
+          "reducedMotion": {
+            "disabled": true
+          },
+          "config": {
+            "frame": [
+              "fx_ink/0",
+              "fx_ink/0",
+              "fx_ink2/0"
+            ],
+            "frequency": -1,
+            "speed": {
+              "min": 120,
+              "max": 260
+            },
+            "angle": {
+              "min": 0,
+              "max": 360
+            },
+            "lifespan": {
+              "min": 180,
+              "max": 260
+            },
+            "gravityY": 400,
+            "scale": 4,
+            "alpha": {
+              "values": [
+                1,
+                1,
+                0
+              ]
+            },
+            "blendMode": "NORMAL",
+            "maxAliveParticles": 12,
+            "reserve": 12
+          }
+        }
+      ],
+      "events": [
+        {
+          "phase": "impact",
+          "frame": 0,
+          "kind": "audio",
+          "ref": "stamp (cue-spec)",
+          "fireFromFx": false
+        }
+      ],
+      "costs": {
+        "peakParticles": 6,
+        "maxAlive": 12,
+        "particlePx": "8x4 max",
+        "fillratePeakMpx": 0.0002
+      }
+    }
+  ]
+}

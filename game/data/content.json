@@ -1,0 +1,4497 @@
+{
+ "version": 2,
+ "contentId": "od-sevev",
+ "_doc": "Single source of truth for 'עוד סבב' economy and content (Game Designer). Engine keys keep the Monkey Bananas v2 shape (producers, upgrades, prestige, golden, headlines, ambientHeadlinesV2, achievements, perks, eras, story) so the fork keeps loading; politics sections (flags, coalition, partners, court, eventsConfig, events, calendar) follow the simulation developer's binding politics contract v1 (STATUS.md; field reference game/scripts/sim/README.md); copy with no contract field sits under copy / linesVariants / underscore keys. Game strings are Hebrew. Every string presented as real carries src (ids in design/facts.json). poll_like is on every ticker, story and card line; true lines never show 23.10 00:00 to 27.10 22:00. Red lines: design/redlines.json. Lint: node design/sim/content-lint.mjs. Pacing check: node design/sim/economy-sim.mjs.",
+ "currency": {
+  "id": "shekels",
+  "name": "שקלים",
+  "symbol": "₪",
+  "icon": "coin"
+ },
+ "tap": {
+  "baseValue": 1,
+  "critChance": 0.02,
+  "critMult": 10,
+  "critName": "ארנב",
+  "maxRegisteredTapsPerSec": 16,
+  "pctOfBpsBase": 0.02,
+  "firstCrit": {
+   "atTap": 7,
+   "mult": 4,
+   "randomCritsFromTap": 16,
+   "_why": "Pitch §11 Q1/Q5: taps 1-6 = 6 ₪, tap 7 rabbit ×4 = 4 ₪, taps 8-12 = 5 ₪, so 15 ₪ lands on tap 12. Random crits start at tap 16 so a lucky rabbit never skips the H2/H3 beats."
+  },
+  "_formula": "tapValue = ((baseValue + tapAdd) × tapMult × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × (tapFrenzy ? mult : 1) × (crit ? critMult : 1). bps excludes the production-frenzy multiplier. Random crits are off before tap firstCrit.randomCritsFromTap (lifetime taps)."
+ },
+ "producers": [
+  {
+   "id": "taxpayer",
+   "sprite": "source_taxpayer",
+   "icon": "source_taxpayer_icon",
+   "silhouette": "source_taxpayer_icon_sil",
+   "slot": [
+    "F3",
+    "F4",
+    "B3"
+   ],
+   "wander": true,
+   "name": "משלם המסים",
+   "flavor": "משלם, נאנח, משלם.",
+   "levelUp": "עוד משלם מסים. אותה אנחה, בסטריאו.",
+   "visualHook": "an ordinary guy in a grey t-shirt, shoulders slumped, dropping one coin into a hat; drawn with sympathy",
+   "baseCost": 15,
+   "costGrowth": 1.15,
+   "baseBps": 1,
+   "shady": false,
+   "src": []
+  },
+  {
+   "id": "hitech",
+   "sprite": "source_hitech",
+   "icon": "source_hitech_icon",
+   "silhouette": "source_hitech_icon_sil",
+   "slot": [
+    "F2",
+    "F5",
+    "B2"
+   ],
+   "wander": true,
+   "name": "ההייטקיסט",
+   "flavor": "מממן חצי מדינה. טאב של ליסבון פתוח ברקע.",
+   "levelUp": "עוד הייטקיסט. הקופה מחייכת, נתב״ג מתכונן.",
+   "visualHook": "young worker in a hoodie with a laptop; the laptop screen shows a plane icon; drawn with sympathy",
+   "baseCost": 110,
+   "costGrowth": 1.15,
+   "baseBps": 3,
+   "shady": false,
+   "src": [],
+   "_note": "The joke is the tax policy, never the people who leave (deck §C). Post-launch: the departure board becomes its flavour, src emigration-2025."
+  },
+  {
+   "id": "vat",
+   "sprite": "source_vat",
+   "icon": "source_vat_icon",
+   "silhouette": "source_vat_icon_sil",
+   "slot": [
+    "F1",
+    "F6",
+    "B4"
+   ],
+   "setPiece": "lob",
+   "name": "המע״מ",
+   "flavor": "18% מכל דבר. כולל הקוטג׳.",
+   "levelUp": "המע״מ עלה דרגה. בקופה חוגגים, בסופר שותקים.",
+   "visualHook": "a grey cash-register machine with a '18%' display and a receipt tongue",
+   "baseCost": 320,
+   "costGrowth": 1.15,
+   "baseBps": 6,
+   "shady": false,
+   "src": [
+    "vat-18"
+   ]
+  },
+  {
+   "id": "cigars",
+   "sprite": "source_cigars",
+   "icon": "source_cigars_icon",
+   "silhouette": "source_cigars_icon_sil",
+   "slot": [
+    "F0",
+    "F7",
+    "B1"
+   ],
+   "name": "החבר הנדיב",
+   "flavor": "סיגרים, שמפניה ורודה וחברות אמיצה. כתב אישום בנפרד.",
+   "levelUp": "הגיע ארגז. \"סתם, מחברות.\"",
+   "visualHook": "a faceless tuxedo silhouette (no real donor) holding a cigar box and a pink champagne bottle",
+   "baseCost": 500,
+   "costGrowth": 1.15,
+   "baseBps": 20,
+   "shady": true,
+   "suspicionPerBuy": 8,
+   "revealAtRunEarned": 2500,
+   "src": [
+    "cigars-champagne"
+   ]
+  },
+  {
+   "id": "submarine",
+   "sprite": "source_submarine",
+   "icon": "source_submarine_icon",
+   "silhouette": "source_submarine_icon_sil",
+   "slot": [
+    "B5",
+    "B6",
+    "S0"
+   ],
+   "setPiece": "bob",
+   "name": "הצוללת",
+   "flavor": "יורדת עמוק, עולה עם עמלות.",
+   "levelUp": "הפריסקופ רואה הכל. חוץ ממכתבי אזהרה.",
+   "visualHook": "a small cartoon submarine surfacing, coins spilling from the hatch; no flags, no navy markings",
+   "baseCost": 7500,
+   "costGrowth": 1.15,
+   "baseBps": 120,
+   "shady": true,
+   "suspicionPerBuy": 7,
+   "src": [
+    "submarines"
+   ]
+  },
+  {
+   "id": "qatari",
+   "sprite": "source_qatari",
+   "icon": "source_qatari_icon",
+   "silhouette": "source_qatari_icon_sil",
+   "slot": [
+    "B0",
+    "S1",
+    "S2"
+   ],
+   "setPiece": "blink",
+   "name": "היועצים הקטאריים",
+   "flavor": "מקדמים מסר, מקבלים דרך מתווך. החשודים: הם. אתה: לא.",
+   "levelUp": "עוד יועץ. אתה לא מכיר אותו. עדיין.",
+   "visualHook": "two generic aides in suits with earpieces and a maroon folder; faces generic, never the real aides",
+   "baseCost": 90000,
+   "costGrowth": 1.15,
+   "baseBps": 900,
+   "shady": true,
+   "suspicionPerBuy": 6,
+   "src": [
+    "qatargate"
+   ]
+  },
+  {
+   "id": "poison",
+   "sprite": "source_poison",
+   "icon": "source_poison_icon",
+   "silhouette": "source_poison_icon_sil",
+   "slot": [
+    "S3",
+    "S4",
+    "S5"
+   ],
+   "setPiece": "bob",
+   "name": "מכונת הרעל",
+   "flavor": "10,000 חשבונות. דעה אחת.",
+   "levelUp": "1,000 עוקבים חדשים. כולם \"ישראלי_גאה_83921\".",
+   "visualHook": "a rack of small phones on a server shelf, each with a blank grey avatar and a tiny heart",
+   "baseCost": 1200000,
+   "costGrowth": 1.15,
+   "baseBps": 6500,
+   "shady": true,
+   "suspicionPerBuy": 5,
+   "src": []
+  },
+  {
+   "id": "washington",
+   "sprite": "source_checkbook",
+   "icon": "source_checkbook_icon",
+   "silhouette": "source_checkbook_icon_sil",
+   "slot": [
+    "S6",
+    "S7",
+    "S8"
+   ],
+   "setPiece": "lob",
+   "name": "פנקס הצ׳קים הזהוב",
+   "flavor": "מוושינגטון באהבה. חתום בטוש, הכי עבה שיש.",
+   "levelUp": "צ׳ק חדש. מגיע עם פוסט באותיות גדולות.",
+   "visualHook": "a gold chequebook with a thick black marker clipped to it; no seals, no eagle",
+   "baseCost": 22000000,
+   "costGrowth": 1.15,
+   "baseBps": 30000,
+   "shady": false,
+   "src": []
+  }
+ ],
+ "producerReveal": {
+  "revealAtRunBananasFracOfBaseCost": 0.5,
+  "showNextAsSilhouette": true,
+  "silhouetteName": "מקור עלום",
+  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible."
+ },
+ "upgrades": [
+  {
+   "id": "s01",
+   "name": "פיקדון על בקבוקים",
+   "flavor": "השדרוג הכי קטן במשחק. לפי הפרסומים, הוחזר.",
+   "kind": "once",
+   "cost": 4000,
+   "effect": {
+    "type": "tapAdd",
+    "add": 0.3
+   },
+   "unlock": {
+    "runBananasAtLeast": 1500
+   },
+   "visualHook": "one small glass bottle with a '0.30' tag",
+   "src": [
+    "bottle-deposits"
+   ]
+  },
+  {
+   "id": "s02",
+   "name": "גלידת פיסטוק",
+   "flavor": "תקציב 10,000 ₪ לשנה, בוטל ב־2013. אצלנו: נמס תוך דקה.",
+   "kind": "consumable",
+   "cost": 10000,
+   "effect": {
+    "type": "tapBuff",
+    "mult": 1.5,
+    "durationSec": 60
+   },
+   "fatigue": 0.8,
+   "unlock": {
+    "runBananasAtLeast": 5000,
+    "evolutionsBelow": 0
+   },
+   "visualHook": "a pistachio-green ice-cream cone, melting",
+   "src": [
+    "pistachio"
+   ],
+   "_pendingEngine": "consumable spins + tapBuff"
+  },
+  {
+   "id": "s03",
+   "name": "ביביסיטר",
+   "flavor": "שומר על הקופה כשאתה לא פה. לא שואל שאלות.",
+   "kind": "once",
+   "cost": 25000,
+   "effect": {
+    "type": "offlineMult",
+    "mult": 2
+   },
+   "unlock": {
+    "runBananasAtLeast": 12000
+   },
+   "visualHook": "a baby monitor with a tiny hat on it",
+   "src": [
+    "bibi-sitter"
+   ]
+  },
+  {
+   "id": "s04",
+   "name": "לא יהיה כלום",
+   "flavor": "\"לא יהיה כלום כי אין כלום.\" בתוקף עד שיהיה משהו.",
+   "kind": "once",
+   "cost": 40000,
+   "effect": {
+    "type": "suspicionGainMult",
+    "mult": 0.75
+   },
+   "unlock": {
+    "shadyOwnedAtLeast": 1,
+    "runBananasAtLeast": 20000
+   },
+   "visualHook": "an empty speech bubble with a red stamp",
+   "src": [
+    "ein-klum"
+   ],
+   "quote": true
+  },
+  {
+   "id": "s05",
+   "name": "ציד מכשפות",
+   "flavor": "כל כותרת נגדך מחזקת את הבסיס. מכשפות שנתפסו: 0.",
+   "kind": "once",
+   "cost": 250000,
+   "effect": {
+    "type": "basePerOppositionCard",
+    "add": 1
+   },
+   "unlock": {
+    "evolutionsAtLeast": 1,
+    "evolutionsBelow": 0
+   },
+   "visualHook": "a butterfly net with nothing in it",
+   "src": [
+    "witch-hunt"
+   ],
+   "_pendingEngine": "basePerOppositionCard"
+  },
+  {
+   "id": "s06",
+   "name": "כנף ציון",
+   "flavor": "הסבה בכ־750 מיליון ₪. מושב חלון, כמובן.",
+   "kind": "once",
+   "cost": 750000000,
+   "effect": {
+    "type": "globalMult",
+    "mult": 1.5
+   },
+   "unlock": {
+    "evolutionsAtLeast": 5
+   },
+   "visualHook": "a small white-and-blue jet, side view, no state emblem",
+   "src": [
+    "wing-of-zion"
+   ],
+   "_note": "Deck said it unlocks the Washington era. The era now follows the election count (engine-native, fromEvolutions 5, the round B5 plays), so the plane is that era's big-ticket spin: ×1.5 income, and the plane is already on the Washington stage art. Bench (design/sim/economy-sim.mjs): it appears in round 6 (right after B5) and is affordable from round 8 (~1.6B earned), a two-round goal."
+  },
+  {
+   "id": "s07",
+   "name": "סופר־ספרטה",
+   "flavor": "עצמאות כלכלית מלאה. באצבע אחת.",
+   "kind": "consumable",
+   "cost": 50000,
+   "costBpsSeconds": 60,
+   "effect": {
+    "type": "idleToTap",
+    "durationSec": 30,
+    "pourSecPerTap": 0.5
+   },
+   "fatigue": 0.8,
+   "unlock": {
+    "runBananasAtLeast": 50000,
+    "evolutionsBelow": 0
+   },
+   "visualHook": "a single finger in a gladiator helmet",
+   "src": [
+    "super-sparta"
+   ],
+   "_rule": "For durationSec the passive income stops and every tap pays tapValue + bps × pourSecPerTap. Above 2 taps/s it beats idling: a skill reward.",
+   "_pendingEngine": "consumable spins + idleToTap"
+  },
+  {
+   "id": "s08",
+   "name": "השלט",
+   "flavor": "ביקורת על סרט שלא ראיתי: 1/5.",
+   "kind": "line",
+   "_owner": "karhi",
+   "levels": [
+    {
+     "cost": 60000,
+     "flavor": "ביקורת על סרט שלא ראיתי: 1/5."
+    },
+    {
+     "cost": 600000,
+     "flavor": "העברתי ל\"ערוץ ידידותי\". הערוץ הודה."
+    },
+    {
+     "cost": 6000000,
+     "flavor": "השלט נתקע על ערוץ אחד. אף אחד לא מתלונן. אין לו איך."
+    },
+    {
+     "cost": 60000000,
+     "flavor": "תקציב השידור הציבורי בהעברה. מכאן לשם."
+    },
+    {
+     "cost": 600000000,
+     "flavor": "שלט אחד, כל הערוצים."
+    }
+   ],
+   "cost": 60000,
+   "effect": {
+    "type": "karhiLine",
+    "broadcasterDrainPct": 20,
+    "basePctThisRound": 2,
+    "suspicionAdd": 4
+   },
+   "unlock": {
+    "evolutionsAtLeast": 1,
+    "evolutionsBelow": 0
+   },
+   "visualHook": "a big TV remote with one oversized button",
+   "src": [
+    "karhi-remote"
+   ],
+   "_rule": "Each level drains the 'שידור ציבורי' bar by 20 points into the 'ערוץ ידידותי' bar (both live on this card, never in the HUD), adds +2% to this round's base payout and +4 suspicion. Resets on election.",
+   "_pendingEngine": "line spins + karhiLine"
+  },
+  {
+   "id": "s09",
+   "name": "פייג׳ר זהב",
+   "flavor": "מתנה קטנה, צ׳ק גדול.",
+   "kind": "once",
+   "cost": 400000000,
+   "effect": {
+    "type": "producerMult",
+    "producer": "washington",
+    "mult": 1.5
+   },
+   "unlock": {
+    "ownedAtLeast": {
+     "producer": "washington",
+     "count": 10
+    }
+   },
+   "visualHook": "a small gold pager with a bow, as a gift box",
+   "src": [
+    "golden-pager"
+   ]
+  },
+  {
+   "id": "s10",
+   "name": "מזוודות כביסה",
+   "flavor": "וושינגטון פוסט: כביסה. ישראל: הכחשה. המכונה: 40 מעלות.",
+   "kind": "once",
+   "cost": 2000000000,
+   "effect": {
+    "type": "flightIncome",
+    "addPct": 5,
+    "capPct": 50
+   },
+   "unlock": {
+    "era": "washington",
+    "evolutionsBelow": 0
+   },
+   "visualHook": "a laundry bag with a luggage tag",
+   "src": [
+    "laundry"
+   ],
+   "_rule": "In the Washington era every Suitcase is a 'flight'. With this spin, each caught Suitcase adds +5% global income for the rest of the round, up to +50%.",
+   "_pendingEngine": "flightIncome"
+  },
+  {
+   "id": "s11",
+   "name": "באגס באני",
+   "flavor": "הארנב קופץ יותר. המשפט זוחל כרגיל.",
+   "kind": "once",
+   "cost": 2500,
+   "effect": {
+    "type": "critChance",
+    "set": 0.07
+   },
+   "unlock": {
+    "runBananasAtLeast": 1500
+   },
+   "visualHook": "the game's own rabbit (never the licensed character) holding a tiny carrot microphone",
+   "src": [
+    "bugs-bunny"
+   ]
+  },
+  {
+   "id": "s12",
+   "name": "הוחלט להקים ועדה",
+   "flavor": "החשד מוקפא עד שהוועדה תחליט. היא לא תחליט.",
+   "kind": "consumable",
+   "cost": 30000,
+   "costBpsSeconds": 90,
+   "effect": {
+    "type": "suspicionFreeze",
+    "durationSec": 60
+   },
+   "fatigue": 0.8,
+   "unlock": {
+    "suspicionAtLeast": 50
+   },
+   "visualHook": "a round table with three empty chairs and a gavel",
+   "src": []
+  },
+  {
+   "id": "s13",
+   "name": "ראיון בערוץ ידידותי",
+   "flavor": "שאלות קשות: 0. מחר בבוקר: הנחה באגרה.",
+   "kind": "once",
+   "cost": 1500000,
+   "effect": {
+    "type": "basePctThisRound",
+    "pct": 10
+   },
+   "unlock": {
+    "evolutionsAtLeast": 2
+   },
+   "followUp": {
+    "when": "nextMorning",
+    "fallbackAfterSec": 600,
+    "ticker": "m21"
+   },
+   "visualHook": "a studio couch with two mugs, one mug says 'ידידותי'",
+   "src": [
+    "channel14-fee"
+   ]
+  },
+  {
+   "id": "s14",
+   "name": "סרטון ויראלי",
+   "flavor": "מיליוני צפיות. הלייקים עוד בדרך.",
+   "kind": "once",
+   "cost": 25000000,
+   "effect": {
+    "type": "producerMult",
+    "producer": "poison",
+    "mult": 2,
+    "viewCounterMult": 10,
+    "realLikesAdd": 1
+   },
+   "unlock": {
+    "ownedAtLeast": {
+     "producer": "poison",
+     "count": 10
+    }
+   },
+   "visualHook": "a phone showing a play button and a huge view counter",
+   "src": [
+    "bibist-video"
+   ]
+  },
+  {
+   "id": "s15",
+   "name": "ביקור ממלכתי",
+   "flavor": "אורח מוושינגטון שאל למי אכפת מסיגרים. החבר הנדיב נרגע.",
+   "kind": "once",
+   "cost": 5000000000,
+   "effect": {
+    "type": "wipeSourceSuspicion",
+    "producer": "cigars"
+   },
+   "unlock": {
+    "era": "washington",
+    "ownedAtLeast": {
+     "producer": "cigars",
+     "count": 1
+    }
+   },
+   "visualHook": "two chairs and a cigar in an ashtray, no faces",
+   "src": [
+    "trump-cigars-quote"
+   ],
+   "reportedSpeech": true,
+   "_rule": "One use per round: removes all suspicion the cigars source added this round, and the cigars source adds none for the rest of the round (pitch §6)."
+  }
+ ],
+ "_upgradeRules": "Spins (ספינים). The tab unlocks at lifetime_earned 1,500 (UX K3). kind: once = bought once per round (persistsAcrossElections keeps it); consumable = rebuyable, each rebuy in a round scales the effect (or duration) by fatigue^n and the card shows the 'שחוק' tag; line = levels bought in order. costBpsSeconds = price in seconds of current income (rounded up to 3 significant digits). Unlock conditions are ANDed (the full condition vocabulary). Safety valve: a spin whose effect the sim does not implement yet carries unlock.evolutionsBelow: 0 (never true) plus _pendingEngine naming the missing piece, so it stays off the shelf and nobody pays for a no-op. The developer deletes that key when the effect lands. Pending (sim STATUS 'not yet implemented'): consumable/line kinds and fatigue, tapBuff, idleToTap, karhiLine, flightIncome, basePerOppositionCard. ",
+ "prestige": {
+  "currencyId": "base",
+  "name": "הבסיס",
+  "shortName": "בסיס",
+  "visualHook": "a tiny crowd of identical flag-less supporters holding blank signs, 16x16",
+  "gate": {
+   "type": "seats",
+   "ref": "coalition.gateSeats",
+   "_rule": "The 'עוד סבב!' button replaces the ticker when the seat majority is reached (Gafni's abstention lowers it; Bennett's pledge raises it by 1 once 'pledge' lands)."
+  },
+  "payout": {
+   "rootDegree": 3,
+   "divisor": 50,
+   "scope": "round",
+   "epsilon": 1e-09,
+   "_formula": "baseGained = floor(cbrt(runEarned / divisor) + epsilon) × (1 + basePctThisRound/100); baseOwned += baseGained. Use Math.cbrt.",
+   "_why": "Pitch §10.5 said √(round earnings). The bench (design/sim/economy-sim.mjs, rootDegree 2, divisor 1000) reaches ×570 by round 8 and ×36,700 by round 12; rounds drop under 3 min and court days stop, so the suspicion corner dies. The cube root holds ×77 at round 8 and ×523 at round 12, with about one court day per round, 3.5-6 min rounds, and S06 affordable from round 8. The sim pays per round (scope round) at the seats gate; the legacy keys below are read only when payout is absent."
+  },
+  "multPerThumb": 0.1,
+  "_mult": "prestigeMult = (1 + multPerThumb × baseOwned) × 0.97^aideDrops (court.aide.baseMultPerDrop). It multiplies all income (sources and the base tap).",
+  "rootDegree": 3,
+  "divisor": 50,
+  "epsilon": 1e-09,
+  "minPendingFloor": 10,
+  "minPendingRatioOfOwned": 1.0,
+  "showEvolveButtonAtAllTimeBananas": 50000,
+  "_legacy": "rootDegree/divisor/epsilon/minPending*/showEvolveButton* keep the fork's cumulative gate working until the seats gate and the per-round payout land: cbrt(50,000/50) = 10 pending at about the moment round 1 reaches 61.",
+  "resets": [
+   "shekels",
+   "runEarned",
+   "producersOwned",
+   "upgradesBought",
+   "runTaps",
+   "activeBuffs",
+   "goldenTimer",
+   "partnersIn",
+   "chat",
+   "suspicion (to the floor)",
+   "postponesThisRound",
+   "karhiBars",
+   "aideHolding",
+   "oppositionCards"
+  ],
+  "persists": [
+   "baseOwned",
+   "allTimeEarned",
+   "evolutions",
+   "aideDrops",
+   "goldenCaughtLifetime",
+   "tapsLifetime",
+   "critsLifetime",
+   "headlinesSeen",
+   "stats",
+   "achievements",
+   "perks",
+   "settings",
+   "buyMode",
+   "s06 (the plane)",
+   "corridorMessages"
+  ],
+  "speciesTitles": [
+   "מועמד",
+   "ראש הממשלה",
+   "ראש ממשלת מעבר",
+   "ראש ממשלת מעבר קבוע",
+   "ראש ממשלת מעבר ותיק",
+   "ראש ממשלת מעבר מתמיד",
+   "ראש ממשלת מעבר אמריטוס",
+   "ראש ממשלת מעבר נצחי"
+  ],
+  "_speciesRule": "The Magician's title on the round card. Index = min(evolutions, 7); at index 7 append ' מס׳ ' + (evolutions - 6)."
+ },
+ "flags": {
+  "postLaunch": false,
+  "easterEggs": false,
+  "mordechaiDavid": false,
+  "yairNetanyahu": false
+ },
+ "seats": {
+  "_doc": "Display rules for the seats bar. The gate and the own-seat formula are coalition.gateSeats / coalition.ownSeats (sim contract v1); prestige.gate.type 'seats' reads them.",
+  "abstract": true,
+  "_abstract": "Seat numbers are abstract game values, never polling or current-Knesset numbers.",
+  "_blackout": "From 23.10 00:00 to 27.10 22:00 the numeral is replaced by UX's stamp; the fill and the gate still work (UX §6.3)."
+ },
+ "coalition": {
+  "_doc": "The group chat 'קואליציה 61'. Shape and numbers mirror the simulation developer's contract (STATUS.md) and bench-tuned fixture; the binding field reference is game/scripts/sim/README.md.",
+  "gateSeats": 61,
+  "knessetSize": 120,
+  "ownSeats": {
+   "base": 20,
+   "perTier": 2,
+   "perBaseDoubling": 1,
+   "max": 36,
+   "_check": "C1 with one taxpayer: 20 + 2 + Ben Gvir 12 = 34 (UX §2.3 '34/61'). Seat numbers are abstract game values, never polling or current-Knesset numbers."
+  },
+  "firstPartner": "bengvir",
+  "firstDemandPrice": 60,
+  "openAtSourcesOwned": 3,
+  "demandSec": 45,
+  "minPrice": 10,
+  "joinGapSec": 8,
+  "demandGapSec": [
+   60,
+   120
+  ],
+  "demandGapPerMember": 0.93,
+  "demandGapMinSec": 30,
+  "patienceSec": 60,
+  "ultimatum": {
+   "sec": 90,
+   "minPlaySec": 180,
+   "minDemandsPaid": 2,
+   "marksSec": [
+    60,
+    30
+   ],
+   "maxOpen": 1
+  },
+  "rejoinMult": 1.5,
+  "poachSec": 60,
+  "upkeepMaxPct": 40,
+  "chatMax": 80,
+  "corridorMsgsPerOpen": [
+   1,
+   9
+  ],
+  "negotiation": {
+   "demandGapMult": 0.6
+  },
+  "unlockScalePerElection": 5,
+  "_unlockScalePerElection": "designer, pending in the sim (see the objection in STATUS.md): a partner's runBananasAtLeast is multiplied by 5^evolutions. Without it the round ends at the same absolute earnings every time (prices are % of income), base grows linearly and sources 6-8 and the late spins are never reached. Bench: design/sim/economy-sim.mjs.",
+  "_tuning": "Partner unlock thresholds are the designer's, tuned against design/content.json's economy (the fixture's were tuned against the fork's banana economy). Round 1 at 1-3 taps/s: C1 0:31-0:52, 61 at 6:44-7:40 for a buyer who pays every demand at once (pitch §5 target 7-9 min for a median player)."
+ },
+ "partners": [
+  {
+   "id": "bengvir",
+   "name": "איתמר בן גביר",
+   "g": "m",
+   "seats": 12,
+   "upkeepPct": 4,
+   "demandWeight": 3,
+   "threatChance": 0.6,
+   "unlock": {},
+   "avatar": "ben-gvir_avatar",
+   "lines": {
+    "demand": "צריך תקציב לביטחון לאומי. היום. זה לא איום. עדיין 🔥",
+    "threat": "אם זה לא עובר, אני יוצא מהממשלה.",
+    "thanks": "קיבלתי. זה לא אומר שאני מרוצה 🔥",
+    "return": "חזרתי. לא בגלל הכסף. גם בגלל הכסף."
+   },
+   "linesVariants": {
+    "demand": [
+     "צריך תקציב לביטחון לאומי. היום. זה לא איום. עדיין 🔥",
+     "ביקשתי תקציב. קיבלתי חצי. אני מוחה על החצי 🔥",
+     "רוצה משרד גדול יותר. עם מרפסת. לנאומים 🔥"
+    ]
+   },
+   "copy": {
+    "threatForwarded": true,
+    "firstDemandIsC1": true,
+    "_note": "The first demand is FTUE C1, the first chat bubble of the game, pill 60 ₪. His threat always renders as a forwarded message ('הועברה פעמים רבות')."
+   }
+  },
+  {
+   "id": "regev",
+   "name": "מירי רגב",
+   "g": "f",
+   "seats": 2,
+   "upkeepPct": 1,
+   "demandWeight": 1,
+   "threatChance": 0.2,
+   "demandKind": "ceremony",
+   "unlock": {
+    "runBananasAtLeast": 1000
+   },
+   "avatar": "regev_avatar",
+   "lines": {
+    "demand": "רוצה לחנוך משהו. לא משנה מה. עם סרט ומספריים ✂",
+    "threat": "אין טקס? אני מתפטרת. בטקס.",
+    "thanks": "איזה ערב. בכיתי. מישהו צילם?",
+    "return": "חזרתי. יש טקס חזרה?"
+   },
+   "linesVariants": {
+    "demand": [
+     "רוצה לחנוך משהו. לא משנה מה. עם סרט ומספריים ✂",
+     "יש לי סרט. חסר רק משהו לגזור אותו עליו ✂"
+    ]
+   }
+  },
+  {
+   "id": "smotrich",
+   "name": "בצלאל סמוטריץ׳",
+   "g": "m",
+   "seats": 7,
+   "upkeepPct": 3,
+   "demandWeight": 2,
+   "threatChance": 0.35,
+   "effects": [
+    {
+     "type": "producerMult",
+     "producer": "vat",
+     "mult": 1.18
+    }
+   ],
+   "unlock": {
+    "runBananasAtLeast": 2500
+   },
+   "avatar": "smotrich_avatar",
+   "lines": {
+    "demand": "בתור שר האוצר: אין כסף. בתור יו״ר מפלגה: תעביר 💸",
+    "threat": "אם זה לא נסגר עד 17:00, אני מפרק את הממשלה. ב־17:15 יש לי ועדת כספים.",
+    "thanks": "הגיע. תודה. ולהזכירכם: אין כסף.",
+    "return": "חזרתי. זה לא אומר שיש כסף."
+   },
+   "linesVariants": {
+    "demand": [
+     "בתור שר האוצר: אין כסף. בתור יו״ר מפלגה: תעביר 💸",
+     "צריך העברה דחופה. אל תדאג, זה מתקציב שאין 💸"
+    ]
+   },
+   "copy": {
+    "_note": "designer: VAT ×1.18 (the fixture's 1.2) so the buff is the 18% joke. One man, both sides of the ledger."
+   }
+  },
+  {
+   "id": "amsalem",
+   "name": "דודי אמסלם",
+   "g": "m",
+   "seats": 2,
+   "upkeepPct": 1,
+   "demandWeight": 1,
+   "threatChance": 0.3,
+   "unlock": {
+    "runBananasAtLeast": 9000
+   },
+   "avatar": "amsalem_avatar",
+   "lines": {
+    "demand": "תעביר תקציב ואני מפסיק לצעוק. לא, לא מפסיק. אבל תעביר.",
+    "threat": "עוד יום בלי תקציב ואני עולה לאולפן. בלי מיקרופון.",
+    "thanks": "תודה.",
+    "return": "חזרתי. שקט פה. אני אתקן."
+   },
+   "linesVariants": {
+    "demand": [
+     "תעביר תקציב ואני מפסיק לצעוק. לא, לא מפסיק. אבל תעביר.",
+     "אני לא צועק. זה הקול שלי כשאין תקציב."
+    ]
+   },
+   "copy": {
+    "thanksSystem": "אמסלם כתב הודעה בלי סימן קריאה. לראשונה."
+   }
+  },
+  {
+   "id": "levin",
+   "name": "יריב לוין",
+   "g": "m",
+   "seats": 2,
+   "upkeepPct": 1,
+   "demandWeight": 1,
+   "threatChance": 0.2,
+   "effects": [
+    {
+     "type": "suspicionGainMult",
+     "mult": 0.8
+    }
+   ],
+   "unlock": {
+    "runBananasAtLeast": 6000
+   },
+   "avatar": "levin_avatar",
+   "lines": {
+    "demand": "צריך ועדה לבחירת שופטים. הרכב מוצע: אני, אני ועוד אני ⚖️",
+    "threat": "אם זה לא עובר, אני עותר לבג״ץ. ...רגע.",
+    "thanks": "עבר. נתראה ברפורמה הבאה.",
+    "return": "חזרתי. עם רפורמה."
+   },
+   "linesVariants": {
+    "demand": [
+     "צריך ועדה לבחירת שופטים. הרכב מוצע: אני, אני ועוד אני ⚖️",
+     "רעיון קטן: שופטים לפי תור. התור מתחיל בי ⚖️"
+    ]
+   }
+  },
+  {
+   "id": "deri",
+   "name": "אריה דרעי",
+   "g": "m",
+   "seats": 9,
+   "upkeepPct": 5,
+   "demandWeight": 1,
+   "threatChance": 0,
+   "cannotLeave": true,
+   "statusLine": true,
+   "unlock": {
+    "runBananasAtLeast": 30000
+   },
+   "avatar": "deri_avatar",
+   "src": [
+    "haredi-left-gov",
+    "deri-disqualified"
+   ],
+   "lines": {
+    "demand": "ידידי היקר, בוא נשב על קפה ☕ תביא פנקס.",
+    "threat": "ש״ס לא מאיימת. ש״ס מזכירה. זו תזכורת שלישית.",
+    "thanks": "תודה, ידידי. נדבר ☕",
+    "status": "יצאנו מהממשלה, לא מהקבוצה. פה נוח."
+   },
+   "linesVariants": {
+    "demand": [
+     "ידידי היקר, בוא נשב על קפה ☕ תביא פנקס.",
+     "ידידי, יש לי רעיון קטן. הוא עולה {price} ₪ ☕"
+    ]
+   },
+   "copy": {
+    "statusSrc": [
+     "haredi-left-gov"
+    ]
+   }
+  },
+  {
+   "id": "maygolan",
+   "name": "מאי גולן",
+   "g": "f",
+   "seats": 1,
+   "upkeepPct": 1,
+   "demandWeight": 1,
+   "threatChance": 0.3,
+   "priceMult": 0.5,
+   "onPay": {
+    "suspicion": 4
+   },
+   "unlock": {
+    "runBananasAtLeast": 45000
+   },
+   "avatar": "may-golan_avatar",
+   "src": [
+    "may-golan"
+   ],
+   "lines": {
+    "demand": "צריכה עוד 3 תקנים למשרד. דחוף 👻",
+    "threat": "לא מאשרים? אני יוצאת מהקבוצה. ברצינות. תכף.",
+    "thanks": "תודה!! הצוות מתחיל מחר 👻",
+    "return": "חזרתי. הצוות לא שם לב שיצאתי 👻"
+   },
+   "linesVariants": {
+    "demand": [
+     "צריכה עוד 3 תקנים למשרד. דחוף 👻",
+     "עוד 2 תקנים. הם שקטים מאוד. לא תרגיש בהם 👻"
+    ]
+   },
+   "copy": {
+    "cardLabel": "לפי המלצת המשטרה: חשד למשרות פיקטיביות",
+    "cardLabelSrc": [
+     "may-golan"
+    ],
+    "_note": "Phantom employees: cheap loyalty, every payment adds suspicion. Allegation wording only."
+   }
+  },
+  {
+   "id": "goldknopf",
+   "name": "יצחק גולדקנופף",
+   "g": "m",
+   "seats": 4,
+   "upkeepPct": 2,
+   "demandWeight": 2,
+   "threatChance": 0.3,
+   "priceGrowth": 1.3,
+   "unlock": {
+    "runBananasAtLeast": 16000
+   },
+   "avatar": "goldknopf_avatar",
+   "src": [
+    "haredi-left-gov"
+   ],
+   "lines": {
+    "demand": "{price} וסגרנו. אחרון, באמת.",
+    "after": "תודה!! עכשיו זה {next_price}. זה לא אני, זה השוק 📈",
+    "threat": "אם לא, אני עוזב. רגע, כבר עזבתי. אז אני עוזב יותר.",
+    "return": "חזרתי. המחיר עלה בזמן שלא הייתי 📈"
+   },
+   "linesVariants": {
+    "demand": [
+     "{price} וסגרנו. אחרון, באמת.",
+     "{price}. זה המחיר הסופי. עד המחיר הבא."
+    ]
+   },
+   "copy": {
+    "threatSrc": [
+     "haredi-left-gov"
+    ],
+    "_note": "The joke is the politician's price tag, never the community."
+   }
+  },
+  {
+   "id": "gotliv",
+   "name": "טלי גוטליב",
+   "g": "f",
+   "seats": 2,
+   "upkeepPct": 1,
+   "demandWeight": 1,
+   "threatChance": 0.3,
+   "pollLike": true,
+   "transfer": {
+    "to": "bengvir",
+    "meterPerSec": 0.5,
+    "fireAt": 100
+   },
+   "unlock": {
+    "evolutionsAtLeast": 2,
+    "runBananasAtLeast": 5000
+   },
+   "avatar": "gotliv_avatar",
+   "src": [
+    "gotliv"
+   ],
+   "lines": {
+    "demand": "אני דורשת מקום ריאלי!!! לא \"ריאלי בערך\". ריאלי!!!",
+    "threat": "עוד מילה אחת ואני עוברת. יש לי הצעות!!!",
+    "thanks": "סוף סוף!!! תודה!!!",
+    "return": "חזרתי!!! מישהו שם לב???"
+   },
+   "linesVariants": {
+    "demand": [
+     "אני דורשת מקום ריאלי!!! לא \"ריאלי בערך\". ריאלי!!!",
+     "אני פה!!! מישהו רואה אותי??? ריאלי!!!"
+    ]
+   },
+   "copy": {
+    "card": {
+     "text": "גוטליב אמרה שאם הליכוד יקבל 19 מנדטים, היא צופה שתמצא את עצמה במתקן כליאה של השב״כ, וכינתה את הפריימריז נגדה \"סיכול ממוקד\".",
+     "src": [
+      "gotliv"
+     ],
+     "reportedSpeech": true,
+     "verifyHebrew": true,
+     "poll_like": true,
+     "_guardrail": "Never mention the covert officer. Hidden 23.10 00:00 to 27.10 22:00."
+    },
+    "transferWindow": {
+     "header": "חלון העברות נפתח",
+     "script": [
+      [
+       "uxSys",
+       "chat.sys.transfer",
+       [
+        "gotliv"
+       ]
+      ],
+      [
+       "bengvir",
+       "ברוכה הבאה טלי!"
+      ],
+      [
+       "bengvir",
+       "@הקוסם יש לך 90 שניות להעביר לה את התקציב ⏳"
+      ],
+      [
+       "bengvir",
+       "60",
+       null,
+       {
+        "atMark": 60
+       }
+      ],
+      [
+       "bengvir",
+       "30",
+       null,
+       {
+        "atMark": 30
+       }
+      ],
+      [
+       "gotliv",
+       "תודה איתמר!!! סוף סוף מקשיבים לי!!!",
+       null,
+       {
+        "onPaid": true
+       }
+      ]
+     ],
+     "ticker": "מבזק ספורט: גוטליב החליפה חולצה. הווליום נשאר."
+    },
+    "_note": "pollLike covers her card only (it names a seat number); her bubbles are poll_like:false. Request: the sim hides only the card in the blackout, not her membership."
+   }
+  },
+  {
+   "id": "almog",
+   "name": "אלמוג כהן",
+   "g": "m",
+   "seats": 1,
+   "upkeepPct": 1,
+   "demandWeight": 1,
+   "threatChance": 0.3,
+   "rebel": true,
+   "unlock": {
+    "runBananasAtLeast": 80000
+   },
+   "avatar": "almog_avatar",
+   "src": [
+    "almog-cohen"
+   ],
+   "lines": {
+    "demand": "הוסרתי מקבוצה אחת. אשמח להצטרף לזאת. בתשלום.",
+    "threat": "אני יודע איך יוצאים מקבוצות. יש לי ניסיון.",
+    "thanks": "תודה על הצירוף.",
+    "return": "צורפתי שוב. אני מתחיל להתמצא."
+   },
+   "copy": {
+    "originSystem": "chat.sys.removed",
+    "poachTicker": "אלמוג כהן הוסר מקבוצה אחת וצורף לאחרת. ניידות חברתית.",
+    "_guardrail": "His outbursts are off-limits; his lines are only about group mobility (fact #39)."
+   }
+  },
+  {
+   "id": "gafni",
+   "name": "משה גפני",
+   "g": "m",
+   "seats": 0,
+   "abstain": 4,
+   "upkeepPct": 1,
+   "demandWeight": 2,
+   "threatChance": 0.5,
+   "priceMult": 0.5,
+   "unlock": {
+    "runBananasAtLeast": 60000
+   },
+   "avatar": "gafni_avatar",
+   "lines": {
+    "demand": "לא בעד, לא נגד. יוצא לשירותים. המחיר בהתאם.",
+    "threat": "ההצבעה ב־17:00. אם לא סגרנו, אני דווקא נשאר באולם.",
+    "thanks": "סגרנו. יצא תיקו, כמו שהזמנת.",
+    "return": "חזרתי מהשירותים."
+   },
+   "linesVariants": {
+    "demand": [
+     "לא בעד, לא נגד. יוצא לשירותים. המחיר בהתאם.",
+     "אני לא מבקש הרבה. רק ללכת לשירותים בזמן הנכון."
+    ]
+   },
+   "copy": {
+    "onPaidTicker": "שילמת לגפני. הוא יצא לשירותים. ההצבעה: תיקו.",
+    "onPaidTickerDeck": "T14"
+   }
+  },
+  {
+   "id": "abbas",
+   "name": "מנסור עבאס",
+   "g": "m",
+   "side": "opposition",
+   "seats": 4,
+   "upkeepPct": 2,
+   "demandWeight": 1,
+   "threatChance": 0.2,
+   "excludes": [
+    "bengvir"
+   ],
+   "unlock": {
+    "evolutionsAtLeast": 1,
+    "runBananasAtLeast": 20000
+   },
+   "avatar": "abbas_avatar",
+   "src": [
+    "bibi-or-tibi",
+    "abbas-talks"
+   ],
+   "lines": {
+    "demand": "אני פתוח לדבר. על תקציבים, לא על סלוגנים.",
+    "threat": "אם הסלוגן חוזר, אני חוזר הביתה.",
+    "thanks": "נאום יפה. הפעם גם עם תקציב.",
+    "return": "חזרתי. שוב מדברים."
+   },
+   "copy": {
+    "card": {
+     "text": "2019: \"ביבי או טיבי\". 2021, לפי עבאס: נאום על שותפות.",
+     "src": [
+      "bibi-or-tibi",
+      "abbas-talks"
+     ],
+     "poll_like": false
+    },
+    "ruleLine": "מופיע רק כשבן גביר לא מחובר",
+    "ruleLineOwner": "ux",
+    "thanksSrc": [
+     "abbas-talks"
+    ],
+    "_note": "A hidden seat source while Ben Gvir is out. The target is the flip-flop, never Arab citizens."
+   }
+  },
+  {
+   "id": "karhi",
+   "name": "שלמה קרעי",
+   "g": "m",
+   "seats": 2,
+   "upkeepPct": 1,
+   "demandWeight": 1,
+   "threatChance": 0.2,
+   "unlock": {
+    "evolutionsAtLeast": 1,
+    "runBananasAtLeast": 3000
+   },
+   "avatar": "karhi_avatar",
+   "src": [
+    "karhi-remote"
+   ],
+   "lines": {
+    "demand": "25 מיליון בשנה עוברים מ\"כאן\" ל\"שם\" 📺⬅️📺",
+    "threat": "אם \"כאן\" ממשיך לשדר, אני מעביר ערוץ. לכולם.",
+    "thanks": "עבר. שלט אחד, כל הערוצים 📺",
+    "return": "חזרתי. העברתי ערוץ בדרך."
+   },
+   "linesVariants": {
+    "demand": [
+     "25 מיליון בשנה עוברים מ\"כאן\" ל\"שם\" 📺⬅️📺",
+     "המשך יבוא. בערוץ אחר 📺"
+    ]
+   },
+   "copy": {
+    "review": "ביקורת על סרט שלא ראיתי: 1/5 ⭐",
+    "demandSrc": [
+     "karhi-remote"
+    ],
+    "thanksSrc": [
+     "karhi-remote"
+    ],
+    "_note": "His first demand quotes the real transfer (the one sourced exception to the {price} rule); the pill carries the in-game price. He owns the S08 'השלט' line."
+   }
+  },
+  {
+   "id": "distel",
+   "name": "גלית דיסטל־אטבריאן",
+   "g": "f",
+   "seats": 1,
+   "upkeepPct": 1,
+   "demandWeight": 1,
+   "threatChance": 0.2,
+   "onPay": {
+    "suspicion": 3
+   },
+   "mutedLine": true,
+   "unlock": {
+    "evolutionsAtLeast": 1,
+    "runBananasAtLeast": 12000
+   },
+   "avatar": "distel_avatar",
+   "src": [
+    "distel-mute"
+   ],
+   "lines": {
+    "demand": "חוק חדש, עובר תוך 4 שניות. לפני שמישהו אומר \"אבל\".",
+    "threat": "אם מחזירים להם מיקרופון, אני לוקחת את שלי והולכת.",
+    "thanks": "שקט פה. נעים 🔇",
+    "return": "חזרתי. במיוט 🔇"
+   },
+   "linesVariants": {
+    "demand": [
+     "חוק חדש, עובר תוך 4 שניות. לפני שמישהו אומר \"אבל\".",
+     "יש לי חוק חדש. השאלות אחרי שהוא עובר 🔇"
+    ]
+   },
+   "copy": {
+    "mutedWho": "היועצים המשפטיים",
+    "mutedSrc": [
+     "distel-mute"
+    ],
+    "_note": "chat.sys.muted's {who} is the legal advisers, not Distel (request to UX)."
+   }
+  },
+  {
+   "id": "gantz",
+   "name": "בני גנץ",
+   "g": "m",
+   "side": "opposition",
+   "seats": 4,
+   "upkeepPct": 0,
+   "demandWeight": 0,
+   "threatChance": 0,
+   "standIn": true,
+   "unlock": {},
+   "avatar": "gantz_avatar",
+   "src": [
+    "gantz-rotation"
+   ],
+   "lines": {
+    "status": "בני גנץ מקליד…"
+   },
+   "copy": {
+    "card": {
+     "text": "נכנס לקבוצה כשמישהו עוזב. הרוטציה: 99%. מאז 2020.",
+     "src": [
+      "gantz-rotation"
+     ],
+     "poll_like": false
+    },
+    "rotationPct": 99,
+    "_note": "Never demands, never posts. His rotation bar sits at 99% forever."
+   }
+  }
+ ],
+ "golden": {
+  "_doc": "The DOHA Suitcase. Never a Gaza destination; its two addresses are Doha and an aide's desk (pitch §2.4). Outcome types per the engine contract (instant | bpsFrenzy | tapFrenzy); aide and laundry per the sim contract.",
+  "name": "המזוודה",
+  "firstSpawnDelaySec": 25,
+  "spawnIntervalMinSec": 120,
+  "spawnIntervalMaxSec": 240,
+  "lifetimeSec": 4,
+  "timerRunsOnlyWhileVisible": true,
+  "pausesWhileModalOpen": true,
+  "flight": {
+   "firstSec": 6,
+   "minSec": 3,
+   "firstPredicate": "UX S1: sources_owned >= 2 AND stage.unobstructed AND suitcase_seen == 0 AND last_tap_age < 3 s"
+  },
+  "firstOutcome": "cash",
+  "outcomes": [
+   {
+    "id": "cash",
+    "type": "instant",
+    "weight": 0.45,
+    "name": "מזומן",
+    "bunchBpsSeconds": 60,
+    "bunchMinTaps": 30,
+    "line": "תפסת! בפנים: מזומן. מאיפה? לא נמסרה תגובה."
+   },
+   {
+    "id": "aide",
+    "type": "instant",
+    "aide": true,
+    "weight": 0.15,
+    "name": "יועץ",
+    "bunchBpsSeconds": 60,
+    "bunchMinTaps": 30,
+    "line": "תפסת! הכסף נחת אצל יועץ. לא אצלך. בשום אופן לא אצלך.",
+    "src": [
+     "qatargate"
+    ]
+   },
+   {
+    "id": "frenzy",
+    "type": "bpsFrenzy",
+    "weight": 0.3,
+    "name": "הזרמה",
+    "mult": 5,
+    "durationSec": 15,
+    "line": "תפסת! בפנים: הזרמה. 15 שניות הכסף עובד בשבילך."
+   },
+   {
+    "id": "tapFrenzy",
+    "type": "tapFrenzy",
+    "weight": 0.1,
+    "name": "כובע חם",
+    "mult": 10,
+    "durationSec": 12,
+    "line": "תפסת! הכובע התחמם. כל שליפה ×10. אל תשאל ממה."
+   },
+   {
+    "id": "laundry",
+    "type": "instant",
+    "era": "washington",
+    "weight": 0.1,
+    "name": "כביסה",
+    "bunchBpsSeconds": 90,
+    "bunchMinTaps": 30,
+    "line": "תפסת! בפנים: כביסה מוושינגטון. מקופלת. לפי הפרסומים.",
+    "src": [
+     "laundry"
+    ]
+   }
+  ],
+  "miss": {
+   "line": "המזוודה הגיעה ליעדה. לא ידענו.",
+   "dubi": "לא ידענו! לא ידענו!",
+   "_note": "Also H-miss. The deck owns it, with a period rather than UX's semicolon."
+  },
+  "_stacking": "Re-rolling the same buff refreshes its duration (never stacks)."
+ },
+ "court": {
+  "_doc": "Suspicion, court day, postponements, the aide drop and the pardon desk (pitch §10, §11 Q8). Shape and numbers mirror the sim contract; copy is the designer's.",
+  "sources": {
+   "cigars": 0.6,
+   "submarine": 0.7,
+   "qatari": 0.8,
+   "poison": 0.9
+  },
+  "max": 100,
+  "floorPerRoundPct": 5,
+  "floorMaxPct": 40,
+  "courtDaySec": 30,
+  "courtBpsMult": 0.5,
+  "courtPausesTaps": false,
+  "summonsAutoTestifySec": 30,
+  "postpone": {
+   "treasuryPct": 5,
+   "growth": 2,
+   "maxPct": 100,
+   "minCostBpsSec": 10,
+   "cooldownSec": [
+    120,
+    90,
+    60,
+    45,
+    30,
+    20
+   ],
+   "excuseSteps": 6,
+   "copy": {
+    "prefix": "הדיון נדחה:",
+    "excuses": [
+     "התייעצות ביטחונית.",
+     "התייעצות ביטחונית. דחופה.",
+     "התייעצות ביטחונית. דחופה. עם אנשים רציניים מאוד.",
+     "התייעצות ביטחונית. דחופה. עם אנשים רציניים מאוד. אחד מהם הביא בורקס.",
+     "התייעצות ביטחונית. דחופה. עם אנשים רציניים מאוד. אחד מהם הביא בורקס. הבורקס סווג.",
+     "התייעצות ביטחונית. דחופה. עם אנשים רציניים מאוד. אחד מהם הביא בורקס. הבורקס סווג. ההתייעצות הבאה נקבעה בדיוק לדיון הבא."
+    ],
+    "loopAt": 6,
+    "src": [
+     "testimony-cancelled"
+    ],
+    "_guardrail": "No excuse ever names a front, an enemy, a threat or a real security event. The joke is the pastry."
+   }
+  },
+  "aide": {
+   "suspicion": 15,
+   "baseMultPerDrop": 0.97,
+   "copy": {
+    "buttonLabel": "אני לא מכיר אותו",
+    "line": "היועץ הוסר מהקבוצה. החשד אופס. הבסיס שם לב: ‎−3%.",
+    "dubi": "מי? מי?",
+    "_rule": "Only while an aide holds suitcase money and not during a court day; suspicion falls to the round's floor; the −3% base is permanent and confirmed (pitch §10.4)."
+   }
+  },
+  "pardon": {
+   "stamps": 8,
+   "copy": {
+    "stamps": [
+     "נדרשים מסמכים נוספים.",
+     "נדרש צילום של המסמכים הנוספים.",
+     "הטופס מולא בכחול. נדרש שחור.",
+     "נא לפנות לאשנב 4. (אין אשנב 4.)",
+     "הבקשה הועברה לטיפול. הטיפול הועבר לבקשה.",
+     "חתימה לא ברורה. נא לחתום ברור יותר. (גם זה לא ברור.)",
+     "מומלץ לשקול הסדר טיעון.",
+     "הלשכה פתוחה בימים ב׳ ו־ה׳, חוץ מבימים ב׳ ו־ה׳."
+    ],
+    "stampsSrc": {
+     "6": [
+      "pardon-shelved"
+     ]
+    },
+    "src": [
+     "pardon-request",
+     "pardon-shelved"
+    ],
+    "_rule": "Random, never the same stamp twice in a row."
+   }
+  },
+  "copy": {
+   "courtDayTicker": "יום משפט. הכל מאט. הארנב מתחבא בכובע.",
+   "courtDayTickerDeck": "H-court",
+   "_court": "designer (animator request 1-2): court day slows everything (taps and income × courtBpsMult) but never takes the verb away; rabbits stay live and duck at the court (hatCrit), which is H-court's joke."
+  }
+ },
+ "eventsConfig": {
+  "gapSec": [
+   150,
+   210
+  ],
+  "firstAfterPlaySec": 240,
+  "photobomb": {
+   "flag": "postLaunch",
+   "liranPct": 4,
+   "tomerPct": 4,
+   "togetherPct": 0.5
+  }
+ },
+ "events": [
+  {
+   "id": "brawl",
+   "kind": "chat",
+   "weight": 3,
+   "cooldownSec": 360,
+   "when": {
+    "membersAtLeast": 3
+   },
+   "effect": {
+    "type": "brawl",
+    "pairs": [
+     [
+      "amsalem",
+      "smotrich"
+     ]
+    ],
+    "anyPair": true
+   },
+   "pollLike": false,
+   "src": [
+    "brawl"
+   ],
+   "copy": {
+    "header": "קטטה בקבוצה",
+    "script": [
+     [
+      "sys",
+      "לפי הדיווחים, אמסלם ביקש מסמוטריץ׳ שלא יקרא לו חוצפן · מקור",
+      [
+       "brawl"
+      ],
+      {
+       "reportedSpeech": true,
+       "verifyHebrew": true
+      }
+     ],
+     [
+      "amsalem",
+      "אל תקרא לי ככה."
+     ],
+     [
+      "smotrich",
+      "..."
+     ],
+     [
+      "amsalem",
+      "גם לא שלוש נקודות!!"
+     ],
+     [
+      "uxSys",
+      "chat.sys.brawl",
+      null
+     ],
+     [
+      "button",
+      "צאו החוצה",
+      null
+     ],
+     [
+      "magician",
+      "אם הם לא מנהיגים, שייצאו החוצה וימשיכו להתווכח שם.",
+      [
+       "brawl"
+      ],
+      {
+       "reportedSpeech": true,
+       "verifyHebrew": true
+      }
+     ],
+     [
+      "uxSys",
+      "chat.brawl.after",
+      null
+     ]
+    ],
+    "genericScript": [
+     [
+      "uxSys",
+      "chat.sys.brawl",
+      null
+     ],
+     [
+      "button",
+      "צאו החוצה",
+      null
+     ],
+     [
+      "uxSys",
+      "chat.brawl.after",
+      null
+     ]
+    ],
+    "_note": "The first brawl is Amsalem × Smotrich with this script; later pairs use genericScript. 'המסדרון' is one shared group whose muted counter keeps growing (UX chat.brawl.after)."
+   }
+  },
+  {
+   "id": "leak",
+   "kind": "chat",
+   "weight": 2,
+   "oncePerRound": true,
+   "when": {
+    "evolutionsAtLeast": 1
+   },
+   "effect": {
+    "type": "leak",
+    "leaks": 3
+   },
+   "pollLike": false,
+   "side": "opposition",
+   "copy": {
+    "title": "האופוזיציה (רשמי) (סופי) 2",
+    "members": 6,
+    "status": "בני גנץ מקליד…",
+    "ticker": "מבזק: צילום מסך דלף מהאופוזיציה. גנץ עדיין מקליד.",
+    "leaks": [
+     [
+      [
+       "לפיד",
+       "איפה הכסף?",
+       [
+        "lapid-where-money"
+       ]
+      ],
+      [
+       "בנט",
+       "מתחייב לענות עד מחר. חתמתי."
+      ],
+      [
+       "לפיד",
+       "חתמת גם בפעם הקודמת."
+      ],
+      [
+       "בנט",
+       "בגלל זה אני חותם שוב."
+      ],
+      [
+       "אייזנקוט",
+       "אפשר לדבר ישר?"
+      ],
+      [
+       "גולן",
+       "אפשר. רק קודם נאחד את הקבוצה הזאת עם הקבוצה ההיא."
+      ],
+      [
+       "sys",
+       "גולן איחד את הקבוצות · נוצרה ״האופוזיציה (רשמי) (סופי) 3״"
+      ],
+      [
+       "ליברמן",
+       "לא יושב בקבוצה הזאת."
+      ],
+      [
+       "ליברמן",
+       "גם לא ב־3."
+      ],
+      [
+       "sys",
+       "ליברמן עזב את הקבוצה"
+      ]
+     ],
+     [
+      [
+       "אייזנקוט",
+       "מציע מסר אחד. פשוט. ישר."
+      ],
+      [
+       "לפיד",
+       "מסכים. אני אנסח. זה ייקח 40 דקות."
+      ],
+      [
+       "בנט",
+       "אני אחתום עליו."
+      ],
+      [
+       "גולן",
+       "אני אאחד אותו עם עוד מסר."
+      ],
+      [
+       "ליברמן",
+       "לא יושב עם המסר הזה."
+      ],
+      [
+       "אייזנקוט",
+       "אז מה המסר?"
+      ],
+      [
+       "לפיד",
+       "איפה הכסף?",
+       [
+        "lapid-where-money"
+       ]
+      ]
+     ],
+     [
+      [
+       "לפיד",
+       "מציע רוטציה בניהול הקבוצה."
+      ],
+      [
+       "בנט",
+       "מתחייב לכבד אותה. בעיפרון."
+      ],
+      [
+       "אייזנקוט",
+       "ישר: מי ראשון?"
+      ],
+      [
+       "גולן",
+       "גנץ, אתה פה הכי הרבה זמן. תגיד משהו."
+      ],
+      [
+       "typing",
+       "בני גנץ מקליד…"
+      ],
+      [
+       "ליברמן",
+       "אני לא מחכה."
+      ],
+      [
+       "sys",
+       "ליברמן עזב את הקבוצה"
+      ],
+      [
+       "typing",
+       "בני גנץ מקליד…"
+      ]
+     ]
+    ],
+    "_rule": "Read-only; leaks 1-3 in order, then loop. Gantz never posts. Nothing military, nothing about families, no seats."
+   }
+  },
+  {
+   "id": "pardon",
+   "kind": "card",
+   "weight": 1,
+   "cooldownSec": 600,
+   "when": {
+    "courtDaysAtLeast": 1
+   },
+   "effect": {
+    "type": "pardonDesk",
+    "sec": 60
+   },
+   "pollLike": false,
+   "src": [
+    "pardon-request"
+   ],
+   "copy": {
+    "title": "בקשת חנינה",
+    "stampsRef": "court.pardon.copy.stamps"
+   }
+  },
+  {
+   "id": "lapid",
+   "kind": "card",
+   "side": "opposition",
+   "weight": 2,
+   "cooldownSec": 420,
+   "when": {
+    "shadyOwnedAtLeast": 1
+   },
+   "effect": {
+    "type": "suspicion",
+    "add": 8
+   },
+   "pollLike": false,
+   "src": [
+    "lapid-where-money"
+   ],
+   "copy": {
+    "name": "יאיר לפיד",
+    "avatar": "lapid_avatar",
+    "text": "שואל \"איפה הכסף?\". התשובה: בכובע. השאלה: ממשיכה.",
+    "_note": "Audit: reveals one shady source and adds suspicion."
+   }
+  },
+  {
+   "id": "eisenkot",
+   "kind": "card",
+   "side": "opposition",
+   "weight": 2,
+   "cooldownSec": 420,
+   "when": {
+    "evolutionsAtLeast": 1
+   },
+   "effect": {
+    "type": "noCrit",
+    "sec": 20
+   },
+   "pollLike": false,
+   "src": [
+    "yashar"
+   ],
+   "copy": {
+    "name": "גדי אייזנקוט",
+    "avatar": "eisenkot_avatar",
+    "text": "הקים את \"ישר\": פוליטיקה בלי קסמים. הארנבים יצאו לחל״ת."
+   }
+  },
+  {
+   "id": "liberman",
+   "kind": "card",
+   "side": "opposition",
+   "weight": 1,
+   "cooldownSec": 420,
+   "when": {
+    "evolutionsAtLeast": 1
+   },
+   "effect": {
+    "type": "none",
+    "sec": 15
+   },
+   "pollLike": false,
+   "copy": {
+    "name": "אביגדור ליברמן",
+    "avatar": "liberman_avatar",
+    "text": "מקבל כל הצעה בכבוד, ודוחה אותה באותו כבוד.",
+    "buttonLabel": "לא יושב",
+    "_note": "Every button on his card is grey ('לא יושב'). If the chat pills grey out too, ultimatum timers must pause (every loss recoverable)."
+   }
+  },
+  {
+   "id": "bennett",
+   "kind": "card",
+   "side": "opposition",
+   "weight": 2,
+   "cooldownSec": 420,
+   "when": {
+    "evolutionsAtLeast": 1
+   },
+   "effect": {
+    "type": "pledge",
+    "gatePlus": 1,
+    "sec": 45,
+    "baseAdd": 1
+   },
+   "pollLike": false,
+   "src": [
+    "bennett-pledge"
+   ],
+   "copy": {
+    "name": "נפתלי בנט",
+    "avatar": "bennett_avatar",
+    "text": "חותם על התחייבויות בשידור חי. מכבד אותן עד השידור הבא.",
+    "flipText": "ההתחייבות התהפכה. כרגיל.",
+    "_note": "While the card is up the gate is 62; then the pledge flips (flipText) and the player gets +1 base."
+   }
+  },
+  {
+   "id": "golan",
+   "kind": "card",
+   "side": "opposition",
+   "weight": 1,
+   "cooldownSec": 420,
+   "when": {
+    "evolutionsAtLeast": 1
+   },
+   "effect": {
+    "type": "none",
+    "sec": 20
+   },
+   "pollLike": false,
+   "src": [
+    "labor-meretz-merger"
+   ],
+   "copy": {
+    "name": "יאיר גולן",
+    "avatar": "golan_avatar",
+    "text": "מאחד שני קלפים לאחד. חוסך מקום, מכפיל ויכוחים.",
+    "aloneText": "מחפש עם מי להתאחד.",
+    "designerEffect": {
+     "type": "merge"
+    },
+    "_note": "Request: effect 'merge' (if another card is up, the two fuse into one card with both effects). Ships as 'none' with aloneText until then."
+   }
+  },
+  {
+   "id": "defector",
+   "kind": "stage",
+   "weight": 1,
+   "cooldownSec": 600,
+   "when": {
+    "evolutionsAtLeast": 1
+   },
+   "effect": {
+    "type": "seatDrain",
+    "seats": 2,
+    "sec": 60
+   },
+   "pollLike": false,
+   "copy": {
+    "system": "ח״כ ממורמר יצא מהבניין · כיוון: ליברמן",
+    "ticker": "לפי דן אילוז, הליכוד הפך לקבלן משנה של דרעי וגולדקנופף.",
+    "tickerSrc": [
+     "illouz"
+    ],
+    "reportedSpeech": true,
+    "verifyHebrew": true,
+    "_note": "A generic MK sprite, never Illouz. The ticker stays reported speech until the Hebrew is verified."
+   }
+  },
+  {
+   "id": "nameless",
+   "kind": "card",
+   "side": "opposition",
+   "flag": "postLaunch",
+   "weight": 1,
+   "oncePerRound": true,
+   "effect": {
+    "type": "seatDrain",
+    "seats": 3,
+    "sec": 120
+   },
+   "pollLike": false,
+   "src": [
+    "nameless-party"
+   ],
+   "copy": {
+    "name": "המפלגה ללא שם",
+    "titleLine": "ארדן · אדלשטיין",
+    "text": "מפלגה בלי שם. אחרי חודש ארדן עזב. מצע: יש. שם: בהמשך."
+   }
+  },
+  {
+   "id": "roulette",
+   "kind": "card",
+   "flag": "postLaunch",
+   "pollLike": true,
+   "weight": 1,
+   "oncePerRound": true,
+   "effect": {
+    "type": "roulette",
+    "lists": [
+     "winter",
+     "hendel",
+     "haskel"
+    ]
+   },
+   "src": [
+    "threshold-lists"
+   ],
+   "copy": {
+    "name": "רולטת אחוז החסימה",
+    "text": "3.25%. מעליו: מפלגה. מתחתיו: קבוצת חברים עם מצע.",
+    "_note": "Leaders only (Winter, Hendel with Zelekha, Haskel); list names never shown. Uniform random; off from 23.10."
+   }
+  },
+  {
+   "id": "kaia",
+   "kind": "stage",
+   "flag": "easterEggs",
+   "weight": 1,
+   "cooldownSec": 900,
+   "when": {
+    "era": "balfour"
+   },
+   "effect": {
+    "type": "kaia",
+    "feedSec": 20,
+    "buffSec": 30,
+    "tapMult": 2,
+    "nipSec": 60
+   },
+   "pollLike": false,
+   "src": [
+    "kaia"
+   ],
+   "copy": {
+    "ticker": "כאיה נשכה שר. השר החמיץ הצבעה. כאיה קיבלה מלפפון."
+   }
+  },
+  {
+   "id": "pinkfront",
+   "kind": "stage",
+   "flag": "easterEggs",
+   "weight": 5,
+   "cooldownSec": 1800,
+   "when": {
+    "weekday": [
+     6
+    ],
+    "hour": [
+     19,
+     23
+    ]
+   },
+   "effect": {
+    "type": "drumline",
+    "sec": 30,
+    "bpsSec": 30
+   },
+   "pollLike": false,
+   "copy": {
+    "ticker": "מוצאי שבת. תופים בחוץ. בפנים מתייעצים ביטחונית.",
+    "_note": "Depicts the movement, never individuals."
+   }
+  }
+ ],
+ "calendar": {
+  "_doc": "Real-calendar rules. The first seven keys are the sim contract; the rest is designer copy scheduling (the ticker uses mode, weekday, hour and the requested dateFrom/dateTo).",
+  "electionDate": "2026-10-27",
+  "blackoutStartUtc": "2026-10-22T21:00:00",
+  "pollsCloseUtc": "2026-10-27T20:00:00",
+  "israelUtcOffsets": [
+   {
+    "fromUtc": "2026-03-27T00:00:00",
+    "hours": 3
+   },
+   {
+    "fromUtc": "2026-10-24T23:00:00",
+    "hours": 2
+   }
+  ],
+  "defaultOffsetHours": 2,
+  "forceBlackout": false,
+  "forcePostElection": false,
+  "_blackoutRule": "mode 'blackout': draw only poll_like:false lines; the seats numeral becomes UX's stamp; roulette, the Nameless Party's numbers and Gotliv's card are off. The publisher's lawyer confirms the window (UX §6.3).",
+  "negotiation": {
+   "opener": "cal08",
+   "neverShowsResults": true,
+   "_status": "patch on 27.10 (pitch §2.1)"
+  },
+  "windows": [
+   {
+    "id": "sukkot",
+    "dateFrom": "2026-09-26",
+    "dateTo": "2026-10-03",
+    "lines": [
+     "cal02"
+    ]
+   },
+   {
+    "id": "lastMonth",
+    "dateFrom": "2026-10-01",
+    "dateTo": "2026-10-22",
+    "lines": [
+     "cal05"
+    ]
+   },
+   {
+    "id": "blackoutDays",
+    "mode": "blackout",
+    "lines": [
+     "cal06",
+     "cal07"
+    ]
+   },
+   {
+    "id": "negotiation",
+    "mode": "negotiation",
+    "lines": [
+     "cal08",
+     "cal09",
+     "cal10",
+     "cal11"
+    ]
+   }
+  ],
+  "roundMoods": {
+   "_owner": "ux",
+   "proposed": {
+    "mood.10": "הקלפי ביקשה חופשה.",
+    "mood.20": "מישהו בדק שהציבור בסדר?"
+   }
+  }
+ },
+ "offline": {
+  "efficiency": 0.5,
+  "capSec": 28800,
+  "minAwaySec": 60,
+  "_formula": "award = clamp(now - lastSaveTime, 0, capSec) × bpsNoBuffs × efficiency × (s03 ? 2 : 1), only if elapsed >= minAwaySec. Negative elapsed => 0 and lastSaveTime := now. O1 credits the money when the card opens (UX §1.1)."
+ },
+ "autosaveSec": 10,
+ "buyModes": [
+  1,
+  10,
+  "max"
+ ],
+ "bulkCostFormula": "cost(n) = baseCost * g^owned * (g^n - 1) / (g - 1); maxAffordable = floor(log(bank * (g - 1) / (baseCost * g^owned) + 1) / log(g))",
+ "numberFormat": {
+  "suffixes": [
+   "",
+   "K",
+   "M",
+   "B",
+   "T"
+  ],
+  "letterSuffixesAfterT": "aa, ab, ... az, ba, ... zz (index n = tier - 5; first = 'a' + floor(n/26), second = 'a' + n % 26)",
+  "significantDigits": 3,
+  "_scope": "significantDigits/costRounding apply to costs, rates and all other numbers; the bank uses numberFormat.bank.",
+  "belowThousand": "integer, except rates below 10 show one decimal (e.g. '0.4/s')",
+  "bank": {
+   "fullIntegerBelow": 1000000,
+   "thousandsSeparator": ",",
+   "significantDigitsAbove": 4,
+   "rounding": "floor",
+   "examples": {
+    "999": "999",
+    "1234": "1,234",
+    "999999": "999,999",
+    "1234567": "1.234M",
+    "2.5e12": "2.500T"
+   }
+  },
+  "costRounding": "ceil",
+  "examples": {
+   "999": "999",
+   "1234": "1.23K",
+   "12345": "12.3K",
+   "123456": "123K",
+   "1500000": "1.50M",
+   "2.5e12": "2.50T",
+   "1e15": "1.00aa",
+   "3.3e17": "330aa",
+   "1e18": "1.00ab"
+  }
+ },
+ "headlines": [
+  {
+   "id": "h_first_tap",
+   "trigger": {
+    "type": "tapsLifetime",
+    "value": 1
+   },
+   "text": "על פי פרסומים זרים, יש כובע.",
+   "poll_like": false,
+   "deck": "T25"
+  },
+  {
+   "id": "h_first_rabbit",
+   "trigger": {
+    "type": "critsLifetime",
+    "value": 1
+   },
+   "text": "ארנב קפץ מהכובע. קיבל זימון לעדות.",
+   "poll_like": false,
+   "src": [
+    "bugs-bunny"
+   ],
+   "deck": "T03"
+  },
+  {
+   "id": "h_taxpayer",
+   "trigger": {
+    "type": "firstOwned",
+    "value": "taxpayer"
+   },
+   "text": "נרכש משלם מסים נוסף. הוא נאנח. זה נחשב הסכמה.",
+   "poll_like": false,
+   "deck": "T01"
+  },
+  {
+   "id": "h_hitech",
+   "trigger": {
+    "type": "firstOwned",
+    "value": "hitech"
+   },
+   "text": "הייטקיסט ראשון בקופה. המדינה שולחת תודה. בתלוש.",
+   "poll_like": false
+  },
+  {
+   "id": "h_vat",
+   "trigger": {
+    "type": "firstOwned",
+    "value": "vat"
+   },
+   "text": "המע״מ עלה ל־18%. איך שהוא גדל, בלי עין הרע.",
+   "poll_like": false,
+   "src": [
+    "vat-18"
+   ],
+   "deck": "T22"
+  },
+  {
+   "id": "h_cigars",
+   "trigger": {
+    "type": "firstOwned",
+    "value": "cigars"
+   },
+   "text": "חבר נדיב הצטרף. הסיגרים: לפי כתב האישום. החברות: לפי הלשכה.",
+   "poll_like": false,
+   "src": [
+    "cigars-champagne"
+   ]
+  },
+  {
+   "id": "h_submarine",
+   "trigger": {
+    "type": "firstOwned",
+    "value": "submarine"
+   },
+   "text": "הצוללת הגיחה. על הסיפון: עמלות. בתיבת הדואר: מכתבי אזהרה.",
+   "poll_like": false,
+   "src": [
+    "submarines"
+   ]
+  },
+  {
+   "id": "h_qatari",
+   "trigger": {
+    "type": "firstOwned",
+    "value": "qatari"
+   },
+   "text": "נרכש יועץ קטארי. הוא חשוד. אתה לא. ככה זה כתוב.",
+   "poll_like": false,
+   "src": [
+    "qatargate"
+   ]
+  },
+  {
+   "id": "h_poison",
+   "trigger": {
+    "type": "firstOwned",
+    "value": "poison"
+   },
+   "text": "מכונת הרעל הופעלה. 10,000 חשבונות. אף אחד עם תמונת פרופיל.",
+   "poll_like": false
+  },
+  {
+   "id": "h_washington",
+   "trigger": {
+    "type": "firstOwned",
+    "value": "washington"
+   },
+   "text": "פנקס הצ׳קים הזהוב הגיע. כל צ׳ק מגיע עם פוסט. חלק גם עם כסף.",
+   "poll_like": false
+  },
+  {
+   "id": "h_first_suitcase",
+   "trigger": {
+    "type": "goldenCaughtLifetime",
+    "value": 1
+   },
+   "text": "תפסת מזוודה. בלשכה: \"איזו מזוודה?\"",
+   "poll_like": false,
+   "deck": "T26"
+  },
+  {
+   "id": "h_first_partner",
+   "trigger": {
+    "type": "stat",
+    "key": "partnersPaid",
+    "value": 1
+   },
+   "text": "בן גביר הצטרף לקבוצה. הודיע שזה זמני. גם ההודעה זמנית.",
+   "poll_like": false
+  },
+  {
+   "id": "h_taps_1000",
+   "trigger": {
+    "type": "tapsLifetime",
+    "value": 1000
+   },
+   "text": "1,000 שליפות מהכובע. הכובע מבקש לציין: הוא לא סופר.",
+   "poll_like": false
+  },
+  {
+   "id": "h_election_1",
+   "trigger": {
+    "type": "evolutions",
+    "value": 1
+   },
+   "text": "הכנסת התפזרה. הכיסאות עוד חמים.",
+   "poll_like": false
+  },
+  {
+   "id": "h_election_5",
+   "trigger": {
+    "type": "evolutions",
+    "value": 5
+   },
+   "text": "5 מערכות בחירות בפחות מ־4 שנים. אצלנו זה החימום.",
+   "poll_like": false,
+   "src": [
+    "five-elections"
+   ],
+   "deck": "T23"
+  },
+  {
+   "id": "h_election_10",
+   "trigger": {
+    "type": "evolutions",
+    "value": 10
+   },
+   "text": "10 סבבי בחירות. ועדת הבחירות שואלת אם זה מנוי.",
+   "poll_like": false
+  },
+  {
+   "id": "h_election_20",
+   "trigger": {
+    "type": "evolutions",
+    "value": 20
+   },
+   "text": "סבב בחירות מס׳ 20. הקלפיות מבקשות קביעות.",
+   "poll_like": false
+  },
+  {
+   "id": "h_cottage_0",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 1000.0
+   },
+   "text": "הקופה עברה 1,000 ₪. הקוטג׳ איבד פיקסל.",
+   "poll_like": false,
+   "cottagePixel": 1,
+   "src": [
+    "cottage-index"
+   ],
+   "deck": "T02"
+  },
+  {
+   "id": "h_cottage_1",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 10000.0
+   },
+   "text": "הקופה עברה 10,000 ₪. הקוטג׳ איבד פיקסל.",
+   "poll_like": false,
+   "cottagePixel": 2,
+   "src": [
+    "cottage-index"
+   ],
+   "deck": "T02"
+  },
+  {
+   "id": "h_cottage_2",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 100000.0
+   },
+   "text": "הקופה עברה 100,000 ₪. הקוטג׳ איבד פיקסל.",
+   "poll_like": false,
+   "cottagePixel": 3,
+   "src": [
+    "cottage-index"
+   ],
+   "deck": "T02"
+  },
+  {
+   "id": "h_cottage_3",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 1000000.0
+   },
+   "text": "הקופה עברה מיליון ₪. הקוטג׳ איבד פיקסל ושוקל רילוקיישן.",
+   "poll_like": false,
+   "cottagePixel": 4,
+   "src": [
+    "cottage-index"
+   ]
+  },
+  {
+   "id": "h_cottage_4",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 10000000.0
+   },
+   "text": "הקופה עברה 10 מיליון ₪. הקוטג׳ איבד פיקסל.",
+   "poll_like": false,
+   "cottagePixel": 5,
+   "src": [
+    "cottage-index"
+   ],
+   "deck": "T02"
+  },
+  {
+   "id": "h_cottage_5",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 100000000.0
+   },
+   "text": "הקופה עברה 100 מיליון ₪. הקוטג׳ כבר מתכווץ מעצמו.",
+   "poll_like": false,
+   "cottagePixel": 6,
+   "src": [
+    "cottage-index"
+   ]
+  },
+  {
+   "id": "h_cottage_6",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 1000000000.0
+   },
+   "text": "הקופה עברה מיליארד ₪. הקוטג׳ עבר לגביע של יוגורט.",
+   "poll_like": false,
+   "cottagePixel": 7,
+   "src": [
+    "cottage-index"
+   ]
+  },
+  {
+   "id": "h_cottage_7",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 10000000000.0
+   },
+   "text": "הקופה עברה 10 מיליארד ₪. הקוטג׳ איבד פיקסל.",
+   "poll_like": false,
+   "cottagePixel": 8,
+   "src": [
+    "cottage-index"
+   ],
+   "deck": "T02"
+  },
+  {
+   "id": "h_cottage_8",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 100000000000.0
+   },
+   "text": "הקופה עברה 100 מיליארד ₪. הקוטג׳ איבד פיקסל.",
+   "poll_like": false,
+   "cottagePixel": 9,
+   "src": [
+    "cottage-index"
+   ],
+   "deck": "T02"
+  },
+  {
+   "id": "h_cottage_9",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 1000000000000.0
+   },
+   "text": "הקופה עברה טריליון ₪. הקוטג׳ נמכר עכשיו לפי פיקסל.",
+   "poll_like": false,
+   "cottagePixel": 10,
+   "src": [
+    "cottage-index"
+   ]
+  },
+  {
+   "id": "h_cottage_10",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 10000000000000.0
+   },
+   "text": "הקופה עברה 10 טריליון ₪. הקוטג׳ איבד פיקסל.",
+   "poll_like": false,
+   "cottagePixel": 11,
+   "src": [
+    "cottage-index"
+   ],
+   "deck": "T02"
+  },
+  {
+   "id": "h_cottage_11",
+   "trigger": {
+    "type": "allTimeBananas",
+    "value": 100000000000000.0
+   },
+   "text": "הקופה עברה 100 טריליון ₪. מהקוטג׳ נשאר רק המכסה.",
+   "poll_like": false,
+   "cottagePixel": 12,
+   "src": [
+    "cottage-index"
+   ]
+  }
+ ],
+ "ambientHeadlines": [
+  "מבזק: לא קרה כלום. פרטים בהמשך.",
+  "נמצא חור בתקציב. הקוסם הכניס יד ושלף ארנב.",
+  "מקורבים לכובע: \"הוא מעולם לא היה ריק.\"",
+  "השליפה האחרונה שלך הוצאה מהקשרה. לא נמסרה תגובה.",
+  "דובי ביקש העלאה. נענה \"לא יהיה כלום\". חזר על זה בשמחה.",
+  "הלשכה מכחישה את ההכחשה הקודמת. היא עומדת מאחורי הבאה.",
+  "תחקיר: לאן הולך הכסף? התשובה המלאה בעמוד 61. יש 60 עמודים.",
+  "בכיר: \"אין כלום.\" בכיר יותר: \"אין כלום!\" הכי בכיר: תוכי."
+ ],
+ "ticker": {
+  "_rule": "Milestone headlines fire once ever (headlinesSeen) and pre-empt the queue. Event lines (suitcase, court, chat events) jump the queue. Otherwise draw a random eligible ambient line, skipping the last noRepeatWindow. During the blackout draw only poll_like:false.",
+  "headlineHoldSec": 6,
+  "ambientIntervalSec": 10,
+  "crawlPxPerSec": 40,
+  "ambientFrom": "C1",
+  "_ambientFrom": "No ambient lines before the first chat ping (UX C1): the first minute carries only H1-H3, H-catch and H-miss (UX §2, one headline at a time).",
+  "suppress": {
+   "c01": "during round 3 (story beat B3 carries the same joke)"
+  }
+ },
+ "milestones": {
+  "_doc": "v2 (AdVenture Capitalist unlocks): every producer tier doubles its own output at each owned count in perProducer; when EVERY producer reaches an allProducers count, all production is multiplied. Applied in Meta (game/scripts/sim/meta.gd).",
+  "perProducer": [
+   {
+    "owned": 25,
+    "mult": 2
+   },
+   {
+    "owned": 50,
+    "mult": 2
+   },
+   {
+    "owned": 100,
+    "mult": 2
+   },
+   {
+    "owned": 200,
+    "mult": 2
+   },
+   {
+    "owned": 300,
+    "mult": 2
+   }
+  ],
+  "allProducers": [
+   {
+    "owned": 10,
+    "mult": 1.25
+   },
+   {
+    "owned": 25,
+    "mult": 1.25
+   },
+   {
+    "owned": 50,
+    "mult": 1.25
+   },
+   {
+    "owned": 100,
+    "mult": 1.25
+   }
+  ],
+  "levelUpLine": "producers[].levelUp fires in the ticker at each perProducer milestone (the source 'levels up')."
+ },
+ "achievements": {
+  "_doc": "תיק הישגים: a section inside UX's 'תיקים' tab. Each earned trophy adds bonusPct to all income (raised by the 'תיק עבה' perk). Secret trophies show ??? until earned. neverAwarded trophies never count. New trigger types: never; new stat keys listed in STATUS.md.",
+  "bonusPct": 0.015,
+  "list": [
+   {
+    "id": "a_case_1000",
+    "name": "תיק 1000",
+    "desc": "הרווחת את ה־1,000 ₪ הראשונים.",
+    "icon": "icon_folder",
+    "trigger": {
+     "type": "allTimeBananas",
+     "value": 1000
+    },
+    "src": [
+     "trial"
+    ],
+    "deck": true
+   },
+   {
+    "id": "a_case_million",
+    "name": "תיק מיליון",
+    "desc": "מיליון ₪. התיק מתעבה.",
+    "icon": "icon_folder",
+    "trigger": {
+     "type": "allTimeBananas",
+     "value": 1000000.0
+    }
+   },
+   {
+    "id": "a_case_billion",
+    "name": "תיק מיליארד",
+    "desc": "מיליארד ₪. צריך ארון.",
+    "icon": "icon_folder",
+    "trigger": {
+     "type": "allTimeBananas",
+     "value": 1000000000.0
+    }
+   },
+   {
+    "id": "a_case_trillion",
+    "name": "תיק טריליון",
+    "desc": "טריליון ₪. צריך בניין.",
+    "icon": "icon_folder",
+    "trigger": {
+     "type": "allTimeBananas",
+     "value": 1000000000000.0
+    }
+   },
+   {
+    "id": "a_tap_100",
+    "name": "שלפת",
+    "desc": "100 שליפות מהכובע.",
+    "icon": "icon_hat",
+    "trigger": {
+     "type": "tapsLifetime",
+     "value": 100
+    }
+   },
+   {
+    "id": "a_tap_1000",
+    "name": "יד זריזה",
+    "desc": "1,000 שליפות.",
+    "icon": "icon_hat",
+    "trigger": {
+     "type": "tapsLifetime",
+     "value": 1000
+    }
+   },
+   {
+    "id": "a_tap_10000",
+    "name": "אצבע ממלכתית",
+    "desc": "10,000 שליפות.",
+    "icon": "icon_hat",
+    "trigger": {
+     "type": "tapsLifetime",
+     "value": 10000
+    }
+   },
+   {
+    "id": "a_rabbit_10",
+    "name": "זכות השתיקה",
+    "desc": "10 ארנבים. אף אחד לא דיבר.",
+    "icon": "icon_rabbit",
+    "trigger": {
+     "type": "critsLifetime",
+     "value": 10
+    },
+    "src": [
+     "bugs-bunny"
+    ]
+   },
+   {
+    "id": "a_rabbit_100",
+    "name": "ארנבייה",
+    "desc": "100 ארנבים. כולם שותקים.",
+    "icon": "icon_rabbit",
+    "trigger": {
+     "type": "critsLifetime",
+     "value": 100
+    }
+   },
+   {
+    "id": "a_suitcase_1",
+    "name": "איזו מזוודה?",
+    "desc": "תפסת מזוודה.",
+    "icon": "icon_suitcase",
+    "trigger": {
+     "type": "goldenCaughtLifetime",
+     "value": 1
+    }
+   },
+   {
+    "id": "a_suitcase_25",
+    "name": "סבל",
+    "desc": "25 מזוודות. אף אחת לא שלך.",
+    "icon": "icon_suitcase",
+    "trigger": {
+     "type": "goldenCaughtLifetime",
+     "value": 25
+    }
+   },
+   {
+    "id": "a_election_1",
+    "name": "עוד סבב",
+    "desc": "פיזרת את הכנסת.",
+    "icon": "icon_ballot",
+    "trigger": {
+     "type": "evolutions",
+     "value": 1
+    }
+   },
+   {
+    "id": "a_five_under_four",
+    "name": "חמש בפחות מארבע",
+    "desc": "5 סבבי בחירות ברצף, כל אחד בפחות מ־4 דקות.",
+    "icon": "icon_ballot",
+    "trigger": {
+     "type": "stat",
+     "key": "streakRoundsUnder240s",
+     "value": 5
+    },
+    "src": [
+     "five-elections"
+    ],
+    "deck": true,
+    "_note": "Deck condition was '5 rounds in under 4 hours'; the bench shows a 4-hour window is reached by everyone by accident. Pitch §10.5 wants it to reward the speed route, so it is 5 consecutive rounds, each under 4 minutes."
+   },
+   {
+    "id": "a_election_10",
+    "name": "מנוי",
+    "desc": "10 סבבי בחירות.",
+    "icon": "icon_ballot",
+    "trigger": {
+     "type": "evolutions",
+     "value": 10
+    }
+   },
+   {
+    "id": "a_election_25",
+    "name": "קביעות",
+    "desc": "25 סבבי בחירות. הקלפי מכירה אותך.",
+    "icon": "icon_ballot",
+    "trigger": {
+     "type": "evolutions",
+     "value": 25
+    }
+   },
+   {
+    "id": "a_fast_round",
+    "name": "בחירות בזק",
+    "desc": "61 בפחות מ־5 דקות.",
+    "icon": "icon_clock",
+    "trigger": {
+     "type": "fastestRunUnder",
+     "value": 300
+    }
+   },
+   {
+    "id": "a_court_1",
+    "name": "יום משפט",
+    "desc": "העדת בפעם הראשונה.",
+    "icon": "icon_gavel",
+    "trigger": {
+     "type": "stat",
+     "key": "courtDays",
+     "value": 1
+    }
+   },
+   {
+    "id": "a_bourekas",
+    "name": "הבורקס סווג",
+    "desc": "התייעצות חמישית בסבב בחירות אחד.",
+    "icon": "icon_gavel",
+    "trigger": {
+     "type": "stat",
+     "key": "maxPostponesInRound",
+     "value": 5
+    }
+   },
+   {
+    "id": "a_pardon_10",
+    "name": "נדרשים מסמכים נוספים",
+    "desc": "הגשת בקשת חנינה 10 פעמים.",
+    "icon": "icon_stamp",
+    "trigger": {
+     "type": "stat",
+     "key": "pardonRequests",
+     "value": 10
+    },
+    "src": [
+     "pardon-request"
+    ],
+    "deck": true
+   },
+   {
+    "id": "a_aide_3",
+    "name": "לא מכיר אף אחד",
+    "desc": "לחצת \"אני לא מכיר אותו\" 3 פעמים.",
+    "icon": "icon_aide",
+    "trigger": {
+     "type": "stat",
+     "key": "aideDrops",
+     "value": 3
+    },
+    "deck": true
+   },
+   {
+    "id": "a_gantz",
+    "name": "הרוטציה של גנץ",
+    "desc": "בקרוב.",
+    "icon": "icon_clock",
+    "trigger": {
+     "type": "never"
+    },
+    "neverAwarded": true,
+    "fakeProgress": 0.99,
+    "src": [
+     "gantz-rotation"
+    ],
+    "deck": true,
+    "_note": "Never awarded. The bar sits at 99% forever. It must not count toward trophiesAtLeast or the trophy bonus."
+   },
+   {
+    "id": "a_partners_61",
+    "name": "61 ידיים",
+    "desc": "שילמת 61 דרישות.",
+    "icon": "icon_pin",
+    "trigger": {
+     "type": "stat",
+     "key": "demandsPaid",
+     "value": 61
+    }
+   },
+   {
+    "id": "a_get_out",
+    "name": "צאו החוצה",
+    "desc": "פירקת קטטה בקבוצה.",
+    "icon": "icon_pin",
+    "trigger": {
+     "type": "stat",
+     "key": "brawlsEnded",
+     "value": 1
+    },
+    "src": [
+     "brawl"
+    ]
+   },
+   {
+    "id": "a_corridor",
+    "name": "המסדרון",
+    "desc": "\"המסדרון\" עבר 1,000 הודעות.",
+    "icon": "icon_pin",
+    "trigger": {
+     "type": "stat",
+     "key": "corridorMessages",
+     "value": 1000
+    }
+   },
+   {
+    "id": "a_tie",
+    "name": "תיקו כמו שהזמנת",
+    "desc": "סגרת עם גפני 5 פעמים.",
+    "icon": "icon_pin",
+    "trigger": {
+     "type": "stat",
+     "key": "gafniPaid",
+     "value": 5
+    }
+   },
+   {
+    "id": "a_clean",
+    "name": "כסף נקי",
+    "desc": "סבב בחירות שלם בלי אף מקור מפוקפק.",
+    "icon": "icon_coin",
+    "trigger": {
+     "type": "stat",
+     "key": "cleanRounds",
+     "value": 1
+    },
+    "deck": true,
+    "_note": "From the deck bench; restored because pitch §10.3 defends the clean route as a legitimate style."
+   },
+   {
+    "id": "a_cottage",
+    "name": "מדד הקוטג׳: 0",
+    "desc": "הקוטג׳ איבד את כל הפיקסלים.",
+    "icon": "icon_cottage",
+    "trigger": {
+     "type": "allTimeBananas",
+     "value": 100000000000000.0
+    },
+    "src": [
+     "cottage-index"
+    ]
+   },
+   {
+    "id": "a_all_sources",
+    "name": "סל מקורות",
+    "desc": "לפחות אחד מכל מקור.",
+    "icon": "icon_coin",
+    "trigger": {
+     "type": "ownedEach",
+     "value": 1
+    }
+   },
+   {
+    "id": "a_taxpayers_100",
+    "name": "מקהלה",
+    "desc": "100 משלמי מסים. אנחה אחת.",
+    "icon": "icon_coin",
+    "trigger": {
+     "type": "owned",
+     "producer": "taxpayer",
+     "value": 100
+    }
+   },
+   {
+    "id": "a_bots_50",
+    "name": "ישראלי_גאה_1",
+    "desc": "50 מכונות רעל. דעה אחת.",
+    "icon": "icon_phone",
+    "trigger": {
+     "type": "owned",
+     "producer": "poison",
+     "value": 50
+    }
+   },
+   {
+    "id": "a_window_seat",
+    "name": "מושב חלון",
+    "desc": "קנית את כנף ציון.",
+    "icon": "icon_plane",
+    "trigger": {
+     "type": "stat",
+     "key": "wingOfZionBought",
+     "value": 1
+    },
+    "src": [
+     "wing-of-zion"
+    ]
+   },
+   {
+    "id": "a_bps_1k",
+    "name": "ברז",
+    "desc": "1,000 ₪ לשנייה.",
+    "icon": "icon_coin",
+    "trigger": {
+     "type": "bps",
+     "value": 1000
+    }
+   },
+   {
+    "id": "a_bps_1m",
+    "name": "מכונת כסף",
+    "desc": "מיליון ₪ לשנייה.",
+    "icon": "icon_coin",
+    "trigger": {
+     "type": "bps",
+     "value": 1000000.0
+    }
+   },
+   {
+    "id": "a_perk_1",
+    "name": "הבטחה שקוימה",
+    "desc": "קנית כלי קסם ראשון.",
+    "icon": "icon_wand",
+    "trigger": {
+     "type": "perksBought",
+     "value": 1
+    }
+   },
+   {
+    "id": "a_hoard",
+    "name": "מיליארד במזומן",
+    "desc": "מיליארד ₪ בקופה בבת אחת.",
+    "icon": "icon_coin",
+    "trigger": {
+     "type": "bananasAtOnce",
+     "value": 1000000000.0
+    },
+    "secret": true
+   },
+   {
+    "id": "a_s_miss",
+    "name": "הגיעה ליעדה",
+    "desc": "פספסת מזוודה. לא ידענו.",
+    "icon": "icon_suitcase",
+    "trigger": {
+     "type": "stat",
+     "key": "goldenMissed",
+     "value": 1
+    },
+    "secret": true
+   },
+   {
+    "id": "a_s_nap",
+    "name": "ביביסיטר",
+    "desc": "מיצית את זמן ההיעדרות.",
+    "icon": "icon_moon",
+    "trigger": {
+     "type": "stat",
+     "key": "capHits",
+     "value": 1
+    },
+    "secret": true,
+    "src": [
+     "bibi-sitter"
+    ]
+   },
+   {
+    "id": "a_s_salad",
+    "name": "אין! ציד! כלום!",
+    "desc": "דובי התבלבל.",
+    "icon": "icon_parrot",
+    "trigger": {
+     "type": "stat",
+     "key": "wordSaladSeen",
+     "value": 1
+    },
+    "secret": true
+   },
+   {
+    "id": "a_s_night",
+    "name": "לילה לבן",
+    "desc": "שלפת בין 02:00 ל־04:00.",
+    "icon": "icon_moon",
+    "trigger": {
+     "type": "stat",
+     "key": "tapsAt2to4",
+     "value": 1
+    },
+    "secret": true
+   },
+   {
+    "id": "a_s_lapid",
+    "name": "בכובע!",
+    "desc": "לפיד שאל 10 פעמים.",
+    "icon": "icon_folder",
+    "trigger": {
+     "type": "stat",
+     "key": "lapidCards",
+     "value": 10
+    },
+    "secret": true,
+    "src": [
+     "lapid-where-money"
+    ]
+   }
+  ]
+ },
+ "perks": {
+  "_doc": "כלי הקסם: coalition deals, the only promises that are kept. Permanent, bought with base. Spending never lowers the prestige multiplier (it counts every base point ever earned). desc takes {v} and stays within 18 characters.",
+  "list": [
+   {
+    "id": "p_autotap",
+    "name": "שרביט אוטומטי",
+    "icon": "icon_wand",
+    "desc": "{v} שליפות לשנייה",
+    "levels": [
+     2,
+     4,
+     8
+    ],
+    "costs": [
+     5,
+     40,
+     300
+    ],
+    "effect": "autoTapPerSec"
+   },
+   {
+    "id": "p_butler",
+    "name": "ראש המטה",
+    "icon": "icon_aide",
+    "desc": "קונה בשבילך בזול",
+    "levels": [
+     1
+    ],
+    "costs": [
+     15
+    ],
+    "effect": "autoBuy"
+   },
+   {
+    "id": "p_net",
+    "name": "רשת למזוודות",
+    "icon": "icon_suitcase",
+    "desc": "תופס מזוודות לבד",
+    "levels": [
+     1
+    ],
+    "costs": [
+     30
+    ],
+    "effect": "autoCatch"
+   },
+   {
+    "id": "p_nap",
+    "name": "שינה ממלכתית",
+    "icon": "icon_moon",
+    "desc": "היעדרות עד {v} שעות",
+    "levels": [
+     12,
+     24
+    ],
+    "costs": [
+     5,
+     80
+    ],
+    "effect": "offlineCapHours"
+   },
+   {
+    "id": "p_shift",
+    "name": "משמרת לילה",
+    "icon": "icon_clock",
+    "desc": "{v}% בזמן היעדרות",
+    "levels": [
+     75,
+     100
+    ],
+    "costs": [
+     10,
+     150
+    ],
+    "effect": "offlineEfficiencyPct"
+   },
+   {
+    "id": "p_start",
+    "name": "קופה קטנה",
+    "icon": "icon_coin",
+    "desc": "מתחיל עם {v} ₪",
+    "levels": [
+     1000,
+     50000,
+     1000000
+    ],
+    "costs": [
+     3,
+     60,
+     600
+    ],
+    "effect": "startBananas"
+   },
+   {
+    "id": "p_magnet",
+    "name": "מדבקת DOHA",
+    "icon": "icon_suitcase",
+    "desc": "מזוודות {v}% מוקדם",
+    "levels": [
+     15,
+     30
+    ],
+    "costs": [
+     8,
+     100
+    ],
+    "effect": "goldenSoonerPct"
+   },
+   {
+    "id": "p_frenzy",
+    "name": "הארכת כהונה",
+    "icon": "icon_clock",
+    "desc": "בונוסים +{v}% זמן",
+    "levels": [
+     25,
+     50
+    ],
+    "costs": [
+     10,
+     120
+    ],
+    "effect": "buffLongerPct"
+   },
+   {
+    "id": "p_toolbelt",
+    "name": "חוזה עם הכובע",
+    "icon": "icon_hat",
+    "desc": "שדרוגי כובע נשמרים",
+    "levels": [
+     1
+    ],
+    "costs": [
+     12
+    ],
+    "effect": "keepTapUpgrades"
+   },
+   {
+    "id": "p_spirit",
+    "name": "תיק עבה",
+    "icon": "icon_folder",
+    "desc": "כל הישג +{v}%",
+    "levels": [
+     2,
+     2.5
+    ],
+    "costs": [
+     25,
+     400
+    ],
+    "effect": "achievementPct"
+   },
+   {
+    "id": "p_deal",
+    "name": "הסכם קואליציוני",
+    "icon": "icon_pin",
+    "desc": "דרישות ‎−{v}%",
+    "levels": [
+     10,
+     20
+    ],
+    "costs": [
+     20,
+     250
+    ],
+    "effect": "demandDiscountPct",
+    "new": true
+   },
+   {
+    "id": "p_patience",
+    "name": "הארכת אולטימטום",
+    "icon": "icon_clock",
+    "desc": "אולטימטום +{v} שנ׳",
+    "levels": [
+     30,
+     60
+    ],
+    "costs": [
+     15,
+     200
+    ],
+    "effect": "ultimatumPlusSec",
+    "new": true
+   }
+  ],
+  "butlerSpendFrac": 0.1
+ },
+ "narrator": {
+  "_doc": "The ticker's host.",
+  "name": "דובי",
+  "title": "דובר הלשכה"
+ },
+ "dubi": {
+  "name": "דובי",
+  "title": "דובר הלשכה",
+  "_rule": "Dubi only repeats. Every Dubi line is a talking point, doubled. He never asks, reasons or improvises.",
+  "squawks": {
+   "dubi.firsttap": "אין כלום! אין כלום!",
+   "dubi.buy": "לקנות! לקנות!",
+   "dubi.elect": "בחירות! בחירות!",
+   "dubi.miss": "לא ידענו! לא ידענו!",
+   "dubi.drop": "מי? מי?"
+  },
+  "talkingPoints": [
+   "אין כלום!",
+   "לא ידענו!",
+   "ציד מכשפות!",
+   "בכובע!",
+   "בחירות!",
+   "כספים קואליציוניים!"
+  ],
+  "wordSalad": {
+   "when": {
+    "ownedAtLeast": {
+     "producer": "poison",
+     "count": 50
+    }
+   },
+   "chance": 0.15,
+   "_rule": "Shuffle the words of his last three talking points (spin fatigue, deck §I).",
+   "sample": "ציד! כלום! אין מכשפות! כלום ציד! אין אין!"
+  }
+ },
+ "returnLines": [
+  {
+   "id": "ret_summary",
+   "text": "בזמן שלא היית: {threats} איומי פרישה, {rejoins} חזרות לקבוצה, ו־{n} פעמים \"אין כלום\".",
+   "vars": [
+    "threats",
+    "rejoins",
+    "n"
+   ],
+   "_note": "Deck wrote '3 איומי פרישה, 2 חזרות'; they are runtime counts so the line never contradicts the save."
+  },
+  {
+   "id": "ret_sitter",
+   "text": "הביביסיטר מדווח: היה שקט. לא היה כלום. כי אין כלום.",
+   "whenUpgrade": "s03",
+   "src": [
+    "bibi-sitter"
+   ]
+  }
+ ],
+ "eras": {
+  "_doc": "Four stages by election count (engine contract: background = the approved 180x320 stage art; props empty because the landmarks are in the backgrounds; the stage fills through the sources' slots). skyBands come from the approved palette (art/style-guide.md era table); the music follows the era id through the audio manifest.",
+  "list": [
+   {
+    "id": "balfour",
+    "name": "בלפור",
+    "fromEvolutions": 0,
+    "skyBands": [
+     "#2a2340",
+     "#4a2552",
+     "#7a3a7d"
+    ],
+    "background": "stage_balfour",
+    "props": []
+   },
+   {
+    "id": "knesset",
+    "name": "הכנסת",
+    "fromEvolutions": 1,
+    "skyBands": [
+     "#8fc0ff",
+     "#d3d6df",
+     "#e4d3a8"
+    ],
+    "background": "stage_knesset",
+    "props": []
+   },
+   {
+    "id": "courthouse",
+    "name": "בית המשפט",
+    "fromEvolutions": 3,
+    "skyBands": [
+     "#1e3a37",
+     "#3a655e",
+     "#79a597"
+    ],
+    "background": "stage_courthouse",
+    "props": []
+   },
+   {
+    "id": "washington",
+    "name": "וושינגטון",
+    "fromEvolutions": 5,
+    "skyBands": [
+     "#8fc0ff",
+     "#f7f4ec",
+     "#f07fad"
+    ],
+    "background": "stage_washington",
+    "props": []
+   }
+  ]
+ },
+ "story": {
+  "_doc": "Dubi's news flash after each election (evolution n shows beats[n-1]); after the last beat the encore repeats. Header ('מבזק | סבב בחירות מס׳ {n}') is UX chrome. src lists the sourced facts per beat (keys are beat numbers). Beat 3 suppresses ticker c01 during round 3. The encore has no variables (the engine's {n} is a Mk counter, not the round).",
+  "titles": [
+   "הכובע שלא נגמר",
+   "השותפים גילו את הכובע",
+   "הכובע קיבל זימון",
+   "למזוודה שתי כתובות",
+   "גם וושינגטון רוצה מזוודה"
+  ],
+  "beats": [
+   [
+    "הקוסם שלף 61 מכובע ריק.",
+    "בלשכה מסרו: \"אין שום כובע.\"",
+    "דובי: \"אין כובע! אין כובע!\"",
+    "הוחלט על בחירות. שוב. הציבור נרגש."
+   ],
+   [
+    "השותפים גילו את הכובע.",
+    "בכובע יש עכשיו 61 ידיים.",
+    "כל שליפה: בכפוף להסכם קואליציוני.",
+    "דובי: \"כספים קואליציוניים! כספים קואליציוניים!\""
+   ],
+   [
+    "הכובע קיבל זימון לעדות.",
+    "הארנב שומר על זכות השתיקה.",
+    "הלשכה ביקשה דחייה: התייעצות ביטחונית."
+   ],
+   [
+    "למזוודה נמצאו שתי כתובות: דוחא, ושולחן של יועץ.",
+    "החשד: על היועצים. הקוסם: לא חשוד.",
+    "דובי: \"ציד מכשפות! ציד מכשפות!\""
+   ],
+   [
+    "וושינגטון ביקשה מזוודה משלה.",
+    "קיבלה אחת. מלאה כביסה. לפי הפרסומים.",
+    "בלשכה: הכחשה. הכביסה: יצאה נקייה."
+   ]
+  ],
+  "src": {
+   "3": [
+    "bugs-bunny",
+    "testimony-cancelled"
+   ],
+   "4": [
+    "qatargate",
+    "witch-hunt"
+   ],
+   "5": [
+    "laundry"
+   ]
+  },
+  "poll_like": false,
+  "encore": [
+   "המשחק ייגמר כשייגמרו הבחירות.",
+   "כלומר: אחרי סבב הבחירות הבא. ואחריו.",
+   "אין סוף. יש עוד סבב."
+  ]
+ },
+ "ambientHeadlinesV2": {
+  "_doc": "Conditional ambient ticker. list: when keys are Story's (era, owned {producer,count}, frenzy, tapFrenzy, hour [from,to] local and wrapping midnight, evolutionsAtLeast, perk, trophiesAtLeast, allTimeAtLeast, goldenAtLeast). Lines with vars use ICU (cal01). Every line carries poll_like.",
+  "noRepeatWindow": 30,
+  "list": [
+   {
+    "id": "g01",
+    "text": "מבזק: לא קרה כלום. פרטים בהמשך.",
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "g02",
+    "text": "נמצא חור בתקציב. הקוסם הכניס יד ושלף ארנב.",
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "g03",
+    "text": "מקורבים לכובע: \"הוא מעולם לא היה ריק.\"",
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "g04",
+    "text": "השליפה האחרונה שלך הוצאה מהקשרה. לא נמסרה תגובה.",
+    "poll_like": false,
+    "deck": "bench (tap → שליפה)"
+   },
+   {
+    "id": "g05",
+    "text": "דובי ביקש העלאה. נענה \"לא יהיה כלום\". חזר על זה בשמחה.",
+    "src": [
+     "ein-klum"
+    ],
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "g06",
+    "text": "הלשכה מכחישה את ההכחשה הקודמת. היא עומדת מאחורי הבאה.",
+    "poll_like": false
+   },
+   {
+    "id": "g07",
+    "text": "תחקיר: לאן הולך הכסף? התשובה המלאה בעמוד 61. יש 60 עמודים.",
+    "poll_like": false
+   },
+   {
+    "id": "g08",
+    "text": "בכיר: \"אין כלום.\" בכיר יותר: \"אין כלום!\" הכי בכיר: תוכי.",
+    "poll_like": false
+   },
+   {
+    "id": "g09",
+    "text": "נמסר: הכסף בידיים טובות. הידיים: 61.",
+    "poll_like": false
+   },
+   {
+    "id": "g10",
+    "text": "מדד המחירים עלה. מדד ההכחשות עלה יותר.",
+    "poll_like": false
+   },
+   {
+    "id": "g11",
+    "text": "הכסף שלך הועבר לסעיף \"שונות\". \"שונות\" מודה לך.",
+    "poll_like": false
+   },
+   {
+    "id": "g12",
+    "text": "לשכת הקוסם: \"הכובע הוא עניין פרטי.\" הכובע: אין תגובה.",
+    "poll_like": false
+   },
+   {
+    "id": "g13",
+    "text": "התקציב אושר. מה יש בו יפורסם אחרי שייגמר.",
+    "poll_like": false
+   },
+   {
+    "id": "g14",
+    "text": "דובר הלשכה: \"הדברים הוצאו מהקשרם.\" ההקשר יימסר בנפרד.",
+    "poll_like": false
+   },
+   {
+    "id": "g15",
+    "text": "המדינה הודיעה על קיצוצים. הכובע הודיע על שליפות.",
+    "poll_like": false
+   },
+   {
+    "id": "g16",
+    "text": "מזוודה בורדו נצפתה בשמיים. מדבקה: DOHA. לא נמסרה תגובה.",
+    "when": {
+     "goldenAtLeast": 1
+    },
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "g17",
+    "text": "גורמים בסביבת המזוודה: \"היא רק עוברת פה.\"",
+    "when": {
+     "goldenAtLeast": 1
+    },
+    "poll_like": false,
+    "deck": "T08"
+   },
+   {
+    "id": "g18",
+    "text": "הודעה לעיתונות: אין הודעה לעיתונות.",
+    "poll_like": false
+   },
+   {
+    "id": "g19",
+    "text": "ניתוח עומק: הכל בסדר. ניתוח עמוק יותר: הכל בסדר, בערך.",
+    "poll_like": false
+   },
+   {
+    "id": "g20",
+    "text": "מקור בלשכה: \"תכתבו שזה מקור בלשכה.\"",
+    "poll_like": false
+   },
+   {
+    "id": "g21",
+    "text": "האופוזיציה העבירה 800 מיליון ₪ בטעות. הקוסם לא נגע בכובע.",
+    "src": [
+     "budget-2026"
+    ],
+    "poll_like": false,
+    "deck": "T21"
+   },
+   {
+    "id": "g22",
+    "text": "תקציב 2026: 850.6 מיליארד ₪. שיא. עד סבב הבחירות הבא.",
+    "src": [
+     "budget-2026"
+    ],
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "g23",
+    "text": "כסף קטן: 4,000 ₪ מבקבוקים. כסף גדול: כ־750 מיליון ₪ למטוס.",
+    "when": {
+     "evolutionsAtLeast": 1
+    },
+    "src": [
+     "bottle-deposits",
+     "wing-of-zion"
+    ],
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "b01",
+    "text": "בלפור: 3,000 לפי המשטרה, 30,000 לפי המארגנים, 61 לפי הקוסם.",
+    "when": {
+     "era": "balfour"
+    },
+    "poll_like": false,
+    "deck": "T05"
+   },
+   {
+    "id": "b02",
+    "text": "דובר המעון: \"אין מזוודות בבלפור.\" המזוודה: \"היי.\"",
+    "when": {
+     "era": "balfour",
+     "goldenAtLeast": 1
+    },
+    "poll_like": false
+   },
+   {
+    "id": "b03",
+    "text": "בלפור: ארוחת ערב ל־61. כולם הגיעו עם דרישות. אף אחד עם עוגה.",
+    "when": {
+     "era": "balfour"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "b04",
+    "text": "השומר בשער בלפור: הוא לא ראה מזוודה. הוא גם לא שאל.",
+    "when": {
+     "era": "balfour"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "b05",
+    "text": "המחאה בחוץ הביאה תופים. הלשכה הביאה אטמי אוזניים. תיקו.",
+    "when": {
+     "era": "balfour"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "b06",
+    "text": "בלפור בלילה: האור דולק. הלשכה: \"עובדים.\" הכובע: \"שולפים.\"",
+    "when": {
+     "era": "balfour"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "b07",
+    "text": "שיפוץ במעון: הוחלפו הווילונות. הכובע נשאר.",
+    "when": {
+     "era": "balfour"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "k01",
+    "text": "הכנסת: 120 כיסאות, 61 דרישות.",
+    "when": {
+     "era": "knesset"
+    },
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "k02",
+    "text": "03:40 במליאה: חוק עבר בקריאה שלישית. הראשונה? לא זוכרים.",
+    "when": {
+     "era": "knesset"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "k03",
+    "text": "ועדת הכספים אישרה העברה. היעד: \"שונות\". הסכום: \"בערך\".",
+    "when": {
+     "era": "knesset"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "k04",
+    "text": "הוצע חוק להגבלת נאומים לחמש דקות. נאום התמיכה נמשך שעה.",
+    "when": {
+     "era": "knesset"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "k05",
+    "text": "דיון דחוף בוועדה: למה אין דיונים דחופים. נדחה.",
+    "when": {
+     "era": "knesset"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "k06",
+    "text": "המליאה ריקה. ההצבעה: פה אחד. של מי? בבדיקה.",
+    "when": {
+     "era": "knesset"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "k07",
+    "text": "יו״ר הכנסת קרא לסדר. הסדר לא הגיע. הוזמן שוב לשבוע הבא.",
+    "when": {
+     "era": "knesset"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "c01",
+    "text": "משפט באגס באני: הארנב שומר על זכות השתיקה.",
+    "when": {
+     "era": "courthouse"
+    },
+    "src": [
+     "bugs-bunny"
+    ],
+    "poll_like": false,
+    "deck": "T09"
+   },
+   {
+    "id": "c03",
+    "text": "החנינה: נדרשים מסמכים נוספים. המסמכים: נדרשת חנינה.",
+    "when": {
+     "era": "courthouse"
+    },
+    "src": [
+     "pardon-request",
+     "pardon-shelved"
+    ],
+    "poll_like": false,
+    "deck": "T11"
+   },
+   {
+    "id": "c04",
+    "text": "בית המשפט, 09:00: הדיון נפתח. 09:04: התייעצות ביטחונית.",
+    "when": {
+     "era": "courthouse"
+    },
+    "src": [
+     "testimony-cancelled"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "c05",
+    "text": "מזנון בית המשפט: הבורקס אזל. החשד: התייעצות ביטחונית.",
+    "when": {
+     "era": "courthouse"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "c06",
+    "text": "השופטים: לקצר. הסנגוריה: להאריך. הארנב: עורך דין.",
+    "when": {
+     "era": "courthouse"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "c07",
+    "text": "בית המשפט זימן את הכובע. הכובע השיב במכתב: \"אני רק אביזר.\"",
+    "when": {
+     "era": "courthouse"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "c08",
+    "text": "תיק 1000, תיק 2000, תיק 4000. בארכיון מבקשים מדף נוסף.",
+    "when": {
+     "era": "courthouse"
+    },
+    "src": [
+     "trial"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "w01",
+    "text": "כנף ציון נחתה בוושינגטון. בתא המטען: כביסה. לפי הפרסומים.",
+    "when": {
+     "era": "washington"
+    },
+    "src": [
+     "wing-of-zion",
+     "laundry"
+    ],
+    "poll_like": false,
+    "deck": "T06"
+   },
+   {
+    "id": "w02",
+    "text": "טראמפ שאל למי לעזאזל אכפת מסיגרים ושמפניה. בית המשפט: לנו.",
+    "when": {
+     "era": "washington"
+    },
+    "src": [
+     "trump-cigars-quote"
+    ],
+    "poll_like": false,
+    "deck": "T07",
+    "reportedSpeech": true
+   },
+   {
+    "id": "w03",
+    "text": "נחיתה בוושינגטון. במכס: \"משהו להצהיר?\" הקוסם: \"אין כלום.\"",
+    "when": {
+     "era": "washington"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "w04",
+    "text": "כנף ציון המריאה. בבטן המטוס: מזוודה. בתא הנוסעים: עוד אחת.",
+    "when": {
+     "era": "washington"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "w05",
+    "text": "וושינגטון: 7 שעות אחורה. התקציב: 7 שנים קדימה.",
+    "when": {
+     "era": "washington"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "w06",
+    "text": "דובי בוושינגטון: \"אין כלום! אין כלום!\" תרגום: \"NOTHING!\"",
+    "when": {
+     "era": "washington"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "w07",
+    "text": "המושב בכנף ציון: חלון. הנוף: עוד תקציב.",
+    "when": {
+     "era": "washington"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o01",
+    "text": "משלמי המסים הקימו קבוצת תמיכה. גם היא משלמת מסים.",
+    "when": {
+     "owned": {
+      "producer": "taxpayer",
+      "count": 10
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o02",
+    "text": "50 משלמי מסים. אנחה אחת. מקהלה.",
+    "when": {
+     "owned": {
+      "producer": "taxpayer",
+      "count": 50
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o03",
+    "text": "ההייטקיסטים שאלו לאן הולך הכסף. נשלח קישור. הקישור שבור.",
+    "when": {
+     "owned": {
+      "producer": "hitech",
+      "count": 10
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o04",
+    "text": "אקזיט! ההייטקיסט חוגג. גם רשות המסים.",
+    "when": {
+     "owned": {
+      "producer": "hitech",
+      "count": 25
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o05",
+    "text": "המע״מ עלה שוב. במשחק. בינתיים.",
+    "when": {
+     "owned": {
+      "producer": "vat",
+      "count": 10
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o06",
+    "text": "הקוטג׳ ביקש פטור ממע״מ. המע״מ צחק. 18 אחוז צחוק.",
+    "when": {
+     "owned": {
+      "producer": "vat",
+      "count": 25
+     }
+    },
+    "src": [
+     "vat-18"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "o07",
+    "text": "ארגז סיגרים עשירי הגיע. בלשכה: \"זה ארגז אחד, פשוט ארוך.\"",
+    "when": {
+     "owned": {
+      "producer": "cigars",
+      "count": 10
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o08",
+    "text": "הצוללת שלחה איתות. בפענוח: \"עמלה\". בפענוח חוזר: \"עמלה\".",
+    "when": {
+     "owned": {
+      "producer": "submarine",
+      "count": 10
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o09",
+    "text": "ליועצים יש משרד. על הדלת כתוב \"יועצים\". בלי המילה השנייה.",
+    "when": {
+     "owned": {
+      "producer": "qatari",
+      "count": 10
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o10",
+    "text": "עוד יועץ הצטרף. גם אותו אתה לא מכיר. הרשימה מתארכת.",
+    "when": {
+     "owned": {
+      "producer": "qatari",
+      "count": 25
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o11",
+    "text": "שדרגת את מכונת הרעל: 40,000 צפיות, 3 לייקים.",
+    "when": {
+     "owned": {
+      "producer": "poison",
+      "count": 10
+     }
+    },
+    "poll_like": false,
+    "deck": "T04"
+   },
+   {
+    "id": "o12",
+    "text": "1,000 בוטים: \"אמת!\". בוט 1,001: \"אמת!!\". חשד לעצמאות.",
+    "when": {
+     "owned": {
+      "producer": "poison",
+      "count": 25
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "o13",
+    "text": "צ׳ק זהוב נוסף. הסכום בטוש עבה. המטבע: מחמאות.",
+    "when": {
+     "owned": {
+      "producer": "washington",
+      "count": 10
+     }
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m05",
+    "text": "הקופה רצה. הכסף לא שואל שאלות. גם אנחנו לא.",
+    "when": {
+     "frenzy": true
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m06",
+    "text": "הכובע התחמם. מכבי האש הגיעו עם דרישה תקציבית.",
+    "when": {
+     "tapFrenzy": true
+    },
+    "poll_like": false
+   },
+   {
+    "id": "d01",
+    "text": "בוקר טוב. הכובע כבר בעבודה. משלמי המסים עוד בפקק.",
+    "when": {
+     "hour": [
+      5,
+      9
+     ]
+    },
+    "poll_like": false
+   },
+   {
+    "id": "d02",
+    "text": "הפסקת צהריים בכנסת. הדרישות לא יצאו להפסקה.",
+    "when": {
+     "hour": [
+      12,
+      14
+     ]
+    },
+    "poll_like": false
+   },
+   {
+    "id": "d03",
+    "text": "השעה כמעט 17:00. מישהו בטח מאיים לפרק משהו.",
+    "when": {
+     "hour": [
+      16,
+      17
+     ]
+    },
+    "poll_like": false
+   },
+   {
+    "id": "d04",
+    "text": "מהדורת הערב: לא קרה כלום. פרטים ב־40 דקות של פאנל.",
+    "when": {
+     "hour": [
+      19,
+      21
+     ]
+    },
+    "poll_like": false
+   },
+   {
+    "id": "d05",
+    "text": "לילה. המליאה ישנה. מכונת הרעל ערה. היא תמיד ערה.",
+    "when": {
+     "hour": [
+      23,
+      1
+     ]
+    },
+    "poll_like": false
+   },
+   {
+    "id": "d06",
+    "text": "03:00. דובי עדיין חוזר על עצמו. אף אחד לא ביקש.",
+    "when": {
+     "hour": [
+      2,
+      4
+     ]
+    },
+    "poll_like": false
+   },
+   {
+    "id": "e01",
+    "text": "הכנסת התפזרה. הבסיס נשאר. הוא תמיד נשאר.",
+    "when": {
+     "evolutionsAtLeast": 1
+    },
+    "poll_like": false
+   },
+   {
+    "id": "e02",
+    "text": "עוד סבב בחירות. ועדת הבחירות שוקלת להשאיר את הקלפיות פתוחות.",
+    "when": {
+     "evolutionsAtLeast": 2
+    },
+    "poll_like": false
+   },
+   {
+    "id": "e03",
+    "text": "מפלגות הודיעו על איחוד לבחירות. ועל פירוק לבחירות שאחריהן.",
+    "when": {
+     "evolutionsAtLeast": 3
+    },
+    "poll_like": false
+   },
+   {
+    "id": "e04",
+    "text": "ועדת הבחירות הזמינה פתקים בסיטונאות. קיבלה הנחת כמות.",
+    "when": {
+     "evolutionsAtLeast": 6
+    },
+    "poll_like": false
+   },
+   {
+    "id": "e05",
+    "text": "הציבור נרגש. שוב. הרופא ממליץ על הפסקה בין סבבי בחירות.",
+    "when": {
+     "evolutionsAtLeast": 8
+    },
+    "poll_like": false
+   },
+   {
+    "id": "p01",
+    "text": "רשת המזוודות פעילה. אף מזוודה לא מגיעה ליעדה. חוץ מאליך.",
+    "when": {
+     "perk": "p_net"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "p02",
+    "text": "השרביט שולף לבד. הקוסם חוסך אצבע. הציבור לא חוסך כלום.",
+    "when": {
+     "perk": "p_autotap"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "p03",
+    "text": "ראש המטה קונה בשבילך. בזול. קבלות? אחרי הבחירות.",
+    "when": {
+     "perk": "p_butler"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "p04",
+    "text": "תיק ההישגים התעבה. בלשכה: \"אלה הישגים, לא תיקים.\"",
+    "when": {
+     "trophiesAtLeast": 5
+    },
+    "poll_like": false
+   },
+   {
+    "id": "p05",
+    "text": "תיק ההישגים עבה מתיק 1000. זה הישג בפני עצמו.",
+    "when": {
+     "trophiesAtLeast": 15
+    },
+    "src": [
+     "trial"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "x01",
+    "text": "לפיד שאל \"איפה הכסף?\". דובי: \"בכובע! בכובע!\"",
+    "src": [
+     "lapid-where-money"
+    ],
+    "poll_like": false,
+    "deck": "T15",
+    "target": "lapid"
+   },
+   {
+    "id": "x02",
+    "text": "בנט חתם שלפיד לא יהיה רה״מ. היום הם רשימה אחת. העט בהלם.",
+    "src": [
+     "bennett-pledge",
+     "bennett-lapid-merger"
+    ],
+    "poll_like": false,
+    "deck": "T16",
+    "target": "bennett"
+   },
+   {
+    "id": "x03",
+    "text": "גנץ מחכה לרוטציה מ־2020. הביא כיסא מתקפל.",
+    "src": [
+     "gantz-rotation"
+    ],
+    "poll_like": false,
+    "deck": "T17",
+    "target": "gantz"
+   },
+   {
+    "id": "x04",
+    "text": "ליברמן לא יושב עם ביבי, לא עם בן גביר ולא על הגדר.",
+    "poll_like": false,
+    "deck": "T18",
+    "target": "liberman"
+   },
+   {
+    "id": "x05",
+    "text": "אייזנקוט מבטיח פוליטיקה בלי קסמים. הקהל רוצה את הכסף בחזרה.",
+    "poll_like": false,
+    "deck": "T19",
+    "target": "eisenkot"
+   },
+   {
+    "id": "x06",
+    "text": "גולן איחד את העבודה ומרצ. עכשיו רבים תחת קורת גג אחת.",
+    "src": [
+     "labor-meretz-merger"
+    ],
+    "poll_like": false,
+    "deck": "T20",
+    "target": "golan"
+   },
+   {
+    "id": "x07",
+    "text": "בנט חתם על התחייבות חדשה. הפעם בעיפרון.",
+    "src": [
+     "bennett-pledge"
+    ],
+    "poll_like": false,
+    "deck": "T27",
+    "target": "bennett"
+   },
+   {
+    "id": "x08",
+    "text": "גנץ שלח תזכורת לגבי הרוטציה. סטטוס: נקרא.",
+    "src": [
+     "gantz-rotation"
+    ],
+    "poll_like": false,
+    "deck": "T28",
+    "target": "gantz"
+   },
+   {
+    "id": "x09",
+    "text": "לפיד שאל \"איפה הכסף?\". שידור חוזר.",
+    "src": [
+     "lapid-where-money"
+    ],
+    "poll_like": false,
+    "deck": "T29",
+    "target": "lapid"
+   },
+   {
+    "id": "x10",
+    "text": "ליברמן הציג את הקווים האדומים שלו. זה פשוט דף אדום.",
+    "poll_like": false,
+    "deck": "T30",
+    "target": "liberman"
+   },
+   {
+    "id": "x11",
+    "text": "\"ישר\" מתנהלת ישר. בפוליטיקה זה נחשב קסם.",
+    "src": [
+     "yashar"
+    ],
+    "poll_like": false,
+    "deck": "T31",
+    "target": "eisenkot"
+   },
+   {
+    "id": "x12",
+    "text": "גולן הציע איחוד נוסף. הדמוקרטים עוד מתאחדים מהקודם.",
+    "src": [
+     "labor-meretz-merger"
+    ],
+    "poll_like": false,
+    "deck": "T32",
+    "target": "golan"
+   },
+   {
+    "id": "x13",
+    "text": "אייזנקוט, לפיד ובנט נפגשו לתיאום. תיאמו פגישת תיאום.",
+    "poll_like": false,
+    "deck": "T33",
+    "target": "all"
+   },
+   {
+    "id": "x14",
+    "text": "האופוזיציה פתחה קבוצה משותפת. תוך שעה: שלוש קבוצות.",
+    "poll_like": false,
+    "deck": "T34",
+    "target": "all"
+   },
+   {
+    "id": "x15",
+    "text": "לפיד שאל \"איפה הכסף?\" בפעם ה־1,000. הכסף עדיין לא ענה.",
+    "src": [
+     "lapid-where-money"
+    ],
+    "poll_like": false,
+    "target": "lapid"
+   },
+   {
+    "id": "x16",
+    "text": "בנט הבטיח לא להבטיח יותר. חתם על זה.",
+    "src": [
+     "bennett-pledge"
+    ],
+    "poll_like": false,
+    "target": "bennett"
+   },
+   {
+    "id": "x17",
+    "text": "הרוטציה של גנץ עודכנה: 99%. צפי: בקרוב. מאז 2020.",
+    "src": [
+     "gantz-rotation"
+    ],
+    "poll_like": false,
+    "target": "gantz"
+   },
+   {
+    "id": "x18",
+    "text": "ליברמן ישב... לא. ליברמן לא יושב. טעות בדיווח.",
+    "poll_like": false,
+    "target": "liberman"
+   },
+   {
+    "id": "x19",
+    "text": "אייזנקוט ניסה לשלוף משהו מהכובע. יצא דף מסרים. ישר.",
+    "src": [
+     "yashar"
+    ],
+    "poll_like": false,
+    "target": "eisenkot"
+   },
+   {
+    "id": "x20",
+    "text": "גולן איחד שני פאנלים לפאנל אחד. עכשיו צועקים בסטריאו.",
+    "poll_like": false,
+    "target": "golan"
+   },
+   {
+    "id": "x21",
+    "text": "האופוזיציה הגישה הצעת אי־אמון. גם בעצמה.",
+    "poll_like": false,
+    "target": "all"
+   },
+   {
+    "id": "x22",
+    "text": "6 ראשי מפלגות, 6 מיקרופונים, מסר אחד. של מישהו אחר.",
+    "poll_like": false,
+    "target": "all"
+   },
+   {
+    "id": "x23",
+    "text": "בנט ולפיד רשימה אחת. מי בראש? יוכרע בהטלת חתימה.",
+    "src": [
+     "bennett-lapid-merger"
+    ],
+    "poll_like": false,
+    "deck": "bench",
+    "target": "bennett"
+   }
+  ],
+  "_listPolitics": "listPolitics uses the politics condition vocabulary (Conditions.KEYS: partnerMember, partnerNotMember, membersAtLeast, seatsAtLeast, suspicionAtLeast, weekday, mode) plus requested keys (courtPhase, ultimatumOpen, dateFrom/dateTo, partnerMember as a list, upgrade). Story.pick_ambient() ignores unknown keys today, so these lines live apart and stay dormant until Story merges them and delegates non-story keys to Conditions.",
+  "listPolitics": [
+   {
+    "id": "c02",
+    "text": "הדיון נדחה. הנימוק יימסר בדיון הבא.",
+    "when": {
+     "courtPhase": "court"
+    },
+    "poll_like": false,
+    "deck": "T10"
+   },
+   {
+    "id": "m01",
+    "text": "החשד מבעבע. בלשכה: \"מבעבע זה בריא.\"",
+    "when": {
+     "suspicionAtLeast": 75
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m02",
+    "text": "גורמי אכיפה: \"אנחנו בודקים.\" גורמי הכובע: \"אנחנו שולפים.\"",
+    "when": {
+     "suspicionAtLeast": 90
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m03",
+    "text": "יום משפט: הקופה עובדת בחצי משרה. הכובע בחופשת מחלה.",
+    "when": {
+     "courtPhase": "court"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m04",
+    "text": "הארנב ביקש להעיד מאחורי פרגוד. נדחה. הוא ארנב.",
+    "when": {
+     "courtPhase": "court"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m07",
+    "text": "עוד קצת. בקבוצה כבר מחלקים תיקים.",
+    "when": {
+     "seatsAtLeast": 55
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m08",
+    "text": "ישיבת קואליציה: 120 דקות, 61 דרישות, 0 החלטות.",
+    "when": {
+     "membersAtLeast": 3
+    },
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "m09",
+    "text": "איום פרישה פתוח. בלשכה מקווים לסגור אותו לפני הבא.",
+    "when": {
+     "ultimatumOpen": true
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m10",
+    "text": "בן גביר מחוץ לקבוצה. הקבוצה שקטה. חשוד.",
+    "when": {
+     "partnerNotMember": "bengvir",
+     "membersAtLeast": 1
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m11",
+    "text": "בן גביר איים לפרוש. זה כבר לא מבזק, זה לוח זמנים.",
+    "when": {
+     "partnerMember": "bengvir"
+    },
+    "poll_like": false,
+    "deck": "T12"
+   },
+   {
+    "id": "m12",
+    "text": "סמוטריץ׳ מבקש להבהיר: אין כסף. יש העברות.",
+    "when": {
+     "partnerMember": "smotrich"
+    },
+    "poll_like": false,
+    "deck": "T13"
+   },
+   {
+    "id": "m13",
+    "text": "מירי רגב חנכה היום טקס לחנוכת טקסים.",
+    "when": {
+     "partnerMember": "regev"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m14",
+    "text": "לוין הציע רפורמה ברפורמה. הרפורמה הקודמת תשמש בסיס.",
+    "when": {
+     "partnerMember": "levin"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m15",
+    "text": "3 עובדים חדשים במשרד. איש לא ראה אותם. חרוצים מאוד.",
+    "when": {
+     "partnerMember": "maygolan"
+    },
+    "src": [
+     "may-golan"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "m16",
+    "text": "חוק עבר תוך 4 שניות. בשנייה החמישית מישהו אמר \"אבל\".",
+    "when": {
+     "partnerMember": "distel"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m17",
+    "text": "גולדקנופף העלה מחיר. שוב. לדבריו זה השוק.",
+    "when": {
+     "partnerMember": "goldknopf"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m18",
+    "text": "דרעי מחוץ לממשלה, בתוך הקבוצה. מבחוץ זה נראה אותו דבר.",
+    "when": {
+     "partnerMember": "deri"
+    },
+    "src": [
+     "haredi-left-gov"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "m19",
+    "text": "קרעי העביר ערוץ. הערוץ לא עבר.",
+    "when": {
+     "partnerMember": "karhi"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "m21",
+    "text": "ראיון בערוץ ידידותי. למחרת: הנחה באגרה. איזה מזל.",
+    "when": {
+     "upgrade": "s13"
+    },
+    "src": [
+     "channel14-fee"
+    ],
+    "poll_like": false,
+    "deck": "bench"
+   },
+   {
+    "id": "m20",
+    "text": "אמסלם וסמוטריץ׳ באותה קבוצה. השכנים כבר התלוננו.",
+    "when": {
+     "partnerMember": [
+      "amsalem",
+      "smotrich"
+     ]
+    },
+    "poll_like": false
+   },
+   {
+    "id": "cal01",
+    "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. ואחר כך? עוד סבב.",
+    "when": {
+     "mode": [
+      "campaign",
+      "blackout"
+     ],
+     "dateTo": "2026-10-26"
+    },
+    "src": [
+     "election-2026"
+    ],
+    "poll_like": false,
+    "deck": "T24",
+    "icu": true,
+    "vars": [
+     "d"
+    ]
+   },
+   {
+    "id": "cal02",
+    "text": "סוכות: הקואליציה בנתה סוכה. כל שותף דרש דופן. יצא בניין.",
+    "when": {
+     "dateFrom": "2026-09-26",
+     "dateTo": "2026-10-03"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "cal03",
+    "text": "שישי בצהריים. הקואליציה בחופש. הדרישות לא.",
+    "when": {
+     "weekday": [
+      5
+     ],
+     "hour": [
+      12,
+      16
+     ]
+    },
+    "poll_like": false
+   },
+   {
+    "id": "cal04",
+    "text": "מוצאי שבת. בחוץ מפגינים. בפנים מתייעצים ביטחונית.",
+    "when": {
+     "weekday": [
+      6
+     ],
+     "hour": [
+      20,
+      23
+     ]
+    },
+    "poll_like": false
+   },
+   {
+    "id": "cal05",
+    "text": "פחות מחודש לבחירות. הקלפיות מתאמנות.",
+    "when": {
+     "dateFrom": "2026-10-01",
+     "dateTo": "2026-10-22"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "cal06",
+    "text": "עד הבחירות: בלי סקרים. אפילו לא סקר על סקרים.",
+    "when": {
+     "mode": "blackout",
+     "dateTo": "2026-10-26"
+    },
+    "poll_like": false,
+    "deck": "I"
+   },
+   {
+    "id": "cal07",
+    "text": "היום בחירות. הציבור נרגש. שוב.",
+    "when": {
+     "mode": "blackout",
+     "dateFrom": "2026-10-27"
+    },
+    "src": [
+     "election-2026"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "cal08",
+    "text": "מתחיל משא ומתן קואליציוני. משך משוער: כן.",
+    "when": {
+     "mode": "negotiation"
+    },
+    "poll_like": false,
+    "deck": "I",
+    "priorityOnce": true
+   },
+   {
+    "id": "cal09",
+    "text": "משא ומתן קואליציוני: הוסכם על הכל, חוץ ממה שחשוב.",
+    "when": {
+     "mode": "negotiation"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "cal10",
+    "text": "טיוטת הסכם קואליציוני חדשה. השינוי: פסיק. הזזנו אותו.",
+    "when": {
+     "mode": "negotiation"
+    },
+    "poll_like": false
+   },
+   {
+    "id": "cal11",
+    "text": "כולם רוצים את האוצר. האוצר רוצה חופש.",
+    "when": {
+     "mode": "negotiation"
+    },
+    "poll_like": false
+   }
+  ]
+ }
+}

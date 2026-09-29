@@ -1,0 +1,2097 @@
+{
+ "version": "od-1",
+ "_doc": "עוד סבב: the era themes, the Outside drum line and the tempo-bound stingers. Owner: Audio Director. Written by audio/tools/compose_od.py (edit the score there, then run it); rendered by tools/gen_od_sevev.gd into game/assets/audio/od/. Bar strings: one token per step; '.' rest, '-' hold, NOTE (D5, F#4, Eb5), NOTE~UPPER (a 40 ms upper mordent), NOTE<FROM (a 50 ms scoop, 1 semitone at most), NOTE@inst (an instrument override), kit channels one character per simultaneous hit. Sections shorter than sectionBars cycle.",
+ "a4Hz": 440,
+ "form": {
+  "order": [
+   "A",
+   "A2",
+   "B",
+   "T"
+  ],
+  "sectionBars": 8,
+  "totalBars": 32,
+  "_doc": "A(1-8) A'(9-16) B(17-24) T(25-32). Bar 32 is the motif; its pickup is bar 31 beat 4&. The motif's held b2 resolves into the loop's own bar 1 (the seam is a cadence)."
+ },
+ "layers": {
+  "L0": {
+   "voices": "TRI bass + darbuka (NOI-L tek, NOI-S riq, TRI dum)",
+   "default": true,
+   "rule": "always on while music plays"
+  },
+  "L1": {
+   "voices": "P2 (hora/maqsum/stride stabs; the complete B melody)",
+   "default": false,
+   "rule": "on once the first money source is bought (sources_owned >= 1); stays on"
+  },
+  "L2": {
+   "voices": "P1 lead",
+   "default": false,
+   "rule": "on while the last tap was < 3000 ms ago; off otherwise. Forced off during court day and during the ultimatum's last 3 s"
+  },
+  "fade": {
+   "quantize": "bar",
+   "fadeBars": 1,
+   "_doc": "Every layer change starts at the next bar line and ramps linearly over one bar."
+  }
+ },
+ "antiFatigue": {
+  "_doc": "0-byte variety (sonic brief v1.1, O-A1): a loop counter (1-based, counting completed passes of bar 32 -> bar 1) picks a mute plan, applied at bar lines with the normal 1-bar fade.",
+  "cycle": [
+   {
+    "loop": 1,
+    "mute": []
+   },
+   {
+    "loop": 2,
+    "mute": [
+     {
+      "layer": "L2",
+      "bars": [
+       17,
+       24
+      ]
+     }
+    ]
+   },
+   {
+    "loop": 3,
+    "mute": []
+   },
+   {
+    "loop": 4,
+    "mute": [
+     {
+      "layer": "L1",
+      "bars": [
+       9,
+       16
+      ]
+     },
+     {
+      "layer": "L2",
+      "bars": [
+       9,
+       16
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "courtDay": {
+  "_doc": "Sonic brief v1.1 (O-A2). At the next bar line: equal-power crossfade (400 ms) onto the same bar of the courthouse track, L2 forced off, and the courtIn stinger starts on that bar line. Taps, pings and Dubi use the G files while court day lasts. On exit: the same crossfade back to the era's track at the next bar line, courtOut on that bar line. In the courthouse era itself: only the L2 mute and the stinger.",
+  "track": "courthouse",
+  "xfadeMs": 400,
+  "forceOff": [
+   "L2"
+  ]
+ },
+ "outside": {
+  "_doc": "Balfour only. A 2-bar loop on its own sub-bus 'Outside' (-> Music): AudioEffectLowPassFilter 800 Hz, AudioEffectPanner -0.3, mono. Starts with Balfour's music, locked to its bar grid. Level: the manifest's out play_db (-14 LU under L0 after the 800 Hz filter), rising by up to +6 dB with era progress (0..1). Pink Front (Saturday night, device clock): the cutoff sweeps 800 -> 4000 Hz over 2 bars (exponential) and +8 dB; tap-to-beat judges against beats 1 and 3 of each bar (the manifest lists the downbeat sample positions).",
+  "era": "balfour",
+  "lpfHz": 800,
+  "pan": -0.3,
+  "underL0Db": -14,
+  "riseDb": 6,
+  "pinkFront": {
+   "lpfHz": 4000,
+   "sweepBars": 2,
+   "boostDb": 8
+  }
+ },
+ "targets": {
+  "_doc": "Loudness targets (K-weighted BS.1770, dual mono) that set each item's play_db. music = all three layers of an era together (every era lands on the same value, so era changes do not jump). Stingers: integrated = over the whole stinger; momentary = the loudest 400 ms.",
+  "music": -17.3,
+  "fanfare": {
+   "type": "integrated",
+   "lufs": -17.0
+  },
+  "courtIn": {
+   "type": "momentary",
+   "lufs": -16.0
+  },
+  "motif": {
+   "type": "momentary",
+   "lufs": -15.0
+  },
+  "trophy": {
+   "type": "momentary",
+   "lufs": -18.0
+  },
+  "dubiFlash": {
+   "type": "burst",
+   "lufs": -15.0
+  },
+  "milestone": {
+   "type": "burst",
+   "lufs": -15.0
+  }
+ },
+ "instruments": {
+  "_doc": "lib_dsp layer schema (tools/lib_dsp.gd render_layer). Tonal layers are authored at A4 = the note played; 'gate' shortens a held note (noteSeconds = steps * stepSeconds * gate). Voice names follow the brief §3: P1 pulse 25%, P2 pulse 12.5%/50%, TRI (4-bit crushed triangle), NOI-L (LFSR long mode, wave 'noise'), NOI-S (LFSR short/metallic, wave 'noiseMetal'), BLIP.",
+  "p1": {
+   "gate": 0.9,
+   "layers": [
+    {
+     "id": "p1",
+     "wave": "pulse",
+     "duty": 0.25,
+     "freqStart": "A4",
+     "attack": 0.001,
+     "decay": 0.09,
+     "sustain": 0.62,
+     "duration": "note",
+     "release": 0.035,
+     "gain": 1.0,
+     "vibrato": {
+      "rateHz": 5.5,
+      "depthCents": 15,
+      "delay": 0.25
+     }
+    }
+   ]
+  },
+  "p1s": {
+   "gate": 0.72,
+   "layers": [
+    {
+     "id": "p1",
+     "wave": "pulse",
+     "duty": 0.25,
+     "freqStart": "A4",
+     "attack": 0.001,
+     "decay": 0.08,
+     "sustain": 0.55,
+     "duration": "note",
+     "release": 0.03,
+     "gain": 1.0
+    }
+   ]
+  },
+  "p2n": {
+   "gate": 0.88,
+   "layers": [
+    {
+     "id": "p2",
+     "wave": "pulse",
+     "duty": 0.125,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.1,
+     "sustain": 0.55,
+     "duration": "note",
+     "release": 0.04,
+     "gain": 1.0,
+     "vibrato": {
+      "rateHz": 5.0,
+      "depthCents": 10,
+      "delay": 0.3
+     }
+    }
+   ]
+  },
+  "p2b": {
+   "gate": 0.82,
+   "layers": [
+    {
+     "id": "p2",
+     "wave": "pulse",
+     "duty": 0.5,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.1,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.04,
+     "gain": 0.8
+    }
+   ]
+  },
+  "p2stab": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "p2",
+     "wave": "pulse",
+     "duty": 0.5,
+     "freqStart": "A4",
+     "attack": 0.001,
+     "decay": 0.08,
+     "sustain": 0.0,
+     "duration": 0.085,
+     "release": 0.015,
+     "gain": 1.0
+    }
+   ]
+  },
+  "p2nstab": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "p2",
+     "wave": "pulse",
+     "duty": 0.125,
+     "freqStart": "A4",
+     "attack": 0.001,
+     "decay": 0.08,
+     "sustain": 0.0,
+     "duration": 0.085,
+     "release": 0.015,
+     "gain": 1.0
+    }
+   ]
+  },
+  "tri": {
+   "gate": 0.8,
+   "layers": [
+    {
+     "id": "tri",
+     "wave": "triangle",
+     "crush": 4,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.07,
+     "sustain": 0.8,
+     "duration": "note",
+     "release": 0.02,
+     "gain": 1.0
+    }
+   ]
+  },
+  "triTip": {
+   "gate": 0.55,
+   "layers": [
+    {
+     "id": "tri",
+     "wave": "triangle",
+     "crush": 4,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.09,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.02,
+     "gain": 1.0
+    }
+   ]
+  },
+  "triOne": {
+   "gate": 0.8,
+   "layers": [
+    {
+     "id": "tri",
+     "wave": "triangle",
+     "crush": 4,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.07,
+     "sustain": 0.8,
+     "duration": "note",
+     "release": 0.02,
+     "gain": 1.0
+    },
+    {
+     "id": "click",
+     "wave": "pulse",
+     "duty": 0.125,
+     "freqStart": "A5",
+     "attack": 0.001,
+     "decay": 0.018,
+     "sustain": 0.0,
+     "duration": 0.02,
+     "release": 0.004,
+     "gain": 0.3
+    }
+   ]
+  },
+  "triTipOne": {
+   "gate": 0.55,
+   "layers": [
+    {
+     "id": "tri",
+     "wave": "triangle",
+     "crush": 4,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.09,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.02,
+     "gain": 1.0
+    },
+    {
+     "id": "click",
+     "wave": "pulse",
+     "duty": 0.125,
+     "freqStart": "A5",
+     "attack": 0.001,
+     "decay": 0.018,
+     "sustain": 0.0,
+     "duration": 0.02,
+     "release": 0.004,
+     "gain": 0.3
+    }
+   ]
+  },
+  "blip": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "blip",
+     "wave": "pulse",
+     "duty": 0.125,
+     "freqStart": "A4",
+     "attack": 0.001,
+     "decay": 0.05,
+     "sustain": 0.3,
+     "duration": 0.055,
+     "release": 0.012,
+     "gain": 1.0
+    }
+   ]
+  },
+  "dum": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "body",
+     "wave": "triangle",
+     "crush": 4,
+     "freqStart": 110,
+     "freqEnd": 55,
+     "freqCurve": "exp",
+     "glide": 0.06,
+     "followPitch": false,
+     "attack": 0.001,
+     "decay": 0.11,
+     "sustain": 0.0,
+     "duration": 0.11,
+     "release": 0.01,
+     "gain": 1.0
+    },
+    {
+     "id": "skin",
+     "wave": "noise",
+     "clockStart": 12000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 900,
+      "Q": 1.0
+     },
+     "attack": 0.0005,
+     "decay": 0.02,
+     "sustain": 0.0,
+     "duration": 0.02,
+     "release": 0.005,
+     "gain": 0.25
+    }
+   ]
+  },
+  "dumSoft": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "body",
+     "wave": "triangle",
+     "crush": 4,
+     "freqStart": 110,
+     "freqEnd": 55,
+     "freqCurve": "exp",
+     "glide": 0.06,
+     "followPitch": false,
+     "attack": 0.004,
+     "decay": 0.1,
+     "sustain": 0.0,
+     "duration": 0.1,
+     "release": 0.01,
+     "gain": 0.55
+    },
+    {
+     "id": "skin",
+     "wave": "noise",
+     "clockStart": 12000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 900,
+      "Q": 1.0
+     },
+     "attack": 0.001,
+     "decay": 0.02,
+     "sustain": 0.0,
+     "duration": 0.02,
+     "release": 0.005,
+     "gain": 0.2
+    }
+   ]
+  },
+  "tekSoft": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "snap",
+     "wave": "noise",
+     "clockStart": 26000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 2200,
+      "Q": 0.9
+     },
+     "attack": 0.003,
+     "decay": 0.06,
+     "sustain": 0.0,
+     "duration": 0.06,
+     "release": 0.015,
+     "gain": 0.6
+    },
+    {
+     "id": "ring",
+     "wave": "triangle",
+     "freqStart": 820,
+     "freqEnd": 780,
+     "freqCurve": "exp",
+     "glide": 0.02,
+     "followPitch": false,
+     "attack": 0.001,
+     "decay": 0.03,
+     "sustain": 0.0,
+     "duration": 0.03,
+     "release": 0.008,
+     "gain": 0.15
+    }
+   ]
+  },
+  "dumG": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "body",
+     "wave": "triangle",
+     "crush": 4,
+     "freqStart": 110,
+     "freqEnd": 55,
+     "freqCurve": "exp",
+     "glide": 0.06,
+     "followPitch": false,
+     "attack": 0.001,
+     "decay": 0.08,
+     "sustain": 0.0,
+     "duration": 0.08,
+     "release": 0.01,
+     "gain": 0.5
+    }
+   ]
+  },
+  "tek": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "snap",
+     "wave": "noise",
+     "clockStart": 32000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 2600,
+      "Q": 1.1
+     },
+     "attack": 0.0005,
+     "decay": 0.045,
+     "sustain": 0.0,
+     "duration": 0.045,
+     "release": 0.01,
+     "gain": 1.0
+    },
+    {
+     "id": "ring",
+     "wave": "triangle",
+     "freqStart": 880,
+     "freqEnd": 820,
+     "freqCurve": "exp",
+     "glide": 0.02,
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.03,
+     "sustain": 0.0,
+     "duration": 0.03,
+     "release": 0.008,
+     "gain": 0.22
+    }
+   ]
+  },
+  "tekG": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "snap",
+     "wave": "noise",
+     "clockStart": 32000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 2800,
+      "Q": 1.1
+     },
+     "attack": 0.0005,
+     "decay": 0.025,
+     "sustain": 0.0,
+     "duration": 0.025,
+     "release": 0.008,
+     "gain": 0.38
+    }
+   ]
+  },
+  "riq": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "jingle",
+     "wave": "noiseMetal",
+     "clockStart": 44000,
+     "filter": {
+      "type": "highpass",
+      "freq": 6000,
+      "Q": 0.7
+     },
+     "attack": 0.001,
+     "decay": 0.045,
+     "sustain": 0.0,
+     "duration": 0.045,
+     "release": 0.015,
+     "gain": 0.55
+    }
+   ]
+  },
+  "riqO": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "jingle",
+     "wave": "noiseMetal",
+     "clockStart": 44000,
+     "filter": {
+      "type": "highpass",
+      "freq": 5500,
+      "Q": 0.7
+     },
+     "attack": 0.002,
+     "decay": 0.12,
+     "sustain": 0.0,
+     "duration": 0.12,
+     "release": 0.03,
+     "gain": 0.5
+    }
+   ]
+  },
+  "outThump": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "body",
+     "wave": "triangle",
+     "crush": 4,
+     "freqStart": 92,
+     "freqEnd": 80,
+     "freqCurve": "exp",
+     "glide": 0.03,
+     "followPitch": false,
+     "attack": 0.001,
+     "decay": 0.12,
+     "sustain": 0.0,
+     "duration": 0.12,
+     "release": 0.01,
+     "gain": 1.0
+    },
+    {
+     "id": "skin",
+     "wave": "noise",
+     "clockStart": 9000,
+     "filter": {
+      "type": "lowpass",
+      "freq": 700,
+      "Q": 0.5
+     },
+     "attack": 0.001,
+     "decay": 0.05,
+     "sustain": 0.0,
+     "duration": 0.05,
+     "release": 0.01,
+     "gain": 0.35
+    }
+   ]
+  },
+  "outSnare": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "noise",
+     "wave": "noise",
+     "clockStart": 18000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 1100,
+      "Q": 0.8
+     },
+     "attack": 0.001,
+     "decay": 0.11,
+     "sustain": 0.0,
+     "duration": 0.11,
+     "release": 0.02,
+     "gain": 0.9
+    },
+    {
+     "id": "body",
+     "wave": "triangle",
+     "crush": 4,
+     "freqStart": 190,
+     "freqEnd": 170,
+     "freqCurve": "exp",
+     "glide": 0.02,
+     "followPitch": false,
+     "attack": 0.001,
+     "decay": 0.04,
+     "sustain": 0.0,
+     "duration": 0.04,
+     "release": 0.01,
+     "gain": 0.35
+    }
+   ]
+  },
+  "outGhost": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "noise",
+     "wave": "noise",
+     "clockStart": 18000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 1200,
+      "Q": 0.8
+     },
+     "attack": 0.001,
+     "decay": 0.05,
+     "sustain": 0.0,
+     "duration": 0.05,
+     "release": 0.01,
+     "gain": 0.28
+    }
+   ]
+  },
+  "roll1": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "n",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "highpass",
+      "freq": 1300,
+      "Q": 0.7
+     },
+     "attack": 0.0005,
+     "decay": 0.03,
+     "sustain": 0.0,
+     "duration": 0.03,
+     "release": 0.008,
+     "gain": 0.18
+    }
+   ]
+  },
+  "roll2": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "n",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "highpass",
+      "freq": 1300,
+      "Q": 0.7
+     },
+     "attack": 0.0005,
+     "decay": 0.03,
+     "sustain": 0.0,
+     "duration": 0.03,
+     "release": 0.008,
+     "gain": 0.34
+    }
+   ]
+  },
+  "roll3": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "n",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "highpass",
+      "freq": 1300,
+      "Q": 0.7
+     },
+     "attack": 0.0005,
+     "decay": 0.03,
+     "sustain": 0.0,
+     "duration": 0.03,
+     "release": 0.008,
+     "gain": 0.58
+    }
+   ]
+  },
+  "roll4": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "n",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "highpass",
+      "freq": 1300,
+      "Q": 0.7
+     },
+     "attack": 0.0005,
+     "decay": 0.03,
+     "sustain": 0.0,
+     "duration": 0.03,
+     "release": 0.008,
+     "gain": 0.9
+    }
+   ]
+  },
+  "crash": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "wash",
+     "wave": "noise",
+     "clockStart": 42000,
+     "filter": {
+      "type": "highpass",
+      "freq": 2200,
+      "Q": 0.7
+     },
+     "attack": 0.001,
+     "decay": 0.8,
+     "sustain": 0.0,
+     "duration": 0.8,
+     "release": 0.05,
+     "gain": 0.55
+    },
+    {
+     "id": "bell",
+     "wave": "noiseMetal",
+     "clockStart": 38000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 5200,
+      "Q": 2.0
+     },
+     "attack": 0.001,
+     "decay": 0.35,
+     "sustain": 0.0,
+     "duration": 0.35,
+     "release": 0.04,
+     "gain": 0.25
+    }
+   ]
+  },
+  "shutter": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "a",
+     "wave": "noiseMetal",
+     "clockStart": 46000,
+     "filter": {
+      "type": "highpass",
+      "freq": 3000,
+      "Q": 0.7
+     },
+     "attack": 0.0005,
+     "decay": 0.012,
+     "sustain": 0.0,
+     "duration": 0.012,
+     "release": 0.004,
+     "gain": 0.8
+    },
+    {
+     "id": "b",
+     "wave": "noiseMetal",
+     "clockStart": 46000,
+     "filter": {
+      "type": "highpass",
+      "freq": 3000,
+      "Q": 0.7
+     },
+     "delay": 0.07,
+     "attack": 0.0005,
+     "decay": 0.012,
+     "sustain": 0.0,
+     "duration": 0.012,
+     "release": 0.004,
+     "gain": 0.7
+    },
+    {
+     "id": "pip",
+     "wave": "pulse",
+     "duty": 0.25,
+     "freqStart": 4000,
+     "followPitch": false,
+     "delay": 0.075,
+     "attack": 0.001,
+     "decay": 0.03,
+     "sustain": 0.0,
+     "duration": 0.03,
+     "release": 0.008,
+     "gain": 0.35
+    }
+   ]
+  }
+ },
+ "kits": {
+  "darbuka": {
+   "D": "dum",
+   "d": "dumG",
+   "T": "tek",
+   "k": "tekG",
+   "j": "riq",
+   "o": "riqO"
+  },
+  "darbukaCourt": {
+   "D": "dumSoft",
+   "T": "tekSoft",
+   "k": "tekG",
+   "j": "riq",
+   "o": "riqO"
+  },
+  "outside": {
+   "B": "outThump",
+   "S": "outSnare",
+   "g": "outGhost"
+  },
+  "fanfare": {
+   "1": "roll1",
+   "2": "roll2",
+   "3": "roll3",
+   "4": "roll4",
+   "X": "crash",
+   "D": "dum"
+  },
+  "shutter": {
+   "Z": "shutter"
+  }
+ },
+ "eras": {
+  "balfour": {
+   "title": "הכובע של בלפור (Balfour)",
+   "tempoBpm": 116,
+   "beatsPerBar": 4,
+   "stepsPerBeat": 4,
+   "rate": 31900,
+   "key": "D",
+   "mode": "hijaz",
+   "mood": "Smug domestic comfort, pistachio-and-champagne cheer; protest drums leak through the window.",
+   "chords": {
+    "A": [
+     "D",
+     "D",
+     "Eb",
+     "D",
+     "Gm",
+     "Cm",
+     "Eb",
+     "D"
+    ],
+    "A2": [
+     "D",
+     "D",
+     "Eb",
+     "D",
+     "Gm",
+     "Cm",
+     "D",
+     "D"
+    ],
+    "B": [
+     "Gm",
+     "Cm",
+     "D",
+     "Gm",
+     "Eb",
+     "Cm",
+     "D",
+     "D"
+    ],
+    "T": [
+     "D",
+     "Eb",
+     "Gm",
+     "D",
+     "Cm",
+     "Eb",
+     "D",
+     "D|Eb"
+    ]
+   },
+   "channels": {
+    "bass": {
+     "instrument": "tri",
+     "layer": "L0",
+     "gain": 0.46,
+     "sections": {
+      "A": [
+       "D3@triOne - - . . . . . A2 - - . . . . .",
+       "D3@triOne - - . . . . . A2 - - . . . . .",
+       "Eb3@triOne - - . . . . . Bb2 - - . . . . .",
+       "D3@triOne - - . . . . . A2 - - . . . . .",
+       "G3@triOne - - . . . . . D3 - - . . . . .",
+       "C3@triOne - - . . . . . G3 - - . . . . .",
+       "Eb3@triOne - - . . . . . Bb2 - - . . . . .",
+       "D3@triOne - - . . . . . A2 - - . . . . ."
+      ],
+      "A2": [
+       "D3@triOne - - . . . . . A2 - - . . . C#3 -",
+       "D3@triOne - - . . . . . A2 - - . . . D3 -",
+       "Eb3@triOne - - . . . . . Bb2 - - . . . Eb3 -",
+       "D3@triOne - - . . . . . A2 - - . . . F#3 -",
+       "G3@triOne - - . . . . . D3 - - . . . . .",
+       "C3@triOne - - . . . . . G3 - - . . . A2 -",
+       "D3@triOne - - . . . . . A2 - - . . . C3 -",
+       "D3@triOne - - . . . . . A2 - - . . . F#3 -"
+      ],
+      "B": [
+       "G3@triOne - - . . . . . D3 - - . . . . .",
+       "C3@triOne - - . . . . . G3 - - . . . . .",
+       "D3@triOne - - . . . . . A2 - - . . . . .",
+       "G3@triOne - - . . . . . D3 - - . . . . .",
+       "Eb3@triOne - - . . . . . Bb2 - - . . . . .",
+       "C3@triOne - - . . . . . G3 - - . . . . .",
+       "D3@triOne - - . . . . . A2 - - . . . . .",
+       "D3@triOne - - . . . . . A2 - - . . . C#3 -"
+      ],
+      "T": [
+       "D3@triOne - - . . . . . A2 - - . . . . .",
+       "Eb3@triOne - - . . . . . Bb2 - - . . . . .",
+       "G3@triOne - - . . . . . D3 - - . . . . .",
+       "D3@triOne - - . . . . . A2 - - . . . . .",
+       "C3@triOne - - . . . . . G3 - - . . . . .",
+       "Eb3@triOne - - . . . . . Bb2 - - . . . . .",
+       "D3@triOne - - . . . . . A2 - - . . . . .",
+       "D3@triOne - - . . . . . A2 - - . Eb3 - - ."
+      ]
+     }
+    },
+    "drums": {
+     "kit": "darbuka",
+     "layer": "L0",
+     "gain": 0.42,
+     "sections": {
+      "A": [
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Do . j . Tj . j . Dj . kj . Tk . T k"
+      ],
+      "A2": [
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Do . j . Tj . j . Dj . kj . Tk . T k"
+      ],
+      "B": [
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Do . j . Tj . j . Dj . kj . Tk . T k"
+      ],
+      "T": [
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "Do . j . Tj . j . Dj . kj . Tj . . ."
+      ]
+     }
+    },
+    "p2": {
+     "instrument": "p2stab",
+     "layer": "L1",
+     "gain": 0.5,
+     "sectionInstrument": {
+      "A": "p2stab",
+      "A2": "p2stab",
+      "B": "p2n",
+      "T": "p2stab"
+     },
+     "sectionGain": {
+      "A": 2.0,
+      "A2": 2.0,
+      "T": 2.0
+     },
+     "sections": {
+      "A": [
+       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
+       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
+       ". . G4 . . . Bb4 . . . G4 . . . Bb4 .",
+       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
+       ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
+       ". . Eb4 . . . G4 . . . Eb4 . . . G4 .",
+       ". . G4 . . . Bb4 . . . G4 . . . Bb4 .",
+       ". . F#4 . . . A4 . . . F#4 . . . A4 ."
+      ],
+      "A2": [
+       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
+       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
+       ". . G4 . . . Bb4 . . . G4 . . . Bb4 .",
+       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
+       ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
+       ". . Eb4 . . . G4 . . . Eb4 . . . G4 .",
+       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
+       ". . F#4 . . . A4 . . . F#4 . . . A4 ."
+      ],
+      "B": [
+       "G4 - - - - - Bb4 - - - - - A4 - - -",
+       "C5 - - - - - Eb5 - - - - - D5 - - -",
+       "C5 - - - Bb4 - A4 - - - - - F#4 - - -",
+       "G4 - - - - - D5 - - - - - Bb4 - - -",
+       "Bb4 - - - - - Eb5 - - - - - D5 - - -",
+       "C5 - - - - - G5 - - - - - Eb5 - - -",
+       "F#5 - - - Eb5 - D5 - - - - - C5 - - -",
+       "D5 - - - - - A4 - - - - - . . . ."
+      ],
+      "T": [
+       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
+       ". . G4 . . . Bb4 . . . G4 . . . Bb4 .",
+       ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
+       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
+       ". . Eb4 . . . G4 . . . Eb4 . . . G4 .",
+       ". . G4 . . . Bb4 . . . G4 . . . Bb4 .",
+       ". . F#4 . . . A4 . . . F#4 . . . . .",
+       "F#4 - - - C5 - A4 - - - - - G4 - - -"
+      ]
+     }
+    },
+    "lead": {
+     "instrument": "p1",
+     "layer": "L2",
+     "gain": 0.36,
+     "sections": {
+      "A": [
+       "D5 - - - - - F#5 - - - - - G5 - - -",
+       "A5 - - - - - G5 - - - - - F#5 - G5 -",
+       "Bb5 - - - - - A5 - - - - - G5 - - -",
+       "F#5 - - - - - Eb5 - - - - - D5 - - -",
+       "G5 - - - - - Bb5 - - - - - A5 - - -",
+       "C6 - - - - - Bb5 - - - - - A5 - G5 -",
+       "G5 - - - - - F#5 - - - - - Eb5 - - -",
+       "D5 - - - - - C5 - D5 - - - . . . ."
+      ],
+      "A2": [
+       "D5~Eb5 - - - - - F#5 - - - - - G5 - - -",
+       "A5 - - - - - Bb5 - A5 - - - G5 - F#5 -",
+       "Bb5 - - - - - C6 - - - - - Bb5 - - -",
+       "A5 - - - - - F#5 - - - - - D5 - - -",
+       "D6 - - - - - C6 - - - - - Bb5 - - -",
+       "Eb6 - - - - - D6 - - - - - C6 - Bb5 -",
+       "A5 - - - C6 - Eb6 - - - - - D6 - - -",
+       "C6 - - - Bb5 - A5 - - - - - . . . ."
+      ],
+      "B": [
+       "D6 - - - . . D6 - Bb5 - - - C6 - - -",
+       "G5 - - - . . G5 - C6 - - - Bb5 - - -",
+       "Eb6 - - - . . D6 - C6 - - - A5 - - -",
+       "Bb5 - - - . . Bb5 - A5 - - - G5 - - -",
+       "Eb6 - - - . . Eb6 - G5 - - - Bb5 - - -",
+       "Eb6 - - - . . D6 - C6 - - - G5 - - -",
+       "D6 - - - . . C6 - F#5 - - - A5 - - -",
+       "F#5 - - - . . A5 - D6 - - - C6 - Bb5 -"
+      ],
+      "T": [
+       "A5 - - - - - F#5 - - - - - D5 - - -",
+       "G5 - - - - - Bb5 - - - - - G5 - - -",
+       "A5 - - - Bb5 - G5 - - - - - D5 - - -",
+       "F#5 - - - - - Eb5 - - - - - D5 - - -",
+       "Eb5 - - - - - G5 - - - - - C6 - - -",
+       "Bb5 - - - - - G5 - - - - - Eb5 - - -",
+       "D5 - - - - - C5 - D5 - - - . . A4 -",
+       "D5 - - - A5 - F#5 - - - - - Eb5 - - -"
+      ]
+     }
+    }
+   },
+   "outside": {
+    "kit": "outside",
+    "bars": [
+     "B . g . S . B . . g . . BS . . g",
+     "B . . . S . B g . . g . BS . g ."
+    ],
+    "gain": 0.6
+   }
+  },
+  "knesset": {
+   "title": "המליאה (Knesset)",
+   "tempoBpm": 132,
+   "beatsPerBar": 4,
+   "stepsPerBeat": 4,
+   "rate": 32032,
+   "key": "E",
+   "mode": "hijaz",
+   "mood": "A bazaar-plenum haggle: P1 and P2 argue in 2-bar call-and-response and never finish each other's phrase.",
+   "chords": {
+    "A": [
+     "E",
+     "E",
+     "F",
+     "E",
+     "Am",
+     "Dm",
+     "F",
+     "E"
+    ],
+    "A2": [
+     "E",
+     "E",
+     "F",
+     "E",
+     "Dm",
+     "Am",
+     "F",
+     "E"
+    ],
+    "B": [
+     "Am",
+     "Dm",
+     "E",
+     "Am",
+     "F",
+     "Dm",
+     "E",
+     "E"
+    ],
+    "T": [
+     "E",
+     "F",
+     "Am",
+     "E",
+     "Dm",
+     "F",
+     "E",
+     "E|F"
+    ]
+   },
+   "channels": {
+    "bass": {
+     "instrument": "tri",
+     "layer": "L0",
+     "gain": 0.44,
+     "sections": {
+      "A": [
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "F3@triOne - - . . . F3 - C3 - - . F3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
+       "D3@triOne - - . . . D3 - A2 - - . D3 - . .",
+       "F3@triOne - - . . . F3 - C3 - - . F3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . ."
+      ],
+      "A2": [
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "F3@triOne - - . . . F3 - C3 - - . F3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "D3@triOne - - . . . D3 - A2 - - . D3 - . .",
+       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
+       "F3@triOne - - . . . F3 - C3 - - . F3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . ."
+      ],
+      "B": [
+       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
+       "D3@triOne - - . . . D3 - A2 - - . D3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
+       "F3@triOne - - . . . F3 - C3 - - . F3 - . .",
+       "D3@triOne - - . . . D3 - A2 - - . D3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . ."
+      ],
+      "T": [
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "F3@triOne - - . . . F3 - C3 - - . F3 - . .",
+       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "D3@triOne - - . . . D3 - A2 - - . D3 - . .",
+       "F3@triOne - - . . . F3 - C3 - - . F3 - . .",
+       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
+       "E3@triOne - - . . . . . B2 - - . F3 - - ."
+      ]
+     }
+    },
+    "drums": {
+     "kit": "darbuka",
+     "layer": "L0",
+     "gain": 0.42,
+     "sections": {
+      "A": [
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Do . Tj . kj . Tj . Dj . kj . Tk . T k"
+      ],
+      "A2": [
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Do . Tj . kj . Tj . Dj . kj . Tk . T k"
+      ],
+      "B": [
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Do . Tj . kj . Tj . Dj . kj . Tk . T k"
+      ],
+      "T": [
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "Do . Tj . kj . Tj . Dj . kj . Tj . . ."
+      ]
+     }
+    },
+    "p2": {
+     "instrument": "p2n",
+     "layer": "L1",
+     "gain": 0.4,
+     "sectionInstrument": {
+      "A": "p2n",
+      "A2": "p2n",
+      "B": "p2n",
+      "T": "p2stab"
+     },
+     "sectionGain": {
+      "T": 1.4
+     },
+     "sections": {
+      "A": [
+       ". . . . . . . . . . . . C5 - B4 -",
+       "A4 - - G#4 - - F4 - G#4 - - - . . . .",
+       ". . . . . . . . . . . . A4 - C5 -",
+       "B4 - - A4 - - G#4 - F4 - - - . . . .",
+       ". . . . . . . . . . . . E4 - A4 -",
+       "D5 - - C5 - - A4 - F4 - - - . . . .",
+       ". . . . . . . . . . . . D5 - C5 -",
+       "B4 - - G#4 - - F4 - E4 - . . . . . ."
+      ],
+      "A2": [
+       "E5 - - D5 C5 - B4 - C5 - . . . . . .",
+       ". . . . . . . . . . . . A4 - B4 -",
+       "C5 - - A4 - - F4 - A4 - . . . . . .",
+       ". . . . . . . . . . . . B4 - C5 -",
+       "D5 - - F5 - - E5 - D5 - . . . . . .",
+       ". . . . . . . . . . . . C5 - E5 -",
+       "F5 - - E5 - - D5 - C5 - . . . . . .",
+       ". . . . . . . . . . . . E4 - G#4 -"
+      ],
+      "B": [
+       "A4 - - B4 - - C5 - E5 - - - D5 - C5 -",
+       "D5 - - F5 - - E5 - D5 - - - C5 - B4 -",
+       "B4 - - C5 - - D5 - G#4 - - - B4 - - -",
+       "A4 - - - - - E4 - A4 - - - . . . .",
+       "C5 - - D5 - - E5 - F5 - G#5 - A5 - - -",
+       "F5 - - E5 - - D5 - A4 - - - C5 - B4 -",
+       "G#4 - - A4 - - B4 - D5 - - - C5 - B4 -",
+       "E5 - - - - - . . E4 - - - . . . ."
+      ],
+      "T": [
+       ". . G#4 . . . B4 . . . . . G#4 . . .",
+       ". . A4 . . . C5 . . . . . A4 . . .",
+       ". . C5 . . . E5 . . . . . C5 . . .",
+       ". . G#4 . . . B4 . . . . . G#4 . . .",
+       ". . D5 . . . F5 . . . . . D5 . . .",
+       ". . A4 . . . C5 . . . . . A4 . . .",
+       ". . G#4 . . . B4 . . . . . . . . .",
+       "G#4 - - - D5 - B4 - - - - - A4 - - -"
+      ]
+     }
+    },
+    "lead": {
+     "instrument": "p1",
+     "layer": "L2",
+     "gain": 0.36,
+     "sections": {
+      "A": [
+       "E5 - - B5 - - A5 - G#5 - A5 - . . . .",
+       ". . . . . . . . . . . . D6 - C6 -",
+       "B5 - A5 - G#5 - A5 - C6 - - - . . . .",
+       ". . . . . . . . . . . . E6 - D6 -",
+       "C6 - - B5 - - A5 - E5 - - - . . . .",
+       ". . . . . . . . . . . . F5 - A5 -",
+       "C6 - - A5 - - F5 - G#5 - - - . . . .",
+       ". . . . . . . . . . . . B5 - - -"
+      ],
+      "A2": [
+       ". . . . . . . . . . . . G#5 - A5 -",
+       "B5~C6 - - A5 - - G#5 - F5 - - - . . . .",
+       ". . . . . . . . . . . . F5 - A5 -",
+       "G#5 - - F5 - - E5 - D5 - - - . . . .",
+       ". . . . . . . . . . . . A5 - C6 -",
+       "E6 - - D6 - - C6 - B5 - - - . . . .",
+       ". . . . . . . . . . . . A5 - G#5 -",
+       "B5 - - G#5 - - E5 - . . . . . . . ."
+      ],
+      "B": [
+       ". . . . . . . . . . . . A5 - G#5 -",
+       ". . . . . . . . . . . . F5 - E5 -",
+       ". . . . . . . . . . . . F5 - D5 -",
+       ". . . . . . . . E5 - A5 - C6 - - -",
+       ". . . . . . . . . . . . E6 - C6 -",
+       ". . . . . . . . . . . . F5 - G#5 -",
+       ". . . . . . . . . . . . E6 - D6 -",
+       ". . . . . . . . G#5 - B5 - D6 - . ."
+      ],
+      "T": [
+       "E5 - - G#5 - - A5 - B5 - - - A5 - G#5 -",
+       "F5 - - A5 - - C6 - B5 - A5 - G#5 - - -",
+       "A5 - - C6 - - E6 - D6 - - - C6 - B5 -",
+       "G#5 - - F5 - - E5 - D5 - - - . . . .",
+       "D5 - - F5 - - A5 - C6 - - - B5 - A5 -",
+       "C6 - - A5 - - F5 - G#5 - - - A5 - B5 -",
+       "G#5 - - - - - F5 - E5 - - - . . B4 -",
+       "E5 - - - B5 - G#5 - - - - - F5 - - -"
+      ]
+     }
+    }
+   }
+  },
+  "courthouse": {
+   "title": "בית המשפט (Courthouse)",
+   "tempoBpm": 88,
+   "beatsPerBar": 4,
+   "stepsPerBeat": 3,
+   "rate": 22044,
+   "key": "G",
+   "mode": "hijaz",
+   "mood": "Mock-solemn cartoon noir: sneaking past the bench. The only room with a slapback.",
+   "slapback": {
+    "ms": 180,
+    "db": -12
+   },
+   "targetOffsetDb": -1.0,
+   "_targetOffset": "The court hush: 1 LU under the other eras (mock-solemn), which also keeps the sparsest, highest-crest track's summed stems under -1 dBFS before the master limiter.",
+   "chords": {
+    "A": [
+     "G",
+     "G",
+     "Ab",
+     "G",
+     "Cm",
+     "Fm",
+     "Ab",
+     "G"
+    ],
+    "A2": [
+     "G",
+     "G",
+     "Ab",
+     "G",
+     "Fm",
+     "Cm",
+     "Ab",
+     "G"
+    ],
+    "B": [
+     "Cm",
+     "Fm",
+     "G",
+     "Cm",
+     "Ab",
+     "Fm",
+     "G",
+     "G"
+    ],
+    "T": [
+     "G",
+     "Ab",
+     "Cm",
+     "G",
+     "Fm",
+     "Ab",
+     "G",
+     "G|Ab"
+    ]
+   },
+   "channels": {
+    "bass": {
+     "instrument": "triTip",
+     "layer": "L0",
+     "gain": 0.42,
+     "sections": {
+      "A": [
+       "G3@triTipOne . . D3 . . B2 . . D3 . .",
+       "G3@triTipOne . . D3 . . B2 . . G3 . .",
+       "Ab3@triTipOne . . Eb3 . . C3 . . Eb3 . .",
+       "G3@triTipOne . . D3 . . B2 . . B2 . .",
+       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
+       "F3@triTipOne . . Ab3 . . C4 . . Ab3 . .",
+       "Ab3@triTipOne . . Eb3 . . C3 . . Eb3 . .",
+       "G3@triTipOne . . D3 . . B2 . . D3 . ."
+      ],
+      "A2": [
+       "G3@triTipOne . . D3 . . B2 . . D3 . .",
+       "G3@triTipOne . . D3 . . B2 . . G3 . .",
+       "Ab3@triTipOne . . Eb3 . . C3 . . Eb3 . .",
+       "G3@triTipOne . . D3 . . B2 . . D3 . .",
+       "F3@triTipOne . . Ab3 . . C4 . . Ab3 . .",
+       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
+       "Ab3@triTipOne . . Eb3 . . C3 . . Eb3 . .",
+       "G3@triTipOne . . D3 . . B2 . . B2 . ."
+      ],
+      "B": [
+       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
+       "F3@triTipOne . . Ab3 . . C4 . . Ab3 . .",
+       "G3@triTipOne . . D3 . . B2 . . D3 . .",
+       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
+       "Ab3@triTipOne . . Eb3 . . C3 . . Eb3 . .",
+       "F3@triTipOne . . Ab3 . . C4 . . Ab3 . .",
+       "G3@triTipOne . . D3 . . B2 . . D3 . .",
+       "G3@triTipOne . . D3 . . B2 . . D3 . ."
+      ],
+      "T": [
+       "G3@triTipOne . . D3 . . B2 . . D3 . .",
+       "Ab3@triTipOne . . Eb3 . . C3 . . Eb3 . .",
+       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
+       "G3@triTipOne . . D3 . . B2 . . D3 . .",
+       "F3@triTipOne . . Ab3 . . C4 . . Ab3 . .",
+       "Ab3@triTipOne . . Eb3 . . C3 . . Eb3 . .",
+       "G3@triTipOne . . D3 . . B2 . . D3 . .",
+       "G3@triTipOne . . D3 . . B2 . . Ab3 . ."
+      ]
+     }
+    },
+    "drums": {
+     "kit": "darbukaCourt",
+     "layer": "L0",
+     "gain": 0.42,
+     "sections": {
+      "A": [
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Djo . . j . j Tj . . T . T"
+      ],
+      "A2": [
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Djo . . j . j Tj . . T . T"
+      ],
+      "B": [
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Djo . . j . j Tj . . T . T"
+      ],
+      "T": [
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Dj . . j . j Tj . k j . Dj",
+       "Dj . . j . j Tj . . j . j",
+       "Djo . . j . j Tj . . j . ."
+      ]
+     }
+    },
+    "p2": {
+     "instrument": "p2nstab",
+     "layer": "L1",
+     "gain": 0.27,
+     "sectionInstrument": {
+      "A": "p2stab",
+      "A2": "p2stab",
+      "B": "p2n",
+      "T": "p2stab"
+     },
+     "sectionGain": {
+      "A": 1.3,
+      "A2": 1.3,
+      "T": 1.3
+     },
+     "sections": {
+      "A": [
+       ". . . B4 . . . . . D5 . .",
+       ". . . B4 . . . . . D5 . .",
+       ". . . C5 . . . . . Eb5 . .",
+       ". . . B4 . . . . . D5 . .",
+       ". . . Eb5 . . . . . G4 . .",
+       ". . . Ab4 . . . . . C5 . .",
+       ". . . C5 . . . . . Eb5 . .",
+       ". . . B4 . . . . . D5 . ."
+      ],
+      "A2": [
+       ". . . B4 . . . . . D5 . .",
+       ". . . B4 . . . . . D5 . .",
+       ". . . C5 . . . . . Eb5 . .",
+       ". . . B4 . . . . . D5 . .",
+       ". . . Ab4 . . . . . C5 . .",
+       ". . . Eb5 . . . . . G4 . .",
+       ". . . C5 . . . . . Eb5 . .",
+       ". . . B4 . . . . . D5 . ."
+      ],
+      "B": [
+       "C5 - - Eb5 - D5 C5 - - G4 - -",
+       "Ab4 - - C5 - B4 Ab4 - - F4 - -",
+       "G4 - Ab4 B4 - C5 D5 - - F5 - -",
+       "Eb5 - - D5 - - C5 - - . . .",
+       "Eb5 - - F5 - Eb5 C5 - - Ab4 - -",
+       "F5 - - Ab5 - G5 F5 - - C5 - -",
+       "B4 - C5 D5 - Eb5 D5 - C5 B4 - -",
+       "G4 - - . . . D4 - - . . ."
+      ],
+      "T": [
+       ". . . B4 . . . . . D5 . .",
+       ". . . C5 . . . . . Eb5 . .",
+       ". . . Eb5 . . . . . G4 . .",
+       ". . . B4 . . . . . D5 . .",
+       ". . . Ab4 . . . . . C5 . .",
+       ". . . C5 . . . . . Eb5 . .",
+       ". . . B4 . . . . . . . .",
+       "B4 - - F5 - D5 - - - C5 - -"
+      ]
+     }
+    },
+    "lead": {
+     "instrument": "p1s",
+     "layer": "L2",
+     "gain": 0.34,
+     "sections": {
+      "A": [
+       "G5 . D5 Eb5 . D5 B4 - - . . .",
+       "C5 . C5 D5 . C5 B4 . Ab4 G4 - -",
+       "Eb5 . Eb5 F5 . Eb5 C5 - - . . .",
+       "D5 - B4 G4 - - . . . . . .",
+       "G5 . G5 Ab5 . G5 Eb5 - - . . .",
+       "F5 . F5 G5 . F5 C5 . Ab4 F4 - -",
+       "Eb5 - C5 Ab4 - C5 Eb5 - - . . .",
+       "D5 - B4 G4 - - . . . . . ."
+      ],
+      "A2": [
+       "D5~Eb5 . D5 Eb5 . D5 B4 - - . . .",
+       "C5 . C5 D5 . C5 B4 . Ab4 G4 - -",
+       "Eb5 . Eb5 F5 . Eb5 C6 - - . . .",
+       "B5 . B5 C6 . B5 G5 - - . . .",
+       "Ab5 . Ab5 G5 . F5 C5 - - . . .",
+       "Eb5 . Eb5 D5 . C5 G4 - - . . .",
+       "Ab4 - C5 Eb5 - C5 Ab4 - C5 B4 - -",
+       "D5 - B4 G4 - B4 D5 - - . . ."
+      ],
+      "B": [
+       ". . . . . . G5 . G5 . . .",
+       ". . . . . . Ab5 . Ab5 . . .",
+       ". . . . . . B5 . C6 D6 . .",
+       ". . . G5 . Eb5 . . . . . .",
+       ". . . . . . C6 . C6 . . .",
+       ". . . . . . C6 . Ab5 . . .",
+       ". . . . . . . . . D6 C6 B5",
+       "G5 . . D5 . . B4 . . G4 . ."
+      ],
+      "T": [
+       "D5 . D5 Eb5 . D5 B4 - - . . .",
+       "C5 . C5 Eb5 . C5 Ab4 - - . . .",
+       "G5 . G5 Ab5 . G5 Eb5 - - . . .",
+       "D5 - B4 G4 - - . . . . . .",
+       "F5 . F5 Ab5 . F5 C5 - - . . .",
+       "Eb5 - C5 Ab4 - C5 Eb5 - - . . .",
+       "D5 - B4 G4 - - . . . . . D5",
+       "G5 - - D6 - B5 - - - Ab5 - -"
+      ]
+     }
+    }
+   }
+  },
+  "washington": {
+   "title": "וושינגטון (Washington)",
+   "tempoBpm": 144,
+   "beatsPerBar": 4,
+   "stepsPerBeat": 4,
+   "rate": 31968,
+   "key": "F",
+   "mode": "mixolydian",
+   "mood": "Showbiz glitz, golden pager on Broadway. The hijaz b2 (Gb) follows him abroad in bar 32 only.",
+   "chords": {
+    "A": [
+     "F",
+     "F",
+     "Eb",
+     "F",
+     "Bb",
+     "Gm",
+     "Eb",
+     "F"
+    ],
+    "A2": [
+     "F",
+     "F",
+     "Eb",
+     "F",
+     "Bb",
+     "Cm",
+     "Eb",
+     "D7"
+    ],
+    "B": [
+     "Gm",
+     "D7",
+     "Gm",
+     "Cm",
+     "Bb",
+     "F",
+     "Eb",
+     "Cm"
+    ],
+    "T": [
+     "F",
+     "Eb",
+     "Bb",
+     "F",
+     "Gm",
+     "Eb",
+     "F",
+     "F|Gb"
+    ]
+   },
+   "channels": {
+    "bass": {
+     "instrument": "tri",
+     "layer": "L0",
+     "gain": 0.46,
+     "sections": {
+      "A": [
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "Eb3@triOne - . . . . . . Bb2 - . . . . . .",
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "Bb2@triOne - . . . . . . F3 - . . . . . .",
+       "G3@triOne - . . . . . . D3 - . . . . . .",
+       "Eb3@triOne - . . . . . . Bb2 - . . . . . .",
+       "F3@triOne - . . . . . . C3 - . . . . . ."
+      ],
+      "A2": [
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "Eb3@triOne - . . . . . . Bb2 - . . . . . .",
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "Bb2@triOne - . . . . . . F3 - . . . . . .",
+       "C3@triOne - . . . . . . G3 - . . . . . .",
+       "Eb3@triOne - . . . . . . Bb2 - . . . . . .",
+       "D3@triOne - . . . . . . A2 - . . . . C3 -"
+      ],
+      "B": [
+       "G3@triOne - . . . . . . D3 - . . . . . .",
+       "D3@triOne - . . . . . . A2 - . . . . C3 -",
+       "G3@triOne - . . . . . . D3 - . . . . . .",
+       "C3@triOne - . . . . . . G3 - . . . . . .",
+       "Bb2@triOne - . . . . . . F3 - . . . . . .",
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "Eb3@triOne - . . . . . . Bb2 - . . . . . .",
+       "C3@triOne - . . . . . . G3 - . . . . . ."
+      ],
+      "T": [
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "Eb3@triOne - . . . . . . Bb2 - . . . . . .",
+       "Bb2@triOne - . . . . . . F3 - . . . . . .",
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "G3@triOne - . . . . . . D3 - . . . . . .",
+       "Eb3@triOne - . . . . . . Bb2 - . . . . . .",
+       "F3@triOne - . . . . . . C3 - . . . . . .",
+       "F3@triOne - . . . . . . C3 - . . Gb3 - . ."
+      ]
+     }
+    },
+    "drums": {
+     "kit": "darbuka",
+     "layer": "L0",
+     "gain": 0.38,
+     "sections": {
+      "A": [
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Do . j . Tj . j . Dj . kj . Tk . T k"
+      ],
+      "A2": [
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Do . j . Tj . j . Dj . kj . Tk . T k"
+      ],
+      "B": [
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Do . j . Tj . j . Dj . kj . Tk . T k"
+      ],
+      "T": [
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "Do . j . Tj . j . Dj . j . Tj . . ."
+      ]
+     }
+    },
+    "p2": {
+     "instrument": "p2stab",
+     "layer": "L1",
+     "gain": 0.24,
+     "sectionInstrument": {
+      "A": "p2stab",
+      "A2": "p2stab",
+      "B": "p2b",
+      "T": "p2stab"
+     },
+     "sectionGain": {
+      "A": 2.8,
+      "A2": 2.8,
+      "T": 2.8
+     },
+     "sections": {
+      "A": [
+       ". . . . A4 . . . . . . . Eb5 . . .",
+       ". . . . A4 . . . . . . . Eb5 . . .",
+       ". . . . G4 . . . . . . . Bb4 . . .",
+       ". . . . A4 . . . . . . . Eb5 . . .",
+       ". . . . F4 . . . . . . . D5 . . .",
+       ". . . . Bb4 . . . . . . . D5 . . .",
+       ". . . . G4 . . . . . . . Bb4 . . .",
+       ". . . . A4 . . . . . . . Eb5 . . ."
+      ],
+      "A2": [
+       ". . . . A4 . . . . . . . Eb5 . . .",
+       ". . . . A4 . . . . . . . Eb5 . . .",
+       ". . . . G4 . . . . . . . Bb4 . . .",
+       ". . . . A4 . . . . . . . Eb5 . . .",
+       ". . . . F4 . . . . . . . D5 . . .",
+       ". . . . Eb5 . . . . . . . G4 . . .",
+       ". . . . G4 . . . . . . . Bb4 . . .",
+       ". . . . F#4 . . . . . . . C5 . . ."
+      ],
+      "B": [
+       "G4 - - A4 - - Bb4 - D5 - - - C5 - Bb4 -",
+       "A4 - - F#4 - - A4 - C5 - - - Bb4 - A4 -",
+       "Bb4 - - D5 - - Eb5 - F#5 - G5 - D5 - - -",
+       "Eb5 - - D5 - - C5 - G4 - - - . . . .",
+       "F5 - - D5 - - Bb4 - C5 - D5 - F5 - - -",
+       "A5 - - G5 - - F5 - C5 - - - A4 - - -",
+       "G4 - - Bb4 - - Eb5 - D5 - C5 - Bb4 - - -",
+       "C5 - - Bb4 - - G4 - C5 - - - . . . ."
+      ],
+      "T": [
+       ". . . . A4 . . . . . . . Eb5 . . .",
+       ". . . . G4 . . . . . . . Bb4 . . .",
+       ". . . . F4 . . . . . . . D5 . . .",
+       ". . . . A4 . . . . . . . Eb5 . . .",
+       ". . . . Bb4 . . . . . . . D5 . . .",
+       ". . . . G4 . . . . . . . Bb4 . . .",
+       ". . . . A4 . . . . . . . Eb5 . . .",
+       "A4 - - - Eb5 - C5 - - - - - Bb4 - - -"
+      ]
+     }
+    },
+    "lead": {
+     "instrument": "p1",
+     "layer": "L2",
+     "gain": 0.33,
+     "sections": {
+      "A": [
+       "F5 - - A5 - - C6 - D6 - - C6 - - A5 -",
+       "Eb6 - - D6 - - C6 - A5 - - - F5 - - -",
+       "G5 - - Bb5 - - Eb6 - D6 - C6 - Bb5 - - -",
+       "A5 - - C6 - - A5 - F5 - - - . . . .",
+       "D6 - - Bb5 - - F5 - G5 - A5 - Bb5 - - -",
+       "G5 - - Bb5 - - D6 - C6 - Bb5 - A5 - - -",
+       "G5 - - Eb5 - - G5 - Bb5 - - C6 - - Eb6 -",
+       "D6 - - C6 - - A5 - F5 - - - . . . ."
+      ],
+      "A2": [
+       "F5~G5 - - A5 - - C6 - D6 - - C6 - - A5 -",
+       "Eb6 - - D6 - - C6 - D6 - Eb6 - F6 - - -",
+       "G6 - - F6 - - Eb6 - D6 - C6 - Bb5 - - -",
+       "C6 - - A5 - - F5 - A5 - - - . . . .",
+       "F5 - - Bb5 - - D6 - F6 - - - D6 - - -",
+       "Eb6 - - C6 - - G5 - Bb5 - - - C6 - - -",
+       "Bb5 - - G5 - - Eb5 - G5 - Bb5 - Eb6 - - -",
+       "D6 - - C6 - - A5 - F#5 - - - . . . ."
+      ],
+      "B": [
+       ". . . . . . . . . . . . G5 - A5 -",
+       ". . . . . . . . . . . . D6 - C6 -",
+       ". . . . . . . . . . . . Bb5 - A5 -",
+       ". . . . . . . . . . . . Eb6 - D6 -",
+       ". . . . . . . . . . . . D6 - Bb5 -",
+       ". . . . . . . . . . . . F6 - Eb6 -",
+       ". . . . . . . . . . . . G5 - F5 -",
+       ". . . . . . . . . . . . G5 - Bb5 -"
+      ],
+      "T": [
+       "F5 - - A5 - - C6 - D6 - - C6 - - A5 -",
+       "G5 - - Bb5 - - Eb6 - D6 - - C6 - - Bb5 -",
+       "D6 - - F6 - - D6 - Bb5 - - - F5 - - -",
+       "A5 - - C6 - - Eb6 - D6 - - - C6 - - -",
+       "Bb5 - - G5 - - D5 - G5 - A5 - Bb5 - - -",
+       "C6 - - Bb5 - - G5 - Eb5 - - - G5 - - -",
+       "A5 - - G5 - - F5 - . . . . . . C5 -",
+       "F5 - - - C6 - A5 - - - - - Gb5 - - -"
+      ]
+     }
+    }
+   }
+  }
+ },
+ "stingers": {
+  "_doc": "Tempo-bound one-shots, written in D (Balfour) and transposed per key: +2 E (Knesset), +5 G (Courthouse), +3 F (Washington), rendered at that era's tempo and sample rate. 'lengths' (fanfare) cuts the render after bars 1-2 plus k half-bar tags; each tag ends on the b2, so every cut hangs unresolved and the new loop's bar-1 downbeat is the resolution.",
+  "fanfare": {
+   "stepsPerBeat": 8,
+   "rate": 22050,
+   "bus": "Music",
+   "keys": [
+    "D",
+    "E",
+    "G",
+    "F"
+   ],
+   "tags": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "tagSteps": 16,
+   "baseSteps": 64,
+   "markerSteps": {
+    "pickup": 28,
+    "rollEnd": 32
+   },
+   "_markers": "rollEnd = the motif downbeat + crash (the visual IMPACT); pickup = the G#-A presto; tagOnsets = each tag's start; fanfareEnd = musicalSamples (the new loop's bar 1).",
+   "channels": {
+    "lead": {
+     "instrument": "p1",
+     "gain": 0.34,
+     "bars": [
+      ". . . . . . . . . . . . . . . . . . . . . . . . . . . . G#4 - A4 -",
+      "D5 - - - - - - - A5 - - - F#5 - - - - - - - - - - - Eb5 - - - - - - -",
+      ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+      ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."
+     ]
+    },
+    "p2": {
+     "instrument": "p2b",
+     "gain": 0.26,
+     "bars": [
+      ". . . . . . . . . . . . . . . . . . . . . . . . . . . . C4 - - -",
+      "F#4 - - - - - - - C5 - - - A4 - - - - - - - - - - - G4 - - - - - - -",
+      "G4 - - - Eb5 - - - - - - - - - - - A4 - - - Eb5 - - - - - - - - - - -",
+      "Bb4 - - - Eb5 - - - - - - - - - - - C5 - - - Eb5 - - - - - - - - - - -"
+     ]
+    },
+    "bass": {
+     "instrument": "tri",
+     "gain": 0.46,
+     "bars": [
+      ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+      "D3 - - - - - . . . . . . . . . . A2 - - - - - . . Eb3 - - - - - - -",
+      ". . . . Eb3 - - - - - - - - - . . . . . . Eb3 - - - - - - - - - . .",
+      ". . . . Eb3 - - - - - - - - - . . . . . . Eb3 - - - - - - - - - . ."
+     ]
+    },
+    "kit": {
+     "kit": "fanfare",
+     "gain": 0.45,
+     "bars": [
+      "1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 4 4 4 4 4 4 4 4",
+      "X D . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+      ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+      ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."
+     ]
+    }
+   }
+  },
+  "courtIn": {
+   "stepsPerBeat": 3,
+   "rate": 22050,
+   "bus": "SFX-Critical",
+   "keys": [
+    "G"
+   ],
+   "writtenIn": "G",
+   "channels": {
+    "bass": {
+     "instrument": "triTip",
+     "gain": 0.6,
+     "bars": [
+      ". . . . . . . . . D3 . .",
+      "G3 . . G3 . . D4 . . B3 . .",
+      "B3 . . B3 . . Ab3 . . Ab3 . ."
+     ]
+    }
+   },
+   "slapback": {
+    "ms": 180,
+    "db": -12
+   },
+   "_note": "TRI reaches D4 (294 Hz) here, 2 semitones over the bass rule, to keep the motif's 1->5 leap."
+  },
+  "motif": {
+   "stepsPerBeat": 4,
+   "rate": 22050,
+   "bus": "SFX-Critical",
+   "keys": [
+    "D",
+    "E",
+    "G",
+    "F"
+   ],
+   "channels": {
+    "lead": {
+     "instrument": "p1",
+     "gain": 0.36,
+     "bars": [
+      ". . . . . . . . . . . . . . A4 -",
+      "D5 - - - A5 - F#5 - - - - - Eb5 - - -"
+     ]
+    }
+   }
+  },
+  "trophy": {
+   "stepsPerBeat": 4,
+   "rate": 22050,
+   "bus": "UI",
+   "keys": [
+    "D",
+    "E",
+    "G",
+    "F"
+   ],
+   "channels": {
+    "blip": {
+     "instrument": "blip",
+     "gain": 0.34,
+     "bars": [
+      ". . . . . . . . . . . . . . A5 -",
+      "D6 - - - A6 - F#6 - - - - - Eb6 - - -"
+     ]
+    },
+    "kit": {
+     "kit": "shutter",
+     "gain": 0.5,
+     "bars": [
+      "Z . . . . . . . . . . . . . . .",
+      ". . . . . . . . . . . . . . . ."
+     ]
+    }
+   }
+  },
+  "dubiFlash": {
+   "stepsPerBeat": 4,
+   "rate": 22050,
+   "bus": "Voice",
+   "keys": [
+    "D",
+    "E",
+    "G",
+    "F"
+   ],
+   "channels": {
+    "blip": {
+     "instrument": "blip",
+     "gain": 0.36,
+     "bars": [
+      "A5 . D6 . A6 . . . . . . . . . . ."
+     ]
+    }
+   }
+  },
+  "milestone": {
+   "stepsPerBeat": 4,
+   "rate": 22050,
+   "bus": "SFX-Critical",
+   "keys": [
+    "D",
+    "E",
+    "G",
+    "F"
+   ],
+   "channels": {
+    "p2": {
+     "instrument": "p2b",
+     "gain": 0.34,
+     "bars": [
+      "A4 - D5 - - - . . . . . . . . . ."
+     ]
+    }
+   }
+  }
+ }
+}

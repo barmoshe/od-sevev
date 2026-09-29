@@ -1,0 +1,95 @@
+{
+  "_doc": "Placeholder politics content for the sim tests (game-developer). It is the worked example of the data contract v1 in game/scripts/sim/README.md; design/content.json mirrors it with the Designer's numbers. Producer references written '@N' mean 'the Nth money source' (1-based, content order) and are resolved by tests/politics_fixture.gd only; design/content.json uses real producer ids. The tests pin this file over the fork's content, so they keep testing the rules while the live numbers are tuned.",
+  "flags": {
+    "postLaunch": false,
+    "easterEggs": false,
+    "mordechaiDavid": false,
+    "yairNetanyahu": false
+  },
+  "coalition": {
+    "gateSeats": 61,
+    "knessetSize": 120,
+    "ownSeats": {"base": 20, "perTier": 2, "perBaseDoubling": 1, "max": 36},
+    "firstPartner": "bengvir",
+    "firstDemandPrice": 60,
+    "openAtSourcesOwned": 3,
+    "demandSec": 45,
+    "minPrice": 10,
+    "joinGapSec": 8,
+    "demandGapSec": [60, 120],
+    "demandGapPerMember": 0.93,
+    "demandGapMinSec": 30,
+    "patienceSec": 60,
+    "ultimatum": {"sec": 90, "minPlaySec": 180, "minDemandsPaid": 2, "marksSec": [60, 30], "maxOpen": 1},
+    "rejoinMult": 1.5,
+    "poachSec": 60,
+    "upkeepMaxPct": 40,
+    "chatMax": 80,
+    "corridorMsgsPerOpen": [1, 9],
+    "negotiation": {"demandGapMult": 0.6}
+  },
+  "partners": [
+    {"id": "bengvir", "name": "איתמר בן גביר", "g": "m", "seats": 12, "upkeepPct": 4, "demandWeight": 3, "threatChance": 0.6, "unlock": {}},
+    {"id": "regev", "name": "מירי רגב", "g": "f", "seats": 2, "upkeepPct": 1, "demandWeight": 1, "threatChance": 0.2, "demandKind": "ceremony", "unlock": {"runBananasAtLeast": 1000}},
+    {"id": "smotrich", "name": "בצלאל סמוטריץ'", "g": "m", "seats": 7, "upkeepPct": 3, "demandWeight": 2, "threatChance": 0.35, "effects": [{"type": "producerMult", "producer": "@3", "mult": 1.2}], "unlock": {"runBananasAtLeast": 2000}},
+    {"id": "amsalem", "name": "דודי אמסלם", "g": "m", "seats": 2, "upkeepPct": 1, "demandWeight": 1, "threatChance": 0.3, "unlock": {"runBananasAtLeast": 3000}},
+    {"id": "levin", "name": "יריב לוין", "g": "m", "seats": 2, "upkeepPct": 1, "demandWeight": 1, "threatChance": 0.2, "effects": [{"type": "suspicionGainMult", "mult": 0.8}], "unlock": {"runBananasAtLeast": 5000}},
+    {"id": "deri", "name": "אריה דרעי", "g": "m", "seats": 9, "upkeepPct": 5, "demandWeight": 1, "threatChance": 0, "cannotLeave": true, "statusLine": true, "unlock": {"runBananasAtLeast": 8000}},
+    {"id": "golan", "name": "מאי גולן", "g": "f", "seats": 1, "upkeepPct": 1, "demandWeight": 1, "threatChance": 0.3, "priceMult": 0.5, "onPay": {"suspicion": 4}, "unlock": {"runBananasAtLeast": 12000}},
+    {"id": "goldknopf", "name": "יצחק גולדקנופף", "g": "m", "seats": 4, "upkeepPct": 2, "demandWeight": 2, "threatChance": 0.3, "priceGrowth": 1.3, "unlock": {"runBananasAtLeast": 20000}},
+    {"id": "gotliv", "name": "טלי גוטליב", "g": "f", "seats": 2, "upkeepPct": 1, "demandWeight": 1, "threatChance": 0.3, "pollLike": true, "transfer": {"to": "bengvir", "meterPerSec": 0.5, "fireAt": 100}, "unlock": {"runBananasAtLeast": 30000}},
+    {"id": "almog", "name": "אלמוג כהן", "g": "m", "seats": 1, "upkeepPct": 1, "demandWeight": 1, "threatChance": 0.3, "rebel": true, "unlock": {"runBananasAtLeast": 40000}},
+    {"id": "gafni", "name": "משה גפני", "g": "m", "seats": 0, "abstain": 4, "upkeepPct": 1, "demandWeight": 2, "threatChance": 0.5, "priceMult": 0.5, "unlock": {"runBananasAtLeast": 50000}},
+    {"id": "abbas", "name": "מנסור עבאס", "g": "m", "side": "opposition", "seats": 4, "upkeepPct": 2, "demandWeight": 1, "threatChance": 0.2, "excludes": ["bengvir"], "unlock": {"runBananasAtLeast": 60000}},
+    {"id": "karhi", "name": "שלמה קרעי", "g": "m", "seats": 2, "upkeepPct": 1, "demandWeight": 1, "threatChance": 0.2, "unlock": {"runBananasAtLeast": 100000}},
+    {"id": "distel", "name": "גלית דיסטל אטבריאן", "g": "f", "seats": 1, "upkeepPct": 1, "demandWeight": 1, "threatChance": 0.2, "onPay": {"suspicion": 3}, "mutedLine": true, "unlock": {"runBananasAtLeast": 150000}},
+    {"id": "gantz", "name": "בני גנץ", "g": "m", "side": "opposition", "seats": 4, "upkeepPct": 0, "demandWeight": 0, "threatChance": 0, "standIn": true, "unlock": {}}
+  ],
+  "court": {
+    "sources": {"@4": 0.6, "@5": 0.7, "@6": 0.8, "@7": 0.9},
+    "max": 100,
+    "floorPerRoundPct": 5,
+    "floorMaxPct": 40,
+    "courtDaySec": 30,
+    "courtBpsMult": 0.5,
+    "courtPausesTaps": true,
+    "summonsAutoTestifySec": 30,
+    "postpone": {"treasuryPct": 5, "growth": 2, "maxPct": 100, "minCostBpsSec": 10, "cooldownSec": [120, 90, 60, 45, 30, 20], "excuseSteps": 6},
+    "aide": {"suspicion": 15, "baseMultPerDrop": 0.97},
+    "pardon": {"stamps": 8}
+  },
+  "eventsConfig": {
+    "gapSec": [150, 210],
+    "firstAfterPlaySec": 240,
+    "photobomb": {"flag": "postLaunch", "liranPct": 4, "tomerPct": 4, "togetherPct": 0.5}
+  },
+  "events": [
+    {"id": "brawl", "kind": "chat", "weight": 3, "cooldownSec": 360, "when": {"membersAtLeast": 3}, "effect": {"type": "brawl", "pairs": [["amsalem", "smotrich"]], "anyPair": true}},
+    {"id": "leak", "kind": "chat", "weight": 2, "oncePerRound": true, "when": {"evolutionsAtLeast": 1}, "effect": {"type": "leak", "leaks": 3}},
+    {"id": "interview", "kind": "card", "weight": 2, "oncePerRound": true, "effect": {"type": "interview", "baseMultPct": 10, "invoiceAfterSec": 60}},
+    {"id": "pardon", "kind": "card", "weight": 1, "cooldownSec": 600, "when": {"courtDaysAtLeast": 1}, "effect": {"type": "pardonDesk", "sec": 60}},
+    {"id": "lapid", "kind": "card", "side": "opposition", "weight": 2, "cooldownSec": 420, "when": {"shadyOwnedAtLeast": 1}, "effect": {"type": "suspicion", "add": 8}},
+    {"id": "eisenkot", "kind": "card", "side": "opposition", "weight": 2, "cooldownSec": 420, "effect": {"type": "noCrit", "sec": 20}},
+    {"id": "liberman", "kind": "card", "side": "opposition", "weight": 1, "cooldownSec": 420, "effect": {"type": "none", "sec": 15}},
+    {"id": "bennett", "kind": "card", "side": "opposition", "weight": 2, "cooldownSec": 420, "when": {"evolutionsAtLeast": 1}, "effect": {"type": "pledge", "gatePlus": 1, "sec": 45, "baseAdd": 1}},
+    {"id": "nameless", "kind": "card", "side": "opposition", "flag": "postLaunch", "weight": 1, "oncePerRound": true, "effect": {"type": "seatDrain", "seats": 3, "sec": 120}},
+    {"id": "roulette", "kind": "card", "flag": "postLaunch", "pollLike": true, "weight": 1, "oncePerRound": true, "effect": {"type": "roulette", "lists": ["winter", "hendel", "haskel"]}},
+    {"id": "kaia", "kind": "stage", "flag": "easterEggs", "weight": 1, "cooldownSec": 900, "when": {"era": "jungle"}, "effect": {"type": "kaia", "feedSec": 20, "buffSec": 30, "tapMult": 2, "nipSec": 60}},
+    {"id": "pinkfront", "kind": "stage", "flag": "easterEggs", "weight": 5, "cooldownSec": 1800, "when": {"weekday": [6], "hour": [19, 23]}, "effect": {"type": "drumline", "sec": 30, "bpsSec": 30}},
+    {"id": "mordechai", "kind": "card", "flag": "mordechaiDavid", "weight": 1, "cooldownSec": 900, "effect": {"type": "none", "sec": 15}},
+    {"id": "yair", "kind": "card", "flag": "yairNetanyahu", "weight": 1, "cooldownSec": 900, "effect": {"type": "loseRandomPartner"}}
+  ],
+  "calendar": {
+    "electionDate": "2026-10-27",
+    "blackoutStartUtc": "2026-10-22T21:00:00",
+    "pollsCloseUtc": "2026-10-27T20:00:00",
+    "israelUtcOffsets": [{"fromUtc": "2026-03-27T00:00:00", "hours": 3}, {"fromUtc": "2026-10-24T23:00:00", "hours": 2}],
+    "defaultOffsetHours": 2,
+    "forceBlackout": false,
+    "forcePostElection": false
+  },
+  "_goldenOutcomesAdd": [
+    {"id": "aide", "type": "instant", "weight": 0.15, "aide": true, "bunchBpsSeconds": 60, "bunchMinTaps": 30},
+    {"id": "laundry", "type": "instant", "weight": 0.1, "era": "orbit", "bunchBpsSeconds": 90, "bunchMinTaps": 30}
+  ]
+}

@@ -1,0 +1,4905 @@
+{
+  "_doc": "Per-key budgets for ux/ui-strings.json, for the Game Developer's build-time pixel-width lint (first-minute §8, engine review O-U3). LINT: substitute worstCasePlaceholders, drop LRI/PDI, measure with the real Sevev 5x9 advances (glyph width + 1, space 3) times the box's scale. PASS if it fits the box in `lines` lines at the base scale, and at base+1 (large text) either fits in `linesLarge` or may step down to the base scale. A key with joke:true must never need truncation (its punchline is last). html/share-text/og keys are checked by maxChars only (system font). surface 'unused' keys are not rendered in od-sevev. Box geometry is ux/rtl-map.md.",
+  "fontMetrics": {
+    "font": "Sevev 5x9 (art/src/hebfont.py)",
+    "cellRows": 9,
+    "lineHeight": 11,
+    "space": 3,
+    "advance": "glyph width + 1",
+    "baseScale": 4,
+    "largeScale": 5,
+    "shareCards": "art scale 1 on the x5 card grid"
+  },
+  "boxes": {
+    "rowA.counter": {
+      "widthPx": 328,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Row A counter (7-row numeral cut), centred x 196-524"
+    },
+    "rowA.rate": {
+      "widthPx": 344,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Row A rate line, centred x 188-532"
+    },
+    "rowB.label": {
+      "widthPx": 128,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Row B label x 576-704"
+    },
+    "rowB.value": {
+      "widthPx": 120,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Row B numeral x 16-136 (PxText)"
+    },
+    "rowB.stamp": {
+      "widthPx": 256,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Blackout stamp inner (baked art; text is the a11y fallback)"
+    },
+    "stage.toast": {
+      "widthPx": 656,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 3,
+      "where": "Toast text x 32-688"
+    },
+    "stage.toastChat": {
+      "widthPx": 528,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 3,
+      "where": "Chat toast text (avatar at right)"
+    },
+    "stage.courtChip": {
+      "widthPx": 256,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Court chip inner"
+    },
+    "stage.thermo": {
+      "widthPx": 120,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Thermometer state word, x 12-132"
+    },
+    "stage.floater": {
+      "widthPx": 400,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Tap floater"
+    },
+    "stage.buffChip": {
+      "widthPx": 384,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Buff chip inner (chip x 160-560)"
+    },
+    "stage.banner": {
+      "widthPx": 496,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Catch banner inner"
+    },
+    "stage.cameoChip": {
+      "widthPx": 128,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Ultimatum chip over the stage cameo (PxText)"
+    },
+    "ticker.tag": {
+      "widthPx": 88,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Ticker anchor label"
+    },
+    "ticker.chip": {
+      "widthPx": 160,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Ticker chip line: date (+ calendar icon) or court day (2 lines)"
+    },
+    "ticker.crawl": {
+      "widthPx": null,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Crawl: no width limit; paged by width 384 under reduced motion"
+    },
+    "cta.election": {
+      "widthPx": 688,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Election CTA"
+    },
+    "card.name": {
+      "widthPx": 360,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Card name x 220-580"
+    },
+    "card.line2": {
+      "widthPx": 348,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Card line 2, x 220-568 (the owned badge overlaps the plate corner at x 572+)"
+    },
+    "card.line2wide": {
+      "widthPx": 360,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Card line 2 when no owned badge shows, x 220-580"
+    },
+    "card.pill": {
+      "widthPx": 168,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Pill line (verb or price), pill 184 wide"
+    },
+    "card.owned": {
+      "widthPx": 96,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Owned badge on the plate corner (PxText)"
+    },
+    "perk.level": {
+      "widthPx": 120,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Clause level on an agreement row (PxText)"
+    },
+    "list.buyLabel": {
+      "widthPx": 384,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Buy-mode row label"
+    },
+    "list.buyBtn": {
+      "widthPx": 168,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Buy-mode button (visual 184)"
+    },
+    "list.empty": {
+      "widthPx": 656,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Empty-list line"
+    },
+    "tab.label": {
+      "widthPx": 164,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Tab label"
+    },
+    "tab.badge": {
+      "widthPx": 40,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Tab badge count (PxText)"
+    },
+    "tall.title": {
+      "widthPx": 440,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Tall-tab header title"
+    },
+    "tall.status": {
+      "widthPx": 584,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Tall-tab header status, x 32-616"
+    },
+    "chat.pinned": {
+      "widthPx": 584,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Pinned bar x 64-648 (56 visual)"
+    },
+    "chat.bubble": {
+      "widthPx": 416,
+      "scale": 4,
+      "lines": 99,
+      "linesLarge": 99,
+      "where": "Bubble text column (104 art px, 17 glyphs)"
+    },
+    "chat.name": {
+      "widthPx": 416,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Sender name in a bubble"
+    },
+    "chat.pill": {
+      "widthPx": 296,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Pay pill inner (kit 9-slice stretched to 82x17 art)"
+    },
+    "chat.pillWide": {
+      "widthPx": 480,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Rejoin / poach pill on a system line (visual 512)"
+    },
+    "chat.sys": {
+      "widthPx": 568,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 3,
+      "where": "System pill inner"
+    },
+    "chat.banner": {
+      "widthPx": 656,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 3,
+      "where": "Transfer / brawl banner line (the card grows)"
+    },
+    "chat.btn": {
+      "widthPx": 304,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Brawl button inner"
+    },
+    "chat.label": {
+      "widthPx": 300,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Ultimatum label / forwarded label"
+    },
+    "chat.timer": {
+      "widthPx": 120,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Timer (PxText)"
+    },
+    "chat.divider": {
+      "widthPx": 480,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Day / unread divider"
+    },
+    "chat.composer": {
+      "widthPx": 640,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Disabled composer"
+    },
+    "dos.row": {
+      "widthPx": 656,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Dossier row"
+    },
+    "dos.btn": {
+      "widthPx": 624,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Dossier full-width button"
+    },
+    "sheet.title": {
+      "widthPx": 432,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Sheet / modal title (clears the top-left close)"
+    },
+    "sheet.group": {
+      "widthPx": 360,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Settings group header"
+    },
+    "sheet.label": {
+      "widthPx": 360,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Settings row label x 296-656"
+    },
+    "sheet.caption": {
+      "widthPx": 360,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 3,
+      "where": "Settings caption"
+    },
+    "sheet.state": {
+      "widthPx": 104,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Toggle state text x 176-280"
+    },
+    "sheet.btn": {
+      "widthPx": 640,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Sheet full-width button"
+    },
+    "sheet.note": {
+      "widthPx": 656,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 3,
+      "where": "Sheet footnote"
+    },
+    "modal.title": {
+      "widthPx": 432,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Modal title"
+    },
+    "modal.body": {
+      "widthPx": 560,
+      "scale": 4,
+      "lines": 4,
+      "linesLarge": 6,
+      "where": "Modal body (cards grow vertically)"
+    },
+    "modal.big": {
+      "widthPx": 560,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Modal big number (7-row numeral cut)"
+    },
+    "modal.btnHalf": {
+      "widthPx": 224,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Half-width modal button inner"
+    },
+    "modal.btnFull": {
+      "widthPx": 512,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Full-width modal button inner"
+    },
+    "court.body": {
+      "widthPx": 624,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 3,
+      "where": "Court card text"
+    },
+    "court.btn": {
+      "widthPx": 384,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Court primary button line (2-line button: verb / price)"
+    },
+    "court.btn2": {
+      "widthPx": 192,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Court secondary button inner (visual 224)"
+    },
+    "tx.line": {
+      "widthPx": 656,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Election transition line"
+    },
+    "title.line": {
+      "widthPx": 656,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 2,
+      "where": "Title-state line"
+    },
+    "receipt.line": {
+      "widthPx": 152,
+      "scale": 1,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Receipt full line (152 art px)"
+    },
+    "receipt.wrap": {
+      "widthPx": 152,
+      "scale": 1,
+      "lines": 2,
+      "linesLarge": 2,
+      "where": "Receipt line allowed to wrap to 2"
+    },
+    "receipt.foot": {
+      "widthPx": 152,
+      "scale": 1,
+      "lines": 3,
+      "linesLarge": 3,
+      "where": "Receipt footer block (disclaimer + URL)"
+    },
+    "receipt.item": {
+      "widthPx": 92,
+      "scale": 1,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Receipt item, amount on the same line"
+    },
+    "receipt.amount": {
+      "widthPx": 56,
+      "scale": 1,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Receipt amount column"
+    },
+    "result.head": {
+      "widthPx": 160,
+      "scale": 1,
+      "lines": 2,
+      "linesLarge": 2,
+      "where": "Result headline plate (2 lines)"
+    },
+    "result.line": {
+      "widthPx": 168,
+      "scale": 1,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Result stat strip"
+    },
+    "result.foot": {
+      "widthPx": 200,
+      "scale": 1,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Result footer band line"
+    }
+  },
+  "worstCasePlaceholders": {
+    "n": "999",
+    "price": "8.88mm",
+    "x": "8.888mm",
+    "xr": "8,888,888",
+    "rate": "8.88mm",
+    "cost": "8.88mm",
+    "mult": "99",
+    "pmult": "999.9",
+    "s": "60",
+    "d": "29",
+    "h": "24",
+    "m": "59",
+    "mmss": "88:88",
+    "owned": "999",
+    "qty": "99",
+    "pending": "9999",
+    "needed": "9999",
+    "seats": "99",
+    "version": "1.10.10",
+    "date": "28.09.2026",
+    "pct": "100",
+    "k": "12",
+    "lv": "10",
+    "max": "10",
+    "count": "9",
+    "total": "5",
+    "thumbs": "9999",
+    "now": "999.9",
+    "after": "999.9",
+    "next": "999",
+    "r": "99",
+    "c": "99",
+    "name": "גלית דיסטל־אטבריאן",
+    "a": "אמסלם",
+    "b": "סמוטריץ׳",
+    "who": "היועצים המשפטיים",
+    "to": "עוצמה יהודית",
+    "from": "הליכוד",
+    "era": "וושינגטון",
+    "outlet": "ידיעות אחרונות",
+    "NAME": "פנקס הצ׳קים הזהוב",
+    "UPGRADE_NAME": "הוחלט להקים ועדה",
+    "FLAVOR": "",
+    "title": "הקוסם",
+    "dur": "23 שע׳ 59 דק׳",
+    "rounds": "99 סבבי בחירות",
+    "days": "ו־99 ימי משפט",
+    "amount": "999.9 מיליון",
+    "url": "odsevev.co.il",
+    "publisher": "",
+    "mail": "",
+    "preview": "",
+    "mood": ""
+  },
+  "numericPlaceholders": [
+    "after",
+    "c",
+    "cost",
+    "count",
+    "d",
+    "date",
+    "h",
+    "k",
+    "lv",
+    "m",
+    "max",
+    "mmss",
+    "mult",
+    "n",
+    "needed",
+    "next",
+    "now",
+    "owned",
+    "pct",
+    "pending",
+    "pmult",
+    "price",
+    "qty",
+    "r",
+    "rate",
+    "s",
+    "seats",
+    "thumbs",
+    "total",
+    "version",
+    "x",
+    "xr"
+  ],
+  "strings": {
+    "BOOT_LOADING": {
+      "surface": "label",
+      "box": "title.line",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
+    },
+    "TITLE_WORDMARK_1": {
+      "surface": "label",
+      "note": "Fallback text and a11y name for the pixel wordmark art",
+      "box": "title.line",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 148,
+        "5": 185
+      }
+    },
+    "TITLE_WORDMARK_2": {
+      "surface": "unused",
+      "note": "Intentionally empty: the wordmark is one line"
+    },
+    "TITLE_TAGLINE": {
+      "surface": "label",
+      "spec": "title.round + mood.1",
+      "joke": true,
+      "box": "title.line",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 556,
+        "5": 695
+      }
+    },
+    "TITLE_CTA": {
+      "surface": "unused",
+      "note": "Intentionally empty: zero instruction text in the title state (first-minute §2)"
+    },
+    "TITLE_KEYHINT": {
+      "surface": "unused",
+      "note": "Intentionally empty (same reason)"
+    },
+    "TITLE_FOOTER": {
+      "surface": "unused",
+      "note": "Intentionally empty (same reason); the save note lives in About"
+    },
+    "HUD_BPS": {
+      "surface": "label",
+      "spec": "hud.rate",
+      "box": "rowA.rate",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 308,
+        "5": 385
+      },
+      "largeText": "step-down"
+    },
+    "HUD_BPS_FRENZY": {
+      "surface": "label",
+      "note": "Same text as HUD_BPS in the frenzy tint; the multiplier is on the buff chip",
+      "box": "rowA.rate",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 308,
+        "5": 385
+      },
+      "largeText": "step-down"
+    },
+    "HUD_THUMBS": {
+      "surface": "label",
+      "note": "Not in the persistent HUD; shown in T4",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 356,
+        "5": 445
+      }
+    },
+    "EVOLVE_BTN": {
+      "surface": "unused",
+      "note": "The not-ready Evolve button no longer exists; the seats bar carries progress"
+    },
+    "EVOLVE_BTN_READY": {
+      "surface": "label",
+      "spec": "hud.cta.election",
+      "joke": true,
+      "box": "cta.election",
+      "maxChars": 28,
+      "worstPx": {
+        "4": 156,
+        "5": 195
+      }
+    },
+    "EVOLVE_BTN_PROGRESS": {
+      "surface": "unused",
+      "note": "Seats progress is HUD_SEATS_VALUE"
+    },
+    "EVOLVE_BTN_GAIN": {
+      "surface": "unused",
+      "note": "The election card uses EVO_THUMBS_GAIN"
+    },
+    "EVOLVE_BADGE": {
+      "surface": "pxtext",
+      "box": "tab.badge",
+      "maxChars": 1,
+      "worstPx": {
+        "4": 20,
+        "5": 25
+      }
+    },
+    "FLOATER": {
+      "surface": "label",
+      "spec": "first-minute §2.2 '+1 ₪'",
+      "box": "stage.floater",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 124,
+        "5": 155
+      }
+    },
+    "FLOATER_CRIT": {
+      "surface": "label",
+      "box": "stage.floater",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 132,
+        "5": 165
+      }
+    },
+    "BUFF_CHIP_FRENZY": {
+      "surface": "label",
+      "box": "stage.buffChip",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 328,
+        "5": 410
+      },
+      "largeText": "step-down"
+    },
+    "BUFF_CHIP_TAPFRENZY": {
+      "surface": "label",
+      "box": "stage.buffChip",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 324,
+        "5": 405
+      },
+      "largeText": "step-down"
+    },
+    "BANNER_BUNCH": {
+      "surface": "label",
+      "joke": true,
+      "box": "stage.banner",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 260,
+        "5": 325
+      }
+    },
+    "BANNER_FRENZY": {
+      "surface": "label",
+      "joke": true,
+      "box": "stage.banner",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 296,
+        "5": 370
+      }
+    },
+    "BANNER_TAPFRENZY": {
+      "surface": "label",
+      "joke": true,
+      "box": "stage.banner",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 328,
+        "5": 410
+      }
+    },
+    "CALLOUT_GOLDEN": {
+      "surface": "label",
+      "note": "Not used by the od-sevev FTUE (S1 is textless)",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 192,
+        "5": 240
+      }
+    },
+    "TICKER_TAG": {
+      "surface": "label",
+      "spec": "hud.ticker.tag",
+      "box": "ticker.tag",
+      "maxChars": 3,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      },
+      "largeText": "step-down"
+    },
+    "TAB_PRODUCERS": {
+      "surface": "label",
+      "spec": "tab.sources",
+      "joke": true,
+      "box": "tab.label",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      }
+    },
+    "TAB_UPGRADES": {
+      "surface": "label",
+      "spec": "tab.spins",
+      "box": "tab.label",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 112,
+        "5": 140
+      }
+    },
+    "TAB_BADGE": {
+      "surface": "pxtext",
+      "box": "tab.badge",
+      "maxChars": 1,
+      "worstPx": {
+        "4": 20,
+        "5": 25
+      }
+    },
+    "BUYMODE_1": {
+      "surface": "label",
+      "box": "list.buyBtn",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 136,
+        "5": 170
+      },
+      "largeText": "step-down"
+    },
+    "BUYMODE_10": {
+      "surface": "label",
+      "box": "list.buyBtn",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 156,
+        "5": 195
+      },
+      "largeText": "step-down"
+    },
+    "BUYMODE_MAX": {
+      "surface": "label",
+      "box": "list.buyBtn",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 144,
+        "5": 180
+      },
+      "largeText": "step-down"
+    },
+    "ROW_BUY": {
+      "surface": "label",
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 100,
+        "5": 125
+      }
+    },
+    "ROW_BUY_N": {
+      "surface": "label",
+      "joke": true,
+      "note": "Pill line 1 in buy-mode ×10 / max; echoes עוד אחד",
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      }
+    },
+    "ROW_NEED": {
+      "surface": "label",
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 68,
+        "5": 85
+      }
+    },
+    "ROW_COST": {
+      "surface": "label",
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 164,
+        "5": 205
+      },
+      "largeText": "step-down"
+    },
+    "ROW_OWNED": {
+      "surface": "pxtext",
+      "box": "card.owned",
+      "maxChars": 4,
+      "worstPx": {
+        "4": 92,
+        "5": 115
+      },
+      "largeText": "step-down"
+    },
+    "ROW_OWNED_BPS": {
+      "surface": "label",
+      "spec": "card.yield",
+      "note": "The owned count is its own node (CARD_OWNED)",
+      "box": "card.line2",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 308,
+        "5": 385
+      },
+      "largeText": "step-down"
+    },
+    "ROW_OWNED_NEXT": {
+      "surface": "unused",
+      "note": "No milestone counter on the card at x4; milestones announce on the ticker (F_MILESTONE)"
+    },
+    "ROW_LOCKED_NAME": {
+      "surface": "label",
+      "spec": "card.locked.name",
+      "joke": true,
+      "box": "card.name",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 180,
+        "5": 225
+      }
+    },
+    "UPG_EMPTY_1": {
+      "surface": "label",
+      "box": "list.empty",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 284,
+        "5": 355
+      }
+    },
+    "UPG_EMPTY_2": {
+      "surface": "label",
+      "joke": true,
+      "box": "list.empty",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 452,
+        "5": 565
+      }
+    },
+    "SET_TITLE": {
+      "surface": "label",
+      "spec": "set.title",
+      "box": "sheet.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "SET_GROUP_SOUND": {
+      "surface": "label",
+      "spec": "set.g.sound",
+      "box": "sheet.group",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 100,
+        "5": 125
+      }
+    },
+    "SET_SFX": {
+      "surface": "label",
+      "spec": "set.sfx",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "SET_MUSIC": {
+      "surface": "label",
+      "spec": "set.music",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 112,
+        "5": 140
+      }
+    },
+    "SET_GROUP_A11Y": {
+      "surface": "label",
+      "spec": "set.g.comfort",
+      "box": "sheet.group",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      }
+    },
+    "SET_REDUCED_MOTION": {
+      "surface": "label",
+      "spec": "set.motion",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 248,
+        "5": 310
+      }
+    },
+    "SET_GROUP_GAME": {
+      "surface": "label",
+      "spec": "set.g.game",
+      "box": "sheet.group",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "SET_FULLSCREEN": {
+      "surface": "unused",
+      "note": "Not in the od-sevev settings (first-minute §7.2)"
+    },
+    "SET_RESET": {
+      "surface": "label",
+      "spec": "set.reset",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 268,
+        "5": 335
+      }
+    },
+    "SET_RESET_BTN": {
+      "surface": "unused",
+      "note": "The whole danger row is the button"
+    },
+    "SET_ON": {
+      "surface": "label",
+      "spec": "set.on",
+      "box": "sheet.state",
+      "maxChars": 4,
+      "worstPx": {
+        "4": 84,
+        "5": 105
+      },
+      "largeText": "step-down"
+    },
+    "SET_OFF": {
+      "surface": "label",
+      "spec": "set.off",
+      "box": "sheet.state",
+      "maxChars": 4,
+      "worstPx": {
+        "4": 72,
+        "5": 90
+      }
+    },
+    "SET_KEYS": {
+      "surface": "label",
+      "spec": "first-minute §7.4",
+      "note": "Desktop only",
+      "box": "sheet.note",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 844,
+        "5": 1055
+      }
+    },
+    "SET_VERSION": {
+      "surface": "label",
+      "box": "sheet.note",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 392,
+        "5": 490
+      }
+    },
+    "RST_TITLE": {
+      "surface": "label",
+      "spec": "reset.title",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 100,
+        "5": 125
+      }
+    },
+    "RST_BODY_1": {
+      "surface": "label",
+      "spec": "reset.joke",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 752,
+        "5": 940
+      }
+    },
+    "RST_BODY_2": {
+      "surface": "label",
+      "spec": "reset.body",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1088,
+        "5": 1360
+      }
+    },
+    "RST_BODY_3": {
+      "surface": "unused",
+      "note": "Intentionally empty: Labels wrap RST_BODY_2"
+    },
+    "RST_NOTE": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 288,
+        "5": 360
+      }
+    },
+    "RST_CANCEL": {
+      "surface": "label",
+      "spec": "reset.cancel",
+      "joke": true,
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 152,
+        "5": 190
+      }
+    },
+    "RST_CONFIRM": {
+      "surface": "label",
+      "spec": "reset.go",
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 208,
+        "5": 260
+      },
+      "largeText": "step-down"
+    },
+    "EVO_TITLE": {
+      "surface": "label",
+      "note": "Param-free legacy title; the election card uses ELECT_TITLE",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 276,
+        "5": 345
+      }
+    },
+    "EVO_NEXT": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      }
+    },
+    "EVO_THUMBS_GAIN": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 220,
+        "5": 275
+      }
+    },
+    "EVO_THUMBS_PROGRESS": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 300,
+        "5": 375
+      }
+    },
+    "EVO_BONUS": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 212,
+        "5": 265
+      }
+    },
+    "EVO_BONUS_PREVIEW": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 324,
+        "5": 405
+      }
+    },
+    "EVO_MULT": {
+      "surface": "label",
+      "note": "Arrow is mirror-glyph: ← points to the new value",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 264,
+        "5": 330
+      }
+    },
+    "EVO_RESETS": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "EVO_KEEPS": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 84,
+        "5": 105
+      }
+    },
+    "EVO_R1": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 92,
+        "5": 115
+      }
+    },
+    "EVO_R2": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 140,
+        "5": 175
+      }
+    },
+    "EVO_R3": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 136,
+        "5": 170
+      }
+    },
+    "EVO_R4": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 180,
+        "5": 225
+      }
+    },
+    "EVO_K1": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 224,
+        "5": 280
+      }
+    },
+    "EVO_K2": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 324,
+        "5": 405
+      }
+    },
+    "EVO_K3": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "EVO_K4": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 144,
+        "5": 180
+      }
+    },
+    "EVO_NEED": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 524,
+        "5": 655
+      }
+    },
+    "EVO_RULE_1": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 584,
+        "5": 730
+      }
+    },
+    "EVO_RULE_2": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 536,
+        "5": 670
+      }
+    },
+    "EVO_GROW": {
+      "surface": "label",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 512,
+        "5": 640
+      }
+    },
+    "EVO_BACK": {
+      "surface": "label",
+      "spec": "elect.cancel",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 124,
+        "5": 155
+      }
+    },
+    "EVO_CONFIRM": {
+      "surface": "label",
+      "spec": "elect.go",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 276,
+        "5": 345
+      }
+    },
+    "EVO_NOT_READY": {
+      "surface": "label",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 220,
+        "5": 275
+      }
+    },
+    "EVOTX_LINE": {
+      "surface": "label",
+      "joke": true,
+      "box": "tx.line",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 400,
+        "5": 500
+      }
+    },
+    "OFF_TITLE": {
+      "surface": "label",
+      "spec": "ret title 15 min-8 h",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 252,
+        "5": 315
+      }
+    },
+    "OFF_AWAY": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 464,
+        "5": 580
+      }
+    },
+    "OFF_AWAY_CAPPED": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 468,
+        "5": 585
+      }
+    },
+    "OFF_HARVESTED": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 352,
+        "5": 440
+      }
+    },
+    "OFF_AMOUNT": {
+      "surface": "label",
+      "spec": "ret.gain",
+      "box": "modal.big",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 124,
+        "5": 155
+      }
+    },
+    "OFF_NOTE_1": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 672,
+        "5": 840
+      }
+    },
+    "OFF_NOTE_2": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 264,
+        "5": 330
+      }
+    },
+    "OFF_COLLECT": {
+      "surface": "label",
+      "spec": "ret.btn",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 104,
+        "5": 130
+      }
+    },
+    "ROTATE": {
+      "surface": "label",
+      "spec": "sys.rotate",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 424,
+        "5": 530
+      }
+    },
+    "F1_TAP": {
+      "surface": "label",
+      "note": "Text fallback only; the od-sevev P0 prompt is textless (ux/ftue.md)",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F1_TAP_IDLE": {
+      "surface": "label",
+      "joke": true,
+      "note": "Text fallback only",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F2_HIRE": {
+      "surface": "label",
+      "spec": "dubi.buy",
+      "joke": true,
+      "deckWords": true,
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F2_HIRE_NUDGE": {
+      "surface": "label",
+      "joke": true,
+      "note": "Text fallback only",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F3_UPGRADE": {
+      "surface": "label",
+      "spec": "toast.spins",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 628,
+        "5": 785
+      }
+    },
+    "F4_GOLDEN": {
+      "surface": "label",
+      "joke": true,
+      "note": "Text fallback only; S1 is textless",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F4_MISSED": {
+      "surface": "label",
+      "spec": "H-miss (copy deck §G)",
+      "joke": true,
+      "deckWords": true,
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F5_EVOLVE_SEEN": {
+      "surface": "label",
+      "note": "Text fallback only; C2 is textless",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F6_EVOLVE_READY": {
+      "surface": "label",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F7_RUN2": {
+      "surface": "label",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F7_RUN2_GATE": {
+      "surface": "label",
+      "joke": true,
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F8_BULK": {
+      "surface": "label",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F_NO_SAVE": {
+      "surface": "label",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 992,
+        "5": 1240
+      }
+    },
+    "F_SAVE_CORRUPT": {
+      "surface": "label",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 784,
+        "5": 980
+      }
+    },
+    "F_UPGRADE_FLAVOR": {
+      "surface": "label",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "PERKS_TITLE": {
+      "surface": "label",
+      "spec": "rtl-map §7.3",
+      "box": "sheet.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 332,
+        "5": 415
+      }
+    },
+    "PERKS_HAVE": {
+      "surface": "label",
+      "box": "sheet.note",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 408,
+        "5": 510
+      }
+    },
+    "PERKS_NOTE": {
+      "surface": "label",
+      "box": "sheet.note",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 672,
+        "5": 840
+      }
+    },
+    "PERK_LEVEL": {
+      "surface": "pxtext",
+      "box": "perk.level",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      },
+      "largeText": "step-down"
+    },
+    "PERK_MAX": {
+      "surface": "label",
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 72,
+        "5": 90
+      }
+    },
+    "PERK_MAXED": {
+      "surface": "label",
+      "joke": true,
+      "box": "card.line2",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 216,
+        "5": 270
+      }
+    },
+    "BOOK_TITLE": {
+      "surface": "label",
+      "spec": "tab.dossier",
+      "joke": true,
+      "box": "tall.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
+    },
+    "BOOK_TROPHIES": {
+      "surface": "label",
+      "joke": true,
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 188,
+        "5": 235
+      }
+    },
+    "BOOK_STATS": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 104,
+        "5": 130
+      }
+    },
+    "BOOK_STORY": {
+      "surface": "label",
+      "box": "dos.btn",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 244,
+        "5": 305
+      }
+    },
+    "TROPHY_SUMMARY": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 476,
+        "5": 595
+      }
+    },
+    "TROPHY_SECRET": {
+      "surface": "label",
+      "joke": true,
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 148,
+        "5": 185
+      }
+    },
+    "TROPHY_LOCKED": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 228,
+        "5": 285
+      }
+    },
+    "TROPHY_DONE": {
+      "surface": "label",
+      "joke": true,
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      }
+    },
+    "ST_PLAYTIME": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 188,
+        "5": 235
+      }
+    },
+    "ST_ALLTIME": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 336,
+        "5": 420
+      }
+    },
+    "ST_TAPS": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "ST_CRITS": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "ST_GOLDENS": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 264,
+        "5": 330
+      }
+    },
+    "ST_MISSED": {
+      "surface": "label",
+      "joke": true,
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 364,
+        "5": 455
+      }
+    },
+    "ST_EVOLUTIONS": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 216,
+        "5": 270
+      }
+    },
+    "ST_FASTEST": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 268,
+        "5": 335
+      }
+    },
+    "ST_BESTBPS": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 188,
+        "5": 235
+      }
+    },
+    "ST_THUMBS": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 208,
+        "5": 260
+      }
+    },
+    "ST_SPENT": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 348,
+        "5": 435
+      }
+    },
+    "ST_SPECIES": {
+      "surface": "label",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 204,
+        "5": 255
+      }
+    },
+    "ST_NONE": {
+      "surface": "pxtext",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 20,
+        "5": 25
+      }
+    },
+    "F_TROPHY": {
+      "surface": "label",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 532,
+        "5": 665
+      }
+    },
+    "F_MILESTONE": {
+      "surface": "label",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F_ALL_MILESTONE": {
+      "surface": "label",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F_PERKS_HINT": {
+      "surface": "label",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 768,
+        "5": 960
+      }
+    },
+    "F_PERK_BOUGHT": {
+      "surface": "label",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 820,
+        "5": 1025
+      }
+    },
+    "SET_NOTATION": {
+      "surface": "unused",
+      "note": "Not in the od-sevev settings"
+    },
+    "SET_NOTATION_LETTERS": {
+      "surface": "unused"
+    },
+    "SET_NOTATION_SCIENTIFIC": {
+      "surface": "unused"
+    },
+    "SET_NOTATION_ENGINEERING": {
+      "surface": "unused"
+    },
+    "SET_HAPTICS": {
+      "surface": "label",
+      "spec": "set.vibe",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 68,
+        "5": 85
+      }
+    },
+    "SET_SAVE_CODE": {
+      "surface": "unused",
+      "note": "Not in the od-sevev settings"
+    },
+    "SET_EXPORT": {
+      "surface": "unused"
+    },
+    "SET_IMPORT": {
+      "surface": "unused"
+    },
+    "F_EXPORTED": {
+      "surface": "unused"
+    },
+    "F_IMPORT_BAD": {
+      "surface": "unused"
+    },
+    "F_IMPORTED": {
+      "surface": "unused"
+    },
+    "IMP_TITLE": {
+      "surface": "unused"
+    },
+    "IMP_BODY_1": {
+      "surface": "unused"
+    },
+    "IMP_BODY_2": {
+      "surface": "unused"
+    },
+    "IMP_BODY_3": {
+      "surface": "unused"
+    },
+    "IMP_CONFIRM": {
+      "surface": "unused"
+    },
+    "OFF_AWAY_CAPPED_H": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 488,
+        "5": 610
+      }
+    },
+    "OFF_NOTE_1_PCT": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 752,
+        "5": 940
+      }
+    },
+    "OFF_NOTE_2_H": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 284,
+        "5": 355
+      }
+    },
+    "OFF_CAP_TIP": {
+      "surface": "label",
+      "note": "Param-free (main.gd passes no params)",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 848,
+        "5": 1060
+      }
+    },
+    "CLOSE": {
+      "surface": "label",
+      "spec": "sys.close",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 72,
+        "5": 90
+      }
+    },
+    "STORY_CONTINUE": {
+      "surface": "label",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 128,
+        "5": 160
+      }
+    },
+    "STORY_TITLE": {
+      "surface": "label",
+      "note": "Byline under the flash title",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 488,
+        "5": 610
+      }
+    },
+    "STORY_EVOLUTION": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 312,
+        "5": 390
+      }
+    },
+    "STORY_EMPTY_1": {
+      "surface": "label",
+      "box": "list.empty",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 208,
+        "5": 260
+      }
+    },
+    "STORY_EMPTY_2": {
+      "surface": "label",
+      "box": "list.empty",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 572,
+        "5": 715
+      }
+    },
+    "F_ERA": {
+      "surface": "label",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "LOAD_1": {
+      "surface": "html",
+      "spec": "load.1",
+      "joke": true,
+      "maxChars": 18
+    },
+    "LOAD_2": {
+      "surface": "html",
+      "spec": "load.2",
+      "joke": true,
+      "maxChars": 18
+    },
+    "LOAD_3": {
+      "surface": "html",
+      "spec": "load.3",
+      "joke": true,
+      "maxChars": 18
+    },
+    "LOAD_BAR_LABEL": {
+      "surface": "html",
+      "spec": "load.bar.label",
+      "maxChars": 14
+    },
+    "DISC_TITLE": {
+      "surface": "html",
+      "spec": "disc.title",
+      "maxChars": 16
+    },
+    "DISC_L1": {
+      "surface": "html",
+      "spec": "disc.l1",
+      "legal": true,
+      "maxChars": 80
+    },
+    "DISC_L2": {
+      "surface": "html",
+      "spec": "disc.l2",
+      "legal": true,
+      "maxChars": 80
+    },
+    "DISC_L3": {
+      "surface": "html",
+      "spec": "disc.l3",
+      "joke": true,
+      "legal": true,
+      "maxChars": 85
+    },
+    "DISC_L4": {
+      "surface": "html",
+      "spec": "disc.l4",
+      "legal": true,
+      "maxChars": 40
+    },
+    "DISC_BY": {
+      "surface": "html",
+      "spec": "disc.by",
+      "legal": true,
+      "maxChars": 50
+    },
+    "DISC_BTN_SOUND": {
+      "surface": "html",
+      "spec": "disc.btn.sound",
+      "maxChars": 10
+    },
+    "DISC_BTN_QUIET": {
+      "surface": "html",
+      "spec": "disc.btn.quiet",
+      "maxChars": 8
+    },
+    "DISC_BTN_QUIET_CAP": {
+      "surface": "html",
+      "spec": "disc.btn.quiet.cap",
+      "joke": true,
+      "maxChars": 12
+    },
+    "SPLASH_LOADING": {
+      "surface": "html",
+      "spec": "N0 splash loading line",
+      "joke": true,
+      "maxChars": 18
+    },
+    "TITLE_ROUND": {
+      "surface": "label",
+      "spec": "title.round line 1",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 352,
+        "5": 440
+      }
+    },
+    "MOOD_1": {
+      "surface": "label",
+      "spec": "mood.1",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 208,
+        "5": 260
+      }
+    },
+    "MOOD_3": {
+      "surface": "label",
+      "spec": "mood.3",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 328,
+        "5": 410
+      }
+    },
+    "MOOD_5": {
+      "surface": "label",
+      "spec": "mood.5",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 560,
+        "5": 700
+      }
+    },
+    "MOOD_6": {
+      "surface": "label",
+      "spec": "mood.6",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 592,
+        "5": 740
+      }
+    },
+    "MOOD_10": {
+      "surface": "label",
+      "spec": "mood.10",
+      "joke": true,
+      "deckWords": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 364,
+        "5": 455
+      }
+    },
+    "MOOD_20": {
+      "surface": "label",
+      "spec": "mood.20",
+      "joke": true,
+      "deckWords": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 464,
+        "5": 580
+      }
+    },
+    "HUD_BANK": {
+      "surface": "label",
+      "spec": "first-minute §3.2 #1",
+      "box": "rowA.counter",
+      "maxChars": 13,
+      "worstPx": {
+        "4": 108,
+        "5": 135
+      }
+    },
+    "HUD_COUNTDOWN_DATE": {
+      "surface": "pxtext",
+      "spec": "hud.countdown (date line)",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      }
+    },
+    "HUD_COUNTDOWN_ONE": {
+      "surface": "label",
+      "spec": "hud.countdown one",
+      "joke": true,
+      "note": "Title-state line only; the ticker chip shows the date (flag F2)",
+      "box": "title.line",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 212,
+        "5": 265
+      }
+    },
+    "HUD_COUNTDOWN_TWO": {
+      "surface": "label",
+      "spec": "hud.countdown two",
+      "joke": true,
+      "box": "title.line",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 172,
+        "5": 215
+      }
+    },
+    "HUD_COUNTDOWN_OTHER": {
+      "surface": "label",
+      "spec": "hud.countdown other",
+      "joke": true,
+      "box": "title.line",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 204,
+        "5": 255
+      }
+    },
+    "HUD_COUNTDOWN_TODAY": {
+      "surface": "label",
+      "spec": "hud.countdown.today",
+      "note": "Replaces the date in the chip on 27.10",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 72,
+        "5": 90
+      }
+    },
+    "HUD_COUNTDOWN_AFTER_TAG": {
+      "surface": "html",
+      "spec": "hud.countdown.after (a11y)",
+      "note": "Accessible name of the chip after 27.10",
+      "maxChars": 12
+    },
+    "HUD_COUNTDOWN_AFTER": {
+      "surface": "label",
+      "spec": "hud.countdown.after",
+      "note": "The chip after 27.10 (handshake icon); the ticker carries the negotiation line",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 124,
+        "5": 155
+      }
+    },
+    "HUD_SEATS": {
+      "surface": "label",
+      "spec": "hud.seats",
+      "box": "rowB.label",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 124,
+        "5": 155
+      },
+      "largeText": "step-down"
+    },
+    "HUD_SEATS_VALUE": {
+      "surface": "pxtext",
+      "spec": "first-minute §3.2 #2",
+      "box": "rowB.value",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      },
+      "largeText": "step-down"
+    },
+    "HUD_SEATS_BLACKOUT": {
+      "surface": "label",
+      "spec": "hud.seats.blackout",
+      "legal": true,
+      "box": "rowB.stamp",
+      "maxChars": 10,
+      "worstPx": {
+        "4": 236,
+        "5": 295
+      },
+      "largeText": "step-down"
+    },
+    "HUD_SUSP": {
+      "surface": "label",
+      "spec": "hud.susp",
+      "box": "stage.thermo",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 72,
+        "5": 90
+      }
+    },
+    "HUD_SUSP_HOT": {
+      "surface": "label",
+      "spec": "hud.susp.hot",
+      "box": "stage.thermo",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      },
+      "largeText": "step-down"
+    },
+    "HUD_SUSP_BOIL": {
+      "surface": "label",
+      "spec": "hud.susp.boil",
+      "box": "stage.thermo",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      }
+    },
+    "HUD_COTTAGE_TIP": {
+      "surface": "label",
+      "spec": "hud.cottage.tip",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 732,
+        "5": 915
+      }
+    },
+    "HUD_CTA_ELECTION": {
+      "surface": "label",
+      "spec": "hud.cta.election",
+      "joke": true,
+      "box": "cta.election",
+      "maxChars": 28,
+      "worstPx": {
+        "4": 156,
+        "5": 195
+      }
+    },
+    "HUD_MUTE": {
+      "surface": "html",
+      "spec": "hud.mute",
+      "note": "Accessible label (not drawn)",
+      "maxChars": 12
+    },
+    "HUD_UNMUTE": {
+      "surface": "html",
+      "spec": "hud.unmute",
+      "note": "Accessible label (not drawn)",
+      "maxChars": 12
+    },
+    "HUD_SETTINGS": {
+      "surface": "html",
+      "spec": "hud.settings",
+      "note": "Accessible label (not drawn)",
+      "maxChars": 7
+    },
+    "DUBI_FIRSTTAP": {
+      "surface": "label",
+      "spec": "dubi.firsttap",
+      "joke": true,
+      "deckWords": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 328,
+        "5": 410
+      }
+    },
+    "DUBI_BUY": {
+      "surface": "label",
+      "spec": "dubi.buy",
+      "joke": true,
+      "deckWords": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 232,
+        "5": 290
+      }
+    },
+    "DUBI_ELECT": {
+      "surface": "label",
+      "spec": "dubi.elect",
+      "joke": true,
+      "deckWords": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 264,
+        "5": 330
+      }
+    },
+    "DUBI_MISS": {
+      "surface": "label",
+      "spec": "dubi.miss",
+      "joke": true,
+      "deckWords": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 336,
+        "5": 420
+      }
+    },
+    "DUBI_DROP": {
+      "surface": "label",
+      "spec": "dubi.drop",
+      "joke": true,
+      "deckWords": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "TAB_SOURCES": {
+      "surface": "label",
+      "spec": "tab.sources",
+      "joke": true,
+      "box": "tab.label",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      }
+    },
+    "TAB_SPINS": {
+      "surface": "label",
+      "spec": "tab.spins",
+      "box": "tab.label",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 112,
+        "5": 140
+      }
+    },
+    "TAB_COALITION": {
+      "surface": "label",
+      "spec": "tab.coalition",
+      "box": "tab.label",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 156,
+        "5": 195
+      },
+      "largeText": "step-down"
+    },
+    "TAB_DOSSIER": {
+      "surface": "label",
+      "spec": "tab.dossier",
+      "joke": true,
+      "box": "tab.label",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
+    },
+    "TOAST_SPINS": {
+      "surface": "label",
+      "spec": "toast.spins",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 628,
+        "5": 785
+      }
+    },
+    "TOAST_DOSSIER": {
+      "surface": "label",
+      "spec": "toast.dossier",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 232,
+        "5": 290
+      }
+    },
+    "SYS_OFFLINE": {
+      "surface": "label",
+      "spec": "sys.offline",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 528,
+        "5": 660
+      }
+    },
+    "TOAST_COURT_END": {
+      "surface": "label",
+      "spec": "court day end (new)",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 472,
+        "5": 590
+      }
+    },
+    "RESET_DONE": {
+      "surface": "label",
+      "spec": "reset.done",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 268,
+        "5": 335
+      }
+    },
+    "ALBUM_NEW": {
+      "surface": "label",
+      "spec": "album.new",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 236,
+        "5": 295
+      }
+    },
+    "CARD_BUY_FIRST": {
+      "surface": "label",
+      "spec": "card.buy.first",
+      "note": "Single-line form (a11y label, toasts); the pill uses VERB + PRICE on two lines",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 304,
+        "5": 380
+      }
+    },
+    "CARD_BUY_MORE": {
+      "surface": "label",
+      "spec": "card.buy.more",
+      "joke": true,
+      "note": "Single-line form",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 352,
+        "5": 440
+      }
+    },
+    "CARD_VERB_FIRST": {
+      "surface": "label",
+      "spec": "card.buy.first (pill line 1)",
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 100,
+        "5": 125
+      }
+    },
+    "CARD_VERB_MORE": {
+      "surface": "label",
+      "spec": "card.buy.more (pill line 1)",
+      "joke": true,
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 148,
+        "5": 185
+      },
+      "largeText": "step-down"
+    },
+    "CARD_PRICE": {
+      "surface": "label",
+      "spec": "pill line 2",
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 164,
+        "5": 205
+      },
+      "largeText": "step-down"
+    },
+    "CARD_YIELD": {
+      "surface": "label",
+      "spec": "card.yield",
+      "box": "card.line2",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 252,
+        "5": 315
+      }
+    },
+    "CARD_OWNED": {
+      "surface": "pxtext",
+      "spec": "card.owned",
+      "box": "card.owned",
+      "maxChars": 4,
+      "worstPx": {
+        "4": 92,
+        "5": 115
+      },
+      "largeText": "step-down"
+    },
+    "CARD_SHADY_TAG": {
+      "surface": "html",
+      "spec": "new",
+      "note": "Accessible label of the magnifier badge on shady cards; the badge shape is the non-colour channel",
+      "maxChars": 12
+    },
+    "CARD_LOCKED_CAP": {
+      "surface": "label",
+      "spec": "card.locked.cap",
+      "box": "card.line2wide",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 360,
+        "5": 450
+      }
+    },
+    "BUYMODE_LABEL": {
+      "surface": "label",
+      "spec": "rtl-map §6.1",
+      "box": "list.buyLabel",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 276,
+        "5": 345
+      }
+    },
+    "SPIN_VERB": {
+      "surface": "label",
+      "spec": "spin.buy (pill line 1)",
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 104,
+        "5": 130
+      }
+    },
+    "SPIN_BUY": {
+      "surface": "label",
+      "spec": "spin.buy",
+      "note": "Single-line form",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 308,
+        "5": 385
+      }
+    },
+    "SPIN_FATIGUE": {
+      "surface": "label",
+      "spec": "spin.fatigue",
+      "joke": true,
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 84,
+        "5": 105
+      }
+    },
+    "SPIN_FATIGUE_CAP": {
+      "surface": "label",
+      "spec": "spin.fatigue.cap",
+      "joke": true,
+      "box": "card.line2",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 288,
+        "5": 360
+      },
+      "largeText": "step-down"
+    },
+    "SPIN_ACTIVE": {
+      "surface": "label",
+      "spec": "new: timed spin",
+      "box": "card.line2wide",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 304,
+        "5": 380
+      }
+    },
+    "SPIN_OWNED": {
+      "surface": "label",
+      "spec": "new: one-time spin bought",
+      "box": "card.pill",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 80,
+        "5": 100
+      }
+    },
+    "CHAT_TITLE": {
+      "surface": "label",
+      "spec": "chat.title",
+      "box": "tall.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 208,
+        "5": 260
+      }
+    },
+    "CHAT_MEMBERS_ONE": {
+      "surface": "label",
+      "spec": "chat.members",
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 204,
+        "5": 255
+      }
+    },
+    "CHAT_MEMBERS_OTHER": {
+      "surface": "label",
+      "spec": "chat.members",
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 232,
+        "5": 290
+      }
+    },
+    "CHAT_TYPING_M": {
+      "surface": "label",
+      "spec": "chat.typing",
+      "joke": true,
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 504,
+        "5": 630
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_TYPING_F": {
+      "surface": "label",
+      "spec": "chat.typing",
+      "joke": true,
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 528,
+        "5": 660
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_THREATS_ONE": {
+      "surface": "label",
+      "spec": "chat.threats",
+      "joke": true,
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 292,
+        "5": 365
+      }
+    },
+    "CHAT_THREATS_TWO": {
+      "surface": "label",
+      "spec": "chat.threats",
+      "joke": true,
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 408,
+        "5": 510
+      }
+    },
+    "CHAT_THREATS_OTHER": {
+      "surface": "label",
+      "spec": "chat.threats",
+      "joke": true,
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 392,
+        "5": 490
+      }
+    },
+    "CHAT_PINNED": {
+      "surface": "label",
+      "spec": "chat.pinned",
+      "joke": true,
+      "note": "The pin icon says נעוץ (x4 capacity)",
+      "box": "chat.pinned",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 544,
+        "5": 680
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_TODAY": {
+      "surface": "label",
+      "spec": "chat.today",
+      "box": "chat.divider",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 72,
+        "5": 90
+      }
+    },
+    "CHAT_UNREAD_ONE": {
+      "surface": "label",
+      "spec": "chat.unread",
+      "box": "chat.divider",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 408,
+        "5": 510
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_UNREAD_OTHER": {
+      "surface": "label",
+      "spec": "chat.unread",
+      "box": "chat.divider",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 396,
+        "5": 495
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_PAY": {
+      "surface": "label",
+      "spec": "chat.pay",
+      "joke": true,
+      "box": "chat.pill",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 292,
+        "5": 365
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_PAY_SHORT": {
+      "surface": "label",
+      "spec": "chat.pay.short",
+      "box": "chat.pill",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 192,
+        "5": 240
+      }
+    },
+    "CHAT_PAID": {
+      "surface": "label",
+      "spec": "chat.paid",
+      "box": "chat.label",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 84,
+        "5": 105
+      }
+    },
+    "CHAT_REPLY_1": {
+      "surface": "label",
+      "spec": "chat.reply.1",
+      "joke": true,
+      "box": "chat.bubble",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 136,
+        "5": 170
+      }
+    },
+    "CHAT_REPLY_2": {
+      "surface": "label",
+      "spec": "chat.reply.2",
+      "joke": true,
+      "box": "chat.bubble",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 80,
+        "5": 100
+      }
+    },
+    "CHAT_REPLY_3": {
+      "surface": "label",
+      "spec": "chat.reply.3",
+      "joke": true,
+      "box": "chat.bubble",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 264,
+        "5": 330
+      }
+    },
+    "CHAT_ULTIMATUM": {
+      "surface": "label",
+      "spec": "chat.ultimatum",
+      "box": "chat.label",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 180,
+        "5": 225
+      }
+    },
+    "CHAT_ULT_TIMER": {
+      "surface": "pxtext",
+      "spec": "first-minute §4.2",
+      "box": "chat.timer",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_FORWARDED": {
+      "surface": "label",
+      "spec": "pitch §6 Ben Gvir",
+      "joke": true,
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 348,
+        "5": 435
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_DELETED": {
+      "surface": "label",
+      "spec": "chat.deleted",
+      "joke": true,
+      "box": "chat.bubble",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 260,
+        "5": 325
+      }
+    },
+    "CHAT_SYS_CREATED": {
+      "surface": "label",
+      "spec": "chat.sys.created",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 648,
+        "5": 810
+      }
+    },
+    "CHAT_SYS_JOINED_M": {
+      "surface": "label",
+      "spec": "chat.sys.joined",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 632,
+        "5": 790
+      }
+    },
+    "CHAT_SYS_JOINED_F": {
+      "surface": "label",
+      "spec": "chat.sys.joined",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 660,
+        "5": 825
+      }
+    },
+    "CHAT_SYS_LEFT_M": {
+      "surface": "label",
+      "spec": "chat.sys.left",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 648,
+        "5": 810
+      }
+    },
+    "CHAT_SYS_LEFT_F": {
+      "surface": "label",
+      "spec": "chat.sys.left",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 672,
+        "5": 840
+      }
+    },
+    "CHAT_SYS_REMOVED_M": {
+      "surface": "label",
+      "spec": "chat.sys.removed",
+      "joke": true,
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 684,
+        "5": 855
+      }
+    },
+    "CHAT_SYS_REMOVED_F": {
+      "surface": "label",
+      "spec": "chat.sys.removed",
+      "joke": true,
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 708,
+        "5": 885
+      }
+    },
+    "CHAT_SYS_ADDED_M": {
+      "surface": "label",
+      "spec": "chat.sys.added",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 680,
+        "5": 850
+      }
+    },
+    "CHAT_SYS_ADDED_F": {
+      "surface": "label",
+      "spec": "chat.sys.added",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 708,
+        "5": 885
+      }
+    },
+    "CHAT_SYS_TRANSFER_M": {
+      "surface": "label",
+      "spec": "chat.sys.transfer",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 856,
+        "5": 1070
+      }
+    },
+    "CHAT_SYS_TRANSFER_F": {
+      "surface": "label",
+      "spec": "chat.sys.transfer",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 908,
+        "5": 1135
+      }
+    },
+    "CHAT_SYS_REJOIN": {
+      "surface": "label",
+      "spec": "chat.sys.rejoin",
+      "box": "chat.pillWide",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 472,
+        "5": 590
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_SYS_POACH": {
+      "surface": "label",
+      "spec": "pill on chat.sys.removed when payable = poach (Almog)",
+      "joke": true,
+      "box": "chat.pillWide",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 440,
+        "5": 550
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_SYS_BRAWL": {
+      "surface": "label",
+      "spec": "chat.sys.brawl",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 748,
+        "5": 935
+      }
+    },
+    "CHAT_BRAWL_BANNER": {
+      "surface": "label",
+      "spec": "copy deck §E brawl banner",
+      "deckWords": true,
+      "box": "chat.banner",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 244,
+        "5": 305
+      }
+    },
+    "CHAT_BRAWL_BTN": {
+      "surface": "label",
+      "spec": "chat.brawl.btn",
+      "joke": true,
+      "box": "chat.btn",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      }
+    },
+    "CHAT_BRAWL_AFTER": {
+      "surface": "label",
+      "spec": "chat.brawl.after (deck wording)",
+      "joke": true,
+      "deckWords": true,
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 760,
+        "5": 950
+      }
+    },
+    "CHAT_CORRIDOR_COUNT": {
+      "surface": "label",
+      "spec": "chat.brawl.after muted counter",
+      "joke": true,
+      "box": "chat.label",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 196,
+        "5": 245
+      }
+    },
+    "CHAT_SYS_MUTED": {
+      "surface": "label",
+      "spec": "chat.sys.muted",
+      "note": "{who} = partners[distel].copy.mutedWho (\"היועצים המשפטיים\"), never Distel's name",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 760,
+        "5": 950
+      }
+    },
+    "CHAT_SYS_CLEARED": {
+      "surface": "label",
+      "spec": "chat.sys.cleared",
+      "joke": true,
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 828,
+        "5": 1035
+      }
+    },
+    "CHAT_EMPTY": {
+      "surface": "label",
+      "spec": "chat.empty",
+      "joke": true,
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 460,
+        "5": 575
+      }
+    },
+    "CHAT_COMPOSER": {
+      "surface": "label",
+      "spec": "chat.composer",
+      "joke": true,
+      "box": "chat.composer",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 400,
+        "5": 500
+      }
+    },
+    "CHAT_TRANSFER_TITLE": {
+      "surface": "label",
+      "spec": "chat.transfer.title",
+      "box": "chat.banner",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 216,
+        "5": 270
+      }
+    },
+    "CHAT_TRANSFER_LINE": {
+      "surface": "label",
+      "spec": "chat.transfer.line",
+      "box": "chat.banner",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 736,
+        "5": 920
+      }
+    },
+    "CHAT_PINNED_OPEN": {
+      "surface": "html",
+      "spec": "rtl-map §7.3",
+      "note": "Accessible label (not drawn)",
+      "maxChars": 16
+    },
+    "CHAT_COLLAPSE": {
+      "surface": "html",
+      "spec": "rtl-map §6.3",
+      "note": "Accessible label of the chevron (not drawn)",
+      "maxChars": 16
+    },
+    "AIDE_HOLDS": {
+      "surface": "label",
+      "spec": "copy deck §G",
+      "note": "State line on the aide's card",
+      "box": "card.line2wide",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 264,
+        "5": 330
+      }
+    },
+    "AIDE_BTN": {
+      "surface": "label",
+      "spec": "copy deck §G",
+      "joke": true,
+      "deckWords": true,
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 300,
+        "5": 375
+      }
+    },
+    "AIDE_CONFIRM_TITLE": {
+      "surface": "label",
+      "spec": "new: confirm (pitch §11 Q4)",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      }
+    },
+    "AIDE_CONFIRM_BODY": {
+      "surface": "label",
+      "spec": "new: honest cost",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 940,
+        "5": 1175
+      }
+    },
+    "AIDE_CONFIRM_GO": {
+      "surface": "label",
+      "spec": "new",
+      "joke": true,
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 232,
+        "5": 290
+      }
+    },
+    "AIDE_CONFIRM_CANCEL": {
+      "surface": "label",
+      "spec": "new",
+      "joke": true,
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 164,
+        "5": 205
+      }
+    },
+    "OPP_HEADER": {
+      "surface": "label",
+      "spec": "new: card header",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      }
+    },
+    "OPP_TIMER": {
+      "surface": "pxtext",
+      "box": "chat.timer",
+      "maxChars": 5,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      },
+      "largeText": "step-down"
+    },
+    "OPP_ABBAS_RULE": {
+      "surface": "label",
+      "spec": "copy deck §F (UX chrome)",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 528,
+        "5": 660
+      }
+    },
+    "OPP_LIBERMAN_BTN": {
+      "surface": "label",
+      "spec": "copy deck §F",
+      "joke": true,
+      "deckWords": true,
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 136,
+        "5": 170
+      }
+    },
+    "LEAK_FRAME": {
+      "surface": "label",
+      "spec": "copy deck §E.2 (UX owns the frame)",
+      "joke": true,
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 264,
+        "5": 330
+      }
+    },
+    "LEAK_OPEN": {
+      "surface": "label",
+      "spec": "new: opens the leak",
+      "joke": true,
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 104,
+        "5": 130
+      }
+    },
+    "LEAK_READONLY": {
+      "surface": "label",
+      "spec": "new",
+      "box": "chat.label",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 216,
+        "5": 270
+      }
+    },
+    "COURT_TITLE": {
+      "surface": "label",
+      "spec": "court.title",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 160,
+        "5": 200
+      }
+    },
+    "COURT_BODY": {
+      "surface": "label",
+      "spec": "court.body",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 660,
+        "5": 825
+      }
+    },
+    "COURT_EFFECT": {
+      "surface": "label",
+      "spec": "new: legible effect (pitch §10)",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 560,
+        "5": 700
+      }
+    },
+    "COURT_TIMER": {
+      "surface": "label",
+      "spec": "court.timer",
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 196,
+        "5": 245
+      }
+    },
+    "COURT_POSTPONE": {
+      "surface": "html",
+      "spec": "court.postpone",
+      "joke": true,
+      "note": "Accessible label; drawn as COURT_POSTPONE_VERB over CARD_PRICE",
+      "maxChars": 40
+    },
+    "COURT_POSTPONE_VERB": {
+      "surface": "label",
+      "spec": "court.postpone line 1",
+      "joke": true,
+      "box": "court.btn",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 320,
+        "5": 400
+      },
+      "largeText": "step-down"
+    },
+    "COURT_TESTIFY": {
+      "surface": "label",
+      "spec": "court.testify",
+      "box": "court.btn2",
+      "maxChars": 8,
+      "worstPx": {
+        "4": 108,
+        "5": 135
+      }
+    },
+    "COURT_CHIP": {
+      "surface": "html",
+      "spec": "court.chip",
+      "note": "Accessible label; drawn as COURT_CHIP_TITLE over COURT_CHIP_TIMER in the ticker chip",
+      "maxChars": 20
+    },
+    "COURT_CHIP_TITLE": {
+      "surface": "label",
+      "spec": "court.chip line 1",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 160,
+        "5": 200
+      },
+      "largeText": "step-down"
+    },
+    "COURT_CHIP_TIMER": {
+      "surface": "pxtext",
+      "spec": "court.chip line 2",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 116,
+        "5": 145
+      }
+    },
+    "COURT_STAMP": {
+      "surface": "label",
+      "spec": "court.stamp",
+      "joke": true,
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      }
+    },
+    "COURT_POSTPONED_PREFIX": {
+      "surface": "label",
+      "spec": "copy deck §H prefix",
+      "deckWords": true,
+      "box": "court.body",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 196,
+        "5": 245
+      }
+    },
+    "PARDON_ROW": {
+      "surface": "label",
+      "spec": "pitch §2 launch spine",
+      "box": "dos.btn",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 204,
+        "5": 255
+      }
+    },
+    "PARDON_TITLE": {
+      "surface": "label",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 204,
+        "5": 255
+      }
+    },
+    "PARDON_FORM": {
+      "surface": "label",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 528,
+        "5": 660
+      }
+    },
+    "PARDON_SUBMIT": {
+      "surface": "label",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 212,
+        "5": 265
+      }
+    },
+    "PARDON_AGAIN": {
+      "surface": "label",
+      "joke": true,
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 176,
+        "5": 220
+      }
+    },
+    "PARDON_STAMPING": {
+      "surface": "label",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 168,
+        "5": 210
+      }
+    },
+    "PARDON_STATUS": {
+      "surface": "label",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 252,
+        "5": 315
+      }
+    },
+    "PARDON_COUNT_ONE": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 300,
+        "5": 375
+      }
+    },
+    "PARDON_COUNT_OTHER": {
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 288,
+        "5": 360
+      }
+    },
+    "PARDON_NOTE": {
+      "surface": "label",
+      "spec": "new: honest (no mechanical effect)",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 692,
+        "5": 865
+      }
+    },
+    "ELECT_TITLE": {
+      "surface": "label",
+      "spec": "elect.title",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 352,
+        "5": 440
+      }
+    },
+    "ELECT_RESET": {
+      "surface": "label",
+      "spec": "elect.reset",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 776,
+        "5": 970
+      }
+    },
+    "ELECT_KEEP": {
+      "surface": "label",
+      "spec": "elect.keep",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 900,
+        "5": 1125
+      }
+    },
+    "ELECT_KEEP_CASES": {
+      "surface": "label",
+      "spec": "elect.keep.cases",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 196,
+        "5": 245
+      }
+    },
+    "ELECT_GO": {
+      "surface": "label",
+      "spec": "elect.go",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 276,
+        "5": 345
+      }
+    },
+    "ELECT_CANCEL": {
+      "surface": "label",
+      "spec": "elect.cancel",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 124,
+        "5": 155
+      }
+    },
+    "FLASH_NEXT": {
+      "surface": "label",
+      "spec": "flash.next",
+      "note": "Full-width primary; FLASH_SKIP is the secondary under it",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 340,
+        "5": 425
+      }
+    },
+    "FLASH_SKIP": {
+      "surface": "label",
+      "spec": "flash.skip",
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 64,
+        "5": 80
+      }
+    },
+    "HEADLINE_TITLE": {
+      "surface": "label",
+      "spec": "headline.title",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      }
+    },
+    "HEADLINE_QUOTE": {
+      "surface": "label",
+      "spec": "headline.quote",
+      "legal": true,
+      "box": "chat.label",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
+    },
+    "HEADLINE_SOURCE": {
+      "surface": "label",
+      "spec": "headline.source",
+      "legal": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 560,
+        "5": 700
+      }
+    },
+    "HEADLINE_LINK": {
+      "surface": "label",
+      "spec": "headline.link",
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 104,
+        "5": 130
+      }
+    },
+    "RET_TITLE_SHORT": {
+      "surface": "label",
+      "spec": "ret 1-15 min",
+      "joke": true,
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 176,
+        "5": 220
+      }
+    },
+    "RET_BODY_SHORT": {
+      "surface": "label",
+      "spec": "ret 1-15 min",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 608,
+        "5": 760
+      }
+    },
+    "RET_TITLE_MID": {
+      "surface": "label",
+      "spec": "ret 15 min-8 h",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 252,
+        "5": 315
+      }
+    },
+    "RET_BODY_MID": {
+      "surface": "label",
+      "spec": "ret 15 min-8 h (brief)",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 488,
+        "5": 610
+      }
+    },
+    "RET_TITLE_LONG": {
+      "surface": "label",
+      "spec": "ret 8-48 h",
+      "joke": true,
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 188,
+        "5": 235
+      }
+    },
+    "RET_BODY_LONG": {
+      "surface": "label",
+      "spec": "ret 8-48 h",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 568,
+        "5": 710
+      }
+    },
+    "RET_TITLE_GONE_TWO": {
+      "surface": "label",
+      "spec": "ret > 48 h (n = 2)",
+      "joke": true,
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 256,
+        "5": 320
+      }
+    },
+    "RET_TITLE_GONE_OTHER": {
+      "surface": "label",
+      "spec": "ret > 48 h",
+      "joke": true,
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 324,
+        "5": 405
+      }
+    },
+    "RET_BODY_GONE": {
+      "surface": "label",
+      "spec": "ret > 48 h",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 652,
+        "5": 815
+      }
+    },
+    "RET_GAIN": {
+      "surface": "label",
+      "spec": "ret.gain",
+      "box": "modal.big",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 200,
+        "5": 250
+      }
+    },
+    "RET_CHAT_ONE": {
+      "surface": "label",
+      "spec": "ret.chat",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 504,
+        "5": 630
+      }
+    },
+    "RET_CHAT_OTHER": {
+      "surface": "label",
+      "spec": "ret.chat",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 516,
+        "5": 645
+      }
+    },
+    "RET_CAP": {
+      "surface": "label",
+      "spec": "ret.cap",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 728,
+        "5": 910
+      }
+    },
+    "RET_BTN": {
+      "surface": "label",
+      "spec": "ret.btn",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 104,
+        "5": 130
+      }
+    },
+    "FMT_DUR_M": {
+      "surface": "label",
+      "spec": "Fmt.dur < 1 h",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 112,
+        "5": 140
+      }
+    },
+    "FMT_DUR_HM": {
+      "surface": "label",
+      "spec": "Fmt.dur >= 1 h",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 268,
+        "5": 335
+      }
+    },
+    "FMT_SECS": {
+      "surface": "label",
+      "spec": "Fmt.secs",
+      "box": "stage.buffChip",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 104,
+        "5": 130
+      }
+    },
+    "FMT_WORD_K": {
+      "surface": "share-text",
+      "spec": "Hebrew magnitude words for share prose (no K/M/B there)",
+      "maxChars": 20
+    },
+    "FMT_WORD_M": {
+      "surface": "share-text",
+      "maxChars": 20
+    },
+    "FMT_WORD_B": {
+      "surface": "share-text",
+      "maxChars": 20
+    },
+    "FMT_WORD_T": {
+      "surface": "share-text",
+      "maxChars": 20
+    },
+    "SET_MOTION_CAP": {
+      "surface": "label",
+      "spec": "set.motion.cap",
+      "box": "sheet.caption",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 656,
+        "5": 820
+      }
+    },
+    "SET_LARGE": {
+      "surface": "label",
+      "spec": "set.large",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 188,
+        "5": 235
+      }
+    },
+    "SET_LARGE_CAP": {
+      "surface": "label",
+      "spec": "set.large.cap",
+      "joke": true,
+      "box": "sheet.caption",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 356,
+        "5": 445
+      }
+    },
+    "SET_ABOUT": {
+      "surface": "label",
+      "spec": "set.about",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 240,
+        "5": 300
+      }
+    },
+    "ABOUT_TITLE": {
+      "surface": "html",
+      "spec": "O8 title",
+      "maxChars": 8
+    },
+    "ABOUT_1": {
+      "surface": "html",
+      "spec": "about.1",
+      "legal": true,
+      "maxChars": 120
+    },
+    "ABOUT_2": {
+      "surface": "html",
+      "spec": "about.2",
+      "legal": true,
+      "maxChars": 170
+    },
+    "ABOUT_3": {
+      "surface": "html",
+      "spec": "about.3",
+      "joke": true,
+      "legal": true,
+      "maxChars": 120
+    },
+    "ABOUT_4": {
+      "surface": "html",
+      "spec": "about.4",
+      "legal": true,
+      "maxChars": 120
+    },
+    "ABOUT_5": {
+      "surface": "html",
+      "spec": "about.5",
+      "legal": true,
+      "maxChars": 120
+    },
+    "ABOUT_6": {
+      "surface": "html",
+      "spec": "about.6",
+      "legal": true,
+      "maxChars": 120
+    },
+    "ABOUT_7": {
+      "surface": "html",
+      "spec": "about.7",
+      "legal": true,
+      "maxChars": 120
+    },
+    "ABOUT_7_TELEMETRY": {
+      "surface": "html",
+      "spec": "about.7 (if telemetry ships)",
+      "legal": true,
+      "maxChars": 120
+    },
+    "ABOUT_SOURCES": {
+      "surface": "html",
+      "spec": "about.sources",
+      "maxChars": 16
+    },
+    "ABOUT_SOURCE_LINK": {
+      "surface": "html",
+      "spec": "headline.link",
+      "maxChars": 6
+    },
+    "ABOUT_WHO_TITLE": {
+      "surface": "html",
+      "spec": "about who section",
+      "maxChars": 10
+    },
+    "ABOUT_WHO": {
+      "surface": "html",
+      "spec": "about.who",
+      "legal": true,
+      "maxChars": 30
+    },
+    "ABOUT_CONTACT": {
+      "surface": "html",
+      "spec": "about.contact",
+      "legal": true,
+      "maxChars": 30
+    },
+    "ABOUT_VER": {
+      "surface": "html",
+      "spec": "about.ver",
+      "maxChars": 30
+    },
+    "ABOUT_SHARE": {
+      "surface": "html",
+      "spec": "about.share",
+      "maxChars": 14
+    },
+    "ABOUT_BACK": {
+      "surface": "html",
+      "spec": "sys.back",
+      "maxChars": 5
+    },
+    "BLK_TITLE": {
+      "surface": "label",
+      "spec": "blk.title",
+      "legal": true,
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 288,
+        "5": 360
+      }
+    },
+    "BLK_BODY": {
+      "surface": "label",
+      "spec": "blk.body",
+      "joke": true,
+      "legal": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1684,
+        "5": 2105
+      }
+    },
+    "BLK_BTN": {
+      "surface": "label",
+      "spec": "blk.btn",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 100,
+        "5": 125
+      }
+    },
+    "NIGHT_TITLE": {
+      "surface": "label",
+      "spec": "night.title",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 256,
+        "5": 320
+      }
+    },
+    "NIGHT_BODY": {
+      "surface": "label",
+      "spec": "night.body",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 612,
+        "5": 765
+      }
+    },
+    "NIGHT_BTN": {
+      "surface": "label",
+      "spec": "night.btn",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      }
+    },
+    "SHARE_BTN": {
+      "surface": "label",
+      "spec": "share.btn",
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 92,
+        "5": 115
+      }
+    },
+    "SHARE_SAVE": {
+      "surface": "label",
+      "spec": "share.save",
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 220,
+        "5": 275
+      },
+      "largeText": "step-down"
+    },
+    "SHARE_CLOSE": {
+      "surface": "label",
+      "spec": "share.close",
+      "box": "sheet.btn",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 72,
+        "5": 90
+      }
+    },
+    "SHARE_PRINTING": {
+      "surface": "label",
+      "spec": "share.printing",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 132,
+        "5": 165
+      }
+    },
+    "SHARE_RECEIPT_TITLE": {
+      "surface": "label",
+      "spec": "share.receipt.title",
+      "box": "sheet.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 280,
+        "5": 350
+      }
+    },
+    "SHARE_RESULT_BTN": {
+      "surface": "label",
+      "spec": "share.result.btn",
+      "box": "dos.btn",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 216,
+        "5": 270
+      }
+    },
+    "SHARE_RESULT_TITLE": {
+      "surface": "label",
+      "spec": "O5 title",
+      "box": "sheet.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 252,
+        "5": 315
+      }
+    },
+    "SHARE_COPIED": {
+      "surface": "label",
+      "spec": "share.copied",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 248,
+        "5": 310
+      }
+    },
+    "SHARE_SAVED": {
+      "surface": "label",
+      "spec": "share.saved",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 256,
+        "5": 320
+      }
+    },
+    "SHARE_FAIL": {
+      "surface": "label",
+      "spec": "share.fail",
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 440,
+        "5": 550
+      }
+    },
+    "SHARE_DEEPLINK": {
+      "surface": "label",
+      "spec": "share.deeplink",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 836,
+        "5": 1045
+      }
+    },
+    "ROUNDS_ONE": {
+      "surface": "label",
+      "spec": "§5.2 ICU rounds one",
+      "box": "result.head",
+      "maxChars": 26,
+      "worstPx": {
+        "1": 73
+      }
+    },
+    "ROUNDS_TWO": {
+      "surface": "label",
+      "spec": "§5.2 ICU rounds two",
+      "box": "result.head",
+      "maxChars": 26,
+      "worstPx": {
+        "1": 71
+      }
+    },
+    "ROUNDS_OTHER": {
+      "surface": "label",
+      "spec": "§5.2 ICU rounds other",
+      "box": "result.head",
+      "maxChars": 26,
+      "worstPx": {
+        "1": 73
+      }
+    },
+    "DAYS_ZERO": {
+      "surface": "label",
+      "spec": "§5.2 ICU days =0",
+      "joke": true,
+      "box": "result.head",
+      "maxChars": 26,
+      "worstPx": {
+        "1": 65
+      }
+    },
+    "DAYS_ONE": {
+      "surface": "label",
+      "spec": "§5.2 ICU days one",
+      "box": "result.head",
+      "maxChars": 26,
+      "worstPx": {
+        "1": 65
+      }
+    },
+    "DAYS_TWO": {
+      "surface": "label",
+      "spec": "§5.2 ICU days two",
+      "box": "result.head",
+      "maxChars": 26,
+      "worstPx": {
+        "1": 60
+      }
+    },
+    "DAYS_OTHER": {
+      "surface": "label",
+      "spec": "§5.2 ICU days other",
+      "box": "result.head",
+      "maxChars": 26,
+      "worstPx": {
+        "1": 66
+      }
+    },
+    "RECEIPT_BRAND": {
+      "surface": "label",
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 37
+      }
+    },
+    "RECEIPT_KIND": {
+      "surface": "label",
+      "joke": true,
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 120
+      }
+    },
+    "RECEIPT_ROUND": {
+      "surface": "label",
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 142
+      }
+    },
+    "RECEIPT_HEAD": {
+      "surface": "label",
+      "joke": true,
+      "box": "receipt.wrap",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 167
+      }
+    },
+    "RECEIPT_TOTAL_LINE": {
+      "surface": "label",
+      "spec": "{xr}: full grouping below 10,000,000 (4,213,000), the bank format above (12.34M)",
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 82
+      }
+    },
+    "RECEIPT_BIG": {
+      "surface": "unused",
+      "note": "Replaced by RECEIPT_TOTAL_LINE (flag F3: 22-line card)"
+    },
+    "RECEIPT_MONTH": {
+      "surface": "unused",
+      "note": "Folded into RECEIPT_TOTAL_LINE"
+    },
+    "RECEIPT_COL_ITEM": {
+      "surface": "unused",
+      "note": "Column headers cut to fit 22 lines; the footnote explains the columns"
+    },
+    "RECEIPT_COL_GAME": {
+      "surface": "unused"
+    },
+    "RECEIPT_VAT": {
+      "surface": "label",
+      "legal": true,
+      "box": "receipt.item",
+      "maxChars": 15,
+      "worstPx": {
+        "1": 44
+      }
+    },
+    "RECEIPT_FUEL": {
+      "surface": "label",
+      "legal": true,
+      "note": "Own line; its amount goes on RECEIPT_FUEL_NOTE's line",
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 101
+      }
+    },
+    "RECEIPT_FUEL_NOTE": {
+      "surface": "label",
+      "legal": true,
+      "box": "receipt.item",
+      "maxChars": 15,
+      "worstPx": {
+        "1": 60
+      }
+    },
+    "RECEIPT_WING": {
+      "surface": "label",
+      "joke": true,
+      "legal": true,
+      "box": "receipt.item",
+      "maxChars": 15,
+      "worstPx": {
+        "1": 74
+      }
+    },
+    "RECEIPT_PISTACHIO": {
+      "surface": "label",
+      "joke": true,
+      "legal": true,
+      "note": "'(בוטל ב־2013)' cut for the 22-line card; the 0 ₪ carries the gag",
+      "box": "receipt.item",
+      "maxChars": 15,
+      "worstPx": {
+        "1": 63
+      }
+    },
+    "RECEIPT_COALITION": {
+      "surface": "label",
+      "legal": true,
+      "box": "receipt.item",
+      "maxChars": 15,
+      "worstPx": {
+        "1": 87
+      }
+    },
+    "RECEIPT_COALITION_NOTE": {
+      "surface": "unused",
+      "note": "Cut for the 22-line card (flag F3)"
+    },
+    "RECEIPT_AMOUNT": {
+      "surface": "label",
+      "note": "{xr}: full grouping below 10,000,000, the bank format above",
+      "box": "receipt.amount",
+      "maxChars": 9,
+      "worstPx": {
+        "1": 51
+      }
+    },
+    "RECEIPT_SUM": {
+      "surface": "label",
+      "box": "receipt.item",
+      "maxChars": 15,
+      "worstPx": {
+        "1": 22
+      }
+    },
+    "RECEIPT_PAID_BY": {
+      "surface": "label",
+      "joke": true,
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 77
+      }
+    },
+    "RECEIPT_PAY_METHOD": {
+      "surface": "unused",
+      "note": "Cut for the 22-line card (flag F3)"
+    },
+    "RECEIPT_COUNTDOWN_ONE": {
+      "surface": "label",
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 122
+      }
+    },
+    "RECEIPT_COUNTDOWN_TWO": {
+      "surface": "label",
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 112
+      }
+    },
+    "RECEIPT_COUNTDOWN_OTHER": {
+      "surface": "label",
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 120
+      }
+    },
+    "RECEIPT_COUNTDOWN_TODAY": {
+      "surface": "label",
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 59
+      }
+    },
+    "RECEIPT_COUNTDOWN_AFTER": {
+      "surface": "label",
+      "joke": true,
+      "box": "receipt.wrap",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 153
+      }
+    },
+    "RECEIPT_FOOT_REAL": {
+      "surface": "label",
+      "legal": true,
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 133
+      }
+    },
+    "RECEIPT_FOOT_DISC": {
+      "surface": "label",
+      "legal": true,
+      "note": "Never shorten: 'או מועמד' is the legal half",
+      "box": "receipt.wrap",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 173
+      }
+    },
+    "RECEIPT_FOOT_URL": {
+      "surface": "label",
+      "legal": true,
+      "note": "MUST be on the image: iOS WhatsApp drops the share text when an image is attached (first-minute §5.1). URL <= 22 chars",
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 62
+      }
+    },
+    "RECEIPT_THANKS": {
+      "surface": "label",
+      "joke": true,
+      "box": "receipt.line",
+      "maxChars": 25,
+      "worstPx": {
+        "1": 115
+      }
+    },
+    "RESULT_HEADLINE": {
+      "surface": "label",
+      "spec": "§5.2",
+      "joke": true,
+      "box": "result.head",
+      "maxChars": 26,
+      "worstPx": {
+        "1": 163
+      }
+    },
+    "RESULT_ZERO_TAG": {
+      "surface": "label",
+      "spec": "§5.2 appended when days = 0",
+      "joke": true,
+      "box": "result.head",
+      "maxChars": 26,
+      "worstPx": {
+        "1": 33
+      }
+    },
+    "RESULT_SUB": {
+      "surface": "label",
+      "spec": "§5.2",
+      "joke": true,
+      "box": "result.line",
+      "maxChars": 28,
+      "worstPx": {
+        "1": 61
+      }
+    },
+    "RESULT_STATS": {
+      "surface": "label",
+      "spec": "§5.2",
+      "box": "result.line",
+      "maxChars": 28,
+      "worstPx": {
+        "1": 168
+      }
+    },
+    "RESULT_FOOT": {
+      "surface": "label",
+      "spec": "§5.2",
+      "legal": true,
+      "note": "The URL MUST be on the image (see RECEIPT_FOOT_URL)",
+      "box": "result.foot",
+      "maxChars": 33,
+      "worstPx": {
+        "1": 179
+      }
+    },
+    "RESULT_DISC": {
+      "surface": "label",
+      "spec": "§5.2",
+      "legal": true,
+      "box": "result.foot",
+      "maxChars": 33,
+      "worstPx": {
+        "1": 173
+      }
+    },
+    "SHARE_TEXT_RESULT": {
+      "surface": "share-text",
+      "spec": "§5.3 result",
+      "joke": true,
+      "maxChars": 90
+    },
+    "SHARE_TEXT_RECEIPT": {
+      "surface": "share-text",
+      "spec": "§5.3 receipt",
+      "joke": true,
+      "legal": true,
+      "maxChars": 100
+    },
+    "SHARE_TEXT_INVITE": {
+      "surface": "share-text",
+      "spec": "§5.3 invite",
+      "joke": true,
+      "maxChars": 70
+    },
+    "OG_TITLE": {
+      "surface": "og",
+      "spec": "§5.4 og:title",
+      "joke": true,
+      "maxChars": 45
+    },
+    "OG_DESCRIPTION": {
+      "surface": "og",
+      "spec": "§5.4 og:description",
+      "joke": true,
+      "legal": true,
+      "maxChars": 110
+    },
+    "OG_IMAGE_ALT": {
+      "surface": "og",
+      "spec": "§5.4 og:image:alt",
+      "maxChars": 90
+    },
+    "OG_SITE_NAME": {
+      "surface": "og",
+      "spec": "§5.4 og:site_name",
+      "maxChars": 12
+    },
+    "MANIFEST_SHORT_NAME": {
+      "surface": "og",
+      "spec": "§5.5 short_name",
+      "maxChars": 12
+    },
+    "MANIFEST_NAME": {
+      "surface": "og",
+      "spec": "§5.5 name",
+      "maxChars": 30
+    },
+    "DOS_TITLE": {
+      "surface": "label",
+      "spec": "dos.title",
+      "joke": true,
+      "box": "tall.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
+    },
+    "DOS_ROUNDS": {
+      "surface": "label",
+      "spec": "dos.stats",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 300,
+        "5": 375
+      }
+    },
+    "DOS_COURT_DAYS": {
+      "surface": "label",
+      "spec": "dos.stats",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 244,
+        "5": 305
+      }
+    },
+    "DOS_POSTPONES": {
+      "surface": "label",
+      "spec": "dos.stats",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 304,
+        "5": 380
+      }
+    },
+    "DOS_TOTAL": {
+      "surface": "label",
+      "spec": "dos.stats",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 544,
+        "5": 680
+      }
+    },
+    "DOS_CAUGHT": {
+      "surface": "label",
+      "spec": "dos.stats",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 348,
+        "5": 435
+      }
+    },
+    "DOS_ARRIVED": {
+      "surface": "label",
+      "spec": "dos.stats (the punchline row)",
+      "joke": true,
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 308,
+        "5": 385
+      }
+    },
+    "DOS_BASE": {
+      "surface": "label",
+      "spec": "new",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 656,
+        "5": 820
+      }
+    },
+    "DOS_SUSP_FLOOR": {
+      "surface": "label",
+      "spec": "pitch §11 Q8 floor",
+      "joke": true,
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 580,
+        "5": 725
+      }
+    },
+    "ALBUM_TITLE": {
+      "surface": "label",
+      "spec": "album.title",
+      "box": "sheet.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 348,
+        "5": 435
+      },
+      "largeText": "step-down"
+    },
+    "ALBUM_TROPHY": {
+      "surface": "label",
+      "spec": "album.trophy",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 292,
+        "5": 365
+      }
+    },
+    "SYS_ROTATE_CAP": {
+      "surface": "label",
+      "spec": "sys.rotate.cap",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 424,
+        "5": 530
+      }
+    },
+    "SYS_ERROR": {
+      "surface": "label",
+      "spec": "sys.error",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 196,
+        "5": 245
+      }
+    },
+    "SYS_RELOAD": {
+      "surface": "label",
+      "spec": "sys.reload",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
+    },
+    "SYS_CLOSE": {
+      "surface": "label",
+      "spec": "sys.close",
+      "box": "sheet.btn",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 72,
+        "5": 90
+      }
+    },
+    "SYS_BACK": {
+      "surface": "html",
+      "spec": "sys.back",
+      "note": "Accessible label of the chevron",
+      "maxChars": 5
+    },
+    "SYS_ERA_PACK_LATE": {
+      "surface": "label",
+      "spec": "first-minute §2.1 [GD] suggestion",
+      "joke": true,
+      "deckWords": true,
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "HUD_RATE": {
+      "aliasOf": "HUD_BPS",
+      "surface": "label",
+      "box": "rowA.rate",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 308,
+        "5": 385
+      },
+      "largeText": "step-down"
+    },
+    "HUD_TICKER_TAG": {
+      "aliasOf": "TICKER_TAG",
+      "surface": "label",
+      "box": "ticker.tag",
+      "maxChars": 3,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      },
+      "largeText": "step-down"
+    },
+    "CARD_LOCKED_NAME": {
+      "aliasOf": "ROW_LOCKED_NAME",
+      "surface": "label",
+      "joke": true,
+      "box": "card.name",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 180,
+        "5": 225
+      }
+    },
+    "SET_G_SOUND": {
+      "aliasOf": "SET_GROUP_SOUND",
+      "surface": "label",
+      "box": "sheet.group",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 100,
+        "5": 125
+      }
+    },
+    "SET_G_COMFORT": {
+      "aliasOf": "SET_GROUP_A11Y",
+      "surface": "label",
+      "box": "sheet.group",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      }
+    },
+    "SET_G_GAME": {
+      "aliasOf": "SET_GROUP_GAME",
+      "surface": "label",
+      "box": "sheet.group",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "SET_MOTION": {
+      "aliasOf": "SET_REDUCED_MOTION",
+      "surface": "label",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 248,
+        "5": 310
+      }
+    },
+    "SET_VIBE": {
+      "aliasOf": "SET_HAPTICS",
+      "surface": "label",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 68,
+        "5": 85
+      }
+    },
+    "RESET_TITLE": {
+      "aliasOf": "RST_TITLE",
+      "surface": "label",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 100,
+        "5": 125
+      }
+    },
+    "RESET_JOKE": {
+      "aliasOf": "RST_BODY_1",
+      "surface": "label",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 752,
+        "5": 940
+      }
+    },
+    "RESET_BODY": {
+      "aliasOf": "RST_BODY_2",
+      "surface": "label",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1088,
+        "5": 1360
+      }
+    },
+    "RESET_CANCEL": {
+      "aliasOf": "RST_CANCEL",
+      "surface": "label",
+      "joke": true,
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 152,
+        "5": 190
+      }
+    },
+    "RESET_GO": {
+      "aliasOf": "RST_CONFIRM",
+      "surface": "label",
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 208,
+        "5": 260
+      },
+      "largeText": "step-down"
+    },
+    "SYS_ROTATE": {
+      "aliasOf": "ROTATE",
+      "surface": "label",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 424,
+        "5": 530
+      }
+    }
+  },
+  "contentNames": {
+    "box": "card.name",
+    "effectBox": "card.line2wide"
+  }
+}

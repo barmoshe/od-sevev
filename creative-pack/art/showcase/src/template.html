@@ -1,0 +1,435 @@
+<title>Od Sevev Cast Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@400;700&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --night: #1b1426;
+    --panel: #261d34;
+    --panel-2: #2f2540;
+    --line: #3d3150;
+    --text: #efe8f7;
+    --muted: #a597b8;
+    --gold: #f2c14e;
+    --gold-ink: #2a1d05;
+    --maroon: #8a1538;
+    --blue: #5b82ff;
+    --display: "Karantina", "Heebo", "Arial Narrow", sans-serif;
+    --body: "IBM Plex Sans Hebrew", "Heebo", "Arial", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  html, body { background: var(--night); color: var(--text); }
+  body { font-family: var(--body); font-size: 16px; line-height: 1.55; padding-inline: 16px; padding-block: 24px 56px; }
+  .wrap { max-width: 1080px; margin-inline: auto; display: grid; gap: 40px; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  /* header */
+  header { display: grid; gap: 10px; max-width: 62ch; }
+  .eyebrow { font-family: var(--body); font-size: 13px; letter-spacing: 0; color: var(--muted); direction: rtl; }
+  .eyebrow b { color: var(--gold); font-weight: 500; }
+  h1 { font-family: var(--display); font-weight: 700; font-size: clamp(56px, 11vw, 104px); line-height: .82; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+  h1 span { color: var(--gold); }
+  .lede { margin: 0; color: var(--muted); font-size: 17px; }
+  .lede strong { color: var(--text); font-weight: 500; }
+
+  /* stage */
+  .stage-block { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 32px; align-items: start; }
+  .phone { background: #0e0a15; border: 1px solid var(--line); border-radius: 28px; padding: 14px 10px 12px; display: grid; gap: 10px; max-width: 380px; width: 100%; }
+  .hud { display: flex; justify-content: space-between; align-items: baseline; padding-inline: 8px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  .hud .shekel { font-family: var(--display); font-size: 34px; line-height: 1; color: var(--gold); font-variant-numeric: tabular-nums; direction: ltr; }
+  #stage { width: 100%; aspect-ratio: 180 / 320; border-radius: 12px; cursor: pointer; touch-action: manipulation; }
+  .eras { display: flex; gap: 6px; flex-wrap: wrap; padding-inline: 4px; }
+  .chip { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 4px 12px; font-size: 14px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); font-weight: 600; }
+  .stage-notes { display: grid; gap: 18px; align-content: start; }
+  .stage-notes h2 { font-family: var(--display); font-size: 44px; line-height: .9; margin: 0; font-weight: 700; }
+  .stage-notes p { margin: 0; color: var(--muted); max-width: 52ch; }
+  .howto { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .howto li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: baseline; }
+  .howto li b { font-family: var(--mono); color: var(--gold); font-weight: 500; font-size: 13px; }
+
+  /* cast cards */
+  .cast { display: grid; gap: 28px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 20px; }
+  .card-top { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: start; }
+  .live { background: radial-gradient(ellipse at 50% 92%, #4a3a63 0 28%, transparent 29%), linear-gradient(#2c2140, #1f172d); border-radius: 14px; padding: 12px 18px 0; display: grid; place-items: end center; }
+  .who { display: grid; gap: 12px; align-content: start; }
+  .who h3 { font-family: var(--display); font-size: 52px; line-height: .85; margin: 0; font-weight: 700; }
+  .who .role { margin: 0; color: var(--muted); max-width: 48ch; }
+  .anims { display: flex; gap: 8px; flex-wrap: wrap; }
+  .anim { border: 1px solid var(--line); background: var(--panel-2); border-radius: 10px; padding: 7px 14px; cursor: pointer; display: grid; gap: 1px; text-align: start; }
+  .anim small { font-family: var(--mono); font-size: 11px; color: var(--muted); direction: ltr; text-align: end; }
+  .anim[aria-pressed="true"] { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+  .specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px 18px; margin: 0; }
+  .specs div { display: grid; gap: 2px; }
+  .specs dt { font-size: 12px; color: var(--muted); letter-spacing: .02em; }
+  .specs dd { margin: 0; font-family: var(--mono); font-size: 14px; direction: ltr; text-align: end; font-variant-numeric: tabular-nums; }
+  .strip-wrap { overflow-x: auto; border-top: 1px solid var(--line); padding-top: 14px; }
+  .strip-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .strip-label span:last-child { font-family: var(--mono); direction: ltr; }
+  .strip { direction: ltr; }
+  .avatar-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .bubble { display: flex; gap: 10px; align-items: flex-end; }
+  .bubble p { margin: 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px 14px 4px 14px; padding: 8px 12px; font-size: 15px; max-width: 34ch; }
+  .bubble p b { display: block; font-size: 12px; color: var(--gold); font-weight: 600; }
+
+  /* ensemble */
+  .ensemble { display: grid; gap: 18px; }
+  .group-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+  .group-title h2 { font-family: var(--display); font-size: 44px; margin: 0; line-height: .9; font-weight: 700; }
+  .group-title p { margin: 0; color: var(--muted); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .mini { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: grid; gap: 10px; align-content: start; }
+  .mini .live { padding: 8px 8px 0; cursor: pointer; }
+  .mini h3 { font-family: var(--display); font-size: 36px; line-height: .9; margin: 0; font-weight: 700; }
+  .mini .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .mini .meta small { font-family: var(--mono); font-size: 11px; color: var(--muted); direction: ltr; }
+  .mini .bubble p { font-size: 14px; }
+  .mini .hint { font-size: 12px; color: var(--muted); }
+
+  /* props */
+  .props { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-end; }
+  .prop { display: grid; gap: 6px; justify-items: center; font-size: 13px; color: var(--muted); }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .section-head h2 { font-family: var(--display); font-size: 44px; margin: 0; line-height: .9; font-weight: 700; }
+  .section-head p { margin: 0; color: var(--muted); font-size: 14px; }
+  footer { border-top: 1px solid var(--line); padding-top: 18px; display: grid; gap: 8px; color: var(--muted); font-size: 14px; max-width: 70ch; }
+  footer .legal { font-size: 12px; }
+
+  @media (max-width: 760px) {
+    .stage-block { grid-template-columns: minmax(0, 1fr); }
+    .phone { margin-inline: auto; }
+    .card-top { grid-template-columns: minmax(0, 1fr); }
+    .live { justify-self: center; }
+  }
+</style>
+
+<div class="wrap" dir="rtl" lang="he">
+  <header>
+    <div class="eyebrow"><b>עוד סבב</b> · דף קאסט · <span id="count"></span></div>
+    <h1>הקוסם <span>והחבורה</span></h1>
+    <p class="lede">כמו שהם ייראו במשחק: <strong>ספרייטים בגובה 96 פיקסלים</strong>, פלטה נעולה לכל דמות, וכל אנימציה מוכנה לחיבור למנוע. לחץ על הקוסם כדי לראות את הטריק, ועל כל דמות בקאסט כדי לראות את התנועה שלה.</p>
+  </header>
+
+  <section class="stage-block" aria-label="הבמה">
+    <div class="phone">
+      <div class="hud"><span>קופה</span><span class="shekel" id="bank">₪0</span></div>
+      <canvas id="stage" width="180" height="320" role="button" tabindex="0" aria-label="הקוסם על הבמה. לחיצה מפעילה טריק"></canvas>
+      <div class="eras" role="group" aria-label="בחירת במה">
+        <button class="chip" data-era="balfour" aria-pressed="true">בלפור</button>
+        <button class="chip" data-era="knesset" aria-pressed="false">הכנסת</button>
+        <button class="chip" data-era="courthouse" aria-pressed="false">בית המשפט</button>
+        <button class="chip" data-era="washington" aria-pressed="false">וושינגטון</button>
+      </div>
+    </div>
+    <div class="stage-notes">
+      <h2>הטריק</h2>
+      <p>המסך הראשי של המשחק, בגודל אמיתי (180×320 פיקסלים, מוגדל). הכובע מרחף מעל האצבע המורמת, כך ששיער הכסף והאוזניים נשארים גלויים.</p>
+      <ul class="howto">
+        <li><b>01</b><span>לחיצה: הקוסם מתכווץ ונמתח, הכובע קופץ, מטבעות עפים ממנו.</span></li>
+        <li><b>07</b><span>כל לחיצה שביעית: ארנב אפור מציץ מהכובע והקוסם קורץ.</span></li>
+        <li><b>∞</b><span>בין לחיצות: נשימה, אצבע מסבירה, מצמוץ.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cast" id="cast" aria-label="הדמויות הראשיות"></section>
+
+  <section class="ensemble" id="ensemble" aria-label="שאר הקאסט"></section>
+
+  <section class="card" aria-label="אביזרים">
+    <div class="section-head">
+      <h2>אביזרים</h2>
+      <p>מצוירים ישירות בפיקסלים, עם קו מתאר בהיר כדי שיבלטו על במות כהות.</p>
+    </div>
+    <div class="props" id="props"></div>
+  </section>
+
+  <footer>
+    <p>הדמויות צוירו מחדש בפיקסלים ברזולוציית המשחק, לפי הרפרנסים שיצרת. לאשר, או להעיר על דמות מסוימת? כתוב לי בצ'אט.</p>
+    <p class="legal">סאטירה. קריקטורות פיקסל בדיוניות. לא קשור ולא ממומן על ידי אף מפלגה או מועמד.</p>
+  </footer>
+</div>
+
+<script>
+const ASSETS = __ASSETS__;
+const ATLAS = __ATLAS__;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const img = {};
+const loads = Object.entries(ASSETS).map(([k, src]) => new Promise(r => { const i = new Image(); i.onload = r; i.src = src; img[k] = i; }));
+
+const CAST = [
+  { id: 'bibi', name: 'הקוסם', real: 'בנימין נתניהו',
+    role: 'הדמות הראשית. עומד במרכז הבמה, לוחצים עליו כדי לשלוף כסף מהכובע.',
+    anims: { idle: 'עמידה', tap: 'טריק', crit: 'ארנב' },
+    line: 'אין כלום. אין כלום.' },
+  { id: 'sara', name: 'שרה', real: 'שרה נתניהו',
+    role: 'דמות אירועים בעידן בלפור. מרימה כוסית, ונעלבת כשמתעלמים ממנה.',
+    anims: { idle: 'עמידה', offended: 'נעלבת' },
+    line: 'מישהו צילם? 📸' },
+  { id: 'bennett', name: 'בנט', real: 'נפתלי בנט',
+    role: 'קלף אופוזיציה. חותם על התחייבות, ואז מתהפך לצד השני.',
+    anims: { idle: 'עמידה', flip: 'מתהפך' },
+    line: 'חתמתי. בשידור חי. עד השידור הבא.' },
+];
+const GROUPS = [
+  { title: 'הקואליציה', sub: 'השותפים בקבוצה "קואליציה 61 🔒". כל אחד עם דרישה, ואיום.', ids: [
+    ['ben-gvir', 'בן גביר', 'איתמר בן גביר', 'צריך תקציב לביטחון לאומי. היום. זה לא איום. עדיין 🔥'],
+    ['smotrich', "סמוטריץ'", "בצלאל סמוטריץ'", 'בתור שר האוצר: אין כסף. בתור יו"ר מפלגה: תעביר 💸'],
+    ['deri', 'דרעי', 'אריה דרעי', 'ידידי היקר, בוא נשב על קפה ☕ תביא פנקס.'],
+    ['goldknopf', 'גולדקנופף', 'יצחק גולדקנופף', '100 מיליון וסגרנו. אחרון, באמת 🤝'],
+    ['gafni', 'גפני', 'משה גפני', 'לא בעד, לא נגד. יוצא לשירותים 🚻 המחיר בהתאם.'],
+    ['levin', 'לוין', 'יריב לוין', 'צריך ועדה לבחירת שופטים. הרכב מוצע: אני, אני ועוד אני ⚖️'],
+    ['regev', 'רגב', 'מירי רגב', 'רוצה לחנוך משהו. לא משנה מה. עם סרט ומספריים 🎀✂️'],
+    ['gotliv', 'גוטליב', 'טלי גוטליב', 'אני דורשת מקום ריאלי!!! לא "ריאלי בערך". ריאלי!!!'],
+    ['amsalem', 'אמסלם', 'דודי אמסלם', 'תעביר תקציב ואני מפסיק לצעוק. לא, לא מפסיק. אבל תעביר.'],
+    ['karhi', 'קרעי', 'שלמה קרעי', '25 מיליון בשנה עוברים מ"כאן" ל"שם" 📺⬅️📺'],
+    ['may-golan', 'מאי גולן', 'מאי גולן', 'צריכה עוד 3 תקנים למשרד. דחוף 👻'],
+    ['distel', 'דיסטל', 'גלית דיסטל-אטבריאן', 'חוק חדש, עובר תוך 4 שניות. לפני שמישהו אומר "אבל".'],
+  ]},
+  { title: 'האופוזיציה', sub: 'מקבלים את אותו יחס בדיוק. אף צד לא מנצח.', ids: [
+    ['lapid', 'לפיד', 'יאיר לפיד', 'שואל "איפה הכסף?". התשובה: בכובע. השאלה: ממשיכה.'],
+    ['eisenkot', 'אייזנקוט', 'גדי אייזנקוט', '"ישר" מתנהלת ישר. בפוליטיקה זה נחשב קסם.'],
+    ['gantz', 'גנץ', 'בני גנץ', 'נכנס לקבוצה כשמישהו עוזב. הרוטציה: 99%. מאז 2020.'],
+    ['liberman', 'ליברמן', 'אביגדור ליברמן', 'הציג את הקווים האדומים שלו. זה פשוט דף אדום.'],
+    ['golan', 'גולן', 'יאיר גולן', 'מאחד שני קלפים לאחד. חוסך מקום, מכפיל ויכוחים.'],
+    ['abbas', 'עבאס', 'מנסור עבאס', 'מופיע רק כשבן גביר לא מחובר.'],
+  ]},
+  { title: 'אורחים', sub: 'דמויות אירוע: מופיעות לרגע, משאירות חותמת.', ids: [
+    ['herzog', 'הרצוג', 'יצחק הרצוג', 'נדרשים מסמכים נוספים.'],
+    ['trump', 'טראמפ', 'דונלד טראמפ', 'חותם בטוש. בגדול.'],
+  ]},
+];
+const EVENTS_HE = { coins: 'מטבעות', rabbit: 'ארנב', sting: 'קריצה', huff: 'נחרה', whoosh: 'שששש' };
+
+function frameOf(c, anim, i) {
+  const d = ATLAS.chars[c];
+  return [img[`${c}_${anim}`], i * d.frameW, 0, d.frameW, d.frameH];
+}
+
+/* ---------- a tiny player: steps an animation at its own fps ---------- */
+class Player {
+  constructor(char, anim) { this.char = char; this.set(anim); }
+  set(anim, onEnd) {
+    this.anim = anim; this.i = 0; this.t = 0; this.onEnd = onEnd; this.fired = {};
+    this.meta = ATLAS.chars[this.char].anims[anim];
+    this.dir = 1;
+  }
+  step(dt) {
+    this.t += dt;
+    const spf = 1 / this.meta.fps;
+    while (this.t >= spf) {
+      this.t -= spf;
+      this.i += this.dir;
+      if (this.i >= this.meta.frames) {
+        if (this.meta.loop) this.i = 0;
+        else if (this.pingpong) { this.dir = -1; this.i = this.meta.frames - 2; }
+        else { this.i = this.meta.frames - 1; this.onEnd && this.onEnd(); return; }
+      }
+      if (this.i < 0) { this.i = 0; this.onEnd && this.onEnd(); return; }
+    }
+  }
+  draw(ctx, x, y, s = 1) {
+    const [im, sx, sy, w, h] = frameOf(this.char, this.anim, this.i);
+    ctx.drawImage(im, sx, sy, w, h, x, y, w * s, h * s);
+  }
+}
+
+/* ---------- the stage ---------- */
+const stage = document.getElementById('stage');
+const sctx = stage.getContext('2d');
+sctx.imageSmoothingEnabled = false;
+let era = 'balfour', bank = 0, taps = 0, coins = [];
+const bibi = new Player('bibi', 'idle');
+const B = () => ATLAS.chars.bibi;
+const bibiPos = () => ({ x: 94 - Math.floor(B().frameW / 2), y: 220 - B().frameH });
+
+function trick() {
+  taps++;
+  const crit = taps % 7 === 0;
+  bibi.set(crit ? 'crit' : 'tap', () => bibi.set('idle'));
+  const gain = crit ? 70 : 10;
+  bank += gain;
+  document.getElementById('bank').textContent = '₪' + bank.toLocaleString('en-US');
+}
+function spawnCoins(n) {
+  const m = B().anims.tap.hatMouth[Math.min(bibi.i, 7)] || [10, 20];
+  const p = bibiPos();
+  for (let k = 0; k < n; k++) {
+    coins.push({ x: p.x + m[0], y: p.y + m[1], vx: (Math.random() - .5) * 70, vy: -60 - Math.random() * 60, life: 1.2, f: Math.floor(Math.random() * 4) });
+  }
+}
+stage.addEventListener('pointerdown', e => { e.preventDefault(); trick(); });
+stage.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trick(); } });
+document.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
+  era = b.dataset.era;
+  document.querySelectorAll('.chip').forEach(o => o.setAttribute('aria-pressed', o === b ? 'true' : 'false'));
+}));
+
+function drawStage(dt) {
+  sctx.drawImage(img['stage_' + era], 0, 0);
+  if (!(reduce && bibi.anim === 'idle')) bibi.step(dt);
+  if ((bibi.anim === 'tap' || bibi.anim === 'crit') && bibi.i === 3 && !bibi.fired.coins) { bibi.fired.coins = 1; spawnCoins(bibi.anim === 'crit' ? 12 : 6); }
+  const p = bibiPos();
+  bibi.draw(sctx, p.x, p.y);
+  coins = coins.filter(c => (c.life -= dt) > 0);
+  for (const c of coins) {
+    c.vy += 220 * dt; c.x += c.vx * dt; c.y += c.vy * dt;
+    const spin = Math.floor((1.2 - c.life) * 14 + c.f) % 4;
+    const ci = img['prop_coin' + spin];
+    sctx.drawImage(ci, Math.round(c.x - ci.width / 2), Math.round(c.y));
+  }
+}
+
+/* ---------- cast cards ---------- */
+const cards = [];
+function buildCards() {
+  const host = document.getElementById('cast');
+  for (const c of CAST) {
+    const d = ATLAS.chars[c.id];
+    const scale = window.innerWidth < 500 ? 3 : 4;
+    const card = document.createElement('article');
+    card.className = 'card';
+    const animBtns = Object.entries(c.anims).map(([k, he]) => {
+      const m = d.anims[k];
+      return `<button class="anim" data-anim="${k}" aria-pressed="${k === 'idle'}"><span>${he}</span><small>${m.frames}f · ${m.fps}fps${m.loop ? ' · loop' : ''}</small></button>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="live"><canvas width="${d.frameW * scale}" height="${d.frameH * scale}" aria-label="${c.real}, אנימציה"></canvas></div>
+        <div class="who">
+          <h3>${c.name}</h3>
+          <p class="role">${c.real}. ${c.role}</p>
+          <div class="anims" role="group" aria-label="אנימציות">${animBtns}</div>
+          <dl class="specs">
+            <div><dt>מסגרת</dt><dd>${d.frameW}×${d.frameH}</dd></div>
+            <div><dt>עוגן (רגליים)</dt><dd>${d.anchor[0]}, ${d.anchor[1]}</dd></div>
+            <div><dt>אירועים</dt><dd class="ev">–</dd></div>
+          </dl>
+          <div class="avatar-row">
+            <div class="bubble"><canvas class="av" width="64" height="64" aria-label="אווטאר צ'אט"></canvas><p><b>${c.name}</b>${c.line}</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="strip-wrap">
+        <div class="strip-label"><span>כל הפריימים</span><span class="count"></span></div>
+        <canvas class="strip"></canvas>
+      </div>`;
+    host.appendChild(card);
+    const live = card.querySelector('.live canvas');
+    const lctx = live.getContext('2d'); lctx.imageSmoothingEnabled = false;
+    const av = card.querySelector('.av').getContext('2d'); av.imageSmoothingEnabled = false;
+    av.drawImage(img[c.id + '_avatar'], 0, 0, 64, 64);
+    const strip = card.querySelector('.strip');
+    const player = new Player(c.id, 'idle');
+    const entry = { c, d, player, lctx, live, scale, strip, card };
+    cards.push(entry);
+    card.querySelectorAll('.anim').forEach(b => b.addEventListener('click', () => playAnim(entry, b.dataset.anim)));
+    live.addEventListener('click', () => { const a = Object.keys(c.anims).find(k => k !== 'idle'); playAnim(entry, a); });
+    live.style.cursor = 'pointer';
+    showMeta(entry);
+  }
+}
+function playAnim(e, anim) {
+  const back = () => { e.player.set('idle'); e.player.pingpong = false; showMeta(e); };
+  e.player.set(anim, anim === 'idle' ? null : () => setTimeout(back, anim === 'flip' ? 0 : 250));
+  e.player.pingpong = anim === 'flip';
+  showMeta(e);
+}
+function showMeta(e) {
+  const m = e.player.meta, anim = e.player.anim;
+  e.card.querySelectorAll('.anim').forEach(b => b.setAttribute('aria-pressed', b.dataset.anim === anim ? 'true' : 'false'));
+  const ev = Object.entries(m.events || {}).map(([k, f]) => `${EVENTS_HE[k] || k}@${f}`).join(' ');
+  e.card.querySelector('.ev').textContent = ev || '–';
+  e.card.querySelector('.count').textContent = `${m.frames} frames · ${m.fps} fps`;
+  const s = 2, w = e.d.frameW * s, h = e.d.frameH * s;
+  e.strip.width = m.frames * (w + 6); e.strip.height = h + 8;
+  e.strip.style.width = e.strip.width + 'px';
+  e.stripKey = anim;
+}
+function drawCard(e, dt) {
+  if (!(reduce && e.player.anim === 'idle')) e.player.step(dt);
+  const { lctx, live, scale, d } = e;
+  lctx.clearRect(0, 0, live.width, live.height);
+  e.player.draw(lctx, 0, 0, scale);
+  const sc = e.strip.getContext('2d'); sc.imageSmoothingEnabled = false;
+  const s = 2, w = d.frameW * s, h = d.frameH * s;
+  sc.clearRect(0, 0, e.strip.width, e.strip.height);
+  for (let i = 0; i < e.player.meta.frames; i++) {
+    const x = i * (w + 6);
+    sc.fillStyle = i === e.player.i ? '#3d3150' : '#211a2d';
+    sc.fillRect(x, 0, w, h + 8);
+    const [im, sx, sy, fw, fh] = frameOf(e.c.id, e.player.anim, i);
+    sc.drawImage(im, sx, sy, fw, fh, x, 4, fw * s, fh * s);
+    if (i === e.player.i) { sc.fillStyle = '#f2c14e'; sc.fillRect(x, h + 6, w, 2); }
+  }
+}
+
+function buildEnsemble() {
+  const host = document.getElementById('ensemble');
+  for (const g of GROUPS) {
+    const present = g.ids.filter(([id]) => ATLAS.chars[id]);
+    if (!present.length) continue;
+    const head = document.createElement('div');
+    head.className = 'group-title';
+    head.innerHTML = `<h2>${g.title}</h2><p>${g.sub}</p>`;
+    host.appendChild(head);
+    const grid = document.createElement('div'); grid.className = 'grid'; host.appendChild(grid);
+    for (const [id, name, real, line] of present) {
+      const d = ATLAS.chars[id]; const scale = 2;
+      const react = Object.keys(d.anims).find(k => k !== 'idle');
+      const card = document.createElement('article'); card.className = 'mini';
+      card.innerHTML = `
+        <div class="live"><canvas width="${d.frameW * scale}" height="${d.frameH * scale}" aria-label="${real}"></canvas></div>
+        <div class="meta"><h3>${name}</h3><small>${d.frameW}×${d.frameH}</small></div>
+        <div class="bubble"><canvas class="av" width="48" height="48"></canvas><p><b>${real}</b>${line}</p></div>
+        <div class="hint">לחיצה על הדמות: ${react === 'react' ? 'התנועה שלו' : react}</div>`;
+      grid.appendChild(card);
+      const live = card.querySelector('.live canvas');
+      const lctx = live.getContext('2d'); lctx.imageSmoothingEnabled = false;
+      const av = card.querySelector('.av').getContext('2d'); av.imageSmoothingEnabled = false;
+      if (img[id + '_avatar']) av.drawImage(img[id + '_avatar'], 0, 0, 48, 48);
+      const player = new Player(id, 'idle');
+      player.i = Math.floor(Math.random() * player.meta.frames);
+      const entry = { c: { id }, d, player, lctx, live, scale, mini: true };
+      live.parentElement.addEventListener('click', () => player.set(react, () => setTimeout(() => player.set('idle'), 200)));
+      minis.push(entry);
+    }
+  }
+  const n = Object.keys(ATLAS.chars).length;
+  let a = 0; for (const c of Object.values(ATLAS.chars)) a += Object.keys(c.anims).length;
+  document.getElementById('count').textContent = `${n} דמויות · ${a} אנימציות`;
+}
+const minis = [];
+
+function buildProps() {
+  const host = document.getElementById('props');
+  const list = [['prop_hat', 'הכובע (הפוך, פתוח למעלה)'], ['prop_rabbit', 'הארנב (עיצוב מקורי)'], ['prop_coin0', 'מטבע, 4 פריימים'], ['prop_bill', 'שטר'], ['prop_spark', 'נצנוץ']];
+  for (const [k, he] of list) {
+    const i = img[k], s = 4;
+    const wrap = document.createElement('div'); wrap.className = 'prop';
+    const cv = document.createElement('canvas'); cv.width = i.width * s; cv.height = i.height * s;
+    const x = cv.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(i, 0, 0, cv.width, cv.height);
+    wrap.appendChild(cv);
+    const t = document.createElement('span'); t.textContent = he; wrap.appendChild(t);
+    host.appendChild(wrap);
+  }
+}
+
+Promise.all(loads).then(() => {
+  buildCards(); buildEnsemble(); buildProps();
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    drawStage(dt);
+    for (const e of cards) drawCard(e, dt);
+    for (const e of minis) { if (!(reduce && e.player.anim === 'idle')) e.player.step(dt); e.lctx.clearRect(0, 0, e.live.width, e.live.height); e.player.draw(e.lctx, 0, 0, e.scale); }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+});
+</script>

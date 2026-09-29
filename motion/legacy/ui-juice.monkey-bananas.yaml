@@ -1,0 +1,266 @@
+# motion-spec v1.1: UI juice (bright, rounded, toy-like). Monkey Bananas
+# Owner: Animator. Consumers: Game Developer (src/ui/*, src/core/motion.ts), Audio Director (event-markers.md §5),
+# 2D Artist (rounded 9-slice corner budget + juiceGain/juiceGainOnLight roles, see `_juice_globals`), UX Designer (flow unchanged).
+# Referenced from motion-spec.yaml (header). Same template, same field extensions (snap_px, quantize, frames_at_60,
+# reduced_motion) and the same GLOBAL RULES as motion-spec.yaml `_globals`. Nothing here changes a feel-tunable.
+#
+# Brief (user, via orchestrator): "Make all the UI and HUD bright, colorful and fun" + "more rounded and enjoyable".
+# Motion language: soft, bouncy, rubbery, toy-like, BUILT FROM WHOLE-PIXEL STEPS. Budget the fun into the moments
+# that reward (buying, gaining, the golden catch, evolve), not into constant ambient motion.
+#
+# Evaluated and NOT adopted (the reasons are here so nobody re-adds them by accident):
+#   - Gear spin on hover: ux/hud-layout.md §5 names the gear "static chrome, the one allowed constant"; rotating a
+#     16x16 pixel sprite crawls (the fx-data.json rule bans rotation for the same reason); and it is mouse-only. The gear keeps
+#     its hover frame.
+#   - Confetti on upgrade buy: pipeline/fx-data.json `purchaseConfetti` variant `upgrade` (10 pieces) ALREADY fires on
+#     upgrade commit. Adding another burst would duplicate it and break the gameplayMaxAliveTotal 160 budget.
+#   - Producer icon hop on purchase: already shipped (motion-spec.yaml purchase-row-flash icon_hop). J3 builds on it.
+#   - Constant "breathing" top-bar highlight: an ambient loop on informational text breaks the UX peripheral-fade
+#     rule. It is replaced by a one-shot bump on increase (J2).
+#   - Synced / continuous idle bounce on every affordable pill: with up to 9 affordable rows it turns the shop into
+#     a busy wall. It is replaced by a sparse one-pill-at-a-time nudge (J4b).
+---
+motion-id: _juice_globals
+type: rules
+rules:
+  pixel_rule: |
+    Every juice entry is a TIME-SAMPLED TABLE of whole-pixel values: frame index i = floor(elapsedMs / 16.667),
+    and the value is table[min(i, last)]. It uses the same pattern as cant-afford-shake. At 120 Hz the ms timings hold. No
+    easing runs between entries, so every rendered value is already on its grid. There is no fractional scaling of
+    pixel art: size changes are 9-slice setSize() in whole art-px (4 px), and text "pops" use per-axis INTEGER font
+    scales (×3/×4/×5 font px) for < 180 ms (README transient rule).
+  implementation_hint: |
+    One `juice` system ticked from MainScene.update, holding {target, table, t0, onDone}. Using it costs no tween allocation,
+    no new GameObjects, no masks, no filters, no ADD blends and no extra draw calls: NineSlice.setSize, x/y offsets and
+    BitmapText setScale/setTint on objects that already exist. The only object swap is J8, where the ticker text becomes a
+    DynamicBitmapText (same font texture, same batch).
+  hit_areas: "No juice entry moves or resizes a hit area. All deltas are visual, inside the element's own hit rect (ux/hud-layout.md §4)."
+  stage_rule: "No juice entry adds motion to the stage (y 160-664) except the existing buff banner. Nothing fires on a Big Banana tap, so the 16 taps/s play reads exactly as in v1.0."
+  anchors: "w/h deltas are centred horizontally. For vertical deltas each entry names its anchor: `bottom` (a landing or press has weight) or `centre`."
+  corner_budget: |
+    A 9-slice can shrink only while its middle band exists: cornerSliceHeight_px ≤ (restH_px - squashPx) / 2.
+    For the v1.1 rounded art this means: cost pill (80 tall, squashed to 72): corner slice ≤ 9 art-px. Tabs and toggle
+    (80 → 72): ≤ 9 art-px. Evolve button (96 → 88): ≤ 11 art-px. Buff banner (64 → 56): ≤ 7 art-px. Modal panels:
+    no limit in practice. Badges only GROW, so a perfectly round badge is fine.
+    If an element's delivered corner is bigger than its budget, the dev uses that entry's `fallback_if_corner_over_budget`.
+    (Objection OBJ-J1 to the 2D Artist asks for the budget, so the fallback should not be needed.)
+  colour_rule: |
+    Juice tints use two 2D Artist palette roles, both exported in UI_THEME (Artist counter-proposal, accepted):
+      juiceGain        = hot pink `q`, ONLY on deep-grape `U` grounds (stat window, ticker marquee): 5.40:1.
+      juiceGainOnLight = deep pink `Q`, for any juice tint on cream or mint grounds: 4.84:1 / 4.57:1.
+    Each tint below names its role and its ground. A new tint must pick the role that matches its ground; never
+    put `q` on cream/mint or `Q` on `U`.
+    Tint priority on one text object: Frenzy gold > Lucky Bunch gold roll > juiceGain / juiceGainOnLight > base.
+    (Corner budget: accepted by the Artist and enforced by the verifier: pill 8/7, buy-mode 8, toggle 9, tabs 5/3,
+    Evolve 8, banner 3/4 art-px; badges and knobs are true circles. The fallbacks remain as a safety net only.)
+  reduced_motion: "settings.reducedMotion (UX). Every entry lists its variant, and all of them are `disable` or `instant colour`. No variant flashes faster than 2 Hz."
+motion-constants:                  # Animator-owned, 21 keys. Mirror to src/core/motion.ts MC (block comment "ui-juice.yaml"); every key is read by J1-J8
+  squishPx: 8                      # 2 art-px for the whole element (1 art-px per side on centred axes)
+  squishReboundMs: 67
+  bankGainPopMs: 117
+  bankGainTintMs: 200
+  bpsHopPx: 6                      # 2 font-px at ×3
+  bpsTintHoldMs: 200
+  cascadeStepMs: 50
+  cascadeReach: 2                  # rows either side
+  cascadeMinGapMs: 250
+  cascadeHopPx: 4
+  reflowLandBumpPx: 4
+  reflowIconStaggerMs: 40
+  pillHelloMs: 167
+  pillNudgePeriodMs: 4000
+  pillNudgeIdleMs: 3000
+  pillNudgeRepeatMs: 8000
+  badgePopCooldownMs: 600
+  dropInOffsetPx: 64               # replaces modalEnterOffsetPx (REMOVED from motion-spec.yaml). Applied as -64 (from above)
+  tabListOvershootPx: 4
+  tickerHopPx: 6                   # 2 font-px at ×3
+  tickerHopEntryInsetPx: 24
+---
+motion-id: J1-ui-pill-squish
+type: microinteraction
+extends: [button-press, buy-row-press]      # adds to them; the frame cut, label drop, commit rule and audio are unchanged
+applies_to: |
+  A: every standalone ui_button pill: tabs, buy-mode toggle, Evolve button, modal buttons, settings toggles, close.
+  B: the cost pill (ui_pill) inside a shop row, which rides on buy-row-press.
+  Not the gear (static chrome).
+runtime: juice table (NineSlice.setSize)
+variant_A_standalone:
+  press:                           # f0 = pointerdown, set synchronously (press_on_pointerdown rule)
+    - { at: f0, w: "+8 (1 art-px per side)", h: "-8 (anchor bottom: top edge drops 8, matching the +8 label drop)" }
+    - "held while the pointer is down"
+  release:                         # R = max(pointer-up, uiPressMinHoldMs 60); frame + label cut back at R as before
+    frames_at_60: "R+f0-f1 w -8, h +8 (top edge 8 ABOVE rest: the rubbery stretch) | R+f2-f3 w 0, h +4 | R+f4 rest"
+    duration_ms: 67                # squishReboundMs
+  cancel: "drag-out cancel plays the same release rebound (no commit, no cue)"
+  bounds_check: "tabs 12-268 / 268-524 when pressed (only one is pressed at a time), toggle 532-708, Evolve 380-604 × top 12. All stay inside their own hit rects."
+variant_B_cost_pill:
+  press:    { at: f0, w: 0, h: "-8 (anchor centre: 1 art-px off top and bottom)", note: "no widening: the row's own press inset (buy-row-press, 16 px per side) already squeezes horizontally, and the pill's right edge touches the pressed row edge" }
+  release:  { frames_at_60: "R+f0-f1 h +8 (centre: 1 art-px past rest top and bottom) | R+f2 rest", duration_ms: 33 }
+  hold_to_repeat: "the squashed pose is held for the whole hold; no per-tick squish (the tick already flashes and hops)"
+  cant_afford: "on a cantAfford commit the rebound is skipped (cut to rest); cant-afford-shake is the response"
+  side_effect: "the centred -8 keeps the pressed pill (ry+20..ry+92) inside the pressed row (ry+4..ry+92). Today the +8 content drop pushes the pill bottom 4 px past the row"
+fallback_if_corner_over_budget: "A: width-only (press w +8, release w -8 for 2 frames then rest). B: no size change (frame + label drop only)"
+disabled: "a disabled ui_button does not squish (motion-spec button-press: no press response)"
+audio: []                          # uiClick / buy / cantAfford stay on commit, unchanged
+reduced_motion: disable
+reduced_motion_alternative: "no size change; the pressed-frame cut and the label drop stay (they are the affordance, button-press keep)"
+---
+motion-id: J2-hud-stat-gain
+type: notification
+applies_to: HUD bank value (×4 text @ 64,28) and bps line (×3 text @ 64,72)
+runtime: juice table (BitmapText setScale in integer font-px steps, setTint, y offset)
+bank_big_gain:
+  triggers:                        # enumerated events, no threshold; taps NEVER trigger this (they keep hud-bank-pop)
+    - "Lucky Bunch award (Golden catch f0, same frame as the bank roll start)"
+    - "Offline Collect: the frame the HUD snaps to the collected total (modal-exit start)"
+  pivot: "top-left of the text (64,28). Growth goes right and down, away from the bank icon"
+  frames_at_60: "f0-f2 ×5/×5 (pop) | f3-f4 ×5 wide / ×3 tall (squash) | f5-f6 ×4 wide / ×5 tall (rebound stretch) | f7+ ×4/×4 rest"
+  duration_ms: 117                 # bankGainPopMs (< 180 ms transient)
+  scale_math: "BitmapText is drawn at size 28 = ×4; setScale(sx/4, sy/4) with sx,sy ∈ {3,4,5}, so each axis is an integer font-px multiple and the glyphs stay crisp"
+  tint: "juiceGain (q, on the U stat window) from f0 for 200 ms (bankGainTintMs), then cut back. Lucky Bunch: the existing gold roll (500 ms) owns the colour instead"
+  priority: "while running, hud-bank-pop is suppressed; a second big gain during the pop is ignored by the pop (the value still snaps/rolls)"
+  bounds_check: "≤ 7 chars at ×5 = 205 px → ends x 269 (Evolve starts 384). ×5 tall ends y 63 (bps top 72, or 66 mid-hop)"
+bps_bump:
+  trigger: "the bps VALUE increases (buy commit, upgrade commit, buff start). Not on decrease (buff end keeps its un-gold cut)"
+  hop: { property: translateY, frames_at_60: "f0 -3 | f1-f3 -6 | f4 -3 | f5 0", duration_ms: 100, snap_px: 3, no_restart: true }
+  tint: "juiceGain (q, on the U stat window) on from the trigger frame; held until 200 ms after the LAST trigger (bpsTintHoldMs). A retrigger extends the hold, so 10 buys/s shows one steady tint and never flickers. Frenzy gold overrides it"
+audio: []                          # the causes already have cues (goldenCatchBunch, offlineCollect, buy, upgradeBuy)
+reduced_motion: reduce
+reduced_motion_alternative: "bank: no scale; instant juiceGain (q on U) tint held 300 ms, then cut back (Lucky Bunch: gold roll unchanged). bps: no hop; the tint rule is unchanged (instant on, steady, instant off)"
+---
+motion-id: J3-shop-hop-cascade
+type: microinteraction
+extends: [purchase-row-flash, upgrade-buy-pop]
+applies_to: shop row icons (16x16 ×4 sprites only; never text, pills or panels)
+runtime: juice table (icon y offset)
+producer_buy:
+  trigger: "a FRESH commit (pointer-up, or the first commit of a hold) or any bulk commit (×10 / MAX). Hold-to-repeat ticks do not cascade. At most one cascade per 250 ms (cascadeMinGapMs)"
+  bought_row: "unchanged: purchase-row-flash icon_hop 0,-4,-8,-8,-4,0 (f0-f6)"
+  neighbours:
+    - { rows: "k-1 and k+1", start_ms: 50,  frames_at_60: "-4, -4, -4, 0" }   # cascadeStepMs; 1 art-px, half the bought row's hop
+    - { rows: "k-2 and k+2", start_ms: 100, frames_at_60: "-4, -4, -4, 0" }
+  visibility: "only rows at least partly inside the list viewport; the silhouette row never hops"
+  total_ms: 167
+  attribution: "the bought row alone has the flash, the owned pop and the 2-art-px hop. Neighbours hop half as high and 50 ms later, so the eye reads a ripple coming OUT of the bought row, not four buys"
+upgrade_buy:
+  after: "upgrade-buy-pop (200 ms), then the shelf reflow slides the rows below up by rowPitch 104 (150 ms Cubic.Out, snap 4), unchanged"
+  land_bump: "when reflowOffset reaches 0: reflowOffset -4 for 2 frames (f0-f1), then 0. That leaves a 4 px gap to the row above (row gaps are 8)"
+  icon_ripple: "from the landing frame, icons of the landed rows hop -4,-4,-4,0, staggered 40 ms top to bottom (reflowIconStaggerMs), for up to 4 visible rows"
+  total_ms: "≈ 350 (pop + reflow) + 187 (ripple) after commit"
+audio: []                          # buy / buyBulk / upgradeBuy at f0 already cover it
+reduced_motion: disable
+reduced_motion_alternative: "none; the row flash (kept under reduced motion) and the owned count carry the purchase. The upgrade reflow is instant as before"
+---
+motion-id: J4-pill-hello
+type: microinteraction
+applies_to: shop cost pill (ui_pill plus its two text lines, moved as one unit)
+runtime: juice table (y offset + NineSlice.setSize)
+motion:
+  frames_at_60: "f0 -4 | f1-f3 -8 | f4 -4 | f5-f6 0 + squash (w +8 centred, h -8 anchor bottom) | f7 -4 rest size | f8 0 | f9 rest"
+  duration_ms: 167                 # pillHelloMs
+  snap_px: 4
+  bounds_check: "top reaches ry+0 (the row's visual top); widened pill 516-692 < row right edge 704"
+  interrupt: "a press on the row cancels the hello at once and cuts to the J1 press pose"
+fallback_if_corner_over_budget: "no squash frames; the hop only"
+triggers:
+  a_became_affordable:
+    when: "the row's NEED → BUY edge, same f0 as afford-glint"
+    cooldown: "shares afford-glint's 5 s per-row cooldown (affordGlintCooldownMs)"
+  b_idle_nudge:
+    scheduler: "one global timer, period 4000 ms (pillNudgePeriodMs). On each tick at most ONE pill says hello, so pills are staggered by construction and never move in sync"
+    eligible_when: "the visible tab has ≥ 1 BUY pill fully inside the viewport; no pointer is down in the shop; the last shop interaction was ≥ 3000 ms ago (pillNudgeIdleMs); no modal, no FTUE pointer, no EVOLVE_TX"
+    pick: "the topmost eligible BUY row that has not said hello within 8000 ms (pillNudgeRepeatMs). Round-robin goes downward. With one affordable row it nudges every 8 s"
+    duty_cycle: "≤ 167 ms of motion per 4 s (4%), in the shop region only"
+    silhouette_and_need: "never nudge"
+audio:
+  - { on: a_became_affordable, cue_id: affordGlint, bus: sfx, note: "already fired by afford-glint; do NOT fire it twice" }
+  - { on: b_idle_nudge, cue_id: null, note: "ambient motion is silent by design" }
+reduced_motion: disable
+reduced_motion_alternative: "none. BUY vs NEED text, raised vs sunken shape and icon luminance carry affordability (ux/settings-and-a11y.md channel table)"
+---
+motion-id: J5-badge-pop
+type: microinteraction
+applies_to: |
+  the UPGRADES count badge (ui_badge 40x32 @ 448,752, ×3 digit) and the Evolve "!" badge (ui_badge) at the
+  evolve-button-ready unlock beat (f0).
+runtime: juice table (NineSlice.setSize, anchor centre; the digit stays ×3, centred, never scaled)
+count_up:
+  when: "the badge count increases while it is visible"
+  frames_at_60: "f0-f1 w +16, h +16 (pop) | f2-f3 w +16, h 0 (squash) | f4-f5 w 0, h +8 (stretch) | f6 rest"
+  duration_ms: 100
+  digit: "the new value cuts in at f0"
+appear:
+  when: "the badge goes from hidden to visible (0 → n), and the Evolve '!' at unlock"
+  frames_at_60: "f0 w -16, h -16 (24x16) | f1-f2 w +16, h +16 | f3-f4 w +16, h 0 | f5-f6 w 0, h +8 | f7 rest"
+  duration_ms: 117
+count_down_or_hide: "cut (no motion). Losing an option is not a reward"
+cooldown: "one pop per 600 ms per badge (badgePopCooldownMs). Increments inside the cooldown update the digit only. No restart"
+bounds_check: "UPGRADES badge at max 56x48 → 440-496 × 744-792, inside the tab visual 272-520 × 728-808. The Evolve '!' badge must stay inside the Evolve hit rect 384,16,216,104; if it does not, halve the deltas (+8/+8, +8/0, 0/+4)"
+corner: "badges only grow, so a perfectly round badge is fine"
+audio: []                          # the causes already sound (affordGlint edge, evolveReady); a badge cue would double them
+reduced_motion: disable
+reduced_motion_alternative: "the badge cuts in/out and the digit updates. No pop"
+---
+motion-id: J6-bouncy-drop-in
+type: modal
+supersedes: "modal-enter panel translate (from +64 Back.Out) and buff-banner enter translate (Quad.Out). Durations, input windows, backdrop and audio are UNCHANGED"
+applies_to: Evolution screen, Offline modal, Settings (panel), and the buff banner (96,232 528x64)
+runtime: juice table (y offset + NineSlice.setSize on the panel/banner frame only; children follow y, never size)
+modal:
+  duration_ms: 240                 # modalEnterMs, unchanged, so offline-count-up still starts at 240 and event-markers offline f14 holds
+  frames_at_60: |
+    f0 y -64 | f1 -64 | f2 -56 | f3 -48 | f4 -36 | f5 -20        (accelerating fall, Quad.In feel)
+    f6 0 LAND: w +16, h -8 (anchor bottom) | f7 0 same squash
+    f8 -4: w -8, h +8 | f9 -8: w -8, h +8                         (rebound stretch)
+    f10 -8 rest size | f11 -4 | f12 0: w +8, h -4 (mini squash) | f13-f14 0 rest
+  opacity: "panel 0 → 1 over 100 ms 'Quad.Out' (visible during the fall); backdrop 0 → 0.6 over 200 ms, unchanged"
+  snap_px: 4
+  input: "modal buttons accept taps from 120 ms, unchanged (the panel is at rest y; the ±8 rebound is inside the 104-px button hits)"
+  content_safety: "the top edge dips at most 8 px. Panel content sits ≥ 32 px inside the frame (the 8-art-px corner), so no text is ever outside the panel"
+  exit: "modal-exit unchanged (falls 32 + fades, 160 ms Quad.In). It falls in and falls out, one consistent direction"
+banner:
+  duration_ms: 200                 # buffBannerFadeMs enter, unchanged; hold 1600 and exit 200 unchanged
+  frames_at_60: "f0 y -16 | f1 -16 | f2 -12 | f3 -8 | f4 0 LAND: w +16, h -8 (anchor bottom) | f5 same | f6 -4: w -8, h +4 | f7 -4 rest | f8 0 | f9-f12 rest"
+  opacity: "0 → 1 over 100 ms 'Quad.Out'"
+  bounds_check: "widened banner 88-632 × bottom fixed at 296 (the Big Banana sprite top). The banner stays input-transparent (taps pass to the Big Banana)"
+fallback_if_corner_over_budget: "the fall and rebound y offsets stay; every size delta becomes 0"
+audio:
+  - { on: f0, cue_id: "evolveOpen | panelOpen", note: "unchanged (motion-spec modal-enter)" }
+  - { on: "f6 land (100 ms)", cue_id: null, note: "event-marker only. The AD may align panelOpen's body/thump to +100 ms; no new cue is requested" }
+reduced_motion: reduce
+reduced_motion_alternative: "unchanged from v1.0: modal = panel + backdrop fade 120 ms, no translate or size change; banner = fade only"
+---
+motion-id: J7-tab-switch-bounce
+type: screen-transition
+supersedes: "shop-tab-switch `incoming` translateX curve (was ±32 → 0, 140 ms Quad.Out). The outgoing fade, opacity, timings and input window are unchanged"
+applies_to: shop list container on a tab switch
+runtime: juice table (container x offset)
+incoming:
+  start_ms: 60
+  duration_ms: 140
+  frames_at_60: "s × [32, 24, 16, 8, 0, -4, -4, -4, 0] for in-phase f0-f8, where s = +1 when entering from the right (to UPGRADES) and -1 from the left"
+  overshoot: "1 art-px past rest for 3 frames (tabListOvershootPx), then rest. The list clip hides ≤ 4 px at the edge for 50 ms"
+  snap_px: 4
+tab_itself: "the newly selected tab's raised-frame cut happens on commit, and J1 variant A's release rebound plays on the same frame. That is the tab's bounce, with no extra hop (stacking a hop on the rebound would read busy)"
+audio:
+  - { on: TWEEN_START, cue_id: uiClick, bus: ui, note: "unchanged" }
+reduced_motion: reduce
+reduced_motion_alternative: "unchanged from v1.0: tab frame cut, list cross-fade 100 ms, no translate, no overshoot"
+---
+motion-id: J8-ticker-letter-hop
+type: notification
+extends: headline-ticker
+applies_to: MILESTONE headlines only (never ambient lines, never FTUE lines)
+runtime: DynamicBitmapText.setDisplayCallback (phaser@4.2.1 has it; the glyph data's y is offset per index). Same pixel font texture, same batch
+motion:
+  rule: "each glyph hops ONCE, the first time its left edge is ≤ clipRight - 24 (x ≤ 680, tickerHopEntryInsetPx). Spaces never hop. On repeat passes of a long headline nothing hops again"
+  frames_at_60: "per glyph from its trigger: f0 -3 | f1-f2 -6 | f3 -3 | f4 0"
+  duration_ms: 83
+  snap_px: 3                       # ×3 font
+  cadence: "at 90 px/s with an 18-px glyph advance a new glyph arrives every 200 ms, so at most one glyph is mid-hop. The effect is a gentle 'typewriter bounce' at the right edge, away from the left edge where the reader's eye is"
+  bounds_check: "text top 676 - 6 = 670, inside the ticker panel (664-712)"
+  coexists_with: "the milestone flash (120 ms) at f0, unchanged"
+audio: []                          # milestoneHeadline at f0 is enough; per-letter blips would fight the music
+reduced_motion: disable
+reduced_motion_alternative: "paged mode as in v1.0, no hop. The first page of a milestone is drawn in juiceGain (q, on the U ticker marquee; an instant colour; it cuts back to base on the next page or the next headline)"

@@ -1,0 +1,183 @@
+{
+ "_doc": "v2 sprites, authored as palette-indexed grids (same format and palette as art/sprites.ts). Merged into game/data/art.json by art/tools/export-godot-data.mjs.",
+ "sprites": {
+  "ui_trophy": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "...kkkkkkkkkk...",
+     ".kkkwwjjjjjjukkk",
+     "kk.kwjjjjjjjuk.k",
+     "k..kwjjjjjjjuk.k",
+     "kk.kwjjjjjjjuk.k",
+     ".kkkjjjjjjjjukkk",
+     "...kjjjjjjjuuk..",
+     "....kjjjjjuuk...",
+     ".....kkjjukk....",
+     ".......kuk......",
+     ".......kuk......",
+     ".....kkkukkk....",
+     "....kIIIIIIIk...",
+     "....kuuuuuuuk...",
+     "....kkkkkkkkk..."
+    ]
+   ]
+  },
+  "ui_book": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "..kkkkkkkkkkkk..",
+     ".kqqqqqqqqqqqQk.",
+     ".kqwwqqqqqqqqQk.",
+     ".kqqqqqkkqqqqQk.",
+     ".kqqqqkwwkqqqQk.",
+     ".kqqqqkwwkqqqQk.",
+     ".kqqqqqkkqqqqQk.",
+     ".kqqqqqqqqqqqQk.",
+     ".kqqqkkkkkkqqQk.",
+     ".kqqqqqqqqqqqQk.",
+     ".kQQQQQQQQQQQQk.",
+     ".kccccccccccccc.",
+     ".kIIIIIIIIIIIIIk",
+     "..kkkkkkkkkkkkkk",
+     "................"
+    ]
+   ]
+  },
+  "prop_hut": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     ".......kk.......",
+     "......kGGk......",
+     ".....kGLLGk.....",
+     "....kGLLLLGk....",
+     "...kGLGLLGLGk...",
+     "..kGLGgLLgGLGk..",
+     ".kgggggggggggggk",
+     "..kWWWWWWWWWWk..",
+     "..kWBWWWWWWBWk..",
+     "..kWWWkkkWWWWk..",
+     "..kWBWkbbkWBWk..",
+     "..kWWWkbbkWWWk..",
+     "..kWBWkbbkWBWk..",
+     "..kffffbbffffk..",
+     "..kkkkkkkkkkkk.."
+    ]
+   ]
+  },
+  "prop_tower": {
+   "w": 16,
+   "h": 32,
+   "frames": [
+    [
+     "................",
+     "......kkkk......",
+     ".....kuuuuk.....",
+     "....kuuuuuuk....",
+     "....kUUUUUUk....",
+     "...kUcUUcUUcUk..",
+     "...kUcUUcUUcUk..",
+     "...kUUUUUUUUk...",
+     "...kUcUUcUUcUk..",
+     "...kUcUUcUUcUk..",
+     "...kUUUUUUUUk...",
+     "...kUcUUcUUcUk..",
+     "...kUcUUcUUcUk..",
+     "...kUUUUUUUUk...",
+     "...kUcUUcUUcUk..",
+     "...kUcUUcUUcUk..",
+     "...kUUUUUUUUk...",
+     "...kUcUUcUUcUk..",
+     "...kUcUUcUUcUk..",
+     "...kUUUUUUUUk...",
+     "...kUcUUcUUcUk..",
+     "...kUcUUcUUcUk..",
+     "...kUUUUUUUUk...",
+     "...kUcUUcUUcUk..",
+     "...kUcUUcUUcUk..",
+     "...kUUUUUUUUk...",
+     "...kUcUUcUUcUk..",
+     "...kUcUUcUUcUk..",
+     "...kUUUUUUUUk...",
+     "...kUcUUcUUcUk..",
+     "...kUcUUcUUcUk..",
+     "..kkkkkkkkkkkk.."
+    ]
+   ]
+  },
+  "prop_star": {
+   "w": 4,
+   "h": 4,
+   "frames": [
+    [
+     "..w.",
+     ".www",
+     "..w.",
+     "...."
+    ],
+    [
+     "....",
+     "..w.",
+     "....",
+     "...."
+    ]
+   ]
+  },
+  "prop_planet": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     "......kkkk......",
+     "....kkjjjjkk....",
+     "...kjjwjjjjuk...",
+     "..kjjwjjjjjjuk..",
+     "qqkjjjjjjjjjukqq",
+     "kqqqkjjjjjjukqqk",
+     ".kkqqqqqqqqqqqk.",
+     "...kqqqqqqqqk...",
+     "..kqkuujjjjuqk..",
+     "..kjjuuuuuuuuk..",
+     "...kjjuuuuuuk...",
+     "....kkuuuukk....",
+     "......kkkk......",
+     "................",
+     "................"
+    ]
+   ]
+  },
+  "narrator_chip": {
+   "w": 16,
+   "h": 16,
+   "frames": [
+    [
+     "................",
+     ".....kkkkkk.....",
+     "....kBBBBBBk....",
+     "...kBBWWWWBBk...",
+     "..kBBWFFFFWBBk..",
+     ".kbkBFkFFkFBkbk.",
+     ".kbkBFFFFFFBkbk.",
+     "..kkBFFbbFFBkk..",
+     "....kBFFFFBk.ss.",
+     "....kwkRRkwk.sks",
+     "...kwwkRRkwwk.s.",
+     "..kwwwkRRkwwwks.",
+     "..kwwwkRRkwwwk..",
+     "..kwwwwkkwwwwk..",
+     "..kkkkkkkkkkkk..",
+     "................"
+    ]
+   ]
+  }
+ }
+}

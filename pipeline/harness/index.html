@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Pipeline Harness</title>
+<style>
+  :root { --bg: #1b1118; --fg: #fff8ec; --dim: #bdb4c2; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font: 13px/1.4 ui-monospace, Menlo, monospace; }
+  #wrap { display: flex; gap: 16px; padding: 16px; flex-wrap: wrap; align-items: flex-start; }
+  #game { width: 720px; height: 1280px; flex: none; }
+  #side { flex: 1 1 320px; min-width: 0; }
+  #stats { white-space: pre; color: var(--dim); margin-bottom: 12px; }
+  #atlas { image-rendering: pixelated; background: repeating-conic-gradient(#2b1b24 0 25%, #3a2833 0 50%) 0 0 / 16px 16px; max-width: 100%; }
+  .ok { color: #a8d85a; } .bad { color: #d8433a; }
+  label { color: var(--dim); }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="game"></div>
+  <div id="side">
+    <div id="stats">booting…</div>
+    <label><input type="checkbox" id="rm"> reduced motion</label>
+    <label><input type="checkbox" id="auto" checked> auto-play FX</label>
+    <p style="color:var(--dim)">Tap the Big Banana (every 4th tap is a crit). Baked atlas at ×2:</p>
+    <canvas id="atlas"></canvas>
+  </div>
+</div>
+<script>
+  // Draw-call counter: wrap the WebGL draw entry points before Phaser creates its context.
+  window.__mbDraws = 0;
+  for (const C of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) {
+    if (!C) continue;
+    for (const fn of ["drawElements", "drawArrays", "drawElementsInstanced", "drawArraysInstanced"]) {
+      const orig = C.prototype[fn];
+      if (!orig) continue;
+      C.prototype[fn] = function (...a) { window.__mbDraws++; return orig.apply(this, a); };
+    }
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/phaser@4.2.1/dist/phaser.js"></script>
+<script src="harness-data.js"></script>
+<script>
+const { art, font, baker, fxData } = window.MB;
+const B = baker;
+const W = 720, H = 1280;
+const stats = { drawsPerFrame: 0, bake: null, frames: 0 };
+
+class Harness extends Phaser.Scene {
+  constructor() { super("harness"); }
+  create() {
+    stats.bake = B.bakeAll(this, { palette: art.PALETTE, sprites: art.SPRITES, meta: art.SPRITE_META, font });
+    const A = B.ATLAS_KEY, fk = B.frameKey;
+
+    // --- Stage: sky bands from SKY_BANDS as tinted fx_px rects (160..664), snapped to 4 px.
+    const stageY = 160, stageH = 504;
+    for (const b of art.SKY_BANDS) {
+      const y0 = stageY + B.snap(b.from * stageH, 4), y1 = stageY + B.snap(b.to * stageH, 4);
+      B.addSolidRect(this, 0, y0, W, y1 - y0, b.color);
+    }
+    const groundY = stageY + B.snap(art.SKY_BANDS[art.SKY_BANDS.length - 1].to * stageH, 4);
+    for (let x = 0; x < W; x += 64) {
+      this.add.image(x, groundY, A, fk("env_grass")).setOrigin(0).setScale(4);
+      for (let y = groundY + 64; y < stageY + stageH; y += 64) this.add.image(x, y, A, fk("env_ground")).setOrigin(0).setScale(4);
+    }
+    this.add.image(96, groundY + 8, A, fk("env_palm_crown")).setOrigin(0.5, 1).setScale(4);
+    this.add.image(560, 200, A, fk("env_cloud")).setOrigin(0).setScale(4);
+    this.add.image(620, groundY + 4, A, fk("env_foliage_b")).setOrigin(0.5, 1).setScale(4);
+
+    // --- Big Banana x5 with halo, pivot bottom-centre on the 20-px grid.
+    const bbX = 360, bbY = 540;
+    const halo = this.add.image(bbX, bbY - (49 - 26.5) * 5, A, fk("bigBanana_halo")).setScale(5).setAlpha(0.35);
+    const bb = this.add.image(bbX, bbY, A, fk("bigBanana", 0)).setOrigin(0.5, 1).setScale(5);
+    this.bb = bb;
+    this.anims.create({ key: "bbSquash", frames: B.animFrames("bigBanana"), frameRate: 10, repeat: -1, yoyo: true });
+    bb.setInteractive(new Phaser.Geom.Rectangle(4, 0, 40, 49), Phaser.Geom.Rectangle.Contains);
+    let taps = 0;
+    bb.on("pointerdown", (p) => {
+      taps++;
+      const crit = taps % 4 === 0;
+      this.fx.play(crit ? "critBurst" : "tapChips", p.worldX, p.worldY);
+      this.floater(p.worldX, p.worldY, crit);
+      bb.setFrame(fk("bigBanana", crit ? 3 : 2));
+      this.time.delayedCall(90, () => bb.setFrame(fk("bigBanana", 4)));
+      this.time.delayedCall(180, () => bb.setFrame(fk("bigBanana", 0)));
+    });
+
+    // --- Golden banana x4 cycling its frames; critters x4 with 2-frame idles.
+    const gold = this.add.sprite(160, 360, A, fk("goldenBanana", 0)).setScale(4);
+    this.anims.create({ key: "gold", frames: B.animFrames("goldenBanana"), frameRate: 3.2, repeat: -1 });
+    gold.play("gold");
+    const critters = Object.keys(art.SPRITES).filter((k) => k.startsWith("critter_"));
+    critters.forEach((id, i) => {
+      this.anims.create({ key: id, frames: B.animFrames(id), frameRate: 2, repeat: -1 });
+      const s = this.add.sprite(64 + i * 84, groundY + 4, A, fk(id, 0)).setOrigin(0.5, 1).setScale(4);
+      s.play({ key: id, startFrame: i % 2 });
+    });
+    this.critterXs = critters.map((_, i) => 64 + i * 84);
+    this.groundY = groundY;
+
+    // --- Top bar panel 9-slice + HUD text.
+    B.addPixelNineSlice(this, 0, 0, "ui_panel", 0, W, 160, 4);
+    this.add.image(24, 24, A, fk("icon_banana")).setOrigin(0).setScale(4);
+    B.addPixelText(this, 72, 28, "123,456", { scale: 4, tint: "Y" });
+    B.addPixelText(this, 72, 72, "4.86K PER SEC ×5", { scale: 3, tint: "w" });
+    B.addPixelText(this, 72, 112, "12  ×2.2 → ×4.0", { scale: 3, tint: "s" });
+    const evo = B.addPixelNineSlice(this, 384, 20, "ui_button", 0, 216, 96, 4);
+    B.addPixelText(this, 384 + Math.floor((216 - B.measureText("EVOLVE", 4)) / 2 / 4) * 4, 20 + 34, "EVOLVE", { scale: 4, tint: "k" });
+    let st = 0;
+    this.time.addEvent({ delay: 700, loop: true, callback: () => { st = (st + 1) % B.frameCountOf("ui_button"); evo.setFrame(fk("ui_button", st)); } });
+    this.add.image(620, 40, A, fk("ui_gear")).setOrigin(0).setScale(8);
+
+    // --- Over-stage text: outline + crit variants.
+    B.addPixelText(this, 452, 420, "+12", { scale: 4, variant: "outline" });
+    B.addPixelText(this, 452, 460, "+120!", { scale: 6, variant: "crit" });
+    B.addPixelText(this, 120, 300, "CATCH IT!", { scale: 3, variant: "outline" });
+
+    // --- Ticker + shop panel with icons, a pill and the full glyph set.
+    B.addSolidRect(this, 0, 664, W, 48, "k");
+    B.addPixelText(this, 24, 676, "NEWS: LOCAL BANANA IS HUGE. EXPERTS SAY: TAP IT.", { scale: 3, tint: "w" });
+    B.addPixelNineSlice(this, 0, 712, "ui_panel", 0, W, 568, 4);
+    const icons = Object.keys(art.SPRITES).filter((k) => k.startsWith("icon_")).slice(0, 12);
+    icons.forEach((id, i) => this.add.image(24 + (i % 6) * 60, 736 + Math.floor(i / 6) * 60, A, fk(id)).setOrigin(0).setScale(3));
+    this.confettiAt = [48, 760];
+    B.addPixelText(this, 400, 740, "INTERN MONKEY", { scale: 3, tint: "w" });
+    B.addPixelText(this, 400, 772, "OWNED 12", { scale: 3, tint: "s" });
+    const glyphs = Object.keys(font.FONT_GLYPHS).filter((c) => c.codePointAt(0) < 127);
+    const perLine = 19;
+    for (let i = 0; i * perLine < glyphs.length; i++) {
+      B.addPixelText(this, 24, 880 + i * 36, glyphs.slice(i * perLine, (i + 1) * perLine).join(" "), { scale: 3, tint: "w", uppercase: false });
+    }
+    B.addPixelText(this, 24, 1070, "THE QUICK BROWN FOX: 0123456789 ×→", { scale: 3, tint: "Y" });
+    B.addPixelText(this, 24, 1110, "the quick brown fox jumps (lowercase)", { scale: 3, tint: "w", uppercase: false });
+    B.addPixelText(this, 24, 1150, "VERSION LINE ×2 - MADE BY BASE67", { scale: 2, tint: "s" });
+    B.addPixelText(this, 24, 1190, "SHOP ROW BUY", { scale: 4, variant: "outline" });
+    B.addPixelText(this, 380, 1190, "CRIT ×4", { scale: 4, variant: "crit" });
+
+    // --- FX player (snapped particles) + periodic demo bursts.
+    this.fx = B.createFxPlayer(this, fxData, { Particle: Phaser.GameObjects.Particles.Particle, depthFor: (l) => (l === "ui" ? 50 : 40) });
+    const rm = document.getElementById("rm"), auto = document.getElementById("auto");
+    rm.onchange = () => this.fx.setReducedMotion(rm.checked);
+    const every = (ms, fn) => this.time.addEvent({ delay: ms, loop: true, callback: () => auto.checked && fn() });
+    every(420, () => this.fx.play("tapChips", 360 + Phaser.Math.Between(-60, 60), 420));
+    every(2100, () => this.fx.play("critBurst", 330, 380));
+    every(2900, () => this.fx.play("goldenCatch", gold.x, gold.y));
+    every(1000, () => this.fx.play("purchaseConfetti", this.confettiAt[0] + 24, this.confettiAt[1] + 24, Math.random() < 0.3 ? "bulk" : undefined));
+    every(1500, () => this.fx.play("critterSpawnDust", this.critterXs[Phaser.Math.Between(0, this.critterXs.length - 1)], this.groundY));
+    every(2600, () => this.critterXs.forEach((x, i) => this.time.delayedCall(i * 180 / Math.max(this.critterXs.length - 1, 1), () => this.fx.play("evolvePoof", x, this.groundY - 32))));
+
+    // --- Show the baked atlas in the DOM for review.
+    const src = this.textures.get(A).getSourceImage();
+    const c = document.getElementById("atlas");
+    c.width = src.width * 2; c.height = src.height * 2;
+    const ctx = c.getContext("2d"); ctx.imageSmoothingEnabled = false; ctx.drawImage(src, 0, 0, c.width, c.height);
+
+    this.game.events.on("prerender", () => { window.__mbDraws = 0; });
+    this.game.events.on("postrender", () => { stats.drawsPerFrame = window.__mbDraws; stats.frames++; });
+    this.time.addEvent({ delay: 250, loop: true, callback: () => this.report() });
+    window.__mbScene = this;
+  }
+  floater(x, y, crit) {
+    const t = B.addPixelText(this, B.snap(x - 30, 4), B.snap(y - 40, 4), crit ? "+120!" : "+12", { scale: crit ? 6 : 4, variant: crit ? "crit" : "outline" }).setDepth(60);
+    this.tweens.add({ targets: t, y: t.y - 88, alpha: 0, duration: 700, ease: "Cubic.Out", onUpdate: () => { t.y = B.snap(t.y, 4); }, onComplete: () => t.destroy() });
+  }
+  report() {
+    const b = stats.bake;
+    let alive = 0;
+    this.children.list.forEach((o) => { if (o.getAliveParticleCount) alive += o.getAliveParticleCount(); });
+    const textures = this.textures.getTextureKeys().filter((k) => !k.startsWith("__"));
+    const pass = stats.drawsPerFrame > 0 && stats.drawsPerFrame <= 20;
+    document.getElementById("stats").innerHTML =
+      `Phaser ${Phaser.VERSION}  renderer ${this.game.renderer.type === Phaser.WEBGL ? "WebGL" : "Canvas"}\n` +
+      `atlas ${b.atlasKey} ${b.width}x${b.height}, ${b.frameCount} frames, occupancy ${(b.occupancy * 100).toFixed(1)}%, baked in ${b.ms.toFixed(1)} ms\n` +
+      `fonts ${Object.values(b.fonts).join(", ")}\n` +
+      `user textures: ${textures.join(", ")}\n` +
+      `display objects ${this.children.list.length}, alive particles ${alive}\n` +
+      `draw calls last frame: <span class="${pass ? "ok" : "bad"}">${stats.drawsPerFrame}</span> (budget <= 20)`;
+    window.__mbStats = { ...stats, alive, textures, objects: this.children.list.length };
+  }
+}
+
+new Phaser.Game({
+  type: Phaser.WEBGL,
+  parent: "game",
+  width: W,
+  height: H,
+  backgroundColor: "#1b1118",
+  pixelArt: true,
+  roundPixels: true,
+  antialias: false,
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  scene: Harness,
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,760 @@
+{
+ "_doc": "The fact sheet as data (references.md). label: F = fact on the record, A = allegation/report/open investigation, Q = quote. Every content string presented as real carries src with these ids. url null = URL needed before ship.",
+ "facts": [
+  {
+   "id": "election-2026",
+   "ref": 1,
+   "label": "F",
+   "text": "The Knesset election is on 27 Oct 2026, at the end of a full term.",
+   "outlet": "Wikipedia",
+   "url": "https://en.wikipedia.org/wiki/2026_Israeli_legislative_election",
+   "date": "2026-10-27",
+   "usedIn": [
+    "ambientHeadlinesV2.listPolitics.cal01",
+    "ambientHeadlinesV2.listPolitics.cal07"
+   ]
+  },
+  {
+   "id": "haredi-left-gov",
+   "ref": 2,
+   "label": "F",
+   "text": "The ultra-Orthodox parties left the government in July 2025 over the draft law.",
+   "outlet": "Wikipedia",
+   "url": "https://en.wikipedia.org/wiki/2026_Israeli_legislative_election",
+   "date": "2025-07",
+   "usedIn": [
+    "ambientHeadlinesV2.listPolitics.m18",
+    "partners.deri",
+    "partners.deri.copy.statusSrc",
+    "partners.goldknopf",
+    "partners.goldknopf.copy.threatSrc"
+   ]
+  },
+  {
+   "id": "yashar",
+   "ref": 3,
+   "label": "F",
+   "text": "Eisenkot's party is called Yashar (\"ישר\").",
+   "outlet": "IDI",
+   "url": "https://en.idi.org.il/articles/64068",
+   "date": "2026",
+   "usedIn": [
+    "ambientHeadlinesV2.list.x11",
+    "ambientHeadlinesV2.list.x19",
+    "events.eisenkot"
+   ]
+  },
+  {
+   "id": "bennett-lapid-merger",
+   "ref": 4,
+   "label": "F",
+   "text": "Bennett's Beyachad merged with Lapid's Yesh Atid in April 2026.",
+   "outlet": "IDI",
+   "url": "https://en.idi.org.il/articles/64068",
+   "date": "2026-04",
+   "usedIn": [
+    "ambientHeadlinesV2.list.x02",
+    "ambientHeadlinesV2.list.x23"
+   ]
+  },
+  {
+   "id": "golan-democrats",
+   "ref": 5,
+   "label": "F",
+   "text": "Yair Golan leads the Democrats.",
+   "outlet": "IDI",
+   "url": "https://en.idi.org.il/articles/64068",
+   "date": "2026",
+   "usedOutsideContent": "Background for the Golan card; the card cites labor-meretz-merger",
+   "usedIn": []
+  },
+  {
+   "id": "labor-meretz-merger",
+   "ref": 6,
+   "label": "F",
+   "text": "Labor and Meretz merged into the Democrats, led by Yair Golan (announced 30 Jun 2024, ratified 12 Jul 2024).",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/labor-and-meretz-merge-into-united-liberal-democratic-zionist-party-the-democrats/",
+   "date": "2024-07-12",
+   "usedIn": [
+    "ambientHeadlinesV2.list.x06",
+    "ambientHeadlinesV2.list.x12",
+    "events.golan"
+   ]
+  },
+  {
+   "id": "threshold-lists",
+   "ref": 7,
+   "label": "F",
+   "text": "Small lists (Winter; Hendel with Zelekha; Haskel) run near the 3.25% electoral threshold.",
+   "outlet": "IDI; ToI; Haaretz",
+   "url": "https://en.idi.org.il/articles/64068",
+   "date": "2026",
+   "notUsed": "Post-launch threshold roulette; ships disabled and never during the blackout.",
+   "usedIn": [
+    "events.roulette"
+   ]
+  },
+  {
+   "id": "qatargate",
+   "ref": 8,
+   "label": "A",
+   "text": "Qatargate: aides are suspected of pushing Qatari messaging while paid through intermediaries; the AG is reportedly expected to charge them. Netanyahu is not a suspect.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/report-ag-expected-to-charge-netanyahu-aides-with-security-offenses-in-qatargate-affair/",
+   "date": "2026-08-11",
+   "usedIn": [
+    "golden.outcomes.aide",
+    "headlines.h_qatari",
+    "producers.qatari",
+    "story.src.4"
+   ]
+  },
+  {
+   "id": "witch-hunt",
+   "ref": 9,
+   "label": "Q",
+   "text": "Netanyahu called Qatargate a \"witch hunt\".",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/report-ag-expected-to-charge-netanyahu-aides-with-security-offenses-in-qatargate-affair/",
+   "date": "2026-08-11",
+   "usedIn": [
+    "story.src.4",
+    "upgrades.s05"
+   ]
+  },
+  {
+   "id": "trial",
+   "ref": 10,
+   "label": "A",
+   "text": "The trial: Cases 1000, 2000 and 4000 (indictment); testimony ran Dec 2024 to Jun 2026.",
+   "outlet": "JPost",
+   "url": "https://www.jpost.com/israel-news/article-900364",
+   "date": "2026-06",
+   "usedIn": [
+    "achievements.list.a_case_1000",
+    "ambientHeadlinesV2.list.c08",
+    "ambientHeadlinesV2.list.p05"
+   ]
+  },
+  {
+   "id": "pardon-request",
+   "ref": 11,
+   "label": "F",
+   "text": "Netanyahu requested a pardon on 30 Nov 2025.",
+   "outlet": "JPost",
+   "url": "https://www.jpost.com/israel-news/article-900364",
+   "date": "2025-11-30",
+   "usedIn": [
+    "achievements.list.a_pardon_10",
+    "ambientHeadlinesV2.list.c03",
+    "court.pardon.copy",
+    "events.pardon"
+   ]
+  },
+  {
+   "id": "pardon-shelved",
+   "ref": 12,
+   "label": "F",
+   "text": "On 26 Apr 2026 Herzog shelved the pardon request and pushed for a plea deal.",
+   "outlet": "ToI",
+   "url": null,
+   "date": "2026-04-26",
+   "urlNeeded": true,
+   "usedIn": [
+    "ambientHeadlinesV2.list.c03",
+    "court.pardon.copy",
+    "court.pardon.copy.stampsSrc.6"
+   ]
+  },
+  {
+   "id": "bugs-bunny",
+   "ref": 13,
+   "label": "Q",
+   "text": "Netanyahu held up a Bugs Bunny doll and named it \"the Bugs Bunny trial\" (Dec 2025). Only the name is used, not the wording.",
+   "outlet": "RTE",
+   "url": "https://www.rte.ie/news/world/2025/1205/1547433-netanyahu-trial/",
+   "date": "2025-12",
+   "usedIn": [
+    "achievements.list.a_rabbit_10",
+    "ambientHeadlinesV2.list.c01",
+    "headlines.h_first_rabbit",
+    "story.src.3",
+    "upgrades.s11"
+   ]
+  },
+  {
+   "id": "cigars-champagne",
+   "ref": 14,
+   "label": "A",
+   "text": "Case 1000: cigars and pink champagne, gifts from private businessmen. Donors are never named in the game.",
+   "outlet": "SBS",
+   "url": "https://www.sbs.com.au/news/article/netanyahu-corruption-case-trump-pardon/v4gxdetkv",
+   "date": "2025",
+   "usedIn": [
+    "headlines.h_cigars",
+    "producers.cigars"
+   ]
+  },
+  {
+   "id": "trump-cigars-quote",
+   "ref": 15,
+   "label": "Q",
+   "text": "Trump in the Knesset: \"Cigars and champagne, who the hell cares?\" Said in English, so the game renders it as reported speech.",
+   "outlet": "ToI",
+   "url": null,
+   "date": "2025-10-13",
+   "urlNeeded": true,
+   "verifyHebrew": true,
+   "usedIn": [
+    "ambientHeadlinesV2.list.w02",
+    "upgrades.s15"
+   ]
+  },
+  {
+   "id": "submarines",
+   "ref": 16,
+   "label": "A",
+   "text": "The submarines (Case 3000): a state commission's warning letters, not an indictment.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/submarine-affair-inquiry-finds-netanyahus-decisions-compromised-national-security/",
+   "date": "2025",
+   "usedIn": [
+    "headlines.h_submarine",
+    "producers.submarine"
+   ]
+  },
+  {
+   "id": "bottle-deposits",
+   "ref": 17,
+   "label": "A",
+   "text": "Bottle deposits: NIS 4,000 repaid.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/pms-wife-accused-of-pocketing-thousands-in-bottle-refunds/",
+   "date": "2016",
+   "usedIn": [
+    "ambientHeadlinesV2.list.g23",
+    "upgrades.s01"
+   ]
+  },
+  {
+   "id": "pistachio",
+   "ref": 18,
+   "label": "F",
+   "text": "Pistachio ice cream: a NIS 10,000/yr budget, cancelled in 2013.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/netanyahu-freezes-ice-cream-budget/",
+   "date": "2013",
+   "usedOutsideContent": "Also the UX receipt pistachio line",
+   "usedIn": [
+    "upgrades.s02"
+   ]
+  },
+  {
+   "id": "laundry",
+   "ref": 19,
+   "label": "A",
+   "text": "Laundry suitcases on the Washington trips, reported by the Washington Post in 2020; denied by Israel.",
+   "outlet": "Washington Post",
+   "url": "https://www.washingtonpost.com/national-security/benjamin-netanyahu-us-visits-dirty-laundry/2020/09/23/8407f52c-fdb3-11ea-830c-a160b331ca62_story.html",
+   "date": "2020-09-23",
+   "usedIn": [
+    "ambientHeadlinesV2.list.w01",
+    "golden.outcomes.laundry",
+    "story.src.5",
+    "upgrades.s10"
+   ]
+  },
+  {
+   "id": "wing-of-zion",
+   "ref": 20,
+   "label": "F",
+   "text": "Wing of Zion: about NIS 750M to convert.",
+   "outlet": "Ynet",
+   "url": "https://www.ynetnews.com/article/hjxthemhme",
+   "date": "2025",
+   "usedOutsideContent": "Also the UX receipt 'כנף ציון, החלק שלכם*' line",
+   "usedIn": [
+    "achievements.list.a_window_seat",
+    "ambientHeadlinesV2.list.g23",
+    "ambientHeadlinesV2.list.w01",
+    "upgrades.s06"
+   ]
+  },
+  {
+   "id": "golden-pager",
+   "ref": 21,
+   "label": "F",
+   "text": "Netanyahu gave Trump a golden pager (Feb 2025). Used as a gift only.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/pms-office-confirms-netanyahu-gifted-trump-a-golden-pager-at-white-house-meeting/",
+   "date": "2025-02",
+   "usedIn": [
+    "upgrades.s09"
+   ]
+  },
+  {
+   "id": "super-sparta",
+   "ref": 22,
+   "label": "Q",
+   "text": "\"Super-Sparta\" (Sept 2025). The name only, in its economic framing.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/under-fire-netanyahu-scrambles-to-explain-claim-israel-may-become-super-sparta/",
+   "date": "2025-09",
+   "usedIn": [
+    "upgrades.s07"
+   ]
+  },
+  {
+   "id": "ein-klum",
+   "ref": 23,
+   "label": "Q",
+   "text": "\"לא יהיה כלום כי אין כלום\" (2017).",
+   "outlet": "Haaretz",
+   "url": "https://www.haaretz.co.il/news/politi/2017-01-08/ty-article/0000017f-e8fd-df5f-a17f-fbff5e830000",
+   "date": "2017-01-08",
+   "usedIn": [
+    "ambientHeadlinesV2.list.g05",
+    "upgrades.s04"
+   ]
+  },
+  {
+   "id": "bibi-sitter",
+   "ref": 24,
+   "label": "F",
+   "text": "The \"Bibi-sitter\" election ad (2015).",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/netanyahu-elections-ad-wins-international-award/",
+   "date": "2015",
+   "usedIn": [
+    "achievements.list.a_s_nap",
+    "returnLines.ret_sitter",
+    "upgrades.s03"
+   ]
+  },
+  {
+   "id": "bibi-or-tibi",
+   "ref": 25,
+   "label": "F",
+   "text": "\"ביבי או טיבי\", a 2019 Likud slogan. The target is the flip-flop, never Arab citizens.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/adl-criticizes-politicians-demonization-of-israeli-arabs/",
+   "date": "2019",
+   "usedIn": [
+    "partners.abbas",
+    "partners.abbas.copy.card"
+   ]
+  },
+  {
+   "id": "abbas-talks",
+   "ref": 26,
+   "label": "A",
+   "text": "Per Mansour Abbas, Netanyahu read him a speech about their partnership (2021).",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/raam-chief-netanyahu-read-me-wonderful-speech-hed-give-on-our-partnership/",
+   "date": "2021",
+   "usedIn": [
+    "partners.abbas",
+    "partners.abbas.copy.card",
+    "partners.abbas.copy.thanksSrc"
+   ]
+  },
+  {
+   "id": "budget-2026",
+   "ref": 27,
+   "label": "F",
+   "text": "The 2026 budget is NIS 850.6B, the largest ever; an extra NIS 800M passed because the opposition voted for it by mistake.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/opposition-mks-voted-to-allocate-nis-800-million-for-haredi-schools-how-did-it-happen/",
+   "date": "2026",
+   "usedOutsideContent": "Also the UX receipt 800M line",
+   "usedIn": [
+    "ambientHeadlinesV2.list.g21",
+    "ambientHeadlinesV2.list.g22"
+   ]
+  },
+  {
+   "id": "vat-18",
+   "ref": 28,
+   "label": "F",
+   "text": "VAT rose to 18% in January 2025.",
+   "outlet": "JNS",
+   "url": "https://www.jns.org/israel-raises-vat-to-18-as-part-of-effort-to-rein-in-deficit/",
+   "date": "2025-01",
+   "usedOutsideContent": "Also the UX receipt VAT line",
+   "usedIn": [
+    "ambientHeadlinesV2.list.o06",
+    "headlines.h_vat",
+    "producers.vat"
+   ]
+  },
+  {
+   "id": "deri-disqualified",
+   "ref": 29,
+   "label": "F",
+   "text": "The High Court disqualified Deri from serving as a minister (Jan 2023).",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/in-bombshell-ruling-high-court-nixes-shas-head-deri-from-serving-as-minister/",
+   "date": "2023-01",
+   "usedIn": [
+    "partners.deri"
+   ]
+  },
+  {
+   "id": "bennett-pledge",
+   "ref": 30,
+   "label": "F",
+   "text": "Bennett signed a TV pledge not to make Lapid PM (2021), then did.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/bennett-signs-pledge-not-to-join-government-with-yair-lapid-as-prime-minister/amp/",
+   "date": "2021",
+   "usedIn": [
+    "ambientHeadlinesV2.list.x02",
+    "ambientHeadlinesV2.list.x07",
+    "ambientHeadlinesV2.list.x16",
+    "events.bennett"
+   ]
+  },
+  {
+   "id": "gantz-rotation",
+   "ref": 31,
+   "label": "F",
+   "text": "The 2020 Netanyahu-Gantz rotation never happened.",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/israel-calls-4th-election-in-2-years-as-netanyahu-gantz-coalition-collapses/amp/",
+   "date": "2020",
+   "usedIn": [
+    "achievements.list.a_gantz",
+    "ambientHeadlinesV2.list.x03",
+    "ambientHeadlinesV2.list.x08",
+    "ambientHeadlinesV2.list.x17",
+    "partners.gantz",
+    "partners.gantz.copy.card"
+   ]
+  },
+  {
+   "id": "lapid-where-money",
+   "ref": 32,
+   "label": "Q",
+   "text": "Lapid: \"איפה הכסף?\"",
+   "outlet": "Wikipedia",
+   "url": "https://en.wikipedia.org/wiki/Yair_Lapid",
+   "date": "2013",
+   "usedIn": [
+    "achievements.list.a_s_lapid",
+    "ambientHeadlinesV2.list.x01",
+    "ambientHeadlinesV2.list.x09",
+    "ambientHeadlinesV2.list.x15",
+    "events.lapid",
+    "events.leak.copy.leaks[0]",
+    "events.leak.copy.leaks[6]"
+   ]
+  },
+  {
+   "id": "five-elections",
+   "ref": 33,
+   "label": "F",
+   "text": "Five Knesset elections between Apr 2019 and Nov 2022 (five in under four years).",
+   "outlet": "IDI",
+   "url": "https://en.idi.org.il/articles/39154",
+   "date": "2022-11",
+   "usedIn": [
+    "achievements.list.a_five_under_four",
+    "headlines.h_election_5"
+   ]
+  },
+  {
+   "id": "gotliv",
+   "ref": 34,
+   "label": "Q",
+   "text": "Gotliv left Likud for Otzma Yehudit (Sep 2026), No. 2 on its list; said that if Likud gets 19 seats she expects to end up in a Shin Bet detention facility, and called the primary against her a \"targeted assassination\". Never mention the covert officer.",
+   "outlet": "JPost; ToI; INN",
+   "url": null,
+   "date": "2026-09-03",
+   "urlNeeded": true,
+   "verifyHebrew": true,
+   "usedIn": [
+    "partners.gotliv",
+    "partners.gotliv.copy.card",
+    "partners.gotliv.copy.transferWindow.script[0]"
+   ]
+  },
+  {
+   "id": "brawl",
+   "ref": 35,
+   "label": "Q",
+   "text": "Cabinet brawl, 19 Jan 2026. Amsalem: \"Don't call me chutzpan.\" Netanyahu: \"If you are not leaders, go outside and continue arguing there.\"",
+   "outlet": "JPost",
+   "url": null,
+   "date": "2026-01-19",
+   "urlNeeded": true,
+   "verifyHebrew": true,
+   "usedIn": [
+    "achievements.list.a_get_out",
+    "events.brawl",
+    "events.brawl.copy.script[0]",
+    "events.brawl.copy.script[6]"
+   ]
+  },
+  {
+   "id": "karhi-remote",
+   "ref": 36,
+   "label": "F",
+   "text": "Karhi threatened Kan's funding over the film \"1948\" without having watched it (Sep 2025); his media law passed 53-48 (Jul 2026), moving NIS 25M a year out of Kan.",
+   "outlet": "ToI; JPost",
+   "url": null,
+   "date": "2026-07",
+   "urlNeeded": true,
+   "usedIn": [
+    "partners.karhi",
+    "partners.karhi.copy.demandSrc",
+    "partners.karhi.copy.thanksSrc",
+    "upgrades.s08"
+   ]
+  },
+  {
+   "id": "may-golan",
+   "ref": 37,
+   "label": "A",
+   "text": "Police recommended charges against May Golan over fictitious ministry jobs.",
+   "outlet": "ToI",
+   "url": null,
+   "date": "2026",
+   "urlNeeded": true,
+   "usedIn": [
+    "ambientHeadlinesV2.listPolitics.m15",
+    "partners.maygolan",
+    "partners.maygolan.copy.cardLabelSrc"
+   ]
+  },
+  {
+   "id": "distel-mute",
+   "ref": 38,
+   "label": "F",
+   "text": "Distel-Atbaryan barred the Knesset legal advisers from speaking; they walked out.",
+   "outlet": "ToI",
+   "url": null,
+   "date": "2026",
+   "urlNeeded": true,
+   "usedIn": [
+    "partners.distel",
+    "partners.distel.copy.mutedSrc"
+   ]
+  },
+  {
+   "id": "almog-cohen",
+   "ref": 39,
+   "label": "F",
+   "text": "Almog Cohen was removed from Otzma's WhatsApp groups and later came 8th in the Likud primary.",
+   "outlet": "ToI",
+   "url": null,
+   "date": "2026",
+   "urlNeeded": true,
+   "usedIn": [
+    "partners.almog"
+   ]
+  },
+  {
+   "id": "illouz",
+   "ref": 40,
+   "label": "Q",
+   "text": "Dan Illouz: \"Likud has become a subcontractor for Deri and Goldknopf.\"",
+   "outlet": "JPost",
+   "url": null,
+   "date": "2026",
+   "urlNeeded": true,
+   "verifyHebrew": true,
+   "usedIn": [
+    "events.defector.copy.tickerSrc"
+   ]
+  },
+  {
+   "id": "nameless-party",
+   "ref": 41,
+   "label": "F",
+   "text": "Erdan and Edelstein launched a party with no name yet; Erdan quit a month later.",
+   "outlet": "ToI",
+   "url": null,
+   "date": "2026",
+   "urlNeeded": true,
+   "notUsed": "Post-launch card; ships disabled.",
+   "usedIn": [
+    "events.nameless"
+   ]
+  },
+  {
+   "id": "channel14-fee",
+   "ref": 42,
+   "label": "A",
+   "text": "Within 24 h of a Netanyahu interview, the ministry advanced a fee break for Channel 14.",
+   "outlet": "Haaretz",
+   "url": null,
+   "date": "2026",
+   "urlNeeded": true,
+   "usedIn": [
+    "ambientHeadlinesV2.listPolitics.m21",
+    "upgrades.s13"
+   ]
+  },
+  {
+   "id": "bibist-video",
+   "ref": 43,
+   "label": "F",
+   "text": "The \"אני ביביסט\" campaign video: tens of millions of views, about 0.01% engagement. Parodied generically.",
+   "outlet": "Walla",
+   "url": null,
+   "date": "2026-05",
+   "urlNeeded": true,
+   "usedIn": [
+    "upgrades.s14"
+   ]
+  },
+  {
+   "id": "cottage-index",
+   "ref": 44,
+   "label": "F",
+   "text": "The Cottage Index (cottage-cheese price as a cost-of-living gauge).",
+   "outlet": "Walla",
+   "url": null,
+   "date": "2026-06-01",
+   "urlNeeded": true,
+   "usedIn": [
+    "achievements.list.a_cottage",
+    "headlines.h_cottage_0",
+    "headlines.h_cottage_1",
+    "headlines.h_cottage_10",
+    "headlines.h_cottage_11",
+    "headlines.h_cottage_2",
+    "headlines.h_cottage_3",
+    "headlines.h_cottage_4",
+    "headlines.h_cottage_5",
+    "headlines.h_cottage_6",
+    "headlines.h_cottage_7",
+    "headlines.h_cottage_8",
+    "headlines.h_cottage_9"
+   ]
+  },
+  {
+   "id": "emigration-2025",
+   "ref": 45,
+   "label": "F",
+   "text": "69,300 Israelis left in 2025. The joke is on the policy, never on the people leaving.",
+   "outlet": "ToI",
+   "url": null,
+   "date": "2025",
+   "urlNeeded": true,
+   "notUsed": "Post-launch departure board.",
+   "usedIn": []
+  },
+  {
+   "id": "testimony-cancelled",
+   "ref": 46,
+   "label": "F",
+   "text": "Testimony was cancelled in Apr and May 2026 for \"security consultations\". The game never names the reason.",
+   "outlet": "",
+   "url": null,
+   "date": "2026-05",
+   "urlNeeded": true,
+   "usedIn": [
+    "ambientHeadlinesV2.list.c04",
+    "court.postpone.copy",
+    "story.src.3"
+   ]
+  },
+  {
+   "id": "eisenkot-quote",
+   "ref": 47,
+   "label": "Q",
+   "text": "Eisenkot to Mordechai David: \"לך תשרת ותחזור אליי\" (7 Aug 2026). NOT USED at launch.",
+   "outlet": "",
+   "url": null,
+   "date": "2026-08-07",
+   "urlNeeded": true,
+   "notUsed": "Flagged character (Mordechai David); drop recommended (pitch §2.10).",
+   "usedIn": []
+  },
+  {
+   "id": "kaia",
+   "ref": 48,
+   "label": "F",
+   "text": "Kaia the dog (2015-18) bit Netanyahu and Haskel. Bench only.",
+   "outlet": "ToI",
+   "url": null,
+   "date": "2018",
+   "urlNeeded": true,
+   "notUsed": "Post-launch easter egg; bench only.",
+   "usedIn": [
+    "events.kaia"
+   ]
+  },
+  {
+   "id": "travel-expenses",
+   "ref": 49,
+   "label": "F",
+   "text": "Travel expenses reported: $13,519 hair and make-up for one trip, a $500 smoking fee, a $295 embassy door repair, a $172,701 hotel stay. Bench only.",
+   "outlet": "JPost",
+   "url": null,
+   "date": "2026-09-16",
+   "urlNeeded": true,
+   "notUsed": "Post-launch shop; bench only.",
+   "usedIn": []
+  },
+  {
+   "id": "fuel-record",
+   "ref": 50,
+   "label": "F",
+   "text": "95-octane petrol hit a record NIS 8.25/L on 1 Sep 2026, later easing to about NIS 8.01.",
+   "outlet": "Ynet; JFeed",
+   "url": "https://www.ynetnews.com/business/article/s1bvi811dmx",
+   "date": "2026-09-01",
+   "usedOutsideContent": "UX receipt line 'דלק 95: 8.25 ₪ לליטר (שיא, 1.9.2026)*' (ux/first-minute.md §5.1)",
+   "usedIn": []
+  },
+  {
+   "id": "electricity-water",
+   "ref": 51,
+   "label": "F",
+   "text": "Electricity and water price rises. GAP: no dated source; not used.",
+   "outlet": "",
+   "url": null,
+   "date": null,
+   "urlNeeded": true,
+   "notUsed": "No dated source (references.md row 51).",
+   "usedIn": []
+  }
+ ],
+ "deliberatelyOut": [
+  {
+   "fact": "Qatari cash to Gaza (2018) and \"leadership comes with a price\"",
+   "why": "Public discourse links it to October 7; it would pull a red line into the running gag (pitch §2.4)."
+  },
+  {
+   "fact": "\"Sleepy Bibi\", Yashar's campaign game",
+   "why": "Its premise is dodging the October 7 warnings (pitch §2.5)."
+  },
+  {
+   "fact": "The Doha strike and the apology call",
+   "why": "It is about a military strike."
+  },
+  {
+   "fact": "The draft law (58-54) and the Torah-study Basic Law (63-52)",
+   "why": "Too close to the reserve-duty and Haredim-as-punchline red lines; Gafni's tie keeps the vote-dodging joke."
+  },
+  {
+   "fact": "Eisenkot leads the polls",
+   "why": "\"Who's leading\" is a campaign red line."
+  },
+  {
+   "fact": "The \"Total Victory\" cap",
+   "why": "\"ניצחון מוחלט\" is the war slogan; replaced with \"הכל בסדר\" (pitch §2.6)."
+  },
+  {
+   "fact": "The Reservists list name",
+   "why": "It names reserve duty; shown by leader (Hendel) only (pitch §2.7)."
+  },
+  {
+   "fact": "Liberman opposed the Qatari cash (2018)",
+   "why": "Tied to the 2018 Gaza cash above."
+  }
+ ]
+}

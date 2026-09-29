@@ -1,0 +1,14 @@
+# Godot import cache and build outputs (regenerated)
+game/.godot/
+build/
+*.import.tmp
+# the fork's Monkey Bananas renders (26 MB, .gdignore'd, never exported)
+game/assets/audio/legacy/
+# Python / OS
+__pycache__/
+*.pyc
+.DS_Store
+# local env / secrets
+.env
+.env.*
+.vercel/

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<!-- "עוד סבב" web shell (forked from Monkey Bananas v2.1.0): Godot 4.7.2's godot.html (via
+     wandcraft), changed to fill a phone screen as a Home Screen app (viewport-fit=cover, fixed
+     full-screen canvas), to report the CSS safe-area insets to the game (window.mbSafeArea, read
+     by Layout), to make sound work on iPhone (mixing with other audio), and to carry the Home
+     Screen manifest (no service worker). Hebrew, RTL: lang/dir on <html>; the link-preview tags
+     follow ux/first-minute.md §5.4. The internal JS names (mbBuild, mbSafeArea, mbAudioState)
+     keep the fork's "mb" prefix on purpose: the engine reads them by name. -->
+<html lang="he" dir="rtl">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
+		<title>עוד סבב: הבחירות שלא נגמרות</title>
+		<meta name="description" content="שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.">
+		<meta name="theme-color" content="#2a2340">
+		<meta property="og:title" content="עוד סבב: הבחירות שלא נגמרות">
+		<meta property="og:description" content="שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.">
+		<meta property="og:image" content="__OD_SITE_URL__og.jpg">
+		<meta property="og:image:width" content="1200">
+		<meta property="og:image:height" content="630">
+		<meta property="og:image:alt" content="הקוסם בפיקסלים שולף שקלים מכובע, ומזוודה עם מדבקת DOHA עפה ברקע">
+		<meta property="og:locale" content="he_IL">
+		<meta property="og:type" content="website">
+		<meta property="og:site_name" content="עוד סבב">
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="עוד סבב: הבחירות שלא נגמרות">
+		<meta name="twitter:description" content="שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.">
+		<meta name="twitter:image" content="__OD_SITE_URL__og.jpg">
+		<meta name="twitter:image:alt" content="הקוסם בפיקסלים שולף שקלים מכובע, ומזוודה עם מדבקת DOHA עפה ברקע">
+		<style>
+html, body, #canvas {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+html, body {
+	width: 100%;
+	height: 100%;
+	background-color: #2a2340;
+}
+
+body {
+	color: white;
+	background-color: #2a2340;
+	overflow: hidden;
+	overscroll-behavior: none;
+	touch-action: none;
+}
+
+#canvas {
+	display: block;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+#safe-probe {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	visibility: hidden;
+	pointer-events: none;
+	padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+
+#canvas:focus {
+	outline: none;
+}
+
+#status, #status-splash, #status-progress {
+	position: absolute;
+	left: 0;
+	right: 0;
+}
+
+#status, #status-splash {
+	top: 0;
+	bottom: 0;
+}
+
+#status {
+	background-color: $GODOT_SPLASH_COLOR;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	visibility: hidden;
+}
+
+#status-splash {
+	max-height: 100%;
+	max-width: 100%;
+	margin: auto;
+}
+
+#status-splash.show-image--false {
+	display: none;
+}
+
+#status-splash.fullsize--true {
+	height: 100%;
+	width: 100%;
+	object-fit: contain;
+}
+
+#status-splash.use-filter--false {
+	image-rendering: pixelated;
+}
+
+#status-progress, #status-notice {
+	display: none;
+}
+
+#status-progress {
+	bottom: 10%;
+	width: 50%;
+	margin: 0 auto;
+}
+
+#status-notice {
+	background-color: #5b3943;
+	border-radius: 0.5rem;
+	border: 1px solid #9b3943;
+	color: #e0e0e0;
+	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+	line-height: 1.3;
+	margin: 0 2rem;
+	overflow: hidden;
+	padding: 1rem;
+	text-align: center;
+	z-index: 1;
+}
+
+/* od-sevev N1 disclaimer / N0 splash / hand-off bar (ux/first-minute.md §2.1, §6.1;
+   ux/rtl-map.md §9). HTML so it paints in ~1.5 s while the engine downloads behind it, and so
+   screen readers, translators and crawlers read it. Strings are templated from
+   ux/ui-strings.json by tools/build_web.sh (tools/lib/render_shell.py). */
+#od-gate {
+	position: fixed;
+	inset: 0;
+	z-index: 20;
+	background: #140c24;
+	color: #f7f4ec;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.5;
+	text-align: right;
+	transition: opacity 300ms ease-out;
+	padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px) 16px;
+	box-sizing: border-box;
+	overflow-y: auto;
+}
+#od-gate.od-out { opacity: 0; pointer-events: none; }
+#od-gate .od-card { width: 100%; max-width: 358px; }
+#od-gate img.od-wordmark { display: block; margin: 0 auto 20px; width: 286px; height: 58px; image-rendering: pixelated; }
+#od-gate h1 { font-size: 22px; margin: 0 0 12px; text-align: center; }
+#od-gate p { margin: 0 0 10px; }
+#od-gate .od-by { font-size: 14px; color: #c9c3d6; margin-top: 14px; }
+#od-gate a { color: #f7f4ec; }
+#od-gate .od-buttons { display: flex; gap: 12px; margin-top: 22px; direction: rtl; }
+#od-gate .od-btn { flex: 1; display: flex; flex-direction: column; align-items: stretch; }
+#od-gate button { min-height: 52px; width: 100%; font: inherit; font-size: 18px; font-weight: 600; color: #f7f4ec;
+	background: #0038b8; border: 3px solid #1b1426; border-radius: 6px; cursor: pointer; }
+#od-gate button:focus-visible { outline: 3px solid #f7f4ec; outline-offset: 2px; }
+#od-gate .od-cap { font-size: 14px; color: #c9c3d6; text-align: center; margin-top: 4px; min-height: 21px; }
+#od-gate .od-bar { height: 52px; border: 3px solid #1b1426; border-radius: 6px; background: #2a2340; position: relative; overflow: hidden; }
+#od-gate .od-bar i { position: absolute; top: 0; bottom: 0; right: 0; width: 0; background: #0038b8; transition: width 200ms linear; }
+#od-gate .od-line { text-align: center; margin-top: 10px; min-height: 24px; }
+#od-gate .od-splash { text-align: center; }
+#od-about { position: fixed; inset: 0; z-index: 30; background: #140c24; color: #f7f4ec; overflow-y: auto;
+	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.5;
+	padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 32px; box-sizing: border-box; display: none; }
+#od-about .od-card { max-width: 520px; margin: 0 auto; }
+#od-about h1 { font-size: 22px; margin: 0 0 12px; }
+#od-about h2 { font-size: 18px; margin: 20px 0 8px; }
+#od-about li { margin-bottom: 8px; }
+#od-about .od-src { font-size: 14px; color: #c9c3d6; }
+#od-about button { min-height: 48px; padding: 0 20px; font: inherit; color: #f7f4ec; background: #2a2340; border: 3px solid #f7f4ec; border-radius: 6px; cursor: pointer; }
+		</style>
+		<link rel="manifest" href="index.manifest.json">
+		$GODOT_HEAD_INCLUDE
+	</head>
+	<body>
+		<canvas id="canvas">
+			הדפדפן הזה לא תומך במשחק.
+		</canvas>
+
+		<div id="safe-probe"></div>
+
+		<noscript>
+			<h1>{{DISC_TITLE}}</h1>
+			<p>{{DISC_L1}}</p>
+			<p>{{DISC_L2}}</p>
+			<p>{{DISC_L3}}</p>
+			<p>{{DISC_L4}}</p>
+			<p>עוד סבב הוא משחק סאטירה. כדי לשחק צריך להפעיל JavaScript.</p>
+		</noscript>
+
+		<!-- N1 (first launch) / N0 (returning) : ux/rtl-map.md §9 -->
+		<div id="od-gate" role="dialog" aria-modal="true" aria-labelledby="od-title">
+			<div class="od-card" id="od-n1" hidden>
+				<img class="od-wordmark" src="wordmark.png" alt="{{TITLE_WORDMARK_1}}">
+				<h1 id="od-title">{{DISC_TITLE}}</h1>
+				<p>{{DISC_L1}}</p>
+				<p>{{DISC_L2}}</p>
+				<p>{{DISC_L3}}</p>
+				<p>{{DISC_L4}}</p>
+				<p class="od-by">{{DISC_BY_HTML}}</p>
+				<div class="od-buttons">
+					<div class="od-btn" id="od-sound-wrap"><button id="od-sound" type="button">{{DISC_BTN_SOUND}}</button><div class="od-cap"></div></div>
+					<div class="od-btn" id="od-quiet-wrap"><button id="od-quiet" type="button">{{DISC_BTN_QUIET}}</button><div class="od-cap">{{DISC_BTN_QUIET_CAP}}</div></div>
+				</div>
+				<div class="od-line" id="od-line" aria-live="polite"></div>
+			</div>
+			<div class="od-card od-splash" id="od-n0" hidden>
+				<img class="od-wordmark" src="wordmark.png" alt="{{TITLE_WORDMARK_1}}">
+				<div class="od-line">{{SPLASH_LOADING}}</div>
+			</div>
+		</div>
+		<!-- O8 About: HTML over the canvas (ux/first-minute.md §6.2) -->
+		<div id="od-about" role="dialog" aria-modal="true" aria-labelledby="od-about-title" dir="rtl">
+			<div class="od-card">
+				<h1 id="od-about-title">{{ABOUT_TITLE}}</h1>
+				<p>{{ABOUT_1}}</p>
+				<p>{{ABOUT_2}}</p>
+				<p>{{ABOUT_3}}</p>
+				<p>{{ABOUT_4}}</p>
+				<p>{{ABOUT_5}}</p>
+				<p>{{ABOUT_6}}</p>
+				<p>{{ABOUT_7}}</p>
+				<h2>{{ABOUT_SOURCES}}</h2>
+				<ul>{{ABOUT_SOURCES_LIST}}</ul>
+				<p><button id="od-about-back" type="button">{{ABOUT_BACK}}</button></p>
+			</div>
+		</div>
+
+		<div id="status">
+			<img id="status-splash" class="$GODOT_SPLASH_CLASSES" src="$GODOT_SPLASH" alt="">
+			<progress id="status-progress"></progress>
+			<div id="status-notice"></div>
+		</div>
+
+		<script>
+// Build stamp (the git commit), written in by tools/build_web.sh; Settings shows it.
+window.mbBuild = '__MB_BUILD__';
+
+// The game has no service worker. Drop any left on this origin, so a phone never keeps
+// serving a stale cached copy of the game.
+if ('serviceWorker' in navigator) {
+	navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((r) => r.unregister())).catch(() => {});
+}
+
+// Sound (wandcraft decisions 0008, 0009):
+// - The game plays like a game, not a music app: the "ambient" audio session mixes with
+//   whatever the phone is playing (Spotify keeps going, no lock-screen player) and the
+//   silent switch mutes it.
+// - iOS only unlocks audio on a touch's END (and may leave it "interrupted" after a call
+//   or the app going to the background), so every audio context the engine makes is
+//   resumed on touchend / click / keydown and when the page becomes visible again.
+// - mbAudioState() is the settings screen's one-line sound report.
+(function () {
+	try {
+		if (navigator.audioSession) {
+			navigator.audioSession.type = 'ambient';
+		}
+	} catch (e) { /* older iOS: ambient is already the default for web audio */ }
+	const contexts = [];
+	const Base = window.AudioContext || window.webkitAudioContext;
+	if (Base) {
+		const Tracked = class extends Base {
+			constructor(...args) {
+				super(...args);
+				contexts.push(this);
+			}
+		};
+		window.AudioContext = Tracked;
+		window.webkitAudioContext = Tracked;
+	}
+	// the engine's audio goes through its worklet: record whether it loaded
+	let worklet = 'none';
+	if (window.AudioWorklet && AudioWorklet.prototype.addModule) {
+		const addModule = AudioWorklet.prototype.addModule;
+		AudioWorklet.prototype.addModule = function (...args) {
+			worklet = 'loading';
+			return addModule.apply(this, args).then((v) => {
+				worklet = 'ok';
+				return v;
+			}, (err) => {
+				worklet = 'fail';
+				throw err;
+			});
+		};
+	}
+	const resumeAll = function () {
+		contexts.forEach((c) => {
+			if (c.state !== 'running') {
+				c.resume().catch(() => {});
+			}
+		});
+	};
+	['touchend', 'click', 'keydown'].forEach((ev) => window.addEventListener(ev, resumeAll, { capture: true, passive: true }));
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'visible') {
+			resumeAll();
+		}
+	});
+	window.mbAudioState = function () {
+		let session = 'n/a';
+		try {
+			session = navigator.audioSession ? navigator.audioSession.type : 'n/a';
+		} catch (e) { /* ignore */ }
+		const ctx = contexts.map((c) => c.state + ' ' + c.sampleRate).join(',') || 'no ctx';
+		return ctx + ' / session ' + session + ' / worklet ' + worklet;
+	};
+}());
+		</script>
+		<script>
+// ---- od-sevev: N1 disclaimer, N0 splash, hand-off (ux/first-minute.md §2.1, ux/ftue.md §1) ----
+// The engine starts downloading at once, behind the gate. The disclaimer tap is t=0: it stores
+// the sound choice (the engine reads odsevev.sound at hand-off) and the disclaimer version. The
+// gate fades only when both the tap happened and the engine is ready; then
+// window.mbHandoffDone = the hand-off time, which starts the FTUE clocks in the engine.
+(function () {
+	const DISC_V = '1';
+	const store = {
+		get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+		set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: in-memory only */ } },
+	};
+	const gate = document.getElementById('od-gate');
+	const n1 = document.getElementById('od-n1');
+	const n0 = document.getElementById('od-n0');
+	const line = document.getElementById('od-line');
+	const LOAD = ['{{LOAD_1_JS}}', '{{LOAD_2_JS}}', '{{LOAD_3_JS}}'];
+	let engineReady = false;
+	let tapped = false;
+	let bar = null;
+	let loadTimer = 0;
+	window.mbHandoffDone = 0;
+	window.odSound = store.get('odsevev.sound') || '';
+	const firstLaunch = store.get('odsevev.disclaimer') !== DISC_V;
+	if (firstLaunch) {
+		n1.hidden = false;
+	} else {
+		n0.hidden = false;
+		tapped = true;
+	}
+	function handoff() {
+		if (!engineReady || !tapped || window.mbHandoffDone) {
+			return;
+		}
+		clearInterval(loadTimer);
+		gate.classList.add('od-out');
+		setTimeout(() => {
+			gate.remove();
+			window.mbHandoffDone = performance.now();
+			const c = document.getElementById('canvas');
+			if (c) {
+				c.focus();
+			}
+		}, 300);
+	}
+	function choose(sound, btn) {
+		if (tapped) {
+			return;
+		}
+		tapped = true;
+		window.odSound = sound;
+		store.set('odsevev.sound', sound);
+		store.set('odsevev.disclaimer', DISC_V);
+		if (engineReady) {
+			handoff();
+			return;
+		}
+		// cold: the tapped button becomes the hand-off bar (fills right to left)
+		const other = btn === 'od-sound' ? 'od-quiet-wrap' : 'od-sound-wrap';
+		document.getElementById(other).style.visibility = 'hidden';
+		const wrap = document.getElementById(btn).parentElement;
+		wrap.innerHTML = '<div class="od-bar" role="progressbar" aria-label="{{LOAD_BAR_LABEL}}"><i></i></div><div class="od-cap"></div>';
+		bar = wrap.querySelector('.od-bar i');
+		let k = 0;
+		line.textContent = LOAD[0];
+		loadTimer = setInterval(() => { k = (k + 1) % LOAD.length; line.textContent = LOAD[k]; }, 1500);
+	}
+	document.getElementById('od-sound').addEventListener('click', () => choose('on', 'od-sound'));
+	document.getElementById('od-quiet').addEventListener('click', () => choose('off', 'od-quiet'));
+	window.odGateProgress = function (cur, total) {
+		if (bar && total > 0) {
+			bar.style.width = Math.min(100, Math.round(100 * cur / total)) + '%';
+		}
+	};
+	window.odGateReady = function () {
+		engineReady = true;
+		if (bar) {
+			bar.style.width = '100%';
+		}
+		handoff();
+	};
+	// O8 About: opened from the disclaimer link or by the engine (settings) through odOpenAbout()
+	const about = document.getElementById('od-about');
+	window.odOpenAbout = function () {
+		about.style.display = 'block';
+		about.scrollTop = 0;
+		try { history.pushState({ layer: 'about' }, ''); } catch (e) { /* ignore */ }
+	};
+	function closeAbout(fromPop) {
+		if (about.style.display !== 'block') {
+			return;
+		}
+		about.style.display = 'none';
+		if (!fromPop) {
+			try { history.back(); } catch (e) { /* ignore */ }
+		}
+	}
+	document.getElementById('od-about-back').addEventListener('click', () => closeAbout(false));
+	window.addEventListener('popstate', () => closeAbout(true));
+	const aboutLink = document.getElementById('od-about-link');
+	if (aboutLink) {
+		aboutLink.addEventListener('click', (e) => { e.preventDefault(); window.odOpenAbout(); });
+	}
+}());
+		</script>
+		<script src="$GODOT_URL"></script>
+		<script>
+const GODOT_CONFIG = $GODOT_CONFIG;
+const GODOT_THREADS_ENABLED = $GODOT_THREADS_ENABLED;
+const engine = new Engine(GODOT_CONFIG);
+
+// The safe-area insets (Dynamic Island, rounded corners, home bar) as fractions of the
+// window: "top,right,bottom,left". Game.safe_rect turns them into game pixels.
+window.mbSafeArea = function () {
+	const s = getComputedStyle(document.getElementById('safe-probe'));
+	const w = Math.max(1, window.innerWidth);
+	const h = Math.max(1, window.innerHeight);
+	return [parseFloat(s.paddingTop) / h, parseFloat(s.paddingRight) / w,
+		parseFloat(s.paddingBottom) / h, parseFloat(s.paddingLeft) / w].join(',');
+};
+
+(function () {
+	const statusOverlay = document.getElementById('status');
+	const statusProgress = document.getElementById('status-progress');
+	const statusNotice = document.getElementById('status-notice');
+
+	let initializing = true;
+	let statusMode = '';
+
+	function setStatusMode(mode) {
+		if (statusMode === mode || !initializing) {
+			return;
+		}
+		if (mode === 'hidden') {
+			statusOverlay.remove();
+			initializing = false;
+			return;
+		}
+		statusOverlay.style.visibility = 'visible';
+		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
+		statusMode = mode;
+	}
+
+	function setStatusNotice(text) {
+		while (statusNotice.lastChild) {
+			statusNotice.removeChild(statusNotice.lastChild);
+		}
+		const lines = text.split('\n');
+		lines.forEach((line) => {
+			statusNotice.appendChild(document.createTextNode(line));
+			statusNotice.appendChild(document.createElement('br'));
+		});
+	}
+
+	function displayFailureNotice(err) {
+		console.error(err);
+		if (err instanceof Error) {
+			setStatusNotice(err.message);
+		} else if (typeof err === 'string') {
+			setStatusNotice(err);
+		} else {
+			setStatusNotice('An unknown error occurred.');
+		}
+		setStatusMode('notice');
+		initializing = false;
+	}
+
+	const missing = Engine.getMissingFeatures({
+		threads: GODOT_THREADS_ENABLED,
+	});
+
+	if (missing.length !== 0) {
+		if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
+			let serviceWorkerRegistrationPromise;
+			try {
+				serviceWorkerRegistrationPromise = navigator.serviceWorker.getRegistration();
+			} catch (err) {
+				serviceWorkerRegistrationPromise = Promise.reject(new Error('Service worker registration failed.'));
+			}
+			// There's a chance that installing the service worker would fix the issue
+			Promise.race([
+				serviceWorkerRegistrationPromise.then((registration) => {
+					if (registration != null) {
+						return Promise.reject(new Error('Service worker already exists.'));
+					}
+					return registration;
+				}).then(() => engine.installServiceWorker()),
+				// For some reason, `getRegistration()` can stall
+				new Promise((resolve) => {
+					setTimeout(() => resolve(), 2000);
+				}),
+			]).then(() => {
+				// Reload if there was no error.
+				window.location.reload();
+			}).catch((err) => {
+				console.error('Error while registering service worker:', err);
+			});
+		} else {
+			// Display the message as usual
+			const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
+			displayFailureNotice(missingMsg + missing.join('\n'));
+		}
+	} else {
+		setStatusMode('progress');
+		engine.startGame({
+			'onProgress': function (current, total) {
+				if (window.odGateProgress) {
+					window.odGateProgress(current, total);
+				}
+				if (current > 0 && total > 0) {
+					statusProgress.value = current;
+					statusProgress.max = total;
+				} else {
+					statusProgress.removeAttribute('value');
+					statusProgress.removeAttribute('max');
+				}
+			},
+		}).then(() => {
+			setStatusMode('hidden');
+			if (window.odGateReady) {
+				window.odGateReady();
+			}
+		}, displayFailureNotice);
+	}
+}());
+		</script>
+	</body>
+</html>
