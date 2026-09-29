@@ -148,7 +148,9 @@ const btn = (m, i) => m.buttons[i];
 	});
 	check(a.url === SITE && a.image === SITE + 'og.jpg' && a.site === SITE, `absolute og:url / og:image and window.odSiteUrl (${a.url}, ${a.image})`);
 	const inv = new URL(a.wa).searchParams.get('text');
-	check(inv && inv.endsWith(' ' + SITE) && inv.includes('ביבי'), `About's WhatsApp invite: ${inv}`);
+	// the invite is leader-neutral since the picker shipped (SHARE_TEXT_INVITE took the _NEXT copy;
+	// it no longer names ביבי): the text, then the site
+	check(inv && inv.endsWith(' ' + SITE) && inv.length > SITE.length + 8, `About's WhatsApp invite: ${inv}`);
 	await P.page.evaluate(() => window.odOpenAbout());
 	await P.wait(400);
 	await P.page.evaluate(() => document.getElementById('od-invite').scrollIntoView({ block: 'center' }));

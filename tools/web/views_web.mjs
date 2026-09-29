@@ -65,6 +65,16 @@ for (const d of DEVICES) {
 	check(disp.integer && disp.k === ck, `k = crisp(min(floor(W/180), floor(H/267))) = crisp(${fit}) = ${disp.k}`);
 	await shot('title');
 	const css = (lx, ly) => [cv.x + lx * disp.f / d.dpr, cv.y + ly * disp.f / d.dpr];
+	// LEADER_PICK replaced the title (rtl-map §8): pick הפתעה first, so tap 1 lands on the pre-tap stage
+	const pk = await page.evaluate(() => window.odPick || null);
+	if (pk && pk.open) {
+		const c = pk.cells.find((q) => q[2] === '') || pk.cells[0];
+		await page.waitForTimeout(500);
+		const [px, py] = css(c[0], c[1]);
+		await tap(px, py, 90);
+		await page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
+		await page.waitForTimeout(1500);
+	}
 	const [hx, hy] = css(disp.hat[0], disp.hat[1]);
 	await tap(hx, hy, 100);
 	await page.waitForFunction(() => window.odFlash && window.odFlash.open, null, { timeout: 15000 }).catch(() => {});
