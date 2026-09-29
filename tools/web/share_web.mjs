@@ -60,12 +60,25 @@ async function shot(P, name) {
 	console.log('  shot', p);
 }
 const hat = (P) => css(P, P.d.hat[0], P.d.hat[1]);
+// LEADER_PICK comes first on a fresh save: pick ביבי (the seeded brawl, Amsalem and Smotrich, is his
+// lineup's), not whichever tile the random order puts under the Magician (the pages share one
+// browser context, so part 2 loads part 1's round)
+async function pickBibi(P) {
+	const pk = await P.page.evaluate(() => window.odPick || null);
+	if (!pk || !pk.open) return;
+	const c = pk.cells.find((q) => q[2] === 'bibi') || pk.cells[0];
+	await P.wait(500);
+	await tap(P, css(P, c[0], c[1]));
+	await P.page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
+	await P.wait(1200);
+}
 const btn = (m, i) => m.buttons[i];
 
 // 1. O4 / O5 from T4
 {
 	const P = await boot('dev=1&grant=5000000&susp=20&evo=5');
 	await handoff(P);
+	await pickBibi(P);
 	await tap(P, hat(P));
 	await P.wait(1500);
 	let s = await probe(P);
@@ -163,16 +176,7 @@ const btn = (m, i) => m.buttons[i];
 {
 	const P = await boot('dev=1&grant=50000&chat=14');
 	await handoff(P);
-	// LEADER_PICK comes first: pick ביבי (the seeded brawl is his lineup's Amsalem and Smotrich), not
-	// whichever tile the random order puts under the Magician
-	const pk = await P.page.evaluate(() => window.odPick || null);
-	if (pk && pk.open) {
-		const c = pk.cells.find((q) => q[2] === 'bibi') || pk.cells[0];
-		await P.wait(500);
-		await tap(P, css(P, c[0], c[1]));
-		await P.page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
-		await P.wait(1200);
-	}
+	await pickBibi(P);
 	await tap(P, hat(P));
 	await P.page.waitForFunction(() => window.odDev && window.odDev.brawlCue && window.odDev.brawlCue.visible, null, { timeout: 20000 }).catch(() => {});
 	await P.wait(600);
