@@ -174,7 +174,13 @@ func build() -> FlashCard:
 	var s: GameState = host.get("state") if host != null and "state" in host else null
 	# the lines (the live broadcast rolls Dubi's word salad)
 	line_texts = PackedStringArray()
-	for l: String in Story.beat_for(evolutions):
+	# leader select (spec §5.10, §10.1): a live flash plays the beat of the leader just played, by
+	# their own election count (Story.flash); the archive and the default content keep the round's
+	var lead := Story.flash(s) if (s != null and not archive and Leaders.active()) else {}
+	if not lead.is_empty() and int(lead["n"]) < 1:
+		lead = {}   # no election booked to that leader (a staged state): the round's beat
+	var beat: PackedStringArray = PackedStringArray(lead["lines"]) if not lead.is_empty() else Story.beat_for(evolutions)
+	for l: String in beat:
 		line_texts.append(l if archive else broadcast_line(s, l))
 	# measure the body first: the figure's scale depends on what is left of the band
 	var body := Node2D.new()
@@ -207,7 +213,7 @@ func build() -> FlashCard:
 	# the panel: the kit's dark sheet (white labels), title band on top
 	panel_rect = Rect2(CARD_X, y, CARD_W, h)
 	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
-	var head := text(Vector2(0, y + 24.0), header_text(evolutions), L.TEXT, C_TITLE)
+	var head := text(Vector2(0, y + 24.0), str(lead["title"]) if not lead.is_empty() and str(lead["title"]) != "" else header_text(evolutions), L.TEXT, C_TITLE)
 	head.wrap_width = TEXT_W
 	head.max_lines = 1
 	head.center_in(CARD_X, CARD_W)

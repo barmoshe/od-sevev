@@ -330,16 +330,21 @@ func _update_fill(dt: float, p: float) -> void:
 
 func _update_state(dt: float, p: float) -> void:
 	var key := word_key(p)
-	if key != _word_key:
+	var wt := LeaderUi.s(key)   # the hazard skin: חשד (court) / כותרות (press), rtl-map §4.3
+	if key != _word_key or wt != _word.text:
 		_word_key = key
-		_word.text = Strings.s(key)
+		_word.text = wt
 		_word.center_in(WORD_BOX.x, WORD_BOX.y)
 	var hot := p >= HOT
-	if hot != _hot_icon:
+	# the hot icon: the gavel for the court, the folded newspaper for the press (no gavel there)
+	var hot_id := "thermo_icon_gavel" if LeaderUi.court() or LeaderUi.press_icon("thermo") == "" else LeaderUi.press_icon("thermo")
+	var want := Art.sprite_or(hot_id if hot else "thermo_icon_magnifier")
+	if hot != _hot_icon or str(_icon.get_meta("sprite", "")) != want:
+		if hot != _hot_icon:
+			_hop_t = 0.0 if not reduced_motion else -1.0
 		_hot_icon = hot
-		Ui.set_frame(_icon, Art.sprite_or("thermo_icon_gavel" if hot else "thermo_icon_magnifier"), 0)
-		_icon.set_meta("sprite", Art.sprite_or("thermo_icon_gavel" if hot else "thermo_icon_magnifier"))
-		_hop_t = 0.0 if not reduced_motion else -1.0
+		Ui.set_frame(_icon, want, 0)
+		_icon.set_meta("sprite", want)
 	var base_y := icon_top()
 	if _hop_t >= 0.0:
 		_hop_t += dt

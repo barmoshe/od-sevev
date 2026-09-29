@@ -19,6 +19,7 @@ var go_button: PxButton
 var cancel_button: PxButton
 var ready_state := false
 var need_text: PxText
+var leader_text: PxText   # ELECT_LEADER "{short} · {party}" (leader select)
 
 
 ## The public-mood line for round n: the MOOD_k with the largest k ≤ n (MOOD_1 … MOOD_20).
@@ -48,6 +49,8 @@ func build() -> ElectionCard:
 	_begin()
 	var n := s.evolutions + 1
 	title(Strings.s("ELECT_TITLE", {"n": n}))
+	if LeaderUi.short() != "":   # rtl-map §8.8 (D33): the round's leader under the title
+		leader_text = para(Strings.s("ELECT_LEADER", {"short": LeaderUi.short(), "party": LeaderUi.party()}), C_TEXT, true, 1)
 	para(Strings.s(mood_key(n)), C_MUTED, true, 2)
 	para(Strings.s("EVO_MULT", {"now": Fmt.mult(d.prestige_mult), "after": Fmt.mult(mult_after(s, d))}), C_GOLD, true, 1)
 	gap(8.0)

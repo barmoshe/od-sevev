@@ -28,7 +28,13 @@ static func snapshot(host: Node) -> Dictionary:
 	var o := Vector2(float(host.get("_ox")), float(host.get("_lower_y")))
 	var out := {"bank": s.bananas, "evolutions": s.evolutions, "runSec": s.run_time_sec,
 		"ready": d.evolve_enabled if d != null else false, "cta": (host.get("ticker") as Ticker).cta_on(),
-		"modal": "", "groupOpen": bool(s.coalition.get("opened", false)) if s.coalition is Dictionary else false}
+		"modal": "", "groupOpen": bool(s.coalition.get("opened", false)) if s.coalition is Dictionary else false,
+		# leader select: the controller's mode (pick | title | main) and the round's leader
+		"mode": str(host.get("mode")), "leader": Leaders.current(s), "pickPending": Leaders.pick_pending(s),
+		"undo": bool(host.call("undo_visible")) if host.has_method("undo_visible") else false}
+	var pk: Variant = host.get("picker")
+	if pk is PickView and (pk as PickView).visible:
+		out["pick"] = (pk as PickView).web_info()
 	var mgr: OverlayManager = host.get("overlays")
 	out["modalButtons"] = []
 	if mgr != null and mgr.is_open():

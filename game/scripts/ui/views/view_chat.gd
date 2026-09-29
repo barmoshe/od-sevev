@@ -581,6 +581,10 @@ static func char_for(id: String) -> String:
 	var slug := SpriteStrip.resolve(id)
 	if slug != "":
 		return slug
+	# leader select's cast profiles name their art (the generic MKs: "nophoto", never a real face)
+	var art := str(Coalition.partner(id).get("art", ""))
+	if art != "" and SpriteStrip.resolve(art) != "":
+		return SpriteStrip.resolve(art)
 	var av := str(Coalition.partner(id).get("avatar", "")).trim_suffix("_avatar")
 	return SpriteStrip.resolve(av) if av != "" else ""
 
@@ -775,6 +779,17 @@ func _build_bubble(row: Dictionary, y: float) -> Dictionary:
 			_hits.append({"rect": Rect2(pr.get_center().x - PILL_HIT.x / 2.0, y + pr.get_center().y - PILL_HIT.y / 2.0, PILL_HIT.x, PILL_HIT.y),
 				"kind": "pay", "seq": int(m["seq"]), "pill": pill})
 		cy += PILL_H
+		# Liberman's "לא יושב" (rtl-map §6.3 rev 4, spec §5.1 declineDemand): a second pill UNDER
+		# the pay pill, the same 328×68, right-aligned, 8 gap, the secondary look (it costs
+		# nothing); only on an open member demand, never an ultimatum or a join demand
+		if st == "open" and kind == "in" and declinable(_state, m):
+			cy += 8.0
+			var dr := Rect2(inner_r - PILL_W, cy, PILL_W, PILL_H)
+			var db := PxButton.make(root, dr, {"kind": "kit_secondary", "label": Strings.s("CHAT_PILL_DECLINE"), "label_box": PILL_W - 32.0})
+			r["declines"] = [{"button": db, "seq": int(m["seq"])}]
+			_hits.append({"rect": Rect2(dr.get_center().x - PILL_HIT.x / 2.0, y + dr.get_center().y - PILL_HIT.y / 2.0, PILL_HIT.x, PILL_HIT.y),
+				"kind": "decline", "seq": int(m["seq"]), "button": db})
+			cy += PILL_H
 	var bw := clampf(Ui.snap(w + pad.x + pad.z + 2.0, 4), 96.0, BUBBLE_RIGHT - BUBBLE_MIN_X)
 	var bh := Ui.snap(cy + pad.w - top, 4)
 	Ui.set_nine_rect(bubble, Rect2(BUBBLE_RIGHT - bw, top, bw, bh))
@@ -965,6 +980,8 @@ func _update_rows(dt: float) -> void:
 		root.modulate.a = a
 		for pill: Dictionary in r["pills"]:
 			_update_pill(pill, bps)
+		for dc: Dictionary in r.get("declines", []):
+			_update_decline(dc)
 		if r.get("chip") != null:
 			_update_chip(r["chip"], Coalition.message(_state, seq), dt)
 		if r.has("corridor"):
@@ -973,6 +990,65 @@ func _update_rows(dt: float) -> void:
 		if r.has("cloud"):
 			var cl: Sprite2D = r["cloud"]
 			Ui.set_frame(cl, cl.get_meta("sprite"), 0 if reduced_motion else int(_now / 150.0) % maxi(1, Art.frame_count(cl.get_meta("sprite"))))
+
+
+## A member demand Liberman may decline (Coalition.can_decline without the cooldown): the pill is
+## drawn on every such demand, disabled with the seconds during the cooldown (rtl-map §6.3).
+static func declinable(s: GameState, m: Dictionary) -> bool:
+	if s == null or Coalition.decline_cooldown(s) < 0.0:
+		return false
+	return str(m.get("type", "")) == "demand" and m.get("join", false) != true and str(m.get("payable", "")) == "" \
+		and Coalition.status(s, str(m.get("partner", ""))) == "member"
+
+
+func _update_decline(dc: Dictionary) -> void:
+	var b: PxButton = dc["button"]
+	var m := Coalition.message(_state, int(dc["seq"]))
+	var open := str(m.get("state", "")) == "open"
+	b.set_visible(open)
+	if not open:
+		return
+	var cd := Coalition.decline_cooldown(_state)
+	var t := Strings.s("CHAT_PILL_DECLINE_CD", {"s": str(int(ceilf(cd)))}) if cd > 0.0 else Strings.s("CHAT_PILL_DECLINE")
+	if b.label != null and b.label.text != t:
+		b.set_label(t)
+	b.set_enabled(cd <= 0.0)
+
+
+## "לא יושב": the sim closes the demand for free (Coalition.decline); its sys line and events go
+## through the chat's one router.
+func decline(seq: int) -> bool:
+	if _state == null:
+		return false
+	var r := Coalition.decline(_state, seq)
+	if r.get("ok", false) != true:
+		if r.get("reason", "") == "cooldown":
+			_audio("cantAfford")
+		return false
+	_audio("uiClick")
+	for e: Variant in r.get("events", []):
+		if e is Dictionary:
+			on_politics_event(e)
+	if host != null and host.has_method("_mark_dirty"):
+		host.call("_mark_dirty")
+	return true
+
+
+## Golan's "איחוד": merges b into a (Coalition.merge); the sys line is chat.sys.merged.
+func merge(a: String, b: String) -> bool:
+	if _state == null:
+		return false
+	var r := Coalition.merge(_state, a, b)
+	if r.get("ok", false) != true:
+		_audio("cantAfford")
+		return false
+	_audio("uiClick")
+	for e: Variant in r.get("events", []):
+		if e is Dictionary:
+			on_politics_event(e)
+	if host != null and host.has_method("_mark_dirty"):
+		host.call("_mark_dirty")
+	return true
 
 
 func _update_pill(pill: Dictionary, _bps: float) -> void:
@@ -1411,7 +1487,7 @@ func pointer_down(p: Vector2) -> bool:
 			_press["hit"] = h
 			if h["kind"] == "pay":
 				(h["pill"] as Dictionary)["pressed"] = true
-			elif h["kind"] == "brawl":
+			elif h["kind"] == "brawl" or h["kind"] == "decline":
 				(h["button"] as PxButton).down()
 			break
 	return true
@@ -1485,6 +1561,10 @@ func _release_hit(commit: bool) -> void:
 			(h["button"] as PxButton).up(commit)
 			if commit:
 				resolve_brawl(int(h["seq"]))
+		"decline":
+			(h["button"] as PxButton).up(false)
+			if commit:
+				decline(int(h["seq"]))
 		"partner":
 			if commit:
 				open_partner_card(str(h["partner"]))
@@ -1504,6 +1584,23 @@ func open_partner_card(pid: String) -> void:
 		o.setup(host, mgr)
 		o.chat = chat
 		o.partner_id = pid
+		return o.build())
+
+
+## Golan's pair prompt (rule.copy.pickPrompt "לאחד עם…"): one button per partner `a` can merge
+## with now (Coalition.merge_candidates); a pick merges them.
+func open_merge_card(a: String) -> void:
+	if host == null or not "overlays" in host:
+		return
+	var mgr: OverlayManager = host.get("overlays")
+	if mgr == null or mgr.is_open():
+		return
+	var chat := self
+	mgr.request(func() -> Overlay:
+		var o := MergeCard.new()
+		o.setup(host, mgr)
+		o.chat = chat
+		o.partner_id = a
 		return o.build())
 
 
@@ -1737,6 +1834,7 @@ class PartnerCard:
 	var partner_id := ""
 	var _strip: SpriteStrip
 	var _pay: PxButton
+	var _merge: PxButton
 	var _seq := -1
 	## The card's pay pill (a ChatView pill dictionary) and the rows' value texts (tests read them).
 	var pill: Dictionary = {}
@@ -1769,7 +1867,8 @@ class PartnerCard:
 				return art_w * sc <= 560.0 and 104.0 + art_h * sc + 24.0 + 104.0 + 208.0 + 120.0 <= float(L.H) - 32.0, [4, 3, 2])
 			fig_h = art_h * float(fig_scale)
 		var om := Coalition.open_msg(s, partner_id) if s != null else {}
-		var h := 104.0 + fig_h + 24.0 + 52.0 + 52.0 + (104.0 if not om.is_empty() else 0.0) + 120.0
+		var mergeable := s != null and Coalition.merge_cooldown(s) >= 0.0 and st == "member"
+		var h := 104.0 + fig_h + 24.0 + 52.0 + 52.0 + (104.0 if not om.is_empty() else 0.0) + (104.0 if mergeable else 0.0) + 120.0
 		var y := Ui.snap((L.H - h) / 2.0, 4)
 		var pr := Rect2(48, y, 624, h)
 		make_panel(pr)
@@ -1810,6 +1909,17 @@ class PartnerCard:
 					cancel("close")})
 			focusables.append(_pay)
 			cy += 104.0
+		if mergeable:
+			# Golan's "לאחד" (spec §5.1 mergeMembers; rule.copy): opens the pair prompt
+			var mv := Rect2(Ui.snap(360.0 - ChatView.PILL_W / 2.0, 4), cy + 16.0, ChatView.PILL_W, ChatView.PILL_H)
+			_merge = PxButton.make(panel, mv, {"hit": mv.grow_individual(12, 10, 12, 10), "kind": "kit_secondary",
+				"label": Strings.s("CHAT_PILL_MERGE"), "label_box": ChatView.PILL_W - 32.0, "on_commit": func() -> void:
+					var who := partner_id
+					var c := chat
+					cancel("close")
+					c.open_merge_card(who)})
+			focusables.append(_merge)
+			cy += 104.0
 		button(Rect2(88, pr.end.y - 112.0, 544, 96), Rect2(88, pr.end.y - 112.0, 544, 96), Strings.s("SYS_CLOSE"),
 			func() -> void: cancel("close"), "kit_secondary", L.TEXT)
 		focusables.append(close)
@@ -1844,6 +1954,49 @@ class PartnerCard:
 		if _strip != null and not _strip.paused:
 			_strip.update_view(dt_ms)
 		_sync_pay()
+		_sync_merge()
+
+	## The merge pill: disabled with the seconds during the cooldown, or when nobody can merge yet.
+	func _sync_merge() -> void:
+		if _merge == null or chat == null or chat._state == null:
+			return
+		var cd := Coalition.merge_cooldown(chat._state)
+		var t := Strings.s("CHAT_PILL_MERGE_CD", {"s": str(int(ceilf(cd)))}) if cd > 0.0 else Strings.s("CHAT_PILL_MERGE")
+		if _merge.label != null and _merge.label.text != t:
+			_merge.set_label(t)
+		_merge.set_enabled(cd <= 0.0 and not Coalition.merge_candidates(chat._state, partner_id).is_empty())
+
+	func cancel(via: String) -> void:
+		host.audio_event("panelClose")
+		mgr.close(self, via)
+
+
+## Golan's pair prompt (a SheetCard): "לאחד עם…", then one full-width button per candidate.
+class MergeCard extends SheetCard:
+	var chat: ChatView
+	var partner_id := ""
+	var picked := ""
+
+	func build() -> MergeCard:
+		id = "MERGE_CARD"
+		_begin()
+		title(Strings.s("MERGE_PICK_TITLE"))
+		para(ChatView.partner_name(partner_id), C_MUTED, true, 1)
+		close_x(func() -> void: cancel("close"))
+		var cands: Array = Coalition.merge_candidates(chat._state, partner_id) if chat != null and chat._state != null else []
+		_y = Ui.snap(_y - PARA_GAP + PAD, 4)
+		for b: Variant in cands:
+			var bid := str(b)
+			_specs.append([Rect2(88, _y, 544, BTN_H), ChatView.partner_name(bid), "kit_primary", func() -> void:
+				picked = bid
+				if chat.merge(partner_id, bid):
+					mgr.close(self, "merge")])
+			_y += BTN_H + BTN_GAP
+		_specs.append([Rect2(88, _y, 544, BTN_H), Strings.s("SYS_CLOSE"), "kit_secondary", func() -> void: cancel("close")])
+		_y += BTN_H
+		finish()
+		focus_index = 0
+		return self
 
 	func cancel(via: String) -> void:
 		host.audio_event("panelClose")

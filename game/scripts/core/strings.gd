@@ -26,9 +26,13 @@ static func s(id: String, params: Dictionary = {}) -> String:
 	return Bidi.fill(String(tbl.get(id, id)), params)
 
 
-## od-sevev: ui-strings.json producerNames/upgradeNames first (UX's display override), then the
-## content's own `name` (the Game Designer's copy deck), then the id.
+## od-sevev: the round's leader skin first (spec §5.3-5.4: tiers 4-8 and the spin slots carry a
+## per-leader name outside Bibi's round, LeaderUi), then ui-strings.json producerNames/upgradeNames
+## (UX's display override), then the content's own `name` (the Game Designer's copy deck), then the id.
 static func producer_name(id: String) -> String:
+	var sk := LeaderUi.producer_word(id, "name")
+	if sk != "":
+		return sk
 	var n: Variant = data().get("producerNames", {}).get(id)
 	if n == null and Content.producer_index(id) >= 0:
 		n = Content.producer(id).get("name")
@@ -36,13 +40,21 @@ static func producer_name(id: String) -> String:
 
 
 static func upgrade_name(id: String) -> String:
+	var sk := LeaderUi.spin_word(id, "name")
+	if sk != "":
+		return sk
 	var n: Variant = data().get("upgradeNames", {}).get(id)
 	if n == null:
 		n = Content.upgrade(id).get("name")
 	return str(n) if n != null else id.to_upper()
 
 
+## The spin's short effect line: slots A, B and E through the _LEADER keys (the round's verb and
+## crit name, for every leader: Bibi's kit words equal the shipped lines), else upgradeEffects.
 static func upgrade_effect(id: String) -> String:
+	var le := LeaderUi.spin_effect(id)
+	if le != "":
+		return le
 	return data().get("upgradeEffects", {}).get(id, "")
 
 
