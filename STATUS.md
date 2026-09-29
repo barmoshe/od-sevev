@@ -952,3 +952,38 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - **Drift proof:** full render with `--allow-drift`: 6 changed (only `golan_{idle,idle_d2,react,react_d2,avatar,avatar24}.png`), 0 new, 0 only-in-approved: the other 24 characters, 5 sources, props and stages pixel-exact. Golan then approved into `showcase/out/`, and a strict full render (no flag) gave 0 changed, 0 new. Imported with `--no-render --godot` from the approved out/ so no other file churns bytes.
   - **Checks:** `tools/test.sh` 270/270; strict `tools/build_web.sh` green. Before/after sheet: `scratchpad/shots/golan/golan-before-after.png`.
   - **Groundwork for per-leader tap/signature (not started):** the Magician's `tap`/`crit` rig is Bibi-only (hat, rabbit, `hatMouth`/`temple` tracks). Making it generic means a `tap`/`sig` recipe per `cast.py` entry (the tap squash-stretch table plus an optional arm swing and an optional prop anchor exported as a named per-frame point track), and generalising the two hard-coded track names (`build.py` `same_motion`, `sprites.py` `POINT_TRACKS`) to any named track; `big_banana.gd` already plays `tap` and falls back from `crit` when a leader has none. About a day of rig work, then per-leader landmarks as content.
+- 2026-09-29 · game-designer · **Leader select: a different leader every round (Bar: "too much emphasis on Bibi").** Spec: `design/leader-select-spec.md`.
+  - **Roster, 8 (4 per side):**
+    - ביבי, בן גביר, סמוטריץ׳, דרעי;
+    - בנט (ביחד, with לפיד as his No. 2: Lapid is not a party head in 2026, fact `beyachad-list`), אייזנקוט, ליברמן, גולן.
+    - Not at launch (Bar's call): גנץ (everyone's stand-in), עבאס (review first), יהדות התורה (who heads).
+  - **The pick:** it comes before the first tap (it replaces TITLE and is the audio-unlock gesture), then after every election. There are no locks, the order is shuffled, and a הפתעה tile picks at random.
+  - **Equal footing:** every number is shared. Leaders differ in words, art and **one rule** each:
+    - Bennett's own pledge card;
+    - Ben Gvir: partners threaten ×0.5;
+    - Liberman: a "לא יושב" pill that declines a demand.
+  - **Bloc logic:**
+    - lineups deal shared coalition slots to people; seats are shuffled per round outside Bibi's round;
+    - the other side appears as rival cards;
+    - the court stays Bibi's, and everyone else gets the press skin (כותרות / יום תחקיר);
+    - Dubi learns each leader's lines;
+    - the base is shared, and a new face adds +10% base for the round.
+  - **Content (`design/content.json` `leaderSelect` + `leaders[]`, additive, not read by the current build):**
+    - full kits for ביבי (re-keyed), בנט, בן גביר, ליברמן, ≈100 strings each;
+    - 9 cast profiles (3 generic no-photo MKs), 4 rival cards, a coalition-side leak, a rival ticker, `bibiOnly` lists and `neutralCopy`;
+    - 502 new Hebrew strings in all;
+    - wave 2 (אייזנקוט, סמוטריץ׳, דרעי, גולן) is a per-leader backlog in the spec §11.
+  - **Facts:** 12 new facts in `design/facts.json`, all `launchWith: leaderSelect` (notUsed until ship), and a table in `facts-verification.md`.
+  - **Lint:** `content-lint.mjs` §9 checks kit completeness, refs, lineups (Bibi's lineup must equal the shipped partners), capacity and leader ticker rules; strict 0/0. `tools/test.sh` 270/270. `game/data/content.json` is synced.
+  - **→ game-developer (sim + views):** spec §9.6 and the §10 checklist.
+  - **→ technical-artist:** `propMouth`/`temple` tracks and the `source_advisers` recolour.
+  - **→ 2d-artist:**
+    - props (pen, phone, chair);
+    - `source_donor`, `source_funds`, `suitcase_plain`;
+    - 8 `spin_slot_*` icons;
+    - the picker kit;
+    - lineup key art.
+  - **→ animator:** the prop tap, the react crit, the picker, and the swap in EVOLVE_TX.
+  - **→ UX:** the `LEADER_PICK` node, strings and the §10.3 neutral rewrites.
+  - **→ audio:** a `leaderPick` sting and crit cues by react event; no leader motifs (the leitmotif stays non-partisan).
+  - **→ Bar:** spec §12.

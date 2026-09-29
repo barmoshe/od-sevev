@@ -1,4 +1,4 @@
-> **Status (2026-09-28): superseded for עוד סבב.** Inherited Monkey Bananas spec. The verbs carry over (tap = the hat, catch = the Suitcase, buy = sources and spins, Evolve = 'עוד סבב!'); the mechanics are in the creative pack's `pitch.md` §4-§10 and in `content.json`. Kept as the fork's reference until a rewrite.
+> **Status (2026-09-28): superseded for עוד סבב.** Inherited Monkey Bananas spec. The verbs carry over (tap = the hat, catch = the Suitcase, buy = sources and spins, Evolve = 'עוד סבב!'); the mechanics are in the creative pack's `pitch.md` §4-§10 and in `content.json`. Kept as the fork's reference until a rewrite. **Leader select (2026-09-29):** the player picks a party leader every round; see [`leader-select-spec.md`](leader-select-spec.md).
 
 # mechanic-spec — Monkey Bananas
 

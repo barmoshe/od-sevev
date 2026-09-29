@@ -32,6 +32,9 @@
     "partners.deri.copy.statusSrc",
     "partners.goldknopf",
     "partners.goldknopf.copy.threatSrc"
+   ],
+   "usedInLeaderSelect": [
+    "leaderSelect.leakRight.leaks[1][2]"
    ]
   },
   {
@@ -48,6 +51,9 @@
     "ambientHeadlinesV2.list.x11",
     "ambientHeadlinesV2.list.x19",
     "events.eisenkot"
+   ],
+   "usedInLeaderSelect": [
+    "leaderSelect.partnerProfiles.eisenkot"
    ]
   },
   {
@@ -92,6 +98,9 @@
     "ambientHeadlinesV2.list.x06",
     "ambientHeadlinesV2.list.x12",
     "events.golan"
+   ],
+   "usedInLeaderSelect": [
+    "leaderSelect.partnerProfiles.golan"
    ]
   },
   {
@@ -375,6 +384,10 @@
    "usedIn": [
     "ambientHeadlinesV2.list.g05",
     "upgrades.s04"
+   ],
+   "usedInLeaderSelect": [
+    "leaderSelect.partnerProfiles.bibi",
+    "leaderSelect.rivalTicker.r01"
    ]
   },
   {
@@ -486,6 +499,12 @@
     "ambientHeadlinesV2.list.x07",
     "ambientHeadlinesV2.list.x16",
     "events.bennett"
+   ],
+   "usedInLeaderSelect": [
+    "leaderSelect.partnerProfiles.bennett",
+    "leaders.bennett.kit.story",
+    "leaders.bennett.pick",
+    "leaders.bennett.rule"
    ]
   },
   {
@@ -505,6 +524,11 @@
     "ambientHeadlinesV2.list.x17",
     "partners.gantz",
     "partners.gantz.copy.card"
+   ],
+   "usedInLeaderSelect": [
+    "leaderSelect.cardProfiles.card_bibi",
+    "leaderSelect.rivalTicker.r02",
+    "leaders.bennett.kit.ticker.tb08"
    ]
   },
   {
@@ -525,6 +549,12 @@
     "events.lapid",
     "events.leak.copy.leaks[0]",
     "events.leak.copy.leaks[6]"
+   ],
+   "usedInLeaderSelect": [
+    "leaderSelect.partnerProfiles.lapid",
+    "leaders.bennett.kit.dubi",
+    "leaders.bennett.kit.story",
+    "leaders.bennett.kit.ticker.tb02"
    ]
   },
   {
@@ -574,6 +604,10 @@
     "partners.gotliv",
     "partners.gotliv.copy.card",
     "partners.gotliv.copy.transferWindow.script[0]"
+   ],
+   "usedInLeaderSelect": [
+    "leaders.bengvir.coalition.lineup.gotliv",
+    "leaders.bengvir.kit.ticker.tg05"
    ]
   },
   {
@@ -690,6 +724,12 @@
    "verificationNote": "Otzma removed him from its WhatsApp groups after he broke the party line on budget votes (Jan 2025, per a Makor Rishon screenshot reported by ToI). He came 8th in the Likud primary (Aug 2026) and was placed 14th on the final slate after the reserved slots.",
    "usedIn": [
     "partners.almog"
+   ],
+   "usedInLeaderSelect": [
+    "leaders.bengvir.coalition.lineup.almog",
+    "leaders.bengvir.kit.sources.t7.firstOwned",
+    "leaders.bengvir.kit.story",
+    "leaders.bengvir.kit.ticker.tg06"
    ]
   },
   {
@@ -907,6 +947,299 @@
    "date": null,
    "urlNeeded": true,
    "usedIn": []
+  },
+  {
+   "id": "beyachad-list",
+   "ref": 52,
+   "label": "F",
+   "text": "Bennett 2026 and Yesh Atid run as one joint list, \"ביחד בראשות בנט\" (announced end of Apr 2026): Bennett No. 1, Lapid No. 2; Bennett's people get four of every seven slots and the two parties stay separate.",
+   "aboutHe": "בסוף אפריל 2026 הוכרז על רשימה משותפת לבנט 2026 וליש עתיד בשם ביחד, שבראשה נפתלי בנט ובמקום השני יאיר לפיד, ובה ארבעה מכל שבעה מקומות לאנשי בנט.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "Ynet; Kan; Srugim; IDI",
+   "url": "https://www.ynet.co.il/news/elections2026/article/sk6esqq00gx",
+   "url2": "https://www.kan.org.il/content/kan-news/politic/1096328/",
+   "moreUrls": [
+    "https://www.srugim.co.il/101010448-%D7%91%D7%A0%D7%98-%D7%A8%D7%90%D7%A9%D7%95%D7%9F-%D7%9C%D7%A4%D7%99%D7%93-%D7%A9%D7%A0%D7%99-%D7%9B%D7%9A-%D7%A6%D7%A4%D7%95%D7%99%D7%94-%D7%9C%D7%94%D7%99%D7%A8%D7%90%D7%95%D7%AA",
+    "https://www.idi.org.il/policy/parties-and-elections/parties/beyachad/",
+    "https://www.jpost.com/israel-news/politics-and-diplomacy/article-894194"
+   ],
+   "date": "2026-04",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.lapid",
+    "leaders.bennett",
+    "leaders.bennett.kit.dubi",
+    "leaders.bennett.kit.story",
+    "leaders.bennett.kit.ticker.tb02",
+    "leaders.bennett.kit.ticker.tb03",
+    "leaders.bennett.pick"
+   ]
+  },
+  {
+   "id": "rotation-2022",
+   "ref": 53,
+   "label": "F",
+   "text": "Under the 2021 rotation agreement, Lapid succeeded Bennett as prime minister on 1 Jul 2022, after the Knesset voted to dissolve.",
+   "aboutHe": "לפי הסכם הרוטציה מ־2021, יאיר לפיד החליף את נפתלי בנט כראש הממשלה ב־1 ביולי 2022, אחרי שהכנסת הצביעה על פיזורה.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "Axios; Britannica; ToI",
+   "url": "https://www.axios.com/2022/06/20/israel-bennett-lapid-dissolve-knesset-elections",
+   "url2": "https://www.britannica.com/biography/Naftali-Bennett",
+   "date": "2022-07-01",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bennett.kit.spins[6]",
+    "leaders.bennett.kit.ticker.tb08"
+   ]
+  },
+  {
+   "id": "bennett-raanana",
+   "ref": 54,
+   "label": "A",
+   "text": "Bennett kept living in his private Ra'anana home as PM; a TV report put the cost to the state at NIS 12-15 million (security posts, cameras, rented flats for security staff).",
+   "aboutHe": "כראש ממשלה המשיך נפתלי בנט לגור בביתו ברעננה, ולפי דיווח בטלוויזיה ההחלטה עלתה למדינה 12 עד 15 מיליון ₪ בעמדות אבטחה, מצלמות ודירות לאנשי האבטחה.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; Haaretz",
+   "url": "https://www.timesofisrael.com/decision-by-bennett-to-keep-living-at-home-could-cost-state-millions-tv/",
+   "url2": "https://www.timesofisrael.com/liveblog_entry/bennetts-decision-to-remain-in-raanana-to-cost-state-millions/",
+   "moreUrls": [
+    "https://www.haaretz.com/israel-news/2022-05-28/ty-article/.premium/bennetts-office-refuses-to-disclose-private-home-renovation-costs/00000181-0b2b-dcf3-a395-3bab97cd0000"
+   ],
+   "date": "2021",
+   "_guardrail": "Never the reason his office gave (it names his family). Cost and address only.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bennett.kit.sources.t5",
+    "leaders.bennett.kit.sources.t5.firstOwned",
+    "leaders.bennett.kit.spins[2]",
+    "leaders.bennett.kit.ticker.tb04"
+   ]
+  },
+  {
+   "id": "bennett-cyota",
+   "ref": 55,
+   "label": "F",
+   "text": "Bennett co-founded the security start-up Cyota, which RSA Security bought in 2005 for $145 million.",
+   "aboutHe": "נפתלי בנט היה ממייסדי חברת אבטחת המידע סייוטה, שנמכרה ב־2005 תמורת 145 מיליון דולר.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "Globes; Haaretz",
+   "url": "https://en.globes.co.il/en/article-1000036328",
+   "url2": "https://www.haaretz.com/1.4885059",
+   "date": "2005",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bennett.kit.sources.t8",
+    "leaders.bennett.kit.sources.t8.firstOwned"
+   ]
+  },
+  {
+   "id": "raam-2021",
+   "ref": 56,
+   "label": "F",
+   "text": "In June 2021 Ra'am, led by Mansour Abbas, became the first Arab party to join an Israeli governing coalition, the Bennett-Lapid government.",
+   "aboutHe": "ביוני 2021 הצטרפה רע״מ בראשות מנסור עבאס לקואליציה של בנט ולפיד, והייתה למפלגה הערבית הראשונה בקואליציה בישראל.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; Time",
+   "url": "https://www.timesofisrael.com/arab-israeli-raam-party-makes-history-by-joining-bennett-lapid-coalition/",
+   "url2": "https://time.com/6073019/mansour-abbas-arab-israel-coalition-government/",
+   "date": "2021-06",
+   "_guardrail": "The joke is the coalition arithmetic, never Arab citizens (redlines reviewTerms).",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bennett.coalition.lineup.abbas"
+   ]
+  },
+  {
+   "id": "bengvir-ministry-rename",
+   "ref": 57,
+   "label": "F",
+   "text": "Under the coalition deal the Public Security Ministry became the National Security Ministry; the cabinet approved the rebranding (signs, websites, documents) in Jan 2023 at an estimated NIS 2-3 million.",
+   "aboutHe": "בהסכם הקואליציוני הפך המשרד לביטחון הפנים למשרד לביטחון לאומי, ובינואר 2023 אישרה הממשלה את החלפת השם, השלטים והאתרים בעלות מוערכת של 2 עד 3 מיליון ₪.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; Ynet",
+   "url": "https://www.timesofisrael.com/rebranding-of-police-ministry-to-cost-between-nis-2-3-million/",
+   "url2": "https://www.ynetnews.com/article/sjnwjyaii",
+   "date": "2023-01-08",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bengvir.kit.sources.t6",
+    "leaders.bengvir.kit.sources.t6.firstOwned",
+    "leaders.bengvir.kit.sources.t8",
+    "leaders.bengvir.kit.sources.t8.firstOwned",
+    "leaders.bengvir.kit.story",
+    "leaders.bengvir.kit.ticker.tg03"
+   ]
+  },
+  {
+   "id": "otzma-vote-boycott",
+   "ref": 58,
+   "label": "F",
+   "text": "In May 2023 Otzma Yehudit walked out of Knesset votes to press for more money for its Negev and Galilee ministry in the 2023-24 budget; Netanyahu then agreed to raise that funding.",
+   "aboutHe": "במאי 2023 החרימה עוצמה יהודית הצבעות בכנסת כדי להשיג עוד תקציב למשרד לפיתוח הנגב והגליל שבידיה, והעניין הסתיים בהסכמה להגדיל את התקציב.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; INN",
+   "url": "https://www.timesofisrael.com/in-latest-coalition-upheaval-otzma-yehudit-boycotts-knesset-votes-over-budget-dispute/",
+   "url2": "https://www.israelnationalnews.com/news/400838",
+   "date": "2023-05",
+   "_guardrail": "The budget walk-out only. Never the earlier boycott in the same month (its trigger is a red line).",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bengvir.kit.sources.t5",
+    "leaders.bengvir.kit.sources.t5.firstOwned",
+    "leaders.bengvir.kit.ticker.tg09"
+   ]
+  },
+  {
+   "id": "otzma-budget-2025",
+   "ref": 59,
+   "label": "F",
+   "text": "In Dec 2024 Otzma Yehudit voted against the 2025 state budget bill, which passed anyway (59-57).",
+   "aboutHe": "בדצמבר 2024 הצביעה עוצמה יהודית נגד הצעת תקציב המדינה ל־2025, וההצעה עברה בכל זאת.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/otzma-yehudit-votes-against-budget-as-coalition-splits-over-bid-to-fire-ag/",
+   "url2": "https://www.timesofisrael.com/otzma-yehudit-again-votes-against-budget-related-bill-which-passes-anyway/",
+   "date": "2024-12",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.rivalTicker.r08",
+    "leaders.bengvir.kit.ticker.tg02"
+   ]
+  },
+  {
+   "id": "liberman-finance-taxes",
+   "ref": 60,
+   "label": "F",
+   "text": "As finance minister Liberman imposed a tax on disposable tableware (2021) and on sugary drinks (2022); his successor Smotrich cancelled both in 2023.",
+   "aboutHe": "כשר האוצר הנהיג אביגדור ליברמן מס על כלים חד־פעמיים ב־2021 ועל משקאות ממותקים ב־2022, ובצלאל סמוטריץ׳, שהחליף אותו, ביטל את שניהם ב־2023.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; JPost",
+   "url": "https://www.timesofisrael.com/in-1st-move-as-minister-smotrich-orders-taxes-on-plasticware-sugary-drinks-nixed/",
+   "url2": "https://www.timesofisrael.com/finance-minister-cancels-tax-on-sweetened-drinks-doctors-slam-move-as-irresponsible/",
+   "moreUrls": [
+    "https://www.jpost.com/breaking-news/article-726358"
+   ],
+   "date": "2023-01",
+   "_guardrail": "The tax and its price only. Never who the repeal was demanded by or for (a group as the punchline).",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.rivalTicker.r07",
+    "leaders.liberman.kit.sources.t5",
+    "leaders.liberman.kit.sources.t5.firstOwned",
+    "leaders.liberman.kit.sources.t8",
+    "leaders.liberman.kit.sources.t8.firstOwned",
+    "leaders.liberman.kit.story",
+    "leaders.liberman.kit.ticker.tl03",
+    "leaders.liberman.kit.ticker.tl09"
+   ]
+  },
+  {
+   "id": "liberman-2019",
+   "ref": 61,
+   "label": "F",
+   "text": "In May 2019 Liberman refused to join a Netanyahu government; with no 61, the Knesset dissolved and a repeat election was held on 17 Sep 2019.",
+   "aboutHe": "במאי 2019 סירב אביגדור ליברמן להצטרף לממשלת נתניהו, הכנסת התפזרה ונערכו בחירות חוזרות ב־17 בספטמבר 2019.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI",
+   "url": "https://www.timesofisrael.com/infuriating-but-not-finishing-netanyahu-liberman-drags-israel-back-to-the-polls/",
+   "url2": "https://www.timesofisrael.com/liberman-accuses-netanyahu-of-offering-dishonest-coalition-compromise/",
+   "date": "2019-05",
+   "_guardrail": "Never the bill he cited (it is on the deliberatelyOut list).",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.liberman.kit.story",
+    "leaders.liberman.kit.ticker.tl02"
+   ]
+  },
+  {
+   "id": "liberman-wont-sit",
+   "ref": 62,
+   "label": "Q",
+   "text": "At a May 2026 press conference Liberman said that even if the world turns upside down he will not sit with Netanyahu; Yisrael Beytenu says it will form a government without Netanyahu.",
+   "aboutHe": "במאי 2026 הודיע אביגדור ליברמן שגם אם העולם יתהפך, הוא לא ישב עם נתניהו.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "INN; Srugim; JFeed",
+   "url": "https://www.inn.co.il/news/696237",
+   "url2": "http://www.srugim.co.il/101011458-%D7%9C%D7%99%D7%91%D7%A8%D7%9E%D7%9F-%D7%9E%D7%AA%D7%97%D7%99%D7%99%D7%91-%D7%99%D7%AA%D7%94%D7%A4%D7%9A-%D7%94%D7%A2%D7%95%D7%9C%D7%9D-%D7%90%D7%A0%D7%97%D7%A0%D7%95-%D7%9C%D7%90-%D7%A0%D7%A9%D7%91",
+   "moreUrls": [
+    "https://www.jfeed.com/news-israel/tlidpj"
+   ],
+   "date": "2026-05",
+   "verifiedHe": null,
+   "heStatus": "unverified",
+   "verifyHebrew": true,
+   "gameRendering": "reported speech, no quote marks (INN headlines it \"שיתהפך העולם, לא אשב עם נתניהו\", Srugim \"יתהפך העולם, אנחנו לא נשב איתו\": two wordings, so neither is quoted).",
+   "_guardrail": "The party's full condition names groups; the game uses the Netanyahu part only.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.liberman",
+    "leaders.liberman.kit.spins[6]",
+    "leaders.liberman.kit.ticker.tl05",
+    "leaders.liberman.pick"
+   ]
+  },
+  {
+   "id": "liberman-no-minority",
+   "ref": 63,
+   "label": "F",
+   "text": "In Aug 2026 Liberman ruled out a minority government (one resting on 58 MKs), even an opposition-led one.",
+   "aboutHe": "באוגוסט 2026 הודיע אביגדור ליברמן שמפלגתו לא תשב בממשלת מיעוט.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "Israel Hayom",
+   "url": "https://www.israelhayom.co.il/news/politics/article/21214874",
+   "date": "2026-08",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.liberman.kit.ticker.tl04"
+   ]
   }
  ],
  "deliberatelyOut": [

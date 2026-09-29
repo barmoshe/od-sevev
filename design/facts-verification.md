@@ -168,3 +168,28 @@ These six facts ship disabled or unused, so they don't block launch. Each needs 
 - `kaia` (48)
 - `travel-expenses` (49)
 - `electricity-water` (51, GAP)
+
+## Leader select, wave 1 (2026-09-29, `design/leader-select-spec.md`)
+
+The same method and limit as above: web search only, reputable outlets, pages not opened. There are 12 new facts. Each is `launchWith: "leaderSelect"` and `notUsed: true` until the picker ships. The lint still checks their `aboutHe` as if they were live.
+
+| id | Claim | Label | Sources | Notes |
+|---|---|---|---|---|
+| `beyachad-list` | "ביחד": Bennett No. 1, Lapid No. 2, 4 of every 7 slots to Bennett (end Apr 2026) | F | [Ynet](https://www.ynet.co.il/news/elections2026/article/sk6esqq00gx) · [Kan](https://www.kan.org.il/content/kan-news/politic/1096328/) · Srugim · IDI · JPost | This is why Lapid is not a pick (spec D2). |
+| `rotation-2022` | Lapid succeeded Bennett on 1 Jul 2022 under the rotation deal | F | [Axios](https://www.axios.com/2022/06/20/israel-bennett-lapid-dissolve-knesset-elections) · Britannica | |
+| `bennett-raanana` | Staying in Ra'anana cost the state NIS 12-15M (TV report) | **A** | [ToI](https://www.timesofisrael.com/decision-by-bennett-to-keep-living-at-home-could-cost-state-millions-tv/) · Haaretz | The game always says "לפי הדיווח". The reason his office gave is never used. |
+| `bennett-cyota` | Co-founded Cyota, sold to RSA in 2005 for $145M | F | [Globes](https://en.globes.co.il/en/article-1000036328) · Haaretz | |
+| `raam-2021` | Ra'am was the first Arab party in an Israeli coalition (Jun 2021) | F | [ToI](https://www.timesofisrael.com/arab-israeli-raam-party-makes-history-by-joining-bennett-lapid-coalition/) · Time | Coalition arithmetic only. |
+| `bengvir-ministry-rename` | Public Security → National Security; rebrand NIS 2-3M (Jan 2023) | F | [ToI](https://www.timesofisrael.com/rebranding-of-police-ministry-to-cost-between-nis-2-3-million/) · Ynet | |
+| `otzma-vote-boycott` | Otzma walked out of votes for more Negev and Galilee money (May 2023) | F | [ToI](https://www.timesofisrael.com/in-latest-coalition-upheaval-otzma-yehudit-boycotts-knesset-votes-over-budget-dispute/) · INN | Never the earlier boycott that month; its trigger is a red line. |
+| `otzma-budget-2025` | Otzma voted against the 2025 budget bill, which passed anyway (Dec 2024) | F | [ToI](https://www.timesofisrael.com/otzma-yehudit-votes-against-budget-as-coalition-splits-over-bid-to-fire-ag/) | |
+| `liberman-finance-taxes` | Disposable-tableware tax (2021) and sugary-drinks tax (2022); both cancelled by Smotrich in 2023 | F | [ToI](https://www.timesofisrael.com/in-1st-move-as-minister-smotrich-orders-taxes-on-plasticware-sugary-drinks-nixed/) · ToI · JPost | Never who demanded the repeal. |
+| `liberman-2019` | Refused to join in May 2019 → the Knesset dissolved → repeat election 17 Sep 2019 | F | [ToI](https://www.timesofisrael.com/infuriating-but-not-finishing-netanyahu-liberman-drags-israel-back-to-the-polls/) | Never the bill he cited (deliberatelyOut). |
+| `liberman-wont-sit` | May 2026: even if the world turns over, he won't sit with Netanyahu | Q | [INN](https://www.inn.co.il/news/696237) · Srugim · JFeed | **Hebrew unverified:** INN and Srugim headline two different wordings, so the line is reported speech only. |
+| `liberman-no-minority` | Aug 2026: no minority government | F | [Israel Hayom](https://www.israelhayom.co.il/news/politics/article/21214874) | |
+
+**Deliberately not used:**
+- Ben Gvir's quit and return in 2025 (its reason is a red line).
+- The police-emblem directive (it is an emblem).
+- The Sep 2026 bids to disqualify Otzma and the Democrats.
+- Bennett's reason for staying home (it names his family).
