@@ -1,4 +1,26 @@
-# binary files changed (not carried):
+From c880cb4a0066e99569a447e498619a7c56e1d3a2 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 21:02:33 +0000
+Subject: [PATCH] test(od-sevev): add mobile-first layout check and layout
+ calculator
+
+tools/web/mobile_web.mjs plays the web build at every phone of the
+mobile matrix and the desktop frame, asserting the canvas fill and
+integer scale (baseline) and the mobile-first layout rules (spec):
+the vertical split, the safe-bottom tab bar, dead bands, fluid width,
+the paged ticker and the bottom-anchored picker grid.
+ux/tools/mobile_layout.py is the reference calculator for the
+per-device numbers.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ tools/web/mobile_web.mjs  | 319 ++++++++++++++++++++++++++++++++++++++
+ ux/tools/mobile_layout.py | 170 ++++++++++++++++++++
+ 2 files changed, 489 insertions(+)
+ create mode 100644 tools/web/mobile_web.mjs
+ create mode 100644 ux/tools/mobile_layout.py
+
 diff --git a/tools/web/mobile_web.mjs b/tools/web/mobile_web.mjs
 new file mode 100644
 index 0000000..6b9dd7d
@@ -324,7 +346,6 @@ index 0000000..6b9dd7d
 +const failed = failedBase + (BASELINE_ONLY ? 0 : failedSpec);
 +console.log(failed ? `MOBILE_WEB: ${failedBase} baseline, ${failedSpec} spec FAILED${BASELINE_ONLY ? ' (spec not gating: MOBILE_BASELINE=1)' : ''}` : `MOBILE_WEB: PASS${BASELINE_ONLY && failedSpec ? ` (baseline; ${failedSpec} spec checks open)` : ''}`);
 +process.exit(failed ? 1 : 0);
-# untracked binary: tools/web/mobile_web.mjs
 diff --git a/ux/tools/mobile_layout.py b/ux/tools/mobile_layout.py
 new file mode 100644
 index 0000000..e09f455
@@ -501,4 +522,6 @@ index 0000000..e09f455
 +
 +if __name__ == "__main__":
 +    main()
-# untracked binary: ux/tools/mobile_layout.py
+-- 
+2.43.0
+
