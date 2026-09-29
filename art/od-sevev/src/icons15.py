@@ -1,5 +1,8 @@
-"""15x15 icons, wave 2: the 15 spins (content.json upgrades s01-s15), the 17 trophy icon ids
-(content.json achievements[].icon), and the gear / sound on / sound off controls.
+"""15x15 icons, wave 2: the spins' first drafts (content.json upgrades; s12 removed, see below), the 17
+trophy icon ids (content.json achievements[].icon), and the gear / sound on / sound off controls.
+
+The shipped spin icons are the 24x24 ones in icons24.py (wave 5). Of the 15x15 spin grids only s06 (as the
+trophy `icon_plane`) and s10 (as the stage `laundry_bag`) still ship; the rest are kept as reference.
 
 Rules: 1 px `outline` silhouette, 3-band shading, one dominant hue per icon so a row of them never
 reads as one colour; nothing that is a flag, an emblem, a party colour or a real logo. Grids are
@@ -223,20 +226,10 @@ SPINS["s11"] = ("באגס באני", G([                     # the game's rabbit
     "....kkkkkkk",
 ]))
 
-SPINS["s12"] = ("הוחלט להקים ועדה", G([             # a round table, three empty chairs, a gavel
-    "...kkk.kkk.kkk",
-    "...kWk.kWk.kWk",
-    "...kDk.kDk.kDk",
-    ".kkkkkkkkkkkkkk",
-    "kWWWWWWkkkWWWWk",
-    "kWtWWWkWWDkWWWk",
-    "kWWWWWWkkkWWWDk",
-    ".kDDDDDDDDDDDk",
-    "..kkkkkkkkkkk",
-    "...kDk...kDk",
-    "...kDk...kDk",
-    "...kkk...kkk",
-]))
+# s12 "הוחלט להקים ועדה": no 15x15 grid. The old one (a table with three empty chairs) echoed a memorial
+# symbol that design/redlines.json category `oct7-hostages` rules out (Bar, 2026-09-29: visual echoes
+# included), and it no longer shipped after wave 5. The shipped icon is icons24.py's frozen binder. Never
+# bring back empty chairs at a table.
 
 SPINS["s13"] = ("ראיון בערוץ ידידותי", G([          # a studio couch with two mugs
     "",

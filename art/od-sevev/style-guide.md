@@ -189,6 +189,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 | 10 | Can't-afford = a sunken well with a dim gold fill and a white label | The same raised pill in grey (colour-only state change) |
 | 11 | Hand-draw anything whose read is a word or a number (the Suitcase's DOHA) | Render-down a sticker at 24 px |
 | 12 | A long string wraps inside a taller 9-slice | Shrinking the font, or a second pixel scale for text |
+| 13 | A committee, a delay, a freeze drawn as its objects: a binder, a stamp, frost, a cobweb, a clock | Anything that can echo October 7 (Bar, 2026-09-29; `design/redlines.json` `oct7-hostages`, visual echoes included): empty chairs at a table or an empty set table, a yellow ribbon or yellow pin, missing-person posters or portrait grids, a day counter, sirens, rockets, uniforms or army green, a border fence. Yellow stays gold (money) and never becomes a ribbon or a loop pinned to a chest. |
 
 ## 11. UI: the kit
 
@@ -396,8 +397,9 @@ hierarchy.
   - `spin_s01`…`s15` at 24x24, each with its joke's second beat: the deposit tag reads "0.30"; the pistachio drips; the
     baby monitor wears the top hat; the empty bubble is stamped "0" (violet, axis-aligned); the net is empty mid-swing;
     the jet has one lit window seat; one finger in a Spartan helmet; the remote's one big button; the pager is
-    gift-wrapped; a laundry sack with a sock out and a luggage tag; the rabbit's carrot mic; three empty chairs, a gavel
-    and a cobweb; the friendly couch with a heart mug; 999 views and 1 like; two armchairs and a cigar. Content ids and
+    gift-wrapped; a laundry sack with a sock out and a luggage tag; the rabbit's carrot mic; the committee's fat binder
+    ("ועדה"-shaped label) frosted with icicles, an idle gavel on top, a cobweb and a snowflake (redrawn 2026-09-29, it was
+    three empty chairs at a table: see do/don't 13); the friendly couch with a heart mug; 999 views and 1 like; two armchairs and a cigar. Content ids and
     kit ids now agree through `upgrades[].icon` (the engine's default `icon_<id>` never existed).
   - `thermo_tube_short` 14x58: the full tube with 30 rows of column removed (bulb, neck, glint, ticks identical;
     40 rows of travel). `thermo_tube` is bit-identical to wave 1.

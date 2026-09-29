@@ -245,7 +245,7 @@
   "sprites/spin_s09.png": 429,
   "sprites/spin_s10.png": 432,
   "sprites/spin_s11.png": 457,
-  "sprites/spin_s12.png": 396,
+  "sprites/spin_s12.png": 523,
   "sprites/spin_s13.png": 443,
   "sprites/spin_s14.png": 402,
   "sprites/spin_s15.png": 418,
@@ -1613,8 +1613,8 @@
   },
   {
    "file": "assets/sprites/spin_s12.png",
-   "source": 396,
-   "imported": 290
+   "source": 523,
+   "imported": 344
   },
   {
    "file": "assets/sprites/spin_s13.png",
@@ -2124,7 +2124,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 3124696,
+ "pckBytes": 3124750,
  "specimenVisual": [
   {
    "tofu": 0,
@@ -2182,5 +2182,5 @@
    "width": 129.0
   }
  ],
- "sourceTotal": 9266273
+ "sourceTotal": 9266400
 }
