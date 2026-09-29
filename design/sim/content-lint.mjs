@@ -123,7 +123,9 @@ for (const s of game) {
 for (const f of F.facts) {
   const p = `.facts.${f.id}.aboutHe`;
   if (typeof f.notUsed !== 'boolean') { err(`facts.${f.id}`, 'notUsed must be a boolean (the reason goes in notUsedWhy)'); continue; }
-  if (f.notUsed) continue;
+  // A fact that ships with a pending feature (launchWith, e.g. the leader select) is checked as if it were live,
+  // so flipping notUsed to false on ship day can't surface a bad About line.
+  if (f.notUsed && !f.launchWith) continue;
   const a = f.aboutHe;
   if (typeof a !== 'string' || !a.trim()) { err(`facts.${f.id}`, 'launch fact without aboutHe (the About page skips it)'); continue; }
   const letters = [...a].filter(ch => /[A-Za-z֐-׿]/.test(ch));
@@ -246,6 +248,160 @@ for (const o of ambientAll) for (const k of ['partnerMember', 'partnerNotMember'
 const w = C.golden.outcomes.filter(o => !o.era).reduce((a, o) => a + o.weight, 0);
 if (Math.abs(w - 1) > 1e-9) err('golden.outcomes', `weights outside Washington sum to ${w}, not 1`);
 
+// ---------- 9. leader select (design/leader-select-spec.md; pending engine, additive) ----------
+// Every leader's kit is complete and buildable, the references resolve, lineups keep the round's seat
+// capacity, and the per-leader ticker lines follow the ticker rules (length, quotes, poll_like, unique ids).
+const leaderReport = [];
+if (C.leaderSelect || C.leaders) {
+  const LS = C.leaderSelect || {}, LEADERS = C.leaders || [];
+  const lp = id => `leaders.${id}`;
+  let SPR = null;
+  try { SPR = rd('../game/assets/sprites/sprites.json'); } catch { warn('leaders', 'game/assets/sprites/sprites.json not readable: art checks skipped'); }
+  const charOf = slug => SPR && (SPR.chars?.[slug] || SPR.chars?.[SPR.aliases?.[slug]]);
+  const get = (o, path) => path.split('.').reduce((a, k) => (a == null ? a : a[k]), o);
+  const hebStr = v => typeof v === 'string' && heb.test(v);
+  const leaderIds = new Set();
+  for (const L of LEADERS) { if (leaderIds.has(L.id)) err(lp(L.id), 'duplicate leader id'); leaderIds.add(L.id); }
+  for (const id of LS.roster || []) if (!leaderIds.has(id)) err('leaderSelect.roster', `no leaders[] entry for ${id}`);
+  for (const id of LS.contentReady || []) if (!(LS.roster || []).includes(id)) err('leaderSelect.contentReady', `${id} is not in the roster`);
+  if (LS.defaultLeader && !leaderIds.has(LS.defaultLeader)) err('leaderSelect.defaultLeader', `unknown ${LS.defaultLeader}`);
+  // shared maps point at shipped content
+  const upIds = new Set(C.upgrades.map(u => u.id));
+  const slotsSpin = Object.entries(LS.spinSlots || {}).filter(([k]) => /^[A-Z]$/.test(k));
+  for (const [k, v] of slotsSpin) if (!upIds.has(v)) err(`leaderSelect.spinSlots.${k}`, `unknown upgrade ${v}`);
+  const skinSlots = slotsSpin.map(([k]) => k).filter(k => !(LS.spinSlots.sharedAsIs || []).includes(k));
+  for (const [t, pid] of Object.entries(LS.sourceTiers?.tiers || {})) if (!producerIds.has(pid)) err(`leaderSelect.sourceTiers.${t}`, `unknown producer ${pid}`);
+  for (const pid of LS.sourceTiers?.shared || []) if (!producerIds.has(pid)) err('leaderSelect.sourceTiers.shared', `unknown producer ${pid}`);
+  const B = LS.bibiOnly || {};
+  const hlIds = new Set(C.headlines.map(h => h.id)), amIds = new Set(C.ambientHeadlinesV2.list.map(h => h.id)),
+    apIds = new Set((C.ambientHeadlinesV2.listPolitics || []).map(h => h.id)), evIds = new Set(C.events.map(e => e.id)),
+    trIds = new Set(C.achievements.list.map(a => a.id)), goIds = new Set(C.golden.outcomes.map(o => o.id));
+  for (const [key, set] of [['headlines', hlIds], ['ambient', amIds], ['ambientPolitics', apIds], ['upgrades', upIds], ['events', evIds], ['trophies', trIds], ['goldenOutcomes', goIds]])
+    for (const id of B[key] || []) if (!set.has(id)) err(`leaderSelect.bibiOnly.${key}`, `unknown id ${id}`);
+  for (const id of Object.keys(B.upgradesPartnerScoped || {})) if (!upIds.has(id)) err('leaderSelect.bibiOnly.upgradesPartnerScoped', `unknown upgrade ${id}`);
+  // cast: shipped partners + new profiles; cards: shipped events + new card profiles
+  const profiles = new Map([...C.partners.map(p => [p.id, p]), ...(LS.partnerProfiles || []).map(p => [p.id, p])]);
+  for (const p of LS.partnerProfiles || []) {
+    if (C.partners.some(q => q.id === p.id)) err(`leaderSelect.partnerProfiles.${p.id}`, 'id collides with a shipped partner');
+    if (!['m', 'f'].includes(p.g)) err(`leaderSelect.partnerProfiles.${p.id}`, 'g must be m or f');
+    for (const k of ['demand', 'threat', 'thanks', 'return']) if (!hebStr(p.lines?.[k])) err(`leaderSelect.partnerProfiles.${p.id}`, `lines.${k} missing`);
+    if (p.linesVariants?.demand && p.linesVariants.demand[0] !== p.lines.demand) err(`leaderSelect.partnerProfiles.${p.id}`, 'linesVariants.demand[0] must equal lines.demand (C1 plays variant 0)');
+    for (const x of p.excludes || []) if (!profiles.has(x)) err(`leaderSelect.partnerProfiles.${p.id}`, `excludes unknown ${x}`);
+    for (const e of p.effects || []) if (!econEffects.has(e.type)) err(`leaderSelect.partnerProfiles.${p.id}`, `effect ${e.type} unknown`);
+    if (SPR && !charOf(p.art)) err(`leaderSelect.partnerProfiles.${p.id}`, `art ${p.art} is not in sprites.json chars`);
+  }
+  const cards = new Map([...C.events.filter(e => e.side === 'opposition').map(e => [e.id, e]), ...(LS.cardProfiles || []).map(e => [e.id, e])]);
+  for (const e of LS.cardProfiles || []) {
+    if (!eventEffects.has(e.effect?.type)) err(`leaderSelect.cardProfiles.${e.id}`, `effect ${e.effect?.type} unknown to Events.EFFECTS`);
+    for (const k of Object.keys(e.when || {})) if (!condKeys.has(k)) err(`leaderSelect.cardProfiles.${e.id}`, `when key ${k} unknown to Conditions`);
+    if (!profiles.has(e.person)) err(`leaderSelect.cardProfiles.${e.id}`, `person ${e.person} unknown`);
+    if (!hebStr(e.copy?.text) || !hebStr(e.copy?.name)) err(`leaderSelect.cardProfiles.${e.id}`, 'copy.name / copy.text missing');
+  }
+  // slots
+  const SL = LS.coalitionSlots || {};
+  const slotIds = Object.keys(SL).filter(k => !k.startsWith('_'));
+  for (const s of slotIds) for (const k of Object.keys(SL[s].unlock || {})) if (!condKeys.has(k)) err(`leaderSelect.coalitionSlots.${s}`, `unlock key ${k} unknown to Conditions`);
+  const R9 = LS.lineupRules || {};
+  // ticker-rule check for leader-scoped lines
+  const allTicker = new Set(tickerIds);
+  const checkTick = (o, path, holderSrc = []) => {
+    if (!o || typeof o !== 'object') return err(path, 'ticker line missing');
+    if (!hebStr(o.text)) return err(path, 'ticker text missing');
+    if (allTicker.has(o.id)) err(path, `duplicate ticker id ${o.id}`); allTicker.add(o.id);
+    if (typeof o.poll_like !== 'boolean') err(path, 'poll_like missing');
+    const L = len(o.text);
+    if (L > 60) err(path, `ticker ${L} > 60: ${o.text}`);
+    if (/"/.test(o.text) && realNames.some(n => o.text.includes(n))) {
+      const q = [...holderSrc, ...(o.src || [])].some(f => factIds.get(f)?.label === 'Q');
+      if (!q && !o.reportedSpeech) err(path, `quote marks + real name without a [Q] src: ${o.text}`);
+    }
+  };
+  for (const t of LS.rivalTicker || []) { checkTick(t, `leaderSelect.rivalTicker.${t.id}`); if (!profiles.has(t.rival) && !cards.has(`card_${t.rival}`)) err(`leaderSelect.rivalTicker.${t.id}`, `rival ${t.rival} unknown`); }
+  if (LS.leakRight?.ticker && len(LS.leakRight.ticker) > 60) err('leaderSelect.leakRight.ticker', 'ticker > 60');
+  // each leader
+  const steps = C.court.postpone.excuseSteps;
+  for (const L of LEADERS) {
+    const P = lp(L.id);
+    const ready = (LS.contentReady || []).includes(L.id);
+    for (const k of ['name', 'short', 'party']) if (!hebStr(L[k])) err(P, `${k} missing`);
+    if (!['m', 'f'].includes(L.g)) err(P, 'g must be m or f');
+    if (!['coalition', 'opposition'].includes(L.side)) err(P, 'side must be coalition or opposition');
+    if (SPR && !charOf(L.art)) err(P, `art ${L.art} is not in sprites.json chars`);
+    if (!ready) { if (L.status !== 'backlog') warn(P, 'not contentReady and not marked backlog'); continue; }
+    for (const k of ['blurb', 'line']) if (!hebStr(L.pick?.[k])) err(P, `pick.${k} missing`);
+    const K = L.kit || {};
+    const stringsBefore = strings.filter(s => s.path.startsWith(`.leaders[`) && s.path.includes(`.${L.id}.`) && heb.test(s.text)).length;
+    let facts = new Set();
+    JSON.stringify(L, (k, v) => { if (k === 'src') [v].flat().concat(v && typeof v === 'object' && !Array.isArray(v) ? Object.values(v).flat() : []).forEach(x => typeof x === 'string' && facts.add(x)); return v; });
+    if (L.id !== (LS.defaultLeader || 'bibi')) {
+      // a new leader: the full kit (spec §5, content volume table)
+      for (const k of ['prop', 'critAnim', 'verb', 'verbPlural', 'critName', 'critPlural', 'frenzyBanner']) if (!K.tap?.[k]) err(`${P}.kit.tap`, `${k} missing`);
+      const ch = charOf(L.art);
+      if (ch && K.tap?.critAnim && !ch.anims?.[K.tap.critAnim]) err(`${P}.kit.tap`, `critAnim ${K.tap.critAnim} is not an anim of ${L.art}`);
+      if (ch && K.tap?.critEvent && !Object.keys(ch.anims?.[K.tap.critAnim]?.events || {}).includes(K.tap.critEvent)) warn(`${P}.kit.tap`, `critEvent ${K.tap.critEvent} is not an event of ${L.art}.${K.tap.critAnim}`);
+      for (const k of ['firstTap', 'firstCrit', 'taps1000', 'firstPartner']) checkTick(K.headlines?.[k], `${P}.kit.headlines.${k}`);
+      for (const t of Object.keys(LS.sourceTiers?.tiers || {})) {
+        const s = K.sources?.[t];
+        if (!s) { err(`${P}.kit.sources`, `${t} missing`); continue; }
+        for (const k of ['name', 'flavor', 'levelUp']) if (!hebStr(s[k])) err(`${P}.kit.sources.${t}`, `${k} missing`);
+        checkTick(s.firstOwned, `${P}.kit.sources.${t}.firstOwned`, s.src || []);
+      }
+      const got = (K.spins || []).map(s => s.slot);
+      for (const s of skinSlots) if (!got.includes(s)) err(`${P}.kit.spins`, `slot ${s} missing`);
+      for (const s of got) if (!skinSlots.includes(s)) err(`${P}.kit.spins`, `slot ${s} is not a skinnable slot`);
+      if (new Set(got).size !== got.length) err(`${P}.kit.spins`, 'duplicate slot');
+      for (const s of K.spins || []) for (const k of ['name', 'flavor']) if (!hebStr(s[k])) err(`${P}.kit.spins.${s.slot}`, `${k} missing`);
+      const H = K.hazard || {};
+      if (!LS.hazardSkins?.[H.skin]) err(`${P}.kit.hazard`, `skin ${H.skin} unknown`);
+      if (!hebStr(H.postponeVerb)) err(`${P}.kit.hazard`, 'postponeVerb missing');
+      if ((H.excuses || []).length !== steps) err(`${P}.kit.hazard`, `excuses ${(H.excuses || []).length} != court.postpone.excuseSteps ${steps}`);
+      (H.excuses || []).forEach((x, i) => { if (i && !x.startsWith(H.excuses[i - 1].replace(/\.$/, ''))) warn(`${P}.kit.hazard.excuses[${i}]`, 'does not grow from the previous excuse (the gag is that it gets one sentence longer)'); });
+      for (const k of ['firsttap', 'buy', 'elect', 'miss']) if (!hebStr(K.dubi?.squawks?.[k])) err(`${P}.kit.dubi.squawks`, `${k} missing`);
+      if ((K.dubi?.talkingPoints || []).length < 4) err(`${P}.kit.dubi`, 'talkingPoints < 4 (word salad needs three)');
+      for (const k of ['cash', 'frenzy', 'tapFrenzy', 'miss']) if (!hebStr(K.suitcase?.lines?.[k])) err(`${P}.kit.suitcase.lines`, `${k} missing`);
+      const st = K.story || {};
+      if ((st.titles || []).length !== (st.beats || []).length || (st.beats || []).length < 3) err(`${P}.kit.story`, 'needs ≥ 3 beats and one title per beat');
+      if ((K.ticker || []).length < 10) err(`${P}.kit.ticker`, `${(K.ticker || []).length} lines < 10`);
+      for (const t of K.ticker || []) checkTick(t, `${P}.kit.ticker.${t.id}`);
+      if (!K.trophy?.id || trIds.has(K.trophy.id)) err(`${P}.kit.trophy`, 'missing, or id collides with a shipped trophy');
+      if (!L.rule?.effect) err(P, 'rule missing (every leader has one signature rule, spec §5.1)');
+    }
+    // coalition lineup
+    const Cn = L.coalition || {};
+    const members = (Cn.lineup || []).map(m => m.id);
+    if (new Set(members).size !== members.length) err(`${P}.coalition`, 'duplicate lineup member');
+    for (const m of Cn.lineup || []) {
+      if (!profiles.has(m.id)) err(`${P}.coalition.lineup`, `unknown partner ${m.id}`);
+      if (!slotIds.includes(m.slot)) err(`${P}.coalition.lineup.${m.id}`, `unknown slot ${m.slot}`);
+      if (m.id === L.id) err(`${P}.coalition.lineup`, `${m.id} is the leader`);
+    }
+    const first = (Cn.lineup || []).find(m => m.slot === 'S1');
+    if (!first || first.id !== Cn.firstPartner) err(`${P}.coalition`, 'firstPartner must hold slot S1');
+    for (const s of R9.requiredSlots || []) if (!(Cn.lineup || []).some(m => m.slot === s)) err(`${P}.coalition`, `required slot ${s} missing`);
+    const late = (Cn.lineup || []).filter(m => /^L/.test(m.slot)).length;
+    if (late < (R9.minLateSlots || 0)) err(`${P}.coalition`, `${late} late slots < ${R9.minLateSlots}`);
+    const cap = (Cn.lineup || []).reduce((a, m) => a + (SL[m.slot]?.seats || 0), 0);
+    if (cap < (R9.minSeatCapacity || 0)) err(`${P}.coalition`, `seat capacity ${cap} < ${R9.minSeatCapacity}`);
+    for (const x of Cn.excluded || []) if (members.includes(x)) err(`${P}.coalition`, `${x} is both excluded and in the lineup`);
+    for (const r of Cn.rivals || []) {
+      if (!cards.has(r)) err(`${P}.coalition.rivals`, `unknown card ${r}`);
+      const person = cards.get(r)?.person || r;
+      if (members.includes(person) || person === L.id) err(`${P}.coalition.rivals`, `${r} is the leader or a partner in this round`);
+    }
+    // Bibi's lineup must reproduce the shipped partner numbers (his balance is unchanged)
+    if (L.id === (LS.defaultLeader || 'bibi')) for (const m of Cn.lineup || []) {
+      const p = C.partners.find(q => q.id === m.id), s = SL[m.slot];
+      if (!p || !s) continue;
+      for (const k of ['seats', 'upkeepPct', 'demandWeight', 'threatChance']) {
+        if (p[k] === s[k] || (k === 'seats' && p.abstain) || (k === 'threatChance' && p.cannotLeave)) continue;
+        err(`${P}.coalition.lineup.${m.id}`, `${k} ${p[k]} != slot ${m.slot} ${s[k]} (Bibi's lineup must equal content.partners)`);
+      }
+      if (JSON.stringify(p.unlock || {}) !== JSON.stringify(s.unlock || {})) err(`${P}.coalition.lineup.${m.id}`, `unlock differs from slot ${m.slot}`);
+    }
+    leaderReport.push(`${L.id} (${stringsBefore} strings, ${facts.size} facts, lineup ${members.length}, capacity ${cap})`);
+  }
+}
+
 // ---------- report ----------
 const tick = C.headlines.length + ambientAll.length;
 const bubbles = C.partners.reduce((a, p) => a + new Set([...Object.values(p.lines || {}), ...Object.values(p.linesVariants || {})].flat().filter(x => typeof x === 'string' && heb.test(x))).size, 0);
@@ -255,6 +411,7 @@ console.log(`sources ${C.producers.length} · spins ${C.upgrades.length} (${C.up
 console.log(`src-tagged strings: ${game.filter(s => (s.holder.src || []).length).length}`);
 console.log(`approved pictograms in use (2D Artist draws them as glyphs): ${[...pictUsed].join(' ')}`);
 console.log(`ticker lines over the 45-char ideal (≤ 60 enforced): ${over45.length}` + (verbose ? '\n  ' + over45.join('\n  ') : ' (--verbose lists them)'));
+if (leaderReport.length) console.log(`leaders (pending engine): ${leaderReport.join(' · ')}`);
 if (warns.length) console.log(`\nWARN (${warns.length})\n  ` + warns.join('\n  '));
 if (errors.length) console.log(`\nERROR (${errors.length})\n  ` + errors.join('\n  '));
 else console.log('\nno errors');

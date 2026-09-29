@@ -4511,5 +4511,2374 @@
     "poll_like": false
    }
   ]
- }
+ },
+ "leaderSelect": {
+  "_doc": "Leader select: at the start of every round the player picks a party leader (Bar, 2026-09-29). Spec: design/leader-select-spec.md. PENDING ENGINE: nothing under leaderSelect or leaders is read by the current build; it is additive so the Bibi-only game keeps working until the picker ships. The content lint checks it (design/sim/content-lint.mjs §9).",
+  "roster": [
+   "bibi",
+   "bennett",
+   "bengvir",
+   "liberman",
+   "eisenkot",
+   "smotrich",
+   "deri",
+   "golan"
+  ],
+  "contentReady": [
+   "bibi",
+   "bennett",
+   "bengvir",
+   "liberman"
+  ],
+  "backlog": [
+   "eisenkot",
+   "smotrich",
+   "deri",
+   "golan"
+  ],
+  "later": {
+   "gantz": "Bar's call: best as everyone's stand-in; as a lead his rotation joke inverts (Bibi as the 99% partner).",
+   "abbas": "Bar's call: playable only after a human group-punchline review.",
+   "utj": "Bar's call: one pick for a two-faction list (Goldknopf / Gafni) needs a decision; the price-tag joke works as partners."
+  },
+  "shipRule": "The picker ships with at least the 4 contentReady leaders; a roster leader shows in the picker only when its kit passes the lint's completeness check.",
+  "defaultLeader": "bibi",
+  "pick": {
+   "firstLaunch": "beforeFirstTap",
+   "afterElection": true,
+   "shuffleOrder": true,
+   "randomTile": true,
+   "undoSec": 5,
+   "freshFaceBasePct": 10,
+   "copy": {
+    "title": "מי מקים את הממשלה הפעם?",
+    "titleAfter": "סבב בחירות חדש. מי בראש הרשימה?",
+    "again": "עוד סבב עם {short}",
+    "random": "הפתעה",
+    "randomLine": "דובי בחר. הוא יחזור על זה.",
+    "freshFace": "פנים חדשות: ⁦+{pct}%⁩ לבסיס בסבב הבחירות הזה",
+    "undo": "להחליף",
+    "dubiLearned": "דובי למד מסרים חדשים.",
+    "ftueAfterFirstElection": "בכל סבב בחירות אפשר להחליף ראש רשימה. הבסיס נשאר.",
+    "disclaimer": "כולם מקבלים אותו משחק. אף אחד לא מנצח."
+   }
+  },
+  "coalitionSlots": {
+   "_doc": "Coalition slot template (spec §6.2). A slot is the numbers a partner brings (seats, upkeep, demand weight, threat chance, unlock); a lineup deals slots to people. Copied from Bibi's tuned partners, so his lineup reproduces today's balance exactly.",
+   "S1": {
+    "seats": 12,
+    "upkeepPct": 4,
+    "demandWeight": 3,
+    "threatChance": 0.6,
+    "unlock": {},
+    "_from": "bengvir"
+   },
+   "S2": {
+    "seats": 2,
+    "upkeepPct": 1,
+    "demandWeight": 1,
+    "threatChance": 0.2,
+    "unlock": {
+     "runBananasAtLeast": 1000
+    },
+    "_from": "regev"
+   },
+   "S3": {
+    "seats": 7,
+    "upkeepPct": 3,
+    "demandWeight": 2,
+    "threatChance": 0.35,
+    "unlock": {
+     "runBananasAtLeast": 2500
+    },
+    "_from": "smotrich"
+   },
+   "S4": {
+    "seats": 2,
+    "upkeepPct": 1,
+    "demandWeight": 1,
+    "threatChance": 0.2,
+    "unlock": {
+     "runBananasAtLeast": 6000
+    },
+    "_from": "levin"
+   },
+   "S5": {
+    "seats": 2,
+    "upkeepPct": 1,
+    "demandWeight": 1,
+    "threatChance": 0.3,
+    "unlock": {
+     "runBananasAtLeast": 9000
+    },
+    "_from": "amsalem"
+   },
+   "SK": {
+    "seats": 2,
+    "upkeepPct": 1,
+    "demandWeight": 1,
+    "threatChance": 0.2,
+    "unlock": {
+     "evolutionsAtLeast": 1,
+     "runBananasAtLeast": 3000
+    },
+    "_from": "karhi"
+   },
+   "L1": {
+    "seats": 4,
+    "upkeepPct": 2,
+    "demandWeight": 2,
+    "threatChance": 0.3,
+    "unlock": {
+     "runBananasAtLeast": 225000,
+     "runSecAtLeast": 270
+    },
+    "_from": "goldknopf"
+   },
+   "L2": {
+    "seats": 2,
+    "upkeepPct": 1,
+    "demandWeight": 1,
+    "threatChance": 0.3,
+    "unlock": {
+     "evolutionsAtLeast": 2,
+     "runBananasAtLeast": 247500,
+     "runSecAtLeast": 300
+    },
+    "_from": "gotliv"
+   },
+   "L3": {
+    "seats": 1,
+    "upkeepPct": 1,
+    "demandWeight": 1,
+    "threatChance": 0.2,
+    "unlock": {
+     "evolutionsAtLeast": 1,
+     "runBananasAtLeast": 270000,
+     "runSecAtLeast": 240
+    },
+    "_from": "distel"
+   },
+   "L4": {
+    "seats": 4,
+    "upkeepPct": 1,
+    "demandWeight": 2,
+    "threatChance": 0.5,
+    "unlock": {
+     "runBananasAtLeast": 292500,
+     "runSecAtLeast": 300
+    },
+    "_from": "gafni (seats 0 + abstain 4 when gafni holds it)"
+   },
+   "L5": {
+    "seats": 4,
+    "upkeepPct": 2,
+    "demandWeight": 1,
+    "threatChance": 0.2,
+    "unlock": {
+     "evolutionsAtLeast": 1,
+     "runBananasAtLeast": 337500,
+     "runSecAtLeast": 330
+    },
+    "_from": "abbas"
+   },
+   "L6": {
+    "seats": 9,
+    "upkeepPct": 5,
+    "demandWeight": 1,
+    "threatChance": 0.2,
+    "unlock": {
+     "runBananasAtLeast": 360000,
+     "runSecAtLeast": 360
+    },
+    "_from": "deri (threatChance 0 comes from his cannotLeave trait)"
+   },
+   "L7": {
+    "seats": 1,
+    "upkeepPct": 1,
+    "demandWeight": 1,
+    "threatChance": 0.3,
+    "unlock": {
+     "runBananasAtLeast": 450000,
+     "runSecAtLeast": 390
+    },
+    "_from": "maygolan"
+   },
+   "L8": {
+    "seats": 1,
+    "upkeepPct": 1,
+    "demandWeight": 1,
+    "threatChance": 0.3,
+    "unlock": {
+     "runBananasAtLeast": 562500,
+     "runSecAtLeast": 420
+    },
+    "_from": "almog"
+   },
+   "SI": {
+    "seats": 4,
+    "upkeepPct": 0,
+    "demandWeight": 0,
+    "threatChance": 0,
+    "unlock": {},
+    "_from": "gantz (stand-in)"
+   }
+  },
+  "lineupRules": {
+   "requiredSlots": [
+    "S1",
+    "S3",
+    "SI"
+   ],
+   "minLateSlots": 2,
+   "minSeatCapacity": 40,
+   "shuffleSeatsExceptFirst": true,
+   "_rule": "S1 is the FTUE C1 partner (fixed, variant 0 first). Every other member's slot numbers are dealt at random each round (seeded by round), so a partner's seats never read as a poll. Bibi's lineup ships with shuffle off (tuned, and the C1 beats name Ben Gvir); Bar may turn it on."
+  },
+  "sourceTiers": {
+   "_doc": "Money-source tiers (spec §5.2). Tiers 1-3 are the shared clean sources everyone taxes; tiers 4-8 keep Bibi's numbers (cost, bps, shady, suspicionPerBuy, slots, set pieces) and take a per-leader skin. A skin's sprite comes from genericSprites unless the leader names its own.",
+   "shared": [
+    "taxpayer",
+    "hitech",
+    "vat"
+   ],
+   "tiers": {
+    "t4": "cigars",
+    "t5": "submarine",
+    "t6": "qatari",
+    "t7": "poison",
+    "t8": "washington"
+   },
+   "genericSprites": {
+    "t4": {
+     "sprite": "source_donor",
+     "status": "requested (2d-artist)",
+     "visualHook": "a faceless figure in a suit holding a plain envelope and a pen; no party colours, no logo; 40 art px, d 1, 2-frame idle (the envelope flap lifts)"
+    },
+    "t5": {
+     "sprite": "source_funds",
+     "status": "requested (2d-artist)",
+     "visualHook": "a fat lever-arch budget binder with a blank tab, coins spilling from the top; 40 art px, d 1, 2-frame idle (a coin hops)"
+    },
+    "t6": {
+     "sprite": "source_advisers",
+     "status": "requested (technical-artist): a palette swap of source_qatari",
+     "visualHook": "source_qatari with the maroon folder recoloured to plain slate grey (the maroon waiver is Qatar-only); same frames, points and d 3 + d 2"
+    },
+    "t7": {
+     "sprite": "source_poison",
+     "status": "shipped (reused as-is: a rack of phones reads as any digital campaign)"
+    },
+    "t8": {
+     "sprite": "source_checkbook",
+     "status": "shipped (reused as-is: a gold chequebook with no seals)"
+    }
+   }
+  },
+  "spinSlots": {
+   "_doc": "Spin slots (spec §5.3). A non-Bibi leader skins these Bibi spins: the effect, price, unlock and kind are the base spin's; the skin sets name, flavor, icon (fallback spin_slot_<slot>), visualHook and src. F is shared as-is (s12 has no source). Bibi-only spins stay in bibiOnly.upgrades.",
+   "A": "s01",
+   "B": "s02",
+   "C": "s03",
+   "D": "s04",
+   "E": "s11",
+   "F": "s12",
+   "G": "s13",
+   "H": "s06",
+   "I": "s05",
+   "sharedAsIs": [
+    "F"
+   ],
+   "dropFromSkin": {
+    "G": [
+     "followUp"
+    ],
+    "_why": "s13's next-morning invoice is the Channel 14 fee fact (Bibi's); a skinned G has no follow-up."
+   }
+  },
+  "hazardSkins": {
+   "court": {
+    "_doc": "Bibi: content.court as shipped (trial, postpone excuses, aide drop, pardon desk). The UI strings COURT_* stay his."
+   },
+   "press": {
+    "_doc": "The shared hazard skin for every leader but Bibi (spec §5.6). Same Investigation numbers; only the words change. Bibi keeps `court` (content.court, the trial, the aide drop and the pardon desk).",
+    "meterName": "כותרות",
+    "revealToast": "נפתח עליך תחקיר.",
+    "dayTitle": "יום תחקיר",
+    "dayBody": "{short} מגיב לתחקיר. ההכנסות מואטות.",
+    "dayBodyF": "{short} מגיבה לתחקיר. ההכנסות מואטות.",
+    "dayEffect": "כל ההכנסות: ⁦×0.5⁩ עד סוף התגובה",
+    "dayTicker": "יום תחקיר. הכל מאט. המטה עונה לשאלות.",
+    "summonsTitle": "תחקיר בדרך",
+    "summonsBody": "תחקיר עליך עולה הערב. אפשר לדחות, אפשר להגיב.",
+    "testifyVerb": "להגיב",
+    "chip": "תחקיר",
+    "endToast": "התגובה פורסמה. הקצב חזר.",
+    "hotWords": [
+     "חם",
+     "רותח"
+    ]
+   }
+  },
+  "suitcase": {
+   "stickerLeader": "bibi",
+   "plainSprite": "suitcase_plain",
+   "plainStatus": "requested (2d-artist): the kit suitcase without the DOHA sticker",
+   "_rule": "Outcomes in bibiOnly.goldenOutcomes are dropped outside Bibi's round and cash takes their weight (weights still sum to 1). Each leader's kit.suitcase overrides the catch lines and the miss line."
+  },
+  "bibiOnly": {
+   "_doc": "Content that belongs to Bibi's round (spec §8). When the picker ships, the engine shows these only while leader == bibi; everything not listed is shared. Ids only; the texts stay where they are.",
+   "headlines": [
+    "h_first_tap",
+    "h_first_rabbit",
+    "h_cigars",
+    "h_submarine",
+    "h_qatari",
+    "h_poison",
+    "h_washington",
+    "h_first_partner",
+    "h_taps_1000"
+   ],
+   "ambient": [
+    "g02",
+    "g03",
+    "g05",
+    "g08",
+    "g12",
+    "g15",
+    "g16",
+    "g21",
+    "g23",
+    "b01",
+    "b02",
+    "b03",
+    "b04",
+    "b05",
+    "b06",
+    "b07",
+    "c01",
+    "c03",
+    "c04",
+    "c05",
+    "c06",
+    "c07",
+    "c08",
+    "w01",
+    "w02",
+    "w03",
+    "w04",
+    "w05",
+    "w06",
+    "w07",
+    "o07",
+    "o08",
+    "o09",
+    "o10",
+    "o11",
+    "o12",
+    "o13",
+    "m06",
+    "d01",
+    "p02",
+    "p05",
+    "x01",
+    "x19"
+   ],
+   "ambientPolitics": [
+    "c02",
+    "m01",
+    "m02",
+    "m03",
+    "m04",
+    "m21",
+    "cal04"
+   ],
+   "upgrades": [
+    "s07",
+    "s09",
+    "s10",
+    "s14",
+    "s15"
+   ],
+   "upgradesPartnerScoped": {
+    "s08": {
+     "partnerMember": "karhi"
+    }
+   },
+   "goldenOutcomes": [
+    "aide",
+    "laundry"
+   ],
+   "events": [
+    "pardon",
+    "kaia",
+    "pinkfront",
+    "defector"
+   ],
+   "trophies": [
+    "a_rabbit_10",
+    "a_rabbit_100",
+    "a_court_1",
+    "a_bourekas",
+    "a_pardon_10",
+    "a_aide_3",
+    "a_window_seat",
+    "a_s_lapid"
+   ],
+   "systems": [
+    "court.aide (the aide drop)",
+    "court.pardon (the pardon desk)",
+    "court.postpone copy",
+    "story (5 beats)",
+    "dubi (squawks, talkingPoints)",
+    "the DOHA sticker",
+    "Sara's mark (Balfour)",
+    "prop_hat, prop_rabbit, hatMouth, temple (sweat)"
+   ],
+   "_why": {
+    "pinkfront": "The drum line protested outside Balfour; it belongs to Bibi's round.",
+    "defector": "Its ticker is Illouz on Likud; in other rounds a defector walks toward the player's building (backlog).",
+    "a_s_lapid": "Counts Lapid's card, which exists only while Lapid is a rival (Bibi's and Ben Gvir's rounds); earnable there, listed here for simplicity."
+   }
+  },
+  "neutralCopy": {
+   "_doc": "Replacement copy for shared strings that today assume Bibi (spec §9). The engine uses these once the picker ships; content.json keeps Bibi's texts until then. Keys are paths into content.json; values are the neutral text. UI strings are in the spec's replacement checklist (UX owns ux/ui-strings.json).",
+   "achievements.a_tap_100.name": "עבודה קשה",
+   "achievements.a_tap_100.desc": "100 הקשות. בכל תפקיד.",
+   "achievements.a_tap_1000.desc": "1,000 הקשות.",
+   "achievements.a_tap_10000.desc": "10,000 הקשות.",
+   "achievements.a_perk_1.desc": "חתמת על סעיף ראשון בהסכם.",
+   "achievements.a_s_nap.name": "שינה ממלכתית",
+   "achievements.a_s_night.desc": "הקשת בין 02:00 ל־04:00.",
+   "perks.p_autotap.name": "יד ימין אוטומטית",
+   "perks.p_autotap.desc": "{v} הקשות לשנייה",
+   "perks.p_toolbelt.name": "חוזה עם הלשכה",
+   "perks.p_toolbelt.desc": "שדרוגי הקשה נשמרים",
+   "ambient.p02": "יד ימין אוטומטית עובדת. הלשכה חוסכת אצבע. הציבור לא חוסך כלום.",
+   "golden.miss.dubi": "{missSquawk}",
+   "prestige.speciesTitlesF": [
+    "מועמדת",
+    "ראשת הממשלה",
+    "ראשת ממשלת מעבר",
+    "ראשת ממשלת מעבר קבועה",
+    "ראשת ממשלת מעבר ותיקה",
+    "ראשת ממשלת מעבר מתמידה",
+    "ראשת ממשלת מעבר אמריטוס",
+    "ראשת ממשלת מעבר נצחית"
+   ],
+   "_speciesTitlesF": "For a future leader with g f (none at launch). The male list stays prestige.speciesTitles."
+  },
+  "partnerProfiles": [
+   {
+    "id": "bibi",
+    "name": "בנימין נתניהו",
+    "short": "ביבי",
+    "g": "m",
+    "avatar": "bibi_avatar",
+    "art": "bibi",
+    "bloc": "right",
+    "lines": {
+     "demand": "תעביר לליכוד. אין כלום, רק תעביר.",
+     "threat": "אם זה לא עובר, אני הולך לבחירות. אני אוהב בחירות.",
+     "thanks": "קיבלתי. לא היה כלום.",
+     "return": "חזרתי. תמיד חוזרים אליי."
+    },
+    "linesVariants": {
+     "demand": [
+      "תעביר לליכוד. אין כלום, רק תעביר.",
+      "צריך תקציב לבלפור. הווילונות. אתה יודע.",
+      "יש לי רעיון קטן. הוא עולה {price} ₪. אין כלום."
+     ]
+    },
+    "src": [
+     "ein-klum"
+    ],
+    "_note": "Bibi as a partner (Ben Gvir's round, and any right-bloc leader's). His demands are his own catchphrase; the chat is the fictional voice (lint: chat bubbles are exempt from the quote rule)."
+   },
+   {
+    "id": "lapid",
+    "name": "יאיר לפיד",
+    "short": "לפיד",
+    "g": "m",
+    "avatar": "lapid_avatar",
+    "art": "lapid",
+    "bloc": "center",
+    "lines": {
+     "demand": "איפה הכסף? אה, פה. תעביר {price} ₪.",
+     "threat": "אם זה לא עובר, אני שואל איפה הכסף. בשידור חי.",
+     "thanks": "קיבלתי. עכשיו אני יודע איפה הכסף.",
+     "return": "חזרתי. עם שאלה.",
+     "status": "במקום השני ברשימה. לא בקבוצה השנייה."
+    },
+    "linesVariants": {
+     "demand": [
+      "איפה הכסף? אה, פה. תעביר {price} ₪.",
+      "שאלה פשוטה: איפה הכסף? תשובה פשוטה: אצלי."
+     ]
+    },
+    "onPay": {
+     "suspicion": 2
+    },
+    "src": [
+     "lapid-where-money",
+     "beyachad-list"
+    ],
+    "_note": "Paying Lapid draws the question he is known for: every payment adds a little heat (onPay). In Bennett's round he is list No. 2: cannotLeave + statusLine (lineup traits)."
+   },
+   {
+    "id": "liberman",
+    "name": "אביגדור ליברמן",
+    "short": "ליברמן",
+    "g": "m",
+    "avatar": "liberman_avatar",
+    "art": "liberman",
+    "bloc": "right-opposition",
+    "lines": {
+     "demand": "ממשלה ציונית. ותקציב. בסדר הזה.",
+     "threat": "אם זה לא עובר, אני לא יושב. גם לא עכשיו.",
+     "thanks": "התקבל. אני עדיין עומד.",
+     "return": "חזרתי. עומד בצד."
+    },
+    "linesVariants": {
+     "demand": [
+      "ממשלה ציונית. ותקציב. בסדר הזה.",
+      "עוד {price} ₪ ואני שוקל לשבת. לשקול, לא לשבת."
+     ]
+    },
+    "excludes": [
+     "bibi",
+     "deri",
+     "goldknopf",
+     "gafni",
+     "abbas"
+    ],
+    "src": [
+     "liberman-wont-sit"
+    ],
+    "_note": "Trait: while Liberman is a member these can't join (the existing `excludes`, as Abbas has for Ben Gvir). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Abbas and Gafni in Bennett's round."
+   },
+   {
+    "id": "golan",
+    "name": "יאיר גולן",
+    "short": "גולן",
+    "g": "m",
+    "avatar": "golan_avatar",
+    "art": "golan",
+    "bloc": "left",
+    "lines": {
+     "demand": "בוא נתאחד. אחר כך נדבר על {price} ₪.",
+     "threat": "אם זה לא עובר, אני מתאחד עם מישהו אחר.",
+     "thanks": "סגרנו. איחוד מוצלח. לפחות עד הבא.",
+     "return": "חזרתי. התאחדתי עם עצמי."
+    },
+    "linesVariants": {
+     "demand": [
+      "בוא נתאחד. אחר כך נדבר על {price} ₪.",
+      "הצעת איחוד: אתה, אני, ועוד {price} ₪."
+     ]
+    },
+    "src": [
+     "labor-meretz-merger"
+    ],
+    "_guardrail": "Politics only: mergers and the Democrats. Never his public story outside politics (brief red lines)."
+   },
+   {
+    "id": "eisenkot",
+    "name": "גדי אייזנקוט",
+    "short": "אייזנקוט",
+    "g": "m",
+    "avatar": "eisenkot_avatar",
+    "art": "eisenkot",
+    "bloc": "center",
+    "lines": {
+     "demand": "אפשר לדבר ישר? צריך {price} ₪.",
+     "threat": "אם זה לא עובר, אני אומר את זה ישר. בשידור.",
+     "thanks": "קיבלתי. תודה, ישר ולעניין.",
+     "return": "חזרתי. ישר לעניין."
+    },
+    "linesVariants": {
+     "demand": [
+      "אפשר לדבר ישר? צריך {price} ₪.",
+      "בקשה ישרה, בלי קסמים: תקציב."
+     ]
+    },
+    "effects": [
+     {
+      "type": "tapMult",
+      "mult": 1.25
+     }
+    ],
+    "src": [
+     "yashar"
+    ],
+    "_note": "Trait: 'ישר' while a member, every tap ×1.25 (straight, no tricks). His card elsewhere keeps noCrit.",
+    "_guardrail": "Only 'ישר', plain talk and no magic. Never his career before politics, never anything personal (brief red lines)."
+   },
+   {
+    "id": "bennett",
+    "name": "נפתלי בנט",
+    "short": "בנט",
+    "g": "m",
+    "avatar": "bennett_avatar",
+    "art": "bennett",
+    "bloc": "center-right",
+    "lines": {
+     "demand": "אני חותם שאני בעד. תעביר {price} ₪ ואחתום שוב.",
+     "threat": "אם זה לא עובר, אני חותם על התחייבות נגדך.",
+     "thanks": "קיבלתי. חתמתי על תודה.",
+     "return": "חזרתי. חתמתי שלא אעזוב. שוב."
+    },
+    "linesVariants": {
+     "demand": [
+      "אני חותם שאני בעד. תעביר {price} ₪ ואחתום שוב.",
+      "התחייבות חדשה: תמיכה מלאה. בתוקף עד השידור הבא."
+     ]
+    },
+    "src": [
+     "bennett-pledge"
+    ]
+   },
+   {
+    "id": "mk_switcher",
+    "name": "ח״כ שעבר צד",
+    "short": "ח״כ שעבר צד",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "any",
+    "generic": true,
+    "lines": {
+     "demand": "הייתי שם, עכשיו אני פה. בשביל {price} ₪ אני נשאר.",
+     "threat": "יש לי הצעה מהצד השני. היא עדיין בתוקף.",
+     "thanks": "תודה. אני נשאר. בינתיים.",
+     "return": "חזרתי. מהצד השני של הצד השני."
+    },
+    "rebel": true,
+    "_note": "Generic, not a real person (the no-photo stand-in). Fills a lineup any bloc can't; poach only, like Almog."
+   },
+   {
+    "id": "mk_undecided",
+    "name": "ח״כית מתלבטת",
+    "short": "ח״כית מתלבטת",
+    "g": "f",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "any",
+    "generic": true,
+    "lines": {
+     "demand": "עוד לא החלטתי. {price} ₪ יעזרו לי להחליט.",
+     "threat": "אני מתחילה להתלבט שוב.",
+     "thanks": "החלטתי! לבינתיים.",
+     "return": "חזרתי. התלבטתי והחלטתי לחזור."
+    },
+    "linesVariants": {
+     "demand": [
+      "עוד לא החלטתי. {price} ₪ יעזרו לי להחליט.",
+      "אני בעד. כמעט. חסר רק תקציב."
+     ]
+    }
+   },
+   {
+    "id": "mk_offer",
+    "name": "ח״כ עם הצעה",
+    "short": "ח״כ עם הצעה",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "any",
+    "generic": true,
+    "lines": {
+     "demand": "יש לי הצעת חוק. היא עולה {price} ₪.",
+     "threat": "אם זה לא עובר, אני מגיש אותה לצד השני.",
+     "thanks": "עבר! אספר לכולם שזה היה רעיון שלי.",
+     "return": "חזרתי. עם הצעה חדשה."
+    },
+    "linesVariants": {
+     "demand": [
+      "יש לי הצעת חוק. היא עולה {price} ₪.",
+      "הצעת חוק קטנה, תקציב גדול."
+     ]
+    }
+   }
+  ],
+  "cardProfiles": [
+   {
+    "id": "card_bibi",
+    "person": "bibi",
+    "kind": "card",
+    "side": "rival",
+    "weight": 2,
+    "cooldownSec": 420,
+    "when": {
+     "evolutionsAtLeast": 1
+    },
+    "effect": {
+     "type": "seatDrain",
+     "seats": 3,
+     "sec": 60
+    },
+    "pollLike": false,
+    "src": [
+     "gantz-rotation"
+    ],
+    "copy": {
+     "name": "בנימין נתניהו",
+     "avatar": "bibi_avatar",
+     "text": "מציע רוטציה לכל מי שמוכן לעבור. מאז 2020 אף אחד לא בדק מתי."
+    }
+   },
+   {
+    "id": "card_bengvir",
+    "person": "bengvir",
+    "kind": "card",
+    "side": "rival",
+    "weight": 2,
+    "cooldownSec": 420,
+    "when": {
+     "membersAtLeast": 3
+    },
+    "effect": {
+     "type": "brawl",
+     "pairs": [],
+     "anyPair": true
+    },
+    "pollLike": false,
+    "copy": {
+     "name": "איתמר בן גביר",
+     "avatar": "ben-gvir_avatar",
+     "text": "העביר לקבוצה שלך הודעה שהועברה פעמים רבות. מתחילה קטטה."
+    }
+   },
+   {
+    "id": "card_smotrich",
+    "person": "smotrich",
+    "kind": "card",
+    "side": "rival",
+    "weight": 1,
+    "cooldownSec": 420,
+    "when": {
+     "evolutionsAtLeast": 1
+    },
+    "effect": {
+     "type": "noCrit",
+     "sec": 20
+    },
+    "pollLike": false,
+    "copy": {
+     "name": "בצלאל סמוטריץ׳",
+     "avatar": "smotrich_avatar",
+     "text": "שר האוצר הודיע שאין כסף. גם לא לבונוסים."
+    }
+   },
+   {
+    "id": "card_deri",
+    "person": "deri",
+    "kind": "card",
+    "side": "rival",
+    "weight": 1,
+    "cooldownSec": 420,
+    "when": {
+     "evolutionsAtLeast": 1
+    },
+    "effect": {
+     "type": "seatDrain",
+     "seats": 2,
+     "sec": 60
+    },
+    "pollLike": false,
+    "copy": {
+     "name": "אריה דרעי",
+     "avatar": "deri_avatar",
+     "text": "הזמין את השותפים שלך לקפה. הם עוד לא חזרו ☕"
+    }
+   }
+  ],
+  "leakRight": {
+   "_doc": "The leak event in an opposition leader's round (spec §5.5): the screenshot comes from the other bloc's group. Same effect as events.leak; members from the rivals.",
+   "title": "הקואליציה (רשמי) (מעודכן) 7",
+   "status": "דרעי מקליד…",
+   "ticker": "מבזק: צילום מסך דלף מהקואליציה. דרעי עדיין מקליד.",
+   "leaks": [
+    [
+     [
+      "ביבי",
+      "אין כלום."
+     ],
+     [
+      "בן גביר",
+      "אם אין כלום, אני פורש."
+     ],
+     [
+      "סמוטריץ׳",
+      "אין כסף גם לפרישה."
+     ],
+     [
+      "דרעי",
+      "ידידיי, בואו נשב על קפה ☕"
+     ],
+     [
+      "בן גביר",
+      "הקפה עולה כסף?"
+     ],
+     [
+      "סמוטריץ׳",
+      "הכל עולה כסף. אין כסף."
+     ],
+     [
+      "sys",
+      "בן גביר העביר את ההודעה פעמים רבות"
+     ]
+    ],
+    [
+     [
+      "ביבי",
+      "מי הדליף?"
+     ],
+     [
+      "בן גביר",
+      "לא אני. אבל אם זה ימשיך, אני פורש."
+     ],
+     [
+      "דרעי",
+      "לא אני. אני בכלל לא בממשלה ☕",
+      [
+       "haredi-left-gov"
+      ]
+     ],
+     [
+      "סמוטריץ׳",
+      "לא אני. אין לי תקציב להדלפות."
+     ],
+     [
+      "sys",
+      "ביבי הקים ועדה לבדיקת ההדלפה"
+     ]
+    ]
+   ]
+  },
+  "rivalTicker": [
+   {
+    "id": "r01",
+    "rival": "bibi",
+    "text": "ביבי הודיע שאין כלום. מקורות: יש כובע.",
+    "src": [
+     "ein-klum"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "r02",
+    "rival": "bibi",
+    "text": "ביבי הציע רוטציה למישהו. גנץ ביקש לראות את החוזה.",
+    "src": [
+     "gantz-rotation"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "r03",
+    "rival": "bengvir",
+    "text": "בן גביר איים לפרוש. מממשלה שהוא לא בה. ליתר ביטחון.",
+    "poll_like": false
+   },
+   {
+    "id": "r04",
+    "rival": "smotrich",
+    "text": "סמוטריץ׳ הודיע שאין כסף. כבר אמרנו? הוא אומר שוב.",
+    "poll_like": false
+   },
+   {
+    "id": "r05",
+    "rival": "deri",
+    "text": "דרעי הזמין לקפה. הקפה עולה כסף. הרבה כסף.",
+    "poll_like": false
+   },
+   {
+    "id": "r06",
+    "rival": "bibi",
+    "text": "הקואליציה של ביבי פתחה קבוצה. תוך שעה: איום פרישה.",
+    "poll_like": false
+   },
+   {
+    "id": "r07",
+    "rival": "smotrich",
+    "text": "סמוטריץ׳ ביטל את מס הצלחות ב־2023. הצלחות מודות לו.",
+    "src": [
+     "liberman-finance-taxes"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "r08",
+    "rival": "bengvir",
+    "text": "עוצמה הצביעה נגד התקציב. התקציב עבר בכל זאת.",
+    "src": [
+     "otzma-budget-2025"
+    ],
+    "poll_like": false
+   }
+  ],
+  "trophies": [
+   {
+    "id": "a_all_leaders",
+    "name": "כולם היו ראש ממשלה",
+    "desc": "סבב בחירות עם כל ראשי הרשימות.",
+    "icon": "icon_folder",
+    "trigger": {
+     "type": "leadersPlayedAll"
+    }
+   },
+   {
+    "id": "a_fresh_face",
+    "name": "פנים חדשות",
+    "desc": "החלפת ראש רשימה 10 פעמים.",
+    "icon": "icon_folder",
+    "trigger": {
+     "type": "stat",
+     "key": "leaderSwitches",
+     "value": 10
+    }
+   }
+  ]
+ },
+ "leaders": [
+  {
+   "id": "bibi",
+   "name": "בנימין נתניהו",
+   "short": "ביבי",
+   "party": "הליכוד",
+   "g": "m",
+   "side": "coalition",
+   "art": "bibi",
+   "avatar": "bibi_avatar",
+   "pick": {
+    "blurb": "שולף שקלים מכובע, משלם לשותפים ודוחה את המשפט.",
+    "line": "אין כלום! אין כלום!"
+   },
+   "kit": {
+    "_doc": "Bibi's kit is today's game: every field points at the shipped content. Nothing new to author.",
+    "tap": {
+     "prop": "prop_hat",
+     "anim": "tap",
+     "critAnim": "crit",
+     "critProp": "prop_rabbit",
+     "verb": "שליפה",
+     "verbPlural": "שליפות",
+     "critName": "ארנב",
+     "critPlural": "ארנבים",
+     "frenzyBanner": "טורבו בכובע!"
+    },
+    "sources": "content.producers (as shipped)",
+    "spins": "content.upgrades (as shipped)",
+    "hazard": "court",
+    "dubi": "content.dubi",
+    "suitcase": "content.golden (DOHA)",
+    "story": "content.story",
+    "headlines": {
+     "firstTap": "h_first_tap",
+     "firstCrit": "h_first_rabbit",
+     "taps1000": "h_taps_1000",
+     "firstPartner": "h_first_partner"
+    }
+   },
+   "coalition": {
+    "firstPartner": "bengvir",
+    "shuffleSeats": false,
+    "lineup": [
+     {
+      "id": "bengvir",
+      "slot": "S1"
+     },
+     {
+      "id": "regev",
+      "slot": "S2"
+     },
+     {
+      "id": "smotrich",
+      "slot": "S3"
+     },
+     {
+      "id": "levin",
+      "slot": "S4"
+     },
+     {
+      "id": "amsalem",
+      "slot": "S5"
+     },
+     {
+      "id": "karhi",
+      "slot": "SK"
+     },
+     {
+      "id": "goldknopf",
+      "slot": "L1"
+     },
+     {
+      "id": "gotliv",
+      "slot": "L2"
+     },
+     {
+      "id": "distel",
+      "slot": "L3"
+     },
+     {
+      "id": "gafni",
+      "slot": "L4"
+     },
+     {
+      "id": "abbas",
+      "slot": "L5"
+     },
+     {
+      "id": "deri",
+      "slot": "L6"
+     },
+     {
+      "id": "maygolan",
+      "slot": "L7"
+     },
+     {
+      "id": "almog",
+      "slot": "L8"
+     },
+     {
+      "id": "gantz",
+      "slot": "SI"
+     }
+    ],
+    "rivals": [
+     "lapid",
+     "eisenkot",
+     "liberman",
+     "bennett",
+     "golan"
+    ],
+    "_note": "Reproduces content.partners exactly (each slot is copied from the partner that holds it). Rival cards are the shipped events."
+   },
+   "trophy": "the shipped 40"
+  },
+  {
+   "id": "bennett",
+   "name": "נפתלי בנט",
+   "short": "בנט",
+   "party": "ביחד",
+   "g": "m",
+   "side": "opposition",
+   "art": "bennett",
+   "avatar": "bennett_avatar",
+   "src": [
+    "beyachad-list"
+   ],
+   "pick": {
+    "blurb": "חותם על התחייבויות. לפיד במקום השני, בינתיים.",
+    "line": "ביחד! ביחד!",
+    "src": [
+     "beyachad-list",
+     "bennett-pledge"
+    ]
+   },
+   "rule": {
+    "id": "selfPledge",
+    "name": "ההתחייבות",
+    "text": "פעם בכמה דקות אתה חותם על התחייבות: הרוב עולה ל־62 ל־45 שניות, ואז היא מתהפכת ומוסיפה לבסיס.",
+    "effect": {
+     "type": "selfEvent",
+     "event": "bennett",
+     "weightMult": 2,
+     "firstAfterPlaySec": 240
+    },
+    "src": [
+     "bennett-pledge"
+    ],
+    "_note": "Reuses the shipped pledge effect (events.bennett: gatePlus 1, sec 45, baseAdd 1) as the player's own card. No new sim effect."
+   },
+   "kit": {
+    "tap": {
+     "prop": "prop_pen",
+     "anim": null,
+     "critAnim": "flip",
+     "critEvent": "whoosh",
+     "verb": "חתימה",
+     "verbPlural": "חתימות",
+     "critName": "היפוך",
+     "critPlural": "היפוכים",
+     "frenzyBanner": "טורבו בעט!"
+    },
+    "headlines": {
+     "firstTap": {
+      "id": "hb_first_tap",
+      "text": "בנט חתם על התחייבות. הדיו עוד לא יבש.",
+      "poll_like": false
+     },
+     "firstCrit": {
+      "id": "hb_first_crit",
+      "text": "ההתחייבות התהפכה. בלשכה: זה לא היפוך, זו התפתחות.",
+      "poll_like": false
+     },
+     "taps1000": {
+      "id": "hb_taps_1000",
+      "text": "1,000 חתימות. העט ביקש התחייבות שזו האחרונה.",
+      "poll_like": false
+     },
+     "firstPartner": {
+      "id": "hb_first_partner",
+      "text": "ליברמן הצטרף לקבוצה. בעמידה.",
+      "poll_like": false
+     }
+    },
+    "sources": {
+     "t4": {
+      "name": "חבר מההייטק",
+      "flavor": "תורם בקפוצ׳ון. מאמין בך, ובאקזיט הבא.",
+      "levelUp": "עוד חבר מההייטק. כולם מכירים את כולם.",
+      "firstOwned": {
+       "id": "hb_t4",
+       "text": "חבר מההייטק הצטרף. ביקש רק דבר אחד: לא לשאול שאלות.",
+       "poll_like": false
+      }
+     },
+     "t5": {
+      "name": "הבית ברעננה",
+      "flavor": "לא עבר לבלפור. המדינה עברה אליו, בכמה מיליונים.",
+      "levelUp": "עוד מצלמה בשכונה. השכנים כבר מנופפים.",
+      "src": [
+       "bennett-raanana"
+      ],
+      "firstOwned": {
+       "id": "hb_t5",
+       "text": "הבית ברעננה הפך למעון. לפי הדיווח: 12 עד 15 מיליון ₪.",
+       "poll_like": false,
+       "src": [
+        "bennett-raanana"
+       ]
+      }
+     },
+     "t6": {
+      "name": "מחלקת ההתחייבויות",
+      "flavor": "יועצים שמנסחים התחייבויות, ויועצים שמנסחים את ההיפוך.",
+      "levelUp": "עוד יועץ. עוד טופס, עם מקום לחתימה.",
+      "firstOwned": {
+       "id": "hb_t6",
+       "text": "נפתחה מחלקת התחייבויות. על השלט: פתוח עד השידור הבא.",
+       "poll_like": false
+      }
+     },
+     "t7": {
+      "name": "סרטונים אנכיים",
+      "flavor": "30 שניות, מבט למצלמה, מסר אחד. אחר כך עוד אחד.",
+      "levelUp": "סרטון חדש עלה. הכיתוב גדול. המסר: ביחד.",
+      "firstOwned": {
+       "id": "hb_t7",
+       "text": "המטה הדיגיטלי של ביחד עלה לאוויר. הטלפון במצב אנכי.",
+       "poll_like": false
+      }
+     },
+     "t8": {
+      "name": "האקזיט",
+      "flavor": "סייוטה נמכרה ב־145 מיליון דולר. מאז הכל נראה קטן.",
+      "levelUp": "עוד צ׳ק מהאקזיט. החברה נמכרה מזמן. הצ׳ק לא.",
+      "src": [
+       "bennett-cyota"
+      ],
+      "firstOwned": {
+       "id": "hb_t8",
+       "text": "האקזיט הגיע לקופה. הייטק לשעבר, תקציב לעתיד.",
+       "poll_like": false,
+       "src": [
+        "bennett-cyota"
+       ]
+      }
+     }
+    },
+    "spins": [
+     {
+      "slot": "A",
+      "name": "טוש עבה",
+      "flavor": "חתימה עבה יותר קשה יותר להכחיש. בערך.",
+      "visualHook": "a fat black marker with its cap off"
+     },
+     {
+      "slot": "B",
+      "name": "חתימה בשידור חי",
+      "flavor": "חותם מול המצלמה. דקה שלמה של אמינות.",
+      "visualHook": "a studio camera with a red light and a pen in front"
+     },
+     {
+      "slot": "C",
+      "name": "עובד מהבית",
+      "flavor": "ברעננה. הקופה ממשיכה גם כשאתה לא פה.",
+      "visualHook": "a house key on a lanyard",
+      "src": [
+       "bennett-raanana"
+      ]
+     },
+     {
+      "slot": "D",
+      "name": "הבהרה",
+      "flavor": "כל ביקורת מקבלת הבהרה. כל הבהרה מקבלת הבהרה.",
+      "visualHook": "a sheet with an asterisk and a longer footnote"
+     },
+     {
+      "slot": "E",
+      "name": "אימון היפוכים",
+      "flavor": "היפוך מושלם דורש אימון. ובעיקר התחייבות קודמת.",
+      "visualHook": "a pancake flipping in mid-air"
+     },
+     {
+      "slot": "G",
+      "name": "פודקאסט ידידותי",
+      "flavor": "שעה וחצי, שאלה קשה אחת. היא על הקפה.",
+      "visualHook": "two mics and two mugs, one mug says 'ביחד'"
+     },
+     {
+      "slot": "H",
+      "name": "רוטציה",
+      "flavor": "ב־2022 היא באמת קרתה. מאז לפיד מזכיר את זה.",
+      "visualHook": "two chairs on a turntable",
+      "src": [
+       "rotation-2022"
+      ]
+     },
+     {
+      "slot": "I",
+      "name": "חתימה נגדית",
+      "flavor": "כל כרטיס של היריבים מחזק את הבסיס. חתום ומאושר.",
+      "visualHook": "a stamp that says 'מאושר' over a rival's card"
+     }
+    ],
+    "hazard": {
+     "skin": "press",
+     "postponeVerb": "התחייבות להגיב",
+     "postponePrefix": "התגובה נדחתה:",
+     "excuses": [
+      "נגיב מחר. חתמנו.",
+      "נגיב מחר. חתמנו. בשידור חי.",
+      "נגיב מחר. חתמנו. בשידור חי. מול עדים.",
+      "נגיב מחר. חתמנו. בשידור חי. מול עדים. העדים חתמו גם.",
+      "נגיב מחר. חתמנו. בשידור חי. מול עדים. העדים חתמו גם. ההתחייבות התהפכה.",
+      "נגיב מחר. חתמנו. בשידור חי. מול עדים. העדים חתמו גם. ההתחייבות התהפכה. נחתום על חדשה מחר."
+     ]
+    },
+    "dubi": {
+     "squawks": {
+      "firsttap": "ביחד! ביחד!",
+      "buy": "לחתום! לחתום!",
+      "elect": "בחירות! בחירות!",
+      "miss": "נגיב מחר! נגיב מחר!"
+     },
+     "talkingPoints": [
+      "ביחד!",
+      "חתמתי!",
+      "איפה הכסף!",
+      "נגיב מחר!",
+      "בחירות!",
+      "רוטציה!"
+     ],
+     "src": [
+      "beyachad-list",
+      "lapid-where-money"
+     ]
+    },
+    "suitcase": {
+     "sticker": false,
+     "lines": {
+      "cash": "תפסת! בפנים: מזומן. ההתחייבות: לא לשאול מאיפה.",
+      "frenzy": "תפסת! בפנים: הזרמה. 15 שניות הכסף חותם בשבילך.",
+      "tapFrenzy": "תפסת! העט התחמם. כל חתימה ×10.",
+      "miss": "המזוודה המשיכה לרעננה. לא ידענו."
+     }
+    },
+    "story": {
+     "titles": [
+      "העט שלא נגמר",
+      "רשימה אחת, שני ראשים",
+      "ההתחייבות הגדולה"
+     ],
+     "beats": [
+      [
+       "בנט חתם על 61 התחייבויות.",
+       "חלקן אפילו הפוכות.",
+       "דובי: \"ביחד! ביחד!\"",
+       "הוחלט על בחירות. הציבור חתם שהוא נרגש."
+      ],
+      [
+       "לפיד שאל איפה הכסף.",
+       "בנט ענה: במקום השני.",
+       "הרוטציה נקבעה בחתימה. ההיפוך בנפרד."
+      ],
+      [
+       "בנט חתם שלא יחתום יותר.",
+       "ההתחייבות החזיקה עד השידור הבא.",
+       "דובי: \"חתמתי! חתמתי!\""
+      ]
+     ],
+     "src": {
+      "2": [
+       "beyachad-list",
+       "lapid-where-money"
+      ],
+      "3": [
+       "bennett-pledge"
+      ]
+     },
+     "poll_like": false
+    },
+    "ticker": [
+     {
+      "id": "tb01",
+      "text": "בנט חתם על ההתחייבות היומית. את של אתמול הוא לא מוצא.",
+      "poll_like": false
+     },
+     {
+      "id": "tb02",
+      "text": "לפיד שאל איפה הכסף. התשובה: במקום הראשון, לפניו.",
+      "poll_like": false,
+      "src": [
+       "lapid-where-money",
+       "beyachad-list"
+      ]
+     },
+     {
+      "id": "tb03",
+      "text": "ברשימת ביחד: מכל שבעה מקומות, ארבעה לבנט. לפיד סופר שוב.",
+      "poll_like": false,
+      "src": [
+       "beyachad-list"
+      ]
+     },
+     {
+      "id": "tb04",
+      "text": "רעננה: עוד מצלמה על עמוד. השכנים כבר מכירים את כולן.",
+      "poll_like": false,
+      "src": [
+       "bennett-raanana"
+      ]
+     },
+     {
+      "id": "tb05",
+      "text": "הוגשה התחייבות לביטול התחייבויות. בתוקף עד מחר.",
+      "poll_like": false
+     },
+     {
+      "id": "tb06",
+      "text": "מדד ההתחייבויות עלה. מדד הקיום נשאר יציב.",
+      "poll_like": false
+     },
+     {
+      "id": "tb07",
+      "text": "הייטקיסט לשעבר שאל מתי האקזיט הבא. בלשכה: אחרי הבחירות.",
+      "poll_like": false
+     },
+     {
+      "id": "tb08",
+      "text": "ב־2022 הרוטציה באמת קרתה. גנץ ביקש את המספר של מי שארגן.",
+      "poll_like": false,
+      "src": [
+       "rotation-2022",
+       "gantz-rotation"
+      ]
+     },
+     {
+      "id": "tb09",
+      "text": "הודעה לעיתונות: ההודעה הקודמת התהפכה. גם זו תתהפך.",
+      "poll_like": false
+     },
+     {
+      "id": "tb10",
+      "text": "בנט הציג תוכנית. בעמוד האחרון: מקום לחתימה.",
+      "poll_like": false
+     },
+     {
+      "id": "tb11",
+      "text": "תחקיר חדש על ביחד. בנט התחייב להגיב. מחר.",
+      "poll_like": false
+     },
+     {
+      "id": "tb12",
+      "text": "ישיבת סיעה: בנט מדבר, לפיד רושם, כולם חותמים.",
+      "poll_like": false
+     }
+    ],
+    "trophy": {
+     "id": "a_lead_bennett",
+     "name": "חתום ומאושר",
+     "desc": "1,000 חתימות בתור בנט.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "bennett",
+      "key": "taps",
+      "value": 1000
+     }
+    }
+   },
+   "coalition": {
+    "firstPartner": "liberman",
+    "shuffleSeats": true,
+    "lineup": [
+     {
+      "id": "liberman",
+      "slot": "S1"
+     },
+     {
+      "id": "lapid",
+      "slot": "S2",
+      "traits": {
+       "cannotLeave": true,
+       "statusLine": true,
+       "threatChance": 0
+      },
+      "_why": "List No. 2 (beyachad-list): same list, can't walk out."
+     },
+     {
+      "id": "eisenkot",
+      "slot": "S3"
+     },
+     {
+      "id": "golan",
+      "slot": "S4"
+     },
+     {
+      "id": "mk_offer",
+      "slot": "S5"
+     },
+     {
+      "id": "abbas",
+      "slot": "L5",
+      "lines": {
+       "thanks": "כמו ב־2021. הפעם בלי נאום."
+      },
+      "src": [
+       "raam-2021"
+      ]
+     },
+     {
+      "id": "mk_undecided",
+      "slot": "L1"
+     },
+     {
+      "id": "gafni",
+      "slot": "L4"
+     },
+     {
+      "id": "mk_switcher",
+      "slot": "L6"
+     },
+     {
+      "id": "gantz",
+      "slot": "SI"
+     }
+    ],
+    "rivals": [
+     "card_bibi",
+     "card_bengvir",
+     "card_smotrich",
+     "card_deri"
+    ],
+    "_note": "Liberman's excludes (bibi, deri, goldknopf, gafni, abbas) make the late seats a choice: keep Liberman, or let him walk and take Abbas and Gafni. The bench must confirm S1-S7 for this lineup (spec §7)."
+   }
+  },
+  {
+   "id": "bengvir",
+   "name": "איתמר בן גביר",
+   "short": "בן גביר",
+   "party": "עוצמה יהודית",
+   "g": "m",
+   "side": "coalition",
+   "art": "ben-gvir",
+   "avatar": "ben-gvir_avatar",
+   "pick": {
+    "blurb": "מאיים לפרוש לפי לוח זמנים. הפעם הקבוצה שלו.",
+    "line": "אני פורש! אני פורש!"
+   },
+   "rule": {
+    "id": "threatener",
+    "name": "לוח הזמנים",
+    "text": "אף אחד לא מאיים על מי שמאיים: השותפים מאיימים לפרוש חצי מהרגיל.",
+    "effect": {
+     "type": "partnerThreatMult",
+     "mult": 0.5
+    },
+    "_note": "A new one-line sim knob (Coalition: threatChance × mult while this leader plays). The only new rule in wave 1 besides Liberman's decline."
+   },
+   "kit": {
+    "tap": {
+     "prop": "prop_phone",
+     "anim": null,
+     "critAnim": "react",
+     "critEvent": "shout",
+     "verb": "העברה",
+     "verbPlural": "העברות",
+     "critName": "איום",
+     "critPlural": "איומים",
+     "frenzyBanner": "טורבו בהעברות!"
+    },
+    "headlines": {
+     "firstTap": {
+      "id": "hg_first_tap",
+      "text": "הודעה הועברה. פעם אחת. זו רק ההתחלה.",
+      "poll_like": false
+     },
+     "firstCrit": {
+      "id": "hg_first_crit",
+      "text": "בן גביר איים לפרוש. השעה: אחרי ההודעה הקודמת.",
+      "poll_like": false
+     },
+     "taps1000": {
+      "id": "hg_taps_1000",
+      "text": "1,000 העברות. ההודעה חזרה לשולח. הוא העביר אותה שוב.",
+      "poll_like": false
+     },
+     "firstPartner": {
+      "id": "hg_first_partner",
+      "text": "ביבי הצטרף לקבוצה של בן גביר. כשותף. תכף יאיים.",
+      "poll_like": false
+     }
+    },
+    "sources": {
+     "t4": {
+      "name": "חוג בית",
+      "flavor": "סלון, בורקס והעברה בנקאית מסודרת.",
+      "levelUp": "עוד חוג בית. עוד מגש בורקס.",
+      "firstOwned": {
+       "id": "hg_t4",
+       "text": "נפתח חוג בית ראשון. הבורקס נגמר לפני הנאום.",
+       "poll_like": false
+      }
+     },
+     "t5": {
+      "name": "תקציב הנגב והגליל",
+      "flavor": "יציאה קטנה מההצבעות, תוספת תקציב גדולה.",
+      "levelUp": "עוד תוספת. הכנסת הצביעה, עוצמה יצאה.",
+      "src": [
+       "otzma-vote-boycott"
+      ],
+      "firstOwned": {
+       "id": "hg_t5",
+       "text": "עוצמה יצאה מההצבעות. התקציב נכנס. ככה זה עובד.",
+       "poll_like": false,
+       "src": [
+        "otzma-vote-boycott"
+       ]
+      }
+     },
+     "t6": {
+      "name": "יועצי מיתוג",
+      "flavor": "שם חדש למשרד: 2 עד 3 מיליון ₪. השם ארוך יותר.",
+      "levelUp": "עוד שלט חדש. גם השלט הישן קיבל תפקיד.",
+      "src": [
+       "bengvir-ministry-rename"
+      ],
+      "firstOwned": {
+       "id": "hg_t6",
+       "text": "המשרד קיבל שם חדש. השלטים קיבלו תקציב.",
+       "poll_like": false,
+       "src": [
+        "bengvir-ministry-rename"
+       ]
+      }
+     },
+     "t7": {
+      "name": "הקבוצות",
+      "flavor": "40 קבוצות, הודעה אחת, הועברה פעמים רבות.",
+      "levelUp": "קבוצה חדשה נפתחה. חבר אחד כבר הוסר.",
+      "firstOwned": {
+       "id": "hg_t7",
+       "text": "המטה פתח עוד קבוצה. בדקה הראשונה: הסרה ראשונה.",
+       "poll_like": false,
+       "src": [
+        "almog-cohen"
+       ]
+      }
+     },
+     "t8": {
+      "name": "המשרד לביטחון לאומי",
+      "flavor": "משרד עם תקציב, שם חדש ודרישה לעוד.",
+      "levelUp": "תוספת תקציב אושרה. הודעת תודה: בהמשך. אולי.",
+      "src": [
+       "bengvir-ministry-rename"
+      ],
+      "firstOwned": {
+       "id": "hg_t8",
+       "text": "תקציב המשרד לביטחון לאומי הגיע. מחר: דרישה להגדלה.",
+       "poll_like": false,
+       "src": [
+        "bengvir-ministry-rename"
+       ]
+      }
+     }
+    },
+    "spins": [
+     {
+      "slot": "A",
+      "name": "הודעה מודגשת",
+      "flavor": "אותה הודעה באותיות גדולות. עוד 30 אגורות לכל העברה.",
+      "visualHook": "a phone screen with one huge bold word"
+     },
+     {
+      "slot": "B",
+      "name": "מסיבת עיתונאים",
+      "flavor": "דקה של מיקרופונים. הכל עובר מהר יותר.",
+      "visualHook": "a lectern with a bouquet of mics"
+     },
+     {
+      "slot": "C",
+      "name": "הודעה מתוזמנת",
+      "flavor": "האיום יוצא גם כשאתה ישן. בשעה עגולה.",
+      "visualHook": "an alarm clock with a paper plane on it"
+     },
+     {
+      "slot": "D",
+      "name": "זה לא איום",
+      "flavor": "כל כותרת מקבלת תגובה: זה לא איום. עדיין.",
+      "visualHook": "a speech bubble with a crossed-out exclamation mark"
+     },
+     {
+      "slot": "E",
+      "name": "לוח זמנים לאיומים",
+      "flavor": "איום בכל שעה עגולה. יותר איומים, יותר דיוק.",
+      "visualHook": "a wall calendar with every square circled"
+     },
+     {
+      "slot": "G",
+      "name": "ראיון שלא נגמר",
+      "flavor": "שעה של ראיון. השאלה השנייה עוד לא נשאלה.",
+      "visualHook": "a studio clock whose hands are a blur"
+     },
+     {
+      "slot": "H",
+      "name": "משרד גדול יותר",
+      "flavor": "עם מרפסת. לנאומים.",
+      "visualHook": "an office door with a balcony drawn on the sign"
+     },
+     {
+      "slot": "I",
+      "name": "כל ביקורת מחזקת",
+      "flavor": "כל כרטיס של היריבים מביא עוד תומכים. ועוד הודעות.",
+      "visualHook": "a megaphone pointing back at itself"
+     }
+    ],
+    "hazard": {
+     "skin": "press",
+     "postponeVerb": "איום פרישה",
+     "postponePrefix": "התגובה נדחתה:",
+     "excuses": [
+      "איום פרישה.",
+      "איום פרישה. דחוף.",
+      "איום פרישה. דחוף. הועבר פעמים רבות.",
+      "איום פרישה. דחוף. הועבר פעמים רבות. עם שעון עצר.",
+      "איום פרישה. דחוף. הועבר פעמים רבות. עם שעון עצר. השעון עוצר רק בשביל איום חדש.",
+      "איום פרישה. דחוף. הועבר פעמים רבות. עם שעון עצר. השעון עוצר רק בשביל איום חדש. האיום הבא נקבע לתחקיר הבא."
+     ]
+    },
+    "dubi": {
+     "squawks": {
+      "firsttap": "אני פורש! אני פורש!",
+      "buy": "תקציב! תקציב!",
+      "elect": "בחירות! בחירות!",
+      "miss": "לא איום! לא איום!"
+     },
+     "talkingPoints": [
+      "אני פורש!",
+      "תקציב!",
+      "ביטחון לאומי!",
+      "זה לא איום!",
+      "בחירות!",
+      "עוצמה!"
+     ]
+    },
+    "suitcase": {
+     "sticker": false,
+     "lines": {
+      "cash": "תפסת! בפנים: מזומן. הועבר פעמים רבות לפני שהגיע.",
+      "frenzy": "תפסת! בפנים: הזרמה. 15 שניות של תקציב חירום.",
+      "tapFrenzy": "תפסת! הטלפון התחמם. כל העברה ×10.",
+      "miss": "המזוודה עברה לקבוצה אחרת. לא ידענו."
+     }
+    },
+    "story": {
+     "titles": [
+      "ההודעה שלא נגמרת",
+      "המשרד קיבל שם",
+      "הקבוצה של עצמו"
+     ],
+     "beats": [
+      [
+       "בן גביר איים לפרוש מ־61 דברים.",
+       "חזר מכולם לפני הצהריים.",
+       "דובי: \"אני פורש! אני פורש!\"",
+       "הוחלט על בחירות. הוא עוד שוקל לפרוש מהן."
+      ],
+      [
+       "למשרד הוחלף השם.",
+       "השלטים עלו 2 עד 3 מיליון ₪.",
+       "דובי: \"ביטחון לאומי! ביטחון לאומי!\""
+      ],
+      [
+       "בן גביר הקים קבוצה.",
+       "תוך דקה מישהו הוסר ממנה.",
+       "תוך שתיים: איום פרישה. מהקבוצה של עצמו."
+      ]
+     ],
+     "src": {
+      "2": [
+       "bengvir-ministry-rename"
+      ],
+      "3": [
+       "almog-cohen"
+      ]
+     },
+     "poll_like": false
+    },
+    "ticker": [
+     {
+      "id": "tg01",
+      "text": "בן גביר איים לפרוש. הלשכה עדכנה את לוח הזמנים.",
+      "poll_like": false
+     },
+     {
+      "id": "tg02",
+      "text": "עוצמה הצביעה נגד התקציב. התקציב עבר. כולם מרוצים, בערך.",
+      "poll_like": false,
+      "src": [
+       "otzma-budget-2025"
+      ]
+     },
+     {
+      "id": "tg03",
+      "text": "שם חדש למשרד: 2 עד 3 מיליון ₪. השלטים מודים לכם.",
+      "poll_like": false,
+      "src": [
+       "bengvir-ministry-rename"
+      ]
+     },
+     {
+      "id": "tg04",
+      "text": "הודעה הועברה פעמים רבות. מי ששלח אותה כבר לא זוכר למה.",
+      "poll_like": false
+     },
+     {
+      "id": "tg05",
+      "text": "טלי גוטליב במקום השני. הווליום במקום הראשון.",
+      "poll_like": false,
+      "src": [
+       "gotliv"
+      ]
+     },
+     {
+      "id": "tg06",
+      "text": "אלמוג כהן הוסר מהקבוצות. הקבוצות שקטות. זמנית.",
+      "poll_like": false,
+      "src": [
+       "almog-cohen"
+      ]
+     },
+     {
+      "id": "tg07",
+      "text": "ישיבת סיעה: איום אחד, שני איומים, סיכום: איום.",
+      "poll_like": false
+     },
+     {
+      "id": "tg08",
+      "text": "בן גביר דרש תקציב. קיבל. דרש שוב, מתוך הרגל.",
+      "poll_like": false
+     },
+     {
+      "id": "tg09",
+      "text": "עוצמה יצאה מהמליאה. התקציב נכנס לנגב ולגליל.",
+      "poll_like": false,
+      "src": [
+       "otzma-vote-boycott"
+      ]
+     },
+     {
+      "id": "tg10",
+      "text": "תחקיר חדש על עוצמה. התגובה: איום פרישה. מהתחקיר.",
+      "poll_like": false
+     },
+     {
+      "id": "tg11",
+      "text": "בוקר טוב. בן גביר כבר איים. הקפה עוד לא מוכן.",
+      "poll_like": false
+     },
+     {
+      "id": "tg12",
+      "text": "הקבוצה של עוצמה: 400 הודעות. 399 הועברו.",
+      "poll_like": false
+     }
+    ],
+    "trophy": {
+     "id": "a_lead_bengvir",
+     "name": "לוח זמנים",
+     "desc": "100 איומים בתור בן גביר.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "bengvir",
+      "key": "crits",
+      "value": 100
+     }
+    }
+   },
+   "coalition": {
+    "firstPartner": "bibi",
+    "shuffleSeats": true,
+    "lineup": [
+     {
+      "id": "bibi",
+      "slot": "S1"
+     },
+     {
+      "id": "gotliv",
+      "slot": "S2",
+      "traits": {
+       "transfer": null,
+       "cannotLeave": true,
+       "statusLine": true,
+       "threatChance": 0
+      },
+      "lines": {
+       "status": "במקום השני. הכי ריאלי שיש!!!"
+      },
+      "src": [
+       "gotliv"
+      ],
+      "_why": "No. 2 on his list (fact gotliv): her transfer window has nowhere to go."
+     },
+     {
+      "id": "smotrich",
+      "slot": "S3"
+     },
+     {
+      "id": "regev",
+      "slot": "S4"
+     },
+     {
+      "id": "amsalem",
+      "slot": "S5"
+     },
+     {
+      "id": "karhi",
+      "slot": "SK"
+     },
+     {
+      "id": "goldknopf",
+      "slot": "L1"
+     },
+     {
+      "id": "gafni",
+      "slot": "L4"
+     },
+     {
+      "id": "deri",
+      "slot": "L6"
+     },
+     {
+      "id": "almog",
+      "slot": "L8",
+      "lines": {
+       "demand": "הוסרתי מהקבוצות שלך. אשמח לחזור. בתשלום."
+      },
+      "src": [
+       "almog-cohen"
+      ]
+     },
+     {
+      "id": "gantz",
+      "slot": "SI"
+     }
+    ],
+    "rivals": [
+     "lapid",
+     "eisenkot",
+     "liberman",
+     "bennett",
+     "golan"
+    ],
+    "_note": "Abbas is out (his excludes: bengvir is the player). The chat's C1 is Bibi's variant 0. Rivals are the shipped opposition cards."
+   }
+  },
+  {
+   "id": "liberman",
+   "name": "אביגדור ליברמן",
+   "short": "ליברמן",
+   "party": "ישראל ביתנו",
+   "g": "m",
+   "side": "opposition",
+   "art": "liberman",
+   "avatar": "liberman_avatar",
+   "pick": {
+    "blurb": "לא יושב כמעט עם אף אחד. צריך 61 בכל זאת.",
+    "line": "לא יושב! לא יושב!",
+    "src": [
+     "liberman-wont-sit"
+    ]
+   },
+   "rule": {
+    "id": "decline",
+    "name": "לא יושב",
+    "text": "על דרישה פתוחה אפשר ללחוץ ״לא יושב״: הדרישה נסגרת בלי תשלום והשותף נשאר. פעם ב־90 שניות, לא על אולטימטום.",
+    "effect": {
+     "type": "declineDemand",
+     "cooldownSec": 90,
+     "notUltimatum": true
+    },
+    "copy": {
+     "pill": "לא יושב",
+     "sys": "הדרישה של {name} נדחתה · לא יושב",
+     "cooldown": "לא יושב · ⁦{s}⁩ שנ׳"
+    },
+    "_note": "New: a pill variant in T3 and Coalition.decline(state, seq). The partner's patience clock still runs on their next demand."
+   },
+   "kit": {
+    "tap": {
+     "prop": "prop_chair",
+     "anim": null,
+     "critAnim": "react",
+     "critEvent": "no",
+     "verb": "סירוב",
+     "verbPlural": "סירובים",
+     "critName": "לא מוחלט",
+     "critPlural": "לא מוחלטים",
+     "frenzyBanner": "טורבו בסירובים!"
+    },
+    "headlines": {
+     "firstTap": {
+      "id": "hl_first_tap",
+      "text": "ליברמן סירב לשבת. הכיסא קיבל שקל.",
+      "poll_like": false
+     },
+     "firstCrit": {
+      "id": "hl_first_crit",
+      "text": "ליברמן אמר לא. הפעם גם לכיסא עצמו.",
+      "poll_like": false
+     },
+     "taps1000": {
+      "id": "hl_taps_1000",
+      "text": "1,000 סירובים. הכיסא ביקש ישיבה. נדחה.",
+      "poll_like": false
+     },
+     "firstPartner": {
+      "id": "hl_first_partner",
+      "text": "בנט הצטרף לקבוצה. חתם שזה סופי.",
+      "poll_like": false
+     }
+    },
+    "sources": {
+     "t4": {
+      "name": "תומך ותיק",
+      "flavor": "עומד לידך כל הזמן, מתוך סולידריות.",
+      "levelUp": "עוד תומך ותיק. גם הוא לא יושב.",
+      "firstOwned": {
+       "id": "hl_t4",
+       "text": "תומך ותיק הצטרף. שאלו אותו אם לשבת. הוא לא ענה.",
+       "poll_like": false
+      }
+     },
+     "t5": {
+      "name": "מס הכלים החד־פעמיים",
+      "flavor": "מס על צלחות מפלסטיק. בוטל ב־2023. אצלנו חזר.",
+      "levelUp": "עוד מס. הצלחות רועדות.",
+      "src": [
+       "liberman-finance-taxes"
+      ],
+      "firstOwned": {
+       "id": "hl_t5",
+       "text": "הוטל מס על כלים חד־פעמיים. הצלחות פתחו קבוצת מחאה.",
+       "poll_like": false,
+       "src": [
+        "liberman-finance-taxes"
+       ]
+      }
+     },
+     "t6": {
+      "name": "צוות לא יושבים",
+      "flavor": "יועצים שעומדים. ישיבות צוות: בעמידה.",
+      "levelUp": "עוד יועץ. הכיסאות נשארו במחסן.",
+      "firstOwned": {
+       "id": "hl_t6",
+       "text": "נשכר צוות לא יושבים. אף אחד לא התיישב על זה.",
+       "poll_like": false
+      }
+     },
+     "t7": {
+      "name": "הסרטון היומי",
+      "flavor": "מול המצלמה, אומר לא. 40,000 צפיות, אותה תשובה.",
+      "levelUp": "סרטון חדש. אותו לא, זווית אחרת.",
+      "firstOwned": {
+       "id": "hl_t7",
+       "text": "המטה הדיגיטלי עלה. בכל הסרטונים: לא.",
+       "poll_like": false
+      }
+     },
+     "t8": {
+      "name": "מס המשקאות הממותקים",
+      "flavor": "הוטל ב־2022, בוטל ב־2023. במשחק נשאר, וממותק.",
+      "levelUp": "עוד פחית, עוד שקל. רופאי השיניים מרוצים.",
+      "src": [
+       "liberman-finance-taxes"
+      ],
+      "firstOwned": {
+       "id": "hl_t8",
+       "text": "מס המשקאות הממותקים נכנס לקופה. הפחיות בהלם.",
+       "poll_like": false,
+       "src": [
+        "liberman-finance-taxes"
+       ]
+      }
+     }
+    },
+    "spins": [
+     {
+      "slot": "A",
+      "name": "כיסא בלי מושב",
+      "flavor": "כיסא שאי אפשר לשבת עליו. עוד 30 אגורות לכל סירוב.",
+      "visualHook": "an office chair with no seat, only the frame"
+     },
+     {
+      "slot": "B",
+      "name": "הודעה בעמידה",
+      "flavor": "דקה שלמה בעמידה. הסירובים טסים.",
+      "visualHook": "a lectern with no chair behind it"
+     },
+     {
+      "slot": "C",
+      "name": "לא יושב גם בלילה",
+      "flavor": "הקופה עובדת כשאתה לא פה. גם היא לא יושבת.",
+      "visualHook": "a moon over an empty chair"
+     },
+     {
+      "slot": "D",
+      "name": "תשובה של מילה אחת",
+      "flavor": "כל תחקיר מקבל תשובה אחת: לא. חוסך זמן.",
+      "visualHook": "a speech bubble with one short word"
+     },
+     {
+      "slot": "E",
+      "name": "אימון לא",
+      "flavor": "לא מול המראה, כל בוקר. יוצא יותר חד.",
+      "visualHook": "a mirror with a bold 'לא' on it"
+     },
+     {
+      "slot": "G",
+      "name": "ראיון באולפן, בעמידה",
+      "flavor": "הזמינו אותו לשבת. הוא עמד. הרייטינג עמד איתו.",
+      "visualHook": "a studio with one armchair, pushed aside"
+     },
+     {
+      "slot": "H",
+      "name": "ממשלה ציונית רחבה",
+      "flavor": "בלי נתניהו, בלי כמעט אף אחד. רחבה מאוד, על הנייר.",
+      "visualHook": "a very wide table with one standing figure",
+      "src": [
+       "liberman-wont-sit"
+      ]
+     },
+     {
+      "slot": "I",
+      "name": "כל יריב מחזק",
+      "flavor": "כל כרטיס של היריבים מביא תומכים. לא מפתיע.",
+      "visualHook": "a red line drawn under a rival's card"
+     }
+    ],
+    "hazard": {
+     "skin": "press",
+     "postponeVerb": "לא יושב באולפן",
+     "postponePrefix": "התגובה נדחתה:",
+     "excuses": [
+      "לא יושב.",
+      "לא יושב. גם לא עומד בתור.",
+      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה.",
+      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה. האולפן הציע כיסא.",
+      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה. האולפן הציע כיסא. לא יושב עם כיסאות.",
+      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה. האולפן הציע כיסא. לא יושב עם כיסאות. התגובה הבאה: בתחקיר הבא."
+     ]
+    },
+    "dubi": {
+     "squawks": {
+      "firsttap": "לא יושב! לא יושב!",
+      "buy": "מס! מס!",
+      "elect": "בחירות! בחירות!",
+      "miss": "לא! לא!"
+     },
+     "talkingPoints": [
+      "לא יושב!",
+      "לא!",
+      "מס!",
+      "ממשלה ציונית!",
+      "בחירות!",
+      "גם לא!"
+     ]
+    },
+    "suitcase": {
+     "sticker": false,
+     "lines": {
+      "cash": "תפסת! בפנים: מזומן. ליברמן לא יושב, אבל סופר.",
+      "frenzy": "תפסת! בפנים: הזרמה. 15 שניות הכסף עומד לרשותך.",
+      "tapFrenzy": "תפסת! הכיסא התחמם. כל סירוב ×10.",
+      "miss": "המזוודה חיפשה איפה לשבת. לא מצאה."
+     }
+    },
+    "story": {
+     "titles": [
+      "הכיסא הריק",
+      "שוב לקלפי",
+      "המס על הצלחת"
+     ],
+     "beats": [
+      [
+       "ליברמן סירב לשבת עם 61 אנשים.",
+       "נשאר עם כיסא אחד. ריק.",
+       "דובי: \"לא יושב! לא יושב!\"",
+       "הוחלט על בחירות. ליברמן לא ישב עם זה."
+      ],
+      [
+       "ב־2019 הוא לא הצטרף, והכנסת התפזרה.",
+       "עכשיו הוא בראש הרשימה.",
+       "והכנסת? מתפזרת שוב."
+      ],
+      [
+       "ליברמן היה שר האוצר.",
+       "הנהיג מס על צלחות ועל משקאות ממותקים.",
+       "דובי: \"מס! מס!\""
+      ]
+     ],
+     "src": {
+      "2": [
+       "liberman-2019"
+      ],
+      "3": [
+       "liberman-finance-taxes"
+      ]
+     },
+     "poll_like": false
+    },
+    "ticker": [
+     {
+      "id": "tl01",
+      "text": "ליברמן הודיע שלא ישב. השאלה עוד לא נשאלה.",
+      "poll_like": false
+     },
+     {
+      "id": "tl02",
+      "text": "ב־2019 ליברמן לא הצטרף, והכנסת התפזרה. אצלנו זו מסורת.",
+      "poll_like": false,
+      "src": [
+       "liberman-2019"
+      ]
+     },
+     {
+      "id": "tl03",
+      "text": "מס הצלחות בוטל ב־2023. במשחק הוא חזר, עם קינוח.",
+      "poll_like": false,
+      "src": [
+       "liberman-finance-taxes"
+      ]
+     },
+     {
+      "id": "tl04",
+      "text": "ליברמן לא ישב בממשלת מיעוט. גם לא בממשלת רוב. בינתיים.",
+      "poll_like": false,
+      "src": [
+       "liberman-no-minority"
+      ]
+     },
+     {
+      "id": "tl05",
+      "text": "ליברמן הודיע שגם אם העולם יתהפך, הוא לא ישב עם נתניהו.",
+      "poll_like": false,
+      "src": [
+       "liberman-wont-sit"
+      ],
+      "reportedSpeech": true
+     },
+     {
+      "id": "tl06",
+      "text": "ישיבת סיעה של ישראל ביתנו: כולם עמדו. היה קצר.",
+      "poll_like": false
+     },
+     {
+      "id": "tl07",
+      "text": "ליברמן הציג קווים אדומים. הדף נגמר לפני הקווים.",
+      "poll_like": false
+     },
+     {
+      "id": "tl08",
+      "text": "בקבוצה של ליברמן: 3 דרישות, 3 פעמים לא יושב.",
+      "poll_like": false
+     },
+     {
+      "id": "tl09",
+      "text": "הצלחות החד־פעמיות ביקשו הקלה. התשובה: לא, בעמידה.",
+      "poll_like": false,
+      "src": [
+       "liberman-finance-taxes"
+      ]
+     },
+     {
+      "id": "tl10",
+      "text": "תחקיר על ישראל ביתנו. התגובה: לא יושבים עם תחקירים.",
+      "poll_like": false
+     },
+     {
+      "id": "tl11",
+      "text": "ליברמן בדק את הקואליציה. היא עומדת. גם הוא.",
+      "poll_like": false
+     },
+     {
+      "id": "tl12",
+      "text": "הפחיות הממותקות הודיעו על איחוד. ליברמן לא יושב עם פחיות.",
+      "poll_like": false
+     }
+    ],
+    "trophy": {
+     "id": "a_lead_liberman",
+     "name": "לא ולא",
+     "desc": "25 דרישות שנדחו בתור ליברמן.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "liberman",
+      "key": "declines",
+      "value": 25
+     }
+    }
+   },
+   "coalition": {
+    "firstPartner": "bennett",
+    "shuffleSeats": true,
+    "lineup": [
+     {
+      "id": "bennett",
+      "slot": "S1"
+     },
+     {
+      "id": "lapid",
+      "slot": "S2"
+     },
+     {
+      "id": "golan",
+      "slot": "S3"
+     },
+     {
+      "id": "eisenkot",
+      "slot": "S4"
+     },
+     {
+      "id": "mk_offer",
+      "slot": "S5"
+     },
+     {
+      "id": "mk_undecided",
+      "slot": "L1"
+     },
+     {
+      "id": "mk_switcher",
+      "slot": "L6"
+     },
+     {
+      "id": "gantz",
+      "slot": "SI"
+     }
+    ],
+    "excluded": [
+     "bibi",
+     "deri",
+     "goldknopf",
+     "gafni",
+     "abbas"
+    ],
+    "rivals": [
+     "card_bibi",
+     "card_bengvir",
+     "card_smotrich",
+     "card_deri"
+    ],
+    "_note": "The smallest lineup (his rule, fact liberman-wont-sit) with the decline pill to pay for it. Capacity 42 seats + own; the bench must confirm S1-S7 (spec §7), else add the L3 slot to mk_offer's line or a second generic MK."
+   }
+  },
+  {
+   "id": "eisenkot",
+   "name": "גדי אייזנקוט",
+   "short": "אייזנקוט",
+   "party": "ישר",
+   "g": "m",
+   "side": "opposition",
+   "art": "eisenkot",
+   "status": "backlog",
+   "plan": {
+    "rule": "ישר: no crits at all (critChance set 0, firstCrit off) and every tap ×2 (existing effects critChance/tapMult on the leader). The tap-7 FTUE rabbit becomes the line 'בלי קסמים. רק ישר.'",
+    "tap": "prop_ruler (a straight ruler); verb 'ישר', crit none",
+    "hazard": "press; postpone verb 'לדבר ישר' with excuses that get longer and less straight",
+    "facts": [
+     "yashar (have)",
+     "Yashar list No. 2 (search: not a security figure's joke; name only)",
+     "one money fact (to research)"
+    ],
+    "guardrails": "Nothing before politics, nothing personal, never bereavement (brief; Bar 2026-09-29)."
+   }
+  },
+  {
+   "id": "smotrich",
+   "name": "בצלאל סמוטריץ׳",
+   "short": "סמוטריץ׳",
+   "party": "הציונות הדתית",
+   "g": "m",
+   "side": "coalition",
+   "art": "smotrich",
+   "status": "backlog",
+   "plan": {
+    "rule": "Finance minister: the VAT source ×1.18 (his partner trait, moved onto the leader) and 'אין כסף': every demand price ×0.9 because he says there is no money.",
+    "tap": "prop_calculator; verb 'העברה', crit 'אין כסף!' (react shout)",
+    "hazard": "press; postpone 'אין תקציב לתגובה'",
+    "facts": [
+     "vat-18 (have)",
+     "cancelled Liberman's taxes (liberman-finance-taxes, have)",
+     "RZP+Zehut joint list, 8 Sep 2026 (to verify)"
+    ],
+    "guardrails": "Money and budgets only; no settlement or security material."
+   }
+  },
+  {
+   "id": "deri",
+   "name": "אריה דרעי",
+   "short": "דרעי",
+   "party": "ש״ס",
+   "g": "m",
+   "side": "coalition",
+   "art": "deri",
+   "status": "backlog",
+   "plan": {
+    "rule": "Can't be removed and can't remove: partners never leave for good (walked-out partners rejoin at 1.0× not 1.5×). Coffee: every paid demand gives a 30 s ☕ buff (tapBuff 1.2).",
+    "tap": "prop_coffee (a small cup ☕); verb 'קפה', crit 'ידידי' (react land)",
+    "hazard": "press, postpone 'בוא נשב על קפה'",
+    "facts": [
+     "deri-disqualified (have)",
+     "haredi-left-gov (have)",
+     "the 2022 tax plea (to verify; label A/F wording with a lawyer)"
+    ],
+    "guardrails": "The politician's price tag and coffee, never the community (redlines reviewTerms)."
+   }
+  },
+  {
+   "id": "golan",
+   "name": "יאיר גולן",
+   "short": "גולן",
+   "party": "הדמוקרטים",
+   "g": "m",
+   "side": "opposition",
+   "art": "golan",
+   "status": "backlog",
+   "plan": {
+    "rule": "Merger: when two partners are members for 60 s, they may merge into one (seats summed, one demand stream at the higher price).",
+    "tap": "prop_stapler (joins two sheets); verb 'איחוד', crit 'עוד איחוד' (react land)",
+    "hazard": "press; postpone 'קודם נתאחד'",
+    "facts": [
+     "labor-meretz-merger (have)",
+     "golan-democrats (have)"
+    ],
+    "guardrails": "Politics and mergers only; never his public story outside politics (Bar 2026-09-29). The Election Committee disqualification bid (Sep 2026) is out."
+   }
+  }
+ ]
 }
