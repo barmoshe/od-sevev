@@ -31,3 +31,5 @@
 | `red` | `outline` | 3.81:1 | 3.0:1 | yes |
 | `rim` | `night` | 9.70:1 | 3.0:1 | yes |
 | `rim` | `plum` | 8.17:1 | 3.0:1 | yes |
+| `white` | `red_dk` | 8.07:1 | 4.5:1 | yes |
+| `white` | `ui_bub_hi` | 8.57:1 | 4.5:1 | yes |

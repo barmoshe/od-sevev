@@ -6,7 +6,7 @@
   "id": "shekels",
   "name": "שקלים",
   "symbol": "₪",
-  "icon": "coin"
+  "icon": "coin9"
  },
  "tap": {
   "baseValue": 1,
