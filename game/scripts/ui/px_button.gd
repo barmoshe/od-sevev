@@ -100,6 +100,8 @@ static func make(parent: Node, visual_: Rect2, opts: Dictionary) -> PxButton:
 		b._label_y = visual_.position.y + floorf((visual_.size.y - 7 * s) / 2.0 / 4.0) * 4.0
 		var tint: Variant = Art.theme["toggle"]["labelOn"] if b.kind == "toggle" else kinds()[b.kind]["normal"][2]
 		b.label = PxText.make(parent, Vector2(visual_.position.x, b._label_y), opts["label"], s, "plain", tint)
+		# large text (rtl-map §0.2): ×5 only when the label fits the button's inner box, else ×4
+		b.label.fit_width = float(opts.get("label_box", maxf(0.0, visual_.size.x - 16.0)))
 		b._place_label()
 	return b
 
@@ -187,7 +189,9 @@ func up(inside: bool) -> void:
 
 
 func _finish() -> void:
-	if not _pressed:
+	# the min-hold timer can fire after the button's nodes were freed (a rebuilt sheet, a closed
+	# view, a test scene torn down): nothing left to release
+	if not _pressed or not is_instance_valid(bg):
 		return
 	_pressed = false
 	_refresh()
@@ -203,14 +207,19 @@ func cancel() -> void:
 
 
 func _rebound() -> void:
+	if not is_instance_valid(bg):
+		return
 	if not _squishes():
 		squish_nine(bg, visual, 0, 0)
 		return
 	Juice.play(self, float(Tune.MC["squishReboundMs"]),
 		func(t: float) -> void:
-			var d: Vector2 = Juice.sample(SQUISH_REBOUND, t)
-			squish_nine(bg, visual, d.x, d.y),
-		func() -> void: squish_nine(bg, visual, 0, 0))
+			if is_instance_valid(bg):
+				var d: Vector2 = Juice.sample(SQUISH_REBOUND, t)
+				squish_nine(bg, visual, d.x, d.y),
+		func() -> void:
+			if is_instance_valid(bg):
+				squish_nine(bg, visual, 0, 0))
 
 
 func hover(on: bool) -> void:

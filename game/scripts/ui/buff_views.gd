@@ -36,6 +36,7 @@ func _ready() -> void:
 	_banner.visible = false
 	_banner_frame = Ui.nine(_banner, L.BUFF["banner"], th["banner"]["sprite"], int(th["banner"]["frame"]))
 	_banner_text = PxText.make(_banner, Vector2((L.BUFF["banner"] as Rect2).position.x, L.BUFF["bannerTextY"]), "", 4, "plain", th["banner"]["text"])
+	_banner_text.fit_width = 496.0   # stage.banner: ×5 only where the line fits (rtl-map §0.2)
 	var B := float(Tune.MC["bannerEnterOffsetPx"])
 	var SQ := float(Tune.MC["squishPx"])
 	_banner_drop = [[-B, 0, 0], [-B, 0, 0], [-B * 3 / 4, 0, 0], [-B / 2, 0, 0],

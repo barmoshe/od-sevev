@@ -53,6 +53,7 @@ export const PALETTE: Record<string, string> = {
   "U": "#3a1e72",
   "x": "#ff705f",
   "a": "#3ee2c1",
+  "z": "#0b0a12",
 };
 
 /** Sky gradient bands, top → bottom, as fractions of the diorama height. Drawn procedurally. */
@@ -479,8 +480,8 @@ export const UI_THEME = {
     "rowFrame": 1
   },
   "scrim": {
-    "char": "U",
-    "hex": "#3a1e72",
+    "char": "z",
+    "hex": "#0b0a12",
     "alpha": 0.6
   },
   "modal": {
@@ -571,7 +572,7 @@ export const UI_THEME = {
     "outsetPx": 8
   },
   "close": {
-    "sprite": "ui_close16",
+    "sprite": "icon_close",
     "frame": 0
   },
   "offline": {

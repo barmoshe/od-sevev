@@ -140,19 +140,49 @@ static func _sources(s: GameState) -> int:
 
 ## What the HUD shows (ux/ftue.md §1.1 flags, derived from state so they never regress within a
 ## run and an election keeps them: evolutions ≥ 1 reveals everything the first run taught).
+## K3 (ux/ftue.md §3, §7): spins unlock at 1,500 ₪ lifetime.
+const SPINS_AT := 1500.0
+## K3 "not inside C1": C1 counts as settled 10 s of play after its toast (or at the first paid
+## demand). The toast's play time is ui.c1AtSec, stamped by the controller (stamp_c1).
+const C1_SETTLE_SEC := 10.0
+
+
+## K3's "not inside C1" half (ux/ftue.md §3 K3): no chat ping pending or open, i.e. the first
+## demand is paid (c1 == "done"), or 10 s of play have passed since the C1 toast. Without a
+## coalition (the fork content) there is no C1 to wait for.
+static func c1_settled(s: GameState) -> bool:
+	if not Coalition.active() or s.evolutions >= 1:
+		return true
+	var co: Dictionary = s.coalition if s.coalition is Dictionary else {}
+	if int(float(co.get("paidLifetime", 0))) >= 1:
+		return true
+	if not s.ui.has("c1AtSec"):
+		return false
+	return float(s.stats.get("playtimeSec", 0.0)) - float(s.ui["c1AtSec"]) >= C1_SETTLE_SEC
+
+
+## Stamps the C1 toast's play time once the group has opened (the controller calls it every
+## frame; a save from before the stamp existed gets it on load, so K3 waits 10 s at most).
+static func stamp_c1(s: GameState) -> void:
+	if s.ui.has("c1AtSec") or not (s.coalition is Dictionary) or not bool((s.coalition as Dictionary).get("opened", false)):
+		return
+	s.ui["c1AtSec"] = float(s.stats.get("playtimeSec", 0.0))
+
+
 static func reveals(s: GameState) -> Dictionary:
 	var played := s.evolutions >= 1
 	var owned := owned_total(s)
 	var c: Dictionary = Content.data().get("coalition", {})
 	var paid := int(float((s.coalition as Dictionary).get("paidLifetime", 0))) if s.coalition is Dictionary else 0
 	var open_at := int(c.get("openAtSourcesOwned", 3))
+	var tabs := played or _sources(s) >= open_at or paid >= 1
 	return {
 		"counter": played or s.taps_lifetime >= 1,
 		"card1": played or owned > 0 or s.taps_lifetime >= 3,
 		"single": not played and owned == 0,                      # only card 1, named
 		"rate": played or owned >= 1,
-		"tabs": played or _sources(s) >= open_at or paid >= 1,    # C1
-		"spins": s.all_time_bananas >= 300.0,                     # K3 (pitch §11 Q6)
+		"tabs": tabs,                                             # C1: the tab bar appears with it
+		"spins": played or (tabs and s.all_time_bananas >= SPINS_AT and c1_settled(s)),   # K3
 		"seats": played or paid >= 1,                             # C2
 		"buyMode": bool(s.ui.get("buyModeRevealed", false)),      # B1 (the fork's rule, in the controller)
 		"suitcase": played or owned >= 2,                         # S1: no Suitcase before 2 sources

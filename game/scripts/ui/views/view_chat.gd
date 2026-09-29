@@ -162,6 +162,7 @@ func _ready() -> void:
 	_cameo_chip = Ui.nine(_cameo, Rect2(0, 0, CHIP_W, CHIP_H), Art.sprite_or("chip_ultimatum"))
 	_cameo_clock = Ui.img(_cameo, Vector2.ZERO, Art.sprite_or("icon_clock"), 0, 4)
 	_cameo_timer = PxText.make(_cameo, Vector2.ZERO, "", L.TEXT, "plain", "w")
+	_cameo_timer.fit_width = 120.0   # rtl-map §0.2: the timer steps down to ×4 in its chip
 	add_child(_panel)
 	_panel.visible = false
 	_bg = Ui.rect(_panel, Rect2(0, 0, L.W, _h), C_THREAD)
@@ -732,6 +733,7 @@ func _make_chip(parent: Node, at: Vector2) -> Dictionary:
 	Ui.nine(root, Rect2(0, 0, CHIP_W, CHIP_H), Art.sprite_or("chip_ultimatum"))
 	var clock := Ui.img(root, Vector2(CHIP_W - 48.0, 8), Art.sprite_or("icon_clock"), 0, 4)
 	var t := PxText.make(root, Vector2(12, 8), "", L.TEXT, "plain", "w")
+	t.fit_width = 120.0   # chat.timer (rtl-map §0.2)
 	return {"root": root, "clock": clock, "text": t, "lastSec": -1, "nudgeAt": -1e9, "y0": at.y, "urgent": false}
 
 

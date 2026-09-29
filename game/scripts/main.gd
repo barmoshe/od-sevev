@@ -99,6 +99,11 @@ signal audio_sent(name: String, arg: Variant)
 var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
 var _fills := {}
 var _title_ground: TextureRect
+var _title_floor: ColorRect          # the title state's floor under the stage (review R16)
+## R9 (rtl-map §7.1 "History"): one browser history entry per open layer (web only).
+var history := LayerHistory.new()
+var _js_pop_cb: JavaScriptObject     # kept alive: the shell calls window.odOnPop on popstate
+var _layers_sent := -1
 
 
 func _ready() -> void:
@@ -242,6 +247,14 @@ func _build() -> void:
 	_title_ground.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(_title_ground)
 	_root.move_child(_title_ground, 0)
+	# R16 (rtl-map §8): in the title state the lane, ticker, panel and tabs are reserved but empty;
+	# one flat floor from the stage bottom to the screen bottom, no inner rect
+	_title_floor = ColorRect.new()
+	_title_floor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_title_floor.visible = false
+	_root.add_child(_title_floor)
+	_root.move_child(_title_floor, _stage.get_index() + 1)
+	_build_history()
 	diorama = Diorama.new()
 	_stage.add_child(diorama)
 	bb = BigBanana.new()
@@ -319,6 +332,65 @@ func _build() -> void:
 					_audio("ceremonyEnd"))
 		if a.has_signal("dubi_blip"):
 			a.connect("dubi_blip", func(_bank: String) -> void: ticker.dubi_talk())
+
+
+## R9 (rtl-map §7.1 "History"): the shell forwards every popstate that is not About's own to
+## window.odOnPop; the controller closes the top layer on the player's back (LayerHistory).
+func _build_history() -> void:
+	if not OS.has_feature("web"):
+		return
+	_js_pop_cb = JavaScriptBridge.create_callback(func(_args: Array) -> void: _history_pop.call_deferred())
+	var win := JavaScriptBridge.get_interface("window")
+	if win != null:
+		win.odOnPop = _js_pop_cb
+
+
+## The open layers, bottom to top: T3/T4 (one slot: opening one closes the other), the expanded
+## court card (non-modal, above the tall tabs), then the overlay stack (the partner card, settings,
+## O10 over it, ...). Title state and the election transition hold no entries.
+func layer_depth() -> int:
+	if mode != "main":
+		return 0
+	var n := overlays.stack.size()
+	if chat.is_open() or dossier.is_open():
+		n += 1
+	if court.expanded():
+		n += 1
+	return n
+
+
+## Closes the top layer exactly as its ✕ / Esc does (browser back, Android back, Esc). False when
+## nothing is open.
+func back_layer() -> bool:
+	if overlays.is_open():
+		return overlays.back()
+	if tx.running or _tx_locked:
+		return true
+	if court.expanded():
+		court.collapse()   # rtl-map §6.4: back collapses the expanded card to its chip first
+		return true
+	if chat.is_open():
+		chat.close()
+		return true
+	if dossier.is_open():
+		dossier.close()
+		return true
+	return false
+
+
+func _history_pop() -> void:
+	if history.on_pop():
+		back_layer()
+
+
+func _sync_history() -> void:
+	var depth := layer_depth()
+	var js := LayerHistory.js_for(history.sync(depth))
+	if depth != _layers_sent:
+		_layers_sent = depth
+		js += " window.odLayers = %d;" % depth   # web debug, like odDisplay: the open layers
+	if js != "" and OS.has_feature("web"):
+		JavaScriptBridge.eval(js, true)
 
 
 ## T3 "קואליציה 61" (ux/rtl-map.md §6.3): the chat view over the stage, ticker and panel, opened
@@ -433,6 +505,7 @@ func _relayout() -> void:
 	_modal.position = Vector2(_ox, _ovl_y)
 	diorama.extend(_ox + 8.0, _top_y + float(L.ROW_A_H + L.ROW_B_H) + 8.0)
 	shop.set_list_height(L.panel_h)
+	title_view.refit()
 	chat.relayout()
 	dossier.relayout()
 	court.relayout()
@@ -447,6 +520,10 @@ func _relayout() -> void:
 	var gy := _stage_y + L.stage_bottom() - 64.0
 	_title_ground.position = Vector2(0, gy)
 	_title_ground.size = Vector2(ceilf(W / 64.0) + 1.0, ceilf((_vs.y - gy) / 64.0) + 1.0) * 16.0
+	var fy := _stage_y + L.stage_bottom()
+	_title_floor.position = Vector2(0, fy)
+	_title_floor.size = Vector2(W, maxf(0.0, _vs.y - fy))
+	_title_floor.color = diorama.pad_bottom
 	if OS.has_feature("web"):
 		# web debug, like window.odCueLog: the device scale and the section origins (logical px)
 		var hat := L.magician_hit().get_center() + Vector2(_ox, _stage_y)
@@ -522,7 +599,11 @@ func _apply_settings() -> void:
 	fx_ui.reduced_motion = rm
 	overlays.reduced = rm
 	Fmt.notation = String(settings.get("notation", "letters"))
-	PxText.set_large_text(get_tree(), bool(settings.get("largeText", false)))
+	var large := bool(settings.get("largeText", false))
+	if large != PxText.large_text:
+		PxText.set_large_text(get_tree(), large)
+		if shop != null and _vs != Vector2.ZERO:
+			_relayout()   # rtl-map §0.2: rows and centred labels re-measure at the scale drawn
 	_audio_call("set_reduced_motion", [rm])
 	_audio_call("set_sfx_enabled", [bool(settings["sfx"])])
 	_audio_call("set_music_enabled", [bool(settings["music"])])
@@ -638,6 +719,9 @@ func _set_mode(m: String, animate: bool) -> void:
 	var main := m == "main"
 	_bg.visible = main
 	_title_ground.visible = not main and not diorama.has_background()
+	_title_floor.color = diorama.pad_bottom
+	_title_floor.modulate.a = 1.0
+	_title_floor.visible = not main or animate   # fades out with the title (below)
 	if not main:
 		title_view.show_title(true)
 		_top.visible = false
@@ -653,6 +737,8 @@ func _set_mode(m: String, animate: bool) -> void:
 		var tw := create_tween().set_parallel()
 		tw.tween_property(_top, "modulate:a", 1.0, ms / 1000.0)
 		tw.tween_property(_lower, "modulate:a", 1.0, ms / 1000.0)
+		tw.tween_property(_title_floor, "modulate:a", 0.0, ms / 1000.0)
+		tw.chain().tween_callback(func() -> void: _title_floor.visible = mode != "main")
 	else:
 		title_view.show_title(false)
 
@@ -723,6 +809,7 @@ func _process(delta: float) -> void:
 	ticker.update_view(dt)
 	overlays.update_view(dt)
 	tx.update_view(dt)
+	_sync_history()
 	ftue.update_view(dt, state, d, _ftue_ctx(running))
 	_update_shake(dt)
 	_audio_clocks(dt)
@@ -777,6 +864,7 @@ func _ftue_ctx(running: bool) -> Dictionary:
 
 ## rtl-map / ux/ftue.md reveals, applied every frame (derived from state, so reloads agree).
 func _apply_reveals() -> void:
+	Ftue.stamp_c1(state)   # K3 waits 10 s of play after the C1 toast (ux/ftue.md §3)
 	_reveals = Ftue.reveals(state)
 	var owned := Ftue.owned_total(state)
 	if owned != _sources_sent:
@@ -788,7 +876,9 @@ func _apply_reveals() -> void:
 	shop.ftue_single = bool(_reveals["single"])
 	shop.ftue_dim = state.evolutions == 0 and Ftue.owned_total(state) == 0
 	var dos := dossier.tab_revealed()   # K2 (ux/ftue.md), derived in the dossier view
-	shop.set_tabs_revealed(bool(_reveals["tabs"]) or bool(_reveals["spins"]) or dos, [true, bool(_reveals["spins"]), bool(_reveals["tabs"]), dos])
+	# ux/ftue.md C1: the tab bar appears only with C1 ("tabs"); spins (K3) and the dossier (K2)
+	# fill their fixed slots once it is there
+	shop.set_tabs_revealed(bool(_reveals["tabs"]), [true, bool(_reveals["spins"]), bool(_reveals["tabs"]), dos])
 	ticker.visible = main and bool(_reveals["counter"])
 	ticker.set_cta(main and state.evolutions >= 0 and Coalition.gate_open(state) and Coalition.active())
 	if bool(_reveals["seats"]):
@@ -1036,7 +1126,7 @@ func _check_reveals() -> void:
 func _refresh_all(dt: float) -> void:
 	var main := mode == "main"
 	top_bar.set_bank(state.bananas)
-	top_bar.set_bps(0.0 if d.tap_pour_sec > 0.0 else d.bps, d.frenzy_mult)   # S07 pours the income into taps: 0 ₪/s
+	top_bar.set_bps(d.bps, d.frenzy_mult, d.tap_pour_sec > 0.0)   # S07 pours the income into taps (HUD_BPS_POUR)
 	top_bar.set_thumbs(state.thumbs_owned, d.prestige_mult)
 	var vis := Economy.evolve_visible(state) and main
 	var reveal := vis and not _evolve_was_visible
@@ -1107,13 +1197,10 @@ func _notification(what: int) -> void:
 		return   # a lifecycle notification can arrive before _ready has built the scene
 	match what:
 		NOTIFICATION_WM_GO_BACK_REQUEST:
-			if not overlays.back() and mode == "main" and _gameplay_input():
-				if chat.is_open():
-					chat.close()
-				elif dossier.is_open():
-					dossier.close()
-				else:
-					_open_settings()
+			# Android back: the top layer closes (the same rule as the browser's back, R9); with
+			# nothing open it opens settings, as before
+			if not back_layer() and mode == "main" and _gameplay_input():
+				_open_settings()
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
 			_flush_save()
 			shop.cancel_press()
@@ -1313,11 +1400,8 @@ func _on_key(e: InputEventKey) -> void:
 			if golden.on_screen() and not chat.is_open() and not dossier.is_open():
 				_catch_golden()
 		KEY_ESCAPE:
-			if chat.is_open():
-				chat.close()
-			elif dossier.is_open():
-				dossier.close()
-			else:
+			# the top layer first (the expanded court card, then T3/T4); nothing open: settings
+			if not back_layer():
 				_open_settings()
 		KEY_E:
 			if ticker.cta_on() or Economy.evolve_visible(state):

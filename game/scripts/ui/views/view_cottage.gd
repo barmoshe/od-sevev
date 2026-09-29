@@ -66,6 +66,7 @@ func _ready() -> void:
 	_particle = Ui.img(self, CUP_POS, Art.sprite_or(PIXEL), 0, 4)
 	_particle.visible = false
 	_minus = PxText.make(self, Vector2.ZERO, Strings.s("HUD_COTTAGE_MINUS"), L.TEXT, "plain", "w")
+	_minus.fit_width = 88.0   # rowA.cottageMinus
 	_minus.visible = false
 	visible = false
 

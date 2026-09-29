@@ -8,6 +8,8 @@ extends Node2D
 var reduced_motion := false
 var ground_y := 0
 var play_fx: Callable      # func(id: String, x: float, y: float)
+## The era's padBottom (sprites.json stages): the floor colour under the stage art.
+var pad_bottom := Color("#2a2340")
 
 var _critters: Array[Dictionary] = []
 var _clouds: Array[Dictionary] = []
@@ -123,6 +125,7 @@ func set_era(era: Dictionary) -> void:
 	for t in _ground_tiles:
 		t.visible = not has_bg
 	# beyond the 180x320 art (wide or very tall screens): the stage's own pad colours
+	pad_bottom = Color.html(String(stage.get("padBottom", "#2a2340")))
 	RenderingServer.set_default_clear_color(Color.html(String(stage.get("padBottom", "#2a2340"))) if has_bg \
 		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.165, 0.137, 0.251)))
 	if has_bg:

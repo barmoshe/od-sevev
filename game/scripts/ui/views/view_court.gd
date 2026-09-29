@@ -145,6 +145,11 @@ func card_visible() -> bool:
 	return _card.visible
 
 
+## The card is expanded and not already folding into its chip: one browser history layer (R9).
+func expanded() -> bool:
+	return _mode == "open" and String(_anim.get("kind", "")) != "collapse"
+
+
 func card_rect() -> Rect2:
 	return Rect2(CARD_X, L.tabs_y() - _card_h, CARD_W, _card_h)
 

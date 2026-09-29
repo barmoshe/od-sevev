@@ -12,6 +12,7 @@ extends Node2D
 const PRIORITY := {"ftue": 3, "milestone": 2, "flavor": 1, "ambient": 0}
 const SCALE := L.TEXT
 const STEP_MS := 50.0         # one art px every 3 frames at 60 Hz
+const TAG_BOX := 88.0         # string-budgets ticker.tag
 
 var reduced_motion := false
 var on_milestone_start: Callable
@@ -63,6 +64,7 @@ func _ready() -> void:
 	_tag_plate = Ui.rect(self, tag, Color("#d02a36"))
 	_anchor.append(_tag_plate)
 	_tag_text = PxText.make(self, Vector2(0, float(L.TICKER["textY"])), Strings.s("TICKER_TAG"), SCALE, "plain", "w")
+	_tag_text.fit_width = TAG_BOX   # rtl-map §0.2/§5.1: 110 px at ×5 > 88, so the tag stays ×4
 	_anchor.append(_tag_text)
 	# Dubi at the anchor (rtl-map §5.1): the TA's small Dubi (chars.dubi), feet on the row floor
 	dubi = SpriteStrip.make(self, "dubi", L.TICKER["dubiFeet"])
@@ -118,12 +120,17 @@ func _layout_anchor() -> void:
 	if dubi != null:
 		dubi.position = lay["dubiFeet"]
 	_clip_x1 = float(lay["clipX1"])
-	_clip.size.x = _clip_x1 - float(L.TICKER["clipX0"])
+	_clip.size.x = _clip_x1 - _clip.position.x   # keeps the court-day left edge (x 228) if the chip is up
 
 
 ## The crawl clip's right edge (the anchor's left edge), `_lower`-local.
 func clip_x1() -> float:
 	return _clip_x1
+
+
+## The crawl clip as drawn, `_lower`-local (tests: it must end before Dubi on every day).
+func clip_rect() -> Rect2:
+	return Rect2(_clip.position, _clip.size)
 
 
 ## One beak movement per babble syllable (the Audio's dubi_blip signal).
@@ -156,7 +163,9 @@ func set_court_chip(on: bool, chip_right: float = 0.0) -> void:
 		n.visible = not on and not _cta_on
 	var x0 := maxf(float(L.TICKER["clipX0"]), chip_right + 8.0) if on else float(L.TICKER["clipX0"])
 	_clip.position.x = x0
-	_clip.size.x = float(L.TICKER["clipX1"]) - x0
+	# rtl-map §5.1: the clip's right edge is always the anchor's (anchor_layout().clipX1, 516),
+	# court day included, so the crawl never runs under Dubi
+	_clip.size.x = _clip_x1 - x0
 
 
 func cta_on() -> bool:
@@ -241,7 +250,7 @@ func _start_item(it: Dictionary) -> void:
 	if reduced_motion:
 		_page_item = it
 		# od-sevev (rtl-map §5.2): pages break by measured pixel width, not character count
-		_pages = wrap_pages_px(String(it["text"]), _clip.size.x - 8.0, SCALE)
+		_pages = wrap_pages_px(String(it["text"]), _clip.size.x - 8.0, PxText.body_scale())   # the scale drawn
 		_page_t = 0.0
 		_page_idx = 0
 		var l := _pool[0]
