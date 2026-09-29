@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `5ab4b75` docs(od-sevev): live handoff snapshot 23:36
+- Branch head: `e505e42` docs(od-sevev): live handoff snapshot 23:37
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -35,7 +35,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | UX Designer | DONE, merged (ux/mobile-first-layout.md, tools/web/mobile_web.mjs: baseline PASS, 108 layout checks open until the implementation lands) | `worktree-agent-afa76d8266b2e2b6f` | 0 | 0 | - |
 | Game Developer (mobile) | STOPPED by the weekly usage limit (resets Oct 3 17:00 UTC), mid-slice; all work committed (last 7c71623 wip). Done: art grid/split/fluid chrome, tall tabs, modals, sheets, merge-ready line, layout tests, picker title fix, web checks pick a leader. Not confirmed: the full mobile_web matrix pass, the art-id swap, the R17 crowd clamp, the before/after sheet | `worktree-agent-a8bd968153c51c052` | 13 | 0 | `Game-Developer-(mobile).commits.patch`  |
 | 2D Artist + TA | DONE, merged (lane, plaza, wings, XL pick heads avatar_pick_<c>_d3/_d2, brawl_cloud_cue x4, court spots as kit data) | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
-| 2D Artist + TA (palette) | STOPPED by the weekly usage limit, mid-slice; committed (last aa84d76 wip): palette v3, UI kit in blue-white (part re-rendered), palette-v3-map.json + tools/apply_palette_map.py, shell.html in blue-white. Not done: finishing the kit re-render + re-import, icons/OG, mock-ups, test/build; the map is NOT applied to game/scripts | `worktree-agent-a5e8cafeb35582361` | 5 | 0 | `2D-Artist-+-TA-(palette).commits.patch`  |
+| 2D Artist + TA (palette) | STOPPED by the weekly usage limit, mid-slice; committed (last aa84d76 wip): palette v3, UI kit in blue-white (part re-rendered), palette-v3-map.json + tools/apply_palette_map.py, shell.html in blue-white. Not done: finishing the kit re-render + re-import, icons/OG, mock-ups, test/build; the map is NOT applied to game/scripts | `worktree-agent-a5e8cafeb35582361` | 6 | 0 | `2D-Artist-+-TA-(palette).commits.patch`  |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.

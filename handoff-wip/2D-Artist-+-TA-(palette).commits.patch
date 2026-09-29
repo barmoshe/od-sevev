@@ -1,7 +1,7 @@
 From fca3ae3604abae4ab677171332022e696638c588 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 23:08:42 +0000
-Subject: [PATCH 1/4] feat(od-sevev): palette v3, the chrome in Israel's blue
+Subject: [PATCH 1/5] feat(od-sevev): palette v3, the chrome in Israel's blue
  and white
 
 Bar: "the design should be more in Israel's palette, with blue and white".
@@ -181188,7 +181188,7 @@ GpZp)xMuQ#z
 From 51f4339ad90d7073d26cd58220f3392186ec9113 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 23:09:24 +0000
-Subject: [PATCH 2/4] feat(od-sevev): palette v3 colour map for code, the
+Subject: [PATCH 2/5] feat(od-sevev): palette v3 colour map for code, the
  applier, and the shell in blue and white
 
 - art/od-sevev/palette-v3-map.json: 17 chrome colours old -> new, with roles,
@@ -181637,7 +181637,7 @@ index 0000000..395c6fb
 From aa84d7637fdf46c2bb8af5a2005bfcc4f7039a77 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 23:32:06 +0000
-Subject: [PATCH 3/4] chore(od-sevev): wip checkpoint when the agent stopped on
+Subject: [PATCH 3/5] chore(od-sevev): wip checkpoint when the agent stopped on
  the usage limit
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
@@ -184091,7 +184091,7 @@ index 88d65b4..acd6366 100644
 From 06293427cb88f4cec6ee4eae7a78e8485fb06cf1 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 23:35:10 +0000
-Subject: [PATCH 4/4] docs(od-sevev): style guide v3 (Israel's blue and white),
+Subject: [PATCH 4/5] docs(od-sevev): style guide v3 (Israel's blue and white),
  the v3 OG shipped, churn undone
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -192940,6 +192940,39 @@ z<HqR!;=izj;DqhdJ;k5HZ691o(~qsm)fL(Z2{6PBesbn3DON4YbWgD~Kx}I~_HjEB
 zhkkByJFLd3R#Hj{;D6Fp$QKI08Ph7mp#Fbahp3UYo*;!8JeRiMj}*;-tl7NTHx~+e
 cFJi<)zcFV@pzkOhP>Hg<byH%C|26Yp00m0pfB*mh
 
+-- 
+2.43.0
+
+
+From 19a1ce9fb7b433dc7fe1721c6c90385c434fefbe Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 23:37:55 +0000
+Subject: [PATCH 5/5] docs(od-sevev): STATUS entry for palette v3 (blue and
+ white)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ STATUS.md | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/STATUS.md b/STATUS.md
+index 4417f25..6afa2d9 100644
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -1161,3 +1161,12 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
+   - **Checks:** `tools/test.sh` 340/340; strict `tools/build_web.sh` green (content lint 0 errors, text lint 0 failures); `mobile_web.mjs` (baseline) PASS at 430×932@3 and 375×667@2, and S8 "pre-tap" now passes at the SE (at 430 only the flat sky above the art's row 0, under the hidden Row A, is left). Sheets: `scratchpad/shots/mobile-art/`.
+   - **→ game-developer:** keep `diorama.extend(…)` feeding `_extend_x` (the wings and plaza fill to ±_extend_x from the stage column; with `stage_ox = floor4(dx/2)` pass the column's own offset). Your WIP (handoff-wip mobile patch) has two interim stand-ins for A1 to drop now: the lane-joints overlay in `_place_lane` (it would double my joints) and the procedural paving `_title_floor` (it sits above `_stage` and would cover the plaza): start it at `stage bottom + diorama.floor_reach()` or hide it when that is > 0. The `_title_floor` line in `main.gd` is my only main.gd change (1 line), so the conflict is trivial. Picker: A 192 → `chars[c].avatarPickXL` (your WIP key; the file id is `avatar_pick_<c>_d3`, not `avatar_pick_xl_<c>`) at ×2 logical/px; A 128 → `avatarPick64` at ×2; A 96/64 → the 32 as today. Brawl cue: swap `Art.sprite_or("brawl_cloud")` ×2 for `"brawl_cloud_cue"` ×4 in `view_chat.gd` (same 104×80 box, same frame count).
+   - **Flag:** `stage_washington` has 277 transparent px (rows 154-169 beside the trees) since the approved render; the padTop sky shows there. The wings match it. Not changed (it would be stage drift).
++
++- 2026-09-29 · 2d-artist + technical-artist · **palette v3: Israel's blue and white** (Bar: "the design should be more in Israel's palette, with blue and white") · `art/od-sevev/src/palette.py` (+ `creative-pack/art/src/palette.py`), `ui_controls.py`, `ui_chat.py`, `wave2.py`, `icons24.py`, `leaders.py`, `proofs.py`, `art/sprites.ts` → `game/data/art.json`, `design/content.json` (Balfour skyBands), `game/web/shell.html`, `art/od-sevev/palette-v3-map.json` + `tools/apply_palette_map.py` (new), style guide §2.2, §2.3 (new), §11.4, §16 F10-F13
++  - **Palette:** 7 ids re-valued in place from plum/violet to a navy family at v2's luminance (±.015): `ui_scrim` #061029, `ui_panel` #0a1a42, `night` #0f2350, `ui_bubble` #112a64, `ui_bub_hi` #26499c, `plum` #16357a (velvet-blue curtain), `plum_hi` #2a57a6; new `ui_mute` #a3b3d3, `ui_rule` #1c3876. 64 swatches. Gold (money, the buy pill), red (alerts), flag/sky/white, `ink`, `outline`, `rim` and stamp violet unchanged.
++  - **Art:** the kit re-rendered (255 pieces, same ids and sizes): the modal title band in flag blue with a white stripe; white-over-flag stripes on the tab bar, the ticker (was red) and the chat header; pink UI accents → blue. Balfour's sky is navy (`stage_balfour`; `stage_washington` a 1-row rule); icon and OG on the velvet-blue stage (`game/web/og.jpg` 209 KB). The fork letters (settings' cream card): grape/violet/lavender/pink → navy/flag/pale blue/sky. Full render: **0 drift** (the two stages were regenerated from source first; the cast untouched).
++  - **Code map:** 17 pairs; 28 literals on 26 lines in 13 `game/scripts` files listed in `_sites`, **not applied** (the mobile-first rewrite). Applied to the shell (19 literals + the gate/About heading rule, load bar fill → flag_hi). **→ orchestrator:** after the mobile merge, `python3 tools/apply_palette_map.py`, then `--write`, then `--check`; `game/project.godot` (boot splash, clear colour) is listed in `_alsoElsewhere`.
++  - **Contrast:** all 45 kit pairs pass (0 fails); white on flag 8.5, on ui_bubble 12.4, red_hi on ui_bubble 4.7, ui_mute on ui_bubble 6.5, sky crawl on ui_scrim 10.0, flag on cream 8.5; gold on white 1.48 (needs its outline, 17.9). Rule: never blue text on navy (flag 1.6-1.8, flag_hi 4.4).
++  - **Buy pill tested:** stays gold (10.4:1 vs ui_panel, the only warm hue; a flag pill would be 1.47 on ui_bubble). No objection.
++  - **Mock-ups:** `scratchpad/shots/palette-v3/` (main, picker, settings modal, chat, gate, phone frame; before / data-only / + code map at 390×844@3).
++  - **Checks:** `tools/test.sh` 340/340; strict `tools/build_web.sh` green; `mobile_web.mjs` baseline PASS at 390×844@3.
 -- 
 2.43.0
 
