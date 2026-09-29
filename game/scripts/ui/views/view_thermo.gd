@@ -71,6 +71,7 @@ var _fill_t := -1.0
 var _bright_until := -1e9
 var _alpha := 0.6
 var _hot_icon := false
+var _hot_seen := false               # the first state update is a restore, not a crossing (no cue)
 var _hop_t := -1.0
 var _word_key := ""
 
@@ -336,10 +337,13 @@ func _update_state(dt: float, p: float) -> void:
 		_word.center_in(WORD_BOX.x, WORD_BOX.y)
 	var hot := p >= HOT
 	if hot != _hot_icon:
+		if hot and _hot_seen and host != null and host.has_method("audio_event"):
+			host.audio_event("suspicionHot")   # Audio v1.3: once per live upward crossing of 75 %
 		_hot_icon = hot
 		Ui.set_frame(_icon, Art.sprite_or("thermo_icon_gavel" if hot else "thermo_icon_magnifier"), 0)
 		_icon.set_meta("sprite", Art.sprite_or("thermo_icon_gavel" if hot else "thermo_icon_magnifier"))
 		_hop_t = 0.0 if not reduced_motion else -1.0
+	_hot_seen = true
 	var base_y := icon_top()
 	if _hop_t >= 0.0:
 		_hop_t += dt

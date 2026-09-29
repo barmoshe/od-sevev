@@ -46,6 +46,16 @@
 	},
 	"babbleContours": {
 		"_doc": "Canned squawks (voice/copy-deck §H): the parrot repeats what he was told, so each line has a fixed contour of [degree, octave] per blip; a doubled line repeats its contour after a 150 ms gap.",
+		"איחוד!": [
+			[
+				"1",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			]
+		],
 		"אין כובע!": [
 			[
 				"5",
@@ -74,6 +84,38 @@
 				6.0
 			]
 		],
+		"אין כסף!": [
+			[
+				"5",
+				6.0
+			],
+			[
+				"5",
+				6.0
+			],
+			[
+				"b7",
+				5.0
+			]
+		],
+		"אני פורש!": [
+			[
+				"3",
+				5.0
+			],
+			[
+				"5",
+				5.0
+			],
+			[
+				"b7",
+				5.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
 		"בחירות!": [
 			[
 				"1",
@@ -85,6 +127,20 @@
 			],
 			[
 				"5",
+				6.0
+			]
+		],
+		"ביחד!": [
+			[
+				"5",
+				5.0
+			],
+			[
+				"1",
+				6.0
+			],
+			[
+				"3",
 				6.0
 			]
 		],
@@ -100,6 +156,98 @@
 			[
 				"1",
 				6.0
+			]
+		],
+		"גירעון!": [
+			[
+				"5",
+				6.0
+			],
+			[
+				"4",
+				6.0
+			],
+			[
+				"b7",
+				5.0
+			]
+		],
+		"העברה!": [
+			[
+				"1",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			],
+			[
+				"4",
+				6.0
+			],
+			[
+				"5",
+				6.0
+			]
+		],
+		"ידידי!": [
+			[
+				"3",
+				6.0
+			],
+			[
+				"1",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			]
+		],
+		"ידידי?": [
+			[
+				"3",
+				6.0
+			],
+			[
+				"1",
+				6.0
+			],
+			[
+				"5",
+				6.0
+			]
+		],
+		"ישר לקופה!": [
+			[
+				"5",
+				5.0
+			],
+			[
+				"5",
+				5.0
+			],
+			[
+				"5",
+				5.0
+			],
+			[
+				"5",
+				5.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
+		"ישר!": [
+			[
+				"5",
+				5.0
+			],
+			[
+				"5",
+				5.0
 			]
 		],
 		"כספים קואליציוניים!": [
@@ -136,6 +284,20 @@
 				6.0
 			]
 		],
+		"לא איום!": [
+			[
+				"5",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
 		"לא ידענו!": [
 			[
 				"5",
@@ -147,6 +309,36 @@
 			],
 			[
 				"3",
+				6.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
+		"לא יושב!": [
+			[
+				"1",
+				6.0
+			],
+			[
+				"1",
+				6.0
+			],
+			[
+				"5",
+				5.0
+			]
+		],
+		"לא!": [
+			[
+				"5",
+				5.0
+			]
+		],
+		"לחתום!": [
+			[
+				"5",
 				6.0
 			],
 			[
@@ -174,6 +366,64 @@
 				6.0
 			]
 		],
+		"מס!": [
+			[
+				"1",
+				6.0
+			]
+		],
+		"נגיב מחר!": [
+			[
+				"5",
+				6.0
+			],
+			[
+				"4",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			],
+			[
+				"1",
+				6.0
+			]
+		],
+		"עוד אחד!": [
+			[
+				"5",
+				5.0
+			],
+			[
+				"1",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			]
+		],
+		"עקום!": [
+			[
+				"5",
+				6.0
+			],
+			[
+				"3",
+				5.0
+			]
+		],
+		"פיצול!": [
+			[
+				"3",
+				6.0
+			],
+			[
+				"b7",
+				5.0
+			]
+		],
 		"ציד מכשפות!": [
 			[
 				"5",
@@ -189,6 +439,26 @@
 			],
 			[
 				"1",
+				6.0
+			]
+		],
+		"קפה!": [
+			[
+				"4",
+				6.0
+			],
+			[
+				"3",
+				6.0
+			]
+		],
+		"תקציב!": [
+			[
+				"1",
+				6.0
+			],
+			[
+				"5",
 				6.0
 			]
 		]
@@ -234,6 +504,29 @@
 		],
 		"track": "courthouse",
 		"xfadeMs": 400.0
+	},
+	"crits": {
+		"_doc": "v1.3 (leader-select spec §9.5): the crit cue of a react event. A leader's event is kit.tap.critEvent; Bibi (critAnim 'crit', the rabbit prop) is 'rabbit'. rabbitCrit keeps its round-robin; the others play critReact's variant of the same name. An unknown event plays 'land'. The tap itself stays the shared tap cue for everyone.",
+		"land": {
+			"cue": "critReact",
+			"variant": "land"
+		},
+		"no": {
+			"cue": "critReact",
+			"variant": "no"
+		},
+		"rabbit": {
+			"cue": "rabbitCrit",
+			"variant": "roundRobin"
+		},
+		"shout": {
+			"cue": "critReact",
+			"variant": "shout"
+		},
+		"whoosh": {
+			"cue": "critReact",
+			"variant": "whoosh"
+		}
 	},
 	"cues": {
 		"buy": {
@@ -328,6 +621,7 @@
 				"D": {
 					"_": {
 						"benGvir": "chatPing_D_benGvir.res",
+						"brawl": "chatPing_D_brawl.res",
 						"burst": "chatPing_D_burst.res",
 						"default": "chatPing_D_default.res",
 						"deri": "chatPing_D_deri.res",
@@ -343,6 +637,7 @@
 				"E": {
 					"_": {
 						"benGvir": "chatPing_E_benGvir.res",
+						"brawl": "chatPing_E_brawl.res",
 						"burst": "chatPing_E_burst.res",
 						"default": "chatPing_E_default.res",
 						"deri": "chatPing_E_deri.res",
@@ -358,6 +653,7 @@
 				"F": {
 					"_": {
 						"benGvir": "chatPing_F_benGvir.res",
+						"brawl": "chatPing_F_brawl.res",
 						"burst": "chatPing_F_burst.res",
 						"default": "chatPing_F_default.res",
 						"deri": "chatPing_F_deri.res",
@@ -373,6 +669,7 @@
 				"G": {
 					"_": {
 						"benGvir": "chatPing_G_benGvir.res",
+						"brawl": "chatPing_G_brawl.res",
 						"burst": "chatPing_G_burst.res",
 						"default": "chatPing_G_default.res",
 						"deri": "chatPing_G_deri.res",
@@ -386,7 +683,7 @@
 					}
 				}
 			},
-			"lengthMs": 234.0,
+			"lengthMs": 244.0,
 			"limitedBy": "target",
 			"meaning": "A partner posted a demand.",
 			"momentaryMax": -19.65,
@@ -396,6 +693,7 @@
 			"runtime": "Variant = the partner id (unknown partners: default). At most one ping per 700 ms; pings inside that window coalesce into one 'burst'. Never during a Dubi squawk: queue it until 300 ms after Dubi stops (UX first-minute §9). 'left' = left the group.",
 			"shapes": {
 				"benGvir": "1 1 1: he threatens more than once",
+				"brawl": "1+b2 / b6+5 / 1+b2: two pings talking over each other",
 				"burst": "a burst coalesced: b6 5 b6 (x3)",
 				"default": "b6 -> 5, the minor sigh",
 				"deri": "1 -> 5 below: settled, not going anywhere",
@@ -494,6 +792,119 @@
 			"steal": "oldest",
 			"target": {
 				"lufs": -18.0,
+				"type": "burst"
+			}
+		},
+		"critReact": {
+			"burstMax": -12.0,
+			"bus": "SFX-Critical",
+			"ducks": [
+				{
+					"attackMs": 50.0,
+					"bus": "Music",
+					"db": -4.0,
+					"releaseMs": 200.0
+				}
+			],
+			"files": {
+				"D": {
+					"_": {
+						"land": "critReact_D_land.res",
+						"no": "critReact_D_no.res",
+						"shout": "critReact_D_shout.res",
+						"whoosh": "critReact_D_whoosh.res"
+					}
+				},
+				"E": {
+					"_": {
+						"land": "critReact_E_land.res",
+						"no": "critReact_E_no.res",
+						"shout": "critReact_E_shout.res",
+						"whoosh": "critReact_E_whoosh.res"
+					}
+				},
+				"F": {
+					"_": {
+						"land": "critReact_F_land.res",
+						"no": "critReact_F_no.res",
+						"shout": "critReact_F_shout.res",
+						"whoosh": "critReact_F_whoosh.res"
+					}
+				},
+				"G": {
+					"_": {
+						"land": "critReact_G_land.res",
+						"no": "critReact_G_no.res",
+						"shout": "critReact_G_shout.res",
+						"whoosh": "critReact_G_whoosh.res"
+					}
+				}
+			},
+			"lengthMs": 534.0,
+			"limitedBy": "target",
+			"markers": {
+				"land": {
+					"head": 0.09
+				},
+				"no": {
+					"head": 0.26
+				},
+				"shout": {
+					"head": 0.11
+				},
+				"whoosh": {
+					"head": 0.12
+				}
+			},
+			"meaning": "A crit (every leader but Bibi): the leader's react landed.",
+			"momentaryMax": -14.64,
+			"play_db": -5.47,
+			"poly": 1.0,
+			"priority": 5.0,
+			"runtime": "Variant = the react strip's event (crits table). Fires on that event's frame (sprites.json chars.<art>.anims.<critAnim>.events), a third of the delay in reduced motion, like rabbitCrit.",
+			"steal": "never",
+			"target": {
+				"lufs": -12.0,
+				"type": "burst"
+			}
+		},
+		"decline": {
+			"burstMax": -16.0,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "decline_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "decline_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "decline_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "decline_G.res"
+					}
+				}
+			},
+			"lengthMs": 264.0,
+			"limitedBy": "target",
+			"meaning": "You declined a partner's demand (Liberman's rule).",
+			"momentaryMax": -19.47,
+			"play_db": -5.11,
+			"poly": 1.0,
+			"priority": 2.0,
+			"runtime": "On the decline pill's commit. The partner's 'left' ping is the sim's business, not this cue.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -16.0,
 				"type": "burst"
 			}
 		},
@@ -770,6 +1181,100 @@
 				"type": "relative"
 			}
 		},
+		"leaderPick": {
+			"burstMax": -15.0,
+			"bus": "SFX-Critical",
+			"ducks": [
+				{
+					"attackMs": 50.0,
+					"bus": "Music",
+					"db": -4.0,
+					"releaseMs": 200.0
+				}
+			],
+			"files": {
+				"D": {
+					"_": {
+						"_": "leaderPick_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "leaderPick_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "leaderPick_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "leaderPick_G.res"
+					}
+				}
+			},
+			"firstSound": true,
+			"lengthMs": 842.9,
+			"limitedBy": "target",
+			"markers": {
+				"_": {
+					"downbeat": 0.3879,
+					"pickup": 0.2586
+				}
+			},
+			"meaning": "You picked this round's leader (the picker's commit).",
+			"momentaryMax": -17.94,
+			"play_db": -4.68,
+			"poly": 1.0,
+			"priority": 5.0,
+			"runtime": "On the picker's commit (and again on a re-pick inside the undo window). It is the game's first sound now: it plays before the first-tap gate, and while the web audio context is still locked it is held (up to 5 s) and plays on the unlock, like the motif. It does not open the first-tap gate: the first tap still plays the motif.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -15.0,
+				"type": "burst"
+			}
+		},
+		"merge": {
+			"burstMax": -16.08,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "merge_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "merge_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "merge_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "merge_G.res"
+					}
+				}
+			},
+			"lengthMs": 274.0,
+			"limitedBy": "ceiling",
+			"meaning": "Two members merged into one (Golan's rule).",
+			"momentaryMax": -18.92,
+			"play_db": -4.0,
+			"poly": 1.0,
+			"priority": 2.0,
+			"runtime": "On the merge pill's commit (Coalition.merge).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -16.0,
+				"type": "burst"
+			}
+		},
 		"rabbitCrit": {
 			"burstMax": -12.0,
 			"bus": "SFX-Critical",
@@ -872,6 +1377,7 @@
 					}
 				}
 			},
+			"firstSound": true,
 			"lengthMs": 844.0,
 			"limitedBy": "target",
 			"meaning": "While you were away (the return).",
@@ -879,7 +1385,7 @@
 			"play_db": -9.66,
 			"poly": 1.0,
 			"priority": 3.0,
-			"runtime": "The catch's cha-ching, then the motif head (5-1).",
+			"runtime": "The catch's cha-ching, then the motif head (5-1). v1.3: a first sound like leaderPick (the return card comes before any tap after a reload, so the first-tap gate used to swallow it).",
 			"steal": "oldest",
 			"target": {
 				"lufs": -14.0,
@@ -1065,6 +1571,46 @@
 			"steal": "never",
 			"target": {
 				"lufs": -14.0,
+				"type": "burst"
+			}
+		},
+		"suspicionHot": {
+			"burstMax": -20.0,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "suspicionHot_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "suspicionHot_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "suspicionHot_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "suspicionHot_G.res"
+					}
+				}
+			},
+			"lengthMs": 168.0,
+			"limitedBy": "target",
+			"meaning": "Suspicion is hot (the thermometer passed 75 %).",
+			"momentaryMax": -25.86,
+			"play_db": -10.63,
+			"poly": 1.0,
+			"priority": 2.0,
+			"runtime": "Once per upward crossing of 75 % (the view's calm -> hot change). Silent at 95 % (boiling): the visual boil and the coming gavel carry it.",
+			"steal": "never",
+			"target": {
+				"lufs": -20.0,
 				"type": "burst"
 			}
 		},
@@ -1577,12 +2123,12 @@
 		"files": {
 			"music": 12,
 			"outside": 1,
-			"sfx": 229,
+			"sfx": 265,
 			"stingers": 37
 		},
 		"music_bytes": 9237588,
 		"outside_bytes": 53847,
-		"sfx_bytes": 622851,
+		"sfx_bytes": 817279,
 		"stinger_bytes": 1486635
 	},
 	"stingers": {
