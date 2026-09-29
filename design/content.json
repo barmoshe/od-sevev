@@ -5594,7 +5594,7 @@
    "kit": {
     "tap": {
      "prop": "prop_pen",
-     "anim": null,
+     "anim": "tap",
      "critAnim": "flip",
      "critEvent": "whoosh",
      "verb": "חתימה",
@@ -6003,7 +6003,7 @@
    "kit": {
     "tap": {
      "prop": "prop_phone",
-     "anim": null,
+     "anim": "tap",
      "critAnim": "react",
      "critEvent": "shout",
      "verb": "העברה",
@@ -6432,7 +6432,7 @@
    "kit": {
     "tap": {
      "prop": "prop_chair",
-     "anim": null,
+     "anim": "tap",
      "critAnim": "react",
      "critEvent": "no",
      "verb": "סירוב",
@@ -6837,10 +6837,10 @@
    "kit": {
     "tap": {
      "prop": "prop_ruler",
-     "anim": null,
+     "anim": "tap",
      "critAnim": "react",
      "critEvent": "land",
-     "verb": "יישור קו",
+     "verb": "יישור",
      "verbPlural": "יישורי קו",
      "critName": "קסם",
      "critPlural": "קסמים",
@@ -7244,7 +7244,7 @@
    "kit": {
     "tap": {
      "prop": "prop_calculator",
-     "anim": null,
+     "anim": "tap",
      "critAnim": "react",
      "critEvent": "shout",
      "verb": "חישוב",
@@ -7657,7 +7657,7 @@
    "kit": {
     "tap": {
      "prop": "prop_coffee",
-     "anim": null,
+     "anim": "tap",
      "critAnim": "react",
      "critEvent": "land",
      "verb": "קפה",
@@ -8084,7 +8084,7 @@
    "kit": {
     "tap": {
      "prop": "prop_stapler",
-     "anim": null,
+     "anim": "tap",
      "critAnim": "react",
      "critEvent": "land",
      "verb": "איחוד",

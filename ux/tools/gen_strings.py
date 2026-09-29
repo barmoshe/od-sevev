@@ -663,7 +663,7 @@ e("SHARE_TEXT_INVITE", "משחק סאטירה על הבחירות שלא נגמ�
 # --- OG / manifest
 e("OG_TITLE", "עוד סבב: הבחירות שלא נגמרות", "og:45", "*", "§5.4 og:title")
 e("OG_DESCRIPTION", "שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.", "og:110", "L*", "§5.4 og:description", "True of the shipped build; OG_DESCRIPTION_NEXT replaces it on picker ship day (it describes the pick). shell.html hard-codes the value today")
-e("OG_IMAGE_ALT", "ביבי בפיקסלים שולף שקלים מכובע, ומזוודה עם מדבקת DOHA עפה ברקע", "og:90", "", "§5.4 og:image:alt", "Describes the shipped og.jpg; OG_IMAGE_ALT_NEXT ships with the lineup key art (Bar 2026-09-29)")
+e("OG_IMAGE_ALT", "שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב", "og:90", "", "§5.4 og:image:alt", "Describes the shipped og.jpg; OG_IMAGE_ALT_NEXT ships with the lineup key art (Bar 2026-09-29)")
 e("OG_SITE_NAME", "עוד סבב", "og:12", "", "§5.4 og:site_name")
 e("MANIFEST_SHORT_NAME", "עוד סבב", "og:12", "", "§5.5 short_name")
 e("MANIFEST_NAME", "עוד סבב · משחק סאטירה", "og:30", "", "§5.5 name")
@@ -750,7 +750,7 @@ e("CHAT_SYS_DECLINED", "הדרישה של {name} נדחתה · לא יושב", "
 # --- staged replacements: they describe the picker or the lineup art, so they ship with them
 e("SHARE_TEXT_INVITE_NEXT", "משחק סאטירה על הבחירות שלא נגמרות. תורכם להקים ממשלה. {url}", "share-text:70", "*", "spec §10.3 SHARE_TEXT_INVITE", "Replaces SHARE_TEXT_INVITE on picker ship day")
 e("OG_DESCRIPTION_NEXT", "בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה.", "og:110", "L*", "spec §10.3 OG_DESCRIPTION", "Replaces OG_DESCRIPTION (shell.html og:description / twitter:description) on picker ship day")
-e("OG_IMAGE_ALT_NEXT", "ראשי רשימות בפיקסלים, כתף אל כתף, וקלפי באמצע", "og:90", "", "spec §10.3 OG_IMAGE_ALT; Bar 2026-09-29 lineup key art", "Ships with the lineup og.jpg; re-read it against the delivered art first")
+e("OG_IMAGE_ALT_NEXT", "שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב", "og:90", "", "spec §10.3 OG_IMAGE_ALT; Bar 2026-09-29 lineup key art", "Ships with the lineup og.jpg; re-read it against the delivered art first")
 
 # ---------------------------------------------------------------- content names (copy deck §C, §D)
 PRODUCERS = [  # fork id -> (deck name, plural)

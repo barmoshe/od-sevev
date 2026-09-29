@@ -643,12 +643,12 @@
     "short": "סמוטריץ׳",
     "party": "הציונות הדתית",
     "verb": "העברה",
-    "verbPlural": "העברות",
+    "verbPlural": "כוסות קפה",
     "critName": "לא מוחלט",
     "critPlural": "לא מוחלטים",
     "banner": "טורבו בהעברות!",
     "rule": "לוח הזמנים",
-    "postpone": "התחייבות להגיב"
+    "postpone": "אין תקציב לתגובה"
   },
   "numericPlaceholders": [
     "after",
@@ -5337,8 +5337,8 @@
       "box": "dos.row",
       "maxChars": 27,
       "worstPx": {
-        "4": 524,
-        "5": 655
+        "4": 580,
+        "5": 725
       }
     },
     "BUFF_CHIP_TAPFRENZY_LEADER": {
