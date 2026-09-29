@@ -2593,11 +2593,11 @@
    "avatar24": "avatar24_liberman"
   },
   "golan": {
-   "frameW": 167,
-   "frameH": 309,
+   "frameW": 119,
+   "frameH": 310,
    "anchor": [
-    83,
-    308
+    59,
+    309
    ],
    "density": 3,
    "anims": {
@@ -2658,10 +2658,10 @@
    },
    "densities": {
     "2": {
-     "frameW": 112,
+     "frameW": 81,
      "frameH": 206,
      "anchor": [
-      56,
+      40,
       205
      ],
      "density": 2,
@@ -6281,8 +6281,8 @@
    ]
   },
   "avatar24_golan.png": {
-   "bytes": 856,
-   "sha": "442efa48bcfe3661",
+   "bytes": 1012,
+   "sha": "1942a8cc92b1a31b",
    "size": [
     24,
     24
@@ -6481,8 +6481,8 @@
    ]
   },
   "avatar_golan.png": {
-   "bytes": 1354,
-   "sha": "0f69e39edfc9d02e",
+   "bytes": 1613,
+   "sha": "d04056442a923df7",
    "size": [
     32,
     32
@@ -7161,34 +7161,34 @@
    ]
   },
   "cast/golan_idle.png": {
-   "bytes": 74309,
-   "sha": "ffecb2e54b768906",
+   "bytes": 53397,
+   "sha": "7ca201c85216293c",
    "size": [
-    1002,
-    309
+    714,
+    310
    ]
   },
   "cast/golan_idle_d2.png": {
-   "bytes": 38849,
-   "sha": "5d576c25a891485c",
+   "bytes": 27592,
+   "sha": "c4dd9e77e3fe29fc",
    "size": [
-    672,
+    486,
     206
    ]
   },
   "cast/golan_react.png": {
-   "bytes": 224251,
-   "sha": "34c07f28d36f7a6d",
+   "bytes": 186119,
+   "sha": "9b7f1f79422f733b",
    "size": [
-    1169,
-    309
+    833,
+    310
    ]
   },
   "cast/golan_react_d2.png": {
-   "bytes": 119793,
-   "sha": "5cd5b601eee2f930",
+   "bytes": 97352,
+   "sha": "05f6dfdcf229d2f8",
    "size": [
-    784,
+    567,
     206
    ]
   },
@@ -9384,7 +9384,7 @@
    "eisenkot.png": "372210d8059f6902",
    "gafni.png": "dad9df69f7eb74aa",
    "gantz.png": "b42e1a744868ef04",
-   "golan.png": "e0142b1e31799508",
+   "golan.png": "a3c1e5ba79b6540d",
    "goldknopf.png": "7d9c7254192b2ee5",
    "gotliv.png": "9ab16d8359854d10",
    "herzog.png": "455757b1fba3a804",

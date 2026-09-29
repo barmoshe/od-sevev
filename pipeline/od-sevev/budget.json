@@ -11,7 +11,7 @@
   "sprites/avatar24_eisenkot.png": 864,
   "sprites/avatar24_gafni.png": 1091,
   "sprites/avatar24_gantz.png": 719,
-  "sprites/avatar24_golan.png": 856,
+  "sprites/avatar24_golan.png": 1012,
   "sprites/avatar24_goldknopf.png": 1052,
   "sprites/avatar24_gotliv.png": 1110,
   "sprites/avatar24_herzog.png": 1069,
@@ -36,7 +36,7 @@
   "sprites/avatar_eisenkot.png": 1416,
   "sprites/avatar_gafni.png": 1803,
   "sprites/avatar_gantz.png": 1141,
-  "sprites/avatar_golan.png": 1354,
+  "sprites/avatar_golan.png": 1613,
   "sprites/avatar_goldknopf.png": 1708,
   "sprites/avatar_gotliv.png": 1892,
   "sprites/avatar_herzog.png": 1723,
@@ -121,10 +121,10 @@
   "sprites/cast/gantz_idle_d2.png": 50124,
   "sprites/cast/gantz_react.png": 113917,
   "sprites/cast/gantz_react_d2.png": 59123,
-  "sprites/cast/golan_idle.png": 74309,
-  "sprites/cast/golan_idle_d2.png": 38849,
-  "sprites/cast/golan_react.png": 224251,
-  "sprites/cast/golan_react_d2.png": 119793,
+  "sprites/cast/golan_idle.png": 53397,
+  "sprites/cast/golan_idle_d2.png": 27592,
+  "sprites/cast/golan_react.png": 186119,
+  "sprites/cast/golan_react_d2.png": 97352,
   "sprites/cast/goldknopf_idle.png": 81656,
   "sprites/cast/goldknopf_idle_d2.png": 42554,
   "sprites/cast/goldknopf_react.png": 263908,
@@ -404,7 +404,7 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 155188852,
+ "vramBytes": 154091704,
  "vramByDensity": {
   "bibi": {
    "3": 9697848,
@@ -471,8 +471,8 @@
    "2": 798248
   },
   "golan": {
-   "3": 2683356,
-   "2": 1199744
+   "3": 1918280,
+   "2": 867672
   },
   "abbas": {
    "3": 1843820,
@@ -548,7 +548,7 @@
    "eisenkot": 1060488,
    "gantz": 1599000,
    "liberman": 798248,
-   "golan": 1199744,
+   "golan": 867672,
    "abbas": 832216,
    "distel": 2437500,
    "karhi": 2028000,
@@ -575,7 +575,7 @@
    "eisenkot": 2369640,
    "gantz": 3591600,
    "liberman": 1805672,
-   "golan": 2683356,
+   "golan": 1918280,
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
@@ -602,7 +602,7 @@
    "eisenkot": 1060488,
    "gantz": 1599000,
    "liberman": 798248,
-   "golan": 1199744,
+   "golan": 867672,
    "abbas": 832216,
    "distel": 2437500,
    "karhi": 2028000,
@@ -629,7 +629,7 @@
    "eisenkot": 2369640,
    "gantz": 3591600,
    "liberman": 1805672,
-   "golan": 2683356,
+   "golan": 1918280,
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
@@ -656,7 +656,7 @@
    "eisenkot": 2369640,
    "gantz": 3591600,
    "liberman": 1805672,
-   "golan": 2683356,
+   "golan": 1918280,
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
@@ -683,7 +683,7 @@
    "eisenkot": 1060488,
    "gantz": 1599000,
    "liberman": 798248,
-   "golan": 1199744,
+   "golan": 867672,
    "abbas": 832216,
    "distel": 2437500,
    "karhi": 2028000,
@@ -710,7 +710,7 @@
    "eisenkot": 2369640,
    "gantz": 3591600,
    "liberman": 1805672,
-   "golan": 2683356,
+   "golan": 1918280,
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
@@ -723,7 +723,7 @@
   }
  },
  "vramTypical": 12054424,
- "vramCastAll": 151929236,
+ "vramCastAll": 150832088,
  "vramPerPartner": {
   "sara": 4144800,
   "bennett": 4536752,
@@ -740,7 +740,7 @@
   "eisenkot": 2369640,
   "gantz": 3591600,
   "liberman": 1805672,
-  "golan": 2683356,
+  "golan": 1918280,
   "abbas": 1843820,
   "distel": 5489600,
   "karhi": 4526000,
@@ -809,7 +809,7 @@
   },
   {
    "file": "assets/sprites/avatar24_golan.png",
-   "source": 856,
+   "source": 1012,
    "imported": 432
   },
   {
@@ -934,8 +934,8 @@
   },
   {
    "file": "assets/sprites/avatar_golan.png",
-   "source": 1354,
-   "imported": 602
+   "source": 1613,
+   "imported": 606
   },
   {
    "file": "assets/sprites/avatar_goldknopf.png",
@@ -1359,23 +1359,23 @@
   },
   {
    "file": "assets/sprites/cast/golan_idle.png",
-   "source": 74309,
-   "imported": 24086
+   "source": 53397,
+   "imported": 18422
   },
   {
    "file": "assets/sprites/cast/golan_idle_d2.png",
-   "source": 38849,
-   "imported": 12534
+   "source": 27592,
+   "imported": 9984
   },
   {
    "file": "assets/sprites/cast/golan_react.png",
-   "source": 224251,
-   "imported": 79118
+   "source": 186119,
+   "imported": 73106
   },
   {
    "file": "assets/sprites/cast/golan_react_d2.png",
-   "source": 119793,
-   "imported": 42306
+   "source": 97352,
+   "imported": 38570
   },
   {
    "file": "assets/sprites/cast/goldknopf_idle.png",
@@ -2771,7 +2771,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 4496257,
+ "pckBytes": 4478299,
  "pckByAsset": {
   "bibi": {
    "3": 193236,
@@ -2838,8 +2838,8 @@
    "2": 25238
   },
   "golan": {
-   "3": 103204,
-   "2": 54840
+   "3": 91528,
+   "2": 48554
   },
   "abbas": {
    "3": 41270,
@@ -3004,5 +3004,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 13357065
+ "sourceTotal": 13264738
 }

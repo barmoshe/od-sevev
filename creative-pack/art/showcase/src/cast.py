@@ -33,8 +33,11 @@ CAST = {
                   arm=(235, 555, 412, 720, 380, 560), react='jab', head=(160, 0, 560, 440)),
     'liberman': dict(neck=520, waist=1000, eyes=[(378, 277, 28, 12), (520, 288, 28, 12)],
                      arm=None, react='no', head=(130, 20, 640, 530)),
-    'golan': dict(neck=520, waist=950, eyes=[(459, 289, 26, 12), (574, 312, 26, 12)],
-                  arm=None, react='hop', head=(170, 20, 700, 550)),
+    # Yair Golan (Bar's better ref, 2026-09-29; the old one is refs-rejected/golan-v1.png): three-quarter
+    # view, hands at his sides. The neck cut sits under the stubbled chin (y ~440), the waist just under
+    # the belt (y 875-905); skin is the lid under his eyes, not the nose shadow the midpoint sample hits.
+    'golan': dict(neck=460, waist=910, eyes=[(408, 250, 26, 12), (505, 240, 29, 12)],
+                  skin=(242, 160, 122), arm=None, react='hop', head=(280, 30, 700, 450)),
     'abbas': dict(neck=580, waist=1000, eyes=[(449, 328, 26, 12), (587, 346, 26, 12)],
                   arm=None, react='no', head=(150, 30, 690, 570)),
     'distel': dict(neck=460, waist=900, eyes=[(403, 232, 24, 11), (537, 259, 24, 11)],
