@@ -57,7 +57,7 @@ const tab = (i) => col(540 - 180 * (i - 1) + 90, tabsY() + 52);
 const log = (...a) => console.log(...a);
 const checks = [];
 const check = (ok, what) => { checks.push([ok, what]); log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}`); };
-const cellOf = (p, id) => (p.cells || []).find((c) => c[2] === id);
+const cellOf = (p, id) => ((p && p.cells) || []).find((c) => c[2] === id) || [-1, -1, ""];
 
 await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&speed=${speed}`);
 await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
@@ -103,6 +103,7 @@ let paid = 0;
 let rounds = 0;
 let lastBuy = 0;
 let shotRound = false;
+async function playToGate() {
 while (Date.now() - t0 < budget) {
 	rounds++;
 	s = await probe();
@@ -162,11 +163,14 @@ while (Date.now() - t0 < budget) {
 	await page.keyboard.press('Escape');
 	await wait(300);
 }
-s = await probe();
-log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${paid} pills, loops ${rounds}`);
-let elected = s.ready && s.cta;
-check(elected, 'Bennett reaches the election gate');
-if (elected) {
+}
+// the gate can slip (a walkout) between the CTA and the card: play on and try again
+let called = false;
+for (let attempt = 0; attempt < 6 && !called && Date.now() - t0 < budget; attempt++) {
+	await playToGate();
+	s = await probe();
+	log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${paid} pills, loops ${rounds}`);
+	if (!(s.ready && s.cta)) continue;
 	for (let i = 0; i < 3 && s.modal !== 'EVOLUTION' && (s.chat.open || s.modal !== ''); i++) {
 		await page.keyboard.press('Escape');
 		await wait(400);
@@ -181,6 +185,16 @@ if (elected) {
 	md = await modal();
 	if (md && md.open && md.id === 'EVOLUTION' && md.ready) {
 		await tapAt(css(md.buttons[0][0], md.buttons[0][1]));
+		called = true;
+	} else {
+		log('  the gate slipped under the card: back to the round');
+		await page.keyboard.press('Escape');
+		await wait(500);
+	}
+}
+check(called, 'Bennett calls the election (O3 "לפזר את הכנסת")');
+if (called) {
+	{
 		await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open), null, { timeout: 40000 }).catch(() => {});
 		await wait(1500);
 		const fl = await page.evaluate(() => window.odFlash || null);
