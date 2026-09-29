@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `6fad4a2` docs(od-sevev): live handoff snapshot 21:16
+- Branch head: `4d4bc2b` docs(od-sevev): live handoff snapshot 21:17
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -26,7 +26,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | Animator | DONE, merged (court day, motion audit, brawl boil, reduced-motion fix; LeaderWalk helper ready, unwired) | `worktree-agent-a4cee2a31acb16b09` | 0 | 0 | - |
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
 | UX Designer | mobile-first layout spec (ux/mobile-first-layout.md) + tools/web/mobile_web.mjs; Bar: "the mobile layout is not good, must be mobile first" | `worktree-agent-afa76d8266b2e2b6f` | 4 | 0 | `UX-Designer.commits.patch`  |
-| Game Developer (mobile) | implement ux/mobile-first-layout.md §8 + screens §3-§7 (from the UX branch worktree-agent-afa76d8266b2e2b6f) | `worktree-agent-a8bd968153c51c052` | 5 | 0 | `Game-Developer-(mobile).commits.patch`  |
+| Game Developer (mobile) | implement ux/mobile-first-layout.md §8 + screens §3-§7 (from the UX branch worktree-agent-afa76d8266b2e2b6f) | `worktree-agent-a8bd968153c51c052` | 5 | 1 | `Game-Developer-(mobile).commits.patch` `Game-Developer-(mobile).patch` |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
