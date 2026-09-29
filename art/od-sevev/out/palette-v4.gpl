@@ -1,0 +1,70 @@
+GIMP Palette
+Name: od-sevev-graphic-v4
+Columns: 8
+#
+ 27  20  38	ink
+ 15  35  80	night
+ 47  48  66	suit_dk
+ 69  74  96	suit
+ 99 106 134	suit_hi
+125 131 152	slate
+164 169 184	grey
+211 214 223	silver
+247 244 236	white
+221 213 192	paper
+247 207 166	skin_hi
+227 169 124	skin
+194 127  88	skin_sh
+142  84  64	skin_dk
+ 43  33  36	hair_dk
+ 90  61  48	hair_br
+239 226 180	blonde
+201 178 122	blonde_sh
+ 31  43  99	navy
+ 52  73 143	navy_hi
+  0  56 184	flag
+ 63 116 230	flag_hi
+143 192 255	sky
+138  21  56	maroon
+ 86  11  36	maroon_dk
+208  42  54	red
+240 127 173	pink
+196  80 127	pink_sh
+245 135  31	orange
+184  90  23	orange_sh
+245 197  66	gold
+198 138  43	gold_sh
+255 241 166	gold_hi
+ 63 174  74	green
+ 31 122  61	green_sh
+163 216  74	lime
+ 30  58  55	teal_dk
+ 58 101  94	teal
+121 165 151	teal_hi
+228 211 168	stone
+179 157 114	stone_sh
+138  86  50	wood
+ 85  51  31	wood_dk
+ 22  53 122	plum
+ 42  87 166	plum_hi
+ 11  10  18	outline
+214 204 236	rim
+  6  16  41	ui_scrim
+  7  42 122	ui_panel
+ 16  69 181	ui_bubble
+ 79 130 232	ui_bub_hi
+ 74  58  16	ui_out
+114  96  31	ui_out_hi
+125  84  18	gold_dk
+  0  35 122	flag_dk
+248 107  93	red_hi
+143  29  34	red_dk
+ 91  59 158	stamp
+216 204 255	stamp_lt
+244 241 232	receipt
+216 209 191	receipt_sh
+ 26  26  26	receipt_ink
+201 214 242	ui_mute
+ 42  92 196	ui_rule
+180 195 232	ui_dim
+255 170 159	alert_lt

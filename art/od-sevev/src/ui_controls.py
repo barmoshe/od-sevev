@@ -14,7 +14,7 @@ G = "controls"
 
 VARIANTS = {
     #          face         hi           lo          lip         press_face   press_shadow  label
-    "primary":   ("flag",      "flag_hi",   "flag_dk",  "flag_dk",  "flag_dk",   "outline",    "white"),
+    "primary":   ("flag",      "white",     "flag_dk",  "flag_dk",  "flag_dk",   "outline",    "white"),   # v4: a white light edge
     "secondary": ("ui_bubble", "ui_bub_hi", "ui_panel", "ui_scrim", "ui_panel",  "outline",    "white"),
     "gold":      ("gold",      "gold_hi",   "gold_sh",  "gold_dk",  "gold_sh",   "gold_dk",    "ink"),
     # wave 6 (UX R7): the destructive commit. The red ramp (danger), built exactly like primary so it is one family.
@@ -214,9 +214,13 @@ def cards():
     lk.paste(lf, 0, 1)
     save(lk, "card_row_locked", G, state="locked", slice=[4, 4, 4, 4], content=[3, 3, W - 6, H - 6], label="grey",
          notes="The silhouette / not-yet-revealed card: flat, sunk, grey label '???'.")
-    p = panel(26, 26, "night", "ui_scrim", "ui_bub_hi", corner=1)
+    p = panel(26, 26, "white", "white", "paper", corner=1)       # v4: a white ballot slip (פתק), not a dark well
+    p.hline(2, 23, 13, "receipt")                                  # the slip's fold, one value step
     save(p, "card_plate", G, slice=[3, 3, 3, 3],
-         notes="Recessed plate for the 24x24 source icon or the 32x32 cast avatar (then 34x34, slice keeps the bevel).")
+         notes="v4: a white ballot slip (פתק הצבעה) the 24x24 source icon or the 32x32 cast avatar lies on (then 34x34, "
+               "slice keeps the edge): white face, paper shadow edge, a fold at row 13, the outline. Blank: never a "
+               "party letter. Every icon and silhouette keeps its own outline, so it reads on the slip (outline vs white "
+               "17.4:1).")
 
 
 def build():

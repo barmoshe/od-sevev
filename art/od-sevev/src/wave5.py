@@ -28,17 +28,19 @@ from palette import contrast
 
 LANES = {
     # era: (line, base, lip shadow, course top edge, course gap)  -- line/base are the stage art's own
-    "balfour":    ("suit_dk", "night",   "ink",     "suit_dk", "ink"),       # the street in front of the residence, at night
-    "knesset":    ("ink",     "wood_dk", "hair_dk", "hair_dk", "ink"),       # a wooden stage floor: dark board gaps only
-    "courthouse": ("teal_dk", "ink",     "outline", "teal_dk", "outline"),   # corridor tiles under fluorescent teal
-    "washington": ("night",   "navy",    "night",   "night",   "night"),     # a navy carpet with woven stripes
+    # v4 (Bar: "more Israel"): warm Jerusalem limestone, lamp-lit at Balfour, sunlit at the Knesset, polished inside the
+    # courthouse; Washington is not Jerusalem, so it gets pale concrete pavement.
+    "balfour":    ("wood_dk", "stone_sh", "wood",     "stone",  "wood"),      # Jerusalem stone at night, in lamp light
+    "knesset":    ("stone_sh", "stone",  "stone_sh", "white",  "stone_sh"),  # sunlit Jerusalem stone
+    "courthouse": ("teal_dk", "paper",   "stone_sh", "white",  "stone_sh"),  # polished limestone tiles
+    "washington": ("slate",   "silver",  "grey",     "white",  "grey"),      # pale concrete pavement
 }
 # per era: (joint, light, cable, (detail 1, detail 2)); every one >= 4.5:1 against `rim`
 DETAIL = {
-    "balfour":    ("ink",     "suit_dk", "ink",     ("suit", "suit_dk")),     # paving slabs, the cable, a flyer
-    "knesset":    ("ink",     "hair_br", "ink",     ("hair_br", "hair_dk")),  # board ends + nails, the cable, a spike-tape X
-    "courthouse": ("outline", "teal_dk", "outline", ("suit_dk", "teal_dk")),  # corridor tiles, the cable, a dropped page
-    "washington": ("night",   "suit_dk", "ink",     ("night", "suit_dk")),    # the carpet's woven diamonds, the cable
+    "balfour":    ("wood",     "stone",  "ink",     ("paper", "pink_sh")),    # slab joints, the cable, a flyer
+    "knesset":    ("stone_sh", "white",  "ink",     ("wood", "stone_sh")),    # slab joints, the cable, a spike-tape X
+    "courthouse": ("stone_sh", "white",  "ink",     ("white", "stone_sh")),   # tile joints, the cable, a dropped page
+    "washington": ("grey",     "white",  "ink",     ("grey", "slate")),       # expansion joints, the cable
 }
 COURSES = (7, 12, 18, 25)          # the top row of each course seam (tile rows)
 H = 28
@@ -65,7 +67,7 @@ def lane(era):
         for x in range(off, W, step):
             L.vline(x, y0, y1, joint)
             L.set(x + 1, y0, light)
-    if era == "washington":                        # the carpet: a woven row of small diamonds, a dotted weave
+    if era == "washington":                        # v4 concrete: sparse grit marks (was the carpet's woven diamonds)
         for x in range(7, W, 16):
             for (dx, dy) in ((0, -1), (-1, 0), (1, 0), (0, 1)):
                 L.set(x + dx, 15 + dy, d1)
@@ -85,8 +87,9 @@ def lane(era):
     # the press cable: across the whole tile, sagging one row in the middle; it enters and leaves on row 22, so it tiles
     for x in range(W):
         L.set(x, 23 if 9 <= x < 23 else 22, cable)
-    for c in L.colors():
-        assert contrast("rim", c) >= 4.5, (era, c, contrast("rim", c))
+    # v4: the lane is light stone, so the flying Suitcase separates by its dark outline and maroon body, not by its
+    # pale rim (rim vs stone ~1:1): the base keeps >= 4.5:1 against the outline and >= 3:1 against the maroon.
+    assert contrast("outline", base) >= 4.5 and contrast("maroon", base) >= 3.0, (era, base)
     return L
 
 
@@ -98,8 +101,8 @@ def lanes():
                    "x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical "
                    "px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; "
                    "diorama._place_lane does this for any tile width), above the stage art and pads, under the critters "
-                   "and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= "
-                   "stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> "
+                   "and the Suitcase. 28 rows = art rows 230-257 = S-112..S. v4: warm Jerusalem stone (Washington: pale "
+                   "concrete); the base keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon. plaza_<era> "
                    "continues the floor below (art row 258 down).")
 
 
