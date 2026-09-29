@@ -14,11 +14,12 @@ extends RefCounted
 ## Money: upkeep is a % of ₪/s and a demand costs `demandSec` seconds of current ₪/s (pitch §11),
 ## never a flat price, so the coalition corner of the triangle scales with the exponential economy.
 
-const STATUSES := ["absent", "pending", "member", "left", "removed", "transferred"]
+const STATUSES := ["absent", "pending", "member", "left", "removed", "transferred", "merged"]
 const TYPES := ["demand", "ultimatum", "reply", "thanks", "status", "sys", "transfer", "brawl"]
-const STATES := ["", "open", "paid", "deleted", "expired", "resolved"]
+const STATES := ["", "open", "paid", "deleted", "expired", "resolved", "declined"]
 const SYS_KEYS := ["chat.sys.created", "chat.sys.joined", "chat.sys.left", "chat.sys.removed", "chat.sys.added",
-	"chat.sys.transfer", "chat.sys.brawl", "chat.brawl.after", "chat.sys.muted", "chat.sys.cleared"]
+	"chat.sys.transfer", "chat.sys.brawl", "chat.brawl.after", "chat.sys.muted", "chat.sys.cleared", "chat.sys.declined",
+	"chat.sys.merged"]
 const LINES := ["demand", "threat", "thanks", "return", "status", "after"]
 
 static var _installed := false
@@ -40,9 +41,15 @@ static func cfg() -> Dictionary:
 	return c if c is Dictionary else {}
 
 
+## The round's partners: content.partners in the default leader's (Bibi's) round, else the leader's
+## lineup dealt onto the shared slots (Leaders.partners, leader-select-spec §5.5).
 static func partners() -> Array:
-	var p: Variant = Content.data().get("partners")
-	return p if p is Array else []
+	return Leaders.partners()
+
+
+## The FTUE C1 partner: the round's leader's slot S1 (Bibi: coalition.firstPartner).
+static func first_partner() -> String:
+	return Leaders.first_partner()
 
 
 ## The coalition is live only when the content has both sections. Without them every function
@@ -68,7 +75,12 @@ static func partner(id: String) -> Dictionary:
 	return _index.get(id, {})
 
 
+## A coalition config number; the round's leader may override a few (Deri: rejoinMult 1.0,
+## Leaders.coalition_override).
 static func _num(key: String, dflt: float) -> float:
+	var o: Variant = Leaders.coalition_override(key)
+	if o != null:
+		return float(o)
 	return float(cfg().get(key, dflt))
 
 
@@ -87,11 +99,15 @@ static func fresh_state() -> Dictionary:
 		"nextDemandSec": -1.0, "joinCooldownSec": 0.0, "replyIndex": 0,
 		"corridorOpen": false, "corridorMsgs": 0, "transferDone": false, "unread": 0,
 		"rot": {},   # "partner:line" -> the next linesVariants index (lifetime)
+		"declineCdSec": 0.0,   # Liberman's "לא יושב" cooldown (round)
+		"mergeCdSec": 0.0, "mergesRound": 0,   # Golan's "איחוד" (round)
 	}
 
 
+## memberSec: visible seconds as a member this round (Golan's merge needs 60 s). A partner merged
+## into another's row has status "merged" and sits in that row's `carry` (like Gotliv's transfer).
 static func _fresh_partner() -> Dictionary:
-	return {"status": "absent", "meter": 0.0, "carry": [], "frozen": false, "benchSec": 0.0, "corridor": false}
+	return {"status": "absent", "meter": 0.0, "carry": [], "frozen": false, "benchSec": 0.0, "corridor": false, "memberSec": 0.0}
 
 
 static func _c(s: GameState) -> Dictionary:
@@ -229,6 +245,11 @@ static func _apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 			up += float(q.get("upkeepPct", 0.0))
 			seats += int(q.get("seats", 0))
 			abstain += float(q.get("abstain", 0.0))
+			if status(s, str(cid)) == "merged":   # a merged partner is still in the coalition
+				for e: Variant in q.get("effects", []):
+					var hq: Variant = Economy.EFFECTS.get((e as Dictionary).get("type", ""))
+					if hq != null:
+						(hq as Callable).call(e, d)
 		for e: Variant in p.get("effects", []):
 			var h: Variant = Economy.EFFECTS.get((e as Dictionary).get("type", ""))
 			if h != null:
@@ -267,6 +288,16 @@ static func demand_price(s: GameState, id: String, d: Economy.Derived) -> float:
 		return 0.0
 	var lv := int(_c(s)["levels"].get(id, 0))
 	var v := _num("demandSec", 45.0) * d.bps * float(p.get("priceMult", 1.0)) * pow(float(p.get("priceGrowth", 1.0)), lv)
+	# Golan's merge: one demand stream for the pair, at the higher of their prices.
+	for cid: Variant in ps(s, id)["carry"]:
+		if status(s, str(cid)) == "merged":
+			var q := partner(str(cid))
+			var lq := int(_c(s)["levels"].get(str(cid), 0))
+			v = maxf(v, _num("demandSec", 45.0) * d.bps * float(q.get("priceMult", 1.0)) * pow(float(q.get("priceGrowth", 1.0)), lq))
+	# The p_deal perk (demandDiscountPct) and Smotrich's "אין כסף" (adds to it).
+	var disc := clampf(Meta.effect_value(s, "demandDiscountPct") + Leaders.demand_discount_pct(), 0.0, 90.0)
+	if disc > 0.0:
+		v *= 1.0 - disc / 100.0
 	return ceilf(Economy.clampf_num(maxf(_num("minPrice", 10.0), v)))
 
 
@@ -455,7 +486,7 @@ static func open_group(s: GameState, d: Economy.Derived, rng: Callable = randf) 
 		return out
 	c["opened"] = true
 	_sys(s, "chat.sys.created", {}, out)
-	var first := str(cfg().get("firstPartner", ""))
+	var first := first_partner()
 	if not partner(first).is_empty():
 		_post_join(s, first, d, rng, out)
 		c["joinCooldownSec"] = _num("joinGapSec", 8.0)
@@ -474,8 +505,14 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 		if ctx.get("allowPing", true) and c1_ready(s):
 			out.append_array(open_group(s, d, rng))
 		return out
+	if float(c.get("declineCdSec", 0.0)) > 0.0:
+		c["declineCdSec"] = maxf(0.0, float(c["declineCdSec"]) - dt)
+	if float(c.get("mergeCdSec", 0.0)) > 0.0:
+		c["mergeCdSec"] = maxf(0.0, float(c["mergeCdSec"]) - dt)
 	for id: Variant in c["partners"]:
 		var st: Dictionary = c["partners"][id]
+		if st["status"] == "member":
+			st["memberSec"] = float(st.get("memberSec", 0.0)) + dt
 		if float(st["benchSec"]) > 0.0:
 			st["benchSec"] = maxf(0.0, float(st["benchSec"]) - dt)
 	_tick_messages(s, dt, out)
@@ -547,7 +584,7 @@ static func _post_join(s: GameState, id: String, d: Economy.Derived, rng: Callab
 	_sys(s, "chat.sys.joined", {"partner": id}, out)
 	var price := demand_price(s, id, d)
 	var variant := _variant(s, id, "demand")
-	if int(_c(s)["paidLifetime"]) == 0 and s.evolutions == 0 and id == str(cfg().get("firstPartner", "")):
+	if int(_c(s)["paidLifetime"]) == 0 and s.evolutions == 0 and id == first_partner():
 		price = _num("firstDemandPrice", 60.0)   # pitch §11 Q2: the FTUE demand is a fixed 60 ₪
 		variant = 0                              # the deck's first bubble (C1); the rotation goes on from 1
 		(_c(s)["rot"] as Dictionary)["%s:demand" % id] = 1 % variant_count(id, "demand")
@@ -585,7 +622,9 @@ static func _tick_demands(s: GameState, dt: float, d: Economy.Derived, rng: Call
 	var id: String = pick["id"]
 	var price := demand_price(s, id, d)
 	var kind: String = pick.get("demandKind", "money")
-	if _can_threaten(s, id) and float(rng.call()) < float(pick.get("threatChance", 0.0)):
+	# Ben Gvir's rule (partnerThreatMult): nobody out-threatens the threatener. The patience
+	# escalation below is not a chance, so an unpaid demand still turns into an ultimatum (spec L6).
+	if _can_threaten(s, id) and float(rng.call()) < float(pick.get("threatChance", 0.0)) * Leaders.threat_mult():
 		_post(s, {"type": "ultimatum", "partner": id, "price": price, "kind": kind,
 			"leftSec": float(_ult().get("sec", 90.0)), "state": "open", "line": "threat", "variant": _variant(s, id, "threat")}, out)
 	else:
@@ -647,9 +686,22 @@ static func _leave(s: GameState, id: String, rejoin_price: float, out: Array) ->
 	st["status"] = "left"
 	st["frozen"] = false
 	_c(s)["leftLifetime"] = int(_c(s)["leftLifetime"]) + 1
-	_sys(s, "chat.sys.left", {"partner": id, "payable": "rejoin", "price": rejoin_price, "state": "open"}, out)
+	var f := {"partner": id, "payable": "rejoin", "price": rejoin_price, "state": "open"}
+	var pair := merged_with(s, id)
+	if not pair.is_empty():
+		f["with"] = pair   # Golan's merged pair walks out together (copy leftTogether); one pill
+	_sys(s, "chat.sys.left", f, out)
 	out.append({"ev": "partnerLeft", "partner": id})
 	_stand_in(s, out)
+
+
+## The partners merged into `id`'s row (Golan's rule), in merge order.
+static func merged_with(s: GameState, id: String) -> Array:
+	var out: Array = []
+	for cid: Variant in ps(s, id)["carry"]:
+		if status(s, str(cid)) == "merged":
+			out.append(str(cid))
+	return out
 
 
 ## Gantz walks in whenever someone walks out (pitch §7). He stays for the round.
@@ -712,6 +764,12 @@ static func pay(s: GameState, seq: int, ceremony_done: bool = false) -> Dictiona
 	c["paidLifetime"] = int(c["paidLifetime"]) + 1
 	if m["type"] == "demand" or m["type"] == "ultimatum":
 		Meta.bump(s, "demandsPaid")   # trophy "61 ידיים": demands and ultimatums, not rejoin / poach pills
+		var odp := Leaders.on_demand_paid()
+		if not odp.is_empty():
+			# Deri's coffee: a timed tap buff, refreshed (not stacked) by every paid demand.
+			Events.leader_buff(s, odp)
+			out.append({"ev": "leaderBuff", "partner": id, "type": str(odp.get("type", "")),
+				"mult": float(odp.get("mult", 1.0)), "sec": float(odp.get("durationSec", 0.0))})
 	Meta.count(s, "countPartnerPaid", id)   # "gafniPaid" (trophy "תיקו כמו שהזמנת")
 	if p.has("priceGrowth"):
 		c["levels"][id] = int(c["levels"].get(id, 0)) + 1
@@ -744,6 +802,123 @@ static func _on_joined(s: GameState, id: String, out: Array) -> void:
 				om["state"] = "expired"
 			ps(s, qid)["status"] = "absent"
 			_sys(s, "chat.sys.left", {"partner": qid}, out)
+
+
+## Liberman's "לא יושב" (leader rule declineDemand, spec §5.1, L5): an open MEMBER demand closes for
+## free and the partner stays. Never a join demand, a rejoin / poach pill or an ultimatum; one per
+## cooldownSec of visible play. The partner's next demand comes on the normal gap.
+static func can_decline(s: GameState, seq: int) -> bool:
+	var r := Leaders.decline_rule()
+	if r.is_empty() or float(_c(s).get("declineCdSec", 0.0)) > 0.0:
+		return false
+	var m := message(s, seq)
+	# Member demands only: an ultimatum (notUltimatum) and a join demand never qualify.
+	if m.is_empty() or m["state"] != "open" or m["type"] != "demand" or m.get("join", false) == true:
+		return false
+	return str(m.get("payable", "")) == "" and status(s, str(m.get("partner", ""))) == "member"
+
+
+## Seconds left on the decline pill's cooldown (0 = ready; -1 = the round's leader has no decline).
+static func decline_cooldown(s: GameState) -> float:
+	if Leaders.decline_rule().is_empty():
+		return -1.0
+	return float(_c(s).get("declineCdSec", 0.0))
+
+
+## Declines an open member demand. Returns {ok, reason?, partner, events} (reason: rule | cooldown |
+## closed). The sys line is chat.sys.declined {partner} (UX CHAT_SYS_DECLINED).
+static func decline(s: GameState, seq: int) -> Dictionary:
+	var r := Leaders.decline_rule()
+	if r.is_empty():
+		return {"ok": false, "reason": "rule"}
+	if float(_c(s).get("declineCdSec", 0.0)) > 0.0:
+		return {"ok": false, "reason": "cooldown"}
+	if not can_decline(s, seq):
+		return {"ok": false, "reason": "closed"}
+	var m := message(s, seq)
+	var id := str(m["partner"])
+	m["state"] = "declined"
+	_c(s)["declineCdSec"] = float(r.get("cooldownSec", 90.0))
+	var out: Array = []
+	_sys(s, "chat.sys.declined", {"partner": id}, out)
+	Leaders._bump(s, Leaders.current(s), "declines", 1.0)
+	return {"ok": true, "partner": id, "events": out}
+
+
+## Golan's "איחוד" (leader rule mergeMembers, spec §2.1, the rule's _note): two members of
+## minMemberSec+ merge into one row. `a` keeps its id (the view names it "a־b"); b's seats, upkeep
+## (and abstentions) join a's row, demands come on one stream at the higher price, and a walkout
+## takes both (one rejoin pill). Never the stand-in or a partner with an open ultimatum; maxPerRound
+## per round, cooldownSec apart. Why it can't: "" when it can, else rule | cooldown | limit | same |
+## member | young | standIn | ultimatum.
+static func merge_block(s: GameState, a: String, b: String) -> String:
+	var r := Leaders.merge_rule()
+	if r.is_empty():
+		return "rule"
+	var c := _c(s)
+	if float(c.get("mergeCdSec", 0.0)) > 0.0:
+		return "cooldown"
+	if int(c.get("mergesRound", 0)) >= int(r.get("maxPerRound", 2)):
+		return "limit"
+	if a == b:
+		return "same"
+	for id: String in [a, b]:
+		if status(s, id) != "member":
+			return "member"
+		if float(ps(s, id).get("memberSec", 0.0)) < float(r.get("minMemberSec", 60.0)):
+			return "young"
+		if partner(id).get("standIn", false) == true:
+			return "standIn"
+		var om := open_msg(s, id)
+		if not om.is_empty() and om["type"] == "ultimatum":
+			return "ultimatum"
+	return ""
+
+
+static func can_merge(s: GameState, a: String, b: String) -> bool:
+	return merge_block(s, a, b) == ""
+
+
+## The members `id` could merge with now (the pair prompt "לאחד עם…").
+static func merge_candidates(s: GameState, id: String) -> Array:
+	var out: Array = []
+	for p: Dictionary in partners():
+		if can_merge(s, id, str(p["id"])):
+			out.append(str(p["id"]))
+	return out
+
+
+## Seconds left on the merge pill's cooldown (0 = ready; -1 = no merge rule this round).
+static func merge_cooldown(s: GameState) -> float:
+	if Leaders.merge_rule().is_empty():
+		return -1.0
+	return float(_c(s).get("mergeCdSec", 0.0))
+
+
+## Merges b into a. Returns {ok, reason?, a, b, events}. b's open demand (never an ultimatum) closes;
+## the sys line is chat.sys.merged {a, b} (copy rule.copy.sys).
+static func merge(s: GameState, a: String, b: String) -> Dictionary:
+	var why := merge_block(s, a, b)
+	if why != "":
+		return {"ok": false, "reason": why}
+	var r := Leaders.merge_rule()
+	var c := _c(s)
+	var out: Array = []
+	var om := open_msg(s, b)
+	if not om.is_empty():
+		om["state"] = "resolved"
+	var sb := ps(s, b)
+	sb["status"] = "merged"
+	(ps(s, a)["carry"] as Array).append(b)
+	for cid: Variant in (sb["carry"] as Array).duplicate():   # anyone already in b's row comes along
+		(ps(s, a)["carry"] as Array).append(cid)
+	sb["carry"] = []
+	c["mergesRound"] = int(c.get("mergesRound", 0)) + 1
+	c["mergeCdSec"] = float(r.get("cooldownSec", 120.0))
+	_sys(s, "chat.sys.merged", {"a": a, "b": b}, out)
+	out.append({"ev": "merged", "a": a, "b": b})
+	Leaders._bump(s, Leaders.current(s), "merges", 1.0)
+	return {"ok": true, "a": a, "b": b, "events": out}
 
 
 ## The brawl (deck §E): both rows freeze until the player presses "צאו החוצה".
@@ -827,6 +1002,9 @@ static func on_election(s: GameState) -> void:
 	c["joinCooldownSec"] = 0.0
 	c["transferDone"] = false
 	c["unread"] = 0
+	c["declineCdSec"] = 0.0
+	c["mergeCdSec"] = 0.0
+	c["mergesRound"] = 0
 	if c["opened"] and active():
 		_sys(s, "chat.sys.cleared", {"n": s.evolutions + 1}, [])
 
@@ -848,6 +1026,9 @@ static func sanitize(raw: Variant) -> Dictionary:
 		out[k] = int(_n(r.get(k)))
 	out["nextDemandSec"] = _n(r.get("nextDemandSec"), -1.0)
 	out["joinCooldownSec"] = _n(r.get("joinCooldownSec"))
+	out["declineCdSec"] = minf(_n(r.get("declineCdSec")), float(Leaders.decline_rule().get("cooldownSec", 0.0)))
+	out["mergeCdSec"] = minf(_n(r.get("mergeCdSec")), float(Leaders.merge_rule().get("cooldownSec", 0.0)))
+	out["mergesRound"] = mini(int(_n(r.get("mergesRound"))), int(Leaders.merge_rule().get("maxPerRound", 0)))
 	var known := {}
 	for p: Dictionary in partners():
 		known[p["id"]] = true
@@ -874,6 +1055,7 @@ static func sanitize(raw: Variant) -> Dictionary:
 			st["frozen"] = src.get("frozen") == true
 			st["corridor"] = src.get("corridor") == true
 			st["benchSec"] = _n(src.get("benchSec"))
+			st["memberSec"] = _n(src.get("memberSec"))
 			if src.get("carry") is Array:
 				for x: Variant in src["carry"]:
 					if x is String and known.has(x) and not (st["carry"] as Array).has(x):

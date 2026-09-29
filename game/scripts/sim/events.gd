@@ -91,9 +91,10 @@ static var EFFECTS: Dictionary = {
 # Content
 # ---------------------------------------------------------------------------------------------
 
+## The round's cards: content.events in the default leader's round, else the leader's (shared
+## events, this round's rivals, their selfEvent card; Leaders.build_events, spec §5.5).
 static func list() -> Array:
-	var v: Variant = Content.data().get("events")
-	return v if v is Array else []
+	return Leaders.events()
 
 
 static func cfg() -> Dictionary:
@@ -185,6 +186,18 @@ static func _apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 				d.no_crit = true
 			"kaiaBuff":
 				d.tap_mult *= float(a.get("tapMult", 1.0))
+			"leaderBuff":
+				d.tap_mult *= maxf(1.0, float(a.get("tapMult", 1.0)))
+
+
+## A leader rule's timed tap buff (Deri's ☕ onDemandPaid {type: tapBuff, mult, durationSec}):
+## a new one refreshes the running one, never stacks. Round-scoped like every live card.
+static func leader_buff(s: GameState, e: Dictionary) -> void:
+	var act: Array = _st(s)["active"]
+	for a: Dictionary in act.duplicate():
+		if a["type"] == "leaderBuff":
+			act.erase(a)
+	_activate(s, "leaderBuff", e, {"sec": float(e.get("durationSec", 0.0)), "tapMult": float(e.get("mult", 1.0))})
 
 
 # ---------------------------------------------------------------------------------------------
@@ -270,13 +283,17 @@ static func fire(s: GameState, id: String, d: Economy.Derived, rng: Callable = r
 	var eff: Dictionary = e.get("effect", {"type": "none"})
 	var h: Variant = EFFECTS.get(eff.get("type", "none"))
 	var result: Dictionary = (h as Callable).call(s, eff, d, rng) if h != null else {"skipped": true}
+	if e.has("skin"):
+		result["skin"] = e["skin"]   # "leakRight": the coalition's screenshot (Leaders.leak_copy)
 	if float(e.get("cooldownSec", 0.0)) > 0.0:
 		st["cooldowns"][id] = float(e["cooldownSec"])
 	if not (st["round"] as Array).has(id):
 		(st["round"] as Array).append(id)
 	st["counts"][id] = int(st["counts"].get(id, 0)) + 1
 	Meta.count(s, "countEvent", id)   # "lapidCards" (trophy "בכובע!")
-	if e.get("side", "") == "opposition":
+	# A rival card: the shipped opposition cards, or a coalition-side card in an opposition leader's
+	# round (side "rival"). The leader's own card (side "self") is not a rival.
+	if e.get("side", "") == "opposition" or e.get("side", "") == "rival":
 		var bonus := 0
 		for uid in s.upgrades:
 			var ue: Dictionary = Content.upgrade(uid).get("effect", {})

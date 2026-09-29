@@ -93,7 +93,7 @@ func test_duplicate_state_keeps_politics() -> void:
 	runner.check(a == b, "duplicate_state() carries every politics section exactly")
 
 
-func test_v2_save_migrates_to_v3() -> void:
+func test_v2_save_migrates_to_v4() -> void:
 	var st := SaveStore.new(dir)
 	var f := FileAccess.open(st.path, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 2, "lastSaveTime": 5.0, "state": {"bananas": 77.0, "evolutions": 2, "allTimeBananas": 1e7}}))
@@ -104,12 +104,13 @@ func test_v2_save_migrates_to_v3() -> void:
 	runner.check(l.bananas == 77.0 and l.evolutions == 2, "its fields survive")
 	runner.check(not l.coalition["opened"] and l.investigation["phase"] == "idle" and l.calendar["mode"] == "campaign", "politics start fresh")
 	st.save_game(l, 6.0)
-	runner.check(int(JSON.parse_string(FileAccess.get_file_as_string(st.path))["version"]) == 3, "the next save writes v3")
+	# leader select: a v2 file goes through v3 to v4 (the v3 -> v4 step is tested in test_leaders.gd)
+	runner.check(int(JSON.parse_string(FileAccess.get_file_as_string(st.path))["version"]) == 4, "the next save writes v4")
 
 
-func test_newer_than_v3_is_kept_aside() -> void:
-	var r := SaveStore.parse(JSON.stringify({"version": 4, "state": {}}))
-	runner.check(r["kind"] == "newer", "a v4 save is newer, never overwritten")
+func test_newer_than_v4_is_kept_aside() -> void:
+	var r := SaveStore.parse(JSON.stringify({"version": 5, "state": {}}))
+	runner.check(r["kind"] == "newer", "a v5 save is newer, never overwritten")
 
 
 func test_broken_sections_are_sanitized() -> void:

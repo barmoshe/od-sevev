@@ -232,6 +232,31 @@ static func play_politics(s: GameState, strat: Dictionary) -> void:
 		Investigation.drop_aide(s)
 	if Events.is_active(s, "kaia"):
 		Events.act(s, "kaia", "feed", d)
+	# Liberman's "לא יושב": decline the priciest open member demand whenever the pill is ready.
+	if Coalition.decline_cooldown(s) == 0.0:
+		var worst := {}
+		for m: Dictionary in Coalition._c(s)["chat"]:
+			if Coalition.can_decline(s, int(m["seq"])) and (worst.is_empty() or float(m.get("price", 0.0)) > float(worst.get("price", 0.0))):
+				worst = m
+		if not worst.is_empty():
+			Coalition.decline(s, int(worst["seq"]))
+	# Golan's "איחוד": merge the eligible pair with the fewest seats (fewer demands, a small walkout).
+	if Coalition.merge_cooldown(s) == 0.0:
+		var pair: Array = []
+		var best := 1 << 30
+		var ids: Array = []
+		for p: Dictionary in Coalition.partners():
+			if Coalition.counts(s, p["id"]):
+				ids.append(str(p["id"]))
+		for i in ids.size():
+			for j in range(i + 1, ids.size()):
+				if Coalition.can_merge(s, ids[i], ids[j]):
+					var n := Coalition.row_seats(s, ids[i]) + Coalition.row_seats(s, ids[j])
+					if n < best:
+						best = n
+						pair = [ids[i], ids[j]]
+		if not pair.is_empty():
+			Coalition.merge(s, pair[0], pair[1])
 	var all: bool = strat.get("coalition", "subset") == "all"
 	var keep := float(strat.get("keepFrac", 0.25))
 	for m: Dictionary in (Coalition._c(s)["chat"] as Array).duplicate():
@@ -244,19 +269,50 @@ static func play_politics(s: GameState, strat: Dictionary) -> void:
 		if not all:
 			var joining: bool = m.get("join", false) == true or str(m.get("payable", "")) != ""
 			pay = joining or price <= keep * s.bananas
+			if joining and _join_costs_seats(s, str(m.get("partner", ""))):
+				pay = false   # e.g. Gafni's join would push Liberman (12) out of Bennett's round
 		if pay:
 			Coalition.pay(s, int(m["seq"]), true)
 
 
+## An attentive player's check before bringing `id` in: the members who won't sit with them
+## (`excludes`) would walk, and together they hold more seats than `id` brings (seats plus half the
+## abstentions, which lower the majority by half as much). Bibi's round never hits it (only Abbas
+## excludes, and only Ben Gvir's 12 seats).
+static func _join_costs_seats(s: GameState, id: String) -> bool:
+	var lose := 0
+	for p: Dictionary in Coalition.partners():
+		var q := str(p["id"])
+		var st := Coalition.status(s, q)
+		if (st == "member" or st == "pending") and (p.get("excludes", []) as Array).has(id):
+			lose += Coalition.row_seats(s, q)
+	if lose == 0:
+		return false
+	var p := Coalition.partner(id)
+	return float(lose) > float(Coalition.row_seats(s, id)) + float(p.get("abstain", 0.0)) / 2.0
+
+
 ## A whole session: evolve at every gate, then spend Thumbs greedily on the cheapest perk.
 ## Returns {runs: [run seconds], events: [[t, what]], thumbs, maxGap (s, first 3 runs)}.
+## Leader select (spec §7.2): player.leader is a leader id (every round that leader: its lineup,
+## deal, rivals and rule), "mixed" (a random pickable leader every round, seeded), or absent (the
+## default round, the shipped game). The save's deal salt is the seed, so seeds deal differently.
+## Returns also {leaders: [the leader of each round played]}.
 static func session(player: Dictionary, total_sec: float, seed_: int = 7, dt: float = 0.25) -> Dictionary:
 	var s := GameState.fresh()
 	var t0 := 0.0
 	var runs: Array = []
 	var events: Array = []
+	var played: Array = []
 	var n := 0
+	var pick_rng := RandomNumberGenerator.new()
+	pick_rng.seed = seed_ * 7919 + 17
+	Leaders.set_salt(s, seed_)
 	while t0 < total_sec - 1.0:
+		var who := pick_leader(str(player.get("leader", "")), func() -> float: return pick_rng.randf())
+		if who != "":
+			Leaders.start_round(s, who)
+		played.append(Leaders.current(s))
 		var ev: Array = []
 		var r := run(s, player, seed_ + n, total_sec - t0, true, dt, ev)
 		for e: Array in ev:
@@ -290,10 +346,30 @@ static func session(player: Dictionary, total_sec: float, seed_: int = 7, dt: fl
 			break
 		gap = maxf(gap, et - last)
 		last = et
-	return {"runs": runs, "events": events, "thumbs": s.thumbs_owned, "maxGap": gap, "state": s}
+	return {"runs": runs, "events": events, "thumbs": s.thumbs_owned, "maxGap": gap, "state": s, "leaders": played}
+
+
+## "" (no pick: the round keeps its leader), a leader id, or "mixed" (uniform among the pickable).
+static func pick_leader(mode: String, rng: Callable) -> String:
+	if mode == "" or not Leaders.active():
+		return ""
+	if mode == "mixed":
+		return Leaders.random_pick(rng)
+	return mode
+
+
+## One leader's first round from a new game (the bench's per-seed first election): {t, gate_t, first, state}.
+static func first_round(leader: String, player: Dictionary, seed_: int, max_t: float = 1800.0, dt: float = 0.25, events: Array = []) -> Dictionary:
+	var s := GameState.fresh()
+	Leaders.set_salt(s, seed_)
+	if leader != "":
+		Leaders.start_round(s, leader)
+	return run(s, player, seed_, max_t, true, dt, events)
 
 
 static func fmt_t(sec: float) -> String:
 	# Round the whole value once (179.75 s is "3:00"; rounding only the seconds printed "2:00").
+	if is_inf(sec) or is_nan(sec) or sec > 1e8:
+		return "never"
 	var r := int(roundf(sec))
 	return "%d:%02d" % [r / 60, r % 60]

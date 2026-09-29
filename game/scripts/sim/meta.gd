@@ -151,10 +151,13 @@ static func trophy_count(s: GameState) -> int:
 
 
 ## Newly earned achievement ids (appends them to the state). Pass the frame's derived values.
+## Leader select: the shipped list plus the leader trophies (all_trophies); a trophy in
+## leaderSelect.bibiOnly.trophies is earned only in Bibi's round.
 static func check_achievements(s: GameState, d: Economy.Derived) -> PackedStringArray:
 	var out := PackedStringArray()
-	for a: Dictionary in achievements():
-		if s.achievements.has(a["id"]) or a.get("neverAwarded", false):
+	var bibi_only: Array = [] if Leaders.is_default(Leaders.current(s)) else Leaders.bibi_only("trophies")
+	for a: Dictionary in all_trophies():
+		if s.achievements.has(a["id"]) or a.get("neverAwarded", false) or bibi_only.has(a["id"]):
 			continue
 		if _earned(s, d, a["trigger"]):
 			s.achievements.append(a["id"])
@@ -194,11 +197,32 @@ static func _earned(s: GameState, d: Economy.Derived, t: Dictionary) -> bool:
 			return s.bananas >= v
 		"never":
 			return false
+		"leaderStat":
+			return Leaders.stat(s, str(t.get("leader", "")), str(t.get("key", ""))) >= v
+		"leadersPlayedAll":
+			return Leaders.all_played(s)
 	return false
 
 
+## The shipped trophies (achievements()) plus the leader-select ones (Leaders.trophies: the two
+## global ones and each pickable leader's kit.trophy). The dossier lists achievements() until the
+## picker ships; the engine switches it to this list then.
+static func all_trophies() -> Array:
+	if not is_same(_all_src, _c()) or not is_same(_all_ach, achievements()):
+		_all_src = _c()
+		_all_ach = achievements()
+		var lt := Leaders.trophies()
+		_all = _all_ach if lt.is_empty() else _all_ach + lt
+	return _all
+
+
+static var _all_src: Dictionary = {}
+static var _all_ach: Array = []
+static var _all: Array = []
+
+
 static func achievement(id: String) -> Dictionary:
-	for a: Dictionary in achievements():
+	for a: Dictionary in all_trophies():
 		if a["id"] == id:
 			return a
 	return {}
@@ -300,7 +324,8 @@ static func auto_catch(s: GameState) -> bool:
 ## Story.roll_word_salad; tapsAt2to4: Politics.tick's clock).
 const STATS := ["partnersPaid", "demandsPaid", "courtDays", "maxPostponesInRound", "pardonRequests", "aideDrops",
 	"brawlsEnded", "corridorMessages", "gafniPaid", "cleanRounds", "wingOfZionBought", "streakRoundsUnder240s",
-	"wordSaladSeen", "tapsAt2to4", "lapidCards", "capHits", "goldenMissed"]
+	"wordSaladSeen", "tapsAt2to4", "lapidCards", "capHits", "goldenMissed", "leaderSwitches",
+	"pressDays", "hazardDays"]
 
 
 static func bump(s: GameState, key: String, n: float = 1.0) -> void:
@@ -348,6 +373,7 @@ static func count(s: GameState, source: String, id: String) -> void:
 ##   streakRoundsUnder240s  consecutive rounds each under 240 s; a slower round restarts the streak
 ##                          at 0 (the trophy fires at 5; the stat keeps the best streak reached)
 static func on_round_end(s: GameState, run_sec: float) -> void:
+	Leaders.on_round_end(s, run_sec)   # the leader's elections and best round
 	if Investigation.active() and Investigation.shady_owned(s) == 0:
 		bump(s, "cleanRounds")
 	var cur := float(s.stats.get("streakUnder240sNow", 0.0))
@@ -363,6 +389,8 @@ static func seed_stats(s: GameState) -> void:
 	stat_at_least(s, "demandsPaid", paid)
 	stat_at_least(s, "partnersPaid", minf(paid, float(Coalition.partners().size())) if paid > 0.0 else 0.0)
 	stat_at_least(s, "courtDays", float(s.investigation.get("courtDays", 0)))
+	stat_at_least(s, "pressDays", float(s.investigation.get("pressDays", 0)))
+	stat_at_least(s, "hazardDays", float(s.investigation.get("courtDays", 0)) + float(s.investigation.get("pressDays", 0)))
 	stat_at_least(s, "pardonRequests", float(s.investigation.get("pardons", 0)))
 	stat_at_least(s, "aideDrops", float(s.investigation.get("aideDrops", 0)))
 	stat_at_least(s, "corridorMessages", float(s.coalition.get("corridorMsgs", 0)))

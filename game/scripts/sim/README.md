@@ -17,7 +17,8 @@ same game as the player.
 | `calendar.gd` | The countdown to 27.10.2026, the blackout, post-election mode, the clock that can't be rewound |
 | `spins.gd` | Spin kinds (once / consumable / line), prices, fatigue, and the spin effects that aren't passive modifiers |
 | `conditions.gd` | The one condition vocabulary (`unlock`, `when`) |
-| `game_state.gd` / `save_store.gd` | What is saved (save v3), validation at load, migration |
+| `leaders.gd` | Leader select: the round's lineup, cards and rule, the pick, per-leader stats, the kit lookups |
+| `game_state.gd` / `save_store.gd` | What is saved (save v4), validation at load, migration |
 | `pacing_sim.gd` | The headless player for `tools/balance.sh` |
 
 ## Controller wiring (engine developer)
@@ -183,6 +184,56 @@ its dictionary: `fresh_state()` gives the defaults, `sanitize()` validates at lo
 dropped, numbers are clamped, one open message per partner), and `on_election()` resets the round.
 A v2 file migrates by gaining fresh sections; a newer file is kept aside (`SaveStore`).
 Tests: `tests/unit/test_politics_save.gd`.
+
+## Leader select (save v4; `leaders.gd`, design/leader-select-spec.md §9.6)
+
+Every round the player heads one party. `Leaders` installs the round: the leader's `coalition.lineup`
+dealt onto `leaderSelect.coalitionSlots` (the person's traits, then the slot's numbers, then the
+lineup's overrides; `abstain` people turn the slot's seats into abstentions, `cannotLeave` never
+threatens), the round's cards (shared events minus `bibiOnly.events`, the leader's `rivals`,
+the `leakRight` skin for an opposition leader, a `selfEvent` card with side "self"), and the rule.
+`Coalition.partners()` / `Events.list()` / `Coalition.first_partner()` read it. **Bibi (the default
+leader) installs the shipped `partners` and `events` untouched**, so his round is the shipped game;
+content without `leaders` (the fork's, the fixtures) is always that default round.
+
+Round flow: a new game and every election begin a round with the same leader and open the picker
+(`leader_pick_pending`); `start_round` replaces it until the round starts (no tap, no partner). A build
+without the picker keeps playing Bibi.
+
+**Engine API** (the picker and the views):
+
+| What | Call |
+|---|---|
+| The round's leader | `Leaders.current(s)`; `Leaders.pick_pending(s)` (show the picker); `Leaders.can_repick(s)` |
+| The picker | `Leaders.picker(s, rng)` → {tiles [{id, name, short, party, g, side, art, avatar, blurb, line, ruleName, ruleText}] (shuffled), again (last round's leader or ""), first, random, undoSec, copy}; `Leaders.pickable()`; `Leaders.random_pick(rng)` ("הפתעה") |
+| Pick | `Politics.install(s, id)` = `Leaders.start_round(s, id)` → {ok, leader, fresh, freshPct, switched, repick} / {ok: false, reason: unknown \| started \| inactive}. Esc/back = `start_round(s, Leaders.current(s))` or just leave it (the round is already that leader's). |
+| Undo ("להחליף", ≤ 5 s, before tap 1) | `Leaders.undo_pick(s)` → the exact pre-pick state (same seed → same deal, the +10% and the switch reverted, the picker open) |
+| New game | `Leaders.set_salt(s, randi())` once, so deals differ between players |
+| Kit | `Leaders.tap_kit(id)` {prop, anim, critAnim, critEvent, critProp, verb, verbPlural, critName, critPlural, frenzyBanner}; `Leaders.hazard(id)` = `Investigation.skin(s)` {skin court \| press, meterName, dayTitle, dayBody, testifyVerb, chip, …, postponeVerb, excuses[6]}; `Leaders.dubi(id)`; `Leaders.suitcase(id)` {sticker, sprite, lines}; `Leaders.source_skin(id, producer)`; `Leaders.spin_skin(id, upgrade)` (icon fallback `spin_slot_<slot>`); `Leaders.story(id)`; `Leaders.rule(id)` (its `copy`); `Leaders.leader(id)` (name, short, party, g, side, art, avatar) |
+| Round text | `Leaders.headlines(s)` (+ `Leaders.headline_hit(s, trigger)` for `leaderStat` / `when`); `Leaders.ambient(s)`; `Story.flash(s)` {leader, n, title, lines, id} (the leader just played, by their own election count); `Leaders.leak_copy(s)` (event result `skin: leakRight`) |
+| Stats | `Leaders.stat(s, id, key)`, keys rounds, elections, taps, crits, declines, merges, bestRunSec, playSec; `stats.leaderSwitches`, `stats.pressDays` (UX PRESS_DAYS), `stats.hazardDays` (court + press, the neutral DAYS_*) |
+| Trophies | `Meta.all_trophies()` = the shipped 40 + 2 global + 7 leaders (`Meta.achievements()` stays the shipped list until the dossier switches) |
+| Liberman | `Coalition.can_decline(s, seq)`, `Coalition.decline(s, seq)` → {ok, reason?, partner, events}; `Coalition.decline_cooldown(s)` (−1 = not his round); message state `declined`, sys `chat.sys.declined` |
+| Golan | `Coalition.merge_candidates(s, id)`, `Coalition.merge_block(s, a, b)` ("" or rule \| cooldown \| limit \| same \| member \| young \| standIn \| ultimatum), `Coalition.merge(s, a, b)`, `Coalition.merge_cooldown(s)`; status `merged` (in a's `carry`), sys `chat.sys.merged {a, b}`, a pair walkout's `chat.sys.left` carries `with: [b]` |
+| Eisenkot | `d.straight_mult` (his chip); `Economy.tap` returns `tap7: true` at tap 7 of the first round (show `rule.copy.tap7`) |
+| Deri | `Coalition.pay` events carry `{ev: leaderBuff, partner, type, mult, sec}`; the live buff is `Events.active_effects` type `leaderBuff` |
+
+Knobs (`rule.effect.type`): `selfEvent`, `partnerThreatMult`, `declineDemand`, `straightTaps`, `mergeMembers`,
+`leaderEffects` {`effects` (Economy effects), `demandDiscountPct` (adds to the p_deal perk, now
+implemented in `Coalition.demand_price`), `coalition` {rejoinMult, poachSec, patienceSec, demandSec,
+minPrice}, `onDemandPaid` {type tapBuff}}. Filters: Bibi's spins leave the shelf and s08 needs Karhi
+(`Spins.on_shelf`), the aide / laundry Suitcase outcomes go to cash, the aide drop and the pardon
+desk are the court's, bibiOnly trophies are earned in his round only.
+
+Save v4: `leader, leaderPickPending, leaderHistory, leaders, seatDeal, leaderRound {prev, switched,
+fresh, freshPct, lastPlayed, begun, picked, undo, salt}`. A v3 file becomes Bibi's round (leaders.bibi
+seeded from the lifetime counters) with the picker closed until the next election. An unknown leader
+falls back to Bibi (the picker opens if the round hasn't started); a started round never reopens
+the picker; a forged deal is re-dealt. Tests: `tests/unit/test_leaders.gd`.
+
+Bench: `PacingSim.session(player…)` with `player.leader` = an id or `"mixed"`; `PacingSim.first_round`.
+`tools/balance.sh [--leader=<id>]` runs `tests/bench/test_leaders_balance.gd` (every leader: the
+median first election over seeds 1-9 in 7-9 min, S0/Q3, S2-S4, a median hour for S5-S7; a mixed hour).
 
 ## Tuning table (bench-measured; the Designer mirrors it into design/content.json)
 

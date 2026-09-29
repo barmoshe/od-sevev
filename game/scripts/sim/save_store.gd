@@ -12,8 +12,11 @@ extends RefCounted
 ## od-sevev (game-developer sim): v3 adds coalition, investigation, events, album and calendar
 ## (GameState). A v2 file migrates by gaining their fresh defaults; each module's sanitize()
 ## validates them at load, so a hand-edited or partial section never breaks a save.
+## Leader select (game-developer sim): v4 adds leader, leaderPickPending, leaderHistory, leaders,
+## seatDeal and leaderRound (GameState, Leaders). A v3 file migrates as the default leader's (Bibi's)
+## round with the picker closed: it opens at the next election (spec §6.3).
 
-const VERSION := 3
+const VERSION := 4
 const EXPORT_PREFIX := "HK1:"
 
 var path: String
@@ -84,6 +87,14 @@ static func migrate(file: Dictionary) -> Dictionary:
 		(st as Dictionary)["calendar"] = Calendar.fresh_state()
 		f["version"] = 3
 		v = 3
+	if v == 3:
+		# v3 -> v4: the save becomes Bibi's round (leader-select-spec §6.3).
+		var st4: Variant = f.get("state")
+		if not st4 is Dictionary:
+			return {}
+		Leaders.migrate_v3(st4)
+		f["version"] = 4
+		v = 4
 	return f
 
 
