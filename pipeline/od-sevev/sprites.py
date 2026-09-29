@@ -23,7 +23,7 @@ DEST = os.path.join(FORK, "game", "assets", "sprites")
 ICON_DEST = os.path.join(FORK, "game", "assets", "icon")
 KIT_ROOT = os.path.join(FORK, "art", "od-sevev")          # the 2D Artist's slice (read only here)
 KIT = os.path.join(KIT_ROOT, "ui-kit.json")
-ICON_MASTER = os.path.join(KIT_ROOT, "out", "key", "icon-64-art.png")
+ICON_MASTER = os.path.join(KIT_ROOT, "out", "key", "icon-128-art.png")   # 64 art px at d 2 (keyart.py)
 # every size the export presets name (game/export_presets.cfg), from the 64 art-px master, nearest
 ICON_SIZES = {"icon_1024.png": 1024, "pwa_512.png": 512, "pwa_180.png": 180, "pwa_144.png": 144,
               "android_192.png": 192, "android_fg_432.png": 432}
@@ -558,30 +558,44 @@ def import_sprites(src, log, provenance):
                 override.setdefault(pc["char"], {})[pc["anim"]] = (pid, pc)
         for name, anims in override.items():
             c = chars.get(name)
-            if c is None:
+            # a stand-in (kit rows flagged "standIn"): a hand-drawn character with no render-down behind it, e.g. the
+            # 2D Artist's `nophoto` figure for partners without a ref (standin_aliases below points them at it)
+            stand_in = c is None and all(pc.get("standIn") for _, pc in anims.values())
+            if c is None and not stand_in:
                 raise SpriteError(f"ui kit: {list(anims)} target unknown character {name}")
+            if stand_in:
+                c = chars[name] = {"anims": {}}
             sizes = {(pc["frameW"], pc["h"], tuple(pc.get("pivot", []))) for _, pc in anims.values()}
             if len(sizes) != 1:
                 raise SpriteError(f"ui kit: {name}'s hand-drawn anims disagree on frame size/pivot {sizes}")
             fw, fh, piv = sizes.pop()
-            if set(anims) != set(c["anims"]):
+            if not stand_in and set(anims) != set(c["anims"]):
                 raise SpriteError(f"ui kit: {name} hand-drawn anims {sorted(anims)} != render-down {sorted(c['anims'])}")
+            if stand_in and "idle" not in anims:
+                raise SpriteError(f"ui kit: stand-in {name} has no idle anim (SpriteStrip.make plays idle)")
             kerr = []
             for anim, (pid, pc) in anims.items():
-                old = c["anims"][anim]
-                if pc["frames"] != old["frames"] or pc.get("events", {}) != old["events"]:
+                old = c["anims"].get(anim)
+                if old and (pc["frames"] != old["frames"] or pc.get("events", {}) != old["events"]):
                     kerr.append(f"{name}.{anim}: frames/events differ from the state graph's")
                 a = _alpha(Image.open(os.path.join(DEST, f"{pid}.png")))
                 kerr += [f"{name}.{anim}: content on the frame edge in frame {i}" for i in range(pc["frames"])
                          if a[:, i * fw].any() or a[:, (i + 1) * fw - 1].any()]
-                rel = old["texture"]
-                for f in (rel, rel + ".import"):
-                    if os.path.exists(os.path.join(DEST, f)):
-                        os.remove(os.path.join(DEST, f))
-                written.remove(rel)
+                if old:
+                    rel = old["texture"]
+                    for f in (rel, rel + ".import"):
+                        if os.path.exists(os.path.join(DEST, f)):
+                            os.remove(os.path.join(DEST, f))
+                    written.remove(rel)
+                old = old or {"fps": 1, "loop": True}
                 c["anims"][anim] = {"texture": f"{pid}.png", "frames": pc["frames"], "fps": pc.get("fps", old["fps"]),
                                     "loop": pc.get("loop", old["loop"]), "events": pc.get("events", {}),
                                     "density": 1, "cols": pc["frames"], "rows": 1}
+            if stand_in:
+                for key in ("avatar", "avatar24"):
+                    if f"{key}_{name}" in ui:
+                        c[key] = f"{key}_{name}"
+                c["standIn"] = "hand-drawn stand-in for a partner with no ref (sprites.json aliases name who uses it)"
             if kerr:
                 raise SpriteError("\n  ".join(["hand-drawn character strips:"] + kerr))
             c.update({"frameW": fw, "frameH": fh, "anchor": list(piv) or [fw // 2, fh - 1], "origin": "hand-drawn",
@@ -612,6 +626,9 @@ def import_sprites(src, log, provenance):
     files = {rel: {"bytes": os.path.getsize(os.path.join(DEST, rel)), "sha": sha(os.path.join(DEST, rel)),
                    "size": list(Image.open(os.path.join(DEST, rel)).size)} for rel in sorted(written)}
     aliases = {v: n for n in chars if "-" in n for v in (n.replace("-", ""), n.replace("-", "_"))}
+    for pid, n in standin_aliases(chars, aliases).items():
+        aliases[pid] = n
+        log(f"chars: partner '{pid}' has no character yet: aliased to the stand-in '{n}'")
     src_aliases = {a: b for a, b in atlas.get("sourceAliases", {}).items() if b in sources}
     log(f"sources: {len(sources)} (" + ", ".join(f"{k}:{v['origin']}" for k, v in sorted(sources.items())) + ")")
     manifest = {
@@ -643,6 +660,24 @@ def import_sprites(src, log, provenance):
 
 CONTENT = os.path.join(FORK, "design", "content.json")
 FORK_ART = os.path.join(FORK, "game", "data", "art.json")
+
+
+def standin_aliases(chars, aliases, content_path=None):
+    """Content partners that resolve to no character, mapped to the stand-in character (a chars entry with
+    `standIn`, the 2D Artist's `nophoto`). Resolution mirrors ChatView.char_for: the partner id, then its content
+    `avatar` id without "_avatar", each through chars and aliases. Never a partial-name match. With the alias, the
+    chat avatar, the partner card and the ultimatum cameo draw the stand-in instead of the engine's '?' card."""
+    stand = sorted(n for n, c in chars.items() if c.get("standIn"))
+    content_path = content_path or CONTENT
+    if not stand or not os.path.exists(content_path):
+        return {}
+    ok = lambda i: bool(i) and (i in chars or aliases.get(i) in chars)
+    out = {}
+    for p in json.load(open(content_path, encoding="utf-8")).get("partners", []):
+        pid, av = p["id"], str(p.get("avatar", "")).removesuffix("_avatar")
+        if not ok(pid) and not ok(av):
+            out[pid] = stand[0]
+    return out
 
 
 def check_content_sources(manifest, content_path=CONTENT, art_path=FORK_ART):
@@ -683,7 +718,7 @@ def check_content_sources(manifest, content_path=CONTENT, art_path=FORK_ART):
 
 
 def import_icons(log):
-    """App icons from the 2D Artist's 64 art-px master, nearest-neighbour, into the file names the
+    """App icons from the 2D Artist's master (64 art px at d 2 = 128 px), nearest-neighbour, into the file names the
     export presets already reference. Replaces the fork's banana icons (tools/icon.sh must not run)."""
     if not os.path.exists(ICON_MASTER):
         log("icons: no master at " + ICON_MASTER + " (kept the existing icons)")

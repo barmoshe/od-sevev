@@ -12,11 +12,11 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 
 | Deliverable | File |
 |---|---|
-| UI kit, 209 pieces (wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
+| UI kit, 212 pieces (wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
 | 9-slice / frame / pivot manifest | `ui-kit.json` |
 | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
-| App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (source `icon-64-art.png`) |
-| OG image 1200x630 | `out/key/og-1200x630.jpg` (115 KB, WhatsApp needs ≤ 300 KB) + `.png` |
+| App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (master `icon-128-art.png` = 64 art px at d 2) |
+| OG image 1200x630 | `out/key/og-1200x630.jpg` (120 KB, WhatsApp needs ≤ 300 KB) + `.png`; shipped as `game/web/og.jpg` |
 | Graphic-tier palette | `out/palette-v2.gpl`, `out/palette-v2.png`, source `src/palette.py` |
 | Proofs | `proofs/` (see §15) |
 
@@ -159,6 +159,9 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
     About). Display text stays the chunky Sevev 9: the counter, prices, titles, tab labels, the ticker
     tag, chips, buttons, badges and anything dimmed or over art (CONTRACT §6.1 has the list and the
     crispness rule: @2 only when a Sevev 9 px is an even number of device px).
+  - **Pictograms (wave 6):** all 12 now hand-drawn on the @2 grid (11 redrawn, ⬅ was) in the same stroke model (2-px horizontals, 1-px
+    walls, 2-px diagonals, chamfered rings); they were an EPX pass of Sevev 9 (blobby, every stroke 2 px). Each
+    ink box is exactly 2 x its Sevev 9 twin's, so a pictogram sits where Sevev 9's does.
   - **Proof:** `pipeline/od-sevev/proofs/font-density2.png` (×4 on a k 4 device: 4-dp vs 2-dp px).
 
 ## 8. The wordmark "עוד סבב" (v2)
@@ -178,6 +181,10 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 ## 9. Icon and OG image
 
 **Icon** (`out/key/icon-1024.png`, 64x64 art x16; `icon-60.png` is the real LANCZOS downsample):
+- **Density (wave 6):** composed on a 128x128 fine grid (2 px per art px) because the Magician ships at d 3 / d 2
+  since the 3x cast; the d 2 render is pasted 1:1 and the whole scales x8 (d 3 would be 5.33 px, not whole). The
+  master the pipeline imports is `icon-128-art.png`. `keyart.frame()` reads the frame data from the showcase
+  `atlas.json` at the density asked, so the 1x crop of the 3x strips (the wave-5 break) cannot recur.
 - **What:** the approved Magician (idle frame 0, pasted 1:1: finger up, the top hat spinning on it)
   inside one clockwise gold "again" loop, on a plum stage with a follow-spot.
 - **Why this replaced v1's ballot box + hat:** the approved cast *is* the brand now. The face reads at
@@ -188,10 +195,11 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
   square, no rounded corners (the OS masks).
 - **Excluded:** flags, emblems, party colours, ballot slips with letters.
 
-**OG** (`out/key/og-1200x630.jpg`, 240x126 art x5):
-- The wordmark over a curtained stage, the Magician in the TAP pose with the hat high and shekels and
-  a bill leaping out, the DOHA Suitcase flying through upper-left with a rim-coloured speed trail. It
-  matches UX's `og:image:alt`.
+**OG** (`out/key/og-1200x630.jpg`, 200x105 art x6 since wave 6; it was 240x126 x5, but no density > 1 divides 5):
+- The wordmark over a curtained stage, the Magician (the d 3 render, 2 px per sprite px) in the TAP pose with the
+  hat high and shekels and a bill leaping out of it up and right, the DOHA Suitcase flying through upper-left
+  with a rim-coloured speed trail. It matches UX's `og:image:alt` ("ביבי בפיקסלים שולף שקלים מכובע..."); the only
+  text in it is the wordmark and the sticker's DOHA. Nothing that echoes October 7 (do/don't 13).
 - **Square-crop safe:** the wordmark, the Magician and the Suitcase all sit inside the centre 630x630
   (`proofs/og-square-crop-200.png`).
 
@@ -263,7 +271,7 @@ test: every row above stays distinguishable with colour removed.
 | Non-text (≥ 3:1): seats fill `sky` vs its well; thermometer `red` vs its well / the hatch's black | 7.9; 3.7 / 3.8:1 |
 | `white` on `red_dk` (`button_danger` pressed); the ✕ `white` on `ui_bub_hi` | 8.1; 8.6:1 |
 | **On the scrim** (outline at 60% takes `ui_scrim` to `#0f0b19`, the brightest possible ground `#ffffff` to `#6d6c71`): white text on the scrimmed dark / the scrimmed brightest ground; the spin tag plate (scrim at 85% on `ui_bubble` = `#100e1b`) under white; the fork's cream card vs the scrimmed dark | 17.7 / 4.7; 17.4; 17.8:1 |
-| Edges on the scrim (non-text): the dark sheet body `ui_panel` / title band `ui_bubble` / its `ui_bub_hi` bevel vs the scrimmed dark ground | 1.1 / 1.4 / 2.1:1 (**open**, §16 F9) |
+| Edges on the scrim (non-text): the dark sheet body `ui_panel` / title band `ui_bubble` / its `ui_bub_hi` bevel vs the scrimmed dark ground; `sheet_modal`'s `suit_hi` edge (wave 6, F9) | 1.1 / 1.4 / 2.1:1; **3.6:1** (F9 closed) |
 
 ### 11.5 Icons
 
@@ -380,7 +388,7 @@ hierarchy.
 | F6 | TA / orchestrator | `ben-gvir_avatar.png` and `gotliv_avatar.png` have a **maroon** ring (reserved for the Suitcase) | In `showcase/src/build.py`, change the 'jab' ring `(138,21,56)` to `red` `(208,42,54)`. |
 | F7 | Orchestrator | The `suitcase` ChatGPT row | Not needed in-game: hand-drawn (`props/suitcase.png`); keep it only for a large key-art version. |
 | F8 | Animator | Stamp tool, brawl, cottage pixel drop, bubbles, clock hand, seats pulse | Key poses / frames are here; timing, easing and the reduced-motion behaviour are yours. |
-| F9 | Views / UX | On the outline scrim a dark kit sheet's edge nearly vanishes over a dark stage (`ui_panel` 1.1:1, `ui_bubble` 1.4:1, the `ui_bub_hi` bevel 2.1:1 vs `#0f0b19`); the cream fork cards are unaffected (17.8:1) | When the modals move to `sheet_modal` (UX R7/R8), give the sheet's top and side edges a 1 px `suit_hi` line **outside** the outline (3.6:1 on the scrimmed dark; `ui_bub_hi` would be only 2.1:1, `slate` 5.2:1 reads as a grey frame). The modal then reads as lifted, not cut out. I'll redraw `sheet_modal` / `sheet_plain` that way when the views developer adopts them for the modals; the scrim stays the outline. Not a WCAG failure (a dialog's region is not a control), a figure/ground one. |
+| F9 | Views / UX | **Closed (wave 6 polish): `sheet_modal` carries the 1 px `suit_hi` edge outside its outline (38x38, margins +1).** On the outline scrim a dark kit sheet's edge nearly vanishes over a dark stage (`ui_panel` 1.1:1, `ui_bubble` 1.4:1, the `ui_bub_hi` bevel 2.1:1 vs `#0f0b19`); the cream fork cards are unaffected (17.8:1) | When the modals move to `sheet_modal` (UX R7/R8), give the sheet's top and side edges a 1 px `suit_hi` line **outside** the outline (3.6:1 on the scrimmed dark; `ui_bub_hi` would be only 2.1:1, `slate` 5.2:1 reads as a grey frame). The modal then reads as lifted, not cut out. I'll redraw `sheet_modal` / `sheet_plain` that way when the views developer adopts them for the modals; the scrim stays the outline. Not a WCAG failure (a dialog's region is not a control), a figure/ground one. |
 
 ## 17. Wave 2 (the flat UI the TA found missing + the Animator's art needs)
 
@@ -449,6 +457,18 @@ hierarchy.
     but never shipped, so the locked shop card drew the "?"), by the rendered sources' rule (`suit` mask, `rim` edge;
     it reproduces the five rendered silhouettes pixel for pixel).
   - **R15:** the scrim is `outline` at 60% (§11.2); its contrasts are in §11.4. The engine owns `uiTheme.scrim`.
+
+- **Wave 6 polish** (`src/wave6.py`, `src/icons15.py`, `src/wave2.py`, `src/keyart.py`; proof `proofs/kit-w6-polish.png`):
+  - **The no-photo stand-in** (`out/ui/nophoto/`): `avatar_nophoto` 32x32 and `avatar24_nophoto` 24x24 (the
+    render-down avatars' construction: a 2 px ring, the disc inside; a `slate` ring on a `silver` disc, a featureless
+    head over a shoulder arc) and `nophoto_idle` 40x97 at d 1, anchor [20, 96] (a featureless figure in a suit: head
+    and hands on the slate ramp, the suit on `suit_hi`, shoes on `suit_dk`, one outline ring, inner lines in the
+    local shadow). For any partner with no ChatGPT ref (today Almog Cohen): **never a likeness of a real person
+    without a ref.** The pipeline joins it as the hand-drawn character `nophoto` and aliases every content partner
+    without a character to it, so the chat avatar, the partner card and the ultimatum cameo draw it, not the "?".
+    The refs still wanted: `asset-requests/REQUESTS.md` `almog`, `aide`, `mk-generic`.
+  - **`trophy_moon`:** the star beside the crescent (it read as an emblem) is two white z's rising right: a nap.
+  - **`sheet_modal` (F9):** the 1 px `suit_hi` edge outside the outline, following the chamfer (§16 F9).
 
 ## 18. Foundations (referenced, not paraphrased)
 
