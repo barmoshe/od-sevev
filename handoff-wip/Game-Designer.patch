@@ -1,6 +1,6 @@
 # binary files changed (not carried):
 diff --git a/design/leader-select-spec.md b/design/leader-select-spec.md
-index bcf2f1d..afa126a 100644
+index bcf2f1d..f34cd23 100644
 --- a/design/leader-select-spec.md
 +++ b/design/leader-select-spec.md
 @@ -59,7 +59,7 @@
@@ -39,7 +39,7 @@ index bcf2f1d..afa126a 100644
  
  ### 5.6 Hazard: the court (Bibi) vs the press (everyone else)
  - **Same Investigation module and numbers.** For non-Bibi leaders:
-@@ -372,7 +372,7 @@ stats.leaderSwitches
+@@ -372,12 +372,38 @@ stats.leaderSwitches
  | ביבי | 8:01 (measured) | unchanged |
  | בנט | 7:45-8:30 | early capacity like Bibi's; the pledge gate +1 for 45 s is small; Liberman's excludes cost late seats until he walks |
  | בן גביר | 7:15-8:00 | fewer threats mean fewer walkouts; capacity 49 |
@@ -48,7 +48,38 @@ index bcf2f1d..afa126a 100644
  | אייזנקוט | 7:50-8:30 | the same money as everyone (EV-neutral taps); Bennett's lineup shape; Eisenkot loses only the tap-7 ×4 (4 ₪ once) |
  | סמוטריץ׳ | 7:30-8:15 | VAT ×1.18 from t 0 and 10% cheaper demands; capacity 51 |
  | דרעי | 7:30-8:15 | cheap rejoins remove the walkout penalty; the ☕ buff is taps only |
-@@ -576,6 +576,7 @@ Tick each one when the picker lands. File:line as of e8f636d.
+ | גולן | 7:40-8:20 | merges cut the number of demands, a merged walkout costs double; capacity 50 |
+ 
++### 7.2.1 Measured (tools/balance.sh, 2026-09-29, Game Designer)
++
++Median player, first election, median of seeds 1-9 (one seat deal per seed); the spread is the deal's.
++
++| Leader | First election (median) | Seeds 1-9 range | Engaged / casual / idle | Median hour (S5-S7) |
++|---|---|---|---|---|
++| ביבי | 8:01 | 7:34-8:25 | the shipped gates (test_session.gd) | pass |
++| בנט | 8:08 | 7:29-10:30 | 7:12 / 8:06 / 10:41 | pass |
++| בן גביר | 8:19 | 7:45-10:05 | 7:18 / 8:14 / 10:27 | pass |
++| ליברמן | 7:51 | 7:16-8:32 | 6:59 / 8:02 / 9:54 | pass (was S5 fail: round 2 9:09 > round 1 7:09) |
++| אייזנקוט | 8:50 | 7:47-10:07 | 7:39 / 9:00 / 11:34 | pass (casual on the 9:00 edge) |
++| סמוטריץ׳ | 8:06 | 7:38-9:01 | 7:11 / 8:02 / 10:16 | pass |
++| דרעי | 8:05 | 7:21-8:24 | 7:11 / 7:56 / 10:13 | pass |
++| גולן | 8:30 | 7:29-9:40 | 7:51 / 8:34 / 11:18 | pass |
++
++**Liberman's levers, both applied:**
++1. **Round 1 (game-developer sim):** `mk_offer` on L4 instead of S5. With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13).
++2. **Rounds 2+ (Game Designer):** a fourth generic MK, "ח״כ שחזר הביתה" (`mk_returner`), on SK.
++   - His lineup had no seat that unlocks after election 1, so every later round waited for L6: own 28 + 40 without L6 is < 61.
++   - The median hour's round 2 ran longer than round 1 (7:09, then 9:09; S5 failed).
++   - SK (2 seats, the round-2 early slot the coalition leaders already hold) closes 61 with L1 + L4, like the other lineups.
++   - Round 1 is untouched (SK is locked until election 1), and his own seats never changed (D5).
++   - Better than the spec's L3 lever: L3 is 1 seat, one short of 61 without L6.
++
++**Watch:** Eisenkot's median (8:50) and casual (9:00) sit on the edge. Bennett's and Ben Gvir's worst deals run past 10:00 (a late-slot-heavy early deal). If the picker playtest shows long first rounds for them, the lever is to keep S2/S3 out of the shuffle (a fixed early core); it is not a number change.
++
+ ### 7.3 Dominant strategies and edge cases
+ | # | Case | Closing rule |
+ |---|---|---|
+@@ -576,6 +602,7 @@ Tick each one when the picker lands. File:line as of e8f636d.
  | `COURT_BODY`, `COURT_SUMMONS_BODY` | ביבי בדוכן… | Bibi as is; others from `hazardSkins.press` |
  | `SYS_ROTATE_CAP`, `SYS_ERA_PACK_LATE` | ביבי עובד… | "{short} עובד…" (or neutral) |
  | `SHARE_TEXT_INVITE` | תורכם להיות ביבי. | "תורכם להקים ממשלה." |
@@ -80,6 +111,78 @@ index 04b4b03..6edd707 100644
  `tools/balance.sh [--leader=<id>]` runs `tests/bench/test_leaders_balance.gd` (every leader: the
  median first election over seeds 1-9 in 7-9 min, S0/Q3, S2-S4, a median hour for S5-S7; a mixed hour).
  
+diff --git a/game/tests/bench/test_politics_balance.gd b/game/tests/bench/test_politics_balance.gd
+index 23572e3..7fbfa92 100644
+--- a/game/tests/bench/test_politics_balance.gd
++++ b/game/tests/bench/test_politics_balance.gd
+@@ -8,24 +8,31 @@ extends RefCounted
+ ##   - clean: never buys a shady source;
+ ##   - aideDropper: drops the aide whenever it can.
+ ## Gates, all falsifiable:
+-##   G1 no pure strategy beats the default's base-per-hour by more than 5% (no dominant strategy);
++##   G1 no pure strategy beats the default's base-per-hour by more than 5% in the MEDIAN of seeds
++##      11-15 (no dominant strategy). One seed is one chaotic hour: on seed 11 alone the verdict
++##      flipped with unrelated changes (before the leader sim the aide dropper lost by 42% on
++##      seed 11 and won by 38% on seed 13; after the p_deal perk started working it won by 52% on
++##      seed 11 and lost by 8% on seed 12). "Dominant" means better in most hours, so the median
++##      of the per-seed ratios is the gate; G2-G4 stay on seed 11;
+ ##   G2 the clean route is viable (≥ 2 elections an hour) but slower than the default;
+ ##   G3 suspicion is live: the default sees at least one court day an hour;
+ ##   G4 the coalition corner is live: partners walk out on payAll? no, on the default at least once
+ ##      an hour, or the default's maintenance spend is ≥ 5% of what it earns.
+ 
+ const SEED := 11
++const G1_SEEDS := [11, 12, 13, 14, 15]
+ 
+ var runner: Object
+ var _rows := {}
+ 
+ 
+-func _hour(name: String) -> Dictionary:
+-	if _rows.has(name):
+-		return _rows[name]
++func _hour(name: String, seed_: int = SEED) -> Dictionary:
++	var key := "%s:%d" % [name, seed_]
++	if _rows.has(key):
++		return _rows[key]
+ 	var p: Dictionary = PacingSim.PLAYERS["engaged"].duplicate()
+ 	p["politics"] = PacingSim.STRATEGIES[name]
+-	var r := PacingSim.session(p, 3600.0, SEED, 0.25)
++	var r := PacingSim.session(p, 3600.0, seed_, 0.25)
+ 	var s: GameState = r["state"]
+ 	var runs: Array = r["runs"]
+ 	var row := {
+@@ -34,10 +41,10 @@ func _hour(name: String) -> Dictionary:
+ 		"left": int(s.coalition.get("leftLifetime", 0)), "paid": int(s.coalition.get("paidLifetime", 0)),
+ 		"drops": int(s.investigation.get("aideDrops", 0)), "runsList": runs,
+ 	}
+-	print("  %-15s elections %2d | first %s | base %4d | court days %2d, postponed %2d | walked out %2d, paid %3d | aide drops %d | %s" % [
+-		name, row["runs"], PacingSim.fmt_t(row["first"]), row["base"], row["court"], row["postpones"], row["left"], row["paid"], row["drops"],
++	print("  %-15s s%d elections %2d | first %s | base %4d | court days %2d, postponed %2d | walked out %2d, paid %3d | aide drops %d | %s" % [
++		name, seed_, row["runs"], PacingSim.fmt_t(row["first"]), row["base"], row["court"], row["postpones"], row["left"], row["paid"], row["drops"],
+ 		", ".join(runs.slice(0, 6).map(func(x: float) -> String: return PacingSim.fmt_t(x)))])
+-	_rows[name] = row
++	_rows[key] = row
+ 	return row
+ 
+ 
+@@ -50,8 +57,14 @@ func test_triangle_has_no_dominant_strategy() -> void:
+ 	for name: String in PacingSim.STRATEGIES:
+ 		if name == "default":
+ 			continue
+-		var r := _hour(name)
+-		runner.check(float(r["base"]) <= float(base["base"]) * 1.05, "G1: %s must not dominate (base %d vs default %d)" % [name, r["base"], base["base"]])
++		var ratios: Array = []
++		for sd: int in G1_SEEDS:
++			ratios.append(float(_hour(name, sd)["base"]) / maxf(1.0, float(_hour("default", sd)["base"])))
++		var sorted := ratios.duplicate()
++		sorted.sort()
++		var med := float(sorted[sorted.size() / 2])
++		print("  G1 %-15s base / default per seed %s: median %.2f" % [name, ", ".join(ratios.map(func(x: float) -> String: return "%.2f" % x)), med])
++		runner.check(med <= 1.05, "G1: %s must not dominate (median base ratio %.2f over seeds 11-15)" % [name, med])
+ 	var clean := _hour("clean")
+ 	runner.check(int(clean["runs"]) >= 2, "G2: the clean route is viable (%d elections an hour)" % clean["runs"])
+ 	runner.check(int(clean["base"]) < int(base["base"]), "G2: and slower than dealing (base %d vs %d)" % [clean["base"], base["base"]])
 diff --git a/game/tests/bench/test_web_driver.gd.uid b/game/tests/bench/test_web_driver.gd.uid
 new file mode 100644
 index 0000000..3e3f496
@@ -88,34 +191,3 @@ index 0000000..3e3f496
 @@ -0,0 +1 @@
 +uid://cei7d52xkvb5t
 # untracked binary: game/tests/bench/test_web_driver.gd.uid
-diff --git a/game/tests/dev/probe_g1.gd b/game/tests/dev/probe_g1.gd
-new file mode 100644
-index 0000000..6a3c2a9
---- /dev/null
-+++ b/game/tests/dev/probe_g1.gd
-@@ -0,0 +1,16 @@
-+extends SceneTree
-+## Scratch (not committed): G1 default vs aideDropper vs alwaysPostpone over several seeds.
-+func _initialize() -> void:
-+	TestFixture.use_game_content()
-+	var args := OS.get_cmdline_user_args()
-+	var seeds: Array = [11, 12, 13, 14, 15]
-+	for sd: int in seeds:
-+		var line := "seed %d:" % sd
-+		for name: String in ["default", "aideDropper", "alwaysPostpone", "payAll"]:
-+			var p: Dictionary = PacingSim.PLAYERS["engaged"].duplicate()
-+			p["politics"] = PacingSim.STRATEGIES[name]
-+			var r := PacingSim.session(p, 3600.0, sd, 0.25)
-+			var s: GameState = r["state"]
-+			line += " %s %d (%d el, drops %d)" % [name, s.thumbs_owned, (r["runs"] as Array).size(), int(s.investigation.get("aideDrops", 0))]
-+		print(line)
-+	quit(0)
-# untracked binary: game/tests/dev/probe_g1.gd
-diff --git a/game/tests/dev/probe_g1.gd.uid b/game/tests/dev/probe_g1.gd.uid
-new file mode 100644
-index 0000000..e0a14fd
---- /dev/null
-+++ b/game/tests/dev/probe_g1.gd.uid
-@@ -0,0 +1 @@
-+uid://qjakwxklvoxp
-# untracked binary: game/tests/dev/probe_g1.gd.uid
