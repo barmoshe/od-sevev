@@ -1,12 +1,581 @@
 # binary files changed (not carried):
+#   art/od-sevev/out/palette-v2.png
+#   art/od-sevev/out/ui/cards/card_back_mark.png
+#   art/od-sevev/out/ui/cards/card_opposition.png
+#   art/od-sevev/out/ui/cards/card_opposition_back.png
+#   art/od-sevev/out/ui/cards/card_source_affordable.png
+#   art/od-sevev/out/ui/cards/card_source_locked.png
+#   art/od-sevev/out/ui/cards/card_source_unaffordable.png
+#   art/od-sevev/out/ui/cards/card_spin.png
+#   art/od-sevev/out/ui/cards/card_spin_locked.png
+#   art/od-sevev/out/ui/cards/chip_owned.png
+#   art/od-sevev/out/ui/cards/opp_timer_fill.png
+#   art/od-sevev/out/ui/cards/plate_silhouette.png
+#   art/od-sevev/out/ui/cards/tag_worn.png
+#   art/od-sevev/out/ui/ceremony/curtain_hem.png
+#   art/od-sevev/out/ui/ceremony/curtain_panel.png
+#   art/od-sevev/out/ui/ceremony/curtain_valance.png
+#   art/od-sevev/out/ui/chat/chat_bubble_in.png
+#   art/od-sevev/out/ui/chat/chat_bubble_out.png
+#   art/od-sevev/out/ui/chat/chat_bubble_ultimatum.png
+#   art/od-sevev/out/ui/chat/chat_composer_disabled.png
+#   art/od-sevev/out/ui/chat/chat_header.png
+#   art/od-sevev/out/ui/chat/chat_icon_chevron.png
+#   art/od-sevev/out/ui/chat/chat_icon_lock.png
+#   art/od-sevev/out/ui/chat/chat_icon_mute.png
+#   art/od-sevev/out/ui/chat/chat_icon_pin.png
+#   art/od-sevev/out/ui/chat/chat_pinned.png
+#   art/od-sevev/out/ui/chat/chat_system_pill.png
+#   art/od-sevev/out/ui/chat/icon_clock.png
+#   art/od-sevev/out/ui/chat/pay_pill_default.png
+#   art/od-sevev/out/ui/chat/pay_pill_fill.png
+#   art/od-sevev/out/ui/chat/pay_pill_pressed.png
+#   art/od-sevev/out/ui/chat/pay_pill_track.png
+#   art/od-sevev/out/ui/controls/badge_count.png
+#   art/od-sevev/out/ui/controls/button_gold_default.png
+#   art/od-sevev/out/ui/controls/button_gold_disabled.png
+#   art/od-sevev/out/ui/controls/button_gold_pressed.png
+#   art/od-sevev/out/ui/controls/button_primary_default.png
+#   art/od-sevev/out/ui/controls/button_primary_disabled.png
+#   art/od-sevev/out/ui/controls/button_primary_pressed.png
+#   art/od-sevev/out/ui/controls/button_secondary_default.png
+#   art/od-sevev/out/ui/controls/button_secondary_disabled.png
+#   art/od-sevev/out/ui/controls/button_secondary_pressed.png
+#   art/od-sevev/out/ui/controls/card_plate.png
+#   art/od-sevev/out/ui/controls/card_row.png
+#   art/od-sevev/out/ui/controls/card_row_locked.png
+#   art/od-sevev/out/ui/controls/icon_gear.png
+#   art/od-sevev/out/ui/controls/icon_sound_off.png
+#   art/od-sevev/out/ui/controls/icon_sound_on.png
+#   art/od-sevev/out/ui/controls/tab_active.png
+#   art/od-sevev/out/ui/controls/tabbar.png
+#   art/od-sevev/out/ui/controls/tabicon_cases_active.png
+#   art/od-sevev/out/ui/controls/tabicon_cases_idle.png
+#   art/od-sevev/out/ui/controls/tabicon_coalition_active.png
+#   art/od-sevev/out/ui/controls/tabicon_coalition_idle.png
+#   art/od-sevev/out/ui/controls/tabicon_sources_active.png
+#   art/od-sevev/out/ui/controls/tabicon_sources_idle.png
+#   art/od-sevev/out/ui/controls/tabicon_spins_active.png
+#   art/od-sevev/out/ui/controls/tabicon_spins_idle.png
+#   art/od-sevev/out/ui/dubi/dubi_small_fly.png
+#   art/od-sevev/out/ui/dubi/dubi_small_idle.png
+#   art/od-sevev/out/ui/dubi/dubi_small_land.png
+#   art/od-sevev/out/ui/dubi/dubi_small_peck.png
+#   art/od-sevev/out/ui/dubi/dubi_small_squawk.png
+#   art/od-sevev/out/ui/dubi/dubi_small_talk.png
+#   art/od-sevev/out/ui/events/brawl_cloud.png
+#   art/od-sevev/out/ui/events/chip_court.png
+#   art/od-sevev/out/ui/events/chip_icon_gavel.png
+#   art/od-sevev/out/ui/events/court_frame.png
+#   art/od-sevev/out/ui/events/stamp_blackout_dark.png
+#   art/od-sevev/out/ui/events/stamp_blackout_dark_rot.png
+#   art/od-sevev/out/ui/events/stamp_blackout_paper.png
+#   art/od-sevev/out/ui/events/stamp_blackout_paper_rot.png
+#   art/od-sevev/out/ui/events/stamp_frame_dark.png
+#   art/od-sevev/out/ui/events/stamp_frame_paper.png
+#   art/od-sevev/out/ui/events/stamp_paid_dark.png
+#   art/od-sevev/out/ui/events/stamp_paid_dark_rot.png
+#   art/od-sevev/out/ui/events/stamp_paid_paper.png
+#   art/od-sevev/out/ui/events/stamp_paid_paper_rot.png
+#   art/od-sevev/out/ui/events/stamp_pardon_dark.png
+#   art/od-sevev/out/ui/events/stamp_pardon_dark_rot.png
+#   art/od-sevev/out/ui/events/stamp_pardon_paper.png
+#   art/od-sevev/out/ui/events/stamp_pardon_paper_rot.png
+#   art/od-sevev/out/ui/events/stamp_postponed_dark.png
+#   art/od-sevev/out/ui/events/stamp_postponed_dark_rot.png
+#   art/od-sevev/out/ui/events/stamp_postponed_paper.png
+#   art/od-sevev/out/ui/events/stamp_postponed_paper_rot.png
+#   art/od-sevev/out/ui/events/stamp_tool_down.png
+#   art/od-sevev/out/ui/events/stamp_tool_up.png
+#   art/od-sevev/out/ui/events/transfer_banner.png
+#   art/od-sevev/out/ui/events/transfer_card.png
+#   art/od-sevev/out/ui/ftue/ftue_hand.png
+#   art/od-sevev/out/ui/ftue/ftue_tap_ring.png
+#   art/od-sevev/out/ui/ftue/icon_coin9.png
+#   art/od-sevev/out/ui/ftue/toast.png
+#   art/od-sevev/out/ui/key/wordmark.png
+#   art/od-sevev/out/ui/key/wordmark_mono.png
+#   art/od-sevev/out/ui/key/wordmark_norim.png
+#   art/od-sevev/out/ui/key/wordmark_small.png
+#   art/od-sevev/out/ui/meters/chip_countdown.png
+#   art/od-sevev/out/ui/meters/chip_icon_calendar.png
+#   art/od-sevev/out/ui/meters/chip_ultimatum.png
+#   art/od-sevev/out/ui/meters/seats_fill.png
+#   art/od-sevev/out/ui/meters/seats_goal_frame.png
+#   art/od-sevev/out/ui/meters/seats_track.png
+#   art/od-sevev/out/ui/meters/thermo_bubble.png
+#   art/od-sevev/out/ui/meters/thermo_fill.png
+#   art/od-sevev/out/ui/meters/thermo_floor_hatch.png
+#   art/od-sevev/out/ui/meters/thermo_icon_gavel.png
+#   art/od-sevev/out/ui/meters/thermo_icon_magnifier.png
+#   art/od-sevev/out/ui/meters/thermo_meniscus.png
+#   art/od-sevev/out/ui/meters/thermo_tube.png
+#   art/od-sevev/out/ui/props/dubi_placeholder_avatar.png
+#   art/od-sevev/out/ui/props/dubi_placeholder_body.png
+#   art/od-sevev/out/ui/props/suitcase.png
+#   art/od-sevev/out/ui/props/suitcase_norim.png
+#   art/od-sevev/out/ui/share/receipt_body.png
+#   art/od-sevev/out/ui/share/receipt_bottom.png
+#   art/od-sevev/out/ui/share/receipt_rule.png
+#   art/od-sevev/out/ui/share/receipt_top.png
+#   art/od-sevev/out/ui/share/share_receipt_bg.png
+#   art/od-sevev/out/ui/share/share_result_frame.png
+#   art/od-sevev/out/ui/share/stamp_camera.png
+#   art/od-sevev/out/ui/sheet/sheet_plain.png
+#   art/od-sevev/out/ui/sources/source_checkbook.png
+#   art/od-sevev/out/ui/sources/source_checkbook_icon.png
+#   art/od-sevev/out/ui/sources/source_poison.png
+#   art/od-sevev/out/ui/sources/source_poison_icon.png
+#   art/od-sevev/out/ui/sources/source_submarine.png
+#   art/od-sevev/out/ui/sources/source_submarine_icon.png
+#   art/od-sevev/out/ui/stage/court_window.png
+#   art/od-sevev/out/ui/stage/court_window_glow.png
 #   art/od-sevev/out/ui/stage/lane_balfour.png
 #   art/od-sevev/out/ui/stage/lane_courthouse.png
 #   art/od-sevev/out/ui/stage/lane_knesset.png
 #   art/od-sevev/out/ui/stage/lane_washington.png
+#   art/od-sevev/out/ui/stage/laundry_bag.png
+#   art/od-sevev/out/ui/stage/laundry_shirt.png
+#   art/od-sevev/out/ui/stage/laundry_shorts.png
+#   art/od-sevev/out/ui/stage/laundry_sock.png
+#   art/od-sevev/out/ui/stage/laundry_towel.png
+#   art/od-sevev/out/ui/stage/sweat_drop.png
+#   art/od-sevev/out/ui/ticker/ticker_bar.png
+#   art/od-sevev/out/ui/ticker/ticker_flash_plate.png
+#   art/od-sevev/out/ui/ticker/ticker_flash_plate_text.png
+#   art/od-sevev/out/ui/trophies/trophy_aide.png
+#   art/od-sevev/out/ui/trophies/trophy_aide_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_ballot.png
+#   art/od-sevev/out/ui/trophies/trophy_ballot_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_clock.png
+#   art/od-sevev/out/ui/trophies/trophy_clock_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_coin.png
+#   art/od-sevev/out/ui/trophies/trophy_coin_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_cottage.png
+#   art/od-sevev/out/ui/trophies/trophy_cottage_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_folder.png
+#   art/od-sevev/out/ui/trophies/trophy_folder_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_gavel.png
+#   art/od-sevev/out/ui/trophies/trophy_gavel_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_hat.png
+#   art/od-sevev/out/ui/trophies/trophy_hat_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_parrot.png
+#   art/od-sevev/out/ui/trophies/trophy_parrot_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_phone.png
+#   art/od-sevev/out/ui/trophies/trophy_phone_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_pin.png
+#   art/od-sevev/out/ui/trophies/trophy_pin_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_plane.png
+#   art/od-sevev/out/ui/trophies/trophy_plane_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_plate_earned.png
+#   art/od-sevev/out/ui/trophies/trophy_plate_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_plate_secret.png
+#   art/od-sevev/out/ui/trophies/trophy_rabbit.png
+#   art/od-sevev/out/ui/trophies/trophy_rabbit_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_stamp.png
+#   art/od-sevev/out/ui/trophies/trophy_stamp_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_suitcase.png
+#   art/od-sevev/out/ui/trophies/trophy_suitcase_locked.png
+#   art/od-sevev/out/ui/trophies/trophy_wand.png
+#   art/od-sevev/out/ui/trophies/trophy_wand_locked.png
+#   art/od-sevev/out/ui/widgets/cottage_cup.png
 #   game/assets/sprites/lane_balfour.png
 #   game/assets/sprites/lane_courthouse.png
 #   game/assets/sprites/lane_knesset.png
 #   game/assets/sprites/lane_washington.png
+diff --git a/art/od-sevev/out/palette-v2.png b/art/od-sevev/out/palette-v2.png
+index fdb3dd8..99bf995 100644
+Binary files a/art/od-sevev/out/palette-v2.png and b/art/od-sevev/out/palette-v2.png differ
+diff --git a/art/od-sevev/out/ui/cards/card_back_mark.png b/art/od-sevev/out/ui/cards/card_back_mark.png
+index c64002c..9a7b7b0 100644
+Binary files a/art/od-sevev/out/ui/cards/card_back_mark.png and b/art/od-sevev/out/ui/cards/card_back_mark.png differ
+diff --git a/art/od-sevev/out/ui/cards/card_opposition.png b/art/od-sevev/out/ui/cards/card_opposition.png
+index bb1dd35..34cbe4e 100644
+Binary files a/art/od-sevev/out/ui/cards/card_opposition.png and b/art/od-sevev/out/ui/cards/card_opposition.png differ
+diff --git a/art/od-sevev/out/ui/cards/card_opposition_back.png b/art/od-sevev/out/ui/cards/card_opposition_back.png
+index cc132f0..951c212 100644
+Binary files a/art/od-sevev/out/ui/cards/card_opposition_back.png and b/art/od-sevev/out/ui/cards/card_opposition_back.png differ
+diff --git a/art/od-sevev/out/ui/cards/card_source_affordable.png b/art/od-sevev/out/ui/cards/card_source_affordable.png
+index 4064425..5c16380 100644
+Binary files a/art/od-sevev/out/ui/cards/card_source_affordable.png and b/art/od-sevev/out/ui/cards/card_source_affordable.png differ
+diff --git a/art/od-sevev/out/ui/cards/card_source_locked.png b/art/od-sevev/out/ui/cards/card_source_locked.png
+index 17f7e7b..0946cda 100644
+Binary files a/art/od-sevev/out/ui/cards/card_source_locked.png and b/art/od-sevev/out/ui/cards/card_source_locked.png differ
+diff --git a/art/od-sevev/out/ui/cards/card_source_unaffordable.png b/art/od-sevev/out/ui/cards/card_source_unaffordable.png
+index f7dddc8..289dad6 100644
+Binary files a/art/od-sevev/out/ui/cards/card_source_unaffordable.png and b/art/od-sevev/out/ui/cards/card_source_unaffordable.png differ
+diff --git a/art/od-sevev/out/ui/cards/card_spin.png b/art/od-sevev/out/ui/cards/card_spin.png
+index 3ab9034..5374fc2 100644
+Binary files a/art/od-sevev/out/ui/cards/card_spin.png and b/art/od-sevev/out/ui/cards/card_spin.png differ
+diff --git a/art/od-sevev/out/ui/cards/card_spin_locked.png b/art/od-sevev/out/ui/cards/card_spin_locked.png
+index 99d87e0..d93a827 100644
+Binary files a/art/od-sevev/out/ui/cards/card_spin_locked.png and b/art/od-sevev/out/ui/cards/card_spin_locked.png differ
+diff --git a/art/od-sevev/out/ui/cards/chip_owned.png b/art/od-sevev/out/ui/cards/chip_owned.png
+index 76db105..9faab90 100644
+Binary files a/art/od-sevev/out/ui/cards/chip_owned.png and b/art/od-sevev/out/ui/cards/chip_owned.png differ
+diff --git a/art/od-sevev/out/ui/cards/opp_timer_fill.png b/art/od-sevev/out/ui/cards/opp_timer_fill.png
+index 55b5daa..9388032 100644
+Binary files a/art/od-sevev/out/ui/cards/opp_timer_fill.png and b/art/od-sevev/out/ui/cards/opp_timer_fill.png differ
+diff --git a/art/od-sevev/out/ui/cards/plate_silhouette.png b/art/od-sevev/out/ui/cards/plate_silhouette.png
+index 86c5f7b..3a959cb 100644
+Binary files a/art/od-sevev/out/ui/cards/plate_silhouette.png and b/art/od-sevev/out/ui/cards/plate_silhouette.png differ
+diff --git a/art/od-sevev/out/ui/cards/tag_worn.png b/art/od-sevev/out/ui/cards/tag_worn.png
+index 97572c6..6255ac7 100644
+Binary files a/art/od-sevev/out/ui/cards/tag_worn.png and b/art/od-sevev/out/ui/cards/tag_worn.png differ
+diff --git a/art/od-sevev/out/ui/ceremony/curtain_hem.png b/art/od-sevev/out/ui/ceremony/curtain_hem.png
+index c923487..e909a98 100644
+Binary files a/art/od-sevev/out/ui/ceremony/curtain_hem.png and b/art/od-sevev/out/ui/ceremony/curtain_hem.png differ
+diff --git a/art/od-sevev/out/ui/ceremony/curtain_panel.png b/art/od-sevev/out/ui/ceremony/curtain_panel.png
+index 443b9b7..a2e694c 100644
+Binary files a/art/od-sevev/out/ui/ceremony/curtain_panel.png and b/art/od-sevev/out/ui/ceremony/curtain_panel.png differ
+diff --git a/art/od-sevev/out/ui/ceremony/curtain_valance.png b/art/od-sevev/out/ui/ceremony/curtain_valance.png
+index 08602cb..9ecb8d0 100644
+Binary files a/art/od-sevev/out/ui/ceremony/curtain_valance.png and b/art/od-sevev/out/ui/ceremony/curtain_valance.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_bubble_in.png b/art/od-sevev/out/ui/chat/chat_bubble_in.png
+index 01cef6c..aad8479 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_bubble_in.png and b/art/od-sevev/out/ui/chat/chat_bubble_in.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_bubble_out.png b/art/od-sevev/out/ui/chat/chat_bubble_out.png
+index 5d698dd..d97cdcf 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_bubble_out.png and b/art/od-sevev/out/ui/chat/chat_bubble_out.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_bubble_ultimatum.png b/art/od-sevev/out/ui/chat/chat_bubble_ultimatum.png
+index 6a124ba..287e991 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_bubble_ultimatum.png and b/art/od-sevev/out/ui/chat/chat_bubble_ultimatum.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_composer_disabled.png b/art/od-sevev/out/ui/chat/chat_composer_disabled.png
+index ef77a77..0e7ba1a 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_composer_disabled.png and b/art/od-sevev/out/ui/chat/chat_composer_disabled.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_header.png b/art/od-sevev/out/ui/chat/chat_header.png
+index f54e24d..0ebac64 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_header.png and b/art/od-sevev/out/ui/chat/chat_header.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_icon_chevron.png b/art/od-sevev/out/ui/chat/chat_icon_chevron.png
+index 547884d..d5b464c 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_icon_chevron.png and b/art/od-sevev/out/ui/chat/chat_icon_chevron.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_icon_lock.png b/art/od-sevev/out/ui/chat/chat_icon_lock.png
+index c753659..fde74ff 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_icon_lock.png and b/art/od-sevev/out/ui/chat/chat_icon_lock.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_icon_mute.png b/art/od-sevev/out/ui/chat/chat_icon_mute.png
+index cf2d411..3a4d0ab 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_icon_mute.png and b/art/od-sevev/out/ui/chat/chat_icon_mute.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_icon_pin.png b/art/od-sevev/out/ui/chat/chat_icon_pin.png
+index b25ab63..1b69ecb 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_icon_pin.png and b/art/od-sevev/out/ui/chat/chat_icon_pin.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_pinned.png b/art/od-sevev/out/ui/chat/chat_pinned.png
+index ae8501d..125e62a 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_pinned.png and b/art/od-sevev/out/ui/chat/chat_pinned.png differ
+diff --git a/art/od-sevev/out/ui/chat/chat_system_pill.png b/art/od-sevev/out/ui/chat/chat_system_pill.png
+index 09194c0..6dbb23d 100644
+Binary files a/art/od-sevev/out/ui/chat/chat_system_pill.png and b/art/od-sevev/out/ui/chat/chat_system_pill.png differ
+diff --git a/art/od-sevev/out/ui/chat/icon_clock.png b/art/od-sevev/out/ui/chat/icon_clock.png
+index ef20bc7..6a05b94 100644
+Binary files a/art/od-sevev/out/ui/chat/icon_clock.png and b/art/od-sevev/out/ui/chat/icon_clock.png differ
+diff --git a/art/od-sevev/out/ui/chat/pay_pill_default.png b/art/od-sevev/out/ui/chat/pay_pill_default.png
+index 0bc16a7..0ef57dc 100644
+Binary files a/art/od-sevev/out/ui/chat/pay_pill_default.png and b/art/od-sevev/out/ui/chat/pay_pill_default.png differ
+diff --git a/art/od-sevev/out/ui/chat/pay_pill_fill.png b/art/od-sevev/out/ui/chat/pay_pill_fill.png
+index fabcf0d..91caf03 100644
+Binary files a/art/od-sevev/out/ui/chat/pay_pill_fill.png and b/art/od-sevev/out/ui/chat/pay_pill_fill.png differ
+diff --git a/art/od-sevev/out/ui/chat/pay_pill_pressed.png b/art/od-sevev/out/ui/chat/pay_pill_pressed.png
+index 2419756..79da56c 100644
+Binary files a/art/od-sevev/out/ui/chat/pay_pill_pressed.png and b/art/od-sevev/out/ui/chat/pay_pill_pressed.png differ
+diff --git a/art/od-sevev/out/ui/chat/pay_pill_track.png b/art/od-sevev/out/ui/chat/pay_pill_track.png
+index ef00df0..1a45d08 100644
+Binary files a/art/od-sevev/out/ui/chat/pay_pill_track.png and b/art/od-sevev/out/ui/chat/pay_pill_track.png differ
+diff --git a/art/od-sevev/out/ui/controls/badge_count.png b/art/od-sevev/out/ui/controls/badge_count.png
+index 89a1b25..5a96cf9 100644
+Binary files a/art/od-sevev/out/ui/controls/badge_count.png and b/art/od-sevev/out/ui/controls/badge_count.png differ
+diff --git a/art/od-sevev/out/ui/controls/button_gold_default.png b/art/od-sevev/out/ui/controls/button_gold_default.png
+index 63ebcd5..c06b1f4 100644
+Binary files a/art/od-sevev/out/ui/controls/button_gold_default.png and b/art/od-sevev/out/ui/controls/button_gold_default.png differ
+diff --git a/art/od-sevev/out/ui/controls/button_gold_disabled.png b/art/od-sevev/out/ui/controls/button_gold_disabled.png
+index 372254d..11550b6 100644
+Binary files a/art/od-sevev/out/ui/controls/button_gold_disabled.png and b/art/od-sevev/out/ui/controls/button_gold_disabled.png differ
+diff --git a/art/od-sevev/out/ui/controls/button_gold_pressed.png b/art/od-sevev/out/ui/controls/button_gold_pressed.png
+index f6d0595..2fa7f96 100644
+Binary files a/art/od-sevev/out/ui/controls/button_gold_pressed.png and b/art/od-sevev/out/ui/controls/button_gold_pressed.png differ
+diff --git a/art/od-sevev/out/ui/controls/button_primary_default.png b/art/od-sevev/out/ui/controls/button_primary_default.png
+index 12025ca..46b8c42 100644
+Binary files a/art/od-sevev/out/ui/controls/button_primary_default.png and b/art/od-sevev/out/ui/controls/button_primary_default.png differ
+diff --git a/art/od-sevev/out/ui/controls/button_primary_disabled.png b/art/od-sevev/out/ui/controls/button_primary_disabled.png
+index 372254d..11550b6 100644
+Binary files a/art/od-sevev/out/ui/controls/button_primary_disabled.png and b/art/od-sevev/out/ui/controls/button_primary_disabled.png differ
+diff --git a/art/od-sevev/out/ui/controls/button_primary_pressed.png b/art/od-sevev/out/ui/controls/button_primary_pressed.png
+index 4c3ee8c..33c447b 100644
+Binary files a/art/od-sevev/out/ui/controls/button_primary_pressed.png and b/art/od-sevev/out/ui/controls/button_primary_pressed.png differ
+diff --git a/art/od-sevev/out/ui/controls/button_secondary_default.png b/art/od-sevev/out/ui/controls/button_secondary_default.png
+index 9dad0cb..4e26325 100644
+Binary files a/art/od-sevev/out/ui/controls/button_secondary_default.png and b/art/od-sevev/out/ui/controls/button_secondary_default.png differ
+diff --git a/art/od-sevev/out/ui/controls/button_secondary_disabled.png b/art/od-sevev/out/ui/controls/button_secondary_disabled.png
+index 372254d..11550b6 100644
+Binary files a/art/od-sevev/out/ui/controls/button_secondary_disabled.png and b/art/od-sevev/out/ui/controls/button_secondary_disabled.png differ
+diff --git a/art/od-sevev/out/ui/controls/button_secondary_pressed.png b/art/od-sevev/out/ui/controls/button_secondary_pressed.png
+index a2132eb..d161c5d 100644
+Binary files a/art/od-sevev/out/ui/controls/button_secondary_pressed.png and b/art/od-sevev/out/ui/controls/button_secondary_pressed.png differ
+diff --git a/art/od-sevev/out/ui/controls/card_plate.png b/art/od-sevev/out/ui/controls/card_plate.png
+index 207a18d..3c3ff1d 100644
+Binary files a/art/od-sevev/out/ui/controls/card_plate.png and b/art/od-sevev/out/ui/controls/card_plate.png differ
+diff --git a/art/od-sevev/out/ui/controls/card_row.png b/art/od-sevev/out/ui/controls/card_row.png
+index f7dddc8..289dad6 100644
+Binary files a/art/od-sevev/out/ui/controls/card_row.png and b/art/od-sevev/out/ui/controls/card_row.png differ
+diff --git a/art/od-sevev/out/ui/controls/card_row_locked.png b/art/od-sevev/out/ui/controls/card_row_locked.png
+index 17f7e7b..0946cda 100644
+Binary files a/art/od-sevev/out/ui/controls/card_row_locked.png and b/art/od-sevev/out/ui/controls/card_row_locked.png differ
+diff --git a/art/od-sevev/out/ui/controls/icon_gear.png b/art/od-sevev/out/ui/controls/icon_gear.png
+index 519a709..92e7b54 100644
+Binary files a/art/od-sevev/out/ui/controls/icon_gear.png and b/art/od-sevev/out/ui/controls/icon_gear.png differ
+diff --git a/art/od-sevev/out/ui/controls/icon_sound_off.png b/art/od-sevev/out/ui/controls/icon_sound_off.png
+index 63e53f0..a40c5f7 100644
+Binary files a/art/od-sevev/out/ui/controls/icon_sound_off.png and b/art/od-sevev/out/ui/controls/icon_sound_off.png differ
+diff --git a/art/od-sevev/out/ui/controls/icon_sound_on.png b/art/od-sevev/out/ui/controls/icon_sound_on.png
+index 95711bb..6758576 100644
+Binary files a/art/od-sevev/out/ui/controls/icon_sound_on.png and b/art/od-sevev/out/ui/controls/icon_sound_on.png differ
+diff --git a/art/od-sevev/out/ui/controls/tab_active.png b/art/od-sevev/out/ui/controls/tab_active.png
+index ca5c86c..f17e598 100644
+Binary files a/art/od-sevev/out/ui/controls/tab_active.png and b/art/od-sevev/out/ui/controls/tab_active.png differ
+diff --git a/art/od-sevev/out/ui/controls/tabbar.png b/art/od-sevev/out/ui/controls/tabbar.png
+index f5dfb8a..637320a 100644
+Binary files a/art/od-sevev/out/ui/controls/tabbar.png and b/art/od-sevev/out/ui/controls/tabbar.png differ
+diff --git a/art/od-sevev/out/ui/controls/tabicon_cases_active.png b/art/od-sevev/out/ui/controls/tabicon_cases_active.png
+index f4b8655..ed8ce1a 100644
+Binary files a/art/od-sevev/out/ui/controls/tabicon_cases_active.png and b/art/od-sevev/out/ui/controls/tabicon_cases_active.png differ
+diff --git a/art/od-sevev/out/ui/controls/tabicon_cases_idle.png b/art/od-sevev/out/ui/controls/tabicon_cases_idle.png
+index 8d49593..f0b4ff0 100644
+Binary files a/art/od-sevev/out/ui/controls/tabicon_cases_idle.png and b/art/od-sevev/out/ui/controls/tabicon_cases_idle.png differ
+diff --git a/art/od-sevev/out/ui/controls/tabicon_coalition_active.png b/art/od-sevev/out/ui/controls/tabicon_coalition_active.png
+index c1aebbe..26427f7 100644
+Binary files a/art/od-sevev/out/ui/controls/tabicon_coalition_active.png and b/art/od-sevev/out/ui/controls/tabicon_coalition_active.png differ
+diff --git a/art/od-sevev/out/ui/controls/tabicon_coalition_idle.png b/art/od-sevev/out/ui/controls/tabicon_coalition_idle.png
+index 8a8af37..b4556e6 100644
+Binary files a/art/od-sevev/out/ui/controls/tabicon_coalition_idle.png and b/art/od-sevev/out/ui/controls/tabicon_coalition_idle.png differ
+diff --git a/art/od-sevev/out/ui/controls/tabicon_sources_active.png b/art/od-sevev/out/ui/controls/tabicon_sources_active.png
+index b4e964c..e0f98bb 100644
+Binary files a/art/od-sevev/out/ui/controls/tabicon_sources_active.png and b/art/od-sevev/out/ui/controls/tabicon_sources_active.png differ
+diff --git a/art/od-sevev/out/ui/controls/tabicon_sources_idle.png b/art/od-sevev/out/ui/controls/tabicon_sources_idle.png
+index d9f7d33..30e2d99 100644
+Binary files a/art/od-sevev/out/ui/controls/tabicon_sources_idle.png and b/art/od-sevev/out/ui/controls/tabicon_sources_idle.png differ
+diff --git a/art/od-sevev/out/ui/controls/tabicon_spins_active.png b/art/od-sevev/out/ui/controls/tabicon_spins_active.png
+index 09aec75..9f7dc72 100644
+Binary files a/art/od-sevev/out/ui/controls/tabicon_spins_active.png and b/art/od-sevev/out/ui/controls/tabicon_spins_active.png differ
+diff --git a/art/od-sevev/out/ui/controls/tabicon_spins_idle.png b/art/od-sevev/out/ui/controls/tabicon_spins_idle.png
+index 7b5b795..70c4c56 100644
+Binary files a/art/od-sevev/out/ui/controls/tabicon_spins_idle.png and b/art/od-sevev/out/ui/controls/tabicon_spins_idle.png differ
+diff --git a/art/od-sevev/out/ui/dubi/dubi_small_fly.png b/art/od-sevev/out/ui/dubi/dubi_small_fly.png
+index 345349e..1d87173 100644
+Binary files a/art/od-sevev/out/ui/dubi/dubi_small_fly.png and b/art/od-sevev/out/ui/dubi/dubi_small_fly.png differ
+diff --git a/art/od-sevev/out/ui/dubi/dubi_small_idle.png b/art/od-sevev/out/ui/dubi/dubi_small_idle.png
+index 83d98fc..c9202cf 100644
+Binary files a/art/od-sevev/out/ui/dubi/dubi_small_idle.png and b/art/od-sevev/out/ui/dubi/dubi_small_idle.png differ
+diff --git a/art/od-sevev/out/ui/dubi/dubi_small_land.png b/art/od-sevev/out/ui/dubi/dubi_small_land.png
+index 90d0762..a8cf051 100644
+Binary files a/art/od-sevev/out/ui/dubi/dubi_small_land.png and b/art/od-sevev/out/ui/dubi/dubi_small_land.png differ
+diff --git a/art/od-sevev/out/ui/dubi/dubi_small_peck.png b/art/od-sevev/out/ui/dubi/dubi_small_peck.png
+index 51520ad..9334d40 100644
+Binary files a/art/od-sevev/out/ui/dubi/dubi_small_peck.png and b/art/od-sevev/out/ui/dubi/dubi_small_peck.png differ
+diff --git a/art/od-sevev/out/ui/dubi/dubi_small_squawk.png b/art/od-sevev/out/ui/dubi/dubi_small_squawk.png
+index b062eb2..142fd51 100644
+Binary files a/art/od-sevev/out/ui/dubi/dubi_small_squawk.png and b/art/od-sevev/out/ui/dubi/dubi_small_squawk.png differ
+diff --git a/art/od-sevev/out/ui/dubi/dubi_small_talk.png b/art/od-sevev/out/ui/dubi/dubi_small_talk.png
+index 07b6c28..aa7a618 100644
+Binary files a/art/od-sevev/out/ui/dubi/dubi_small_talk.png and b/art/od-sevev/out/ui/dubi/dubi_small_talk.png differ
+diff --git a/art/od-sevev/out/ui/events/brawl_cloud.png b/art/od-sevev/out/ui/events/brawl_cloud.png
+index d4871c4..f24fd20 100644
+Binary files a/art/od-sevev/out/ui/events/brawl_cloud.png and b/art/od-sevev/out/ui/events/brawl_cloud.png differ
+diff --git a/art/od-sevev/out/ui/events/chip_court.png b/art/od-sevev/out/ui/events/chip_court.png
+index 44a3197..bc20a26 100644
+Binary files a/art/od-sevev/out/ui/events/chip_court.png and b/art/od-sevev/out/ui/events/chip_court.png differ
+diff --git a/art/od-sevev/out/ui/events/chip_icon_gavel.png b/art/od-sevev/out/ui/events/chip_icon_gavel.png
+index ba46527..2283575 100644
+Binary files a/art/od-sevev/out/ui/events/chip_icon_gavel.png and b/art/od-sevev/out/ui/events/chip_icon_gavel.png differ
+diff --git a/art/od-sevev/out/ui/events/court_frame.png b/art/od-sevev/out/ui/events/court_frame.png
+index 12f7c28..6a10dcd 100644
+Binary files a/art/od-sevev/out/ui/events/court_frame.png and b/art/od-sevev/out/ui/events/court_frame.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_blackout_dark.png b/art/od-sevev/out/ui/events/stamp_blackout_dark.png
+index 1270cbd..8a63aea 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_blackout_dark.png and b/art/od-sevev/out/ui/events/stamp_blackout_dark.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_blackout_dark_rot.png b/art/od-sevev/out/ui/events/stamp_blackout_dark_rot.png
+index c6a7ff7..0203199 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_blackout_dark_rot.png and b/art/od-sevev/out/ui/events/stamp_blackout_dark_rot.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_blackout_paper.png b/art/od-sevev/out/ui/events/stamp_blackout_paper.png
+index c9fd47c..88ef278 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_blackout_paper.png and b/art/od-sevev/out/ui/events/stamp_blackout_paper.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_blackout_paper_rot.png b/art/od-sevev/out/ui/events/stamp_blackout_paper_rot.png
+index ff98038..bf1d36b 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_blackout_paper_rot.png and b/art/od-sevev/out/ui/events/stamp_blackout_paper_rot.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_frame_dark.png b/art/od-sevev/out/ui/events/stamp_frame_dark.png
+index 450e154..cc7b0f0 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_frame_dark.png and b/art/od-sevev/out/ui/events/stamp_frame_dark.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_frame_paper.png b/art/od-sevev/out/ui/events/stamp_frame_paper.png
+index 921fe5a..4f4ce89 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_frame_paper.png and b/art/od-sevev/out/ui/events/stamp_frame_paper.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_paid_dark.png b/art/od-sevev/out/ui/events/stamp_paid_dark.png
+index 97b3820..e3824a6 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_paid_dark.png and b/art/od-sevev/out/ui/events/stamp_paid_dark.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_paid_dark_rot.png b/art/od-sevev/out/ui/events/stamp_paid_dark_rot.png
+index c614eb6..bee99fe 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_paid_dark_rot.png and b/art/od-sevev/out/ui/events/stamp_paid_dark_rot.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_paid_paper.png b/art/od-sevev/out/ui/events/stamp_paid_paper.png
+index 6a8b734..5bcb6eb 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_paid_paper.png and b/art/od-sevev/out/ui/events/stamp_paid_paper.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_paid_paper_rot.png b/art/od-sevev/out/ui/events/stamp_paid_paper_rot.png
+index 29b54aa..8e8a1db 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_paid_paper_rot.png and b/art/od-sevev/out/ui/events/stamp_paid_paper_rot.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_pardon_dark.png b/art/od-sevev/out/ui/events/stamp_pardon_dark.png
+index e168961..641c846 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_pardon_dark.png and b/art/od-sevev/out/ui/events/stamp_pardon_dark.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_pardon_dark_rot.png b/art/od-sevev/out/ui/events/stamp_pardon_dark_rot.png
+index 1ccd4e3..c36e3e3 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_pardon_dark_rot.png and b/art/od-sevev/out/ui/events/stamp_pardon_dark_rot.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_pardon_paper.png b/art/od-sevev/out/ui/events/stamp_pardon_paper.png
+index d4992b1..6839623 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_pardon_paper.png and b/art/od-sevev/out/ui/events/stamp_pardon_paper.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_pardon_paper_rot.png b/art/od-sevev/out/ui/events/stamp_pardon_paper_rot.png
+index 874f61e..8b691c5 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_pardon_paper_rot.png and b/art/od-sevev/out/ui/events/stamp_pardon_paper_rot.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_postponed_dark.png b/art/od-sevev/out/ui/events/stamp_postponed_dark.png
+index 3f5c0b1..b7eb44c 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_postponed_dark.png and b/art/od-sevev/out/ui/events/stamp_postponed_dark.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_postponed_dark_rot.png b/art/od-sevev/out/ui/events/stamp_postponed_dark_rot.png
+index 3868026..5212167 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_postponed_dark_rot.png and b/art/od-sevev/out/ui/events/stamp_postponed_dark_rot.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_postponed_paper.png b/art/od-sevev/out/ui/events/stamp_postponed_paper.png
+index 220a783..706c893 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_postponed_paper.png and b/art/od-sevev/out/ui/events/stamp_postponed_paper.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_postponed_paper_rot.png b/art/od-sevev/out/ui/events/stamp_postponed_paper_rot.png
+index 85073e5..94be245 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_postponed_paper_rot.png and b/art/od-sevev/out/ui/events/stamp_postponed_paper_rot.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_tool_down.png b/art/od-sevev/out/ui/events/stamp_tool_down.png
+index c0e8776..ac7cf63 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_tool_down.png and b/art/od-sevev/out/ui/events/stamp_tool_down.png differ
+diff --git a/art/od-sevev/out/ui/events/stamp_tool_up.png b/art/od-sevev/out/ui/events/stamp_tool_up.png
+index 0aa7bd7..70c5185 100644
+Binary files a/art/od-sevev/out/ui/events/stamp_tool_up.png and b/art/od-sevev/out/ui/events/stamp_tool_up.png differ
+diff --git a/art/od-sevev/out/ui/events/transfer_banner.png b/art/od-sevev/out/ui/events/transfer_banner.png
+index 581040e..bb46264 100644
+Binary files a/art/od-sevev/out/ui/events/transfer_banner.png and b/art/od-sevev/out/ui/events/transfer_banner.png differ
+diff --git a/art/od-sevev/out/ui/events/transfer_card.png b/art/od-sevev/out/ui/events/transfer_card.png
+index 9a596ca..acdfe01 100644
+Binary files a/art/od-sevev/out/ui/events/transfer_card.png and b/art/od-sevev/out/ui/events/transfer_card.png differ
+diff --git a/art/od-sevev/out/ui/ftue/ftue_hand.png b/art/od-sevev/out/ui/ftue/ftue_hand.png
+index 46d60d0..c92d994 100644
+Binary files a/art/od-sevev/out/ui/ftue/ftue_hand.png and b/art/od-sevev/out/ui/ftue/ftue_hand.png differ
+diff --git a/art/od-sevev/out/ui/ftue/ftue_tap_ring.png b/art/od-sevev/out/ui/ftue/ftue_tap_ring.png
+index 6f57f54..ee644b7 100644
+Binary files a/art/od-sevev/out/ui/ftue/ftue_tap_ring.png and b/art/od-sevev/out/ui/ftue/ftue_tap_ring.png differ
+diff --git a/art/od-sevev/out/ui/ftue/icon_coin9.png b/art/od-sevev/out/ui/ftue/icon_coin9.png
+index 35e8d62..91e9519 100644
+Binary files a/art/od-sevev/out/ui/ftue/icon_coin9.png and b/art/od-sevev/out/ui/ftue/icon_coin9.png differ
+diff --git a/art/od-sevev/out/ui/ftue/toast.png b/art/od-sevev/out/ui/ftue/toast.png
+index e658edf..3dbfbbf 100644
+Binary files a/art/od-sevev/out/ui/ftue/toast.png and b/art/od-sevev/out/ui/ftue/toast.png differ
+diff --git a/art/od-sevev/out/ui/key/wordmark.png b/art/od-sevev/out/ui/key/wordmark.png
+index eb8ab02..b6baa73 100644
+Binary files a/art/od-sevev/out/ui/key/wordmark.png and b/art/od-sevev/out/ui/key/wordmark.png differ
+diff --git a/art/od-sevev/out/ui/key/wordmark_mono.png b/art/od-sevev/out/ui/key/wordmark_mono.png
+index f2f8211..13d565a 100644
+Binary files a/art/od-sevev/out/ui/key/wordmark_mono.png and b/art/od-sevev/out/ui/key/wordmark_mono.png differ
+diff --git a/art/od-sevev/out/ui/key/wordmark_norim.png b/art/od-sevev/out/ui/key/wordmark_norim.png
+index 7b996af..6fdc438 100644
+Binary files a/art/od-sevev/out/ui/key/wordmark_norim.png and b/art/od-sevev/out/ui/key/wordmark_norim.png differ
+diff --git a/art/od-sevev/out/ui/key/wordmark_small.png b/art/od-sevev/out/ui/key/wordmark_small.png
+index b56c353..86ab1ac 100644
+Binary files a/art/od-sevev/out/ui/key/wordmark_small.png and b/art/od-sevev/out/ui/key/wordmark_small.png differ
+diff --git a/art/od-sevev/out/ui/meters/chip_countdown.png b/art/od-sevev/out/ui/meters/chip_countdown.png
+index 0557a56..9c86b2f 100644
+Binary files a/art/od-sevev/out/ui/meters/chip_countdown.png and b/art/od-sevev/out/ui/meters/chip_countdown.png differ
+diff --git a/art/od-sevev/out/ui/meters/chip_icon_calendar.png b/art/od-sevev/out/ui/meters/chip_icon_calendar.png
+index 891ab96..b10c31d 100644
+Binary files a/art/od-sevev/out/ui/meters/chip_icon_calendar.png and b/art/od-sevev/out/ui/meters/chip_icon_calendar.png differ
+diff --git a/art/od-sevev/out/ui/meters/chip_ultimatum.png b/art/od-sevev/out/ui/meters/chip_ultimatum.png
+index f11f009..20a0d13 100644
+Binary files a/art/od-sevev/out/ui/meters/chip_ultimatum.png and b/art/od-sevev/out/ui/meters/chip_ultimatum.png differ
+diff --git a/art/od-sevev/out/ui/meters/seats_fill.png b/art/od-sevev/out/ui/meters/seats_fill.png
+index ba8e073..d1d9997 100644
+Binary files a/art/od-sevev/out/ui/meters/seats_fill.png and b/art/od-sevev/out/ui/meters/seats_fill.png differ
+diff --git a/art/od-sevev/out/ui/meters/seats_goal_frame.png b/art/od-sevev/out/ui/meters/seats_goal_frame.png
+index c012782..c50d4e6 100644
+Binary files a/art/od-sevev/out/ui/meters/seats_goal_frame.png and b/art/od-sevev/out/ui/meters/seats_goal_frame.png differ
+diff --git a/art/od-sevev/out/ui/meters/seats_track.png b/art/od-sevev/out/ui/meters/seats_track.png
+index 1270601..caa7cfb 100644
+Binary files a/art/od-sevev/out/ui/meters/seats_track.png and b/art/od-sevev/out/ui/meters/seats_track.png differ
+diff --git a/art/od-sevev/out/ui/meters/thermo_bubble.png b/art/od-sevev/out/ui/meters/thermo_bubble.png
+index 0d78f9c..a82f459 100644
+Binary files a/art/od-sevev/out/ui/meters/thermo_bubble.png and b/art/od-sevev/out/ui/meters/thermo_bubble.png differ
+diff --git a/art/od-sevev/out/ui/meters/thermo_fill.png b/art/od-sevev/out/ui/meters/thermo_fill.png
+index 7ac0157..a5d0e42 100644
+Binary files a/art/od-sevev/out/ui/meters/thermo_fill.png and b/art/od-sevev/out/ui/meters/thermo_fill.png differ
+diff --git a/art/od-sevev/out/ui/meters/thermo_floor_hatch.png b/art/od-sevev/out/ui/meters/thermo_floor_hatch.png
+index b8aa1d5..b9801c1 100644
+Binary files a/art/od-sevev/out/ui/meters/thermo_floor_hatch.png and b/art/od-sevev/out/ui/meters/thermo_floor_hatch.png differ
+diff --git a/art/od-sevev/out/ui/meters/thermo_icon_gavel.png b/art/od-sevev/out/ui/meters/thermo_icon_gavel.png
+index 69a7050..fdb490d 100644
+Binary files a/art/od-sevev/out/ui/meters/thermo_icon_gavel.png and b/art/od-sevev/out/ui/meters/thermo_icon_gavel.png differ
+diff --git a/art/od-sevev/out/ui/meters/thermo_icon_magnifier.png b/art/od-sevev/out/ui/meters/thermo_icon_magnifier.png
+index bdd939d..be07aab 100644
+Binary files a/art/od-sevev/out/ui/meters/thermo_icon_magnifier.png and b/art/od-sevev/out/ui/meters/thermo_icon_magnifier.png differ
+diff --git a/art/od-sevev/out/ui/meters/thermo_meniscus.png b/art/od-sevev/out/ui/meters/thermo_meniscus.png
+index f1f69a9..9eae6ae 100644
+Binary files a/art/od-sevev/out/ui/meters/thermo_meniscus.png and b/art/od-sevev/out/ui/meters/thermo_meniscus.png differ
+diff --git a/art/od-sevev/out/ui/meters/thermo_tube.png b/art/od-sevev/out/ui/meters/thermo_tube.png
+index dd6b679..02e6be3 100644
+Binary files a/art/od-sevev/out/ui/meters/thermo_tube.png and b/art/od-sevev/out/ui/meters/thermo_tube.png differ
+diff --git a/art/od-sevev/out/ui/props/dubi_placeholder_avatar.png b/art/od-sevev/out/ui/props/dubi_placeholder_avatar.png
+index d1b1c39..cf0fbd7 100644
+Binary files a/art/od-sevev/out/ui/props/dubi_placeholder_avatar.png and b/art/od-sevev/out/ui/props/dubi_placeholder_avatar.png differ
+diff --git a/art/od-sevev/out/ui/props/dubi_placeholder_body.png b/art/od-sevev/out/ui/props/dubi_placeholder_body.png
+index 1562e6f..23429e8 100644
+Binary files a/art/od-sevev/out/ui/props/dubi_placeholder_body.png and b/art/od-sevev/out/ui/props/dubi_placeholder_body.png differ
+diff --git a/art/od-sevev/out/ui/props/suitcase.png b/art/od-sevev/out/ui/props/suitcase.png
+index c9b4af2..a4b1438 100644
+Binary files a/art/od-sevev/out/ui/props/suitcase.png and b/art/od-sevev/out/ui/props/suitcase.png differ
+diff --git a/art/od-sevev/out/ui/props/suitcase_norim.png b/art/od-sevev/out/ui/props/suitcase_norim.png
+index fdddac6..2e5e8d6 100644
+Binary files a/art/od-sevev/out/ui/props/suitcase_norim.png and b/art/od-sevev/out/ui/props/suitcase_norim.png differ
+diff --git a/art/od-sevev/out/ui/share/receipt_body.png b/art/od-sevev/out/ui/share/receipt_body.png
+index 92a43e7..1dd7659 100644
+Binary files a/art/od-sevev/out/ui/share/receipt_body.png and b/art/od-sevev/out/ui/share/receipt_body.png differ
+diff --git a/art/od-sevev/out/ui/share/receipt_bottom.png b/art/od-sevev/out/ui/share/receipt_bottom.png
+index 0aa26c7..cc0b4f2 100644
+Binary files a/art/od-sevev/out/ui/share/receipt_bottom.png and b/art/od-sevev/out/ui/share/receipt_bottom.png differ
+diff --git a/art/od-sevev/out/ui/share/receipt_rule.png b/art/od-sevev/out/ui/share/receipt_rule.png
+index 798b08b..2ebacaa 100644
+Binary files a/art/od-sevev/out/ui/share/receipt_rule.png and b/art/od-sevev/out/ui/share/receipt_rule.png differ
+diff --git a/art/od-sevev/out/ui/share/receipt_top.png b/art/od-sevev/out/ui/share/receipt_top.png
+index 8a3b456..2d7cc20 100644
+Binary files a/art/od-sevev/out/ui/share/receipt_top.png and b/art/od-sevev/out/ui/share/receipt_top.png differ
+diff --git a/art/od-sevev/out/ui/share/share_receipt_bg.png b/art/od-sevev/out/ui/share/share_receipt_bg.png
+index c309e63..d4ec0ac 100644
+Binary files a/art/od-sevev/out/ui/share/share_receipt_bg.png and b/art/od-sevev/out/ui/share/share_receipt_bg.png differ
+diff --git a/art/od-sevev/out/ui/share/share_result_frame.png b/art/od-sevev/out/ui/share/share_result_frame.png
+index 15b04c2..aa835e3 100644
+Binary files a/art/od-sevev/out/ui/share/share_result_frame.png and b/art/od-sevev/out/ui/share/share_result_frame.png differ
+diff --git a/art/od-sevev/out/ui/share/stamp_camera.png b/art/od-sevev/out/ui/share/stamp_camera.png
+index 367239e..592d310 100644
+Binary files a/art/od-sevev/out/ui/share/stamp_camera.png and b/art/od-sevev/out/ui/share/stamp_camera.png differ
+diff --git a/art/od-sevev/out/ui/sheet/sheet_plain.png b/art/od-sevev/out/ui/sheet/sheet_plain.png
+index 861b279..69557ac 100644
+Binary files a/art/od-sevev/out/ui/sheet/sheet_plain.png and b/art/od-sevev/out/ui/sheet/sheet_plain.png differ
+diff --git a/art/od-sevev/out/ui/sources/source_checkbook.png b/art/od-sevev/out/ui/sources/source_checkbook.png
+index e645092..f55bcfe 100644
+Binary files a/art/od-sevev/out/ui/sources/source_checkbook.png and b/art/od-sevev/out/ui/sources/source_checkbook.png differ
+diff --git a/art/od-sevev/out/ui/sources/source_checkbook_icon.png b/art/od-sevev/out/ui/sources/source_checkbook_icon.png
+index f8f05a0..47b1147 100644
+Binary files a/art/od-sevev/out/ui/sources/source_checkbook_icon.png and b/art/od-sevev/out/ui/sources/source_checkbook_icon.png differ
+diff --git a/art/od-sevev/out/ui/sources/source_poison.png b/art/od-sevev/out/ui/sources/source_poison.png
+index 547b886..c4d28bd 100644
+Binary files a/art/od-sevev/out/ui/sources/source_poison.png and b/art/od-sevev/out/ui/sources/source_poison.png differ
+diff --git a/art/od-sevev/out/ui/sources/source_poison_icon.png b/art/od-sevev/out/ui/sources/source_poison_icon.png
+index 40251d8..f1dd784 100644
+Binary files a/art/od-sevev/out/ui/sources/source_poison_icon.png and b/art/od-sevev/out/ui/sources/source_poison_icon.png differ
+diff --git a/art/od-sevev/out/ui/sources/source_submarine.png b/art/od-sevev/out/ui/sources/source_submarine.png
+index d3c2617..d3bacf7 100644
+Binary files a/art/od-sevev/out/ui/sources/source_submarine.png and b/art/od-sevev/out/ui/sources/source_submarine.png differ
+diff --git a/art/od-sevev/out/ui/sources/source_submarine_icon.png b/art/od-sevev/out/ui/sources/source_submarine_icon.png
+index 1f823fb..936c088 100644
+Binary files a/art/od-sevev/out/ui/sources/source_submarine_icon.png and b/art/od-sevev/out/ui/sources/source_submarine_icon.png differ
+diff --git a/art/od-sevev/out/ui/stage/court_window.png b/art/od-sevev/out/ui/stage/court_window.png
+index a009fe3..765d860 100644
+Binary files a/art/od-sevev/out/ui/stage/court_window.png and b/art/od-sevev/out/ui/stage/court_window.png differ
+diff --git a/art/od-sevev/out/ui/stage/court_window_glow.png b/art/od-sevev/out/ui/stage/court_window_glow.png
+index 4fbb79e..fe1029e 100644
+Binary files a/art/od-sevev/out/ui/stage/court_window_glow.png and b/art/od-sevev/out/ui/stage/court_window_glow.png differ
 diff --git a/art/od-sevev/out/ui/stage/lane_balfour.png b/art/od-sevev/out/ui/stage/lane_balfour.png
 index 1f20c25..4c54a3c 100644
 Binary files a/art/od-sevev/out/ui/stage/lane_balfour.png and b/art/od-sevev/out/ui/stage/lane_balfour.png differ
@@ -19,6 +588,141 @@ Binary files a/art/od-sevev/out/ui/stage/lane_knesset.png and b/art/od-sevev/out
 diff --git a/art/od-sevev/out/ui/stage/lane_washington.png b/art/od-sevev/out/ui/stage/lane_washington.png
 index 797fcb3..18581b2 100644
 Binary files a/art/od-sevev/out/ui/stage/lane_washington.png and b/art/od-sevev/out/ui/stage/lane_washington.png differ
+diff --git a/art/od-sevev/out/ui/stage/laundry_bag.png b/art/od-sevev/out/ui/stage/laundry_bag.png
+index d9b6830..7b128fd 100644
+Binary files a/art/od-sevev/out/ui/stage/laundry_bag.png and b/art/od-sevev/out/ui/stage/laundry_bag.png differ
+diff --git a/art/od-sevev/out/ui/stage/laundry_shirt.png b/art/od-sevev/out/ui/stage/laundry_shirt.png
+index 50a3977..b9e42f8 100644
+Binary files a/art/od-sevev/out/ui/stage/laundry_shirt.png and b/art/od-sevev/out/ui/stage/laundry_shirt.png differ
+diff --git a/art/od-sevev/out/ui/stage/laundry_shorts.png b/art/od-sevev/out/ui/stage/laundry_shorts.png
+index 71ca026..920360d 100644
+Binary files a/art/od-sevev/out/ui/stage/laundry_shorts.png and b/art/od-sevev/out/ui/stage/laundry_shorts.png differ
+diff --git a/art/od-sevev/out/ui/stage/laundry_sock.png b/art/od-sevev/out/ui/stage/laundry_sock.png
+index 6961106..a945d01 100644
+Binary files a/art/od-sevev/out/ui/stage/laundry_sock.png and b/art/od-sevev/out/ui/stage/laundry_sock.png differ
+diff --git a/art/od-sevev/out/ui/stage/laundry_towel.png b/art/od-sevev/out/ui/stage/laundry_towel.png
+index 617736d..0e99d38 100644
+Binary files a/art/od-sevev/out/ui/stage/laundry_towel.png and b/art/od-sevev/out/ui/stage/laundry_towel.png differ
+diff --git a/art/od-sevev/out/ui/stage/sweat_drop.png b/art/od-sevev/out/ui/stage/sweat_drop.png
+index b4e12a8..5d85242 100644
+Binary files a/art/od-sevev/out/ui/stage/sweat_drop.png and b/art/od-sevev/out/ui/stage/sweat_drop.png differ
+diff --git a/art/od-sevev/out/ui/ticker/ticker_bar.png b/art/od-sevev/out/ui/ticker/ticker_bar.png
+index 2e317df..c6d1ff5 100644
+Binary files a/art/od-sevev/out/ui/ticker/ticker_bar.png and b/art/od-sevev/out/ui/ticker/ticker_bar.png differ
+diff --git a/art/od-sevev/out/ui/ticker/ticker_flash_plate.png b/art/od-sevev/out/ui/ticker/ticker_flash_plate.png
+index 5e5630d..08ca906 100644
+Binary files a/art/od-sevev/out/ui/ticker/ticker_flash_plate.png and b/art/od-sevev/out/ui/ticker/ticker_flash_plate.png differ
+diff --git a/art/od-sevev/out/ui/ticker/ticker_flash_plate_text.png b/art/od-sevev/out/ui/ticker/ticker_flash_plate_text.png
+index 44a8ca8..382daf3 100644
+Binary files a/art/od-sevev/out/ui/ticker/ticker_flash_plate_text.png and b/art/od-sevev/out/ui/ticker/ticker_flash_plate_text.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_aide.png b/art/od-sevev/out/ui/trophies/trophy_aide.png
+index 47c274c..cda440f 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_aide.png and b/art/od-sevev/out/ui/trophies/trophy_aide.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_aide_locked.png b/art/od-sevev/out/ui/trophies/trophy_aide_locked.png
+index 903ab37..d5a151b 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_aide_locked.png and b/art/od-sevev/out/ui/trophies/trophy_aide_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_ballot.png b/art/od-sevev/out/ui/trophies/trophy_ballot.png
+index 4ec1bd6..b5e4f9d 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_ballot.png and b/art/od-sevev/out/ui/trophies/trophy_ballot.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_ballot_locked.png b/art/od-sevev/out/ui/trophies/trophy_ballot_locked.png
+index 6b7b4d6..722e89c 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_ballot_locked.png and b/art/od-sevev/out/ui/trophies/trophy_ballot_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_clock.png b/art/od-sevev/out/ui/trophies/trophy_clock.png
+index c54382d..ecc5cbc 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_clock.png and b/art/od-sevev/out/ui/trophies/trophy_clock.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_clock_locked.png b/art/od-sevev/out/ui/trophies/trophy_clock_locked.png
+index 8450b48..ed4206e 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_clock_locked.png and b/art/od-sevev/out/ui/trophies/trophy_clock_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_coin.png b/art/od-sevev/out/ui/trophies/trophy_coin.png
+index eb382a6..a84d5e3 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_coin.png and b/art/od-sevev/out/ui/trophies/trophy_coin.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_coin_locked.png b/art/od-sevev/out/ui/trophies/trophy_coin_locked.png
+index e0c75f8..f81ce1b 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_coin_locked.png and b/art/od-sevev/out/ui/trophies/trophy_coin_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_cottage.png b/art/od-sevev/out/ui/trophies/trophy_cottage.png
+index 03e2255..291bc98 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_cottage.png and b/art/od-sevev/out/ui/trophies/trophy_cottage.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_cottage_locked.png b/art/od-sevev/out/ui/trophies/trophy_cottage_locked.png
+index 39f94fe..5f05490 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_cottage_locked.png and b/art/od-sevev/out/ui/trophies/trophy_cottage_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_folder.png b/art/od-sevev/out/ui/trophies/trophy_folder.png
+index 815816b..ef7f0c1 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_folder.png and b/art/od-sevev/out/ui/trophies/trophy_folder.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_folder_locked.png b/art/od-sevev/out/ui/trophies/trophy_folder_locked.png
+index e90a7b8..a6f7609 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_folder_locked.png and b/art/od-sevev/out/ui/trophies/trophy_folder_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_gavel.png b/art/od-sevev/out/ui/trophies/trophy_gavel.png
+index 2f35848..b587cc0 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_gavel.png and b/art/od-sevev/out/ui/trophies/trophy_gavel.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_gavel_locked.png b/art/od-sevev/out/ui/trophies/trophy_gavel_locked.png
+index afc69af..b59cfb0 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_gavel_locked.png and b/art/od-sevev/out/ui/trophies/trophy_gavel_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_hat.png b/art/od-sevev/out/ui/trophies/trophy_hat.png
+index 63769b6..1af0926 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_hat.png and b/art/od-sevev/out/ui/trophies/trophy_hat.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_hat_locked.png b/art/od-sevev/out/ui/trophies/trophy_hat_locked.png
+index 0fdac67..3ccdeaf 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_hat_locked.png and b/art/od-sevev/out/ui/trophies/trophy_hat_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_parrot.png b/art/od-sevev/out/ui/trophies/trophy_parrot.png
+index b9151d0..a1c9f05 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_parrot.png and b/art/od-sevev/out/ui/trophies/trophy_parrot.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_parrot_locked.png b/art/od-sevev/out/ui/trophies/trophy_parrot_locked.png
+index e1745a6..3fbeae0 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_parrot_locked.png and b/art/od-sevev/out/ui/trophies/trophy_parrot_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_phone.png b/art/od-sevev/out/ui/trophies/trophy_phone.png
+index 69bb8e5..bf1c6d2 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_phone.png and b/art/od-sevev/out/ui/trophies/trophy_phone.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_phone_locked.png b/art/od-sevev/out/ui/trophies/trophy_phone_locked.png
+index d33091c..ee27ccf 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_phone_locked.png and b/art/od-sevev/out/ui/trophies/trophy_phone_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_pin.png b/art/od-sevev/out/ui/trophies/trophy_pin.png
+index 1d02f81..1b0d64c 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_pin.png and b/art/od-sevev/out/ui/trophies/trophy_pin.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_pin_locked.png b/art/od-sevev/out/ui/trophies/trophy_pin_locked.png
+index 8ad95bd..2b71212 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_pin_locked.png and b/art/od-sevev/out/ui/trophies/trophy_pin_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_plane.png b/art/od-sevev/out/ui/trophies/trophy_plane.png
+index 6117e5e..6992c61 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_plane.png and b/art/od-sevev/out/ui/trophies/trophy_plane.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_plane_locked.png b/art/od-sevev/out/ui/trophies/trophy_plane_locked.png
+index a555008..01a7686 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_plane_locked.png and b/art/od-sevev/out/ui/trophies/trophy_plane_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_plate_earned.png b/art/od-sevev/out/ui/trophies/trophy_plate_earned.png
+index 51035e6..53f0514 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_plate_earned.png and b/art/od-sevev/out/ui/trophies/trophy_plate_earned.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_plate_locked.png b/art/od-sevev/out/ui/trophies/trophy_plate_locked.png
+index 94156d1..867b1c4 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_plate_locked.png and b/art/od-sevev/out/ui/trophies/trophy_plate_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_plate_secret.png b/art/od-sevev/out/ui/trophies/trophy_plate_secret.png
+index c0753b7..455c3b4 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_plate_secret.png and b/art/od-sevev/out/ui/trophies/trophy_plate_secret.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_rabbit.png b/art/od-sevev/out/ui/trophies/trophy_rabbit.png
+index 45aa9a6..fbb4b36 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_rabbit.png and b/art/od-sevev/out/ui/trophies/trophy_rabbit.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_rabbit_locked.png b/art/od-sevev/out/ui/trophies/trophy_rabbit_locked.png
+index ddaf15d..82acde0 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_rabbit_locked.png and b/art/od-sevev/out/ui/trophies/trophy_rabbit_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_stamp.png b/art/od-sevev/out/ui/trophies/trophy_stamp.png
+index cd9f460..0506c20 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_stamp.png and b/art/od-sevev/out/ui/trophies/trophy_stamp.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_stamp_locked.png b/art/od-sevev/out/ui/trophies/trophy_stamp_locked.png
+index 5463c1c..550eef3 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_stamp_locked.png and b/art/od-sevev/out/ui/trophies/trophy_stamp_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_suitcase.png b/art/od-sevev/out/ui/trophies/trophy_suitcase.png
+index b988f4d..49913db 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_suitcase.png and b/art/od-sevev/out/ui/trophies/trophy_suitcase.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_suitcase_locked.png b/art/od-sevev/out/ui/trophies/trophy_suitcase_locked.png
+index 7dd3b18..f229262 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_suitcase_locked.png and b/art/od-sevev/out/ui/trophies/trophy_suitcase_locked.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_wand.png b/art/od-sevev/out/ui/trophies/trophy_wand.png
+index af2043a..7a677c6 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_wand.png and b/art/od-sevev/out/ui/trophies/trophy_wand.png differ
+diff --git a/art/od-sevev/out/ui/trophies/trophy_wand_locked.png b/art/od-sevev/out/ui/trophies/trophy_wand_locked.png
+index cf6dc9f..6d6ac38 100644
+Binary files a/art/od-sevev/out/ui/trophies/trophy_wand_locked.png and b/art/od-sevev/out/ui/trophies/trophy_wand_locked.png differ
+diff --git a/art/od-sevev/out/ui/widgets/cottage_cup.png b/art/od-sevev/out/ui/widgets/cottage_cup.png
+index 177e3e4..9d3601e 100644
+Binary files a/art/od-sevev/out/ui/widgets/cottage_cup.png and b/art/od-sevev/out/ui/widgets/cottage_cup.png differ
 diff --git a/art/od-sevev/src/build_all.py b/art/od-sevev/src/build_all.py
 index 9c75af6..6b90cb2 100644
 --- a/art/od-sevev/src/build_all.py
@@ -211,7 +915,7 @@ index 43805a5..6da0bf8 100644
  
  def build():
 diff --git a/art/od-sevev/ui-kit.json b/art/od-sevev/ui-kit.json
-index dfab1ed..a99a8cb 100644
+index dfab1ed..11cf7aa 100644
 --- a/art/od-sevev/ui-kit.json
 +++ b/art/od-sevev/ui-kit.json
 @@ -1163,6 +1163,20 @@
@@ -308,36 +1012,36 @@ index dfab1ed..a99a8cb 100644
 +   "id": "plaza_balfour",
 +   "group": "stage",
 +   "file": "out/ui/stage/plaza_balfour.png",
-+   "w": 64,
-+   "h": 64,
-+   "notes": "The plaza in front of the balfour stage (UX mobile-first A1): a 64x64 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_balfour) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 64), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "w": 128,
++   "h": 96,
++   "notes": "The plaza in front of the balfour stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_balfour) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
 +   "artRow": 258
 +  },
 +  {
 +   "id": "plaza_courthouse",
 +   "group": "stage",
 +   "file": "out/ui/stage/plaza_courthouse.png",
-+   "w": 64,
-+   "h": 64,
-+   "notes": "The plaza in front of the courthouse stage (UX mobile-first A1): a 64x64 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_courthouse) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 64), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "w": 128,
++   "h": 96,
++   "notes": "The plaza in front of the courthouse stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_courthouse) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
 +   "artRow": 258
 +  },
 +  {
 +   "id": "plaza_knesset",
 +   "group": "stage",
 +   "file": "out/ui/stage/plaza_knesset.png",
-+   "w": 64,
-+   "h": 64,
-+   "notes": "The plaza in front of the knesset stage (UX mobile-first A1): a 64x64 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_knesset) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 64), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "w": 128,
++   "h": 96,
++   "notes": "The plaza in front of the knesset stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_knesset) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
 +   "artRow": 258
 +  },
 +  {
 +   "id": "plaza_washington",
 +   "group": "stage",
 +   "file": "out/ui/stage/plaza_washington.png",
-+   "w": 64,
-+   "h": 64,
-+   "notes": "The plaza in front of the washington stage (UX mobile-first A1): a 64x64 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_washington) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 64), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "w": 128,
++   "h": 96,
++   "notes": "The plaza in front of the washington stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_washington) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
 +   "artRow": 258
 +  },
    {
@@ -1774,14 +2478,14 @@ index 59b44e1..82fec7c 100644
 # untracked binary: art/od-sevev/proofs/kit-w7-mobile.png
 diff --git a/art/od-sevev/src/wave7.py b/art/od-sevev/src/wave7.py
 new file mode 100644
-index 0000000..3d13cc7
+index 0000000..c075223
 --- /dev/null
 +++ b/art/od-sevev/src/wave7.py
-@@ -0,0 +1,501 @@
+@@ -0,0 +1,510 @@
 +"""Wave 7: the art the mobile-first layout needs (ux/mobile-first-layout.md §10, 2026-09-29).
 +
 +  A1  lane_<era>                (wave5.py, redrawn 32x28)  the Suitcase lane, now with horizontal detail
-+  A1  plaza_<era>               64x64 TILE  the floor in front of the stage, from art row 258 to the screen bottom
++  A1  plaza_<era>               128x96 TILE  the floor in front of the stage, from art row 258 to the screen bottom
 +  A2  wing_<era>_l / _r         Wx230       the stage's side wings: art rows 0-229 continued past columns 0 / 179
 +  --  brawl_cloud_cue           26x20 x 4   the brawl cloud cut for the stage cue at x4 (the Animator's ask)
 +  --  court_window spots        (wave2.py)  moved to art rows the phones keep (the Animator's ask)
@@ -1815,7 +2519,7 @@ index 0000000..3d13cc7
 +ERAS = ("balfour", "knesset", "courthouse", "washington")
 +WING_H = 230                 # art rows 0-229 (the lane starts at 230)
 +PLAZA_ROW = 258              # the first art row under the lane (lane rows 230-257)
-+PW, PH = 64, 64              # the plaza tile
++PW, PH = 128, 96             # the plaza tile
 +WING_W = {"balfour": 20, "knesset": 22, "courthouse": 60, "washington": 36}
 +SW = 180
 +
@@ -2003,76 +2707,85 @@ index 0000000..3d13cc7
 +
 +
 +def plaza(era):
++    """One plaza tile. 128x96: at most ~1.7 x 3 tiles show on a phone, so the litter never reads as wallpaper.
++    Courses are 12 rows (the lane's run 4, 5, 6, 7 near the stage; the plaza is nearer still), slabs 32 wide in
++    running bond, so it reads as a floor seen from above, not a brick wall: the joints are one value step from the
++    base, and a slab's lit edge is broken (worn)."""
++    import math
 +    base, joint, light, d1, d2 = PLAZA[era]
 +    L = Layer(PW, PH)
 +    L.rect(0, 0, PW, PH, base)
 +    r = random.Random(ERAS.index(era) + 580)
++    course = 12
 +    if era == "washington":
-+        # a woven diamond lattice (16 x 8), a dotted weave row between
++        # the carpet: a woven diamond lattice (32 x 12) in the shadow tone, a dotted weave row between
 +        for y in range(PH):
 +            for x in range(PW):
-+                u, v = x % 16, y % 8
-+                if abs(u - 8) * 1 == abs(v - 4) * 2 or (u == 8 and v == 4):
++                u, v = x % 32, y % course
++                if abs(u - 16) == abs(v - 6) * 2 + 4 or (abs(u - 16) <= 1 and v == 6):
 +                    L.set(x, y, joint)
 +                elif v == 0 and x % 4 == 0:
 +                    L.set(x, y, light)
 +    else:
-+        course = 8
 +        for c in range(PH // course):
 +            y0 = c * course
 +            L.hline(0, PW - 1, y0, joint)                  # the seam
-+            if era == "knesset":                            # boards: long, ends every 32, staggered
-+                step, off = 32, (c * 13) % 32
-+            elif era == "courthouse":                       # tiles: a grid, every 16, unstaggered
-+                step, off = 16, 0
-+            else:                                           # paving slabs: running bond, 16 wide
-+                step, off = 16, (c % 2) * 8 + 3
++            if era == "knesset":                            # boards: long, ends every 64, staggered
++                step, off = 64, (c * 23) % 64
++            elif era == "courthouse":                       # corridor tiles: a grid, 32 wide
++                step, off = 32, 0
++            else:                                           # paving slabs: running bond, 32 wide
++                step, off = 32, (c % 2) * 16 + 5
 +            for x in range(off, PW, step):
 +                L.vline(x, y0 + 1, y0 + course - 1, joint)
 +                L.set(x + 1, y0 + 1, light)                 # the slab's lit top-left corner
 +                if era == "knesset":                        # two nail heads by each board end
-+                    L.set(x - 2, y0 + 2, d1); L.set(x + 2, y0 + 6, d1)
-+            for x in range(0, PW):                          # the slab's lit top edge, broken (worn)
-+                if (x * 7 + c * 5) % 11 < 3 and L.get(x, y0 + 1) == base:
++                    L.set(x - 2, y0 + 3, d1); L.set(x + 2, y0 + 8, d1)
++            for x in range(0, PW):                          # the lit top edge, broken (worn)
++                if (x * 7 + c * 5) % 13 < 3 and L.get(x, y0 + 1) == base:
 +                    L.set(x, y0 + 1, light)
 +    # scuffs: one-step 50 % checker patches, so no two slabs are the same
-+    for _ in range(6):
-+        x, y = r.randrange(0, PW - 6), r.randrange(0, PH - 4)
-+        for yy in range(y + 2, y + 4):
-+            for xx in range(x, x + 5):
++    for _ in range(9):
++        x, y = r.randrange(0, PW - 7), r.randrange(0, PH - 4)
++        for yy in range(y + 1, y + 3):
++            for xx in range(x, x + r.choice((4, 5, 7))):
 +                if (xx + yy) % 2 == 0 and L.get(xx, yy) == base:
 +                    L.set(xx, yy, light)
-+    # per-era litter (never lettered, never gold)
++    # per-era litter, sparse and irregular (never lettered, never gold)
 +    if era == "balfour":
-+        for (x, y, w, h, c) in ((10, 11, 4, 3, d1), (41, 27, 3, 2, d2), (52, 50, 4, 3, d1), (22, 44, 3, 2, "suit_dk")):
++        for (x, y, w, h, c) in ((14, 17, 4, 3, d1), (83, 40, 3, 2, d2), (101, 71, 4, 3, d1), (39, 62, 3, 2, "suit_dk"),
++                                (66, 86, 3, 2, d2), (118, 22, 3, 2, "suit_dk")):
 +            L.rect(x, y, w, h, c)
 +            L.set(x, y, "suit_hi" if c == d1 else c)
-+        # a drain grate
-+        L.rect(30, 58, 8, 5, "suit_dk")
-+        for x in range(31, 37, 2):
-+            L.vline(x, 59, 61, "ink")
++        L.rect(56, 28, 8, 5, "suit_dk")                     # a drain grate
++        for x in range(57, 63, 2):
++            L.vline(x, 29, 31, "ink")
 +    elif era == "knesset":
-+        for (x, y) in ((20, 20), (46, 44)):                 # spike-tape Xs (stage marks)
++        for (x, y) in ((28, 30), (92, 65)):                 # spike-tape Xs (stage marks)
 +            for (dx, dy) in ((0, 0), (2, 0), (1, 1), (0, 2), (2, 2)):
 +                L.set(x + dx, y + dy, "hair_br")
-+        L.rect(50, 12, 4, 3, d2); L.set(50, 12, "hair_br")  # a dropped order paper, face down
++        L.rect(70, 16, 4, 3, d2); L.set(70, 16, "hair_br")  # a dropped order paper, face down
++        L.rect(16, 80, 3, 2, d2)
 +    elif era == "courthouse":
-+        L.rect(12, 34, 5, 3, d1); L.set(12, 34, "suit")     # a dropped page
-+        L.rect(44, 13, 3, 2, d1)
-+        for (x, y) in ((5, 21), (37, 53), (58, 5)):         # floor-polish glints
++        L.rect(22, 45, 5, 3, d1); L.set(22, 45, "suit")     # dropped pages
++        L.rect(90, 19, 3, 2, d1)
++        L.rect(76, 80, 4, 2, d1)
++        for (x, y) in ((9, 29), (61, 65), (115, 7), (104, 52)):   # floor-polish glints
 +            L.set(x, y, d2)
 +    else:
-+        L.rect(27, 30, 4, 2, "suit_dk"); L.set(27, 30, "suit")   # a dropped lanyard card, blank
-+    # the press cable, leaving the lane and wandering off down the plaza (enters and leaves at x 12, so it tiles)
++        L.rect(47, 44, 4, 2, "suit_dk"); L.set(47, 44, "suit")     # a dropped lanyard card, blank
++        L.rect(100, 79, 3, 2, "suit_dk")
++    # the press cable, leaving the lane and wandering down the plaza: a slow meander that enters and leaves at the
++    # same x (so it tiles vertically), 1 px, stepped (never a diagonal staircase thicker than 1 px)
 +    cab = "ink" if base != "ink" else "outline"
-+    x = 12
++    prev = None
 +    for y in range(PH):
++        x = 24 + round(10 * math.sin(2 * math.pi * y / PH) + 5 * math.sin(4 * math.pi * y / PH + 1.0) - 5 * math.sin(1.0))
++        if prev is not None:
++            for xx in range(min(prev, x), max(prev, x) + 1):
++                L.set(xx, y, cab)
 +        L.set(x, y, cab)
-+        if y in (10, 11, 12):
-+            x += 1
-+        elif y in (40, 41, 42):
-+            x -= 1
-+        L.set(x, y, cab)
++        prev = x
 +    return L
 +
 +
@@ -2171,7 +2884,7 @@ index 0000000..3d13cc7
 +        save(plaza(era), f"plaza_{era}", "stage", mode="tile", extra={"artRow": PLAZA_ROW},
 +             notes=f"The plaza in front of the {era} stage (UX mobile-first A1): a {PW}x{PH} TILE, both axes. Draw it at x4 "
 +                   f"from stage-art row {PLAZA_ROW} (right under lane_{era}) down to the canvas bottom, across the whole "
-+                   "canvas width, x-phase: tile col 0 on stage-art col 0 (mod 64), above the stage art (it replaces the "
++                   "canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the "
 +                   "art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: "
 +                   "base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.")
 +    frames = [brawl_cue_frame(k) for k in range(4)]
