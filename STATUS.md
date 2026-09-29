@@ -84,6 +84,15 @@ Cross-slice requests go under **Requests** with the owner named.
     - `tools/test.sh`: 136/0. One run had a 2.5 s timing flake in `test_dubi_speaks…` under load; it passed on rerun.
   - **Mock-ups:** 12 WAVs in `output/tmp/od-sevev-audio/`.
   - **Files:** `audio/od/{music,cues}.json`, `audio/od/cue-spec.md` (the v1.2 banner and §6), `audio/od/legacy/*.v1.1-hijaz.json`, `audio/tools/{compose_od,measure_od}.py`, `tools/gen_od_sevev.gd` (Dubi's degrees now count mode steps), creative-pack `audio/sonic-brief.md` (the v1.2 amendment).
+- 2026-09-29 · technical-artist · **the 3× cast landed** (Bar's density decision) + **May Golan** (Bar picked opt1):
+  - **Rendered at d = 3** (288-px source, `density: 3` in `sprites.json`): all 23 rendered characters (Bibi, Sara, Bennett, 20 partner/opposition figures incl. May Golan) + the mic Dubi, idle + signature react, and the 5 rendered sources' stage strips (120 sprite px). Frames trimmed: 123-210 × 289-326 sprite px (Bibi 201×326, anchor [120, 325]). `hatMouth`/`temple`/events re-derived by the render; binary alpha, edge check (no waivers) and 2048 limit all pass; grids are now balanced (e.g. Bibi crit 7×2), widest texture 2040, tallest 930.
+  - **Kept d = 1:** stages, props (hat/rabbit/coins), FX, UI kit, hand-drawn sources, small Dubi, 32/24-px avatars, and the shop icons/silhouettes (rendered from a 1× rig, pixel-identical to the approved ones; `sources[id].iconDensity: 1`).
+  - **May Golan:** `refs/may-golan.png` = opt1; landmarks in `cast.py` (cuts below each ghost so a breath never splits one), `hop` react; the content id `maygolan` resolves via `aliases`.
+  - **Checks:** a full render gives 0 drift vs the new approved `out/` (25 chars); `tools/test.sh` 135 passed, 1 failed (the known `test_input.gd::test_buy_a_producer_by_touch`).
+  - **Budget:** web `.pck` art 3.30 MB (was 489 KB; cast 3.18 MB). VRAM typical resident 13.2 MB (Bibi 11.0 MB), a partner on demand 4.3-7.6 MB, all-resident 153 MB: never preload the cast (CONTRACT §7).
+  - **Engine touch (data-driven reader fix, flagged):** `diorama.gd` critters and the `launch` set piece now scale by `4 / sources[id].density` (`_scale_of`); without it the d = 3 strips drew 3× too big. Nothing else in `game/scripts/**`.
+  - **Pipeline:** Python 3.11-compatible f-string, numpy ints cast for JSON, source icon/frameH checks.
+  - **Files:** creative-pack `art/showcase/src/{build,cast}.py`, `art/showcase/out/**` (+ `atlas.json`), `art/refs/may-golan.png`, `art/refs/candidates/README.md`; `pipeline/od-sevev/{sprites.py,README.md,budget.json,proofs/*}`; `game/assets/sprites/**` + `CONTRACT.md` §1, §3, §4, §4b, §7; `game/scripts/ui/diorama.gd`; `asset-requests/REQUESTS.md`
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 
@@ -645,3 +654,8 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
     - `rabbitCrit` on `crit.rabbit` (+250 ms): acknowledged.
     - The first-tap squawk: after the motif, not at f0 (O-A3 above). **The motif is now 2.33 s (D) / 3.07 s (G), not 4.1 s.**
   - **Re-read the markers:** the fanfare `pickup` is now a C#-D lift. `rollEnd`, `tagOnsets` and `fanfareEnd` are unchanged in time.
+- **→ game-developer (engine), from technical-artist (the 3× cast, data only):** `sprites.json` now carries `density: 3` on every rendered `chars[c]` (and its anims) and on the 5 rendered `sources[id]`; shop icons stay 24×24 (`iconDensity: 1`). What your scaling change needs, per CONTRACT §3:
+  - At `artScale` 4 today, a d = 3 sprite px is 4/3 logical px (SpriteStrip's AA path). A crisp result needs a device scale k divisible by 3 (k = 6 → 2 device px per sprite px). If you land k = floor(device_px / 180) and a common phone gives k = 4 or 5, tell me which k values you see; I can emit `chars[c].densities` alternates (SpriteStrip already reads them), at that character's VRAM again.
+  - I made one data-driven reader fix in `diorama.gd` (`_scale_of`: critters and the `launch` piece divide ×4 by `sources[id].density`); merge it with your scaling edit, and keep the division if you replace the ×4.
+  - Keep partner bodies lazy: a partner's two strips are 4.3-7.6 MB of VRAM; Bibi alone is 11 MB. Content avatars are named `<slug>_avatar` in `design/content.json` but the sprite ids are `avatar_<slug>` (`chars[c].avatar`); resolve through the manifest when the chat view lands.
+  - Offer: a `frameMap` per anim (idle strips repeat frames: 6 unique of 20 for a still-armed partner) cuts the cast's VRAM ~37% for a 3-line SpriteStrip `_src()` change. Say the word and I'll emit it.

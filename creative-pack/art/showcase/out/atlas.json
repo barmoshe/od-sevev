@@ -1,0 +1,1294 @@
+{
+ "artHeight": 96,
+ "density": 3,
+ "chars": {
+  "bibi": {
+   "frameW": 244,
+   "frameH": 374,
+   "anchor": [
+    122,
+    373
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "bibi_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "hatMouth": [
+      [
+       46,
+       102
+      ],
+      [
+       44,
+       102
+      ],
+      [
+       43,
+       102
+      ],
+      [
+       42,
+       102
+      ],
+      [
+       41,
+       102
+      ],
+      [
+       41,
+       105
+      ],
+      [
+       41,
+       105
+      ],
+      [
+       42,
+       105
+      ],
+      [
+       43,
+       105
+      ],
+      [
+       44,
+       105
+      ],
+      [
+       46,
+       105
+      ],
+      [
+       47,
+       106
+      ],
+      [
+       48,
+       106
+      ],
+      [
+       49,
+       106
+      ],
+      [
+       50,
+       106
+      ],
+      [
+       50,
+       103
+      ],
+      [
+       50,
+       103
+      ],
+      [
+       49,
+       103
+      ],
+      [
+       48,
+       103
+      ],
+      [
+       47,
+       103
+      ]
+     ],
+     "temple": [
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       142
+      ],
+      [
+       172,
+       145
+      ],
+      [
+       172,
+       145
+      ],
+      [
+       172,
+       145
+      ],
+      [
+       172,
+       145
+      ],
+      [
+       172,
+       145
+      ],
+      [
+       172,
+       145
+      ],
+      [
+       172,
+       145
+      ],
+      [
+       172,
+       145
+      ],
+      [
+       172,
+       145
+      ],
+      [
+       172,
+       142
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ]
+     ]
+    },
+    "tap": {
+     "file": "bibi_tap.png",
+     "frames": 8,
+     "fps": 15,
+     "loop": false,
+     "events": {
+      "coins": 3
+     },
+     "density": 3,
+     "hatMouth": [
+      [
+       46,
+       102
+      ],
+      [
+       39,
+       115
+      ],
+      [
+       54,
+       81
+      ],
+      [
+       50,
+       75
+      ],
+      [
+       48,
+       82
+      ],
+      [
+       45,
+       93
+      ],
+      [
+       45,
+       99
+      ],
+      [
+       46,
+       102
+      ]
+     ],
+     "temple": [
+      [
+       172,
+       139
+      ],
+      [
+       175,
+       153
+      ],
+      [
+       171,
+       127
+      ],
+      [
+       172,
+       134
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       173,
+       141
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ]
+     ]
+    },
+    "crit": {
+     "file": "bibi_crit.png",
+     "frames": 14,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "coins": 3,
+      "rabbit": 4,
+      "sting": 5
+     },
+     "density": 3,
+     "hatMouth": [
+      [
+       46,
+       102
+      ],
+      [
+       39,
+       115
+      ],
+      [
+       54,
+       81
+      ],
+      [
+       50,
+       75
+      ],
+      [
+       49,
+       79
+      ],
+      [
+       49,
+       79
+      ],
+      [
+       49,
+       79
+      ],
+      [
+       49,
+       79
+      ],
+      [
+       49,
+       79
+      ],
+      [
+       49,
+       79
+      ],
+      [
+       49,
+       79
+      ],
+      [
+       46,
+       87
+      ],
+      [
+       46,
+       96
+      ],
+      [
+       46,
+       102
+      ]
+     ],
+     "temple": [
+      [
+       172,
+       139
+      ],
+      [
+       175,
+       153
+      ],
+      [
+       171,
+       127
+      ],
+      [
+       172,
+       134
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ],
+      [
+       172,
+       139
+      ]
+     ]
+    }
+   }
+  },
+  "sara": {
+   "frameW": 205,
+   "frameH": 322,
+   "anchor": [
+    102,
+    321
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "sara_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "offended": {
+     "file": "sara_offended.png",
+     "frames": 12,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "huff": 2
+     },
+     "density": 3
+    }
+   }
+  },
+  "bennett": {
+   "frameW": 234,
+   "frameH": 323,
+   "anchor": [
+    117,
+    322
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "bennett_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "flip": {
+     "file": "bennett_flip.png",
+     "frames": 8,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "whoosh": 3
+     },
+     "density": 3
+    }
+   }
+  },
+  "regev": {
+   "frameW": 246,
+   "frameH": 317,
+   "anchor": [
+    123,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "regev_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "regev_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   }
+  },
+  "gotliv": {
+   "frameW": 244,
+   "frameH": 317,
+   "anchor": [
+    122,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "gotliv_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "gotliv_react.png",
+     "frames": 10,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "shout": 2
+     },
+     "density": 3
+    }
+   }
+  },
+  "deri": {
+   "frameW": 177,
+   "frameH": 317,
+   "anchor": [
+    88,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "deri_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "deri_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   }
+  },
+  "levin": {
+   "frameW": 181,
+   "frameH": 317,
+   "anchor": [
+    90,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "levin_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "levin_react.png",
+     "frames": 12,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "bang": 4,
+      "bang2": 8
+     },
+     "density": 3
+    }
+   }
+  },
+  "ben-gvir": {
+   "frameW": 224,
+   "frameH": 317,
+   "anchor": [
+    112,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "ben-gvir_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "ben-gvir_react.png",
+     "frames": 10,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "shout": 2
+     },
+     "density": 3
+    }
+   }
+  },
+  "goldknopf": {
+   "frameW": 227,
+   "frameH": 317,
+   "anchor": [
+    113,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "goldknopf_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "goldknopf_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   }
+  },
+  "gafni": {
+   "frameW": 182,
+   "frameH": 317,
+   "anchor": [
+    91,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "gafni_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "gafni_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "step": 1
+     },
+     "density": 3
+    }
+   }
+  },
+  "smotrich": {
+   "frameW": 185,
+   "frameH": 317,
+   "anchor": [
+    92,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "smotrich_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "smotrich_react.png",
+     "frames": 10,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "shout": 2
+     },
+     "density": 3
+    }
+   }
+  },
+  "amsalem": {
+   "frameW": 251,
+   "frameH": 317,
+   "anchor": [
+    125,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "amsalem_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "amsalem_react.png",
+     "frames": 10,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "shout": 2
+     },
+     "density": 3
+    }
+   }
+  },
+  "lapid": {
+   "frameW": 254,
+   "frameH": 317,
+   "anchor": [
+    127,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "lapid_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "lapid_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   }
+  },
+  "eisenkot": {
+   "frameW": 177,
+   "frameH": 317,
+   "anchor": [
+    88,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "eisenkot_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "eisenkot_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   }
+  },
+  "gantz": {
+   "frameW": 147,
+   "frameH": 317,
+   "anchor": [
+    73,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "gantz_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "gantz_react.png",
+     "frames": 10,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "shout": 2
+     },
+     "density": 3
+    }
+   }
+  },
+  "liberman": {
+   "frameW": 178,
+   "frameH": 317,
+   "anchor": [
+    89,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "liberman_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "liberman_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3
+    }
+   }
+  },
+  "golan": {
+   "frameW": 201,
+   "frameH": 317,
+   "anchor": [
+    100,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "golan_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "golan_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   }
+  },
+  "abbas": {
+   "frameW": 183,
+   "frameH": 317,
+   "anchor": [
+    91,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "abbas_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "abbas_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3
+    }
+   }
+  },
+  "distel": {
+   "frameW": 230,
+   "frameH": 317,
+   "anchor": [
+    115,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "distel_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "distel_react.png",
+     "frames": 10,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "shout": 2
+     },
+     "density": 3
+    }
+   }
+  },
+  "karhi": {
+   "frameW": 182,
+   "frameH": 317,
+   "anchor": [
+    91,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "karhi_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "karhi_react.png",
+     "frames": 10,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "shout": 2
+     },
+     "density": 3
+    }
+   }
+  },
+  "herzog": {
+   "frameW": 186,
+   "frameH": 317,
+   "anchor": [
+    93,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "herzog_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "herzog_react.png",
+     "frames": 12,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "bang": 4,
+      "bang2": 8
+     },
+     "density": 3
+    }
+   }
+  },
+  "trump": {
+   "frameW": 236,
+   "frameH": 317,
+   "anchor": [
+    118,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "trump_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "trump_react.png",
+     "frames": 10,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "shout": 2
+     },
+     "density": 3
+    }
+   }
+  },
+  "may-golan": {
+   "frameW": 246,
+   "frameH": 317,
+   "anchor": [
+    123,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "may-golan_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "may-golan_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   }
+  },
+  "dubi": {
+   "frameW": 20,
+   "frameH": 23,
+   "anchor": [
+    10,
+    22
+   ],
+   "density": 1,
+   "anims": {
+    "idle": {
+     "file": "dubi_idle.png",
+     "frames": 16,
+     "fps": 8,
+     "loop": true,
+     "events": {},
+     "density": 1
+    },
+    "talk": {
+     "file": "dubi_talk.png",
+     "frames": 2,
+     "fps": 16,
+     "loop": false,
+     "events": {},
+     "density": 1
+    },
+    "squawk": {
+     "file": "dubi_squawk.png",
+     "frames": 4,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "squawk": 1
+     },
+     "density": 1
+    },
+    "fly": {
+     "file": "dubi_fly.png",
+     "frames": 4,
+     "fps": 12,
+     "loop": true,
+     "events": {
+      "flap": 2
+     },
+     "density": 1
+    },
+    "land": {
+     "file": "dubi_land.png",
+     "frames": 3,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "touch": 1
+     },
+     "density": 1
+    },
+    "peck": {
+     "file": "dubi_peck.png",
+     "frames": 6,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "peck": 2
+     },
+     "density": 1
+    }
+   }
+  },
+  "dubi-mic": {
+   "frameW": 248,
+   "frameH": 317,
+   "anchor": [
+    124,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "dubi-mic_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "talk": {
+     "file": "dubi-mic_talk.png",
+     "frames": 2,
+     "fps": 16,
+     "loop": false,
+     "events": {},
+     "density": 3
+    }
+   }
+  }
+ },
+ "props": {
+  "hat": {
+   "file": "prop_hat.png",
+   "w": 22,
+   "h": 16
+  },
+  "rabbit": {
+   "file": "prop_rabbit.png",
+   "w": 15,
+   "h": 15
+  },
+  "spark": {
+   "file": "prop_spark.png",
+   "w": 5,
+   "h": 5
+  },
+  "bill": {
+   "file": "prop_bill.png",
+   "w": 8,
+   "h": 5
+  },
+  "coin0": {
+   "file": "prop_coin0.png",
+   "w": 5,
+   "h": 5
+  },
+  "coin1": {
+   "file": "prop_coin1.png",
+   "w": 4,
+   "h": 5
+  },
+  "coin2": {
+   "file": "prop_coin2.png",
+   "w": 3,
+   "h": 5
+  },
+  "coin3": {
+   "file": "prop_coin3.png",
+   "w": 4,
+   "h": 5
+  }
+ },
+ "sources": {
+  "taxpayer": {
+   "file": "source_taxpayer.png",
+   "frames": 2,
+   "frameW": 76,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    38,
+    119
+   ],
+   "icon": "source_taxpayer_icon.png",
+   "sil": "source_taxpayer_icon_sil.png",
+   "iconDensity": 1,
+   "points": {
+    "hand": [
+     23,
+     80
+    ]
+   },
+   "recipe": [
+    "body",
+    "head",
+    "eyelids"
+   ],
+   "fallback": null
+  },
+  "hitech": {
+   "file": "source_hitech.png",
+   "frames": 2,
+   "frameW": 100,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    50,
+    119
+   ],
+   "icon": "source_hitech_icon.png",
+   "sil": "source_hitech_icon_sil.png",
+   "iconDensity": 1,
+   "points": {
+    "laptop": [
+     24,
+     53
+    ]
+   },
+   "recipe": [
+    "move",
+    "px"
+   ],
+   "fallback": null
+  },
+  "vat": {
+   "file": "source_vat.png",
+   "frames": 2,
+   "frameW": 106,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    53,
+    119
+   ],
+   "icon": "source_vat_icon.png",
+   "sil": "source_vat_icon_sil.png",
+   "iconDensity": 1,
+   "points": {},
+   "recipe": [
+    "body"
+   ],
+   "fallback": "the ref has no hanging \"18%\" tag (the plate is bolted on): bob"
+  },
+  "cigars": {
+   "file": "source_cigars.png",
+   "frames": 2,
+   "frameW": 102,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    51,
+    119
+   ],
+   "icon": "source_cigars_icon.png",
+   "sil": "source_cigars_icon_sil.png",
+   "iconDensity": 1,
+   "points": {},
+   "recipe": [
+    "body"
+   ],
+   "fallback": "the ref has no smoke wisp or champagne bubbles: bob"
+  },
+  "qatari": {
+   "file": "source_qatari.png",
+   "frames": 2,
+   "frameW": 110,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    55,
+    119
+   ],
+   "icon": "source_qatari_icon.png",
+   "sil": "source_qatari_icon_sil.png",
+   "iconDensity": 1,
+   "points": {},
+   "recipe": [
+    "headx"
+   ],
+   "fallback": "two aides, no phone: the glance is both heads leaning 1 ap toward the whisper"
+  }
+ },
+ "sourceAliases": {
+  "washington": "checkbook"
+ }
+}

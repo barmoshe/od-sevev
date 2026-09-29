@@ -66,7 +66,7 @@ func _ready() -> void:
 			s.texture = Art.tex(_sprite_of(id), 0)
 			s.centered = false
 			s.offset = _pivot_of(id)       # pivot bottom-centre of the critter
-			s.scale = Vector2(4, 4)
+			s.scale = _scale_of(id)
 			s.position = Vector2(x + 32, y + 64)
 			s.visible = false
 			(_front if row == "F" else _back).add_child(s)
@@ -180,7 +180,7 @@ func _add_crowd(id: String, slots: Array) -> void:
 		s.texture = Art.tex(_sprite_of(id), 0)
 		s.centered = false
 		s.offset = _pivot_of(id)
-		s.scale = Vector2(4, 4)
+		s.scale = _scale_of(id)
 		s.position = Vector2(x + 32, y + 64)
 		s.visible = false
 		(_front if front else _back).add_child(s)
@@ -192,6 +192,16 @@ func _add_crowd(id: String, slots: Array) -> void:
 static func _sprite_of(id: String) -> String:
 	var src := Art.source(id)
 	return Art.sprite_or(String(Content.producer(id).get("sprite", src.get("sprite", "critter_" + id))))
+
+
+## Logical px per sprite px of a critter: ×4 art scale ÷ the TA's density (sprites.json
+## sources[id].density, CONTRACT.md §3: the rendered sources are 3 sprite px per art px).
+static func _scale_of(id: String) -> Vector2:
+	var src := Art.source(id)
+	var d := 1
+	if not src.is_empty() and _sprite_of(id) == String(src.get("sprite", "")):
+		d = maxi(1, int(src.get("density", 1)))
+	return Vector2.ONE * (4.0 / d)
 
 
 func _pivot_of(id: String) -> Vector2:
@@ -585,6 +595,7 @@ func _start_piece(id: String) -> void:
 			_piece_timers[id] = randf_range(10000, 16000)
 			var x := Ui.snap(randf_range(40, L.W - 104), 4)
 			var r := Ui.img(_fx, Vector2(x, ground_y - 64), _sprite_of(id), 0, 4)
+			r.scale = _scale_of(id)
 			if play_fx.is_valid():
 				play_fx.call("critterSpawnDust", x + 32.0, float(ground_y))
 			_pieces.append({"kind": "launch", "s": r, "t": 0.0, "dur": 1600.0, "x0": x, "y0": float(ground_y) - 64.0,

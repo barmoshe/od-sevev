@@ -11,7 +11,7 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun 
 | `sprites/sprites.json` | The manifest: every key below, frame data, anchors, events, 9-slices | `FileAccess` + `JSON` |
 | `sprites/cast/<char>_<anim>.png` | Character strips: 1 row, frame *i* at `x = i·frameW` | `SpriteStrip` via `chars[char].anims[anim].texture` |
 | `sprites/avatar_<char>.png`, `sprites/avatar24_<char>.png` | Chat avatars (round, with a ring): 32×32, and 24×24 for the UX's 48-logical-px chat avatar at ×2 | `Art.tex("avatar_<char>")`, `chars[char].avatar24` |
-| `sprites/source_<id>.png` (+ `_icon`, `_icon_sil`) | The 8 money sources: a 2-frame idle strip 40 art px tall, a 24×24 shop icon and its locked silhouette. 5 are rendered from refs, 3 are hand-drawn by the 2D Artist; one table covers both | `sprites.json.sources[id]` (§4b) |
+| `sprites/source_<id>.png` (+ `_icon`, `_icon_sil`) | The 8 money sources: a 2-frame idle strip 40 art px tall (120 sprite px for the 5 rendered ones at d = 3), a 24×24 shop icon and its locked silhouette (always d = 1). 5 are rendered from refs, 3 are hand-drawn by the 2D Artist; one table covers both | `sprites.json.sources[id]` (§4b) |
 | `sprites/prop_<name>.png` | `prop_hat`, `prop_rabbit`, `prop_coin0-3` (a 4-frame spin), `prop_bill`, `prop_spark` | `Art.tex(id)` |
 | `sprites/stage_<era>.png` | `stage_balfour`, `stage_knesset`, `stage_courthouse`, `stage_washington`, 180×320 | `eras.list[].background` |
 | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
@@ -41,10 +41,20 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
   points, props and the UI kit. `sprites.json.artScale` is the art px → canvas px factor.
 - **Density** (Bar's decision, 2026-09-29): every texture carries `density` *d* = sprite px per
   art px.
-  - The rendered cast (Bibi, Sara, Bennett, every partner, the mic Dubi) and the 5 rendered
-    money sources are **d = 3**, from a 288-px source.
-  - Stages, props, the FX sprites, the UI kit, the hand-drawn sources, the small Dubi and the
-    avatars are **d = 1**.
+  - The rendered cast (Bibi, Sara, Bennett, every partner incl. May Golan, the mic Dubi) and
+    the 5 rendered money sources' stage strips are **d = 3**, from a 288-px source (sources:
+    120 px = 40 art px). Landed 2026-09-29; `sprites.json` carries `density: 3` on each
+    `chars[c]`, each of its anims, and each rendered `sources[id]`.
+  - Stages, props (the hat, rabbit and coins included), the FX sprites, the UI kit, the
+    hand-drawn sources, the small Dubi, the avatars and **every shop icon and silhouette**
+    (`sources[id].iconDensity: 1`, 24×24) are **d = 1**. The icons are UI, and the UI stays 1×.
+  - A reader that ignores `density` draws a d = 3 texture 3× too big: every reader of
+    `chars` or `sources` sprites must divide by it (SpriteStrip does; the diorama's critters
+    read `sources[id].density` since 2026-09-29).
+  - **Optional alternates** (SpriteStrip already reads them; not emitted today):
+    `chars[c].densities = {"<d>": {frameW, frameH, anchor, anims}}`. SpriteStrip picks the
+    largest density that divides the device scale k. Ask the TA if a k that no density
+    divides (e.g. k = 4) needs a crisp variant; each costs that character's VRAM again.
   - **To draw:** a density-*d* texture draws at `artScale / d` per sprite px. The renderer's
     scale must be an integer multiple of every density in use (1 and 3), e.g. art ×6 →
     3× sprites at ×2. A non-multiple scale (×4) would give 3× sprites fractional pixels.
@@ -64,9 +74,9 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
 ## 4. `SpriteStrip`: character playback
 
 ```jsonc
-"chars": { "bibi": { "frameW": 230, "frameH": 339, "anchor": [...], "density": 3,  // sprite px
-    "avatar": "avatar_bibi",
-    "anims": { "idle": { "texture": "cast/bibi_idle.png", "frames": 20, "cols": 8, "rows": 3,
+"chars": { "bibi": { "frameW": 201, "frameH": 326, "anchor": [120, 325], "density": 3,  // sprite px
+    "avatar": "avatar_bibi", "avatar24": "avatar24_bibi",
+    "anims": { "idle": { "texture": "cast/bibi_idle.png", "frames": 20, "cols": 10, "rows": 2,
                          "fps": 10, "loop": true, "density": 3, "events": {},
                          "hatMouth": [[x, y], ...one per frame], "temple": [...] } } } }
 ```
@@ -74,7 +84,8 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
 - **Frame *i*:** `Rect2((i % cols)·frameW, (i / cols)·frameH, frameW, frameH)`, with integer
   division.
   - A strip whose row would pass 2048 px (WebGL2's floor) is wrapped into a grid. `cols` and
-    `rows` are always present; `rows = 1` is a plain strip.
+    `rows` are always present; `rows = 1` is a plain strip. The grid is balanced (the fewest
+    empty cells for its row count), so a 14-frame anim is 7×2, not 10+4: always read `cols`.
   - Use an `AtlasTexture` region or `draw_texture_rect_region`.
   - Frames are trimmed to the character's union bounding box plus 1 clear px, so `anchor`
     and every track are re-based for you.
@@ -103,8 +114,11 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
 - **`temple`** (Bibi only, on `idle`, `tap` and `crit`): per frame, where the sweat bead sits, in
   frame px. It is the first transparent pixel right of the screen-right eye, on the row of that
   eye's top. Place the 2D Artist's `sweat_drop` with its pivot there.
-- **Bibi is 81 px wide now** (anchor [40, 124]). No frame touches its edge, and every character
-  passes the edge check with no waivers.
+- **Bibi is 201×326 sprite px at d = 3** (anchor [120, 325]; 67×109 art px, hat included).
+  The partners are 123-210 px wide and 289-310 tall. No frame touches its edge, and every
+  character passes the edge check with no waivers.
+- **The hat, rabbit and coins stay 1× art** (drawn into Bibi's strips as 3×3 blocks, and the
+  loose props are d = 1), so they match the stage's pixel size.
 - **Dubi, two figures:**
   - `chars.dubi` is the small full-body parrot, hand-drawn by the 2D Artist (`origin: "hand-drawn"`).
     - **Size:** a 20×23 frame, anchor [10, 22].
@@ -116,20 +130,24 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
     - **Talk isn't fps-driven:** set its frame per `dubiBlip`.
     - **Validation:** the pipeline checks that the hand-drawn strips match the state graph's
       frame counts and events, and have no edge contact. Any mismatch fails the build.
-  - `chars["dubi-mic"]` (alias `dubi_mic`) is the 96-px flash-card pose. Its anims are `idle` 20
+  - `chars["dubi-mic"]` (alias `dubi_mic`) is the 96-art-px flash-card pose (d = 3, 198×289
+    sprite px; at `artScale / 3` it is 264×385 logical px). Its anims are `idle` 20
     @ 10 loop and `talk` 2. The rest pose has the beak closed; `talk.f1` opens it.
   - The avatar is `avatar_dubi`.
 
 ## 4b. Money sources (`sprites.json.sources[id]`)
 ```jsonc
-"taxpayer": { "sprite": "source_taxpayer", "frames": 2, "frameW": 25, "frameH": 40, "pivot": [12, 39],
+"taxpayer": { "sprite": "source_taxpayer", "frames": 2, "frameW": 76, "frameH": 120, "pivot": [38, 119],
               "icon": "source_taxpayer_icon", "silhouette": "source_taxpayer_icon_sil",
-              "points": { "hand": [8, 27] }, "origin": "render-down" }
+              "points": { "hand": [23, 80] }, "origin": "render-down", "density": 3, "iconDensity": 1 }
 ```
+- **Density:** `frameW`, `frameH`, `pivot` and `points` are sprite px of the strip (d = 3 for
+  the 5 rendered sources, d = 1 for the hand-drawn three). Draw the strip at `artScale /
+  density`. The icon and silhouette are always 24×24 at d = 1 (`iconDensity`).
 - **Frames:** 2, equal holds. The strip has **no fps**; the period is `producers[].idleFrameMs`,
   per the animator's diorama spec.
-- **Pivot:** the feet, bottom centre. Every source is 40 art px tall, including a 1-px pale rim,
-  the same as the hand-drawn ones.
+- **Pivot:** the feet, bottom centre. Every source is 40 art px tall, including a 1-art-px pale
+  rim (3 sprite px at d = 3), the same as the hand-drawn ones.
 - **`points`:** named landmarks in frame px. `taxpayer.hand` is the lob origin.
 - **Ids:** `sources` keys are the art ids. `sourceAliases` maps content ids to art ids
   (`washington → checkbook`).
@@ -203,23 +221,28 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for 
   content edit, with no code change.
 
 ## 7. Budget (measured, `pipeline/od-sevev/budget.json`, rerun with `--godot`)
-- **Web `.pck` bytes added:** 489 KB for all our art. That covers:
-  - 24 characters, including both Dubis: 397 KB;
-  - the UI kit (191 pieces, the 3 hand-drawn sources included): 40 KB;
-  - both avatar sizes: 22 KB;
+- **Web `.pck` bytes added:** 3.30 MB for all our art (the 3× cast, 2026-09-29; it was
+  489 KB at 1×). That covers:
+  - 25 characters, including both Dubis and May Golan: 3.18 MB;
+  - the UI kit (197 pieces, the 3 hand-drawn sources included): 43 KB;
+  - the 5 rendered sources (3× strips + 1× icons): 28 KB;
+  - both avatar sizes: 27 KB;
   - both fonts: 16 KB;
-  - the 5 rendered sources: 8 KB;
   - props, stages and FX: 6 KB.
 
-  That is about 2.5% of the ~19 MB payload. Audio dominates.
-- **Per character:** a new character costs about 17 KB of `.pck`.
-- **VRAM:** everything resident at once would be 23 MB of RGBA8. The strips are big because
-  they are wide: Bibi's three anims alone are 1.5 MB. So:
-  - **Keep resident:** Bibi, the current stage, the UI kit, the fonts and the avatars, about
-    3 MB.
-  - **Load on demand:** a partner's two strips when their card or scene opens (~0.9 MB each),
-    and drop the reference when it closes.
-  - Never preload the whole cast.
+  With audio at ~10.9 MB, that is about a fifth of the payload.
+- **Per character:** a new 3× character costs 62-211 KB of `.pck` (median 136 KB; Bibi 211 KB).
+- **VRAM (RGBA8):** everything resident at once would be 153 MB, so **never preload the
+  cast**:
+  - **Keep resident:** Bibi (11.0 MB: three anims, 20 + 8 + 14 frames of 201×326), the current
+    stage, the rendered sources (0.5 MB), the UI kit, the fonts and the avatars: **13.2 MB**.
+  - **Load on demand:** a partner's two strips when their card or scene opens (4.3-7.6 MB,
+    median 6.1 MB; May Golan 7.1 MB), and drop the reference when it closes. The chat only
+    needs the avatars. At most one partner body should be alive at a time besides Bibi
+    (≤ 21 MB total).
+  - Idle strips hold repeated frames (a still-armed partner has 6 unique of 20). A
+    `frameMap` (frame → texture cell) would cut the cast's VRAM by ~37% (153 → ~105 MB all
+    resident); it needs a reader change in SpriteStrip, so it is offered, not shipped.
 - **Draw calls:** one texture per strip or sprite. Atlasing the props or avatars would save a
   handful of draws at most, because chat rows interleave avatar, bubble and text anyway. It
   would also break the flat-id rule above. So it is not done.
@@ -230,5 +253,6 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for 
   - The coin burst is **not** a particle, because the particle player gives each particle one
     static frame and the coins need a 16 fps spin. Run it as pooled per-coin tweens, capped at
     **36 coins alive** (the animator's budget), using the textures `prop_coin0-3`.
-- **Texture size:** every strip must be ≤ 2048 px wide, WebGL2's guaranteed floor. The widest
-  today is 1700. The pipeline fails on anything wider.
+- **Texture size:** every strip must be ≤ 2048 px wide and tall, WebGL2's guaranteed floor.
+  The widest today is 2040 (a 10-column grid), the tallest 930 (Lapid's 3-row idle). The
+  pipeline fails on anything bigger.

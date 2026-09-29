@@ -560,21 +560,25 @@ def source(sid, cfg):
     f1 = rimD(f1)
     w, h = f0.size
     strip([f0, f1]).save(os.path.join(OUT, f'source_{sid}.png'))
-    # the shop icon: a 24x24-art-px crop of f0 (72x72 sprite px at D=3), and its silhouette
-    S_ = 24 * D
-    cx, cy = rig.to_art(*rig.c(*cfg['icon']))
-    x0 = min(max(int(round(cx)) + D - S_ // 2, 0), max(w - S_, 0)) if w >= S_ else (w - S_) // 2
-    y0 = min(max(int(round(cy)) + D - S_ // 2, 0), h - S_)
+    # the shop icon + silhouette are UI (Bar: the UI stays 1x chunky), so they come from a 1x render of
+    # f0 (a 38-art-px rig of the same ref, the pre-density pipeline's 32 colours, so the approved icons
+    # reproduce pixel for pixel): a 24x24 crop, density 1
+    r1 = Rig(sid, 38, pad=(0.14, 0.0), ncolors=32)
+    i0 = r1.rim(r1.down(r1.canvas()))
+    iw, ih = i0.size
+    S_ = 24
+    cx, cy = r1.to_art(*r1.c(*cfg['icon']))
+    x0 = min(max(int(round(cx)) + 1 - S_ // 2, 0), max(iw - S_, 0)) if iw >= S_ else (iw - S_) // 2
+    y0 = min(max(int(round(cy)) + 1 - S_ // 2, 0), ih - S_)
     icon = _I.new('RGBA', (S_, S_), (0, 0, 0, 0))
-    icon.alpha_composite(f0.crop((max(x0, 0), y0, max(x0, 0) + min(S_, w), y0 + S_)), (max(-x0, 0), 0))
+    icon.alpha_composite(i0.crop((max(x0, 0), y0, max(x0, 0) + min(S_, iw), y0 + S_)), (max(-x0, 0), 0))
     icon.save(os.path.join(OUT, f'source_{sid}_icon.png'))
     import numpy as _np
     al = _np.asarray(icon.getchannel('A')) > 0
-    near_clear = _np.zeros_like(al)            # within one art px (D sprite px) of transparency or the edge
-    pad = _np.pad(~al, D, constant_values=False)
-    for a_ in range(-D, D + 1):
-        for b_ in range(-D, D + 1):
-            near_clear |= pad[D + a_:D + a_ + S_, D + b_:D + b_ + S_]
+    near_clear = _np.zeros_like(al)            # 4-connected to a transparent px (the approved rim rule)
+    pad = _np.pad(~al, 1, constant_values=False)
+    for a_, b_ in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+        near_clear |= pad[1 + a_:1 + a_ + S_, 1 + b_:1 + b_ + S_]
     sa = _np.zeros((S_, S_, 4), _np.uint8)
     sa[al] = SIL_FILL
     sa[al & near_clear] = RIM
@@ -586,7 +590,7 @@ def source(sid, cfg):
         pts[name] = [int(round(ax)) + D, int(round(ay)) + D]
     atlas['sources'][sid] = {'file': f'source_{sid}.png', 'frames': 2, 'frameW': w, 'frameH': h, 'fps': None, 'density': D,
                              'loop': True, 'anchor': [w // 2, h - 1], 'icon': f'source_{sid}_icon.png',
-                             'sil': f'source_{sid}_icon_sil.png', 'points': pts,
+                             'sil': f'source_{sid}_icon_sil.png', 'iconDensity': 1, 'points': pts,
                              'recipe': [o[0] for o in cfg['f1']], 'fallback': cfg.get('fallback')}
 
 
