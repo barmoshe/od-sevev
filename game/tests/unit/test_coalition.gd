@@ -358,7 +358,7 @@ func test_election_clears_the_chat() -> void:
 	s.evolutions = 1
 	Coalition.on_election(s)
 	var chat: Array = s.coalition["chat"]
-	runner.check(chat.size() == 1 and chat[0]["key"] == "chat.sys.cleared" and int(chat[0]["n"]) == 2, "'הקוסם ניקה את הצ׳אט. לקראת סבב בחירות 2.'")
+	runner.check(chat.size() == 1 and chat[0]["key"] == "chat.sys.cleared" and int(chat[0]["n"]) == 2, "'ביבי ניקה את הצ׳אט. לקראת סבב בחירות 2.'")
 	runner.check(Coalition.status(s, "bengvir") == "absent" and int(Coalition.seat_info(s)["partners"]) == 0, "the coalition resets (UX elect.reset)")
 	runner.check(s.coalition["opened"], "the group itself stays")
 

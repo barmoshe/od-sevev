@@ -374,7 +374,7 @@ func test_babble_plans() -> void:
 	runner.check(String(blips[0]["bank"]) == "%s_%d" % [contour[0][0], int(contour[0][1])]
 		and String(blips[5]["bank"]) == "%s_%d" % [contour[2][0], int(contour[2][1])], "the canned contour from the manifest")
 	runner.check(absf(float(blips[3]["t"]) - (3.0 / 8.0 + 0.15)) < 1e-6, "with a 150 ms gap between the two")
-	var h := "הקוסם שלף עוד מזוודה מהכובע, והכנסת התפזרה שוב!"
+	var h := "ביבי שלף עוד מזוודה מהכובע, והכנסת התפזרה שוב!"
 	var p1 := OdAudio.babble_plan(_man, h)
 	var p2 := OdAudio.babble_plan(_man, h)
 	var hb: Array = p1["blips"]
