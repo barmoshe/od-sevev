@@ -1,0 +1,2172 @@
+From 5094535c61659e403435ea1198ec83f091e19b22 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 20:22:38 +0000
+Subject: [PATCH 1/2] feat(od-sevev): Bibi's court-day exit and return, the
+ court-window echo, a leader walk helper
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The Magician zips off screen-left when testimony begins, his hat hovers on
+his mark and takes the taps, then fetches him back (state-graph-magician
+§1.3, §3, §5), Bibi's rounds only. The courthouse window lights with
+suspicion and breathes while the court window is open. LeaderWalk is
+prepared for the election swap and not wired. Also fixes the web game
+never following prefers-reduced-motion (the bridge returns 1, not true).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/scripts/main.gd                     |  55 ++-
+ game/scripts/ui/big_banana.gd            | 248 ++++++++++-
+ game/scripts/ui/court_echo.gd            | 140 +++++++
+ game/scripts/ui/court_echo.gd.uid        |   1 +
+ game/scripts/ui/court_motion.gd          | 513 +++++++++++++++++++++++
+ game/scripts/ui/court_motion.gd.uid      |   1 +
+ game/scripts/ui/leader_walk.gd           | 120 ++++++
+ game/scripts/ui/leader_walk.gd.uid       |   1 +
+ game/scripts/ui/views/view_thermo.gd     |   7 +-
+ game/tests/unit/test_motion_court.gd     | 387 +++++++++++++++++
+ game/tests/unit/test_motion_court.gd.uid |   1 +
+ tools/web/motion_web.mjs                 | 103 +++++
+ 12 files changed, 1566 insertions(+), 11 deletions(-)
+ create mode 100644 game/scripts/ui/court_echo.gd
+ create mode 100644 game/scripts/ui/court_echo.gd.uid
+ create mode 100644 game/scripts/ui/court_motion.gd
+ create mode 100644 game/scripts/ui/court_motion.gd.uid
+ create mode 100644 game/scripts/ui/leader_walk.gd
+ create mode 100644 game/scripts/ui/leader_walk.gd.uid
+ create mode 100644 game/tests/unit/test_motion_court.gd
+ create mode 100644 game/tests/unit/test_motion_court.gd.uid
+ create mode 100644 tools/web/motion_web.mjs
+
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index 0c3df86..aea3d40 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -94,6 +94,7 @@ var cottage: CottageCup             # Row A's Cottage Index (ui/views/view_cotta
+ var dossier: DossierView            # T4 "תיקים" + the pardon desk (ui/views/view_dossier.gd)
+ var court: CourtView                # the O2 court card + its ticker chip (ui/views/view_court.gd)
+ var thermo: Thermo                  # the suspicion thermometer + the sweat (ui/views/view_thermo.gd)
++var court_echo: CourtEcho            # the courthouse window on the stage (Bibi's rounds; ui/court_echo.gd)
+ ## Every cue sent to the Audio, by name (tests and tools listen; nothing in the game does).
+ signal audio_sent(name: String, arg: Variant)
+ var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
+@@ -157,6 +158,14 @@ func _boot() -> void:
+ 		state.investigation["aideHolding"] = float(_dev["aide"])
+ 	if float(_dev.get("chat", 0.0)) > 0.0:
+ 		_dev_chat(int(_dev["chat"]))
++	if float(_dev.get("court", 0.0)) > 0.0:   # &court=N: a court day of N s from the first frame (motion checks)
++		state.investigation["revealed"] = true
++		state.investigation["suspicion"] = 100.0
++		state.investigation["phase"] = "summons"
++		Investigation.testify(state)
++		state.investigation["leftSec"] = float(_dev["court"])
++	if float(_dev.get("slow", 0.0)) > 1.0:    # &slow=N: the whole game at 1/N speed (frame-strip captures)
++		Engine.time_scale = 1.0 / float(_dev["slow"])
+ 	d = Economy.derive(state)
+ 	_build()
+ 	_apply_settings()
+@@ -219,6 +228,8 @@ func _read_content_override() -> void:
+ ## &flash=N opens Dubi's news flash for round N on the first tap (view checks).
+ ## &susp=N reveals the thermometer at N% suspicion (100 = a summons on the first step), &aide=N
+ ## puts N ₪ of suitcase money on an aide (the "אני לא מכיר אותו" button).
++## &court=N starts a court day of N s at boot (Bibi's exit / hat / return), &slow=N runs the whole
++## game at 1/N speed (Engine.time_scale) for frame-strip captures (tools/web/motion_web.mjs).
+ func _read_dev_params() -> void:
+ 	if not OS.has_feature("web"):
+ 		return
+@@ -231,7 +242,7 @@ func _read_dev_params() -> void:
+ 		PxText.set_sharp_text(get_tree(), false)
+ 	for part in q.trim_prefix("?").split("&"):
+ 		var kv := part.split("=")
+-		if kv.size() == 2 and kv[0] in ["speed", "grant", "evo", "flash", "susp", "aide", "chat"]:
++		if kv.size() == 2 and kv[0] in ["speed", "grant", "evo", "flash", "susp", "aide", "chat", "court", "slow"]:
+ 			_dev[kv[0]] = maxf(0.0, float(kv[1]))
+ 	if float(_dev["speed"]) <= 0.0:
+ 		_dev["speed"] = 1.0
+@@ -244,8 +255,18 @@ func _default_settings() -> Dictionary:
+ 
+ func _os_reduced_motion() -> bool:
+ 	if OS.has_feature("web"):
+-		var v: Variant = JavaScriptBridge.eval("window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches", true)
+-		return v == true
++		return js_bool(JavaScriptBridge.eval("window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches", true))
++	return false
++
++
++## A JS boolean through JavaScriptBridge.eval. The 4.7 web bridge hands a boolean back as the int 1 / 0
++## (seen in Chromium, animator audit 2026-09-29), and `1 == true` is false in GDScript, so the OS
++## reduced-motion preference was never followed on the web. Truthy numbers and bools count.
++static func js_bool(v: Variant) -> bool:
++	if v is bool:
++		return v
++	if v is int or v is float:
++		return float(v) != 0.0
+ 	return false
+ 
+ 
+@@ -285,6 +306,7 @@ func _build() -> void:
+ 	prop_fx = PropFx.new()
+ 	_stage.add_child(prop_fx)
+ 	bb.on_hero_event = _on_hero_event
++	bb.on_court_fx = _on_court_fx
+ 	fx_stage = FxPlayer.new()
+ 	_stage.add_child(fx_stage)
+ 	diorama.play_fx = func(id: String, x: float, y: float) -> void: fx_stage.play(id, x, y)
+@@ -439,6 +461,9 @@ func _build_investigation() -> void:
+ 	thermo = Thermo.new().setup(self, bb)
+ 	_stage.add_child(thermo)
+ 	_stage.move_child(thermo, bb.get_index() + 1)
++	court_echo = CourtEcho.new()
++	_stage.add_child(court_echo)
++	_stage.move_child(court_echo, bb.get_index())   # over the stage art, behind the Magician
+ 	dossier = DossierView.new().setup(self)
+ 	_lower.add_child(dossier)
+ 	court = CourtView.new().setup(self)
+@@ -533,6 +558,7 @@ func _relayout() -> void:
+ 	dossier.relayout()
+ 	court.relayout()
+ 	thermo.relayout()
++	court_echo.relayout()
+ 	buffs.set_stage_rect(-_ox, float(L.STAGE["y"]), _vs.x, L.stage_h)
+ 	bb.relayout()
+ 	var W := _vs.x
+@@ -552,7 +578,7 @@ func _relayout() -> void:
+ 		var hat := L.magician_hit().get_center() + Vector2(_ox, _stage_y)
+ 		JavaScriptBridge.eval("window.odDisplay = %s" % JSON.stringify({"k": Display.k, "f": Display.f,
+ 			"integer": Display.integer, "logical": [_vs.x, _vs.y], "ox": _ox, "stageY": _stage_y,
+-			"lowerY": _lower_y, "hat": [hat.x, hat.y]}), true)
++			"lowerY": _lower_y, "hat": [hat.x, hat.y], "reducedMotion": bool(settings.get("reducedMotion", false))}), true)
+ 
+ 
+ func _set_fill(k: String, r: Rect2) -> void:
+@@ -616,6 +642,7 @@ func _apply_settings() -> void:
+ 	dossier.reduced_motion = rm
+ 	court.reduced_motion = rm
+ 	thermo.reduced_motion = rm
++	court_echo.reduced_motion = rm
+ 	ftue.reduced_motion = rm
+ 	title_view.set_reduced_motion(rm)
+ 	fx_stage.reduced_motion = rm
+@@ -840,7 +867,10 @@ func _process(delta: float) -> void:
+ 	_check_headlines()
+ 	_check_reveals()
+ 	_apply_reveals()
++	# Bibi's court day on the stage (the exit, the hat, the return): polled from the sim's phase
++	bb.court_sync(running and BigBanana.wants_court(state), tx.running)
+ 	bb.update_view(dt)
++	court_echo.update_view(dt, state, str(Story.era_for(state.evolutions).get("id", "")), running and Leaders.has_court())
+ 	toasts.update_view(dt)
+ 	prop_fx.update_view(dt)
+ 	golden.update_view(dt, modal or not running)
+@@ -1101,6 +1131,8 @@ func _on_politics_event(e: Dictionary) -> void:
+ 	match String(e.get("ev", "")):
+ 		"summons":
+ 			_audio("courtSummons")
++			if Leaders.has_court():
++				bb.court_flinch()   # the summons flinch (motion/state-graph-magician.md §1.3)
+ 		"courtStart":
+ 			_audio("courtStart")
+ 		"courtEnd":
+@@ -1114,6 +1146,18 @@ func _on_politics_event(e: Dictionary) -> void:
+ 			_audio("transfer")
+ 
+ 
++## The court day's stage FX from the Magician (BigBanana.on_court_fx): the zip's dust at his feet, the
++## hat's coins (fewer than his: the ×0.5 income, shown) and the rabbit's cue on a hat crit.
++func _on_court_fx(kind: String, at: Vector2, n: int) -> void:
++	match kind:
++		"dust":
++			fx_stage.play("dustPuff", at.x, at.y)
++		"coins":
++			prop_fx.coins(at, n)
++		"rabbit":
++			_audio("rabbit")
++
++
+ func _spawn_suitcase() -> void:
+ 	golden.first_flight = state.golden_caught_lifetime == 0
+ 	golden.hover_mid = state.golden_caught_lifetime == 0 and int(float(state.stats.get("goldenMissed", 0.0))) >= 3
+@@ -1497,7 +1541,7 @@ func _handle_tap(at: Vector2) -> void:
+ 		state.stats["bestTapFrenzyTaps"] = maxf(float(state.stats.get("bestTapFrenzyTaps", 0.0)), float(_tap_frenzy_taps))
+ 	else:
+ 		_tap_frenzy_taps = 0
+-	bb.tap(crit)
++	bb.tap(crit, bool(r.get("paused", false)))
+ 	_coin_batch += 1
+ 	_audio("tapCrit" if crit else "tap")
+ 	if state.taps_lifetime == 1:
+@@ -1868,6 +1912,7 @@ func _do_reset() -> void:
+ 	top_bar.reset_rate()
+ 	shop.switch_tab("producers")
+ 	bb.set_aura("plain")
++	bb.court_reset()
+ 	_audio_call("set_evolutions", [0])
+ 	_evolve_was_visible = false
+ 	_autosave_ms = 0.0
+diff --git a/game/scripts/ui/big_banana.gd b/game/scripts/ui/big_banana.gd
+index f175859..72af890 100644
+--- a/game/scripts/ui/big_banana.gd
++++ b/game/scripts/ui/big_banana.gd
+@@ -23,7 +23,21 @@ var reduced_motion := false
+ var on_settle: Callable
+ ## func(name: String, at: Vector2) for the Magician's frame events (stage coordinates).
+ var on_hero_event: Callable
++## func(kind: String, at: Vector2, n: int) for the court day's stage FX (stage coordinates): "dust" at
++## the feet (a zip leaving or landing), "coins" (n) from the hat's mouth, "rabbit" (the hat's crit).
++var on_court_fx: Callable
+ var hero: SpriteStrip
++## Bibi's court-day exit and return (CourtMotion; motion/state-graph-magician.md §1.3, §3, §5).
++var court := CourtMotion.new()
++var _court_pending := false           # courtStart came mid-tap: he leaves when the strip is back on idle
++var _suppress_coins := false          # the land / flinch reuse the tap strip: no coins
++var _held_frame := -1                 # the tap-strip frame the court holds (-1 = the strip plays)
++var _hat: Sprite2D                    # prop_hat, left on the mark while he testifies
++var _hat_ghost: Sprite2D              # its one after-image while it zips
++var _rabbit: Sprite2D                 # prop_rabbit, behind the hat
++var _rabbit_clip: Control             # the hat's opening: the rabbit shows only above it
++var _smears: Array[CourtSmear] = []
++var _mark := Vector2.ZERO             # the hat's mouth on idle.f0 (stage coordinates), the hat's mark
+ 
+ var _state := "idle"          # idle | pressed | crit | locked
+ var _aura := "plain"          # plain | frenzy | tapFrenzy
+@@ -87,10 +101,15 @@ func _ready() -> void:
+ 		for n: CanvasItem in [halo, sprite, flash, fidget]:
+ 			n.visible = false
+ 			n.set_process(false)
+-		hero.finished.connect(func(_a: String) -> void: hero.play("idle"))
++		hero.finished.connect(func(_a: String) -> void:
++			_suppress_coins = false
++			hero.play("idle"))
+ 		hero.event.connect(func(ev: String, _f: int) -> void:
++			if ev == "coins" and _suppress_coins:
++				return
+ 			if on_hero_event.is_valid():
+ 				on_hero_event.call(ev, hero.position + body.position + hero.point("hatMouth", Vector2(0, -hero.frame_size().y * 0.7))))
++		_build_court()
+ 	var hr: Array = Art.meta["bigBanana"]["heightRatio"]
+ 	var mid := func(a: int, b: int) -> float: return (float(hr[a]) + float(hr[b])) / 2.0
+ 	_bands = [mid.call(4, 0), mid.call(0, 1), mid.call(1, 2), mid.call(2, 3)]
+@@ -120,9 +139,13 @@ func hit_rect() -> Rect2:
+ 
+ # ------------------------------------------------------------------ body graph
+ 
+-func tap(crit: bool) -> void:
++func tap(crit: bool, paused: bool = false) -> void:
+ 	if _state == "locked":
+ 		return
++	if hero != null and (_court_pending or court.in_court()):
++		court.tap(crit, paused)   # the hat takes it (or it is credited with nothing moving)
++		return
++	_suppress_coins = false
+ 	var from := _state
+ 	if from == "idle":
+ 		_leave_idle()
+@@ -159,6 +182,9 @@ func tap(crit: bool) -> void:
+ 
+ 
+ func lock() -> void:
++	if court.in_court():
++		court.finish(true)   # electionConfirm while he testifies: the quick return (§5.2)
++	_court_pending = false
+ 	_leave_idle()
+ 	_state = "locked"
+ 	set_hover(false)
+@@ -214,6 +240,7 @@ func _apply_flash() -> void:
+ 
+ func update_view(dt_ms: float) -> void:
+ 	if hero != null:
++		_update_court(dt_ms)
+ 		hero.update_view(dt_ms)
+ 		_pulse_t += dt_ms
+ 	if _flash_ms > 0.0:
+@@ -349,7 +376,7 @@ func set_hover(on: bool) -> void:
+ ## The stage height changed (the flex rule): the Magician's feet are bottom-anchored.
+ func relayout() -> void:
+ 	if hero != null:
+-		hero.position = L.magician_feet()
++		_place_court()
+ 
+ 
+ ## ux/ftue.md P0: the hat's brightness pulse (hz 0 = off; 1 Hz, 2 Hz at F3). Reduced motion
+@@ -370,6 +397,7 @@ func _sync_halo() -> void:
+ 			pulse = 0.35 if reduced_motion else 0.35 * (0.5 - 0.5 * cos(TAU * _pulse_hz * _pulse_t / 1000.0))
+ 		var k := maxf(maxf(_aura_alpha, _hover_alpha), pulse)
+ 		hero.modulate = Color(1, 1, 1).lerp(Color(1.3, 1.25, 1.05), k)
++		hero.modulate.a = court.body_alpha()
+ 
+ 
+ ## FTUE failure branch: a pulsed emphasis on the banana (through the halo).
+@@ -380,3 +408,217 @@ func emphasize(ms: float) -> void:
+ 	var q := ms / 4000.0
+ 	_hover_tw.tween_property(self, "_hover_alpha", 0.6, q)
+ 	_hover_tw.tween_property(self, "_hover_alpha", 0.0, q)
++
++
++# ------------------------------------------------------------------ court day (Bibi only)
++
++## Is this state's court day on the stage now? Bibi's round only (Leaders.has_court): every other
++## leader's hazard is the press day, and he or she never leaves the stage.
++static func wants_court(s: GameState) -> bool:
++	return s != null and Investigation.active() and Investigation.phase(s) == "court" and Leaders.has_court()
++
++
++## Every frame from the controller: `want` = the court day is running (wants_court, main mode);
++## `quick` = an election is taking over (the hat fetches him at once, no empty beat). Polling the
++## phase (not only the events) keeps the stage right through a load, an election or an aide drop.
++func court_sync(want: bool, quick: bool = false) -> void:
++	if hero == null:
++		return
++	if want and not court.in_court():
++		if hero.anim != "idle":
++			_court_pending = true   # exitPending: he leaves at the strip's end (§2)
++			return
++		_court_pending = false
++		_leave_idle()
++		court.off_ap = off_stage_ap()
++		court.start(reduced_motion)
++	elif not want:
++		_court_pending = false
++		if court.in_court():
++			court.finish(quick)
++
++
++## A progress reset (O10) or a new state: he is simply home, the hat gone.
++func court_reset() -> void:
++	_court_pending = false
++	court.reset()
++	if hero != null:
++		_hold_frame(-1)
++		hero.visible = true
++		_place_court()
++		_apply_court_pose()
++
++
++## The summons flinch (§1.3): `land` from f1, no coins, no dust; only from idle.
++func court_flinch() -> void:
++	if hero == null or court.in_court() or _state != "idle" or hero.anim != "idle":
++		return
++	_suppress_coins = true
++	hero.play("tap", true, 1)
++
++
++## True while the Magician stands on his mark and is drawn (the sweat reads it).
++func on_stage() -> bool:
++	return hero == null or (not court.in_court() and hero.visible)
++
++
++## The hat's mark (stage coordinates): its mouth on idle.f0, where it hovers on court day.
++func hat_mark() -> Vector2:
++	return _mark
++
++
++func hat_node() -> Sprite2D:
++	return _hat
++
++
++## How far left of the mark the figure is fully off the canvas, in art px (the widest the canvas
++## gets is the viewport, _ox to the left of the design canvas).
++func off_stage_ap() -> float:
++	if hero == null:
++		return -170.0
++	var ox := 0.0
++	var h := get_parent()
++	while h != null and not "_ox" in h:
++		h = h.get_parent()
++	if h != null:
++		ox = float(h.get("_ox"))
++	var right := hero.rect().end.x   # the frame's right edge from the feet (logical)
++	return -ceilf((L.magician_feet().x + ox + right + 8.0 * CourtMotion.AP) / CourtMotion.AP)
++
++
++func _build_court() -> void:
++	var rabbit_id := Art.sprite_or("prop_rabbit")
++	var hat_id := Art.sprite_or("prop_hat")
++	# the rabbit sits in a clip whose bottom is 1 ap inside the hat's opening: at rest the hat hides it
++	_rabbit_clip = Control.new()
++	_rabbit_clip.clip_contents = true
++	_rabbit_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
++	body.add_child(_rabbit_clip)
++	_rabbit = Ui.img(_rabbit_clip, Vector2.ZERO, rabbit_id, 0, 4)
++	_hat_ghost = Ui.img(body, Vector2.ZERO, hat_id, 0, 4)
++	_hat_ghost.modulate.a = 0.4
++	_hat = Ui.img(body, Vector2.ZERO, hat_id, 0, 4)
++	for i in 2:
++		var g := CourtSmear.new()
++		g.strip = hero
++		g.alpha = 0.5 if i == 0 else 0.25
++		g.visible = false
++		body.add_child(g)
++		body.move_child(g, hero.get_index())   # behind the body
++		_smears.append(g)
++	_place_court()
++	_apply_court_pose()
++
++
++func _place_court() -> void:
++	if hero == null:
++		return
++	var feet := L.magician_feet()
++	var arr: Variant = (hero._c.get("anims", {}) as Dictionary).get("idle", {}).get("hatMouth")
++	var mouth := Vector2(0, -hero.frame_size().y * 0.7)
++	if arr is Array and not (arr as Array).is_empty():
++		var p: Array = (arr as Array)[0]
++		mouth = (Vector2(float(p[0]), float(p[1])) - hero._anchor()) * hero.scale_px
++	_mark = (feet + mouth).snapped(Vector2(CourtMotion.AP, CourtMotion.AP))
++	hero.position = feet + Vector2(float(court.body_dx_ap()) * CourtMotion.AP, 0.0)
++
++
++func _update_court(dt_ms: float) -> void:
++	if _court_pending and hero.anim == "idle":
++		court_sync(true)
++	court.tick(dt_ms)
++	for e: Dictionary in court.take_events():
++		match str(e["kind"]):
++			"land":
++				_hold_frame(-1)
++				_suppress_coins = true
++				hero.play("tap", true, int(e.get("from", 1)))
++				_state = "idle"
++				if bool(e.get("dust", false)):
++					_court_fx("dust", L.magician_feet(), 0)
++			"dust":
++				_court_fx("dust", L.magician_feet(), 0)
++			"coins":
++				_court_fx("coins", _hat_mouth(), int(e.get("n", 1)))
++			"rabbit":
++				_court_fx("rabbit", _hat_mouth(), 0)
++	_apply_court_pose()
++
++
++func _court_fx(kind: String, at: Vector2, n: int) -> void:
++	if on_court_fx.is_valid():
++		on_court_fx.call(kind, at + body.position, n)
++
++
++## The hat's opening now (top centre of the prop), stage coordinates minus body offset.
++func _hat_mouth() -> Vector2:
++	return _mark + Vector2(court.hat_dx_ap(), court.hat_dy_ap()) * CourtMotion.AP
++
++
++func _hold_frame(f: int) -> void:
++	if f == _held_frame:
++		return
++	_held_frame = f
++	if f < 0:
++		hero.paused = false
++		if hero.anim != "tap":
++			hero.play("idle")
++		return
++	hero.play("tap", true, f)
++	hero.paused = true
++
++
++func _apply_court_pose() -> void:
++	if hero == null or _hat == null:
++		return
++	var in_c := court.in_court()
++	if in_c:
++		var f := court.body_frame()
++		if f >= 0:
++			_hold_frame(f)
++		elif _held_frame >= 0:
++			_held_frame = -1
++			hero.paused = false
++			hero.play("idle")
++	var feet := L.magician_feet()
++	hero.position = feet + Vector2(float(court.body_dx_ap()) * CourtMotion.AP, 0.0)
++	hero.visible = court.body_visible()
++	hero.modulate.a = court.body_alpha()
++	var dir := court.travel_dir()
++	for i in _smears.size():
++		var g := _smears[i]
++		g.visible = court.smear() and hero.visible
++		# the after-images trail behind the travel, 6 and 12 ap back
++		g.position = hero.position - Vector2(float(dir) * 6.0 * float(i + 1) * CourtMotion.AP, 0.0)
++		g.queue_redraw()
++	# the hat: 22×16, its mouth (top centre) on the mark; the rabbit behind it, rising out of it
++	var hsz := Vector2(Art.sprite_size(_hat.get_meta("sprite"))) * 4.0
++	var mouth := _hat_mouth()
++	_hat.visible = court.hat_visible()
++	_hat.position = (mouth - Vector2(hsz.x / 2.0, 0.0)).snapped(Vector2(CourtMotion.AP, CourtMotion.AP))
++	_hat.modulate.a = court.hat_alpha()
++	_hat_ghost.visible = _hat.visible and court.hat_smear()
++	var hdir := -1.0 if court.hat == "zipOut" else 1.0
++	_hat_ghost.position = _hat.position - Vector2(hdir * 6.0 * CourtMotion.AP, 0.0)
++	var rsz := Vector2(Art.sprite_size(_rabbit.get_meta("sprite"))) * 4.0
++	var up := float(court.rabbit_up_ap()) * CourtMotion.AP
++	_rabbit_clip.visible = _hat.visible and up > 0.0
++	# the clip ends 1 ap below the hat's top edge; the rabbit's bottom rests 1 ap inside the hat
++	_rabbit_clip.position = Vector2(_hat.position.x + Ui.snap((hsz.x - rsz.x) / 2.0, CourtMotion.AP), _hat.position.y + CourtMotion.AP - rsz.y - CourtMotion.CRIT_AP * CourtMotion.AP)
++	_rabbit_clip.size = Vector2(rsz.x, rsz.y + CourtMotion.CRIT_AP * CourtMotion.AP)
++	_rabbit.position = Vector2(0.0, _rabbit_clip.size.y - up).snapped(Vector2(CourtMotion.AP, CourtMotion.AP))
++	_rabbit.modulate.a = court.hat_alpha()
++
++
++## One after-image of the Magician's current frame (§2 `smear: on`): the strip's own texture region,
++## drawn at the strip's scale behind it, at a fixed alpha. Never a scaled or rotated copy.
++class CourtSmear:
++	extends Node2D
++	var strip: SpriteStrip
++	var alpha := 0.5
++
++	func _draw() -> void:
++		if strip == null or strip._tex == null or strip.frame < 0:
++			return
++		material = strip.material
++		draw_texture_rect_region(strip._tex, Rect2(strip._origin(), strip.frame_size()), strip._src(strip.frame), Color(1, 1, 1, alpha))
+diff --git a/game/scripts/ui/court_echo.gd b/game/scripts/ui/court_echo.gd
+new file mode 100644
+index 0000000..8ba2a58
+--- /dev/null
++++ b/game/scripts/ui/court_echo.gd
+@@ -0,0 +1,140 @@
++class_name CourtEcho
++extends Node2D
++## The courthouse window on the stage (motion-spec suspicion-thermometer `courthouse_window`; 2D kit
++## `court_window` 24×22 ×2 frames dark / lit + `court_window_glow`, the style's one checker halo): the
++## diegetic echo of suspicion. A small courthouse in the stage's landmark band, on the 2D Artist's spot
++## for the era (art px, the sprite's pivot): Balfour (150, 70), Knesset (156, 96), Washington (34, 96);
++## the courthouse era has its own clock panel and shows none.
++##
++## Bibi only (Leaders.has_court): the press-day leaders get no courthouse.
++##
++## - It appears with the thermometer (the first shady source), fading in over 400 ms.
++## - ≥ 75 %: the window lights: the lit frame fades in over the dark one, 400 ms Sine.InOut (out
++##   the same below 75 %).
++## - ≥ 95 %: the glow halo cuts in behind the window, steady.
++## - While the court window is open (the summons and the court day itself): the halo stays on and
++##   the lit window "breathes": its alpha eases 100 % → 60 % → 100 % over 1.6 s, Sine.InOut (0.63 Hz,
++##   far under the 3 Hz photosensitivity ceiling, and never down to dark). A slow lamp, never a strobe.
++## - Reduced motion: the fades take 200 ms (a state change, not motion) and the window holds lit.
++## The sprites sit on whole art px (×4 logical) of the stage art's own grid.
++
++const SPOTS := {"balfour": Vector2(150, 70), "knesset": Vector2(156, 96), "washington": Vector2(34, 96)}
++const PIVOT := Vector2(12, 21)        # court_window's pivot (bottom centre of its 24×22 frame)
++const TOP_CLEAR := 104.0             # the toast dock's band at the stage top (rtl-map §4)
++const GLOW_AT := Vector2(2, 2)        # the halo's top-left in the frame: centred on the window (10-13, 9-15)
++const HOT := 75.0
++const BOIL := 95.0
++const FADE_MS := 400.0
++const FADE_RM_MS := 200.0
++const BREATH_MS := 1600.0
++const BREATH_LOW := 0.6
++
++var reduced_motion := false
++var _house: Sprite2D
++var _lit: Sprite2D
++var _glow: Sprite2D
++var _house_a := 0.0
++var _lit_a := 0.0
++var _t := 0.0                          # ms since the court window opened (the breathing phase)
++var _level := "off"
++var _era := ""
++
++
++## The echo's level: off (not shown) | dark | hot (≥ 75 %) | boil (≥ 95 %) | open (a summons or the
++## court day: the window is open for business). Pure.
++static func level(shown: bool, pct: float, phase: String) -> String:
++	if not shown:
++		return "off"
++	if phase == "summons" or phase == "court":
++		return "open"
++	if pct >= BOIL:
++		return "boil"
++	if pct >= HOT:
++		return "hot"
++	return "dark"
++
++
++## Whether the halo shows (steady from 95 % and while the window is open). Pure.
++static func glow_on(lvl: String) -> bool:
++	return lvl == "boil" or lvl == "open"
++
++
++## The lit window's alpha multiplier `t_ms` into the open window: 1 → BREATH_LOW → 1 per BREATH_MS,
++## Sine.InOut; 1 at every other level and under reduced motion. Pure.
++static func breath(lvl: String, t_ms: float, reduced: bool) -> float:
++	if lvl != "open" or reduced:
++		return 1.0
++	var ph := fmod(maxf(0.0, t_ms), BREATH_MS) / BREATH_MS
++	return 1.0 - (1.0 - BREATH_LOW) * (0.5 - 0.5 * cos(TAU * ph))
++
++
++## The era's spot in stage-art px, or (-1, -1) when the era shows no courthouse. Pure.
++static func spot(era_id: String) -> Vector2:
++	return SPOTS.get(era_id, Vector2(-1, -1))
++
++
++func _ready() -> void:
++	_glow = Ui.img(self, Vector2.ZERO, Art.sprite_or("court_window_glow"), 0, 4)
++	_house = Ui.img(self, Vector2.ZERO, Art.sprite_or("court_window"), 0, 4)
++	_lit = Ui.img(self, Vector2.ZERO, Art.sprite_or("court_window"), 1, 4)
++	for n: Sprite2D in [_glow, _house, _lit]:
++		n.visible = false
++		n.modulate.a = 0.0
++	visible = false
++
++
++## Every frame. `on`: the round's leader goes to court and the game is in main mode.
++func update_view(dt: float, s: GameState, era_id: String, on: bool) -> void:
++	var shown := on and s != null and Investigation.active() and bool(s.investigation.get("revealed", false)) \
++		and spot(era_id).x >= 0.0
++	var lvl := level(shown, Investigation.suspicion(s) if s != null else 0.0, Investigation.phase(s) if s != null else "idle")
++	if era_id != _era:
++		_era = era_id
++		_place()
++	if lvl != _level:
++		if lvl == "open" and _level != "open":
++			_t = 0.0
++		_level = lvl
++	_t += dt
++	var ms := FADE_RM_MS if reduced_motion else FADE_MS
++	_house_a = move_toward(_house_a, 0.0 if lvl == "off" else 1.0, dt / ms)
++	_lit_a = move_toward(_lit_a, 1.0 if lvl in ["hot", "boil", "open"] else 0.0, dt / ms)
++	visible = _house_a > 0.0
++	_house.visible = visible
++	_house.modulate.a = sine_in_out(_house_a)
++	_lit.visible = visible and _lit_a > 0.0
++	_lit.modulate.a = sine_in_out(_lit_a) * _house.modulate.a * breath(lvl, _t, reduced_motion)
++	_glow.visible = visible and glow_on(lvl)
++	_glow.modulate.a = sine_in_out(_lit_a) * _house.modulate.a
++
++
++static func sine_in_out(v: float) -> float:
++	return 0.5 - 0.5 * cos(PI * clampf(v, 0.0, 1.0))
++
++
++## Test hooks: {house, lit, glow} as drawn (alpha; glow visible).
++func drawn() -> Dictionary:
++	return {"house": _house.modulate.a if _house.visible else 0.0, "lit": _lit.modulate.a if _lit.visible else 0.0,
++		"glow": _glow.visible, "level": _level}
++
++
++## The stage's height or era changed: the stage art's origin is the Magician's feet less the art's
++## magicianFeet slot (as the diorama draws the backdrop), so the house sits on the art's own grid.
++func relayout() -> void:
++	_place()
++
++
++func _place() -> void:
++	var sp := spot(_era)
++	if sp.x < 0.0 or _house == null:
++		return
++	var mf: Array = SpriteStrip.manifest().get("magicianFeet", [94, 219])
++	var origin := L.magician_feet() - Vector2(float(mf[0]), float(mf[1])) * 4.0
++	var tl := origin + (sp - PIVOT) * 4.0
++	# the flex rule crops the stage art's top rows on shorter stages (S 760 on a 390×844 phone puts
++	# art row 70 above the stage): the house then drops, on the art grid, to just under the toast
++	# dock (stage-local 8 + 88 + 8), so the echo is never drawn under the top bar
++	tl.y = maxf(tl.y, origin.y + ceilf((float(L.STAGE["y"]) + TOP_CLEAR - origin.y) / 4.0) * 4.0)
++	_house.position = tl
++	_lit.position = tl
++	_glow.position = tl + GLOW_AT * 4.0
+diff --git a/game/scripts/ui/court_echo.gd.uid b/game/scripts/ui/court_echo.gd.uid
+new file mode 100644
+index 0000000..a0b2a7c
+--- /dev/null
++++ b/game/scripts/ui/court_echo.gd.uid
+@@ -0,0 +1 @@
++uid://bd6pxdutbn4ro
+diff --git a/game/scripts/ui/court_motion.gd b/game/scripts/ui/court_motion.gd
+new file mode 100644
+index 0000000..b30fe37
+--- /dev/null
++++ b/game/scripts/ui/court_motion.gd
+@@ -0,0 +1,513 @@
++class_name CourtMotion
++extends RefCounted
++## Bibi's court day on the stage (motion/state-graph-magician.md §1.3, §2 `court` states, §3 `hat-prop`,
++## §5.1-5.2): he takes a startle, zips off screen-left (the forward direction in RTL), his hat zips back
++## alone and hovers on his mark, taps hit the hat; at the end the hat fetches him and he zips back in and
++## lands. A pure timeline over scene ms: no nodes, no clock, no Hebrew. BigBanana reads the pose every
++## frame (body offset / frame / alpha, hat and rabbit offsets) and drains `take_events()` (dust, coins,
++## rabbit, land). Every offset is in whole ART px (ap) of the stage (×4 logical), snapped after easing,
++## so nothing lands between device px at any integer scale.
++##
++## Bibi only: the caller asks `CourtMotion.allowed(leader)` (Leaders.has_court()); every other leader's
++## hazard is the press day, and they never leave the stage.
++##
++## Reduced motion (motion/README rule 5) changes parameters, never the routing: the exit is a 150 ms
++## fade of the body, then the hat fades in on the mark (150 ms); the return is the hat fading out,
++## then the body fading in on idle (no land). The hat does not bob or peek; a tap pays out with no hop.
++
++const AP := 4.0
++# §5.1 exit
++const STARTLE_F2_MS := 180.0          # tap.f2 + the 1-ap lean away from the exit (knock 2)
++const STARTLE_MS := 330.0             # then the zip
++const ZIP_OUT_MS := 200.0             # Quad.In, smears on
++const HAT_SUMMON_MS := 250.0          # after he is gone
++const HAT_ZIP_IN_MS := 300.0          # Quad.Out
++# §5.2 return
++const HAT_FETCH_MS := 150.0           # Quad.In
++const HAT_FETCH_QUICK_MS := 120.0
++const EMPTY_BEAT_MS := 150.0
++const ZIP_IN_MS := 220.0              # Quad.Out, smears on
++const RETURN_QUICK_MS := 150.0        # a reversal mid-zip: Quad.Out back to the mark
++# §3 hat-prop
++const BOB_PERIOD_MS := 1600.0         # y 0 → −2 ap → 0, Sine.InOut
++const BOB_AP := 2.0
++const BOB_RESUME_MS := 300.0          # after the last tap
++const HOP_UP_MS := 80.0               # hatTap: −4 ap Quad.Out (coins at the peak)
++const HOP_DOWN_MS := 120.0            # then → 0 Quad.In
++const HOP_AP := 4.0
++const CRIT_RISE_MS := 200.0           # hatCrit: the rabbit rises 12 ap, Back.Out
++const CRIT_HOLD_MS := 350.0           # "sees the court"
++const CRIT_SINK_MS := 150.0           # Quad.In
++const CRIT_AP := 12.0
++const CRIT_COINS := 6
++const PEEK_MIN_MS := 6000.0           # the rabbit peeks every U(6, 9) s while the hat hovers
++const PEEK_MAX_MS := 9000.0
++const PEEK_UP_MS := 150.0
++const PEEK_HOLD_MS := 500.0
++const PEEK_AP := 3.0
++const HUSH_STEP_MS := 100.0           # hatHush: ears up 100 / hold 100 / duck 100
++const HUSH_AP := 3.0
++const WIGGLE_MS := 40.0               # hat x +1, −1, +1, 0 ap (Stepped)
++const SPILL_GAP_MS := 67.0            # hatCrit: a tap spills 1 coin, at most one per 67 ms
++const RM_FADE_MS := 150.0
++
++## Screen-left of the mark, far enough that the whole figure is off the canvas (BigBanana sets it
++## from the layout; negative = left).
++var off_ap := -170.0
++var reduced := false
++## stage | exitStartle | exitZip | offstage | fetching | emptyBeat | returnZip | returnQuick | rmExit | rmIn
++var body := "stage"
++## hidden | zipIn | hover | hatTap | hatCrit | hatHush | zipOut
++var hat := "hidden"
++var quick := false
++var rng := RandomNumberGenerator.new()
++
++var _bt := 0.0                        # ms in the body state
++var _ht := 0.0                        # ms in the hat state
++var _dx := 0.0                        # body x offset (ap, unsnapped)
++var _zip_from := 0.0
++var _hx := 0.0                        # hat x offset (ap, unsnapped)
++var _hy := 0.0                        # hat y offset (ap, unsnapped; negative = up)
++var _hat_from := Vector2.ZERO
++var _hop_from := 0.0
++var _batch := 1
++var _coins_out := false
++var _rabbit := 0.0                    # the rabbit's rise out of the hat (ap)
++var _bob_t := 0.0
++var _bob_wait := 0.0
++var _peek_in := 0.0
++var _peek_t := -1.0
++var _last_spill := -1000.0
++var _alpha := 1.0                     # body alpha (reduced motion fades)
++var _hat_alpha := 1.0
++var _events: Array[Dictionary] = []
++
++
++## Only Bibi goes to court; everyone else's hazard is the press day (spec §10: the Bibi-only views).
++static func allowed(has_court: bool, has_hero: bool) -> bool:
++	return has_court and has_hero
++
++
++func _init() -> void:
++	rng.randomize()
++
++
++# ------------------------------------------------------------------ pose (read every frame)
++
++## True from the exit's f0 until he has landed back on his mark.
++func in_court() -> bool:
++	return body != "stage"
++
++
++func body_visible() -> bool:
++	return body in ["stage", "exitStartle", "exitZip", "returnZip", "returnQuick", "rmExit", "rmIn"]
++
++
++func body_alpha() -> float:
++	return _alpha
++
++
++## The body's x offset from the mark in whole art px (negative = screen-left).
++func body_dx_ap() -> int:
++	return int(roundf(_dx))
++
++
++## The tap-strip frame the body holds (1 = the startled squash, 2 = the stretched alarm pose that
++## carries the zip), or -1 when the strip plays on its own (idle, or the land).
++func body_frame() -> int:
++	match body:
++		"exitStartle":
++			return 1 if _bt < STARTLE_F2_MS else 2
++		"exitZip", "returnZip", "returnQuick":
++			return 2
++	return -1
++
++
++## Two after-images trail the body while it zips (§2 exitZip / returnZip; none under reduced motion).
++func smear() -> bool:
++	return not reduced and body in ["exitZip", "returnZip", "returnQuick"]
++
++
++## The direction the body travels (-1 left, +1 right, 0 still): the after-images trail behind it.
++func travel_dir() -> int:
++	match body:
++		"exitZip":
++			return -1
++		"returnZip", "returnQuick":
++			return 1
++	return 0
++
++
++func hat_visible() -> bool:
++	return hat != "hidden"
++
++
++func hat_alpha() -> float:
++	return _hat_alpha
++
++
++func hat_dx_ap() -> int:
++	return int(roundf(_hx))
++
++
++func hat_dy_ap() -> int:
++	return int(roundf(_hy))
++
++
++func hat_smear() -> bool:
++	return not reduced and hat in ["zipIn", "zipOut"]
++
++
++## How far the rabbit is up out of the hat (whole ap; 0 = hidden inside it).
++func rabbit_up_ap() -> int:
++	return int(roundf(_rabbit))
++
++
++## Taps land on the hat (hop, coins) only while it hovers or reacts; in every other court state they
++## are credited (floater, counter, cue) and nothing on the stage moves.
++func hat_takes_taps() -> bool:
++	return hat in ["hover", "hatTap", "hatCrit", "hatHush"]
++
++
++## [{kind: dust | coins | rabbit | land, n, from, dust}] since the last call. dust: at the mark;
++## coins: n from the hat's mouth; land: the body plays tap from `from` with its coins suppressed.
++func take_events() -> Array[Dictionary]:
++	var out := _events
++	_events = []
++	return out
++
++
++# ------------------------------------------------------------------ events in
++
++## courtStart (testimony begins). Ignored when he is already in court.
++func start(rm: bool) -> void:
++	if body != "stage":
++		return
++	reduced = rm
++	quick = false
++	_dx = 0.0
++	_alpha = 1.0
++	_set_body("rmExit" if rm else "exitStartle")
++
++
++## courtEnd (testified, served, postponed) or an election while he is away (`quick_`: the hat is
++## faster and the empty beat is skipped, §5.2 "Quick return").
++func finish(quick_: bool = false) -> void:
++	quick = quick or quick_
++	match body:
++		"stage", "fetching", "emptyBeat", "returnZip", "returnQuick", "rmIn":
++			return
++		"exitStartle":
++			# early return: x cut back to the mark, land from the current frame + 1 (no dust)
++			var f := body_frame()
++			_dx = 0.0
++			_set_body("stage")
++			_events.append({"kind": "land", "from": f + 1, "dust": false})
++		"exitZip":
++			_zip_from = _dx
++			_set_body("returnQuick")
++		"rmExit":
++			# mid-fade: fade back in from where the fade got to
++			var a := _alpha
++			_set_body("rmIn")
++			_bt = a * RM_FADE_MS
++		_:
++			_set_body("fetching")
++			_fetch_hat()
++
++
++## A progress reset (O10) or a new run: cut home, hat hidden (§2 inherited runReset).
++func reset() -> void:
++	body = "stage"
++	hat = "hidden"
++	quick = false
++	_dx = 0.0
++	_hx = 0.0
++	_hy = 0.0
++	_rabbit = 0.0
++	_alpha = 1.0
++	_hat_alpha = 1.0
++	_peek_t = -1.0
++	_events.clear()
++
++
++## A registered tap during court day. Returns true when the court owns it (the caller must not play
++## the body's own tap). `paused`: courtPausesTaps, the tap earns nothing (hatHush, no coins).
++func tap(crit: bool, paused: bool = false) -> bool:
++	if body == "stage":
++		return false
++	if not hat_takes_taps():
++		return true   # credited only (§3 table: zipIn / zipOut / hidden)
++	_peek_t = -1.0
++	if paused:
++		_set_hat("hatHush")
++		return true
++	match hat:
++		"hatCrit":
++			if _ht - _last_spill >= SPILL_GAP_MS or _last_spill < 0.0:
++				_last_spill = _ht
++				_events.append({"kind": "coins", "n": 1})
++			return true
++		"hatTap":
++			if crit:
++				_start_crit()
++			elif _ht < HOP_UP_MS and not reduced:
++				_batch += 1   # merge into the rising hop
++			else:
++				_start_hop()
++			return true
++	if crit:
++		_start_crit()
++	else:
++		_start_hop()
++	return true
++
++
++# ------------------------------------------------------------------ time
++
++func tick(dt: float) -> void:
++	_bt += dt
++	_ht += dt
++	_tick_hat(dt)    # the hat first: a fetch that ends this frame lets the body move on this frame
++	_tick_body()
++
++
++func _tick_body() -> void:
++	match body:
++		"exitStartle":
++			_dx = 0.0 if _bt < STARTLE_F2_MS else 1.0   # the lean away from the exit
++			if _bt >= STARTLE_MS:
++				_zip_from = 1.0
++				_set_body("exitZip")
++				_events.append({"kind": "dust"})
++		"exitZip":
++			var k := minf(1.0, _bt / ZIP_OUT_MS)
++			_dx = lerpf(_zip_from, off_ap, Ui.quad_in(k))
++			if k >= 1.0:
++				_dx = 0.0
++				_set_body("offstage")
++		"offstage":
++			_dx = 0.0
++			if hat == "hidden" and _bt >= (0.0 if reduced else HAT_SUMMON_MS):
++				_set_hat("zipIn")
++				_hx = 0.0 if reduced else off_ap
++		"fetching":
++			if hat == "hidden":
++				if reduced:
++					_set_body("rmIn")
++				elif quick:
++					_set_body("returnZip")
++				else:
++					_set_body("emptyBeat")
++		"emptyBeat":
++			if _bt >= EMPTY_BEAT_MS:
++				_set_body("returnZip")
++		"returnZip":
++			var k2 := minf(1.0, _bt / ZIP_IN_MS)
++			_dx = lerpf(off_ap, 0.0, Ui.quad_out(k2))
++			if k2 >= 1.0:
++				_land()
++		"returnQuick":
++			var k3 := minf(1.0, _bt / RETURN_QUICK_MS)
++			_dx = lerpf(_zip_from, 0.0, Ui.quad_out(k3))
++			if k3 >= 1.0:
++				_land()
++		"rmExit":
++			_alpha = maxf(0.0, 1.0 - _bt / RM_FADE_MS)
++			if _bt >= RM_FADE_MS:
++				_alpha = 0.0
++				_set_body("offstage")
++		"rmIn":
++			_alpha = minf(1.0, _bt / RM_FADE_MS)
++			if _bt >= RM_FADE_MS:
++				_alpha = 1.0
++				_set_body("stage")
++
++
++func _tick_hat(dt: float) -> void:
++	match hat:
++		"zipIn":
++			if reduced:
++				_hx = 0.0
++				_hat_alpha = minf(1.0, _ht / RM_FADE_MS)
++				if _ht >= RM_FADE_MS:
++					_enter_hover()
++			else:
++				_hat_alpha = 1.0
++				_hx = lerpf(off_ap, 0.0, Ui.quad_out(minf(1.0, _ht / HAT_ZIP_IN_MS)))
++				if _ht >= HAT_ZIP_IN_MS:
++					_enter_hover()
++		"hover":
++			_hx = 0.0
++			if reduced:
++				_hy = 0.0
++				_rabbit = 0.0
++				return
++			if _bob_wait > 0.0:
++				_bob_wait -= dt
++				_hy = 0.0
++			else:
++				_bob_t += dt
++				_hy = -BOB_AP * (0.5 - 0.5 * cos(TAU * fmod(_bob_t, BOB_PERIOD_MS) / BOB_PERIOD_MS))
++			_tick_peek(dt)
++		"hatTap":
++			if reduced:
++				_hy = 0.0
++				_enter_hover()
++				return
++			if _ht < HOP_UP_MS:
++				_hy = lerpf(_hop_from, -HOP_AP, Ui.quad_out(_ht / HOP_UP_MS))
++			else:
++				if not _coins_out:
++					_coins_out = true
++					_events.append({"kind": "coins", "n": mini(2 + _batch - 1, 4)})
++				_hy = lerpf(-HOP_AP, 0.0, Ui.quad_in(minf(1.0, (_ht - HOP_UP_MS) / HOP_DOWN_MS)))
++				if _ht >= HOP_UP_MS + HOP_DOWN_MS:
++					_enter_hover(BOB_RESUME_MS)
++		"hatCrit":
++			var total := (500.0 if reduced else CRIT_RISE_MS + CRIT_HOLD_MS + CRIT_SINK_MS)
++			if reduced:
++				_hy = 0.0
++				_rabbit = CRIT_AP
++			else:
++				# the hat hops like hatTap while the rabbit rises, holds and sinks
++				if _ht < HOP_UP_MS:
++					_hy = lerpf(_hop_from, -HOP_AP, Ui.quad_out(_ht / HOP_UP_MS))
++				else:
++					_hy = lerpf(-HOP_AP, 0.0, Ui.quad_in(minf(1.0, (_ht - HOP_UP_MS) / HOP_DOWN_MS)))
++				if _ht < CRIT_RISE_MS:
++					_rabbit = CRIT_AP * Ui.back_out(_ht / CRIT_RISE_MS, 1.70158)
++				elif _ht < CRIT_RISE_MS + CRIT_HOLD_MS:
++					_rabbit = CRIT_AP
++				else:
++					_rabbit = CRIT_AP * (1.0 - Ui.quad_in(minf(1.0, (_ht - CRIT_RISE_MS - CRIT_HOLD_MS) / CRIT_SINK_MS)))
++				if not _coins_out and _ht >= CRIT_RISE_MS:
++					_coins_out = true
++					_events.append({"kind": "coins", "n": CRIT_COINS})
++			if _ht >= total:
++				_rabbit = 0.0
++				_enter_hover(BOB_RESUME_MS)
++		"hatHush":
++			_hy = 0.0
++			if reduced:
++				_hx = 0.0
++				_rabbit = HUSH_AP if _ht < RM_FADE_MS else 0.0
++				if _ht >= RM_FADE_MS:
++					_enter_hover(BOB_RESUME_MS)
++				return
++			var w := [1.0, -1.0, 1.0, 0.0]
++			_hx = w[mini(3, int(_ht / WIGGLE_MS))]
++			if _ht < HUSH_STEP_MS:
++				_rabbit = HUSH_AP * Ui.quad_out(_ht / HUSH_STEP_MS)
++			elif _ht < 2.0 * HUSH_STEP_MS:
++				_rabbit = HUSH_AP
++			else:
++				_rabbit = HUSH_AP * (1.0 - Ui.quad_in(minf(1.0, (_ht - 2.0 * HUSH_STEP_MS) / HUSH_STEP_MS)))
++			if _ht >= 3.0 * HUSH_STEP_MS:
++				_rabbit = 0.0
++				_enter_hover(BOB_RESUME_MS)
++		"zipOut":
++			_rabbit = 0.0
++			if reduced:
++				_hat_alpha = maxf(0.0, 1.0 - _ht / RM_FADE_MS)
++				if _ht >= RM_FADE_MS:
++					_set_hat("hidden")
++				return
++			var ms := HAT_FETCH_QUICK_MS if quick else HAT_FETCH_MS
++			var k := minf(1.0, _ht / ms)
++			_hx = lerpf(_hat_from.x, off_ap, Ui.quad_in(k))
++			_hy = lerpf(_hat_from.y, 0.0, k)
++			if k >= 1.0:
++				_set_hat("hidden")
++
++
++func _tick_peek(dt: float) -> void:
++	if _peek_t < 0.0:
++		_peek_in -= dt
++		_rabbit = 0.0
++		if _peek_in <= 0.0:
++			_peek_t = 0.0
++		return
++	_peek_t += dt
++	if _peek_t < PEEK_UP_MS:
++		_rabbit = PEEK_AP * Ui.quad_out(_peek_t / PEEK_UP_MS)
++	elif _peek_t < PEEK_UP_MS + PEEK_HOLD_MS:
++		_rabbit = PEEK_AP
++	elif _peek_t < 2.0 * PEEK_UP_MS + PEEK_HOLD_MS:
++		_rabbit = PEEK_AP * (1.0 - Ui.quad_in((_peek_t - PEEK_UP_MS - PEEK_HOLD_MS) / PEEK_UP_MS))
++	else:
++		_rabbit = 0.0
++		_peek_t = -1.0
++		_peek_in = rng.randf_range(PEEK_MIN_MS, PEEK_MAX_MS)
++
++
++# ------------------------------------------------------------------ transitions
++
++func _set_body(b: String) -> void:
++	body = b
++	_bt = 0.0
++	if b == "offstage" or b == "fetching" or b == "emptyBeat":
++		_alpha = 0.0 if reduced else 1.0
++	if b == "returnZip":
++		_dx = off_ap
++		_alpha = 1.0
++	if b == "rmIn":
++		_alpha = 0.0
++	if b == "stage":
++		_alpha = 1.0
++
++
++func _set_hat(h: String) -> void:
++	hat = h
++	_ht = 0.0
++	_coins_out = false
++	if h == "hidden":
++		_hx = 0.0
++		_hy = 0.0
++		_rabbit = 0.0
++		_hat_alpha = 1.0
++	if h == "zipIn":
++		_hat_alpha = 0.0 if reduced else 1.0
++
++
++func _enter_hover(wait_ms: float = 0.0) -> void:
++	_set_hat("hover")
++	_hx = 0.0
++	_hat_alpha = 1.0
++	_bob_t = 0.0
++	_bob_wait = wait_ms
++	_peek_t = -1.0
++	_peek_in = rng.randf_range(PEEK_MIN_MS, PEEK_MAX_MS)
++
++
++func _start_hop() -> void:
++	_hop_from = _hy
++	_batch = 1
++	_set_hat("hatTap")
++	if reduced:
++		_events.append({"kind": "coins", "n": 3})   # RM: no hop, three coins straight up at f0
++		_coins_out = true
++
++
++func _start_crit() -> void:
++	_hop_from = _hy
++	_last_spill = -1000.0
++	_set_hat("hatCrit")
++	_events.append({"kind": "rabbit"})
++	if reduced:
++		_events.append({"kind": "coins", "n": CRIT_COINS})
++		_coins_out = true
++
++
++func _fetch_hat() -> void:
++	if hat == "hidden":
++		return
++	_hat_from = Vector2(_hx, _hy)
++	_set_hat("zipOut")
++	_hat_alpha = 1.0
++
++
++func _land() -> void:
++	_dx = 0.0
++	_set_body("stage")
++	_events.append({"kind": "land", "from": 1, "dust": true})
+diff --git a/game/scripts/ui/court_motion.gd.uid b/game/scripts/ui/court_motion.gd.uid
+new file mode 100644
+index 0000000..69f4ec3
+--- /dev/null
++++ b/game/scripts/ui/court_motion.gd.uid
+@@ -0,0 +1 @@
++uid://c1xsk0nq1t6o1
+diff --git a/game/scripts/ui/leader_walk.gd b/game/scripts/ui/leader_walk.gd
+new file mode 100644
+index 0000000..1d7eb62
+--- /dev/null
++++ b/game/scripts/ui/leader_walk.gd
+@@ -0,0 +1,120 @@
++class_name LeaderWalk
++extends RefCounted
++## A leader walking off or onto the stage (design/leader-select-spec.md §9.3.4: the leader swap in
++## EVOLVE_TX, ≤ 1.5 s with input locked; the old leader walks out screen-right on the fade, the new
++## one walks in to the feet point on the fade-in). Prepared for the Animator's second slice; nothing
++## calls it yet (the picker and EVOLVE_TX wiring are the Game Developer's).
++##
++## No leader has a walk strip, and none is requested: a 1-2 s walk cycle across a 180-ap stage is dead
++## time, and the TA budget (CONTRACT §4c) has no room for 8 more strips. So a walk is the leader's own
++## idle strip carried across at a brisk, even pace with a stepped 1-ap bob: up on every other 125 ms
++## beat (4 bobs/s, a walk's double bounce read at gameplay scale), whole art px only, snapped after
++## easing. Walk-out eases in (Sine.In: he sets off), walk-in eases out (Sine.Out: he settles on the
++## mark, the last beat flat so he lands on idle's own frame). Reduced motion: no travel and no bob;
++## the figure fades out / in on the mark over 150 ms.
++##
++## Usage: var w := LeaderWalk.make(parent, "bennett", L.magician_feet()); w.walk_in(-1); then each
++## frame w.tick(dt) until w.done(). Or drive any SpriteStrip with LeaderWalk.new(strip, id).
++
++const AP := 4.0
++const OUT_MS := 560.0
++const IN_MS := 640.0
++const STEP_MS := 125.0
++const BOB_AP := 1.0
++const RM_FADE_MS := 150.0
++
++var strip: SpriteStrip
++var leader_id := ""
++var feet := Vector2.ZERO
++var reduced := false
++var off_ap := 0.0                     # signed: where the figure is fully off the canvas
++var _mode := ""                       # "" | out | in
++var _dir := 1
++var _t := 0.0
++var _dur := 0.0
++
++
++## Makes the leader's strip at `feet` (SpriteStrip.make: the density picked for the stage) and a walk
++## for it. Null when the leader has no strip.
++static func make(parent: Node, id: String, feet_: Vector2) -> LeaderWalk:
++	var s := SpriteStrip.make(parent, id, feet_)
++	if s == null:
++		return null
++	var w := LeaderWalk.new(s, id)
++	w.feet = feet_
++	return w
++
++
++func _init(strip_: SpriteStrip = null, id: String = "") -> void:
++	strip = strip_
++	leader_id = id
++	if strip != null:
++		feet = strip.position
++
++
++## The pose `t_ms` into a walk: {dx (ap from the mark), dy (ap, negative = up), alpha}. `out`: from the
++## mark to `off`; else from `off` to the mark. Pure: every offset is a whole art px.
++static func pose(t_ms: float, dur_ms: float, off: float, out: bool, reduced: bool) -> Dictionary:
++	var k := clampf(t_ms / maxf(1.0, dur_ms), 0.0, 1.0)
++	if reduced:
++		var a := clampf(t_ms / RM_FADE_MS, 0.0, 1.0)
++		return {"dx": 0, "dy": 0, "alpha": 1.0 - a if out else a}
++	var e := (1.0 - cos(k * PI / 2.0)) if out else sin(k * PI / 2.0)   # Sine.In / Sine.Out
++	var x := off * e if out else off * (1.0 - e)
++	var beat := int(t_ms / STEP_MS)
++	var bob := -BOB_AP if (beat % 2 == 1 and k < 1.0) else 0.0
++	return {"dx": int(roundf(x)), "dy": int(bob), "alpha": 1.0}
++
++
++## How far (signed ap) the figure must travel from `feet_x` to be fully off a canvas that runs from
++## −ox to W + ox (logical): its frame rect `r` (feet-local) clears the edge by 4 ap.
++static func off_for(r: Rect2, feet_x: float, ox: float, dir: int) -> float:
++	if dir < 0:
++		return -ceilf((feet_x + ox + r.end.x + 4.0 * AP) / AP)
++	return ceilf((float(L.W) + ox - feet_x - r.position.x + 4.0 * AP) / AP)
++
++
++## Walk off the stage toward `dir` (+1 screen-right, the default for the swap; -1 screen-left).
++func walk_out(dir: int = 1, ms: float = OUT_MS, ox: float = 0.0) -> void:
++	_begin("out", dir, ms, ox)
++
++
++## Walk on from the `dir` side (-1 from screen-left, the default) to the feet point.
++func walk_in(dir: int = -1, ms: float = IN_MS, ox: float = 0.0) -> void:
++	_begin("in", dir, ms, ox)
++
++
++func done() -> bool:
++	return _mode == "" or _t >= (RM_FADE_MS if reduced else _dur)
++
++
++func tick(dt: float) -> void:
++	if _mode == "" or strip == null:
++		return
++	_t += dt
++	var p := pose(_t, _dur, off_ap, _mode == "out", reduced)
++	strip.position = feet + Vector2(float(p["dx"]), float(p["dy"])) * AP
++	strip.modulate.a = float(p["alpha"])
++	strip.update_view(dt)
++	if done():
++		if _mode == "out":
++			strip.visible = false
++		else:
++			strip.position = feet
++			strip.modulate.a = 1.0
++		_mode = ""
++
++
++func _begin(mode: String, dir: int, ms: float, ox: float) -> void:
++	_mode = mode
++	_dir = dir
++	_t = 0.0
++	_dur = ms
++	if strip != null:
++		off_ap = off_for(strip.rect(), feet.x, ox, dir)
++		strip.visible = true
++		if strip.anim != "idle":
++			strip.play("idle")
++		var p := pose(0.0, _dur, off_ap, mode == "out", reduced)
++		strip.position = feet + Vector2(float(p["dx"]), float(p["dy"])) * AP
++		strip.modulate.a = float(p["alpha"])
+diff --git a/game/scripts/ui/leader_walk.gd.uid b/game/scripts/ui/leader_walk.gd.uid
+new file mode 100644
+index 0000000..6fe3dd2
+--- /dev/null
++++ b/game/scripts/ui/leader_walk.gd.uid
+@@ -0,0 +1 @@
++uid://dceejbljkb88n
+diff --git a/game/scripts/ui/views/view_thermo.gd b/game/scripts/ui/views/view_thermo.gd
+index 6c26fe5..74d339b 100644
+--- a/game/scripts/ui/views/view_thermo.gd
++++ b/game/scripts/ui/views/view_thermo.gd
+@@ -417,7 +417,7 @@ func bead_visible() -> bool:
+ 
+ ## A court summons: the gulp, two drops at once whatever the suspicion (not under reduced motion).
+ func gulp() -> void:
+-	if reduced_motion or bb == null or bb.hero == null or not _shown:
++	if reduced_motion or bb == null or bb.hero == null or not _shown or not bb.on_stage():
+ 		return
+ 	for i in 2:
+ 		_spawn(Vector2(-2.0 * AP, AP) if i == 1 else Vector2.ZERO)
+@@ -429,7 +429,7 @@ func on_politics_event(e: Dictionary) -> void:
+ 
+ 
+ func _body_is_idle() -> bool:
+-	return bb != null and bb.hero != null and bb._state == "idle" and bb.hero.anim == "idle"
++	return bb != null and bb.hero != null and bb._state == "idle" and bb.hero.anim == "idle" and bb.on_stage()
+ 
+ 
+ func _spawn(off: Vector2) -> void:
+@@ -449,7 +449,8 @@ func _update_sweat(dt: float, p: float) -> void:
+ 	var st := sweat_state(p) if _shown else "dry"
+ 	var idle := _body_is_idle()
+ 	# reduced motion: one static bead tracking the temple
+-	_bead.visible = reduced_motion and st != "dry" and _shown
++	# (never on an empty stage: court day takes him off, motion/state-graph-magician.md §5.1)
++	_bead.visible = reduced_motion and st != "dry" and _shown and bb.on_stage()
+ 	if _bead.visible:
+ 		_bead.position = (temple() - _drop_pivot()).snapped(Vector2(AP, AP))
+ 	if reduced_motion:
+diff --git a/game/tests/unit/test_motion_court.gd b/game/tests/unit/test_motion_court.gd
+new file mode 100644
+index 0000000..a423dad
+--- /dev/null
++++ b/game/tests/unit/test_motion_court.gd
+@@ -0,0 +1,387 @@
++extends RefCounted
++## Motion with logic (animator, 2026-09-29): Bibi's court-day exit and return (ui/court_motion.gd,
++## BigBanana.court_*; motion/state-graph-magician.md §1.3, §3, §5), the court window's echo
++## (ui/court_echo.gd), the brawl cloud's boil (ChatView.brawl_boil), the toast's exit fade and the
++## prepared leader walk (ui/leader_walk.gd). Each has a reduced-motion path; every offset is a whole
++## art px. The integration cases boot the real scene on the game content.
++
++var runner: Object
++var tree: SceneTree
++var dir := ""
++var m: Node
++
++
++func setup(r: Object) -> void:
++	TestFixture.use_game_content()
++	tree = r as SceneTree
++	dir = "user://test_motion_court_%d" % Time.get_ticks_usec()
++	DirAccess.make_dir_recursive_absolute(dir)
++
++
++func teardown() -> void:
++	if m and is_instance_valid(m):
++		m.set_process(false)
++		if m.get_parent():
++			m.get_parent().remove_child(m)
++		m.queue_free()
++	var d := DirAccess.open(dir)
++	if d:
++		for f in d.get_files():
++			d.remove(f)
++	DirAccess.remove_absolute(dir)
++	TestFixture.use_game_content()
++
++
++func _boot() -> void:
++	m = load("res://scenes/main.tscn").instantiate()
++	m.store = SaveStore.new(dir)
++	tree.root.add_child(m)
++	for i in 3:
++		await tree.process_frame
++	m.ftue.handoff_ms = 1.0
++	var p: Vector2 = L.magician_hit().get_center() + Vector2(m._ox, m._stage_y)
++	for pressed in [true, false]:
++		var e := InputEventScreenTouch.new()
++		e.position = p
++		e.pressed = pressed
++		m._unhandled_input(e)
++	m.set_process(false)   # the test drives the Magician's clock itself
++
++
++## Runs a CourtMotion for `ms` in 16-ms steps, collecting its events.
++func _run(c: CourtMotion, ms: float, into: Array = []) -> Array:
++	var t := 0.0
++	while t < ms - 0.001:
++		var dt := minf(16.0, ms - t)
++		c.tick(dt)
++		t += dt
++		into.append_array(c.take_events())
++	return into
++
++
++func _kinds(ev: Array) -> Array:
++	return ev.map(func(e: Dictionary) -> String: return str(e["kind"]))
++
++
++# ------------------------------------------------------------------ CourtMotion (pure)
++
++func test_the_exit_startles_zips_left_and_the_hat_comes_back() -> void:
++	var c := CourtMotion.new()
++	c.off_ap = -170.0
++	c.start(false)
++	runner.check(c.in_court() and c.body == "exitStartle" and c.body_frame() == 1 and c.body_dx_ap() == 0, "f0: tap.f1, the startle, on the mark")
++	var ev := _run(c, 200.0)
++	runner.check(c.body_frame() == 2 and c.body_dx_ap() == 1, "t 180: tap.f2 and the 1-ap lean away from the exit (dx %d)" % c.body_dx_ap())
++	_run(c, 140.0, ev)
++	runner.check(c.body == "exitZip" and _kinds(ev).has("dust") and c.smear(), "t 330: the zip, dust at the mark, the after-images on")
++	var xs: Array = []
++	for i in 13:
++		c.tick(16.0)
++		xs.append(c.body_dx_ap())
++	var mono := true
++	for i in range(1, xs.size()):
++		mono = mono and int(xs[i]) <= int(xs[i - 1])
++	runner.check(mono and c.travel_dir() == -1 or c.body == "offstage", "he zips screen-left, never back (%s)" % str(xs))
++	_run(c, 40.0)
++	runner.check(c.body == "offstage" and not c.body_visible() and not c.hat_visible(), "t 530: gone; the stage is empty for a beat")
++	_run(c, 260.0)
++	runner.check(c.hat == "zipIn" and c.hat_dx_ap() < 0, "t 780: the hat zips in from the left (dx %d)" % c.hat_dx_ap())
++	_run(c, 310.0)
++	runner.check(c.hat == "hover" and c.hat_dx_ap() == 0, "t 1080: the hat hovers on his mark")
++	var ys: Dictionary = {}
++	for i in 120:
++		c.tick(16.0)
++		ys[c.hat_dy_ap()] = true
++	runner.check(ys.keys().all(func(y: int) -> bool: return y <= 0 and y >= -2) and ys.size() >= 2, "the hover bobs 0 → −2 ap in whole art px (%s)" % str(ys.keys()))
++
++
++func test_the_return_fetches_him_and_he_lands() -> void:
++	var c := CourtMotion.new()
++	c.start(false)
++	_run(c, 1200.0)
++	c.finish()
++	runner.check(c.body == "fetching" and c.hat == "zipOut" and not c.body_visible(), "courtEnd: the hat zips off to fetch him")
++	var ev := _run(c, 160.0)
++	runner.check(not c.hat_visible() and c.body == "emptyBeat", "the hat gone, 150 ms of empty stage (%s)" % c.body)
++	_run(c, 150.0, ev)
++	runner.check(c.body == "returnZip" and c.body_visible() and c.body_frame() == 2 and c.body_dx_ap() < 0, "he zips back in from the left on tap.f2")
++	_run(c, 230.0, ev)
++	runner.check(not c.in_court() and c.body_dx_ap() == 0, "on his mark")
++	var land := ev.filter(func(e: Dictionary) -> bool: return e["kind"] == "land")
++	runner.check(land.size() == 1 and int(land[0]["from"]) == 1 and bool(land[0]["dust"]), "the land: tap from f1 with dust (%s)" % str(land))
++
++
++func test_early_and_quick_returns() -> void:
++	var c := CourtMotion.new()
++	c.start(false)
++	_run(c, 200.0)
++	c.finish()
++	var ev: Array = c.take_events()
++	runner.check(not c.in_court() and c.body_dx_ap() == 0 and ev.size() == 1 and int(ev[0]["from"]) == 3 and not bool(ev[0]["dust"]),
++		"courtEnd during the startle: cut to the mark, land from the frame after (%s)" % str(ev))
++	c.start(false)
++	_run(c, 400.0)
++	var x0 := c.body_dx_ap()
++	c.finish()
++	runner.check(c.body == "returnQuick", "courtEnd mid-zip: reverse from where he is (dx %d)" % x0)
++	ev = _run(c, 160.0)
++	runner.check(not c.in_court() and _kinds(ev).has("land"), "back and landed within 150 ms")
++	c.start(false)
++	_run(c, 1200.0)
++	c.finish(true)
++	_run(c, 125.0)
++	runner.check(c.body == "returnZip", "the quick return (an election): a 120 ms fetch and no empty beat (%s)" % c.body)
++
++
++func test_taps_hit_the_hat_during_court_day() -> void:
++	var c := CourtMotion.new()
++	runner.check(not c.tap(false), "on stage the body takes its own taps")
++	c.start(false)
++	runner.check(c.tap(false) and c.take_events().is_empty(), "before the hat is back a tap is credited, nothing moves")
++	_run(c, 1200.0)
++	runner.check(c.tap(false) and c.hat == "hatTap", "on the hovering hat: the hop")
++	c.tick(16.0)
++	c.tap(false)   # during the rise: merged
++	var ev := _run(c, 100.0)
++	var coins := ev.filter(func(e: Dictionary) -> bool: return e["kind"] == "coins")
++	runner.check(coins.size() == 1 and int(coins[0]["n"]) == 3, "coins at the hop's peak: 2 + the merged tap (%s)" % str(coins))
++	runner.check(c.hat_dy_ap() < 0 and c.hat_dy_ap() >= -4, "the hat is up to 4 ap off its mark (%d)" % c.hat_dy_ap())
++	_run(c, 200.0)
++	c.tap(true)
++	ev = []
++	ev.append_array(c.take_events())
++	runner.check(c.hat == "hatCrit" and _kinds(ev).has("rabbit"), "a crit: the rabbit pops up and sees the court")
++	var peak := 0
++	var got: Array = []
++	for i in 45:
++		c.tick(16.0)
++		peak = maxi(peak, c.rabbit_up_ap())
++		got.append_array(c.take_events())
++	runner.check(peak >= 12 and c.rabbit_up_ap() == 0 and c.hat == "hover", "it rises 12 ap, holds, sinks, and the hat hovers again (peak %d)" % peak)
++	runner.check(got.filter(func(e: Dictionary) -> bool: return e["kind"] == "coins" and int(e["n"]) == 6).size() == 1, "6 coins from the crit")
++	c.tap(false, true)
++	runner.check(c.hat == "hatHush" and _run(c, 320.0).is_empty(), "a paused tap: the rabbit's ears peek and duck, no coins")
++
++
++func test_reduced_motion_fades_instead_of_zipping() -> void:
++	var c := CourtMotion.new()
++	c.start(true)
++	var ev: Array = []
++	var dxs: Dictionary = {}
++	var smeared := false
++	for i in 12:
++		c.tick(16.0)
++		ev.append_array(c.take_events())
++		dxs[c.body_dx_ap()] = true
++		smeared = smeared or c.smear()
++	runner.check(dxs.keys() == [0] and not smeared and c.body_frame() == -1 and not _kinds(ev).has("dust"), "no startle, lean, zip or dust")
++	runner.check(c.body_alpha() < 0.1 or c.body == "offstage", "the body faded out in 150 ms (a %.2f, %s)" % [c.body_alpha(), c.body])
++	_run(c, 200.0)
++	runner.check(c.hat == "hover" and c.hat_alpha() == 1.0 and c.hat_dx_ap() == 0, "the hat faded in on the mark (%s)" % c.hat)
++	var moved := false
++	for i in 200:
++		c.tick(16.0)
++		moved = moved or c.hat_dy_ap() != 0 or c.rabbit_up_ap() != 0
++	runner.check(not moved, "the hat is static: no bob, no peek")
++	c.tap(false)
++	ev = []
++	ev.append_array(c.take_events())
++	runner.check(ev.size() == 1 and int(ev[0]["n"]) == 3 and c.hat_dy_ap() == 0, "a tap: three coins at f0, no hop (%s)" % str(ev))
++	c.tick(16.0)
++	c.finish()
++	ev = _run(c, 400.0)
++	runner.check(not c.in_court() and c.body_alpha() == 1.0 and not _kinds(ev).has("land"), "the return: hat out, body in, no land")
++
++
++func test_reset_cuts_home() -> void:
++	var c := CourtMotion.new()
++	c.start(false)
++	_run(c, 1200.0)
++	c.reset()
++	runner.check(not c.in_court() and not c.hat_visible() and c.body_dx_ap() == 0 and c.body_alpha() == 1.0, "a progress reset: home, hat gone")
++
++
++# ------------------------------------------------------------------ on the stage (BigBanana)
++
++func test_bibis_court_day_on_the_stage() -> void:
++	await _boot()
++	var bb: BigBanana = m.bb
++	if bb.hero == null:
++		runner.check(false, "the Magician strip loads")
++		return
++	for i in 40:
++		bb.update_view(16.0)   # the boot tap's strip ends on idle
++	m.state.investigation["revealed"] = true
++	m.state.investigation["phase"] = "summons"
++	Investigation.testify(m.state)
++	runner.check(BigBanana.wants_court(m.state), "Bibi's round in court: the stage wants him gone")
++	var feet := L.magician_feet()
++	bb.court_sync(true)
++	bb.update_view(16.0)
++	runner.check(bb.court.in_court() and bb.hero.visible and bb.hero.anim == "tap" and bb.hero.frame == 1, "f0: the startle frame")
++	var off := false
++	for i in 40:
++		bb.court_sync(true)
++		bb.update_view(16.0)
++		var x := bb.hero.position.x - feet.x
++		off = off or not bb.hero.visible
++		runner.check(is_equal_approx(fmod(absf(x), 4.0), 0.0), "the body moves in whole art px (dx %.1f)" % x)
++		if not bb.hero.visible:
++			break
++	runner.check(off and not bb.on_stage(), "he has left the stage")
++	for i in 60:
++		bb.court_sync(true)
++		bb.update_view(16.0)
++	var hat := bb.hat_node()
++	runner.check(hat.visible and hat.position.x + hat.texture.get_size().x * 2.0 == bb.hat_mark().x, "the hat hovers with its mouth on his mark")
++	runner.check(is_equal_approx(fmod(hat.position.y, 4.0), fmod(bb.hat_mark().y, 4.0)), "on the art grid")
++	var burst: Array = []
++	bb.on_court_fx = func(kind: String, _at: Vector2, n: int) -> void: burst.append([kind, n])
++	bb.tap(false)
++	runner.check(bb.hero.anim != "tap" or not bb.hero.visible, "a tap in court does not play his tap (he is away)")
++	for i in 10:
++		bb.update_view(16.0)
++	runner.check(burst.any(func(b: Array) -> bool: return b[0] == "coins"), "the hat pays its coins (%s)" % str(burst))
++	# the sweat never beads on the empty stage
++	m.thermo._next_drop = 0.0
++	m.state.investigation["suspicion"] = 90.0
++	m.thermo.update_view(16.0, m.state, {"main": true})
++	runner.check(m.thermo.drops().is_empty(), "no sweat while he is away")
++	# testimony over
++	m.state.investigation["phase"] = "idle"
++	for i in 60:
++		bb.court_sync(BigBanana.wants_court(m.state))
++		bb.update_view(16.0)
++	runner.check(not bb.court.in_court() and bb.hero.visible and bb.hero.position == feet and not hat.visible, "back on his mark, the hat gone")
++
++
++func test_only_bibi_goes_to_court() -> void:
++	var s := GameState.fresh()
++	Leaders.set_salt(s, 3)
++	var r := Politics.install(s, "bennett")
++	if not r.get("ok", false):
++		runner.check(true, "no leader select in this content")
++		return
++	s.investigation["phase"] = "court"
++	runner.check(not BigBanana.wants_court(s), "Bennett's hazard is the press day: he never leaves the stage")
++	var e := CourtEcho.level(true, 100.0, "court")
++	runner.check(e == "open", "the echo's level is data; the controller gates it on Leaders.has_court (%s)" % e)
++	var s2 := GameState.fresh()
++	Politics.install(s2, "bibi")
++	s2.investigation["phase"] = "court"
++	runner.check(BigBanana.wants_court(s2), "Bibi's court day takes him off")
++
++
++# ------------------------------------------------------------------ the court window echo
++
++func test_the_court_window_echo() -> void:
++	runner.check(CourtEcho.level(false, 100.0, "court") == "off", "not shown: off")
++	runner.check(CourtEcho.level(true, 50.0, "idle") == "dark" and CourtEcho.level(true, 80.0, "idle") == "hot" \
++		and CourtEcho.level(true, 96.0, "idle") == "boil" and CourtEcho.level(true, 20.0, "summons") == "open", "dark < 75 ≤ hot < 95 ≤ boil; the summons and court day open the window")
++	runner.check(not CourtEcho.glow_on("hot") and CourtEcho.glow_on("boil") and CourtEcho.glow_on("open"), "the halo: steady from 95 % and while open")
++	var lo := 1.0
++	var hi := 0.0
++	var prev := CourtEcho.breath("open", 0.0, false)
++	var max_step := 0.0
++	for i in 200:
++		var b := CourtEcho.breath("open", float(i) * 16.0, false)
++		lo = minf(lo, b)
++		hi = maxf(hi, b)
++		max_step = maxf(max_step, absf(b - prev))
++		prev = b
++	runner.check(lo >= CourtEcho.BREATH_LOW - 0.001 and hi <= 1.0 and hi - lo > 0.3, "the open window breathes between 60 %% and 100 %% (%.2f-%.2f)" % [lo, hi])
++	runner.check(max_step < 0.05 and CourtEcho.BREATH_MS >= 1000.0 / 3.0, "a slow ease (≤ 5 %% per frame, %.2f Hz), never a flicker" % (1000.0 / CourtEcho.BREATH_MS))
++	runner.check(CourtEcho.breath("open", 800.0, true) == 1.0 and CourtEcho.breath("boil", 800.0, false) == 1.0, "reduced motion (and every other level): held lit")
++	runner.check(CourtEcho.spot("courthouse").x < 0.0 and CourtEcho.spot("balfour") == Vector2(150, 70), "the courthouse era has its own clock panel: no echo")
++
++
++func test_the_echo_on_the_stage() -> void:
++	await _boot()
++	var ce: CourtEcho = m.court_echo
++	m.state.investigation["revealed"] = true
++	m.state.investigation["suspicion"] = 80.0
++	for i in 40:
++		ce.update_view(16.0, m.state, "balfour", true)
++	var dr := ce.drawn()
++	runner.check(dr["house"] > 0.99 and dr["lit"] > 0.99 and not dr["glow"], "≥ 75 %%: the courthouse with its window lit (%s)" % str(dr))
++	var pos: Vector2 = ce._house.position
++	runner.check(is_equal_approx(fmod(pos.x - L.magician_feet().x, 4.0), 0.0) and is_equal_approx(fmod(pos.y - L.magician_feet().y, 4.0), 0.0), "on the stage art's grid (%s)" % str(pos))
++	runner.check(pos.y >= float(L.STAGE["y"]) + CourtEcho.TOP_CLEAR, "never under the top bar or the toast dock (y %.0f)" % pos.y)
++	for i in 40:
++		ce.update_view(16.0, m.state, "balfour", false)
++	runner.check(ce.drawn()["house"] < 0.01, "another leader's round: no courthouse")
++
++
++# ------------------------------------------------------------------ the brawl boil, the toast, the walk
++
++func test_the_brawl_cloud_boils_in_whole_pixels() -> void:
++	var offs: Dictionary = {}
++	var frames: Dictionary = {}
++	var rest_ok := true
++	for i in 240:
++		var t := float(i) * 10.0
++		var b := ChatView.brawl_boil(t, 4, false)
++		var o: Vector2i = b["off"]
++		offs[o] = true
++		frames[int(b["frame"])] = true
++		if fmod(t, ChatView.BOIL_PERIOD_MS) >= ChatView.BOIL_PERIOD_MS - ChatView.BOIL_REST_MS:
++			rest_ok = rest_ok and o == Vector2i.ZERO
++	runner.check(frames.size() == 4, "the kit's 4 frames loop (%s)" % str(frames.keys()))
++	runner.check(offs.size() == 5 and offs.keys().all(func(o: Vector2i) -> bool: return absi(o.x) + absi(o.y) <= 1), "a 1-ap ring plus the rest (%s)" % str(offs.keys()))
++	runner.check(rest_ok, "each period ends on a 300 ms rest")
++	var rm := ChatView.brawl_boil(530.0, 4, true)
++	runner.check(int(rm["frame"]) == 0 and rm["off"] == Vector2i.ZERO, "reduced motion: frame 0, still")
++
++
++func test_the_toast_fades_out_inside_its_three_seconds() -> void:
++	await _boot()
++	var t: Toasts = m.toasts
++	_quiet(t)
++	t.reduced_motion = false
++	t.show_toast("x")
++	t.update_view(16.0)
++	t.update_view(Toasts.SHOW_MS - 80.0)
++	runner.check(t._plate.visible and t._plate.modulate.a < 0.99 and t._plate.modulate.a > 0.0, "the last 120 ms fade (a %.2f)" % t._plate.modulate.a)
++	t.update_view(100.0)
++	runner.check(not t._plate.visible, "then it is gone")
++	t.reduced_motion = true
++	_quiet(t)
++	t.show_toast("y")
++	t.update_view(16.0)
++	t.update_view(Toasts.SHOW_MS - 80.0)
++	runner.check(t._plate.visible and t._plate.modulate.a == 1.0, "reduced motion: no fade, a cut")
++
++
++func _quiet(t: Toasts) -> void:
++	t._queue.clear()
++	t._tags.clear()
++	t._chats.clear()
++	t._t = -1.0
++	t._gap = 0.0
++
++
++func test_the_leader_walk_pose() -> void:
++	var off := LeaderWalk.off_for(Rect2(-80, -436, 160, 440), 376.0, 0.0, 1)
++	runner.check(off > 0.0 and 376.0 + off * 4.0 - 80.0 > 720.0, "walking out screen-right clears the canvas (%.0f ap)" % off)
++	var prev := 0
++	var mono := true
++	var bobbed := false
++	for i in 36:
++		var p := LeaderWalk.pose(float(i) * 16.0, LeaderWalk.OUT_MS, off, true, false)
++		mono = mono and int(p["dx"]) >= prev
++		prev = int(p["dx"])
++		bobbed = bobbed or int(p["dy"]) == -1
++		runner.check(typeof(p["dx"]) == TYPE_INT and int(p["dy"]) in [0, -1], "whole art px")
++	var end := LeaderWalk.pose(LeaderWalk.OUT_MS, LeaderWalk.OUT_MS, off, true, false)
++	runner.check(mono and bobbed and int(end["dx"]) == int(roundf(off)), "out: an even walk off, bobbing on the beat")
++	var land := LeaderWalk.pose(LeaderWalk.IN_MS, LeaderWalk.IN_MS, -off, false, false)
++	runner.check(int(land["dx"]) == 0 and int(land["dy"]) == 0, "in: he lands on the feet point, flat")
++	var rm := LeaderWalk.pose(75.0, LeaderWalk.IN_MS, -off, false, true)
++	runner.check(int(rm["dx"]) == 0 and is_equal_approx(float(rm["alpha"]), 0.5), "reduced motion: a fade on the mark, no travel")
++	runner.check(LeaderWalk.OUT_MS + LeaderWalk.IN_MS <= 1500.0, "out + in fit the swap's 1.5 s budget")
++
++
++func test_the_os_reduced_motion_preference_reads_the_web_bridges_int() -> void:
++	var main_script: GDScript = load("res://scripts/main.gd")
++	runner.check(main_script.js_bool(1) and main_script.js_bool(true) and main_script.js_bool(1.0), "the bridge's 1 (and true) is reduce")
++	runner.check(not main_script.js_bool(0) and not main_script.js_bool(false) and not main_script.js_bool(null) and not main_script.js_bool(""), "0, false, null: no preference")
+diff --git a/game/tests/unit/test_motion_court.gd.uid b/game/tests/unit/test_motion_court.gd.uid
+new file mode 100644
+index 0000000..b7baf7f
+--- /dev/null
++++ b/game/tests/unit/test_motion_court.gd.uid
+@@ -0,0 +1 @@
++uid://bc2jpjjpg3vym
+diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
+new file mode 100644
+index 0000000..aa41cc1
+--- /dev/null
++++ b/tools/web/motion_web.mjs
+@@ -0,0 +1,103 @@
++// Motion check in the runtime origin (animator, 2026-09-29): frame strips of Bibi's court-day exit
++// and return (the startle, the zip left, the hat on his mark, the fetch, the land) and of the brawl
++// cloud's boil (the stage cue and the inline cloud in T3). The game runs at 1/SLOW speed
++// (&slow=N, Engine.time_scale) so a headless screenshot every ~100 ms of wall time is a frame every
++// few ms of game time; each frame is saved with its game-time stamp (device px: one art px is k px).
++//   node tools/web/motion_web.mjs <url> <out dir> [WxH@DPR,...]
++// Serve build/web first (python3 -m http.server --directory build/web). Runs each device twice for the
++// court (motion, then prefers-reduced-motion: the fades) and once for the brawl.
++const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
++const { chromium } = await import(PW);
++const [base, out, list = '390x844@2'] = process.argv.slice(2);
++const fs = await import('node:fs');
++fs.mkdirSync(out, { recursive: true });
++const SLOW = 40;
++const DEVICES = list.split(',').map((s) => {
++	const [wh, dpr] = s.split('@');
++	const [w, h] = wh.split('x').map(Number);
++	return { name: `${wh}@${dpr}`, w, h, dpr: Number(dpr), mobile: w < h };
++});
++const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
++let failed = 0;
++const check = (ok, msg) => { console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${msg}`); if (!ok) failed++; };
++
++async function open(d, query, reduced) {
++	const ctx = await browser.newContext({ viewport: { width: d.w, height: d.h }, deviceScaleFactor: d.dpr, isMobile: d.mobile,
++		hasTouch: d.mobile, reducedMotion: reduced ? 'reduce' : 'no-preference' });
++	const page = await ctx.newPage();
++	const errors = [];
++	page.on('pageerror', (e) => errors.push(e.message));
++	const cdp = await ctx.newCDPSession(page);
++	const tap = async (x, y, id = 1) => {
++		if (d.mobile) {
++			await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id }] });
++			await page.waitForTimeout(40);
++			await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
++		} else {
++			await page.mouse.move(x, y);
++			await page.mouse.down();
++			await page.waitForTimeout(40);
++			await page.mouse.up();
++		}
++	};
++	await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&${query}`);
++	await page.waitForSelector('#od-sound', { state: 'visible', timeout: 60000 });
++	await page.click('#od-sound');
++	await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
++	const disp = await page.evaluate(() => window.odDisplay);
++	check(disp.reducedMotion === reduced, `the game follows prefers-reduced-motion: ${reduced ? 'reduce' : 'no-preference'} (${disp.reducedMotion})`);
++	const cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y }; });
++	const css = (lx, ly) => [cv.x + lx * disp.f / d.dpr, cv.y + ly * disp.f / d.dpr];
++	return { ctx, page, errors, tap, disp, css };
++}
++
++// Captures `n` frames of a logical-px rect as fast as the renderer allows; returns [{t, file}].
++async function strip(o, prefix, rect, n, gapMs = 60) {
++	const [x0, y0] = o.css(rect[0], rect[1]);
++	const [x1, y1] = o.css(rect[0] + rect[2], rect[1] + rect[3]);
++	const clip = { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
++	const t0 = Date.now();
++	const frames = [];
++	for (let i = 0; i < n; i++) {
++		const t = (Date.now() - t0) / SLOW;
++		const file = `${prefix}-${String(i).padStart(3, '0')}.png`;
++		await o.page.screenshot({ path: file, clip });
++		frames.push({ t: Math.round(t), file });
++		await o.page.waitForTimeout(gapMs);
++	}
++	return frames;
++}
++
++for (const d of DEVICES) {
++	for (const reduced of [false, true]) {
++		const tag = `${d.name}${reduced ? '-rm' : ''}`;
++		console.log(`court ${tag}`);
++		const o = await open(d, `court=2&slow=${SLOW}&grant=50000`, reduced);
++		const { disp } = o;
++		// the whole stage: the thermometer, the courthouse window, the Magician and the hat
++		const stage = [disp.ox, disp.stageY + 160, 720, disp.lowerY - disp.stageY - 160];
++		const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
++		await o.tap(hx, hy, 100);   // title → main; the court day is already running
++		const frames = await strip(o, `${out}/court-${tag}`, stage, reduced ? 70 : 110, 10);
++		fs.writeFileSync(`${out}/court-${tag}.json`, JSON.stringify({ k: disp.k, slow: SLOW, frames }, null, 1));
++		check(frames.length > 0, `${frames.length} frames over ${frames.at(-1).t} ms of game time`);
++		check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
++		await o.ctx.close();
++	}
++	console.log(`brawl ${d.name}`);
++	const o = await open(d, `chat=3&slow=${SLOW}&grant=50000`, false);
++	const { disp } = o;
++	const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
++	await o.tap(hx, hy, 100);
++	await o.page.waitForTimeout(800);
++	// the stage cue: ChatView BRAWL_CUE (8, 4, 144, 104) tall-local = stage-local + STAGE.y (160)
++	const cue = [disp.ox, disp.stageY + 160, 176, 128];
++	const frames = await strip(o, `${out}/brawl-cue-${d.name}`, cue, 30, 10);
++	fs.writeFileSync(`${out}/brawl-cue-${d.name}.json`, JSON.stringify({ k: disp.k, slow: SLOW, frames }, null, 1));
++	check(frames.length === 30, `brawl cue: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
++	check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
++	await o.ctx.close();
++}
++await browser.close();
++console.log(failed ? `MOTION_WEB: ${failed} FAILED` : 'MOTION_WEB: PASS');
++process.exit(failed ? 1 : 0);
+-- 
+2.43.0
+
+
+From a864af8810436b65bab6f911bc2d5819518840e4 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 20:22:38 +0000
+Subject: [PATCH 2/2] fix(od-sevev): motion audit of the session-2 views: brawl
+ boil, toast and chip entries
+
+The brawl cloud boils (4 frames at 8 fps under a whole-pixel 1-ap ring
+with a rest), the brawl cue and the pending chip ease in instead of
+popping, and toasts ease in and fade out on scene time. The audit table
+is motion/motion-audit-2026-09-29.md.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/scripts/ui/toasts.gd           | 20 ++++++--
+ game/scripts/ui/views/view_chat.gd  | 56 +++++++++++++++++---
+ game/tests/unit/test_views_wave6.gd |  4 +-
+ motion/README.md                    |  1 +
+ motion/motion-audit-2026-09-29.md   | 79 +++++++++++++++++++++++++++++
+ 5 files changed, 148 insertions(+), 12 deletions(-)
+ create mode 100644 motion/motion-audit-2026-09-29.md
+
+diff --git a/game/scripts/ui/toasts.gd b/game/scripts/ui/toasts.gd
+index f5ca3f8..46f9c1b 100644
+--- a/game/scripts/ui/toasts.gd
++++ b/game/scripts/ui/toasts.gd
+@@ -7,6 +7,11 @@ extends Node2D
+ 
+ const SHOW_MS := 3000.0
+ const GAP_MS := 1000.0
++## Motion (animator audit 2026-09-29): the plate fades in over 180 ms Quad.Out and out over its last
++## 120 ms Quad.In (inside the 3 s), so a toast never pops off; a tap still dismisses at once.
++## Reduced motion: both cuts.
++const IN_MS := 180.0
++const OUT_MS := 120.0
+ 
+ var reduced_motion := false
+ ## Called with the shown toast's tag when it is tapped (T3: a "chat" toast opens the chat).
+@@ -21,6 +26,7 @@ var _plate: NinePatchRect
+ var _text: PxText
+ var _t := -1.0
+ var _gap := 0.0
++var _shown: Array[CanvasItem] = []
+ var _bubble: NinePatchRect
+ var _btext: PxText
+ var _bt := -1.0
+@@ -202,6 +208,12 @@ func update_view(dt_ms: float) -> void:
+ 			_btext.visible = false
+ 	if _t >= 0.0:
+ 		_t += dt_ms
++		if _t < SHOW_MS:
++			var a := 1.0
++			if not reduced_motion:
++				a = minf(Ui.quad_out(minf(1.0, _t / IN_MS)), 1.0 - Ui.quad_in(clampf((_t - (SHOW_MS - OUT_MS)) / OUT_MS, 0.0, 1.0)))
++			for n: CanvasItem in _shown:
++				n.modulate.a = a
+ 		if _t >= SHOW_MS:
+ 			_t = -1.0
+ 			_gap = GAP_MS
+@@ -243,8 +255,6 @@ func update_view(dt_ms: float) -> void:
+ 	for n: CanvasItem in shown_nodes:
+ 		n.visible = true
+ 	_t = 0.0
+-	if not reduced_motion:
+-		var tw := create_tween().set_parallel()
+-		for n: CanvasItem in shown_nodes:
+-			n.modulate.a = 0.0
+-			tw.tween_property(n, "modulate:a", 1.0, 0.18)
++	_shown = shown_nodes
++	for n: CanvasItem in shown_nodes:
++		n.modulate.a = 1.0 if reduced_motion else 0.0   # update_view eases it in (scene time)
+diff --git a/game/scripts/ui/views/view_chat.gd b/game/scripts/ui/views/view_chat.gd
+index 1a4a96d..7e00e50 100644
+--- a/game/scripts/ui/views/view_chat.gd
++++ b/game/scripts/ui/views/view_chat.gd
+@@ -159,6 +159,21 @@ const BRAWL_CUE_HIT := Rect2(4, 0, 152, 112)
+ var _brawl_cue := Node2D.new()
+ var _brawl_cloud: Sprite2D
+ var _brawl_seq := -1
++var _brawl_cue_t := -1.0                  # ms since the cue appeared (its entry fade), -1 = hidden
++var _pending_t := -1.0                    # ms since the pending chip appeared (its entry), -1 = hidden
++var _dt_ms := 0.0                         # this frame's dt (the entries above)
++
++## The brawl cloud's boil (motion-spec brawl-cloud; whole art px only): the kit's 4-frame loop at
++## 8 fps (125 ms, the 2D Artist's rate) under a 1-ap ring the whole cloud steps around every 100 ms
++## (Stepped): (1, 0) → (0, −1) → (−1, 0) → (0, 1). Each 1200 ms period ends on a 300 ms rest at
++## (0, 0): the fight breathes, so the loop doesn't fatigue. Reduced motion: frame 0, still.
++const BOIL_FRAME_MS := 125.0
++const BOIL_STEP_MS := 100.0
++const BOIL_PERIOD_MS := 1200.0
++const BOIL_REST_MS := 300.0
++const BOIL_RING: Array[Vector2i] = [Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 1)]
++const CUE_IN_MS := 150.0                  # the brawl cue's entry (ease-out)
++const PENDING_IN_MS := 120.0              # the pending chip's entry (ease-out)
+ 
+ 
+ ## "m:ss" for a seconds count (the timer chip; LTR digits, CHAT_ULT_TIMER's {mmss}).
+@@ -332,6 +347,7 @@ func _end_anim(opening: bool) -> void:
+ ## ctx: {main: bool (main mode, no election transition), overlay: bool (a modal is open)}.
+ func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = {}) -> void:
+ 	_now += dt
++	_dt_ms = dt
+ 	if not is_same(s, _known_state):
+ 		_on_new_state(s)
+ 	_state = s
+@@ -904,7 +920,26 @@ func _build_brawl(row: Dictionary, y: float) -> Dictionary:
+ 	var cloud := Ui.img(root, Vector2(256, 0), Art.sprite_or("brawl_cloud"), 0, 4)
+ 	var btn := PxButton.make(root, Rect2(204, 168, 312, 80), {"hit": Rect2(192, 164, 336, 88), "label": Strings.s("CHAT_BRAWL_BTN"), "kind": "kit_secondary"})
+ 	_hits.append({"rect": Rect2(192, y + 164, 336, 88), "kind": "brawl", "seq": int(row["seq"]), "button": btn})
+-	return {"root": root, "pills": [], "h": 256.0, "cloud": cloud, "button": btn}
++	return {"root": root, "pills": [], "h": 256.0, "cloud": cloud, "cloudAt": cloud.position, "button": btn}
++
++
++## The boil pose at `t_ms`: {frame, off (ap)}. Pure (tests: whole px, the rest, reduced motion).
++static func brawl_boil(t_ms: float, frames: int, reduced: bool) -> Dictionary:
++	if reduced:
++		return {"frame": 0, "off": Vector2i.ZERO}
++	var ph := fmod(maxf(0.0, t_ms), BOIL_PERIOD_MS)
++	var off := Vector2i.ZERO
++	if ph < BOIL_PERIOD_MS - BOIL_REST_MS:
++		off = BOIL_RING[int(ph / BOIL_STEP_MS) % BOIL_RING.size()]
++	return {"frame": int(maxf(0.0, t_ms) / BOIL_FRAME_MS) % maxi(1, frames), "off": off}
++
++
++## Poses a brawl cloud sprite around its rest position; `scale` = logical px per ring step (4: one stage art px).
++func _boil(cl: Sprite2D, at: Vector2, scale: float) -> void:
++	var id: String = cl.get_meta("sprite")
++	var b := brawl_boil(_now, Art.frame_count(id), reduced_motion)
++	Ui.set_frame(cl, id, int(b["frame"]))
++	cl.position = at + Vector2(b["off"]) * scale
+ 
+ 
+ # ------------------------------------------------------------------ live updates
+@@ -971,8 +1006,7 @@ func _update_rows(dt: float) -> void:
+ 			(r["corridor"] as PxText).text = Strings.s("CHAT_CORRIDOR_COUNT", {"n": str(int(_state.coalition.get("corridorMsgs", 0)))})
+ 			(r["corridor"] as PxText).center_in(0, L.W)
+ 		if r.has("cloud"):
+-			var cl: Sprite2D = r["cloud"]
+-			Ui.set_frame(cl, cl.get_meta("sprite"), 0 if reduced_motion else int(_now / 150.0) % maxi(1, Art.frame_count(cl.get_meta("sprite"))))
++			_boil(r["cloud"], r["cloudAt"], 4.0)
+ 
+ 
+ func _update_pill(pill: Dictionary, _bps: float) -> void:
+@@ -1579,7 +1613,13 @@ func _update_pending() -> void:
+ 	_pending_root.visible = show
+ 	if not show:
+ 		_pending_rect = Rect2()
++		_pending_t = -1.0
+ 		return
++	# the entry: 120 ms Quad.Out, a 1-ap drop into place with the fade (reduced motion: the fade only);
++	# the exit is a cut: it goes the moment nothing is left above
++	_pending_t = maxf(0.0, _pending_t) + _dt_ms
++	var pin := Ui.quad_out(minf(1.0, _pending_t / PENDING_IN_MS))
++	_pending_root.modulate.a = pin
+ 	var n := _pend_items.size()
+ 	var t := Strings.plural("CHAT_PENDING", n, {"n": str(n)})
+ 	if _pending_text.text != t:
+@@ -1589,7 +1629,7 @@ func _update_pending() -> void:
+ 	var x := Ui.snap((L.W - w) / 2.0, 4)
+ 	_pending_rect = Rect2(x, THREAD_Y + PENDING_Y, w, PENDING_H)
+ 	Ui.set_nine_rect(_pending_bg, Rect2(Vector2.ZERO, _pending_rect.size))
+-	_pending_root.position = _pending_rect.position
++	_pending_root.position = _pending_rect.position - Vector2(0, 0.0 if reduced_motion else Ui.snap(4.0 * (1.0 - pin), 4))
+ 	# RTL: the text at the right, the ↑ (the string's end) at its left, the pair centred
+ 	var x1 := Ui.snap((w + tw + 12.0 + 28.0) / 2.0, 4)
+ 	_pending_text.right_at(x1)
+@@ -1643,9 +1683,13 @@ func _update_brawl_cue(allowed: bool) -> void:
+ 	var show := allowed and not _open and not _panel.visible and not m.is_empty() and not toast.intersects(cue_stage)
+ 	_brawl_cue.visible = show
+ 	_brawl_seq = int(m.get("seq", -1)) if show else -1
++	# the entry: a 150 ms fade (Quad.Out); the exit is a cut (the brawl resolved or T3 opened on it)
++	_brawl_cue_t = (maxf(0.0, _brawl_cue_t) + _dt_ms) if show else -1.0
++	_brawl_cue.modulate.a = Ui.quad_out(minf(1.0, _brawl_cue_t / CUE_IN_MS)) if show else 1.0
+ 	if show:
+-		var id: String = _brawl_cloud.get_meta("sprite")
+-		Ui.set_frame(_brawl_cloud, id, 0 if reduced_motion else int(_now / 150.0) % maxi(1, Art.frame_count(id)))
++		# the ring steps one STAGE art px (4 logical), not one of the ×2 cloud's: 2 logical is 1.5
++		# device px at k 3, and the cloud would shimmer between texel phases
++		_boil(_brawl_cloud, BRAWL_CLOUD, 4.0)
+ 
+ 
+ func brawl_cue_visible() -> bool:
+diff --git a/game/tests/unit/test_views_wave6.gd b/game/tests/unit/test_views_wave6.gd
+index e64401e..388be16 100644
+--- a/game/tests/unit/test_views_wave6.gd
++++ b/game/tests/unit/test_views_wave6.gd
+@@ -169,7 +169,9 @@ func test_an_open_brawl_puts_a_cloud_under_row_b() -> void:
+ 	await tree.process_frame
+ 	runner.check(chat.brawl_cue_visible(), "the brawl is open and T3 closed: the cloud stands under Row B")
+ 	var cloud: Sprite2D = chat._brawl_cloud
+-	runner.check(cloud.position == ChatView.BRAWL_CLOUD and is_equal_approx(cloud.scale.x, 2.0) and ChatView.BRAWL_CUE.encloses(Rect2(cloud.position, Vector2(104, 80))),
++	# the boil (animator 2026-09-29) steps the cloud around a 1-ap ring (4 logical) off its rest
++	var boil := cloud.position - ChatView.BRAWL_CLOUD
++	runner.check(absf(boil.x) + absf(boil.y) <= 4.0 and is_equal_approx(cloud.scale.x, 2.0) and ChatView.BRAWL_CUE.encloses(Rect2(cloud.position, Vector2(104, 80))),
+ 		"the cloud at ×2 inside its bubble at the stage's top-left (%s)" % str(cloud.position))
+ 	runner.check(ChatView.BRAWL_CUE_HIT.size.y >= 88.0 and ChatView.BRAWL_CUE_HIT.encloses(ChatView.BRAWL_CUE), "its hit is ≥ 88 tall and covers it")
+ 	var brawl := Coalition.open_brawl(m.state)
+diff --git a/motion/README.md b/motion/README.md
+index 567a50f..b5bbe4f 100644
+--- a/motion/README.md
++++ b/motion/README.md
+@@ -17,6 +17,7 @@
+ | [`state-graph-dubi.md`](state-graph-dubi.md) | `state-graph-spec` | Dubi: perches, flight, squawk and talk driven by the AD's cues, the FTUE fly-in and peck, and his strip spec. |
+ | [`diorama-motion.md`](diorama-motion.md) | ad hoc: `object-motion` | The 8 money sources: the 2-frame idle per source, the `lob` set piece, and the taxpayer's walk-on. |
+ | [`render-requests.md`](render-requests.md) | ad hoc: render list | Every strip, prop and landmark motion needs rendered: frames, fps, events, rig recipes. |
++| [`motion-audit-2026-09-29.md`](motion-audit-2026-09-29.md) | ad hoc: motion audit | The session-2 views against these rules (a table with the fixes), plus the court-day exit and return, the court-window echo, the brawl boil and the prepared leader walk as built. |
+ 
+ ## Legacy (Monkey Bananas v2.1.0, kept for the port)
+ 
+diff --git a/motion/motion-audit-2026-09-29.md b/motion/motion-audit-2026-09-29.md
+new file mode 100644
+index 0000000..4c29ade
+--- /dev/null
++++ b/motion/motion-audit-2026-09-29.md
+@@ -0,0 +1,79 @@
++# Motion audit: the views added in session 2 (animator, 2026-09-29)
++
++Every view from the session-2 build, checked against the motion rules in `README.md`:
++- **Entry and exit.** An entry is ≤ 300 ms with ease-out; an exit is ≤ 200 ms with ease-in or a cut. Anything over 400 ms drags.
++- **Easing.** Named curves only.
++- **Whole pixels.** Offsets land on the 4-logical grid (one stage art px, which is whole device px at every crisp k), snapped after easing. Pixel art never gets a non-integer scale, except a transient of 180 ms or less.
++- **Reduced motion.** `settings.reducedMotion` (the OS query or the in-game toggle) must change parameters, never routing.
++
++**Verdicts:** **OK** means it meets every rule. **Fixed** means this change fixed a gap. **Noted** means a known minor deviation, kept, with the reason given.
++
++| View | Entry / exit | Easing | Whole px | Reduced motion | Verdict |
++|---|---|---|---|---|---|
++| Coalition chat T3 (tall tab) | 280 ms up / 200 ms down | Cubic.Out / Quad.In | panel and thread scroll snapped to 4 | 150 / 120 ms fade | OK |
++| Chat bubble arrival | 180 ms, 16 px in from its side (the ultimatum adds a 1-ap thud) | Quad.Out | snapped to 4 | 120 ms fade | OK |
++| Pay-pill stamp slam, can't-afford shake | stamp at integer scale 6 → 5 → 4 over 90 ms; shake ±4 px every 45 ms for 180 ms | Stepped | integer scale, a transient of ≤ 180 ms | cut, no shake | OK |
++| Seat pips | 450 ms along a Bézier, 50 ms stagger | Quad.In | snapped to 4 | none fly | OK |
++| Ultimatum chip | the digits cut; a 1-ap nudge of 100 ms per tick | Quad.Out | snapped to 4 | no nudge; the clock is static | OK |
++| Partner card | Overlay: 240 ms Juice drop table (every entry is a multiple of 4) with the squish; exit 160 ms, 32 px | table / Quad.In | the figure is at a crisp art scale (`pick_art_scale`) | 120 / 100 ms fades; a partner who left holds on f0 | OK |
++| Dossier T4 | the same tall tab | Cubic.Out / Quad.In | scroll snapped to 4 | fades | OK |
++| Pardon desk | Overlay; the stamp's root scale is 1.5 → 1.25 → 1 at 33 / 67 ms, with a 1-ap jolt and 4 snapped specks | Stepped | at k 3 the ×1.25 frame sits on half device px for 34 ms | the cue at f0, no slam | Noted: a legal transient under 180 ms |
++| Thermometer | reveal 280 ms from the left; fill 300 ms rounded to art rows; icon hop 1 ap for 100 ms; bubbles | Back.Out / Quad.Out / Linear | snapped to 4 or rows | 150 ms fade, the fill cuts, one static bubble | OK |
++| Thermometer opacity, court tint | 60 ↔ 100 % over 200 ms; tint 0 → 0.18 over 400 ms (`move_toward`) | Linear; the spec says Quad/Sine.InOut | alpha only | 200 ms | Noted: alpha-only, and a linear ramp is reversible mid-way; the difference is not perceptible at 0.18 |
++| Sweat (drops, bead, summons gulp) | slide 300 ms, fall 250 ms | Quad.In | snapped to ap | one static bead | **Fixed:** court day now takes Bibi off the stage, and drops, the bead and the gulp no longer appear on an empty stage (`bb.on_stage()`) |
++| Court card O2 | in 280 ms from 24 px with a 1-ap jolt at 180; out 180 ms; collapse 200 / expand 240 | Back.Out / Quad.In / Quad.In / Quad.Out | snapped to 4 | 150 / 120 ms fades | OK |
++| Court chip | its entry is the card's collapse, which lands in it; it cuts out on the expand's f0 | – | – | – | OK by design |
++| **Court day on the stage** | did not exist | – | – | – | **Fixed:** new (`ui/court_motion.gd`, `BigBanana.court_*`); see below |
++| **Court-window echo** | not wired | – | – | – | **Fixed:** new (`ui/court_echo.gd`); see below |
++| Dubi's news flash | Overlay; the lines stagger 150 ms and fade in over 120 ms; Dubi at a crisp art scale, talk frames per blip | Linear alpha | snapped to 4 | lines at once | OK |
++| Cottage cup | appears in 200 ms; a 1-ap hop that cuts; the pixel particle and the "−1" snapped | Quad.Out / Cubic.Out | snapped to 4 | a cut, and a static "−1" fading | OK |
++| Election, return and reset modals | Overlay (as above); the return's count-up | table / Cubic.Out | – | fades; the count-up is a number, not motion | OK |
++| Share cards | Overlay; the preview is static | table | the preview snapped to 4 | fades | OK |
++| **Pending chip** "{n} ממתינים ↑" | was a cut in; now **120 ms fade with a 1-ap drop**; the exit stays a cut (it leaves the moment nothing is above, < 100 ms reads as instant) | Quad.Out | snapped to 4 | the fade only | **Fixed** |
++| **Brawl stage cue** | was a cut in with a flat 150 ms frame loop; now a **150 ms fade in** and **the boil**; the exit is a cut (the brawl resolved, or T3 opened on it) | Quad.Out; Stepped | the ring steps 4 logical (one stage ap; one ×2-cloud ap would be 1.5 device px at k 3) | frame 0, still | **Fixed** (the ×2 cloud itself is 1.5 device px per texel at k 3; that is the chat's stated deviation, and a 26×20 cut from the 2D Artist is still open) |
++| **Brawl cloud in T3** | was a flat 150 ms frame loop; now **the boil** | Stepped | a 4-px ring at ×4 | frame 0, still | **Fixed** |
++| **Toasts** (the spin-end toast and every stage toast) | the entry was a real-time Tween, Linear, 180 ms; the exit was a hard pop at 3 s. Now **180 ms in, 120 ms out inside the 3 s**, on scene time (it pauses with the page) | Quad.Out / Quad.In | – | cuts | **Fixed** |
++
++**The biggest gap was global: the web game never followed the OS preference.**
++- **Symptom:** `prefers-reduced-motion: reduce` read as false.
++- **Cause:** the 4.7 web bridge returns a JS boolean as the int `1`, and `MainController._os_reduced_motion()` compared it with `== true`, which is false for an int in GDScript.
++- **Consequence:** every reduced-motion path above was reachable only through the in-game toggle.
++- **Fix:** `MainController.js_bool`, with a unit test.
++- **Verified:** in Chromium, `tools/web/motion_web.mjs` checks `odDisplay.reducedMotion` under each emulated preference.
++
++## New motion in this change
++
++### Bibi's court-day exit and return (`state-graph-magician.md` §1.3, §2, §3, §5)
++- **Scope:** Bibi only (`BigBanana.wants_court` requires `Leaders.has_court()`). A press-day leader never leaves the stage.
++- **Exit:** the `tap.f1` startle; `tap.f2` at 180 ms with a 1-ap lean; at 330 ms a 200 ms Quad.In zip screen-left, with 2 after-images and dust. At 780 ms `prop_hat` zips back (300 ms Quad.Out) and hovers on his mark (idle f0 `hatMouth`), bobbing 0 → −2 ap every 1.6 s. The rabbit peeks every 6-9 s.
++- **Taps:** they hit the hat. The hop is −4 ap (80 + 120 ms), with coins at the peak (2 + the merged taps, max 4). A crit brings the rabbit up 12 ap with 6 coins. A paused tap gets the ears and a wiggle, with no coins.
++- **Return:** the hat fetches him (150 ms, or 120 quick), 150 ms of empty stage, then a 220 ms Quad.Out zip back on `tap.f2` and the land (tap from f1, coins suppressed, dust).
++- **Early returns:** a courtEnd during the startle cuts him back to the mark. A courtEnd mid-zip reverses (150 ms). An election makes it quick. A reset cuts him home.
++- **Reduced motion:** the body fades 150 ms, then the hat fades in; no bob, peek or hop; three coins per tap.
++- **Whole px:** every offset is whole art px (×4 logical).
++- **Summons flinch:** `land` from f1, no coins.
++- **Wiring:** driven by the sim's phase every frame, so a load, an election or an aide drop can't strand him off stage.
++
++### The court-window echo (motion-spec `courthouse_window`)
++- **Placement:** `court_window` on the 2D Artist's era spot, lowered on the art grid to just under the toast dock where the flex rule crops the art's top rows.
++- **Levels:**
++  - it fades in with the thermometer;
++  - its window lights at ≥ 75 % (400 ms, Sine.InOut);
++  - the checker halo is steady at ≥ 95 %;
++  - **while the window is open** (the summons and court day), the lit window breathes 100 → 60 → 100 % every 1.6 s (0.63 Hz, never dark, never a strobe).
++- **Reduced motion:** 200 ms fades, held lit.
++- **Where it shows:** Bibi's rounds only. The courthouse era has none.
++
++### The brawl boil (motion-spec `brawl-cloud`)
++- **Frames:** the kit's 4 frames at 8 fps.
++- **Offset:** the whole cloud steps around a 1-ap ring every 100 ms, then rests 300 ms at the end of each 1.2 s period.
++- **Reduced motion:** frame 0, still.
++
++### Prepared for slice 2 (not wired): `ui/leader_walk.gd`
++A walk that takes a leader id, `LeaderWalk.make(parent, id, feet)`. It carries the leader's idle strip across the stage with a stepped 1-ap bob every other 125 ms beat:
++- walk-out: 560 ms, Sine.In, screen-right;
++- walk-in: 640 ms, Sine.Out, landing flat on the feet point.
++
++Out and in fit the 1.5 s swap budget. Reduced motion: a 150 ms fade on the mark.
++
++Whoever wires EVOLVE_TX calls `walk_out()` on the fade and `walk_in()` on the fade-in.
+-- 
+2.43.0
+
