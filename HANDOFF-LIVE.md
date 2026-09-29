@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `1d4555a` docs(od-sevev): live handoff snapshot 22:33
+- Branch head: `e47e51f` chore(od-sevev): merge the mobile-first stage art (lane, plaza, wings, XL pick heads, brawl cue, court spots)
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -21,6 +21,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 - Designer merged. Balance: every leader's median first election is 7:51-8:50; watch Eisenkot casual 9:00 and the worst seats for Bennett/Ben Gvir >10:00. The 34-vs-8 gap = the browser script is a slow player (tooling fixed). Designer objection vs R17 resolved: accept back-row sources behind the leader; the crowd x-clamp + right-wing slots go to the mobile Game Developer.
 - 22:20 Bar: stop for today, continue tomorrow. Both running agents stopped; their work is committed on their branches and carried in handoff-wip/*.commits.patch. HANDOFF.md has the session-3 stop section and session 4's order. Lock released.
 - 22:21 Bar: continue the loop. Lock re-taken; both stopped agents resumed with their context (artist: finish + verify; dev: finish the mobile matrix, then merge the artist's branch).
+- Art merged. The snapshot script now has a pause switch (/tmp/claude-0/-home-user/8fc63aec-cb0c-55e7-b2d4-be5e5ff14015/scratchpad/live/pause): touch it before merging into the main worktree, remove after (a snapshot git add raced a merge once).
 
 ## Agents
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
@@ -31,7 +32,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
 | UX Designer | DONE, merged (ux/mobile-first-layout.md, tools/web/mobile_web.mjs: baseline PASS, 108 layout checks open until the implementation lands) | `worktree-agent-afa76d8266b2e2b6f` | 0 | 0 | - |
 | Game Developer (mobile) | RESUMED, finishing: core grid/split/fluid chrome, tall tabs, modals, sheets, merge-ready line and layout tests are committed; the full mobile_web matrix run, picker layout check and before/after sheet were not done | `worktree-agent-a8bd968153c51c052` | 8 | 0 | `Game-Developer-(mobile).commits.patch`  |
-| 2D Artist + TA | RESUMED, finishing: lane, plaza, wings, XL pick avatars, brawl cue and court spots committed (last one a wip checkpoint); the final merge, test and build were not re-run | `worktree-agent-ab7cb5f96a4c16bc8` | 7 | 0 | `2D-Artist-+-TA.commits.patch`  |
+| 2D Artist + TA | DONE, merged (lane, plaza, wings, XL pick heads avatar_pick_<c>_d3/_d2, brawl_cloud_cue x4, court spots as kit data) | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
