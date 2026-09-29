@@ -228,6 +228,77 @@ index b7a0d1b..974071e 100644
  	m.audio_sent.connect(func(n: String, a: Variant) -> void: heard.append([n, a]))
  
  
+diff --git a/tools/web/modals_web.mjs b/tools/web/modals_web.mjs
+index 69f9544..ab09bea 100644
+--- a/tools/web/modals_web.mjs
++++ b/tools/web/modals_web.mjs
+@@ -63,7 +63,9 @@ async function shot(P, name) {
+ 	console.log('  shot', p);
+ }
+ const hat = (P) => css(P, P.d.hat[0], P.d.hat[1]);
+-const tab = (P, i) => col(P, 540 - 180 * (i - 1) + 90, P.d.logical[1] - 104 + 52);
++// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
++const tabX = (P, i) => { const cw = P.d.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
++const tab = (P, i) => col(P, tabX(P, i), P.d.logical[1] - 104 + 52);
+ 
+ // 1. the court: the summons card and chip, then the testimony over T3
+ {
+diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
+index aa41cc1..3dc157b 100644
+--- a/tools/web/motion_web.mjs
++++ b/tools/web/motion_web.mjs
+@@ -75,7 +75,7 @@ for (const d of DEVICES) {
+ 		const o = await open(d, `court=2&slow=${SLOW}&grant=50000`, reduced);
+ 		const { disp } = o;
+ 		// the whole stage: the thermometer, the courthouse window, the Magician and the hat
+-		const stage = [disp.ox, disp.stageY + 160, 720, disp.lowerY - disp.stageY - 160];
++		const stage = [disp.sx ?? disp.ox, disp.stageY + 160, 720, disp.lowerY - disp.stageY - 160];   // the stage column (mobile-first §4.1)
+ 		const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
+ 		await o.tap(hx, hy, 100);   // title → main; the court day is already running
+ 		const frames = await strip(o, `${out}/court-${tag}`, stage, reduced ? 70 : 110, 10);
+diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
+index c5e82af..a42fecb 100644
+--- a/tools/web/picker_web.mjs
++++ b/tools/web/picker_web.mjs
+@@ -53,7 +53,9 @@ async function shot(name) {
+ 	console.log('  shot', p);
+ }
+ const tabsY = () => disp.logical[1] - 104;
+-const tab = (i) => col(540 - 180 * (i - 1) + 90, tabsY() + 52);
++// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
++const tabX = (i) => { const cw = disp.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
++const tab = (i) => col(tabX(i), tabsY() + 52);
+ const log = (...a) => console.log(...a);
+ const checks = [];
+ const check = (ok, what) => { checks.push([ok, what]); log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}`); };
+diff --git a/tools/web/round_web.mjs b/tools/web/round_web.mjs
+index 60f0685..02283fa 100644
+--- a/tools/web/round_web.mjs
++++ b/tools/web/round_web.mjs
+@@ -60,7 +60,9 @@ async function shot(name) {
+ 	console.log('  shot', p);
+ }
+ const tabsY = () => disp.logical[1] - 104;
+-const tab = (i) => col(540 - 180 * (i - 1) + 90, tabsY() + 52);
++// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
++const tabX = (i) => { const cw = disp.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
++const tab = (i) => col(tabX(i), tabsY() + 52);
+ const log = (...a) => console.log(...a);
+ 
+ await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&speed=${speed}`);
+diff --git a/tools/web/views_web.mjs b/tools/web/views_web.mjs
+index 28f1a1c..01007ca 100644
+--- a/tools/web/views_web.mjs
++++ b/tools/web/views_web.mjs
+@@ -83,7 +83,7 @@ for (const d of DEVICES) {
+ 	await page.waitForTimeout(600);
+ 	await shot('cottage');
+ 	const topY = disp.stageY - 20;   // _stage_y = top_y + 180 − 160
+-	const [cx, cy] = css(disp.ox + 668, topY + 48);   // the cup's 88×88 hit centre (rtl-map §2)
++	const [cx, cy] = css(disp.ox + 668 + ((disp.cw || 720) - 720), topY + 48);   // the cup's 88×88 hit centre (rtl-map §2; R-anchored, mobile-first §4.1)
+ 	await tap(cx, cy, 102);
+ 	await page.waitForTimeout(700);
+ 	await shot('cottage-tip');
 diff --git a/game/tests/fixtures/mobile_layout.json b/game/tests/fixtures/mobile_layout.json
 new file mode 100644
 index 0000000..8f7bf42
