@@ -156,7 +156,7 @@ func folding() -> bool:
 
 
 func card_rect() -> Rect2:
-	return Rect2(CARD_X, L.tabs_y() - _card_h, CARD_W, _card_h)
+	return Rect2(CARD_X, L.tabs_y() - _card_h, CARD_W + L.dx, _card_h)
 
 
 func chip_rect() -> Rect2:
@@ -423,7 +423,7 @@ func _build_card() -> void:
 	_timer = null
 	_excuse = null
 	_stamp = null
-	_frame = Ui.nine(_inner, Rect2(CARD_X, 0, CARD_W, 356), Art.sprite_or("court_frame"))
+	_frame = Ui.nine(_inner, Rect2(CARD_X, 0, CARD_W + L.dx, 356), Art.sprite_or("court_frame"))
 	var close_id := Art.sprite_or("icon_close")
 	var csz := Vector2(Art.sprite_size(close_id)) * 4.0
 	_close_icon = Ui.img(_inner, Vector2(CARD_X, 0) + (CLOSE_HIT.get_center() - csz / 2.0).snapped(Vector2(4, 4)), close_id, 0, 4)
@@ -431,7 +431,7 @@ func _build_card() -> void:
 	# kit court_frame: the gavel at the header's right, x w − 18 art, y 5 art (frame-local)
 	# the press skin has no gavel (it means the court): the folded newspaper (rtl-map §4.3)
 	var gid := Art.sprite_or("thermo_icon_gavel" if LeaderUi.court() or LeaderUi.press_icon("thermo") == "" else LeaderUi.press_icon("thermo"))
-	_gavel = Ui.img(_inner, Vector2(CARD_X + CARD_W - 18.0 * 4.0, 20), gid, 0, 4)
+	_gavel = Ui.img(_inner, Vector2(CARD_X + CARD_W + L.dx - 18.0 * 4.0, 20), gid, 0, 4)
 	var keys := phase_keys(phase())
 	_title = _t(LeaderUi.s(keys["title"]), Color.WHITE, 432.0, 1)
 	_title.right_at(_gavel.position.x - 12.0)
@@ -439,11 +439,11 @@ func _build_card() -> void:
 	var y := 96.0
 	if _mode == "postponed":
 		_prefix = _t(LeaderUi.s("COURT_POSTPONED_PREFIX"), Color("#a4a9b8"), TEXT_W, 1)
-		_prefix.right_at(CARD_X + TEXT_RIGHT)
+		_prefix.right_at(CARD_X + TEXT_RIGHT + L.dx)
 		_prefix.position.y = y
 		y += _lh(_prefix)
 		_excuse = _t(excuse(int(_pp.get("step", 1))), Color.WHITE, TEXT_W, 8, true)
-		_excuse.right_at(CARD_X + TEXT_RIGHT)
+		_excuse.right_at(CARD_X + TEXT_RIGHT + L.dx)
 		_excuse.position.y = y
 		_excuse.set_meta("y0", y)
 		_excuse.modulate.a = 0.0
@@ -456,11 +456,11 @@ func _build_card() -> void:
 		y += 24.0
 	else:
 		_body = _t(LeaderUi.s(keys["body"]), Color.WHITE, TEXT_W, 3, true)
-		_body.right_at(CARD_X + TEXT_RIGHT)
+		_body.right_at(CARD_X + TEXT_RIGHT + L.dx)
 		_body.position.y = y
 		y += _lh(_body) * maxf(1.0, float(_body.line_count()))
 		_effect = _t(LeaderUi.s(keys["effect"]), Color("#fff1a6"), TEXT_W, 2, true)
-		_effect.right_at(CARD_X + TEXT_RIGHT)
+		_effect.right_at(CARD_X + TEXT_RIGHT + L.dx)
 		_effect.position.y = y
 		y += _lh(_effect) * maxf(1.0, float(_effect.line_count()))
 		_timer = _t("", Color.WHITE, TEXT_W, 1)
@@ -469,21 +469,21 @@ func _build_card() -> void:
 		if phase() == "summons" and _mode == "open":
 			_btn_y = Ui.snap(y, 4)
 			if _d != null and Investigation.postpone_cost(_state, _d) >= 0.0:
-				_primary = PxButton.make(_inner,Rect2(CARD_X + 16, _btn_y, 416, 104), {"kind": "kit_primary"})
+				_primary = PxButton.make(_inner,Rect2(CARD_X + 16, _btn_y, 416.0 + L.dx, 104), {"kind": "kit_primary"})
 				_verb = _t(LeaderUi.s("COURT_POSTPONE_VERB"), Color.WHITE, 384.0, 1)
 				_verb.position.y = _btn_y + 12.0
-				_verb.center_in(CARD_X + 16, 416)
+				_verb.center_in(CARD_X + 16, 416.0 + L.dx)
 				_price = _t("", Color.WHITE, 384.0, 1)
 				_price.position.y = _btn_y + 56.0
-			_testify = PxButton.make(_inner,Rect2(CARD_X + 448, _btn_y, 224, 104), {"kind": "kit_secondary", "label": LeaderUi.s("COURT_TESTIFY")})
+			_testify = PxButton.make(_inner,Rect2(CARD_X + 448 + L.dx, _btn_y, 224, 104), {"kind": "kit_secondary", "label": LeaderUi.s("COURT_TESTIFY")})
 			y = _btn_y + 104.0 + 16.0
 			if Investigation.can_drop_aide(_state):
-				_aide = PxButton.make(_inner,Rect2(CARD_X + 16, y, 656, 88), {"kind": "kit_secondary", "label": Strings.s("AIDE_BTN")})
+				_aide = PxButton.make(_inner,Rect2(CARD_X + 16, y, 656.0 + L.dx, 88), {"kind": "kit_secondary", "label": Strings.s("AIDE_BTN")})
 				y += 88.0 + 16.0
 		else:
 			y += 16.0
 	_card_h = Ui.snap(maxf(y, 176.0), 4)
-	Ui.set_nine_rect(_frame, Rect2(CARD_X, 0, CARD_W, _card_h))
+	Ui.set_nine_rect(_frame, Rect2(CARD_X, 0, CARD_W + L.dx, _card_h))
 	_place_card()
 
 
@@ -512,7 +512,7 @@ func _update_card_live() -> void:
 		var txt := LeaderUi.s(phase_keys(phase())["timer"], {"mmss": ChatView.mmss(timer_sec())})
 		if _timer.text != txt:
 			_timer.text = txt
-			_timer.right_at(CARD_X + TEXT_RIGHT)
+			_timer.right_at(CARD_X + TEXT_RIGHT + L.dx)
 	if _primary != null and _d != null:
 		var cost := Investigation.postpone_cost(_state, _d)
 		var ptxt := Strings.s("CARD_PRICE", {"price": Fmt.cost(maxf(0.0, cost))})
@@ -528,8 +528,8 @@ func _update_card_live() -> void:
 			if _shake_t >= 180.0:
 				_shake_t = -1.0
 				dx = 0.0
-		_price.center_in(CARD_X + 16 + dx, 416)
-		_verb.center_in(CARD_X + 16 + dx, 416)
+		_price.center_in(CARD_X + 16 + dx, 416.0 + L.dx)
+		_verb.center_in(CARD_X + 16 + dx, 416.0 + L.dx)
 
 
 # ------------------------------------------------------------------ the chip (ticker slot)
@@ -637,12 +637,12 @@ func _update_pp(dt: float) -> void:
 			elif t < newest_at:
 				if _excuse.text != prev:
 					_excuse.text = prev
-					_excuse.right_at(CARD_X + TEXT_RIGHT)
+					_excuse.right_at(CARD_X + TEXT_RIGHT + L.dx)
 				_excuse.modulate.a = minf(1.0, (t - 200.0) / 120.0)
 			else:
 				if _excuse.text != text:
 					_excuse.text = text
-					_excuse.right_at(CARD_X + TEXT_RIGHT)
+					_excuse.right_at(CARD_X + TEXT_RIGHT + L.dx)
 				_excuse.modulate.a = 1.0
 				var ht := t - newest_at
 				var base_y := float(_excuse.get_meta("y0", _excuse.position.y))
@@ -771,11 +771,11 @@ func pointer_down(p: Vector2) -> bool:
 		return true
 	if Ui.in_rect(Rect2(CARD_X + CLOSE_HIT.position.x, CLOSE_HIT.position.y, CLOSE_HIT.size.x, CLOSE_HIT.size.y), q):
 		_press["kind"] = "close"
-	elif _primary != null and Ui.in_rect(Rect2(CARD_X + 16, _btn_y, 416, 104), q):
+	elif _primary != null and Ui.in_rect(Rect2(CARD_X + 16, _btn_y, 416.0 + L.dx, 104), q):
 		_press["kind"] = "primary"
 		_press["primary"] = true
 		_primary.down()
-	elif _testify != null and Ui.in_rect(Rect2(CARD_X + 448, _btn_y, 224, 104), q):
+	elif _testify != null and Ui.in_rect(Rect2(CARD_X + 448 + L.dx, _btn_y, 224, 104), q):
 		_press["kind"] = "testify"
 		_testify.down()
 	elif _aide != null and Ui.in_rect(_aide.visual, q):
@@ -803,13 +803,13 @@ func pointer_up(p: Vector2) -> void:
 				_audio("uiClick")
 				collapse()
 		"primary":
-			var inside := Ui.in_rect(Rect2(CARD_X + 16, _btn_y, 416, 104), q)
+			var inside := Ui.in_rect(Rect2(CARD_X + 16, _btn_y, 416.0 + L.dx, 104), q)
 			if _primary != null:
 				_primary.up(inside)
 			if inside:
 				postpone()
 		"testify":
-			var inside2 := Ui.in_rect(Rect2(CARD_X + 448, _btn_y, 224, 104), q)
+			var inside2 := Ui.in_rect(Rect2(CARD_X + 448 + L.dx, _btn_y, 224, 104), q)
 			if _testify != null:
 				_testify.up(inside2)
 			if inside2:
@@ -826,9 +826,9 @@ func button_rect(which: String) -> Rect2:
 	var top := L.tabs_y() - _card_h
 	match which:
 		"primary":
-			return Rect2(CARD_X + 16, top + _btn_y, 416, 104)
+			return Rect2(CARD_X + 16, top + _btn_y, 416.0 + L.dx, 104)
 		"testify":
-			return Rect2(CARD_X + 448, top + _btn_y, 224, 104)
+			return Rect2(CARD_X + 448 + L.dx, top + _btn_y, 224, 104)
 		"close":
 			return Rect2(CARD_X, top, 88, 88)
 	return Rect2()

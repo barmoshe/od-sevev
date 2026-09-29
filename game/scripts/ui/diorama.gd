@@ -73,7 +73,9 @@ func _ready() -> void:
 			s.position = Vector2(x + 32, y + 64)
 			s.visible = false
 			(_front if row == "F" else _back).add_child(s)
-			_critters.append(_critter(s, id, slot, int(th[slot]), x + 32, y + 64))
+			var cr := _critter(s, id, slot, int(th[slot]), x + 32, y + 64)
+			cr["ground"] = row != "S"
+			_critters.append(cr)
 		_add_crowd(id, slots)
 
 
@@ -238,8 +240,13 @@ func _add_crowd(id: String, slots: Array) -> void:
 	var sky := String(slots[0]).begins_with("S") if not slots.is_empty() else false
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(id)
+	# never under the thermometer column (Thermo.WORD_BOX, canvas x 12-132, L-anchored: the stage
+	# column only moves right of it on a wider canvas): the sprite's left edge stays ≥ 132
+	var half := floorf(float(Art.tex(_sprite_of(id), 0).get_size().x) / 2.0) * _scale_of(id).x
+	var wander := 16.0 if Tune.critter_wanders(id) else 0.0   # _start_hop: homeX ± 16
+	var x_min := ceilf(maxf(24.0, Thermo.WORD_BOX.x + Thermo.WORD_BOX.y + half + wander - 32.0) / 4.0) * 4.0
 	for i in CROWD_AT.size():
-		var x := Ui.snap(rng.randf_range(24, L.W - 88), 4)
+		var x := maxf(x_min, Ui.snap(rng.randf_range(24, L.W - 88), 4))
 		var y: float
 		var front := rng.randf() < 0.5
 		if sky:
@@ -255,7 +262,9 @@ func _add_crowd(id: String, slots: Array) -> void:
 		s.position = Vector2(x + 32, y + 64)
 		s.visible = false
 		(_front if front else _back).add_child(s)
-		_critters.append(_critter(s, id, 3 + i, int(CROWD_AT[i]), x + 32, y + 64))
+		var cr := _critter(s, id, 3 + i, int(CROWD_AT[i]), x + 32, y + 64)
+		cr["ground"] = not sky
+		_critters.append(cr)
 
 
 ## The critter sprite of a producer: producers[].sprite, else "critter_<id>", else the neutral
@@ -301,8 +310,22 @@ func _pivot_of(id: String) -> Vector2:
 
 func _critter(s: Sprite2D, id: String, slot: int, th: int, x: float, y: float) -> Dictionary:
 	return {"s": s, "type": id, "sprite": _sprite_of(id), "frameMs": Tune.critter_frame_ms(id), "wander": Tune.critter_wanders(id),
-		"piece": Tune.set_piece(id), "slot": slot, "th": th, "homeX": x, "x": x, "y": y,
+		"piece": Tune.set_piece(id), "slot": slot, "th": th, "homeX": x, "x": x, "y": y, "yBase": y, "ground": true,
 		"visible": false, "hopping": false, "nextHop": 0.0, "frame": 0, "frameT": 0.0, "rate": 1.0, "anim": false, "hop": {}}
+
+
+## mobile-first §3.2: the stage height follows the split, and the stage art is placed on the
+## leader's feet (the stage bottom), so the ground rows (B, F and their crowd) follow the stage
+## bottom too: their design y holds at S = S_PREF (640) and moves by S − 640. The sky row stays
+## top-anchored (no source uses it).
+func _anchor_rows() -> void:
+	var dy := L.stage_h - float(L.S_PREF)
+	for c: Dictionary in _critters:
+		var y := float(c["yBase"]) + (dy if bool(c.get("ground", true)) else 0.0)
+		if is_equal_approx(y, float(c["y"])):
+			continue
+		c["y"] = y
+		(c["s"] as Sprite2D).position.y = y
 
 
 ## Rebuilds the sky and ground to cover `extend_x` px on each side and `extend_top` px above.
@@ -310,6 +333,7 @@ func extend(extend_x: float, extend_top: float) -> void:
 	if is_equal_approx(extend_x, _extend_x) and is_equal_approx(extend_top, _extend_top) and is_equal_approx(L.stage_h, _built_h):
 		return
 	_built_h = L.stage_h
+	_anchor_rows()
 	_extend_x = extend_x
 	_extend_top = extend_top
 	for c in _bg.get_children():

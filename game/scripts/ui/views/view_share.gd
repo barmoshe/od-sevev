@@ -57,22 +57,30 @@ var _printing: Node2D
 var _card_root: Node2D
 
 
+## mobile-first §5.12 (D44): a full-bleed sheet that may use the whole safe height (sharing is a
+## focused task and the preview is the product): the preview scale `a` is the largest with a·f
+## whole, 216a ≤ cw − 32 and 270a ≤ sheet − 520; the buttons bottom-up: "סגור" (fixed), WhatsApp
+## full width (the main channel, nearest the thumb), "לשתף" / "לשמור תמונה" side by side, the
+## status line; every row stretches with the canvas (anchor S), the preview is centred.
 func build() -> ShareSheet:
 	id = "SHARE_RECEIPT" if kind == "receipt" else "SHARE_RESULT"
+	full_bleed = true
 	var th := Art.theme
 	var vs := Vector2(L.W, L.H)
 	var ovl_y := 0.0
 	var inset := 0.0
+	var top := 0.0
 	if host != null and "_vs" in host:
 		vs = host.get("_vs")
 		ovl_y = float(host.get("_ovl_y"))
 		inset = float(host.call("bottom_inset")) if host.has_method("bottom_inset") else 0.0
-	var h := Ui.snap(floorf(0.8 * vs.y / 4.0) * 4.0, 4)
+		top = float(host.get("_top_y")) if "_top_y" in host else 0.0
+	var h := L.floor4(vs.y) - top - inset
 	var room := h - HEADER - PAD - STATUS_H - (BTN_H + GAP + BTN_H) - PAD - CLOSE_AREA
-	art_px = preview_scale(room, float(L.W - 48))
+	art_px = preview_scale(room, L.cw - 32.0)
 	var content := HEADER + Ui.snap(float(ART.y) * art_px, 4) + PAD + STATUS_H + BTN_H + GAP + BTN_H + PAD + CLOSE_AREA
 	h = minf(h, Ui.snap(content, 4))
-	var pr := Rect2(0, vs.y - inset - h - ovl_y, L.W, h + inset)
+	var pr := Rect2(0, vs.y - inset - h - ovl_y, L.cw, h + inset)
 	make_panel(pr)
 	var title := text(Vector2(0, pr.position.y + 24.0), Strings.s("SHARE_RECEIPT_TITLE" if kind == "receipt" else "SHARE_RESULT_TITLE"), L.TEXT, th["modal"]["title"])
 	title.fit_width = 432.0   # sheet.title
@@ -80,7 +88,7 @@ func build() -> ShareSheet:
 	var close := close_button(Rect2(pr.position.x + 16, pr.position.y + 16, 64, 64), Rect2(pr.position.x, pr.position.y, 104, 104), func() -> void: cancel("close"))
 	# the preview (its size in logical px snapped to the 4 grid from the top-left)
 	var psz := Vector2(ART) * art_px
-	var px0 := Ui.snap((L.W - psz.x) / 2.0, 4)
+	var px0 := Ui.snap((L.cw - psz.x) / 2.0, 4)
 	var py0 := pr.position.y + HEADER
 	preview_rect = Rect2(px0, py0, psz.x, psz.y)
 	_printing = Node2D.new()
@@ -98,21 +106,22 @@ func build() -> ShareSheet:
 	var y := py0 + psz.y + PAD
 	status = PxText.make(panel, Vector2(0, y), "", L.TEXT, "plain", C_STATUS)
 	status.reading = true
-	status.wrap_width = 640.0
+	status.wrap_width = 640.0 + L.dx
 	status.max_lines = 1
 	y += STATUS_H
-	share_btn = button(Rect2(88, y, 256, BTN_H), Rect2(80, y - 4.0, 272, BTN_H + 8.0), Strings.s("SHARE_BTN"), func() -> void: share(), "kit_primary", L.TEXT)
-	save_btn = button(Rect2(376, y, 256, BTN_H), Rect2(368, y - 4.0, 272, BTN_H + 8.0), Strings.s("SHARE_SAVE"), func() -> void: save(), "kit_secondary", L.TEXT)
+	var hw := L.floor4((544.0 + L.dx - 32.0) / 2.0)
+	share_btn = button(Rect2(88, y, hw, BTN_H), Rect2(80, y - 4.0, hw + 16.0, BTN_H + 8.0), Strings.s("SHARE_BTN"), func() -> void: share(), "kit_primary", L.TEXT)
+	save_btn = button(Rect2(88.0 + hw + 32.0, y, hw, BTN_H), Rect2(80.0 + hw + 32.0, y - 4.0, hw + 16.0, BTN_H + 8.0), Strings.s("SHARE_SAVE"), func() -> void: save(), "kit_secondary", L.TEXT)
 	for b: PxButton in [share_btn, save_btn]:
 		if b.label != null:
 			b.label.wrap_width = 224.0
 			b.label.max_lines = 1
 			b.label.center_in(b.visual.position.x, b.visual.size.x)
 	y += BTN_H + GAP
-	wa_btn = button(Rect2(88, y, 544, BTN_H), Rect2(80, y - 4.0, 560, BTN_H + 8.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
+	wa_btn = button(Rect2(88, y, 544.0 + L.dx, BTN_H), Rect2(80, y - 4.0, 560.0 + L.dx, BTN_H + 8.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
 	_place_wa_icon(wa_btn)
 	var cy := pr.end.y - CLOSE_AREA - inset
-	button(Rect2(24, cy, 672, 88), Rect2(24, cy, 672, 88), Strings.s("SHARE_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
+	button(Rect2(24, cy, 672.0 + L.dx, 88), Rect2(24, cy, 672.0 + L.dx, 88), Strings.s("SHARE_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
 	focusables.append(close)
 	share_btn.set_enabled(false)
 	save_btn.set_enabled(false)
@@ -369,10 +378,10 @@ func on_share_result(result: String) -> void:
 		"fail":
 			key = "SHARE_FAIL"
 	status.text = Strings.s(key) if key != "" else ""
-	status.center_in(0, L.W)
+	status.center_in(0, L.cw)
 	if result == "fallback" and not png.is_empty():
 		status.text = Strings.s("SHARE_SAVED") + " " + Strings.s("SHARE_COPIED")
-		status.center_in(0, L.W)
+		status.center_in(0, L.cw)
 
 
 func cancel(via: String) -> void:

@@ -32,6 +32,8 @@ extends Node2D
 
 const HOT := 75.0
 const BOIL := 95.0
+## mobile-first §4.1: the thermometer is HUD-like and L-anchored (canvas x 12-132, never drifting
+## inward on a wider canvas); the node is in the stage column, so every x here is minus L.sox().
 const TUBE_X := 44.0
 const TUBE_BOTTOM := -140.0          # S − 140
 const ICON_GAP := 52.0               # icon top above the tube top (S − 544 on the full tube)
@@ -165,7 +167,7 @@ func _sy(v: float) -> float:
 
 func tube_rect() -> Rect2:
 	var sz := Vector2(Art.sprite_size(_tube.get_meta("sprite"))) * AP
-	return Rect2(Vector2(TUBE_X, _sy(TUBE_BOTTOM) - sz.y), sz)
+	return Rect2(Vector2(TUBE_X - L.sox(), _sy(TUBE_BOTTOM) - sz.y), sz)
 
 
 ## The icon's top, stage-node y: ICON_GAP above the tube top (S − 544 on the full tube, S − 424 on the short one).
@@ -175,7 +177,7 @@ func icon_top() -> float:
 
 func hit_rect() -> Rect2:
 	var top := icon_top()
-	return Rect2(HIT_X.x, top, HIT_X.y, _sy(TUBE_BOTTOM) - top)
+	return Rect2(HIT_X.x - L.sox(), top, HIT_X.y, _sy(TUBE_BOTTOM) - top)
 
 
 func relayout() -> void:
@@ -189,13 +191,13 @@ func relayout() -> void:
 	var isz := Vector2(Art.sprite_size(_icon.get_meta("sprite"))) * AP
 	_icon.position = Vector2(Ui.snap(_column_x() - isz.x / 2.0, 4), icon_top())
 	_word.position.y = _sy(WORD_Y)
-	_word.center_in(WORD_BOX.x, WORD_BOX.y)
+	_word.center_in(WORD_BOX.x - L.sox(), WORD_BOX.y)
 	_place_liquid()
 
 
 ## The liquid column's centre x (x 72 with the kit's column: rtl-map centres the icon and the word on it).
 func _column_x() -> float:
-	return TUBE_X + (float(_liquid["x"]) + float(_liquid["w"]) / 2.0) * AP
+	return TUBE_X - L.sox() + (float(_liquid["x"]) + float(_liquid["w"]) / 2.0) * AP
 
 
 ## The logical y of the top of art row `r` of the tube.
@@ -216,7 +218,7 @@ func rows_for(pct: float) -> int:
 
 
 func _place_liquid() -> void:
-	var x := TUBE_X + float(_liquid["x"]) * AP
+	var x := TUBE_X - L.sox() + float(_liquid["x"]) * AP
 	var w := float(_liquid["w"])
 	var yb := float(_liquid["yBottom"])
 	var fl_rows := float(rows_for(Investigation.floor_pct(_state))) if _state != null and Investigation.active() else 0.0
@@ -335,7 +337,7 @@ func _update_state(dt: float, p: float) -> void:
 	if key != _word_key or wt != _word.text:
 		_word_key = key
 		_word.text = wt
-		_word.center_in(WORD_BOX.x, WORD_BOX.y)
+		_word.center_in(WORD_BOX.x - L.sox(), WORD_BOX.y)
 	var hot := p >= HOT
 	# the hot icon: the gavel for the court, the folded newspaper for the press (no gavel there)
 	var hot_id := "thermo_icon_gavel" if LeaderUi.court() or LeaderUi.press_icon("thermo") == "" else LeaderUi.press_icon("thermo")

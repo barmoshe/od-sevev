@@ -209,7 +209,9 @@ func build() -> FlashCard:
 		func(sc: int) -> bool: return fixed + _screen_h(fig_art_h * sc) <= avail)
 	var screen_h := _screen_h(fig_art_h * art_scale)
 	var h := fixed + screen_h
-	var y := Ui.snap((band.x + band.y) / 2.0 - h / 2.0, 4)
+	# mobile-first §5.13: the stacked FLASH_NEXT over FLASH_SKIP sit in the thumb zone: the card is
+	# bottom-anchored, the skip's bottom 24 above the safe bottom (its PAD included)
+	var y := Ui.snap(maxf(band.x + BAND_MARGIN, band.y - (24.0 - PAD) - h), 4)
 	# the panel: the kit's dark sheet (white labels), title band on top
 	panel_rect = Rect2(CARD_X, y, CARD_W, h)
 	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
@@ -303,13 +305,12 @@ func _screen_h(fig_h: float) -> float:
 	return ceilf((fig_h + HEADROOM + FEET_UP) / 4.0) * 4.0
 
 
-## The visible band of the modal space (y top, y bottom): MainController centres the 1280-tall
-## modal space between the insets (_ovl_y), so the band is symmetric around 640.
+## The visible band of the modal space (y top, y bottom): the safe band, less the modal node's y
+## (MainController.modal_band: _ovl_y puts the 1280 space's centre at 50% / 55% of the band).
 func _band() -> Vector2:
-	if host == null or not ("_ovl_y" in host and "_top_y" in host):
+	if host == null or not host.has_method("modal_band"):
 		return Vector2(0.0, float(L.H))
-	var over := float(host.get("_ovl_y")) - float(host.get("_top_y"))
-	return Vector2(-over, float(L.H) + over)
+	return host.call("modal_band")
 
 
 func _lh(t: PxText) -> float:

@@ -5692,6 +5692,18 @@
         "5": 1120
       }
     },
+    "CHAT_SYS_MERGE_READY": {
+      "surface": "label",
+      "spec": "ux mobile-first-layout §5.5",
+      "joke": true,
+      "note": "The thread's merge-ready notice (Golan's round): a system line with the לאחד pill under it; posted when a pair first qualifies with the cooldown at 0, again after each cooldown (≥ 120 s apart). Gender-free: one key",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 576,
+        "5": 720
+      }
+    },
     "HUD_RATE": {
       "aliasOf": "HUD_BPS",
       "surface": "label",

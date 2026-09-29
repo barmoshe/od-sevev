@@ -4,6 +4,11 @@ extends Node2D
 ## plus the ultimatum stage cameo (§4.2). A child of `_lower`, positioned at y = −S, so its local
 ## space is "tall-local": y 0 = the stage top, the tab covers the stage, the ticker and the panel
 ## down to the tab bar (H_T = S + 84 + P). Rows A and B stay visible above it.
+## Mobile-first §4.1 / §5.5: the tab spans the canvas. The header chevron, title and status, the
+## pinned pin and text, the composer text and the incoming avatars and bubbles are R-anchored
+## (+ dx: a partner row's root sits at x dx); the replies stay left (x 16); system pills, the
+## brawl slot and the pending chip are centred on the canvas; backgrounds, the pinned bar, the
+## thread clip and the composer stretch. Bubble text columns keep their 720 measure (≤ 20 glyphs).
 ##
 ## It is a VIEW of the sim's chat log (`state.coalition.chat`, game/scripts/sim/README.md
 ## "Messages"). No rule lives here: pay / rejoin / poach go through `Coalition.pay`, "צאו החוצה"
@@ -224,7 +229,6 @@ func _ready() -> void:
 	_status = PxText.make(_panel, Vector2(0, 56), "", L.TEXT, "plain", C_NAME)
 	_status.wrap_width = TITLE_RIGHT - 32.0
 	_status.max_lines = 1
-	_status.right_at(TITLE_RIGHT)
 	_pinned = Ui.nine(_panel, Rect2(0, PINNED_Y, L.W, PINNED_H), Art.sprite_or("chat_pinned"))
 	_pin = Ui.img(_panel, Vector2(676, PINNED_Y + 10), Art.sprite_or("chat_icon_pin"), 0, 4)
 	_pinned_text = PxText.make(_panel, Vector2(0, PINNED_Y + 10), "", L.TEXT, "plain", C_NAME)
@@ -243,7 +247,7 @@ func _ready() -> void:
 	relayout()
 
 
-## The flex rule changed (MainController._relayout): H_T = S + 84 + P.
+## The split or the width changed (MainController._relayout): H_T = S + 84 + P; the anchors.
 func relayout() -> void:
 	position = Vector2(0, -L.stage_h)
 	_h = L.stage_h + L.tabs_y()
@@ -252,12 +256,38 @@ func relayout() -> void:
 		_vs_w = float((host.get("_vs") as Vector2).x)
 	if _bg == null:
 		return
+	var dx := L.dx
 	_bg.position = Vector2(-_ox - 8.0, 0)
 	_bg.size = Vector2(_vs_w + 16.0, _h)
-	_clip.size = Vector2(L.W, thread_h())
-	Ui.set_nine_rect(_composer, Rect2(0, _h - COMPOSER_H, L.W, COMPOSER_H))
+	_clip.size = Vector2(L.cw, thread_h())
+	Ui.set_nine_rect(_header, Rect2(0, 0, L.cw + 4.0, HEADER_H))
+	var cs := Vector2(Art.sprite_size(_chev.get_meta("sprite"))) * 4.0
+	_chev.position = (chevron_hit().get_center() - cs / 2.0).snapped(Vector2(4, 4))
+	_title.right_at(TITLE_RIGHT + dx)
+	_status.right_at(TITLE_RIGHT + dx)
+	Ui.set_nine_rect(_pinned, Rect2(0, PINNED_Y, L.cw + 4.0, PINNED_H))
+	_pin.position.x = 676.0 + dx
+	_pinned_text.wrap_width = 584.0 + dx
+	_pinned_text.right_at(660.0 + dx)
+	Ui.set_nine_rect(_composer, Rect2(0, _h - COMPOSER_H, L.cw + 4.0, COMPOSER_H))
+	_composer_text.wrap_width = 640.0 + dx
+	_composer_text.right_at(680.0 + dx)
 	_composer_text.position.y = _h - COMPOSER_H + 24
+	_cameo.position.x = L.sox()   # the cameo stands in the stage column
+	if _state != null:
+		_update_header()
+	_sig = ""   # the thread's rows re-anchor on the next rebuild
+	_rebuild_if_needed(false)
 	_set_scroll(_scroll)
+
+
+## The header's back chevron, R-anchored.
+static func chevron_hit() -> Rect2:
+	return L.ra(CHEVRON_HIT)
+
+
+static func pinned_hit() -> Rect2:
+	return L.sa(PINNED_HIT)
 
 
 func thread_h() -> float:
@@ -357,6 +387,8 @@ func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = 
 	if _open and not live:
 		close()
 	_advance_reveal()
+	if live:
+		_post_merge_ready()
 	_rebuild_if_needed(false)
 	_tick_ultimatums(live)
 	_update_ribbon(dt)
@@ -369,6 +401,47 @@ func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = 
 	_update_cameo(dt, live and not bool(ctx.get("overlay", false)))
 	_update_brawl_cue(live and not bool(ctx.get("overlay", false)))
 	_update_badge()
+
+
+## mobile-first §5.5 (D46): Golan's merge is his signature rule, and the partner card (its home) is
+## never taught; so when a pair first qualifies with the cooldown at 0 (and again after each
+## cooldown, at most once per MERGE_READY_GAP_SEC of play) the thread gets a system line
+## "CHAT_SYS_MERGE_READY" with the "לאחד" pill under it (512 × 68, hit 536 × 88, centred), which
+## opens the same MergeCard with that pair first. The line is a notice, not a demand: it has no
+## price and no state, so the sim never expires, trims-protects or pays it.
+const MERGE_READY_GAP_SEC := 120.0
+
+
+## The first qualifying pair [a, b] ([] = none; the rule is off or on cooldown).
+static func merge_ready_pair(s: GameState) -> Array:
+	if s == null or not Coalition.active() or Coalition.merge_cooldown(s) != 0.0:
+		return []
+	for p: Dictionary in Coalition.partners():
+		var a := str(p["id"])
+		var cands := Coalition.merge_candidates(s, a)
+		if not cands.is_empty():
+			return [a, str(cands[0])]
+	return []
+
+
+func _post_merge_ready() -> void:
+	var s := _state
+	if s == null or not (s.coalition is Dictionary) or not bool(s.coalition.get("opened", false)):
+		return
+	var c: Dictionary = s.coalition
+	if Coalition.merge_cooldown(s) > 0.0:
+		c["mergeReadyArmed"] = true   # a merge ran: the next ready pair is news again
+		return
+	if c.get("mergeReadyArmed", true) != true:
+		return
+	if s.run_time_sec - float(c.get("mergeReadyAtSec", -1e9)) < MERGE_READY_GAP_SEC:
+		return
+	var pair := merge_ready_pair(s)
+	if pair.is_empty():
+		return
+	c["mergeReadyArmed"] = false
+	c["mergeReadyAtSec"] = s.run_time_sec
+	Coalition._sys(s, "chat.sys.merge_ready", {"a": pair[0], "b": pair[1], "action": "merge"}, [])
 
 
 ## A fresh GameState (boot, reset, import, election seam): everything already in its log counts
@@ -679,9 +752,12 @@ func _build_thread() -> void:
 			gap = IN_RUN_GAP if (not row["first"] and prev_kind != "" and ["in", "ult", "deleted"].has(row["kind"])) else RUN_GAP
 		y += gap
 		var r: Dictionary
+		var nh := _hits.size()
+		var rx := 0.0
 		match String(row["kind"]):
 			"in", "ult", "deleted":
 				r = _build_bubble(row, y)
+				rx = L.dx   # mobile-first §4.1: incoming avatar and bubble, R-anchored
 			"out":
 				r = _build_out(row, y)
 			"sys":
@@ -690,6 +766,12 @@ func _build_thread() -> void:
 				r = _build_transfer(row, y)
 			"brawl":
 				r = _build_brawl(row, y)
+				rx = L.sox()   # the brawl slot, centred
+		r["x"] = rx
+		for hi in range(nh, _hits.size()):
+			var hr: Rect2 = _hits[hi]["rect"]
+			_hits[hi]["rect"] = Rect2(hr.position.x + rx, hr.position.y, hr.size.x, hr.size.y)
+		(r["root"] as Node2D).position.x = rx
 		r["seq"] = row["seq"]
 		r["kind"] = row["kind"]
 		r["first"] = row["first"]
@@ -884,7 +966,7 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
 	var lines := maxf(1.0, float(tx.line_count()))
 	var w := Ui.snap(float(tx.width()) + icon_w + 48.0, 4)
 	var h := Ui.snap(_lh(tx) * lines + 12.0, 4)
-	var x := Ui.snap((L.W - w) / 2.0, 4)
+	var x := Ui.snap((L.cw - w) / 2.0, 4)
 	Ui.set_nine_rect(pill_bg, Rect2(x, 0, w, h))
 	tx.position = Vector2(x + 24.0, 6.0)
 	tx.h_anchor = 0
@@ -895,13 +977,21 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
 	var st := str(m.get("state", ""))
 	if payable != "" and (st == "open" or st == "paid"):
 		cy += 16.0
-		var pr := Rect2(WIDE_PILL.position.x, cy, WIDE_PILL.size.x, WIDE_PILL.size.y)
+		var pr := Rect2(L.cx(WIDE_PILL.position.x), cy, WIDE_PILL.size.x, WIDE_PILL.size.y)
 		var pill := _make_pill(root, pr, int(m["seq"]), true)
 		pill["key"] = "CHAT_SYS_REJOIN" if payable == "rejoin" else "CHAT_SYS_POACH"
 		r["pills"].append(pill)
 		if st == "open":
 			_hits.append({"rect": Rect2(pr.get_center().x - 268.0, y + pr.get_center().y - 44.0, 536, 88), "kind": "pay",
 				"seq": int(m["seq"]), "pill": pill})
+		cy += PILL_H
+	if str(m.get("action", "")) == "merge":
+		cy += 16.0
+		var mr := Rect2(L.cx(WIDE_PILL.position.x), cy, WIDE_PILL.size.x, WIDE_PILL.size.y)
+		var mb := PxButton.make(root, mr, {"kind": "kit_secondary", "label": Strings.s("CHAT_PILL_MERGE"), "label_box": mr.size.x - 32.0})
+		r["merges"] = [{"button": mb, "a": str(m.get("a", "")), "b": str(m.get("b", ""))}]
+		_hits.append({"rect": Rect2(mr.get_center().x - 268.0, y + mr.get_center().y - 44.0, 536, 88), "kind": "merge",
+			"seq": int(m.get("seq", -1)), "a": str(m.get("a", "")), "b": str(m.get("b", "")), "button": mb})
 		cy += PILL_H
 	if str(m.get("key", "")) == "chat.brawl.after":
 		var cc := _text(root, "", C_MUTED, 300.0, 1)
@@ -916,17 +1006,17 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
 func _build_transfer(row: Dictionary, y: float) -> Dictionary:
 	var m: Dictionary = row["msg"]
 	var root := _root(y)
-	Ui.nine(root, Rect2(0, 0, L.W, 120), Art.sprite_or("transfer_banner"))
-	var card := Ui.nine(root, Rect2(16, 128, 688, 64), Art.sprite_or("transfer_card"))
+	Ui.nine(root, Rect2(0, 0, L.cw, 120), Art.sprite_or("transfer_banner"))
+	var card := Ui.nine(root, Rect2(16, 128, 688.0 + L.dx, 64), Art.sprite_or("transfer_card"))
 	var nm := PxText.make(root, Vector2(0, 148), partner_name(str(m.get("partner", ""))), L.TEXT + 1, "plain", C_GOLD_HI)
 	nm.wrap_width = 640.0
 	nm.max_lines = 1
-	nm.right_at(672)
+	nm.right_at(672.0 + L.dx)
 	var ln := _text(root, Strings.s("CHAT_TRANSFER_LINE", {"from": partner_name(str(m.get("partner", ""))), "to": partner_name(str(m.get("to", "")))}), Color.WHITE, 640.0, 2, true)
-	ln.right_at(672)
+	ln.right_at(672.0 + L.dx)
 	ln.position.y = 148.0 + _lh(nm) + 4.0
 	var ch := Ui.snap(20.0 + _lh(nm) + 4.0 + _lh(ln) * maxf(1.0, float(ln.line_count())) + 16.0, 4)
-	Ui.set_nine_rect(card, Rect2(16, 128, 688, ch))
+	Ui.set_nine_rect(card, Rect2(16, 128, 688.0 + L.dx, ch))
 	return {"root": root, "pills": [], "h": 128.0 + ch}
 
 
@@ -975,8 +1065,8 @@ func _update_header() -> void:
 		else:
 			txt = Strings.plural("CHAT_MEMBERS", group_size(_state))
 	_status.text = txt
-	_status.right_at(TITLE_RIGHT)
-	_lock.position = Vector2(Ui.snap(TITLE_RIGHT - float(_title.width()) - 12.0 - float(Art.sprite_size(_lock.get_meta("sprite")).x) * 4.0, 4), 20)
+	_status.right_at(TITLE_RIGHT + L.dx)
+	_lock.position = Vector2(Ui.snap(TITLE_RIGHT + L.dx - float(_title.width()) - 12.0 - float(Art.sprite_size(_lock.get_meta("sprite")).x) * 4.0, 4), 20)
 	_pinned_text.text = Strings.s("CHAT_PINNED", {"n": str(_state.evolutions + 1)})
 	var agreement := _state.evolutions >= 1
 	var badge := agreement and Meta.can_buy_any_perk(_state)
@@ -1013,17 +1103,25 @@ func _update_rows(dt: float) -> void:
 				a = p
 				if r.get("kind", "") == "ult" and t > ms:
 					base_y = Ui.snap(4.0 * (1.0 - Ui.quad_out(minf(1.0, (t - ms) / 100.0))), 4)   # the 1-ap thud
-		root.position = Vector2(base_x, float(r.get("y", 0.0)) + base_y)
+		root.position = Vector2(float(r.get("x", 0.0)) + base_x, float(r.get("y", 0.0)) + base_y)
 		root.modulate.a = a
 		for pill: Dictionary in r["pills"]:
 			_update_pill(pill, bps)
 		for dc: Dictionary in r.get("declines", []):
 			_update_decline(dc)
+		for mg: Dictionary in r.get("merges", []):
+			# live: enabled while that pair (or any) can still merge; the cooldown's seconds otherwise
+			var b: PxButton = mg["button"]
+			var cd := Coalition.merge_cooldown(_state)
+			var t := Strings.s("CHAT_PILL_MERGE_CD", {"s": str(int(ceilf(cd)))}) if cd > 0.0 else Strings.s("CHAT_PILL_MERGE")
+			if b.label != null and b.label.text != t:
+				b.set_label(t)
+			b.set_enabled(cd == 0.0 and not merge_ready_pair(_state).is_empty())
 		if r.get("chip") != null:
 			_update_chip(r["chip"], Coalition.message(_state, seq), dt)
 		if r.has("corridor"):
 			(r["corridor"] as PxText).text = Strings.s("CHAT_CORRIDOR_COUNT", {"n": str(int(_state.coalition.get("corridorMsgs", 0)))})
-			(r["corridor"] as PxText).center_in(0, L.W)
+			(r["corridor"] as PxText).center_in(0, L.cw)
 		if r.has("cloud"):
 			_boil(r["cloud"], r["cloudAt"], 4.0)
 
@@ -1506,10 +1604,10 @@ func pointer_down(p: Vector2) -> bool:
 		_scroll_tw.kill()
 	var ready := _now - _open_ms >= INPUT_AFTER_OPEN_MS
 	_press = {"kind": "thread", "y0": q.y, "x0": q.x, "scroll0": _scroll, "dragging": false, "lastY": q.y, "lastT": _now, "vel": 0.0, "hit": {}}
-	if Ui.in_rect(CHEVRON_HIT, q):
+	if Ui.in_rect(chevron_hit(), q):
 		_press["kind"] = "chevron"
 		return true
-	if Ui.in_rect(PINNED_HIT, q) and q.y < THREAD_Y:
+	if Ui.in_rect(pinned_hit(), q) and q.y < THREAD_Y:
 		_press["kind"] = "pinned"
 		return true
 	if _pending_root.visible and ready and Ui.in_rect(pending_hit(), q):
@@ -1565,10 +1663,10 @@ func pointer_up(p: Vector2) -> void:
 				_audio("uiClick")
 				scroll_to_pending()
 		"chevron":
-			if Ui.in_rect(CHEVRON_HIT, q):
+			if Ui.in_rect(chevron_hit(), q):
 				close()
 		"pinned":
-			if Ui.in_rect(PINNED_HIT, q) and _state != null and _state.evolutions >= 1 and host != null and host.has_method("_open_perks"):
+			if Ui.in_rect(pinned_hit(), q) and _state != null and _state.evolutions >= 1 and host != null and host.has_method("_open_perks"):
 				host.call("_open_perks")   # rtl-map §7.3: the agreement's home after the first election
 		"thread":
 			if pr["dragging"]:
@@ -1601,6 +1699,18 @@ func _release_hit(commit: bool) -> void:
 			(h["button"] as PxButton).up(false)
 			if commit:
 				decline(int(h["seq"]))
+		"merge":
+			(h["button"] as PxButton).up(false)
+			if commit and (h["button"] as PxButton).is_enabled():
+				var a := str(h["a"])
+				var b := str(h["b"])
+				if not Coalition.can_merge(_state, a, b):
+					var pair := merge_ready_pair(_state)
+					if pair.is_empty():
+						return
+					a = str(pair[0])
+					b = str(pair[1])
+				open_merge_card(a, b)
 		"partner":
 			if commit:
 				open_partner_card(str(h["partner"]))
@@ -1625,7 +1735,7 @@ func open_partner_card(pid: String) -> void:
 
 ## Golan's pair prompt (rule.copy.pickPrompt "לאחד עם…"): one button per partner `a` can merge
 ## with now (Coalition.merge_candidates); a pick merges them.
-func open_merge_card(a: String) -> void:
+func open_merge_card(a: String, first: String = "") -> void:
 	if host == null or not "overlays" in host:
 		return
 	var mgr: OverlayManager = host.get("overlays")
@@ -1637,6 +1747,7 @@ func open_merge_card(a: String) -> void:
 		o.setup(host, mgr)
 		o.chat = chat
 		o.partner_id = a
+		o.first = first
 		return o.build())
 
 
@@ -1725,7 +1836,7 @@ func _update_pending() -> void:
 		_pending_text.text = t
 	var tw := float(_pending_text.width())
 	var w := Ui.snap(maxf(PENDING_W, tw + 28.0 + 12.0 + 48.0), 4)
-	var x := Ui.snap((L.W - w) / 2.0, 4)
+	var x := Ui.snap((L.cw - w) / 2.0, 4)
 	_pending_rect = Rect2(x, THREAD_Y + PENDING_Y, w, PENDING_H)
 	Ui.set_nine_rect(_pending_bg, Rect2(Vector2.ZERO, _pending_rect.size))
 	_pending_root.position = _pending_rect.position - Vector2(0, 0.0 if reduced_motion else Ui.snap(4.0 * (1.0 - pin), 4))
@@ -1778,7 +1889,7 @@ func _update_brawl_cue(allowed: bool) -> void:
 	var toast := Rect2()
 	if host != null and "toasts" in host and host.get("toasts") != null:
 		toast = (host.get("toasts") as Toasts).covered_rect()
-	var cue_stage := Rect2(BRAWL_CUE.position + Vector2(0, float(L.STAGE["y"])), BRAWL_CUE.size)
+	var cue_stage := Rect2(BRAWL_CUE.position + Vector2(-L.sox(), float(L.STAGE["y"])), BRAWL_CUE.size)   # the toast dock is stage-local
 	var show := allowed and not _open and not _panel.visible and not m.is_empty() and not toast.intersects(cue_stage)
 	_brawl_cue.visible = show
 	_brawl_seq = int(m.get("seq", -1)) if show else -1
@@ -1835,7 +1946,7 @@ func _update_cameo(dt: float, allowed: bool) -> void:
 				_cameo_strip.position = feet
 				_cameo_strip.update_view(dt)
 				var h := fh * art
-				_cameo_rect = Rect2(568, feet.y - h, 152, h)
+				_cameo_rect = Rect2(568.0 + L.sox(), feet.y - h, 152, h)   # tall-local (the node sits at the stage column)
 				_cameo_seq = int(m["seq"])
 				var chip_pos := Vector2(Ui.snap(644.0 - CHIP_W / 2.0, 4), Ui.snap(feet.y - h - CHIP_H - 8.0, 4))
 				Ui.set_nine_rect(_cameo_chip, Rect2(chip_pos, Vector2(CHIP_W, CHIP_H)))
@@ -2022,6 +2133,8 @@ class MergeCard extends SheetCard:
 	var chat: ChatView
 	var partner_id := ""
 	var picked := ""
+	## The pair's other member to list first (the thread's merge-ready line, mobile-first §5.5).
+	var first := ""
 
 	func build() -> MergeCard:
 		id = "MERGE_CARD"
@@ -2030,6 +2143,9 @@ class MergeCard extends SheetCard:
 		para(ChatView.partner_name(partner_id), C_MUTED, true, 1)
 		close_x(func() -> void: cancel("close"))
 		var cands: Array = Coalition.merge_candidates(chat._state, partner_id) if chat != null and chat._state != null else []
+		if first != "" and cands.has(first):
+			cands.erase(first)
+			cands.push_front(first)
 		_y = Ui.snap(_y - PARA_GAP + PAD, 4)
 		for b: Variant in cands:
 			var bid := str(b)

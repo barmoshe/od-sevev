@@ -247,7 +247,9 @@ func test_t4_rows_open_the_receipt_and_the_result_sheets() -> void:
 			continue
 		var sh: ShareSheet = t
 		runner.check(sh.id == ("SHARE_RECEIPT" if kind == "receipt" else "SHARE_RESULT"), "the overlay id")
-		runner.check(sh.panel_rect.size.y <= floorf(0.8 * m._vs.y) + float(m.bottom_inset()) + 4.0, "a sheet of at most 0.8 · vs.y (rtl-map §7.2)")
+		# mobile-first §5.12 (D44, replaces rtl-map §7.2's 0.8 · vs.y): at most the whole safe height
+		runner.check(sh.panel_rect.size.y <= floorf(m._vs.y / 4.0) * 4.0 - m._top_y + 4.0, "a sheet of at most the safe height (mobile-first §5.12)")
+		runner.check(sh.wa_btn.visual.position.y > sh.share_btn.visual.position.y, "§5.12: WhatsApp is the nearest action to the thumb (under the pair)")
 		runner.check(sh.wa_btn != null and sh.wa_btn.label.text == Strings.s("SHARE_WA") and sh.wa_btn.is_enabled(), "the WhatsApp button is there and live at once (text only)")
 		runner.check(sh.panel.get_node_or_null("WaIcon") != null, "with its speech-bubble icon")
 		runner.check(sh.share_btn.label.text == Strings.s("SHARE_BTN") and sh.save_btn.label.text == Strings.s("SHARE_SAVE"), "לשתף beside לשמור תמונה")

@@ -640,6 +640,7 @@ func _relayout() -> void:
 	buffs.set_stage_rect(-_sx, float(L.STAGE["y"]), _vs.x, L.stage_h)
 	bb.relayout()
 	overlays.relayout()
+	tx.position.x = L.sox()   # EVOLVE_TX: full bleed, its lines centred on the canvas (§5.13)
 	# TITLE: the dirt continues to the bottom of the screen (the fork's jungle; hidden under stage art)
 	var gy := _stage_y + L.stage_bottom() - 64.0
 	_title_ground.position = Vector2(0, gy)
@@ -691,6 +692,19 @@ func _publish_display() -> void:
 		"lowerY": _lower_y, "hat": [hat.x, hat.y], "reducedMotion": bool(settings.get("reducedMotion", false)),
 		"cw": L.cw, "S": L.stage_h, "P": L.panel_h, "rows": L.rows_whole, "cols": Display.cols, "artRows": Display.rows,
 		"ticker": ticker.web_info()}), true)
+
+
+## The safe band in modal space (y top, y bottom): the sheet cards and the flash place in it.
+func modal_band() -> Vector2:
+	return Vector2(_top_y - _ovl_y, _vs.y - _bottom_inset - _ovl_y)
+
+
+## mobile-first §5.10: the y (modal space) of the tab bar's top while it is up, else the band bottom:
+## a centred card keeps ≥ 24 above it.
+func modal_floor() -> float:
+	if mode == "main" and _tabs_up:
+		return _lower_y + L.tabs_y() - _ovl_y
+	return _vs.y - _bottom_inset - _ovl_y
 
 
 func _set_fill(k: String, r: Rect2) -> void:

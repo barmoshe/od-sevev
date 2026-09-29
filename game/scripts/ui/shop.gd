@@ -372,16 +372,17 @@ func _models(s: GameState, t: String) -> Array:
 			out.append({"kind": "producer", "id": id})
 		if pr["silhouette"] != "":
 			out.append({"kind": "silhouette", "id": pr["silhouette"]})
-		_append_teasers(out, s)
+		for id: String in pr.get("fill", PackedStringArray()):
+			out.append({"kind": "teaser", "id": id})
 		return out
 	var ids: Array = _frozen_upgrades if not _frozen_upgrades.is_empty() else Economy.available_upgrades(s).map(func(u: Dictionary) -> String: return u["id"])
 	return ids.map(func(id: String) -> Dictionary: return {"kind": "upgrade", "id": id})
 
 
-## mobile-first §5.4 (D38, ask G1 `producerReveal.fillSilhouettes`, default on): after the real
-## rows, one teaser row per source not shown yet, up to the content's last source.
+## mobile-first §5.4 (D38, G1 `producerReveal.fillSilhouettes`; the sim's producer_rows().fill
+## outside the first card): after card 1, one teaser row per source still to come.
 static func _append_teasers(out: Array, _s: GameState) -> void:
-	if not bool((Content.data().get("producerReveal", {}) as Dictionary).get("fillSilhouettes", true)):
+	if not bool((Content.data().get("producerReveal", {}) as Dictionary).get("fillSilhouettes", false)):
 		return
 	var shown := {}
 	for m: Dictionary in out:
