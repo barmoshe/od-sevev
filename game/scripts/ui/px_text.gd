@@ -25,8 +25,8 @@ var px := 3:
 	set(v):
 		if v != px:
 			px = v
-			if _para != null and wrap_width > 0.0:
-				_relayout()   # the wrap box is in font units: it depends on the scale
+			if text != "":
+				_relayout()   # the wrap box is in font units, and the large-text step depends on px
 			else:
 				queue_redraw()
 var variant := "plain":
@@ -70,6 +70,21 @@ var max_lines := 2:
 		if v != max_lines:
 			max_lines = v
 			_relayout()
+## Large text (ux/rtl-map.md §0.2): the most lines this text may take at the large scale (the
+## budget's `linesLarge`; 0 = max_lines). See _steps_up().
+var max_lines_large := 0:
+	set(v):
+		if v != max_lines_large:
+			max_lines_large = v
+			_relayout()
+## The box the large-text fit is measured against when the text has no wrap box (logical px;
+## 0 = wrap_width). It never wraps or ellipsises: a label keeps its ×4 behaviour and only uses
+## this width to decide between ×5 and ×4 (tab labels, pill lines, button labels, Row B).
+var fit_width := 0.0:
+	set(v):
+		if v != fit_width:
+			fit_width = v
+			_relayout()
 ## Optional per-glyph vertical offset: func(glyph_index: int, glyph_x: float) -> float (the
 ## ticker's J8 hop). glyph_x is the glyph's left edge in node px.
 var glyph_dy: Callable
@@ -77,6 +92,7 @@ var glyph_dy: Callable
 var _ft := ""                      # bitmap route: the font_text string
 var _para: TextParagraph           # shaped route (null on the bitmap route)
 var _box_w := 0.0                  # shaped route: box width in font units
+var _up := false                   # large text: this string draws one whole scale up
 
 
 static func make(parent: Node, pos: Vector2, t: String, scale_px: int = 3, var_: String = "plain", c: Variant = "w") -> PxText:
@@ -94,9 +110,13 @@ static func make(parent: Node, pos: Vector2, t: String, scale_px: int = 3, var_:
 ## True when a string may use the bitmap route (every glyph in the fork font, no RTL, no bidi
 ## control).
 const BITMAP_ROUTE := false
-## Large-text mode (rtl-map §0: ×4 body → ×5): every text drawn at the body scale steps up one
-## whole scale. Wrap boxes stay in logical px, so long labels ellipsize (the lint's step-down
-## notes list them).
+## Large-text mode (ux/rtl-map.md §0.2, the step-down rule): a text drawn at the body scale
+## (L.TEXT, ×4) draws one whole scale up (×5) only where the FILLED string fits its box there:
+## at most max_lines_large lines (else max_lines) of width wrap_width (else fit_width), no word
+## wider than the box. Otherwise it steps back down to ×4, where the build lint proves every
+## budgeted key fits, so a step-down key is never ellipsised by large text. A text with no box
+## (the crawl, a floater) always draws ×5. Views that stack text measure line_count() and
+## eff_px() after setting the text, so rows grow to the scale actually drawn.
 static var large_text := false
 
 
@@ -117,9 +137,54 @@ static func relayout_all(tree: SceneTree) -> void:
 
 
 ## The scale actually drawn, logical px per font px: px, or px + 1 for body text in large-text
-## mode, snapped to whole device px (Display.text_scale), so every glyph pixel is crisp at any k.
+## mode where it fits (_steps_up), snapped to whole device px (Display.text_scale), so every glyph
+## pixel is crisp at any k.
 func eff_px() -> float:
-	return Display.text_scale(float(px + 1 if (large_text and px == L.TEXT) else px))
+	return Display.text_scale(float(px + 1 if _up else px))
+
+
+## True when large text draws this string one scale up (rtl-map §0.2).
+func stepped_up() -> bool:
+	return _up
+
+
+## The body scale in effect for unboxed text (the ticker's paged widths): ×5 under large text.
+static func body_scale() -> int:
+	return L.TEXT + 1 if large_text else L.TEXT
+
+
+## rtl-map §0.2: does `t` fit a box `box_w` logical px wide in `lines` lines at scale `scale_px`
+## (word-wrapped the way the shaped route wraps; a word wider than the box does not fit)? Pure.
+static func fits(t: String, box_w: float, lines: int, scale_px: int) -> bool:
+	if t == "" or box_w <= 0.0:
+		return true
+	var sc := Display.text_scale(float(scale_px))
+	var w := floorf(box_w / sc)
+	if bitmap_ok(t):
+		return Art.measure(Art.font_text(t), scale_px) <= int(box_w) and t.split("\n").size() <= lines
+	var p := TextParagraph.new()
+	p.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(t) else TextServer.DIRECTION_LTR
+	p.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+	p.justification_flags = TextServer.JUSTIFICATION_NONE
+	p.add_string(t, HeFont.font(), HeFont.size())
+	p.width = w
+	if p.get_line_count() > maxi(1, lines):
+		return false
+	for i in p.get_line_count():
+		if p.get_line_width(i) > w + 0.01:
+			return false
+	return true
+
+
+func _steps_up() -> bool:
+	if not large_text or px != L.TEXT or text == "":
+		return false
+	if wrap_width > 0.0:
+		return fits(text, wrap_width, max_lines_large if max_lines_large > 0 else max_lines, px + 1)
+	if fit_width > 0.0:
+		# an unwrapped label: its explicit lines only (it never wraps)
+		return fits(text, fit_width, text.count("\n") + 1, px + 1)
+	return true
 
 
 static func bitmap_ok(t: String) -> bool:
@@ -167,6 +232,7 @@ func is_shaped() -> bool:
 
 
 func _relayout() -> void:
+	_up = _steps_up()
 	if text == "" or bitmap_ok(text):
 		_para = null
 		_ft = Art.font_text(text, uppercase)
@@ -179,7 +245,7 @@ func _relayout() -> void:
 		_para.add_string(text, _shaped_font(), HeFont.size())
 		if wrap_width > 0.0:
 			_para.width = floorf(wrap_width / float(eff_px()))
-			_para.max_lines_visible = maxi(1, max_lines)
+			_para.max_lines_visible = maxi(1, max_lines_large if (_up and max_lines_large > 0) else max_lines)
 			_para.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		_box_w = 0.0
 		for i in _para.get_line_count():

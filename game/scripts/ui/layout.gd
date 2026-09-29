@@ -122,9 +122,12 @@ static func tab_rect(slot: int) -> Rect2:
 const ROW := {
 	"plate": Rect2(588, 8, 104, 104),
 	"iconCenter": Vector2(640, 60),
-	"nameRight": 580, "nameY": 16, "nameW": 384,
-	"line2Right": 580, "line2Y": 64, "line2W": 288, "line2WideW": 384,
-	"ownedX": 204, "ownedY": 64,
+	# string-budgets card.name 360 (x 220-580), card.line2 348 (x 220-568, beside the owned badge),
+	# card.line2wide 360 (no badge)
+	"nameRight": 580, "nameY": 16, "nameW": 360,
+	"line2Right": 568, "line2WideRight": 580, "line2Y": 64, "line2W": 348, "line2WideW": 360,
+	# rtl-map §6.1 "Owned" (D4): a dark chip on the plate's bottom-left corner, PxText centred
+	"owned": Rect2(572, 72, 104, 44),
 	"pill": Rect2(28, 16, 168, 88), "pillLine1Y": 22, "pillLine2Y": 58,
 	"buyModeBtn": Rect2(28, 12, 168, 80), "buyModeHitW": 196,
 }

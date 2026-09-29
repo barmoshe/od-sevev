@@ -14,67 +14,111 @@ class SettingsOverlay:
 	extends Overlay
 	var open_reset: Callable
 	var _switches := {}          # key -> {track, fill, knob, state}
+	var _built_large := false
 	const ROW := 88.0
 	const CAP_ROW := 144.0
 	const GROUP := 48.0
+	const TEXT_W := 360.0        # string-budgets sheet.label / sheet.caption (x 296-656)
+	const LABEL_DY := 26.0
 
 	func build() -> SettingsOverlay:
 		id = "SETTINGS"
+		_built_large = PxText.large_text
 		var th := Art.theme
 		var rows: Array = [["g", "SET_GROUP_SOUND"], ["t", "sfx", "SET_SFX", ""], ["t", "music", "SET_MUSIC", ""],
 			["g", "SET_GROUP_A11Y"], ["t", "reducedMotion", "SET_REDUCED_MOTION", "SET_MOTION_CAP"]]
 		if host.haptics_available():
 			rows.append(["t", "haptics", "SET_HAPTICS", ""])
 		rows += [["t", "largeText", "SET_LARGE", "SET_LARGE_CAP"], ["g", "SET_GROUP_GAME"], ["about"], ["reset"]]
-		var content := 104.0
+		# rtl-map §0.2: every row grows to its measured line count at the scale actually drawn, so
+		# the content height is only known once the texts exist: build the rows first (in the body,
+		# from y 0), then size the sheet and move the body under the header.
+		var y := 0.0
+		var placed: Array = []   # [row, y, h]
 		for r: Array in rows:
-			content += GROUP if r[0] == "g" else (CAP_ROW if (r[0] == "t" and r[3] != "") else ROW)
-		content += 112.0 + 16.0
+			var h := _row_h(r)
+			placed.append([r, y, h])
+			y += h
+		var content := 104.0 + y + 112.0 + 16.0
 		var pr: Rect2 = host.sheet_rect(content)
 		make_panel(pr)
 		var title := text(Vector2(0, pr.position.y + 24.0), Strings.s("SET_TITLE"), L.TEXT, th["modal"]["title"])
+		title.fit_width = 432.0   # sheet.title
 		title.center_in(pr.position.x + 144.0, pr.size.x - 288.0)
 		var close := close_button(Rect2(pr.position.x + 16, pr.position.y + 16, 64, 64), Rect2(pr.position.x, pr.position.y, 104, 104), func() -> void: cancel("close"))
 		var close_y := pr.end.y - 112.0 - float(host.bottom_inset())
 		make_scroll(Rect2(pr.position.x, pr.position.y + 104.0, pr.size.x, close_y - pr.position.y - 104.0))
-		var y := pr.position.y + 104.0
-		for r: Array in rows:
+		var y0 := pr.position.y + 104.0
+		for p: Array in placed:
+			var r: Array = p[0]
+			var ry: float = y0 + float(p[1])
+			var h: float = p[2]
 			match String(r[0]):
 				"g":
-					var g := PxText.make(body, Vector2(0, y + 8.0), Strings.s(r[1]), L.TEXT, "plain", th["modal"]["groupLabel"])
+					var g := PxText.make(body, Vector2(0, ry + 8.0), Strings.s(r[1]), L.TEXT, "plain", th["modal"]["groupLabel"])
+					g.fit_width = TEXT_W   # sheet.group
 					g.right_at(656.0)
-					y += GROUP
 				"t":
-					var h := CAP_ROW if r[2] != "" and String(r[3]) != "" else ROW
-					_toggle(y, h, r[1], r[2], r[3])
-					y += h
+					_toggle(ry, h, r[1], r[2], r[3])
 				"about":
-					_row_button(y, Strings.s("SET_ABOUT"), func() -> void:
+					_row_button(ry, h, Strings.s("SET_ABOUT"), func() -> void:
 						host.audio_event("uiClick")
 						host.open_about())
-					var chev := PxText.make(body, Vector2(40, y + 26.0), "<", L.TEXT, "plain", th["modal"]["body"])
+					var chev := PxText.make(body, Vector2(40, ry + LABEL_DY), "<", L.TEXT, "plain", th["modal"]["body"])
 					chev.h_anchor = 0
-					y += ROW
 				"reset":
-					_row_button(y, Strings.s("SET_RESET"), func() -> void:
+					_row_button(ry, h, Strings.s("SET_RESET"), func() -> void:
 						host.audio_event("uiClick")
 						open_reset.call(), th["modal"]["title"])
-					y += ROW
-		content_bottom = y + 8.0
+		content_bottom = y0 + y + 8.0
 		var sc := button(Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Strings.s("SYS_CLOSE"),
 			func() -> void: cancel("close"), "kit_secondary", L.TEXT)
 		focusables.append(close)
 		sync()
 		return self
 
-	func _row_button(y: float, label: String, on_commit: Callable, role: Variant = null) -> void:
-		var b := PxButton.make(body, Rect2(24, y, 672, ROW), {"hit": Rect2(24, y, 672, ROW), "ghost": true, "on_commit": on_commit})
+	## A settings text in its box (right-aligned at x 656, 360 wide): a label (1 line, 2 at ×5)
+	## or a caption (2 lines, 3 at ×5), string-budgets sheet.label / sheet.caption.
+	func _sheet_text(parent: Node, pos: Vector2, s: String, role: Variant, caption: bool) -> PxText:
+		var t := PxText.make(parent, pos, s, L.TEXT, "plain", role)
+		t.wrap_width = TEXT_W
+		t.max_lines = 2 if caption else 1
+		t.max_lines_large = 3 if caption else 2
+		t.right_at(656.0)
+		return t
+
+	static func _lh(t: PxText) -> float:
+		return float(HeFont.line_height()) * t.eff_px()
+
+	## The row height from the measured texts: a label row is 88 at ×4 (26 + one 44 line + 18); a
+	## caption sits 2 px under the label and the row ends 16 px above its last caption line's
+	## pitch (144 for a 1-line label over a 2-line caption at ×4, as the spec's table).
+	func _row_h(r: Array) -> float:
+		var th := Art.theme
+		var probe_parent := Node2D.new()
+		var h := ROW
+		match String(r[0]):
+			"g":
+				var g := PxText.make(probe_parent, Vector2.ZERO, Strings.s(r[1]), L.TEXT, "plain", th["modal"]["groupLabel"])
+				g.fit_width = TEXT_W
+				h = GROUP + (_lh(g) - 44.0)
+			"t", "about", "reset":
+				var key: String = r[2] if r[0] == "t" else ("SET_ABOUT" if r[0] == "about" else "SET_RESET")
+				var t := _sheet_text(probe_parent, Vector2.ZERO, Strings.s(key), th["modal"]["body"], false)
+				var label_h := _lh(t) * float(maxi(1, t.line_count()))
+				h = maxf(ROW, LABEL_DY + label_h + 18.0)
+				if r[0] == "t" and String(r[3]) != "":
+					var c := _sheet_text(probe_parent, Vector2.ZERO, Strings.s(r[3]), th["modal"]["note"], true)
+					# the spec's 144 is the floor (a one-line caption keeps its air); rows only grow
+					h = maxf(h, maxf(CAP_ROW, LABEL_DY + label_h + 2.0 + _lh(c) * float(maxi(1, c.line_count())) - 16.0))
+		probe_parent.free()
+		return ceilf(h / 4.0) * 4.0   # up to the 4-px grid: a row never cuts its last line
+
+	func _row_button(y: float, h: float, label: String, on_commit: Callable, role: Variant = null) -> void:
+		var b := PxButton.make(body, Rect2(24, y, 672, h), {"hit": Rect2(24, y, 672, h), "ghost": true, "on_commit": on_commit})
 		focusables.append(b)
 		body_focusables.append(b)
-		var t := PxText.make(body, Vector2(0, y + 26.0), label, L.TEXT, "plain", role if role != null else Art.theme["modal"]["body"])
-		t.wrap_width = 360.0
-		t.max_lines = 1
-		t.right_at(656.0)
+		_sheet_text(body, Vector2(0, y + LABEL_DY), label, role if role != null else Art.theme["modal"]["body"], false)
 
 	func _toggle(y: float, h: float, key: String, label_key: String, cap_key: String) -> void:
 		var th := Art.theme
@@ -84,20 +128,40 @@ class SettingsOverlay:
 				sync()})
 		focusables.append(b)
 		body_focusables.append(b)
-		var t := PxText.make(body, Vector2(0, y + 26.0), Strings.s(label_key), L.TEXT, "plain", th["modal"]["body"])
-		t.wrap_width = 360.0
-		t.max_lines = 1
-		t.right_at(656.0)
+		var t := _sheet_text(body, Vector2(0, y + LABEL_DY), Strings.s(label_key), th["modal"]["body"], false)
 		if cap_key != "":
-			var c := PxText.make(body, Vector2(0, y + 72.0), Strings.s(cap_key), L.TEXT, "plain", th["modal"]["note"])
-			c.wrap_width = 360.0
-			c.max_lines = 2
-			c.right_at(656.0)
+			_sheet_text(body, Vector2(0, y + LABEL_DY + _lh(t) * float(maxi(1, t.line_count())) + 2.0), Strings.s(cap_key), th["modal"]["note"], true)
 		var track := Ui.rect(body, Rect2(40, y + 14.0, 120, 60), Color("#1b1426"))
 		var fill := Ui.rect(body, Rect2(44, y + 18.0, 112, 52), Color("#0038b8"))
 		var knob := Ui.rect(body, Rect2(44, y + 18.0, 52, 52), Color("#f7f4ec"))
-		var st := PxText.make(body, Vector2(176, y + 26.0), "", L.TEXT, "plain", th["modal"]["body"])
+		var st := PxText.make(body, Vector2(176, y + LABEL_DY), "", L.TEXT, "plain", th["modal"]["body"])
+		st.fit_width = 104.0   # sheet.state x 176-280
 		_switches[key] = {"fill": fill, "knob": knob, "state": st, "y": y}
+
+	## Large text toggled from this sheet (rtl-map §0.2): the rows re-measure, so the sheet is rebuilt
+	## in place (no enter motion), keeping the focus and the scroll.
+	func rebuild_if_scale_changed() -> void:
+		if _built_large == PxText.large_text or closing:
+			return
+		var fi := focus_index
+		var sy := scroll
+		# the pressed switch's PxButton still finishes its press on its old nodes (uiPressMinHoldMs):
+		# park them hidden and free them a second later
+		var old := Node2D.new()
+		old.visible = false
+		add_child(old)
+		for c in panel.get_children():
+			c.reparent(old, false)
+		get_tree().create_timer(1.0).timeout.connect(old.queue_free)
+		focusables.clear()
+		body_focusables.clear()
+		_switches.clear()
+		body = null
+		clip = null
+		frame = null
+		build()
+		focus_index = clampi(fi, 0, maxi(0, focusables.size() - 1))
+		set_scroll(sy)
 
 	func sync() -> void:
 		for key: String in _switches:
@@ -107,6 +171,8 @@ class SettingsOverlay:
 			# ON = knob left (rtl-map §7.4, mirror)
 			(sw["knob"] as ColorRect).position.x = 44.0 if on else 104.0
 			(sw["state"] as PxText).text = Strings.s("SET_ON" if on else "SET_OFF")
+		if _built_large != PxText.large_text:
+			rebuild_if_scale_changed.call_deferred()
 
 	func cancel(via: String) -> void:
 		host.audio_event("panelClose")

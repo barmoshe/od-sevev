@@ -430,17 +430,34 @@ if ('serviceWorker' in navigator) {
 		about.scrollTop = 0;
 		try { history.pushState({ layer: 'about' }, ''); } catch (e) { /* ignore */ }
 	};
+	let aboutPopPending = false;   // our own history.back() for About's entry: not a layer back
 	function closeAbout(fromPop) {
 		if (about.style.display !== 'block') {
 			return;
 		}
 		about.style.display = 'none';
 		if (!fromPop) {
-			try { history.back(); } catch (e) { /* ignore */ }
+			aboutPopPending = true;
+			try { history.back(); } catch (e) { aboutPopPending = false; }
 		}
 	}
 	document.getElementById('od-about-back').addEventListener('click', () => closeAbout(false));
-	window.addEventListener('popstate', () => closeAbout(true));
+	// One history entry per open layer (ux/rtl-map.md §7.1, review R9): About's own entry closes
+	// About; every other popstate goes to the engine (window.odOnPop, main.gd LayerHistory), which
+	// closes the top game layer exactly as ✕/Esc does, or ignores the echo of its own history.go.
+	window.addEventListener('popstate', () => {
+		if (aboutPopPending) {
+			aboutPopPending = false;
+			return;
+		}
+		if (about.style.display === 'block') {
+			closeAbout(true);
+			return;
+		}
+		if (typeof window.odOnPop === 'function') {
+			window.odOnPop();
+		}
+	});
 	const aboutLink = document.getElementById('od-about-link');
 	if (aboutLink) {
 		aboutLink.addEventListener('click', (e) => { e.preventDefault(); window.odOpenAbout(); });
