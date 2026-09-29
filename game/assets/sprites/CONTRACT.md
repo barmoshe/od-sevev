@@ -71,9 +71,10 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
       | picked | d 2 | d 3 | d 2 | d 3 "aa" | d 3 | d 3 "aa" | d 2 | d 3 | d 3 |
       | dp per sprite px | 1 | 1 | 2 | 1.67 | 2 | 2.33 | 4 | 3 | 4 |
 
-      So **the crisp scales are every k that is a multiple of 2 or 3**; k 5 and 7 are the
-      only phone scales left on "aa". Restricting k to that set (k 5 → 4, k 7 → 6) makes
-      every rendered sprite crisp everywhere.
+      So **the crisp scales are every k that is a multiple of 2 or 3**. `Display` now
+      restricts k to that set (k 5 → 4, k 7 → 6, k 11 → 10; the engine lead, 190a20e), so
+      every rendered sprite is crisp on every device; "aa" remains only as a fallback for a
+      view that picks a non-whole art scale.
     - **k is the device px per art px the figure actually gets.** On the stage (×4 logical
       per art px) that is `Display.k`. A view that draws a figure at its own art scale *s*
       (the partner card ×3, the ultimatum cameo ×3/×2, Dubi's flash ×4/×3/×2) gets s · f,
@@ -300,8 +301,9 @@ ascender 4, body 10, descender 4), so at the same box each @2 px is 2×2 device 
   exactly like Sevev 9. `ux/string-budgets.json`, `tools/lint_text.sh` and every layout keep
   measuring with `sevev9.fnt` and hold for both cuts. The pipeline also shapes its proof lines
   through TextServer and fails unless every @2 width is exactly 2 × Sevev 9's.
-- **Drawing it:** shape at `font_size` 18 (its `fixed_size`), scale by (the Sevev 9 scale) / 2.
-  PxText today shapes at `HeFont.size()` (9) and scales by `eff_px()`; for @2 that is size 18 and
+- **Drawing it (wired, 190a20e):** `PxText.reading = true` marks a reading-text role; it
+  draws @2 when crisp and Sevev 9 otherwise (`?dev=1&sharp=0` forces Sevev 9). Shape at
+  `font_size` 18 (its `fixed_size`), scale by (the Sevev 9 scale) / 2. PxText shapes at `HeFont.size()` (9) and scales by `eff_px()`; for @2 that is size 18 and
   `eff_px() / 2`. `HeFont.ascent()` / `line_height()` of the @2 FontFile are 16 / 22: divide by 2,
   or keep using Sevev 9's values (they are identical in logical px).
 - **Crispness (the pick rule):** an @2 px is (device px per Sevev 9 px) / 2. Use @2 only when that
