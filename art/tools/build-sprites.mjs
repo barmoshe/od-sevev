@@ -1599,7 +1599,9 @@ const UI_THEME = {
   danger: { sprite: 'ui_button_danger', frames: { normal: 0, pressed: 1, hover: 2 }, label: C('k') },
   toggle: { sprite: 'ui_toggle', frames: { on: 0, off: 1 }, labelOn: C('k'), labelOff: C('k'), labelRegionArtPx: [[2, 18], [18, 34]] },
   focusRing: { sprite: 'ui_focus', frame: 0, outsetPx: 8 },
-  close: { sprite: 'ui_close16', frame: 0 },
+  // od-sevev: the kit's 16x16 round ✕ (TA PNG, game/assets/sprites), one ✕ style for every card
+  // (review R26; the court card already uses it). `ui_close16` stays in SPRITES for the fork.
+  close: { sprite: 'icon_close', frame: 0 },
   offline: { amount: C('k'), amountIcon: 'icon_banana' },
   evolveTx: { card: C('w'), text: C('k'), reducedMotionCard: C('U'), reducedMotionText: C('w') },
   // ---- title (hud-layout §10): all title text is over the stage -> outline font variant ----

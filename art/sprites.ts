@@ -572,7 +572,7 @@ export const UI_THEME = {
     "outsetPx": 8
   },
   "close": {
-    "sprite": "ui_close16",
+    "sprite": "icon_close",
     "frame": 0
   },
   "offline": {
