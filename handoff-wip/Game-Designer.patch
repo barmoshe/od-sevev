@@ -1,4 +1,67 @@
 # binary files changed (not carried):
+diff --git a/design/content.json b/design/content.json
+index 97b8a7a..4d98faa 100644
+--- a/design/content.json
++++ b/design/content.json
+@@ -197,8 +197,10 @@
+  "producerReveal": {
+   "revealAtRunBananasFracOfBaseCost": 0.5,
+   "showNextAsSilhouette": true,
++  "fillSilhouettes": true,
+   "silhouetteName": "מקור עלום",
+-  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible."
++  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
++  "_fillRule": "UX mobile-first-layout §5.4 / §10 G1 (game-designer 2026-09-29): after the first reveal, every source not yet revealed and past the silhouette draws as a dim priceless row ('מקור עלום', no price, no pill, not a target), so the pane is never shorter than its content early on. Economy.producer_rows(s).fill lists them in tier order; false = today's single silhouette."
+  },
+  "upgrades": [
+   {
+@@ -6426,7 +6428,7 @@
+    "art": "liberman",
+    "avatar": "liberman_avatar",
+    "pick": {
+-    "blurb": "לא יושב כמעט עם אף אחד. צריך 61 בכל זאת.",
++    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
+     "line": "לא יושב! לא יושב!",
+     "src": [
+      "liberman-wont-sit"
+diff --git a/design/sim/content-lint.mjs b/design/sim/content-lint.mjs
+index 7733a7b..0218422 100644
+--- a/design/sim/content-lint.mjs
++++ b/design/sim/content-lint.mjs
+@@ -345,6 +345,8 @@ if (C.leaderSelect || C.leaders) {
+     if (SPR && !charOf(L.art)) err(P, `art ${L.art} is not in sprites.json chars`);
+     if (!ready) { if (L.status !== 'backlog') warn(P, 'not contentReady and not marked backlog'); continue; }
+     for (const k of ['blurb', 'line']) if (!hebStr(L.pick?.[k])) err(P, `pick.${k} missing`);
++    // The picker shows no numbers at all (spec §3.2, L9: safe in the blackout): a tile's blurb and line carry no digit.
++    for (const k of ['blurb', 'line']) if (/\d/.test(L.pick?.[k] || '')) err(`${P}.pick.${k}`, `a number on the picker (spec §3.2): ${L.pick[k]}`);
+     // Every leader, the default included, shows one signature rule on the picker's long-press and in T4.
+     for (const k of ['name', 'text']) if (!hebStr(L.rule?.[k])) err(`${P}.rule`, `${k} missing (the picker and T4 show every leader's rule, Bibi's too)`);
+     const K = L.kit || {};
+diff --git a/game/data/content.json b/game/data/content.json
+index 97b8a7a..4d98faa 100644
+--- a/game/data/content.json
++++ b/game/data/content.json
+@@ -197,8 +197,10 @@
+  "producerReveal": {
+   "revealAtRunBananasFracOfBaseCost": 0.5,
+   "showNextAsSilhouette": true,
++  "fillSilhouettes": true,
+   "silhouetteName": "מקור עלום",
+-  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible."
++  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
++  "_fillRule": "UX mobile-first-layout §5.4 / §10 G1 (game-designer 2026-09-29): after the first reveal, every source not yet revealed and past the silhouette draws as a dim priceless row ('מקור עלום', no price, no pill, not a target), so the pane is never shorter than its content early on. Economy.producer_rows(s).fill lists them in tier order; false = today's single silhouette."
+  },
+  "upgrades": [
+   {
+@@ -6426,7 +6428,7 @@
+    "art": "liberman",
+    "avatar": "liberman_avatar",
+    "pick": {
+-    "blurb": "לא יושב כמעט עם אף אחד. צריך 61 בכל זאת.",
++    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
+     "line": "לא יושב! לא יושב!",
+     "src": [
+      "liberman-wont-sit"
 diff --git a/game/scripts/sim/economy.gd b/game/scripts/sim/economy.gd
 index 6a9ce1f..06719d6 100644
 --- a/game/scripts/sim/economy.gd
@@ -34,3 +97,33 @@ index 6a9ce1f..06719d6 100644
  
  
  # ---------------------------------------------------------------------------------------------
+diff --git a/game/tests/unit/test_diorama_slots.gd b/game/tests/unit/test_diorama_slots.gd
+index 673e787..9862221 100644
+--- a/game/tests/unit/test_diorama_slots.gd
++++ b/game/tests/unit/test_diorama_slots.gd
+@@ -94,3 +94,25 @@ func test_the_early_round_fills_the_right_half() -> void:
+ 	var tx := float(L.DIORAMA["xs"][t.substr(0, 1)][int(t.substr(1))]) + 32.0
+ 	var left := tx - _extent(src, str(Content.producer("taxpayer")["sprite"])).x - WANDER
+ 	runner.check(left >= hit_right, "the first taxpayer (%s, wandering) clears the Magician's hit (x ≥ %d, got %d)" % [t, int(hit_right), int(left)])
++
++
++## UX mobile-first-layout §5.4 G1 (producerReveal.fillSilhouettes): after the first reveal, the
++## sources past the one priced silhouette come back as `fill`, priceless rows, in tier order.
++func test_the_pane_fills_with_silhouettes() -> void:
++	runner.check(Content.data()["producerReveal"].get("fillSilhouettes") == true, "the content turns the fill on")
++	var s := GameState.fresh()
++	var r0 := Economy.producer_rows(s)
++	runner.check((r0["fill"] as PackedStringArray).is_empty(), "nothing fills before the first reveal (%s)" % str(r0))
++	s.owned["taxpayer"] = 1
++	var r := Economy.producer_rows(s)
++	var ids := Content.producer_ids()
++	var want := PackedStringArray()
++	for id in ids:
++		if not (r["revealed"] as PackedStringArray).has(id) and id != str(r["silhouette"]):
++			want.append(id)
++	runner.check(r["revealed"] == PackedStringArray(["taxpayer"]) and str(r["silhouette"]) == ids[1], "one real row, the next one priced (%s)" % str(r))
++	runner.check(r["fill"] == want and (r["fill"] as PackedStringArray).size() == ids.size() - 2, "the rest fill the pane, in tier order (%s)" % str(r["fill"]))
++	var c: Dictionary = Content.data().duplicate(true)
++	c["producerReveal"]["fillSilhouettes"] = false
++	Content.replace(c)
++	runner.check((Economy.producer_rows(s)["fill"] as PackedStringArray).is_empty(), "off: today's single silhouette")
