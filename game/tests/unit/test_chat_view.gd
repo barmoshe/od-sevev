@@ -358,6 +358,30 @@ func test_an_expired_ultimatum_chip_goes_grey() -> void:
 	runner.check(greyed, "and every part of it is drawn grey (C_MUTED), not red")
 
 
+func test_a_brawl_is_surfaced_with_the_chat_closed() -> void:
+	await _boot()
+	_open_group()
+	for id in ["amsalem", "smotrich"]:
+		Coalition.ps(m.state, id)["status"] = "member"
+	var t: Toasts = m.toasts
+	t._queue.clear()
+	t._t = -1.0
+	t._gap = 0.0
+	var before := 0
+	for m2: Dictionary in m.state.coalition["chat"]:
+		if m2["state"] == "open" and Coalition.is_payable(m2):
+			before += 1
+	for e: Dictionary in Coalition.start_brawl(m.state, "amsalem", "smotrich"):
+		m.chat.on_politics_event(e)
+	t.update_view(16.0)
+	runner.check(t.shown()["text"] == ChatView.sys_text({"key": "chat.sys.brawl", "a": "amsalem", "b": "smotrich"}) and t._tag == "chat",
+		"a toast says who is brawling and that both rows are frozen (%s)" % t.shown()["text"])
+	await tree.process_frame
+	await tree.process_frame
+	var want := Strings.s("TAB_BADGE", {"count": str(before + 1)})
+	runner.check(m.shop._slots[2]["badgeText"].text == want, "the coalition tab's badge counts the brawl (%s, want %s)" % [m.shop._slots[2]["badgeText"].text, want])
+
+
 func test_a_chat_toast_has_the_face_and_the_sender() -> void:
 	await _boot()
 	_open_group()

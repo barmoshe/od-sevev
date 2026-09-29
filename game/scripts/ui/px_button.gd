@@ -68,9 +68,11 @@ static func _kit_kind(base: String) -> Dictionary:
 	var x := base + "_disabled" if Art.has_sprite(base + "_disabled") else d
 	var ok := Art.has_sprite(d)
 	var fb: Array = [Art.theme["button"]["sprite"], Art.theme["button"]["frames"]["normal"], "w"]
+	# the kit's label colour: ink on gold (money buttons; white on gold is unreadable), else white
+	var lab := "k" if (str(Art.kit(d).get("label", "")) == "ink" or base == "button_gold") else "w"
 	return {
-		"normal": [d, 0, "w"] if ok else fb, "pressed": [p, 0, "w"] if ok else fb,
-		"hover": [d, 0, "w"] if ok else fb, "disabled": [x, 0, "w"] if ok else fb,
+		"normal": [d, 0, lab] if ok else fb, "pressed": [p, 0, lab] if ok else fb,
+		"hover": [d, 0, lab] if ok else fb, "disabled": [x, 0, "w"] if ok else fb,
 	}
 
 

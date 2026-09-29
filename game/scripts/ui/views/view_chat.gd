@@ -1066,7 +1066,8 @@ func _update_badge() -> void:
 	var n := 0
 	if Coalition.active():
 		for m: Dictionary in _chat(_state):
-			if str(m.get("state", "")) == "open" and Coalition.is_payable(m):
+			# an open brawl counts too: its two rows stay frozen (out of the 61) until "צאו החוצה"
+			if str(m.get("state", "")) == "open" and (Coalition.is_payable(m) or str(m.get("type", "")) == "brawl"):
 				n += 1
 	var txt := "" if (n <= 0 or _open) else Strings.s("TAB_BADGE", {"count": "9+" if n > 9 else str(n)})
 	(host.get("shop") as Shop).set_tab_badge(3, txt)
@@ -1159,6 +1160,12 @@ func on_politics_event(e: Dictionary) -> void:
 					if tt.has_method("show_chat_toast"):
 						var pid := str(msg.get("partner", ""))
 						tt.show_chat_toast(toast_head(pid), line_text(msg, _state, _d), toast_avatar(pid))
+			elif not _open and str(msg.get("type", "")) == "brawl":
+				# the brawl freezes two rows until "צאו החוצה" (a button inside T3 only): with the
+				# chat closed, say so on the stage (a tap opens T3), and the tab badge counts it
+				_audio("chatPing", str(msg.get("a", "")))
+				if host != null and "toasts" in host and host.get("toasts") != null:
+					(host.get("toasts") as Toasts).show_toast(sys_text({"key": "chat.sys.brawl", "a": msg.get("a", ""), "b": msg.get("b", "")}), "chat")
 		"partnerLeft":
 			var pid := str(e.get("partner", e.get("id", "")))
 			if _ultimatum_ran_out(pid):

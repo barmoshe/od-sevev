@@ -188,7 +188,8 @@ body {
 /* ABOUT_BACK sticks to the top-left of the page (ux/rtl-map.md §9, review R2): the left end of the
    RTL row, 48 CSS tall, over a strip of the page colour so the list scrolls under it */
 #od-about .od-back { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 1; display: flex;
-	justify-content: flex-end; padding: 8px 0; margin: 0 0 4px; background: #140c24; }
+	justify-content: flex-end; padding: 8px 0; margin: 0 0 4px; background: #140c24;
+	box-shadow: 0 calc(-16px - env(safe-area-inset-top, 0px)) 0 0 #140c24; }   /* also covers the page padding above it */
 
 /* od-sevev desktop phone frame (ux/first-minute.md §1.3, ux/rtl-map.md §1): on a wide window with a
    mouse the canvas is a 390-CSS phone column, centred, in a bezel. odFit() below places both; the

@@ -57,9 +57,13 @@ class SettingsOverlay:
 					chev.h_anchor = 0
 					y += ROW
 				"reset":
+					# rtl-map §7.4 danger row: the kit trash icon leads the label, on the right (R26)
+					var trash := Art.has_sprite("icon_trash")
 					_row_button(y, Strings.s("SET_RESET"), func() -> void:
 						host.audio_event("uiClick")
-						open_reset.call(), th["modal"]["title"])
+						open_reset.call(), th["modal"]["title"], 656.0 - (48.0 if trash else 0.0))
+					if trash:
+						Ui.img(body, Vector2(620.0, y + 26.0), "icon_trash", 0, 4)
 					y += ROW
 		content_bottom = y + 8.0
 		var sc := button(Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Strings.s("SYS_CLOSE"),
@@ -68,14 +72,14 @@ class SettingsOverlay:
 		sync()
 		return self
 
-	func _row_button(y: float, label: String, on_commit: Callable, role: Variant = null) -> void:
+	func _row_button(y: float, label: String, on_commit: Callable, role: Variant = null, right: float = 656.0) -> void:
 		var b := PxButton.make(body, Rect2(24, y, 672, ROW), {"hit": Rect2(24, y, 672, ROW), "ghost": true, "on_commit": on_commit})
 		focusables.append(b)
 		body_focusables.append(b)
 		var t := PxText.make(body, Vector2(0, y + 26.0), label, L.TEXT, "plain", role if role != null else Art.theme["modal"]["body"])
 		t.wrap_width = 360.0
 		t.max_lines = 1
-		t.right_at(656.0)
+		t.right_at(right)
 
 	func _toggle(y: float, h: float, key: String, label_key: String, cap_key: String) -> void:
 		var th := Art.theme

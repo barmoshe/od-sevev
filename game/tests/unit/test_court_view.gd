@@ -288,7 +288,13 @@ func test_the_court_card_over_a_tall_tab_pads_it_and_esc_folds_it_first() -> voi
 	var cv: CourtView = m.court
 	var chat: ChatView = m.chat
 	Coalition.open_group(m.state, m.d, func() -> float: return 0.0)
-	chat.open()
+	var ids := Content.producer_ids()
+	for i in 3:
+		m.state.owned[ids[i]] = 1   # C1's tab slot
+	for i in 2:
+		await tree.process_frame
+	_touch(_lower_pt(Vector2(270, L.tabs_y() + 52)))   # the coalition slot, under the expanded card
+	runner.check(chat.is_open(), "the tab slot opens T3 under the expanded card")
 	chat._end_anim(true)
 	chat.reveal_all()
 	await tree.process_frame
@@ -311,3 +317,16 @@ func test_the_court_card_over_a_tall_tab_pads_it_and_esc_folds_it_first() -> voi
 	cv.expand()
 	cv.update_view(CourtView.mc("courtExpandMs") + 20.0, m.state, m.d, {"main": true, "covered": true})
 	runner.check(is_equal_approx(m.dossier.bottom_pad(), cv.pad_height()), "T4's list pads by the whole card (%s)" % m.dossier.bottom_pad())
+	# during the testimony too: the chip unfolds the card, and T3 opened under it keeps it
+	m.dossier.close()
+	cv.testify()
+	cv.update_view(CourtView.mc("courtCollapseMs") + 20.0, m.state, m.d, {"main": true})
+	cv.update_view(16.0, m.state, m.d, {"main": true})
+	runner.check(cv.mode() == "chip", "testimony runs in the chip (%s)" % cv.mode())
+	cv.expand()
+	for i in 20:
+		await tree.process_frame
+	_touch(_lower_pt(Vector2(270, L.tabs_y() + 52)))
+	for i in 20:
+		await tree.process_frame
+	runner.check(chat.is_open() and cv.card_visible() and cv.mode() == "open", "the testimony card stays over T3 (mode %s, open %s)" % [cv.mode(), chat.is_open()])
