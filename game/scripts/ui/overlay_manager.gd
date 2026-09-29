@@ -47,6 +47,7 @@ func request(make: Callable, child: bool = false) -> void:
 		_queue.append(make)
 		return
 	var ov: Overlay = make.call()
+	ov.position.x = ov.anchor_x()
 	add_child(ov)
 	move_child(_focus_ring, -1)
 	stack.append(ov)
@@ -54,6 +55,14 @@ func request(make: Callable, child: bool = false) -> void:
 	ov.opened_ms = _now
 	ov.enter(reduced)
 	stack_changed.emit()
+
+
+## mobile-first §4.1 / §5.10-§5.11: every open overlay re-applies its anchor (a centred card sits
+## on the canvas centre, a sheet spans the canvas). Its content is laid out once, at open.
+func relayout() -> void:
+	for c in get_children():
+		if c is Overlay:
+			(c as Overlay).position.x = (c as Overlay).anchor_x()
 
 
 func close(ov: Overlay, _via: String = "") -> void:
@@ -89,6 +98,7 @@ func pointer_down(p: Vector2) -> void:
 	var t := top()
 	if t == null:
 		return
+	p.x -= t.position.x
 	if t.closing or _now - t.opened_ms < 120.0:
 		return
 	var b := t.button_at(p)
@@ -104,6 +114,8 @@ func pointer_down(p: Vector2) -> void:
 
 func pointer_move(p: Vector2) -> void:
 	var t := top()
+	if t:
+		p.x -= t.position.x
 	if t and t.drag_move(p) and _pressed:
 		_pressed.cancel()
 		_pressed = null
@@ -122,7 +134,7 @@ func pointer_up(p: Vector2) -> void:
 	if t:
 		t.drag_end()
 	if b:
-		var lp := p - Vector2(0, t.panel.position.y) if t else p
+		var lp := p - Vector2(t.position.x, t.panel.position.y) if t else p
 		if t and t.body_focusables.has(b):
 			lp += Vector2(0, t.scroll)
 		b.up(Ui.in_rect(b.hit, lp))
@@ -134,7 +146,7 @@ func hover(p: Vector2) -> bool:
 		return false
 	var any := false
 	for b in t.focusables:
-		var lp := p - Vector2(0, t.panel.position.y)
+		var lp := p - Vector2(t.position.x, t.panel.position.y)
 		if t.body_focusables.has(b):
 			lp = lp + Vector2(0, t.scroll) if Ui.in_rect(t.clip_rect, lp) else Vector2(-9999, -9999)
 		var on := b.contains(lp)
@@ -176,7 +188,7 @@ func update_view(dt_ms: float) -> void:
 		var o := float(Art.theme["focusRing"]["outsetPx"])
 		_focus_ring.visible = true
 		var sy := t.scroll if t.body_focusables.has(b) else 0.0
-		_focus_ring.position = Vector2(b.visual.position.x - o, b.visual.position.y - o + t.panel.position.y - sy)
+		_focus_ring.position = Vector2(b.visual.position.x - o + t.position.x, b.visual.position.y - o + t.panel.position.y - sy)
 		_focus_ring.size = (b.visual.size + Vector2(2 * o, 2 * o)) / 4.0
 	else:
 		_focus_ring.visible = false

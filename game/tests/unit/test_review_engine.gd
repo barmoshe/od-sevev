@@ -307,11 +307,18 @@ func test_r16_title_floor_fills_the_reserved_sections() -> void:
 	m.ftue.handoff_ms = 1.0
 	m.commit_pick("bibi")
 	runner.check(m.mode == "title", "the pick lands in the pre-tap (title) state")
-	var f: ColorRect = m._title_floor
+	# mobile-first §3.3 (V11): the floor is the apron's paving (never one flat colour), stage bottom
+	# to screen bottom, full width (TextureRect at ×4: its size is in art px)
+	var f: TextureRect = m._title_floor
 	var sb: float = m._stage_y + L.stage_bottom()
-	runner.check(f.visible and is_equal_approx(f.position.y, sb) and is_equal_approx(f.position.y + f.size.y, m._vs.y), "one floor from the stage bottom (%s) to the screen bottom (%s)" % [f.position.y, f.position.y + f.size.y])
-	runner.check(f.position.x <= 0.0 and f.size.x >= m._vs.x, "full width, no inner rect")
-	runner.check(f.color == m.diorama.pad_bottom, "in the stage's floor colour")
+	runner.check(f.visible and is_equal_approx(f.position.y, sb) and f.position.y + f.size.y * 4.0 >= m._vs.y, "one floor from the stage bottom (%s) to the screen bottom (%s)" % [f.position.y, f.position.y + f.size.y * 4.0])
+	runner.check(f.position.x <= 0.0 and f.position.x + f.size.x * 4.0 >= m._vs.x, "full width, no inner rect")
+	runner.check(f.texture == Diorama.paving_texture(m.diorama.pad_bottom, false), "the paving in the stage's floor colour")
+	var img := f.texture.get_image()
+	var cols := {}
+	for x in img.get_width():
+		cols[img.get_pixel(x, 1).to_html()] = true
+	runner.check(cols.size() >= 2, "every paving row has horizontal detail (%d colours in row 1)" % cols.size())
 	m._set_mode("main", false)
 	runner.check(not f.visible, "gone in the main state")
 

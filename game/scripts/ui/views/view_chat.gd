@@ -1348,7 +1348,7 @@ func _launch_pips(seq: int, pid: String) -> void:
 		return
 	var row := _row_of(seq)
 	var p0 := Vector2(0, THREAD_Y + _content.position.y + float(row.get("y", 0.0))) + (pill["rect"] as Rect2).get_center()
-	var tr: Rect2 = L.TOP["seatsTrack"]
+	var tr: Rect2 = TopBar.track_rect()
 	var si := Coalition.seat_info(_state)
 	var frac := clampf(float(si["effective"]) / maxf(1.0, float(si["gateSeats"])), 0.0, 1.0)
 	var head_x := tr.end.x - 4.0 - (tr.size.x - 8.0) * frac

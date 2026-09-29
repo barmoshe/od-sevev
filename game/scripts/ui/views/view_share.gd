@@ -441,7 +441,7 @@ func _place_wa_icon(b: PxButton) -> void:
 func publish_web() -> void:
 	if not OS.has_feature("web") or host == null:
 		return
-	var o := Vector2(float(host.get("_ox")), float(host.get("_ovl_y")))
+	var o := Vector2(float(host.get("_ox")) + position.x, float(host.get("_ovl_y")))
 	var bs: Array = []
 	for b: PxButton in focusables:
 		var c := b.visual.get_center() + o

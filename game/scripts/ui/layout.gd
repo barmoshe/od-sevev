@@ -1,12 +1,22 @@
 class_name L
 extends RefCounted
 ## od-sevev layout: ux/rtl-map.md (engine-concrete, RTL values given directly, not a runtime flip)
-## on the 720-logical canvas (1 art px = 4 logical px). Sections, top to bottom:
+## with the mobile-first amendments of ux/mobile-first-layout.md. Every rect keeps its 720-design
+## numbers (1 art px = 4 logical px); the canvas is `cw` wide (whole art columns, 720-860 on the
+## phone matrix) and each element applies one of five anchors to `dx = cw - 720` (§4):
+##   R (right)  x + dx            first in RTL reading order: labels, plates, icons at the right edge
+##   L (left)   x                 trailing items: pills, numerals, the gear/mute, the date chip
+##   C (centre) x + floor4(dx/2)  the counter, titles, modal cards, the stage column
+##   S (stretch) x, w + dx        panels, tracks, clips, text boxes between an L and an R item
+##   F (full bleed) 0 … vs.x      background fills, the ticker panel, the tab bar plate, the lane
+## Sections, top to bottom (screen-logical y; chrome sections sit at the canvas origin, the stage
+## column at sox()):
 ##   _top    Row A (0-96: counter, rate, mute, gear, cottage) + Row B (96-180: seats bar)
-##   _stage  the stage, height S (flex); its node sits at screen y - STAGE.y, so stage-local
-##           design y runs STAGE.y .. STAGE.y + S (the fork's coordinates stay valid)
-##   _lower  ticker (0-84), card panel (84 .. 84+P, flex), tab bar (84+P .. 188+P)
-## S and P come from the flex rule (rtl-map §1), set by MainController._relayout via set_flex().
+##   _stage  the stage, height S; its node sits at screen y - STAGE.y, so stage-local design y runs
+##           STAGE.y .. STAGE.y + S (the fork's coordinates stay valid)
+##   _lower  ticker (0-84), card pane (84 .. 84+P), tab bar (84+P .. 188+P, pinned to the safe
+##           bottom; before C1 the pane runs under its slot)
+## S and P come from the bottom-up split (mobile-first §3.2), set by MainController._relayout.
 
 const W := 720
 const H := 1280
@@ -15,34 +25,92 @@ const RTL := Bidi.UI_RTL
 ## Text scale: body ×4 on the art grid (rtl-map §0, D11); large-text mode draws ×5.
 const TEXT := 4
 
-## rtl-map §1 flex rule
+## mobile-first §3.1: the fixed rows
 const ROW_A_H := 96
 const ROW_B_H := 84
 const TICKER_H := 84
 const TABS_H := 104
 const FIXED_H := ROW_A_H + ROW_B_H + TICKER_H + TABS_H
-const STAGE_PREF := 640
-const STAGE_MIN := 460
-const LIST_MIN := 240
+## mobile-first §3.2: the split
+const CARD := 120
+const PEEK := 40
+const S_PREF := 640
+const S_FULL := 560
+const S_MIN := 460
+## kept names (rtl-map §1): the stage's designed and minimum heights
+const STAGE_PREF := S_PREF
+const STAGE_MIN := S_MIN
 
 static var stage_h := 640.0     # S
-static var panel_h := 378.0     # P
+static var panel_h := 400.0     # P (whole cards + the peek)
+static var rows_whole := 3      # n: whole card rows in P
+## The canvas width (mobile-first §2): >= 720, whole art columns; dx = cw - 720.
+static var cw := 720.0
+static var dx := 0.0
+## ux/ftue.md C1: false until the tab bar is revealed; the pane then runs under its slot (§3.3).
+static var tabs_up := true
 
 
-## S and P for R = vs.y - insets - FIXED_H.
-static func flex(r: float) -> Vector2:
-	var s: float
-	if r >= 1018.0:
-		s = STAGE_PREF + floorf(0.4 * (r - 1018.0) / 4.0) * 4.0
-	else:
-		s = clampf(floorf((r - LIST_MIN) / 4.0) * 4.0, STAGE_MIN, STAGE_PREF)
-	return Vector2(s, maxf(0.0, r - s))
+static func floor4(v: float) -> float:
+	return floorf(v / 4.0) * 4.0
 
 
-static func set_flex(r: float) -> void:
-	var v := flex(r)
-	stage_h = v.x
-	panel_h = v.y
+## mobile-first §3.2: {S, P, n} for R = floor4(vs.y) - insets - FIXED_H. The stage keeps its
+## 160-art composition (S_PREF) and every further CARD of height buys a whole card row, ending in
+## a PEEK-px peek; the reach guard keeps the leader's hit bottom (stage bottom - 140) >= 40% of the
+## height; the floor viewport (S < S_MIN) shrinks the peek. top = the safe top inset, vh =
+## floor4(vs.y) (0 skips the reach guard).
+static func split(r: float, top: float = 0.0, vh: float = 0.0) -> Dictionary:
+	var n := 2
+	if r - (3.0 * CARD + PEEK) >= S_MIN:
+		n = maxi(3, int(floorf((r - S_PREF - PEEK) / CARD)))
+	while vh > 0.0 and n > 3 and top + ROW_A_H + ROW_B_H + (r - n * CARD - PEEK) - 140.0 < 0.40 * vh:
+		n -= 1
+	var p := float(n * CARD + PEEK)
+	var s := r - p
+	if s < S_MIN:
+		s = S_MIN
+		p = r - s
+	return {"S": s, "P": maxf(0.0, p), "n": n}
+
+
+static func set_split(r: float, top: float = 0.0, vh: float = 0.0) -> void:
+	var v := split(r, top, vh)
+	stage_h = v["S"]
+	panel_h = v["P"]
+	rows_whole = v["n"]
+
+
+## The canvas width (>= 720, on the 4-px grid) and dx.
+static func set_width(w: float) -> void:
+	cw = maxf(float(W), floor4(w))
+	dx = cw - float(W)
+
+
+## The stage column's x in the canvas (anchor C): floor4(dx / 2).
+static func sox() -> float:
+	return floor4(dx / 2.0)
+
+
+## Anchors (§4): R, C and S for a rect, R and C for one x.
+static func ra(r: Rect2) -> Rect2:
+	return Rect2(r.position.x + dx, r.position.y, r.size.x, r.size.y)
+
+
+static func ca(r: Rect2) -> Rect2:
+	return Rect2(r.position.x + sox(), r.position.y, r.size.x, r.size.y)
+
+
+static func sa(r: Rect2) -> Rect2:
+	return Rect2(r.position.x, r.position.y, r.size.x + dx, r.size.y)
+
+
+static func rx(x: float) -> float:
+	return x + dx
+
+
+static func cx(x: float) -> float:
+	return x + sox()
 
 
 ## x of a box of width w at LTR x, mirrored across the canvas when RTL.
@@ -109,13 +177,25 @@ const SHOP := {
 }
 
 
+## The tab bar's top, `_lower`-local: under the pane, pinned to the safe bottom; before C1 the pane
+## runs under the unrevealed slot, so the bar's top is the safe bottom (mobile-first §3.1, §3.3).
 static func tabs_y() -> float:
-	return float(SHOP["listY"]) + panel_h
+	return float(SHOP["listY"]) + panel_h + (0.0 if tabs_up else float(TABS_H))
 
 
-## The tab slot rect (1-4, reading order right → left), `_lower`-local.
+## One tab slot's width (mobile-first §5.3): floor4(cw / 4).
+static func tab_w() -> float:
+	return floor4(cw / 4.0)
+
+
+## The tab slot rect (1-4, reading order right → left), `_lower`-local: slot i at x = cw - i·w;
+## the remainder of cw goes to slot 4 (the leftmost).
 static func tab_rect(slot: int) -> Rect2:
-	return Rect2(540.0 - 180.0 * (slot - 1), tabs_y(), 180, TABS_H)
+	var w := tab_w()
+	var x := cw - slot * w
+	if slot >= 4:
+		return Rect2(0, tabs_y(), x + w, TABS_H)
+	return Rect2(x, tabs_y(), w, TABS_H)
 
 
 ## Card internals, card-local (rtl-map §6.1).

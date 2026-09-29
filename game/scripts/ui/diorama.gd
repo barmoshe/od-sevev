@@ -164,6 +164,47 @@ func _place_lane(era_id: String, art_origin: Vector2) -> void:
 	tr.scale = Vector2(4, 4)
 	tr.set_meta("lane", id)
 	_props.add_child(tr)
+	# mobile-first §3.3 (V4, interim for 2D ask A1): the kit lane is horizontal stripes only, so it
+	# reads as a dead strip; the engine lays paving joints over it below the apron lip (4 art rows),
+	# in the tile's own phase so the pre-tap floor under the stage continues them
+	var jt := TextureRect.new()
+	jt.texture = paving_texture(pad_bottom, true)
+	jt.stretch_mode = TextureRect.STRETCH_TILE
+	jt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var jx := -_extend_x - fposmod(-_extend_x, 64.0)
+	jt.position = Vector2(jx, art_origin.y + (LANE_ART_ROW + 4) * 4.0)
+	jt.size = Vector2(ceilf((L.W + _extend_x - jx) / 64.0) * 16.0 + 16.0, sz.y - 4.0)
+	jt.scale = Vector2(4, 4)
+	jt.set_meta("laneJoints", id)
+	_props.add_child(jt)
+
+
+static var _paving_cache := {}
+
+
+## The engine's interim paving tile (mobile-first §3.3, until the 2D Artist's plaza lands, ask A1):
+## a 16 × 8 art-px running bond of 8 × 4 setts in `base`, with darker joints and a lit top edge, so
+## every row of the floor has horizontal detail. `joints_only`: the joints alone on a transparent
+## tile (laid over the kit lane).
+static func paving_texture(base: Color, joints_only: bool) -> ImageTexture:
+	var key := "%s:%s" % [base.to_html(false), joints_only]
+	if _paving_cache.has(key):
+		return _paving_cache[key]
+	var img := Image.create(16, 8, false, Image.FORMAT_RGBA8)
+	var joint := base.darkened(0.35)
+	var lit := base.lightened(0.10)
+	img.fill(Color(0, 0, 0, 0) if joints_only else base)
+	for y in 8:
+		var off := 0 if y < 4 else 8
+		for x in 16:
+			var jx := (x + off) % 8 == 7
+			if y % 4 == 3 or jx:
+				img.set_pixel(x, y, Color(joint, 0.55) if joints_only else joint)
+			elif y % 4 == 0 and not joints_only and (x + off) % 8 < 3:
+				img.set_pixel(x, y, lit)
+	var t := ImageTexture.create_from_image(img)
+	_paving_cache[key] = t
+	return t
 
 
 func _place_prop(sp: Dictionary) -> void:

@@ -94,8 +94,11 @@ func test_the_thermometer_tracks_suspicion() -> void:
 	m.state.investigation["revealed"] = true
 	_thermo_settle(50.0)
 	runner.check(th.is_shown(), "K1: the thermometer shows once the sim reveals it")
-	runner.check(th.shown_rows() == th.rows_for(50.0) and th.shown_rows() == 35,
-		"50%% fills y_top(0.5) = half the kit's 70-row column (%d rows)" % th.shown_rows())
+	# the tube follows the split (mobile-first §3.2): the full 70-row column at S ≥ 560, the short
+	# piece below (the unit harness's 1280 canvas gives S 512)
+	var column := int(th._liquid["yBottom"]) - int(th._liquid["yTop"])
+	runner.check(th.shown_rows() == th.rows_for(50.0) and th.shown_rows() == column / 2 and (column == 70 or L.stage_h < 560.0),
+		"50%% fills y_top(0.5) = half the kit's %d-row column (%d rows)" % [column, th.shown_rows()])
 	runner.check(th.word().text == Strings.s("HUD_SUSP") and th.icon_id() == "thermo_icon_magnifier", "below 75%: 'חשד' and the magnifier")
 	_thermo_settle(80.0)
 	runner.check(th.shown_rows() == th.rows_for(80.0), "the fill follows the sim (%d rows)" % th.shown_rows())
@@ -109,7 +112,8 @@ func test_the_thermometer_tracks_suspicion() -> void:
 	var tr: Rect2 = th.tube_rect()
 	runner.check(tr.position.x == 44.0 and tr.end.y == float(L.STAGE["y"]) + L.stage_h - 140.0, "the tube at x 44, its bottom at S − 140 (rtl-map §4)")
 	var hr: Rect2 = th.hit_rect()
-	runner.check(hr.size == Vector2(120, 404) and not hr.intersects(L.magician_hit()), "the 120×404 hit clears the Magician's")
+	var want_h := 404.0 if L.stage_h >= 560.0 else float(L.STAGE["y"]) + L.stage_h - 140.0 - th.icon_top()
+	runner.check(hr.size == Vector2(120, want_h) and not hr.intersects(L.magician_hit()), "the 120×%d hit clears the Magician's" % want_h)
 
 
 func test_the_sweat_rides_the_temple_landmark() -> void:

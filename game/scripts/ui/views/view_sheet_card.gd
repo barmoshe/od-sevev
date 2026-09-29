@@ -164,7 +164,7 @@ func _band() -> Vector2:
 func to_view(p: Vector2) -> Vector2:
 	if host == null or not ("_ox" in host and "_ovl_y" in host):
 		return p
-	return p + Vector2(float(host.get("_ox")), float(host.get("_ovl_y")))
+	return p + Vector2(float(host.get("_ox")) + position.x, float(host.get("_ovl_y")))
 
 
 ## Web debug: the buttons' centres in viewport logical px (window.odModal), for the browser

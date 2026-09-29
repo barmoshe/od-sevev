@@ -331,7 +331,7 @@ func default_focus() -> int:
 func on_opened() -> void:
 	if not OS.has_feature("web") or host == null or not ("_ox" in host and "_ovl_y" in host):
 		return
-	var o := Vector2(float(host.get("_ox")), float(host.get("_ovl_y")))
+	var o := Vector2(float(host.get("_ox")) + position.x, float(host.get("_ovl_y")))
 	var nx := next_button.visual.get_center() + o
 	var sk := skip_button.visual.get_center() + o if skip_button else Vector2(-1, -1)
 	JavaScriptBridge.eval("window.odFlash = %s" % JSON.stringify({"open": true, "artScale": art_scale,
