@@ -38,7 +38,9 @@ only through `tools/deploy_web.sh`.
 ## Dev URL params (web build, all ignored without `?dev=1`)
 
 `&speed=N` multiplies game time, `&grant=N` adds bananas at boot, `&evo=N` sets the evolution
-count (to look at the eras). Example: `/?dev=1&grant=2000000`.
+count (to look at the eras). Example: `/?dev=1&grant=2000000`. `&susp=N` reveals the suspicion
+thermometer at N% (100 = a court summons on the first step), `&aide=N` puts N ₪ of suitcase money
+on an aide (the "אני לא מכיר אותו" button): `/?dev=1&grant=50000&susp=100&aide=300`.
 `&flash=N` opens Dubi's news flash for round N on the first tap. `?frame=1` / `?frame=0` (no `dev`
 needed) force the desktop phone frame on or off (the shell's `odFit`: a window ≥ 600 CSS with a
 mouse gets a centred 390-CSS canvas; `window.odFrame`). `node tools/web/views_web.mjs <url> <dir>

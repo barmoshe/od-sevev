@@ -139,8 +139,24 @@ func set_cta(on: bool) -> void:
 	_cta_on = on
 	cta.set_visible(on)
 	_clip.visible = not on
-	for n in _chip + _anchor:
+	for n in _anchor:
 		n.visible = not on
+	for n in _chip:
+		n.visible = not on and not _court_on
+
+
+var _court_on := false
+
+
+## Court day (ui/views/view_court.gd, rtl-map §5.1): the court chip takes the date chip's slot and
+## the crawl clip starts `chip_right` + 8 (x 228 for the spec's 212-wide chip).
+func set_court_chip(on: bool, chip_right: float = 0.0) -> void:
+	_court_on = on
+	for n in _chip:
+		n.visible = not on and not _cta_on
+	var x0 := maxf(float(L.TICKER["clipX0"]), chip_right + 8.0) if on else float(L.TICKER["clipX0"])
+	_clip.position.x = x0
+	_clip.size.x = float(L.TICKER["clipX1"]) - x0
 
 
 func cta_on() -> bool:
