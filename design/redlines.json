@@ -270,6 +270,13 @@
     "סיכול ממוקד"
    ],
    "why": "Her own quote [Q] from the fact sheet (brief round 2), reported speech, poll_like:true, hidden in the blackout. Never mention the covert officer."
+  },
+  {
+   "id": "facts.gotliv",
+   "terms": [
+    "סיכול ממוקד"
+   ],
+   "why": "About page (facts.json aboutHe, always public): her own verified term [Q] (Walla, Ynet), in quote marks as on her card. The public line carries no שב״כ and no seat number (poll rule in the blackout). Never mention the covert officer."
   }
  ]
 }

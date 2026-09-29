@@ -134,6 +134,9 @@ link, so the `facts.json` edits show up there:
 - **Row 43 and `brief-round2.md`:** they call "אני ביביסט" a "campaign video"; it was a creators' skit that Netanyahu
   posted.
 - **Row 35:** its date should read 18 Jan.
+- **Done (2026-09-29, review R2):** all three are synced. Every launch fact now carries a public Hebrew
+  `aboutHe` line and a boolean `notUsed` (reason in `notUsedWhy`), so the About page no longer needs `text`;
+  `content-lint.mjs` enforces both.
 
 ## Objection
 ```yaml
