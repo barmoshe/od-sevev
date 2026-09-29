@@ -70,55 +70,58 @@
   "sprites/card_source_unaffordable.png": 175,
   "sprites/card_spin.png": 194,
   "sprites/card_spin_locked.png": 167,
-  "sprites/cast/abbas_idle.png": 152643,
-  "sprites/cast/abbas_react.png": 72777,
+  "sprites/cast/abbas_idle.png": 71106,
+  "sprites/cast/abbas_react.png": 63611,
   "sprites/cast/amsalem_idle.png": 241595,
-  "sprites/cast/amsalem_react.png": 198897,
+  "sprites/cast/amsalem_react.png": 179804,
   "sprites/cast/ben-gvir_idle.png": 244883,
-  "sprites/cast/ben-gvir_react.png": 188984,
+  "sprites/cast/ben-gvir_react.png": 171480,
   "sprites/cast/bennett_flip.png": 206026,
-  "sprites/cast/bennett_idle.png": 149851,
-  "sprites/cast/bibi_crit.png": 235373,
+  "sprites/cast/bennett_idle.png": 138435,
+  "sprites/cast/bibi_crit.png": 186029,
+  "sprites/cast/bibi_crit_d2.png": 100543,
   "sprites/cast/bibi_idle.png": 163306,
-  "sprites/cast/bibi_tap.png": 216138,
+  "sprites/cast/bibi_idle_d2.png": 87271,
+  "sprites/cast/bibi_tap.png": 211715,
+  "sprites/cast/bibi_tap_d2.png": 113896,
   "sprites/cast/deri_idle.png": 217721,
-  "sprites/cast/deri_react.png": 259099,
+  "sprites/cast/deri_react.png": 255460,
   "sprites/cast/distel_idle.png": 193133,
-  "sprites/cast/distel_react.png": 169387,
+  "sprites/cast/distel_react.png": 153239,
   "sprites/cast/dubi-mic_idle.png": 252450,
   "sprites/cast/dubi-mic_talk.png": 56455,
-  "sprites/cast/eisenkot_idle.png": 141796,
-  "sprites/cast/eisenkot_react.png": 232519,
-  "sprites/cast/gafni_idle.png": 168376,
-  "sprites/cast/gafni_react.png": 218434,
+  "sprites/cast/eisenkot_idle.png": 65819,
+  "sprites/cast/eisenkot_react.png": 228681,
+  "sprites/cast/gafni_idle.png": 78862,
+  "sprites/cast/gafni_react.png": 208306,
   "sprites/cast/gantz_idle.png": 147728,
-  "sprites/cast/gantz_react.png": 124601,
-  "sprites/cast/golan_idle.png": 160010,
-  "sprites/cast/golan_react.png": 233233,
-  "sprites/cast/goldknopf_idle.png": 180163,
-  "sprites/cast/goldknopf_react.png": 268037,
+  "sprites/cast/gantz_react.png": 113917,
+  "sprites/cast/golan_idle.png": 74309,
+  "sprites/cast/golan_react.png": 224251,
+  "sprites/cast/goldknopf_idle.png": 81656,
+  "sprites/cast/goldknopf_react.png": 263908,
   "sprites/cast/gotliv_idle.png": 260612,
-  "sprites/cast/gotliv_react.png": 200988,
+  "sprites/cast/gotliv_react.png": 181349,
   "sprites/cast/herzog_idle.png": 198386,
-  "sprites/cast/herzog_react.png": 204653,
+  "sprites/cast/herzog_react.png": 188382,
   "sprites/cast/karhi_idle.png": 179922,
-  "sprites/cast/karhi_react.png": 159894,
-  "sprites/cast/lapid_idle.png": 230944,
-  "sprites/cast/lapid_react.png": 264377,
+  "sprites/cast/karhi_react.png": 145791,
+  "sprites/cast/lapid_idle.png": 249386,
+  "sprites/cast/lapid_react.png": 258363,
   "sprites/cast/levin_idle.png": 250900,
-  "sprites/cast/levin_react.png": 212817,
-  "sprites/cast/liberman_idle.png": 172474,
-  "sprites/cast/liberman_react.png": 73015,
-  "sprites/cast/may-golan_idle.png": 226356,
-  "sprites/cast/may-golan_react.png": 334562,
-  "sprites/cast/regev_idle.png": 210534,
-  "sprites/cast/regev_react.png": 311934,
-  "sprites/cast/sara_idle.png": 205373,
-  "sprites/cast/sara_offended.png": 247883,
-  "sprites/cast/smotrich_idle.png": 185827,
-  "sprites/cast/smotrich_react.png": 173464,
+  "sprites/cast/levin_react.png": 198482,
+  "sprites/cast/liberman_idle.png": 80823,
+  "sprites/cast/liberman_react.png": 63606,
+  "sprites/cast/may-golan_idle.png": 106307,
+  "sprites/cast/may-golan_react.png": 328019,
+  "sprites/cast/regev_idle.png": 97924,
+  "sprites/cast/regev_react.png": 306855,
+  "sprites/cast/sara_idle.png": 197709,
+  "sprites/cast/sara_offended.png": 235506,
+  "sprites/cast/smotrich_idle.png": 87703,
+  "sprites/cast/smotrich_react.png": 154346,
   "sprites/cast/trump_idle.png": 267776,
-  "sprites/cast/trump_react.png": 194273,
+  "sprites/cast/trump_react.png": 176222,
   "sprites/chat_bubble_in.png": 166,
   "sprites/chat_bubble_out.png": 175,
   "sprites/chat_bubble_ultimatum.png": 255,
@@ -333,31 +336,40 @@
   "fonts/sevev9_outline.png": 2443,
   "fonts/sevev9_outline.fnt": 15106
  },
- "vramBytes": 153044012,
- "vramTypical": 13172460,
+ "vramBytes": 112188256,
+ "vramBibi": {
+  "3": 9697848,
+  "2": 4355640
+ },
+ "vramTypicalByBibiDensity": {
+  "3": 11861940,
+  "2": 6519732
+ },
+ "vramTypical": 11861940,
+ "vramCastAll": 109332964,
  "vramPerPartner": {
-  "sara": 6028800,
-  "bennett": 5774048,
-  "regev": 7060032,
-  "gotliv": 7008000,
-  "deri": 5103840,
-  "levin": 6209280,
-  "ben-gvir": 6447360,
-  "goldknopf": 6540912,
-  "gafni": 6054912,
-  "smotrich": 5361120,
-  "amsalem": 7148160,
-  "lapid": 7551600,
-  "eisenkot": 5103840,
-  "gantz": 4309920,
-  "liberman": 5252864,
-  "golan": 5779536,
-  "abbas": 5363840,
-  "distel": 6587520,
-  "karhi": 5431200,
-  "herzog": 6217472,
-  "trump": 6727680,
-  "may-golan": 7082880,
+  "sara": 4144800,
+  "bennett": 4536752,
+  "regev": 3277872,
+  "gotliv": 5840000,
+  "deri": 4921560,
+  "levin": 5239080,
+  "ben-gvir": 5372800,
+  "goldknopf": 3036852,
+  "gafni": 2649024,
+  "smotrich": 1787040,
+  "amsalem": 5956800,
+  "lapid": 7030800,
+  "eisenkot": 2369640,
+  "gantz": 3591600,
+  "liberman": 1805672,
+  "golan": 2683356,
+  "abbas": 1843820,
+  "distel": 5489600,
+  "karhi": 4526000,
+  "herzog": 5245992,
+  "trump": 5606400,
+  "may-golan": 3288480,
   "dubi": 64400,
   "dubi-mic": 5035536
  },
@@ -714,13 +726,13 @@
   },
   {
    "file": "assets/sprites/cast/abbas_idle.png",
-   "source": 152643,
-   "imported": 40016
+   "source": 71106,
+   "imported": 20112
   },
   {
    "file": "assets/sprites/cast/abbas_react.png",
-   "source": 72777,
-   "imported": 22032
+   "source": 63611,
+   "imported": 21158
   },
   {
    "file": "assets/sprites/cast/amsalem_idle.png",
@@ -729,8 +741,8 @@
   },
   {
    "file": "assets/sprites/cast/amsalem_react.png",
-   "source": 198897,
-   "imported": 72612
+   "source": 179804,
+   "imported": 69118
   },
   {
    "file": "assets/sprites/cast/ben-gvir_idle.png",
@@ -739,8 +751,8 @@
   },
   {
    "file": "assets/sprites/cast/ben-gvir_react.png",
-   "source": 188984,
-   "imported": 62866
+   "source": 171480,
+   "imported": 60214
   },
   {
    "file": "assets/sprites/cast/bennett_flip.png",
@@ -749,13 +761,18 @@
   },
   {
    "file": "assets/sprites/cast/bennett_idle.png",
-   "source": 149851,
-   "imported": 44550
+   "source": 138435,
+   "imported": 44154
   },
   {
    "file": "assets/sprites/cast/bibi_crit.png",
-   "source": 235373,
-   "imported": 82066
+   "source": 186029,
+   "imported": 64400
+  },
+  {
+   "file": "assets/sprites/cast/bibi_crit_d2.png",
+   "source": 100543,
+   "imported": 35086
   },
   {
    "file": "assets/sprites/cast/bibi_idle.png",
@@ -763,9 +780,19 @@
    "imported": 52158
   },
   {
+   "file": "assets/sprites/cast/bibi_idle_d2.png",
+   "source": 87271,
+   "imported": 28900
+  },
+  {
    "file": "assets/sprites/cast/bibi_tap.png",
-   "source": 216138,
-   "imported": 77636
+   "source": 211715,
+   "imported": 76678
+  },
+  {
+   "file": "assets/sprites/cast/bibi_tap_d2.png",
+   "source": 113896,
+   "imported": 41696
   },
   {
    "file": "assets/sprites/cast/deri_idle.png",
@@ -774,8 +801,8 @@
   },
   {
    "file": "assets/sprites/cast/deri_react.png",
-   "source": 259099,
-   "imported": 95308
+   "source": 255460,
+   "imported": 93792
   },
   {
    "file": "assets/sprites/cast/distel_idle.png",
@@ -784,8 +811,8 @@
   },
   {
    "file": "assets/sprites/cast/distel_react.png",
-   "source": 169387,
-   "imported": 60902
+   "source": 153239,
+   "imported": 57990
   },
   {
    "file": "assets/sprites/cast/dubi-mic_idle.png",
@@ -799,23 +826,23 @@
   },
   {
    "file": "assets/sprites/cast/eisenkot_idle.png",
-   "source": 141796,
-   "imported": 42272
+   "source": 65819,
+   "imported": 20954
   },
   {
    "file": "assets/sprites/cast/eisenkot_react.png",
-   "source": 232519,
-   "imported": 85312
+   "source": 228681,
+   "imported": 83764
   },
   {
    "file": "assets/sprites/cast/gafni_idle.png",
-   "source": 168376,
-   "imported": 48828
+   "source": 78862,
+   "imported": 24298
   },
   {
    "file": "assets/sprites/cast/gafni_react.png",
-   "source": 218434,
-   "imported": 72868
+   "source": 208306,
+   "imported": 70098
   },
   {
    "file": "assets/sprites/cast/gantz_idle.png",
@@ -824,28 +851,28 @@
   },
   {
    "file": "assets/sprites/cast/gantz_react.png",
-   "source": 124601,
-   "imported": 44718
+   "source": 113917,
+   "imported": 42652
   },
   {
    "file": "assets/sprites/cast/golan_idle.png",
-   "source": 160010,
-   "imported": 48662
+   "source": 74309,
+   "imported": 24086
   },
   {
    "file": "assets/sprites/cast/golan_react.png",
-   "source": 233233,
-   "imported": 80702
+   "source": 224251,
+   "imported": 79118
   },
   {
    "file": "assets/sprites/cast/goldknopf_idle.png",
-   "source": 180163,
-   "imported": 46894
+   "source": 81656,
+   "imported": 23162
   },
   {
    "file": "assets/sprites/cast/goldknopf_react.png",
-   "source": 268037,
-   "imported": 89444
+   "source": 263908,
+   "imported": 88050
   },
   {
    "file": "assets/sprites/cast/gotliv_idle.png",
@@ -854,8 +881,8 @@
   },
   {
    "file": "assets/sprites/cast/gotliv_react.png",
-   "source": 200988,
-   "imported": 70028
+   "source": 181349,
+   "imported": 66568
   },
   {
    "file": "assets/sprites/cast/herzog_idle.png",
@@ -864,8 +891,8 @@
   },
   {
    "file": "assets/sprites/cast/herzog_react.png",
-   "source": 204653,
-   "imported": 71968
+   "source": 188382,
+   "imported": 69298
   },
   {
    "file": "assets/sprites/cast/karhi_idle.png",
@@ -874,18 +901,18 @@
   },
   {
    "file": "assets/sprites/cast/karhi_react.png",
-   "source": 159894,
-   "imported": 54828
+   "source": 145791,
+   "imported": 51902
   },
   {
    "file": "assets/sprites/cast/lapid_idle.png",
-   "source": 230944,
-   "imported": 67246
+   "source": 249386,
+   "imported": 76130
   },
   {
    "file": "assets/sprites/cast/lapid_react.png",
-   "source": 264377,
-   "imported": 84330
+   "source": 258363,
+   "imported": 82874
   },
   {
    "file": "assets/sprites/cast/levin_idle.png",
@@ -894,58 +921,58 @@
   },
   {
    "file": "assets/sprites/cast/levin_react.png",
-   "source": 212817,
-   "imported": 71968
+   "source": 198482,
+   "imported": 69012
   },
   {
    "file": "assets/sprites/cast/liberman_idle.png",
-   "source": 172474,
-   "imported": 52492
+   "source": 80823,
+   "imported": 26204
   },
   {
    "file": "assets/sprites/cast/liberman_react.png",
-   "source": 73015,
-   "imported": 22794
+   "source": 63606,
+   "imported": 21982
   },
   {
    "file": "assets/sprites/cast/may-golan_idle.png",
-   "source": 226356,
-   "imported": 67932
+   "source": 106307,
+   "imported": 33578
   },
   {
    "file": "assets/sprites/cast/may-golan_react.png",
-   "source": 334562,
-   "imported": 113818
+   "source": 328019,
+   "imported": 111878
   },
   {
    "file": "assets/sprites/cast/regev_idle.png",
-   "source": 210534,
-   "imported": 58394
+   "source": 97924,
+   "imported": 28770
   },
   {
    "file": "assets/sprites/cast/regev_react.png",
-   "source": 311934,
-   "imported": 100232
+   "source": 306855,
+   "imported": 98442
   },
   {
    "file": "assets/sprites/cast/sara_idle.png",
-   "source": 205373,
-   "imported": 54730
+   "source": 197709,
+   "imported": 56440
   },
   {
    "file": "assets/sprites/cast/sara_offended.png",
-   "source": 247883,
-   "imported": 82056
+   "source": 235506,
+   "imported": 80386
   },
   {
    "file": "assets/sprites/cast/smotrich_idle.png",
-   "source": 185827,
-   "imported": 51094
+   "source": 87703,
+   "imported": 25306
   },
   {
    "file": "assets/sprites/cast/smotrich_react.png",
-   "source": 173464,
-   "imported": 55518
+   "source": 154346,
+   "imported": 51276
   },
   {
    "file": "assets/sprites/cast/trump_idle.png",
@@ -954,8 +981,8 @@
   },
   {
    "file": "assets/sprites/cast/trump_react.png",
-   "source": 194273,
-   "imported": 68838
+   "source": 176222,
+   "imported": 65400
   },
   {
    "file": "assets/sprites/chat_bubble_in.png",
@@ -2025,7 +2052,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 3302678,
+ "pckBytes": 3121650,
  "specimenVisual": [
   {
    "tofu": 0,
@@ -2083,5 +2110,5 @@
    "width": 129.0
   }
  ],
- "sourceTotal": 10112172
+ "sourceTotal": 9261557
 }

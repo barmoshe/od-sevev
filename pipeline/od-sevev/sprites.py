@@ -134,13 +134,46 @@ def _alpha(im):
     return np.asarray(im.convert("RGBA"))[:, :, 3]
 
 
+def variants(d):
+    """A character's renders: [(label suffix, entry)], the main one first, then each `densities`
+    alternate (the atlas's chars[c].densities = {"<d>": {frameW, frameH, anchor, density, anims}})."""
+    return [("", d)] + [(f"@d{k}", v) for k, v in sorted(d.get("densities", {}).items())]
+
+
 def validate_char(name, d, src):
+    errs, warns = [], []
+    for label, v in variants(d):
+        e, w = _validate_variant(name + label, v, src, waived=name in EDGE_WAIVERS)
+        errs += e
+        warns += w
+    main_anims = set(d["anims"])
+    for label, v in variants(d)[1:]:
+        if set(v["anims"]) != main_anims:
+            errs.append(f"{name}{label}: anims {sorted(v['anims'])} != the main render's {sorted(main_anims)}")
+        for anim, m in v["anims"].items():
+            base = d["anims"].get(anim, {})
+            for key in ("frames", "fps", "loop", "events"):
+                if key in base and m.get(key, {} if key == "events" else None) != base[key]:
+                    errs.append(f"{name}{label}.{anim}: {key} {m.get(key)} != the main render's {base[key]} "
+                                "(a density alternate is the same motion: only pixels and sprite-px data differ)")
+            for key in POINT_TRACKS:
+                if (key in base) != (key in m):
+                    errs.append(f"{name}{label}.{anim}: {key} present in one render and not the other")
+    return errs, warns
+
+
+def _validate_variant(name, d, src, waived=False):
     errs, warns = [], []
     fw, fh = d["frameW"], d["frameH"]
     ax, ay = d["anchor"]
     if not (0 <= ax < fw and 0 <= ay < fh):
         errs.append(f"{name}: anchor {d['anchor']} outside the {fw}x{fh} frame")
     for anim, m in d["anims"].items():
+        for key in POINT_TRACKS:
+            if key in m and len(m[key]) != m["frames"]:
+                errs.append(f"{name}.{anim}: {key} has {len(m[key])} points for {m['frames']} frames")
+            elif key in m and not all(0 <= p[0] < fw and 0 <= p[1] < fh for p in m[key]):
+                errs.append(f"{name}.{anim}: a {key} point lies outside the {fw}x{fh} frame")
         p = os.path.join(src, m["file"])
         if not os.path.exists(p):
             errs.append(f"{name}.{anim}: missing {m['file']}")
@@ -155,7 +188,8 @@ def validate_char(name, d, src):
         edge = [i for i in range(m["frames"]) if a[:, i * fw].any() or a[:, i * fw + fw - 1].any()]
         if edge:
             msg = f"{name}.{anim}: content on the frame edge in frames {edge}"
-            (warns if name in EDGE_WAIVERS else errs).append(msg + (f" [waived: {EDGE_WAIVERS[name]}]" if name in EDGE_WAIVERS else ""))
+            base = name.split("@")[0]
+            (warns if waived else errs).append(msg + (f" [waived: {EDGE_WAIVERS[base]}]" if waived else ""))
         for ev, fr in m.get("events", {}).items():
             if not 0 <= fr < m["frames"]:
                 errs.append(f"{name}.{anim}: event {ev} at frame {fr} outside 0..{m['frames'] - 1}")
@@ -227,6 +261,93 @@ def _mode_color(row):
     return "#%02x%02x%02x" % tuple(int(v) for v in c[:3])
 
 
+def grid_shape(n, tw, th):
+    """(cols, rows) for n cells of tw x th: the fewest cells (VRAM) inside MAX_TEX both ways, ties to
+    the fewest rows. A 14-cell anim of 201-px frames is 7x2, not 10+4; 13 cells are 7x2 as well."""
+    best = None
+    for rows in range(1, n + 1):
+        cols = -(-n // rows)
+        if cols * tw > MAX_TEX or rows * th > MAX_TEX:
+            continue
+        if best is None or cols * rows < best[0] * best[1]:
+            best = (cols, rows)
+    return best
+
+
+def _masked(f):
+    """A frame's visible pixels: RGB under alpha 0 zeroed, so two frames that look the same compare equal."""
+    g = f.copy()
+    g[g[:, :, 3] == 0] = 0
+    return g
+
+
+def _pack(name, d, src, written):
+    """One render of a character (the main one or a density alternate) -> cast/<file> grids + its
+    sprites.json entry. Trims to the render's union box + 1 clear px, re-bases the anchor and every
+    point track, and packs each anim's UNIQUE frames into a grid: when repeated frames make the grid
+    smaller, `frameMap` (one cell index per frame; `frames` stays the playback count) says which cell
+    frame i draws. Every frame is read back from the grid and must match the render pixel for pixel."""
+    fw, fh = d["frameW"], d["frameH"]
+    dens = d.get("density", 1)
+    strips = {anim: np.asarray(Image.open(os.path.join(src, m["file"])).convert("RGBA")) for anim, m in d["anims"].items()}
+    union = None                                        # the tightest box holding every frame of every anim
+    for anim, arr in strips.items():
+        for i in range(d["anims"][anim]["frames"]):
+            ys, xs = np.nonzero(arr[:, i * fw:(i + 1) * fw, 3])
+            if len(xs):
+                bb = [xs.min(), ys.min(), xs.max() + 1, ys.max() + 1]
+                union = bb if union is None else [min(union[0], bb[0]), min(union[1], bb[1]),
+                                                  max(union[2], bb[2]), max(union[3], bb[3])]
+    # 1 px of clear margin keeps the frame-edge rule; the feet row always stays inside
+    x0, y0 = max(union[0] - 1, 0), max(union[1] - 1, 0)
+    x1, y1 = min(union[2] + 1, fw), max(min(union[3] + 1, fh), d["anchor"][1] + 1)
+    x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)     # numpy ints are not JSON
+    tw, th = x1 - x0, y1 - y0
+    if tw > MAX_TEX or th > MAX_TEX:
+        raise SpriteError(f"{name}: a trimmed frame is {tw}x{th}, over {MAX_TEX}")
+    anims = {}
+    for anim, m in d["anims"].items():
+        n = m["frames"]
+        frames = [strips[anim][y0:y1, i * fw + x0:i * fw + x1] for i in range(n)]
+        cells, fmap, seen = [], [], {}
+        for f in frames:                                  # first occurrence order: frame 0 is always cell 0
+            key = _masked(f).tobytes()
+            if key not in seen:
+                seen[key] = len(cells)
+                cells.append(f)
+            fmap.append(seen[key])
+        full = grid_shape(n, tw, th)
+        dedup = grid_shape(len(cells), tw, th)
+        if full is None or dedup is None:
+            raise SpriteError(f"{name}.{anim}: {n} frames of {tw}x{th} don't fit a {MAX_TEX} grid")
+        use_map = dedup[0] * dedup[1] < full[0] * full[1]     # only where it saves texels
+        if not use_map:
+            cells, fmap = frames, list(range(n))
+        cols, rows = dedup if use_map else full
+        grid = np.zeros((rows * th, cols * tw, 4), np.uint8)
+        for c, f in enumerate(cells):
+            grid[(c // cols) * th:(c // cols + 1) * th, (c % cols) * tw:(c % cols + 1) * tw] = f
+        for i, f in enumerate(frames):                   # lossless round trip, as the reader will cut it
+            c = fmap[i]
+            back = grid[(c // cols) * th:(c // cols + 1) * th, (c % cols) * tw:(c % cols + 1) * tw]
+            if not np.array_equal(_masked(back), _masked(f)):
+                raise SpriteError(f"{name}.{anim}: frame {i} does not round-trip through cell {c}")
+        rel = f"cast/{m['file']}"
+        Image.fromarray(grid, "RGBA").save(os.path.join(DEST, rel), optimize=True)
+        written.append(rel)
+        a = {"texture": rel, "frames": n, "fps": m["fps"], "loop": m["loop"], "events": m.get("events", {}),
+             "density": m.get("density", dens), "cols": cols, "rows": rows}
+        if use_map:
+            a["frameMap"] = fmap
+        for k, v in m.items():                          # hatMouth, temple, ...: into the trimmed frame
+            if k in ("file", "frames", "fps", "loop", "events", "density"):
+                continue
+            a[k] = [[p[0] - x0, p[1] - y0] for p in v] if k in POINT_TRACKS else v
+        anims[anim] = a
+    return {"frameW": tw, "frameH": th, "anchor": [d["anchor"][0] - x0, d["anchor"][1] - y0],
+            "density": dens, "anims": anims}
+
+
 def import_sprites(src, log, provenance):
     atlas = json.load(open(os.path.join(src, "atlas.json")))
     errs, warns = [], []
@@ -263,48 +384,10 @@ def import_sprites(src, log, provenance):
     # wrapped into a grid when a row would pass MAX_TEX (frame i at col i % cols, row i // cols)
     chars = {}
     for name, d in atlas["chars"].items():
-        fw, fh = d["frameW"], d["frameH"]
-        dens = d.get("density", 1)
-        strips = {anim: np.asarray(Image.open(os.path.join(src, m["file"])).convert("RGBA")) for anim, m in d["anims"].items()}
-        union = None                                        # the tightest box holding every frame of every anim
-        for anim, arr in strips.items():
-            for i in range(d["anims"][anim]["frames"]):
-                ys, xs = np.nonzero(arr[:, i * fw:(i + 1) * fw, 3])
-                if len(xs):
-                    bb = [xs.min(), ys.min(), xs.max() + 1, ys.max() + 1]
-                    union = bb if union is None else [min(union[0], bb[0]), min(union[1], bb[1]),
-                                                      max(union[2], bb[2]), max(union[3], bb[3])]
-        # 1 px of clear margin keeps the frame-edge rule; the feet row always stays inside
-        x0, y0 = max(union[0] - 1, 0), max(union[1] - 1, 0)
-        x1, y1 = min(union[2] + 1, fw), max(min(union[3] + 1, fh), d["anchor"][1] + 1)
-        x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)     # numpy ints are not JSON
-        tw, th = x1 - x0, y1 - y0
-        if tw > MAX_TEX or th > MAX_TEX:
-            raise SpriteError(f"{name}: a trimmed frame is {tw}x{th}, over {MAX_TEX}")
-        anims = {}
-        for anim, m in d["anims"].items():
-            n = m["frames"]
-            cols = min(n, MAX_TEX // tw)
-            rows = -(-n // cols)
-            cols = -(-n // rows)            # balance the grid: fewest empty cells for that row count (VRAM)
-            if rows * th > MAX_TEX:
-                raise SpriteError(f"{name}.{anim}: {n} frames of {tw}x{th} don't fit a {MAX_TEX} grid")
-            grid = np.zeros((rows * th, cols * tw, 4), np.uint8)
-            for i in range(n):
-                grid[(i // cols) * th:(i // cols + 1) * th, (i % cols) * tw:(i % cols + 1) * tw] = \
-                    strips[anim][y0:y1, i * fw + x0:i * fw + x1]
-            rel = f"cast/{m['file']}"
-            Image.fromarray(grid, "RGBA").save(os.path.join(DEST, rel), optimize=True)
-            written.append(rel)
-            a = {"texture": rel, "frames": n, "fps": m["fps"], "loop": m["loop"], "events": m.get("events", {}),
-                 "density": m.get("density", dens), "cols": cols, "rows": rows}
-            for k, v in m.items():                          # hatMouth, temple, ...: into the trimmed frame
-                if k in ("file", "frames", "fps", "loop", "events", "density"):
-                    continue
-                a[k] = [[p[0] - x0, p[1] - y0] for p in v] if k in POINT_TRACKS else v
-            anims[anim] = a
-        chars[name] = {"frameW": tw, "frameH": th, "anchor": [d["anchor"][0] - x0, d["anchor"][1] - y0],
-                       "density": dens, "anims": anims}
+        chars[name] = _pack(name, d, src, written)
+        alts = {k: _pack(f"{name}@d{k}", v, src, written) for k, v in sorted(d.get("densities", {}).items())}
+        if alts:
+            chars[name]["densities"] = alts
         if name in PLACEHOLDERS:
             chars[name]["placeholder"] = PLACEHOLDERS[name]
         for suffix, key in (("", "avatar"), ("24", "avatar24")):
@@ -465,8 +548,9 @@ def import_sprites(src, log, provenance):
         "version": 1,
         "root": "res://assets/sprites/",
         "artScale": 4,
-        "densityNote": "density d = sprite px per art px. A density-d texture draws at artScale/d device-or-logical px "
-                       "per sprite px; the renderer's scale must be a multiple of every density used (1 and 3).",
+        "densityNote": "density d = sprite px per art px. A density-d texture draws at artScale/d logical px per sprite "
+                       "px; it is crisp when the device scale k is a multiple of d. chars[c].densities holds alternates "
+                       "(Bibi: d 2 for k 2/4/8 beside the main d 3); frameMap maps a frame to its texture cell.",
         "artHeight": atlas.get("artHeight", 96),
         "magicianFeet": MAGICIAN_FEET,
         "chars": chars,

@@ -31,6 +31,9 @@ pipeline/od-sevev/font/sevev9.glyphs ──────────────�
 - **2026-09-29 (the 3× cast, Bar's decision):** `out/` was re-rendered at density 3 and is the
   new approved look; a full render then gives 0 changed across 25 characters, 5 sources, props
   and stages. The shop icons and silhouettes still reproduce the 1× approved pixels exactly.
+- **2026-09-29 (Bibi's d 2 alternate, engine request):** `bibi_{idle,tap,crit}_d2.png` joined
+  the approved `out/` (a second render of the same motion at 192 px); the d 3 files did not move
+  (0 changed).
 - **If a render drifts:** the build fails. `--allow-drift` exists only for a change Bar approved.
 
 **It fails loudly on:**
@@ -38,6 +41,10 @@ pipeline/od-sevev/font/sevev9.glyphs ──────────────�
 - semi-transparent texels;
 - art on a frame's edge (named waivers only, today Bibi's clipped hat rim);
 - a strip wider than 2048 (the WebGL2 floor);
+- a frame that does not read back pixel-exact through its `frameMap` cell (repeated frames share
+  a texture cell; CONTRACT §4);
+- a density alternate (`chars[c].densities`, today Bibi's d 2) whose frames, fps, loop, events
+  or point tracks differ from the main render's, or a point track that leaves its frame;
 - an event outside its anim;
 - a UI-kit piece whose PNG doesn't match its declared size or 9-slice;
 - an id collision;

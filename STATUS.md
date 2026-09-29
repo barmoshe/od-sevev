@@ -127,6 +127,23 @@ Cross-slice requests go under **Requests** with the owner named.
   - **O-A3:** Dubi never speaks over the motif. Tap 1's line starts at `musicalSeconds` (unit test: ±1 frame; browser, Audio clock: 2.332-2.457 s against 2.328). A headline does not cut the waiting line. `main.gd` now sends the line *after* the tap: before, it arrived while the gate was closed and was silently dropped. The motif's Voice duck is gone (nothing sits under it). The toast stays at f0.
   - **Tests:** `tools/test.sh` 141/141 (+4 `test_display.gd`, +1 `test_audio.gd`); strict web build green (lint 0 failures).
   - **Files:** `game/scripts/{core/display,main,ui/sprite_strip,ui/diorama,autoload/audio}.gd`, `game/tests/unit/{test_display,test_audio}.gd`, `tools/web/res_web.mjs`, `HOW-TO-RUN.md`. Shots: `build/shots/` (untracked).
+- 2026-09-29 · technical-artist · **Bibi's d 2 alternate + the frameMap** (the engine's two asks; data only, no `game/scripts/**` change):
+  - **d 2 Bibi:** `chars.bibi.densities["2"]` in exactly the shape `pick_variant` merges: `frameW` 135, `frameH` 218, `anchor` [80, 217], `density` 2, and `anims` idle/tap/crit → `cast/bibi_{idle,tap,crit}_d2.png`. It is a first-generation render from the ref at 192 px (the showcase `magician(d)`), not a resample. Its `hatMouth` and `temple` come from its own geometry and agree with the d 3 to ≤ 0.5 art px from the feet; `frames`, `fps`, `loop` and `events` are identical (the pipeline fails otherwise). The d 3 render is unchanged: 0 drift.
+    - **What it gets:** k 2, 4 and 8 draw it: every DPR-2 phone is crisp at 2 dp per sprite px. k 7 stays on "aa".
+    - **VRAM: none added.** SpriteStrip loads only the picked render, so a device holds 4.4 MB (d 2) *or* 9.7 MB (d 3) of Bibi, not +4.9 MB. It costs download only: +106 KB `.pck`.
+  - **frameMap shipped** where it shrinks a texture: 36 anims, including Bibi's tap (8 → 7 cells) and crit (14 → 10) at both densities. A still-armed idle is 6 cells of 20. Grids now hold the fewest cells within 2048 (Lapid's idle 7×3 → 5×4). Every frame is read back through its cell and must match the render pixel for pixel.
+    - **Cast VRAM:** 150.2 → 105.0 MB (−30%, the dedupe floor; my earlier 37% was the idle strips alone), 109.3 MB with the d 2.
+    - **Resident:** 11.9 MB at k 6/7 (was 13.2), 6.5 MB at k 2/4/8. A partner on demand is 1.8-7.0 MB (median 4.5, was 6.1).
+    - **Web `.pck` art:** 3.30 → 3.12 MB.
+  - **Checks:** `tools/test.sh` 173 passed, 0 failed; strict `tools/build_web.sh` green.
+    - **Chromium, 390×844:** at @2 (k 4) Bibi is the d 2 render, at @3 (k 6) the d 3. At both, 100% of Bibi's opaque device px equal their texel at 2 dp per sprite px (template-matched per frame; one match is crit f12 through frameMap cell 9), and every 2×2 block is uniform.
+    - **Animation at k 4, streamed:** tap = the hat hops and coins leave the hat mouth; crit = coins, the rabbit rises from the hat on its `rabbit` event (the `rabbitCrit` cue fires), the wink, back to idle.
+    - **Proof:** `pipeline/od-sevev/proofs/stage-x4-bibi-d2.png`.
+  - **Test touch (flagged):** `test_display.gd` pinned the old data ("k 4 = d 3 on aa"; the shipped idle has no frameMap). It now expects the d 2 at k 4 and tests the aa path at k 7; `_d1_manifest` drops `densities`/`frameMap`; a new check asserts every shipped frameMap fits its grid and texture.
+  - **→ game-developer (engine):**
+    - `HOW-TO-RUN.md`'s k table still says the cast is "aa" at k 4: Bibi is crisp there now, the partners are not.
+    - The partner card (`view_chat.gd` `PartnerCard.build`) sizes from `chars[slug].density` and `frameH`, not from the picked variant: fine today (no partner has an alternate), wrong the day one does. Read `_strip.density` / `_strip.frame_size()` instead.
+  - **Files:** creative-pack `art/showcase/src/build.py` (`magician(d)` + `ALT_DENSITIES`), `art/showcase/out/{bibi_*_d2.png,atlas.json}`; `pipeline/od-sevev/{sprites.py,build.py,README.md,budget.json,proofs/*}`; `game/assets/sprites/**` + `CONTRACT.md` §1, §3, §4, §7; `game/tests/unit/test_display.gd`
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 

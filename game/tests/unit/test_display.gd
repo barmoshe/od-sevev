@@ -53,8 +53,10 @@ func _d1_manifest() -> Dictionary:
 			if e.has(key):
 				e[key] = [int(e[key][0]) / d, int(e[key][1]) / d]
 		e.erase("density")
+		e.erase("densities")   # the d 2 alternate postdates the d 1 manifest
 		for a: Dictionary in (e.get("anims", {}) as Dictionary).values():
 			a.erase("density")
+			a.erase("frameMap")
 	return man
 
 
@@ -96,14 +98,24 @@ func test_density_one_and_three_from_the_manifest() -> void:
 	# the shipped manifest (the TA's 3x cast): Bibi d 3, the small Dubi d 1, read from the data
 	var s3 := SpriteStrip.make(parent, "bibi", Vector2(376, 876))
 	var dubi := SpriteStrip.make(parent, "dubi", Vector2(600, 876))
-	runner.check(s3.density == 3 and is_equal_approx(s3.scale_px, 4.0 / 3.0), "Bibi d 3: 4/3 logical px per sprite px (d %d)" % s3.density)
-	runner.check(dubi.density == 1 and is_equal_approx(dubi.scale_px, 4.0), "the small Dubi d 1: ×4")
 	var c: Dictionary = SpriteStrip.manifest()["chars"]["bibi"]
-	runner.check(s3.frame_size().is_equal_approx(Vector2(float(c["frameW"]), float(c["frameH"])) * 4.0 / 3.0), "Bibi's frame is frameW·4/3 logical")
-	runner.check(s3.material is ShaderMaterial, "k 4 is not a multiple of 3: the 'aa' fallback filter")
+	runner.check(dubi.density == 1 and is_equal_approx(dubi.scale_px, 4.0), "the small Dubi d 1: ×4")
 	runner.check(dubi.material == null and dubi.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "d 1 at k 4: nearest")
+	# the TA's d 2 alternate (every DPR-2 phone is k 4): 2 device px per sprite px, crisp
+	var c2: Dictionary = c.get("densities", {}).get("2", {})
+	runner.check(not c2.is_empty(), "the manifest carries Bibi's d 2 alternate")
+	runner.check(s3.density == 2 and is_equal_approx(s3.scale_px, 2.0), "k 4 picks Bibi's d 2: 2 logical px per sprite px (d %d)" % s3.density)
+	runner.check(s3.frame_size().is_equal_approx(Vector2(float(c2.get("frameW", 0)), float(c2.get("frameH", 0))) * 2.0), "and the d 2 frame size")
+	runner.check(s3.material == null and s3.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "d 2 at k 4: nearest, no fallback shader")
+	runner.check(String(s3._a["texture"]).ends_with("_d2.png"), "and the d 2 texture (%s)" % s3._a["texture"])
 	var o: Vector2 = s3.rect().position * Display.f
 	runner.check(o.is_equal_approx(o.round()), "the frame's top-left sits on a whole device px (%s)" % o)
+	# k 7 (430 @3): no density divides it, so the main d 3 render on the 'aa' fallback
+	Display.update(Vector2(1284, 2778))
+	SpriteStrip.refresh_all(tree)
+	runner.check(s3.density == 3 and is_equal_approx(s3.scale_px, 4.0 / 3.0), "k 7: Bibi d 3, 4/3 logical px per sprite px (d %d)" % s3.density)
+	runner.check(s3.frame_size().is_equal_approx(Vector2(float(c["frameW"]), float(c["frameH"])) * 4.0 / 3.0), "Bibi's d 3 frame is frameW·4/3 logical")
+	runner.check(s3.material is ShaderMaterial, "k 7 is not a multiple of 3: the 'aa' fallback filter")
 	SpriteStrip.fractional_filter = "nearest"
 	SpriteStrip.refresh_all(tree)
 	runner.check(s3.material == null and s3.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "fractional_filter 'nearest' is honoured")
@@ -138,10 +150,37 @@ func test_density_one_and_three_from_the_manifest() -> void:
 	# frameMap (the TA's VRAM offer): repeated frames share one texture cell; frames stays the count
 	var st := SpriteStrip.make(parent, "bibi", Vector2(376, 876))
 	var cols := int(st._a.get("cols", st.frame_count()))
-	runner.check(st._src(cols + 1).position == Vector2(float(st._c["frameW"]), float(st._c["frameH"])), "no frameMap: frame i is cell i (row-major grid)")
 	st._a = st._a.duplicate()
+	st._a.erase("frameMap")
+	runner.check(st._src(cols + 1).position == Vector2(float(st._c["frameW"]), float(st._c["frameH"])), "no frameMap: frame i is cell i (row-major grid)")
 	st._a["frameMap"] = [0, 1, 0, 1]
 	runner.check(st._src(2) == st._src(0) and st._src(3).position.x == float(st._c["frameW"]), "frameMap: frame 2 draws cell 0, frame 3 cell 1")
+	# the shipped frameMaps (every render, every density): one cell per frame, inside the cols × rows
+	# grid, and the texture holds that grid (manifest `files` sizes)
+	var man := SpriteStrip.manifest()
+	var maps := 0
+	for slug: String in man["chars"]:
+		var ch: Dictionary = man["chars"][slug]
+		var renders: Array = [ch]
+		for dk: String in ch.get("densities", {}):
+			var v: Dictionary = ch.duplicate()
+			v.merge(ch["densities"][dk], true)
+			renders.append(v)
+		for v: Dictionary in renders:
+			for an: String in v["anims"]:
+				var a: Dictionary = v["anims"][an]
+				if not a.has("frameMap"):
+					continue
+				maps += 1
+				var fm: Array = a["frameMap"]
+				var cells := int(a["cols"]) * int(a["rows"])
+				var ok := fm.size() == int(a["frames"]) and int(fm[0]) == 0
+				for cell: Variant in fm:
+					ok = ok and int(cell) >= 0 and int(cell) < cells
+				var sz: Array = man["files"].get(a["texture"], {}).get("size", [0, 0])
+				ok = ok and int(sz[0]) == int(a["cols"]) * int(v["frameW"]) and int(sz[1]) == int(a["rows"]) * int(v["frameH"])
+				runner.check(ok, "%s.%s (d %s): frameMap fits its %dx%d grid" % [slug, an, v.get("density", 1), a["cols"], a["rows"]])
+	runner.check(maps > 0, "the manifest ships frameMaps (%d anims)" % maps)
 	# a density alternate that divides k wins (the TA may ship both)
 	var alt := {"density": 3, "frameW": 243, "anims": {}, "densities": {"2": {"frameW": 162}}}
 	runner.check(int(SpriteStrip.pick_variant(alt, 4)["density"]) == 2, "k 4 picks the d 2 alternate")

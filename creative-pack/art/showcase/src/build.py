@@ -135,7 +135,7 @@ def x3(im):
     return im.resize((im.width * D, im.height * D), Image.NEAREST)
 
 
-HAT3, RABBIT3, SPARK3 = x3(HAT), x3(RABBIT), x3(SPARK)
+SPARK3 = x3(SPARK)
 
 
 def paste_c(frame, im, cx, bottom):
@@ -146,120 +146,150 @@ def paste_c(frame, im, cx, bottom):
 
 
 # ================================================================ BIBI, the Magician
-bibi = Rig('bibi', H, pad=(0.30, 0.30), ncolors=NC)
-bibi.density = D
-B = dict(neck=bibi.c(0, 562)[1], waist=bibi.c(0, 922)[1],
-         hand=(*bibi.c(118, 392), *bibi.c(298, 662)), pivot=bibi.c(215, 682), tip=bibi.c(238, 418),
-         eyes=[(*bibi.c(403, 318), 32, 19), (*bibi.c(525, 334), 34, 19)], skin=(236, 146, 100, 255))
-STEP = round(D / bibi.s)  # one ART pixel in ref px (motion amplitudes stay in art px)
+def xd(im, d):
+    """A 1x art prop at density d (nearest): one art px = a d x d block, the stage's pixel size."""
+    return im.resize((im.width * d, im.height * d), Image.NEAREST)
 
 
-_EYE_TOPS = []   # per bibi_pose call: the screen-right eye's top, in art px (for the temple landmark)
+def magician(d):
+    """The Magician's three anims at density d (sprite px per art px), rendered from the ref like the
+    rest of the cast: the rig works at ref resolution and downsamples to 96·d px, so a d = 2 alternate
+    is a first-generation render, not a resample of the d = 3 strips. Motion amplitudes stay in art
+    px (one art px = STEP ref px at any d); the hat, rabbit, motes and coins are 1x art as d x d
+    blocks. Returns (rig, [(anim, frames, fps, loop, events, extra)]); hatMouth / temple are derived
+    from this render's own geometry, in its sprite px."""
+    rig = Rig('bibi', ART_H * d, pad=(0.30, 0.30), ncolors=NC)
+    rig.density = d
+    B = dict(neck=rig.c(0, 562)[1], waist=rig.c(0, 922)[1],
+             hand=(*rig.c(118, 392), *rig.c(298, 662)), pivot=rig.c(215, 682), tip=rig.c(238, 418),
+             eyes=[(*rig.c(403, 318), 32, 19), (*rig.c(525, 334), 34, 19)], skin=(236, 146, 100, 255))
+    STEP = round(d / rig.s)  # one ART pixel in ref px (motion amplitudes stay in art px)
+    HATd, RABBITd = xd(HAT, d), xd(RABBIT, d)
+    eye_tops = []   # per pose call: the screen-right eye's top, in sprite px (for the temple landmark)
+
+    def pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, wink=0.0):
+        ex, ey = B['eyes'][1][0], B['eyes'][1][1] - B['eyes'][1][3]
+        ey += (head * STEP if ey < B['neck'] else 0) + (body * STEP if ey < B['waist'] else 0)
+        eye_tops.append(rig.to_art(*rig.squash_pt((ex, ey), sx, sy)))
+        cv = rig.canvas()
+        if blink:
+            rig.eyelids(cv, B['eyes'], B['skin'], amount=blink)
+        if wink:
+            rig.eyelids(cv, B['eyes'][1:], B['skin'], amount=wink)
+        cv = rig.rotate_region(cv, B['hand'], B['pivot'], ang)
+        cv = rig.shift_above(cv, B['neck'], head * STEP)
+        cv = rig.shift_above(cv, B['waist'], body * STEP)
+        tip = Rig.rot_pt(B['tip'], B['pivot'], ang)
+        tip = (tip[0], tip[1] + body * STEP)
+        cv = rig.squash(cv, sx, sy)
+        tip = rig.squash_pt(tip, sx, sy)
+        return rig.down(cv), rig.to_art(*tip)
+
+    def hat_anchor(tip, lift=0):
+        return tip[0] + HAT_DX * d, tip[1] + (HAT_DY - lift) * d
+
+    def hat_mouth(tip, lift=0):
+        """The hat's opening, sprite px: 2 art rows below the hat's top."""
+        cx, bt = hat_anchor(tip, lift)
+        return [round(cx), round(bt - HATd.height + 3 * d)]
+
+    def with_hat(frame, tip, lift=0, squish=0, glow=True):
+        hat = HATd if not squish else xd(HAT.resize((HAT.width + squish, HAT.height - squish), Image.NEAREST), d)
+        cx, bottom = hat_anchor(tip, lift)
+        if glow:  # two magic motes between the finger and the hat, one art px each
+            dr = ImageDraw.Draw(frame)
+            for t in (0.35, 0.7):
+                x = round(tip[0] + (cx - tip[0]) * t); y = round(tip[1] - 2 * d + (bottom - tip[1] + 2 * d) * t)
+                dr.rectangle([x, y, x + d - 1, y + d - 1], fill=(255, 236, 160, 255))
+        paste_c(frame, hat, cx, bottom + d)
+        return frame
+
+    def temples(frames):
+        """The temple landmark (animator render-requests §B): per frame, the first transparent px right of
+        the screen-right eye, on the row of that eye's top. Consumes the eye tops recorded for these frames."""
+        tops = eye_tops[:len(frames)]
+        del eye_tops[:len(frames)]
+        out = []
+        for f, (x, y) in zip(frames, tops):
+            a = f.getchannel('A')
+            X, Y = int(round(x)), int(round(y))
+            while X < f.width - 1 and a.getpixel((X, Y)):
+                X += 1
+            out.append([X, Y])
+        return out
+
+    anims = []
+    # idle: 20 frames @10fps, breathe, lecturing finger sways, blink near the end
+    N = 20
+    idle, idle_mouth = [], []
+    for i in range(N):
+        b = breath(i, N)
+        hb = breath((i - 1) % N, N)
+        ang = 5 * math.sin(2 * math.pi * i / N)
+        blink = {16: 0.5, 17: 1.0, 18: 0.5}.get(i, 0)
+        f, tip = pose(body=b, head=hb, ang=ang, blink=blink)
+        idle.append(with_hat(f, tip))
+        idle_mouth.append(hat_mouth(tip))
+    anims.append(('idle', idle, 10, True, None, {'hatMouth': idle_mouth, 'temple': temples(idle)}))
+
+    # tap: 8 frames @15fps, squash-stretch, the hat hops off the finger; coins burst on frame 3
+    T = [dict(sx=1, sy=1, ang=0, lift=0), dict(sx=1.05, sy=0.94, ang=4, lift=0, squish=2),
+         dict(sx=0.97, sy=1.05, ang=-7, lift=4), dict(sx=0.99, sy=1.02, ang=-4, lift=8),
+         dict(sx=1, sy=1, ang=-2, lift=7), dict(sx=1.01, sy=0.99, ang=0, lift=4),
+         dict(sx=1, sy=1, ang=1, lift=1), dict(sx=1, sy=1, ang=0, lift=0)]
+    tap, hatpos = [], []
+    for k in T:
+        f, tip = pose(ang=k['ang'], sx=k['sx'], sy=k['sy'])
+        with_hat(f, tip, k['lift'], k.get('squish', 0))
+        hatpos.append(hat_mouth(tip, k['lift']))
+        tap.append(f)
+    anims.append(('tap', tap, 15, False, {'coins': 3}, {'hatMouth': hatpos, 'temple': temples(tap)}))
+
+    # crit: the rabbit pops out of the hat, the Magician winks. 14 frames @12fps
+    crit, crit_mouth = [], []
+    RB = [0, 0, 0, 4, 8, 11, 13, 13, 13, 13, 11, 7, 3, 0]
+    for i in range(14):
+        k = T[min(i, 3)] if i < 4 else dict(sx=1, sy=1, ang=-3 if i < 11 else 0, lift=8 if i < 11 else [5, 2, 0][i - 11])
+        wink = 1.0 if 5 <= i <= 9 else (0.5 if i in (4, 10) else 0)
+        f, tip = pose(ang=k['ang'], sx=k['sx'], sy=k['sy'], wink=wink)
+        cx, bt = hat_anchor(tip, k['lift'])
+        mouth = bt + d - HATd.height + 5 * d     # y of the hat's front rim
+        if RB[i]:
+            r = RABBITd.crop((0, 0, RABBITd.width, min(RABBITd.height, RB[i] * d)))
+            paste_c(f, r, cx, mouth)
+        with_hat(f, tip, k['lift'], k.get('squish', 0))
+        if RB[i]:  # the rabbit sits inside the opening: redraw only the rabbit rows above the rim
+            top = r.crop((0, 0, r.width, max(d, r.height - 3 * d)))
+            paste_c(f, top, cx, mouth - 3 * d)
+        crit.append(f)
+        crit_mouth.append(hat_mouth(tip, k['lift']))
+    anims.append(('crit', crit, 12, False, {'coins': 3, 'rabbit': 4, 'sting': 5},
+                  {'hatMouth': crit_mouth, 'temple': temples(crit)}))
+    return rig, anims
 
 
-def bibi_pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, wink=0.0):
-    ex, ey = B['eyes'][1][0], B['eyes'][1][1] - B['eyes'][1][3]
-    ey += (head * STEP if ey < B['neck'] else 0) + (body * STEP if ey < B['waist'] else 0)
-    _EYE_TOPS.append(bibi.to_art(*bibi.squash_pt((ex, ey), sx, sy)))
-    cv = bibi.canvas()
-    if blink:
-        bibi.eyelids(cv, B['eyes'], B['skin'], amount=blink)
-    if wink:
-        bibi.eyelids(cv, B['eyes'][1:], B['skin'], amount=wink)
-    cv = bibi.rotate_region(cv, B['hand'], B['pivot'], ang)
-    cv = bibi.shift_above(cv, B['neck'], head * STEP)
-    cv = bibi.shift_above(cv, B['waist'], body * STEP)
-    tip = Rig.rot_pt(B['tip'], B['pivot'], ang)
-    tip = (tip[0], tip[1] + body * STEP)
-    cv = bibi.squash(cv, sx, sy)
-    tip = bibi.squash_pt(tip, sx, sy)
-    return bibi.down(cv), bibi.to_art(*tip)
-
-
-def hat_anchor(tip, lift=0):
-    return tip[0] + HAT_DX * D, tip[1] + (HAT_DY - lift) * D
-
-
-def hat_mouth(tip, lift=0):
-    """The hat's opening, sprite px: 2 art rows below the hat's top."""
-    cx, bt = hat_anchor(tip, lift)
-    return [round(cx), round(bt - HAT3.height + 3 * D)]
-
-
-def with_hat(frame, tip, lift=0, squish=0, glow=True):
-    hat = HAT3 if not squish else x3(HAT.resize((HAT.width + squish, HAT.height - squish), Image.NEAREST))
-    cx, bottom = hat_anchor(tip, lift)
-    if glow:  # two magic motes between the finger and the hat, one art px each
-        d = ImageDraw.Draw(frame)
-        for t in (0.35, 0.7):
-            x = round(tip[0] + (cx - tip[0]) * t); y = round(tip[1] - 2 * D + (bottom - tip[1] + 2 * D) * t)
-            d.rectangle([x, y, x + D - 1, y + D - 1], fill=(255, 236, 160, 255))
-    paste_c(frame, hat, cx, bottom + D)
-    return frame
-
-
-def temples(frames):
-    """The temple landmark (animator render-requests §B): per frame, the first transparent px right of
-    the screen-right eye, on the row of that eye's top. Consumes the eye tops recorded for these frames."""
-    tops = _EYE_TOPS[:len(frames)]
-    del _EYE_TOPS[:len(frames)]
-    out = []
-    for f, (x, y) in zip(frames, tops):
-        a = f.getchannel('A')
-        X, Y = int(round(x)), int(round(y))
-        while X < f.width - 1 and a.getpixel((X, Y)):
-            X += 1
-        out.append([X, Y])
-    return out
-
-
-# idle: 20 frames @10fps, breathe, lecturing finger sways, blink near the end
-N = 20
-idle, idle_mouth = [], []
-for i in range(N):
-    b = breath(i, N)
-    hb = breath((i - 1) % N, N)
-    ang = 5 * math.sin(2 * math.pi * i / N)
-    blink = {16: 0.5, 17: 1.0, 18: 0.5}.get(i, 0)
-    f, tip = bibi_pose(body=b, head=hb, ang=ang, blink=blink)
-    idle.append(with_hat(f, tip))
-    idle_mouth.append(hat_mouth(tip))
-save('bibi_idle', idle, 10, True, bibi, extra={'hatMouth': idle_mouth, 'temple': temples(idle)})
-
-# tap: 8 frames @15fps, squash-stretch, the hat hops off the finger; coins burst on frame 3
-T = [dict(sx=1, sy=1, ang=0, lift=0), dict(sx=1.05, sy=0.94, ang=4, lift=0, squish=2),
-     dict(sx=0.97, sy=1.05, ang=-7, lift=4), dict(sx=0.99, sy=1.02, ang=-4, lift=8),
-     dict(sx=1, sy=1, ang=-2, lift=7), dict(sx=1.01, sy=0.99, ang=0, lift=4),
-     dict(sx=1, sy=1, ang=1, lift=1), dict(sx=1, sy=1, ang=0, lift=0)]
-tap, hatpos = [], []
-for k in T:
-    f, tip = bibi_pose(ang=k['ang'], sx=k['sx'], sy=k['sy'])
-    with_hat(f, tip, k['lift'], k.get('squish', 0))
-    hatpos.append(hat_mouth(tip, k['lift']))
-    tap.append(f)
-save('bibi_tap', tap, 15, False, bibi, events={'coins': 3}, extra={'hatMouth': hatpos, 'temple': temples(tap)})
-
-# crit: the rabbit pops out of the hat, the Magician winks. 14 frames @12fps
-crit, crit_mouth = [], []
-RB = [0, 0, 0, 4, 8, 11, 13, 13, 13, 13, 11, 7, 3, 0]
-for i in range(14):
-    k = T[min(i, 3)] if i < 4 else dict(sx=1, sy=1, ang=-3 if i < 11 else 0, lift=8 if i < 11 else [5, 2, 0][i - 11])
-    wink = 1.0 if 5 <= i <= 9 else (0.5 if i in (4, 10) else 0)
-    f, tip = bibi_pose(ang=k['ang'], sx=k['sx'], sy=k['sy'], wink=wink)
-    cx, bt = hat_anchor(tip, k['lift'])
-    mouth = bt + D - HAT3.height + 5 * D     # y of the hat's front rim
-    if RB[i]:
-        r = RABBIT3.crop((0, 0, RABBIT3.width, min(RABBIT3.height, RB[i] * D)))
-        paste_c(f, r, cx, mouth)
-    with_hat(f, tip, k['lift'], k.get('squish', 0))
-    if RB[i]:  # the rabbit sits inside the opening: redraw only the rabbit rows above the rim
-        top = r.crop((0, 0, r.width, max(D, r.height - 3 * D)))
-        paste_c(f, top, cx, mouth - 3 * D)
-    crit.append(f)
-    crit_mouth.append(hat_mouth(tip, k['lift']))
-save('bibi_crit', crit, 12, False, bibi, events={'coins': 3, 'rabbit': 4, 'sting': 5},
-     extra={'hatMouth': crit_mouth, 'temple': temples(crit)})
+bibi, _anims = magician(D)
+for _a, _fr, _fps, _loop, _ev, _ex in _anims:
+    save('bibi_' + _a, _fr, _fps, _loop, bibi, events=_ev, extra=_ex)
 avatar(bibi, (285, 150, 745, 610), 'bibi', (0, 56, 184, 255))
+
+# The d = 2 alternate (engine request, 2026-09-29): every DPR-2 phone runs at k 4 (and a few at k 8, the
+# desktop at k 2), where a d = 3 sprite px is a fractional 4/3 device px. A d = 2 render is 2 device px
+# per sprite px at k 4: crisp. Files bibi_<anim>_d2.png; atlas chars.bibi.densities["2"] carries its own
+# frame size, anchor and per-frame tracks (the engine's SpriteStrip.pick_variant merges it over the main
+# entry). Bibi only: he is always on screen; partners stay on the "aa" path (their VRAM, not worth it).
+ALT_DENSITIES = (2,)
+for _d in ALT_DENSITIES:
+    _rig, _anims = magician(_d)
+    _alt = None
+    for _a, _fr, _fps, _loop, _ev, _ex in _anims:
+        _name = 'bibi_%s_d%d' % (_a, _d)
+        strip(_fr).save(os.path.join(OUT, _name + '.png'))
+        w, h = _fr[0].size
+        _alt = _alt or {'frameW': w, 'frameH': h, 'anchor': [w // 2, h - 1], 'density': _d, 'anims': {}}
+        _alt['anims'][_a] = {'file': _name + '.png', 'frames': len(_fr), 'fps': _fps, 'loop': _loop,
+                             'events': _ev or {}, 'density': _d, **_ex}
+    atlas['chars']['bibi'].setdefault('densities', {})[str(_d)] = _alt
 
 # ================================================================ SARA
 sara = Rig('sara', H, pad=(0.20, 0.12), ncolors=NC)
