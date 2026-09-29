@@ -71,6 +71,11 @@ cv = await page.evaluate(() => { const c = document.querySelector('canvas'); con
 let p = await pick();
 check(!!(p && p.open && p.variant === 'first' && p.cells.length === 9 && p.cells[4][2] === ''), `a fresh game opens LEADER_PICK (first), 3 × 3 with הפתעה in the centre (${p && p.cells.length} cells, avatar ${p && p.avatar})`);
 await shot('p1-picker-first');
+if (process.env.PICK_ONLY) {   // the first picker at this viewport only (the M / S avatar sizes)
+	log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
+	await browser.close();
+	process.exit(checks.every((x) => x[0]) && !errors.length ? 0 : 1);
+}
 // the leader card: a long press on Bennett's tile
 let c = cellOf(p, 'bennett');
 await tapAt(css(c[0], c[1]), 900);
