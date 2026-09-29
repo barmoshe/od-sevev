@@ -45,7 +45,7 @@ export const PALETTE: Record<string, string> = {
   "I": "#a3b3d3",
   "j": "#8fc0ff",
   "v": "#8fe052",
-  "q": "#3f74e6",
+  "q": "#8fc0ff",
   "Q": "#00237a",
   "e": "#4ccbf5",
   "E": "#1f7fc6",
@@ -73,7 +73,7 @@ export const UI_THEME = {
     "frame": 0,
     "fill": {
       "char": "q",
-      "hex": "#3f74e6"
+      "hex": "#8fc0ff"
     },
     "lip": {
       "char": "Q",
@@ -133,7 +133,7 @@ export const UI_THEME = {
   },
   "juiceGain": {
     "char": "q",
-    "hex": "#3f74e6"
+    "hex": "#8fc0ff"
   },
   "juiceGainOnLight": {
     "char": "Q",
@@ -267,7 +267,7 @@ export const UI_THEME = {
     },
     "trim": {
       "char": "q",
-      "hex": "#3f74e6"
+      "hex": "#8fc0ff"
     },
     "text": {
       "char": "w",
@@ -275,7 +275,7 @@ export const UI_THEME = {
     },
     "milestoneText": {
       "char": "q",
-      "hex": "#3f74e6"
+      "hex": "#8fc0ff"
     },
     "flash": {
       "char": "w",
@@ -286,7 +286,7 @@ export const UI_THEME = {
       "frame": 0,
       "fill": {
         "char": "q",
-        "hex": "#3f74e6"
+        "hex": "#8fc0ff"
       },
       "text": {
         "char": "k",
@@ -432,7 +432,7 @@ export const UI_THEME = {
     },
     "catapult": {
       "char": "q",
-      "hex": "#3f74e6",
+      "hex": "#8fc0ff",
       "plateFrame": 4
     },
     "rocket": {

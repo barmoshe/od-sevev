@@ -33,3 +33,15 @@
 | `rim` | `plum` | 7.51:1 | 3.0:1 | yes |
 | `white` | `red_dk` | 8.07:1 | 4.5:1 | yes |
 | `white` | `ui_bub_hi` | 7.60:1 | 4.5:1 | yes |
+| `ui_mute` | `ui_bubble` | 6.46:1 | 4.5:1 | yes |
+| `ui_mute` | `ui_panel` | 8.03:1 | 4.5:1 | yes |
+| `grey` | `ui_bubble` | 5.81:1 | 4.5:1 | yes |
+| `sky` | `ui_scrim` | 10.01:1 | 4.5:1 | yes |
+| `white` | `night` | 13.88:1 | 4.5:1 | yes |
+| `white` | `plum` | 10.47:1 | 4.5:1 | yes |
+| `white` | `plum_hi` | 6.34:1 | 4.5:1 | yes |
+| `flag` | `receipt` | 8.24:1 | 4.5:1 | yes |
+| `white` | `flag` | 8.46:1 | 3.0:1 | yes |
+| `flag_hi` | `night` | 3.52:1 | 3.0:1 | yes |
+| `gold` | `ui_panel` | 10.45:1 | 3.0:1 | yes |
+| `gold` | `flag` | 5.73:1 | 3.0:1 | yes |
