@@ -1,7 +1,7 @@
 From 21160ecabc43d627dcbfa1269f7f901cc73f40fe Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:30:26 +0000
-Subject: [PATCH 1/5] fix(od-sevev): drop the NUL cache key in leaders.gd and
+Subject: [PATCH 1/6] fix(od-sevev): drop the NUL cache key in leaders.gd and
  fail tests on Unicode parse errors
 
 The installed-round cache key started as "\u0000", which Godot printed as
@@ -58,7 +58,7 @@ index 17d951d..6f82d86 100755
 From 06d94a67bf372d5958f7b11dda990a38f181b4d3 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:30:39 +0000
-Subject: [PATCH 2/5] =?UTF-8?q?feat(od-sevev):=20Bibi's=20rule,=20the=20?=
+Subject: [PATCH 2/6] =?UTF-8?q?feat(od-sevev):=20Bibi's=20rule,=20the=20?=
  =?UTF-8?q?=D7=A8=D7=95=D7=91=20poll=20lint,=20R17=20source=20slots,=20neu?=
  =?UTF-8?q?tral=20DAYS=5F*,=20Liberman's=20SK=20seat?=
 MIME-Version: 1.0
@@ -774,7 +774,7 @@ index b829bba..d6768cd 100644
 From ab5acecc40f94c37e011a6c1328f76d1cce65aab Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:30:39 +0000
-Subject: [PATCH 3/5] feat(od-sevev): replay the browser driver's cadence in
+Subject: [PATCH 3/6] feat(od-sevev): replay the browser driver's cadence in
  the pacing bench
 
 round_web.mjs acts in wall-clock time while ?speed=10 runs the game 10x faster,
@@ -1030,7 +1030,7 @@ index 8e49c30..60f0685 100644
 From d242f47f46d81d939f4f2fa80fb9425500faff3b Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:58:23 +0000
-Subject: [PATCH 4/5] docs(od-sevev): record the measured leader pacing and
+Subject: [PATCH 4/6] docs(od-sevev): record the measured leader pacing and
  Liberman's two levers in the spec
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
@@ -1159,7 +1159,7 @@ index 04b4b03..6edd707 100644
 From 0d0f76607574f252640364b34f67607b2187e813 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 21:26:17 +0000
-Subject: [PATCH 5/5] test(od-sevev): judge G1 (no dominant strategy) by the
+Subject: [PATCH 5/6] test(od-sevev): judge G1 (no dominant strategy) by the
  median of seeds 11-15
 
 One seed is one chaotic hour, and the verdict flipped with unrelated changes:
@@ -1255,6 +1255,163 @@ index 0000000..3e3f496
 +++ b/game/tests/bench/test_web_driver.gd.uid
 @@ -0,0 +1 @@
 +uid://cei7d52xkvb5t
+-- 
+2.43.0
+
+
+From 88f3f5104380fbae0eeb98107a6147acf4cb03ec Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 21:31:03 +0000
+Subject: [PATCH 6/6] feat(od-sevev): fill the source pane with silhouettes (UX
+ G1) and keep numbers off the picker
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- producerReveal.fillSilhouettes: true; Economy.producer_rows(s).fill lists the
+  sources past the priced silhouette, in tier order, once one source is revealed
+  (UX mobile-first-layout §5.4). The view draws them priceless and untappable.
+- Liberman's picker blurb said 61; it now says רוב. The content lint fails any
+  digit in a leader's pick.blurb / pick.line (spec §3.2, L9).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ design/content.json                   |  6 ++++--
+ design/sim/content-lint.mjs           |  2 ++
+ game/data/content.json                |  6 ++++--
+ game/scripts/sim/economy.gd           | 16 +++++++++++++---
+ game/tests/unit/test_diorama_slots.gd | 22 ++++++++++++++++++++++
+ 5 files changed, 45 insertions(+), 7 deletions(-)
+
+diff --git a/design/content.json b/design/content.json
+index 97b8a7a..4d98faa 100644
+--- a/design/content.json
++++ b/design/content.json
+@@ -197,8 +197,10 @@
+  "producerReveal": {
+   "revealAtRunBananasFracOfBaseCost": 0.5,
+   "showNextAsSilhouette": true,
++  "fillSilhouettes": true,
+   "silhouetteName": "מקור עלום",
+-  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible."
++  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
++  "_fillRule": "UX mobile-first-layout §5.4 / §10 G1 (game-designer 2026-09-29): after the first reveal, every source not yet revealed and past the silhouette draws as a dim priceless row ('מקור עלום', no price, no pill, not a target), so the pane is never shorter than its content early on. Economy.producer_rows(s).fill lists them in tier order; false = today's single silhouette."
+  },
+  "upgrades": [
+   {
+@@ -6426,7 +6428,7 @@
+    "art": "liberman",
+    "avatar": "liberman_avatar",
+    "pick": {
+-    "blurb": "לא יושב כמעט עם אף אחד. צריך 61 בכל זאת.",
++    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
+     "line": "לא יושב! לא יושב!",
+     "src": [
+      "liberman-wont-sit"
+diff --git a/design/sim/content-lint.mjs b/design/sim/content-lint.mjs
+index 7733a7b..0218422 100644
+--- a/design/sim/content-lint.mjs
++++ b/design/sim/content-lint.mjs
+@@ -345,6 +345,8 @@ if (C.leaderSelect || C.leaders) {
+     if (SPR && !charOf(L.art)) err(P, `art ${L.art} is not in sprites.json chars`);
+     if (!ready) { if (L.status !== 'backlog') warn(P, 'not contentReady and not marked backlog'); continue; }
+     for (const k of ['blurb', 'line']) if (!hebStr(L.pick?.[k])) err(P, `pick.${k} missing`);
++    // The picker shows no numbers at all (spec §3.2, L9: safe in the blackout): a tile's blurb and line carry no digit.
++    for (const k of ['blurb', 'line']) if (/\d/.test(L.pick?.[k] || '')) err(`${P}.pick.${k}`, `a number on the picker (spec §3.2): ${L.pick[k]}`);
+     // Every leader, the default included, shows one signature rule on the picker's long-press and in T4.
+     for (const k of ['name', 'text']) if (!hebStr(L.rule?.[k])) err(`${P}.rule`, `${k} missing (the picker and T4 show every leader's rule, Bibi's too)`);
+     const K = L.kit || {};
+diff --git a/game/data/content.json b/game/data/content.json
+index 97b8a7a..4d98faa 100644
+--- a/game/data/content.json
++++ b/game/data/content.json
+@@ -197,8 +197,10 @@
+  "producerReveal": {
+   "revealAtRunBananasFracOfBaseCost": 0.5,
+   "showNextAsSilhouette": true,
++  "fillSilhouettes": true,
+   "silhouetteName": "מקור עלום",
+-  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible."
++  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
++  "_fillRule": "UX mobile-first-layout §5.4 / §10 G1 (game-designer 2026-09-29): after the first reveal, every source not yet revealed and past the silhouette draws as a dim priceless row ('מקור עלום', no price, no pill, not a target), so the pane is never shorter than its content early on. Economy.producer_rows(s).fill lists them in tier order; false = today's single silhouette."
+  },
+  "upgrades": [
+   {
+@@ -6426,7 +6428,7 @@
+    "art": "liberman",
+    "avatar": "liberman_avatar",
+    "pick": {
+-    "blurb": "לא יושב כמעט עם אף אחד. צריך 61 בכל זאת.",
++    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
+     "line": "לא יושב! לא יושב!",
+     "src": [
+      "liberman-wont-sit"
+diff --git a/game/scripts/sim/economy.gd b/game/scripts/sim/economy.gd
+index 6a9ce1f..06719d6 100644
+--- a/game/scripts/sim/economy.gd
++++ b/game/scripts/sim/economy.gd
+@@ -392,17 +392,27 @@ static func is_revealed(s: GameState, id: String) -> bool:
+ 	return s.owned_of(id) > 0 or s.run_bananas >= frac * float(p["baseCost"])
+ 
+ 
+-## Revealed producer ids in tier order, and the single silhouette id ("" if none).
++## Revealed producer ids in tier order, the single silhouette id ("" if none: a real row with its
++## price), and `fill`: every later unrevealed id when producerReveal.fillSilhouettes is on (UX
++## mobile-first-layout §5.4, G1: priceless, untappable rows that fill the pane; only once a source
++## is revealed, and never past the content's last source).
+ static func producer_rows(s: GameState) -> Dictionary:
+ 	var revealed := PackedStringArray()
+ 	var silhouette := ""
+-	var show_sil: bool = Content.data()["producerReveal"]["showNextAsSilhouette"]
++	var fill := PackedStringArray()
++	var pr: Dictionary = Content.data()["producerReveal"]
++	var show_sil: bool = pr["showNextAsSilhouette"]
++	var fill_on: bool = pr.get("fillSilhouettes", false) == true
+ 	for id in Content.producer_ids():
+ 		if is_revealed(s, id):
+ 			revealed.append(id)
+ 		elif silhouette == "" and show_sil:
+ 			silhouette = id
+-	return {"revealed": revealed, "silhouette": silhouette}
++		elif fill_on:
++			fill.append(id)
++	if revealed.is_empty():
++		fill = PackedStringArray()
++	return {"revealed": revealed, "silhouette": silhouette, "fill": fill}
+ 
+ 
+ # ---------------------------------------------------------------------------------------------
+diff --git a/game/tests/unit/test_diorama_slots.gd b/game/tests/unit/test_diorama_slots.gd
+index 673e787..9862221 100644
+--- a/game/tests/unit/test_diorama_slots.gd
++++ b/game/tests/unit/test_diorama_slots.gd
+@@ -94,3 +94,25 @@ func test_the_early_round_fills_the_right_half() -> void:
+ 	var tx := float(L.DIORAMA["xs"][t.substr(0, 1)][int(t.substr(1))]) + 32.0
+ 	var left := tx - _extent(src, str(Content.producer("taxpayer")["sprite"])).x - WANDER
+ 	runner.check(left >= hit_right, "the first taxpayer (%s, wandering) clears the Magician's hit (x ≥ %d, got %d)" % [t, int(hit_right), int(left)])
++
++
++## UX mobile-first-layout §5.4 G1 (producerReveal.fillSilhouettes): after the first reveal, the
++## sources past the one priced silhouette come back as `fill`, priceless rows, in tier order.
++func test_the_pane_fills_with_silhouettes() -> void:
++	runner.check(Content.data()["producerReveal"].get("fillSilhouettes") == true, "the content turns the fill on")
++	var s := GameState.fresh()
++	var r0 := Economy.producer_rows(s)
++	runner.check((r0["fill"] as PackedStringArray).is_empty(), "nothing fills before the first reveal (%s)" % str(r0))
++	s.owned["taxpayer"] = 1
++	var r := Economy.producer_rows(s)
++	var ids := Content.producer_ids()
++	var want := PackedStringArray()
++	for id in ids:
++		if not (r["revealed"] as PackedStringArray).has(id) and id != str(r["silhouette"]):
++			want.append(id)
++	runner.check(r["revealed"] == PackedStringArray(["taxpayer"]) and str(r["silhouette"]) == ids[1], "one real row, the next one priced (%s)" % str(r))
++	runner.check(r["fill"] == want and (r["fill"] as PackedStringArray).size() == ids.size() - 2, "the rest fill the pane, in tier order (%s)" % str(r["fill"]))
++	var c: Dictionary = Content.data().duplicate(true)
++	c["producerReveal"]["fillSilhouettes"] = false
++	Content.replace(c)
++	runner.check((Economy.producer_rows(s)["fill"] as PackedStringArray).is_empty(), "off: today's single silhouette")
 -- 
 2.43.0
 
