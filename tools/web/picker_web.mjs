@@ -138,7 +138,7 @@ while (Date.now() - t0 < budget) {
 		}
 	}
 	s = await probe();
-	const wantChat = s.groupOpen && (s.chat.open || s.chat.openBrawl || rounds % 2 === 0);
+	const wantChat = s.groupOpen;   // every loop once the group exists: under load an ultimatum (90 s of game time) passes in seconds
 	if (!wantChat) continue;
 	if (!s.chat.open) { await tapAt(tab(3)); await wait(600); }
 	for (let guard = 0; guard < 14; guard++) {
