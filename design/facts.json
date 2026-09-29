@@ -34,7 +34,8 @@
     "partners.goldknopf.copy.threatSrc"
    ],
    "usedInLeaderSelect": [
-    "leaderSelect.leakRight.leaks[1][2]"
+    "leaderSelect.leakRight.leaks[1][2]",
+    "leaders.deri.kit.ticker.td05"
    ]
   },
   {
@@ -53,7 +54,8 @@
     "events.eisenkot"
    ],
    "usedInLeaderSelect": [
-    "leaderSelect.partnerProfiles.eisenkot"
+    "leaderSelect.partnerProfiles.eisenkot",
+    "leaders.eisenkot.pick"
    ]
   },
   {
@@ -82,7 +84,10 @@
    "url": "https://en.idi.org.il/articles/64068",
    "date": "2026",
    "usedOutsideContent": "Background for the Golan card; the card cites labor-meretz-merger",
-   "usedIn": []
+   "usedIn": [],
+   "usedInLeaderSelect": [
+    "leaders.golan.pick"
+   ]
   },
   {
    "id": "labor-meretz-merger",
@@ -100,7 +105,14 @@
     "events.golan"
    ],
    "usedInLeaderSelect": [
-    "leaderSelect.partnerProfiles.golan"
+    "leaderSelect.partnerProfiles.golan",
+    "leaders.golan.kit.sources.t5",
+    "leaders.golan.kit.sources.t5.firstOwned",
+    "leaders.golan.kit.spins[6]",
+    "leaders.golan.kit.story",
+    "leaders.golan.kit.ticker.ty02",
+    "leaders.golan.pick",
+    "leaders.golan.rule"
    ]
   },
   {
@@ -451,6 +463,11 @@
    "usedIn": [
     "ambientHeadlinesV2.list.g21",
     "ambientHeadlinesV2.list.g22"
+   ],
+   "usedInLeaderSelect": [
+    "leaders.smotrich.kit.sources.t8",
+    "leaders.smotrich.kit.sources.t8.firstOwned",
+    "leaders.smotrich.kit.ticker.ts03"
    ]
   },
   {
@@ -468,6 +485,11 @@
     "ambientHeadlinesV2.list.o06",
     "headlines.h_vat",
     "producers.vat"
+   ],
+   "usedInLeaderSelect": [
+    "leaders.smotrich.kit.spins[6]",
+    "leaders.smotrich.kit.ticker.ts01",
+    "leaders.smotrich.rule"
    ]
   },
   {
@@ -482,6 +504,13 @@
    "date": "2023-01",
    "usedIn": [
     "partners.deri"
+   ],
+   "usedInLeaderSelect": [
+    "leaders.deri.kit.sources.t8",
+    "leaders.deri.kit.sources.t8.firstOwned",
+    "leaders.deri.kit.story",
+    "leaders.deri.kit.ticker.td04",
+    "leaders.deri.kit.ticker.td12"
    ]
   },
   {
@@ -1166,7 +1195,9 @@
     "leaders.liberman.kit.sources.t8.firstOwned",
     "leaders.liberman.kit.story",
     "leaders.liberman.kit.ticker.tl03",
-    "leaders.liberman.kit.ticker.tl09"
+    "leaders.liberman.kit.ticker.tl09",
+    "leaders.smotrich.kit.story",
+    "leaders.smotrich.kit.ticker.ts02"
    ]
   },
   {
@@ -1239,6 +1270,247 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "leaders.liberman.kit.ticker.tl04"
+   ]
+  },
+  {
+   "id": "eisenkot-quit-unity",
+   "ref": 64,
+   "label": "F",
+   "text": "Eisenkot announced on 30 Jun 2025 that he was leaving Gantz's National Unity party, and formally resigned from the Knesset on 2 Jul 2025; the seat passed to the next name on the party list.",
+   "aboutHe": "ביוני 2025 הודיע גדי אייזנקוט שהוא עוזב את מפלגת המחנה הממלכתי, ובתחילת יולי 2025 התפטר מהכנסת.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; JPost; Haaretz; JNS",
+   "url": "https://www.timesofisrael.com/in-political-shakeup-national-unity-no-2-eisenkot-set-to-leave-party-quit-knesset/",
+   "url2": "https://www.jpost.com/israel-news/politics-and-diplomacy/article-859767",
+   "moreUrls": [
+    "https://www.jns.org/eizenkot-quits-gantzs-national-unity-party-resigns-from-knesset/",
+    "https://www.timesofisrael.com/liveblog_entry/national-unitys-eisenkot-officially-resigns-from-knesset/"
+   ],
+   "date": "2025-07",
+   "_guardrail": "Party politics only. Never his career before politics, never anything personal.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.eisenkot.kit.story",
+    "leaders.eisenkot.kit.ticker.te04"
+   ]
+  },
+  {
+   "id": "yashar-founded",
+   "ref": 65,
+   "label": "F",
+   "text": "Eisenkot founded the party \"Yashar! with Eisenkot\" in September 2025, two months after resigning from the Knesset, with 120 founding members.",
+   "aboutHe": "בספטמבר 2025 הקים גדי אייזנקוט את מפלגת ישר, עם 120 חברים מייסדים.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; JPost; INN; Wikipedia",
+   "url": "https://www.timesofisrael.com/gadi-eisenkot-founds-new-party-two-months-after-resigning-from-knesset/",
+   "url2": "https://www.jpost.com/israel-news/article-867656",
+   "moreUrls": [
+    "https://www.israelnationalnews.com/news/415030",
+    "https://en.wikipedia.org/wiki/Yashar_(political_party)"
+   ],
+   "date": "2025-09",
+   "_guardrail": "The name (with its exclamation mark) and the 120 founders only. Never the list No. 2 (a red-line title), never polls (\"who's leading\" is on deliberatelyOut).",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.eisenkot",
+    "leaders.eisenkot.kit.sources.t4",
+    "leaders.eisenkot.kit.sources.t4.firstOwned",
+    "leaders.eisenkot.kit.spins[4]",
+    "leaders.eisenkot.kit.spins[6]",
+    "leaders.eisenkot.kit.story",
+    "leaders.eisenkot.kit.ticker.te02",
+    "leaders.eisenkot.kit.ticker.te03",
+    "leaders.eisenkot.pick"
+   ]
+  },
+  {
+   "id": "yashar-horowitz",
+   "ref": 66,
+   "label": "F",
+   "text": "Yashar's founding members include Yoav Horowitz, a former director-general of the Prime Minister's Office (under Netanyahu).",
+   "aboutHe": "בין המייסדים של ישר נמצא יואב הורוביץ, לשעבר מנכ״ל משרד ראש הממשלה.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "JPost; Wikipedia; Ynet",
+   "url": "https://www.jpost.com/israel-news/article-867656",
+   "url2": "https://en.wikipedia.org/wiki/Yashar_(political_party)",
+   "moreUrls": [
+    "https://www.ynetnews.com/article/ryhasrloxg"
+   ],
+   "date": "2025-09",
+   "_guardrail": "The game never names him: \"a former PMO director-general\" only.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.eisenkot.kit.sources.t6",
+    "leaders.eisenkot.kit.sources.t6.firstOwned",
+    "leaders.eisenkot.kit.ticker.te05"
+   ]
+  },
+  {
+   "id": "smotrich-feiglin",
+   "ref": 67,
+   "label": "F",
+   "text": "On 1 Sep 2026 Smotrich (Religious Zionism) and Moshe Feiglin (Zehut) signed to run as one list, a technical bloc that can split after entering the Knesset; Feiglin takes the No. 2 slot.",
+   "aboutHe": "בספטמבר 2026 חתמו בצלאל סמוטריץ׳ ומשה פייגלין על ריצה משותפת של הציונות הדתית וזהות כגוש טכני, שאפשר לפצל אחרי הכניסה לכנסת.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; JPost; JNS; Haaretz",
+   "url": "https://www.timesofisrael.com/smotrich-feiglin-announce-joint-election-run-urge-other-right-wing-parties-to-join/",
+   "url2": "https://www.jpost.com/israel-election-2026/article-907259",
+   "moreUrls": [
+    "https://www.jns.org/news/israel-news/smotrich-feiglin-alliance-submits-final-list-for-oct-27-vote"
+   ],
+   "date": "2026-09-01",
+   "_guardrail": "The technical joint run only. Never a seat projection (poll rule), never the bids to disqualify lists.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.smotrich.kit.story",
+    "leaders.smotrich.kit.ticker.ts05"
+   ]
+  },
+  {
+   "id": "coalition-funds-2025",
+   "ref": 68,
+   "label": "F",
+   "text": "The 2025 state budget, passed on 25 Mar 2025, included about NIS 5 billion in \"coalition funds\", a separate section that funds coalition agreements.",
+   "aboutHe": "תקציב המדינה לשנת 2025 כלל כחמישה מיליארד ₪ של כספים קואליציוניים, סעיף נפרד למימון ההסכמים הקואליציוניים.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; JPost",
+   "url": "https://www.timesofisrael.com/cabinet-approves-over-nis-1-billion-in-coalition-funds-for-haredim-of-a-total-nis-5b/",
+   "url2": "https://www.jpost.com/israel-news/article-844678",
+   "moreUrls": [
+    "https://www.timesofisrael.com/in-major-success-for-government-knesset-approves-2025-budget-staving-off-elections/"
+   ],
+   "date": "2025-03",
+   "_guardrail": "The sum and the name only. Never who the funds are earmarked for (group as the punchline).",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.smotrich.kit.sources.t5",
+    "leaders.smotrich.kit.sources.t5.firstOwned",
+    "leaders.smotrich.kit.ticker.ts04"
+   ]
+  },
+  {
+   "id": "deri-tax-plea",
+   "ref": 69,
+   "label": "F",
+   "text": "In early 2022 Deri resigned from the Knesset and was convicted of tax offences in a plea deal (five income-tax counts and one land-tax count): a 12-month suspended sentence and a NIS 180,000 fine. Resigning first let him avoid a moral-turpitude finding.",
+   "aboutHe": "בתחילת 2022 התפטר אריה דרעי מהכנסת והורשע בעבירות מס במסגרת הסדר טיעון, עם מאסר על תנאי וקנס של 180 אלף ₪.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; Israel Hayom; Haaretz; Globes",
+   "url": "https://www.timesofisrael.com/court-sentences-deri-in-plea-bargain-conviction-on-tax-offenses/",
+   "url2": "https://www.israelhayom.com/2022/01/26/shas-chief-deri-convicted-of-tax-offenses-in-plea-deal/",
+   "moreUrls": [
+    "https://www.timesofisrael.com/deri-resigns-from-the-knesset-in-line-with-tax-offense-plea-deal/",
+    "https://en.globes.co.il/en/article-aryeh-deri-to-agree-tax-offenses-plea-deal-quit-knesset-1001395725"
+   ],
+   "date": "2022-01",
+   "_guardrail": "Label F: a conviction by plea, worded as one (\"הורשע בעבירות מס בהסדר טיעון\"). Never stronger (no theft, no bribery), never his earlier conviction, never the community.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.deri.kit.story",
+    "leaders.deri.kit.ticker.td02"
+   ]
+  },
+  {
+   "id": "deri-law",
+   "ref": 70,
+   "label": "F",
+   "text": "In Dec 2022 the Knesset amended Basic Law: The Government so that a person with a suspended sentence can serve as a minister, clearing Deri's appointment as Interior and Health Minister; the Knesset legal adviser criticised it as personal legislation. In Jan 2023 the High Court (10-1) ordered his removal but left the amendment in force.",
+   "aboutHe": "בדצמבר 2022 תיקנה הכנסת את חוק יסוד: הממשלה כך שגם מי שנגזר עליו מאסר על תנאי יוכל לכהן כשר, והתיקון איפשר את מינויו של אריה דרעי.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; JURIST; Library of Congress",
+   "url": "https://www.timesofisrael.com/coalition-advances-bill-that-would-return-deri-to-cabinet-defying-high-court-ruling/",
+   "url2": "https://www.jurist.org/news/2022/12/israel-dispatch-controversial-coalition-bill-allows-party-leader-lately-convicted-of-tax-fraud-to-serve-as-government-minister/",
+   "moreUrls": [
+    "https://www.loc.gov/item/global-legal-monitor/2023-01-30/israel-high-court-orders-prime-minister-netanyahu-to-dismiss-minister-with-multiple-criminal-convictions/",
+    "https://www.timesofisrael.com/top-court-demands-mks-justify-law-allowing-deri-as-minister-wont-block-it-for-now/"
+   ],
+   "date": "2022-12",
+   "_guardrail": "\"חוק דרעי\" is the press's nickname for the amendment; the game says so as a nickname (\"ברחוב קראו לו\"), never as its title.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.deri.kit.sources.t6",
+    "leaders.deri.kit.sources.t6.firstOwned",
+    "leaders.deri.kit.sources.t8",
+    "leaders.deri.kit.spins[6]",
+    "leaders.deri.kit.story",
+    "leaders.deri.kit.ticker.td03"
+   ]
+  },
+  {
+   "id": "golan-labor-primary",
+   "ref": 71,
+   "label": "F",
+   "text": "Yair Golan won the Labor leadership primary on 28 May 2024 with over 95% of the vote, on a promise to unite the left.",
+   "aboutHe": "במאי 2024 ניצח יאיר גולן בפריימריז לראשות מפלגת העבודה, בהבטחה לאחד את השמאל.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "ToI; JNS; Wikipedia",
+   "url": "https://www.timesofisrael.com/yair-golan-wins-landslide-victory-in-labor-primary-with-promise-to-unite-the-left/",
+   "url2": "https://en.wikipedia.org/wiki/2024_Israeli_Labor_Party_leadership_election",
+   "moreUrls": [
+    "https://www.jns.org/former-meretz-lawmaker-wins-labor-party-leadership-primary/"
+   ],
+   "date": "2024-05-28",
+   "_guardrail": "Party politics only. Never his public story outside politics.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.golan.kit.story",
+    "leaders.golan.kit.ticker.ty03",
+    "leaders.golan.kit.ticker.ty09"
+   ]
+  },
+  {
+   "id": "democrats-merger-2026",
+   "ref": 72,
+   "label": "F",
+   "text": "In May 2026 a Democrats party conference in Tel Aviv ratified the merger of the Labor and Meretz factions, guaranteeing Meretz the 6th, 8th and 14th slots on the joint list (the merger itself was first ratified on 12 Jul 2024).",
+   "aboutHe": "במאי 2026 אישר כנס מפלגת הדמוקרטים את איחוד סיעות העבודה ומרצ, עם מקומות שמורים למרצ ברשימה.",
+   "notUsed": true,
+   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
+   "launchWith": "leaderSelect",
+   "outlet": "Haaretz; ToI",
+   "url": "https://www.haaretz.com/israel-news/elections/2026-05-31/ty-article/.premium/democrats-party-approves-left-wing-merger-of-meretz-labor-ahead-of-elections/0000019e-7ec8-d813-a9be-ffcfd71b0000",
+   "url2": "https://www.timesofisrael.com/liveblog_entry/left-wing-democrats-party-ratifies-merger-of-labor-and-meretz-factions-at-party-conference/",
+   "date": "2026-05",
+   "_guardrail": "The merger only. The Sep 2026 bid to disqualify the Democrats is out.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-29",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.golan.kit.story",
+    "leaders.golan.kit.ticker.ty02",
+    "leaders.golan.kit.ticker.ty10"
    ]
   }
  ],

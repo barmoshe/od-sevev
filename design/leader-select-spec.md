@@ -4,7 +4,7 @@
 
 - **Owner:** Game Designer.
 - **Date:** 2026-09-29.
-- **Status:** design complete; content ready for 4 of 8 leaders; **pending engine** (nothing here runs in the current build).
+- **Status:** design complete; content ready for **all 8 leaders** (wave 2 landed 2026-09-29); **pending engine** (nothing here runs in the current build).
 - **Consumers:**
   - Game Developer (sim, engine, views);
   - UX Designer;
@@ -26,7 +26,7 @@
 |---|---|---|
 | D1 | **Launch roster of 8, 4 per side:** ביבי (הליכוד), בן גביר (עוצמה יהודית), סמוטריץ׳ (הציונות הדתית), דרעי (ש״ס) · בנט (ביחד), אייזנקוט (ישר), ליברמן (ישראל ביתנו), גולן (הדמוקרטים) | Equal opportunity you can count. Every leader has art. The four left out each carry a risk or a factual problem (§2). |
 | D2 | **לפיד is not a pick: he is No. 2 on Bennett's list "ביחד"** (Apr 2026, fact `beyachad-list`), and he plays inside Bennett's round as a list-mate who can't walk out | Making him head of a party would be a false fact in the game's own frame. |
-| D3 | **Content ships in two waves.** Wave 1 is complete now: ביבי (the shipped game re-keyed), בנט, בן גביר, ליברמן (2 per side). Wave 2 is a precise backlog: אייזנקוט, סמוטריץ׳, דרעי, גולן | The brief's "too large for one pass" clause. The picker can ship with wave 1. |
+| D3 | **Content shipped in two waves.** Wave 1: ביבי (the shipped game re-keyed), בנט, בן גביר, ליברמן (2 per side). Wave 2 (done): אייזנקוט, סמוטריץ׳, דרעי, גולן | The brief's "too large for one pass" clause. The picker can ship with any leader whose kit passes the lint; all 8 do. |
 | D4 | **The picker comes before the first tap**, and it is the title screen. Picking a face is the gesture that unlocks audio, so it costs 0 extra taps. After every election, the picker follows the election card. | "At the start of every round." A face grid needs no reading; the choice is the first laugh. §3. |
 | D5 | **Equal footing: every number is shared.** That means own seats, the economy, spin prices, the coalition slot numbers, the hazard and the gate. Leaders differ in **words, art and one signature rule** each. | If one leader got more seats or faster money, the game would be a poll or an endorsement (red line). It also keeps one balance bench and the 7-9 min first election for everyone. §4. |
 | D6 | **Bloc logic:** the other cast members become partners or rival cards, relative to who you play. A lineup deals shared **coalition slots** to people. Outside Bibi's round the slots are **reshuffled every round**. | The coalition stays the core system for every leader. Reshuffled seats can't read as polls. §5.5. |
@@ -63,10 +63,10 @@
 | בנט | ביחד (לפיד No. 2) | opposition | `bennett` (react `flip`, event `whoosh`) | **ההתחייבות**: his own pledge card fires at 2× weight. The gate goes to 62 for 45 s, then the pledge flips and adds +1 base (reuses the shipped `pledge` effect). | pen · חתימה · היפוך | 1 |
 | בן גביר | עוצמה יהודית | coalition | `ben-gvir` (react, event `shout`) | **לוח הזמנים**: nobody out-threatens the threatener. Partners' `threatChance` ×0.5. | phone · העברה · איום | 1 |
 | ליברמן | ישראל ביתנו | opposition | `liberman` (react, event `no`) | **לא יושב**: dismiss an open member demand for free. Cooldown 90 s; never on an ultimatum. His lineup excludes the partners he says he won't sit with (fact `liberman-wont-sit`). | chair · סירוב · לא מוחלט | 1 |
-| אייזנקוט | ישר | opposition | `eisenkot` (react, `land`) | **ישר**: no crits at all, every tap ×2 (existing effects `critChance set 0` + `tapMult`) | ruler · ישר · (none) | 2 |
-| סמוטריץ׳ | הציונות הדתית | coalition | `smotrich` (react, `shout`) | **שר האוצר**: VAT ×1.18 moves from his partner trait onto him; "אין כסף" makes every demand price ×0.9 | calculator · העברה · אין כסף! | 2 |
-| דרעי | ש״ס | coalition | `deri` (react, `land`) | **ידידי**: walked-out partners rejoin at 1.0× instead of 1.5×; each paid demand gives a 30 s ☕ tap buff ×1.2 | coffee · קפה · ידידי | 2 |
-| גולן | הדמוקרטים | opposition | `golan` (react, `land`) | **איחוד**: two members of 60 s+ may merge (seats summed, one demand stream at the higher price) | stapler · איחוד · עוד איחוד | 2 |
+| אייזנקוט | ישר | opposition | `eisenkot` (react, `land`) | **ישר**: no crits at all; every tap is paid the crits' average up front, × (1 + c × (critMult − 1)): ×1.18 base, ×1.63 with slot E. EV-neutral by construction (was a flat ×2, +69% tap value) | ruler · יישור קו · (none: tap 7 shows "בלי קסמים. רק ישר.") | 2 |
+| סמוטריץ׳ | הציונות הדתית | coalition | `smotrich` (react, `shout`) | **שר האוצר**: VAT ×1.18 moves from his partner trait onto him; "אין כסף" makes every demand price ×0.9 (the p_deal knob `demandDiscountPct` 10) | calculator · חישוב · אין כסף! (not העברה: Ben Gvir's verb) | 2 |
+| דרעי | ש״ס | coalition | `deri` (react, `land`) | **ידידי**: walked-out partners rejoin at 1.0× instead of 1.5× (`rejoinMult` override); each paid demand gives a 30 s ☕ tap buff ×1.2 (the spin effect `tapBuff`, refreshed, not stacked) | coffee · קפה · ידידי | 2 |
+| גולן | הדמוקרטים | opposition | `golan` (react, `land`) | **איחוד**: two members of 60 s+ may merge (seats and upkeep summed, one demand stream at the higher price, a walkout takes both; 2 per round, 120 s apart; never the stand-in or an open ultimatum) | stapler · איחוד · עוד איחוד | 2 |
 
 **Why this 8:**
 - **Balanced 4/4** across the government and opposition blocs.
@@ -177,7 +177,7 @@ The leaders' rules are deliberately small: each moves round length by ≤ ±10% 
 | Cast profiles | a partner profile (6-8 strings) and/or a rival card (2) for each cast member the lineups need | — | 9 profiles, 4 cards |
 | **Total** | **≈100 strings + 3-5 facts per leader** | ≈75 shared | **502 new Hebrew strings, 12 new facts** |
 
-The lint counts: bennett 102, bengvir 103, liberman 104 strings; plus shared profiles, cards, leak, rival ticker and picker copy.
+The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenkot 104, smotrich 104, deri 103, golan 106; plus shared profiles, cards, leak, rival ticker and picker copy.
 
 ### 5.1 The rule
 - One `rule` per leader: `{id, name, text, effect}`.
@@ -185,6 +185,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; plus shared pro
   - `partnerThreatMult` (Ben Gvir);
   - `declineDemand` (Liberman).
 - Bennett's rule reuses `pledge` as a self-event: `selfEvent {event: "bennett", weightMult 2, firstAfterPlaySec 240}`.
+- Wave 2 adds two knobs, `straightTaps` (Eisenkot) and `mergeMembers` (Golan, `Coalition.merge`), and two leader-level uses of existing ones: `leaderEffects` (Smotrich's `producerMult` + `demandDiscountPct`; Deri's `coalition.rejoinMult` override + `onDemandPaid: tapBuff`). Each rule's `_note` in `content.json` is the sim contract.
 - `rule.text` is the one sentence the picker's long-press and T4 show.
 
 ### 5.2 Tap: prop + verb + crit
@@ -256,7 +257,16 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; plus shared pro
 | בן גביר | ביבי ("תעביר לליכוד. אין כלום, רק תעביר.") | גוטליב (list No. 2, no transfer), סמוטריץ׳, רגב, אמסלם, קרעי, גולדקנופף, גפני, דרעי, אלמוג ("הוסרתי מהקבוצות שלך"), גנץ | עבאס out (his own excludes) | the shipped five |
 | ליברמן | בנט | לפיד, גולן, אייזנקוט, ח״כ עם הצעה, ח״כית מתלבטת, ח״כ שעבר צד, גנץ | ביבי, דרעי, גולדקנופף, גפני, עבאס (his stated line) | ביבי, בן גביר, סמוטריץ׳, דרעי |
 
-**Seat capacity:** Bibi 57, Bennett 50, Ben Gvir 49, Liberman 42. Liberman's is the tightest on purpose, and his decline pill pays for it (§7.3).
+**Wave-2 lineups:**
+
+| Leader | S1 (C1) | Others | Excluded / notes | Rivals |
+|---|---|---|---|---|
+| אייזנקוט | בנט | לפיד, גולן, ליברמן, ח״כ עם הצעה, ח״כית מתלבטת, גפני, עבאס, ח״כ שעבר צד, גנץ | Liberman's excludes: the same keep-him-or-take-Abbas-and-Gafni choice as Bennett's round | ביבי, בן גביר, סמוטריץ׳, דרעי (card_smotrich's noCrit suspends his straight bonus) |
+| סמוטריץ׳ | ביבי | רגב, בן גביר, לוין, אמסלם, קרעי, גולדקנופף, גוטליב, גפני, דרעי, מאי גולן, גנץ | עבאס out (his excludes); Karhi is a member, so s08 is on the shelf; the brawl pair needs §10.1's any-two fix | the shipped five |
+| דרעי | ביבי | רגב, סמוטריץ׳, לוין, אמסלם, קרעי, גולדקנופף, גוטליב, גפני, בן גביר (his own L6), מאי גולן, גנץ | עבאס out (his excludes) | the shipped five |
+| גולן | אייזנקוט (his ×1.25 tap trait runs from C1) | לפיד, בנט, ליברמן, ח״כ עם הצעה, ח״כית מתלבטת, גפני, עבאס, ח״כ שעבר צד, גנץ | as Eisenkot's round; the merge rule wants several mid-size members | ביבי, בן גביר, סמוטריץ׳, דרעי |
+
+**Seat capacity:** Bibi 57, Bennett 50, Ben Gvir 49, Liberman 42, Eisenkot 50, Smotrich 51, Deri 51, Golan 50. Liberman's is the tightest on purpose, and his decline pill pays for it (§7.3).
 
 ### 5.6 Hazard: the court (Bibi) vs the press (everyone else)
 - **Same Investigation module and numbers.** For non-Bibi leaders:
@@ -267,7 +277,11 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; plus shared pro
 - **Per leader:** `postponeVerb` + 6 `excuses`, each one sentence longer (the lint checks the growth):
   - Bennett's pledges to respond tomorrow;
   - Ben Gvir's escalating quit threat;
-  - Liberman won't sit in the studio.
+  - Liberman won't sit in the studio;
+  - Eisenkot will answer straight, after a check of the check;
+  - Smotrich has no budget for a response;
+  - Deri invites the story to coffee (then a lawyer joins);
+  - Golan answers once the answer has merged with the next one.
 - **Bibi-only:** the aide drop (it is Qatargate), the pardon desk, the DOHA sticker, the trial excuses and the courthouse ticker.
 - `court.floorPerRoundPct` applies to every leader.
 
@@ -301,7 +315,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; plus shared pro
 - The election card shows the leader's name in the title: "סבב בחירות מס׳ {n} · {short}".
 
 ### 6.2 Stats and trophies
-- **Per leader, persistent:** `leaders.<id> = {rounds, elections, taps, crits, declines, bestRunSec, playSec}`. The dossier (T4) gets a "ראשי רשימה" section: one row per played leader.
+- **Per leader, persistent:** `leaders.<id> = {rounds, elections, taps, crits, declines, merges, bestRunSec, playSec}` (`merges`: Golan's trophy). The dossier (T4) gets a "ראשי רשימה" section: one row per played leader.
 - **Global stats:** `leaderSwitches` (+1 when a pick differs from the last leader).
 - **Trophies:**
   - The shipped 40 stay. Those in `bibiOnly.trophies` can only be earned in Bibi's round; `neutralCopy` rewrites the tap and perk ones to neutral words.
@@ -313,7 +327,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; plus shared pro
 leader: "<id>"                 # the round's leader; fixed for the round
 leaderPickPending: bool        # true from EVOLVE_TX until a pick; on load → show the picker
 leaderHistory: ["<id>", …]     # last 10 picks; fresh face reads [-1]
-leaders: {<id>: {rounds, elections, taps, crits, declines, bestRunSec, playSec}}
+leaders: {<id>: {rounds, elections, taps, crits, declines, merges, bestRunSec, playSec}}
 seatDeal: {<partnerId>: "<slot>"}   # this round's shuffled slots (so a reload can't reroll)
 stats.leaderSwitches
 ```
@@ -342,6 +356,10 @@ stats.leaderSwitches
 | Liberman `rule.effect.cooldownSec` | 90 | 60-150 |
 | Lapid partner `onPay.suspicion` | 2 | 0-4 |
 | Eisenkot partner `effects[tapMult]` | 1.25 | 1.1-1.5 |
+| Eisenkot `rule.effect` | EV conversion (×1.18 base) | fixed by the formula; a flat bonus on top only if his bench median > 9:00 |
+| Smotrich `rule.effect.demandDiscountPct` / VAT `mult` | 10 / 1.18 | 0-15 / 1.18 (the joke) |
+| Deri `rule.effect.coalition.rejoinMult` / `onDemandPaid.mult`, `durationSec` | 1.0 / 1.2, 30 | 1.0-1.25 / 1.1-1.3, 20-45 |
+| Golan `rule.effect.minMemberSec` / `maxPerRound` / `cooldownSec` | 60 / 2 / 120 | 45-90 / 1-3 / 90-180 |
 
 ### 7.2 Pacing targets (the bench stays authoritative, progression-curve §0)
 - Every leader must pass **S0-S7 on its own**. That includes the median first election at 7:00-9:00 and the median rounds 1-5 at ≥ 3:00 each.
@@ -355,6 +373,10 @@ stats.leaderSwitches
 | בנט | 7:45-8:30 | early capacity like Bibi's; the pledge gate +1 for 45 s is small; Liberman's excludes cost late seats until he walks |
 | בן גביר | 7:15-8:00 | fewer threats mean fewer walkouts; capacity 49 |
 | ליברמן | 8:15-9:00 (**risk**) | capacity 42 and no Haredi or Abbas late seats; the decline pill saves money. **Lever if > 9:00:** add the L3 slot (a 1-seat generic MK) and/or give `mk_undecided` L4. **Never** raise his own seats (D5). |
+| אייזנקוט | 7:50-8:30 | the same money as everyone (EV-neutral taps); Bennett's lineup shape; Eisenkot loses only the tap-7 ×4 (4 ₪ once) |
+| סמוטריץ׳ | 7:30-8:15 | VAT ×1.18 from t 0 and 10% cheaper demands; capacity 51 |
+| דרעי | 7:30-8:15 | cheap rejoins remove the walkout penalty; the ☕ buff is taps only |
+| גולן | 7:40-8:20 | merges cut the number of demands, a merged walkout costs double; capacity 50 |
 
 ### 7.3 Dominant strategies and edge cases
 | # | Case | Closing rule |
@@ -482,7 +504,8 @@ In `Politics.install(state, leader)`:
 New knobs:
 - `partnerThreatMult`;
 - `declineDemand` (`Coalition.decline(state, seq)`, cooldown, member demands only);
-- `selfEvent` (weight × and first-after on a shipped event).
+- `selfEvent` (weight × and first-after on a shipped event);
+- wave 2: `straightTaps` (crit chance 0, tap × the crits' expected value, a noCrit card suspends it), `mergeMembers` (`Coalition.merge(state, a, b)`), `leaderEffects` (a leader-level list of existing economy effects plus `demandDiscountPct`, a `coalition` config override and an `onDemandPaid` spin effect).
 
 Filters:
 - `Spins`: the shelf = skins over the slot base spins, minus `bibiOnly.upgrades`, plus s08 when Karhi is a member.
@@ -570,11 +593,18 @@ Tick each one when the picker lands. File:line as of e8f636d.
 
 ## 11. Content status
 
-**Done** (`design/content.json`, lint 0/0 strict):
+**Done** (`design/content.json`, lint 0/0 strict). Wave 2 landed on 2026-09-29; the backlog table below is kept as the record of what it had to cover.
 - **Shared:** `leaderSelect` = picker copy, slots, lineup rules, source tiers + generic sprite asks, spin slots, the press skin, the Suitcase rule, `bibiOnly`, `neutralCopy`, 9 partner profiles, 4 rival cards, `leakRight`, `rivalTicker` (8), 2 global trophies.
 - **ביבי:** re-keyed; the lineup is proven equal to the shipped partners.
 - **בנט, בן גביר, ליברמן:** full kits (≈103 strings each) with lineups and rivals.
-- **Wave 2 plans:** in `leaders[]` with `status: "backlog"`.
+- **אייזנקוט, סמוטריץ׳, דרעי, גולן (wave 2):** full kits (lint: 104, 104, 103, 106 strings), lineups and rivals; `contentReady` lists all 8 and `backlog` is empty.
+- **Facts, wave 2, 9 new** (`launchWith: "leaderSelect"`, notUsed until ship, aboutHe linted; table in `facts-verification.md`):
+  - eisenkot-quit-unity, yashar-founded, yashar-horowitz;
+  - smotrich-feiglin, coalition-funds-2025;
+  - deri-tax-plea (label F, worded as a plea conviction), deri-law;
+  - golan-labor-primary, democrats-merger-2026.
+
+  Reused: yashar, vat-18, liberman-finance-taxes, budget-2026, deri-disqualified, haredi-left-gov, labor-meretz-merger, golan-democrats.
 - **Facts (`design/facts.json`), 12 new, all found by search and marked `launchWith: "leaderSelect"` (notUsed until ship; aboutHe written and linted):**
   - beyachad-list
   - rotation-2022

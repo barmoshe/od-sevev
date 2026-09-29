@@ -193,3 +193,25 @@ The same method and limit as above: web search only, reputable outlets, pages no
 - The police-emblem directive (it is an emblem).
 - The Sep 2026 bids to disqualify Otzma and the Democrats.
 - Bennett's reason for staying home (it names his family).
+
+## Leader select, wave 2 (2026-09-29)
+
+Same method and limit: web search only (headline + indexed text), reputable outlets, pages not opened (ToI, INN and others are blocked from the sandbox). 9 new facts, all `launchWith: "leaderSelect"`, `notUsed: true` until the picker ships; their `aboutHe` is linted as if live and carries no quote marks.
+
+| id | Claim | Label | Sources | Notes |
+|---|---|---|---|---|
+| `eisenkot-quit-unity` | Left Gantz's National Unity (announced 30 Jun 2025), resigned from the Knesset 2 Jul 2025 | F | [ToI](https://www.timesofisrael.com/in-political-shakeup-national-unity-no-2-eisenkot-set-to-leave-party-quit-knesset/) · [JPost](https://www.jpost.com/israel-news/politics-and-diplomacy/article-859767) · JNS · Haaretz | Party politics only. |
+| `yashar-founded` | Founded "Yashar! with Eisenkot" in Sep 2025, with 120 founding members | F | [ToI](https://www.timesofisrael.com/gadi-eisenkot-founds-new-party-two-months-after-resigning-from-knesset/) · [JPost](https://www.jpost.com/israel-news/article-867656) · INN · Wikipedia | The Hebrew form of the name with "!" is not verified, so aboutHe says ישר without quote marks; the game's "ישר!" is the English name's punctuation. INN gives 16 Sep; only the month is used. |
+| `yashar-horowitz` | Founders include Yoav Horowitz, ex-director-general of the PMO | F | [JPost](https://www.jpost.com/israel-news/article-867656) · Wikipedia · Ynet | The game never names him. |
+| `smotrich-feiglin` | RZP + Zehut signed a joint run as a technical bloc (1 Sep 2026); can split after entering; Feiglin No. 2 | F | [ToI](https://www.timesofisrael.com/smotrich-feiglin-announce-joint-election-run-urge-other-right-wing-parties-to-join/) · [JPost](https://www.jpost.com/israel-election-2026/article-907259) · JNS · Haaretz | The spec's backlog said 8 Sep; the sources say signed 1 Sep (the list was due 8 Sep). |
+| `coalition-funds-2025` | ~NIS 5B "coalition funds" in the 2025 budget (passed 25 Mar 2025) | F | [ToI](https://www.timesofisrael.com/cabinet-approves-over-nis-1-billion-in-coalition-funds-for-haredim-of-a-total-nis-5b/) · [JPost](https://www.jpost.com/israel-news/article-844678) | The sum and the name only; never who it is earmarked for. |
+| `deri-tax-plea` | Resigned from the Knesset, then convicted of tax offences in a plea deal (early 2022): 12 months suspended, NIS 180,000 fine | F | [ToI](https://www.timesofisrael.com/court-sentences-deri-in-plea-bargain-conviction-on-tax-offenses/) · [Israel Hayom](https://www.israelhayom.com/2022/01/26/shas-chief-deri-convicted-of-tax-offenses-in-plea-deal/) · Haaretz · Globes | **Label F** (a conviction), worded exactly as one: "הורשע בעבירות מס בהסדר טיעון". Nothing stronger; not the earlier conviction. |
+| `deri-law` | Dec 2022 amendment to Basic Law: The Government let a person with a suspended sentence be a minister; Jan 2023 High Court (10-1) ordered his removal, left the law | F | [ToI](https://www.timesofisrael.com/coalition-advances-bill-that-would-return-deri-to-cabinet-defying-high-court-ruling/) · [JURIST](https://www.jurist.org/news/2022/12/israel-dispatch-controversial-coalition-bill-allows-party-leader-lately-convicted-of-tax-fraud-to-serve-as-government-minister/) · Library of Congress | "חוק דרעי" appears only as the street nickname. |
+| `golan-labor-primary` | Won the Labor primary 28 May 2024 (95%+), promising to unite the left | F | [ToI](https://www.timesofisrael.com/yair-golan-wins-landslide-victory-in-labor-primary-with-promise-to-unite-the-left/) · Wikipedia · JNS | The 95% is not used. |
+| `democrats-merger-2026` | May 2026 conference ratified the Labor-Meretz faction merger; Meretz gets slots 6, 8, 14 | F | [Haaretz](https://www.haaretz.com/israel-news/elections/2026-05-31/ty-article/.premium/democrats-party-approves-left-wing-merger-of-meretz-labor-ahead-of-elections/0000019e-7ec8-d813-a9be-ffcfd71b0000) · ToI | The "ratified twice" joke rests on this plus `labor-meretz-merger` (12 Jul 2024). |
+
+**Deliberately not used (wave 2):**
+- Yashar's No. 2 (his title is a red-line term) and anything about Eisenkot before politics or in his private life.
+- Any poll: Yashar's rise, the RZP-Zehut seat projection.
+- Golan's public story outside politics, and the Sep 2026 bids to disqualify the Democrats and Otzma.
+- Deri's earlier conviction; who the 2025 coalition funds went to; the "no money" letter on day-care subsidies (its subject would make a group the punchline). The game's "אין כסף" is its own running gag, never presented as a quote.
