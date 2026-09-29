@@ -919,16 +919,16 @@ index 05414c9..ec870e5 100644
 -| `white` | `ui_bub_hi` | 8.57:1 | 4.5:1 | yes |
 +| `white` | `ui_bub_hi` | 7.60:1 | 4.5:1 | yes |
 diff --git a/art/od-sevev/proofs/cvd-deut-prot-and-squint-x2.png b/art/od-sevev/proofs/cvd-deut-prot-and-squint-x2.png
-index 42717eb..f20fdd0 100644
+index 42717eb..d57b0e4 100644
 Binary files a/art/od-sevev/proofs/cvd-deut-prot-and-squint-x2.png and b/art/od-sevev/proofs/cvd-deut-prot-and-squint-x2.png differ
 diff --git a/art/od-sevev/proofs/game-scale-chat-x4.png b/art/od-sevev/proofs/game-scale-chat-x4.png
 index f0e906c..05040cc 100644
 Binary files a/art/od-sevev/proofs/game-scale-chat-x4.png and b/art/od-sevev/proofs/game-scale-chat-x4.png differ
 diff --git a/art/od-sevev/proofs/game-scale-hud-chat-overlays-x2.png b/art/od-sevev/proofs/game-scale-hud-chat-overlays-x2.png
-index 6e8be62..663b230 100644
+index 6e8be62..7121158 100644
 Binary files a/art/od-sevev/proofs/game-scale-hud-chat-overlays-x2.png and b/art/od-sevev/proofs/game-scale-hud-chat-overlays-x2.png differ
 diff --git a/art/od-sevev/proofs/game-scale-hud-x4.png b/art/od-sevev/proofs/game-scale-hud-x4.png
-index 4563ad1..14889ab 100644
+index 4563ad1..54e4c77 100644
 Binary files a/art/od-sevev/proofs/game-scale-hud-x4.png and b/art/od-sevev/proofs/game-scale-hud-x4.png differ
 diff --git a/art/od-sevev/proofs/icon-29-zoomed.png b/art/od-sevev/proofs/icon-29-zoomed.png
 index f1820c4..1d7e0c1 100644
@@ -985,7 +985,7 @@ diff --git a/art/od-sevev/proofs/kit-w7-brawl-cue.png b/art/od-sevev/proofs/kit-
 index 580b0f2..93591ef 100644
 Binary files a/art/od-sevev/proofs/kit-w7-brawl-cue.png and b/art/od-sevev/proofs/kit-w7-brawl-cue.png differ
 diff --git a/art/od-sevev/proofs/kit-w7-mobile.png b/art/od-sevev/proofs/kit-w7-mobile.png
-index 4366f1d..6a2cd80 100644
+index 4366f1d..afd818d 100644
 Binary files a/art/od-sevev/proofs/kit-w7-mobile.png and b/art/od-sevev/proofs/kit-w7-mobile.png differ
 diff --git a/art/od-sevev/proofs/kit-widgets.png b/art/od-sevev/proofs/kit-widgets.png
 index e562726..2f4cea8 100644
@@ -997,7 +997,7 @@ diff --git a/art/od-sevev/proofs/og-square-crop-200.png b/art/od-sevev/proofs/og
 index 73a3cae..aad2926 100644
 Binary files a/art/od-sevev/proofs/og-square-crop-200.png and b/art/od-sevev/proofs/og-square-crop-200.png differ
 diff --git a/art/od-sevev/proofs/phone-390css-read.png b/art/od-sevev/proofs/phone-390css-read.png
-index bbf7f71..81cfb22 100644
+index bbf7f71..61a8778 100644
 Binary files a/art/od-sevev/proofs/phone-390css-read.png and b/art/od-sevev/proofs/phone-390css-read.png differ
 diff --git a/art/od-sevev/proofs/share-cards-x2.png b/art/od-sevev/proofs/share-cards-x2.png
 index 84b3b87..dc9f011 100644
