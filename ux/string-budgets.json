@@ -25,6 +25,13 @@
       "linesLarge": 1,
       "where": "Row A rate line, centred x 188-532"
     },
+    "rowA.cottageMinus": {
+      "widthPx": 88,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "The '−1' rising over the cottage cup on a pixel drop (motion cottage-pixel-loss), PxText"
+    },
     "rowB.label": {
       "widthPx": 128,
       "scale": 4,
@@ -2316,6 +2323,17 @@
       "worstPx": {
         "4": 732,
         "5": 915
+      }
+    },
+    "HUD_COTTAGE_MINUS": {
+      "surface": "pxtext",
+      "spec": "motion cottage-pixel-loss",
+      "note": "The lost pixel's '−1' over the cup (game-developer views, 2026-09-29; UX to confirm)",
+      "box": "rowA.cottageMinus",
+      "maxChars": 3,
+      "worstPx": {
+        "4": 44,
+        "5": 55
       }
     },
     "HUD_CTA_ELECTION": {

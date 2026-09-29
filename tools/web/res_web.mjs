@@ -56,12 +56,14 @@ for (const d of DEVICES) {
 	const disp = await page.evaluate(() => window.odDisplay);
 	const canvas = await page.evaluate(() => { const c = document.querySelector('canvas'); return [c.width, c.height]; });
 	console.log(`  canvas ${canvas.join('x')} device px, odDisplay ${JSON.stringify(disp)}`);
-	check(canvas[0] === Math.floor(d.w * d.dpr), `the backing store is CSS × DPR wide (${canvas[0]})`);
+	// a desktop window gets the shell's 390-CSS phone frame (game/web/shell.html odFit)
+	const fr = await page.evaluate(() => window.odFrame || { framed: false, left: 0, top: 0 });
+	check(canvas[0] === (fr.framed ? Math.round(390 * d.dpr) : Math.floor(d.w * d.dpr)), `the backing store is CSS × DPR wide (${canvas[0]}${fr.framed ? ', phone frame' : ''})`);
 	if (tag !== 'before') {
 		check(disp.integer && disp.k === Math.min(Math.floor(canvas[0] / 180), Math.floor(canvas[1] / 267)), `k = floor(W/180) (height-bound on landscape): ${disp.k}`);
 	}
 	await shot('title');
-	const css = (lx, ly) => [lx * disp.f / d.dpr, ly * disp.f / d.dpr];
+	const css = (lx, ly) => [fr.left + lx * disp.f / d.dpr, fr.top + ly * disp.f / d.dpr];
 	const [hx, hy] = css(disp.hat[0], disp.hat[1]);
 	// tap 1: the motif, and Dubi's first line only after its musicalSeconds (O-A3), measured on
 	// the Audio's clock (exact to one frame; game time, which Godot slows on frames over 8/60 s)
