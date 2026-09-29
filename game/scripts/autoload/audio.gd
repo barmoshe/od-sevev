@@ -36,6 +36,20 @@ extends Node
 ## - The Outside drum line (Balfour) on its LPF sub-bus, and the Pink Front sweep behind the
 ##   content's easterEggs flag, with tap-to-beat judging (§2.5).
 ##
+## v1.3 (Audio Director, 2026-09-29: leader select and the session-2 views, cue-spec §4.1):
+## - First sounds: a cue flagged `firstSound` (leaderPick, returnAway) plays before the first-tap
+##   gate, because it IS the first gesture (the picker's commit; the return card after a reload).
+##   It does not open the gate: the first Magician tap still plays the motif. Under a locked web
+##   context it is held like the motif (up to 5 s) and plays on the unlock (iOS: touchend).
+## - Crits by leader: set_leader(id) (or the scene state's `leader`); a crit plays the leader's
+##   react-event cue (crit_for(id), manifest `crits`) on that event's strip frame, or at once on
+##   event(<the event>) / event("heroEvent", <the event>) / event("crit"). Bibi keeps rabbitCrit.
+## - Press day: courtSummons / courtStart for a leader whose hazard skin is "press" (or with arg
+##   "press") play the shutter instead of the gavel; the courthouse hush is shared.
+## - gameReset: the music fades out over a bar and the first-tap gate closes again, so a wiped
+##   game starts like a new one (the pick, then the motif on the first tap).
+## - SILENT lists the events that are silent on purpose; route(name) says where any event goes.
+##
 ## Safe before the web audio unlock (the first-tap motif waits for the unlock; any other cue is
 ## held if at most 180 ms old, rule U8) and under the dummy audio driver (headless tests): the
 ## bookkeeping runs on a game clock, not on the players.
@@ -84,6 +98,17 @@ const EVENT_CUE := {
 ## to read as the anthem, so safe on satirical trophies); only the album trophy plays `trophy`.
 const EVENT_STINGER := {"milestone": "milestone", "evolveReady": "milestone", "electionReady": "milestone",
 	"achievement": "milestone", "storyCard": "dubiFlash", "trophy": "trophy"}
+## Event names with their own handler in event() (state only, or a rule beyond "play the cue").
+const HANDLED := ["tap", "tapCrit", "rabbit", "heroEvent", "crit", "buy", "buyBulk", "evolveConfirm",
+	"electionConfirm", "era", "courtSummons", "courtStart", "courtEnd", "chatPing", "chatLeft", "chatBrawl",
+	"ultimatumTick", "ultimatumZero", "ultimatumEnd", "ultimatumPaid", "stamp", "coin", "coalitionCollapse",
+	"pinkFront", "drumBeat", "babble", "squawk", "headline", "dubiHeadline", "dubiSquawk", "goldenSpawn",
+	"leaderPick", "gameReset"]
+## v1.3 coverage audit (cue-spec §4.1): events the game sends that are silent on purpose. Each one's
+## meaning is carried by a sound that already plays, or by its visual twin (the reason is in §4.1).
+const SILENT := ["frenzyStart", "frenzyEnd", "tapFrenzyStart", "tapFrenzyEnd", "milestoneHeadline",
+	"becameAffordable", "producerReveal", "trickCue", "ceremonyEnd", "evolveTransitionEnd", "spinEnd",
+	"cottagePixel", "leaderSwap", "leaderUndo"]
 ## Cues whose variant is random (never the same one twice in a row).
 const RANDOM_VARIANT := ["suitcaseSpawn", "gavel", "transferWhistle", "shutter"]
 ## Cues whose variant alternates.
@@ -121,8 +146,12 @@ var _tap_prev := -1e12
 var _tap_streak := -1
 var _tap_n := 0
 var _tap_steps := 8                   # read from the manifest (the rendered tap pitches)
-var _rabbit_due := -1.0
+var _rabbit_due := -1.0               # a crit's cue is due then (the rabbit, or the leader's react event)
 var _rabbit_n := 0
+var _leader := ""                     # set_leader(); "" reads the scene state's leader (default bibi)
+var _crit_cache: Dictionary = {}      # leader id -> crit_for() result
+var _sprites: Dictionary = {}         # sprites.json, read once (the react event frames)
+var _held_first: Dictionary = {}      # a first sound made while the web context is locked
 var _stamp_n := 0
 var _court := false
 var _court_stinger := ""              # "in" | "out": plays on the next bar line
@@ -226,7 +255,6 @@ func _ensure() -> void:
 		o.bus = "Outside"
 		add_child(o)
 		_op.append(o)
-	_rabbit_ms_cache = _rabbit_ms_from_sprites()
 	_tap_steps = OdAudio.tap_steps(_man)
 	_warm()
 	_apply_buses()
@@ -251,6 +279,12 @@ func _warm() -> void:
 		var e := OdAudio.stinger_entry(_man, "motif", key)
 		if not e.is_empty():
 			_stream(String(e["file"]))
+	for key: String in ["D", "E", "F", "G"]:   # v1.3: the first sounds (the pick, the return card)
+		for id: String in ["leaderPick", "returnAway"]:
+			for v in OdAudio.cue_variants(_man, id, key):
+				var f := OdAudio.cue_file(_man, id, key, "_", v)
+				if f != "":
+					_stream(f)
 	for key: String in ["D", "E", "F", "G"]:
 		for pitch in OdAudio.cue_pitches(_man, "tap"):
 			for v in OdAudio.cue_variants(_man, "tap", key, pitch):
@@ -285,11 +319,19 @@ func event(name: String, arg: Variant = null) -> void:
 			_on_tap(now, false)
 		"tapCrit":
 			_on_tap(now, true)
-		"rabbit":
+		"rabbit", "crit":
 			_rabbit_now(now)
 		"heroEvent":
-			if str(arg) == "rabbit":
+			if arg != null and str(arg) == String(crit_for(leader_id())["event"]):
 				_rabbit_now(now)
+		"leaderPick":
+			if arg != null and str(arg) != "":
+				set_leader(str(arg))
+			_cue("leaderPick", now)
+		"gameReset":
+			_game_reset(now)
+		"chatBrawl":
+			_ping(now, "brawl")
 		"buy", "buyBulk":
 			set_sources_owned(maxi(_sources, 1))
 			_cue_alt("buy", now)
@@ -299,9 +341,9 @@ func event(name: String, arg: Variant = null) -> void:
 			if arg != null:
 				set_era(str(arg))
 		"courtSummons":
-			_court_in(now, true)
+			_court_in(now, true, arg)
 		"courtStart":
-			_court_in(now, false)
+			_court_in(now, false, arg)
 		"courtEnd":
 			_court_out(now, "" if arg == null else str(arg))
 		"chatPing":
@@ -328,6 +370,8 @@ func event(name: String, arg: Variant = null) -> void:
 			judge_tap()
 		"babble":
 			_dubi_speak(now, "" if arg == null else str(arg), "flash")
+		"squawk":
+			_dubi_speak(now, squawk_text(leader_id(), "firsttap" if arg == null else str(arg)), "flash")
 		"headline", "dubiHeadline":
 			_dubi_speak(now, "" if arg == null else str(arg), "headline")
 		"dubiSquawk":
@@ -335,7 +379,10 @@ func event(name: String, arg: Variant = null) -> void:
 		"goldenSpawn":
 			_suitcase_spawn(now, arg)
 		_:
-			if EVENT_CUE.has(name):
+			if _crit_events().has(name):
+				if name == String(crit_for(leader_id())["event"]):
+					_rabbit_now(now)   # the leader's react event, reported by the engine on its frame
+			elif EVENT_CUE.has(name):
 				_cue_alt(EVENT_CUE[name], now)
 			elif EVENT_STINGER.has(name):
 				if name == "storyCard":
@@ -421,6 +468,111 @@ func set_era_progress(p: float) -> void:
 func set_reduced_motion(on: bool) -> void:
 	_ensure()
 	_reduced_motion = on
+
+
+## v1.3: the round's leader (a content leaders[].id). event("leaderPick", id) sets it too; the
+## engine may call this on install or load. "" follows the scene state's `leader` (the content's
+## default leader when there is none). Warms the leader's crit files.
+func set_leader(id: String) -> void:
+	_ensure()
+	_leader = id
+	var c := crit_for(leader_id())
+	for k: String in ["D", "E", "F", "G"]:
+		for v in OdAudio.cue_variants(_man, String(c["cue"]), k):
+			if String(c["variant"]) == "roundRobin" or v == String(c["variant"]):
+				var f := OdAudio.cue_file(_man, String(c["cue"]), k, "_", v)
+				if f != "":
+					_stream(f)
+
+
+## The leader the audio plays for now.
+func leader_id() -> String:
+	if _leader != "":
+		return _leader
+	var tree := get_tree()
+	if tree != null and tree.current_scene != null:
+		var st: Variant = tree.current_scene.get("state")
+		if st is Object:
+			var l: Variant = (st as Object).get("leader")
+			if l is String and l != "" and Leaders.playable(l):
+				return l
+	var d := Leaders.default_leader()
+	return d if d != "" else "bibi"
+
+
+## v1.3 (leader-select spec §9.5): a leader's crit cue, keyed by the react event of its crit strip:
+## {leader, event, cue, variant, art, anim, delayMs}. `variant` "roundRobin" = rabbitCrit's slide
+## lengths in turn. delayMs is tap -> the event's strip frame (reduced motion plays at a third).
+## Works for any id: an unknown leader gets the default kit (Bibi's rabbit).
+func crit_for(id: String) -> Dictionary:
+	_ensure()
+	var L := Leaders.leader(id)
+	var tap: Dictionary = {}
+	var kit := Leaders.kit(id)
+	if kit.get("tap") is Dictionary:
+		tap = kit["tap"]
+	var ev := OdAudio.crit_event(tap)
+	var out := OdAudio.crit_cue(_man, ev)
+	var art := String(L.get("art", "bibi")) if not L.is_empty() else "bibi"
+	var anim := String(tap.get("critAnim", "crit"))
+	out.merge({"leader": id, "event": ev, "art": art, "anim": anim,
+		"delayMs": OdAudio.event_ms(_sprites_json(), art, anim, ev, RABBIT_FALLBACK_MS)})
+	return out
+
+
+## v1.3 (spec §10): Dubi's squawk for a leader, kind firsttap | buy | elect | miss (| drop):
+## kit.dubi.squawks[kind], or content.dubi.squawks["dubi.<kind>"] for a kit that points at the
+## shared Dubi (Bibi). "" when there is none. Every one of them has a canned contour.
+func squawk_text(id: String, kind: String) -> String:
+	var d: Variant = Leaders.kit(id).get("dubi")
+	if d is Dictionary and (d as Dictionary).get("squawks") is Dictionary:
+		return String((d as Dictionary)["squawks"].get(kind, ""))
+	var shared: Variant = Content.data().get("dubi", {})
+	if shared is Dictionary and (shared as Dictionary).get("squawks") is Dictionary:
+		return String((shared as Dictionary)["squawks"].get("dubi." + kind, ""))
+	return ""
+
+
+## v1.3 coverage: where an event goes: "handler", "cue:<id>", "stinger:<id>", "silent" (SILENT) or
+## "unknown" (a gap: the event plays nothing and nobody decided that).
+func route(name: String) -> String:
+	_ensure()
+	if HANDLED.has(name) or _crit_events().has(name):
+		return "handler"
+	if EVENT_CUE.has(name):
+		return "cue:" + String(EVENT_CUE[name])
+	if EVENT_STINGER.has(name):
+		return "stinger:" + String(EVENT_STINGER[name])
+	if _man.get("cues", {}).has(name):
+		return "cue:" + name
+	if _man.get("stingers", {}).has(name) and name != "fanfare":
+		return "stinger:" + name
+	if SILENT.has(name):
+		return "silent"
+	return "unknown"
+
+
+func _crit_events() -> Array:
+	return (_man.get("crits", {}) as Dictionary).keys().filter(func(k: String) -> bool: return not k.begins_with("_"))
+
+
+func _sprites_json() -> Dictionary:
+	if _sprites.is_empty():
+		var path := "res://assets/sprites/sprites.json"
+		if FileAccess.file_exists(path):
+			var v: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+			_sprites = v if v is Dictionary else {"_": true}
+		else:
+			_sprites = {"_": true}
+	return _sprites
+
+
+## The hazard skin of the leader's round: "court" (Bibi) or "press" (everyone else, spec §5.6).
+func _hazard_skin() -> String:
+	var h: Variant = Leaders.kit(leader_id()).get("hazard")
+	if h is Dictionary:
+		return String((h as Dictionary).get("skin", "court"))
+	return "court"
 
 
 ## Starts the music at bar 1 once the first tap's motif has resolved (never before the first
@@ -670,37 +822,26 @@ func _play_intro(now: float) -> void:
 		_restart_era = ""
 
 
-var _rabbit_ms_cache := RABBIT_FALLBACK_MS
-
-
+## Tap -> the crit's cue: the leader's react-event frame after entry at f1 (Bibi: the crit strip's
+## rabbit frame, 250 ms). Reduced motion takes a third of it (the 83 ms of cue-spec §5).
 func _rabbit_ms() -> float:
-	return _rabbit_ms_cache / 3.0 if _reduced_motion else _rabbit_ms_cache
+	var ms := float(crit_for(leader_id())["delayMs"])
+	return ms / 3.0 if _reduced_motion else ms
 
 
-## The crit strip's rabbit frame after entry at f1 (sprites.json chars.bibi.anims.crit), in ms.
-## Reduced motion takes a third of it (the 83 ms of cue-spec §5).
-func _rabbit_ms_from_sprites() -> float:
-	var path := "res://assets/sprites/sprites.json"
-	if not FileAccess.file_exists(path):
-		return RABBIT_FALLBACK_MS
-	var v: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	if not (v is Dictionary):
-		return RABBIT_FALLBACK_MS
-	var crit: Dictionary = (v as Dictionary).get("chars", {}).get("bibi", {}).get("anims", {}).get("crit", {})
-	var fps := float(crit.get("fps", 0))
-	var fr := int(crit.get("events", {}).get("rabbit", -1))
-	if fps <= 0.0 or fr < 1:
-		return RABBIT_FALLBACK_MS
-	return float(fr - 1) * 1000.0 / fps
-
-
+## The due crit's cue now (the leader's mapping; rabbitCrit's slide lengths round-robin).
 func _rabbit_now(now: float) -> void:
 	if _rabbit_due < 0.0:
 		return
 	_rabbit_due = -1.0
-	var vs := OdAudio.cue_variants(_man, "rabbitCrit", key())   # the slide lengths, round-robin
-	_cue("rabbitCrit", now, vs[_rabbit_n % vs.size()] if not vs.is_empty() else "_")
-	_rabbit_n += 1
+	var c := crit_for(leader_id())
+	var id := String(c["cue"])
+	var v := String(c["variant"])
+	if v == "roundRobin":
+		var vs := OdAudio.cue_variants(_man, id, key())
+		v = vs[_rabbit_n % vs.size()] if not vs.is_empty() else "_"
+		_rabbit_n += 1
+	_cue(id, now, v)
 
 
 ## The money sources the round already owns, read once from the controller's state (a returning
@@ -757,12 +898,16 @@ func _random_variant(id: String) -> String:
 ## Plays a manifest cue now in the current key. Returns false when it is dropped (the first-tap
 ## gate, the web lock, polyphony, the voice cap, or a missing file).
 func _cue(id: String, now: float, variant := "_", pitch := "_", extra_db := 0.0, bus := "") -> bool:
-	if not _gate_open():
+	var c: Dictionary = _man.get("cues", {}).get(id, {})
+	var first := bool(c.get("firstSound", false))   # leaderPick, returnAway: the first gesture's own sound
+	if not _gate_open() and not first:
 		return false
 	if _locked():
-		_held = {"id": id, "variant": variant, "pitch": pitch, "db": extra_db, "bus": bus, "t": now}
+		if first:
+			_held_first = {"id": id, "variant": variant, "t": now}   # waits for the unlock like the motif
+		else:
+			_held = {"id": id, "variant": variant, "pitch": pitch, "db": extra_db, "bus": bus, "t": now}
 		return false
-	var c: Dictionary = _man.get("cues", {}).get(id, {})
 	if c.is_empty():
 		_warn_once("unknown cue '%s'" % id)
 		return false
@@ -957,11 +1102,14 @@ func _ultimatum_tick(now: float, arg: Variant) -> void:
 					_cue_alt("ultimatumTick", _now()))
 
 
-func _court_in(now: float, _summons: bool) -> void:
+func _court_in(now: float, _summons: bool, skin: Variant = null) -> void:
 	if _court:
 		return   # testimony after a summons: the startle is silent
 	_court = true
-	_cue_alt("gavel", now)
+	# v1.3: the press (every leader but Bibi, spec §5.6) opens its day with the cameras, not a gavel;
+	# the courthouse hush and courtIn are the hazard's, shared
+	var press := str(skin) == "press" if (skin is String and (skin == "press" or skin == "court")) else _hazard_skin() == "press"
+	_cue_alt("shutter" if press else "gavel", now)
 	if _music_live:
 		_court_stinger = "in"
 	else:
@@ -978,6 +1126,32 @@ func _court_out(now: float, reason: String) -> void:
 		_court_stinger = "out"
 	else:
 		_cue("courtOut", now)
+
+
+## v1.3: the save was wiped (the reset card's confirm). The music fades out over one bar (no
+## stinger), everything pending is dropped, and the first-tap gate closes again: the wiped game
+## starts like a new one (the pick, then the motif on the first Magician tap).
+func _game_reset(_now_ms: float) -> void:
+	stop_babble()
+	if _music_live:
+		_ramp_bed(0.0, OdAudio.bar_seconds(_man, _track) * 1000.0, true)
+	_restart_at = -1.0
+	_restart_era = ""
+	_restart_on_tap = false
+	_fanfare = {}
+	_court = false
+	_court_stinger = ""
+	_ult_force = false
+	_rabbit_due = -1.0
+	_held = {}
+	_held_first = {}
+	_held_motif = -1.0
+	_ping_q = {"n": 0, "variant": "", "left": false}
+	_first_tap = false
+	_tap_streak = -1
+	_tap_prev = -1e12
+	_sources = 0
+	_leader = ""
 
 
 ## Coalition collapse (cue-spec §2.6, v1.2): the music fades out over one bar, then silence, with
@@ -1510,6 +1684,10 @@ func _update_web(now: float, dt: float) -> void:
 		_web_running = running
 		if first:
 			_unlocked = true
+			if not _held_first.is_empty():
+				if now - float(_held_first["t"]) <= MOTIF_HOLD_MAX_MS:
+					_cue(String(_held_first["id"]), now, String(_held_first["variant"]))
+				_held_first = {}
 			if _held_motif >= 0.0:
 				if now - _held_motif <= MOTIF_HOLD_MAX_MS:
 					_play_intro(now)

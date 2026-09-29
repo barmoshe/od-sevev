@@ -133,7 +133,8 @@ func test_nothing_plays_before_the_first_tap() -> void:
 	var a := _audio()
 	a.set_evolutions(0)
 	a.start_music()
-	for n: String in ["uiClick", "buy", "goldenSpawn", "storyCard", "offlineCollect", "milestone", "courtSummons"]:
+	# (offlineCollect left this list in v1.3: returnAway is a first sound, see test_first_sounds_*)
+	for n: String in ["uiClick", "buy", "goldenSpawn", "storyCard", "milestone", "courtSummons", "chatBrawl", "suspicionHot"]:
 		a.event(n)
 	a.event("babble", "אין כלום!")
 	a.event("chatPing", "bengvir")
@@ -568,4 +569,215 @@ func test_pause_and_music_toggle() -> void:
 	a.set_music_enabled(true)
 	runner.check(a.is_music_playing() and a.bar() == 1, "music on restarts it at bar 1")
 	runner.check(a.report().contains("music on"), "report: %s" % a.report())
+	await _release()
+
+
+# ------------------------------------------------------------------ v1.3: the cue table (leader select,
+# the session-2 views; audio/od/cue-spec.md §4.1)
+
+const LEADER_KEYS := ["D", "E", "F", "G"]
+
+
+## Every event name the game's scripts send to the Audio (audio_event("x") / _audio("x") /
+## call("audio_event", "x"), and both sides of a `"a" if c else "b"` argument), read from the sources.
+func _sent_events() -> Array[String]:
+	var out: Array[String] = []
+	var re := RegEx.create_from_string("(?:audio_event|_audio)\\(\\s*\"([A-Za-z]+)\"|call\\(\\s*\"audio_event\"\\s*,\\s*\"([A-Za-z]+)\"|\\(\\s*\"([A-Za-z]+)\" if [^)]* else \"([A-Za-z]+)\"")
+	var stack: Array[String] = ["res://scripts"]
+	while not stack.is_empty():
+		var d: String = stack.pop_back()
+		var da := DirAccess.open(d)
+		if da == null:
+			continue
+		for sub in da.get_directories():
+			stack.append(d.path_join(sub))
+		if d.ends_with("autoload") or d.ends_with("audio"):
+			continue
+		for f in da.get_files():
+			if not f.ends_with(".gd"):
+				continue
+			for line in FileAccess.get_file_as_string(d.path_join(f)).split("\n"):
+				if not (line.contains("audio_event") or line.contains("_audio(")):
+					continue
+				for m in re.search_all(line):
+					for g in [1, 2, 3, 4]:
+						var s := m.get_string(g)
+						if s != "" and not out.has(s):
+							out.append(s)
+	out.sort()
+	return out
+
+
+func test_every_event_the_game_sends_has_a_cue_or_is_silent_on_purpose() -> void:
+	var a := _audio()
+	var sent := _sent_events()
+	runner.check(sent.size() >= 40, "the scan finds the game's audio events (%d)" % sent.size())
+	for n: String in ["chatBrawl", "suspicionHot", "gameReset", "spinEnd", "cottagePixel", "stamp", "offlineCollect", "tapCrit"]:
+		runner.check(sent.has(n), "the scan sees %s" % n)
+	var gaps: Array[String] = []
+	for n: String in sent + CONTROLLER_EVENTS:
+		if a.route(n) == "unknown" and not gaps.has(n):
+			gaps.append(n)
+	runner.check(gaps.is_empty(), "every sent event is handled, plays a cue or stinger, or is SILENT on purpose; gaps: %s" % str(gaps))
+	for n: String in AudioScript.SILENT:
+		runner.check(not _man["cues"].has(n) and not AudioScript.EVENT_CUE.has(n), "%s is silent on purpose, not also a cue" % n)
+	runner.check(a.route("nope") == "unknown" and a.route("spinEnd") == "silent" and a.route("offlineCollect") == "cue:returnAway",
+		"route() tells the three apart")
+	await _release()
+
+
+func test_every_referenced_cue_id_exists() -> void:
+	var cues: Dictionary = _man["cues"]
+	for ev: String in AudioScript.EVENT_CUE:
+		var id: String = AudioScript.EVENT_CUE[ev]
+		runner.check(cues.has(id), "EVENT_CUE %s -> %s exists" % [ev, id])
+	for ev: String in AudioScript.EVENT_STINGER:
+		runner.check(_man["stingers"].has(AudioScript.EVENT_STINGER[ev]), "EVENT_STINGER %s exists" % ev)
+	for id: String in AudioScript.RANDOM_VARIANT + AudioScript.ALTERNATE.keys() + AudioScript.DUBI_CUES:
+		runner.check(cues.has(id) or _man["stingers"].has(id), "variant rule / Dubi cue %s exists" % id)
+	var crits: Dictionary = _man.get("crits", {})
+	runner.check(crits.has("rabbit") and crits.has("whoosh") and crits.has("shout") and crits.has("no") and crits.has("land"),
+		"the crits table keys every react event of spec §9.5")
+	for ev: String in crits:
+		if ev.begins_with("_"):
+			continue
+		var m: Dictionary = crits[ev]
+		runner.check(cues.has(m["cue"]), "crits.%s -> %s exists" % [ev, m["cue"]])
+		for k: String in LEADER_KEYS:
+			var vs := OdAudio.cue_variants(_man, m["cue"], k)
+			runner.check((m["variant"] == "roundRobin" and not vs.is_empty()) or vs.has(m["variant"]),
+				"crits.%s: %s has %s in %s (%s)" % [ev, m["cue"], m["variant"], k, str(vs)])
+	for id: String in ["leaderPick", "critReact", "decline", "merge", "suspicionHot"]:
+		runner.check(cues.has(id), "v1.3 cue %s is in the manifest" % id)
+		for k: String in LEADER_KEYS:
+			runner.check(not OdAudio.cue_variants(_man, id, k).is_empty(), "%s renders in %s" % [id, k])
+	runner.check(OdAudio.cue_variants(_man, "chatPing", "D").has("brawl"), "chatPing has the brawl variant")
+
+
+func test_leader_pick_is_a_safe_first_sound() -> void:
+	var c: Dictionary = _man["cues"].get("leaderPick", {})
+	runner.check(not c.is_empty(), "the cue table registers exactly 'leaderPick'")
+	runner.check(float(c.get("lengthMs", 9999)) <= 1000.0, "leaderPick <= 1 s, got %.0f ms" % float(c.get("lengthMs", 9999)))
+	runner.check(bool(c.get("firstSound", false)) and OdAudio.is_first_sound(_man, "leaderPick"), "flagged as a first sound")
+	runner.check(c.get("bus") == "SFX-Critical" and int(c.get("priority", 0)) == 5, "SFX-Critical, never stolen")
+	runner.check(float(c.get("burstMax", 0.0)) <= -14.5,
+		"a first sound is no louder than the motif's -15 LUFS statement: burst %.2f" % float(c.get("burstMax", 0.0)))
+	var a := _audio()
+	for k: String in LEADER_KEYS:
+		var f := OdAudio.cue_file(_man, "leaderPick", k)
+		runner.check(f != "" and a._streams.has(f) and a._streams[f] != null, "leaderPick_%s is warmed before any gesture" % k)
+	a.set_evolutions(0)
+	a.event("uiClick")
+	runner.check(a.recent_files().is_empty(), "the picker's browsing is silent (the first-tap gate)")
+	a.event("leaderPick", "bennett")
+	runner.check(_last(a) == "leaderPick_D.res", "the pick is the first sound, in the boot key D, got %s" % _last(a))
+	runner.check(a.leader_id() == "bennett", "the pick sets the leader")
+	runner.check(not a.first_tap_done() and not a.is_music_playing(), "the pick does not open the gate or start the music")
+	a.event("tap")
+	runner.check(_last(a) == "stinger_motif_D.res", "the first tap still plays the motif, got %s" % _last(a))
+	await _release()
+	# a locked web context (iOS before touchend): the pick is held and plays on the unlock
+	var b := _audio()
+	b._web = true
+	b._web_running = false
+	b.event("leaderPick")
+	runner.check(b.active_voices("leaderPick") == 0, "locked: held, not dropped")
+	await _frames(3)   # the headless bridge answers "running": the unlock
+	runner.check(b.recent_files().has("leaderPick_D.res"), "played on the unlock: %s" % str(b.recent_files()))
+	await _release()
+
+
+func test_first_sounds_play_before_the_first_tap() -> void:
+	var a := _audio()
+	a.set_evolutions(0)
+	a.event("offlineCollect")
+	runner.check(_last(a) == "returnAway_D.res", "the return card's collect is heard after a reload, got %s" % _last(a))
+	runner.check(not a.first_tap_done(), "and the gate stays closed for everything else")
+	await _release()
+
+
+func test_crit_mapping_for_all_eight_leaders() -> void:
+	var ids: Array[String] = []
+	for L: Variant in Leaders.list():
+		ids.append(str((L as Dictionary)["id"]))
+	runner.check(ids.size() == 8, "8 leaders in the content, got %s" % str(ids))
+	var a := _audio()
+	var want := {"bibi": ["rabbit", "rabbitCrit"], "bennett": ["whoosh", "critReact"], "bengvir": ["shout", "critReact"],
+		"liberman": ["no", "critReact"], "eisenkot": ["land", "critReact"], "smotrich": ["shout", "critReact"],
+		"deri": ["land", "critReact"], "golan": ["land", "critReact"]}
+	for id in ids:
+		var c: Dictionary = a.crit_for(id)
+		runner.check(want.has(id) and c["event"] == want[id][0] and c["cue"] == want[id][1],
+			"%s: crit %s, got %s" % [id, str(want.get(id, [])), str(c)])
+		var kt: Dictionary = Leaders.kit(id).get("tap", {})
+		if kt.has("critEvent"):
+			runner.check(c["event"] == kt["critEvent"], "%s: keyed by the kit's react event" % id)
+		for k: String in LEADER_KEYS:
+			var v: String = "s120" if c["variant"] == "roundRobin" else c["variant"]
+			runner.check(OdAudio.cue_file(_man, c["cue"], k, "_", v) == "%s_%s_%s.res" % [c["cue"], k, v], "%s: a file in %s" % [id, k])
+		runner.check(float(c["delayMs"]) >= 0.0 and float(c["delayMs"]) < 600.0, "%s: the event frame %.0f ms after the tap" % [id, float(c["delayMs"])])
+	runner.check(absf(float(a.crit_for("bibi")["delayMs"]) - 250.0) < 0.5, "Bibi's rabbit stays at +250 ms")
+	# the runtime: Bennett's crit plays critReact:whoosh on the flip's frame (f3 at 12 fps)
+	a.set_leader("bennett")
+	a.event("tap")
+	a.event("tapCrit")
+	runner.check(a.active_voices("critReact") == 0, "the crit waits for the react's frame")
+	a.event("land")
+	runner.check(a.active_voices("critReact") == 0, "another event name does not fire Bennett's crit")
+	a.event("heroEvent", "whoosh")
+	runner.check(_last(a) == "critReact_D_whoosh.res", "the whoosh frame fires it, got %s" % _last(a))
+	await (runner as SceneTree).create_timer(0.7).timeout
+	a.set_leader("deri")
+	a.event("tapCrit")
+	await (runner as SceneTree).create_timer(0.45).timeout
+	runner.check(_last(a) == "critReact_D_land.res", "Deri's land on its own timer (+357 ms), got %s" % _last(a))
+	await _release()
+
+
+func test_every_leader_squawk_has_a_canned_contour() -> void:
+	var a := _audio()
+	for L: Variant in Leaders.list():
+		var id := str((L as Dictionary)["id"])
+		for kind: String in ["firsttap", "buy", "elect", "miss"]:
+			var t: String = a.squawk_text(id, kind)
+			runner.check(t != "", "%s has a %s squawk" % [id, kind])
+			var plan := OdAudio.babble_plan(_man, t)
+			runner.check(bool(plan["canned"]), "%s %s '%s' plays a canned contour (the parrot repeats)" % [id, kind, t])
+	runner.check(a.squawk_text("bibi", "firsttap") == "אין כלום! אין כלום!", "Bibi's first squawk is the shipped one")
+	a.set_leader("liberman")
+	a.event("tap")
+	a.debug_skip_wait()
+	a.event("squawk", "firsttap")
+	await (runner as SceneTree).create_timer(0.3).timeout
+	runner.check(a.recent_files().any(func(f: String) -> bool: return f.begins_with("dubiSquawk")), "event(squawk) speaks the leader's line: %s" % str(a.recent_files()))
+	await _release()
+
+
+func test_press_day_opens_with_the_cameras() -> void:
+	var a: Node = await _playing()
+	a.set_leader("smotrich")
+	a.event("courtSummons")
+	runner.check(a.court_active() and a.active_voices("gavel") == 0 and _last(a).begins_with("shutter_"),
+		"the press skin: the shutter, not the gavel, got %s" % _last(a))
+	a.event("courtEnd", "testified")
+	await (runner as SceneTree).create_timer(0.8).timeout
+	a.event("courtSummons", "court")
+	runner.check(a.active_voices("gavel") == 1, "arg 'court' keeps the gavel")
+	await _release()
+
+
+func test_brawl_ping_and_game_reset() -> void:
+	var a: Node = await _playing()
+	await (runner as SceneTree).create_timer(0.75).timeout
+	a.event("chatBrawl")
+	runner.check(_last(a) == "chatPing_D_brawl.res", "the brawl's own ping, got %s" % _last(a))
+	a.event("gameReset")
+	runner.check(not a.first_tap_done(), "a wiped game closes the gate")
+	a.event("uiClick")
+	runner.check(_last(a) == "chatPing_D_brawl.res", "and the gate holds after the wipe")
+	await (runner as SceneTree).create_timer(OdAudio.bar_seconds(_man, "balfour") + 0.2).timeout
+	runner.check(not a.is_music_playing(), "the music faded out over a bar")
+	a.event("leaderPick", "golan")
+	a.event("tap")
+	runner.check(_last(a) == "stinger_motif_D.res", "the next first tap plays the motif again, got %s" % _last(a))
 	await _release()

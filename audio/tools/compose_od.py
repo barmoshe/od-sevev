@@ -755,6 +755,12 @@ def cues():
                   L(id="door", wave="noise", clockStart=26000, filter={"type": "bandpass", "freq": 2200, "Q": 2.0}, delay=0.19,
                     attack=0.0005, decay=0.01, sustain=0.0, duration=0.01, release=0.003, gain=0.6)], "1 -> b2 up, unresolved, and a door click"),
         "burst": (ping("F5", "E5") + [tone("F5", 0.15, 0.06, gain=0.9, decay=0.05, sustain=0.5)], "a burst coalesced: b6 5 b6 (x3)"),
+        # v1.3 (2026-09-29): the brawl (two partners at each other, two rows frozen). Two pings talk
+        # over each other: 1+b2, then b6+5, then 1+b2 again, each voice at half gain so the pair
+        # peaks no higher than one ping (the family's scale and play_db stay as they were).
+        "brawl": ([dict(t, gain=0.5) for t in ping("A4", "F5") + ping("Bb4", "E5")]
+                  + [tone("A4", 0.15, 0.06, gain=0.45, decay=0.05, sustain=0.5), tone("Bb4", 0.15, 0.06, gain=0.45, decay=0.05, sustain=0.5, release=0.03)],
+                  "1+b2 / b6+5 / 1+b2: two pings talking over each other"),
     }
     C["chatPing"] = {"meaning": "A partner posted a demand.", "bus": "UI", "priority": 3, "poly": 1, "steal": "oldest", "ducks": [],
                      "pitch": {"type": "key", "rootOctave": 5},
@@ -874,7 +880,10 @@ def cues():
                        "ducks": [{"bus": "Music", "db": -4, "attackMs": 50, "releaseMs": 200}], "pitch": {"type": "key", "rootOctave": 5},
                        "variants": {"": catch + [tone("E5", 0.52, 0.08, duty=0.5, gain=0.7, decay=0.06, sustain=0.4),
                                                  tone("A5", 0.6, 0.18, duty=0.5, gain=0.75, decay=0.12, sustain=0.45, release=0.06)]},
-                       "runtime": "The catch's cha-ching, then the motif head (5-1).", "target": {"type": "burst", "lufs": -14.0}}
+                       "firstSound": True,
+                       "runtime": "The catch's cha-ching, then the motif head (5-1). v1.3: a first sound like leaderPick "
+                                  "(the return card comes before any tap after a reload, so the first-tap gate used to "
+                                  "swallow it).", "target": {"type": "burst", "lufs": -14.0}}
     # the families: buy, can't afford, UI click, coin
     C["buy"] = {"meaning": "Bought a source or a spin.", "bus": "SFX-Frequent", "priority": 3, "poly": 2, "steal": "oldest", "ducks": [],
                 "pitch": {"type": "key", "rootOctave": 4},
@@ -898,6 +907,112 @@ def cues():
                                     tone("E6", 0.045, 0.08, duty=0.5, gain=0.5, decay=0.08, sustain=0.1, release=0.03)]},
                  "runtime": "The deadpan rule: the payout never scales loudness or count (<= 6 coins per tap, whatever the sum).",
                  "target": {"type": "burst", "lufs": -19.0}}
+
+    # ---------------------------------------------------------------- v1.3 (2026-09-29): leader select
+    # and the views added in session 2 (cue-spec §4.1, §5.8). Every new cue is its own family (own
+    # scale, own play_db), so no shipped file changes; brawl above is the one new variant of an old
+    # family, kept under that family's peak and burst.
+
+    # leaderPick: the new first sound (the pick commits on touchend, which is the iOS unlock).
+    # The fanfare's own material, cut to its gesture of arrival: the darbuka roll (roll2-roll4,
+    # 32nds at 116 BPM = 64.7 ms), the C#-D leading-tone lift with P2 brass a sixth below, and the
+    # downbeat on 1 over i with the crash. It RESOLVES (a pick is a decision); it never states the
+    # rise, which stays the motif's on the first tap (§6). Written in D, A4 = the key's root at
+    # octave 4 (D5 -> A5, C#5 -> G#5, F4 -> C5, E4 -> B4, D3 -> A3).
+    st = 60.0 / 116 / 8
+    roll = lambda t, g: L(id="roll", wave="noise", clockStart=30000, filter={"type": "highpass", "freq": 1300, "Q": 0.7},
+                          delay=round(t, 4), attack=0.0005, decay=0.03, sustain=0.0, duration=0.03, release=0.008, gain=g)
+    down = 6 * st
+    pick = [roll(i * st, g) for i, g in enumerate([0.34, 0.34, 0.58, 0.58, 0.9, 0.9])]
+    pick += [tone("G#5", 4 * st, 2 * st * 0.9, duty=0.25, gain=0.34 / 0.36, decay=0.09, sustain=0.62, release=0.035),
+             tone("B4", 4 * st, 2 * st * 0.82, duty=0.5, gain=0.26 / 0.36 * 0.8, decay=0.1, sustain=0.5, release=0.04),
+             tone("A5", down, 0.22, duty=0.25, gain=0.34 / 0.36, decay=0.09, sustain=0.62, release=0.06),
+             tone("C5", down, 0.2, duty=0.5, gain=0.26 / 0.36 * 0.8, decay=0.1, sustain=0.5, release=0.06),
+             tone("A3", down, 0.2, wave="triangle", crush=4, gain=0.46 / 0.36, decay=0.12, sustain=0.5, release=0.05),
+             L(id="wash", wave="noise", clockStart=42000, filter={"type": "highpass", "freq": 2200, "Q": 0.7}, delay=round(down, 4),
+               attack=0.001, decay=0.42, sustain=0.0, duration=0.42, release=0.03, gain=0.55 * 0.45 / 0.36),
+             L(id="bell", wave="noiseMetal", clockStart=38000, filter={"type": "bandpass", "freq": 5200, "Q": 2.0}, delay=round(down, 4),
+               attack=0.001, decay=0.25, sustain=0.0, duration=0.25, release=0.03, gain=0.25 * 0.45 / 0.36)]
+    C["leaderPick"] = {"meaning": "You picked this round's leader (the picker's commit).", "bus": "SFX-Critical", "priority": 5,
+                       "poly": 1, "steal": "oldest", "ducks": [{"bus": "Music", "db": -4, "attackMs": 50, "releaseMs": 200}],
+                       "pitch": {"type": "key", "rootOctave": 4}, "variants": {"": pick},
+                       "markers": {"_": {"pickup": round(4 * st, 4), "downbeat": round(down, 4)}},
+                       "firstSound": True,
+                       "runtime": "On the picker's commit (and again on a re-pick inside the undo window). It is the "
+                                  "game's first sound now: it plays before the first-tap gate, and while the web audio "
+                                  "context is still locked it is held (up to 5 s) and plays on the unlock, like the "
+                                  "motif. It does not open the first-tap gate: the first tap still plays the motif.",
+                       "target": {"type": "burst", "lufs": -15.0}}
+
+    # critReact: the crit of every leader but Bibi (Bibi keeps rabbitCrit), keyed by the react
+    # strip's event (spec §9.5). Each variant is the event's transient, then rabbitCrit's head
+    # (5-1'-5' on P1 over P2), which is the crit's signature: a crit always ends in the same ta-da.
+    def crit_head(h):
+        return [tone("E5", h, 0.06, duty=0.25, gain=0.8, decay=0.05, sustain=0.5),
+                tone("A5", h + 0.075, 0.06, duty=0.25, gain=0.8, decay=0.05, sustain=0.5),
+                tone("E6", h + 0.15, 0.08, duty=0.25, gain=0.75, decay=0.07, sustain=0.4, release=0.04),
+                tone("E4", h, 0.06, duty=0.125, gain=0.5, decay=0.05, sustain=0.5),
+                tone("A4", h + 0.075, 0.06, duty=0.125, gain=0.5, decay=0.05, sustain=0.5),
+                tone("E5", h + 0.15, 0.08, duty=0.125, gain=0.45, decay=0.07, sustain=0.4, release=0.04)]
+
+    def no_knocks(g=1.0):
+        # "no. no.": two flat TRI staccatos on 1 below, the second a whole step lower (it closes)
+        return [tone("A3", 0.0, 0.07, wave="triangle", crush=4, gain=1.0 * g, decay=0.06, sustain=0.2, release=0.02),
+                noise_burst(0.0, 0, 0.35 * g, dur=0.012, metal=False, bp=900),
+                tone("G3", 0.14, 0.09, wave="triangle", crush=4, gain=1.0 * g, decay=0.08, sustain=0.2, release=0.03),
+                noise_burst(0.14, 0, 0.35 * g, dur=0.012, metal=False, bp=900)]
+
+    whoosh = [L(id="whoosh", wave="noise", clockStart=16000, filter={"type": "bandpass", "freq": 600, "freqEnd": 3200, "Q": 1.2},
+                attack=0.06, decay=0.08, sustain=0.0, duration=0.12, release=0.02, gain=0.55)]
+    shout = [tone("A4", 0.0, 0.09, duty=0.5, gain=0.7, decay=0.08, sustain=0.5, release=0.02),
+             tone("E5", 0.0, 0.09, duty=0.5, gain=0.55, decay=0.08, sustain=0.5, release=0.02),
+             noise_burst(0.0, 0, 0.5, dur=0.03, metal=False, bp=1500)]
+    land = [L(id="thud", wave="triangle", crush=4, freqStart="A3", freqEnd="A2", freqCurve="exp", glide=0.07, attack=0.001,
+              decay=0.09, sustain=0.0, duration=0.09, release=0.015, gain=1.0),
+            noise_burst(0.002, 0, 0.45, dur=0.04, metal=False, bp=420)]
+    C["critReact"] = {"meaning": "A crit (every leader but Bibi): the leader's react landed.", "bus": "SFX-Critical", "priority": 5,
+                      "poly": 1, "steal": "never", "ducks": [{"bus": "Music", "db": -4, "attackMs": 50, "releaseMs": 200}],
+                      "pitch": {"type": "key", "rootOctave": 4},
+                      "variants": {"whoosh": whoosh + crit_head(0.12), "shout": shout + crit_head(0.11),
+                                   "no": no_knocks() + crit_head(0.26), "land": land + crit_head(0.09)},
+                      "markers": {"whoosh": {"head": 0.12}, "shout": {"head": 0.11}, "no": {"head": 0.26}, "land": {"head": 0.09}},
+                      "runtime": "Variant = the react strip's event (crits table). Fires on that event's frame (sprites.json "
+                                 "chars.<art>.anims.<critAnim>.events), a third of the delay in reduced motion, like rabbitCrit.",
+                      "target": {"type": "burst", "lufs": -12.0}}
+
+    # decline (Liberman's "לא יושב" pill): the same "no. no." without the crit's head. A refusal,
+    # not a loss and not a shortfall (cantAfford hangs on the leading tone; this closes on b7).
+    C["decline"] = {"meaning": "You declined a partner's demand (Liberman's rule).", "bus": "SFX-Frequent", "priority": 2, "poly": 1,
+                    "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 4}, "variants": {"": no_knocks()},
+                    "runtime": "On the decline pill's commit. The partner's 'left' ping is the sim's business, not this cue.",
+                    "target": {"type": "burst", "lufs": -16.0}}
+
+    # merge (Golan's "לאחד" pill): two P2 voices a third apart glide into one note (b3 up to 4,
+    # 5 down to 4), then the stapler (Golan's prop): two dry NOI clicks and the unison blip.
+    merge = [L(id="a", wave="pulse", duty=0.125, freqStart="C5", freqEnd="D5", freqCurve="exp", glide=0.12, attack=0.002,
+               decay=0.12, sustain=0.5, duration=0.12, release=0.01, gain=0.5),
+             L(id="b", wave="pulse", duty=0.125, freqStart="E5", freqEnd="D5", freqCurve="exp", glide=0.12, attack=0.002,
+               decay=0.12, sustain=0.5, duration=0.12, release=0.01, gain=0.5),
+             noise_burst(0.13, 3000, 0.7, dur=0.008),
+             noise_burst(0.16, 0, 0.8, dur=0.01, metal=False, bp=2400),
+             tone("D5", 0.16, 0.08, duty=0.125, gain=0.9, decay=0.07, sustain=0.4, release=0.03)]
+    C["merge"] = {"meaning": "Two members merged into one (Golan's rule).", "bus": "SFX-Frequent", "priority": 2, "poly": 1,
+                  "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 5}, "variants": {"": merge},
+                  "runtime": "On the merge pill's commit (Coalition.merge).",
+                  "target": {"type": "burst", "lufs": -16.0}}
+
+    # suspicionHot: the thermometer crosses into 'hot' (>= 75 %, the icon turns into a gavel). A dry
+    # TRI gulp (5 down to 4, 60 ms) and one sweat drip. Quiet, no duck: a warning, not an event.
+    C["suspicionHot"] = {"meaning": "Suspicion is hot (the thermometer passed 75 %).", "bus": "SFX-Frequent", "priority": 2,
+                         "poly": 1, "steal": "never", "ducks": [], "pitch": {"type": "key", "rootOctave": 4},
+                         "variants": {"": [L(id="gulp", wave="triangle", crush=4, freqStart="E5", freqEnd="D5", freqCurve="exp", glide=0.06,
+                                             attack=0.002, decay=0.08, sustain=0.2, duration=0.08, release=0.02, gain=1.0),
+                                           L(id="drip", wave="pulse", duty=0.5, freqStart=2600, freqEnd=3400, freqCurve="exp", glide=0.02,
+                                             followPitch=False, delay=0.13, attack=0.001, decay=0.025, sustain=0.0, duration=0.025,
+                                             release=0.008, gain=0.35)]},
+                         "runtime": "Once per upward crossing of 75 % (the view's calm -> hot change). Silent at 95 % "
+                                    "(boiling): the visual boil and the coming gavel carry it.",
+                         "target": {"type": "burst", "lufs": -20.0}}
     return {
         "version": "od-1",
         "_doc": "עוד סבב SFX cues. Owner: Audio Director. Written by audio/tools/compose_od.py; rendered by "
@@ -937,6 +1052,40 @@ def cues():
             "לא ידענו!": [["5", 6], ["4", 6], ["3", 6], ["1", 6]],
             "מי?": [["5", 5], ["1", 6]],
             "בכובע!": [["1", 6], ["b7", 5], ["1", 6]],
+            # v1.3: every leader's squawks (content leaders[].kit.dubi.squawks; Bibi's are above).
+            # Never the anthem on BLIP: the bank has no 2 or b6, and no line leaps 5 -> 5'.
+            "ביחד!": [["5", 5], ["1", 6], ["3", 6]],
+            "לחתום!": [["5", 6], ["1", 6]],
+            "נגיב מחר!": [["5", 6], ["4", 6], ["3", 6], ["1", 6]],
+            "אני פורש!": [["3", 5], ["5", 5], ["b7", 5], ["1", 6]],
+            "תקציב!": [["1", 6], ["5", 6]],
+            "לא איום!": [["5", 6], ["3", 6], ["1", 6]],
+            "לא יושב!": [["1", 6], ["1", 6], ["5", 5]],
+            "מס!": [["1", 6]],
+            "לא!": [["5", 5]],
+            "ישר!": [["5", 5], ["5", 5]],
+            "ישר לקופה!": [["5", 5], ["5", 5], ["5", 5], ["5", 5], ["1", 6]],
+            "עקום!": [["5", 6], ["3", 5]],
+            "אין כסף!": [["5", 6], ["5", 6], ["b7", 5]],
+            "העברה!": [["1", 6], ["3", 6], ["4", 6], ["5", 6]],
+            "גירעון!": [["5", 6], ["4", 6], ["b7", 5]],
+            "ידידי!": [["3", 6], ["1", 6], ["3", 6]],
+            "קפה!": [["4", 6], ["3", 6]],
+            "ידידי?": [["3", 6], ["1", 6], ["5", 6]],
+            "איחוד!": [["1", 6], ["3", 6]],
+            "עוד אחד!": [["5", 5], ["1", 6], ["3", 6]],
+            "פיצול!": [["3", 6], ["b7", 5]],
+        },
+        "crits": {
+            "_doc": "v1.3 (leader-select spec §9.5): the crit cue of a react event. A leader's event is "
+                    "kit.tap.critEvent; Bibi (critAnim 'crit', the rabbit prop) is 'rabbit'. rabbitCrit keeps its "
+                    "round-robin; the others play critReact's variant of the same name. An unknown event plays "
+                    "'land'. The tap itself stays the shared tap cue for everyone.",
+            "rabbit": {"cue": "rabbitCrit", "variant": "roundRobin"},
+            "whoosh": {"cue": "critReact", "variant": "whoosh"},
+            "shout": {"cue": "critReact", "variant": "shout"},
+            "no": {"cue": "critReact", "variant": "no"},
+            "land": {"cue": "critReact", "variant": "land"},
         },
         "cues": C,
     }
@@ -1080,6 +1229,32 @@ def check_cues(c):
                     f = Lr.get("filter", {})
                     if f.get("type") == "highpass" and f.get("freq", 0) < 2500:
                         err("%s/%s: noise high-pass %s < 2.5 kHz" % (cid, vid, f.get("freq")))
+            end = max(Lr.get("delay", 0) + (Lr["duration"] if isinstance(Lr.get("duration"), (int, float)) else 0)
+                      + Lr.get("release", 0) for Lr in layers)
+            # v1.3 mix pass: UI cues keep short tails; a first sound starts at t=0 and ends inside 1 s
+            if cue["bus"] == "UI" and end > 0.4:
+                err("%s/%s: UI cue ends at %.2f s (> 0.4 s tail)" % (cid, vid, end))
+            if cue.get("firstSound") and cid == "leaderPick":
+                if min(Lr.get("delay", 0) for Lr in layers) > 0.0005:
+                    err("%s: a first sound must start at t=0 (no silent lead-in)" % cid)
+                if end > 1.0:
+                    err("%s: %.2f s > 1 s" % (cid, end))
+    # v1.3: Dubi's canned lines stay off the anthem: bank degrees only (no 2, no b6), no 5 -> 5' leap
+    bank = {"1", "3", "4", "5", "b7"}
+    for line, contour in c["babbleContours"].items():
+        if line.startswith("_"):
+            continue
+        for a, b in zip(contour, contour[1:]):
+            if a[0] == "5" and b[0] == "5" and b[1] == a[1] + 1:
+                err("babble %s: 5 -> 5' is the anthem's leap" % line)
+        for d, o in contour:
+            if d not in bank or o not in (5, 6):
+                err("babble %s: %s_%s is not in Dubi's bank" % (line, d, o))
+    for ev, m in c.get("crits", {}).items():
+        if not ev.startswith("_") and m["cue"] not in c["cues"]:
+            err("crits/%s: no cue %s" % (ev, m["cue"]))
+        elif not ev.startswith("_") and m["variant"] != "roundRobin" and m["variant"] not in c["cues"][m["cue"]]["variants"]:
+            err("crits/%s: %s has no variant %s" % (ev, m["cue"], m["variant"]))
 
 
 def check_fanfare(m):
