@@ -1,4 +1,20 @@
 # binary files changed (not carried):
+#   art/od-sevev/out/ui/stage/lane_balfour.png
+#   art/od-sevev/out/ui/stage/lane_courthouse.png
+#   art/od-sevev/out/ui/stage/lane_knesset.png
+#   art/od-sevev/out/ui/stage/lane_washington.png
+diff --git a/art/od-sevev/out/ui/stage/lane_balfour.png b/art/od-sevev/out/ui/stage/lane_balfour.png
+index 1f20c25..4c54a3c 100644
+Binary files a/art/od-sevev/out/ui/stage/lane_balfour.png and b/art/od-sevev/out/ui/stage/lane_balfour.png differ
+diff --git a/art/od-sevev/out/ui/stage/lane_courthouse.png b/art/od-sevev/out/ui/stage/lane_courthouse.png
+index cbf78a2..ce5add6 100644
+Binary files a/art/od-sevev/out/ui/stage/lane_courthouse.png and b/art/od-sevev/out/ui/stage/lane_courthouse.png differ
+diff --git a/art/od-sevev/out/ui/stage/lane_knesset.png b/art/od-sevev/out/ui/stage/lane_knesset.png
+index 842fd06..6a18c03 100644
+Binary files a/art/od-sevev/out/ui/stage/lane_knesset.png and b/art/od-sevev/out/ui/stage/lane_knesset.png differ
+diff --git a/art/od-sevev/out/ui/stage/lane_washington.png b/art/od-sevev/out/ui/stage/lane_washington.png
+index 797fcb3..18581b2 100644
+Binary files a/art/od-sevev/out/ui/stage/lane_washington.png and b/art/od-sevev/out/ui/stage/lane_washington.png differ
 diff --git a/art/od-sevev/src/wave5.py b/art/od-sevev/src/wave5.py
 index 43805a5..6da0bf8 100644
 --- a/art/od-sevev/src/wave5.py
@@ -132,12 +148,255 @@ index 43805a5..6da0bf8 100644
  
  
  def build():
+diff --git a/art/od-sevev/ui-kit.json b/art/od-sevev/ui-kit.json
+index dfab1ed..1da35be 100644
+--- a/art/od-sevev/ui-kit.json
++++ b/art/od-sevev/ui-kit.json
+@@ -1163,6 +1163,20 @@
+    ],
+    "notes": "Dust-cloud brawl (brief round 2: Amsalem vs Smotrich, recurring for any pair). 4-frame loop; the cloud sits over the two frozen income rows / the chat line. Sleeves, fists, shoes, a flying page: NO faces, no kippot, no religious markers, no weapons. Suggested 8 fps; timing is the Animator's; reduced motion = frame 0."
+   },
++  {
++   "id": "brawl_cloud_cue",
++   "group": "events",
++   "file": "out/ui/events/brawl_cloud_cue.png",
++   "w": 104,
++   "h": 20,
++   "frames": 4,
++   "frameW": 26,
++   "pivot": [
++    13,
++    18
++   ],
++   "notes": "The brawl cloud cut for the STAGE CUE (the Animator's ask): brawl_cloud's 4-frame loop redrawn at 26x20 so the cue draws at the stage's own x4 (104x80 logical, the same box as brawl_cloud at x2) and is crisp at every k. Same frames, order and timing as brawl_cloud (8 fps; reduced motion = frame 0); the same choreography of sleeves, fists, shoes, a page and a star at half size. No faces, no markers. brawl_cloud (52x40) stays for the thread's inline cloud at x4."
++  },
+   {
+    "id": "chip_court",
+    "group": "events",
+@@ -2729,33 +2743,33 @@
+    "id": "lane_balfour",
+    "group": "stage",
+    "file": "out/ui/stage/lane_balfour.png",
+-   "w": 2,
++   "w": 32,
+    "h": 28,
+-   "notes": "Suitcase-lane floor for the balfour stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
++   "notes": "Suitcase-lane floor for the balfour stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
+   },
+   {
+    "id": "lane_courthouse",
+    "group": "stage",
+    "file": "out/ui/stage/lane_courthouse.png",
+-   "w": 2,
++   "w": 32,
+    "h": 28,
+-   "notes": "Suitcase-lane floor for the courthouse stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
++   "notes": "Suitcase-lane floor for the courthouse stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
+   },
+   {
+    "id": "lane_knesset",
+    "group": "stage",
+    "file": "out/ui/stage/lane_knesset.png",
+-   "w": 2,
++   "w": 32,
+    "h": 28,
+-   "notes": "Suitcase-lane floor for the knesset stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
++   "notes": "Suitcase-lane floor for the knesset stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
+   },
+   {
+    "id": "lane_washington",
+    "group": "stage",
+    "file": "out/ui/stage/lane_washington.png",
+-   "w": 2,
++   "w": 32,
+    "h": 28,
+-   "notes": "Suitcase-lane floor for the washington stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
++   "notes": "Suitcase-lane floor for the washington stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
+   },
+   {
+    "id": "laundry_bag",
+@@ -2813,6 +2827,42 @@
+    ],
+    "notes": "Washington era: laundry flying out of the 'מזוודות כביסה' (WaPo 2020, denied). Decorative, no rim. Tumble/drift is the Animator's."
+   },
++  {
++   "id": "plaza_balfour",
++   "group": "stage",
++   "file": "out/ui/stage/plaza_balfour.png",
++   "w": 64,
++   "h": 64,
++   "notes": "The plaza in front of the balfour stage (UX mobile-first A1): a 64x64 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_balfour) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 64), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "artRow": 258
++  },
++  {
++   "id": "plaza_courthouse",
++   "group": "stage",
++   "file": "out/ui/stage/plaza_courthouse.png",
++   "w": 64,
++   "h": 64,
++   "notes": "The plaza in front of the courthouse stage (UX mobile-first A1): a 64x64 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_courthouse) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 64), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "artRow": 258
++  },
++  {
++   "id": "plaza_knesset",
++   "group": "stage",
++   "file": "out/ui/stage/plaza_knesset.png",
++   "w": 64,
++   "h": 64,
++   "notes": "The plaza in front of the knesset stage (UX mobile-first A1): a 64x64 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_knesset) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 64), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "artRow": 258
++  },
++  {
++   "id": "plaza_washington",
++   "group": "stage",
++   "file": "out/ui/stage/plaza_washington.png",
++   "w": 64,
++   "h": 64,
++   "notes": "The plaza in front of the washington stage (UX mobile-first A1): a 64x64 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_washington) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 64), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
++   "artRow": 258
++  },
+   {
+    "id": "sweat_drop",
+    "group": "stage",
+@@ -2825,6 +2875,118 @@
+    ],
+    "notes": "The Magician's sweat drop at suspicion >= 75% (Animator's optional echo). Placement on his temple: the Animator's anchor."
+   },
++  {
++   "id": "wing_balfour_l",
++   "group": "stage",
++   "file": "out/ui/stage/wing_balfour_l.png",
++   "w": 20,
++   "h": 230,
++   "pivot": [
++    20,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), left: the balfour stage's art rows 0-229 continued past the 180-column art, a 20x230 horizontal TILE (period 20: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 20
++  },
++  {
++   "id": "wing_balfour_r",
++   "group": "stage",
++   "file": "out/ui/stage/wing_balfour_r.png",
++   "w": 20,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), right: the balfour stage's art rows 0-229 continued past the 180-column art, a 20x230 horizontal TILE (period 20: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 20
++  },
++  {
++   "id": "wing_courthouse_l",
++   "group": "stage",
++   "file": "out/ui/stage/wing_courthouse_l.png",
++   "w": 60,
++   "h": 230,
++   "pivot": [
++    60,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), left: the courthouse stage's art rows 0-229 continued past the 180-column art, a 60x230 horizontal TILE (period 60: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 60
++  },
++  {
++   "id": "wing_courthouse_r",
++   "group": "stage",
++   "file": "out/ui/stage/wing_courthouse_r.png",
++   "w": 60,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), right: the courthouse stage's art rows 0-229 continued past the 180-column art, a 60x230 horizontal TILE (period 60: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 60
++  },
++  {
++   "id": "wing_knesset_l",
++   "group": "stage",
++   "file": "out/ui/stage/wing_knesset_l.png",
++   "w": 22,
++   "h": 230,
++   "pivot": [
++    22,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), left: the knesset stage's art rows 0-229 continued past the 180-column art, a 22x230 horizontal TILE (period 22: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 22
++  },
++  {
++   "id": "wing_knesset_r",
++   "group": "stage",
++   "file": "out/ui/stage/wing_knesset_r.png",
++   "w": 22,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), right: the knesset stage's art rows 0-229 continued past the 180-column art, a 22x230 horizontal TILE (period 22: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 22
++  },
++  {
++   "id": "wing_washington_l",
++   "group": "stage",
++   "file": "out/ui/stage/wing_washington_l.png",
++   "w": 36,
++   "h": 230,
++   "pivot": [
++    36,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), left: the washington stage's art rows 0-229 continued past the 180-column art, a 36x230 horizontal TILE (period 36: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 36
++  },
++  {
++   "id": "wing_washington_r",
++   "group": "stage",
++   "file": "out/ui/stage/wing_washington_r.png",
++   "w": 36,
++   "h": 230,
++   "pivot": [
++    0,
++    0
++   ],
++   "notes": "Stage side wing (UX mobile-first A2), right: the washington stage's art rows 0-229 continued past the 180-column art, a 36x230 horizontal TILE (period 36: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
++   "artRow": 0,
++   "period": 36
++  },
+   {
+    "id": "ticker_bar",
+    "group": "ticker",
+# untracked binary: art/od-sevev/out/ui/events/brawl_cloud_cue.png
+# untracked binary: art/od-sevev/out/ui/stage/plaza_balfour.png
+# untracked binary: art/od-sevev/out/ui/stage/plaza_courthouse.png
+# untracked binary: art/od-sevev/out/ui/stage/plaza_knesset.png
+# untracked binary: art/od-sevev/out/ui/stage/plaza_washington.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_balfour_l.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_balfour_r.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_courthouse_l.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_courthouse_r.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_knesset_l.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_knesset_r.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_washington_l.png
+# untracked binary: art/od-sevev/out/ui/stage/wing_washington_r.png
+# untracked binary: art/od-sevev/proofs/kit-w7-mobile.png
 diff --git a/art/od-sevev/src/wave7.py b/art/od-sevev/src/wave7.py
 new file mode 100644
-index 0000000..fba7179
+index 0000000..7fa1788
 --- /dev/null
 +++ b/art/od-sevev/src/wave7.py
-@@ -0,0 +1,417 @@
+@@ -0,0 +1,491 @@
 +"""Wave 7: the art the mobile-first layout needs (ux/mobile-first-layout.md §10, 2026-09-29).
 +
 +  A1  lane_<era>                (wave5.py, redrawn 32x28)  the Suitcase lane, now with horizontal detail
@@ -239,8 +498,7 @@ index 0000000..fba7179
 +    # the dark trees that frame the villa: the art's edge trees, continued (they wrap into a treeline)
 +    trees = [(8, 140), (18, 120)] if side == "l" else [(166, 124), (176, 142)]
 +    for (cx, cy) in trees:
-+        if cx - 15 < x0 + W and cx + 15 > x0 - W or True:
-+            L.ellipse(cx, cy, 14, 22, "night")
++        L.ellipse(cx, cy, 14, 22, "night")
 +    # the perimeter wall: lamp-lit slate, a grey coping, a panel joint every 10 columns (x % 10 == 0, as the art)
 +    L.rect(x0, 168, W, 48, "slate")
 +    L.rect(x0, 168, W, 3, "grey")
@@ -252,11 +510,10 @@ index 0000000..fba7179
 +    crowd = _balfour_crowd()
 +    if side == "l":
 +        seam = [c for c in crowd if c[0] == 0 and (c[2] - 3 < 0 or (c[4] is not None and c[4] - 2 < 0))]
-+        native = [(x0 + 9, 23, None, True), (x0 + 15, 21, x0 + 14, False)]   # -11, -5
++        native = [(-11, 23, None, True), (-5, 21, -11, False)]
 +    else:
 +        seam = [c for c in crowd if c[0] == 1 and (c[2] + 3 > SW - 1 or (c[4] is not None and c[4] + 7 > SW - 1))]
-+        native = [(x0 + 3, 22, x0 + 2, False), (x0 + 10, 24, None, True), (x0 + 16, 21, x0 + 14, True)]
-+    r = random.Random(73)
++        native = [(183, 22, 182, False), (190, 24, None, True), (196, 21, 192, True)]
 +    for (sd, i, x, h, sx) in seam:
 +        _protester(L, x, h, sx, pink=(i // 2) % 2 == 0)
 +    for (x, h, sx, pink) in native:
@@ -545,14 +802,90 @@ index 0000000..fba7179
 +               "brawl_cloud (52x40) stays for the thread's inline cloud at x4.")
 +
 +
-+def proof():
-+    """proofs/kit-w7-mobile.png: the stage at 215 columns with the wings, lane and plaza, per era."""
++STAGES = os.path.normpath(os.path.join(ROOT, "..", "..", "creative-pack", "art", "showcase", "out"))
++
++
++def compose(era, cols, rows=466, lane=True, plaza_on=True):
++    """The stage as the engine draws it at `cols` art columns: the art centred (stage_ox = floor((cols-180)/2)),
++    the wings tiled out to the edges, the lane over rows 230-257 and the plaza from 258 to `rows`, all x-phased on
++    art column 0. Returns (PIL image at 1x, art x of canvas column 0)."""
 +    from PIL import Image
-+    return None
++    ox = (cols - SW) // 2
++    img = Image.new("RGBA", (cols, rows), rgb("night") + (255,))
++    art = Image.open(os.path.join(STAGES, f"stage_{era}.png")).convert("RGBA")
++    pad_top = art.getpixel((0, 0))
++    img.paste(Image.new("RGBA", (cols, rows), pad_top))          # the diorama's sky pads (padTop)
++    img.alpha_composite(art, (ox, 0))
++    wl, wr = WINGS[era]("l").to_image(), WINGS[era]("r").to_image()
++    W = wl.width
++    x = ox - W
++    while x > -W:
++        img.alpha_composite(wl, (x, 0)) if x >= 0 else img.paste(wl.crop((-x, 0, W, WING_H)), (0, 0))
++        x -= W
++    x = ox + SW
++    while x < cols:
++        img.paste(wr, (x, 0))
++        x += W
++    def tile(tex, y0, h):
++        t = tex.width
++        x = ox - ((ox + t - 1) // t) * t
++        while x < cols:
++            for y in range(y0, y0 + h, tex.height):
++                img.paste(tex.crop((0, 0, t, min(tex.height, y0 + h - y))), (x, y))
++            x += t
++    if lane:
++        tile(Layer_img(f"lane_{era}"), 230, 28)
++    if plaza_on:
++        tile(plaza(era).to_image(), PLAZA_ROW, rows - PLAZA_ROW)
++    return img, -ox
++
++
++def Layer_img(pid):
++    from PIL import Image
++    return Image.open(os.path.join(ROOT, "out", "ui", "stage", pid + ".png")).convert("RGBA")
++
++
++def seam_report():
++    """Per era and side: the rows where the wing's column next to the art differs from the art's edge column
++    (a different swatch on both sides of the seam is a visible cut unless it continues an edge)."""
++    from PIL import Image
++    out = {}
++    for era in ERAS:
++        art = Image.open(os.path.join(STAGES, f"stage_{era}.png")).convert("RGBA")
++        for side in ("l", "r"):
++            w = WINGS[era](side).to_image()
++            wc = w.width - 1 if side == "l" else 0
++            ac = 0 if side == "l" else SW - 1
++            diff = [y for y in range(WING_H) if w.getpixel((wc, y))[:3] != art.getpixel((ac, y))[:3]
++                    and art.getpixel((ac, y))[3] == 255]
++            out[f"{era}_{side}"] = diff
++    return out
++
++
++def proof():
++    """proofs/kit-w7-mobile.png: every era at 215 columns (the widest phone) and at 260 (the wings tiling), with
++    the lane and the plaza, at x2."""
++    from PIL import Image
++    shots = []
++    for era in ERAS:
++        for cols in (215, 260):
++            shots.append(compose(era, cols)[0])
++    gap = 6
++    W = sum(s.width for s in shots) + gap * (len(shots) - 1)
++    sheet = Image.new("RGBA", (W, 466), (255, 255, 255, 255))
++    x = 0
++    for s in shots:
++        sheet.paste(s, (x, 0)); x += s.width + gap
++    p = os.path.join(PROOFS, "kit-w7-mobile.png")
++    sheet.resize((W * 2, 466 * 2), Image.NEAREST).save(p)
++    return p
 +
 +
 +if __name__ == "__main__":
 +    build()
 +    from kit import write_manifest
 +    print(write_manifest())
++    print(proof())
++    for k, v in seam_report().items():
++        print("seam", k, len(v), "rows differ", v[:40])
 # untracked binary: art/od-sevev/src/wave7.py
