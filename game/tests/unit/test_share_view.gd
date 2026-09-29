@@ -39,6 +39,7 @@ func _boot() -> void:
 	for i in 3:
 		await tree.process_frame
 	m.ftue.handoff_ms = 1.0
+	m.commit_pick("bibi")   # LEADER_PICK (leader select): Bibi's round, the shipped game
 	_touch(L.magician_hit().get_center() + Vector2(m._ox, m._stage_y))   # title → main (tap 1)
 
 
@@ -96,7 +97,8 @@ func test_share_texts_are_prose_with_the_url_last() -> void:
 		runner.check(not t.contains("\u2066") and not t.contains("\u2069"), "%s: no bidi isolates in prose" % kind)
 		runner.check(not t.contains("{") and not t.contains("הקוסם"), "%s: every placeholder filled, never הקוסם" % kind)
 		runner.check(ShareKit.wa_url(t).trim_prefix(ShareKit.WA).uri_decode() == t, "%s: the wa.me round trip" % kind)
-	runner.check(ShareKit.share_text("invite", s, d, 0.0, u).contains("ביבי"), "the invite: תורכם להיות ביבי")
+	runner.check(ShareKit.share_text("invite", s, d, 0.0, u).contains("תורכם להקים ממשלה") and not ShareKit.share_text("invite", s, d, 0.0, u).contains("ביבי"),
+		"the invite (SHARE_TEXT_INVITE, was _NEXT): תורכם להקים ממשלה, no leader named")
 	var r := ShareKit.share_text("result", s, d, 0.0, u)
 	runner.check(r.begins_with("שרדתי 3 סבבי בחירות ושני ימי משפט ב״עוד סבב״."), "the result text: rounds and days in words (%s)" % r)
 	var total := float(ShareKit.receipt(s, d, 0.0)["total"])

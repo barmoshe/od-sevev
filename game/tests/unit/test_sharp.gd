@@ -236,6 +236,7 @@ func test_the_first_tap_after_esc_folds_the_court_card_reaches_t3() -> void:
 	for i in 3:
 		await tree.process_frame
 	m.ftue.handoff_ms = 1.0
+	m.commit_pick("bibi")   # LEADER_PICK (leader select): Bibi's round, the shipped game
 	var hat: Vector2 = L.magician_hit().get_center() + Vector2(m._ox, m._stage_y)
 	_touch_down(hat)
 	_touch_up(hat)

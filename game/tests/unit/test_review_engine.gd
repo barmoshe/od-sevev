@@ -207,6 +207,7 @@ func test_r4_spins_unlock_at_1500_and_not_inside_c1() -> void:
 
 func test_r4_the_tab_bar_appears_only_with_c1() -> void:
 	await _boot()
+	m.commit_pick("bibi")   # LEADER_PICK first (leader select)
 	m._set_mode("main", false)
 	var s: GameState = m.state
 	s.taps_lifetime = 3
@@ -240,6 +241,7 @@ func test_r9_layer_history_bookkeeping() -> void:
 func test_r9_back_closes_the_top_layer_like_esc() -> void:
 	await _boot()
 	m.ftue.handoff_ms = 1.0
+	m.commit_pick("bibi")   # LEADER_PICK (leader select): Bibi's round, the shipped game
 	m._set_mode("main", false)
 	await tree.process_frame
 	runner.check(m.layer_depth() == 0 and not m.back_layer(), "nothing open: depth 0, back is not trapped")
@@ -301,7 +303,10 @@ func test_r15_the_scrim_is_the_outline_swatch() -> void:
 
 func test_r16_title_floor_fills_the_reserved_sections() -> void:
 	await _boot()
-	runner.check(m.mode == "title", "a fresh save boots into the title state")
+	runner.check(m.mode == "pick", "a fresh save boots into LEADER_PICK")
+	m.ftue.handoff_ms = 1.0
+	m.commit_pick("bibi")
+	runner.check(m.mode == "title", "the pick lands in the pre-tap (title) state")
 	var f: ColorRect = m._title_floor
 	var sb: float = m._stage_y + L.stage_bottom()
 	runner.check(f.visible and is_equal_approx(f.position.y, sb) and is_equal_approx(f.position.y + f.size.y, m._vs.y), "one floor from the stage bottom (%s) to the screen bottom (%s)" % [f.position.y, f.position.y + f.size.y])

@@ -112,7 +112,7 @@ func _ready() -> void:
 	_chip.visible = false
 	_chip_bg = Ui.nine(_chip, Rect2(0, 0, CHIP_MIN_W, CHIP_H), Art.sprite_or("chip_court"))
 	_chip_icon = Ui.img(_chip, Vector2.ZERO, Art.sprite_or("chip_icon_gavel"), 0, 4)
-	_chip_title = PxText.make(_chip, Vector2(0, 4), Strings.s("COURT_CHIP_TITLE"), L.TEXT, "plain", "w")
+	_chip_title = PxText.make(_chip, Vector2(0, 4), LeaderUi.s("COURT_CHIP_TITLE"), L.TEXT, "plain", "w")
 	_chip_title.max_lines = 1
 	_chip_timer = PxText.make(_chip, Vector2(0, 44), "", L.TEXT, "plain", "w")
 	_chip_timer.max_lines = 1
@@ -219,6 +219,8 @@ static func of(h: Node) -> CourtView:
 ## The excuse line for a postponement step (content copy, court.postpone.copy.excuses; the sim
 ## holds no Hebrew). Steps past the list hold on the last line ("loops at step 6").
 static func excuse(step: int) -> String:
+	if not LeaderUi.court():   # the press skin: the leader's own ladder (spec §5.6)
+		return LeaderUi.press_excuse(step) if step >= 1 else ""
 	var ex: Array = Investigation.cfg().get("postpone", {}).get("copy", {}).get("excuses", [])
 	if ex.is_empty() or step < 1:
 		return ""
@@ -427,15 +429,16 @@ func _build_card() -> void:
 	_close_icon = Ui.img(_inner, Vector2(CARD_X, 0) + (CLOSE_HIT.get_center() - csz / 2.0).snapped(Vector2(4, 4)), close_id, 0, 4)
 	_close_icon.visible = _mode != "postponed"   # the stamp's corner: nothing to collapse while it reads
 	# kit court_frame: the gavel at the header's right, x w − 18 art, y 5 art (frame-local)
-	var gid := Art.sprite_or("thermo_icon_gavel")
+	# the press skin has no gavel (it means the court): the folded newspaper (rtl-map §4.3)
+	var gid := Art.sprite_or("thermo_icon_gavel" if LeaderUi.court() or LeaderUi.press_icon("thermo") == "" else LeaderUi.press_icon("thermo"))
 	_gavel = Ui.img(_inner, Vector2(CARD_X + CARD_W - 18.0 * 4.0, 20), gid, 0, 4)
 	var keys := phase_keys(phase())
-	_title = _t(Strings.s(keys["title"]), Color.WHITE, 432.0, 1)
+	_title = _t(LeaderUi.s(keys["title"]), Color.WHITE, 432.0, 1)
 	_title.right_at(_gavel.position.x - 12.0)
 	_title.position.y = 24.0
 	var y := 96.0
 	if _mode == "postponed":
-		_prefix = _t(Strings.s("COURT_POSTPONED_PREFIX"), Color("#a4a9b8"), TEXT_W, 1)
+		_prefix = _t(LeaderUi.s("COURT_POSTPONED_PREFIX"), Color("#a4a9b8"), TEXT_W, 1)
 		_prefix.right_at(CARD_X + TEXT_RIGHT)
 		_prefix.position.y = y
 		y += _lh(_prefix)
@@ -452,11 +455,11 @@ func _build_card() -> void:
 		_stamp.position = Vector2(CARD_X + 24.0 + ssz.x / 2.0, 12.0 + ssz.y / 2.0).snapped(Vector2(4, 4))
 		y += 24.0
 	else:
-		_body = _t(Strings.s(keys["body"]), Color.WHITE, TEXT_W, 3, true)
+		_body = _t(LeaderUi.s(keys["body"]), Color.WHITE, TEXT_W, 3, true)
 		_body.right_at(CARD_X + TEXT_RIGHT)
 		_body.position.y = y
 		y += _lh(_body) * maxf(1.0, float(_body.line_count()))
-		_effect = _t(Strings.s(keys["effect"]), Color("#fff1a6"), TEXT_W, 2, true)
+		_effect = _t(LeaderUi.s(keys["effect"]), Color("#fff1a6"), TEXT_W, 2, true)
 		_effect.right_at(CARD_X + TEXT_RIGHT)
 		_effect.position.y = y
 		y += _lh(_effect) * maxf(1.0, float(_effect.line_count()))
@@ -467,12 +470,12 @@ func _build_card() -> void:
 			_btn_y = Ui.snap(y, 4)
 			if _d != null and Investigation.postpone_cost(_state, _d) >= 0.0:
 				_primary = PxButton.make(_inner,Rect2(CARD_X + 16, _btn_y, 416, 104), {"kind": "kit_primary"})
-				_verb = _t(Strings.s("COURT_POSTPONE_VERB"), Color.WHITE, 384.0, 1)
+				_verb = _t(LeaderUi.s("COURT_POSTPONE_VERB"), Color.WHITE, 384.0, 1)
 				_verb.position.y = _btn_y + 12.0
 				_verb.center_in(CARD_X + 16, 416)
 				_price = _t("", Color.WHITE, 384.0, 1)
 				_price.position.y = _btn_y + 56.0
-			_testify = PxButton.make(_inner,Rect2(CARD_X + 448, _btn_y, 224, 104), {"kind": "kit_secondary", "label": Strings.s("COURT_TESTIFY")})
+			_testify = PxButton.make(_inner,Rect2(CARD_X + 448, _btn_y, 224, 104), {"kind": "kit_secondary", "label": LeaderUi.s("COURT_TESTIFY")})
 			y = _btn_y + 104.0 + 16.0
 			if Investigation.can_drop_aide(_state):
 				_aide = PxButton.make(_inner,Rect2(CARD_X + 16, y, 656, 88), {"kind": "kit_secondary", "label": Strings.s("AIDE_BTN")})
@@ -506,7 +509,7 @@ func _lh(t: PxText) -> float:
 
 func _update_card_live() -> void:
 	if _timer != null:
-		var txt := Strings.s(phase_keys(phase())["timer"], {"mmss": ChatView.mmss(timer_sec())})
+		var txt := LeaderUi.s(phase_keys(phase())["timer"], {"mmss": ChatView.mmss(timer_sec())})
 		if _timer.text != txt:
 			_timer.text = txt
 			_timer.right_at(CARD_X + TEXT_RIGHT)
@@ -537,9 +540,13 @@ func _sync_chip() -> void:
 	var show := _mode == "chip" and (ph == "summons" or ph == "court") and not _covered \
 		and not (ticker != null and ticker.cta_on())
 	if show:
-		var ct := Strings.s(phase_keys(ph)["chip"])
+		var ct := LeaderUi.s(phase_keys(ph)["chip"])
 		if _chip_title.text != ct:
 			_chip_title.text = ct
+		var cid := "chip_icon_gavel" if LeaderUi.court() or LeaderUi.press_icon("chip") == "" else LeaderUi.press_icon("chip")
+		if str(_chip_icon.get_meta("sprite", "")) != Art.sprite_or(cid):
+			_chip_icon.texture = Art.tex(Art.sprite_or(cid), 0)
+			_chip_icon.set_meta("sprite", Art.sprite_or(cid))
 		var tw := maxf(float(_chip_title.width()), float(_chip_timer.width()))
 		var icon_w := float(Art.sprite_size(_chip_icon.get_meta("sprite")).x) * 4.0
 		_chip_w = maxf(CHIP_MIN_W, Ui.snap(16.0 + tw + 12.0 + icon_w + 12.0, 4))

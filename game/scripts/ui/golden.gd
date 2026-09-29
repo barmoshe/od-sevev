@@ -79,6 +79,14 @@ func spawn() -> void:
 	# the first flight is always right → left; later ones alternate
 	_dir = -1.0 if _flights % 2 == 0 else 1.0
 	_flights += 1
+	# leader select (spec §5.9): the DOHA sticker is Bibi's; every other round flies suitcase_plain
+	if Leaders.active():
+		var sc := Leaders.suitcase(LeaderUi.id())
+		var want := String(Content.data().get("golden", {}).get("sprite", "suitcase")) if sc.get("sticker", true) == true else str(sc.get("sprite", "suitcase_plain"))
+		if Art.has_sprite(want) and want != key:
+			key = want
+			_half = Vector2(Art.sprite_size(key)) / 2.0
+			Ui.set_frame(sprite, key, 0)
 	_dur = 6000.0 if first_flight else maxf(3000.0, randf_range(3500.0, 4500.0))
 	if reduced_motion:
 		_dur /= 0.8

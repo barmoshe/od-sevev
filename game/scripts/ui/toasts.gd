@@ -179,6 +179,13 @@ func say(text: String, at: Vector2, ms: float = 1600.0) -> void:
 	_bdur = ms
 
 
+## Hides Dubi's bubble now (the picker opens over the stage).
+func clear_bubble() -> void:
+	_bt = -1.0
+	_bubble.visible = false
+	_btext.visible = false
+
+
 func saying() -> bool:
 	return _bt >= 0.0
 

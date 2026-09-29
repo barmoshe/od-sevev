@@ -30,12 +30,14 @@ func teardown() -> void:
 	DirAccess.remove_absolute(dir)
 
 
-func _boot() -> void:
+func _boot(pick: bool = true) -> void:
 	m = load("res://scenes/main.tscn").instantiate()
 	m.store = SaveStore.new(dir)
 	tree.root.add_child(m)
 	for i in 3:
 		await tree.process_frame
+	if pick:
+		m.commit_pick("bibi")   # LEADER_PICK first (leader select): Bibi's round, the shipped game
 
 
 ## A design-space point in a section to a viewport point.
@@ -83,7 +85,8 @@ func _key(k: Key) -> void:
 
 
 func test_title_tap_starts_and_taps_count() -> void:
-	await _boot()
+	await _boot(false)
+	# the fork's content has no leader select: the title state as ever (the picker: test_leader_pick)
 	runner.check(m.mode == "title", "a fresh install starts on the title")
 	_touch(_stage_pt(_hat()))
 	runner.check(m.mode == "main", "a tap on the Magician starts the game")

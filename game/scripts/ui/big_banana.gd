@@ -4,8 +4,8 @@ extends Node2D
 ## and motion/object-motion.md §1. The squash is a quantized driver: a number y is eased and mapped
 ## to one of the 5 drawn frames. No scale is ever applied to the banana itself.
 ##
-## od-sevev: when the TA's cast strips are present, the Magician (SpriteStrip, content
-## hero.char, default "bibi") stands in for the banana: idle loops, a tap plays `tap`, a crit
+## od-sevev: when the TA's cast strips are present, the round's leader (SpriteStrip, set_leader:
+## leaders[].art, default "bibi") stands in for the banana: idle loops, a tap plays `tap`, a crit
 ## plays `crit`, and each one-shot returns to idle. The strip's frame events (coins, rabbit,
 ## sting, ...) go to on_hero_event(name, stage_point), with the hat's mouth as the point when the
 ## anim carries `hatMouth`. The body/aura/hover graph still runs; the Magician shows the aura and
@@ -63,6 +63,12 @@ var _aura_alpha := 0.0
 var _hover_tw: Tween
 var _aura_tw: Tween
 var _hello_ms := -1.0
+## The round's leader (spec §5.2): the tap kit, the loose prop and the manifest's prop entry.
+var prop: Sprite2D
+var _kit: Dictionary = {}
+var _prop_info: Dictionary = {}
+var _prop_frame := 0
+var _prop_squash_ms := 0.0
 
 
 func _ready() -> void:
@@ -95,21 +101,7 @@ func _ready() -> void:
 	body.add_child(flash)
 	fidget = Ui.img(body, Vector2(pivot.x - 24 * sc + 20 * sc, canvas_top + 15 * sc), "particle_sparkle", 0, sc)
 	fidget.visible = false
-	var hero_id := String(Content.data().get("hero", {}).get("char", "bibi"))
-	hero = SpriteStrip.make(body, hero_id, L.magician_feet())
-	if hero != null:
-		for n: CanvasItem in [halo, sprite, flash, fidget]:
-			n.visible = false
-			n.set_process(false)
-		hero.finished.connect(func(_a: String) -> void:
-			_suppress_coins = false
-			hero.play("idle"))
-		hero.event.connect(func(ev: String, _f: int) -> void:
-			if ev == "coins" and _suppress_coins:
-				return
-			if on_hero_event.is_valid():
-				on_hero_event.call(ev, hero.position + body.position + hero.point("hatMouth", Vector2(0, -hero.frame_size().y * 0.7))))
-		_build_court()
+	set_leader(LeaderUi.art(), LeaderUi.tap())
 	var hr: Array = Art.meta["bigBanana"]["heightRatio"]
 	var mid := func(a: int, b: int) -> float: return (float(hr[a]) + float(hr[b])) / 2.0
 	_bands = [mid.call(4, 0), mid.call(0, 1), mid.call(1, 2), mid.call(2, 3)]
@@ -126,6 +118,123 @@ func _band(y: float) -> int:
 	if y >= _bands[3]:
 		return 2
 	return 3
+
+
+# ------------------------------------------------------------------ the round's leader (spec §5.2)
+
+## Stands the round's leader on the stage (design/leader-select-spec.md §5.2, CONTRACT.md §4c):
+## `slug` is the manifest character, `kit` its tap kit (LeaderUi.tap). Only this leader's strips
+## are resident: a swap frees the old SpriteStrip (and so its textures) before the new one loads
+## (CONTRACT §7 budget). A leader whose prop is not baked into the render (pen, phone, ruler,
+## chair, stapler) gets the kit prop drawn at `propMouth` every frame, above the figure; a tap
+## squashes it (frame 1) on the pointer-down frame. The same slug again only refreshes the kit.
+func set_leader(slug: String, kit: Dictionary) -> void:
+	_kit = kit.duplicate()
+	if hero != null and hero.char_id == slug:
+		return
+	if hero != null:
+		body.remove_child(hero)
+		hero.queue_free()
+		hero = null
+	_suppress_coins = false
+	if prop != null:
+		body.remove_child(prop)
+		prop.queue_free()
+		prop = null
+	_prop_info = {}
+	_prop_frame = 0
+	hero = SpriteStrip.make(body, slug, L.magician_feet())
+	var on := hero != null
+	for n: CanvasItem in [halo, sprite, flash, fidget]:
+		n.visible = not on and (n == sprite or n == halo)   # the banana stands in (flash/fidget show on demand)
+		n.set_process(not on)
+	if not on:
+		return
+	var c: Dictionary = SpriteStrip.manifest().get("chars", {}).get(hero.char_id, {})
+	var pi: Variant = c.get("prop")
+	_prop_info = pi if pi is Dictionary else {"id": "prop_hat", "baked": true, "track": "hatMouth"}
+	var pid := str(_prop_info.get("id", ""))
+	if _prop_info.get("baked", true) != true and pid != "" and Art.has_sprite(pid):
+		prop = Sprite2D.new()
+		prop.centered = false
+		prop.texture = Art.tex(pid, 0)
+		var pv: Array = Art.kit(pid).get("pivot", [0, 0])
+		prop.offset = -Vector2(float(pv[0]), float(pv[1]))
+		prop.scale = Vector2(4, 4)
+		body.add_child(prop)   # above the figure: it is in their hand
+	hero.finished.connect(func(_a: String) -> void:
+		_suppress_coins = false
+		hero.play("idle"))
+	hero.event.connect(func(ev: String, _f: int) -> void:
+		if ev == "coins" and _suppress_coins:
+			return
+		if on_hero_event.is_valid():
+			on_hero_event.call(ev, mouth_point()))
+	_rebuild_court()
+	_sync_prop()
+
+
+## The court-day nodes (the Animator's CourtMotion: the hat on the mark, the rabbit, the smears)
+## belong to one figure: a leader swap frees them and builds them for the new strip. The court
+## only ever runs in the court's round (wants_court: Leaders.has_court).
+func _rebuild_court() -> void:
+	for n: Node in [_rabbit_clip, _hat_ghost, _hat]:
+		if n != null and is_instance_valid(n):
+			n.get_parent().remove_child(n)
+			n.queue_free()
+	for g: CourtSmear in _smears:
+		if is_instance_valid(g):
+			g.get_parent().remove_child(g)
+			g.queue_free()
+	_smears.clear()
+	_rabbit_clip = null
+	_hat_ghost = null
+	_hat = null
+	_rabbit = null
+	_court_pending = false
+	_held_frame = -1
+	court.reset()
+	if hero != null:
+		_build_court()
+
+
+## The manifest slug on stage ("" when the banana stands in).
+func leader_slug() -> String:
+	return hero.char_id if hero != null else ""
+
+
+## Where coins leave this frame (stage coordinates): the loose prop's mouth, else the figure's
+## track (`propMouth`; Bibi `hatMouth`), else a point at the chest.
+func mouth_point() -> Vector2:
+	if hero == null:
+		return body.position + Vector2(L.BB["pivotX"], L.BB["pivotY"])
+	if prop != null:
+		var pts: Variant = Art.kit(str(_prop_info.get("id", ""))).get("points")
+		var mo: Variant = (pts as Dictionary).get("mouth") if pts is Dictionary else null
+		if mo is Array and not (mo as Array).is_empty():
+			var m: Array = (mo as Array)[clampi(_prop_frame, 0, (mo as Array).size() - 1)]
+			return body.position + prop.position + (Vector2(float(m[0]), float(m[1])) + prop.offset) * 4.0
+		return body.position + prop.position
+	var track := str(_prop_info.get("track", "hatMouth"))
+	var fb := hero.point("hatMouth", Vector2(0, -hero.frame_size().y * 0.7))
+	return hero.position + body.position + hero.point(track, fb)
+
+
+## The loose prop follows the figure's track every frame and shows its squash frame while pressed.
+func _sync_prop() -> void:
+	if prop == null or hero == null:
+		return
+	var track := str(_prop_info.get("track", "propMouth"))
+	prop.position = Display.snap(hero.position + hero.point(track, Vector2(-hero.frame_size().x * 0.4, -hero.frame_size().y * 0.5)))
+	var f := 1 if _prop_squash_ms > 0.0 else 0
+	if f != _prop_frame:
+		_prop_frame = f
+		prop.texture = Art.tex(str(_prop_info.get("id", "")), f)
+
+
+## The prop's squash frame is showing (tests).
+func prop_squashed() -> bool:
+	return prop != null and _prop_frame == 1
 
 
 ## Hit area = the drawn sprite rect + bigBananaHitPadPx on every side. Never follows the frame.
@@ -152,7 +261,16 @@ func tap(crit: bool, paused: bool = false) -> void:
 	var restart := from == "pressed" or from == "crit"
 	_state = "crit" if crit else "pressed"
 	if hero != null:
-		hero.play("crit" if crit and hero.has_anim("crit") else "tap", true, 1)
+		_prop_squash_ms = float(Tune.T["squashDownMs"]) + 40.0   # the prop's squash frame (spec §9.3.1)
+		_sync_prop()
+		var crit_anim := str(_kit.get("critAnim", "crit"))
+		var tap_anim := str(_kit.get("anim", "tap"))
+		# a tap during a leader's react drives the prop only (spec §5.2): the react plays out
+		var in_react := not crit and crit_anim != "crit" and hero.anim == crit_anim
+		if crit and hero.has_anim(crit_anim):
+			hero.play(crit_anim, true, 1)
+		elif not in_react:
+			hero.play(tap_anim if hero.has_anim(tap_anim) else "idle", true, 1)
 	var sy := float(Tune.T["squashScaleY"])
 	var smin := float(Tune.T["squashMinScaleY"])
 	var target: float
@@ -243,6 +361,9 @@ func update_view(dt_ms: float) -> void:
 		_update_court(dt_ms)
 		hero.update_view(dt_ms)
 		_pulse_t += dt_ms
+		if _prop_squash_ms > 0.0:
+			_prop_squash_ms -= dt_ms
+		_sync_prop()
 	if _flash_ms > 0.0:
 		_flash_ms -= dt_ms
 	_apply_flash()
@@ -398,6 +519,9 @@ func _sync_halo() -> void:
 		var k := maxf(maxf(_aura_alpha, _hover_alpha), pulse)
 		hero.modulate = Color(1, 1, 1).lerp(Color(1.3, 1.25, 1.05), k)
 		hero.modulate.a = court.body_alpha()
+		if prop != null:   # rtl-map §4.3: P0's pulse sits on the prop too; it leaves with the figure
+			prop.modulate = hero.modulate
+			prop.visible = hero.visible
 
 
 ## FTUE failure branch: a pulsed emphasis on the banana (through the halo).

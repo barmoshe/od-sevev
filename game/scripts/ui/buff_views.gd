@@ -80,8 +80,9 @@ func update_chip(frenzy: float, tap_frenzy: float, stage_visible: bool, spins: A
 		var o := Content.outcome_of_type("bpsFrenzy" if kind == "frenzy" else "tapFrenzy")
 		rem = frenzy if kind == "frenzy" else tap_frenzy
 		total = float(o.get("durationSec", 1))
-		_chip_text.text = Strings.s("BUFF_CHIP_FRENZY" if kind == "frenzy" else "BUFF_CHIP_TAPFRENZY",
-			{"mult": int(o.get("mult", 1)), "s": Fmt.secs(rem).replace("S", "")})
+		var ck := "BUFF_CHIP_FRENZY" if kind == "frenzy" else ("BUFF_CHIP_TAPFRENZY_LEADER" if Leaders.active() else "BUFF_CHIP_TAPFRENZY")
+		# rtl-map §4.3: the round's verb in the tap-frenzy chip (Bibi's kit verb is שליפה)
+		_chip_text.text = Strings.s(ck, {"mult": int(o.get("mult", 1)), "s": Fmt.secs(rem).replace("S", ""), "verb": str(LeaderUi.tap()["verb"])})
 	var bar: Rect2 = L.BUFF["chipBar"]
 	var w := Ui.snap(bar.size.x * minf(1.0, rem / total), 4)
 	_chip_top.size.x = w

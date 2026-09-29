@@ -197,8 +197,10 @@ leader) installs the shipped `partners` and `events` untouched**, so his round i
 content without `leaders` (the fork's, the fixtures) is always that default round.
 
 Round flow: a new game and every election begin a round with the same leader and open the picker
-(`leader_pick_pending`); `start_round` replaces it until the round starts (no tap, no partner). A build
-without the picker keeps playing Bibi.
+(`leader_pick_pending`); `start_round` replaces it until the round starts (no tap, no partner). The
+engine (2026-09-29) opens `LEADER_PICK` (`ui/views/view_pick.gd`) whenever `Leaders.pick_pending` holds
+and nothing else is up, and freezes the economy until the pick (`main.gd` `_check_pick`); the views
+read the round through `ui/leader_ui.gd` (`LeaderUi`).
 
 **Engine API** (the picker and the views):
 

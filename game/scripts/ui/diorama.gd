@@ -219,19 +219,28 @@ func _add_crowd(id: String, slots: Array) -> void:
 
 ## The critter sprite of a producer: producers[].sprite, else "critter_<id>", else the neutral
 ## placeholder (a new id never crashes the stage while its art is pending).
+## Outside Bibi's round tiers 4-8 draw the leader's skin (spec §5.3: the kit's own or the generic
+## set, LeaderUi.producer_art), through the same density-variant rule.
 static func _sprite_of(id: String) -> String:
-	var src := Art.source(id)
-	var sp := String(Content.producer(id).get("sprite", src.get("sprite", "critter_" + id)))
-	if sp != "" and sp == String(Art.source(id, false).get("sprite", "")):
+	var src := _source_of(id)
+	var sk := LeaderUi.producer_art(id)
+	var sp := str(sk["sprite"]) if not sk.is_empty() else String(Content.producer(id).get("sprite", src.get("sprite", "critter_" + id)))
+	if sp != "" and sp == String(Art.source(str(sk.get("source", id)), false).get("sprite", "")):
 		sp = String(src.get("sprite", sp))   # the TA's source: its density variant for this k (d 2 at k 4)
 	return Art.sprite_or(sp)
+
+
+## The TA's source entry a producer draws this round (the leader's skin source, else its own).
+static func _source_of(id: String) -> Dictionary:
+	var sk := LeaderUi.producer_art(id)
+	return Art.source(str(sk["source"])) if not sk.is_empty() else Art.source(id)
 
 
 ## Logical px per sprite px of a critter: ×4 art scale ÷ the TA's density (sprites.json
 ## sources[id].density, CONTRACT.md §3: the rendered sources are 3 sprite px per art px; the
 ## hand-drawn ones and the fork's critter_* art are 1).
 static func _scale_of(id: String) -> Vector2:
-	var src := Art.source(id)
+	var src := _source_of(id)
 	if not src.is_empty() and _sprite_of(id) == String(src.get("sprite", "")):
 		return Vector2.ONE * SpriteStrip.scale_of(src)
 	return Vector2.ONE * float(SpriteStrip.art_scale())

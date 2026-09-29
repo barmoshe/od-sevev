@@ -1,6 +1,15 @@
 extends Node2D
-## MainController: the TITLE and MAIN states, overlays and EVOLVE_TX in one scene (port of v1.1
-## src/scenes/MainScene.ts). It owns the one GameState, ticks the pure economy on a fixed 1/60 s
+## MainController: the LEADER_PICK, TITLE (pre-tap) and MAIN states, overlays and EVOLVE_TX in one
+## scene (port of v1.1 src/scenes/MainScene.ts).
+##
+## Leader select (design/leader-select-spec.md §3, ux/rtl-map.md §8, ux/screen-graph.md §0):
+## `mode == "pick"` is the picker (PickView), which replaces the title on a fresh game and follows
+## EVOLVE_TX (and the O3b flash) after every election. One rule opens it: whenever the sim says
+## the pick is pending (`Leaders.pick_pending`: a new game, every election, a reload mid-pick, the
+## undo) and no transition or overlay is up. While it is pending the economy is frozen (the round's
+## clock starts on the pick frame). A pick writes the round (`Politics.install`) and saves before
+## the stage returns; a first-launch pick lands in the pre-tap state (`mode == "title"`, the title
+## state without its lines), an after-election pick straight in the round. It owns the one GameState, ticks the pure economy on a fixed 1/60 s
 ## step, routes every pointer and key through one input boundary, and drives the views.
 ##
 ## v2 layout: the 720x1280 design canvas is split into sections (top bar, stage, ticker + shop,
@@ -94,6 +103,14 @@ var cottage: CottageCup             # Row A's Cottage Index (ui/views/view_cotta
 var dossier: DossierView            # T4 "תיקים" + the pardon desk (ui/views/view_dossier.gd)
 var court: CourtView                # the O2 court card + its ticker chip (ui/views/view_court.gd)
 var thermo: Thermo                  # the suspicion thermometer + the sweat (ui/views/view_thermo.gd)
+var picker: PickView                # LEADER_PICK (ui/views/view_pick.gd)
+var _pick_res: Dictionary = {}      # the last commit's Leaders.start_round result + {via}
+var _pick_seq: Array = []           # [{at (ms, _now), fn}]: the round-start sequence (rtl-map §8.6)
+var _pick_shown_ms := 0.0
+var _undo_btn: PxButton             # "להחליף ראש רשימה" (rtl-map §8.6)
+var _undo_bar: ColorRect
+var _undo_ms := 0.0                 # wall ms left on the undo chip
+var _undo_full := 5000.0
 var court_echo: CourtEcho            # the courthouse window on the stage (Bibi's rounds; ui/court_echo.gd)
 ## Every cue sent to the Audio, by name (tests and tools listen; nothing in the game does).
 signal audio_sent(name: String, arg: Variant)
@@ -145,7 +162,10 @@ func _boot() -> void:
 		mode = "main"
 	else:
 		state = GameState.fresh()
+		Leaders.set_salt(state, randi())   # the seat deals differ between players (sim README)
 		mode = "title"
+	if _shot.is_empty() and Leaders.pick_pending(state):
+		mode = "pick"   # a new game, or a reload mid-pick (leaderPickPending)
 	_read_dev_params()
 	if float(_dev["grant"]) > 0.0:
 		Economy.add_bananas(state, float(_dev["grant"]))
@@ -177,7 +197,12 @@ func _boot() -> void:
 	diorama.set_era(Story.era_for(state.evolutions))
 	_prev_buffs = {"frenzy": state.buff_frenzy > 0.0, "tapFrenzy": state.buff_tap_frenzy > 0.0}
 	_audio_call("set_evolutions", [state.evolutions])
-	_set_mode(mode, false)
+	if Leaders.active():
+		_audio_call("set_leader", [Leaders.current(state)])   # Audio v1.3: the round's crits (on load)
+	if mode == "pick":
+		_open_picker()
+	else:
+		_set_mode(mode, false)
 	if res["kind"] == "ok":
 		_credit_away((SaveStore.now_ms() - float(res["lastSaveTime"])) / 1000.0, true)
 	if res["kind"] == "corrupt" or res["kind"] == "newer":
@@ -186,8 +211,8 @@ func _boot() -> void:
 	if mode == "main" and not OS.has_feature("web"):
 		_audio_call("start_music", [])   # web starts the song on the audio unlock (Audio autoload)
 	_refresh_all(0.0)
-	if not _pending_offline.is_empty():
-		_show_offline()
+	if not _pending_offline.is_empty() and mode != "pick":
+		_show_offline()   # screen-graph §0.2 rule 2: O1 is queued until after the pick
 	if not _shot.is_empty():
 		_run_shot()
 
@@ -204,10 +229,16 @@ func _dev_chat(n: int) -> void:
 	var ids: Array = Coalition.partners().map(func(p: Dictionary) -> String: return str(p["id"]))
 	for i in n:
 		Coalition._post(state, {"type": "sys", "key": "chat.sys.joined", "partner": ids[i % ids.size()]}, [])
-	for id in ["amsalem", "smotrich"]:
-		if not Coalition.partner(id).is_empty():
-			Coalition.ps(state, id)["status"] = "member"
-	Coalition.start_brawl(state, "amsalem", "smotrich")
+	# the shipped pair when both are in the round's lineup (Bibi's), else any two members (spec
+	# §10.1: the lineup differs per leader)
+	var pair: Array = ["amsalem", "smotrich"]
+	if Coalition.partner("amsalem").is_empty() or Coalition.partner("smotrich").is_empty():
+		pair = ids.filter(func(x: String) -> bool: return Coalition.partner(x).get("standIn", false) != true).slice(0, 2)
+	if pair.size() < 2:
+		return
+	for id: String in pair:
+		Coalition.ps(state, id)["status"] = "member"
+	Coalition.start_brawl(state, pair[0], pair[1])
 
 
 ## Desktop dev runs only: `godot --path game -- --content=res://tests/fixtures/content.fork.json`
@@ -367,6 +398,14 @@ func _build() -> void:
 	overlays.stack_changed.connect(func() -> void: top_bar.set_pulse_paused(overlays.is_open()))
 	tx = EvolveTx.new()
 	_modal.add_child(tx)
+	picker = PickView.new()
+	picker.host = self
+	_root.add_child(picker)
+	_root.move_child(picker, _modal.get_index())   # over the stage and the HUD, under the overlays
+	picker.on_commit = _on_pick_commit
+	picker.on_done = _on_pick_done
+	picker.on_card = _open_leader_card
+	_build_undo_chip()
 	title_view.build(bool(settings["reducedMotion"]), show_key_hints())
 	var a := get_node_or_null("/root/Audio")
 	if a:
@@ -394,6 +433,9 @@ func _build_history() -> void:
 ## court card (non-modal, above the tall tabs), then the overlay stack (the partner card, settings,
 ## O10 over it, ...). Title state and the election transition hold no entries.
 func layer_depth() -> int:
+	if mode == "pick":
+		# screen-graph §0.2 rule 4: the after-election picker holds one entry (back = again)
+		return overlays.stack.size() + (1 if picker.variant == "after" and picker.again_id != "" else 0)
 	if mode != "main":
 		return 0
 	var n := overlays.stack.size()
@@ -411,6 +453,11 @@ func back_layer() -> bool:
 		return overlays.back()
 	if tx.running or _tx_locked:
 		return true
+	if mode == "pick":
+		if picker.variant == "after" and picker.again_id != "":
+			picker.commit_again("back")
+			return true
+		return false
 	if court.expanded():
 		court.collapse()   # rtl-map §6.4: back collapses the expanded card to its chip first
 		return true
@@ -554,6 +601,9 @@ func _relayout() -> void:
 	diorama.extend(_ox + 8.0, _top_y + float(L.ROW_A_H + L.ROW_B_H) + 8.0)
 	shop.set_list_height(L.panel_h)
 	title_view.refit()
+	picker.position = Vector2(_ox, 0)
+	picker.layout(_top_y, _vs.y - float(ins.y), _vs.x, _ox)
+	_place_undo_chip()
 	chat.relayout()
 	dossier.relayout()
 	court.relayout()
@@ -623,6 +673,10 @@ func _in_modal(p: Vector2) -> Vector2:
 	return p - Vector2(_ox, _ovl_y) - _root.position
 
 
+func _in_pick(p: Vector2) -> Vector2:
+	return p - picker.position - _root.position
+
+
 # ================================================================== settings
 
 func _apply_settings() -> void:
@@ -645,6 +699,7 @@ func _apply_settings() -> void:
 	court_echo.reduced_motion = rm
 	ftue.reduced_motion = rm
 	title_view.set_reduced_motion(rm)
+	picker.reduced_motion = rm
 	fx_stage.reduced_motion = rm
 	fx_ui.reduced_motion = rm
 	overlays.reduced = rm
@@ -795,13 +850,29 @@ func _haptic(ms: int) -> void:
 func _set_mode(m: String, animate: bool) -> void:
 	mode = m
 	var main := m == "main"
+	if m != "pick" and picker.visible:
+		picker.close()
+		picker.publish_closed()
+	if m == "pick":
+		# rtl-map §8: the HUD is hidden, the stage is empty behind the scrim
+		bb.visible = false
+		title_view.show_title(false)
+		_top.visible = false
+		_lower.visible = false
+		_bg.visible = false   # as the title state: the era stage shows behind the scrim
+		_title_ground.visible = not diorama.has_background()
+		_title_floor.visible = true
+		_title_floor.modulate.a = 1.0
+		_title_floor.color = diorama.pad_bottom
+		return
+	bb.visible = true
 	_bg.visible = main
 	_title_ground.visible = not main and not diorama.has_background()
 	_title_floor.color = diorama.pad_bottom
 	_title_floor.modulate.a = 1.0
 	_title_floor.visible = not main or animate   # fades out with the title (below)
 	if not main:
-		title_view.show_title(true)
+		title_view.show_title(not Leaders.active())   # D26: the pre-tap state has no title lines
 		_top.visible = false
 		_lower.visible = false
 		return
@@ -846,7 +917,8 @@ func _process(delta: float) -> void:
 		_on_away(gap)
 	var dt := minf(250.0, delta * 1000.0)
 	_now += dt
-	var running := mode == "main"
+	# spec §3.1: the round's clock starts on the pick frame, never during the flash or the picker
+	var running := mode == "main" and not Leaders.pick_pending(state)
 	var modal := overlays.is_open() or tx.running
 	if running and not _economy_frozen:
 		_acc += dt * float(_dev["speed"])
@@ -863,6 +935,7 @@ func _process(delta: float) -> void:
 			_meta_check_ms = 0.0
 			_check_meta()
 	_poll_handoff()
+	_check_pick(dt)
 	_check_buff_edges()
 	_check_headlines()
 	_check_reveals()
@@ -920,7 +993,7 @@ func _audio_clocks(dt: float) -> void:
 			_trick_fired = true
 			_audio("trickCue")
 			if bb.hero != null:
-				bb.hero.play("crit", true, 1)
+				bb.hero.play(str(LeaderUi.tap()["critAnim"]), true, 1)   # the round's crit (Bibi: "crit")
 	_progress_ms += dt
 	if _progress_ms >= 1000.0 and mode == "main" and Coalition.active():
 		_progress_ms = 0.0
@@ -937,7 +1010,7 @@ func _ftue_ctx(running: bool) -> Dictionary:
 	if k >= 0 and shop.row_screen_y(k, "producers") >= 0.0 and shop.tab == "producers":
 		pill = shop.pill_pos(k) + Vector2(0, float(L.STAGE["y"]) + L.stage_h)
 	return {
-		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open() or dossier.is_open(),
+		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open() or dossier.is_open() or mode == "pick",
 		"hat": L.magician_feet() - Vector2(0, 380), "pill": pill,
 		"price": Economy.producer_cost(state, first, 1),
 		"bounce": func() -> void: shop.bounce_row(k),
@@ -977,7 +1050,7 @@ func _blackout() -> bool:
 ## The band is clear for a Suitcase (ux/ftue.md: stage_unobstructed()).
 func stage_unobstructed() -> bool:
 	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked and not chat.is_open() \
-		and not dossier.is_open() and not court.covers_band()
+		and not dossier.is_open() and not court.covers_band() and not undo_visible()
 
 
 ## The HTML disclaimer faded out (shell.html sets window.mbHandoffDone): the FTUE clocks start,
@@ -1141,7 +1214,7 @@ func _on_politics_event(e: Dictionary) -> void:
 			var reason := String(e.get("reason", "testified"))
 			_audio("courtEnd", reason)
 			if reason != "postponed":
-				toasts.show_toast(Strings.s("TOAST_COURT_END"))
+				toasts.show_toast(LeaderUi.s("TOAST_COURT_END"))
 		"transfer":
 			_audio("transfer")
 
@@ -1179,12 +1252,15 @@ func _check_buff_edges() -> void:
 
 ## Milestone headlines fire once ever (headlinesSeen persists) and pre-empt ambient ticker text.
 func _check_headlines() -> void:
-	for h: Dictionary in Content.data()["headlines"]:
+	for h: Dictionary in Leaders.headlines(state):   # the round's: Bibi's own leave, the kit's join
 		if state.headlines_seen.has(h["id"]):
 			continue
 		var tr: Dictionary = h["trigger"]
-		var v: Variant = tr["value"]
+		var v: Variant = tr.get("value", 0)
 		var hit := false
+		var lh: Variant = Leaders.headline_hit(state, tr)
+		if lh != null:
+			hit = bool(lh)
 		match String(tr["type"]):
 			"tapsLifetime":
 				hit = state.taps_lifetime >= int(v)
@@ -1339,6 +1415,17 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	var sp := _in_stage(p)
 	var tp := _in_top(p)
 	var lp := _in_lower(p)
+	if mode == "pick":
+		# the disclaimer is HTML over the canvas; until it hands off, nothing here is live
+		if ftue.handoff_ms <= 0.0:
+			return
+		picker.pointer_down(_in_pick(p))
+		_presses[idx] = {"kind": "pick"}
+		return
+	if undo_visible() and _undo_btn.contains(sp):
+		_undo_btn.down()
+		_presses[idx] = {"kind": "undo"}
+		return
 	if mode == "title":
 		# the disclaimer is HTML over the canvas; until it hands off, nothing here is live
 		if ftue.handoff_ms <= 0.0:
@@ -1406,6 +1493,8 @@ func _pointer_move(idx: int, p: Vector2) -> void:
 		chat.pointer_move(_in_lower(p))
 	elif pr.get("kind", "") == "dossier":
 		dossier.pointer_move(_in_lower(p))
+	elif pr.get("kind", "") == "pick":
+		picker.pointer_move(_in_pick(p))
 
 
 func _pointer_up(idx: int, p: Vector2) -> void:
@@ -1416,6 +1505,11 @@ func _pointer_up(idx: int, p: Vector2) -> void:
 	var tp := _in_top(p)
 	var lp := _in_lower(p)
 	match String(pr["kind"]):
+		"pick":
+			picker.pointer_up(_in_pick(p))
+		"undo":
+			var inside := undo_visible() and _undo_btn.contains(_in_stage(p))
+			_undo_btn.up(inside)
 		"overlay":
 			overlays.pointer_up(_in_modal(p))
 		"list":
@@ -1463,6 +1557,8 @@ func _update_hover(p: Vector2) -> void:
 	var pointer := false
 	if overlays.is_open():
 		pointer = overlays.hover(_in_modal(p))
+	elif mode == "pick":
+		pointer = picker.hover(_in_pick(p))
 	elif mode == "title":
 		pointer = Ui.in_rect(bb.hit_rect(), _in_stage(p))
 	elif _gameplay_input():
@@ -1495,6 +1591,13 @@ func _on_key(e: InputEventKey) -> void:
 		return
 	if overlays.is_open():
 		overlays.key(e)
+		return
+	if mode == "pick":
+		if ftue.handoff_ms > 0.0:
+			picker.key(e)
+		return
+	if e.keycode == KEY_U and undo_visible():
+		_undo_pick()
 		return
 	if mode == "title":
 		if (e.keycode == KEY_SPACE or e.keycode == KEY_ENTER) and ftue.handoff_ms > 0.0:
@@ -1547,11 +1650,24 @@ func _handle_tap(at: Vector2) -> void:
 	if state.taps_lifetime == 1:
 		# after the tap, which opens the audio gate: the Audio holds Dubi's first line until the
 		# motif's musicalSeconds (O-A3); the ticker/toast line stays at f0 (ux/ftue.md H1)
-		_audio("babble", Strings.s("DUBI_FIRSTTAP"))
+		_audio("babble", _first_squawk())
+	elif Leaders.active() and Leaders.stat(state, Leaders.current(state), "taps") == 1.0:
+		# ux/ftue.md H1L: a leader's first laugh, the first tap of their first round (D31)
+		toasts.say(LeaderUi.firsttap(), L.magician_feet() - Vector2(0, 380), 1600.0)
+		_audio("babble", _first_squawk())
 	top_bar.set_bank(state.bananas)
 	top_bar.pop_bank()
 	var n := Fmt.amount(float(r["value"]))
 	floaters.spawn(at.x, at.y, Strings.s("FLOATER_CRIT" if crit else "FLOATER", {"n": n}), crit, state.buff_tap_frenzy > 0.0)
+	if crit and not LeaderUi.is_default() and str(LeaderUi.tap()["critName"]) != "":
+		floaters.spawn(at.x, at.y - 56.0, str(LeaderUi.tap()["critName"]), true, false)   # spec §5.2: the crit word
+	if r.get("tap7", false) == true:
+		var t7 := str(Leaders.rule(Leaders.current(state)).get("copy", {}).get("tap7", ""))
+		if t7 != "":
+			floaters.spawn(at.x, at.y - 56.0, t7, true, false)   # Eisenkot's tap 7: "בלי קסמים. רק ישר."
+			var ca := str(LeaderUi.tap()["critAnim"])
+			if bb.hero != null and bb.hero.has_anim(ca):
+				bb.hero.play(ca, true, 1)   # his react plays the beat the rabbit would
 	if bb.hero == null:
 		fx_stage.play("critBurst" if crit else "tapChips", at.x, at.y)
 	elif crit:
@@ -1561,6 +1677,17 @@ func _handle_tap(at: Vector2) -> void:
 		if not settings["reducedMotion"]:
 			_start_shake(float(Tune.T["critShakePx"]), float(Tune.T["critShakeMs"]))
 	ftue.on_registered_action()
+
+
+## Dubi's first-tap line for the round's leader: the Audio's own lookup (v1.3 squawk_text, the
+## text it babbles and contours), else the view's (LeaderUi.firsttap: the same content).
+func _first_squawk() -> String:
+	var a := get_node_or_null("/root/Audio")
+	if a != null and a.has_method("squawk_text") and Leaders.active():
+		var t := str(a.call("squawk_text", Leaders.current(state), "firsttap"))
+		if t != "":
+			return t
+	return LeaderUi.firsttap()
 
 
 ## S10's running income bonus as an LTR token ("+15%").
@@ -1597,7 +1724,10 @@ func _catch_golden() -> void:
 			top_bar.roll_bank(award)
 			top_bar.big_gain("bunch")
 		"bpsFrenzy":
-			buffs.show_banner(Strings.s("BANNER_FRENZY", {"mult": int(o.get("mult", 1))}))
+			if Leaders.active():   # rtl-map §4.3: the round's frenzy banner (Bibi's is the same text)
+				buffs.show_banner(Strings.s("BANNER_FRENZY_LEADER", {"banner": str(LeaderUi.tap()["frenzyBanner"]), "mult": int(o.get("mult", 1))}))
+			else:
+				buffs.show_banner(Strings.s("BANNER_FRENZY", {"mult": int(o.get("mult", 1))}))
 		_:
 			buffs.show_banner(Strings.s("BANNER_TAPFRENZY", {"mult": int(o.get("mult", 1))}))
 	ftue.on_golden_caught(state)
@@ -1619,7 +1749,13 @@ func _on_hero_event(ev: String, at: Vector2) -> void:
 			prop_fx.rabbit(at)
 			_audio("rabbit")   # the Audio's rabbitCrit on the strip's own frame
 		_:
-			pass   # "sting" stays silent (cue-spec §5)
+			# a leader's react (spec §5.2, CONTRACT §4c): its event (whoosh / shout / no / land) is
+			# the crit's frame. The coins burst there, and the Audio plays crit_for(leader)'s cue
+			# (spec §9.5, audio/od/cue-spec.md §4.2).
+			if not LeaderUi.is_default() and ev == str(LeaderUi.tap().get("critEvent", "")) and bb._state == "crit":
+				prop_fx.coins(at, int(Tune.MC["critCoinBase"]))
+				_audio("heroEvent", ev)   # Audio v1.3 (cue-spec §4.2): the leader's crit cue on its frame
+			# "sting" stays silent (cue-spec §5)
 
 
 func _on_buy_producer(id: String, is_repeat: bool, result: Array) -> void:
@@ -1653,7 +1789,8 @@ static func spin_flavor(s: GameState, id: String) -> String:
 	var n := Spins.level(s, id)
 	if Spins.kind(u) == "line" and n >= 1 and n <= lv.size() and lv[n - 1] is Dictionary and (lv[n - 1] as Dictionary).has("flavor"):
 		return String(lv[n - 1]["flavor"])
-	return String(u.get("flavor", ""))
+	var sk := LeaderUi.spin_word(id, "flavor")   # the round's leader skin (spec §5.4)
+	return sk if sk != "" else String(u.get("flavor", ""))
 
 
 func _on_buy_upgrade(id: String, result: Array) -> void:
@@ -1710,7 +1847,10 @@ func _open_settings() -> void:
 
 ## The narrator's card for the evolution just reached (once per evolution; replay in the Book).
 func _show_story_beat() -> void:
-	var bid := Story.beat_id(state.evolutions)
+	# leader select: the beat of the leader just played (Story.flash: "beat_<leader>_<n>"; Bibi's
+	# ids are the shipped ones)
+	var fl := Story.flash(state) if Leaders.active() else {}
+	var bid := str(fl["id"]) if not fl.is_empty() and int(fl["n"]) >= 1 else Story.beat_id(state.evolutions)
 	if state.story_seen.has(bid):
 		return
 	state.story_seen.append(bid)
@@ -1920,7 +2060,13 @@ func _do_reset() -> void:
 	_load_kind = "none"
 	_seed_milestones()
 	diorama.set_era(Story.era_for(0))
-	_set_mode("title", false)
+	Leaders.set_salt(state, randi())
+	_undo_ms = 0.0
+	_pick_seq.clear()
+	if Leaders.pick_pending(state):
+		_open_picker()   # screen-graph §0: O10 → LEADER_PICK (first)
+	else:
+		_set_mode("title", false)
 
 
 # ================================================================== evolve (E7: idempotent, save first, input locked)
@@ -1993,6 +2139,206 @@ func _start_evolve() -> void:
 
 func _mark_dirty() -> void:
 	_save_dirty = true
+
+
+# ================================================================== leader select (LEADER_PICK)
+
+## The picker rule, every frame: open it whenever the pick is pending and nothing is up (a new
+## game, each election after O3 → EVOLVE_TX → [O3b], a reload mid-pick, the undo). Also runs the
+## round-start sequence and the undo chip.
+func _check_pick(dt: float) -> void:
+	if mode != "pick" and _shot.is_empty() and Leaders.pick_pending(state) and not tx.running and not _tx_locked \
+			and not overlays.is_open() and not chat.is_open() and not dossier.is_open():
+		_open_picker()
+	picker.update_view(dt)
+	while not _pick_seq.is_empty() and _now >= float(_pick_seq[0]["at"]):
+		var step: Dictionary = _pick_seq.pop_front()
+		(step["fn"] as Callable).call()
+	_update_undo_chip(dt)
+
+
+## Opens LEADER_PICK (first on evolutions 0, else after). `keep` = the undo: the same order and
+## the focus on the tile just picked.
+func _open_picker(keep: Array = [], focus_id: String = "") -> void:
+	var variant := "first" if state.evolutions == 0 else "after"
+	var model := Leaders.picker(state)
+	var pk: Variant = Leaders.ls().get("pick", {})
+	var fresh := float((pk as Dictionary).get("freshFaceBasePct", 0.0)) if pk is Dictionary else 0.0
+	var lp := variant == "after" and str(state.ui.get("lp", "")) == ""
+	_undo_ms = 0.0
+	_pick_seq.clear()
+	toasts.clear_bubble()
+	shop.cancel_press()
+	_presses.clear()
+	_set_mode("pick", false)
+	picker.open(variant, model, keep, focus_id, fresh, lp)
+	_pick_shown_ms = _now
+	_funnel("leader_pick_shown", {"variant": variant, "n_tiles": picker.cells.size(), "order": picker.order})
+
+
+## The commit frame (PickView.on_commit): the sim writes the round, the sting plays (the game's
+## first sound on a fresh game: the release is the WebAudio gesture), and the save lands before
+## the stage returns (screen-graph §0.2 rule 1).
+func _on_pick_commit(id: String, via: String) -> bool:
+	var res := Politics.install(state, id)
+	if res.get("ok", false) != true:
+		return false
+	_pick_res = res.duplicate()
+	_pick_res["via"] = via
+	_pick_res["variant"] = picker.variant
+	_pick_res["order"] = picker.order.duplicate()
+	if picker.variant == "after":
+		state.ui["lp"] = "done"   # ux/ftue.md LP: the first after-election picker taught the switch
+	d = Economy.derive(state)
+	_audio("leaderPick", id)
+	if _shot.is_empty():
+		store.save_game(state)
+	_funnel("leader_pick_committed", {"leader": id, "via": via, "ms_to_pick": int(_now - _pick_shown_ms),
+		"fresh": bool(res.get("fresh", false)), "switched": bool(res.get("switched", false))})
+	return true
+
+
+## ≈ 520 ms after the commit (PickView.on_done): the leader walks in (appears; the walk is the
+## Animator's), the lower third, Dubi's line, the fresh toast and the 5 s undo chip (rtl-map §8.6).
+func _on_pick_done() -> void:
+	picker.publish_closed()
+	bb.set_leader(LeaderUi.art(), LeaderUi.tap())
+	bb.unlock()
+	var first := state.evolutions == 0 and state.taps_lifetime == 0
+	_set_mode("title" if first else "main", not first)
+	if not first:
+		_audio_call("start_music", [])
+	bb.modulate.a = 0.0 if not settings["reducedMotion"] else 1.0
+	if not settings["reducedMotion"]:
+		create_tween().tween_property(bb, "modulate:a", 1.0, 0.25)
+	ftue.on_input()   # rtl-map §8.6: every FTUE clock starts at the pick
+	var id := Leaders.current(state)
+	toasts.show_toast(Strings.s("LEADER_PICK_PLATE", {"short": LeaderUi.short(id), "party": LeaderUi.party(id)}))
+	var dubi_at := Vector2(644, L.stage_bottom() - 232.0)
+	var random := str(_pick_res.get("via", "")) == "random"
+	_pick_seq = [{"at": _now + 380.0, "fn": func() -> void:
+		toasts.say(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at, 1600.0)}]
+	var line := str(Leaders.leader(id).get("pick", {}).get("line", "")) if Leaders.leader(id).get("pick") is Dictionary else ""
+	if Leaders.stat(state, id, "taps") > 0.0 and line != "":
+		_pick_seq.append({"at": _now + 2080.0, "fn": func() -> void: toasts.say(line, dubi_at, 1600.0)})
+	if _pick_res.get("fresh", false) == true:
+		toasts.show_toast(Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}))
+	var pk: Variant = Leaders.ls().get("pick", {})
+	_undo_full = 1000.0 * (float((pk as Dictionary).get("undoSec", 5.0)) if pk is Dictionary else 5.0)
+	_undo_ms = _undo_full
+	_place_undo_chip()
+	if not _pending_offline.is_empty():
+		_show_offline()   # O1 waited for the pick
+	if mode == "main":
+		_save_now()
+
+
+## Test / tool hook: picks `id` at once (the commit and the stage, no animation).
+func commit_pick(id: String) -> bool:
+	if mode != "pick":
+		if not Leaders.pick_pending(state):
+			return false   # a loaded round (or content without leader select): nothing to pick
+		_open_picker()
+	var i := -1
+	for k in picker.cells.size():
+		if str(picker.cells[k]["id"]) == id:
+			i = k
+	if i < 0:
+		return false
+	picker.commit_cell(i, "tile")
+	if not picker.locked:
+		return false
+	picker.finish_now()
+	return true
+
+
+## The leader card over the picker (rtl-map §8.7).
+func _open_leader_card(id: String, via: String) -> void:
+	if overlays.is_open():
+		return
+	_audio("panelOpen")
+	_funnel("leader_card_opened", {"leader": id, "via": via})
+	overlays.request(func() -> Overlay:
+		var o := PickView.LeaderCard.new()
+		o.setup(self, overlays)
+		o.leader_id = id
+		o.picker = picker
+		return o.build())
+
+
+## The undo chip (rtl-map §8.6): kit button_secondary at the left of the Suitcase band, a 2-art-px
+## bar draining left → right over undoSec; up for undoSec of wall time after every pick while the
+## round has not started (no tap, no buy).
+func _build_undo_chip() -> void:
+	_undo_btn = PxButton.make(_ui, Rect2(16, 0, 392, 80), {"kind": "kit_secondary", "label": Strings.s("LEADER_PICK_UNDO"),
+		"label_box": 352.0, "on_commit": _undo_pick})
+	_undo_bar = ColorRect.new()
+	_undo_bar.color = Color("#fff8ec")
+	_undo_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ui.add_child(_undo_bar)
+	_undo_btn.set_visible(false)
+	_undo_bar.visible = false
+
+
+func _place_undo_chip() -> void:
+	if _undo_btn == null:
+		return
+	var y := L.stage_bottom() - 96.0
+	_undo_btn.visual = Rect2(16, y, 392, 80)
+	_undo_btn.hit = Rect2(8, y - 4.0, 408, 88)
+	Ui.set_nine_rect(_undo_btn.bg, _undo_btn.visual)
+	if _undo_btn.label != null:
+		_undo_btn.label.position.y = y + Ui.snap((80.0 - 28.0) / 2.0, 4)
+		_undo_btn.label.center_in(16, 392)
+	_undo_bar.position = Vector2(24, y + 64.0)
+	_undo_bar.size = Vector2(376, 8)
+
+
+func undo_visible() -> bool:
+	return _undo_ms > 0.0 and mode != "pick" and _undo_btn != null
+
+
+func _update_undo_chip(dt: float) -> void:
+	if _undo_ms > 0.0:
+		_undo_ms -= dt
+		if not Leaders.can_repick(state) or state.run_taps > 0 or Ftue.owned_total(state) > 0 or tx.running:
+			_undo_ms = 0.0
+	var on := undo_visible()
+	_undo_btn.set_visible(on)
+	_undo_bar.visible = on and not settings["reducedMotion"]
+	if on:
+		var f := clampf(_undo_ms / maxf(1.0, _undo_full), 0.0, 1.0)
+		_undo_bar.size.x = Ui.snap(376.0 * f, 4)
+		_undo_bar.position.x = 24.0 + 376.0 - _undo_bar.size.x   # drains left → right (mirror)
+
+
+## "להחליף ראש רשימה" / U: back to the same picker (the same variant, order and seat seed), with
+## the focus on the tile just picked; the sim reverts the pick (the +10%, the switch, the history).
+func _undo_pick() -> void:
+	if not undo_visible():
+		return
+	var from := Leaders.current(state)
+	var r := Leaders.undo_pick(state)
+	if r.get("ok", false) != true:
+		_undo_ms = 0.0
+		return
+	_funnel("leader_pick_undo", {"from": from, "ms_since_pick": int(_undo_full - maxf(0.0, _undo_ms))})
+	_undo_ms = 0.0
+	_audio("leaderUndo")   # silent on purpose (cue-spec §4.1)
+	_audio_call("set_leader", [Leaders.current(state)])
+	d = Economy.derive(state)
+	if _shot.is_empty():
+		store.save_game(state)
+	_open_picker(_pick_res.get("order", []), from)
+
+
+## Funnel events (ux/screen-graph.md §0.4; names only, the developer plumbs them): the web build
+## appends them to window.odFunnel for the drivers and a later analytics hook.
+func _funnel(name: String, payload: Dictionary) -> void:
+	if OS.has_feature("web"):
+		var ev := payload.duplicate()
+		ev["ev"] = name
+		JavaScriptBridge.eval("(window.odFunnel = window.odFunnel || []).push(%s)" % JSON.stringify(ev), true)
 
 
 func _save_now() -> void:

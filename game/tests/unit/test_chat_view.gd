@@ -38,6 +38,7 @@ func _boot() -> void:
 	for i in 3:
 		await tree.process_frame
 	m.ftue.handoff_ms = 1.0
+	m.commit_pick("bibi")   # LEADER_PICK (leader select): Bibi's round, the shipped game
 	_touch(_stage_pt(L.magician_hit().get_center()))   # title → main (tap 1)
 
 
@@ -402,6 +403,8 @@ func test_a_brawl_is_surfaced_with_the_chat_closed() -> void:
 		Coalition.ps(m.state, id)["status"] = "member"
 	var t: Toasts = m.toasts
 	t._queue.clear()
+	t._tags.clear()
+	t._chats.clear()   # the round-start toasts (the leader plate) queued their tags too
 	t._t = -1.0
 	t._gap = 0.0
 	var before := 0
@@ -424,6 +427,8 @@ func test_a_chat_toast_has_the_face_and_the_sender() -> void:
 	_open_group()
 	var t: Toasts = m.toasts
 	t._queue.clear()
+	t._tags.clear()
+	t._chats.clear()   # the round-start toasts (the leader plate) queued their tags too
 	t._t = -1.0
 	t._gap = 0.0
 	var msg := _post({"type": "demand", "partner": "bengvir", "price": 90.0, "kind": "money", "join": false, "ageSec": 0.0,
