@@ -1442,3 +1442,11 @@ index 0000000..3d59bf0
 +func test_boot_at_412x915_at_2_625() -> void:
 +	await _check_booted(Vector2i(1081, 2401), "412×915@2.625")
 # untracked binary: game/tests/unit/test_mobile_layout.gd
+diff --git a/game/tests/unit/test_mobile_layout.gd.uid b/game/tests/unit/test_mobile_layout.gd.uid
+new file mode 100644
+index 0000000..d9bdb3c
+--- /dev/null
++++ b/game/tests/unit/test_mobile_layout.gd.uid
+@@ -0,0 +1 @@
++uid://drdxuu2uas3jq
+# untracked binary: game/tests/unit/test_mobile_layout.gd.uid
