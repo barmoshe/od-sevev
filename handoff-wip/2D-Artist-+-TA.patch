@@ -1220,7 +1220,7 @@ index 8ba2a58..2242af9 100644
  
  
 diff --git a/game/scripts/ui/diorama.gd b/game/scripts/ui/diorama.gd
-index bb0e4a5..e1659c8 100644
+index bb0e4a5..c838cb7 100644
 --- a/game/scripts/ui/diorama.gd
 +++ b/game/scripts/ui/diorama.gd
 @@ -102,6 +102,7 @@ func set_era(era: Dictionary) -> void:
@@ -1240,7 +1240,7 @@ index bb0e4a5..e1659c8 100644
  	for sp: Dictionary in specs:
  		_place_prop(sp)
  
-@@ -166,6 +169,69 @@ func _place_lane(era_id: String, art_origin: Vector2) -> void:
+@@ -166,6 +169,75 @@ func _place_lane(era_id: String, art_origin: Vector2) -> void:
  	_props.add_child(tr)
  
  
@@ -1302,9 +1302,15 @@ index bb0e4a5..e1659c8 100644
 +
 +## Logical px of floor art the diorama draws below the stage's bottom (the plaza), 0 without one. A flat
 +## floor fill under the stage (main.gd's title floor) starts below this, so it never covers the plaza.
++## Era-independent (main.gd lays out before the first set_era): true when the stages ship plaza art. Where a
++## plaza is missing, the clear colour under it is the era's padBottom, the flat floor's own colour.
 +func floor_reach() -> float:
-+	var era_id := String(_era.get("id", ""))
-+	return float(PLAZA_ROWS) * 4.0 if (_plaza or (era_id != "" and Art.has_sprite("plaza_" + era_id))) else 0.0
++	if _plaza:
++		return float(PLAZA_ROWS) * 4.0
++	for era_id: Variant in SpriteStrip.manifest().get("stages", {}):
++		if Art.has_sprite("plaza_" + String(era_id)):
++			return float(PLAZA_ROWS) * 4.0
++	return 0.0
 +
 +
  func _place_prop(sp: Dictionary) -> void:
