@@ -559,6 +559,75 @@
    "notes": "Unread / demand count on a tab: top-right of the icon. 1-2 digits in the 5x9 cut (body rows only). white on red 4.7:1; the number itself is the non-colour channel."
   },
   {
+   "id": "button_danger_default",
+   "group": "controls",
+   "file": "out/ui/controls/button_danger_default.png",
+   "w": 24,
+   "h": 20,
+   "state": "default",
+   "slice": [
+    3,
+    3,
+    3,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    18,
+    14
+   ],
+   "label": "white",
+   "notes": "Destructive commit only: 'למחוק הכול' in the reset modal O10 (UX R7), on the LEFT, beside a button_secondary cancel on the right that holds the focus. red = danger, and the shape that travels with it is the word itself plus, if the row has room, icon_trash leading the label (right). Never on a non-destructive action; never two on a screen. white on red 4.7:1, pressed white on red_dk 8.1:1. Text cell (9 rows) centred in rows 2..15."
+  },
+  {
+   "id": "button_danger_disabled",
+   "group": "controls",
+   "file": "out/ui/controls/button_danger_disabled.png",
+   "w": 24,
+   "h": 20,
+   "state": "disabled",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "grey",
+   "notes": "Disabled: sunk, flat, no bevel light; label grey (5.5:1 on suit_dk). Same for every kind, so 'disabled' never masquerades as a colour variant."
+  },
+  {
+   "id": "button_danger_pressed",
+   "group": "controls",
+   "file": "out/ui/controls/button_danger_pressed.png",
+   "w": 24,
+   "h": 20,
+   "state": "pressed",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "white",
+   "notes": "Pressed: label moves +2 art px down with the face."
+  },
+  {
    "id": "button_gold_default",
    "group": "controls",
    "file": "out/ui/controls/button_gold_default.png",
@@ -1871,9 +1940,17 @@
    "id": "icon_close",
    "group": "sheet",
    "file": "out/ui/sheet/icon_close.png",
+   "w": 16,
+   "h": 16,
+   "notes": "Close ✕ for every card and sheet (UX R26: one ✕ style): 16x16, drawn x4 = the 64x64 visual of rtl-map §7.1, centred in its 104 (or the court card's 88) hit. Same silhouette as the modals' round ✕; white ✕ on ui_bub_hi 8.6:1. Reads on the court header wood, a ui_bubble title band, the dark sheet body and a cream card (wave 6; was a thin 9x9 X)."
+  },
+  {
+   "id": "icon_trash",
+   "group": "sheet",
+   "file": "out/ui/sheet/icon_trash.png",
    "w": 9,
    "h": 9,
-   "notes": "Close ✕ for sheets, 9x9; hit area 20x20 art (44 CSS)."
+   "notes": "Trash can, 9x9 inline icon (one text cell tall): the settings danger row 'SET_RESET' (rtl-map §7.4), leading the label on the RIGHT, and optionally leading 'למחוק הכול' on button_danger. Never mirrored (rtl-map §1 'keep'). White lid and can + slate ribs: white on ui_panel 15.6:1, outline on paper 13.5:1, so it reads on the dark sheet and on a cream card alike (wave 6)."
   },
   {
    "id": "sheet_modal",
@@ -1895,7 +1972,7 @@
     8
    ],
    "label": "white",
-   "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 1..18 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: outline swatch at 60% (UX)."
+   "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 1..18 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map §7.1 D23; never the fork's grape, which lifts the dark base)."
   },
   {
    "id": "sheet_plain",
@@ -1942,6 +2019,14 @@
    "notes": "Shop-card icon for 'פנקס הצ׳קים הזהוב': a 24x24 crop of f0 at 1:1 (no rescale), centred on card_plate (26x26)."
   },
   {
+   "id": "source_checkbook_icon_sil",
+   "group": "sources",
+   "file": "out/ui/sources/source_checkbook_icon_sil.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Locked shop-card silhouette for 'פנקס הצ׳קים הזהוב' (the next source to reveal): the icon's mask in `suit`, its edge pixels in `rim`, the same rule as the five rendered sources' _icon_sil (wave 6; the id was in sprites.json but never shipped, so the locked card drew the '?' placeholder)."
+  },
+  {
    "id": "source_poison",
    "group": "sources",
    "file": "out/ui/sources/source_poison.png",
@@ -1964,6 +2049,14 @@
    "notes": "Shop-card icon for 'מכונת הרעל': a 24x24 crop of f0 at 1:1 (no rescale), centred on card_plate (26x26)."
   },
   {
+   "id": "source_poison_icon_sil",
+   "group": "sources",
+   "file": "out/ui/sources/source_poison_icon_sil.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Locked shop-card silhouette for 'מכונת הרעל' (the next source to reveal): the icon's mask in `suit`, its edge pixels in `rim`, the same rule as the five rendered sources' _icon_sil (wave 6; the id was in sprites.json but never shipped, so the locked card drew the '?' placeholder)."
+  },
+  {
    "id": "source_submarine",
    "group": "sources",
    "file": "out/ui/sources/source_submarine.png",
@@ -1984,6 +2077,14 @@
    "w": 24,
    "h": 24,
    "notes": "Shop-card icon for 'הצוללת': a 24x24 crop of f0 at 1:1 (no rescale), centred on card_plate (26x26)."
+  },
+  {
+   "id": "source_submarine_icon_sil",
+   "group": "sources",
+   "file": "out/ui/sources/source_submarine_icon_sil.png",
+   "w": 24,
+   "h": 24,
+   "notes": "Locked shop-card silhouette for 'הצוללת' (the next source to reveal): the icon's mask in `suit`, its edge pixels in `rim`, the same rule as the five rendered sources' _icon_sil (wave 6; the id was in sprites.json but never shipped, so the locked card drew the '?' placeholder)."
   },
   {
    "id": "spin_s01",

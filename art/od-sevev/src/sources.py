@@ -37,6 +37,24 @@ def frame_pair(f0, f1, sid, name, idle_ms, recipe, icon_box):
                 ic.px[yy][xx] = a.px[y + yy][x + xx]
     save(ic, f"source_{sid}_icon", G, notes=f"Shop-card icon for '{name}': a 24x24 crop of f0 at 1:1 (no rescale), "
          "centred on card_plate (26x26).")
+    save(silhouette(ic), f"source_{sid}_icon_sil", G,
+         notes=f"Locked shop-card silhouette for '{name}' (the next source to reveal): the icon's mask in `suit`, its "
+               "edge pixels in `rim`, the same rule as the five rendered sources' _icon_sil (wave 6; the id was in "
+               "sprites.json but never shipped, so the locked card drew the '?' placeholder).")
+
+
+def silhouette(ic):
+    """The rendered sources' rule (showcase build.py): every opaque pixel `suit`; an opaque pixel 4-connected to a
+    transparent one `rim`. The 24x24 box edge does not count as transparent."""
+    S = Layer(ic.w, ic.h)
+    for y in range(ic.h):
+        for x in range(ic.w):
+            if ic.px[y][x] is None:
+                continue
+            edge = any(0 <= x + dx < ic.w and 0 <= y + dy < ic.h and ic.px[y + dy][x + dx] is None
+                       for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            S.px[y][x] = "rim" if edge else "suit"
+    return S
 
 
 # ------------------------------------------------------------------ the submarine

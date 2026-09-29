@@ -24,6 +24,15 @@ if [ ! -f "$TPL_DIR/web_nothreads_release.zip" ]; then
   rm -f "$CACHE/templates.tpz"
 fi
 
+# The content lint gates the build: the red lines (October 7, the hostages, fallen soldiers,
+# the military; Bar: no mention of October 7 anywhere) over content.json, the UI strings and the
+# About page, plus sources and the poll-number rule. No override: a red line never ships.
+if ! node "$HERE/../design/sim/content-lint.mjs" > "$HERE/../build/content-lint.log" 2>&1; then
+  sed -n '/^ERROR/,$p' "$HERE/../build/content-lint.log" | sed 's/^/[build_web] /'
+  log "content lint failed (build/content-lint.log)."
+  exit 1
+fi
+
 # The pixel-width lint gates the build (engine/feasibility.md O-U3): any string that overflows its
 # box, or a glyph the font lacks, fails it. OD_LINT=warn reports and continues (interim builds only,
 # while a string fix is pending with its owner).

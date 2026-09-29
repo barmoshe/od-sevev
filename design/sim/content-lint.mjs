@@ -1,7 +1,8 @@
 // "עוד סבב" content lint (Game Designer paper check, not a test suite; studio invariant I1).
 // Reads design/content.json, design/facts.json and design/redlines.json and reports:
 //   red-line hits, poll-number hits, src ids missing from the fact sheet, the סבב rule, lowercase
-//   Latin, invented quotes of real people in the ticker, length budgets, duplicate ids, and counts.
+//   Latin, invented quotes of real people in the ticker, length budgets, duplicate ids, counts, and the
+//   About page's public facts[].aboutHe (required on every launch fact; Hebrew, one sentence, red lines).
 // Usage: node design/sim/content-lint.mjs [--strict] [--verbose]   (exit 1 on any error; --strict also fails on warnings)
 // The developer's build lint (UX §6.3 item 4, engine O-U3 pixel widths) can import the same JSON files.
 import { readFileSync } from 'node:fs';
@@ -69,13 +70,26 @@ const allowFor = path => R.allow.filter(a => path.includes(`.${a.id}.`) || path.
 function hits(text, term) {
   if (!heb.test(term)) return new RegExp(`(^|[^A-Za-z])${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^A-Za-z]|$)`, 'i').test(text);
   const t = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`(^|[^\\u0590-\\u05FF])[${pre}]{0,${R.match.maxPrefixLetters}}${t}(?=$|[^\\u0590-\\u05FF])`).test(text);
+  // Word boundary = anything but a Hebrew letter: a maqaf, geresh or gershayim is not a letter, so "ב־7 באוקטובר" still hits.
+  return new RegExp(`(^|[^\\u05D0-\\u05EA])[${pre}]{0,${R.match.maxPrefixLetters}}${t}(?=$|[^\\u05D0-\\u05EA])`).test(text);
 }
-for (const s of game) {
+// The red lines cover every player-facing string, not only content.json: the UI strings and the
+// About page's public fact lines too (Bar, 2026-09-29: no mention of October 7 anywhere).
+const U = JSON.parse(readFileSync(new URL('../../ux/ui-strings.json', import.meta.url)));
+const uiStrings = [];
+(function walkUi(o, path) {
+  if (typeof o === 'string') { if (heb.test(o) || /[A-Za-z]/.test(o)) uiStrings.push({ path, text: o }); return; }
+  if (o && typeof o === 'object') for (const [k, v] of Object.entries(o)) if (!k.startsWith('_')) walkUi(v, `${path}.${k}`);
+})(U, '.ui');
+const aboutLines = F.facts.filter(f => typeof f.aboutHe === 'string').map(f => ({ path: `.facts.${f.id}.aboutHe`, text: f.aboutHe }));
+// October 7 written as a date (7.10, 07.10, 7/10, 7.10.23, any year): a digit may not precede it, so 27.10 (the election) passes.
+const oct7Date = /(^|[^\d])0?7\s*[./]\s*10(?![\d])/;
+for (const s of [...game, ...uiStrings, ...aboutLines]) {
   const allowed = allowFor(s.path);
   for (const cat of R.categories) for (const term of cat.terms)
     if (!allowed.includes(term) && hits(s.text, term)) err(s.path, `red line [${cat.id}] '${term}' in: ${s.text}`);
-  for (const term of R.reviewTerms.terms) if (hits(s.text, term)) warn(s.path, `review term '${term}' (group-as-punchline check): ${s.text}`);
+  if (oct7Date.test(s.text)) err(s.path, `red line [oct7-hostages] the date 7.10 in: ${s.text}`);
+  if (s.holder) for (const term of R.reviewTerms.terms) if (hits(s.text, term)) warn(s.path, `review term '${term}' (group-as-punchline check): ${s.text}`);
 }
 
 // ---------- 3. poll-number rule (UX §6.3.4) ----------
@@ -102,6 +116,33 @@ for (const s of game) {
     if (!/^(ה)?בחירות/.test(after) && !titlePhrase) err(s.path, `'סבב' without 'בחירות': ${t}`);
   }
   if (/סבב/.test(t) && military.some(term => hits(t, term))) err(s.path, `'סבב' next to a military term: ${t}`);
+}
+
+// ---------- 4b. About page: facts[].aboutHe (public; ux/rtl-map.md §9, review R2) ----------
+// Every launch fact (notUsed false) needs one public Hebrew sentence; the renderer prints it and never `text`.
+for (const f of F.facts) {
+  const p = `.facts.${f.id}.aboutHe`;
+  if (typeof f.notUsed !== 'boolean') { err(`facts.${f.id}`, 'notUsed must be a boolean (the reason goes in notUsedWhy)'); continue; }
+  if (f.notUsed) continue;
+  const a = f.aboutHe;
+  if (typeof a !== 'string' || !a.trim()) { err(`facts.${f.id}`, 'launch fact without aboutHe (the About page skips it)'); continue; }
+  const letters = [...a].filter(ch => /[A-Za-z֐-׿]/.test(ch));
+  if (letters.filter(ch => /[֐-׿]/.test(ch)).length < letters.length * 0.9 || !heb.test(a)) err(p, `not Hebrew: ${a}`);
+  if (/[A-Za-z]/.test(a)) err(p, `Latin letters (English or a production note) on the public page: ${a}`);
+  if (/(^|[^֐-׿])[והבלמש]?(המשחק|משחק|בהשקה|השקה|לא בשימוש|ספסל|לאימות|טיוטה)(?=$|[^֐-׿])/.test(a)) err(p, `production note: ${a}`);
+  if (/[.!?]\s+\S/.test(a)) err(p, `more than one sentence: ${a}`);
+  if (!/[.!?]["״]?$/.test(a)) warn(p, 'does not end with a full stop');
+  if ([...a].length > 240) warn(p, `${[...a].length} chars > 240 (one short sentence)`);
+  if (f.heStatus === 'unverified' && /["“”„״](?![א-ת])/.test(a.replace(/[א-ת]״[א-ת]/g, ''))) err(p, `quote marks, but the Hebrew wording is unverified (heStatus); use reported speech: ${a}`);
+  const allowed = allowFor(p);
+  for (const cat of R.categories) for (const term of cat.terms)
+    if (!allowed.includes(term) && hits(a, term)) err(p, `red line [${cat.id}] '${term}' on the public page: ${a}`);
+  for (const term of R.reviewTerms.terms) if (hits(a, term)) warn(p, `review term '${term}': ${a}`);
+  const words = a.split(/\s+/);
+  words.forEach((w, i) => {
+    if (!pollKw.some(k => w.includes(k))) return;
+    if (/\d/.test(words.slice(Math.max(0, i - 3), i + 4).join(' '))) err(p, `poll-number rule: digit near '${w}' (the About page is public during the blackout): ${a}`);
+  });
 }
 
 // ---------- 5. glyph coverage (Sevev 9 has no emoji; TA objection) ----------

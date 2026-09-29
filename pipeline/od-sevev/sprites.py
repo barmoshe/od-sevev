@@ -571,6 +571,47 @@ def import_sprites(src, log, provenance):
     return manifest, warns
 
 
+CONTENT = os.path.join(FORK, "design", "content.json")
+FORK_ART = os.path.join(FORK, "game", "data", "art.json")
+
+
+def check_content_sources(manifest, content_path=CONTENT, art_path=FORK_ART):
+    """Every money source in content (producers[]) must resolve to shipped art, the way the engine resolves it
+    (diorama.gd `_sprite_of`, shop.gd, Art.sprite_or): otherwise the stage or the shop draws the neutral '?'
+    placeholder card (UX review R18). Returns a list of failures (empty = pass). Checks, per producer:
+      - the stage sprite: producers[].sprite, else sources[id | sourceAliases[id]].sprite, else critter_<id>. It must
+        be a money-source strip in sprites.json.sources (a density-aware 2-frame strip), not merely any PNG;
+      - the shop icon and the locked silhouette (producers[].icon / .silhouette, else the sources entry's);
+      - its set piece's art: 'lob' throws `icon_<currency.icon>` across the sky.
+    An id resolves when res://assets/sprites/<id>.png is shipped or game/data/art.json (the fork's baked grids) has it."""
+    content = json.load(open(content_path, encoding="utf-8"))
+    baked = set(json.load(open(art_path, encoding="utf-8")).get("sprites", {})) if os.path.exists(art_path) else set()
+    shipped = {os.path.splitext(os.path.basename(r))[0] for r in manifest["files"]}
+
+    def ok(i):
+        return bool(i) and (i in shipped or i in baked)
+
+    sources, aliases = manifest["sources"], manifest.get("sourceAliases", {})
+    strips = {s["sprite"] for s in sources.values()}
+    coin = "icon_" + str(content.get("currency", {}).get("icon", ""))
+    bad = []
+    for p in content.get("producers", []):
+        pid = p["id"]
+        src = sources.get(pid) or sources.get(aliases.get(pid, ""), {})
+        sprite = p.get("sprite", src.get("sprite", "critter_" + pid))
+        if sprite not in strips:
+            bad.append(f"{pid}: stage sprite '{sprite}' is not a money-source strip in sprites.json.sources "
+                       f"(the stage would draw the '?' card or nothing)")
+        for key in ("icon", "silhouette"):
+            i = p.get(key, src.get(key, ""))
+            if not ok(i):
+                bad.append(f"{pid}: {key} '{i}' is not shipped (the shop would draw the '?' card)")
+        if p.get("setPiece") == "lob" and not ok(coin):
+            bad.append(f"{pid}: setPiece 'lob' throws '{coin}' (currency.icon), which is not shipped: a '?' card "
+                       f"flies across the stage")
+    return bad
+
+
 def import_icons(log):
     """App icons from the 2D Artist's 64 art-px master, nearest-neighbour, into the file names the
     export presets already reference. Replaces the fork's banana icons (tools/icon.sh must not run)."""
