@@ -9,6 +9,12 @@
 // window.odModal (ui/views/view_sheet_card.gd), in viewport logical px.
 //   node tools/web/round_web.mjs <url> <out dir> [WxH@DPR] [speed] [budget s]
 // Serve build/web first (python3 -m http.server --directory build/web).
+// NOT a pacing measurement. The driver acts in wall-clock time (a few taps, one card and a look at
+// the chat per loop of ~1-3 s) while ?speed=N runs the game N times faster, so in game time it taps
+// and buys about N times less often than a player, never buys a spin and never catches the Suitcase.
+// Its round time (34:24 of play at speed 10 on 2026-09-29) measures this driver, not the game: it
+// prints its game-time cadence at the end, and tests/bench/test_web_driver.gd replays that cadence
+// through PacingSim (same round length). The pacing gates live in tools/balance.sh.
 const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
 const { chromium } = await import(PW);
 const fs = await import('node:fs');
@@ -74,6 +80,7 @@ let lastSeats = -1;
 let paid = 0;
 let rounds = 0;
 let lastBuy = 0;
+let hatTaps = 0, buyActions = 0, cardTaps = 0, chatLooks = 0;
 while (Date.now() - t0 < budget) {
 	rounds++;
 	let s = await probe();
@@ -93,7 +100,7 @@ while (Date.now() - t0 < budget) {
 		await wait(400);
 		continue;
 	}
-	for (let i = 0; i < 4; i++) { await tapAt(hat, 40); await wait(70); }
+	for (let i = 0; i < 4; i++) { await tapAt(hat, 40); await wait(70); hatTaps++; }
 	// sources: the most expensive affordable card, scrolled into view. Before the group opens (C1)
 	// buy at most every 4 s: C1 pings only when the last purchase is >= 2 s old and no toast shows.
 	const quiet = !s.groupOpen && Date.now() - lastBuy < 4000;
@@ -101,13 +108,14 @@ while (Date.now() - t0 < budget) {
 	const aff = quiet ? [] : (s.shop.all || []).filter((r) => r[3]);
 	if (aff.length) {
 		lastBuy = Date.now();
+		buyActions++;
 		const r = aff[aff.length - 1];
 		const [top, bot] = s.shop.list;
 		if (r[1] < top + 60 || r[1] > bot - 60) {
 			await drag(css(360 + disp.ox, (top + bot) / 2), -(r[1] - (top + bot) / 2) * disp.f / DPR);
 			await wait(300);
 		} else {
-			for (let k = 0; k < 3; k++) { await tapAt(css(r[0], r[1])); await wait(90); }
+			for (let k = 0; k < 3; k++) { await tapAt(css(r[0], r[1])); await wait(90); cardTaps++; }
 		}
 	}
 	// the chat: every open pill, scrolling to it
@@ -115,6 +123,7 @@ while (Date.now() - t0 < budget) {
 	const wantChat = s.groupOpen && (s.chat.open || s.chat.openBrawl || rounds % 2 === 0);
 	if (!wantChat) continue;
 	if (!seen.toast) { seen.toast = true; await shot('chat-toast'); }
+	chatLooks++;
 	if (!s.chat.open) { await tapAt(tab(3)); await wait(600); }
 	for (let guard = 0; guard < 14; guard++) {
 		s = await probe();
@@ -141,6 +150,15 @@ while (Date.now() - t0 < budget) {
 }
 let s = await probe();
 log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${paid} pills, loops ${rounds}`);
+{
+	// The cadence it played at, in GAME seconds (compare the bench's median player: 1.5 taps/s, a buy
+	// whenever the best one is affordable, spins, every Suitcase). Not a pacing number: see the header.
+	const g = Math.max(1, s.runSec), wall = (Date.now() - t0) / 1000;
+	log(`  cadence (game time, speed ${speed}, ${Math.round(wall)} s wall): ${(hatTaps / g).toFixed(3)} taps/s, `
+		+ `a purchase action every ${(g / Math.max(1, buyActions)).toFixed(1)} s (${cardTaps} card taps), `
+		+ `the chat every ${(g / Math.max(1, chatLooks)).toFixed(1)} s, a loop every ${(g / Math.max(1, rounds)).toFixed(1)} s; `
+		+ 'no spins, no Suitcase. Not a pacing measurement (tools/balance.sh is).');
+}
 let ok = s.ready && s.cta;
 if (!ok) {
 	// evidence for the stall: the thread as it stands

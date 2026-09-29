@@ -19,6 +19,17 @@ extends RefCounted
 
 ## "median" is the pitch's reference player (pitch §5: the first election at about 7-9 min), added
 ## for the od-sevev pacing gates in tests/bench/test_session.gd.
+##
+## Cadence (optional player keys; all default to the attentive player above, so no gate moves):
+##   buy_every        seconds of play between two purchase actions (0: whenever the best buy is affordable)
+##   buy_units        units per producer purchase action (0: the greedy default, 1 early, half the bank late)
+##   buy              "best" (payback, the default) | "priciest" (the most expensive affordable source card)
+##   spins            false never buys a spin (the source tab only)
+##   politics_every   seconds between two looks at the chat, the court card and the brawl (0: every frame)
+##   ping_after_buy   C1's controller half: the chat pings only this long after the last purchase
+## A browser driver acts in wall-clock time while the dev clock (?speed=N) runs the game N times
+## faster, so in game time it taps and buys N times less often: tests/bench/test_web_driver.gd
+## replays tools/web/round_web.mjs's measured cadence through these keys (the 34-vs-8-minute gap).
 const PLAYERS := {
 	"median": {"tps": 1.5, "tap_until": INF, "catch_golden": true},
 	"engaged": {"tps": 4.0, "tap_until": INF, "catch_golden": true},
@@ -68,6 +79,12 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 	var pol := politics_on()
 	var strat := strategy(player)
 	var ctx := {"allowPing": true, "weekday": 2, "hour": 12}
+	var buy_every := float(player.get("buy_every", 0.0))
+	var buy_units := int(player.get("buy_units", 0))
+	var pol_every := float(player.get("politics_every", 0.0))
+	var ping_gap := float(player.get("ping_after_buy", 0.0))
+	var last_buy := -INF
+	var last_pol := -INF
 	while t < max_t:
 		var tapping := tps if t < float(player["tap_until"]) else 0.0
 		acc += tapping * dt
@@ -92,6 +109,7 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 				Economy.apply_golden(s, Economy.roll_golden_outcome(r, s))
 			Economy.schedule_next_golden(s, r)
 		if pol:
+			ctx["allowPing"] = ping_gap <= 0.0 or t - last_buy >= ping_gap
 			for e: Dictionary in Politics.tick(s, dt, d, ctx, r):
 				if e["ev"] == "event":
 					events.append([t, "event:" + String(e["id"])])
@@ -101,7 +119,9 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 					events.append([t, "c1"])   # the chat pings (pitch §11 Q2)
 				elif e["ev"] == "message" and e["msg"].get("type", "") == "ultimatum":
 					events.append([t, "ultimatum"])   # pitch §11 Q3: none before 3:00
-			play_politics(s, strat)
+			if t - last_pol >= pol_every:
+				last_pol = t
+				play_politics(s, strat)
 		for a in Meta.check_achievements(s, d):
 			events.append([t, "achievement:" + a])
 		for id in Content.producer_ids():
@@ -112,8 +132,9 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 				events.append([t, "milestone:" + key])
 		d = Economy.derive(s)
 		# Nothing is affordable -> the greedy player can't buy this frame; skip ranking (same result).
-		var best := {} if s.bananas < _cheapest(s, d) else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {})
+		var best := {} if s.bananas < _cheapest(s, d) or t - last_buy < buy_every else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {}, player)
 		if not best.is_empty() and s.bananas >= float(best["cost"]):
+			last_buy = t
 			if best.has("upgrade"):
 				Economy.buy_upgrade(s, best["upgrade"])
 				first["u:" + String(best["upgrade"])] = t
@@ -126,7 +147,7 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 				# Late game the bank covers thousands of units: buy half of what it affords in one go
 				# (the same greedy choice, without a loop pass per unit). Early on this is always 1.
 				var n := Economy.max_affordable(s, id)
-				Economy.buy_producer(s, id, maxi(1, n / 2) if n >= 10 else 1)
+				Economy.buy_producer(s, id, clampi(buy_units, 1, maxi(1, n)) if buy_units > 0 else (maxi(1, n / 2) if n >= 10 else 1))
 			# This frame already ticked the economy (dt of play, taps and politics), so the clock moves
 			# too: without this, every purchase frame was dt of game time the bench never counted, and
 			# its times ran about 5% short of s.run_time_sec (an ultimatum "at 2:51" was at 3:00 of play).
@@ -152,11 +173,20 @@ static func _cheapest(s: GameState, d: Economy.Derived) -> float:
 	return c
 
 
-static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_golden: bool, crit_mult: float, strat: Dictionary = {}) -> Dictionary:
+static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_golden: bool, crit_mult: float, strat: Dictionary = {}, player: Dictionary = {}) -> Dictionary:
 	var inc0 := d.bps + tapping * d.tap_value_no_crit
 	var best := {}
 	var best_pb := INF
 	var shady: Dictionary = Investigation.cfg().get("sources", {}) if strat.get("shady", true) == false else {}
+	if str(player.get("buy", "best")) == "priciest":
+		# tools/web/round_web.mjs: the most expensive source card it can afford now (never a spin).
+		var top := -1.0
+		for id in Content.producer_ids():
+			var c := Economy.producer_cost(s, id, 1)
+			if Economy.is_revealed(s, id) and not shady.has(id) and c <= s.bananas and c > top:
+				top = c
+				best = {"producer": id, "cost": c}
+		return best
 	for id in Content.producer_ids():
 		if not Economy.is_revealed(s, id) or shady.has(id):
 			continue
@@ -169,7 +199,7 @@ static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_go
 		if pb < best_pb:
 			best_pb = pb
 			best = {"producer": id, "cost": c}
-	for u: Dictionary in Economy.available_upgrades(s):
+	for u: Dictionary in (Economy.available_upgrades(s) if player.get("spins", true) != false else []):
 		var e: Dictionary = u["effect"]
 		var c := Economy.upgrade_price(s, u["id"], d)
 		if c < 0.0:

@@ -83,6 +83,7 @@ func test_picker_lists_the_ready_leaders_without_numbers() -> void:
 	runner.check(tiles.size() == 8 and p["again"] == "" and p["first"] == true, "8 tiles, no 'again' on a new game")
 	for t: Dictionary in tiles:
 		runner.check(str(t["blurb"]) != "" and not t.has("seats"), "tile %s: blurb, no numbers" % t["id"])
+		runner.check(str(t["ruleName"]) != "" and str(t["ruleText"]) != "", "tile %s: its one-line rule (Bibi's too)" % t["id"])
 	runner.check(ids.has(Leaders.random_pick(func() -> float: return 0.99)), "הפתעה picks a tile")
 
 
@@ -146,7 +147,8 @@ func test_install_liberman() -> void:
 	var cap := 0
 	for p: Dictionary in Coalition.partners():
 		cap += int(Leaders.slots()[str(p["slot"])]["seats"])
-	runner.check(cap == 44, "his capacity 44 (mk_offer on L4, the bench lever; got %d)" % cap)
+	runner.check(cap == 46, "his capacity 46 (mk_offer on L4 and a generic MK on SK, the bench levers; got %d)" % cap)
+	runner.check(ids.has("mk_returner") and not Conditions.ok(GameState.fresh(), Leaders.slots()["SK"]["unlock"]), "SK waits for election 1, so round 1 plays on 44")
 	runner.check(not Leaders.decline_rule().is_empty(), "his rule: declineDemand")
 
 

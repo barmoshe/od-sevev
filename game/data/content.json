@@ -30,9 +30,8 @@
    "icon": "source_taxpayer_icon",
    "silhouette": "source_taxpayer_icon_sil",
    "slot": [
-    "F3",
-    "F4",
-    "B3"
+    "F7",
+    "F3"
    ],
    "wander": true,
    "name": "משלם המסים",
@@ -51,9 +50,8 @@
    "icon": "source_hitech_icon",
    "silhouette": "source_hitech_icon_sil",
    "slot": [
-    "F2",
-    "F5",
-    "B2"
+    "B6",
+    "F4"
    ],
    "wander": true,
    "name": "ההייטקיסט",
@@ -73,7 +71,6 @@
    "icon": "source_vat_icon",
    "silhouette": "source_vat_icon_sil",
    "slot": [
-    "F1",
     "F6",
     "B4"
    ],
@@ -96,9 +93,8 @@
    "icon": "source_cigars_icon",
    "silhouette": "source_cigars_icon_sil",
    "slot": [
-    "F0",
-    "F7",
-    "B1"
+    "B1",
+    "B3"
    ],
    "name": "החבר הנדיב",
    "flavor": "סיגרים, שמפניה ורודה וחברות אמיצה. כתב אישום בנפרד.",
@@ -120,9 +116,7 @@
    "icon": "source_submarine_icon",
    "silhouette": "source_submarine_icon_sil",
    "slot": [
-    "B5",
-    "B6",
-    "S0"
+    "F2"
    ],
    "setPiece": "bob",
    "name": "הצוללת",
@@ -144,9 +138,7 @@
    "icon": "source_qatari_icon",
    "silhouette": "source_qatari_icon_sil",
    "slot": [
-    "B0",
-    "S1",
-    "S2"
+    "B5"
    ],
    "setPiece": "blink",
    "name": "היועצים הקטאריים",
@@ -168,9 +160,7 @@
    "icon": "source_poison_icon",
    "silhouette": "source_poison_icon_sil",
    "slot": [
-    "S3",
-    "S4",
-    "S5"
+    "F5"
    ],
    "setPiece": "bob",
    "name": "מכונת הרעל",
@@ -190,9 +180,7 @@
    "icon": "source_checkbook_icon",
    "silhouette": "source_checkbook_icon_sil",
    "slot": [
-    "S6",
-    "S7",
-    "S8"
+    "B2"
    ],
    "setPiece": "lob",
    "name": "פנקס הצ׳קים הזהוב",
@@ -209,8 +197,10 @@
  "producerReveal": {
   "revealAtRunBananasFracOfBaseCost": 0.5,
   "showNextAsSilhouette": true,
+  "fillSilhouettes": true,
   "silhouetteName": "מקור עלום",
-  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible."
+  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
+  "_fillRule": "UX mobile-first-layout §5.4 / §10 G1 (game-designer 2026-09-29): after the first reveal, every source not yet revealed and past the silhouette draws as a dim priceless row ('מקור עלום', no price, no pill, not a target), so the pane is never shorter than its content early on. Economy.producer_rows(s).fill lists them in tier order; false = today's single silhouette."
  },
  "upgrades": [
   {
@@ -5198,6 +5188,23 @@
       "הצעת חוק קטנה, תקציב גדול."
      ]
     }
+   },
+   {
+    "id": "mk_returner",
+    "name": "ח״כ שחזר הביתה",
+    "short": "ח״כ שחזר הביתה",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "any",
+    "generic": true,
+    "lines": {
+     "demand": "חזרתי הביתה. בשביל {price} ₪ אני גם פורק את המזוודה.",
+     "threat": "המזוודה עוד ארוזה. רק שתדע.",
+     "thanks": "עכשיו אני באמת בבית. עד הבחירות.",
+     "return": "חזרתי. שוב. הבית לא השתנה."
+    },
+    "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him."
    }
   ],
   "cardProfiles": [
@@ -5453,6 +5460,20 @@
    "pick": {
     "blurb": "שולף שקלים מכובע, משלם לשותפים ודוחה את המשפט.",
     "line": "אין כלום! אין כלום!"
+   },
+   "rule": {
+    "id": "court",
+    "name": "המשפט",
+    "text": "רק לך יש משפט: בזימון מעידים או דוחים, כל דחייה עולה כפול, ואפשר גם לבקש חנינה.",
+    "effect": {
+     "type": "court",
+     "_note": "Nothing to install: his round is the shipped game, and the shipped court (content.court) is his hazard. The aide drop and the pardon desk are his (Leaders.has_court). Leaders.validate skips the default leader, so this type is documentation, not a knob."
+    },
+    "src": [
+     "trial",
+     "pardon-request"
+    ],
+    "_note": "Game Designer 2026-09-29 (HANDOFF Next 3): the picker's long-press and T4 show rule.name / rule.text for every leader, Bibi included. Reported mechanics, no quote. 'כל דחייה עולה כפול' = court.postpone.growth 2."
    },
    "kit": {
     "_doc": "Bibi's kit is today's game: every field points at the shipped content. Nothing new to author.",
@@ -6407,7 +6428,7 @@
    "art": "liberman",
    "avatar": "liberman_avatar",
    "pick": {
-    "blurb": "לא יושב כמעט עם אף אחד. צריך 61 בכל זאת.",
+    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
     "line": "לא יושב! לא יושב!",
     "src": [
      "liberman-wont-sit"
@@ -6776,6 +6797,10 @@
       "slot": "L6"
      },
      {
+      "id": "mk_returner",
+      "slot": "SK"
+     },
+     {
       "id": "gantz",
       "slot": "SI"
      }
@@ -6793,7 +6818,7 @@
      "card_smotrich",
      "card_deri"
     ],
-    "_note": "The smallest lineup (his rule, fact liberman-wont-sit) with the decline pill to pay for it. Capacity 44 seats + own. Bench lever (spec §7.2, game-developer sim 2026-09-29): mk_offer holds L4 instead of S5 (a generic MK takes the mid-late L4 slot; his own seats unchanged). With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13 over seeds 1-9: S3 failed); the spec's named levers measured worse or nil (mk_undecided L1->L4 9:33; L3 is locked in round 1). With L4: median 7:50, engaged 6:56, casual 8:02."
+    "_note": "The smallest lineup (his rule, fact liberman-wont-sit) with the decline pill to pay for it. Capacity 46 seats + own (44 in round 1: SK opens after election 1). Bench lever (spec §7.2, game-developer sim 2026-09-29): mk_offer holds L4 instead of S5 (a generic MK takes the mid-late L4 slot; his own seats unchanged). With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13 over seeds 1-9: S3 failed); the spec's named levers measured worse or nil (mk_undecided L1->L4 9:33; L3 is locked in round 1). With L4: median 7:50, engaged 6:56, casual 8:02. Rounds 2+ (game-designer 2026-09-29): no seat of his unlocked after election 1, so every later round waited for L6 (own 28 + 40 without it < 61) and round 2 ran longer than round 1 (seed 7: 7:09 then 9:09, S5 failed). A generic MK on SK (2 seats, the round-2 early slot the coalition leaders' lineups already hold) closes 61 with L1 + L4 like the other lineups; round 1 is unchanged (SK is locked until election 1)."
    }
   },
   {
