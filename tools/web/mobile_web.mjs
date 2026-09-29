@@ -35,8 +35,10 @@ const CARD = 120, PEEK = 40, S_PREF = 640, S_FULL = 560, S_MIN = 460;
 const floor4 = (v) => Math.floor(v / 4) * 4;
 const ceil4 = (v) => Math.ceil(v / 4) * 4;
 const crisp = (k) => { if (k <= 1) return Math.max(0, k); while (k % 2 && k % 3) k--; return k; };
-function split(R) {
+function split(R, top = 0, vh = 0) {
 	let n = R - (3 * CARD + PEEK) >= S_MIN ? Math.max(3, Math.floor((R - S_PREF - PEEK) / CARD)) : 2;
+	// the reach guard (§6): the leader's hit bottom (stage bottom − 140) stays ≥ 40% of the height
+	while (vh && n > 3 && top + ROW_A + ROW_B + (R - n * CARD - PEEK) - 140 < 0.4 * vh) n--;
 	let P = n * CARD + PEEK;
 	let S = R - P;
 	if (S < S_MIN) { S = S_MIN; P = R - S; }
@@ -45,7 +47,7 @@ function split(R) {
 function expected(disp, insT = 0, insB = 0) {
 	const vh = floor4(disp.logical[1]);
 	const R = vh - insT - insB - FIXED;
-	const { S, P, n } = split(R);
+	const { S, P, n } = split(R, insT, vh);
 	const top = insT;
 	return { R, S, P, n, cw: floor4(disp.logical[0]), stageTop: top + ROW_A + ROW_B, lowerY: top + ROW_A + ROW_B + S,
 		tabsY: top + ROW_A + ROW_B + S + TICKER + P, leader: S >= S_FULL ? 4 : 3 };
@@ -234,8 +236,8 @@ for (const spec of list.split(',')) {
 
 	// ---- the verticals (the engine publishes lowerY today)
 	check('spec', disp.lowerY === E.lowerY, `lowerY (stage bottom) = ${E.lowerY} (S ${E.S}; got ${disp.lowerY}, S ${disp.lowerY - E.stageTop})`);
-	const hitMid = disp.hat[1] / disp.logical[1];
-	check('spec', hitMid >= 0.25 && hitMid <= 0.45, `the leader's hit centre sits at ${(100 * hitMid).toFixed(0)}% of the height (25-45%)`);
+	const hitBottom = (disp.lowerY - 140) / disp.logical[1];
+	check('spec', hitBottom >= 0.4 && hitBottom <= 0.6, `reach: the leader's hit bottom sits at ${(100 * hitBottom).toFixed(0)}% of the height (40-60%), its centre at ${(100 * disp.hat[1] / disp.logical[1]).toFixed(0)}%`);
 
 	// ---- tap 1-3 (card 1), then the first buy
 	const hat = css(disp.hat[0], disp.hat[1]);

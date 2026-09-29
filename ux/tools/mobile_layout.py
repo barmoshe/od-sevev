@@ -61,12 +61,15 @@ def device_px(css_w, css_h, dpr):
     return math.floor(css_w * dpr + 1e-9), math.floor(css_h * dpr + 1e-9)
 
 
-def split(R):
-    """§2.2: the pane gets whole cards plus a 40-px peek; the stage gets the rest."""
+def split(R, top=0, vh=None):
+    """§3.2: the pane gets whole cards plus a 40-px peek; the stage gets the rest."""
     if R - (3 * CARD + PEEK) >= S_MIN:
         n = max(3, (R - S_PREF - PEEK) // CARD)   # extra height beyond S_PREF buys whole cards
     else:
         n = 2
+    # reach guard (§6): the leader's hit bottom (stage bottom − 140) stays ≥ 40% of the height
+    while vh and n > 3 and top + ROW_A + ROW_B + (R - n * CARD - PEEK) - 140 < 0.40 * vh:
+        n -= 1
     P = n * CARD + PEEK
     S = R - P
     if S < S_MIN:
@@ -109,7 +112,7 @@ def layout(d):
     ins_t = ceil4(it * lpc)
     ins_b = ceil4(ib * lpc)
     R = floor4(vsy) - ins_t - ins_b - FIXED
-    S, P, n = split(R)
+    S, P, n = split(R, ins_t, floor4(vsy))
     top = ins_t
     stage_top = top + ROW_A + ROW_B
     lower = stage_top + S
@@ -127,24 +130,24 @@ def layout(d):
         "logical": [round(vsx, 2), round(vsy, 2)], "cw": cw, "delta": delta, "cols": W // k, "rows": Hd // k,
         "insets": [ins_t, ins_b], "R": R, "S": S, "P": P, "rowsWhole": n, "peek": P - n * CARD,
         "stageTop": stage_top, "lowerY": lower, "tabsY": tabs_y, "leaderScale": leader_scale,
-        "hit": hit, "hitCenterCss": round(css((hit[0] + hit[1]) / 2), 1), "hitCenterPct": round(100 * (hit[0] + hit[1]) / 2 / vsy),
+        "hit": hit, "hitCenterCss": round(css((hit[0] + hit[1]) / 2), 1), "hitCenterPct": round(100 * (hit[0] + hit[1]) / 2 / vsy), "hitBottomCss": round(css(hit[1])), "hitBottomPct": round(100 * hit[1] / vsy),
         "listCss": [round(css(lower + TICKER)), round(css(tabs_y))], "tabsCss": round(css(tabs_y)),
         "pane_before_c1": P + TABS, "rows_before_c1": (P + TABS) // CARD,
         "tallTab": S + TICKER + P, "chatThread": S + TICKER + P - 248,
         "clip": clip, "floor88Css": round(88 / lpc, 1),
         "pickFirst": picker(H, cw, k, "first"), "pickAfter": picker(H, cw, k, "after"),
         "modalW": 624 + min(max(delta, 0), 64),
-        "sheet": floor4(0.8 * vsy),
-        "sharePreview": share_a(cw, floor4(0.8 * vsy), f),
+        "sheet": floor4(vsy) - ins_t,
+        "sharePreview": share_a(cw, floor4(vsy) - ins_t, f),
     }
 
 
 def share_a(cw, sheet_h, f):
-    # the largest a (logical px per card art px) with a·f whole, 216·a ≤ cw − 48, 270·a ≤ sheet − 520
+    # §5.12: the largest a (logical px per card art px) with a·f whole, 216·a ≤ cw − 32, 270·a ≤ sheet − 520
     best = 0
     for m in range(1, 40):
         a = m / f
-        if 216 * a <= cw - 48 and 270 * a <= sheet_h - 520:
+        if 216 * a <= cw - 32 and 270 * a <= sheet_h - 520:
             best = a
     return round(best, 3)
 
@@ -154,10 +157,10 @@ def main():
     if "--json" in sys.argv:
         print(json.dumps(rows, ensure_ascii=False, indent=1))
         return
-    print("| Device | device px | k | CSS/art | logical | cw (Δ) | R | **S** | **P** | whole rows + peek | leader | stage top / lowerY / tabsY | hit centre CSS y (% H) | list CSS y | 88 logical = CSS |")
+    print("| Device | device px | k | CSS/art | logical | cw (Δ) | R | **S** | **P** | whole rows + peek | leader | stage top / lowerY / tabsY | leader hit centre · bottom, CSS y (% of H) | list CSS y | 88 logical = CSS |")
     print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for r in rows:
-        print(f"| {r['name']} | {r['device'][0]}×{r['device'][1]} | {r['k']} | {r['artCss']} | {r['logical'][0]:g}×{r['logical'][1]:g} | {r['cw']} ({r['delta']:+d}) | {r['R']} | **{r['S']}** | **{r['P']}** | {r['rowsWhole']} + {r['peek']} | ×{r['leaderScale']} | {r['stageTop']} / {r['lowerY']} / {r['tabsY']} | {r['hitCenterCss']} ({r['hitCenterPct']}%) | {r['listCss'][0]}-{r['listCss'][1]} | {r['floor88Css']} |")
+        print(f"| {r['name']} | {r['device'][0]}×{r['device'][1]} | {r['k']} | {r['artCss']} | {r['logical'][0]:g}×{r['logical'][1]:g} | {r['cw']} ({r['delta']:+d}) | {r['R']} | **{r['S']}** | **{r['P']}** | {r['rowsWhole']} + {r['peek']} | ×{r['leaderScale']} | {r['stageTop']} / {r['lowerY']} / {r['tabsY']} | {r['hitCenterCss']:g} ({r['hitCenterPct']}%) · {r['hitBottomCss']} ({r['hitBottomPct']}%) | {r['listCss'][0]}-{r['listCss'][1]} | {r['floor88Css']} |")
     print()
     print("| Device | pane before C1 (rows) | tall tab H_T / chat thread | ticker clip | modal card w | sheet h | share preview a | picker first: avail / tw / A / th / spare | picker after: avail / A / th / spare |")
     print("|---|---|---|---|---|---|---|---|---|")
