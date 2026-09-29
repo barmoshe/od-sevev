@@ -134,7 +134,7 @@ index 75913c5..798b04f 100644
  	_extend_top = extend_top
  	for c in _bg.get_children():
 diff --git a/game/scripts/ui/overlays.gd b/game/scripts/ui/overlays.gd
-index 853d6b6..ebb8757 100644
+index 853d6b6..6337993 100644
 --- a/game/scripts/ui/overlays.gd
 +++ b/game/scripts/ui/overlays.gd
 @@ -22,8 +22,11 @@ class SettingsOverlay:
@@ -184,7 +184,7 @@ index 853d6b6..ebb8757 100644
  		var t := PxText.make(parent, pos, s, L.TEXT, "plain", role)
  		t.reading = true   # settings labels and captions: the @2 reading cut where crisp
  		t.wrap_width = TEXT_W
-@@ -120,8 +125,8 @@ class SettingsOverlay:
+@@ -120,15 +125,15 @@ class SettingsOverlay:
  		probe_parent.free()
  		return ceilf(h / 4.0) * 4.0   # up to the 4-px grid: a row never cuts its last line
  
@@ -195,6 +195,14 @@ index 853d6b6..ebb8757 100644
  		focusables.append(b)
  		body_focusables.append(b)
  		_sheet_text(body, Vector2(0, y + LABEL_DY), label, role if role != null else Art.theme["modal"]["body"], false, right)
+ 
+ 	func _toggle(y: float, h: float, key: String, label_key: String, cap_key: String) -> void:
+ 		var th := Art.theme
+-		var b := PxButton.make(body, Rect2(24, y, 672, h), {"hit": Rect2(24, y, 672, h), "ghost": true,
++		var b := PxButton.make(body, Rect2(24, y, 672.0 + L.dx, h), {"hit": Rect2(24, y, 672.0 + L.dx, h), "ghost": true,
+ 			"on_commit": func() -> void:
+ 				host.toggle_setting(key)
+ 				sync()})
 diff --git a/game/scripts/ui/shop.gd b/game/scripts/ui/shop.gd
 index 1079323..f034888 100644
 --- a/game/scripts/ui/shop.gd
@@ -902,6 +910,94 @@ index 0d935b9..29f8b2b 100644
  
  
  func _lh(t: PxText) -> float:
+diff --git a/game/scripts/ui/views/view_share.gd b/game/scripts/ui/views/view_share.gd
+index bf20ca7..ce4f6a8 100644
+--- a/game/scripts/ui/views/view_share.gd
++++ b/game/scripts/ui/views/view_share.gd
+@@ -57,22 +57,30 @@ var _printing: Node2D
+ var _card_root: Node2D
+ 
+ 
++## mobile-first §5.12 (D44): a full-bleed sheet that may use the whole safe height (sharing is a
++## focused task and the preview is the product): the preview scale `a` is the largest with a·f
++## whole, 216a ≤ cw − 32 and 270a ≤ sheet − 520; the buttons bottom-up: "סגור" (fixed), WhatsApp
++## full width (the main channel, nearest the thumb), "לשתף" / "לשמור תמונה" side by side, the
++## status line; every row stretches with the canvas (anchor S), the preview is centred.
+ func build() -> ShareSheet:
+ 	id = "SHARE_RECEIPT" if kind == "receipt" else "SHARE_RESULT"
++	full_bleed = true
+ 	var th := Art.theme
+ 	var vs := Vector2(L.W, L.H)
+ 	var ovl_y := 0.0
+ 	var inset := 0.0
++	var top := 0.0
+ 	if host != null and "_vs" in host:
+ 		vs = host.get("_vs")
+ 		ovl_y = float(host.get("_ovl_y"))
+ 		inset = float(host.call("bottom_inset")) if host.has_method("bottom_inset") else 0.0
+-	var h := Ui.snap(floorf(0.8 * vs.y / 4.0) * 4.0, 4)
++		top = float(host.get("_top_y")) if "_top_y" in host else 0.0
++	var h := L.floor4(vs.y) - top - inset
+ 	var room := h - HEADER - PAD - STATUS_H - (BTN_H + GAP + BTN_H) - PAD - CLOSE_AREA
+-	art_px = preview_scale(room, float(L.W - 48))
++	art_px = preview_scale(room, L.cw - 32.0)
+ 	var content := HEADER + Ui.snap(float(ART.y) * art_px, 4) + PAD + STATUS_H + BTN_H + GAP + BTN_H + PAD + CLOSE_AREA
+ 	h = minf(h, Ui.snap(content, 4))
+-	var pr := Rect2(0, vs.y - inset - h - ovl_y, L.W, h + inset)
++	var pr := Rect2(0, vs.y - inset - h - ovl_y, L.cw, h + inset)
+ 	make_panel(pr)
+ 	var title := text(Vector2(0, pr.position.y + 24.0), Strings.s("SHARE_RECEIPT_TITLE" if kind == "receipt" else "SHARE_RESULT_TITLE"), L.TEXT, th["modal"]["title"])
+ 	title.fit_width = 432.0   # sheet.title
+@@ -80,7 +88,7 @@ func build() -> ShareSheet:
+ 	var close := close_button(Rect2(pr.position.x + 16, pr.position.y + 16, 64, 64), Rect2(pr.position.x, pr.position.y, 104, 104), func() -> void: cancel("close"))
+ 	# the preview (its size in logical px snapped to the 4 grid from the top-left)
+ 	var psz := Vector2(ART) * art_px
+-	var px0 := Ui.snap((L.W - psz.x) / 2.0, 4)
++	var px0 := Ui.snap((L.cw - psz.x) / 2.0, 4)
+ 	var py0 := pr.position.y + HEADER
+ 	preview_rect = Rect2(px0, py0, psz.x, psz.y)
+ 	_printing = Node2D.new()
+@@ -98,21 +106,22 @@ func build() -> ShareSheet:
+ 	var y := py0 + psz.y + PAD
+ 	status = PxText.make(panel, Vector2(0, y), "", L.TEXT, "plain", C_STATUS)
+ 	status.reading = true
+-	status.wrap_width = 640.0
++	status.wrap_width = 640.0 + L.dx
+ 	status.max_lines = 1
+ 	y += STATUS_H
+-	share_btn = button(Rect2(88, y, 256, BTN_H), Rect2(80, y - 4.0, 272, BTN_H + 8.0), Strings.s("SHARE_BTN"), func() -> void: share(), "kit_primary", L.TEXT)
+-	save_btn = button(Rect2(376, y, 256, BTN_H), Rect2(368, y - 4.0, 272, BTN_H + 8.0), Strings.s("SHARE_SAVE"), func() -> void: save(), "kit_secondary", L.TEXT)
++	var hw := L.floor4((544.0 + L.dx - 32.0) / 2.0)
++	share_btn = button(Rect2(88, y, hw, BTN_H), Rect2(80, y - 4.0, hw + 16.0, BTN_H + 8.0), Strings.s("SHARE_BTN"), func() -> void: share(), "kit_primary", L.TEXT)
++	save_btn = button(Rect2(88.0 + hw + 32.0, y, hw, BTN_H), Rect2(80.0 + hw + 32.0, y - 4.0, hw + 16.0, BTN_H + 8.0), Strings.s("SHARE_SAVE"), func() -> void: save(), "kit_secondary", L.TEXT)
+ 	for b: PxButton in [share_btn, save_btn]:
+ 		if b.label != null:
+ 			b.label.wrap_width = 224.0
+ 			b.label.max_lines = 1
+ 			b.label.center_in(b.visual.position.x, b.visual.size.x)
+ 	y += BTN_H + GAP
+-	wa_btn = button(Rect2(88, y, 544, BTN_H), Rect2(80, y - 4.0, 560, BTN_H + 8.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
++	wa_btn = button(Rect2(88, y, 544.0 + L.dx, BTN_H), Rect2(80, y - 4.0, 560.0 + L.dx, BTN_H + 8.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
+ 	_place_wa_icon(wa_btn)
+ 	var cy := pr.end.y - CLOSE_AREA - inset
+-	button(Rect2(24, cy, 672, 88), Rect2(24, cy, 672, 88), Strings.s("SHARE_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
++	button(Rect2(24, cy, 672.0 + L.dx, 88), Rect2(24, cy, 672.0 + L.dx, 88), Strings.s("SHARE_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
+ 	focusables.append(close)
+ 	share_btn.set_enabled(false)
+ 	save_btn.set_enabled(false)
+@@ -369,10 +378,10 @@ func on_share_result(result: String) -> void:
+ 		"fail":
+ 			key = "SHARE_FAIL"
+ 	status.text = Strings.s(key) if key != "" else ""
+-	status.center_in(0, L.W)
++	status.center_in(0, L.cw)
+ 	if result == "fallback" and not png.is_empty():
+ 		status.text = Strings.s("SHARE_SAVED") + " " + Strings.s("SHARE_COPIED")
+-		status.center_in(0, L.W)
++		status.center_in(0, L.cw)
+ 
+ 
+ func cancel(via: String) -> void:
 diff --git a/game/scripts/ui/views/view_sheet_card.gd b/game/scripts/ui/views/view_sheet_card.gd
 index 3681d3b..62b5f87 100644
 --- a/game/scripts/ui/views/view_sheet_card.gd
@@ -1070,6 +1166,21 @@ index 70cfa5d..2443726 100644
  	var hot := p >= HOT
  	# the hot icon: the gavel for the court, the folded newspaper for the press (no gavel there)
  	var hot_id := "thermo_icon_gavel" if LeaderUi.court() or LeaderUi.press_icon("thermo") == "" else LeaderUi.press_icon("thermo")
+diff --git a/game/tests/unit/test_share_view.gd b/game/tests/unit/test_share_view.gd
+index f72c2ec..fd0bfdf 100644
+--- a/game/tests/unit/test_share_view.gd
++++ b/game/tests/unit/test_share_view.gd
+@@ -247,7 +247,9 @@ func test_t4_rows_open_the_receipt_and_the_result_sheets() -> void:
+ 			continue
+ 		var sh: ShareSheet = t
+ 		runner.check(sh.id == ("SHARE_RECEIPT" if kind == "receipt" else "SHARE_RESULT"), "the overlay id")
+-		runner.check(sh.panel_rect.size.y <= floorf(0.8 * m._vs.y) + float(m.bottom_inset()) + 4.0, "a sheet of at most 0.8 · vs.y (rtl-map §7.2)")
++		# mobile-first §5.12 (D44, replaces rtl-map §7.2's 0.8 · vs.y): at most the whole safe height
++		runner.check(sh.panel_rect.size.y <= floorf(m._vs.y / 4.0) * 4.0 - m._top_y + 4.0, "a sheet of at most the safe height (mobile-first §5.12)")
++		runner.check(sh.wa_btn.visual.position.y > sh.share_btn.visual.position.y, "§5.12: WhatsApp is the nearest action to the thumb (under the pair)")
+ 		runner.check(sh.wa_btn != null and sh.wa_btn.label.text == Strings.s("SHARE_WA") and sh.wa_btn.is_enabled(), "the WhatsApp button is there and live at once (text only)")
+ 		runner.check(sh.panel.get_node_or_null("WaIcon") != null, "with its speech-bubble icon")
+ 		runner.check(sh.share_btn.label.text == Strings.s("SHARE_BTN") and sh.save_btn.label.text == Strings.s("SHARE_SAVE"), "לשתף beside לשמור תמונה")
 diff --git a/ux/string-budgets.json b/ux/string-budgets.json
 index d8ed815..3a6f3c3 100644
 --- a/ux/string-budgets.json
