@@ -1,0 +1,1408 @@
+# binary files changed (not carried):
+diff --git a/game/scripts/core/display.gd b/game/scripts/core/display.gd
+index ffacf1f..eb3ffcc 100644
+--- a/game/scripts/core/display.gd
++++ b/game/scripts/core/display.gd
+@@ -43,6 +43,12 @@ const FORK_H := 1280
+ static var k := 4
+ static var f := 1.0
+ static var integer := true
++## The art grid (ux/mobile-first-layout.md §0.1, §2): whole art columns and rows of the device
++## surface at k. Two phones with the same k (390@3 and 430@3 are both k 6) differ only here: the
++## layout fills this grid instead of centring a 180 × 267 column in it. The fallback (no integer
++## scale) keeps 180 × 320.
++static var cols := ART_W
++static var rows := 320
+ 
+ 
+ ## The integer art scale for a device size (crisp_k of the largest that fits); 0 when not even
+@@ -88,6 +94,9 @@ static func update(win: Vector2, force_fractional: bool = false) -> bool:
+ 	var ni := nk >= 1
+ 	var nf := nk / float(ART_PX) if ni else fork_f(win)
+ 	nk = maxi(1, nk)
++	# the grid first: it changes with the size even when k does not (before the early return)
++	cols = int(floorf(win.x / nk)) if ni else ART_W
++	rows = int(floorf(win.y / nk)) if ni else 320
+ 	if nk == k and ni == integer and is_equal_approx(nf, f):
+ 		return false
+ 	k = nk
+@@ -96,6 +105,12 @@ static func update(win: Vector2, force_fractional: bool = false) -> bool:
+ 	return true
+ 
+ 
++## The layout width in logical px (mobile-first §2): whole art columns on the 4-px grid, 720 at
++## 180 columns. The chrome spans it; only the stage art stays a centred 720 column.
++static func cw() -> float:
++	return float(cols * ART_PX)
++
++
+ ## The logical viewport size for a device size at the current f.
+ static func logical_size(win: Vector2) -> Vector2:
+ 	return win / f
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index f0d0809..215ff06 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -12,9 +12,10 @@ extends Node2D
+ ## state without its lines), an after-election pick straight in the round. It owns the one GameState, ticks the pure economy on a fixed 1/60 s
+ ## step, routes every pointer and key through one input boundary, and drives the views.
+ ##
+-## v2 layout: the 720x1280 design canvas is split into sections (top bar, stage, ticker + shop,
+-## overlays), each offset as a whole. On tall phones the extra height goes to the stage (sky) and
+-## the shop list (more rows); wide screens centre the column and extend the backdrops.
++## Layout (ux/mobile-first-layout.md): the canvas is split into sections (top bar, stage, ticker +
++## shop, overlays), each offset as a whole. The chrome spans the whole canvas width (L.cw, fluid
++## anchors), only the stage art stays a centred 720 column (_sx); the vertical budget is
++## bottom-up: the tab bar pinned to the safe bottom, whole card rows, the stage takes the rest.
+ 
+ const STEP_MS := 1000.0 / 60.0
+ const AWAY_GAP_SEC := 2.0          # a wall-clock gap longer than this between frames = time away
+@@ -59,7 +60,8 @@ var _coin_batch := 0                # taps since the Magician's last coin burst
+ 
+ # layout
+ var _vs := Vector2(L.W, L.H)
+-var _ox := 0.0
++var _ox := 0.0                      # the chrome's x (0 on a phone: the canvas is the chrome)
++var _sx := 0.0                      # the stage column's x (_ox + L.sox(): centred)
+ var _top_y := 0.0
+ var _stage_y := 0.0
+ var _stage_extra := 0.0
+@@ -117,7 +119,12 @@ signal audio_sent(name: String, arg: Variant)
+ var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
+ var _fills := {}
+ var _title_ground: TextureRect
+-var _title_floor: ColorRect          # the title state's floor under the stage (review R16)
++var _title_floor: TextureRect        # the pre-tap / pick floor under the stage: paving (mobile-first §3.3)
++var _bottom_inset := 0.0
++var _seats_up := false               # the Row B fill is drawn (C2, mobile-first §3.3)
++var _tabs_up := false                # the tab bar is revealed (C1)
++var _slots_known := false
++var _tab_slide: Tween
+ ## R9 (rtl-map §7.1 "History"): one browser history entry per open layer (web only).
+ var history := LayerHistory.new()
+ var _js_pop_cb: JavaScriptObject     # kept alive: the shell calls window.odOnPop on popstate
+@@ -322,9 +329,12 @@ func _build() -> void:
+ 	_title_ground.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ 	_root.add_child(_title_ground)
+ 	_root.move_child(_title_ground, 0)
+-	# R16 (rtl-map §8): in the title state the lane, ticker, panel and tabs are reserved but empty;
+-	# one flat floor from the stage bottom to the screen bottom, no inner rect
+-	_title_floor = ColorRect.new()
++	# mobile-first §3.3 (V11): in the pre-tap and pick states the ticker, pane and tabs are hidden;
++	# the region under the stage is the apron continued to the safe bottom (interim for 2D ask A1:
++	# the engine's paving tile in the era's floor colour, never one flat colour)
++	_title_floor = TextureRect.new()
++	_title_floor.stretch_mode = TextureRect.STRETCH_TILE
++	_title_floor.scale = Vector2(4, 4)
+ 	_title_floor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ 	_title_floor.visible = false
+ 	_root.add_child(_title_floor)
+@@ -576,59 +586,111 @@ func _relayout() -> void:
+ 	_in_relayout = false
+ 	_vs = get_viewport_rect().size
+ 	var ins := _safe_insets()
+-	var top_inset := float(ins.x)
+-	var bottom_inset := float(ins.y)
+-	# rtl-map §1: Row A, Row B, the ticker and the tabs never shrink; the stage and the panel flex
+-	var r := _vs.y - top_inset - bottom_inset - float(L.FIXED_H)
+-	if r < float(L.STAGE_MIN + L.LIST_MIN) and top_inset > 0.0:
+-		var give := minf(top_inset, float(L.STAGE_MIN + L.LIST_MIN) - r)
++	var top_inset := ceilf(float(ins.x) / 4.0) * 4.0
++	var bottom_inset := ceilf(float(ins.y) / 4.0) * 4.0
++	var vh := L.floor4(_vs.y)
++	# mobile-first §3.1: Row A, Row B, the ticker and the tabs never shrink; the stage and the pane
++	# split the rest bottom-up (§3.2)
++	var r := vh - top_inset - bottom_inset - float(L.FIXED_H)
++	var need := float(L.S_MIN + 2 * L.CARD)
++	if r < need and top_inset > 0.0:
++		var give := minf(top_inset, need - r)
+ 		top_inset -= give
+ 		r += give
+-	L.set_flex(r)
+-	_ox = floorf((_vs.x - L.W) / 2.0 / 4.0) * 4.0
+-	_top_y = floorf(top_inset / 4.0) * 4.0
++	L.set_split(r, top_inset, vh)
++	# §2: the chrome spans whole art columns (Display.cw); a landscape window (out of the matrix)
++	# keeps a portrait-proportioned canvas, centred
++	var cw := Display.cw() if Display.integer and not _shot.has("target") else float(L.W)
++	L.set_width(minf(minf(cw, L.floor4(_vs.x)), maxf(float(L.W), L.floor4(0.75 * _vs.y))))
++	_bottom_inset = bottom_inset
++	_ox = L.floor4((_vs.x - L.cw) / 2.0)
++	_sx = _ox + L.sox()
++	_top_y = top_inset
+ 	var st := _top_y + float(L.ROW_A_H + L.ROW_B_H)
+ 	_stage_y = st - float(L.STAGE["y"])          # the stage node: design y 160 = the stage top
+ 	_stage_extra = 0.0
+ 	_shop_extra = 0.0
+ 	_lower_y = st + L.stage_h
+ 	_top.position = Vector2(_ox, _top_y)
+-	_stage.position = Vector2(_ox, _stage_y)
++	_stage.position = Vector2(_sx, _stage_y)
+ 	_lower.position = Vector2(_ox, _lower_y)
+-	_ui.position = Vector2(_ox, _stage_y)
+-	_ovl_y = floorf((_top_y + (_vs.y - bottom_inset - _top_y - L.H) / 2.0) / 4.0) * 4.0
++	_ui.position = Vector2(_sx, _stage_y)
++	# §5.10: the 1280 modal space in the safe band; on a tall canvas (safe height > 1400) its centre
++	# sits at 55% of the band, so centred cards put their buttons in the lower half
++	var hs := _vs.y - bottom_inset - _top_y
++	var centre := _top_y + (0.55 if hs > 1400.0 else 0.5) * hs
++	_ovl_y = L.floor4(clampf(centre - float(L.H) / 2.0, minf(_top_y, _vs.y - bottom_inset - float(L.H)), maxf(_top_y, _vs.y - bottom_inset - float(L.H))))
+ 	_modal.position = Vector2(_ox, _ovl_y)
+-	diorama.extend(_ox + 8.0, _top_y + float(L.ROW_A_H + L.ROW_B_H) + 8.0)
+-	shop.set_list_height(L.panel_h)
++	diorama.extend(_sx + 8.0, _top_y + float(L.ROW_A_H + L.ROW_B_H) + 8.0)
++	_apply_slots(false)
+ 	title_view.refit()
+ 	picker.position = Vector2(_ox, 0)
+-	picker.layout(_top_y, _vs.y - float(ins.y), _vs.x, _ox)
++	picker.layout(_top_y, _vs.y - bottom_inset, _vs.x, _ox)
+ 	_place_undo_chip()
++	top_bar.relayout()
++	cottage.position.x = L.dx
++	ticker.relayout()
++	toasts.relayout()
++	golden.relayout()
+ 	chat.relayout()
+ 	dossier.relayout()
+ 	court.relayout()
+ 	thermo.relayout()
+ 	court_echo.relayout()
+-	buffs.set_stage_rect(-_ox, float(L.STAGE["y"]), _vs.x, L.stage_h)
++	buffs.set_stage_rect(-_sx, float(L.STAGE["y"]), _vs.x, L.stage_h)
+ 	bb.relayout()
+-	var W := _vs.x
+-	_set_fill("top", Rect2(-_ox, -_top_y - 8, W, _top_y + 8 + float(L.ROW_A_H + L.ROW_B_H)))
+-	_set_fill("shop", Rect2(-_ox, float(L.SHOP["listY"]), W, L.panel_h))
+-	_set_fill("bottom", Rect2(-_ox, L.tabs_y() + float(L.TABS_H) - 4.0, W, _vs.y - (_lower_y + L.tabs_y() + float(L.TABS_H)) + 12.0))
++	overlays.relayout()
+ 	# TITLE: the dirt continues to the bottom of the screen (the fork's jungle; hidden under stage art)
+ 	var gy := _stage_y + L.stage_bottom() - 64.0
+ 	_title_ground.position = Vector2(0, gy)
+-	_title_ground.size = Vector2(ceilf(W / 64.0) + 1.0, ceilf((_vs.y - gy) / 64.0) + 1.0) * 16.0
++	_title_ground.size = Vector2(ceilf(_vs.x / 64.0) + 1.0, ceilf((_vs.y - gy) / 64.0) + 1.0) * 16.0
++	_place_title_floor()
++	_publish_display()
++
++
++## The reveal-dependent slots (mobile-first §3.3): Row B's fill only from C2 (before it the stage
++## sky shows through the slot); the pane runs to the safe bottom until C1, when the tab bar slides
++## up over its last 104 px (nothing above moves). `animate`: the reveal itself (150 ms / 200 ms;
++## reduced motion: instant).
++func _apply_slots(animate: bool) -> void:
++	L.tabs_up = _tabs_up
++	var W := _vs.x
++	var row_b := float(L.ROW_B_H) if _seats_up else 0.0
++	_set_fill("top", Rect2(-_ox, -_top_y - 8, W, _top_y + 8 + float(L.ROW_A_H) + row_b))
++	var list_h := L.tabs_y() - float(L.SHOP["listY"])
++	var shop_bottom := _vs.y - _lower_y + 8.0 if not _tabs_up else list_h
++	_set_fill("shop", Rect2(-_ox, float(L.SHOP["listY"]), W, shop_bottom))
++	_set_fill("bottom", Rect2(-_ox, L.tabs_y() + float(L.TABS_H) - 4.0, W, _vs.y - (_lower_y + L.tabs_y() + float(L.TABS_H)) + 12.0))
++	(_fills["bottom"] as ColorRect).visible = _tabs_up
++	shop.set_list_height(list_h)
++	if animate and _tabs_up and not bool(settings.get("reducedMotion", false)):
++		shop.slide_tabs(float(L.TABS_H) + _bottom_inset, 0.2)
++	if animate and _seats_up:
++		var f: ColorRect = _fills["top"]
++		f.modulate.a = 0.0 if not bool(settings.get("reducedMotion", false)) else 1.0
++		create_tween().tween_property(f, "modulate:a", 1.0, 0.15)
++
++
++func _place_title_floor() -> void:
+ 	var fy := _stage_y + L.stage_bottom()
+-	_title_floor.position = Vector2(0, fy)
+-	_title_floor.size = Vector2(W, maxf(0.0, _vs.y - fy))
+-	_title_floor.color = diorama.pad_bottom
+-	if OS.has_feature("web"):
+-		# web debug, like window.odCueLog: the device scale and the section origins (logical px)
+-		var hat := L.magician_hit().get_center() + Vector2(_ox, _stage_y)
+-		JavaScriptBridge.eval("window.odDisplay = %s" % JSON.stringify({"k": Display.k, "f": Display.f,
+-			"integer": Display.integer, "logical": [_vs.x, _vs.y], "ox": _ox, "stageY": _stage_y,
+-			"lowerY": _lower_y, "hat": [hat.x, hat.y], "reducedMotion": bool(settings.get("reducedMotion", false))}), true)
++	_title_floor.texture = Diorama.paving_texture(diorama.pad_bottom, false)
++	# the tile's phase follows the stage column, so the floor continues the lane's joints
++	var ph := fposmod(_sx, 64.0)
++	_title_floor.position = Vector2(ph - 64.0, fy)
++	_title_floor.size = Vector2(ceilf((_vs.x + 64.0) / 64.0) * 16.0, ceilf(maxf(0.0, _vs.y - fy) / 4.0) + 1.0)
++
++
++## window.odDisplay (web debug, like window.odCueLog): the device scale, the section origins and
++## the mobile-first split (logical px); tools/web/mobile_web.mjs reads it.
++func _publish_display() -> void:
++	if not OS.has_feature("web"):
++		return
++	var hat := L.magician_hit().get_center() + Vector2(_sx, _stage_y)
++	JavaScriptBridge.eval("window.odDisplay = %s" % JSON.stringify({"k": Display.k, "f": Display.f,
++		"integer": Display.integer, "logical": [_vs.x, _vs.y], "ox": _ox, "sx": _sx, "stageY": _stage_y,
++		"lowerY": _lower_y, "hat": [hat.x, hat.y], "reducedMotion": bool(settings.get("reducedMotion", false)),
++		"cw": L.cw, "S": L.stage_h, "P": L.panel_h, "rows": L.rows_whole, "cols": Display.cols, "artRows": Display.rows,
++		"ticker": ticker.web_info()}), true)
+ 
+ 
+ func _set_fill(k: String, r: Rect2) -> void:
+@@ -658,7 +720,7 @@ func _safe_insets() -> Vector2:
+ 
+ ## Design-space point of a viewport point, for one section.
+ func _in_stage(p: Vector2) -> Vector2:
+-	return p - Vector2(_ox, _stage_y) - _root.position
++	return p - Vector2(_sx, _stage_y) - _root.position
+ 
+ 
+ func _in_top(p: Vector2) -> Vector2:
+@@ -745,7 +807,7 @@ func set_setting(key: String, value: Variant) -> void:
+ func sheet_rect(content_h: float) -> Rect2:
+ 	var h := minf(content_h, floorf(0.70 * _vs.y / 4.0) * 4.0)
+ 	var bi := bottom_inset()
+-	return Rect2(0, _vs.y - bi - h - _ovl_y, L.W, h + bi)
++	return Rect2(0, _vs.y - bi - h - _ovl_y, L.cw, h + bi)
+ 
+ 
+ func bottom_inset() -> float:
+@@ -863,12 +925,12 @@ func _set_mode(m: String, animate: bool) -> void:
+ 		_title_ground.visible = not diorama.has_background()
+ 		_title_floor.visible = true
+ 		_title_floor.modulate.a = 1.0
+-		_title_floor.color = diorama.pad_bottom
++		_place_title_floor()
+ 		return
+ 	bb.visible = true
+ 	_bg.visible = main
+ 	_title_ground.visible = not main and not diorama.has_background()
+-	_title_floor.color = diorama.pad_bottom
++	_place_title_floor()
+ 	_title_floor.modulate.a = 1.0
+ 	_title_floor.visible = not main or animate   # fades out with the title (below)
+ 	if not main:
+@@ -1008,7 +1070,7 @@ func _ftue_ctx(running: bool) -> Dictionary:
+ 	var k := shop.row_index_of(state, "producer", first) if bool(_reveals.get("card1", false)) else -1
+ 	var pill: Variant = null
+ 	if k >= 0 and shop.row_screen_y(k, "producers") >= 0.0 and shop.tab == "producers":
+-		pill = shop.pill_pos(k) + Vector2(0, float(L.STAGE["y"]) + L.stage_h)
++		pill = shop.pill_pos(k) + Vector2(-L.sox(), float(L.STAGE["y"]) + L.stage_h)   # `_lower` → the stage column
+ 	return {
+ 		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open() or dossier.is_open() or mode == "pick",
+ 		"hat": L.magician_feet() - Vector2(0, 380), "pill": pill,
+@@ -1035,6 +1097,19 @@ func _apply_reveals() -> void:
+ 	# ux/ftue.md C1: the tab bar appears only with C1 ("tabs"); spins (K3) and the dossier (K2)
+ 	# fill their fixed slots once it is there
+ 	shop.set_tabs_revealed(bool(_reveals["tabs"]), [true, bool(_reveals["spins"]), bool(_reveals["tabs"]), dos])
++	# mobile-first §3.3: the reserved slots fill at their reveals; nothing above them moves
++	var seats_up := bool(_reveals["seats"])
++	var tabs_up := bool(_reveals["tabs"])
++	if seats_up != _seats_up or tabs_up != _tabs_up:
++		var anim := _slots_known and mode == "main" and ((seats_up and not _seats_up) or (tabs_up and not _tabs_up))
++		_seats_up = seats_up
++		_tabs_up = tabs_up
++		_apply_slots(anim)
++		chat.relayout()
++		dossier.relayout()
++		court.relayout()
++		_publish_display()
++	_slots_known = true
+ 	ticker.visible = main and bool(_reveals["counter"])
+ 	ticker.set_cta(main and state.evolutions >= 0 and Coalition.gate_open(state) and Coalition.active())
+ 	if bool(_reveals["seats"]):
+@@ -1569,7 +1644,7 @@ func _update_hover(p: Vector2) -> void:
+ 		var on_banana := not on_golden and Ui.in_rect(bb.hit_rect(), sp)
+ 		_set_hover_banana(on_banana)
+ 		pointer = on_golden or on_banana or top_bar.gear_contains(tp) or top_bar.mute_contains(tp) or cottage.contains(tp) or shop.in_list(lp) \
+-			or (shop.visible and Ui.in_rect(Rect2(0, L.tabs_y(), L.W, L.TABS_H), lp)) or (ticker.cta_on() and ticker.cta.contains(lp))
++			or (shop.visible and Ui.in_rect(Rect2(0, L.tabs_y(), L.cw, L.TABS_H), lp)) or (ticker.cta_on() and ticker.cta.contains(lp))
+ 	if not _gameplay_input():
+ 		_set_hover_banana(false)
+ 	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND if pointer else Input.CURSOR_ARROW)
+@@ -2283,14 +2358,16 @@ func _build_undo_chip() -> void:
+ func _place_undo_chip() -> void:
+ 	if _undo_btn == null:
+ 		return
++	# rtl-map §8.6 / mobile-first §5.8: L-anchored in the lane (canvas x 16; `_ui` is the stage column)
+ 	var y := L.stage_bottom() - 96.0
+-	_undo_btn.visual = Rect2(16, y, 392, 80)
+-	_undo_btn.hit = Rect2(8, y - 4.0, 408, 88)
++	var x := 16.0 - L.sox()
++	_undo_btn.visual = Rect2(x, y, 392, 80)
++	_undo_btn.hit = Rect2(x - 8.0, y - 4.0, 408, 88)
+ 	Ui.set_nine_rect(_undo_btn.bg, _undo_btn.visual)
+ 	if _undo_btn.label != null:
+ 		_undo_btn.label.position.y = y + Ui.snap((80.0 - 28.0) / 2.0, 4)
+-		_undo_btn.label.center_in(16, 392)
+-	_undo_bar.position = Vector2(24, y + 64.0)
++		_undo_btn.label.center_in(x, 392)
++	_undo_bar.position = Vector2(x + 8.0, y + 64.0)
+ 	_undo_bar.size = Vector2(376, 8)
+ 
+ 
+diff --git a/game/scripts/ui/diorama.gd b/game/scripts/ui/diorama.gd
+index bb0e4a5..75913c5 100644
+--- a/game/scripts/ui/diorama.gd
++++ b/game/scripts/ui/diorama.gd
+@@ -164,6 +164,47 @@ func _place_lane(era_id: String, art_origin: Vector2) -> void:
+ 	tr.scale = Vector2(4, 4)
+ 	tr.set_meta("lane", id)
+ 	_props.add_child(tr)
++	# mobile-first §3.3 (V4, interim for 2D ask A1): the kit lane is horizontal stripes only, so it
++	# reads as a dead strip; the engine lays paving joints over it below the apron lip (4 art rows),
++	# in the tile's own phase so the pre-tap floor under the stage continues them
++	var jt := TextureRect.new()
++	jt.texture = paving_texture(pad_bottom, true)
++	jt.stretch_mode = TextureRect.STRETCH_TILE
++	jt.mouse_filter = Control.MOUSE_FILTER_IGNORE
++	var jx := -_extend_x - fposmod(-_extend_x, 64.0)
++	jt.position = Vector2(jx, art_origin.y + (LANE_ART_ROW + 4) * 4.0)
++	jt.size = Vector2(ceilf((L.W + _extend_x - jx) / 64.0) * 16.0 + 16.0, sz.y - 4.0)
++	jt.scale = Vector2(4, 4)
++	jt.set_meta("laneJoints", id)
++	_props.add_child(jt)
++
++
++static var _paving_cache := {}
++
++
++## The engine's interim paving tile (mobile-first §3.3, until the 2D Artist's plaza lands, ask A1):
++## a 16 × 8 art-px running bond of 8 × 4 setts in `base`, with darker joints and a lit top edge, so
++## every row of the floor has horizontal detail. `joints_only`: the joints alone on a transparent
++## tile (laid over the kit lane).
++static func paving_texture(base: Color, joints_only: bool) -> ImageTexture:
++	var key := "%s:%s" % [base.to_html(false), joints_only]
++	if _paving_cache.has(key):
++		return _paving_cache[key]
++	var img := Image.create(16, 8, false, Image.FORMAT_RGBA8)
++	var joint := base.darkened(0.35)
++	var lit := base.lightened(0.10)
++	img.fill(Color(0, 0, 0, 0) if joints_only else base)
++	for y in 8:
++		var off := 0 if y < 4 else 8
++		for x in 16:
++			var jx := (x + off) % 8 == 7
++			if y % 4 == 3 or jx:
++				img.set_pixel(x, y, Color(joint, 0.55) if joints_only else joint)
++			elif y % 4 == 0 and not joints_only and (x + off) % 8 < 3:
++				img.set_pixel(x, y, lit)
++	var t := ImageTexture.create_from_image(img)
++	_paving_cache[key] = t
++	return t
+ 
+ 
+ func _place_prop(sp: Dictionary) -> void:
+diff --git a/game/scripts/ui/layout.gd b/game/scripts/ui/layout.gd
+index a451b22..0ac088b 100644
+--- a/game/scripts/ui/layout.gd
++++ b/game/scripts/ui/layout.gd
+@@ -1,12 +1,22 @@
+ class_name L
+ extends RefCounted
+ ## od-sevev layout: ux/rtl-map.md (engine-concrete, RTL values given directly, not a runtime flip)
+-## on the 720-logical canvas (1 art px = 4 logical px). Sections, top to bottom:
++## with the mobile-first amendments of ux/mobile-first-layout.md. Every rect keeps its 720-design
++## numbers (1 art px = 4 logical px); the canvas is `cw` wide (whole art columns, 720-860 on the
++## phone matrix) and each element applies one of five anchors to `dx = cw - 720` (§4):
++##   R (right)  x + dx            first in RTL reading order: labels, plates, icons at the right edge
++##   L (left)   x                 trailing items: pills, numerals, the gear/mute, the date chip
++##   C (centre) x + floor4(dx/2)  the counter, titles, modal cards, the stage column
++##   S (stretch) x, w + dx        panels, tracks, clips, text boxes between an L and an R item
++##   F (full bleed) 0 … vs.x      background fills, the ticker panel, the tab bar plate, the lane
++## Sections, top to bottom (screen-logical y; chrome sections sit at the canvas origin, the stage
++## column at sox()):
+ ##   _top    Row A (0-96: counter, rate, mute, gear, cottage) + Row B (96-180: seats bar)
+-##   _stage  the stage, height S (flex); its node sits at screen y - STAGE.y, so stage-local
+-##           design y runs STAGE.y .. STAGE.y + S (the fork's coordinates stay valid)
+-##   _lower  ticker (0-84), card panel (84 .. 84+P, flex), tab bar (84+P .. 188+P)
+-## S and P come from the flex rule (rtl-map §1), set by MainController._relayout via set_flex().
++##   _stage  the stage, height S; its node sits at screen y - STAGE.y, so stage-local design y runs
++##           STAGE.y .. STAGE.y + S (the fork's coordinates stay valid)
++##   _lower  ticker (0-84), card pane (84 .. 84+P), tab bar (84+P .. 188+P, pinned to the safe
++##           bottom; before C1 the pane runs under its slot)
++## S and P come from the bottom-up split (mobile-first §3.2), set by MainController._relayout.
+ 
+ const W := 720
+ const H := 1280
+@@ -15,34 +25,92 @@ const RTL := Bidi.UI_RTL
+ ## Text scale: body ×4 on the art grid (rtl-map §0, D11); large-text mode draws ×5.
+ const TEXT := 4
+ 
+-## rtl-map §1 flex rule
++## mobile-first §3.1: the fixed rows
+ const ROW_A_H := 96
+ const ROW_B_H := 84
+ const TICKER_H := 84
+ const TABS_H := 104
+ const FIXED_H := ROW_A_H + ROW_B_H + TICKER_H + TABS_H
+-const STAGE_PREF := 640
+-const STAGE_MIN := 460
+-const LIST_MIN := 240
++## mobile-first §3.2: the split
++const CARD := 120
++const PEEK := 40
++const S_PREF := 640
++const S_FULL := 560
++const S_MIN := 460
++## kept names (rtl-map §1): the stage's designed and minimum heights
++const STAGE_PREF := S_PREF
++const STAGE_MIN := S_MIN
+ 
+ static var stage_h := 640.0     # S
+-static var panel_h := 378.0     # P
++static var panel_h := 400.0     # P (whole cards + the peek)
++static var rows_whole := 3      # n: whole card rows in P
++## The canvas width (mobile-first §2): >= 720, whole art columns; dx = cw - 720.
++static var cw := 720.0
++static var dx := 0.0
++## ux/ftue.md C1: false until the tab bar is revealed; the pane then runs under its slot (§3.3).
++static var tabs_up := true
+ 
+ 
+-## S and P for R = vs.y - insets - FIXED_H.
+-static func flex(r: float) -> Vector2:
+-	var s: float
+-	if r >= 1018.0:
+-		s = STAGE_PREF + floorf(0.4 * (r - 1018.0) / 4.0) * 4.0
+-	else:
+-		s = clampf(floorf((r - LIST_MIN) / 4.0) * 4.0, STAGE_MIN, STAGE_PREF)
+-	return Vector2(s, maxf(0.0, r - s))
++static func floor4(v: float) -> float:
++	return floorf(v / 4.0) * 4.0
+ 
+ 
+-static func set_flex(r: float) -> void:
+-	var v := flex(r)
+-	stage_h = v.x
+-	panel_h = v.y
++## mobile-first §3.2: {S, P, n} for R = floor4(vs.y) - insets - FIXED_H. The stage keeps its
++## 160-art composition (S_PREF) and every further CARD of height buys a whole card row, ending in
++## a PEEK-px peek; the reach guard keeps the leader's hit bottom (stage bottom - 140) >= 40% of the
++## height; the floor viewport (S < S_MIN) shrinks the peek. top = the safe top inset, vh =
++## floor4(vs.y) (0 skips the reach guard).
++static func split(r: float, top: float = 0.0, vh: float = 0.0) -> Dictionary:
++	var n := 2
++	if r - (3.0 * CARD + PEEK) >= S_MIN:
++		n = maxi(3, int(floorf((r - S_PREF - PEEK) / CARD)))
++	while vh > 0.0 and n > 3 and top + ROW_A_H + ROW_B_H + (r - n * CARD - PEEK) - 140.0 < 0.40 * vh:
++		n -= 1
++	var p := float(n * CARD + PEEK)
++	var s := r - p
++	if s < S_MIN:
++		s = S_MIN
++		p = r - s
++	return {"S": s, "P": maxf(0.0, p), "n": n}
++
++
++static func set_split(r: float, top: float = 0.0, vh: float = 0.0) -> void:
++	var v := split(r, top, vh)
++	stage_h = v["S"]
++	panel_h = v["P"]
++	rows_whole = v["n"]
++
++
++## The canvas width (>= 720, on the 4-px grid) and dx.
++static func set_width(w: float) -> void:
++	cw = maxf(float(W), floor4(w))
++	dx = cw - float(W)
++
++
++## The stage column's x in the canvas (anchor C): floor4(dx / 2).
++static func sox() -> float:
++	return floor4(dx / 2.0)
++
++
++## Anchors (§4): R, C and S for a rect, R and C for one x.
++static func ra(r: Rect2) -> Rect2:
++	return Rect2(r.position.x + dx, r.position.y, r.size.x, r.size.y)
++
++
++static func ca(r: Rect2) -> Rect2:
++	return Rect2(r.position.x + sox(), r.position.y, r.size.x, r.size.y)
++
++
++static func sa(r: Rect2) -> Rect2:
++	return Rect2(r.position.x, r.position.y, r.size.x + dx, r.size.y)
++
++
++static func rx(x: float) -> float:
++	return x + dx
++
++
++static func cx(x: float) -> float:
++	return x + sox()
+ 
+ 
+ ## x of a box of width w at LTR x, mirrored across the canvas when RTL.
+@@ -109,13 +177,25 @@ const SHOP := {
+ }
+ 
+ 
++## The tab bar's top, `_lower`-local: under the pane, pinned to the safe bottom; before C1 the pane
++## runs under the unrevealed slot, so the bar's top is the safe bottom (mobile-first §3.1, §3.3).
+ static func tabs_y() -> float:
+-	return float(SHOP["listY"]) + panel_h
++	return float(SHOP["listY"]) + panel_h + (0.0 if tabs_up else float(TABS_H))
++
++
++## One tab slot's width (mobile-first §5.3): floor4(cw / 4).
++static func tab_w() -> float:
++	return floor4(cw / 4.0)
+ 
+ 
+-## The tab slot rect (1-4, reading order right → left), `_lower`-local.
++## The tab slot rect (1-4, reading order right → left), `_lower`-local: slot i at x = cw - i·w;
++## the remainder of cw goes to slot 4 (the leftmost).
+ static func tab_rect(slot: int) -> Rect2:
+-	return Rect2(540.0 - 180.0 * (slot - 1), tabs_y(), 180, TABS_H)
++	var w := tab_w()
++	var x := cw - slot * w
++	if slot >= 4:
++		return Rect2(0, tabs_y(), x + w, TABS_H)
++	return Rect2(x, tabs_y(), w, TABS_H)
+ 
+ 
+ ## Card internals, card-local (rtl-map §6.1).
+diff --git a/game/scripts/ui/px_button.gd b/game/scripts/ui/px_button.gd
+index 6be5226..5e578e7 100644
+--- a/game/scripts/ui/px_button.gd
++++ b/game/scripts/ui/px_button.gd
+@@ -252,3 +252,17 @@ func set_alpha(a: float) -> void:
+ 	bg.modulate.a = a
+ 	if label:
+ 		label.modulate.a = a
++
++
++## Moves the button (a relayout, mobile-first §4 anchors): the visual, the hit, the plate and the
++## label (re-centred, its fit box following the new width).
++func set_rects(visual_: Rect2, hit_: Rect2) -> void:
++	visual = visual_
++	hit = hit_
++	if bg != null:
++		Ui.set_nine_rect(bg, visual)
++	if label != null:
++		_label_y = visual.position.y + floorf((visual.size.y - 7 * label.px) / 2.0 / 4.0) * 4.0
++		label.position.y = _label_y
++		label.fit_width = maxf(0.0, visual.size.x - 16.0)
++		_place_label()
+diff --git a/game/scripts/ui/ticker.gd b/game/scripts/ui/ticker.gd
+index 90656e1..1f053d0 100644
+--- a/game/scripts/ui/ticker.gd
++++ b/game/scripts/ui/ticker.gd
+@@ -1,18 +1,30 @@
+ class_name Ticker
+ extends Node2D
+-## News ticker: ux/number-and-copy.md §5 (queue priority, marquee, paged), motion-spec
+-## headline-ticker. The scroll region is a clipping Control (x112..704) instead of v1's
+-## occluders. Milestone glyphs hop once as they enter (J8). Reduced motion pages the text.
+-## od-sevev (ux/rtl-map.md §5): an 84-px row, `_lower`-local. The red "מבזק" anchor on the right,
+-## the crawl clip from x 192 to Dubi's left edge (Ticker.anchor_layout) running LEFT → RIGHT (a Hebrew line's first word enters first), one
+-## art px (4 logical) every 3 frames = 80 px/s (the Animator's even cadence), the date chip on the
+-## left. When the election gate opens the whole row becomes the gold "עוד סבב!" button; the crawl
+-## pauses with its queue intact.
++## News ticker: ux/number-and-copy.md §5 (queue priority), ux/mobile-first-layout.md §5.2 (the
++## pager). od-sevev (ux/rtl-map.md §5.1): an 84-px row, `_lower`-local. The red "מבזק" anchor on
++## the right (R-anchored: tagRight 700 + dx), Dubi left of it, the date chip on the left (L), the
++## clip between them (x 192 … 516 + dx, S-anchored). When the election gate opens the whole row
++## becomes the gold "עוד סבב!" button; the pager pauses with its queue intact.
++##
++## The pager (mobile-first §5.2, D39, replaces the crawl): a headline is broken at spaces into
++## lines no wider than the clip, then into pages of 2 lines (1 in large text: two ×5 lines are
++## taller than the row). A word is never split, so no glyph is ever cut at a clip edge, and the text
++## is still while it is read. Line cells at y 2 and 42 (pitch 40), right-aligned at the clip's
++## right edge; a one-line page sits centred in the row. Dwell max(3.5 s, 55 ms × the page's
++## characters) (an ftue line: max(4.5 s, …)). The next page enters from the clip's LEFT edge and
++## pushes the old one out to the right in 300 ms (the crawl's direction: the first word enters
++## first); reduced motion: a 200 ms cross-fade.
+ 
+ const PRIORITY := {"ftue": 3, "milestone": 2, "flavor": 1, "ambient": 0}
+ const SCALE := L.TEXT
+-const STEP_MS := 50.0         # one art px every 3 frames at 60 Hz
+ const TAG_BOX := 88.0         # string-budgets ticker.tag
++const LINE_Y := [2.0, 42.0]   # mobile-first §5.2: the two line cells (pitch 40)
++const ONE_LINE_Y := 22.0      # a one-line page, centred in the 84 row
++const DWELL_MS := 3500.0
++const DWELL_FTUE_MS := 4500.0
++const DWELL_PER_CHAR_MS := 55.0
++const PUSH_MS := 300.0
++const FADE_MS := 200.0
+ 
+ var reduced_motion := false
+ var on_milestone_start: Callable
+@@ -21,45 +33,60 @@ var ambient_source: Callable
+ 
+ var _queues := {"ftue": [], "milestone": [], "flavor": [], "ambient": []}
+ var _clip := Control.new()
+-var _pool: Array[PxText] = []
+-var _live: Array[Dictionary] = []
++var _panel: ColorRect
+ var _flash: ColorRect
+ var _ambient_ms := 0.0
+ var _last_ambient := -1
+ var _hold_until := 0.0
+ var _now := 0.0
+-var _pages: PackedStringArray = []
+-var _page_item: Dictionary = {}
+-var _page_t := 0.0
++## The pager: two page nodes (the one shown, the one leaving), each two lines.
++var _pages_n: Array[Node2D] = []
++var _lines: Array = []            # per page node: [PxText, PxText]
++var _cur := 0                     # index of the page node on screen
++var _item: Dictionary = {}        # the headline showing ({} = none)
++var _pages: Array = []            # its pages: Array of PackedStringArray (1-2 lines)
+ var _page_idx := -1
+-var _hop: Array = []
++var _page_t := 0.0
++var _dwell := 0.0
++var _tr: Dictionary = {}          # the running transition {t, out (node index or -1), fade}
+ 
+ 
+ var cta: PxButton
+ var dubi: SpriteStrip
+ var _chip: Array[CanvasItem] = []
++var _chip_box: NinePatchRect
++var _chip_cal: Sprite2D
++var _chip_date: PxText
+ var _anchor: Array[CanvasItem] = []
+ var _cta_on := false
+ var _tag_plate: ColorRect
+ var _tag_text: PxText
+ var _tag_w := 0.0
+ var _clip_x1 := float(L.TICKER["clipX1"])
++var _clip_x0 := float(L.TICKER["clipX0"])
+ 
+ 
+ func _ready() -> void:
+ 	var K: Dictionary = Art.theme["ticker"]
+ 	var panel: Rect2 = L.TICKER["panel"]
+-	Ui.rect(self, panel, Color("#1b1426"))
++	_panel = Ui.rect(self, panel, Color("#1b1426"))
+ 	_clip.clip_contents = true
+ 	_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ 	_clip.position = Vector2(L.TICKER["clipX0"], panel.position.y)
+ 	_clip.size = Vector2(float(L.TICKER["clipX1"]) - float(L.TICKER["clipX0"]), panel.size.y)
+ 	add_child(_clip)
+-	for i in 3:
+-		var l := PxText.make(_clip, Vector2.ZERO, "", SCALE, "plain", K["text"])
+-		l.reading = true   # the crawl reads on the @2 cut where crisp; the tag and chip stay display
+-		l.visible = false
+-		_pool.append(l)
++	for i in 2:
++		var n := Node2D.new()
++		n.visible = false
++		_clip.add_child(n)
++		_pages_n.append(n)
++		var pair: Array = []
++		for j in 2:
++			var l := PxText.make(n, Vector2.ZERO, "", SCALE, "plain", K["text"])
++			l.reading = true   # the headline reads on the @2 cut where crisp; the tag and chip stay display
++			l.max_lines = 1
++			pair.append(l)
++		_lines.append(pair)
+ 	# the anchor: a red plate with "מבזק", right-aligned (rtl-map §5.1)
+ 	var tag: Rect2 = L.TICKER["tag"]
+ 	_tag_plate = Ui.rect(self, tag, Color("#d02a36"))
+@@ -72,22 +99,35 @@ func _ready() -> void:
+ 	if dubi != null:
+ 		dubi.finished.connect(func(_a: String) -> void: dubi.play("idle"))
+ 		_anchor.append(dubi)
+-	_layout_anchor()
+-	# the date chip: kit chip_countdown, the calendar icon at its right, "27.10" left of it
++	# the date chip (L): kit chip_countdown, the calendar icon at its right, "27.10" left of it
+ 	var cr: Rect2 = L.TICKER["chip"]
+-	_chip.append(Ui.nine(self, cr, Art.sprite_or("chip_countdown")))
+-	var cal := Ui.img(self, Vector2(cr.end.x - 52, cr.position.y + 12), Art.sprite_or("chip_icon_calendar"), 0, 4)
+-	_chip.append(cal)
+-	var date := PxText.make(self, Vector2(0, cr.position.y + 10), Strings.s("HUD_COUNTDOWN_DATE"), SCALE, "plain", "w")
+-	date.right_at(cr.end.x - 60)
+-	_chip.append(date)
++	_chip_box = Ui.nine(self, cr, Art.sprite_or("chip_countdown"))
++	_chip.append(_chip_box)
++	_chip_cal = Ui.img(self, Vector2(cr.end.x - 52, cr.position.y + 12), Art.sprite_or("chip_icon_calendar"), 0, 4)
++	_chip.append(_chip_cal)
++	_chip_date = PxText.make(self, Vector2(0, cr.position.y + 10), Strings.s("HUD_COUNTDOWN_DATE"), SCALE, "plain", "w")
++	_chip_date.right_at(cr.end.x - 60)
++	_chip.append(_chip_date)
+ 	for n in _chip:
+ 		n.modulate.a = 0.6
+ 	_flash = Ui.fade_rect(self, panel, K["flash"])
+-	cta = PxButton.make(self, Rect2(8, 4, 704, 76), {"hit": L.TICKER["hit"], "label": Strings.s("HUD_CTA_ELECTION"), "label_scale": 5, "kind": "kit_gold"})
++	cta = PxButton.make(self, Rect2(8, 2, 704, 80), {"hit": L.TICKER["hit"], "label": Strings.s("HUD_CTA_ELECTION"), "label_scale": 5, "kind": "kit_gold"})
+ 	cta.set_visible(false)
+-	var hp := float(Tune.MC["tickerHopPx"])
+-	_hop = [-hp / 2.0, -hp, -hp, -hp / 2.0, 0.0]
++	relayout()
++
++
++## mobile-first §4.1: the panel is full bleed (F), the anchor right (R: tagRight 700 + dx), the
++## chip left (L), the clip stretches between them, the election CTA spans the row (S).
++func relayout() -> void:
++	if _panel == null:
++		return
++	var panel: Rect2 = L.TICKER["panel"]
++	_panel.size = Vector2(L.cw + 4.0, panel.size.y)   # + the < 4 px aspect remainder: no seam
++	_flash.size = _panel.size
++	_layout_anchor()
++	cta.set_rects(Rect2(8, 2, 704.0 + L.dx, 80), L.sa(L.TICKER["hit"]))
++	if not _item.is_empty():
++		_restart_item()   # the clip width changed: re-break the headline into pages
+ 
+ 
+ ## The anchor, right → left (rtl-map §5.1): the red plate hugging "מבזק" (text right-aligned at
+@@ -95,24 +135,25 @@ func _ready() -> void:
+ ## plate grows with the measured tag (×4 or large text ×5) and the clip ends where Dubi starts.
+ ## Pure (tests pin it). tag_w = the tag's drawn width; dubi = Dubi's node-local frame rect ({}
+ ## without the sprite). Returns {plate: Rect2, textRight, dubiFeet: Vector2, clipX1}.
+-static func anchor_layout(tag_w: float, dubi: Rect2) -> Dictionary:
++static func anchor_layout(tag_w: float, dubi: Rect2, dx: float = 0.0) -> Dictionary:
+ 	var T: Dictionary = L.TICKER
+ 	var tag: Rect2 = T["tag"]
+-	var right := float(T["tagRight"])
++	var right := float(T["tagRight"]) + dx
+ 	var pad := float(T["tagPad"])
+ 	var gap := float(T["anchorGap"])
+ 	var plate := Rect2(right - tag_w - pad, tag.position.y, tag_w + 2.0 * pad, tag.size.y)
+ 	var feet: Vector2 = T["dubiFeet"]
++	feet.x += dx
+ 	var left := plate.position.x
+ 	if dubi.size.x > 0.0:
+ 		feet.x = plate.position.x - gap - dubi.end.x   # the frame's right edge sits gap px left of the plate
+ 		left = feet.x + dubi.position.x
+-	return {"plate": plate, "textRight": right, "dubiFeet": feet, "clipX1": minf(float(T["clipX1"]), left - gap)}
++	return {"plate": plate, "textRight": right, "dubiFeet": feet, "clipX1": minf(float(T["clipX1"]) + dx, left - gap)}
+ 
+ 
+ func _layout_anchor() -> void:
+ 	_tag_w = float(_tag_text.width())
+-	var lay := anchor_layout(_tag_w, dubi.rect() if dubi != null else Rect2())
++	var lay := anchor_layout(_tag_w, dubi.rect() if dubi != null else Rect2(), L.dx)
+ 	var plate: Rect2 = lay["plate"]
+ 	_tag_plate.position = plate.position
+ 	_tag_plate.size = plate.size
+@@ -124,12 +165,12 @@ func _layout_anchor() -> void:
+ 	_clip.size.x = _clip_x1 - _clip.position.x   # keeps the court-day left edge (x 228) if the chip is up
+ 
+ 
+-## The crawl clip's right edge (the anchor's left edge), `_lower`-local.
++## The clip's right edge (the anchor's left edge), `_lower`-local.
+ func clip_x1() -> float:
+ 	return _clip_x1
+ 
+ 
+-## The crawl clip as drawn, `_lower`-local (tests: it must end before Dubi on every day).
++## The clip as drawn, `_lower`-local (tests: it must end before Dubi on every day).
+ func clip_rect() -> Rect2:
+ 	return Rect2(_clip.position, _clip.size)
+ 
+@@ -140,7 +181,7 @@ func dubi_talk() -> void:
+ 		dubi.play("talk", true)
+ 
+ 
+-## The election CTA replaces the row (rtl-map §5.3). The crawl pauses; its queue is kept.
++## The election CTA replaces the row (rtl-map §5.3). The pager pauses; its queue is kept.
+ func set_cta(on: bool) -> void:
+ 	if on == _cta_on:
+ 		return
+@@ -164,19 +205,17 @@ func set_court_chip(on: bool, chip_right: float = 0.0) -> void:
+ 		n.visible = not on and not _cta_on
+ 	var x0 := maxf(float(L.TICKER["clipX0"]), chip_right + 8.0) if on else float(L.TICKER["clipX0"])
+ 	_clip.position.x = x0
+-	# rtl-map §5.1: the clip's right edge is always the anchor's (anchor_layout().clipX1, 516),
+-	# court day included, so the crawl never runs under Dubi
++	# rtl-map §5.1: the clip's right edge is always the anchor's (anchor_layout().clipX1, 516 + dx),
++	# court day included, so a headline never runs under Dubi
+ 	_clip.size.x = _clip_x1 - x0
++	if not _item.is_empty():
++		_restart_item()
+ 
+ 
+ func cta_on() -> bool:
+ 	return _cta_on
+ 
+ 
+-func _text_y() -> float:
+-	return float(L.TICKER["textY"]) - (L.TICKER["panel"] as Rect2).position.y
+-
+-
+ func enqueue(kind: String, text: String, front: bool = false) -> void:
+ 	var it := {"text": text, "kind": kind}
+ 	if front:
+@@ -194,16 +233,24 @@ func now_ms() -> float:
+ 
+ 
+ func set_reduced_motion(on: bool) -> void:
+-	if reduced_motion == on:
+-		return
+ 	reduced_motion = on
+-	for l in _live:
+-		_requeue(l["item"])
+-	_clear_live()
+-	if not _page_item.is_empty():
+-		_requeue(_page_item)
+-		_page_item = {}
+-		_pool[0].visible = false
++
++
++## window.odDisplay.ticker (mobile-first §5.2; tools/web/mobile_web.mjs reads it).
++func web_info() -> Dictionary:
++	return {"mode": "page", "clipW": _clip.size.x, "lines": lines_per_page()}
++
++
++## 2 lines a page; 1 in large text (two ×5 lines are 100 > 84).
++static func lines_per_page() -> int:
++	return 1 if PxText.body_scale() > L.TEXT else 2
++
++
++## The text showing: the current page's lines ("" = none; tests).
++func page_text() -> String:
++	if _item.is_empty() or _page_idx < 0 or _page_idx >= _pages.size():
++		return ""
++	return " ".join(_pages[_page_idx])
+ 
+ 
+ func _requeue(it: Dictionary) -> void:
+@@ -211,14 +258,6 @@ func _requeue(it: Dictionary) -> void:
+ 		(_queues[it["kind"]] as Array).push_front(it)
+ 
+ 
+-func _clear_live() -> void:
+-	for l in _live:
+-		var line: PxText = l["line"]
+-		line.visible = false
+-		line.set_meta("hop", null)
+-	_live.clear()
+-
+-
+ func _next_item(min_priority: int = 0) -> Dictionary:
+ 	for k in ["ftue", "milestone", "flavor"]:
+ 		if int(PRIORITY[k]) < min_priority:
+@@ -239,8 +278,50 @@ func _top_queued_priority() -> int:
+ 	return -1
+ 
+ 
++## Breaks a headline into lines no wider than max_px at scale_px (measured on the real text
++## route), at spaces only: a word is never split (a word wider than the box gets a line of its own;
++## the content lint keeps every ticker word ≤ 280 at ×4, the narrowest clip).
++static func wrap_lines_px(text: String, max_px: float, scale_px: int) -> PackedStringArray:
++	var out := PackedStringArray()
++	var cur := ""
++	for w in text.split(" ", false):
++		var trial := w if cur == "" else cur + " " + w
++		if cur == "" or PxText.measure(trial, scale_px) <= max_px:
++			cur = trial
++		else:
++			out.append(cur)
++			cur = w
++	if cur != "":
++		out.append(cur)
++	if out.is_empty():
++		out.append("")
++	return out
++
++
++## mobile-first §5.2: the pages of a headline, `per` lines each.
++static func paginate(text: String, max_px: float, scale_px: int, per: int) -> Array:
++	var lines := wrap_lines_px(text, max_px, scale_px)
++	var pages: Array = []
++	var i := 0
++	while i < lines.size():
++		pages.append(lines.slice(i, i + per))
++		i += per
++	return pages
++
++
++## Kept for the fork's callers: one-line pages by measured width.
++static func wrap_pages_px(text: String, max_px: float, scale_px: int) -> PackedStringArray:
++	return wrap_lines_px(text, max_px, scale_px)
++
++
++static func dwell_ms(page: PackedStringArray, kind: String) -> float:
++	var chars := 0
++	for l in page:
++		chars += l.length()
++	return maxf(DWELL_FTUE_MS if kind == "ftue" else DWELL_MS, DWELL_PER_CHAR_MS * chars)
++
++
+ func _start_item(it: Dictionary) -> void:
+-	var K: Dictionary = Art.theme["ticker"]
+ 	var milestone: bool = it["kind"] == "milestone"
+ 	if milestone:
+ 		if on_milestone_start.is_valid():
+@@ -248,138 +329,158 @@ func _start_item(it: Dictionary) -> void:
+ 		if not reduced_motion:
+ 			_flash.modulate.a = 0.8
+ 			create_tween().tween_property(_flash, "modulate:a", 0.0, float(Tune.T["headlineFlashMs"]) / 1000.0).set_ease(Tween.EASE_OUT)
+-	if reduced_motion:
+-		_page_item = it
+-		# od-sevev (rtl-map §5.2): pages break by measured pixel width, not character count
+-		_pages = wrap_pages_px(String(it["text"]), _clip.size.x - 8.0, PxText.body_scale())   # the scale drawn
+-		_page_t = 0.0
+-		_page_idx = 0
+-		var l := _pool[0]
+-		l.text = _pages[0]
+-		l.tint = Art.col(Art.theme["juiceGain"] if milestone else K["text"])
+-		l.position = Vector2(4, _text_y())
++	_item = it
++	_pages = paginate(String(it["text"]), _clip.size.x, PxText.body_scale(), lines_per_page())
++	_page_idx = -1
++	_show_page(0, true)
++
++
++## Re-breaks the showing headline for a new clip width, keeping its place (the first page).
++func _restart_item() -> void:
++	_pages = paginate(String(_item["text"]), _clip.size.x, PxText.body_scale(), lines_per_page())
++	_page_idx = -1
++	_tr = {}
++	for n in _pages_n:
++		n.visible = false
++		n.position.x = 0.0
++		n.modulate.a = 1.0
++	_show_page(0, false)
++
++
++## Puts page i on the other page node and starts the push (or the fade); `animate` false = cut.
++func _show_page(i: int, animate: bool) -> void:
++	var K: Dictionary = Art.theme["ticker"]
++	var out := _cur if _pages_n[_cur].visible else -1
++	var nxt := 1 - _cur if out >= 0 else _cur
++	_cur = nxt
++	_page_idx = i
++	_page_t = 0.0
++	var page: PackedStringArray = _pages[i]
++	_dwell = dwell_ms(page, String(_item["kind"]))
++	var col := Art.col(K["milestoneText"] if _item["kind"] == "milestone" else K["text"])
++	var pair: Array = _lines[nxt]
++	var w := _clip.size.x
++	for j in 2:
++		var l: PxText = pair[j]
++		l.text = page[j] if j < page.size() else ""
++		l.visible = j < page.size()
++		l.tint = col
++		l.position.y = ONE_LINE_Y if page.size() == 1 else float(LINE_Y[j])
+ 		if L.RTL:
+-			l.right_at(_clip.size.x - 4.0)
+-		l.visible = true
++			l.right_at(w)
++		else:
++			l.position.x = 0.0
++	var n: Node2D = _pages_n[nxt]
++	n.visible = true
++	n.modulate.a = 1.0
++	n.position.x = 0.0
++	if animate and out >= 0 and out != nxt:
++		_tr = {"t": 0.0, "out": out, "fade": reduced_motion}
++		_apply_transition(0.0)
++	else:
++		_tr = {}
++		if out >= 0 and out != nxt:
++			_pages_n[out].visible = false
++
++
++## The page transition at t ms: the push (the new page enters from the left edge, the old leaves
++## through the right, 4-px steps, cubic ease-out) or the reduced-motion cross-fade.
++func _apply_transition(t: float) -> void:
++	var out: int = _tr["out"]
++	var n_in: Node2D = _pages_n[_cur]
++	var n_out: Node2D = _pages_n[out] if out >= 0 else null
++	if _tr["fade"]:
++		var p := minf(1.0, t / FADE_MS)
++		n_in.modulate.a = p
++		n_in.position.x = 0.0
++		if n_out != null:
++			n_out.modulate.a = 1.0 - p
++		if p >= 1.0:
++			_end_transition()
+ 		return
+-	var line: PxText = null
+-	for p in _pool:
+-		var used := false
+-		for x in _live:
+-			if x["line"] == p:
+-				used = true
+-		if not used:
+-			line = p
+-			break
+-	if line == null:
++	var p2 := minf(1.0, t / PUSH_MS)
++	var e := 1.0 - pow(1.0 - p2, 3.0)
++	var w := _clip.size.x
++	var dir := 1.0 if L.RTL else -1.0
++	var off := Ui.snap(w * e, 4)
++	n_in.position.x = -dir * (w - off)
++	if n_out != null:
++		n_out.position.x = dir * off
++	if p2 >= 1.0:
++		_end_transition()
++
++
++func _end_transition() -> void:
++	var out: int = _tr["out"]
++	_tr = {}
++	(_pages_n[_cur] as Node2D).position.x = 0.0
++	(_pages_n[_cur] as Node2D).modulate.a = 1.0
++	if out >= 0 and out != _cur:
++		var n: Node2D = _pages_n[out]
++		n.visible = false
++		n.position.x = 0.0
++		n.modulate.a = 1.0
++
++
++## The headline ended (its last page read) or was pre-empted: the next item pushes it out, or
++## it leaves on its own (the same push with nothing entering, or the fade).
++func _end_item(requeue: bool) -> void:
++	if requeue:
++		_requeue(_item)
++	_item = {}
++	_pages = []
++	_page_idx = -1
++	_ambient_ms = 0.0
++	var nxt := _next_item()
++	if not nxt.is_empty():
++		_start_item(nxt)
+ 		return
+-	line.text = it["text"]
+-	line.tint = Art.col(K["milestoneText"] if milestone else K["text"])
+-	line.visible = true
+-	line.h_anchor = 0
+-	var x0 := -float(line.width()) if L.RTL else _clip.size.x
+-	line.position = Vector2(x0, _text_y())
+-	_live.append({"item": it, "line": line, "x0": x0, "t": 0.0, "w": line.width(), "hop": milestone, "hopAt": {}})
++	# nothing queued: the page leaves (an empty page node enters)
++	var out := _cur
++	var pair: Array = _lines[1 - _cur]
++	for l: PxText in pair:
++		l.text = ""
++		l.visible = false
++	_cur = 1 - _cur
++	(_pages_n[_cur] as Node2D).visible = true
++	_tr = {"t": 0.0, "out": out, "fade": reduced_motion}
++	_apply_transition(0.0)
+ 
+ 
+ func update_view(dt_ms: float) -> void:
+ 	_now += dt_ms
+ 	if float(_tag_text.width()) != _tag_w:
+ 		_layout_anchor()   # the text size changed (large text): the plate, Dubi and the clip follow
++		if not _item.is_empty():
++			_restart_item()
+ 	if dubi != null:
+ 		dubi.update_view(dt_ms)
+ 	if _cta_on:
+ 		return
+-	var top := _top_queued_priority()
+-	var showing: Array = []
+-	if reduced_motion:
+-		if not _page_item.is_empty():
+-			showing = [_page_item]
+-	else:
+-		showing = _live.map(func(l: Dictionary) -> Dictionary: return l["item"])
+-	var cur_max := -1
+-	for it: Dictionary in showing:
+-		cur_max = maxi(cur_max, int(PRIORITY[it["kind"]]))
+-	if not showing.is_empty() and top > cur_max:
+-		for it: Dictionary in showing:
+-			_requeue(it)
+-		_clear_live()
+-		if not _page_item.is_empty():
+-			_page_item = {}
+-			_pool[0].visible = false
+-	if reduced_motion:
+-		if not _page_item.is_empty():
+-			_page_t += dt_ms
+-			var idx := int(floorf(_page_t / float(Tune.MC["tickerPageMs"])))
+-			if idx >= _pages.size():
+-				_page_item = {}
+-				_pool[0].visible = false
+-				_ambient_ms = 0.0
+-			elif idx != _page_idx:
+-				_page_idx = idx
+-				_pool[0].text = _pages[idx]
+-				_pool[0].tint = Art.col(Art.theme["ticker"]["text"])
+-		if _page_item.is_empty():
+-			var it2 := _next_item()
+-			if not it2.is_empty():
+-				_start_item(it2)
+-			else:
+-				_tick_ambient(dt_ms)
++	if not _tr.is_empty():
++		_tr["t"] = float(_tr["t"]) + dt_ms
++		_apply_transition(float(_tr["t"]))
++	# a higher-priority headline pre-empts the showing one (it returns to its queue)
++	if not _item.is_empty() and _top_queued_priority() > int(PRIORITY[_item["kind"]]):
++		_end_item(true)
+ 		return
+-	var dir := 1.0 if L.RTL else -1.0
+-	for l in _live:
+-		l["t"] = float(l["t"]) + dt_ms
+-		var line: PxText = l["line"]
+-		line.position.x = float(l["x0"]) + dir * 4.0 * floorf(float(l["t"]) / STEP_MS)
+-		_apply_hop(l)
+-	var clip_w := _clip.size.x
+-	var done: Array = []
+-	for l in _live:
+-		var lx := (l["line"] as PxText).position.x
+-		if (L.RTL and lx > clip_w) or (not L.RTL and lx + float(l["w"]) < 0.0):
+-			done.append(l)
+-	for l: Dictionary in done:
+-		(l["line"] as PxText).visible = false
+-		(l["line"] as PxText).glyph_dy = Callable()
+-		_live.erase(l)
+-	var room := true
+-	if not _live.is_empty():
+-		var last: Dictionary = _live[_live.size() - 1]
+-		if L.RTL:
+-			room = (last["line"] as PxText).position.x >= float(Tune.MC["tickerGapPx"])
+-		else:
+-			room = (last["line"] as PxText).position.x + float(last["w"]) <= clip_w - float(Tune.MC["tickerGapPx"])
+-	if room and _live.size() < _pool.size():
+-		var it3 := _next_item()
+-		if not it3.is_empty():
+-			_start_item(it3)
++	if _item.is_empty():
++		var it := _next_item()
++		if not it.is_empty():
++			_start_item(it)
+ 			_ambient_ms = 0.0
+-			return
+-	if _live.is_empty():
+-		_tick_ambient(dt_ms)
+-
+-
+-## J8: each milestone glyph hops once as it passes clipX1 − tickerHopEntryInsetPx.
+-func _apply_hop(l: Dictionary) -> void:
+-	if not l["hop"]:
++		else:
++			_tick_ambient(dt_ms)
+ 		return
+-	var line: PxText = l["line"]
+-	var hop_at: Dictionary = l["hopAt"]
+-	var inset := float(Tune.MC["tickerHopEntryInsetPx"])
+-	var entry := _clip.size.x - inset
+-	var adv := 6.0 * SCALE
+-	var hop_ms := _hop.size() * Tune.FRAME_MS
+-	line.glyph_dy = func(i: int, gx: float) -> float:
+-		var left := line.position.x + gx
+-		var entered := (left + adv >= inset) if L.RTL else (left <= entry)
+-		if not hop_at.has(i) and entered:
+-			hop_at[i] = _now
+-		if hop_at.has(i):
+-			var dt := _now - float(hop_at[i])
+-			if dt < hop_ms:
+-				return Ui.snap(float(Juice.sample(_hop, dt)), SCALE)
+-		return 0.0
+-	line.queue_redraw()
++	if not _tr.is_empty():
++		return   # the dwell starts when the page is still
++	_page_t += dt_ms
++	if _page_t < _dwell:
++		return
++	if _page_idx + 1 < _pages.size():
++		_show_page(_page_idx + 1, true)
++	else:
++		_end_item(false)
+ 
+ 
+ func _tick_ambient(dt_ms: float) -> void:
+@@ -400,40 +501,3 @@ func _tick_ambient(dt_ms: float) -> void:
+ 		_last_ambient = i
+ 		text = list[i]
+ 	_start_item({"text": text, "kind": "ambient"})
+-
+-
+-## Word-wrap into pages of <= n chars (paged mode, ux §5).
+-static func wrap_pages(text: String, n: int) -> PackedStringArray:
+-	var pages := PackedStringArray()
+-	var cur := ""
+-	for w in text.split(" ", false):
+-		if cur == "":
+-			cur = w.substr(0, n)
+-		elif cur.length() + 1 + w.length() <= n:
+-			cur += " " + w
+-		else:
+-			pages.append(cur)
+-			cur = w.substr(0, n)
+-	if cur != "":
+-		pages.append(cur)
+-	if pages.is_empty():
+-		pages.append("")
+-	return pages
+-
+-
+-## Word-wrap into pages no wider than max_px at scale_px, measured on the real text route.
+-static func wrap_pages_px(text: String, max_px: float, scale_px: int) -> PackedStringArray:
+-	var pages := PackedStringArray()
+-	var cur := ""
+-	for w in text.split(" ", false):
+-		var trial := w if cur == "" else cur + " " + w
+-		if cur == "" or PxText.measure(trial, scale_px) <= max_px:
+-			cur = trial
+-		else:
+-			pages.append(cur)
+-			cur = w
+-	if cur != "":
+-		pages.append(cur)
+-	if pages.is_empty():
+-		pages.append("")
+-	return pages
+diff --git a/game/scripts/ui/top_bar.gd b/game/scripts/ui/top_bar.gd
+index 062c418..d7f4f07 100644
+--- a/game/scripts/ui/top_bar.gd
++++ b/game/scripts/ui/top_bar.gd
+@@ -11,7 +11,11 @@ extends Node2D
+ 
+ const BANK_GAIN := [Vector2(5, 5), Vector2(5, 5), Vector2(5, 5), Vector2(5, 3), Vector2(5, 3), Vector2(4, 5), Vector2(4, 5), Vector2(4, 4)]
+ const BANK_GAIN_REDUCED_TINT_MS := 300.0
+-const COUNTER_SCALE := 5          # rtl-map §0: the counter leads the hierarchy
++## mobile-first §5.1 (D40): ×6, digits 30 logical = 15 CSS, 1.5× the body text; its cell top at y 0,
++## the rate line at y 52 (Row A stays 96). ×6 is whole device px at every even k.
++const COUNTER_SCALE := 6
++const COUNTER_Y := 0.0
++const RATE_Y := 52.0
+ const RATE_DIM_AFTER_MS := 3000.0
+ 
+ var reduced_motion := false
+@@ -47,10 +51,10 @@ var _seat_frac := -1.0
+ func _ready() -> void:
+ 	var th := Art.theme
+ 	var T: Dictionary = L.TOP
+-	var cb: Rect2 = T["counterBox"]
+-	bank = PxText.make(self, cb.position, "", COUNTER_SCALE, "plain", th["statText"]["bank"])
+-	var rb: Rect2 = T["rateBox"]
+-	bps = PxText.make(self, rb.position, "", L.TEXT, "plain", th["statText"]["bps"])
++	var cb: Rect2 = counter_box()
++	bank = PxText.make(self, Vector2(cb.position.x, COUNTER_Y), "", COUNTER_SCALE, "plain", th["statText"]["bank"])
++	var rb: Rect2 = rate_box()
++	bps = PxText.make(self, Vector2(rb.position.x, RATE_Y), "", L.TEXT, "plain", th["statText"]["bps"])
+ 	bps.fit_width = rb.size.x   # rtl-map §0.2: ×5 only when the filled rate fits rowA.rate (344)
+ 	gear = _icon(T["gearHit"], "icon_gear")
+ 	mute = _icon(T["muteHit"], "icon_sound_on")
+@@ -61,20 +65,54 @@ func _ready() -> void:
+ 	_track = Ui.nine(self, tr, Art.sprite_or("seats_track"))
+ 	_fill = Ui.nine(self, Rect2(tr.end.x - 12, tr.position.y + 4, 8, tr.size.y - 8), Art.sprite_or("seats_fill"))
+ 	for i in range(1, 7):
+-		var t := Ui.img(self, Vector2(Ui.snap(tr.end.x - 4.0 - (tr.size.x - 8.0) * float(i * 10) / 61.0, 4), tr.position.y + 4), Art.sprite_or("seats_tick"), 0, 4)
+-		_ticks.append(t)
++		_ticks.append(Ui.img(self, Vector2.ZERO, Art.sprite_or("seats_tick"), 0, 4))
+ 	_goal = Ui.nine(self, tr.grow(12), Art.sprite_or("seats_goal_frame"))
+ 	_goal.visible = false
+ 	seats_label = PxText.make(self, Vector2(0, float(T["seatsY"])), Strings.s("HUD_SEATS"), L.TEXT, "plain", "w")
+ 	# rtl-map §0.2: Row B's label box is x 576-704 (128) and the numeral's x 16-136 (120); at ×5
+ 	# "מנדטים" (155) would run over the track, so it steps down
+ 	seats_label.fit_width = float(T["seatsLabelRight"]) - tr.end.x - 8.0
+-	seats_label.right_at(float(T["seatsLabelRight"]))
+ 	seats_value = PxText.make(self, Vector2(float(T["seatsValueX"]), float(T["seatsY"])), "", L.TEXT, "plain", "w")
+ 	seats_value.fit_width = tr.position.x - float(T["seatsValueX"]) - 8.0
++	relayout()
+ 	_apply_reveal()
+ 
+ 
++## mobile-first §4.1 Row A / Row B anchors: the counter and rate boxes stretch (their text centred on
++## the canvas), the gear and mute stay left (L), the cottage right (R, its own view); Row B's label
++## is R, its numeral L, the track stretches (the notches follow it), the hit spans the canvas.
++static func counter_box() -> Rect2:
++	return L.sa(L.TOP["counterBox"])
++
++
++static func rate_box() -> Rect2:
++	return L.sa(L.TOP["rateBox"])
++
++
++static func track_rect() -> Rect2:
++	return L.sa(L.TOP["seatsTrack"])
++
++
++static func seats_hit() -> Rect2:
++	return Rect2(0, (L.TOP["seatsHit"] as Rect2).position.y, L.cw, (L.TOP["seatsHit"] as Rect2).size.y)
++
++
++func relayout() -> void:
++	if _track == null:
++		return
++	var tr := track_rect()
++	Ui.set_nine_rect(_track, tr)
++	for i in _ticks.size():
++		_ticks[i].position = Vector2(Ui.snap(tr.end.x - 4.0 - (tr.size.x - 8.0) * float((i + 1) * 10) / 61.0, 4), tr.position.y + 4)
++	Ui.set_nine_rect(_goal, tr.grow(12))
++	seats_label.right_at(L.rx(float(L.TOP["seatsLabelRight"])))
++	_seat_frac = -1.0
++	if bank.text != "":
++		bank.center_in(counter_box().position.x, counter_box().size.x)
++	if bps.text != "":
++		bps.center_in(rate_box().position.x, rate_box().size.x)
++
++
+ func _icon(hit: Rect2, id: String) -> Sprite2D:
+ 	var key := Art.sprite_or(id)
+ 	var sz := Vector2(Art.sprite_size(key)) * 4.0
+@@ -114,7 +152,7 @@ func _apply_reveal() -> void:
+ 
+ func set_bank(bananas: float) -> void:
+ 	bank.text = Strings.s("HUD_BANK", {"n": Fmt.bank(maxf(0.0, bananas - _roll_remainder))})
+-	bank.center_in((L.TOP["counterBox"] as Rect2).position.x, (L.TOP["counterBox"] as Rect2).size.x)
++	bank.center_in(counter_box().position.x, counter_box().size.x)
+ 	var th := Art.theme
+ 	var tint: Variant = th["statText"]["bankGoldenRoll"] if (_roll_tw and _roll_tw.is_valid() and _roll_tw.is_running()) \
+ 		else (th["juiceGain"] if _now < _gain_tint_until else th["statText"]["bank"])
+@@ -154,7 +192,7 @@ func roll_bank(award: float) -> void:
+ ## line then reads HUD_BPS_POUR in the frenzy tint rather than "+0.0 ₪ לשנייה" (review R24).
+ func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
+ 	var th := Art.theme
+-	var rb0: Rect2 = L.TOP["rateBox"]
++	var rb0: Rect2 = rate_box()
+ 	if pour:
+ 		_frenzy = true
+ 		_prev_rate = -1.0
+@@ -164,13 +202,13 @@ func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
+ 		bps.self_modulate.a = 1.0
+ 		return
+ 	var rate := rate_bps * frenzy_mult
+-	var rb: Rect2 = L.TOP["rateBox"]
++	var rb: Rect2 = rate_box()
+ 	if _prev_rate >= 0.0 and absf(rate - _prev_rate) > 1e-9:
+ 		_rate_changed_at = _now
+ 		if rate > _prev_rate:
+ 			_bps_tint_until = _now + float(Tune.MC["bpsTintHoldMs"])
+ 			if not reduced_motion and not Juice.has(bps):
+-				var y0 := rb.position.y
++				var y0 := RATE_Y
+ 				Juice.play(bps, _bps_hop.size() * Tune.FRAME_MS, func(t: float) -> void: bps.position.y = y0 + float(Juice.sample(_bps_hop, t)),
+ 					func() -> void: bps.position.y = y0)
+ 	_prev_rate = rate
+@@ -195,9 +233,9 @@ func reset_rate() -> void:
+ 
+ ## effective / gate seats; the blackout removes the numeral (rtl-map §3; its stamp is a later piece).
+ func set_seats(effective: int, gate: int, blackout: bool) -> void:
+-	var tr: Rect2 = L.TOP["seatsTrack"]
++	var tr: Rect2 = track_rect()
+ 	var frac := clampf(float(effective) / maxf(1.0, float(gate)), 0.0, 1.0)
+-	if not is_equal_approx(frac, _seat_frac):
++	if not is_equal_approx(frac, _seat_frac) or _seat_frac < 0.0:
+ 		_seat_frac = frac
+ 		var inner := Rect2(tr.position + Vector2(4, 4), tr.size - Vector2(8, 8))
+ 		var w := maxf(8.0, Ui.snap(inner.size.x * frac, 4))
+@@ -208,7 +246,7 @@ func set_seats(effective: int, gate: int, blackout: bool) -> void:
+ 
+ 
+ func seats_contains(p: Vector2) -> bool:
+-	return _seats_on and Ui.in_rect(L.TOP["seatsHit"], p)
++	return _seats_on and Ui.in_rect(seats_hit(), p)
+ 
+ 
+ # ------------------------------------------------------------------ controls
+diff --git a/game/scripts/ui/views/view_chat.gd b/game/scripts/ui/views/view_chat.gd
+index 3f7ee3f..df3b59e 100644
+--- a/game/scripts/ui/views/view_chat.gd
++++ b/game/scripts/ui/views/view_chat.gd
+@@ -1348,7 +1348,7 @@ func _launch_pips(seq: int, pid: String) -> void:
+ 		return
+ 	var row := _row_of(seq)
+ 	var p0 := Vector2(0, THREAD_Y + _content.position.y + float(row.get("y", 0.0))) + (pill["rect"] as Rect2).get_center()
+-	var tr: Rect2 = L.TOP["seatsTrack"]
++	var tr: Rect2 = TopBar.track_rect()
+ 	var si := Coalition.seat_info(_state)
+ 	var frac := clampf(float(si["effective"]) / maxf(1.0, float(si["gateSeats"])), 0.0, 1.0)
+ 	var head_x := tr.end.x - 4.0 - (tr.size.x - 8.0) * frac
+diff --git a/game/scripts/ui/views/view_cottage.gd b/game/scripts/ui/views/view_cottage.gd
+index 4447091..46fbf05 100644
+--- a/game/scripts/ui/views/view_cottage.gd
++++ b/game/scripts/ui/views/view_cottage.gd
+@@ -72,7 +72,7 @@ func _ready() -> void:
+ 
+ 
+ func hit_rect() -> Rect2:
+-	return L.TOP["cottageHit"]
++	return L.ra(L.TOP["cottageHit"])   # mobile-first §4.1: Row A right (R); the node sits at x dx
+ 
+ 
+ func contains(p: Vector2) -> bool:

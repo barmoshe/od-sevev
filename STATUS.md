@@ -1111,3 +1111,34 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - **→ Animator:** the walk-in/out and Dubi's fly-in are placeholders: the leader fades in over 250 ms, and Dubi's line is a bubble at (644, S−232). `LeaderWalk` stays unwired, because `_apply_court_pose` sets `hero.position` every frame and would override a walk. `set_leader` now rebuilds your court nodes for each figure.
   - **→ Game Designer:** Liberman's `pick.blurb` puts "61" on the picker, which spec §3.2 says should show no numbers.
   - **→ UX:** Golan's pill is on the partner card with a pair prompt, because §6.3 has no layout for it; the result card's sub-line names the leader.
+
+- **UX Designer, 2026-09-29: the mobile-first layout spec (`ux/mobile-first-layout.md`).** Bar: "the mobile layout isn't good; it must be mobile first."
+  - **Verified** at build `af18f9e` plus the picker, on the pixels:
+    - Row B's empty slot (25 art);
+    - the Suitcase lane (a 2×28 stripe tile, 24 art);
+    - the empty pane plus the unrevealed tab slot (up to 73 art at 430);
+    - the SE's cut card (86 px, half a pill);
+    - the ticker crawl cutting words (no headline fits its 324 clip);
+    - the 720 column leaving side bands;
+    - the picker's 65-art band under a centred grid (my own rtl-map §8.2);
+    - the pre-tap floor (45% of H).
+    - "Only 4 rows" is content, not a cap.
+  - **Rules:**
+    - k is unchanged. The layout fills `floor(W/k) × floor(H/k)` art. Chrome is fluid with anchors; the stage is a centred column.
+    - The bottom-up split: the tab bar is pinned, the pane holds whole cards plus a 40-px peek, and the stage stays near 160 art. A reach guard keeps the leader's hit bottom at ≥ 40% of H.
+    - Reserved slots never show empty: Row B shows the sky until C2, the pane covers the tab slot until C1, and dim silhouettes fill the pane.
+    - The ticker shows 2-line pages of whole words.
+    - The counter goes to ×6, and the pill grows with a ×5 price.
+    - The picker grid is bottom-anchored, with fluid tiles and 192 avatars.
+    - Modals sit at 55%. The share sheet gets the full height, with WhatsApp nearest the thumb.
+    - Per-device tables for 12 viewports.
+  - **Golan's "לאחד":** the partner card is right as the second entry. Add a merge-ready system pill in the thread (§5.5).
+  - **Tools:**
+    - `tools/web/mobile_web.mjs`: baseline + spec checks over the 9-device matrix. Today: `PASS (baseline; 108 spec checks open)`.
+    - `ux/tools/mobile_layout.py`: the reference numbers.
+    - `ux/tools/mobile_mockup.py`, which writes `ux/mockups/mobile-first-*.png`.
+  - **→ game-developer:** implement §8 (display.gd `cols`/`rows`/`cw()`, `L.split`, anchors, pager, picker, silhouettes, `odDisplay.cw/ticker`, `odPick.tile/grid`). Done = `mobile_web.mjs` green.
+  - **→ 2d-artist:** A1 textured lane + plaza apron (Balfour first), A2 stage wings, A3 d3 96×96 pick avatars.
+  - **→ game-designer:** G1 `producerReveal.fillSilhouettes`.
+  - **→ animator:** M1 the ticker page push, replacing the crawl cadence.
+  - No objection outstanding.

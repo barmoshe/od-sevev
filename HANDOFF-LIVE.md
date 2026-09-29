@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `8f56bc1` docs(od-sevev): live handoff snapshot 21:14
+- Branch head: `2f9a4c1` docs(od-sevev): live handoff snapshot 21:26
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -16,15 +16,19 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 - Bar (session 3): "the mobile layout is not good; it must be mobile first". Observed: dead bands on tall phones (fixed 180x267 column), list cut on SE, ticker text truncated, small money/buy. UX Designer dispatched for ux/mobile-first-layout.md; the Game Developer implements it right after the picker merges (same files). Shots: scratchpad/shots/mobile/.
 - Picker merged (337/337). Open from its report: Liberman's blurb shows "61" on the picker (spec §3.2: no numbers), for the Designer. LeaderWalk is unwired because the court pose sets the position every frame, so it needs Animator wave B. Golan's pill sits on the partner card; UX to confirm. §10.2 neutralCopy/notUsed facts are the Designer's.
 - Next: when UX delivers ux/mobile-first-layout.md, dispatch the Game Developer to implement it; Animator wave B (LeaderWalk into pick/election); Designer pending.
+- UX spec ux/mobile-first-layout.md committed on worktree-agent-afa76d8266b2e2b6f (UX still running its matrix check). Game Developer dispatched to implement it from that branch (port 8816).
+- UX spec merged. 2D Artist+TA dispatched for the spec's art asks. Designer got G1 (fillSilhouettes) + the Liberman '61' blurb. Later: Animator wave B = M1 ticker page transition + LeaderWalk wiring (after the mobile implementation merges).
 
 ## Agents
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
 |---|---|---|---|---|---|
 | Game Developer | DONE, merged (leader picker + per-leader views, 337 tests) | `worktree-agent-a5ac76f3d34023987` | 0 | 0 | - |
-| Game Designer | review leaders.gd; balance.sh + per-leader bench; 34-vs-8 min gap; R17 slots; ביבי rule; "רוב" poll lint; neutral DAYS_* | `worktree-agent-aaa48164b1454821d` | 4 | 2 | `Game-Designer.commits.patch` `Game-Designer.patch` |
+| Game Designer | review leaders.gd; balance.sh + per-leader bench; 34-vs-8 min gap; R17 slots; ביבי rule; "רוב" poll lint; neutral DAYS_* | `worktree-agent-aaa48164b1454821d` | 6 | 0 | `Game-Designer.commits.patch`  |
 | Animator | DONE, merged (court day, motion audit, brawl boil, reduced-motion fix; LeaderWalk helper ready, unwired) | `worktree-agent-a4cee2a31acb16b09` | 0 | 0 | - |
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
-| UX Designer | mobile-first layout spec (ux/mobile-first-layout.md) + tools/web/mobile_web.mjs; Bar: "the mobile layout is not good, must be mobile first" | `worktree-agent-afa76d8266b2e2b6f` | 4 | 0 | `UX-Designer.commits.patch`  |
+| UX Designer | DONE, merged (ux/mobile-first-layout.md, tools/web/mobile_web.mjs: baseline PASS, 108 layout checks open until the implementation lands) | `worktree-agent-afa76d8266b2e2b6f` | 0 | 0 | - |
+| Game Developer (mobile) | implement ux/mobile-first-layout.md §8 + screens §3-§7 (from the UX branch worktree-agent-afa76d8266b2e2b6f) | `worktree-agent-a8bd968153c51c052` | 1 | 9 | `Game-Developer-(mobile).patch` |
+| 2D Artist + TA | mobile art asks A1 lane tile + plaza, A2 stage wings, A3 96x96 d3 pick avatars; court_window spots row>=110; 26x20 brawl cut x4 | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
