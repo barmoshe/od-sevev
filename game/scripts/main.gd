@@ -155,6 +155,8 @@ func _boot() -> void:
 		state.investigation["suspicion"] = minf(100.0, float(_dev["susp"]))
 	if float(_dev["aide"]) > 0.0:
 		state.investigation["aideHolding"] = float(_dev["aide"])
+	if float(_dev.get("chat", 0.0)) > 0.0:
+		_dev_chat(int(_dev["chat"]))
 	d = Economy.derive(state)
 	_build()
 	_apply_settings()
@@ -179,6 +181,24 @@ func _boot() -> void:
 		_show_offline()
 	if not _shot.is_empty():
 		_run_shot()
+
+
+## Dev only (`?dev=1&chat=N`, the views wave-6 browser check): the group opens now, N partners'
+## join lines follow the first demand, then Amsalem and Smotrich brawl, so T3 has an open pill above
+## the fold (the "{n} ממתינים ↑" chip) and the stage shows the brawl cue.
+func _dev_chat(n: int) -> void:
+	if not Coalition.active():
+		return
+	var dd := Economy.derive(state)
+	if not bool(state.coalition.get("opened", false)):
+		Coalition.open_group(state, dd, func() -> float: return 0.0)
+	var ids: Array = Coalition.partners().map(func(p: Dictionary) -> String: return str(p["id"]))
+	for i in n:
+		Coalition._post(state, {"type": "sys", "key": "chat.sys.joined", "partner": ids[i % ids.size()]}, [])
+	for id in ["amsalem", "smotrich"]:
+		if not Coalition.partner(id).is_empty():
+			Coalition.ps(state, id)["status"] = "member"
+	Coalition.start_brawl(state, "amsalem", "smotrich")
 
 
 ## Desktop dev runs only: `godot --path game -- --content=res://tests/fixtures/content.fork.json`
@@ -211,7 +231,7 @@ func _read_dev_params() -> void:
 		PxText.set_sharp_text(get_tree(), false)
 	for part in q.trim_prefix("?").split("&"):
 		var kv := part.split("=")
-		if kv.size() == 2 and kv[0] in ["speed", "grant", "evo", "flash", "susp", "aide"]:
+		if kv.size() == 2 and kv[0] in ["speed", "grant", "evo", "flash", "susp", "aide", "chat"]:
 			_dev[kv[0]] = maxf(0.0, float(kv[1]))
 	if float(_dev["speed"]) <= 0.0:
 		_dev["speed"] = 1.0
@@ -650,6 +670,34 @@ func bottom_inset() -> float:
 	return floorf(float(_safe_insets().y) / 4.0) * 4.0
 
 
+## O4 the receipt / O5 the result card (ui/views/view_share.gd), from T4's rows (review R25).
+func open_receipt() -> void:
+	_open_share("receipt")
+
+
+func open_result_card() -> void:
+	_open_share("result")
+
+
+func _open_share(kind: String) -> void:
+	if overlays.is_open():
+		return
+	_audio("panelOpen")
+	ShareKit.listen(_on_share_result)   # a bound method: a static lambda would outlive this node
+	overlays.request(func() -> Overlay:
+		var o := ShareSheet.new()
+		o.setup(self, overlays)
+		o.kind = kind
+		return o.build())
+
+
+## The shell's share result (window.odShareDone): the open sheet shows it in its status line.
+func _on_share_result(_kind: String, result: String) -> void:
+	var t := overlays.top()
+	if t is ShareSheet:
+		(t as ShareSheet).on_share_result(result)
+
+
 ## O8 About is HTML over the canvas (shell.html odOpenAbout).
 func open_about() -> void:
 	if OS.has_feature("web"):
@@ -1012,6 +1060,7 @@ func _step_economy(dt_sec: float, modal: bool) -> void:
 		_audio("frenzyEnd")
 	if ev["tapFrenzyEnded"]:
 		_audio("tapFrenzyEnd")
+	_on_spins_ended(ev["spinsEnded"])
 	# ux/ftue.md S1: no Suitcase before two sources; the first flight is forced while tapping
 	var allowed := bool(_reveals.get("suitcase", true)) and stage_unobstructed()
 	if allowed and not golden.is_visible_state() and Ftue.s1_due(state, _now - _last_tap_ms):
@@ -1021,6 +1070,20 @@ func _step_economy(dt_sec: float, modal: bool) -> void:
 		Economy.schedule_next_golden(state)
 		if not golden.is_visible_state():
 			_spawn_suitcase()
+
+
+## A timed spin ran out (S02, S07, S10, S12 ...): before this only its buff chip vanished. A
+## toast names it (TOAST_SPIN_END) and the Audio hears `spinEnd` with the spin id. The cue-spec
+## names no cue for it (frenzy / spin ends are silent by design, §4), so the Audio drops it unless
+## the Audio Director adds one; the hook is there.
+func _on_spins_ended(ids: Array) -> void:
+	for id: Variant in ids:
+		toasts.show_toast(spin_end_text(str(id)))
+		_audio("spinEnd", str(id))
+
+
+static func spin_end_text(id: String) -> String:
+	return Strings.s("TOAST_SPIN_END", {"NAME": Strings.upgrade_name(id)})
 
 
 ## The Politics.tick context (sim/README "Controller wiring"): the device's local hour and weekday

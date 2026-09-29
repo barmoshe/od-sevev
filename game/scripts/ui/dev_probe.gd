@@ -61,6 +61,12 @@ static func snapshot(host: Node) -> Dictionary:
 			pills.append([c.x, c.y, int(h["seq"]), s.bananas >= float(m.get("price", 0.0)), str(m.get("kind", "")) == "ceremony"])
 	out["chat"] = {"open": chat.is_open(), "thread": [top, bottom], "pills": pills, "avatars": avatars, "brawls": brawls,
 		"openBrawl": not Coalition.open_brawl(s).is_empty()}
+	# the "{n} ממתינים ↑" chip and the brawl stage cue (views wave 6): centres in viewport px
+	var pi := chat.pending_info()
+	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
+	out["chat"]["pending"] = {"visible": pi["visible"], "n": pi["n"], "seq": pi["seq"], "x": pc.x, "y": pc.y}
+	var bc := ChatView.BRAWL_CUE.get_center() + chat.position + o
+	out["brawlCue"] = {"visible": chat.brawl_cue_visible(), "x": bc.x, "y": bc.y}
 	var shop: Shop = host.get("shop")
 	var rows: Array = []
 	var all_rows: Array = []
@@ -83,4 +89,15 @@ static func snapshot(host: Node) -> Dictionary:
 	var court: CourtView = host.get("court")
 	var ct := court.button_rect("testify").get_center() + o if court.card_visible() else Vector2(-1, -1)
 	out["court"] = {"card": court.card_visible(), "mode": court.mode(), "phase": court.phase(), "testify": [ct.x, ct.y]}
+	# views wave 6: the thermometer (a tap opens T4) and T4's full-width rows (the share cards)
+	var th: Thermo = host.get("thermo")
+	var tc := th.hit_rect().get_center() + Vector2(float(host.get("_ox")), float(host.get("_stage_y")))
+	out["thermo"] = {"shown": th.is_shown(), "x": tc.x, "y": tc.y}
+	var dv: DossierView = host.get("dossier")
+	var drows: Array = []
+	if dv.is_open():
+		for h: Dictionary in dv.hits():
+			var c := dv.content_to_tall((h["rect"] as Rect2).get_center()) + dv.position + o
+			drows.append([c.x, c.y, str(h["kind"])])
+	out["dossier"] = {"open": dv.is_open(), "rows": drows}
 	return out

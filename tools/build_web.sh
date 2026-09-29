@@ -64,9 +64,16 @@ done
 STAMP="$(git -C "$HERE" rev-parse --short HEAD 2>/dev/null || echo dev)"
 git -C "$HERE" diff --quiet HEAD -- "$GAME" 2>/dev/null || STAMP="$STAMP+"
 sed_inplace "s|__MB_BUILD__|$STAMP|" "$OUT/index.html"
-# Link previews need an absolute og:image URL: OD_SITE_URL (with a trailing slash) is the
-# deployed origin. Without it the tag stays relative, which browsers accept and crawlers skip.
-sed_inplace "s|__OD_SITE_URL__|${OD_SITE_URL:-}|g" "$OUT/index.html"
+# Link previews need absolute og:url / og:image URLs (WhatsApp, the main share channel, skips a
+# relative one): OD_SITE_URL (with a trailing slash) is the deployed origin. It defaults to the
+# game's one constant, ShareKit.SITE_URL (game/scripts/ui/share_kit.gd), which is also the link on
+# the share cards and in the share texts (the shell hands the same value to the engine as
+# window.odSiteUrl). OD_SITE_URL= (empty) keeps the tags relative for a throwaway preview host.
+SITE_DEFAULT="$(sed -n 's/^const SITE_URL := "\(.*\)"$/\1/p' "$GAME/scripts/ui/share_kit.gd")"
+SITE="${OD_SITE_URL-$SITE_DEFAULT}"
+case "$SITE" in ""|*/) ;; *) SITE="$SITE/" ;; esac
+sed_inplace "s|__OD_SITE_URL__|${SITE}|g" "$OUT/index.html"
+log "site url: ${SITE:-(relative)}"
 # the HTML surfaces (N1, N0, hand-off bar, About) take their Hebrew from ux/ui-strings.json
 python3 "$HERE/lib/render_shell.py" "$OUT/index.html"
 cp "$GAME/assets/sprites/wordmark.png" "$OUT/wordmark.png"

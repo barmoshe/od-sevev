@@ -287,6 +287,20 @@
     "סיכול ממוקד"
    ],
    "why": "About page (facts.json aboutHe, always public): her own verified term [Q] (Walla, Ynet), in quote marks as on her card. The public line carries no שב״כ and no seat number (poll rule in the blackout). Never mention the covert officer."
+  },
+  {
+   "id": "SHARE_WA",
+   "terms": [
+    "וואטסאפ"
+   ],
+   "why": "Bar 2026-09-29: the share button names where the message goes (wa.me; WhatsApp is the main channel in Israel). A functional label on the O4/O5 share sheets only; UX §4.3 still keeps WhatsApp's colours, ticks and marks out of the chat, and the button's icon is the kit's white and ink (game-developer views, wave 6)."
+  },
+  {
+   "id": "ABOUT_SHARE_WA",
+   "terms": [
+    "וואטסאפ"
+   ],
+   "why": "Bar 2026-09-29: the same label on About's invite link (wa.me). Functional, not styling (see SHARE_WA)."
   }
  ]
 }

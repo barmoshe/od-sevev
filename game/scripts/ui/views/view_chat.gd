@@ -139,6 +139,27 @@ var _cameo_timer: PxText
 var _cameo_rect := Rect2()
 var _cameo_seq := -1
 
+# the "{n} ממתינים ↑" chip (views dev 2026-09-29): open pills / an open brawl above the viewport
+const PENDING_W := 296.0
+const PENDING_H := 64.0               # kit button_secondary (a raised button: the chip is a target)
+const PENDING_Y := 12.0               # below the thread's top edge (tall-local THREAD_Y + 12)
+const PENDING_MARGIN := 16.0          # the item lands this far under the chip
+var _pending_root := Node2D.new()
+var _pending_bg: NinePatchRect
+var _pending_text: PxText
+var _pending_arrow: Sprite2D
+var _pend_items: Array = []              # content-local items above the viewport, nearest first: {y, seq, kind}
+var _pending_rect := Rect2()          # tall-local visual
+
+# the brawl stage cue (views dev 2026-09-29): the brawl cloud under Row B while a brawl is open
+# and T3 is closed; tap → T3 at the brawl
+const BRAWL_CUE := Rect2(8, 4, 144, 104)      # tall-local visual: a chat_bubble_in plate ...
+const BRAWL_CLOUD := Vector2(24, 16)           # ... holding brawl_cloud (52×40) at ×2 (104×80)
+const BRAWL_CUE_HIT := Rect2(4, 0, 152, 112)
+var _brawl_cue := Node2D.new()
+var _brawl_cloud: Sprite2D
+var _brawl_seq := -1
+
 
 ## "m:ss" for a seconds count (the timer chip; LTR digits, CHAT_ULT_TIMER's {mmss}).
 static func mmss(sec: float) -> String:
@@ -173,6 +194,11 @@ func _ready() -> void:
 	_panel.add_child(_clip)
 	_clip.add_child(_content)
 	_thumb = Ui.rect(_panel, Rect2(4, THREAD_Y, 4, 48), Color(0.84, 0.8, 0.93), 0.0)
+	_build_pending_chip()
+	add_child(_brawl_cue)
+	_brawl_cue.visible = false
+	Ui.nine(_brawl_cue, BRAWL_CUE, Art.sprite_or("chat_bubble_in"))
+	_brawl_cloud = Ui.img(_brawl_cue, BRAWL_CLOUD, Art.sprite_or("brawl_cloud"), 0, 2)
 	_header = Ui.nine(_panel, Rect2(0, 0, L.W, HEADER_H), Art.sprite_or("chat_header"))
 	var chev_id := Art.sprite_or("chat_icon_chevron")
 	var cs := Vector2(Art.sprite_size(chev_id)) * 4.0
@@ -322,8 +348,10 @@ func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = 
 		_update_header()
 		_update_rows(dt)
 		_update_scroll(dt)
+		_update_pending()
 		_update_pips()
 	_update_cameo(dt, live and not bool(ctx.get("overlay", false)))
+	_update_brawl_cue(live and not bool(ctx.get("overlay", false)))
 	_update_badge()
 
 
@@ -1355,6 +1383,9 @@ func pointer_down(p: Vector2) -> bool:
 		if _cameo.visible and Ui.in_rect(_cameo_rect, q):
 			_press = {"kind": "cameo"}
 			return true
+		if _brawl_cue.visible and Ui.in_rect(BRAWL_CUE_HIT, q):
+			_press = {"kind": "brawlCue"}
+			return true
 		return false
 	if q.y < 0.0 or q.y >= _h:
 		return false
@@ -1368,6 +1399,9 @@ func pointer_down(p: Vector2) -> bool:
 		return true
 	if Ui.in_rect(PINNED_HIT, q) and q.y < THREAD_Y:
 		_press["kind"] = "pinned"
+		return true
+	if _pending_root.visible and ready and Ui.in_rect(pending_hit(), q):
+		_press["kind"] = "pending"
 		return true
 	var c := _content_pt(q)
 	if c.y < 0.0 or not ready:
@@ -1410,6 +1444,14 @@ func pointer_up(p: Vector2) -> void:
 		"cameo":
 			if Ui.in_rect(_cameo_rect, q):
 				open(_cameo_seq)
+		"brawlCue":
+			if Ui.in_rect(BRAWL_CUE_HIT, q):
+				_audio("uiClick")
+				open(_brawl_seq)
+		"pending":
+			if Ui.in_rect(pending_hit(), q):
+				_audio("uiClick")
+				scroll_to_pending()
 		"chevron":
 			if Ui.in_rect(CHEVRON_HIT, q):
 				close()
@@ -1477,6 +1519,137 @@ func rows() -> Array[Dictionary]:
 ## A tall-local point on the screen for a content-local point (tests aim taps with it).
 func content_to_tall(c: Vector2) -> Vector2:
 	return Vector2(c.x, c.y + THREAD_Y + _content.position.y)
+
+
+# ------------------------------------------------------------------ the pending chip
+
+func _build_pending_chip() -> void:
+	_panel.add_child(_pending_root)
+	_pending_root.visible = false
+	_pending_bg = Ui.nine(_pending_root, Rect2(0, 0, PENDING_W, PENDING_H), Art.sprite_or("button_secondary_default"))
+	_pending_text = PxText.make(_pending_root, Vector2(0, 12), "", L.TEXT, "plain", Color.WHITE)
+	_pending_text.fit_width = 216.0   # chat.pending (rtl-map §0.2 step-down)
+	_pending_arrow = Sprite2D.new()
+	_pending_arrow.texture = up_arrow_texture()
+	_pending_arrow.centered = false
+	_pending_arrow.scale = Vector2(4, 4)
+	_pending_arrow.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_pending_root.add_child(_pending_arrow)
+
+
+## The ↑ as a 7×9 pixel icon (the font has no U+2191), white like the chip's text. An engine
+## stand-in until the kit ships `chat_icon_up`.
+const UP_ARROW := ["...w...", "..www..", ".wwwww.", "wwwwwww", "..www..", "..www..", "..www..", "..www..", "..www.."]
+
+
+static func up_arrow_texture() -> Texture2D:
+	if Art.has_sprite("chat_icon_up"):
+		return Art.tex("chat_icon_up", 0)
+	var img := Image.create(7, 9, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	for y in UP_ARROW.size():
+		for x in 7:
+			if UP_ARROW[y][x] == "w":
+				img.set_pixel(x, y, Color("#f7f4ec"))
+	return ImageTexture.create_from_image(img)
+
+
+## The open items (the pay pills of open lines, the brawl's "צאו החוצה") whose whole hit lies above
+## `top` (content-local), nearest first: [{y (the item's top), seq, kind}]. Pure.
+static func pending_above(hits: Array, top: float) -> Array:
+	var out: Array = []
+	for h: Dictionary in hits:
+		if h.get("kind", "") != "pay" and h.get("kind", "") != "brawl":
+			continue
+		var r: Rect2 = h["rect"]
+		if r.end.y <= top + 0.5:
+			out.append({"y": r.position.y, "seq": int(h.get("seq", -1)), "kind": str(h["kind"])})
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["y"]) > float(b["y"]))
+	return out
+
+
+## The content-local y of the thread viewport's top edge.
+func view_top() -> float:
+	return -_content.position.y
+
+
+func _update_pending() -> void:
+	_pend_items = pending_above(_hits, view_top()) if _open and _anim.is_empty() else []
+	var show := not _pend_items.is_empty()
+	_pending_root.visible = show
+	if not show:
+		_pending_rect = Rect2()
+		return
+	var n := _pend_items.size()
+	var t := Strings.plural("CHAT_PENDING", n, {"n": str(n)})
+	if _pending_text.text != t:
+		_pending_text.text = t
+	var tw := float(_pending_text.width())
+	var w := Ui.snap(maxf(PENDING_W, tw + 28.0 + 12.0 + 48.0), 4)
+	var x := Ui.snap((L.W - w) / 2.0, 4)
+	_pending_rect = Rect2(x, THREAD_Y + PENDING_Y, w, PENDING_H)
+	Ui.set_nine_rect(_pending_bg, Rect2(Vector2.ZERO, _pending_rect.size))
+	_pending_root.position = _pending_rect.position
+	# RTL: the text at the right, the ↑ (the string's end) at its left, the pair centred
+	var x1 := Ui.snap((w + tw + 12.0 + 28.0) / 2.0, 4)
+	_pending_text.right_at(x1)
+	_pending_arrow.position = Vector2(Ui.snap(x1 - tw - 12.0 - 28.0, 4), 8.0)
+
+
+## The chip's hit (tall-local): its visual grown to 88 tall and 16 wider.
+func pending_hit() -> Rect2:
+	if _pending_rect.size == Vector2.ZERO:
+		return Rect2()
+	return Rect2(_pending_rect.position.x - 8.0, _pending_rect.position.y - 16.0, _pending_rect.size.x + 16.0, 88.0)
+
+
+## Test / driver hook: {visible, n, rect (tall-local), seq of the nearest}.
+func pending_info() -> Dictionary:
+	return {"visible": _pending_root.visible, "n": _pend_items.size(), "rect": _pending_rect,
+		"seq": int(_pend_items[0]["seq"]) if not _pend_items.is_empty() else -1}
+
+
+## The chip's tap: the nearest item above slides in just under the chip (the chip goes away once
+## nothing is left above).
+func scroll_to_pending() -> void:
+	if _pend_items.is_empty():
+		return
+	var target := clampf(float(_pend_items[0]["y"]) - PENDING_Y - PENDING_H - PENDING_MARGIN, 0.0, _max_scroll())
+	_stick = false
+	_vel = 0.0
+	if _scroll_tw:
+		_scroll_tw.kill()
+	if reduced_motion or not is_inside_tree():
+		_set_scroll(target)
+		return
+	_scroll_tw = create_tween()
+	_scroll_tw.tween_method(func(v: float) -> void: _set_scroll(v), _scroll, target, mc("chatScrollMs") / 1000.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+
+
+# ------------------------------------------------------------------ the brawl stage cue
+
+## While a brawl is open and T3 is closed, the brawl cloud (kit brawl_cloud, its 4-frame loop at
+## 150 ms, frame 0 under reduced motion) in a chat bubble (kit chat_bubble_in: "it is in the chat")
+## stands under Row B at the stage's top-left: the seats it
+## froze are Row B's, and a tap opens T3 at the brawl. It yields to the toast dock (a toast over it
+## hides it) and to any modal. ×2 (104×80) is a stated deviation from the ×4 grid: the kit cloud is
+## 52×40 art, and ×4 would take a third of the stage (→ 2d-artist: a 26×20 cut drawn at ×4).
+func _update_brawl_cue(allowed: bool) -> void:
+	var m := Coalition.open_brawl(_state) if _state != null and Coalition.active() else {}
+	var toast := Rect2()
+	if host != null and "toasts" in host and host.get("toasts") != null:
+		toast = (host.get("toasts") as Toasts).covered_rect()
+	var cue_stage := Rect2(BRAWL_CUE.position + Vector2(0, float(L.STAGE["y"])), BRAWL_CUE.size)
+	var show := allowed and not _open and not _panel.visible and not m.is_empty() and not toast.intersects(cue_stage)
+	_brawl_cue.visible = show
+	_brawl_seq = int(m.get("seq", -1)) if show else -1
+	if show:
+		var id: String = _brawl_cloud.get_meta("sprite")
+		Ui.set_frame(_brawl_cloud, id, 0 if reduced_motion else int(_now / 150.0) % maxi(1, Art.frame_count(id)))
+
+
+func brawl_cue_visible() -> bool:
+	return _brawl_cue.visible
 
 
 # ------------------------------------------------------------------ the ultimatum cameo (rtl-map §4.2)

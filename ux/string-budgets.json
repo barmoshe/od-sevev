@@ -319,6 +319,13 @@
       "linesLarge": 1,
       "where": "Day / unread divider"
     },
+    "chat.pending": {
+      "widthPx": 216,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "The '{n} ממתינים' chip on the thread's top edge (chip 296: text 216 + the 7x9 up-arrow icon 28 + air), game-developer views 2026-09-29"
+    },
     "chat.composer": {
       "widthPx": 640,
       "scale": 4,
@@ -565,7 +572,7 @@
     "rounds": "99 סבבי בחירות",
     "days": "ו־99 ימי משפט",
     "amount": "999.9 מיליון",
-    "url": "odsevev.co.il",
+    "url": "od-sevev.vercel.app",
     "publisher": "",
     "mail": "",
     "preview": "",
@@ -2557,6 +2564,18 @@
         "5": 660
       }
     },
+    "TOAST_SPIN_END": {
+      "surface": "label",
+      "spec": "a timed spin (S02, S07, S10, S12 ...) ends (new)",
+      "joke": true,
+      "note": "The subject is הספין (m), so any spin name agrees",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 740,
+        "5": 925
+      }
+    },
     "TOAST_COURT_END": {
       "surface": "label",
       "spec": "court day end (new)",
@@ -3309,6 +3328,29 @@
         "4": 736,
         "5": 920
       }
+    },
+    "CHAT_PENDING_ONE": {
+      "surface": "label",
+      "spec": "views dev 2026-09-29: an open pill or brawl above the thread's viewport",
+      "note": "Tap = scroll to the nearest one above; the ↑ is a pixel icon (the font has no U+2191)",
+      "box": "chat.pending",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_PENDING_OTHER": {
+      "surface": "label",
+      "spec": "views dev 2026-09-29",
+      "box": "chat.pending",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 212,
+        "5": 265
+      },
+      "largeText": "step-down"
     },
     "CHAT_PINNED_OPEN": {
       "surface": "html",
@@ -4363,6 +4405,22 @@
         "5": 1045
       }
     },
+    "SHARE_WA": {
+      "surface": "label",
+      "spec": "Bar 2026-09-29: WhatsApp share (wa.me) on O4 / O5",
+      "note": "Full-width button with the speech-bubble icon; wa.me carries text only, so the link preview (OG) does the visual work",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 276,
+        "5": 345
+      }
+    },
+    "ABOUT_SHARE_WA": {
+      "surface": "html",
+      "spec": "Bar 2026-09-29: the invite's WhatsApp link in About (O8)",
+      "maxChars": 16
+    },
     "ROUNDS_ONE": {
       "surface": "label",
       "spec": "§5.2 ICU rounds one",
@@ -4644,7 +4702,7 @@
       "box": "receipt.line",
       "maxChars": 25,
       "worstPx": {
-        "1": 62
+        "1": 92
       }
     },
     "RECEIPT_THANKS": {
@@ -4699,11 +4757,11 @@
       "surface": "label",
       "spec": "§5.2",
       "legal": true,
-      "note": "The URL MUST be on the image (see RECEIPT_FOOT_URL)",
+      "note": "The URL MUST be on the image (see RECEIPT_FOOT_URL). 'עוד סבב · ' dropped (game-developer 2026-09-29): with the real host od-sevev.vercel.app the line is 209 px in the 200 band; the wordmark at the card's top carries the name",
       "box": "result.foot",
       "maxChars": 33,
       "worstPx": {
-        "1": 179
+        "1": 162
       }
     },
     "RESULT_DISC": {
