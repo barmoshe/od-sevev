@@ -52,7 +52,7 @@ func _touch(p: Vector2, idx: int = 0) -> void:
 
 
 func _stage_pt(p: Vector2) -> Vector2:
-	return p + Vector2(m._ox, m._stage_y)
+	return p + Vector2(m._sx, m._stage_y)
 
 
 func _top_pt(p: Vector2) -> Vector2:

@@ -63,7 +63,9 @@ async function shot(P, name) {
 	console.log('  shot', p);
 }
 const hat = (P) => css(P, P.d.hat[0], P.d.hat[1]);
-const tab = (P, i) => col(P, 540 - 180 * (i - 1) + 90, P.d.logical[1] - 104 + 52);
+// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
+const tabX = (P, i) => { const cw = P.d.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
+const tab = (P, i) => col(P, tabX(P, i), P.d.logical[1] - 104 + 52);
 
 // 1. the court: the summons card and chip, then the testimony over T3
 {

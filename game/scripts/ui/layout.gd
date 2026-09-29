@@ -81,6 +81,13 @@ static func set_split(r: float, top: float = 0.0, vh: float = 0.0) -> void:
 	rows_whole = v["n"]
 
 
+## The chrome's width for a logical viewport `vs` and the art grid's width `grid_w` (Display.cw()):
+## the whole grid, never wider than the viewport; a landscape window (out of the matrix, §2) keeps a
+## portrait-proportioned canvas (≤ 0.75 · height), centred by the controller.
+static func canvas_w(grid_w: float, vs: Vector2) -> float:
+	return maxf(float(W), minf(minf(grid_w, floor4(vs.x)), maxf(float(W), floor4(0.75 * vs.y))))
+
+
 ## The canvas width (>= 720, on the 4-px grid) and dx.
 static func set_width(w: float) -> void:
 	cw = maxf(float(W), floor4(w))

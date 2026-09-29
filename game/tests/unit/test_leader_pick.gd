@@ -116,7 +116,7 @@ func test_picking_bennett_puts_him_on_stage_and_saves() -> void:
 	await _frames(2)
 	runner.check(m.undo_visible(), "the undo chip is up after the pick")
 	# tap 1: the pre-tap state starts the round, the prop squashes, the chip goes
-	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._ox, m._stage_y)
+	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
 	for pressed in [true, false]:
 		var e := InputEventScreenTouch.new()
 		e.position = at

@@ -55,7 +55,7 @@ func _boot(dev: Vector2i = Vector2i.ZERO) -> void:
 	var e := InputEventScreenTouch.new()
 	for pressed in [true, false]:
 		e = InputEventScreenTouch.new()
-		e.position = L.magician_hit().get_center() + Vector2(m._ox, m._stage_y)
+		e.position = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
 		e.pressed = pressed
 		m._unhandled_input(e)   # title → main (tap 1)
 

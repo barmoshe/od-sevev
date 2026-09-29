@@ -39,7 +39,7 @@ func _boot() -> void:
 	for i in 3:
 		await tree.process_frame
 	m.ftue.handoff_ms = 1.0
-	var p: Vector2 = L.magician_hit().get_center() + Vector2(m._ox, m._stage_y)
+	var p: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
 	for pressed in [true, false]:
 		var e := InputEventScreenTouch.new()
 		e.position = p

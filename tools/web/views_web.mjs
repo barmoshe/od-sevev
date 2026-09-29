@@ -83,7 +83,7 @@ for (const d of DEVICES) {
 	await page.waitForTimeout(600);
 	await shot('cottage');
 	const topY = disp.stageY - 20;   // _stage_y = top_y + 180 − 160
-	const [cx, cy] = css(disp.ox + 668, topY + 48);   // the cup's 88×88 hit centre (rtl-map §2)
+	const [cx, cy] = css(disp.ox + 668 + ((disp.cw || 720) - 720), topY + 48);   // the cup's 88×88 hit centre (rtl-map §2; R-anchored, mobile-first §4.1)
 	await tap(cx, cy, 102);
 	await page.waitForTimeout(700);
 	await shot('cottage-tip');

@@ -53,7 +53,9 @@ async function shot(name) {
 	console.log('  shot', p);
 }
 const tabsY = () => disp.logical[1] - 104;
-const tab = (i) => col(540 - 180 * (i - 1) + 90, tabsY() + 52);
+// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
+const tabX = (i) => { const cw = disp.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
+const tab = (i) => col(tabX(i), tabsY() + 52);
 const log = (...a) => console.log(...a);
 const checks = [];
 const check = (ok, what) => { checks.push([ok, what]); log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}`); };

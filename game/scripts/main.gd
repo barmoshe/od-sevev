@@ -601,7 +601,7 @@ func _relayout() -> void:
 	# §2: the chrome spans whole art columns (Display.cw); a landscape window (out of the matrix)
 	# keeps a portrait-proportioned canvas, centred
 	var cw := Display.cw() if Display.integer and not _shot.has("target") else float(L.W)
-	L.set_width(minf(minf(cw, L.floor4(_vs.x)), maxf(float(L.W), L.floor4(0.75 * _vs.y))))
+	L.set_width(L.canvas_w(cw, _vs))
 	_bottom_inset = bottom_inset
 	_ox = L.floor4((_vs.x - L.cw) / 2.0)
 	_sx = _ox + L.sox()
