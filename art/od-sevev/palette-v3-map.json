@@ -1,0 +1,111 @@
+{
+ "_doc": "Palette v3 colour map for code (2D Artist, 2026-09-29; Bar: 'more in Israel's palette, with blue and white'). Every top-level '#old': '#new' pair re-values a CHROME colour hard-coded in game/scripts/** and game/web/shell.html from the v2 plum/violet family to the v3 navy / blue-and-white family (art/od-sevev/style-guide.md section 2.3). Apply with tools/apply_palette_map.py (dry run by default, --write to apply, --check for CI). The tool also rewrites GDScript float colours Color(r, g, b[, a]) within 1/255 of a mapped hex, keeping alpha. Keys starting with '_' are notes.",
+ "_roles": {
+  "#2a2340": "night -> v3 night #0f2350 (the shop pane fill, the diorama pad/clear colour, the shell page)",
+  "#140c24": "ui_scrim -> v3 ui_scrim #061029 (HUD Row A/B scrim, title scrim, share night, the gate and About pages)",
+  "#1e1636": "ui_panel -> v3 ui_panel #0a1a42 (dossier and chat thread backgrounds)",
+  "#2e2250": "ui_bubble -> v3 ui_bubble #112a64 (Dubi's bubble, the share mask)",
+  "#4a3c7c": "ui_bub_hi -> v3 #26499c (bevel light; listed for completeness)",
+  "#4a2552": "plum -> v3 velvet blue #16357a (project.godot boot splash; design/content.json Balfour skyBands already moved)",
+  "#7a3a7d": "plum_hi -> v3 #2a57a6",
+  "#2e2548": "the dossier divider -> v3 ui_rule #1c3876",
+  "#9e99ad": "UX's lavender party/idle grey -> v3 ui_mute #a3b3d3 (6.5:1 on ui_bubble; the picker's party line, the shop's idle tab label)",
+  "#d6d0e6": "lavender 'silver' on the ticker -> the kit's silver #d3d6df",
+  "#dbd6e6": "the shop's lavender name/owned tint Color(0.86, 0.84, 0.9) -> silver #d3d6df",
+  "#b8b3c7": "the shop's lavender line-2 tint Color(0.72, 0.7, 0.78) -> grey #a4a9b8 (5.8:1 on v3 ui_bubble)",
+  "#1b1426": "ink used as a SURFACE (ticker panel, bottom fill, flash screen frame, settings toggle track, gate button borders) and as the chat's ink on gold -> v3 ui_scrim #061029 (11.6:1 on gold). The kit's `ink` swatch itself is unchanged (the stages share it).",
+  "#8a8494": "the '?' placeholder card fill -> slate #7d8398",
+  "#c9c3d6": "shell: lavender secondary text -> silver #d3d6df (12.9:1 on v3 ui_scrim)",
+  "#0b0714": "shell: the desktop phone-frame screen well -> #030a1f (navy-black)",
+  "#3a2f55": "shell: the phone-frame bezel border -> v3 ui_rule #1c3876"
+ },
+ "_notMapped": {
+  "#f7f4ec / #fff8ec / #fff4e0": "the flag's white and the cream: unchanged (they ARE the v3 white)",
+  "#0038b8": "flag blue: unchanged",
+  "#ffd23a / #f5c542 / #fff1a6": "gold = money: unchanged (the buy pill stays gold)",
+  "#d02a36 / #f86b5d": "red = alerts (the flash badge, the court tint, ultimatums): unchanged",
+  "#8fc0ff / #9fc3ff": "sky (seats, links): unchanged",
+  "#a4a9b8 / #7d8398": "grey / slate: cool neutrals, already sit on navy",
+  "#5b3b9e": "stamp violet: rubber-stamp ink stays (bureaucracy, not chrome)",
+  "#1a1a1a / #f4f1e8": "receipt ink and paper: unchanged",
+  "#0b0a12 and Color(0.043, 0.039, 0.071, 0.6)": "outline / the modal scrim: neutral near-black, unchanged",
+  "#d9d9f2": "diorama.gd fork star/tower tint (not od-sevev chrome)",
+  "#5b3943 / #9b3943 / #e0e0e0": "shell: Godot's error notice (an alert)",
+  "Color(0.84, 0.8, 0.93)": "scroll thumbs = the kit's rim #d6ccec, unchanged (shared with the cast)",
+  "Color(0.78, 0.74, 0.62) / Color(0.78, 0.9, 0.62)": "the shop's warm can't-afford ink and green income line: not chrome",
+  "Color(0.45, 0.45, 0.5), Color(0.5, 0.5, 0.5), Color(0.6, 0.6, 0.6), Color(1, 1, 1, a)": "neutral modulates"
+ },
+ "_alsoElsewhere": "Not default targets of the tool (pass them as paths when wanted): game/project.godot (boot_splash/bg_color = plum, default_clear_color = night); game/tests/unit/test_review_engine.gd:60/297 and game/tests/dev/density_compare.gd:60 (test constants for #2e2250 / #140c24 / #2a2340; the contrast tests hold on v3 too); pipeline/od-sevev/build.py:140,195,202-204,462 (font-proof backgrounds); tools/web/mobile_web.mjs:156 (a comment).",
+ "_shellApplied": "Applied in this branch by the 2D Artist (tools/apply_palette_map.py --write game/web/shell.html): 19 literals at the v2 lines 15 (theme-color), 41, 46 (page), 146, 166, 171, 173, 174 x2 (the gate), 178, 186, 190, 191, 192 x2, 196, 197 (About), 203, 210, 211 (the desktop phone frame). Plus, by hand: the gate's and About's white-over-flag rule (.od-card::before) and the load bar's fill #0038b8 -> #3f74e6 (flag_hi, 3.5:1 on the night track; flag was 1.6:1).",
+ "_scriptsPending": "game/scripts/** is NOT applied here (the Game Developer's mobile-first rewrite is in flight): 28 literals on 26 lines in 13 files, listed per old colour in _sites (line numbers at this branch). After the mobile merge: python3 tools/apply_palette_map.py (review the dry run: line numbers move, the colours don't), then --write, then --check.",
+ "_siteCount": 28,
+ "_sites": {
+  "#140c24": [
+   "game/scripts/main.gd:313",
+   "game/scripts/main.gd:315",
+   "game/scripts/ui/title_view.gd:11",
+   "game/scripts/ui/title_view.gd:11",
+   "game/scripts/ui/views/view_share.gd:40"
+  ],
+  "#1b1426": [
+   "game/scripts/art/art.gd:156",
+   "game/scripts/main.gd:317",
+   "game/scripts/ui/overlays.gd:140",
+   "game/scripts/ui/ticker.gd:52",
+   "game/scripts/ui/views/view_chat.gd:58",
+   "game/scripts/ui/views/view_flash.gd:223"
+  ],
+  "#1e1636": [
+   "game/scripts/ui/views/view_chat.gd:55",
+   "game/scripts/ui/views/view_dossier.gd:38"
+  ],
+  "#2a2340": [
+   "game/scripts/main.gd:316",
+   "game/scripts/ui/diorama.gd:12",
+   "game/scripts/ui/diorama.gd:130",
+   "game/scripts/ui/diorama.gd:131",
+   "game/scripts/ui/diorama.gd:132"
+  ],
+  "#2e2250": [
+   "game/scripts/ui/toasts.gd:51",
+   "game/scripts/ui/views/view_share.gd:413"
+  ],
+  "#2e2548": [
+   "game/scripts/ui/views/view_dossier.gd:41"
+  ],
+  "#8a8494": [
+   "game/scripts/art/art.gd:157"
+  ],
+  "#9e99ad": [
+   "game/scripts/ui/shop.gd:185",
+   "game/scripts/ui/views/view_pick.gd:28"
+  ],
+  "#b8b3c7": [
+   "game/scripts/ui/shop.gd:546"
+  ],
+  "#d6d0e6": [
+   "game/scripts/ui/views/view_flash.gd:60"
+  ],
+  "#dbd6e6": [
+   "game/scripts/ui/shop.gd:545",
+   "game/scripts/ui/shop.gd:547"
+  ]
+ },
+ "#2a2340": "#0f2350",
+ "#140c24": "#061029",
+ "#1e1636": "#0a1a42",
+ "#2e2250": "#112a64",
+ "#4a3c7c": "#26499c",
+ "#4a2552": "#16357a",
+ "#7a3a7d": "#2a57a6",
+ "#2e2548": "#1c3876",
+ "#9e99ad": "#a3b3d3",
+ "#d6d0e6": "#d3d6df",
+ "#dbd6e6": "#d3d6df",
+ "#b8b3c7": "#a4a9b8",
+ "#1b1426": "#061029",
+ "#8a8494": "#7d8398",
+ "#c9c3d6": "#d3d6df",
+ "#0b0714": "#030a1f",
+ "#3a2f55": "#1c3876"
+}
