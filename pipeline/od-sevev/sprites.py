@@ -471,7 +471,7 @@ def import_sprites(src, log, provenance):
         # + the picker's XL heads (UX mobile-first A3): 96 (from the d 3 render; the 192-logical avatar) and 64 (the
         # 128-logical one), both drawn at 2 logical px per sprite px
         for suffix, key, file_key, size in (("_pick", "avatarPick", "avatar_pick", 32), ("24_pick", "avatar24Pick", "avatar24_pick", 24),
-                                            ("_pick_d3", "avatarPick96", "avatar_pick_{}_d3", 96),
+                                            ("_pick_d3", "avatarPickXL", "avatar_pick_{}_d3", 96),
                                             ("_pick_d2", "avatarPick64", "avatar_pick_{}_d2", 64)):
             ap = os.path.join(src, f"{name}_avatar{suffix}.png")
             if os.path.exists(ap):

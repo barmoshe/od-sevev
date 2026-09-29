@@ -51,7 +51,7 @@ pipeline/od-sevev/font/sevev9@2.glyphs ────────────┴�
 - **2026-09-29 (the mobile-first picker, UX A3):** each launch leader's XL picker heads,
   `<char>_avatar_pick_d3.png` (96) and `<char>_avatar_pick_d2.png` (64), joined `out/`
   (`build.py` `avatar_pick_xl`: the same head crop and neutral ring, cut from the ref); a full
-  render gives 0 changed. Imported as `avatar_pick_<c>_d3` / `_d2`, `chars[c].avatarPick96` / `avatarPick64`.
+  render gives 0 changed. Imported as `avatar_pick_<c>_d3` / `_d2`, `chars[c].avatarPickXL` / `avatarPick64`.
 - **If a render drifts:** the build fails. `--allow-drift` exists only for a change Bar approved.
 
 **It fails loudly on:**

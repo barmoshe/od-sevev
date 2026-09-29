@@ -19,7 +19,7 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun 
 | `sprites/<leader-select ui id>.png` | `suitcase_plain` (+ `_norim`), `spin_slot_{A,B,C,D,E,G,H,I}` (24×24), `pick_tile_{idle,pressed,focus,selected}` (9-slice; focus/selected 1 art px larger each side), `pick_random`, `thermo_icon_press`, `chip_icon_press`, `source_donor`, `source_funds` (+ icons, silhouettes) | `Art.tex(id)`, `sprites.json.ui[id]`, `sources[id]` |
 | `sprites/stage_<era>.png` | `stage_balfour`, `stage_knesset`, `stage_courthouse`, `stage_washington`, 180×320 | `eras.list[].background` |
 | `sprites/lane_<era>.png`, `plaza_<era>.png`, `wing_<era>_{l,r}.png` | The stage's floor and sides for the mobile-first layout (2D Artist, 2026-09-29, UX A1/A2): the lane 32×28, the plaza 128×96, the wings W×230 (W: balfour 20, knesset 22, courthouse 60, washington 36). All tiles, §3 | `diorama.gd` `_place_lane` / `_place_plaza` / `_place_wings` (data-driven: no piece, nothing drawn) |
-| `sprites/avatar_pick_<c>_d3.png`, `avatar_pick_<c>_d2.png` | The picker's XL heads (UX A3), 96×96 and 64×64, the 8 leaders | `chars[c].avatarPick96` / `avatarPick64` (§4c) |
+| `sprites/avatar_pick_<c>_d3.png`, `avatar_pick_<c>_d2.png` | The picker's XL heads (UX A3), 96×96 and 64×64, the 8 leaders | `chars[c].avatarPickXL` / `avatarPick64` (§4c) |
 | `sprites/brawl_cloud_cue.png` | The brawl cloud cut for the stage cue: 4 frames of 26×20 (UX / Animator) | `Art.tex("brawl_cloud_cue", f)`, `sprites.json.ui` |
 | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
 | `sprites/<ui id>.png` | The 2D Artist's UI kit, 212 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
@@ -252,7 +252,7 @@ its react / crit, tap), at d 3 and d 2.
   `avatar24_pick_<c>`, the 8 leaders): the chat avatars' heads on one neutral ring. Use these on the picker tiles
   (UX §8.3: L = 32 at ×4, M = 24 at ×4, S = 32 at ×2), never the chat avatars, whose react-coloured rings read as
   party or bloc colours.
-  - **XL (UX mobile-first §5.8, A3; 2026-09-29):** `chars[c].avatarPick96` = `avatar_pick_<c>_d3` (96×96, cropped from
+  - **XL (UX mobile-first §5.8, A3; 2026-09-29):** `chars[c].avatarPickXL` = `avatar_pick_<c>_d3` (96×96, cropped from
     the ref for the d 3 cast, quantised to its d 3 palette) for **A = 192**, and `chars[c].avatarPick64` =
     `avatar_pick_<c>_d2` (64×64) for **A = 128**. Draw either at **2 logical px per sprite px** (A / size), which is
     k / 2 device px: crisp at every even k. The same head crop, the same neutral `rim` ring (4 px = 8 logical, the 32's
