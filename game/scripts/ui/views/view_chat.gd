@@ -112,6 +112,7 @@ var _vel := 0.0
 var _stick := true
 var _scroll_tw: Tween
 var _press: Dictionary = {}
+var _last_pad := 0.0
 
 # reveal (typing telegraph + join cascade)
 var _upto := -1                       # highest seq shown
@@ -468,6 +469,21 @@ static func thread_model(chat: Array, upto: int = 1 << 30) -> Array:
 	return out
 
 
+## The header's "{n} משתתפים" (review R22): everyone in the group, i.e. every partner whose status
+## is member (frozen and benched included: they are still in the group) or pending (joined, the
+## join demand unpaid: the "…הצטרף לקבוצה" line is in the thread), plus the Magician. Not
+## Coalition.member_count, which counts only the seats that vote right now.
+static func group_size(s: GameState) -> int:
+	var n := 1
+	if s == null or not Coalition.active():
+		return n
+	for p: Dictionary in Coalition.partners():
+		var st := Coalition.status(s, str(p["id"]))
+		if st == "member" or st == "pending":
+			n += 1
+	return n
+
+
 static func partner_name(id: String) -> String:
 	return str(Coalition.partner(id).get("name", id))
 
@@ -514,6 +530,20 @@ static func sys_text(m: Dictionary) -> String:
 	if Strings.has(base):
 		return Strings.s(base, params)
 	return ""
+
+
+## A chat toast's line 1 (review R5): TOAST_CHAT_HEAD "{name} · בקבוצה".
+static func toast_head(pid: String) -> String:
+	return Strings.s("TOAST_CHAT_HEAD", {"name": partner_name(pid)})
+
+
+## A chat toast's face: [art id, logical px per sprite px, density] of the partner's chat avatar
+## (["", …] when the partner has no art: the toast then shows no face).
+static func toast_avatar(pid: String) -> Array:
+	var av := avatar_art(pid)
+	if av[0] == Art.PLACEHOLDER:
+		return ["", 4.0, 1]
+	return [av[0], float(av[1]), maxi(1, int(roundf(float(SpriteStrip.art_scale()) / maxf(0.001, float(av[1])))))]
 
 
 ## The manifest character slug for a partner id: SpriteStrip.resolve (aliases), then the
@@ -586,6 +616,9 @@ func _build_thread() -> void:
 	var y := 16.0
 	if model.is_empty():
 		var r := _build_sys(Strings.s("CHAT_EMPTY"), {}, y)
+		r["y"] = y          # the empty thread's one row (T3 opened before the group exists)
+		r["seq"] = -1
+		r["kind"] = "sys"
 		_rows.append(r)
 		y += float(r["h"])
 	var prev_kind := ""
@@ -856,7 +889,7 @@ func _update_header() -> void:
 		if k > 0:
 			txt = Strings.plural("CHAT_THREATS", k, {"k": str(k)})
 		else:
-			txt = Strings.plural("CHAT_MEMBERS", (Coalition.member_count(_state) if Coalition.active() else 0) + 1)
+			txt = Strings.plural("CHAT_MEMBERS", group_size(_state))
 	_status.text = txt
 	_status.right_at(TITLE_RIGHT)
 	_lock.position = Vector2(Ui.snap(TITLE_RIGHT - float(_title.width()) - 12.0 - float(Art.sprite_size(_lock.get_meta("sprite")).x) * 4.0, 4), 20)
@@ -896,7 +929,7 @@ func _update_rows(dt: float) -> void:
 				a = p
 				if r.get("kind", "") == "ult" and t > ms:
 					base_y = Ui.snap(4.0 * (1.0 - Ui.quad_out(minf(1.0, (t - ms) / 100.0))), 4)   # the 1-ap thud
-		root.position = Vector2(base_x, float(r["y"]) + base_y)
+		root.position = Vector2(base_x, float(r.get("y", 0.0)) + base_y)
 		root.modulate.a = a
 		for pill: Dictionary in r["pills"]:
 			_update_pill(pill, bps)
@@ -965,7 +998,9 @@ func _update_pill(pill: Dictionary, _bps: float) -> void:
 		Ui.set_nine_rect(fill, Rect2(L.bar_x(inner, w) + dx, inner.position.y, w, inner.size.y))
 	var text := ""
 	var key := str(pill.get("key", ""))
-	if afford or ribbon:
+	if ribbon and key == "CHAT_CEREMONY":
+		text = Strings.s("CHAT_CEREMONY_CUTTING")   # rtl-map §6.3: "גוזרים…" while the ribbon fills
+	elif afford or ribbon:
 		text = Strings.s(key if key != "" else "CHAT_PAY", {"price": Fmt.cost(price)})
 	else:
 		text = Strings.s("CHAT_PAY_SHORT", {"n": Fmt.cost(ceilf(price - have))}) if key == "" else Strings.s(key, {"price": Fmt.cost(price)})
@@ -997,8 +1032,37 @@ func _update_chip(chip: Dictionary, m: Dictionary, _dt: float) -> void:
 		var clock: Sprite2D = chip["clock"]
 		Ui.set_frame(clock, clock.get_meta("sprite"), 0 if reduced_motion else posmod(-secs, maxi(1, Art.frame_count(clock.get_meta("sprite")))))
 	var root: Node2D = chip["root"]
+	# review R23: an ultimatum that ran out (or was superseded) keeps no red "0:00": the chip goes
+	# grey (C_MUTED) and dims to the bubble's 50%
+	var spent := not open
+	if bool(chip.get("spent", false)) != spent:
+		chip["spent"] = spent
+		for n: Node in root.get_children():
+			if n is CanvasItem:
+				(n as CanvasItem).material = grey_material() if spent else null
+		root.modulate = Color(1, 1, 1, 0.5) if spent else Color.WHITE
 	var nt := _now - float(chip["nudgeAt"])
 	root.position.y = float(chip["y0"]) + (Ui.snap(4.0 * (1.0 - Ui.quad_out(minf(1.0, nt / 100.0))), 4) if nt < 100.0 else 0.0)
+
+
+static var _grey: ShaderMaterial
+
+
+## A spent ultimatum chip's look: every pixel to its luminance, tinted toward C_MUTED (slate), so
+## the kit's red chip and its white digits read as one grey, inactive piece.
+static func grey_material() -> ShaderMaterial:
+	if _grey == null:
+		var sh := Shader.new()
+		sh.code = """shader_type canvas_item;
+uniform vec3 tint = vec3(0.49, 0.514, 0.596);
+void fragment() {
+	vec4 c = texture(TEXTURE, UV) * COLOR;
+	float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+	COLOR = vec4(tint * (0.55 + 0.9 * l), c.a);
+}"""
+		_grey = ShaderMaterial.new()
+		_grey.shader = sh
+	return _grey
 
 
 func _update_badge() -> void:
@@ -1007,7 +1071,8 @@ func _update_badge() -> void:
 	var n := 0
 	if Coalition.active():
 		for m: Dictionary in _chat(_state):
-			if str(m.get("state", "")) == "open" and Coalition.is_payable(m):
+			# an open brawl counts too: its two rows stay frozen (out of the 61) until "צאו החוצה"
+			if str(m.get("state", "")) == "open" and (Coalition.is_payable(m) or str(m.get("type", "")) == "brawl"):
 				n += 1
 	var txt := "" if (n <= 0 or _open) else Strings.s("TAB_BADGE", {"count": "9+" if n > 9 else str(n)})
 	(host.get("shop") as Shop).set_tab_badge(3, txt)
@@ -1097,8 +1162,15 @@ func on_politics_event(e: Dictionary) -> void:
 				_audio("chatPing", str(msg.get("partner", "")))
 				if host != null and "toasts" in host and host.get("toasts") != null:
 					var tt: Toasts = host.get("toasts")
-					if tt.has_method("show_toast"):
-						tt.show_toast(line_text(msg, _state, _d), "chat")
+					if tt.has_method("show_chat_toast"):
+						var pid := str(msg.get("partner", ""))
+						tt.show_chat_toast(toast_head(pid), line_text(msg, _state, _d), toast_avatar(pid))
+			elif not _open and str(msg.get("type", "")) == "brawl":
+				# the brawl freezes two rows until "צאו החוצה" (a button inside T3 only): with the
+				# chat closed, say so on the stage (a tap opens T3), and the tab badge counts it
+				_audio("chatPing", str(msg.get("a", "")))
+				if host != null and "toasts" in host and host.get("toasts") != null:
+					(host.get("toasts") as Toasts).show_toast(sys_text({"key": "chat.sys.brawl", "a": msg.get("a", ""), "b": msg.get("b", "")}), "chat")
 		"partnerLeft":
 			var pid := str(e.get("partner", e.get("id", "")))
 			if _ultimatum_ran_out(pid):
@@ -1187,7 +1259,15 @@ func _row_of(seq: int) -> Dictionary:
 # ------------------------------------------------------------------ scroll
 
 func _max_scroll() -> float:
-	return maxf(0.0, _content_h - thread_h())
+	return maxf(0.0, _content_h + bottom_pad() - thread_h())
+
+
+## rtl-map §6.4 "Depth" (review R21): while the court card is expanded over T3 the thread pads its
+## bottom by the part of the card above the composer, so the newest bubble and its pill scroll
+## clear of the card.
+func bottom_pad() -> float:
+	var c := CourtView.of(host)
+	return maxf(0.0, c.pad_height() - COMPOSER_H) if c != null and _open else 0.0
 
 
 func _set_scroll(v: float) -> void:
@@ -1221,14 +1301,22 @@ func _update_scroll(dt: float) -> void:
 		_vel *= pow(float(Tune.MC.get("listMomentumDecay", 0.92)), dt / Tune.FRAME_MS)
 		if absf(_vel) < float(Tune.MC.get("listMomentumStop", 0.1)):
 			_vel = 0.0
-	# content shorter than the thread sits at the bottom (newest at the bottom, rtl-map §6.3)
-	var off := maxf(0.0, thread_h() - _content_h)
+	var pad := bottom_pad()
+	if pad != _last_pad:
+		_last_pad = pad
+		if _stick and _press.is_empty():
+			_scroll = _max_scroll()   # the card came or went: the newest stays in view
+		else:
+			_set_scroll(_scroll)
+	# content shorter than the thread sits at the bottom (newest at the bottom, rtl-map §6.3),
+	# above the court card when it is expanded over the tab
+	var off := maxf(0.0, thread_h() - pad - _content_h)
 	_content.position.y = Ui.snap(off - _scroll, 4)
 	var th := thread_h()
-	var scrollable := _content_h > th
+	var scrollable := _content_h + pad > th
 	_thumb.visible = scrollable
 	if scrollable:
-		var tl := maxf(48.0, th * th / _content_h)
+		var tl := maxf(48.0, th * th / (_content_h + pad))
 		_thumb.size.y = Ui.snap(tl, 4)
 		_thumb.position.y = Ui.snap(THREAD_Y + (th - tl) * (_scroll / maxf(1.0, _max_scroll())), 4)
 		var dragging: bool = not _press.is_empty() and _press.get("dragging", false)
@@ -1468,6 +1556,11 @@ class PartnerCard:
 	var _strip: SpriteStrip
 	var _pay: PxButton
 	var _seq := -1
+	## The card's pay pill (a ChatView pill dictionary) and the rows' value texts (tests read them).
+	var pill: Dictionary = {}
+	## The figure's art scale (×4 / ×3 / ×2, picked per device k; tests read it).
+	var fig_scale := 3
+	var row_value: Array = []
 
 	func build() -> PartnerCard:
 		id = "PARTNER_CARD"
@@ -1482,7 +1575,17 @@ class PartnerCard:
 		if slug != "":
 			var c: Dictionary = SpriteStrip.manifest()["chars"][slug]
 			dens = maxi(1, int(c.get("density", SpriteStrip.manifest().get("density", 1))))
-			fig_h = float(c.get("frameH", 0)) / float(dens) * 3.0     # art ×3: integer, fits 624
+			# the figure's art scale as the flash picks Dubi's (FlashCard.pick_art_scale): of ×4/×3/×2
+			# the largest that fits the card and draws whole device px on one of the char's densities
+			# (k 4 and k 6: ×4, exact 2×2 blocks on d 2 / d 3), else the largest that fits
+			var all_dens: Array = [dens]
+			for dk: Variant in c.get("densities", {}):
+				all_dens.append(int(str(dk)))
+			var art_h := float(c.get("frameH", 0)) / float(dens)
+			var art_w := float(c.get("frameW", 0)) / float(dens)
+			fig_scale = FlashCard.pick_art_scale(Display.k, all_dens, func(sc: int) -> bool:
+				return art_w * sc <= 560.0 and 104.0 + art_h * sc + 24.0 + 104.0 + 208.0 + 120.0 <= float(L.H) - 32.0, [4, 3, 2])
+			fig_h = art_h * float(fig_scale)
 		var om := Coalition.open_msg(s, partner_id) if s != null else {}
 		var h := 104.0 + fig_h + 24.0 + 52.0 + 52.0 + (104.0 if not om.is_empty() else 0.0) + 120.0
 		var y := Ui.snap((L.H - h) / 2.0, 4)
@@ -1497,29 +1600,33 @@ class PartnerCard:
 		if slug != "":
 			_strip = SpriteStrip.make(panel, slug, Vector2(360, cy + fig_h), "idle")
 			if _strip != null:
-				_strip.set_art_px(3.0)   # art ×3: the density variant picked for this card's device px per art px
+				_strip.set_art_px(float(fig_scale))   # the density variant picked for this card's device px per art px
 				if gone:
 					_strip.paused = true
 					_strip.play("idle")
 					_strip.modulate = Color(0.45, 0.45, 0.5)
 		cy += fig_h + 24.0
-		var seats_l := text(Vector2(0, cy), Strings.s("HUD_SEATS"), L.TEXT, th["modal"]["body"])
-		seats_l.right_at(pr.end.x - 32.0)
-		var seats_v := text(Vector2(pr.position.x + 32.0, cy), str(Coalition.row_seats(s, partner_id) if s != null else int(p.get("seats", 0))), L.TEXT, th["modal"]["body"])
-		seats_v.h_anchor = 0
+		# rtl-map §6.3 rows (review R12): the label right-aligned at the card's right − 32, its value
+		# 16 px left of it, both in the body colour
+		var seats := str(Coalition.row_seats(s, partner_id) if s != null else int(p.get("seats", 0)))
+		row_value = []
+		row_value.append(_row(cy, Strings.s("HUD_SEATS"), seats, pr, th["modal"]["body"]))
 		cy += 52.0
-		if Strings.has("PARTNER_UPKEEP"):
-			var up_l := text(Vector2(0, cy), Strings.s("PARTNER_UPKEEP"), L.TEXT, th["modal"]["body"])
-			up_l.right_at(pr.end.x - 32.0)
-		var up_v := text(Vector2(pr.position.x + 32.0, cy), "−%d%%" % int(roundf(float(p.get("upkeepPct", 0.0)))), L.TEXT, th["modal"]["note"])
-		up_v.h_anchor = 0
+		var up_label := Strings.s("PARTNER_UPKEEP") if Strings.has("PARTNER_UPKEEP") else ""
+		row_value.append(_row(cy, up_label, "−%d%%" % int(roundf(float(p.get("upkeepPct", 0.0)))), pr, th["modal"]["body"]))
 		cy += 52.0
 		if not om.is_empty():
 			_seq = int(om["seq"])
+			# the thread's own pill (ChatView._make_pill / _update_pill): the same states, the
+			# ceremony's "לגזור סרט ✂" → "גוזרים…" and its ribbon fill; a ghost button takes the input
 			var vis := Rect2(Ui.snap(360.0 - ChatView.PILL_W / 2.0, 4), cy + 16.0, ChatView.PILL_W, ChatView.PILL_H)
-			_pay = button(vis, vis.grow_individual(12, 10, 12, 10), "", func() -> void:
+			pill = chat._make_pill(panel, vis, _seq, false)
+			pill["key"] = "CHAT_CEREMONY" if str(om.get("kind", "")) == "ceremony" else ""
+			_pay = PxButton.make(panel, vis, {"hit": vis.grow_individual(12, 10, 12, 10), "ghost": true, "on_commit": func() -> void:
+				# a ceremony only starts its ribbon here: the card stays open and its pill fills
 				if chat.pay(_seq):
-					cancel("close"), "kit_gold")
+					cancel("close")})
+			focusables.append(_pay)
 			cy += 104.0
 		button(Rect2(88, pr.end.y - 112.0, 544, 96), Rect2(88, pr.end.y - 112.0, 544, 96), Strings.s("SYS_CLOSE"),
 			func() -> void: cancel("close"), "kit_secondary", L.TEXT)
@@ -1527,16 +1634,28 @@ class PartnerCard:
 		_sync_pay()
 		return self
 
+	## A row: the label right-aligned at the card's right − 32, the value right-aligned 16 px left
+	## of the label's left edge (a missing label keeps the value at the label's place). Returns
+	## the value's text node.
+	func _row(y: float, label: String, value: String, pr: Rect2, col: Variant) -> PxText:
+		var right := pr.end.x - 32.0
+		if label != "":
+			var l := text(Vector2(0, y), label, L.TEXT, col)
+			l.wrap_width = 400.0   # string-budgets partner.label
+			l.max_lines = 1
+			l.right_at(right)
+			right = l.position.x - float(l.width()) - 16.0
+		var v := text(Vector2(0, y), value, L.TEXT, col)
+		v.right_at(right)
+		return v
+
 	func _sync_pay() -> void:
 		if _pay == null or chat == null or chat._state == null:
 			return
 		var m := Coalition.message(chat._state, _seq)
-		var price := float(m.get("price", 0.0))
-		var afford := chat._state.bananas >= price
-		var t := Strings.s("CHAT_PAY", {"price": Fmt.cost(price)}) if afford \
-			else Strings.s("CHAT_PAY_SHORT", {"n": Fmt.cost(ceilf(price - chat._state.bananas))})
-		if _pay.label and _pay.label.text != t:
-			_pay.set_label(t)
+		if not pill.is_empty():
+			pill["pressed"] = _pay._pressed
+			chat._update_pill(pill, 0.0)
 		_pay.set_enabled(str(m.get("state", "")) == "open")
 
 	func update_view(dt_ms: float) -> void:

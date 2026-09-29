@@ -272,3 +272,165 @@ func test_typing_telegraph_only_for_messages_posted_while_open() -> void:
 		"the header says who is typing")
 	chat.update_view(ChatView.mc("chatTypingMs") + 20.0, m.state, m.d, {"main": true})
 	runner.check(chat._upto >= int(b["seq"]), "then it lands")
+
+
+# ------------------------------------------------------------------ views wave (review R5, R12, R13, R22, R23)
+
+func test_the_header_counts_everyone_in_the_group() -> void:
+	await _boot()
+	_open_group()   # Ben Gvir joined: pending, his join demand open
+	runner.check(ChatView.group_size(m.state) == 2, "a pending partner is in the group: him + the Magician (%d)" % ChatView.group_size(m.state))
+	Coalition.ps(m.state, "smotrich")["status"] = "member"
+	Coalition.ps(m.state, "smotrich")["frozen"] = true
+	Coalition.ps(m.state, "regev")["status"] = "left"
+	runner.check(ChatView.group_size(m.state) == 3, "a frozen member counts, one who left does not (%d)" % ChatView.group_size(m.state))
+	await _open_chat_now()
+	runner.check(m.chat._status.text == Strings.plural("CHAT_MEMBERS", 3), "the header reads the group size (%s)" % m.chat._status.text)
+
+
+func test_a_ceremony_pill_reads_cut_then_cutting() -> void:
+	await _boot()
+	_open_group()
+	var cer := _post({"type": "demand", "partner": "regev", "price": 0.0, "kind": "ceremony", "join": true, "ageSec": 0.0,
+		"state": "open", "line": "demand", "variant": 0})
+	await _open_chat_now()
+	var pill: Dictionary = m.chat._pill_of(int(cer["seq"]))
+	runner.check(not pill.is_empty() and (pill["label"] as PxText).text == Strings.s("CHAT_CEREMONY"), "a ceremony pill reads CHAT_CEREMONY, never '0 ₪'")
+	runner.check(not m.chat.pay(int(cer["seq"])), "a tap starts the ribbon, it does not pay yet")
+	await tree.process_frame
+	runner.check((pill["label"] as PxText).text == Strings.s("CHAT_CEREMONY_CUTTING") and (pill["fill"] as NinePatchRect).visible,
+		"while the ribbon fills the pill reads CHAT_CEREMONY_CUTTING (%s)" % (pill["label"] as PxText).text)
+	m.chat._update_ribbon(ChatView.CEREMONY_MS + 1.0)
+	runner.check(cer["state"] == "paid", "the ribbon's end pays the ceremony")
+
+
+func test_the_partner_card_rows_and_its_ceremony_pill() -> void:
+	await _boot()
+	_open_group()
+	Coalition.ps(m.state, "regev")["status"] = "pending"
+	var cer := _post({"type": "demand", "partner": "regev", "price": 0.0, "kind": "ceremony", "join": true, "ageSec": 0.0,
+		"state": "open", "line": "demand", "variant": 0})
+	await _open_chat_now()
+	m.chat.open_partner_card("regev")
+	await tree.process_frame
+	var card: ChatView.PartnerCard = m.overlays.top() as ChatView.PartnerCard
+	runner.check(card != null, "the partner card opens")
+	if card == null:
+		return
+	runner.check(card.row_value.size() == 2, "two rows: seats and upkeep")
+	runner.check([2, 3, 4].has(card.fig_scale) and card.panel_rect.position.y >= 0.0 and card.panel_rect.end.y <= float(L.H),
+		"the figure is at an integer art scale (×%d) and the card fits the modal space (%s)" % [card.fig_scale, card.panel_rect])
+	var dens_list: Array = [4]   # k 4 (a DPR-2 phone): ×4 is exact on the d 2 alternate
+	runner.check(FlashCard.pick_art_scale(4, [3, 2], func(_s: int) -> bool: return true, [4, 3, 2]) == 4 and FlashCard.pick_art_scale(6, [3, 2], func(_s: int) -> bool: return true, [4, 3, 2]) == 4,
+		"the pick gives ×4 at k 4 and k 6 on a d 3 + d 2 cast %s" % str(dens_list))
+	for v: PxText in card.row_value:
+		runner.check(v.h_anchor == 2 and v.position.x > card.panel_rect.position.x + 200.0,
+			"a value sits beside its label, not at the card's far left (right edge %s)" % v.position.x)
+		runner.check(v.tint == Art.col(Art.theme["modal"]["body"]), "a value is in the body colour")
+	runner.check(not card.pill.is_empty() and (card.pill["label"] as PxText).text == Strings.s("CHAT_CEREMONY"), "the card's pill is the thread's ceremony pill")
+	card._pay.down()
+	card._pay.up(true)
+	runner.check(not card.closing and not m.chat._ribbon.is_empty(), "a ceremony pay from the card starts the ribbon and keeps the card open")
+	card.update_view(16.0)
+	runner.check((card.pill["label"] as PxText).text == Strings.s("CHAT_CEREMONY_CUTTING"), "and the card's own pill fills and reads CHAT_CEREMONY_CUTTING")
+	m.chat._update_ribbon(ChatView.CEREMONY_MS + 1.0)
+	runner.check(cer["state"] == "paid", "the ribbon pays")
+
+
+func test_an_expired_ultimatum_chip_goes_grey() -> void:
+	await _boot()
+	_open_group()
+	var u := _post({"type": "ultimatum", "partner": "bengvir", "price": 90.0, "kind": "money", "leftSec": 45.0,
+		"state": "open", "line": "threat", "variant": 0})
+	await _open_chat_now()
+	var chip: Dictionary = m.chat._row_of(int(u["seq"])).get("chip", {})
+	runner.check(not chip.is_empty() and (chip["root"] as Node2D).modulate.a == 1.0, "a live chip is the kit's red chip at full alpha")
+	if chip.is_empty():
+		return
+	u["state"] = "expired"
+	u["leftSec"] = 0.0
+	await tree.process_frame   # the state edge rebuilds the thread: read the new row's chip
+	chip = m.chat._row_of(int(u["seq"])).get("chip", {})
+	if chip.is_empty():
+		runner.check(false, "the expired ultimatum keeps its chip")
+		return
+	var root: Node2D = chip["root"]
+	runner.check(root.modulate.a == 0.5, "a spent chip dims to 50%% (%.2f)" % root.modulate.a)
+	var greyed := true
+	for n: Node in root.get_children():
+		if n is CanvasItem and (n as CanvasItem).material != ChatView.grey_material():
+			greyed = false
+	runner.check(greyed, "and every part of it is drawn grey (C_MUTED), not red")
+
+
+func test_tapping_an_avatar_opens_the_partner_card() -> void:
+	await _boot()
+	_open_group()
+	await _open_chat_now()
+	var hit: Dictionary = {}
+	for h: Dictionary in m.chat.hits():
+		if h["kind"] == "partner":
+			hit = h
+	runner.check(not hit.is_empty(), "the first bubble's avatar is a target")
+	if hit.is_empty():
+		return
+	_touch(_chat_pt((hit["rect"] as Rect2).get_center()))
+	await tree.process_frame
+	runner.check(m.overlays.has_id("PARTNER_CARD"), "a tap on the avatar opens the partner card")
+
+
+func test_t3_opens_before_the_group_exists() -> void:
+	await _boot()
+	runner.check(not bool(m.state.coalition["opened"]), "no group yet")
+	m.chat.open()
+	m.chat._end_anim(true)
+	for i in 3:
+		await tree.process_frame   # _update_rows runs on the empty thread's one row
+	runner.check(m.chat.rows().size() == 1 and float(m.chat.rows()[0]["y"]) == 16.0, "the empty thread shows CHAT_EMPTY, placed")
+	m.chat.close()
+
+
+func test_a_brawl_is_surfaced_with_the_chat_closed() -> void:
+	await _boot()
+	_open_group()
+	for id in ["amsalem", "smotrich"]:
+		Coalition.ps(m.state, id)["status"] = "member"
+	var t: Toasts = m.toasts
+	t._queue.clear()
+	t._t = -1.0
+	t._gap = 0.0
+	var before := 0
+	for m2: Dictionary in m.state.coalition["chat"]:
+		if m2["state"] == "open" and Coalition.is_payable(m2):
+			before += 1
+	for e: Dictionary in Coalition.start_brawl(m.state, "amsalem", "smotrich"):
+		m.chat.on_politics_event(e)
+	t.update_view(16.0)
+	runner.check(t.shown()["text"] == ChatView.sys_text({"key": "chat.sys.brawl", "a": "amsalem", "b": "smotrich"}) and t._tag == "chat",
+		"a toast says who is brawling and that both rows are frozen (%s)" % t.shown()["text"])
+	await tree.process_frame
+	await tree.process_frame
+	var want := Strings.s("TAB_BADGE", {"count": str(before + 1)})
+	runner.check(m.shop._slots[2]["badgeText"].text == want, "the coalition tab's badge counts the brawl (%s, want %s)" % [m.shop._slots[2]["badgeText"].text, want])
+
+
+func test_a_chat_toast_has_the_face_and_the_sender() -> void:
+	await _boot()
+	_open_group()
+	var t: Toasts = m.toasts
+	t._queue.clear()
+	t._t = -1.0
+	t._gap = 0.0
+	var msg := _post({"type": "demand", "partner": "bengvir", "price": 90.0, "kind": "money", "join": false, "ageSec": 0.0,
+		"state": "open", "line": "demand", "variant": 1})
+	m.chat.on_politics_event({"ev": "message", "msg": msg})
+	t.update_view(16.0)
+	var sh := t.shown()
+	runner.check(sh["head"] == Strings.s("TOAST_CHAT_HEAD", {"name": ChatView.partner_name("bengvir")}), "line 1 names the sender in the group (%s)" % sh["head"])
+	runner.check(sh["preview"] == ChatView.line_text(msg, m.state, m.d), "line 2 is the message")
+	runner.check(bool(sh["face"]), "the partner's face is in the plate's accent")
+	runner.check(float(sh["h"]) == 132.0, "a chat toast is always two lines (132)")
+	runner.check(t._face.position.x == Toasts.FACE_X and t._face.position.x + t._face.region_rect.size.x * t._face.scale.x <= 676.0,
+		"the face sits in x 612-676 (%s)" % str(t._face.position))
+	runner.check(t._preview.position.x == Toasts.CHAT_TEXT_RIGHT and not t._head.truncated(), "the lines are right-aligned at 596")
+	runner.check(t._tag == "chat", "a tap on it opens T3")

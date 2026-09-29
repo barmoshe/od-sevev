@@ -3,6 +3,10 @@ extends Node2D
 ## EVOLVE_TX: motion-spec evolve-ceremony (beats synced to the evolveConfirm fanfare) and its
 ## reduced-motion dark crossfade; hud-layout §11 EVOLVE_TX card. Phase boundaries come from the
 ## feel tunables; the inner beats are the Animator's audio onsets.
+## od-sevev (ux/rtl-map.md §7.2 "EvolveTx: EVOTX_LINE + ELECT_TITLE", review R8): the card reads
+## "הכנסת פוזרה. מתחילים:" over "סבב בחירות מס׳ {n}" (the new round), then EVO_MULT "×before ←
+## ×after" (the string orders it for RTL; the fork's "×a → ×b" ran left to right), the base gained
+## (EVO_THUMBS_GAIN) and the era line, all at the ×4 body scale (large text ×5), centred.
 
 const FADE_STEPS := [[0.0, 0.25], [90.0, 0.5], [180.0, 0.75], [270.0, 1.0]]
 const SEAM_MS := 270.0
@@ -10,15 +14,17 @@ const LAND_MS := 570.0
 const MULT_MS := 720.0
 const DROP_PX := 32.0
 const SPECIES_Y := 628.0
+const MULT_Y := 704.0
+const GAIN_Y := 760.0
+const ERA_Y := 816.0
+const WRAP := 656.0                  # string-budgets tx.line
 
 var running := false
 var _card: ColorRect
 var _line: PxText
 var _species: PxText
-var _mult_old: PxText
-var _mult_new: PxText
+var _mult: PxText
 var _gain: PxText
-var _gain_icon: Sprite2D
 var _era: PxText
 var _t := 0.0
 var _reduced := false
@@ -30,16 +36,22 @@ func _ready() -> void:
 	visible = false
 	var X: Dictionary = Art.theme["evolveTx"]
 	_card = Ui.rect(self, Rect2(-4000, -4000, 8720, 9280), X["card"], 1.0)
-	_line = PxText.make(self, Vector2(0, 588), Strings.s("EVOTX_LINE"), 3, "plain", X["text"])
-	_species = PxText.make(self, Vector2(0, SPECIES_Y), "", 4, "plain", X["text"])
-	_mult_old = PxText.make(self, Vector2(0, 700), "", 4, "plain", X["text"])
-	_mult_new = PxText.make(self, Vector2(0, 700), "", 4, "plain", X["text"])
-	_gain_icon = Ui.img(self, Vector2(0, 756), "icon_thumb", 0, 4)
-	_gain = PxText.make(self, Vector2(0, 766), "", 3, "plain", X["text"])
-	_era = PxText.make(self, Vector2(0, 820), "", 3, "plain", X["text"])
+	_line = _tx_text(SPECIES_Y - 48.0, Strings.s("EVOTX_LINE"), X["text"])
+	_species = _tx_text(SPECIES_Y, "", X["text"])
+	_mult = _tx_text(MULT_Y, "", X["text"])
+	_gain = _tx_text(GAIN_Y, "", X["text"])
+	_era = _tx_text(ERA_Y, "", X["text"])
 
 
-## info: {species, multBefore, multAfter, gained}; cb: {seam, hello, unlock} Callables.
+func _tx_text(y: float, t: String, col: Variant) -> PxText:
+	var p := PxText.make(self, Vector2(0, y), t, L.TEXT, "plain", col)
+	p.wrap_width = WRAP
+	p.max_lines = 1
+	return p
+
+
+## info: {round (the new round's number), multBefore, multAfter, gained, era}; cb: {seam, hello,
+## unlock} Callables. A caller without `round` gets the old species title.
 func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
 	_reduced = reduced
 	_cb = cb
@@ -50,24 +62,16 @@ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
 	modulate.a = 1.0
 	var X: Dictionary = Art.theme["evolveTx"]
 	_card.color = Art.col(X["reducedMotionCard" if reduced else "card"])
-	for t: PxText in [_line, _species, _mult_old, _mult_new, _gain]:
+	for t: PxText in [_line, _species, _mult, _gain]:
 		t.tint = Art.col(X["reducedMotionText" if reduced else "text"])
 	_line.center_in(0, L.W)
-	_species.text = String(info["species"]).to_upper()
+	_species.text = Strings.s("ELECT_TITLE", {"n": int(info["round"])}) if info.has("round") else String(info.get("species", ""))
 	_species.center_in(0, L.W)
-	_mult_old.text = "×%s → " % Fmt.mult(info["multBefore"])
-	_mult_new.text = "×%s" % Fmt.mult(info["multAfter"])
-	_mult_new.px = 4
-	_gain.text = "+%s %s" % [Fmt.thumbs(info["gained"]), Strings.s("EVO_K1")]
-	var w_old := _mult_old.width()
-	var w_new := _mult_new.width()
-	var x0 := 4.0 * floorf((L.W - (w_old + 24 + w_new)) / 2.0 / 4.0)
-	_mult_old.position.x = x0
-	_mult_new.position.x = x0 + w_old + 24
-	var gw := 48.0 + 12.0 + _gain.width()
-	var gx := 4.0 * floorf((L.W - gw) / 2.0 / 4.0)
-	_gain_icon.position.x = gx
-	_gain.position.x = gx + 60
+	_mult.text = Strings.s("EVO_MULT", {"now": Fmt.mult(info["multBefore"]), "after": Fmt.mult(info["multAfter"])})
+	_mult.px = L.TEXT
+	_mult.center_in(0, L.W)
+	_gain.text = Strings.s("EVO_THUMBS_GAIN", {"pending": Fmt.thumbs(info["gained"])})
+	_gain.center_in(0, L.W)
 	_era.text = Strings.s("F_ERA", {"era": info["era"]}) if String(info.get("era", "")) != "" else ""
 	_era.center_in(0, L.W)
 	_era.tint = _gain.tint
@@ -78,10 +82,8 @@ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
 func _set_texts(title: bool, mult: bool) -> void:
 	_line.visible = title
 	_species.visible = title
-	_mult_old.visible = mult
-	_mult_new.visible = mult
+	_mult.visible = mult
 	_gain.visible = mult
-	_gain_icon.visible = mult
 	_era.visible = mult
 
 
@@ -104,7 +106,7 @@ func update_view(dt_ms: float) -> void:
 
 
 func _text_alpha(a: float) -> void:
-	for x: CanvasItem in [_line, _species, _mult_old, _mult_new, _gain, _gain_icon, _era]:
+	for x: CanvasItem in [_line, _species, _mult, _gain, _era]:
 		x.modulate.a = a
 
 
@@ -137,12 +139,13 @@ func _update_full(t: float) -> void:
 			dy = -4.0 * Ui.quad_out(p * 2.0) if p < 0.5 else -4.0 * (1.0 - Ui.quad_in((p - 0.5) * 2.0))
 		var y := SPECIES_Y + Ui.snap(dy, 4)
 		_species.position.y = y
-		_line.position.y = y - 40.0
+		_line.position.y = y - 48.0
 	if mult_on:
 		var p2 := minf(1.0, (t - MULT_MS) / 160.0)
-		var sc := int(roundf((1.5 + (1.0 - 1.5) * Ui.quad_out(p2)) * 4.0))
-		_mult_new.px = sc
-		_mult_new.position.y = 700.0 - (7.0 * sc - 28.0) / 2.0
+		var sc := int(roundf((1.5 + (1.0 - 1.5) * Ui.quad_out(p2)) * float(L.TEXT)))
+		_mult.px = sc
+		_mult.center_in(0, L.W)
+		_mult.position.y = MULT_Y - Ui.snap((9.0 * float(sc - L.TEXT)) / 2.0, 4)
 	if t >= card_end + fade_in / 3.0:
 		_fire("hello")
 	if t >= total:
@@ -160,9 +163,10 @@ func _update_reduced(t: float) -> void:
 	_set_texts(t >= xfade and t < total, t >= MULT_MS and t < total)
 	_text_alpha(a if t >= card_end else 1.0)
 	_species.position.y = SPECIES_Y
-	_line.position.y = SPECIES_Y - 40.0
-	_mult_new.px = 4
-	_mult_new.position.y = 700.0
+	_line.position.y = SPECIES_Y - 48.0
+	_mult.px = L.TEXT
+	_mult.center_in(0, L.W)
+	_mult.position.y = MULT_Y
 	if t >= total:
 		_finish()
 

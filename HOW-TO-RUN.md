@@ -45,6 +45,13 @@ on an aide (the "אני לא מכיר אותו" button): `/?dev=1&grant=50000&su
 needed) force the desktop phone frame on or off (the shell's `odFit`: a window ≥ 600 CSS with a
 mouse gets a centred 390-CSS canvas; `window.odFrame`). `node tools/web/views_web.mjs <url> <dir>
 [WxH@DPR,...]` screenshots the flash, the cottage cup and the frame in Chromium.
+`node tools/web/round_web.mjs <url> <dir> [WxH@DPR] [speed] [budget s]` plays a whole first round to
+the election through the real UI at `?dev=1&speed=N` (touches only: the Magician, the source cards,
+every chat pill including those scrolled above the fold, "להעיד", the "עוד סבב!" CTA, O3's "לפזר את
+הכנסת") and screenshots the CTA, O3, the transition and the flash. `node tools/web/modals_web.mjs
+<url> <dir>` screenshots the summons card and chip, the court card over T3, a partner card, O10,
+About and O1 (a cold load 3 h later). Both read `window.odDev` (dev only, `ui/dev_probe.gd`: the
+targets in viewport logical px) and `window.odModal` (the open sheet card's buttons).
 
 ## Source map
 

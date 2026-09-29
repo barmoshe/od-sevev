@@ -1,7 +1,8 @@
 class_name Overlays
 extends RefCounted
-## The concrete modals: SETTINGS, RESET_CONFIRM, EVOLUTION and OFFLINE ("WELCOME BACK!").
-## Layouts are ux/hud-layout.md §11, literally. Each builder returns an Overlay ready to request().
+## The concrete modals: SETTINGS, the fork's CONFIRM, PERKS and BOOK, and the names RESET_CONFIRM
+## (O10), EVOLUTION (O3), OFFLINE (O1) and STORY (O3b), whose views live in ui/views/.
+## Each builder returns an Overlay ready to request().
 
 
 class SettingsOverlay:
@@ -67,9 +68,13 @@ class SettingsOverlay:
 					var chev := PxText.make(body, Vector2(40, ry + LABEL_DY), "<", L.TEXT, "plain", th["modal"]["body"])
 					chev.h_anchor = 0
 				"reset":
+					# rtl-map §7.4 danger row: the kit trash icon leads the label, on the right (R26)
+					var trash := Art.has_sprite("icon_trash")
 					_row_button(ry, h, Strings.s("SET_RESET"), func() -> void:
 						host.audio_event("uiClick")
-						open_reset.call(), th["modal"]["title"])
+						open_reset.call(), th["modal"]["title"], 656.0 - (48.0 if trash else 0.0))
+					if trash:
+						Ui.img(body, Vector2(620.0, ry + LABEL_DY), "icon_trash", 0, 4)
 		content_bottom = y0 + y + 8.0
 		var sc := button(Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Strings.s("SYS_CLOSE"),
 			func() -> void: cancel("close"), "kit_secondary", L.TEXT)
@@ -79,12 +84,12 @@ class SettingsOverlay:
 
 	## A settings text in its box (right-aligned at x 656, 360 wide): a label (1 line, 2 at ×5)
 	## or a caption (2 lines, 3 at ×5), string-budgets sheet.label / sheet.caption.
-	func _sheet_text(parent: Node, pos: Vector2, s: String, role: Variant, caption: bool) -> PxText:
+	func _sheet_text(parent: Node, pos: Vector2, s: String, role: Variant, caption: bool, right: float = 656.0) -> PxText:
 		var t := PxText.make(parent, pos, s, L.TEXT, "plain", role)
 		t.wrap_width = TEXT_W
 		t.max_lines = 2 if caption else 1
 		t.max_lines_large = 3 if caption else 2
-		t.right_at(656.0)
+		t.right_at(right)
 		return t
 
 	static func _lh(t: PxText) -> float:
@@ -114,11 +119,11 @@ class SettingsOverlay:
 		probe_parent.free()
 		return ceilf(h / 4.0) * 4.0   # up to the 4-px grid: a row never cuts its last line
 
-	func _row_button(y: float, h: float, label: String, on_commit: Callable, role: Variant = null) -> void:
+	func _row_button(y: float, h: float, label: String, on_commit: Callable, role: Variant = null, right: float = 656.0) -> void:
 		var b := PxButton.make(body, Rect2(24, y, 672, h), {"hit": Rect2(24, y, 672, h), "ghost": true, "on_commit": on_commit})
 		focusables.append(b)
 		body_focusables.append(b)
-		_sheet_text(body, Vector2(0, y + LABEL_DY), label, role if role != null else Art.theme["modal"]["body"], false)
+		_sheet_text(body, Vector2(0, y + LABEL_DY), label, role if role != null else Art.theme["modal"]["body"], false, right)
 
 	func _toggle(y: float, h: float, key: String, label_key: String, cap_key: String) -> void:
 		var th := Art.theme
@@ -179,259 +184,19 @@ class SettingsOverlay:
 		mgr.close(self, via)
 
 
+## O10 / O3 / O1 are rebuilt as §7.1 sheet cards (ui/views/view_reset.gd, view_election.gd,
+## view_return.gd; review R7, R8); these names stay so every caller (MainController, the store
+## shots, the tests) gets them.
 class ResetOverlay:
-	extends Overlay
-
-	func build() -> ResetOverlay:
-		id = "RESET_CONFIRM"
-		var LO: Dictionary = L.OVERLAY["reset"]
-		var th := Art.theme
-		backdrop_closes = false
-		make_panel(LO["panel"])
-		text(LO["title"], Strings.s("RST_TITLE"), 4, th["modal"]["title"])
-		var body := [Strings.s("RST_BODY_1"), Strings.s("RST_BODY_2"), Strings.s("RST_BODY_3")]
-		for i in 3:
-			centered(float(LO["bodyY"][i]), body[i], 3)
-		centered(float(LO["noteY"]), Strings.s("RST_NOTE"), 3, th["modal"]["note"])
-		button(LO["cancel"], LO["cancelHit"], Strings.s("RST_CANCEL"), func() -> void:
-			host.audio_event("uiClick")
-			cancel("close"))
-		button(LO["confirm"], LO["confirmHit"], Strings.s("RST_CONFIRM"), func() -> void: host.confirm_reset(), "danger")
-		return self
-
-	func cancel(via: String) -> void:
-		host.audio_event("panelClose")
-		mgr.close(self, via)
+	extends ResetCard
 
 
 class EvolutionOverlay:
-	extends Overlay
-	var _ready_state := false
-	var _gain_icon: Sprite2D
-	var _gain_text: PxText
-	var _bar_track: NinePatchRect
-	var _bar_fill: NinePatchRect
-	var _bonus: PxText
-	var _mult: PxText
-	var _need: PxText
-	var _confirm: PxButton
-	var _not_ready: PxText
-	var committed := false
-
-	func build() -> EvolutionOverlay:
-		id = "EVOLUTION"
-		var LO: Dictionary = L.OVERLAY["evolution"]
-		var th := Art.theme
-		var s: GameState = host.state
-		make_panel(LO["panel"])
-		text(LO["title"], Strings.s("EVO_TITLE"), 4, th["modal"]["title"])
-		var close := close_button(LO["closeVisual"], LO["closeHit"], func() -> void: cancel("close"))
-		centered(264, Strings.s("EVO_NEXT"), 3, th["modal"]["note"])
-		centered(296, Content.species_title(s.evolutions + 1).to_upper(), 3)
-		_gain_icon = Ui.img(panel, Vector2(0, 352), "icon_thumb", 0, 4)
-		_gain_text = text(Vector2(0, 370), "", 4)
-		var bar: Rect2 = LO["bar"]
-		_bar_track = Ui.nine(panel, bar, "ui_bar_track", 0)
-		_bar_fill = Ui.nine(panel, Rect2(bar.position, Vector2(8, bar.size.y)), "ui_bar_fill", 0)
-		_bonus = centered(472, "", 3, th["modal"]["note"])
-		_mult = centered(504, "", 4)
-		Ui.rect(panel, Rect2(80, 560, 560, 4), th["modal"]["divider"])
-		text(Vector2(80, 584), Strings.s("EVO_RESETS"), 3, th["modal"]["groupLabel"])
-		text(Vector2(376, 584), Strings.s("EVO_KEEPS"), 3, th["modal"]["groupLabel"])
-		var R := ["EVO_R1", "EVO_R2", "EVO_R3", "EVO_R4"]
-		var K := ["EVO_K1", "EVO_K2", "EVO_K3", "EVO_K4"]
-		var ys := [624, 652, 680, 708]
-		for i in 4:
-			text(Vector2(80, ys[i]), Strings.s(R[i]), 3)
-			text(Vector2(376, ys[i]), Strings.s(K[i]), 3)
-		Ui.rect(panel, Rect2(80, 752, 560, 4), th["modal"]["divider"])
-		_need = centered(776, "", 3)
-		centered(812, Strings.s("EVO_RULE_1"), 3)
-		centered(840, Strings.s("EVO_RULE_2"), 3)
-		centered(880, Strings.s("EVO_GROW"), 3, th["modal"]["note"])
-		button(LO["back"], LO["backHit"], Strings.s("EVO_BACK"), func() -> void: cancel("close"))
-		_confirm = button(LO["confirm"], LO["confirmHit"], Strings.s("EVO_CONFIRM"), _do_confirm, "evolve")
-		var cr: Rect2 = LO["confirm"]
-		_not_ready = centered(cr.position.y + 38, Strings.s("EVO_NOT_READY"), 3, th["evolve"]["labelNotReady"], Vector2(cr.position.x, cr.size.x))
-		focusables.append(close)
-		_refresh(true)
-		return self
-
-	func default_focus() -> int:
-		return 1 if (host.d as Economy.Derived).evolve_enabled else 0
-
-	func _refresh(force: bool = false) -> void:
-		var s: GameState = host.state
-		var d: Economy.Derived = host.d
-		var ready := d.evolve_enabled
-		var changed := ready != _ready_state or force
-		_ready_state = ready
-		if ready:
-			_gain_text.text = Strings.s("EVO_THUMBS_GAIN", {"pending": Fmt.thumbs(d.pending)})
-		else:
-			_gain_text.text = Strings.s("EVO_THUMBS_PROGRESS", {"pending": Fmt.thumbs(d.pending), "needed": Fmt.thumbs(d.needed, "ceil")})
-		var group_w := 64.0 + 16.0 + _gain_text.width()
-		var gx := 4.0 * floorf((L.W - group_w) / 2.0 / 4.0)
-		_gain_icon.position.x = gx
-		_gain_text.position.x = gx + 80.0
-		var after := 1.0 + Economy.mult_per_base() * (s.thumbs_owned + (d.pending if ready else d.needed))   # od-sevev: the sim's prestige rule
-		_mult.text = Strings.s("EVO_MULT", {"now": Fmt.mult(d.prestige_mult), "after": Fmt.mult(after)})
-		_mult.center_in(panel_rect.position.x, panel_rect.size.x)
-		_need.text = Strings.s("EVO_NEED", {"needed": Fmt.thumbs(d.needed, "ceil")})
-		_need.center_in(panel_rect.position.x, panel_rect.size.x)
-		if not changed and ready:
-			return
-		_bonus.text = Strings.s("EVO_BONUS" if ready else "EVO_BONUS_PREVIEW")
-		_bonus.center_in(panel_rect.position.x, panel_rect.size.x)
-		_bar_track.visible = not ready
-		_bar_fill.visible = not ready
-		if not ready:
-			var bar: Rect2 = L.OVERLAY["evolution"]["bar"]
-			var w := maxf(8.0, Ui.snap(bar.size.x * minf(1.0, float(d.pending) / maxf(1.0, float(d.needed))), 4))
-			_bar_fill.size = Vector2(w / 4.0, bar.size.y / 4.0)
-		_confirm.set_visible(true).set_enabled(ready)
-		if _confirm.label:
-			_confirm.label.visible = ready
-		_not_ready.visible = not ready
-		if changed and not force and ready and focus_index == 0:
-			focus_index = 1
-
-	func update_view(_dt_ms: float) -> void:
-		if not committed:
-			_refresh()
-
-	func _do_confirm() -> void:
-		if committed or not (host.d as Economy.Derived).evolve_enabled:
-			return
-		committed = true
-		host.confirm_evolve()
-
-	func close_for_confirm() -> void:
-		mgr.close(self, "confirm")
-
-	func cancel(via: String) -> void:
-		if committed:
-			return
-		host.audio_event("evolveClose")
-		mgr.close(self, via)
+	extends ElectionCard
 
 
 class OfflineOverlay:
-	extends Overlay
-	var award := 0.0
-	var away_sec := 0.0
-	var capped := false
-	var cold := false
-	var info: Dictionary = {}
-	var _amount: PxText
-	var _icon: Sprite2D
-	var _rolling := false
-	var _roll_t := 0.0
-	var _rolled := false
-	var _cue_played := false
-	var _beat_t := -1.0
-	var _close_in := -1.0
-
-	func build() -> OfflineOverlay:
-		id = "OFFLINE"
-		var LO: Dictionary = L.OVERLAY["offline"]
-		var th := Art.theme
-		make_panel(LO["panel"])
-		text(LO["title"], Strings.s("OFF_TITLE"), 4, th["modal"]["title"])
-		var away := Strings.s("OFF_AWAY_CAPPED_H", {"h": str(int(info.get("capHours", 8)))}) if (capped and Strings.has("OFF_AWAY_CAPPED_H")) \
-			else (Strings.s("OFF_AWAY_CAPPED") if capped else Strings.s("OFF_AWAY", {"dur": Fmt.dur(away_sec)}))
-		centered(424, away, 3)
-		centered(476, Strings.s("OFF_HARVESTED"), 3)
-		_icon = Ui.img(panel, Vector2(0, 522), th["offline"]["amountIcon"], 0, 6)
-		# v2: a cold start shows the whole amount at once (v1 waited for COLLECT to count up from
-		# +0, which read like a bug); returning to an open game still counts up.
-		_amount = text(Vector2(0, 538), Strings.s("OFF_AMOUNT", {"n": Fmt.amount(award) if cold else "0"}), 4, th["offline"]["amount"])
-		if cold:
-			_rolled = true
-		_layout_amount()
-		var n1: String = info.get("note1", Strings.s("OFF_NOTE_1"))
-		var n2: String = info.get("note2", Strings.s("OFF_NOTE_2"))
-		centered(624, n1, 3, th["modal"]["note"])
-		centered(652, n2, 3, th["modal"]["note"])
-		button(LO["collect"], LO["collectHit"], Strings.s("OFF_COLLECT"), _collect)
-		return self
-
-	func _layout_amount() -> void:
-		var w := 64.0 + 16.0 + _amount.width()
-		var x := 4.0 * floorf((L.W - w) / 2.0 / 4.0)
-		_icon.position.x = x + 2.0
-		_amount.position.x = x + 80.0
-
-	func on_opened() -> void:
-		if not cold:
-			_start_roll()
-
-	func _start_roll() -> void:
-		if _rolling or _rolled:
-			return
-		_rolling = true
-		_roll_t = 0.0
-
-	func _collect() -> void:
-		host.audio_event("uiClick")
-		if cold:
-			_play_cue()
-		if not _rolled:
-			_finish_roll()
-		_close_now("close")
-
-	func _finish_roll() -> void:
-		_rolling = false
-		_rolled = true
-		_amount.text = Strings.s("OFF_AMOUNT", {"n": Fmt.amount(award)})
-		_layout_amount()
-		_play_cue()
-
-	func _play_cue() -> void:
-		if _cue_played:
-			return
-		_cue_played = true
-		host.audio_event("offlineCollect")
-
-	func update_view(dt_ms: float) -> void:
-		if _rolling:
-			_roll_t += dt_ms
-			var p := minf(1.0, _roll_t / float(Tune.T["offlineRollMs"]))
-			_amount.text = Strings.s("OFF_AMOUNT", {"n": Fmt.amount(floorf(award * Ui.cubic_out(p)))})
-			_layout_amount()
-			if p >= 1.0:
-				_finish_roll()
-				_beat_t = 0.0
-				_amount.px = 5
-				if cold:
-					_close_in = float(Tune.MC["offlineCloseAfterRollMs"])
-		if _beat_t >= 0.0:
-			_beat_t += dt_ms
-			if _beat_t >= float(Tune.MC["offlineEndBeatMs"]):
-				_beat_t = -1.0
-				_amount.px = 4
-		if _close_in >= 0.0:
-			_close_in -= dt_ms
-			if _close_in < 0.0 and not closing:
-				_close_now("close")
-
-	func _close_now(via: String, silent: bool = false) -> void:
-		_close_in = -1.0
-		if not silent:
-			host.audio_event("panelClose")
-		host.offline_collected()
-		mgr.close(self, via)
-
-	func cancel(via: String) -> void:
-		if closing:
-			return
-		var silent := cold and not _rolling and not _rolled and (via == "esc" or via == "back")
-		if not _rolled:
-			_rolling = false
-			_rolled = true
-			if not silent:
-				_play_cue()
-		_close_now(via, silent)
+	extends ReturnCard
 
 
 class ConfirmOverlay:
