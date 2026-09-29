@@ -194,16 +194,21 @@ static func _sprite_of(id: String) -> String:
 	return Art.sprite_or(String(Content.producer(id).get("sprite", src.get("sprite", "critter_" + id))))
 
 
-## A money source's stage sprite at artScale / density (sprites.json sources[id].density: the
-## rendered sources go to d = 3 with the cast; the fork's critter_* art is d = 1), sampled per
-## SpriteStrip.apply_filter so a non-integer device ratio stays even.
-static func _scale_sprite(s: Sprite2D, id: String) -> void:
+## Logical px per sprite px of a critter: ×4 art scale ÷ the TA's density (sprites.json
+## sources[id].density, CONTRACT.md §3: the rendered sources are 3 sprite px per art px; the
+## hand-drawn ones and the fork's critter_* art are 1).
+static func _scale_of(id: String) -> Vector2:
 	var src := Art.source(id)
-	var sc := float(SpriteStrip.art_scale())
-	if not src.is_empty() and String(src.get("sprite", "")) == _sprite_of(id):
-		sc = SpriteStrip.scale_of(src)
-	s.scale = Vector2(sc, sc)
-	SpriteStrip.apply_filter(s, sc)
+	if not src.is_empty() and _sprite_of(id) == String(src.get("sprite", "")):
+		return Vector2.ONE * SpriteStrip.scale_of(src)
+	return Vector2.ONE * float(SpriteStrip.art_scale())
+
+
+## Scales a critter sprite (_scale_of) and picks its sampling with SpriteStrip.apply_filter: nearest
+## when a sprite px is a whole number of device px (k % density == 0), else the fallback filter.
+static func _scale_sprite(s: Sprite2D, id: String) -> void:
+	s.scale = _scale_of(id)
+	SpriteStrip.apply_filter(s, s.scale.x)
 
 
 func _pivot_of(id: String) -> Vector2:
@@ -597,6 +602,7 @@ func _start_piece(id: String) -> void:
 			_piece_timers[id] = randf_range(10000, 16000)
 			var x := Ui.snap(randf_range(40, L.W - 104), 4)
 			var r := Ui.img(_fx, Vector2(x, ground_y - 64), _sprite_of(id), 0, 4)
+			_scale_sprite(r, id)
 			if play_fx.is_valid():
 				play_fx.call("critterSpawnDust", x + 32.0, float(ground_y))
 			_pieces.append({"kind": "launch", "s": r, "t": 0.0, "dur": 1600.0, "x0": x, "y0": float(ground_y) - 64.0,

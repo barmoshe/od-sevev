@@ -12,7 +12,7 @@ var m: Node
 
 
 func setup(r: Object) -> void:
-	TestFixture.use_game_content()   # the od money sources (taxpayer, hitech) for the stage checks
+	TestFixture.use_game_content()   # the od money sources (taxpayer, washington) for the stage checks
 	tree = r as SceneTree
 	dir = "user://test_display_%d" % Time.get_ticks_usec()
 	DirAccess.make_dir_recursive_absolute(dir)
@@ -41,16 +41,20 @@ func _use_manifest(man: Dictionary) -> void:
 	SpriteStrip._loaded = not man.is_empty()
 
 
-## The shipped manifest with the cast and the rendered sources at density 3 (the TA's re-render:
-## frames 3× the size in sprite px, anchors and points in sprite px of their own texture).
-func _d3_manifest() -> Dictionary:
+## The shipped manifest as it was before the TA's re-render: Bibi and the taxpayer at density 1
+## (frames, anchors and pivots a third of the size, in sprite px), no `density` keys.
+func _d1_manifest() -> Dictionary:
 	var man: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SpriteStrip.MANIFEST))
-	var bibi: Dictionary = man["chars"]["bibi"]
-	bibi["density"] = 3
-	bibi["frameW"] = int(bibi["frameW"]) * 3
-	bibi["frameH"] = int(bibi["frameH"]) * 3
-	bibi["anchor"] = [int(bibi["anchor"][0]) * 3 + 1, int(bibi["anchor"][1]) * 3 + 2]
-	man["sources"]["taxpayer"]["density"] = 3
+	for e: Dictionary in [man["chars"]["bibi"], man["sources"]["taxpayer"]]:
+		var d := int(e.get("density", 1))
+		for key: String in ["frameW", "frameH"]:
+			e[key] = int(e[key]) / d
+		for key: String in ["anchor", "pivot"]:
+			if e.has(key):
+				e[key] = [int(e[key][0]) / d, int(e[key][1]) / d]
+		e.erase("density")
+		for a: Dictionary in (e.get("anims", {}) as Dictionary).values():
+			a.erase("density")
 	return man
 
 
@@ -88,27 +92,28 @@ func test_density_one_and_three_from_the_manifest() -> void:
 	var parent := Node2D.new()
 	tree.root.add_child(parent)
 	await tree.process_frame   # inside the tree, so refresh_all's group lookups see the strips
-	# the shipped d = 1 manifest: ×4 per sprite px, nearest at every integer k
-	Display.update(Vector2(780, 1688))
-	var s1 := SpriteStrip.make(parent, "bibi", Vector2(376, 876))
-	runner.check(s1 != null and s1.density == 1 and is_equal_approx(s1.scale_px, 4.0), "d 1: 4 logical px per sprite px")
-	runner.check(s1.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST and s1.material == null, "d 1 at k 4: nearest")
-	# the TA's d = 3 cast
-	_use_manifest(_d3_manifest())
+	Display.update(Vector2(780, 1688))   # k 4
+	# the shipped manifest (the TA's 3x cast): Bibi d 3, the small Dubi d 1, read from the data
 	var s3 := SpriteStrip.make(parent, "bibi", Vector2(376, 876))
-	runner.check(s3.density == 3 and is_equal_approx(s3.scale_px, 4.0 / 3.0), "d 3: 4/3 logical px per sprite px")
-	runner.check(s3.frame_size().is_equal_approx(s1.frame_size()), "the same size on screen at both densities (%s vs %s)" % [s3.frame_size(), s1.frame_size()])
+	var dubi := SpriteStrip.make(parent, "dubi", Vector2(600, 876))
+	runner.check(s3.density == 3 and is_equal_approx(s3.scale_px, 4.0 / 3.0), "Bibi d 3: 4/3 logical px per sprite px (d %d)" % s3.density)
+	runner.check(dubi.density == 1 and is_equal_approx(dubi.scale_px, 4.0), "the small Dubi d 1: ×4")
+	var c: Dictionary = SpriteStrip.manifest()["chars"]["bibi"]
+	runner.check(s3.frame_size().is_equal_approx(Vector2(float(c["frameW"]), float(c["frameH"])) * 4.0 / 3.0), "Bibi's frame is frameW·4/3 logical")
 	runner.check(s3.material is ShaderMaterial, "k 4 is not a multiple of 3: the 'aa' fallback filter")
+	runner.check(dubi.material == null and dubi.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "d 1 at k 4: nearest")
 	var o: Vector2 = s3.rect().position * Display.f
 	runner.check(o.is_equal_approx(o.round()), "the frame's top-left sits on a whole device px (%s)" % o)
 	SpriteStrip.fractional_filter = "nearest"
 	SpriteStrip.refresh_all(tree)
 	runner.check(s3.material == null and s3.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "fractional_filter 'nearest' is honoured")
 	SpriteStrip.fractional_filter = "aa"
-	Display.update(Vector2(1170, 2532))
-	SpriteStrip.refresh_all(tree)
-	runner.check(s3.material == null and s3.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "k 6: a sprite px is 2 device px, nearest")
-	# a money source at d 3 on the stage
+	for k: int in [6, 9]:
+		Display.update(Vector2(180 * k, 2800))
+		SpriteStrip.refresh_all(tree)
+		runner.check(Display.k == k and s3.material == null and s3.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
+			"k %d: a sprite px is %d device px, nearest" % [k, k / 3])
+	# the money sources on the stage: taxpayer rendered (d 3), washington → the hand-drawn checkbook (d 1)
 	Display.update(Vector2(780, 1688))
 	var spr := Sprite2D.new()
 	parent.add_child(spr)
@@ -120,13 +125,21 @@ func test_density_one_and_three_from_the_manifest() -> void:
 	runner.check(spr.material == null, "and nearest at k 6 after a scale change")
 	var spr1 := Sprite2D.new()
 	parent.add_child(spr1)
-	Diorama._scale_sprite(spr1, "hitech")
-	runner.check(spr1.scale.is_equal_approx(Vector2(4, 4)) and spr1.material == null, "a d 1 source stays ×4, nearest")
+	Diorama._scale_sprite(spr1, "washington")
+	runner.check(spr1.scale.is_equal_approx(Vector2(4, 4)) and spr1.material == null, "the d 1 checkbook stays ×4, nearest")
+	# the manifest before the re-render (no density keys): d 1, ×4, the same size on screen
+	var size3: Vector2 = s3.frame_size()
+	_use_manifest(_d1_manifest())
+	var s1 := SpriteStrip.make(parent, "bibi", Vector2(376, 876))
+	runner.check(s1.density == 1 and is_equal_approx(s1.scale_px, 4.0), "no density key: d 1, 4 logical px per sprite px")
+	runner.check(absf(s1.frame_size().x - size3.x) <= 4.0 and absf(s1.frame_size().y - size3.y) <= 4.0,
+		"the same size on screen at both densities (%s vs %s)" % [s1.frame_size(), size3])
+	runner.check(is_equal_approx(Diorama._scale_of("taxpayer").x, 4.0), "a d 1 taxpayer draws at ×4")
 	# a density alternate that divides k wins (the TA may ship both)
-	var c := {"density": 3, "frameW": 243, "anims": {}, "densities": {"2": {"frameW": 162}}}
-	runner.check(int(SpriteStrip.pick_variant(c, 4)["density"]) == 2, "k 4 picks the d 2 alternate")
-	runner.check(int(SpriteStrip.pick_variant(c, 6)["density"]) == 3, "k 6 keeps the d 3 render")
-	runner.check(int(SpriteStrip.pick_variant(c, 7).get("density", 0)) == 3, "k 7 (no divisor) keeps the main render")
+	var alt := {"density": 3, "frameW": 243, "anims": {}, "densities": {"2": {"frameW": 162}}}
+	runner.check(int(SpriteStrip.pick_variant(alt, 4)["density"]) == 2, "k 4 picks the d 2 alternate")
+	runner.check(int(SpriteStrip.pick_variant(alt, 6)["density"]) == 3, "k 6 keeps the d 3 render")
+	runner.check(int(SpriteStrip.pick_variant(alt, 7).get("density", 0)) == 3, "k 7 (no divisor) keeps the main render")
 	parent.queue_free()
 
 
