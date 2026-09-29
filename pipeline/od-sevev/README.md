@@ -8,7 +8,7 @@ python3 pipeline/od-sevev/build.py --no-render # import the approved showcase ou
 python3 pipeline/od-sevev/build.py --godot     # + Godot import, web .pck bytes, the TextServer font specimen
 ```
 
-It needs Python 3 with Pillow and numpy. `--godot` also needs Godot 4.7.2 through
+It needs Python 3.11+ with Pillow and numpy (`python3 -m pip install --user pillow numpy`). `--godot` also needs Godot 4.7.2 through
 `tools/godot.sh`; it opens a small window for about 2 s to render the specimen.
 
 ## Stages
@@ -28,6 +28,9 @@ pipeline/od-sevev/font/sevev9.glyphs ──────────────�
 
 **The approved look is locked.** A full render must reproduce the approved `out/` pixel for pixel.
 - **2026-09-28:** 0 changed files across 16 characters and the four stages.
+- **2026-09-29 (the 3× cast, Bar's decision):** `out/` was re-rendered at density 3 and is the
+  new approved look; a full render then gives 0 changed across 25 characters, 5 sources, props
+  and stages. The shop icons and silhouettes still reproduce the 1× approved pixels exactly.
 - **If a render drifts:** the build fails. `--allow-drift` exists only for a change Bar approved.
 
 **It fails loudly on:**

@@ -17,7 +17,7 @@ the same rendering style.
 | status | slug | for (file/feature) | what (Hebrew prompt, or English description) | size in game (art px) | requested by |
 |---|---|---|---|---|---|
 | generating | karhi | coalition chat, partner card | שלמה קרעי: זקן כהה, כיפה סרוגה, חליפה כהה; מכוון שלט טלוויזיה גדול | 96 tall | orchestrator |
-| generating | may-golan | coalition chat, partner card | מאי גולן: שיער כהה ארוך, ז'קט מחויט; קלסר, שתי רוחות רפאים חמודות לידה | 96 tall | orchestrator |
+| done (opt1 picked by Bar 2026-09-29; rendered d=3, `chars["may-golan"]`, alias `maygolan`) | may-golan | coalition chat, partner card | מאי גולן: שיער כהה ארוך, ז'קט מחויט; קלסר, שתי רוחות רפאים חמודות לידה | 96 tall | orchestrator |
 | generating | distel | coalition chat, partner card | גלית דיסטל-אטבריאן: שיער בהיר ארוך; לוחצת על כפתור השתק גדול | 96 tall | orchestrator |
 | generating | lapid, eisenkot, gantz, liberman, golan, abbas | opposition cards, leaked chat | see creative-pack cast list | 96 tall | orchestrator |
 | generating | herzog, trump | pardon desk, Washington era | see creative-pack cast list | 96 tall | orchestrator |
@@ -70,4 +70,5 @@ default keys are `critter_<id>`, `icon_<id>`, `sil_<id>`. Slots and set pieces a
 ### Orchestrator log
 - **Done and rendered (19 cast):** bibi, sara, bennett, ben-gvir, smotrich, deri, goldknopf, gafni, levin, regev, gotliv, amsalem, lapid, eisenkot, gantz, liberman, golan, abbas, distel (v2, separate chat).
 - **Done in ChatGPT, waiting to download:** karhi (v2), trump, may-golan (v2, waiting for Bar to pick 1 of 3).
+- **2026-09-29 · technical-artist:** May Golan done: Bar picked option 1 (`refs/candidates/may-golan-opt1.png` → `refs/may-golan.png`). Rendered with the 3× cast (idle 20 @ 10, a `hop` react 8 @ 14 with `land: 6`, 32/24-px avatars); the game resolves `may-golan` and `maygolan` (the content's partner id) through `sprites.json.aliases`.
 - **Generating:** herzog, dubi, taxpayer. Next: hitech, vat, cigars, submarine, qatari, poison, checkbook, aide, photobomber-grey/white, dubi-mic.

@@ -46,6 +46,11 @@ CAST = {
                    arm=(40, 215, 235, 640, 200, 650), react='bang', head=(180, 20, 760, 600)),
     'trump': dict(neck=520, waist=1000, eyes=[(428, 250, 26, 12), (563, 290, 26, 12)],
                   arm=(110, 510, 335, 800, 235, 820), react='jab', head=(140, 10, 720, 590)),
+    # May Golan (Bar's pick, opt1, 2026-09-29): two phantom employees float beside her. The cuts sit
+    # below each ghost (left ghost y 150-495, right 575-925) so a breath never tears one in half:
+    # the left ghost rides the head band, the right one the body band.
+    'may-golan': dict(neck=510, waist=945, eyes=[(445, 217, 23, 12), (542, 238, 26, 12)],
+                      arm=None, react='hop', head=(330, 40, 710, 420)),
 }
 
 # ---------------------------------------------------------------- Dubi (motion/state-graph-dubi.md §1)
