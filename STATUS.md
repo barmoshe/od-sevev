@@ -84,6 +84,7 @@ Cross-slice requests go under **Requests** with the owner named.
     - `tools/test.sh`: 136/0. One run had a 2.5 s timing flake in `test_dubi_speaks…` under load; it passed on rerun.
   - **Mock-ups:** 12 WAVs in `output/tmp/od-sevev-audio/`.
   - **Files:** `audio/od/{music,cues}.json`, `audio/od/cue-spec.md` (the v1.2 banner and §6), `audio/od/legacy/*.v1.1-hijaz.json`, `audio/tools/{compose_od,measure_od}.py`, `tools/gen_od_sevev.gd` (Dubi's degrees now count mode steps), creative-pack `audio/sonic-brief.md` (the v1.2 amendment).
+- 2026-09-29 · game-designer · **sources before ship**: all 13 shipping facts now have URLs (9 verified, 4 corrected: gotliv not formally a defector, brawl on 18 Jan not 19, bibist was a creators' skit Netanyahu posted, cottage source re-dated). Quote Hebrew: Trump (as N12 reported it) and Gotliv verified; the brawl's Netanyahu line and Illouz unverified, both already reported speech. No in-game copy changed. The About page (which renders `facts.json` `text`) now has source links and the corrected texts, and Gotliv's "covert officer" guardrail moved out of the public `text`. 1 objection (brawl `script[6]` → "צאו החוצה ותמשיכו להתווכח שם."). Checked through search results only (the sandbox blocks page fetches), so a human should open each `url` once before ship. Content lint 0 errors, and the URL-needed warnings are gone · `design/facts.json`, `design/facts-verification.md`
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 
