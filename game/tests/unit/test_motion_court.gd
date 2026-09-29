@@ -292,7 +292,15 @@ func test_the_court_window_echo() -> void:
 	runner.check(lo >= CourtEcho.BREATH_LOW - 0.001 and hi <= 1.0 and hi - lo > 0.3, "the open window breathes between 60 %% and 100 %% (%.2f-%.2f)" % [lo, hi])
 	runner.check(max_step < 0.05 and CourtEcho.BREATH_MS >= 1000.0 / 3.0, "a slow ease (≤ 5 %% per frame, %.2f Hz), never a flicker" % (1000.0 / CourtEcho.BREATH_MS))
 	runner.check(CourtEcho.breath("open", 800.0, true) == 1.0 and CourtEcho.breath("boil", 800.0, false) == 1.0, "reduced motion (and every other level): held lit")
-	runner.check(CourtEcho.spot("courthouse").x < 0.0 and CourtEcho.spot("balfour") == Vector2(150, 70), "the courthouse era has its own clock panel: no echo")
+	runner.check(CourtEcho.spot("courthouse").x < 0.0, "the courthouse era has its own clock panel: no echo")
+	# the 2D Artist's spots (kit data, ui.court_window.spots): the whole house at or below art row 110, where the
+	# phones keep the stage art, and inside the 180-column art (sprite 24×22, pivot bottom centre)
+	var kit: Dictionary = SpriteStrip.manifest().get("ui", {}).get("court_window", {}).get("spots", {})
+	for era in ["balfour", "knesset", "washington"]:
+		var sp := CourtEcho.spot(era)
+		runner.check(kit.has(era) and sp == Vector2(float(kit[era][0]), float(kit[era][1])), "%s: the spot is the kit's data (%s)" % [era, sp])
+		runner.check(sp.y - CourtEcho.PIVOT.y >= 110.0 and sp.x - CourtEcho.PIVOT.x >= 0.0 and sp.x - CourtEcho.PIVOT.x + 24.0 <= 180.0,
+			"%s: the house (top row %d) sits at or below art row 110, inside the art" % [era, int(sp.y - CourtEcho.PIVOT.y)])
 
 
 func test_the_echo_on_the_stage() -> void:

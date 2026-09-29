@@ -1164,6 +1164,20 @@
    "notes": "Dust-cloud brawl (brief round 2: Amsalem vs Smotrich, recurring for any pair). 4-frame loop; the cloud sits over the two frozen income rows / the chat line. Sleeves, fists, shoes, a flying page: NO faces, no kippot, no religious markers, no weapons. Suggested 8 fps; timing is the Animator's; reduced motion = frame 0."
   },
   {
+   "id": "brawl_cloud_cue",
+   "group": "events",
+   "file": "out/ui/events/brawl_cloud_cue.png",
+   "w": 104,
+   "h": 20,
+   "frames": 4,
+   "frameW": 26,
+   "pivot": [
+    13,
+    18
+   ],
+   "notes": "The brawl cloud cut for the STAGE CUE (the Animator's ask): brawl_cloud's 4-frame loop redrawn at 26x20 so the cue draws at the stage's own x4 (104x80 logical, the same box as brawl_cloud at x2) and is crisp at every k. Same frames, order and timing as brawl_cloud (8 fps; reduced motion = frame 0); the same choreography of sleeves, fists, shoes, a page and a star at half size. No faces, no markers. brawl_cloud (52x40) stays for the thread's inline cloud at x4."
+  },
+  {
    "id": "chip_court",
    "group": "events",
    "file": "out/ui/events/chip_court.png",
@@ -2711,7 +2725,21 @@
     12,
     21
    ],
-   "notes": "The diegetic echo of suspicion (UX 3.2 #3): a small courthouse in the stage's landmark band whose one window lights at >= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no rim. Suggested spots (art px, pivot): Balfour (150, 70), Knesset (156, 96), Washington (34, 96); the courthouse stage uses its own clock panel instead."
+   "notes": "The diegetic echo of suspicion (UX 3.2 #3): a small courthouse on the stage whose one window lights at >= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no rim. `spots` = the pivot per era in stage-art px (the courthouse stage uses its own clock panel: none). Moved 2026-09-29 (the Animator's ask, mobile-first) from the sky band (Balfour (150, 70), Knesset (156, 96), Washington (34, 96)), which the phones crop under Row A / the toast dock, to the stage's right side, clear of the leader: Balfour behind the wall right of the lamp, Knesset on the lawn at the colonnade's end, Washington in the horizon band right of the mansion. Sprite tops at art rows 146 / 145 / 131, so the house sits unclamped under the toast dock on every stage S >= 552 / 556 / 612 logical px.",
+   "spots": {
+    "balfour": [
+     167,
+     167
+    ],
+    "knesset": [
+     158,
+     166
+    ],
+    "washington": [
+     162,
+     152
+    ]
+   }
   },
   {
    "id": "court_window_glow",
@@ -2729,33 +2757,33 @@
    "id": "lane_balfour",
    "group": "stage",
    "file": "out/ui/stage/lane_balfour.png",
-   "w": 2,
+   "w": 32,
    "h": 28,
-   "notes": "Suitcase-lane floor for the balfour stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
+   "notes": "Suitcase-lane floor for the balfour stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
   },
   {
    "id": "lane_courthouse",
    "group": "stage",
    "file": "out/ui/stage/lane_courthouse.png",
-   "w": 2,
+   "w": 32,
    "h": 28,
-   "notes": "Suitcase-lane floor for the courthouse stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
+   "notes": "Suitcase-lane floor for the courthouse stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
   },
   {
    "id": "lane_knesset",
    "group": "stage",
    "file": "out/ui/stage/lane_knesset.png",
-   "w": 2,
+   "w": 32,
    "h": 28,
-   "notes": "Suitcase-lane floor for the knesset stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
+   "notes": "Suitcase-lane floor for the knesset stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
   },
   {
    "id": "lane_washington",
    "group": "stage",
    "file": "out/ui/stage/lane_washington.png",
-   "w": 2,
+   "w": 32,
    "h": 28,
-   "notes": "Suitcase-lane floor for the washington stage: a 2x28 horizontal-only TILE. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase on an even art column of the stage art, above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Rows 2-27 are the apron colour (= stages[era].padBottom) plus course seams, so the column and the side bands match."
+   "notes": "Suitcase-lane floor for the washington stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> continues the floor below (art row 258 down)."
   },
   {
    "id": "laundry_bag",
@@ -2814,6 +2842,42 @@
    "notes": "Washington era: laundry flying out of the 'מזוודות כביסה' (WaPo 2020, denied). Decorative, no rim. Tumble/drift is the Animator's."
   },
   {
+   "id": "plaza_balfour",
+   "group": "stage",
+   "file": "out/ui/stage/plaza_balfour.png",
+   "w": 128,
+   "h": 96,
+   "notes": "The plaza in front of the balfour stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_balfour) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
+   "artRow": 258
+  },
+  {
+   "id": "plaza_courthouse",
+   "group": "stage",
+   "file": "out/ui/stage/plaza_courthouse.png",
+   "w": 128,
+   "h": 96,
+   "notes": "The plaza in front of the courthouse stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_courthouse) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
+   "artRow": 258
+  },
+  {
+   "id": "plaza_knesset",
+   "group": "stage",
+   "file": "out/ui/stage/plaza_knesset.png",
+   "w": 128,
+   "h": 96,
+   "notes": "The plaza in front of the knesset stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_knesset) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
+   "artRow": 258
+  },
+  {
+   "id": "plaza_washington",
+   "group": "stage",
+   "file": "out/ui/stage/plaza_washington.png",
+   "w": 128,
+   "h": 96,
+   "notes": "The plaza in front of the washington stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_washington) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
+   "artRow": 258
+  },
+  {
    "id": "sweat_drop",
    "group": "stage",
    "file": "out/ui/stage/sweat_drop.png",
@@ -2824,6 +2888,118 @@
     5
    ],
    "notes": "The Magician's sweat drop at suspicion >= 75% (Animator's optional echo). Placement on his temple: the Animator's anchor."
+  },
+  {
+   "id": "wing_balfour_l",
+   "group": "stage",
+   "file": "out/ui/stage/wing_balfour_l.png",
+   "w": 20,
+   "h": 230,
+   "pivot": [
+    20,
+    0
+   ],
+   "notes": "Stage side wing (UX mobile-first A2), left: the balfour stage's art rows 0-229 continued past the 180-column art, a 20x230 horizontal TILE (period 20: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
+   "artRow": 0,
+   "period": 20
+  },
+  {
+   "id": "wing_balfour_r",
+   "group": "stage",
+   "file": "out/ui/stage/wing_balfour_r.png",
+   "w": 20,
+   "h": 230,
+   "pivot": [
+    0,
+    0
+   ],
+   "notes": "Stage side wing (UX mobile-first A2), right: the balfour stage's art rows 0-229 continued past the 180-column art, a 20x230 horizontal TILE (period 20: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
+   "artRow": 0,
+   "period": 20
+  },
+  {
+   "id": "wing_courthouse_l",
+   "group": "stage",
+   "file": "out/ui/stage/wing_courthouse_l.png",
+   "w": 60,
+   "h": 230,
+   "pivot": [
+    60,
+    0
+   ],
+   "notes": "Stage side wing (UX mobile-first A2), left: the courthouse stage's art rows 0-229 continued past the 180-column art, a 60x230 horizontal TILE (period 60: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
+   "artRow": 0,
+   "period": 60
+  },
+  {
+   "id": "wing_courthouse_r",
+   "group": "stage",
+   "file": "out/ui/stage/wing_courthouse_r.png",
+   "w": 60,
+   "h": 230,
+   "pivot": [
+    0,
+    0
+   ],
+   "notes": "Stage side wing (UX mobile-first A2), right: the courthouse stage's art rows 0-229 continued past the 180-column art, a 60x230 horizontal TILE (period 60: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
+   "artRow": 0,
+   "period": 60
+  },
+  {
+   "id": "wing_knesset_l",
+   "group": "stage",
+   "file": "out/ui/stage/wing_knesset_l.png",
+   "w": 22,
+   "h": 230,
+   "pivot": [
+    22,
+    0
+   ],
+   "notes": "Stage side wing (UX mobile-first A2), left: the knesset stage's art rows 0-229 continued past the 180-column art, a 22x230 horizontal TILE (period 22: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
+   "artRow": 0,
+   "period": 22
+  },
+  {
+   "id": "wing_knesset_r",
+   "group": "stage",
+   "file": "out/ui/stage/wing_knesset_r.png",
+   "w": 22,
+   "h": 230,
+   "pivot": [
+    0,
+    0
+   ],
+   "notes": "Stage side wing (UX mobile-first A2), right: the knesset stage's art rows 0-229 continued past the 180-column art, a 22x230 horizontal TILE (period 22: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
+   "artRow": 0,
+   "period": 22
+  },
+  {
+   "id": "wing_washington_l",
+   "group": "stage",
+   "file": "out/ui/stage/wing_washington_l.png",
+   "w": 36,
+   "h": 230,
+   "pivot": [
+    36,
+    0
+   ],
+   "notes": "Stage side wing (UX mobile-first A2), left: the washington stage's art rows 0-229 continued past the 180-column art, a 36x230 horizontal TILE (period 36: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its LAST column abuts stage-art column 0; tile it leftward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
+   "artRow": 0,
+   "period": 36
+  },
+  {
+   "id": "wing_washington_r",
+   "group": "stage",
+   "file": "out/ui/stage/wing_washington_r.png",
+   "w": 36,
+   "h": 230,
+   "pivot": [
+    0,
+    0
+   ],
+   "notes": "Stage side wing (UX mobile-first A2), right: the washington stage's art rows 0-229 continued past the 180-column art, a 36x230 horizontal TILE (period 36: a multiple of the era's own rhythm). Draw at x4 with its top on stage-art row 0; its FIRST column abuts stage-art column 179; tile it rightward (x4, on the art grid) out to the canvas edge. Under the lane (rows 230+), over the sky pads. Seam-exact against the art's edge column and against itself.",
+   "artRow": 0,
+   "period": 36
   },
   {
    "id": "ticker_bar",

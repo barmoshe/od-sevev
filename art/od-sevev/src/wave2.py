@@ -287,6 +287,11 @@ def hand_toast_coin():
 
 
 # ------------------------------------------------------------------ 11. courthouse window overlay
+# the courthouse echo's spot per era (art px, the sprite's pivot = its bottom centre); read by the engine from
+# sprites.json ui.court_window.spots (court_echo.gd), so a move is an art change
+COURT_SPOTS = {"balfour": [167, 167], "knesset": [158, 166], "washington": [162, 152]}
+
+
 def court_window():
     frames = []
     for lit in (0, 1):
@@ -309,10 +314,15 @@ def court_window():
         outline_inplace(L)
         frames.append(L)
     save(strip(frames), "court_window", "stage", frames=2, frame_w=24, pivot=[12, 21],
-         notes="The diegetic echo of suspicion (UX 3.2 #3): a small courthouse in the stage's landmark band whose one window "
-               "lights at >= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no "
-               "rim. Suggested spots (art px, pivot): Balfour (150, 70), Knesset (156, 96), Washington (34, 96); the "
-               "courthouse stage uses its own clock panel instead.")
+         extra={"spots": COURT_SPOTS},
+         notes="The diegetic echo of suspicion (UX 3.2 #3): a small courthouse on the stage whose one window lights at "
+               ">= 75%. Frame 0 dark, frame 1 lit (orange + gold_hi core: v1's lamp rule). Decorative class: no rim. "
+               "`spots` = the pivot per era in stage-art px (the courthouse stage uses its own clock panel: none). Moved "
+               "2026-09-29 (the Animator's ask, mobile-first) from the sky band (Balfour (150, 70), Knesset (156, 96), "
+               "Washington (34, 96)), which the phones crop under Row A / the toast dock, to the stage's right side, clear "
+               "of the leader: Balfour behind the wall right of the lamp, Knesset on the lawn at the colonnade's end, "
+               "Washington in the horizon band right of the mansion. Sprite tops at art rows 146 / 145 / 131, so the "
+               "house sits unclamped under the toast dock on every stage S >= 552 / 556 / 612 logical px.")
     g = Layer(20, 20)
     for y in range(20):
         for x in range(20):

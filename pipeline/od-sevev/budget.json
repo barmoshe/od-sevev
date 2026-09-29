@@ -55,19 +55,36 @@
   "sprites/avatar_may-golan.png": 1953,
   "sprites/avatar_nophoto.png": 442,
   "sprites/avatar_pick_ben-gvir.png": 2094,
+  "sprites/avatar_pick_ben-gvir_d2.png": 6385,
+  "sprites/avatar_pick_ben-gvir_d3.png": 12507,
   "sprites/avatar_pick_bennett.png": 1821,
+  "sprites/avatar_pick_bennett_d2.png": 4949,
+  "sprites/avatar_pick_bennett_d3.png": 9645,
   "sprites/avatar_pick_bibi.png": 2048,
+  "sprites/avatar_pick_bibi_d2.png": 5917,
+  "sprites/avatar_pick_bibi_d3.png": 10889,
   "sprites/avatar_pick_deri.png": 1770,
+  "sprites/avatar_pick_deri_d2.png": 5041,
+  "sprites/avatar_pick_deri_d3.png": 9745,
   "sprites/avatar_pick_eisenkot.png": 1538,
+  "sprites/avatar_pick_eisenkot_d2.png": 4502,
+  "sprites/avatar_pick_eisenkot_d3.png": 8253,
   "sprites/avatar_pick_golan.png": 1617,
+  "sprites/avatar_pick_golan_d2.png": 4557,
+  "sprites/avatar_pick_golan_d3.png": 8378,
   "sprites/avatar_pick_liberman.png": 1619,
+  "sprites/avatar_pick_liberman_d2.png": 4477,
+  "sprites/avatar_pick_liberman_d3.png": 8399,
   "sprites/avatar_pick_smotrich.png": 1564,
+  "sprites/avatar_pick_smotrich_d2.png": 4710,
+  "sprites/avatar_pick_smotrich_d3.png": 9186,
   "sprites/avatar_regev.png": 2060,
   "sprites/avatar_sara.png": 2073,
   "sprites/avatar_smotrich.png": 1560,
   "sprites/avatar_trump.png": 1703,
   "sprites/badge_count.png": 152,
   "sprites/brawl_cloud.png": 2133,
+  "sprites/brawl_cloud_cue.png": 1174,
   "sprites/button_danger_default.png": 152,
   "sprites/button_danger_disabled.png": 123,
   "sprites/button_danger_pressed.png": 128,
@@ -253,10 +270,10 @@
   "sprites/icon_sound_off.png": 190,
   "sprites/icon_sound_on.png": 191,
   "sprites/icon_trash.png": 134,
-  "sprites/lane_balfour.png": 131,
-  "sprites/lane_courthouse.png": 120,
-  "sprites/lane_knesset.png": 132,
-  "sprites/lane_washington.png": 116,
+  "sprites/lane_balfour.png": 311,
+  "sprites/lane_courthouse.png": 296,
+  "sprites/lane_knesset.png": 287,
+  "sprites/lane_washington.png": 273,
   "sprites/laundry_bag.png": 251,
   "sprites/laundry_shirt.png": 172,
   "sprites/laundry_shorts.png": 123,
@@ -274,6 +291,10 @@
   "sprites/pick_tile_pressed.png": 168,
   "sprites/pick_tile_selected.png": 216,
   "sprites/plate_silhouette.png": 223,
+  "sprites/plaza_balfour.png": 1119,
+  "sprites/plaza_courthouse.png": 1049,
+  "sprites/plaza_knesset.png": 1209,
+  "sprites/plaza_washington.png": 1446,
   "sprites/prop_bill.png": 140,
   "sprites/prop_calculator.png": 366,
   "sprites/prop_chair.png": 478,
@@ -457,6 +478,14 @@
   "sprites/trophy_suitcase_locked.png": 189,
   "sprites/trophy_wand.png": 175,
   "sprites/trophy_wand_locked.png": 171,
+  "sprites/wing_balfour_l.png": 567,
+  "sprites/wing_balfour_r.png": 533,
+  "sprites/wing_courthouse_l.png": 590,
+  "sprites/wing_courthouse_r.png": 583,
+  "sprites/wing_knesset_l.png": 549,
+  "sprites/wing_knesset_r.png": 558,
+  "sprites/wing_washington_l.png": 712,
+  "sprites/wing_washington_r.png": 679,
   "sprites/wordmark.png": 1072,
   "sprites/wordmark_mono.png": 440,
   "sprites/wordmark_norim.png": 961,
@@ -468,7 +497,7 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 168730564,
+ "vramBytes": 169628836,
  "vramByDensity": {
   "bibi": {
    "3": 9697848,
@@ -588,13 +617,13 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 6639608,
-  "3": 12302456,
-  "4": 6639608,
-  "6": 12302456,
-  "7": 12302456,
-  "8": 6639608,
-  "9": 12302456
+  "2": 7537880,
+  "3": 13200728,
+  "4": 7537880,
+  "6": 13200728,
+  "7": 13200728,
+  "8": 7537880,
+  "9": 13200728
  },
  "vramSourcesByK": {
   "2": 259200,
@@ -868,7 +897,7 @@
    "golan": 2803640
   }
  },
- "vramTypical": 12302456,
+ "vramTypical": 13200728,
  "vramCastAll": 165175556,
  "vramPerPartner": {
   "sara": 4144800,
@@ -1174,9 +1203,29 @@
    "imported": 736
   },
   {
+   "file": "assets/sprites/avatar_pick_ben-gvir_d2.png",
+   "source": 6385,
+   "imported": 1958
+  },
+  {
+   "file": "assets/sprites/avatar_pick_ben-gvir_d3.png",
+   "source": 12507,
+   "imported": 3982
+  },
+  {
    "file": "assets/sprites/avatar_pick_bennett.png",
    "source": 1821,
    "imported": 770
+  },
+  {
+   "file": "assets/sprites/avatar_pick_bennett_d2.png",
+   "source": 4949,
+   "imported": 1808
+  },
+  {
+   "file": "assets/sprites/avatar_pick_bennett_d3.png",
+   "source": 9645,
+   "imported": 3472
   },
   {
    "file": "assets/sprites/avatar_pick_bibi.png",
@@ -1184,9 +1233,29 @@
    "imported": 720
   },
   {
+   "file": "assets/sprites/avatar_pick_bibi_d2.png",
+   "source": 5917,
+   "imported": 1874
+  },
+  {
+   "file": "assets/sprites/avatar_pick_bibi_d3.png",
+   "source": 10889,
+   "imported": 3554
+  },
+  {
    "file": "assets/sprites/avatar_pick_deri.png",
    "source": 1770,
    "imported": 662
+  },
+  {
+   "file": "assets/sprites/avatar_pick_deri_d2.png",
+   "source": 5041,
+   "imported": 1680
+  },
+  {
+   "file": "assets/sprites/avatar_pick_deri_d3.png",
+   "source": 9745,
+   "imported": 3264
   },
   {
    "file": "assets/sprites/avatar_pick_eisenkot.png",
@@ -1194,9 +1263,29 @@
    "imported": 580
   },
   {
+   "file": "assets/sprites/avatar_pick_eisenkot_d2.png",
+   "source": 4502,
+   "imported": 1422
+  },
+  {
+   "file": "assets/sprites/avatar_pick_eisenkot_d3.png",
+   "source": 8253,
+   "imported": 2646
+  },
+  {
    "file": "assets/sprites/avatar_pick_golan.png",
    "source": 1617,
    "imported": 606
+  },
+  {
+   "file": "assets/sprites/avatar_pick_golan_d2.png",
+   "source": 4557,
+   "imported": 1512
+  },
+  {
+   "file": "assets/sprites/avatar_pick_golan_d3.png",
+   "source": 8378,
+   "imported": 2770
   },
   {
    "file": "assets/sprites/avatar_pick_liberman.png",
@@ -1204,9 +1293,29 @@
    "imported": 614
   },
   {
+   "file": "assets/sprites/avatar_pick_liberman_d2.png",
+   "source": 4477,
+   "imported": 1480
+  },
+  {
+   "file": "assets/sprites/avatar_pick_liberman_d3.png",
+   "source": 8399,
+   "imported": 2760
+  },
+  {
    "file": "assets/sprites/avatar_pick_smotrich.png",
    "source": 1564,
    "imported": 600
+  },
+  {
+   "file": "assets/sprites/avatar_pick_smotrich_d2.png",
+   "source": 4710,
+   "imported": 1546
+  },
+  {
+   "file": "assets/sprites/avatar_pick_smotrich_d3.png",
+   "source": 9186,
+   "imported": 2956
   },
   {
    "file": "assets/sprites/avatar_regev.png",
@@ -1237,6 +1346,11 @@
    "file": "assets/sprites/brawl_cloud.png",
    "source": 2133,
    "imported": 1428
+  },
+  {
+   "file": "assets/sprites/brawl_cloud_cue.png",
+   "source": 1174,
+   "imported": 676
   },
   {
    "file": "assets/sprites/button_danger_default.png",
@@ -2165,23 +2279,23 @@
   },
   {
    "file": "assets/sprites/lane_balfour.png",
-   "source": 131,
-   "imported": 128
+   "source": 311,
+   "imported": 194
   },
   {
    "file": "assets/sprites/lane_courthouse.png",
-   "source": 120,
-   "imported": 124
+   "source": 296,
+   "imported": 192
   },
   {
    "file": "assets/sprites/lane_knesset.png",
-   "source": 132,
-   "imported": 130
+   "source": 287,
+   "imported": 192
   },
   {
    "file": "assets/sprites/lane_washington.png",
-   "source": 116,
-   "imported": 106
+   "source": 273,
+   "imported": 190
   },
   {
    "file": "assets/sprites/laundry_bag.png",
@@ -2267,6 +2381,26 @@
    "file": "assets/sprites/plate_silhouette.png",
    "source": 223,
    "imported": 190
+  },
+  {
+   "file": "assets/sprites/plaza_balfour.png",
+   "source": 1119,
+   "imported": 512
+  },
+  {
+   "file": "assets/sprites/plaza_courthouse.png",
+   "source": 1049,
+   "imported": 502
+  },
+  {
+   "file": "assets/sprites/plaza_knesset.png",
+   "source": 1209,
+   "imported": 570
+  },
+  {
+   "file": "assets/sprites/plaza_washington.png",
+   "source": 1446,
+   "imported": 726
   },
   {
    "file": "assets/sprites/prop_bill.png",
@@ -3184,6 +3318,46 @@
    "imported": 168
   },
   {
+   "file": "assets/sprites/wing_balfour_l.png",
+   "source": 567,
+   "imported": 320
+  },
+  {
+   "file": "assets/sprites/wing_balfour_r.png",
+   "source": 533,
+   "imported": 302
+  },
+  {
+   "file": "assets/sprites/wing_courthouse_l.png",
+   "source": 590,
+   "imported": 224
+  },
+  {
+   "file": "assets/sprites/wing_courthouse_r.png",
+   "source": 583,
+   "imported": 220
+  },
+  {
+   "file": "assets/sprites/wing_knesset_l.png",
+   "source": 549,
+   "imported": 296
+  },
+  {
+   "file": "assets/sprites/wing_knesset_r.png",
+   "source": 558,
+   "imported": 300
+  },
+  {
+   "file": "assets/sprites/wing_washington_l.png",
+   "source": 712,
+   "imported": 300
+  },
+  {
+   "file": "assets/sprites/wing_washington_r.png",
+   "source": 679,
+   "imported": 292
+  },
+  {
    "file": "assets/sprites/wordmark.png",
    "source": 1072,
    "imported": 710
@@ -3237,7 +3411,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 5293885,
+ "pckBytes": 5338089,
  "pckByAsset": {
   "bibi": {
    "3": 193236,
@@ -3480,5 +3654,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 15509805
+ "sourceTotal": 15638781
 }

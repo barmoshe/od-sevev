@@ -619,7 +619,8 @@ func _relayout() -> void:
 	var gy := _stage_y + L.stage_bottom() - 64.0
 	_title_ground.position = Vector2(0, gy)
 	_title_ground.size = Vector2(ceilf(W / 64.0) + 1.0, ceilf((_vs.y - gy) / 64.0) + 1.0) * 16.0
-	var fy := _stage_y + L.stage_bottom()
+	# the flat floor starts where the diorama's own floor art (the 2D plaza, mobile-first A1) ends
+	var fy := _stage_y + L.stage_bottom() + diorama.floor_reach()
 	_title_floor.position = Vector2(0, fy)
 	_title_floor.size = Vector2(W, maxf(0.0, _vs.y - fy))
 	_title_floor.color = diorama.pad_bottom
