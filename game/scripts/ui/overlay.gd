@@ -40,7 +40,7 @@ func _init() -> void:
 func setup(host_: Node, mgr_: OverlayManager) -> void:
 	host = host_
 	mgr = mgr_
-	scrim = Ui.rect(self, Rect2(-4000, -4000, 8720, 9280), Art.theme["scrim"], 0.0)
+	scrim = Ui.fade_rect(self, Rect2(-4000, -4000, 8720, 9280), Art.theme["scrim"])
 	add_child(panel)
 
 

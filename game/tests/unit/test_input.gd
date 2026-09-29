@@ -120,6 +120,24 @@ func test_keyboard_opens_evolution_and_back_closes() -> void:
 	runner.check(not m.overlays.has_id("EVOLUTION") or m.overlays.top().closing, "the back button closes it")
 
 
+func test_modal_scrim_is_visible_once_open() -> void:
+	await _boot()
+	_touch(_stage_pt(_hat()))
+	Economy.add_bananas(m.state, 2_000_000.0)
+	for i in 3:
+		await tree.process_frame
+	_key(KEY_E)
+	var o: Overlay = m.overlays.top()
+	runner.check(o != null and o.id == "EVOLUTION", "E opens a modal")
+	if o == null:
+		return
+	o.tick(float(Tune.MC["modalEnterMs"]) + 16.0)
+	var seen := o.scrim.color.a * o.scrim.modulate.a
+	var want := float(Tune.MC["backdropAlpha"])
+	# colour alpha multiplies modulate alpha: a scrim built with colour alpha 0 never shows
+	runner.check(is_equal_approx(seen, want), "the scrim dims the game at backdropAlpha once open (drawn alpha %.2f, want %.2f)" % [seen, want])
+
+
 func test_hold_to_buy_stops_behind_a_modal() -> void:
 	await _boot()
 	_touch(_stage_pt(_hat()))

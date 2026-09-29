@@ -243,7 +243,7 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 	var pill1 := PxText.make(content, Vector2(PILL_RECT.position.x, float(R["pillLine1Y"])), "", L.TEXT, "plain", "w")
 	var pill2 := PxText.make(content, Vector2(PILL_RECT.position.x, float(R["pillLine2Y"])), "", L.TEXT, "plain", "w")
 	var flash := Ui.rect(c, Rect2(lx, 0, lw, row_h), th["row"]["affordFlash"], 0.0)
-	var dim := Ui.rect(c, Rect2(lx, 0, lw, row_h), th["scrim"], 0.0)
+	var dim := Ui.fade_rect(c, Rect2(lx, 0, lw, row_h), th["scrim"])
 	var glint := Ui.rect(c, Rect2(lx, 4, 8, row_h - 8), th["row"]["affordFlash"], 0.0)
 	# S08's card-only bars (Spins.card bars): one split track under line 2, "public" from the right
 	var sb: Rect2 = SPIN_BARS

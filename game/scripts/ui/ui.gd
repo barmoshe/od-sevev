@@ -78,6 +78,15 @@ static func rect(parent: Node, r: Rect2, c: Variant, alpha: float = 1.0) -> Colo
 	return cr
 
 
+## A solid rect that starts hidden and is faded through `modulate.a` (scrims, dims, flashes).
+## The colour stays opaque: `rect(..., 0.0)` bakes alpha 0 into the colour, and colour alpha
+## multiplies modulate alpha, so a fade on such a rect never shows anything.
+static func fade_rect(parent: Node, r: Rect2, c: Variant) -> ColorRect:
+	var cr := rect(parent, r, c, 1.0)
+	cr.modulate.a = 0.0
+	return cr
+
+
 static func in_rect(r: Rect2, p: Vector2) -> bool:
 	return p.x >= r.position.x and p.x < r.end.x and p.y >= r.position.y and p.y < r.end.y
 

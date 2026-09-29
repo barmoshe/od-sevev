@@ -80,7 +80,7 @@ func _ready() -> void:
 	_chip.append(date)
 	for n in _chip:
 		n.modulate.a = 0.6
-	_flash = Ui.rect(self, panel, K["flash"], 0.0)
+	_flash = Ui.fade_rect(self, panel, K["flash"])
 	cta = PxButton.make(self, Rect2(8, 4, 704, 76), {"hit": L.TICKER["hit"], "label": Strings.s("HUD_CTA_ELECTION"), "label_scale": 5, "kind": "kit_gold"})
 	cta.set_visible(false)
 	var hp := float(Tune.MC["tickerHopPx"])
