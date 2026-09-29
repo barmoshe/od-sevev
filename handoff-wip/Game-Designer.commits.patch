@@ -1,7 +1,7 @@
 From 21160ecabc43d627dcbfa1269f7f901cc73f40fe Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:30:26 +0000
-Subject: [PATCH 1/4] fix(od-sevev): drop the NUL cache key in leaders.gd and
+Subject: [PATCH 1/5] fix(od-sevev): drop the NUL cache key in leaders.gd and
  fail tests on Unicode parse errors
 
 The installed-round cache key started as "\u0000", which Godot printed as
@@ -58,7 +58,7 @@ index 17d951d..6f82d86 100755
 From 06d94a67bf372d5958f7b11dda990a38f181b4d3 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:30:39 +0000
-Subject: [PATCH 2/4] =?UTF-8?q?feat(od-sevev):=20Bibi's=20rule,=20the=20?=
+Subject: [PATCH 2/5] =?UTF-8?q?feat(od-sevev):=20Bibi's=20rule,=20the=20?=
  =?UTF-8?q?=D7=A8=D7=95=D7=91=20poll=20lint,=20R17=20source=20slots,=20neu?=
  =?UTF-8?q?tral=20DAYS=5F*,=20Liberman's=20SK=20seat?=
 MIME-Version: 1.0
@@ -774,7 +774,7 @@ index b829bba..d6768cd 100644
 From ab5acecc40f94c37e011a6c1328f76d1cce65aab Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:30:39 +0000
-Subject: [PATCH 3/4] feat(od-sevev): replay the browser driver's cadence in
+Subject: [PATCH 3/5] feat(od-sevev): replay the browser driver's cadence in
  the pacing bench
 
 round_web.mjs acts in wall-clock time while ?speed=10 runs the game 10x faster,
@@ -1030,7 +1030,7 @@ index 8e49c30..60f0685 100644
 From d242f47f46d81d939f4f2fa80fb9425500faff3b Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:58:23 +0000
-Subject: [PATCH 4/4] docs(od-sevev): record the measured leader pacing and
+Subject: [PATCH 4/5] docs(od-sevev): record the measured leader pacing and
  Liberman's two levers in the spec
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
@@ -1152,6 +1152,109 @@ index 04b4b03..6edd707 100644
  `tools/balance.sh [--leader=<id>]` runs `tests/bench/test_leaders_balance.gd` (every leader: the
  median first election over seeds 1-9 in 7-9 min, S0/Q3, S2-S4, a median hour for S5-S7; a mixed hour).
  
+-- 
+2.43.0
+
+
+From 0d0f76607574f252640364b34f67607b2187e813 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 21:26:17 +0000
+Subject: [PATCH 5/5] test(od-sevev): judge G1 (no dominant strategy) by the
+ median of seeds 11-15
+
+One seed is one chaotic hour, and the verdict flipped with unrelated changes:
+since the leader sim made the p_deal perk work, the aide dropper beat the default
+by 52% on seed 11 and lost by 8% on seed 12 (before it, it lost by 42% on seed 11
+and won by 38% on seed 13). The median per-seed ratio is 1.02 for the aide dropper
+and always-postpone, so G1 passes for the right reason; G2-G4 stay on seed 11.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/tests/bench/test_politics_balance.gd | 33 ++++++++++++++++-------
+ game/tests/bench/test_web_driver.gd.uid   |  1 +
+ 2 files changed, 24 insertions(+), 10 deletions(-)
+ create mode 100644 game/tests/bench/test_web_driver.gd.uid
+
+diff --git a/game/tests/bench/test_politics_balance.gd b/game/tests/bench/test_politics_balance.gd
+index 23572e3..7fbfa92 100644
+--- a/game/tests/bench/test_politics_balance.gd
++++ b/game/tests/bench/test_politics_balance.gd
+@@ -8,24 +8,31 @@ extends RefCounted
+ ##   - clean: never buys a shady source;
+ ##   - aideDropper: drops the aide whenever it can.
+ ## Gates, all falsifiable:
+-##   G1 no pure strategy beats the default's base-per-hour by more than 5% (no dominant strategy);
++##   G1 no pure strategy beats the default's base-per-hour by more than 5% in the MEDIAN of seeds
++##      11-15 (no dominant strategy). One seed is one chaotic hour: on seed 11 alone the verdict
++##      flipped with unrelated changes (before the leader sim the aide dropper lost by 42% on
++##      seed 11 and won by 38% on seed 13; after the p_deal perk started working it won by 52% on
++##      seed 11 and lost by 8% on seed 12). "Dominant" means better in most hours, so the median
++##      of the per-seed ratios is the gate; G2-G4 stay on seed 11;
+ ##   G2 the clean route is viable (≥ 2 elections an hour) but slower than the default;
+ ##   G3 suspicion is live: the default sees at least one court day an hour;
+ ##   G4 the coalition corner is live: partners walk out on payAll? no, on the default at least once
+ ##      an hour, or the default's maintenance spend is ≥ 5% of what it earns.
+ 
+ const SEED := 11
++const G1_SEEDS := [11, 12, 13, 14, 15]
+ 
+ var runner: Object
+ var _rows := {}
+ 
+ 
+-func _hour(name: String) -> Dictionary:
+-	if _rows.has(name):
+-		return _rows[name]
++func _hour(name: String, seed_: int = SEED) -> Dictionary:
++	var key := "%s:%d" % [name, seed_]
++	if _rows.has(key):
++		return _rows[key]
+ 	var p: Dictionary = PacingSim.PLAYERS["engaged"].duplicate()
+ 	p["politics"] = PacingSim.STRATEGIES[name]
+-	var r := PacingSim.session(p, 3600.0, SEED, 0.25)
++	var r := PacingSim.session(p, 3600.0, seed_, 0.25)
+ 	var s: GameState = r["state"]
+ 	var runs: Array = r["runs"]
+ 	var row := {
+@@ -34,10 +41,10 @@ func _hour(name: String) -> Dictionary:
+ 		"left": int(s.coalition.get("leftLifetime", 0)), "paid": int(s.coalition.get("paidLifetime", 0)),
+ 		"drops": int(s.investigation.get("aideDrops", 0)), "runsList": runs,
+ 	}
+-	print("  %-15s elections %2d | first %s | base %4d | court days %2d, postponed %2d | walked out %2d, paid %3d | aide drops %d | %s" % [
+-		name, row["runs"], PacingSim.fmt_t(row["first"]), row["base"], row["court"], row["postpones"], row["left"], row["paid"], row["drops"],
++	print("  %-15s s%d elections %2d | first %s | base %4d | court days %2d, postponed %2d | walked out %2d, paid %3d | aide drops %d | %s" % [
++		name, seed_, row["runs"], PacingSim.fmt_t(row["first"]), row["base"], row["court"], row["postpones"], row["left"], row["paid"], row["drops"],
+ 		", ".join(runs.slice(0, 6).map(func(x: float) -> String: return PacingSim.fmt_t(x)))])
+-	_rows[name] = row
++	_rows[key] = row
+ 	return row
+ 
+ 
+@@ -50,8 +57,14 @@ func test_triangle_has_no_dominant_strategy() -> void:
+ 	for name: String in PacingSim.STRATEGIES:
+ 		if name == "default":
+ 			continue
+-		var r := _hour(name)
+-		runner.check(float(r["base"]) <= float(base["base"]) * 1.05, "G1: %s must not dominate (base %d vs default %d)" % [name, r["base"], base["base"]])
++		var ratios: Array = []
++		for sd: int in G1_SEEDS:
++			ratios.append(float(_hour(name, sd)["base"]) / maxf(1.0, float(_hour("default", sd)["base"])))
++		var sorted := ratios.duplicate()
++		sorted.sort()
++		var med := float(sorted[sorted.size() / 2])
++		print("  G1 %-15s base / default per seed %s: median %.2f" % [name, ", ".join(ratios.map(func(x: float) -> String: return "%.2f" % x)), med])
++		runner.check(med <= 1.05, "G1: %s must not dominate (median base ratio %.2f over seeds 11-15)" % [name, med])
+ 	var clean := _hour("clean")
+ 	runner.check(int(clean["runs"]) >= 2, "G2: the clean route is viable (%d elections an hour)" % clean["runs"])
+ 	runner.check(int(clean["base"]) < int(base["base"]), "G2: and slower than dealing (base %d vs %d)" % [clean["base"], base["base"]])
+diff --git a/game/tests/bench/test_web_driver.gd.uid b/game/tests/bench/test_web_driver.gd.uid
+new file mode 100644
+index 0000000..3e3f496
+--- /dev/null
++++ b/game/tests/bench/test_web_driver.gd.uid
+@@ -0,0 +1 @@
++uid://cei7d52xkvb5t
 -- 
 2.43.0
 

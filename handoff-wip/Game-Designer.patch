@@ -1,81 +1,129 @@
 # binary files changed (not carried):
-diff --git a/game/tests/bench/test_politics_balance.gd b/game/tests/bench/test_politics_balance.gd
-index 23572e3..7fbfa92 100644
---- a/game/tests/bench/test_politics_balance.gd
-+++ b/game/tests/bench/test_politics_balance.gd
-@@ -8,24 +8,31 @@ extends RefCounted
- ##   - clean: never buys a shady source;
- ##   - aideDropper: drops the aide whenever it can.
- ## Gates, all falsifiable:
--##   G1 no pure strategy beats the default's base-per-hour by more than 5% (no dominant strategy);
-+##   G1 no pure strategy beats the default's base-per-hour by more than 5% in the MEDIAN of seeds
-+##      11-15 (no dominant strategy). One seed is one chaotic hour: on seed 11 alone the verdict
-+##      flipped with unrelated changes (before the leader sim the aide dropper lost by 42% on
-+##      seed 11 and won by 38% on seed 13; after the p_deal perk started working it won by 52% on
-+##      seed 11 and lost by 8% on seed 12). "Dominant" means better in most hours, so the median
-+##      of the per-seed ratios is the gate; G2-G4 stay on seed 11;
- ##   G2 the clean route is viable (≥ 2 elections an hour) but slower than the default;
- ##   G3 suspicion is live: the default sees at least one court day an hour;
- ##   G4 the coalition corner is live: partners walk out on payAll? no, on the default at least once
- ##      an hour, or the default's maintenance spend is ≥ 5% of what it earns.
+diff --git a/design/content.json b/design/content.json
+index 97b8a7a..4d98faa 100644
+--- a/design/content.json
++++ b/design/content.json
+@@ -197,8 +197,10 @@
+  "producerReveal": {
+   "revealAtRunBananasFracOfBaseCost": 0.5,
+   "showNextAsSilhouette": true,
++  "fillSilhouettes": true,
+   "silhouetteName": "מקור עלום",
+-  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible."
++  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
++  "_fillRule": "UX mobile-first-layout §5.4 / §10 G1 (game-designer 2026-09-29): after the first reveal, every source not yet revealed and past the silhouette draws as a dim priceless row ('מקור עלום', no price, no pill, not a target), so the pane is never shorter than its content early on. Economy.producer_rows(s).fill lists them in tier order; false = today's single silhouette."
+  },
+  "upgrades": [
+   {
+@@ -6426,7 +6428,7 @@
+    "art": "liberman",
+    "avatar": "liberman_avatar",
+    "pick": {
+-    "blurb": "לא יושב כמעט עם אף אחד. צריך 61 בכל זאת.",
++    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
+     "line": "לא יושב! לא יושב!",
+     "src": [
+      "liberman-wont-sit"
+diff --git a/design/sim/content-lint.mjs b/design/sim/content-lint.mjs
+index 7733a7b..0218422 100644
+--- a/design/sim/content-lint.mjs
++++ b/design/sim/content-lint.mjs
+@@ -345,6 +345,8 @@ if (C.leaderSelect || C.leaders) {
+     if (SPR && !charOf(L.art)) err(P, `art ${L.art} is not in sprites.json chars`);
+     if (!ready) { if (L.status !== 'backlog') warn(P, 'not contentReady and not marked backlog'); continue; }
+     for (const k of ['blurb', 'line']) if (!hebStr(L.pick?.[k])) err(P, `pick.${k} missing`);
++    // The picker shows no numbers at all (spec §3.2, L9: safe in the blackout): a tile's blurb and line carry no digit.
++    for (const k of ['blurb', 'line']) if (/\d/.test(L.pick?.[k] || '')) err(`${P}.pick.${k}`, `a number on the picker (spec §3.2): ${L.pick[k]}`);
+     // Every leader, the default included, shows one signature rule on the picker's long-press and in T4.
+     for (const k of ['name', 'text']) if (!hebStr(L.rule?.[k])) err(`${P}.rule`, `${k} missing (the picker and T4 show every leader's rule, Bibi's too)`);
+     const K = L.kit || {};
+diff --git a/game/data/content.json b/game/data/content.json
+index 97b8a7a..4d98faa 100644
+--- a/game/data/content.json
++++ b/game/data/content.json
+@@ -197,8 +197,10 @@
+  "producerReveal": {
+   "revealAtRunBananasFracOfBaseCost": 0.5,
+   "showNextAsSilhouette": true,
++  "fillSilhouettes": true,
+   "silhouetteName": "מקור עלום",
+-  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible."
++  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
++  "_fillRule": "UX mobile-first-layout §5.4 / §10 G1 (game-designer 2026-09-29): after the first reveal, every source not yet revealed and past the silhouette draws as a dim priceless row ('מקור עלום', no price, no pill, not a target), so the pane is never shorter than its content early on. Economy.producer_rows(s).fill lists them in tier order; false = today's single silhouette."
+  },
+  "upgrades": [
+   {
+@@ -6426,7 +6428,7 @@
+    "art": "liberman",
+    "avatar": "liberman_avatar",
+    "pick": {
+-    "blurb": "לא יושב כמעט עם אף אחד. צריך 61 בכל זאת.",
++    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
+     "line": "לא יושב! לא יושב!",
+     "src": [
+      "liberman-wont-sit"
+diff --git a/game/scripts/sim/economy.gd b/game/scripts/sim/economy.gd
+index 6a9ce1f..06719d6 100644
+--- a/game/scripts/sim/economy.gd
++++ b/game/scripts/sim/economy.gd
+@@ -392,17 +392,27 @@ static func is_revealed(s: GameState, id: String) -> bool:
+ 	return s.owned_of(id) > 0 or s.run_bananas >= frac * float(p["baseCost"])
  
- const SEED := 11
-+const G1_SEEDS := [11, 12, 13, 14, 15]
  
- var runner: Object
- var _rows := {}
- 
- 
--func _hour(name: String) -> Dictionary:
--	if _rows.has(name):
--		return _rows[name]
-+func _hour(name: String, seed_: int = SEED) -> Dictionary:
-+	var key := "%s:%d" % [name, seed_]
-+	if _rows.has(key):
-+		return _rows[key]
- 	var p: Dictionary = PacingSim.PLAYERS["engaged"].duplicate()
- 	p["politics"] = PacingSim.STRATEGIES[name]
--	var r := PacingSim.session(p, 3600.0, SEED, 0.25)
-+	var r := PacingSim.session(p, 3600.0, seed_, 0.25)
- 	var s: GameState = r["state"]
- 	var runs: Array = r["runs"]
- 	var row := {
-@@ -34,10 +41,10 @@ func _hour(name: String) -> Dictionary:
- 		"left": int(s.coalition.get("leftLifetime", 0)), "paid": int(s.coalition.get("paidLifetime", 0)),
- 		"drops": int(s.investigation.get("aideDrops", 0)), "runsList": runs,
- 	}
--	print("  %-15s elections %2d | first %s | base %4d | court days %2d, postponed %2d | walked out %2d, paid %3d | aide drops %d | %s" % [
--		name, row["runs"], PacingSim.fmt_t(row["first"]), row["base"], row["court"], row["postpones"], row["left"], row["paid"], row["drops"],
-+	print("  %-15s s%d elections %2d | first %s | base %4d | court days %2d, postponed %2d | walked out %2d, paid %3d | aide drops %d | %s" % [
-+		name, seed_, row["runs"], PacingSim.fmt_t(row["first"]), row["base"], row["court"], row["postpones"], row["left"], row["paid"], row["drops"],
- 		", ".join(runs.slice(0, 6).map(func(x: float) -> String: return PacingSim.fmt_t(x)))])
--	_rows[name] = row
-+	_rows[key] = row
- 	return row
+-## Revealed producer ids in tier order, and the single silhouette id ("" if none).
++## Revealed producer ids in tier order, the single silhouette id ("" if none: a real row with its
++## price), and `fill`: every later unrevealed id when producerReveal.fillSilhouettes is on (UX
++## mobile-first-layout §5.4, G1: priceless, untappable rows that fill the pane; only once a source
++## is revealed, and never past the content's last source).
+ static func producer_rows(s: GameState) -> Dictionary:
+ 	var revealed := PackedStringArray()
+ 	var silhouette := ""
+-	var show_sil: bool = Content.data()["producerReveal"]["showNextAsSilhouette"]
++	var fill := PackedStringArray()
++	var pr: Dictionary = Content.data()["producerReveal"]
++	var show_sil: bool = pr["showNextAsSilhouette"]
++	var fill_on: bool = pr.get("fillSilhouettes", false) == true
+ 	for id in Content.producer_ids():
+ 		if is_revealed(s, id):
+ 			revealed.append(id)
+ 		elif silhouette == "" and show_sil:
+ 			silhouette = id
+-	return {"revealed": revealed, "silhouette": silhouette}
++		elif fill_on:
++			fill.append(id)
++	if revealed.is_empty():
++		fill = PackedStringArray()
++	return {"revealed": revealed, "silhouette": silhouette, "fill": fill}
  
  
-@@ -50,8 +57,14 @@ func test_triangle_has_no_dominant_strategy() -> void:
- 	for name: String in PacingSim.STRATEGIES:
- 		if name == "default":
- 			continue
--		var r := _hour(name)
--		runner.check(float(r["base"]) <= float(base["base"]) * 1.05, "G1: %s must not dominate (base %d vs default %d)" % [name, r["base"], base["base"]])
-+		var ratios: Array = []
-+		for sd: int in G1_SEEDS:
-+			ratios.append(float(_hour(name, sd)["base"]) / maxf(1.0, float(_hour("default", sd)["base"])))
-+		var sorted := ratios.duplicate()
-+		sorted.sort()
-+		var med := float(sorted[sorted.size() / 2])
-+		print("  G1 %-15s base / default per seed %s: median %.2f" % [name, ", ".join(ratios.map(func(x: float) -> String: return "%.2f" % x)), med])
-+		runner.check(med <= 1.05, "G1: %s must not dominate (median base ratio %.2f over seeds 11-15)" % [name, med])
- 	var clean := _hour("clean")
- 	runner.check(int(clean["runs"]) >= 2, "G2: the clean route is viable (%d elections an hour)" % clean["runs"])
- 	runner.check(int(clean["base"]) < int(base["base"]), "G2: and slower than dealing (base %d vs %d)" % [clean["base"], base["base"]])
-diff --git a/game/tests/bench/test_web_driver.gd.uid b/game/tests/bench/test_web_driver.gd.uid
-new file mode 100644
-index 0000000..3e3f496
---- /dev/null
-+++ b/game/tests/bench/test_web_driver.gd.uid
-@@ -0,0 +1 @@
-+uid://cei7d52xkvb5t
-# untracked binary: game/tests/bench/test_web_driver.gd.uid
+ # ---------------------------------------------------------------------------------------------
+diff --git a/game/tests/unit/test_diorama_slots.gd b/game/tests/unit/test_diorama_slots.gd
+index 673e787..9862221 100644
+--- a/game/tests/unit/test_diorama_slots.gd
++++ b/game/tests/unit/test_diorama_slots.gd
+@@ -94,3 +94,25 @@ func test_the_early_round_fills_the_right_half() -> void:
+ 	var tx := float(L.DIORAMA["xs"][t.substr(0, 1)][int(t.substr(1))]) + 32.0
+ 	var left := tx - _extent(src, str(Content.producer("taxpayer")["sprite"])).x - WANDER
+ 	runner.check(left >= hit_right, "the first taxpayer (%s, wandering) clears the Magician's hit (x ≥ %d, got %d)" % [t, int(hit_right), int(left)])
++
++
++## UX mobile-first-layout §5.4 G1 (producerReveal.fillSilhouettes): after the first reveal, the
++## sources past the one priced silhouette come back as `fill`, priceless rows, in tier order.
++func test_the_pane_fills_with_silhouettes() -> void:
++	runner.check(Content.data()["producerReveal"].get("fillSilhouettes") == true, "the content turns the fill on")
++	var s := GameState.fresh()
++	var r0 := Economy.producer_rows(s)
++	runner.check((r0["fill"] as PackedStringArray).is_empty(), "nothing fills before the first reveal (%s)" % str(r0))
++	s.owned["taxpayer"] = 1
++	var r := Economy.producer_rows(s)
++	var ids := Content.producer_ids()
++	var want := PackedStringArray()
++	for id in ids:
++		if not (r["revealed"] as PackedStringArray).has(id) and id != str(r["silhouette"]):
++			want.append(id)
++	runner.check(r["revealed"] == PackedStringArray(["taxpayer"]) and str(r["silhouette"]) == ids[1], "one real row, the next one priced (%s)" % str(r))
++	runner.check(r["fill"] == want and (r["fill"] as PackedStringArray).size() == ids.size() - 2, "the rest fill the pane, in tier order (%s)" % str(r["fill"]))
++	var c: Dictionary = Content.data().duplicate(true)
++	c["producerReveal"]["fillSilhouettes"] = false
++	Content.replace(c)
++	runner.check((Economy.producer_rows(s)["fill"] as PackedStringArray).is_empty(), "off: today's single silhouette")
