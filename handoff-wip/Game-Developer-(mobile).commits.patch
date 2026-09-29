@@ -1,7 +1,7 @@
 From 881d9984187c523ee2e963c6b42bc0a97790e0dc Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 21:33:39 +0000
-Subject: [PATCH 1/5] feat(od-sevev): mobile-first art grid, split and fluid
+Subject: [PATCH 1/6] feat(od-sevev): mobile-first art grid, split and fluid
  chrome core
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -2573,7 +2573,7 @@ index 2bd1fe8..dbc7716 100644
 From bb1293caac76a5d07e8bc588b7b4aaa887eb5bba Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 21:43:55 +0000
-Subject: [PATCH 2/5] feat(od-sevev): fluid tall tabs, modals, sheets and the
+Subject: [PATCH 2/6] feat(od-sevev): fluid tall tabs, modals, sheets and the
  merge-ready line
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -3848,7 +3848,7 @@ index a495ecd..39dc571 100644
 From 2acef42d77dae0b2e26fc2a533a717a83587293b Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 21:49:15 +0000
-Subject: [PATCH 3/5] test(od-sevev): mobile-first layout math per device, web
+Subject: [PATCH 3/6] test(od-sevev): mobile-first layout math per device, web
  checks follow the fluid tabs
 
 test_mobile_layout pins the engine's grid, width, split, tab slots,
@@ -5347,7 +5347,7 @@ index 28f1a1c..01007ca 100644
 From 250f18deb847f673b89ac098e3560b17bdb766d6 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 22:28:26 +0000
-Subject: [PATCH 4/5] test(od-sevev): the merge-ready line; web checks pick a
+Subject: [PATCH 4/6] test(od-sevev): the merge-ready line; web checks pick a
  leader first
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -5478,7 +5478,7 @@ index 01007ca..b39e823 100644
 From fd41687d2bf0c2a782ef1d556f947a6952946c1c Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 23:05:40 +0000
-Subject: [PATCH 5/5] fix(od-sevev): keep the picker title clear of the
+Subject: [PATCH 5/6] fix(od-sevev): keep the picker title clear of the
  wordmark where tiles fill avail
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -5570,6 +5570,74 @@ index 3a4268c..6709375 100644
 +		await P.page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
 +		await P.wait(1200);
 +	}
+ 	await tap(P, hat(P));
+ 	await P.page.waitForFunction(() => window.odDev && window.odDev.brawlCue && window.odDev.brawlCue.visible, null, { timeout: 20000 }).catch(() => {});
+ 	await P.wait(600);
+-- 
+2.43.0
+
+
+From 92525ce8f0c25630811d69f0d32bc377a8a51753 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 23:06:47 +0000
+Subject: [PATCH 6/6] =?UTF-8?q?test(od-sevev):=20share=5Fweb=20picks=20?=
+ =?UTF-8?q?=D7=91=D7=99=D7=91=D7=99=20in=20both=20parts=20(one=20browser?=
+ =?UTF-8?q?=20context,=20one=20save)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ tools/web/share_web.mjs | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
+
+diff --git a/tools/web/share_web.mjs b/tools/web/share_web.mjs
+index 6709375..467c0fb 100644
+--- a/tools/web/share_web.mjs
++++ b/tools/web/share_web.mjs
+@@ -60,12 +60,25 @@ async function shot(P, name) {
+ 	console.log('  shot', p);
+ }
+ const hat = (P) => css(P, P.d.hat[0], P.d.hat[1]);
++// LEADER_PICK comes first on a fresh save: pick ביבי (the seeded brawl, Amsalem and Smotrich, is his
++// lineup's), not whichever tile the random order puts under the Magician (the pages share one
++// browser context, so part 2 loads part 1's round)
++async function pickBibi(P) {
++	const pk = await P.page.evaluate(() => window.odPick || null);
++	if (!pk || !pk.open) return;
++	const c = pk.cells.find((q) => q[2] === 'bibi') || pk.cells[0];
++	await P.wait(500);
++	await tap(P, css(P, c[0], c[1]));
++	await P.page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
++	await P.wait(1200);
++}
+ const btn = (m, i) => m.buttons[i];
+ 
+ // 1. O4 / O5 from T4
+ {
+ 	const P = await boot('dev=1&grant=5000000&susp=20&evo=5');
+ 	await handoff(P);
++	await pickBibi(P);
+ 	await tap(P, hat(P));
+ 	await P.wait(1500);
+ 	let s = await probe(P);
+@@ -163,16 +176,7 @@ const btn = (m, i) => m.buttons[i];
+ {
+ 	const P = await boot('dev=1&grant=50000&chat=14');
+ 	await handoff(P);
+-	// LEADER_PICK comes first: pick ביבי (the seeded brawl is his lineup's Amsalem and Smotrich), not
+-	// whichever tile the random order puts under the Magician
+-	const pk = await P.page.evaluate(() => window.odPick || null);
+-	if (pk && pk.open) {
+-		const c = pk.cells.find((q) => q[2] === 'bibi') || pk.cells[0];
+-		await P.wait(500);
+-		await tap(P, css(P, c[0], c[1]));
+-		await P.page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
+-		await P.wait(1200);
+-	}
++	await pickBibi(P);
  	await tap(P, hat(P));
  	await P.page.waitForFunction(() => window.odDev && window.odDev.brawlCue && window.odDev.brawlCue.visible, null, { timeout: 20000 }).catch(() => {});
  	await P.wait(600);
