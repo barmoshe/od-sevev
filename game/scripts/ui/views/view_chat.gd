@@ -1,0 +1,1553 @@
+class_name ChatView
+extends Node2D
+## T3 "קואליציה 61": the coalition group chat as a tall tab (ux/rtl-map.md §6.3, kit `chat_*`),
+## plus the ultimatum stage cameo (§4.2). A child of `_lower`, positioned at y = −S, so its local
+## space is "tall-local": y 0 = the stage top, the tab covers the stage, the ticker and the panel
+## down to the tab bar (H_T = S + 84 + P). Rows A and B stay visible above it.
+##
+## It is a VIEW of the sim's chat log (`state.coalition.chat`, game/scripts/sim/README.md
+## "Messages"). No rule lives here: pay / rejoin / poach go through `Coalition.pay`, "צאו החוצה"
+## through `Coalition.resolve_brawl`. The view only decides WHEN a message is shown (the typing
+## telegraph and the join cascade, ux/ftue.md "chat open cascade"; motion chat-typing) and how.
+##
+## Rebuild model: the thread's nodes are rebuilt when the log's shape changes (a message posted,
+## paid, expired, revealed); per frame only the live parts move (pill affordance, ultimatum
+## timers, the corridor counter, the arrival / stamp / pip tweens). The log is capped at chatMax
+## (80) by the sim, so a rebuild is a few hundred nodes at most and happens a few times a minute.
+##
+## Audio (Audio autoload through host.audio_event): chatPing(partner) on a bubble landing while
+## open or on the preview toast while closed; ultimatumTick(seconds) once per displayed second
+## (the Audio doubles the last 3 s); ultimatumZero when an ultimatum runs out (instead of
+## chatLeft); chatLeft when a partner leaves otherwise; stamp + ultimatumPaid on paying;
+## panelOpen / panelClose.
+
+signal open_changed(open: bool)
+
+## tall-local layout (rtl-map §6.3)
+const HEADER_H := 104.0
+const PINNED_Y := 104.0
+const PINNED_H := 56.0
+const THREAD_Y := 160.0
+const COMPOSER_H := 88.0
+const CHEVRON_HIT := Rect2(632, 8, 88, 88)
+const PINNED_HIT := Rect2(0, 104, 720, 88)
+const TITLE_RIGHT := 616.0
+const AVATAR_RIGHT := 704.0
+const AVATAR_BOX := 128.0            # 32 art px at ×4 (flag F5 / D15)
+const BUBBLE_RIGHT := 568.0
+const BUBBLE_MIN_X := 88.0           # width ≤ 480
+const TEXT_W := 416.0                # chat.bubble box: 17 glyphs
+const NAME_HIT_W := 416.0
+const PILL_W := 328.0                # kit pay_pill stretched to 82×17 art
+const PILL_H := 68.0
+const PILL_HIT := Vector2(352, 88)
+const WIDE_PILL := Rect2(104, 0, 512, 68)     # rejoin / poach, centred; hit 536×88
+const SYS_TEXT_W := 568.0
+const CHIP_W := 128.0
+const CHIP_H := 52.0
+const RUN_GAP := 24.0
+const IN_RUN_GAP := 8.0
+const CASCADE_MAX := 4               # more pending than this on open: show them at once
+const INPUT_AFTER_OPEN_MS := 140.0   # motion tall-tab: the thread accepts taps from 140 ms
+const CEREMONY_MS := 3000.0          # sim: a ceremony (Regev) needs "the UI's 3 s ribbon"
+
+## palette (style guide v2 §2.1)
+const C_THREAD := Color("#1e1636")    # ui_panel
+const C_NAME := Color("#a4a9b8")      # grey
+const C_MUTED := Color("#7d8398")     # slate
+const C_INK := Color("#1b1426")       # ink (on gold)
+const C_ALERT := Color("#f86b5d")     # red_hi ("אולטימטום", the last seconds)
+const C_GOLD_HI := Color("#fff1a6")
+const C_SKY := Color("#8fc0ff")       # the seats fill (pips)
+
+## motion-spec.yaml motion-constants (Tune.MC wins once the engine mirrors them)
+const MC_DEFAULTS := {
+	"tallTabOpenMs": 280, "tallTabCloseMs": 200, "tallTabOpenReducedMs": 150, "tallTabCloseReducedMs": 120,
+	"chatBubbleInMs": 180, "chatBubbleInOffsetPx": 16, "chatScrollMs": 180, "stampSlamMs": 90,
+	"seatPipMax": 6, "seatPipStaggerMs": 50, "seatPipFlightMs": 450,
+	"ultimatumNudgeFromSec": 10, "ultimatumUrgentFromSec": 3,
+	"chatTypingMs": 1200, "chatCascadeGapMs": 250, "chatReplyDelayMs": 300,
+}
+
+var host: Node                        # MainController (duck-typed: audio_event, state, shop, toasts, ...)
+var reduced_motion := false
+
+var _state: GameState
+var _d: Economy.Derived
+var _open := false
+var _anim: Dictionary = {}            # {kind: open|close, t}
+var _open_ms := 0.0
+var _now := 0.0
+var _h := 1102.0                      # H_T
+var _vs_w := 720.0
+var _ox := 0.0
+
+# nodes
+var _panel := Node2D.new()
+var _bg: ColorRect
+var _header: NinePatchRect
+var _chev: Sprite2D
+var _title: PxText
+var _lock: Sprite2D
+var _status: PxText
+var _pinned: NinePatchRect
+var _pin: Sprite2D
+var _pinned_text: PxText
+var _pinned_badge: NinePatchRect
+var _pinned_badge_text: PxText
+var _clip := Control.new()
+var _content := Node2D.new()
+var _composer: NinePatchRect
+var _composer_text: PxText
+var _thumb: ColorRect
+var _fx := Node2D.new()               # seat pips (above everything in the tab)
+
+# thread
+var _rows: Array[Dictionary] = []     # built rows: {seq, kind, root, y, h, pills: [], chip, ...}
+var _hits: Array[Dictionary] = []     # {rect (content-local), kind: pay|partner|brawl, seq, partner, pill}
+var _content_h := 0.0
+var _sig := ""
+var _scroll := 0.0
+var _vel := 0.0
+var _stick := true
+var _scroll_tw: Tween
+var _press: Dictionary = {}
+
+# reveal (typing telegraph + join cascade)
+var _upto := -1                       # highest seq shown
+var _typing: Dictionary = {}          # {seq, partner, until}
+var _next_at := 0.0
+var _just_opened := false             # the first reveal step after open()
+var _arrive_at: Dictionary = {}       # seq -> ms (arrival tween start)
+var _stamp_at: Dictionary = {}        # seq -> ms (stamp slam start)
+var _ribbon: Dictionary = {}          # {seq, t} a ceremony in progress
+var _shake: Dictionary = {}           # seq -> ms (can't-afford shake start)
+var _pips: Array[Dictionary] = []
+
+# audio / events
+var _tick_sec: Dictionary = {}        # ultimatum seq -> last displayed second
+var _known_state: GameState
+
+# cameo (rtl-map §4.2)
+var _cameo := Node2D.new()
+var _cameo_strip: SpriteStrip
+var _cameo_id := ""
+var _cameo_chip: NinePatchRect
+var _cameo_clock: Sprite2D
+var _cameo_timer: PxText
+var _cameo_rect := Rect2()
+var _cameo_seq := -1
+
+
+## "m:ss" for a seconds count (the timer chip; LTR digits, CHAT_ULT_TIMER's {mmss}).
+static func mmss(sec: float) -> String:
+	var n := maxi(0, int(ceilf(sec - 0.001)))
+	return "%d:%02d" % [n / 60, n % 60]
+
+
+static func mc(key: String) -> float:
+	if Tune.MC.has(key):
+		return float(Tune.MC[key])
+	return float(MC_DEFAULTS.get(key, 0.0))
+
+
+func setup(host_: Node) -> ChatView:
+	host = host_
+	return self
+
+
+func _ready() -> void:
+	add_child(_cameo)
+	_cameo.visible = false
+	_cameo_chip = Ui.nine(_cameo, Rect2(0, 0, CHIP_W, CHIP_H), Art.sprite_or("chip_ultimatum"))
+	_cameo_clock = Ui.img(_cameo, Vector2.ZERO, Art.sprite_or("icon_clock"), 0, 4)
+	_cameo_timer = PxText.make(_cameo, Vector2.ZERO, "", L.TEXT, "plain", "w")
+	add_child(_panel)
+	_panel.visible = false
+	_bg = Ui.rect(_panel, Rect2(0, 0, L.W, _h), C_THREAD)
+	_clip.clip_contents = true
+	_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_clip.position = Vector2(0, THREAD_Y)
+	_panel.add_child(_clip)
+	_clip.add_child(_content)
+	_thumb = Ui.rect(_panel, Rect2(4, THREAD_Y, 4, 48), Color(0.84, 0.8, 0.93), 0.0)
+	_header = Ui.nine(_panel, Rect2(0, 0, L.W, HEADER_H), Art.sprite_or("chat_header"))
+	var chev_id := Art.sprite_or("chat_icon_chevron")
+	var cs := Vector2(Art.sprite_size(chev_id)) * 4.0
+	_chev = Ui.img(_panel, (CHEVRON_HIT.get_center() - cs / 2.0).snapped(Vector2(4, 4)), chev_id, 0, 4)
+	_title = PxText.make(_panel, Vector2(0, 16), Strings.s("CHAT_TITLE"), L.TEXT, "plain", "w")
+	_title.right_at(TITLE_RIGHT)
+	_lock = Ui.img(_panel, Vector2.ZERO, Art.sprite_or("chat_icon_lock"), 0, 4)
+	_status = PxText.make(_panel, Vector2(0, 56), "", L.TEXT, "plain", C_NAME)
+	_status.wrap_width = TITLE_RIGHT - 32.0
+	_status.max_lines = 1
+	_status.right_at(TITLE_RIGHT)
+	_pinned = Ui.nine(_panel, Rect2(0, PINNED_Y, L.W, PINNED_H), Art.sprite_or("chat_pinned"))
+	_pin = Ui.img(_panel, Vector2(676, PINNED_Y + 10), Art.sprite_or("chat_icon_pin"), 0, 4)
+	_pinned_text = PxText.make(_panel, Vector2(0, PINNED_Y + 10), "", L.TEXT, "plain", C_NAME)
+	_pinned_text.wrap_width = 584.0
+	_pinned_text.max_lines = 1
+	_pinned_text.right_at(660)
+	_pinned_badge = Ui.nine(_panel, Rect2(16, 110, 44, 44), Art.sprite_or("badge_count"))
+	_pinned_badge_text = PxText.make(_panel, Vector2(16, 110), "!", L.TEXT, "plain", "w")
+	_pinned_badge_text.center_in(16, 44)
+	_composer = Ui.nine(_panel, Rect2(0, _h - COMPOSER_H, L.W, COMPOSER_H), Art.sprite_or("chat_composer_disabled"))
+	_composer_text = PxText.make(_panel, Vector2(0, _h - COMPOSER_H + 24), Strings.s("CHAT_COMPOSER"), L.TEXT, "plain", C_MUTED)
+	_composer_text.wrap_width = 640.0
+	_composer_text.max_lines = 1
+	_composer_text.right_at(680)
+	_panel.add_child(_fx)
+	relayout()
+
+
+## The flex rule changed (MainController._relayout): H_T = S + 84 + P.
+func relayout() -> void:
+	position = Vector2(0, -L.stage_h)
+	_h = L.stage_h + L.tabs_y()
+	if host != null and "_ox" in host:
+		_ox = float(host.get("_ox"))
+		_vs_w = float((host.get("_vs") as Vector2).x)
+	if _bg == null:
+		return
+	_bg.position = Vector2(-_ox - 8.0, 0)
+	_bg.size = Vector2(_vs_w + 16.0, _h)
+	_clip.size = Vector2(L.W, thread_h())
+	Ui.set_nine_rect(_composer, Rect2(0, _h - COMPOSER_H, L.W, COMPOSER_H))
+	_composer_text.position.y = _h - COMPOSER_H + 24
+	_set_scroll(_scroll)
+
+
+func thread_h() -> float:
+	return maxf(0.0, _h - THREAD_Y - COMPOSER_H)
+
+
+func is_open() -> bool:
+	return _open
+
+
+# ------------------------------------------------------------------ open / close (motion tall-tab)
+
+## Opens T3. `focus_seq` scrolls to that message (the cameo opens at the ultimatum).
+func open(focus_seq: int = -1) -> void:
+	if not _open:
+		_open = true
+		_open_ms = _now
+		_just_opened = true
+		_panel.visible = true
+		_anim = {"kind": "open", "t": 0.0}
+		_press = {}
+		if _state != null:
+			Coalition.on_chat_opened(_state)
+		_audio("panelOpen")
+		open_changed.emit(true)
+		_sig = ""
+		_advance_reveal()
+		_rebuild_if_needed(true)
+		_stick = true
+		_scroll = _max_scroll()
+	if focus_seq >= 0:
+		_scroll_to_seq(focus_seq)
+
+
+func close() -> void:
+	if not _open:
+		return
+	_open = false
+	_press = {}
+	_typing = {}
+	_ribbon = {}
+	_anim = {"kind": "close", "t": 0.0}
+	_audio("panelClose")
+	open_changed.emit(false)
+
+
+func toggle() -> void:
+	if _open:
+		close()
+	else:
+		open()
+
+
+func _animate_panel(dt: float) -> void:
+	if _anim.is_empty():
+		return
+	_anim["t"] = float(_anim["t"]) + dt
+	var t: float = _anim["t"]
+	var opening: bool = _anim["kind"] == "open"
+	if reduced_motion:
+		var ms := mc("tallTabOpenReducedMs" if opening else "tallTabCloseReducedMs")
+		var p := minf(1.0, t / ms)
+		_panel.position.y = 0.0
+		_panel.modulate.a = p if opening else 1.0 - p
+		if p >= 1.0:
+			_end_anim(opening)
+		return
+	_panel.modulate.a = 1.0
+	var ms2 := mc("tallTabOpenMs" if opening else "tallTabCloseMs")
+	var p2 := minf(1.0, t / ms2)
+	var e := Ui.cubic_out(p2) if opening else Ui.quad_in(p2)
+	_panel.position.y = Ui.snap(_h * (1.0 - e if opening else e), 4)
+	if p2 >= 1.0:
+		_end_anim(opening)
+
+
+func _end_anim(opening: bool) -> void:
+	_anim = {}
+	_panel.position.y = 0.0
+	_panel.modulate.a = 1.0
+	if not opening:
+		_panel.visible = false
+
+
+# ------------------------------------------------------------------ per frame
+
+## ctx: {main: bool (main mode, no election transition), overlay: bool (a modal is open)}.
+func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = {}) -> void:
+	_now += dt
+	if not is_same(s, _known_state):
+		_on_new_state(s)
+	_state = s
+	_d = d
+	var live: bool = ctx.get("main", true)
+	_animate_panel(dt)
+	if _open and not live:
+		close()
+	_advance_reveal()
+	_rebuild_if_needed(false)
+	_tick_ultimatums(live)
+	_update_ribbon(dt)
+	if _panel.visible:
+		_update_header()
+		_update_rows(dt)
+		_update_scroll(dt)
+		_update_pips()
+	_update_cameo(dt, live and not bool(ctx.get("overlay", false)))
+	_update_badge()
+
+
+## A fresh GameState (boot, reset, import, election seam): everything already in its log counts
+## as seen, and the view's per-message memory is dropped.
+func _on_new_state(s: GameState) -> void:
+	_known_state = s
+	_upto = _last_seq(s)
+	_typing = {}
+	_arrive_at.clear()
+	_stamp_at.clear()
+	_tick_sec.clear()
+	_shake.clear()
+	_ribbon = {}
+	_pips.clear()
+	_sig = ""
+	_stick = true
+
+
+static func _chat(s: GameState) -> Array:
+	if s == null or not s.coalition is Dictionary:
+		return []
+	var c: Variant = (s.coalition as Dictionary).get("chat", [])
+	return c if c is Array else []
+
+
+static func _last_seq(s: GameState) -> int:
+	var n := -1
+	for m: Dictionary in _chat(s):
+		n = maxi(n, int(m.get("seq", -1)))
+	return n
+
+
+## Shows every message now (tests; the cascade skip).
+func reveal_all() -> void:
+	_upto = _last_seq(_state)
+	_typing = {}
+
+
+func typing() -> Dictionary:
+	return _typing
+
+
+# ------------------------------------------------------------------ reveal: typing + cascade
+
+static func is_partner_bubble(m: Dictionary) -> bool:
+	var t := str(m.get("type", ""))
+	return (t == "demand" or t == "ultimatum" or t == "thanks" or t == "status") and str(m.get("partner", "")) != ""
+
+
+func _pending() -> Array:
+	var out: Array = []
+	for m: Dictionary in _chat(_state):
+		if int(m.get("seq", -1)) > _upto:
+			out.append(m)
+	return out
+
+
+func _advance_reveal() -> void:
+	if _state == null:
+		return
+	if not _open:
+		_typing = {}
+		return
+	var pend := _pending()
+	if pend.is_empty():
+		_typing = {}
+		_just_opened = false
+		return
+	if pend.size() > CASCADE_MAX:
+		_upto = int(pend[pend.size() - 1]["seq"])
+		_typing = {}
+		_just_opened = false
+		return
+	var fresh := _just_opened
+	_just_opened = false
+	if fresh and not _has_created(pend):
+		# opened onto messages that landed while it was closed: they are already written, so no
+		# typing telegraph (the timer of an ultimatum is running); only the C1 group creation
+		# plays its cascade (ux/ftue.md "chat open cascade")
+		_upto = int(pend[pend.size() - 1]["seq"])
+		return
+	if _now < _next_at:
+		return
+	var m: Dictionary = pend[0]
+	var seq := int(m["seq"])
+	if is_partner_bubble(m) and m.get("type", "") != "status":
+		if _typing.get("seq", -1) != seq:
+			_typing = {"seq": seq, "partner": str(m["partner"]), "until": _now + mc("chatTypingMs")}
+			return
+		if _now < float(_typing["until"]):
+			return
+	_typing = {}
+	_upto = seq
+	_arrive_at[seq] = _now
+	if is_partner_bubble(m):
+		_audio("chatPing", str(m["partner"]))
+	_next_at = _now + (0.0 if reduced_motion or m.get("type", "") != "sys" else mc("chatCascadeGapMs"))
+
+
+static func _has_created(pend: Array) -> bool:
+	for m: Dictionary in pend:
+		if str(m.get("key", "")) == "chat.sys.created":
+			return true
+	return false
+
+
+# ------------------------------------------------------------------ thread model (pure)
+
+## The rows the thread shows for a chat log, oldest first, up to seq `upto`:
+## [{seq, kind, partner, first, msg}]. kind: in (a partner bubble), ult (an open or expired
+## ultimatum), deleted (a paid ultimatum), out (the player's reply), sys, transfer, brawl.
+## `first` = the first bubble of a run from one sender (avatar + name shown; rtl-map §6.3).
+static func thread_model(chat: Array, upto: int = 1 << 30) -> Array:
+	var out: Array = []
+	var prev_partner := ""
+	for m: Dictionary in chat:
+		if int(m.get("seq", 0)) > upto:
+			continue
+		var t := str(m.get("type", ""))
+		var st := str(m.get("state", ""))
+		var kind := ""
+		match t:
+			"demand", "thanks", "status":
+				kind = "in"
+			"ultimatum":
+				kind = "deleted" if st == "deleted" else "ult"
+			"reply":
+				kind = "out"
+			"sys":
+				kind = "sys"
+			"transfer":
+				kind = "transfer"
+			"brawl":
+				kind = "brawl" if st == "open" else ""
+		if kind == "":
+			continue
+		var pid := str(m.get("partner", ""))
+		var bubble := kind == "in" or kind == "ult" or kind == "deleted"
+		var first := bubble and not (pid != "" and pid == prev_partner)
+		out.append({"seq": int(m.get("seq", 0)), "kind": kind, "partner": pid, "first": first, "msg": m})
+		prev_partner = pid if bubble else ""
+	return out
+
+
+static func partner_name(id: String) -> String:
+	return str(Coalition.partner(id).get("name", id))
+
+
+## The partner's line for a bubble: partners[].linesVariants[line][variant] or .lines[line]
+## (content copy; the sim holds no Hebrew). {price} is the message's price; Goldknopf's thanks
+## falls back to his "after" line, whose {next_price} is the price he asks next.
+static func line_text(m: Dictionary, s: GameState, d: Economy.Derived) -> String:
+	var id := str(m.get("partner", ""))
+	var p := Coalition.partner(id)
+	var line := str(m.get("line", ""))
+	if m.get("type", "") == "thanks" and _pick_line(p, line, 0) == "" and _pick_line(p, "after", 0) != "":
+		line = "after"
+	var t := _pick_line(p, line, int(m.get("variant", 0)))
+	var params := {"price": Fmt.cost(float(m.get("price", 0.0)))}
+	if t.contains("{next_price}") and s != null and d != null:
+		params["next_price"] = Fmt.cost(Coalition.demand_price(s, id, d))
+	return Bidi.fill(t, params)
+
+
+static func _pick_line(p: Dictionary, line: String, variant: int) -> String:
+	var lv: Variant = p.get("linesVariants", {}).get(line) if p.get("linesVariants") is Dictionary else null
+	if lv is Array and not (lv as Array).is_empty():
+		return str((lv as Array)[posmod(variant, (lv as Array).size())])
+	var l: Variant = p.get("lines", {}).get(line) if p.get("lines") is Dictionary else null
+	if l is Array and not (l as Array).is_empty():
+		return str((l as Array)[posmod(variant, (l as Array).size())])
+	return str(l) if l is String else ""
+
+
+## A system line's text: the UX key from the sim's `key` (chat.sys.left → CHAT_SYS_LEFT_M/_F by
+## the partner's gender), with {name}, {to}, {a}, {b}, {n} and Distel's {who} filled.
+static func sys_text(m: Dictionary) -> String:
+	var key := str(m.get("key", ""))
+	var base := key.to_upper().replace(".", "_")
+	var pid := str(m.get("partner", ""))
+	var p := Coalition.partner(pid)
+	var params := {"name": partner_name(pid), "to": partner_name(str(m.get("to", ""))),
+		"a": partner_name(str(m.get("a", ""))), "b": partner_name(str(m.get("b", ""))), "n": str(int(m.get("n", 0)))}
+	if key == "chat.sys.muted":
+		params["who"] = str(p.get("copy", {}).get("mutedWho", "")) if p.get("copy") is Dictionary else ""
+	if Strings.has(base + "_M") or Strings.has(base + "_F"):
+		return Strings.gendered(base, str(p.get("g", "m")), params)
+	if Strings.has(base):
+		return Strings.s(base, params)
+	return ""
+
+
+## The manifest character slug for a partner id: SpriteStrip.resolve (aliases), then the
+## content's `avatar` art id without "_avatar", then its last hyphen part ("may-golan" → "golan").
+static func char_for(id: String) -> String:
+	var slug := SpriteStrip.resolve(id)
+	if slug != "":
+		return slug
+	var av := str(Coalition.partner(id).get("avatar", "")).trim_suffix("_avatar")
+	if av != "":
+		slug = SpriteStrip.resolve(av)
+		if slug == "" and av.contains("-"):
+			slug = SpriteStrip.resolve(av.get_slice("-", av.get_slice_count("-") - 1))
+	return slug
+
+
+## The chat avatar's art id and its logical draw scale (artScale / density; never hard-coded:
+## the TA's manifest and CONTRACT §3). "" when the partner has no art yet (the neutral card).
+static func avatar_art(id: String) -> Array:
+	var slug := char_for(id)
+	var c: Dictionary = SpriteStrip.manifest().get("chars", {}).get(slug, {}) if slug != "" else {}
+	var art := str(c.get("avatar", "avatar_" + slug)) if slug != "" else ""
+	if art == "" or not Art.has_sprite(art):
+		return [Art.PLACEHOLDER, 4.0]
+	var dens := maxi(1, int(c.get("avatarDensity", Art.kit(art).get("density", 1))))
+	return [art, float(SpriteStrip.art_scale()) / float(dens)]
+
+
+# ------------------------------------------------------------------ build
+
+func _signature() -> String:
+	var parts := PackedStringArray()
+	parts.append(str(_upto))
+	for m: Dictionary in _chat(_state):
+		if int(m.get("seq", 0)) <= _upto:
+			parts.append("%d%s" % [int(m["seq"]), str(m.get("state", ""))[0] if str(m.get("state", "")) != "" else "_"])
+	parts.append(str(Coalition.member_count(_state)) if _state != null and Coalition.active() else "0")
+	for pid: String in _statuses():
+		parts.append(pid)
+	parts.append("L" if PxText.large_text else "")
+	return ",".join(parts)
+
+
+func _statuses() -> PackedStringArray:
+	var out := PackedStringArray()
+	if _state == null or not Coalition.active():
+		return out
+	for p: Dictionary in Coalition.partners():
+		out.append(Coalition.status(_state, str(p["id"]))[0])
+	return out
+
+
+func _rebuild_if_needed(force: bool) -> void:
+	if _state == null or not (_open or _panel.visible or force):
+		return
+	var sig := _signature()
+	if sig == _sig and not force:
+		return
+	var at_bottom := _stick or _scroll >= _max_scroll() - 4.0
+	_sig = sig
+	_build_thread()
+	if at_bottom:
+		_scroll_bottom(not force)
+
+
+func _build_thread() -> void:
+	for c in _content.get_children():
+		c.queue_free()
+		_content.remove_child(c)
+	_rows.clear()
+	_hits.clear()
+	var model := thread_model(_chat(_state), _upto)
+	var y := 16.0
+	if model.is_empty():
+		var r := _build_sys(Strings.s("CHAT_EMPTY"), {}, y)
+		_rows.append(r)
+		y += float(r["h"])
+	var prev_kind := ""
+	for i in model.size():
+		var row: Dictionary = model[i]
+		var gap := 0.0
+		if i > 0:
+			gap = IN_RUN_GAP if (not row["first"] and prev_kind != "" and ["in", "ult", "deleted"].has(row["kind"])) else RUN_GAP
+		y += gap
+		var r: Dictionary
+		match String(row["kind"]):
+			"in", "ult", "deleted":
+				r = _build_bubble(row, y)
+			"out":
+				r = _build_out(row, y)
+			"sys":
+				r = _build_sys(sys_text(row["msg"]), row["msg"], y)
+			"transfer":
+				r = _build_transfer(row, y)
+			"brawl":
+				r = _build_brawl(row, y)
+		r["seq"] = row["seq"]
+		r["kind"] = row["kind"]
+		r["first"] = row["first"]
+		r["partner"] = row["partner"]
+		r["y"] = y
+		_rows.append(r)
+		y += float(r["h"])
+		prev_kind = row["kind"]
+	_content_h = y + 16.0
+
+
+func _lh(t: PxText) -> float:
+	return float(HeFont.line_height()) * t.eff_px()
+
+
+func _text(parent: Node, s: String, col: Variant, wrap: float, lines: int) -> PxText:
+	var t := PxText.make(parent, Vector2.ZERO, s, L.TEXT, "plain", col)
+	t.max_lines = lines
+	t.wrap_width = wrap
+	return t
+
+
+func _root(y: float) -> Node2D:
+	var n := Node2D.new()
+	n.position = Vector2(0, y)
+	_content.add_child(n)
+	return n
+
+
+## A partner bubble (rtl-map §6.3): avatar 128 at x 576-704 and the name above the bubble on the
+## first of a run; the bubble's right edge at 568, width ≤ 480, text column 416; an ultimatum
+## gets the hatched kit bubble with "אולטימטום" and the clock chip at its left; an open message
+## carries its pay pill, a paid one the "שולם" stamp in the pill's place.
+func _build_bubble(row: Dictionary, y: float) -> Dictionary:
+	var m: Dictionary = row["msg"]
+	var pid := str(row["partner"])
+	var kind := str(row["kind"])
+	var root := _root(y)
+	var r := {"root": root, "pills": [], "chip": null}
+	var gone := _state != null and ["left", "removed", "transferred", "absent"].has(Coalition.status(_state, pid))
+	var top := 0.0
+	if row["first"]:
+		var av: Array = avatar_art(pid)
+		var sz := Vector2(Art.sprite_size(av[0])) * float(av[1])
+		var sc := float(av[1])
+		if av[0] == Art.PLACEHOLDER:
+			sc = floorf(AVATAR_BOX / maxf(1.0, float(Art.sprite_size(av[0]).x)))
+			sz = Vector2(Art.sprite_size(av[0])) * sc
+		var img := Ui.img(root, Vector2(AVATAR_RIGHT - sz.x, 0), av[0], 0, 1)
+		img.scale = Vector2(sc, sc)
+		if gone:
+			img.modulate = Color(0.45, 0.45, 0.5)
+		r["avatar"] = img
+		var nm := _text(root, partner_name(pid), C_NAME, NAME_HIT_W, 1)
+		nm.right_at(BUBBLE_RIGHT)
+		_hits.append({"rect": Rect2(AVATAR_RIGHT - AVATAR_BOX, y, AVATAR_BOX, AVATAR_BOX), "kind": "partner", "partner": pid})
+		_hits.append({"rect": Rect2(BUBBLE_RIGHT - NAME_HIT_W, y - 22.0, NAME_HIT_W, 88), "kind": "partner", "partner": pid})
+		top = 44.0
+	var ult := kind == "ult"
+	var sprite := "chat_bubble_ultimatum" if ult else "chat_bubble_in"
+	var pad := Vector4(24, 24, 44, 24) if ult else Vector4(16, 12, 36, 12)   # left, top, right, bottom
+	var bubble := Ui.nine(root, Rect2(0, top, 64, 64), Art.sprite_or(sprite))
+	if ult and String(Art.kit(sprite).get("mode", "")) == "tile":
+		bubble.axis_stretch_horizontal = NinePatchRect.AXIS_STRETCH_MODE_TILE_FIT
+		bubble.axis_stretch_vertical = NinePatchRect.AXIS_STRETCH_MODE_TILE_FIT
+	var inner_r := BUBBLE_RIGHT - pad.z
+	var cy := top + pad.y
+	var w := 0.0
+	var st := str(m.get("state", ""))
+	if ult:
+		var lab := _text(root, Strings.s("CHAT_ULTIMATUM"), C_ALERT, 300.0, 1)
+		lab.right_at(inner_r)
+		lab.position.y = cy + 8.0
+		var chip := _make_chip(root, Vector2(0, cy))   # x set once the width is known
+		r["chip"] = chip
+		w = maxf(w, float(lab.width()) + 16.0 + CHIP_W)
+		cy += CHIP_H + 8.0
+	if kind != "deleted" and m.get("line", "") == "threat" and _forwarded(pid):
+		var fw := _text(root, Strings.s("CHAT_FORWARDED"), C_MUTED, TEXT_W, 1)
+		fw.right_at(inner_r)
+		fw.position.y = cy
+		w = maxf(w, float(fw.width()))
+		cy += _lh(fw)
+	var body := Strings.s("CHAT_DELETED") if kind == "deleted" else line_text(m, _state, _d)
+	var tx := _text(root, body, C_MUTED if kind == "deleted" else Color.WHITE, TEXT_W, 99)
+	tx.right_at(inner_r)
+	tx.position.y = cy
+	if (ult and st == "expired") or (kind == "in" and st == "expired"):
+		tx.modulate.a = 0.5
+	w = maxf(w, float(tx.width()))
+	cy += _lh(tx) * maxf(1.0, float(tx.line_count()))
+	var payable := Coalition.is_payable(m) and (st == "open" or st == "paid" or st == "deleted")
+	if payable and kind != "deleted":
+		cy += 16.0
+		var pr := Rect2(inner_r - PILL_W, cy, PILL_W, PILL_H)
+		var pill := _make_pill(root, pr, int(m["seq"]), false)
+		r["pills"].append(pill)
+		w = maxf(w, PILL_W)
+		if st == "open":
+			_hits.append({"rect": Rect2(pr.get_center().x - PILL_HIT.x / 2.0, y + pr.get_center().y - PILL_HIT.y / 2.0, PILL_HIT.x, PILL_HIT.y),
+				"kind": "pay", "seq": int(m["seq"]), "pill": pill})
+		cy += PILL_H
+	var bw := clampf(Ui.snap(w + pad.x + pad.z + 2.0, 4), 96.0, BUBBLE_RIGHT - BUBBLE_MIN_X)
+	var bh := Ui.snap(cy + pad.w - top, 4)
+	Ui.set_nine_rect(bubble, Rect2(BUBBLE_RIGHT - bw, top, bw, bh))
+	if r["chip"] != null:
+		(r["chip"]["root"] as Node2D).position.x = BUBBLE_RIGHT - bw + pad.x
+	r["bubble"] = bubble
+	r["bubbleRect"] = Rect2(BUBBLE_RIGHT - bw, top, bw, bh)
+	r["h"] = maxf(top + bh, AVATAR_BOX if row["first"] else 0.0)
+	return r
+
+
+func _forwarded(pid: String) -> bool:
+	var cp: Variant = Coalition.partner(pid).get("copy")
+	return cp is Dictionary and (cp as Dictionary).get("threatForwarded", false) == true
+
+
+func _make_chip(parent: Node, at: Vector2) -> Dictionary:
+	var root := Node2D.new()
+	root.position = at
+	parent.add_child(root)
+	Ui.nine(root, Rect2(0, 0, CHIP_W, CHIP_H), Art.sprite_or("chip_ultimatum"))
+	var clock := Ui.img(root, Vector2(CHIP_W - 48.0, 8), Art.sprite_or("icon_clock"), 0, 4)
+	var t := PxText.make(root, Vector2(12, 8), "", L.TEXT, "plain", "w")
+	return {"root": root, "clock": clock, "text": t, "lastSec": -1, "nudgeAt": -1e9, "y0": at.y, "urgent": false}
+
+
+## A pay pill (kit pay_pill_*): gold + "סגרנו · {price} ₪" when affordable, the sunken track with a
+## dim fill growing from the right + "חסר {n} ₪" otherwise; "שולם" stamp once paid. `wide` = the
+## rejoin / poach pill on a system line.
+func _make_pill(parent: Node, pr: Rect2, seq: int, wide: bool) -> Dictionary:
+	var nine := Ui.nine(parent, pr, Art.sprite_or("pay_pill_default"))
+	var fill := Ui.nine(parent, Rect2(pr.end.x - 16, pr.position.y + 16, 8, pr.size.y - 28), Art.sprite_or("pay_pill_fill"))
+	var lab := _text(parent, "", C_INK, pr.size.x - 32.0, 1)
+	lab.position.y = pr.position.y + 12.0
+	var stamp_id := Art.sprite_or("stamp_paid_dark_rot" if Art.has_sprite("stamp_paid_dark_rot") else "stamp_paid_dark")
+	var stamp := Ui.img(parent, Vector2.ZERO, stamp_id, 0, 4)
+	stamp.centered = true
+	var ssz := Vector2(Art.sprite_size(stamp_id)) * 4.0
+	stamp.position = Vector2(pr.end.x - ssz.x / 2.0, pr.get_center().y).snapped(Vector2(4, 4)) if not wide else pr.get_center().snapped(Vector2(4, 4))
+	stamp.visible = false
+	return {"nine": nine, "fill": fill, "label": lab, "stamp": stamp, "rect": pr, "seq": seq, "wide": wide,
+		"pressed": false, "key": "", "base": pr.position}
+
+
+func _build_out(row: Dictionary, y: float) -> Dictionary:
+	var m: Dictionary = row["msg"]
+	var root := _root(y)
+	var n := clampi(int(m.get("n", 1)), 1, 3)
+	var bubble := Ui.nine(root, Rect2(16, 0, 64, 64), Art.sprite_or("chat_bubble_out"))
+	var tx := _text(root, Strings.s("CHAT_REPLY_%d" % n), Color.WHITE, TEXT_W, 99)
+	var tw := float(tx.width())
+	var bw := clampf(Ui.snap(tw + 36.0 + 16.0 + 2.0, 4), 96.0, 480.0)
+	tx.right_at(16.0 + bw - 16.0)
+	tx.position.y = 12.0
+	var bh := Ui.snap(12.0 + _lh(tx) * maxf(1.0, float(tx.line_count())) + 12.0, 4)
+	Ui.set_nine_rect(bubble, Rect2(16, 0, bw, bh))
+	return {"root": root, "pills": [], "h": bh, "bubbleRect": Rect2(16, 0, bw, bh)}
+
+
+## A centred system pill (≤ 600 wide, ≤ 2 lines); a "left" line carries the rejoin pill, a
+## "removed" line with payable = poach the poach pill; the brawl's after-line the corridor count.
+func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+	var root := _root(y)
+	var r := {"root": root, "pills": []}
+	var pill_bg := Ui.nine(root, Rect2(0, 0, 64, 52), Art.sprite_or("chat_system_pill"))
+	var icon_w := 0.0
+	var icon: Sprite2D = null
+	if str(m.get("key", "")) == "chat.sys.muted" and Art.has_sprite("chat_icon_mute"):
+		icon = Ui.img(root, Vector2.ZERO, "chat_icon_mute", 0, 4)
+		icon_w = float(Art.sprite_size("chat_icon_mute").x) * 4.0 + 12.0
+	var tx := _text(root, text, Color.WHITE, SYS_TEXT_W - icon_w, 2)
+	tx.align = 1
+	var lines := maxf(1.0, float(tx.line_count()))
+	var w := Ui.snap(float(tx.width()) + icon_w + 48.0, 4)
+	var h := Ui.snap(_lh(tx) * lines + 12.0, 4)
+	var x := Ui.snap((L.W - w) / 2.0, 4)
+	Ui.set_nine_rect(pill_bg, Rect2(x, 0, w, h))
+	tx.position = Vector2(x + 24.0, 6.0)
+	tx.h_anchor = 0
+	if icon != null:
+		icon.position = Vector2(x + w - 24.0 - icon_w + 12.0, Ui.snap((h - 36.0) / 2.0, 4))
+	var cy := h
+	var payable := str(m.get("payable", ""))
+	var st := str(m.get("state", ""))
+	if payable != "" and (st == "open" or st == "paid"):
+		cy += 16.0
+		var pr := Rect2(WIDE_PILL.position.x, cy, WIDE_PILL.size.x, WIDE_PILL.size.y)
+		var pill := _make_pill(root, pr, int(m["seq"]), true)
+		pill["key"] = "CHAT_SYS_REJOIN" if payable == "rejoin" else "CHAT_SYS_POACH"
+		r["pills"].append(pill)
+		if st == "open":
+			_hits.append({"rect": Rect2(pr.get_center().x - 268.0, y + pr.get_center().y - 44.0, 536, 88), "kind": "pay",
+				"seq": int(m["seq"]), "pill": pill})
+		cy += PILL_H
+	if str(m.get("key", "")) == "chat.brawl.after":
+		var cc := _text(root, "", C_MUTED, 300.0, 1)
+		cc.position.y = cy + 8.0
+		r["corridor"] = cc
+		cy += 8.0 + _lh(cc)
+	r["h"] = cy
+	return r
+
+
+## Gotliv's transfer (kit transfer_banner 720×120 full bleed + transfer_card under it).
+func _build_transfer(row: Dictionary, y: float) -> Dictionary:
+	var m: Dictionary = row["msg"]
+	var root := _root(y)
+	Ui.nine(root, Rect2(0, 0, L.W, 120), Art.sprite_or("transfer_banner"))
+	var card := Ui.nine(root, Rect2(16, 128, 688, 64), Art.sprite_or("transfer_card"))
+	var nm := PxText.make(root, Vector2(0, 148), partner_name(str(m.get("partner", ""))), L.TEXT + 1, "plain", C_GOLD_HI)
+	nm.wrap_width = 640.0
+	nm.max_lines = 1
+	nm.right_at(672)
+	var ln := _text(root, Strings.s("CHAT_TRANSFER_LINE", {"from": partner_name(str(m.get("partner", ""))), "to": partner_name(str(m.get("to", "")))}), Color.WHITE, 640.0, 2)
+	ln.right_at(672)
+	ln.position.y = 148.0 + _lh(nm) + 4.0
+	var ch := Ui.snap(20.0 + _lh(nm) + 4.0 + _lh(ln) * maxf(1.0, float(ln.line_count())) + 16.0, 4)
+	Ui.set_nine_rect(card, Rect2(16, 128, 688, ch))
+	return {"root": root, "pills": [], "h": 128.0 + ch}
+
+
+## The brawl: the cloud slot inline, 208×160 centred (rtl-map answer to the Animator), then the
+## "צאו החוצה" button (visual 312×80, hit 336×88).
+func _build_brawl(row: Dictionary, y: float) -> Dictionary:
+	var root := _root(y)
+	var cloud := Ui.img(root, Vector2(256, 0), Art.sprite_or("brawl_cloud"), 0, 4)
+	var btn := PxButton.make(root, Rect2(204, 168, 312, 80), {"hit": Rect2(192, 164, 336, 88), "label": Strings.s("CHAT_BRAWL_BTN"), "kind": "kit_secondary"})
+	_hits.append({"rect": Rect2(192, y + 164, 336, 88), "kind": "brawl", "seq": int(row["seq"]), "button": btn})
+	return {"root": root, "pills": [], "h": 256.0, "cloud": cloud, "button": btn}
+
+
+# ------------------------------------------------------------------ live updates
+
+func _update_header() -> void:
+	if _state == null:
+		return
+	var txt := ""
+	if not _typing.is_empty():
+		var pid := str(_typing["partner"])
+		txt = Strings.gendered("CHAT_TYPING", str(Coalition.partner(pid).get("g", "m")), {"name": partner_name(pid)})
+	else:
+		var k := Coalition.threat_count(_state) if Coalition.active() else 0
+		if k > 0:
+			txt = Strings.plural("CHAT_THREATS", k, {"k": str(k)})
+		else:
+			txt = Strings.plural("CHAT_MEMBERS", (Coalition.member_count(_state) if Coalition.active() else 0) + 1)
+	_status.text = txt
+	_status.right_at(TITLE_RIGHT)
+	_lock.position = Vector2(Ui.snap(TITLE_RIGHT - float(_title.width()) - 12.0 - float(Art.sprite_size(_lock.get_meta("sprite")).x) * 4.0, 4), 20)
+	_pinned_text.text = Strings.s("CHAT_PINNED", {"n": str(_state.evolutions + 1)})
+	var agreement := _state.evolutions >= 1
+	var badge := agreement and Meta.can_buy_any_perk(_state)
+	_pinned_badge.visible = badge
+	_pinned_badge_text.visible = badge
+
+
+func _update_rows(dt: float) -> void:
+	var bps := _d.bps if _d != null else 0.0
+	for r: Dictionary in _rows:
+		var seq := int(r.get("seq", -1))
+		var root: Node2D = r["root"]
+		# arrival (motion chat-message-arrival)
+		var base_x := 0.0
+		var base_y := 0.0
+		var a := 1.0
+		if _arrive_at.has(seq):
+			var t := _now - float(_arrive_at[seq])
+			var ms := mc("chatBubbleInMs")
+			if t >= ms + 100.0:
+				_arrive_at.erase(seq)
+			elif reduced_motion:
+				a = minf(1.0, t / 120.0)
+			else:
+				var p := minf(1.0, t / ms)
+				var off := mc("chatBubbleInOffsetPx") * (1.0 - Ui.quad_out(p))
+				match String(r.get("kind", "")):
+					"in", "ult", "deleted", "transfer":
+						base_x = Ui.snap(off, 4)
+					"out":
+						base_x = -Ui.snap(off, 4)
+					_:
+						base_y = Ui.snap(off / 2.0, 4)
+				a = p
+				if r.get("kind", "") == "ult" and t > ms:
+					base_y = Ui.snap(4.0 * (1.0 - Ui.quad_out(minf(1.0, (t - ms) / 100.0))), 4)   # the 1-ap thud
+		root.position = Vector2(base_x, float(r["y"]) + base_y)
+		root.modulate.a = a
+		for pill: Dictionary in r["pills"]:
+			_update_pill(pill, bps)
+		if r.get("chip") != null:
+			_update_chip(r["chip"], Coalition.message(_state, seq), dt)
+		if r.has("corridor"):
+			(r["corridor"] as PxText).text = Strings.s("CHAT_CORRIDOR_COUNT", {"n": str(int(_state.coalition.get("corridorMsgs", 0)))})
+			(r["corridor"] as PxText).center_in(0, L.W)
+		if r.has("cloud"):
+			var cl: Sprite2D = r["cloud"]
+			Ui.set_frame(cl, cl.get_meta("sprite"), 0 if reduced_motion else int(_now / 150.0) % maxi(1, Art.frame_count(cl.get_meta("sprite"))))
+
+
+func _update_pill(pill: Dictionary, _bps: float) -> void:
+	var seq := int(pill["seq"])
+	var m := Coalition.message(_state, seq)
+	var st := str(m.get("state", ""))
+	var nine: NinePatchRect = pill["nine"]
+	var fill: NinePatchRect = pill["fill"]
+	var lab: PxText = pill["label"]
+	var stamp: Sprite2D = pill["stamp"]
+	var pr: Rect2 = pill["rect"]
+	if st != "open":
+		nine.visible = false
+		fill.visible = false
+		lab.visible = false
+		var paid := st == "paid" or st == "deleted"
+		stamp.visible = paid
+		if paid:
+			var sc := 4.0
+			if _stamp_at.has(seq) and not reduced_motion:
+				var t := _now - float(_stamp_at[seq])
+				sc = 6.0 if t < 33.0 else (5.0 if t < mc("stampSlamMs") * 0.75 else 4.0)
+				stamp.modulate.a = 0.6 if t < 33.0 else 1.0
+				if t > 400.0:
+					_stamp_at.erase(seq)
+			stamp.scale = Vector2(sc, sc)
+		return
+	stamp.visible = false
+	nine.visible = true
+	lab.visible = true
+	var price := float(m.get("price", 0.0))
+	var have := _state.bananas
+	var afford := have >= price
+	var ribbon := not _ribbon.is_empty() and int(_ribbon["seq"]) == seq
+	var sprite := "pay_pill_pressed" if (afford and pill["pressed"]) else ("pay_pill_default" if afford else "pay_pill_track")
+	Ui.set_nine_frame(nine, Art.sprite_or(sprite), 0)
+	var dx := 0.0
+	if _shake.has(seq):
+		var t2 := _now - float(_shake[seq])
+		if t2 >= 180.0:
+			_shake.erase(seq)
+		elif not reduced_motion:
+			dx = 4.0 if int(t2 / 45.0) % 2 == 0 else -4.0
+	var dy := 8.0 if pill["pressed"] and afford else 0.0
+	Ui.set_nine_rect(nine, Rect2(pr.position + Vector2(dx, dy / 2.0), pr.size - Vector2(0, dy / 2.0)))
+	var inner := Rect2(pr.position + Vector2(8, 16), pr.size - Vector2(16, 28))
+	var frac := 0.0
+	if ribbon:
+		frac = clampf(float(_ribbon["t"]) / CEREMONY_MS, 0.0, 1.0)
+	elif not afford and price > 0.0:
+		frac = clampf(have / price, 0.0, 1.0)
+	fill.visible = frac > 0.0 and (ribbon or not afford)
+	if fill.visible:
+		var w := maxf(8.0, Ui.snap(inner.size.x * frac, 4))
+		Ui.set_nine_rect(fill, Rect2(L.bar_x(inner, w) + dx, inner.position.y, w, inner.size.y))
+	var text := ""
+	var key := str(pill.get("key", ""))
+	if afford or ribbon:
+		text = Strings.s(key if key != "" else "CHAT_PAY", {"price": Fmt.cost(price)})
+	else:
+		text = Strings.s("CHAT_PAY_SHORT", {"n": Fmt.cost(ceilf(price - have))}) if key == "" else Strings.s(key, {"price": Fmt.cost(price)})
+	lab.text = text
+	lab.tint = C_INK if afford else Color.WHITE
+	lab.center_in(pr.position.x + dx, pr.size.x)
+	lab.position.y = pr.position.y + 12.0 + dy / 2.0
+
+
+## The ultimatum chip (motion chat-ultimatum-countdown): digits cut once per displayed second;
+## ≤ 10 s a 1-ap nudge on each tick, ≤ 3 s on every half second (2 Hz, with the Audio's doubled
+## ticks); the clock hand steps per second. Deviation, stated: the digits stay white. The spec's
+## "alert palette index" is red, and red digits on the kit's red chip (white 4.7:1) would not read.
+func _update_chip(chip: Dictionary, m: Dictionary, _dt: float) -> void:
+	var left := float(m.get("leftSec", 0.0))
+	var open := str(m.get("state", "")) == "open"
+	var secs := int(ceilf(left - 0.001)) if open else 0
+	var t: PxText = chip["text"]
+	t.text = Strings.s("CHAT_ULT_TIMER", {"mmss": mmss(float(secs))})
+	chip["urgent"] = open and secs <= int(mc("ultimatumUrgentFromSec"))
+	var half := int(ceilf(left * 2.0 - 0.001)) if open else 0
+	if bool(chip["urgent"]) and half != int(chip.get("lastHalf", -1)) and not reduced_motion:
+		chip["nudgeAt"] = _now
+	chip["lastHalf"] = half
+	if secs != int(chip["lastSec"]):
+		chip["lastSec"] = secs
+		if open and secs <= int(mc("ultimatumNudgeFromSec")) and not reduced_motion:
+			chip["nudgeAt"] = _now
+		var clock: Sprite2D = chip["clock"]
+		Ui.set_frame(clock, clock.get_meta("sprite"), 0 if reduced_motion else posmod(-secs, maxi(1, Art.frame_count(clock.get_meta("sprite")))))
+	var root: Node2D = chip["root"]
+	var nt := _now - float(chip["nudgeAt"])
+	root.position.y = float(chip["y0"]) + (Ui.snap(4.0 * (1.0 - Ui.quad_out(minf(1.0, nt / 100.0))), 4) if nt < 100.0 else 0.0)
+
+
+func _update_badge() -> void:
+	if host == null or not "shop" in host or host.get("shop") == null or _state == null:
+		return
+	var n := 0
+	if Coalition.active():
+		for m: Dictionary in _chat(_state):
+			if str(m.get("state", "")) == "open" and Coalition.is_payable(m):
+				n += 1
+	var txt := "" if (n <= 0 or _open) else Strings.s("TAB_BADGE", {"count": "9+" if n > 9 else str(n)})
+	(host.get("shop") as Shop).set_tab_badge(3, txt)
+
+
+## One ultimatumTick per displayed second of every open ultimatum (the Audio adds the half-second
+## ticks in the last 3 s). The sim pauses ultimatums while hidden, so the ticks do too.
+func _tick_ultimatums(live: bool) -> void:
+	if _state == null or not Coalition.active():
+		return
+	for m: Dictionary in _chat(_state):
+		if m.get("type", "") != "ultimatum" or m.get("state", "") != "open":
+			continue
+		var seq := int(m["seq"])
+		var secs := int(ceilf(float(m.get("leftSec", 0.0)) - 0.001))
+		if int(_tick_sec.get(seq, -1)) != secs:
+			var first := not _tick_sec.has(seq)
+			_tick_sec[seq] = secs
+			if live and not first:
+				_audio("ultimatumTick", secs)
+
+
+func _update_ribbon(dt: float) -> void:
+	if _ribbon.is_empty():
+		return
+	_ribbon["t"] = float(_ribbon["t"]) + dt
+	if float(_ribbon["t"]) >= CEREMONY_MS:
+		var seq := int(_ribbon["seq"])
+		_ribbon = {}
+		pay(seq, true)
+
+
+# ------------------------------------------------------------------ player actions
+
+## Pays an open demand / ultimatum / rejoin / poach line through the sim. A ceremony (Regev)
+## first runs its 3 s ribbon on the pill, then pays. Returns true when the sim took the money.
+func pay(seq: int, ceremony_done: bool = false) -> bool:
+	if _state == null:
+		return false
+	var m := Coalition.message(_state, seq)
+	if m.is_empty() or str(m.get("state", "")) != "open":
+		return false
+	if str(m.get("kind", "money")) == "ceremony" and not ceremony_done:
+		if _ribbon.is_empty():
+			_ribbon = {"seq": seq, "t": 0.0}
+			_audio("uiClick")
+		return false
+	var was_ult := str(m.get("type", "")) == "ultimatum"
+	var r := Coalition.pay(_state, seq, ceremony_done)
+	if not r.get("ok", false):
+		if r.get("reason", "") == "funds":
+			_shake[seq] = _now
+			_audio("cantAfford")
+		return false
+	_audio("stamp")
+	if was_ult:
+		_audio("ultimatumPaid")
+	_stamp_at[seq] = _now
+	_tick_sec.erase(seq)
+	_next_at = _now + mc("chatReplyDelayMs")
+	_launch_pips(seq, str(r.get("partner", "")))
+	for e: Variant in r.get("events", []):
+		if e is Dictionary:
+			on_politics_event(e)
+	if host != null and host.has_method("_mark_dirty"):
+		host.call("_mark_dirty")
+	return true
+
+
+func resolve_brawl(seq: int) -> void:
+	if _state == null:
+		return
+	for e: Variant in Coalition.resolve_brawl(_state, seq):
+		if e is Dictionary:
+			on_politics_event(e)
+	_audio("uiClick")
+	if host != null and host.has_method("_mark_dirty"):
+		host.call("_mark_dirty")
+
+
+## Politics events the chat voices (MainController routes every Politics.tick event here).
+func on_politics_event(e: Dictionary) -> void:
+	match String(e.get("ev", "")):
+		"message":
+			var msg: Dictionary = e.get("msg", {})
+			if not _open and is_partner_bubble(msg) and (msg.get("type", "") == "demand" or msg.get("type", "") == "ultimatum"):
+				_audio("chatPing", str(msg.get("partner", "")))
+				if host != null and "toasts" in host and host.get("toasts") != null:
+					var tt: Toasts = host.get("toasts")
+					if tt.has_method("show_toast"):
+						tt.show_toast(line_text(msg, _state, _d), "chat")
+		"partnerLeft":
+			var pid := str(e.get("partner", e.get("id", "")))
+			if _ultimatum_ran_out(pid):
+				_audio("ultimatumZero")
+			else:
+				_audio("chatLeft", pid)
+
+
+## True when the partner's newest ultimatum just ran out (its timer hit 0:00).
+func _ultimatum_ran_out(pid: String) -> bool:
+	var chat := _chat(_state)
+	for i in range(chat.size() - 1, -1, -1):
+		var m: Dictionary = chat[i]
+		if m.get("type", "") == "ultimatum" and str(m.get("partner", "")) == pid:
+			return m.get("state", "") == "expired" and float(m.get("leftSec", 1.0)) <= 0.001
+	return false
+
+
+func _audio(name: String, arg: Variant = null) -> void:
+	if host != null and host.has_method("audio_event"):
+		host.call("audio_event", name, arg)
+
+
+# ------------------------------------------------------------------ seat pips (motion seat-pip-flight)
+
+func _launch_pips(seq: int, pid: String) -> void:
+	if reduced_motion or host == null or not "_top_y" in host:
+		return
+	var pill := _pill_of(seq)
+	if pill.is_empty():
+		return
+	var row := _row_of(seq)
+	var p0 := Vector2(0, THREAD_Y + _content.position.y + float(row.get("y", 0.0))) + (pill["rect"] as Rect2).get_center()
+	var tr: Rect2 = L.TOP["seatsTrack"]
+	var si := Coalition.seat_info(_state)
+	var frac := clampf(float(si["effective"]) / maxf(1.0, float(si["gateSeats"])), 0.0, 1.0)
+	var head_x := tr.end.x - 4.0 - (tr.size.x - 8.0) * frac
+	var top_to_tall := float(host.get("_top_y")) - (float(host.get("_lower_y")) - L.stage_h)
+	var p2 := Vector2(head_x, tr.get_center().y + top_to_tall)
+	var seats := int(Coalition.partner(pid).get("seats", 0))
+	var k := mini(maxi(1, seats), int(mc("seatPipMax")))
+	if seats <= 0:
+		return
+	var ctrl := Vector2(p0.x + 0.3 * (p2.x - p0.x), minf(p0.y, p2.y) - 160.0)
+	for i in k:
+		var n := Ui.rect(_fx, Rect2(0, 0, 12, 12), C_SKY)
+		n.visible = false
+		_pips.append({"node": n, "t0": _now + mc("stampSlamMs") + i * mc("seatPipStaggerMs"), "p0": p0, "c": ctrl, "p2": p2})
+
+
+func _update_pips() -> void:
+	for i in range(_pips.size() - 1, -1, -1):
+		var pp: Dictionary = _pips[i]
+		var n: ColorRect = pp["node"]
+		var t := (_now - float(pp["t0"])) / mc("seatPipFlightMs")
+		if t < 0.0:
+			continue
+		if t >= 1.0:
+			n.queue_free()
+			_pips.remove_at(i)
+			continue
+		var u := Ui.quad_in(t)
+		var a: Vector2 = pp["p0"]
+		var c: Vector2 = pp["c"]
+		var b: Vector2 = pp["p2"]
+		var q := a.lerp(c, u).lerp(c.lerp(b, u), u)
+		n.visible = true
+		n.position = (q - Vector2(6, 6) - _panel.position).snapped(Vector2(4, 4))
+
+
+func _pill_of(seq: int) -> Dictionary:
+	for r: Dictionary in _rows:
+		for p: Dictionary in r["pills"]:
+			if int(p["seq"]) == seq:
+				return p
+	return {}
+
+
+func _row_of(seq: int) -> Dictionary:
+	for r: Dictionary in _rows:
+		if int(r.get("seq", -1)) == seq:
+			return r
+	return {}
+
+
+# ------------------------------------------------------------------ scroll
+
+func _max_scroll() -> float:
+	return maxf(0.0, _content_h - thread_h())
+
+
+func _set_scroll(v: float) -> void:
+	_scroll = clampf(v, 0.0, _max_scroll())
+
+
+func _scroll_bottom(animate: bool) -> void:
+	var target := _max_scroll()
+	_stick = true
+	if _scroll_tw:
+		_scroll_tw.kill()
+	if not animate or reduced_motion or not is_inside_tree():
+		_scroll = target
+		return
+	_scroll_tw = create_tween()
+	_scroll_tw.tween_method(func(v: float) -> void: _set_scroll(v), _scroll, target, mc("chatScrollMs") / 1000.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+
+
+func _scroll_to_seq(seq: int) -> void:
+	_rebuild_if_needed(false)
+	var r := _row_of(seq)
+	if r.is_empty():
+		return
+	_stick = false
+	_set_scroll(float(r["y"]) + float(r["h"]) - thread_h() + 24.0)
+
+
+func _update_scroll(dt: float) -> void:
+	if _press.is_empty() and _vel != 0.0:
+		_set_scroll(_scroll + _vel * (dt / Tune.FRAME_MS))
+		_vel *= pow(float(Tune.MC.get("listMomentumDecay", 0.92)), dt / Tune.FRAME_MS)
+		if absf(_vel) < float(Tune.MC.get("listMomentumStop", 0.1)):
+			_vel = 0.0
+	# content shorter than the thread sits at the bottom (newest at the bottom, rtl-map §6.3)
+	var off := maxf(0.0, thread_h() - _content_h)
+	_content.position.y = Ui.snap(off - _scroll, 4)
+	var th := thread_h()
+	var scrollable := _content_h > th
+	_thumb.visible = scrollable
+	if scrollable:
+		var tl := maxf(48.0, th * th / _content_h)
+		_thumb.size.y = Ui.snap(tl, 4)
+		_thumb.position.y = Ui.snap(THREAD_Y + (th - tl) * (_scroll / maxf(1.0, _max_scroll())), 4)
+		var dragging: bool = not _press.is_empty() and _press.get("dragging", false)
+		_thumb.modulate.a = 1.0 if (dragging or _vel != 0.0) else 0.35
+
+
+func wheel(dy: float) -> void:
+	_stick = false
+	_set_scroll(_scroll + signf(dy) * float(Tune.MC.get("wheelNotchPx", 104)))
+	if _scroll >= _max_scroll() - 4.0:
+		_stick = true
+
+
+# ------------------------------------------------------------------ input (MainController routes `_lower`-local points)
+
+## A `_lower`-local point in tall-local space (the panel's open/close slide included).
+func _tall(p: Vector2) -> Vector2:
+	return p - position - (_panel.position if _open else Vector2.ZERO)
+
+
+## The thread point (content-local) under a tall-local point, or (-1, -1) outside the thread.
+func _content_pt(q: Vector2) -> Vector2:
+	if q.y < THREAD_Y or q.y >= THREAD_Y + thread_h():
+		return Vector2(-1, -1)
+	return Vector2(q.x, q.y - THREAD_Y - _content.position.y)
+
+
+## True when the chat (or the cameo) takes this press.
+func pointer_down(p: Vector2) -> bool:
+	var q := _tall(p)
+	if not _open:
+		if _cameo.visible and Ui.in_rect(_cameo_rect, q):
+			_press = {"kind": "cameo"}
+			return true
+		return false
+	if q.y < 0.0 or q.y >= _h:
+		return false
+	_vel = 0.0
+	if _scroll_tw:
+		_scroll_tw.kill()
+	var ready := _now - _open_ms >= INPUT_AFTER_OPEN_MS
+	_press = {"kind": "thread", "y0": q.y, "x0": q.x, "scroll0": _scroll, "dragging": false, "lastY": q.y, "lastT": _now, "vel": 0.0, "hit": {}}
+	if Ui.in_rect(CHEVRON_HIT, q):
+		_press["kind"] = "chevron"
+		return true
+	if Ui.in_rect(PINNED_HIT, q) and q.y < THREAD_Y:
+		_press["kind"] = "pinned"
+		return true
+	var c := _content_pt(q)
+	if c.y < 0.0 or not ready:
+		return true
+	for h: Dictionary in _hits:
+		if Ui.in_rect(h["rect"], c):
+			_press["hit"] = h
+			if h["kind"] == "pay":
+				(h["pill"] as Dictionary)["pressed"] = true
+			elif h["kind"] == "brawl":
+				(h["button"] as PxButton).down()
+			break
+	return true
+
+
+func pointer_move(p: Vector2) -> void:
+	if _press.is_empty() or _press["kind"] != "thread":
+		return
+	var q := _tall(p)
+	var dt := maxf(1.0, _now - float(_press["lastT"]))
+	if not _press["dragging"] and q.distance_to(Vector2(_press["x0"], _press["y0"])) > float(L.SHOP["moveCancelPx"]):
+		_press["dragging"] = true
+		_release_hit(false)
+	if _press["dragging"]:
+		var s0 := _scroll
+		_set_scroll(float(_press["scroll0"]) - (q.y - float(_press["y0"])))
+		_press["vel"] = (_scroll - s0) / (dt / Tune.FRAME_MS)
+		_stick = _scroll >= _max_scroll() - 4.0
+	_press["lastY"] = q.y
+	_press["lastT"] = _now
+
+
+func pointer_up(p: Vector2) -> void:
+	var pr := _press
+	_press = {}
+	if pr.is_empty():
+		return
+	var q := _tall(p)
+	match String(pr["kind"]):
+		"cameo":
+			if Ui.in_rect(_cameo_rect, q):
+				open(_cameo_seq)
+		"chevron":
+			if Ui.in_rect(CHEVRON_HIT, q):
+				close()
+		"pinned":
+			if Ui.in_rect(PINNED_HIT, q) and _state != null and _state.evolutions >= 1 and host != null and host.has_method("_open_perks"):
+				host.call("_open_perks")   # rtl-map §7.3: the agreement's home after the first election
+		"thread":
+			if pr["dragging"]:
+				_vel = float(pr["vel"]) if absf(float(pr["vel"])) > float(Tune.MC.get("listMomentumStop", 0.1)) else 0.0
+				return
+			var h: Dictionary = pr["hit"]
+			if h.is_empty():
+				return
+			var inside := Ui.in_rect(h["rect"], _content_pt(q))
+			_press = {"hit": h}
+			_release_hit(inside)
+			_press = {}
+
+
+func _release_hit(commit: bool) -> void:
+	var h: Dictionary = _press.get("hit", {})
+	if h.is_empty():
+		return
+	_press["hit"] = {}
+	match String(h["kind"]):
+		"pay":
+			(h["pill"] as Dictionary)["pressed"] = false
+			if commit:
+				pay(int(h["seq"]))
+		"brawl":
+			(h["button"] as PxButton).up(commit)
+			if commit:
+				resolve_brawl(int(h["seq"]))
+		"partner":
+			if commit:
+				open_partner_card(str(h["partner"]))
+
+
+## The partner card (rtl-map §6.3): a modal over T3 through the overlay stack.
+func open_partner_card(pid: String) -> void:
+	if host == null or not "overlays" in host or pid == "":
+		return
+	var mgr: OverlayManager = host.get("overlays")
+	if mgr == null or mgr.is_open():
+		return
+	_audio("panelOpen")
+	var chat := self
+	mgr.request(func() -> Overlay:
+		var o := PartnerCard.new()
+		o.setup(host, mgr)
+		o.chat = chat
+		o.partner_id = pid
+		return o.build())
+
+
+## Test / key hook: the hit rects of the current thread (content-local).
+func hits() -> Array[Dictionary]:
+	return _hits
+
+
+func rows() -> Array[Dictionary]:
+	return _rows
+
+
+## A tall-local point on the screen for a content-local point (tests aim taps with it).
+func content_to_tall(c: Vector2) -> Vector2:
+	return Vector2(c.x, c.y + THREAD_Y + _content.position.y)
+
+
+# ------------------------------------------------------------------ the ultimatum cameo (rtl-map §4.2)
+
+## The newest open ultimatum's partner stands in the stage's right column with the timer chip
+## above the head while the chat is closed. Tap → T3 at that ultimatum. Deviation, stated: the
+## body draws at art ×3 when it fits (the spec's Magician − 1), else ×2, else it is skipped; the
+## spec reserves ×2 for S < 560, but at ×3 the chip no longer fits under the toast dock at S 640.
+func _update_cameo(dt: float, allowed: bool) -> void:
+	var m := _newest_open_ultimatum()
+	var show := allowed and not _open and not _panel.visible and not m.is_empty() and _state != null
+	if show:
+		var pid := str(m["partner"])
+		var slug := char_for(pid)
+		if slug == "":
+			show = false
+		elif _cameo_id != slug:
+			if _cameo_strip != null:
+				_cameo_strip.queue_free()
+			_cameo_strip = SpriteStrip.make(_cameo, slug, Vector2.ZERO, "idle")
+			_cameo_id = slug
+			_cameo.move_child(_cameo_chip, -1)
+			_cameo.move_child(_cameo_clock, -1)
+			_cameo.move_child(_cameo_timer, -1)
+		if show and _cameo_strip != null:
+			var feet := Vector2(644, L.stage_h - 140.0)
+			var fh := float(_cameo_strip._c.get("frameH", 0)) / float(_cameo_strip.density)   # art px
+			var room := feet.y - 140.0 - CHIP_H - 8.0    # between the toast dock bottom and S − 140
+			var art := 3.0 if fh * 3.0 <= room else (2.0 if fh * 2.0 <= room else 0.0)
+			if art <= 0.0:
+				show = false
+			else:
+				var sp := art / float(_cameo_strip.density)
+				if not is_equal_approx(_cameo_strip.scale_px, sp):
+					_cameo_strip.scale_px = sp
+					_cameo_strip._setup_filter()
+					_cameo_strip.queue_redraw()
+				_cameo_strip.position = feet
+				_cameo_strip.update_view(dt)
+				var h := fh * art
+				_cameo_rect = Rect2(568, feet.y - h, 152, h)
+				_cameo_seq = int(m["seq"])
+				var chip_pos := Vector2(Ui.snap(644.0 - CHIP_W / 2.0, 4), Ui.snap(feet.y - h - CHIP_H - 8.0, 4))
+				Ui.set_nine_rect(_cameo_chip, Rect2(chip_pos, Vector2(CHIP_W, CHIP_H)))
+				_cameo_clock.position = chip_pos + Vector2(CHIP_W - 48.0, 8)
+				var secs := int(ceilf(float(m.get("leftSec", 0.0)) - 0.001))
+				_cameo_timer.text = Strings.s("CHAT_ULT_TIMER", {"mmss": mmss(float(secs))})
+				_cameo_timer.position = chip_pos + Vector2(12, 8)
+				Ui.set_frame(_cameo_clock, _cameo_clock.get_meta("sprite"), 0 if reduced_motion else posmod(-secs, maxi(1, Art.frame_count(_cameo_clock.get_meta("sprite")))))
+	_cameo.visible = show
+	if not show:
+		_cameo_rect = Rect2()
+
+
+func _newest_open_ultimatum() -> Dictionary:
+	if _state == null or not Coalition.active():
+		return {}
+	var chat := _chat(_state)
+	for i in range(chat.size() - 1, -1, -1):
+		var m: Dictionary = chat[i]
+		if m.get("type", "") == "ultimatum" and m.get("state", "") == "open":
+			return m
+	return {}
+
+
+func cameo_visible() -> bool:
+	return _cameo.visible
+
+
+func cameo_rect() -> Rect2:
+	return _cameo_rect
+
+
+# =============================================================================================
+# The partner card: a modal over T3 (depth 2), 624 wide: the figure idling at an integer scale,
+# the name, seats, and the partner's open demand pill if any. ✕ top-left + "סגור". A partner who
+# left shows greyed at f0 (the Animator's `gone` state).
+# =============================================================================================
+
+class PartnerCard:
+	extends Overlay
+	var chat: ChatView
+	var partner_id := ""
+	var _strip: SpriteStrip
+	var _pay: PxButton
+	var _seq := -1
+
+	func build() -> PartnerCard:
+		id = "PARTNER_CARD"
+		var th := Art.theme
+		var p := Coalition.partner(partner_id)
+		var slug := ChatView.char_for(partner_id)
+		var s: GameState = chat._state
+		var st := Coalition.status(s, partner_id) if s != null else "absent"
+		var gone := ["left", "removed", "transferred", "absent"].has(st)
+		var fig_h := 0.0
+		var dens := 1
+		if slug != "":
+			var c: Dictionary = SpriteStrip.manifest()["chars"][slug]
+			dens = maxi(1, int(c.get("density", SpriteStrip.manifest().get("density", 1))))
+			fig_h = float(c.get("frameH", 0)) / float(dens) * 3.0     # art ×3: integer, fits 624
+		var om := Coalition.open_msg(s, partner_id) if s != null else {}
+		var h := 104.0 + fig_h + 24.0 + 52.0 + 52.0 + (104.0 if not om.is_empty() else 0.0) + 120.0
+		var y := Ui.snap((L.H - h) / 2.0, 4)
+		var pr := Rect2(48, y, 624, h)
+		make_panel(pr)
+		var close := close_button(Rect2(pr.position.x + 16, pr.position.y + 16, 64, 64), Rect2(pr.position.x, pr.position.y, 104, 104), func() -> void: cancel("close"))
+		var title := text(Vector2(0, y + 32.0), ChatView.partner_name(partner_id), L.TEXT, th["modal"]["title"])
+		title.wrap_width = 432.0
+		title.max_lines = 1
+		title.center_in(pr.position.x + 96.0, 432.0)
+		var cy := y + 104.0
+		if slug != "":
+			_strip = SpriteStrip.make(panel, slug, Vector2(360, cy + fig_h), "idle")
+			if _strip != null:
+				_strip.scale_px = 3.0 / float(dens)
+				_strip._setup_filter()
+				if gone:
+					_strip.paused = true
+					_strip.play("idle")
+					_strip.modulate = Color(0.45, 0.45, 0.5)
+		cy += fig_h + 24.0
+		var seats_l := text(Vector2(0, cy), Strings.s("HUD_SEATS"), L.TEXT, th["modal"]["body"])
+		seats_l.right_at(pr.end.x - 32.0)
+		var seats_v := text(Vector2(pr.position.x + 32.0, cy), str(Coalition.row_seats(s, partner_id) if s != null else int(p.get("seats", 0))), L.TEXT, th["modal"]["body"])
+		seats_v.h_anchor = 0
+		cy += 52.0
+		if Strings.has("PARTNER_UPKEEP"):
+			var up_l := text(Vector2(0, cy), Strings.s("PARTNER_UPKEEP"), L.TEXT, th["modal"]["body"])
+			up_l.right_at(pr.end.x - 32.0)
+		var up_v := text(Vector2(pr.position.x + 32.0, cy), "−%d%%" % int(roundf(float(p.get("upkeepPct", 0.0)))), L.TEXT, th["modal"]["note"])
+		up_v.h_anchor = 0
+		cy += 52.0
+		if not om.is_empty():
+			_seq = int(om["seq"])
+			var vis := Rect2(Ui.snap(360.0 - ChatView.PILL_W / 2.0, 4), cy + 16.0, ChatView.PILL_W, ChatView.PILL_H)
+			_pay = button(vis, vis.grow_individual(12, 10, 12, 10), "", func() -> void:
+				if chat.pay(_seq):
+					cancel("close"), "kit_gold")
+			cy += 104.0
+		button(Rect2(88, pr.end.y - 112.0, 544, 96), Rect2(88, pr.end.y - 112.0, 544, 96), Strings.s("SYS_CLOSE"),
+			func() -> void: cancel("close"), "kit_secondary", L.TEXT)
+		focusables.append(close)
+		_sync_pay()
+		return self
+
+	func _sync_pay() -> void:
+		if _pay == null or chat == null or chat._state == null:
+			return
+		var m := Coalition.message(chat._state, _seq)
+		var price := float(m.get("price", 0.0))
+		var afford := chat._state.bananas >= price
+		var t := Strings.s("CHAT_PAY", {"price": Fmt.cost(price)}) if afford \
+			else Strings.s("CHAT_PAY_SHORT", {"n": Fmt.cost(ceilf(price - chat._state.bananas))})
+		if _pay.label and _pay.label.text != t:
+			_pay.set_label(t)
+		_pay.set_enabled(str(m.get("state", "")) == "open")
+
+	func update_view(dt_ms: float) -> void:
+		if _strip != null and not _strip.paused:
+			_strip.update_view(dt_ms)
+		_sync_pay()
+
+	func cancel(via: String) -> void:
+		host.audio_event("panelClose")
+		mgr.close(self, via)

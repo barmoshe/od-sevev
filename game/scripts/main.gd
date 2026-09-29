@@ -89,6 +89,8 @@ var title_view: TitleView
 var ftue: Ftue
 var overlays: OverlayManager
 var tx: EvolveTx
+var chat: ChatView                  # T3 "קואליציה 61" (ui/views/view_chat.gd)
+var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
 var _fills := {}
 var _title_ground: TextureRect
 
@@ -277,6 +279,7 @@ func _build() -> void:
 	shop.producer_revealed.connect(func() -> void: _audio("producerReveal"))
 	shop.list_interaction.connect(func() -> void: ftue.on_input())
 	shop.nudge_blocked = func() -> bool: return overlays.is_open() or tx.running or _tx_locked or ftue.pointer_visible()
+	_build_chat()
 	fx_ui = FxPlayer.new()
 	_ui.add_child(fx_ui)
 	ftue = Ftue.new()
@@ -301,6 +304,22 @@ func _build() -> void:
 					_audio("ceremonyEnd"))
 		if a.has_signal("dubi_blip"):
 			a.connect("dubi_blip", func(_bank: String) -> void: ticker.dubi_talk())
+
+
+## T3 "קואליציה 61" (ux/rtl-map.md §6.3): the chat view over the stage, ticker and panel, opened
+## from its tab slot, Row B, a chat toast or the ultimatum cameo.
+func _build_chat() -> void:
+	chat = ChatView.new().setup(self)
+	_lower.add_child(chat)
+	shop.tall_tab_requested.connect(func(t: String) -> void:
+		if t == "coalition":
+			chat.toggle())
+	chat.open_changed.connect(func(on: bool) -> void:
+		shop.tall = "coalition" if on else ""
+		shop.cancel_press())
+	toasts.on_tap = func(tag: String) -> void:
+		if tag == "chat" and _gameplay_input():
+			chat.open()
 
 
 # ================================================================== layout
@@ -359,6 +378,7 @@ func _relayout() -> void:
 	_modal.position = Vector2(_ox, _ovl_y)
 	diorama.extend(_ox + 8.0, _top_y + float(L.ROW_A_H + L.ROW_B_H) + 8.0)
 	shop.set_list_height(L.panel_h)
+	chat.relayout()
 	buffs.set_stage_rect(-_ox, float(L.STAGE["y"]), _vs.x, L.stage_h)
 	bb.relayout()
 	var W := _vs.x
@@ -427,6 +447,7 @@ func _apply_settings() -> void:
 	buffs.set_reduced_motion(rm)
 	ticker.set_reduced_motion(rm)
 	shop.reduced_motion = rm
+	chat.reduced_motion = rm
 	ftue.reduced_motion = rm
 	title_view.set_reduced_motion(rm)
 	fx_stage.reduced_motion = rm
@@ -622,6 +643,7 @@ func _process(delta: float) -> void:
 	top_bar.update_view(dt)
 	_refresh_all(dt)
 	shop.tick_hold(dt, state)
+	chat.update_view(dt, state, d, {"main": running and not tx.running and not _tx_locked, "overlay": overlays.is_open()})
 	ticker.update_view(dt)
 	overlays.update_view(dt)
 	tx.update_view(dt)
@@ -669,7 +691,7 @@ func _ftue_ctx(running: bool) -> Dictionary:
 	if k >= 0 and shop.row_screen_y(k, "producers") >= 0.0 and shop.tab == "producers":
 		pill = shop.pill_pos(k) + Vector2(0, float(L.STAGE["y"]) + L.stage_h)
 	return {
-		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running,
+		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open(),
 		"hat": L.magician_feet() - Vector2(0, 380), "pill": pill,
 		"price": Economy.producer_cost(state, first, 1),
 		"bounce": func() -> void: shop.bounce_row(k),
@@ -704,7 +726,7 @@ func _blackout() -> bool:
 
 ## The band is clear for a Suitcase (ux/ftue.md: stage_unobstructed()).
 func stage_unobstructed() -> bool:
-	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked
+	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked and not chat.is_open()
 
 
 ## The HTML disclaimer faded out (shell.html sets window.mbHandoffDone): the FTUE clocks start,
@@ -807,9 +829,10 @@ func _follow_os_motion(dt: float) -> void:
 
 func _step_economy(dt_sec: float, modal: bool) -> void:
 	var ev := Economy.tick(state, dt_sec, d)
-	# the politics sim (sim/politics.gd): calendar, coalition, court, events. The coalition ping
-	# stays off until the chat tab exists (allowPing false: no group opens without its UI).
-	for pe: Variant in Politics.tick(state, dt_sec, d, {"nowMs": SaveStore.now_ms(), "allowPing": false}):
+	# the politics sim (sim/politics.gd): calendar, coalition, court, events. C1's controller half
+	# (ux/ftue.md): no modal, the last purchase ≥ 2 s ago, no toast showing, Dubi not speaking.
+	var ping := not modal and _now - _last_buy_ms >= 2000.0 and toasts.idle() and not toasts.saying()
+	for pe: Variant in Politics.tick(state, dt_sec, d, {"nowMs": SaveStore.now_ms(), "allowPing": ping}):
 		if pe is Dictionary:
 			_on_politics_event(pe)
 	if ev["frenzyEnded"]:
@@ -830,6 +853,7 @@ func _step_economy(dt_sec: float, modal: bool) -> void:
 ## Politics events the engine shows or voices this wave. The Audio runtime (another developer)
 ## subscribes by name: courtSummons, courtStart, courtEnd(reason) (motion/state-graph-magician §2.1).
 func _on_politics_event(e: Dictionary) -> void:
+	chat.on_politics_event(e)   # chat pings, toasts, chatLeft / ultimatumZero
 	match String(e.get("ev", "")):
 		"summons":
 			_audio("courtSummons")
@@ -840,8 +864,6 @@ func _on_politics_event(e: Dictionary) -> void:
 		"courtEnd":
 			_audio("courtEnd", String(e.get("reason", "testified")))
 			toasts.show_toast(Strings.s("TOAST_COURT_END"))
-		"partnerLeft":
-			_audio("chatLeft", String(e.get("id", e.get("partner", ""))))
 		"transfer":
 			_audio("transfer")
 
@@ -973,6 +995,8 @@ func _unhandled_input(e: InputEvent) -> void:
 			var sp := _in_stage(mb.position)
 			if overlays.is_open():
 				overlays.wheel(_in_modal(mb.position), -1.0 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0)
+			elif chat.is_open():
+				chat.wheel(-1.0 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0)
 			elif _gameplay_input() and shop.in_list(sp):
 				shop.wheel(-1.0 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0)
 	elif e is InputEventMouseMotion:
@@ -994,7 +1018,10 @@ func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			if not overlays.back() and mode == "main" and _gameplay_input():
-				_open_settings()
+				if chat.is_open():
+					chat.close()
+				else:
+					_open_settings()
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
 			_flush_save()
 			shop.cancel_press()
@@ -1035,6 +1062,12 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if top_bar.mute_contains(tp):
 		_presses[idx] = {"kind": "mute"}
 		return
+	if top_bar.seats_contains(tp):
+		_presses[idx] = {"kind": "seats"}   # rtl-map §3: the whole Row B opens T3
+		return
+	if chat.pointer_down(lp):
+		_presses[idx] = {"kind": "chat"}
+		return
 	if golden.hit_test(sp):
 		_catch_golden()
 		return
@@ -1065,6 +1098,8 @@ func _pointer_move(idx: int, p: Vector2) -> void:
 		shop.list_move(_in_lower(p))
 	elif pr.get("kind", "") == "overlay":
 		overlays.pointer_move(_in_modal(p))
+	elif pr.get("kind", "") == "chat":
+		chat.pointer_move(_in_lower(p))
 
 
 func _pointer_up(idx: int, p: Vector2) -> void:
@@ -1079,6 +1114,11 @@ func _pointer_up(idx: int, p: Vector2) -> void:
 			overlays.pointer_up(_in_modal(p))
 		"list":
 			shop.list_up(lp, state)
+		"chat":
+			chat.pointer_up(lp)
+		"seats":
+			if top_bar.seats_contains(tp) and _gameplay_input():
+				chat.open()
 		"tab":
 			shop.tab_up(lp)
 		"cta":
@@ -1150,12 +1190,16 @@ func _on_key(e: InputEventKey) -> void:
 	# order), E the election, B the buy mode, M mute, Esc settings
 	match e.keycode:
 		KEY_SPACE, KEY_ENTER:
-			_handle_tap(L.magician_hit().get_center())
+			if not chat.is_open():   # rtl-map §6.3: the Magician is covered while T3 is open
+				_handle_tap(L.magician_hit().get_center())
 		KEY_S:
-			if golden.on_screen():
+			if golden.on_screen() and not chat.is_open():
 				_catch_golden()
 		KEY_ESCAPE:
-			_open_settings()
+			if chat.is_open():
+				chat.close()
+			else:
+				_open_settings()
 		KEY_E:
 			if ticker.cta_on() or Economy.evolve_visible(state):
 				_open_evolution()
@@ -1260,6 +1304,7 @@ func _on_buy_producer(id: String, is_repeat: bool, result: Array) -> void:
 	if q.is_empty():
 		return
 	result[0] = int(q["qty"])
+	_last_buy_ms = _now
 	_audio("buyBulk" if int(q["qty"]) > 1 else "buy")
 	_haptic(10)
 	var k := shop.row_index_of(state, "producer", id)
@@ -1280,6 +1325,7 @@ func _on_buy_upgrade(id: String, result: Array) -> void:
 	if not Economy.buy_upgrade(state, id):
 		return
 	result[0] = true
+	_last_buy_ms = _now
 	_audio("upgradeBuy")
 	_haptic(15)
 	var k := shop.row_index_of(state, "upgrade", id)
@@ -1305,6 +1351,7 @@ func _cycle_buy_mode() -> void:
 
 
 func _on_tab_switched(t: String) -> void:
+	chat.close()   # a list tab replaces the tall tab
 	state.ui["tabsTouched"] = true
 	_audio("uiClick")
 	ftue.on_tab_selected(state, t)

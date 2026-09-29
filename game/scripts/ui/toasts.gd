@@ -9,7 +9,11 @@ const SHOW_MS := 3000.0
 const GAP_MS := 1000.0
 
 var reduced_motion := false
+## Called with the shown toast's tag when it is tapped (T3: a "chat" toast opens the chat).
+var on_tap: Callable
 var _queue: Array[String] = []
+var _tags: Array[String] = []
+var _tag := ""
 var _plate: NinePatchRect
 var _text: PxText
 var _t := -1.0
@@ -32,9 +36,10 @@ func _ready() -> void:
 		n.visible = false
 
 
-func show_toast(text: String) -> void:
+func show_toast(text: String, tag: String = "") -> void:
 	if text != "":
 		_queue.append(text)
+		_tags.append(tag)
 
 
 ## True while nothing is showing and nothing waits (the C1 ping's allowPing half).
@@ -50,6 +55,8 @@ func covered_rect() -> Rect2:
 func tap(p: Vector2) -> bool:
 	if _plate.visible and Ui.in_rect(Rect2(_plate.position, _plate.size * 4.0), p):
 		_t = SHOW_MS
+		if on_tap.is_valid() and _tag != "":
+			on_tap.call(_tag)
 		return true
 	return false
 
@@ -94,6 +101,7 @@ func update_view(dt_ms: float) -> void:
 	if _queue.is_empty():
 		return
 	_text.text = _queue.pop_front()
+	_tag = _tags.pop_front() if not _tags.is_empty() else ""
 	var two := _text.line_count() > 1
 	Ui.set_nine_rect(_plate, Rect2(16, float(L.STAGE["y"]) + 8.0, 688, 132 if two else 88))
 	_plate.visible = true
