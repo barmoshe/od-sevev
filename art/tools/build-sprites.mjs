@@ -67,6 +67,9 @@ const PALETTE = {
   U: '#3a1e72', // deep grape — stat chips, marquee, banner, bar track, scrim, line-2 text
   x: '#ff705f', // coral — destructive face, hardhat plate
   a: '#3ee2c1', // turquoise — timechimp plate
+  // ---- od-sevev (2026-09-29, ux/rtl-map.md §7.1 D23): the kit's `outline` swatch. UI only: the
+  // modal scrim at 60% (a scrim must only darken; grape lifted the dark base to #2b1753).
+  z: '#0b0a12', // outline swatch — modal scrim, spin tag plate, owned badge
 };
 
 // Sky gradient bands (the developer draws these procedurally, top → bottom).
@@ -1590,7 +1593,7 @@ const UI_THEME = {
   pill: { sprite: 'ui_pill', frames: { buy: 0, need: 1, pressed: 2 }, labelBuy: C('k'), labelNeed: C('k') },
   silhouette: { rim: C('u'), fill: C('U'), plateFrame: 9, rowFrame: 1 },
   // ---- overlays (hud-layout §11) ----
-  scrim: { ...C('U'), alpha: 0.6 },
+  scrim: { ...C('z'), alpha: 0.6 },
   modal: { sprite: 'ui_card', frame: 0, title: C('k'), body: C('k'), groupLabel: C('u'), note: C('U'), divider: C('I'), version: C('U') },
   button: { sprite: 'ui_button', frames: { normal: 0, pressed: 1, disabled: 2, hover: 3 }, label: C('k'), labelDisabled: C('k') },
   danger: { sprite: 'ui_button_danger', frames: { normal: 0, pressed: 1, hover: 2 }, label: C('k') },
