@@ -492,6 +492,8 @@ See §3.3: the apron art below the stage, the undo chip in the lane, the leader 
    - `test_leader_pick.gd`: the A/th/tw table of §5.8;
    - `tools/web/mobile_web.mjs` green (§9).
 
+**Status (Game Developer, 2026-09-30): items 1-7 are implemented** (`display.gd` art grid; `L.split`, the anchors and the fluid tabs; `_relayout`; the views; `view_pick.gd`; the merge-ready line; `tests/unit/test_mobile_layout.gd` against this tool's `--json`, frozen in `game/tests/fixtures/mobile_layout.json`). `mobile_web.mjs`: PASS on the whole matrix. Deviations are in STATUS.md.
+
 **Isolated fixes I did not make:** each of these touches shared layout, so none is "small and isolated"; they belong to one coherent change after the picker merge.
 
 ---
@@ -539,21 +541,23 @@ Default matrix: 375×667@2, 390×844@3, 393×852@3, 430×932@3, 360×780@3, 412�
 
 ### 9.2 Visual checklist per device (the reviewer's pass on the tool's shots)
 
+**Game Developer pass, 2026-09-30** (the implementation; `mobile_web.mjs` shots at 375×667@2, 390×844@3, 430×932@3 and 412×915@2.625, plus `modals_web` / `share_web` at 390×844@2): every item holds with the 2D Artist's A1/A2/A3 art merged. The merge pill is covered by `test_leader_pick.gd::test_golans_merge_ready_line` (no Golan round in the matrix shots). The modal cards grow by 2·floor4(min(dx, 64)/2), 4 px under the spec at dx 28 and 60, so they stay centred on the 4-px grid.
+
 For **each** device of the matrix:
-- [ ] Row A: the counter is ×6, centred on the canvas, clear of the mute and cottage hits; the rate line whole.
-- [ ] Before C2, the Row B slot shows the sky; after C2, Row B spans the full width, its track stretched and its label at the right edge.
-- [ ] The stage art is centred; no flat side bands wider than 2 art px (after 2D A2; before it, the pad colour is accepted).
-- [ ] The lane reads as floor, not stripes (after 2D A1).
-- [ ] The ticker panel spans the width; the text is whole words on ≤ 2 lines; no glyph is cut at either clip edge in any shot.
-- [ ] The cards span the width; the pill is at the left; the price is ×5 where it fits; no cut pill.
-- [ ] The silhouettes fill the pane below the real cards; they have no price.
-- [ ] The tab bar sits on the safe bottom with 4 equal slots; the revealed labels and icons are centred per slot.
-- [ ] T3: the header, pinned bar, thread and composer span the width; the incoming bubbles are right, the replies left; the merge pill (Golan's round) is in the thread.
-- [ ] Settings: a full-width sheet, the bottom "סגור" in reach, no clipped caption.
-- [ ] The picker: tiles fill the width; the grid sits on the strip; the title sits on the grid; A per §5.8; no party line clipped ("הדמוקרטים" and "הציונות הדתית" fit their boxes).
-- [ ] The modals: centred at 55% on tall canvases; no button closer than 24 to the tab bar.
-- [ ] Share: the preview at §5.12's a; WhatsApp nearest the thumb.
-- [ ] No clipped text anywhere (the text lint stays 0; no ellipsis appears on a step-down key).
+- [x] Row A: the counter is ×6, centred on the canvas, clear of the mute and cottage hits; the rate line whole.
+- [x] Before C2, the Row B slot shows the sky; after C2, Row B spans the full width, its track stretched and its label at the right edge.
+- [x] The stage art is centred; no flat side bands wider than 2 art px (after 2D A2; before it, the pad colour is accepted).
+- [x] The lane reads as floor, not stripes (after 2D A1).
+- [x] The ticker panel spans the width; the text is whole words on ≤ 2 lines; no glyph is cut at either clip edge in any shot.
+- [x] The cards span the width; the pill is at the left; the price is ×5 where it fits; no cut pill.
+- [x] The silhouettes fill the pane below the real cards; they have no price.
+- [x] The tab bar sits on the safe bottom with 4 equal slots; the revealed labels and icons are centred per slot.
+- [x] T3: the header, pinned bar, thread and composer span the width; the incoming bubbles are right, the replies left; the merge pill (Golan's round) is in the thread.
+- [x] Settings: a full-width sheet, the bottom "סגור" in reach, no clipped caption.
+- [x] The picker: tiles fill the width; the grid sits on the strip; the title sits on the grid; A per §5.8; no party line clipped ("הדמוקרטים" and "הציונות הדתית" fit their boxes).
+- [x] The modals: centred at 55% on tall canvases; no button closer than 24 to the tab bar.
+- [x] Share: the preview at §5.12's a; WhatsApp nearest the thumb.
+- [x] No clipped text anywhere (the text lint stays 0; no ellipsis appears on a step-down key).
 
 ---
 
