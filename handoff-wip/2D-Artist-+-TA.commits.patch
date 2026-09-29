@@ -1,7 +1,7 @@
 From 6812dfd80e9aa1d52abacd91fa67a3fd657b413a Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 22:15:10 +0000
-Subject: [PATCH 1/3] feat(od-sevev): mobile-first stage art: textured lane,
+Subject: [PATCH 1/4] feat(od-sevev): mobile-first stage art: textured lane,
  plaza, wings, XL pick avatars, brawl cue
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10306,7 +10306,7 @@ index 59b44e1..82fec7c 100644
 From ec3e5e5dadcbeb0ca2ea5fc5ec833e77014609d5 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 22:15:18 +0000
-Subject: [PATCH 2/3] feat(od-sevev): diorama draws the stage wings and plaza;
+Subject: [PATCH 2/4] feat(od-sevev): diorama draws the stage wings and plaza;
  court echo reads the kit spots
 
 Data-driven readers for the 2D Artist's mobile-first pieces (no piece: nothing drawn):
@@ -10500,7 +10500,7 @@ index 2bd1fe8..c6ac9db 100644
 From df7d71d825f849ce5ec0ea5f3d358012772338e9 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 22:15:18 +0000
-Subject: [PATCH 3/3] docs(od-sevev): contract, style guide and pipeline notes
+Subject: [PATCH 3/4] docs(od-sevev): contract, style guide and pipeline notes
  for the mobile-first art
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
@@ -10651,6 +10651,72 @@ index f94ceb0..1e942cf 100644
  - **If a render drifts:** the build fails. `--allow-drift` exists only for a change Bar approved.
  
  **It fails loudly on:**
+-- 
+2.43.0
+
+
+From 3ce612447e4e16d435adadf92d1bfa9ddb233e25 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 22:18:29 +0000
+Subject: [PATCH 4/4] chore(od-sevev): wip checkpoint of the mobile-first art
+ at the day's stop
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/assets/sprites/CONTRACT.md | 4 ++--
+ pipeline/od-sevev/README.md     | 2 +-
+ pipeline/od-sevev/sprites.py    | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/game/assets/sprites/CONTRACT.md b/game/assets/sprites/CONTRACT.md
+index c86afdb..eb0dbe2 100644
+--- a/game/assets/sprites/CONTRACT.md
++++ b/game/assets/sprites/CONTRACT.md
+@@ -19,7 +19,7 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun
+ | `sprites/<leader-select ui id>.png` | `suitcase_plain` (+ `_norim`), `spin_slot_{A,B,C,D,E,G,H,I}` (24×24), `pick_tile_{idle,pressed,focus,selected}` (9-slice; focus/selected 1 art px larger each side), `pick_random`, `thermo_icon_press`, `chip_icon_press`, `source_donor`, `source_funds` (+ icons, silhouettes) | `Art.tex(id)`, `sprites.json.ui[id]`, `sources[id]` |
+ | `sprites/stage_<era>.png` | `stage_balfour`, `stage_knesset`, `stage_courthouse`, `stage_washington`, 180×320 | `eras.list[].background` |
+ | `sprites/lane_<era>.png`, `plaza_<era>.png`, `wing_<era>_{l,r}.png` | The stage's floor and sides for the mobile-first layout (2D Artist, 2026-09-29, UX A1/A2): the lane 32×28, the plaza 128×96, the wings W×230 (W: balfour 20, knesset 22, courthouse 60, washington 36). All tiles, §3 | `diorama.gd` `_place_lane` / `_place_plaza` / `_place_wings` (data-driven: no piece, nothing drawn) |
+-| `sprites/avatar_pick_<c>_d3.png`, `avatar_pick_<c>_d2.png` | The picker's XL heads (UX A3), 96×96 and 64×64, the 8 leaders | `chars[c].avatarPick96` / `avatarPick64` (§4c) |
++| `sprites/avatar_pick_<c>_d3.png`, `avatar_pick_<c>_d2.png` | The picker's XL heads (UX A3), 96×96 and 64×64, the 8 leaders | `chars[c].avatarPickXL` / `avatarPick64` (§4c) |
+ | `sprites/brawl_cloud_cue.png` | The brawl cloud cut for the stage cue: 4 frames of 26×20 (UX / Animator) | `Art.tex("brawl_cloud_cue", f)`, `sprites.json.ui` |
+ | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
+ | `sprites/<ui id>.png` | The 2D Artist's UI kit, 212 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
+@@ -252,7 +252,7 @@ its react / crit, tap), at d 3 and d 2.
+   `avatar24_pick_<c>`, the 8 leaders): the chat avatars' heads on one neutral ring. Use these on the picker tiles
+   (UX §8.3: L = 32 at ×4, M = 24 at ×4, S = 32 at ×2), never the chat avatars, whose react-coloured rings read as
+   party or bloc colours.
+-  - **XL (UX mobile-first §5.8, A3; 2026-09-29):** `chars[c].avatarPick96` = `avatar_pick_<c>_d3` (96×96, cropped from
++  - **XL (UX mobile-first §5.8, A3; 2026-09-29):** `chars[c].avatarPickXL` = `avatar_pick_<c>_d3` (96×96, cropped from
+     the ref for the d 3 cast, quantised to its d 3 palette) for **A = 192**, and `chars[c].avatarPick64` =
+     `avatar_pick_<c>_d2` (64×64) for **A = 128**. Draw either at **2 logical px per sprite px** (A / size), which is
+     k / 2 device px: crisp at every even k. The same head crop, the same neutral `rim` ring (4 px = 8 logical, the 32's
+diff --git a/pipeline/od-sevev/README.md b/pipeline/od-sevev/README.md
+index 1e942cf..ca31611 100644
+--- a/pipeline/od-sevev/README.md
++++ b/pipeline/od-sevev/README.md
+@@ -51,7 +51,7 @@ pipeline/od-sevev/font/sevev9@2.glyphs ────────────┴
+ - **2026-09-29 (the mobile-first picker, UX A3):** each launch leader's XL picker heads,
+   `<char>_avatar_pick_d3.png` (96) and `<char>_avatar_pick_d2.png` (64), joined `out/`
+   (`build.py` `avatar_pick_xl`: the same head crop and neutral ring, cut from the ref); a full
+-  render gives 0 changed. Imported as `avatar_pick_<c>_d3` / `_d2`, `chars[c].avatarPick96` / `avatarPick64`.
++  render gives 0 changed. Imported as `avatar_pick_<c>_d3` / `_d2`, `chars[c].avatarPickXL` / `avatarPick64`.
+ - **If a render drifts:** the build fails. `--allow-drift` exists only for a change Bar approved.
+ 
+ **It fails loudly on:**
+diff --git a/pipeline/od-sevev/sprites.py b/pipeline/od-sevev/sprites.py
+index 82fec7c..7365743 100644
+--- a/pipeline/od-sevev/sprites.py
++++ b/pipeline/od-sevev/sprites.py
+@@ -471,7 +471,7 @@ def import_sprites(src, log, provenance):
+         # + the picker's XL heads (UX mobile-first A3): 96 (from the d 3 render; the 192-logical avatar) and 64 (the
+         # 128-logical one), both drawn at 2 logical px per sprite px
+         for suffix, key, file_key, size in (("_pick", "avatarPick", "avatar_pick", 32), ("24_pick", "avatar24Pick", "avatar24_pick", 24),
+-                                            ("_pick_d3", "avatarPick96", "avatar_pick_{}_d3", 96),
++                                            ("_pick_d3", "avatarPickXL", "avatar_pick_{}_d3", 96),
+                                             ("_pick_d2", "avatarPick64", "avatar_pick_{}_d2", 64)):
+             ap = os.path.join(src, f"{name}_avatar{suffix}.png")
+             if os.path.exists(ap):
 -- 
 2.43.0
 

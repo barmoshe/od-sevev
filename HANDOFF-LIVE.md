@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `8709482` docs(od-sevev): live handoff snapshot 22:17
+- Branch head: `73d4335` docs(od-sevev): live handoff snapshot 22:18
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -28,8 +28,8 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | Animator | DONE, merged (court day, motion audit, brawl boil, reduced-motion fix; LeaderWalk helper ready, unwired) | `worktree-agent-a4cee2a31acb16b09` | 0 | 0 | - |
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
 | UX Designer | DONE, merged (ux/mobile-first-layout.md, tools/web/mobile_web.mjs: baseline PASS, 108 layout checks open until the implementation lands) | `worktree-agent-afa76d8266b2e2b6f` | 0 | 0 | - |
-| Game Developer (mobile) | implement ux/mobile-first-layout.md §8 + screens §3-§7 (from the UX branch worktree-agent-afa76d8266b2e2b6f) | `worktree-agent-a8bd968153c51c052` | 6 | 0 | `Game-Developer-(mobile).commits.patch`  |
-| 2D Artist + TA | mobile art asks A1 lane tile + plaza, A2 stage wings, A3 96x96 d3 pick avatars; court_window spots row>=110; 26x20 brawl cut x4 | `worktree-agent-ab7cb5f96a4c16bc8` | 4 | 3 | `2D-Artist-+-TA.commits.patch` `2D-Artist-+-TA.patch` |
+| Game Developer (mobile) | STOPPED by Bar for the day, mid-slice: core grid/split/fluid chrome, tall tabs, modals, sheets, merge-ready line and layout tests are committed; the full mobile_web matrix run, picker layout check and before/after sheet were not done | `worktree-agent-a8bd968153c51c052` | 6 | 0 | `Game-Developer-(mobile).commits.patch`  |
+| 2D Artist + TA | STOPPED by Bar for the day, mid-slice: lane, plaza, wings, XL pick avatars, brawl cue and court spots committed (last one a wip checkpoint); the final merge, test and build were not re-run | `worktree-agent-ab7cb5f96a4c16bc8` | 5 | 0 | `2D-Artist-+-TA.commits.patch`  |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
