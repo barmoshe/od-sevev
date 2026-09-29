@@ -653,7 +653,7 @@ diff --git a/game/assets/sprites/lane_washington.png b/game/assets/sprites/lane_
 index 797fcb3..18581b2 100644
 Binary files a/game/assets/sprites/lane_washington.png and b/game/assets/sprites/lane_washington.png differ
 diff --git a/game/assets/sprites/sprites.json b/game/assets/sprites/sprites.json
-index edddefc..63bfb26 100644
+index edddefc..6c6137a 100644
 --- a/game/assets/sprites/sprites.json
 +++ b/game/assets/sprites/sprites.json
 @@ -1210,7 +1210,9 @@
@@ -823,29 +823,29 @@ index edddefc..63bfb26 100644
 +  "plaza_balfour": {
 +   "id": "plaza_balfour",
 +   "group": "stage",
-+   "w": 64,
-+   "h": 64,
++   "w": 128,
++   "h": 96,
 +   "artRow": 258
 +  },
 +  "plaza_courthouse": {
 +   "id": "plaza_courthouse",
 +   "group": "stage",
-+   "w": 64,
-+   "h": 64,
++   "w": 128,
++   "h": 96,
 +   "artRow": 258
 +  },
 +  "plaza_knesset": {
 +   "id": "plaza_knesset",
 +   "group": "stage",
-+   "w": 64,
-+   "h": 64,
++   "w": 128,
++   "h": 96,
 +   "artRow": 258
 +  },
 +  "plaza_washington": {
 +   "id": "plaza_washington",
 +   "group": "stage",
-+   "w": 64,
-+   "h": 64,
++   "w": 128,
++   "h": 96,
 +   "artRow": 258
 +  },
    "sweat_drop": {
@@ -1205,35 +1205,35 @@ index edddefc..63bfb26 100644
     ]
    },
 +  "plaza_balfour.png": {
-+   "bytes": 767,
-+   "sha": "9154f7de0420d309",
++   "bytes": 1119,
++   "sha": "9c3cd3734e66988a",
 +   "size": [
-+    64,
-+    64
++    128,
++    96
 +   ]
 +  },
 +  "plaza_courthouse.png": {
-+   "bytes": 622,
-+   "sha": "b424cf95e5810a3e",
++   "bytes": 1049,
++   "sha": "503102bd09053b0f",
 +   "size": [
-+    64,
-+    64
++    128,
++    96
 +   ]
 +  },
 +  "plaza_knesset.png": {
-+   "bytes": 766,
-+   "sha": "fabdf67363a1e758",
++   "bytes": 1209,
++   "sha": "af2199d945389ff4",
 +   "size": [
-+    64,
-+    64
++    128,
++    96
 +   ]
 +  },
 +  "plaza_washington.png": {
-+   "bytes": 682,
-+   "sha": "60f4ad085b5e1338",
++   "bytes": 1446,
++   "sha": "409a2770e43ca9c8",
 +   "size": [
-+    64,
-+    64
++    128,
++    96
 +   ]
 +  },
    "prop_bill.png": {
@@ -1494,7 +1494,7 @@ index f94ceb0..1e942cf 100644
  
  **It fails loudly on:**
 diff --git a/pipeline/od-sevev/budget.json b/pipeline/od-sevev/budget.json
-index 99f0181..7101278 100644
+index 99f0181..653fa42 100644
 --- a/pipeline/od-sevev/budget.json
 +++ b/pipeline/od-sevev/budget.json
 @@ -55,19 +55,36 @@
@@ -1553,10 +1553,10 @@ index 99f0181..7101278 100644
    "sprites/pick_tile_pressed.png": 168,
    "sprites/pick_tile_selected.png": 216,
    "sprites/plate_silhouette.png": 223,
-+  "sprites/plaza_balfour.png": 767,
-+  "sprites/plaza_courthouse.png": 622,
-+  "sprites/plaza_knesset.png": 766,
-+  "sprites/plaza_washington.png": 682,
++  "sprites/plaza_balfour.png": 1119,
++  "sprites/plaza_courthouse.png": 1049,
++  "sprites/plaza_knesset.png": 1209,
++  "sprites/plaza_washington.png": 1446,
    "sprites/prop_bill.png": 140,
    "sprites/prop_calculator.png": 366,
    "sprites/prop_chair.png": 478,
@@ -1580,7 +1580,7 @@ index 99f0181..7101278 100644
    "fonts/sevev9@2.fnt": 15149
   },
 - "vramBytes": 168730564,
-+ "vramBytes": 169497764,
++ "vramBytes": 169628836,
   "vramByDensity": {
    "bibi": {
     "3": 9697848,
@@ -1595,13 +1595,13 @@ index 99f0181..7101278 100644
 -  "7": 12302456,
 -  "8": 6639608,
 -  "9": 12302456
-+  "2": 7406808,
-+  "3": 13069656,
-+  "4": 7406808,
-+  "6": 13069656,
-+  "7": 13069656,
-+  "8": 7406808,
-+  "9": 13069656
++  "2": 7537880,
++  "3": 13200728,
++  "4": 7537880,
++  "6": 13200728,
++  "7": 13200728,
++  "8": 7537880,
++  "9": 13200728
   },
   "vramSourcesByK": {
    "2": 259200,
@@ -1610,7 +1610,7 @@ index 99f0181..7101278 100644
    }
   },
 - "vramTypical": 12302456,
-+ "vramTypical": 13069656,
++ "vramTypical": 13200728,
   "vramCastAll": 165175556,
   "vramPerPartner": {
    "sara": 4144800,
@@ -1786,23 +1786,23 @@ index 99f0181..7101278 100644
    },
 +  {
 +   "file": "assets/sprites/plaza_balfour.png",
-+   "source": 767,
-+   "imported": 394
++   "source": 1119,
++   "imported": 512
 +  },
 +  {
 +   "file": "assets/sprites/plaza_courthouse.png",
-+   "source": 622,
-+   "imported": 344
++   "source": 1049,
++   "imported": 502
 +  },
 +  {
 +   "file": "assets/sprites/plaza_knesset.png",
-+   "source": 766,
-+   "imported": 396
++   "source": 1209,
++   "imported": 570
 +  },
 +  {
 +   "file": "assets/sprites/plaza_washington.png",
-+   "source": 682,
-+   "imported": 358
++   "source": 1446,
++   "imported": 726
 +  },
    {
     "file": "assets/sprites/prop_bill.png",
@@ -1859,7 +1859,7 @@ index 99f0181..7101278 100644
    }
   ],
 - "pckBytes": 5293885,
-+ "pckBytes": 5337271,
++ "pckBytes": 5338089,
   "pckByAsset": {
    "bibi": {
     "3": 193236,
@@ -1868,7 +1868,7 @@ index 99f0181..7101278 100644
    }
   ],
 - "sourceTotal": 15509805
-+ "sourceTotal": 15636795
++ "sourceTotal": 15638781
  }
 \ No newline at end of file
 diff --git a/pipeline/od-sevev/sprites.py b/pipeline/od-sevev/sprites.py
