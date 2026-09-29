@@ -8,7 +8,8 @@
 # Retired from the build path at the od cut-over (2026-09-29, game-developer audio): the fork's
 # tools/gen_audio.gd (sfx_*.wav) and tools/gen_music.gd (music_*.res, amb_*.res). Their files stay in
 # tools/, and their last renders in game/assets/audio/legacy/ (.gdignore: never imported or exported).
-# MB_LEGACY_AUDIO=1 tools/audio.sh still runs them, into game/assets/audio/ (move them back out after).
+# MB_LEGACY_AUDIO=1 tools/audio.sh still runs them, into game/assets/audio/ (move them back out after); their
+# inputs are now audio/legacy/{cues,music}.json, which tools/sync_data.sh no longer copies into game/data/.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 source "$HERE/lib/platform.sh"

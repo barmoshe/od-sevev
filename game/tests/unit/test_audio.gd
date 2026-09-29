@@ -529,15 +529,29 @@ func test_pink_front_is_behind_the_easter_eggs_flag() -> void:
 
 func test_coalition_collapse_waits_for_the_next_tap() -> void:
 	var a: Node = await _playing()
+	var before: Array[String] = a.recent_files()
 	a.event("coalitionCollapse")
-	runner.check(_last(a).begins_with("stinger_motif_"), "the motif, ending on the ♭2")
-	await (runner as SceneTree).create_timer(OdAudio.bar_seconds(_man, "balfour") + 0.2).timeout
+	var after: Array[String] = a.recent_files()
+	runner.check(after == before, "no stinger on a collapse (cue-spec §2.6 v1.2: the motif is never a loss sting): %s -> %s" % [str(before), str(after)])
+	await (runner as SceneTree).create_timer(OdAudio.bar_seconds(_man, "balfour") * 0.5).timeout
+	runner.check(a.is_music_playing(), "the fade takes a whole bar")
+	await (runner as SceneTree).create_timer(OdAudio.bar_seconds(_man, "balfour") * 0.5 + 0.2).timeout
 	runner.check(not a.is_music_playing(), "the music faded out over a bar, then nothing")
 	a.start_music()
 	runner.check(not a.is_music_playing(), "and stays out")
 	a.event("tap")
 	await _frames(2)
 	runner.check(a.is_music_playing() and a.bar() == 1, "the next tap restarts it at bar 1")
+	await _release()
+
+
+func test_general_trophies_play_milestone_the_album_keeps_trophy() -> void:
+	var a: Node = await _playing()
+	a.event("achievement")
+	runner.check(_last(a).begins_with("stinger_milestone"), "a general trophy plays the milestone stinger, got %s" % _last(a))
+	await (runner as SceneTree).create_timer(0.3).timeout
+	a.event("trophy")
+	runner.check(_last(a).begins_with("stinger_trophy"), "the album trophy keeps its own stinger, got %s" % _last(a))
 	await _release()
 
 

@@ -28,7 +28,7 @@
 | Behaviour (this page) | `audio/od/cue-spec.md` | Audio Director |
 
 - **Where the numbers live:** this page gives behaviour only. File names, `play_db`, sample counts, bar lengths and loop lengths are all read from the manifest. If this page and the manifest disagree, **the manifest wins**.
-- **The Monkey Bananas specs:** `audio/cues.json`, `audio/music.json` and the other MB pages stay untouched until the cut-over (see `STATUS.md` → Requests).
+- **The Monkey Bananas specs:** moved to `audio/legacy/` at the cut-over (2026-09-29): `cues.json`, `music.json`, `audio-cue-spec.md`, `mix-bus-topology.md`, `sonic-brief.md`, `preview.html` and their `tools/`. Nothing syncs or reads them any more.
 
 ---
 
