@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `b452460` docs(od-sevev): live handoff snapshot 20:29
+- Branch head: `a7c89f2` docs(od-sevev): live handoff snapshot 20:30
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -18,7 +18,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
 |---|---|---|---|---|---|
 | Game Developer | build the leader picker (LEADER_PICK) + spec §10 views/engine; wire audio hooks | `worktree-agent-a5ac76f3d34023987` | 4 | 0 | `Game-Developer.commits.patch`  |
-| Game Designer | review leaders.gd; balance.sh + per-leader bench; 34-vs-8 min gap; R17 slots; ביבי rule; "רוב" poll lint; neutral DAYS_* | `worktree-agent-aaa48164b1454821d` | 0 | 22 | `Game-Designer.patch` |
+| Game Designer | review leaders.gd; balance.sh + per-leader bench; 34-vs-8 min gap; R17 slots; ביבי rule; "רוב" poll lint; neutral DAYS_* | `worktree-agent-aaa48164b1454821d` | 3 | 3 | `Game-Designer.commits.patch` `Game-Designer.patch` |
 | Animator | DONE, merged (court day, motion audit, brawl boil, reduced-motion fix; LeaderWalk helper ready, unwired) | `worktree-agent-a4cee2a31acb16b09` | 0 | 0 | - |
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
 
