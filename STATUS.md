@@ -987,3 +987,4 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - **→ UX:** the `LEADER_PICK` node, strings and the §10.3 neutral rewrites.
   - **→ audio:** a `leaderPick` sting and crit cues by react event; no leader motifs (the leitmotif stays non-partisan).
   - **→ Bar:** spec §12.
+- **Bar, 2026-09-29, leader select (spec §12):** (1) the 8 launch leaders are approved (ביבי, בן גביר, סמוטריץ׳, דרעי · בנט, אייזנקוט, ליברמן, גולן), including בן גביר as playable; Lapid rides inside Bennett's round; Gantz, Abbas and UTJ stay out. (2) The picker comes before the first tap and replaces the title. (3) Keep the +10% base for switching leaders. (4) Replace the Bibi-with-hat key art, OG image and app icon with a lineup of the leaders. Orchestrator default for §12.4: Bibi's lineup keeps today's partner numbers (no reshuffle), since the lint pins it.
