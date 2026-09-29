@@ -3547,7 +3547,7 @@ index 8ba2a58..2242af9 100644
  
  
 diff --git a/game/scripts/ui/diorama.gd b/game/scripts/ui/diorama.gd
-index 798b04f..f47f84d 100644
+index 798b04f..1623ab4 100644
 --- a/game/scripts/ui/diorama.gd
 +++ b/game/scripts/ui/diorama.gd
 @@ -104,6 +104,7 @@ func set_era(era: Dictionary) -> void:
@@ -3567,7 +3567,40 @@ index 798b04f..f47f84d 100644
  	for sp: Dictionary in specs:
  		_place_prop(sp)
  
-@@ -209,6 +212,75 @@ static func paving_texture(base: Color, joints_only: bool) -> ImageTexture:
+@@ -166,28 +169,15 @@ func _place_lane(era_id: String, art_origin: Vector2) -> void:
+ 	tr.scale = Vector2(4, 4)
+ 	tr.set_meta("lane", id)
+ 	_props.add_child(tr)
+-	# mobile-first §3.3 (V4, interim for 2D ask A1): the kit lane is horizontal stripes only, so it
+-	# reads as a dead strip; the engine lays paving joints over it below the apron lip (4 art rows),
+-	# in the tile's own phase so the pre-tap floor under the stage continues them
+-	var jt := TextureRect.new()
+-	jt.texture = paving_texture(pad_bottom, true)
+-	jt.stretch_mode = TextureRect.STRETCH_TILE
+-	jt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+-	var jx := -_extend_x - fposmod(-_extend_x, 64.0)
+-	jt.position = Vector2(jx, art_origin.y + (LANE_ART_ROW + 4) * 4.0)
+-	jt.size = Vector2(ceilf((L.W + _extend_x - jx) / 64.0) * 16.0 + 16.0, sz.y - 4.0)
+-	jt.scale = Vector2(4, 4)
+-	jt.set_meta("laneJoints", id)
+-	_props.add_child(jt)
+ 
+ 
+ static var _paving_cache := {}
+ 
+ 
+-## The engine's interim paving tile (mobile-first §3.3, until the 2D Artist's plaza lands, ask A1):
+-## a 16 × 8 art-px running bond of 8 × 4 setts in `base`, with darker joints and a lit top edge, so
+-## every row of the floor has horizontal detail. `joints_only`: the joints alone on a transparent
+-## tile (laid over the kit lane).
++## The engine's backstop floor tile (mobile-first §3.3): a 16 × 8 art-px running bond of 8 × 4
++## setts in `base`, with darker joints and a lit top edge, so every row has horizontal detail. The
++## 2D plaza (A1) is the floor; this only continues it past floor_reach() on a stage without one.
++## `joints_only`: the joints alone on a transparent tile.
+ static func paving_texture(base: Color, joints_only: bool) -> ImageTexture:
+ 	var key := "%s:%s" % [base.to_html(false), joints_only]
+ 	if _paving_cache.has(key):
+@@ -209,6 +199,75 @@ static func paving_texture(base: Color, joints_only: bool) -> ImageTexture:
  	return t
  
  
@@ -3643,6 +3676,52 @@ index 798b04f..f47f84d 100644
  func _place_prop(sp: Dictionary) -> void:
  	var key := Art.sprite_or(String(sp.get("sprite", "")))
  	var sc := int(sp.get("scale", 4))
+diff --git a/game/scripts/ui/views/view_chat.gd b/game/scripts/ui/views/view_chat.gd
+index 961266d..b4dee8d 100644
+--- a/game/scripts/ui/views/view_chat.gd
++++ b/game/scripts/ui/views/view_chat.gd
+@@ -218,7 +218,9 @@ func _ready() -> void:
+ 	add_child(_brawl_cue)
+ 	_brawl_cue.visible = false
+ 	Ui.nine(_brawl_cue, BRAWL_CUE, Art.sprite_or("chat_bubble_in"))
+-	_brawl_cloud = Ui.img(_brawl_cue, BRAWL_CLOUD, Art.sprite_or("brawl_cloud"), 0, 2)
++	# the 2D Artist's 26×20 cue cut at ×4 (4 frames), else the 52×40 brawl cloud at ×2: the same 104×80
++	var cue_id := "brawl_cloud_cue" if Art.has_sprite("brawl_cloud_cue") else Art.sprite_or("brawl_cloud")
++	_brawl_cloud = Ui.img(_brawl_cue, BRAWL_CLOUD, cue_id, 0, 4 if cue_id == "brawl_cloud_cue" else 2)
+ 	_header = Ui.nine(_panel, Rect2(0, 0, L.W, HEADER_H), Art.sprite_or("chat_header"))
+ 	var chev_id := Art.sprite_or("chat_icon_chevron")
+ 	var cs := Vector2(Art.sprite_size(chev_id)) * 4.0
+diff --git a/game/scripts/ui/views/view_pick.gd b/game/scripts/ui/views/view_pick.gd
+index 2e3a86d..6fa0f69 100644
+--- a/game/scripts/ui/views/view_pick.gd
++++ b/game/scripts/ui/views/view_pick.gd
+@@ -43,7 +43,7 @@ const STRIP_H := 112.0              # 12 + 2 lines × 44 + 12
+ ## mobile-first §5.8 A3: the XL pick avatar (96×96 at d3, drawn 2 logical px per sprite px); until
+ ## the 2D Artist's piece lands (manifest chars.<art>.avatarPickXL, else this id) the 32-px pick
+ ## avatar draws at ×6 (1.5 art px per sprite px: whole device px at every even k).
+-const XL_PREFIX := "avatar_pick_xl_"
++const XL_PREFIX := "avatar_pick_xl_"   # only when the manifest names no avatarPickXL (it ships avatar_pick_<c>_d3)
+ 
+ var host: Node
+ var reduced_motion := false
+@@ -415,11 +415,12 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
+ 	var ch: Dictionary = SpriteStrip.manifest().get("chars", {}).get(art, {})
+ 	var av := str(ch.get("avatar24Pick", "avatar24_pick_" + art)) if avatar == 96.0 else str(ch.get("avatarPick", "avatar_pick_" + art))
+ 	var sc := 2.0 if avatar == 64.0 else (6.0 if avatar == 192.0 else 4.0)
+-	if avatar == 192.0:
+-		var xl := str(ch.get("avatarPickXL", XL_PREFIX + art))
+-		if Art.has_sprite(xl):
+-			av = xl
+-			sc = 192.0 / float(maxi(1, Art.sprite_size(xl).x))
++	# the 2D Artist's denser heads (A3): 96×96 d3 for A 192, 64×64 d2 for A 128 (at an even k), at
++	# 2 logical px per sprite px; else the 32-px head at ×6 / ×4
++	var dense := str(ch.get("avatarPickXL", XL_PREFIX + art)) if avatar == 192.0 else (str(ch.get("avatarPick64", "")) if avatar == 128.0 else "")
++	if dense != "" and Art.has_sprite(dense) and (avatar == 192.0 or Display.k % 2 == 0):
++		av = dense
++		sc = avatar / float(maxi(1, Art.sprite_size(dense).x))
+ 	var top := _block_top(r.size.y) if three else 12.0
+ 	if Art.has_sprite(av):
+ 		var asz := Vector2(Art.sprite_size(av)) * sc
 diff --git a/game/tests/unit/test_motion_court.gd b/game/tests/unit/test_motion_court.gd
 index 892ab22..95a03e9 100644
 --- a/game/tests/unit/test_motion_court.gd
