@@ -7,6 +7,11 @@ extends Node2D
 
 const SHOW_MS := 3000.0
 const GAP_MS := 1000.0
+## Motion (animator audit 2026-09-29): the plate fades in over 180 ms Quad.Out and out over its last
+## 120 ms Quad.In (inside the 3 s), so a toast never pops off; a tap still dismisses at once.
+## Reduced motion: both cuts.
+const IN_MS := 180.0
+const OUT_MS := 120.0
 
 var reduced_motion := false
 ## Called with the shown toast's tag when it is tapped (T3: a "chat" toast opens the chat).
@@ -21,6 +26,7 @@ var _plate: NinePatchRect
 var _text: PxText
 var _t := -1.0
 var _gap := 0.0
+var _shown: Array[CanvasItem] = []
 var _bubble: NinePatchRect
 var _btext: PxText
 var _bt := -1.0
@@ -202,6 +208,12 @@ func update_view(dt_ms: float) -> void:
 			_btext.visible = false
 	if _t >= 0.0:
 		_t += dt_ms
+		if _t < SHOW_MS:
+			var a := 1.0
+			if not reduced_motion:
+				a = minf(Ui.quad_out(minf(1.0, _t / IN_MS)), 1.0 - Ui.quad_in(clampf((_t - (SHOW_MS - OUT_MS)) / OUT_MS, 0.0, 1.0)))
+			for n: CanvasItem in _shown:
+				n.modulate.a = a
 		if _t >= SHOW_MS:
 			_t = -1.0
 			_gap = GAP_MS
@@ -243,8 +255,6 @@ func update_view(dt_ms: float) -> void:
 	for n: CanvasItem in shown_nodes:
 		n.visible = true
 	_t = 0.0
-	if not reduced_motion:
-		var tw := create_tween().set_parallel()
-		for n: CanvasItem in shown_nodes:
-			n.modulate.a = 0.0
-			tw.tween_property(n, "modulate:a", 1.0, 0.18)
+	_shown = shown_nodes
+	for n: CanvasItem in shown_nodes:
+		n.modulate.a = 1.0 if reduced_motion else 0.0   # update_view eases it in (scene time)

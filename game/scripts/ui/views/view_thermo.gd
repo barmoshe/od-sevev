@@ -421,7 +421,7 @@ func bead_visible() -> bool:
 
 ## A court summons: the gulp, two drops at once whatever the suspicion (not under reduced motion).
 func gulp() -> void:
-	if reduced_motion or bb == null or bb.hero == null or not _shown:
+	if reduced_motion or bb == null or bb.hero == null or not _shown or not bb.on_stage():
 		return
 	for i in 2:
 		_spawn(Vector2(-2.0 * AP, AP) if i == 1 else Vector2.ZERO)
@@ -433,7 +433,7 @@ func on_politics_event(e: Dictionary) -> void:
 
 
 func _body_is_idle() -> bool:
-	return bb != null and bb.hero != null and bb._state == "idle" and bb.hero.anim == "idle"
+	return bb != null and bb.hero != null and bb._state == "idle" and bb.hero.anim == "idle" and bb.on_stage()
 
 
 func _spawn(off: Vector2) -> void:
@@ -453,7 +453,8 @@ func _update_sweat(dt: float, p: float) -> void:
 	var st := sweat_state(p) if _shown else "dry"
 	var idle := _body_is_idle()
 	# reduced motion: one static bead tracking the temple
-	_bead.visible = reduced_motion and st != "dry" and _shown
+	# (never on an empty stage: court day takes him off, motion/state-graph-magician.md §5.1)
+	_bead.visible = reduced_motion and st != "dry" and _shown and bb.on_stage()
 	if _bead.visible:
 		_bead.position = (temple() - _drop_pivot()).snapped(Vector2(AP, AP))
 	if reduced_motion:

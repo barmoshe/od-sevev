@@ -159,6 +159,21 @@ const BRAWL_CUE_HIT := Rect2(4, 0, 152, 112)
 var _brawl_cue := Node2D.new()
 var _brawl_cloud: Sprite2D
 var _brawl_seq := -1
+var _brawl_cue_t := -1.0                  # ms since the cue appeared (its entry fade), -1 = hidden
+var _pending_t := -1.0                    # ms since the pending chip appeared (its entry), -1 = hidden
+var _dt_ms := 0.0                         # this frame's dt (the entries above)
+
+## The brawl cloud's boil (motion-spec brawl-cloud; whole art px only): the kit's 4-frame loop at
+## 8 fps (125 ms, the 2D Artist's rate) under a 1-ap ring the whole cloud steps around every 100 ms
+## (Stepped): (1, 0) → (0, −1) → (−1, 0) → (0, 1). Each 1200 ms period ends on a 300 ms rest at
+## (0, 0): the fight breathes, so the loop doesn't fatigue. Reduced motion: frame 0, still.
+const BOIL_FRAME_MS := 125.0
+const BOIL_STEP_MS := 100.0
+const BOIL_PERIOD_MS := 1200.0
+const BOIL_REST_MS := 300.0
+const BOIL_RING: Array[Vector2i] = [Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 1)]
+const CUE_IN_MS := 150.0                  # the brawl cue's entry (ease-out)
+const PENDING_IN_MS := 120.0              # the pending chip's entry (ease-out)
 
 
 ## "m:ss" for a seconds count (the timer chip; LTR digits, CHAT_ULT_TIMER's {mmss}).
@@ -332,6 +347,7 @@ func _end_anim(opening: bool) -> void:
 ## ctx: {main: bool (main mode, no election transition), overlay: bool (a modal is open)}.
 func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = {}) -> void:
 	_now += dt
+	_dt_ms = dt
 	if not is_same(s, _known_state):
 		_on_new_state(s)
 	_state = s
@@ -906,7 +922,26 @@ func _build_brawl(row: Dictionary, y: float) -> Dictionary:
 	var cloud := Ui.img(root, Vector2(256, 0), Art.sprite_or("brawl_cloud"), 0, 4)
 	var btn := PxButton.make(root, Rect2(204, 168, 312, 80), {"hit": Rect2(192, 164, 336, 88), "label": Strings.s("CHAT_BRAWL_BTN"), "kind": "kit_secondary"})
 	_hits.append({"rect": Rect2(192, y + 164, 336, 88), "kind": "brawl", "seq": int(row["seq"]), "button": btn})
-	return {"root": root, "pills": [], "h": 256.0, "cloud": cloud, "button": btn}
+	return {"root": root, "pills": [], "h": 256.0, "cloud": cloud, "cloudAt": cloud.position, "button": btn}
+
+
+## The boil pose at `t_ms`: {frame, off (ap)}. Pure (tests: whole px, the rest, reduced motion).
+static func brawl_boil(t_ms: float, frames: int, reduced: bool) -> Dictionary:
+	if reduced:
+		return {"frame": 0, "off": Vector2i.ZERO}
+	var ph := fmod(maxf(0.0, t_ms), BOIL_PERIOD_MS)
+	var off := Vector2i.ZERO
+	if ph < BOIL_PERIOD_MS - BOIL_REST_MS:
+		off = BOIL_RING[int(ph / BOIL_STEP_MS) % BOIL_RING.size()]
+	return {"frame": int(maxf(0.0, t_ms) / BOIL_FRAME_MS) % maxi(1, frames), "off": off}
+
+
+## Poses a brawl cloud sprite around its rest position; `scale` = logical px per ring step (4: one stage art px).
+func _boil(cl: Sprite2D, at: Vector2, scale: float) -> void:
+	var id: String = cl.get_meta("sprite")
+	var b := brawl_boil(_now, Art.frame_count(id), reduced_motion)
+	Ui.set_frame(cl, id, int(b["frame"]))
+	cl.position = at + Vector2(b["off"]) * scale
 
 
 # ------------------------------------------------------------------ live updates
@@ -973,8 +1008,7 @@ func _update_rows(dt: float) -> void:
 			(r["corridor"] as PxText).text = Strings.s("CHAT_CORRIDOR_COUNT", {"n": str(int(_state.coalition.get("corridorMsgs", 0)))})
 			(r["corridor"] as PxText).center_in(0, L.W)
 		if r.has("cloud"):
-			var cl: Sprite2D = r["cloud"]
-			Ui.set_frame(cl, cl.get_meta("sprite"), 0 if reduced_motion else int(_now / 150.0) % maxi(1, Art.frame_count(cl.get_meta("sprite"))))
+			_boil(r["cloud"], r["cloudAt"], 4.0)
 
 
 func _update_pill(pill: Dictionary, _bps: float) -> void:
@@ -1581,7 +1615,13 @@ func _update_pending() -> void:
 	_pending_root.visible = show
 	if not show:
 		_pending_rect = Rect2()
+		_pending_t = -1.0
 		return
+	# the entry: 120 ms Quad.Out, a 1-ap drop into place with the fade (reduced motion: the fade only);
+	# the exit is a cut: it goes the moment nothing is left above
+	_pending_t = maxf(0.0, _pending_t) + _dt_ms
+	var pin := Ui.quad_out(minf(1.0, _pending_t / PENDING_IN_MS))
+	_pending_root.modulate.a = pin
 	var n := _pend_items.size()
 	var t := Strings.plural("CHAT_PENDING", n, {"n": str(n)})
 	if _pending_text.text != t:
@@ -1591,7 +1631,7 @@ func _update_pending() -> void:
 	var x := Ui.snap((L.W - w) / 2.0, 4)
 	_pending_rect = Rect2(x, THREAD_Y + PENDING_Y, w, PENDING_H)
 	Ui.set_nine_rect(_pending_bg, Rect2(Vector2.ZERO, _pending_rect.size))
-	_pending_root.position = _pending_rect.position
+	_pending_root.position = _pending_rect.position - Vector2(0, 0.0 if reduced_motion else Ui.snap(4.0 * (1.0 - pin), 4))
 	# RTL: the text at the right, the ↑ (the string's end) at its left, the pair centred
 	var x1 := Ui.snap((w + tw + 12.0 + 28.0) / 2.0, 4)
 	_pending_text.right_at(x1)
@@ -1645,9 +1685,13 @@ func _update_brawl_cue(allowed: bool) -> void:
 	var show := allowed and not _open and not _panel.visible and not m.is_empty() and not toast.intersects(cue_stage)
 	_brawl_cue.visible = show
 	_brawl_seq = int(m.get("seq", -1)) if show else -1
+	# the entry: a 150 ms fade (Quad.Out); the exit is a cut (the brawl resolved or T3 opened on it)
+	_brawl_cue_t = (maxf(0.0, _brawl_cue_t) + _dt_ms) if show else -1.0
+	_brawl_cue.modulate.a = Ui.quad_out(minf(1.0, _brawl_cue_t / CUE_IN_MS)) if show else 1.0
 	if show:
-		var id: String = _brawl_cloud.get_meta("sprite")
-		Ui.set_frame(_brawl_cloud, id, 0 if reduced_motion else int(_now / 150.0) % maxi(1, Art.frame_count(id)))
+		# the ring steps one STAGE art px (4 logical), not one of the ×2 cloud's: 2 logical is 1.5
+		# device px at k 3, and the cloud would shimmer between texel phases
+		_boil(_brawl_cloud, BRAWL_CLOUD, 4.0)
 
 
 func brawl_cue_visible() -> bool:
