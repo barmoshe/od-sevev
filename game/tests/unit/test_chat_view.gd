@@ -358,6 +358,22 @@ func test_an_expired_ultimatum_chip_goes_grey() -> void:
 	runner.check(greyed, "and every part of it is drawn grey (C_MUTED), not red")
 
 
+func test_tapping_an_avatar_opens_the_partner_card() -> void:
+	await _boot()
+	_open_group()
+	await _open_chat_now()
+	var hit: Dictionary = {}
+	for h: Dictionary in m.chat.hits():
+		if h["kind"] == "partner":
+			hit = h
+	runner.check(not hit.is_empty(), "the first bubble's avatar is a target")
+	if hit.is_empty():
+		return
+	_touch(_chat_pt((hit["rect"] as Rect2).get_center()))
+	await tree.process_frame
+	runner.check(m.overlays.has_id("PARTNER_CARD"), "a tap on the avatar opens the partner card")
+
+
 func test_t3_opens_before_the_group_exists() -> void:
 	await _boot()
 	runner.check(not bool(m.state.coalition["opened"]), "no group yet")

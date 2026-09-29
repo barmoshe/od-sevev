@@ -311,6 +311,20 @@ func test_the_court_card_over_a_tall_tab_pads_it_and_esc_folds_it_first() -> voi
 	runner.check(cv.mode() == "chip" and not m.overlays.is_open(), "it folds the court card, and opens no settings (mode %s)" % cv.mode())
 	await tree.process_frame
 	runner.check(chat.bottom_pad() == 0.0, "the pad goes with the card")
+	for i in 10:
+		await tree.process_frame
+	var av: Dictionary = {}
+	for h: Dictionary in chat.hits():
+		if h["kind"] == "partner" and av.is_empty():
+			av = h
+	if not av.is_empty():
+		chat._open_ms -= 1000.0   # headless frames are short: past the 140 ms input guard
+		_touch(_lower_pt(chat.content_to_tall((av["rect"] as Rect2).get_center()) + chat.position))
+		await tree.process_frame
+		runner.check(m.overlays.has_id("PARTNER_CARD"), "the first tap after the fold reaches the thread (an avatar opens its card)")
+		m.overlays.close_all()
+		for i in 20:
+			await tree.process_frame
 	m._unhandled_input(e)
 	runner.check(not chat.is_open(), "the next Esc closes T3")
 	m.dossier.open()

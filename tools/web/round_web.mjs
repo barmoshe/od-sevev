@@ -118,7 +118,7 @@ while (Date.now() - t0 < budget) {
 	if (!s.chat.open) { await tapAt(tab(3)); await wait(600); }
 	for (let guard = 0; guard < 14; guard++) {
 		s = await probe();
-		if (!s.chat.open) break;
+		if (!s.chat.open || (s.ready && s.cta)) break;   // the gate is open: go call the election
 		if (!seen.chat && s.chat.pills.length) { seen.chat = true; await shot('chat'); }
 		const [top, bot] = s.chat.thread;
 		// the pills it can pay, and "צאו החוצה" (a brawl keeps two rows out of the 61 until pressed)
@@ -148,6 +148,12 @@ if (!ok) {
 	await shot('stall-chat');
 }
 if (ok) {
+	// close T3 (the CTA sits in the ticker row under it); Esc folds an expanded court card first
+	for (let i = 0; i < 3 && s.modal !== 'EVOLUTION' && (s.chat.open || s.modal !== ''); i++) {
+		await page.keyboard.press('Escape');
+		await wait(400);
+		s = await probe();
+	}
 	await shot('e0-cta');
 	if (s.modal !== 'EVOLUTION') {
 		await tapAt(col(360, disp.lowerY + 42));
