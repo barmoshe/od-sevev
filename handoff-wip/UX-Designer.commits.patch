@@ -1,7 +1,7 @@
 From c880cb4a0066e99569a447e498619a7c56e1d3a2 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 21:02:33 +0000
-Subject: [PATCH 1/4] test(od-sevev): add mobile-first layout check and layout
+Subject: [PATCH 1/6] test(od-sevev): add mobile-first layout check and layout
  calculator
 
 tools/web/mobile_web.mjs plays the web build at every phone of the
@@ -529,7 +529,7 @@ index 0000000..e09f455
 From 8722f7fcb9e1ed78059ac90eb147b0bf916abda0 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 21:06:20 +0000
-Subject: [PATCH 2/4] docs(od-sevev): add mobile-first wireframes and the reach
+Subject: [PATCH 2/6] docs(od-sevev): add mobile-first wireframes and the reach
  guard
 
 ux/tools/mobile_mockup.py draws today's layout against the spec's at
@@ -4309,7 +4309,7 @@ index 0000000..2d332e8
 From 6ffce3d7631782bc30aaca3beec36931371aabc3 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 21:11:17 +0000
-Subject: [PATCH 3/4] docs(od-sevev): specify the mobile-first layout
+Subject: [PATCH 3/6] docs(od-sevev): specify the mobile-first layout
 
 ux/mobile-first-layout.md: the device matrix and scale grid, the
 bottom-up vertical split in whole card rows, fluid chrome anchors,
@@ -4925,7 +4925,7 @@ index 0000000..1c4ec65
 From f8bba0304648c67f4166746f35d2b09bd63e38d9 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 21:12:10 +0000
-Subject: [PATCH 4/4] docs(od-sevev): set the art grid before the
+Subject: [PATCH 4/6] docs(od-sevev): set the art grid before the
  unchanged-scale return
 
 Two phones with the same k differ only in columns and rows, so the
@@ -6321,6 +6321,90 @@ index 2d332e8..37f29bb 100644
      return img
  
  
+-- 
+2.43.0
+
+
+From d72473d3ae62a5a8e5ff76df956382133727e429 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 21:23:52 +0000
+Subject: [PATCH 5/6] docs(od-sevev): record the full-matrix mobile check on
+ today's build
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ ux/mobile-first-layout.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ux/mobile-first-layout.md b/ux/mobile-first-layout.md
+index a1fddac..adfddf8 100644
+--- a/ux/mobile-first-layout.md
++++ b/ux/mobile-first-layout.md
+@@ -535,7 +535,7 @@ Default matrix: 375×667@2, 390×844@3, 393×852@3, 430×932@3, 360×780@3, 412
+ | S11 | picker avatar | `odPick.avatar` == §5.8's A for the device |
+ | S12 | picker band | S8 over the grid, strip and foot |
+ 
+-**Today's run** (`scratchpad/shots/mobile-ux/`): baseline 0 failures at 390×844@3, 375×667@2 and the frame. Spec: 13 / 13 / 7 open. Every V-finding of §1 shows up as a spec failure: S8 reports the Row B slot, the lane, the empty pane and the pre-tap floor; S7 the SE's 86-px cut; S10/S12 the picker band.
++**Today's run** (full matrix, `MOBILE_BASELINE=1`, `scratchpad/shots/mobile-ux/`): `MOBILE_WEB: PASS (baseline; 108 spec checks open)`. Baseline: 0 failures on all 9 devices. Spec checks open: 13 per phone, 10 at 375×548 and 7 at the frame (the band checks are skipped inside the bezel). Every V-finding of §1 shows up as a spec failure: S8 reports the Row B slot, the lane, the empty pane and the pre-tap floor; S7 the 86-px cut at the SE and the 80-px cut at 390×664; S3 every phone's stage (e.g. 390×844: S 760 vs 680); S10/S12 the picker band.
+ 
+ ### 9.2 Visual checklist per device (the reviewer's pass on the tool's shots)
+ 
+-- 
+2.43.0
+
+
+From 21e51079482934a44184d3c2743c5d1926b30707 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 21:24:12 +0000
+Subject: [PATCH 6/6] docs(od-sevev): log the mobile-first layout spec in
+ STATUS
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ STATUS.md | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+
+diff --git a/STATUS.md b/STATUS.md
+index 9cdc7cb..2b914de 100644
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -1111,3 +1111,34 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
+   - **→ Animator:** the walk-in/out and Dubi's fly-in are placeholders: the leader fades in over 250 ms, and Dubi's line is a bubble at (644, S−232). `LeaderWalk` stays unwired, because `_apply_court_pose` sets `hero.position` every frame and would override a walk. `set_leader` now rebuilds your court nodes for each figure.
+   - **→ Game Designer:** Liberman's `pick.blurb` puts "61" on the picker, which spec §3.2 says should show no numbers.
+   - **→ UX:** Golan's pill is on the partner card with a pair prompt, because §6.3 has no layout for it; the result card's sub-line names the leader.
++
++- **UX Designer, 2026-09-29: the mobile-first layout spec (`ux/mobile-first-layout.md`).** Bar: "the mobile layout isn't good; it must be mobile first."
++  - **Verified** at build `af18f9e` plus the picker, on the pixels:
++    - Row B's empty slot (25 art);
++    - the Suitcase lane (a 2×28 stripe tile, 24 art);
++    - the empty pane plus the unrevealed tab slot (up to 73 art at 430);
++    - the SE's cut card (86 px, half a pill);
++    - the ticker crawl cutting words (no headline fits its 324 clip);
++    - the 720 column leaving side bands;
++    - the picker's 65-art band under a centred grid (my own rtl-map §8.2);
++    - the pre-tap floor (45% of H).
++    - "Only 4 rows" is content, not a cap.
++  - **Rules:**
++    - k is unchanged. The layout fills `floor(W/k) × floor(H/k)` art. Chrome is fluid with anchors; the stage is a centred column.
++    - The bottom-up split: the tab bar is pinned, the pane holds whole cards plus a 40-px peek, and the stage stays near 160 art. A reach guard keeps the leader's hit bottom at ≥ 40% of H.
++    - Reserved slots never show empty: Row B shows the sky until C2, the pane covers the tab slot until C1, and dim silhouettes fill the pane.
++    - The ticker shows 2-line pages of whole words.
++    - The counter goes to ×6, and the pill grows with a ×5 price.
++    - The picker grid is bottom-anchored, with fluid tiles and 192 avatars.
++    - Modals sit at 55%. The share sheet gets the full height, with WhatsApp nearest the thumb.
++    - Per-device tables for 12 viewports.
++  - **Golan's "לאחד":** the partner card is right as the second entry. Add a merge-ready system pill in the thread (§5.5).
++  - **Tools:**
++    - `tools/web/mobile_web.mjs`: baseline + spec checks over the 9-device matrix. Today: `PASS (baseline; 108 spec checks open)`.
++    - `ux/tools/mobile_layout.py`: the reference numbers.
++    - `ux/tools/mobile_mockup.py`, which writes `ux/mockups/mobile-first-*.png`.
++  - **→ game-developer:** implement §8 (display.gd `cols`/`rows`/`cw()`, `L.split`, anchors, pager, picker, silhouettes, `odDisplay.cw/ticker`, `odPick.tile/grid`). Done = `mobile_web.mjs` green.
++  - **→ 2d-artist:** A1 textured lane + plaza apron (Balfour first), A2 stage wings, A3 d3 96×96 pick avatars.
++  - **→ game-designer:** G1 `producerReveal.fillSilhouettes`.
++  - **→ animator:** M1 the ticker page push, replacing the crawl cadence.
++  - No objection outstanding.
 -- 
 2.43.0
 
