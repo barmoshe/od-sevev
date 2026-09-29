@@ -98,3 +98,228 @@ index 1079323..f034888 100644
  		return
  	var shown := {}
  	for m: Dictionary in out:
+diff --git a/game/scripts/ui/views/view_chat.gd b/game/scripts/ui/views/view_chat.gd
+index df3b59e..b861741 100644
+--- a/game/scripts/ui/views/view_chat.gd
++++ b/game/scripts/ui/views/view_chat.gd
+@@ -4,6 +4,11 @@ extends Node2D
+ ## plus the ultimatum stage cameo (§4.2). A child of `_lower`, positioned at y = −S, so its local
+ ## space is "tall-local": y 0 = the stage top, the tab covers the stage, the ticker and the panel
+ ## down to the tab bar (H_T = S + 84 + P). Rows A and B stay visible above it.
++## Mobile-first §4.1 / §5.5: the tab spans the canvas. The header chevron, title and status, the
++## pinned pin and text, the composer text and the incoming avatars and bubbles are R-anchored
++## (+ dx: a partner row's root sits at x dx); the replies stay left (x 16); system pills, the
++## brawl slot and the pending chip are centred on the canvas; backgrounds, the pinned bar, the
++## thread clip and the composer stretch. Bubble text columns keep their 720 measure (≤ 20 glyphs).
+ ##
+ ## It is a VIEW of the sim's chat log (`state.coalition.chat`, game/scripts/sim/README.md
+ ## "Messages"). No rule lives here: pay / rejoin / poach go through `Coalition.pay`, "צאו החוצה"
+@@ -224,7 +229,6 @@ func _ready() -> void:
+ 	_status = PxText.make(_panel, Vector2(0, 56), "", L.TEXT, "plain", C_NAME)
+ 	_status.wrap_width = TITLE_RIGHT - 32.0
+ 	_status.max_lines = 1
+-	_status.right_at(TITLE_RIGHT)
+ 	_pinned = Ui.nine(_panel, Rect2(0, PINNED_Y, L.W, PINNED_H), Art.sprite_or("chat_pinned"))
+ 	_pin = Ui.img(_panel, Vector2(676, PINNED_Y + 10), Art.sprite_or("chat_icon_pin"), 0, 4)
+ 	_pinned_text = PxText.make(_panel, Vector2(0, PINNED_Y + 10), "", L.TEXT, "plain", C_NAME)
+@@ -243,7 +247,7 @@ func _ready() -> void:
+ 	relayout()
+ 
+ 
+-## The flex rule changed (MainController._relayout): H_T = S + 84 + P.
++## The split or the width changed (MainController._relayout): H_T = S + 84 + P; the anchors.
+ func relayout() -> void:
+ 	position = Vector2(0, -L.stage_h)
+ 	_h = L.stage_h + L.tabs_y()
+@@ -252,14 +256,40 @@ func relayout() -> void:
+ 		_vs_w = float((host.get("_vs") as Vector2).x)
+ 	if _bg == null:
+ 		return
++	var dx := L.dx
+ 	_bg.position = Vector2(-_ox - 8.0, 0)
+ 	_bg.size = Vector2(_vs_w + 16.0, _h)
+-	_clip.size = Vector2(L.W, thread_h())
+-	Ui.set_nine_rect(_composer, Rect2(0, _h - COMPOSER_H, L.W, COMPOSER_H))
++	_clip.size = Vector2(L.cw, thread_h())
++	Ui.set_nine_rect(_header, Rect2(0, 0, L.cw + 4.0, HEADER_H))
++	var cs := Vector2(Art.sprite_size(_chev.get_meta("sprite"))) * 4.0
++	_chev.position = (chevron_hit().get_center() - cs / 2.0).snapped(Vector2(4, 4))
++	_title.right_at(TITLE_RIGHT + dx)
++	_status.right_at(TITLE_RIGHT + dx)
++	Ui.set_nine_rect(_pinned, Rect2(0, PINNED_Y, L.cw + 4.0, PINNED_H))
++	_pin.position.x = 676.0 + dx
++	_pinned_text.wrap_width = 584.0 + dx
++	_pinned_text.right_at(660.0 + dx)
++	Ui.set_nine_rect(_composer, Rect2(0, _h - COMPOSER_H, L.cw + 4.0, COMPOSER_H))
++	_composer_text.wrap_width = 640.0 + dx
++	_composer_text.right_at(680.0 + dx)
+ 	_composer_text.position.y = _h - COMPOSER_H + 24
++	_cameo.position.x = L.sox()   # the cameo stands in the stage column
++	if _state != null:
++		_update_header()
++	_sig = ""   # the thread's rows re-anchor on the next rebuild
++	_rebuild_if_needed(false)
+ 	_set_scroll(_scroll)
+ 
+ 
++## The header's back chevron, R-anchored.
++static func chevron_hit() -> Rect2:
++	return L.ra(CHEVRON_HIT)
++
++
++static func pinned_hit() -> Rect2:
++	return L.sa(PINNED_HIT)
++
++
+ func thread_h() -> float:
+ 	return maxf(0.0, _h - THREAD_Y - COMPOSER_H)
+ 
+@@ -679,9 +709,12 @@ func _build_thread() -> void:
+ 			gap = IN_RUN_GAP if (not row["first"] and prev_kind != "" and ["in", "ult", "deleted"].has(row["kind"])) else RUN_GAP
+ 		y += gap
+ 		var r: Dictionary
++		var nh := _hits.size()
++		var rx := 0.0
+ 		match String(row["kind"]):
+ 			"in", "ult", "deleted":
+ 				r = _build_bubble(row, y)
++				rx = L.dx   # mobile-first §4.1: incoming avatar and bubble, R-anchored
+ 			"out":
+ 				r = _build_out(row, y)
+ 			"sys":
+@@ -690,6 +723,12 @@ func _build_thread() -> void:
+ 				r = _build_transfer(row, y)
+ 			"brawl":
+ 				r = _build_brawl(row, y)
++				rx = L.sox()   # the brawl slot, centred
++		r["x"] = rx
++		for hi in range(nh, _hits.size()):
++			var hr: Rect2 = _hits[hi]["rect"]
++			_hits[hi]["rect"] = Rect2(hr.position.x + rx, hr.position.y, hr.size.x, hr.size.y)
++		(r["root"] as Node2D).position.x = rx
+ 		r["seq"] = row["seq"]
+ 		r["kind"] = row["kind"]
+ 		r["first"] = row["first"]
+@@ -884,7 +923,7 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+ 	var lines := maxf(1.0, float(tx.line_count()))
+ 	var w := Ui.snap(float(tx.width()) + icon_w + 48.0, 4)
+ 	var h := Ui.snap(_lh(tx) * lines + 12.0, 4)
+-	var x := Ui.snap((L.W - w) / 2.0, 4)
++	var x := Ui.snap((L.cw - w) / 2.0, 4)
+ 	Ui.set_nine_rect(pill_bg, Rect2(x, 0, w, h))
+ 	tx.position = Vector2(x + 24.0, 6.0)
+ 	tx.h_anchor = 0
+@@ -895,7 +934,7 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+ 	var st := str(m.get("state", ""))
+ 	if payable != "" and (st == "open" or st == "paid"):
+ 		cy += 16.0
+-		var pr := Rect2(WIDE_PILL.position.x, cy, WIDE_PILL.size.x, WIDE_PILL.size.y)
++		var pr := Rect2(L.cx(WIDE_PILL.position.x), cy, WIDE_PILL.size.x, WIDE_PILL.size.y)
+ 		var pill := _make_pill(root, pr, int(m["seq"]), true)
+ 		pill["key"] = "CHAT_SYS_REJOIN" if payable == "rejoin" else "CHAT_SYS_POACH"
+ 		r["pills"].append(pill)
+@@ -916,17 +955,17 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+ func _build_transfer(row: Dictionary, y: float) -> Dictionary:
+ 	var m: Dictionary = row["msg"]
+ 	var root := _root(y)
+-	Ui.nine(root, Rect2(0, 0, L.W, 120), Art.sprite_or("transfer_banner"))
+-	var card := Ui.nine(root, Rect2(16, 128, 688, 64), Art.sprite_or("transfer_card"))
++	Ui.nine(root, Rect2(0, 0, L.cw, 120), Art.sprite_or("transfer_banner"))
++	var card := Ui.nine(root, Rect2(16, 128, 688.0 + L.dx, 64), Art.sprite_or("transfer_card"))
+ 	var nm := PxText.make(root, Vector2(0, 148), partner_name(str(m.get("partner", ""))), L.TEXT + 1, "plain", C_GOLD_HI)
+ 	nm.wrap_width = 640.0
+ 	nm.max_lines = 1
+-	nm.right_at(672)
++	nm.right_at(672.0 + L.dx)
+ 	var ln := _text(root, Strings.s("CHAT_TRANSFER_LINE", {"from": partner_name(str(m.get("partner", ""))), "to": partner_name(str(m.get("to", "")))}), Color.WHITE, 640.0, 2, true)
+-	ln.right_at(672)
++	ln.right_at(672.0 + L.dx)
+ 	ln.position.y = 148.0 + _lh(nm) + 4.0
+ 	var ch := Ui.snap(20.0 + _lh(nm) + 4.0 + _lh(ln) * maxf(1.0, float(ln.line_count())) + 16.0, 4)
+-	Ui.set_nine_rect(card, Rect2(16, 128, 688, ch))
++	Ui.set_nine_rect(card, Rect2(16, 128, 688.0 + L.dx, ch))
+ 	return {"root": root, "pills": [], "h": 128.0 + ch}
+ 
+ 
+@@ -975,8 +1014,8 @@ func _update_header() -> void:
+ 		else:
+ 			txt = Strings.plural("CHAT_MEMBERS", group_size(_state))
+ 	_status.text = txt
+-	_status.right_at(TITLE_RIGHT)
+-	_lock.position = Vector2(Ui.snap(TITLE_RIGHT - float(_title.width()) - 12.0 - float(Art.sprite_size(_lock.get_meta("sprite")).x) * 4.0, 4), 20)
++	_status.right_at(TITLE_RIGHT + L.dx)
++	_lock.position = Vector2(Ui.snap(TITLE_RIGHT + L.dx - float(_title.width()) - 12.0 - float(Art.sprite_size(_lock.get_meta("sprite")).x) * 4.0, 4), 20)
+ 	_pinned_text.text = Strings.s("CHAT_PINNED", {"n": str(_state.evolutions + 1)})
+ 	var agreement := _state.evolutions >= 1
+ 	var badge := agreement and Meta.can_buy_any_perk(_state)
+@@ -1013,7 +1052,7 @@ func _update_rows(dt: float) -> void:
+ 				a = p
+ 				if r.get("kind", "") == "ult" and t > ms:
+ 					base_y = Ui.snap(4.0 * (1.0 - Ui.quad_out(minf(1.0, (t - ms) / 100.0))), 4)   # the 1-ap thud
+-		root.position = Vector2(base_x, float(r.get("y", 0.0)) + base_y)
++		root.position = Vector2(float(r.get("x", 0.0)) + base_x, float(r.get("y", 0.0)) + base_y)
+ 		root.modulate.a = a
+ 		for pill: Dictionary in r["pills"]:
+ 			_update_pill(pill, bps)
+@@ -1023,7 +1062,7 @@ func _update_rows(dt: float) -> void:
+ 			_update_chip(r["chip"], Coalition.message(_state, seq), dt)
+ 		if r.has("corridor"):
+ 			(r["corridor"] as PxText).text = Strings.s("CHAT_CORRIDOR_COUNT", {"n": str(int(_state.coalition.get("corridorMsgs", 0)))})
+-			(r["corridor"] as PxText).center_in(0, L.W)
++			(r["corridor"] as PxText).center_in(0, L.cw)
+ 		if r.has("cloud"):
+ 			_boil(r["cloud"], r["cloudAt"], 4.0)
+ 
+@@ -1506,10 +1545,10 @@ func pointer_down(p: Vector2) -> bool:
+ 		_scroll_tw.kill()
+ 	var ready := _now - _open_ms >= INPUT_AFTER_OPEN_MS
+ 	_press = {"kind": "thread", "y0": q.y, "x0": q.x, "scroll0": _scroll, "dragging": false, "lastY": q.y, "lastT": _now, "vel": 0.0, "hit": {}}
+-	if Ui.in_rect(CHEVRON_HIT, q):
++	if Ui.in_rect(chevron_hit(), q):
+ 		_press["kind"] = "chevron"
+ 		return true
+-	if Ui.in_rect(PINNED_HIT, q) and q.y < THREAD_Y:
++	if Ui.in_rect(pinned_hit(), q) and q.y < THREAD_Y:
+ 		_press["kind"] = "pinned"
+ 		return true
+ 	if _pending_root.visible and ready and Ui.in_rect(pending_hit(), q):
+@@ -1565,10 +1604,10 @@ func pointer_up(p: Vector2) -> void:
+ 				_audio("uiClick")
+ 				scroll_to_pending()
+ 		"chevron":
+-			if Ui.in_rect(CHEVRON_HIT, q):
++			if Ui.in_rect(chevron_hit(), q):
+ 				close()
+ 		"pinned":
+-			if Ui.in_rect(PINNED_HIT, q) and _state != null and _state.evolutions >= 1 and host != null and host.has_method("_open_perks"):
++			if Ui.in_rect(pinned_hit(), q) and _state != null and _state.evolutions >= 1 and host != null and host.has_method("_open_perks"):
+ 				host.call("_open_perks")   # rtl-map §7.3: the agreement's home after the first election
+ 		"thread":
+ 			if pr["dragging"]:
+@@ -1725,7 +1764,7 @@ func _update_pending() -> void:
+ 		_pending_text.text = t
+ 	var tw := float(_pending_text.width())
+ 	var w := Ui.snap(maxf(PENDING_W, tw + 28.0 + 12.0 + 48.0), 4)
+-	var x := Ui.snap((L.W - w) / 2.0, 4)
++	var x := Ui.snap((L.cw - w) / 2.0, 4)
+ 	_pending_rect = Rect2(x, THREAD_Y + PENDING_Y, w, PENDING_H)
+ 	Ui.set_nine_rect(_pending_bg, Rect2(Vector2.ZERO, _pending_rect.size))
+ 	_pending_root.position = _pending_rect.position - Vector2(0, 0.0 if reduced_motion else Ui.snap(4.0 * (1.0 - pin), 4))
+@@ -1778,7 +1817,7 @@ func _update_brawl_cue(allowed: bool) -> void:
+ 	var toast := Rect2()
+ 	if host != null and "toasts" in host and host.get("toasts") != null:
+ 		toast = (host.get("toasts") as Toasts).covered_rect()
+-	var cue_stage := Rect2(BRAWL_CUE.position + Vector2(0, float(L.STAGE["y"])), BRAWL_CUE.size)
++	var cue_stage := Rect2(BRAWL_CUE.position + Vector2(-L.sox(), float(L.STAGE["y"])), BRAWL_CUE.size)   # the toast dock is stage-local
+ 	var show := allowed and not _open and not _panel.visible and not m.is_empty() and not toast.intersects(cue_stage)
+ 	_brawl_cue.visible = show
+ 	_brawl_seq = int(m.get("seq", -1)) if show else -1
+@@ -1835,7 +1874,7 @@ func _update_cameo(dt: float, allowed: bool) -> void:
+ 				_cameo_strip.position = feet
+ 				_cameo_strip.update_view(dt)
+ 				var h := fh * art
+-				_cameo_rect = Rect2(568, feet.y - h, 152, h)
++				_cameo_rect = Rect2(568.0 + L.sox(), feet.y - h, 152, h)   # tall-local (the node sits at the stage column)
+ 				_cameo_seq = int(m["seq"])
+ 				var chip_pos := Vector2(Ui.snap(644.0 - CHIP_W / 2.0, 4), Ui.snap(feet.y - h - CHIP_H - 8.0, 4))
+ 				Ui.set_nine_rect(_cameo_chip, Rect2(chip_pos, Vector2(CHIP_W, CHIP_H)))
