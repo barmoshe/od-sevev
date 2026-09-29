@@ -26,7 +26,29 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 	out.append_array(Coalition.tick(s, dt, d, ctx, rng))
 	out.append_array(Investigation.tick(s, dt, d))
 	out.append_array(Events.tick(s, dt, d, ctx, rng))
+	_count_night_taps(s, ctx)
 	return out
+
+
+## Trophy "לילה לבן" (stat tapsAt2to4): taps made while the clock reads 02:00-03:59. The hour is
+## ctx.hour (the device's local hour; the engine should pass it), else Israel time from ctx.nowMs.
+static func _count_night_taps(s: GameState, ctx: Dictionary) -> void:
+	var seen := s.taps_seen
+	s.taps_seen = s.taps_lifetime
+	if seen < 0 or s.taps_lifetime <= seen:
+		return
+	var h := night_hour(ctx)
+	if h == 2 or h == 3:
+		Meta.bump(s, "tapsAt2to4", float(s.taps_lifetime - seen))
+
+
+static func night_hour(ctx: Dictionary) -> int:
+	if ctx.has("hour"):
+		return int(ctx["hour"])
+	if ctx.has("nowMs") and Calendar.active():
+		var now := float(ctx["nowMs"])
+		return int(floorf(fposmod(now / 3600000.0 + Calendar.israel_offset_h(now), 24.0)))
+	return -1
 
 
 ## Called by Economy.evolve() after the run resets ("עוד סבב!").
@@ -45,6 +67,7 @@ static func validate(c: Dictionary = {}) -> PackedStringArray:
 	err.append_array(Investigation.validate(c))
 	err.append_array(Events.validate(c))
 	err.append_array(Calendar.validate(c))
+	err.append_array(Spins.validate(c))
 	for o: Variant in c.get("golden", {}).get("outcomes", []):
 		if not o is Dictionary:
 			continue
@@ -77,6 +100,6 @@ static func unimplemented_effects(c: Dictionary = {}) -> PackedStringArray:
 		if not u is Dictionary:
 			continue
 		var t := str((u as Dictionary).get("effect", {}).get("type", ""))
-		if not Economy.EFFECTS.has(t) and not Economy.ON_BUY.has(t) and t != "basePerOppositionCard" and not out.has(t):
+		if not Spins.implemented(t) and not out.has(t):
 			out.append(t)
 	return out

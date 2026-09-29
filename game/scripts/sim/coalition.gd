@@ -86,6 +86,7 @@ static func fresh_state() -> Dictionary:
 		"paidRound": 0, "paidLifetime": 0, "leftLifetime": 0, "rejoinsLifetime": 0,
 		"nextDemandSec": -1.0, "joinCooldownSec": 0.0, "replyIndex": 0,
 		"corridorOpen": false, "corridorMsgs": 0, "transferDone": false, "unread": 0,
+		"rot": {},   # "partner:line" -> the next linesVariants index (lifetime)
 	}
 
 
@@ -351,8 +352,25 @@ static func roster(s: GameState) -> Array:
 			"upkeepPct": _row_field(s, id, "upkeepPct"), "frozen": st["frozen"], "benched": float(st["benchSec"]) > 0.0,
 			"carry": (st["carry"] as Array).duplicate(), "meter": float(st["meter"]) / fire if tr is Dictionary else 0.0,
 			"excluded": _excluded(s, p), "side": p.get("side", "coalition"), "corridor": st["corridor"],
+			"cardHidden": card_hidden(s, id),
 		})
 	return out
+
+
+## The designer's ask (3): a `pollLike` partner (Gotliv, whose card names a seat number) has only
+## her partner card (`copy.card`) hidden in the blackout. Her membership, seats, meter, transfer
+## and chat bubbles are untouched (her bubbles are poll_like: false). A card that sets its own
+## `poll_like` / `pollLike` wins over the partner's flag.
+static func card_hidden(s: GameState, id: String) -> bool:
+	var p := partner(id)
+	if p.is_empty() or Calendar.poll_like_allowed(s):
+		return false
+	var cd: Variant = p.get("copy", {}).get("card") if p.get("copy") is Dictionary else null
+	if cd is Dictionary:
+		for k: String in ["poll_like", "pollLike"]:
+			if (cd as Dictionary).has(k):
+				return (cd as Dictionary)[k] == true
+	return p.get("pollLike", p.get("poll_like", false)) == true
 
 
 # ---------------------------------------------------------------------------------------------
@@ -398,12 +416,31 @@ static func _reply(s: GameState, out: Array) -> void:
 	_post(s, {"type": "reply", "n": c["replyIndex"]}, out)
 
 
-## Which of the partner's lines of this kind to show (partners[].linesVariants or .lines lists).
-static func _variant(id: String, line: String, rng: Callable) -> int:
+## How many rotations a partner has for a line: partners[].linesVariants[line] (a list) when
+## present, else 1 (`lines[line]`, a string; a list there counts too).
+static func variant_count(id: String, line: String) -> int:
 	var p := partner(id)
-	var l: Variant = p.get("linesVariants", p.get("lines", {})).get(line, [])
-	var n := (l as Array).size() if l is Array else 1
-	return int(float(rng.call()) * n) % maxi(1, n)
+	for src: String in ["linesVariants", "lines"]:
+		var l: Variant = p.get(src, {}).get(line) if p.get(src) is Dictionary else null
+		if l is Array and not (l as Array).is_empty():
+			return (l as Array).size()
+		if l is String:
+			return 1
+	return 1
+
+
+## The designer's rotation (ask 2): each partner walks its variants of a line in order, so no
+## bubble repeats until all have been seen. The counter per "partner:line" is saved and survives
+## elections. Text: linesVariants[line][variant], or lines[line] when variant is 0.
+static func _variant(s: GameState, id: String, line: String) -> int:
+	var n := variant_count(id, line)
+	if not _c(s).get("rot") is Dictionary:
+		_c(s)["rot"] = {}
+	var rot: Dictionary = _c(s)["rot"]
+	var k := "%s:%s" % [id, line]
+	var v := int(rot.get(k, 0)) % n
+	rot[k] = (v + 1) % n
+	return v
 
 
 # ---------------------------------------------------------------------------------------------
@@ -479,7 +516,7 @@ static func _tick_messages(s: GameState, dt: float, out: Array) -> void:
 		if _can_threaten(s, str(m["partner"])):
 			m["state"] = "expired"
 			_post(s, {"type": "ultimatum", "partner": m["partner"], "price": m["price"], "kind": m.get("kind", "money"),
-				"leftSec": float(_ult().get("sec", 90.0)), "state": "open", "line": "threat", "variant": 0}, out)
+				"leftSec": float(_ult().get("sec", 90.0)), "state": "open", "line": "threat", "variant": _variant(s, str(m["partner"]), "threat")}, out)
 
 
 static func _can_threaten(s: GameState, id: String) -> bool:
@@ -509,10 +546,11 @@ static func _post_join(s: GameState, id: String, d: Economy.Derived, rng: Callab
 	st["status"] = "pending"
 	_sys(s, "chat.sys.joined", {"partner": id}, out)
 	var price := demand_price(s, id, d)
-	var variant := _variant(id, "demand", rng)
+	var variant := _variant(s, id, "demand")
 	if int(_c(s)["paidLifetime"]) == 0 and s.evolutions == 0 and id == str(cfg().get("firstPartner", "")):
 		price = _num("firstDemandPrice", 60.0)   # pitch §11 Q2: the FTUE demand is a fixed 60 ₪
-		variant = 0                              # the deck's first bubble (C1)
+		variant = 0                              # the deck's first bubble (C1); the rotation goes on from 1
+		(_c(s)["rot"] as Dictionary)["%s:demand" % id] = 1 % variant_count(id, "demand")
 	_post(s, {"type": "demand", "partner": id, "price": price, "kind": p.get("demandKind", "money"),
 		"join": true, "ageSec": 0.0, "state": "open", "line": "demand", "variant": variant}, out)
 
@@ -549,10 +587,10 @@ static func _tick_demands(s: GameState, dt: float, d: Economy.Derived, rng: Call
 	var kind: String = pick.get("demandKind", "money")
 	if _can_threaten(s, id) and float(rng.call()) < float(pick.get("threatChance", 0.0)):
 		_post(s, {"type": "ultimatum", "partner": id, "price": price, "kind": kind,
-			"leftSec": float(_ult().get("sec", 90.0)), "state": "open", "line": "threat", "variant": _variant(id, "threat", rng)}, out)
+			"leftSec": float(_ult().get("sec", 90.0)), "state": "open", "line": "threat", "variant": _variant(s, id, "threat")}, out)
 	else:
 		_post(s, {"type": "demand", "partner": id, "price": price, "kind": kind, "join": false, "ageSec": 0.0,
-			"state": "open", "line": "demand", "variant": _variant(id, "demand", rng)}, out)
+			"state": "open", "line": "demand", "variant": _variant(s, id, "demand")}, out)
 	c["nextDemandSec"] = _gap(s, rng)
 
 
@@ -660,7 +698,7 @@ static func pay(s: GameState, seq: int, ceremony_done: bool = false) -> Dictiona
 		st["status"] = "member"
 		_c(s)["rejoinsLifetime"] = int(_c(s)["rejoinsLifetime"]) + 1
 		_sys(s, "chat.sys.joined", {"partner": id}, out)
-		_post(s, {"type": "thanks", "partner": id, "line": "return", "variant": 0}, out)
+		_post(s, {"type": "thanks", "partner": id, "line": "return", "variant": _variant(s, id, "return")}, out)
 	elif payable == "poach":
 		st["status"] = "member"
 		_sys(s, "chat.sys.added", {"partner": id}, out)
@@ -668,10 +706,13 @@ static func pay(s: GameState, seq: int, ceremony_done: bool = false) -> Dictiona
 		if was == "pending":
 			st["status"] = "member"
 		_reply(s, out)
-		_post(s, {"type": "thanks", "partner": id, "line": "thanks", "variant": 0}, out)
+		_post(s, {"type": "thanks", "partner": id, "line": "thanks", "variant": _variant(s, id, "thanks")}, out)
 	var c := _c(s)
 	c["paidRound"] = int(c["paidRound"]) + 1
 	c["paidLifetime"] = int(c["paidLifetime"]) + 1
+	if m["type"] == "demand" or m["type"] == "ultimatum":
+		Meta.bump(s, "demandsPaid")   # trophy "61 ידיים": demands and ultimatums, not rejoin / poach pills
+	Meta.count(s, "countPartnerPaid", id)   # "gafniPaid" (trophy "תיקו כמו שהזמנת")
 	if p.has("priceGrowth"):
 		c["levels"][id] = int(c["levels"].get(id, 0)) + 1
 	var sus := float(p.get("onPay", {}).get("suspicion", 0.0))
@@ -679,6 +720,7 @@ static func pay(s: GameState, seq: int, ceremony_done: bool = false) -> Dictiona
 		Investigation.add(s, sus)
 	var joined: bool = was != "member" and st["status"] == "member"
 	if joined:
+		Meta.bump(s, "partnersPaid")   # a payment that brought a partner in (headline h_first_partner)
 		_on_joined(s, id, out)
 	return {"ok": true, "price": price, "partner": id, "joined": joined, "events": out}
 
@@ -733,6 +775,7 @@ static func resolve_brawl(s: GameState, seq: int) -> Array:
 		st["corridor"] = true
 	var c := _c(s)
 	c["corridorOpen"] = true
+	Meta.bump(s, "brawlsEnded")
 	_sys(s, "chat.brawl.after", {"a": m["a"], "b": m["b"], "n": c["corridorMsgs"]}, out)
 	return out
 
@@ -770,6 +813,7 @@ static func on_chat_opened(s: GameState, rng: Callable = randf) -> void:
 	if c["corridorOpen"]:
 		var r: Array = cfg().get("corridorMsgsPerOpen", [1, 9])
 		c["corridorMsgs"] = int(c["corridorMsgs"]) + int(r[0]) + int(float(rng.call()) * (int(r[1]) - int(r[0]) + 1))
+		Meta.stat_at_least(s, "corridorMessages", float(c["corridorMsgs"]))
 
 
 ## Election: the coalition resets (UX elect.reset), the chat is cleared with the round line.
@@ -812,6 +856,12 @@ static func sanitize(raw: Variant) -> Dictionary:
 		for k: Variant in lv:
 			if known.has(k):
 				out["levels"][k] = int(_n(lv[k]))
+	var rot: Variant = r.get("rot")
+	if rot is Dictionary:
+		for k: Variant in rot:
+			var parts := str(k).split(":")
+			if parts.size() == 2 and known.has(parts[0]) and LINES.has(parts[1]):
+				out["rot"][str(k)] = int(_n(rot[k])) % variant_count(parts[0], parts[1])
 	var pr: Variant = r.get("partners")
 	if pr is Dictionary:
 		for k: Variant in pr:

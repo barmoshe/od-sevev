@@ -111,12 +111,14 @@ static func section(key: String) -> Variant:
 	return data().get(key)
 
 
-## content.json `_speciesRule`: index = min(evolutions, last); at the last title append
-## "Mk " + (evolutions - (last - 1)).
+## content.json `_speciesRule`: index = min(evolutions, last); at the last title append the
+## number evolutions - (last - 1) through `prestige.speciesNumber` ("{n}" is the number; od-sevev
+## " מס׳ {n}", the fork's default " Mk {n}").
 static func species_title(evolutions: int) -> String:
-	var titles: Array = data()["prestige"]["speciesTitles"]
+	var p: Dictionary = data()["prestige"]
+	var titles: Array = p["speciesTitles"]
 	var last := titles.size() - 1
-	var i := mini(evolutions, last)
+	var i := clampi(evolutions, 0, last)
 	if i == last:
-		return "%s Mk %d" % [titles[last], evolutions - (last - 1)]
+		return str(titles[last]) + str(p.get("speciesNumber", " Mk {n}")).replace("{n}", str(evolutions - (last - 1)))
 	return titles[i]

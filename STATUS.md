@@ -93,6 +93,13 @@ Cross-slice requests go under **Requests** with the owner named.
   - **Engine touch (data-driven reader fix, flagged):** `diorama.gd` critters and the `launch` set piece now scale by `4 / sources[id].density` (`_scale_of`); without it the d = 3 strips drew 3× too big. Nothing else in `game/scripts/**`.
   - **Pipeline:** Python 3.11-compatible f-string, numpy ints cast for JSON, source icon/frameH checks.
   - **Files:** creative-pack `art/showcase/src/{build,cast}.py`, `art/showcase/out/**` (+ `atlas.json`), `art/refs/may-golan.png`, `art/refs/candidates/README.md`; `pipeline/od-sevev/{sprites.py,README.md,budget.json,proofs/*}`; `game/assets/sprites/**` + `CONTRACT.md` §1, §3, §4, §4b, §7; `game/scripts/ui/diorama.gd`; `asset-requests/REQUESTS.md`
+- 2026-09-29 · game-developer (sim) · the sim's open asks, all live; engine hooks under Requests.
+  - **Format bug:** `test_investigation.gd:128` had a bare `5% ×` in a `%`-formatted message (GDScript reads `% ×` as a spec; there was no `%g` left). Fixed to `%%`; a scan of every `.gd` for unsupported specs is clean; `tools/test.sh` now fails on "String formatting error".
+  - **The 5 held spins are live** (new `spins.gd`): kinds `consumable` (rebuyable, timer, fatigue^n, off the shelf while live) and `line` (levels in order), `costBpsSeconds` pricing; S02 `tapBuff`, S05 `basePerOppositionCard`, S07 `idleToTap`, S08 `karhiLine` (+2 % base, +4 suspicion per level, the card's two bars), S10 `flightIncome`. Holds removed from `design/content.json`; `pendingEngine: true` is the hold now (lint + `Politics.validate` agree).
+  - **Designer asks:** `linesVariants` rotate in order per partner and line (saved; C1 stays variant 0); Gotliv's `pollLike` hides only her card in the blackout (`roster[].cardHidden`); the title reads "… מס׳ N" (`prestige.speciesNumber`); all 17 trophy stat keys in `GameState.stats` (persist, old saves seeded), counted in the sim, `countEvent`/`countUpgrade`/`countPartnerPaid` in the triggers; `neverAwarded` never counts.
+  - **Engine ask:** `courtStart`/`courtEnd` carry `reason` testified | served, `postpone()` returns courtEnd postponed.
+  - **Checks:** tests 158/159 (+23 sim tests; the 1 is the engine's `test_input`), `Politics.validate()` 0, content lint 0 errors. Balance: see Requests (the first-election gate was already red).
+  - **Files:** `game/scripts/sim/{spins(new),economy,game_state,coalition,investigation,events,meta,story,content,politics,pacing_sim}.gd`, `sim/README.md`, `game/tests/unit/{test_spins,test_trophy_stats}.gd` (new), `test_{coalition,investigation}.gd`, `design/content.json` (+ `game/data/`), `design/sim/content-lint.mjs` (effect/condition sets mirror the sim), `tools/test.sh`
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 
@@ -659,3 +666,30 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - I made one data-driven reader fix in `diorama.gd` (`_scale_of`: critters and the `launch` piece divide ×4 by `sources[id].density`); merge it with your scaling edit, and keep the division if you replace the ×4.
   - Keep partner bodies lazy: a partner's two strips are 4.3-7.6 MB of VRAM; Bibi alone is 11 MB. Content avatars are named `<slug>_avatar` in `design/content.json` but the sprite ids are `avatar_<slug>` (`chars[c].avatar`); resolve through the manifest when the chat view lands.
   - Offer: a `frameMap` per anim (idle strips repeat frames: 6 unique of 20 for a still-armed partner) cuts the cast's VRAM ~37% for a 3-line SpriteStrip `_src()` change. Say the word and I'll emit it.
+- **→ game-developer (engine), from game-developer (sim):** the sim's half of your routed asks is in (sim/README.md "Controller wiring" lists every call). Hooks for you, in `ui/**` / `main.gd`:
+  1. **Spin pill (needed now; S07 and S08 buy silently fail without it):** `shop.gd` reads `u["cost"]` and `not s.upgrades.has(id)`. Read `Economy.upgrade_price(state, id)` and `Economy.can_buy_upgrade(state, id)` instead: a line's next level, S07's income-scaled price. `Spins.card(state, id)` gives the "שחוק" tag (`worn`), `liveSec`, S08's two bars, S10's `flightPct`.
+  2. **Buff views:** `Spins.active_effects(state)` for the live timers; `Economy.tick()` returns `spinsEnded: [ids]`. S07 zeroes `d.bps_effective` (the rate line should read 0 while it runs).
+  3. **Court audio:** `courtEnd.reason` is `testified` or `served`. For a postponement, fire `courtEnd("postponed")` from `postpone()`'s `events`.
+  4. **Night trophy:** pass `"hour"` (device local) in the `Politics.tick` ctx. Without it the sim uses Israel time from `nowMs`.
+  5. **Dubi's word salad:** before a talking point, call `Story.roll_word_salad(state)`. If it returns true, show `Story.word_salad(last three points)`. The call counts `wordSaladSeen`.
+  6. **Stats:** `MainController.stat()`'s fallbacks are now dead code: every key is in `state.stats`. `core/ambient.gd` `trophiesAtLeast` should read `Meta.trophy_count(state)`, which skips `neverAwarded`.
+  7. **Chat and partner card:** `roster[].cardHidden` hides Gotliv's partner card in the blackout. The line text is `linesVariants[line][variant]`, falling back to `lines[line]` at variant 0.
+- **→ game-designer + orchestrator, from game-developer (sim): OBJECTION (pacing claim vs the real bench):**
+  ```yaml
+  objection:
+    skill_or_agent: game-developer (sim)
+    against_artifact: design/content.json pacing ("first election about 7 min", STATUS 2026-09-29 game-designer) + tests/bench/test_session.gd gate
+    reason: |
+      tools/balance.sh plays the shipped content through the real Economy + Politics (PacingSim). It
+      was already red before this change and is unchanged by it. The first election lands at
+      3:15 engaged (4 taps/s), 4:10 casual (2 taps/s) and 3:54 on the default politics strategy,
+      against the designer's 7:22 at 1.5 taps/s (design/sim/economy-sim.mjs). The bench's gate
+      is also still the fork's "first Evolve in 9:30-15 min". The two sims disagree by about 2x,
+      so the pitch's 7-9 min is unverified, and the bench cannot hold it.
+    proposed_alternative: |
+      Tune against the one sim that runs the shipped code. The sim developer adds a "median" profile
+      (1.5 taps/s, catches Suitcases, pays joins) and replaces the fork gate with the pitch's
+      "first election 7-9 min (median), 5-9 min (engaged)". The designer then re-tunes against
+      tools/balance.sh, not economy-sim.mjs. The candidates are coalition.unlockScalePerElection /
+      runSecAtLeast, demandSec, and the ownSeats curve (the seat gate is what opens early).
+  ```

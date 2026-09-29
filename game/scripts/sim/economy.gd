@@ -40,6 +40,7 @@ class Derived:
 	var taps_paused := false                # court day with courtDay.pausesTaps
 	var no_crit := false                    # Eisenkot's card: no rabbits while it is up
 	var seats_gate_open := true             # Coalition.gate_open(): the seat gate (true without a coalition)
+	var tap_pour_sec := 0.0                 # S07 "idleToTap": income stops, each tap pours bps × this (Spins)
 
 
 ## Upgrade effect handlers: effect.type -> func(effect: Dictionary, d: Derived). Adding an effect
@@ -170,6 +171,7 @@ static func derive(s: GameState) -> Derived:
 	var c := Content.data()
 	var p: Dictionary = c["prestige"]
 	Meta.install()
+	Spins.install()
 	Politics.install()
 	var d := Derived.new()
 	d.crit_chance = float(c["tap"]["critChance"])
@@ -183,7 +185,7 @@ static func derive(s: GameState) -> Derived:
 		var h: Variant = EFFECTS.get(e["type"])
 		if h != null:
 			(h as Callable).call(e, d)
-		elif not ON_BUY.has(e["type"]) and not _warned.has(e["type"]):
+		elif not ON_BUY.has(e["type"]) and not Spins.TYPES.has(e["type"]) and not _warned.has(e["type"]):
 			_warned[e["type"]] = true
 			push_warning("[economy] upgrade effect type '%s' has no handler yet (upgrade %s): it does nothing" % [e["type"], uid])
 	for m in MODIFIERS:
@@ -207,6 +209,10 @@ static func derive(s: GameState) -> Derived:
 	var base_tap := float(c["tap"]["baseValue"]) + d.tap_add
 	var pct := d.tap_pct_of_bps + float(c["tap"].get("pctOfBpsBase", 0.0))
 	d.tap_value_no_crit = clampf_num((base_tap * d.tap_mult * d.prestige_mult * maxf(0.0, d.income_mult) + pct * d.bps) * d.tap_frenzy_mult)
+	if d.tap_pour_sec > 0.0:
+		# S07: the passive income is poured into the taps instead (tapValue + bps × pourSecPerTap).
+		d.bps_effective = 0.0
+		d.tap_value_no_crit = clampf_num(d.tap_value_no_crit + d.tap_pour_sec * d.bps)
 	# d.seats_gate_open: true by default; Coalition's modifier sets it (== Coalition.gate_open(s)).
 	if round_scope():
 		d.pending = round_payout(s, d.base_pct_round)
@@ -243,7 +249,7 @@ static func tick(s: GameState, dt: float, d: Derived = null) -> Dictionary:
 	s.stats["playtimeSec"] = float(s.stats.get("playtimeSec", 0.0)) + dt
 	if d.bps > float(s.stats.get("bestBps", 0.0)):
 		s.stats["bestBps"] = d.bps
-	var ev := {"frenzyEnded": false, "tapFrenzyEnded": false}
+	var ev := {"frenzyEnded": false, "tapFrenzyEnded": false, "spinsEnded": Spins.tick(s, dt)}
 	if s.buff_frenzy > 0.0:
 		s.buff_frenzy = maxf(0.0, s.buff_frenzy - dt)
 		ev["frenzyEnded"] = s.buff_frenzy == 0.0
@@ -294,7 +300,9 @@ static func tap(s: GameState, rng: Callable = randf) -> Dictionary:
 			cm = float(fc.get("mult", cm))
 		elif n < int(fc.get("randomCritsFromTap", 0)):
 			crit = false
-	var value := clampf_num(d.tap_value_no_crit * (cm if crit else 1.0))
+	# A rabbit multiplies the tap, never S07's pour (the pour is income moved, not earned by the tap).
+	var pour := d.tap_pour_sec * d.bps
+	var value := clampf_num((d.tap_value_no_crit - pour) * (cm if crit else 1.0) + pour)
 	add_bananas(s, value)
 	s.run_taps += 1
 	s.taps_lifetime += 1
@@ -396,12 +404,13 @@ static func upgrade_unlocked(s: GameState, u: Dictionary) -> bool:
 	return true
 
 
-## The shelf: unlocked and not bought, sorted by cost (stable).
+## The shelf: unlocked and on the shelf by kind (Spins.on_shelf: a once spin until bought, a
+## consumable while its effect isn't live, a line until its last level), sorted by cost (stable).
 static func available_upgrades(s: GameState) -> Array:
 	var out: Array = []
 	var i := 0
 	for u: Dictionary in Content.upgrades():
-		if not s.upgrades.has(u["id"]) and upgrade_unlocked(s, u):
+		if Spins.on_shelf(s, u) and upgrade_unlocked(s, u):
 			out.append([u, i])
 		i += 1
 	out.sort_custom(func(a: Array, b: Array) -> bool:
@@ -412,22 +421,36 @@ static func available_upgrades(s: GameState) -> Array:
 static func affordable_upgrade_count(s: GameState) -> int:
 	var n := 0
 	for u: Dictionary in available_upgrades(s):
-		if s.bananas >= float(u["cost"]):
+		var p := Spins.price(s, u)   # derives only for a costBpsSeconds spin
+		if p >= 0.0 and s.bananas >= p:
 			n += 1
 	return n
 
 
-static func buy_upgrade(s: GameState, id: String) -> bool:
+## What the spin costs now: `cost`, a line's next level, or a consumable's costBpsSeconds price
+## (-1: nothing left to buy). The card's price pill should read this, not `u.cost`.
+static func upgrade_price(s: GameState, id: String, d: Derived = null) -> float:
 	var u := Content.upgrade(id)
-	if u.is_empty() or s.upgrades.has(id) or not upgrade_unlocked(s, u) or s.bananas < float(u["cost"]):
+	return -1.0 if u.is_empty() else Spins.price(s, u, d)
+
+
+## Whether buy_upgrade would succeed now (the pill's gold state).
+static func can_buy_upgrade(s: GameState, id: String) -> bool:
+	var u := Content.upgrade(id)
+	if u.is_empty() or not Spins.on_shelf(s, u) or not upgrade_unlocked(s, u):
 		return false
-	s.bananas = maxf(0.0, s.bananas - float(u["cost"]))
-	s.upgrades.append(id)
+	var p := Spins.price(s, u)
+	return p >= 0.0 and s.bananas >= p
+
+
+static func buy_upgrade(s: GameState, id: String) -> bool:
+	if not can_buy_upgrade(s, id):
+		return false
+	var u := Content.upgrade(id)
+	s.bananas = maxf(0.0, s.bananas - Spins.price(s, u))
 	s.upgrades_bought_lifetime += 1
-	var e: Dictionary = u.get("effect", {})
-	var ob: Variant = ON_BUY.get(e.get("type", ""))
-	if ob != null:
-		(ob as Callable).call(s, e)
+	Spins.on_bought(s, u)
+	Meta.count(s, "countUpgrade", id)
 	var fu: Variant = u.get("followUp")
 	if fu is Dictionary and (fu as Dictionary).has("fallbackAfterSec"):
 		Events.follow_up(s, id, float(fu["fallbackAfterSec"]))   # S13: next morning's invoice
@@ -476,6 +499,7 @@ static func apply_golden(s: GameState, id: String) -> float:
 	var o := Content.outcome(id)
 	var dur_mult := derive(s).buff_duration_mult
 	s.golden_caught_lifetime += 1
+	Spins.on_golden_caught(s)   # S10: a caught Suitcase is a flight
 	var kind := Content.outcome_type(id)   # od-sevev: dispatch on the data type, not the id
 	if kind == "instant":
 		var d := derive(s)
@@ -507,6 +531,7 @@ static func reset_run(s: GameState) -> void:
 	s.golden_timer_sec = float(Content.data()["golden"]["firstSpawnDelaySec"])
 	s.evolve_ready_announced = false
 	s.run_time_sec = 0.0
+	Spins.reset_round(s)
 
 
 ## Mechanic rule 8. Returns {} when the gate is closed (idempotent per dialog, E7).
@@ -519,6 +544,7 @@ static func evolve(s: GameState) -> Dictionary:
 	var fastest := float(s.stats.get("fastestRunSec", 0.0))
 	if fastest <= 0.0 or run_sec < fastest:
 		s.stats["fastestRunSec"] = run_sec
+	Meta.on_round_end(s, run_sec)   # the round's trophy stats, before the run resets
 	s.thumbs_owned += d.pending
 	s.evolutions += 1
 	reset_run(s)

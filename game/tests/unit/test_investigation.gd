@@ -125,7 +125,7 @@ func test_postponement_ladder() -> void:
 		cds.append(int(r["cooldownSec"]))
 		steps.append(int(r["step"]))
 		runner.check(is_equal_approx(float(r["cost"]), want), "cost as quoted")
-	runner.check(costs == [50000, 100000, 200000, 400000, 800000, -1], "5% × 2^n of the treasury, the 5th costs 80%%, the 6th is impossible: %s" % str(costs))
+	runner.check(costs == [50000, 100000, 200000, 400000, 800000, -1], "5%% × 2^n of the treasury, the 5th costs 80%%, the 6th is impossible: %s" % str(costs))
 	runner.check(cds == [120, 90, 60, 45, 30], "the cooldown shrinks: %s" % str(cds))
 	runner.check(steps == [1, 2, 3, 4, 5], "one sentence longer each time: %s" % str(steps))
 	s.investigation["postponements"] = 9
@@ -220,3 +220,27 @@ func test_external_suspicion_and_freeze() -> void:
 	runner.check(Investigation.suspicion(s) > 8.0, "then it moves again")
 	Investigation.add(s, 500.0)
 	_eq(Investigation.suspicion(s), 100.0, "capped at max")
+
+
+func test_court_end_says_why() -> void:
+	# For the audio's courtEnd(reason): testified | served | postponed.
+	var s := GameState.fresh()
+	s.investigation["phase"] = "summons"
+	var st := Investigation.testify(s)
+	runner.check(str(st[0].get("reason", "")) == "testified", "courtStart after 'להעיד' says testified")
+	var ev := _tick(s, 30.0)
+	var ends := ev.filter(func(e: Dictionary) -> bool: return e["ev"] == "courtEnd")
+	runner.check(ends.size() == 1 and ends[0]["reason"] == "testified", "and so does its courtEnd: %s" % str(ends))
+	s.investigation["suspicion"] = 100.0
+	ev = _tick(s, 31.0)
+	runner.check(ev.any(func(e: Dictionary) -> bool: return e["ev"] == "courtStart" and e["reason"] == "served"), "an ignored summons is served")
+	ev = _tick(s, 30.0)
+	runner.check(ev.any(func(e: Dictionary) -> bool: return e["ev"] == "courtEnd" and e["reason"] == "served"), "and ends as served")
+	s.bananas = 1e6
+	s.investigation["phase"] = "summons"
+	var r := Investigation.postpone(s, Economy.derive(s))
+	runner.check(r["events"] == [{"ev": "courtEnd", "reason": "postponed"}], "a postponement returns courtEnd postponed")
+	s.investigation["phase"] = "court"
+	s.investigation["courtReason"] = "served"
+	var l := GameState.from_dict(JSON.parse_string(JSON.stringify(s.to_dict())))
+	runner.check(l.investigation["courtReason"] == "served", "the reason survives a reload mid-court")

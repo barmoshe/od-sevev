@@ -422,3 +422,53 @@ func test_round_time_unlocks_and_their_scale() -> void:
 	runner.check(Coalition._next_join(s, {}) == "smotrich", "two elections later: 100 × 0.9² = 81 s")
 	s.run_time_sec = 80.0
 	runner.check(Coalition._next_join(s, {}) != "smotrich", "and not before")
+
+
+func test_lines_variants_rotate_without_repeats() -> void:
+	# Designer ask (2): partners[].linesVariants rotate in order; lines.* stays the first variant.
+	var p := Coalition.partner("smotrich")
+	p["lines"] = {"demand": "A", "threat": "T"}
+	p["linesVariants"] = {"demand": ["A", "B", "C"]}
+	var s := _with(["smotrich"], 0.0, 0, false)
+	var seen: Array = []
+	for i in 7:
+		seen.append(Coalition._variant(s, "smotrich", "demand"))
+	runner.check(seen == [0, 1, 2, 0, 1, 2, 0], "demands walk the variants in order: %s" % str(seen))
+	runner.check(Coalition._variant(s, "smotrich", "threat") == 0 and Coalition._variant(s, "smotrich", "threat") == 0, "a line without variants is always 0")
+	var l := GameState.from_dict(JSON.parse_string(JSON.stringify(s.to_dict())))
+	runner.check(Coalition._variant(l, "smotrich", "demand") == 1, "the rotation survives a reload")
+	Coalition.on_election(l)
+	runner.check(Coalition._variant(l, "smotrich", "demand") == 2, "and an election (it is lifetime)")
+
+
+func test_first_demand_is_variant_zero_then_the_rotation_continues() -> void:
+	var first := str(Coalition.cfg()["firstPartner"])
+	Coalition.partner(first)["linesVariants"] = {"demand": ["C1", "second", "third"]}
+	var s := GameState.fresh()
+	s.owned[_p1()] = 3
+	s.bananas = 1000.0
+	Coalition.open_group(s, Economy.derive(s))
+	runner.check(int(Coalition.open_msg(s, first)["variant"]) == 0, "C1 is the deck's first bubble")
+	runner.check(Coalition._variant(s, first, "demand") == 1, "the next demand is the second variant")
+
+
+func test_gotliv_card_only_hides_in_the_blackout() -> void:
+	# Designer ask (3): pollLike hides her card (it names a seat number), never her membership.
+	var s := _with(["bengvir", "gotliv"], 300.0, 3, true)
+	var seats := int(Coalition.seat_info(s)["effective"])
+	var row: Dictionary = Coalition.roster(s).filter(func(r: Dictionary) -> bool: return r["id"] == "gotliv")[0]
+	runner.check(not row["cardHidden"] and not Coalition.card_hidden(s, "gotliv"), "campaign: her card shows")
+	s.calendar["mode"] = "blackout"
+	row = Coalition.roster(s).filter(func(r: Dictionary) -> bool: return r["id"] == "gotliv")[0]
+	runner.check(row["cardHidden"] and row["counts"] and row["status"] == "member", "blackout: card hidden, still a member who counts")
+	runner.check(int(Coalition.seat_info(s)["effective"]) == seats, "her seats still count")
+	runner.check(not Coalition.card_hidden(s, "bengvir"), "a partner without pollLike keeps his card")
+	s.bananas = 1e9
+	Coalition._post(s, {"type": "demand", "partner": "gotliv", "price": 5.0, "kind": "money", "join": false, "ageSec": 0.0,
+		"state": "open", "line": "demand", "variant": 0}, [])
+	runner.check(Coalition.pay(s, int(Coalition.open_msg(s, "gotliv")["seq"]))["ok"], "her bubbles and pills still work")
+	Coalition.partner("gotliv")["copy"] = {"card": {"poll_like": false}}
+	runner.check(not Coalition.card_hidden(s, "gotliv"), "a card that says poll_like: false wins")
+	Coalition.partner("gotliv").erase("copy")
+	s.calendar["mode"] = "negotiation"
+	runner.check(not Coalition.card_hidden(s, "gotliv"), "after the polls close it shows again")
