@@ -120,10 +120,11 @@ def proof_glyphs(font):
 
 
 def _frame(tex, spec, i=0):
-    """Frame i of a strip or grid (sprites.json layout)."""
+    """Frame i of a strip or grid (sprites.json layout; `frameMap` picks the texture cell)."""
     cols = spec.get("cols", spec.get("frames", 1))
     fw, fh = spec["frameW"], spec["frameH"]
-    x, y = (i % cols) * fw, (i // cols) * fh
+    c = spec["frameMap"][i] if "frameMap" in spec else i
+    x, y = (c % cols) * fw, (c // cols) * fh
     return tex.crop((x, y, x + fw, y + fh))
 
 
@@ -172,18 +173,21 @@ def proof_cast(manifest, Z=3):
     return p
 
 
-def proof_stage_x6(manifest, char="bibi", anim="crit", frame=6):
-    """A 3x character on the stage at ART x6 (sprite px x2): the resolution decision's check."""
-    D_, Z = S.DEST, 6
+def proof_stage(manifest, Z=6, density=None, char="bibi", anim="crit", frame=6):
+    """A character on the stage at ART xZ, the way SpriteStrip picks it for k = Z: the main render
+    (d 3 at x6: sprite px x2) or a `densities` alternate (d 2 at x4: sprite px x2)."""
+    D_ = S.DEST
     st = Image.open(os.path.join(D_, manifest["stages"]["balfour"]["sprite"] + ".png")).convert("RGBA")
     img = st.resize((180 * Z, 320 * Z), Image.NEAREST)
     c = manifest["chars"][char]
+    if density is not None and density != c["density"]:
+        c = {**c, **c["densities"][str(density)]}
     d = c["density"]
     fr = _frame(Image.open(os.path.join(D_, c["anims"][anim]["texture"])).convert("RGBA"), {**c, **c["anims"][anim]}, frame)
     fr = fr.resize((fr.width * Z // d, fr.height * Z // d), Image.NEAREST)
     fx, fy = manifest["magicianFeet"]
     img.alpha_composite(fr, (fx * Z - c["anchor"][0] * Z // d, fy * Z - c["anchor"][1] * Z // d))
-    p = os.path.join(PROOFS, "stage-x6-bibi.png")
+    p = os.path.join(PROOFS, f"stage-x{Z}-{char}" + (f"-d{d}" if density is not None else "") + ".png")
     img.save(p)
     return p
 
@@ -381,7 +385,10 @@ def main():
     font, fstats = build_font()
     log("proof: " + proof_glyphs(font))
     log("proof: " + proof_cast(manifest))
-    log("proof: " + proof_stage_x6(manifest))
+    log("proof: " + proof_stage(manifest))
+    for dk in manifest["chars"].get("bibi", {}).get("densities", {}):
+        z = next(k for k in (4, 2, 8) if k % int(dk) == 0)      # the phone scale the alternate is for
+        log("proof: " + proof_stage(manifest, Z=z, density=int(dk)))
 
     budget = {"sourceBytes": {}, "vramBytes": 0}
     for rel, f in manifest["files"].items():
@@ -397,10 +404,19 @@ def main():
     # every money source, the UI kit, avatars, props/FX and the fonts. Partners load when their scene opens.
     def resident(rel):
         n = os.path.basename(rel)
-        return (rel.startswith("cast/bibi_") or n.startswith(("stage_balfour", "dubi_small_", "source_", "avatar",
-                "prop_", "fx_")) or os.path.splitext(n)[0] in manifest["ui"])
-    budget["vramTypical"] = sum(f["size"][0] * f["size"][1] * 4 for rel, f in manifest["files"].items() if resident(rel)) \
-        + sum(st["page"][0] * st["page"][1] * 4 for st in fstats)
+        return (n.startswith(("stage_balfour", "dubi_small_", "source_", "avatar", "prop_", "fx_"))
+                or os.path.splitext(n)[0] in manifest["ui"])
+    tex = lambda rel: manifest["files"][rel]["size"][0] * manifest["files"][rel]["size"][1] * 4
+    # the Magician: SpriteStrip loads only the render pick_variant picks for the device's k, so one
+    # of his densities is resident at a time (d 2 at k 2/4/8, d 3 at k 6/9 and on the "aa" path at k 7)
+    bibi = manifest["chars"].get("bibi", {})
+    bibi_sets = {str(bibi.get("density", 1)): {a["texture"] for a in bibi.get("anims", {}).values()}}
+    bibi_sets.update({k: {a["texture"] for a in v["anims"].values()} for k, v in bibi.get("densities", {}).items()})
+    budget["vramBibi"] = {k: sum(tex(r) for r in s) for k, s in bibi_sets.items()}
+    base = sum(tex(rel) for rel in manifest["files"] if resident(rel)) + sum(st["page"][0] * st["page"][1] * 4 for st in fstats)
+    budget["vramTypicalByBibiDensity"] = {k: base + v for k, v in budget["vramBibi"].items()}
+    budget["vramTypical"] = max(budget["vramTypicalByBibiDensity"].values())      # the worst k
+    budget["vramCastAll"] = sum(tex(rel) for rel in manifest["files"] if rel.startswith("cast/"))
     budget["vramPerPartner"] = {n: sum(manifest["files"][c["anims"][k]["texture"]]["size"][0] *
                                        manifest["files"][c["anims"][k]["texture"]]["size"][1] * 4 for k in c["anims"])
                                 for n, c in manifest["chars"].items() if n != "bibi"}
@@ -431,7 +447,8 @@ def main():
     budget["sourceTotal"] = sum(budget["sourceBytes"].values())
     json.dump(budget, open(os.path.join(HERE, "budget.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     log(f"budget: source {budget['sourceTotal']:,} B, VRAM typical {budget['vramTypical']:,} B "
-        f"(all resident {budget['vramBytes']:,} B)"
+        f"(by Bibi density {budget['vramTypicalByBibiDensity']}; cast all {budget['vramCastAll']:,} B; "
+        f"all resident {budget['vramBytes']:,} B)"
         + (f", web .pck {budget['pckBytes']:,} B" if "pckBytes" in budget else ""))
     log(f"done in {time.time() - t0:.1f}s" + (f" with {len(warns)} waived warnings" if warns else ""))
 
