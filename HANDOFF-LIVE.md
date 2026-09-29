@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `e0958e6` docs(od-sevev): live handoff snapshot 23:45
+- Branch head: `e288cc6` docs(od-sevev): live handoff snapshot 23:47
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -36,7 +36,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | UX Designer | DONE, merged (ux/mobile-first-layout.md, tools/web/mobile_web.mjs: baseline PASS, 108 layout checks open until the implementation lands) | `worktree-agent-afa76d8266b2e2b6f` | 0 | 0 | - |
 | Game Developer (mobile) | STOPPED by the weekly usage limit (resets Oct 3 17:00 UTC), mid-slice; all work committed (last 7c71623 wip). Done: art grid/split/fluid chrome, tall tabs, modals, sheets, merge-ready line, layout tests, picker title fix, web checks pick a leader. Not confirmed: the full mobile_web matrix pass, the art-id swap, the R17 crowd clamp, the before/after sheet | `worktree-agent-a8bd968153c51c052` | 13 | 0 | `Game-Developer-(mobile).commits.patch`  |
 | 2D Artist + TA | DONE, merged (lane, plaza, wings, XL pick heads avatar_pick_<c>_d3/_d2, brawl_cloud_cue x4, court spots as kit data) | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
-| 2D Artist + TA (palette) | v3 done (not merged); Bar: "More Israel theme and palette" -> v4 in progress: flag layout (white field + blue stripes), election material culture (ballot slip, blue envelope, booth, ועדת הבחירות notice, news strip, 120-seat hemicycle), Jerusalem stone; map applied to code after the mobile merge | `worktree-agent-a5e8cafeb35582361` | 6 | 1 | `2D-Artist-+-TA-(palette).commits.patch` `2D-Artist-+-TA-(palette).patch` |
+| 2D Artist + TA (palette) | v3 done (not merged); Bar: "More Israel theme and palette" -> v4 in progress: flag layout (white field + blue stripes), election material culture (ballot slip, blue envelope, booth, ועדת הבחירות notice, news strip, 120-seat hemicycle), Jerusalem stone; map applied to code after the mobile merge | `worktree-agent-a5e8cafeb35582361` | 6 | 6 | `2D-Artist-+-TA-(palette).commits.patch` `2D-Artist-+-TA-(palette).patch` |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.

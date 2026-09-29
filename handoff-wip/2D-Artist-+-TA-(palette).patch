@@ -71,3 +71,216 @@ index 0ca1e33..456cdfe 100644
 -    img.save(os.path.join(out, "palette-v3.png"))
 +    img.save(os.path.join(out, "palette-v4.png"))
      print(len(SWATCHES), "swatches,", len({s[2] for s in SWATCHES}), "families")
+diff --git a/art/od-sevev/src/proofs.py b/art/od-sevev/src/proofs.py
+index 8483287..ac8ec85 100644
+--- a/art/od-sevev/src/proofs.py
++++ b/art/od-sevev/src/proofs.py
+@@ -40,14 +40,18 @@ CONTRAST = [
+     ("white", "wood", 4.5), ("grey", "suit_dk", 4.5), ("grey", "ui_scrim", 4.5), ("slate", "ui_scrim", 3.0),
+     ("stamp", "paper", 4.5), ("stamp", "receipt", 4.5), ("stamp_lt", "ui_bubble", 4.5), ("stamp_lt", "ui_out", 4.5),
+     ("stamp_lt", "ui_scrim", 4.5), ("receipt_ink", "receipt", 4.5), ("orange", "outline", 4.5),
+-    ("gold_hi", "ui_panel", 4.5), ("red_hi", "ui_bubble", 4.5), ("silver", "ui_panel", 4.5),
++    ("gold_hi", "ui_panel", 4.5), ("alert_lt", "ui_bubble", 4.5), ("silver", "ui_panel", 4.5),
+     ("sky", "night", 3.0), ("red", "ui_scrim", 3.0), ("red", "outline", 3.0), ("rim", "night", 3.0), ("rim", "plum", 3.0),
+     # wave 6: button_danger (default / pressed) and the round ✕
+     ("white", "red_dk", 4.5), ("white", "ui_bub_hi", 4.5),
+     # v3 (blue and white): the new labels, the sky crawl, text over the curtain, and the non-text stripes and edges
+-    ("ui_mute", "ui_bubble", 4.5), ("ui_mute", "ui_panel", 4.5), ("grey", "ui_bubble", 4.5), ("sky", "ui_scrim", 4.5),
++    ("ui_mute", "ui_bubble", 4.5), ("ui_mute", "ui_panel", 4.5), ("ui_dim", "ui_bubble", 4.5), ("sky", "ui_scrim", 4.5),
+     ("white", "night", 4.5), ("white", "plum", 4.5), ("white", "plum_hi", 4.5), ("flag", "receipt", 4.5),
+     ("white", "flag", 3.0), ("flag_hi", "night", 3.0), ("gold", "ui_panel", 3.0), ("gold", "flag", 3.0),
++    # v4: white text on the flag blues, gold / green on the blue HUD band, the hemicycle's seats on its white plate,
++    # the Suitcase's outline on the stone lanes
++    ("white", "ui_bubble", 4.5), ("white", "ui_panel", 4.5), ("gold", "ui_bubble", 3.0), ("flag", "white", 3.0),
++    ("stamp_lt", "ui_bubble", 4.5), ("outline", "stone", 4.5), ("outline", "stone_sh", 4.5), ("outline", "paper", 4.5),
+ ]
+ 
+ 
+diff --git a/art/od-sevev/src/ui_controls.py b/art/od-sevev/src/ui_controls.py
+index 191384d..9f5a6a9 100644
+--- a/art/od-sevev/src/ui_controls.py
++++ b/art/od-sevev/src/ui_controls.py
+@@ -14,7 +14,7 @@ G = "controls"
+ 
+ VARIANTS = {
+     #          face         hi           lo          lip         press_face   press_shadow  label
+-    "primary":   ("flag",      "flag_hi",   "flag_dk",  "flag_dk",  "flag_dk",   "outline",    "white"),
++    "primary":   ("flag",      "white",     "flag_dk",  "flag_dk",  "flag_dk",   "outline",    "white"),   # v4: a white light edge
+     "secondary": ("ui_bubble", "ui_bub_hi", "ui_panel", "ui_scrim", "ui_panel",  "outline",    "white"),
+     "gold":      ("gold",      "gold_hi",   "gold_sh",  "gold_dk",  "gold_sh",   "gold_dk",    "ink"),
+     # wave 6 (UX R7): the destructive commit. The red ramp (danger), built exactly like primary so it is one family.
+@@ -214,9 +214,13 @@ def cards():
+     lk.paste(lf, 0, 1)
+     save(lk, "card_row_locked", G, state="locked", slice=[4, 4, 4, 4], content=[3, 3, W - 6, H - 6], label="grey",
+          notes="The silhouette / not-yet-revealed card: flat, sunk, grey label '???'.")
+-    p = panel(26, 26, "night", "ui_scrim", "ui_bub_hi", corner=1)
++    p = panel(26, 26, "white", "white", "paper", corner=1)       # v4: a white ballot slip (פתק), not a dark well
++    p.hline(2, 23, 13, "receipt")                                  # the slip's fold, one value step
+     save(p, "card_plate", G, slice=[3, 3, 3, 3],
+-         notes="Recessed plate for the 24x24 source icon or the 32x32 cast avatar (then 34x34, slice keeps the bevel).")
++         notes="v4: a white ballot slip (פתק הצבעה) the 24x24 source icon or the 32x32 cast avatar lies on (then 34x34, "
++               "slice keeps the edge): white face, paper shadow edge, a fold at row 13, the outline. Blank: never a "
++               "party letter. Every icon and silhouette keeps its own outline, so it reads on the slip (outline vs white "
++               "17.4:1).")
+ 
+ 
+ def build():
+diff --git a/art/od-sevev/src/wave2.py b/art/od-sevev/src/wave2.py
+index b2be7fd..9bef07b 100644
+--- a/art/od-sevev/src/wave2.py
++++ b/art/od-sevev/src/wave2.py
+@@ -22,9 +22,15 @@ def sheets():
+     W = H = 36
+     L = Layer(W, H)
+     L.rect(0, 0, W, H, "ui_panel")
+-    L.rect(1, 1, W - 2, 18, "flag")                           # the title band: v3 flag blue, an official notice's header
++    L.rect(1, 1, W - 2, 18, "flag")                           # the title band: flag blue (v3), v4 the envelope's flap
+     L.vline(1, 1, H - 2, "ui_bub_hi"); L.hline(1, W - 2, 1, "flag_hi")
+-    L.hline(1, W - 2, 19, "white"); L.hline(1, W - 2, 20, "ui_scrim")   # v3: the white stripe under the band
++    cx = (W - 1) / 2
++    for x in range(1, W - 1):                                 # v4: the flap's point, 0-2 rows deeper toward the centre
++        d = int(round(2 * (1 - abs(x - cx) / cx)))
++        for y in range(19, 19 + d):
++            L.set(x, y, "flag")
++        L.set(x, 19 + d, "white")                             # the white stripe follows the flap's edge
++        L.set(x, 20 + d, "ui_scrim")
+     L.hline(1, W - 2, H - 2, "ui_scrim"); L.vline(W - 2, 2, H - 2, "ui_scrim")
+     chamfer(L, 0, 0, W, H, 2)
+     outline_inplace(L)
+@@ -34,7 +40,7 @@ def sheets():
+     W, H = L.w, L.h
+     save(L, "sheet_modal", "sheet", slice=[7, 23, 7, 7], content=[7, 23, W - 14, H - 30], label="white",
+          notes="Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round "
+-               "card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20, the close ✕ at the band's LEFT end in RTL); body "
++               "card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20; v4: the blue ballot envelope, the band is the flap and points 2 rows deeper at the centre, the body is the v4 ui_panel blue, the close ✕ at the band's LEFT end in RTL); body "
+                "ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map "
+                "§7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the "
+                "outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece "
+diff --git a/art/od-sevev/src/wave5.py b/art/od-sevev/src/wave5.py
+index 6da0bf8..f6c30c4 100644
+--- a/art/od-sevev/src/wave5.py
++++ b/art/od-sevev/src/wave5.py
+@@ -28,17 +28,19 @@ from palette import contrast
+ 
+ LANES = {
+     # era: (line, base, lip shadow, course top edge, course gap)  -- line/base are the stage art's own
+-    "balfour":    ("suit_dk", "night",   "ink",     "suit_dk", "ink"),       # the street in front of the residence, at night
+-    "knesset":    ("ink",     "wood_dk", "hair_dk", "hair_dk", "ink"),       # a wooden stage floor: dark board gaps only
+-    "courthouse": ("teal_dk", "ink",     "outline", "teal_dk", "outline"),   # corridor tiles under fluorescent teal
+-    "washington": ("night",   "navy",    "night",   "night",   "night"),     # a navy carpet with woven stripes
++    # v4 (Bar: "more Israel"): warm Jerusalem limestone, lamp-lit at Balfour, sunlit at the Knesset, polished inside the
++    # courthouse; Washington is not Jerusalem, so it gets pale concrete pavement.
++    "balfour":    ("wood_dk", "stone_sh", "wood",     "stone",  "wood"),      # Jerusalem stone at night, in lamp light
++    "knesset":    ("stone_sh", "stone",  "stone_sh", "white",  "stone_sh"),  # sunlit Jerusalem stone
++    "courthouse": ("teal_dk", "paper",   "stone_sh", "white",  "stone_sh"),  # polished limestone tiles
++    "washington": ("slate",   "silver",  "grey",     "white",  "grey"),      # pale concrete pavement
+ }
+ # per era: (joint, light, cable, (detail 1, detail 2)); every one >= 4.5:1 against `rim`
+ DETAIL = {
+-    "balfour":    ("ink",     "suit_dk", "ink",     ("suit", "suit_dk")),     # paving slabs, the cable, a flyer
+-    "knesset":    ("ink",     "hair_br", "ink",     ("hair_br", "hair_dk")),  # board ends + nails, the cable, a spike-tape X
+-    "courthouse": ("outline", "teal_dk", "outline", ("suit_dk", "teal_dk")),  # corridor tiles, the cable, a dropped page
+-    "washington": ("night",   "suit_dk", "ink",     ("night", "suit_dk")),    # the carpet's woven diamonds, the cable
++    "balfour":    ("wood",     "stone",  "ink",     ("paper", "pink_sh")),    # slab joints, the cable, a flyer
++    "knesset":    ("stone_sh", "white",  "ink",     ("wood", "stone_sh")),    # slab joints, the cable, a spike-tape X
++    "courthouse": ("stone_sh", "white",  "ink",     ("white", "stone_sh")),   # tile joints, the cable, a dropped page
++    "washington": ("grey",     "white",  "ink",     ("grey", "slate")),       # expansion joints, the cable
+ }
+ COURSES = (7, 12, 18, 25)          # the top row of each course seam (tile rows)
+ H = 28
+@@ -65,7 +67,7 @@ def lane(era):
+         for x in range(off, W, step):
+             L.vline(x, y0, y1, joint)
+             L.set(x + 1, y0, light)
+-    if era == "washington":                        # the carpet: a woven row of small diamonds, a dotted weave
++    if era == "washington":                        # v4 concrete: sparse grit marks (was the carpet's woven diamonds)
+         for x in range(7, W, 16):
+             for (dx, dy) in ((0, -1), (-1, 0), (1, 0), (0, 1)):
+                 L.set(x + dx, 15 + dy, d1)
+@@ -85,8 +87,9 @@ def lane(era):
+     # the press cable: across the whole tile, sagging one row in the middle; it enters and leaves on row 22, so it tiles
+     for x in range(W):
+         L.set(x, 23 if 9 <= x < 23 else 22, cable)
+-    for c in L.colors():
+-        assert contrast("rim", c) >= 4.5, (era, c, contrast("rim", c))
++    # v4: the lane is light stone, so the flying Suitcase separates by its dark outline and maroon body, not by its
++    # pale rim (rim vs stone ~1:1): the base keeps >= 4.5:1 against the outline and >= 3:1 against the maroon.
++    assert contrast("outline", base) >= 4.5 and contrast("maroon", base) >= 3.0, (era, base)
+     return L
+ 
+ 
+@@ -98,8 +101,8 @@ def lanes():
+                    "x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical "
+                    "px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; "
+                    "diorama._place_lane does this for any tile width), above the stage art and pads, under the critters "
+-                   "and the Suitcase. 28 rows = art rows 230-257 = S-112..S. The base is the apron colour (= "
+-                   "stages[era].padBottom); every swatch keeps >= 4.5:1 against the Suitcase's rim. plaza_<era> "
++                   "and the Suitcase. 28 rows = art rows 230-257 = S-112..S. v4: warm Jerusalem stone (Washington: pale "
++                   "concrete); the base keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon. plaza_<era> "
+                    "continues the floor below (art row 258 down).")
+ 
+ 
+diff --git a/art/od-sevev/src/wave7.py b/art/od-sevev/src/wave7.py
+index c075223..aca2760 100644
+--- a/art/od-sevev/src/wave7.py
++++ b/art/od-sevev/src/wave7.py
+@@ -215,10 +215,11 @@ WINGS = {"balfour": wing_balfour, "knesset": wing_knesset, "courthouse": wing_co
+ # ------------------------------------------------------------------ the plaza (A1)
+ PLAZA = {
+     # era: (base, joint, light, details...)  -- base = the apron (stages[era].padBottom)
+-    "balfour":    ("night",   "ink",     "suit_dk", "suit", "pink_sh"),   # night paving, flyers
+-    "knesset":    ("wood_dk", "ink",     "hair_br", "hair_dk", "wood"),    # stage boards
+-    "courthouse": ("ink",     "outline", "teal_dk", "suit_dk", "teal"),    # corridor tiles
+-    "washington": ("navy",    "night",   "suit_dk", "ink", "night"),       # carpet
++    # v4: warm Jerusalem limestone (Washington: pale concrete), the lane's swatches
++    "balfour":    ("stone_sh", "wood",     "stone", "paper", "pink_sh"),   # stone slabs in lamp light, flyers
++    "knesset":    ("stone",    "stone_sh", "white", "paper", "wood"),      # sunlit stone slabs
++    "courthouse": ("paper",    "stone_sh", "white", "stone_sh", "white"),  # polished limestone tiles
++    "washington": ("silver",   "grey",     "white", "slate", "grey"),      # concrete panels
+ }
+ 
+ 
+@@ -233,21 +234,14 @@ def plaza(era):
+     L.rect(0, 0, PW, PH, base)
+     r = random.Random(ERAS.index(era) + 580)
+     course = 12
+-    if era == "washington":
+-        # the carpet: a woven diamond lattice (32 x 12) in the shadow tone, a dotted weave row between
+-        for y in range(PH):
+-            for x in range(PW):
+-                u, v = x % 32, y % course
+-                if abs(u - 16) == abs(v - 6) * 2 + 4 or (abs(u - 16) <= 1 and v == 6):
+-                    L.set(x, y, joint)
+-                elif v == 0 and x % 4 == 0:
+-                    L.set(x, y, light)
++    if False:                                               # v4: no carpet any more (Washington is concrete panels)
++        pass
+     else:
+         for c in range(PH // course):
+             y0 = c * course
+             L.hline(0, PW - 1, y0, joint)                  # the seam
+-            if era == "knesset":                            # boards: long, ends every 64, staggered
+-                step, off = 64, (c * 23) % 64
++            if era == "washington":                         # v4 concrete panels: a grid, 64 wide
++                step, off = 64, 0
+             elif era == "courthouse":                       # corridor tiles: a grid, 32 wide
+                 step, off = 32, 0
+             else:                                           # paving slabs: running bond, 32 wide
+@@ -255,8 +249,6 @@ def plaza(era):
+             for x in range(off, PW, step):
+                 L.vline(x, y0 + 1, y0 + course - 1, joint)
+                 L.set(x + 1, y0 + 1, light)                 # the slab's lit top-left corner
+-                if era == "knesset":                        # two nail heads by each board end
+-                    L.set(x - 2, y0 + 3, d1); L.set(x + 2, y0 + 8, d1)
+             for x in range(0, PW):                          # the lit top edge, broken (worn)
+                 if (x * 7 + c * 5) % 13 < 3 and L.get(x, y0 + 1) == base:
+                     L.set(x, y0 + 1, light)
+@@ -273,7 +265,7 @@ def plaza(era):
+                                 (66, 86, 3, 2, d2), (118, 22, 3, 2, "suit_dk")):
+             L.rect(x, y, w, h, c)
+             L.set(x, y, "suit_hi" if c == d1 else c)
+-        L.rect(56, 28, 8, 5, "suit_dk")                     # a drain grate
++        L.rect(56, 28, 8, 5, "wood_dk")                     # a drain grate
+         for x in range(57, 63, 2):
+             L.vline(x, 29, 31, "ink")
+     elif era == "knesset":
