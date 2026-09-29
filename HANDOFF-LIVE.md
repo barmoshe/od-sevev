@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `9b05ee1` docs(od-sevev): live handoff snapshot 22:31
+- Branch head: `24fd47b` docs(od-sevev): live handoff snapshot 22:32
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -31,7 +31,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
 | UX Designer | DONE, merged (ux/mobile-first-layout.md, tools/web/mobile_web.mjs: baseline PASS, 108 layout checks open until the implementation lands) | `worktree-agent-afa76d8266b2e2b6f` | 0 | 0 | - |
 | Game Developer (mobile) | RESUMED, finishing: core grid/split/fluid chrome, tall tabs, modals, sheets, merge-ready line and layout tests are committed; the full mobile_web matrix run, picker layout check and before/after sheet were not done | `worktree-agent-a8bd968153c51c052` | 8 | 0 | `Game-Developer-(mobile).commits.patch`  |
-| 2D Artist + TA | RESUMED, finishing: lane, plaza, wings, XL pick avatars, brawl cue and court spots committed (last one a wip checkpoint); the final merge, test and build were not re-run | `worktree-agent-ab7cb5f96a4c16bc8` | 6 | 1 | `2D-Artist-+-TA.commits.patch` `2D-Artist-+-TA.patch` |
+| 2D Artist + TA | RESUMED, finishing: lane, plaza, wings, XL pick avatars, brawl cue and court spots committed (last one a wip checkpoint); the final merge, test and build were not re-run | `worktree-agent-ab7cb5f96a4c16bc8` | 7 | 0 | `2D-Artist-+-TA.commits.patch`  |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
