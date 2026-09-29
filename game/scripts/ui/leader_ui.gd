@@ -80,7 +80,7 @@ static func tap(leader_id: String = "") -> Dictionary:
 	if lid != "":
 		t.merge(Leaders.tap_kit(lid), true)
 	for k: String in BIBI_TAP:
-		if not t.has(k):
+		if not t.has(k) or t[k] == null:   # a kit field left null (anim) reads as missing
 			t[k] = BIBI_TAP[k] if k in ["anim"] else ""
 	return t
 
