@@ -15,18 +15,19 @@
 		<meta name="theme-color" content="#2a2340">
 		<meta property="og:title" content="עוד סבב: הבחירות שלא נגמרות">
 		<meta property="og:description" content="שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.">
-		<meta property="og:image" content="og.jpg">
+		<meta property="og:url" content="https://od-sevev.vercel.app/">
+		<meta property="og:image" content="https://od-sevev.vercel.app/og.jpg">
 		<meta property="og:image:width" content="1200">
 		<meta property="og:image:height" content="630">
-		<meta property="og:image:alt" content="ביבי בפיקסלים שולף שקלים מכובע, ומזוודה עם מדבקת DOHA עפה ברקע">
+		<meta property="og:image:alt" content="שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב">
 		<meta property="og:locale" content="he_IL">
 		<meta property="og:type" content="website">
 		<meta property="og:site_name" content="עוד סבב">
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="עוד סבב: הבחירות שלא נגמרות">
 		<meta name="twitter:description" content="שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.">
-		<meta name="twitter:image" content="og.jpg">
-		<meta name="twitter:image:alt" content="ביבי בפיקסלים שולף שקלים מכובע, ומזוודה עם מדבקת DOHA עפה ברקע">
+		<meta name="twitter:image" content="https://od-sevev.vercel.app/og.jpg">
+		<meta name="twitter:image:alt" content="שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב">
 		<style>
 html, body, #canvas {
 	margin: 0;
@@ -184,6 +185,10 @@ body {
 #od-about li { margin-bottom: 8px; }
 #od-about .od-src { font-size: 14px; color: #c9c3d6; }
 #od-about a, #od-about a:visited { color: #9fc3ff; text-decoration: underline; }
+#od-about .od-invite { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 4px; align-items: center; }
+#od-about .od-invite a.od-btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; color: #f7f4ec;
+	background: #2a2340; border: 3px solid #f7f4ec; border-radius: 6px; text-decoration: none; box-sizing: border-box; }
+#od-about .od-invite-status { min-height: 24px; color: #c9c3d6; font-size: 14px; }
 #od-about button { min-height: 48px; padding: 0 20px; font: inherit; color: #f7f4ec; background: #2a2340; border: 3px solid #f7f4ec; border-radius: 6px; cursor: pointer; }
 /* ABOUT_BACK sticks to the top-left of the page (ux/rtl-map.md §9, review R2): the left end of the
    RTL row, 48 CSS tall, over a strip of the page colour so the list scrolls under it */
@@ -251,7 +256,7 @@ html.od-framed #od-phone {
 			</div>
 			<div class="od-card od-splash" id="od-n0" hidden>
 				<img class="od-wordmark" src="wordmark.png" alt="עוד סבב">
-				<div class="od-line">רגע, ביבי מתלבש…</div>
+				<div class="od-line">רגע, מסדרים את הרשימה…</div>
 			</div>
 		</div>
 		<!-- O8 About: HTML over the canvas (ux/first-minute.md §6.2) -->
@@ -266,6 +271,12 @@ html.od-framed #od-phone {
 				<p>אין כאן מה לקנות: אין פרסומות, אין רכישות, אין פרסים.</p>
 				<p>לקראת הבחירות: מ־23.10 ועד סגירת הקלפיות לא יוצגו במשחק מספרי מנדטים.</p>
 				<p>ההתקדמות נשמרת רק במכשיר שלך.</p>
+				<!-- the invite (first-minute §5.3, Bar 2026-09-29: WhatsApp is the main channel) -->
+				<div class="od-invite">
+					<button id="od-invite" type="button">לשתף את המשחק</button>
+					<a id="od-invite-wa" class="od-btn" href="https://wa.me/" rel="noopener">לשתף בוואטסאפ</a>
+				</div>
+				<div class="od-invite-status" id="od-invite-status" aria-live="polite"></div>
 				<h2>מקורות וציטוטים</h2>
 				<ul dir="rtl"><li>הבחירות לכנסת נקבעו ל־27.10.2026, בתום קדנציה מלאה.<br><span class="od-src"><bdi>Wikipedia</bdi> · <bdi>2026-10-27</bdi></span> <a href="https://en.wikipedia.org/wiki/2026_Israeli_legislative_election" target="_blank" rel="noopener">למקור</a></li>
 <li>המפלגות החרדיות פרשו מהממשלה ביולי 2025 על רקע המחלוקת על חוק הגיוס.<br><span class="od-src"><bdi>Wikipedia</bdi> · <bdi>2025-07</bdi></span> <a href="https://en.wikipedia.org/wiki/2026_Israeli_legislative_election" target="_blank" rel="noopener">למקור</a></li>
@@ -322,7 +333,135 @@ html.od-framed #od-phone {
 
 		<script>
 // Build stamp (the git commit), written in by tools/build_web.sh; Settings shows it.
-window.mbBuild = '5df9291+';
+window.mbBuild = 'd13256e';
+// The deployed origin (OD_SITE_URL, tools/build_web.sh; its default is ShareKit.SITE_URL): the link
+// on the share cards, in the share texts and in the OG tags above.
+window.odSiteUrl = 'https://od-sevev.vercel.app/';
+
+// Sharing (ux/first-minute.md §5, review R25; Bar 2026-09-29: WhatsApp first). The engine hands
+// ready bytes over inside the player's tap (game/scripts/ui/share_kit.gd) and hears back through
+// window.odShareDone(kind, result): shared | cancel | fallback (downloaded + link copied) | saved |
+// copied | whatsapp | fail. window.odShareLog keeps [kind, result] for the browser checks.
+(function () {
+	window.odShareLog = [];
+	function done(kind, r) {
+		window.odShareLog.push([kind, r]);
+		if (typeof window.odShareDone === 'function') {
+			try { window.odShareDone(kind, r); } catch (e) { /* ignore */ }
+		}
+	}
+	function blob(b64) {
+		const bin = atob(b64);
+		const a = new Uint8Array(bin.length);
+		for (let i = 0; i < bin.length; i++) {
+			a[i] = bin.charCodeAt(i);
+		}
+		return new Blob([a], { type: 'image/png' });
+	}
+	function download(b64, name) {
+		const url = URL.createObjectURL(blob(b64));
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = name;
+		a.rel = 'noopener';
+		document.body.appendChild(a);
+		a.click();
+		setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
+	}
+	function copy(text) {
+		const legacy = () => {
+			try {
+				const t = document.createElement('textarea');
+				t.value = text;
+				t.setAttribute('readonly', '');
+				t.style.position = 'fixed';
+				t.style.opacity = '0';
+				document.body.appendChild(t);
+				t.select();
+				const ok = document.execCommand('copy');
+				t.remove();
+				return ok;
+			} catch (e) {
+				return false;
+			}
+		};
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			return navigator.clipboard.writeText(text).then(() => true, () => legacy());
+		}
+		return Promise.resolve(legacy());
+	}
+	// a phone or tablet: wa.me in place (the app takes the link); a desktop: a new tab (WhatsApp Web)
+	function mobile() {
+		const ua = navigator.userAgent || '';
+		return /Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+	}
+	function share(kind, data, fallback) {
+		navigator.share(data).then(() => done(kind, 'shared'), (e) => {
+			if (e && e.name === 'AbortError') {
+				done(kind, 'cancel');
+			} else {
+				fallback();
+			}
+		});
+	}
+	window.odShare = {
+		// the primary "לשתף": the card as a file where the device shares files, else the text, else
+		// the PNG downloads and the text (with the URL) goes to the clipboard
+		file(kind, b64, name, text) {
+			const fallback = () => {
+				if (b64) {
+					download(b64, name);
+				}
+				copy(text).then((ok) => done(kind, ok ? 'fallback' : (b64 ? 'saved' : 'fail')));
+			};
+			try {
+				if (b64 && navigator.share && navigator.canShare) {
+					const f = new File([blob(b64)], name, { type: 'image/png' });
+					if (navigator.canShare({ files: [f] })) {
+						share(kind, { files: [f], text }, fallback);
+						return;
+					}
+				}
+				if (!b64 && navigator.share) {
+					share(kind, { text }, fallback);
+					return;
+				}
+				fallback();
+			} catch (e) {
+				done(kind, 'fail');
+			}
+		},
+		save(kind, b64, name) {
+			try {
+				download(b64, name);
+				done(kind, 'saved');
+			} catch (e) {
+				done(kind, 'fail');
+			}
+		},
+		whatsapp(kind, url) {
+			try {
+				if (mobile()) {
+					window.location.href = url;
+				} else {
+					// no 'noopener' feature: with it window.open returns null even when the tab opened,
+					// and a blocked popup could not be told apart; cut the opener by hand instead
+					const w = window.open(url, '_blank');
+					if (w) {
+						try { w.opener = null; } catch (e) { /* ignore */ }
+					} else {
+						window.location.href = url;
+					}
+				}
+				done(kind, 'whatsapp');
+			} catch (e) {
+				done(kind, 'fail');
+			}
+		},
+		copy,
+		mobile,
+	};
+}());
 
 // The game has no service worker. Drop any left on this origin, so a phone never keeps
 // serving a stale cached copy of the game.
@@ -410,7 +549,7 @@ if ('serviceWorker' in navigator) {
 	const n1 = document.getElementById('od-n1');
 	const n0 = document.getElementById('od-n0');
 	const line = document.getElementById('od-line');
-	const LOAD = ['מקפל מזוודות…', 'מחמם את הכובע…', 'מתייעץ ביטחונית…'];
+	const LOAD = ['מקפל מזוודות…', 'מחמם את הקלפי…', 'מתייעץ ביטחונית…'];
 	let engineReady = false;
 	let tapped = false;
 	let bar = null;
@@ -510,6 +649,36 @@ if ('serviceWorker' in navigator) {
 			window.odOnPop();
 		}
 	});
+	// the invite (About): the share sheet with the text (the page's OG preview carries the picture),
+	// else the text to the clipboard; WhatsApp through wa.me (a new tab on a desktop)
+	const inviteText = 'משחק סאטירה על הבחירות שלא נגמרות. תורכם להיות ביבי. {url}'.replace('{url}', window.odSiteUrl || location.origin + '/');
+	const invite = document.getElementById('od-invite');
+	const inviteWa = document.getElementById('od-invite-wa');
+	const inviteStatus = document.getElementById('od-invite-status');
+	if (inviteWa) {
+		inviteWa.href = 'https://wa.me/?text=' + encodeURIComponent(inviteText);
+		if (!window.odShare.mobile()) {
+			inviteWa.target = '_blank';
+		}
+		inviteWa.addEventListener('click', () => window.odShareLog.push(['invite', 'whatsapp']));
+	}
+	if (invite) {
+		invite.addEventListener('click', () => {
+			const copied = () => window.odShare.copy(inviteText).then((ok) => {
+				inviteStatus.textContent = ok ? 'הקישור הועתק.' : 'השיתוף לא עבד. נסה שוב.';
+				window.odShareLog.push(['invite', ok ? 'copied' : 'fail']);
+			});
+			if (navigator.share) {
+				navigator.share({ text: inviteText }).then(() => window.odShareLog.push(['invite', 'shared']), (e) => {
+					if (!(e && e.name === 'AbortError')) {
+						copied();
+					}
+				});
+			} else {
+				copied();
+			}
+		});
+	}
 	const aboutLink = document.getElementById('od-about-link');
 	if (aboutLink) {
 		aboutLink.addEventListener('click', (e) => { e.preventDefault(); window.odOpenAbout(); });
@@ -518,7 +687,7 @@ if ('serviceWorker' in navigator) {
 		</script>
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":17188100,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":18535096,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 
 // The canvas size is the shell's (od-sevev): a phone gets the whole window, a desktop window a
