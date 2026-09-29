@@ -39,6 +39,7 @@ func _boot() -> void:
 	for i in 3:
 		await tree.process_frame
 	m.ftue.handoff_ms = 1.0
+	m.commit_pick("bibi")   # LEADER_PICK (leader select): Bibi's round, the shipped game
 	_touch(_stage_pt(L.magician_hit().get_center()))   # title → main (tap 1)
 	m.audio_sent.connect(func(n: String, a: Variant) -> void: heard.append([n, a]))
 

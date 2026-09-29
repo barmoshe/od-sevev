@@ -1,0 +1,1157 @@
+From 21160ecabc43d627dcbfa1269f7f901cc73f40fe Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 20:30:26 +0000
+Subject: [PATCH 1/4] fix(od-sevev): drop the NUL cache key in leaders.gd and
+ fail tests on Unicode parse errors
+
+The installed-round cache key started as "\u0000", which Godot printed as
+"Unicode parsing error" on every run. No built key is empty, so "" is the
+sentinel now; tools/test.sh treats that error like a script error.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/scripts/sim/leaders.gd | 4 ++--
+ tools/test.sh               | 3 ++-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/game/scripts/sim/leaders.gd b/game/scripts/sim/leaders.gd
+index 4277864..fb7db74 100644
+--- a/game/scripts/sim/leaders.gd
++++ b/game/scripts/sim/leaders.gd
+@@ -44,7 +44,7 @@ const OVERRIDABLE := ["rejoinMult", "poachSec", "patienceSec", "demandSec", "min
+ 
+ # ---- the installed round (a cache of the state's leader + deal over the loaded content) ----
+ static var _c: Dictionary = {}          # the content object it was built from (is_same)
+-static var _key := "\u0000"
++static var _key := ""           # no built key is "" (each holds "|"); a NUL sentinel printed "Unicode parsing error"
+ static var _state_id := 0
+ static var _state_ver := -1
+ static var _leader := ""
+@@ -208,7 +208,7 @@ static func first_partner() -> String:
+ static func _refresh_content() -> void:
+ 	if not is_same(_c, Content.data()):
+ 		_c = Content.data()
+-		_key = "\u0000"
++		_key = ""
+ 		_state_id = 0
+ 		_state_ver = -1
+ 		_leader = default_leader()
+diff --git a/tools/test.sh b/tools/test.sh
+index 17d951d..6f82d86 100755
+--- a/tools/test.sh
++++ b/tools/test.sh
+@@ -10,7 +10,8 @@ LOG="$(mktemp)"
+ "$HERE/godot.sh" --headless --path "$GAME" -s res://tests/run_tests.gd -- "$@" 2>&1 | tee "$LOG"
+ code=${PIPESTATUS[0]}
+ # "String formatting error": a bad `%` in a message ("5% ×" needs "%%"; GDScript has no %g).
+-if grep -qE "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|String formatting error" "$LOG"; then
++# "Unicode parsing error": a NUL or broken UTF-8 in a script or string (leaders.gd's old "\u0000" key).
++if grep -qE "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|String formatting error|Unicode parsing error" "$LOG"; then
+   echo "tools/test.sh: engine reported script errors" >&2
+   code=1
+ fi
+-- 
+2.43.0
+
+
+From 06d94a67bf372d5958f7b11dda990a38f181b4d3 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 20:30:39 +0000
+Subject: [PATCH 2/4] =?UTF-8?q?feat(od-sevev):=20Bibi's=20rule,=20the=20?=
+ =?UTF-8?q?=D7=A8=D7=95=D7=91=20poll=20lint,=20R17=20source=20slots,=20neu?=
+ =?UTF-8?q?tral=20DAYS=5F*,=20Liberman's=20SK=20seat?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- leaders.bibi.rule "המשפט" (reported mechanics, src trial / pardon-request); the
+  content lint now requires rule.name / rule.text for every leader, the default too.
+- Poll-number rule: "רוב" as a whole word (after up to two prefix letters) with a
+  number near it is an error without poll_like; 61 and 120 (the Knesset's rules) pass,
+  and substrings (קרוב, סירובים) never match. Applies to the About page too.
+- R17: producers[].slot re-placed: no sky row (clipped under Row B), nothing under the
+  thermometer column, the shared tiers' first critters right of the Magician and the
+  first taxpayer clear of his hit. test_diorama_slots.gd checks the geometry.
+- DAYS_* read "ימים בכותרות" and count court + press days
+  (Investigation.hazard_days), so the result card fits every leader.
+- Liberman: a fourth generic MK (mk_returner) on SK. His rounds 2+ had no seat that
+  unlocks after election 1 and ran longer than round 1 (bench S5); round 1 is unchanged.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ design/content.json                       | 69 ++++++++++------
+ design/sim/content-lint.mjs               | 28 +++++--
+ game/data/content.json                    | 69 ++++++++++------
+ game/data/ui-strings.json                 |  8 +-
+ game/scripts/sim/investigation.gd         |  7 ++
+ game/scripts/ui/share_kit.gd              |  3 +-
+ game/tests/unit/test_diorama_slots.gd     | 96 +++++++++++++++++++++++
+ game/tests/unit/test_diorama_slots.gd.uid |  1 +
+ game/tests/unit/test_leaders.gd           |  4 +-
+ game/tests/unit/test_share_view.gd        |  8 +-
+ ux/string-budgets.json                    | 12 ++-
+ ux/tools/gen_strings.py                   |  8 +-
+ ux/ui-strings.json                        |  8 +-
+ 13 files changed, 250 insertions(+), 71 deletions(-)
+ create mode 100644 game/tests/unit/test_diorama_slots.gd
+ create mode 100644 game/tests/unit/test_diorama_slots.gd.uid
+
+diff --git a/design/content.json b/design/content.json
+index d01f68d..97b8a7a 100644
+--- a/design/content.json
++++ b/design/content.json
+@@ -30,9 +30,8 @@
+    "icon": "source_taxpayer_icon",
+    "silhouette": "source_taxpayer_icon_sil",
+    "slot": [
+-    "F3",
+-    "F4",
+-    "B3"
++    "F7",
++    "F3"
+    ],
+    "wander": true,
+    "name": "משלם המסים",
+@@ -51,9 +50,8 @@
+    "icon": "source_hitech_icon",
+    "silhouette": "source_hitech_icon_sil",
+    "slot": [
+-    "F2",
+-    "F5",
+-    "B2"
++    "B6",
++    "F4"
+    ],
+    "wander": true,
+    "name": "ההייטקיסט",
+@@ -73,7 +71,6 @@
+    "icon": "source_vat_icon",
+    "silhouette": "source_vat_icon_sil",
+    "slot": [
+-    "F1",
+     "F6",
+     "B4"
+    ],
+@@ -96,9 +93,8 @@
+    "icon": "source_cigars_icon",
+    "silhouette": "source_cigars_icon_sil",
+    "slot": [
+-    "F0",
+-    "F7",
+-    "B1"
++    "B1",
++    "B3"
+    ],
+    "name": "החבר הנדיב",
+    "flavor": "סיגרים, שמפניה ורודה וחברות אמיצה. כתב אישום בנפרד.",
+@@ -120,9 +116,7 @@
+    "icon": "source_submarine_icon",
+    "silhouette": "source_submarine_icon_sil",
+    "slot": [
+-    "B5",
+-    "B6",
+-    "S0"
++    "F2"
+    ],
+    "setPiece": "bob",
+    "name": "הצוללת",
+@@ -144,9 +138,7 @@
+    "icon": "source_qatari_icon",
+    "silhouette": "source_qatari_icon_sil",
+    "slot": [
+-    "B0",
+-    "S1",
+-    "S2"
++    "B5"
+    ],
+    "setPiece": "blink",
+    "name": "היועצים הקטאריים",
+@@ -168,9 +160,7 @@
+    "icon": "source_poison_icon",
+    "silhouette": "source_poison_icon_sil",
+    "slot": [
+-    "S3",
+-    "S4",
+-    "S5"
++    "F5"
+    ],
+    "setPiece": "bob",
+    "name": "מכונת הרעל",
+@@ -190,9 +180,7 @@
+    "icon": "source_checkbook_icon",
+    "silhouette": "source_checkbook_icon_sil",
+    "slot": [
+-    "S6",
+-    "S7",
+-    "S8"
++    "B2"
+    ],
+    "setPiece": "lob",
+    "name": "פנקס הצ׳קים הזהוב",
+@@ -5198,6 +5186,23 @@
+       "הצעת חוק קטנה, תקציב גדול."
+      ]
+     }
++   },
++   {
++    "id": "mk_returner",
++    "name": "ח״כ שחזר הביתה",
++    "short": "ח״כ שחזר הביתה",
++    "g": "m",
++    "avatar": "avatar_nophoto",
++    "art": "nophoto",
++    "bloc": "any",
++    "generic": true,
++    "lines": {
++     "demand": "חזרתי הביתה. בשביל {price} ₪ אני גם פורק את המזוודה.",
++     "threat": "המזוודה עוד ארוזה. רק שתדע.",
++     "thanks": "עכשיו אני באמת בבית. עד הבחירות.",
++     "return": "חזרתי. שוב. הבית לא השתנה."
++    },
++    "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him."
+    }
+   ],
+   "cardProfiles": [
+@@ -5454,6 +5459,20 @@
+     "blurb": "שולף שקלים מכובע, משלם לשותפים ודוחה את המשפט.",
+     "line": "אין כלום! אין כלום!"
+    },
++   "rule": {
++    "id": "court",
++    "name": "המשפט",
++    "text": "רק לך יש משפט: בזימון מעידים או דוחים, כל דחייה עולה כפול, ואפשר גם לבקש חנינה.",
++    "effect": {
++     "type": "court",
++     "_note": "Nothing to install: his round is the shipped game, and the shipped court (content.court) is his hazard. The aide drop and the pardon desk are his (Leaders.has_court). Leaders.validate skips the default leader, so this type is documentation, not a knob."
++    },
++    "src": [
++     "trial",
++     "pardon-request"
++    ],
++    "_note": "Game Designer 2026-09-29 (HANDOFF Next 3): the picker's long-press and T4 show rule.name / rule.text for every leader, Bibi included. Reported mechanics, no quote. 'כל דחייה עולה כפול' = court.postpone.growth 2."
++   },
+    "kit": {
+     "_doc": "Bibi's kit is today's game: every field points at the shipped content. Nothing new to author.",
+     "tap": {
+@@ -6775,6 +6794,10 @@
+       "id": "mk_switcher",
+       "slot": "L6"
+      },
++     {
++      "id": "mk_returner",
++      "slot": "SK"
++     },
+      {
+       "id": "gantz",
+       "slot": "SI"
+@@ -6793,7 +6816,7 @@
+      "card_smotrich",
+      "card_deri"
+     ],
+-    "_note": "The smallest lineup (his rule, fact liberman-wont-sit) with the decline pill to pay for it. Capacity 44 seats + own. Bench lever (spec §7.2, game-developer sim 2026-09-29): mk_offer holds L4 instead of S5 (a generic MK takes the mid-late L4 slot; his own seats unchanged). With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13 over seeds 1-9: S3 failed); the spec's named levers measured worse or nil (mk_undecided L1->L4 9:33; L3 is locked in round 1). With L4: median 7:50, engaged 6:56, casual 8:02."
++    "_note": "The smallest lineup (his rule, fact liberman-wont-sit) with the decline pill to pay for it. Capacity 46 seats + own (44 in round 1: SK opens after election 1). Bench lever (spec §7.2, game-developer sim 2026-09-29): mk_offer holds L4 instead of S5 (a generic MK takes the mid-late L4 slot; his own seats unchanged). With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13 over seeds 1-9: S3 failed); the spec's named levers measured worse or nil (mk_undecided L1->L4 9:33; L3 is locked in round 1). With L4: median 7:50, engaged 6:56, casual 8:02. Rounds 2+ (game-designer 2026-09-29): no seat of his unlocked after election 1, so every later round waited for L6 (own 28 + 40 without it < 61) and round 2 ran longer than round 1 (seed 7: 7:09 then 9:09, S5 failed). A generic MK on SK (2 seats, the round-2 early slot the coalition leaders' lineups already hold) closes 61 with L1 + L4 like the other lineups; round 1 is unchanged (SK is locked until election 1)."
+    }
+   },
+   {
+diff --git a/design/sim/content-lint.mjs b/design/sim/content-lint.mjs
+index dda850e..7733a7b 100644
+--- a/design/sim/content-lint.mjs
++++ b/design/sim/content-lint.mjs
+@@ -94,13 +94,30 @@ for (const s of [...game, ...uiStrings, ...aboutLines]) {
+ 
+ // ---------- 3. poll-number rule (UX §6.3.4) ----------
+ const pollKw = ['מנדט', 'מנדטים', 'סקר', 'סקרים', 'מוביל', 'מובילה', 'אחוז החסימה', 'החסימה'];
++// "רוב" (a majority) with a number reads as a seat forecast ("רוב של 64"). It is matched as a whole
++// word after up to two prefix letters (רוב, הרוב, לרוב, ברוב, ורוב), never as a substring: the
++// letters hide inside ordinary words (קרוב, סירוב, סירובים: "1,000 סירובים" is Liberman's tap count).
++// The Knesset's own numbers are rules, not polls: 61 (the majority) and 120 (its size) may stand
++// next to it ("צריך רוב של 61").
++const pollStems = ['רוב'];
++const KNESSET_RULE_NUMBERS = new Set(['61', '120']);
++// (No כ prefix here: כרוב is a cabbage.)
++const stemOf = w => w.replace(/[^֐-׿]/g, '').replace(/^[והבלמש]{0,2}(?=רוב$)/, '');
++const pollHit = (words, i) => {
++  const w = words[i];
++  if (pollKw.some(k => w.replace(/[^֐-׿]/g, '').replace(new RegExp(`^[${pre}]{0,2}`), '') === k || w.includes(k)))
++    return /\d/.test(words.slice(Math.max(0, i - 3), i + 4).join(' '));
++  if (pollStems.includes(stemOf(w))) {
++    const nums = words.slice(Math.max(0, i - 3), i + 4).join(' ').match(/\d[\d,.]*/g) || [];
++    return nums.some(n => !KNESSET_RULE_NUMBERS.has(n.replace(/[.,]+$/, '')));
++  }
++  return false;
++};
+ for (const s of game) {
+   if (s.holder.poll_like === true) continue;
+   const words = s.text.split(/\s+/);
+   words.forEach((w, i) => {
+-    if (!pollKw.some(k => w.replace(/[^֐-׿]/g, '').replace(new RegExp(`^[${pre}]{0,2}`), '') === k || w.includes(k))) return;
+-    const near = words.slice(Math.max(0, i - 3), i + 4).join(' ');
+-    if (/\d/.test(near)) err(s.path, `poll-number rule: digit near '${w}' without poll_like:true: ${s.text}`);
++    if (pollHit(words, i)) err(s.path, `poll-number rule: digit near '${w}' without poll_like:true: ${s.text}`);
+   });
+ }
+ 
+@@ -142,8 +159,7 @@ for (const f of F.facts) {
+   for (const term of R.reviewTerms.terms) if (hits(a, term)) warn(p, `review term '${term}': ${a}`);
+   const words = a.split(/\s+/);
+   words.forEach((w, i) => {
+-    if (!pollKw.some(k => w.includes(k))) return;
+-    if (/\d/.test(words.slice(Math.max(0, i - 3), i + 4).join(' '))) err(p, `poll-number rule: digit near '${w}' (the About page is public during the blackout): ${a}`);
++    if (pollHit(words, i)) err(p, `poll-number rule: digit near '${w}' (the About page is public during the blackout): ${a}`);
+   });
+ }
+ 
+@@ -329,6 +345,8 @@ if (C.leaderSelect || C.leaders) {
+     if (SPR && !charOf(L.art)) err(P, `art ${L.art} is not in sprites.json chars`);
+     if (!ready) { if (L.status !== 'backlog') warn(P, 'not contentReady and not marked backlog'); continue; }
+     for (const k of ['blurb', 'line']) if (!hebStr(L.pick?.[k])) err(P, `pick.${k} missing`);
++    // Every leader, the default included, shows one signature rule on the picker's long-press and in T4.
++    for (const k of ['name', 'text']) if (!hebStr(L.rule?.[k])) err(`${P}.rule`, `${k} missing (the picker and T4 show every leader's rule, Bibi's too)`);
+     const K = L.kit || {};
+     const stringsBefore = strings.filter(s => s.path.startsWith(`.leaders[`) && s.path.includes(`.${L.id}.`) && heb.test(s.text)).length;
+     let facts = new Set();
+diff --git a/game/data/content.json b/game/data/content.json
+index d01f68d..97b8a7a 100644
+--- a/game/data/content.json
++++ b/game/data/content.json
+@@ -30,9 +30,8 @@
+    "icon": "source_taxpayer_icon",
+    "silhouette": "source_taxpayer_icon_sil",
+    "slot": [
+-    "F3",
+-    "F4",
+-    "B3"
++    "F7",
++    "F3"
+    ],
+    "wander": true,
+    "name": "משלם המסים",
+@@ -51,9 +50,8 @@
+    "icon": "source_hitech_icon",
+    "silhouette": "source_hitech_icon_sil",
+    "slot": [
+-    "F2",
+-    "F5",
+-    "B2"
++    "B6",
++    "F4"
+    ],
+    "wander": true,
+    "name": "ההייטקיסט",
+@@ -73,7 +71,6 @@
+    "icon": "source_vat_icon",
+    "silhouette": "source_vat_icon_sil",
+    "slot": [
+-    "F1",
+     "F6",
+     "B4"
+    ],
+@@ -96,9 +93,8 @@
+    "icon": "source_cigars_icon",
+    "silhouette": "source_cigars_icon_sil",
+    "slot": [
+-    "F0",
+-    "F7",
+-    "B1"
++    "B1",
++    "B3"
+    ],
+    "name": "החבר הנדיב",
+    "flavor": "סיגרים, שמפניה ורודה וחברות אמיצה. כתב אישום בנפרד.",
+@@ -120,9 +116,7 @@
+    "icon": "source_submarine_icon",
+    "silhouette": "source_submarine_icon_sil",
+    "slot": [
+-    "B5",
+-    "B6",
+-    "S0"
++    "F2"
+    ],
+    "setPiece": "bob",
+    "name": "הצוללת",
+@@ -144,9 +138,7 @@
+    "icon": "source_qatari_icon",
+    "silhouette": "source_qatari_icon_sil",
+    "slot": [
+-    "B0",
+-    "S1",
+-    "S2"
++    "B5"
+    ],
+    "setPiece": "blink",
+    "name": "היועצים הקטאריים",
+@@ -168,9 +160,7 @@
+    "icon": "source_poison_icon",
+    "silhouette": "source_poison_icon_sil",
+    "slot": [
+-    "S3",
+-    "S4",
+-    "S5"
++    "F5"
+    ],
+    "setPiece": "bob",
+    "name": "מכונת הרעל",
+@@ -190,9 +180,7 @@
+    "icon": "source_checkbook_icon",
+    "silhouette": "source_checkbook_icon_sil",
+    "slot": [
+-    "S6",
+-    "S7",
+-    "S8"
++    "B2"
+    ],
+    "setPiece": "lob",
+    "name": "פנקס הצ׳קים הזהוב",
+@@ -5198,6 +5186,23 @@
+       "הצעת חוק קטנה, תקציב גדול."
+      ]
+     }
++   },
++   {
++    "id": "mk_returner",
++    "name": "ח״כ שחזר הביתה",
++    "short": "ח״כ שחזר הביתה",
++    "g": "m",
++    "avatar": "avatar_nophoto",
++    "art": "nophoto",
++    "bloc": "any",
++    "generic": true,
++    "lines": {
++     "demand": "חזרתי הביתה. בשביל {price} ₪ אני גם פורק את המזוודה.",
++     "threat": "המזוודה עוד ארוזה. רק שתדע.",
++     "thanks": "עכשיו אני באמת בבית. עד הבחירות.",
++     "return": "חזרתי. שוב. הבית לא השתנה."
++    },
++    "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him."
+    }
+   ],
+   "cardProfiles": [
+@@ -5454,6 +5459,20 @@
+     "blurb": "שולף שקלים מכובע, משלם לשותפים ודוחה את המשפט.",
+     "line": "אין כלום! אין כלום!"
+    },
++   "rule": {
++    "id": "court",
++    "name": "המשפט",
++    "text": "רק לך יש משפט: בזימון מעידים או דוחים, כל דחייה עולה כפול, ואפשר גם לבקש חנינה.",
++    "effect": {
++     "type": "court",
++     "_note": "Nothing to install: his round is the shipped game, and the shipped court (content.court) is his hazard. The aide drop and the pardon desk are his (Leaders.has_court). Leaders.validate skips the default leader, so this type is documentation, not a knob."
++    },
++    "src": [
++     "trial",
++     "pardon-request"
++    ],
++    "_note": "Game Designer 2026-09-29 (HANDOFF Next 3): the picker's long-press and T4 show rule.name / rule.text for every leader, Bibi included. Reported mechanics, no quote. 'כל דחייה עולה כפול' = court.postpone.growth 2."
++   },
+    "kit": {
+     "_doc": "Bibi's kit is today's game: every field points at the shipped content. Nothing new to author.",
+     "tap": {
+@@ -6775,6 +6794,10 @@
+       "id": "mk_switcher",
+       "slot": "L6"
+      },
++     {
++      "id": "mk_returner",
++      "slot": "SK"
++     },
+      {
+       "id": "gantz",
+       "slot": "SI"
+@@ -6793,7 +6816,7 @@
+      "card_smotrich",
+      "card_deri"
+     ],
+-    "_note": "The smallest lineup (his rule, fact liberman-wont-sit) with the decline pill to pay for it. Capacity 44 seats + own. Bench lever (spec §7.2, game-developer sim 2026-09-29): mk_offer holds L4 instead of S5 (a generic MK takes the mid-late L4 slot; his own seats unchanged). With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13 over seeds 1-9: S3 failed); the spec's named levers measured worse or nil (mk_undecided L1->L4 9:33; L3 is locked in round 1). With L4: median 7:50, engaged 6:56, casual 8:02."
++    "_note": "The smallest lineup (his rule, fact liberman-wont-sit) with the decline pill to pay for it. Capacity 46 seats + own (44 in round 1: SK opens after election 1). Bench lever (spec §7.2, game-developer sim 2026-09-29): mk_offer holds L4 instead of S5 (a generic MK takes the mid-late L4 slot; his own seats unchanged). With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13 over seeds 1-9: S3 failed); the spec's named levers measured worse or nil (mk_undecided L1->L4 9:33; L3 is locked in round 1). With L4: median 7:50, engaged 6:56, casual 8:02. Rounds 2+ (game-designer 2026-09-29): no seat of his unlocked after election 1, so every later round waited for L6 (own 28 + 40 without it < 61) and round 2 ran longer than round 1 (seed 7: 7:09 then 9:09, S5 failed). A generic MK on SK (2 seats, the round-2 early slot the coalition leaders' lineups already hold) closes 61 with L1 + L4 like the other lineups; round 1 is unchanged (SK is locked until election 1)."
+    }
+   },
+   {
+diff --git a/game/data/ui-strings.json b/game/data/ui-strings.json
+index b829bba..d6768cd 100644
+--- a/game/data/ui-strings.json
++++ b/game/data/ui-strings.json
+@@ -419,10 +419,10 @@
+     "ROUNDS_ONE": "סבב בחירות אחד",
+     "ROUNDS_TWO": "שני סבבי בחירות",
+     "ROUNDS_OTHER": "⁦{n}⁩ סבבי בחירות",
+-    "DAYS_ZERO": "ואפס ימי משפט",
+-    "DAYS_ONE": "ויום משפט אחד",
+-    "DAYS_TWO": "ושני ימי משפט",
+-    "DAYS_OTHER": "ו־⁦{n}⁩ ימי משפט",
++    "DAYS_ZERO": "ואפס ימים בכותרות",
++    "DAYS_ONE": "ויום אחד בכותרות",
++    "DAYS_TWO": "ושני ימים בכותרות",
++    "DAYS_OTHER": "ו־⁦{n}⁩ ימים בכותרות",
+     "RECEIPT_BRAND": "עוד סבב",
+     "RECEIPT_KIND": "חשבונית מס / קבלה (העתק)",
+     "RECEIPT_ROUND": "סבב בחירות מס׳ ⁦{n}⁩ · ⁦{date}⁩",
+diff --git a/game/scripts/sim/investigation.gd b/game/scripts/sim/investigation.gd
+index 7a067fe..c3975a3 100644
+--- a/game/scripts/sim/investigation.gd
++++ b/game/scripts/sim/investigation.gd
+@@ -199,6 +199,13 @@ static func testify(s: GameState, auto: bool = false) -> Array:
+ 	return [{"ev": "courtStart", "reason": st["courtReason"]}]
+ 
+ 
++## Lifetime court days (Bibi's rounds) plus press days (everyone else's): the leader-neutral count
++## the result card's DAYS_* ("ו־{n} ימים בכותרות") and the deep-link toast read (ShareKit.rounds_days).
++static func hazard_days(s: GameState) -> int:
++	var st: Dictionary = s.investigation if s.investigation is Dictionary else {}
++	return int(st.get("courtDays", 0)) + int(st.get("pressDays", 0))
++
++
+ ## The postponement's price: treasuryPct × growth^n % of the treasury (pitch §10.1: the 5th costs
+ ## 80%), and never less than minCostBpsSec × growth^n seconds of ₪/s, so an empty treasury isn't a
+ ## free pass. -1 when the percentage passes maxPct: the player has to testify.
+diff --git a/game/scripts/ui/share_kit.gd b/game/scripts/ui/share_kit.gd
+index 8f63b2c..5a9c75f 100644
+--- a/game/scripts/ui/share_kit.gd
++++ b/game/scripts/ui/share_kit.gd
+@@ -103,8 +103,9 @@ static func rounds_days(s: GameState) -> Array:
+ 	return [Strings.plural("ROUNDS", rounds), Strings.plural("DAYS", days)]
+ 
+ 
++## Court days plus press days (leader-neutral, like the DAYS_* words): every leader's days count.
+ static func court_days(s: GameState) -> int:
+-	return int((s.investigation if s.investigation is Dictionary else {}).get("courtDays", 0))
++	return Investigation.hazard_days(s)
+ 
+ 
+ # ------------------------------------------------------------------ the receipt (O4, §5.1)
+diff --git a/game/tests/unit/test_diorama_slots.gd b/game/tests/unit/test_diorama_slots.gd
+new file mode 100644
+index 0000000..673e787
+--- /dev/null
++++ b/game/tests/unit/test_diorama_slots.gd
+@@ -0,0 +1,96 @@
++extends RefCounted
++## The money sources on the stage (ux/review-2026-09-29.md R17; content producers[].slot → the
++## diorama's L.DIORAMA rows and xs). Geometry only, from the real constants and the TA's sprite
++## sizes (sprites.json sources: frameW / density, pivot bottom-centre at slot x + 32):
++##   - no critter under the thermometer column (Thermo.WORD_BOX x 12-132), wandering included;
++##   - no critter above the stage top + 8 (the sky row at y 168 put 88 px of a 160-px source under
++##     Row B, so no source uses it);
++##   - every critter inside the 720 design width, one critter per slot;
++##   - the first critter of the three shared sources (every leader's round starts with them) sits
++##     right of the Magician's feet, and the taxpayer's clears his hit entirely: the right half
++##     of the stage carries the early round.
++## A leader's generic tier sprite (leaderSelect.sourceTiers.genericSprites) is checked in the same
++## slot, since the diorama will draw it there once the picker ships (spec §10.1 ui/diorama.gd).
++
++var runner: Object
++
++const WANDER := 16.0   # Diorama._start_hop: a wandering critter hops within homeX ± 16
++
++
++func setup(_r: Object) -> void:
++	TestFixture.use_game_content()
++
++
++func teardown() -> void:
++	TestFixture.use_game_content()
++
++
++static func _sources() -> Dictionary:
++	var j: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/sprites/sprites.json"))
++	return (j as Dictionary).get("sources", {}) if j is Dictionary else {}
++
++
++## (half-width left of the pivot, full width, height) in logical px for a sprite key.
++static func _extent(sources: Dictionary, sprite: String) -> Vector3:
++	for k: Variant in sources:
++		var e: Dictionary = sources[k]
++		if str(e.get("sprite", "")) == sprite:
++			var sc := 4.0 / float(e.get("density", 1))
++			var fw := float(e["frameW"])
++			return Vector3(floorf(fw / 2.0) * sc, fw * sc, float(e["frameH"]) * sc)
++	return Vector3.ZERO
++
++
++## Every sprite a producer's slot may draw: its own and, for tiers 4-8, the leaders' generic one.
++static func _sprites_of(id: String) -> Array:
++	var out: Array = [str(Content.producer(id).get("sprite", ""))]
++	var st: Variant = Leaders.ls().get("sourceTiers", {})
++	if st is Dictionary:
++		var tiers: Dictionary = (st as Dictionary).get("tiers", {})
++		for t: Variant in tiers:
++			if str(tiers[t]) == id:
++				var g: Variant = (st as Dictionary).get("genericSprites", {}).get(t)
++				if g is Dictionary:
++					out.append(str((g as Dictionary).get("sprite", "")))
++	return out
++
++
++func test_sources_clear_the_thermometer_and_the_stage_top() -> void:
++	var src := _sources()
++	runner.check(not src.is_empty(), "sprites.json sources readable")
++	var thermo_right: float = Thermo.WORD_BOX.x + Thermo.WORD_BOX.y
++	var used := {}
++	for id: String in Content.producer_ids():
++		var codes: Array = Content.producer(id).get("slot", [])
++		runner.check(not codes.is_empty() and codes.size() <= 3, "%s: 1-3 slot codes from content (%s)" % [id, str(codes)])
++		var wander := WANDER if Content.producer(id).get("wander", false) == true else 0.0
++		for code: Variant in codes:
++			var c := str(code)
++			runner.check(L._valid_slot(c), "%s: %s is a diorama slot" % [id, c])
++			runner.check(not used.has(c), "%s: slot %s is not shared (with %s)" % [id, c, used.get(c, "")])
++			used[c] = id
++			var row := c.substr(0, 1)
++			var cx := float(L.DIORAMA["xs"][row][int(c.substr(1))]) + 32.0
++			var bottom := float(L.DIORAMA["rows"][row]) + 64.0
++			for sp: String in _sprites_of(id):
++				var ex := _extent(src, sp)
++				if ex == Vector3.ZERO:
++					continue   # a sprite the TA hasn't delivered: the diorama leaves the slot empty
++				var left := cx - ex.x
++				runner.check(left - wander >= thermo_right, "%s (%s) at %s: left edge %d clears the thermometer column (x ≤ %d)" % [id, sp, c, int(left - wander), int(thermo_right)])
++				runner.check(left + ex.y + wander <= float(L.W), "%s (%s) at %s: right edge %d inside the 720 stage" % [id, sp, c, int(left + ex.y + wander)])
++				runner.check(bottom - ex.z >= float(L.STAGE["y"]) + 8.0, "%s (%s) at %s: sprite top %d under the stage top + 8 (not clipped by Row B)" % [id, sp, c, int(bottom - ex.z)])
++
++
++func test_the_early_round_fills_the_right_half() -> void:
++	var src := _sources()
++	var feet := float(L.MAGICIAN["feetX"])
++	var hit_right := float(L.MAGICIAN["feetX"]) + float(L.MAGICIAN["hitW"]) / 2.0
++	for id: String in ["taxpayer", "hitech", "vat"]:
++		var c := str((Content.producer(id)["slot"] as Array)[0])
++		var cx := float(L.DIORAMA["xs"][c.substr(0, 1)][int(c.substr(1))]) + 32.0
++		runner.check(cx > feet, "%s's first critter (%s, x %d) stands right of the Magician (feet x %d)" % [id, c, int(cx), int(feet)])
++	var t := str((Content.producer("taxpayer")["slot"] as Array)[0])
++	var tx := float(L.DIORAMA["xs"][t.substr(0, 1)][int(t.substr(1))]) + 32.0
++	var left := tx - _extent(src, str(Content.producer("taxpayer")["sprite"])).x - WANDER
++	runner.check(left >= hit_right, "the first taxpayer (%s, wandering) clears the Magician's hit (x ≥ %d, got %d)" % [t, int(hit_right), int(left)])
+diff --git a/game/tests/unit/test_diorama_slots.gd.uid b/game/tests/unit/test_diorama_slots.gd.uid
+new file mode 100644
+index 0000000..107b229
+--- /dev/null
++++ b/game/tests/unit/test_diorama_slots.gd.uid
+@@ -0,0 +1 @@
++uid://biw7118os2omh
+diff --git a/game/tests/unit/test_leaders.gd b/game/tests/unit/test_leaders.gd
+index 60a3bf5..dc99e8d 100644
+--- a/game/tests/unit/test_leaders.gd
++++ b/game/tests/unit/test_leaders.gd
+@@ -83,6 +83,7 @@ func test_picker_lists_the_ready_leaders_without_numbers() -> void:
+ 	runner.check(tiles.size() == 8 and p["again"] == "" and p["first"] == true, "8 tiles, no 'again' on a new game")
+ 	for t: Dictionary in tiles:
+ 		runner.check(str(t["blurb"]) != "" and not t.has("seats"), "tile %s: blurb, no numbers" % t["id"])
++		runner.check(str(t["ruleName"]) != "" and str(t["ruleText"]) != "", "tile %s: its one-line rule (Bibi's too)" % t["id"])
+ 	runner.check(ids.has(Leaders.random_pick(func() -> float: return 0.99)), "הפתעה picks a tile")
+ 
+ 
+@@ -146,7 +147,8 @@ func test_install_liberman() -> void:
+ 	var cap := 0
+ 	for p: Dictionary in Coalition.partners():
+ 		cap += int(Leaders.slots()[str(p["slot"])]["seats"])
+-	runner.check(cap == 44, "his capacity 44 (mk_offer on L4, the bench lever; got %d)" % cap)
++	runner.check(cap == 46, "his capacity 46 (mk_offer on L4 and a generic MK on SK, the bench levers; got %d)" % cap)
++	runner.check(ids.has("mk_returner") and not Conditions.ok(GameState.fresh(), Leaders.slots()["SK"]["unlock"]), "SK waits for election 1, so round 1 plays on 44")
+ 	runner.check(not Leaders.decline_rule().is_empty(), "his rule: declineDemand")
+ 
+ 
+diff --git a/game/tests/unit/test_share_view.gd b/game/tests/unit/test_share_view.gd
+index 37192d5..fe39b4e 100644
+--- a/game/tests/unit/test_share_view.gd
++++ b/game/tests/unit/test_share_view.gd
+@@ -98,7 +98,7 @@ func test_share_texts_are_prose_with_the_url_last() -> void:
+ 		runner.check(ShareKit.wa_url(t).trim_prefix(ShareKit.WA).uri_decode() == t, "%s: the wa.me round trip" % kind)
+ 	runner.check(ShareKit.share_text("invite", s, d, 0.0, u).contains("ביבי"), "the invite: תורכם להיות ביבי")
+ 	var r := ShareKit.share_text("result", s, d, 0.0, u)
+-	runner.check(r.begins_with("שרדתי 3 סבבי בחירות ושני ימי משפט ב״עוד סבב״."), "the result text: rounds and days in words (%s)" % r)
++	runner.check(r.begins_with("שרדתי 3 סבבי בחירות ושני ימים בכותרות ב״עוד סבב״."), "the result text: rounds and days in words (%s)" % r)
+ 	var total := float(ShareKit.receipt(s, d, 0.0)["total"])
+ 	var rc := ShareKit.share_text("receipt", s, d, 0.0, u)
+ 	runner.check(rc.contains(ShareKit.word_amount(total) + " ₪ החודש") and rc.contains("(במשחק. בינתיים.)"),
+@@ -159,8 +159,12 @@ func test_the_result_card_model() -> void:
+ 	var r := ShareKit.result(s)
+ 	runner.check(str(r["head"]) == Strings.s("RESULT_HEADLINE", {"rounds": Strings.plural("ROUNDS", 3), "days": Strings.plural("DAYS", 2)}), "the headline (%s)" % r["head"])
+ 	runner.check(str(r["stats"]).contains("12") and str(r["stats"]).contains("9"), "suitcases caught and postponement requests (%s)" % r["stats"])
++	s.investigation["pressDays"] = 3   # another leader's press days count too (leader-neutral DAYS_*)
++	runner.check(str(ShareKit.result(s)["head"]).contains(Strings.plural("DAYS", 5)) and Strings.plural("DAYS", 5).contains("בכותרות"),
++		"court + press days, in words that fit every leader (%s)" % ShareKit.result(s)["head"])
+ 	s.investigation["courtDays"] = 0
+-	runner.check(str(ShareKit.result(s)["head"]).ends_with(Strings.s("RESULT_ZERO_TAG")), "zero court days: '... ואפס ימי משפט בינתיים.'")
++	s.investigation["pressDays"] = 0
++	runner.check(str(ShareKit.result(s)["head"]).ends_with(Strings.s("RESULT_ZERO_TAG")), "zero days: '... ואפס ימים בכותרות בינתיים.'")
+ 	for v: Variant in ShareKit.result(s).values():
+ 		runner.check(not str(v).contains("61") and not str(v).contains("מנדט"), "no seat number on a card (§5 global rule): %s" % v)
+ 
+diff --git a/ux/string-budgets.json b/ux/string-budgets.json
+index eb20e56..0925cd7 100644
+--- a/ux/string-budgets.json
++++ b/ux/string-budgets.json
+@@ -4547,37 +4547,41 @@
+       "surface": "label",
+       "spec": "§5.2 ICU days =0",
+       "joke": true,
++      "note": "Leader-neutral (game-designer 2026-09-29): {n} = court days + press days (Investigation.hazard_days), so every leader's days count and the words fit both skins; was 'ימי משפט' (Bibi's court only)",
+       "box": "result.head",
+       "maxChars": 26,
+       "worstPx": {
+-        "1": 65
++        "1": 82
+       }
+     },
+     "DAYS_ONE": {
+       "surface": "label",
+       "spec": "§5.2 ICU days one",
++      "note": "Leader-neutral, see DAYS_ZERO",
+       "box": "result.head",
+       "maxChars": 26,
+       "worstPx": {
+-        "1": 65
++        "1": 76
+       }
+     },
+     "DAYS_TWO": {
+       "surface": "label",
+       "spec": "§5.2 ICU days two",
++      "note": "Leader-neutral, see DAYS_ZERO",
+       "box": "result.head",
+       "maxChars": 26,
+       "worstPx": {
+-        "1": 60
++        "1": 77
+       }
+     },
+     "DAYS_OTHER": {
+       "surface": "label",
+       "spec": "§5.2 ICU days other",
++      "note": "Leader-neutral, see DAYS_ZERO",
+       "box": "result.head",
+       "maxChars": 26,
+       "worstPx": {
+-        "1": 66
++        "1": 83
+       }
+     },
+     "RECEIPT_BRAND": {
+diff --git a/ux/tools/gen_strings.py b/ux/tools/gen_strings.py
+index 53b299a..7c6fab6 100644
+--- a/ux/tools/gen_strings.py
++++ b/ux/tools/gen_strings.py
+@@ -612,10 +612,10 @@ e("ABOUT_SHARE_WA", "לשתף בוואטסאפ", "html:16", "", "Bar 2026-09-29:
+ e("ROUNDS_ONE", "סבב בחירות אחד", "result.head", "", "§5.2 ICU rounds one")
+ e("ROUNDS_TWO", "שני סבבי בחירות", "result.head", "", "§5.2 ICU rounds two")
+ e("ROUNDS_OTHER", "⟦{n}⟧ סבבי בחירות", "result.head", "", "§5.2 ICU rounds other")
+-e("DAYS_ZERO", "ואפס ימי משפט", "result.head", "*", "§5.2 ICU days =0")
+-e("DAYS_ONE", "ויום משפט אחד", "result.head", "", "§5.2 ICU days one")
+-e("DAYS_TWO", "ושני ימי משפט", "result.head", "", "§5.2 ICU days two")
+-e("DAYS_OTHER", "ו־⟦{n}⟧ ימי משפט", "result.head", "", "§5.2 ICU days other")
++e("DAYS_ZERO", "ואפס ימים בכותרות", "result.head", "*", "§5.2 ICU days =0", "Leader-neutral (game-designer 2026-09-29): {n} = court days + press days (Investigation.hazard_days), so every leader's days count and the words fit both skins; was 'ימי משפט' (Bibi's court only)")
++e("DAYS_ONE", "ויום אחד בכותרות", "result.head", "", "§5.2 ICU days one", "Leader-neutral, see DAYS_ZERO")
++e("DAYS_TWO", "ושני ימים בכותרות", "result.head", "", "§5.2 ICU days two", "Leader-neutral, see DAYS_ZERO")
++e("DAYS_OTHER", "ו־⟦{n}⟧ ימים בכותרות", "result.head", "", "§5.2 ICU days other", "Leader-neutral, see DAYS_ZERO")
+ # --- receipt card: 216x270 art at x5, print column 152 art px, <= 22 lines (2D Artist style guide §13, flag F3)
+ # Layout, top to bottom (19 text lines + 3 rules = 21.7 of 22): BRAND, KIND, ROUND, rule, HEAD (2 lines), TOTAL_LINE,
+ # rule, VAT, FUEL + FUEL_NOTE, WING, PISTACHIO, COALITION, rule, SUM, PAID_BY, COUNTDOWN, FOOT_REAL,
+diff --git a/ux/ui-strings.json b/ux/ui-strings.json
+index b829bba..d6768cd 100644
+--- a/ux/ui-strings.json
++++ b/ux/ui-strings.json
+@@ -419,10 +419,10 @@
+     "ROUNDS_ONE": "סבב בחירות אחד",
+     "ROUNDS_TWO": "שני סבבי בחירות",
+     "ROUNDS_OTHER": "⁦{n}⁩ סבבי בחירות",
+-    "DAYS_ZERO": "ואפס ימי משפט",
+-    "DAYS_ONE": "ויום משפט אחד",
+-    "DAYS_TWO": "ושני ימי משפט",
+-    "DAYS_OTHER": "ו־⁦{n}⁩ ימי משפט",
++    "DAYS_ZERO": "ואפס ימים בכותרות",
++    "DAYS_ONE": "ויום אחד בכותרות",
++    "DAYS_TWO": "ושני ימים בכותרות",
++    "DAYS_OTHER": "ו־⁦{n}⁩ ימים בכותרות",
+     "RECEIPT_BRAND": "עוד סבב",
+     "RECEIPT_KIND": "חשבונית מס / קבלה (העתק)",
+     "RECEIPT_ROUND": "סבב בחירות מס׳ ⁦{n}⁩ · ⁦{date}⁩",
+-- 
+2.43.0
+
+
+From ab5acecc40f94c37e011a6c1328f76d1cce65aab Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 20:30:39 +0000
+Subject: [PATCH 3/4] feat(od-sevev): replay the browser driver's cadence in
+ the pacing bench
+
+round_web.mjs acts in wall-clock time while ?speed=10 runs the game 10x faster,
+so in game time it taps 0.037/s, buys every ~138 s, never buys a spin or catches
+the Suitcase: its 25-34 min first election measures the driver, not the game.
+The driver now prints that cadence; PacingSim takes optional cadence keys
+(buy_every, buy_units, buy, spins, politics_every, ping_after_buy; defaults keep
+every gate as it was) and test_web_driver.gd replays the measured cadence
+(bench 30:18 vs browser 25:16) next to the median player's 8:01.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/scripts/sim/pacing_sim.gd      | 40 ++++++++++++++++++++++----
+ game/tests/bench/test_web_driver.gd | 44 +++++++++++++++++++++++++++++
+ tools/web/round_web.mjs             | 22 +++++++++++++--
+ 3 files changed, 99 insertions(+), 7 deletions(-)
+ create mode 100644 game/tests/bench/test_web_driver.gd
+
+diff --git a/game/scripts/sim/pacing_sim.gd b/game/scripts/sim/pacing_sim.gd
+index e495f20..a2455b4 100644
+--- a/game/scripts/sim/pacing_sim.gd
++++ b/game/scripts/sim/pacing_sim.gd
+@@ -19,6 +19,17 @@ extends RefCounted
+ 
+ ## "median" is the pitch's reference player (pitch §5: the first election at about 7-9 min), added
+ ## for the od-sevev pacing gates in tests/bench/test_session.gd.
++##
++## Cadence (optional player keys; all default to the attentive player above, so no gate moves):
++##   buy_every        seconds of play between two purchase actions (0: whenever the best buy is affordable)
++##   buy_units        units per producer purchase action (0: the greedy default, 1 early, half the bank late)
++##   buy              "best" (payback, the default) | "priciest" (the most expensive affordable source card)
++##   spins            false never buys a spin (the source tab only)
++##   politics_every   seconds between two looks at the chat, the court card and the brawl (0: every frame)
++##   ping_after_buy   C1's controller half: the chat pings only this long after the last purchase
++## A browser driver acts in wall-clock time while the dev clock (?speed=N) runs the game N times
++## faster, so in game time it taps and buys N times less often: tests/bench/test_web_driver.gd
++## replays tools/web/round_web.mjs's measured cadence through these keys (the 34-vs-8-minute gap).
+ const PLAYERS := {
+ 	"median": {"tps": 1.5, "tap_until": INF, "catch_golden": true},
+ 	"engaged": {"tps": 4.0, "tap_until": INF, "catch_golden": true},
+@@ -68,6 +79,12 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
+ 	var pol := politics_on()
+ 	var strat := strategy(player)
+ 	var ctx := {"allowPing": true, "weekday": 2, "hour": 12}
++	var buy_every := float(player.get("buy_every", 0.0))
++	var buy_units := int(player.get("buy_units", 0))
++	var pol_every := float(player.get("politics_every", 0.0))
++	var ping_gap := float(player.get("ping_after_buy", 0.0))
++	var last_buy := -INF
++	var last_pol := -INF
+ 	while t < max_t:
+ 		var tapping := tps if t < float(player["tap_until"]) else 0.0
+ 		acc += tapping * dt
+@@ -92,6 +109,7 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
+ 				Economy.apply_golden(s, Economy.roll_golden_outcome(r, s))
+ 			Economy.schedule_next_golden(s, r)
+ 		if pol:
++			ctx["allowPing"] = ping_gap <= 0.0 or t - last_buy >= ping_gap
+ 			for e: Dictionary in Politics.tick(s, dt, d, ctx, r):
+ 				if e["ev"] == "event":
+ 					events.append([t, "event:" + String(e["id"])])
+@@ -101,7 +119,9 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
+ 					events.append([t, "c1"])   # the chat pings (pitch §11 Q2)
+ 				elif e["ev"] == "message" and e["msg"].get("type", "") == "ultimatum":
+ 					events.append([t, "ultimatum"])   # pitch §11 Q3: none before 3:00
+-			play_politics(s, strat)
++			if t - last_pol >= pol_every:
++				last_pol = t
++				play_politics(s, strat)
+ 		for a in Meta.check_achievements(s, d):
+ 			events.append([t, "achievement:" + a])
+ 		for id in Content.producer_ids():
+@@ -112,8 +132,9 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
+ 				events.append([t, "milestone:" + key])
+ 		d = Economy.derive(s)
+ 		# Nothing is affordable -> the greedy player can't buy this frame; skip ranking (same result).
+-		var best := {} if s.bananas < _cheapest(s, d) else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {})
++		var best := {} if s.bananas < _cheapest(s, d) or t - last_buy < buy_every else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {}, player)
+ 		if not best.is_empty() and s.bananas >= float(best["cost"]):
++			last_buy = t
+ 			if best.has("upgrade"):
+ 				Economy.buy_upgrade(s, best["upgrade"])
+ 				first["u:" + String(best["upgrade"])] = t
+@@ -126,7 +147,7 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
+ 				# Late game the bank covers thousands of units: buy half of what it affords in one go
+ 				# (the same greedy choice, without a loop pass per unit). Early on this is always 1.
+ 				var n := Economy.max_affordable(s, id)
+-				Economy.buy_producer(s, id, maxi(1, n / 2) if n >= 10 else 1)
++				Economy.buy_producer(s, id, clampi(buy_units, 1, maxi(1, n)) if buy_units > 0 else (maxi(1, n / 2) if n >= 10 else 1))
+ 			# This frame already ticked the economy (dt of play, taps and politics), so the clock moves
+ 			# too: without this, every purchase frame was dt of game time the bench never counted, and
+ 			# its times ran about 5% short of s.run_time_sec (an ultimatum "at 2:51" was at 3:00 of play).
+@@ -152,11 +173,20 @@ static func _cheapest(s: GameState, d: Economy.Derived) -> float:
+ 	return c
+ 
+ 
+-static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_golden: bool, crit_mult: float, strat: Dictionary = {}) -> Dictionary:
++static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_golden: bool, crit_mult: float, strat: Dictionary = {}, player: Dictionary = {}) -> Dictionary:
+ 	var inc0 := d.bps + tapping * d.tap_value_no_crit
+ 	var best := {}
+ 	var best_pb := INF
+ 	var shady: Dictionary = Investigation.cfg().get("sources", {}) if strat.get("shady", true) == false else {}
++	if str(player.get("buy", "best")) == "priciest":
++		# tools/web/round_web.mjs: the most expensive source card it can afford now (never a spin).
++		var top := -1.0
++		for id in Content.producer_ids():
++			var c := Economy.producer_cost(s, id, 1)
++			if Economy.is_revealed(s, id) and not shady.has(id) and c <= s.bananas and c > top:
++				top = c
++				best = {"producer": id, "cost": c}
++		return best
+ 	for id in Content.producer_ids():
+ 		if not Economy.is_revealed(s, id) or shady.has(id):
+ 			continue
+@@ -169,7 +199,7 @@ static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_go
+ 		if pb < best_pb:
+ 			best_pb = pb
+ 			best = {"producer": id, "cost": c}
+-	for u: Dictionary in Economy.available_upgrades(s):
++	for u: Dictionary in (Economy.available_upgrades(s) if player.get("spins", true) != false else []):
+ 		var e: Dictionary = u["effect"]
+ 		var c := Economy.upgrade_price(s, u["id"], d)
+ 		if c < 0.0:
+diff --git a/game/tests/bench/test_web_driver.gd b/game/tests/bench/test_web_driver.gd
+new file mode 100644
+index 0000000..07404f7
+--- /dev/null
++++ b/game/tests/bench/test_web_driver.gd
+@@ -0,0 +1,44 @@
++extends RefCounted
++## The 34-vs-8-minute gap (HANDOFF "Next" 3, Designer): a scripted browser round
++## (tools/web/round_web.mjs at ?speed=10) reached the first election at 34:24 of play while this
++## bench says about 8:00. Neither the game nor the bench is wrong: the driver is a different player.
++## It acts in wall-clock time (four hat taps, one source card and a look at the chat per loop of
++## several real seconds under software rendering) while the dev clock runs the game 10× faster, so
++## in GAME time it taps and buys dozens of times less often than the median player, never buys a
++## spin, never catches the Suitcase and buys the priciest card instead of the best payback.
++##
++## This bench replays the driver's measured cadence (round_web.mjs prints it; the numbers below are
++## the 2026-09-29 run at 390×844 @2, speed 10: 0.037 taps/s, a purchase action every 138 s of
++## 3 card taps, the chat every 303 s, round 1 at 25:16 of play) through PacingSim on the real
++## Economy + Politics. If the bench lands near the browser's round, the bench models the game and
++## the gap is the player; if it ever drifts far, the game and the bench disagree and one of them
++## has a bug.
++
++var runner: Object
++
++## tools/web/round_web.mjs in game seconds (its "cadence" line).
++const DRIVER := {
++	"tps": 0.037, "tap_until": INF, "catch_golden": false,
++	"buy_every": 138.0, "buy_units": 3, "buy": "priciest", "spins": false,
++	"politics_every": 303.0, "ping_after_buy": 20.0,
++	"politics": {"coalition": "all", "court": "testify"},
++}
++const BROWSER_ROUND_SEC := 1516.0   # the same run's first election (round_web "gate: … run 1516s")
++
++
++func test_the_browser_driver_is_a_slow_player_not_a_slow_game() -> void:
++	if not PacingSim.politics_on():
++		return
++	var ts: Array = []
++	for sd: int in [1, 2, 3]:
++		var r := PacingSim.first_round("", DRIVER, sd, 3600.0, 0.25)
++		ts.append(float(r["gate_t"]) if float(r["gate_t"]) >= 0.0 else INF)
++	ts.sort()
++	var med := float(ts[1])
++	var median_player := float(PacingSim.first_round("", PacingSim.PLAYERS["median"], 7, 1800.0, 0.25)["gate_t"])
++	print("  web driver cadence, seeds 1-3: %s (median %s); the browser measured %s; the median player %s" % [
++		", ".join(ts.map(func(x: float) -> String: return PacingSim.fmt_t(x))), PacingSim.fmt_t(med),
++		PacingSim.fmt_t(BROWSER_ROUND_SEC), PacingSim.fmt_t(median_player)])
++	runner.check(med >= BROWSER_ROUND_SEC * 0.7 and med <= BROWSER_ROUND_SEC * 1.3,
++		"the bench replays the browser round within ±30%% (bench %s, browser %s)" % [PacingSim.fmt_t(med), PacingSim.fmt_t(BROWSER_ROUND_SEC)])
++	runner.check(median_player >= 7.0 * 60.0 and median_player <= 9.0 * 60.0, "and the median player still calls it in 7-9 min (%s)" % PacingSim.fmt_t(median_player))
+diff --git a/tools/web/round_web.mjs b/tools/web/round_web.mjs
+index 8e49c30..60f0685 100644
+--- a/tools/web/round_web.mjs
++++ b/tools/web/round_web.mjs
+@@ -9,6 +9,12 @@
+ // window.odModal (ui/views/view_sheet_card.gd), in viewport logical px.
+ //   node tools/web/round_web.mjs <url> <out dir> [WxH@DPR] [speed] [budget s]
+ // Serve build/web first (python3 -m http.server --directory build/web).
++// NOT a pacing measurement. The driver acts in wall-clock time (a few taps, one card and a look at
++// the chat per loop of ~1-3 s) while ?speed=N runs the game N times faster, so in game time it taps
++// and buys about N times less often than a player, never buys a spin and never catches the Suitcase.
++// Its round time (34:24 of play at speed 10 on 2026-09-29) measures this driver, not the game: it
++// prints its game-time cadence at the end, and tests/bench/test_web_driver.gd replays that cadence
++// through PacingSim (same round length). The pacing gates live in tools/balance.sh.
+ const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
+ const { chromium } = await import(PW);
+ const fs = await import('node:fs');
+@@ -74,6 +80,7 @@ let lastSeats = -1;
+ let paid = 0;
+ let rounds = 0;
+ let lastBuy = 0;
++let hatTaps = 0, buyActions = 0, cardTaps = 0, chatLooks = 0;
+ while (Date.now() - t0 < budget) {
+ 	rounds++;
+ 	let s = await probe();
+@@ -93,7 +100,7 @@ while (Date.now() - t0 < budget) {
+ 		await wait(400);
+ 		continue;
+ 	}
+-	for (let i = 0; i < 4; i++) { await tapAt(hat, 40); await wait(70); }
++	for (let i = 0; i < 4; i++) { await tapAt(hat, 40); await wait(70); hatTaps++; }
+ 	// sources: the most expensive affordable card, scrolled into view. Before the group opens (C1)
+ 	// buy at most every 4 s: C1 pings only when the last purchase is >= 2 s old and no toast shows.
+ 	const quiet = !s.groupOpen && Date.now() - lastBuy < 4000;
+@@ -101,13 +108,14 @@ while (Date.now() - t0 < budget) {
+ 	const aff = quiet ? [] : (s.shop.all || []).filter((r) => r[3]);
+ 	if (aff.length) {
+ 		lastBuy = Date.now();
++		buyActions++;
+ 		const r = aff[aff.length - 1];
+ 		const [top, bot] = s.shop.list;
+ 		if (r[1] < top + 60 || r[1] > bot - 60) {
+ 			await drag(css(360 + disp.ox, (top + bot) / 2), -(r[1] - (top + bot) / 2) * disp.f / DPR);
+ 			await wait(300);
+ 		} else {
+-			for (let k = 0; k < 3; k++) { await tapAt(css(r[0], r[1])); await wait(90); }
++			for (let k = 0; k < 3; k++) { await tapAt(css(r[0], r[1])); await wait(90); cardTaps++; }
+ 		}
+ 	}
+ 	// the chat: every open pill, scrolling to it
+@@ -115,6 +123,7 @@ while (Date.now() - t0 < budget) {
+ 	const wantChat = s.groupOpen && (s.chat.open || s.chat.openBrawl || rounds % 2 === 0);
+ 	if (!wantChat) continue;
+ 	if (!seen.toast) { seen.toast = true; await shot('chat-toast'); }
++	chatLooks++;
+ 	if (!s.chat.open) { await tapAt(tab(3)); await wait(600); }
+ 	for (let guard = 0; guard < 14; guard++) {
+ 		s = await probe();
+@@ -141,6 +150,15 @@ while (Date.now() - t0 < budget) {
+ }
+ let s = await probe();
+ log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${paid} pills, loops ${rounds}`);
++{
++	// The cadence it played at, in GAME seconds (compare the bench's median player: 1.5 taps/s, a buy
++	// whenever the best one is affordable, spins, every Suitcase). Not a pacing number: see the header.
++	const g = Math.max(1, s.runSec), wall = (Date.now() - t0) / 1000;
++	log(`  cadence (game time, speed ${speed}, ${Math.round(wall)} s wall): ${(hatTaps / g).toFixed(3)} taps/s, `
++		+ `a purchase action every ${(g / Math.max(1, buyActions)).toFixed(1)} s (${cardTaps} card taps), `
++		+ `the chat every ${(g / Math.max(1, chatLooks)).toFixed(1)} s, a loop every ${(g / Math.max(1, rounds)).toFixed(1)} s; `
++		+ 'no spins, no Suitcase. Not a pacing measurement (tools/balance.sh is).');
++}
+ let ok = s.ready && s.cta;
+ if (!ok) {
+ 	// evidence for the stall: the thread as it stands
+-- 
+2.43.0
+
+
+From d242f47f46d81d939f4f2fa80fb9425500faff3b Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 20:58:23 +0000
+Subject: [PATCH 4/4] docs(od-sevev): record the measured leader pacing and
+ Liberman's two levers in the spec
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ design/leader-select-spec.md | 37 +++++++++++++++++++++++++++++++-----
+ game/scripts/sim/README.md   |  6 +++++-
+ 2 files changed, 37 insertions(+), 6 deletions(-)
+
+diff --git a/design/leader-select-spec.md b/design/leader-select-spec.md
+index bcf2f1d..f34cd23 100644
+--- a/design/leader-select-spec.md
++++ b/design/leader-select-spec.md
+@@ -59,7 +59,7 @@
+ 
+ | Leader | Party | Side | Art (idle + react) | Signature (the one rule) | Tap prop · verb · crit | Wave |
+ |---|---|---|---|---|---|---|
+-| ביבי | הליכוד | coalition | `bibi` (idle, tap, crit, hat and rabbit tracks) | the court: postpone, aide drop, pardon desk (shipped) | hat · שליפה · ארנב | 1 (shipped) |
++| ביבי | הליכוד | coalition | `bibi` (idle, tap, crit, hat and rabbit tracks) | **המשפט**: the court, postpone, aide drop, pardon desk (shipped; `rule` names it for the picker and T4, no new knob) | hat · שליפה · ארנב | 1 (shipped) |
+ | בנט | ביחד (לפיד No. 2) | opposition | `bennett` (react `flip`, event `whoosh`) | **ההתחייבות**: his own pledge card fires at 2× weight. The gate goes to 62 for 45 s, then the pledge flips and adds +1 base (reuses the shipped `pledge` effect). | pen · חתימה · היפוך | 1 |
+ | בן גביר | עוצמה יהודית | coalition | `ben-gvir` (react, event `shout`) | **לוח הזמנים**: nobody out-threatens the threatener. Partners' `threatChance` ×0.5. | phone · העברה · איום | 1 |
+ | ליברמן | ישראל ביתנו | opposition | `liberman` (react, event `no`) | **לא יושב**: dismiss an open member demand for free. Cooldown 90 s; never on an ultimatum. His lineup excludes the partners he says he won't sit with (fact `liberman-wont-sit`). | chair · סירוב · לא מוחלט | 1 |
+@@ -237,7 +237,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenko
+ 
+ **Cast profiles** (`leaderSelect.partnerProfiles`):
+ - New partner voices: ביבי, לפיד, ליברמן, גולן, אייזנקוט, בנט.
+-- Three **generic MKs** (the no-photo stand-in, never real people): "ח״כ שעבר צד", "ח״כית מתלבטת", "ח״כ עם הצעה". They fill slots a bloc can't. The joke of defection culture is equal-opportunity.
++- Four **generic MKs** (the no-photo stand-in, never real people): "ח״כ שעבר צד", "ח״כית מתלבטת", "ח״כ עם הצעה", "ח״כ שחזר הביתה" (added 2026-09-29 for Liberman's SK seat, §7.2). They fill slots a bloc can't. The joke of defection culture is equal-opportunity.
+ 
+ **Rival cards** (`leaders[].coalition.rivals`):
+ - The shipped opposition cards, plus new `cardProfiles` for the coalition side:
+@@ -255,7 +255,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenko
+ | ביבי | בן גביר | as shipped (15) | as shipped | לפיד, אייזנקוט, ליברמן, בנט, גולן |
+ | בנט | ליברמן | לפיד (list-mate, can't leave), אייזנקוט, גולן, ח״כ עם הצעה, עבאס (thanks: "כמו ב־2021"), ח״כית מתלבטת, גפני, ח״כ שעבר צד, גנץ | Liberman's excludes create a real choice: keep him, or let him walk and take עבאס + גפני | ביבי, בן גביר, סמוטריץ׳, דרעי |
+ | בן גביר | ביבי ("תעביר לליכוד. אין כלום, רק תעביר.") | גוטליב (list No. 2, no transfer), סמוטריץ׳, רגב, אמסלם, קרעי, גולדקנופף, גפני, דרעי, אלמוג ("הוסרתי מהקבוצות שלך"), גנץ | עבאס out (his own excludes) | the shipped five |
+-| ליברמן | בנט | לפיד, גולן, אייזנקוט, ח״כ עם הצעה, ח״כית מתלבטת, ח״כ שעבר צד, גנץ | ביבי, דרעי, גולדקנופף, גפני, עבאס (his stated line) | ביבי, בן גביר, סמוטריץ׳, דרעי |
++| ליברמן | בנט | לפיד, גולן, אייזנקוט, ח״כ עם הצעה (L4), ח״כית מתלבטת, ח״כ שעבר צד, ח״כ שחזר הביתה (SK, from round 2), גנץ | ביבי, דרעי, גולדקנופף, גפני, עבאס (his stated line) | ביבי, בן גביר, סמוטריץ׳, דרעי |
+ 
+ **Wave-2 lineups:**
+ 
+@@ -266,7 +266,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenko
+ | דרעי | ביבי | רגב, סמוטריץ׳, לוין, אמסלם, קרעי, גולדקנופף, גוטליב, גפני, בן גביר (his own L6), מאי גולן, גנץ | עבאס out (his excludes) | the shipped five |
+ | גולן | אייזנקוט (his ×1.25 tap trait runs from C1) | לפיד, בנט, ליברמן, ח״כ עם הצעה, ח״כית מתלבטת, גפני, עבאס, ח״כ שעבר צד, גנץ | as Eisenkot's round; the merge rule wants several mid-size members | ביבי, בן גביר, סמוטריץ׳, דרעי |
+ 
+-**Seat capacity:** Bibi 57, Bennett 50, Ben Gvir 49, Liberman 42, Eisenkot 50, Smotrich 51, Deri 51, Golan 50. Liberman's is the tightest on purpose, and his decline pill pays for it (§7.3).
++**Seat capacity:** Bibi 57, Bennett 50, Ben Gvir 49, Liberman 46 (44 in round 1: SK opens after election 1; was 42 before the §7.2 levers), Eisenkot 50, Smotrich 51, Deri 51, Golan 50. Liberman's is the tightest on purpose, and his decline pill pays for it (§7.3).
+ 
+ ### 5.6 Hazard: the court (Bibi) vs the press (everyone else)
+ - **Same Investigation module and numbers.** For non-Bibi leaders:
+@@ -372,12 +372,38 @@ stats.leaderSwitches
+ | ביבי | 8:01 (measured) | unchanged |
+ | בנט | 7:45-8:30 | early capacity like Bibi's; the pledge gate +1 for 45 s is small; Liberman's excludes cost late seats until he walks |
+ | בן גביר | 7:15-8:00 | fewer threats mean fewer walkouts; capacity 49 |
+-| ליברמן | 8:15-9:00 (**risk**) | capacity 42 and no Haredi or Abbas late seats; the decline pill saves money. **Lever if > 9:00:** add the L3 slot (a 1-seat generic MK) and/or give `mk_undecided` L4. **Never** raise his own seats (D5). |
++| ליברמן | 8:15-9:00 (**risk**) | capacity 42 and no Haredi or Abbas late seats; the decline pill saves money. **Lever if > 9:00:** add the L3 slot (a 1-seat generic MK) and/or give `mk_undecided` L4. **Never** raise his own seats (D5). **Applied (2026-09-29), see §7.2.1.** |
+ | אייזנקוט | 7:50-8:30 | the same money as everyone (EV-neutral taps); Bennett's lineup shape; Eisenkot loses only the tap-7 ×4 (4 ₪ once) |
+ | סמוטריץ׳ | 7:30-8:15 | VAT ×1.18 from t 0 and 10% cheaper demands; capacity 51 |
+ | דרעי | 7:30-8:15 | cheap rejoins remove the walkout penalty; the ☕ buff is taps only |
+ | גולן | 7:40-8:20 | merges cut the number of demands, a merged walkout costs double; capacity 50 |
+ 
++### 7.2.1 Measured (tools/balance.sh, 2026-09-29, Game Designer)
++
++Median player, first election, median of seeds 1-9 (one seat deal per seed); the spread is the deal's.
++
++| Leader | First election (median) | Seeds 1-9 range | Engaged / casual / idle | Median hour (S5-S7) |
++|---|---|---|---|---|
++| ביבי | 8:01 | 7:34-8:25 | the shipped gates (test_session.gd) | pass |
++| בנט | 8:08 | 7:29-10:30 | 7:12 / 8:06 / 10:41 | pass |
++| בן גביר | 8:19 | 7:45-10:05 | 7:18 / 8:14 / 10:27 | pass |
++| ליברמן | 7:51 | 7:16-8:32 | 6:59 / 8:02 / 9:54 | pass (was S5 fail: round 2 9:09 > round 1 7:09) |
++| אייזנקוט | 8:50 | 7:47-10:07 | 7:39 / 9:00 / 11:34 | pass (casual on the 9:00 edge) |
++| סמוטריץ׳ | 8:06 | 7:38-9:01 | 7:11 / 8:02 / 10:16 | pass |
++| דרעי | 8:05 | 7:21-8:24 | 7:11 / 7:56 / 10:13 | pass |
++| גולן | 8:30 | 7:29-9:40 | 7:51 / 8:34 / 11:18 | pass |
++
++**Liberman's levers, both applied:**
++1. **Round 1 (game-developer sim):** `mk_offer` on L4 instead of S5. With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13).
++2. **Rounds 2+ (Game Designer):** a fourth generic MK, "ח״כ שחזר הביתה" (`mk_returner`), on SK.
++   - His lineup had no seat that unlocks after election 1, so every later round waited for L6: own 28 + 40 without L6 is < 61.
++   - The median hour's round 2 ran longer than round 1 (7:09, then 9:09; S5 failed).
++   - SK (2 seats, the round-2 early slot the coalition leaders already hold) closes 61 with L1 + L4, like the other lineups.
++   - Round 1 is untouched (SK is locked until election 1), and his own seats never changed (D5).
++   - Better than the spec's L3 lever: L3 is 1 seat, one short of 61 without L6.
++
++**Watch:** Eisenkot's median (8:50) and casual (9:00) sit on the edge. Bennett's and Ben Gvir's worst deals run past 10:00 (a late-slot-heavy early deal). If the picker playtest shows long first rounds for them, the lever is to keep S2/S3 out of the shuffle (a fixed early core); it is not a number change.
++
+ ### 7.3 Dominant strategies and edge cases
+ | # | Case | Closing rule |
+ |---|---|---|
+@@ -576,6 +602,7 @@ Tick each one when the picker lands. File:line as of e8f636d.
+ | `COURT_BODY`, `COURT_SUMMONS_BODY` | ביבי בדוכן… | Bibi as is; others from `hazardSkins.press` |
+ | `SYS_ROTATE_CAP`, `SYS_ERA_PACK_LATE` | ביבי עובד… | "{short} עובד…" (or neutral) |
+ | `SHARE_TEXT_INVITE` | תורכם להיות ביבי. | "תורכם להקים ממשלה." |
++| `DAYS_*` (result card, deep-link toast) | ו־{n} ימי משפט (court days) | **done 2026-09-29:** "ו־{n} ימים בכותרות", {n} = court + press days (`Investigation.hazard_days`) |
+ | `OG_DESCRIPTION` | שולפים שקלים מהכובע… | "בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה." |
+ | `OG_IMAGE_ALT` | ביבי בפיקסלים… | describe the new key art (below) |
+ | spin effect lines `s01`, `s02`, `s07`, `s11` | …לכל שליפה, סיכוי לארנב | "{verb}" / "{critName}" |
+diff --git a/game/scripts/sim/README.md b/game/scripts/sim/README.md
+index 04b4b03..6edd707 100644
+--- a/game/scripts/sim/README.md
++++ b/game/scripts/sim/README.md
+@@ -211,7 +211,7 @@ without the picker keeps playing Bibi.
+ | New game | `Leaders.set_salt(s, randi())` once, so deals differ between players |
+ | Kit | `Leaders.tap_kit(id)` {prop, anim, critAnim, critEvent, critProp, verb, verbPlural, critName, critPlural, frenzyBanner}; `Leaders.hazard(id)` = `Investigation.skin(s)` {skin court \| press, meterName, dayTitle, dayBody, testifyVerb, chip, …, postponeVerb, excuses[6]}; `Leaders.dubi(id)`; `Leaders.suitcase(id)` {sticker, sprite, lines}; `Leaders.source_skin(id, producer)`; `Leaders.spin_skin(id, upgrade)` (icon fallback `spin_slot_<slot>`); `Leaders.story(id)`; `Leaders.rule(id)` (its `copy`); `Leaders.leader(id)` (name, short, party, g, side, art, avatar) |
+ | Round text | `Leaders.headlines(s)` (+ `Leaders.headline_hit(s, trigger)` for `leaderStat` / `when`); `Leaders.ambient(s)`; `Story.flash(s)` {leader, n, title, lines, id} (the leader just played, by their own election count); `Leaders.leak_copy(s)` (event result `skin: leakRight`) |
+-| Stats | `Leaders.stat(s, id, key)`, keys rounds, elections, taps, crits, declines, merges, bestRunSec, playSec; `stats.leaderSwitches`, `stats.pressDays` (UX PRESS_DAYS), `stats.hazardDays` (court + press, the neutral DAYS_*) |
++| Stats | `Leaders.stat(s, id, key)`, keys rounds, elections, taps, crits, declines, merges, bestRunSec, playSec; `stats.leaderSwitches`, `stats.pressDays` (UX PRESS_DAYS), `stats.hazardDays` (court + press); the result card's DAYS_* count is `Investigation.hazard_days(s)` (lifetime court + press days) |
+ | Trophies | `Meta.all_trophies()` = the shipped 40 + 2 global + 7 leaders (`Meta.achievements()` stays the shipped list until the dossier switches) |
+ | Liberman | `Coalition.can_decline(s, seq)`, `Coalition.decline(s, seq)` → {ok, reason?, partner, events}; `Coalition.decline_cooldown(s)` (−1 = not his round); message state `declined`, sys `chat.sys.declined` |
+ | Golan | `Coalition.merge_candidates(s, id)`, `Coalition.merge_block(s, a, b)` ("" or rule \| cooldown \| limit \| same \| member \| young \| standIn \| ultimatum), `Coalition.merge(s, a, b)`, `Coalition.merge_cooldown(s)`; status `merged` (in a's `carry`), sys `chat.sys.merged {a, b}`, a pair walkout's `chat.sys.left` carries `with: [b]` |
+@@ -232,6 +232,10 @@ falls back to Bibi (the picker opens if the round hasn't started); a started rou
+ the picker; a forged deal is re-dealt. Tests: `tests/unit/test_leaders.gd`.
+ 
+ Bench: `PacingSim.session(player…)` with `player.leader` = an id or `"mixed"`; `PacingSim.first_round`.
++Cadence keys (optional, default = the attentive player): `buy_every`, `buy_units`, `buy` (best | priciest), `spins`,
++`politics_every`, `ping_after_buy`. `tests/bench/test_web_driver.gd` replays `tools/web/round_web.mjs`'s measured
++game-time cadence with them: the browser driver's 25-34 min first election is the driver (0.037 taps/s, a buy every
++~138 s, no spins, no Suitcase at ?speed=10), not the game.
+ `tools/balance.sh [--leader=<id>]` runs `tests/bench/test_leaders_balance.gd` (every leader: the
+ median first election over seeds 1-9 in 7-9 min, S0/Q3, S2-S4, a median hour for S5-S7; a mixed hour).
+ 
+-- 
+2.43.0
+

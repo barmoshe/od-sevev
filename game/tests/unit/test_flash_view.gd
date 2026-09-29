@@ -51,6 +51,7 @@ func _boot(dev: Vector2i = Vector2i.ZERO) -> void:
 	for i in 3:
 		await tree.process_frame
 	m.ftue.handoff_ms = 1.0
+	m.commit_pick("bibi")   # LEADER_PICK (leader select): Bibi's round, the shipped game
 	var e := InputEventScreenTouch.new()
 	for pressed in [true, false]:
 		e = InputEventScreenTouch.new()

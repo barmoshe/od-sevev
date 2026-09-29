@@ -247,12 +247,12 @@ static func _build_result(root: Node2D, m: Dictionary) -> void:
 	card_text(root, Strings.s("RESULT_DISC"), float(dz[0]), float(dz[2]), float(dz[1]), "center", C_WHITE)
 
 
-## ביבי's idle frame 0 with its feet on `feet` (art px). The card is 5 card px per art px, which no
+## The round's leader's idle frame 0 (ביבי in his round) with its feet on `feet` (art px). The card is 5 card px per art px, which no
 ## render density divides, so the figure draws its d 2 render at 2 card px per sprite px (whole
 ## pixels in the exported PNG, the figure 0.8 of its stage size); the main render (d 3) at 2 when
 ## there is no d 2. Nothing when the manifest lacks the character (the frame still reads).
 static func _place_figure(root: Node2D, feet: Vector2) -> void:
-	var slug := SpriteStrip.resolve("bibi")
+	var slug := SpriteStrip.resolve(LeaderUi.art())   # the round's leader (spec §10.1)
 	if slug == "":
 		return
 	var c: Dictionary = SpriteStrip.manifest()["chars"][slug]

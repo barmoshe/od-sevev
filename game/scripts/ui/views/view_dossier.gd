@@ -154,7 +154,7 @@ func _update_k2() -> void:
 	if _ready_since >= 0.0 and _now - _ready_since >= K2_DELAY_MS:
 		_ready_since = -2.0
 		if host != null and "toasts" in host and host.get("toasts") != null:
-			(host.get("toasts") as Toasts).show_toast(Strings.s("TOAST_DOSSIER"))
+			(host.get("toasts") as Toasts).show_toast(LeaderUi.s("TOAST_DOSSIER"))   # press: PRESS_REVEAL
 
 
 # ------------------------------------------------------------------ open / close (motion tall-tab)
@@ -256,16 +256,49 @@ static func rows(s: GameState, d: Economy.Derived) -> Array:
 	var base_pct := maxf(0.0, ((d.prestige_mult if d != null else 1.0) - 1.0) * 100.0)
 	var out: Array = [
 		{"key": "DOS_ROUNDS", "text": Strings.s("DOS_ROUNDS", {"n": str(s.evolutions)})},
-		{"key": "DOS_COURT_DAYS", "text": Strings.s("DOS_COURT_DAYS", {"n": str(int(inv.get("courtDays", 0)))})},
+	]
+	# the hazard's days (rtl-map §4.3): the court's in Bibi's round, the press's in everyone else's;
+	# a lifetime row of the other skin shows only when > 0
+	var court_n := int(inv.get("courtDays", 0))
+	var press_n := int(inv.get("pressDays", 0))
+	if LeaderUi.court() or court_n > 0:
+		out.append({"key": "DOS_COURT_DAYS", "text": Strings.s("DOS_COURT_DAYS", {"n": str(court_n)})})
+	if Strings.has("PRESS_DAYS") and (not LeaderUi.court() or press_n > 0):
+		out.append({"key": "PRESS_DAYS", "text": Strings.s("PRESS_DAYS", {"n": str(press_n)})})
+	out.append_array([
 		{"key": "DOS_POSTPONES", "text": Strings.s("DOS_POSTPONES", {"n": str(int(inv.get("postponementsLifetime", 0)))})},
 		{"key": "DOS_TOTAL", "text": Strings.s("DOS_TOTAL", {"x": Fmt.amount(s.all_time_bananas)})},
 		{"key": "DOS_CAUGHT", "text": Strings.s("DOS_CAUGHT", {"n": str(s.golden_caught_lifetime)})},
 		{"key": "DOS_ARRIVED", "text": Strings.s("DOS_ARRIVED", {"n": str(int(float(s.stats.get("goldenMissed", 0.0))))})},
 		{"key": "DOS_BASE", "text": Strings.s("DOS_BASE", {"n": Fmt.thumbs(s.thumbs_owned), "pct": Fmt.amount(base_pct)})},
-	]
+	])
 	var fl := Investigation.floor_pct(s) if Investigation.active() else 0.0
 	if fl > 0.0:
-		out.append({"key": "DOS_SUSP_FLOOR", "text": Strings.s("DOS_SUSP_FLOOR", {"pct": str(int(roundf(fl)))})})
+		out.append({"key": "DOS_SUSP_FLOOR", "text": LeaderUi.s("DOS_SUSP_FLOOR", {"pct": str(int(roundf(fl)))})})
+	out.append_array(leader_rows(s))
+	return out
+
+
+## "ראשי רשימה" (spec §6.2, rtl-map §6.3): once a second leader has been played, one row per
+## leader in first-played order (never sorted by a count: that is a ranking), the rounds in words,
+## then their own taps and crits in the kit's nouns. [] before that, or without leader select.
+static func leader_rows(s: GameState) -> Array:
+	var out: Array = []
+	if not Leaders.active() or not s.leaders is Dictionary:
+		return out
+	var played: Array = []
+	for id: Variant in s.leaders:
+		if Leaders.stat(s, str(id), "rounds") > 0.0 and Leaders.playable(str(id)):
+			played.append(str(id))
+	if played.size() < 2:
+		return out
+	out.append({"key": "DOS_LEADERS", "text": Strings.s("DOS_LEADERS")})
+	for id: String in played:
+		var n := int(Leaders.stat(s, id, "rounds"))
+		out.append({"key": "DOS_LEADER_ROUNDS", "leader": id, "text": Strings.plural("DOS_LEADER_ROUNDS", n, {"short": LeaderUi.short(id)})})
+		var t := LeaderUi.tap(id)
+		out.append({"key": "DOS_LEADER_TAPS", "leader": id, "text": Strings.s("DOS_LEADER_TAPS", {"verbPlural": str(t["verbPlural"]),
+			"n": str(int(Leaders.stat(s, id, "taps"))), "critPlural": str(t["critPlural"]), "c": str(int(Leaders.stat(s, id, "crits")))})})
 	return out
 
 
@@ -277,7 +310,8 @@ func buttons() -> Array:
 		out.append({"kind": "receipt", "key": "SHARE_RECEIPT_TITLE"})
 	if host != null and host.has_method("open_result_card"):
 		out.append({"kind": "result", "key": "SHARE_RESULT_BTN"})
-	out.append({"kind": "pardon", "key": "PARDON_ROW"})
+	if LeaderUi.court():   # Bibi-only: hidden, not disabled, in every other round (rtl-map §4.3)
+		out.append({"kind": "pardon", "key": "PARDON_ROW"})
 	out.append({"kind": "story", "key": "BOOK_STORY"})
 	return out
 
@@ -287,7 +321,7 @@ func buttons() -> Array:
 func _signature() -> String:
 	if _state == null:
 		return ""
-	return "%d|%d|%s|%d|%s|%s" % [_state.evolutions, _state.achievements.size(),
+	return "%s%d|%d|%d|%s|%d|%s|%s" % [LeaderUi.id(), _state.leaders.size(), _state.evolutions, _state.achievements.size(),
 		"A" if Investigation.can_drop_aide(_state) else "", buttons().size(),
 		"F" if Investigation.floor_pct(_state) > 0.0 else "", "L" if PxText.large_text else ""]
 

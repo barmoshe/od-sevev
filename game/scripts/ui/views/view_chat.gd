@@ -159,6 +159,21 @@ const BRAWL_CUE_HIT := Rect2(4, 0, 152, 112)
 var _brawl_cue := Node2D.new()
 var _brawl_cloud: Sprite2D
 var _brawl_seq := -1
+var _brawl_cue_t := -1.0                  # ms since the cue appeared (its entry fade), -1 = hidden
+var _pending_t := -1.0                    # ms since the pending chip appeared (its entry), -1 = hidden
+var _dt_ms := 0.0                         # this frame's dt (the entries above)
+
+## The brawl cloud's boil (motion-spec brawl-cloud; whole art px only): the kit's 4-frame loop at
+## 8 fps (125 ms, the 2D Artist's rate) under a 1-ap ring the whole cloud steps around every 100 ms
+## (Stepped): (1, 0) → (0, −1) → (−1, 0) → (0, 1). Each 1200 ms period ends on a 300 ms rest at
+## (0, 0): the fight breathes, so the loop doesn't fatigue. Reduced motion: frame 0, still.
+const BOIL_FRAME_MS := 125.0
+const BOIL_STEP_MS := 100.0
+const BOIL_PERIOD_MS := 1200.0
+const BOIL_REST_MS := 300.0
+const BOIL_RING: Array[Vector2i] = [Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 1)]
+const CUE_IN_MS := 150.0                  # the brawl cue's entry (ease-out)
+const PENDING_IN_MS := 120.0              # the pending chip's entry (ease-out)
 
 
 ## "m:ss" for a seconds count (the timer chip; LTR digits, CHAT_ULT_TIMER's {mmss}).
@@ -332,6 +347,7 @@ func _end_anim(opening: bool) -> void:
 ## ctx: {main: bool (main mode, no election transition), overlay: bool (a modal is open)}.
 func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = {}) -> void:
 	_now += dt
+	_dt_ms = dt
 	if not is_same(s, _known_state):
 		_on_new_state(s)
 	_state = s
@@ -449,6 +465,8 @@ func _advance_reveal() -> void:
 	_arrive_at[seq] = _now
 	if is_partner_bubble(m):
 		_audio("chatPing", str(m["partner"]))
+	elif str(m.get("type", "")) == "brawl" and str(m.get("state", "")) == "open":
+		_audio("chatBrawl")   # Audio v1.3: a brawl landing in the open thread
 	_next_at = _now + (0.0 if reduced_motion or m.get("type", "") != "sys" else mc("chatCascadeGapMs"))
 
 
@@ -581,6 +599,10 @@ static func char_for(id: String) -> String:
 	var slug := SpriteStrip.resolve(id)
 	if slug != "":
 		return slug
+	# leader select's cast profiles name their art (the generic MKs: "nophoto", never a real face)
+	var art := str(Coalition.partner(id).get("art", ""))
+	if art != "" and SpriteStrip.resolve(art) != "":
+		return SpriteStrip.resolve(art)
 	var av := str(Coalition.partner(id).get("avatar", "")).trim_suffix("_avatar")
 	return SpriteStrip.resolve(av) if av != "" else ""
 
@@ -775,6 +797,17 @@ func _build_bubble(row: Dictionary, y: float) -> Dictionary:
 			_hits.append({"rect": Rect2(pr.get_center().x - PILL_HIT.x / 2.0, y + pr.get_center().y - PILL_HIT.y / 2.0, PILL_HIT.x, PILL_HIT.y),
 				"kind": "pay", "seq": int(m["seq"]), "pill": pill})
 		cy += PILL_H
+		# Liberman's "לא יושב" (rtl-map §6.3 rev 4, spec §5.1 declineDemand): a second pill UNDER
+		# the pay pill, the same 328×68, right-aligned, 8 gap, the secondary look (it costs
+		# nothing); only on an open member demand, never an ultimatum or a join demand
+		if st == "open" and kind == "in" and declinable(_state, m):
+			cy += 8.0
+			var dr := Rect2(inner_r - PILL_W, cy, PILL_W, PILL_H)
+			var db := PxButton.make(root, dr, {"kind": "kit_secondary", "label": Strings.s("CHAT_PILL_DECLINE"), "label_box": PILL_W - 32.0})
+			r["declines"] = [{"button": db, "seq": int(m["seq"])}]
+			_hits.append({"rect": Rect2(dr.get_center().x - PILL_HIT.x / 2.0, y + dr.get_center().y - PILL_HIT.y / 2.0, PILL_HIT.x, PILL_HIT.y),
+				"kind": "decline", "seq": int(m["seq"]), "button": db})
+			cy += PILL_H
 	var bw := clampf(Ui.snap(w + pad.x + pad.z + 2.0, 4), 96.0, BUBBLE_RIGHT - BUBBLE_MIN_X)
 	var bh := Ui.snap(cy + pad.w - top, 4)
 	Ui.set_nine_rect(bubble, Rect2(BUBBLE_RIGHT - bw, top, bw, bh))
@@ -904,7 +937,26 @@ func _build_brawl(row: Dictionary, y: float) -> Dictionary:
 	var cloud := Ui.img(root, Vector2(256, 0), Art.sprite_or("brawl_cloud"), 0, 4)
 	var btn := PxButton.make(root, Rect2(204, 168, 312, 80), {"hit": Rect2(192, 164, 336, 88), "label": Strings.s("CHAT_BRAWL_BTN"), "kind": "kit_secondary"})
 	_hits.append({"rect": Rect2(192, y + 164, 336, 88), "kind": "brawl", "seq": int(row["seq"]), "button": btn})
-	return {"root": root, "pills": [], "h": 256.0, "cloud": cloud, "button": btn}
+	return {"root": root, "pills": [], "h": 256.0, "cloud": cloud, "cloudAt": cloud.position, "button": btn}
+
+
+## The boil pose at `t_ms`: {frame, off (ap)}. Pure (tests: whole px, the rest, reduced motion).
+static func brawl_boil(t_ms: float, frames: int, reduced: bool) -> Dictionary:
+	if reduced:
+		return {"frame": 0, "off": Vector2i.ZERO}
+	var ph := fmod(maxf(0.0, t_ms), BOIL_PERIOD_MS)
+	var off := Vector2i.ZERO
+	if ph < BOIL_PERIOD_MS - BOIL_REST_MS:
+		off = BOIL_RING[int(ph / BOIL_STEP_MS) % BOIL_RING.size()]
+	return {"frame": int(maxf(0.0, t_ms) / BOIL_FRAME_MS) % maxi(1, frames), "off": off}
+
+
+## Poses a brawl cloud sprite around its rest position; `scale` = logical px per ring step (4: one stage art px).
+func _boil(cl: Sprite2D, at: Vector2, scale: float) -> void:
+	var id: String = cl.get_meta("sprite")
+	var b := brawl_boil(_now, Art.frame_count(id), reduced_motion)
+	Ui.set_frame(cl, id, int(b["frame"]))
+	cl.position = at + Vector2(b["off"]) * scale
 
 
 # ------------------------------------------------------------------ live updates
@@ -965,14 +1017,74 @@ func _update_rows(dt: float) -> void:
 		root.modulate.a = a
 		for pill: Dictionary in r["pills"]:
 			_update_pill(pill, bps)
+		for dc: Dictionary in r.get("declines", []):
+			_update_decline(dc)
 		if r.get("chip") != null:
 			_update_chip(r["chip"], Coalition.message(_state, seq), dt)
 		if r.has("corridor"):
 			(r["corridor"] as PxText).text = Strings.s("CHAT_CORRIDOR_COUNT", {"n": str(int(_state.coalition.get("corridorMsgs", 0)))})
 			(r["corridor"] as PxText).center_in(0, L.W)
 		if r.has("cloud"):
-			var cl: Sprite2D = r["cloud"]
-			Ui.set_frame(cl, cl.get_meta("sprite"), 0 if reduced_motion else int(_now / 150.0) % maxi(1, Art.frame_count(cl.get_meta("sprite"))))
+			_boil(r["cloud"], r["cloudAt"], 4.0)
+
+
+## A member demand Liberman may decline (Coalition.can_decline without the cooldown): the pill is
+## drawn on every such demand, disabled with the seconds during the cooldown (rtl-map §6.3).
+static func declinable(s: GameState, m: Dictionary) -> bool:
+	if s == null or Coalition.decline_cooldown(s) < 0.0:
+		return false
+	return str(m.get("type", "")) == "demand" and m.get("join", false) != true and str(m.get("payable", "")) == "" \
+		and Coalition.status(s, str(m.get("partner", ""))) == "member"
+
+
+func _update_decline(dc: Dictionary) -> void:
+	var b: PxButton = dc["button"]
+	var m := Coalition.message(_state, int(dc["seq"]))
+	var open := str(m.get("state", "")) == "open"
+	b.set_visible(open)
+	if not open:
+		return
+	var cd := Coalition.decline_cooldown(_state)
+	var t := Strings.s("CHAT_PILL_DECLINE_CD", {"s": str(int(ceilf(cd)))}) if cd > 0.0 else Strings.s("CHAT_PILL_DECLINE")
+	if b.label != null and b.label.text != t:
+		b.set_label(t)
+	b.set_enabled(cd <= 0.0)
+
+
+## "לא יושב": the sim closes the demand for free (Coalition.decline); its sys line and events go
+## through the chat's one router.
+func decline(seq: int) -> bool:
+	if _state == null:
+		return false
+	var r := Coalition.decline(_state, seq)
+	if r.get("ok", false) != true:
+		if r.get("reason", "") == "cooldown":
+			_audio("cantAfford")
+		return false
+	_audio("decline")   # Audio v1.3 cue (cue-spec §4.1)
+	for e: Variant in r.get("events", []):
+		if e is Dictionary:
+			on_politics_event(e)
+	if host != null and host.has_method("_mark_dirty"):
+		host.call("_mark_dirty")
+	return true
+
+
+## Golan's "איחוד": merges b into a (Coalition.merge); the sys line is chat.sys.merged.
+func merge(a: String, b: String) -> bool:
+	if _state == null:
+		return false
+	var r := Coalition.merge(_state, a, b)
+	if r.get("ok", false) != true:
+		_audio("cantAfford")
+		return false
+	_audio("merge")   # Audio v1.3 cue (cue-spec §4.1)
+	for e: Variant in r.get("events", []):
+		if e is Dictionary:
+			on_politics_event(e)
+	if host != null and host.has_method("_mark_dirty"):
+		host.call("_mark_dirty")
+	return true
 
 
 func _update_pill(pill: Dictionary, _bps: float) -> void:
@@ -1200,7 +1312,7 @@ func on_politics_event(e: Dictionary) -> void:
 			elif not _open and str(msg.get("type", "")) == "brawl":
 				# the brawl freezes two rows until "צאו החוצה" (a button inside T3 only): with the
 				# chat closed, say so on the stage (a tap opens T3), and the tab badge counts it
-				_audio("chatPing", str(msg.get("a", "")))
+				_audio("chatBrawl")   # Audio v1.3: the brawl's own ping (two voices at once)
 				if host != null and "toasts" in host and host.get("toasts") != null:
 					(host.get("toasts") as Toasts).show_toast(sys_text({"key": "chat.sys.brawl", "a": msg.get("a", ""), "b": msg.get("b", "")}), "chat")
 		"partnerLeft":
@@ -1411,7 +1523,7 @@ func pointer_down(p: Vector2) -> bool:
 			_press["hit"] = h
 			if h["kind"] == "pay":
 				(h["pill"] as Dictionary)["pressed"] = true
-			elif h["kind"] == "brawl":
+			elif h["kind"] == "brawl" or h["kind"] == "decline":
 				(h["button"] as PxButton).down()
 			break
 	return true
@@ -1485,6 +1597,10 @@ func _release_hit(commit: bool) -> void:
 			(h["button"] as PxButton).up(commit)
 			if commit:
 				resolve_brawl(int(h["seq"]))
+		"decline":
+			(h["button"] as PxButton).up(false)
+			if commit:
+				decline(int(h["seq"]))
 		"partner":
 			if commit:
 				open_partner_card(str(h["partner"]))
@@ -1504,6 +1620,23 @@ func open_partner_card(pid: String) -> void:
 		o.setup(host, mgr)
 		o.chat = chat
 		o.partner_id = pid
+		return o.build())
+
+
+## Golan's pair prompt (rule.copy.pickPrompt "לאחד עם…"): one button per partner `a` can merge
+## with now (Coalition.merge_candidates); a pick merges them.
+func open_merge_card(a: String) -> void:
+	if host == null or not "overlays" in host:
+		return
+	var mgr: OverlayManager = host.get("overlays")
+	if mgr == null or mgr.is_open():
+		return
+	var chat := self
+	mgr.request(func() -> Overlay:
+		var o := MergeCard.new()
+		o.setup(host, mgr)
+		o.chat = chat
+		o.partner_id = a
 		return o.build())
 
 
@@ -1579,7 +1712,13 @@ func _update_pending() -> void:
 	_pending_root.visible = show
 	if not show:
 		_pending_rect = Rect2()
+		_pending_t = -1.0
 		return
+	# the entry: 120 ms Quad.Out, a 1-ap drop into place with the fade (reduced motion: the fade only);
+	# the exit is a cut: it goes the moment nothing is left above
+	_pending_t = maxf(0.0, _pending_t) + _dt_ms
+	var pin := Ui.quad_out(minf(1.0, _pending_t / PENDING_IN_MS))
+	_pending_root.modulate.a = pin
 	var n := _pend_items.size()
 	var t := Strings.plural("CHAT_PENDING", n, {"n": str(n)})
 	if _pending_text.text != t:
@@ -1589,7 +1728,7 @@ func _update_pending() -> void:
 	var x := Ui.snap((L.W - w) / 2.0, 4)
 	_pending_rect = Rect2(x, THREAD_Y + PENDING_Y, w, PENDING_H)
 	Ui.set_nine_rect(_pending_bg, Rect2(Vector2.ZERO, _pending_rect.size))
-	_pending_root.position = _pending_rect.position
+	_pending_root.position = _pending_rect.position - Vector2(0, 0.0 if reduced_motion else Ui.snap(4.0 * (1.0 - pin), 4))
 	# RTL: the text at the right, the ↑ (the string's end) at its left, the pair centred
 	var x1 := Ui.snap((w + tw + 12.0 + 28.0) / 2.0, 4)
 	_pending_text.right_at(x1)
@@ -1643,9 +1782,13 @@ func _update_brawl_cue(allowed: bool) -> void:
 	var show := allowed and not _open and not _panel.visible and not m.is_empty() and not toast.intersects(cue_stage)
 	_brawl_cue.visible = show
 	_brawl_seq = int(m.get("seq", -1)) if show else -1
+	# the entry: a 150 ms fade (Quad.Out); the exit is a cut (the brawl resolved or T3 opened on it)
+	_brawl_cue_t = (maxf(0.0, _brawl_cue_t) + _dt_ms) if show else -1.0
+	_brawl_cue.modulate.a = Ui.quad_out(minf(1.0, _brawl_cue_t / CUE_IN_MS)) if show else 1.0
 	if show:
-		var id: String = _brawl_cloud.get_meta("sprite")
-		Ui.set_frame(_brawl_cloud, id, 0 if reduced_motion else int(_now / 150.0) % maxi(1, Art.frame_count(id)))
+		# the ring steps one STAGE art px (4 logical), not one of the ×2 cloud's: 2 logical is 1.5
+		# device px at k 3, and the cloud would shimmer between texel phases
+		_boil(_brawl_cloud, BRAWL_CLOUD, 4.0)
 
 
 func brawl_cue_visible() -> bool:
@@ -1737,6 +1880,7 @@ class PartnerCard:
 	var partner_id := ""
 	var _strip: SpriteStrip
 	var _pay: PxButton
+	var _merge: PxButton
 	var _seq := -1
 	## The card's pay pill (a ChatView pill dictionary) and the rows' value texts (tests read them).
 	var pill: Dictionary = {}
@@ -1769,7 +1913,8 @@ class PartnerCard:
 				return art_w * sc <= 560.0 and 104.0 + art_h * sc + 24.0 + 104.0 + 208.0 + 120.0 <= float(L.H) - 32.0, [4, 3, 2])
 			fig_h = art_h * float(fig_scale)
 		var om := Coalition.open_msg(s, partner_id) if s != null else {}
-		var h := 104.0 + fig_h + 24.0 + 52.0 + 52.0 + (104.0 if not om.is_empty() else 0.0) + 120.0
+		var mergeable := s != null and Coalition.merge_cooldown(s) >= 0.0 and st == "member"
+		var h := 104.0 + fig_h + 24.0 + 52.0 + 52.0 + (104.0 if not om.is_empty() else 0.0) + (104.0 if mergeable else 0.0) + 120.0
 		var y := Ui.snap((L.H - h) / 2.0, 4)
 		var pr := Rect2(48, y, 624, h)
 		make_panel(pr)
@@ -1810,6 +1955,17 @@ class PartnerCard:
 					cancel("close")})
 			focusables.append(_pay)
 			cy += 104.0
+		if mergeable:
+			# Golan's "לאחד" (spec §5.1 mergeMembers; rule.copy): opens the pair prompt
+			var mv := Rect2(Ui.snap(360.0 - ChatView.PILL_W / 2.0, 4), cy + 16.0, ChatView.PILL_W, ChatView.PILL_H)
+			_merge = PxButton.make(panel, mv, {"hit": mv.grow_individual(12, 10, 12, 10), "kind": "kit_secondary",
+				"label": Strings.s("CHAT_PILL_MERGE"), "label_box": ChatView.PILL_W - 32.0, "on_commit": func() -> void:
+					var who := partner_id
+					var c := chat
+					cancel("close")
+					c.open_merge_card(who)})
+			focusables.append(_merge)
+			cy += 104.0
 		button(Rect2(88, pr.end.y - 112.0, 544, 96), Rect2(88, pr.end.y - 112.0, 544, 96), Strings.s("SYS_CLOSE"),
 			func() -> void: cancel("close"), "kit_secondary", L.TEXT)
 		focusables.append(close)
@@ -1844,6 +2000,49 @@ class PartnerCard:
 		if _strip != null and not _strip.paused:
 			_strip.update_view(dt_ms)
 		_sync_pay()
+		_sync_merge()
+
+	## The merge pill: disabled with the seconds during the cooldown, or when nobody can merge yet.
+	func _sync_merge() -> void:
+		if _merge == null or chat == null or chat._state == null:
+			return
+		var cd := Coalition.merge_cooldown(chat._state)
+		var t := Strings.s("CHAT_PILL_MERGE_CD", {"s": str(int(ceilf(cd)))}) if cd > 0.0 else Strings.s("CHAT_PILL_MERGE")
+		if _merge.label != null and _merge.label.text != t:
+			_merge.set_label(t)
+		_merge.set_enabled(cd <= 0.0 and not Coalition.merge_candidates(chat._state, partner_id).is_empty())
+
+	func cancel(via: String) -> void:
+		host.audio_event("panelClose")
+		mgr.close(self, via)
+
+
+## Golan's pair prompt (a SheetCard): "לאחד עם…", then one full-width button per candidate.
+class MergeCard extends SheetCard:
+	var chat: ChatView
+	var partner_id := ""
+	var picked := ""
+
+	func build() -> MergeCard:
+		id = "MERGE_CARD"
+		_begin()
+		title(Strings.s("MERGE_PICK_TITLE"))
+		para(ChatView.partner_name(partner_id), C_MUTED, true, 1)
+		close_x(func() -> void: cancel("close"))
+		var cands: Array = Coalition.merge_candidates(chat._state, partner_id) if chat != null and chat._state != null else []
+		_y = Ui.snap(_y - PARA_GAP + PAD, 4)
+		for b: Variant in cands:
+			var bid := str(b)
+			_specs.append([Rect2(88, _y, 544, BTN_H), ChatView.partner_name(bid), "kit_primary", func() -> void:
+				picked = bid
+				if chat.merge(partner_id, bid):
+					mgr.close(self, "merge")])
+			_y += BTN_H + BTN_GAP
+		_specs.append([Rect2(88, _y, 544, BTN_H), Strings.s("SYS_CLOSE"), "kit_secondary", func() -> void: cancel("close")])
+		_y += BTN_H
+		finish()
+		focus_index = 0
+		return self
 
 	func cancel(via: String) -> void:
 		host.audio_event("panelClose")

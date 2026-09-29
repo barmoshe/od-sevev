@@ -1054,3 +1054,91 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - **→ game-designer:** set `kit.tap.anim` = `"tap"` for the seven (it is `null`); mark `sourceTiers.genericSprites` t4-t6 and `suitcase.plainStatus` shipped.
   - **→ UX:** the live `OG_IMAGE_ALT` still describes Bibi with the hat, and `OG_IMAGE_ALT_NEXT` has "קלפי באמצע", which the art leaves out on purpose. Suggested: "שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב".
   - **→ game-developer (views):** draw the kit prop at `propMouth` unless `prop.baked`, using frame 1 on pointer-down; coins spawn from `points.mouth` or `propMouth`; the picker uses `avatarPick` / `avatar24Pick`; the press skin uses `thermo_icon_press` / `chip_icon_press`; outside Bibi's round use `suitcase_plain`. No `game/scripts` change here: `SpriteStrip.point()` already reads any track by name.
+
+- **Audio Director, 2026-09-29: cue-spec v1.3, covering leader select and the session-2 views (`audio/od/cue-spec.md` §2.6, §3.1, §4.1, §4.2, §7).**
+  - **Coverage audit:** every session-2 view and modal now has a cue or is silent on purpose (`Audio.SILENT`). A test scans `res://scripts` and fails on any sent event that is neither.
+  - **New cues** (own families, so no shipped file changed):
+    - `leaderPick`: fanfare material (roll, C#-D lift, downbeat on i), 843 ms, burst −15 LUFS;
+    - `critReact` whoosh / shout / no / land;
+    - `decline` and `merge`;
+    - `suspicionHot`, at the 75 % crossing;
+    - `chatPing:brawl`.
+  - **Behaviour:**
+    - `firstSound` cues (`leaderPick`, `returnAway`) play before the first-tap gate and are held through a locked iOS context. The first tap still plays the motif.
+    - `returnAway` was silent after every reload; it is fixed.
+    - Press day opens with the shutter.
+    - `gameReset` fades the music over a bar and closes the gate.
+    - Every leader's squawks have canned contours.
+  - **API:**
+    - `Audio.event("leaderPick", id)`, `set_leader(id)` and `crit_for(id)`, which returns `{event, cue, variant, delayMs, …}`, for all 8 leaders;
+    - `event("heroEvent", ev)`, `squawk_text(id, kind)` / `event("squawk", kind)`, and `route(name)`.
+  - **Hooks** (shared files):
+    - `main.gd` `_do_reset`: 1 line;
+    - `view_chat.gd`: 2 lines (brawl → `chatBrawl`);
+    - `view_thermo.gd`: 3 lines (`suspicionHot`).
+  - **Size:** `index.pck` +207,520 B (+1.1 %); the audio folder is 11.06 MB, under the 11.3 budget.
+  - **Checks:**
+    - `tools/test.sh` 309/309;
+    - strict `tools/build_web.sh` green;
+    - `tools/audio.sh --check` deterministic.
+  - **→ game-developer (views):**
+    - call `leaderPick` on the commit;
+    - call `decline` / `merge` on the new pills;
+    - send the leader's react event through `heroEvent`, and `set_leader` on install and load;
+    - switch the first-tap babble to `squawk_text(leader, "firsttap")`.
+- 2026-09-29 · animator · slice 1 of the re-run (court day, the view motion audit, the brawl boil) · `game/scripts/ui/court_motion.gd`, `court_echo.gd`, `leader_walk.gd`, `big_banana.gd`, `toasts.gd`, `views/view_chat.gd`, `views/view_thermo.gd`, `main.gd`, `motion/motion-audit-2026-09-29.md`, `tools/web/motion_web.mjs`
+  - **Court day (Bibi only):**
+    - The exit and return are built to `state-graph-magician.md` §1.3/§3/§5 in `CourtMotion`, a pure timeline read by `BigBanana`: the startle, the zip left with smears and dust, and the hat hovering on his mark and taking the taps (hop and coins; a crit raises the rabbit). Then the fetch, the empty beat, the zip back and the land. There are early and quick returns, and a reset cuts him home.
+    - It is polled from the sim's phase and gated on `Leaders.has_court()`. The summons flinches him.
+    - The sweat no longer beads on the empty stage.
+    - The `court_window` echo: lit at ≥ 75 %, a steady halo at ≥ 95 %, and while the summons or the court day is open the window breathes 100 → 60 → 100 % every 1.6 s (0.63 Hz). It is lowered under the toast dock where the flex rule crops the art's top rows.
+  - **Audit:** the table is in `motion/motion-audit-2026-09-29.md`.
+    - Fixed: the pending chip and the brawl cue ease in instead of popping; toasts ease in and fade out on scene time; the brawl cloud boils (8 fps plus a whole-px 1-ap ring with a rest).
+    - **Bug fixed:** the web game never followed `prefers-reduced-motion`. The 4.7 bridge returns `1`, and `== true` is false (`MainController.js_bool`).
+  - **Prepared, not wired:** `LeaderWalk`, a walk that takes a leader id (560 ms out, 640 ms in, stepped bob; reduced motion fades), for the EVOLVE_TX swap.
+  - **Dev params:** `&court=N` (a court day at boot) and `&slow=N` (Engine.time_scale), for `tools/web/motion_web.mjs`.
+  - **Checks:** `tools/test.sh` 323/323 (+14); strict `tools/build_web.sh` green; `motion_web.mjs` PASS (390×844@2, motion and reduced motion). Shots: `scratchpad/shots/motion/`.
+  - **→ game-developer:** `view_court.gd` is untouched. The court-day stage follows `Leaders.has_court()`. Call `LeaderWalk` from EVOLVE_TX when the picker lands (the Animator's slice 2).
+  - **→ 2d-artist:** the kit's `court_window` spots sit in art rows the flex rule crops on phones. A spot at or below art row 110 would keep it in place. The ×2 brawl cue still wants a 26×20 cut at ×4.
+
+- **Game Developer (views and engine), 2026-09-29: the leader picker is real (`LEADER_PICK`, spec §3 / §10, rtl-map §8, screen-graph §0).**
+  - **The picker** (`ui/views/view_pick.gd`): the 3 × 3 face grid with הפתעה in the centre, the bloc checkerboard shuffle, the caption strip, the again button and the fresh chip after an election, the long-press / `I` leader card, the keyboard, Esc/back and reduced-motion paths, and the 5 s undo chip. It replaces the title on a fresh game and after a reset. It follows O3 → EVOLVE_TX → the flash, and it comes back after a reload mid-pick. One rule in `main.gd` `_check_pick` covers all of these: open whenever `Leaders.pick_pending` holds and nothing else is up. The economy is frozen while the pick is pending, and the pick is saved before the stage returns.
+  - **Per leader** (`ui/leader_ui.gd`): the stage figure and its tap prop at `propMouth` (only the round's leader is resident), the crit word and react, and the press skin for everyone but Bibi. The pardon row, aide and DOHA sticker are hidden outside his round. Source and spin skins, the leader's own story beat and first-tap squawk, Liberman's "לא יושב" pill, and Golan's "לאחד" pair prompt.
+  - **Strings:** the `_LEADER` keys are drawn. `SHARE_TEXT_INVITE`, `OG_DESCRIPTION` and `OG_IMAGE_ALT` take their `_NEXT` texts (through `gen_strings.py`), and the shell reads the OG keys. New keys `CHAT_PILL_MERGE`, `CHAT_PILL_MERGE_CD`, `MERGE_PICK_TITLE` and `CHAT_SYS_MERGED` mirror `leaders.golan.rule.copy`.
+  - **Audio v1.3 hooks:** `leaderPick(id)`, `set_leader`, `heroEvent`, `squawk_text`, and the `decline` / `merge` cues.
+  - **Checks (after merging audio v1.3 and the Animator's court-day slice):** `tools/test.sh` 337/337 (`test_leader_pick.gd` +14); strict `tools/build_web.sh` green. `tools/web/picker_web.mjs` covers the first picker, the card, a pick of בנט, tap 1, the election, the picker after it and a reload mid-pick, then a pick of ליברמן. It passes at 390×844, and the first picker at 375×548 draws the M avatars. Shots are in `scratchpad/shots/picker/`.
+  - **Still open in spec §10:** the sim line (the sim developer's; Next 2 verifies it), plus §10.2 `neutralCopy` and the facts' `notUsed` flip (both Designer content).
+  - **→ Animator:** the walk-in/out and Dubi's fly-in are placeholders: the leader fades in over 250 ms, and Dubi's line is a bubble at (644, S−232). `LeaderWalk` stays unwired, because `_apply_court_pose` sets `hero.position` every frame and would override a walk. `set_leader` now rebuilds your court nodes for each figure.
+  - **→ Game Designer:** Liberman's `pick.blurb` puts "61" on the picker, which spec §3.2 says should show no numbers.
+  - **→ UX:** Golan's pill is on the partner card with a pair prompt, because §6.3 has no layout for it; the result card's sub-line names the leader.
+
+- **UX Designer, 2026-09-29: the mobile-first layout spec (`ux/mobile-first-layout.md`).** Bar: "the mobile layout isn't good; it must be mobile first."
+  - **Verified** at build `af18f9e` plus the picker, on the pixels:
+    - Row B's empty slot (25 art);
+    - the Suitcase lane (a 2×28 stripe tile, 24 art);
+    - the empty pane plus the unrevealed tab slot (up to 73 art at 430);
+    - the SE's cut card (86 px, half a pill);
+    - the ticker crawl cutting words (no headline fits its 324 clip);
+    - the 720 column leaving side bands;
+    - the picker's 65-art band under a centred grid (my own rtl-map §8.2);
+    - the pre-tap floor (45% of H).
+    - "Only 4 rows" is content, not a cap.
+  - **Rules:**
+    - k is unchanged. The layout fills `floor(W/k) × floor(H/k)` art. Chrome is fluid with anchors; the stage is a centred column.
+    - The bottom-up split: the tab bar is pinned, the pane holds whole cards plus a 40-px peek, and the stage stays near 160 art. A reach guard keeps the leader's hit bottom at ≥ 40% of H.
+    - Reserved slots never show empty: Row B shows the sky until C2, the pane covers the tab slot until C1, and dim silhouettes fill the pane.
+    - The ticker shows 2-line pages of whole words.
+    - The counter goes to ×6, and the pill grows with a ×5 price.
+    - The picker grid is bottom-anchored, with fluid tiles and 192 avatars.
+    - Modals sit at 55%. The share sheet gets the full height, with WhatsApp nearest the thumb.
+    - Per-device tables for 12 viewports.
+  - **Golan's "לאחד":** the partner card is right as the second entry. Add a merge-ready system pill in the thread (§5.5).
+  - **Tools:**
+    - `tools/web/mobile_web.mjs`: baseline + spec checks over the 9-device matrix. Today: `PASS (baseline; 108 spec checks open)`.
+    - `ux/tools/mobile_layout.py`: the reference numbers.
+    - `ux/tools/mobile_mockup.py`, which writes `ux/mockups/mobile-first-*.png`.
+  - **→ game-developer:** implement §8 (display.gd `cols`/`rows`/`cw()`, `L.split`, anchors, pager, picker, silhouettes, `odDisplay.cw/ticker`, `odPick.tile/grid`). Done = `mobile_web.mjs` green.
+  - **→ 2d-artist:** A1 textured lane + plaza apron (Balfour first), A2 stage wings, A3 d3 96×96 pick avatars.
+  - **→ game-designer:** G1 `producerReveal.fillSilhouettes`.
+  - **→ animator:** M1 the ticker page push, replacing the crawl cadence.
+  - No objection outstanding.

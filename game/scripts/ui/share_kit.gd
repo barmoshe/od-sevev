@@ -189,7 +189,9 @@ static func result(s: GameState) -> Dictionary:
 	if court_days(s) == 0:
 		head += " " + Strings.s("RESULT_ZERO_TAG")
 	var inv: Dictionary = s.investigation if s.investigation is Dictionary else {}
-	return {"head": head, "sub": Strings.s("RESULT_SUB"),
+	# leader select (spec §10.1, rtl-map §4.3): the card names the round's leader under the headline
+	var sub := Strings.s("LEADER_PICK_PLATE", {"short": LeaderUi.short(), "party": LeaderUi.party()}) if LeaderUi.short() != "" else Strings.s("RESULT_SUB")
+	return {"head": head, "sub": sub,
 		"stats": Strings.s("RESULT_STATS", {"s": str(s.golden_caught_lifetime), "n": str(int(inv.get("postponementsLifetime", 0)))})}
 
 

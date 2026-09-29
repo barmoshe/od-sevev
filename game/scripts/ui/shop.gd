@@ -428,7 +428,8 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			var q := Economy.quote(s, id)
 			afford = q["affordable"]
 			price = float(q["cost"])
-			icon = Art.sprite_or(String(Content.producer(id).get("icon", Art.source(id).get("icon", "icon_" + id))))
+			var ska := LeaderUi.producer_art(id)   # the round's leader skin (spec §5.3)
+			icon = Art.sprite_or(str(ska["icon"]) if not ska.is_empty() else String(Content.producer(id).get("icon", Art.source(id).get("icon", "icon_" + id))))
 			nm = Strings.producer_name(id)
 			var owned := s.owned_of(id)
 			if owned > 0:
@@ -444,7 +445,8 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 				l1 = Strings.s("ROW_BUY_N", {"qty": Fmt.qty(maxi(1, int(q["qty"])))})
 			l2 = Strings.s("CARD_PRICE", {"price": Fmt.cost(price)})
 		"silhouette":
-			icon = Art.sprite_or(String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id))))
+			var sks := LeaderUi.producer_art(id)
+			icon = Art.sprite_or(str(sks["silhouette"]) if not sks.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id))))
 			nm = Strings.s("ROW_LOCKED_NAME")
 			line2 = Strings.s("CARD_LOCKED_CAP")
 			wide = true
@@ -463,7 +465,8 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			var card := spin_card(s, id, d)
 			price = float(card["price"])
 			afford = bool(card["canBuy"])
-			icon = Art.sprite_or(String(u.get("icon", "icon_" + id)))
+			var ski := LeaderUi.spin_icon(id)   # spec §5.4: the skin's icon, else spin_slot_<slot>
+			icon = Art.sprite_or(ski if ski != "" else String(u.get("icon", "icon_" + id)))
 			nm = Strings.upgrade_name(id)
 			line2 = spin_line2(id, card)
 			tag_s = String(card["tag"])

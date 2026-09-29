@@ -659,11 +659,11 @@ e("RESULT_DISC", "סאטירה. לא קשור לאף מפלגה או מועמד.
 # --- share texts (plain text into WhatsApp; plural address)
 e("SHARE_TEXT_RESULT", "שרדתי {rounds} {days} ב״עוד סבב״. מישהו פה עושה יותר? {url}", "share-text:90", "*", "§5.3 result")
 e("SHARE_TEXT_RECEIPT", "הקיסרות שלי ב״עוד סבב״ עלתה למשפחה הממוצעת {amount} ₪ החודש. (במשחק. בינתיים.) {url}", "share-text:100", "*L", "§5.3 receipt")
-e("SHARE_TEXT_INVITE", "משחק סאטירה על הבחירות שלא נגמרות. תורכם להיות ביבי. {url}", "share-text:70", "*", "§5.3 invite", "Kept until the picker ships: game/tests/unit/test_share_view.gd pins 'ביבי' in the invite. Replaced then by SHARE_TEXT_INVITE_NEXT (engine developer updates the test)")
+e("SHARE_TEXT_INVITE", "משחק סאטירה על הבחירות שלא נגמרות. תורכם להקים ממשלה. {url}", "share-text:70", "*", "§5.3 invite; spec §10.3 SHARE_TEXT_INVITE", "The picker shipped (2026-09-29): was SHARE_TEXT_INVITE_NEXT. game/tests/unit/test_share_view.gd pins 'תורכם להקים ממשלה'")
 # --- OG / manifest
 e("OG_TITLE", "עוד סבב: הבחירות שלא נגמרות", "og:45", "*", "§5.4 og:title")
-e("OG_DESCRIPTION", "שולפים שקלים מהכובע, משלמים לשותפים ודוחים את המשפט. סאטירה על כולם, לא קשורה לאף מפלגה.", "og:110", "L*", "§5.4 og:description", "True of the shipped build; OG_DESCRIPTION_NEXT replaces it on picker ship day (it describes the pick). shell.html hard-codes the value today")
-e("OG_IMAGE_ALT", "שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב", "og:90", "", "§5.4 og:image:alt", "Describes the shipped og.jpg; OG_IMAGE_ALT_NEXT ships with the lineup key art (Bar 2026-09-29)")
+e("OG_DESCRIPTION", "בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה.", "og:110", "L*", "§5.4 og:description; spec §10.3 OG_DESCRIPTION", "The picker shipped (2026-09-29): was OG_DESCRIPTION_NEXT. shell.html og:description / twitter:description read it at build ({{OG_DESCRIPTION}})")
+e("OG_IMAGE_ALT", "שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב", "og:90", "", "§5.4 og:image:alt; spec §10.3", "Describes the lineup og.jpg (Bar 2026-09-29: the lineup key art replaces Bibi-with-hat); was OG_IMAGE_ALT_NEXT")
 e("OG_SITE_NAME", "עוד סבב", "og:12", "", "§5.4 og:site_name")
 e("MANIFEST_SHORT_NAME", "עוד סבב", "og:12", "", "§5.5 short_name")
 e("MANIFEST_NAME", "עוד סבב · משחק סאטירה", "og:30", "", "§5.5 name")
@@ -747,10 +747,13 @@ e("PRESS_DAYS", "ימי תחקיר: ⟦{n}⟧", "dos.row", "", "DOS_COURT_DAYS's
 e("CHAT_PILL_DECLINE", "לא יושב", "chat.pill", "*", "leaders.liberman.rule.copy.pill", "Second pill under a member demand's pay pill (rtl-map §6.3), Liberman's round only; never on an ultimatum or a join demand")
 e("CHAT_PILL_DECLINE_CD", "לא יושב · ⟦{s}⟧ שנ׳", "chat.pill", "", "leaders.liberman.rule.copy.cooldown", "The same pill, disabled, during the 90 s cooldown")
 e("CHAT_SYS_DECLINED", "הדרישה של {name} נדחתה · לא יושב", "chat.sys", "*", "leaders.liberman.rule.copy.sys", "Gender-free: one key")
-# --- staged replacements: they describe the picker or the lineup art, so they ship with them
-e("SHARE_TEXT_INVITE_NEXT", "משחק סאטירה על הבחירות שלא נגמרות. תורכם להקים ממשלה. {url}", "share-text:70", "*", "spec §10.3 SHARE_TEXT_INVITE", "Replaces SHARE_TEXT_INVITE on picker ship day")
-e("OG_DESCRIPTION_NEXT", "בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה.", "og:110", "L*", "spec §10.3 OG_DESCRIPTION", "Replaces OG_DESCRIPTION (shell.html og:description / twitter:description) on picker ship day")
-e("OG_IMAGE_ALT_NEXT", "שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב", "og:90", "", "spec §10.3 OG_IMAGE_ALT; Bar 2026-09-29 lineup key art", "Ships with the lineup og.jpg; re-read it against the delivered art first")
+# --- staged replacements: SHARE_TEXT_INVITE_NEXT, OG_DESCRIPTION_NEXT and OG_IMAGE_ALT_NEXT were promoted
+#     into their base keys when the picker shipped (2026-09-29, game-developer engine).
+# --- Golan's rule (spec §5.1 mergeMembers; the words are leaders.golan.rule.copy, mirrored verbatim)
+e("CHAT_PILL_MERGE", "לאחד", "chat.pill", "*", "leaders.golan.rule.copy.pill", "A second pill on a member's partner card (Golan's round only): opens the pair prompt")
+e("CHAT_PILL_MERGE_CD", "איחוד · ⟦{s}⟧ שנ׳", "chat.pill", "", "leaders.golan.rule.copy.cooldown", "The same pill, disabled, during the 120 s cooldown")
+e("MERGE_PICK_TITLE", "לאחד עם…", "modal.title", "", "leaders.golan.rule.copy.pickPrompt", "The pair prompt: one full-width button per candidate (Coalition.merge_candidates)")
+e("CHAT_SYS_MERGED", "{a} ו{b} התאחדו. מעכשיו: {a}־{b}.", "chat.sys", "*", "leaders.golan.rule.copy.sys", "Gender-free: one key")
 
 # ---------------------------------------------------------------- content names (copy deck §C, §D)
 PRODUCERS = [  # fork id -> (deck name, plural)

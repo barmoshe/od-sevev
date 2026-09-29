@@ -364,6 +364,47 @@ static func ping_variant(man: Dictionary, partner: String) -> String:
 	return "default"
 
 
+## v1.3: a cue the game's first gesture may play before the first tap (manifest `firstSound`:
+## leaderPick, returnAway). It is held through a locked web context like the motif.
+static func is_first_sound(man: Dictionary, cue_id: String) -> bool:
+	return bool(man.get("cues", {}).get(cue_id, {}).get("firstSound", false))
+
+
+# ------------------------------------------------------------------ leaders (leader-select §9.5)
+
+## The react event a leader's crit plays on (content leaders[].kit.tap): `critEvent` when the kit
+## names one; Bibi's rabbit crit (critAnim "crit" or the rabbit prop) is "rabbit"; else "land".
+static func crit_event(tap_kit: Dictionary) -> String:
+	var ev := String(tap_kit.get("critEvent", ""))
+	if ev != "":
+		return ev
+	if String(tap_kit.get("critAnim", "crit")) == "crit" or String(tap_kit.get("critProp", "")) == "prop_rabbit":
+		return "rabbit"
+	return "land"
+
+
+## The cue a react event plays {cue, variant}: the manifest's `crits` table (variant "roundRobin"
+## for rabbitCrit's slide lengths). An unknown event plays "land"; a manifest without the table
+## (pre-v1.3) plays rabbitCrit for everyone.
+static func crit_cue(man: Dictionary, event: String) -> Dictionary:
+	var t: Dictionary = man.get("crits", {})
+	if t.is_empty():
+		return {"cue": "rabbitCrit", "variant": "roundRobin"}
+	var e: Variant = t.get(event, t.get("land", {}))
+	return (e as Dictionary).duplicate() if e is Dictionary else {"cue": "rabbitCrit", "variant": "roundRobin"}
+
+
+## Milliseconds from a crit's tap to its react event: the frame the strip marks for the event
+## (sprites.json chars.<art>.anims.<anim>.events.<event>, entry at f1), `fallback` when unknown.
+static func event_ms(sprites: Dictionary, art: String, anim: String, event: String, fallback: float) -> float:
+	var a: Dictionary = sprites.get("chars", {}).get(art, {}).get("anims", {}).get(anim, {})
+	var fps := float(a.get("fps", 0))
+	var fr := int(a.get("events", {}).get(event, -1))
+	if fps <= 0.0 or fr < 1:
+		return fallback
+	return float(fr - 1) * 1000.0 / fps
+
+
 ## The stamp variant of the n-th stamp (1-based): the bell on every 5th, otherwise identical.
 static func stamp_variant(n: int) -> String:
 	return "bell" if n > 0 and n % 5 == 0 else "_"

@@ -4,6 +4,8 @@ Bar stopped the studio loop. No agent is running and the loop lock is released. 
 is committed and pushed to `claude/magical-ride-ntn3u5` (last commit `8d28ac1`).
 `STATUS.md` is the full agent log: every request, objection and decision, newest at the bottom.
 
+**Session 3 (running):** while the studio loop runs, `HANDOFF-LIVE.md` is rewritten every minute with the live state (agents, their slices, unmerged work) and `handoff-wip/` holds patches of every agent's unmerged work. If the session died mid-loop, start there.
+
 ## Where things are
 
 | What | Where |

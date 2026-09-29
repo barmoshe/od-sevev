@@ -90,6 +90,7 @@ func test_the_game_in_the_frame_is_integer_and_playable() -> void:
 		for i in 3:
 			await tree.process_frame
 		m.ftue.handoff_ms = 1.0
+		m.commit_pick("bibi")   # LEADER_PICK: Bibi's round
 		var f := k / 4.0
 		runner.check(Display.integer and Display.k == k, "%s: k %d (got %d)" % [dev, k, Display.k])
 		runner.check(sv.get_final_transform().get_scale().is_equal_approx(Vector2(f, f)), "%s: the stretch is ×%.2f" % [dev, f])

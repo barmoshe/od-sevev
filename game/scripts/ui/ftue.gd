@@ -201,7 +201,7 @@ func update_view(dt_ms: float, s: GameState, _d: Economy.Derived, ctx: Dictionar
 		_idle_ms += dt_ms
 	# H1: the first tap (an edge)
 	if _prev_taps == 0 and s.taps_lifetime >= 1 and toasts:
-		toasts.say(Strings.s("DUBI_FIRSTTAP"), ctx.get("hat", Vector2(376, 300)), 1600.0)
+		toasts.say(LeaderUi.firsttap(), ctx.get("hat", Vector2(376, 300)), 1600.0)   # H1 (= H1L of the first round's leader)
 	_prev_taps = s.taps_lifetime
 	# reveal edges that carry a line (K3 toast, B1 ticker)
 	var rv := reveals(s)

@@ -552,38 +552,38 @@ The checklist is §10.
 Tick each one when the picker lands. File:line as of e8f636d.
 
 ### 10.1 Engine and views
-- [ ] `ui/big_banana.gd:84`:
+- [x] `ui/big_banana.gd:84`: **Done (game-developer engine, 2026-09-29):** `BigBanana.set_leader(LeaderUi.art(), LeaderUi.tap())`: the round's figure, only its strips resident; every leader now has a `tap` anim (CONTRACT §4c), so a tap plays it and a loose prop (pen, phone, ruler, chair, stapler) is drawn at `propMouth` and squashes on the pointer-down frame; baked props (hat, calculator, cup) draw none; the crit plays `kit.tap.critAnim`; coins leave the prop's `mouth`, else the track.
   - The hero id comes from `Content.data().hero.char` (default "bibi"); it should be `leaders[leader].art`.
   - With no `tap` anim, play idle and drive the prop (§5.2).
   - The crit anim is `kit.tap.critAnim`.
   - `hatMouth` → `propMouth` (fallback: a fixed offset until the TA lands it).
-- [ ] `ui/prop_fx.gd:3,36`: `prop_hat` / `prop_rabbit` are Bibi's. For other leaders, spawn coins from the leader's prop and skip the rabbit.
-- [ ] `ui/floaters.gd`: the crit floater label → `critName`.
-- [ ] `ui/title_view.gd`: TITLE becomes `LEADER_PICK` on first launch (§3.1).
-- [ ] `ui/ftue.gd:14-17`: P0 targets the leader; H1 shows the leader's `firsttap` squawk.
-- [ ] `main.gd:198-201`: the brawl is started with the hard-coded pair amsalem/smotrich. It should use any two members (or keep that pair only if both are members).
-- [ ] `main.gd:552,911,985,1457,1466,2092`: the Magician's hit and feet points. Geometry only; keep it, and rename optionally.
-- [ ] `main.gd` / `ui/overlays.gd`: after `EVOLVE_TX`, open `LEADER_PICK` and then start the round. The election card title includes `short`.
-- [ ] `ui/views/view_share.gd:255`: `SpriteStrip.resolve("bibi")` → the round's leader; the result card names them.
-- [ ] `ui/views/view_thermo.gd:4,390`: the sweat uses `temple` (Bibi only). Skip it when the leader has none; the meter word comes from the hazard skin.
-- [ ] `ui/views/view_court.gd:695`: the court/press card copy comes from the skin. The aide button and pardon row are Bibi-only.
-- [ ] `ui/views/view_flash.gd:161,177`: titles and beats come from the leader just played (`leaders.<id>.elections`).
-- [ ] `ui/views/view_dossier.gd`: add the per-leader stats section; the stat labels use the leader's verb (ST_TAPS, ST_CRITS, ST_ALLTIME).
-- [ ] `ui/views/view_chat.gd`:
+- [x] `ui/prop_fx.gd:3,36`: `prop_hat` / `prop_rabbit` are Bibi's. For other leaders, spawn coins from the leader's prop and skip the rabbit. **Done (game-developer engine, 2026-09-29):** coins spawn at `BigBanana.mouth_point()`; the rabbit only fires on Bibi's crit event. A leader's react event bursts the crit coins.
+- [x] `ui/floaters.gd`: the crit floater label → `critName`. **Done (game-developer engine, 2026-09-29):** a non-Bibi crit adds the `critName` floater (main.gd `_handle_tap`); Eisenkot's tap 7 shows `rule.copy.tap7` with his react.
+- [x] `ui/title_view.gd`: TITLE becomes `LEADER_PICK` on first launch (§3.1). **Done (game-developer engine, 2026-09-29):** `ui/views/view_pick.gd` (PickView, rtl-map §8) replaces it on a fresh game and after RESET; the title lines are not drawn when leader select is active (D26).
+- [x] `ui/ftue.gd:14-17`: P0 targets the leader; H1 shows the leader's `firsttap` squawk. **Done (game-developer engine, 2026-09-29):** P0 keeps the leader's hit (the pulse also lights the prop); H1 / H1L say `LeaderUi.firsttap()`.
+- [x] `main.gd:198-201`: the brawl is started with the hard-coded pair amsalem/smotrich. It should use any two members (or keep that pair only if both are members). **Done (game-developer engine, 2026-09-29):** the dev brawl (`_dev_chat`) keeps the pair only when both are in the lineup, else any two members.
+- [x] `main.gd:552,911,985,1457,1466,2092`: the Magician's hit and feet points. Geometry only; keep it, and rename optionally. **Done (game-developer engine, 2026-09-29):** kept (geometry).
+- [x] `main.gd` / `ui/overlays.gd`: after `EVOLVE_TX`, open `LEADER_PICK` and then start the round. The election card title includes `short`. **Done (game-developer engine, 2026-09-29):** one rule in `_check_pick`: whenever `Leaders.pick_pending` and no transition or overlay is up (a new game, O3 → EVOLVE_TX → [O3b], a reload mid-pick, the undo), `mode = "pick"`; the economy is frozen while it is pending. O3 shows `ELECT_LEADER` under `ELECT_TITLE`.
+- [x] `ui/views/view_share.gd:255`: `SpriteStrip.resolve("bibi")` → the round's leader; the result card names them. **Done (game-developer engine, 2026-09-29):** the result card draws the round's leader and names them (`LEADER_PICK_PLATE` in the sub-line).
+- [x] `ui/views/view_thermo.gd:4,390`: the sweat uses `temple` (Bibi only). Skip it when the leader has none; the meter word comes from the hazard skin. **Done (game-developer engine, 2026-09-29):** every leader has `temple` now, so the sweat stays; the word is `LeaderUi.s` (חשד / כותרות), the hot icon the gavel or `thermo_icon_press`.
+- [x] `ui/views/view_court.gd:695`: the court/press card copy comes from the skin. The aide button and pardon row are Bibi-only. **Done (game-developer engine, 2026-09-29):** every card and chip string goes through `LeaderUi.s` (the PRESS_* twins, the kit's postpone verb, prefix and excuses); the chip icon is `chip_icon_press`; the aide button follows `Investigation.can_drop_aide` (court only).
+- [x] `ui/views/view_flash.gd:161,177`: titles and beats come from the leader just played (`leaders.<id>.elections`). **Done (game-developer engine, 2026-09-29):** a live flash plays `Story.flash` (the leader just played, their own count); `_show_story_beat` marks its id.
+- [x] `ui/views/view_dossier.gd`: add the per-leader stats section; the stat labels use the leader's verb (ST_TAPS, ST_CRITS, ST_ALLTIME). **Done (game-developer engine, 2026-09-29):** "ראשי רשימה" rows (DOS_LEADERS, DOS_LEADER_ROUNDS_*, DOS_LEADER_TAPS in the kit's nouns) once a second leader has played; PRESS_DAYS / the court days by skin; the pardon row only in the court's round; PRESS_REVEAL for K2.
+- [x] `ui/views/view_chat.gd`: **Done (game-developer engine, 2026-09-29):** CHAT_SYS_CREATED is second person (UX D32, no {name}); Liberman's "לא יושב" pill under the pay pill (disabled with the seconds in the cooldown); Golan's "לאחד" on the partner card opens the pair prompt (MergeCard; CHAT_SYS_MERGED); the new profiles resolve their `art` (the generic MKs draw `nophoto`).
   - `CHAT_SYS_CREATED` gets `{name}`;
   - add the decline pill (Liberman);
   - avatars for the new profiles (bibi, lapid, liberman, golan, eisenkot, bennett; generics → `nophoto`).
-- [ ] `ui/diorama.gd`: critter sprites for tiers 4-8 come from the skin (or the generic set); Sara's mark only in Bibi's round.
-- [ ] `ui/golden.gd`: `suitcase_plain` outside Bibi's round.
-- [ ] `ui/shop.gd`: source and spin names come from the skin; the spin icon falls back to `spin_slot_<slot>`.
-- [ ] `ui/ticker.gd:159`: the court chip label comes from the skin.
-- [ ] `autoload/audio.gd`, `audio/od_audio.gd`: crit cue by react event; `leaderPick`; Dubi's squawk from the leader.
+- [x] `ui/diorama.gd`: critter sprites for tiers 4-8 come from the skin (or the generic set); Sara's mark only in Bibi's round. **Done (game-developer engine, 2026-09-29):** tiers 4-8 draw the skin (`LeaderUi.producer_art`: the kit's or the generic set). Sara's mark is not drawn anywhere in the build yet, so there is nothing to gate.
+- [x] `ui/golden.gd`: `suitcase_plain` outside Bibi's round. **Done (game-developer engine, 2026-09-29):**
+- [x] `ui/shop.gd`: source and spin names come from the skin; the spin icon falls back to `spin_slot_<slot>`. **Done (game-developer engine, 2026-09-29):** names, flavors and effect lines through `Strings` (the skin first; slots A, B, E use the _LEADER keys); the spin icon is the skin's or `spin_slot_<slot>`.
+- [x] `ui/ticker.gd:159`: the court chip label comes from the skin. **Done (game-developer engine, 2026-09-29):** the chip is CourtView's (`LeaderUi.s`).
+- [x] `autoload/audio.gd`, `audio/od_audio.gd`: crit cue by react event; `leaderPick`; Dubi's squawk from the leader. **Done (game-developer engine, 2026-09-29):** (engine side) the controller sends `leaderPick` (arg: the leader) on the commit frame and `critCue` (arg: whoosh / shout / no / land) on a leader's react event; the Audio plays a cue by that name when its table has one, else silence. Dubi's first-tap babble is the leader's squawk. The cue tables are the Audio Director's.
 - [ ] `sim/economy.gd`, `sim/spins.gd`, `sim/coalition.gd`, `sim/investigation.gd`, `sim/events.gd`, `sim/story.gd`, `sim/meta.gd`, `sim/game_state.gd`, `sim/save_store.gd`, `sim/pacing_sim.gd`: §9.6.
 
 ### 10.2 Content (`design/content.json`, applied when the picker ships)
 - [ ] Apply `leaderSelect.neutralCopy` (taps, perks p_autotap/p_toolbelt, tap trophies, p02, `golden.miss.dubi`).
 - [ ] Flip `notUsed` to false on the 12 facts with `launchWith: "leaderSelect"` (the About page then lists them).
-- [ ] `hero.char` (the engine default) → driven by `leader`.
+- [x] `hero.char` (the engine default) → driven by `leader`. **Done (game-developer engine, 2026-09-29):** `LeaderUi.art()`; `hero.char` is only the fallback for content without leader select.
 
 ### 10.3 UI strings (UX owns `ux/ui-strings.json`; these read "ביבי", the hat or the rabbit today)
 

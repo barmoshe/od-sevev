@@ -71,6 +71,7 @@ var _fill_t := -1.0
 var _bright_until := -1e9
 var _alpha := 0.6
 var _hot_icon := false
+var _hot_seen := false               # the first state update is a restore, not a crossing (no cue)
 var _hop_t := -1.0
 var _word_key := ""
 
@@ -330,16 +331,24 @@ func _update_fill(dt: float, p: float) -> void:
 
 func _update_state(dt: float, p: float) -> void:
 	var key := word_key(p)
-	if key != _word_key:
+	var wt := LeaderUi.s(key)   # the hazard skin: חשד (court) / כותרות (press), rtl-map §4.3
+	if key != _word_key or wt != _word.text:
 		_word_key = key
-		_word.text = Strings.s(key)
+		_word.text = wt
 		_word.center_in(WORD_BOX.x, WORD_BOX.y)
 	var hot := p >= HOT
-	if hot != _hot_icon:
+	# the hot icon: the gavel for the court, the folded newspaper for the press (no gavel there)
+	var hot_id := "thermo_icon_gavel" if LeaderUi.court() or LeaderUi.press_icon("thermo") == "" else LeaderUi.press_icon("thermo")
+	var want := Art.sprite_or(hot_id if hot else "thermo_icon_magnifier")
+	if hot != _hot_icon or str(_icon.get_meta("sprite", "")) != want:
+		if hot != _hot_icon:
+			if hot and _hot_seen and host != null and host.has_method("audio_event"):
+				host.audio_event("suspicionHot")   # Audio v1.3: once per live upward crossing of 75 %
+			_hop_t = 0.0 if not reduced_motion else -1.0
 		_hot_icon = hot
-		Ui.set_frame(_icon, Art.sprite_or("thermo_icon_gavel" if hot else "thermo_icon_magnifier"), 0)
-		_icon.set_meta("sprite", Art.sprite_or("thermo_icon_gavel" if hot else "thermo_icon_magnifier"))
-		_hop_t = 0.0 if not reduced_motion else -1.0
+		Ui.set_frame(_icon, want, 0)
+		_icon.set_meta("sprite", want)
+	_hot_seen = true
 	var base_y := icon_top()
 	if _hop_t >= 0.0:
 		_hop_t += dt
@@ -417,7 +426,7 @@ func bead_visible() -> bool:
 
 ## A court summons: the gulp, two drops at once whatever the suspicion (not under reduced motion).
 func gulp() -> void:
-	if reduced_motion or bb == null or bb.hero == null or not _shown:
+	if reduced_motion or bb == null or bb.hero == null or not _shown or not bb.on_stage():
 		return
 	for i in 2:
 		_spawn(Vector2(-2.0 * AP, AP) if i == 1 else Vector2.ZERO)
@@ -429,7 +438,7 @@ func on_politics_event(e: Dictionary) -> void:
 
 
 func _body_is_idle() -> bool:
-	return bb != null and bb.hero != null and bb._state == "idle" and bb.hero.anim == "idle"
+	return bb != null and bb.hero != null and bb._state == "idle" and bb.hero.anim == "idle" and bb.on_stage()
 
 
 func _spawn(off: Vector2) -> void:
@@ -449,7 +458,8 @@ func _update_sweat(dt: float, p: float) -> void:
 	var st := sweat_state(p) if _shown else "dry"
 	var idle := _body_is_idle()
 	# reduced motion: one static bead tracking the temple
-	_bead.visible = reduced_motion and st != "dry" and _shown
+	# (never on an empty stage: court day takes him off, motion/state-graph-magician.md §5.1)
+	_bead.visible = reduced_motion and st != "dry" and _shown and bb.on_stage()
 	if _bead.visible:
 		_bead.position = (temple() - _drop_pivot()).snapped(Vector2(AP, AP))
 	if reduced_motion:

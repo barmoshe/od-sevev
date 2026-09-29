@@ -4888,9 +4888,9 @@
     },
     "SHARE_TEXT_INVITE": {
       "surface": "share-text",
-      "spec": "§5.3 invite",
+      "spec": "§5.3 invite; spec §10.3 SHARE_TEXT_INVITE",
       "joke": true,
-      "note": "Kept until the picker ships: game/tests/unit/test_share_view.gd pins 'ביבי' in the invite. Replaced then by SHARE_TEXT_INVITE_NEXT (engine developer updates the test)",
+      "note": "The picker shipped (2026-09-29): was SHARE_TEXT_INVITE_NEXT. game/tests/unit/test_share_view.gd pins 'תורכם להקים ממשלה'",
       "maxChars": 70
     },
     "OG_TITLE": {
@@ -4901,16 +4901,16 @@
     },
     "OG_DESCRIPTION": {
       "surface": "og",
-      "spec": "§5.4 og:description",
+      "spec": "§5.4 og:description; spec §10.3 OG_DESCRIPTION",
       "joke": true,
       "legal": true,
-      "note": "True of the shipped build; OG_DESCRIPTION_NEXT replaces it on picker ship day (it describes the pick). shell.html hard-codes the value today",
+      "note": "The picker shipped (2026-09-29): was OG_DESCRIPTION_NEXT. shell.html og:description / twitter:description read it at build ({{OG_DESCRIPTION}})",
       "maxChars": 110
     },
     "OG_IMAGE_ALT": {
       "surface": "og",
-      "spec": "§5.4 og:image:alt",
-      "note": "Describes the shipped og.jpg; OG_IMAGE_ALT_NEXT ships with the lineup key art (Bar 2026-09-29)",
+      "spec": "§5.4 og:image:alt; spec §10.3",
+      "note": "Describes the lineup og.jpg (Bar 2026-09-29: the lineup key art replaces Bibi-with-hat); was OG_IMAGE_ALT_NEXT",
       "maxChars": 90
     },
     "OG_SITE_NAME": {
@@ -5645,26 +5645,52 @@
         "5": 1085
       }
     },
-    "SHARE_TEXT_INVITE_NEXT": {
-      "surface": "share-text",
-      "spec": "spec §10.3 SHARE_TEXT_INVITE",
+    "CHAT_PILL_MERGE": {
+      "surface": "label",
+      "spec": "leaders.golan.rule.copy.pill",
       "joke": true,
-      "note": "Replaces SHARE_TEXT_INVITE on picker ship day",
-      "maxChars": 70
+      "note": "A second pill on a member's partner card (Golan's round only): opens the pair prompt",
+      "box": "chat.pill",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
     },
-    "OG_DESCRIPTION_NEXT": {
-      "surface": "og",
-      "spec": "spec §10.3 OG_DESCRIPTION",
+    "CHAT_PILL_MERGE_CD": {
+      "surface": "label",
+      "spec": "leaders.golan.rule.copy.cooldown",
+      "note": "The same pill, disabled, during the 120 s cooldown",
+      "box": "chat.pill",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 240,
+        "5": 300
+      },
+      "largeText": "step-down"
+    },
+    "MERGE_PICK_TITLE": {
+      "surface": "label",
+      "spec": "leaders.golan.rule.copy.pickPrompt",
+      "note": "The pair prompt: one full-width button per candidate (Coalition.merge_candidates)",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      }
+    },
+    "CHAT_SYS_MERGED": {
+      "surface": "label",
+      "spec": "leaders.golan.rule.copy.sys",
       "joke": true,
-      "legal": true,
-      "note": "Replaces OG_DESCRIPTION (shell.html og:description / twitter:description) on picker ship day",
-      "maxChars": 110
-    },
-    "OG_IMAGE_ALT_NEXT": {
-      "surface": "og",
-      "spec": "spec §10.3 OG_IMAGE_ALT; Bar 2026-09-29 lineup key art",
-      "note": "Ships with the lineup og.jpg; re-read it against the delivered art first",
-      "maxChars": 90
+      "note": "Gender-free: one key",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 896,
+        "5": 1120
+      }
     },
     "HUD_RATE": {
       "aliasOf": "HUD_BPS",
