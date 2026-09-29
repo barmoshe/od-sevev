@@ -1,7 +1,7 @@
 From 21160ecabc43d627dcbfa1269f7f901cc73f40fe Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:30:26 +0000
-Subject: [PATCH 1/3] fix(od-sevev): drop the NUL cache key in leaders.gd and
+Subject: [PATCH 1/4] fix(od-sevev): drop the NUL cache key in leaders.gd and
  fail tests on Unicode parse errors
 
 The installed-round cache key started as "\u0000", which Godot printed as
@@ -58,7 +58,7 @@ index 17d951d..6f82d86 100755
 From 06d94a67bf372d5958f7b11dda990a38f181b4d3 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:30:39 +0000
-Subject: [PATCH 2/3] =?UTF-8?q?feat(od-sevev):=20Bibi's=20rule,=20the=20?=
+Subject: [PATCH 2/4] =?UTF-8?q?feat(od-sevev):=20Bibi's=20rule,=20the=20?=
  =?UTF-8?q?=D7=A8=D7=95=D7=91=20poll=20lint,=20R17=20source=20slots,=20neu?=
  =?UTF-8?q?tral=20DAYS=5F*,=20Liberman's=20SK=20seat?=
 MIME-Version: 1.0
@@ -774,7 +774,7 @@ index b829bba..d6768cd 100644
 From ab5acecc40f94c37e011a6c1328f76d1cce65aab Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Tue, 29 Sep 2026 20:30:39 +0000
-Subject: [PATCH 3/3] feat(od-sevev): replay the browser driver's cadence in
+Subject: [PATCH 3/4] feat(od-sevev): replay the browser driver's cadence in
  the pacing bench
 
 round_web.mjs acts in wall-clock time while ?speed=10 runs the game 10x faster,
@@ -1023,6 +1023,135 @@ index 8e49c30..60f0685 100644
  let ok = s.ready && s.cta;
  if (!ok) {
  	// evidence for the stall: the thread as it stands
+-- 
+2.43.0
+
+
+From d242f47f46d81d939f4f2fa80fb9425500faff3b Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 29 Sep 2026 20:58:23 +0000
+Subject: [PATCH 4/4] docs(od-sevev): record the measured leader pacing and
+ Liberman's two levers in the spec
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ design/leader-select-spec.md | 37 +++++++++++++++++++++++++++++++-----
+ game/scripts/sim/README.md   |  6 +++++-
+ 2 files changed, 37 insertions(+), 6 deletions(-)
+
+diff --git a/design/leader-select-spec.md b/design/leader-select-spec.md
+index bcf2f1d..f34cd23 100644
+--- a/design/leader-select-spec.md
++++ b/design/leader-select-spec.md
+@@ -59,7 +59,7 @@
+ 
+ | Leader | Party | Side | Art (idle + react) | Signature (the one rule) | Tap prop · verb · crit | Wave |
+ |---|---|---|---|---|---|---|
+-| ביבי | הליכוד | coalition | `bibi` (idle, tap, crit, hat and rabbit tracks) | the court: postpone, aide drop, pardon desk (shipped) | hat · שליפה · ארנב | 1 (shipped) |
++| ביבי | הליכוד | coalition | `bibi` (idle, tap, crit, hat and rabbit tracks) | **המשפט**: the court, postpone, aide drop, pardon desk (shipped; `rule` names it for the picker and T4, no new knob) | hat · שליפה · ארנב | 1 (shipped) |
+ | בנט | ביחד (לפיד No. 2) | opposition | `bennett` (react `flip`, event `whoosh`) | **ההתחייבות**: his own pledge card fires at 2× weight. The gate goes to 62 for 45 s, then the pledge flips and adds +1 base (reuses the shipped `pledge` effect). | pen · חתימה · היפוך | 1 |
+ | בן גביר | עוצמה יהודית | coalition | `ben-gvir` (react, event `shout`) | **לוח הזמנים**: nobody out-threatens the threatener. Partners' `threatChance` ×0.5. | phone · העברה · איום | 1 |
+ | ליברמן | ישראל ביתנו | opposition | `liberman` (react, event `no`) | **לא יושב**: dismiss an open member demand for free. Cooldown 90 s; never on an ultimatum. His lineup excludes the partners he says he won't sit with (fact `liberman-wont-sit`). | chair · סירוב · לא מוחלט | 1 |
+@@ -237,7 +237,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenko
+ 
+ **Cast profiles** (`leaderSelect.partnerProfiles`):
+ - New partner voices: ביבי, לפיד, ליברמן, גולן, אייזנקוט, בנט.
+-- Three **generic MKs** (the no-photo stand-in, never real people): "ח״כ שעבר צד", "ח״כית מתלבטת", "ח״כ עם הצעה". They fill slots a bloc can't. The joke of defection culture is equal-opportunity.
++- Four **generic MKs** (the no-photo stand-in, never real people): "ח״כ שעבר צד", "ח״כית מתלבטת", "ח״כ עם הצעה", "ח״כ שחזר הביתה" (added 2026-09-29 for Liberman's SK seat, §7.2). They fill slots a bloc can't. The joke of defection culture is equal-opportunity.
+ 
+ **Rival cards** (`leaders[].coalition.rivals`):
+ - The shipped opposition cards, plus new `cardProfiles` for the coalition side:
+@@ -255,7 +255,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenko
+ | ביבי | בן גביר | as shipped (15) | as shipped | לפיד, אייזנקוט, ליברמן, בנט, גולן |
+ | בנט | ליברמן | לפיד (list-mate, can't leave), אייזנקוט, גולן, ח״כ עם הצעה, עבאס (thanks: "כמו ב־2021"), ח״כית מתלבטת, גפני, ח״כ שעבר צד, גנץ | Liberman's excludes create a real choice: keep him, or let him walk and take עבאס + גפני | ביבי, בן גביר, סמוטריץ׳, דרעי |
+ | בן גביר | ביבי ("תעביר לליכוד. אין כלום, רק תעביר.") | גוטליב (list No. 2, no transfer), סמוטריץ׳, רגב, אמסלם, קרעי, גולדקנופף, גפני, דרעי, אלמוג ("הוסרתי מהקבוצות שלך"), גנץ | עבאס out (his own excludes) | the shipped five |
+-| ליברמן | בנט | לפיד, גולן, אייזנקוט, ח״כ עם הצעה, ח״כית מתלבטת, ח״כ שעבר צד, גנץ | ביבי, דרעי, גולדקנופף, גפני, עבאס (his stated line) | ביבי, בן גביר, סמוטריץ׳, דרעי |
++| ליברמן | בנט | לפיד, גולן, אייזנקוט, ח״כ עם הצעה (L4), ח״כית מתלבטת, ח״כ שעבר צד, ח״כ שחזר הביתה (SK, from round 2), גנץ | ביבי, דרעי, גולדקנופף, גפני, עבאס (his stated line) | ביבי, בן גביר, סמוטריץ׳, דרעי |
+ 
+ **Wave-2 lineups:**
+ 
+@@ -266,7 +266,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenko
+ | דרעי | ביבי | רגב, סמוטריץ׳, לוין, אמסלם, קרעי, גולדקנופף, גוטליב, גפני, בן גביר (his own L6), מאי גולן, גנץ | עבאס out (his excludes) | the shipped five |
+ | גולן | אייזנקוט (his ×1.25 tap trait runs from C1) | לפיד, בנט, ליברמן, ח״כ עם הצעה, ח״כית מתלבטת, גפני, עבאס, ח״כ שעבר צד, גנץ | as Eisenkot's round; the merge rule wants several mid-size members | ביבי, בן גביר, סמוטריץ׳, דרעי |
+ 
+-**Seat capacity:** Bibi 57, Bennett 50, Ben Gvir 49, Liberman 42, Eisenkot 50, Smotrich 51, Deri 51, Golan 50. Liberman's is the tightest on purpose, and his decline pill pays for it (§7.3).
++**Seat capacity:** Bibi 57, Bennett 50, Ben Gvir 49, Liberman 46 (44 in round 1: SK opens after election 1; was 42 before the §7.2 levers), Eisenkot 50, Smotrich 51, Deri 51, Golan 50. Liberman's is the tightest on purpose, and his decline pill pays for it (§7.3).
+ 
+ ### 5.6 Hazard: the court (Bibi) vs the press (everyone else)
+ - **Same Investigation module and numbers.** For non-Bibi leaders:
+@@ -372,12 +372,38 @@ stats.leaderSwitches
+ | ביבי | 8:01 (measured) | unchanged |
+ | בנט | 7:45-8:30 | early capacity like Bibi's; the pledge gate +1 for 45 s is small; Liberman's excludes cost late seats until he walks |
+ | בן גביר | 7:15-8:00 | fewer threats mean fewer walkouts; capacity 49 |
+-| ליברמן | 8:15-9:00 (**risk**) | capacity 42 and no Haredi or Abbas late seats; the decline pill saves money. **Lever if > 9:00:** add the L3 slot (a 1-seat generic MK) and/or give `mk_undecided` L4. **Never** raise his own seats (D5). |
++| ליברמן | 8:15-9:00 (**risk**) | capacity 42 and no Haredi or Abbas late seats; the decline pill saves money. **Lever if > 9:00:** add the L3 slot (a 1-seat generic MK) and/or give `mk_undecided` L4. **Never** raise his own seats (D5). **Applied (2026-09-29), see §7.2.1.** |
+ | אייזנקוט | 7:50-8:30 | the same money as everyone (EV-neutral taps); Bennett's lineup shape; Eisenkot loses only the tap-7 ×4 (4 ₪ once) |
+ | סמוטריץ׳ | 7:30-8:15 | VAT ×1.18 from t 0 and 10% cheaper demands; capacity 51 |
+ | דרעי | 7:30-8:15 | cheap rejoins remove the walkout penalty; the ☕ buff is taps only |
+ | גולן | 7:40-8:20 | merges cut the number of demands, a merged walkout costs double; capacity 50 |
+ 
++### 7.2.1 Measured (tools/balance.sh, 2026-09-29, Game Designer)
++
++Median player, first election, median of seeds 1-9 (one seat deal per seed); the spread is the deal's.
++
++| Leader | First election (median) | Seeds 1-9 range | Engaged / casual / idle | Median hour (S5-S7) |
++|---|---|---|---|---|
++| ביבי | 8:01 | 7:34-8:25 | the shipped gates (test_session.gd) | pass |
++| בנט | 8:08 | 7:29-10:30 | 7:12 / 8:06 / 10:41 | pass |
++| בן גביר | 8:19 | 7:45-10:05 | 7:18 / 8:14 / 10:27 | pass |
++| ליברמן | 7:51 | 7:16-8:32 | 6:59 / 8:02 / 9:54 | pass (was S5 fail: round 2 9:09 > round 1 7:09) |
++| אייזנקוט | 8:50 | 7:47-10:07 | 7:39 / 9:00 / 11:34 | pass (casual on the 9:00 edge) |
++| סמוטריץ׳ | 8:06 | 7:38-9:01 | 7:11 / 8:02 / 10:16 | pass |
++| דרעי | 8:05 | 7:21-8:24 | 7:11 / 7:56 / 10:13 | pass |
++| גולן | 8:30 | 7:29-9:40 | 7:51 / 8:34 / 11:18 | pass |
++
++**Liberman's levers, both applied:**
++1. **Round 1 (game-developer sim):** `mk_offer` on L4 instead of S5. With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13).
++2. **Rounds 2+ (Game Designer):** a fourth generic MK, "ח״כ שחזר הביתה" (`mk_returner`), on SK.
++   - His lineup had no seat that unlocks after election 1, so every later round waited for L6: own 28 + 40 without L6 is < 61.
++   - The median hour's round 2 ran longer than round 1 (7:09, then 9:09; S5 failed).
++   - SK (2 seats, the round-2 early slot the coalition leaders already hold) closes 61 with L1 + L4, like the other lineups.
++   - Round 1 is untouched (SK is locked until election 1), and his own seats never changed (D5).
++   - Better than the spec's L3 lever: L3 is 1 seat, one short of 61 without L6.
++
++**Watch:** Eisenkot's median (8:50) and casual (9:00) sit on the edge. Bennett's and Ben Gvir's worst deals run past 10:00 (a late-slot-heavy early deal). If the picker playtest shows long first rounds for them, the lever is to keep S2/S3 out of the shuffle (a fixed early core); it is not a number change.
++
+ ### 7.3 Dominant strategies and edge cases
+ | # | Case | Closing rule |
+ |---|---|---|
+@@ -576,6 +602,7 @@ Tick each one when the picker lands. File:line as of e8f636d.
+ | `COURT_BODY`, `COURT_SUMMONS_BODY` | ביבי בדוכן… | Bibi as is; others from `hazardSkins.press` |
+ | `SYS_ROTATE_CAP`, `SYS_ERA_PACK_LATE` | ביבי עובד… | "{short} עובד…" (or neutral) |
+ | `SHARE_TEXT_INVITE` | תורכם להיות ביבי. | "תורכם להקים ממשלה." |
++| `DAYS_*` (result card, deep-link toast) | ו־{n} ימי משפט (court days) | **done 2026-09-29:** "ו־{n} ימים בכותרות", {n} = court + press days (`Investigation.hazard_days`) |
+ | `OG_DESCRIPTION` | שולפים שקלים מהכובע… | "בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה." |
+ | `OG_IMAGE_ALT` | ביבי בפיקסלים… | describe the new key art (below) |
+ | spin effect lines `s01`, `s02`, `s07`, `s11` | …לכל שליפה, סיכוי לארנב | "{verb}" / "{critName}" |
+diff --git a/game/scripts/sim/README.md b/game/scripts/sim/README.md
+index 04b4b03..6edd707 100644
+--- a/game/scripts/sim/README.md
++++ b/game/scripts/sim/README.md
+@@ -211,7 +211,7 @@ without the picker keeps playing Bibi.
+ | New game | `Leaders.set_salt(s, randi())` once, so deals differ between players |
+ | Kit | `Leaders.tap_kit(id)` {prop, anim, critAnim, critEvent, critProp, verb, verbPlural, critName, critPlural, frenzyBanner}; `Leaders.hazard(id)` = `Investigation.skin(s)` {skin court \| press, meterName, dayTitle, dayBody, testifyVerb, chip, …, postponeVerb, excuses[6]}; `Leaders.dubi(id)`; `Leaders.suitcase(id)` {sticker, sprite, lines}; `Leaders.source_skin(id, producer)`; `Leaders.spin_skin(id, upgrade)` (icon fallback `spin_slot_<slot>`); `Leaders.story(id)`; `Leaders.rule(id)` (its `copy`); `Leaders.leader(id)` (name, short, party, g, side, art, avatar) |
+ | Round text | `Leaders.headlines(s)` (+ `Leaders.headline_hit(s, trigger)` for `leaderStat` / `when`); `Leaders.ambient(s)`; `Story.flash(s)` {leader, n, title, lines, id} (the leader just played, by their own election count); `Leaders.leak_copy(s)` (event result `skin: leakRight`) |
+-| Stats | `Leaders.stat(s, id, key)`, keys rounds, elections, taps, crits, declines, merges, bestRunSec, playSec; `stats.leaderSwitches`, `stats.pressDays` (UX PRESS_DAYS), `stats.hazardDays` (court + press, the neutral DAYS_*) |
++| Stats | `Leaders.stat(s, id, key)`, keys rounds, elections, taps, crits, declines, merges, bestRunSec, playSec; `stats.leaderSwitches`, `stats.pressDays` (UX PRESS_DAYS), `stats.hazardDays` (court + press); the result card's DAYS_* count is `Investigation.hazard_days(s)` (lifetime court + press days) |
+ | Trophies | `Meta.all_trophies()` = the shipped 40 + 2 global + 7 leaders (`Meta.achievements()` stays the shipped list until the dossier switches) |
+ | Liberman | `Coalition.can_decline(s, seq)`, `Coalition.decline(s, seq)` → {ok, reason?, partner, events}; `Coalition.decline_cooldown(s)` (−1 = not his round); message state `declined`, sys `chat.sys.declined` |
+ | Golan | `Coalition.merge_candidates(s, id)`, `Coalition.merge_block(s, a, b)` ("" or rule \| cooldown \| limit \| same \| member \| young \| standIn \| ultimatum), `Coalition.merge(s, a, b)`, `Coalition.merge_cooldown(s)`; status `merged` (in a's `carry`), sys `chat.sys.merged {a, b}`, a pair walkout's `chat.sys.left` carries `with: [b]` |
+@@ -232,6 +232,10 @@ falls back to Bibi (the picker opens if the round hasn't started); a started rou
+ the picker; a forged deal is re-dealt. Tests: `tests/unit/test_leaders.gd`.
+ 
+ Bench: `PacingSim.session(player…)` with `player.leader` = an id or `"mixed"`; `PacingSim.first_round`.
++Cadence keys (optional, default = the attentive player): `buy_every`, `buy_units`, `buy` (best | priciest), `spins`,
++`politics_every`, `ping_after_buy`. `tests/bench/test_web_driver.gd` replays `tools/web/round_web.mjs`'s measured
++game-time cadence with them: the browser driver's 25-34 min first election is the driver (0.037 taps/s, a buy every
++~138 s, no spins, no Suitcase at ?speed=10), not the game.
+ `tools/balance.sh [--leader=<id>]` runs `tests/bench/test_leaders_balance.gd` (every leader: the
+ median first election over seeds 1-9 in 7-9 min, S0/Q3, S2-S4, a median hour for S5-S7; a mixed hour).
+ 
 -- 
 2.43.0
 

@@ -1,85 +1,76 @@
 # binary files changed (not carried):
-diff --git a/design/leader-select-spec.md b/design/leader-select-spec.md
-index bcf2f1d..afa126a 100644
---- a/design/leader-select-spec.md
-+++ b/design/leader-select-spec.md
-@@ -59,7 +59,7 @@
+diff --git a/game/tests/bench/test_politics_balance.gd b/game/tests/bench/test_politics_balance.gd
+index 23572e3..7fbfa92 100644
+--- a/game/tests/bench/test_politics_balance.gd
++++ b/game/tests/bench/test_politics_balance.gd
+@@ -8,24 +8,31 @@ extends RefCounted
+ ##   - clean: never buys a shady source;
+ ##   - aideDropper: drops the aide whenever it can.
+ ## Gates, all falsifiable:
+-##   G1 no pure strategy beats the default's base-per-hour by more than 5% (no dominant strategy);
++##   G1 no pure strategy beats the default's base-per-hour by more than 5% in the MEDIAN of seeds
++##      11-15 (no dominant strategy). One seed is one chaotic hour: on seed 11 alone the verdict
++##      flipped with unrelated changes (before the leader sim the aide dropper lost by 42% on
++##      seed 11 and won by 38% on seed 13; after the p_deal perk started working it won by 52% on
++##      seed 11 and lost by 8% on seed 12). "Dominant" means better in most hours, so the median
++##      of the per-seed ratios is the gate; G2-G4 stay on seed 11;
+ ##   G2 the clean route is viable (≥ 2 elections an hour) but slower than the default;
+ ##   G3 suspicion is live: the default sees at least one court day an hour;
+ ##   G4 the coalition corner is live: partners walk out on payAll? no, on the default at least once
+ ##      an hour, or the default's maintenance spend is ≥ 5% of what it earns.
  
- | Leader | Party | Side | Art (idle + react) | Signature (the one rule) | Tap prop · verb · crit | Wave |
- |---|---|---|---|---|---|---|
--| ביבי | הליכוד | coalition | `bibi` (idle, tap, crit, hat and rabbit tracks) | the court: postpone, aide drop, pardon desk (shipped) | hat · שליפה · ארנב | 1 (shipped) |
-+| ביבי | הליכוד | coalition | `bibi` (idle, tap, crit, hat and rabbit tracks) | **המשפט**: the court, postpone, aide drop, pardon desk (shipped; `rule` names it for the picker and T4, no new knob) | hat · שליפה · ארנב | 1 (shipped) |
- | בנט | ביחד (לפיד No. 2) | opposition | `bennett` (react `flip`, event `whoosh`) | **ההתחייבות**: his own pledge card fires at 2× weight. The gate goes to 62 for 45 s, then the pledge flips and adds +1 base (reuses the shipped `pledge` effect). | pen · חתימה · היפוך | 1 |
- | בן גביר | עוצמה יהודית | coalition | `ben-gvir` (react, event `shout`) | **לוח הזמנים**: nobody out-threatens the threatener. Partners' `threatChance` ×0.5. | phone · העברה · איום | 1 |
- | ליברמן | ישראל ביתנו | opposition | `liberman` (react, event `no`) | **לא יושב**: dismiss an open member demand for free. Cooldown 90 s; never on an ultimatum. His lineup excludes the partners he says he won't sit with (fact `liberman-wont-sit`). | chair · סירוב · לא מוחלט | 1 |
-@@ -237,7 +237,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenko
+ const SEED := 11
++const G1_SEEDS := [11, 12, 13, 14, 15]
  
- **Cast profiles** (`leaderSelect.partnerProfiles`):
- - New partner voices: ביבי, לפיד, ליברמן, גולן, אייזנקוט, בנט.
--- Three **generic MKs** (the no-photo stand-in, never real people): "ח״כ שעבר צד", "ח״כית מתלבטת", "ח״כ עם הצעה". They fill slots a bloc can't. The joke of defection culture is equal-opportunity.
-+- Four **generic MKs** (the no-photo stand-in, never real people): "ח״כ שעבר צד", "ח״כית מתלבטת", "ח״כ עם הצעה", "ח״כ שחזר הביתה" (added 2026-09-29 for Liberman's SK seat, §7.2). They fill slots a bloc can't. The joke of defection culture is equal-opportunity.
+ var runner: Object
+ var _rows := {}
  
- **Rival cards** (`leaders[].coalition.rivals`):
- - The shipped opposition cards, plus new `cardProfiles` for the coalition side:
-@@ -255,7 +255,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenko
- | ביבי | בן גביר | as shipped (15) | as shipped | לפיד, אייזנקוט, ליברמן, בנט, גולן |
- | בנט | ליברמן | לפיד (list-mate, can't leave), אייזנקוט, גולן, ח״כ עם הצעה, עבאס (thanks: "כמו ב־2021"), ח״כית מתלבטת, גפני, ח״כ שעבר צד, גנץ | Liberman's excludes create a real choice: keep him, or let him walk and take עבאס + גפני | ביבי, בן גביר, סמוטריץ׳, דרעי |
- | בן גביר | ביבי ("תעביר לליכוד. אין כלום, רק תעביר.") | גוטליב (list No. 2, no transfer), סמוטריץ׳, רגב, אמסלם, קרעי, גולדקנופף, גפני, דרעי, אלמוג ("הוסרתי מהקבוצות שלך"), גנץ | עבאס out (his own excludes) | the shipped five |
--| ליברמן | בנט | לפיד, גולן, אייזנקוט, ח״כ עם הצעה, ח״כית מתלבטת, ח״כ שעבר צד, גנץ | ביבי, דרעי, גולדקנופף, גפני, עבאס (his stated line) | ביבי, בן גביר, סמוטריץ׳, דרעי |
-+| ליברמן | בנט | לפיד, גולן, אייזנקוט, ח״כ עם הצעה (L4), ח״כית מתלבטת, ח״כ שעבר צד, ח״כ שחזר הביתה (SK, from round 2), גנץ | ביבי, דרעי, גולדקנופף, גפני, עבאס (his stated line) | ביבי, בן גביר, סמוטריץ׳, דרעי |
  
- **Wave-2 lineups:**
+-func _hour(name: String) -> Dictionary:
+-	if _rows.has(name):
+-		return _rows[name]
++func _hour(name: String, seed_: int = SEED) -> Dictionary:
++	var key := "%s:%d" % [name, seed_]
++	if _rows.has(key):
++		return _rows[key]
+ 	var p: Dictionary = PacingSim.PLAYERS["engaged"].duplicate()
+ 	p["politics"] = PacingSim.STRATEGIES[name]
+-	var r := PacingSim.session(p, 3600.0, SEED, 0.25)
++	var r := PacingSim.session(p, 3600.0, seed_, 0.25)
+ 	var s: GameState = r["state"]
+ 	var runs: Array = r["runs"]
+ 	var row := {
+@@ -34,10 +41,10 @@ func _hour(name: String) -> Dictionary:
+ 		"left": int(s.coalition.get("leftLifetime", 0)), "paid": int(s.coalition.get("paidLifetime", 0)),
+ 		"drops": int(s.investigation.get("aideDrops", 0)), "runsList": runs,
+ 	}
+-	print("  %-15s elections %2d | first %s | base %4d | court days %2d, postponed %2d | walked out %2d, paid %3d | aide drops %d | %s" % [
+-		name, row["runs"], PacingSim.fmt_t(row["first"]), row["base"], row["court"], row["postpones"], row["left"], row["paid"], row["drops"],
++	print("  %-15s s%d elections %2d | first %s | base %4d | court days %2d, postponed %2d | walked out %2d, paid %3d | aide drops %d | %s" % [
++		name, seed_, row["runs"], PacingSim.fmt_t(row["first"]), row["base"], row["court"], row["postpones"], row["left"], row["paid"], row["drops"],
+ 		", ".join(runs.slice(0, 6).map(func(x: float) -> String: return PacingSim.fmt_t(x)))])
+-	_rows[name] = row
++	_rows[key] = row
+ 	return row
  
-@@ -266,7 +266,7 @@ The lint counts: bennett 102, bengvir 103, liberman 104 strings; wave 2: eisenko
- | דרעי | ביבי | רגב, סמוטריץ׳, לוין, אמסלם, קרעי, גולדקנופף, גוטליב, גפני, בן גביר (his own L6), מאי גולן, גנץ | עבאס out (his excludes) | the shipped five |
- | גולן | אייזנקוט (his ×1.25 tap trait runs from C1) | לפיד, בנט, ליברמן, ח״כ עם הצעה, ח״כית מתלבטת, גפני, עבאס, ח״כ שעבר צד, גנץ | as Eisenkot's round; the merge rule wants several mid-size members | ביבי, בן גביר, סמוטריץ׳, דרעי |
  
--**Seat capacity:** Bibi 57, Bennett 50, Ben Gvir 49, Liberman 42, Eisenkot 50, Smotrich 51, Deri 51, Golan 50. Liberman's is the tightest on purpose, and his decline pill pays for it (§7.3).
-+**Seat capacity:** Bibi 57, Bennett 50, Ben Gvir 49, Liberman 46 (44 in round 1: SK opens after election 1; was 42 before the §7.2 levers), Eisenkot 50, Smotrich 51, Deri 51, Golan 50. Liberman's is the tightest on purpose, and his decline pill pays for it (§7.3).
- 
- ### 5.6 Hazard: the court (Bibi) vs the press (everyone else)
- - **Same Investigation module and numbers.** For non-Bibi leaders:
-@@ -372,7 +372,7 @@ stats.leaderSwitches
- | ביבי | 8:01 (measured) | unchanged |
- | בנט | 7:45-8:30 | early capacity like Bibi's; the pledge gate +1 for 45 s is small; Liberman's excludes cost late seats until he walks |
- | בן גביר | 7:15-8:00 | fewer threats mean fewer walkouts; capacity 49 |
--| ליברמן | 8:15-9:00 (**risk**) | capacity 42 and no Haredi or Abbas late seats; the decline pill saves money. **Lever if > 9:00:** add the L3 slot (a 1-seat generic MK) and/or give `mk_undecided` L4. **Never** raise his own seats (D5). |
-+| ליברמן | 8:15-9:00 (**risk**) | capacity 42 and no Haredi or Abbas late seats; the decline pill saves money. **Lever if > 9:00:** add the L3 slot (a 1-seat generic MK) and/or give `mk_undecided` L4. **Never** raise his own seats (D5). **Applied (2026-09-29), see §7.2.1.** |
- | אייזנקוט | 7:50-8:30 | the same money as everyone (EV-neutral taps); Bennett's lineup shape; Eisenkot loses only the tap-7 ×4 (4 ₪ once) |
- | סמוטריץ׳ | 7:30-8:15 | VAT ×1.18 from t 0 and 10% cheaper demands; capacity 51 |
- | דרעי | 7:30-8:15 | cheap rejoins remove the walkout penalty; the ☕ buff is taps only |
-@@ -576,6 +576,7 @@ Tick each one when the picker lands. File:line as of e8f636d.
- | `COURT_BODY`, `COURT_SUMMONS_BODY` | ביבי בדוכן… | Bibi as is; others from `hazardSkins.press` |
- | `SYS_ROTATE_CAP`, `SYS_ERA_PACK_LATE` | ביבי עובד… | "{short} עובד…" (or neutral) |
- | `SHARE_TEXT_INVITE` | תורכם להיות ביבי. | "תורכם להקים ממשלה." |
-+| `DAYS_*` (result card, deep-link toast) | ו־{n} ימי משפט (court days) | **done 2026-09-29:** "ו־{n} ימים בכותרות", {n} = court + press days (`Investigation.hazard_days`) |
- | `OG_DESCRIPTION` | שולפים שקלים מהכובע… | "בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה." |
- | `OG_IMAGE_ALT` | ביבי בפיקסלים… | describe the new key art (below) |
- | spin effect lines `s01`, `s02`, `s07`, `s11` | …לכל שליפה, סיכוי לארנב | "{verb}" / "{critName}" |
-diff --git a/game/scripts/sim/README.md b/game/scripts/sim/README.md
-index 04b4b03..6edd707 100644
---- a/game/scripts/sim/README.md
-+++ b/game/scripts/sim/README.md
-@@ -211,7 +211,7 @@ without the picker keeps playing Bibi.
- | New game | `Leaders.set_salt(s, randi())` once, so deals differ between players |
- | Kit | `Leaders.tap_kit(id)` {prop, anim, critAnim, critEvent, critProp, verb, verbPlural, critName, critPlural, frenzyBanner}; `Leaders.hazard(id)` = `Investigation.skin(s)` {skin court \| press, meterName, dayTitle, dayBody, testifyVerb, chip, …, postponeVerb, excuses[6]}; `Leaders.dubi(id)`; `Leaders.suitcase(id)` {sticker, sprite, lines}; `Leaders.source_skin(id, producer)`; `Leaders.spin_skin(id, upgrade)` (icon fallback `spin_slot_<slot>`); `Leaders.story(id)`; `Leaders.rule(id)` (its `copy`); `Leaders.leader(id)` (name, short, party, g, side, art, avatar) |
- | Round text | `Leaders.headlines(s)` (+ `Leaders.headline_hit(s, trigger)` for `leaderStat` / `when`); `Leaders.ambient(s)`; `Story.flash(s)` {leader, n, title, lines, id} (the leader just played, by their own election count); `Leaders.leak_copy(s)` (event result `skin: leakRight`) |
--| Stats | `Leaders.stat(s, id, key)`, keys rounds, elections, taps, crits, declines, merges, bestRunSec, playSec; `stats.leaderSwitches`, `stats.pressDays` (UX PRESS_DAYS), `stats.hazardDays` (court + press, the neutral DAYS_*) |
-+| Stats | `Leaders.stat(s, id, key)`, keys rounds, elections, taps, crits, declines, merges, bestRunSec, playSec; `stats.leaderSwitches`, `stats.pressDays` (UX PRESS_DAYS), `stats.hazardDays` (court + press); the result card's DAYS_* count is `Investigation.hazard_days(s)` (lifetime court + press days) |
- | Trophies | `Meta.all_trophies()` = the shipped 40 + 2 global + 7 leaders (`Meta.achievements()` stays the shipped list until the dossier switches) |
- | Liberman | `Coalition.can_decline(s, seq)`, `Coalition.decline(s, seq)` → {ok, reason?, partner, events}; `Coalition.decline_cooldown(s)` (−1 = not his round); message state `declined`, sys `chat.sys.declined` |
- | Golan | `Coalition.merge_candidates(s, id)`, `Coalition.merge_block(s, a, b)` ("" or rule \| cooldown \| limit \| same \| member \| young \| standIn \| ultimatum), `Coalition.merge(s, a, b)`, `Coalition.merge_cooldown(s)`; status `merged` (in a's `carry`), sys `chat.sys.merged {a, b}`, a pair walkout's `chat.sys.left` carries `with: [b]` |
-@@ -232,6 +232,10 @@ falls back to Bibi (the picker opens if the round hasn't started); a started rou
- the picker; a forged deal is re-dealt. Tests: `tests/unit/test_leaders.gd`.
- 
- Bench: `PacingSim.session(player…)` with `player.leader` = an id or `"mixed"`; `PacingSim.first_round`.
-+Cadence keys (optional, default = the attentive player): `buy_every`, `buy_units`, `buy` (best | priciest), `spins`,
-+`politics_every`, `ping_after_buy`. `tests/bench/test_web_driver.gd` replays `tools/web/round_web.mjs`'s measured
-+game-time cadence with them: the browser driver's 25-34 min first election is the driver (0.037 taps/s, a buy every
-+~138 s, no spins, no Suitcase at ?speed=10), not the game.
- `tools/balance.sh [--leader=<id>]` runs `tests/bench/test_leaders_balance.gd` (every leader: the
- median first election over seeds 1-9 in 7-9 min, S0/Q3, S2-S4, a median hour for S5-S7; a mixed hour).
- 
+@@ -50,8 +57,14 @@ func test_triangle_has_no_dominant_strategy() -> void:
+ 	for name: String in PacingSim.STRATEGIES:
+ 		if name == "default":
+ 			continue
+-		var r := _hour(name)
+-		runner.check(float(r["base"]) <= float(base["base"]) * 1.05, "G1: %s must not dominate (base %d vs default %d)" % [name, r["base"], base["base"]])
++		var ratios: Array = []
++		for sd: int in G1_SEEDS:
++			ratios.append(float(_hour(name, sd)["base"]) / maxf(1.0, float(_hour("default", sd)["base"])))
++		var sorted := ratios.duplicate()
++		sorted.sort()
++		var med := float(sorted[sorted.size() / 2])
++		print("  G1 %-15s base / default per seed %s: median %.2f" % [name, ", ".join(ratios.map(func(x: float) -> String: return "%.2f" % x)), med])
++		runner.check(med <= 1.05, "G1: %s must not dominate (median base ratio %.2f over seeds 11-15)" % [name, med])
+ 	var clean := _hour("clean")
+ 	runner.check(int(clean["runs"]) >= 2, "G2: the clean route is viable (%d elections an hour)" % clean["runs"])
+ 	runner.check(int(clean["base"]) < int(base["base"]), "G2: and slower than dealing (base %d vs %d)" % [clean["base"], base["base"]])
 diff --git a/game/tests/bench/test_web_driver.gd.uid b/game/tests/bench/test_web_driver.gd.uid
 new file mode 100644
 index 0000000..3e3f496
@@ -88,34 +79,3 @@ index 0000000..3e3f496
 @@ -0,0 +1 @@
 +uid://cei7d52xkvb5t
 # untracked binary: game/tests/bench/test_web_driver.gd.uid
-diff --git a/game/tests/dev/probe_g1.gd b/game/tests/dev/probe_g1.gd
-new file mode 100644
-index 0000000..6a3c2a9
---- /dev/null
-+++ b/game/tests/dev/probe_g1.gd
-@@ -0,0 +1,16 @@
-+extends SceneTree
-+## Scratch (not committed): G1 default vs aideDropper vs alwaysPostpone over several seeds.
-+func _initialize() -> void:
-+	TestFixture.use_game_content()
-+	var args := OS.get_cmdline_user_args()
-+	var seeds: Array = [11, 12, 13, 14, 15]
-+	for sd: int in seeds:
-+		var line := "seed %d:" % sd
-+		for name: String in ["default", "aideDropper", "alwaysPostpone", "payAll"]:
-+			var p: Dictionary = PacingSim.PLAYERS["engaged"].duplicate()
-+			p["politics"] = PacingSim.STRATEGIES[name]
-+			var r := PacingSim.session(p, 3600.0, sd, 0.25)
-+			var s: GameState = r["state"]
-+			line += " %s %d (%d el, drops %d)" % [name, s.thumbs_owned, (r["runs"] as Array).size(), int(s.investigation.get("aideDrops", 0))]
-+		print(line)
-+	quit(0)
-# untracked binary: game/tests/dev/probe_g1.gd
-diff --git a/game/tests/dev/probe_g1.gd.uid b/game/tests/dev/probe_g1.gd.uid
-new file mode 100644
-index 0000000..e0a14fd
---- /dev/null
-+++ b/game/tests/dev/probe_g1.gd.uid
-@@ -0,0 +1 @@
-+uid://qjakwxklvoxp
-# untracked binary: game/tests/dev/probe_g1.gd.uid
