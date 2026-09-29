@@ -65,9 +65,11 @@ Shots: `scratchpad/shots/mobile-ux/` (`390x844@3-{pick,pretap,card1,bought,c1-ta
 static var cols := 180          # art columns: floor(W_dev / k)
 static var rows := 267          # art rows:    floor(H_dev / k)
 
-## in update(), after k is set (integer path only; the fallback keeps 180 × 320):
-cols = int(floorf(win.x / k)) if ni else ART_W
-rows = int(floorf(win.y / k)) if ni else 320
+## in update(), right after nk / ni are computed and BEFORE the "unchanged" early return: two
+## phones with the same k (390@3 and 430@3 are both k 6) differ only here. The fallback keeps
+## 180 × 320.
+cols = int(floorf(win.x / nk)) if ni else ART_W
+rows = int(floorf(win.y / nk)) if ni else 320
 
 ## The layout width in logical px: whole art columns, on the 4-px grid (720 at 180 cols).
 static func cw() -> float:

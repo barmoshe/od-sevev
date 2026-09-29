@@ -155,9 +155,10 @@ def picker_panel(dev, mode):
         d.text((8, gb * sc + 4), "EMPTY %d art under the grid" % ((strip_y - gb) // 4), fill=C["text"], font=FONT)
     d.rectangle([0, strip_y * sc, wcss, (vh - 16) * sc], fill=C["ticker"])
     d.text((8, strip_y * sc + 6), "caption strip (blurb / disclaimer)", fill=C["text"], font=FONT)
-    title = "%s  LEADER_PICK  %s  (tile %d×%d, avatar %d)" % (dev[0], "TODAY" if mode == "today" else "SPEC", tw, th, A)
+    title = "%s  picker  %s" % (dev[0], "TODAY" if mode == "today" else "SPEC")
     d.rectangle([0, hcss, wcss, hcss + 34], fill=(255, 255, 255))
-    d.text((6, hcss + 9), title, fill=(0, 0, 0), font=FONT_B)
+    d.text((6, hcss + 2), title, fill=(0, 0, 0), font=FONT_B)
+    d.text((6, hcss + 19), "tile %d×%d, avatar %d" % (tw, th, A), fill=(0, 0, 0), font=FONT)
     return img
 
 
