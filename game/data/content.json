@@ -6765,7 +6765,7 @@
      },
      {
       "id": "mk_offer",
-      "slot": "S5"
+      "slot": "L4"
      },
      {
       "id": "mk_undecided",
@@ -6793,7 +6793,7 @@
      "card_smotrich",
      "card_deri"
     ],
-    "_note": "The smallest lineup (his rule, fact liberman-wont-sit) with the decline pill to pay for it. Capacity 42 seats + own; the bench must confirm S1-S7 (spec §7), else add the L3 slot to mk_offer's line or a second generic MK."
+    "_note": "The smallest lineup (his rule, fact liberman-wont-sit) with the decline pill to pay for it. Capacity 44 seats + own. Bench lever (spec §7.2, game-developer sim 2026-09-29): mk_offer holds L4 instead of S5 (a generic MK takes the mid-late L4 slot; his own seats unchanged). With S5 his round-1 gate waited for L6's 360K (median 8:55, casual 9:13 over seeds 1-9: S3 failed); the spec's named levers measured worse or nil (mk_undecided L1->L4 9:33; L3 is locked in round 1). With L4: median 7:50, engaged 6:56, casual 8:02."
    }
   },
   {

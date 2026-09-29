@@ -43,6 +43,16 @@ var album: Dictionary = {}          # Events: the photobomb album (lifetime)
 var calendar: Dictionary = {}       # Calendar: the clock's high-water mark, mode, notices
 var spins: Dictionary = {}          # Spins: consumable buys and live timers, line levels, flights (round)
 
+# ---- leader select (save v4; Leaders owns the shape: fresh_into, sanitize_into, to_dict) ----
+var leader := ""                    # the round's leader (fixed for the round; "" without leader content)
+var leader_pick_pending := false    # the picker is open (after an election, on a new game) until the first tap
+var leader_history: PackedStringArray = []   # the last 10 rounds' leaders; the fresh face reads the previous one
+var leaders: Dictionary = {}        # id -> {rounds, elections, taps, crits, declines, bestRunSec, playSec}
+var seat_deal: Dictionary = {}      # this round's slot per partner (a reload can't reroll it)
+var leader_round: Dictionary = {}   # {prev, switched, fresh, freshPct, lastPlayed, begun, salt}
+## Not saved: bumped whenever the leader or the deal changes (Leaders.ensure's cache key).
+var leader_ver := 0
+
 ## Not saved: the lifetime tap count Politics.tick last saw (tapsAt2to4 counts the difference).
 var taps_seen := -1
 
@@ -63,6 +73,7 @@ static func fresh() -> GameState:
 	s.album = Events.fresh_album()
 	s.calendar = Calendar.fresh_state()
 	s.spins = Spins.fresh_state()
+	Leaders.fresh_into(s)
 	return s
 
 
@@ -99,7 +110,7 @@ func to_dict() -> Dictionary:
 		"coalition": coalition.duplicate(true), "investigation": investigation.duplicate(true),
 		"events": events.duplicate(true), "album": album.duplicate(), "calendar": calendar.duplicate(),
 		"spins": spins.duplicate(true),
-	}
+	}.merged(Leaders.to_dict(self))
 
 
 ## Validates an untrusted dictionary into a clean state. Never throws; unknown or broken
@@ -167,6 +178,7 @@ static func from_dict(raw: Variant) -> GameState:
 			if k is String and not s.stats.has(k) and _STAT_KEY.search(k) != null and _num((st as Dictionary)[k], -1.0) >= 0.0:
 				s.stats[k] = _num((st as Dictionary)[k])
 				extra += 1
+	Leaders.sanitize_into(s, r)   # first: the coalition's partner ids are the round's lineup
 	s.coalition = Coalition.sanitize(r.get("coalition"))
 	s.investigation = Investigation.sanitize(r.get("investigation"))
 	s.events = Events.sanitize(r.get("events"))

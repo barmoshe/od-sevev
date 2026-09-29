@@ -24,7 +24,9 @@ static func pick(s: GameState, recent: Array, rng: Callable = randf) -> String:
 	var ctx := {"hour": int(dt["hour"]), "weekday": int(dt["weekday"])}
 	var window := int(v2.get("noRepeatWindow", 12))
 	var pool: Array = []
-	for h: Variant in Array(v2.get("list", [])) + Array(v2.get("listPolitics", [])):
+	# The round's lines: list + listPolitics, minus Bibi's own outside his round, plus the leader's
+	# ticker and the rival ticker (Leaders.ambient; identical to the shipped lists in Bibi's round).
+	for h: Variant in Leaders.ambient(s):
 		if not h is Dictionary:
 			continue
 		var text := String((h as Dictionary).get("text", ""))

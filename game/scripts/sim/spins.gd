@@ -74,6 +74,8 @@ static func live(s: GameState, id: String) -> Dictionary:
 ## On the shelf by kind (the unlock conditions are Economy.upgrade_unlocked's).
 static func on_shelf(s: GameState, u: Dictionary) -> bool:
 	var id: String = u["id"]
+	if not Leaders.upgrade_allowed(s, id):
+		return false   # outside Bibi's round: his own spins, and s08 without Karhi (spec §5.4)
 	match kind(u):
 		"consumable":
 			return live(s, id).is_empty()

@@ -41,6 +41,7 @@ class Derived:
 	var no_crit := false                    # Eisenkot's card: no rabbits while it is up
 	var seats_gate_open := true             # Coalition.gate_open(): the seat gate (true without a coalition)
 	var tap_pour_sec := 0.0                 # S07 "idleToTap": income stops, each tap pours bps × this (Spins)
+	var straight_mult := 1.0                # Eisenkot's "ישר": taps × the crits' expected value, crits 0 (Leaders)
 
 
 ## Upgrade effect handlers: effect.type -> func(effect: Dictionary, d: Derived). Adding an effect
@@ -172,7 +173,7 @@ static func derive(s: GameState) -> Derived:
 	var p: Dictionary = c["prestige"]
 	Meta.install()
 	Spins.install()
-	Politics.install()
+	Politics.install(s)   # the round's leader: lineup, rivals, rule (cheap when unchanged)
 	var d := Derived.new()
 	d.crit_chance = float(c["tap"]["critChance"])
 	for id in Content.producer_ids():
@@ -191,6 +192,12 @@ static func derive(s: GameState) -> Derived:
 	for m in MODIFIERS:
 		m.call(s, d)
 	d.prestige_mult = (1.0 + mult_per_base() * s.thumbs_owned) * d.base_mult
+	if Leaders.straight():
+		# Eisenkot (straightTaps): no crits; every tap is paid their average up front,
+		# × (1 + c × (critMult − 1)) for the round's crit chance c. A noCrit card suspends it.
+		d.straight_mult = 1.0 if d.no_crit else 1.0 + maxf(0.0, d.crit_chance) * (float(c["tap"]["critMult"]) - 1.0)
+		d.tap_mult *= d.straight_mult
+		d.crit_chance = 0.0
 	if d.no_crit:
 		d.crit_chance = 0.0
 	var raw := 0.0
@@ -247,6 +254,7 @@ static func tick(s: GameState, dt: float, d: Derived = null) -> Dictionary:
 	add_bananas(s, d.bps_effective * dt)
 	s.run_time_sec += dt
 	s.stats["playtimeSec"] = float(s.stats.get("playtimeSec", 0.0)) + dt
+	Leaders.on_play(s, dt)
 	if d.bps > float(s.stats.get("bestBps", 0.0)):
 		s.stats["bestBps"] = d.bps
 	var ev := {"frenzyEnded": false, "tapFrenzyEnded": false, "spinsEnded": Spins.tick(s, dt)}
@@ -293,6 +301,12 @@ static func tap(s: GameState, rng: Callable = randf) -> Dictionary:
 	var crit := roll < d.crit_chance
 	var cm := float(t["critMult"])
 	var fc: Variant = t.get("firstCrit")
+	var tap7 := false
+	if fc is Dictionary and Leaders.straight():
+		# Eisenkot has no crits, the scripted tap-7 rabbit included: the result flags tap7 and the
+		# view shows rule.copy.tap7 with his react.
+		tap7 = s.evolutions == 0 and s.crits_lifetime == 0 and s.taps_lifetime + 1 == int(fc.get("atTap", 0))
+		fc = null
 	if fc is Dictionary:
 		var n := s.taps_lifetime + 1
 		if s.evolutions == 0 and s.crits_lifetime == 0 and n == int(fc.get("atTap", 0)):
@@ -308,6 +322,9 @@ static func tap(s: GameState, rng: Callable = randf) -> Dictionary:
 	s.taps_lifetime += 1
 	if crit:
 		s.crits_lifetime += 1
+	Leaders.on_tap(s, crit)   # the leader's taps / crits; the first tap closes the picker
+	if tap7:
+		return {"value": value, "crit": false, "tap7": true}
 	return {"value": value, "crit": crit}
 
 
@@ -452,7 +469,7 @@ static func buy_upgrade(s: GameState, id: String) -> bool:
 	Spins.on_bought(s, u)
 	Meta.count(s, "countUpgrade", id)
 	var fu: Variant = u.get("followUp")
-	if fu is Dictionary and (fu as Dictionary).has("fallbackAfterSec"):
+	if fu is Dictionary and (fu as Dictionary).has("fallbackAfterSec") and Leaders.upgrade_follow_up_allowed(id):
 		Events.follow_up(s, id, float(fu["fallbackAfterSec"]))   # S13: next morning's invoice
 	return true
 
@@ -469,6 +486,7 @@ static func roll_golden_outcome(rng: Callable = randf, s: GameState = null) -> S
 	var g: Dictionary = Content.data()["golden"]
 	var outs: Array = g["outcomes"]
 	if s != null:
+		Leaders.ensure(s)
 		if s.golden_caught_lifetime == 0 and g.has("firstOutcome") and Content.has_outcome(str(g["firstOutcome"])):
 			return str(g["firstOutcome"])
 		var era: String = Story.era_for(s.evolutions).get("id", "")
@@ -480,6 +498,7 @@ static func roll_golden_outcome(rng: Callable = randf, s: GameState = null) -> S
 			if o.has("replaces"):
 				gone[o["replaces"]] = true
 		outs = outs.filter(func(o: Dictionary) -> bool: return not gone.has(o["id"]))
+		outs = Leaders.filter_outcomes(outs)   # outside Bibi's round: no aide / laundry, cash takes their weight
 		if outs.is_empty():
 			outs = g["outcomes"]
 	var total := 0.0

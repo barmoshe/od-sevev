@@ -42,13 +42,35 @@ static func beat_id(evolutions: int) -> String:
 	return "beat_%d" % evolutions
 
 
+## Dubi's flash after an election, for the leader who played the round just ended (spec §5.10):
+## that leader's beats indexed by their OWN election count, then the shared encore.
+## {leader, n, title, lines, id}. Bibi's id stays "beat_<n>" (storySeen of older saves).
+static func flash(s: GameState) -> Dictionary:
+	var id := str(s.leader_round.get("lastPlayed", "")) if Leaders.active() else ""
+	if id == "" or not Leaders.playable(id):
+		id = Leaders.current(s)
+	var n := int(Leaders.stat(s, id, "elections")) if Leaders.active() else s.evolutions
+	var st := Leaders.story(id)
+	var beats: Array = st["beats"]
+	var titles: Array = st["titles"]
+	var lines := PackedStringArray()
+	if n >= 1 and n <= beats.size():
+		lines = PackedStringArray(beats[n - 1])
+	else:
+		for l: Variant in st["encore"]:
+			lines.append(str(l).replace("{n}", str(n - beats.size() + 1)))
+	var title := str(titles[n - 1]) if n >= 1 and n <= titles.size() else ""
+	var bid := beat_id(n) if Leaders.is_default(id) else "beat_%s_%d" % [id, n]
+	return {"leader": id, "n": n, "title": title, "lines": lines, "id": bid}
+
+
 ## One ambient headline whose conditions hold, avoiding the recent window. `recent` is updated.
 static func pick_ambient(s: GameState, recent: Array, hour: int, rng: Callable = randf) -> String:
 	var v2: Dictionary = _c().get("ambientHeadlinesV2", {})
 	var window := int(v2.get("noRepeatWindow", 12))
 	var pool: Array = []
 	var era_id: String = era_for(s.evolutions).get("id", "")
-	for h: Dictionary in v2.get("list", []):
+	for h: Dictionary in Leaders.ambient(s, false):   # the round's lines (bibiOnly out, the leader's ticker in)
 		if recent.has(h["text"]):
 			continue
 		if _when(s, h.get("when", {}), era_id, hour):

@@ -12,15 +12,27 @@ extends RefCounted
 ##   hour: int        device clock, 0-23
 
 
-static func install() -> void:
+## Registers the systems' modifiers (once). With a state it installs that state's round (the
+## leader's lineup, rivals and rule; Leaders.ensure: cheap when nothing changed, and Economy.derive
+## calls it every derive). With a leader it also starts the round as that leader (the picker, spec
+## §3; Leaders.start_round: only while the round hasn't started) and returns its result.
+static func install(s: GameState = null, leader: String = "") -> Dictionary:
 	Coalition.install()
 	Investigation.install()
 	Events.install()
+	Leaders.install()
+	if s == null:
+		return {}
+	if leader != "":
+		return Leaders.start_round(s, leader)
+	Leaders.ensure(s)
+	return {}
 
 
 ## Returns every UI event of the frame, in order: coalition, court, events, calendar.
 static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = {}, rng: Callable = randf) -> Array:
 	var out: Array = []
+	Leaders.ensure(s)
 	if ctx.has("nowMs"):
 		out.append_array(Calendar.update(s, float(ctx["nowMs"])))
 	out.append_array(Coalition.tick(s, dt, d, ctx, rng))
@@ -53,6 +65,7 @@ static func night_hour(ctx: Dictionary) -> int:
 
 ## Called by Economy.evolve() after the run resets ("עוד סבב!").
 static func on_election(s: GameState) -> void:
+	Leaders.on_election(s)   # first: the next round's lineup (same leader until a pick)
 	Coalition.on_election(s)
 	Investigation.on_election(s)
 	Events.on_election(s)
@@ -68,6 +81,7 @@ static func validate(c: Dictionary = {}) -> PackedStringArray:
 	err.append_array(Events.validate(c))
 	err.append_array(Calendar.validate(c))
 	err.append_array(Spins.validate(c))
+	err.append_array(Leaders.validate(c))
 	for o: Variant in c.get("golden", {}).get("outcomes", []):
 		if not o is Dictionary:
 			continue

@@ -27,6 +27,13 @@ static func install() -> void:
 	Economy.MODIFIERS.append(_apply_modifiers)
 
 
+## The round's hazard words (the view's copy): {skin: court | press, meterName, dayTitle, …,
+## postponeVerb, excuses[6]} from the leader's kit over leaderSelect.hazardSkins (Leaders.hazard).
+## The numbers are the same for every skin.
+static func skin(s: GameState) -> Dictionary:
+	return Leaders.hazard(Leaders.current(s))
+
+
 static func cfg() -> Dictionary:
 	var c: Variant = Content.data().get("court")
 	return c if c is Dictionary else {}
@@ -47,7 +54,7 @@ static func _pp() -> Dictionary:
 static func fresh_state() -> Dictionary:
 	return {
 		"suspicion": 0.0, "phase": "idle", "leftSec": 0.0, "summonsSec": 0.0, "frozenSec": 0.0,
-		"postponements": 0, "postponementsLifetime": 0, "courtDays": 0,
+		"postponements": 0, "postponementsLifetime": 0, "courtDays": 0, "pressDays": 0,
 		"aideHolding": 0.0, "aideDrops": 0, "pardons": 0, "lastStamp": 0, "revealed": false,
 		"courtReason": "testified",   # how the running court day began: testified | served
 	}
@@ -179,9 +186,16 @@ static func testify(s: GameState, auto: bool = false) -> Array:
 		return []
 	st["phase"] = "court"
 	st["leftSec"] = _num("courtDaySec", 30.0)
-	st["courtDays"] = int(st["courtDays"]) + 1
 	st["courtReason"] = "served" if auto else "testified"
-	Meta.bump(s, "courtDays")
+	# Bibi's court day, or everyone else's press day (same numbers; UX PRESS_DAYS). hazardDays counts
+	# both, for the leader-neutral result card (DAYS_*).
+	if Leaders.has_court():
+		st["courtDays"] = int(st["courtDays"]) + 1
+		Meta.bump(s, "courtDays")
+	else:
+		st["pressDays"] = int(st.get("pressDays", 0)) + 1
+		Meta.bump(s, "pressDays")
+	Meta.bump(s, "hazardDays")
 	return [{"ev": "courtStart", "reason": st["courtReason"]}]
 
 
@@ -256,8 +270,10 @@ static func aide_catch(s: GameState, award: float, pts: float = -1.0) -> void:
 	add(s, pts if pts >= 0.0 else float(cfg().get("aide", {}).get("suspicion", 0.0)))
 
 
+## The aide drop is Bibi's (it is Qatargate; leader-select-spec §5.6): every other leader's hazard is
+## the press skin, with the same meter and numbers but no aide and no pardon desk.
 static func can_drop_aide(s: GameState) -> bool:
-	return active() and float(_i(s)["aideHolding"]) > 0.0 and phase(s) != "court"
+	return active() and Leaders.has_court() and float(_i(s)["aideHolding"]) > 0.0 and phase(s) != "court"
 
 
 ## "אני לא מכיר אותו": suspicion to the floor, never below it; a pending court card closes; the
@@ -276,7 +292,10 @@ static func drop_aide(s: GameState) -> bool:
 
 
 ## The pardon desk (deck §H): a stamp line 1..stamps, never the same twice in a row.
+## 0 outside Bibi's round (the desk is his, and its event never fires there).
 static func request_pardon(s: GameState, rng: Callable = randf) -> int:
+	if not Leaders.has_court():
+		return 0
 	var st := _i(s)
 	var n := maxi(1, int(cfg().get("pardon", {}).get("stamps", 8)))
 	var last := int(st["lastStamp"])
@@ -314,7 +333,7 @@ static func sanitize(raw: Variant) -> Dictionary:
 	out["phase"] = r.get("phase") if PHASES.has(r.get("phase")) else "idle"
 	for k in ["leftSec", "summonsSec", "frozenSec", "aideHolding"]:
 		out[k] = Coalition._n(r.get(k))
-	for k in ["postponements", "postponementsLifetime", "courtDays", "aideDrops", "pardons", "lastStamp"]:
+	for k in ["postponements", "postponementsLifetime", "courtDays", "pressDays", "aideDrops", "pardons", "lastStamp"]:
 		out[k] = int(Coalition._n(r.get(k)))
 	out["revealed"] = r.get("revealed") == true
 	out["courtReason"] = "served" if r.get("courtReason") == "served" else "testified"
