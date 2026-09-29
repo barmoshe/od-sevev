@@ -93,6 +93,21 @@ Cross-slice requests go under **Requests** with the owner named.
   - **Engine touch (data-driven reader fix, flagged):** `diorama.gd` critters and the `launch` set piece now scale by `4 / sources[id].density` (`_scale_of`); without it the d = 3 strips drew 3× too big. Nothing else in `game/scripts/**`.
   - **Pipeline:** Python 3.11-compatible f-string, numpy ints cast for JSON, source icon/frameH checks.
   - **Files:** creative-pack `art/showcase/src/{build,cast}.py`, `art/showcase/out/**` (+ `atlas.json`), `art/refs/may-golan.png`, `art/refs/candidates/README.md`; `pipeline/od-sevev/{sprites.py,README.md,budget.json,proofs/*}`; `game/assets/sprites/**` + `CONTRACT.md` §1, §3, §4, §4b, §7; `game/scripts/ui/diorama.gd`; `asset-requests/REQUESTS.md`
+- 2026-09-29 · game-developer (engine) · **integer art scaling landed, the input test is fixed, O-A3 resolved; the 3× cast is merged and verified in Chromium:**
+  - **The failing test:** the half-landed scaling fed the 64×64 headless window to `Display` → k 1, f 0.25, a 256×256 canvas and a 0-px shop panel. Now a surface under 180×267 device px keeps the fork's `canvas_items` + `expand` stretch (`Display.integer` false). `test_buy_a_producer_by_touch` is unchanged and passes.
+  - **Scaling:** `k = min(floor(W/180), floor(H/267))`, applied as the host viewport's stretch (window: stretch `disabled` + `content_scale_factor k/4`; SubViewport: `size_2d_override`). Input maps back through the same transform. The reasons are in HOW-TO-RUN "Integer art scaling".
+  - **Density from the data:** `SpriteStrip.density_of/scale_of/apply_filter`. The TA's `Diorama._scale_of` is kept and reads `scale_of`; every critter, crowd and launch sprite gets the filter via `_scale_sprite`. Nearest when k/4·scale is whole, else `fractional_filter` ("aa").
+  - **Measured in Chromium** (`tools/web/res_web.mjs`, headless, SwiftShader; horizontal runs on the stage art beside the Magician). Before is the same build with `?dev=1&forkscale=1`.
+    - **390×844 @2:** before, art px 4.33 dp (runs 4 and 5, 6% whole); after k 4, 4 dp, 100% whole.
+    - **@3:** before 6.5 dp (6/7); after k 6, 6 dp, 100%.
+    - **430×932 @3:** before 7.17 (7/8); after k 7, 100%.
+    - **1280×800 desktop:** before 2.5 (2/3); after k 2, 100%.
+    - **393/412 @2 and @3:** 100% at k 4 / 6.
+    - **The 3× cast:** crisp at k 6 (2 dp per sprite px, 100% whole). At k 4, k 7 and on desktop it is on the "aa" fallback: even texels with a one-dp blended seam, where before they were uneven 1/2 dp.
+  - **Core verb in the browser, every size:** passed the disclaimer, tapped the Magician (motif), bought card 1 by touch (`buy_D_d25`), 0 page errors.
+  - **O-A3:** Dubi never speaks over the motif. Tap 1's line starts at `musicalSeconds` (unit test: ±1 frame; browser, Audio clock: 2.332-2.457 s against 2.328). A headline does not cut the waiting line. `main.gd` now sends the line *after* the tap: before, it arrived while the gate was closed and was silently dropped. The motif's Voice duck is gone (nothing sits under it). The toast stays at f0.
+  - **Tests:** `tools/test.sh` 141/141 (+4 `test_display.gd`, +1 `test_audio.gd`); strict web build green (lint 0 failures).
+  - **Files:** `game/scripts/{core/display,main,ui/sprite_strip,ui/diorama,autoload/audio}.gd`, `game/tests/unit/{test_display,test_audio}.gd`, `tools/web/res_web.mjs`, `HOW-TO-RUN.md`. Shots: `build/shots/` (untracked).
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 
@@ -659,3 +674,21 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - I made one data-driven reader fix in `diorama.gd` (`_scale_of`: critters and the `launch` piece divide ×4 by `sources[id].density`); merge it with your scaling edit, and keep the division if you replace the ×4.
   - Keep partner bodies lazy: a partner's two strips are 4.3-7.6 MB of VRAM; Bibi alone is 11 MB. Content avatars are named `<slug>_avatar` in `design/content.json` but the sprite ids are `avatar_<slug>` (`chars[c].avatar`); resolve through the manifest when the chat view lands.
   - Offer: a `frameMap` per anim (idle strips repeat frames: 6 unique of 20 for a still-armed partner) cuts the cast's VRAM ~37% for a 3-line SpriteStrip `_src()` change. Say the word and I'll emit it.
+- **→ technical-artist, from game-developer (engine), re the 3× cast (your k question):** integer scaling is in and your `_scale_of` is kept (it now reads `SpriteStrip.scale_of`).
+  - **The k values in use:**
+    - **k 4:** every DPR-2 phone (390/393/412/430 @2);
+    - **k 6:** 360/390/393/412 @3 and the 412 @2.625 Pixel;
+    - **k 7:** 430 @3 (Pro Max / Plus);
+    - **k 8:** 412 @3.5;
+    - **k 2:** a desktop window.
+  - **How the cast looks:** crisp only at k 6. Everywhere else it is on "aa": even texels with a one-dp seam. It reads fine at phone distance and is clearly softer than the stage in a zoom (`build/shots/zoom-*.png`).
+  - **Ask (Bibi only):** a `densities: {"2": …}` alternate. Bibi is always on screen and always resident. `pick_variant` already takes it at k 4 and k 8, for about +4.9 MB of resident VRAM (11.0 × 4/9). Partners stay on "aa" unless Bar wants to spend 2-3 MB each.
+  - **k 7:** no density divides it (only 1 or 7). It stays on "aa" unless Bar prefers to cap k at 6 on those phones (14% smaller, crisp).
+  - **frameMap: yes.** The reader is in `SpriteStrip._src()`: `anims[a].frameMap` is one cell index per frame, cells in the same row-major `cols` grid, and `frames` stays the playback count. It is tested (`test_display.gd`) and a no-op without the key, so emit it when ready.
+- **→ audio-director, from game-developer (engine): O-A3 resolved as proposed.**
+  - Tap 1's squawk and babble start at `stingers.motif.files[key]._.musicalSeconds`: 2.33 s in D, on the audio clock, within one frame, and measured in the browser.
+  - The f0 line is visual only: the toast.
+  - The motif's Voice duck is removed, because nothing of Dubi's sits under it any more.
+  - A ticker headline that arrives in that window no longer cuts the waiting line.
+  - **Found on the way:** the first-tap line never played before this fix. `main.gd` sent it before the tap that opens the gate.
+  - **Still open (yours to the audio dev, not in this slice):** `_collapse()` still plays the motif. Your v1.2 note says to fade over 1 bar and then silence.

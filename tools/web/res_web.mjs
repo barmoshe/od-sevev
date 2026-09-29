@@ -2,18 +2,21 @@
 // the web build in headless Chromium at real phone sizes and DPRs, passes the disclaimer, taps the
 // Magician three times and buys the first money source by touch, and saves a screenshot at each
 // step (device px, so one art px is k screenshot px). `python3 tools/lib/pixel_runs.py` measures them.
-//   node tools/web/res_web.mjs <url> <out dir> [before]
-// "before" adds &forkscale=1: the same build with the fork's fractional stretch.
+//   node tools/web/res_web.mjs <url> <out dir> [before|after] [WxH@DPR,...]
+// "before" adds &forkscale=1: the same build with the fork's fractional stretch. The device list
+// defaults to 390x844 at DPR 2 and 3 plus a 1280x800 desktop window (desktop = DPR 1, no touch
+// emulation of a phone).
 const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
 const { chromium } = await import(PW);
-const [base, out, tag = 'after'] = process.argv.slice(2);
+const [base, out, tag = 'after', list = '390x844@2,390x844@3,1280x800@1'] = process.argv.slice(2);
 const fs = await import('node:fs');
 fs.mkdirSync(out, { recursive: true });
-const DEVICES = [
-	{ name: '390x844@2', w: 390, h: 844, dpr: 2, mobile: true },
-	{ name: '390x844@3', w: 390, h: 844, dpr: 3, mobile: true },
-	{ name: 'desktop-1280x800@1', w: 1280, h: 800, dpr: 1, mobile: false },
-];
+const DEVICES = list.split(',').map((s) => {
+	const [wh, dpr] = s.split('@');
+	const [w, h] = wh.split('x').map(Number);
+	const mobile = w < h;
+	return { name: `${mobile ? '' : 'desktop-'}${wh}@${dpr}`, w, h, dpr: Number(dpr), mobile };
+});
 const url = `${base}${base.includes('?') ? '&' : '?'}dev=1&grant=500${tag === 'before' ? '&forkscale=1' : ''}`;
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 let failed = 0;
@@ -21,18 +24,18 @@ const check = (ok, msg) => { console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${msg}`); i
 for (const d of DEVICES) {
 	console.log(`${tag} ${d.name}`);
 	const ctx = await browser.newContext({ viewport: { width: d.w, height: d.h }, deviceScaleFactor: d.dpr, isMobile: d.mobile, hasTouch: true });
-	// timestamps each cue file when the engine publishes window.odCueLog (in-page clock), and the
-	// frame times, so a slow software-GL frame is visible next to the O-A3 gap it blurs
+	// records when each cue file was played on the Audio's own clock (window.odCueLogMs, set just
+	// before window.odCueLog) and the frame times (a slow software-GL frame is worth reporting)
 	await ctx.addInitScript(() => {
-		window.__cueT = {};
+		window.__cueG = {};
 		window.__frames = [];
 		let v = [];
 		Object.defineProperty(window, 'odCueLog', { configurable: true, get: () => v, set: (a) => {
-			const t = performance.now();
-			for (const f of a) if (!(f in window.__cueT)) window.__cueT[f] = t;
+			const ms = window.odCueLogMs || [];
+			a.forEach((f, i) => { if (!(f in window.__cueG) && ms[i] !== undefined) window.__cueG[f] = ms[i]; });
 			v = a;
 		} });
-		const raf = (t) => { window.__frames.push(t); if (window.__frames.length > 120) window.__frames.shift(); requestAnimationFrame(raf); };
+		const raf = (t) => { window.__frames.push(t); if (window.__frames.length > 1200) window.__frames.shift(); requestAnimationFrame(raf); };
 		requestAnimationFrame(raf);
 	});
 	const page = await ctx.newPage();
@@ -60,21 +63,22 @@ for (const d of DEVICES) {
 	await shot('title');
 	const css = (lx, ly) => [lx * disp.f / d.dpr, ly * disp.f / d.dpr];
 	const [hx, hy] = css(disp.hat[0], disp.hat[1]);
-	// tap 1: the motif, and Dubi's first line only after its musicalSeconds (O-A3). The log is
-	// published every 250 ms of game time, on a frame: the gap is good to ±(250 ms + one frame).
+	// tap 1: the motif, and Dubi's first line only after its musicalSeconds (O-A3), measured on
+	// the Audio's clock (exact to one frame; game time, which Godot slows on frames over 8/60 s)
 	await tap(hx, hy, 100);
-	await page.waitForFunction(() => 'dubiSquawk_D_down.res' in window.__cueT, null, { timeout: 8000 }).catch(() => {});
+	await page.waitForFunction(() => 'dubiSquawk_D_down.res' in window.__cueG, null, { timeout: 10000 }).catch(() => {});
 	const cue = await page.evaluate(() => {
-		const m = Object.keys(window.__cueT).find((f) => f.startsWith('stinger_motif'));
-		const fr = window.__frames;
-		return { motif: m ? window.__cueT[m] : null, squawk: window.__cueT['dubiSquawk_D_down.res'] ?? null,
-			frameMs: fr.length > 1 ? (fr[fr.length - 1] - fr[0]) / (fr.length - 1) : 0 };
+		const m = Object.keys(window.__cueG).find((f) => f.startsWith('stinger_motif'));
+		const fr = window.__frames.slice(-60);
+		let worst = 0;
+		for (let i = 1; i < fr.length; i++) worst = Math.max(worst, fr[i] - fr[i - 1]);
+		return { motif: m ? window.__cueG[m] : null, squawk: window.__cueG['dubiSquawk_D_down.res'] ?? null, worstMs: worst,
+			meanMs: fr.length > 1 ? (fr[fr.length - 1] - fr[0]) / (fr.length - 1) : 0 };
 	});
 	check(cue.motif !== null, 'tapping the Magician plays the motif');
 	const gap = (cue.squawk - cue.motif) / 1000;
-	const slack = 0.25 + cue.frameMs / 1000;
-	check(cue.squawk !== null && gap > 2.33 - slack && gap < 2.33 + slack,
-		`Dubi's first squawk follows the motif by its 2.33 s (measured ${gap.toFixed(2)} s, ±${slack.toFixed(2)} at ${cue.frameMs.toFixed(0)} ms/frame)`);
+	check(cue.squawk !== null && gap >= 2.327 && gap <= 2.328 + Math.min(cue.worstMs, 8000 / 60) / 1000,
+		`Dubi's first squawk starts at the motif's musicalSeconds 2.328 s: ${gap.toFixed(3)} s on the Audio clock (frames ${cue.meanMs.toFixed(0)} ms mean, ${cue.worstMs.toFixed(0)} ms worst)`);
 	for (let i = 1; i < 3; i++) {
 		await tap(hx, hy + 6 * i, 100 + i);
 		await page.waitForTimeout(350);

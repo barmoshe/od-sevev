@@ -297,14 +297,17 @@ func point(name: String, fallback: Vector2 = Vector2.ZERO) -> Vector2:
 
 
 ## Frame i of a strip, or of a grid when the anim wraps (cols x rows, row-major; the TA wraps
-## strips wider than 2048 px).
+## strips wider than 2048 px). An optional `frameMap` (one texture cell per frame) lets repeated
+## frames share a cell (the TA's VRAM offer); without it frame i is cell i.
 func _src(i: int) -> Rect2:
 	var fw := float(_c["frameW"])
 	var fh := float(_c["frameH"])
 	var cols := int(_a.get("cols", frame_count()))
 	if cols <= 0:
 		cols = frame_count()
-	return Rect2((i % cols) * fw, (i / cols) * fh, fw, fh)
+	var fm: Variant = _a.get("frameMap")
+	var cell := int(fm[i]) if fm is Array and i < (fm as Array).size() else i
+	return Rect2((cell % cols) * fw, (cell / cols) * fh, fw, fh)
 
 
 func _draw() -> void:

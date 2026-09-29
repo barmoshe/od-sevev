@@ -135,6 +135,13 @@ func test_density_one_and_three_from_the_manifest() -> void:
 	runner.check(absf(s1.frame_size().x - size3.x) <= 4.0 and absf(s1.frame_size().y - size3.y) <= 4.0,
 		"the same size on screen at both densities (%s vs %s)" % [s1.frame_size(), size3])
 	runner.check(is_equal_approx(Diorama._scale_of("taxpayer").x, 4.0), "a d 1 taxpayer draws at ×4")
+	# frameMap (the TA's VRAM offer): repeated frames share one texture cell; frames stays the count
+	var st := SpriteStrip.make(parent, "bibi", Vector2(376, 876))
+	var cols := int(st._a.get("cols", st.frame_count()))
+	runner.check(st._src(cols + 1).position == Vector2(float(st._c["frameW"]), float(st._c["frameH"])), "no frameMap: frame i is cell i (row-major grid)")
+	st._a = st._a.duplicate()
+	st._a["frameMap"] = [0, 1, 0, 1]
+	runner.check(st._src(2) == st._src(0) and st._src(3).position.x == float(st._c["frameW"]), "frameMap: frame 2 draws cell 0, frame 3 cell 1")
 	# a density alternate that divides k wins (the TA may ship both)
 	var alt := {"density": 3, "frameW": 243, "anims": {}, "densities": {"2": {"frameW": 162}}}
 	runner.check(int(SpriteStrip.pick_variant(alt, 4)["density"]) == 2, "k 4 picks the d 2 alternate")
