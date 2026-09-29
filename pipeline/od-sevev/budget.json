@@ -150,7 +150,7 @@
   "sprites/curtain_hem.png": 170,
   "sprites/curtain_panel.png": 171,
   "sprites/curtain_valance.png": 294,
-  "sprites/depboard.png": 1446,
+  "sprites/depboard.png": 1509,
   "sprites/dubi_placeholder_avatar.png": 329,
   "sprites/dubi_placeholder_body.png": 452,
   "sprites/dubi_small_fly.png": 603,
@@ -245,7 +245,7 @@
   "sprites/spin_s09.png": 429,
   "sprites/spin_s10.png": 432,
   "sprites/spin_s11.png": 457,
-  "sprites/spin_s12.png": 396,
+  "sprites/spin_s12.png": 523,
   "sprites/spin_s13.png": 443,
   "sprites/spin_s14.png": 402,
   "sprites/spin_s15.png": 418,
@@ -346,18 +346,20 @@
   "fonts/sevev9.png": 1207,
   "fonts/sevev9.fnt": 14781,
   "fonts/sevev9_outline.png": 2443,
-  "fonts/sevev9_outline.fnt": 15106
+  "fonts/sevev9_outline.fnt": 15106,
+  "fonts/sevev9@2.png": 2727,
+  "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 112227156,
+ "vramBytes": 112358228,
  "vramBibi": {
   "3": 9697848,
   "2": 4355640
  },
  "vramTypicalByBibiDensity": {
-  "3": 11900840,
-  "2": 6558632
+  "3": 12031912,
+  "2": 6689704
  },
- "vramTypical": 11900840,
+ "vramTypical": 12031912,
  "vramCastAll": 109332964,
  "vramPerPartner": {
   "sara": 4144800,
@@ -1613,8 +1615,8 @@
   },
   {
    "file": "assets/sprites/spin_s12.png",
-   "source": 396,
-   "imported": 290
+   "source": 523,
+   "imported": 344
   },
   {
    "file": "assets/sprites/spin_s13.png",
@@ -2113,6 +2115,17 @@
    "note": "embedded in the .fontdata"
   },
   {
+   "file": "assets/fonts/sevev9@2.fnt",
+   "source": 15149,
+   "imported": 10812
+  },
+  {
+   "file": "assets/fonts/sevev9@2.png",
+   "source": 2727,
+   "imported": 0,
+   "note": "embedded in the .fontdata"
+  },
+  {
    "file": "assets/fonts/sevev9_outline.fnt",
    "source": 15106,
    "imported": 8905
@@ -2124,7 +2137,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 3124696,
+ "pckBytes": 3135562,
  "specimenVisual": [
   {
    "tofu": 0,
@@ -2182,5 +2195,47 @@
    "width": 129.0
   }
  ],
- "sourceTotal": 9266273
+ "densityProofWidths": [
+  {
+   "w1": 183.0,
+   "w2": 366.0
+  },
+  {
+   "w1": 33.0,
+   "w2": 66.0
+  },
+  {
+   "w1": 282.0,
+   "w2": 564.0
+  },
+  {
+   "w1": 62.0,
+   "w2": 124.0
+  },
+  {
+   "w1": 164.0,
+   "w2": 328.0
+  },
+  {
+   "w1": 47.0,
+   "w2": 94.0
+  },
+  {
+   "w1": 89.0,
+   "w2": 178.0
+  },
+  {
+   "w1": 143.0,
+   "w2": 286.0
+  },
+  {
+   "w1": 209.0,
+   "w2": 418.0
+  },
+  {
+   "w1": 147.0,
+   "w2": 294.0
+  }
+ ],
+ "sourceTotal": 9284276
 }

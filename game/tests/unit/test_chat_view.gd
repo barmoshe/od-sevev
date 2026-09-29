@@ -358,6 +358,17 @@ func test_an_expired_ultimatum_chip_goes_grey() -> void:
 	runner.check(greyed, "and every part of it is drawn grey (C_MUTED), not red")
 
 
+func test_t3_opens_before_the_group_exists() -> void:
+	await _boot()
+	runner.check(not bool(m.state.coalition["opened"]), "no group yet")
+	m.chat.open()
+	m.chat._end_anim(true)
+	for i in 3:
+		await tree.process_frame   # _update_rows runs on the empty thread's one row
+	runner.check(m.chat.rows().size() == 1 and float(m.chat.rows()[0]["y"]) == 16.0, "the empty thread shows CHAT_EMPTY, placed")
+	m.chat.close()
+
+
 func test_a_brawl_is_surfaced_with_the_chat_closed() -> void:
 	await _boot()
 	_open_group()

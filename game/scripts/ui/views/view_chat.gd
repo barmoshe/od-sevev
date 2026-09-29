@@ -163,6 +163,7 @@ func _ready() -> void:
 	_cameo_chip = Ui.nine(_cameo, Rect2(0, 0, CHIP_W, CHIP_H), Art.sprite_or("chip_ultimatum"))
 	_cameo_clock = Ui.img(_cameo, Vector2.ZERO, Art.sprite_or("icon_clock"), 0, 4)
 	_cameo_timer = PxText.make(_cameo, Vector2.ZERO, "", L.TEXT, "plain", "w")
+	_cameo_timer.fit_width = 120.0   # rtl-map §0.2: the timer steps down to ×4 in its chip
 	add_child(_panel)
 	_panel.visible = false
 	_bg = Ui.rect(_panel, Rect2(0, 0, L.W, _h), C_THREAD)
@@ -615,6 +616,9 @@ func _build_thread() -> void:
 	var y := 16.0
 	if model.is_empty():
 		var r := _build_sys(Strings.s("CHAT_EMPTY"), {}, y)
+		r["y"] = y          # the empty thread's one row (T3 opened before the group exists)
+		r["seq"] = -1
+		r["kind"] = "sys"
 		_rows.append(r)
 		y += float(r["h"])
 	var prev_kind := ""
@@ -762,6 +766,7 @@ func _make_chip(parent: Node, at: Vector2) -> Dictionary:
 	Ui.nine(root, Rect2(0, 0, CHIP_W, CHIP_H), Art.sprite_or("chip_ultimatum"))
 	var clock := Ui.img(root, Vector2(CHIP_W - 48.0, 8), Art.sprite_or("icon_clock"), 0, 4)
 	var t := PxText.make(root, Vector2(12, 8), "", L.TEXT, "plain", "w")
+	t.fit_width = 120.0   # chat.timer (rtl-map §0.2)
 	return {"root": root, "clock": clock, "text": t, "lastSec": -1, "nudgeAt": -1e9, "y0": at.y, "urgent": false}
 
 
@@ -924,7 +929,7 @@ func _update_rows(dt: float) -> void:
 				a = p
 				if r.get("kind", "") == "ult" and t > ms:
 					base_y = Ui.snap(4.0 * (1.0 - Ui.quad_out(minf(1.0, (t - ms) / 100.0))), 4)   # the 1-ap thud
-		root.position = Vector2(base_x, float(r["y"]) + base_y)
+		root.position = Vector2(base_x, float(r.get("y", 0.0)) + base_y)
 		root.modulate.a = a
 		for pill: Dictionary in r["pills"]:
 			_update_pill(pill, bps)

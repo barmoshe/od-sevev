@@ -120,7 +120,9 @@ func clear() -> void:
 
 func update_view(dt_ms: float, paused: bool) -> void:
 	if state == "gone" or paused:
-		_update_trail(0.0)
+		# R19: the sparkles left behind keep fading after the flight ends (they froze at t and
+		# stayed in the lane gutters for good); a modal pauses them with everything else
+		_update_trail(0.0 if paused else dt_ms)
 		return
 	_st += dt_ms
 	if state == "idle":
@@ -154,6 +156,8 @@ func update_view(dt_ms: float, paused: bool) -> void:
 ## A sparkle trail behind it while nothing has been caught yet (S1), not under reduced motion.
 func _update_trail(dt_ms: float) -> void:
 	_trail_ms += dt_ms
+	if dt_ms <= 0.0:
+		return
 	if on_screen() and first_flight and not reduced_motion and _trail_ms >= 120.0:
 		_trail_ms = 0.0
 		for p in _trail:
@@ -172,6 +176,15 @@ func _update_trail(dt_ms: float) -> void:
 		if float(p["t"]) >= 500.0:
 			p["t"] = -1.0
 			sp2.visible = false
+
+
+## Trail sparkles still drawn (tests: none may outlive the flight by more than their 500 ms fade).
+func live_sparkles() -> int:
+	var n := 0
+	for p in _trail:
+		if (p["s"] as Sprite2D).visible:
+			n += 1
+	return n
 
 
 func _render() -> void:

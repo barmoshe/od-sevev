@@ -1,7 +1,7 @@
 class_name Toasts
 extends Node2D
 ## The toast dock (ux/rtl-map.md §4: Rect2(16, 8, 688, 88) one line, 132 two lines, text box
-## x 32-688 right-aligned) and Dubi's speech bubble (ux/ftue.md H1, P1 F1, E1). A child of the
+## x 32-676 right-aligned) and Dubi's speech bubble (ux/ftue.md H1, P1 F1, E1). A child of the
 ## stage node (design y = STAGE.y + stage-local y).
 ## ux/ftue.md §3.1: one toast at a time, each ≥ 3 s (or until tapped), 1 s gap between toasts.
 
@@ -38,14 +38,23 @@ var _head: PxText
 var _preview: PxText
 
 
+## rtl-map §4 (rev 2026-09-29): the toast text box is x 32-676, right-aligned at 676 (the kit
+## toast's content box ends 24 px before the plate's right edge, where the accent stripe is).
+const TEXT_RIGHT := 676.0
+const TEXT_W := 644.0
+## Dubi's bubble text: white `w` on the kit bubble's #2e2250 (13.6:1; rtl-map §4 "Dubi's bubble").
+const BUBBLE_INK := "w"
+
+
 func _ready() -> void:
 	_plate = Ui.nine(self, Rect2(16, float(L.STAGE["y"]) + 8.0, 688, 88), Art.sprite_or("toast"))
-	_text = PxText.make(self, Vector2(688, float(L.STAGE["y"]) + 24.0), "", L.TEXT, "plain", "w")
+	_text = PxText.make(self, Vector2(TEXT_RIGHT, float(L.STAGE["y"]) + 24.0), "", L.TEXT, "plain", "w")
 	_text.h_anchor = 2
-	_text.wrap_width = 656
+	_text.wrap_width = TEXT_W
 	_text.max_lines = 2
+	_text.max_lines_large = 3   # string-budgets stage.toast linesLarge
 	_bubble = Ui.nine(self, Rect2(0, 0, 64, 64), Art.sprite_or("chat_bubble_in"))
-	_btext = PxText.make(self, Vector2.ZERO, "", L.TEXT, "plain", Color("#1b1426"))
+	_btext = PxText.make(self, Vector2.ZERO, "", L.TEXT, "plain", BUBBLE_INK)
 	for n: CanvasItem in [_plate, _text, _bubble, _btext]:
 		n.visible = false
 	_build_chat_nodes()
@@ -150,7 +159,7 @@ func tap(p: Vector2) -> bool:
 func say(text: String, at: Vector2, ms: float = 1600.0) -> void:
 	_btext.text = dubi_line.call(text) if dubi_line.is_valid() else text
 	var w := float(_btext.width()) + 48.0
-	var h := float(HeFont.line_height() * L.TEXT) + 24.0
+	var h := float(HeFont.line_height()) * _btext.eff_px() + 24.0
 	var x := clampf(Ui.snap(at.x - w / 2.0, 4), 16.0, L.W - 16.0 - w)
 	var r := Rect2(x, Ui.snap(at.y - h, 4), Ui.snap(w, 4), Ui.snap(h, 4))
 	Ui.set_nine_rect(_bubble, r)
@@ -163,6 +172,22 @@ func say(text: String, at: Vector2, ms: float = 1600.0) -> void:
 
 func saying() -> bool:
 	return _bt >= 0.0
+
+
+## The plate grows to the measured line count at the scale drawn (rtl-map §0.2): 88 for one line
+## and 132 for two at ×4, one line pitch more per line.
+func plate_h() -> float:
+	var lh := float(HeFont.line_height()) * _text.eff_px()
+	return maxf(88.0, Ui.snap(44.0 + lh * float(maxi(1, _text.line_count())), 4))
+
+
+## Test hooks: the toast text and the bubble text nodes.
+func text_node() -> PxText:
+	return _text
+
+
+func bubble_text_node() -> PxText:
+	return _btext
 
 
 func update_view(dt_ms: float) -> void:
@@ -193,10 +218,10 @@ func update_view(dt_ms: float) -> void:
 	while _chats.size() > _queue.size():
 		_chats.pop_front()
 	var shown_nodes: Array[CanvasItem] = [_plate]
+	var y0 := float(L.STAGE["y"]) + 8.0
 	if chat.is_empty():
 		_text.text = msg
-		var two := _text.line_count() > 1
-		Ui.set_nine_rect(_plate, Rect2(16, float(L.STAGE["y"]) + 8.0, 688, 132 if two else 88))
+		Ui.set_nine_rect(_plate, Rect2(16, y0, 688, plate_h()))
 		shown_nodes.append(_text)
 	else:
 		_text.text = ""
@@ -204,7 +229,11 @@ func update_view(dt_ms: float) -> void:
 		_head.right_at(CHAT_TEXT_RIGHT)
 		_preview.text = msg
 		_preview.right_at(CHAT_TEXT_RIGHT)
-		Ui.set_nine_rect(_plate, Rect2(16, float(L.STAGE["y"]) + 8.0, 688, 132))
+		# two one-line rows at the scale drawn (132 at ×4; the lines grow under large text)
+		var lh_head := float(HeFont.line_height()) * _head.eff_px()
+		var lh_prev := float(HeFont.line_height()) * _preview.eff_px()
+		_preview.position.y = y0 + 16.0 + lh_head
+		Ui.set_nine_rect(_plate, Rect2(16, y0, 688, maxf(132.0, Ui.snap(44.0 + lh_head + lh_prev, 4))))
 		shown_nodes.append_array([_head, _preview])
 		if _set_face(chat.get("avatar", [])):
 			shown_nodes.append(_face)

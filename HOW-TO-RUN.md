@@ -91,6 +91,17 @@ Hebrew font (`PxText.BITMAP_ROUTE` brings back the fork's 5x7 digits). `Strings.
 isolate inside one the string already has; `Strings.plural` / `Strings.gendered` pick the
 `_ONE/_TWO/_OTHER/_ZERO` and `_M/_F` siblings.
 
+**Large text (rtl-map §0.2).** `PxText` owns the step-down: under large text a body text (×4) draws
+×5 only when its filled string fits its box there (`wrap_width` + `max_lines_large`, or `fit_width`
+for a one-line label that never wraps), else ×4, where `tools/lint_text.sh` proves it fits. A view
+gives each text its `string-budgets.json` box; rows that stack text measure `line_count()` ×
+`eff_px()`. Toggling large text re-runs the controller's relayout and rebuilds an open settings sheet.
+
+**Back button (rtl-map §7.1, `scripts/core/layer_history.gd`).** Web: one `history.pushState` per
+open layer (overlays, the partner card, T3/T4, the expanded court card); `popstate` closes the top
+layer as ✕/Esc does, About keeps its own entry, and with nothing open back leaves the page.
+`window.odLayers` is the open-layer count (web debug). Android back and Esc share `back_layer()`.
+
 **RTL.** `L.RTL` (from `Bidi.UI_RTL`) mirrors the fork's layout tables once at startup: the shop
 icon and name on the right, the price pill on the left, tabs reversed, the ticker tag on the right
 with a left-to-right crawl, bars filling from the right, the stat window and gear swapped. The full

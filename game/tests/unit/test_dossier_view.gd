@@ -139,6 +139,11 @@ func test_slot_4_appears_at_k2_and_opens_the_tab() -> void:
 	runner.check(dv.tab_revealed(), "then the tab is revealed")
 	runner.check(m.toasts._queue.has(Strings.s("TOAST_DOSSIER")), "with the toast 'נפתח לך תיק.'")
 	await tree.process_frame
+	# review R4 (ux/ftue.md C1): the tab bar appears only with C1; slot 4 fills it once it is there
+	runner.check(not m.shop._slot_shown(3), "slot 4 waits for the tab bar (C1)")
+	for id: String in Content.producer_ids().slice(0, 3):
+		m.state.owned[id] = maxi(1, m.state.owned_of(id))
+	await tree.process_frame
 	runner.check(m.shop._slot_shown(3), "slot 4 shows")
 	m.shop.switch_slot(4)
 	runner.check(dv.is_open() and m.shop.tall == "dossier", "slot 4 opens T4 and shows as the active tab")

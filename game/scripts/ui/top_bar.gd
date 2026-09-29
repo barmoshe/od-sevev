@@ -51,6 +51,7 @@ func _ready() -> void:
 	bank = PxText.make(self, cb.position, "", COUNTER_SCALE, "plain", th["statText"]["bank"])
 	var rb: Rect2 = T["rateBox"]
 	bps = PxText.make(self, rb.position, "", L.TEXT, "plain", th["statText"]["bps"])
+	bps.fit_width = rb.size.x   # rtl-map §0.2: ×5 only when the filled rate fits rowA.rate (344)
 	gear = _icon(T["gearHit"], "icon_gear")
 	mute = _icon(T["muteHit"], "icon_sound_on")
 	var hop := float(Tune.MC["bpsHopPx"])
@@ -65,8 +66,12 @@ func _ready() -> void:
 	_goal = Ui.nine(self, tr.grow(12), Art.sprite_or("seats_goal_frame"))
 	_goal.visible = false
 	seats_label = PxText.make(self, Vector2(0, float(T["seatsY"])), Strings.s("HUD_SEATS"), L.TEXT, "plain", "w")
+	# rtl-map §0.2: Row B's label box is x 576-704 (128) and the numeral's x 16-136 (120); at ×5
+	# "מנדטים" (155) would run over the track, so it steps down
+	seats_label.fit_width = float(T["seatsLabelRight"]) - tr.end.x - 8.0
 	seats_label.right_at(float(T["seatsLabelRight"]))
 	seats_value = PxText.make(self, Vector2(float(T["seatsValueX"]), float(T["seatsY"])), "", L.TEXT, "plain", "w")
+	seats_value.fit_width = tr.position.x - float(T["seatsValueX"]) - 8.0
 	_apply_reveal()
 
 
@@ -145,8 +150,19 @@ func roll_bank(award: float) -> void:
 	_roll_tw.tween_property(self, "_roll_remainder", 0.0, float(Tune.MC["luckyBunchRollMs"]) / 1000.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
-func set_bps(rate_bps: float, frenzy_mult: float) -> void:
+## `pour`: S07 (idleToTap) is live, so passive income is 0 and every tap pours it instead. The
+## line then reads HUD_BPS_POUR in the frenzy tint rather than "+0.0 ₪ לשנייה" (review R24).
+func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
 	var th := Art.theme
+	var rb0: Rect2 = L.TOP["rateBox"]
+	if pour:
+		_frenzy = true
+		_prev_rate = -1.0
+		bps.text = Strings.s("HUD_BPS_POUR")
+		bps.center_in(rb0.position.x, rb0.size.x)
+		bps.tint = Art.col(th["statText"]["bpsFrenzy"])
+		bps.self_modulate.a = 1.0
+		return
 	var rate := rate_bps * frenzy_mult
 	var rb: Rect2 = L.TOP["rateBox"]
 	if _prev_rate >= 0.0 and absf(rate - _prev_rate) > 1e-9:

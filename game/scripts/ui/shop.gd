@@ -2,8 +2,8 @@ class_name Shop
 extends Node2D
 ## The card panel and the tab bar (ux/rtl-map.md §6), `_lower`-local: the list sits at y 84 with
 ## height P (the flex rule), the tab bar under it. RTL cards: plate and icon on the right, the name
-## right-aligned beside it, line 2 (yield) under it, the owned count at the left end of line 2, the
-## price pill on the left. The WHOLE card is the buy target (first-minute §3.1): commit on release,
+## right-aligned beside it, line 2 (yield) under it, the owned count as a dark badge on the plate's
+## bottom-left corner (rtl-map §6.1 D4), the price pill on the left. The WHOLE card is the buy target (first-minute §3.1): commit on release,
 ## a move beyond moveCancelPx makes the press a scroll. Hold a source card to repeat-buy.
 ## The pill (R5): verb over price; affordable = the kit's gold pill; unaffordable = the sunken well
 ## with a dim fill growing from the right as the treasury approaches the price.
@@ -32,8 +32,9 @@ const TAB_ICONS := ["tabicon_sources", "tabicon_spins", "tabicon_coalition", "ta
 const TAB_BUILT := [true, true, true, true]
 const TALL_TABS := ["coalition", "dossier"]
 ## S08 "השלט" (karhiLine): its two bars live on the card only. One 2-art-px split track under
-## line 2 (card-local): "שידור ציבורי" fills from the right, "ערוץ ידידותי" takes the rest. The
-## labels wait for UX keys (STATUS request); the palette letters are the art.json palette.
+## line 2 (card-local): "שידור ציבורי" fills from the right, "ערוץ ידידותי" takes the rest. Labels
+## on the 8-px bar don't fit (rtl-map §6.1): at level ≥ 1 line 2 names the growing part instead
+## (SPIN_BARS_LINE, spin_line2). The palette letters are the art.json palette.
 const SPIN_BARS := Rect2(220, 104, 360, 8)
 ## The spin tag's stamp: the bottom band of the plate (kit card_plate at 588-692 × 8-112).
 const SPIN_TAG := Rect2(592, 72, 96, 40)
@@ -118,6 +119,8 @@ func _ready() -> void:
 	var e1 := PxText.make(up, Vector2(0, 0), Strings.s("UPG_EMPTY_1"), L.TEXT, "plain", th["shop"]["emptyText"])
 	var e2 := PxText.make(up, Vector2(0, 0), Strings.s("UPG_EMPTY_2"), L.TEXT, "plain", th["shop"]["emptyText"])
 	_empty = [e1, e2]
+	for e in _empty:
+		e.fit_width = 656.0   # list.empty
 	up.visible = false
 	_build_tabs()
 	set_list_height(L.panel_h)
@@ -130,8 +133,10 @@ func _build_tabs() -> void:
 		d["plate"] = Ui.nine(self, Rect2(0, 0, 180, L.TABS_H), Art.sprite_or("tab_active"))
 		d["icon"] = Ui.img(self, Vector2.ZERO, Art.sprite_or(TAB_ICONS[i] + "_idle"), 0, 4)
 		d["label"] = PxText.make(self, Vector2.ZERO, Strings.s(TAB_KEYS[i]), L.TEXT, "plain", "w")
+		(d["label"] as PxText).fit_width = 164.0   # tab.label: at ×5 "קואליציה" (195) steps down
 		d["badge"] = Ui.nine(self, Rect2(0, 0, 44, 44), Art.sprite_or("badge_count"))
 		d["badgeText"] = PxText.make(self, Vector2.ZERO, "", L.TEXT, "plain", "w")
+		(d["badgeText"] as PxText).fit_width = 40.0   # tab.badge
 		_slots.append(d)
 	_layout_tabs()
 
@@ -236,11 +241,18 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 		t.h_anchor = 2
 	name.wrap_width = float(R["nameW"])
 	line2.wrap_width = float(R["line2W"])
-	var owned := PxText.make(content, Vector2(float(R["ownedX"]), float(R["ownedY"])), "", L.TEXT, "plain", "w")
+	# the owned badge (rtl-map §6.1, D4): a dark chip on the plate's bottom-left corner
+	var orect: Rect2 = R["owned"]
+	var owned_bg := Ui.rect(content, orect, th["scrim"], 0.85)
+	owned_bg.visible = false
+	var owned := PxText.make(content, Vector2(orect.position.x, orect.position.y + 2.0), "", L.TEXT, "plain", "w")
+	owned.fit_width = orect.size.x - 8.0   # card.owned 96
 	var pill := Ui.nine(content, PILL_RECT, Art.sprite_or("pay_pill_default"))
 	var fill := Ui.nine(content, Rect2(PILL_RECT.end.x - 16, PILL_RECT.position.y + 8, 8, PILL_RECT.size.y - 24), Art.sprite_or("pay_pill_fill"))
 	var pill1 := PxText.make(content, Vector2(PILL_RECT.position.x, float(R["pillLine1Y"])), "", L.TEXT, "plain", "w")
 	var pill2 := PxText.make(content, Vector2(PILL_RECT.position.x, float(R["pillLine2Y"])), "", L.TEXT, "plain", "w")
+	for t: PxText in [pill1, pill2]:
+		t.fit_width = PILL_RECT.size.x - 16.0   # large text: ×5 only inside the pill, else ×4
 	var flash := Ui.rect(c, Rect2(lx, 0, lw, row_h), th["row"]["affordFlash"], 0.0)
 	var dim := Ui.fade_rect(c, Rect2(lx, 0, lw, row_h), th["scrim"])
 	var glint := Ui.rect(c, Rect2(lx, 4, 8, row_h - 8), th["row"]["affordFlash"], 0.0)
@@ -249,6 +261,7 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 	# a spin's tag ("שחוק", a line's "1/5"): a stamp over the plate's bottom edge (rtl-map §6.1)
 	var tag_bg := Ui.rect(content, SPIN_TAG, th["scrim"], 0.85)
 	var tag := PxText.make(content, Vector2(SPIN_TAG.position.x, SPIN_TAG.position.y + 2.0), "", L.TEXT, "plain", "w")
+	tag.fit_width = SPIN_TAG.size.x - 8.0
 	tag_bg.visible = false
 	tag.visible = false
 	var bar_pub := Ui.rect(content, sb, Art.col(SPIN_BAR_PUBLIC))
@@ -259,7 +272,7 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 	return {
 		"c": c, "panel": panel, "content": content, "plate": plate, "icon": icon, "iconFlash": icon_flash,
 		"barPublic": bar_pub, "barFriendly": bar_fr, "tag": tag, "tagBg": tag_bg,
-		"name": name, "line2": line2, "owned": owned, "pill": pill, "fill": fill, "pill1": pill1, "pill2": pill2,
+		"name": name, "line2": line2, "owned": owned, "ownedBg": owned_bg, "pill": pill, "fill": fill, "pill1": pill1, "pill2": pill2,
 		"flash": flash, "dim": dim, "glint": glint, "index": k, "model": {"kind": "none", "id": ""}, "key": "",
 		"afford": null, "glintReadyAt": 0.0, "pressP": 0.0, "pressed": false, "shakeT": -1.0, "hopT": -1.0,
 		"popT": -1.0, "upgradePopT": -1.0, "tintUntil": 0.0, "pillWasPressed": false, "pillNoRebound": false,
@@ -451,7 +464,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			afford = bool(card["canBuy"])
 			icon = Art.sprite_or(String(u.get("icon", "icon_" + id)))
 			nm = Strings.upgrade_name(id)
-			line2 = Strings.upgrade_effect(id)
+			line2 = spin_line2(id, card)
 			tag_s = String(card["tag"])
 			wide = true
 			l1 = Strings.s("SPIN_VERB")
@@ -475,10 +488,17 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			v["iconBase"] = Vector2(R["iconCenter"]) - (isz / 2.0 / 4.0).floor() * 4.0
 			ic.position = v["iconBase"]
 		ic.scale = Vector2(4, 4)
-		(v["line2"] as PxText).wrap_width = float(R["line2WideW"] if wide else R["line2W"])
+	# line 2: x 220-568 beside the owned badge, x 220-580 without it (string-budgets card.line2*)
+	var l2t: PxText = v["line2"]
+	l2t.wrap_width = float(R["line2WideW"] if wide else R["line2W"])
+	l2t.position.x = float(R["line2WideRight"] if wide else R["line2Right"])
 	(v["name"] as PxText).text = nm
-	(v["line2"] as PxText).text = line2
-	(v["owned"] as PxText).text = owned_s
+	l2t.text = line2
+	var ot: PxText = v["owned"]
+	ot.text = owned_s
+	var orect: Rect2 = R["owned"]
+	ot.center_in(orect.position.x, orect.size.x)   # re-centred every render: large text changes the width
+	(v["ownedBg"] as ColorRect).visible = owned_s != ""
 	if v["afford"] == false and afford and active and _visible_shop and not is_btn:
 		if _now >= float(v["glintReadyAt"]):
 			v["glintReadyAt"] = _now + float(Tune.T["affordGlintCooldownMs"])
@@ -523,9 +543,8 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	(v["owned"] as PxText).tint = Color(0.86, 0.84, 0.9)
 	_render_bars(v, bars)
 	var tg: PxText = v["tag"]
-	if tg.text != tag_s:
-		tg.text = tag_s
-		tg.center_in(SPIN_TAG.position.x, SPIN_TAG.size.x)
+	tg.text = tag_s
+	tg.center_in(SPIN_TAG.position.x, SPIN_TAG.size.x)
 	tg.visible = tag_s != ""
 	(v["tagBg"] as ColorRect).visible = tg.visible
 
@@ -547,6 +566,15 @@ func _render_bars(v: Dictionary, bars: Dictionary) -> void:
 	fr.size = Vector2(wf, sb.size.y)
 
 
+## A spin card's line 2 (rtl-map §6.1): the effect label; S08 (the split bars) at level ≥ 1 reads
+## SPIN_BARS_LINE "ערוץ ידידותי: {pct}%" instead, naming the part of the bar that grows (R14).
+static func spin_line2(id: String, card: Dictionary) -> String:
+	var bars: Dictionary = card.get("bars", {})
+	if not bars.is_empty() and int(card.get("level", 0)) >= 1:
+		return Strings.s("SPIN_BARS_LINE", {"pct": int(roundf(float(bars.get("friendly", 0.0))))})
+	return Strings.upgrade_effect(id)
+
+
 ## The spin card's model (rtl-map §6.1 "Spin card"), from the sim's reads only:
 ## {price (-1 = nothing left), canBuy, tag (the owned-badge slot: "שחוק" on a worn consumable, a
 ## line's "level/levels"; "" = none), bars (S08), flightPct (S10), kind}.
@@ -559,7 +587,8 @@ static func spin_card(s: GameState, id: String, d: Economy.Derived = null) -> Di
 		tag = Strings.s("PERK_LEVEL", {"lv": int(c["level"]), "max": int(c["levels"])})
 	elif c["worn"]:
 		tag = Strings.s("SPIN_FATIGUE")
-	var out := {"price": float(c["price"]), "canBuy": Economy.can_buy_upgrade(s, id), "tag": tag, "kind": c["kind"]}
+	var out := {"price": float(c["price"]), "canBuy": Economy.can_buy_upgrade(s, id), "tag": tag, "kind": c["kind"],
+		"level": int(c.get("level", 0))}
 	if c.has("bars"):
 		out["bars"] = c["bars"]
 	if c.has("flightPct"):

@@ -145,6 +145,11 @@ func card_visible() -> bool:
 	return _card.visible
 
 
+## The card is expanded and not already folding into its chip: one browser history layer (R9).
+func expanded() -> bool:
+	return _mode == "open" and String(_anim.get("kind", "")) != "collapse"
+
+
 func card_rect() -> Rect2:
 	return Rect2(CARD_X, L.tabs_y() - _card_h, CARD_W, _card_h)
 
@@ -204,19 +209,6 @@ static func of(h: Node) -> CourtView:
 		return null
 	var c: Variant = h.get("court")
 	return c as CourtView if c is CourtView else null
-
-
-## Esc / back with the card expanded: it folds to the chip before any other layer rule
-## (rtl-map §6.4). Returns true when the key was spent here.
-func esc_collapse() -> bool:
-	if _mode != "open" or not _card.visible or String(_anim.get("kind", "")) == "collapse":
-		return false
-	var ph := phase()
-	if ph != "summons" and ph != "court":
-		return false
-	_audio("uiClick")
-	collapse()
-	return true
 
 
 ## The excuse line for a postponement step (content copy, court.postpone.copy.excuses; the sim

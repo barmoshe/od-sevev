@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://dqseb7sjtngbe"
+path="res://.godot/imported/sevev9@2.fnt-536270dc518647c109e358d77e2af4fa.fontdata"
+
+[deps]
+
+source_file="res://assets/fonts/sevev9@2.fnt"
+dest_files=["res://.godot/imported/sevev9@2.fnt-536270dc518647c109e358d77e2af4fa.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=1

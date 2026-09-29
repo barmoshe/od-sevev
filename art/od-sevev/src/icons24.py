@@ -4,7 +4,7 @@ spin card's icon fills card_plate (26x26) exactly like a money source's 24x24 ic
 Why a redraw and not a 15->24 upscale: the kit never mixes pixel scales in one frame (style guide §1), and
 the money-source icons beside them are dense 1:1 crops of 40-ap stage art. At 15 px the spins read as
 small clip-art on a big plate; at 24 px each one gets its joke's second beat (the deposit tag's "0.30",
-the drip, the one lit window seat, the cobweb on the committee, the "1" like).
+the drip, the one lit window seat, the frost and cobweb on the committee's binder, the "1" like).
 
 Construction (graphic tier, style guide §3-4): each icon is built from PARTS, back to front. A part is a
 fill grid (no outline drawn in it) that gets its own 1 px external `outline` before it is pasted, so an
@@ -514,32 +514,64 @@ def _s11():
 SPINS["s11"] = ("באגס באני", _s11)
 
 
-# ---------------------------------------------------------------- s12 the committee: three empty chairs, a gavel, a cobweb
+# ---------------------------------------------------------------- s12 the committee: a frozen binder, an idle gavel, a cobweb
+# Bar, 2026-09-29 (design/redlines.json `oct7-hostages`, visual echoes included): the old icon, three empty
+# chairs at a table, echoed a memorial symbol, so the committee is now its paperwork: a fat lever-arch binder
+# whose spine label has the shape of "ועדה" (4 micro glyphs, RTL; not meant to be read at 24 px), frosted
+# over with icicles (the suspicion is frozen), a gavel lying on top that nobody picks up, and a cobweb.
+# No chair, table, seat or empty place setting in this icon, ever.
+MICRO_VAADA = [                    # visual order, left to right = ה ד ע ו (the word reads right to left)
+    "###.###.#.#.#",
+    "..#...#..##.#",
+    "#.#...#.##..#",
+]
+
+
 def _s12():
-    def chair(x):
-        return part(["WWWW", "WttD", "WDDD", "WttD", "WDDD"], x, 2)
-    table = part([
-        "..WWWWWWWWWWWWWWWW..",
-        ".WtWWWWWWWWWWWWWWWD.",
-        "WWWWWWWWWWWWWWWWWWDD",
-        "WWWWWWWWWWWWWWWWWDDD",
-        ".DDDDDDDDDDDDDDDDDD.",
-        "...DD..........DD...",
-        "...DD..........DD...",
-        "...DD..........DD...",
-    ], 1, 10)
+    W, H = 17, 16
+    binder = Layer(W, H)
+    binder.rect(0, 0, W, H, "teal")
+    binder.vline(0, 0, H - 1, "teal_hi")                             # light plane: the spine's left edge
+    binder.rect(W - 2, 0, 2, H, "teal_dk")                           # the back cover's thickness, in shadow
+    binder.hline(1, W - 3, H - 2, "teal_dk")                         # the foot
+    binder.hline(0, W - 3, H - 1, "teal_dk")
+    # the spine label: paper on the teal, "ועדה" in ink micro glyphs
+    binder.rect(1, 4, 14, 5, "white")
+    binder.hline(1, 14, 8, "paper"); binder.vline(14, 4, 8, "paper")
+    for j, row in enumerate(MICRO_VAADA):
+        for i, v in enumerate(row):
+            if v == "#":
+                binder.set(1 + i, 5 + j, "ink")
+    # the finger hole of a lever-arch spine: sunk, lit on its lower inner edge
+    binder.rect(6, 10, 4, 3, "teal_dk")
+    binder.hline(7, 9, 12, "teal_hi")
+    # frost on the top edge, and three icicles hanging over the label
+    binder.hline(0, W - 1, 0, "white")
+    binder.hline(0, W - 1, 1, "silver")
+    for x, n in ((2, 2), (8, 3), (13, 2)):
+        binder.set(x, 1, "white")
+        binder.vline(x, 2, 1 + n, "sky")
+    # the gavel, lying on its side on the file: the head stands on its face (frosted top, two grooves)
+    gavel_handle = part(["WWWWWWWWWWt", "DDDDDDDDDDD"], 11, 5)
     gavel_head = part([
-        "WWWWD",
-        "WtWWD",
-        "DDDDD",
-    ], 12, 9)
-    gavel_handle = part(["tW", ".tW", "..tW"], 9, 11)
-    papers = part(["wwwwp", "ppppp"], 3, 10)
-    C = compose(chair(2), chair(9), chair(16), table, papers, gavel_handle, gavel_head)
-    # a cobweb from the top-right corner onto the last chair: nobody has sat here for a while
-    for (x, y) in [(23, 0), (22, 1), (21, 2), (20, 3), (23, 2), (22, 2), (21, 1), (21, 0), (23, 4), (22, 3)]:
+        "wwww",
+        "tWWD",
+        "DDDD",
+        "tWWD",
+        "tWWD",
+        "DDDD",
+    ], 6, 1)
+    C = compose((binder.outlined("outline", pad=1), 3, 6), gavel_handle, gavel_head)
+    # a cobweb in the top-right corner, strung to the gavel's handle: nobody has lifted it in a while
+    for (x, y) in [(23, 0), (22, 1), (21, 2), (20, 3), (21, 0), (21, 1), (22, 2), (23, 2), (23, 4), (22, 3), (23, 3)]:
         if C.get(x, y) is None:
             C.set(x, y, "grey")
+    # a snowflake in the top-left corner: the freeze, said once more for the small screen
+    FLAKE = ["#.#.#", ".###.", "##o##", ".###.", "#.#.#"]
+    for j, row in enumerate(FLAKE):
+        for i, v in enumerate(row):
+            if v != ".":
+                C.set(i, j, "white" if v == "o" else "sky")
     return C
 
 SPINS["s12"] = ("הוחלט להקים ועדה", _s12)
