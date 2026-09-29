@@ -19,7 +19,7 @@ creative-pack art/showcase/src ├─ render (temp copy; the pack is never writt
 creative-pack art/src/locations.py ─────────────────────────────────────────────▶ stage_<era>.png
                                └─ drift check vs the approved showcase out/ (pixel-exact; FAIL on change)
 art/od-sevev/ui-kit.json + out/ui/** (2D Artist) ─┐
-art/od-sevev/out/key/icon-64-art.png ─────────────┤
+art/od-sevev/out/key/icon-128-art.png ────────────┤
                                                    ├─ validate ─▶ game/assets/sprites/** + sprites.json
 pipeline/od-sevev/font/sevev9.glyphs ──────────────┤
 pipeline/od-sevev/font/sevev9@2.glyphs ────────────┴─ font ─────▶ game/assets/fonts/sevev9{,_outline,@2}.fnt/.png

@@ -1785,6 +1785,42 @@
    }
   },
   {
+   "id": "avatar24_nophoto",
+   "group": "nophoto",
+   "file": "out/ui/nophoto/avatar24_nophoto.png",
+   "w": 24,
+   "h": 24,
+   "notes": "The 24 px chat avatar of the no-photo stand-in (UX's 48-logical-px chat avatar at x2)."
+  },
+  {
+   "id": "avatar_nophoto",
+   "group": "nophoto",
+   "file": "out/ui/nophoto/avatar_nophoto.png",
+   "w": 32,
+   "h": 32,
+   "notes": "Chat avatar for a partner with no ref (the stand-in character `nophoto`; today Almog Cohen). Same construction as the render-down avatars (2 px ring, disc inside), slate ring on silver: a neutral 'no photo', never a likeness. Draw at artScale (d = 1)."
+  },
+  {
+   "id": "nophoto_idle",
+   "group": "nophoto",
+   "file": "out/ui/nophoto/nophoto_idle.png",
+   "w": 40,
+   "h": 97,
+   "frames": 1,
+   "frameW": 40,
+   "pivot": [
+    20,
+    96
+   ],
+   "notes": "chars.nophoto 'idle' (1 frame, d = 1): the featureless figure the partner card and the ultimatum cameo draw for a partner with no ref. 40x97 like a partner at d 3, anchor [20, 96] (feet). The pipeline aliases every content partner without a character to it.",
+   "fps": 1,
+   "loop": true,
+   "events": {},
+   "char": "nophoto",
+   "anim": "idle",
+   "standIn": true
+  },
+  {
    "id": "dubi_placeholder_avatar",
    "group": "props",
    "file": "out/ui/props/dubi_placeholder_avatar.png",
@@ -1956,23 +1992,23 @@
    "id": "sheet_modal",
    "group": "sheet",
    "file": "out/ui/sheet/sheet_modal.png",
-   "w": 36,
-   "h": 36,
+   "w": 38,
+   "h": 38,
    "slice": [
-    6,
-    22,
-    6,
-    6
+    7,
+    23,
+    7,
+    7
    ],
    "mode": "stretch",
    "content": [
-    6,
-    22,
+    7,
+    23,
     24,
     8
    ],
    "label": "white",
-   "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 1..18 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map §7.1 D23; never the fork's grape, which lifts the dark base)."
+   "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 2..19 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map §7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece is 38x38 and every margin grew by 1. Draw it at the card rect grown by 4 logical px per side to keep the title band and body exactly where they were."
   },
   {
    "id": "sheet_plain",

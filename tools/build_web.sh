@@ -77,7 +77,7 @@ log "site url: ${SITE:-(relative)}"
 # the HTML surfaces (N1, N0, hand-off bar, About) take their Hebrew from ux/ui-strings.json
 python3 "$HERE/lib/render_shell.py" "$OUT/index.html"
 cp "$GAME/assets/sprites/wordmark.png" "$OUT/wordmark.png"
-[ -f "$GAME/web/og.jpg" ] && cp "$GAME/web/og.jpg" "$OUT/og.jpg"   # the 2D Artist's 1200x630 link preview (art/od-sevev/out/key/og-1200x630.jpg, 118 KB)
+[ -f "$GAME/web/og.jpg" ] && cp "$GAME/web/og.jpg" "$OUT/og.jpg"   # the 2D Artist's 1200x630 link preview (art/od-sevev/out/key/og-1200x630.jpg, 120 KB)
 grep -q "mbBuild = '$STAMP'" "$OUT/index.html" || { log "build stamp missing from index.html"; exit 1; }
 log "build stamp: $STAMP"
 log "done:"

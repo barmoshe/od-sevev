@@ -58,6 +58,7 @@ def build():
                             (["sources"], "kit-w3-sources.png", 5), (["dubi"], "kit-w4-dubi-small.png", 5)):
         sheet.contact(groups, name, z)
     wave6.proof()
+    wave6.proof_polish()
     h, c, o, over, yend = mock.build()
     row = Image.new("RGB", (180 * 6 + 40, 320), (0, 0, 0))
     for i, im in enumerate((h, c)):

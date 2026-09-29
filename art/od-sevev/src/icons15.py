@@ -492,15 +492,15 @@ TROPHY["icon_wand"] = G([
     "kik....kYk",
     ".k......k",
 ])
-TROPHY["icon_moon"] = G([
-    "....kkkk",
-    "..kkwwwk",
-    ".kwwwkk",
-    ".kwwk",
-    "kwwpk.....k",
-    "kwwpk....kYk",
-    "kwwpk.....k",
-    "kwwppk",
+TROPHY["icon_moon"] = G([                            # a crescent asleep: two z's rising right (wave 6: the
+    "....kkkk...wwww",                                # star beside the crescent read as an emblem)
+    "..kkwwwk.....w",
+    ".kwwwkk.....w",
+    ".kwwk......wwww",
+    "kwwpk..www",
+    "kwwpk....w",
+    "kwwpk...w",
+    "kwwppk.www",
     ".kwppkk....kk",
     ".kppppkkkkkpk",
     "..kTppppppTk",
