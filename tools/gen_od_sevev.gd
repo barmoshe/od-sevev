@@ -65,7 +65,7 @@ func _initialize() -> void:
 	var man := {"version": "od-1", "generator": "tools/gen_od_sevev.gd", "a4Hz": _a4,
 		"layers": _m["layers"], "antiFatigue": _m["antiFatigue"], "courtDay": _m["courtDay"], "outsideSpec": _m["outside"],
 		"keys": _c["keys"], "degrees": _c["degrees"], "buses": _c["buses"], "babbleContours": _c["babbleContours"],
-		"eras": {}, "stingers": {}, "cues": {}}
+		"crits": _c.get("crits", {}), "eras": {}, "stingers": {}, "cues": {}}
 	var targets: Dictionary = _m["targets"]
 	for eid: String in _m["eras"]:
 		var r := _render_era(eid, _m["eras"][eid], float(targets["music"]) + float(_m["eras"][eid].get("targetOffsetDb", 0.0)))
@@ -573,7 +573,7 @@ func _render_cue(id: String, cue: Dictionary, man: Dictionary) -> Dictionary:
 	var info := {"meaning": cue["meaning"], "bus": cue["bus"], "priority": cue["priority"], "poly": cue["poly"],
 		"steal": cue["steal"], "ducks": cue["ducks"], "play_db": play_db, "momentaryMax": snappedf(mmax, 0.01), "burstMax": snappedf(bmax, 0.01), "limitedBy": limited,
 		"lengthMs": snappedf(longest, 0.1), "files": tree, "runtime": cue.get("runtime", ""), "target": tg}
-	for k: String in ["jitterDb", "pan", "shapes", "markers"]:
+	for k: String in ["jitterDb", "pan", "shapes", "markers", "firstSound"]:
 		if cue.has(k):
 			info[k] = cue[k]
 	print("  cue %-16s %3d files  play %+7.2f dB  burst %+6.2f  M-max %+6.2f LUFS  %5.0f ms  %s" % [id, bufs.size(), play_db, bmax, mmax, longest, limited])

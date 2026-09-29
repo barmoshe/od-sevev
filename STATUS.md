@@ -1054,3 +1054,35 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - **→ game-designer:** set `kit.tap.anim` = `"tap"` for the seven (it is `null`); mark `sourceTiers.genericSprites` t4-t6 and `suitcase.plainStatus` shipped.
   - **→ UX:** the live `OG_IMAGE_ALT` still describes Bibi with the hat, and `OG_IMAGE_ALT_NEXT` has "קלפי באמצע", which the art leaves out on purpose. Suggested: "שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב".
   - **→ game-developer (views):** draw the kit prop at `propMouth` unless `prop.baked`, using frame 1 on pointer-down; coins spawn from `points.mouth` or `propMouth`; the picker uses `avatarPick` / `avatar24Pick`; the press skin uses `thermo_icon_press` / `chip_icon_press`; outside Bibi's round use `suitcase_plain`. No `game/scripts` change here: `SpriteStrip.point()` already reads any track by name.
+
+- **Audio Director, 2026-09-29: cue-spec v1.3, covering leader select and the session-2 views (`audio/od/cue-spec.md` §2.6, §3.1, §4.1, §4.2, §7).**
+  - **Coverage audit:** every session-2 view and modal now has a cue or is silent on purpose (`Audio.SILENT`). A test scans `res://scripts` and fails on any sent event that is neither.
+  - **New cues** (own families, so no shipped file changed):
+    - `leaderPick`: fanfare material (roll, C#-D lift, downbeat on i), 843 ms, burst −15 LUFS;
+    - `critReact` whoosh / shout / no / land;
+    - `decline` and `merge`;
+    - `suspicionHot`, at the 75 % crossing;
+    - `chatPing:brawl`.
+  - **Behaviour:**
+    - `firstSound` cues (`leaderPick`, `returnAway`) play before the first-tap gate and are held through a locked iOS context. The first tap still plays the motif.
+    - `returnAway` was silent after every reload; it is fixed.
+    - Press day opens with the shutter.
+    - `gameReset` fades the music over a bar and closes the gate.
+    - Every leader's squawks have canned contours.
+  - **API:**
+    - `Audio.event("leaderPick", id)`, `set_leader(id)` and `crit_for(id)`, which returns `{event, cue, variant, delayMs, …}`, for all 8 leaders;
+    - `event("heroEvent", ev)`, `squawk_text(id, kind)` / `event("squawk", kind)`, and `route(name)`.
+  - **Hooks** (shared files):
+    - `main.gd` `_do_reset`: 1 line;
+    - `view_chat.gd`: 2 lines (brawl → `chatBrawl`);
+    - `view_thermo.gd`: 3 lines (`suspicionHot`).
+  - **Size:** `index.pck` +207,520 B (+1.1 %); the audio folder is 11.06 MB, under the 11.3 budget.
+  - **Checks:**
+    - `tools/test.sh` 309/309;
+    - strict `tools/build_web.sh` green;
+    - `tools/audio.sh --check` deterministic.
+  - **→ game-developer (views):**
+    - call `leaderPick` on the commit;
+    - call `decline` / `merge` on the new pills;
+    - send the leader's react event through `heroEvent`, and `set_leader` on install and load;
+    - switch the first-tap babble to `squawk_text(leader, "firsttap")`.

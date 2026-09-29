@@ -188,6 +188,8 @@ func _boot() -> void:
 	diorama.set_era(Story.era_for(state.evolutions))
 	_prev_buffs = {"frenzy": state.buff_frenzy > 0.0, "tapFrenzy": state.buff_tap_frenzy > 0.0}
 	_audio_call("set_evolutions", [state.evolutions])
+	if Leaders.active():
+		_audio_call("set_leader", [Leaders.current(state)])   # Audio v1.3: the round's crits (on load)
 	if mode == "pick":
 		_open_picker()
 	else:
@@ -1604,11 +1606,11 @@ func _handle_tap(at: Vector2) -> void:
 	if state.taps_lifetime == 1:
 		# after the tap, which opens the audio gate: the Audio holds Dubi's first line until the
 		# motif's musicalSeconds (O-A3); the ticker/toast line stays at f0 (ux/ftue.md H1)
-		_audio("babble", LeaderUi.firsttap())
+		_audio("babble", _first_squawk())
 	elif Leaders.active() and Leaders.stat(state, Leaders.current(state), "taps") == 1.0:
 		# ux/ftue.md H1L: a leader's first laugh, the first tap of their first round (D31)
 		toasts.say(LeaderUi.firsttap(), L.magician_feet() - Vector2(0, 380), 1600.0)
-		_audio("babble", LeaderUi.firsttap())
+		_audio("babble", _first_squawk())
 	top_bar.set_bank(state.bananas)
 	top_bar.pop_bank()
 	var n := Fmt.amount(float(r["value"]))
@@ -1631,6 +1633,17 @@ func _handle_tap(at: Vector2) -> void:
 		if not settings["reducedMotion"]:
 			_start_shake(float(Tune.T["critShakePx"]), float(Tune.T["critShakeMs"]))
 	ftue.on_registered_action()
+
+
+## Dubi's first-tap line for the round's leader: the Audio's own lookup (v1.3 squawk_text, the
+## text it babbles and contours), else the view's (LeaderUi.firsttap: the same content).
+func _first_squawk() -> String:
+	var a := get_node_or_null("/root/Audio")
+	if a != null and a.has_method("squawk_text") and Leaders.active():
+		var t := str(a.call("squawk_text", Leaders.current(state), "firsttap"))
+		if t != "":
+			return t
+	return LeaderUi.firsttap()
 
 
 ## S10's running income bonus as an LTR token ("+15%").
@@ -1693,11 +1706,11 @@ func _on_hero_event(ev: String, at: Vector2) -> void:
 			_audio("rabbit")   # the Audio's rabbitCrit on the strip's own frame
 		_:
 			# a leader's react (spec §5.2, CONTRACT §4c): its event (whoosh / shout / no / land) is
-			# the crit's frame. The coins burst there, and `critCue` carries the event name: the
-			# Audio Director's hook for the crit cue by react event (spec §9.5); unknown = silent.
+			# the crit's frame. The coins burst there, and the Audio plays crit_for(leader)'s cue
+			# (spec §9.5, audio/od/cue-spec.md §4.2).
 			if not LeaderUi.is_default() and ev == str(LeaderUi.tap().get("critEvent", "")) and bb._state == "crit":
 				prop_fx.coins(at, int(Tune.MC["critCoinBase"]))
-				_audio("critCue", ev)
+				_audio("heroEvent", ev)   # Audio v1.3 (cue-spec §4.2): the leader's crit cue on its frame
 			# "sting" stays silent (cue-spec §5)
 
 
@@ -1983,6 +1996,7 @@ func _show_offline() -> void:
 func _do_reset() -> void:
 	store.wipe_game()
 	_audio("panelClose")
+	_audio("gameReset")   # Audio v1.3: the music fades over a bar; the next first tap plays the motif again
 	overlays.close_all()
 	state = GameState.fresh()
 	d = Economy.derive(state)
@@ -2265,6 +2279,8 @@ func _undo_pick() -> void:
 		return
 	_funnel("leader_pick_undo", {"from": from, "ms_since_pick": int(_undo_full - maxf(0.0, _undo_ms))})
 	_undo_ms = 0.0
+	_audio("leaderUndo")   # silent on purpose (cue-spec §4.1)
+	_audio_call("set_leader", [Leaders.current(state)])
 	d = Economy.derive(state)
 	if _shot.is_empty():
 		store.save_game(state)
