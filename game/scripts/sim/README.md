@@ -211,7 +211,7 @@ without the picker keeps playing Bibi.
 | New game | `Leaders.set_salt(s, randi())` once, so deals differ between players |
 | Kit | `Leaders.tap_kit(id)` {prop, anim, critAnim, critEvent, critProp, verb, verbPlural, critName, critPlural, frenzyBanner}; `Leaders.hazard(id)` = `Investigation.skin(s)` {skin court \| press, meterName, dayTitle, dayBody, testifyVerb, chip, …, postponeVerb, excuses[6]}; `Leaders.dubi(id)`; `Leaders.suitcase(id)` {sticker, sprite, lines}; `Leaders.source_skin(id, producer)`; `Leaders.spin_skin(id, upgrade)` (icon fallback `spin_slot_<slot>`); `Leaders.story(id)`; `Leaders.rule(id)` (its `copy`); `Leaders.leader(id)` (name, short, party, g, side, art, avatar) |
 | Round text | `Leaders.headlines(s)` (+ `Leaders.headline_hit(s, trigger)` for `leaderStat` / `when`); `Leaders.ambient(s)`; `Story.flash(s)` {leader, n, title, lines, id} (the leader just played, by their own election count); `Leaders.leak_copy(s)` (event result `skin: leakRight`) |
-| Stats | `Leaders.stat(s, id, key)`, keys rounds, elections, taps, crits, declines, merges, bestRunSec, playSec; `stats.leaderSwitches`, `stats.pressDays` (UX PRESS_DAYS), `stats.hazardDays` (court + press, the neutral DAYS_*) |
+| Stats | `Leaders.stat(s, id, key)`, keys rounds, elections, taps, crits, declines, merges, bestRunSec, playSec; `stats.leaderSwitches`, `stats.pressDays` (UX PRESS_DAYS), `stats.hazardDays` (court + press); the result card's DAYS_* count is `Investigation.hazard_days(s)` (lifetime court + press days) |
 | Trophies | `Meta.all_trophies()` = the shipped 40 + 2 global + 7 leaders (`Meta.achievements()` stays the shipped list until the dossier switches) |
 | Liberman | `Coalition.can_decline(s, seq)`, `Coalition.decline(s, seq)` → {ok, reason?, partner, events}; `Coalition.decline_cooldown(s)` (−1 = not his round); message state `declined`, sys `chat.sys.declined` |
 | Golan | `Coalition.merge_candidates(s, id)`, `Coalition.merge_block(s, a, b)` ("" or rule \| cooldown \| limit \| same \| member \| young \| standIn \| ultimatum), `Coalition.merge(s, a, b)`, `Coalition.merge_cooldown(s)`; status `merged` (in a's `carry`), sys `chat.sys.merged {a, b}`, a pair walkout's `chat.sys.left` carries `with: [b]` |
@@ -232,6 +232,10 @@ falls back to Bibi (the picker opens if the round hasn't started); a started rou
 the picker; a forged deal is re-dealt. Tests: `tests/unit/test_leaders.gd`.
 
 Bench: `PacingSim.session(player…)` with `player.leader` = an id or `"mixed"`; `PacingSim.first_round`.
+Cadence keys (optional, default = the attentive player): `buy_every`, `buy_units`, `buy` (best | priciest), `spins`,
+`politics_every`, `ping_after_buy`. `tests/bench/test_web_driver.gd` replays `tools/web/round_web.mjs`'s measured
+game-time cadence with them: the browser driver's 25-34 min first election is the driver (0.037 taps/s, a buy every
+~138 s, no spins, no Suitcase at ?speed=10), not the game.
 `tools/balance.sh [--leader=<id>]` runs `tests/bench/test_leaders_balance.gd` (every leader: the
 median first election over seeds 1-9 in 7-9 min, S0/Q3, S2-S4, a median hour for S5-S7; a mixed hour).
 
