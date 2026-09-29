@@ -99,7 +99,7 @@ index 1079323..f034888 100644
  	var shown := {}
  	for m: Dictionary in out:
 diff --git a/game/scripts/ui/views/view_chat.gd b/game/scripts/ui/views/view_chat.gd
-index df3b59e..b861741 100644
+index df3b59e..961266d 100644
 --- a/game/scripts/ui/views/view_chat.gd
 +++ b/game/scripts/ui/views/view_chat.gd
 @@ -4,6 +4,11 @@ extends Node2D
@@ -174,7 +174,64 @@ index df3b59e..b861741 100644
  func thread_h() -> float:
  	return maxf(0.0, _h - THREAD_Y - COMPOSER_H)
  
-@@ -679,9 +709,12 @@ func _build_thread() -> void:
+@@ -357,6 +387,8 @@ func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary =
+ 	if _open and not live:
+ 		close()
+ 	_advance_reveal()
++	if live:
++		_post_merge_ready()
+ 	_rebuild_if_needed(false)
+ 	_tick_ultimatums(live)
+ 	_update_ribbon(dt)
+@@ -371,6 +403,47 @@ func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary =
+ 	_update_badge()
+ 
+ 
++## mobile-first §5.5 (D46): Golan's merge is his signature rule, and the partner card (its home) is
++## never taught; so when a pair first qualifies with the cooldown at 0 (and again after each
++## cooldown, at most once per MERGE_READY_GAP_SEC of play) the thread gets a system line
++## "CHAT_SYS_MERGE_READY" with the "לאחד" pill under it (512 × 68, hit 536 × 88, centred), which
++## opens the same MergeCard with that pair first. The line is a notice, not a demand: it has no
++## price and no state, so the sim never expires, trims-protects or pays it.
++const MERGE_READY_GAP_SEC := 120.0
++
++
++## The first qualifying pair [a, b] ([] = none; the rule is off or on cooldown).
++static func merge_ready_pair(s: GameState) -> Array:
++	if s == null or not Coalition.active() or Coalition.merge_cooldown(s) != 0.0:
++		return []
++	for p: Dictionary in Coalition.partners():
++		var a := str(p["id"])
++		var cands := Coalition.merge_candidates(s, a)
++		if not cands.is_empty():
++			return [a, str(cands[0])]
++	return []
++
++
++func _post_merge_ready() -> void:
++	var s := _state
++	if s == null or not (s.coalition is Dictionary) or not bool(s.coalition.get("opened", false)):
++		return
++	var c: Dictionary = s.coalition
++	if Coalition.merge_cooldown(s) > 0.0:
++		c["mergeReadyArmed"] = true   # a merge ran: the next ready pair is news again
++		return
++	if c.get("mergeReadyArmed", true) != true:
++		return
++	if s.run_time_sec - float(c.get("mergeReadyAtSec", -1e9)) < MERGE_READY_GAP_SEC:
++		return
++	var pair := merge_ready_pair(s)
++	if pair.is_empty():
++		return
++	c["mergeReadyArmed"] = false
++	c["mergeReadyAtSec"] = s.run_time_sec
++	Coalition._sys(s, "chat.sys.merge_ready", {"a": pair[0], "b": pair[1], "action": "merge"}, [])
++
++
+ ## A fresh GameState (boot, reset, import, election seam): everything already in its log counts
+ ## as seen, and the view's per-message memory is dropped.
+ func _on_new_state(s: GameState) -> void:
+@@ -679,9 +752,12 @@ func _build_thread() -> void:
  			gap = IN_RUN_GAP if (not row["first"] and prev_kind != "" and ["in", "ult", "deleted"].has(row["kind"])) else RUN_GAP
  		y += gap
  		var r: Dictionary
@@ -187,7 +244,7 @@ index df3b59e..b861741 100644
  			"out":
  				r = _build_out(row, y)
  			"sys":
-@@ -690,6 +723,12 @@ func _build_thread() -> void:
+@@ -690,6 +766,12 @@ func _build_thread() -> void:
  				r = _build_transfer(row, y)
  			"brawl":
  				r = _build_brawl(row, y)
@@ -200,7 +257,7 @@ index df3b59e..b861741 100644
  		r["seq"] = row["seq"]
  		r["kind"] = row["kind"]
  		r["first"] = row["first"]
-@@ -884,7 +923,7 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+@@ -884,7 +966,7 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
  	var lines := maxf(1.0, float(tx.line_count()))
  	var w := Ui.snap(float(tx.width()) + icon_w + 48.0, 4)
  	var h := Ui.snap(_lh(tx) * lines + 12.0, 4)
@@ -209,7 +266,7 @@ index df3b59e..b861741 100644
  	Ui.set_nine_rect(pill_bg, Rect2(x, 0, w, h))
  	tx.position = Vector2(x + 24.0, 6.0)
  	tx.h_anchor = 0
-@@ -895,7 +934,7 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+@@ -895,7 +977,7 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
  	var st := str(m.get("state", ""))
  	if payable != "" and (st == "open" or st == "paid"):
  		cy += 16.0
@@ -218,7 +275,22 @@ index df3b59e..b861741 100644
  		var pill := _make_pill(root, pr, int(m["seq"]), true)
  		pill["key"] = "CHAT_SYS_REJOIN" if payable == "rejoin" else "CHAT_SYS_POACH"
  		r["pills"].append(pill)
-@@ -916,17 +955,17 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+@@ -903,6 +985,14 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+ 			_hits.append({"rect": Rect2(pr.get_center().x - 268.0, y + pr.get_center().y - 44.0, 536, 88), "kind": "pay",
+ 				"seq": int(m["seq"]), "pill": pill})
+ 		cy += PILL_H
++	if str(m.get("action", "")) == "merge":
++		cy += 16.0
++		var mr := Rect2(L.cx(WIDE_PILL.position.x), cy, WIDE_PILL.size.x, WIDE_PILL.size.y)
++		var mb := PxButton.make(root, mr, {"kind": "kit_secondary", "label": Strings.s("CHAT_PILL_MERGE"), "label_box": mr.size.x - 32.0})
++		r["merges"] = [{"button": mb, "a": str(m.get("a", "")), "b": str(m.get("b", ""))}]
++		_hits.append({"rect": Rect2(mr.get_center().x - 268.0, y + mr.get_center().y - 44.0, 536, 88), "kind": "merge",
++			"seq": int(m.get("seq", -1)), "a": str(m.get("a", "")), "b": str(m.get("b", "")), "button": mb})
++		cy += PILL_H
+ 	if str(m.get("key", "")) == "chat.brawl.after":
+ 		var cc := _text(root, "", C_MUTED, 300.0, 1)
+ 		cc.position.y = cy + 8.0
+@@ -916,17 +1006,17 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
  func _build_transfer(row: Dictionary, y: float) -> Dictionary:
  	var m: Dictionary = row["msg"]
  	var root := _root(y)
@@ -241,7 +313,7 @@ index df3b59e..b861741 100644
  	return {"root": root, "pills": [], "h": 128.0 + ch}
  
  
-@@ -975,8 +1014,8 @@ func _update_header() -> void:
+@@ -975,8 +1065,8 @@ func _update_header() -> void:
  		else:
  			txt = Strings.plural("CHAT_MEMBERS", group_size(_state))
  	_status.text = txt
@@ -252,7 +324,7 @@ index df3b59e..b861741 100644
  	_pinned_text.text = Strings.s("CHAT_PINNED", {"n": str(_state.evolutions + 1)})
  	var agreement := _state.evolutions >= 1
  	var badge := agreement and Meta.can_buy_any_perk(_state)
-@@ -1013,7 +1052,7 @@ func _update_rows(dt: float) -> void:
+@@ -1013,17 +1103,25 @@ func _update_rows(dt: float) -> void:
  				a = p
  				if r.get("kind", "") == "ult" and t > ms:
  					base_y = Ui.snap(4.0 * (1.0 - Ui.quad_out(minf(1.0, (t - ms) / 100.0))), 4)   # the 1-ap thud
@@ -261,7 +333,17 @@ index df3b59e..b861741 100644
  		root.modulate.a = a
  		for pill: Dictionary in r["pills"]:
  			_update_pill(pill, bps)
-@@ -1023,7 +1062,7 @@ func _update_rows(dt: float) -> void:
+ 		for dc: Dictionary in r.get("declines", []):
+ 			_update_decline(dc)
++		for mg: Dictionary in r.get("merges", []):
++			# live: enabled while that pair (or any) can still merge; the cooldown's seconds otherwise
++			var b: PxButton = mg["button"]
++			var cd := Coalition.merge_cooldown(_state)
++			var t := Strings.s("CHAT_PILL_MERGE_CD", {"s": str(int(ceilf(cd)))}) if cd > 0.0 else Strings.s("CHAT_PILL_MERGE")
++			if b.label != null and b.label.text != t:
++				b.set_label(t)
++			b.set_enabled(cd == 0.0 and not merge_ready_pair(_state).is_empty())
+ 		if r.get("chip") != null:
  			_update_chip(r["chip"], Coalition.message(_state, seq), dt)
  		if r.has("corridor"):
  			(r["corridor"] as PxText).text = Strings.s("CHAT_CORRIDOR_COUNT", {"n": str(int(_state.coalition.get("corridorMsgs", 0)))})
@@ -270,7 +352,7 @@ index df3b59e..b861741 100644
  		if r.has("cloud"):
  			_boil(r["cloud"], r["cloudAt"], 4.0)
  
-@@ -1506,10 +1545,10 @@ func pointer_down(p: Vector2) -> bool:
+@@ -1506,10 +1604,10 @@ func pointer_down(p: Vector2) -> bool:
  		_scroll_tw.kill()
  	var ready := _now - _open_ms >= INPUT_AFTER_OPEN_MS
  	_press = {"kind": "thread", "y0": q.y, "x0": q.x, "scroll0": _scroll, "dragging": false, "lastY": q.y, "lastT": _now, "vel": 0.0, "hit": {}}
@@ -283,7 +365,7 @@ index df3b59e..b861741 100644
  		_press["kind"] = "pinned"
  		return true
  	if _pending_root.visible and ready and Ui.in_rect(pending_hit(), q):
-@@ -1565,10 +1604,10 @@ func pointer_up(p: Vector2) -> void:
+@@ -1565,10 +1663,10 @@ func pointer_up(p: Vector2) -> void:
  				_audio("uiClick")
  				scroll_to_pending()
  		"chevron":
@@ -296,7 +378,43 @@ index df3b59e..b861741 100644
  				host.call("_open_perks")   # rtl-map §7.3: the agreement's home after the first election
  		"thread":
  			if pr["dragging"]:
-@@ -1725,7 +1764,7 @@ func _update_pending() -> void:
+@@ -1601,6 +1699,18 @@ func _release_hit(commit: bool) -> void:
+ 			(h["button"] as PxButton).up(false)
+ 			if commit:
+ 				decline(int(h["seq"]))
++		"merge":
++			(h["button"] as PxButton).up(false)
++			if commit and (h["button"] as PxButton).is_enabled():
++				var a := str(h["a"])
++				var b := str(h["b"])
++				if not Coalition.can_merge(_state, a, b):
++					var pair := merge_ready_pair(_state)
++					if pair.is_empty():
++						return
++					a = str(pair[0])
++					b = str(pair[1])
++				open_merge_card(a, b)
+ 		"partner":
+ 			if commit:
+ 				open_partner_card(str(h["partner"]))
+@@ -1625,7 +1735,7 @@ func open_partner_card(pid: String) -> void:
+ 
+ ## Golan's pair prompt (rule.copy.pickPrompt "לאחד עם…"): one button per partner `a` can merge
+ ## with now (Coalition.merge_candidates); a pick merges them.
+-func open_merge_card(a: String) -> void:
++func open_merge_card(a: String, first: String = "") -> void:
+ 	if host == null or not "overlays" in host:
+ 		return
+ 	var mgr: OverlayManager = host.get("overlays")
+@@ -1637,6 +1747,7 @@ func open_merge_card(a: String) -> void:
+ 		o.setup(host, mgr)
+ 		o.chat = chat
+ 		o.partner_id = a
++		o.first = first
+ 		return o.build())
+ 
+ 
+@@ -1725,7 +1836,7 @@ func _update_pending() -> void:
  		_pending_text.text = t
  	var tw := float(_pending_text.width())
  	var w := Ui.snap(maxf(PENDING_W, tw + 28.0 + 12.0 + 48.0), 4)
@@ -305,7 +423,7 @@ index df3b59e..b861741 100644
  	_pending_rect = Rect2(x, THREAD_Y + PENDING_Y, w, PENDING_H)
  	Ui.set_nine_rect(_pending_bg, Rect2(Vector2.ZERO, _pending_rect.size))
  	_pending_root.position = _pending_rect.position - Vector2(0, 0.0 if reduced_motion else Ui.snap(4.0 * (1.0 - pin), 4))
-@@ -1778,7 +1817,7 @@ func _update_brawl_cue(allowed: bool) -> void:
+@@ -1778,7 +1889,7 @@ func _update_brawl_cue(allowed: bool) -> void:
  	var toast := Rect2()
  	if host != null and "toasts" in host and host.get("toasts") != null:
  		toast = (host.get("toasts") as Toasts).covered_rect()
@@ -314,7 +432,7 @@ index df3b59e..b861741 100644
  	var show := allowed and not _open and not _panel.visible and not m.is_empty() and not toast.intersects(cue_stage)
  	_brawl_cue.visible = show
  	_brawl_seq = int(m.get("seq", -1)) if show else -1
-@@ -1835,7 +1874,7 @@ func _update_cameo(dt: float, allowed: bool) -> void:
+@@ -1835,7 +1946,7 @@ func _update_cameo(dt: float, allowed: bool) -> void:
  				_cameo_strip.position = feet
  				_cameo_strip.update_view(dt)
  				var h := fh * art
@@ -323,3 +441,22 @@ index df3b59e..b861741 100644
  				_cameo_seq = int(m["seq"])
  				var chip_pos := Vector2(Ui.snap(644.0 - CHIP_W / 2.0, 4), Ui.snap(feet.y - h - CHIP_H - 8.0, 4))
  				Ui.set_nine_rect(_cameo_chip, Rect2(chip_pos, Vector2(CHIP_W, CHIP_H)))
+@@ -2022,6 +2133,8 @@ class MergeCard extends SheetCard:
+ 	var chat: ChatView
+ 	var partner_id := ""
+ 	var picked := ""
++	## The pair's other member to list first (the thread's merge-ready line, mobile-first §5.5).
++	var first := ""
+ 
+ 	func build() -> MergeCard:
+ 		id = "MERGE_CARD"
+@@ -2030,6 +2143,9 @@ class MergeCard extends SheetCard:
+ 		para(ChatView.partner_name(partner_id), C_MUTED, true, 1)
+ 		close_x(func() -> void: cancel("close"))
+ 		var cands: Array = Coalition.merge_candidates(chat._state, partner_id) if chat != null and chat._state != null else []
++		if first != "" and cands.has(first):
++			cands.erase(first)
++			cands.push_front(first)
+ 		_y = Ui.snap(_y - PARA_GAP + PAD, 4)
+ 		for b: Variant in cands:
+ 			var bid := str(b)
