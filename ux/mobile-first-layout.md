@@ -535,7 +535,7 @@ Default matrix: 375×667@2, 390×844@3, 393×852@3, 430×932@3, 360×780@3, 412�
 | S11 | picker avatar | `odPick.avatar` == §5.8's A for the device |
 | S12 | picker band | S8 over the grid, strip and foot |
 
-**Today's run** (`scratchpad/shots/mobile-ux/`): baseline 0 failures at 390×844@3, 375×667@2 and the frame. Spec: 13 / 13 / 7 open. Every V-finding of §1 shows up as a spec failure: S8 reports the Row B slot, the lane, the empty pane and the pre-tap floor; S7 the SE's 86-px cut; S10/S12 the picker band.
+**Today's run** (full matrix, `MOBILE_BASELINE=1`, `scratchpad/shots/mobile-ux/`): `MOBILE_WEB: PASS (baseline; 108 spec checks open)`. Baseline: 0 failures on all 9 devices. Spec checks open: 13 per phone, 10 at 375×548 and 7 at the frame (the band checks are skipped inside the bezel). Every V-finding of §1 shows up as a spec failure: S8 reports the Row B slot, the lane, the empty pane and the pre-tap floor; S7 the 86-px cut at the SE and the 80-px cut at 390×664; S3 every phone's stage (e.g. 390×844: S 760 vs 680); S10/S12 the picker band.
 
 ### 9.2 Visual checklist per device (the reviewer's pass on the tool's shots)
 
