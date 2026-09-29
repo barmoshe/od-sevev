@@ -1,4 +1,131 @@
-> **Status (2026-09-28): superseded for עוד סבב.** This is the inherited Monkey Bananas curve. The live numbers are in `content.json`; the pacing check is `node design/sim/economy-sim.mjs` (it replaced the banana sim); the design rationale is `gamestudio/output/artifacts/creative-pack/od-sevev/pitch.md` §5, §10, §11 plus the `_why` / `_tuning` notes in `content.json`. Kept only as the fork's reference until a rewrite.
+> **Status (2026-09-29): §0 is the live עוד סבב pacing spec.** §1-§11 below are the inherited Monkey Bananas curve, kept only as the fork's reference. The live numbers are in `content.json`; the design rationale is `creative-pack/pitch.md` §5, §9, §10, §11 plus the `_why` / `_tuning` notes in `content.json`.
+
+## 0. עוד סבב pacing: gates, tuning, and the authoritative bench
+
+**The bench is authoritative.** `tools/balance.sh` runs `game/tests/bench/` through `PacingSim`,
+which plays the shipped GDScript (Economy, Politics, Spins, Meta) on `design/content.json`. It
+is the only pacing number this studio quotes.
+
+**`design/sim/economy-sim.mjs` is retired as non-authoritative.** It reported the first election
+at 7:22 (1.5 taps/s), while the real code on the same content took 5:00. Its buyer stops buying
+sources while a demand is queued, and it models no stand-in (Gantz), spins, suitcases, perks or
+`runSecAtLeast`. It stays in the repo only as a paper sketch of the first-five-minutes beats.
+
+### 0.1 Profiles
+| Profile | Taps/s | Suitcases | Notes |
+|---|---|---|---|
+| median | 1.5 | caught | the pitch's reference player (§5 "7-9 minutes"); new in `PacingSim.PLAYERS` |
+| engaged | 4 | caught | |
+| casual | 2 | caught | |
+| idle | 3 for 2 min, then 0 | never | |
+
+Each plays one 60-min session, seed 7, and calls every election at 61. The politics strategy is
+the default (`PacingSim.POLITICS`).
+
+**Bench clock fix (in `PacingSim.run`).**
+- A frame that bought something had already ticked 0.25 s of play (income, taps and politics),
+  but it skipped the clock.
+- As a result, bench times ran about 5% short of real play time.
+- The clock now advances on those frames too.
+- The "Before" column below was measured with the old clock. On the fixed clock it would be about
+  5% longer and would still fail the same gates.
+
+### 0.2 Gates, their sources, and before → after (bench, seed 7)
+| # | Gate | Source | Before | After |
+|---|---|---|---|---|
+| S0 | median C1 (chat ping) at 0:20-1:15 | pitch §11 Q2 ("~45 s") | new gate; early economy unchanged | 0:25 ✓ |
+| Q3 | no ultimatum before 3:00 of play | pitch §11 Q3 | new gate (config-enforced) | 3:00 ✓ |
+| S1 | median first election 7:00-9:00 | pitch §5 Targets (line 190) | 5:00 ✗ | 8:01 ✓ |
+| S2 | engaged first election 5:00-9:00 | sim developer's objection (STATUS.md), accepted by the orchestrator | 3:15 ✗ | 7:28 ✓ |
+| S3 | casual first election 5:00-9:00 | casual's 2 taps/s sits between S1 and S2 | 4:10 ✗ | 7:35 ✓ |
+| S4 | idle first election later than the median and ≤ 16:00 | pitch §10.3: a style is "viable but slower, not a trap"; 16 = 2× the median's 8-min center | 7:44 ✓ | 10:07 ✓ |
+| S5 | median round 2 between 3:00 and round 1 | pitch §11 Q8 note ("base growth makes later rounds faster") + §9 (a suitcase every 2-4 min must fit in a round) | 2:36 ✗ | 4:30 ✓ |
+| S6 | median rounds 1-5 each ≥ 3:00 | pitch §9 cadence: each round holds a story flash, a suitcase and ~90 s partner messages | shortest 1:30 ✗ | shortest 4:05 ✓ |
+| S7 | median reaches Washington (the 5th election, `eras.list`) within the hour | pitch §4 (four eras) + §8/§9 (one story beat per election) | ✓ (by 13 min) | ✓ (5th at 27:03; 8 in the hour) |
+| — | engaged ≥ 3, casual ≥ 2, idle ≥ 1 elections/hour; no round < 1:00; nothing-new gap ≤ 5:00 in runs 1-3 | fork gates kept (pitch §9) | ✓ | ✓ (8 / 8 / 8; gaps ≤ 1:47) |
+| G1-G4 | the triangle (`test_politics_balance.gd`, engaged, seed 11) | pitch §10 | ✓ | ✓ (below) |
+
+Removed: the old gate "first Evolve in 9:30-15 min", which is Monkey Bananas' number, not this game's.
+
+**Round lengths, whole hour (m:ss):**
+| Profile | Before (old clock) | After |
+|---|---|---|
+| median | 5:00, 2:36, 1:30, 2:08, 1:50, 2:23, 1:40, 1:25, … (first 20 min) | 8:01, 4:30, 5:37, 4:05, 4:50, 9:42, 9:47, 9:58 |
+| engaged | 3:15, 3:40, 1:37, 2:03, 1:45, 1:51, 1:28, 1:46, 1:12, … (18 elections) | 7:28, 5:45, 6:05, 6:32, 4:31, 10:03, 9:06, 5:18 |
+| casual | 4:10, 4:05, 1:42, 2:03, 2:20, 1:32, 1:30, 1:14, … (18) | 7:35, 4:30, 5:16, 5:11, 5:24, 8:50, 5:57, 8:36 |
+| idle | 7:44, 2:57, 2:37, 2:16, 1:49, 1:40, … (17) | 10:07, 5:13, 4:50, 6:28, 4:43, 5:15, 9:11, 12:35 |
+
+- Rounds 2-5 run 4-6 min.
+- From round 6 the late money thresholds (× 5^n) outgrow the multiplier, and rounds lengthen to
+  about 9-10 min. That is pitch §5's "later rounds lengthen".
+- Base after an hour: median 42K (was about 205K on engaged).
+
+**Seed spread (round 1, seeds 1-9, fixed clock, a scratch probe running `PacingSim.run`):**
+- median 7:34-8:25 (midpoint 8:01)
+- engaged 6:40-7:36
+- casual 7:24-9:06 (one seed 6 s over the band)
+- idle 9:36-10:07
+
+**The triangle (engaged hour, seed 11), after:**
+| Strategy | Elections | Base | Court days | Walked out |
+|---|---|---|---|---|
+| default | 8 | 49,469 | 27 | 20 |
+| payAll | 5 | 9,066 | 22 | 13 |
+| alwaysPostpone | 7 | 31,721 | 21 | 19 |
+| alwaysTestify | 8 | 49,469 | 27 | 20 |
+| clean | 7 | 4,225 | 17 | 17 |
+| aideDropper | 7 | 28,902 | 24 | 19 |
+
+- **G1 ✓:** nothing beats the default (alwaysTestify ties it).
+- **G2 ✓:** clean has 7 elections and a lower base.
+- **G3 ✓:** 27 court days.
+- **G4 ✓:** 20 walkouts.
+- **Open finding:** the clean route's first round is 21:19 against 7:21, far from pitch §10.3's
+  "about 40% slower per round". Rounds 2+ are close to the default. The baseline was already 2.3×
+  (8:50 vs 3:54). No G-gate covers it; it's a follow-up for the triangle.
+
+### 0.3 What changed in `content.json` (tuning fields only; no copy)
+**Why rounds were short.**
+- In round 1 the economy doubles about every 45 s from minute 5, so a money threshold on its own
+  buys little time. Round 1 closed on qatari (own 32) plus Gantz's stand-in (4 seats).
+- From round 2 the own-seat cap (36) plus the five early partners (25 seats) reached 61 on their
+  own, so every later round ran 1:30-2:30.
+
+**The fix, in two parts:**
+1. Own seats stop closing the gate.
+2. The late partners arrive on money *and* the round clock.
+
+| Field | Before | After | Why |
+|---|---|---|---|
+| `coalition.ownSeats.base` | 20 | 21 | keeps C1 at 34/61 (21 + 1 + Ben Gvir 12, UX §2.3) |
+| `coalition.ownSeats.perTier` | 2 | 1 | round 1 tops out at 26-27 own seats |
+| `coalition.ownSeats.max` | 36 | 28 | the 5 early partners (25) + own never reach 61 alone |
+| `coalition.unlockTimeScalePerElection` | (absent = 1) | 0.9 | the round-clock floor eases 10% per election |
+| `goldknopf.unlock` | 16K | 225K, round ≥ 4:30 | late partner #1 |
+| `gotliv.unlock` (round ≥ 3) | 5K | 247.5K, ≥ 5:00 | |
+| `distel.unlock` (round ≥ 2) | 12K | 270K, ≥ 4:00 | |
+| `gafni.unlock` | 60K | 292.5K, ≥ 5:00 | pitch §5 "~5:00 Gafni's cheap tie on offer" |
+| `abbas.unlock` (round ≥ 2) | 20K | 337.5K, ≥ 5:30 | |
+| `deri.unlock` | 30K | 360K, ≥ 6:00 | the usual round-1 closer |
+| `maygolan.unlock` | 45K | 450K, ≥ 6:30 | |
+| `almog.unlock` | 80K | 562.5K, ≥ 7:00 | |
+
+- The late money thresholds are L × (1, 1.1, 1.2, 1.3, 1.5, 1.6, 2, 2.5) with L = 225K. Round time
+  is `runSecAtLeast`. Both scale per election: money × 5^n (`unlockScalePerElection`, unchanged),
+  time × 0.9^n.
+- Unchanged: the early partners (Ben Gvir; Regev 1K, Smotrich 2.5K, Levin 6K, Amsalem 9K), all
+  prices (`demandSec` 45), sources, spins, the suitcase and the payout. The pitch §5 and §11 Q1-Q2
+  beats therefore still hold: 15 ₪ on tap 12, C1 fixed at 60 ₪, the first shady source at about
+  2:30, and about 51-55/61 seats at 5:00.
+
+**Candidates tried (probe on the real code, seed 7, median / engaged first election):**
+- Late thresholds alone (L = 60K / 150K / 400K, own max 32): 6:04 / 6:09 / 6:53 median. Gantz and
+  qatari close the gate first.
+- Own 21 + 1/tier, max 28, money only: L 120K 6:22, L 400K 8:40, L 1M 12:16. Later rounds stayed
+  1:30-3:30, and `unlockScalePerElection` 12 barely moved them.
+- Adding the round-clock floors (L 200K / 225K / 250K / 300K): 7:11 / 7:46 / 8:30 / 8:31 median
+  (old clock). 225K is the one centred in 7-9 across seeds, and gives 8:01 on the fixed clock.
+- All candidates were probed on the old bench clock (about 5% fast).
 
 # progression-curve — Monkey Bananas
 

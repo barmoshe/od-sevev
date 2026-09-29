@@ -17,7 +17,10 @@ extends RefCounted
 ##   shady:     false never buys a court.sources producer (the clean route).
 ##   aide:      "drop" presses "אני לא מכיר אותו" whenever it can at ≥ 70% suspicion.
 
+## "median" is the pitch's reference player (pitch §5: the first election at about 7-9 min), added
+## for the od-sevev pacing gates in tests/bench/test_session.gd.
 const PLAYERS := {
+	"median": {"tps": 1.5, "tap_until": INF, "catch_golden": true},
 	"engaged": {"tps": 4.0, "tap_until": INF, "catch_golden": true},
 	"casual": {"tps": 2.0, "tap_until": INF, "catch_golden": true},
 	"idle": {"tps": 3.0, "tap_until": 120.0, "catch_golden": false},
@@ -94,6 +97,10 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 					events.append([t, "event:" + String(e["id"])])
 				elif e["ev"] == "courtStart":
 					events.append([t, "court"])
+				elif e["ev"] == "groupOpened":
+					events.append([t, "c1"])   # the chat pings (pitch §11 Q2)
+				elif e["ev"] == "message" and e["msg"].get("type", "") == "ultimatum":
+					events.append([t, "ultimatum"])   # pitch §11 Q3: none before 3:00
 			play_politics(s, strat)
 		for a in Meta.check_achievements(s, d):
 			events.append([t, "achievement:" + a])
@@ -120,6 +127,10 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 				# (the same greedy choice, without a loop pass per unit). Early on this is always 1.
 				var n := Economy.max_affordable(s, id)
 				Economy.buy_producer(s, id, maxi(1, n / 2) if n >= 10 else 1)
+			# This frame already ticked the economy (dt of play, taps and politics), so the clock moves
+			# too: without this, every purchase frame was dt of game time the bench never counted, and
+			# its times ran about 5% short of s.run_time_sec (an ultimatum "at 2:51" was at 3:00 of play).
+			t += dt
 			continue
 		if d.evolve_enabled and gate_t < 0.0:
 			gate_t = t
@@ -283,4 +294,6 @@ static func session(player: Dictionary, total_sec: float, seed_: int = 7, dt: fl
 
 
 static func fmt_t(sec: float) -> String:
-	return "%d:%02d" % [int(sec) / 60, int(roundf(fmod(sec, 60.0))) % 60]
+	# Round the whole value once (179.75 s is "3:00"; rounding only the seconds printed "2:00").
+	var r := int(roundf(sec))
+	return "%d:%02d" % [r / 60, r % 60]

@@ -112,6 +112,17 @@ Cross-slice requests go under **Requests** with the owner named.
   - **Deviations, stated:** the timer digits stay white on the red chip (the spec's alert red would not read on it); the cameo draws at art ×3 when body + chip fit between the toast dock and S − 140, else ×2 (at S 640 ×3 fits the body but not the chip), else it is skipped; a ceremony (Regev) pays after a 3 s "ribbon" fill on its pill.
   - **Checks:** `tools/test.sh` **144 passed, 1 failed** (the known `test_input.gd::test_buy_a_producer_by_touch`: headless lays out P = 0, so the card is off-screen; unrelated). New `test_chat_view.gd` (9): run grouping, content lines / gendered system lines / Distel's `{who}`, the avatar size from the manifest, three Ben Gvir bubbles = one avatar, a pill tap pays through `Coalition.pay` (+ stamp), no money = no payment, the ultimatum chip's timer + urgency + paying it deletes it, Row B / slot 3 / Esc / a list tab, C1 opens with allowPing live, the typing telegraph rule. Web build (`OD_LINT=warn`) at 390×844 DPR 2 in Chromium: C1 toast, cascade, pay → stamp + reply + thanks + Row B 33/61, ultimatum with a running timer, cameo, partner card; no page errors.
   - **Files:** `game/scripts/ui/views/view_chat.gd` (new), `game/tests/unit/test_chat_view.gd` (new), `game/scripts/main.gd` (a `_build_chat()` hook + input / key / allowPing lines), `game/scripts/ui/shop.gd` (tall-tab signal + active slot + the row-key fix), `game/scripts/ui/toasts.gd` (toast tag + `on_tap`).
+- 2026-09-29 · game-designer · **resolved the sim developer's pacing objection** (its alternative, accepted by the orchestrator). The pacing check is now only `tools/balance.sh`; `design/sim/economy-sim.mjs` is retired as non-authoritative.
+  - **Bench:** a `median` profile (1.5 taps/s). The fork's "first Evolve 9:30-15" gate is replaced by the pitch's gates S0-S7 + Q3, each with its source line, in `design/progression-curve.md` §0.
+  - **Bench clock fix:** a purchase frame ticked the economy without advancing `t`, so bench times ran about 5% short of play time. Also fixed `fmt_t`, which printed 179.75 s as "2:00".
+  - **First election (seed 7), before → after:** median 5:00 → 8:01 · engaged 3:15 → 7:28 · casual 4:10 → 7:35 · idle 7:44 → 10:07. Median rounds 2-5: 4:30, 5:37, 4:05, 4:50 (was 1:30-2:36). Seeds 1-9 put the median at 7:34-8:25.
+  - **Content (tuning fields only):**
+    - `ownSeats` 20/2/36 → 21/1/28 (C1 still 34/61).
+    - The 8 late partners' `runBananasAtLeast` ×4.9-49.5: goldknopf 16K → 225K … almog 80K → 562.5K.
+    - New `runSecAtLeast` 240-420 on the late partners, plus `unlockTimeScalePerElection` 0.9.
+  - **Checks:** `tools/balance.sh` 5/0 (G1-G4 still pass). `tools/test.sh` 167/1 (the known `test_input.gd::test_buy_a_producer_by_touch`). Content lint and `Politics.validate()` 0 errors.
+  - **Open finding:** the clean route's first round is 21:19 (the default's is 7:21), against pitch §10.3's "about 40% slower". It was already 2.3× before this change, and no gate covers it.
+  - **Files:** `design/content.json` (+ `game/data/`), `design/progression-curve.md` §0, `design/sim/economy-sim.mjs` (retired banner), `game/scripts/sim/pacing_sim.gd`, `game/tests/bench/test_session.gd`
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 

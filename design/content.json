@@ -633,11 +633,11 @@
   "gateSeats": 61,
   "knessetSize": 120,
   "ownSeats": {
-   "base": 20,
-   "perTier": 2,
+   "base": 21,
+   "perTier": 1,
    "perBaseDoubling": 1,
-   "max": 36,
-   "_check": "C1 with one taxpayer: 20 + 2 + Ben Gvir 12 = 34 (UX §2.3 '34/61'). Seat numbers are abstract game values, never polling or current-Knesset numbers."
+   "max": 28,
+   "_check": "C1 with one taxpayer: 21 + 1 + Ben Gvir 12 = 34 (UX §2.3 '34/61'). Round 1 tops out at 26-27 own seats (5-6 tiers) and later rounds at the cap of 28, so the early five partners (25 seats) never close 61 alone: a round always needs a late partner (goldknopf, gafni's tie, deri) or a stand-in. Retuned 2026-09-29 (was base 20, perTier 2, max 36, which let rounds 2+ close on the early partners in under 2 min). Seat numbers are abstract game values, never polling or current-Knesset numbers."
   },
   "firstPartner": "bengvir",
   "firstDemandPrice": 60,
@@ -674,8 +674,9 @@
    "demandGapMult": 0.6
   },
   "unlockScalePerElection": 5,
-  "_unlockScalePerElection": "designer, pending in the sim (see the objection in STATUS.md): a partner's runBananasAtLeast is multiplied by 5^evolutions. Without it the round ends at the same absolute earnings every time (prices are % of income), base grows linearly and sources 6-8 and the late spins are never reached. Bench: design/sim/economy-sim.mjs.",
-  "_tuning": "Partner unlock thresholds are the designer's, tuned against design/content.json's economy (the fixture's were tuned against the fork's banana economy). Round 1 at 1-3 taps/s: C1 0:31-0:52, 61 at 6:44-7:40 for a buyer who pays every demand at once (pitch §5 target 7-9 min for a median player)."
+  "unlockTimeScalePerElection": 0.9,
+  "_unlockScalePerElection": "Money: a partner's runBananasAtLeast × 5^evolutions, so each round asks for more earnings than the last. Time: the late partners also carry runSecAtLeast (the arrival cadence, pitch §9 'every ~90 s at first'), × 0.9^evolutions, so the round clock sets a floor that eases 10% per election (pitch §11 Q8 note: 'base growth makes later rounds faster'). Measured by tools/balance.sh (PacingSim on the shipped code); design/sim/economy-sim.mjs is retired as non-authoritative.",
+  "_tuning": "Retuned 2026-09-29 against tools/balance.sh (the sim developer's objection, STATUS.md). Early partners (bengvir, regev 1K, smotrich 2.5K, levin 6K, amsalem 9K) keep the pitch §5 first-five-minutes beats; the late ones unlock at L = 225K run earnings × (goldknopf 1, gotliv 1.1, distel 1.2, gafni 1.3, abbas 1.5, deri 1.6, maygolan 2, almog 2.5) and not before round time 4:00-7:00. Bench, seed 7: first election median 8:01 (1.5 taps/s), engaged 7:28, casual 7:35, idle 10:07; median rounds 2-5 4:30, 5:37, 4:05, 4:50. Across seeds 1-9 the median lands 7:34-8:25. Gates and sources: design/progression-curve.md §0."
  },
  "partners": [
   {
@@ -838,7 +839,8 @@
    "cannotLeave": true,
    "statusLine": true,
    "unlock": {
-    "runBananasAtLeast": 30000
+    "runBananasAtLeast": 360000,
+    "runSecAtLeast": 360
    },
    "avatar": "deri_avatar",
    "src": [
@@ -876,7 +878,8 @@
     "suspicion": 4
    },
    "unlock": {
-    "runBananasAtLeast": 45000
+    "runBananasAtLeast": 450000,
+    "runSecAtLeast": 390
    },
    "avatar": "may-golan_avatar",
    "src": [
@@ -912,7 +915,8 @@
    "threatChance": 0.3,
    "priceGrowth": 1.3,
    "unlock": {
-    "runBananasAtLeast": 16000
+    "runBananasAtLeast": 225000,
+    "runSecAtLeast": 270
    },
    "avatar": "goldknopf_avatar",
    "src": [
@@ -953,7 +957,8 @@
    },
    "unlock": {
     "evolutionsAtLeast": 2,
-    "runBananasAtLeast": 5000
+    "runBananasAtLeast": 247500,
+    "runSecAtLeast": 300
    },
    "avatar": "gotliv_avatar",
    "src": [
@@ -1040,7 +1045,8 @@
    "threatChance": 0.3,
    "rebel": true,
    "unlock": {
-    "runBananasAtLeast": 80000
+    "runBananasAtLeast": 562500,
+    "runSecAtLeast": 420
    },
    "avatar": "almog_avatar",
    "src": [
@@ -1069,7 +1075,8 @@
    "threatChance": 0.5,
    "priceMult": 0.5,
    "unlock": {
-    "runBananasAtLeast": 60000
+    "runBananasAtLeast": 292500,
+    "runSecAtLeast": 300
    },
    "avatar": "gafni_avatar",
    "lines": {
@@ -1103,7 +1110,8 @@
    ],
    "unlock": {
     "evolutionsAtLeast": 1,
-    "runBananasAtLeast": 20000
+    "runBananasAtLeast": 337500,
+    "runSecAtLeast": 330
    },
    "avatar": "abbas_avatar",
    "src": [
@@ -1186,7 +1194,8 @@
    "mutedLine": true,
    "unlock": {
     "evolutionsAtLeast": 1,
-    "runBananasAtLeast": 12000
+    "runBananasAtLeast": 270000,
+    "runSecAtLeast": 240
    },
    "avatar": "distel_avatar",
    "src": [
