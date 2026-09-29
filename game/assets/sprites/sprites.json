@@ -2908,6 +2908,69 @@
    ],
    "label": "white"
   },
+  "button_danger_default": {
+   "id": "button_danger_default",
+   "group": "controls",
+   "w": 24,
+   "h": 20,
+   "state": "default",
+   "slice": [
+    3,
+    3,
+    3,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    18,
+    14
+   ],
+   "label": "white"
+  },
+  "button_danger_disabled": {
+   "id": "button_danger_disabled",
+   "group": "controls",
+   "w": 24,
+   "h": 20,
+   "state": "disabled",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "grey"
+  },
+  "button_danger_pressed": {
+   "id": "button_danger_pressed",
+   "group": "controls",
+   "w": 24,
+   "h": 20,
+   "state": "pressed",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "white"
+  },
   "button_gold_default": {
    "id": "button_gold_default",
    "group": "controls",
@@ -4038,6 +4101,12 @@
   "icon_close": {
    "id": "icon_close",
    "group": "sheet",
+   "w": 16,
+   "h": 16
+  },
+  "icon_trash": {
+   "id": "icon_trash",
+   "group": "sheet",
    "w": 9,
    "h": 9
   },
@@ -4099,6 +4168,12 @@
    "w": 24,
    "h": 24
   },
+  "source_checkbook_icon_sil": {
+   "id": "source_checkbook_icon_sil",
+   "group": "sources",
+   "w": 24,
+   "h": 24
+  },
   "source_poison": {
    "id": "source_poison",
    "group": "sources",
@@ -4117,6 +4192,12 @@
    "w": 24,
    "h": 24
   },
+  "source_poison_icon_sil": {
+   "id": "source_poison_icon_sil",
+   "group": "sources",
+   "w": 24,
+   "h": 24
+  },
   "source_submarine": {
    "id": "source_submarine",
    "group": "sources",
@@ -4131,6 +4212,12 @@
   },
   "source_submarine_icon": {
    "id": "source_submarine_icon",
+   "group": "sources",
+   "w": 24,
+   "h": 24
+  },
+  "source_submarine_icon_sil": {
+   "id": "source_submarine_icon_sil",
    "group": "sources",
    "w": 24,
    "h": 24
@@ -5077,6 +5164,30 @@
     40
    ]
   },
+  "button_danger_default.png": {
+   "bytes": 152,
+   "sha": "e7250e926fd54fcd",
+   "size": [
+    24,
+    20
+   ]
+  },
+  "button_danger_disabled.png": {
+   "bytes": 123,
+   "sha": "87eb38efa6bf4ea9",
+   "size": [
+    24,
+    20
+   ]
+  },
+  "button_danger_pressed.png": {
+   "bytes": 128,
+   "sha": "4cc1e3806fc1de18",
+   "size": [
+    24,
+    20
+   ]
+  },
   "button_gold_default.png": {
    "bytes": 153,
    "sha": "7692fcba7528a5ed",
@@ -5998,11 +6109,11 @@
    ]
   },
   "icon_close.png": {
-   "bytes": 127,
-   "sha": "84aecc9a2c62eda8",
+   "bytes": 286,
+   "sha": "535503ce1d6436d5",
    "size": [
-    9,
-    9
+    16,
+    16
    ]
   },
   "icon_coin9.png": {
@@ -6035,6 +6146,14 @@
    "size": [
     15,
     15
+   ]
+  },
+  "icon_trash.png": {
+   "bytes": 134,
+   "sha": "8cc3501c64a73d58",
+   "size": [
+    9,
+    9
    ]
   },
   "lane_balfour.png": {
@@ -6341,6 +6460,14 @@
     24
    ]
   },
+  "source_checkbook_icon_sil.png": {
+   "bytes": 145,
+   "sha": "7326518b18401338",
+   "size": [
+    24,
+    24
+   ]
+  },
   "source_cigars.png": {
    "bytes": 16777,
    "sha": "00901a83c74f65ef",
@@ -6405,6 +6532,14 @@
     24
    ]
   },
+  "source_poison_icon_sil.png": {
+   "bytes": 96,
+   "sha": "5a7ff773c2e36dc7",
+   "size": [
+    24,
+    24
+   ]
+  },
   "source_qatari.png": {
    "bytes": 16142,
    "sha": "ccb378b83f61778a",
@@ -6440,6 +6575,14 @@
   "source_submarine_icon.png": {
    "bytes": 446,
    "sha": "b2561d7d8d63ad32",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "source_submarine_icon_sil.png": {
+   "bytes": 232,
+   "sha": "e5453fdd061d32d3",
    "size": [
     24,
     24

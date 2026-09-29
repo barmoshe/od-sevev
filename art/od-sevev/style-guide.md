@@ -12,7 +12,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 
 | Deliverable | File |
 |---|---|
-| UI kit, 202 pieces (wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
+| UI kit, 209 pieces (wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
 | 9-slice / frame / pivot manifest | `ui-kit.json` |
 | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
 | App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (source `icon-64-art.png`) |
@@ -64,7 +64,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 
 | Swatch | Hex | Role |
 |---|---|---|
-| `outline` | `#0b0a12` | Outer silhouette of every graphic-tier sprite and UI piece. Matches the cast's near-black. `ink` (`#1b1426`) stays for inner lines and text. |
+| `outline` | `#0b0a12` | Outer silhouette of every graphic-tier sprite and UI piece. Matches the cast's near-black. `ink` (`#1b1426`) stays for inner lines and text. **Also the modal scrim** at 60% engine alpha (§11.2). |
 | `rim` | `#d6ccec` | The pale 1 px rim outside the outline on stage-touchables (§3). Same value the cast's hat/rabbit use. |
 | `ui_scrim` | `#140c24` | HUD row A (UX's scrim), meter wells, the deepest UI surface |
 | `ui_panel` | `#1e1636` | Panels, header, tab bar, card bodies |
@@ -215,6 +215,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 | Player's | `ui_out` + `ui_out_hi` | The player's bubbles only |
 | Neutral system | `suit_dk` + `suit` | System pills; every *disabled* control |
 | Court | `wood` frame + `teal_dk` body + a steady `red` inner line | The court card and chip |
+| **Modal scrim** (engine, not art) | `outline` `#0b0a12` at **60%** node alpha (UX R15, rtl-map §7.1 D23). Never the fork's grape `#3a1e72`: a scrim only darkens, and grape at 60% lifts `ui_scrim` to `#2b1753` (fog). | Under every modal, sheet and card overlay; the shop's can't-afford dim and the spin tag plate share the swatch (`uiTheme.scrim`) |
 
 ### 11.3 State language (every state is a shape)
 
@@ -243,6 +244,9 @@ test: every row above stays distinguishable with colour removed.
 | `stamp` on paper / receipt; `stamp_lt` on `ui_bubble` / `ui_out` / `ui_scrim` | 5.6 / 7.3; 6.4 / 4.9 / 8.4:1 |
 | `red_hi` ("אולטימטום") on `ui_bubble` | 5.0:1 |
 | Non-text (≥ 3:1): seats fill `sky` vs its well; thermometer `red` vs its well / the hatch's black | 7.9; 3.7 / 3.8:1 |
+| `white` on `red_dk` (`button_danger` pressed); the ✕ `white` on `ui_bub_hi` | 8.1; 8.6:1 |
+| **On the scrim** (outline at 60% takes `ui_scrim` to `#0f0b19`, the brightest possible ground `#ffffff` to `#6d6c71`): white text on the scrimmed dark / the scrimmed brightest ground; the spin tag plate (scrim at 85% on `ui_bubble` = `#100e1b`) under white; the fork's cream card vs the scrimmed dark | 17.7 / 4.7; 17.4; 17.8:1 |
+| Edges on the scrim (non-text): the dark sheet body `ui_panel` / title band `ui_bubble` / its `ui_bub_hi` bevel vs the scrimmed dark ground | 1.1 / 1.4 / 2.1:1 (**open**, §16 F9) |
 
 ### 11.5 Icons
 
@@ -253,15 +257,19 @@ test: every row above stays distinguishable with colour removed.
   with a violet "filed" mark. Four different silhouettes, four different dominant hues; idle collapses
   to a 3-step slate ramp.
 - **9x9 inline icons** (one text cell tall): lock, pin, mute, chevron, clock (4 hand states), calendar,
-  gavel. UX's 🔒 📌 ⏱ are these, never emoji.
+  gavel, trash (wave 6). UX's 🔒 📌 ⏱ are these, never emoji.
 - **11x11 meter icons:** magnifier (< 75% suspicion) → gavel (≥ 75% and the court card).
+- **The ✕ (16x16, wave 6):** one round ✕ for every card, sheet and modal (`icon_close`, drawn x4 = the 64x64 visual of
+  rtl-map §7.1). Its silhouette and ✕ are the modals' round ✕ pixel for pixel, in kit swatches: `rim`-lit top arc,
+  `ui_bub_hi` face, `ui_bubble` shadow, `white` ✕ (8.6:1). The face is one step above `ui_bubble`, so it holds on a
+  title band as well as on the court card's wood, the dark sheet body and a cream card.
 
 ### 11.6 Piece reference (the full table with every margin is `ui-kit.json`)
 
 | Group | Pieces | Notes |
 |---|---|---|
 | **chat** | `chat_bubble_in` [3,6,8,3], `chat_bubble_out` [8,6,3,3], `chat_bubble_ultimatum` [8,8,13,8] tile, `chat_system_pill` [4,3,4,3], `chat_header` 180x26, `chat_pinned` 180x14, `chat_composer_disabled` 180x22, `pay_pill_default` / `_pressed` / `_track` 24x17, `pay_pill_fill`, `icon_clock` x4, `chat_icon_*` | Square-cornered, no WhatsApp green, no ticks (UX 4.3). Tails sit in the corner patch, so they never stretch. The pay pill ships at 78x17 (UX 170x36 CSS). |
-| **controls** | `button_{primary,secondary,gold}_{default,pressed,disabled}` 24x20 [3,3,3,4] / [3,5,3,2], `tabbar` 180x26, `tab_active` 45x26, `badge_count` 11x11, `tabicon_*`, `card_row` / `card_row_locked` 32x30 [4,4,4,4], `card_plate` 26x26 | Buttons at 20 art px tall = 80 logical = the 44 CSS target. |
+| **controls** | `button_{primary,secondary,gold,danger}_{default,pressed,disabled}` 24x20 [3,3,3,4] / [3,5,3,2], `tabbar` 180x26, `tab_active` 45x26, `badge_count` 11x11, `tabicon_*`, `card_row` / `card_row_locked` 32x30 [4,4,4,4], `card_plate` 26x26 | Buttons at 20 art px tall = 80 logical = the 44 CSS target. |
 | **meters** | `seats_track` [2,2,2,2] (ship 106x9), `seats_fill`, `seats_tick`, `seats_goal_frame` [5,5,5,5]; `thermo_tube` 14x88 (+ `liquid` box), `thermo_fill`, `thermo_meniscus`, `thermo_floor_hatch` (tile), `thermo_icon_*`, `thermo_bubble` x3; `chip_countdown`, `chip_ultimatum` [4,3,13,3], `chip_icon_calendar` | Seats: horizontal, from the right, a notch every 10. Suspicion: vertical, bottom-up, the carried-over floor as red/black hatch. Two different shapes on purpose. |
 | **widgets** | `cottage_cup` 16x18 x8, `cottage_pixel`, `depboard` 72x48 x4 | §12 |
 | **events** | `stamp_tool_up/down`, `stamp_{pardon,postponed,paid,blackout}_{paper,dark}`, `stamp_frame_{paper,dark}` (tile), `brawl_cloud` 52x40 x4, `transfer_banner` 180x30, `transfer_card`, `court_frame` 40x36 [6,20,6,6], `chip_court`, `chip_icon_gavel` | §12 |
@@ -355,6 +363,7 @@ hierarchy.
 | F6 | TA / orchestrator | `ben-gvir_avatar.png` and `gotliv_avatar.png` have a **maroon** ring (reserved for the Suitcase) | In `showcase/src/build.py`, change the 'jab' ring `(138,21,56)` to `red` `(208,42,54)`. |
 | F7 | Orchestrator | The `suitcase` ChatGPT row | Not needed in-game: hand-drawn (`props/suitcase.png`); keep it only for a large key-art version. |
 | F8 | Animator | Stamp tool, brawl, cottage pixel drop, bubbles, clock hand, seats pulse | Key poses / frames are here; timing, easing and the reduced-motion behaviour are yours. |
+| F9 | Views / UX | On the outline scrim a dark kit sheet's edge nearly vanishes over a dark stage (`ui_panel` 1.1:1, `ui_bubble` 1.4:1, the `ui_bub_hi` bevel 2.1:1 vs `#0f0b19`); the cream fork cards are unaffected (17.8:1) | When the modals move to `sheet_modal` (UX R7/R8), give the sheet's top and side edges a 1 px `suit_hi` line **outside** the outline (3.6:1 on the scrimmed dark; `ui_bub_hi` would be only 2.1:1, `slate` 5.2:1 reads as a grey frame). The modal then reads as lifted, not cut out. I'll redraw `sheet_modal` / `sheet_plain` that way when the views developer adopts them for the modals; the scrim stays the outline. Not a WCAG failure (a dialog's region is not a control), a figure/ground one. |
 
 ## 17. Wave 2 (the flat UI the TA found missing + the Animator's art needs)
 
@@ -407,6 +416,21 @@ hierarchy.
   glyphs, and to 0 once the remaining ones were reworded in `design/content.json`.
 - **Proof font:** `src/hebfont.py` now merges the shipping Sevev 9 glyphs it lacks (Latin, pictograms), so
   proofs render with the real font; the proof bidi keeps `58/61`, `+38`, dates and URLs whole.
+
+- **Wave 6, the UX build review's art items** (`ux/review-2026-09-29.md`; `src/ui_controls.py`, `src/wave2.py`,
+  `src/sources.py`, proof `src/wave6.py` → `proofs/kit-w6.png`):
+  - **R7 `button_danger_{default,pressed,disabled}`:** the destructive commit ("למחוק הכול" in O10), built exactly like
+    `button_primary` on the red ramp (`red` face, `red_hi` light, `red_dk` shadow, lip and pressed face; the shared
+    disabled). Label `white`: 4.7:1 default, 8.1:1 pressed. The shape that travels with the red is the word, on the
+    LEFT beside the focused `button_secondary` cancel on the right, plus `icon_trash` leading it where the row has room.
+    One per screen, never on a non-destructive action.
+  - **R26 `icon_trash`** 9x9 (the settings danger row, leading `SET_RESET` on the right; never mirrored) and the
+    **round `icon_close`** 16x16 (same id, redrawn from the thin 9x9 X; §11.5). The court card reads `icon_close`
+    already; the modals read `uiTheme.close` and switch to the same kit id (one line, engine).
+  - **R18:** the hand-drawn sources' `source_{submarine,poison,checkbook}_icon_sil` (their ids were in `sprites.json`
+    but never shipped, so the locked shop card drew the "?"), by the rendered sources' rule (`suit` mask, `rim` edge;
+    it reproduces the five rendered silhouettes pixel for pixel).
+  - **R15:** the scrim is `outline` at 60% (§11.2); its contrasts are in §11.4. The engine owns `uiTheme.scrim`.
 
 ## 18. Foundations (referenced, not paraphrased)
 

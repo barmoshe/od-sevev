@@ -10,6 +10,7 @@ from kit import PROOFS
 from palette import contrast
 import sheet
 import mock
+import wave6
 
 MACHADO = {
     "deuteranopia": np.array([[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413],
@@ -41,6 +42,8 @@ CONTRAST = [
     ("stamp_lt", "ui_scrim", 4.5), ("receipt_ink", "receipt", 4.5), ("orange", "outline", 4.5),
     ("gold_hi", "ui_panel", 4.5), ("red_hi", "ui_bubble", 4.5), ("silver", "ui_panel", 4.5),
     ("sky", "night", 3.0), ("red", "ui_scrim", 3.0), ("red", "outline", 3.0), ("rim", "night", 3.0), ("rim", "plum", 3.0),
+    # wave 6: button_danger (default / pressed) and the round ✕
+    ("white", "red_dk", 4.5), ("white", "ui_bub_hi", 4.5),
 ]
 
 
@@ -54,6 +57,7 @@ def build():
                             (["stage", "ceremony"], "kit-w2-stage-ceremony.png", 4),
                             (["sources"], "kit-w3-sources.png", 5), (["dubi"], "kit-w4-dubi-small.png", 5)):
         sheet.contact(groups, name, z)
+    wave6.proof()
     h, c, o, over, yend = mock.build()
     row = Image.new("RGB", (180 * 6 + 40, 320), (0, 0, 0))
     for i, im in enumerate((h, c)):

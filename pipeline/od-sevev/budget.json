@@ -50,6 +50,9 @@
   "sprites/avatar_trump.png": 1703,
   "sprites/badge_count.png": 152,
   "sprites/brawl_cloud.png": 2133,
+  "sprites/button_danger_default.png": 152,
+  "sprites/button_danger_disabled.png": 123,
+  "sprites/button_danger_pressed.png": 128,
   "sprites/button_gold_default.png": 153,
   "sprites/button_gold_disabled.png": 126,
   "sprites/button_gold_pressed.png": 139,
@@ -165,11 +168,12 @@
   "sprites/fx_slip.png": 87,
   "sprites/fx_slip_tilt.png": 82,
   "sprites/icon_clock.png": 189,
-  "sprites/icon_close.png": 127,
+  "sprites/icon_close.png": 286,
   "sprites/icon_coin9.png": 169,
   "sprites/icon_gear.png": 229,
   "sprites/icon_sound_off.png": 190,
   "sprites/icon_sound_on.png": 191,
+  "sprites/icon_trash.png": 134,
   "sprites/lane_balfour.png": 131,
   "sprites/lane_courthouse.png": 120,
   "sprites/lane_knesset.png": 132,
@@ -208,6 +212,7 @@
   "sprites/sheet_plain.png": 167,
   "sprites/source_checkbook.png": 743,
   "sprites/source_checkbook_icon.png": 329,
+  "sprites/source_checkbook_icon_sil.png": 145,
   "sprites/source_cigars.png": 16777,
   "sprites/source_cigars_icon.png": 1257,
   "sprites/source_cigars_icon_sil.png": 246,
@@ -216,11 +221,13 @@
   "sprites/source_hitech_icon_sil.png": 233,
   "sprites/source_poison.png": 589,
   "sprites/source_poison_icon.png": 230,
+  "sprites/source_poison_icon_sil.png": 96,
   "sprites/source_qatari.png": 16142,
   "sprites/source_qatari_icon.png": 1239,
   "sprites/source_qatari_icon_sil.png": 257,
   "sprites/source_submarine.png": 1084,
   "sprites/source_submarine_icon.png": 446,
+  "sprites/source_submarine_icon_sil.png": 232,
   "sprites/source_taxpayer.png": 14730,
   "sprites/source_taxpayer_icon.png": 899,
   "sprites/source_taxpayer_icon_sil.png": 205,
@@ -341,16 +348,16 @@
   "fonts/sevev9_outline.png": 2443,
   "fonts/sevev9_outline.fnt": 15106
  },
- "vramBytes": 112213460,
+ "vramBytes": 112227156,
  "vramBibi": {
   "3": 9697848,
   "2": 4355640
  },
  "vramTypicalByBibiDensity": {
-  "3": 11887144,
-  "2": 6544936
+  "3": 11900840,
+  "2": 6558632
  },
- "vramTypical": 11887144,
+ "vramTypical": 11900840,
  "vramCastAll": 109332964,
  "vramPerPartner": {
   "sara": 4144800,
@@ -628,6 +635,21 @@
    "file": "assets/sprites/brawl_cloud.png",
    "source": 2133,
    "imported": 1428
+  },
+  {
+   "file": "assets/sprites/button_danger_default.png",
+   "source": 152,
+   "imported": 158
+  },
+  {
+   "file": "assets/sprites/button_danger_disabled.png",
+   "source": 123,
+   "imported": 132
+  },
+  {
+   "file": "assets/sprites/button_danger_pressed.png",
+   "source": 128,
+   "imported": 138
   },
   {
    "file": "assets/sprites/button_gold_default.png",
@@ -1206,8 +1228,8 @@
   },
   {
    "file": "assets/sprites/icon_close.png",
-   "source": 127,
-   "imported": 136
+   "source": 286,
+   "imported": 208
   },
   {
    "file": "assets/sprites/icon_coin9.png",
@@ -1228,6 +1250,11 @@
    "file": "assets/sprites/icon_sound_on.png",
    "source": 191,
    "imported": 190
+  },
+  {
+   "file": "assets/sprites/icon_trash.png",
+   "source": 134,
+   "imported": 144
   },
   {
    "file": "assets/sprites/lane_balfour.png",
@@ -1420,6 +1447,11 @@
    "imported": 252
   },
   {
+   "file": "assets/sprites/source_checkbook_icon_sil.png",
+   "source": 145,
+   "imported": 132
+  },
+  {
    "file": "assets/sprites/source_cigars.png",
    "source": 16777,
    "imported": 4894
@@ -1460,6 +1492,11 @@
    "imported": 208
   },
   {
+   "file": "assets/sprites/source_poison_icon_sil.png",
+   "source": 96,
+   "imported": 94
+  },
+  {
    "file": "assets/sprites/source_qatari.png",
    "source": 16142,
    "imported": 5478
@@ -1483,6 +1520,11 @@
    "file": "assets/sprites/source_submarine_icon.png",
    "source": 446,
    "imported": 316
+  },
+  {
+   "file": "assets/sprites/source_submarine_icon_sil.png",
+   "source": 232,
+   "imported": 172
   },
   {
    "file": "assets/sprites/source_taxpayer.png",
@@ -2082,7 +2124,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 3123654,
+ "pckBytes": 3124696,
  "specimenVisual": [
   {
    "tofu": 0,
@@ -2140,5 +2182,5 @@
    "width": 129.0
   }
  ],
- "sourceTotal": 9265104
+ "sourceTotal": 9266273
 }

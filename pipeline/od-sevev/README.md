@@ -47,6 +47,8 @@ pipeline/od-sevev/font/sevev9.glyphs ──────────────�
   or point tracks differ from the main render's, or a point track that leaves its frame;
 - an event outside its anim;
 - a UI-kit piece whose PNG doesn't match its declared size or 9-slice;
+- a `design/content.json` money source that doesn't resolve to shipped art (stage strip, shop icon, locked
+  silhouette, a `lob` set piece's coin), which would draw the engine's "?" placeholder;
 - an id collision;
 - a missing required glyph;
 - two glyphs with identical bitmaps. That guard caught ז = T in the draft; T is now 5 px wide.

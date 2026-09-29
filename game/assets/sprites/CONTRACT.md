@@ -185,6 +185,10 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
   (`washington → checkbook`).
 - **In `design/content.json`:** set `producers[].sprite` / `icon` / `silhouette` to these ids.
   The engine's defaults (`critter_<id>`, `icon_<id>`, `sil_<id>`) don't exist for these.
+- **Every content source resolves** (pipeline check, 2026-09-29, UX R18): the build fails unless each
+  `producers[]` entry's stage sprite is a `sources` strip, its icon and silhouette are shipped, and a `lob`
+  set piece's coin `icon_<currency.icon>` is shipped (it was `icon_coin`, which never existed, so a "?" card
+  flew over the stage; `currency.icon` is now `coin9`). The hand-drawn three ship their `_icon_sil` too.
 - **Two sources don't follow the animator's recipe.** Their refs lack the landmark it names, so
   they fall back to the bob (`fallback` in the entry says why):
   - **vat:** the ref has no hanging 18% tag.

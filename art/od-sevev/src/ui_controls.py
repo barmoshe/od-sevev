@@ -17,6 +17,8 @@ VARIANTS = {
     "primary":   ("flag",      "flag_hi",   "flag_dk",  "flag_dk",  "flag_dk",   "outline",    "white"),
     "secondary": ("ui_bubble", "ui_bub_hi", "ui_panel", "ui_scrim", "ui_panel",  "outline",    "white"),
     "gold":      ("gold",      "gold_hi",   "gold_sh",  "gold_dk",  "gold_sh",   "gold_dk",    "ink"),
+    # wave 6 (UX R7): the destructive commit. The red ramp (danger), built exactly like primary so it is one family.
+    "danger":    ("red",       "red_hi",    "red_dk",   "red_dk",   "red_dk",    "outline",    "white"),
 }
 USE = {
     "primary": "Primary action: 'התייעצות ביטחונית · {price} ₪', 'לשתף', 'להתחיל'. flag blue is reserved for the "
@@ -24,6 +26,10 @@ USE = {
     "secondary": "Secondary: 'להעיד', 'סגור', 'לשמור תמונה', 'צאו החוצה', 'להחזיר לקבוצה'. white on ui_bubble 13.1:1.",
     "gold": "Money / reward only: the full-width 'עוד סבב!' election button (replaces the ticker at >= 61 seats). "
             "ink on gold 11.0:1.",
+    "danger": "Destructive commit only: 'למחוק הכול' in the reset modal O10 (UX R7), on the LEFT, beside a "
+              "button_secondary cancel on the right that holds the focus. red = danger, and the shape that travels with "
+              "it is the word itself plus, if the row has room, icon_trash leading the label (right). Never on a "
+              "non-destructive action; never two on a screen. white on red 4.7:1, pressed white on red_dk 8.1:1.",
 }
 
 
