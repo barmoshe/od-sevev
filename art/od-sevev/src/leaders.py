@@ -420,7 +420,7 @@ def spin_G():                     # +10% base this round: a mic broadcasting (th
     m.rect(3, 9, 3, 10, "suit_dk"); m.vline(3, 9, 18, "suit")
     m.hline(2, 6, 9, "silver")
     C.paste(_o(m), 11, 2)
-    for r, col in ((5, "pink"), (8, "pink_sh")):                   # the arcs on the screen-left side (the talk goes RTL)
+    for r, col in ((5, "sky"), (8, "flag_hi")):    # the arcs on the screen-left side (talk goes RTL); v3 blue, were pink
         for a in range(120, 241, 6):
             x = 12 + r * math.cos(math.radians(a)); y = 7 + r * math.sin(math.radians(a))
             C.set(int(round(x)), int(round(y)), col)

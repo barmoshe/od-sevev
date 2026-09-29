@@ -10,7 +10,7 @@ from collections import OrderedDict
 SWATCHES = [
     # --- inks & neutrals -------------------------------------------------
     ("ink",       "#1b1426", "ink",     "Outline for every sprite and glyph. Darkest value; never pure black."),
-    ("night",     "#2a2340", "ink",     "Night sky base, deepest background, text plates."),
+    ("night",     "#0f2350", "ink",     "v3 (od-sevev, 2026-09-29; was #2a2340): navy night sky base, deepest background, text plates."),
     ("suit_dk",   "#2f3042", "neutral", "Dark-suit shadow; interior lines on suits."),
     ("suit",      "#454a60", "neutral", "Dark-suit base (the Magician, most politicians)."),
     ("suit_hi",   "#636a86", "neutral", "Dark-suit light plane (top-left)."),
@@ -60,8 +60,8 @@ SWATCHES = [
     ("wood",      "#8a5632", "wood",    "Court benches, the Balfour gate, podium."),
     ("wood_dk",   "#55331f", "wood",    "Wood shadow."),
     # --- stage purple ---------------------------------------------------------
-    ("plum",      "#4a2552", "plum",    "Stage curtain base (title screen)."),
-    ("plum_hi",   "#7a3a7d", "plum",    "Curtain fold light plane."),
+    ("plum",      "#16357a", "plum",    "v3 (od-sevev; was #4a2552): velvet-blue curtain base, Balfour mid sky."),
+    ("plum_hi",   "#2a57a6", "plum",    "v3 (od-sevev; was #7a3a7d): curtain fold light plane, Balfour horizon."),
 ]
 
 PAL = OrderedDict((n, h) for n, h, _, _ in SWATCHES)

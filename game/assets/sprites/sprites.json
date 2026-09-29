@@ -8642,8 +8642,8 @@
  "stages": {
   "balfour": {
    "sprite": "stage_balfour",
-   "padTop": "#2a2340",
-   "padBottom": "#2a2340"
+   "padTop": "#0f2350",
+   "padBottom": "#0f2350"
   },
   "knesset": {
    "sprite": "stage_knesset",
@@ -12618,8 +12618,8 @@
    ]
   },
   "button_secondary_default.png": {
-   "bytes": 153,
-   "sha": "ee7b7bf08ce828dc",
+   "bytes": 160,
+   "sha": "350ceb773270d06a",
    "size": [
     24,
     20
@@ -12634,8 +12634,8 @@
    ]
   },
   "button_secondary_pressed.png": {
-   "bytes": 133,
-   "sha": "5ae533f526b4df56",
+   "bytes": 128,
+   "sha": "14c2bc8be8362eb9",
    "size": [
     24,
     20
@@ -12650,32 +12650,32 @@
    ]
   },
   "card_opposition.png": {
-   "bytes": 283,
-   "sha": "f87536f24a7275d1",
+   "bytes": 289,
+   "sha": "b45da398e39e7d96",
    "size": [
     40,
     40
    ]
   },
   "card_opposition_back.png": {
-   "bytes": 302,
-   "sha": "60ff668936ad9d05",
+   "bytes": 315,
+   "sha": "d99a99cecefd94cb",
    "size": [
     40,
     40
    ]
   },
   "card_plate.png": {
-   "bytes": 174,
-   "sha": "2ce5971b4b8bb2bc",
+   "bytes": 156,
+   "sha": "6a88eeeb4ebe1de3",
    "size": [
     26,
     26
    ]
   },
   "card_row.png": {
-   "bytes": 175,
-   "sha": "9a5bee69dae0d257",
+   "bytes": 171,
+   "sha": "ee42afe7cbe0c6c0",
    "size": [
     32,
     30
@@ -12690,8 +12690,8 @@
    ]
   },
   "card_source_affordable.png": {
-   "bytes": 210,
-   "sha": "b6c9b67b66707e7c",
+   "bytes": 215,
+   "sha": "859922ff33c96acb",
    "size": [
     32,
     30
@@ -12706,24 +12706,24 @@
    ]
   },
   "card_source_unaffordable.png": {
-   "bytes": 175,
-   "sha": "9a5bee69dae0d257",
+   "bytes": 171,
+   "sha": "ee42afe7cbe0c6c0",
    "size": [
     32,
     30
    ]
   },
   "card_spin.png": {
-   "bytes": 194,
-   "sha": "3de64e16e991f53c",
+   "bytes": 190,
+   "sha": "d3c194823850420d",
    "size": [
     32,
     30
    ]
   },
   "card_spin_locked.png": {
-   "bytes": 167,
-   "sha": "d032933e4963a9fe",
+   "bytes": 159,
+   "sha": "dc9fbc249dd18fee",
    "size": [
     32,
     30
@@ -13626,8 +13626,8 @@
    ]
   },
   "chat_bubble_in.png": {
-   "bytes": 166,
-   "sha": "27316edea469820d",
+   "bytes": 162,
+   "sha": "0206141bee6b5fc1",
    "size": [
     26,
     16
@@ -13642,24 +13642,24 @@
    ]
   },
   "chat_bubble_ultimatum.png": {
-   "bytes": 255,
-   "sha": "a3a8f984ce110491",
+   "bytes": 269,
+   "sha": "28171dcb8c453be5",
    "size": [
     33,
     24
    ]
   },
   "chat_composer_disabled.png": {
-   "bytes": 238,
-   "sha": "823d80cafedf7296",
+   "bytes": 246,
+   "sha": "8fafa7d800cf9fa1",
    "size": [
     180,
     22
    ]
   },
   "chat_header.png": {
-   "bytes": 181,
-   "sha": "843d67a80ed6ce0f",
+   "bytes": 187,
+   "sha": "fd30c2a7790d378c",
    "size": [
     180,
     26
@@ -13698,24 +13698,24 @@
    ]
   },
   "chat_pinned.png": {
-   "bytes": 151,
-   "sha": "233ba5c866a18223",
+   "bytes": 148,
+   "sha": "be31238a1d7066fe",
    "size": [
     180,
     14
    ]
   },
   "chat_system_pill.png": {
-   "bytes": 148,
-   "sha": "d1e3234ff5c030bf",
+   "bytes": 150,
+   "sha": "471e4305e62a8fb5",
    "size": [
     20,
     13
    ]
   },
   "chip_countdown.png": {
-   "bytes": 151,
-   "sha": "2295be113d154a82",
+   "bytes": 153,
+   "sha": "5fa2a11745a4fc2a",
    "size": [
     20,
     13
@@ -13754,8 +13754,8 @@
    ]
   },
   "chip_owned.png": {
-   "bytes": 135,
-   "sha": "e590c79dfa821f4a",
+   "bytes": 140,
+   "sha": "db28143bec0c1d11",
    "size": [
     14,
     11
@@ -13810,16 +13810,16 @@
    ]
   },
   "curtain_hem.png": {
-   "bytes": 170,
-   "sha": "e6998932347f3efc",
+   "bytes": 184,
+   "sha": "dce5c83cd711b091",
    "size": [
     30,
     6
    ]
   },
   "curtain_panel.png": {
-   "bytes": 171,
-   "sha": "5ab5e599518a7d08",
+   "bytes": 140,
+   "sha": "8eb996641dff3ff1",
    "size": [
     30,
     40
@@ -13827,15 +13827,15 @@
   },
   "curtain_valance.png": {
    "bytes": 294,
-   "sha": "185f7bea89a78f90",
+   "sha": "60e44075d441bdf5",
    "size": [
     180,
     22
    ]
   },
   "depboard.png": {
-   "bytes": 1509,
-   "sha": "1eb60f74b6fcfda0",
+   "bytes": 1525,
+   "sha": "d91867e8d52cd24d",
    "size": [
     288,
     48
@@ -13858,48 +13858,48 @@
    ]
   },
   "dubi_small_fly.png": {
-   "bytes": 603,
-   "sha": "7480e9c19b64ef48",
+   "bytes": 641,
+   "sha": "f09098e6f5a94ca2",
    "size": [
     80,
     23
    ]
   },
   "dubi_small_idle.png": {
-   "bytes": 986,
-   "sha": "272914c70b550a25",
+   "bytes": 1066,
+   "sha": "3a01f72d870653a5",
    "size": [
     320,
     23
    ]
   },
   "dubi_small_land.png": {
-   "bytes": 646,
-   "sha": "12eff76b0c8c3174",
+   "bytes": 720,
+   "sha": "4752d73badc54a92",
    "size": [
     60,
     23
    ]
   },
   "dubi_small_peck.png": {
-   "bytes": 891,
-   "sha": "81c7a8a6dce6ef89",
+   "bytes": 967,
+   "sha": "5fc6ef39c891cbc1",
    "size": [
     120,
     23
    ]
   },
   "dubi_small_squawk.png": {
-   "bytes": 776,
-   "sha": "6f7b1fed008b1ba3",
+   "bytes": 832,
+   "sha": "393980acfe9541f5",
    "size": [
     80,
     23
    ]
   },
   "dubi_small_talk.png": {
-   "bytes": 522,
-   "sha": "0d2f828796f33f44",
+   "bytes": 574,
+   "sha": "e84e36a9ef617c23",
    "size": [
     40,
     23
@@ -13978,8 +13978,8 @@
    ]
   },
   "icon_close.png": {
-   "bytes": 286,
-   "sha": "535503ce1d6436d5",
+   "bytes": 289,
+   "sha": "e70df19dc634042a",
    "size": [
     16,
     16
@@ -14026,8 +14026,8 @@
    ]
   },
   "lane_balfour.png": {
-   "bytes": 311,
-   "sha": "ab566101e00cd42e",
+   "bytes": 299,
+   "sha": "80747dff3e7cf816",
    "size": [
     32,
     28
@@ -14050,8 +14050,8 @@
    ]
   },
   "lane_washington.png": {
-   "bytes": 273,
-   "sha": "fcbe9f69c671eb70",
+   "bytes": 286,
+   "sha": "794aa64df4d659c7",
    "size": [
     32,
     28
@@ -14098,8 +14098,8 @@
    ]
   },
   "nophoto_idle.png": {
-   "bytes": 970,
-   "sha": "78e6de9adee39997",
+   "bytes": 975,
+   "sha": "eeef5eeef10ea58d",
    "size": [
     40,
     97
@@ -14138,8 +14138,8 @@
    ]
   },
   "pay_pill_track.png": {
-   "bytes": 144,
-   "sha": "161f62a60aefa5fe",
+   "bytes": 146,
+   "sha": "96b17bc732330696",
    "size": [
     24,
     17
@@ -14154,48 +14154,48 @@
    ]
   },
   "pick_tile_focus.png": {
-   "bytes": 243,
-   "sha": "6d8d041de47bc25c",
+   "bytes": 248,
+   "sha": "00dcf19b56887a65",
    "size": [
     34,
     34
    ]
   },
   "pick_tile_idle.png": {
-   "bytes": 167,
-   "sha": "1d407be8225c56b4",
+   "bytes": 173,
+   "sha": "f4f7f1366de8135d",
    "size": [
     32,
     32
    ]
   },
   "pick_tile_pressed.png": {
-   "bytes": 168,
-   "sha": "ca990d2670c825ce",
+   "bytes": 174,
+   "sha": "bdc73d223fc1163d",
    "size": [
     32,
     32
    ]
   },
   "pick_tile_selected.png": {
-   "bytes": 216,
-   "sha": "2dd2aae0384a139b",
+   "bytes": 225,
+   "sha": "6ef7e868764da3be",
    "size": [
     34,
     34
    ]
   },
   "plate_silhouette.png": {
-   "bytes": 223,
-   "sha": "2090abe4edb5dbb1",
+   "bytes": 240,
+   "sha": "bcc2fba1f91f0b3d",
    "size": [
     26,
     26
    ]
   },
   "plaza_balfour.png": {
-   "bytes": 1119,
-   "sha": "9c3cd3734e66988a",
+   "bytes": 1086,
+   "sha": "4eccea008b335be1",
    "size": [
     128,
     96
@@ -14218,8 +14218,8 @@
    ]
   },
   "plaza_washington.png": {
-   "bytes": 1446,
-   "sha": "409a2770e43ca9c8",
+   "bytes": 1455,
+   "sha": "927a6917bb2aec50",
    "size": [
     128,
     96
@@ -14234,8 +14234,8 @@
    ]
   },
   "prop_calculator.png": {
-   "bytes": 366,
-   "sha": "8a87a39ba1c8de51",
+   "bytes": 375,
+   "sha": "bef962db8145d571",
    "size": [
     32,
     17
@@ -14243,7 +14243,7 @@
   },
   "prop_chair.png": {
    "bytes": 478,
-   "sha": "ba4557e06a8810c0",
+   "sha": "a129fb0610d2a3dd",
    "size": [
     40,
     20
@@ -14314,8 +14314,8 @@
    ]
   },
   "prop_phone.png": {
-   "bytes": 381,
-   "sha": "063ddb1d3b3eff85",
+   "bytes": 372,
+   "sha": "f179398e15ef9874",
    "size": [
     30,
     18
@@ -14403,47 +14403,47 @@
   },
   "seats_tick.png": {
    "bytes": 77,
-   "sha": "100ede535d366f40",
+   "sha": "9c98522b07fecae5",
    "size": [
     1,
     7
    ]
   },
   "seats_track.png": {
-   "bytes": 116,
-   "sha": "e62dc4d5a992658c",
+   "bytes": 122,
+   "sha": "ae3eef825ddd5b9f",
    "size": [
     12,
     9
    ]
   },
   "share_receipt_bg.png": {
-   "bytes": 2142,
-   "sha": "6aa193b664747ae4",
+   "bytes": 2147,
+   "sha": "cea1605221765b90",
    "size": [
     216,
     270
    ]
   },
   "share_result_frame.png": {
-   "bytes": 3083,
-   "sha": "9841cea1b33c9838",
+   "bytes": 3120,
+   "sha": "493f991399c9670b",
    "size": [
     216,
     270
    ]
   },
   "sheet_modal.png": {
-   "bytes": 259,
-   "sha": "9c73eef216f018ca",
+   "bytes": 273,
+   "sha": "316d53a48e9b44a5",
    "size": [
     38,
     38
    ]
   },
   "sheet_plain.png": {
-   "bytes": 167,
-   "sha": "391db5119c6b7ca9",
+   "bytes": 164,
+   "sha": "dd1d9b6c36e64eaa",
    "size": [
     24,
     24
@@ -14538,8 +14538,8 @@
    ]
   },
   "source_donor.png": {
-   "bytes": 867,
-   "sha": "61c0cd97ae247674",
+   "bytes": 871,
+   "sha": "0c58eb887a1bdfd5",
    "size": [
     56,
     40
@@ -14563,7 +14563,7 @@
   },
   "source_funds.png": {
    "bytes": 615,
-   "sha": "7451bb7f0e8857dd",
+   "sha": "302014fcd52aee67",
    "size": [
     60,
     40
@@ -14571,7 +14571,7 @@
   },
   "source_funds_icon.png": {
    "bytes": 297,
-   "sha": "59a3275446a07287",
+   "sha": "801c1ba0e35c5f21",
    "size": [
     24,
     24
@@ -14618,16 +14618,16 @@
    ]
   },
   "source_poison.png": {
-   "bytes": 589,
-   "sha": "aa041308eaed2f24",
+   "bytes": 634,
+   "sha": "bb1938eda522c547",
    "size": [
     68,
     40
    ]
   },
   "source_poison_icon.png": {
-   "bytes": 230,
-   "sha": "e8c7a46040b74043",
+   "bytes": 241,
+   "sha": "bf7cde734b061c21",
    "size": [
     24,
     24
@@ -14826,8 +14826,8 @@
    ]
   },
   "spin_s09.png": {
-   "bytes": 429,
-   "sha": "ff573f77f9f24fcc",
+   "bytes": 430,
+   "sha": "6c0f725b5d41019c",
    "size": [
     24,
     24
@@ -14858,16 +14858,16 @@
    ]
   },
   "spin_s13.png": {
-   "bytes": 443,
-   "sha": "c4e8bcb83da417fe",
+   "bytes": 441,
+   "sha": "4ba507d191e97a76",
    "size": [
     24,
     24
    ]
   },
   "spin_s14.png": {
-   "bytes": 402,
-   "sha": "f54d1dbef94c08be",
+   "bytes": 397,
+   "sha": "58d8a8422b3d782f",
    "size": [
     24,
     24
@@ -14923,7 +14923,7 @@
   },
   "spin_slot_G.png": {
    "bytes": 350,
-   "sha": "3acffa7dcfcc782a",
+   "sha": "633a4ab310bacafe",
    "size": [
     24,
     24
@@ -14939,15 +14939,15 @@
   },
   "spin_slot_I.png": {
    "bytes": 363,
-   "sha": "a210d4b770b8e945",
+   "sha": "e26bd96ad2804abb",
    "size": [
     24,
     24
    ]
   },
   "stage_balfour.png": {
-   "bytes": 4377,
-   "sha": "52a08a9f2ab45e34",
+   "bytes": 4388,
+   "sha": "12b9df6eeb784320",
    "size": [
     180,
     320
@@ -14970,8 +14970,8 @@
    ]
   },
   "stage_washington.png": {
-   "bytes": 2831,
-   "sha": "1847aeb3734e093a",
+   "bytes": 2830,
+   "sha": "8bbddc6c4c33ee2e",
    "size": [
     180,
     320
@@ -15186,16 +15186,16 @@
    ]
   },
   "tab_active.png": {
-   "bytes": 188,
-   "sha": "a981476ccc9348fb",
+   "bytes": 179,
+   "sha": "195a1545e18d4f0c",
    "size": [
     45,
     26
    ]
   },
   "tabbar.png": {
-   "bytes": 193,
-   "sha": "1f28299ec7dfff32",
+   "bytes": 196,
+   "sha": "3345dd60a2bc88a4",
    "size": [
     180,
     26
@@ -15250,24 +15250,24 @@
    ]
   },
   "tabicon_spins_active.png": {
-   "bytes": 269,
-   "sha": "f489d95b671e5499",
+   "bytes": 299,
+   "sha": "cab2c23b669932ab",
    "size": [
     15,
     15
    ]
   },
   "tabicon_spins_idle.png": {
-   "bytes": 244,
-   "sha": "9d6f033fe78943ea",
+   "bytes": 269,
+   "sha": "3d55d6d59112c221",
    "size": [
     15,
     15
    ]
   },
   "tag_worn.png": {
-   "bytes": 243,
-   "sha": "bb1593ed21186f01",
+   "bytes": 257,
+   "sha": "b218672c6e49d41d",
    "size": [
     30,
     13
@@ -15330,24 +15330,24 @@
    ]
   },
   "thermo_tube.png": {
-   "bytes": 363,
-   "sha": "200bf47524cc8d2b",
+   "bytes": 364,
+   "sha": "4e0d33fd89b14136",
    "size": [
     14,
     88
    ]
   },
   "thermo_tube_short.png": {
-   "bytes": 345,
-   "sha": "5daa478c69eaf34a",
+   "bytes": 349,
+   "sha": "a7cf93a0820426b3",
    "size": [
     14,
     58
    ]
   },
   "ticker_bar.png": {
-   "bytes": 175,
-   "sha": "e20e1b3fe0c4cbfd",
+   "bytes": 165,
+   "sha": "121ac2e7d25eea4b",
    "size": [
     180,
     20
@@ -15370,8 +15370,8 @@
    ]
   },
   "toast.png": {
-   "bytes": 176,
-   "sha": "e99b88159df89f5f",
+   "bytes": 179,
+   "sha": "b819080181807d18",
    "size": [
     32,
     20
@@ -15386,8 +15386,8 @@
    ]
   },
   "transfer_card.png": {
-   "bytes": 151,
-   "sha": "b17a63dcf8a4a238",
+   "bytes": 157,
+   "sha": "d4e03a7ded2c90cf",
    "size": [
     24,
     16
@@ -15554,8 +15554,8 @@
    ]
   },
   "trophy_phone.png": {
-   "bytes": 234,
-   "sha": "3fafe164851d583c",
+   "bytes": 252,
+   "sha": "c4f63a701d440b01",
    "size": [
     15,
     15
@@ -15602,24 +15602,24 @@
    ]
   },
   "trophy_plate_earned.png": {
-   "bytes": 187,
-   "sha": "f66ef097e8962053",
+   "bytes": 190,
+   "sha": "b9b5d4dfd295252a",
    "size": [
     21,
     21
    ]
   },
   "trophy_plate_locked.png": {
-   "bytes": 163,
-   "sha": "560d05fbbf9e8319",
+   "bytes": 164,
+   "sha": "d37c054d58f14ea1",
    "size": [
     21,
     21
    ]
   },
   "trophy_plate_secret.png": {
-   "bytes": 198,
-   "sha": "40ee0779144abf20",
+   "bytes": 206,
+   "sha": "001cb556a96579bb",
    "size": [
     21,
     21
@@ -15690,16 +15690,16 @@
    ]
   },
   "wing_balfour_l.png": {
-   "bytes": 567,
-   "sha": "c611d46253f3710b",
+   "bytes": 570,
+   "sha": "06869c41daafebf8",
    "size": [
     20,
     230
    ]
   },
   "wing_balfour_r.png": {
-   "bytes": 533,
-   "sha": "785d9bd097645508",
+   "bytes": 535,
+   "sha": "92df8f2c94e1af0a",
    "size": [
     20,
     230

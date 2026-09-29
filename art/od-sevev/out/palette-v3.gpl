@@ -1,9 +1,9 @@
 GIMP Palette
-Name: od-sevev-graphic-v2
+Name: od-sevev-graphic-v3
 Columns: 8
 #
  27  20  38	ink
- 42  35  64	night
+ 15  35  80	night
  47  48  66	suit_dk
  69  74  96	suit
  99 106 134	suit_hi
@@ -45,14 +45,14 @@ Columns: 8
 179 157 114	stone_sh
 138  86  50	wood
  85  51  31	wood_dk
- 74  37  82	plum
-122  58 125	plum_hi
+ 22  53 122	plum
+ 42  87 166	plum_hi
  11  10  18	outline
 214 204 236	rim
- 20  12  36	ui_scrim
- 30  22  54	ui_panel
- 46  34  80	ui_bubble
- 74  60 124	ui_bub_hi
+  6  16  41	ui_scrim
+ 10  26  66	ui_panel
+ 17  42 100	ui_bubble
+ 38  73 156	ui_bub_hi
  74  58  16	ui_out
 114  96  31	ui_out_hi
 125  84  18	gold_dk
@@ -64,3 +64,5 @@ Columns: 8
 244 241 232	receipt
 216 209 191	receipt_sh
  26  26  26	receipt_ink
+163 179 211	ui_mute
+ 28  56 118	ui_rule

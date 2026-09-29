@@ -625,8 +625,8 @@ def _s14():
     phone.hline(1, 12, 11, "paper"); phone.vline(12, 2, 11, "paper")
     for y in range(3, 10):                                           # the play glyph
         w = 4 - abs(y - 6)
-        phone.hline(5, 5 + w, y, "pink")
-    phone.vline(5, 3, 9, "pink_sh")
+        phone.hline(5, 5 + w, y, "flag_hi")                          # v3: blue play glyph (was pink)
+    phone.vline(5, 3, 9, "flag")
     digits(phone, "999", 1, 13, "white", gap=1)                      # the view counter, edge to edge
     # the likes: a heart and a "1" (realLikesAdd 1)
     for (x, y) in [(2, 19), (4, 19), (1, 19)]:
