@@ -1685,10 +1685,10 @@
    }
   },
   "golan": {
-   "frameW": 201,
+   "frameW": 143,
    "frameH": 317,
    "anchor": [
-    100,
+    71,
     316
    ],
    "density": 3,
@@ -1714,10 +1714,10 @@
    },
    "densities": {
     "2": {
-     "frameW": 134,
+     "frameW": 95,
      "frameH": 211,
      "anchor": [
-      67,
+      47,
       210
      ],
      "density": 2,
