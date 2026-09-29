@@ -103,6 +103,7 @@ var _title_floor: ColorRect          # the title state's floor under the stage (
 ## R9 (rtl-map §7.1 "History"): one browser history entry per open layer (web only).
 var history := LayerHistory.new()
 var _js_pop_cb: JavaScriptObject     # kept alive: the shell calls window.odOnPop on popstate
+var _layers_sent := -1
 
 
 func _ready() -> void:
@@ -383,7 +384,11 @@ func _history_pop() -> void:
 
 
 func _sync_history() -> void:
-	var js := LayerHistory.js_for(history.sync(layer_depth()))
+	var depth := layer_depth()
+	var js := LayerHistory.js_for(history.sync(depth))
+	if depth != _layers_sent:
+		_layers_sent = depth
+		js += " window.odLayers = %d;" % depth   # web debug, like odDisplay: the open layers
 	if js != "" and OS.has_feature("web"):
 		JavaScriptBridge.eval(js, true)
 
@@ -500,6 +505,7 @@ func _relayout() -> void:
 	_modal.position = Vector2(_ox, _ovl_y)
 	diorama.extend(_ox + 8.0, _top_y + float(L.ROW_A_H + L.ROW_B_H) + 8.0)
 	shop.set_list_height(L.panel_h)
+	title_view.refit()
 	chat.relayout()
 	dossier.relayout()
 	court.relayout()

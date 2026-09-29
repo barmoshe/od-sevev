@@ -11,6 +11,7 @@ extends Node2D
 const SCRIM := Color(0.078, 0.047, 0.141, 0.82)   # #140C24 at 82%
 
 var _items: Array[CanvasItem] = []
+var _lines: Array = []   # [PxText, plate]
 var _fade: Tween
 
 
@@ -41,6 +42,21 @@ func _line(y: float, s: String, sc: int, alpha: float) -> void:
 	t.modulate.a = alpha
 	_items.append(plate)
 	_items.append(t)
+	_lines.append([t, plate])
+	_fit(t, plate)
+
+
+## Large text (rtl-map §0.2) re-measures a line: the plate follows the scale drawn.
+func _fit(t: PxText, plate: ColorRect) -> void:
+	t.center_in(0, L.W)
+	plate.position.x = t.position.x - 16.0
+	plate.size = Vector2(t.width() + 32.0, float(HeFont.line_height()) * t.eff_px() + 8.0)
+
+
+## Called by the controller's relayout (large text toggled, the device scale changed).
+func refit() -> void:
+	for p: Array in _lines:
+		_fit(p[0], p[1])
 
 
 ## "27.10 · עוד 29 ימים" (rtl-map §8: the one place the day count is always visible).
