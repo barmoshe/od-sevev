@@ -10,7 +10,8 @@ LOG="$(mktemp)"
 "$HERE/godot.sh" --headless --path "$GAME" -s res://tests/run_tests.gd -- "$@" 2>&1 | tee "$LOG"
 code=${PIPESTATUS[0]}
 # "String formatting error": a bad `%` in a message ("5% ×" needs "%%"; GDScript has no %g).
-if grep -qE "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|String formatting error" "$LOG"; then
+# "Unicode parsing error": a NUL or broken UTF-8 in a script or string (leaders.gd's old "\u0000" key).
+if grep -qE "SCRIPT ERROR|Parse Error|Invalid call|Invalid access|Nonexistent function|String formatting error|Unicode parsing error" "$LOG"; then
   echo "tools/test.sh: engine reported script errors" >&2
   code=1
 fi
