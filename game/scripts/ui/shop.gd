@@ -9,8 +9,7 @@ extends Node2D
 ## with a dim fill growing from the right as the treasury approaches the price.
 ## Tabs (rtl-map §6.2): four fixed slots, reading order right → left (מקורות, ספינים, קואליציה,
 ## תיקים); each appears when its reveal fires (ux/ftue.md §3) and never moves. The coalition and
-## dossier tabs are tall tabs: their slot emits tall_tab_requested (the controller opens the view);
-## the dossier slot stays empty until its view exists.
+## dossier tabs are tall tabs: their slot emits tall_tab_requested (the controller opens the view).
 ## Juice kept from the fork: press squish, pill hello and nudge, glint, can't-afford shake,
 ## success flash, icon hop and cascade, the upgrade shelf reflow, momentum scroll.
 
@@ -22,15 +21,15 @@ signal tab_switched(tab: String)
 signal became_affordable
 signal producer_revealed
 signal list_interaction
-## A tall tab's slot was chosen (T3 "coalition"; T4 later): the controller opens that view.
+## A tall tab's slot was chosen (T3 "coalition", T4 "dossier"): the controller opens that view.
 signal tall_tab_requested(tab: String)
 
 const TABS := ["producers", "upgrades", "coalition", "dossier"]
 const TAB_KEYS := ["TAB_SOURCES", "TAB_SPINS", "TAB_COALITION", "TAB_DOSSIER"]
 const TAB_ICONS := ["tabicon_sources", "tabicon_spins", "tabicon_coalition", "tabicon_cases"]
-## T3 (the coalition chat, ui/views/view_chat.gd) is built; T4 (dossier) is not yet, so its slot
-## stays hidden even when revealed.
-const TAB_BUILT := [true, true, true, false]
+## T3 (the coalition chat, ui/views/view_chat.gd) and T4 (the dossier, ui/views/view_dossier.gd)
+## are built; a slot shows once its reveal fires.
+const TAB_BUILT := [true, true, true, true]
 const TALL_TABS := ["coalition", "dossier"]
 
 var tab := "producers"

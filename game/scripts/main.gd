@@ -35,7 +35,7 @@ var _pending_offline: Dictionary = {}
 var _limiter: TapLimiter
 var _shake := {"px": 0.0, "ms": 0.0, "t": 0.0, "frame": 0, "ysign": 1.0}
 var _now := 0.0
-var _dev := {"on": false, "speed": 1.0, "grant": 0.0, "evo": -1.0}
+var _dev := {"on": false, "speed": 1.0, "grant": 0.0, "evo": -1.0, "susp": -1.0, "aide": 0.0}
 var _shot := {}                     # store screenshot mode (tools/store_shots.sh): never saves
 var _auto_tap_acc := 0.0
 var _butler_ms := 0.0
@@ -90,6 +90,11 @@ var ftue: Ftue
 var overlays: OverlayManager
 var tx: EvolveTx
 var chat: ChatView                  # T3 "קואליציה 61" (ui/views/view_chat.gd)
+var dossier: DossierView            # T4 "תיקים" + the pardon desk (ui/views/view_dossier.gd)
+var court: CourtView                # the O2 court card + its ticker chip (ui/views/view_court.gd)
+var thermo: Thermo                  # the suspicion thermometer + the sweat (ui/views/view_thermo.gd)
+## Every cue sent to the Audio, by name (tests and tools listen; nothing in the game does).
+signal audio_sent(name: String, arg: Variant)
 var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
 var _fills := {}
 var _title_ground: TextureRect
@@ -139,6 +144,11 @@ func _boot() -> void:
 		Economy.add_bananas(state, float(_dev["grant"]))
 	if float(_dev["evo"]) >= 0.0:
 		state.evolutions = int(_dev["evo"])
+	if float(_dev["susp"]) >= 0.0:   # the investigation views (&susp=100 summons on the first step)
+		state.investigation["revealed"] = true
+		state.investigation["suspicion"] = minf(100.0, float(_dev["susp"]))
+	if float(_dev["aide"]) > 0.0:
+		state.investigation["aideHolding"] = float(_dev["aide"])
 	d = Economy.derive(state)
 	_build()
 	_apply_settings()
@@ -179,6 +189,8 @@ func _read_content_override() -> void:
 ## Dev-only URL params on the web build (all ignored without ?dev=1): &speed=N multiplies game
 ## time, &grant=N adds bananas at boot, &evo=N sets the evolution count (era checks). Same contract as v1.1 (HOW-TO-RUN.md).
 ## &forkscale=1 shows the fork's fractional stretch (the "before" of integer art scaling).
+## &susp=N reveals the thermometer at N% suspicion (100 = a summons on the first step), &aide=N
+## puts N ₪ of suitcase money on an aide (the "אני לא מכיר אותו" button).
 func _read_dev_params() -> void:
 	if not OS.has_feature("web"):
 		return
@@ -189,7 +201,7 @@ func _read_dev_params() -> void:
 	_dev["forkscale"] = q.contains("forkscale=1")
 	for part in q.trim_prefix("?").split("&"):
 		var kv := part.split("=")
-		if kv.size() == 2 and (kv[0] == "speed" or kv[0] == "grant" or kv[0] == "evo"):
+		if kv.size() == 2 and kv[0] in ["speed", "grant", "evo", "susp", "aide"]:
 			_dev[kv[0]] = maxf(0.0, float(kv[1]))
 	if float(_dev["speed"]) <= 0.0:
 		_dev["speed"] = 1.0
@@ -276,6 +288,7 @@ func _build() -> void:
 	shop.list_interaction.connect(func() -> void: ftue.on_input())
 	shop.nudge_blocked = func() -> bool: return overlays.is_open() or tx.running or _tx_locked or ftue.pointer_visible()
 	_build_chat()
+	_build_investigation()
 	fx_ui = FxPlayer.new()
 	_ui.add_child(fx_ui)
 	ftue = Ftue.new()
@@ -316,6 +329,30 @@ func _build_chat() -> void:
 	toasts.on_tap = func(tag: String) -> void:
 		if tag == "chat" and _gameplay_input():
 			chat.open()
+
+
+## The investigation cluster: the thermometer and the sweat on the stage (rtl-map §4, just above
+## the Magician), T4 over the stage, ticker and panel (§6.3), the court card over the panel and its
+## chip in the ticker (§6.4, §5.1). T3 and T4 are one layer: opening one closes the other.
+func _build_investigation() -> void:
+	thermo = Thermo.new().setup(self, bb)
+	_stage.add_child(thermo)
+	_stage.move_child(thermo, bb.get_index() + 1)
+	dossier = DossierView.new().setup(self)
+	_lower.add_child(dossier)
+	court = CourtView.new().setup(self)
+	_lower.add_child(court)
+	shop.tall_tab_requested.connect(func(t: String) -> void:
+		if t == "dossier":
+			dossier.toggle())
+	dossier.open_changed.connect(func(on: bool) -> void:
+		if on:
+			chat.close()
+		shop.tall = "dossier" if on else ("" if shop.tall == "dossier" else shop.tall)
+		shop.cancel_press())
+	chat.open_changed.connect(func(on: bool) -> void:
+		if on:
+			dossier.close())
 
 
 # ================================================================== layout
@@ -391,6 +428,9 @@ func _relayout() -> void:
 	diorama.extend(_ox + 8.0, _top_y + float(L.ROW_A_H + L.ROW_B_H) + 8.0)
 	shop.set_list_height(L.panel_h)
 	chat.relayout()
+	dossier.relayout()
+	court.relayout()
+	thermo.relayout()
 	buffs.set_stage_rect(-_ox, float(L.STAGE["y"]), _vs.x, L.stage_h)
 	bb.relayout()
 	var W := _vs.x
@@ -466,6 +506,9 @@ func _apply_settings() -> void:
 	ticker.set_reduced_motion(rm)
 	shop.reduced_motion = rm
 	chat.reduced_motion = rm
+	dossier.reduced_motion = rm
+	court.reduced_motion = rm
+	thermo.reduced_motion = rm
 	ftue.reduced_motion = rm
 	title_view.set_reduced_motion(rm)
 	fx_stage.reduced_motion = rm
@@ -566,6 +609,7 @@ func offline_collected() -> void:
 # ================================================================== audio + haptics
 
 func _audio(name: String, arg: Variant = null) -> void:
+	audio_sent.emit(name, arg)
 	_audio_call("event", [name, arg])
 
 
@@ -662,6 +706,10 @@ func _process(delta: float) -> void:
 	_refresh_all(dt)
 	shop.tick_hold(dt, state)
 	chat.update_view(dt, state, d, {"main": running and not tx.running and not _tx_locked, "overlay": overlays.is_open()})
+	var live := running and not tx.running and not _tx_locked
+	dossier.update_view(dt, state, d, {"main": live})
+	court.update_view(dt, state, d, {"main": live, "covered": chat.is_open() or dossier.is_open()})
+	thermo.update_view(dt, state, {"main": running})
 	ticker.update_view(dt)
 	overlays.update_view(dt)
 	tx.update_view(dt)
@@ -709,7 +757,7 @@ func _ftue_ctx(running: bool) -> Dictionary:
 	if k >= 0 and shop.row_screen_y(k, "producers") >= 0.0 and shop.tab == "producers":
 		pill = shop.pill_pos(k) + Vector2(0, float(L.STAGE["y"]) + L.stage_h)
 	return {
-		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open(),
+		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open() or dossier.is_open(),
 		"hat": L.magician_feet() - Vector2(0, 380), "pill": pill,
 		"price": Economy.producer_cost(state, first, 1),
 		"bounce": func() -> void: shop.bounce_row(k),
@@ -729,7 +777,8 @@ func _apply_reveals() -> void:
 	shop.set_shop_visible(main and bool(_reveals["card1"]))
 	shop.ftue_single = bool(_reveals["single"])
 	shop.ftue_dim = state.evolutions == 0 and Ftue.owned_total(state) == 0
-	shop.set_tabs_revealed(bool(_reveals["tabs"]) or bool(_reveals["spins"]), [true, bool(_reveals["spins"]), bool(_reveals["tabs"]), false])
+	var dos := dossier.tab_revealed()   # K2 (ux/ftue.md), derived in the dossier view
+	shop.set_tabs_revealed(bool(_reveals["tabs"]) or bool(_reveals["spins"]) or dos, [true, bool(_reveals["spins"]), bool(_reveals["tabs"]), dos])
 	ticker.visible = main and bool(_reveals["counter"])
 	ticker.set_cta(main and state.evolutions >= 0 and Coalition.gate_open(state) and Coalition.active())
 	if bool(_reveals["seats"]):
@@ -744,7 +793,8 @@ func _blackout() -> bool:
 
 ## The band is clear for a Suitcase (ux/ftue.md: stage_unobstructed()).
 func stage_unobstructed() -> bool:
-	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked and not chat.is_open()
+	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked and not chat.is_open() \
+		and not dossier.is_open() and not court.covers_band()
 
 
 ## The HTML disclaimer faded out (shell.html sets window.mbHandoffDone): the FTUE clocks start,
@@ -872,16 +922,20 @@ func _step_economy(dt_sec: float, modal: bool) -> void:
 ## subscribes by name: courtSummons, courtStart, courtEnd(reason) (motion/state-graph-magician §2.1).
 func _on_politics_event(e: Dictionary) -> void:
 	chat.on_politics_event(e)   # chat pings, toasts, chatLeft / ultimatumZero
+	court.on_politics_event(e)  # the court card and chip (the card now carries the summons text)
+	thermo.on_politics_event(e) # the summons gulp
 	match String(e.get("ev", "")):
 		"summons":
 			_audio("courtSummons")
-			toasts.show_toast(Strings.s("COURT_TITLE"))
 		"courtStart":
 			_audio("courtStart")
-			toasts.show_toast(Strings.s("COURT_BODY"))
 		"courtEnd":
-			_audio("courtEnd", String(e.get("reason", "testified")))
-			toasts.show_toast(Strings.s("TOAST_COURT_END"))
+			# testified | served (the sim's tick) | postponed (CourtView routes postpone()'s events
+			# on the stamp's impact frame; the Audio plays gavelWeak for it)
+			var reason := String(e.get("reason", "testified"))
+			_audio("courtEnd", reason)
+			if reason != "postponed":
+				toasts.show_toast(Strings.s("TOAST_COURT_END"))
 		"transfer":
 			_audio("transfer")
 
@@ -1015,6 +1069,8 @@ func _unhandled_input(e: InputEvent) -> void:
 				overlays.wheel(_in_modal(mb.position), -1.0 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0)
 			elif chat.is_open():
 				chat.wheel(-1.0 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0)
+			elif dossier.is_open():
+				dossier.wheel(-1.0 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0)
 			elif _gameplay_input() and shop.in_list(sp):
 				shop.wheel(-1.0 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0)
 	elif e is InputEventMouseMotion:
@@ -1038,6 +1094,8 @@ func _notification(what: int) -> void:
 			if not overlays.back() and mode == "main" and _gameplay_input():
 				if chat.is_open():
 					chat.close()
+				elif dossier.is_open():
+					dossier.close()
 				else:
 					_open_settings()
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
@@ -1083,8 +1141,18 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if top_bar.seats_contains(tp):
 		_presses[idx] = {"kind": "seats"}   # rtl-map §3: the whole Row B opens T3
 		return
+	# the court card sits over everything in `_lower`; T4 then T3 cover the stage
+	if court.pointer_down(lp):
+		_presses[idx] = {"kind": "court"}
+		return
+	if dossier.pointer_down(lp):
+		_presses[idx] = {"kind": "dossier"}
+		return
 	if chat.pointer_down(lp):
 		_presses[idx] = {"kind": "chat"}
+		return
+	if thermo.is_shown() and Ui.in_rect(thermo.hit_rect(), sp):
+		_presses[idx] = {"kind": "thermo"}   # rtl-map §4: tap → T4
 		return
 	if golden.hit_test(sp):
 		_catch_golden()
@@ -1118,6 +1186,8 @@ func _pointer_move(idx: int, p: Vector2) -> void:
 		overlays.pointer_move(_in_modal(p))
 	elif pr.get("kind", "") == "chat":
 		chat.pointer_move(_in_lower(p))
+	elif pr.get("kind", "") == "dossier":
+		dossier.pointer_move(_in_lower(p))
 
 
 func _pointer_up(idx: int, p: Vector2) -> void:
@@ -1134,6 +1204,13 @@ func _pointer_up(idx: int, p: Vector2) -> void:
 			shop.list_up(lp, state)
 		"chat":
 			chat.pointer_up(lp)
+		"court":
+			court.pointer_up(lp)
+		"dossier":
+			dossier.pointer_up(lp)
+		"thermo":
+			if Ui.in_rect(thermo.hit_rect(), _in_stage(p)) and _gameplay_input():
+				dossier.open()
 		"seats":
 			if top_bar.seats_contains(tp) and _gameplay_input():
 				chat.open()
@@ -1208,14 +1285,16 @@ func _on_key(e: InputEventKey) -> void:
 	# order), E the election, B the buy mode, M mute, Esc settings
 	match e.keycode:
 		KEY_SPACE, KEY_ENTER:
-			if not chat.is_open():   # rtl-map §6.3: the Magician is covered while T3 is open
+			if not chat.is_open() and not dossier.is_open():   # rtl-map §6.3: a tall tab covers the Magician
 				_handle_tap(L.magician_hit().get_center())
 		KEY_S:
-			if golden.on_screen() and not chat.is_open():
+			if golden.on_screen() and not chat.is_open() and not dossier.is_open():
 				_catch_golden()
 		KEY_ESCAPE:
 			if chat.is_open():
 				chat.close()
+			elif dossier.is_open():
+				dossier.close()
 			else:
 				_open_settings()
 		KEY_E:
@@ -1372,6 +1451,7 @@ func _cycle_buy_mode() -> void:
 
 func _on_tab_switched(t: String) -> void:
 	chat.close()   # a list tab replaces the tall tab
+	dossier.close()
 	state.ui["tabsTouched"] = true
 	_audio("uiClick")
 	ftue.on_tab_selected(state, t)

@@ -127,6 +127,25 @@ Cross-slice requests go under **Requests** with the owner named.
   - **O-A3:** Dubi never speaks over the motif. Tap 1's line starts at `musicalSeconds` (unit test: ±1 frame; browser, Audio clock: 2.332-2.457 s against 2.328). A headline does not cut the waiting line. `main.gd` now sends the line *after* the tap: before, it arrived while the gate was closed and was silently dropped. The motif's Voice duck is gone (nothing sits under it). The toast stays at f0.
   - **Tests:** `tools/test.sh` 141/141 (+4 `test_display.gd`, +1 `test_audio.gd`); strict web build green (lint 0 failures).
   - **Files:** `game/scripts/{core/display,main,ui/sprite_strip,ui/diorama,autoload/audio}.gd`, `game/tests/unit/{test_display,test_audio}.gd`, `tools/web/res_web.mjs`, `HOW-TO-RUN.md`. Shots: `build/shots/` (untracked).
+- 2026-09-29 · game-developer (views) · the investigation cluster: T4 dossier, suspicion thermometer + sweat, O2 court card + ticker chip, O15 pardon desk, aide-drop confirm. `courtStart` / `courtEnd(reason)` reach the Audio with the sim's reason; `courtEnd("postponed")` is routed from `postpone()`'s events on the "נדחה" stamp's impact (+90 ms; f0 under reduced motion).
+  - **Thermometer:** the kit's tube geometry comes from `sprites.json ui.thermo_tube.liquid/pivot`. It shows the floor hatch, fill, meniscus, the magnifier → gavel icon swap and bubbles, and the word `HUD_SUSP*`. Tap → T4. The sweat is `sweat_drop` on Bibi's per-frame `temple`, through `SpriteStrip.point` (artScale/density from the manifest), per the Animator's magician-sweat graph, including the summons gulp and the reduced-motion bead.
+  - **T4:** the stat rows `DOS_*`, the aide row, `PARDON_ROW` (O15 desk: `Investigation.request_pardon`, paper stamps, the `stamp` cue on the impact), `BOOK_STORY` (the fork's book on its story page), and `BOOK_TROPHIES` with the kit's `trophy_plate_*` / `trophy_<icon>` art. K2 is derived from state: the slot appears 5 s after the case opens, with `TOAST_DOSSIER`. T3 and T4 are one layer.
+  - **Court card:** it is bottom-anchored on the tab bar and flows by line count. Its buttons call `Investigation.postpone` / `testify` / the aide confirm → `drop_aide`. It collapses into the ticker chip (`Ticker.set_court_chip`, the clip starts after it). The court tint is steady at 0.18. H-court pre-empts the ticker. The tap-burst guard holds the card 1 s.
+  - **main.gd hooks:** build, relayout, reduced motion, per-frame updates, input routing, Esc/back, slot 4, the `stage_unobstructed` guard, and a zero-cost `audio_sent` signal for tests. The dev params `&susp=N` / `&aide=N` are documented in HOW-TO-RUN.
+  - **Tests:** `tools/test.sh` 185/185 (+`test_court_view.gd` 7, +`test_dossier_view.gd` 5); strict `tools/build_web.sh` green (lint 499 strings, 0 failures). The web build was driven by touch at 390×844 @2 and @3 with 0 page errors.
+  - **Files:** `game/scripts/ui/views/{view_thermo,view_dossier,view_court}.gd`, `game/scripts/{main,ui/shop,ui/ticker}.gd`, `game/tests/unit/{test_court_view,test_dossier_view}.gd`, `HOW-TO-RUN.md`.
+  - **Deviations, stated:**
+    - The card text flows by real line count: `COURT_BODY` wraps to 2 lines at 624, so the fixed y 96/140/184 would collide.
+    - The court chip grows past 212 when its title needs it (`COURT_CHIP_TITLE` is 160 px beside the 36-px gavel).
+    - The excuse reveals as the previous step, then the full line with the 1-ap hop, not sentence by sentence (a wrapped paragraph).
+    - `SHARE_RECEIPT_TITLE` / `SHARE_RESULT_BTN` show only once the controller has `open_receipt` / `open_result_card` (O4/O5 are not built).
+    - The aide button lives on the summons card and in T4 (no spec named a home).
+    - The pardon desk uses the `_paper` stamps (it is a paper modal); the court card uses `_dark`.
+  - **Open:**
+    - **→ 2d-artist:** `thermo_tube_short` (S < 560) is still missing. The full tube is drawn there.
+    - **→ game-developer (engine):** the Magician's court-day body graph (exit / zip / hat prop, state-graph-magician §5) and the `court_window` stage echo are not wired.
+    - **Every modal's scrim is invisible:** `overlay.gd` creates it with colour alpha 0 and animates only `modulate`. This is queued as a separate task.
+    - **No new strings.**
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 
