@@ -318,6 +318,11 @@ func test_the_partner_card_rows_and_its_ceremony_pill() -> void:
 	if card == null:
 		return
 	runner.check(card.row_value.size() == 2, "two rows: seats and upkeep")
+	runner.check([2, 3, 4].has(card.fig_scale) and card.panel_rect.position.y >= 0.0 and card.panel_rect.end.y <= float(L.H),
+		"the figure is at an integer art scale (×%d) and the card fits the modal space (%s)" % [card.fig_scale, card.panel_rect])
+	var dens_list: Array = [4]   # k 4 (a DPR-2 phone): ×4 is exact on the d 2 alternate
+	runner.check(FlashCard.pick_art_scale(4, [3, 2], func(_s: int) -> bool: return true, [4, 3, 2]) == 4 and FlashCard.pick_art_scale(6, [3, 2], func(_s: int) -> bool: return true, [4, 3, 2]) == 4,
+		"the pick gives ×4 at k 4 and k 6 on a d 3 + d 2 cast %s" % str(dens_list))
 	for v: PxText in card.row_value:
 		runner.check(v.h_anchor == 2 and v.position.x > card.panel_rect.position.x + 200.0,
 			"a value sits beside its label, not at the card's far left (right edge %s)" % v.position.x)

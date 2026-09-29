@@ -1558,6 +1558,8 @@ class PartnerCard:
 	var _seq := -1
 	## The card's pay pill (a ChatView pill dictionary) and the rows' value texts (tests read them).
 	var pill: Dictionary = {}
+	## The figure's art scale (×4 / ×3 / ×2, picked per device k; tests read it).
+	var fig_scale := 3
 	var row_value: Array = []
 
 	func build() -> PartnerCard:
@@ -1573,7 +1575,17 @@ class PartnerCard:
 		if slug != "":
 			var c: Dictionary = SpriteStrip.manifest()["chars"][slug]
 			dens = maxi(1, int(c.get("density", SpriteStrip.manifest().get("density", 1))))
-			fig_h = float(c.get("frameH", 0)) / float(dens) * 3.0     # art ×3: integer, fits 624
+			# the figure's art scale as the flash picks Dubi's (FlashCard.pick_art_scale): of ×4/×3/×2
+			# the largest that fits the card and draws whole device px on one of the char's densities
+			# (k 4 and k 6: ×4, exact 2×2 blocks on d 2 / d 3), else the largest that fits
+			var all_dens: Array = [dens]
+			for dk: Variant in c.get("densities", {}):
+				all_dens.append(int(str(dk)))
+			var art_h := float(c.get("frameH", 0)) / float(dens)
+			var art_w := float(c.get("frameW", 0)) / float(dens)
+			fig_scale = FlashCard.pick_art_scale(Display.k, all_dens, func(sc: int) -> bool:
+				return art_w * sc <= 560.0 and 104.0 + art_h * sc + 24.0 + 104.0 + 208.0 + 120.0 <= float(L.H) - 32.0, [4, 3, 2])
+			fig_h = art_h * float(fig_scale)
 		var om := Coalition.open_msg(s, partner_id) if s != null else {}
 		var h := 104.0 + fig_h + 24.0 + 52.0 + 52.0 + (104.0 if not om.is_empty() else 0.0) + 120.0
 		var y := Ui.snap((L.H - h) / 2.0, 4)
@@ -1588,7 +1600,7 @@ class PartnerCard:
 		if slug != "":
 			_strip = SpriteStrip.make(panel, slug, Vector2(360, cy + fig_h), "idle")
 			if _strip != null:
-				_strip.set_art_px(3.0)   # art ×3: the density variant picked for this card's device px per art px
+				_strip.set_art_px(float(fig_scale))   # the density variant picked for this card's device px per art px
 				if gone:
 					_strip.paused = true
 					_strip.play("idle")
