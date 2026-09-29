@@ -1,6 +1,6 @@
 # "עוד סבב": RTL map of the fork's views (`localization-layout-spec` + `hud-layout`, engine-concrete)
 
-**Owner:** UX Designer · **Consumers:** Game Developer (implements from this), 2D Artist (kit fit), Animator (motion directions and placements) · **Date:** 2026-09-28 · **Rev 2:** resolves the 2D Artist's flags F1-F5 (`art/od-sevev/style-guide.md` §16) and the Animator's crawl objection and placement questions (`motion/state-graph-cast.md`); see §12.
+**Owner:** UX Designer · **Consumers:** Game Developer (implements from this), 2D Artist (kit fit), Animator (motion directions and placements) · **Date:** 2026-09-28 · **Rev 2:** resolves the 2D Artist's flags F1-F5 (`art/od-sevev/style-guide.md` §16) and the Animator's crawl objection and placement questions (`motion/state-graph-cast.md`); see §12. **Rev 3 (2026-09-29, build review `ux/review-2026-09-29.md`):** §0.2 large-text step-down, §4 toast box + chat toast + Dubi's bubble, §5.1 the engine's anchor ratified, §6.1 S08/S10, §6.3 partner rows + ceremony, §6.4 court phases + depth, §7.1 scrim + history, §9 About; D20-D25.
 
 **Above this file:** `gamestudio/output/artifacts/creative-pack/od-sevev/ux/first-minute.md` (approved). This file restates its §1, §3, §4, §7 on the fork's real node tree, the 720-logical canvas and the 2D Artist's kit (`art/od-sevev/ui-kit.json`). Where they disagree on a number, this file wins (it is the engine-concrete one); every deviation is in §12.
 
@@ -22,6 +22,16 @@
 | Hebrew route | `Label` / `RichTextLabel` with the bitmap `FontFile`, `text_direction = RTL`, `horizontal_alignment = RIGHT` unless the row says centre. TextServer does the bidi. |
 | `PxText` route | Only strings with no Hebrew letters and no ₪ (`58/61`, `×14`, `0:45`, `27.10`). The 11 such keys are `surface: "pxtext"` in `string-budgets.json`. |
 | Bidi in data | `ui-strings.json` is logical order with LRI…PDI already around numeric runs and U+00A0 before ₪. Code never adds, strips or pre-reorders. |
+
+### 0.2 Large text: the step-down rule (2026-09-29, review R6)
+
+Large text is ×5 **only where a string fits its box at ×5**. Every key whose `string-budgets.json` entry says `largeText: "step-down"` (57 today) is drawn per instance:
+
+```
+scale = 5 if large_text and lines_at(text, box.widthPx, 5) <= box.linesLarge else 4
+```
+
+measured on the **filled** string (the real price, name, timer), so a short price stays ×5 and a long one steps down. A step-down key is never ellipsised and never clipped. Rows that hold wrapping text (settings rows with captions, chat bubbles, the court card, modal bodies) grow to their measured line count at the scale actually drawn; nothing is positioned from a fixed row height when text can wrap. The ticker tag follows the same rule, so it stays ×4 (110 px at ×5 > its 88 box) and the crawl keeps its 324 px.
 
 ### 0.1 Mirroring (the fork's views are `Node2D` + absolute `Rect2`s from `L`, so mirroring is explicit data: `x' = 720 − x − w`)
 
@@ -110,7 +120,8 @@ Bottom-anchored: Magician, Suitcase band, thermometer. Top-anchored: toasts. The
 | **Magician** | `BigBanana` (rename allowed) | hit `Rect2(172, S−556, 376, 416)` at art ×4; **art ×3 and hit `Rect2(208, S−452, 304, 312)` when `S < 560`** | Feet at (360, S−156). Hit bottom S−140: ≥ 20 px clear of the Suitcase hit. |
 | **Suitcase band** | `GoldenView` | `Rect2(0, S−116, 720, 112)` | §4.1 |
 | **Thermometer** | new `Thermo` | hit `Rect2(12, S−544, 120, 404)`; kit `thermo_tube` 14×88 art = 56×352 at x 44-100, bottom at S−140, icon 11×11 art above at S−544 | Fills bottom → up (`keep`). The kit's magnifier/gavel icon sits above the tube; the state word (`HUD_SUSP`, `HUD_SUSP_HOT`, `HUD_SUSP_BOIL`) sits under the bulb at S−136, centred on x 72 (box x 12-132). Floor = red/black hatch (`thermo_floor_hatch`). Tap → T4. **When `S < 560`** use `thermo_tube_short` (request to the 2D Artist, 14×58 art) with hit `Rect2(12, S−452, 120, 312)`. |
-| Toast dock | `Toasts` in `_ui` | `Rect2(16, 8, 688, 88)` one line; `Rect2(16, 8, 688, 132)` two lines | Text box x 32-688, right-aligned. Chat toast: 32×32-art avatar at x 560-688 would be 128 tall; **toasts use the 16×16 avatar crop** (64×64 at x 624-688) and a text box x 32-608. |
+| Toast dock | `Toasts` in `_ui` | `Rect2(16, 8, 688, 88)` one line; `Rect2(16, 8, 688, 132)` two lines | **Text box x 32-676, right-aligned at 676** (rev 2026-09-29: the kit `toast` content box ends 6 art px = 24 logical before the plate's right edge 704, where the accent stripe is; text at 688 touched it). **Chat toast** (C1 and every later ping): the 16×16 avatar crop (64×64) at x 612-676, inside the accent; line 1 `TOAST_CHAT_HEAD` "{name} · בקבוצה", line 2 the message preview, one line, ellipsised; both right-aligned at 596 (box x 32-596). Always two lines (132). |
+| Dubi's bubble | `Toasts.say` | the kit `chat_bubble_in`, above the anchor | **Text white** (`w` #fff8ec, 13.6:1 on the bubble's #2e2250; the shipped #1b1426 is 1.24:1); the kit note says "white on ui_bubble 13.1:1". |
 | Floaters | `Floaters` | clamp x 24-696, y 8 … S−120 | Rise straight up |
 | Buff chip | `BuffViews` | `Rect2(160, 104, 400, 56)` | Timer bar drains left → right (`mirror`) |
 | Catch banner | `BuffViews` | `Rect2(96, 168, 528, 72)` | Centred |
@@ -150,12 +161,17 @@ The court chip is **not** on the stage any more: during court day it takes the t
 
 ### 5.1 Layout
 
+**Rev 2026-09-29 (the engine's §5.1 objection): accepted as built.** The anchor is sized from its contents, right → left, in `Ticker.anchor_layout` (one data table, `L.TICKER`). The numbers below are the ratified ones at ×4:
+
 | Element | Rect (`_lower`-local) | Content |
 |---|---|---|
-| Anchor | `Rect2(560, 0, 160, 84)` | red "מבזק" plate (`TICKER_TAG`, right-aligned at x 700, y 24) and, if the 2D Artist supplies it, Dubi's 16×16 head at (576, 10) |
-| Crawl clip | `_clip` x 192-552 (360), text y 24 | pool of `Label`s |
+| Tag plate | `Rect2(604, 18, 104, 48)`: the measured tag + 8 px each side | red "מבזק" plate, `TICKER_TAG` right-aligned at x 700, y 24. **Always ×4**, also under large text (§0.2: 110 px at ×5 does not fit its 88 box), so the plate and everything left of it never move. |
+| Dubi | the whole small Dubi (20×23 art = 80×92) at ×4, frame x 520-600, feet on the row floor (y 84), anchor [10, 22] | 4 px left of the plate. His head stands **8 px above the row, over the Suitcase lane's floor**: accepted, see below. Not a tap target (the row hit takes the tap). |
+| Crawl clip | `_clip` x 192-516 (324), text y 24 | pool of `Label`s; ends 4 px before Dubi's frame. The clip's right edge is **always** `anchor_layout().clipX1` (516), including on court day. |
+
+**Dubi above the row (8 px):** accepted, no crop. A head-only 16×16 Dubi would give the crawl 16 px back but lose the full-body presenter the 2D Artist drew; 324 px already equals the court-day width the spec accepted. The 8 px poke is harmless because (1) the Suitcase's sprite never reaches it: its centre is S−60 ± 8 bob and it is 80 tall, so its lowest pixel is S−12, 4 px above Dubi's head top at S−8; (2) Dubi is not a target, and the Suitcase hit (136×120, reaching S) keeps priority over anything under it; (3) depth: the ticker (`_lower`) draws above the stage, so the head reads as a presenter standing in front of the set, never behind the lane's floor. If a future Dubi anim grows taller than 23 art rows, the rule is: his frame may rise at most 8 px above the row.
 | **Date chip** | kit `chip_countdown`, `Rect2(8, 12, 176, 60)` | calendar icon 9×9 art at the chip's right; `HUD_COUNTDOWN_DATE` "27.10" (`PxText`) left of it. On 27.10: `HUD_COUNTDOWN_TODAY`. After 27.10: handshake icon + `HUD_COUNTDOWN_AFTER` "יום {n}". 60% opacity; 100% on the first view of a new day. **The day count ("עוד 29 ימים") is not in the chip** (flag F2): it lives in the title state and in the daily ticker line T24, which jumps the queue on the first open of each day. |
-| **Court-day chip** (replaces the date chip while court runs) | kit `chip_court`, `Rect2(8, 2, 212, 80)`; the clip shrinks to x 228-552 | gavel icon right; `COURT_CHIP_TITLE` "יום משפט" and `COURT_CHIP_TIMER` on two tight lines (40 + 36). Tap → expands the court card. |
+| **Court-day chip** (replaces the date chip while a summons or court runs) | kit `chip_court`, `Rect2(8, 2, 212, 80)` (wider when its title needs it); the clip becomes x 228-516 (288): its **left** edge moves to the chip's right + 8, its right edge stays at Dubi − 4 | gavel icon right; line 1 `COURT_CHIP_SUMMONS` "זימון" during a summons, `COURT_CHIP_TITLE` "יום משפט" during testimony; line 2 `COURT_CHIP_TIMER` (40 + 36). Tap → expands the court card. |
 | Row hit | `Rect2(0, 0, 720, 88)` minus the chip | tap → O6 headline card while a headline is showing |
 
 ### 5.2 Crawl (`mirror`; speed per the Animator's objection, accepted)
@@ -169,7 +185,7 @@ speed:     20 art px/s = 80 logical/s at ×4 (43 CSS/s), 100 at ×5: the same gl
 done:      x > clip_w          next line when: last.x ≥ tickerGapPx
 ```
 
-One step per 3 frames gives an even cadence (the old 74 px/s snapped to 3 gave 2-3-2-3 frame steps). Reduced motion: one right-aligned `Label`; pages broken by measured width ≤ 360; dwell max(4 s, 60 ms × chars); 200 ms cross-fade; tap for the next page.
+One step per 3 frames gives an even cadence (the old 74 px/s snapped to 3 gave 2-3-2-3 frame steps). Reduced motion: one right-aligned `Label`; pages broken by measured width ≤ **the live clip width** (324 at ×4, 302 at ×5; 288 / 266 on court day); dwell max(4 s, 60 ms × chars); 200 ms cross-fade; tap for the next page.
 
 ### 5.3 Election CTA
 
@@ -197,7 +213,7 @@ The pill is 46 art wide, not the kit note's 54: a 54-art pill would leave too li
 
 **Buy-mode row** (revealed at 10 of any source): list row 0 of T1, `Rect2(16, 0, 688, 104)`: `BUYMODE_LABEL` right-aligned at x 580; a kit `button_secondary` visual `Rect2(28, 12, 184, 80)`, hit `Rect2(16, 0, 212, 104)`, cycling `BUYMODE_1` / `BUYMODE_10` / `BUYMODE_MAX`. Scrolls with the list.
 
-**Spin card** (T2): same geometry; pill verb `SPIN_VERB`; fatigue = the `SPIN_FATIGUE` stamp over the plate's bottom edge; timed spins show `SPIN_ACTIVE` on line 2 (wide box).
+**Spin card** (T2): same geometry; pill verb `SPIN_VERB`; fatigue = the `SPIN_FATIGUE` stamp over the plate's bottom edge; timed spins show `SPIN_ACTIVE` on line 2 (wide box). The engine's reading is ratified: a line's level tag ("1/5") in the owned-badge slot on the plate's bottom edge (`Shop.SPIN_TAG`), and S08's split bar as a 2-art-px track under line 2 (`Shop.SPIN_BARS`, public from the right). **S08 at level ≥ 1:** line 2 reads `SPIN_BARS_LINE` "ערוץ ידידותי: {pct}%" (`{pct}` = `bars.friendly`) instead of the effect label; the number names the part of the bar that grows. The two parts' accessible names are `SPIN_BAR_PUBLIC` / `SPIN_BAR_FRIENDLY`. Labels on the bar itself do not fit: at ×4 one word is 104-120 px and the friendly part starts at 72 px (20%). **S10:** each flight catch floats `FLOATER_FLIGHT` "+{pct}% להכנסה" (the round's running bonus) over the Suitcase.
 
 ### 6.2 Tab bar (kit `tabbar` 180×26 art = 720×104), at the bottom
 
@@ -228,13 +244,24 @@ Cover the stage and the ticker: screen y `top_y + 180` to the tab bar, `H_T = S 
 | **Brawl** | `CHAT_SYS_BRAWL` pill, then **the brawl-cloud slot inline in the thread, 208×160 centred (x 256-464)** (answer to the Animator), then the `CHAT_BRAWL_BTN` button visual 312×80, hit 336×88, centred | then `CHAT_BRAWL_AFTER` + `CHAT_CORRIDOR_COUNT` |
 | Composer | kit `chat_composer_disabled` 180×22 art = `Rect2(0, H_T − 88, 720, 88)` | `CHAT_COMPOSER`, right-aligned, disabled |
 
-**Partner card** (from the avatar/name): a modal card over T3 (depth 2), 624 wide, the figure idling at integer scale, name, seats, upkeep, and the partner's open demand pill if any. ✕ top-left + `SYS_CLOSE`. A partner who left shows greyed at f0 (the Animator's `gone` state).
+**Partner card** (from the avatar/name): a modal card over T3 (depth 2), 624 wide, the figure idling at integer scale, name, seats, upkeep, and the partner's open demand pill if any. ✕ top-left + `SYS_CLOSE`. A partner who left shows greyed at f0 (the Animator's `gone` state). **Rows** (rev 2026-09-29): label right-aligned at the card's right − 32 (`HUD_SEATS`, `PARTNER_UPKEEP` "דמי אחזקה מההכנסה"); the value sits **16 px left of its label**, right-aligned there, not at the card's far left (500 px away the eye cannot pair them); value colour = the body colour, not the note purple. The pill is the same pill as in the thread (`CHAT_CEREMONY` for a ceremony). A pay that starts a ceremony ribbon keeps the card open and fills the card's own pill.
+
+**Ceremony demand (Regev, `kind: ceremony`, price 0):** the pill reads `CHAT_CEREMONY` "לגזור סרט ✂" in the gold affordable state; a tap starts the 3 s ribbon fill (from the right) and the label becomes `CHAT_CEREMONY_CUTTING` "גוזרים…" until the stamp. Never "סגרנו · 0 ₪".
 
 **T4 "תיקים"**: the same header (`DOS_TITLE`), then 88-px rows (labels right-aligned at x 688), full-width buttons (hit 688×88) `SHARE_RECEIPT_TITLE`, `SHARE_RESULT_BTN`, `PARDON_ROW`, `BOOK_STORY`, then the `BOOK_TROPHIES` section.
 
 ### 6.4 Court card (O2, non-modal) over the panel
 
 Kit `court_frame` 9-slice, `Rect2(16, y0, 688, 356)`, bottom-anchored to the tab bar. When `P < 356` it extends up over the ticker, and at the floor viewport 48 px into the stage (then the Suitcase spawn guard counts it). Card-local: ✕ hit `Rect2(0, 0, 88, 88)`; the header plate `COURT_TITLE` + gavel right-aligned, y 24; `COURT_BODY` y 96, `COURT_EFFECT` y 140, `COURT_TIMER` y 184 (right-aligned at x 656); button row y 236: **primary on the left** kit `button_primary` `Rect2(16, 236, 416, 104)` with `COURT_POSTPONE_VERB` over `CARD_PRICE` (two lines), **secondary on the right** `Rect2(448, 236, 224, 104)` `COURT_TESTIFY`. After a postponement the baked `stamp_postponed` sits over the body and the excuse ladder (copy deck §H) replaces `COURT_BODY` under `COURT_POSTPONED_PREFIX` (the card grows upward). Collapse → the ticker's court chip (§5.1).
+
+**Two phases, two texts** (rev 2026-09-29). The card shows the phase it is in; the same words for both told the player "income is slowed" and "testimony: 0:20" while nothing was slowed yet, then the timer jumped to 0:30.
+
+| Phase | Title | Body | Effect line | Timer |
+|---|---|---|---|---|
+| `summons` (the choice) | `COURT_SUMMONS_TITLE` "זימון לעדות" | `COURT_SUMMONS_BODY` | `COURT_SUMMONS_EFFECT` "בזמן העדות: כל ההכנסות ×0.5" | `COURT_SUMMONS_TIMER` "העדות מתחילה בעוד m:ss" |
+| `court` (testimony) | `COURT_TITLE` "יום משפט" | `COURT_BODY` | `COURT_EFFECT` | `COURT_TIMER` "עדות: m:ss" |
+
+The card rebuilds on the phase edge. **Depth:** the court card (non-modal) draws above the tall tabs T3/T4 and below every modal; while it is expanded over a tall tab, that tab's list gets bottom padding equal to the card's height so its last rows can scroll clear. **Esc / back** with the card expanded collapses it to the chip (one history entry while expanded), before any other layer rule.
 
 ---
 
@@ -249,8 +276,9 @@ Kit `court_frame` 9-slice, `Rect2(16, y0, 688, 356)`, bottom-anchored to the tab
 | Two buttons | **side by side when both labels fit 224 px**: cancel right `Rect2(376, y, 256, 96)`, commit left `Rect2(88, y, 256, 96)`. **Otherwise stacked**, full width `Rect2(88, y, 544, 96)`: commit on top, cancel below. Stacked cards at ×4: election (O3), aide-drop confirm. Focus starts on cancel for destructive modals. |
 | Text | `Label`, body right-aligned at panel.right − 32, titles centred in a 432 box (clear of ✕); cards grow vertically (the kit's 9-slices) |
 | Backdrop | closes, except O10 reset and the aide-drop confirm |
+| **Scrim** (rev 2026-09-29) | **the kit's outline swatch `#0b0a12` at 60%** (`Tune backdropAlpha` 0.6), not the fork's grape `U #3a1e72`. A scrim must only darken: grape at 60% *lifts* the game's dark base (#140c24 → #2b1753, the measured result), which reads as fog and flattens the dark sheets' edges against it; the outline swatch takes #140c24 to #0d0a17 and the Balfour wall to 40%. The kit's own modal note already says "outline swatch at 60% (UX)". The spin tag plate that shares `uiTheme.scrim` gets the same colour (white "שחוק" on it rises to ≥ 17:1). |
 | Keyboard | ← next, → previous (`mirror`); Tab / Shift-Tab in reading order |
-| History | one `pushState` per layer (first-minute §1.2) |
+| History | one `pushState` per layer (first-minute §1.2): every overlay, the partner card, T3/T4, and the expanded court card. `popstate` closes the top layer exactly as ✕/Esc does. With no layer open, back leaves the page as a browser expects (the save is flushed on `pagehide`); the root is never trapped. |
 
 Modal card: `Rect2(48, y, 624, h)` centred. Sheet: `Rect2(0, vs.y − bottom_inset − h, 720, h + bottom_inset)`, bottom-anchored.
 
@@ -318,7 +346,17 @@ Rows A/B, ticker, panel and tabs hidden; section heights reserved so tap 1 lands
 
 ## 9. HTML surfaces (`game/web/shell.html`)
 
-`<html lang="he" dir="rtl">`. N1: body right-aligned, system font 16 px, line-height 1.5, max-width 358 CSS. Buttons: one row of two equal halves ≥ 48 CSS tall, **"עם סאונד" right**, **"בשקט" left** with its caption; neither preferred. The hand-off bar fills **right → left**. Numbers in `<bdi dir="ltr">` (or the LRI/PDI already in the strings). Strings with `surface: "html"` are templated into `shell.html` at export, `<noscript>` included.
+`<html lang="he" dir="rtl">`. N1: body right-aligned, system font 16 px, line-height 1.5, max-width 358 CSS.
+
+**O8 About** (rev 2026-09-29, review R3): the page is public, so it prints only public text.
+
+| Rule | Value |
+|---|---|
+| Which facts | only `design/facts.json` facts **without** `notUsed` (44 of 51 today; the 7 with `notUsed` are post-launch, bench-only or dropped) |
+| Which text | a Hebrew public field, **`aboutHe`** (the Game Designer writes it: one sentence, the claim as the game uses it, no production notes). Never `text`, which is the English research note ("NOT USED at launch.", "GAP…", "Bench only.", "The joke is on the policy…", "The game never names the reason."). Until a fact has `aboutHe`, it is left out; the build prints the count left out. |
+| List | `<ul dir="rtl">`, items right-aligned, bullets on the right; `outlet · date` under the sentence; the link `ABOUT_SOURCE_LINK` "למקור" |
+| Link colour | `#9fc3ff` on the page's `#140c24` (10.6:1; the browser default `#0000ee` there, as shipped, is 2.0:1), underlined; visited the same |
+| Leaving | `ABOUT_BACK` sticks to the top-left of the viewport (48 CSS tall), not only at the end of a 51-item list; Esc and back close it (already one history entry) | Buttons: one row of two equal halves ≥ 48 CSS tall, **"עם סאונד" right**, **"בשקט" left** with its caption; neither preferred. The hand-off bar fills **right → left**. Numbers in `<bdi dir="ltr">` (or the LRI/PDI already in the strings). Strings with `surface: "html"` are templated into `shell.html` at export, `<noscript>` included.
 
 ---
 
@@ -351,7 +389,7 @@ Hits (logical, floor 88): ⚙ 🔊 cottage 88×88 · Row B 720×88 · Magician 3
 | D1 | 44 CSS = 81 logical | floor **88** logical | 81 holds only at 390 wide; at 360 wide 44 CSS = 88 |
 | D2 | layout for 844 tall | flex rule §1 | the WhatsApp-link entry opens with toolbars (390×664); the fork cut the tab bar |
 | D3 | pill "לקנות · 15 ₪" on one line | pill 46×22 art, verb over price | a one-line pill cannot fit beside a 17-letter name |
-| D4 | "×14" between name and pill | at the left end of line 2 | frees the name line |
+| D4 | "×14" between name and pill | **a badge on the plate's bottom-left corner** (`Rect2(572, 72, 104, 44)`, rev of 2026-09-29 width lint) | frees the name line and all of line 2 for late-game yields (308 px) |
 | D5 | tab badge top-right (wireframe, kit note) | **top-left** | the trailing corner in RTL |
 | D6 | pinned bar 30 CSS, display only | kit 56 visual / 88 hit, the agreement button after round 1 | a home for the fork's perks at depth 2 |
 | D8 | — | buy-mode control as list row 0 | the old top tab strip is gone |
@@ -365,3 +403,9 @@ Hits (logical, floor 88): ⚙ 🔊 cottage 88×88 · Row B 720×88 · Magician 3
 | **D17** | court chip on the stage | court chip replaces the date chip in the ticker | follows the kit proof; keeps the stage top (the hat) free of targets |
 | **D18** | settings sheet 62%, ticker preview | 70%, sky/hat preview | ×4 content is 1072 px; the ticker was always covered by the sheet |
 | **D19 (Animator)** | cameo, Sara, brawl slot, partner card, idle invite: open | §4.2 and §6.3 | answered there |
+| **D20 (engine objection, 2026-09-29)** | ticker anchor 160 wide: tag at 700 + a 16×16 Dubi head at (576, 10), crawl 192-552 | the anchor sized from its contents: plate 604-708, the full small Dubi 520-600 (8 px above the row), crawl 192-516 (324) | 88 + 16 + 80 px do not fit in 160; the full-body Dubi is the 2D Artist's shipped art. §5.1 |
+| **D21** | large text = ×5 everywhere | ×5 where the filled string fits its box, else ×4 (§0.2) | the build drew ×5 with no step-down: prices ellipsised to "....50K", captions cut, tab labels ran together |
+| **D22** | toast text x 32-688 | x 32-676; chat toast = avatar + `TOAST_CHAT_HEAD` + one-line preview | the kit toast's content box ends at 680; the C1 toast shipped with no avatar and no sender |
+| **D23** | scrim: unspecified in rtl-map (the fork's grape) | outline `#0b0a12` at 60% (§7.1) | a scrim must darken; grape lifts the dark base |
+| **D24** | one court text for both phases | summons and testimony texts (§6.4) | the summons card claimed a slowdown and a testimony timer that had not started |
+| **D25** | About lists `facts.json` `text` | only facts without `notUsed`, Hebrew `aboutHe` (§9) | the public page printed English research notes and internal flags |

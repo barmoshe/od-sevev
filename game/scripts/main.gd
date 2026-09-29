@@ -1382,8 +1382,8 @@ func _catch_golden() -> void:
 	var award := Economy.apply_golden(state, id)
 	var flight1 := Spins.flight_pct(state)
 	if flight1 > flight0:
-		# S10: this flight's income bonus, as the running total (numerals only; a UX key is requested)
-		floaters.spawn(gp.x, gp.y - 64.0, flight_label(flight1), false, false)
+		# S10: this flight's income bonus, as the running total (ux FLOATER_FLIGHT)
+		floaters.spawn(gp.x, gp.y - 64.0, Strings.s("FLOATER_FLIGHT", {"pct": int(roundf(flight1))}), false, false)
 	# The audio cue variants keep the fork's names (cues.json goldenCatch bunch/frenzy/tapFrenzy).
 	_audio("goldenCatch", {"instant": "bunch", "bpsFrenzy": "frenzy", "tapFrenzy": "tapFrenzy"}[kind])
 	if kind == "bpsFrenzy":
