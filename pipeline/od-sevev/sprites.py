@@ -33,7 +33,20 @@ ERAS = ["balfour", "knesset", "courthouse", "washington"]
 # (template.html bibiPos: x 94, floor 220 -> feet row 219) and locations.py's floor at y 216-230.
 MAGICIAN_FEET = [94, 219]
 MAX_TEX = 2048   # WebGL2's guaranteed MAX_TEXTURE_SIZE (the web export's floor)
-POINT_TRACKS = ("hatMouth", "temple")   # per-frame [x, y] tracks, re-based when a frame is trimmed
+# Per-frame point tracks ([x, y] per frame, sprite px: hatMouth, temple, propMouth, ...) are found by shape, never
+# by name (is_track): any named track an anim carries is re-based when a frame is trimmed, kept inside the trimmed
+# frame, and compared across densities. The names in use are documented in CONTRACT.md §4.
+
+
+def is_track(v, frames):
+    """True when v is one [x, y] point per frame (a named per-frame point track)."""
+    return (isinstance(v, list) and frames and len(v) == frames and
+            all(isinstance(p, (list, tuple)) and len(p) == 2 and all(isinstance(c, (int, float)) for c in p) for p in v))
+
+
+def point_tracks(anim):
+    """The names of an anim's per-frame point tracks."""
+    return sorted(k for k, v in anim.items() if k not in ("frameMap",) and is_track(v, anim.get("frames")))
 
 # Frames whose content touches column 0 or frameW-1 are clipped art. Named waivers only:
 # anything new that touches an edge fails the build.
@@ -164,7 +177,7 @@ def validate_char(name, d, src):
                 if key not in base or m.get(key, {} if key == "events" else None) != base[key]:
                     errs.append(f"{name}{label}.{anim}: {key} {m.get(key)} != the main render's {base.get(key)} "
                                 "(a density alternate is the same motion: only pixels and sprite-px data differ)")
-            for key in POINT_TRACKS:
+            for key in sorted(set(point_tracks(base)) | set(point_tracks(m))):
                 if (key in base) != (key in m):
                     errs.append(f"{name}{label}.{anim}: {key} present in one render and not the other")
                 elif key in m and len(m[key]) == len(base[key]):
@@ -218,7 +231,7 @@ def _validate_variant(name, d, src, waived=False):
     if not (0 <= ax < fw and 0 <= ay < fh):
         errs.append(f"{name}: anchor {d['anchor']} outside the {fw}x{fh} frame")
     for anim, m in d["anims"].items():
-        for key in POINT_TRACKS:
+        for key in point_tracks(m) + [k for k in ("hatMouth", "temple", "propMouth") if k in m and k not in point_tracks(m)]:
             if key in m and len(m[key]) != m["frames"]:
                 errs.append(f"{name}.{anim}: {key} has {len(m[key])} points for {m['frames']} frames")
             elif key in m and not all(0 <= p[0] < fw and 0 <= p[1] < fh for p in m[key]):
@@ -347,6 +360,10 @@ def _pack(name, d, src, written):
                 bb = [xs.min(), ys.min(), xs.max() + 1, ys.max() + 1]
                 union = bb if union is None else [min(union[0], bb[0]), min(union[1], bb[1]),
                                                   max(union[2], bb[2]), max(union[3], bb[3])]
+    for anim, m in d["anims"].items():                  # every point track stays inside the trimmed frame (a loose
+        for k in point_tracks(m):                       # prop's anchor may sit beside the body: Eisenkot, Liberman)
+            for px, py in m[k]:
+                union = [min(union[0], px), min(union[1], py), max(union[2], px + 1), max(union[3], py + 1)]
     # 1 px of clear margin keeps the frame-edge rule; the feet row always stays inside
     x0, y0 = max(union[0] - 1, 0), max(union[1] - 1, 0)
     x1, y1 = min(union[2] + 1, fw), max(min(union[3] + 1, fh), d["anchor"][1] + 1)
@@ -388,10 +405,11 @@ def _pack(name, d, src, written):
              "density": m.get("density", dens), "cols": cols, "rows": rows}
         if use_map:
             a["frameMap"] = fmap
-        for k, v in m.items():                          # hatMouth, temple, ...: into the trimmed frame
+        tracks = point_tracks(m)
+        for k, v in m.items():                          # hatMouth, temple, propMouth, ...: into the trimmed frame
             if k in ("file", "frames", "fps", "loop", "events", "density"):
                 continue
-            a[k] = [[p[0] - x0, p[1] - y0] for p in v] if k in POINT_TRACKS else v
+            a[k] = [[p[0] - x0, p[1] - y0] for p in v] if k in tracks else v
         anims[anim] = a
     return {"frameW": tw, "frameH": th, "anchor": [d["anchor"][0] - x0, d["anchor"][1] - y0],
             "density": dens, "anims": anims}
@@ -442,11 +460,21 @@ def import_sprites(src, log, provenance):
             chars[name]["densities"] = alts
         if name in PLACEHOLDERS:
             chars[name]["placeholder"] = PLACEHOLDERS[name]
+        if d.get("prop"):                              # a leader's tap prop (CONTRACT §4c)
+            chars[name]["prop"] = d["prop"]
         for suffix, key in (("", "avatar"), ("24", "avatar24")):
             ap = os.path.join(src, f"{name}_avatar{suffix}.png")
             if os.path.exists(ap):
                 put(ap, f"{key}_{name}.png")
                 chars[name][key] = f"{key}_{name}"
+        # a launch leader's picker avatars: the same heads on one neutral ring (CONTRACT §4c)
+        for suffix, key, file_key, size in (("_pick", "avatarPick", "avatar_pick", 32), ("24_pick", "avatar24Pick", "avatar24_pick", 24)):
+            ap = os.path.join(src, f"{name}_avatar{suffix}.png")
+            if os.path.exists(ap):
+                if Image.open(ap).size != (size, size):
+                    raise SpriteError(f"{name}_avatar{suffix}.png is not {size}x{size}")
+                put(ap, f"{file_key}_{name}.png")
+                chars[name][key] = f"{file_key}_{name}"
 
     # single-frame sprites, flat, one PNG per engine id (Art.tex(id) -> res://assets/sprites/<id>.png)
     props = {}

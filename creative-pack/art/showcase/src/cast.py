@@ -12,32 +12,40 @@ CAST = {
     'gotliv': dict(neck=450, waist=860, eyes=[(470, 250, 30, 13), (580, 236, 27, 13)],
                    arm=(720, 340, 1012, 600, 720, 520), react='jab', head=(340, 110, 700, 470)),
     'deri': dict(neck=530, waist=960, eyes=[(470, 275, 28, 11), (592, 243, 26, 12)],
-                 arm=(140, 570, 450, 790, 330, 800), react='hop', head=(300, 20, 720, 440)),
+                 arm=(140, 570, 450, 790, 330, 800), react='hop', head=(300, 20, 720, 440),
+                 tap=dict(prop='prop_coffee', hand=(398, 592), swing=1.0, path='held', baked=True)),
     'levin': dict(neck=690, waist=980, eyes=[(598, 430, 28, 14), (715, 445, 26, 13)],
                   arm=([(0, 0), (445, 0), (445, 200), (335, 285), (285, 470), (345, 600), (230, 650), (90, 560), (0, 300)], (300, 600)), react='bang', head=(430, 190, 810, 570)),
     'ben-gvir': dict(neck=560, waist=1000, eyes=[(420, 230, 30, 15), (583, 272, 32, 15)],
-                     arm=(20, 320, 275, 660, 250, 640), react='jab', head=(330, 20, 780, 470)),
+                     arm=(20, 320, 275, 660, 250, 640), react='jab', head=(330, 20, 780, 470),
+                     tap=dict(prop='prop_phone', hand=(140, 480), swing=1.0, path='held')),
     'goldknopf': dict(neck=560, waist=1000, eyes=[(403, 288, 26, 13), (530, 305, 28, 13)],
                       arm=None, react='hop', head=(300, 40, 740, 480)),
     'gafni': dict(neck=560, waist=950, eyes=[(514, 343, 30, 14), (644, 363, 30, 14)],
                   arm=None, react='sneak', head=(330, 60, 800, 530)),
     'smotrich': dict(neck=540, waist=1000, eyes=[(378, 316, 28, 13), (486, 337, 28, 13)],
-                     arm=None, react='jab', head=(130, 40, 630, 540)),
+                     arm=None, react='jab', head=(130, 40, 630, 540),
+                     tap=dict(prop='prop_calculator', hand=(740, 585), path='held', baked=True, lean=-1,
+                              moves=[([(610, 495), (905, 600), (985, 800), (905, 940), (720, 1000), (505, 880), (515, 700)],
+                                      [0, 1, 1, 0, 0, 0, 0, 0])])),
     'amsalem': dict(neck=600, waist=1000, eyes=[(394, 272, 26, 12), (511, 292, 26, 12)],
                     arm=(40, 270, 272, 600, 170, 620), react='jab', head=(270, 50, 720, 500)),
     'lapid': dict(neck=520, waist=930, eyes=[(410, 286, 24, 12), (523, 321, 24, 12)],
                   arm=(790, 700, 1006, 880, 790, 820), react='hop', head=(170, 20, 700, 550)),
     'eisenkot': dict(neck=540, waist=1000, eyes=[(398, 290, 28, 13), (520, 285, 28, 13)],
-                     arm=None, react='hop', head=(150, 20, 640, 510)),
+                     arm=None, react='hop', head=(150, 20, 640, 510),
+                     tap=dict(prop='prop_ruler', beside=(700, 6, 700), path='hop', lean=-1)),
     'gantz': dict(neck=440, waist=900, eyes=[(526, 257, 24, 11), (617, 270, 24, 11)],
                   arm=(235, 555, 412, 720, 380, 560), react='jab', head=(160, 0, 560, 440)),
     'liberman': dict(neck=520, waist=1000, eyes=[(378, 277, 28, 12), (520, 288, 28, 12)],
-                     arm=None, react='no', head=(130, 20, 640, 530)),
+                     arm=None, react='no', head=(130, 20, 640, 530),
+                     tap=dict(prop='prop_chair', beside=(1400, 6, None), path='push', lean=1)),
     # Yair Golan (Bar's better ref, 2026-09-29; the old one is refs-rejected/golan-v1.png): three-quarter
     # view, hands at his sides. The neck cut sits under the stubbled chin (y ~440), the waist just under
     # the belt (y 875-905); skin is the lid under his eyes, not the nose shadow the midpoint sample hits.
     'golan': dict(neck=460, waist=910, eyes=[(408, 250, 26, 12), (505, 240, 29, 12)],
-                  skin=(242, 160, 122), arm=None, react='hop', head=(280, 30, 700, 450)),
+                  skin=(242, 160, 122), arm=None, react='hop', head=(280, 30, 700, 450),
+                  tap=dict(prop='prop_stapler', hand=(308, 1045), path='held', lean=-1)),
     'abbas': dict(neck=580, waist=1000, eyes=[(449, 328, 26, 12), (587, 346, 26, 12)],
                   arm=None, react='no', head=(150, 30, 690, 570)),
     'distel': dict(neck=460, waist=900, eyes=[(403, 232, 24, 11), (537, 259, 24, 11)],
@@ -55,6 +63,14 @@ CAST = {
     'may-golan': dict(neck=510, waist=945, eyes=[(445, 217, 23, 12), (542, 238, 26, 12)],
                       arm=None, react='hop', head=(330, 40, 710, 420)),
 }
+
+# The two custom-rig leaders (build.py magician / bennett) take the same recipe keys. Bibi's is his approved hat rig
+# (propMouth = hatMouth, the hat baked into his strips); Bennett's pen sits in his explaining hand.
+BENNETT_TAP = dict(prop='prop_pen', hand=(165, 785), swing=1.5, path='held')
+BIBI_TAP = dict(prop='prop_hat', baked=True, track='hatMouth')
+# The 8 launch leaders (design/content.json leaderSelect.roster, by art slug): each gets a tap, and neutral-ring avatars
+# (<char>_avatar_pick.png 32, <char>_avatar24_pick.png 24: the picker tiles and the app icon, every ring the same).
+LEADERS = ['bibi', 'bennett', 'ben-gvir', 'smotrich', 'deri', 'eisenkot', 'liberman', 'golan']
 
 # ---------------------------------------------------------------- Dubi (motion/state-graph-dubi.md §1)
 # Two figures from refs/dubi.png (parrot at a mic stand, wing raised, facing screen-left).
@@ -102,6 +118,12 @@ SOURCES = {
                    fallback='the ref has no smoke wisp or champagne bubbles: bob'),
     'qatari': dict(neck=460, f1=[('headx', 1)], icon=(510, 480),
                    fallback='two aides, no phone: the glance is both heads leaning 1 ap toward the whisper'),
+    # leader-select-spec §5.3 / §9.1.3: every non-Bibi leader's t6 "advisers" is the qatari render with the maroon
+    # folder recoloured slate grey (the maroon waiver is Qatar-only). The same ref, recipe, points and icon crop;
+    # `recolor` = [(shape, rgb)]: inside shape, maroon-hued ref px take rgb's hue at their own value (rig.py).
+    'advisers': dict(ref='qatari', neck=460, f1=[('headx', 1)], icon=(510, 480),
+                     recolor=[([(778, 630), (915, 630), (1000, 790), (1000, 950), (690, 900), (690, 830), (722, 785)], (125, 131, 152))],
+                     fallback='two aides, no phone: the glance is both heads leaning 1 ap toward the whisper'),
 }
 SOURCE_ALIASES = {'washington': 'checkbook'}       # content id -> hand-drawn source id (2D Artist)
 

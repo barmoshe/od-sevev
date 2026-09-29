@@ -12,7 +12,7 @@ REFS = os.path.join(ART, 'refs')
 
 
 class Rig:
-    def __init__(self, name, height_px, pad=(0.18, 0.22, 0.30), ncolors=44, ref=None, edits=None):
+    def __init__(self, name, height_px, pad=(0.18, 0.22, 0.30), ncolors=44, ref=None, edits=None, recolor=None):
         """pad = (side, top-extra over crop height, unused) as fractions of crop size.
         ref   = the ref file stem when it differs from name (two figures from one ref).
         edits = [(shape, rgba | None)] applied to the ref before cropping: shape is a rect
@@ -27,6 +27,8 @@ class Rig:
             else:
                 ImageDraw.Draw(m).rectangle([shape[0], shape[1], shape[2] - 1, shape[3] - 1], fill=255)
             im.paste(col or (0, 0, 0, 0), (0, 0), m)
+        for shape, col in (recolor or []):
+            im = self._recolor(im, shape, col)
         a = im.getchannel('A').point(lambda v: 255 if v > 128 else 0)
         bb = a.getbbox()
         self.ox, self.oy = bb[0], bb[1]
@@ -41,6 +43,34 @@ class Rig:
         self.ah = round(self.H * self.s)
         self.ncolors = ncolors
         self.palette = None
+
+    @staticmethod
+    def _recolor(im, shape, col):
+        """Inside shape (ref px), every maroon-hued px (hue within 0.025-0.07 of red, saturation > 0.3, value < 0.75: a
+        maroon folder, never the skin, whose value is higher) takes col's hue and saturation at its own value x 1.25,
+        so the shading survives the swap. Additive (recolor=None changes nothing)."""
+        import colorsys
+        m = Image.new('L', im.size, 0)
+        if isinstance(shape[0], (tuple, list)):
+            ImageDraw.Draw(m).polygon(shape, fill=255)
+        else:
+            ImageDraw.Draw(m).rectangle([shape[0], shape[1], shape[2] - 1, shape[3] - 1], fill=255)
+        th, ts, tv = colorsys.rgb_to_hsv(*[c / 255 for c in col[:3]])
+        out = im.copy()
+        px, mp = out.load(), m.load()
+        x0, y0, x1, y1 = m.getbbox()
+        for y in range(y0, y1):
+            for x in range(x0, x1):
+                if not mp[x, y]:
+                    continue
+                r, g, b, a = px[x, y]
+                if not a:
+                    continue
+                h, s_, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+                if (h < 0.025 or h > 0.93) and s_ > 0.3 and v < 0.75:
+                    nr, ng, nb = colorsys.hsv_to_rgb(th, ts, min(1.0, v * 1.25))
+                    px[x, y] = (round(nr * 255), round(ng * 255), round(nb * 255), a)
+        return out
 
     # --- coordinates: ref (original image) -> canvas (hi-res padded) -> art
     def c(self, x, y):

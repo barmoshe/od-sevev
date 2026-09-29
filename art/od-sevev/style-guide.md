@@ -12,11 +12,11 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 
 | Deliverable | File |
 |---|---|
-| UI kit, 212 pieces (wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
+| UI kit, 242 pieces (leader select 2026-09-29: 30; wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
 | 9-slice / frame / pivot manifest | `ui-kit.json` |
 | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
 | App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (master `icon-128-art.png` = 64 art px at d 2) |
-| OG image 1200x630 | `out/key/og-1200x630.jpg` (120 KB, WhatsApp needs ≤ 300 KB) + `.png`; shipped as `game/web/og.jpg` |
+| OG image 1200x630 | `out/key/og-1200x630.jpg` (203 KB at q 82 4:4:4 since the lineup, WhatsApp needs ≤ 300 KB) + `.png`; shipped as `game/web/og.jpg` |
 | Graphic-tier palette | `out/palette-v2.gpl`, `out/palette-v2.png`, source `src/palette.py` |
 | Proofs | `proofs/` (see §15) |
 
@@ -180,28 +180,43 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 
 ## 9. Icon and OG image
 
-**Icon** (`out/key/icon-1024.png`, 64x64 art x16; `icon-60.png` is the real LANCZOS downsample):
-- **Density (wave 6):** composed on a 128x128 fine grid (2 px per art px) because the Magician ships at d 3 / d 2
-  since the 3x cast; the d 2 render is pasted 1:1 and the whole scales x8 (d 3 would be 5.33 px, not whole). The
-  master the pipeline imports is `icon-128-art.png`. `keyart.frame()` reads the frame data from the showcase
-  `atlas.json` at the density asked, so the 1x crop of the 3x strips (the wave-5 break) cannot recur.
-- **What:** the approved Magician (idle frame 0, pasted 1:1: finger up, the top hat spinning on it)
-  inside one clockwise gold "again" loop, on a plum stage with a follow-spot.
-- **Why this replaced v1's ballot box + hat:** the approved cast *is* the brand now. The face reads at
-  60 px and still at 29 px (`proofs/icon-60-zoomed.png`, `icon-29-zoomed.png`), and the loop keeps "עוד
-  סבב" in a textless mark. The election signifier moves to the wordmark and the title copy
-  ("סבב בחירות"), where it is words, not a glyph.
-- **Safe area:** everything load-bearing (face, hat, loop arrowhead) inside the central ~85%. Opaque,
-  square, no rounded corners (the OS masks).
-- **Excluded:** flags, emblems, party colours, ballot slips with letters.
+**Leader select (Bar, 2026-09-29): the key art is the lineup of the 8 launch leaders**, replacing the Bibi-with-hat
+icon and OG (the game is no longer "the Bibi game"; design/leader-select-spec.md §10.3, STATUS). The rule for both:
+**nobody is the winner.** The order is Hebrew-alphabetical by the picker's name, read right to left: אייזנקוט, ביבי,
+בן גביר, בנט, גולן, דרעי, ליברמן, סמוטריץ׳ (`keyart.LINEUP`). Eight is even, so nobody stands in the middle; every
+figure is the approved idle frame 0, the same height, on the same floor line, under the same spot.
 
-**OG** (`out/key/og-1200x630.jpg`, 200x105 art x6 since wave 6; it was 240x126 x5, but no density > 1 divides 5):
-- The wordmark over a curtained stage, the Magician (the d 3 render, 2 px per sprite px) in the TAP pose with the
-  hat high and shekels and a bill leaping out of it up and right, the DOHA Suitcase flying through upper-left
-  with a rim-coloured speed trail. It matches UX's `og:image:alt` ("ביבי בפיקסלים שולף שקלים מכובע..."); the only
-  text in it is the wordmark and the sticker's DOHA. Nothing that echoes October 7 (do/don't 13).
-- **Square-crop safe:** the wordmark, the Magician and the Suitcase all sit inside the centre 630x630
+**Icon** (`out/key/icon-1024.png`, 64x64 art x16; `icon-60.png` is the real LANCZOS downsample):
+- **What:** the eight heads in a ring around the gold clockwise "again" loop, on a plum stage with one follow-spot.
+  A rotation (סבב) in a mark with no text: the loop is the brand, the ring is the roster. The ring starts 22.5° right
+  of 12 o'clock and runs clockwise in the lineup order, so no head sits at the top or in the middle.
+- **Heads:** `showcase/out/<c>_avatar_pick.png`, the 32x32 chat-avatar render-down (the same head box and palette as
+  the chat avatar) on one neutral `rim` ring for everyone (the chat avatars' react-coloured rings read as party or
+  bloc colours); the same heads are the picker tiles' (`avatar_pick_<c>`, `avatar24_pick_<c>`).
+  Pasted 1:1 on the 128x128 fine grid (2 px per art px, d 2), so each head is 16 art px with 32 px of detail; the
+  whole scales x8 (the master the pipeline imports is `icon-128-art.png`).
+- **Reads at:** 1024 (eight caricatures), 60 px (a ring of faces around a gold loop), 29 px (a ring and the loop)
+  (`proofs/icon-60-zoomed.png`, `icon-29-zoomed.png`). Individual faces at 29 px are not a goal: no 8-person mark can
+  do that, and a single face would pick a winner.
+- **Safe area:** the ring's outer edge is at radius 31 of 32: inside the iOS squircle and the full-bleed square; on
+  Android's circular mask the ring's outer rim may clip slightly (the heads' centres stay at radius 23). Opaque,
+  square, no rounded corners (the OS masks).
+- **Excluded:** flags, emblems, party colours or logos, ballot slips with letters, any leader bigger or central.
+
+**OG** (`out/key/og-1200x630.jpg`, **400x210 art x3** since leader select, d 3 at 1 output px per sprite px; it was
+200x105 x6 with Bibi alone, but eight full figures need the width):
+- The wordmark (cap 32, stroke 6) over a curtained plum stage, ballot slips (no letters) and coins raining, Dubi
+  (the office's parrot, everyone's spokesman) flying across, and the eight leaders standing shoulder to shoulder on
+  the floor line, each on the same spot pool. The seam between the 4th and 5th leader (Bennett | Golan) is the canvas
+  centre (`keyart.lineup_positions` packs each half on its own): nobody is centred.
+- **Props:** a leader's loose tap prop (`ui` `prop_*`) is drawn at their `propMouth` only where it covers no
+  neighbour (a prop on someone else's chest reads as theirs). In this lineup that drops all four loose props; Bibi's
+  hat, Smotrich's calculator and Deri's cup are in their renders.
+- **Square-crop safe:** the wordmark and the middle four (בן גביר, בנט, גולן, דרעי) sit inside the centre 630x630
   (`proofs/og-square-crop-200.png`).
+- Nothing that echoes October 7 (do/don't 13): no ribbon, poster, portrait grid, empty chair at a table, uniform or
+  siren; the only text is the wordmark. **→ UX:** `OG_IMAGE_ALT` / the web shell's alt still describe Bibi pulling
+  shekels from a hat; suggested: "שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב."
 
 ## 10. Do / don't (v2 additions to v1 §11)
 
@@ -469,6 +484,35 @@ hierarchy.
     The refs still wanted: `asset-requests/REQUESTS.md` `almog`, `aide`, `mk-generic`.
   - **`trophy_moon`:** the star beside the crescent (it read as an emblem) is two white z's rising right: a nap.
   - **`sheet_modal` (F9):** the 1 px `suit_hi` edge outside the outline, following the chamfer (§16 F9).
+
+- **Leader select (2026-09-29, `src/leaders.py`; proof `proofs/kit-leaders.png`), design/leader-select-spec.md §9.2:**
+  - **Tap props** `prop_pen` (Bennett), `prop_phone` (Ben Gvir), `prop_chair` (Liberman), `prop_ruler` (Eisenkot),
+    `prop_calculator` (Smotrich), `prop_coffee` (Deri), `prop_stapler` (Golan): d 1, ≤ 20x20 incl. outline + rim (they
+    ride with the leader like the hat, so they carry the touchable rim), 2 frames rest + squash (x1.12 / y0.88 about the
+    grip). `pivot` = the grip, drawn on the leader's `propMouth` (the TA's track); `points.mouth` per frame = the coin
+    origin. The phone's screen is plain with a curved forward arrow (RTL: it points left), no app marks. The chair is
+    one office swivel chair standing on the floor, never at a table (do/don't 13). Smotrich's calculator and Deri's cup
+    are in their refs, so those two props are UI-only (chips, the ☕ buff).
+  - **Generic sources** `source_donor` (a faceless figure in a suit, a plain envelope and a pen; f1 the flap lifts) and
+    `source_funds` (a fat steel lever-arch binder with a blank tab, coins spilling from the top; f1 a coin hops), 40 ap
+    with outline + rim like the hand-drawn three, + 24x24 icons and silhouettes by the same rule. `source_advisers`
+    (t6) is the TA's slate recolour of the qatari render.
+  - **`suitcase_plain`** (+ `_norim`): the Suitcase pixel for pixel without the DOHA sticker (`props.suitcase(sticker=
+    False)`), for every round but Bibi's. Still maroon: it is still the Suitcase.
+  - **`spin_slot_A…I`** (A-E, G-I; F keeps `spin_s12`), 24x24 like the spin icons: A a coin with a plus badge, B a
+    stopwatch, C a crescent moon over a coin stack (no star beside it: the `trophy_moon` lesson), D a thermometer low
+    beside a down arrow, E a 4-point sparkle (never a 5- or 6-point star), G the mic with the spins tab's pink arcs, H a
+    rising arrow over a "x1.5" tag, I a rival's steel card with a plus.
+  - **Picker kit (UX rtl-map §8.3-8.4):** `pick_tile_{idle,pressed,focus,selected}`, a 32x32 9-slice [4,4,4,5] (focus
+    and selected 34x34 [5,5,5,6]: grow the rect 1 art px): a raised `ui_bubble` card for the round avatar, the name
+    (`white` 13.6:1) and the party (UX's #9e99ad: **5.2:1** on the face, ≥ 4.5 confirmed). Every state has a shape:
+    pressed = 1 art px down into the lip, focus = a dashed white ring, selected = a solid 1-px pale `rim` ring.
+    `pick_random` (the הפתעה tile: a folded paper slip with a violet "?", no letters, never going into a box).
+  - **Picker avatars** `avatar_pick_<c>` 32 / `avatar24_pick_<c>` 24 (TA render-down): the chat avatars' heads on one
+    neutral `rim` ring. The chat avatars' rings are coloured by react type (red, gold, blue, grey) and would read as
+    party or bloc colours on the picker (UX: "never a party colour or a bloc colour"). The app icon uses the same heads.
+  - **Press skin icons (UX §4.3):** `thermo_icon_press` 11x11 and `chip_icon_press` 9x9, a folded newspaper (masthead
+    bar, columns), so the press has its own non-colour sign; the gavel stays the court's (Bibi's).
 
 ## 18. Foundations (referenced, not paraphrased)
 

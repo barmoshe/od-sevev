@@ -1,54 +1,70 @@
 {
  "sourceBytes": {
-  "sprites/avatar24_abbas.png": 916,
-  "sprites/avatar24_amsalem.png": 1085,
-  "sprites/avatar24_ben-gvir.png": 1094,
-  "sprites/avatar24_bennett.png": 1055,
-  "sprites/avatar24_bibi.png": 1113,
-  "sprites/avatar24_deri.png": 993,
+  "sprites/avatar24_abbas.png": 956,
+  "sprites/avatar24_amsalem.png": 1128,
+  "sprites/avatar24_ben-gvir.png": 1147,
+  "sprites/avatar24_bennett.png": 1088,
+  "sprites/avatar24_bibi.png": 1185,
+  "sprites/avatar24_deri.png": 1062,
   "sprites/avatar24_distel.png": 901,
   "sprites/avatar24_dubi.png": 1187,
-  "sprites/avatar24_eisenkot.png": 864,
-  "sprites/avatar24_gafni.png": 1091,
-  "sprites/avatar24_gantz.png": 719,
+  "sprites/avatar24_eisenkot.png": 903,
+  "sprites/avatar24_gafni.png": 1143,
+  "sprites/avatar24_gantz.png": 771,
   "sprites/avatar24_golan.png": 1012,
-  "sprites/avatar24_goldknopf.png": 1052,
-  "sprites/avatar24_gotliv.png": 1110,
+  "sprites/avatar24_goldknopf.png": 1112,
+  "sprites/avatar24_gotliv.png": 1169,
   "sprites/avatar24_herzog.png": 1069,
   "sprites/avatar24_karhi.png": 918,
-  "sprites/avatar24_lapid.png": 866,
-  "sprites/avatar24_levin.png": 1080,
-  "sprites/avatar24_liberman.png": 956,
+  "sprites/avatar24_lapid.png": 913,
+  "sprites/avatar24_levin.png": 1135,
+  "sprites/avatar24_liberman.png": 981,
   "sprites/avatar24_may-golan.png": 1117,
   "sprites/avatar24_nophoto.png": 344,
-  "sprites/avatar24_regev.png": 1134,
-  "sprites/avatar24_sara.png": 1122,
-  "sprites/avatar24_smotrich.png": 895,
+  "sprites/avatar24_pick_ben-gvir.png": 1158,
+  "sprites/avatar24_pick_bennett.png": 1087,
+  "sprites/avatar24_pick_bibi.png": 1193,
+  "sprites/avatar24_pick_deri.png": 1057,
+  "sprites/avatar24_pick_eisenkot.png": 905,
+  "sprites/avatar24_pick_golan.png": 1012,
+  "sprites/avatar24_pick_liberman.png": 977,
+  "sprites/avatar24_pick_smotrich.png": 944,
+  "sprites/avatar24_regev.png": 1186,
+  "sprites/avatar24_sara.png": 1163,
+  "sprites/avatar24_smotrich.png": 945,
   "sprites/avatar24_trump.png": 1004,
-  "sprites/avatar_abbas.png": 1473,
-  "sprites/avatar_amsalem.png": 1745,
-  "sprites/avatar_ben-gvir.png": 1949,
-  "sprites/avatar_bennett.png": 1730,
-  "sprites/avatar_bibi.png": 1867,
-  "sprites/avatar_deri.png": 1616,
+  "sprites/avatar_abbas.png": 1573,
+  "sprites/avatar_amsalem.png": 1854,
+  "sprites/avatar_ben-gvir.png": 2128,
+  "sprites/avatar_bennett.png": 1828,
+  "sprites/avatar_bibi.png": 2056,
+  "sprites/avatar_deri.png": 1771,
   "sprites/avatar_distel.png": 1423,
   "sprites/avatar_dubi.png": 1953,
-  "sprites/avatar_eisenkot.png": 1416,
-  "sprites/avatar_gafni.png": 1803,
-  "sprites/avatar_gantz.png": 1141,
+  "sprites/avatar_eisenkot.png": 1543,
+  "sprites/avatar_gafni.png": 1919,
+  "sprites/avatar_gantz.png": 1219,
   "sprites/avatar_golan.png": 1613,
-  "sprites/avatar_goldknopf.png": 1708,
-  "sprites/avatar_gotliv.png": 1892,
+  "sprites/avatar_goldknopf.png": 1868,
+  "sprites/avatar_gotliv.png": 1986,
   "sprites/avatar_herzog.png": 1723,
   "sprites/avatar_karhi.png": 1392,
-  "sprites/avatar_lapid.png": 1350,
-  "sprites/avatar_levin.png": 1726,
-  "sprites/avatar_liberman.png": 1513,
+  "sprites/avatar_lapid.png": 1473,
+  "sprites/avatar_levin.png": 1888,
+  "sprites/avatar_liberman.png": 1612,
   "sprites/avatar_may-golan.png": 1953,
   "sprites/avatar_nophoto.png": 442,
-  "sprites/avatar_regev.png": 1847,
-  "sprites/avatar_sara.png": 1953,
-  "sprites/avatar_smotrich.png": 1439,
+  "sprites/avatar_pick_ben-gvir.png": 2094,
+  "sprites/avatar_pick_bennett.png": 1821,
+  "sprites/avatar_pick_bibi.png": 2048,
+  "sprites/avatar_pick_deri.png": 1770,
+  "sprites/avatar_pick_eisenkot.png": 1538,
+  "sprites/avatar_pick_golan.png": 1617,
+  "sprites/avatar_pick_liberman.png": 1619,
+  "sprites/avatar_pick_smotrich.png": 1564,
+  "sprites/avatar_regev.png": 2060,
+  "sprites/avatar_sara.png": 2073,
+  "sprites/avatar_smotrich.png": 1560,
   "sprites/avatar_trump.png": 1703,
   "sprites/badge_count.png": 152,
   "sprites/brawl_cloud.png": 2133,
@@ -83,14 +99,18 @@
   "sprites/cast/amsalem_idle_d2.png": 122015,
   "sprites/cast/amsalem_react.png": 179804,
   "sprites/cast/amsalem_react_d2.png": 96674,
-  "sprites/cast/ben-gvir_idle.png": 244883,
-  "sprites/cast/ben-gvir_idle_d2.png": 128575,
-  "sprites/cast/ben-gvir_react.png": 171480,
-  "sprites/cast/ben-gvir_react_d2.png": 93794,
-  "sprites/cast/bennett_flip.png": 206026,
-  "sprites/cast/bennett_flip_d2.png": 111970,
-  "sprites/cast/bennett_idle.png": 138435,
-  "sprites/cast/bennett_idle_d2.png": 46554,
+  "sprites/cast/ben-gvir_idle.png": 245706,
+  "sprites/cast/ben-gvir_idle_d2.png": 128933,
+  "sprites/cast/ben-gvir_react.png": 172053,
+  "sprites/cast/ben-gvir_react_d2.png": 94087,
+  "sprites/cast/ben-gvir_tap.png": 235633,
+  "sprites/cast/ben-gvir_tap_d2.png": 127850,
+  "sprites/cast/bennett_flip.png": 206846,
+  "sprites/cast/bennett_flip_d2.png": 112240,
+  "sprites/cast/bennett_idle.png": 138900,
+  "sprites/cast/bennett_idle_d2.png": 46789,
+  "sprites/cast/bennett_tap.png": 196646,
+  "sprites/cast/bennett_tap_d2.png": 108772,
   "sprites/cast/bibi_crit.png": 186029,
   "sprites/cast/bibi_crit_d2.png": 100543,
   "sprites/cast/bibi_idle.png": 163306,
@@ -98,9 +118,11 @@
   "sprites/cast/bibi_tap.png": 211715,
   "sprites/cast/bibi_tap_d2.png": 113896,
   "sprites/cast/deri_idle.png": 217721,
-  "sprites/cast/deri_idle_d2.png": 78499,
+  "sprites/cast/deri_idle_d2.png": 78558,
   "sprites/cast/deri_react.png": 255460,
-  "sprites/cast/deri_react_d2.png": 125803,
+  "sprites/cast/deri_react_d2.png": 125886,
+  "sprites/cast/deri_tap.png": 208344,
+  "sprites/cast/deri_tap_d2.png": 106764,
   "sprites/cast/distel_idle.png": 193133,
   "sprites/cast/distel_idle_d2.png": 96064,
   "sprites/cast/distel_react.png": 153239,
@@ -109,10 +131,12 @@
   "sprites/cast/dubi-mic_idle_d2.png": 124038,
   "sprites/cast/dubi-mic_talk.png": 56455,
   "sprites/cast/dubi-mic_talk_d2.png": 31524,
-  "sprites/cast/eisenkot_idle.png": 65819,
-  "sprites/cast/eisenkot_idle_d2.png": 36716,
-  "sprites/cast/eisenkot_react.png": 228681,
-  "sprites/cast/eisenkot_react_d2.png": 125468,
+  "sprites/cast/eisenkot_idle.png": 66446,
+  "sprites/cast/eisenkot_idle_d2.png": 36937,
+  "sprites/cast/eisenkot_react.png": 231175,
+  "sprites/cast/eisenkot_react_d2.png": 126592,
+  "sprites/cast/eisenkot_tap.png": 197739,
+  "sprites/cast/eisenkot_tap_d2.png": 108419,
   "sprites/cast/gafni_idle.png": 78862,
   "sprites/cast/gafni_idle_d2.png": 42142,
   "sprites/cast/gafni_react.png": 208306,
@@ -125,6 +149,8 @@
   "sprites/cast/golan_idle_d2.png": 27592,
   "sprites/cast/golan_react.png": 186119,
   "sprites/cast/golan_react_d2.png": 97352,
+  "sprites/cast/golan_tap.png": 150269,
+  "sprites/cast/golan_tap_d2.png": 79835,
   "sprites/cast/goldknopf_idle.png": 81656,
   "sprites/cast/goldknopf_idle_d2.png": 42554,
   "sprites/cast/goldknopf_react.png": 263908,
@@ -149,10 +175,12 @@
   "sprites/cast/levin_idle_d2.png": 115674,
   "sprites/cast/levin_react.png": 198482,
   "sprites/cast/levin_react_d2.png": 101013,
-  "sprites/cast/liberman_idle.png": 80823,
-  "sprites/cast/liberman_idle_d2.png": 42333,
-  "sprites/cast/liberman_react.png": 63606,
-  "sprites/cast/liberman_react_d2.png": 33768,
+  "sprites/cast/liberman_idle.png": 81922,
+  "sprites/cast/liberman_idle_d2.png": 42765,
+  "sprites/cast/liberman_react.png": 64373,
+  "sprites/cast/liberman_react_d2.png": 34108,
+  "sprites/cast/liberman_tap.png": 199588,
+  "sprites/cast/liberman_tap_d2.png": 105004,
   "sprites/cast/may-golan_idle.png": 106307,
   "sprites/cast/may-golan_idle_d2.png": 55442,
   "sprites/cast/may-golan_react.png": 328019,
@@ -165,10 +193,12 @@
   "sprites/cast/sara_idle_d2.png": 67008,
   "sprites/cast/sara_offended.png": 235506,
   "sprites/cast/sara_offended_d2.png": 120133,
-  "sprites/cast/smotrich_idle.png": 87703,
-  "sprites/cast/smotrich_idle_d2.png": 44186,
-  "sprites/cast/smotrich_react.png": 154346,
-  "sprites/cast/smotrich_react_d2.png": 81736,
+  "sprites/cast/smotrich_idle.png": 87909,
+  "sprites/cast/smotrich_idle_d2.png": 44288,
+  "sprites/cast/smotrich_react.png": 154638,
+  "sprites/cast/smotrich_react_d2.png": 81812,
+  "sprites/cast/smotrich_tap.png": 225284,
+  "sprites/cast/smotrich_tap_d2.png": 120221,
   "sprites/cast/trump_idle.png": 267776,
   "sprites/cast/trump_idle_d2.png": 137419,
   "sprites/cast/trump_react.png": 176222,
@@ -188,6 +218,7 @@
   "sprites/chip_court.png": 148,
   "sprites/chip_icon_calendar.png": 139,
   "sprites/chip_icon_gavel.png": 146,
+  "sprites/chip_icon_press.png": 155,
   "sprites/chip_owned.png": 135,
   "sprites/chip_ultimatum.png": 147,
   "sprites/cottage_cup.png": 881,
@@ -237,16 +268,28 @@
   "sprites/pay_pill_fill.png": 87,
   "sprites/pay_pill_pressed.png": 150,
   "sprites/pay_pill_track.png": 144,
+  "sprites/pick_random.png": 208,
+  "sprites/pick_tile_focus.png": 243,
+  "sprites/pick_tile_idle.png": 167,
+  "sprites/pick_tile_pressed.png": 168,
+  "sprites/pick_tile_selected.png": 216,
   "sprites/plate_silhouette.png": 223,
-  "sprites/prop_bill.png": 125,
-  "sprites/prop_coin0.png": 115,
-  "sprites/prop_coin1.png": 100,
-  "sprites/prop_coin2.png": 94,
-  "sprites/prop_coin3.png": 99,
-  "sprites/prop_hat.png": 302,
+  "sprites/prop_bill.png": 140,
+  "sprites/prop_calculator.png": 366,
+  "sprites/prop_chair.png": 478,
+  "sprites/prop_coffee.png": 373,
+  "sprites/prop_coin0.png": 130,
+  "sprites/prop_coin1.png": 109,
+  "sprites/prop_coin2.png": 100,
+  "sprites/prop_coin3.png": 103,
+  "sprites/prop_hat.png": 325,
   "sprites/prop_hat_glow.png": 174,
-  "sprites/prop_rabbit.png": 250,
-  "sprites/prop_spark.png": 90,
+  "sprites/prop_pen.png": 500,
+  "sprites/prop_phone.png": 381,
+  "sprites/prop_rabbit.png": 266,
+  "sprites/prop_ruler.png": 244,
+  "sprites/prop_spark.png": 89,
+  "sprites/prop_stapler.png": 304,
   "sprites/receipt_body.png": 107,
   "sprites/receipt_bottom.png": 281,
   "sprites/receipt_rule.png": 76,
@@ -259,35 +302,45 @@
   "sprites/share_result_frame.png": 3083,
   "sprites/sheet_modal.png": 259,
   "sprites/sheet_plain.png": 167,
+  "sprites/source_advisers.png": 16290,
+  "sprites/source_advisers_d2.png": 8308,
+  "sprites/source_advisers_icon.png": 1346,
+  "sprites/source_advisers_icon_sil.png": 264,
   "sprites/source_checkbook.png": 743,
   "sprites/source_checkbook_icon.png": 329,
   "sprites/source_checkbook_icon_sil.png": 145,
   "sprites/source_cigars.png": 16777,
   "sprites/source_cigars_d2.png": 8988,
-  "sprites/source_cigars_icon.png": 1257,
-  "sprites/source_cigars_icon_sil.png": 246,
+  "sprites/source_cigars_icon.png": 1362,
+  "sprites/source_cigars_icon_sil.png": 248,
+  "sprites/source_donor.png": 867,
+  "sprites/source_donor_icon.png": 541,
+  "sprites/source_donor_icon_sil.png": 228,
+  "sprites/source_funds.png": 615,
+  "sprites/source_funds_icon.png": 297,
+  "sprites/source_funds_icon_sil.png": 132,
   "sprites/source_hitech.png": 12936,
   "sprites/source_hitech_d2.png": 6618,
-  "sprites/source_hitech_icon.png": 947,
-  "sprites/source_hitech_icon_sil.png": 233,
+  "sprites/source_hitech_icon.png": 1019,
+  "sprites/source_hitech_icon_sil.png": 238,
   "sprites/source_poison.png": 589,
   "sprites/source_poison_icon.png": 230,
   "sprites/source_poison_icon_sil.png": 96,
   "sprites/source_qatari.png": 16142,
   "sprites/source_qatari_d2.png": 8333,
-  "sprites/source_qatari_icon.png": 1239,
-  "sprites/source_qatari_icon_sil.png": 257,
+  "sprites/source_qatari_icon.png": 1344,
+  "sprites/source_qatari_icon_sil.png": 264,
   "sprites/source_submarine.png": 1084,
   "sprites/source_submarine_icon.png": 446,
   "sprites/source_submarine_icon_sil.png": 232,
   "sprites/source_taxpayer.png": 14730,
   "sprites/source_taxpayer_d2.png": 7576,
-  "sprites/source_taxpayer_icon.png": 899,
-  "sprites/source_taxpayer_icon_sil.png": 205,
+  "sprites/source_taxpayer_icon.png": 978,
+  "sprites/source_taxpayer_icon_sil.png": 208,
   "sprites/source_vat.png": 16207,
   "sprites/source_vat_d2.png": 9063,
-  "sprites/source_vat_icon.png": 1340,
-  "sprites/source_vat_icon_sil.png": 158,
+  "sprites/source_vat_icon.png": 1417,
+  "sprites/source_vat_icon_sil.png": 160,
   "sprites/spin_s01.png": 407,
   "sprites/spin_s02.png": 452,
   "sprites/spin_s03.png": 399,
@@ -303,10 +356,18 @@
   "sprites/spin_s13.png": 443,
   "sprites/spin_s14.png": 402,
   "sprites/spin_s15.png": 418,
-  "sprites/stage_balfour.png": 4135,
-  "sprites/stage_courthouse.png": 3068,
-  "sprites/stage_knesset.png": 1883,
-  "sprites/stage_washington.png": 2700,
+  "sprites/spin_slot_A.png": 384,
+  "sprites/spin_slot_B.png": 347,
+  "sprites/spin_slot_C.png": 305,
+  "sprites/spin_slot_D.png": 315,
+  "sprites/spin_slot_E.png": 322,
+  "sprites/spin_slot_G.png": 350,
+  "sprites/spin_slot_H.png": 361,
+  "sprites/spin_slot_I.png": 363,
+  "sprites/stage_balfour.png": 4377,
+  "sprites/stage_courthouse.png": 3212,
+  "sprites/stage_knesset.png": 1959,
+  "sprites/stage_washington.png": 2831,
   "sprites/stamp_blackout_dark.png": 307,
   "sprites/stamp_blackout_dark_rot.png": 444,
   "sprites/stamp_blackout_paper.png": 306,
@@ -330,6 +391,8 @@
   "sprites/stamp_tool_up.png": 273,
   "sprites/suitcase.png": 452,
   "sprites/suitcase_norim.png": 373,
+  "sprites/suitcase_plain.png": 380,
+  "sprites/suitcase_plain_norim.png": 320,
   "sprites/sweat_drop.png": 114,
   "sprites/tab_active.png": 188,
   "sprites/tabbar.png": 193,
@@ -347,6 +410,7 @@
   "sprites/thermo_floor_hatch.png": 100,
   "sprites/thermo_icon_gavel.png": 159,
   "sprites/thermo_icon_magnifier.png": 175,
+  "sprites/thermo_icon_press.png": 176,
   "sprites/thermo_meniscus.png": 80,
   "sprites/thermo_tube.png": 363,
   "sprites/thermo_tube_short.png": 345,
@@ -404,7 +468,7 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 154091704,
+ "vramBytes": 168730564,
  "vramByDensity": {
   "bibi": {
    "3": 9697848,
@@ -415,8 +479,8 @@
    "2": 1874928
   },
   "bennett": {
-   "3": 4536752,
-   "2": 2031392
+   "3": 6347520,
+   "2": 2825760
   },
   "regev": {
    "3": 3277872,
@@ -427,16 +491,16 @@
    "2": 2613000
   },
   "deri": {
-   "3": 4921560,
-   "2": 2180304
+   "3": 6197520,
+   "2": 2773584
   },
   "levin": {
    "3": 5239080,
    "2": 2349648
   },
   "ben-gvir": {
-   "3": 5372800,
-   "2": 2398500
+   "3": 7237632,
+   "2": 3232000
   },
   "goldknopf": {
    "3": 3036852,
@@ -447,8 +511,8 @@
    "2": 1190280
   },
   "smotrich": {
-   "3": 1787040,
-   "2": 803400
+   "3": 2996224,
+   "2": 1331584
   },
   "amsalem": {
    "3": 5956800,
@@ -459,20 +523,20 @@
    "2": 3136968
   },
   "eisenkot": {
-   "3": 2369640,
-   "2": 1060488
+   "3": 3816720,
+   "2": 1690848
   },
   "gantz": {
    "3": 3591600,
    "2": 1599000
   },
   "liberman": {
-   "3": 1805672,
-   "2": 798248
+   "3": 3245504,
+   "2": 1428544
   },
   "golan": {
-   "3": 1918280,
-   "2": 867672
+   "3": 2803640,
+   "2": 1268136
   },
   "abbas": {
    "3": 1843820,
@@ -513,42 +577,52 @@
   "3": 9697848,
   "2": 4355640
  },
+ "leaders": [
+  "bibi",
+  "bennett",
+  "ben-gvir",
+  "liberman",
+  "eisenkot",
+  "smotrich",
+  "deri",
+  "golan"
+ ],
  "vramTypicalByK": {
-  "2": 6449816,
-  "3": 12054424,
-  "4": 6449816,
-  "6": 12054424,
-  "7": 12054424,
-  "8": 6449816,
-  "9": 12054424
+  "2": 6639608,
+  "3": 12302456,
+  "4": 6639608,
+  "6": 12302456,
+  "7": 12302456,
+  "8": 6639608,
+  "9": 12302456
  },
  "vramSourcesByK": {
-  "2": 211840,
-  "3": 474240,
-  "4": 211840,
-  "6": 474240,
-  "7": 474240,
-  "8": 211840,
-  "9": 474240
+  "2": 259200,
+  "3": 579840,
+  "4": 259200,
+  "6": 579840,
+  "7": 579840,
+  "8": 259200,
+  "9": 579840
  },
  "vramPerPartnerByK": {
   "2": {
    "sara": 1874928,
-   "bennett": 2031392,
+   "bennett": 2825760,
    "regev": 1456832,
    "gotliv": 2613000,
-   "deri": 2180304,
+   "deri": 2773584,
    "levin": 2349648,
-   "ben-gvir": 2398500,
+   "ben-gvir": 3232000,
    "goldknopf": 1339000,
    "gafni": 1190280,
-   "smotrich": 803400,
+   "smotrich": 1331584,
    "amsalem": 2671500,
    "lapid": 3136968,
-   "eisenkot": 1060488,
+   "eisenkot": 1690848,
    "gantz": 1599000,
-   "liberman": 798248,
-   "golan": 867672,
+   "liberman": 1428544,
+   "golan": 1268136,
    "abbas": 832216,
    "distel": 2437500,
    "karhi": 2028000,
@@ -561,21 +635,21 @@
   },
   "3": {
    "sara": 4144800,
-   "bennett": 4536752,
+   "bennett": 6347520,
    "regev": 3277872,
    "gotliv": 5840000,
-   "deri": 4921560,
+   "deri": 6197520,
    "levin": 5239080,
-   "ben-gvir": 5372800,
+   "ben-gvir": 7237632,
    "goldknopf": 3036852,
    "gafni": 2649024,
-   "smotrich": 1787040,
+   "smotrich": 2996224,
    "amsalem": 5956800,
    "lapid": 7030800,
-   "eisenkot": 2369640,
+   "eisenkot": 3816720,
    "gantz": 3591600,
-   "liberman": 1805672,
-   "golan": 1918280,
+   "liberman": 3245504,
+   "golan": 2803640,
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
@@ -588,21 +662,21 @@
   },
   "4": {
    "sara": 1874928,
-   "bennett": 2031392,
+   "bennett": 2825760,
    "regev": 1456832,
    "gotliv": 2613000,
-   "deri": 2180304,
+   "deri": 2773584,
    "levin": 2349648,
-   "ben-gvir": 2398500,
+   "ben-gvir": 3232000,
    "goldknopf": 1339000,
    "gafni": 1190280,
-   "smotrich": 803400,
+   "smotrich": 1331584,
    "amsalem": 2671500,
    "lapid": 3136968,
-   "eisenkot": 1060488,
+   "eisenkot": 1690848,
    "gantz": 1599000,
-   "liberman": 798248,
-   "golan": 867672,
+   "liberman": 1428544,
+   "golan": 1268136,
    "abbas": 832216,
    "distel": 2437500,
    "karhi": 2028000,
@@ -615,21 +689,21 @@
   },
   "6": {
    "sara": 4144800,
-   "bennett": 4536752,
+   "bennett": 6347520,
    "regev": 3277872,
    "gotliv": 5840000,
-   "deri": 4921560,
+   "deri": 6197520,
    "levin": 5239080,
-   "ben-gvir": 5372800,
+   "ben-gvir": 7237632,
    "goldknopf": 3036852,
    "gafni": 2649024,
-   "smotrich": 1787040,
+   "smotrich": 2996224,
    "amsalem": 5956800,
    "lapid": 7030800,
-   "eisenkot": 2369640,
+   "eisenkot": 3816720,
    "gantz": 3591600,
-   "liberman": 1805672,
-   "golan": 1918280,
+   "liberman": 3245504,
+   "golan": 2803640,
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
@@ -642,21 +716,21 @@
   },
   "7": {
    "sara": 4144800,
-   "bennett": 4536752,
+   "bennett": 6347520,
    "regev": 3277872,
    "gotliv": 5840000,
-   "deri": 4921560,
+   "deri": 6197520,
    "levin": 5239080,
-   "ben-gvir": 5372800,
+   "ben-gvir": 7237632,
    "goldknopf": 3036852,
    "gafni": 2649024,
-   "smotrich": 1787040,
+   "smotrich": 2996224,
    "amsalem": 5956800,
    "lapid": 7030800,
-   "eisenkot": 2369640,
+   "eisenkot": 3816720,
    "gantz": 3591600,
-   "liberman": 1805672,
-   "golan": 1918280,
+   "liberman": 3245504,
+   "golan": 2803640,
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
@@ -669,21 +743,21 @@
   },
   "8": {
    "sara": 1874928,
-   "bennett": 2031392,
+   "bennett": 2825760,
    "regev": 1456832,
    "gotliv": 2613000,
-   "deri": 2180304,
+   "deri": 2773584,
    "levin": 2349648,
-   "ben-gvir": 2398500,
+   "ben-gvir": 3232000,
    "goldknopf": 1339000,
    "gafni": 1190280,
-   "smotrich": 803400,
+   "smotrich": 1331584,
    "amsalem": 2671500,
    "lapid": 3136968,
-   "eisenkot": 1060488,
+   "eisenkot": 1690848,
    "gantz": 1599000,
-   "liberman": 798248,
-   "golan": 867672,
+   "liberman": 1428544,
+   "golan": 1268136,
    "abbas": 832216,
    "distel": 2437500,
    "karhi": 2028000,
@@ -696,21 +770,21 @@
   },
   "9": {
    "sara": 4144800,
-   "bennett": 4536752,
+   "bennett": 6347520,
    "regev": 3277872,
    "gotliv": 5840000,
-   "deri": 4921560,
+   "deri": 6197520,
    "levin": 5239080,
-   "ben-gvir": 5372800,
+   "ben-gvir": 7237632,
    "goldknopf": 3036852,
    "gafni": 2649024,
-   "smotrich": 1787040,
+   "smotrich": 2996224,
    "amsalem": 5956800,
    "lapid": 7030800,
-   "eisenkot": 2369640,
+   "eisenkot": 3816720,
    "gantz": 3591600,
-   "liberman": 1805672,
-   "golan": 1918280,
+   "liberman": 3245504,
+   "golan": 2803640,
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
@@ -722,25 +796,97 @@
    "nophoto": 15520
   }
  },
- "vramTypical": 12054424,
- "vramCastAll": 150832088,
+ "vramLeaderByK": {
+  "2": {
+   "bibi": 4355640,
+   "bennett": 2825760,
+   "ben-gvir": 3232000,
+   "liberman": 1428544,
+   "eisenkot": 1690848,
+   "smotrich": 1331584,
+   "deri": 2773584,
+   "golan": 1268136
+  },
+  "3": {
+   "bibi": 9697848,
+   "bennett": 6347520,
+   "ben-gvir": 7237632,
+   "liberman": 3245504,
+   "eisenkot": 3816720,
+   "smotrich": 2996224,
+   "deri": 6197520,
+   "golan": 2803640
+  },
+  "4": {
+   "bibi": 4355640,
+   "bennett": 2825760,
+   "ben-gvir": 3232000,
+   "liberman": 1428544,
+   "eisenkot": 1690848,
+   "smotrich": 1331584,
+   "deri": 2773584,
+   "golan": 1268136
+  },
+  "6": {
+   "bibi": 9697848,
+   "bennett": 6347520,
+   "ben-gvir": 7237632,
+   "liberman": 3245504,
+   "eisenkot": 3816720,
+   "smotrich": 2996224,
+   "deri": 6197520,
+   "golan": 2803640
+  },
+  "7": {
+   "bibi": 9697848,
+   "bennett": 6347520,
+   "ben-gvir": 7237632,
+   "liberman": 3245504,
+   "eisenkot": 3816720,
+   "smotrich": 2996224,
+   "deri": 6197520,
+   "golan": 2803640
+  },
+  "8": {
+   "bibi": 4355640,
+   "bennett": 2825760,
+   "ben-gvir": 3232000,
+   "liberman": 1428544,
+   "eisenkot": 1690848,
+   "smotrich": 1331584,
+   "deri": 2773584,
+   "golan": 1268136
+  },
+  "9": {
+   "bibi": 9697848,
+   "bennett": 6347520,
+   "ben-gvir": 7237632,
+   "liberman": 3245504,
+   "eisenkot": 3816720,
+   "smotrich": 2996224,
+   "deri": 6197520,
+   "golan": 2803640
+  }
+ },
+ "vramTypical": 12302456,
+ "vramCastAll": 165175556,
  "vramPerPartner": {
   "sara": 4144800,
-  "bennett": 4536752,
+  "bennett": 6347520,
   "regev": 3277872,
   "gotliv": 5840000,
-  "deri": 4921560,
+  "deri": 6197520,
   "levin": 5239080,
-  "ben-gvir": 5372800,
+  "ben-gvir": 7237632,
   "goldknopf": 3036852,
   "gafni": 2649024,
-  "smotrich": 1787040,
+  "smotrich": 2996224,
   "amsalem": 5956800,
   "lapid": 7030800,
-  "eisenkot": 2369640,
+  "eisenkot": 3816720,
   "gantz": 3591600,
-  "liberman": 1805672,
-  "golan": 1918280,
+  "liberman": 3245504,
+  "golan": 2803640,
   "abbas": 1843820,
   "distel": 5489600,
   "karhi": 4526000,
@@ -754,32 +900,32 @@
  "imported": [
   {
    "file": "assets/sprites/avatar24_abbas.png",
-   "source": 916,
+   "source": 956,
    "imported": 438
   },
   {
    "file": "assets/sprites/avatar24_amsalem.png",
-   "source": 1085,
+   "source": 1128,
    "imported": 478
   },
   {
    "file": "assets/sprites/avatar24_ben-gvir.png",
-   "source": 1094,
+   "source": 1147,
    "imported": 472
   },
   {
    "file": "assets/sprites/avatar24_bennett.png",
-   "source": 1055,
+   "source": 1088,
    "imported": 518
   },
   {
    "file": "assets/sprites/avatar24_bibi.png",
-   "source": 1113,
+   "source": 1185,
    "imported": 486
   },
   {
    "file": "assets/sprites/avatar24_deri.png",
-   "source": 993,
+   "source": 1062,
    "imported": 456
   },
   {
@@ -794,17 +940,17 @@
   },
   {
    "file": "assets/sprites/avatar24_eisenkot.png",
-   "source": 864,
+   "source": 903,
    "imported": 408
   },
   {
    "file": "assets/sprites/avatar24_gafni.png",
-   "source": 1091,
+   "source": 1143,
    "imported": 494
   },
   {
    "file": "assets/sprites/avatar24_gantz.png",
-   "source": 719,
+   "source": 771,
    "imported": 386
   },
   {
@@ -814,12 +960,12 @@
   },
   {
    "file": "assets/sprites/avatar24_goldknopf.png",
-   "source": 1052,
+   "source": 1112,
    "imported": 488
   },
   {
    "file": "assets/sprites/avatar24_gotliv.png",
-   "source": 1110,
+   "source": 1169,
    "imported": 522
   },
   {
@@ -834,17 +980,17 @@
   },
   {
    "file": "assets/sprites/avatar24_lapid.png",
-   "source": 866,
+   "source": 913,
    "imported": 420
   },
   {
    "file": "assets/sprites/avatar24_levin.png",
-   "source": 1080,
+   "source": 1135,
    "imported": 484
   },
   {
    "file": "assets/sprites/avatar24_liberman.png",
-   "source": 956,
+   "source": 981,
    "imported": 440
   },
   {
@@ -858,18 +1004,58 @@
    "imported": 248
   },
   {
+   "file": "assets/sprites/avatar24_pick_ben-gvir.png",
+   "source": 1158,
+   "imported": 476
+  },
+  {
+   "file": "assets/sprites/avatar24_pick_bennett.png",
+   "source": 1087,
+   "imported": 514
+  },
+  {
+   "file": "assets/sprites/avatar24_pick_bibi.png",
+   "source": 1193,
+   "imported": 486
+  },
+  {
+   "file": "assets/sprites/avatar24_pick_deri.png",
+   "source": 1057,
+   "imported": 454
+  },
+  {
+   "file": "assets/sprites/avatar24_pick_eisenkot.png",
+   "source": 905,
+   "imported": 412
+  },
+  {
+   "file": "assets/sprites/avatar24_pick_golan.png",
+   "source": 1012,
+   "imported": 440
+  },
+  {
+   "file": "assets/sprites/avatar24_pick_liberman.png",
+   "source": 977,
+   "imported": 442
+  },
+  {
+   "file": "assets/sprites/avatar24_pick_smotrich.png",
+   "source": 944,
+   "imported": 432
+  },
+  {
    "file": "assets/sprites/avatar24_regev.png",
-   "source": 1134,
+   "source": 1186,
    "imported": 498
   },
   {
    "file": "assets/sprites/avatar24_sara.png",
-   "source": 1122,
+   "source": 1163,
    "imported": 510
   },
   {
    "file": "assets/sprites/avatar24_smotrich.png",
-   "source": 895,
+   "source": 945,
    "imported": 430
   },
   {
@@ -879,32 +1065,32 @@
   },
   {
    "file": "assets/sprites/avatar_abbas.png",
-   "source": 1473,
+   "source": 1573,
    "imported": 614
   },
   {
    "file": "assets/sprites/avatar_amsalem.png",
-   "source": 1745,
+   "source": 1854,
    "imported": 668
   },
   {
    "file": "assets/sprites/avatar_ben-gvir.png",
-   "source": 1949,
+   "source": 2128,
    "imported": 740
   },
   {
    "file": "assets/sprites/avatar_bennett.png",
-   "source": 1730,
+   "source": 1828,
    "imported": 766
   },
   {
    "file": "assets/sprites/avatar_bibi.png",
-   "source": 1867,
+   "source": 2056,
    "imported": 720
   },
   {
    "file": "assets/sprites/avatar_deri.png",
-   "source": 1616,
+   "source": 1771,
    "imported": 662
   },
   {
@@ -919,17 +1105,17 @@
   },
   {
    "file": "assets/sprites/avatar_eisenkot.png",
-   "source": 1416,
+   "source": 1543,
    "imported": 582
   },
   {
    "file": "assets/sprites/avatar_gafni.png",
-   "source": 1803,
+   "source": 1919,
    "imported": 704
   },
   {
    "file": "assets/sprites/avatar_gantz.png",
-   "source": 1141,
+   "source": 1219,
    "imported": 504
   },
   {
@@ -939,12 +1125,12 @@
   },
   {
    "file": "assets/sprites/avatar_goldknopf.png",
-   "source": 1708,
+   "source": 1868,
    "imported": 706
   },
   {
    "file": "assets/sprites/avatar_gotliv.png",
-   "source": 1892,
+   "source": 1986,
    "imported": 790
   },
   {
@@ -959,17 +1145,17 @@
   },
   {
    "file": "assets/sprites/avatar_lapid.png",
-   "source": 1350,
+   "source": 1473,
    "imported": 576
   },
   {
    "file": "assets/sprites/avatar_levin.png",
-   "source": 1726,
+   "source": 1888,
    "imported": 718
   },
   {
    "file": "assets/sprites/avatar_liberman.png",
-   "source": 1513,
+   "source": 1612,
    "imported": 614
   },
   {
@@ -983,18 +1169,58 @@
    "imported": 292
   },
   {
+   "file": "assets/sprites/avatar_pick_ben-gvir.png",
+   "source": 2094,
+   "imported": 736
+  },
+  {
+   "file": "assets/sprites/avatar_pick_bennett.png",
+   "source": 1821,
+   "imported": 770
+  },
+  {
+   "file": "assets/sprites/avatar_pick_bibi.png",
+   "source": 2048,
+   "imported": 720
+  },
+  {
+   "file": "assets/sprites/avatar_pick_deri.png",
+   "source": 1770,
+   "imported": 662
+  },
+  {
+   "file": "assets/sprites/avatar_pick_eisenkot.png",
+   "source": 1538,
+   "imported": 580
+  },
+  {
+   "file": "assets/sprites/avatar_pick_golan.png",
+   "source": 1617,
+   "imported": 606
+  },
+  {
+   "file": "assets/sprites/avatar_pick_liberman.png",
+   "source": 1619,
+   "imported": 614
+  },
+  {
+   "file": "assets/sprites/avatar_pick_smotrich.png",
+   "source": 1564,
+   "imported": 600
+  },
+  {
    "file": "assets/sprites/avatar_regev.png",
-   "source": 1847,
+   "source": 2060,
    "imported": 760
   },
   {
    "file": "assets/sprites/avatar_sara.png",
-   "source": 1953,
+   "source": 2073,
    "imported": 828
   },
   {
    "file": "assets/sprites/avatar_smotrich.png",
-   "source": 1439,
+   "source": 1560,
    "imported": 602
   },
   {
@@ -1169,43 +1395,63 @@
   },
   {
    "file": "assets/sprites/cast/ben-gvir_idle.png",
-   "source": 244883,
+   "source": 245706,
    "imported": 73698
   },
   {
    "file": "assets/sprites/cast/ben-gvir_idle_d2.png",
-   "source": 128575,
-   "imported": 37324
+   "source": 128933,
+   "imported": 37430
   },
   {
    "file": "assets/sprites/cast/ben-gvir_react.png",
-   "source": 171480,
-   "imported": 60214
+   "source": 172053,
+   "imported": 59780
   },
   {
    "file": "assets/sprites/cast/ben-gvir_react_d2.png",
-   "source": 93794,
-   "imported": 32198
+   "source": 94087,
+   "imported": 32290
+  },
+  {
+   "file": "assets/sprites/cast/ben-gvir_tap.png",
+   "source": 235633,
+   "imported": 81322
+  },
+  {
+   "file": "assets/sprites/cast/ben-gvir_tap_d2.png",
+   "source": 127850,
+   "imported": 44376
   },
   {
    "file": "assets/sprites/cast/bennett_flip.png",
-   "source": 206026,
-   "imported": 78224
+   "source": 206846,
+   "imported": 78430
   },
   {
    "file": "assets/sprites/cast/bennett_flip_d2.png",
-   "source": 111970,
-   "imported": 44470
+   "source": 112240,
+   "imported": 44434
   },
   {
    "file": "assets/sprites/cast/bennett_idle.png",
-   "source": 138435,
-   "imported": 44154
+   "source": 138900,
+   "imported": 44060
   },
   {
    "file": "assets/sprites/cast/bennett_idle_d2.png",
-   "source": 46554,
-   "imported": 14574
+   "source": 46789,
+   "imported": 14648
+  },
+  {
+   "file": "assets/sprites/cast/bennett_tap.png",
+   "source": 196646,
+   "imported": 73224
+  },
+  {
+   "file": "assets/sprites/cast/bennett_tap_d2.png",
+   "source": 108772,
+   "imported": 40794
   },
   {
    "file": "assets/sprites/cast/bibi_crit.png",
@@ -1244,8 +1490,8 @@
   },
   {
    "file": "assets/sprites/cast/deri_idle_d2.png",
-   "source": 78499,
-   "imported": 24678
+   "source": 78558,
+   "imported": 24688
   },
   {
    "file": "assets/sprites/cast/deri_react.png",
@@ -1254,8 +1500,18 @@
   },
   {
    "file": "assets/sprites/cast/deri_react_d2.png",
-   "source": 125803,
-   "imported": 47638
+   "source": 125886,
+   "imported": 47662
+  },
+  {
+   "file": "assets/sprites/cast/deri_tap.png",
+   "source": 208344,
+   "imported": 78114
+  },
+  {
+   "file": "assets/sprites/cast/deri_tap_d2.png",
+   "source": 106764,
+   "imported": 41046
   },
   {
    "file": "assets/sprites/cast/distel_idle.png",
@@ -1299,23 +1555,33 @@
   },
   {
    "file": "assets/sprites/cast/eisenkot_idle.png",
-   "source": 65819,
-   "imported": 20954
+   "source": 66446,
+   "imported": 21004
   },
   {
    "file": "assets/sprites/cast/eisenkot_idle_d2.png",
-   "source": 36716,
-   "imported": 11660
+   "source": 36937,
+   "imported": 11716
   },
   {
    "file": "assets/sprites/cast/eisenkot_react.png",
-   "source": 228681,
-   "imported": 83764
+   "source": 231175,
+   "imported": 84264
   },
   {
    "file": "assets/sprites/cast/eisenkot_react_d2.png",
-   "source": 125468,
-   "imported": 44780
+   "source": 126592,
+   "imported": 44950
+  },
+  {
+   "file": "assets/sprites/cast/eisenkot_tap.png",
+   "source": 197739,
+   "imported": 72952
+  },
+  {
+   "file": "assets/sprites/cast/eisenkot_tap_d2.png",
+   "source": 108419,
+   "imported": 39318
   },
   {
    "file": "assets/sprites/cast/gafni_idle.png",
@@ -1376,6 +1642,16 @@
    "file": "assets/sprites/cast/golan_react_d2.png",
    "source": 97352,
    "imported": 38570
+  },
+  {
+   "file": "assets/sprites/cast/golan_tap.png",
+   "source": 150269,
+   "imported": 60754
+  },
+  {
+   "file": "assets/sprites/cast/golan_tap_d2.png",
+   "source": 79835,
+   "imported": 32340
   },
   {
    "file": "assets/sprites/cast/goldknopf_idle.png",
@@ -1499,23 +1775,33 @@
   },
   {
    "file": "assets/sprites/cast/liberman_idle.png",
-   "source": 80823,
-   "imported": 26204
+   "source": 81922,
+   "imported": 26120
   },
   {
    "file": "assets/sprites/cast/liberman_idle_d2.png",
-   "source": 42333,
-   "imported": 13624
+   "source": 42765,
+   "imported": 13712
   },
   {
    "file": "assets/sprites/cast/liberman_react.png",
-   "source": 63606,
-   "imported": 21982
+   "source": 64373,
+   "imported": 21920
   },
   {
    "file": "assets/sprites/cast/liberman_react_d2.png",
-   "source": 33768,
-   "imported": 11614
+   "source": 34108,
+   "imported": 11574
+  },
+  {
+   "file": "assets/sprites/cast/liberman_tap.png",
+   "source": 199588,
+   "imported": 73266
+  },
+  {
+   "file": "assets/sprites/cast/liberman_tap_d2.png",
+   "source": 105004,
+   "imported": 38738
   },
   {
    "file": "assets/sprites/cast/may-golan_idle.png",
@@ -1579,23 +1865,33 @@
   },
   {
    "file": "assets/sprites/cast/smotrich_idle.png",
-   "source": 87703,
-   "imported": 25306
+   "source": 87909,
+   "imported": 25118
   },
   {
    "file": "assets/sprites/cast/smotrich_idle_d2.png",
-   "source": 44186,
-   "imported": 12582
+   "source": 44288,
+   "imported": 12594
   },
   {
    "file": "assets/sprites/cast/smotrich_react.png",
-   "source": 154346,
-   "imported": 51276
+   "source": 154638,
+   "imported": 50984
   },
   {
    "file": "assets/sprites/cast/smotrich_react_d2.png",
-   "source": 81736,
-   "imported": 26558
+   "source": 81812,
+   "imported": 26560
+  },
+  {
+   "file": "assets/sprites/cast/smotrich_tap.png",
+   "source": 225284,
+   "imported": 73952
+  },
+  {
+   "file": "assets/sprites/cast/smotrich_tap_d2.png",
+   "source": 120221,
+   "imported": 39650
   },
   {
    "file": "assets/sprites/cast/trump_idle.png",
@@ -1691,6 +1987,11 @@
    "file": "assets/sprites/chip_icon_gavel.png",
    "source": 146,
    "imported": 162
+  },
+  {
+   "file": "assets/sprites/chip_icon_press.png",
+   "source": 155,
+   "imported": 170
   },
   {
    "file": "assets/sprites/chip_owned.png",
@@ -1938,38 +2239,78 @@
    "imported": 142
   },
   {
+   "file": "assets/sprites/pick_random.png",
+   "source": 208,
+   "imported": 178
+  },
+  {
+   "file": "assets/sprites/pick_tile_focus.png",
+   "source": 243,
+   "imported": 196
+  },
+  {
+   "file": "assets/sprites/pick_tile_idle.png",
+   "source": 167,
+   "imported": 156
+  },
+  {
+   "file": "assets/sprites/pick_tile_pressed.png",
+   "source": 168,
+   "imported": 148
+  },
+  {
+   "file": "assets/sprites/pick_tile_selected.png",
+   "source": 216,
+   "imported": 174
+  },
+  {
    "file": "assets/sprites/plate_silhouette.png",
    "source": 223,
    "imported": 190
   },
   {
    "file": "assets/sprites/prop_bill.png",
-   "source": 125,
+   "source": 140,
    "imported": 128
   },
   {
+   "file": "assets/sprites/prop_calculator.png",
+   "source": 366,
+   "imported": 294
+  },
+  {
+   "file": "assets/sprites/prop_chair.png",
+   "source": 478,
+   "imported": 336
+  },
+  {
+   "file": "assets/sprites/prop_coffee.png",
+   "source": 373,
+   "imported": 276
+  },
+  {
    "file": "assets/sprites/prop_coin0.png",
-   "source": 115,
+   "source": 130,
    "imported": 142
   },
   {
    "file": "assets/sprites/prop_coin1.png",
-   "source": 100,
+   "source": 109,
    "imported": 118
   },
   {
    "file": "assets/sprites/prop_coin2.png",
-   "source": 94,
+   "source": 100,
    "imported": 120
   },
   {
    "file": "assets/sprites/prop_coin3.png",
-   "source": 99,
+   "source": 103,
    "imported": 118
   },
   {
    "file": "assets/sprites/prop_hat.png",
-   "source": 302,
+   "source": 325,
    "imported": 232
   },
   {
@@ -1978,14 +2319,34 @@
    "imported": 152
   },
   {
+   "file": "assets/sprites/prop_pen.png",
+   "source": 500,
+   "imported": 332
+  },
+  {
+   "file": "assets/sprites/prop_phone.png",
+   "source": 381,
+   "imported": 290
+  },
+  {
    "file": "assets/sprites/prop_rabbit.png",
-   "source": 250,
+   "source": 266,
    "imported": 212
   },
   {
+   "file": "assets/sprites/prop_ruler.png",
+   "source": 244,
+   "imported": 224
+  },
+  {
    "file": "assets/sprites/prop_spark.png",
-   "source": 90,
+   "source": 89,
    "imported": 120
+  },
+  {
+   "file": "assets/sprites/prop_stapler.png",
+   "source": 304,
+   "imported": 258
   },
   {
    "file": "assets/sprites/receipt_body.png",
@@ -2048,6 +2409,26 @@
    "imported": 142
   },
   {
+   "file": "assets/sprites/source_advisers.png",
+   "source": 16290,
+   "imported": 5544
+  },
+  {
+   "file": "assets/sprites/source_advisers_d2.png",
+   "source": 8308,
+   "imported": 2916
+  },
+  {
+   "file": "assets/sprites/source_advisers_icon.png",
+   "source": 1346,
+   "imported": 534
+  },
+  {
+   "file": "assets/sprites/source_advisers_icon_sil.png",
+   "source": 264,
+   "imported": 172
+  },
+  {
    "file": "assets/sprites/source_checkbook.png",
    "source": 743,
    "imported": 434
@@ -2074,13 +2455,43 @@
   },
   {
    "file": "assets/sprites/source_cigars_icon.png",
-   "source": 1257,
+   "source": 1362,
    "imported": 530
   },
   {
    "file": "assets/sprites/source_cigars_icon_sil.png",
-   "source": 246,
+   "source": 248,
    "imported": 170
+  },
+  {
+   "file": "assets/sprites/source_donor.png",
+   "source": 867,
+   "imported": 490
+  },
+  {
+   "file": "assets/sprites/source_donor_icon.png",
+   "source": 541,
+   "imported": 316
+  },
+  {
+   "file": "assets/sprites/source_donor_icon_sil.png",
+   "source": 228,
+   "imported": 164
+  },
+  {
+   "file": "assets/sprites/source_funds.png",
+   "source": 615,
+   "imported": 396
+  },
+  {
+   "file": "assets/sprites/source_funds_icon.png",
+   "source": 297,
+   "imported": 270
+  },
+  {
+   "file": "assets/sprites/source_funds_icon_sil.png",
+   "source": 132,
+   "imported": 130
   },
   {
    "file": "assets/sprites/source_hitech.png",
@@ -2094,12 +2505,12 @@
   },
   {
    "file": "assets/sprites/source_hitech_icon.png",
-   "source": 947,
+   "source": 1019,
    "imported": 444
   },
   {
    "file": "assets/sprites/source_hitech_icon_sil.png",
-   "source": 233,
+   "source": 238,
    "imported": 172
   },
   {
@@ -2129,12 +2540,12 @@
   },
   {
    "file": "assets/sprites/source_qatari_icon.png",
-   "source": 1239,
+   "source": 1344,
    "imported": 536
   },
   {
    "file": "assets/sprites/source_qatari_icon_sil.png",
-   "source": 257,
+   "source": 264,
    "imported": 172
   },
   {
@@ -2164,12 +2575,12 @@
   },
   {
    "file": "assets/sprites/source_taxpayer_icon.png",
-   "source": 899,
+   "source": 978,
    "imported": 462
   },
   {
    "file": "assets/sprites/source_taxpayer_icon_sil.png",
-   "source": 205,
+   "source": 208,
    "imported": 172
   },
   {
@@ -2184,12 +2595,12 @@
   },
   {
    "file": "assets/sprites/source_vat_icon.png",
-   "source": 1340,
+   "source": 1417,
    "imported": 548
   },
   {
    "file": "assets/sprites/source_vat_icon_sil.png",
-   "source": 158,
+   "source": 160,
    "imported": 138
   },
   {
@@ -2268,23 +2679,63 @@
    "imported": 334
   },
   {
+   "file": "assets/sprites/spin_slot_A.png",
+   "source": 384,
+   "imported": 262
+  },
+  {
+   "file": "assets/sprites/spin_slot_B.png",
+   "source": 347,
+   "imported": 260
+  },
+  {
+   "file": "assets/sprites/spin_slot_C.png",
+   "source": 305,
+   "imported": 244
+  },
+  {
+   "file": "assets/sprites/spin_slot_D.png",
+   "source": 315,
+   "imported": 246
+  },
+  {
+   "file": "assets/sprites/spin_slot_E.png",
+   "source": 322,
+   "imported": 234
+  },
+  {
+   "file": "assets/sprites/spin_slot_G.png",
+   "source": 350,
+   "imported": 284
+  },
+  {
+   "file": "assets/sprites/spin_slot_H.png",
+   "source": 361,
+   "imported": 252
+  },
+  {
+   "file": "assets/sprites/spin_slot_I.png",
+   "source": 363,
+   "imported": 272
+  },
+  {
    "file": "assets/sprites/stage_balfour.png",
-   "source": 4135,
+   "source": 4377,
    "imported": 1334
   },
   {
    "file": "assets/sprites/stage_courthouse.png",
-   "source": 3068,
+   "source": 3212,
    "imported": 1004
   },
   {
    "file": "assets/sprites/stage_knesset.png",
-   "source": 1883,
+   "source": 1959,
    "imported": 536
   },
   {
    "file": "assets/sprites/stage_washington.png",
-   "source": 2700,
+   "source": 2831,
    "imported": 1068
   },
   {
@@ -2403,6 +2854,16 @@
    "imported": 258
   },
   {
+   "file": "assets/sprites/suitcase_plain.png",
+   "source": 380,
+   "imported": 234
+  },
+  {
+   "file": "assets/sprites/suitcase_plain_norim.png",
+   "source": 320,
+   "imported": 212
+  },
+  {
    "file": "assets/sprites/sweat_drop.png",
    "source": 114,
    "imported": 144
@@ -2486,6 +2947,11 @@
    "file": "assets/sprites/thermo_icon_magnifier.png",
    "source": 175,
    "imported": 162
+  },
+  {
+   "file": "assets/sprites/thermo_icon_press.png",
+   "source": 176,
+   "imported": 172
   },
   {
    "file": "assets/sprites/thermo_meniscus.png",
@@ -2771,7 +3237,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 4478299,
+ "pckBytes": 5293885,
  "pckByAsset": {
   "bibi": {
    "3": 193236,
@@ -2782,8 +3248,8 @@
    "2": 60214
   },
   "bennett": {
-   "3": 122378,
-   "2": 59044
+   "3": 195714,
+   "2": 99876
   },
   "regev": {
    "3": 127212,
@@ -2794,16 +3260,16 @@
    "2": 77658
   },
   "deri": {
-   "3": 163770,
-   "2": 72316
+   "3": 241884,
+   "2": 113396
   },
   "levin": {
    "3": 145686,
    "2": 75968
   },
   "ben-gvir": {
-   "3": 133912,
-   "2": 69522
+   "3": 214800,
+   "2": 114096
   },
   "goldknopf": {
    "3": 111212,
@@ -2814,8 +3280,8 @@
    "2": 42288
   },
   "smotrich": {
-   "3": 76582,
-   "2": 39140
+   "3": 150054,
+   "2": 78804
   },
   "amsalem": {
    "3": 147348,
@@ -2826,20 +3292,20 @@
    "2": 68140
   },
   "eisenkot": {
-   "3": 104718,
-   "2": 56440
+   "3": 178220,
+   "2": 95984
   },
   "gantz": {
    "3": 89462,
    "2": 38706
   },
   "liberman": {
-   "3": 48186,
-   "2": 25238
+   "3": 121306,
+   "2": 64024
   },
   "golan": {
-   "3": 91528,
-   "2": 48554
+   "3": 152282,
+   "2": 80894
   },
   "abbas": {
    "3": 41270,
@@ -2895,8 +3361,18 @@
    "3": 5478,
    "2": 2910
   },
+  "source_advisers": {
+   "3": 5544,
+   "2": 2916
+  },
   "source_checkbook": {
    "1": 434
+  },
+  "source_donor": {
+   "1": 490
+  },
+  "source_funds": {
+   "1": 396
   },
   "source_poison": {
    "1": 376
@@ -3004,5 +3480,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 13264738
+ "sourceTotal": 15509805
 }

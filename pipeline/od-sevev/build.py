@@ -646,12 +646,21 @@ def main():
     budget["vramByDensity"] = {n: {str(v.get("density", 1)): char_tex({**c, **v}) for v in [c] + list(c.get("densities", {}).values())}
                                for n, c in manifest["chars"].items()}
     budget["vramBibi"] = budget["vramByDensity"].get("bibi", {})
+    # leader select (leader-select-spec §3): the round's leader is the resident body, not always Bibi. Only the
+    # current leader's anims (idle, react/crit, tap) at the picked density load; the others load on demand like a
+    # partner (the picker shows each tile's d 2 idle, CONTRACT §7).
+    roster = json.load(open(S.CONTENT, encoding="utf-8")).get("leaderSelect", {}).get("roster", ["bibi"]) \
+        if os.path.exists(S.CONTENT) else ["bibi"]
+    leaders = [c for c in (r if r in manifest["chars"] else manifest["aliases"].get(r) for r in roster) if c in manifest["chars"]]
+    budget["leaders"] = leaders
     base = sum(tex(rel) for rel in manifest["files"] if resident(rel)) + sum(st["page"][0] * st["page"][1] * 4 for st in fstats)
     budget["vramTypicalByK"], budget["vramSourcesByK"], budget["vramPerPartnerByK"] = {}, {}, {}
     for k in (2, 3, 4, 6, 7, 8, 9):
         budget["vramSourcesByK"][str(k)] = sum(tex(pick(s_, k)["sprite"] + ".png") for s_ in manifest["sources"].values()
                                                if pick(s_, k)["sprite"] + ".png" in src_strips)
-        budget["vramTypicalByK"][str(k)] = base + budget["vramSourcesByK"][str(k)] + char_tex(pick(manifest["chars"]["bibi"], k))
+        budget.setdefault("vramLeaderByK", {})[str(k)] = {n: char_tex(pick(manifest["chars"][n], k)) for n in leaders}
+        worst = max(budget["vramLeaderByK"][str(k)].values())           # the heaviest leader resident at this k
+        budget["vramTypicalByK"][str(k)] = base + budget["vramSourcesByK"][str(k)] + worst
         budget["vramPerPartnerByK"][str(k)] = {n: char_tex(pick(c, k)) for n, c in manifest["chars"].items() if n != "bibi"}
     budget["vramTypical"] = max(budget["vramTypicalByK"].values())      # the worst k
     budget["vramCastAll"] = sum(tex(rel) for rel in manifest["files"] if rel.startswith("cast/"))

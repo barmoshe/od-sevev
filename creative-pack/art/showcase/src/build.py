@@ -66,6 +66,15 @@ def put_render(char, d, anims):
 TIMING = ('frames', 'fps', 'loop', 'events')
 
 
+def point_tracks(anim):
+    """The names of an anim's per-frame point tracks: every key whose value is one [x, y] per frame (hatMouth,
+    temple, propMouth, ...). Any name works; nothing downstream hard-codes them (pipeline sprites.is_track)."""
+    n = anim.get('frames')
+    return sorted(k for k, v in anim.items()
+                  if isinstance(v, list) and len(v) == n and n and
+                  all(isinstance(p, (list, tuple)) and len(p) == 2 and all(isinstance(c, (int, float)) for c in p) for p in v))
+
+
 def same_motion(what, main, alts):
     """Fail unless every density alternate plays exactly like the main render: the same anims with the
     same frames, fps, loop and events (only pixels and sprite-px data may differ), and the same named
@@ -78,7 +87,7 @@ def same_motion(what, main, alts):
             for an, m in main['anims'].items():
                 a = v['anims'].get(an, {})
                 bad += [f'd{dk}.{an}.{k}: {a.get(k)} != {m[k]}' for k in TIMING if a.get(k) != m[k]]
-                bad += [f'd{dk}.{an}: {k} in one render only' for k in ('hatMouth', 'temple') if (k in m) != (k in a)]
+                bad += [f'd{dk}.{an}: {k} in one render only' for k in sorted(set(point_tracks(m)) ^ set(point_tracks(a)))]
         else:
             bad += [f'd{dk}.{k}: {v.get(k)} != {main.get(k)}' for k in ('frames', 'fps', 'loop') if v.get(k) != main.get(k)]
             if set(v.get('points', {})) != set(main.get('points', {})):
@@ -89,13 +98,44 @@ def same_motion(what, main, alts):
 
 def render_char(char, fn, avatar_args=None):
     """Render a character at every density in DENSITIES from one render function fn(d) -> (rig, anims);
-    the avatars come from the main render's rig (its palette), exactly as before the alternates."""
+    the avatars come from the main render's rig (its palette), exactly as before the alternates. A launch leader
+    (cast.LEADERS) also gets <char>_avatar_pick.png (32x32) and <char>_avatar24_pick.png (24x24): the chat avatars
+    with one neutral rim ring instead of their react colour (red, gold, blue, grey would read as party or bloc colours
+    on the leader picker, UX rtl-map §8.3). The picker tiles and the app icon's ring use them."""
+    from cast import LEADERS
     for d in DENSITIES:
         rig, anims = fn(d)
         put_render(char, d, anims)
         if d == D and avatar_args:
             avatar(rig, *avatar_args)
+            if char in LEADERS:
+                avatar(rig, avatar_args[0], avatar_args[1], (214, 204, 236, 255), sizes=((32, 2, '_pick'), (24, 1, '24_pick')))
+    snap_tracks(atlas['chars'][char])
     same_motion(char, atlas['chars'][char], atlas['chars'][char].get('densities', {}))
+
+
+LANDMARK_TOL = 0.5   # art px: an alternate's track point vs the main render's, relative to the feet (pipeline check)
+
+
+def snap_tracks(entry):
+    """Every density alternate's point tracks agree with the main render's within LANDMARK_TOL art px relative to the
+    feet (leader-select-spec §9.1). Each render places its points on its own pixels, but the two canvases round their
+    width (the anchor is w // 2) and their pixels independently, which can stack to ~0.8 art px. A point past the
+    tolerance is snapped to the main render's point relative to the anchor, rounded to this render's sprite px (error
+    <= 0.5 / d art px). Points already inside the tolerance (all of Bibi's) are left exactly as rendered."""
+    ma, md = entry['anchor'], entry['density']
+    for alt in entry.get('densities', {}).values():
+        aa, ad = alt['anchor'], alt['density']
+        for an, m in entry['anims'].items():
+            a = alt['anims'].get(an, {})
+            for k in point_tracks(m):
+                if k not in a:
+                    continue
+                for i, (p, q) in enumerate(zip(a[k], m[k])):
+                    rel = [(q[j] - ma[j]) / md for j in (0, 1)]
+                    off = max(abs((p[j] - aa[j]) / ad - rel[j]) for j in (0, 1))
+                    if off > LANDMARK_TOL:
+                        a[k][i] = [aa[j] + int(round(rel[j] * ad)) for j in (0, 1)]
 
 
 def breath(i, n):
@@ -103,10 +143,10 @@ def breath(i, n):
     return 1 if n // 4 <= i < 3 * n // 4 else 0
 
 
-def avatar(rig, head_box_ref, name, ring):
+def avatar(rig, head_box_ref, name, ring, sizes=((32, 2, ''), (24, 1, '24'))):
     """Chat avatars: head crop from the rest pose, round mask, 1px ring. 32x32 (<name>_avatar.png)
     and, for the UX's 48-logical-px chat avatar at x2, 24x24 (<name>_avatar24.png)."""
-    for size, fy, suffix in ((32, 2, ''), (24, 1, '24')):
+    for size, fy, suffix in sizes:
         cv = rig.canvas()
         x0, y0 = rig.c(head_box_ref[0], head_box_ref[1])
         x1, y1 = rig.c(head_box_ref[2], head_box_ref[3])
@@ -202,6 +242,55 @@ def paste_c(frame, im, cx, bottom):
         frame.paste(im, (int(round(cx - im.width / 2)), int(round(bottom - im.height))), im)
 
 
+# ================================================================ the tap rig, shared by every leader
+# Bibi's approved tap table (the Magician's squash-stretch, finger angle and hat lift per frame). Every leader's
+# `tap` (cast.py TAP_DOC) plays these 8 rows at 15 fps with coins on frame 3; only the arm, the lean and the prop's
+# path differ per leader, so the tap feels the same in every round (leader-select-spec §4: shared feel numbers).
+TAP_SQUASH = [dict(sx=1, sy=1, ang=0, lift=0), dict(sx=1.05, sy=0.94, ang=4, lift=0, squish=2),
+              dict(sx=0.97, sy=1.05, ang=-7, lift=4), dict(sx=0.99, sy=1.02, ang=-4, lift=8),
+              dict(sx=1, sy=1, ang=-2, lift=7), dict(sx=1.01, sy=0.99, ang=0, lift=4),
+              dict(sx=1, sy=1, ang=1, lift=1), dict(sx=1, sy=1, ang=0, lift=0)]
+TAP_LEAN = [0, 0, 1, 1, 1, 0, 0, 0]          # frames that carry the recipe's head lean (the stretch)
+PROP_PATH = {'held': (0, 0), 'hop': (0, -0.5), 'push': (-0.5, 0)}   # art px per art px of the table's lift
+
+
+def _inside(mask, p):
+    x, y = int(round(p[0])), int(round(p[1]))
+    return 0 <= x < mask.width and 0 <= y < mask.height and mask.getpixel((x, y)) > 0
+
+
+def temple_px(frame, eye_tops):
+    """Bibi's temple rule for any render: from the screen-right eye's top (the rightmost of the transformed eye
+    tops, sprite px), step right to the first clear px. One [x, y] per frame."""
+    x, y = max(eye_tops, key=lambda q: q[0])
+    a = frame.getchannel('A')
+    X, Y = int(round(x)), int(round(y))
+    X, Y = min(max(X, 0), frame.width - 1), min(max(Y, 0), frame.height - 1)
+    while X < frame.width - 1 and a.getpixel((X, Y)):
+        X += 1
+    return [X, Y]
+
+
+def prop_anchor(rig, recipe, ref_alpha):
+    """The rest-pose prop point in canvas px: the recipe's hand, or `beside` (gap art px screen-left of the body's
+    left edge on edge_row, at row; row None = the feet line)."""
+    if recipe.get('hand'):
+        return rig.c(*recipe['hand'])
+    edge_row, gap, row = recipe['beside']
+    xs = [x for x in range(ref_alpha.width) if ref_alpha.getpixel((x, edge_row)) > 128]
+    x = rig.c(xs[0], 0)[0] - gap * rig.density / rig.s
+    y = rig.H - 1 if row is None else rig.c(0, row)[1]
+    return (x, y)
+
+
+def leader_tracks(rig, frames, hand_pts, eye_sets):
+    """Per-frame propMouth and temple in sprite px from the tracked canvas points of each frame."""
+    cl = lambda v, hi: min(max(int(round(v)), 0), hi - 1)       # a floor prop sits on the feet row, inside the frame
+    pm = [[cl(x, f.width), cl(y, f.height)] for f, (x, y) in zip(frames, (rig.to_art(*p) for p in hand_pts))]
+    tp = [temple_px(f, [rig.to_art(*q) for q in eyes]) for f, eyes in zip(frames, eye_sets)]
+    return {'propMouth': pm, 'temple': tp}
+
+
 # ================================================================ BIBI, the Magician
 def xd(im, d):
     """A 1x art prop at density d (nearest): one art px = a d x d block, the stage's pixel size."""
@@ -287,20 +376,17 @@ def magician(d):
         f, tip = pose(body=b, head=hb, ang=ang, blink=blink)
         idle.append(with_hat(f, tip))
         idle_mouth.append(hat_mouth(tip))
-    anims.append(('idle', idle, 10, True, None, {'hatMouth': idle_mouth, 'temple': temples(idle)}))
+    anims.append(('idle', idle, 10, True, None, {'hatMouth': idle_mouth, 'temple': temples(idle), 'propMouth': idle_mouth}))
 
     # tap: 8 frames @15fps, squash-stretch, the hat hops off the finger; coins burst on frame 3
-    T = [dict(sx=1, sy=1, ang=0, lift=0), dict(sx=1.05, sy=0.94, ang=4, lift=0, squish=2),
-         dict(sx=0.97, sy=1.05, ang=-7, lift=4), dict(sx=0.99, sy=1.02, ang=-4, lift=8),
-         dict(sx=1, sy=1, ang=-2, lift=7), dict(sx=1.01, sy=0.99, ang=0, lift=4),
-         dict(sx=1, sy=1, ang=1, lift=1), dict(sx=1, sy=1, ang=0, lift=0)]
+    T = TAP_SQUASH
     tap, hatpos = [], []
     for k in T:
         f, tip = pose(ang=k['ang'], sx=k['sx'], sy=k['sy'])
         with_hat(f, tip, k['lift'], k.get('squish', 0))
         hatpos.append(hat_mouth(tip, k['lift']))
         tap.append(f)
-    anims.append(('tap', tap, 15, False, {'coins': 3}, {'hatMouth': hatpos, 'temple': temples(tap)}))
+    anims.append(('tap', tap, 15, False, {'coins': 3}, {'hatMouth': hatpos, 'temple': temples(tap), 'propMouth': hatpos}))
 
     # crit: the rabbit pops out of the hat, the Magician winks. 14 frames @12fps
     crit, crit_mouth = [], []
@@ -321,7 +407,7 @@ def magician(d):
         crit.append(f)
         crit_mouth.append(hat_mouth(tip, k['lift']))
     anims.append(('crit', crit, 12, False, {'coins': 3, 'rabbit': 4, 'sting': 5},
-                  {'hatMouth': crit_mouth, 'temple': temples(crit)}))
+                  {'hatMouth': crit_mouth, 'temple': temples(crit), 'propMouth': crit_mouth}))
     return rig, anims
 
 
@@ -386,14 +472,35 @@ if not _only or 'sara' in _only:
 
 # ================================================================ BENNETT
 def bennett(d):
+    from cast import BENNETT_TAP as TP
     rig = Rig('bennett', ART_H * d, pad=(0.20, 0.12), ncolors=NC)
     rig.density = d
     N_ = dict(neck=rig.c(0, 675)[1], waist=rig.c(0, 1050)[1],
               hand=(*rig.c(80, 640), *rig.c(262, 880)), pivot=rig.c(250, 880),
               eyes=[(*rig.c(390, 356), 32, 19), (*rig.c(545, 389), 36, 19)], skin=(238, 166, 118, 255))
     st = round(d / rig.s)
+    hand_mask = Rig.mask(rig.canvas(), N_['hand'])
+    grip = rig.c(*TP['hand'])
+    log = []          # per pose: (the pen grip, the eye tops) in canvas px, for the point tracks
 
-    def pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, flip=False):
+    def track(p, body=0, head=0, ang=0.0, sx=1.0, sy=1.0, flip=False, **_):
+        x, y = p
+        if ang and _inside(hand_mask, (x, y)):
+            x, y = Rig.rot_pt((x, y), N_['pivot'], ang)
+        if y < N_['neck']:
+            y += head * st
+        if y < N_['waist']:
+            y += body * st
+        if flip:
+            x = rig.W - x
+        return rig.squash_pt((x, y), sx, sy)
+
+    def pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, flip=False, lift=0):
+        k = dict(body=body, head=head, ang=ang, sx=sx, sy=sy, flip=flip)
+        g = track(grip, **k)
+        off = lift * d / rig.s
+        log.append(((g[0] + PROP_PATH[TP['path']][0] * off, g[1] + PROP_PATH[TP['path']][1] * off),
+                    [track((ex, ey - ry), **k) for ex, ey, rx, ry in N_['eyes']]))
         cv = rig.canvas()
         if blink:
             rig.eyelids(cv, N_['eyes'], N_['skin'], amount=blink)
@@ -405,6 +512,11 @@ def bennett(d):
         cv = rig.squash(cv, sx, sy)
         return rig.down(cv)
 
+    def tracks(frames):
+        got = log[:len(frames)]
+        del log[:len(frames)]
+        return leader_tracks(rig, frames, [g for g, _ in got], [e for _, e in got])
+
     N = 20
     idle = []
     for i in range(N):
@@ -412,18 +524,34 @@ def bennett(d):
         ang = 8 * math.sin(4 * math.pi * i / N)  # the "let me explain" hand, twice per loop
         blink = {12: 0.5, 13: 1.0, 14: 0.5}.get(i, 0)
         idle.append(pose(body=b, head=breath((i - 1) % N, N), ang=ang, blink=blink))
+    idle_t = tracks(idle)
     # the pledge flip: he signs, then turns to face the other way. 10 frames @12fps (play forward, then reverse)
     FL = [(1, False), (0.75, False), (0.45, False), (0.22, False),
           (0.22, True), (0.45, True), (0.75, True), (1, True)]
     flip = [pose(sx=s, sy=1 + (1 - s) * 0.04, flip=m) for s, m in FL]
-    return rig, [('idle', idle, 10, True, None, None), ('flip', flip, 12, False, {'whoosh': 3}, None)]
+    flip_t = tracks(flip)
+    # tap (leader-select): the shared squash table; the explaining hand makes a signing stroke with the pen
+    tap = [pose(ang=k['ang'] * TP['swing'], sx=k['sx'], sy=k['sy'], lift=k['lift']) for k in TAP_SQUASH]
+    tap_t = tracks(tap)
+    return rig, [('idle', idle, 10, True, None, idle_t), ('flip', flip, 12, False, {'whoosh': 3}, flip_t),
+                 ('tap', tap, 15, False, {'coins': 3}, tap_t)]
 
 
 if not _only or 'bennett' in _only:
     render_char('bennett', bennett, ((330, 60, 830, 560), 'bennett', (40, 70, 140, 255)))
 
 # ================================================================ the rest of the cast (generic rig)
+REFS_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'refs')
 from cast import CAST
+
+
+def _sh(rig, shape):
+    """A landmark shape (polygon or rect, ref px) in canvas px."""
+    if isinstance(shape[0], (tuple, list)):
+        return [rig.c(*q) for q in shape]
+    return (*rig.c(shape[0], shape[1]), *rig.c(shape[2], shape[3]))
+
+
 from PIL import Image as _I
 
 RINGS = {'hop': (242, 193, 78, 255), 'jab': (208, 42, 54, 255), 'bang': (122, 74, 40, 255),
@@ -447,8 +575,38 @@ def generic(name, cfg, d):
     elif arm:
         box = (*rig.c(arm[0], arm[1]), *rig.c(arm[2], arm[3]))
         piv = rig.c(arm[4], arm[5])
+    TP = cfg.get('tap')                      # the leader's tap recipe (cast.py TAP_DOC), or None: no tap, no tracks
+    blank = rig.canvas()
+    arm_mask = Rig.mask(blank, box) if arm else None
+    moves = [(Rig.mask(blank, _sh(rig, shp)), _sh(rig, shp), dys) for shp, dys in (TP or {}).get('moves', [])]
+    grip = prop_anchor(rig, TP, _I.open(os.path.join(REFS_DIR, name + '.png')).getchannel('A')) if TP else None
+    log = []
 
-    def pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, dx=0, dy=0, hdx=0):
+    def track(p, body=0, head=0, ang=0.0, sx=1.0, sy=1.0, dx=0, dy=0, hdx=0, mv=None, **_):
+        """A canvas point through the same ops as pose(), in the same order."""
+        x, y = p
+        if hdx and y < neck:
+            x += hdx * st
+        if arm and ang and _inside(arm_mask, (x, y)):
+            x, y = Rig.rot_pt((x, y), piv, ang)
+        for (m, _s, _d), k in zip(moves, mv or []):
+            if k and _inside(m, p):
+                y += k * st
+        if y < neck:
+            y += head * st
+        if y < waist:
+            y += body * st
+        x, y = rig.squash_pt((x, y), sx, sy)
+        return (x + dx * st, y - dy * st)
+
+    def pose(body=0, head=0, ang=0.0, sx=1.0, sy=1.0, blink=0.0, dx=0, dy=0, hdx=0, mv=None, lift=0):
+        if TP:
+            k = dict(body=body, head=head, ang=ang, sx=sx, sy=sy, dx=dx, dy=dy, hdx=hdx, mv=mv)
+            g = track(grip, **k)
+            off = lift * d / rig.s
+            pth = PROP_PATH[TP.get('path', 'held')]
+            log.append(((g[0] + pth[0] * off, g[1] + pth[1] * off),
+                        [track((ex_, ey_ - ry_), **k) for ex_, ey_, rx_, ry_ in eyes]))
         cv = rig.canvas()
         if hdx:  # head turn: slide everything above the neck sideways
             up = Rig.band(cv, 0, neck); lo = Rig.band(cv, neck, cv.height)
@@ -457,6 +615,9 @@ def generic(name, cfg, d):
             rig.eyelids(cv, eyes, skin, amount=blink)
         if arm and ang:
             cv = rig.rotate_region(cv, box, piv, ang)
+        for (m, shp, _d), k in zip(moves, mv or []):
+            if k:
+                cv = rig.move_region(cv, shp, 0, k * st, keep=shp)
         cv = rig.shift_above(cv, neck, head * st)
         cv = rig.shift_above(cv, waist, body * st)
         cv = rig.squash(cv, sx, sy)
@@ -464,35 +625,47 @@ def generic(name, cfg, d):
             sh = _I.new('RGBA', cv.size, (0, 0, 0, 0)); sh.paste(cv, (dx * st, -dy * st), cv); cv = sh
         return rig.down(cv)
 
+    def tracks(frames):
+        if not TP:
+            return None
+        got = log[:len(frames)]
+        del log[:len(frames)]
+        return leader_tracks(rig, frames, [g for g, _ in got], [e for _, e in got])
+
     n = 20
     idle = []
     for i in range(n):
         ang = 3 * math.sin(2 * math.pi * i / n) if arm else 0
         blink = {9: 0.5, 10: 1.0, 11: 0.5}.get(i, 0)
         idle.append(pose(body=breath(i, n), head=breath((i - 1) % n, n), ang=ang, blink=blink))
-    anims = [('idle', idle, 10, True, None, None)]
+    anims = [('idle', idle, 10, True, None, tracks(idle))]
     if cfg['react'] == 'no':  # a slow, final head shake
         seq = [0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 0]
         react = [pose(hdx=h, blink=1.0 if i in (5, 6) else 0) for i, h in enumerate(seq)]
-        anims.append(('react', react, 10, False, {'no': 1}, None))
+        anims.append(('react', react, 10, False, {'no': 1}, tracks(react)))
     elif cfg['react'] == 'sneak':  # tiptoes out of the plenum, peeks back, returns
         seq = [(0, 0), (1, 1), (2, 0), (3, 1), (4, 0), (5, 1), (6, 0), (6, 0), (6, 0), (4, 0), (2, 1), (0, 0)]
         react = [pose(dx=dx, dy=dy) for dx, dy in seq]
-        anims.append(('react', react, 10, False, {'step': 1}, None))
+        anims.append(('react', react, 10, False, {'step': 1}, tracks(react)))
     elif cfg['react'] == 'bang':
         seq = [(0, 1, 1), (-10, 1, 1.02), (-16, 1, 1.03), (8, 1.04, .95), (12, 1.05, .94), (6, 1, 1),
                (-10, 1, 1.02), (8, 1.04, .95), (12, 1.05, .94), (4, 1, 1), (0, 1, 1), (0, 1, 1)]
         react = [pose(ang=a, sx=sx, sy=sy) for a, sx, sy in seq]
-        anims.append(('react', react, 14, False, {'bang': 4, 'bang2': 8}, None))
+        anims.append(('react', react, 14, False, {'bang': 4, 'bang2': 8}, tracks(react)))
     elif cfg['react'] == 'jab':
         seq = [(0, 0, 1, 1, 0), (-6, 0, 1.02, .97, 0), (8, 0, 1, 1.01, 1), (-4, 0, 1, 1, -1), (8, 0, 1, 1.01, 1),
                (-4, 0, 1, 1, -1), (8, 0, 1, 1.01, 1), (2, 0, 1, 1, 0), (0, 0, 1, 1, 0), (0, 0, 1, 1, 0)]
         react = [pose(ang=a, sx=sx, sy=sy, dx=dx) for a, _, sx, sy, dx in seq]
-        anims.append(('react', react, 14, False, {'shout': 2}, None))
+        anims.append(('react', react, 14, False, {'shout': 2}, tracks(react)))
     else:
         seq = [(1, 1, 0), (1.05, .94, 0), (.97, 1.05, 2), (.99, 1.02, 4), (1, 1, 3), (1, 1, 1), (1.04, .95, 0), (1, 1, 0)]
         react = [pose(sx=sx, sy=sy, dy=dy) for sx, sy, dy in seq]
-        anims.append(('react', react, 14, False, {'land': 6}, None))
+        anims.append(('react', react, 14, False, {'land': 6}, tracks(react)))
+    if TP:  # the leader's tap: Bibi's table, this leader's arm, lean, nudges and prop path
+        sw = TP.get('swing', 0) if arm else 0
+        tap = [pose(ang=k['ang'] * sw, sx=k['sx'], sy=k['sy'], hdx=TP.get('lean', 0) * TAP_LEAN[i], lift=k['lift'],
+                    mv=[dys[i] for _m, _s, dys in moves]) for i, k in enumerate(TAP_SQUASH)]
+        anims.append(('tap', tap, 15, False, {'coins': 3}, tracks(tap)))
     return rig, anims
 
 
@@ -502,13 +675,6 @@ for _n, _cfg in CAST.items():
 
 # ================================================================ DUBI (motion/state-graph-dubi.md §1)
 from cast import DUBI as DB, SOURCES, SOURCE_ALIASES
-
-
-def _sh(rig, shape):
-    """A landmark shape (polygon or rect, ref px) in canvas px."""
-    if isinstance(shape[0], (tuple, list)):
-        return [rig.c(*q) for q in shape]
-    return (*rig.c(shape[0], shape[1]), *rig.c(shape[2], shape[3]))
 
 
 def _keep(before, after, rig, shape):
@@ -595,7 +761,7 @@ MISSING = []
 
 def source(sid, cfg):
     """A money source at every density in DENSITIES (the main D strip + its icons, then each alternate)."""
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), '..', '..', 'refs', sid + '.png')):
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), '..', '..', 'refs', cfg.get('ref', sid) + '.png')):
         MISSING.append(sid)
         return
     for d in DENSITIES:
@@ -609,7 +775,8 @@ def source_at(sid, cfg, d):
     is source_<id>.png plus the 1x icon + silhouette; an alternate is source_<id>_d<d>.png in
     atlas sources[id].densities["<d>"] with its own frame size, anchor and points."""
     D = d                                                  # this render's density (the module's D is the main)
-    rig = Rig(sid, 38 * D, pad=(0.14, 0.0), ncolors=64)   # 38 art + the 2-art-px rim = 40 art tall (120 sprite px at 3)
+    rig = Rig(sid, 38 * D, pad=(0.14, 0.0), ncolors=64,   # 38 art + the 2-art-px rim = 40 art tall (120 sprite px at 3)
+              ref=cfg.get('ref'), recolor=cfg.get('recolor'))
     rig.density = D
     st = round(D / rig.s)
     def rimD(im):                                          # a 1-art-px rim = D sprite px
@@ -624,7 +791,7 @@ def source_at(sid, cfg, d):
         k = op[0]
         if k == 'eyelids':
             eyes = [(*rig.c(x, y), rx, ry) for x, y, rx, ry in cfg['eyes']]
-            src = _I.open(os.path.join(REFS_DIR, sid + '.png')).convert('RGB')
+            src = _I.open(os.path.join(REFS_DIR, cfg.get('ref', sid) + '.png')).convert('RGB')
             ex = (cfg['eyes'][0][0] + cfg['eyes'][1][0]) // 2
             ey = (cfg['eyes'][0][1] + cfg['eyes'][1][1]) // 2 + 30
             rig.eyelids(cv, eyes, src.getpixel((ex, ey)) + (255,), amount=op[1])
@@ -659,7 +826,7 @@ def source_at(sid, cfg, d):
     # the shop icon + silhouette are UI (Bar: the UI stays 1x chunky), so they come from a 1x render of
     # f0 (a 38-art-px rig of the same ref, the pre-density pipeline's 32 colours, so the approved icons
     # reproduce pixel for pixel): a 24x24 crop, density 1
-    r1 = Rig(sid, 38, pad=(0.14, 0.0), ncolors=32)
+    r1 = Rig(sid, 38, pad=(0.14, 0.0), ncolors=32, ref=cfg.get('ref'), recolor=cfg.get('recolor'))
     i0 = r1.rim(r1.down(r1.canvas()))
     iw, ih = i0.size
     S_ = 24
@@ -696,6 +863,13 @@ for _n, _cfg in SOURCES.items():
 atlas['sourceAliases'] = SOURCE_ALIASES
 if MISSING:
     print('money sources waiting for a ref in refs/:', ', '.join(MISSING))
+
+# the leaders' tap prop (leader-select-spec §5.2): which kit prop sits at which track, and whether it is baked
+from cast import BENNETT_TAP, BIBI_TAP
+for _n, _tp in [('bibi', BIBI_TAP), ('bennett', BENNETT_TAP)] + [(n, c['tap']) for n, c in CAST.items() if c.get('tap')]:
+    if _n in atlas['chars']:
+        atlas['chars'][_n]['prop'] = {'id': _tp['prop'], 'baked': bool(_tp.get('baked')),
+                                      'track': _tp.get('track', 'propMouth'), 'path': _tp.get('path', 'held')}
 
 _ap = os.path.join(OUT, 'atlas.json')
 if os.path.exists(_ap):
