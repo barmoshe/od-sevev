@@ -132,8 +132,34 @@ func set_era(era: Dictionary) -> void:
 		var feet: Vector2 = L.magician_feet()
 		var bg := Ui.img(_props, feet - Vector2(float(mf[0]), float(mf[1])) * 4.0, bg_key, 0, 4)
 		bg.set_meta("background", true)
+		_place_lane(String(era.get("id", "")), bg.position)
 	for sp: Dictionary in specs:
 		_place_prop(sp)
+
+
+## The Suitcase lane's floor: the 2D Artist's kit tile `lane_<era>` (art/od-sevev/src/wave5.py), a
+## horizontal-only 1× strip whose first row is the stage art's apron lip (art row LANE_ART_ROW). It is
+## tiled across the whole canvas width, so a wide phone's side bands carry the same floor as the
+## column. x-phase: an even art column of the stage art (the lip's dither). No piece: nothing drawn.
+const LANE_ART_ROW := 230
+
+
+func _place_lane(era_id: String, art_origin: Vector2) -> void:
+	var id := "lane_" + era_id
+	if era_id == "" or not Art.has_sprite(id):
+		return
+	var sz := Vector2(Art.sprite_size(id))
+	var period := sz.x * 4.0
+	var x0 := art_origin.x - ceilf((art_origin.x + _extend_x) / period) * period
+	var tr := TextureRect.new()
+	tr.texture = Art.tex(id)
+	tr.stretch_mode = TextureRect.STRETCH_TILE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.position = Vector2(x0, art_origin.y + LANE_ART_ROW * 4.0)
+	tr.size = Vector2(ceilf((L.W + _extend_x - x0) / period) * sz.x, sz.y)
+	tr.scale = Vector2(4, 4)
+	tr.set_meta("lane", id)
+	_props.add_child(tr)
 
 
 func _place_prop(sp: Dictionary) -> void:

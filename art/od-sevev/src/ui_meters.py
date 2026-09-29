@@ -61,43 +61,62 @@ TUBE_X0, TUBE_X1 = 3, 10          # outer x of the glass tube
 IN_X0, IN_X1 = 5, 8               # the liquid column (4 px)
 IN_TOP, IN_BOT = 3, 73            # liquid column y range (70 rows of travel above the neck)
 BULB_C, BULB_R = (6.5, 80.5), 6.6
+TH_H_SHORT = 58                   # thermo_tube_short (UX rtl-map §4: stages under 560 logical)
 
 
-def thermo():
-    L = Layer(TH_W, TH_H)
+def _tube(h):
+    """The tube at height h. Everything below the column (neck, bulb) is anchored to the bottom, so the
+    short tube is the full one with 30 rows of column taken out: same bulb, same neck, same glint and
+    tick grammar, only the travel changes (70 rows -> 40)."""
+    dy = h - TH_H                                  # 0 for the full tube, -30 for the short one
+    in_bot = IN_BOT + dy
+    bulb = (BULB_C[0], BULB_C[1] + dy)
+    L = Layer(TH_W, h)
     # bulb
-    L.ellipse(BULB_C[0], BULB_C[1], BULB_R, BULB_R, "red")
-    for y in range(TH_H):
+    L.ellipse(bulb[0], bulb[1], BULB_R, BULB_R, "red")
+    for y in range(h):
         for x in range(TH_W):
             if L.get(x, y) == "red":
-                dx, dy = x - BULB_C[0], y - BULB_C[1]
-                if dx + dy > 4.5:
+                ddx, ddy = x - bulb[0], y - bulb[1]
+                if ddx + ddy > 4.5:
                     L.set(x, y, "red_dk")
-    L.rect(3, 76, 2, 2, "red_hi"); L.set(3, 78, "red_hi")
-    L.set(4, 76, "white")
+    L.rect(3, 76 + dy, 2, 2, "red_hi"); L.set(3, 78 + dy, "red_hi")
+    L.set(4, 76 + dy, "white")
     # glass tube with a rounded top
-    L.rect(TUBE_X0, 0, TUBE_X1 - TUBE_X0 + 1, 76, "slate")
-    chamfer(L, TUBE_X0, 0, TUBE_X1 - TUBE_X0 + 1, 76, 2)
-    L.rect(IN_X0, IN_TOP, IN_X1 - IN_X0 + 1, IN_BOT - IN_TOP + 1, "ui_scrim")   # the empty column (red on it 3.7:1)
-    L.rect(IN_X0, IN_BOT + 1, 4, 3, "red")                                       # neck, always full
-    L.vline(TUBE_X0 + 1, 3, 70, "silver")                                        # glass glint, left wall
+    L.rect(TUBE_X0, 0, TUBE_X1 - TUBE_X0 + 1, 76 + dy, "slate")
+    chamfer(L, TUBE_X0, 0, TUBE_X1 - TUBE_X0 + 1, 76 + dy, 2)
+    L.rect(IN_X0, IN_TOP, IN_X1 - IN_X0 + 1, in_bot - IN_TOP + 1, "ui_scrim")   # the empty column (red on it 3.7:1)
+    L.rect(IN_X0, in_bot + 1, 4, 3, "red")                                       # neck, always full
+    L.vline(TUBE_X0 + 1, 3, 70 + dy, "silver")                                   # glass glint, left wall
     L.set(TUBE_X0 + 1, 2, "white")
-    L.vline(TUBE_X1 - 1, 4, 72, "suit_hi")                                       # right wall in shade
+    L.vline(TUBE_X1 - 1, 4, 72 + dy, "suit_hi")                                  # right wall in shade
     outline_inplace(L)
     # redraw the inner edge of the column as outline for a crisp tube
-    for y in range(IN_TOP - 1, IN_BOT + 1):
+    for y in range(IN_TOP - 1, in_bot + 1):
         L.set(IN_X0 - 1, y, "outline") if y < IN_TOP else None
     # ticks: 25 / 50 / 75 / 100 %, right side; 75 and 100 are longer (the critical band starts at 75)
     for p in (0.25, 0.5, 0.75, 1.0):
-        y = IN_BOT - round(p * (IN_BOT - IN_TOP))
+        y = in_bot - round(p * (in_bot - IN_TOP))
         n = 3 if p >= 0.75 else 2
         for i in range(n):
             L.set(TUBE_X1 + 1 + i, y, "silver")
+    return L, in_bot
+
+
+def thermo():
+    L, in_bot = _tube(TH_H)
     save(L, "thermo_tube", G, pivot=[6, 87],
          notes=f"Suspicion thermometer ('חשד'), fixed size {TH_W}x{TH_H}; left edge of the stage (UX hit 44x218 CSS = 20x100 art). "
-               f"Liquid column x {IN_X0}..{IN_X1}, y {IN_TOP}..{IN_BOT} (bottom-up). y_top(p) = {IN_BOT} - round(p * {IN_BOT - IN_TOP}). "
+               f"Liquid column x {IN_X0}..{IN_X1}, y {IN_TOP}..{in_bot} (bottom-up). y_top(p) = {in_bot} - round(p * {in_bot - IN_TOP}). "
                "Ticks at 25/50/75/100 %. Icon (magnifier / gavel) sits centred above at y -13.",
-         extra={"liquid": {"x": IN_X0, "w": IN_X1 - IN_X0 + 1, "yTop": IN_TOP, "yBottom": IN_BOT}})
+         extra={"liquid": {"x": IN_X0, "w": IN_X1 - IN_X0 + 1, "yTop": IN_TOP, "yBottom": in_bot}})
+    S, s_bot = _tube(TH_H_SHORT)
+    save(S, "thermo_tube_short", G, pivot=[6, TH_H_SHORT - 1],
+         notes=f"The same thermometer for stages under 560 logical px (UX rtl-map §4), {TH_W}x{TH_H_SHORT}: bulb, neck, glint "
+               f"and ticks identical to thermo_tube, the column shortened to {s_bot - IN_TOP} rows of travel. Liquid column "
+               f"x {IN_X0}..{IN_X1}, y {IN_TOP}..{s_bot}; y_top(p) = {s_bot} - round(p * {s_bot - IN_TOP}). Every other thermo_* "
+               "piece (fill, meniscus, floor hatch, icons, bubbles) is shared. Icon sits centred above at y -13, as on the full tube.",
+         extra={"liquid": {"x": IN_X0, "w": IN_X1 - IN_X0 + 1, "yTop": IN_TOP, "yBottom": s_bot}})
     f = Layer(4, 1)
     for x, c in enumerate(["red_hi", "red", "red", "red_dk"]):
         f.set(x, 0, c)

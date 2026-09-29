@@ -9,7 +9,9 @@ extends Node2D
 ## floor carried over from earlier rounds) and `state.investigation.revealed` (K1). No rule lives
 ## here. Geometry is the kit's: thermo_tube (14×88 art, pivot [6, 87], liquid column
 ## `liquid {x, w, yTop, yBottom}`, y_top(p) = yBottom − round(p × (yBottom − yTop))), read from
-## the manifest, never copied.
+## the manifest, never copied. When S < 560 the kit's thermo_tube_short (14×58) replaces it
+## (rtl-map §4); the icon keeps its 52-px gap above the tube top and the hit runs from the icon
+## to the bulb, so the full tube's numbers (icon S−544, hit S−544…S−140) fall out unchanged.
 ##
 ## - Fill: bottom → up (`keep`, never mirrored); the floor is thermo_floor_hatch tiled from the
 ##   bottom to y_top(floor), the live part thermo_fill above it, thermo_meniscus on the surface.
@@ -32,10 +34,11 @@ const HOT := 75.0
 const BOIL := 95.0
 const TUBE_X := 44.0
 const TUBE_BOTTOM := -140.0          # S − 140
-const ICON_TOP := -544.0             # S − 544
+const ICON_GAP := 52.0               # icon top above the tube top (S − 544 on the full tube)
+const SHORT_BELOW := 560.0           # rtl-map §4: thermo_tube_short when S < 560
 const WORD_Y := -136.0               # S − 136
 const WORD_BOX := Vector2(12, 120)   # x 12-132
-const HIT := Rect2(12, -544, 120, 404)
+const HIT_X := Vector2(12, 120)      # hit x 12, w 120; y from the icon top to the bulb (S − 140)
 const FILL_MS := 300.0
 const REVEAL_MS := 280.0
 const BRIGHT_MS := 3000.0
@@ -94,15 +97,38 @@ static func word_key(p: float) -> String:
 	return {"boil": "HUD_SUSP_BOIL", "hot": "HUD_SUSP_HOT", "calm": "HUD_SUSP"}[state_of(p)]
 
 
-func _ready() -> void:
-	var tube_id := Art.sprite_or("thermo_tube")
-	var k := Art.kit(tube_id)
+## The tube piece for a stage height: the kit's short tube under 560 px when it exists, else the full one.
+static func tube_id_for(stage_h: float) -> String:
+	if stage_h < SHORT_BELOW and Art.has_sprite("thermo_tube_short"):
+		return "thermo_tube_short"
+	return Art.sprite_or("thermo_tube")
+
+
+## Swaps the tube piece and reads its liquid box and pivot; the drawn fill keeps its percentage.
+func _apply_tube(id: String) -> void:
+	var old_travel := float(int(_liquid["yBottom"]) - int(_liquid["yTop"]))
+	var k := Art.kit(id)
 	if k.get("liquid") is Dictionary:
 		_liquid = k["liquid"]
 	if k.get("pivot") is Array:
 		_pivot = Vector2(float(k["pivot"][0]), float(k["pivot"][1]))
+	var f := float(int(_liquid["yBottom"]) - int(_liquid["yTop"])) / maxf(1.0, old_travel)
+	_rows = roundf(_rows * f)
+	_from_rows = roundf(_from_rows * f)
+	if _to_rows >= 0.0:
+		_to_rows = roundf(_to_rows * f)
+	_tube.texture = Art.tex(id, 0)
+	_tube.set_meta("sprite", id)
+
+
+func tube_id() -> String:
+	return str(_tube.get_meta("sprite"))
+
+
+func _ready() -> void:
 	add_child(_root)
-	_tube = Ui.img(_root, Vector2.ZERO, tube_id, 0, 4)
+	_tube = Ui.img(_root, Vector2.ZERO, Art.sprite_or("thermo_tube"), 0, 4)
+	_apply_tube(tube_id_for(L.stage_h))
 	_hatch = TextureRect.new()
 	_hatch.texture = Art.tex(Art.sprite_or("thermo_floor_hatch"))
 	_hatch.stretch_mode = TextureRect.STRETCH_TILE
@@ -141,17 +167,26 @@ func tube_rect() -> Rect2:
 	return Rect2(Vector2(TUBE_X, _sy(TUBE_BOTTOM) - sz.y), sz)
 
 
+## The icon's top, stage-node y: ICON_GAP above the tube top (S − 544 on the full tube, S − 424 on the short one).
+func icon_top() -> float:
+	return tube_rect().position.y - ICON_GAP
+
+
 func hit_rect() -> Rect2:
-	return Rect2(HIT.position.x, _sy(HIT.position.y), HIT.size.x, HIT.size.y)
+	var top := icon_top()
+	return Rect2(HIT_X.x, top, HIT_X.y, _sy(TUBE_BOTTOM) - top)
 
 
 func relayout() -> void:
 	if _tube == null:
 		return
+	var want := tube_id_for(L.stage_h)
+	if want != tube_id():
+		_apply_tube(want)
 	var tr := tube_rect()
 	_tube.position = tr.position
 	var isz := Vector2(Art.sprite_size(_icon.get_meta("sprite"))) * AP
-	_icon.position = Vector2(Ui.snap(_column_x() - isz.x / 2.0, 4), _sy(ICON_TOP))
+	_icon.position = Vector2(Ui.snap(_column_x() - isz.x / 2.0, 4), icon_top())
 	_word.position.y = _sy(WORD_Y)
 	_word.center_in(WORD_BOX.x, WORD_BOX.y)
 	_place_liquid()
@@ -305,7 +340,7 @@ func _update_state(dt: float, p: float) -> void:
 		Ui.set_frame(_icon, Art.sprite_or("thermo_icon_gavel" if hot else "thermo_icon_magnifier"), 0)
 		_icon.set_meta("sprite", Art.sprite_or("thermo_icon_gavel" if hot else "thermo_icon_magnifier"))
 		_hop_t = 0.0 if not reduced_motion else -1.0
-	var base_y := _sy(ICON_TOP)
+	var base_y := icon_top()
 	if _hop_t >= 0.0:
 		_hop_t += dt
 		_icon.position.y = base_y - (AP if _hop_t < 100.0 else 0.0)

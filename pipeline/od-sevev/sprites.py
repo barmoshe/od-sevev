@@ -405,7 +405,10 @@ def import_sprites(src, log, provenance):
     for era in ERAS:
         put(os.path.join(src, f"stage_{era}.png"), f"stage_{era}.png")
         a = np.asarray(Image.open(os.path.join(DEST, f"stage_{era}.png")).convert("RGBA"))
-        stages[era] = {"sprite": f"stage_{era}", "padTop": _mode_color(a[0]), "padBottom": _mode_color(a[-1])}
+        # padBottom = the apron's colour (locations.py lower_band: y 230-320, a lip on top and a 1-row rule
+        # at y 319). The Suitcase lane (S-116..S-4 = art rows 229-257) shows the apron, so the pad beside
+        # the column must be the apron, not the bottom rule (2d-artist, 2026-09-29: every era differed).
+        stages[era] = {"sprite": f"stage_{era}", "padTop": _mode_color(a[0]), "padBottom": _mode_color(a[240:-1])}
     # pipeline-owned FX sprites (fx-data.json particles) + the hat glow (animator request)
     fx = {}
     for sid, rows in FX_SPRITES.items():

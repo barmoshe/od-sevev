@@ -170,6 +170,10 @@
   "sprites/icon_gear.png": 229,
   "sprites/icon_sound_off.png": 190,
   "sprites/icon_sound_on.png": 191,
+  "sprites/lane_balfour.png": 131,
+  "sprites/lane_courthouse.png": 120,
+  "sprites/lane_knesset.png": 132,
+  "sprites/lane_washington.png": 116,
   "sprites/laundry_bag.png": 251,
   "sprites/laundry_shirt.png": 172,
   "sprites/laundry_shorts.png": 123,
@@ -223,21 +227,21 @@
   "sprites/source_vat.png": 16207,
   "sprites/source_vat_icon.png": 1340,
   "sprites/source_vat_icon_sil.png": 158,
-  "sprites/spin_s01.png": 212,
-  "sprites/spin_s02.png": 264,
-  "sprites/spin_s03.png": 234,
-  "sprites/spin_s04.png": 182,
-  "sprites/spin_s05.png": 187,
-  "sprites/spin_s06.png": 177,
-  "sprites/spin_s07.png": 240,
-  "sprites/spin_s08.png": 228,
-  "sprites/spin_s09.png": 250,
-  "sprites/spin_s10.png": 251,
-  "sprites/spin_s11.png": 299,
-  "sprites/spin_s12.png": 194,
-  "sprites/spin_s13.png": 203,
-  "sprites/spin_s14.png": 198,
-  "sprites/spin_s15.png": 237,
+  "sprites/spin_s01.png": 407,
+  "sprites/spin_s02.png": 452,
+  "sprites/spin_s03.png": 399,
+  "sprites/spin_s04.png": 274,
+  "sprites/spin_s05.png": 407,
+  "sprites/spin_s06.png": 361,
+  "sprites/spin_s07.png": 411,
+  "sprites/spin_s08.png": 371,
+  "sprites/spin_s09.png": 429,
+  "sprites/spin_s10.png": 432,
+  "sprites/spin_s11.png": 457,
+  "sprites/spin_s12.png": 396,
+  "sprites/spin_s13.png": 443,
+  "sprites/spin_s14.png": 402,
+  "sprites/spin_s15.png": 418,
   "sprites/stage_balfour.png": 4135,
   "sprites/stage_courthouse.png": 3068,
   "sprites/stage_knesset.png": 1883,
@@ -284,6 +288,7 @@
   "sprites/thermo_icon_magnifier.png": 175,
   "sprites/thermo_meniscus.png": 80,
   "sprites/thermo_tube.png": 363,
+  "sprites/thermo_tube_short.png": 345,
   "sprites/ticker_bar.png": 175,
   "sprites/ticker_flash_plate.png": 154,
   "sprites/ticker_flash_plate_text.png": 222,
@@ -336,16 +341,16 @@
   "fonts/sevev9_outline.png": 2443,
   "fonts/sevev9_outline.fnt": 15106
  },
- "vramBytes": 112188256,
+ "vramBytes": 112213460,
  "vramBibi": {
   "3": 9697848,
   "2": 4355640
  },
  "vramTypicalByBibiDensity": {
-  "3": 11861940,
-  "2": 6519732
+  "3": 11887144,
+  "2": 6544936
  },
- "vramTypical": 11861940,
+ "vramTypical": 11887144,
  "vramCastAll": 109332964,
  "vramPerPartner": {
   "sara": 4144800,
@@ -1225,6 +1230,26 @@
    "imported": 190
   },
   {
+   "file": "assets/sprites/lane_balfour.png",
+   "source": 131,
+   "imported": 128
+  },
+  {
+   "file": "assets/sprites/lane_courthouse.png",
+   "source": 120,
+   "imported": 124
+  },
+  {
+   "file": "assets/sprites/lane_knesset.png",
+   "source": 132,
+   "imported": 130
+  },
+  {
+   "file": "assets/sprites/lane_washington.png",
+   "source": 116,
+   "imported": 106
+  },
+  {
    "file": "assets/sprites/laundry_bag.png",
    "source": 251,
    "imported": 200
@@ -1491,78 +1516,78 @@
   },
   {
    "file": "assets/sprites/spin_s01.png",
-   "source": 212,
-   "imported": 208
+   "source": 407,
+   "imported": 266
   },
   {
    "file": "assets/sprites/spin_s02.png",
-   "source": 264,
-   "imported": 206
+   "source": 452,
+   "imported": 284
   },
   {
    "file": "assets/sprites/spin_s03.png",
-   "source": 234,
-   "imported": 202
+   "source": 399,
+   "imported": 292
   },
   {
    "file": "assets/sprites/spin_s04.png",
-   "source": 182,
-   "imported": 198
+   "source": 274,
+   "imported": 224
   },
   {
    "file": "assets/sprites/spin_s05.png",
-   "source": 187,
-   "imported": 196
+   "source": 407,
+   "imported": 278
   },
   {
    "file": "assets/sprites/spin_s06.png",
-   "source": 177,
-   "imported": 184
+   "source": 361,
+   "imported": 268
   },
   {
    "file": "assets/sprites/spin_s07.png",
-   "source": 240,
-   "imported": 210
+   "source": 411,
+   "imported": 286
   },
   {
    "file": "assets/sprites/spin_s08.png",
-   "source": 228,
-   "imported": 204
+   "source": 371,
+   "imported": 292
   },
   {
    "file": "assets/sprites/spin_s09.png",
-   "source": 250,
-   "imported": 230
+   "source": 429,
+   "imported": 274
   },
   {
    "file": "assets/sprites/spin_s10.png",
-   "source": 251,
-   "imported": 200
+   "source": 432,
+   "imported": 308
   },
   {
    "file": "assets/sprites/spin_s11.png",
-   "source": 299,
-   "imported": 224
+   "source": 457,
+   "imported": 308
   },
   {
    "file": "assets/sprites/spin_s12.png",
-   "source": 194,
-   "imported": 178
+   "source": 396,
+   "imported": 290
   },
   {
    "file": "assets/sprites/spin_s13.png",
-   "source": 203,
-   "imported": 198
+   "source": 443,
+   "imported": 318
   },
   {
    "file": "assets/sprites/spin_s14.png",
-   "source": 198,
-   "imported": 190
+   "source": 402,
+   "imported": 284
   },
   {
    "file": "assets/sprites/spin_s15.png",
-   "source": 237,
-   "imported": 224
+   "source": 418,
+   "imported": 334
   },
   {
    "file": "assets/sprites/stage_balfour.png",
@@ -1793,6 +1818,11 @@
    "file": "assets/sprites/thermo_tube.png",
    "source": 363,
    "imported": 282
+  },
+  {
+   "file": "assets/sprites/thermo_tube_short.png",
+   "source": 345,
+   "imported": 262
   },
   {
    "file": "assets/sprites/ticker_bar.png",
@@ -2052,7 +2082,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 3121650,
+ "pckBytes": 3123654,
  "specimenVisual": [
   {
    "tofu": 0,
@@ -2110,5 +2140,5 @@
    "width": 129.0
   }
  ],
- "sourceTotal": 9261557
+ "sourceTotal": 9265104
 }
