@@ -1,0 +1,140 @@
+From dd3f277683ca54dfd83434473a7ff6cb55dff51e Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 04:59:43 +0000
+Subject: [PATCH] fix(od-sevev): v4 contrast on the rate line and share status,
+ stale motion caption
+
+- Row A rate line: the settled alpha goes 0.6 -> 0.9 (TopBar.RATE_DIM_ALPHA). On the v4
+  flag-blue HUD the 60% green blended to #569d7b, 2.9:1; 90% is 4.9:1.
+- Share sheet status line: C_STATUS flag blue on the cream notice (was ui_mute, 1.3:1).
+- SET_MOTION_CAP no longer promises "no running ticker" (the ticker pages now).
+
+UX review 2026-09-30 (U4, U5, U12).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/data/ui-strings.json           | 2 +-
+ game/scripts/ui/top_bar.gd          | 8 ++++++--
+ game/scripts/ui/views/view_share.gd | 4 +++-
+ ux/rtl-map.md                       | 2 +-
+ ux/string-budgets.json              | 4 ++--
+ ux/tools/gen_strings.py             | 2 +-
+ ux/ui-strings.json                  | 2 +-
+ 7 files changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/game/data/ui-strings.json b/game/data/ui-strings.json
+index 39dc571..4f42b8c 100644
+--- a/game/data/ui-strings.json
++++ b/game/data/ui-strings.json
+@@ -376,7 +376,7 @@
+     "FMT_WORD_M": "{n} מיליון",
+     "FMT_WORD_B": "{n} מיליארד",
+     "FMT_WORD_T": "{n} טריליון",
+-    "SET_MOTION_CAP": "בלי טיקר רץ, בלי רעידות, בלי קפיצות.",
++    "SET_MOTION_CAP": "בלי רעידות, בלי קפיצות, בלי החלקות.",
+     "SET_LARGE": "טקסט גדול",
+     "SET_LARGE_CAP": "לקריאה ממרחק זרוע.",
+     "SET_ABOUT": "אודות ומקורות",
+diff --git a/game/scripts/ui/top_bar.gd b/game/scripts/ui/top_bar.gd
+index d7f4f07..062511c 100644
+--- a/game/scripts/ui/top_bar.gd
++++ b/game/scripts/ui/top_bar.gd
+@@ -17,6 +17,10 @@ const COUNTER_SCALE := 6
+ const COUNTER_Y := 0.0
+ const RATE_Y := 52.0
+ const RATE_DIM_AFTER_MS := 3000.0
++## The settled rate line's alpha (first-minute §3.2 #1b). v4 puts Row A on flag blue #0038b8: the
++## rate green #8fe052 at 0.6 blends to #569d7b, 2.9:1 (fails AA); at 0.9 it is #81cf5c, 4.9:1
++## (UX review 2026-09-30, U4).
++const RATE_DIM_ALPHA := 0.9
+ 
+ var reduced_motion := false
+ var evo_state := "hidden"          # kept for the controller's API; the Evolve button is gone
+@@ -222,7 +226,7 @@ func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
+ 	var tint: Variant = th["statText"]["bpsFrenzy"] if _frenzy else (th["juiceGain"] if _now < _bps_tint_until else th["statText"]["bps"])
+ 	bps.tint = Art.col(tint)
+ 	# 100% for 3 s after a change, then 60% (first-minute §3.2 #1b)
+-	bps.self_modulate.a = 1.0 if (_frenzy or _now - _rate_changed_at < RATE_DIM_AFTER_MS) else 0.6
++	bps.self_modulate.a = 1.0 if (_frenzy or _now - _rate_changed_at < RATE_DIM_AFTER_MS) else RATE_DIM_ALPHA
+ 
+ 
+ func reset_rate() -> void:
+@@ -316,4 +320,4 @@ func update_view(dt_ms: float) -> void:
+ 			_pop_t = -1.0
+ 			bank.scale = Vector2.ONE
+ 	if _rate_on and not _frenzy and _now - _rate_changed_at >= RATE_DIM_AFTER_MS:
+-		bps.self_modulate.a = 0.6
++		bps.self_modulate.a = RATE_DIM_ALPHA
+diff --git a/game/scripts/ui/views/view_share.gd b/game/scripts/ui/views/view_share.gd
+index 07edd5c..ba909e6 100644
+--- a/game/scripts/ui/views/view_share.gd
++++ b/game/scripts/ui/views/view_share.gd
+@@ -38,7 +38,9 @@ const C_INK := Color("#1a1a1a")               # receipt ink on #f4f1e8 paper (15
+ const C_PAPER := Color("#f4f1e8")
+ const C_WHITE := Color("#f7f4ec")
+ const C_NIGHT := Color("#00237a")
+-const C_STATUS := Color("#c9d6f2")
++## The status line sits on the sheet's cream notice (#fff4e0), not on blue: the v4 map's ui_mute was
++## 1.3:1 there; flag blue is 8.3:1 (UX review 2026-09-30, U5).
++const C_STATUS := Color("#0038b8")
+ 
+ var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
+ var art_px := 2.0                             # the preview's logical px per art px
+diff --git a/ux/rtl-map.md b/ux/rtl-map.md
+index eb38130..1f6f533 100644
+--- a/ux/rtl-map.md
++++ b/ux/rtl-map.md
+@@ -88,7 +88,7 @@ The fork's stat window, banana icon, thumbs line, Evolve button and badge are **
+ |---|---|---|---|
+ | Cottage Index | `TopBar.cottage` | hit `Rect2(624, 4, 88, 88)`; kit `cottage_cup` 16×18 art = 64×72 at (636, 12) | Tooltip `HUD_COTTAGE_TIP` as a toast. 50% opacity, 100% for 3 s on a pixel drop. Hidden until `ui.cottageRevealed`. |
+ | Counter | `TopBar.bank` (`Label`, numeral cut) | box x 196-524, y 8, **centred** | `HUD_BANK`, gold (money), never fades |
+-| Rate line | `TopBar.bps` (`Label`) | box x 188-532, y 52, centred | `HUD_BPS` (frenzy: `HUD_BPS_FRENZY` in the frenzy tint). 100% for 3 s after a change, then 60%. Hidden until `ui.rateRevealed`. |
++| Rate line | `TopBar.bps` (`Label`) | box x 188-532, y 52, centred | `HUD_BPS` (frenzy: `HUD_BPS_FRENZY` in the frenzy tint). 100% for 3 s after a change, then 90% (was 60%: on the v4 flag-blue Row A that is 2.9:1; 90% is 4.9:1, review 2026-09-30 U4). Hidden until `ui.rateRevealed`. |
+ | Mute | `TopBar.mute` (`PxButton`) | hit `Rect2(100, 4, 88, 88)`, icon 9×9 art = 36×36 at (126, 30) | a11y `HUD_MUTE` / `HUD_UNMUTE`; muted = slash shape |
+ | Settings | `TopBar.gear` | hit `Rect2(8, 4, 88, 88)`, icon at (34, 30) | a11y `HUD_SETTINGS` (mirrored from the fork's right corner) |
+ 
+diff --git a/ux/string-budgets.json b/ux/string-budgets.json
+index 3a6f3c3..a0c306a 100644
+--- a/ux/string-budgets.json
++++ b/ux/string-budgets.json
+@@ -4192,8 +4192,8 @@
+       "box": "sheet.caption",
+       "maxChars": 15,
+       "worstPx": {
+-        "4": 656,
+-        "5": 820
++        "4": 652,
++        "5": 815
+       }
+     },
+     "SET_LARGE": {
+diff --git a/ux/tools/gen_strings.py b/ux/tools/gen_strings.py
+index fb42dff..32930b4 100644
+--- a/ux/tools/gen_strings.py
++++ b/ux/tools/gen_strings.py
+@@ -565,7 +565,7 @@ e("FMT_WORD_M", "{n} מיליון", "share-text:20")
+ e("FMT_WORD_B", "{n} מיליארד", "share-text:20")
+ e("FMT_WORD_T", "{n} טריליון", "share-text:20")
+ # --- settings (new rows)
+-e("SET_MOTION_CAP", "בלי טיקר רץ, בלי רעידות, בלי קפיצות.", "sheet.caption", "", "set.motion.cap")
++e("SET_MOTION_CAP", "בלי רעידות, בלי קפיצות, בלי החלקות.", "sheet.caption", "", "set.motion.cap")
+ e("SET_LARGE", "טקסט גדול", "sheet.label", "", "set.large")
+ e("SET_LARGE_CAP", "לקריאה ממרחק זרוע.", "sheet.caption", "*", "set.large.cap")
+ e("SET_ABOUT", "אודות ומקורות", "sheet.label", "", "set.about")
+diff --git a/ux/ui-strings.json b/ux/ui-strings.json
+index 39dc571..4f42b8c 100644
+--- a/ux/ui-strings.json
++++ b/ux/ui-strings.json
+@@ -376,7 +376,7 @@
+     "FMT_WORD_M": "{n} מיליון",
+     "FMT_WORD_B": "{n} מיליארד",
+     "FMT_WORD_T": "{n} טריליון",
+-    "SET_MOTION_CAP": "בלי טיקר רץ, בלי רעידות, בלי קפיצות.",
++    "SET_MOTION_CAP": "בלי רעידות, בלי קפיצות, בלי החלקות.",
+     "SET_LARGE": "טקסט גדול",
+     "SET_LARGE_CAP": "לקריאה ממרחק זרוע.",
+     "SET_ABOUT": "אודות ומקורות",
+-- 
+2.43.0
+

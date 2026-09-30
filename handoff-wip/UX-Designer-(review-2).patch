@@ -1,113 +1,18 @@
 # binary files changed (not carried):
-diff --git a/game/data/ui-strings.json b/game/data/ui-strings.json
-index 39dc571..4f42b8c 100644
---- a/game/data/ui-strings.json
-+++ b/game/data/ui-strings.json
-@@ -376,7 +376,7 @@
-     "FMT_WORD_M": "{n} מיליון",
-     "FMT_WORD_B": "{n} מיליארד",
-     "FMT_WORD_T": "{n} טריליון",
--    "SET_MOTION_CAP": "בלי טיקר רץ, בלי רעידות, בלי קפיצות.",
-+    "SET_MOTION_CAP": "בלי רעידות, בלי קפיצות, בלי החלקות.",
-     "SET_LARGE": "טקסט גדול",
-     "SET_LARGE_CAP": "לקריאה ממרחק זרוע.",
-     "SET_ABOUT": "אודות ומקורות",
-diff --git a/game/scripts/ui/top_bar.gd b/game/scripts/ui/top_bar.gd
-index d7f4f07..062511c 100644
---- a/game/scripts/ui/top_bar.gd
-+++ b/game/scripts/ui/top_bar.gd
-@@ -17,6 +17,10 @@ const COUNTER_SCALE := 6
- const COUNTER_Y := 0.0
- const RATE_Y := 52.0
- const RATE_DIM_AFTER_MS := 3000.0
-+## The settled rate line's alpha (first-minute §3.2 #1b). v4 puts Row A on flag blue #0038b8: the
-+## rate green #8fe052 at 0.6 blends to #569d7b, 2.9:1 (fails AA); at 0.9 it is #81cf5c, 4.9:1
-+## (UX review 2026-09-30, U4).
-+const RATE_DIM_ALPHA := 0.9
- 
- var reduced_motion := false
- var evo_state := "hidden"          # kept for the controller's API; the Evolve button is gone
-@@ -222,7 +226,7 @@ func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
- 	var tint: Variant = th["statText"]["bpsFrenzy"] if _frenzy else (th["juiceGain"] if _now < _bps_tint_until else th["statText"]["bps"])
- 	bps.tint = Art.col(tint)
- 	# 100% for 3 s after a change, then 60% (first-minute §3.2 #1b)
--	bps.self_modulate.a = 1.0 if (_frenzy or _now - _rate_changed_at < RATE_DIM_AFTER_MS) else 0.6
-+	bps.self_modulate.a = 1.0 if (_frenzy or _now - _rate_changed_at < RATE_DIM_AFTER_MS) else RATE_DIM_ALPHA
- 
- 
- func reset_rate() -> void:
-@@ -316,4 +320,4 @@ func update_view(dt_ms: float) -> void:
- 			_pop_t = -1.0
- 			bank.scale = Vector2.ONE
- 	if _rate_on and not _frenzy and _now - _rate_changed_at >= RATE_DIM_AFTER_MS:
--		bps.self_modulate.a = 0.6
-+		bps.self_modulate.a = RATE_DIM_ALPHA
-diff --git a/game/scripts/ui/views/view_share.gd b/game/scripts/ui/views/view_share.gd
-index 07edd5c..ba909e6 100644
---- a/game/scripts/ui/views/view_share.gd
-+++ b/game/scripts/ui/views/view_share.gd
-@@ -38,7 +38,9 @@ const C_INK := Color("#1a1a1a")               # receipt ink on #f4f1e8 paper (15
- const C_PAPER := Color("#f4f1e8")
- const C_WHITE := Color("#f7f4ec")
- const C_NIGHT := Color("#00237a")
--const C_STATUS := Color("#c9d6f2")
-+## The status line sits on the sheet's cream notice (#fff4e0), not on blue: the v4 map's ui_mute was
-+## 1.3:1 there; flag blue is 8.3:1 (UX review 2026-09-30, U5).
-+const C_STATUS := Color("#0038b8")
- 
- var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
- var art_px := 2.0                             # the preview's logical px per art px
-diff --git a/ux/rtl-map.md b/ux/rtl-map.md
-index eb38130..1f6f533 100644
---- a/ux/rtl-map.md
-+++ b/ux/rtl-map.md
-@@ -88,7 +88,7 @@ The fork's stat window, banana icon, thumbs line, Evolve button and badge are **
- |---|---|---|---|
- | Cottage Index | `TopBar.cottage` | hit `Rect2(624, 4, 88, 88)`; kit `cottage_cup` 16×18 art = 64×72 at (636, 12) | Tooltip `HUD_COTTAGE_TIP` as a toast. 50% opacity, 100% for 3 s on a pixel drop. Hidden until `ui.cottageRevealed`. |
- | Counter | `TopBar.bank` (`Label`, numeral cut) | box x 196-524, y 8, **centred** | `HUD_BANK`, gold (money), never fades |
--| Rate line | `TopBar.bps` (`Label`) | box x 188-532, y 52, centred | `HUD_BPS` (frenzy: `HUD_BPS_FRENZY` in the frenzy tint). 100% for 3 s after a change, then 60%. Hidden until `ui.rateRevealed`. |
-+| Rate line | `TopBar.bps` (`Label`) | box x 188-532, y 52, centred | `HUD_BPS` (frenzy: `HUD_BPS_FRENZY` in the frenzy tint). 100% for 3 s after a change, then 90% (was 60%: on the v4 flag-blue Row A that is 2.9:1; 90% is 4.9:1, review 2026-09-30 U4). Hidden until `ui.rateRevealed`. |
- | Mute | `TopBar.mute` (`PxButton`) | hit `Rect2(100, 4, 88, 88)`, icon 9×9 art = 36×36 at (126, 30) | a11y `HUD_MUTE` / `HUD_UNMUTE`; muted = slash shape |
- | Settings | `TopBar.gear` | hit `Rect2(8, 4, 88, 88)`, icon at (34, 30) | a11y `HUD_SETTINGS` (mirrored from the fork's right corner) |
- 
-diff --git a/ux/string-budgets.json b/ux/string-budgets.json
-index 3a6f3c3..a0c306a 100644
---- a/ux/string-budgets.json
-+++ b/ux/string-budgets.json
-@@ -4192,8 +4192,8 @@
-       "box": "sheet.caption",
-       "maxChars": 15,
-       "worstPx": {
--        "4": 656,
--        "5": 820
-+        "4": 652,
-+        "5": 815
-       }
-     },
-     "SET_LARGE": {
-diff --git a/ux/tools/gen_strings.py b/ux/tools/gen_strings.py
-index fb42dff..32930b4 100644
---- a/ux/tools/gen_strings.py
-+++ b/ux/tools/gen_strings.py
-@@ -565,7 +565,7 @@ e("FMT_WORD_M", "{n} מיליון", "share-text:20")
- e("FMT_WORD_B", "{n} מיליארד", "share-text:20")
- e("FMT_WORD_T", "{n} טריליון", "share-text:20")
- # --- settings (new rows)
--e("SET_MOTION_CAP", "בלי טיקר רץ, בלי רעידות, בלי קפיצות.", "sheet.caption", "", "set.motion.cap")
-+e("SET_MOTION_CAP", "בלי רעידות, בלי קפיצות, בלי החלקות.", "sheet.caption", "", "set.motion.cap")
- e("SET_LARGE", "טקסט גדול", "sheet.label", "", "set.large")
- e("SET_LARGE_CAP", "לקריאה ממרחק זרוע.", "sheet.caption", "*", "set.large.cap")
- e("SET_ABOUT", "אודות ומקורות", "sheet.label", "", "set.about")
-diff --git a/ux/ui-strings.json b/ux/ui-strings.json
-index 39dc571..4f42b8c 100644
---- a/ux/ui-strings.json
-+++ b/ux/ui-strings.json
-@@ -376,7 +376,7 @@
-     "FMT_WORD_M": "{n} מיליון",
-     "FMT_WORD_B": "{n} מיליארד",
-     "FMT_WORD_T": "{n} טריליון",
--    "SET_MOTION_CAP": "בלי טיקר רץ, בלי רעידות, בלי קפיצות.",
-+    "SET_MOTION_CAP": "בלי רעידות, בלי קפיצות, בלי החלקות.",
-     "SET_LARGE": "טקסט גדול",
-     "SET_LARGE_CAP": "לקריאה ממרחק זרוע.",
-     "SET_ABOUT": "אודות ומקורות",
+diff --git a/ux/mobile-first-layout.md b/ux/mobile-first-layout.md
+index 29918f6..40560b7 100644
+--- a/ux/mobile-first-layout.md
++++ b/ux/mobile-first-layout.md
+@@ -251,9 +251,9 @@ Replaces rtl-map §5.2 (the crawl). The Animator's D16 cadence is retired with i
+ |---|---|
+ | Clip | `x 192 … 516 + dx` (324-464; court day 288 + dx, press 280 + dx) |
+ | Lines | **2**, at pitch 40 (the "tight UI" pitch): line 1 cell at y 2, line 2 at y 42, so the full ink including ascenders and descenders runs 6-42 and 46-82 in the 84 row. Right-aligned at the clip's right edge. The @2 reading cut, as today. |
+-| Paging | The headline is broken at spaces into lines ≤ clip width, then into pages of 2 lines. **A word is never split.** The widest word in the content today is "ההייטקיסטים" at 216, which is < 280, the narrowest clip. The lint (`content-lint.mjs`) adds: every ticker word ≤ 280 px at ×4. |
+-| Dwell | max(3.5 s, 55 ms × the page's characters); an ftue line: max(4.5 s, …) |
+-| Transition | The new page enters from the **left** edge of the clip and pushes the old one out to the right, in 300 ms (the old crawl's direction, so the "first word enters first" metaphor holds). The curve is the Animator's. Reduced motion: the existing 200 ms cross-fade. |
++| Paging | The headline is broken at spaces into lines ≤ clip width, then into pages of 2 lines. **A word is never split, and a glued unit is never split** (§5.2.1: a currency sign stays with its number, punctuation stays with its word). The widest word in the content today is "ההייטקיסטים" at 216, which is < 280, the narrowest clip. The lint (`content-lint.mjs`) adds: every ticker **unit** (§5.2.1, strong glue) ≤ 280 px at ×4. |
++| Dwell | **Superseded by the Animator's M1 (accepted 2026-09-30, D48):** `Ticker.dwell_ms`, a first page 1.2 s + 70 ms a character, a continuation 0.5 s + 70 ms, clamped 2.0-5.5 s; an ftue line 1.5 s + 85 ms (continuation 0.5 s + 85 ms), clamped 4.5-7.0 s. (Was max(3.5 s, 55 ms × characters), under which every page sat on the 3.5 s floor.) |
++| Transition | **A vertical roll (the Animator's M1, accepted 2026-09-30, D47; replaces the sideways push):** the next page rises from under the 84 row as the old one lifts out, locked one row (84) apart, 240 ms Cubic.Out in 4-px steps. **x never moves**, so every visible glyph keeps its word on every frame: only whole glyph rows cross the clip's top and bottom edges. Three conditions: (1) a roll always completes (a higher-priority headline waits the ≤ 240 ms, or cuts to its first page with no roll; never a half-rolled rest state); (2) a tap during a roll opens O6 on the **incoming** headline; (3) reduced motion: the existing 200 ms cross-fade, no roll. |
+ | Tap | As today: the row opens O6 while a headline shows |
+ | Large text | One line at ×5 (two ×5 lines are 100 > 84), paged the same way |
+ | Numbers (390 / 430 / 360) | 2-line pages per headline: mean 1.84 / 1.56 / 1.97, max 3 / 2 / 3 (measured on all 173 ticker lines in `content.json`). Today's crawl takes 15.6 s per median headline through a keyhole; paging takes ≈ 7 s, with every word still. |
