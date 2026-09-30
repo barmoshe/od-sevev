@@ -1,4 +1,8 @@
-# HANDOFF: "עוד סבב" store videos (2026-09-30, session 7: marketing reels)
+> **Two sessions ran at the same time on 2026-09-30 and both handed off:** the store-videos session
+> (this first section) and the character-copy session (the next section). Neither is newer; both are
+> current. Read both before starting.
+
+# HANDOFF: "עוד סבב" store videos (2026-09-30, the store-videos session, parallel to character copy)
 
 Bar stopped here: "write a handoff and push to main". Nothing in this session touched the live
 site's build; the game changes it made are dev-only (the capture driver) plus the HaTikva tap and
