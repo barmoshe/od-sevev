@@ -1275,3 +1275,15 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - **→ animator:** M3 (optional: the hemicycle fill).
   - **→ game-designer:** G2 (the ticker units lint).
   - No objection outstanding.
+
+## 2026-09-30, 2D Artist + Technical Artist: the art side of UX review 2 (U1, U2, U7, U8, U10, A5)
+- **Kit (`art/od-sevev/src/wave10.py`, style guide §17.3, CONTRACT §5):** new ids beside the old ones.
+  - **U2 / A4:** `button_white_{default,pressed,disabled}` (24×20, `button_primary_*`'s slices): white face, a flag-blue lip, label `flag` 8.46:1 (pressed 6.40); 7.52:1 vs the secondary (was 1.13). O3's `ELECT_GO` → `kit_gold` (`button_gold_*` is the CTA's own full-width skin; no new id; UX's `ui_button_evolve` is the fork's blue sprite).
+  - **U7:** `card_row_silhouette` (ui_mute slip, ui_rule edge 5.58:1 on the pane, name ui_panel 8.87:1); `chat_system_pill_navy` (ui_scrim well, ui_rule edge, label ui_mute 12.91:1); the pipeline writes `<silhouette>_pale` for all 11 sources (`sources[id].silhouettePale`).
+  - **U8:** `tabicon_coalition_*` redrawn in place: two bubbles, three dots, no digits; the badge sits over the back bubble.
+  - **U10:** `notice_frame` (the gate's ruled white card, 9-slice [3, 7, 3, 5], `colors` page/title flag, text night 13.88:1). A card on the flag-blue page, not full-bleed rules: a white screen striped top and bottom is the flag's layout (§2.4).
+  - **A5:** `booth_frame_tall` (40×46, a 12-row header, `titleBox`).
+  - **U1 / T1:** `sheet_modal` slice top 23 → 24 (pixels unchanged), for any modal that keeps drawing it alone (the kit says to keep it where the flap does not animate; the flash does today).
+- **→ Game Developer (wiring, no `game/scripts` edits here):** `kit_primary` → `button_white` with the label char `"u"` (flag); `_kit_kind` maps every non-ink label to white today, which would draw white on white. `_card_sprite` teaser/silhouette → `card_row_silhouette` + the `_pale` icon unmodulated; `view_chat` pill → `chat_system_pill_navy` + ui_mute text; EVOLVE_TX → `notice_frame`; `HEADER_H` 96.
+- **Checks:** full pipeline render 0 cast drift, 268 kit pieces, contrast table 0 fails; `tools/test.sh` 370/370; strict `tools/build_web.sh` green. Sheet: scratchpad `shots/review2-art/sheet-review2-art.png` (+ `contrast.md`).
+- No objection outstanding.
