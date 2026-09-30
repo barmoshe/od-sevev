@@ -1,0 +1,956 @@
+# binary files changed (not carried):
+diff --git a/game/scripts/sim/README.md b/game/scripts/sim/README.md
+index 0769f5d..45fcede 100644
+--- a/game/scripts/sim/README.md
++++ b/game/scripts/sim/README.md
+@@ -31,6 +31,12 @@ var ev := Politics.tick(state, dt, d, {"allowPing": not modal and last_buy_age >
+ for e in ev: match e.ev: ...   # see the event list below
+ ```
+ 
++**The vote stops the clock** (design/leader-select-spec.md §7.4): while the election card (O3) is
++open and unconfirmed, pass `"vote": true`. Politics then advances only the calendar: no
++ultimatum, demand, join, transfer, card or court timer moves. The controller also skips
++`Economy.tick` and automation for those steps (`main.gd` `vote_open()`, `_step_economy`), so the
++card is a pause and never a farm.
++
+ **Player actions** (each returns a result, and a Dictionary of UI events where there are any):
+ 
+ | Action | Call |
+diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
+index 1558947..d372f2a 100644
+--- a/game/scripts/ui/dev_probe.gd
++++ b/game/scripts/ui/dev_probe.gd
+@@ -5,10 +5,12 @@ extends RefCounted
+ ## game; it only reports where the targets are, in viewport logical px (the driver maps them to CSS
+ ## with window.odDisplay, like window.odFlash / window.odModal).
+ ##   bank, seats {effective, gate}, evolutions, runSec, cta (the "עוד סבב!" CTA is up), ready
+-##   (the election can be called), modal (the top overlay's id or "")
++##   (the election can be called), ctaAt [x, y] (the CTA's centre), modal (the top overlay's id or "")
+ ##   chat {open, thread [top, bottom], pills [[x, y, seq, afford, ceremony]], brawls [[x, y, seq]],
+ ##        avatars [[x, y, id]] (in view), openBrawl}: every open pay pill and "צאו החוצה" button, in
+ ##        or out of view (the driver drags the thread to bring one into view)
++##   coal {lines, afford, ultLeft, save, vote}: the open pay lines, how many the bank covers, the
++##        nearest ultimatum (s, -1 none), the biggest ultimatum / rejoin price, the election card holding
+ ##   shop {tab, list [top, bottom], rows [[x, y, id, afford]]}: the source cards in view
+ 
+ static var _ms := 0.0
+@@ -48,6 +50,10 @@ static func snapshot(host: Node) -> Dictionary:
+ 			if t.body_focusables.has(b):
+ 				c.y -= t.scroll
+ 			out["modalButtons"].append([c.x, c.y, b.label.text if b.label != null else ""])
++	# the "עוד סבב!" CTA's centre, live (the lower band moves when the layout splits again)
++	var tk: Ticker = host.get("ticker")
++	var cc := tk.cta.visual.get_center() + tk.position + o
++	out["ctaAt"] = [cc.x, cc.y]
+ 	var si := Coalition.seat_info(s)
+ 	out["seats"] = {"effective": si["effective"], "gate": si["gateSeats"]}
+ 	var chat: ChatView = host.get("chat")
+@@ -69,6 +75,23 @@ static func snapshot(host: Node) -> Dictionary:
+ 			pills.append([c.x, c.y, int(h["seq"]), s.bananas >= float(m.get("price", 0.0)), str(m.get("kind", "")) == "ceremony"])
+ 	out["chat"] = {"open": chat.is_open(), "thread": [top, bottom], "pills": pills, "avatars": avatars, "brawls": brawls,
+ 		"openBrawl": not Coalition.open_brawl(s).is_empty()}
++	# the sim's open lines whether or not T3 is open (the driver saves for an ultimatum like a player)
++	var lines := 0
++	var n_afford := 0
++	var ult_left := -1.0
++	var ult_price := 0.0
++	if s.coalition is Dictionary:
++		for m: Dictionary in s.coalition.get("chat", []):
++			if m["state"] != "open" or not Coalition.is_payable(m):
++				continue
++			lines += 1
++			if s.bananas >= float(m.get("price", 0.0)):
++				n_afford += 1
++			if m["type"] == "ultimatum" or str(m.get("payable", "")) == "rejoin":
++				ult_price = maxf(ult_price, float(m.get("price", 0.0)))
++				if m["type"] == "ultimatum":
++					ult_left = float(m["leftSec"]) if ult_left < 0.0 else minf(ult_left, float(m["leftSec"]))
++	out["coal"] = {"lines": lines, "afford": n_afford, "ultLeft": ult_left, "save": ult_price, "vote": bool(host.call("vote_open")) if host.has_method("vote_open") else false}
+ 	# the "{n} ממתינים ↑" chip and the brawl stage cue (views wave 6): centres in viewport px
+ 	var pi := chat.pending_info()
+ 	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
+diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
+index 2c1abb4..288ae9d 100644
+--- a/tools/web/picker_web.mjs
++++ b/tools/web/picker_web.mjs
+@@ -1,16 +1,21 @@
+ // LEADER_PICK in the runtime origin (game-developer engine, leader select 2026-09-29): a fresh game
+ // shows the picker before the first tap, the long-press leader card, a pick of בנט, the pre-tap
+-// stage with the undo chip, tap 1, a whole round to the election through the real UI (the loop of
+-// round_web.mjs: taps, buys, T3 pills, the brawl, the court), O3 → EVOLVE_TX → the flash, the
+-// picker again (after: the again button and the fresh chip), a pick of ליברמן, round 2 live.
++// stage with the undo chip, tap 1, a whole round to the election through the real UI (the shared
++// player of tools/web/round_play.mjs: taps, the chat first, buys, the brawl, the court), O3 (the
++// round holds under the open card: "the vote stops the clock", spec §7.4) → EVOLVE_TX → the flash,
++// the picker again (after: the again button), a reload mid-pick, a pick of ליברמן, round 2 live.
+ // Positions come from window.odPick (ui/views/view_pick.gd), window.odDev (ui/dev_probe.gd) and
+ // window.odModal / window.odFlash, in viewport logical px.
+ //   node tools/web/picker_web.mjs <url> <out dir> [WxH@DPR] [speed] [budget s]
+ // Serve build/web first (python3 -m http.server --directory build/web).
++// Speed 5 (2026-09-30; was 12): at ×12 the driver's loop (a few seconds of wall time on a loaded
++// machine) was a minute of game time, an ultimatum ran out between two looks at the chat, and
++// Bennett's round never held 61 in the budget. The round is the driver's, not a pacing number.
+ const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
+ const { chromium } = await import(PW);
+ const fs = await import('node:fs');
+-const [base, out, dev = '390x844@2', speed = '12', budgetArg = '1200'] = process.argv.slice(2);
++const { makePlayer } = await import('./round_play.mjs');
++const [base, out, dev = '390x844@2', speed = '5', budgetArg = '1200'] = process.argv.slice(2);
+ fs.mkdirSync(out, { recursive: true });
+ const [wh, dprS] = dev.split('@');
+ const [W, H] = wh.split('x').map(Number);
+@@ -21,53 +26,21 @@ const page = await ctx.newPage();
+ const errors = [];
+ page.on('pageerror', (e) => errors.push(e.message));
+ const cdp = await ctx.newCDPSession(page);
+-const wait = (ms) => page.waitForTimeout(ms);
+-let tid = 1;
+-let cv, disp;
+-const css = (x, y) => [cv.x + x * disp.f / DPR, cv.y + y * disp.f / DPR];
+-const col = (x, y) => css(x + disp.ox, y);
+-async function tapAt([x, y], hold = 60) {
+-	const id = tid++;
+-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id }] });
+-	await wait(hold);
+-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+-}
+-async function drag([x, y0], dy, steps = 8) {
+-	const id = tid++;
+-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y: y0, id }] });
+-	for (let i = 1; i <= steps; i++) {
+-		await wait(30);
+-		await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y0 + (dy * i) / steps, id }] });
+-	}
+-	await wait(60);
+-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+-}
+-const probe = () => page.evaluate(() => window.odDev || null);
+-const modal = () => page.evaluate(() => window.odModal || null);
+-const pick = () => page.evaluate(() => window.odPick || null);
+-const shots = [];
+-async function shot(name) {
+-	const p = `${out}/${wh}@${DPR}-${name}.png`;
+-	await page.screenshot({ path: p });
+-	shots.push(p);
+-	console.log('  shot', p);
+-}
+-const tabsY = () => disp.logical[1] - 104;
+-// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
+-const tabX = (i) => { const cw = disp.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
+-const tab = (i) => col(tabX(i), tabsY() + 52);
+ const log = (...a) => console.log(...a);
++const P = makePlayer({ page, cdp, DPR, out, wh, log });
++const { wait, probe, modal, shot, css, tapAt } = P;
++const pick = () => page.evaluate(() => window.odPick || null);
+ const checks = [];
+ const check = (ok, what) => { checks.push([ok, what]); log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}`); };
+ const cellOf = (p, id) => ((p && p.cells) || []).find((c) => c[2] === id) || [-1, -1, ""];
+ 
++await P.st.ready;   // the history log (round_play.mjs) is in place before the page loads
+ await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&speed=${speed}`);
+ await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
+ await page.click('#od-quiet');
+ await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
+ await wait(1200);
+-disp = await page.evaluate(() => window.odDisplay);
+-cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y }; });
++await P.refresh();
+ 
+ // 1. the first picker
+ let p = await pick();
+@@ -95,159 +68,82 @@ check(s && s.leader === 'bennett' && s.mode === 'title', `"לשחק בתור ב
+ check(s && s.undo, 'the undo chip is up');
+ await shot('p3-bennett-pretap');
+ // tap 1
+-const hat = css(disp.hat[0], disp.hat[1]);
+-await tapAt(hat);
++await tapAt(P.hat());
+ await wait(700);
+ s = await probe();
+ check(s && s.mode === 'main' && !s.undo, `tap 1 starts Bennett's round (mode ${s && s.mode}), the chip goes`);
+ await shot('p4-bennett-tap1');
+ 
+-// 2. the round, to the election (round_web.mjs's loop)
+-const t0 = Date.now();
++// 2. the round, to the election (the shared player); the gate can fall between the CTA and the card
++// (a walkout before the vote): play on and try again. Under the open card it must hold.
++P.st.t0 = Date.now();
+ const budget = Number(budgetArg) * 1000;
+-let lastSeats = -1;
+-let paid = 0;
+-let rounds = 0;
+-let lastBuy = 0;
+ let shotRound = false;
+-async function playToGate() {
+-while (Date.now() - t0 < budget) {
+-	rounds++;
+-	s = await probe();
+-	if (!s) { await wait(300); continue; }
+-	if (s.seats.effective !== lastSeats) { log(`  t ${Math.round(s.runSec)}s  seats ${s.seats.effective}/${s.seats.gate}  bank ${Math.round(s.bank)}  paid ${paid}`); lastSeats = s.seats.effective; }
+-	if (s.modal !== '') {
+-		if (s.modal === 'EVOLUTION') break;
+-		await page.keyboard.press('Escape');
+-		await wait(400);
+-		continue;
+-	}
+-	if (s.cta && s.ready) break;
+-	if (s.court.card && s.court.phase === 'summons' && s.court.testify[0] > 0) {
+-		await shot('p5-bennett-press-card');
+-		await tapAt(css(s.court.testify[0], s.court.testify[1]));
+-		await wait(400);
+-		continue;
+-	}
+-	for (let i = 0; i < 4; i++) { await tapAt(hat, 40); await wait(70); }
+-	if (!shotRound && s.runSec > 60) { shotRound = true; await shot('p5-bennett-round'); }
+-	const quiet = !s.groupOpen && Date.now() - lastBuy < 4000;
+-	if (s.groupOpen && s.shop.tab !== 'producers') { await tapAt(tab(1)); await wait(300); s = await probe(); }
+-	const aff = quiet ? [] : (s.shop.all || []).filter((r) => r[3]);
+-	if (aff.length) {
+-		lastBuy = Date.now();
+-		const r = aff[aff.length - 1];
+-		const [top, bot] = s.shop.list;
+-		if (r[1] < top + 60 || r[1] > bot - 60) {
+-			await drag(css(360 + disp.ox, (top + bot) / 2), -(r[1] - (top + bot) / 2) * disp.f / DPR);
+-			await wait(300);
+-		} else {
+-			for (let k = 0; k < 3; k++) { await tapAt(css(r[0], r[1])); await wait(90); }
+-		}
+-	}
+-	s = await probe();
+-	const wantChat = s.groupOpen;   // every loop once the group exists: under load an ultimatum (90 s of game time) passes in seconds
+-	if (!wantChat) continue;
+-	if (!s.chat.open) { await tapAt(tab(3)); await wait(600); }
+-	for (let guard = 0; guard < 14; guard++) {
+-		s = await probe();
+-		if (!s.chat.open || (s.ready && s.cta)) break;
+-		const [top, bot] = s.chat.thread;
+-		const pills = s.chat.pills.filter((q) => q[3]).concat((s.chat.brawls || []).map((b) => [b[0], b[1], b[2], true, false]));
+-		if (!pills.length) break;
+-		const vis = pills.filter((q) => q[1] > top + 50 && q[1] < bot - 50);
+-		if (vis.length) {
+-			const q = vis[vis.length - 1];
+-			await tapAt(css(q[0], q[1]));
+-			paid++;
+-			await wait(q[4] ? 3400 : 500);
+-		} else {
+-			const q = pills[0];
+-			await drag(css(360 + disp.ox, (top + bot) / 2), -(q[1] - (top + bot) / 2) * disp.f / DPR * 0.9, 10);
+-			await wait(400);
+-		}
+-	}
+-	await page.keyboard.press('Escape');
+-	await wait(300);
+-}
+-}
+-// the gate can slip (a walkout) between the CTA and the card: play on and try again
++let shotPress = false;
++const hooks = {
++	loop: async (q) => { if (!shotRound && q.runSec > 60) { shotRound = true; await shot('p5-bennett-round'); } },
++	summons: async () => { if (!shotPress) { shotPress = true; await shot('p5-bennett-press-card'); } },
++};
+ let called = false;
+-for (let attempt = 0; attempt < 6 && !called && Date.now() - t0 < budget; attempt++) {
+-	await playToGate();
+-	s = await probe();
+-	log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${paid} pills, loops ${rounds}`);
+-	if (!(s.ready && s.cta)) continue;
+-	for (let i = 0; i < 3 && s.modal !== 'EVOLUTION' && (s.chat.open || s.modal !== ''); i++) {
+-		await page.keyboard.press('Escape');
+-		await wait(400);
+-		s = await probe();
+-	}
+-	if (s.modal !== 'EVOLUTION') {
+-		await tapAt(col(360, disp.lowerY + 42));
+-		await page.waitForFunction(() => window.odModal && window.odModal.open && window.odModal.id === 'EVOLUTION', null, { timeout: 15000 }).catch(() => {});
+-	}
+-	await wait(700);
+-	await shot('p6-election-card');
+-	md = await modal();
++let held = true;
++for (let attempt = 0; attempt < 6 && !called && Date.now() - P.st.t0 < budget; attempt++) {
++	const why = await P.playToGate(budget, hooks);
+ 	s = await probe();
+-	// odModal.ready is published once, when the card opens; odDev.ready is live (a walkout at ×12
+-	// speed can drop 30 seats in the 700 ms above)
+-	if (md && md.open && md.id === 'EVOLUTION' && md.ready && s.ready) {
+-		await tapAt(css(md.buttons[0][0], md.buttons[0][1]));
+-		// committed: EVOLVE_TX runs, then the flash or the picker opens
+-		called = await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open)
+-			|| (window.odDev && window.odDev.evolutions > 0), null, { timeout: 40000 }).then(() => true).catch(() => false);
+-		if (!called) {
+-			log('  the gate slipped as the card was confirmed: back to the round');
+-			await page.keyboard.press('Escape');
+-			await wait(500);
+-		}
+-	} else {
+-		log('  the gate slipped under the card: back to the round');
+-		await page.keyboard.press('Escape');
+-		await wait(500);
+-	}
++	log(`  gate (${why}): seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${P.st.paid} pills, loops ${P.st.loops}`);
++	if (why === 'budget' || why === 'navigated') break;
++	const r = await P.callElection({ card: 'p6-election-card' });
++	if (r === 'held-fail') { held = false; break; }
++	if (r === 'navigated') break;
++	if (r !== 'called') continue;
++	// committed: EVOLVE_TX runs, then the flash or the picker opens
++	called = await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open)
++		|| (window.odDev && window.odDev.evolutions > 0), null, { timeout: 40000 }).then(() => true).catch(() => false);
++	if (!called) log('  the confirm did not start the election');
+ }
++log(`  ${P.cadence(speed)}`);
++check(held, 'the round holds under the open election card (the vote stops the clock)');
+ check(called, 'Bennett calls the election (O3 "לפזר את הכנסת")');
+ if (called) {
+-	{
+-		await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open), null, { timeout: 40000 }).catch(() => {});
+-		await wait(1500);
+-		const fl = await page.evaluate(() => window.odFlash || null);
+-		if (fl && fl.open) {
+-			await shot('p7-flash');
+-			await tapAt(css(fl.next[0], fl.next[1]));
+-			await wait(900);
+-		}
+-		await page.waitForFunction(() => window.odPick && window.odPick.open, null, { timeout: 15000 }).catch(() => {});
+-		await wait(600);
+-		p = await pick();
+-		s = await probe();
+-		check(!!(p && p.open && p.variant === 'after' && p.again && p.again[2] === 'bennett'), `the picker follows the election: after, "עוד סבב עם בנט" (${JSON.stringify(p && p.again)})`);
+-		check(s && s.evolutions === 1 && s.pickPending, `round 2 waits for the pick (evolutions ${s && s.evolutions})`);
+-		await shot('p8-picker-after');
+-		// a reload mid-pick lands in the picker again
+-		await page.reload();
+-		await page.waitForFunction(() => window.odPick && window.odPick.open, null, { timeout: 120000 }).catch(() => {});
+-		await wait(1500);
+-		disp = await page.evaluate(() => window.odDisplay);
+-		cv = await page.evaluate(() => { const cc = document.querySelector('canvas'); const r = cc.getBoundingClientRect(); return { x: r.x, y: r.y }; });
+-		p = await pick();
+-		check(!!(p && p.open && p.variant === 'after'), 'a reload mid-pick shows the picker again (leaderPickPending)');
+-		await shot('p9-picker-after-reload');
+-		c = cellOf(p, 'liberman');
+-		await tapAt(css(c[0], c[1]));
+-		await page.waitForFunction(() => window.odDev && window.odDev.mode === 'main', null, { timeout: 8000 }).catch(() => {});
+-		await wait(1200);
+-		s = await probe();
+-		check(s && s.leader === 'liberman' && s.mode === 'main' && s.evolutions === 1, `pick ליברמן: round 2 is his (leader ${s && s.leader}, mode ${s && s.mode})`);
+-		await shot('p10-liberman-round2');
+-		for (let i = 0; i < 8; i++) { await tapAt(css(disp.hat[0], disp.hat[1]), 40); await wait(90); }
+-		await wait(400);
+-		await shot('p11-liberman-taps');
++	await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open), null, { timeout: 40000 }).catch(() => {});
++	await wait(1500);
++	const fl = await page.evaluate(() => window.odFlash || null);
++	if (fl && fl.open) {
++		await shot('p7-flash');
++		await tapAt(css(fl.next[0], fl.next[1]));
++		await wait(900);
+ 	}
++	await page.waitForFunction(() => window.odPick && window.odPick.open, null, { timeout: 15000 }).catch(() => {});
++	await wait(600);
++	p = await pick();
++	s = await probe();
++	check(!!(p && p.open && p.variant === 'after' && p.again && p.again[2] === 'bennett'), `the picker follows the election: after, "עוד סבב עם בנט" (${JSON.stringify(p && p.again)})`);
++	check(s && s.evolutions === 1 && s.pickPending, `round 2 waits for the pick (evolutions ${s && s.evolutions})`);
++	await shot('p8-picker-after');
++	// a reload mid-pick lands in the picker again (the driver's own navigation: not logged as one)
++	P.st.armed = false;
++	await page.reload();
++	await page.waitForFunction(() => window.odPick && window.odPick.open, null, { timeout: 120000 }).catch(() => {});
++	await wait(1500);
++	await P.refresh();
++	p = await pick();
++	check(!!(p && p.open && p.variant === 'after'), 'a reload mid-pick shows the picker again (leaderPickPending)');
++	await shot('p9-picker-after-reload');
++	c = cellOf(p, 'liberman');
++	await tapAt(css(c[0], c[1]));
++	await page.waitForFunction(() => window.odDev && window.odDev.mode === 'main', null, { timeout: 8000 }).catch(() => {});
++	await wait(1200);
++	s = await probe();
++	check(s && s.leader === 'liberman' && s.mode === 'main' && s.evolutions === 1, `pick ליברמן: round 2 is his (leader ${s && s.leader}, mode ${s && s.mode})`);
++	await shot('p10-liberman-round2');
++	const run0 = s ? s.runSec : 0;
++	for (let i = 0; i < 8; i++) { await tapAt(P.hat(), 40); await wait(90); }
++	await wait(600);
++	s = await probe();
++	check(s && s.leader === 'liberman' && s.runSec > run0 && s.bank > 0, `Liberman's round 2 runs: taps pay, the clock moves (run ${s && s.runSec.toFixed(1)} s, bank ${s && Math.round(s.bank)})`);
++	await shot('p11-liberman-taps');
+ }
++if (Object.keys(P.st.modals).length) log(`  overlays closed on the way: ${JSON.stringify(P.st.modals)}`);
++check(!P.st.navs.length, `the page never left the game mid-run (${P.st.navs.length} navigations, see NAVIGATION above)`);
+ log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
+ const ok = checks.every((x) => x[0]) && !errors.length;
+ log(ok ? 'PICKER_WEB: PASS' : 'PICKER_WEB: FAIL');
+diff --git a/tools/web/round_web.mjs b/tools/web/round_web.mjs
+index 30e1bcc..f289610 100644
+--- a/tools/web/round_web.mjs
++++ b/tools/web/round_web.mjs
+@@ -1,24 +1,26 @@
+ // Plays a whole first round to the election in the runtime origin, through the real UI with real
+ // touches (game-developer views, 2026-09-29; the UX review's "not reached at runtime" O3). Headless
+-// Chromium at a phone size, `?dev=1&speed=N` (the dev clock; nothing is granted): taps the
+-// Magician, buys the most expensive affordable source card, opens T3 and pays every open pill,
+-// scrolling the thread to reach the ones above the fold (the review's script paid only the bottom
+-// of the thread, which left the pending partners' join demands unpaid and stalled at 44/61),
+-// presses "צאו החוצה" on a brawl (it freezes two rows until pressed), testifies when summoned, and when "עוד סבב!" is up opens O3, calls the election and follows the
+-// transition to the news flash. Positions come from window.odDev (ui/dev_probe.gd) and
+-// window.odModal (ui/views/view_sheet_card.gd), in viewport logical px.
++// Chromium at a phone size, `?dev=1&speed=N` (the dev clock; nothing is granted). The player loop is
++// tools/web/round_play.mjs (shared with picker_web.mjs): taps the leader, pays the chat first
++// (every affordable pill, scrolling the thread; "צאו החוצה" on a brawl; it saves for an open
++// ultimatum), buys the most expensive affordable source card, testifies when summoned. When
++// "עוד סבב!" is up it opens O3, checks that the round holds under the open card ("the vote stops
++// the clock", spec §7.4), calls the election and follows the transition to the news flash.
++// Positions come from window.odDev (ui/dev_probe.gd) and window.odModal (ui/views/view_sheet_card.gd),
++// in viewport logical px.
+ //   node tools/web/round_web.mjs <url> <out dir> [WxH@DPR] [speed] [budget s]
+ // Serve build/web first (python3 -m http.server --directory build/web).
+-// NOT a pacing measurement. The driver acts in wall-clock time (a few taps, one card and a look at
+-// the chat per loop of ~1-3 s) while ?speed=N runs the game N times faster, so in game time it taps
+-// and buys about N times less often than a player, never buys a spin and never catches the Suitcase.
+-// Its round time (34:24 of play at speed 10 on 2026-09-29) measures this driver, not the game: it
+-// prints its game-time cadence at the end, and tests/bench/test_web_driver.gd replays that cadence
+-// through PacingSim (same round length). The pacing gates live in tools/balance.sh.
++// NOT a pacing measurement. The driver acts in wall-clock time while ?speed=N runs the game N times
++// faster, so in game time it taps and buys about N times less often than a player, never buys a
++// spin and never catches the Suitcase. It prints its game-time cadence at the end, and
++// tests/bench/test_web_driver.gd replays that cadence through PacingSim. The pacing gates live in
++// tools/balance.sh. Speed 5 (2026-09-30): at ×10 an ultimatum's 90 s pass in 9 s of wall time, less
++// than one loop of this driver on a loaded machine, so the round was a race against the machine.
+ const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
+ const { chromium } = await import(PW);
+ const fs = await import('node:fs');
+-const [base, out, dev = '390x844@2', speed = '10', budgetArg = '900'] = process.argv.slice(2);
++const { makePlayer } = await import('./round_play.mjs');
++const [base, out, dev = '390x844@2', speed = '5', budgetArg = '900'] = process.argv.slice(2);
+ fs.mkdirSync(out, { recursive: true });
+ const [wh, dprS] = dev.split('@');
+ const [W, H] = wh.split('x').map(Number);
+@@ -29,206 +31,74 @@ const page = await ctx.newPage();
+ const errors = [];
+ page.on('pageerror', (e) => errors.push(e.message));
+ const cdp = await ctx.newCDPSession(page);
+-const wait = (ms) => page.waitForTimeout(ms);
+-let tid = 1;
+-let cv, disp;
+-const css = (x, y) => [cv.x + x * disp.f / DPR, cv.y + y * disp.f / DPR];
+-const col = (x, y) => css(x + disp.ox, y);   // 720-column logical -> CSS
+-async function tapAt([x, y], hold = 60) {
+-	const id = tid++;
+-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id }] });
+-	await wait(hold);
+-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+-}
+-async function drag([x, y0], dy, steps = 8) {
+-	const id = tid++;
+-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y: y0, id }] });
+-	for (let i = 1; i <= steps; i++) {
+-		await wait(30);
+-		await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y0 + (dy * i) / steps, id }] });
+-	}
+-	await wait(60);
+-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+-}
+-const probe = () => page.evaluate(() => window.odDev || null);
+-const modal = () => page.evaluate(() => window.odModal || null);
+-const shots = [];
+-async function shot(name) {
+-	const p = `${out}/${wh}@${DPR}-${name}.png`;
+-	await page.screenshot({ path: p });
+-	shots.push(p);
+-	console.log('  shot', p);
+-}
+-const tabsY = () => disp.logical[1] - 104;
+-// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
+-const tabX = (i) => { const cw = disp.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
+-const tab = (i) => col(tabX(i), tabsY() + 52);
+ const log = (...a) => console.log(...a);
++const P = makePlayer({ page, cdp, DPR, out, wh, log });
++const { wait, probe, shot } = P;
+ 
++await P.st.ready;   // the history log (round_play.mjs) is in place before the page loads
+ await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&speed=${speed}`);
+ await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
+ await page.click('#od-quiet');
+ await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
+ await wait(1200);
+-disp = await page.evaluate(() => window.odDisplay);
+-cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y }; });
+-const hat = css(disp.hat[0], disp.hat[1]);
+-await tapAt(hat);
++await P.refresh();
++// a fresh game opens LEADER_PICK: הפתעה (the centre tile) deals a random leader, as the UX spec's
++// default, or LEADER=<id> picks that one; then tap 1 starts the round
++let pk = await page.evaluate(() => window.odPick || null);
++if (pk && pk.open) {
++	const c = pk.cells.find((x) => x[2] === (process.env.LEADER || '')) || pk.cells[4];
++	await P.tapAt(P.css(c[0], c[1]));
++	await page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 8000 }).catch(() => {});
++	await wait(600);
++}
++await P.tapAt(P.hat());
+ await wait(800);
+-const t0 = Date.now();
++P.st.t0 = Date.now();
+ const budget = Number(budgetArg) * 1000;
+-let seen = { toast: false, card: false, summons: false, chat: false, ult: false };
+-let lastSeats = -1;
+-let paid = 0;
+-let rounds = 0;
+-let lastBuy = 0;
+-let hatTaps = 0, buyActions = 0, cardTaps = 0, chatLooks = 0;
+-// the gate can slip (a walkout at ×speed) between the CTA and the card: play on and try again, as
+-// picker_web does (the loop below is one approach to the gate)
+-async function playToGate() {
+-while (Date.now() - t0 < budget) {
+-	rounds++;
+-	let s = await probe();
+-	if (!s) { await wait(300); continue; }
+-	if (s.seats.effective !== lastSeats) { log(`  t ${Math.round(s.runSec)}s  seats ${s.seats.effective}/${s.seats.gate}  bank ${Math.round(s.bank)}  paid ${paid}`); lastSeats = s.seats.effective; }
+-	if (s.modal !== '') {
+-		if (s.modal === 'EVOLUTION') break;
+-		await page.keyboard.press('Escape');
+-		await wait(400);
+-		continue;
+-	}
+-	if (s.cta && s.ready) break;
+-	// the court: testify (after a look at the summons card)
+-	if (s.court.card && s.court.phase === 'summons' && s.court.testify[0] > 0) {
+-		if (!seen.summons) { seen.summons = true; await wait(500); await shot('court-summons'); }
+-		await tapAt(css(s.court.testify[0], s.court.testify[1]));
+-		await wait(400);
+-		continue;
+-	}
+-	for (let i = 0; i < 4; i++) { await tapAt(hat, 40); await wait(70); hatTaps++; }
+-	// sources: the most expensive affordable card, scrolled into view. Before the group opens (C1)
+-	// buy at most every 4 s: C1 pings only when the last purchase is >= 2 s old and no toast shows.
+-	const quiet = !s.groupOpen && Date.now() - lastBuy < 4000;
+-	if (s.groupOpen && s.shop.tab !== 'producers') { await tapAt(tab(1)); await wait(300); s = await probe(); }
+-	const aff = quiet ? [] : (s.shop.all || []).filter((r) => r[3]);
+-	if (aff.length) {
+-		lastBuy = Date.now();
+-		buyActions++;
+-		const r = aff[aff.length - 1];
+-		const [top, bot] = s.shop.list;
+-		if (r[1] < top + 60 || r[1] > bot - 60) {
+-			await drag(css(360 + disp.ox, (top + bot) / 2), -(r[1] - (top + bot) / 2) * disp.f / DPR);
+-			await wait(300);
+-		} else {
+-			for (let k = 0; k < 3; k++) { await tapAt(css(r[0], r[1])); await wait(90); cardTaps++; }
+-		}
+-	}
+-	// the chat: every open pill, scrolling to it
+-	s = await probe();
+-	const wantChat = s.groupOpen && (s.chat.open || s.chat.openBrawl || rounds % 2 === 0);
+-	if (!wantChat) continue;
+-	if (!seen.toast) { seen.toast = true; await shot('chat-toast'); }
+-	chatLooks++;
+-	if (!s.chat.open) { await tapAt(tab(3)); await wait(600); }
+-	for (let guard = 0; guard < 14; guard++) {
+-		s = await probe();
+-		if (!s.chat.open || (s.ready && s.cta)) break;   // the gate is open: go call the election
+-		if (!seen.chat && s.chat.pills.length) { seen.chat = true; await shot('chat'); }
+-		const [top, bot] = s.chat.thread;
+-		// the pills it can pay, and "צאו החוצה" (a brawl keeps two rows out of the 61 until pressed)
+-		const pills = s.chat.pills.filter((p) => p[3]).concat((s.chat.brawls || []).map((b) => [b[0], b[1], b[2], true, false]));
+-		if (!pills.length) break;
+-		const vis = pills.filter((p) => p[1] > top + 50 && p[1] < bot - 50);
+-		if (vis.length) {
+-			const p = vis[vis.length - 1];
+-			await tapAt(css(p[0], p[1]));
+-			paid++;
+-			await wait(p[4] ? 3400 : 500);   // a ceremony's ribbon runs 3 s of real time; a stamp needs a beat
+-		} else {
+-			const p = pills[0];
+-			await drag(css(360 + disp.ox, (top + bot) / 2), -(p[1] - (top + bot) / 2) * disp.f / DPR * 0.9, 10);
+-			await wait(400);
+-		}
+-	}
+-	await page.keyboard.press('Escape');
+-	await wait(300);
+-}
+-}
+-let s;
++let s = await probe();
++log(`  leader ${s && s.leader}, speed ${speed}`);
++let seen = { toast: false, summons: false };
++const hooks = {
++	loop: async (q) => { if (!seen.toast && q.groupOpen) { seen.toast = true; await shot('chat-toast'); } },
++	summons: async () => { if (!seen.summons) { seen.summons = true; await wait(500); await shot('court-summons'); } },
++};
+ let called = false;
+ let ok = false;
+-for (let attempt = 0; attempt < 5 && !called && Date.now() - t0 < budget; attempt++) {
+-await playToGate();
+-s = await probe();
+-log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${paid} pills, loops ${rounds}`);
+-{
+-	// The cadence it played at, in GAME seconds (compare the bench's median player: 1.5 taps/s, a buy
+-	// whenever the best one is affordable, spins, every Suitcase). Not a pacing number: see the header.
+-	const g = Math.max(1, s.runSec), wall = (Date.now() - t0) / 1000;
+-	log(`  cadence (game time, speed ${speed}, ${Math.round(wall)} s wall): ${(hatTaps / g).toFixed(3)} taps/s, `
+-		+ `a purchase action every ${(g / Math.max(1, buyActions)).toFixed(1)} s (${cardTaps} card taps), `
+-		+ `the chat every ${(g / Math.max(1, chatLooks)).toFixed(1)} s, a loop every ${(g / Math.max(1, rounds)).toFixed(1)} s; `
+-		+ 'no spins, no Suitcase. Not a pacing measurement (tools/balance.sh is).');
+-}
+-ok = s.ready && s.cta;
+-if (!ok) continue;
+-{
+-	// close T3 (the CTA sits in the ticker row under it); Esc folds an expanded court card first
+-	for (let i = 0; i < 3 && s.modal !== 'EVOLUTION' && (s.chat.open || s.modal !== ''); i++) {
+-		await page.keyboard.press('Escape');
+-		await wait(400);
+-		s = await probe();
+-	}
++let heldFail = false;
++for (let attempt = 0; attempt < 6 && !called && !heldFail && Date.now() - P.st.t0 < budget; attempt++) {
++	const why = await P.playToGate(budget, hooks);
++	s = await probe();
++	log(`  gate (${why}): seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${P.st.paid} pills, loops ${P.st.loops}`);
++	if (why === 'budget' || why === 'navigated') break;
+ 	await shot('e0-cta');
+-	if (s.modal !== 'EVOLUTION') {
+-		await tapAt(col(360, disp.lowerY + 42));
+-		await page.waitForFunction(() => window.odModal && window.odModal.open && window.odModal.id === 'EVOLUTION', null, { timeout: 15000 }).catch(() => {});
+-	}
+-	await wait(700);
+-	await shot('e1-election-card');
+-	const m = await modal();
+-	ok = !!(m && m.open && m.id === 'EVOLUTION' && m.ready);
+-	log(`  O3 ${JSON.stringify(m)}`);
+-	if (!ok) {
+-		log('  the gate slipped before the card: back to the round');
+-		await page.keyboard.press('Escape');
+-		await wait(500);
+-		continue;
+-	}
+-	// odModal.ready is published once, at open; at ×10 a walkout can drop the gate between the shot
+-	// and the tap (the card disables its button live, and no pill can be paid under it): check the
+-	// live gate (odDev.ready) and, when it slipped, close the card and play on
+-	const live = await probe();
+-	if (!live.ready) {
+-		log('  the gate slipped under the card: back to the round');
+-		await page.keyboard.press('Escape');
+-		await wait(500);
+-		continue;
+-	}
++	const r = await P.callElection({ card: 'e1-election-card' });
++	if (r === 'held-fail') { heldFail = true; break; }
++	if (r === 'navigated') break;
++	if (r !== 'called') continue;
+ 	called = true;
+-	{
+-		await tapAt(css(m.buttons[0][0], m.buttons[0][1]));
+-		await wait(900);
+-		await shot('e2-transition');
+-		await page.waitForFunction(() => window.odFlash && window.odFlash.open, null, { timeout: 30000 }).catch(() => {});
+-		await wait(1500);
+-		await shot('e3-flash');
+-		s = await probe();
+-		ok = s.evolutions === 1;
+-		log(`  after the election: round ${s.evolutions + 1}, flash ${JSON.stringify(await page.evaluate(() => window.odFlash || null))}`);
+-		const fl = await page.evaluate(() => window.odFlash || null);
+-		if (fl && fl.open) { await tapAt(css(fl.next[0], fl.next[1])); await wait(900); }
+-		await shot('e4-round2');
+-	}
+-}
++	await wait(900);
++	await shot('e2-transition');
++	await page.waitForFunction(() => window.odFlash && window.odFlash.open, null, { timeout: 30000 }).catch(() => {});
++	await wait(1500);
++	await shot('e3-flash');
++	s = await probe();
++	ok = s.evolutions === 1;
++	const fl = await page.evaluate(() => window.odFlash || null);
++	log(`  after the election: round ${s.evolutions + 1}, flash ${JSON.stringify(fl)}`);
++	if (fl && fl.open) { await P.tapAt(P.css(fl.next[0], fl.next[1])); await wait(900); }
++	await shot('e4-round2');
+ }
++s = await probe();
++log(`  ${P.cadence(speed)}`);
+ if (!called) {
+ 	// evidence for the stall: the thread as it stands
+-	s = await probe();
+-	if (s && !s.chat.open && s.groupOpen) { await tapAt(tab(3)); await wait(900); }
++	if (s && !s.chat.open && s.groupOpen) { await P.tapAt(P.tab(3)); await wait(900); }
+ 	await shot('stall-chat');
+ 	ok = false;
+ }
++if (heldFail) log('  FAIL: the gate moved under the open election card (the vote must stop the clock)');
++if (Object.keys(P.st.modals).length) log(`  overlays closed on the way: ${JSON.stringify(P.st.modals)}`);
++if (P.st.navs.length) { log(`  FAIL: the page left the game mid-run (${P.st.navs.length}x, see NAVIGATION above)`); ok = false; }
+ log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
+ log(ok && !errors.length ? 'ROUND_WEB: PASS' : 'ROUND_WEB: FAIL');
+ await browser.close();
+diff --git a/tools/web/round_play.mjs b/tools/web/round_play.mjs
+new file mode 100644
+index 0000000..19e712a
+--- /dev/null
++++ b/tools/web/round_play.mjs
+@@ -0,0 +1,266 @@
++// The scripted player shared by round_web.mjs and picker_web.mjs (Game Designer 2026-09-30): one
++// loop that plays a round to the 61 gate through the real UI with real touches, and one election
++// call that checks "the vote stops the clock" (sim/politics.gd, design/leader-select-spec.md §7.4).
++//
++// How it plays (one look per loop, like a person glancing at the phone):
++//   - an overlay that is not the election card: Esc (and it is logged: a stray overlay under a burst
++//     of taps once opened the share sheet, whose WhatsApp button navigates the page);
++//   - the court: testify when summoned;
++//   - 4 taps on the leader;
++//   - the chat FIRST whenever a line is payable, an ultimatum or a rejoin is open, or a brawl is up:
++//     every affordable pill, the thread dragged to bring each one into view;
++//   - then the most expensive affordable source card, unless that would leave the bank short of
++//     the open ultimatum / rejoin (the driver saves for it, as the bench's attentive player does).
++// Every tap burst re-reads window.odDev first, so a tap never lands in an overlay it did not see.
++// Not a pacing measurement: see round_web.mjs's header (tools/balance.sh has the pacing gates).
++
++export function makePlayer({ page, cdp, DPR, out, wh, log }) {
++	const wait = (ms) => page.waitForTimeout(ms);
++	const st = { disp: null, cv: null, tid: 1, t0: Date.now(), lastSeats: -1, paid: 0, loops: 0, lastBuy: 0,
++		hatTaps: 0, buyActions: 0, cardTaps: 0, chatLooks: 0, modals: {}, actions: [], navs: [], shots: [], armed: false };
++	const wall = () => Math.round((Date.now() - st.t0) / 1000);
++	const act = (what) => { st.actions.push(`${wall()}s ${what}`); if (st.actions.length > 12) st.actions.shift(); };
++	// "the page navigated mid-run" (seen once in round_web on v4, again in picker_web 2026-09-30):
++	// a new document after the round started. The game's own layer history (LayerHistory:
++	// pushState per layer, history.go(-n) when layers close; the shell's About) fires
++	// framenavigated too, same URL, same document; those only go to a ring buffer. The page's
++	// history calls are logged from inside the page (kept here, so they survive the navigation).
++	st.hist = [];
++	st.frames = [];
++	const ring = (a, e) => { a.push(`${wall()}s ${e}`); if (a.length > 16) a.shift(); };
++	st.ready = Promise.all([
++		page.exposeFunction('odHistLog', (e) => ring(st.hist, e)),
++		page.addInitScript(() => {
++			const H = window.history;
++			const say = (e) => { try { window.odHistLog(`${e} len ${H.length} state ${JSON.stringify(H.state)} layers ${window.odLayers}`); } catch (x) { /* ignore */ } };
++			const push = H.pushState.bind(H);
++			const go = H.go.bind(H);
++			const back = H.back.bind(H);
++			H.pushState = (...a) => { push(...a); say('push'); };
++			H.go = (n) => { say(`go(${n})`); go(n); };
++			H.back = () => { say('back()'); back(); };
++			window.addEventListener('popstate', () => say('popstate'));
++			window.addEventListener('pagehide', (e) => say(`pagehide persisted ${e.persisted}`));
++			say(`new document ${location.href}`);
++		}),
++	]);
++	page.on('framenavigated', (fr) => { if (fr === page.mainFrame()) ring(st.frames, fr.url()); });
++	const navigated = (why) => {
++		const n = { why, url: page.url(), wall: wall(), last: st.actions.slice(-6), hist: st.hist.slice(-10), frames: st.frames.slice(-6) };
++		st.navs.push(n);
++		log(`  NAVIGATION (${why}) at ${n.wall}s wall, now ${n.url}`);
++		log(`    the driver's last actions: ${n.last.join(' | ')}`);
++		log(`    the page's history calls: ${n.hist.join(' | ')}`);
++		log(`    main-frame navigations: ${n.frames.join(' | ')}`);
++	};
++	page.on('domcontentloaded', () => { if (st.armed) navigated('a new document loaded'); });
++	const lostPage = (e) => /Execution context was destroyed|navigation|Target closed|detached/i.test(String(e && e.message));
++	async function refresh() {
++		st.disp = await page.evaluate(() => window.odDisplay);
++		st.cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y }; });
++	}
++	const css = (x, y) => [st.cv.x + x * st.disp.f / DPR, st.cv.y + y * st.disp.f / DPR];
++	const col = (x, y) => css(x + st.disp.ox, y);   // 720-column logical -> CSS
++	async function tapAt([x, y], hold = 60) {
++		const id = st.tid++;
++		await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id }] });
++		await wait(hold);
++		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
++	}
++	async function drag([x, y0], dy, steps = 8) {
++		const id = st.tid++;
++		await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y: y0, id }] });
++		for (let i = 1; i <= steps; i++) {
++			await wait(30);
++			await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y0 + (dy * i) / steps, id }] });
++		}
++		await wait(60);
++		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
++	}
++	const probe = () => page.evaluate(() => window.odDev || null);
++	const modal = () => page.evaluate(() => window.odModal || null);
++	async function shot(name) {
++		const p = `${out}/${wh}@${DPR}-${name}.png`;
++		await page.screenshot({ path: p });
++		st.shots.push(p);
++		log('  shot', p);
++	}
++	const tabsY = () => st.disp.logical[1] - 104;
++	// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
++	const tabX = (i) => { const cw = st.disp.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
++	const tab = (i) => col(tabX(i), tabsY() + 52);
++	const hat = () => css(st.disp.hat[0], st.disp.hat[1]);
++	// nothing over the round: no overlay, the controller in main (the tap bursts re-check this)
++	const clear = (s) => s && s.modal === '' && s.mode === 'main';
++
++	// the chat: every affordable pill and "צאו החוצה", scrolling to each. Returns the last probe.
++	async function payChat(s) {
++		st.chatLooks++;
++		if (!s.chat.open) { act('tab chat'); await tapAt(tab(3)); await wait(500); }
++		for (let guard = 0; guard < 16; guard++) {
++			s = await probe();
++			if (!s.chat.open || s.modal !== '' || (s.ready && s.cta)) break;
++			const [top, bot] = s.chat.thread;
++			const pills = s.chat.pills.filter((p) => p[3]).concat((s.chat.brawls || []).map((b) => [b[0], b[1], b[2], true, false]));
++			if (!pills.length) break;
++			const vis = pills.filter((p) => p[1] > top + 50 && p[1] < bot - 50);
++			if (vis.length) {
++				const p = vis[vis.length - 1];
++				act(`pill ${p[2]}`);
++				await tapAt(css(p[0], p[1]));
++				st.paid++;
++				await wait(p[4] ? 3400 : 350);   // a ceremony's ribbon runs 3 s of real time; a stamp needs a beat
++			} else {
++				const p = pills[0];
++				act('drag thread');
++				await drag(css(360 + st.disp.ox, (top + bot) / 2), -(p[1] - (top + bot) / 2) * st.disp.f / DPR * 0.9, 10);
++				await wait(300);
++			}
++		}
++		act('esc chat');
++		await page.keyboard.press('Escape');
++		await wait(250);
++		return probe();
++	}
++
++	// one approach to the gate: returns 'gate' (the CTA is up and the election can be called),
++	// 'card' (the election card is already open) or 'budget'
++	async function playToGate(budgetMs, hooks = {}) {
++		try {
++			return await playLoop(budgetMs, hooks);
++		} catch (e) {
++			if (!lostPage(e)) throw e;
++			if (!st.navs.length) navigated(String(e.message).split('\n')[0]);
++			return 'navigated';
++		}
++	}
++	async function playLoop(budgetMs, hooks) {
++		if (!st.armed) { st.armed = true; st.url = page.url(); }   // a load from here on is not the boot's
++		while (Date.now() - st.t0 < budgetMs) {
++			st.loops++;
++			if (st.loops % 5 === 1) await refresh();   // the layout moves (C1's tab bar, the split)
++			let s = await probe();
++			if (!s) { await wait(300); continue; }
++			if (s.seats.effective !== st.lastSeats) {
++				log(`  wall ${wall()}s  game ${Math.round(s.runSec)}s  seats ${s.seats.effective}/${s.seats.gate}  bank ${Math.round(s.bank)}  paid ${st.paid}`);
++				st.lastSeats = s.seats.effective;
++			}
++			if (s.modal !== '') {
++				if (s.modal === 'EVOLUTION') return 'card';
++				st.modals[s.modal] = (st.modals[s.modal] || 0) + 1;
++				act(`esc overlay ${s.modal}`);
++				await page.keyboard.press('Escape');
++				await wait(400);
++				continue;
++			}
++			st.runSec = s.runSec;
++			if (s.cta && s.ready) return 'gate';
++			if (hooks.loop) await hooks.loop(s);
++			if (s.court.card && s.court.phase === 'summons' && s.court.testify[0] > 0) {
++				if (hooks.summons) await hooks.summons(s);
++				act('testify');
++				await tapAt(css(s.court.testify[0], s.court.testify[1]));
++				await wait(400);
++				continue;
++			}
++			if (!clear(s)) { await wait(200); continue; }
++			// taps: the leader matters early; once sources pay, two taps a loop keep the verb alive
++			const nTaps = s.groupOpen ? 2 : 4;
++			for (let i = 0; i < nTaps; i++) { await tapAt(hat(), 40); await wait(50); st.hatTaps++; }
++			act(`${nTaps} taps`);
++			s = await probe();
++			// the chat first: a line the bank covers, or a brawl ("צאו החוצה")
++			if (s.groupOpen && (s.coal.afford > 0 || s.chat.openBrawl)) {
++				s = await payChat(s);
++				if (s.ready && s.cta) return 'gate';
++			}
++			if (!clear(s)) continue;
++			// sources: the most expensive affordable card, scrolled into view. Before the group opens
++			// (C1) buy at most every 4 s: C1 pings only when the last purchase is >= 2 s old.
++			const quiet = !s.groupOpen && Date.now() - st.lastBuy < 4000;
++			if (quiet) continue;
++			// save for the open ultimatum / rejoin: never spend the bank below twice its price
++			if (s.coal.save > 0 && s.bank < s.coal.save * 2) continue;
++			if (s.groupOpen && s.shop.tab !== 'producers') { act('tab sources'); await tapAt(tab(1)); await wait(250); s = await probe(); }
++			for (let pass = 0; pass < 2; pass++) {
++				if (!clear(s) || s.shop.tab !== 'producers' || s.chat.open) break;   // an overlay came up: never tap into it
++				const aff = (s.shop.all || []).filter((r) => r[3]);
++				if (!aff.length) break;
++				const r = aff[aff.length - 1];
++				const [top, bot] = s.shop.list;
++				if (r[1] < top + 60 || r[1] > bot - 60) {
++					act('drag shop');
++					await drag(css(360 + st.disp.ox, (top + bot) / 2), -(r[1] - (top + bot) / 2) * st.disp.f / DPR);
++					await wait(200);
++					s = await probe();
++					continue;
++				}
++				st.lastBuy = Date.now();
++				st.buyActions++;
++				act(`buy ${r[2]} ×3`);
++				for (let k = 0; k < 3; k++) { await tapAt(css(r[0], r[1])); await wait(60); st.cardTaps++; }
++				break;
++			}
++		}
++		return 'budget';
++	}
++
++	// Calls the election from the gate: closes T3, taps the ticker's "עוד סבב!" CTA, and checks the
++	// card. Returns 'called', 'slipped' (the gate fell between the CTA and the card: a walkout before
++	// the vote is the game; play on) or 'held-fail' (the gate fell UNDER the open card: a game bug
++	// since the vote stops the clock).
++	async function callElection(names = {}) {
++		try {
++			return await callOnce(names);
++		} catch (e) {
++			if (!lostPage(e)) throw e;
++			if (!st.navs.length) navigated(String(e.message).split('\n')[0]);
++			return 'navigated';
++		}
++	}
++	async function callOnce(names) {
++		let s = await probe();
++		for (let i = 0; i < 3 && s.modal !== 'EVOLUTION' && (s.chat.open || s.modal !== ''); i++) {
++			await page.keyboard.press('Escape');
++			await wait(250);
++			s = await probe();
++		}
++		if (s.modal !== 'EVOLUTION') {
++			act('tap CTA');
++			await tapAt(s.ctaAt ? css(s.ctaAt[0], s.ctaAt[1]) : col(360, st.disp.lowerY + 42));
++			await page.waitForFunction(() => window.odModal && window.odModal.open && window.odModal.id === 'EVOLUTION', null, { timeout: 10000 }).catch(() => {});
++		}
++		const m = await modal();
++		const s0 = await probe();
++		if (!(m && m.open && m.id === 'EVOLUTION')) {
++			log('  the CTA did not open the election card: back to the round');
++			return 'slipped';
++		}
++		if (!m.ready) {
++			log(`  the gate fell between the CTA and the card (seats ${s0.seats.effective}): close it, play on`);
++			await page.keyboard.press('Escape');
++			await wait(400);
++			return 'slipped';
++		}
++		// the vote stops the clock: read the card for a while at ×speed; nothing may move
++		await wait(1500);
++		if (names.card) await shot(names.card);
++		const s1 = await probe();
++		const held = s1.ready && s1.coal.vote && s1.runSec === s0.runSec && s1.seats.effective === s0.seats.effective && s1.bank === s0.bank;
++		log(`  O3 ${JSON.stringify(m)}; on the card 1.5 s: seats ${s0.seats.effective} → ${s1.seats.effective}, run ${s0.runSec.toFixed(2)} → ${s1.runSec.toFixed(2)}, vote ${s1.coal.vote}: ${held ? 'the round holds' : 'MOVED'}`);
++		if (!held) return 'held-fail';
++		act('tap ELECT_GO');
++		await tapAt(css(m.buttons[0][0], m.buttons[0][1]));
++		return 'called';
++	}
++
++	function cadence(speed, runSec = st.runSec) {
++		const g = Math.max(1, runSec), w = (Date.now() - st.t0) / 1000;
++		return `cadence (game time, speed ${speed}, ${Math.round(w)} s wall): ${(st.hatTaps / g).toFixed(3)} taps/s, `
++			+ `a purchase action every ${(g / Math.max(1, st.buyActions)).toFixed(1)} s (${st.cardTaps} card taps), `
++			+ `the chat every ${(g / Math.max(1, st.chatLooks)).toFixed(1)} s, a loop every ${(g / Math.max(1, st.loops)).toFixed(1)} s; `
++			+ 'no spins, no Suitcase. Not a pacing measurement (tools/balance.sh is).';
++	}
++
++	return { st, wait, refresh, css, col, tapAt, drag, probe, modal, shot, tab, hat, playToGate, payChat, callElection, cadence };
++}
+# untracked binary: tools/web/round_play.mjs
