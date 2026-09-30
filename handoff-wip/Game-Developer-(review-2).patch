@@ -588,6 +588,25 @@ index a80eaf2..8a1c2a0 100644
  	var cb := TopBar.counter_box()
  	runner.check(cb.size.x == 328.0 + L.dx and TopBar.COUNTER_SCALE == 6, "%s: the counter ×6 in a stretched box (%d)" % [name, cb.size.x])
  	var p0: Rect2 = m.shop.PILL_RECT
+diff --git a/game/tests/unit/test_review_engine.gd b/game/tests/unit/test_review_engine.gd
+index efef3ad..4c80ed0 100644
+--- a/game/tests/unit/test_review_engine.gd
++++ b/game/tests/unit/test_review_engine.gd
+@@ -318,8 +318,13 @@ func test_r16_title_floor_fills_the_reserved_sections() -> void:
+ 	runner.check(f.visible and is_equal_approx(f.position.y, sb + reach), "the paving starts where the plaza ends (%s)" % f.position.y)
+ 	runner.check(f.position.x <= 0.0 and f.position.x + f.size.x * 4.0 >= m._vs.x, "full width, no inner rect")
+ 	runner.check(f.texture == Diorama.paving_texture(m.diorama.pad_bottom, false), "the paving in the stage's floor colour")
++	# review U3 (2026-09-30): it stays through tap 1 until card 1 (the pane's white comes with card 1)
+ 	m._set_mode("main", false)
+-	runner.check(not f.visible, "gone in the main state")
++	runner.check(f.visible, "kept in the main state until card 1")
++	m.state.taps_lifetime = 3
++	await tree.process_frame
++	await tree.process_frame
++	runner.check(not f.visible, "gone once card 1 is up")
+ 
+ 
+ func test_r19_suitcase_sparkles_clear_after_the_flight() -> void:
 diff --git a/game/tests/unit/test_share_view.gd b/game/tests/unit/test_share_view.gd
 index bec3211..aafcdc9 100644
 --- a/game/tests/unit/test_share_view.gd

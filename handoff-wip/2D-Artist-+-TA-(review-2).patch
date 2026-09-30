@@ -122,6 +122,120 @@
 #   art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png
 #   art/od-sevev/proofs/kit-w9-flap.png
 #   art/od-sevev/proofs/phone-390css-read.png
+#   game/assets/sprites/badge_count.png
+#   game/assets/sprites/brawl_cloud.png
+#   game/assets/sprites/button_gold_default.png
+#   game/assets/sprites/button_gold_disabled.png
+#   game/assets/sprites/button_gold_pressed.png
+#   game/assets/sprites/button_primary_disabled.png
+#   game/assets/sprites/button_primary_pressed.png
+#   game/assets/sprites/button_secondary_disabled.png
+#   game/assets/sprites/card_back_mark.png
+#   game/assets/sprites/card_row_locked.png
+#   game/assets/sprites/card_source_locked.png
+#   game/assets/sprites/chat_bubble_out.png
+#   game/assets/sprites/chat_icon_chevron.png
+#   game/assets/sprites/chat_icon_lock.png
+#   game/assets/sprites/chat_icon_mute.png
+#   game/assets/sprites/chip_court.png
+#   game/assets/sprites/chip_icon_calendar.png
+#   game/assets/sprites/chip_icon_gavel.png
+#   game/assets/sprites/chip_ultimatum.png
+#   game/assets/sprites/cottage_cup.png
+#   game/assets/sprites/court_frame.png
+#   game/assets/sprites/court_window.png
+#   game/assets/sprites/court_window_glow.png
+#   game/assets/sprites/dubi_placeholder_avatar.png
+#   game/assets/sprites/dubi_placeholder_body.png
+#   game/assets/sprites/ftue_hand.png
+#   game/assets/sprites/ftue_tap_ring.png
+#   game/assets/sprites/icon_clock.png
+#   game/assets/sprites/icon_coin9.png
+#   game/assets/sprites/icon_gear.png
+#   game/assets/sprites/icon_sound_off.png
+#   game/assets/sprites/icon_sound_on.png
+#   game/assets/sprites/laundry_bag.png
+#   game/assets/sprites/laundry_shirt.png
+#   game/assets/sprites/laundry_shorts.png
+#   game/assets/sprites/laundry_sock.png
+#   game/assets/sprites/laundry_towel.png
+#   game/assets/sprites/opp_timer_fill.png
+#   game/assets/sprites/pay_pill_default.png
+#   game/assets/sprites/pay_pill_fill.png
+#   game/assets/sprites/pay_pill_pressed.png
+#   game/assets/sprites/receipt_body.png
+#   game/assets/sprites/receipt_bottom.png
+#   game/assets/sprites/receipt_rule.png
+#   game/assets/sprites/receipt_top.png
+#   game/assets/sprites/seats_fill.png
+#   game/assets/sprites/seats_goal_frame.png
+#   game/assets/sprites/source_checkbook.png
+#   game/assets/sprites/source_checkbook_icon.png
+#   game/assets/sprites/source_submarine.png
+#   game/assets/sprites/source_submarine_icon.png
+#   game/assets/sprites/stamp_blackout_paper.png
+#   game/assets/sprites/stamp_blackout_paper_rot.png
+#   game/assets/sprites/stamp_camera.png
+#   game/assets/sprites/stamp_frame_paper.png
+#   game/assets/sprites/stamp_paid_paper.png
+#   game/assets/sprites/stamp_paid_paper_rot.png
+#   game/assets/sprites/stamp_pardon_paper.png
+#   game/assets/sprites/stamp_pardon_paper_rot.png
+#   game/assets/sprites/stamp_postponed_paper.png
+#   game/assets/sprites/stamp_postponed_paper_rot.png
+#   game/assets/sprites/stamp_tool_down.png
+#   game/assets/sprites/stamp_tool_up.png
+#   game/assets/sprites/suitcase.png
+#   game/assets/sprites/suitcase_norim.png
+#   game/assets/sprites/sweat_drop.png
+#   game/assets/sprites/tabicon_cases_active.png
+#   game/assets/sprites/tabicon_cases_idle.png
+#   game/assets/sprites/tabicon_coalition_active.png
+#   game/assets/sprites/tabicon_coalition_idle.png
+#   game/assets/sprites/tabicon_sources_active.png
+#   game/assets/sprites/tabicon_sources_idle.png
+#   game/assets/sprites/thermo_bubble.png
+#   game/assets/sprites/thermo_fill.png
+#   game/assets/sprites/thermo_floor_hatch.png
+#   game/assets/sprites/thermo_icon_gavel.png
+#   game/assets/sprites/thermo_icon_magnifier.png
+#   game/assets/sprites/thermo_meniscus.png
+#   game/assets/sprites/ticker_flash_plate.png
+#   game/assets/sprites/ticker_flash_plate_text.png
+#   game/assets/sprites/transfer_banner.png
+#   game/assets/sprites/trophy_aide.png
+#   game/assets/sprites/trophy_aide_locked.png
+#   game/assets/sprites/trophy_ballot.png
+#   game/assets/sprites/trophy_ballot_locked.png
+#   game/assets/sprites/trophy_clock.png
+#   game/assets/sprites/trophy_clock_locked.png
+#   game/assets/sprites/trophy_coin.png
+#   game/assets/sprites/trophy_coin_locked.png
+#   game/assets/sprites/trophy_cottage.png
+#   game/assets/sprites/trophy_cottage_locked.png
+#   game/assets/sprites/trophy_folder.png
+#   game/assets/sprites/trophy_folder_locked.png
+#   game/assets/sprites/trophy_gavel.png
+#   game/assets/sprites/trophy_gavel_locked.png
+#   game/assets/sprites/trophy_hat.png
+#   game/assets/sprites/trophy_hat_locked.png
+#   game/assets/sprites/trophy_parrot.png
+#   game/assets/sprites/trophy_parrot_locked.png
+#   game/assets/sprites/trophy_phone_locked.png
+#   game/assets/sprites/trophy_plane.png
+#   game/assets/sprites/trophy_plane_locked.png
+#   game/assets/sprites/trophy_rabbit.png
+#   game/assets/sprites/trophy_rabbit_locked.png
+#   game/assets/sprites/trophy_stamp.png
+#   game/assets/sprites/trophy_stamp_locked.png
+#   game/assets/sprites/trophy_suitcase.png
+#   game/assets/sprites/trophy_suitcase_locked.png
+#   game/assets/sprites/trophy_wand.png
+#   game/assets/sprites/trophy_wand_locked.png
+#   game/assets/sprites/wordmark.png
+#   game/assets/sprites/wordmark_mono.png
+#   game/assets/sprites/wordmark_norim.png
+#   game/assets/sprites/wordmark_small.png
 diff --git a/art/od-sevev/out/ui/cards/card_back_mark.png b/art/od-sevev/out/ui/cards/card_back_mark.png
 index c64002c..9a7b7b0 100644
 Binary files a/art/od-sevev/out/ui/cards/card_back_mark.png and b/art/od-sevev/out/ui/cards/card_back_mark.png differ
@@ -939,6 +1053,2095 @@ index 39d9107..c7e697e 100644
    },
    {
     "id": "sheet_modal_flap",
+diff --git a/game/assets/sprites/badge_count.png b/game/assets/sprites/badge_count.png
+index 89a1b25..5a96cf9 100644
+Binary files a/game/assets/sprites/badge_count.png and b/game/assets/sprites/badge_count.png differ
+diff --git a/game/assets/sprites/brawl_cloud.png b/game/assets/sprites/brawl_cloud.png
+index d4871c4..f24fd20 100644
+Binary files a/game/assets/sprites/brawl_cloud.png and b/game/assets/sprites/brawl_cloud.png differ
+diff --git a/game/assets/sprites/button_gold_default.png b/game/assets/sprites/button_gold_default.png
+index 63ebcd5..c06b1f4 100644
+Binary files a/game/assets/sprites/button_gold_default.png and b/game/assets/sprites/button_gold_default.png differ
+diff --git a/game/assets/sprites/button_gold_disabled.png b/game/assets/sprites/button_gold_disabled.png
+index 372254d..11550b6 100644
+Binary files a/game/assets/sprites/button_gold_disabled.png and b/game/assets/sprites/button_gold_disabled.png differ
+diff --git a/game/assets/sprites/button_gold_pressed.png b/game/assets/sprites/button_gold_pressed.png
+index f6d0595..2fa7f96 100644
+Binary files a/game/assets/sprites/button_gold_pressed.png and b/game/assets/sprites/button_gold_pressed.png differ
+diff --git a/game/assets/sprites/button_primary_disabled.png b/game/assets/sprites/button_primary_disabled.png
+index 372254d..11550b6 100644
+Binary files a/game/assets/sprites/button_primary_disabled.png and b/game/assets/sprites/button_primary_disabled.png differ
+diff --git a/game/assets/sprites/button_primary_pressed.png b/game/assets/sprites/button_primary_pressed.png
+index 4c3ee8c..33c447b 100644
+Binary files a/game/assets/sprites/button_primary_pressed.png and b/game/assets/sprites/button_primary_pressed.png differ
+diff --git a/game/assets/sprites/button_secondary_disabled.png b/game/assets/sprites/button_secondary_disabled.png
+index 372254d..11550b6 100644
+Binary files a/game/assets/sprites/button_secondary_disabled.png and b/game/assets/sprites/button_secondary_disabled.png differ
+diff --git a/game/assets/sprites/card_back_mark.png b/game/assets/sprites/card_back_mark.png
+index c64002c..9a7b7b0 100644
+Binary files a/game/assets/sprites/card_back_mark.png and b/game/assets/sprites/card_back_mark.png differ
+diff --git a/game/assets/sprites/card_row_locked.png b/game/assets/sprites/card_row_locked.png
+index 17f7e7b..0946cda 100644
+Binary files a/game/assets/sprites/card_row_locked.png and b/game/assets/sprites/card_row_locked.png differ
+diff --git a/game/assets/sprites/card_source_locked.png b/game/assets/sprites/card_source_locked.png
+index 17f7e7b..0946cda 100644
+Binary files a/game/assets/sprites/card_source_locked.png and b/game/assets/sprites/card_source_locked.png differ
+diff --git a/game/assets/sprites/chat_bubble_out.png b/game/assets/sprites/chat_bubble_out.png
+index 5d698dd..d97cdcf 100644
+Binary files a/game/assets/sprites/chat_bubble_out.png and b/game/assets/sprites/chat_bubble_out.png differ
+diff --git a/game/assets/sprites/chat_icon_chevron.png b/game/assets/sprites/chat_icon_chevron.png
+index 547884d..d5b464c 100644
+Binary files a/game/assets/sprites/chat_icon_chevron.png and b/game/assets/sprites/chat_icon_chevron.png differ
+diff --git a/game/assets/sprites/chat_icon_lock.png b/game/assets/sprites/chat_icon_lock.png
+index c753659..fde74ff 100644
+Binary files a/game/assets/sprites/chat_icon_lock.png and b/game/assets/sprites/chat_icon_lock.png differ
+diff --git a/game/assets/sprites/chat_icon_mute.png b/game/assets/sprites/chat_icon_mute.png
+index cf2d411..3a4d0ab 100644
+Binary files a/game/assets/sprites/chat_icon_mute.png and b/game/assets/sprites/chat_icon_mute.png differ
+diff --git a/game/assets/sprites/chip_court.png b/game/assets/sprites/chip_court.png
+index 44a3197..bc20a26 100644
+Binary files a/game/assets/sprites/chip_court.png and b/game/assets/sprites/chip_court.png differ
+diff --git a/game/assets/sprites/chip_icon_calendar.png b/game/assets/sprites/chip_icon_calendar.png
+index 891ab96..b10c31d 100644
+Binary files a/game/assets/sprites/chip_icon_calendar.png and b/game/assets/sprites/chip_icon_calendar.png differ
+diff --git a/game/assets/sprites/chip_icon_gavel.png b/game/assets/sprites/chip_icon_gavel.png
+index ba46527..2283575 100644
+Binary files a/game/assets/sprites/chip_icon_gavel.png and b/game/assets/sprites/chip_icon_gavel.png differ
+diff --git a/game/assets/sprites/chip_ultimatum.png b/game/assets/sprites/chip_ultimatum.png
+index f11f009..20a0d13 100644
+Binary files a/game/assets/sprites/chip_ultimatum.png and b/game/assets/sprites/chip_ultimatum.png differ
+diff --git a/game/assets/sprites/cottage_cup.png b/game/assets/sprites/cottage_cup.png
+index 177e3e4..9d3601e 100644
+Binary files a/game/assets/sprites/cottage_cup.png and b/game/assets/sprites/cottage_cup.png differ
+diff --git a/game/assets/sprites/court_frame.png b/game/assets/sprites/court_frame.png
+index 12f7c28..6a10dcd 100644
+Binary files a/game/assets/sprites/court_frame.png and b/game/assets/sprites/court_frame.png differ
+diff --git a/game/assets/sprites/court_window.png b/game/assets/sprites/court_window.png
+index a009fe3..765d860 100644
+Binary files a/game/assets/sprites/court_window.png and b/game/assets/sprites/court_window.png differ
+diff --git a/game/assets/sprites/court_window_glow.png b/game/assets/sprites/court_window_glow.png
+index 4fbb79e..fe1029e 100644
+Binary files a/game/assets/sprites/court_window_glow.png and b/game/assets/sprites/court_window_glow.png differ
+diff --git a/game/assets/sprites/dubi_placeholder_avatar.png b/game/assets/sprites/dubi_placeholder_avatar.png
+index d1b1c39..cf0fbd7 100644
+Binary files a/game/assets/sprites/dubi_placeholder_avatar.png and b/game/assets/sprites/dubi_placeholder_avatar.png differ
+diff --git a/game/assets/sprites/dubi_placeholder_body.png b/game/assets/sprites/dubi_placeholder_body.png
+index 1562e6f..23429e8 100644
+Binary files a/game/assets/sprites/dubi_placeholder_body.png and b/game/assets/sprites/dubi_placeholder_body.png differ
+diff --git a/game/assets/sprites/ftue_hand.png b/game/assets/sprites/ftue_hand.png
+index 46d60d0..c92d994 100644
+Binary files a/game/assets/sprites/ftue_hand.png and b/game/assets/sprites/ftue_hand.png differ
+diff --git a/game/assets/sprites/ftue_tap_ring.png b/game/assets/sprites/ftue_tap_ring.png
+index 6f57f54..ee644b7 100644
+Binary files a/game/assets/sprites/ftue_tap_ring.png and b/game/assets/sprites/ftue_tap_ring.png differ
+diff --git a/game/assets/sprites/icon_clock.png b/game/assets/sprites/icon_clock.png
+index ef20bc7..6a05b94 100644
+Binary files a/game/assets/sprites/icon_clock.png and b/game/assets/sprites/icon_clock.png differ
+diff --git a/game/assets/sprites/icon_coin9.png b/game/assets/sprites/icon_coin9.png
+index 35e8d62..91e9519 100644
+Binary files a/game/assets/sprites/icon_coin9.png and b/game/assets/sprites/icon_coin9.png differ
+diff --git a/game/assets/sprites/icon_gear.png b/game/assets/sprites/icon_gear.png
+index 519a709..92e7b54 100644
+Binary files a/game/assets/sprites/icon_gear.png and b/game/assets/sprites/icon_gear.png differ
+diff --git a/game/assets/sprites/icon_sound_off.png b/game/assets/sprites/icon_sound_off.png
+index 63e53f0..a40c5f7 100644
+Binary files a/game/assets/sprites/icon_sound_off.png and b/game/assets/sprites/icon_sound_off.png differ
+diff --git a/game/assets/sprites/icon_sound_on.png b/game/assets/sprites/icon_sound_on.png
+index 95711bb..6758576 100644
+Binary files a/game/assets/sprites/icon_sound_on.png and b/game/assets/sprites/icon_sound_on.png differ
+diff --git a/game/assets/sprites/laundry_bag.png b/game/assets/sprites/laundry_bag.png
+index d9b6830..7b128fd 100644
+Binary files a/game/assets/sprites/laundry_bag.png and b/game/assets/sprites/laundry_bag.png differ
+diff --git a/game/assets/sprites/laundry_shirt.png b/game/assets/sprites/laundry_shirt.png
+index 50a3977..b9e42f8 100644
+Binary files a/game/assets/sprites/laundry_shirt.png and b/game/assets/sprites/laundry_shirt.png differ
+diff --git a/game/assets/sprites/laundry_shorts.png b/game/assets/sprites/laundry_shorts.png
+index 71ca026..920360d 100644
+Binary files a/game/assets/sprites/laundry_shorts.png and b/game/assets/sprites/laundry_shorts.png differ
+diff --git a/game/assets/sprites/laundry_sock.png b/game/assets/sprites/laundry_sock.png
+index 6961106..a945d01 100644
+Binary files a/game/assets/sprites/laundry_sock.png and b/game/assets/sprites/laundry_sock.png differ
+diff --git a/game/assets/sprites/laundry_towel.png b/game/assets/sprites/laundry_towel.png
+index 617736d..0e99d38 100644
+Binary files a/game/assets/sprites/laundry_towel.png and b/game/assets/sprites/laundry_towel.png differ
+diff --git a/game/assets/sprites/opp_timer_fill.png b/game/assets/sprites/opp_timer_fill.png
+index 55b5daa..9388032 100644
+Binary files a/game/assets/sprites/opp_timer_fill.png and b/game/assets/sprites/opp_timer_fill.png differ
+diff --git a/game/assets/sprites/pay_pill_default.png b/game/assets/sprites/pay_pill_default.png
+index 0bc16a7..0ef57dc 100644
+Binary files a/game/assets/sprites/pay_pill_default.png and b/game/assets/sprites/pay_pill_default.png differ
+diff --git a/game/assets/sprites/pay_pill_fill.png b/game/assets/sprites/pay_pill_fill.png
+index fabcf0d..91caf03 100644
+Binary files a/game/assets/sprites/pay_pill_fill.png and b/game/assets/sprites/pay_pill_fill.png differ
+diff --git a/game/assets/sprites/pay_pill_pressed.png b/game/assets/sprites/pay_pill_pressed.png
+index 2419756..79da56c 100644
+Binary files a/game/assets/sprites/pay_pill_pressed.png and b/game/assets/sprites/pay_pill_pressed.png differ
+diff --git a/game/assets/sprites/receipt_body.png b/game/assets/sprites/receipt_body.png
+index 92a43e7..1dd7659 100644
+Binary files a/game/assets/sprites/receipt_body.png and b/game/assets/sprites/receipt_body.png differ
+diff --git a/game/assets/sprites/receipt_bottom.png b/game/assets/sprites/receipt_bottom.png
+index 0aa26c7..cc0b4f2 100644
+Binary files a/game/assets/sprites/receipt_bottom.png and b/game/assets/sprites/receipt_bottom.png differ
+diff --git a/game/assets/sprites/receipt_rule.png b/game/assets/sprites/receipt_rule.png
+index 798b08b..2ebacaa 100644
+Binary files a/game/assets/sprites/receipt_rule.png and b/game/assets/sprites/receipt_rule.png differ
+diff --git a/game/assets/sprites/receipt_top.png b/game/assets/sprites/receipt_top.png
+index 8a3b456..2d7cc20 100644
+Binary files a/game/assets/sprites/receipt_top.png and b/game/assets/sprites/receipt_top.png differ
+diff --git a/game/assets/sprites/seats_fill.png b/game/assets/sprites/seats_fill.png
+index ba8e073..d1d9997 100644
+Binary files a/game/assets/sprites/seats_fill.png and b/game/assets/sprites/seats_fill.png differ
+diff --git a/game/assets/sprites/seats_goal_frame.png b/game/assets/sprites/seats_goal_frame.png
+index c012782..c50d4e6 100644
+Binary files a/game/assets/sprites/seats_goal_frame.png and b/game/assets/sprites/seats_goal_frame.png differ
+diff --git a/game/assets/sprites/source_checkbook.png b/game/assets/sprites/source_checkbook.png
+index e645092..f55bcfe 100644
+Binary files a/game/assets/sprites/source_checkbook.png and b/game/assets/sprites/source_checkbook.png differ
+diff --git a/game/assets/sprites/source_checkbook_icon.png b/game/assets/sprites/source_checkbook_icon.png
+index f8f05a0..47b1147 100644
+Binary files a/game/assets/sprites/source_checkbook_icon.png and b/game/assets/sprites/source_checkbook_icon.png differ
+diff --git a/game/assets/sprites/source_submarine.png b/game/assets/sprites/source_submarine.png
+index d3c2617..d3bacf7 100644
+Binary files a/game/assets/sprites/source_submarine.png and b/game/assets/sprites/source_submarine.png differ
+diff --git a/game/assets/sprites/source_submarine_icon.png b/game/assets/sprites/source_submarine_icon.png
+index 1f823fb..936c088 100644
+Binary files a/game/assets/sprites/source_submarine_icon.png and b/game/assets/sprites/source_submarine_icon.png differ
+diff --git a/game/assets/sprites/sprites.json b/game/assets/sprites/sprites.json
+index 8571cf2..39732fa 100644
+--- a/game/assets/sprites/sprites.json
++++ b/game/assets/sprites/sprites.json
+@@ -8699,7 +8699,8 @@
+      },
+      "density": 2
+     }
+-   }
++   },
++   "silhouettePale": "source_taxpayer_icon_sil_pale"
+   },
+   "hitech": {
+    "sprite": "source_hitech",
+@@ -8738,7 +8739,8 @@
+      },
+      "density": 2
+     }
+-   }
++   },
++   "silhouettePale": "source_hitech_icon_sil_pale"
+   },
+   "vat": {
+    "sprite": "source_vat",
+@@ -8768,7 +8770,8 @@
+      "points": {},
+      "density": 2
+     }
+-   }
++   },
++   "silhouettePale": "source_vat_icon_sil_pale"
+   },
+   "cigars": {
+    "sprite": "source_cigars",
+@@ -8798,7 +8801,8 @@
+      "points": {},
+      "density": 2
+     }
+-   }
++   },
++   "silhouettePale": "source_cigars_icon_sil_pale"
+   },
+   "qatari": {
+    "sprite": "source_qatari",
+@@ -8828,7 +8832,8 @@
+      "points": {},
+      "density": 2
+     }
+-   }
++   },
++   "silhouettePale": "source_qatari_icon_sil_pale"
+   },
+   "advisers": {
+    "sprite": "source_advisers",
+@@ -8858,7 +8863,8 @@
+      "points": {},
+      "density": 2
+     }
+-   }
++   },
++   "silhouettePale": "source_advisers_icon_sil_pale"
+   },
+   "checkbook": {
+    "sprite": "source_checkbook",
+@@ -8874,7 +8880,8 @@
+    "points": {},
+    "origin": "hand-drawn",
+    "density": 1,
+-   "iconDensity": 1
++   "iconDensity": 1,
++   "silhouettePale": "source_checkbook_icon_sil_pale"
+   },
+   "donor": {
+    "sprite": "source_donor",
+@@ -8890,7 +8897,8 @@
+    "points": {},
+    "origin": "hand-drawn",
+    "density": 1,
+-   "iconDensity": 1
++   "iconDensity": 1,
++   "silhouettePale": "source_donor_icon_sil_pale"
+   },
+   "funds": {
+    "sprite": "source_funds",
+@@ -8906,7 +8914,8 @@
+    "points": {},
+    "origin": "hand-drawn",
+    "density": 1,
+-   "iconDensity": 1
++   "iconDensity": 1,
++   "silhouettePale": "source_funds_icon_sil_pale"
+   },
+   "poison": {
+    "sprite": "source_poison",
+@@ -8922,7 +8931,8 @@
+    "points": {},
+    "origin": "hand-drawn",
+    "density": 1,
+-   "iconDensity": 1
++   "iconDensity": 1,
++   "silhouettePale": "source_poison_icon_sil_pale"
+   },
+   "submarine": {
+    "sprite": "source_submarine",
+@@ -8938,7 +8948,8 @@
+    "points": {},
+    "origin": "hand-drawn",
+    "density": 1,
+-   "iconDensity": 1
++   "iconDensity": 1,
++   "silhouettePale": "source_submarine_icon_sil_pale"
+   }
+  },
+  "sourceAliases": {
+@@ -8988,6 +8999,37 @@
+    ],
+    "mode": "tile"
+   },
++  "card_row_silhouette": {
++   "id": "card_row_silhouette",
++   "group": "cards",
++   "w": 32,
++   "h": 30,
++   "state": "teaser",
++   "slice": [
++    4,
++    4,
++    4,
++    4
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    3,
++    26,
++    24
++   ],
++   "label": "ui_panel",
++   "textColors": {
++    "name": "ui_panel",
++    "line2": "ui_panel"
++   },
++   "hex": {
++    "ui_mute": "#c9d6f2",
++    "ui_rule": "#2a5cc4",
++    "ui_panel": "#072a7a",
++    "ui_dim": "#b4c3e8"
++   }
++  },
+   "card_source_affordable": {
+    "id": "card_source_affordable",
+    "group": "cards",
+@@ -9327,6 +9369,31 @@
+    ],
+    "label": "white"
+   },
++  "chat_system_pill_navy": {
++   "id": "chat_system_pill_navy",
++   "group": "chat",
++   "w": 20,
++   "h": 13,
++   "slice": [
++    4,
++    3,
++    4,
++    3
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    2,
++    14,
++    9
++   ],
++   "label": "ui_mute",
++   "hex": {
++    "ui_scrim": "#061029",
++    "ui_rule": "#2a5cc4",
++    "ui_mute": "#c9d6f2"
++   }
++  },
+   "icon_clock": {
+    "id": "icon_clock",
+    "group": "chat",
+@@ -9684,6 +9751,69 @@
+    ],
+    "label": "white"
+   },
++  "button_white_default": {
++   "id": "button_white_default",
++   "group": "controls",
++   "w": 24,
++   "h": 20,
++   "state": "default",
++   "slice": [
++    3,
++    3,
++    3,
++    4
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    2,
++    18,
++    14
++   ],
++   "label": "flag"
++  },
++  "button_white_disabled": {
++   "id": "button_white_disabled",
++   "group": "controls",
++   "w": 24,
++   "h": 20,
++   "state": "disabled",
++   "slice": [
++    3,
++    5,
++    3,
++    2
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    4,
++    18,
++    14
++   ],
++   "label": "grey"
++  },
++  "button_white_pressed": {
++   "id": "button_white_pressed",
++   "group": "controls",
++   "w": 24,
++   "h": 20,
++   "state": "pressed",
++   "slice": [
++    3,
++    5,
++    3,
++    2
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    4,
++    18,
++    14
++   ],
++   "label": "flag"
++  },
+   "card_plate": {
+    "id": "card_plate",
+    "group": "controls",
+@@ -12024,6 +12154,38 @@
+     28
+    ]
+   },
++  "booth_frame_tall": {
++   "id": "booth_frame_tall",
++   "group": "picker",
++   "w": 40,
++   "h": 46,
++   "slice": [
++    6,
++    16,
++    6,
++    4
++   ],
++   "mode": "stretch",
++   "content": [
++    5,
++    15,
++    30,
++    28
++   ],
++   "label": "white",
++   "titleBox": [
++    6,
++    2,
++    28,
++    9
++   ],
++   "header": [
++    1,
++    1,
++    38,
++    12
++   ]
++  },
+   "pick_random": {
+    "id": "pick_random",
+    "group": "picker",
+@@ -12460,6 +12622,37 @@
+    "w": 9,
+    "h": 9
+   },
++  "notice_frame": {
++   "id": "notice_frame",
++   "group": "sheet",
++   "w": 40,
++   "h": 40,
++   "slice": [
++    3,
++    7,
++    3,
++    5
++   ],
++   "mode": "stretch",
++   "content": [
++    4,
++    8,
++    32,
++    26
++   ],
++   "label": "night",
++   "colors": {
++    "page": "flag",
++    "title": "flag",
++    "text": "night",
++    "frame": "white"
++   },
++   "hex": {
++    "flag": "#0038b8",
++    "night": "#0f2350",
++    "white": "#f7f4ec"
++   }
++  },
+   "sheet_modal": {
+    "id": "sheet_modal",
+    "group": "sheet",
+@@ -12467,16 +12660,16 @@
+    "h": 38,
+    "slice": [
+     7,
+-    23,
++    24,
+     7,
+     7
+    ],
+    "mode": "stretch",
+    "content": [
+     7,
+-    23,
+     24,
+-    8
++    24,
++    7
+    ],
+    "label": "white"
+   },
+@@ -14057,8 +14250,8 @@
+    ]
+   },
+   "badge_count.png": {
+-   "bytes": 152,
+-   "sha": "3d6f15b4d27d2ebb",
++   "bytes": 158,
++   "sha": "12c84950c79a3208",
+    "size": [
+     11,
+     11
+@@ -14072,9 +14265,17 @@
+     40
+    ]
+   },
++  "booth_frame_tall.png": {
++   "bytes": 265,
++   "sha": "bee8df244eb98520",
++   "size": [
++    40,
++    46
++   ]
++  },
+   "brawl_cloud.png": {
+-   "bytes": 2133,
+-   "sha": "d8906748188d349e",
++   "bytes": 2327,
++   "sha": "3933be72f9fc318d",
+    "size": [
+     208,
+     40
+@@ -14113,24 +14314,24 @@
+    ]
+   },
+   "button_gold_default.png": {
+-   "bytes": 153,
+-   "sha": "7692fcba7528a5ed",
++   "bytes": 158,
++   "sha": "a0d7ada1d5492d6a",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_gold_disabled.png": {
+-   "bytes": 126,
+-   "sha": "8a26fb5158bc0f06",
++   "bytes": 123,
++   "sha": "87eb38efa6bf4ea9",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_gold_pressed.png": {
+-   "bytes": 139,
+-   "sha": "1d18ca511f4d12bf",
++   "bytes": 136,
++   "sha": "2e52e696bc901748",
+    "size": [
+     24,
+     20
+@@ -14145,16 +14346,16 @@
+    ]
+   },
+   "button_primary_disabled.png": {
+-   "bytes": 126,
+-   "sha": "8a26fb5158bc0f06",
++   "bytes": 123,
++   "sha": "87eb38efa6bf4ea9",
+    "size": [
+     24,
+     20
+    ]
+   },
+   "button_primary_pressed.png": {
+-   "bytes": 133,
+-   "sha": "2111ead0edb25b90",
++   "bytes": 127,
++   "sha": "6708ec3f54533279",
+    "size": [
+     24,
+     20
+@@ -14169,8 +14370,8 @@
+    ]
+   },
+   "button_secondary_disabled.png": {
+-   "bytes": 126,
+-   "sha": "8a26fb5158bc0f06",
++   "bytes": 123,
++   "sha": "87eb38efa6bf4ea9",
+    "size": [
+     24,
+     20
+@@ -14184,9 +14385,33 @@
+     20
+    ]
+   },
++  "button_white_default.png": {
++   "bytes": 156,
++   "sha": "ab0fc3ac84f5019c",
++   "size": [
++    24,
++    20
++   ]
++  },
++  "button_white_disabled.png": {
++   "bytes": 123,
++   "sha": "87eb38efa6bf4ea9",
++   "size": [
++    24,
++    20
++   ]
++  },
++  "button_white_pressed.png": {
++   "bytes": 133,
++   "sha": "2d8830d69ae61288",
++   "size": [
++    24,
++    20
++   ]
++  },
+   "card_back_mark.png": {
+-   "bytes": 121,
+-   "sha": "6dd58ffb9071b73a",
++   "bytes": 116,
++   "sha": "f868d9bd4cd160b2",
+    "size": [
+     16,
+     16
+@@ -14225,8 +14450,16 @@
+    ]
+   },
+   "card_row_locked.png": {
+-   "bytes": 144,
+-   "sha": "9ce09cd643026b17",
++   "bytes": 138,
++   "sha": "c6e99c47ca9dce52",
++   "size": [
++    32,
++    30
++   ]
++  },
++  "card_row_silhouette.png": {
++   "bytes": 148,
++   "sha": "0b12cd012697f816",
+    "size": [
+     32,
+     30
+@@ -14241,8 +14474,8 @@
+    ]
+   },
+   "card_source_locked.png": {
+-   "bytes": 144,
+-   "sha": "9ce09cd643026b17",
++   "bytes": 138,
++   "sha": "c6e99c47ca9dce52",
+    "size": [
+     32,
+     30
+@@ -15177,8 +15410,8 @@
+    ]
+   },
+   "chat_bubble_out.png": {
+-   "bytes": 175,
+-   "sha": "7ca977ac34cdc4c7",
++   "bytes": 174,
++   "sha": "02615a097e9cc487",
+    "size": [
+     26,
+     16
+@@ -15209,24 +15442,24 @@
+    ]
+   },
+   "chat_icon_chevron.png": {
+-   "bytes": 99,
+-   "sha": "617e102aaf1e48bb",
++   "bytes": 108,
++   "sha": "c7846979735b17f5",
+    "size": [
+     6,
+     9
+    ]
+   },
+   "chat_icon_lock.png": {
+-   "bytes": 148,
+-   "sha": "f5a91b319dbac595",
++   "bytes": 161,
++   "sha": "7e7e643a8e2843d3",
+    "size": [
+     7,
+     9
+    ]
+   },
+   "chat_icon_mute.png": {
+-   "bytes": 134,
+-   "sha": "038f1e0abb5502a6",
++   "bytes": 148,
++   "sha": "123ccc6891d6e3a9",
+    "size": [
+     9,
+     9
+@@ -15256,6 +15489,14 @@
+     13
+    ]
+   },
++  "chat_system_pill_navy.png": {
++   "bytes": 148,
++   "sha": "cdf18085f52214f7",
++   "size": [
++    20,
++    13
++   ]
++  },
+   "chip_countdown.png": {
+    "bytes": 153,
+    "sha": "0b8e700860e3eccb",
+@@ -15265,24 +15506,24 @@
+    ]
+   },
+   "chip_court.png": {
+-   "bytes": 148,
+-   "sha": "ffd7933accabf787",
++   "bytes": 147,
++   "sha": "994fb84075d7ff1d",
+    "size": [
+     20,
+     13
+    ]
+   },
+   "chip_icon_calendar.png": {
+-   "bytes": 139,
+-   "sha": "8042c080b6f05881",
++   "bytes": 147,
++   "sha": "52bf63f4d2486c8b",
+    "size": [
+     9,
+     9
+    ]
+   },
+   "chip_icon_gavel.png": {
+-   "bytes": 146,
+-   "sha": "f0a97b32640708bd",
++   "bytes": 163,
++   "sha": "277a2da1e47a59f8",
+    "size": [
+     9,
+     9
+@@ -15305,16 +15546,16 @@
+    ]
+   },
+   "chip_ultimatum.png": {
+-   "bytes": 147,
+-   "sha": "f07da355b96f56e6",
++   "bytes": 150,
++   "sha": "36b1d56511e001e3",
+    "size": [
+     20,
+     13
+    ]
+   },
+   "cottage_cup.png": {
+-   "bytes": 881,
+-   "sha": "5e3e7ea67d8dbeb7",
++   "bytes": 947,
++   "sha": "564213daddd5ba37",
+    "size": [
+     208,
+     18
+@@ -15329,24 +15570,24 @@
+    ]
+   },
+   "court_frame.png": {
+-   "bytes": 288,
+-   "sha": "563ae303761aeaa2",
++   "bytes": 297,
++   "sha": "a1095c722591279a",
+    "size": [
+     40,
+     36
+    ]
+   },
+   "court_window.png": {
+-   "bytes": 309,
+-   "sha": "29d2b55e0618e8e0",
++   "bytes": 335,
++   "sha": "8bd34e67a69df9ad",
+    "size": [
+     48,
+     22
+    ]
+   },
+   "court_window_glow.png": {
+-   "bytes": 148,
+-   "sha": "1ab117074a6f8cd5",
++   "bytes": 138,
++   "sha": "6e897e1323d0b920",
+    "size": [
+     20,
+     20
+@@ -15385,16 +15626,16 @@
+    ]
+   },
+   "dubi_placeholder_avatar.png": {
+-   "bytes": 329,
+-   "sha": "ed687121d63fdd1c",
++   "bytes": 334,
++   "sha": "82004875957cb6c1",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "dubi_placeholder_body.png": {
+-   "bytes": 452,
+-   "sha": "dda129c77a4393e1",
++   "bytes": 461,
++   "sha": "2b12d59973cdfbeb",
+    "size": [
+     64,
+     100
+@@ -15457,8 +15698,8 @@
+    ]
+   },
+   "ftue_hand.png": {
+-   "bytes": 357,
+-   "sha": "c39306da450311aa",
++   "bytes": 375,
++   "sha": "3a0db2e4fd6d7ebc",
+    "size": [
+     36,
+     20
+@@ -15466,7 +15707,7 @@
+   },
+   "ftue_tap_ring.png": {
+    "bytes": 141,
+-   "sha": "2814265ea0bda826",
++   "sha": "970d84bc7c734501",
+    "size": [
+     13,
+     13
+@@ -15537,8 +15778,8 @@
+    ]
+   },
+   "icon_clock.png": {
+-   "bytes": 189,
+-   "sha": "1e3e05f2c7bbb5e1",
++   "bytes": 192,
++   "sha": "b96074d8b569865a",
+    "size": [
+     36,
+     9
+@@ -15553,32 +15794,32 @@
+    ]
+   },
+   "icon_coin9.png": {
+-   "bytes": 169,
+-   "sha": "7afd82f1f6923c76",
++   "bytes": 180,
++   "sha": "782723a688f1f85c",
+    "size": [
+     9,
+     9
+    ]
+   },
+   "icon_gear.png": {
+-   "bytes": 229,
+-   "sha": "a0efddf5622cd9cb",
++   "bytes": 244,
++   "sha": "8c643dc0aa379dc3",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "icon_sound_off.png": {
+-   "bytes": 190,
+-   "sha": "081a5783a6981998",
++   "bytes": 211,
++   "sha": "1ba8a4e7dee75a60",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "icon_sound_on.png": {
+-   "bytes": 191,
+-   "sha": "75615018e786c11a",
++   "bytes": 202,
++   "sha": "bdf0939a2711ae45",
+    "size": [
+     15,
+     15
+@@ -15625,40 +15866,40 @@
+    ]
+   },
+   "laundry_bag.png": {
+-   "bytes": 251,
+-   "sha": "6d2afd7239457b94",
++   "bytes": 270,
++   "sha": "45eb11aaee688def",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "laundry_shirt.png": {
+-   "bytes": 172,
+-   "sha": "3c5312cf8afa276b",
++   "bytes": 184,
++   "sha": "1db4ee38df2abe0c",
+    "size": [
+     11,
+     10
+    ]
+   },
+   "laundry_shorts.png": {
+-   "bytes": 123,
+-   "sha": "94e8e9b53a9ecc69",
++   "bytes": 126,
++   "sha": "ac1fd65bd16f60d3",
+    "size": [
+     9,
+     7
+    ]
+   },
+   "laundry_sock.png": {
+-   "bytes": 124,
+-   "sha": "d6228594030bd916",
++   "bytes": 141,
++   "sha": "c64dda14a963a7ef",
+    "size": [
+     6,
+     9
+    ]
+   },
+   "laundry_towel.png": {
+-   "bytes": 126,
+-   "sha": "436aad3c933ec768",
++   "bytes": 130,
++   "sha": "b4cbcba17664892c",
+    "size": [
+     10,
+     9
+@@ -15672,25 +15913,33 @@
+     97
+    ]
+   },
++  "notice_frame.png": {
++   "bytes": 198,
++   "sha": "a73821756c1c8e44",
++   "size": [
++    40,
++    40
++   ]
++  },
+   "opp_timer_fill.png": {
+-   "bytes": 100,
+-   "sha": "531e9f2d3b5d0072",
++   "bytes": 105,
++   "sha": "d2514696c1601223",
+    "size": [
+     6,
+     7
+    ]
+   },
+   "pay_pill_default.png": {
+-   "bytes": 165,
+-   "sha": "252422f01362c238",
++   "bytes": 172,
++   "sha": "590f3b81cb757680",
+    "size": [
+     24,
+     17
+    ]
+   },
+   "pay_pill_fill.png": {
+-   "bytes": 87,
+-   "sha": "5a7a6b0bd824d46b",
++   "bytes": 89,
++   "sha": "452cbec0a94a3f6a",
+    "size": [
+     6,
+     11
+@@ -15698,7 +15947,7 @@
+   },
+   "pay_pill_pressed.png": {
+    "bytes": 150,
+-   "sha": "08009c2ca5a51766",
++   "sha": "5030b41536fc9f4d",
+    "size": [
+     24,
+     17
+@@ -15921,48 +16170,48 @@
+    ]
+   },
+   "receipt_body.png": {
+-   "bytes": 107,
+-   "sha": "2391195a47713474",
++   "bytes": 106,
++   "sha": "adbb96a403c6dd44",
+    "size": [
+     168,
+     4
+    ]
+   },
+   "receipt_bottom.png": {
+-   "bytes": 281,
+-   "sha": "c40f07758ef2e06e",
++   "bytes": 279,
++   "sha": "05d4ba46234d3bda",
+    "size": [
+     168,
+     6
+    ]
+   },
+   "receipt_rule.png": {
+-   "bytes": 76,
+-   "sha": "9686c9acffd00ad3",
++   "bytes": 78,
++   "sha": "e21eeafccd09d57c",
+    "size": [
+     8,
+     1
+    ]
+   },
+   "receipt_top.png": {
+-   "bytes": 285,
+-   "sha": "5b2aace5ca45f099",
++   "bytes": 289,
++   "sha": "aebddf340369c316",
+    "size": [
+     168,
+     6
+    ]
+   },
+   "seats_fill.png": {
+-   "bytes": 98,
+-   "sha": "cad4bc2d19c1c3f2",
++   "bytes": 106,
++   "sha": "7620865b8fbbec17",
+    "size": [
+     6,
+     7
+    ]
+   },
+   "seats_goal_frame.png": {
+-   "bytes": 174,
+-   "sha": "48bf61947039faea",
++   "bytes": 181,
++   "sha": "dff368b3976dd83f",
+    "size": [
+     20,
+     17
+@@ -16064,17 +16313,25 @@
+     24
+    ]
+   },
++  "source_advisers_icon_sil_pale.png": {
++   "bytes": 266,
++   "sha": "ed9a2fb841a4cc71",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_checkbook.png": {
+-   "bytes": 743,
+-   "sha": "68830329dffffcd7",
++   "bytes": 781,
++   "sha": "d9bf599be298a82f",
+    "size": [
+     84,
+     40
+    ]
+   },
+   "source_checkbook_icon.png": {
+-   "bytes": 329,
+-   "sha": "e6e50e8b6ea9054e",
++   "bytes": 355,
++   "sha": "69cbd15560c4296f",
+    "size": [
+     24,
+     24
+@@ -16088,6 +16345,14 @@
+     24
+    ]
+   },
++  "source_checkbook_icon_sil_pale.png": {
++   "bytes": 148,
++   "sha": "ae4b9b01b94c4e98",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_cigars.png": {
+    "bytes": 16777,
+    "sha": "00901a83c74f65ef",
+@@ -16120,6 +16385,14 @@
+     24
+    ]
+   },
++  "source_cigars_icon_sil_pale.png": {
++   "bytes": 253,
++   "sha": "d8bd481883a76ad0",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_donor.png": {
+    "bytes": 871,
+    "sha": "0c58eb887a1bdfd5",
+@@ -16144,6 +16417,14 @@
+     24
+    ]
+   },
++  "source_donor_icon_sil_pale.png": {
++   "bytes": 229,
++   "sha": "70ee74ac64675a90",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_funds.png": {
+    "bytes": 615,
+    "sha": "302014fcd52aee67",
+@@ -16168,6 +16449,14 @@
+     24
+    ]
+   },
++  "source_funds_icon_sil_pale.png": {
++   "bytes": 132,
++   "sha": "ee3dc14150734543",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_hitech.png": {
+    "bytes": 12936,
+    "sha": "82969e9115c7fb2a",
+@@ -16200,6 +16489,14 @@
+     24
+    ]
+   },
++  "source_hitech_icon_sil_pale.png": {
++   "bytes": 245,
++   "sha": "79178148ee7c4e59",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_poison.png": {
+    "bytes": 634,
+    "sha": "bb1938eda522c547",
+@@ -16224,6 +16521,14 @@
+     24
+    ]
+   },
++  "source_poison_icon_sil_pale.png": {
++   "bytes": 97,
++   "sha": "f5f74ea2df5365a1",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_qatari.png": {
+    "bytes": 16142,
+    "sha": "ccb378b83f61778a",
+@@ -16256,17 +16561,25 @@
+     24
+    ]
+   },
++  "source_qatari_icon_sil_pale.png": {
++   "bytes": 266,
++   "sha": "ed9a2fb841a4cc71",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_submarine.png": {
+-   "bytes": 1084,
+-   "sha": "bc4485f2e2bc0b3f",
++   "bytes": 1192,
++   "sha": "eb096a9457e4a904",
+    "size": [
+     100,
+     40
+    ]
+   },
+   "source_submarine_icon.png": {
+-   "bytes": 446,
+-   "sha": "b2561d7d8d63ad32",
++   "bytes": 471,
++   "sha": "1e796fe34e7c8b6b",
+    "size": [
+     24,
+     24
+@@ -16280,6 +16593,14 @@
+     24
+    ]
+   },
++  "source_submarine_icon_sil_pale.png": {
++   "bytes": 236,
++   "sha": "32a0ee4d445bca75",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_taxpayer.png": {
+    "bytes": 14730,
+    "sha": "08fd3e53636b9df5",
+@@ -16312,6 +16633,14 @@
+     24
+    ]
+   },
++  "source_taxpayer_icon_sil_pale.png": {
++   "bytes": 208,
++   "sha": "5bc12271069fa3f9",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "source_vat.png": {
+    "bytes": 16207,
+    "sha": "de4680da5add627e",
+@@ -16344,6 +16673,14 @@
+     24
+    ]
+   },
++  "source_vat_icon_sil_pale.png": {
++   "bytes": 160,
++   "sha": "defaad8c84cf63a2",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "spin_s01.png": {
+    "bytes": 407,
+    "sha": "1d5358d1a8d18859",
+@@ -16577,24 +16914,24 @@
+    ]
+   },
+   "stamp_blackout_paper.png": {
+-   "bytes": 306,
+-   "sha": "bee1ffecd6b4e337",
++   "bytes": 311,
++   "sha": "1b9182427b44776d",
+    "size": [
+     70,
+     17
+    ]
+   },
+   "stamp_blackout_paper_rot.png": {
+-   "bytes": 444,
+-   "sha": "2d24bf2ff0db98e3",
++   "bytes": 458,
++   "sha": "4b444bbe9461f011",
+    "size": [
+     72,
+     26
+    ]
+   },
+   "stamp_camera.png": {
+-   "bytes": 166,
+-   "sha": "0a80028ed49b8aff",
++   "bytes": 177,
++   "sha": "2c773f3f01756906",
+    "size": [
+     9,
+     8
+@@ -16609,8 +16946,8 @@
+    ]
+   },
+   "stamp_frame_paper.png": {
+-   "bytes": 149,
+-   "sha": "275987447491f3e1",
++   "bytes": 156,
++   "sha": "082428e14ec0df97",
+    "size": [
+     16,
+     14
+@@ -16633,16 +16970,16 @@
+    ]
+   },
+   "stamp_paid_paper.png": {
+-   "bytes": 218,
+-   "sha": "744d5cc68377e37b",
++   "bytes": 225,
++   "sha": "fa595a7635bd92ac",
+    "size": [
+     32,
+     17
+    ]
+   },
+   "stamp_paid_paper_rot.png": {
+-   "bytes": 275,
+-   "sha": "6688cfcaa56209c1",
++   "bytes": 272,
++   "sha": "46ad53e4f0043b9d",
+    "size": [
+     34,
+     20
+@@ -16665,16 +17002,16 @@
+    ]
+   },
+   "stamp_pardon_paper.png": {
+-   "bytes": 377,
+-   "sha": "1a5eb8b090f43aea",
++   "bytes": 385,
++   "sha": "0782e6a0d60875b9",
+    "size": [
+     78,
+     27
+    ]
+   },
+   "stamp_pardon_paper_rot.png": {
+-   "bytes": 593,
+-   "sha": "53358ceed06aef18",
++   "bytes": 610,
++   "sha": "4c243e95e43526d1",
+    "size": [
+     82,
+     37
+@@ -16697,48 +17034,48 @@
+    ]
+   },
+   "stamp_postponed_paper.png": {
+-   "bytes": 204,
+-   "sha": "5d33fd907f51af1d",
++   "bytes": 211,
++   "sha": "c9077c5b3fdaef67",
+    "size": [
+     33,
+     17
+    ]
+   },
+   "stamp_postponed_paper_rot.png": {
+-   "bytes": 285,
+-   "sha": "ca948c98d1356e9a",
++   "bytes": 281,
++   "sha": "c0848994c339f321",
+    "size": [
+     34,
+     21
+    ]
+   },
+   "stamp_tool_down.png": {
+-   "bytes": 262,
+-   "sha": "3b4df259b9ef22c1",
++   "bytes": 282,
++   "sha": "b0e21c9c17cce5d7",
+    "size": [
+     18,
+     24
+    ]
+   },
+   "stamp_tool_up.png": {
+-   "bytes": 273,
+-   "sha": "f4612fd2ed26efb4",
++   "bytes": 295,
++   "sha": "959c0ab28c08dec5",
+    "size": [
+     18,
+     24
+    ]
+   },
+   "suitcase.png": {
+-   "bytes": 452,
+-   "sha": "c4dc4f41aa55f4e0",
++   "bytes": 475,
++   "sha": "9e91a4b7fb81a3a9",
+    "size": [
+     26,
+     20
+    ]
+   },
+   "suitcase_norim.png": {
+-   "bytes": 373,
+-   "sha": "f487e3ed7262e705",
++   "bytes": 414,
++   "sha": "0f4ecf98befe5e2d",
+    "size": [
+     24,
+     18
+@@ -16761,8 +17098,8 @@
+    ]
+   },
+   "sweat_drop.png": {
+-   "bytes": 114,
+-   "sha": "8c4af61549f2863a",
++   "bytes": 129,
++   "sha": "f6ec00038c5f768e",
+    "size": [
+     5,
+     6
+@@ -16785,48 +17122,48 @@
+    ]
+   },
+   "tabicon_cases_active.png": {
+-   "bytes": 195,
+-   "sha": "7fb7e4c7506dff84",
++   "bytes": 213,
++   "sha": "a533764d1c17ab23",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_cases_idle.png": {
+-   "bytes": 194,
+-   "sha": "4fb7c1f980bd3a2d",
++   "bytes": 210,
++   "sha": "a7b1f6b741216d94",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_coalition_active.png": {
+-   "bytes": 191,
+-   "sha": "6917a92916083001",
++   "bytes": 201,
++   "sha": "41a940e467c644f0",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_coalition_idle.png": {
+-   "bytes": 181,
+-   "sha": "0a4f7962145deb21",
++   "bytes": 196,
++   "sha": "51f5ad5d359de09f",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_sources_active.png": {
+-   "bytes": 229,
+-   "sha": "abe8e1cd354b1d64",
++   "bytes": 239,
++   "sha": "dd87bf2a44737eda",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "tabicon_sources_idle.png": {
+-   "bytes": 205,
+-   "sha": "614bc63969f18458",
++   "bytes": 206,
++   "sha": "5585a1af24ce9690",
+    "size": [
+     15,
+     15
+@@ -16857,40 +17194,40 @@
+    ]
+   },
+   "thermo_bubble.png": {
+-   "bytes": 106,
+-   "sha": "003f6aab79dec3eb",
++   "bytes": 109,
++   "sha": "91a1c4c91dd40caa",
+    "size": [
+     15,
+     5
+    ]
+   },
+   "thermo_fill.png": {
+-   "bytes": 80,
+-   "sha": "63f6eb6446f7418d",
++   "bytes": 83,
++   "sha": "520af38913d03e09",
+    "size": [
+     4,
+     1
+    ]
+   },
+   "thermo_floor_hatch.png": {
+-   "bytes": 100,
+-   "sha": "9a0609e871b5a242",
++   "bytes": 105,
++   "sha": "dfb82a7c53b31f06",
+    "size": [
+     4,
+     4
+    ]
+   },
+   "thermo_icon_gavel.png": {
+-   "bytes": 159,
+-   "sha": "52a78bf2d18f967c",
++   "bytes": 170,
++   "sha": "b6edf8970343a1da",
+    "size": [
+     11,
+     11
+    ]
+   },
+   "thermo_icon_magnifier.png": {
+-   "bytes": 175,
+-   "sha": "dd4bae49036096de",
++   "bytes": 188,
++   "sha": "2956b113e21eee3c",
+    "size": [
+     11,
+     11
+@@ -16905,8 +17242,8 @@
+    ]
+   },
+   "thermo_meniscus.png": {
+-   "bytes": 80,
+-   "sha": "963268d57c378444",
++   "bytes": 83,
++   "sha": "2527d1a05fcb9d50",
+    "size": [
+     4,
+     1
+@@ -16937,16 +17274,16 @@
+    ]
+   },
+   "ticker_flash_plate.png": {
+-   "bytes": 154,
+-   "sha": "1ed6a96fcabd1027",
++   "bytes": 160,
++   "sha": "277e56f69baa03b8",
+    "size": [
+     32,
+     14
+    ]
+   },
+   "ticker_flash_plate_text.png": {
+-   "bytes": 222,
+-   "sha": "e820ad15eb29f4e7",
++   "bytes": 236,
++   "sha": "0ed0382e3cf47b31",
+    "size": [
+     32,
+     14
+@@ -16961,8 +17298,8 @@
+    ]
+   },
+   "transfer_banner.png": {
+-   "bytes": 718,
+-   "sha": "760f7650ce77fe6a",
++   "bytes": 767,
++   "sha": "3e9c359e5d8210d6",
+    "size": [
+     180,
+     30
+@@ -16977,128 +17314,128 @@
+    ]
+   },
+   "trophy_aide.png": {
+-   "bytes": 270,
+-   "sha": "c3550613763c84e9",
++   "bytes": 298,
++   "sha": "37acad317edd5ba9",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_aide_locked.png": {
+-   "bytes": 234,
+-   "sha": "3d7287ceaf912ccd",
++   "bytes": 248,
++   "sha": "2da783254f8d46ff",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_ballot.png": {
+-   "bytes": 207,
+-   "sha": "24a421696a2e40e0",
++   "bytes": 218,
++   "sha": "79780afdc8cef321",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_ballot_locked.png": {
+-   "bytes": 189,
+-   "sha": "7d24616da360bf6b",
++   "bytes": 200,
++   "sha": "d1f55dd8def4cead",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_clock.png": {
+-   "bytes": 212,
+-   "sha": "eb1331d2e8496173",
++   "bytes": 224,
++   "sha": "9aab40464b1fd3e8",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_clock_locked.png": {
+-   "bytes": 190,
+-   "sha": "2baf10831f391729",
++   "bytes": 192,
++   "sha": "29d968d73098e37a",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_coin.png": {
+-   "bytes": 218,
+-   "sha": "a307cf89831557c0",
++   "bytes": 238,
++   "sha": "86f3d22dac1519e9",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_coin_locked.png": {
+-   "bytes": 212,
+-   "sha": "52b7795f470c986f",
++   "bytes": 226,
++   "sha": "1f9bedbcfab67db4",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_cottage.png": {
+-   "bytes": 108,
+-   "sha": "9aec5abd303a2fec",
++   "bytes": 102,
++   "sha": "b15c65e0e1a2e12b",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_cottage_locked.png": {
+-   "bytes": 108,
+-   "sha": "c81533e8ef364665",
++   "bytes": 102,
++   "sha": "9e1a4a6f0f9e6efc",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_folder.png": {
+-   "bytes": 190,
+-   "sha": "2a9941e7e0fb56b5",
++   "bytes": 208,
++   "sha": "75becb44456416d9",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_folder_locked.png": {
+-   "bytes": 190,
+-   "sha": "00748f8abab6079e",
++   "bytes": 205,
++   "sha": "2e749a0a4b70965c",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_gavel.png": {
+-   "bytes": 188,
+-   "sha": "942014c79559a974",
++   "bytes": 193,
++   "sha": "de182c6227db761e",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_gavel_locked.png": {
+-   "bytes": 189,
+-   "sha": "1e1a08f876916caf",
++   "bytes": 197,
++   "sha": "37fa0895aa1478b7",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_hat.png": {
+-   "bytes": 189,
+-   "sha": "1e5f92af3463069a",
++   "bytes": 206,
++   "sha": "4d3d94ba28bb2f6d",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_hat_locked.png": {
+-   "bytes": 148,
+-   "sha": "ef0e68f2504d4b52",
++   "bytes": 157,
++   "sha": "fb0c1a4a4f872fe7",
+    "size": [
+     15,
+     15
+@@ -17121,16 +17458,16 @@
+    ]
+   },
+   "trophy_parrot.png": {
+-   "bytes": 289,
+-   "sha": "23b74c7d8660cfbc",
++   "bytes": 325,
++   "sha": "a1b75784f129c18e",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_parrot_locked.png": {
+-   "bytes": 240,
+-   "sha": "2317797f236afc99",
++   "bytes": 253,
++   "sha": "8266b66d743d056d",
+    "size": [
+     15,
+     15
+@@ -17145,8 +17482,8 @@
+    ]
+   },
+   "trophy_phone_locked.png": {
+-   "bytes": 192,
+-   "sha": "71cbd1e4fa32b456",
++   "bytes": 195,
++   "sha": "ef4729c9240f3430",
+    "size": [
+     15,
+     15
+@@ -17169,16 +17506,16 @@
+    ]
+   },
+   "trophy_plane.png": {
+-   "bytes": 177,
+-   "sha": "f94f0539786c43a0",
++   "bytes": 196,
++   "sha": "325bbc4f7ecc2fea",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_plane_locked.png": {
+-   "bytes": 172,
+-   "sha": "7e71a181496a55ba",
++   "bytes": 185,
++   "sha": "f8b127de507cfc3e",
+    "size": [
+     15,
+     15
+@@ -17209,64 +17546,64 @@
+    ]
+   },
+   "trophy_rabbit.png": {
+-   "bytes": 242,
+-   "sha": "97307c2a41d06aa7",
++   "bytes": 268,
++   "sha": "aee77c868cc21aef",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_rabbit_locked.png": {
+-   "bytes": 230,
+-   "sha": "2e3090377b5a544f",
++   "bytes": 244,
++   "sha": "45dd43c05e54165b",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_stamp.png": {
+-   "bytes": 227,
+-   "sha": "ef0402892589117c",
++   "bytes": 237,
++   "sha": "97494f80acb316be",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_stamp_locked.png": {
+-   "bytes": 200,
+-   "sha": "f64fc50a7efaeace",
++   "bytes": 217,
++   "sha": "4c1692c0d1ec7288",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_suitcase.png": {
+-   "bytes": 220,
+-   "sha": "5c612daf198d4305",
++   "bytes": 224,
++   "sha": "5ba0134ff8434254",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_suitcase_locked.png": {
+-   "bytes": 189,
+-   "sha": "de2e489e443939b2",
++   "bytes": 195,
++   "sha": "3f637cfab27b58fe",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_wand.png": {
+-   "bytes": 175,
+-   "sha": "79813d52c8f76115",
++   "bytes": 182,
++   "sha": "07f2679d6b9ee39c",
+    "size": [
+     15,
+     15
+    ]
+   },
+   "trophy_wand_locked.png": {
+-   "bytes": 171,
+-   "sha": "4107bb7ec03372d5",
++   "bytes": 183,
++   "sha": "6c981ef2aba713bb",
+    "size": [
+     15,
+     15
+@@ -17337,32 +17674,32 @@
+    ]
+   },
+   "wordmark.png": {
+-   "bytes": 1072,
+-   "sha": "98a09428e6f14d56",
++   "bytes": 1128,
++   "sha": "24b26451495ba765",
+    "size": [
+     143,
+     29
+    ]
+   },
+   "wordmark_mono.png": {
+-   "bytes": 440,
+-   "sha": "eac07bf3e262eae3",
++   "bytes": 454,
++   "sha": "6f987e6c40cdf9e9",
+    "size": [
+     141,
+     27
+    ]
+   },
+   "wordmark_norim.png": {
+-   "bytes": 961,
+-   "sha": "2982e899d55c6aac",
++   "bytes": 1024,
++   "sha": "de998e2e6d3e7468",
+    "size": [
+     141,
+     27
+    ]
+   },
+   "wordmark_small.png": {
+-   "bytes": 607,
+-   "sha": "b9b08c1304da7ea3",
++   "bytes": 640,
++   "sha": "172c0a3a2cbd79f4",
+    "size": [
+     66,
+     16
+diff --git a/game/assets/sprites/stamp_blackout_paper.png b/game/assets/sprites/stamp_blackout_paper.png
+index c9fd47c..88ef278 100644
+Binary files a/game/assets/sprites/stamp_blackout_paper.png and b/game/assets/sprites/stamp_blackout_paper.png differ
+diff --git a/game/assets/sprites/stamp_blackout_paper_rot.png b/game/assets/sprites/stamp_blackout_paper_rot.png
+index ff98038..bf1d36b 100644
+Binary files a/game/assets/sprites/stamp_blackout_paper_rot.png and b/game/assets/sprites/stamp_blackout_paper_rot.png differ
+diff --git a/game/assets/sprites/stamp_camera.png b/game/assets/sprites/stamp_camera.png
+index 367239e..592d310 100644
+Binary files a/game/assets/sprites/stamp_camera.png and b/game/assets/sprites/stamp_camera.png differ
+diff --git a/game/assets/sprites/stamp_frame_paper.png b/game/assets/sprites/stamp_frame_paper.png
+index 921fe5a..4f4ce89 100644
+Binary files a/game/assets/sprites/stamp_frame_paper.png and b/game/assets/sprites/stamp_frame_paper.png differ
+diff --git a/game/assets/sprites/stamp_paid_paper.png b/game/assets/sprites/stamp_paid_paper.png
+index 6a8b734..5bcb6eb 100644
+Binary files a/game/assets/sprites/stamp_paid_paper.png and b/game/assets/sprites/stamp_paid_paper.png differ
+diff --git a/game/assets/sprites/stamp_paid_paper_rot.png b/game/assets/sprites/stamp_paid_paper_rot.png
+index 29b54aa..8e8a1db 100644
+Binary files a/game/assets/sprites/stamp_paid_paper_rot.png and b/game/assets/sprites/stamp_paid_paper_rot.png differ
+diff --git a/game/assets/sprites/stamp_pardon_paper.png b/game/assets/sprites/stamp_pardon_paper.png
+index d4992b1..6839623 100644
+Binary files a/game/assets/sprites/stamp_pardon_paper.png and b/game/assets/sprites/stamp_pardon_paper.png differ
+diff --git a/game/assets/sprites/stamp_pardon_paper_rot.png b/game/assets/sprites/stamp_pardon_paper_rot.png
+index 874f61e..8b691c5 100644
+Binary files a/game/assets/sprites/stamp_pardon_paper_rot.png and b/game/assets/sprites/stamp_pardon_paper_rot.png differ
+diff --git a/game/assets/sprites/stamp_postponed_paper.png b/game/assets/sprites/stamp_postponed_paper.png
+index 220a783..706c893 100644
+Binary files a/game/assets/sprites/stamp_postponed_paper.png and b/game/assets/sprites/stamp_postponed_paper.png differ
+diff --git a/game/assets/sprites/stamp_postponed_paper_rot.png b/game/assets/sprites/stamp_postponed_paper_rot.png
+index 85073e5..94be245 100644
+Binary files a/game/assets/sprites/stamp_postponed_paper_rot.png and b/game/assets/sprites/stamp_postponed_paper_rot.png differ
+diff --git a/game/assets/sprites/stamp_tool_down.png b/game/assets/sprites/stamp_tool_down.png
+index c0e8776..ac7cf63 100644
+Binary files a/game/assets/sprites/stamp_tool_down.png and b/game/assets/sprites/stamp_tool_down.png differ
+diff --git a/game/assets/sprites/stamp_tool_up.png b/game/assets/sprites/stamp_tool_up.png
+index 0aa7bd7..70c5185 100644
+Binary files a/game/assets/sprites/stamp_tool_up.png and b/game/assets/sprites/stamp_tool_up.png differ
+diff --git a/game/assets/sprites/suitcase.png b/game/assets/sprites/suitcase.png
+index c9b4af2..a4b1438 100644
+Binary files a/game/assets/sprites/suitcase.png and b/game/assets/sprites/suitcase.png differ
+diff --git a/game/assets/sprites/suitcase_norim.png b/game/assets/sprites/suitcase_norim.png
+index fdddac6..2e5e8d6 100644
+Binary files a/game/assets/sprites/suitcase_norim.png and b/game/assets/sprites/suitcase_norim.png differ
+diff --git a/game/assets/sprites/sweat_drop.png b/game/assets/sprites/sweat_drop.png
+index b4e12a8..5d85242 100644
+Binary files a/game/assets/sprites/sweat_drop.png and b/game/assets/sprites/sweat_drop.png differ
+diff --git a/game/assets/sprites/tabicon_cases_active.png b/game/assets/sprites/tabicon_cases_active.png
+index f4b8655..ed8ce1a 100644
+Binary files a/game/assets/sprites/tabicon_cases_active.png and b/game/assets/sprites/tabicon_cases_active.png differ
+diff --git a/game/assets/sprites/tabicon_cases_idle.png b/game/assets/sprites/tabicon_cases_idle.png
+index 8d49593..f0b4ff0 100644
+Binary files a/game/assets/sprites/tabicon_cases_idle.png and b/game/assets/sprites/tabicon_cases_idle.png differ
+diff --git a/game/assets/sprites/tabicon_coalition_active.png b/game/assets/sprites/tabicon_coalition_active.png
+index c1aebbe..5455d9c 100644
+Binary files a/game/assets/sprites/tabicon_coalition_active.png and b/game/assets/sprites/tabicon_coalition_active.png differ
+diff --git a/game/assets/sprites/tabicon_coalition_idle.png b/game/assets/sprites/tabicon_coalition_idle.png
+index 8a8af37..056890a 100644
+Binary files a/game/assets/sprites/tabicon_coalition_idle.png and b/game/assets/sprites/tabicon_coalition_idle.png differ
+diff --git a/game/assets/sprites/tabicon_sources_active.png b/game/assets/sprites/tabicon_sources_active.png
+index b4e964c..e0f98bb 100644
+Binary files a/game/assets/sprites/tabicon_sources_active.png and b/game/assets/sprites/tabicon_sources_active.png differ
+diff --git a/game/assets/sprites/tabicon_sources_idle.png b/game/assets/sprites/tabicon_sources_idle.png
+index d9f7d33..30e2d99 100644
+Binary files a/game/assets/sprites/tabicon_sources_idle.png and b/game/assets/sprites/tabicon_sources_idle.png differ
+diff --git a/game/assets/sprites/thermo_bubble.png b/game/assets/sprites/thermo_bubble.png
+index 0d78f9c..a82f459 100644
+Binary files a/game/assets/sprites/thermo_bubble.png and b/game/assets/sprites/thermo_bubble.png differ
+diff --git a/game/assets/sprites/thermo_fill.png b/game/assets/sprites/thermo_fill.png
+index 7ac0157..a5d0e42 100644
+Binary files a/game/assets/sprites/thermo_fill.png and b/game/assets/sprites/thermo_fill.png differ
+diff --git a/game/assets/sprites/thermo_floor_hatch.png b/game/assets/sprites/thermo_floor_hatch.png
+index b8aa1d5..b9801c1 100644
+Binary files a/game/assets/sprites/thermo_floor_hatch.png and b/game/assets/sprites/thermo_floor_hatch.png differ
+diff --git a/game/assets/sprites/thermo_icon_gavel.png b/game/assets/sprites/thermo_icon_gavel.png
+index 69a7050..fdb490d 100644
+Binary files a/game/assets/sprites/thermo_icon_gavel.png and b/game/assets/sprites/thermo_icon_gavel.png differ
+diff --git a/game/assets/sprites/thermo_icon_magnifier.png b/game/assets/sprites/thermo_icon_magnifier.png
+index bdd939d..be07aab 100644
+Binary files a/game/assets/sprites/thermo_icon_magnifier.png and b/game/assets/sprites/thermo_icon_magnifier.png differ
+diff --git a/game/assets/sprites/thermo_meniscus.png b/game/assets/sprites/thermo_meniscus.png
+index f1f69a9..9eae6ae 100644
+Binary files a/game/assets/sprites/thermo_meniscus.png and b/game/assets/sprites/thermo_meniscus.png differ
+diff --git a/game/assets/sprites/ticker_flash_plate.png b/game/assets/sprites/ticker_flash_plate.png
+index 5e5630d..08ca906 100644
+Binary files a/game/assets/sprites/ticker_flash_plate.png and b/game/assets/sprites/ticker_flash_plate.png differ
+diff --git a/game/assets/sprites/ticker_flash_plate_text.png b/game/assets/sprites/ticker_flash_plate_text.png
+index 44a8ca8..382daf3 100644
+Binary files a/game/assets/sprites/ticker_flash_plate_text.png and b/game/assets/sprites/ticker_flash_plate_text.png differ
+diff --git a/game/assets/sprites/transfer_banner.png b/game/assets/sprites/transfer_banner.png
+index 581040e..bb46264 100644
+Binary files a/game/assets/sprites/transfer_banner.png and b/game/assets/sprites/transfer_banner.png differ
+diff --git a/game/assets/sprites/trophy_aide.png b/game/assets/sprites/trophy_aide.png
+index 47c274c..cda440f 100644
+Binary files a/game/assets/sprites/trophy_aide.png and b/game/assets/sprites/trophy_aide.png differ
+diff --git a/game/assets/sprites/trophy_aide_locked.png b/game/assets/sprites/trophy_aide_locked.png
+index 903ab37..d5a151b 100644
+Binary files a/game/assets/sprites/trophy_aide_locked.png and b/game/assets/sprites/trophy_aide_locked.png differ
+diff --git a/game/assets/sprites/trophy_ballot.png b/game/assets/sprites/trophy_ballot.png
+index 4ec1bd6..b5e4f9d 100644
+Binary files a/game/assets/sprites/trophy_ballot.png and b/game/assets/sprites/trophy_ballot.png differ
+diff --git a/game/assets/sprites/trophy_ballot_locked.png b/game/assets/sprites/trophy_ballot_locked.png
+index 6b7b4d6..722e89c 100644
+Binary files a/game/assets/sprites/trophy_ballot_locked.png and b/game/assets/sprites/trophy_ballot_locked.png differ
+diff --git a/game/assets/sprites/trophy_clock.png b/game/assets/sprites/trophy_clock.png
+index c54382d..ecc5cbc 100644
+Binary files a/game/assets/sprites/trophy_clock.png and b/game/assets/sprites/trophy_clock.png differ
+diff --git a/game/assets/sprites/trophy_clock_locked.png b/game/assets/sprites/trophy_clock_locked.png
+index 8450b48..ed4206e 100644
+Binary files a/game/assets/sprites/trophy_clock_locked.png and b/game/assets/sprites/trophy_clock_locked.png differ
+diff --git a/game/assets/sprites/trophy_coin.png b/game/assets/sprites/trophy_coin.png
+index eb382a6..a84d5e3 100644
+Binary files a/game/assets/sprites/trophy_coin.png and b/game/assets/sprites/trophy_coin.png differ
+diff --git a/game/assets/sprites/trophy_coin_locked.png b/game/assets/sprites/trophy_coin_locked.png
+index e0c75f8..f81ce1b 100644
+Binary files a/game/assets/sprites/trophy_coin_locked.png and b/game/assets/sprites/trophy_coin_locked.png differ
+diff --git a/game/assets/sprites/trophy_cottage.png b/game/assets/sprites/trophy_cottage.png
+index 03e2255..291bc98 100644
+Binary files a/game/assets/sprites/trophy_cottage.png and b/game/assets/sprites/trophy_cottage.png differ
+diff --git a/game/assets/sprites/trophy_cottage_locked.png b/game/assets/sprites/trophy_cottage_locked.png
+index 39f94fe..5f05490 100644
+Binary files a/game/assets/sprites/trophy_cottage_locked.png and b/game/assets/sprites/trophy_cottage_locked.png differ
+diff --git a/game/assets/sprites/trophy_folder.png b/game/assets/sprites/trophy_folder.png
+index 815816b..ef7f0c1 100644
+Binary files a/game/assets/sprites/trophy_folder.png and b/game/assets/sprites/trophy_folder.png differ
+diff --git a/game/assets/sprites/trophy_folder_locked.png b/game/assets/sprites/trophy_folder_locked.png
+index e90a7b8..a6f7609 100644
+Binary files a/game/assets/sprites/trophy_folder_locked.png and b/game/assets/sprites/trophy_folder_locked.png differ
+diff --git a/game/assets/sprites/trophy_gavel.png b/game/assets/sprites/trophy_gavel.png
+index 2f35848..b587cc0 100644
+Binary files a/game/assets/sprites/trophy_gavel.png and b/game/assets/sprites/trophy_gavel.png differ
+diff --git a/game/assets/sprites/trophy_gavel_locked.png b/game/assets/sprites/trophy_gavel_locked.png
+index afc69af..b59cfb0 100644
+Binary files a/game/assets/sprites/trophy_gavel_locked.png and b/game/assets/sprites/trophy_gavel_locked.png differ
+diff --git a/game/assets/sprites/trophy_hat.png b/game/assets/sprites/trophy_hat.png
+index 63769b6..1af0926 100644
+Binary files a/game/assets/sprites/trophy_hat.png and b/game/assets/sprites/trophy_hat.png differ
+diff --git a/game/assets/sprites/trophy_hat_locked.png b/game/assets/sprites/trophy_hat_locked.png
+index 0fdac67..3ccdeaf 100644
+Binary files a/game/assets/sprites/trophy_hat_locked.png and b/game/assets/sprites/trophy_hat_locked.png differ
+diff --git a/game/assets/sprites/trophy_parrot.png b/game/assets/sprites/trophy_parrot.png
+index b9151d0..a1c9f05 100644
+Binary files a/game/assets/sprites/trophy_parrot.png and b/game/assets/sprites/trophy_parrot.png differ
+diff --git a/game/assets/sprites/trophy_parrot_locked.png b/game/assets/sprites/trophy_parrot_locked.png
+index e1745a6..3fbeae0 100644
+Binary files a/game/assets/sprites/trophy_parrot_locked.png and b/game/assets/sprites/trophy_parrot_locked.png differ
+diff --git a/game/assets/sprites/trophy_phone_locked.png b/game/assets/sprites/trophy_phone_locked.png
+index d33091c..ee27ccf 100644
+Binary files a/game/assets/sprites/trophy_phone_locked.png and b/game/assets/sprites/trophy_phone_locked.png differ
+diff --git a/game/assets/sprites/trophy_plane.png b/game/assets/sprites/trophy_plane.png
+index 6117e5e..6992c61 100644
+Binary files a/game/assets/sprites/trophy_plane.png and b/game/assets/sprites/trophy_plane.png differ
+diff --git a/game/assets/sprites/trophy_plane_locked.png b/game/assets/sprites/trophy_plane_locked.png
+index a555008..01a7686 100644
+Binary files a/game/assets/sprites/trophy_plane_locked.png and b/game/assets/sprites/trophy_plane_locked.png differ
+diff --git a/game/assets/sprites/trophy_rabbit.png b/game/assets/sprites/trophy_rabbit.png
+index 45aa9a6..fbb4b36 100644
+Binary files a/game/assets/sprites/trophy_rabbit.png and b/game/assets/sprites/trophy_rabbit.png differ
+diff --git a/game/assets/sprites/trophy_rabbit_locked.png b/game/assets/sprites/trophy_rabbit_locked.png
+index ddaf15d..82acde0 100644
+Binary files a/game/assets/sprites/trophy_rabbit_locked.png and b/game/assets/sprites/trophy_rabbit_locked.png differ
+diff --git a/game/assets/sprites/trophy_stamp.png b/game/assets/sprites/trophy_stamp.png
+index cd9f460..0506c20 100644
+Binary files a/game/assets/sprites/trophy_stamp.png and b/game/assets/sprites/trophy_stamp.png differ
+diff --git a/game/assets/sprites/trophy_stamp_locked.png b/game/assets/sprites/trophy_stamp_locked.png
+index 5463c1c..550eef3 100644
+Binary files a/game/assets/sprites/trophy_stamp_locked.png and b/game/assets/sprites/trophy_stamp_locked.png differ
+diff --git a/game/assets/sprites/trophy_suitcase.png b/game/assets/sprites/trophy_suitcase.png
+index b988f4d..49913db 100644
+Binary files a/game/assets/sprites/trophy_suitcase.png and b/game/assets/sprites/trophy_suitcase.png differ
+diff --git a/game/assets/sprites/trophy_suitcase_locked.png b/game/assets/sprites/trophy_suitcase_locked.png
+index 7dd3b18..f229262 100644
+Binary files a/game/assets/sprites/trophy_suitcase_locked.png and b/game/assets/sprites/trophy_suitcase_locked.png differ
+diff --git a/game/assets/sprites/trophy_wand.png b/game/assets/sprites/trophy_wand.png
+index af2043a..7a677c6 100644
+Binary files a/game/assets/sprites/trophy_wand.png and b/game/assets/sprites/trophy_wand.png differ
+diff --git a/game/assets/sprites/trophy_wand_locked.png b/game/assets/sprites/trophy_wand_locked.png
+index cf6dc9f..6d6ac38 100644
+Binary files a/game/assets/sprites/trophy_wand_locked.png and b/game/assets/sprites/trophy_wand_locked.png differ
+diff --git a/game/assets/sprites/wordmark.png b/game/assets/sprites/wordmark.png
+index eb8ab02..b6baa73 100644
+Binary files a/game/assets/sprites/wordmark.png and b/game/assets/sprites/wordmark.png differ
+diff --git a/game/assets/sprites/wordmark_mono.png b/game/assets/sprites/wordmark_mono.png
+index f2f8211..13d565a 100644
+Binary files a/game/assets/sprites/wordmark_mono.png and b/game/assets/sprites/wordmark_mono.png differ
+diff --git a/game/assets/sprites/wordmark_norim.png b/game/assets/sprites/wordmark_norim.png
+index 7b996af..6fdc438 100644
+Binary files a/game/assets/sprites/wordmark_norim.png and b/game/assets/sprites/wordmark_norim.png differ
+diff --git a/game/assets/sprites/wordmark_small.png b/game/assets/sprites/wordmark_small.png
+index b56c353..86ab1ac 100644
+Binary files a/game/assets/sprites/wordmark_small.png and b/game/assets/sprites/wordmark_small.png differ
 diff --git a/pipeline/od-sevev/sprites.py b/pipeline/od-sevev/sprites.py
 index 7365743..48d268a 100644
 --- a/pipeline/od-sevev/sprites.py
@@ -1317,3 +3520,435 @@ index 0000000..337bc49
 +    print(write_manifest())
 +    print(proof())
 # untracked binary: art/od-sevev/src/wave10.py
+# untracked binary: game/assets/sprites/booth_frame_tall.png
+diff --git a/game/assets/sprites/booth_frame_tall.png.import b/game/assets/sprites/booth_frame_tall.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/booth_frame_tall.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/booth_frame_tall.png.import
+# untracked binary: game/assets/sprites/button_white_default.png
+diff --git a/game/assets/sprites/button_white_default.png.import b/game/assets/sprites/button_white_default.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/button_white_default.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/button_white_default.png.import
+# untracked binary: game/assets/sprites/button_white_disabled.png
+diff --git a/game/assets/sprites/button_white_disabled.png.import b/game/assets/sprites/button_white_disabled.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/button_white_disabled.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/button_white_disabled.png.import
+# untracked binary: game/assets/sprites/button_white_pressed.png
+diff --git a/game/assets/sprites/button_white_pressed.png.import b/game/assets/sprites/button_white_pressed.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/button_white_pressed.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/button_white_pressed.png.import
+# untracked binary: game/assets/sprites/card_row_silhouette.png
+diff --git a/game/assets/sprites/card_row_silhouette.png.import b/game/assets/sprites/card_row_silhouette.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/card_row_silhouette.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/card_row_silhouette.png.import
+# untracked binary: game/assets/sprites/chat_system_pill_navy.png
+diff --git a/game/assets/sprites/chat_system_pill_navy.png.import b/game/assets/sprites/chat_system_pill_navy.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/chat_system_pill_navy.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/chat_system_pill_navy.png.import
+# untracked binary: game/assets/sprites/notice_frame.png
+diff --git a/game/assets/sprites/notice_frame.png.import b/game/assets/sprites/notice_frame.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/notice_frame.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/notice_frame.png.import
+# untracked binary: game/assets/sprites/source_advisers_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_advisers_icon_sil_pale.png.import b/game/assets/sprites/source_advisers_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_advisers_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_advisers_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_checkbook_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_checkbook_icon_sil_pale.png.import b/game/assets/sprites/source_checkbook_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_checkbook_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_checkbook_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_cigars_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_cigars_icon_sil_pale.png.import b/game/assets/sprites/source_cigars_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_cigars_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_cigars_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_donor_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_donor_icon_sil_pale.png.import b/game/assets/sprites/source_donor_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_donor_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_donor_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_funds_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_funds_icon_sil_pale.png.import b/game/assets/sprites/source_funds_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_funds_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_funds_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_hitech_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_hitech_icon_sil_pale.png.import b/game/assets/sprites/source_hitech_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_hitech_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_hitech_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_poison_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_poison_icon_sil_pale.png.import b/game/assets/sprites/source_poison_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_poison_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_poison_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_qatari_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_qatari_icon_sil_pale.png.import b/game/assets/sprites/source_qatari_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_qatari_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_qatari_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_submarine_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_submarine_icon_sil_pale.png.import b/game/assets/sprites/source_submarine_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_submarine_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_submarine_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_taxpayer_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_taxpayer_icon_sil_pale.png.import b/game/assets/sprites/source_taxpayer_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_taxpayer_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_taxpayer_icon_sil_pale.png.import
+# untracked binary: game/assets/sprites/source_vat_icon_sil_pale.png
+diff --git a/game/assets/sprites/source_vat_icon_sil_pale.png.import b/game/assets/sprites/source_vat_icon_sil_pale.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/source_vat_icon_sil_pale.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/source_vat_icon_sil_pale.png.import
