@@ -53,7 +53,7 @@ index 1558947..d372f2a 100644
  	var pi := chat.pending_info()
  	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
 diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
-index 2c1abb4..6fcb70f 100644
+index 2c1abb4..288ae9d 100644
 --- a/tools/web/picker_web.mjs
 +++ b/tools/web/picker_web.mjs
 @@ -1,16 +1,21 @@
@@ -141,7 +141,7 @@ index 2c1abb4..6fcb70f 100644
  
  // 1. the first picker
  let p = await pick();
-@@ -95,159 +68,81 @@ check(s && s.leader === 'bennett' && s.mode === 'title', `"לשחק בתור ב
+@@ -95,159 +68,82 @@ check(s && s.leader === 'bennett' && s.mode === 'title', `"לשחק בתור ב
  check(s && s.undo, 'the undo chip is up');
  await shot('p3-bennett-pretap');
  // tap 1
@@ -271,9 +271,10 @@ index 2c1abb4..6fcb70f 100644
 -		await wait(500);
 -	}
 +	log(`  gate (${why}): seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${P.st.paid} pills, loops ${P.st.loops}`);
-+	if (why === 'budget') break;
++	if (why === 'budget' || why === 'navigated') break;
 +	const r = await P.callElection({ card: 'p6-election-card' });
 +	if (r === 'held-fail') { held = false; break; }
++	if (r === 'navigated') break;
 +	if (r !== 'called') continue;
 +	// committed: EVOLVE_TX runs, then the flash or the picker opens
 +	called = await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open)
@@ -358,12 +359,12 @@ index 2c1abb4..6fcb70f 100644
 +	await shot('p11-liberman-taps');
  }
 +if (Object.keys(P.st.modals).length) log(`  overlays closed on the way: ${JSON.stringify(P.st.modals)}`);
-+check(!P.st.navs.length, `the page never left the game mid-run${P.st.navs.length ? ' ' + JSON.stringify(P.st.navs) : ''}`);
++check(!P.st.navs.length, `the page never left the game mid-run (${P.st.navs.length} navigations, see NAVIGATION above)`);
  log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
  const ok = checks.every((x) => x[0]) && !errors.length;
  log(ok ? 'PICKER_WEB: PASS' : 'PICKER_WEB: FAIL');
 diff --git a/tools/web/round_web.mjs b/tools/web/round_web.mjs
-index 30e1bcc..fd5c141 100644
+index 30e1bcc..f289610 100644
 --- a/tools/web/round_web.mjs
 +++ b/tools/web/round_web.mjs
 @@ -1,24 +1,26 @@
@@ -407,7 +408,7 @@ index 30e1bcc..fd5c141 100644
  fs.mkdirSync(out, { recursive: true });
  const [wh, dprS] = dev.split('@');
  const [W, H] = wh.split('x').map(Number);
-@@ -29,206 +31,73 @@ const page = await ctx.newPage();
+@@ -29,206 +31,74 @@ const page = await ctx.newPage();
  const errors = [];
  page.on('pageerror', (e) => errors.push(e.message));
  const cdp = await ctx.newCDPSession(page);
@@ -588,7 +589,7 @@ index 30e1bcc..fd5c141 100644
 +	const why = await P.playToGate(budget, hooks);
 +	s = await probe();
 +	log(`  gate (${why}): seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${P.st.paid} pills, loops ${P.st.loops}`);
-+	if (why === 'budget') break;
++	if (why === 'budget' || why === 'navigated') break;
  	await shot('e0-cta');
 -	if (s.modal !== 'EVOLUTION') {
 -		await tapAt(col(360, disp.lowerY + 42));
@@ -617,6 +618,7 @@ index 30e1bcc..fd5c141 100644
 -	}
 +	const r = await P.callElection({ card: 'e1-election-card' });
 +	if (r === 'held-fail') { heldFail = true; break; }
++	if (r === 'navigated') break;
 +	if (r !== 'called') continue;
  	called = true;
 -	{
@@ -658,16 +660,16 @@ index 30e1bcc..fd5c141 100644
  }
 +if (heldFail) log('  FAIL: the gate moved under the open election card (the vote must stop the clock)');
 +if (Object.keys(P.st.modals).length) log(`  overlays closed on the way: ${JSON.stringify(P.st.modals)}`);
-+if (P.st.navs.length) { log(`  FAIL: the page navigated ${JSON.stringify(P.st.navs)}`); ok = false; }
++if (P.st.navs.length) { log(`  FAIL: the page left the game mid-run (${P.st.navs.length}x, see NAVIGATION above)`); ok = false; }
  log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
  log(ok && !errors.length ? 'ROUND_WEB: PASS' : 'ROUND_WEB: FAIL');
  await browser.close();
 diff --git a/tools/web/round_play.mjs b/tools/web/round_play.mjs
 new file mode 100644
-index 0000000..cb94420
+index 0000000..19e712a
 --- /dev/null
 +++ b/tools/web/round_play.mjs
-@@ -0,0 +1,248 @@
+@@ -0,0 +1,266 @@
 +// The scripted player shared by round_web.mjs and picker_web.mjs (Game Designer 2026-09-30): one
 +// loop that plays a round to the 61 gate through the real UI with real touches, and one election
 +// call that checks "the vote stops the clock" (sim/politics.gd, design/leader-select-spec.md §7.4).
@@ -690,17 +692,19 @@ index 0000000..cb94420
 +		hatTaps: 0, buyActions: 0, cardTaps: 0, chatLooks: 0, modals: {}, actions: [], navs: [], shots: [], armed: false };
 +	const wall = () => Math.round((Date.now() - st.t0) / 1000);
 +	const act = (what) => { st.actions.push(`${wall()}s ${what}`); if (st.actions.length > 12) st.actions.shift(); };
-+	// "the page navigated mid-run" (seen once on v4): a real document load after the round started
-+	// (the game's own history.pushState / history.go for its layers fire framenavigated too, with
-+	// the same URL, and are not navigations). Record where to and what the driver just did.
-+	// the page's history calls (the game's LayerHistory: pushState per layer, history.go(-n) when
-+	// layers close; the shell's About), kept on the Node side so they survive a navigation
++	// "the page navigated mid-run" (seen once in round_web on v4, again in picker_web 2026-09-30):
++	// a new document after the round started. The game's own layer history (LayerHistory:
++	// pushState per layer, history.go(-n) when layers close; the shell's About) fires
++	// framenavigated too, same URL, same document; those only go to a ring buffer. The page's
++	// history calls are logged from inside the page (kept here, so they survive the navigation).
 +	st.hist = [];
++	st.frames = [];
++	const ring = (a, e) => { a.push(`${wall()}s ${e}`); if (a.length > 16) a.shift(); };
 +	st.ready = Promise.all([
-+		page.exposeFunction('odHistLog', (e) => { st.hist.push(`${wall()}s ${e}`); if (st.hist.length > 16) st.hist.shift(); }),
++		page.exposeFunction('odHistLog', (e) => ring(st.hist, e)),
 +		page.addInitScript(() => {
 +			const H = window.history;
-+			const say = (e) => { try { window.odHistLog(`${e} len ${H.length} layers ${window.odLayers}`); } catch (x) { /* ignore */ } };
++			const say = (e) => { try { window.odHistLog(`${e} len ${H.length} state ${JSON.stringify(H.state)} layers ${window.odLayers}`); } catch (x) { /* ignore */ } };
 +			const push = H.pushState.bind(H);
 +			const go = H.go.bind(H);
 +			const back = H.back.bind(H);
@@ -708,23 +712,21 @@ index 0000000..cb94420
 +			H.go = (n) => { say(`go(${n})`); go(n); };
 +			H.back = () => { say('back()'); back(); };
 +			window.addEventListener('popstate', () => say('popstate'));
-+			window.addEventListener('pagehide', () => say('pagehide'));
++			window.addEventListener('pagehide', (e) => say(`pagehide persisted ${e.persisted}`));
++			say(`new document ${location.href}`);
 +		}),
 +	]);
-+	page.on('framenavigated', (fr) => {
-+		if (fr !== page.mainFrame() || !st.armed) return;
-+		const url = fr.url();
-+		if (url === st.url) return;
-+		const n = { url, wall: wall(), last: st.actions.slice(-6), hist: st.hist.slice(-10) };
++	page.on('framenavigated', (fr) => { if (fr === page.mainFrame()) ring(st.frames, fr.url()); });
++	const navigated = (why) => {
++		const n = { why, url: page.url(), wall: wall(), last: st.actions.slice(-6), hist: st.hist.slice(-10), frames: st.frames.slice(-6) };
 +		st.navs.push(n);
-+		log(`  NAVIGATION to ${n.url} at ${n.wall}s wall; the last actions: ${n.last.join(' | ')}; history: ${n.hist.join(' | ')}`);
-+	});
-+	page.on('load', () => {
-+		if (!st.armed) return;
-+		const n = { url: page.url(), wall: wall(), load: true, last: st.actions.slice(-6), hist: st.hist.slice(-10) };
-+		st.navs.push(n);
-+		log(`  PAGE LOAD (${n.url}) at ${n.wall}s wall; the last actions: ${n.last.join(' | ')}; history: ${n.hist.join(' | ')}`);
-+	});
++		log(`  NAVIGATION (${why}) at ${n.wall}s wall, now ${n.url}`);
++		log(`    the driver's last actions: ${n.last.join(' | ')}`);
++		log(`    the page's history calls: ${n.hist.join(' | ')}`);
++		log(`    main-frame navigations: ${n.frames.join(' | ')}`);
++	};
++	page.on('domcontentloaded', () => { if (st.armed) navigated('a new document loaded'); });
++	const lostPage = (e) => /Execution context was destroyed|navigation|Target closed|detached/i.test(String(e && e.message));
 +	async function refresh() {
 +		st.disp = await page.evaluate(() => window.odDisplay);
 +		st.cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y }; });
@@ -796,6 +798,15 @@ index 0000000..cb94420
 +	// one approach to the gate: returns 'gate' (the CTA is up and the election can be called),
 +	// 'card' (the election card is already open) or 'budget'
 +	async function playToGate(budgetMs, hooks = {}) {
++		try {
++			return await playLoop(budgetMs, hooks);
++		} catch (e) {
++			if (!lostPage(e)) throw e;
++			if (!st.navs.length) navigated(String(e.message).split('\n')[0]);
++			return 'navigated';
++		}
++	}
++	async function playLoop(budgetMs, hooks) {
 +		if (!st.armed) { st.armed = true; st.url = page.url(); }   // a load from here on is not the boot's
 +		while (Date.now() - st.t0 < budgetMs) {
 +			st.loops++;
@@ -871,6 +882,15 @@ index 0000000..cb94420
 +	// the vote is the game; play on) or 'held-fail' (the gate fell UNDER the open card: a game bug
 +	// since the vote stops the clock).
 +	async function callElection(names = {}) {
++		try {
++			return await callOnce(names);
++		} catch (e) {
++			if (!lostPage(e)) throw e;
++			if (!st.navs.length) navigated(String(e.message).split('\n')[0]);
++			return 'navigated';
++		}
++	}
++	async function callOnce(names) {
 +		let s = await probe();
 +		for (let i = 0; i < 3 && s.modal !== 'EVOLUTION' && (s.chat.open || s.modal !== ''); i++) {
 +			await page.keyboard.press('Escape');
