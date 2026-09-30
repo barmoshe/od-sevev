@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Apply a palette colour map (old hex -> new hex) to hard-coded colours in code.
 
-The map is art/od-sevev/palette-v3-map.json (the 2D Artist's palette v3, Bar's "Israel's palette, blue
-and white"): top-level "#rrggbb": "#rrggbb" pairs; keys starting with "_" are notes and are ignored.
+The map is art/od-sevev/palette-v4-map.json (the 2D Artist's palette v4, Bar's "more Israel theme and
+palette"): top-level "#rrggbb": "#rrggbb" pairs; "perFile": {"<repo path>": {"#old": "#new"}} overrides a pair
+for one file (one hex, two roles: #2a2340 is the card pane in main.gd but the night pad in diorama.gd);
+other keys starting with "_" are notes and are ignored.
 
 It rewrites three literal forms, keeping everything else on the line:
   - "#rrggbb" and "#rrggbbaa" (GDScript strings, CSS): the rgb part is replaced, a trailing alpha kept;
@@ -29,7 +31,7 @@ import re
 import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-DEFAULT_MAP = os.path.join(ROOT, "art", "od-sevev", "palette-v3-map.json")
+DEFAULT_MAP = os.path.join(ROOT, "art", "od-sevev", "palette-v4-map.json")
 DEFAULT_TARGETS = ["game/scripts", "game/web/shell.html"]
 EXTS = (".gd", ".html", ".css", ".js", ".tscn", ".tres", ".godot")
 
@@ -42,12 +44,19 @@ def load_map(path):
     raw = json.load(open(path))
     m = {}
     for k, v in raw.items():
-        if k.startswith("_"):
+        if k.startswith("_") or k == "perFile":
             continue
         if not (re.fullmatch(r"#[0-9a-fA-F]{6}", k) and re.fullmatch(r"#[0-9a-fA-F]{6}", v)):
             raise SystemExit(f"bad map entry {k!r}: {v!r} (want '#rrggbb': '#rrggbb')")
         m[k.lower()] = v.lower()
-    return raw, m
+    per = {}
+    for f, pairs in raw.get("perFile", {}).items():
+        per[f] = dict(m)
+        for k, v in pairs.items():
+            if not (re.fullmatch(r"#[0-9a-fA-F]{6}", k) and re.fullmatch(r"#[0-9a-fA-F]{6}", v)):
+                raise SystemExit(f"bad perFile entry {f}: {k!r}: {v!r}")
+            per[f][k.lower()] = v.lower()
+    return raw, m, per
 
 
 def rgb(h):
@@ -135,11 +144,12 @@ def main():
     ap.add_argument("--scan", action="store_true", help="also list unmapped colour literals")
     ap.add_argument("--refresh-notes", action="store_true", help="rewrite the map's _sites note")
     a = ap.parse_args()
-    raw, m = load_map(a.map)
+    raw, m_all, per = load_map(a.map)
     files = targets(a.paths)
     total, per_file, sites, others = 0, {}, {}, []
     for f in files:
         rel = os.path.relpath(f, ROOT)
+        m = per.get(rel, m_all)
         lines = open(f, encoding="utf-8").read().split("\n")
         changed = False
         for i, line in enumerate(lines):
