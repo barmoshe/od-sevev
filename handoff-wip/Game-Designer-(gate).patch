@@ -176,7 +176,7 @@ index 1558947..d372f2a 100644
  	var pi := chat.pending_info()
  	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
 diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
-index 2c1abb4..a3b7899 100644
+index 2c1abb4..05744d7 100644
 --- a/tools/web/picker_web.mjs
 +++ b/tools/web/picker_web.mjs
 @@ -1,16 +1,21 @@
@@ -264,7 +264,26 @@ index 2c1abb4..a3b7899 100644
  
  // 1. the first picker
  let p = await pick();
-@@ -95,159 +68,82 @@ check(s && s.leader === 'bennett' && s.mode === 'title', `"לשחק בתור ב
+@@ -80,8 +53,16 @@ if (process.env.PICK_ONLY) {   // the first picker at this viewport only (the M
+ }
+ // the leader card: a long press on Bennett's tile
+ let c = cellOf(p, 'bennett');
+-await tapAt(css(c[0], c[1]), 900);
+-await wait(500);
++{
++	// hold until the card is up (at least 900 ms): on a loaded machine a slow frame could see the
++	// press and the release together and read a tap (a pick) instead of the long press
++	const [x, y] = css(c[0], c[1]);
++	await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 900 }] });
++	await wait(900);
++	await page.waitForFunction(() => window.odModal && window.odModal.open && window.odModal.id === 'LEADER_CARD', null, { timeout: 6000 }).catch(() => {});
++	await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
++	await wait(500);
++}
+ let md = await modal();
+ check(!!(md && md.open && md.id === 'LEADER_CARD'), `a long press opens the leader card (${md && md.id})`);
+ await shot('p2-leader-card');
+@@ -95,159 +76,82 @@ check(s && s.leader === 'bennett' && s.mode === 'title', `"לשחק בתור ב
  check(s && s.undo, 'the undo chip is up');
  await shot('p3-bennett-pretap');
  // tap 1

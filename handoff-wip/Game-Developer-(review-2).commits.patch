@@ -1,7 +1,7 @@
 From a368d7aaf54b08de55cf35929c7e1d993c5cd75f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:31:13 +0000
-Subject: [PATCH 1/6] feat(od-sevev): envelope flap on every sheet modal, the
+Subject: [PATCH 1/7] feat(od-sevev): envelope flap on every sheet modal, the
  glue rule, O3 hemicycle
 
 - Overlay.make_envelope: sheet_modal_body + sheet_modal_flap, f0/f1/f2 at 0/40/80 ms, title and close from f2, reduced motion f2 at once (review U1, style guide 17.2); SheetCard and FlashCard HEADER_H 96
@@ -752,7 +752,7 @@ index 17c2808..ca58266 100644
 From eb7f8244aed096f9de4b33cfc9522a2bb96965e4 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:41:04 +0000
-Subject: [PATCH 2/6] feat(od-sevev): booth on the picker, envelope on O5 and
+Subject: [PATCH 2/7] feat(od-sevev): booth on the picker, envelope on O5 and
  the sent line, review 2 engine fixes
 
 - picker: booth_frame around the grid where it costs no tile pixel (columns at 20, grid 20 over the strip), odPick.booth (mobile-first 5.14.2)
@@ -1698,7 +1698,7 @@ index 8027911..4caf505 100644
 From 4c2493d6d88d25a2e94772d479dd56e20d794fe0 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:52:08 +0000
-Subject: [PATCH 3/6] feat(od-sevev): UX review 2 art kit, white primary, pale
+Subject: [PATCH 3/7] feat(od-sevev): UX review 2 art kit, white primary, pale
  teaser rows, notice, tall booth
 
 Wave 10 (art/od-sevev/src/wave10.py): button_white_{default,pressed,disabled}
@@ -10816,7 +10816,7 @@ index 7365743..48d268a 100644
 From 161b48f99697648544caa97bcf0283cddf6585d2 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:54:58 +0000
-Subject: [PATCH 4/6] docs(od-sevev): style guide wave 10 and the contract's
+Subject: [PATCH 4/7] docs(od-sevev): style guide wave 10 and the contract's
  new kit ids
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10945,7 +10945,7 @@ index 132f910..6722187 100644
 From 57c0b4eef4e91cecf317a62de5d337ffcf4db851 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:55:29 +0000
-Subject: [PATCH 5/6] docs(od-sevev): status for the review-2 art slice
+Subject: [PATCH 5/7] docs(od-sevev): status for the review-2 art slice
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
@@ -10980,7 +10980,7 @@ index ca05153..c21bfd3 100644
 From d5145f01f34f28827dbea1435f15702193ffef75 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:56:54 +0000
-Subject: [PATCH 6/6] fix(od-sevev): tap 1 retires Dubi's pre-tap dock line
+Subject: [PATCH 6/7] fix(od-sevev): tap 1 retires Dubi's pre-tap dock line
  (U9)
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
@@ -11042,6 +11042,324 @@ index fe11673..5c5ef2c 100644
  	m._say_pick(Strings.s("DUBI_LEARNED"), Vector2(644, 300))
  	runner.check(tt.saying(), "after tap 1 the line is Dubi's bubble again")
  
+-- 
+2.43.0
+
+
+From 59f4281cfa4510e1a0eba7d893a9f987934a6cfb Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 06:02:54 +0000
+Subject: [PATCH 7/7] feat(od-sevev): wire the review-2 art: white primary,
+ gold election call, pale teaser rows, navy system pill, EVOLVE_TX notice
+
+- U2: kit_primary is button_white with a flag label (PxButton maps the kit label flag to u); the court's postpone and the picker's again labels follow it; O3 ELECT_GO takes kit_gold
+- U7: teaser and locked rows on card_row_silhouette with the pale silhouettes and ui_panel text; T3 system pills on chat_system_pill_navy with ui_mute text
+- U10: EVOLVE_TX is the notice_frame card on a flag-blue page, title in flag, body in night
+- tests: wave-10 wiring in test_review2_engine
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/scripts/ui/evolve_tx.gd           | 23 +++++++++++++++++
+ game/scripts/ui/px_button.gd           | 13 ++++++++--
+ game/scripts/ui/shop.gd                | 25 +++++++++++++-----
+ game/scripts/ui/views/view_chat.gd     |  7 ++++--
+ game/scripts/ui/views/view_court.gd    |  4 +++
+ game/scripts/ui/views/view_election.gd |  2 +-
+ game/scripts/ui/views/view_pick.gd     |  2 +-
+ game/tests/unit/test_review2_engine.gd | 35 ++++++++++++++++++++++++++
+ 8 files changed, 99 insertions(+), 12 deletions(-)
+
+diff --git a/game/scripts/ui/evolve_tx.gd b/game/scripts/ui/evolve_tx.gd
+index 62cd9f3..762793b 100644
+--- a/game/scripts/ui/evolve_tx.gd
++++ b/game/scripts/ui/evolve_tx.gd
+@@ -18,6 +18,14 @@ const MULT_Y := 704.0
+ const GAIN_Y := 760.0
+ const ERA_Y := 816.0
+ const WRAP := 656.0                  # string-budgets tx.line
++## Review U10 (style guide §17.3 `notice_frame`): the page is flag blue and the lines sit on the
++## gate's printed notice, a white card ruled in flag blue (slice [3, 7, 3, 5], content box [4, 8,
++## 32, 26] → insets 16 / 32 / 16 / 24 at ×4), centred around them; the title lines in flag
++## (8.5:1), the body in night (13.9:1). A card, not full bleed (§2.4: never the whole page as the flag).
++const NOTICE := Rect2(16, 508, 688, 388)   # holds the title through its 32-px drop
++const C_PAGE := Color("#0038b8")     # flag
++const C_TITLE := Color("#0038b8")    # flag on the notice's white
++const C_BODY := Color("#0f2350")     # night
+ 
+ var running := false
+ var _card: ColorRect
+@@ -26,6 +34,7 @@ var _species: PxText
+ var _mult: PxText
+ var _gain: PxText
+ var _era: PxText
++var _notice: NinePatchRect            # null without the kit piece (the fork's cream card)
+ var _t := 0.0
+ var _reduced := false
+ var _cb: Dictionary = {}
+@@ -36,6 +45,9 @@ func _ready() -> void:
+ 	visible = false
+ 	var X: Dictionary = Art.theme["evolveTx"]
+ 	_card = Ui.rect(self, Rect2(-4000, -4000, 8720, 9280), X["card"], 1.0)
++	if Art.has_sprite("notice_frame"):
++		_notice = Ui.nine(self, NOTICE, "notice_frame")
++		_notice.visible = false
+ 	_line = _tx_text(SPECIES_Y - 48.0, Strings.s("EVOTX_LINE"), X["text"])
+ 	_species = _tx_text(SPECIES_Y, "", X["text"])
+ 	_mult = _tx_text(MULT_Y, "", X["text"])
+@@ -67,6 +79,12 @@ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
+ 	_card.color = Art.col(X["reducedMotionCard" if reduced else "card"])
+ 	for t: PxText in [_line, _species, _mult, _gain]:
+ 		t.tint = Art.col(X["reducedMotionText" if reduced else "text"])
++	if _notice != null:   # U10: the notice on the flag-blue page, in both modes
++		_card.color = C_PAGE
++		_line.tint = C_TITLE
++		_species.tint = C_TITLE
++		for t: PxText in [_mult, _gain]:
++			t.tint = C_BODY
+ 	_line.center_in(0, L.W)
+ 	_species.text = Strings.s("ELECT_TITLE", {"n": int(info["round"])}) if info.has("round") else String(info.get("species", ""))
+ 	_species.center_in(0, L.W)
+@@ -79,10 +97,13 @@ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
+ 	_era.center_in(0, L.W)
+ 	_era.tint = _gain.tint
+ 	_set_texts(false, false)
++	_text_alpha(1.0)
+ 	_card.modulate.a = 0.0
+ 
+ 
+ func _set_texts(title: bool, mult: bool) -> void:
++	if _notice != null:
++		_notice.visible = title
+ 	_line.visible = title
+ 	_species.visible = title
+ 	_mult.visible = mult
+@@ -111,6 +132,8 @@ func update_view(dt_ms: float) -> void:
+ func _text_alpha(a: float) -> void:
+ 	for x: CanvasItem in [_line, _species, _mult, _gain, _era]:
+ 		x.modulate.a = a
++	if _notice != null:
++		_notice.modulate.a = a
+ 
+ 
+ func _update_full(t: float) -> void:
+diff --git a/game/scripts/ui/px_button.gd b/game/scripts/ui/px_button.gd
+index 5e578e7..d2210cb 100644
+--- a/game/scripts/ui/px_button.gd
++++ b/game/scripts/ui/px_button.gd
+@@ -49,7 +49,8 @@ static func kinds() -> Dictionary:
+ 			"disabled": [th["pill"]["sprite"], th["pill"]["frames"]["need"], th["pill"]["labelNeed"]],
+ 		},
+ 		# od-sevev: the 2D Artist's kit buttons (separate PNG per state, frame 0, white label)
+-		"kit_primary": _kit_kind("button_primary"),
++		# review U2 (style guide §17.3): the v4 primary is the flag's white on its blue, a flag label
++		"kit_primary": _kit_kind("button_white") if Art.has_sprite("button_white_default") else _kit_kind("button_primary"),
+ 		"kit_secondary": _kit_kind("button_secondary"),
+ 		"kit_gold": _kit_kind("button_gold"),
+ 		"kit_danger": _kit_kind("button_danger") if Art.has_sprite("button_danger_default") else _kit_kind("button_secondary"),
+@@ -69,13 +70,21 @@ static func _kit_kind(base: String) -> Dictionary:
+ 	var ok := Art.has_sprite(d)
+ 	var fb: Array = [Art.theme["button"]["sprite"], Art.theme["button"]["frames"]["normal"], "w"]
+ 	# the kit's label colour: ink on gold (money buttons; white on gold is unreadable), else white
+-	var lab := "k" if (str(Art.kit(d).get("label", "")) == "ink" or base == "button_gold") else "w"
++	# and flag blue ("u", #0038b8, 8.5:1) on the white primary (review U2)
++	var kl := str(Art.kit(d).get("label", ""))
++	var lab := "k" if (kl == "ink" or base == "button_gold") else ("u" if kl == "flag" else "w")
+ 	return {
+ 		"normal": [d, 0, lab] if ok else fb, "pressed": [p, 0, lab] if ok else fb,
+ 		"hover": [d, 0, lab] if ok else fb, "disabled": [x, 0, "w"] if ok else fb,
+ 	}
+ 
+ 
++## The label colour of a button kind in a state ("normal" | "pressed" | "hover" | "disabled"), for a
++## view that draws its own label lines over the plate (the court's postpone, the picker's again).
++static func label_color(kind_: String, state: String = "normal") -> Color:
++	return Art.col(kinds()[kind_][state][2])
++
++
+ ## Resizes a 9-slice drawn at `r` by (dw, dh) logical px: width centred, height anchored at the
+ ## bottom (a press has weight) or the centre. (ox, oy) shift the whole rect.
+ static func squish_nine(ns: NinePatchRect, r: Rect2, dw: float, dh: float, ox: float = 0.0, oy: float = 0.0, anchor: String = "bottom") -> void:
+diff --git a/game/scripts/ui/shop.gd b/game/scripts/ui/shop.gd
+index c45d177..d276c38 100644
+--- a/game/scripts/ui/shop.gd
++++ b/game/scripts/ui/shop.gd
+@@ -44,6 +44,7 @@ const SPIN_BARS := Rect2(220, 104, 360, 8)
+ ## The spin tag's stamp: the bottom band of the plate (kit card_plate at 588-692 × 8-112).
+ const SPIN_TAG := Rect2(592, 72, 96, 40)
+ const TAG_SLAM_STEP_MS := 30.0      # the slip's stamp slam: ×6, ×5, ×4 (90 ms, Stepped)
++const C_SIL_TEXT := Color("#072a7a")   # ui_panel on card_row_silhouette (review U7)
+ const SPIN_BAR_PUBLIC := "e"
+ const SPIN_BAR_FRIENDLY := "O"
+ 
+@@ -542,12 +543,20 @@ func _badge_label(n: int) -> String:
+ 	return "" if n <= 0 else Strings.s("TAB_BADGE", {"count": "9+" if n > 9 else str(n)})
+ 
+ 
++## Review U7: a silhouette's pale cut on the pale slip (`<silhouette>_pale`: a ui_dim mask with a
++## ui_rule edge, drawn unmodulated), when the pipeline ships one; else the silhouette itself.
++static func pale_sil(sil: String) -> String:
++	if not Art.has_sprite("card_row_silhouette"):
++		return sil
++	return sil + "_pale" if Art.has_sprite(sil + "_pale") else sil
++
++
+ func _card_sprite(kind: String, afford: bool) -> String:
+ 	match kind:
+-		"silhouette":
+-			return Art.sprite_or("card_source_locked")
+-		"teaser":
+-			return Art.sprite_or("card_source_locked")
++		"silhouette", "teaser":
++			# review U7 (style guide §17.3): a blank pale slip on the white pane (ui_mute face,
++			# ui_rule edge), not the slate locked card
++			return "card_row_silhouette" if Art.has_sprite("card_row_silhouette") else Art.sprite_or("card_source_locked")
+ 		"upgrade":
+ 			return Art.sprite_or("card_spin" if afford else "card_spin_locked")
+ 		"buymode":
+@@ -592,7 +601,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 			l2 = Strings.s("CARD_PRICE", {"price": Fmt.cost(price)})
+ 		"silhouette":
+ 			var sks := LeaderUi.producer_art(id)
+-			icon = Art.sprite_or(str(sks["silhouette"]) if not sks.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id))))
++			icon = pale_sil(Art.sprite_or(str(sks["silhouette"]) if not sks.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id)))))
+ 			nm = Strings.s("ROW_LOCKED_NAME")
+ 			line2 = Strings.s("CARD_LOCKED_CAP")
+ 			wide = true
+@@ -602,7 +611,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 		"teaser":
+ 			# mobile-first §5.4: the silhouette, "מקור עלום", no price, no pill, not a target
+ 			var skt := LeaderUi.producer_art(id)
+-			icon = Art.sprite_or(str(skt["silhouette"]) if not skt.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id))))
++			icon = pale_sil(Art.sprite_or(str(skt["silhouette"]) if not skt.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id)))))
+ 			nm = Strings.s("ROW_LOCKED_NAME")
+ 			wide = true
+ 		"buymode":
+@@ -713,6 +722,10 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 	ic.modulate = Color.WHITE if (m["kind"] == "silhouette" or teaser or afford) else Color(0.6, 0.6, 0.6)
+ 	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.827, 0.839, 0.875)
+ 	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.788, 0.839, 0.949)
++	if (m["kind"] == "silhouette" or teaser) and Art.has_sprite("card_row_silhouette"):
++		# U7: the pale slip's text is ui_panel (8.9:1 on its ui_mute face)
++		(v["name"] as PxText).tint = C_SIL_TEXT
++		(v["line2"] as PxText).tint = C_SIL_TEXT
+ 	(v["owned"] as PxText).tint = Color(0.827, 0.839, 0.875)
+ 	_render_bars(v, bars)
+ 	var tg: PxText = v["tag"]
+diff --git a/game/scripts/ui/views/view_chat.gd b/game/scripts/ui/views/view_chat.gd
+index c8452a7..bb582d0 100644
+--- a/game/scripts/ui/views/view_chat.gd
++++ b/game/scripts/ui/views/view_chat.gd
+@@ -60,6 +60,7 @@ const CEREMONY_MS := 3000.0          # sim: a ceremony (Regev) needs "the UI's 3
+ const C_THREAD := Color("#072a7a")    # ui_panel
+ const C_NAME := Color("#c9d6f2")      # grey
+ const C_MUTED := Color("#b4c3e8")     # slate
++const C_SYS_TEXT := Color("#c9d6f2")  # ui_mute on chat_system_pill_navy (12.9:1, review U7)
+ const C_INK := Color("#061029")       # ink (on gold)
+ const C_ALERT := Color("#ffaa9f")     # red_hi ("אולטימטום", the last seconds)
+ const C_GOLD_HI := Color("#fff1a6")
+@@ -957,13 +958,15 @@ func _build_out(row: Dictionary, y: float) -> Dictionary:
+ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+ 	var root := _root(y)
+ 	var r := {"root": root, "pills": []}
+-	var pill_bg := Ui.nine(root, Rect2(0, 0, 64, 52), Art.sprite_or("chat_system_pill"))
++	# review U7: the v4 thread's system pill is a flat ui_scrim well, ui_rule edge, ui_mute label
++	var navy := Art.has_sprite("chat_system_pill_navy")
++	var pill_bg := Ui.nine(root, Rect2(0, 0, 64, 52), "chat_system_pill_navy" if navy else Art.sprite_or("chat_system_pill"))
+ 	var icon_w := 0.0
+ 	var icon: Sprite2D = null
+ 	if str(m.get("key", "")) == "chat.sys.muted" and Art.has_sprite("chat_icon_mute"):
+ 		icon = Ui.img(root, Vector2.ZERO, "chat_icon_mute", 0, 4)
+ 		icon_w = float(Art.sprite_size("chat_icon_mute").x) * 4.0 + 12.0
+-	var tx := _text(root, text, Color.WHITE, SYS_TEXT_W - icon_w, 2, true)
++	var tx := _text(root, text, C_SYS_TEXT if navy else Color.WHITE, SYS_TEXT_W - icon_w, 2, true)
+ 	tx.align = 1
+ 	var lines := maxf(1.0, float(tx.line_count()))
+ 	var w := Ui.snap(float(tx.width()) + icon_w + 48.0, 4)
+diff --git a/game/scripts/ui/views/view_court.gd b/game/scripts/ui/views/view_court.gd
+index 59ab54c..f6ed802 100644
+--- a/game/scripts/ui/views/view_court.gd
++++ b/game/scripts/ui/views/view_court.gd
+@@ -521,6 +521,10 @@ func _update_card_live() -> void:
+ 		var ok := Investigation.can_postpone(_state, _d)
+ 		if _primary.is_enabled() != ok and not bool(_press.get("primary", false)):
+ 			_primary.set_enabled(ok)
++		# review U2: the white primary takes a flag label (the slate disabled face, white)
++		var lc := PxButton.label_color("kit_primary", "normal" if _primary.is_enabled() else "disabled")
++		_verb.tint = lc
++		_price.tint = lc
+ 		var dx := 0.0
+ 		if _shake_t >= 0.0:
+ 			_shake_t += Tune.FRAME_MS
+diff --git a/game/scripts/ui/views/view_election.gd b/game/scripts/ui/views/view_election.gd
+index d8b19f4..c673341 100644
+--- a/game/scripts/ui/views/view_election.gd
++++ b/game/scripts/ui/views/view_election.gd
+@@ -97,7 +97,7 @@ func build() -> ElectionCard:
+ 		need_text = para(Strings.s("EVO_NEED"), C_ALERT)
+ 	close_x(func() -> void: cancel("close"))
+ 	# stacked (rtl-map §7.2): "לפזר את הכנסת" does not fit a 224 half at ×4
+-	_specs.append([Rect2(88, Ui.snap(_y - PARA_GAP + PAD, 4), 544, BTN_H), Strings.s("ELECT_GO"), "kit_primary", _do_confirm])
++	_specs.append([Rect2(88, Ui.snap(_y - PARA_GAP + PAD, 4), 544, BTN_H), Strings.s("ELECT_GO"), "kit_gold", _do_confirm])   # review U2: it completes the gold "עוד סבב!" CTA
+ 	_y = Ui.snap(_y - PARA_GAP + PAD, 4) + BTN_H + BTN_GAP
+ 	_specs.append([Rect2(88, _y, 544, BTN_H), Strings.s("ELECT_CANCEL"), "kit_secondary", func() -> void: cancel("close")])
+ 	_y += BTN_H
+diff --git a/game/scripts/ui/views/view_pick.gd b/game/scripts/ui/views/view_pick.gd
+index 342c4fd..9e271a0 100644
+--- a/game/scripts/ui/views/view_pick.gd
++++ b/game/scripts/ui/views/view_pick.gd
+@@ -309,7 +309,7 @@ func _build() -> void:
+ 		var vis := Rect2(24, _bot - 100.0, 672.0 + L.dx, 80)
+ 		again_btn = PxButton.make(_layer, vis, {"hit": Rect2(16, _bot - 104.0, 688.0 + L.dx, 88), "kind": "kit_primary",
+ 			"on_commit": func() -> void: commit_again("again")})
+-		var lab := PxText.make(_layer, Vector2(0, vis.position.y + 20.0), Strings.s("LEADER_PICK_AGAIN", {"short": LeaderUi.short(again_id)}), L.TEXT, "plain", "w")
++		var lab := PxText.make(_layer, Vector2(0, vis.position.y + 20.0), Strings.s("LEADER_PICK_AGAIN", {"short": LeaderUi.short(again_id)}), L.TEXT, "plain", PxButton.label_color("kit_primary"))   # U2: flag on the white primary
+ 		lab.wrap_width = 560.0
+ 		lab.max_lines = 1
+ 		var art := LeaderUi.art(again_id)
+diff --git a/game/tests/unit/test_review2_engine.gd b/game/tests/unit/test_review2_engine.gd
+index 5c5ef2c..62acd89 100644
+--- a/game/tests/unit/test_review2_engine.gd
++++ b/game/tests/unit/test_review2_engine.gd
+@@ -124,3 +124,38 @@ func test_u13_the_owned_chip_fits_its_text() -> void:
+ 	runner.check(r == Rect2(572, 76, 56, 40), "text 40 → 56 × 40 at the plate's bottom-left (%s)" % r)
+ 	runner.check(Shop.owned_rect(8.0).size.x == 48.0, "min 48")
+ 	runner.check(Shop.owned_rect(40.0).size.x < 104.0, "smaller than the old 104 × 44 chip")
++
++
++# ------------------------------------------------------------------ the 2D Artist's wave 10 (U2, U7, U10)
++
++func test_u2_the_white_primary_and_the_gold_election_call() -> void:
++	var k: Dictionary = PxButton.kinds()["kit_primary"]
++	runner.check(str(k["normal"][0]) == "button_white_default" and str(k["pressed"][0]) == "button_white_pressed", "kit_primary is the white button (%s)" % k["normal"][0])
++	runner.check(str(k["normal"][2]) == "u" and str(k["pressed"][2]) == "u" and PxButton.label_color("kit_primary") == Color("#0038b8"), "its label is flag blue, never white on white")
++	runner.check(str(PxButton.kinds()["kit_secondary"]["normal"][2]) == "w", "the secondary keeps its white label")
++	await _boot()
++	m._open_evolution()
++	await tree.create_timer(0.3).timeout
++	var c := m.overlays.top() as ElectionCard
++	runner.check(c != null and c.go_button.kind == "kit_gold", "O3's ELECT_GO takes the gold CTA skin")
++
++
++func test_u7_the_teaser_rows_and_the_system_pill() -> void:
++	var sh := Shop.new()
++	runner.check(sh._card_sprite("teaser", false) == "card_row_silhouette" and sh._card_sprite("silhouette", true) == "card_row_silhouette", "teaser and locked rows are the pale slip")
++	sh.free()
++	var sil := "source_taxpayer_icon_sil"
++	runner.check(Shop.pale_sil(sil) == sil + "_pale", "the silhouette draws its pale cut")
++	runner.check(Art.has_sprite("chat_system_pill_navy"), "T3's navy system pill ships")
++
++
++func test_u10_the_transition_is_the_printed_notice() -> void:
++	await _boot()
++	var tx: EvolveTx = m.tx
++	tx.start({"round": 2, "multBefore": 1.0, "multAfter": 1.2, "gained": 12, "era": ""}, false, {})
++	tx.update_view(400.0)
++	runner.check(tx._notice != null and tx._notice.visible and tx._card.color == Color("#0038b8"), "a white notice on the flag-blue page")
++	runner.check(tx._species.tint == Color("#0038b8") and tx._gain.tint == Color("#0f2350"), "the title in flag, the body in night")
++	var nr := Rect2(tx._notice.position, tx._notice.size * 4.0)
++	runner.check(nr.position.y + 32.0 <= tx._line.position.y and nr.end.y - 24.0 >= EvolveTx.ERA_Y + 36.0, "the notice frames the lines (%s)" % nr)
++	tx._finish()
 -- 
 2.43.0
 
