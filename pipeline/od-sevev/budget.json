@@ -39,6 +39,7 @@
   "sprites/avatar24_regev.png": 1186,
   "sprites/avatar24_sara.png": 1163,
   "sprites/avatar24_smotrich.png": 945,
+  "sprites/avatar24_tibi.png": 1047,
   "sprites/avatar24_trump.png": 1004,
   "sprites/avatar_abbas.png": 1573,
   "sprites/avatar_almog.png": 1680,
@@ -95,6 +96,7 @@
   "sprites/avatar_regev.png": 2060,
   "sprites/avatar_sara.png": 2073,
   "sprites/avatar_smotrich.png": 1560,
+  "sprites/avatar_tibi.png": 1682,
   "sprites/avatar_trump.png": 1703,
   "sprites/badge_count.png": 152,
   "sprites/booth_frame.png": 296,
@@ -270,6 +272,10 @@
   "sprites/cast/smotrich_react_d2.png": 81812,
   "sprites/cast/smotrich_tap.png": 225284,
   "sprites/cast/smotrich_tap_d2.png": 120221,
+  "sprites/cast/tibi_idle.png": 68308,
+  "sprites/cast/tibi_idle_d2.png": 34205,
+  "sprites/cast/tibi_react.png": 56326,
+  "sprites/cast/tibi_react_d2.png": 27811,
   "sprites/cast/trump_idle.png": 267776,
   "sprites/cast/trump_idle_d2.png": 137419,
   "sprites/cast/trump_react.png": 176222,
@@ -569,8 +575,12 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 200648176,
+ "vramBytes": 202936196,
  "vramByDensity": {
+  "tibi": {
+   "3": 1576784,
+   "2": 704836
+  },
   "almog": {
    "3": 2442336,
    "2": 1081912
@@ -717,13 +727,13 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 8142888,
-  "3": 13805736,
-  "4": 8142888,
-  "6": 13805736,
-  "7": 13805736,
-  "8": 8142888,
-  "9": 13805736
+  "2": 8149288,
+  "3": 13812136,
+  "4": 8149288,
+  "6": 13812136,
+  "7": 13812136,
+  "8": 8149288,
+  "9": 13812136
  },
  "vramSourcesByK": {
   "2": 259200,
@@ -736,6 +746,7 @@
  },
  "vramPerPartnerByK": {
   "2": {
+   "tibi": 704836,
    "almog": 1081912,
    "lazimi": 1371136,
    "kariv": 883168,
@@ -770,6 +781,7 @@
    "nophoto": 15520
   },
   "3": {
+   "tibi": 1576784,
    "almog": 2442336,
    "lazimi": 3095040,
    "kariv": 1970980,
@@ -804,6 +816,7 @@
    "nophoto": 15520
   },
   "4": {
+   "tibi": 704836,
    "almog": 1081912,
    "lazimi": 1371136,
    "kariv": 883168,
@@ -838,6 +851,7 @@
    "nophoto": 15520
   },
   "6": {
+   "tibi": 1576784,
    "almog": 2442336,
    "lazimi": 3095040,
    "kariv": 1970980,
@@ -872,6 +886,7 @@
    "nophoto": 15520
   },
   "7": {
+   "tibi": 1576784,
    "almog": 2442336,
    "lazimi": 3095040,
    "kariv": 1970980,
@@ -906,6 +921,7 @@
    "nophoto": 15520
   },
   "8": {
+   "tibi": 704836,
    "almog": 1081912,
    "lazimi": 1371136,
    "kariv": 883168,
@@ -940,6 +956,7 @@
    "nophoto": 15520
   },
   "9": {
+   "tibi": 1576784,
    "almog": 2442336,
    "lazimi": 3095040,
    "kariv": 1970980,
@@ -1046,9 +1063,10 @@
    "golan": 2803640
   }
  },
- "vramTypical": 13805736,
- "vramCastAll": 195589888,
+ "vramTypical": 13812136,
+ "vramCastAll": 197871508,
  "vramPerPartner": {
+  "tibi": 1576784,
   "almog": 2442336,
   "lazimi": 3095040,
   "kariv": 1970980,
@@ -1277,6 +1295,11 @@
    "file": "assets/sprites/avatar24_smotrich.png",
    "source": 895,
    "imported": 430
+  },
+  {
+   "file": "assets/sprites/avatar24_tibi.png",
+   "source": 1047,
+   "imported": 464
   },
   {
    "file": "assets/sprites/avatar24_trump.png",
@@ -1557,6 +1580,11 @@
    "file": "assets/sprites/avatar_smotrich.png",
    "source": 1439,
    "imported": 602
+  },
+  {
+   "file": "assets/sprites/avatar_tibi.png",
+   "source": 1682,
+   "imported": 648
   },
   {
    "file": "assets/sprites/avatar_trump.png",
@@ -2432,6 +2460,26 @@
    "file": "assets/sprites/cast/smotrich_tap_d2.png",
    "source": 120221,
    "imported": 39650
+  },
+  {
+   "file": "assets/sprites/cast/tibi_idle.png",
+   "source": 68308,
+   "imported": 21284
+  },
+  {
+   "file": "assets/sprites/cast/tibi_idle_d2.png",
+   "source": 34205,
+   "imported": 11610
+  },
+  {
+   "file": "assets/sprites/cast/tibi_react.png",
+   "source": 56326,
+   "imported": 20162
+  },
+  {
+   "file": "assets/sprites/cast/tibi_react_d2.png",
+   "source": 27811,
+   "imported": 10768
   },
   {
    "file": "assets/sprites/cast/trump_idle.png",
@@ -3927,8 +3975,12 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 6597121,
+ "pckBytes": 6662057,
  "pckByAsset": {
+  "tibi": {
+   "3": 41446,
+   "2": 22378
+  },
   "almog": {
    "3": 134556,
    "2": 69774
@@ -4198,5 +4250,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 19039666
+ "sourceTotal": 19229045
 }

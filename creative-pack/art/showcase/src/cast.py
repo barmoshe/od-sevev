@@ -81,6 +81,10 @@ CAST = {
     # (the pocket between his left arm and the jacket).
     'almog': dict(neck=500, waist=900, eyes=[(385, 237, 22, 10), (495, 258, 22, 10)],
                   arm=None, react='hop', head=(230, 20, 760, 540)),
+    # Ahmad Tibi (the Joint List No. 2; Golan's round, the switcher's seat). His chin rests on his hand, so the neck cut
+    # sits under the hand and the forearm crossing the chest rides the chest band.
+    'tibi': dict(neck=540, waist=900, eyes=[(407, 235, 20, 9), (508, 264, 20, 9)],
+                 arm=None, react='no', head=(270, 40, 760, 560)),
 }
 
 # The two custom-rig leaders (build.py magician / bennett) take the same recipe keys. Bibi's is his approved hat rig

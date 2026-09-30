@@ -10,6 +10,148 @@
   219
  ],
  "chars": {
+  "tibi": {
+   "frameW": 124,
+   "frameH": 289,
+   "anchor": [
+    63,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/tibi_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/tibi_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3,
+     "cols": 5,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      1,
+      0,
+      2,
+      3,
+      4,
+      1,
+      1,
+      0,
+      2,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 83,
+     "frameH": 193,
+     "anchor": [
+      42,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/tibi_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/tibi_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        1,
+        0,
+        2,
+        3,
+        4,
+        1,
+        1,
+        0,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_tibi",
+   "avatar24": "avatar24_tibi"
+  },
   "almog": {
    "frameW": 152,
    "frameH": 309,
@@ -14960,6 +15102,14 @@
     24
    ]
   },
+  "avatar24_tibi.png": {
+   "bytes": 1047,
+   "sha": "03084d518ca5fb73",
+   "size": [
+    24,
+    24
+   ]
+  },
   "avatar24_trump.png": {
    "bytes": 1004,
    "sha": "cad70430ab0fafd1",
@@ -15403,6 +15553,14 @@
   "avatar_smotrich.png": {
    "bytes": 1439,
    "sha": "11dcb3ba5ff4df45",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_tibi.png": {
+   "bytes": 1682,
+   "sha": "2624a9bc4d35c5b1",
    "size": [
     32,
     32
@@ -16806,6 +16964,38 @@
    "size": [
     618,
     202
+   ]
+  },
+  "cast/tibi_idle.png": {
+   "bytes": 68308,
+   "sha": "61fbca766ed04339",
+   "size": [
+    744,
+    289
+   ]
+  },
+  "cast/tibi_idle_d2.png": {
+   "bytes": 34205,
+   "sha": "b3834fc675152e51",
+   "size": [
+    498,
+    193
+   ]
+  },
+  "cast/tibi_react.png": {
+   "bytes": 56326,
+   "sha": "80b32a0fffbd1cdf",
+   "size": [
+    620,
+    289
+   ]
+  },
+  "cast/tibi_react_d2.png": {
+   "bytes": 27811,
+   "sha": "31d71059160e4313",
+   "size": [
+    415,
+    193
    ]
   },
   "cast/trump_idle.png": {
@@ -19182,6 +19372,7 @@
    "sara.png": "56989776f43a9335",
    "smotrich.png": "4c86097e39338044",
    "taxpayer.png": "d8da78b12f46e44d",
+   "tibi.png": "b3409aa6a75712f7",
    "trump.png": "bdd29b89aa43a3b6",
    "vat.png": "5311ff78d98f502c"
   },

@@ -430,6 +430,7 @@
    "url": "https://www.timesofisrael.com/adl-criticizes-politicians-demonization-of-israeli-arabs/",
    "date": "2019",
    "usedIn": [
+    "leaderSelect.partnerProfiles.tibi",
     "partners.abbas",
     "partners.abbas.copy.card"
    ]
@@ -504,6 +505,12 @@
    "url": "https://www.timesofisrael.com/in-bombshell-ruling-high-court-nixes-shas-head-deri-from-serving-as-minister/",
    "date": "2023-01",
    "usedIn": [
+    "leaders.deri.kit.sources.t8",
+    "leaders.deri.kit.sources.t8.firstOwned",
+    "leaders.deri.kit.story",
+    "leaders.deri.kit.ticker.td04",
+    "leaders.deri.kit.ticker.td12",
+    "leaders.deri.kit.ticker.td13",
     "partners.deri"
    ],
    "usedInLeaderSelect": [
@@ -985,7 +992,9 @@
    "url": "https://www.ynetnews.com/business/article/s1bvi811dmx",
    "date": "2026-09-01",
    "usedOutsideContent": "UX receipt line 'דלק 95: 8.25 ₪ לליטר (שיא, 1.9.2026)*' (ux/first-minute.md §5.1)",
-   "usedIn": []
+   "usedIn": [
+    "leaders.smotrich.kit.ticker.ts13"
+   ]
   },
   {
    "id": "electricity-water",
@@ -1357,9 +1366,7 @@
    "label": "F",
    "text": "On 1 Sep 2026 Smotrich (Religious Zionism) and Moshe Feiglin (Zehut) signed to run as one list, a technical bloc that can split after entering the Knesset; Feiglin takes the No. 2 slot.",
    "aboutHe": "בספטמבר 2026 חתמו בצלאל סמוטריץ׳ ומשה פייגלין על ריצה משותפת של הציונות הדתית וזהות כגוש טכני, שאפשר לפצל אחרי הכניסה לכנסת.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; JPost; JNS; Haaretz",
    "url": "https://www.timesofisrael.com/smotrich-feiglin-announce-joint-election-run-urge-other-right-wing-parties-to-join/",
    "url2": "https://www.jpost.com/israel-election-2026/article-907259",
@@ -1382,9 +1389,7 @@
    "label": "F",
    "text": "The 2025 state budget, passed on 25 Mar 2025, included about NIS 5 billion in \"coalition funds\", a separate section that funds coalition agreements.",
    "aboutHe": "תקציב המדינה לשנת 2025 כלל כחמישה מיליארד ₪ של כספים קואליציוניים, סעיף נפרד למימון ההסכמים הקואליציוניים.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; JPost",
    "url": "https://www.timesofisrael.com/cabinet-approves-over-nis-1-billion-in-coalition-funds-for-haredim-of-a-total-nis-5b/",
    "url2": "https://www.jpost.com/israel-news/article-844678",
@@ -1408,9 +1413,7 @@
    "label": "F",
    "text": "In early 2022 Deri resigned from the Knesset and was convicted of tax offences in a plea deal (five income-tax counts and one land-tax count): a 12-month suspended sentence and a NIS 180,000 fine. Resigning first let him avoid a moral-turpitude finding.",
    "aboutHe": "בתחילת 2022 התפטר אריה דרעי מהכנסת והורשע בעבירות מס במסגרת הסדר טיעון, עם מאסר על תנאי וקנס של 180 אלף ₪.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; Israel Hayom; Haaretz; Globes",
    "url": "https://www.timesofisrael.com/court-sentences-deri-in-plea-bargain-conviction-on-tax-offenses/",
    "url2": "https://www.israelhayom.com/2022/01/26/shas-chief-deri-convicted-of-tax-offenses-in-plea-deal/",
@@ -1434,9 +1437,7 @@
    "label": "F",
    "text": "In Dec 2022 the Knesset amended Basic Law: The Government so that a person with a suspended sentence can serve as a minister, clearing Deri's appointment as Interior and Health Minister; the Knesset legal adviser criticised it as personal legislation. In Jan 2023 the High Court (10-1) ordered his removal but left the amendment in force.",
    "aboutHe": "בדצמבר 2022 תיקנה הכנסת את חוק יסוד: הממשלה כך שגם מי שנגזר עליו מאסר על תנאי יוכל לכהן כשר, והתיקון איפשר את מינויו של אריה דרעי.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; JURIST; Library of Congress",
    "url": "https://www.timesofisrael.com/coalition-advances-bill-that-would-return-deri-to-cabinet-defying-high-court-ruling/",
    "url2": "https://www.jurist.org/news/2022/12/israel-dispatch-controversial-coalition-bill-allows-party-leader-lately-convicted-of-tax-fraud-to-serve-as-government-minister/",
@@ -1952,9 +1953,144 @@
    "usedIn": [
     "leaders.bengvir.coalition.lineup.bibi",
     "leaders.bengvir.coalition.lineup.smotrich",
-    "leaders.bengvir.kit.ticker.tg14"
+    "leaders.bengvir.kit.ticker.tg14",
+    "leaders.smotrich.coalition.lineup.bengvir",
+    "leaders.smotrich.kit.story",
+    "leaders.smotrich.kit.ticker.ts14"
    ],
    "ref": 91
+  },
+  {
+   "id": "gafni-off-list",
+   "label": "F",
+   "text": "On 5 Sep 2026 Degel HaTorah announced that Moshe Gafni (in the Knesset since 1988, Finance Committee chair for over a decade) and Uri Maklev will not be on its slate for the next Knesset; Gafni stays party chairman outside the Knesset and serves as an MK until the new Knesset.",
+   "aboutHe": "בספטמבר 2026 הודיעה דגל התורה שמשה גפני, חבר כנסת מאז 1988, לא ייכלל ברשימתה לכנסת הבאה, והוא ימשיך לכהן כיושב ראש המפלגה.",
+   "notUsed": false,
+   "outlet": "Ynet; Haaretz",
+   "url": "https://www.ynetnews.com/article/gumv1ou7r",
+   "url2": "https://www.haaretz.com/israel-news/elections/2026-09-06/ty-article/.premium/israels-most-senior-lawmaker-removed-from-haredi-slate-by-spiritual-leader/000001a0-7398-d957-ade9-73bc3f500000",
+   "date": "2026-09-05",
+   "_guardrail": "The joke is his long career and his abstention gag, never his community or its rabbis.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "ambientHeadlinesV2.listPolitics.m22",
+    "partners.gafni"
+   ],
+   "ref": 92
+  },
+  {
+   "id": "arab-lists-barred",
+   "label": "F",
+   "text": "The Central Elections Committee voted 18-5 (Sep 2026) to bar Ra'am (Mansour Abbas) and the Joint List (Jabareen, Tibi, Abu Shehadeh) from the election; both appeal to the Supreme Court, which hears the cases before the vote.",
+   "aboutHe": "בספטמבר 2026 החליטה ועדת הבחירות המרכזית לפסול את רשימות רע״מ והרשימה המשותפת, והן ערערו לבית המשפט העליון.",
+   "notUsed": false,
+   "outlet": "The Media Line; Al Jazeera",
+   "url": "https://themedialine.org/headlines/central-elections-committee-votes-to-bar-joint-list-raam-from-knesset-elections/",
+   "url2": "https://www.aljazeera.com/news/2026/9/26/israel-bans-arab-parties-from-election-who-they-are-why-it-matters",
+   "date": "2026-09",
+   "_guardrail": "The joke is paperwork and appeals, never the lists' voters. Never name who petitioned.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.tibi",
+    "partners.abbas"
+   ],
+   "ref": 93
+  },
+  {
+   "id": "levin-committee",
+   "label": "F",
+   "text": "In June 2026 the High Court unanimously ordered Justice Minister Levin to convene the Judicial Selection Committee and fill district-court vacancies (51 posts empty), after months of refusal and of not cooperating with Supreme Court President Amit.",
+   "aboutHe": "ביוני 2026 הורה בג״ץ לשר המשפטים יריב לוין לכנס את הוועדה לבחירת שופטים, אחרי חודשים שבהם סירב לעשות זאת.",
+   "notUsed": false,
+   "outlet": "Jerusalem Post; Times of Israel",
+   "url": "https://www.jpost.com/israel-news/politics-and-diplomacy/article-897944",
+   "url2": "https://www.timesofisrael.com/in-scathing-rebuke-high-court-rules-levin-must-cooperate-with-court-president-amit/",
+   "date": "2026-06",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.levin"
+   ],
+   "ref": 94
+  },
+  {
+   "id": "karhi-media-law",
+   "label": "F",
+   "text": "On 16 Jul 2026 the Knesset passed Karhi's media overhaul 53-48; the High Court later froze parts of it.",
+   "aboutHe": "ביולי 2026 אישרה הכנסת את חוק השידורים של השר שלמה קרעי, ובג״ץ הקפיא בהמשך חלקים ממנו.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Jerusalem Post",
+   "url": "https://www.timesofisrael.com/coalition-passes-media-overhaul-law-giving-government-greater-regulatory-control/",
+   "url2": "http://www.jpost.com/israel-news/politics-and-diplomacy/article-902907",
+   "date": "2026-07-16",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.karhi"
+   ],
+   "ref": 95
+  },
+  {
+   "id": "distel-not-running",
+   "label": "F",
+   "text": "On 25 May 2026 Distel Atbaryan announced, in a session of the committee she chaired on Karhi's media bill, that she would not run in the Likud primary or the next election.",
+   "aboutHe": "במאי 2026 הודיעה גלית דיסטל־אטבריאן שלא תתמודד בבחירות הבאות לכנסת.",
+   "notUsed": false,
+   "outlet": "Jerusalem Post; Times of Israel",
+   "url": "https://www.jpost.com/israel-news/politics-and-diplomacy/article-897256",
+   "url2": "https://www.timesofisrael.com/likud-mk-distel-atbaryan-says-she-wont-seek-reelection-after-knesset-ends-its-term/",
+   "date": "2026-05-25",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.distel"
+   ],
+   "ref": 96
+  },
+  {
+   "id": "gantz-threshold",
+   "label": "Q",
+   "text": "Gantz told the Times of Israel he would halt his campaign if polls in the last week show Blue and White not crossing the threshold; an associate told Ynet he would run to the end.",
+   "aboutHe": "בני גנץ אמר שיפרוש מהמרוץ בשבוע האחרון אם יתברר שמפלגתו לא עוברת את אחוז החסימה.",
+   "notUsed": false,
+   "outlet": "Times of Israel",
+   "url": "https://www.timesofisrael.com/gantz-to-toi-ill-drop-out-if-i-dont-cross-the-threshold-in-the-last-week-of-the-race/",
+   "url2": "https://www.jfeed.com/news-israel/tlq6f6",
+   "date": "2026-09",
+   "heStatus": "unverified",
+   "gameRendering": "reported, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.gantz"
+   ],
+   "ref": 97
+  },
+  {
+   "id": "joint-list-slate",
+   "label": "F",
+   "text": "The Joint List was revived on 19 Aug 2026: Yousef Jabareen No. 1, Ahmad Tibi No. 2, Sami Abu Shehadeh No. 3.",
+   "aboutHe": "באוגוסט 2026 חודשה הרשימה המשותפת, ואחמד טיבי במקום השני בה.",
+   "notUsed": false,
+   "outlet": "Jerusalem Post; The Media Line",
+   "url": "http://www.jpost.com/israel-election-2026/article-906019",
+   "url2": "https://themedialine.org/headlines/central-elections-committee-votes-to-bar-joint-list-raam-from-knesset-elections/",
+   "date": "2026-08-19",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.tibi"
+   ],
+   "ref": 98
   }
  ],
  "deliberatelyOut": [
