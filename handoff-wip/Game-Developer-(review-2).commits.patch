@@ -1,8 +1,8 @@
 From a368d7aaf54b08de55cf35929c7e1d993c5cd75f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:31:13 +0000
-Subject: [PATCH] feat(od-sevev): envelope flap on every sheet modal, the glue
- rule, O3 hemicycle
+Subject: [PATCH 1/2] feat(od-sevev): envelope flap on every sheet modal, the
+ glue rule, O3 hemicycle
 
 - Overlay.make_envelope: sheet_modal_body + sheet_modal_flap, f0/f1/f2 at 0/40/80 ms, title and close from f2, reduced motion f2 at once (review U1, style guide 17.2); SheetCard and FlashCard HEADER_H 96
 - Bidi.glue (mobile-first 5.2.1): NBSP inside currency, punctuation and magnitude units, in wrapping PxText and Ticker.paginate, with the weak-joint fallback (U16)
@@ -745,6 +745,952 @@ index 17c2808..ca58266 100644
  func test_the_election_confirm_runs_the_transition_with_the_round() -> void:
  	await _boot()
  	_gate_open()
+-- 
+2.43.0
+
+
+From eb7f8244aed096f9de4b33cfc9522a2bb96965e4 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 05:41:04 +0000
+Subject: [PATCH 2/2] feat(od-sevev): booth on the picker, envelope on O5 and
+ the sent line, review 2 engine fixes
+
+- picker: booth_frame around the grid where it costs no tile pixel (columns at 20, grid 20 over the strip), odPick.booth (mobile-first 5.14.2)
+- share: E1 envelope on the result card floor, E2 envelope on the status line after a share (5.14.3); WhatsApp row full width, label only (U11, U14)
+- U3 the pre-tap apron stays until card 1; U6 no pill on a cut row (Shop.pill_rects, odDev.shop.pills); U9 Dubi's pre-tap pick line in the toast dock (passive chat toast); U13 owned chip sized to its text
+- web: mobile_web booth/S10, tap-1 band check, S7 pill rects; modals_web C1 waits for the ping's quiet window
+- tests: test_review2_engine, share/mobile/review-engine updates
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/scripts/main.gd                       |  76 ++++++++++++-
+ game/scripts/ui/dev_probe.gd               |   4 +-
+ game/scripts/ui/shop.gd                    |  53 ++++++++-
+ game/scripts/ui/toasts.gd                  |  13 ++-
+ game/scripts/ui/views/view_pick.gd         |  49 ++++++--
+ game/scripts/ui/views/view_share.gd        | 108 ++++++++----------
+ game/tests/unit/test_mobile_layout.gd      |  14 ++-
+ game/tests/unit/test_review2_engine.gd     | 125 +++++++++++++++++++++
+ game/tests/unit/test_review2_engine.gd.uid |   1 +
+ game/tests/unit/test_review_engine.gd      |   7 +-
+ game/tests/unit/test_share_view.gd         |  18 ++-
+ tools/web/mobile_web.mjs                   |  38 ++++++-
+ tools/web/modals_web.mjs                   |  23 +++-
+ 13 files changed, 436 insertions(+), 93 deletions(-)
+ create mode 100644 game/tests/unit/test_review2_engine.gd
+ create mode 100644 game/tests/unit/test_review2_engine.gd.uid
+
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index f7d6e3e..13f60a3 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -127,6 +127,8 @@ var _bottom_inset := 0.0
+ var _seats_up := false               # the Row B fill is drawn (C2, mobile-first §3.3)
+ var _tabs_up := false                # the tab bar is revealed (C1)
+ var _slots_known := false
++var _pane_up := false                 # the pane's white field is drawn (card 1, review U3)
++var _pane_known := false
+ var _tab_slide: Tween
+ ## R9 (rtl-map §7.1 "History"): one browser history entry per open layer (web only).
+ var history := LayerHistory.new()
+@@ -964,7 +966,9 @@ func _set_mode(m: String, animate: bool) -> void:
+ 	_title_ground.visible = not main and not diorama.has_background()
+ 	_place_title_floor()
+ 	_title_floor.modulate.a = 1.0
+-	_title_floor.visible = not main or animate   # fades out with the title (below)
++	# review U3: between tap 1 and card 1 the pre-tap apron stays (the pane's white comes with card 1)
++	var floor_stays := main and not bool(Ftue.reveals(state).get("card1", false))
++	_title_floor.visible = not main or animate or floor_stays   # fades out with the title (below)
+ 	if not main:
+ 		title_view.show_title(not Leaders.active())   # D26: the pre-tap state has no title lines
+ 		_top.visible = false
+@@ -980,8 +984,9 @@ func _set_mode(m: String, animate: bool) -> void:
+ 		var tw := create_tween().set_parallel()
+ 		tw.tween_property(_top, "modulate:a", 1.0, ms / 1000.0)
+ 		tw.tween_property(_lower, "modulate:a", 1.0, ms / 1000.0)
+-		tw.tween_property(_title_floor, "modulate:a", 0.0, ms / 1000.0)
+-		tw.chain().tween_callback(func() -> void: _title_floor.visible = mode != "main")
++		if not floor_stays:
++			tw.tween_property(_title_floor, "modulate:a", 0.0, ms / 1000.0)
++			tw.chain().tween_callback(func() -> void: _title_floor.visible = mode != "main" or not _pane_up)
+ 	else:
+ 		title_view.show_title(false)
+ 
+@@ -1147,6 +1152,7 @@ func _apply_reveals() -> void:
+ 		court.relayout()
+ 		_publish_display()
+ 	_slots_known = true
++	_apply_pane(main and bool(_reveals["card1"]))
+ 	ticker.visible = main and bool(_reveals["counter"])
+ 	ticker.set_cta(main and state.evolutions >= 0 and Coalition.gate_open(state) and Coalition.active())
+ 	if bool(_reveals["seats"]):
+@@ -1155,6 +1161,37 @@ func _apply_reveals() -> void:
+ 	top_bar.set_muted(not bool(settings.get("sfx", true)) and not bool(settings.get("music", true)))
+ 
+ 
++## Review U3 (mobile-first §0 rule 4, §3.3): the pane's white field (`_fills["shop"]`) appears
++## with card 1, not at tap 1; until then the pre-tap apron (the diorama's plaza + the paving floor)
++## stays drawn below the ticker. At card 1 the field fades in as the apron fades out (150 ms;
++## reduced motion: a cut).
++func _apply_pane(up: bool) -> void:
++	if up == _pane_up and _pane_known:
++		return
++	var anim := _pane_known and up and mode == "main" and not bool(settings.get("reducedMotion", false))
++	_pane_up = up
++	_pane_known = true
++	var fill: ColorRect = _fills["shop"]
++	fill.visible = up
++	if mode != "main":
++		return
++	if not up:
++		fill.modulate.a = 1.0
++		_place_title_floor()
++		_title_floor.modulate.a = 1.0
++		_title_floor.visible = true
++		return
++	if anim:
++		fill.modulate.a = 0.0
++		var tw := create_tween().set_parallel()
++		tw.tween_property(fill, "modulate:a", 1.0, 0.15)
++		tw.tween_property(_title_floor, "modulate:a", 0.0, 0.15)
++		tw.chain().tween_callback(func() -> void: _title_floor.visible = mode != "main" or not _pane_up)
++	else:
++		fill.modulate.a = 1.0
++		_title_floor.visible = false
++
++
+ func _blackout() -> bool:
+ 	return Calendar.active() and Calendar.is_blackout(SaveStore.now_ms())
+ 
+@@ -2368,10 +2405,10 @@ func _on_pick_done() -> void:
+ 	# figure when the line pops); the leader's own line 1.7 s after it, as before
+ 	var at := _now + bb.walk_left_ms() + PICK_LINE_AFTER_LAND_MS
+ 	_pick_seq = [{"at": at, "fn": func() -> void:
+-		toasts.say(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at, 1600.0)}]
++		_say_pick(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at)}]
+ 	var line := str(Leaders.leader(id).get("pick", {}).get("line", "")) if Leaders.leader(id).get("pick") is Dictionary else ""
+ 	if Leaders.stat(state, id, "taps") > 0.0 and line != "":
+-		_pick_seq.append({"at": at + PICK_LINE_GAP_MS, "fn": func() -> void: toasts.say(line, dubi_at, 1600.0)})
++		_pick_seq.append({"at": at + PICK_LINE_GAP_MS, "fn": func() -> void: _say_pick(line, dubi_at)})
+ 	if _pick_res.get("fresh", false) == true:
+ 		toasts.show_toast(Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}))
+ 	var pk: Variant = Leaders.ls().get("pick", {})
+@@ -2384,6 +2421,35 @@ func _on_pick_done() -> void:
+ 		_save_now()
+ 
+ 
++## Review U9: a pick line of Dubi's. Before tap 1 (ftue P0) Dubi is not on screen (he lives in the
++## ticker, hidden pre-tap), so the line goes in the toast dock above the leader's head, as a chat
++## toast headed "דובי · דובר הלשכה" with his 16-px face; from H1 on, his bubble by the ticker.
++func _say_pick(text: String, dubi_at: Vector2) -> void:
++	if mode != "main" and state.taps_lifetime == 0:
++		var t: String = str(toasts.dubi_line.call(text)) if toasts.dubi_line.is_valid() else text
++		toasts.show_chat_toast(dubi_head(), t, dubi_face(), "", true)
++		return
++	toasts.say(text, dubi_at, 1600.0)
++
++
++## The pre-tap toast's head line: the narrator's name and title from the content.
++static func dubi_head() -> String:
++	var n: Dictionary = Content.data().get("narrator", Content.data().get("dubi", {}))
++	var nm := str(n.get("name", ""))
++	var ti := str(n.get("title", ""))
++	return nm + (" · " + ti if ti != "" and nm != "" else ti)
++
++
++## Dubi's face for the toast: his chat avatar at the manifest's scale ([id, scale, density]).
++static func dubi_face() -> Array:
++	var c: Dictionary = SpriteStrip.manifest().get("chars", {}).get(SpriteStrip.resolve("dubi"), {})
++	var art := str(c.get("avatar", "avatar_dubi"))
++	if not Art.has_sprite(art):
++		return []
++	var dens := maxi(1, int(c.get("avatarDensity", Art.kit(art).get("density", 1))))
++	return [art, float(SpriteStrip.art_scale()) / float(dens), dens]
++
++
+ ## Test / tool hook: picks `id` at once (the commit and the stage, no animation: the walk-in lands at
+ ## once unless `walk`).
+ func commit_pick(id: String, walk := false) -> bool:
+diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
+index 1558947..1878272 100644
+--- a/game/scripts/ui/dev_probe.gd
++++ b/game/scripts/ui/dev_probe.gd
+@@ -95,7 +95,9 @@ static func snapshot(host: Node) -> Dictionary:
+ 	# mobile-first §5.4: the silhouette and teaser rows the pane shows whole (no price or no target)
+ 	out["shop"] = {"tab": shop.tab, "list": [shop.list_rect.position.y + o.y, shop.list_rect.end.y + o.y], "rows": rows,
+ 		"all": all_rows, "silhouettes": shop.rows_in_view(["silhouette", "teaser"]),
+-		"card": [shop.list_rect.position.x + o.x, shop.list_rect.end.x + o.x]}   # the cards' x span (the width rule)
++		"card": [shop.list_rect.position.x + o.x, shop.list_rect.end.x + o.x],   # the cards' x span (the width rule)
++		# review U6 / S7: every row the pane shows at least partly, its pill [top, bottom, drawn]
++		"pills": shop.pill_rects().map(func(p: Array) -> Array: return [float(p[0]) + o.y, float(p[1]) + o.y, p[2]])}
+ 	var court: CourtView = host.get("court")
+ 	var ct := court.button_rect("testify").get_center() + o if court.card_visible() else Vector2(-1, -1)
+ 	out["court"] = {"card": court.card_visible(), "mode": court.mode(), "phase": court.phase(), "testify": [ct.x, ct.y]}
+diff --git a/game/scripts/ui/shop.gd b/game/scripts/ui/shop.gd
+index 7544ab8..c45d177 100644
+--- a/game/scripts/ui/shop.gd
++++ b/game/scripts/ui/shop.gd
+@@ -487,6 +487,7 @@ func refresh(s: GameState, dt_ms: float, animate_reveal: bool, d: Economy.Derive
+ 			if t == "upgrades" and _reflow_from >= 0 and k >= _reflow_from:
+ 				y += _reflow_offset
+ 			c.position.y = y
++			_clip_pill(v, y)
+ 		if t == "upgrades":
+ 			for e in _empty:
+ 				e.visible = models.is_empty()
+@@ -495,6 +496,48 @@ func refresh(s: GameState, dt_ms: float, animate_reveal: bool, d: Economy.Derive
+ 	_update_nudge(dt_ms, animate_reveal)
+ 
+ 
++## Review U13: the owned chip for a label `text_w` px wide, card-local (R side): w = text + 16
++## (min 48), h 40, its left and bottom edges where the old fixed chip had them (x 572, y 116).
++static func owned_rect(text_w: float) -> Rect2:
++	var o: Rect2 = L.ROW["owned"]
++	var w := maxf(48.0, Ui.snap(text_w + 16.0, 4))
++	return Rect2(o.position.x, o.end.y - 40.0, w, 40.0)
++
++
++## Review U6 (mobile-first §0 rule 5, S7): a row the pane cuts shows no pill (a tappable
++## half-button); plate, icon and name only, and the pill appears once it is fully in.
++func _clip_pill(v: Dictionary, y: float) -> void:
++	var shown := pill_whole(y)
++	v["pillCut"] = not shown
++	if shown:
++		(v["pill1"] as PxText).visible = true
++		(v["pill2"] as PxText).visible = true
++		return
++	for n: CanvasItem in [v["pill"], v["fill"], v["pill1"], v["pill2"]]:
++		n.visible = false
++
++
++## True when the pill of a row whose top is at `y` (`_lower`-local) lies wholly inside the pane.
++func pill_whole(y: float) -> bool:
++	return y + PILL_RECT.position.y >= list_rect.position.y - 0.5 and y + PILL_RECT.end.y <= list_rect.end.y + 0.5
++
++
++## The pills the pane shows (web probe, S7): [top, bottom, visible] in `_lower`-local y for every
++## row that is at least partly in the pane (source cards, the locked row, the teasers).
++func pill_rects() -> Array:
++	var out: Array = []
++	var views: Array = _rows[tab] if _rows.has(tab) else []
++	for v: Dictionary in views:
++		var c: Node2D = v["c"]
++		if not c.visible:
++			continue
++		var y := c.position.y
++		if y + float(L.SHOP["rowVisualH"]) <= list_rect.position.y or y >= list_rect.end.y:
++			continue
++		out.append([y + PILL_RECT.position.y, y + PILL_RECT.end.y, (v["pill"] as NinePatchRect).visible and (v["pill2"] as PxText).visible])
++	return out
++
++
+ func _badge_label(n: int) -> String:
+ 	return "" if n <= 0 else Strings.s("TAB_BADGE", {"count": "9+" if n > 9 else str(n)})
+ 
+@@ -614,9 +657,15 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 	l2t.text = line2
+ 	var ot: PxText = v["owned"]
+ 	ot.text = owned_s
+-	var orect: Rect2 = R["owned"]
++	# review U13: the chip is sized to its text (text + 16, min 48, h 40) at the plate's bottom-left
++	# corner, so it covers the portrait's corner, not its torso
++	var orect := owned_rect(float(ot.width()))
++	var obg: ColorRect = v["ownedBg"]
++	obg.position = orect.position
++	obg.size = orect.size
++	ot.position.y = orect.position.y + Ui.snap((orect.size.y - 9.0 * float(ot.eff_px())) / 2.0, 2)   # as the slip's tag
+ 	ot.center_in(orect.position.x, orect.size.x)   # re-centred every render: large text changes the width
+-	(v["ownedBg"] as ColorRect).visible = owned_s != ""
++	obg.visible = owned_s != ""
+ 	if v["afford"] == false and afford and active and _visible_shop and not is_btn:
+ 		if _now >= float(v["glintReadyAt"]):
+ 			v["glintReadyAt"] = _now + float(Tune.T["affordGlintCooldownMs"])
+diff --git a/game/scripts/ui/toasts.gd b/game/scripts/ui/toasts.gd
+index ce2c589..1dbac71 100644
+--- a/game/scripts/ui/toasts.gd
++++ b/game/scripts/ui/toasts.gd
+@@ -42,6 +42,7 @@ const FACE_X := 612.0
+ const FACE_ART := 16.0
+ const C_HEAD := Color("#c9d6f2")    # grey: the sender line, as the thread's names
+ var _chats: Array[Dictionary] = []
++var _passive := false               # the shown toast takes no tap (show_chat_toast passive)
+ var _face: Sprite2D
+ var _head: PxText
+ var _preview: PxText
+@@ -113,13 +114,15 @@ func show_toast(text: String, tag: String = "") -> void:
+ ## message preview, one line, ellipsised; both right-aligned at 596 (box x 32-596). Always two
+ ## lines (132). `avatar` = [art id, logical px per sprite px, density] (ChatView.avatar_art); an
+ ## empty id draws no face. The tag is "chat" (a tap opens T3).
+-func show_chat_toast(head: String, preview: String, avatar: Array) -> void:
++## `tag` "" and `passive` (review U9, Dubi's pre-tap pick line over the leader): no tap target, so
++## tap 1 aimed at the leader is never taken by the dock.
++func show_chat_toast(head: String, preview: String, avatar: Array, tag: String = "chat", passive: bool = false) -> void:
+ 	if preview == "" and head == "":
+ 		return
+ 	_queue.append(preview)
+-	_tags.append("chat")
++	_tags.append(tag)
+ 	_sync_chats()
+-	_chats.append({"head": head, "avatar": avatar})
++	_chats.append({"head": head, "avatar": avatar, "passive": passive})
+ 
+ 
+ ## Called right after a text is queued: the chat meta lines up with the texts already waiting
+@@ -188,6 +191,8 @@ func covered_rect() -> Rect2:
+ 
+ 
+ func tap(p: Vector2) -> bool:
++	if _passive:
++		return false
+ 	if _plate.visible and Ui.in_rect(Rect2(_plate.position, _plate.size * 4.0), p):
+ 		_t = SHOW_MS
+ 		if on_tap.is_valid() and _tag != "":
+@@ -255,6 +260,7 @@ func update_view(dt_ms: float) -> void:
+ 				n.modulate.a = a
+ 		if _t >= SHOW_MS:
+ 			_t = -1.0
++			_passive = false
+ 			_gap = GAP_MS
+ 			_plate.visible = false
+ 			_text.visible = false
+@@ -272,6 +278,7 @@ func update_view(dt_ms: float) -> void:
+ 	while _chats.size() > _queue.size():
+ 		_chats.pop_front()
+ 	var shown_nodes: Array[CanvasItem] = [_plate]
++	_passive = bool(chat.get("passive", false))
+ 	var y0 := float(L.STAGE["y"]) + 8.0
+ 	if chat.is_empty():
+ 		_text.text = msg
+diff --git a/game/scripts/ui/views/view_pick.gd b/game/scripts/ui/views/view_pick.gd
+index 19571e5..342c4fd 100644
+--- a/game/scripts/ui/views/view_pick.gd
++++ b/game/scripts/ui/views/view_pick.gd
+@@ -44,6 +44,12 @@ const STRIP_H := 112.0              # 12 + 2 lines × 44 + 12
+ ## the 2D Artist's piece lands (manifest chars.<art>.avatarPickXL, else this id) the 32-px pick
+ ## avatar draws at ×6 (1.5 art px per sprite px: whole device px at every even k).
+ const XL_PREFIX := "avatar_pick_xl_"   # only when the manifest names no avatarPickXL (it ships avatar_pick_<c>_d3)
++## mobile-first §5.14.2 (F15): the booth frame (kit `booth_frame` at ×4, content box [5, 9, 30, 28]
++## → insets left 20, top 36, right 20, bottom 12) around the grid, where it costs no tile pixel.
++const BOOTH_TOP := 36.0
++const BOOTH_BOTTOM := 12.0
++const BOOTH_SIDE := 20.0           # the tile columns move in from 16 to 20
++const BOOTH_GRID_GAP := 20.0       # the grid bottom = the strip top − 20 (the booth's bottom = − 8)
+ 
+ var host: Node
+ var reduced_motion := false
+@@ -65,6 +71,8 @@ var locked := false
+ var avatar := 128.0                 # the avatar size drawn (XL 192 / L 128 / M 96 / S 64)
+ var tile := Vector2(216, 284)       # the 3 × 3 tile [tw, th] (window.odPick.tile)
+ var grid := Vector2.ZERO            # the grid's [top, bottom], picker-local (window.odPick.grid)
++var booth := Rect2()                # the booth frame, picker-local (empty = no booth; window.odPick.booth)
++var _booth_node: NinePatchRect
+ 
+ var _top := 0.0
+ var _bot := float(L.H)
+@@ -272,6 +280,7 @@ func _build() -> void:
+ 		_layer.remove_child(c)
+ 		c.queue_free()
+ 	cells.clear()
++	_booth_node = null
+ 	again_btn = null
+ 	_again_group.clear()
+ 	var H := _bot - _top
+@@ -335,33 +344,50 @@ func _build() -> void:
+ 	# the toolbar viewports) the tiles give back those 16 px instead
+ 	var tl_est := clampf(ceilf(float(PxText.measure(_title_text(), L.TEXT)) / (656.0 + L.dx)), 1.0, 2.0)
+ 	var gmin := wm_bottom + 12.0 + LH * tl_est + 16.0 + (64.0 if variant == "after" else 0.0)
++	var shrunk := false
+ 	if three and gb - gh < gmin:
+ 		th = maxf(tile_h(avatar, true), L.floor4((gb - gmin - 2.0 * ROW_GAP) / 3.0))
+ 		gh = 3.0 * th + 2.0 * ROW_GAP
++		shrunk = true
++	# the title (measured now: the booth's room depends on its lines)
++	var title := PxText.make(_layer, Vector2.ZERO, _title_text(), L.TEXT, "plain", C_NAME)
++	title.wrap_width = 656.0 + L.dx
++	title.max_lines = 2
++	title.align = 1
++	var tlines := maxf(1.0, float(title.line_count()))
++	var chip_h := 64.0 if variant == "after" else 0.0   # the fresh chip (56) + 8
++	# mobile-first §5.14.2: the booth never costs a tile pixel. tw, th and A stay; it takes 36 above
++	# the grid and 8 below it from the sky, and is drawn only if the title's top still clears the
++	# wordmark (first) or the safe top (after) by 12
++	var sky_top := (wm_bottom + 12.0) if variant == "first" else (_top + 12.0)
++	booth = Rect2()
++	if not shrunk and Art.has_sprite("booth_frame"):
++		var gy_b := sy - BOOTH_GRID_GAP - gh
++		if gy_b - BOOTH_TOP - 16.0 - chip_h - LH * tlines >= sky_top:
++			booth = Rect2(0.0, gy_b - BOOTH_TOP, cw, gh + BOOTH_TOP + BOOTH_BOTTOM)
++			gb = sy - BOOTH_GRID_GAP
+ 	var gy := gb - gh
+ 	tile = Vector2(tw, th)
+ 	grid = Vector2(gy, gb)
+-	var cols: Array = [cw - 16.0 - tw, L.floor4((cw - tw) / 2.0), 16.0] if three else [cw - 16.0 - tw, 16.0]
++	var side := BOOTH_SIDE if booth.has_area() else 16.0
++	if booth.has_area():
++		_booth_node = Ui.nine(_layer, booth, "booth_frame")
++	var cols: Array = [cw - side - tw, L.floor4((cw - tw) / 2.0), side] if three else [cw - side - tw, side]
+ 	for i in n:
+ 		var rc := cell_rc(i, n)
+ 		var r := Rect2(cols[rc.y], gy + rc.x * (th + ROW_GAP), tw, th)
+ 		cells.append(_make_cell(str(order[i]), r, three))
+ 	# הפתעה: the centre cell (3 × 3) or the full-width bar under a 2 × 2
+ 	if model.get("random", true) == true:
+-		var rr := Rect2(cols[1], gy + th + ROW_GAP, tw, th) if three else Rect2(16, gy + 2.0 * (th + ROW_GAP), 688.0 + L.dx, 96)
++		var rr := Rect2(cols[1], gy + th + ROW_GAP, tw, th) if three else Rect2(side, gy + 2.0 * (th + ROW_GAP), cw - 2.0 * side, 96)
+ 		var rc_cell := _make_cell("", rr, three)
+ 		if three:
+ 			cells.insert(4, rc_cell)   # reading order: the centre is 5th (§8.5)
+ 		else:
+ 			cells.append(rc_cell)
+ 	# the title line (+ the fresh chip after an election), attached to the grid: the title's cell
+-	# bottom 16 above the grid (after: title, 8, the chip, 16, the grid)
+-	var title := PxText.make(_layer, Vector2.ZERO, _title_text(), L.TEXT, "plain", C_NAME)
+-	title.wrap_width = 656.0 + L.dx
+-	title.max_lines = 2
+-	title.align = 1
+-	var tlines := maxf(1.0, float(title.line_count()))
+-	var ty := gy - 16.0
++	# bottom 16 above the grid (after: title, 8, the chip, 16, the grid); with the booth, 16 above it
++	var ty := (booth.position.y if booth.has_area() else gy) - 16.0
+ 	if variant == "after":
+ 		var chip_t := Strings.s("LEADER_PICK_FRESH_CHIP", {"pct": int(roundf(fresh_pct))})
+ 		var cy := ty - 56.0
+@@ -768,8 +794,11 @@ func web_info() -> Dictionary:
+ 	if again_btn != null:
+ 		var q := again_btn.visual.get_center() + off
+ 		ag = [q.x, q.y, again_id]
++	var bo: Variant = null
++	if booth.has_area():
++		bo = [booth.position.x + off.x, booth.position.y + off.y, booth.size.x, booth.size.y]
+ 	return {"open": visible, "variant": variant, "cells": cs, "again": ag, "avatar": avatar,
+-		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y]}
++		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y], "booth": bo}
+ 
+ 
+ func publish_closed() -> void:
+diff --git a/game/scripts/ui/views/view_share.gd b/game/scripts/ui/views/view_share.gd
+index ba909e6..e8622aa 100644
+--- a/game/scripts/ui/views/view_share.gd
++++ b/game/scripts/ui/views/view_share.gd
+@@ -17,11 +17,12 @@ extends Overlay
+ ## Layout, sheet-local (Rect2(0, vs.y − inset − h, 720, h + inset), h = min(content, 0.8 · vs.y)):
+ ##   ✕ top-left (visual 64 at +16, hit 104), the title centred in the 432 box, y 24
+ ##   the preview centred under the 104 header
+-##   a status line (SHARE_SAVED / SHARE_COPIED / SHARE_FAIL) under it, one line
++##   a status line (SHARE_SAVED / SHARE_COPIED / SHARE_FAIL) under it, one line; after a share
++##   went out, the envelope (§5.14.3 E2, "sent") leads it
+ ##   "לשתף" (primary, LEFT Rect2(88, y, 256, 96)) beside "לשמור תמונה" (RIGHT Rect2(376, y, 256, 96))
+-##   "לשתף בוואטסאפ" full width Rect2(88, y + 112, 544, 96) with the speech-bubble icon at the
+-##   label's right (Bar 2026-09-29: WhatsApp is the main channel; wa.me takes text only, the link
+-##   preview (OG) carries the picture)
++##   "לשתף בוואטסאפ" full width Rect2(24, y + 112, 672, 96), the label only (review U11, U14;
++##   Bar 2026-09-29: WhatsApp is the main channel; wa.me takes text only, the link preview (OG)
++##   carries the picture)
+ ##   "סגור" full width Rect2(24, h − 112, 672, 88), fixed
+ 
+ const S := 5                                  # card px per art px (the export grid)
+@@ -41,6 +42,10 @@ const C_NIGHT := Color("#00237a")
+ ## The status line sits on the sheet's cream notice (#fff4e0), not on blue: the v4 map's ui_mute was
+ ## 1.3:1 there; flag blue is 8.3:1 (UX review 2026-09-30, U5).
+ const C_STATUS := Color("#0038b8")
++## mobile-first §5.14.3: the envelope (kit `envelope_blue`, 14×10) on the result card's stage floor
++## (E1, card-art px) and, ×4 (56×40), leading the status line after a share went out (E2, "sent").
++const ENVELOPE_AT := Vector2(38, 197)
++const ENVELOPE_GAP := 16.0
+ 
+ var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
+ var art_px := 2.0                             # the preview's logical px per art px
+@@ -53,6 +58,7 @@ var share_btn: PxButton
+ var save_btn: PxButton
+ var wa_btn: PxButton
+ var status: PxText
++var sent_mark: Sprite2D                       # E2: the envelope on the status line (shared only)
+ var _vp: SubViewport
+ var _preview: Sprite2D
+ var _printing: Node2D
+@@ -110,6 +116,9 @@ func build() -> ShareSheet:
+ 	status.reading = true
+ 	status.wrap_width = 640.0 + L.dx
+ 	status.max_lines = 1
++	if Art.has_sprite("envelope_blue"):
++		sent_mark = Ui.img(panel, Vector2(0, y + Ui.snap((STATUS_H - float(Art.sprite_size("envelope_blue").y) * 4.0) / 2.0, 4)), "envelope_blue", 0, 4)
++		sent_mark.visible = false
+ 	y += STATUS_H
+ 	var hw := L.floor4((544.0 + L.dx - 32.0) / 2.0)
+ 	share_btn = button(Rect2(88, y, hw, BTN_H), Rect2(80, y - 4.0, hw + 16.0, BTN_H + 8.0), Strings.s("SHARE_BTN"), func() -> void: share(), "kit_primary", L.TEXT)
+@@ -120,8 +129,13 @@ func build() -> ShareSheet:
+ 			b.label.max_lines = 1
+ 			b.label.center_in(b.visual.position.x, b.visual.size.x)
+ 	y += BTN_H + GAP
+-	wa_btn = button(Rect2(88, y, 544.0 + L.dx, BTN_H), Rect2(80, y - 4.0, 560.0 + L.dx, BTN_H + 8.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
+-	_place_wa_icon(wa_btn)
++	# review U14: full width like "סגור" below it (§5.12), hit + 8 on every side; U11: the label
++	# only, centred (no speech-bubble-with-tick icon: WhatsApp's mark under another name)
++	wa_btn = button(Rect2(24, y, 672.0 + L.dx, BTN_H), Rect2(16, y - 8.0, 688.0 + L.dx, BTN_H + 16.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
++	if wa_btn.label != null:
++		wa_btn.label.wrap_width = 672.0 + L.dx - 32.0
++		wa_btn.label.max_lines = 1
++		wa_btn.label.center_in(wa_btn.visual.position.x, wa_btn.visual.size.x)
+ 	var cy := pr.end.y - CLOSE_AREA - inset
+ 	button(Rect2(24, cy, 672.0 + L.dx, 88), Rect2(24, cy, 672.0 + L.dx, 88), Strings.s("SHARE_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
+ 	focusables.append(close)
+@@ -245,6 +259,12 @@ static func _build_result(root: Node2D, m: Dictionary) -> void:
+ 	Ui.img(root, Vector2.ZERO, fid, 0, S)
+ 	var z: Dictionary = Art.kit(fid).get("zones", {})
+ 	var anchor: Array = z.get("castAnchor", [108, 198])
++	# mobile-first §5.14.3 E1: a blank ballot envelope left on the stage floor, left of the leader's
++	# feet, after the floor and before the cast (no number, no party; not on the receipt)
++	if Art.has_sprite("envelope_blue"):
++		var env := Ui.img(root, ENVELOPE_AT * float(S), "envelope_blue", 0, S)
++		env.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
++		env.name = "Envelope"
+ 	_place_figure(root, Vector2(float(anchor[0]), float(anchor[1])))
+ 	var hz: Array = z.get("headline", [28, 43, 160, 20])
+ 	card_text(root, str(m["head"]), float(hz[0]), float(hz[2]), float(hz[1]), "center", C_WHITE, 2)
+@@ -379,11 +399,33 @@ func on_share_result(result: String) -> void:
+ 			key = "SHARE_COPIED"
+ 		"fail":
+ 			key = "SHARE_FAIL"
++	if result == "shared" and Strings.has("SHARE_SENT"):
++		key = "SHARE_SENT"
+ 	status.text = Strings.s(key) if key != "" else ""
+ 	status.center_in(0, L.cw)
+ 	if result == "fallback" and not png.is_empty():
+ 		status.text = Strings.s("SHARE_SAVED") + " " + Strings.s("SHARE_COPIED")
+ 		status.center_in(0, L.cw)
++	_place_sent(result == "shared")
++
++
++## §5.14.3 E2: on `shared` only, the envelope at ×4 leads the status line (at its right end, RTL
++## leading, 16 before the text; alone and centred when the line has no text). saved / copied /
++## fail: none.
++func _place_sent(on: bool) -> void:
++	if sent_mark == null:
++		return
++	sent_mark.visible = on
++	if not on:
++		return
++	var ew := float(Art.sprite_size("envelope_blue").x) * 4.0
++	var tw := float(status.width()) if status.text != "" else 0.0
++	var total := ew + (ENVELOPE_GAP + tw if tw > 0.0 else 0.0)
++	var x0 := Ui.snap((L.cw - total) / 2.0, 4)
++	if tw > 0.0:
++		status.h_anchor = 0
++		status.position.x = x0
++	sent_mark.position.x = x0 + total - ew
+ 
+ 
+ func cancel(via: String) -> void:
+@@ -391,60 +433,6 @@ func cancel(via: String) -> void:
+ 	mgr.close(self, via)
+ 
+ 
+-# ------------------------------------------------------------------ the WhatsApp icon
+-
+-## A 9×9 speech bubble with a handset in it (the kit's white and ink; no WhatsApp green: the style
+-## guide keeps army-adjacent greens off the UI and UX 4.3 keeps WhatsApp's own colours out).
+-## A stand-in drawn by the engine until the 2D Artist ships `icon_share_wa`.
+-const WA_ICON := [
+-	"..wwwww..",
+-	".wkkkkkw.",
+-	"wkwkkkkkw",
+-	"wkwwkkkkw",
+-	"wkkwwkwkw",
+-	"wkkkwwwkw",
+-	".wkkkkkw.",
+-	"wwwwwww..",
+-	"w........",
+-]
+-
+-
+-static func wa_icon_texture() -> Texture2D:
+-	if Art.has_sprite("icon_share_wa"):
+-		return Art.tex("icon_share_wa", 0)
+-	var img := Image.create(9, 9, false, Image.FORMAT_RGBA8)
+-	img.fill(Color(0, 0, 0, 0))
+-	for y in WA_ICON.size():
+-		var row: String = WA_ICON[y]
+-		for x in row.length():
+-			match row[x]:
+-				"w":
+-					img.set_pixel(x, y, C_WHITE)
+-				"k":
+-					img.set_pixel(x, y, Color("#1045b5"))
+-	return ImageTexture.create_from_image(img)
+-
+-
+-func _place_wa_icon(b: PxButton) -> void:
+-	if b.label == null:
+-		return
+-	b.label.wrap_width = 440.0
+-	b.label.max_lines = 1
+-	var lw := float(b.label.width())
+-	var total := lw + 16.0 + 36.0
+-	var x0 := Ui.snap(b.visual.position.x + (b.visual.size.x - total) / 2.0, 4)
+-	b.label.h_anchor = 0
+-	b.label.position.x = x0
+-	var icon := Sprite2D.new()
+-	icon.texture = wa_icon_texture()
+-	icon.centered = false
+-	icon.scale = Vector2(4, 4)
+-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+-	icon.position = Vector2(Ui.snap(x0 + lw + 16.0, 4), b.visual.position.y + 28.0)
+-	icon.name = "WaIcon"
+-	panel.add_child(icon)
+-
+-
+ # ------------------------------------------------------------------ web debug
+ 
+ ## window.odModal (the browser driver): the buttons' centres in viewport logical px, `ready` once
+diff --git a/game/tests/unit/test_mobile_layout.gd b/game/tests/unit/test_mobile_layout.gd
+index a80eaf2..8a1c2a0 100644
+--- a/game/tests/unit/test_mobile_layout.gd
++++ b/game/tests/unit/test_mobile_layout.gd
+@@ -199,10 +199,20 @@ func _check_booted(dev: Vector2i, name: String) -> void:
+ 	# the title and not the 12 above the strip; the engine keeps the title clear of the wordmark)
+ 	var th_ok: bool = m.picker.tile.y <= float(pf["th"]) and m.picker.tile.y >= float(pf["th"]) - 16.0
+ 	runner.check(m.picker.tile.x == float(pf["tw"]) and th_ok and m.picker.avatar == float(pf["A"]), "%s: pick tiles %s, A %d (got %s, %d)" % [name, [pf["tw"], pf["th"]], int(pf["A"]), m.picker.tile, m.picker.avatar])
+-	var title_top: float = m.picker.grid.x - 16.0 - 44.0
++	# §5.14.2: the booth frames the grid on the tall phones (free: tiles unchanged), never at the SE
++	var bo: Rect2 = m.picker.booth
++	var want_booth := not name.begins_with("SE")
++	runner.check(bo.has_area() == want_booth, "%s: the booth is %s (%s)" % [name, "on" if want_booth else "off", bo])
++	var title_top: float = (bo.position.y if bo.has_area() else m.picker.grid.x) - 16.0 - 44.0
+ 	runner.check(title_top >= 12.0 + (116.0 if m._vs.y >= 1280.0 else 64.0) + 12.0 - 0.5, "%s: the title line clears the wordmark (%d)" % [name, title_top])
+ 	var H: float = float(m._vs.y) - float(m._bottom_inset)
+-	runner.check(m.picker.grid.y + 12.0 == H - 16.0 - PickView.STRIP_H, "%s: the grid sits on the strip (bottom %d)" % [name, m.picker.grid.y])
++	var gap := PickView.BOOTH_GRID_GAP if bo.has_area() else 12.0
++	runner.check(m.picker.grid.y + gap == H - 16.0 - PickView.STRIP_H, "%s: the grid sits on the strip (bottom %d, + %d)" % [name, m.picker.grid.y, gap])
++	if bo.has_area():
++		runner.check(bo.position.x == 0.0 and bo.size.x == L.cw and bo.position.y == m.picker.grid.x - 36.0 and bo.end.y == m.picker.grid.y + 12.0,
++			"%s: the booth spans the canvas, 36 above and 12 below the grid (%s)" % [name, bo])
++		var xs: Array = m.picker.cells.map(func(c: Dictionary) -> float: return (c["rect"] as Rect2).position.x)
++		runner.check(xs.min() == 20.0 and abs(xs.max() + m.picker.tile.x - (L.cw - 20.0)) < 0.5, "%s: the columns move in to 20" % name)
+ 	var cb := TopBar.counter_box()
+ 	runner.check(cb.size.x == 328.0 + L.dx and TopBar.COUNTER_SCALE == 6, "%s: the counter ×6 in a stretched box (%d)" % [name, cb.size.x])
+ 	var p0: Rect2 = m.shop.PILL_RECT
+diff --git a/game/tests/unit/test_review2_engine.gd b/game/tests/unit/test_review2_engine.gd
+new file mode 100644
+index 0000000..fe11673
+--- /dev/null
++++ b/game/tests/unit/test_review2_engine.gd
+@@ -0,0 +1,125 @@
++extends RefCounted
++## UX build review 2 (ux/review-2026-09-30.md), the engine slice: U3 the pre-tap apron until card 1,
++## U6 no pill on a partly visible row, U9 Dubi's pre-tap pick line in the toast dock, U13 the owned
++## chip sized to its text. (U1 and the hemicycle: test_modals; U11, U14, E1, E2: test_share_view;
++## the booth: test_mobile_layout; the glue: test_glue.) Runs on the game content, on the real scene.
++
++var runner: Object
++var tree: SceneTree
++var dir := ""
++var m: Node
++
++
++func setup(r: Object) -> void:
++	TestFixture.use_game_content()
++	tree = r as SceneTree
++	dir = "user://test_review2_engine_%d" % Time.get_ticks_usec()
++	DirAccess.make_dir_recursive_absolute(dir)
++
++
++func teardown() -> void:
++	if m and is_instance_valid(m):
++		m.set_process(false)
++		if m.get_parent():
++			m.get_parent().remove_child(m)
++		m.queue_free()
++	var d := DirAccess.open(dir)
++	if d:
++		for f in d.get_files():
++			d.remove(f)
++	DirAccess.remove_absolute(dir)
++
++
++func _boot() -> void:
++	m = load("res://scenes/main.tscn").instantiate()
++	m.store = SaveStore.new(dir)
++	tree.root.add_child(m)
++	for i in 3:
++		await tree.process_frame
++
++
++func _frames(n: int) -> void:
++	for i in n:
++		await tree.process_frame
++
++
++func _tap_leader() -> void:
++	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
++	for pressed in [true, false]:
++		var e := InputEventScreenTouch.new()
++		e.position = at
++		e.pressed = pressed
++		m._unhandled_input(e)
++
++
++# ------------------------------------------------------------------ U3
++
++func test_u3_the_apron_stays_until_card_1() -> void:
++	await _boot()
++	m.commit_pick("bibi")
++	await _frames(2)
++	_tap_leader()
++	await _frames(3)
++	var fill: ColorRect = m._fills["shop"]
++	runner.check(m.mode == "main" and m.state.taps_lifetime == 1, "tap 1 starts the round")
++	runner.check(not fill.visible and m._title_floor.visible and m._title_floor.modulate.a > 0.99,
++		"between tap 1 and card 1 the pane's white is not drawn; the apron stays (fill %s, floor %s)" % [fill.visible, m._title_floor.visible])
++	for i in 2:
++		await _frames(20)   # past the tap-burst guard
++		_tap_leader()
++	await _frames(20)
++	runner.check(m.state.taps_lifetime >= 3 and fill.visible, "card 1: the white field comes with the pane (taps %d)" % m.state.taps_lifetime)
++	await _frames(30)
++	runner.check(not m._title_floor.visible or m._title_floor.modulate.a < 0.01, "and the apron is gone under it")
++
++
++# ------------------------------------------------------------------ U6
++
++func test_u6_a_cut_row_draws_no_pill() -> void:
++	await _boot()
++	m.commit_pick("bibi")
++	await _frames(2)
++	m.state.taps_lifetime = 3
++	Economy.add_bananas(m.state, 1e6)
++	m._set_mode("main", false)
++	await _frames(6)
++	var shop: Shop = m.shop
++	var lr: Rect2 = shop.list_rect
++	runner.check(shop.pill_whole(lr.position.y) and not shop.pill_whole(lr.end.y - 60.0) and not shop.pill_whole(lr.position.y - 20.0), "pill_whole: in, cut at the bottom, cut at the top")
++	var pills: Array = shop.pill_rects()
++	runner.check(pills.size() >= 2, "rows in the pane (%d)" % pills.size())
++	var cut := 0
++	for p: Array in pills:
++		var whole := float(p[0]) >= lr.position.y - 0.5 and float(p[1]) <= lr.end.y + 0.5
++		runner.check(whole or not bool(p[2]), "a pill is drawn only when whole (%s in %s-%s)" % [p, lr.position.y, lr.end.y])
++		if not whole:
++			cut += 1
++	runner.check(cut >= 1, "the peek row is there and pill-less (%d cut)" % cut)
++
++
++# ------------------------------------------------------------------ U9
++
++func test_u9_the_pre_tap_pick_line_goes_in_the_toast_dock() -> void:
++	await _boot()
++	m.commit_pick("bibi")
++	runner.check(m.mode == "title", "pre-tap")
++	for e: Dictionary in m._pick_seq:
++		(e["fn"] as Callable).call()
++	var tt: Toasts = m.toasts
++	runner.check(not tt.saying(), "no bubble floats over the leader before tap 1")
++	var chat: Dictionary = tt._chats[tt._chats.size() - 1] if not tt._chats.is_empty() else {}
++	runner.check(str(chat.get("head", "")) == m.dubi_head() and m.dubi_head().begins_with("דובי"), "a chat-toast plate headed by Dubi (%s)" % chat.get("head", ""))
++	runner.check(bool(chat.get("passive", false)) and (chat.get("avatar", []) as Array).size() == 3, "with his face, and it takes no tap (tap 1 is the leader's)")
++	# from H1 on, his bubble by the ticker
++	_tap_leader()
++	m._say_pick(Strings.s("DUBI_LEARNED"), Vector2(644, 300))
++	runner.check(tt.saying(), "after tap 1 the line is Dubi's bubble again")
++
++
++# ------------------------------------------------------------------ U13
++
++func test_u13_the_owned_chip_fits_its_text() -> void:
++	var r := Shop.owned_rect(40.0)
++	runner.check(r == Rect2(572, 76, 56, 40), "text 40 → 56 × 40 at the plate's bottom-left (%s)" % r)
++	runner.check(Shop.owned_rect(8.0).size.x == 48.0, "min 48")
++	runner.check(Shop.owned_rect(40.0).size.x < 104.0, "smaller than the old 104 × 44 chip")
+diff --git a/game/tests/unit/test_review2_engine.gd.uid b/game/tests/unit/test_review2_engine.gd.uid
+new file mode 100644
+index 0000000..a989c0b
+--- /dev/null
++++ b/game/tests/unit/test_review2_engine.gd.uid
+@@ -0,0 +1 @@
++uid://cpbhj2t8581g2
+diff --git a/game/tests/unit/test_review_engine.gd b/game/tests/unit/test_review_engine.gd
+index efef3ad..505acd0 100644
+--- a/game/tests/unit/test_review_engine.gd
++++ b/game/tests/unit/test_review_engine.gd
+@@ -318,8 +318,13 @@ func test_r16_title_floor_fills_the_reserved_sections() -> void:
+ 	runner.check(f.visible and is_equal_approx(f.position.y, sb + reach), "the paving starts where the plaza ends (%s)" % f.position.y)
+ 	runner.check(f.position.x <= 0.0 and f.position.x + f.size.x * 4.0 >= m._vs.x, "full width, no inner rect")
+ 	runner.check(f.texture == Diorama.paving_texture(m.diorama.pad_bottom, false), "the paving in the stage's floor colour")
++	# review U3 (2026-09-30): it stays through tap 1 until card 1 (the pane's white comes with card 1)
+ 	m._set_mode("main", false)
+-	runner.check(not f.visible, "gone in the main state")
++	runner.check(f.visible, "kept in the main state until card 1")
++	m.state.taps_lifetime = 3
++	await tree.process_frame
++	await tree.create_timer(0.4).timeout   # the 150 ms fade under the pane's white
++	runner.check(not f.visible, "gone once card 1 is up")
+ 
+ 
+ func test_r19_suitcase_sparkles_clear_after_the_flight() -> void:
+diff --git a/game/tests/unit/test_share_view.gd b/game/tests/unit/test_share_view.gd
+index bec3211..aafcdc9 100644
+--- a/game/tests/unit/test_share_view.gd
++++ b/game/tests/unit/test_share_view.gd
+@@ -215,7 +215,17 @@ func test_the_result_card_uses_the_kits_zones() -> void:
+ 		runner.check(fig.position.y + (fig.texture as AtlasTexture).region.size.y * 2.0 <= 210.0 * ShareSheet.S, "the figure stands on the stage floor")
+ 		runner.check(fig.position.y >= 78.0 * ShareSheet.S, "the figure clears the headline plate (top y %s)" % (fig.position.y / ShareSheet.S))
+ 		runner.check(feet.x >= 0.0, "on the card")
++	# §5.14.3 E1: the blank envelope on the stage floor at card-art (38, 197), after the floor and
++	# before the cast; the receipt has none
++	var env := root.get_node_or_null("Envelope") as Sprite2D
++	runner.check(env != null and env.position == Vector2(38, 197) * ShareSheet.S and env.scale == Vector2(ShareSheet.S, ShareSheet.S), "E1: the envelope lies on the floor at (38, 197)")
++	if env != null and fig != null:
++		runner.check(env.get_index() < fig.get_index(), "drawn before the leader")
+ 	root.free()
++	var rc := Node2D.new()
++	ShareSheet.build_card(rc, "receipt", s, _derived(s), 0.0)
++	runner.check(rc.get_node_or_null("Envelope") == null, "not on the receipt (a thermal slip carries no props)")
++	rc.free()
+ 
+ 
+ func test_the_preview_scale_is_whole_device_px() -> void:
+@@ -251,7 +261,10 @@ func test_t4_rows_open_the_receipt_and_the_result_sheets() -> void:
+ 		runner.check(sh.panel_rect.size.y <= floorf(m._vs.y / 4.0) * 4.0 - m._top_y + 4.0, "a sheet of at most the safe height (mobile-first §5.12)")
+ 		runner.check(sh.wa_btn.visual.position.y > sh.share_btn.visual.position.y, "§5.12: WhatsApp is the nearest action to the thumb (under the pair)")
+ 		runner.check(sh.wa_btn != null and sh.wa_btn.label.text == Strings.s("SHARE_WA") and sh.wa_btn.is_enabled(), "the WhatsApp button is there and live at once (text only)")
+-		runner.check(sh.panel.get_node_or_null("WaIcon") != null, "with its speech-bubble icon")
++		runner.check(sh.panel.get_node_or_null("WaIcon") == null, "review U11: the label only, no WhatsApp-mark icon")
++		runner.check(sh.wa_btn.visual.position.x == 24.0 and sh.wa_btn.visual.size.x == 672.0 + L.dx and sh.wa_btn.hit.size == sh.wa_btn.visual.size + Vector2(16, 16),
++			"review U14: full width (672 + dx), hit + 8 on every side (%s)" % sh.wa_btn.visual)
++		runner.check(absf(sh.wa_btn.label.position.x + sh.wa_btn.label.width() / 2.0 - sh.wa_btn.visual.get_center().x) <= 4.0, "the label centred")
+ 		runner.check(sh.share_btn.label.text == Strings.s("SHARE_BTN") and sh.save_btn.label.text == Strings.s("SHARE_SAVE"), "לשתף beside לשמור תמונה")
+ 		runner.check(sh.share_btn.visual.position.x < sh.save_btn.visual.position.x, "§7.1: the commit (share) on the left")
+ 		runner.check(sh.text_to_share.ends_with(ShareKit.site_url()), "the message ends with the URL")
+@@ -261,8 +274,11 @@ func test_t4_rows_open_the_receipt_and_the_result_sheets() -> void:
+ 		runner.check(sh.png.is_empty() == not sh.save_btn.is_enabled(), "לשמור תמונה only with an image")
+ 		var dp := sh.art_px * (Display.f if Display.integer else 1.0)
+ 		runner.check(is_equal_approx(dp, roundf(dp)), "the preview is whole device px per art px")
++		sh.on_share_result("shared")
++		runner.check(sh.sent_mark != null and sh.sent_mark.visible and sh.sent_mark.scale == Vector2(4, 4), "E2: a share that went out shows the envelope on the status line")
+ 		sh.on_share_result("fail")
+ 		runner.check(sh.status.text == Strings.s("SHARE_FAIL"), "a failed share says so in the sheet")
++		runner.check(not sh.sent_mark.visible, "no envelope for saved / copied / fail")
+ 		m.overlays.back()
+ 		for i in 12:
+ 			await tree.process_frame
+diff --git a/tools/web/mobile_web.mjs b/tools/web/mobile_web.mjs
+index 2321393..8baaba4 100644
+--- a/tools/web/mobile_web.mjs
++++ b/tools/web/mobile_web.mjs
+@@ -151,6 +151,15 @@ for (const spec of list.split(',')) {
+ 		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+ 	};
+ 	const probe = () => page.evaluate(() => window.odDev || null);
++	// S7 + review U6: the pill rect of every row the pane shows at least partly (source cards, the
++	// locked row, the teasers); a pill is drawn only when it lies wholly inside the pane
++	const pillCheck = (step, st) => {
++		if (!st || !st.shop || !st.shop.list) return;
++		const [lt, lb] = st.shop.list;
++		const pills = st.shop.pills || [];
++		const cut = pills.filter((p) => p[2] && (p[0] < lt - 0.5 || p[1] > lb + 0.5));
++		check('spec', pills.length > 0 && cut.length === 0, `${step}: no pill on a partly visible row (${pills.length} rows in the pane; cut pills ${JSON.stringify(cut.map((p) => p.slice(0, 2).map(Math.round)))})`);
++	};
+ 	const refresh = async () => { disp = await page.evaluate(() => window.odDisplay); };
+ 	const shot = async (step) => {
+ 		const p = `${out}/${name}-${step}.png`;
+@@ -240,7 +249,18 @@ for (const spec of list.split(',')) {
+ 		const lastRow = Math.max(...bottoms);
+ 		const th = pk.tile ? pk.tile[1] : 0;
+ 		const stripTop = H0 - 16 - 112;
+-		check('spec', pk.tile && Math.abs(lastRow + th / 2 + 12 - stripTop) <= 4, `the grid is bottom-anchored: last row bottom ${Math.round(lastRow + th / 2)} + 12 = the strip top ${stripTop}`);
++		// §5.14.2 (F15): the booth frames the grid wherever it costs no tile pixel (the tall phones and
++		// the desktop frame), never at the SE or the toolbar viewports; with it the grid sits 20 over
++		// the strip (the booth's bottom 8 over it), without it 12
++		const wantBooth = framed || (H >= 780 && !(W === 375 && H === 667));
++		const booth = pk.booth || null;
++		check('spec', !!booth === wantBooth, `the booth is ${wantBooth ? 'on' : 'off'} here (${JSON.stringify(booth)})`);
++		const gap = booth ? 20 : 12;
++		check('spec', pk.tile && Math.abs(lastRow + th / 2 + gap - stripTop) <= 4, `the grid is bottom-anchored: last row bottom ${Math.round(lastRow + th / 2)} + ${gap} = the strip top ${stripTop}`);
++		if (booth) {
++			check('width', booth[0] <= 0.5 && booth[2] >= disp.cw - 0.5, `the booth spans the canvas (${booth[0]}, ${booth[2]} of ${disp.cw})`);
++			check('spec', Math.abs(booth[1] + booth[3] - (stripTop - 8)) <= 4, `the booth's bottom is 8 over the strip (${booth[1] + booth[3]} vs ${stripTop - 8})`);
++		}
+ 		// §5.8 avatar choice: the largest of 192 (even k only), 128, 96, 64 whose 3 × 3 fits `avail`
+ 		const header = pk.variant === 'after' ? 132 : (12 + (H0 >= 1280 ? 116 : 64) + 12 + 44 + 12);
+ 		const avail = H0 - header - 112 - (pk.variant === 'after' ? 116 : 16);
+@@ -268,12 +288,20 @@ for (const spec of list.split(',')) {
+ 
+ 	// ---- tap 1-3 (card 1), then the first buy
+ 	const hat = css(disp.hat[0], disp.hat[1]);
+-	for (let i = 0; i < 4; i++) { await tap([hat[0], hat[1] + 4 * i]); await wait(350); }
++	// review U3: after tap 1 (before card 1) the pre-tap apron stays below the ticker; the pane's
++	// white field comes with card 1, so no blank band may open under the stage here
++	await tap([hat[0], hat[1]]);
++	await wait(1200);
++	await refresh();
++	const tap1 = await shot('tap1');
++	await bandCheck('tap 1', tap1, 'the apron stays until card 1 (U3)');
++	for (let i = 1; i < 4; i++) { await tap([hat[0], hat[1] + 4 * i]); await wait(350); }
+ 	await wait(1200);
+ 	await refresh();
+ 	const card1 = await shot('card1');
+ 	await bandCheck('card 1', card1, 'card 1 + silhouettes fill the pane; the pane covers the tab slot before C1');
+ 	let s = await probe();
++	pillCheck('card 1', s);
+ 	const buyRow = async () => {
+ 		s = await probe();
+ 		const r = ((s && s.shop && s.shop.rows) || []).filter((x) => x[3]);
+@@ -285,6 +313,7 @@ for (const spec of list.split(',')) {
+ 	await refresh();
+ 	const bought = await shot('bought');
+ 	await bandCheck('bought', bought, 'Row B shows the sky before C2; the pane fills to the safe bottom before C1');
++	pillCheck('bought', await probe());
+ 
+ 	// ---- C1: three kinds of source (the tab bar), then T3 and a paid demand (C2: Row B)
+ 	for (let i = 0; i < 8; i++) {
+@@ -310,7 +339,10 @@ for (const spec of list.split(',')) {
+ 		const partial = all.map((r) => Math.max(0, Math.min(lb, r[1] + 60) - Math.max(lt, r[1] - 60))).filter((v) => v > 0 && v < 119);
+ 		const silh = (s.shop.silhouettes || 0);   // §4.4: the engine publishes the teaser rows it draws
+ 		check('spec', vis + silh >= E.n, `the pane shows ≥ ${E.n} whole rows: cards + silhouettes (got ${vis} cards of ${all.length} + ${silh} silhouettes)`);
+-		check('spec', partial.every((v) => v <= PEEK + 4), `a cut card shows ≤ ${PEEK} px (the peek), never its pill (partials ${JSON.stringify(partial.map(Math.round))})`);
++		check('spec', partial.every((v) => v <= PEEK + 4), `a cut card shows ≤ ${PEEK} px (the peek) (partials ${JSON.stringify(partial.map(Math.round))})`);
++		// review U6: the pill rect of every row the pane shows at least partly (source cards, the
++		// locked row, the teasers): a pill is drawn only when it lies wholly inside the pane
++		pillCheck('C1', s);
+ 		const card = s.shop.card || [0, 0];
+ 		check('width', card[0] <= 16 + 0.5 && disp.cw - card[1] <= 16 + 0.5, `the cards keep ≤ 4 art px of gutter per side (x ${Math.round(card[0])}-${Math.round(card[1])} of ${disp.cw})`);
+ 	}
+diff --git a/tools/web/modals_web.mjs b/tools/web/modals_web.mjs
+index 8027911..4caf505 100644
+--- a/tools/web/modals_web.mjs
++++ b/tools/web/modals_web.mjs
+@@ -85,13 +85,26 @@ const tab = (P, i) => col(P, tabX(P, i), P.d.logical[1] - 104 + 52);
+ 	s = await probe(P);
+ 	check(s.court.mode === 'chip' && !s.modal, `Esc folds the card to the chip, no settings (${s.court.mode}, modal '${s.modal}')`);
+ 	await shot(P, 'r10-court-chip-summons');
+-	// the group: buy sources (one every 2.6 s: C1 pings 2 s after the last purchase)
+-	for (let k = 0; k < 6; k++) {
+-		const r = (s.shop.rows || []).filter((x) => x[3]);   // one of each kind, top down (C1's tab needs 3 kinds)
+-		if (r.length) await tap(P, css(P, r[k % r.length][0], r[k % r.length][1]));
+-		await P.wait(2600);
++	// the group: C1 opens at 3 sources owned (coalition.openAtSourcesOwned, a total, not kinds) and
++	// ≥ 60 ₪, when the controller allows the ping: no modal, the last purchase ≥ 2 s ago, no toast
++	// showing or queued, Dubi silent (main.gd _step_economy). The old driver bought six times, 2.6 s
++	// apart, and checked at once: every buy queues a toast or a Dubi line (3 s + a 1 s gap each), so
++	// the ping never found its quiet window inside the loop (a court day's ×0.5 income made no
++	// difference). Buy three, then stop buying and wait for the quiet window.
++	for (let k = 0; k < 3; k++) {
++		const r = (s.shop.rows || []).filter((x) => x[3]);
++		if (r.length) await tap(P, css(P, r[0][0], r[0][1]));
++		await P.wait(700);
+ 		s = await probe(P);
+ 	}
++	for (let t = 0; t < 3 && !s.groupOpen; t++) {
++		await P.page.waitForFunction(() => window.odDev && window.odDev.groupOpen, null, { timeout: 15000 }).catch(() => {});
++		s = await probe(P);
++		if (!s.groupOpen) {   // a missed tap: one more source, then wait again
++			const r = (s.shop.rows || []).filter((x) => x[3]);
++			if (r.length) await tap(P, css(P, r[0][0], r[0][1]));
++		}
++	}
+ 	check(s.groupOpen, 'C1: the group opened');
+ 	await P.wait(300);
+ 	await shot(P, 'r5-chat-toast');
 -- 
 2.43.0
 
