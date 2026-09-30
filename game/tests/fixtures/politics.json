@@ -76,7 +76,7 @@
     {"id": "roulette", "kind": "card", "flag": "postLaunch", "pollLike": true, "weight": 1, "oncePerRound": true, "effect": {"type": "roulette", "lists": ["winter", "hendel", "haskel"]}},
     {"id": "kaia", "kind": "stage", "flag": "easterEggs", "weight": 1, "cooldownSec": 900, "when": {"era": "jungle"}, "effect": {"type": "kaia", "feedSec": 20, "buffSec": 30, "tapMult": 2, "nipSec": 60}},
     {"id": "pinkfront", "kind": "stage", "flag": "easterEggs", "weight": 5, "cooldownSec": 1800, "when": {"weekday": [6], "hour": [19, 23]}, "effect": {"type": "drumline", "sec": 30, "bpsSec": 30}},
-    {"id": "mordechai", "kind": "card", "flag": "mordechaiDavid", "weight": 1, "cooldownSec": 900, "effect": {"type": "none", "sec": 15}},
+    {"id": "mordechai", "kind": "stage", "flag": "mordechaiDavid", "weight": 5, "oncePerRound": true, "cooldownSec": 900, "when": {"era": "jungle", "membersAtLeast": 2}, "effect": {"type": "blockade", "sec": 20, "maxSeats": 4}},
     {"id": "yair", "kind": "card", "flag": "yairNetanyahu", "weight": 1, "cooldownSec": 900, "effect": {"type": "loseRandomPartner"}}
   ],
   "calendar": {

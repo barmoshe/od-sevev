@@ -178,7 +178,7 @@ const pictUsed = new Set();
 
 // ---------- 6. invented quotes of real people in ticker lines ----------
 const realNames = ['לפיד', 'בנט', 'גנץ', 'ליברמן', 'אייזנקוט', 'גולן', 'עבאס', 'בן גביר', 'סמוטריץ׳', 'דרעי', 'גולדקנופף', 'גפני', 'לוין',
-  'רגב', 'גוטליב', 'אמסלם', 'קרעי', 'דיסטל', 'טראמפ', 'הרצוג', 'נתניהו', 'ביבי', 'אילוז', 'אלמוג כהן'];
+  'רגב', 'גוטליב', 'אמסלם', 'קרעי', 'דיסטל', 'טראמפ', 'הרצוג', 'נתניהו', 'ביבי', 'אילוז', 'אלמוג כהן', 'מרדכי דוד'];
 const tickerPaths = s => /^\.(headlines|ambientHeadlinesV2)|\.ticker$|tickerStart$|\.onPaidTicker$/.test(s.path);
 for (const s of game.filter(tickerPaths)) {
   if (!/"/.test(s.text)) continue;
@@ -282,7 +282,7 @@ for (const o of C.ambientHeadlinesV2.list) for (const k of Object.keys(o.when ||
 const condKeys = new Set(['era', 'evolutionsAtLeast', 'evolutionsBelow', 'runBananasAtLeast', 'allTimeAtLeast', 'ownedAtLeast', 'sourcesOwnedAtLeast', 'shadyOwnedAtLeast',
   'seatsAtLeast', 'seatsBelow', 'membersAtLeast', 'partnerMember', 'partnerNotMember', 'suspicionAtLeast', 'suspicionBelow', 'courtDaysAtLeast', 'critsLifetimeAtLeast',
   'goldenCaughtLifetimeAtLeast', 'playSecAtLeast', 'runSecAtLeast', 'partnersInAtLeast', 'weekday', 'hour', 'mode', 'pendingEngine']);
-const eventEffects = new Set(['none', 'suspicion', 'noCrit', 'brawl', 'leak', 'interview', 'pardonDesk', 'seatDrain', 'roulette', 'kaia', 'drumline', 'loseRandomPartner', 'pledge']);
+const eventEffects = new Set(['none', 'blockade', 'suspicion', 'noCrit', 'brawl', 'leak', 'interview', 'pardonDesk', 'seatDrain', 'roulette', 'kaia', 'drumline', 'loseRandomPartner', 'pledge']);
 const econEffects = new Set(['tapMult', 'tapPctOfBps', 'critChance', 'goldenIntervalMult', 'goldenLifeMult', 'globalMult', 'producerMult', 'suspicionGainMult', 'baseMult', 'bpsMult',
   'tapAdd', 'offlineMult', 'basePctThisRound', 'suspicionFreeze', 'wipeSourceSuspicion',
   // spin effects in game/scripts/sim/spins.gd (Spins.TYPES)

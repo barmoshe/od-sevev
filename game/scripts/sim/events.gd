@@ -75,6 +75,20 @@ static var EFFECTS: Dictionary = {
 	"drumline": func(s: GameState, e: Dictionary, _d: Economy.Derived, _r: Callable) -> Dictionary:
 		_activate(s, "drumline", e, {})
 		return {},
+	"blockade": func(s: GameState, e: Dictionary, _d: Economy.Derived, r: Callable) -> Dictionary:
+		# Mordechai David (design/mordechai-david-spec.md §5): a counting partner of 1..maxSeats seats is
+		# stuck behind the blockade and misses the vote for `sec`; none in range: the card only.
+		var pool: Array = []
+		for p: Dictionary in Coalition.partners():
+			var seats := int(Coalition.partner(p["id"]).get("seats", 0))
+			if Coalition.counts(s, p["id"]) and seats > 0 and seats <= int(e.get("maxSeats", 4)):
+				pool.append(p["id"])
+		var id := ""
+		if not pool.is_empty():
+			id = pool[int(float(r.call()) * pool.size()) % pool.size()]
+			Coalition.bench(s, id, float(e.get("sec", 20.0)))
+		_activate(s, "blockade", e, {"partner": id})
+		return {"partner": id},
 	"loseRandomPartner": func(s: GameState, _e: Dictionary, d: Economy.Derived, r: Callable) -> Dictionary:
 		var pool: Array = []
 		for p: Dictionary in Coalition.partners():
@@ -205,8 +219,8 @@ static func leader_buff(s: GameState, e: Dictionary) -> void:
 # ---------------------------------------------------------------------------------------------
 
 ## Card effects that take seats off the 61 (a frozen pair, a raised gate, drained seats, a lost
-## partner, Kaia's nip): never fired while the gate is open.
-const SEAT_COSTS := ["brawl", "pledge", "seatDrain", "loseRandomPartner", "kaia"]
+## partner, Kaia's nip, Mordechai David's blockade): never fired while the gate is open.
+const SEAT_COSTS := ["brawl", "pledge", "seatDrain", "loseRandomPartner", "kaia", "blockade"]
 
 
 static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:

@@ -198,6 +198,68 @@ func test_kaia_fed_or_ignored() -> void:
 	runner.check(nip.size() == 1 and not Coalition.counts(s2, nip[0]["partner"]), "ignored: a minister gets nipped and misses the vote")
 
 
+## Mordechai David's blockade (design/mordechai-david-spec.md §5): a small partner is stuck and uncounted
+## for 20 s, never one over 4 seats; with nobody small, the card only.
+func _md_state() -> GameState:
+	var s := GameState.fresh()
+	s.stats["playtimeSec"] = 1000.0
+	for id in ["bengvir", "smotrich", "amsalem"]:
+		Coalition.ps(s, id)["status"] = "member"
+	return s
+
+
+func test_blockade_benches_a_small_partner_for_20_seconds() -> void:
+	_flags(["mordechaiDavid"])
+	var s := _md_state()
+	var before := int(Coalition.seat_info(s)["effective"])
+	var fired := Events.fire(s, "mordechai", Economy.derive(s), func() -> float: return 0.0)
+	runner.check(str(fired["result"].get("partner", "")) == "amsalem", "the only 1-4 seat member is picked (got %s)" % fired["result"])
+	runner.check(not Coalition.counts(s, "amsalem"), "amsalem misses the vote")
+	runner.check(int(Coalition.seat_info(s)["effective"]) == before - 2, "the seats bar drops by his 2 seats")
+	runner.check(Events.is_active(s, "blockade"), "the blockade is live")
+	var ev: Array = []
+	for i in 21:
+		ev.append_array(Events.tick(s, 1.0, Economy.derive(s), {}, func() -> float: return 0.99))
+		Coalition.ps(s, "amsalem")["benchSec"] = maxf(0.0, float(Coalition.ps(s, "amsalem")["benchSec"]) - 1.0)   # Coalition.tick's bench clock
+	runner.check(Coalition.counts(s, "amsalem"), "after 20 s he counts again")
+	runner.check(ev.any(func(e: Dictionary) -> bool: return e["ev"] == "eventEnd" and e["type"] == "blockade"), "eventEnd blockade")
+	runner.check(int(Coalition.seat_info(s)["effective"]) == before, "the seats come back")
+
+
+func test_blockade_never_strands_a_big_partner() -> void:
+	var s := GameState.fresh()
+	for id in ["bengvir", "smotrich"]:
+		Coalition.ps(s, id)["status"] = "member"
+	for k in 10:
+		var r: Dictionary = Events.EFFECTS["blockade"].call(s, {"sec": 20, "maxSeats": 4}, Economy.derive(s), func() -> float: return k / 10.0)
+		runner.check(str(r["partner"]) == "", "no 1-4 seat member: nobody is stuck (%s)" % r)
+	runner.check(Coalition.counts(s, "bengvir") and Coalition.counts(s, "smotrich"), "12 and 7 seats still vote")
+	var s2 := _md_state()
+	Coalition.ps(s2, "regev")["status"] = "member"
+	for k in 10:
+		for id in ["amsalem", "regev"]:
+			Coalition.ps(s2, id)["benchSec"] = 0.0   # each pick benches; clear it so every draw sees both
+		var r2: Dictionary = Events.EFFECTS["blockade"].call(s2, {"sec": 20, "maxSeats": 4}, Economy.derive(s2), func() -> float: return k / 10.0)
+		runner.check(["amsalem", "regev"].has(str(r2["partner"])), "only a partner of 1-4 seats (%s)" % r2)
+
+
+func test_blockade_only_on_its_stage_and_never_at_the_gate() -> void:
+	_flags(["mordechaiDavid"])
+	var s := _md_state()
+	var e := Events.event("mordechai")
+	runner.check(Events.eligible(s, e), "eligible on the first stage with 3 members")
+	var e2 := e.duplicate(true)
+	e2["when"]["era"] = "no-such-era"
+	runner.check(not Events.eligible(s, e2), "not on another stage (no crowd)")
+	for p: Dictionary in Coalition.partners():
+		if not p.get("standIn", false) and p.get("side", "coalition") == "coalition":
+			Coalition.ps(s, str(p["id"]))["status"] = "member"
+	Economy.add_bananas(s, 5e9)
+	runner.check(Coalition.gate_open(s) and not Events.eligible(s, e), "never while the 61 gate is open")
+	_flags([])
+	runner.check(not Events.eligible(_md_state(), e), "never with the flag off")
+
+
 func test_lose_random_partner_skips_deri() -> void:
 	var s := GameState.fresh()
 	Coalition.ps(s, "deri")["status"] = "member"
