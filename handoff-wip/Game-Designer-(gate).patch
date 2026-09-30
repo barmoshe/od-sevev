@@ -166,6 +166,45 @@ index 1558947..d372f2a 100644
  	# the "{n} ממתינים ↑" chip and the brawl stage cue (views wave 6): centres in viewport px
  	var pi := chat.pending_info()
  	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
+diff --git a/game/tests/unit/test_modals.gd b/game/tests/unit/test_modals.gd
+index 9b9f489..f21efb7 100644
+--- a/game/tests/unit/test_modals.gd
++++ b/game/tests/unit/test_modals.gd
+@@ -153,6 +153,9 @@ func test_the_open_election_card_holds_the_round() -> void:
+ 	c.cancel("close")
+ 	for i in 30:
+ 		m._process(0.1)
++	m._presses[7] = {"kind": "cta"}
++	runner.check(m.vote_open(), "a finger on 'עוד סבב!' already holds the round (the CTA → card window)")
++	m._presses.erase(7)
+ 	runner.check(not m.vote_open(), "closed: the vote is off")
+ 	runner.check(s.run_time_sec > run and u["state"] == "expired", "the round resumes where it stood: the ultimatum runs out")
+ 
+diff --git a/game/tests/unit/test_vote_hold.gd b/game/tests/unit/test_vote_hold.gd
+index 52da8af..7407997 100644
+--- a/game/tests/unit/test_vote_hold.gd
++++ b/game/tests/unit/test_vote_hold.gd
+@@ -92,3 +92,20 @@ func test_cards_and_the_court_hold_under_the_card() -> void:
+ func test_the_vote_flag_is_the_only_switch() -> void:
+ 	runner.check(Politics.holds_for_vote({"vote": true}), "ctx.vote holds")
+ 	runner.check(not Politics.holds_for_vote({}) and not Politics.holds_for_vote({"vote": false}), "no vote key: the round runs (the bench, every other modal)")
++
++
++## The finish line is quiet (spec §7.4): while the 61 gate is open, no card that costs seats fires
++## (the brawl's frozen pair, the pledge's raised gate, a seat drain, a lost partner, Kaia), so
++## between "עוד סבב!" appearing and the vote only a counted-down ultimatum can take a seat.
++func test_no_seat_card_fires_while_the_gate_is_open() -> void:
++	var s := _with(["bengvir", "smotrich", "amsalem", "deri", "levin", "goldknopf", "regev", "karhi", "gotliv"])
++	s.evolutions = 1
++	for id in Content.producer_ids():
++		s.owned[id] = 50
++	runner.check(Coalition.gate_open(s), "the fixture coalition holds 61 (%s)" % str(Coalition.seat_info(s)))
++	for id in ["brawl", "bennett"]:
++		runner.check(not Events.eligible(s, Events.event(id)), "%s never fires at 61" % id)
++	runner.check(Events.eligible(s, Events.event("interview")), "a card that costs no seats still can")
++	Coalition.ps(s, "bengvir")["status"] = "left"
++	Coalition.ps(s, "deri")["status"] = "left"
++	runner.check(not Coalition.gate_open(s) and Events.eligible(s, Events.event("brawl")), "below 61 the brawl is back in the deck")
 diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
 index 2c1abb4..288ae9d 100644
 --- a/tools/web/picker_web.mjs
