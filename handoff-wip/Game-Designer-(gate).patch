@@ -98,10 +98,15 @@ index 0f532f3..b1c79a9 100644
  ## ctx.hour (the device's local hour; the engine should pass it), else Israel time from ctx.nowMs.
  static func _count_night_taps(s: GameState, ctx: Dictionary) -> void:
 diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
-index 1558947..75d17ca 100644
+index 1558947..d372f2a 100644
 --- a/game/scripts/ui/dev_probe.gd
 +++ b/game/scripts/ui/dev_probe.gd
-@@ -9,6 +9,8 @@ extends RefCounted
+@@ -5,10 +5,12 @@ extends RefCounted
+ ## game; it only reports where the targets are, in viewport logical px (the driver maps them to CSS
+ ## with window.odDisplay, like window.odFlash / window.odModal).
+ ##   bank, seats {effective, gate}, evolutions, runSec, cta (the "עוד סבב!" CTA is up), ready
+-##   (the election can be called), modal (the top overlay's id or "")
++##   (the election can be called), ctaAt [x, y] (the CTA's centre), modal (the top overlay's id or "")
  ##   chat {open, thread [top, bottom], pills [[x, y, seq, afford, ceremony]], brawls [[x, y, seq]],
  ##        avatars [[x, y, id]] (in view), openBrawl}: every open pay pill and "צאו החוצה" button, in
  ##        or out of view (the driver drags the thread to bring one into view)
@@ -110,7 +115,18 @@ index 1558947..75d17ca 100644
  ##   shop {tab, list [top, bottom], rows [[x, y, id, afford]]}: the source cards in view
  
  static var _ms := 0.0
-@@ -69,6 +71,23 @@ static func snapshot(host: Node) -> Dictionary:
+@@ -48,6 +50,10 @@ static func snapshot(host: Node) -> Dictionary:
+ 			if t.body_focusables.has(b):
+ 				c.y -= t.scroll
+ 			out["modalButtons"].append([c.x, c.y, b.label.text if b.label != null else ""])
++	# the "עוד סבב!" CTA's centre, live (the lower band moves when the layout splits again)
++	var tk: Ticker = host.get("ticker")
++	var cc := tk.cta.visual.get_center() + tk.position + o
++	out["ctaAt"] = [cc.x, cc.y]
+ 	var si := Coalition.seat_info(s)
+ 	out["seats"] = {"effective": si["effective"], "gate": si["gateSeats"]}
+ 	var chat: ChatView = host.get("chat")
+@@ -69,6 +75,23 @@ static func snapshot(host: Node) -> Dictionary:
  			pills.append([c.x, c.y, int(h["seq"]), s.bananas >= float(m.get("price", 0.0)), str(m.get("kind", "")) == "ceremony"])
  	out["chat"] = {"open": chat.is_open(), "thread": [top, bottom], "pills": pills, "avatars": avatars, "brawls": brawls,
  		"openBrawl": not Coalition.open_brawl(s).is_empty()}
@@ -642,10 +658,10 @@ index 0000000..0509389
 # untracked binary: game/tests/unit/test_vote_hold.gd.uid
 diff --git a/tools/web/round_play.mjs b/tools/web/round_play.mjs
 new file mode 100644
-index 0000000..49ae749
+index 0000000..4f08422
 --- /dev/null
 +++ b/tools/web/round_play.mjs
-@@ -0,0 +1,217 @@
+@@ -0,0 +1,228 @@
 +// The scripted player shared by round_web.mjs and picker_web.mjs (Game Designer 2026-09-30): one
 +// loop that plays a round to the 61 gate through the real UI with real touches, and one election
 +// call that checks "the vote stops the clock" (sim/politics.gd, design/leader-select-spec.md §7.4).
@@ -668,12 +684,22 @@ index 0000000..49ae749
 +		hatTaps: 0, buyActions: 0, cardTaps: 0, chatLooks: 0, modals: {}, actions: [], navs: [], shots: [], armed: false };
 +	const wall = () => Math.round((Date.now() - st.t0) / 1000);
 +	const act = (what) => { st.actions.push(`${wall()}s ${what}`); if (st.actions.length > 12) st.actions.shift(); };
-+	// "the page navigated mid-run" (seen once on v4): record where to and what the driver just did
++	// "the page navigated mid-run" (seen once on v4): a real document load after the round started
++	// (the game's own history.pushState / history.go for its layers fire framenavigated too, with
++	// the same URL, and are not navigations). Record where to and what the driver just did.
 +	page.on('framenavigated', (fr) => {
 +		if (fr !== page.mainFrame() || !st.armed) return;
-+		const n = { url: fr.url(), wall: wall(), last: st.actions.slice(-6) };
++		const url = fr.url();
++		if (url === st.url) return;
++		const n = { url, wall: wall(), last: st.actions.slice(-6) };
 +		st.navs.push(n);
 +		log(`  NAVIGATION to ${n.url} at ${n.wall}s wall; the last actions: ${n.last.join(' | ')}`);
++	});
++	page.on('load', () => {
++		if (!st.armed) return;
++		const n = { url: page.url(), wall: wall(), load: true, last: st.actions.slice(-6) };
++		st.navs.push(n);
++		log(`  PAGE LOAD (${n.url}) at ${n.wall}s wall; the last actions: ${n.last.join(' | ')}`);
 +	});
 +	async function refresh() {
 +		st.disp = await page.evaluate(() => window.odDisplay);
@@ -746,9 +772,10 @@ index 0000000..49ae749
 +	// one approach to the gate: returns 'gate' (the CTA is up and the election can be called),
 +	// 'card' (the election card is already open) or 'budget'
 +	async function playToGate(budgetMs, hooks = {}) {
-+		st.armed = true   // a navigation from here on is the game's or the driver's, not the boot's
++		if (!st.armed) { st.armed = true; st.url = page.url(); }   // a load from here on is not the boot's
 +		while (Date.now() - st.t0 < budgetMs) {
 +			st.loops++;
++			if (st.loops % 5 === 1) await refresh();   // the layout moves (C1's tab bar, the split)
 +			let s = await probe();
 +			if (!s) { await wait(300); continue; }
 +			if (s.seats.effective !== st.lastSeats) {
@@ -826,7 +853,7 @@ index 0000000..49ae749
 +		}
 +		if (s.modal !== 'EVOLUTION') {
 +			act('tap CTA');
-+			await tapAt(col(360, st.disp.lowerY + 42));
++			await tapAt(s.ctaAt ? css(s.ctaAt[0], s.ctaAt[1]) : col(360, st.disp.lowerY + 42));
 +			await page.waitForFunction(() => window.odModal && window.odModal.open && window.odModal.id === 'EVOLUTION', null, { timeout: 10000 }).catch(() => {});
 +		}
 +		const m = await modal();
