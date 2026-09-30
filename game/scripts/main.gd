@@ -871,8 +871,13 @@ func set_setting(key: String, value: Variant) -> void:
 
 
 ## O7 as a bottom sheet (rtl-map §7.1): h = min(content, 70% of the screen), in `_modal` space.
-func sheet_rect(content_h: float) -> Rect2:
-	var h := minf(content_h, floorf(0.70 * _vs.y / 4.0) * 4.0)
+## `tall` (O7 settings; manual test A6): on a short screen the sheet may rise to Row A's bottom (the
+## readout and the gear stay in view) instead of stopping at 70%, so every row fits where it can.
+func sheet_rect(content_h: float, tall := false) -> Rect2:
+	var cap := floorf(0.70 * _vs.y / 4.0) * 4.0
+	if tall:
+		cap = maxf(cap, floorf((_vs.y - bottom_inset() - _top_y - float(L.ROW_A_H)) / 4.0) * 4.0)
+	var h := minf(content_h, cap)
 	var bi := bottom_inset()
 	return Rect2(0, _vs.y - bi - h - _ovl_y, L.cw, h + bi)
 

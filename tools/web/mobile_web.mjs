@@ -26,6 +26,9 @@
 // the HUD, the ticker, the pane, the tab bar, the stage with its wings and the plaza reach both
 // edges. Plus: cards keep ≤ 4 art px (16 logical) of gutter per side; the settings sheet and the
 // picker grid span ≥ 92% of the canvas. It keys on "not the background", never on a palette.
+// The settings reach (manual test 2026-09-30 A6), kind 'spec': every settings row is built, and each
+// one is wholly on screen or brought on screen by dragging the sheet's body; the fixed "סגור" stays on
+// screen under the rows (window.odDev.modalRows / modalClip).
 // Serve build/web first: python3 -m http.server <port> --directory build/web
 const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
 const { chromium } = await import(PW);
@@ -156,6 +159,52 @@ for (const spec of list.split(',')) {
 		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
 	};
 	const probe = () => page.evaluate(() => window.odDev || null);
+	// a drag from a to b (CSS px): touch on a phone, the mouse in the desktop frame
+	const swipe = async ([x0, y0], [x1, y1], steps = 8) => {
+		if (framed) {
+			await page.mouse.move(x0, y0); await page.mouse.down();
+			for (let i = 1; i <= steps; i++) { await page.mouse.move(x0 + (x1 - x0) * i / steps, y0 + (y1 - y0) * i / steps); await wait(16); }
+			await page.mouse.up();
+			return;
+		}
+		const id = tid++;
+		await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y: y0, id }] });
+		for (let i = 1; i <= steps; i++) {
+			await wait(16);
+			await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 + (x1 - x0) * i / steps, y: y0 + (y1 - y0) * i / steps, id }] });
+		}
+		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+	};
+	// Manual test A6: every settings row is on screen, or reachable by scrolling the sheet's body (a
+	// real drag), and the fixed "סגור" stays on screen. window.odDev.modalRows = [id, top, bottom] and
+	// modalClip = [top, bottom] in viewport logical px; a row counts when it is wholly inside the clip.
+	const SETTINGS_ROWS = ['sfx', 'music', 'reducedMotion', 'largeText', 'about', 'reset'];
+	const settingsReach = async (st) => {
+		const H0 = disp.logical[1];
+		const rowsOf = (x) => (x && x.modal === 'SETTINGS' && x.modalRows) || [];
+		const inView = (x) => {
+			const [ct, cb] = x.modalClip || [0, -1];
+			return rowsOf(x).filter((r) => r[1] >= ct - 0.5 && r[2] <= cb + 0.5 && r[2] <= H0 + 0.5).map((r) => r[0]);
+		};
+		const ids = rowsOf(st).map((r) => r[0]);
+		check('spec', SETTINGS_ROWS.every((k) => ids.includes(k)), `settings: every row is built (${ids.join(', ')})`);
+		const onScreen = new Set(inView(st));
+		const seen = new Set(onScreen);
+		let cur = st;
+		for (let i = 0; i < 6 && cur && seen.size < ids.length && cur.modalClip; i++) {
+			const [ct, cb] = cur.modalClip;
+			await swipe(css(disp.cw / 2, cb - 24), css(disp.cw / 2, Math.max(ct + 24, cb - 24 - 0.6 * (cb - ct))));
+			await wait(500);
+			cur = await probe();
+			inView(cur).forEach((k) => seen.add(k));
+		}
+		const missing = ids.filter((k) => !seen.has(k));
+		const scrolled = [...seen].filter((k) => !onScreen.has(k));
+		check('spec', missing.length === 0, `settings: every row is on screen or reachable (on screen: ${onScreen.size}/${ids.length}${scrolled.length ? `; by scrolling: ${scrolled.join(', ')}` : ''}${missing.length ? `; NOT reachable: ${missing.join(', ')}` : ''})`);
+		if (scrolled.length) await shot('settings-scrolled');
+		const close = ((cur && cur.modalButtons) || []).filter((b) => b[2] !== '').pop();
+		check('spec', !!close && close[1] + 44 <= H0 + 0.5 && (!cur.modalClip || close[1] - 44 >= cur.modalClip[1] - 0.5), `settings: the fixed "סגור" is on screen under the rows (${close ? Math.round(close[1]) : '?'} of ${Math.round(H0)})`);
+	};
 	// S7 + review U6: the pill rect of every row the pane shows at least partly (source cards, the
 	// locked row, the teasers); a pill is drawn only when it lies wholly inside the pane
 	const pillCheck = (step, st) => {
@@ -409,6 +458,7 @@ for (const spec of list.split(',')) {
 	s = await probe();
 	const mr = (s && s.modalRect) || [0, 0];
 	check('width', mr[1] >= 0.92 * disp.cw, `the settings sheet spans ${Math.round(mr[1])} of ${disp.cw} (≥ 92%)`);
+	await settingsReach(s);
 	await page.keyboard.press('Escape');
 	await wait(600);
 

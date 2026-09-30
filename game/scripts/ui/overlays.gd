@@ -12,13 +12,20 @@ class SettingsOverlay:
 	## with ON = knob left + fill (mirror), a fixed full-width "סגור" at the bottom.
 	## Rows: sound (effects, music), accessibility (reduced motion + caption, haptics where
 	## vibrate exists, large text + caption), game (About → the HTML page, reset → O10).
+	## Manual test A6: every row is reachable on every phone. The sheet may rise to Row A's bottom
+	## (`sheet_rect(.., tall)`) and, where the rows still do not fit, the group headers tighten
+	## (GROUP_TIGHT; rows keep their 88 touch height); past that (large text on a 375×548) the body
+	## scrolls with a visible thumb (Overlay.make_scroll).
+	## A8: the switch shows its state by fill, knob side and word (SettingSwitch).
 	extends Overlay
 	var open_reset: Callable
-	var _switches := {}          # key -> {track, fill, knob, state}
+	var _switches := {}          # key -> {view (SettingSwitch), state}
 	var _built_large := false
+	var compact := false         # the tight group headers (a short screen)
 	const ROW := 88.0
 	const CAP_ROW := 144.0
 	const GROUP := 48.0
+	const GROUP_TIGHT := 36.0
 	const TEXT_W := 360.0        # string-budgets sheet.label / sheet.caption (x 296-656)
 	const LABEL_DY := 26.0
 
@@ -39,12 +46,19 @@ class SettingsOverlay:
 		# from y 0), then size the sheet and move the body under the header.
 		var y := 0.0
 		var placed: Array = []   # [row, y, h]
-		for r: Array in rows:
-			var h := _row_h(r)
-			placed.append([r, y, h])
-			y += h
-		var content := 104.0 + y + 112.0 + 16.0
-		var pr: Rect2 = host.sheet_rect(content)
+		var pr := Rect2()
+		for pass_i in 2:
+			compact = pass_i == 1
+			y = 0.0
+			placed.clear()
+			for r: Array in rows:
+				var h := _row_h(r)
+				placed.append([r, y, h])
+				y += h
+			var content := 104.0 + y + 112.0 + 16.0
+			pr = host.sheet_rect(content, true)
+			if pr.size.y - float(host.bottom_inset()) >= content:
+				break   # it fits: no scroll (the tight headers only when the roomy ones would scroll)
 		make_panel(pr)
 		var title := text(Vector2(0, pr.position.y + 24.0), Strings.s("SET_TITLE"), L.TEXT, th["modal"]["title"])
 		title.fit_width = 432.0   # sheet.title
@@ -59,7 +73,7 @@ class SettingsOverlay:
 			var h: float = p[2]
 			match String(r[0]):
 				"g":
-					var g := PxText.make(body, Vector2(0, ry + 8.0), Strings.s(r[1]), L.TEXT, "plain", th["modal"]["groupLabel"])
+					var g := PxText.make(body, Vector2(0, ry + (2.0 if compact else 8.0)), Strings.s(r[1]), L.TEXT, "plain", th["modal"]["groupLabel"])
 					g.fit_width = TEXT_W   # sheet.group
 					g.right_at(656.0 + L.dx)
 				"t":
@@ -67,7 +81,7 @@ class SettingsOverlay:
 				"about":
 					_row_button(ry, h, Strings.s("SET_ABOUT"), func() -> void:
 						host.audio_event("uiClick")
-						host.open_about())
+						host.open_about(), null, -1.0, "about")
 					var chev := PxText.make(body, Vector2(40, ry + LABEL_DY), "<", L.TEXT, "plain", th["modal"]["body"])
 					chev.h_anchor = 0
 				"reset":
@@ -75,7 +89,7 @@ class SettingsOverlay:
 					var trash := Art.has_sprite("icon_trash")
 					_row_button(ry, h, Strings.s("SET_RESET"), func() -> void:
 						host.audio_event("uiClick")
-						open_reset.call(), th["modal"]["title"], 656.0 + L.dx - (48.0 if trash else 0.0))
+						open_reset.call(), th["modal"]["title"], 656.0 + L.dx - (48.0 if trash else 0.0), "reset")
 					if trash:
 						Ui.img(body, Vector2(620.0 + L.dx, ry + LABEL_DY), "icon_trash", 0, 4)
 		content_bottom = y0 + y + 8.0
@@ -112,7 +126,7 @@ class SettingsOverlay:
 			"g":
 				var g := PxText.make(probe_parent, Vector2.ZERO, Strings.s(r[1]), L.TEXT, "plain", th["modal"]["groupLabel"])
 				g.fit_width = TEXT_W
-				h = GROUP + (_lh(g) - 44.0)
+				h = (GROUP_TIGHT if compact else GROUP) + (_lh(g) - 44.0)
 			"t", "about", "reset":
 				var key: String = r[2] if r[0] == "t" else ("SET_ABOUT" if r[0] == "about" else "SET_RESET")
 				var t := _sheet_text(probe_parent, Vector2.ZERO, Strings.s(key), th["modal"]["body"], false)
@@ -125,8 +139,9 @@ class SettingsOverlay:
 		probe_parent.free()
 		return ceilf(h / 4.0) * 4.0   # up to the 4-px grid: a row never cuts its last line
 
-	func _row_button(y: float, h: float, label: String, on_commit: Callable, role: Variant = null, right: float = -1.0) -> void:
+	func _row_button(y: float, h: float, label: String, on_commit: Callable, role: Variant = null, right: float = -1.0, row_id := "") -> void:
 		var b := PxButton.make(body, Rect2(24, y, 672.0 + L.dx, h), {"hit": Rect2(24, y, 672.0 + L.dx, h), "ghost": true, "on_commit": on_commit})
+		b.set_meta("row", row_id)   # window.odDev.modalRows (tools/web/mobile_web.mjs: every row reachable)
 		focusables.append(b)
 		body_focusables.append(b)
 		_sheet_text(body, Vector2(0, y + LABEL_DY), label, role if role != null else Art.theme["modal"]["body"], false, right)
@@ -137,17 +152,18 @@ class SettingsOverlay:
 			"on_commit": func() -> void:
 				host.toggle_setting(key)
 				sync()})
+		b.set_meta("row", key)
 		focusables.append(b)
 		body_focusables.append(b)
 		var t := _sheet_text(body, Vector2(0, y + LABEL_DY), Strings.s(label_key), th["modal"]["body"], false)
 		if cap_key != "":
 			_sheet_text(body, Vector2(0, y + LABEL_DY + _lh(t) * float(maxi(1, t.line_count())) + 2.0), Strings.s(cap_key), th["modal"]["note"], true)
-		var track := Ui.rect(body, Rect2(40, y + 14.0, 120, 60), Color("#061029"))
-		var fill := Ui.rect(body, Rect2(44, y + 18.0, 112, 52), Color("#0038b8"))
-		var knob := Ui.rect(body, Rect2(44, y + 18.0, 52, 52), Color("#f7f4ec"))
+		var sw := SettingSwitch.new()
+		sw.position = Vector2(40, y + 14.0)   # rtl-map §7.4: visual Rect2(40, row.y + 14, 120, 60)
+		body.add_child(sw)
 		var st := PxText.make(body, Vector2(176, y + LABEL_DY), "", L.TEXT, "plain", th["modal"]["body"])
 		st.fit_width = 104.0   # sheet.state x 176-280
-		_switches[key] = {"fill": fill, "knob": knob, "state": st, "y": y}
+		_switches[key] = {"view": sw, "state": st, "y": y}
 
 	## Large text toggled from this sheet (rtl-map §0.2): the rows re-measure, so the sheet is rebuilt
 	## in place (no enter motion), keeping the focus and the scroll.
@@ -178,16 +194,57 @@ class SettingsOverlay:
 		for key: String in _switches:
 			var on: bool = host.setting_on(key)
 			var sw: Dictionary = _switches[key]
-			(sw["fill"] as ColorRect).visible = on
-			# ON = knob left (rtl-map §7.4, mirror)
-			(sw["knob"] as ColorRect).position.x = 44.0 if on else 104.0
-			(sw["state"] as PxText).text = Strings.s("SET_ON" if on else "SET_OFF")
+			(sw["view"] as SettingSwitch).set_on(on)   # ON = flag fill + knob left (rtl-map §7.4, mirror)
+			var st := sw["state"] as PxText
+			st.text = Strings.s("SET_ON" if on else "SET_OFF")
+			st.tint = SettingSwitch.C_ON if on else SettingSwitch.C_OFF_TEXT
 		if _built_large != PxText.large_text:
 			rebuild_if_scale_changed.call_deferred()
 
 	func cancel(via: String) -> void:
 		host.audio_event("panelClose")
 		mgr.close(self, via)
+
+
+## A8 (manual test 2026-09-30): the settings switch, drawn in code on the 4-px grid (30 × 15 art px at
+## ×4; a new kit sprite is not needed: the fork's `ui_toggle` is the v2 lime/lavender and 36 art wide).
+## ON: a flag-blue track, the white knob on the LEFT (rtl-map §7.4, `mirror`: the RTL platforms'
+## ON side) and the word "פועל" in flag blue. OFF: a grey track, the knob on the right, "כבוי" in
+## slate. Colour is never the only cue: the knob side and the word change too. Contrast on the sheet's
+## paper (#f7f4ec): the night outline 13.9:1 (the control's boundary, WCAG 1.4.11 ≥ 3:1 in both
+## states), flag 8.1:1, slate 5.8:1 (text ≥ 4.5:1). Corners step 1 art px twice (a pill).
+class SettingSwitch:
+	extends Node2D
+	const SIZE := Vector2(120, 60)
+	const KNOB := 44.0
+	const C_LINE := Color("#0f2350")      # night
+	const C_ON := Color("#0038b8")        # flag
+	const C_OFF := Color("#b9c0cf")       # grey track
+	const C_KNOB := Color("#ffffff")
+	const C_OFF_TEXT := Color("#4a5470")  # slate
+	var on := false
+
+	func set_on(v: bool) -> void:
+		if v != on:
+			on = v
+			queue_redraw()
+
+	## The knob's rect (switch-local): left when ON (RTL mirror), right when OFF.
+	func knob_rect() -> Rect2:
+		return Rect2(8.0 if on else SIZE.x - 8.0 - KNOB, 8.0, KNOB, KNOB)
+
+	func _pill(r: Rect2, c: Color) -> void:
+		draw_rect(Rect2(r.position.x + 8.0, r.position.y, r.size.x - 16.0, r.size.y), c)
+		draw_rect(Rect2(r.position.x + 4.0, r.position.y + 4.0, r.size.x - 8.0, r.size.y - 8.0), c)
+		draw_rect(Rect2(r.position.x, r.position.y + 8.0, r.size.x, r.size.y - 16.0), c)
+
+	func _draw() -> void:
+		var r := Rect2(Vector2.ZERO, SIZE)
+		_pill(r, C_LINE)
+		_pill(r.grow(-4.0), C_ON if on else C_OFF)
+		var k := knob_rect()
+		_pill(k, C_LINE)
+		_pill(k.grow(-4.0), C_KNOB)
 
 
 ## O10 / O3 / O1 are rebuilt as §7.1 sheet cards (ui/views/view_reset.gd, view_election.gd,

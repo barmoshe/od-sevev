@@ -511,6 +511,7 @@ After an election the ticker is live, so the chip stays in the lane (§5.8).
 
 - Full bleed (0 … vs.x).
 - **Height:** `min(content, floor4(0.70 · vs.y))`, as today (settings: 1072 content → no scroll at 390×844 and larger; it scrolls at the SE and the "bars" viewports).
+  - **Amended 2026-09-30 (manual test A6, Game Developer):** at the SE the reset row sat wholly below the fold with no cue. O7 settings may now rise to Row A's bottom, `min(content, max(floor4(0.70 · vs.y), floor4(vs.y − ins_b − ins_t − 96)))` (the readout and the gear stay in view), so the whole sheet shows at the SE; where it still would not fit (375×548) the group headers tighten 48 → 36 (rows keep 88, the 44-CSS touch floor); past that (large text on 375×548) the body scrolls with a thumb on the left edge (the RTL mirror, as T4). `tools/web/mobile_web.mjs` checks every row is on screen or reachable, on every device of the matrix.
 - The bottom "סגור" is full width, `Rect2(24, h − 112, 672 + dx, 88)`, fixed.
 - Rows use §4.1's sheet anchors.
 

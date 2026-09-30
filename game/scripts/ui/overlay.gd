@@ -27,6 +27,7 @@ var clip_rect := Rect2()
 var scroll := 0.0
 var content_bottom := 0.0
 var body_focusables: Array[PxButton] = []
+var _thumb: ColorRect
 var _drag := {}
 var _anim: Dictionary = {}
 var _drop: Array = []
@@ -173,6 +174,10 @@ func make_scroll(r: Rect2) -> Node2D:
 	body = Node2D.new()
 	body.position = -r.position
 	clip.add_child(body)
+	# manual test A6: a body taller than its clip shows a thumb on the left edge (RTL mirror, as T4's),
+	# so a row below the fold reads as "scroll", not as missing
+	_thumb = Ui.rect(panel, Rect2(r.position.x + 8.0, r.position.y, 8.0, 48.0), Color("#0f2350"))
+	_thumb.visible = false
 	return body
 
 
@@ -191,6 +196,23 @@ func set_scroll(v: float) -> void:
 	scroll = clampf(v, 0.0, max_scroll())
 	if body:
 		body.position.y = -clip_rect.position.y - roundf(scroll / 4.0) * 4.0
+	_place_thumb()
+
+
+## The scroll thumb: shown only when the body overflows its clip; its length is the visible share,
+## its place the scroll share, on the 4-px grid. Dim at rest, full while dragged.
+func _place_thumb() -> void:
+	if _thumb == null or not is_instance_valid(_thumb):
+		return
+	var ms := max_scroll()
+	_thumb.visible = ms > 0.0
+	if ms <= 0.0:
+		return
+	var th := clip_rect.size.y
+	var tl := maxf(48.0, th * th / (th + ms))
+	_thumb.size.y = Ui.snap(tl, 4)
+	_thumb.position.y = Ui.snap(clip_rect.position.y + (th - tl) * (scroll / ms), 4)
+	_thumb.modulate.a = 0.9 if not _drag.is_empty() and bool(_drag.get("moved", false)) else 0.35
 
 
 func drag_begin(p: Vector2) -> void:
@@ -268,6 +290,8 @@ func exit(reduced: bool, done: Callable) -> void:
 
 func tick(dt_ms: float) -> void:
 	_age += dt_ms
+	if body != null:
+		_place_thumb()   # content_bottom is set by the builders after make_scroll
 	if _flap_t >= 0.0:
 		_flap_t += dt_ms
 		var ff := flap_frame(_flap_t)

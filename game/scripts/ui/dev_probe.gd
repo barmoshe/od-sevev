@@ -51,6 +51,15 @@ static func snapshot(host: Node) -> Dictionary:
 			if t.body_focusables.has(b):
 				c.y -= t.scroll
 			out["modalButtons"].append([c.x, c.y, b.label.text if b.label != null else ""])
+		# manual test A6 (mobile_web.mjs): a scrolling body's clip and its rows [id, top, bottom], viewport y
+		if t.body != null:
+			var dy := t.panel.position.y + ov.y
+			out["modalClip"] = [t.clip_rect.position.y + dy, t.clip_rect.end.y + dy]
+			out["modalScroll"] = [t.scroll, t.max_scroll()]
+			var rows: Array = []
+			for b: PxButton in t.body_focusables:
+				rows.append([str(b.get_meta("row", "")), b.hit.position.y - t.scroll + dy, b.hit.end.y - t.scroll + dy])
+			out["modalRows"] = rows
 	# the "עוד סבב!" CTA's centre, live (the lower band moves when the layout splits again)
 	var tk: Ticker = host.get("ticker")
 	var cc := tk.cta.visual.get_center() + tk.position + o
