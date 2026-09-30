@@ -5038,13 +5038,12 @@
      "bibi",
      "deri",
      "goldknopf",
-     "gafni",
-     "abbas"
+     "gafni"
     ],
     "src": [
      "liberman-wont-sit"
     ],
-    "_note": "Trait: while Liberman is a member these can't join (the existing `excludes`, as Abbas has for Ben Gvir). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Abbas and Gafni in Bennett's round."
+    "_note": "Trait: Liberman and these never sit together (the `excludes`, as Abbas has for Ben Gvir; the bigger side has precedence, sim/coalition.gd _excluded). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Gafni in the change-bloc rounds. Not Abbas: he sat with Ra'am in the 2021 Bennett-Lapid government (fact raam-2021, Abbas's own line in Bennett's round), and excluding him soft-locked Bennett's round for a player who pays every pill (Game Designer 2026-09-30, spec §7.2.2)."
    },
    {
     "id": "golan",

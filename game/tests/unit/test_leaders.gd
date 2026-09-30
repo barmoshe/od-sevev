@@ -106,6 +106,7 @@ func test_install_bennett() -> void:
 	runner.check(int(gafni["seats"]) == 0 and int(gafni["abstain"]) == int(slot["seats"]), "Gafni turns his slot's seats into abstentions")
 	runner.check(str(_p("gantz")["slot"]) == "SI" and _p("gantz").get("standIn") == true, "Gantz stays the stand-in")
 	runner.check((_p("liberman")["excludes"] as Array).has("gafni"), "Liberman's excludes ride along (the real choice)")
+	runner.check(not (_p("liberman")["excludes"] as Array).has("abbas"), "but not Abbas: they sat together in 2021 (fact raam-2021)")
 	runner.check(str(_p("abbas").get("lines", {}).get("thanks", "")).begins_with("כמו ב־2021"), "a lineup line override")
 	var ev := _ids(Events.list())
 	for id: String in ["card_bibi", "card_bengvir", "card_smotrich", "card_deri", "bennett", "leak", "brawl"]:
@@ -136,6 +137,34 @@ func test_install_bengvir() -> void:
 	runner.check(str(Events.event("bennett")["side"]) == "opposition" and not Events.event("leak").has("skin"), "rival pledge, the shipped leak")
 	runner.check(is_equal_approx(Leaders.threat_mult(), 0.5), "partnerThreatMult 0.5")
 	runner.check(s.leader == "bengvir", "the round is his")
+
+
+## Spec §7.2.2: in Bennett's round a pill never trades Liberman's 12 seats away. Before, Gafni's
+## (or Abbas's) join demand came while Liberman sat, and paying it threw him out with no pill.
+func test_bennett_round_never_trades_liberman_away() -> void:
+	var s := _round("bennett", 2)   # this deal has Gafni and Abbas in round 1
+	s.run_bananas = 1e9
+	s.run_time_sec = 900.0
+	s.stats["playtimeSec"] = 900.0
+	s.coalition["opened"] = true
+	s.coalition["nextDemandSec"] = 1e12
+	_member(s, "liberman")
+	for i in 200:
+		Coalition.tick(s, 1.0, Economy.derive(s), {}, func() -> float: return 0.5)
+	runner.check(Coalition.status(s, "gafni") == "absent", "Gafni never asks while Liberman sits (the bigger side first)")
+	runner.check(Coalition.status(s, "abbas") != "absent", "Abbas asks and sits with him, as in 2021 (%s)" % Coalition.status(s, "abbas"))
+	# Liberman walks (an ultimatum ran out): now Gafni asks, next to Liberman's rejoin pill
+	Coalition._leave(s, "liberman", 10.0, [])
+	for i in 60:
+		Coalition.tick(s, 1.0, Economy.derive(s), {}, func() -> float: return 0.5)
+	runner.check(Coalition.status(s, "gafni") == "pending", "Liberman out: Gafni asks (%s)" % Coalition.status(s, "gafni"))
+	var g := Coalition.open_msg(s, "gafni")
+	s.bananas = 1e12
+	Coalition.pay(s, int(g["seq"]))
+	var pill := Coalition.open_msg(s, "liberman")
+	runner.check(Coalition.status(s, "gafni") == "member" and str(pill.get("payable", "")) == "rejoin", "paying Gafni keeps Liberman's rejoin pill open (the bigger side's offer stays)")
+	Coalition.pay(s, int(pill["seq"]))
+	runner.check(Coalition.status(s, "liberman") == "member" and Coalition.status(s, "gafni") == "absent", "paying Liberman's pill brings him back and Gafni goes: they never sit together")
 
 
 func test_install_liberman() -> void:

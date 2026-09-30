@@ -31,6 +31,12 @@ var ev := Politics.tick(state, dt, d, {"allowPing": not modal and last_buy_age >
 for e in ev: match e.ev: ...   # see the event list below
 ```
 
+**The vote stops the clock** (design/leader-select-spec.md §7.4): while the election card (O3) is
+open and unconfirmed, pass `"vote": true`. Politics then advances only the calendar: no
+ultimatum, demand, join, transfer, card or court timer moves. The controller also skips
+`Economy.tick` and automation for those steps (`main.gd` `vote_open()`, `_step_economy`), so the
+card is a pause and never a farm.
+
 **Player actions** (each returns a result, and a Dictionary of UI events where there are any):
 
 | Action | Call |
@@ -113,7 +119,7 @@ mechanic each: `priceMult`, `priceGrowth` (Goldknopf, lifetime), `abstain` (Gafn
 `demandKind: ceremony` (Regev), `effects[]` (economy effect types; Smotrich `producerMult`, Levin
 `suspicionGainMult`), `onPay {suspicion}` (Golan, Distel), `cannotLeave` + `statusLine` (Deri),
 `transfer {to, meterPerSec, fireAt}` (Gotliv), `rebel` (Almog: poach only), `standIn` (Gantz),
-`excludes [ids]` (Abbas), `mutedLine` (Distel), `side`, `pollLike`, `lines` / `linesVariants`.
+`excludes [ids]` (Abbas, Liberman: the two never sit together, either way round; the bigger side (seats + abstain/2) comes first, so a pill never trades seats down, spec §7.2.2), `mutedLine` (Distel), `side`, `pollLike`, `lines` / `linesVariants`.
 
 ### `court`
 `sources {producerId: weight}` (pts/s at 100% share of ₪/s), `max`, `floorPerRoundPct`, `floorMaxPct`,
