@@ -5199,8 +5199,8 @@
     "name": "ח״כ שעבר צד",
     "short": "ח״כ שעבר צד",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "mk-switcher_avatar",
+    "art": "mk-switcher",
     "bloc": "any",
     "generic": true,
     "lines": {
@@ -5210,15 +5210,15 @@
      "return": "חזרתי. מהצד השני של הצד השני."
     },
     "rebel": true,
-    "_note": "Generic, not a real person (the no-photo stand-in). Fills a lineup any bloc can't; poach only, like Almog."
+    "_note": "Generic, not a real person (a made-up face, ChatGPT batch 2026-09-30, rendered like the cast). Fills a lineup any bloc can't; poach only, like Almog."
    },
    {
     "id": "mk_undecided",
     "name": "ח״כית מתלבטת",
     "short": "ח״כית מתלבטת",
     "g": "f",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "mk-undecided_avatar",
+    "art": "mk-undecided",
     "bloc": "any",
     "generic": true,
     "lines": {
@@ -5232,15 +5232,16 @@
       "עוד לא החלטתי. {price} ₪ יעזרו לי להחליט.",
       "אני בעד. כמעט. חסר רק תקציב."
      ]
-    }
+    },
+    "_note": "Generic, not a real person: a made-up face (ChatGPT batch 2026-09-30), rendered like the cast."
    },
    {
     "id": "mk_offer",
     "name": "ח״כ עם הצעה",
     "short": "ח״כ עם הצעה",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "mk-offer_avatar",
+    "art": "mk-offer",
     "bloc": "any",
     "generic": true,
     "lines": {
@@ -5254,7 +5255,8 @@
       "יש לי הצעת חוק. היא עולה {price} ₪.",
       "הצעת חוק קטנה, תקציב גדול."
      ]
-    }
+    },
+    "_note": "Generic, not a real person: a made-up face (ChatGPT batch 2026-09-30), rendered like the cast."
    },
    {
     "id": "mk_returner",
@@ -5271,7 +5273,7 @@
      "thanks": "עכשיו אני באמת בבית. עד הבחירות.",
      "return": "חזרתי. שוב. הבית לא השתנה."
     },
-    "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him."
+    "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him. Art: still the no-photo stand-in. The 2026-09-30 candidate (refs/candidates/mk-returner.png) came out resembling Netanyahu and must be regenerated with a made-up face before it renders."
    }
   ],
   "cardProfiles": [
