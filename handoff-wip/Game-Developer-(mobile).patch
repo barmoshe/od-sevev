@@ -1,383 +1,278 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/art/art.gd b/game/scripts/art/art.gd
+index ed0eaed..7e58da8 100644
+--- a/game/scripts/art/art.gd
++++ b/game/scripts/art/art.gd
+@@ -153,8 +153,8 @@ func source(id: String, picked: bool = true) -> Dictionary:
+ ## A 16x16 neutral stand-in: an ink-outlined grey card with a "?" (art pending).
+ func _bake_placeholder() -> ImageTexture:
+ 	var img := Image.create_empty(16, 16, false, Image.FORMAT_RGBA8)
+-	var ink := Color("#1b1426")
+-	var fill := Color("#8a8494")
++	var ink := Color("#061029")
++	var fill := Color8(0x7d, 0x83, 0x98)   # the v4 slate fill (the placeholder card; a fill, not the slate-text role the map lifts)
+ 	var q := ["......", ".####.", ".#..#.", "....#.", "..##..", "..#...", "......", "..#..."]
+ 	for y in range(1, 15):
+ 		for x in range(2, 14):
 diff --git a/game/scripts/main.gd b/game/scripts/main.gd
-index 02ac91c..31ca9ec 100644
+index 31ca9ec..9d1553c 100644
 --- a/game/scripts/main.gd
 +++ b/game/scripts/main.gd
-@@ -276,6 +276,9 @@ func _read_dev_params() -> void:
- 		return
- 	_dev["on"] = true
- 	_dev["forkscale"] = q.contains("forkscale=1")
-+	if q.contains("clear=1"):   # the width rule's sentinel (Diorama.clear_override)
-+		Diorama.clear_override = Color("#ff00ff")
-+		RenderingServer.set_default_clear_color(Diorama.clear_override)
- 	if q.contains("sharp=0"):
- 		PxText.set_sharp_text(get_tree(), false)
- 	for part in q.trim_prefix("?").split("&"):
-diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
-index 1aab079..1558947 100644
---- a/game/scripts/ui/dev_probe.gd
-+++ b/game/scripts/ui/dev_probe.gd
-@@ -40,6 +40,8 @@ static func snapshot(host: Node) -> Dictionary:
- 	if mgr != null and mgr.is_open():
- 		var t := mgr.top()
- 		out["modal"] = t.id
-+		# the width rule (mobile_web.mjs): the top overlay's panel, viewport logical x and width
-+		out["modalRect"] = [t.panel_rect.position.x + t.position.x + float(host.get("_ox")), t.panel_rect.size.x]
- 		var ov := Vector2(float(host.get("_ox")), float(host.get("_ovl_y")))
- 		for b: PxButton in t.focusables:
- 			var c := b.visual.get_center() + Vector2(t.position.x, t.panel.position.y) + ov
-@@ -92,7 +94,8 @@ static func snapshot(host: Node) -> Dictionary:
- 			rows.append([360.0 + o.x, y + float(L.SHOP["rowVisualH"]) / 2.0 + o.y, id, afford])
- 	# mobile-first §5.4: the silhouette and teaser rows the pane shows whole (no price or no target)
- 	out["shop"] = {"tab": shop.tab, "list": [shop.list_rect.position.y + o.y, shop.list_rect.end.y + o.y], "rows": rows,
--		"all": all_rows, "silhouettes": shop.rows_in_view(["silhouette", "teaser"])}
-+		"all": all_rows, "silhouettes": shop.rows_in_view(["silhouette", "teaser"]),
-+		"card": [shop.list_rect.position.x + o.x, shop.list_rect.end.x + o.x]}   # the cards' x span (the width rule)
- 	var court: CourtView = host.get("court")
- 	var ct := court.button_rect("testify").get_center() + o if court.card_visible() else Vector2(-1, -1)
- 	out["court"] = {"card": court.card_visible(), "mode": court.mode(), "phase": court.phase(), "testify": [ct.x, ct.y]}
+@@ -320,11 +320,11 @@ func _build() -> void:
+ 	var th := Art.theme
+ 	_fills["sky"] = null
+ 	# the top bar's full-width backing lives in the top section, above the (extended) sky
+-	# od-sevev (rtl-map §1): Row A/B sit on the #140C24 scrim (92%); the panel on the night blue;
++	# od-sevev (rtl-map §1): Row A/B sit on the #0038B8 scrim (92%); the panel on the night blue;
+ 	# the tab bar's kit art is drawn by the shop; the bottom inset continues the tab bar colour
+-	_fills["top"] = Ui.rect(_top, Rect2(), Color(0.078, 0.047, 0.141, 0.92))
+-	_fills["shop"] = Ui.rect(_lower, Rect2(), Color("#2a2340"))
+-	_fills["bottom"] = Ui.rect(_lower, Rect2(), Color("#1b1426"))
++	_fills["top"] = Ui.rect(_top, Rect2(), Color(0.0, 0.22, 0.722, 0.92))
++	_fills["shop"] = Ui.rect(_lower, Rect2(), Color("#f7f4ec"))
++	_fills["bottom"] = Ui.rect(_lower, Rect2(), Color("#072a7a"))
+ 	_title_ground = TextureRect.new()
+ 	_title_ground.texture = Art.tex("env_ground")
+ 	_title_ground.stretch_mode = TextureRect.STRETCH_TILE
 diff --git a/game/scripts/ui/diorama.gd b/game/scripts/ui/diorama.gd
-index 1623ab4..a19b2c8 100644
+index a19b2c8..6cf4a1f 100644
 --- a/game/scripts/ui/diorama.gd
 +++ b/game/scripts/ui/diorama.gd
-@@ -10,6 +10,9 @@ var ground_y := 0
+@@ -9,7 +9,7 @@ var reduced_motion := false
+ var ground_y := 0
  var play_fx: Callable      # func(id: String, x: float, y: float)
  ## The era's padBottom (sprites.json stages): the floor colour under the stage art.
- var pad_bottom := Color("#2a2340")
-+## Dev only (`?dev=1&clear=1`, tools/web/mobile_web.mjs's width rule): a sentinel clear colour, so
-+## any pixel nothing draws (a gap between the chrome, the art or a card and the canvas edge) shows.
-+static var clear_override := Color(0, 0, 0, 0)
- 
- var _critters: Array[Dictionary] = []
- var _clouds: Array[Dictionary] = []
-@@ -130,8 +133,8 @@ func set_era(era: Dictionary) -> void:
+-var pad_bottom := Color("#2a2340")
++var pad_bottom := Color("#0f2350")
+ ## Dev only (`?dev=1&clear=1`, tools/web/mobile_web.mjs's width rule): a sentinel clear colour, so
+ ## any pixel nothing draws (a gap between the chrome, the art or a card and the canvas edge) shows.
+ static var clear_override := Color(0, 0, 0, 0)
+@@ -132,9 +132,9 @@ func set_era(era: Dictionary) -> void:
+ 	for t in _ground_tiles:
  		t.visible = not has_bg
  	# beyond the 180x320 art (wide or very tall screens): the stage's own pad colours
- 	pad_bottom = Color.html(String(stage.get("padBottom", "#2a2340")))
--	RenderingServer.set_default_clear_color(Color.html(String(stage.get("padBottom", "#2a2340"))) if has_bg \
--		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.165, 0.137, 0.251)))
-+	RenderingServer.set_default_clear_color(clear_override if clear_override.a > 0.0 else (Color.html(String(stage.get("padBottom", "#2a2340"))) if has_bg \
-+		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.165, 0.137, 0.251))))
+-	pad_bottom = Color.html(String(stage.get("padBottom", "#2a2340")))
+-	RenderingServer.set_default_clear_color(clear_override if clear_override.a > 0.0 else (Color.html(String(stage.get("padBottom", "#2a2340"))) if has_bg \
+-		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.165, 0.137, 0.251))))
++	pad_bottom = Color.html(String(stage.get("padBottom", "#0f2350")))
++	RenderingServer.set_default_clear_color(clear_override if clear_override.a > 0.0 else (Color.html(String(stage.get("padBottom", "#0f2350"))) if has_bg \
++		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.059, 0.137, 0.314))))
  	if has_bg:
  		# full-stage art at x4 (first child of _props: above the sky bands, under every prop),
  		# placed so its magicianFeet slot (sprites.json, art px) lands on the Magician's feet
+diff --git a/game/scripts/ui/overlays.gd b/game/scripts/ui/overlays.gd
+index 6337993..e72c801 100644
+--- a/game/scripts/ui/overlays.gd
++++ b/game/scripts/ui/overlays.gd
+@@ -142,7 +142,7 @@ class SettingsOverlay:
+ 		var t := _sheet_text(body, Vector2(0, y + LABEL_DY), Strings.s(label_key), th["modal"]["body"], false)
+ 		if cap_key != "":
+ 			_sheet_text(body, Vector2(0, y + LABEL_DY + _lh(t) * float(maxi(1, t.line_count())) + 2.0), Strings.s(cap_key), th["modal"]["note"], true)
+-		var track := Ui.rect(body, Rect2(40, y + 14.0, 120, 60), Color("#1b1426"))
++		var track := Ui.rect(body, Rect2(40, y + 14.0, 120, 60), Color("#061029"))
+ 		var fill := Ui.rect(body, Rect2(44, y + 18.0, 112, 52), Color("#0038b8"))
+ 		var knob := Ui.rect(body, Rect2(44, y + 18.0, 52, 52), Color("#f7f4ec"))
+ 		var st := PxText.make(body, Vector2(176, y + LABEL_DY), "", L.TEXT, "plain", th["modal"]["body"])
+diff --git a/game/scripts/ui/shop.gd b/game/scripts/ui/shop.gd
+index f034888..41aeb2c 100644
+--- a/game/scripts/ui/shop.gd
++++ b/game/scripts/ui/shop.gd
+@@ -214,7 +214,7 @@ func _refresh_tabs() -> void:
+ 		Ui.set_frame(ic, Art.sprite_or(TAB_ICONS[i] + ("_active" if active else "_idle")), 0)
+ 		var lb: PxText = d["label"]
+ 		lb.visible = on
+-		lb.tint = Art.col("w") if active else Color(0.62, 0.6, 0.68)
++		lb.tint = Art.col("w") if active else Color(0.788, 0.839, 0.949)
+ 		(d["badge"] as NinePatchRect).visible = on and (d["badgeText"] as PxText).text != ""
+ 		(d["badgeText"] as PxText).visible = (d["badge"] as NinePatchRect).visible
+ 
+@@ -658,9 +658,9 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 		flash.texture = ic.texture
+ 		flash.position = ic.position
+ 	ic.modulate = Color.WHITE if (m["kind"] == "silhouette" or teaser or afford) else Color(0.6, 0.6, 0.6)
+-	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.86, 0.84, 0.9)
+-	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.72, 0.7, 0.78)
+-	(v["owned"] as PxText).tint = Color(0.86, 0.84, 0.9)
++	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.827, 0.839, 0.875)
++	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.788, 0.839, 0.949)
++	(v["owned"] as PxText).tint = Color(0.827, 0.839, 0.875)
+ 	_render_bars(v, bars)
+ 	var tg: PxText = v["tag"]
+ 	tg.text = tag_s
+diff --git a/game/scripts/ui/ticker.gd b/game/scripts/ui/ticker.gd
+index 2a9db27..3b08a4d 100644
+--- a/game/scripts/ui/ticker.gd
++++ b/game/scripts/ui/ticker.gd
+@@ -72,7 +72,7 @@ var _clip_x0 := float(L.TICKER["clipX0"])
+ func _ready() -> void:
+ 	var K: Dictionary = Art.theme["ticker"]
+ 	var panel: Rect2 = L.TICKER["panel"]
+-	_panel = Ui.rect(self, panel, Color("#1b1426"))
++	_panel = Ui.rect(self, panel, Color("#072a7a"))
+ 	_clip.clip_contents = true
+ 	_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+ 	_clip.position = Vector2(L.TICKER["clipX0"], panel.position.y)
+diff --git a/game/scripts/ui/title_view.gd b/game/scripts/ui/title_view.gd
+index 726efd9..ae0eb1f 100644
+--- a/game/scripts/ui/title_view.gd
++++ b/game/scripts/ui/title_view.gd
+@@ -8,7 +8,7 @@ extends Node2D
+ ## A child of the stage node, whose origin is the screen at stage-top − STAGE.y; `top_y` places
+ ## the lines relative to the screen's safe top.
+ 
+-const SCRIM := Color(0.078, 0.047, 0.141, 0.82)   # #140C24 at 82%
++const SCRIM := Color(0.024, 0.063, 0.161, 0.82)   # #061029 at 82%
+ 
+ var _items: Array[CanvasItem] = []
+ var _lines: Array = []   # [PxText, plate]
+diff --git a/game/scripts/ui/toasts.gd b/game/scripts/ui/toasts.gd
+index 6b250e6..ce2c589 100644
+--- a/game/scripts/ui/toasts.gd
++++ b/game/scripts/ui/toasts.gd
+@@ -40,7 +40,7 @@ const CHAT_TEXT_RIGHT := 596.0
+ const CHAT_TEXT_W := 564.0          # string-budgets stage.toastHead / stage.toastChat box
+ const FACE_X := 612.0
+ const FACE_ART := 16.0
+-const C_HEAD := Color("#a4a9b8")    # grey: the sender line, as the thread's names
++const C_HEAD := Color("#c9d6f2")    # grey: the sender line, as the thread's names
+ var _chats: Array[Dictionary] = []
+ var _face: Sprite2D
+ var _head: PxText
+@@ -51,7 +51,7 @@ var _preview: PxText
+ ## toast's content box ends 24 px before the plate's right edge, where the accent stripe is).
+ const TEXT_RIGHT := 676.0
+ const TEXT_W := 644.0
+-## Dubi's bubble text: white `w` on the kit bubble's #2e2250 (13.6:1; rtl-map §4 "Dubi's bubble").
++## Dubi's bubble text: white `w` on the kit bubble's #1045b5 (13.6:1; rtl-map §4 "Dubi's bubble").
+ const BUBBLE_INK := "w"
+ 
+ 
+diff --git a/game/scripts/ui/views/view_chat.gd b/game/scripts/ui/views/view_chat.gd
+index b4dee8d..fd646be 100644
+--- a/game/scripts/ui/views/view_chat.gd
++++ b/game/scripts/ui/views/view_chat.gd
+@@ -57,11 +57,11 @@ const INPUT_AFTER_OPEN_MS := 140.0   # motion tall-tab: the thread accepts taps
+ const CEREMONY_MS := 3000.0          # sim: a ceremony (Regev) needs "the UI's 3 s ribbon"
+ 
+ ## palette (style guide v2 §2.1)
+-const C_THREAD := Color("#1e1636")    # ui_panel
+-const C_NAME := Color("#a4a9b8")      # grey
+-const C_MUTED := Color("#7d8398")     # slate
+-const C_INK := Color("#1b1426")       # ink (on gold)
+-const C_ALERT := Color("#f86b5d")     # red_hi ("אולטימטום", the last seconds)
++const C_THREAD := Color("#072a7a")    # ui_panel
++const C_NAME := Color("#c9d6f2")      # grey
++const C_MUTED := Color("#b4c3e8")     # slate
++const C_INK := Color("#061029")       # ink (on gold)
++const C_ALERT := Color("#ffaa9f")     # red_hi ("אולטימטום", the last seconds)
+ const C_GOLD_HI := Color("#fff1a6")
+ const C_SKY := Color("#8fc0ff")       # the seats fill (pips)
+ 
+diff --git a/game/scripts/ui/views/view_court.gd b/game/scripts/ui/views/view_court.gd
+index e542807..59ab54c 100644
+--- a/game/scripts/ui/views/view_court.gd
++++ b/game/scripts/ui/views/view_court.gd
+@@ -438,7 +438,7 @@ func _build_card() -> void:
+ 	_title.position.y = 24.0
+ 	var y := 96.0
+ 	if _mode == "postponed":
+-		_prefix = _t(LeaderUi.s("COURT_POSTPONED_PREFIX"), Color("#a4a9b8"), TEXT_W, 1)
++		_prefix = _t(LeaderUi.s("COURT_POSTPONED_PREFIX"), Color("#c9d6f2"), TEXT_W, 1)
+ 		_prefix.right_at(CARD_X + TEXT_RIGHT + L.dx)
+ 		_prefix.position.y = y
+ 		y += _lh(_prefix)
+diff --git a/game/scripts/ui/views/view_dossier.gd b/game/scripts/ui/views/view_dossier.gd
+index 1455db6..9d12df4 100644
+--- a/game/scripts/ui/views/view_dossier.gd
++++ b/game/scripts/ui/views/view_dossier.gd
+@@ -35,11 +35,11 @@ const K2_DELAY_MS := 5000.0
+ const INPUT_AFTER_OPEN_MS := 140.0
+ const TEXT_REFRESH_MS := 250.0      # stat rows re-shape at most 4× a second (the total climbs every frame)
+ 
+-const C_BG := Color("#1e1636")      # ui_panel
++const C_BG := Color("#072a7a")      # ui_panel
+ const C_LABEL := Color.WHITE
+-const C_MUTED := Color("#7d8398")   # slate
+-const C_DIVIDER := Color("#2e2548")
+-const C_LOCKED := Color("#a4a9b8")  # grey
++const C_MUTED := Color("#b4c3e8")   # slate
++const C_DIVIDER := Color("#2a5cc4")
++const C_LOCKED := Color("#c9d6f2")  # grey
+ 
+ var host: Node
+ var reduced_motion := false
 diff --git a/game/scripts/ui/views/view_flash.gd b/game/scripts/ui/views/view_flash.gd
-index 29f8b2b..2e2ac02 100644
+index 2e2ac02..231e3e2 100644
 --- a/game/scripts/ui/views/view_flash.gd
 +++ b/game/scripts/ui/views/view_flash.gd
-@@ -213,12 +213,13 @@ func build() -> FlashCard:
- 	# bottom-anchored, the skip's bottom 24 above the safe bottom (its PAD included)
- 	var y := Ui.snap(maxf(band.x + BAND_MARGIN, band.y - (24.0 - PAD) - h), 4)
- 	# the panel: the kit's dark sheet (white labels), title band on top
--	panel_rect = Rect2(CARD_X, y, CARD_W, h)
-+	var g2 := SheetCard.grow_half()   # the width rule: ≥ 92% of the canvas, as the sheet cards
-+	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
- 	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
- 	var head := text(Vector2(0, y + 24.0), str(lead["title"]) if not lead.is_empty() and str(lead["title"]) != "" else header_text(evolutions), L.TEXT, C_TITLE)
- 	head.wrap_width = TEXT_W
- 	head.max_lines = 1
--	head.center_in(CARD_X, CARD_W)
-+	head.center_in(CARD_X - g2, CARD_W + 2.0 * g2)
+@@ -57,7 +57,7 @@ const TALK_OPEN_MS := 60.0           # state-graph-dubi §3
+ const TALK_IDLE_MS := 250.0
+ const C_BODY := Color("#f7f4ec")     # white label on the sheet (kit note)
+ const C_TITLE := Color("#f7f4ec")
+-const C_LOWER := Color("#d6d0e6")    # silver on the ticker bar
++const C_LOWER := Color("#d3d6df")    # silver on the ticker bar
+ 
+ var evolutions := 1
+ var archive := false
+@@ -223,7 +223,7 @@ func build() -> FlashCard:
  	# the news screen
  	var sy := y + HEADER_H + PAD
  	screen_rect = Rect2(SCREEN_X, sy + SCREEN_FRAME, SCREEN_W, screen_h)
-@@ -232,14 +233,16 @@ func build() -> FlashCard:
- 		p.modulate.a = 0.0 if not mgr.reduced else 1.0
- 	# the buttons
- 	var bt := by + body_h + PAD
-+	var bx := BTN.position.x - g2
-+	var bw := BTN.size.x + 2.0 * g2
- 	if archive:
--		next_button = button(Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y),
-+		next_button = button(Rect2(bx, bt, bw, BTN.size.y), Rect2(bx, bt, bw, BTN.size.y),
- 			Strings.s("SYS_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
- 	else:
--		next_button = button(Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y),
-+		next_button = button(Rect2(bx, bt, bw, BTN.size.y), Rect2(bx, bt, bw, BTN.size.y),
- 			Strings.s("FLASH_NEXT"), func() -> void: _close("next"), "kit_primary", L.TEXT)
- 		var bt2 := bt + BTN.size.y + BTN_GAP
--		skip_button = button(Rect2(BTN.position.x, bt2, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt2, BTN.size.x, BTN.size.y),
-+		skip_button = button(Rect2(bx, bt2, bw, BTN.size.y), Rect2(bx, bt2, bw, BTN.size.y),
- 			Strings.s("FLASH_SKIP"), func() -> void: _close("skip"), "kit_secondary", L.TEXT)
- 	# audio: the dubiFlash head, then Dubi reads what is on the card
- 	_audio("storyCard")
+-	Ui.rect(panel, screen_rect.grow(SCREEN_FRAME), Color("#1b1426"))
++	Ui.rect(panel, screen_rect.grow(SCREEN_FRAME), Color("#061029"))
+ 	_build_screen(s)
+ 	# the body, revealed line by line
+ 	var by := screen_rect.end.y + SCREEN_FRAME + PAD
+diff --git a/game/scripts/ui/views/view_pick.gd b/game/scripts/ui/views/view_pick.gd
+index be77586..19571e5 100644
+--- a/game/scripts/ui/views/view_pick.gd
++++ b/game/scripts/ui/views/view_pick.gd
+@@ -28,7 +28,7 @@ extends Node2D
+ 
+ const SCRIM := Color(0.043, 0.039, 0.071, 0.6)    # #0b0a12 at 60% (rtl-map §7.1)
+ const C_NAME := Color("#fff8ec")
+-const C_PARTY := Color("#9e99ad")
++const C_PARTY := Color("#c9d6f2")
+ const C_STRIP := Color("#f7f4ec")
+ const LH := 44.0                   # the line pitch at ×4
+ const HOLD_MS := 600.0             # §8.4: a hold opens the leader card
+diff --git a/game/scripts/ui/views/view_share.gd b/game/scripts/ui/views/view_share.gd
+index ce4f6a8..07edd5c 100644
+--- a/game/scripts/ui/views/view_share.gd
++++ b/game/scripts/ui/views/view_share.gd
+@@ -37,8 +37,8 @@ const STATUS_H := 48.0
+ const C_INK := Color("#1a1a1a")               # receipt ink on #f4f1e8 paper (15.4:1)
+ const C_PAPER := Color("#f4f1e8")
+ const C_WHITE := Color("#f7f4ec")
+-const C_NIGHT := Color("#140c24")
+-const C_STATUS := Color("#a4a9b8")
++const C_NIGHT := Color("#00237a")
++const C_STATUS := Color("#c9d6f2")
+ 
+ var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
+ var art_px := 2.0                             # the preview's logical px per art px
+@@ -419,7 +419,7 @@ static func wa_icon_texture() -> Texture2D:
+ 				"w":
+ 					img.set_pixel(x, y, C_WHITE)
+ 				"k":
+-					img.set_pixel(x, y, Color("#2e2250"))
++					img.set_pixel(x, y, Color("#1045b5"))
+ 	return ImageTexture.create_from_image(img)
+ 
+ 
 diff --git a/game/scripts/ui/views/view_sheet_card.gd b/game/scripts/ui/views/view_sheet_card.gd
-index 62b5f87..c1ee7c2 100644
+index c1ee7c2..fcc26ed 100644
 --- a/game/scripts/ui/views/view_sheet_card.gd
 +++ b/game/scripts/ui/views/view_sheet_card.gd
-@@ -23,6 +23,7 @@ const CARD_W := 624.0
- const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
- const TEXT_RIGHT := 640.0            # modal.body box x 80-640
- const TEXT_W := 560.0
-+const BODY_MAX := 624.0              # mobile-first §4.1: a modal body stays ≤ 624 (≈ 24 glyphs)
- const TITLE_W := 432.0
- const PAD := 24.0
- const PARA_GAP := 16.0
-@@ -69,11 +70,12 @@ func para(t: String, col: Color = C_TEXT, centre: bool = false, lines: int = 8)
- 	var p := PxText.make(_holder, Vector2(0, _y), t, L.TEXT, "plain", col)
- 	p.reading = not centre   # a body paragraph reads on @2; a centred number or mood line is display
- 	var g2 := grow_half()   # mobile-first §4.1: the body box grows with the card (≤ 624)
--	p.wrap_width = TEXT_W + 2.0 * g2
-+	var bw := body_w()
-+	p.wrap_width = bw
- 	p.max_lines = lines
- 	if centre:
- 		p.align = 1
--		p.center_in(CARD_X + (CARD_W - TEXT_W) / 2.0 - g2, TEXT_W + 2.0 * g2)
-+		p.center_in(CARD_X + (CARD_W - bw) / 2.0, bw)
- 	else:
- 		p.right_at(TEXT_RIGHT + g2)
- 	paras.append(p)
-@@ -159,9 +161,18 @@ func finish() -> void:
- 		focusables.append(close_btn)
+@@ -32,9 +32,9 @@ const BTN_GAP := 16.0
+ const HALF_LABEL_W := 224.0          # string-budgets modal.btnHalf
+ const BAND_MARGIN := 16.0
+ const C_TEXT := Color("#f7f4ec")     # white label on the sheet (kit note: 15.6:1 on ui_panel)
+-const C_MUTED := Color("#a4a9b8")    # grey
++const C_MUTED := Color("#c9d6f2")    # grey
+ const C_GOLD := Color("#ffd23a")     # money (style guide: gold is money-only)
+-const C_ALERT := Color("#f86b5d")    # red_hi
++const C_ALERT := Color("#ffaa9f")    # red_hi
  
- 
--## Half the card's growth (mobile-first §5.10: the width is 624 + min(dx, 64)), on the 4-px grid.
-+## Half the card's growth, on the 4-px grid. Bar's width rule (2026-09-30, "the UX/UI fills the
-+## phone's width"; it supersedes §5.10's 624 + min(dx, 64)): a modal card is ≥ 92% of the canvas,
-+## a floor4(3.5%) margin each side (24-28 logical: 672 at cw 720, 728 at 780, 800 at 860). Its body
-+## text keeps the ≤ 624 reading measure (BODY_MAX); the title band, the buttons and the frame grow.
- static func grow_half() -> float:
--	return L.floor4(minf(L.dx, 64.0) / 2.0)
-+	var m := L.floor4(0.035 * L.cw)
-+	return maxf(0.0, L.floor4((L.cw - 2.0 * m - CARD_W) / 2.0))
-+
-+
-+## The body box's width: the grown card's, never past the 624 reading measure (§4.1).
-+static func body_w() -> float:
-+	return minf(TEXT_W + 2.0 * grow_half(), BODY_MAX)
- 
- 
- ## A button spec (card-local x, 720 design) widened with the card: a full-width button grows by the
-diff --git a/game/tests/unit/test_flash_view.gd b/game/tests/unit/test_flash_view.gd
-index d07fbd5..394302a 100644
---- a/game/tests/unit/test_flash_view.gd
-+++ b/game/tests/unit/test_flash_view.gd
-@@ -162,8 +162,8 @@ func test_the_flash_shows_after_an_election_and_closes() -> void:
- 	fig.position += f.strip.position
- 	runner.check(fig.position.y >= 0.0 and fig.end.y <= f.screen_rect.size.y and fig.position.x >= 0.0 and fig.end.x <= f.screen_rect.size.x,
- 		"the figure fits the news screen (%s in %s)" % [fig, f.screen_rect.size])
--	runner.check(f.panel_rect.size.x == 624.0 and f.panel_rect.position.y >= 0.0 and f.panel_rect.end.y <= float(L.H),
--		"the card is 624 wide and inside the modal space (%s)" % f.panel_rect)
-+	runner.check(f.panel_rect.size.x == 624.0 + 2.0 * SheetCard.grow_half() and f.panel_rect.size.x >= 0.92 * L.cw and f.panel_rect.position.y >= 0.0 and f.panel_rect.end.y <= float(L.H),
-+		"the card is ≥ 92%% of the canvas (the width rule) and inside the modal space (%s)" % f.panel_rect)
- 	runner.check(f.lines.size() == Story.beat_for(1).size(), "one text per beat line")
- 	for p: PxText in f.lines:
- 		runner.check(not p.truncated(), "a beat line wraps, never ellipsizes (%s)" % p.text)
-diff --git a/game/tests/unit/test_mobile_layout.gd b/game/tests/unit/test_mobile_layout.gd
-index 5977a79..a52b35c 100644
---- a/game/tests/unit/test_mobile_layout.gd
-+++ b/game/tests/unit/test_mobile_layout.gd
-@@ -155,7 +155,10 @@ func test_modal_and_share_per_device() -> void:
- 		Display.update(dev)
- 		L.set_width(float(row["cw"]))
- 		var mw := float(SheetCard.CARD_W) + 2.0 * SheetCard.grow_half()
--		runner.check(mw <= float(row["modalW"]) and mw >= float(row["modalW"]) - 4.0, "%s: the modal card %d wide (spec %d; the growth is split evenly on the 4 grid)" % [row["name"], int(mw), int(row["modalW"])])
-+		# Bar's width rule (2026-09-30) supersedes §5.10's 624 + min(dx, 64): ≥ 92% of the canvas, the
-+		# body text still ≤ 624
-+		runner.check(mw >= 0.92 * L.cw and mw <= L.cw - 40.0, "%s: the modal card %d wide, ≥ 92%% of cw %d" % [row["name"], int(mw), int(L.cw)])
-+		runner.check(SheetCard.body_w() <= 624.0, "%s: the modal body stays ≤ 624" % row["name"])
- 		var ins: Array = row["insets"]
- 		var sheet := L.floor4(float(row["logical"][1])) - float(ins[0]) - float(ins[1])
- 		var a := ShareSheet.preview_scale(sheet - 520.0, float(row["cw"]) - 32.0)
-diff --git a/game/tests/unit/test_modals.gd b/game/tests/unit/test_modals.gd
-index ec27a4c..3134120 100644
---- a/game/tests/unit/test_modals.gd
-+++ b/game/tests/unit/test_modals.gd
-@@ -86,11 +86,13 @@ func test_the_election_card_is_the_o3_sheet_with_stacked_buttons() -> void:
- 	var texts := c.paras.map(func(p: PxText) -> String: return p.text)
- 	for k in ["ELECT_RESET", "ELECT_KEEP_CASES", ElectionCard.mood_key(1)]:
- 		runner.check(texts.has(Strings.s(k)), "O3 says %s" % k)
--	runner.check(c.panel_rect.size.x == 624.0 and c.panel_rect.position.x == 48.0, "a 624 card at x 48 (%s)" % c.panel_rect)
-+	# the width rule (Bar 2026-09-30): the card grows by 2·grow_half() about the 720 design's x 48-672
-+	var g2 := SheetCard.grow_half()
-+	runner.check(c.panel_rect.size.x == 624.0 + 2.0 * g2 and c.panel_rect.position.x == 48.0 - g2 and c.panel_rect.size.x >= 0.92 * L.cw, "a ≥ 92%% card, 624 + %d at x 48 − %d (%s)" % [2.0 * g2, g2, c.panel_rect])
- 	runner.check(c.frame.get_meta("sprite") == Art.sprite_or("sheet_modal"), "on the kit's sheet_modal")
- 	var go := c.go_button
- 	var no := c.cancel_button
--	runner.check(go.visual.size.x == 544.0 and no.visual.size.x == 544.0 and go.visual.position.y < no.visual.position.y,
-+	runner.check(go.visual.size.x == 544.0 + 2.0 * g2 and no.visual.size.x == 544.0 + 2.0 * g2 and go.visual.position.y < no.visual.position.y,
- 		"§7.1 stacked: ELECT_GO full width over ELECT_CANCEL")
- 	runner.check(go.label.text == Strings.s("ELECT_GO") and no.label.text == Strings.s("ELECT_CANCEL"), "the ELECT_* labels, not the fork's EVO_*")
- 	runner.check(not go.is_enabled() and c.need_text != null and c.focus_index == 1, "no majority yet: 'לפזר' is disabled, EVO_NEED says why, focus on 'עוד לא'")
-@@ -143,7 +145,7 @@ func test_the_return_card_speaks_by_absence_band() -> void:
- 	runner.check(c.amount_text.text == Strings.s("RET_GAIN", {"x": Fmt.amount(12345.0)}), "a cold load shows the whole gain (%s)" % c.amount_text.text)
- 	runner.check(texts.has(Strings.plural("RET_CHAT", 3, {"n": "3"})), "the chat line counts the unread messages")
- 	runner.check(texts.has(Strings.s("RET_CAP", {"h": str(int(c.info.get("capHours", 8)))})), "the cap line when the cap was reached")
--	runner.check(c.buttons.size() == 1 and c.buttons[0].label.text == Strings.s("RET_BTN") and c.buttons[0].visual.size.x == 544.0, "one full-width 'לאסוף'")
-+	runner.check(c.buttons.size() == 1 and c.buttons[0].label.text == Strings.s("RET_BTN") and c.buttons[0].visual.size.x == 544.0 + 2.0 * SheetCard.grow_half(), "one full-width 'לאסוף'")
- 	_no_ellipsis(c)
- 	c.cancel("backdrop")
- 	runner.check(c.closing, "the backdrop collects too")
-@@ -165,7 +167,8 @@ func test_the_reset_confirm_puts_cancel_first_and_keeps_the_backdrop() -> void:
- 	_no_ellipsis(c)
- 	var cancel := c.cancel_button
- 	var commit := c.commit_button
--	runner.check(cancel.visual == Rect2(376, cancel.visual.position.y, 256, 96) and commit.visual == Rect2(88, cancel.visual.position.y, 256, 96),
-+	var gh := SheetCard.grow_half()
-+	runner.check(cancel.visual == SheetCard._grow_btn(Rect2(376, cancel.visual.position.y, 256, 96), gh) and commit.visual == SheetCard._grow_btn(Rect2(88, cancel.visual.position.y, 256, 96), gh),
- 		"§7.1 side by side: 'התחרטתי' on the right, 'למחוק הכול' on the left (%s / %s)" % [cancel.visual, commit.visual])
- 	runner.check(c.focus_index == c.focusables.find(cancel), "focus starts on cancel")
- 	runner.check(commit.kind == ResetCard.danger_kind() and ["kit_danger", "kit_secondary"].has(commit.kind), "the commit is a kit button (danger when drawn), never the fork's red (%s)" % commit.kind)
-@@ -185,7 +188,7 @@ func test_the_reset_buttons_stack_under_large_text() -> void:
- 	runner.check(c != null, "O10 opens")
- 	if c == null:
- 		return
--	runner.check(c.commit_button.visual.size.x == 544.0 and c.commit_button.visual.position.y < c.cancel_button.visual.position.y,
-+	runner.check(c.commit_button.visual.size.x == 544.0 + 2.0 * SheetCard.grow_half() and c.commit_button.visual.position.y < c.cancel_button.visual.position.y,
- 		"×5 'למחוק הכול' is wider than a 224 half: stacked, commit on top")
- 	_no_ellipsis(c)
- 
-diff --git a/tools/web/mobile_web.mjs b/tools/web/mobile_web.mjs
-index 09bafc6..2321393 100644
---- a/tools/web/mobile_web.mjs
-+++ b/tools/web/mobile_web.mjs
-@@ -14,6 +14,13 @@
- //     devices: comma list of WxH@DPR (a phone: touch, isMobile) or frame-WxH@DPR (a desktop window,
- //     mouse: the shell's 390-CSS phone frame). Default: the spec's matrix (below).
- //   MOBILE_BASELINE=1  report the spec checks but fail only on the baseline (today's build)
-+// The width rule (Bar, 2026-09-30: "make sure the UX/UI fills the phone's width"), kind 'width', on
-+// every phone of the matrix: the game runs with `&clear=1`, a sentinel clear colour (#ff00ff) that
-+// only shows where nothing is drawn, and the page's own background is set to it too; every shot's
-+// left and right 3% columns (1%, 2%, 3% / 97%, 98%, 99%, one row every 8 art px) must never show it:
-+// the HUD, the ticker, the pane, the tab bar, the stage with its wings and the plaza reach both
-+// edges. Plus: cards keep ≤ 4 art px (16 logical) of gutter per side; the settings sheet and the
-+// picker grid span ≥ 92% of the canvas. It keys on "not the background", never on a palette.
- // Serve build/web first: python3 -m http.server <port> --directory build/web
- const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
- const { chromium } = await import(PW);
-@@ -113,7 +120,7 @@ function deadBands(img, k, minArt = 8) {
- 
- // ------------------------------------------------------------------ the run
- const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
--let failedBase = 0, failedSpec = 0;
-+let failedBase = 0, failedSpec = 0, failedWidth = 0;
- const summary = [];
- for (const spec of list.split(',')) {
- 	const framed = spec.startsWith('frame-');
-@@ -122,10 +129,10 @@ for (const spec of list.split(',')) {
- 	const DPR = Number(dprS);
- 	const name = `${framed ? 'frame-' : ''}${wh}@${DPR}`;
- 	console.log(`\n${name}`);
--	const res = { name, base: 0, spec: 0 };
-+	const res = { name, base: 0, spec: 0, width: 0 };
- 	const check = (kind, ok, msg) => {
- 		console.log(`  ${ok ? 'ok  ' : 'FAIL'} [${kind}] ${msg}`);
--		if (!ok) { if (kind === 'base') { failedBase++; res.base++; } else { failedSpec++; res.spec++; } }
-+		if (!ok) { if (kind === 'base') { failedBase++; res.base++; } else if (kind === 'width') { failedWidth++; res.width++; } else { failedSpec++; res.spec++; } }
- 	};
- 	const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: !framed, hasTouch: !framed });
- 	const page = await ctx.newPage();
-@@ -156,7 +163,23 @@ for (const spec of list.split(',')) {
- 	// HUD fill #140c24 (an empty, covered Row B slot is never sky); Row B itself once revealed (the
- 	// whole row is one target); `opts.exempt` replaces the sky interval (the picker).
- 	const hudFill = [0x14, 0x0c, 0x24];
-+	// the width rule: the sentinel background in the edge columns = a gap to the canvas edge
-+	const edgeCheck = (step, buf) => {
-+		if (!buf || framed) return;
-+		const img = readPng(buf);
-+		const hits = new Set();
-+		for (let y = 0; y < img.h; y += Math.max(1, disp.k * 8)) {
-+			for (const fx of [0.01, 0.02, 0.03, 0.97, 0.98, 0.99]) {
-+				const x = Math.min(img.w - 1, Math.floor(img.w * fx));
-+				const i = (y * img.w + x) * img.bpp;
-+				if (Math.abs(img.px[i] - 255) + img.px[i + 1] + Math.abs(img.px[i + 2] - 255) <= 12) hits.add(`${fx < 0.5 ? 'L' : 'R'}${Math.round(y / disp.f)}`);
-+			}
-+		}
-+		const list = [...hits];
-+		check('width', list.length === 0, `${step}: the chrome, art and cards reach both canvas edges (no background in the edge 3%)${list.length ? `: ${list.slice(0, 12).join(' ')}${list.length > 12 ? ' …' : ''}` : ''}`);
-+	};
- 	const bandCheck = async (step, buf, why, opts = {}) => {
-+		edgeCheck(step, buf);
- 		if (!buf || framed) return;   // the frame's bezel and page margin are not the game's
- 		const img = readPng(buf);
- 		const k = disp.k;             // device px per art px (the screenshot is in device px)
-@@ -179,7 +202,8 @@ for (const spec of list.split(',')) {
- 		check('spec', bad.length === 0, `${step}: no band of ≥ 8 art px without content outside the stage sky${why ? ` (${why})` : ''}${bad.length ? `: logical y ${bad.join(', ')}` : ''}`);
- 	};
- 
--	await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&grant=500`);
-+	await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&grant=500&clear=1`);
-+	if (!framed) await page.evaluate(() => { document.documentElement.style.background = '#ff00ff'; document.body.style.background = '#ff00ff'; });
- 	await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
- 	await page.click('#od-quiet');
- 	await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
-@@ -223,6 +247,9 @@ for (const spec of list.split(',')) {
- 		const wantA = ([...(disp.k % 2 === 0 ? [192] : []), 128, 96, 64]).find((a) => a + 24 <= tw && 3 * (156 + a) + 24 <= avail) || 64;
- 		check('spec', pk.avatar === wantA, `the avatar is the largest crisp size that fits: ${wantA} (got ${pk.avatar})`);
- 		const gridTop = Math.min(...pk.cells.map((c) => c[1])) - (th || 0) / 2;
-+		const gx0 = Math.min(...pk.cells.map((c) => c[0])) - (pk.tile ? pk.tile[0] : 0) / 2;
-+		const gx1 = Math.max(...pk.cells.map((c) => c[0])) + (pk.tile ? pk.tile[0] : 0) / 2;
-+		check('width', (gx1 - gx0) >= 0.92 * disp.cw, `the picker grid spans ${Math.round(gx1 - gx0)} of ${disp.cw} (≥ 92%)`);
- 		await bandCheck('pick', buf, 'grid, strip and foot; the scrimmed stage above the title line is the exempt sky', { exempt: [[0, gridTop - 72]] });
- 		// pick הפתעה (the centre cell, id "")
- 		const rnd = pk.cells.find((c) => c[2] === '') || pk.cells[0];
-@@ -284,6 +311,8 @@ for (const spec of list.split(',')) {
- 		const silh = (s.shop.silhouettes || 0);   // §4.4: the engine publishes the teaser rows it draws
- 		check('spec', vis + silh >= E.n, `the pane shows ≥ ${E.n} whole rows: cards + silhouettes (got ${vis} cards of ${all.length} + ${silh} silhouettes)`);
- 		check('spec', partial.every((v) => v <= PEEK + 4), `a cut card shows ≤ ${PEEK} px (the peek), never its pill (partials ${JSON.stringify(partial.map(Math.round))})`);
-+		const card = s.shop.card || [0, 0];
-+		check('width', card[0] <= 16 + 0.5 && disp.cw - card[1] <= 16 + 0.5, `the cards keep ≤ 4 art px of gutter per side (x ${Math.round(card[0])}-${Math.round(card[1])} of ${disp.cw})`);
- 	}
- 	await bandCheck('C1', c1, 'the tab bar is up');
- 	// T3 (tab slot 3), pay the first demand
-@@ -296,7 +325,7 @@ for (const spec of list.split(',')) {
- 	for (let t = 0; t < 12 && s && s.chat && !(s.chat.pills || []).some((p) => p[3]); t++) { await wait(1000); s = await probe(); }
- 	const pill = ((s && s.chat && s.chat.pills) || []).find((p) => p[3]);
- 	if (pill) { await tap(css(pill[0], pill[1])); await wait(1800); }
--	await shot('t3-chat');
-+	edgeCheck('T3', await shot('t3-chat'));
- 	await page.keyboard.press('Escape');
- 	await wait(1200);
- 	await refresh();
-@@ -305,7 +334,10 @@ for (const spec of list.split(',')) {
- 	// the settings sheet (gear, Row A left)
- 	await tap(css(disp.ox + 52, 48));
- 	await wait(1200);
--	await shot('settings');
-+	edgeCheck('settings', await shot('settings'));
-+	s = await probe();
-+	const mr = (s && s.modalRect) || [0, 0];
-+	check('width', mr[1] >= 0.92 * disp.cw, `the settings sheet spans ${Math.round(mr[1])} of ${disp.cw} (≥ 92%)`);
- 	await page.keyboard.press('Escape');
- 	await wait(600);
- 
-@@ -314,8 +346,8 @@ for (const spec of list.split(',')) {
- 	await ctx.close();
- }
- await browser.close();
--console.log('\nsummary (failed checks: baseline / spec)');
--for (const r of summary) console.log(`  ${r.name.padEnd(22)} ${r.base} / ${r.spec}`);
--const failed = failedBase + (BASELINE_ONLY ? 0 : failedSpec);
--console.log(failed ? `MOBILE_WEB: ${failedBase} baseline, ${failedSpec} spec FAILED${BASELINE_ONLY ? ' (spec not gating: MOBILE_BASELINE=1)' : ''}` : `MOBILE_WEB: PASS${BASELINE_ONLY && failedSpec ? ` (baseline; ${failedSpec} spec checks open)` : ''}`);
-+console.log('\nsummary (failed checks: baseline / spec / width)');
-+for (const r of summary) console.log(`  ${r.name.padEnd(22)} ${r.base} / ${r.spec} / ${r.width}`);
-+const failed = failedBase + (BASELINE_ONLY ? 0 : failedSpec + failedWidth);
-+console.log(failed ? `MOBILE_WEB: ${failedBase} baseline, ${failedSpec} spec, ${failedWidth} width FAILED${BASELINE_ONLY ? ' (spec and width not gating: MOBILE_BASELINE=1)' : ''}` : `MOBILE_WEB: PASS${BASELINE_ONLY && (failedSpec + failedWidth) ? ` (baseline; ${failedSpec} spec, ${failedWidth} width checks open)` : ''}`);
- process.exit(failed ? 1 : 0);
-diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
-index a42fecb..2c1abb4 100644
---- a/tools/web/picker_web.mjs
-+++ b/tools/web/picker_web.mjs
-@@ -190,9 +190,19 @@ for (let attempt = 0; attempt < 6 && !called && Date.now() - t0 < budget; attemp
- 	await wait(700);
- 	await shot('p6-election-card');
- 	md = await modal();
--	if (md && md.open && md.id === 'EVOLUTION' && md.ready) {
-+	s = await probe();
-+	// odModal.ready is published once, when the card opens; odDev.ready is live (a walkout at ×12
-+	// speed can drop 30 seats in the 700 ms above)
-+	if (md && md.open && md.id === 'EVOLUTION' && md.ready && s.ready) {
- 		await tapAt(css(md.buttons[0][0], md.buttons[0][1]));
--		called = true;
-+		// committed: EVOLVE_TX runs, then the flash or the picker opens
-+		called = await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open)
-+			|| (window.odDev && window.odDev.evolutions > 0), null, { timeout: 40000 }).then(() => true).catch(() => false);
-+		if (!called) {
-+			log('  the gate slipped as the card was confirmed: back to the round');
-+			await page.keyboard.press('Escape');
-+			await wait(500);
-+		}
- 	} else {
- 		log('  the gate slipped under the card: back to the round');
- 		await page.keyboard.press('Escape');
+ var title_text: PxText
+ var paras: Array[PxText] = []
