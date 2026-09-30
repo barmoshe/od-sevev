@@ -81,6 +81,7 @@ var _ui := Node2D.new()             # FTUE, UI FX
 var _modal := Node2D.new()          # overlays + EVOLVE_TX
 var diorama: Diorama
 var street: StreetFigure        # Mordechai David on the Balfour stage (design/mordechai-david-spec.md)
+var sara: SaraMark              # Sara on the Balfour stage, Bibi's round (motion/state-graph-cast.md §3)
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
 var bb: BigBanana
 var prop_fx: PropFx                 # the Magician's coins and rabbit
@@ -385,6 +386,8 @@ func _build() -> void:
 	street = StreetFigure.new()
 	diorama.street_layer().add_child(street)
 	street.on_marker = func(n: String) -> void: _audio(n)
+	sara = SaraMark.new()
+	diorama.street_layer().add_child(sara)
 	bb = BigBanana.new()
 	_stage.add_child(bb)
 	prop_fx = PropFx.new()
@@ -1134,6 +1137,7 @@ func _process(delta: float) -> void:
 	golden.update_view(dt, modal or not running)
 	diorama.update_view(dt)
 	street.update_view(dt, state, running and diorama.era_id() == "balfour")
+	sara.update_view(dt, state, running and diorama.era_id() == "balfour")
 	floaters.update_view(dt)
 	fx_stage.update_view(dt)
 	fx_ui.update_view(dt)
@@ -2122,6 +2126,8 @@ func _on_buy_upgrade(id: String, result: Array) -> void:
 	fx_ui.play("purchaseConfetti", ip.x, ip.y, "upgrade")
 	ticker.enqueue("flavor", Strings.s("F_UPGRADE_FLAVOR", {"UPGRADE_NAME": Strings.upgrade_name(id), "FLAVOR": spin_flavor(state, id)}))
 	ftue.on_buy_upgrade()
+	if id == SaraMark.TRIGGER_UPGRADE:
+		sara.offend()
 	_mark_dirty()
 
 
