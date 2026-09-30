@@ -1,7 +1,7 @@
 From dd3f277683ca54dfd83434473a7ff6cb55dff51e Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 04:59:43 +0000
-Subject: [PATCH 1/3] fix(od-sevev): v4 contrast on the rate line and share
+Subject: [PATCH 1/5] fix(od-sevev): v4 contrast on the rate line and share
  status, stale motion caption
 
 - Row A rate line: the settled alpha goes 0.6 -> 0.9 (TopBar.RATE_DIM_ALPHA). On the v4
@@ -142,7 +142,7 @@ index 39dc571..4f42b8c 100644
 From 7d76b57dec39d320dee5e433902badcf1af3d2c0 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:02:43 +0000
-Subject: [PATCH 2/3] =?UTF-8?q?docs(od-sevev):=20mobile-first=20=C2=A75.14?=
+Subject: [PATCH 2/5] =?UTF-8?q?docs(od-sevev):=20mobile-first=20=C2=A75.14?=
  =?UTF-8?q?=20F15=20placement,=20=C2=A75.2.1=20no-break=20rule,=20roll=20a?=
  =?UTF-8?q?ccepted?=
 MIME-Version: 1.0
@@ -304,7 +304,7 @@ index 29918f6..6779e25 100644
 From ce0d0f4494a5899de9e2e757c54770c8a4327493 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:05:24 +0000
-Subject: [PATCH 3/3] docs(od-sevev): UX review 2 of the full build (picker,
+Subject: [PATCH 3/5] docs(od-sevev): UX review 2 of the full build (picker,
  mobile-first, v4, walk, roll)
 
 ux/review-2026-09-30.md, U1-U16, no blockers. Majors: the sheet_modal flap's shadow row
@@ -462,6 +462,124 @@ index 0000000..b27c39e
 +- **Checks:** `tools/test.sh` 368/368; strict `tools/build_web.sh` green (the text lint is 0 after the caption change).
 +
 +**No objection is outstanding.** The Animator's roll is accepted, not countered. The one place this review overrides a dispatch suggestion (no hemicycle on O5) is a UX call on the red lines, stated in §5.14.1.
+-- 
+2.43.0
+
+
+From 965901d9700382aebbd95cd5189781cf3c6972ec Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 05:17:50 +0000
+Subject: [PATCH 4/5] docs(od-sevev): review 2 method notes; tap-1 reveal keeps
+ the apron (U3)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ ux/mobile-first-layout.md |  2 +-
+ ux/review-2026-09-30.md   | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/ux/mobile-first-layout.md b/ux/mobile-first-layout.md
+index 6779e25..a38c77a 100644
+--- a/ux/mobile-first-layout.md
++++ b/ux/mobile-first-layout.md
+@@ -162,7 +162,7 @@ leader art ×4 when S ≥ 560, else ×3 (rtl-map §4, unchanged)
+ | State | Today | Spec |
+ |---|---|---|
+ | **Pre-tap** (after the pick, before tap 1; ftue P0) | Ticker, pane and tabs hidden; the rest is the floor colour (R16): 191 art of one colour at 390. | The region below the stage shows **the stage's apron art continued to the safe bottom** (2D ask A1, §10). Interim, engine only: the stage art's bottom rows are drawn instead of `_title_floor` (the art is 320 rows tall and its rows 254-319 are under the lane today), plus the lane. **Nothing interactive moves:** the leader stays where tap 1 will find him. The undo chip stays in the lane (rtl-map §8.6). |
+-| **Tap 1 → 2** | The ticker appears (H1) | Unchanged |
++| **Tap 1 → 2** | The ticker appears (H1) | The ticker appears. **Below it the pre-tap apron (the plaza) stays drawn to the safe bottom; the white field (`_fills["shop"]`) appears only with card 1's slide-up** (review 2026-09-30 U3: the white field painted at H1 left 45% of the screen blank for the 2.3 s of Dubi's first line). `mobile_web.mjs` adds S8 at "tap 1". |
+ | **Card 1** (tap 3) | The pane slides up with one card over an empty pane | The pane slides up to the **safe bottom** (it covers the tab slot) holding card 1 and **dim silhouette rows** for the sources still to come (§4.4). Card 1's pill is the only lit object, so first-minute's "one card, one price" holds. |
+ | **First buy → C1** | Empty pane below the cards; an empty tab slot | Pane full to the safe bottom |
+ | **C1** | The tab bar appears in its slot | **The tab bar slides up from the screen bottom over the pane's last 104 px** (the pane's clip shrinks by 104). Nothing above moves; the list keeps its scroll offset. |
+diff --git a/ux/review-2026-09-30.md b/ux/review-2026-09-30.md
+index b27c39e..00e2541 100644
+--- a/ux/review-2026-09-30.md
++++ b/ux/review-2026-09-30.md
+@@ -5,14 +5,14 @@
+ ## How it was played
+ 
+ - **Runtime origin:** headless Chromium (SwiftShader) with real touches, at **390×844@3** (k 6) and **375×667@2** (k 4), with a spot-check at **430×932@3** (k 6).
+-- **Picker and first minute, touch only** (`scratchpad/ux_first.mjs`, new for this review): the N1 gate is tapped, not clicked. Then the picker, a long press, the pick, tap 1, taps 2-3 (card 1), the first buy, play to C1, T3, a forced election (`odDevElect`), EVOLVE_TX, the flash and the picker again.
++- **Picker and first minute, touch only** (`scratchpad/ux_first.mjs`, new for this review), at 390×844@3 with Bibi and at 375×667@2 with Golan (whose long press does open the leader card at k 4; at @3 the renderer is too slow for the 600-ms hold): the N1 gate is tapped, not clicked. Then the picker, a long press, the pick, tap 1, taps 2-3 (card 1), the first buy, play to C1, T3, a forced election (`odDevElect`), EVOLVE_TX, the flash and the picker again.
+ - **A full round to the election:** `tools/web/round_web.mjs` at 390×844@3, speed 10. **ROUND_WEB: PASS**: a Ben Gvir round, the gate at 61/61 after one slip, then O3, the transition, the flash and round 2's picker.
+ - **The mobile matrix:** `tools/web/mobile_web.mjs` on the three sizes: **PASS** (0 baseline / 0 spec / 0 width failures).
+-- **Modals, settings, About:** `modals_web.mjs` at @3.
++- **Modals, settings, About:** `modals_web.mjs`, run three times (twice at @3, once at @2).
+   - Its shots cover the summons card and chip, the court card over T3, the partner card, settings, O10, About and O1.
+-  - It reports 2-3 driver timing failures at @3: the "Esc folds the card" probe reads a stale `odDev`, and "C1" misses its 6 × 2.6 s buying window.
+-  - The shots themselves show the chip folded, and the same checks pass in the Game Developer's @2 run.
+-- **The share sheet:** `share_web.mjs` at @3 covers O4 and O5, the exported PNGs, T4's share rows and the About invite. Its only failures are the three pending-chip probes (the same timing class).
++  - At @3 the "Esc folds the card" probe fails: it reads a stale `odDev`, and the shot taken right after shows the chip folded. It passes at @2.
++  - **"C1: the group opened" fails in all three runs, @2 included.** The driver buys 6 × 2.6 s on a court-day stage (the income is ×0.5), and the group does not open in that window. In the touch-only first-minute runs C1 opens at 42-48 s of game time. This is a driver-scenario question for the Game Developer, not a UX finding.
++- **The share sheet:** `share_web.mjs` covers O4 and O5, the exported PNGs, T4's share rows and the About invite. At @3 the pending-chip probes fail twice (timing); at @2 it is **SHARE_WEB: PASS**.
+ - **Contrast:** measured on the pixels (`scratchpad/cols.py`, WCAG relative luminance).
+ - **Timing:** the leader walk and the ticker roll were judged from the Animator's frame strips (`scratchpad/shots/motion-b/`, 16-ms engine steps). A @3 SwiftShader screenshot costs about 9 s of wall time here, so browser shots cannot time a 240-ms move.
+ - **Shots:** `/tmp/claude-0/-home-user/8fc63aec-cb0c-55e7-b2d4-be5e5ff14015/scratchpad/shots/ux-review-2/`, with subfolders `mobile/`, `first/`, `first-se/`, `round/`, `modals/`, `modals2/`, `share/`, `share2/`. The contact sheets are `sheet-*.png` and the crops `crop-*.png`.
+-- 
+2.43.0
+
+
+From d9c7dd501f43632b97bc25ded4532be2a91583ae Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 05:18:09 +0000
+Subject: [PATCH 5/5] docs(od-sevev): STATUS entry for UX review 2, F15
+ placement, roll and pager rulings
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ STATUS.md | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+diff --git a/STATUS.md b/STATUS.md
+index e66a694..ca05153 100644
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -1235,3 +1235,43 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
+ - **Checks:** `tools/test.sh` 370/370; strict `tools/build_web.sh` green.
+ - **Sheets:** the scratchpad `shots/flap/`: `flap-contact.png` (Python, 4 sizes), `flap-engine.png` (Godot, Ui.nine + set_nine_frame) and `flap-strip-x8.png`.
+ - No objection outstanding.
++
++- 2026-09-30 · ux-designer · **UX review 2 of the full build** (the picker, mobile-first, v4, the walk, the roll) + **F15 placement** + **rulings on the roll and the pager** · `ux/review-2026-09-30.md` (new), `ux/mobile-first-layout.md` (§5.2, new §5.2.1, new §5.14, §10, §11), `ux/rtl-map.md` §2, `ux/tools/gen_strings.py` → strings, `game/scripts/ui/top_bar.gd`, `game/scripts/ui/views/view_share.gd`
++  - **Played:**
++    - touch-only in Chromium at 390×844@3 and 375×667@2, spot-checked at 430×932@3;
++    - the gate, the picker, the first minute, C1, T3, a forced election, the flash and the picker again;
++    - `round_web` PASS (a full round to O3 and round 2's picker);
++    - `mobile_web` PASS on the three sizes;
++    - `share_web` PASS at @2 (its @3 pending-chip probes are timing);
++    - `modals_web`: all shots taken, but its "C1: the group opened" step fails at @2 and at @3 (6 buys × 2.6 s on a court day at ×0.5 income; C1 opens at 42-48 s in touch-only play). That is a driver question for the Game Developer.
++  - **Findings U1-U16, no blockers.** Majors:
++    - **U1** (TA + engine): `sheet_modal`'s flap shadow row 23 falls in the stretched centre slice, and paints a slab behind the first line of every SheetCard (O3, O10, O1, the leader card). Fix: slice top 24, `HEADER_H` 96.
++    - **U2** (2D + engine): primary and secondary buttons are the same blue (1.13:1). Fix: a white-face primary with a flag label; O3's commit takes the gold CTA skin.
++    - **U3** (engine): a blank white field fills 45% of the screen between tap 1 and card 1. Fix: keep the plaza until card 1.
++    - **U4 / U5** (fixed here): the rate line at 60% on flag blue was 2.9:1 → alpha 0.9, 4.9:1; the share status line in `ui_mute` on cream was 1.3:1 → flag, 8.5:1.
++  - **Minors:**
++    - the SE peek shows a pill's top (the S7 check misses pills);
++    - the slate silhouettes and system pills are off-palette;
++    - the "61" in the coalition tab icon reads as an unread count;
++    - Dubi's pick line sits over the leader pre-tap;
++    - EVOLVE_TX is a blank cream page;
++    - the WhatsApp button's bubble-with-tick icon;
++    - the stale reduced-motion caption (fixed);
++    - the owned badge covers the portrait;
++    - the WhatsApp row is not full width.
++  - **Roll (M1): accepted, no counter-objection** (D47, D48). A push shows Hebrew prefix fragments; a roll cuts glyph rows and keeps x. Conditions: a roll always completes; a tap mid-roll opens the incoming headline; reduced motion keeps the cross-fade.
++  - **Pager: the no-break rule, §5.2.1** (D49):
++    - strong glue (₪ with its number, punctuation with its word) and weak glue (a number with its magnitude word);
++    - NBSP at display time, in `PxText` and `Ticker.paginate`; all three fonts have U+00A0 at the space's advance;
++    - the bad breaks on the content go from 18/20/14/11 to 1/0/0/0 at the 280/324/384/464 clips.
++  - **F15, §5.14** (D50):
++    - **the hemicycle goes on O3 only** (×4 as the card's hero, `seats[0:n]` RTL, drawn in the blackout; left out if the card exceeds the modal band). **Not Row B** (the bar stays on every device). **Not the result card:** a filled arc beside a leader is the TV poll graphic on a forwarded image (style guide §13 and the `poll-number` red line; this overrides the dispatch suggestion);
++    - **the booth goes on the picker wherever it is free:** tiles unchanged, 44 px from the sky, the columns at 20. On at 390, 393, 430, 360, 412 and the frame; off at the SE and the toolbar viewports;
++    - **the envelope goes on O5's stage floor and on the share sheet's "sent" line**, never on blue (1.1:1).
++  - **Checks:** `tools/test.sh` 368/368; strict `tools/build_web.sh` green (the text lint is 0).
++  - **→ game-developer:** §10 D1 (§5.2.1, §5.14), U3, U6, U9, U11, U13, U14; U1 and U2 with the TA and the 2D Artist.
++  - **→ technical-artist:** T1 (`sheet_modal` slice top 24).
++  - **→ 2d-artist:** A4 (the white primary button), U7 (the silhouette row), U8 (the tab icon), U10 (EVOLVE_TX as a notice); A5 is optional.
++  - **→ animator:** M3 (optional: the hemicycle fill).
++  - **→ game-designer:** G2 (the ticker units lint).
++  - No objection outstanding.
 -- 
 2.43.0
 
