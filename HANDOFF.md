@@ -62,6 +62,17 @@ Everything is merged into `claude/magical-ride-ntn3u5` and into `main`. No agent
 14. **The stage protest signs are still pink and white** (v2 accents). v4 moved pink off the UI only because the stages were frozen. *Bar's call:* recolour the Balfour crowd signs to blue and white (a stage re-render, no cast drift).
 15. **Dubi's post-election story card** ("הכובע שלא נגמר") is Bibi-specific. Check that every leader gets their own story card, and re-run the quote lint on the story lines ("בלשכה מסרו", "דובי:") under the reported-speech rule.
 
+### D. From Bar's real iPhone (in-app browser, 10:38; `10-bar-iphone-inapp.png`)
+The layout holds on a real device inside an in-app browser with its own top and bottom bars: full width, the tab bar above the browser bar, a sharp cast. What it shows:
+19. **The ticker row is empty.** The "מבזק" plate, Dubi and the date show, but there's no headline text. The same gap appears in the headless `card1` shot. Between pages or headlines, the pager leaves the strip blank, so it looks broken.
+    - *Fix (dev + Animator):* never show an empty strip. Hold the last page until the next one rolls in, or show a standing line (the date or "עוד סבב · 27.10").
+20. **White slivers along the card list.** The v4 white field shows as thin white strips left and right of the blue cards, and a grey scroll line runs at the far left. On the phone it reads as a rendering gap, not a design.
+    - *Fix (UX + 2D):* either make the cards full-bleed (the pane edge-to-edge in blue, with gutters in `ui_panel`), or make the white field clearly intentional: a wider margin, with a ruled edge like a ballot sheet. Style the scroll line, or hide it when idle.
+21. **The tab bar shows 2 tabs and 2 empty slots with dividers.** Unrevealed slots look missing.
+    - *Fix:* hide the dividers of empty slots, or draw locked silhouettes (like the teaser rows), so the bar looks complete.
+22. **The HUD's right side is empty,** confirming item 10.
+23. **Pink protest signs,** confirming item 14.
+
 ### C. Verification still open
 16. Re-run on an idle machine:
     - `tools/web/motion_web.mjs` (it hit a 15-min cap after the walk-out at `slow=40`);
