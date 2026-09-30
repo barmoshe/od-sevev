@@ -66,6 +66,53 @@ index 0acb38e..3f62c5a 100644
  
  ### 7.4 The vote stops the clock (Game Designer, 2026-09-30)
  
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index 7b20300..a1ee026 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -1264,10 +1264,13 @@ func _follow_os_motion(dt: float) -> void:
+ 		_apply_settings()
+ 
+ 
+-## The vote stops the clock (Game Designer; sim/politics.gd): while the election card is open
+-## and not yet confirmed, the round holds. The seats the player saw when they opened it are the
++## The vote stops the clock (Game Designer; sim/politics.gd): from the press on "עוד סבב!" until
++## the election card is confirmed or closed, the round holds. The seats the player saw when they opened it are the
+ ## seats they vote on, and nothing is lost behind a card that covers the chat.
+ func vote_open() -> bool:
++	for pr: Variant in _presses.values():
++		if pr is Dictionary and str((pr as Dictionary).get("kind", "")) == "cta":
++			return true   # the finger is on "עוד סבב!": the hold starts at the press, not at the card
+ 	var t := overlays.top()
+ 	return t is ElectionCard and not (t as ElectionCard).committed and not t.closing
+ 
+diff --git a/game/scripts/sim/events.gd b/game/scripts/sim/events.gd
+index 76dc5d0..1c48594 100644
+--- a/game/scripts/sim/events.gd
++++ b/game/scripts/sim/events.gd
+@@ -204,6 +204,11 @@ static func leader_buff(s: GameState, e: Dictionary) -> void:
+ # Scheduling
+ # ---------------------------------------------------------------------------------------------
+ 
++## Card effects that take seats off the 61 (a frozen pair, a raised gate, drained seats, a lost
++## partner, Kaia's nip): never fired while the gate is open.
++const SEAT_COSTS := ["brawl", "pledge", "seatDrain", "loseRandomPartner", "kaia"]
++
++
+ static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:
+ 	var st := _st(s)
+ 	if e.has("flag") and not flag_on(str(e["flag"])):
+@@ -214,6 +219,10 @@ static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:
+ 		return false
+ 	if e.get("oncePerRound", false) == true and (st["round"] as Array).has(e["id"]):
+ 		return false
++	# The finish line is quiet (spec §7.4): while the 61 gate is open no card that costs seats fires,
++	# so between "עוד סבב!" appearing and the vote only a counted-down ultimatum can take a seat.
++	if SEAT_COSTS.has(str(e.get("effect", {}).get("type", ""))) and Coalition.gate_open(s):
++		return false
+ 	return float(e.get("weight", 1.0)) > 0.0 and Conditions.ok(s, e.get("when", {}), ctx)
+ 
+ 
 diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
 index 1558947..d372f2a 100644
 --- a/game/scripts/ui/dev_probe.gd

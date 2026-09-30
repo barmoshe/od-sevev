@@ -1,4 +1,108 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/core/bidi.gd b/game/scripts/core/bidi.gd
+index 02927ec..f0aebd8 100644
+--- a/game/scripts/core/bidi.gd
++++ b/game/scripts/core/bidi.gd
+@@ -126,3 +126,99 @@ static func fill(template: String, params: Dictionary) -> String:
+ 		out += ch
+ 		i += 1
+ 	return out
++
++
++# ------------------------------------------------------------------ the glue (mobile-first §5.2.1)
++
++## G2: the marks that close onto the word before them (a token made only of these).
++const GLUE_CLOSE := ".,:;!?…)]״\"׳'"
++## G3: the marks that open onto the word after them.
++const GLUE_OPEN := "([„"
++## G4 (weak): the magnitude words a number keeps.
++const GLUE_MAGNITUDES := ["אלף", "אלפי", "מיליון", "מיליוני", "מיליארד", "מיליארדי", "טריליון"]
++
++
++## mobile-first §5.2.1: the spaces inside a glued unit become U+00A0 (display time only), so the
++## pager (which splits on U+0020) and TextServer (which does not break at U+00A0) keep the unit on
++## one line. Strong glue: a currency sign with what it measures (G1), closing punctuation with the
++## word before it (G2), opening punctuation with the word after it (G3). Weak glue (`weak`): a
++## number with its magnitude word (G4). Spaces inside an LRI/RLI/FSI…PDI isolate are never
++## touched. Idempotent (a glued unit has no U+0020 left to match).
++static func glue(text: String, weak: bool = true) -> String:
++	if not text.contains(" "):
++		return text
++	var n := text.length()
++	# token boundaries: the U+0020 spaces outside any isolate
++	var spaces: Array[int] = []
++	var depth := 0
++	for i in n:
++		var ch := text[i]
++		if ch == LRI or ch == RLI or ch == FSI:
++			depth += 1
++		elif ch == PDI:
++			depth = maxi(0, depth - 1)
++		elif ch == " " and depth == 0:
++			spaces.append(i)
++	if spaces.is_empty():
++		return text
++	var out := text
++	# standalone quote tokens seen so far (odd = inside a pair); a quote opening the text counts
++	var quotes := 1 if _only(strip_controls(text.substr(0, spaces[0])), "\"״") else 0
++	var prev_start := 0
++	for si in spaces.size():
++		var i := spaces[si]
++		var next_end := spaces[si + 1] if si + 1 < spaces.size() else n
++		var prev := text.substr(prev_start, i - prev_start)
++		var next := text.substr(i + 1, next_end - i - 1)
++		prev_start = i + 1
++		if prev == "" or next == "":
++			continue
++		var glue_it := false
++		var nx := strip_controls(next)
++		var pv := strip_controls(prev)
++		if nx.begins_with(SHEKEL):
++			glue_it = true                                    # G1: "100 ₪", "{price} ₪", "מיליון ₪"
++		elif pv.ends_with(SHEKEL) and (next[0] == LRI or next[0] == FSI or next[0] == RLI or (nx != "" and nx[0] >= "0" and nx[0] <= "9")):
++			glue_it = true                                    # G1: a prefix "₪ 15"
++		elif _only(nx, GLUE_CLOSE) and not _only(nx, "\"״"):
++			glue_it = true                                    # G2: "word ." / "word )"
++		elif _only(pv, GLUE_OPEN):
++			glue_it = true                                    # G3: "( word"
++		elif _only(nx, "\"״") or _only(pv, "\"״"):
++			# a standalone quote: the first of a pair opens (G3), the second closes (G2)
++			if _only(pv, "\"״") and quotes % 2 == 1:
++				glue_it = true
++			elif _only(nx, "\"״") and quotes % 2 == 1:
++				glue_it = true
++		elif weak and _ends_with_digit(pv) and GLUE_MAGNITUDES.has(_strip_close(nx)):
++			glue_it = true                                    # G4 (weak): "850.6 מיליארד"
++		if _only(nx, "\"״"):
++			quotes += 1
++		if glue_it:
++			out = out.substr(0, i) + NBSP + out.substr(i + 1)
++	return out
++
++
++## The glue's fallback (§5.2.1 "never lose text"): the weak joints of a unit opened back to spaces.
++static func glue_strong(text: String) -> String:
++	return glue(text, false)
++
++
++static func _only(t: String, chars: String) -> bool:
++	if t == "":
++		return false
++	for i in t.length():
++		if not chars.contains(t[i]):
++			return false
++	return true
++
++
++static func _ends_with_digit(t: String) -> bool:
++	return t != "" and t[t.length() - 1] >= "0" and t[t.length() - 1] <= "9"
++
++
++static func _strip_close(t: String) -> String:
++	var e := t.length()
++	while e > 0 and GLUE_CLOSE.contains(t[e - 1]):
++		e -= 1
++	return t.substr(0, e)
 diff --git a/game/scripts/ui/overlay.gd b/game/scripts/ui/overlay.gd
 index 3f5cfa8..910f3f3 100644
 --- a/game/scripts/ui/overlay.gd
@@ -95,6 +199,94 @@ index 3f5cfa8..910f3f3 100644
  					panel.modulate.a = minf(1.0, 1.0 - pow(1.0 - minf(1.0, t / 100.0), 2.0))
  					scrim.modulate.a = backdrop * minf(1.0, 1.0 - pow(1.0 - minf(1.0, t / 200.0), 2.0))
  		else:
+diff --git a/game/scripts/ui/px_text.gd b/game/scripts/ui/px_text.gd
+index 2727d58..4ccea13 100644
+--- a/game/scripts/ui/px_text.gd
++++ b/game/scripts/ui/px_text.gd
+@@ -225,7 +225,7 @@ static func fits(t: String, box_w: float, lines: int, scale_px: int) -> bool:
+ 	p.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(t) else TextServer.DIRECTION_LTR
+ 	p.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+ 	p.justification_flags = TextServer.JUSTIFICATION_NONE
+-	p.add_string(t, HeFont.font(), HeFont.size())
++	p.add_string(Bidi.glue(t) if lines > 1 else t, HeFont.font(), HeFont.size())   # §5.2.1: as it will wrap
+ 	p.width = w
+ 	if p.get_line_count() > maxi(1, lines):
+ 		return false
+@@ -301,18 +301,14 @@ func _relayout() -> void:
+ 		# the @2 cut shapes at 18 in units half a Sevev 9 px wide: every box below is in shaped
+ 		# units, i.e. the Sevev 9 box × _u (floored in Sevev 9 px first, so both cuts wrap alike)
+ 		_u = HeFont.SHARP_DENSITY if _wants_sharp() else 1
+-		_para = TextParagraph.new()
+-		_para.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(text) else TextServer.DIRECTION_LTR
+-		_para.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+-		_para.justification_flags = TextServer.JUSTIFICATION_NONE
+-		if _u > 1:
+-			_para.add_string(text, HeFont.sharp(), HeFont.sharp_size())
+-		else:
+-			_para.add_string(text, _shaped_font(), HeFont.size())
+-		if wrap_width > 0.0:
+-			_para.width = _wrap_units()
+-			_para.max_lines_visible = maxi(1, max_lines_large if (_up and max_lines_large > 0) else max_lines)
+-			_para.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
++		# mobile-first §5.2.1: a wrapping text is glued (a number keeps its ₪, a word its mark); if
++		# a unit is still wider than the line, its weak joints open, then all of them (never lost)
++		var wraps := wrap_width > 0.0 and maxi(max_lines, max_lines_large) > 1
++		var tries: Array = [Bidi.glue(text), Bidi.glue_strong(text), text] if wraps else [text]
++		for shown: String in tries:
++			_shape(shown)
++			if not _overflows() or shown == text:
++				break
+ 		_box_w = 0.0
+ 		for i in _para.get_line_count():
+ 			_box_w = maxf(_box_w, _para.get_line_width(i))
+@@ -321,6 +317,34 @@ func _relayout() -> void:
+ 	queue_redraw()
+ 
+ 
++func _shape(shown: String) -> void:
++	_para = TextParagraph.new()
++	_para.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(shown) else TextServer.DIRECTION_LTR
++	_para.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
++	_para.justification_flags = TextServer.JUSTIFICATION_NONE
++	if _u > 1:
++		_para.add_string(shown, HeFont.sharp(), HeFont.sharp_size())
++	else:
++		_para.add_string(shown, _shaped_font(), HeFont.size())
++	if wrap_width > 0.0:
++		_para.width = _wrap_units()
++
++
++## True when a shaped line is wider than the wrap box (a glued unit longer than the line). Read
++## before the line cap and the ellipsis are set, then sets them.
++func _overflows() -> bool:
++	if _para == null or wrap_width <= 0.0:
++		return false
++	var w := _wrap_units()
++	var over := false
++	for i in _para.get_line_count():
++		if _para.get_line_width(i) > w + 0.01:
++			over = true
++	_para.max_lines_visible = maxi(1, max_lines_large if (_up and max_lines_large > 0) else max_lines)
++	_para.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
++	return over
++
++
+ ## The wrap box in shaped units: whole Sevev 9 px at the drawn scale, × _u.
+ func _wrap_units() -> float:
+ 	return floorf(wrap_width / float(eff_px())) * _u
+diff --git a/game/scripts/ui/ticker.gd b/game/scripts/ui/ticker.gd
+index 44febf2..2d3d369 100644
+--- a/game/scripts/ui/ticker.gd
++++ b/game/scripts/ui/ticker.gd
+@@ -317,7 +317,7 @@ static func wrap_lines_px(text: String, max_px: float, scale_px: int) -> PackedS
+ 
+ ## mobile-first §5.2: the pages of a headline, `per` lines each.
+ static func paginate(text: String, max_px: float, scale_px: int, per: int) -> Array:
+-	var lines := wrap_lines_px(text, max_px, scale_px)
++	var lines := wrap_lines_px(Bidi.glue(text), max_px, scale_px)   # §5.2.1: the glue, then the pages
+ 	var pages: Array = []
+ 	var i := 0
+ 	while i < lines.size():
 diff --git a/game/scripts/ui/views/view_election.gd b/game/scripts/ui/views/view_election.gd
 index a990ede..d8b19f4 100644
 --- a/game/scripts/ui/views/view_election.gd
