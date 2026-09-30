@@ -775,10 +775,10 @@ index 0000000..32692f3
 # untracked binary: game/tests/dev/ticker_pages.gd.uid
 diff --git a/game/tests/unit/test_leader_walk.gd b/game/tests/unit/test_leader_walk.gd
 new file mode 100644
-index 0000000..c188b45
+index 0000000..cd6caf3
 --- /dev/null
 +++ b/game/tests/unit/test_leader_walk.gd
-@@ -0,0 +1,312 @@
+@@ -0,0 +1,313 @@
 +extends RefCounted
 +## The leader swap's walk (animator wave B; design/leader-select-spec.md §9.3.4,
 +## motion/state-graph-magician.md §9): LeaderWalk's state machine (home → out → gone → in → home),
@@ -908,13 +908,14 @@ index 0000000..c188b45
 +		var tx := EvolveTx.new()
 +		var fired: Array = []
 +		tree.root.add_child(tx)
++		await tree.process_frame
 +		tx.start({"round": 2, "multBefore": 1.0, "multAfter": 1.1, "gained": 3, "era": ""}, reduced, {
 +			"seam": func() -> void: fired.append("seam"),
 +			"walk": func() -> void: fired.append("walk"),
 +			"unlock": func() -> void: fired.append("unlock")})
 +		var t := 0.0
 +		var at := -1.0
-+		while tx.running:
++		while tx.running and t < 5000.0:
 +			tx.update_view(10.0)
 +			t += 10.0
 +			if at < 0.0 and fired.has("walk"):
@@ -1072,11 +1073,12 @@ index 0000000..c188b45
 +	m.commit_pick("deri", true)
 +	var bb: BigBanana = m.bb
 +	runner.check(bb.walking() and _off() == Vector2.ZERO and bb.figure_alpha() == 0.0, "walk-in: on the mark, faded out")
++	var seq: Array = m._pick_seq
++	runner.check(not seq.is_empty() and absf(float(seq[0]["at"]) - m._now - LeaderWalk.RM_FADE_MS - 120.0) < 1.0, "Dubi's line 120 ms after the 150 ms fade")
 +	_frames(5)
 +	runner.check(_off() == Vector2.ZERO and bb.figure_alpha() > 0.0 and bb.figure_alpha() < 1.0, "fading in, no travel (a %.2f)" % bb.figure_alpha())
 +	_frames(6)
 +	runner.check(not bb.walking() and bb.hero.modulate.a == 1.0, "in by 150 ms")
-+	var seq: Array = m._pick_seq
 +	m._set_mode("main", false)
 +	m._dev["on"] = true
 +	m._start_evolve(true)
@@ -1090,7 +1092,6 @@ index 0000000..c188b45
 +			break
 +	runner.check(not moved and bb.walked_off(), "walk-out: a fade on the mark, then gone")
 +	runner.check(t <= m.tx.total_ms(true) + 32.0, "no tail after the reduced ceremony (%.0f ms)" % t)
-+	runner.check(seq.size() >= 1, "Dubi's line was scheduled")
 # untracked binary: game/tests/unit/test_leader_walk.gd
 diff --git a/game/tests/unit/test_leader_walk.gd.uid b/game/tests/unit/test_leader_walk.gd.uid
 new file mode 100644
