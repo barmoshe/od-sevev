@@ -15,7 +15,8 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 | UI kit, 261 pieces (wave 9, 2026-09-30: 2, the envelope flap `sheet_modal_body` + `sheet_modal_flap`; mobile-first wave 7, 2026-09-29: 13 + the 4 lanes redrawn; leader select 2026-09-29: 30; wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
 | 9-slice / frame / pivot manifest | `ui-kit.json` |
 | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
-| App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (master `icon-128-art.png` = 64 art px at d 2) |
+| App icon 1024 + 60 (v5: the hat and the loop, `src/logo.py`) | `out/key/icon-1024.png`, `out/key/icon-60.png` (master `icon-128-art.png` = 64 art px at x2) |
+| Logo (v5: the mark + the wordmark with the ס as the loop) | `out/key/logo-horizontal.png`, `out/key/logo-stacked.png`, `out/key/mark.png`, `out/key/wordmark-loop.png` (x8/x16; `*-art.png` at 1x) |
 | OG image 1200x630 | `out/key/og-1200x630.jpg` (203 KB at q 82 4:4:4 since the lineup, WhatsApp needs ≤ 300 KB) + `.png`; shipped as `game/web/og.jpg` |
 | Graphic-tier palette | `out/palette-v4.gpl`, `out/palette-v4.png`, source `src/palette.py` |
 | Colour map for code (v2 → v4) | `palette-v4-map.json` (with `perFile` roles), applied by `tools/apply_palette_map.py` (§2.4) |
