@@ -80,6 +80,90 @@ index 3021039..103019f 100644
  	var S: Dictionary = L.SHOP
  	var target := 1.0 if v["pressed"] else 0.0
  	var dur := float(Tune.T["buyPressMs"] if v["pressed"] else Tune.T["buyReleaseMs"])
+diff --git a/motion/motion-audit-2026-09-29.md b/motion/motion-audit-2026-09-29.md
+index 4c29ade..4ccd699 100644
+--- a/motion/motion-audit-2026-09-29.md
++++ b/motion/motion-audit-2026-09-29.md
+@@ -77,3 +77,79 @@ A walk that takes a leader id, `LeaderWalk.make(parent, id, feet)`. It carries t
+ Out and in fit the 1.5 s swap budget. Reduced motion: a 150 ms fade on the mark.
+ 
+ Whoever wires EVOLVE_TX calls `walk_out()` on the fade and `walk_in()` on the fade-in.
++
++---
++
++# Wave B (animator, 2026-09-30): the leader swap, the ticker pager, the slip stamp
++
++**Update to "Prepared for slice 2":** `LeaderWalk` is now wired. The state graph, the timelines and the interplay with
++the court day are in [`state-graph-magician.md` §9](state-graph-magician.md). The API changed: it is now a pose
++provider (`advance`, `dx_ap`, `dy_ap`, `alpha`, `shows`), and `BigBanana._apply_figure` is the one writer of the
++figure's position.
++
++| Piece | Entry / exit | Easing | Whole px | Reduced motion | Verdict |
++|---|---|---|---|---|---|
++| **Walk-out** (EVOLVE_TX) | 560 ms from the card's lift (t 1200) to gone (t 1760); input held until then | Sine.In, 1-ap bob every other 125 ms beat | every offset is whole ap, snapped after easing; the sum with the court offset is whole ap | 150 ms fade on the mark (t 1000-1150), no tail | **New** |
++| **Walk-in** (after the pick) | 640 ms from `on_done` (520 ms after the commit); replaces the 250 ms placeholder fade of the whole stage node | Sine.Out, bob, flat last beat | as above | 150 ms fade on the mark | **New** |
++| Dubi's pick line | the landing + 120 ms (1280 ms after the commit; it was 900, over an empty mark); the leader's own line 1.7 s later | – | – | the 150 ms fade + 120 ms | **Fixed** |
++| **Ticker page change** (M1) | 240 ms roll: the next page rises from under the 84-px row as the old one lifts out, locked one row apart | Cubic.Out (80 % of the travel in the first 100 ms: the eye lands on still text fast) | 4-px steps; x never moves | the 200 ms cross-fade (unchanged) | **New** (replaces the push, which was off) |
++| **Ticker dwell** (M1) | per page, by length (below) | – | – | same | **Retuned** |
++| **The slip stamp** (v4 `card_plate`, the spin tag) | a tag that appears or changes on the same card ("1/5" → "2/5", "שחוק") slams: text ×6 → ×5 → ×4, 30 ms each, the backing growing round its centre | Stepped (the pay-pill stamp's language) | integer text scale, the backing on the 4-px grid; a 60 ms transient | a cut | **New** |
++| Envelope flap on modal open | not built | – | – | – | **Open:** see the ask below |
++
++## The ticker pager (M1)
++
++**Why a roll and not UX's push (§5.2).** With a sideways push, the entering page shows its first letters at the
++clip's left edge for about 300 ms, and the leaving page shows its last ones at the right edge. In Hebrew a word's first
++letters are often a word of their own (ה, ו, ב, ל, ש are prefixes), so the fragments read as other words. That fails
++the "no word ever cut" rule on every page change.
++
++A roll keeps every glyph's x fixed, so every visible word keeps all its letters on every frame. Only whole glyph rows
++cross the row's top and bottom edges, which reads as a mask, like a split-flap board, not as a fragment.
++
++The roll also keeps UX's intent: a short news-strip move under 300 ms, and still text while it is read. The crawl's
++"first word enters first" metaphor is the only thing lost, and it no longer applies to still pages.
++- **Tests:** `test_ticker_roll.gd`. At every step x == 0 for both pages, every line's ink lies inside the clip's
++  width, the pages are one row apart, and the steps are on the 4-px grid.
++
++**The dwell by page length** (`Ticker.dwell_ms`). It replaces max(3.5 s, 55 ms × chars), under which every page in
++the content sat on the 3.5 s floor: the longest page is 49 characters, and 49 × 55 ms is only 2.7 s.
++
++| Page | Rule | Clamp |
++|---|---|---|
++| a headline's first page | 1.2 s (find the strip, first fixation) + 70 ms a character | 2.0-5.5 s |
++| a continuation page | 0.5 s (the eye is already on the row) + 70 ms a character | 2.0-5.5 s |
++| an FTUE line | 1.5 s + 85 ms a character (continuations 0.5 s + 85 ms) | 4.5-7.0 s (UX's 4.5 s floor kept) |
++
++- **70 ms a character** is about 14 characters a second. That is under the 17 cps adult subtitle rate, because the
++  ticker is read in glances between taps.
++- **The 2.0 s floor:** a one-word tail page still reads as a beat, not a flicker.
++- **The 5.5 s cap:** the longest page at the widest clip (49 characters) gets 4.6 s, so the cap is never reached by
++  today's content.
++
++**Measured** (`game/tests/dev/ticker_pages.gd`, 275 ticker lines in `content.json`, including the leader kits):
++
++| Clip (px) | Pages / headline, mean (max) | Characters / page, p10 / p50 / p90 / max | Dwell / page, p10 / p50 / p90 / max | Headline, p50 / p90 (was) |
++|---|---|---|---|---|
++| 280 (press or court day, 360 phones) | 1.96 (3) | 7 / 20 / 26 / 32 | 2.0 / 2.2 / 3.0 / 3.3 s | 5.1 / 7.3 s (7.0 / 10.5) |
++| 324 (360 wide) | 1.73 (3) | 9 / 23 / 30 / 35 | 2.0 / 2.3 / 3.3 / 3.6 s | 5.3 / 5.7 s (7.0 / 7.0) |
++| 392 (390 wide) | 1.60 (2) | 7 / 21 / 37 / 43 | 2.0 / 2.2 / 3.8 / 4.2 s | 5.7 / 6.0 s (7.0 / 7.0) |
++| 464 (430 wide) | 1.38 (2) | 7 / 33 / 44 / 49 | 2.0 / 3.5 / 4.3 / 4.6 s | 4.1 / 6.5 s (3.5 / 7.0) |
++
++The headline times include the 240 ms rolls between pages. A median headline now takes 4-6 s instead of 7. The long
++pages get more time than before (up to 4.6 s instead of 3.5), and the short tails less (2.0 s instead of 3.5).
++
++## Asks and notes
++
++- **2D Artist: the envelope flap.** `sheet_modal`'s title band is the v4 envelope flap, but it is baked into a
++  9-slice, so there is no flap to move.
++  - A flap that opens can't be faked with transforms: a vertical flip or scale of pixel art is a non-integer or
++    mirrored-light transient.
++  - The ask is a 3-frame `sheet_modal_flap` strip, 38 art wide and 23 rows (closed pointing down, half, open
++    pointing up), with the same 9-slice columns.
++  - Its motion would be the band's 3 frames at 40 ms on the sheet's open (120 ms, inside the 240 ms drop), with no
++    flap under reduced motion.
++- **Audio Director: the slip stamp** has no cue. The chat's `stamp` variants would fit, and the frame to mark is the
++  slam's f0 (the ×6 frame).
++- **The court's zip** still exits screen-left while the walk-out goes screen-right, per spec §9.3.4. They never
++  share a frame: the walk-out cuts a court day home under the card.
 diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
 index 3dc157b..d2801ef 100644
 --- a/tools/web/motion_web.mjs
@@ -274,7 +358,7 @@ index 3dc157b..d2801ef 100644
  console.log(failed ? `MOTION_WEB: ${failed} FAILED` : 'MOTION_WEB: PASS');
 diff --git a/game/tests/unit/test_slip_stamp.gd b/game/tests/unit/test_slip_stamp.gd
 new file mode 100644
-index 0000000..436759f
+index 0000000..d7cf81f
 --- /dev/null
 +++ b/game/tests/unit/test_slip_stamp.gd
 @@ -0,0 +1,39 @@
@@ -295,7 +379,7 @@ index 0000000..436759f
 +func test_the_slam_steps() -> void:
 +	var seq: Array = []
 +	for t in [-1.0, 0.0, 29.0, 30.0, 59.0, 60.0, 89.0, 90.0]:
-+		seq.append(ShopView.tag_slam_px(t) if false else Shop.tag_slam_px(t))
++		seq.append(Shop.tag_slam_px(t))
 +	runner.check(seq == [4, 6, 6, 5, 5, 4, 4, 4], "×6 for 30 ms, ×5 for 30, ×4 (%s)" % str(seq))
 +
 +
@@ -318,3 +402,11 @@ index 0000000..436759f
 +	shop.free()
 +	host.queue_free()
 # untracked binary: game/tests/unit/test_slip_stamp.gd
+diff --git a/game/tests/unit/test_slip_stamp.gd.uid b/game/tests/unit/test_slip_stamp.gd.uid
+new file mode 100644
+index 0000000..49fefba
+--- /dev/null
++++ b/game/tests/unit/test_slip_stamp.gd.uid
+@@ -0,0 +1 @@
++uid://cy6bgygi0ov8i
+# untracked binary: game/tests/unit/test_slip_stamp.gd.uid
