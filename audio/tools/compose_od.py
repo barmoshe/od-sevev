@@ -643,6 +643,19 @@ MODES = {"minor": [0, 2, 3, 5, 7, 8, 10], "mixolydian": [0, 2, 4, 5, 7, 9, 10],
                  "Washington (F) stays Mixolydian so its taps agree with its stride body."}
 
 
+# HaTikva for the tap (v1.5, Bar 2026-09-30). Semitones above the key's root, one entry per tap.
+# Source: the Hatikvah score on English Wikipedia (rev 1375885586, CC BY-SA 4.0, melody Samuel Cohen
+# 1888, public domain), as converted by the npm package anthem-scores 0.1.1 (anthems/IL.json, D minor):
+# bars 1-4, "כל עוד בלבב פנימה / נפש יהודי הומיה", with the pickup A into the repeat. The second section
+# ("עוד לא אבדה...") is not in that source; add it here only from a verified score, then append its
+# phrase starts to "phrases".
+TAP_ANTHEM = {
+    "melody": ["n0", "n2", "n3", "n5", "n7", "n7", "n8", "n7", "n8", "n12", "n7",   # כל עוד בלבב פנימה
+               "n5", "n5", "n5", "n3", "n3", "n2", "n0", "n2", "n3", "n0", "n-5"],  # נפש יהודי הומיה
+    "phrases": [0, 11],
+}
+
+
 def noise_burst(delay, hp, gain, dur=0.018, metal=True, bp=None):
     f = {"type": "bandpass", "freq": bp, "Q": 1.2} if bp else {"type": "highpass", "freq": hp, "Q": 0.7}
     return L(wave="noiseMetal" if metal else "noise", clockStart=44000 if metal else 30000, filter=f,
@@ -680,13 +693,23 @@ def cues():
     blip = lambda duty: L(id="blip", wave="pulse", duty=duty, freqStart="A4", delay=0.012, attack=0.001, decay=0.03,
                           sustain=0.45, duration=0.04, release=0.012, gain=1.0,
                           filter={"type": "highpass", "freq": 1000, "Q": -3.0103})
-    C["tap"] = {"meaning": "The trick worked; money came out.", "bus": "SFX-Frequent", "priority": 2, "poly": 4,
-                "steal": "oldest", "ducks": [], "jitterDb": 1.5,
-                "pitch": {"type": "walk", "fromDegree": 5, "steps": 8, "rootOctave": 4},
-                "variants": {"d25": [puff, blip(0.25)], "d12": [puff, blip(0.125)]},
-                "runtime": "Step = the tap streak index mod 8 (walk and wrap); the streak resets after 400 ms without "
-                           "a tap. Variant alternates d25 / d12 per tap. Gain jitter +-1.5 dB. One file = one tap.",
-                "lengthMs": 80, "target": {"type": "stream", "rateHz": 5, "lufs": -21.0}}
+    # v1.5 (2026-09-30, Bar): every tap is the next note of HaTikva, on a bell, played straight.
+    # The melody is data (TAP_ANTHEM below): pitch labels n<semitones above the key's root>, rendered in
+    # every key as natural minor intervals (F included: the anthem is never re-moded to Mixolydian).
+    # The walk's blip is retired from the tap; its helpers stay for the other cues.
+    bell = [puff] + [L(id="bell%d" % i, wave="sine", freqStart=440.0 * mult, attack=0.002, decay=dec, sustain=0.0,
+                       duration=dec, release=0.04, gain=g)
+                     for i, (mult, g, dec) in enumerate([(1, 1.0, 0.55), (2, 0.3, 0.26), (3, 0.12, 0.09)])]
+    labels = sorted(set(TAP_ANTHEM["melody"]), key=lambda s: int(s[1:]))
+    C["tap"] = {"meaning": "The trick worked; money came out, to the next note of HaTikva.", "bus": "SFX-Frequent",
+                "priority": 2, "poly": 6, "steal": "oldest", "ducks": [], "jitterDb": 1.5,
+                "pitch": {"type": "semis", "rootOctave": 5, "semis": {s: int(s[1:]) for s in labels}},
+                "melody": TAP_ANTHEM["melody"], "phrases": TAP_ANTHEM["phrases"],
+                "variants": {"bell": bell},
+                "runtime": "Each tap plays the next note of `melody`. A streak (taps under 400 ms apart) walks on and "
+                           "wraps; after a gap the next streak starts on the next entry of `phrases`, so each streak "
+                           "opens on a different phrase. A new round starts again at phrase 0. Gain jitter +-1.5 dB.",
+                "lengthMs": 640, "target": {"type": "stream", "rateHz": 5, "lufs": -21.0}}
     # 2. rabbit crit
     def rabbit(slide):
         head_t = 0.12 + slide + 0.01
@@ -1266,6 +1289,16 @@ def check_cues(c):
                     err("%s: a first sound must start at t=0 (no silent lead-in)" % cid)
                 if end > 1.0:
                     err("%s: %.2f s > 1 s" % (cid, end))
+    # v1.5: the tap's HaTikva opens with the anthem's verified first two bars (catches a typo in the data)
+    tap = c["cues"]["tap"]
+    mel = [int(x[1:]) for x in tap["melody"]]
+    if [b_ - a_ for a_, b_ in zip(mel, mel[1:])][:len(ANTHEM)] != ANTHEM:
+        err("tap: the melody does not open with the anthem's first two bars")
+    for s_ in tap["phrases"]:
+        if not 0 <= s_ < len(mel):
+            err("tap: phrase start %d is outside the melody" % s_)
+    if set(tap["melody"]) != set(tap["pitch"]["semis"]):
+        err("tap: every melody label needs a rendered pitch, and no extra pitches")
     # v1.3: Dubi's canned lines stay off the anthem: bank degrees only (no 2, no b6), no 5 -> 5' leap
     bank = {"1", "3", "4", "5", "b7"}
     for line, contour in c["babbleContours"].items():

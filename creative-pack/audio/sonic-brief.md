@@ -5,6 +5,7 @@
 - Accepted O-A1: no alt-B stems; variety comes from zero-byte layer mutes.
 - Accepted O-A2: court day crossfades to the Courthouse track.
 - Confirmed A3, A12, A13 and A14 from `../engine/feasibility.md`.
+**v1.5 (2026-09-30), Bar:** every tap is the next note of HaTikva on a bell, played straight (ADR 0004, cue-spec §6). The 2-bar cap is lifted for the tap only.
 **v1.2 (2026-09-29): client direction from Bar, relayed by the orchestrator. It overrides this brief where the two conflict.**
 - **The mode:** hijaz/freygish is replaced as the shared language by **HaTikva's minor**: natural minor, with the leading tone raised at cadences.
   - §3's modes, §4's motif and §5's era keys (D, E, G minor) change accordingly.

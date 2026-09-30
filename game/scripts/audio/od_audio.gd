@@ -155,6 +155,31 @@ static func tap_pitch(streak_index: int, steps: int) -> String:
 	return "s%d" % posmod(streak_index, maxi(1, steps))
 
 
+## v1.5 (Bar, 2026-09-30): the tap plays HaTikva. The manifest's `tap.melody` is one pitch key per
+## tap and `tap.phrases` the note indexes a streak may open on. Empty = no melody (the walk above).
+static func tap_melody(man: Dictionary) -> Array:
+	return man.get("cues", {}).get("tap", {}).get("melody", [])
+
+
+static func tap_phrases(man: Dictionary) -> Array:
+	var out: Array = []
+	for v: Variant in man.get("cues", {}).get("tap", {}).get("phrases", []):
+		out.append(int(v))   # JSON numbers load as floats
+	return out if not out.is_empty() else [0]
+
+
+## The next [phrase, note] after a tap: a streak's first tap (streak index 0) opens the next phrase
+## (phrase -1 = none yet, so the first streak opens phrase 0); every later tap of the streak is the
+## next note, wrapping at the end of the melody.
+static func melody_step(streak_index: int, phrase: int, note: int, melody_size: int, phrases: Array) -> Vector2i:
+	if melody_size <= 0:
+		return Vector2i(phrase, note)
+	if streak_index == 0 or note < 0:
+		var ph := posmod(phrase + 1, maxi(1, phrases.size()))
+		return Vector2i(ph, posmod(int(phrases[ph]), melody_size))
+	return Vector2i(phrase, posmod(note + 1, melody_size))
+
+
 ## The pitch keys a cue is rendered at (in its first key), unsorted.
 static func cue_pitches(man: Dictionary, cue_id: String) -> Array[String]:
 	var files: Dictionary = man.get("cues", {}).get(cue_id, {}).get("files", {})

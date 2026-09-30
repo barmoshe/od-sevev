@@ -475,6 +475,14 @@ func _pitches(cue: Dictionary) -> Array:
 					var idx := start + s
 					var semis := int(sc[idx % 7]) + 12 * (idx / 7)
 					out.append({"key": k, "pitch": "s%d" % s, "ratio": _hz(_key_root(k, int(p["rootOctave"])) + semis) / _a4})
+		"semis":
+			# v1.5: fixed semitones above the key's root (the tap's HaTikva: natural minor in every key,
+			# F included, so the anthem is never re-moded)
+			for k: String in keys:
+				if k.begins_with("_"):
+					continue
+				for lab: String in p["semis"]:
+					out.append({"key": k, "pitch": lab, "ratio": _hz(_key_root(k, int(p["rootOctave"])) + int(p["semis"][lab])) / _a4})
 		"degrees":
 			for k: String in keys:
 				if k.begins_with("_"):
@@ -573,7 +581,7 @@ func _render_cue(id: String, cue: Dictionary, man: Dictionary) -> Dictionary:
 	var info := {"meaning": cue["meaning"], "bus": cue["bus"], "priority": cue["priority"], "poly": cue["poly"],
 		"steal": cue["steal"], "ducks": cue["ducks"], "play_db": play_db, "momentaryMax": snappedf(mmax, 0.01), "burstMax": snappedf(bmax, 0.01), "limitedBy": limited,
 		"lengthMs": snappedf(longest, 0.1), "files": tree, "runtime": cue.get("runtime", ""), "target": tg}
-	for k: String in ["jitterDb", "pan", "shapes", "markers", "firstSound"]:
+	for k: String in ["jitterDb", "pan", "shapes", "markers", "firstSound", "melody", "phrases"]:
 		if cue.has(k):
 			info[k] = cue[k]
 	print("  cue %-16s %3d files  play %+7.2f dB  burst %+6.2f  M-max %+6.2f LUFS  %5.0f ms  %s" % [id, bufs.size(), play_db, bmax, mmax, longest, limited])

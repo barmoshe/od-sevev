@@ -1640,156 +1640,152 @@
 			}
 		},
 		"tap": {
-			"burstMax": -16.59,
+			"burstMax": -16.79,
 			"bus": "SFX-Frequent",
 			"ducks": [],
 			"files": {
 				"D": {
-					"s0": {
-						"d12": "tap_D_s0_d12.res",
-						"d25": "tap_D_s0_d25.res"
+					"n-5": {
+						"bell": "tap_D_n-5_bell.res"
 					},
-					"s1": {
-						"d12": "tap_D_s1_d12.res",
-						"d25": "tap_D_s1_d25.res"
+					"n0": {
+						"bell": "tap_D_n0_bell.res"
 					},
-					"s2": {
-						"d12": "tap_D_s2_d12.res",
-						"d25": "tap_D_s2_d25.res"
+					"n12": {
+						"bell": "tap_D_n12_bell.res"
 					},
-					"s3": {
-						"d12": "tap_D_s3_d12.res",
-						"d25": "tap_D_s3_d25.res"
+					"n2": {
+						"bell": "tap_D_n2_bell.res"
 					},
-					"s4": {
-						"d12": "tap_D_s4_d12.res",
-						"d25": "tap_D_s4_d25.res"
+					"n3": {
+						"bell": "tap_D_n3_bell.res"
 					},
-					"s5": {
-						"d12": "tap_D_s5_d12.res",
-						"d25": "tap_D_s5_d25.res"
+					"n5": {
+						"bell": "tap_D_n5_bell.res"
 					},
-					"s6": {
-						"d12": "tap_D_s6_d12.res",
-						"d25": "tap_D_s6_d25.res"
+					"n7": {
+						"bell": "tap_D_n7_bell.res"
 					},
-					"s7": {
-						"d12": "tap_D_s7_d12.res",
-						"d25": "tap_D_s7_d25.res"
+					"n8": {
+						"bell": "tap_D_n8_bell.res"
 					}
 				},
 				"E": {
-					"s0": {
-						"d12": "tap_E_s0_d12.res",
-						"d25": "tap_E_s0_d25.res"
+					"n-5": {
+						"bell": "tap_E_n-5_bell.res"
 					},
-					"s1": {
-						"d12": "tap_E_s1_d12.res",
-						"d25": "tap_E_s1_d25.res"
+					"n0": {
+						"bell": "tap_E_n0_bell.res"
 					},
-					"s2": {
-						"d12": "tap_E_s2_d12.res",
-						"d25": "tap_E_s2_d25.res"
+					"n12": {
+						"bell": "tap_E_n12_bell.res"
 					},
-					"s3": {
-						"d12": "tap_E_s3_d12.res",
-						"d25": "tap_E_s3_d25.res"
+					"n2": {
+						"bell": "tap_E_n2_bell.res"
 					},
-					"s4": {
-						"d12": "tap_E_s4_d12.res",
-						"d25": "tap_E_s4_d25.res"
+					"n3": {
+						"bell": "tap_E_n3_bell.res"
 					},
-					"s5": {
-						"d12": "tap_E_s5_d12.res",
-						"d25": "tap_E_s5_d25.res"
+					"n5": {
+						"bell": "tap_E_n5_bell.res"
 					},
-					"s6": {
-						"d12": "tap_E_s6_d12.res",
-						"d25": "tap_E_s6_d25.res"
+					"n7": {
+						"bell": "tap_E_n7_bell.res"
 					},
-					"s7": {
-						"d12": "tap_E_s7_d12.res",
-						"d25": "tap_E_s7_d25.res"
+					"n8": {
+						"bell": "tap_E_n8_bell.res"
 					}
 				},
 				"F": {
-					"s0": {
-						"d12": "tap_F_s0_d12.res",
-						"d25": "tap_F_s0_d25.res"
+					"n-5": {
+						"bell": "tap_F_n-5_bell.res"
 					},
-					"s1": {
-						"d12": "tap_F_s1_d12.res",
-						"d25": "tap_F_s1_d25.res"
+					"n0": {
+						"bell": "tap_F_n0_bell.res"
 					},
-					"s2": {
-						"d12": "tap_F_s2_d12.res",
-						"d25": "tap_F_s2_d25.res"
+					"n12": {
+						"bell": "tap_F_n12_bell.res"
 					},
-					"s3": {
-						"d12": "tap_F_s3_d12.res",
-						"d25": "tap_F_s3_d25.res"
+					"n2": {
+						"bell": "tap_F_n2_bell.res"
 					},
-					"s4": {
-						"d12": "tap_F_s4_d12.res",
-						"d25": "tap_F_s4_d25.res"
+					"n3": {
+						"bell": "tap_F_n3_bell.res"
 					},
-					"s5": {
-						"d12": "tap_F_s5_d12.res",
-						"d25": "tap_F_s5_d25.res"
+					"n5": {
+						"bell": "tap_F_n5_bell.res"
 					},
-					"s6": {
-						"d12": "tap_F_s6_d12.res",
-						"d25": "tap_F_s6_d25.res"
+					"n7": {
+						"bell": "tap_F_n7_bell.res"
 					},
-					"s7": {
-						"d12": "tap_F_s7_d12.res",
-						"d25": "tap_F_s7_d25.res"
+					"n8": {
+						"bell": "tap_F_n8_bell.res"
 					}
 				},
 				"G": {
-					"s0": {
-						"d12": "tap_G_s0_d12.res",
-						"d25": "tap_G_s0_d25.res"
+					"n-5": {
+						"bell": "tap_G_n-5_bell.res"
 					},
-					"s1": {
-						"d12": "tap_G_s1_d12.res",
-						"d25": "tap_G_s1_d25.res"
+					"n0": {
+						"bell": "tap_G_n0_bell.res"
 					},
-					"s2": {
-						"d12": "tap_G_s2_d12.res",
-						"d25": "tap_G_s2_d25.res"
+					"n12": {
+						"bell": "tap_G_n12_bell.res"
 					},
-					"s3": {
-						"d12": "tap_G_s3_d12.res",
-						"d25": "tap_G_s3_d25.res"
+					"n2": {
+						"bell": "tap_G_n2_bell.res"
 					},
-					"s4": {
-						"d12": "tap_G_s4_d12.res",
-						"d25": "tap_G_s4_d25.res"
+					"n3": {
+						"bell": "tap_G_n3_bell.res"
 					},
-					"s5": {
-						"d12": "tap_G_s5_d12.res",
-						"d25": "tap_G_s5_d25.res"
+					"n5": {
+						"bell": "tap_G_n5_bell.res"
 					},
-					"s6": {
-						"d12": "tap_G_s6_d12.res",
-						"d25": "tap_G_s6_d25.res"
+					"n7": {
+						"bell": "tap_G_n7_bell.res"
 					},
-					"s7": {
-						"d12": "tap_G_s7_d12.res",
-						"d25": "tap_G_s7_d25.res"
+					"n8": {
+						"bell": "tap_G_n8_bell.res"
 					}
 				}
 			},
 			"jitterDb": 1.5,
-			"lengthMs": 68.0,
-			"limitedBy": "ceiling",
-			"meaning": "The trick worked; money came out.",
-			"momentaryMax": -22.61,
-			"play_db": -4.0,
-			"poly": 4.0,
+			"lengthMs": 596.0,
+			"limitedBy": "target",
+			"meaning": "The trick worked; money came out, to the next note of HaTikva.",
+			"melody": [
+				"n0",
+				"n2",
+				"n3",
+				"n5",
+				"n7",
+				"n7",
+				"n8",
+				"n7",
+				"n8",
+				"n12",
+				"n7",
+				"n5",
+				"n5",
+				"n5",
+				"n3",
+				"n3",
+				"n2",
+				"n0",
+				"n2",
+				"n3",
+				"n0",
+				"n-5"
+			],
+			"momentaryMax": -22.66,
+			"phrases": [
+				0.0,
+				11.0
+			],
+			"play_db": -10.0,
+			"poly": 6.0,
 			"priority": 2.0,
-			"runtime": "Step = the tap streak index mod 8 (walk and wrap); the streak resets after 400 ms without a tap. Variant alternates d25 / d12 per tap. Gain jitter +-1.5 dB. One file = one tap.",
+			"runtime": "Each tap plays the next note of `melody`. A streak (taps under 400 ms apart) walks on and wraps; after a gap the next streak starts on the next entry of `phrases`, so each streak opens on a different phrase. A new round starts again at phrase 0. Gain jitter +-1.5 dB.",
 			"steal": "oldest",
 			"target": {
 				"lufs": -21.0,
@@ -2148,12 +2144,12 @@
 		"files": {
 			"music": 12,
 			"outside": 1,
-			"sfx": 266,
+			"sfx": 234,
 			"stingers": 37
 		},
 		"music_bytes": 9237588,
 		"outside_bytes": 53847,
-		"sfx_bytes": 818830,
+		"sfx_bytes": 996270,
 		"stinger_bytes": 1486635
 	},
 	"stingers": {

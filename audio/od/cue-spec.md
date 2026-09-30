@@ -443,6 +443,8 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 
 ## 6. HaTikva: where it is, and the guardrail (v1.2)
 
+> **v1.5 (2026-09-30, Bar, ADR 0004):** the tap plays HaTikva, one note per tap, on a bell, in phrases (`tap.melody`, `tap.phrases`). The 2-bar cap below is lifted for the tap only; every other rule stands.
+
 **Where the anthem's contour appears:**
 
 | Place | What sounds |

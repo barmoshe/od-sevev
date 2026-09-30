@@ -87,7 +87,7 @@ func test_every_manifest_file_exists_and_loads() -> void:
 			runner.check(w.loop_mode == AudioStreamWAV.LOOP_FORWARD and w.loop_end == int(e["loopSamples"]),
 				"%s %s loops forward over the whole song" % [era, l])
 		runner.check(OdAudio.bars_per_loop(_man, era) == 32, "%s has 32 bars" % era)
-	var tap: AudioStreamWAV = load(OdAudio.DIR + OdAudio.cue_file(_man, "tap", "D", "s0", "d25"))
+	var tap: AudioStreamWAV = load(OdAudio.DIR + OdAudio.cue_file(_man, "tap", "D", String(OdAudio.tap_melody(_man)[0]), "bell"))
 	runner.check(tap.loop_mode == AudioStreamWAV.LOOP_DISABLED, "cues are one-shots")
 	runner.check(not ResourceLoader.exists("res://assets/audio/sfx_tap.wav"), "the fork's sounds are out of the build")
 
@@ -167,8 +167,8 @@ func test_first_tap_plays_the_motif_then_the_music_at_bar_one() -> void:
 
 
 func test_tap_walk_is_strict_and_wraps() -> void:
-	var steps := OdAudio.tap_steps(_man)
-	runner.check(steps == 8, "the manifest renders an 8-step walk, got %d" % steps)
+	# v1.5: the manifest's tap plays HaTikva (test_tap_plays_hatikva_*); the walk stays the fallback rule
+	var steps := 8
 	var s := -1
 	var t := -1e12
 	var got: Array[String] = []
@@ -180,6 +180,22 @@ func test_tap_walk_is_strict_and_wraps() -> void:
 	runner.check(OdAudio.tap_streak(5, 0.0, 400.0) == 0, "400 ms without a tap resets the walk")
 	runner.check(OdAudio.tap_streak(5, 0.0, 399.0) == 6, "under 400 ms it climbs")
 	runner.check(OdAudio.tap_variant(0) == "d25" and OdAudio.tap_variant(1) == "d12" and OdAudio.tap_variant(2) == "d25", "d25 / d12 alternate")
+
+
+func test_tap_plays_hatikva_one_note_per_tap() -> void:
+	var mel := OdAudio.tap_melody(_man)
+	var ph := OdAudio.tap_phrases(_man)
+	runner.check(mel.size() == 22 and ph == [0, 11], "the manifest carries HaTikva's first section and its two phrases, got %d notes %s" % [mel.size(), str(ph)])
+	var iv: Array[int] = []
+	for i in 10:
+		iv.append(int(String(mel[i + 1]).substr(1)) - int(String(mel[i]).substr(1)))
+	runner.check(iv == [2, 1, 2, 2, 0, 1, -1, 1, 4, -5], "it opens with the anthem's first two bars, got %s" % str(iv))
+	# pure: a streak opens the next phrase, then walks on and wraps
+	runner.check(OdAudio.melody_step(0, -1, -1, 22, ph) == Vector2i(0, 0), "the first streak opens phrase 0")
+	runner.check(OdAudio.melody_step(1, 0, 0, 22, ph) == Vector2i(0, 1), "the streak walks on")
+	runner.check(OdAudio.melody_step(5, 0, 21, 22, ph) == Vector2i(0, 0), "and wraps at the end of the melody")
+	runner.check(OdAudio.melody_step(0, 0, 7, 22, ph) == Vector2i(1, 11), "after a pause the next streak opens the next phrase")
+	runner.check(OdAudio.melody_step(0, 1, 15, 22, ph) == Vector2i(0, 0), "and the phrases rotate")
 	var a := _audio()
 	a.set_evolutions(0)
 	a.event("tap")   # the motif
@@ -187,10 +203,21 @@ func test_tap_walk_is_strict_and_wraps() -> void:
 	for i in 3:
 		a.event("tap")
 		files.append(_last(a))
-	runner.check(files == ["tap_D_s0_d25.res", "tap_D_s1_d12.res", "tap_D_s2_d25.res"], "taps walk the D scale, got %s" % str(files))
-	for i in 20:
+	runner.check(files == ["tap_D_%s_bell.res" % mel[0], "tap_D_%s_bell.res" % mel[1], "tap_D_%s_bell.res" % mel[2]],
+		"taps play HaTikva in D, got %s" % str(files))
+	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
+	a.event("tap")
+	runner.check(_last(a) == "tap_D_%s_bell.res" % mel[11], "a pause, then the next phrase (נפש יהודי הומיה), got %s" % _last(a))
+	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
+	a.event("tap")
+	runner.check(_last(a) == "tap_D_%s_bell.res" % mel[0], "then back to the first phrase, got %s" % _last(a))
+	for i in 30:
 		a.event("tap")
-	runner.check(a.active_voices("tap") <= 4, "poly 4, steal oldest: got %d" % a.active_voices("tap"))
+	runner.check(a.active_voices("tap") <= 6, "poly 6, steal oldest: got %d" % a.active_voices("tap"))
+	a.event("electionConfirm", 1)
+	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
+	a.event("tap")
+	runner.check(_last(a).ends_with("_%s_bell.res" % mel[0]), "a new round starts at the first phrase, got %s" % _last(a))
 	await _release()
 
 
@@ -198,7 +225,7 @@ func test_crit_plays_tap_then_the_rabbit_on_its_frame() -> void:
 	var a := _audio()
 	a.event("tap")
 	a.event("tapCrit")
-	runner.check(_last(a).begins_with("tap_D_s0"), "a crit's f0 plays the tap (the walk never skips), got %s" % _last(a))
+	runner.check(_last(a) == "tap_D_%s_bell.res" % OdAudio.tap_melody(_man)[0], "a crit's f0 plays the tap (the melody never skips), got %s" % _last(a))
 	runner.check(a.active_voices("rabbitCrit") == 0, "the rabbit waits for its frame")
 	await (runner as SceneTree).create_timer(0.32).timeout
 	runner.check(a.active_voices("rabbitCrit") == 1 and _last(a) == "rabbitCrit_D_s120.res", "rabbitCrit at +250 ms, got %s" % _last(a))
