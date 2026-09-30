@@ -1,8 +1,28 @@
-# HANDOFF: "עוד סבב" (2026-09-29, end of session 3; Bar paused for the day, "continue tomorrow")
+# HANDOFF: "עוד סבב" (2026-09-30, end of session 3)
 
 No agent is running and the loop lock is released. Everything is committed and pushed to
 `claude/magical-ride-ntn3u5`. `STATUS.md` is the full agent log, newest at the bottom.
 `HANDOFF-LIVE.md` is the last minute-by-minute snapshot of the loop (agents, slices, notes).
+
+## Session 3, final state (2026-09-30; Bar stopped the loop to test the deploy)
+
+Everything is merged into `claude/magical-ride-ntn3u5` and into `main`. No agent is running, the loop lock is released and `handoff-wip/` is gone. Tests: 393/393. Content lint: 0/0. The strict build is green, and it is deployed to https://od-sevev.vercel.app.
+
+**What's in the build:**
+- **The leader picker:** all 8 leaders playable, with per-leader views, the walk-out and walk-in, and the audio.
+- **The mobile-first layout** (`ux/mobile-first-layout.md`):
+  - it fills the whole phone, height and width (Bar's width rule, checked by `tools/web/mobile_web.mjs`);
+  - the ticker pages, with a roll between pages.
+- **Palette v4, Israeli blue and white** (Bar approved it): a flag-blue HUD, a white card field, ballot-slip icons, the blue-envelope flap on modals, the booth around the picker, the 120-seat hemicycle on the election card, Jerusalem-stone floors, and official-notice settings, gate and election screens.
+- **UX review 2** (`ux/review-2026-09-30.md`): U1-U16 fixed.
+- **The election gate holds:** the vote stops the clock under the election card, including the window after "עוד סבב!". Balance is 7:51-8:19 median per leader.
+
+**Open (session 4):**
+- **`tools/web/motion_web.mjs`** exceeded its 15-min cap after the walk-out step on a loaded machine. It waits for the flash or picker at `slow=40`. Probably slowness, not a game bug (the unit tests cover the flow), but confirm on an idle machine.
+- **`round_web` / `picker_web`** now share one player (`tools/web/round_play.mjs`). They were not re-confirmed 3× before the stop.
+- **The full balance run** was stopped mid-suite: the per-leader medians and the Bennett, Ben Gvir, Liberman and Eisenkot player-type lines were green, and the rest was not re-run after the gate rule.
+- The optional M3 (the hemicycle fill-in motion); A5's tall booth header is wired only if it fits.
+- **Bar's pre-launch list** below still stands.
 
 ## Session 3: where it stopped
 
