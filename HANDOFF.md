@@ -1,3 +1,81 @@
+# HANDOFF: "עוד סבב" (2026-09-30, the character-copy session, stopped by Bar)
+
+**For the next agent:** this session reworked character copy and brought in the ChatGPT candidates,
+**one character at a time** (Bar: "do all in loop, each character, each work we have"). Bar stopped it
+mid-loop ("stop, write a handoff, push to main"). Everything is on `main` and on
+`claude/game-character-copyright-8q4liq`. **Not deployed:** the live site still serves the last
+deploy logged in `STATUS.md`.
+
+## The loop (per character)
+1. **Copy:** dump the character (leader kit, partner profile, event card, lineup overrides in other
+   rounds), then rewrite. Keep the signature gag and add 2-3 **sourced** threads that cross into
+   other characters' rounds, using per-lineup `lines` overrides so partners answer each other.
+   Drop the shared templates: "X did 61 things" beat 1, "אם זה לא עובר…" threats.
+2. **Facts:** each new thread gets a `design/facts.json` entry (url, date, label F/A/Q, a one-sentence
+   `aboutHe`, reported speech when the Hebrew is unverified), and `usedIn` is filled in. The
+   character's leader-select facts were never switched on after the picker shipped: flip
+   `notUsed` to false.
+3. **Art** (when a candidate exists):
+   - `creative-pack/art/showcase/src/cutout.py` keys out the opaque RGB field (`--clear` boxes for
+     hair pockets). Save the result to `refs/`.
+   - Add `cast.py` landmarks (check them with an overlay), then `build.py <id>`.
+   - Import with `pipeline/od-sevev/build.py --no-render --godot`.
+   - Restore the pixel-identical PNG re-encodes and resync `budget.json` source sizes.
+4. **Check:** `node design/sim/content-lint.mjs --strict` (0/0), `tools/test.sh`. Then commit one
+   character per commit.
+
+**Limits the rewrite obeys** (redlines.json + brief):
+- nothing military or war-related, and no October 7 or hostages;
+- the draft law is deliberately out;
+- no group of people as the punchline;
+- no invented quote marks on real people;
+- ticker ≤ 60 characters, flavor ≤ 60, story lines ≤ 50;
+- Eretz Nehederet's bits stay theirs (their spirit is fine).
+
+## Done
+| Character | Commit | What |
+|---|---|---|
+| Liberman | `daf077c` | Drawer government (guidelines, constitution referendum, the "section 4" hazard ladder), a PM run from 8 seats, rotation talk with Bennett, Eisenkot's jab, the bloc pact. 4 story beats |
+| Generic MKs | `b8d67f8` | mk-offer / mk-undecided / mk-switcher rendered from the candidates (were grey stand-ins); `cutout.py` added |
+| Eisenkot, Bennett, Lapid | `fdccfc8` | The "אין ישר" sign duel with Likud, no rotation, Tropper, the Together list as an "acquisition", the Yesh Atid exodus, Lapid offering No. 3 |
+| Golan + Lazimi + Kariv | `df2e56e` | Lazimi (No. 2) and Kariv (No. 3) rendered, in Golan's round in the generic S5/L1 seats (same slot numbers, so no balance change); the "million votes" beat |
+
+## Open items, in order
+1. **Re-run `tools/test.sh`** on `main`. The last full run was 437/438. The one failure was
+   `test_story_follows_the_leader_just_played`, which assumed Bennett has 3 beats; it now counts the
+   beats. That one-line fix went in untested because Bar stopped the run.
+2. **The Liberman reel on `main`** (`store/gameplay/src/reel_liberman.py:60`) captions the t4 source
+   "תומך ותיק". Liberman's t4 is now "קווי היסוד". Update the caption, or recapture.
+3. **Continue the loop:**
+   - Bibi, with Sara, Herzog and Trump (Sara/Herzog/Trump are rendered but unused; Herzog as the
+     pardon "bank" is the research's open angle).
+   - Ben Gvir, with the Gotliv/Almog transfer (Gotliv went to Otzma No. 2 on 4 Sep, Almog Cohen to Likud).
+   - Smotrich, Deri.
+   - **Gafni is stale:** he was taken off the list on 5 Sep 2026.
+   - Goldknopf; Abbas with Tibi (both lists were disqualified by the committee, appeal pending; red line: the flip-flop, never Arab citizens).
+   - Regev, Levin, Amsalem, Karhi, Distel (not running again), May Golan, Gantz (1 line today; under the threshold).
+   - Dubi.
+4. **Art still waiting:**
+   - almog, tibi, aide;
+   - the five money sources: submarine, poison, checkbook, donor, funds. They share an id space with
+     the UI kit, so remove their 15 `ui-kit.json` rows first. `motion/render-requests.md` §C has
+     their frame-1 recipes;
+   - mk-returner **looks like Netanyahu**: regenerate it with a made-up face.
+5. **Engine gaps found:**
+   - The ambient filter ignores `target`, so opposition roast lines like x04 "ליברמן לא יושב…" run in
+     that leader's own round.
+   - Some shared copy assumes Bibi (`ret_sitter`, "מדבקת DOHA", the prestige titles).
+   - Many `copy.*` fields have no reader (Gotliv's transfer script, the brawl scripts).
+6. **Bar's calls:**
+   - legal read of the new facts;
+   - whether Kariv/Lazimi also join other lineups (this changes balance: run `tools/balance.sh`);
+   - review the new renders.
+
+The research behind the rewrite (Eretz Nehederet portrayals per character, the 2025-26 cross-party
+arcs, fresh angles) was done this session by web search; the sources are in each fact's URLs.
+
+---
+
 # HANDOFF: "עוד סבב" (2026-09-30, end of session 6)
 
 **For the next agent:** work directly, never through the base67 studio (Bar: "dont use base67 studio").
