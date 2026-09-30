@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `fe9aebe` chore(od-sevev): merge UX review 2, F15 placement and the pager no-break rule
+- Branch head: `2b8bbee` docs(od-sevev): live handoff snapshot 05:53
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -32,6 +32,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 - 02:06 Mobile + v4 merged (353/353, mobile_web PASS on all 9 devices in v4). Open: round_web/picker_web fail on reaching/holding 61 at 10x (seats slip under the open election card: a game issue for the Designer). F15: hemicycle only fits at x2 in the seats row, booth fits on tall phones, envelope anywhere. Next wave: Animator B (LeaderWalk + M1 ticker), Designer (hold the election gate), then UX review, strict build, redeploy.
 - 04:22 Animator wave B merged (368/368). Dispatched: UX review 2 + F15 placement; 2D flap strip + audio slipStamp. Designer (gate + drivers) still running. After them: one Game Developer pass on the review findings + F15 + the flap wiring, then strict build and redeploy.
 - 05:10 Flap + slipStamp merged (370/370). Orchestrator accepted 'open flap = today's band' (keeps the approved v4 look). Existing defect for the dev pass: a dark slab under every modal's flap point; fixed by drawing body + flap.
+- 05:21 UX review 2 merged (U1-U16, no blockers). Dispatched: 2D (review art) + Game Developer (review engine + F15 + flap wiring); the dev merges the 2D branch when told. Designer got G2 (no-break lint). Then strict build and redeploy.
 
 ## Agents
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
@@ -45,9 +46,11 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | 2D Artist + TA | DONE, merged (lane, plaza, wings, XL pick heads avatar_pick_<c>_d3/_d2, brawl_cloud_cue x4, court spots as kit data) | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
 | 2D Artist + TA (palette) | DONE, v4 landed through the mobile merge | `worktree-agent-a5e8cafeb35582361` | 0 | 0 | - |
 | Animator (wave B) | DONE, merged (walk wired, one position owner BigBanana._apply_figure; ticker roll 240 ms with per-page dwell; slip stamp). Asks: 2D sheet_modal_flap strip; Audio slip-stamp cue; dev/UX keep "₪." with its number in the pager | `worktree-agent-ae7ba45935a398eb9` | 0 | 0 | - |
-| Game Designer (gate) | hold the election gate (seats slipping under 61 while the card is open); make round_web + picker_web pass 3x; balance re-check | `worktree-agent-aaf6cad83faca5924` | 1 | 11 | `Game-Designer-(gate).commits.patch` `Game-Designer-(gate).patch` |
+| Game Designer (gate) | hold the election gate (seats slipping under 61 while the card is open); make round_web + picker_web pass 3x; balance re-check | `worktree-agent-aaf6cad83faca5924` | 4 | 5 | `Game-Designer-(gate).commits.patch` `Game-Designer-(gate).patch` |
 | UX Designer (review 2) | DONE, merged (ux/review-2026-09-30.md U1-U16, no blockers; §5.14 F15: hemicycle in the election card only, booth on tall phones, envelope on light surfaces; roll accepted; §5.2.1 no-break rule) | `worktree-agent-ad4a270e4f3452e94` | 0 | 0 | - |
 | 2D Artist + Audio | DONE, merged (sheet_modal_body + 3-frame sheet_modal_flap, open frame = the approved band; slipStamp cue wired). For the dev pass: switch modals to body + flap (removes the existing dark slab under the flap point, ~190x45) | `worktree-agent-a771e189416072b63` | 0 | 0 | - |
+| 2D Artist + TA (review 2) | U2 white primary + gold CTA skins, U7 teaser rows + system pills, U8 tab icon without digits, U10 election notice dressing, A5 booth header (optional) | `worktree-agent-ab1026b098be42182` | 1 | 2 | `2D-Artist-+-TA-(review-2).commits.patch` `2D-Artist-+-TA-(review-2).patch` |
+| Game Developer (review 2) | U1 modals as body+flap with the flap animation; D1 no-break rule + F15 placement (hemicycle in the election card, booth on tall phones, envelope); U3 U6 U9 U11 U13 U14; fix modals_web C1; then wire the 2D art when told | `worktree-agent-a643866e6649bba55` | 2 | 0 | `Game-Developer-(review-2).commits.patch`  |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.

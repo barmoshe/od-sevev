@@ -1,0 +1,105 @@
+# binary files changed (not carried):
+diff --git a/art/od-sevev/style-guide.md b/art/od-sevev/style-guide.md
+index bc9af92..fd89d4f 100644
+--- a/art/od-sevev/style-guide.md
++++ b/art/od-sevev/style-guide.md
+@@ -445,7 +445,7 @@ test: every row above stays distinguishable with colour removed.
+ - **Shop icons 24x24** (money sources and, since wave 5, spins): they fill `card_plate` (26x26) edge to edge.
+   Spins are built from outlined parts back to front (`src/icons24.py`), no rim (UI, not a stage touchable).
+ - **Tab icons 15x15** (active + idle): מקורות = a faucet dripping a shekel (what you tap); ספינים = Dubi's
+-  microphone broadcasting two pink arcs; קואליציה = a chat bubble that says 61; תיקים = a manila case file
++  microphone broadcasting two pink arcs; קואליציה = two chat bubbles, the front one with three dots (wave 10; it said "61" until UX review 2 U8: a number in a bubble reads as an unread count); תיקים = a manila case file
+   with a violet "filed" mark. Four different silhouettes, four different dominant hues; idle collapses
+   to a 3-step slate ramp.
+ - **9x9 inline icons** (one text cell tall): lock, pin, mute, chevron, clock (4 hand states), calendar,
+@@ -556,7 +556,7 @@ hierarchy.
+ | F7 | Orchestrator | The `suitcase` ChatGPT row | Not needed in-game: hand-drawn (`props/suitcase.png`); keep it only for a large key-art version. |
+ | F8 | Animator | Stamp tool, brawl, cottage pixel drop, bubbles, clock hand, seats pulse | Key poses / frames are here; timing, easing and the reduced-motion behaviour are yours. |
+ | F10 | Orchestrator / UX | **v3 tested: the buy pill stays gold.** Bar's blue-white direction invites a blue pill; a flag pill on a `ui_bubble` card is 1.47:1 and would stop reading as the call to action, and gold vs `ui_panel` is 10.4:1 and the chrome's only warm hue | Keep gold (shipped). No objection raised. |
+-| F11 | UX / engine | v3 primary (`flag`) and secondary (`ui_bubble`) buttons differ by value 1.47:1 (v2 had a hue split too); shape, the `flag_hi` bevel (3.2:1 vs `ui_bubble`) and the white label carry it | If a review finds them confusable, give `button_secondary` a 1 px `white` inner ring (a kit-only redraw, same ids). |
++| F11 | UX / engine | v3 primary (`flag`) and secondary (`ui_bubble`) buttons differ by value 1.47:1 (v2 had a hue split too); shape, the `flag_hi` bevel (3.2:1 vs `ui_bubble`) and the white label carry it | **Resolved (wave 10, UX review 2 U2 found them 1.13:1 in v4):** `button_white_*`, a white primary with a flag label (8.5:1) and a flag-blue lip; 7.5:1 vs the secondary. New ids: the engine switches `kit_primary` to them. |
+ | F12 | Views (cast) | The chat avatars' blue react ring (`flag_hi`) now sits on navy chrome (3.9:1 vs `ui_panel`, was a hue contrast on violet) | Holds ≥ 3:1; if it reads as chrome, the TA can move the blue ring to `sky` in `showcase/src/build.py` (a cast-ring recolour, not a re-render). |
+ | F13 | Key art | The OG and icon curtain (`plum`, now velvet blue) vs the cast's navy suits is 1.15:1 by value (v2 was 1.06:1, carried by hue) | The outlines, white shirts, lit faces and the spot pool carry every figure at 1200 and at the 630 square; if a thumbnail reads muddy, lift the curtain body to `plum_hi` (a keyart.py change, no cast change). |
+ | F14 | Orchestrator / engine | **v4 sequencing:** the v4 kit without the code map leaves script text at 2.2-3.5:1 on the new blues | Apply `palette-v4-map.json` in the same merge as the kit (after the mobile-first merge); `--check` must report 0 before shipping. |
+@@ -713,6 +713,22 @@ body, f0, f1, f2 over the body, today's `sheet_modal`; at 38x38, 158x64 and 158x
+   modal to body + flap f2 removes it everywhere.
+ - **Blank:** no seal, no emblem, no text, no party mark. It is a civic object (§2.4).
+ 
++### 17.3 Wave 10: UX build review 2 (`src/wave10.py`, `ux/review-2026-09-30.md`, 2026-09-30)
++
++New ids only, except the coalition tab icon (same ids, redrawn) and `sheet_modal`'s slice (pixels unchanged). Proof:
++`proofs/kit-w10-review2.png` (before | after in context, at the game's x4).
++
++| UX | Piece | What |
++|---|---|---|
++| U2 / A4 | `button_white_{default,pressed,disabled}` 24x20, [3,3,3,4] / [3,5,3,2] | The v4 primary: the flag's white on its blue. A white face, a silver bottom/right shade, a 2-row lip in `flag` over `flag_dk` (the key's side), the outline. Label `flag` 8.46:1; pressed = a silver face down 2 into the lip (the blue side goes), 6.40:1; disabled = the shared sunk slate. White vs the secondary's `ui_bubble` 7.52:1 (was 1.13:1). Same size, slices and content box as `button_primary_*`: a drop-in. |
++| U2 | (none) | O3's `ELECT_GO` takes `button_gold_*`, which already is the "עוד סבב!" CTA's skin at full width (the ticker, 704x80): no new id. UX's `ui_button_evolve` is the fork's blue diamond in `art.json`, not the gold CTA. |
++| U7 | `card_row_silhouette` 32x30 [4,4,4,4] | A not-yet-revealed row on the white pane as a blank pale slip: `ui_mute` face, 1 px `ui_rule` edge (5.58:1 on the pane; the face is 1.33:1), sunk 1 px, no ink outline. Name in `ui_panel` 8.87:1. The icon is `<silhouette>_pale` (pipeline): `ui_dim` mask, `ui_rule` edge. |
++| U7 | `chat_system_pill_navy` 20x13 [4,3,4,3] | T3's system pill on the v4 thread: a flat `ui_scrim` well, a `ui_rule` edge, label `ui_mute` 12.91:1. `chat_system_pill` stays (the picker's chip). |
++| U8 | `tabicon_coalition_{active,idle}` (same ids) | Two bubbles, the front one with three `ui_bubble` dots, the back one `ui_mute`. No digits. The badge (top-left) sits over the back bubble; its rounded corner leaves the first dot whole. |
++| U10 | `notice_frame` 40x40 [3,7,3,5] | EVOLVE_TX as the gate's printed notice: a white card ruled edge to edge in flag blue (top 3 + gap + 1, bottom 1 + gap + 1), outline, for the flag-blue page. Data `colors` = page `flag`, title `flag` (8.46:1), text `night` (13.88:1). **A card, not full bleed:** a white screen with a blue stripe at its top and bottom is the flag's layout with the text where the star sits (§2.4's rejected "whole page as the flag"). |
++| A5 | `booth_frame_tall` 40x46 [6,16,6,4] | `booth_frame` with a 12-row flag header; `titleBox` [6, 2, w-12, 9] for the title, white on flag 8.46:1. The opening and wings are `booth_frame`'s, 6 rows lower. |
++| U1 / T1 | `sheet_modal` slice [7,23,7,7] → **[7,24,7,7]**, content y 24 | Rows 0-23 (the band, the flap point and its shadow row) are fixed, so the stretched centre is plain body: no slab under the point on a modal that still draws `sheet_modal` alone (the kit says to keep it where the flap does not animate). Body + flap needs nothing. |
++
+ ## 18. Foundations (referenced, not paraphrased)
+ 
+ v1 §15's list stands (colour theory, palette construction, squint test, colour-blindness redundancy,
+diff --git a/game/assets/sprites/CONTRACT.md b/game/assets/sprites/CONTRACT.md
+index 132f910..6722187 100644
+--- a/game/assets/sprites/CONTRACT.md
++++ b/game/assets/sprites/CONTRACT.md
+@@ -22,7 +22,7 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun
+ | `sprites/avatar_pick_<c>_d3.png`, `avatar_pick_<c>_d2.png` | The picker's XL heads (UX A3), 96×96 and 64×64, the 8 leaders | `chars[c].avatarPickXL` / `avatarPick64` (§4c) |
+ | `sprites/brawl_cloud_cue.png` | The brawl cloud cut for the stage cue: 4 frames of 26×20 (UX / Animator) | `Art.tex("brawl_cloud_cue", f)`, `sprites.json.ui` |
+ | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
+-| `sprites/<ui id>.png` | The 2D Artist's UI kit, 261 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
++| `sprites/<ui id>.png` | The 2D Artist's UI kit, 268 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
+ | `fonts/sevev9.fnt` | **Sevev 9**, the Hebrew pixel font (a BMFont; Godot imports it as a `FontFile`) | `load("res://assets/fonts/sevev9.fnt")` |
+ | `fonts/sevev9_outline.fnt` | The same font with a baked 1 px ink ring | the same |
+ | `fonts/sevev9@2.fnt` | **Sevev 9 @2**, the density-2 companion: every glyph redrawn on a 2× grid, drawn at half the scale into the same box (§6.1) | `fonts.json` `fonts["sevev9@2"]` (`density: 2`) |
+@@ -291,6 +291,7 @@ its react / crit, tap), at d 3 and d 2.
+ ```jsonc
+ "taxpayer": { "sprite": "source_taxpayer", "frames": 2, "frameW": 76, "frameH": 120, "pivot": [38, 119],
+               "icon": "source_taxpayer_icon", "silhouette": "source_taxpayer_icon_sil",
++              "silhouettePale": "source_taxpayer_icon_sil_pale",
+               "points": { "hand": [23, 80] }, "origin": "render-down", "density": 3, "iconDensity": 1,
+               "densities": { "2": { "sprite": "source_taxpayer_d2", "frameW": 51, "frameH": 80, "pivot": [25, 79],
+                                     "points": { "hand": [15, 54] }, "density": 2 } } }
+@@ -303,6 +304,9 @@ its react / crit, tap), at d 3 and d 2.
+ - **Density:** `frameW`, `frameH`, `pivot` and `points` are sprite px of the strip (d = 3 for
+   the 5 rendered sources, d = 1 for the hand-drawn three). Draw the strip at `artScale /
+   density`. The icon and silhouette are always 24×24 at d = 1 (`iconDensity`).
++- **`silhouettePale`** (2026-09-30, UX review 2 U7): the silhouette recoloured for the pale teaser row
++  (`card_row_silhouette`): the `suit` mask → `ui_dim`, its `rim` edge → `ui_rule`, pixel for pixel. The pipeline
++  writes it for every source (`sprites.py` `pale_silhouettes`) and fails on any other colour in a silhouette.
+ - **Frames:** 2, equal holds. The strip has **no fps**; the period is `producers[].idleFrameMs`,
+   per the animator's diorama spec.
+ - **Pivot:** the feet, bottom centre. Every source is 40 art px tall, including a 1-art-px pale
+@@ -365,6 +369,27 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for
+     of `sheet_modal`'s stretched centre. Inside the 9-slice that one row stretches down the body (at a
+     624×480 card, a ~190×45 dark slab under the point, seen in the engine too: `proofs/kit-w9-flap.png`, right column). In the flap
+     strip it stays one art row, so body + flap also drops that slab.
++- **UX build review 2** (2D Artist wave 10, 2026-09-30; `art/od-sevev/style-guide.md` §17.3). New ids beside the old
++  ones, so each is a switch:
++  - `button_white_{default,pressed,disabled}` (24×20, the slices and content box of `button_primary_*`), `label`
++    `flag`: the v4 primary (U2). **Wiring:** `PxButton.kinds()["kit_primary"] = _kit_kind("button_white")`, and the
++    label tint from the kit's `label` swatch: `"flag"` → palette char `"u"` (#0038b8) for normal / pressed / hover;
++    `_kit_kind` today maps anything but ink to `"w"`, which would draw a white label on the white face. Disabled stays
++    `"w"`/grey on the sunk slate. O3's `ELECT_GO` → `kit_gold` (`button_gold_*`, the CTA's own skin).
++  - `card_row_silhouette` (32×30, [4, 4, 4, 4], `label` `ui_panel` #072a7a): the teaser / silhouette row (U7), in place
++    of `card_source_locked` in `shop.gd` `_card_sprite`. Its icon: `sources[id].silhouettePale` (= `<silhouette>_pale`,
++    24×24, the pipeline's exact recolour of the silhouette: `ui_dim` mask, `ui_rule` edge); for any silhouette id,
++    `Art.has_sprite(id + "_pale")` resolves it. Draw it unmodulated (no 0.6 grey).
++  - `chat_system_pill_navy` (20×13, [4, 3, 4, 3], `label` `ui_mute` #c9d6f2): T3's system pill (U7), in place of
++    `chat_system_pill` in `view_chat.gd`.
++  - `notice_frame` (40×40, [3, 7, 3, 5], content [4, 8, 32, 26], `colors` {page flag, title flag, text night} + `hex`):
++    EVOLVE_TX's notice (U10). The card stays full bleed in `colors.page`; the frame is centred around the lines
++    (rules at its top and bottom, not at the screen's).
++  - `booth_frame_tall` (40×46, [6, 16, 6, 4], content [5, 15, 30, 28], `titleBox` [6, 2, w − 12, 9], `header`):
++    A5, optional. At ×4 the top inset is 60 logical (booth_frame: 36); the title's cell is `titleBox` × 4 from the
++    booth's top-left, one line only.
++  - `sheet_modal`: slice **[7, 24, 7, 7]**, content y 24 (was 23; U1 / T1). The pixels are unchanged; the dark row
++    under the flap point is no longer stretched down the body.
+ 
+ ## 6. Fonts: Sevev 9
+ - **Where it's used:** every Hebrew or mixed string goes through a `Label` or `RichTextLabel`
