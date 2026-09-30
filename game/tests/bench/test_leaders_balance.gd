@@ -144,3 +144,48 @@ func test_mixed_session() -> void:
 	_session_gates(runner, "mixed", r)
 	var s: GameState = r["state"]
 	print("           switches %d, fresh-face rounds pay +%d%%" % [int(s.stats.get("leaderSwitches", 0)), int(Leaders.ls()["pick"]["freshFaceBasePct"])])
+
+
+## V1 "the vote stops the clock" (spec §7.4): for every leader and deal, a median player who reaches
+## 61 and then reads the election card for VOTE_READ_SEC (no taps, buys or chat) still has the gate
+## when they press "לפזר את הכנסת". The line without the hold (politics running under the card, as
+## before 2026-09-30) is printed for contrast: how often the card used to lose the gate.
+const VOTE_READ_SEC := 30.0
+
+
+static func _gate_after_reading(s: GameState, sd: int, vote: bool) -> bool:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = sd * 31 + 5
+	var rf := func() -> float: return rng.randf()
+	var ctx := {"allowPing": false, "weekday": 2, "hour": 12, "vote": vote}
+	var t := 0.0
+	while t < VOTE_READ_SEC:
+		var d := Economy.derive(s)
+		if not vote:
+			Economy.tick(s, 0.25, d)
+		Politics.tick(s, 0.25, d, ctx, rf)
+		t += 0.25
+		if not Economy.derive(s).evolve_enabled:
+			return false
+	return true
+
+
+func test_every_leader_keeps_the_gate_while_the_card_is_read() -> void:
+	if not Leaders.active():
+		return
+	for id: String in _leaders(true):
+		var held := 0
+		var before := 0
+		var n := 0
+		for sd: int in SEEDS:
+			var r := _first("median", id, sd)
+			if float(r["gate_t"]) < 0.0:
+				continue
+			n += 1
+			var st: GameState = r["state"]
+			if _gate_after_reading(st.duplicate_state(), sd, false):
+				before += 1
+			if _gate_after_reading(st.duplicate_state(), sd, true):
+				held += 1
+		print("  %-9s the gate after %ds on the card: %d/%d (without the vote hold %d/%d)" % [id, int(VOTE_READ_SEC), held, n, before, n])
+		runner.check(n > 0 and held == n, "V1 %s: the gate holds for every deal while the card is read, got %d/%d" % [id, held, n])

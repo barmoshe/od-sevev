@@ -280,6 +280,28 @@ func test_poach_a_rebel() -> void:
 	runner.check(last.get("key", "") == "chat.sys.added" and last.get("partner", "") == "almog", "'צורף על ידי מנהל'")
 
 
+## "Won't sit with" both ways, the bigger side first (spec §7.2.2): Abbas (4) excludes Ben Gvir (12).
+## Abbas's rejoin pill closes when Ben Gvir comes back, so paying it can never throw Ben Gvir out;
+## and a member who excludes a smaller partner keeps that partner from asking.
+func test_wont_sit_with_the_bigger_side_first() -> void:
+	var s := _with(["smotrich"], 0.0, 0, true)
+	s.run_bananas = 60000.0
+	Coalition.ps(s, "abbas")["status"] = "left"
+	var am := Coalition._post(s, {"type": "sys", "key": "chat.sys.left", "partner": "abbas", "payable": "rejoin", "price": 10.0, "state": "open"}, [])
+	Coalition.ps(s, "bengvir")["status"] = "left"
+	var bm := Coalition._post(s, {"type": "sys", "key": "chat.sys.left", "partner": "bengvir", "payable": "rejoin", "price": 10.0, "state": "open"}, [])
+	s.bananas = 10.0
+	Coalition.pay(s, int(bm["seq"]))
+	runner.check(Coalition.status(s, "bengvir") == "member" and am["state"] == "expired" and Coalition.status(s, "abbas") == "absent",
+		"Ben Gvir back: Abbas's rejoin pill closes (a pill never trades 12 seats for 4)")
+	# the other direction: a bigger member who excludes a smaller partner keeps him from asking
+	(Coalition.partner("bengvir") as Dictionary)["excludes"] = ["amsalem"]
+	_tick(s, 300.0, 1.0, _one)
+	runner.check(Coalition.status(s, "amsalem") == "absent", "Ben Gvir won't sit with Amsalem (2): Amsalem never asks while he sits")
+	runner.check(Coalition.roster(s).any(func(r: Dictionary) -> bool: return r["id"] == "amsalem" and r["excluded"]), "the roster marks him excluded")
+	(Coalition.partner("bengvir") as Dictionary).erase("excludes")
+
+
 func test_abbas_sits_only_while_ben_gvir_is_out() -> void:
 	var s := _with([], 0.0, 0, true)
 	s.run_bananas = 60000.0

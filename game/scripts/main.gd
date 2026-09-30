@@ -1020,15 +1020,16 @@ func _process(delta: float) -> void:
 	# spec §3.1: the round's clock starts on the pick frame, never during the flash or the picker
 	var running := mode == "main" and not Leaders.pick_pending(state)
 	var modal := overlays.is_open() or tx.running
+	var vote := vote_open()
 	if running and not _economy_frozen:
 		_acc += dt * float(_dev["speed"])
 		var guard := 0
 		while _acc >= STEP_MS and guard < 2000:
 			_acc -= STEP_MS
 			guard += 1
-			_step_economy(STEP_MS / 1000.0, modal)
+			_step_economy(STEP_MS / 1000.0, modal, vote)
 	d = Economy.derive(state)
-	if running and not _economy_frozen:
+	if running and not _economy_frozen and not vote:
 		_run_automation(dt, modal)
 		_meta_check_ms += dt
 		if _meta_check_ms >= 250.0:
@@ -1301,7 +1302,24 @@ func _follow_os_motion(dt: float) -> void:
 		_apply_settings()
 
 
-func _step_economy(dt_sec: float, modal: bool) -> void:
+## The vote stops the clock (Game Designer; sim/politics.gd): from the press on "עוד סבב!" until
+## the election card is confirmed or closed, the round holds. The seats the player saw when they opened it are the
+## seats they vote on, and nothing is lost behind a card that covers the chat.
+func vote_open() -> bool:
+	for pr: Variant in _presses.values():
+		if pr is Dictionary and str((pr as Dictionary).get("kind", "")) == "cta":
+			return true   # the finger is on "עוד סבב!": the hold starts at the press, not at the card
+	var t := overlays.top()
+	return t is ElectionCard and not (t as ElectionCard).committed and not t.closing
+
+
+func _step_economy(dt_sec: float, modal: bool, vote: bool = false) -> void:
+	if vote:
+		# the economy holds too (a pause, never a farm); politics follows only the calendar
+		for pe: Variant in Politics.tick(state, dt_sec, d, politics_ctx(SaveStore.now_ms(), false, Time.get_datetime_dict_from_system(), true)):
+			if pe is Dictionary:
+				_on_politics_event(pe)
+		return
 	var ev := Economy.tick(state, dt_sec, d)
 	# the politics sim (sim/politics.gd): calendar, coalition, court, events. C1's controller half
 	# (ux/ftue.md): no modal, the last purchase ≥ 2 s ago, no toast showing, Dubi not speaking.
@@ -1341,8 +1359,8 @@ static func spin_end_text(id: String) -> String:
 
 ## The Politics.tick context (sim/README "Controller wiring"): the device's local hour and weekday
 ## (the night trophy "לילה לבן", the Pink Front drum line), the resolved clock and the ping gate.
-static func politics_ctx(now_ms: float, allow_ping: bool, local: Dictionary) -> Dictionary:
-	return {"nowMs": now_ms, "allowPing": allow_ping, "hour": int(local.get("hour", 0)), "weekday": int(local.get("weekday", 0))}
+static func politics_ctx(now_ms: float, allow_ping: bool, local: Dictionary, vote: bool = false) -> Dictionary:
+	return {"nowMs": now_ms, "allowPing": allow_ping, "hour": int(local.get("hour", 0)), "weekday": int(local.get("weekday", 0)), "vote": vote}
 
 
 ## Politics events the engine shows or voices this wave. The Audio runtime (another developer)

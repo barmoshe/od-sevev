@@ -363,11 +363,33 @@ static func threat_count(s: GameState) -> int:
 	return open_ultimatums(s)
 
 
+## "Won't sit with" (`excludes`, either way round) with the bigger side first (Game Designer
+## 2026-09-30, spec §7.2.2). Two partners who won't sit together never do; of the two, the one who
+## brings more (seats + half the abstentions) has precedence:
+##   - the smaller does not ask to join while the bigger sits (here), and its open offer (a join
+##     demand, a rejoin pill) closes when the bigger comes in (_on_joined);
+##   - the bigger may ask or come back while the smaller sits; paying it sends the smaller out
+##     (Abbas leaves when Ben Gvir returns, as shipped).
+## So a pill never trades seats down. Before, in Bennett's round (Liberman 12 excludes Abbas and
+## Gafni), paying Abbas's join silently threw Liberman out with no rejoin pill, and a player who
+## pays every pill never reached 61 in 5 of 9 deals.
 static func _excluded(s: GameState, p: Dictionary) -> bool:
-	for x: Variant in p.get("excludes", []):
-		if status(s, str(x)) == "member":
+	var id := str(p.get("id", ""))
+	for q: Dictionary in partners():
+		var qid := str(q["id"])
+		if qid != id and status(s, qid) == "member" and wont_sit(p, q) and weight(q) >= weight(p):
 			return true
 	return false
+
+
+## The two won't sit together (either one's `excludes` names the other).
+static func wont_sit(a: Dictionary, b: Dictionary) -> bool:
+	return (a.get("excludes", []) as Array).has(str(b.get("id", ""))) or (b.get("excludes", []) as Array).has(str(a.get("id", "")))
+
+
+## What a partner brings to the 61: seats, plus half the abstentions (they lower the majority by half).
+static func weight(p: Dictionary) -> float:
+	return float(p.get("seats", 0)) + float(p.get("abstain", 0)) / 2.0
 
 
 ## For the UI: every partner's row, in content order.
@@ -509,6 +531,7 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 		c["declineCdSec"] = maxf(0.0, float(c["declineCdSec"]) - dt)
 	if float(c.get("mergeCdSec", 0.0)) > 0.0:
 		c["mergeCdSec"] = maxf(0.0, float(c["mergeCdSec"]) - dt)
+	_finish_grace(s, d)
 	for id: Variant in c["partners"]:
 		var st: Dictionary = c["partners"][id]
 		if st["status"] == "member":
@@ -526,6 +549,22 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 	_tick_demands(s, dt, d, rng, out)
 	_tick_transfers(s, dt, d, out)
 	return out
+
+
+## The finish grace (spec §7.4, ultimatum.finishGraceSec): the frame the 61 gate opens, a running
+## ultimatum gets at least that long left, once per ultimatum, so the reach for "עוד סבב!" never
+## loses the gate to a timer (the vote hold starts at the press). Not a farm: it only delays an
+## expiry by seconds, and it cannot repeat on the same ultimatum.
+static func _finish_grace(s: GameState, d: Economy.Derived) -> void:
+	var c := _c(s)
+	var gate := d.seats_gate_open if d != null else gate_open(s)
+	if gate and not bool(c.get("gateWas", false)):
+		var g := float(_ult().get("finishGraceSec", 10.0))
+		for m: Dictionary in c["chat"]:
+			if m["type"] == "ultimatum" and m["state"] == "open" and not m.get("graced", false):
+				m["leftSec"] = maxf(float(m["leftSec"]), g)
+				m["graced"] = true
+	c["gateWas"] = gate
 
 
 static func _tick_messages(s: GameState, dt: float, out: Array) -> void:
@@ -790,18 +829,22 @@ static func _on_joined(s: GameState, id: String, out: Array) -> void:
 	if p.get("statusLine", false):
 		_post(s, {"type": "status", "partner": id, "line": "status", "variant": 0}, out)
 	out.append({"ev": "partnerJoined", "partner": id})
-	# Anyone who only sits while this partner is out leaves now (Abbas when Ben Gvir returns).
+	# Won't sit with the newcomer (_excluded): a member leaves now (Abbas when Ben Gvir returns);
+	# a smaller partner's open offer (join demand, rejoin pill) closes; a bigger one's stays.
 	for q: Dictionary in partners():
 		var qid: String = q["id"]
-		if not (q.get("excludes", []) as Array).has(id):
+		if qid == id or not wont_sit(p, q):
 			continue
 		var qs := status(s, qid)
-		if qs == "member" or qs == "pending":
-			var om := open_msg(s, qid)
+		var om := open_msg(s, qid)
+		if qs == "member" or (qs == "pending" and weight(q) <= weight(p)):
 			if not om.is_empty():
 				om["state"] = "expired"
 			ps(s, qid)["status"] = "absent"
 			_sys(s, "chat.sys.left", {"partner": qid}, out)
+		elif qs == "left" and weight(q) <= weight(p) and not om.is_empty():
+			om["state"] = "expired"   # the rejoin pill closes; they ask again once the newcomer is out
+			ps(s, qid)["status"] = "absent"
 
 
 ## Liberman's "לא יושב" (leader rule declineDemand, spec §5.1, L5): an open MEMBER demand closes for
