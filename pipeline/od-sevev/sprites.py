@@ -85,6 +85,39 @@ FX_SPRITES = {                       # art px; one PNG each (the fx player picks
 }
 
 
+# UX review 2 U7 (2D Artist wave 10): the teaser rows' plate icon is the silhouette in `ui_dim` with a `ui_rule` edge,
+# so a not-yet-revealed row reads as a blank pale slip. Every silhouette is the same two swatches (the `suit` mask and
+# its `rim` edge, rendered or hand-drawn), so the pale one is an exact swatch-for-swatch recolour.
+PALE_MAP = {(69, 74, 96): (180, 195, 232),      # suit #454a60 -> ui_dim  #b4c3e8
+            (214, 204, 236): (42, 92, 196)}     # rim  #d6ccec -> ui_rule #2a5cc4
+
+
+def pale_silhouettes(sources, written, log):
+    """<silhouette>_pale.png beside every shipped source silhouette, and sources[id].silhouettePale. Fails on a
+    silhouette pixel that is neither swatch (the recolour would have to guess)."""
+    done = 0
+    for sid, s in sorted(sources.items()):
+        sil = s.get("silhouette", "")
+        fp = os.path.join(DEST, f"{sil}.png")
+        if not sil or not os.path.exists(fp):
+            continue
+        a = np.asarray(Image.open(fp).convert("RGBA")).copy()
+        on = a[:, :, 3] > 0
+        out = a.copy()
+        hit = np.zeros(on.shape, bool)
+        for src, dst in PALE_MAP.items():
+            m = on & (a[:, :, 0] == src[0]) & (a[:, :, 1] == src[1]) & (a[:, :, 2] == src[2])
+            out[m, :3] = dst
+            hit |= m
+        if (on & ~hit).any():
+            raise SpriteError(f"source {sid}: {sil} has pixels that are not the suit mask or its rim edge")
+        Image.fromarray(out, "RGBA").save(os.path.join(DEST, f"{sil}_pale.png"))
+        written.append(f"{sil}_pale.png")
+        s["silhouettePale"] = f"{sil}_pale"
+        done += 1
+    log(f"sources: {done} pale silhouettes (<silhouette>_pale, teaser rows: ui_dim mask, ui_rule edge)")
+
+
 def _grid(rows):
     im = Image.new("RGBA", (max(len(r) for r in rows), len(rows)), (0, 0, 0, 0))
     for y, r in enumerate(rows):
@@ -648,6 +681,8 @@ def import_sprites(src, log, provenance):
                                          "frameH": pc["h"], "pivot": pc.get("pivot"), "icon": f"{pid}_icon",
                                          "silhouette": f"{pid}_icon_sil", "points": {}, "origin": "hand-drawn",
                                          "density": 1, "iconDensity": 1})
+
+    pale_silhouettes(sources, written, log)
 
     # Godot import settings, keeping uids from a previous import of the same file name
     for rel in written:

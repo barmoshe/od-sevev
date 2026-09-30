@@ -84,8 +84,9 @@ def build():
     modal = sheet_modal_layer()
     W = body.w
     save(body, "sheet_modal_body", "sheet", slice=BODY_SLICE, content=[7, 23, W - 14, body.h - 30], label="white",
-         notes="The blue envelope without its flap (wave 9, the Animator's wave-B ask): sheet_modal's body, edge and "
-               "9-slice [7, 23, 7, 7] exactly, with no title band. Never drawn alone: sheet_modal_flap sits on its top "
+         notes="The blue envelope without its flap (wave 9, the Animator's wave-B ask): sheet_modal's body and edge "
+               "exactly, 9-slice [7, 23, 7, 7] (sheet_modal is [7, 24, 7, 7] since wave 10; the body's row 23 is plain, so "
+               "both stretch the same), with no title band. Never drawn alone: sheet_modal_flap sits on its top "
                "24 rows (frame 2 at rest), and body + flap f2 = sheet_modal pixel for pixel. Use it only where the flap "
                "animates; everywhere else sheet_modal stays.")
     frames = []
@@ -118,11 +119,12 @@ def proof():
     def img(pid):
         return Image.open(os.path.join(root, kit[pid]["file"])).convert("RGBA")
     return contact(img("sheet_modal_body"), img("sheet_modal_flap"), img("sheet_modal"),
-                   os.path.join(PROOFS, "kit-w9-flap.png"))
+                   os.path.join(PROOFS, "kit-w9-flap.png"), modal_slice=kit["sheet_modal"]["slice"])
 
 
-def contact(body, flap, modal, fn, sizes=((38, 38), (158, 64), (158, 120)), zoom=4):
-    """Row per size: the body, f0, f1, f2 over the body, and today's sheet_modal 9-sliced to the same size."""
+def contact(body, flap, modal, fn, sizes=((38, 38), (158, 64), (158, 120)), zoom=4, modal_slice=BODY_SLICE):
+    """Row per size: the body, f0, f1, f2 over the body, and sheet_modal 9-sliced to the same size with its own slice
+    (wave 10: [7, 24, 7, 7], so its right column no longer shows the slab)."""
     fw = flap.width // 3
     pad = 6
     cols = 5
@@ -139,7 +141,7 @@ def contact(body, flap, modal, fn, sizes=((38, 38), (158, 64), (158, 120)), zoom
             t = b9.copy()
             t.alpha_composite(f9, (0, 0))
             tiles.append(t)
-        tiles.append(sheet.nine(modal, BODY_SLICE, w, h))
+        tiles.append(sheet.nine(modal, modal_slice, w, h))
         for c, t in enumerate(tiles):
             out.alpha_composite(t, (pad + c * cw, y))
         y += h + pad

@@ -84,6 +84,7 @@
   "sprites/avatar_trump.png": 1703,
   "sprites/badge_count.png": 152,
   "sprites/booth_frame.png": 258,
+  "sprites/booth_frame_tall.png": 265,
   "sprites/brawl_cloud.png": 2133,
   "sprites/brawl_cloud_cue.png": 1174,
   "sprites/button_danger_default.png": 152,
@@ -98,12 +99,16 @@
   "sprites/button_secondary_default.png": 166,
   "sprites/button_secondary_disabled.png": 126,
   "sprites/button_secondary_pressed.png": 127,
+  "sprites/button_white_default.png": 156,
+  "sprites/button_white_disabled.png": 123,
+  "sprites/button_white_pressed.png": 133,
   "sprites/card_back_mark.png": 121,
   "sprites/card_opposition.png": 289,
   "sprites/card_opposition_back.png": 315,
   "sprites/card_plate.png": 165,
   "sprites/card_row.png": 182,
   "sprites/card_row_locked.png": 144,
+  "sprites/card_row_silhouette.png": 148,
   "sprites/card_source_affordable.png": 220,
   "sprites/card_source_locked.png": 144,
   "sprites/card_source_unaffordable.png": 182,
@@ -232,6 +237,7 @@
   "sprites/chat_icon_pin.png": 149,
   "sprites/chat_pinned.png": 148,
   "sprites/chat_system_pill.png": 150,
+  "sprites/chat_system_pill_navy.png": 148,
   "sprites/chip_countdown.png": 153,
   "sprites/chip_court.png": 148,
   "sprites/chip_icon_calendar.png": 139,
@@ -284,6 +290,7 @@
   "sprites/laundry_sock.png": 124,
   "sprites/laundry_towel.png": 126,
   "sprites/nophoto_idle.png": 975,
+  "sprites/notice_frame.png": 198,
   "sprites/opp_timer_fill.png": 100,
   "sprites/pay_pill_default.png": 165,
   "sprites/pay_pill_fill.png": 87,
@@ -333,41 +340,52 @@
   "sprites/source_advisers_d2.png": 8308,
   "sprites/source_advisers_icon.png": 1346,
   "sprites/source_advisers_icon_sil.png": 264,
+  "sprites/source_advisers_icon_sil_pale.png": 266,
   "sprites/source_checkbook.png": 743,
   "sprites/source_checkbook_icon.png": 329,
   "sprites/source_checkbook_icon_sil.png": 145,
+  "sprites/source_checkbook_icon_sil_pale.png": 148,
   "sprites/source_cigars.png": 16777,
   "sprites/source_cigars_d2.png": 8988,
   "sprites/source_cigars_icon.png": 1362,
   "sprites/source_cigars_icon_sil.png": 248,
+  "sprites/source_cigars_icon_sil_pale.png": 253,
   "sprites/source_donor.png": 871,
   "sprites/source_donor_icon.png": 541,
   "sprites/source_donor_icon_sil.png": 228,
+  "sprites/source_donor_icon_sil_pale.png": 229,
   "sprites/source_funds.png": 615,
   "sprites/source_funds_icon.png": 297,
   "sprites/source_funds_icon_sil.png": 132,
+  "sprites/source_funds_icon_sil_pale.png": 132,
   "sprites/source_hitech.png": 12936,
   "sprites/source_hitech_d2.png": 6618,
   "sprites/source_hitech_icon.png": 1019,
   "sprites/source_hitech_icon_sil.png": 238,
+  "sprites/source_hitech_icon_sil_pale.png": 245,
   "sprites/source_poison.png": 634,
   "sprites/source_poison_icon.png": 241,
   "sprites/source_poison_icon_sil.png": 96,
+  "sprites/source_poison_icon_sil_pale.png": 97,
   "sprites/source_qatari.png": 16142,
   "sprites/source_qatari_d2.png": 8333,
   "sprites/source_qatari_icon.png": 1344,
   "sprites/source_qatari_icon_sil.png": 264,
+  "sprites/source_qatari_icon_sil_pale.png": 266,
   "sprites/source_submarine.png": 1084,
   "sprites/source_submarine_icon.png": 446,
   "sprites/source_submarine_icon_sil.png": 232,
+  "sprites/source_submarine_icon_sil_pale.png": 236,
   "sprites/source_taxpayer.png": 14730,
   "sprites/source_taxpayer_d2.png": 7576,
   "sprites/source_taxpayer_icon.png": 978,
   "sprites/source_taxpayer_icon_sil.png": 208,
+  "sprites/source_taxpayer_icon_sil_pale.png": 208,
   "sprites/source_vat.png": 16207,
   "sprites/source_vat_d2.png": 9063,
   "sprites/source_vat_icon.png": 1417,
   "sprites/source_vat_icon_sil.png": 160,
+  "sprites/source_vat_icon_sil_pale.png": 160,
   "sprites/spin_s01.png": 407,
   "sprites/spin_s02.png": 452,
   "sprites/spin_s03.png": 399,
@@ -425,8 +443,8 @@
   "sprites/tabbar.png": 205,
   "sprites/tabicon_cases_active.png": 195,
   "sprites/tabicon_cases_idle.png": 194,
-  "sprites/tabicon_coalition_active.png": 191,
-  "sprites/tabicon_coalition_idle.png": 181,
+  "sprites/tabicon_coalition_active.png": 201,
+  "sprites/tabicon_coalition_idle.png": 196,
   "sprites/tabicon_sources_active.png": 229,
   "sprites/tabicon_sources_idle.png": 205,
   "sprites/tabicon_spins_active.png": 299,
@@ -503,7 +521,7 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 169674404,
+ "vramBytes": 169724148,
  "vramByDensity": {
   "bibi": {
    "3": 9697848,
@@ -623,13 +641,13 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 7583448,
-  "3": 13246296,
-  "4": 7583448,
-  "6": 13246296,
-  "7": 13246296,
-  "8": 7583448,
-  "9": 13246296
+  "2": 7633192,
+  "3": 13296040,
+  "4": 7633192,
+  "6": 13296040,
+  "7": 13296040,
+  "8": 7633192,
+  "9": 13296040
  },
  "vramSourcesByK": {
   "2": 259200,
@@ -903,7 +921,7 @@
    "golan": 2803640
   }
  },
- "vramTypical": 13246296,
+ "vramTypical": 13296040,
  "vramCastAll": 165175556,
  "vramPerPartner": {
   "sara": 4144800,
@@ -1354,6 +1372,11 @@
    "imported": 194
   },
   {
+   "file": "assets/sprites/booth_frame_tall.png",
+   "source": 265,
+   "imported": 194
+  },
+  {
    "file": "assets/sprites/brawl_cloud.png",
    "source": 2133,
    "imported": 1428
@@ -1424,6 +1447,21 @@
    "imported": 140
   },
   {
+   "file": "assets/sprites/button_white_default.png",
+   "source": 156,
+   "imported": 162
+  },
+  {
+   "file": "assets/sprites/button_white_disabled.png",
+   "source": 123,
+   "imported": 132
+  },
+  {
+   "file": "assets/sprites/button_white_pressed.png",
+   "source": 133,
+   "imported": 148
+  },
+  {
    "file": "assets/sprites/card_back_mark.png",
    "source": 121,
    "imported": 108
@@ -1452,6 +1490,11 @@
    "file": "assets/sprites/card_row_locked.png",
    "source": 144,
    "imported": 132
+  },
+  {
+   "file": "assets/sprites/card_row_silhouette.png",
+   "source": 148,
+   "imported": 152
   },
   {
    "file": "assets/sprites/card_source_affordable.png",
@@ -2094,6 +2137,11 @@
    "imported": 152
   },
   {
+   "file": "assets/sprites/chat_system_pill_navy.png",
+   "source": 148,
+   "imported": 140
+  },
+  {
    "file": "assets/sprites/chip_countdown.png",
    "source": 153,
    "imported": 154
@@ -2354,6 +2402,11 @@
    "imported": 496
   },
   {
+   "file": "assets/sprites/notice_frame.png",
+   "source": 198,
+   "imported": 156
+  },
+  {
    "file": "assets/sprites/opp_timer_fill.png",
    "source": 100,
    "imported": 138
@@ -2599,6 +2652,11 @@
    "imported": 172
   },
   {
+   "file": "assets/sprites/source_advisers_icon_sil_pale.png",
+   "source": 266,
+   "imported": 178
+  },
+  {
    "file": "assets/sprites/source_checkbook.png",
    "source": 743,
    "imported": 434
@@ -2612,6 +2670,11 @@
    "file": "assets/sprites/source_checkbook_icon_sil.png",
    "source": 145,
    "imported": 132
+  },
+  {
+   "file": "assets/sprites/source_checkbook_icon_sil_pale.png",
+   "source": 148,
+   "imported": 138
   },
   {
    "file": "assets/sprites/source_cigars.png",
@@ -2634,6 +2697,11 @@
    "imported": 170
   },
   {
+   "file": "assets/sprites/source_cigars_icon_sil_pale.png",
+   "source": 253,
+   "imported": 178
+  },
+  {
    "file": "assets/sprites/source_donor.png",
    "source": 871,
    "imported": 494
@@ -2649,6 +2717,11 @@
    "imported": 164
   },
   {
+   "file": "assets/sprites/source_donor_icon_sil_pale.png",
+   "source": 229,
+   "imported": 170
+  },
+  {
    "file": "assets/sprites/source_funds.png",
    "source": 615,
    "imported": 396
@@ -2662,6 +2735,11 @@
    "file": "assets/sprites/source_funds_icon_sil.png",
    "source": 132,
    "imported": 130
+  },
+  {
+   "file": "assets/sprites/source_funds_icon_sil_pale.png",
+   "source": 132,
+   "imported": 136
   },
   {
    "file": "assets/sprites/source_hitech.png",
@@ -2684,6 +2762,11 @@
    "imported": 172
   },
   {
+   "file": "assets/sprites/source_hitech_icon_sil_pale.png",
+   "source": 245,
+   "imported": 180
+  },
+  {
    "file": "assets/sprites/source_poison.png",
    "source": 634,
    "imported": 372
@@ -2696,6 +2779,11 @@
   {
    "file": "assets/sprites/source_poison_icon_sil.png",
    "source": 96,
+   "imported": 94
+  },
+  {
+   "file": "assets/sprites/source_poison_icon_sil_pale.png",
+   "source": 97,
    "imported": 94
   },
   {
@@ -2719,6 +2807,11 @@
    "imported": 172
   },
   {
+   "file": "assets/sprites/source_qatari_icon_sil_pale.png",
+   "source": 266,
+   "imported": 178
+  },
+  {
    "file": "assets/sprites/source_submarine.png",
    "source": 1084,
    "imported": 548
@@ -2732,6 +2825,11 @@
    "file": "assets/sprites/source_submarine_icon_sil.png",
    "source": 232,
    "imported": 172
+  },
+  {
+   "file": "assets/sprites/source_submarine_icon_sil_pale.png",
+   "source": 236,
+   "imported": 180
   },
   {
    "file": "assets/sprites/source_taxpayer.png",
@@ -2754,6 +2852,11 @@
    "imported": 172
   },
   {
+   "file": "assets/sprites/source_taxpayer_icon_sil_pale.png",
+   "source": 208,
+   "imported": 176
+  },
+  {
    "file": "assets/sprites/source_vat.png",
    "source": 16207,
    "imported": 4996
@@ -2772,6 +2875,11 @@
    "file": "assets/sprites/source_vat_icon_sil.png",
    "source": 160,
    "imported": 138
+  },
+  {
+   "file": "assets/sprites/source_vat_icon_sil_pale.png",
+   "source": 160,
+   "imported": 144
   },
   {
    "file": "assets/sprites/spin_s01.png",
@@ -3060,13 +3168,13 @@
   },
   {
    "file": "assets/sprites/tabicon_coalition_active.png",
-   "source": 191,
-   "imported": 170
+   "source": 201,
+   "imported": 190
   },
   {
    "file": "assets/sprites/tabicon_coalition_idle.png",
-   "source": 181,
-   "imported": 166
+   "source": 196,
+   "imported": 180
   },
   {
    "file": "assets/sprites/tabicon_sources_active.png",
@@ -3447,7 +3555,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 5340259,
+ "pckBytes": 5343129,
  "pckByAsset": {
   "bibi": {
    "3": 193236,
@@ -3690,5 +3798,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 15641823
+ "sourceTotal": 15645259
 }

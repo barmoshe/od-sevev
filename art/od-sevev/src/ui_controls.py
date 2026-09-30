@@ -87,7 +87,8 @@ def tabbar():
 # ------------------------------------------------------------------ tab icons 15x15
 LEG = {"k": "outline", "s": "silver", "l": "slate", "w": "white", "y": "gold", "Y": "gold_hi", "o": "gold_sh",
        "g": "grey", "p": "pink", "P": "pink_sh", "d": "suit_dk", "u": "suit", "t": "stone", "T": "stone_sh",
-       "v": "stamp", "i": "ink", "b": "ui_bubble", "B": "ui_bub_hi"}
+       "v": "stamp", "i": "ink", "b": "ui_bubble", "B": "ui_bub_hi",
+       "S": "ui_mute"}
 
 ICONS = {
     # a faucet on a wall, a coin dropping out of it: "sources" = what you tap
@@ -108,23 +109,26 @@ ICONS = {
         "........koyook.",
         ".........kkkk..",
     ],
-    # a chat bubble that says 61: "coalition" = the group chat, and the number it is for
+    # wave 10 (UX review 2, U8): two chat bubbles, the front one with three dots: "coalition" = the group chat. It said
+    # "61" until 2026-09-30, but a number in a chat bubble reads as an unread count, and at C1 the red badge covered the
+    # "6" ("1 1"). No digits now; the badge (top-left) sits over the back bubble, which it may hide without loss, and the
+    # dots stay clear of it (the badge's rounded corner leaves the first dot whole).
     "coalition": [
-        "kkkkkkkkkkkkkkk",
-        "kwwwwwwwwwwwwwk",
-        "kwwwwwwwwwwwwwk",
-        "kwwwiiwwiwwwwwk",
-        "kwwiwwwiiwwwwwk",
-        "kwwiiiwwiwwwwwk",
-        "kwwiwwiwiwwwwwk",
-        "kwwwiiwiiiwwwwk",
-        "kwwwwwwwwwwwwwk",
-        "kgggggggggggggk",
-        "kkkkkkkkkkkggkk",
+        "kkkkkkkkk......",
+        "kSSSSSSSk......",
+        "kSSSSSSSk......",
+        "kSSSSSSSk......",
+        "kSSSSSSSk......",
+        "kSSkkkkkkkkkkkk",
+        "kSSkwwwwwwwwwwk",
+        "kSSkwwwwwwwwwwk",
+        "kkkkwbbwbbwbbwk",
+        "...kwbbwbbwbbwk",
+        "...kwwwwwwwwwwk",
+        "...kggggggggggk",
+        "...kkkkkkkggkkk",
         "..........kgk..",
         "..........kk...",
-        "...............",
-        "...............",
     ],
     # a manila case file with a violet 'filed' mark and paper peeking: "cases"
     "cases": [
