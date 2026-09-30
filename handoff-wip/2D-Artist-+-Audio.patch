@@ -1,4 +1,76 @@
 # binary files changed (not carried):
+diff --git a/audio/od/cue-spec.md b/audio/od/cue-spec.md
+index d842403..a413184 100644
+--- a/audio/od/cue-spec.md
++++ b/audio/od/cue-spec.md
+@@ -29,6 +29,11 @@
+ > - The mix pass is in §3.1 and the payload in §7.
+ >
+ > **What did not change:** every v1.2 id, file, level and rule, the anthem guardrail (§6), and the music.
++>
++> **v1.4 (2026-09-30), the Audio Director: the slip stamp (the Animator's wave B).**
++> - New cue `slipStamp`: a rubber-stamp thunk on the ballot slip, on the slam's f0 (§4, §3.2). UI bus, 89 ms, one unpitched file.
++> - Hook: one line in `ui/shop.gd` where the spin tag's slam starts (§4.1).
++> - Nothing else changed: every v1.3 id, file and level, and the music. `stamp` stays Herzog's desk only (§5.6).
+ 
+ **Brief:** `sonic-brief` v1.1 (`artifacts/creative-pack/od-sevev/audio/sonic-brief.md`), with the resolutions in `engine/feasibility.md` (O-A1, O-A2, A3, A12, A13, A14, A18).
+ 
+@@ -212,7 +217,7 @@ Master ── HardLimiter (ceiling -1.0 dB, pre-gain 0, release 0.1 s) - nothing
+  ├─ SFX-Critical (0 dB, settings "צלילים") ← crit, suitcase, gavel, whistle, ultimatum, courtIn, motif, milestone
+  │   └─ Suitcase (0 dB) Panner, set at spawn from the suitcase x (-0.4..+0.4)
+  ├─ SFX-Frequent (0 dB, "צלילים")        ← tap, buy, stamp, coin, suitcaseMiss, gavelWeak, courtOut
+- ├─ UI (0 dB, "צלילים")                  ← chatPing, uiClick, cantAfford, shutter, trophy
++ ├─ UI (0 dB, "צלילים")                  ← chatPing, uiClick, cantAfford, shutter, trophy, slipStamp
+  └─ Voice (0 dB, "צלילים")               ← dubiSquawk, dubiBlip, dubiFlash
+ ```
+ 
+@@ -285,6 +290,21 @@ Master ── HardLimiter (ceiling -1.0 dB, pre-gain 0, release 0.1 s) - nothing
+ 
+ **The brawl sits 3 dB under a demand ping.** Two half-gain voices keep the pair at one ping's peak, so the family's files and `play_db` do not move. It is also right by meaning: a brawl is the partners' business, not a demand on the player.
+ 
++### 3.2 Mix pass v1.4: `slipStamp`
++
++Same method as §3.1. The heard values were measured on the `OD_AUDIO_PREVIEW` render.
++
++| Cue | Bus | Target | play_db | Burst (100 ms) | M-max (400 ms) | Heard sample / true peak | Length | Tail after the peak | Centroid |
++|---|---|---|---|---|---|---|---|---|---|
++| `slipStamp` | UI (ceiling −6) | burst −20.5 | −5.17 (target) | −20.50 | −26.52 | −6.2 / −6.2 dBTP | 89 ms | 71 ms | 0.69 kHz |
++
++**Why this level:**
++- **The stamp family:** `stamp` is heard at −18.5 burst (its −15 target is capped by the SFX-Frequent ceiling). `slipStamp` sits 2 dB under it because it repeats, once per spin purchase.
++- **The buy it lands with:** a spin purchase changes the tag, so the stamp usually lands with `buy` (−16 burst). It sits 4.5 dB under that. Its energy is 250-1500 Hz (the spectral centroid is 0.69 kHz), under `buy`'s 1-4 kHz blips, and it doesn't mask them.
++- **The UI floor:** `uiClick` and `cantAfford` are at −21. The stamp is 0.5 dB over them, so it reads as an event, not a click.
++- **The peak:** it reaches the UI ceiling (−6 dBFS) by design. The layers are staggered over 12 ms, which lowers the crest by about 2 dB against a single onset. Coincident with a `buy` peak it sums to about −1 dBFS before the master, inside the measured range of coincident transients (§3), and the limiter takes it.
++- **Not Herzog's stamp:** it has no 2.5 kHz thump, no pitched "ink" glide and no bell (§5.6). It is a dull pad-and-paper thunk: 89 ms against the stamp's 129 ms (355 ms with the bell).
++
+ ## 4. Cues
+ 
+ Levels, files and lengths are in the manifest. Bus and priority are repeated here for the voice allocator.
+@@ -322,6 +342,7 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
+ | `decline` (v1.3) | Liberman's "לא יושב" pill | SFX-Frequent / 2 / 1 | none. "No. No.": two flat TRI staccatos, 1 then ♭7 below. It closes, where `cantAfford` hangs on the leading tone. |
+ | `merge` (v1.3) | Golan's "לאחד" pill | SFX-Frequent / 2 / 1 | none. Two P2 voices a third apart glide into one note (♭3↑4, 5↓4). Then the stapler, Golan's prop. |
+ | `suspicionHot` (v1.3) | the thermometer crosses 75 % upward | SFX-Frequent / 2 / 1, never, no duck | none. A dry TRI gulp (5↓4) and one sweat drip. At most once per live crossing, never on a restore. |
++| `slipStamp` (v1.4) | the stamp on the ballot slip: a spin card's tag appears or changes on the same card ("1/5" → "2/5", "שחוק"), on the slam's f0 (the ×6 frame; on the cut in reduced motion) | UI / 1 / 2, steal oldest, no duck | none: one unpitched file, `slipStamp.res`, in every key. A paper slap (noise, band-pass 1.2 kHz), a dark pad (noise, low-pass 900 Hz), a short crushed TRI rubber knock (380→260 Hz) and a low TRI thud, staggered over 12 ms. A faint lift-off tick follows at 75 ms. |
+ 
+ **Babble plan:**
+ - `babbleContours` replaces `Audio.babble_plan`'s F-pentatonic table for canned lines.
+@@ -367,6 +388,7 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
+ | **The leader picker** (being built): browsing, long-press | silent (the first-tap gate: the pick is the first sound) | silent |
+ | The picker's commit / a re-pick / undo | `leaderPick` (with the leader id) / `leaderPick` / `leaderUndo` silent | **new cue** |
+ | A crit, per leader | `tapCrit`, then the leader's react event → `crit_for(id)` | **new mapping** (§4.2) |
++| **The slip stamp** (v1.4, animator wave B): a spin tag appears or changes on the same card | `slipStamp` (**hook**, 1 line in `ui/shop.gd`, where `tagSlam` starts; it reaches `main.audio_event` 3 levels up and is a no-op without it or without the cue) | **new cue** |
+ 
+ ### 4.2 Leader select: the engine API (spec §9.5, §10)
+ 
+@@ -462,6 +484,8 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
+ - Music and stingers are unchanged.
+ - **The web export:** `index.pck` grew from 18,327,576 to 18,535,096 bytes (+207,520, +1.1 %); `index.wasm` is unchanged.
+ 
++**Totals (v1.4):** +1 file, `slipStamp.res`, 1,551 bytes: SFX 817,279 → 818,830 bytes. The folder stays at 11.06 MB.
++
+ **How it fits:**
+ - The courthouse stems render at 22,044 Hz, where a step is 5,010 samples.
+ - The stingers render at 22,050 Hz.
 diff --git a/audio/od/cues.json b/audio/od/cues.json
 index fd7d401..2414b52 100644
 --- a/audio/od/cues.json
@@ -159,7 +231,7 @@ index 464c340..246f6bb 100644
                  if min(Lr.get("delay", 0) for Lr in layers) > 0.0005:
                      err("%s: a first sound must start at t=0 (no silent lead-in)" % cid)
 diff --git a/game/assets/audio/od/od_manifest.json b/game/assets/audio/od/od_manifest.json
-index 15d9622..7253d53 100644
+index 15d9622..c5f9270 100644
 --- a/game/assets/audio/od/od_manifest.json
 +++ b/game/assets/audio/od/od_manifest.json
 @@ -1419,6 +1419,31 @@
@@ -167,7 +239,7 @@ index 15d9622..7253d53 100644
  			}
  		},
 +		"slipStamp": {
-+			"burstMax": -20.33,
++			"burstMax": -20.5,
 +			"bus": "UI",
 +			"ducks": [],
 +			"files": {
@@ -178,16 +250,16 @@ index 15d9622..7253d53 100644
 +				}
 +			},
 +			"lengthMs": 88.5,
-+			"limitedBy": "ceiling",
++			"limitedBy": "target",
 +			"meaning": "The ballot slip is stamped (a spin card's tag appears or changes: '1/5' -> '2/5', 'שחוק').",
-+			"momentaryMax": -26.35,
-+			"play_db": -5.0,
++			"momentaryMax": -26.52,
++			"play_db": -5.17,
 +			"poly": 2.0,
 +			"priority": 1.0,
-+			"runtime": "On the slam's f0 (the x6 frame) in shop.gd; in reduced motion on the cut. It often lands with `buy` (the purchase that changed the tag): it sits 3.5 dB under it and below its 1-4 kHz blips. Repeats per purchase, so it stays 1 dB under the stamp's heard level.",
++			"runtime": "On the slam's f0 (the x6 frame) in shop.gd; in reduced motion on the cut. It often lands with `buy` (the purchase that changed the tag): it sits 4.5 dB under it, centred at 0.7 kHz under its 1-4 kHz blips. Repeats per purchase, so it sits 2 dB under the stamp's heard -18.5 (0.5 over uiClick).",
 +			"steal": "oldest",
 +			"target": {
-+				"lufs": -19.5,
++				"lufs": -20.5,
 +				"type": "burst"
 +			}
 +		},
