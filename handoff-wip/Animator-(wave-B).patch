@@ -1,10 +1,10 @@
 # binary files changed (not carried):
 diff --git a/game/tests/dev/ticker_pages.gd b/game/tests/dev/ticker_pages.gd
 new file mode 100644
-index 0000000..1edcd2c
+index 0000000..9a17d26
 --- /dev/null
 +++ b/game/tests/dev/ticker_pages.gd
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,77 @@
 +extends SceneTree
 +## Dev probe for the ticker pager (animator, M1): every ticker line in design/content.json broken
 +## into pages at the clip widths of the matrix (Ticker.paginate, the real text route), with the
@@ -16,23 +16,34 @@ index 0000000..1edcd2c
 +	_run.call_deferred()
 +
 +
++## Every ticker line (the content lint's ticker paths): the headlines, the ambient lines (v1, v2), each
++## leader's kit headlines, and every `ticker` / `tickerStart` / `onPaidTicker` string.
 +func _texts() -> Array:
-+	var c: Dictionary = Content.data()
 +	var out: Array = []
-+	for h: Variant in c.get("headlines", []):
-+		out.append(str((h as Dictionary).get("text", "")))
-+	for h: Variant in c.get("ambientHeadlines", []):
-+		out.append(str(h))
-+	for h: Variant in c.get("ambientHeadlinesV2", []):
-+		out.append(str((h as Dictionary).get("text", "")) if h is Dictionary else str(h))
-+	var ls: Variant = c.get("leaders", [])
-+	if ls is Dictionary:
-+		ls = (ls as Dictionary).values()
-+	for l: Variant in ls:
-+		if l is Dictionary:
-+			for t: Variant in (l as Dictionary).get("kit", {}).get("headlines", []):
-+				out.append(str((t as Dictionary).get("text", "")) if t is Dictionary else str(t))
-+	return out.filter(func(t: String) -> bool: return t != "")
++	_walk(Content.data(), false, out)
++	return out.filter(func(t: String) -> bool: return t != "" and not t.contains("{"))
++
++
++func _walk(v: Variant, in_ticker: bool, out: Array) -> void:
++	if v is Dictionary:
++		for k: Variant in v:
++			var key := str(k)
++			if key.begins_with("_"):
++				continue
++			var val: Variant = v[k]
++			var tick := in_ticker or key in ["headlines", "ambientHeadlines", "ambientHeadlinesV2"]
++			if key == "text" and in_ticker and val is String:
++				out.append(val)
++			elif key in ["ticker", "tickerStart", "onPaidTicker"] and val is String:
++				out.append(val)
++			else:
++				_walk(val, tick, out)
++	elif v is Array:
++		for x: Variant in v:
++			if x is String and in_ticker:
++				out.append(x)
++			else:
++				_walk(x, in_ticker, out)
 +
 +
 +func _pct(a: Array, p: float) -> float:
@@ -53,7 +64,7 @@ index 0000000..1edcd2c
 +		var per_head: Array = []
 +		var head_ms: Array = []
 +		for t: String in texts:
-+			var pages := Ticker.paginate(t, clip, 4, 2)
++			var pages: Array = Ticker.paginate(t, clip, 4, 2)
 +			per_head.append(float(pages.size()))
 +			var hm := 0.0
 +			for pg: Variant in pages:
@@ -61,7 +72,7 @@ index 0000000..1edcd2c
 +				for ln: String in pg:
 +					n += ln.length()
 +				chars.append(float(n))
-+				var ms := Ticker.dwell_ms(pg, "flavor")
++				var ms: float = Ticker.dwell_ms(pg, "flavor")
 +				dw.append(ms)
 +				hm += ms
 +			head_ms.append(hm)
