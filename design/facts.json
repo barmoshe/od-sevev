@@ -997,9 +997,7 @@
    "label": "F",
    "text": "Bennett 2026 and Yesh Atid run as one joint list, \"ביחד בראשות בנט\" (announced end of Apr 2026): Bennett No. 1, Lapid No. 2; Bennett's people get four of every seven slots and the two parties stay separate.",
    "aboutHe": "בסוף אפריל 2026 הוכרז על רשימה משותפת לבנט 2026 וליש עתיד בשם ביחד, שבראשה נפתלי בנט ובמקום השני יאיר לפיד, ובה ארבעה מכל שבעה מקומות לאנשי בנט.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "Ynet; Kan; Srugim; IDI",
    "url": "https://www.ynet.co.il/news/elections2026/article/sk6esqq00gx",
    "url2": "https://www.kan.org.il/content/kan-news/politic/1096328/",
@@ -1028,9 +1026,7 @@
    "label": "F",
    "text": "Under the 2021 rotation agreement, Lapid succeeded Bennett as prime minister on 1 Jul 2022, after the Knesset voted to dissolve.",
    "aboutHe": "לפי הסכם הרוטציה מ־2021, יאיר לפיד החליף את נפתלי בנט כראש הממשלה ב־1 ביולי 2022, אחרי שהכנסת הצביעה על פיזורה.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "Axios; Britannica; ToI",
    "url": "https://www.axios.com/2022/06/20/israel-bennett-lapid-dissolve-knesset-elections",
    "url2": "https://www.britannica.com/biography/Naftali-Bennett",
@@ -1049,9 +1045,7 @@
    "label": "A",
    "text": "Bennett kept living in his private Ra'anana home as PM; a TV report put the cost to the state at NIS 12-15 million (security posts, cameras, rented flats for security staff).",
    "aboutHe": "כראש ממשלה המשיך נפתלי בנט לגור בביתו ברעננה, ולפי דיווח בטלוויזיה ההחלטה עלתה למדינה 12 עד 15 מיליון ₪ בעמדות אבטחה, מצלמות ודירות לאנשי האבטחה.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; Haaretz",
    "url": "https://www.timesofisrael.com/decision-by-bennett-to-keep-living-at-home-could-cost-state-millions-tv/",
    "url2": "https://www.timesofisrael.com/liveblog_entry/bennetts-decision-to-remain-in-raanana-to-cost-state-millions/",
@@ -1076,9 +1070,7 @@
    "label": "F",
    "text": "Bennett co-founded the security start-up Cyota, which RSA Security bought in 2005 for $145 million.",
    "aboutHe": "נפתלי בנט היה ממייסדי חברת אבטחת המידע סייוטה, שנמכרה ב־2005 תמורת 145 מיליון דולר.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "Globes; Haaretz",
    "url": "https://en.globes.co.il/en/article-1000036328",
    "url2": "https://www.haaretz.com/1.4885059",
@@ -1283,9 +1275,7 @@
    "label": "F",
    "text": "Eisenkot announced on 30 Jun 2025 that he was leaving Gantz's National Unity party, and formally resigned from the Knesset on 2 Jul 2025; the seat passed to the next name on the party list.",
    "aboutHe": "ביוני 2025 הודיע גדי אייזנקוט שהוא עוזב את מפלגת המחנה הממלכתי, ובתחילת יולי 2025 התפטר מהכנסת.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; JPost; Haaretz; JNS",
    "url": "https://www.timesofisrael.com/in-political-shakeup-national-unity-no-2-eisenkot-set-to-leave-party-quit-knesset/",
    "url2": "https://www.jpost.com/israel-news/politics-and-diplomacy/article-859767",
@@ -1309,9 +1299,7 @@
    "label": "F",
    "text": "Eisenkot founded the party \"Yashar! with Eisenkot\" in September 2025, two months after resigning from the Knesset, with 120 founding members.",
    "aboutHe": "בספטמבר 2025 הקים גדי אייזנקוט את מפלגת ישר, עם 120 חברים מייסדים.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; JPost; INN; Wikipedia",
    "url": "https://www.timesofisrael.com/gadi-eisenkot-founds-new-party-two-months-after-resigning-from-knesset/",
    "url2": "https://www.jpost.com/israel-news/article-867656",
@@ -1342,9 +1330,7 @@
    "label": "F",
    "text": "Yashar's founding members include Yoav Horowitz, a former director-general of the Prime Minister's Office (under Netanyahu).",
    "aboutHe": "בין המייסדים של ישר נמצא יואב הורוביץ, לשעבר מנכ״ל משרד ראש הממשלה.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "JPost; Wikipedia; Ynet",
    "url": "https://www.jpost.com/israel-news/article-867656",
    "url2": "https://en.wikipedia.org/wiki/Yashar_(political_party)",
@@ -1663,7 +1649,12 @@
    "verifiedAt": "2026-09-30",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaderSelect.partnerProfiles.eisenkot",
+    "leaders.bennett.coalition.lineup.eisenkot",
+    "leaders.eisenkot.coalition.lineup.bennett",
     "leaders.eisenkot.coalition.lineup.liberman",
+    "leaders.eisenkot.kit.spins[5]",
+    "leaders.eisenkot.kit.ticker.te11",
     "leaders.liberman.coalition.lineup.eisenkot",
     "leaders.liberman.kit.story"
    ],
@@ -1705,9 +1696,120 @@
    "verifiedAt": "2026-09-30",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaders.eisenkot.kit.ticker.te15",
     "leaders.liberman.kit.ticker.tl12"
    ],
    "ref": 80
+  },
+  {
+   "id": "bibi-no-straight",
+   "label": "Q",
+   "text": "At a Likud campaign event Netanyahu held up a T-junction road sign to argue the election is only left or right: \"there is no straight, it's a bluff\", a pun on Eisenkot's party Yashar (\"straight\").",
+   "aboutHe": "באירוע של הליכוד הניף בנימין נתניהו שלט של צומת וטען שאין דרך ישרה, רק ימין או שמאל, בעקיצה למפלגת ישר.",
+   "notUsed": false,
+   "outlet": "Walla; Ynet",
+   "url": "https://news.walla.co.il/item/3868649",
+   "url2": "https://www.ynet.co.il/news/article/s17rbxgczx",
+   "date": "2026-09",
+   "heStatus": "unverified",
+   "verifyHebrew": true,
+   "gameRendering": "reported speech, no quote marks: the sign and \"אין ישר\" as its caption.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.eisenkot.kit.sources.t7",
+    "leaders.eisenkot.kit.sources.t7.firstOwned",
+    "leaders.eisenkot.kit.story",
+    "leaders.eisenkot.kit.ticker.te09"
+   ],
+   "ref": 81
+  },
+  {
+   "id": "tropper-yashar",
+   "label": "F",
+   "text": "MK Hili Tropper, a Blue and White founder, told Gantz on 3 May 2026 he was leaving the party (\"significant influence is no longer possible\"), and later joined Eisenkot's Yashar.",
+   "aboutHe": "במאי 2026 הודיע חילי טרופר לבני גנץ שהוא עוזב את כחול לבן, ובהמשך הצטרף למפלגת ישר של גדי אייזנקוט.",
+   "notUsed": false,
+   "outlet": "Haaretz; Walla; Israel Hayom",
+   "url": "https://www.haaretz.co.il/news/elections/2026-05-03/ty-article/0000019d-ed02-de36-abfd-fd2a25710000",
+   "url2": "https://news.walla.co.il/item/3835026",
+   "moreUrls": [
+    "https://www.israelhayom.co.il/news/politics/article/21361318"
+   ],
+   "date": "2026-05-03",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.eisenkot.kit.ticker.te13"
+   ],
+   "ref": 82
+  },
+  {
+   "id": "lapid-third-spot",
+   "label": "F",
+   "text": "Lapid said he was willing to drop from No. 2 to No. 3 on the joint Bennett list if Eisenkot joined; Eisenkot did not join and said uniting without him is \"not how you build partnerships\".",
+   "aboutHe": "באפריל 2026 הודיע יאיר לפיד שהוא מוכן לרדת למקום השלישי ברשימה המשותפת עם נפתלי בנט אם גדי אייזנקוט יצטרף, ואייזנקוט לא הצטרף.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Haaretz; Jerusalem Post",
+   "url": "https://www.timesofisrael.com/lapid-said-willing-to-drop-to-third-spot-on-ticket-with-bennett-if-eisenkot-joins/",
+   "url2": "https://www.haaretz.com/israel-news/elections/2026-04-28/ty-article/.premium/ex-pm-lapid-willing-to-drop-to-third-spot-in-bennett-led-party-if-eisenkot-joins/0000019d-d473-d851-af9f-feff72810000",
+   "moreUrls": [
+    "https://www.jpost.com/israel-news/politics-and-diplomacy/article-894432",
+    "https://www.timesofisrael.com/eisenkot-says-bennett-lapid-uniting-without-him-is-not-how-you-build-partnerships/"
+   ],
+   "date": "2026-04-28",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.lapid",
+    "leaders.eisenkot.coalition.lineup.lapid",
+    "leaders.eisenkot.kit.ticker.te14"
+   ],
+   "ref": 83
+  },
+  {
+   "id": "yesh-atid-exodus",
+   "label": "F",
+   "text": "In early Sep 2026 five sitting Yesh Atid MKs (Meir Cohen, Mickey Levy, Karine Elharrar, Debbie Biton, Tatiana Mazarsky), later also Michal Shir, said they would not run on the joint B'Yachad slate led by Bennett, as it slipped in the polls; all stayed party members.",
+   "aboutHe": "בספטמבר 2026 הודיעו כמה חברי כנסת מיש עתיד, ובהם קארין אלהרר, שלא ירוצו ברשימה המשותפת עם נפתלי בנט, ונשארו חברים במפלגה.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Jerusalem Post",
+   "url": "https://www.timesofisrael.com/wave-of-yesh-atid-mks-quit-election-run-as-joint-slate-with-bennett-falters-in-polls/",
+   "url2": "http://www.jpost.com/israel-election-2026/article-907497",
+   "moreUrls": [
+    "http://www.jpost.com/israel-election-2026/article-907609"
+   ],
+   "date": "2026-09",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.lapid",
+    "leaders.bennett.kit.story",
+    "leaders.bennett.kit.ticker.tb13"
+   ],
+   "ref": 84
+  },
+  {
+   "id": "no-merger-slates",
+   "label": "F",
+   "text": "On 7 Sep 2026 the parties filed their final slates with no last-minute mergers: Bennett's B'Yachad and Eisenkot's Yashar run separately.",
+   "aboutHe": "ב־7 בספטמבר 2026 הגישו המפלגות את רשימותיהן הסופיות, ומפלגות ביחד וישר רצות בנפרד.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Haaretz",
+   "url": "https://www.timesofisrael.com/no-last-minute-mergers-as-parties-submit-final-knesset-slates-for-election/",
+   "url2": "https://www.haaretz.com/israel-news/elections/2026-09-07/ty-article/.premium/no-centrist-merger-together-and-yashar-parties-to-run-for-election-separately/000001a0-7bf6-d3de-adf6-7ff78f5f0000",
+   "date": "2026-09-07",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bennett.kit.ticker.tb14"
+   ],
+   "ref": 85
   }
  ],
  "deliberatelyOut": [
