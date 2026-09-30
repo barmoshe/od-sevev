@@ -1,6 +1,6 @@
 # binary files changed (not carried):
 diff --git a/audio/od/cues.json b/audio/od/cues.json
-index fd7d401..5e547d0 100644
+index fd7d401..2414b52 100644
 --- a/audio/od/cues.json
 +++ b/audio/od/cues.json
 @@ -4678,6 +4678,109 @@
@@ -105,16 +105,16 @@ index fd7d401..5e547d0 100644
 +     }
 +    ]
 +   },
-+   "runtime": "On the slam's f0 (the x6 frame) in shop.gd; in reduced motion on the cut. It often lands with `buy` (the purchase that changed the tag): it sits 3.5 dB under it and below its 1-4 kHz blips. Repeats per purchase, so it stays 1 dB under the stamp's heard level.",
++   "runtime": "On the slam's f0 (the x6 frame) in shop.gd; in reduced motion on the cut. It often lands with `buy` (the purchase that changed the tag): it sits 4.5 dB under it, centred at 0.7 kHz under its 1-4 kHz blips. Repeats per purchase, so it sits 2 dB under the stamp's heard -18.5 (0.5 over uiClick).",
 +   "target": {
 +    "type": "burst",
-+    "lufs": -19.5
++    "lufs": -20.5
 +   }
    }
   }
  }
 diff --git a/audio/tools/compose_od.py b/audio/tools/compose_od.py
-index 464c340..3b6d25c 100644
+index 464c340..246f6bb 100644
 --- a/audio/tools/compose_od.py
 +++ b/audio/tools/compose_od.py
 @@ -1013,6 +1013,31 @@ def cues():
@@ -143,9 +143,9 @@ index 464c340..3b6d25c 100644
 +                      "bus": "UI", "priority": 1, "poly": 2, "steal": "oldest", "ducks": [], "pitch": {"type": "none"},
 +                      "variants": {"": slip},
 +                      "runtime": "On the slam's f0 (the x6 frame) in shop.gd; in reduced motion on the cut. It often lands "
-+                                 "with `buy` (the purchase that changed the tag): it sits 3.5 dB under it and below its "
-+                                 "1-4 kHz blips. Repeats per purchase, so it stays 1 dB under the stamp's heard level.",
-+                      "target": {"type": "burst", "lufs": -19.5}}
++                                 "with `buy` (the purchase that changed the tag): it sits 4.5 dB under it, centred at 0.7 kHz under its "
++                                 "1-4 kHz blips. Repeats per purchase, so it sits 2 dB under the stamp's heard -18.5 (0.5 over uiClick).",
++                      "target": {"type": "burst", "lufs": -20.5}}
      return {
          "version": "od-1",
          "_doc": "עוד סבב SFX cues. Owner: Audio Director. Written by audio/tools/compose_od.py; rendered by "
@@ -159,7 +159,7 @@ index 464c340..3b6d25c 100644
                  if min(Lr.get("delay", 0) for Lr in layers) > 0.0005:
                      err("%s: a first sound must start at t=0 (no silent lead-in)" % cid)
 diff --git a/game/assets/audio/od/od_manifest.json b/game/assets/audio/od/od_manifest.json
-index 15d9622..4a4de93 100644
+index 15d9622..7253d53 100644
 --- a/game/assets/audio/od/od_manifest.json
 +++ b/game/assets/audio/od/od_manifest.json
 @@ -1419,6 +1419,31 @@
@@ -167,7 +167,7 @@ index 15d9622..4a4de93 100644
  			}
  		},
 +		"slipStamp": {
-+			"burstMax": -22.13,
++			"burstMax": -20.33,
 +			"bus": "UI",
 +			"ducks": [],
 +			"files": {
@@ -180,7 +180,7 @@ index 15d9622..4a4de93 100644
 +			"lengthMs": 88.5,
 +			"limitedBy": "ceiling",
 +			"meaning": "The ballot slip is stamped (a spin card's tag appears or changes: '1/5' -> '2/5', 'שחוק').",
-+			"momentaryMax": -28.15,
++			"momentaryMax": -26.35,
 +			"play_db": -5.0,
 +			"poly": 2.0,
 +			"priority": 1.0,
