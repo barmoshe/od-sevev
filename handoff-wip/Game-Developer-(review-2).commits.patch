@@ -1,7 +1,7 @@
 From a368d7aaf54b08de55cf35929c7e1d993c5cd75f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:31:13 +0000
-Subject: [PATCH 1/2] feat(od-sevev): envelope flap on every sheet modal, the
+Subject: [PATCH 1/3] feat(od-sevev): envelope flap on every sheet modal, the
  glue rule, O3 hemicycle
 
 - Overlay.make_envelope: sheet_modal_body + sheet_modal_flap, f0/f1/f2 at 0/40/80 ms, title and close from f2, reduced motion f2 at once (review U1, style guide 17.2); SheetCard and FlashCard HEADER_H 96
@@ -752,7 +752,7 @@ index 17c2808..ca58266 100644
 From eb7f8244aed096f9de4b33cfc9522a2bb96965e4 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:41:04 +0000
-Subject: [PATCH 2/2] feat(od-sevev): booth on the picker, envelope on O5 and
+Subject: [PATCH 2/3] feat(od-sevev): booth on the picker, envelope on O5 and
  the sent line, review 2 engine fixes
 
 - picker: booth_frame around the grid where it costs no tile pixel (columns at 20, grid 20 over the strip), odPick.booth (mobile-first 5.14.2)
@@ -1691,6 +1691,75 @@ index 8027911..4caf505 100644
  	check(s.groupOpen, 'C1: the group opened');
  	await P.wait(300);
  	await shot(P, 'r5-chat-toast');
+-- 
+2.43.0
+
+
+From d5145f01f34f28827dbea1435f15702193ffef75 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 05:56:54 +0000
+Subject: [PATCH 3/3] fix(od-sevev): tap 1 retires Dubi's pre-tap dock line
+ (U9)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/scripts/main.gd                   |  1 +
+ game/scripts/ui/toasts.gd              | 13 +++++++++++++
+ game/tests/unit/test_review2_engine.gd |  3 ++-
+ 3 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index 13f60a3..5839ff5 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -992,6 +992,7 @@ func _set_mode(m: String, animate: bool) -> void:
+ 
+ 
+ func _start_from_title(tap_at: Vector2, tapped: bool) -> void:
++	toasts.drop_passive()   # review U9: Dubi's pre-tap dock line gives way to his first-tap bubble
+ 	_set_mode("main", true)
+ 	if tapped:
+ 		_handle_tap(tap_at)
+diff --git a/game/scripts/ui/toasts.gd b/game/scripts/ui/toasts.gd
+index 1dbac71..5d496e1 100644
+--- a/game/scripts/ui/toasts.gd
++++ b/game/scripts/ui/toasts.gd
+@@ -180,6 +180,19 @@ func shown() -> Dictionary:
+ 		"h": _plate.size.y * 4.0 if _plate.visible else 0.0}
+ 
+ 
++## Review U9: tap 1 retires Dubi's pre-tap dock line (shown or queued); from H1 his bubble speaks.
++func drop_passive() -> void:
++	for i in range(_chats.size() - 1, -1, -1):
++		if bool((_chats[i] as Dictionary).get("passive", false)):
++			var qi := i - (_chats.size() - _queue.size())
++			_chats.remove_at(i)
++			if qi >= 0 and qi < _queue.size():
++				_queue.remove_at(qi)
++				_tags.remove_at(qi)
++	if _passive and _t >= 0.0:
++		_t = maxf(_t, SHOW_MS - OUT_MS)   # its 120 ms fade-out, then the dock's gap
++
++
+ ## True while nothing is showing and nothing waits (the C1 ping's allowPing half).
+ func idle() -> bool:
+ 	return _t < 0.0 and _queue.is_empty()
+diff --git a/game/tests/unit/test_review2_engine.gd b/game/tests/unit/test_review2_engine.gd
+index fe11673..5c5ef2c 100644
+--- a/game/tests/unit/test_review2_engine.gd
++++ b/game/tests/unit/test_review2_engine.gd
+@@ -110,8 +110,9 @@ func test_u9_the_pre_tap_pick_line_goes_in_the_toast_dock() -> void:
+ 	var chat: Dictionary = tt._chats[tt._chats.size() - 1] if not tt._chats.is_empty() else {}
+ 	runner.check(str(chat.get("head", "")) == m.dubi_head() and m.dubi_head().begins_with("דובי"), "a chat-toast plate headed by Dubi (%s)" % chat.get("head", ""))
+ 	runner.check(bool(chat.get("passive", false)) and (chat.get("avatar", []) as Array).size() == 3, "with his face, and it takes no tap (tap 1 is the leader's)")
+-	# from H1 on, his bubble by the ticker
++	# from H1 on, his bubble by the ticker; tap 1 retires the dock line
+ 	_tap_leader()
++	runner.check(tt._chats.all(func(c: Dictionary) -> bool: return not bool(c.get("passive", false))), "tap 1 drops Dubi's queued dock line")
+ 	m._say_pick(Strings.s("DUBI_LEARNED"), Vector2(644, 300))
+ 	runner.check(tt.saying(), "after tap 1 the line is Dubi's bubble again")
+ 
 -- 
 2.43.0
 
