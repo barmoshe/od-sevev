@@ -326,6 +326,8 @@
   "sprites/share_receipt_bg.png": 2141,
   "sprites/share_result_frame.png": 3117,
   "sprites/sheet_modal.png": 320,
+  "sprites/sheet_modal_body.png": 225,
+  "sprites/sheet_modal_flap.png": 585,
   "sprites/sheet_plain.png": 164,
   "sprites/source_advisers.png": 16290,
   "sprites/source_advisers_d2.png": 8308,
@@ -501,7 +503,7 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 169657684,
+ "vramBytes": 169674404,
  "vramByDensity": {
   "bibi": {
    "3": 9697848,
@@ -621,13 +623,13 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 7566728,
-  "3": 13229576,
-  "4": 7566728,
-  "6": 13229576,
-  "7": 13229576,
-  "8": 7566728,
-  "9": 13229576
+  "2": 7583448,
+  "3": 13246296,
+  "4": 7583448,
+  "6": 13246296,
+  "7": 13246296,
+  "8": 7583448,
+  "9": 13246296
  },
  "vramSourcesByK": {
   "2": 259200,
@@ -901,7 +903,7 @@
    "golan": 2803640
   }
  },
- "vramTypical": 13229576,
+ "vramTypical": 13246296,
  "vramCastAll": 165175556,
  "vramPerPartner": {
   "sara": 4144800,
@@ -2562,6 +2564,16 @@
    "imported": 242
   },
   {
+   "file": "assets/sprites/sheet_modal_body.png",
+   "source": 225,
+   "imported": 182
+  },
+  {
+   "file": "assets/sprites/sheet_modal_flap.png",
+   "source": 585,
+   "imported": 402
+  },
+  {
    "file": "assets/sprites/sheet_plain.png",
    "source": 164,
    "imported": 154
@@ -3435,7 +3447,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 5339675,
+ "pckBytes": 5340259,
  "pckByAsset": {
   "bibi": {
    "3": 193236,
@@ -3678,5 +3690,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 15641013
+ "sourceTotal": 15641823
 }

@@ -18,25 +18,46 @@ LEG = I.LEG
 
 
 # ------------------------------------------------------------------ 1. sheet / modal
-def sheets():
-    W = H = 36
+SHEET_W = 36                                                  # the sheet before its wave-6 suit_hi edge (38 after)
+
+
+def sheet_flap_bottom(x, W=SHEET_W):
+    """v4: the flap's lowest flag row in column x (pre-pad): the band's row 18, 0-2 rows deeper toward the centre."""
+    cx = (W - 1) / 2
+    return 18 + int(round(2 * (1 - abs(x - cx) / cx)))
+
+
+def sheet_modal_layer(bottom=sheet_flap_bottom, band=True):
+    """The sheet_modal art, 38x38 with the F9 edge. `bottom(x)` is the flap's lowest flag row per column (pre-pad
+    coordinates); band=False draws the flap-less body (`sheet_modal_body`, wave 9). The defaults are sheet_modal."""
+    W = H = SHEET_W
     L = Layer(W, H)
     L.rect(0, 0, W, H, "ui_panel")
-    L.rect(1, 1, W - 2, 18, "flag")                           # the title band: flag blue (v3), v4 the envelope's flap
-    L.vline(1, 1, H - 2, "ui_bub_hi"); L.hline(1, W - 2, 1, "flag_hi")
+    cols = range(1, W - 1)
     cx = (W - 1) / 2
-    for x in range(1, W - 1):                                 # v4: the flap's point, 0-2 rows deeper toward the centre
-        d = int(round(2 * (1 - abs(x - cx) / cx)))
-        for y in range(19, 19 + d):
-            L.set(x, y, "flag")
-        L.set(x, 19 + d, "white")                             # the white stripe follows the flap's edge
-        L.set(x, 20 + d, "ui_scrim")
+    if band:
+        for x in cols:                                        # the title band: flag blue (v3), v4 the envelope's flap
+            for y in range(1, bottom(x) + 1):
+                L.set(x, y, "flag")
+    L.vline(1, 1, H - 2, "ui_bub_hi"); L.hline(1, W - 2, 1, "flag_hi" if band else "ui_bub_hi")
+    if band:
+        for x in cols:                                        # v4: the white stripe follows the flap's edge
+            b = bottom(x)
+            inner = x + 1 if x < cx else x - 1                # the neighbour toward the point
+            lo = max(b + 1, bottom(inner) if 0 < inner < W - 1 else b + 1)   # a steep edge stays one connected line
+            for y in range(b + 1, lo + 1):
+                L.set(x, y, "white")
+            L.set(x, lo + 1, "ui_scrim")                      # its shadow
     L.hline(1, W - 2, H - 2, "ui_scrim"); L.vline(W - 2, 2, H - 2, "ui_scrim")
     chamfer(L, 0, 0, W, H, 2)
     outline_inplace(L)
     # wave 6 (F9): a 1 px suit_hi edge OUTSIDE the outline, following the chamfer, so the dark sheet lifts off the
     # near-black scrim (3.6:1 on the scrimmed dark; the ui_panel body alone was 1.1:1). The PNG grows 1 px per side.
-    L = L.outlined("suit_hi", pad=1)
+    return L.outlined("suit_hi", pad=1)
+
+
+def sheets():
+    L = sheet_modal_layer()
     W, H = L.w, L.h
     save(L, "sheet_modal", "sheet", slice=[7, 23, 7, 7], content=[7, 23, W - 14, H - 30], label="white",
          notes="Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round "

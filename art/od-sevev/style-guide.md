@@ -12,7 +12,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
 
 | Deliverable | File |
 |---|---|
-| UI kit, 255 pieces (mobile-first wave 7, 2026-09-29: 13 + the 4 lanes redrawn; leader select 2026-09-29: 30; wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
+| UI kit, 261 pieces (wave 9, 2026-09-30: 2, the envelope flap `sheet_modal_body` + `sheet_modal_flap`; mobile-first wave 7, 2026-09-29: 13 + the 4 lanes redrawn; leader select 2026-09-29: 30; wave 1: 89, wave 2: 96, wave 3: 6, wave 4: 6 Dubi strips, wave 5: 5 + the 15 spin icons redrawn, wave 6: 7 + `icon_close` redrawn, wave 6 polish: the 3 no-photo stand-in pieces + `trophy_moon`, `sheet_modal` redrawn), 1x art px | `out/ui/<group>/*.png` (groups: chat, controls, meters, widgets, events, props, share, key; wave 2: sheet, ticker, cards, spins, trophies, ftue, stage, ceremony) |
 | 9-slice / frame / pivot manifest | `ui-kit.json` |
 | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
 | App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (master `icon-128-art.png` = 64 art px at d 2) |
@@ -190,7 +190,8 @@ flag_hi, flag_dk, sky, white, cream, gold, red, ink, outline, rim, stamp).
 - **The ballot slip (פתק):** `card_plate` is a blank white slip with a fold (the icon lies on it; outline vs white 17.4:1);
   `pick_random` was already a folded slip. Blank or "?" only: never a real party's ballot letters (מחל, פה, …).
 - **The blue envelope (המעטפה הכחולה):** `sheet_modal`'s title band is the envelope's flap, pointed 2 rows deeper at
-  the centre with the white stripe following it; the body is the v4 `ui_panel` blue. `envelope_blue` (14x10, new) is the
+  the centre with the white stripe following it; the body is the v4 `ui_panel` blue. Wave 9 (§17.2) splits it into
+  `sheet_modal_body` + the 3-frame `sheet_modal_flap` (sealed V → lifting → the band), so a modal opens like one. `envelope_blue` (14x10, new) is the
   envelope as a prop; the OG's confetti mixes blank envelopes into the white slips.
 - **The cardboard booth (קלפי):** `booth_frame` (40x40, new, 9-slice [6, 10, 6, 4]) is the picker grid's frame: off-white
   cardboard, the two side wings folded back, a blank flag-blue header strip. For UX / the engine to adopt.
@@ -685,6 +686,32 @@ drawn *around* (wings) and *over* (lane, plaza) the stage on its own x4 grid. Pr
 | A3 the XL picker heads | `avatar_pick_<c>_d3` 96, `_d2` 64 (TA render-down, `showcase/src/build.py` `avatar_pick_xl`) | First-generation crops from the ref (never an upscale of the 32), the leader's locked d 3 palette, binary alpha, the same neutral `rim` ring (4 px: 8 logical at the picker's 2 logical per px, the 32's weight at x4) and cream disc. |
 | Animator: brawl cue | `brawl_cloud_cue` 26x20 x 4 | `brawl_cloud`'s loop redrawn at half size so the stage cue draws at x4 (the grid) instead of x2: the same puffs, shading bands, sleeves with cuffs and fists, shoes, the flying page and star; limbs keep their fist inside the frame. |
 | Animator: court echo | `court_window` `spots` (data) | Moved out of the sky band (the phones crop art rows < ~110 under Row A and the toast dock) to the right side, clear of the leader: Balfour (167, 167) behind the wall, right of the lamp; Knesset (158, 166) on the lawn at the colonnade's end; Washington (162, 152) in the horizon band right of the mansion. |
+
+### 17.2 Wave 9: the envelope flap (`src/wave9.py`, the Animator's wave-B ask, 2026-09-30)
+
+`sheet_modal`'s title band is the v4 envelope's flap, baked into a 9-slice, so nothing could move it. Wave 9 splits
+it into a body and a flap layer; `sheet_modal` itself does not change. Proof: `proofs/kit-w9-flap.png` (per row: the
+body, f0, f1, f2 over the body, today's `sheet_modal`; at 38x38, 158x64 and 158x120 art px).
+
+| Piece | Size | What |
+|---|---|---|
+| `sheet_modal_body` | 38x38, 9-slice [7, 23, 7, 7] | The envelope without its flap: the same edge, outline, bevels, body and content box. Never drawn alone. |
+| `sheet_modal_flap` | 38x24 x 3, 3-slice [7, 0, 7, 0] | f0 **sealed**: the flap as a V from the corners down to the point, like the back of a closed envelope. f1 **lifting**: the sides at mid-band. f2 **open**: the flap lifted flat into the title band where the title is printed = sheet_modal's band, pixel for pixel. Transparent below the flap. |
+
+**Rules:**
+- **Body + f2 = `sheet_modal`, every pixel.** `wave9.py` asserts it, so the rest look is the approved v4 look.
+- **The V lives in the stretched centre only.** The fixed 7-column margins stay flat, and the V is one even
+  staircase across the centre columns (point at the middle two). So it stretches into a clean, symmetric V at any
+  modal width, not a bent one. The white edge stays one connected line on the steep frame, with its shadow under it.
+- **"Open" is the band, not a flap pointing up.** The Animator's sketch had the open flap pointing up. But the rest
+  frame has to be the approved band (the title sits in it), and 24 rows have no room above the hinge. So the motion
+  is the envelope's V flap unfolding into the band: sealed → lifting → open. At 40 ms a frame it reads as "the
+  envelope opens", and it lands on the look Bar approved.
+- **24 rows:** the flap's shadow at the point is on art row 23, the first row of `sheet_modal`'s stretched centre.
+  In the 9-slice that row stretches into a dark slab under the point (visible in the proof's right column). In the
+  flap strip it stays one art row, so the flap path also fixes that slab. Flagged for the developer: moving every
+  modal to body + flap f2 removes it everywhere.
+- **Blank:** no seal, no emblem, no text, no party mark. It is a civic object (§2.4).
 
 ## 18. Foundations (referenced, not paraphrased)
 
