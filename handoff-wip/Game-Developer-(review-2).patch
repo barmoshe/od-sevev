@@ -96,7 +96,7 @@ index 3f5cfa8..910f3f3 100644
  					scrim.modulate.a = backdrop * minf(1.0, 1.0 - pow(1.0 - minf(1.0, t / 200.0), 2.0))
  		else:
 diff --git a/game/scripts/ui/views/view_election.gd b/game/scripts/ui/views/view_election.gd
-index a990ede..2a62811 100644
+index a990ede..d8b19f4 100644
 --- a/game/scripts/ui/views/view_election.gd
 +++ b/game/scripts/ui/views/view_election.gd
 @@ -13,6 +13,11 @@ extends SheetCard
@@ -156,6 +156,61 @@ index a990ede..2a62811 100644
  	if LeaderUi.short() != "":   # rtl-map §8.8 (D33): the round's leader under the title
  		leader_text = para(Strings.s("ELECT_LEADER", {"short": LeaderUi.short(), "party": LeaderUi.party()}), C_TEXT, true, 1)
  	para(Strings.s(mood_key(n)), C_MUTED, true, 2)
+@@ -65,6 +101,26 @@ func build() -> ElectionCard:
+ 	_y = Ui.snap(_y - PARA_GAP + PAD, 4) + BTN_H + BTN_GAP
+ 	_specs.append([Rect2(88, _y, 544, BTN_H), Strings.s("ELECT_CANCEL"), "kit_secondary", func() -> void: cancel("close")])
+ 	_y += BTN_H
++	# §5.14.1 "when it fits": laid out with the hemicycle; if the card is then taller than the modal
++	# band, the hemicycle is left out and the card is exactly the one without it
++	if with_hemi and laid_h() > room():
++		var dy := (hemi_y + hemi_h + HEMI_GAP) - (HEADER_H + PAD)
++		for p: PxText in paras:
++			p.position.y -= dy
++		for sp: Array in _specs:
++			var r: Rect2 = sp[0]
++			r.position.y -= dy
++			sp[0] = r
++		_y -= dy
++		with_hemi = false
++	if with_hemi:
++		hemicycle = Hemicycle.new()
++		hemicycle.scale_px = HEMI_SCALE
++		hemicycle.n = hemi_seats(s)
++		var g2 := grow_half()
++		var cwc := CARD_W + 2.0 * g2
++		hemicycle.position = Vector2(CARD_X - g2 + L.floor4((cwc - hemicycle.size().x) / 2.0), hemi_y)
++		_holder.add_child(hemicycle)
+ 	finish()
+ 	go_button = buttons[0]
+ 	cancel_button = buttons[1]
+@@ -79,12 +135,26 @@ func default_focus() -> int:
+ 
+ 
+ func on_opened() -> void:
+-	publish_web({"ready": ready_state})
++	publish_web({"ready": ready_state, "hemicycle": hemi_view()})
++
++
++## §5.14.1 publish: the hemicycle's [x, y, w, h, n] in viewport logical px, or null when left out.
++func hemi_view() -> Variant:
++	if hemicycle == null:
++		return null
++	var p := to_view(hemicycle.position + _holder.position)
++	var sz := hemicycle.size()
++	return [p.x, p.y, sz.x, sz.y, hemicycle.n]
+ 
+ 
+ func update_view(_dt_ms: float) -> void:
+ 	if committed or go_button == null:
+ 		return
++	if hemicycle != null:
++		var hn := hemi_seats(host.state)
++		if hn != hemicycle.n:
++			hemicycle.n = hn
++			hemicycle.queue_redraw()
+ 	var ready: bool = (host.d as Economy.Derived).evolve_enabled
+ 	if ready != ready_state:
+ 		ready_state = ready
 diff --git a/game/scripts/ui/views/view_flash.gd b/game/scripts/ui/views/view_flash.gd
 index 231e3e2..10568fa 100644
 --- a/game/scripts/ui/views/view_flash.gd
