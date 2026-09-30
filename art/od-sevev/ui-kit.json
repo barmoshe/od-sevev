@@ -4500,33 +4500,33 @@
    "id": "lane_balfour",
    "group": "stage",
    "file": "out/ui/stage/lane_balfour.png",
-   "w": 32,
+   "w": 192,
    "h": 28,
-   "notes": "Suitcase-lane floor for the balfour stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. v4: warm Jerusalem stone (Washington: pale concrete); the base keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon. plaza_<era> continues the floor below (art row 258 down)."
+   "notes": "Suitcase-lane floor for the balfour stage: a 192x28 TILE (2026-09-30, manual test A1: redrawn as Jerusalem-stone paving with the plaza, one layout; was 32x28 with a 1-px ink press cable that read as a black wavy line above the ticker). The stage art's apron lip on rows 0-3, then courses of slabs in running bond (random lengths, 2-3 stone tones, a lit top-left edge, chisel flecks) with short, broken, mortar-tone joints; the last course continues into plaza_<era>'s rows 0-4. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 192; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Every slab tone keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon."
   },
   {
    "id": "lane_courthouse",
    "group": "stage",
    "file": "out/ui/stage/lane_courthouse.png",
-   "w": 32,
+   "w": 192,
    "h": 28,
-   "notes": "Suitcase-lane floor for the courthouse stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. v4: warm Jerusalem stone (Washington: pale concrete); the base keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon. plaza_<era> continues the floor below (art row 258 down)."
+   "notes": "Suitcase-lane floor for the courthouse stage: a 192x28 TILE (2026-09-30, manual test A1: redrawn as Jerusalem-stone paving with the plaza, one layout; was 32x28 with a 1-px ink press cable that read as a black wavy line above the ticker). The stage art's apron lip on rows 0-3, then courses of slabs in running bond (random lengths, 2-3 stone tones, a lit top-left edge, chisel flecks) with short, broken, mortar-tone joints; the last course continues into plaza_<era>'s rows 0-4. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 192; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Every slab tone keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon."
   },
   {
    "id": "lane_knesset",
    "group": "stage",
    "file": "out/ui/stage/lane_knesset.png",
-   "w": 32,
+   "w": 192,
    "h": 28,
-   "notes": "Suitcase-lane floor for the knesset stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. v4: warm Jerusalem stone (Washington: pale concrete); the base keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon. plaza_<era> continues the floor below (art row 258 down)."
+   "notes": "Suitcase-lane floor for the knesset stage: a 192x28 TILE (2026-09-30, manual test A1: redrawn as Jerusalem-stone paving with the plaza, one layout; was 32x28 with a 1-px ink press cable that read as a black wavy line above the ticker). The stage art's apron lip on rows 0-3, then courses of slabs in running bond (random lengths, 2-3 stone tones, a lit top-left edge, chisel flecks) with short, broken, mortar-tone joints; the last course continues into plaza_<era>'s rows 0-4. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 192; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Every slab tone keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon."
   },
   {
    "id": "lane_washington",
    "group": "stage",
    "file": "out/ui/stage/lane_washington.png",
-   "w": 32,
+   "w": 192,
    "h": 28,
-   "notes": "Suitcase-lane floor for the washington stage: a 32x28 TILE (redrawn 2026-09-29 for the mobile-first layout, A1: slab/board joints, the press cable, a flyer; no row is one colour any more). Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 32; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. v4: warm Jerusalem stone (Washington: pale concrete); the base keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon. plaza_<era> continues the floor below (art row 258 down)."
+   "notes": "Suitcase-lane floor for the washington stage: a 192x28 TILE (2026-09-30, manual test A1: redrawn as Jerusalem-stone paving with the plaza, one layout; was 32x28 with a 1-px ink press cable that read as a black wavy line above the ticker). The stage art's apron lip on rows 0-3, then courses of slabs in running bond (random lengths, 2-3 stone tones, a lit top-left edge, chisel flecks) with short, broken, mortar-tone joints; the last course continues into plaza_<era>'s rows 0-4. Draw it at x4 from the stage art's apron lip (art row 230 of stage_<era>, i.e. the art origin's y + 920 logical px) across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 192; diorama._place_lane does this for any tile width), above the stage art and pads, under the critters and the Suitcase. 28 rows = art rows 230-257 = S-112..S. Every slab tone keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon."
   },
   {
    "id": "laundry_bag",
@@ -4588,36 +4588,36 @@
    "id": "plaza_balfour",
    "group": "stage",
    "file": "out/ui/stage/plaza_balfour.png",
-   "w": 128,
-   "h": 96,
-   "notes": "The plaza in front of the balfour stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_balfour) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
+   "w": 192,
+   "h": 192,
+   "notes": "The plaza in front of the balfour stage (UX mobile-first A1): a 192x192 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_balfour) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 192), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: Jerusalem-stone paving (2026-09-30, manual test A1; wave5.Paving, one layout with lane_<era>, whose last course continues into rows 0-4): slabs of random length in 2-3 stone tones within one value step, short broken mortar joints (never black, no line longer than one slab), chisel flecks, a few decorative details (<= 3:1 against the stone); no row is one colour.",
    "artRow": 258
   },
   {
    "id": "plaza_courthouse",
    "group": "stage",
    "file": "out/ui/stage/plaza_courthouse.png",
-   "w": 128,
-   "h": 96,
-   "notes": "The plaza in front of the courthouse stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_courthouse) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
+   "w": 192,
+   "h": 192,
+   "notes": "The plaza in front of the courthouse stage (UX mobile-first A1): a 192x192 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_courthouse) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 192), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: Jerusalem-stone paving (2026-09-30, manual test A1; wave5.Paving, one layout with lane_<era>, whose last course continues into rows 0-4): slabs of random length in 2-3 stone tones within one value step, short broken mortar joints (never black, no line longer than one slab), chisel flecks, a few decorative details (<= 3:1 against the stone); no row is one colour.",
    "artRow": 258
   },
   {
    "id": "plaza_knesset",
    "group": "stage",
    "file": "out/ui/stage/plaza_knesset.png",
-   "w": 128,
-   "h": 96,
-   "notes": "The plaza in front of the knesset stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_knesset) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
+   "w": 192,
+   "h": 192,
+   "notes": "The plaza in front of the knesset stage (UX mobile-first A1): a 192x192 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_knesset) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 192), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: Jerusalem-stone paving (2026-09-30, manual test A1; wave5.Paving, one layout with lane_<era>, whose last course continues into rows 0-4): slabs of random length in 2-3 stone tones within one value step, short broken mortar joints (never black, no line longer than one slab), chisel flecks, a few decorative details (<= 3:1 against the stone); no row is one colour.",
    "artRow": 258
   },
   {
    "id": "plaza_washington",
    "group": "stage",
    "file": "out/ui/stage/plaza_washington.png",
-   "w": 128,
-   "h": 96,
-   "notes": "The plaza in front of the washington stage (UX mobile-first A1): a 128x96 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_washington) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.",
+   "w": 192,
+   "h": 192,
+   "notes": "The plaza in front of the washington stage (UX mobile-first A1): a 192x192 TILE, both axes. Draw it at x4 from stage-art row 258 (right under lane_washington) down to the canvas bottom, across the whole canvas width, x-phase: tile col 0 on stage-art col 0 (mod 192), above the stage art (it replaces the art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: Jerusalem-stone paving (2026-09-30, manual test A1; wave5.Paving, one layout with lane_<era>, whose last course continues into rows 0-4): slabs of random length in 2-3 stone tones within one value step, short broken mortar joints (never black, no line longer than one slab), chisel flecks, a few decorative details (<= 3:1 against the stone); no row is one colour.",
    "artRow": 258
   },
   {

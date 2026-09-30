@@ -280,10 +280,10 @@
   "sprites/icon_sound_off.png": 190,
   "sprites/icon_sound_on.png": 191,
   "sprites/icon_trash.png": 134,
-  "sprites/lane_balfour.png": 315,
-  "sprites/lane_courthouse.png": 277,
-  "sprites/lane_knesset.png": 289,
-  "sprites/lane_washington.png": 278,
+  "sprites/lane_balfour.png": 1194,
+  "sprites/lane_courthouse.png": 1174,
+  "sprites/lane_knesset.png": 1283,
+  "sprites/lane_washington.png": 834,
   "sprites/laundry_bag.png": 251,
   "sprites/laundry_shirt.png": 172,
   "sprites/laundry_shorts.png": 123,
@@ -302,10 +302,10 @@
   "sprites/pick_tile_pressed.png": 174,
   "sprites/pick_tile_selected.png": 216,
   "sprites/plate_silhouette.png": 245,
-  "sprites/plaza_balfour.png": 1203,
-  "sprites/plaza_courthouse.png": 1143,
-  "sprites/plaza_knesset.png": 1114,
-  "sprites/plaza_washington.png": 1049,
+  "sprites/plaza_balfour.png": 5906,
+  "sprites/plaza_courthouse.png": 3937,
+  "sprites/plaza_knesset.png": 6552,
+  "sprites/plaza_washington.png": 3390,
   "sprites/prop_bill.png": 140,
   "sprites/prop_calculator.png": 375,
   "sprites/prop_chair.png": 478,
@@ -521,7 +521,7 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 169724148,
+ "vramBytes": 170189044,
  "vramByDensity": {
   "bibi": {
    "3": 9697848,
@@ -641,13 +641,13 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 7633192,
-  "3": 13296040,
-  "4": 7633192,
-  "6": 13296040,
-  "7": 13296040,
-  "8": 7633192,
-  "9": 13296040
+  "2": 8098088,
+  "3": 13760936,
+  "4": 8098088,
+  "6": 13760936,
+  "7": 13760936,
+  "8": 8098088,
+  "9": 13760936
  },
  "vramSourcesByK": {
   "2": 259200,
@@ -921,7 +921,7 @@
    "golan": 2803640
   }
  },
- "vramTypical": 13296040,
+ "vramTypical": 13760936,
  "vramCastAll": 165175556,
  "vramPerPartner": {
   "sara": 4144800,
@@ -2353,23 +2353,23 @@
   },
   {
    "file": "assets/sprites/lane_balfour.png",
-   "source": 315,
-   "imported": 232
+   "source": 1194,
+   "imported": 720
   },
   {
    "file": "assets/sprites/lane_courthouse.png",
-   "source": 277,
-   "imported": 212
+   "source": 1174,
+   "imported": 742
   },
   {
    "file": "assets/sprites/lane_knesset.png",
-   "source": 289,
-   "imported": 212
+   "source": 1283,
+   "imported": 762
   },
   {
    "file": "assets/sprites/lane_washington.png",
-   "source": 278,
-   "imported": 212
+   "source": 834,
+   "imported": 482
   },
   {
    "file": "assets/sprites/laundry_bag.png",
@@ -2463,23 +2463,23 @@
   },
   {
    "file": "assets/sprites/plaza_balfour.png",
-   "source": 1203,
-   "imported": 574
+   "source": 5906,
+   "imported": 3244
   },
   {
    "file": "assets/sprites/plaza_courthouse.png",
-   "source": 1143,
-   "imported": 508
+   "source": 3937,
+   "imported": 1962
   },
   {
    "file": "assets/sprites/plaza_knesset.png",
-   "source": 1114,
-   "imported": 530
+   "source": 6552,
+   "imported": 3458
   },
   {
    "file": "assets/sprites/plaza_washington.png",
-   "source": 1049,
-   "imported": 492
+   "source": 3390,
+   "imported": 1406
   },
   {
    "file": "assets/sprites/prop_bill.png",
@@ -3555,7 +3555,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 5343129,
+ "pckBytes": 5352933,
  "pckByAsset": {
   "bibi": {
    "3": 193236,
@@ -3798,5 +3798,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 15645259
+ "sourceTotal": 15663861
 }

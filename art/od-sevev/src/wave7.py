@@ -1,7 +1,7 @@
 """Wave 7: the art the mobile-first layout needs (ux/mobile-first-layout.md §10, 2026-09-29).
 
-  A1  lane_<era>                (wave5.py, redrawn 32x28)  the Suitcase lane, now with horizontal detail
-  A1  plaza_<era>               128x96 TILE  the floor in front of the stage, from art row 258 to the screen bottom
+  A1  lane_<era>                (wave5.py, 192x28)  the Suitcase lane: the same paving as the plaza
+  A1  plaza_<era>               192x192 TILE the floor in front of the stage, from art row 258 to the screen bottom
   A2  wing_<era>_l / _r         Wx230       the stage's side wings: art rows 0-229 continued past columns 0 / 179
   --  brawl_cloud_cue           26x20 x 4   the brawl cloud cut for the stage cue at x4 (the Animator's ask)
   --  court_window spots        (wave2.py)  moved to art rows the phones keep (the Animator's ask)
@@ -19,9 +19,10 @@ stage-art coordinates on a canvas that wraps x mod W (`Wrap`), so an element tha
 tree, a protester, a bench, a sign) is continued exactly and repeats every W; wing-native elements never cross
 the wing's own edges. `seam_report()` checks the column next to the art against the art's edge column.
 
-Plaza (A1). The rows under the lane were flat padBottom. The plaza tile is the apron's own base colour with
-slab / board / tile / carpet texture at one value step, plus the odd flyer, a drain grate and the press cable
-leaving the lane. No row is one colour (UX S8's dead-band rule), no barrier or fence (do/don't 13: nothing that
+Plaza (A1). The rows under the lane were flat padBottom. The plaza tile is Jerusalem-stone paving (2026-09-30:
+wave5.Paving, one layout with the lane): slabs of random length in 2-3 stone tones, short broken mortar joints,
+chisel flecks, a square big stone, a repair, the odd flyer and a drain grate (the press cable is gone: it read as
+worms). No row is one colour (UX S8's dead-band rule), no barrier or fence (do/don't 13: nothing that
 reads as a border fence), no gold, no ribbons, no text. It is scenery, not UI: it shows before tap 1 and under
 the picker's scrim, and the panels cover it the rest of the time.
 """
@@ -31,11 +32,12 @@ import random
 from pix import Layer
 from kit import save, strip, outline_inplace, ROOT, PROOFS
 from palette import rgb
+from wave5 import Paving, draw_courses, PAVE_W, PLAZA_H
 
 ERAS = ("balfour", "knesset", "courthouse", "washington")
 WING_H = 230                 # art rows 0-229 (the lane starts at 230)
 PLAZA_ROW = 258              # the first art row under the lane (lane rows 230-257)
-PW, PH = 128, 96             # the plaza tile
+PW, PH = PAVE_W, PLAZA_H      # the plaza tile, 192x192 (wave5: the floor's period)
 WING_W = {"balfour": 20, "knesset": 22, "courthouse": 60, "washington": 36}
 SW = 180
 
@@ -213,87 +215,99 @@ WINGS = {"balfour": wing_balfour, "knesset": wing_knesset, "courthouse": wing_co
 
 
 # ------------------------------------------------------------------ the plaza (A1)
-PLAZA = {
-    # era: (base, joint, light, details...)  -- base = the apron (stages[era].padBottom)
-    # v4: warm Jerusalem limestone (Washington: pale concrete), the lane's swatches
-    "balfour":    ("stone_sh", "paper",    "stone", "white", "pink_sh"),   # stone slabs in lamp light, pale mortar, flyers
-    "knesset":    ("stone",    "stone_sh", "white", "paper", "wood"),      # sunlit stone slabs
-    "courthouse": ("paper",    "stone_sh", "white", "stone_sh", "white"),  # polished limestone tiles
-    "washington": ("silver",   "grey",     "white", "slate", "grey"),      # concrete panels
-}
+# 2026-09-30 (manual test A1: "the plaza reads as worms, not stone"): redrawn from the shared paving layout
+# (wave5.Paving), so the lane and the plaza are one floor. The old tile's 1-px ink press cable meandered down the
+# tile and lined up across copies into snakes; its 32-px running bond in one tone with full-length pale seams read
+# as a brick wall. Now: slabs of random length in 2-3 stone tones, short broken mortar joints, chisel flecks, one
+# square "big stone" or two across two courses (Jerusalem stone), and a few small details. 192x192: a phone shows
+# at most 1.1 copies across and 1 down before tap 1, so no repeat can be spotted.
+
+def _big_stone(L, pav, r, ci):
+    """A square stone across courses ci and ci+1 (the plaza's): replaces a slab of course ci and cuts course ci+1,
+    with its own joints. Returns False when a neighbour would be cut into a sliver (< 5 px)."""
+    cfg = pav.cfg
+    s0, rows0, slabs0 = pav.plaza[ci]
+    s1, rows1, slabs1 = pav.plaza[ci + 1]
+    cand = [sl for sl in slabs0 if 16 <= sl[1] <= 26]
+    if not cand:
+        return False
+    a, n, _ = r.choice(cand)
+    b = a + n
+    j1 = [x for x, _, _ in slabs1]
+    for j in j1:
+        d = (j - a) % PW
+        if 0 < d < n and (d < 5 or n - d < 5):
+            return False
+        if 0 < (a - j) % PW < 5 or 0 < (j - b) % PW < 5:
+            return False
+    t = cfg["big"]
+    rows = rows0 + [s1] + rows1
+    for y in rows:
+        for i in range(n):
+            L.set((a + i) % PW, y % PH, t)
+    fleck = cfg["fleck"].get(t, cfg["mortar"])
+    face = [(a + 1 + i, y) for y in rows[1:] for i in range(n - 1)]
+    for (x, y) in r.sample(face, len(face) * 3 // 100):
+        L.set(x % PW, y % PH, fleck)
+    light = cfg["light"].get(t, "white")
+    for i in range(1, n * 2 // 3):
+        L.set((a + i) % PW, rows[0] % PH, light)
+    for y in rows[1:4]:
+        L.set((a + 1) % PW, y % PH, light)
+    for y in rows:                                          # its two joints, the full height of both courses
+        L.set(a % PW, y % PH, cfg["mortar"])
+        L.set(b % PW, y % PH, cfg["mortar"])
+    return True
+
+
+def _grate(L, x, y, w, h, body, slot):
+    L.rect(x, y, w, h, body)
+    for xx in range(x + 1, x + w - 1, 2):
+        L.vline(xx, y + 1, y + h - 2, slot)
+
+
+def _flyer(L, x, y, w=4, h=3):
+    L.rect(x, y, w, h, "white")
+    L.hline(x, x + w - 1, y + h - 1, "paper")              # its fold / the shade under the far edge
 
 
 def plaza(era):
-    """One plaza tile. 128x96: at most ~1.7 x 3 tiles show on a phone, so the litter never reads as wallpaper.
-    Courses are 12 rows (the lane's run 4, 5, 6, 7 near the stage; the plaza is nearer still), slabs 32 wide in
-    running bond, so it reads as a floor seen from above, not a brick wall: the joints are one value step from the
-    base, and a slab's lit edge is broken (worn)."""
-    import math
-    base, joint, light, d1, d2 = PLAZA[era]
+    """One plaza tile, 192x192: the era's paving (wave5.Paving) plus a few small details, all decorative
+    (<= 3:1 against the stone), never lettered, never gold, no barrier or fence, no line longer than one slab."""
+    pav = Paving(era)
+    cfg = pav.cfg
     L = Layer(PW, PH)
-    L.rect(0, 0, PW, PH, base)
+    L.rect(0, 0, PW, PH, cfg["tones"][0][0])
+    draw_courses(L, pav, pav.plaza, seed=5800 + ERAS.index(era))
     r = random.Random(ERAS.index(era) + 580)
-    course = 12
-    if False:                                               # v4: no carpet any more (Washington is concrete panels)
-        pass
-    else:
-        for c in range(PH // course):
-            y0 = c * course
-            L.hline(0, PW - 1, y0, joint)                  # the seam
-            if era == "washington":                         # v4 concrete panels: a grid, 64 wide
-                step, off = 64, 0
-            elif era == "courthouse":                       # corridor tiles: a grid, 32 wide
-                step, off = 32, 0
-            else:                                           # paving slabs: running bond, 32 wide
-                step, off = 32, (c % 2) * 16 + 5
-            for x in range(off, PW, step):
-                L.vline(x, y0 + 1, y0 + course - 1, joint)
-                L.set(x + 1, y0 + 1, light)                 # the slab's lit top-left corner
-            for x in range(0, PW):                          # the lit top edge, broken (worn)
-                if (x * 7 + c * 5) % 13 < 3 and L.get(x, y0 + 1) == base:
-                    L.set(x, y0 + 1, light)
-    # scuffs: one-step 50 % checker patches, so no two slabs are the same
-    for _ in range(9):
-        x, y = r.randrange(0, PW - 7), r.randrange(0, PH - 4)
-        for yy in range(y + 1, y + 3):
-            for xx in range(x, x + r.choice((4, 5, 7))):
-                if (xx + yy) % 2 == 0 and L.get(xx, yy) == base:
-                    L.set(xx, yy, light)
-    # per-era litter, sparse and irregular (never lettered, never gold)
+    if cfg["big"]:
+        placed, last = 0, -9
+        for ci in r.sample(range(1, len(pav.plaza) - 2), len(pav.plaza) - 3):
+            if placed == 2:
+                break
+            if abs(ci - last) >= 5 and _big_stone(L, pav, r, ci):
+                placed, last = placed + 1, ci
+    # per-era details, sparse and irregular (never lettered, never gold)
     if era == "balfour":
-        for (x, y, w, h, c) in ((14, 17, 4, 3, d1), (83, 40, 3, 2, d2), (101, 71, 4, 3, d1), (39, 62, 3, 2, "suit_dk"),
-                                (66, 86, 3, 2, d2), (118, 22, 3, 2, "suit_dk")):
-            L.rect(x, y, w, h, c)
-            L.set(x, y, "suit_hi" if c == d1 else c)
-        L.rect(56, 28, 8, 5, "wood_dk")                     # a drain grate
-        for x in range(57, 63, 2):
-            L.vline(x, 29, 31, "ink")
+        _grate(L, 118, 78, 9, 5, "slate", "suit_hi")             # a drain grate (slate on stone: 1.4:1)
+        for (x, y) in ((27, 38), (151, 131), (83, 171)):
+            _flyer(L, x, y)                                        # blank protest flyers (white on stone: 2.4:1)
+        L.set(62, 117, "white"); L.set(63, 117, "paper")           # a torn corner
     elif era == "knesset":
-        for (x, y) in ((28, 30), (92, 65)):                 # spike-tape Xs (stage marks)
-            for (dx, dy) in ((0, 0), (2, 0), (1, 1), (0, 2), (2, 2)):
-                L.set(x + dx, y + dy, "hair_br")
-        L.rect(70, 16, 4, 3, d2); L.set(70, 16, "hair_br")  # a dropped order paper, face down
-        L.rect(16, 80, 3, 2, d2)
+        _grate(L, 42, 112, 9, 5, "stone_sh", "blonde_sh")
+        _flyer(L, 140, 58, 5, 4)                                   # a dropped order paper, face down
+        for (x, y) in ((96, 24), (22, 168), (171, 150)):           # olive leaves off the lawn (green on stone 2.0:1)
+            L.set(x, y, "green"); L.set(x + 1, y, "green")
     elif era == "courthouse":
-        L.rect(22, 45, 5, 3, d1); L.set(22, 45, "suit")     # dropped pages
-        L.rect(90, 19, 3, 2, d1)
-        L.rect(76, 80, 4, 2, d1)
-        for (x, y) in ((9, 29), (61, 65), (115, 7), (104, 52)):   # floor-polish glints
-            L.set(x, y, d2)
+        _flyer(L, 35, 70, 4, 3)                                    # dropped pages
+        _flyer(L, 139, 150, 3, 2)
+        for (x, y) in ((70, 20), (160, 88), (18, 132), (110, 176)):   # floor-polish glints: a short white diagonal
+            for k in range(3):
+                L.set(x + k, y - k, "white")
     else:
-        L.rect(47, 44, 4, 2, "suit_dk"); L.set(47, 44, "suit")     # a dropped lanyard card, blank
-        L.rect(100, 79, 3, 2, "suit_dk")
-    # the press cable, leaving the lane and wandering down the plaza: a slow meander that enters and leaves at the
-    # same x (so it tiles vertically), 1 px, stepped (never a diagonal staircase thicker than 1 px)
-    cab = "ink" if base != "ink" else "outline"
-    prev = None
-    for y in range(PH):
-        x = 24 + round(10 * math.sin(2 * math.pi * y / PH) + 5 * math.sin(4 * math.pi * y / PH + 1.0) - 5 * math.sin(1.0))
-        if prev is not None:
-            for xx in range(min(prev, x), max(prev, x) + 1):
-                L.set(xx, y, cab)
-        L.set(x, y, cab)
-        prev = x
+        L.rect(60, 90, 4, 2, "grey"); L.set(60, 90, "slate")      # a dropped lanyard card, blank (grey on silver 1.6:1)
+        for (x, y) in ((140, 30), (150, 36), (22, 150), (98, 166), (176, 118)):   # blossom petals (pink on silver 1.7:1)
+            L.set(x, y, "pink")
     return L
 
 
@@ -392,9 +406,12 @@ def build():
         save(plaza(era), f"plaza_{era}", "stage", mode="tile", extra={"artRow": PLAZA_ROW},
              notes=f"The plaza in front of the {era} stage (UX mobile-first A1): a {PW}x{PH} TILE, both axes. Draw it at x4 "
                    f"from stage-art row {PLAZA_ROW} (right under lane_{era}) down to the canvas bottom, across the whole "
-                   "canvas width, x-phase: tile col 0 on stage-art col 0 (mod 128), above the stage art (it replaces the "
+                   f"canvas width, x-phase: tile col 0 on stage-art col 0 (mod {PW}), above the stage art (it replaces the "
                    "art's flat apron rows 258-319 and the padBottom below them), under everything else. Scenery: "
-                   "base = the apron colour (stages[era].padBottom) with one-value-step texture; no row is one colour.")
+                   "Jerusalem-stone paving (2026-09-30, manual test A1; wave5.Paving, one layout with lane_<era>, whose "
+                   "last course continues into rows 0-4): slabs of random length in 2-3 stone tones within one value "
+                   "step, short broken mortar joints (never black, no line longer than one slab), chisel flecks, a few "
+                   "decorative details (<= 3:1 against the stone); no row is one colour.")
     frames = [brawl_cue_frame(k) for k in range(4)]
     save(strip(frames), "brawl_cloud_cue", "events", frames=4, frame_w=CW, pivot=[CW // 2, CH - 2],
          notes="The brawl cloud cut for the STAGE CUE (the Animator's ask): brawl_cloud's 4-frame loop redrawn at "

@@ -13042,25 +13042,25 @@
   "lane_balfour": {
    "id": "lane_balfour",
    "group": "stage",
-   "w": 32,
+   "w": 192,
    "h": 28
   },
   "lane_courthouse": {
    "id": "lane_courthouse",
    "group": "stage",
-   "w": 32,
+   "w": 192,
    "h": 28
   },
   "lane_knesset": {
    "id": "lane_knesset",
    "group": "stage",
-   "w": 32,
+   "w": 192,
    "h": 28
   },
   "lane_washington": {
    "id": "lane_washington",
    "group": "stage",
-   "w": 32,
+   "w": 192,
    "h": 28
   },
   "laundry_bag": {
@@ -13112,29 +13112,29 @@
   "plaza_balfour": {
    "id": "plaza_balfour",
    "group": "stage",
-   "w": 128,
-   "h": 96,
+   "w": 192,
+   "h": 192,
    "artRow": 258
   },
   "plaza_courthouse": {
    "id": "plaza_courthouse",
    "group": "stage",
-   "w": 128,
-   "h": 96,
+   "w": 192,
+   "h": 192,
    "artRow": 258
   },
   "plaza_knesset": {
    "id": "plaza_knesset",
    "group": "stage",
-   "w": 128,
-   "h": 96,
+   "w": 192,
+   "h": 192,
    "artRow": 258
   },
   "plaza_washington": {
    "id": "plaza_washington",
    "group": "stage",
-   "w": 128,
-   "h": 96,
+   "w": 192,
+   "h": 192,
    "artRow": 258
   },
   "sweat_drop": {
@@ -15834,34 +15834,34 @@
    ]
   },
   "lane_balfour.png": {
-   "bytes": 315,
-   "sha": "c3dbd57e8ecb8807",
+   "bytes": 1194,
+   "sha": "11580e4a81ac2c8a",
    "size": [
-    32,
+    192,
     28
    ]
   },
   "lane_courthouse.png": {
-   "bytes": 277,
-   "sha": "3ab16b8298f0942c",
+   "bytes": 1174,
+   "sha": "ee59c4f000b94a48",
    "size": [
-    32,
+    192,
     28
    ]
   },
   "lane_knesset.png": {
-   "bytes": 289,
-   "sha": "cc7563c25dc29f43",
+   "bytes": 1283,
+   "sha": "4521f3d9f8f5ae9b",
    "size": [
-    32,
+    192,
     28
    ]
   },
   "lane_washington.png": {
-   "bytes": 278,
-   "sha": "614d720bc06a16b3",
+   "bytes": 834,
+   "sha": "7371a203a512509d",
    "size": [
-    32,
+    192,
     28
    ]
   },
@@ -16010,35 +16010,35 @@
    ]
   },
   "plaza_balfour.png": {
-   "bytes": 1203,
-   "sha": "0aa7e669386ae897",
+   "bytes": 5906,
+   "sha": "e24271524a22e989",
    "size": [
-    128,
-    96
+    192,
+    192
    ]
   },
   "plaza_courthouse.png": {
-   "bytes": 1143,
-   "sha": "3ee3e686fc96ab52",
+   "bytes": 3937,
+   "sha": "d93cd8eaa8f4bc67",
    "size": [
-    128,
-    96
+    192,
+    192
    ]
   },
   "plaza_knesset.png": {
-   "bytes": 1114,
-   "sha": "217917c05f756ce1",
+   "bytes": 6552,
+   "sha": "fd3fedc504219646",
    "size": [
-    128,
-    96
+    192,
+    192
    ]
   },
   "plaza_washington.png": {
-   "bytes": 1049,
-   "sha": "3903e61e5fbcc214",
+   "bytes": 3390,
+   "sha": "6b415217ae3b8181",
    "size": [
-    128,
-    96
+    192,
+    192
    ]
   },
   "prop_bill.png": {
@@ -17741,6 +17741,6 @@
   },
   "renderDown": "creative-pack art/showcase/src (rig.py, build.py, cast.py)",
   "stagesAndWordmark": "creative-pack art/src (locations.py, wordmark.py)",
-  "renderedFrom": "refs"
+  "renderedFrom": "approved out/"
  }
 }
