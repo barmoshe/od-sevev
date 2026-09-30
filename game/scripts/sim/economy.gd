@@ -394,9 +394,11 @@ static func is_revealed(s: GameState, id: String) -> bool:
 
 ## Revealed producer ids in tier order, the single silhouette id ("" if none: a real row with its
 ## price), and `fill`: every later unrevealed id when producerReveal.fillSilhouettes is on (UX
-## mobile-first-layout §5.4, G1: priceless, untappable rows that fill the pane; only once a source
-## is revealed, and never past the content's last source).
-static func producer_rows(s: GameState) -> Dictionary:
+## mobile-first-layout §5.4, G1: priceless, untappable rows that fill the pane; never past the
+## content's last source). Merge review M2: the fill keys on "card 1 is shown" (`card1_shown`, the
+## pane is up), not only on a source revealed by money, so a round begun with an empty purse never
+## shows a lone locked row over an empty pane.
+static func producer_rows(s: GameState, card1_shown := false) -> Dictionary:
 	var revealed := PackedStringArray()
 	var silhouette := ""
 	var fill := PackedStringArray()
@@ -410,7 +412,7 @@ static func producer_rows(s: GameState) -> Dictionary:
 			silhouette = id
 		elif fill_on:
 			fill.append(id)
-	if revealed.is_empty():
+	if revealed.is_empty() and not card1_shown:
 		fill = PackedStringArray()
 	return {"revealed": revealed, "silhouette": silhouette, "fill": fill}
 

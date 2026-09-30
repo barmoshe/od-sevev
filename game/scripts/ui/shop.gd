@@ -425,7 +425,7 @@ func _models(s: GameState, t: String) -> Array:
 			out.append({"kind": "producer", "id": Content.producer_ids()[0]})
 			_append_teasers(out, s)
 			return out
-		var pr := Economy.producer_rows(s)
+		var pr := Economy.producer_rows(s, _visible_shop)   # M2: the fill keys on card 1 being shown
 		for id: String in pr["revealed"]:
 			out.append({"kind": "producer", "id": id})
 		if pr["silhouette"] != "":
@@ -458,7 +458,19 @@ static func _append_teasers(out: Array, _s: GameState) -> void:
 ## hint; the rest are wordless slips fading down the pane (never under 0.2: each still paints its
 ## slip and silhouette, so the pane keeps no empty band, §0 rule 4).
 static func teaser_alpha(j: int) -> float:
+	if j >= TEASER_PLATE_ONLY_FROM:
+		return 0.2   # M3: the plate alone, at the floor
 	return maxf(0.2, pow(0.62, float(maxi(0, j))))
+
+
+## Merge review M3 (D57): teaser j ≥ 3 (the rows on the 0.2 floor, 0.62³ = 0.24) draws only its
+## silhouette plate on the ruled white field: no slip fill and no slip outline, so the pane reads
+## "one hint, two fading slips, then a few faint figures on the sheet", not a grid of empty forms.
+const TEASER_PLATE_ONLY_FROM := 3
+
+
+static func teaser_slip(j: int) -> bool:
+	return j < TEASER_PLATE_ONLY_FROM
 
 
 ## B9: the name line of teaser j: the hint on the first, nothing on the rest (six identical
@@ -757,6 +769,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			became_affordable.emit()
 	v["afford"] = afford
 	Ui.set_nine_frame(v["panel"], _card_sprite(m["kind"], afford), 0)
+	(v["panel"] as NinePatchRect).visible = not teaser or teaser_slip(int(m.get("t", 0)))   # M3: the plate alone past j 3
 	# the pill: gold when affordable (pressed while held); a sunken well with a dim fill otherwise
 	var pill_id := "button_secondary_default" if is_btn else ("pay_pill_pressed" if (afford and v["pressed"]) else ("pay_pill_default" if afford else "pay_pill_track"))
 	Ui.set_nine_frame(v["pill"], Art.sprite_or(pill_id), 0)

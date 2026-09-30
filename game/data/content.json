@@ -29,6 +29,7 @@
    "sprite": "source_taxpayer",
    "icon": "source_taxpayer_icon",
    "silhouette": "source_taxpayer_icon_sil",
+   "revealAtRunEarned": 0,
    "slot": [
     "F7",
     "F3"
