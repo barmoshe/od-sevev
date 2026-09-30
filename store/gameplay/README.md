@@ -10,6 +10,11 @@ Two cuts of the same take, 1080x1920, 68 s, each with its cover (the last frame,
   `music/glitch-warfare.wav` from its bar 10 (19.63 s; ~132.7 BPM, a bar is 1.808 s). Plan
   `plan-liberman.json`, cut and copy in `src/reel_liberman.py`. No Mordechai David in this one.
 
+- `od-sevev-teaser-mix.mp4` (the one-minute teaser, 59.7 s): a mixed montage on the iPhone, no
+  candidate in focus; the leaders alternate by side through one game loop. Cut in
+  `src/reel_mix.py`, six short captures from `plans/plan-<leader>.json` plus the Ben Gvir and
+  Liberman takes, `music/glitch-warfare.wav` from its bar 10.
+
 Mordechai David is an easter egg in the Ben Gvir cuts: two short peeks, one of them on the cover.
 
 ## How it is made
