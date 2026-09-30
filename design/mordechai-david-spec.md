@@ -1,7 +1,8 @@
 # mechanic-spec: Mordechai David, "החסימה" (a stage event)
 
-**Owner:** Game Designer · **Date:** 2026-09-30 (session 5) · **Status:** designed; content and facts
-landed behind the flag; the engine effect and the presenter are for the Game Developer.
+**Owner:** Game Designer · **Date:** 2026-09-30 (session 5) · **Status:** built and on for launch (session 6,
+2026-09-30): the `blockade` effect, the presenter (`game/scripts/ui/street_figure.gd`), the lint and the flag.
+§7.2 and §9 say where the build departs from the design, and why.
 **Consumers:** Game Developer (effect, presenter, flag flip), 2D Artist (sprite, §10), Animator (beats, §9),
 Audio Director (cue intent, §11), UX Designer (card header, toast keys, §8).
 **Data:** `design/content.json` `events[]` id `mordechai`; `design/facts.json` refs 73-75 and 47;
@@ -56,9 +57,12 @@ His blockade is never a buff, so the game never pays the player for blocking pro
   stay small. This is kept as an option for Bar (§13, D2), not as a spec.
 
 **His mark:** in front of the **right** crowd group, feet on the floor line (art y 216), centred on art x ≈ 150
-(the group spans 126-178). That is clear of the leader's hit box, which ends near art x 137. The ref faces
-screen-left, toward the leader, so he needs no mirroring. He enters from beyond the right edge of the canvas
-(the wing on wide screens), in front of the barrier and behind every money source and the leader (z-order §9.3).
+(the group spans 126-178). That is clear of the leader's hit box, which ends near art x 137. **The sprite faces
+screen-right as drawn** (CONTRACT §4, checked against the frames on the s5 art sheet): on his mark he faces the
+right crowd, unflipped, his back three-quarters to the leader, and his low arm is the leader-side one. The walk-in
+heads left, so it is drawn with `flip_h`; the walk-out heads right, as drawn. He enters from beyond the right edge
+of the canvas (the wing on wide screens), in front of the barrier and behind every money source and the leader
+(z-order §9.3).
 
 ## 3. Which rounds: all 8 leaders, with three copy skins
 
@@ -160,6 +164,22 @@ the partner is benched and uncounted for 20 s; it never picks more than 4 seats;
 qualifies; it isn't eligible with the gate open; it isn't eligible outside Balfour.
 
 ### 7.2 The presenter (there is no event view today)
+
+**As built (session 6):** the figure is `StreetFigure` in a diorama layer over the stage art and under the money
+sources and the leader. It follows the live `blockade` effect, so a load, an election or a reset needs no extra
+wiring. The card is **a chat-style toast, not a card overlay**: his avatar face and the skinned `text` on two
+lines (`Toasts.show_chat_toast(..., lines = 2, dock_at = "lane")`, the 132 two-line plate), then a plain toast
+with `blockedText` or `aloneText`, and `endText` on `eventEnd`. The ticker runs `copy.ticker`, which names him,
+at the front of its queue, right under the toast. All three toasts dock in the **lane band** under the
+leader's feet (D62's band): a top-dock toast mid-round covers the leader's head on the SE (375×667; seen in the
+forced-event look), and the lane is clear of his hit on every device. A first build put `name · role` on a
+head row over the line; it made a three-row plate that covered the leader on the SE, so `copy.name` and
+`copy.role` are unused on screen (the ticker carries the name). Why a toast at all: no card view for any event
+exists yet (the finding below), and a new overlay in the pane would have to clear every layout rule the pane
+and toasts already pass (mobile-first §5.9, S18). It has no buttons; a tap dismisses it. `STREET_HEADER` is not
+used. Dev hook:
+`?dev=1` + `window.odDevEvent = "mordechai"` fires it now.
+
 **Finding:** no view consumes `{ev: "event"}` today. `main.gd` `_on_politics_event` routes only to the chat,
 court and thermometer, so **every shipped card (Lapid, Eisenkot, Liberman, Bennett, Golan) and every stage
 event (the defector, Kaia) fires silently** in the live build: their sim effects apply with no card, and the
@@ -227,6 +247,14 @@ Widths are measured in Sevev 9 at ×4 with the worst-case partner name "גלית
 
 ## 9. Motion beats (Animator)
 
+**As built (session 6):** the 2D Artist delivered real strips (CONTRACT §4), and the build uses them in place of
+the table below: `walk` 8 @ 10 carried at 31 art px/s from off-canvas right (flip_h), `block_in` 4 @ 12 from f1
+(plant, `mdBlock` at its end), `block` 3 @ 6 held, one `glance` 10 @ 10 three seconds into the hold, then
+`block_in` backwards and `walk` out to the right. The release starts early enough (the plant's length plus the
+walk) for him to be off the canvas as the effect ends. There is no bob (the walk's feet stay planted) and no
+`md_crowd_phones` overlay (optional; not drawn). Reduced motion: a 150 ms fade on the mark in `block` f0, frozen.
+Cue markers go to the Audio runtime by name (`mdEnter`, `mdBlock`, `mdRelease`, `mdExit`); none has a sound yet.
+
 The runtime is frame-by-frame cast strips (`motion/state-graph-cast.md` conventions). He needs **no walk strip**:
 he uses the `LeaderWalk` approach, carrying the idle strip with a 1-ap bob every other 125 ms beat.
 
@@ -264,7 +292,9 @@ frozen on f0 and no crowd phones, and fades out at `eventEnd`.
 **Ref:** `scratchpad/refs/mordechai-david.png` (Bar's caricature: an orange cap, an orange T-shirt, dark jeans,
 dark sneakers, a short beard, facing screen-left 3/4). Render it down through the cast pipeline like the other
 cast (`creative-pack/art/showcase/src/cast.py` landmarks, d3 and d2).
-- **Scale:** the generic cast rig's density, but **shorter on stage than the leader**: at most 75% of the
+- **Scale:** *(as rendered: 96 art px, the cast's one-scale rule; he stands 13 art px under Bibi's hat, and
+  drawing him behind the leader keeps the leader the focal figure. The line below is the original brief.)* The
+  generic cast rig's density, but **shorter on stage than the leader**: at most 75% of the
   leader's idle height, so the leader stays the focal figure. He stands at the barrier line, mid-ground.
   Suggested 36-40 ap tall, feet at art y 216.
 - **Prop: a phone, and only a phone** (he films himself). A short selfie stick is optional. **No** flag, sign,
