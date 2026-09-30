@@ -88,33 +88,33 @@ twice. The second time was "stop, update the handoff, push to main". Everything 
 **Last clean run:** `tools/test.sh` 439/439 and lint 0/0, on `f4dfaad` before main's parallel merge
 (`59a04bf`, which added a `main.gd` line and picker tests). **Re-run the suite on main first.**
 
+## Part 3 (Bar: "read the updated main and continue")
+- `29a7dc8`: the ambient `target` filter. It was the untested patch; now tested and on main. A roast
+  skips the round of the leader it roasts, and the "all" roasts skip the opposition leaders' rounds.
+- `0184419`: Sara on the Balfour stage.
+  - **Placement:** Bibi's round only, Bar's option B, right of the leader (mocks in
+    `creative-pack/art/sara-options/`).
+  - **Behaviour:** she huffs 150 ms after the S01 purchase, with an 8 s cooldown, and is off stage
+    during the blockade.
+  - **Code:** `ui/sara_mark.gd`; tested by `test_sara_mark`.
+- This commit: `leaderSelect.neutralCopy` is finally read. `Meta.perks()` and `Meta.achievements()`
+  give neutral names outside Bibi's round: no wand and no DOHA sticker for the opposition.
+- **Last run:** `tools/test.sh` 444/444 and lint 0/0 on main.
+
 ## Open items, in order
-1. **Re-run `tools/test.sh` on main.** The one run after the merge overlapped an edit (439 passed,
-   3 failed), so it proves nothing either way.
-2. **The ambient `target` filter, not on main:** `handoff-wip/ambient-target-filter (untested).patch`.
-   - **What it does:**
-     - a shared roast aimed at a leader (x04 "ליברמן לא יושב…") skips that leader's own round;
-     - the "all" roasts (x13, x14, x21, x22: "האופוזיציה…") skip the opposition leaders' rounds, where
-       that bloc is the player's own.
-   - **Plus:** a test in `test_ambient_and_headlines_per_leader`.
-   - **Why it is not on main:** it was never tested cleanly. Apply it (`git apply`), run the suite, and fix
-     `test_ambient_and_headlines_per_leader` if it fails.
-3. **Sara:** rendered but never shown. Her Balfour stage mark is fully specified in
-   `motion/state-graph-cast.md` §3: Bibi's round only; she huffs at the S01 bottle-deposit buy with an
-   8 s cooldown; never a tap target. It is engine work in `ui/diorama.gd`, modelled on `StreetFigure`.
-4. **Art still waiting:**
+1. **Art still waiting:**
    - `mk-returner` looks like Netanyahu: regenerate it with a made-up face.
    - `aide` has no engine slot.
-   - Karine Elharrar, Vaturi, Zohar, Bismuth and Boaron were never generated.
-5. **Copy not reached:**
-   - Dubi's shared lines;
-   - the shared copy that assumes Bibi (`ret_sitter`, "מדבקת DOHA", the prestige titles);
-   - `copy.*` fields that no code reads (Gotliv's transfer script, the brawl scripts).
-6. **Bar's calls:**
-   - legal read of the new facts. Especially: `arab-lists-barred` (it never names the petitioners),
-     `gotliv`, `trump-herzog-ashamed` and `eisenkot-eight-seats`.
-   - Kariv, Lazimi and Tibi joining other lineups (this changes balance: run `tools/balance.sh`).
-   - review of the new renders (`pipeline/od-sevev/proofs/sprites-contact.png`).
+   - Elharrar, Vaturi, Zohar, Bismuth and Boaron were never generated.
+2. **Unread copy:**
+   - `neutralCopy`'s `ambient.*` and `golden.*` keys;
+   - `copy.*` fields no code reads (Gotliv's transfer script, the brawl scripts, `karhi.copy.review`, and others).
+3. **A fresh `mobile_web` / `round_web` run in a browser** before the next deploy. The new sprites
+   (sources, MKs, Sara) passed the unit tests, but no browser run has seen them.
+4. **Bar's calls:**
+   - legal read of the new facts (`arab-lists-barred`, `gotliv`, `trump-herzog-ashamed`, `eisenkot-eight-seats`, `gafni-off-list`);
+   - Kariv, Lazimi and Tibi in other lineups (run `tools/balance.sh`);
+   - review of the renders (`pipeline/od-sevev/proofs/sprites-contact.png`).
 
 ## The loop (per character)
 1. **Copy:** dump the character (leader kit, partner profile, event card, lineup overrides in other
