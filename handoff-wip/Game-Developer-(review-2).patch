@@ -1,4 +1,77 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/ui/evolve_tx.gd b/game/scripts/ui/evolve_tx.gd
+index 62cd9f3..8832275 100644
+--- a/game/scripts/ui/evolve_tx.gd
++++ b/game/scripts/ui/evolve_tx.gd
+@@ -18,6 +18,14 @@ const MULT_Y := 704.0
+ const GAIN_Y := 760.0
+ const ERA_Y := 816.0
+ const WRAP := 656.0                  # string-budgets tx.line
++## Review U10 (style guide §17.3 `notice_frame`): the page is flag blue and the lines sit on the
++## gate's printed notice, a white card ruled in flag blue (slice [3, 7, 3, 5], content box [4, 8,
++## 32, 26] → insets 16 / 32 / 16 / 24 at ×4), centred around them; the title lines in flag
++## (8.5:1), the body in night (13.9:1). A card, not full bleed (§2.4: never the whole page as the flag).
++const NOTICE := Rect2(16, 536, 688, 356)
++const C_PAGE := Color("#0038b8")     # flag
++const C_TITLE := Color("#0038b8")    # flag on the notice's white
++const C_BODY := Color("#0f2350")     # night
+ 
+ var running := false
+ var _card: ColorRect
+@@ -26,6 +34,7 @@ var _species: PxText
+ var _mult: PxText
+ var _gain: PxText
+ var _era: PxText
++var _notice: NinePatchRect            # null without the kit piece (the fork's cream card)
+ var _t := 0.0
+ var _reduced := false
+ var _cb: Dictionary = {}
+@@ -36,6 +45,9 @@ func _ready() -> void:
+ 	visible = false
+ 	var X: Dictionary = Art.theme["evolveTx"]
+ 	_card = Ui.rect(self, Rect2(-4000, -4000, 8720, 9280), X["card"], 1.0)
++	if Art.has_sprite("notice_frame"):
++		_notice = Ui.nine(self, NOTICE, "notice_frame")
++		_notice.visible = false
+ 	_line = _tx_text(SPECIES_Y - 48.0, Strings.s("EVOTX_LINE"), X["text"])
+ 	_species = _tx_text(SPECIES_Y, "", X["text"])
+ 	_mult = _tx_text(MULT_Y, "", X["text"])
+@@ -67,6 +79,12 @@ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
+ 	_card.color = Art.col(X["reducedMotionCard" if reduced else "card"])
+ 	for t: PxText in [_line, _species, _mult, _gain]:
+ 		t.tint = Art.col(X["reducedMotionText" if reduced else "text"])
++	if _notice != null:   # U10: the notice on the flag-blue page, in both modes
++		_card.color = C_PAGE
++		_line.tint = C_TITLE
++		_species.tint = C_TITLE
++		for t: PxText in [_mult, _gain]:
++			t.tint = C_BODY
+ 	_line.center_in(0, L.W)
+ 	_species.text = Strings.s("ELECT_TITLE", {"n": int(info["round"])}) if info.has("round") else String(info.get("species", ""))
+ 	_species.center_in(0, L.W)
+@@ -79,10 +97,13 @@ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
+ 	_era.center_in(0, L.W)
+ 	_era.tint = _gain.tint
+ 	_set_texts(false, false)
++	_text_alpha(1.0)
+ 	_card.modulate.a = 0.0
+ 
+ 
+ func _set_texts(title: bool, mult: bool) -> void:
++	if _notice != null:
++		_notice.visible = title
+ 	_line.visible = title
+ 	_species.visible = title
+ 	_mult.visible = mult
+@@ -111,6 +132,8 @@ func update_view(dt_ms: float) -> void:
+ func _text_alpha(a: float) -> void:
+ 	for x: CanvasItem in [_line, _species, _mult, _gain, _era]:
+ 		x.modulate.a = a
++	if _notice != null:
++		_notice.modulate.a = a
+ 
+ 
+ func _update_full(t: float) -> void:
 diff --git a/game/scripts/ui/px_button.gd b/game/scripts/ui/px_button.gd
 index 5e578e7..d2210cb 100644
 --- a/game/scripts/ui/px_button.gd
@@ -173,3 +246,46 @@ index 342c4fd..9e271a0 100644
  		lab.wrap_width = 560.0
  		lab.max_lines = 1
  		var art := LeaderUi.art(again_id)
+diff --git a/game/tests/unit/test_review2_engine.gd b/game/tests/unit/test_review2_engine.gd
+index 5c5ef2c..62acd89 100644
+--- a/game/tests/unit/test_review2_engine.gd
++++ b/game/tests/unit/test_review2_engine.gd
+@@ -124,3 +124,38 @@ func test_u13_the_owned_chip_fits_its_text() -> void:
+ 	runner.check(r == Rect2(572, 76, 56, 40), "text 40 → 56 × 40 at the plate's bottom-left (%s)" % r)
+ 	runner.check(Shop.owned_rect(8.0).size.x == 48.0, "min 48")
+ 	runner.check(Shop.owned_rect(40.0).size.x < 104.0, "smaller than the old 104 × 44 chip")
++
++
++# ------------------------------------------------------------------ the 2D Artist's wave 10 (U2, U7, U10)
++
++func test_u2_the_white_primary_and_the_gold_election_call() -> void:
++	var k: Dictionary = PxButton.kinds()["kit_primary"]
++	runner.check(str(k["normal"][0]) == "button_white_default" and str(k["pressed"][0]) == "button_white_pressed", "kit_primary is the white button (%s)" % k["normal"][0])
++	runner.check(str(k["normal"][2]) == "u" and str(k["pressed"][2]) == "u" and PxButton.label_color("kit_primary") == Color("#0038b8"), "its label is flag blue, never white on white")
++	runner.check(str(PxButton.kinds()["kit_secondary"]["normal"][2]) == "w", "the secondary keeps its white label")
++	await _boot()
++	m._open_evolution()
++	await tree.create_timer(0.3).timeout
++	var c := m.overlays.top() as ElectionCard
++	runner.check(c != null and c.go_button.kind == "kit_gold", "O3's ELECT_GO takes the gold CTA skin")
++
++
++func test_u7_the_teaser_rows_and_the_system_pill() -> void:
++	var sh := Shop.new()
++	runner.check(sh._card_sprite("teaser", false) == "card_row_silhouette" and sh._card_sprite("silhouette", true) == "card_row_silhouette", "teaser and locked rows are the pale slip")
++	sh.free()
++	var sil := "source_taxpayer_icon_sil"
++	runner.check(Shop.pale_sil(sil) == sil + "_pale", "the silhouette draws its pale cut")
++	runner.check(Art.has_sprite("chat_system_pill_navy"), "T3's navy system pill ships")
++
++
++func test_u10_the_transition_is_the_printed_notice() -> void:
++	await _boot()
++	var tx: EvolveTx = m.tx
++	tx.start({"round": 2, "multBefore": 1.0, "multAfter": 1.2, "gained": 12, "era": ""}, false, {})
++	tx.update_view(400.0)
++	runner.check(tx._notice != null and tx._notice.visible and tx._card.color == Color("#0038b8"), "a white notice on the flag-blue page")
++	runner.check(tx._species.tint == Color("#0038b8") and tx._gain.tint == Color("#0f2350"), "the title in flag, the body in night")
++	var nr := Rect2(tx._notice.position, tx._notice.size * 4.0)
++	runner.check(nr.position.y + 32.0 <= tx._line.position.y and nr.end.y - 24.0 >= EvolveTx.ERA_Y + 36.0, "the notice frames the lines (%s)" % nr)
++	tx._finish()
