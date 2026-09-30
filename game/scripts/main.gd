@@ -1961,6 +1961,7 @@ func _handle_tap(at: Vector2) -> void:
 	bb.tap(crit, bool(r.get("paused", false)))
 	_coin_batch += 1
 	_audio("tapCrit" if crit else "tap")
+	_audio("coin", 3 if crit else 1)   # Bar: a money "ching" on every tap of the character (a crit pays 3)
 	if state.taps_lifetime == 1:
 		# after the tap, which opens the audio gate: the Audio holds Dubi's first line until the
 		# motif's musicalSeconds (O-A3); the ticker/toast line stays at f0 (ux/ftue.md H1)
