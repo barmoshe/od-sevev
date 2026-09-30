@@ -1235,3 +1235,43 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
 - **Checks:** `tools/test.sh` 370/370; strict `tools/build_web.sh` green.
 - **Sheets:** the scratchpad `shots/flap/`: `flap-contact.png` (Python, 4 sizes), `flap-engine.png` (Godot, Ui.nine + set_nine_frame) and `flap-strip-x8.png`.
 - No objection outstanding.
+
+- 2026-09-30 · ux-designer · **UX review 2 of the full build** (the picker, mobile-first, v4, the walk, the roll) + **F15 placement** + **rulings on the roll and the pager** · `ux/review-2026-09-30.md` (new), `ux/mobile-first-layout.md` (§5.2, new §5.2.1, new §5.14, §10, §11), `ux/rtl-map.md` §2, `ux/tools/gen_strings.py` → strings, `game/scripts/ui/top_bar.gd`, `game/scripts/ui/views/view_share.gd`
+  - **Played:**
+    - touch-only in Chromium at 390×844@3 and 375×667@2, spot-checked at 430×932@3;
+    - the gate, the picker, the first minute, C1, T3, a forced election, the flash and the picker again;
+    - `round_web` PASS (a full round to O3 and round 2's picker);
+    - `mobile_web` PASS on the three sizes;
+    - `share_web` PASS at @2 (its @3 pending-chip probes are timing);
+    - `modals_web`: all shots taken, but its "C1: the group opened" step fails at @2 and at @3 (6 buys × 2.6 s on a court day at ×0.5 income; C1 opens at 42-48 s in touch-only play). That is a driver question for the Game Developer.
+  - **Findings U1-U16, no blockers.** Majors:
+    - **U1** (TA + engine): `sheet_modal`'s flap shadow row 23 falls in the stretched centre slice, and paints a slab behind the first line of every SheetCard (O3, O10, O1, the leader card). Fix: slice top 24, `HEADER_H` 96.
+    - **U2** (2D + engine): primary and secondary buttons are the same blue (1.13:1). Fix: a white-face primary with a flag label; O3's commit takes the gold CTA skin.
+    - **U3** (engine): a blank white field fills 45% of the screen between tap 1 and card 1. Fix: keep the plaza until card 1.
+    - **U4 / U5** (fixed here): the rate line at 60% on flag blue was 2.9:1 → alpha 0.9, 4.9:1; the share status line in `ui_mute` on cream was 1.3:1 → flag, 8.5:1.
+  - **Minors:**
+    - the SE peek shows a pill's top (the S7 check misses pills);
+    - the slate silhouettes and system pills are off-palette;
+    - the "61" in the coalition tab icon reads as an unread count;
+    - Dubi's pick line sits over the leader pre-tap;
+    - EVOLVE_TX is a blank cream page;
+    - the WhatsApp button's bubble-with-tick icon;
+    - the stale reduced-motion caption (fixed);
+    - the owned badge covers the portrait;
+    - the WhatsApp row is not full width.
+  - **Roll (M1): accepted, no counter-objection** (D47, D48). A push shows Hebrew prefix fragments; a roll cuts glyph rows and keeps x. Conditions: a roll always completes; a tap mid-roll opens the incoming headline; reduced motion keeps the cross-fade.
+  - **Pager: the no-break rule, §5.2.1** (D49):
+    - strong glue (₪ with its number, punctuation with its word) and weak glue (a number with its magnitude word);
+    - NBSP at display time, in `PxText` and `Ticker.paginate`; all three fonts have U+00A0 at the space's advance;
+    - the bad breaks on the content go from 18/20/14/11 to 1/0/0/0 at the 280/324/384/464 clips.
+  - **F15, §5.14** (D50):
+    - **the hemicycle goes on O3 only** (×4 as the card's hero, `seats[0:n]` RTL, drawn in the blackout; left out if the card exceeds the modal band). **Not Row B** (the bar stays on every device). **Not the result card:** a filled arc beside a leader is the TV poll graphic on a forwarded image (style guide §13 and the `poll-number` red line; this overrides the dispatch suggestion);
+    - **the booth goes on the picker wherever it is free:** tiles unchanged, 44 px from the sky, the columns at 20. On at 390, 393, 430, 360, 412 and the frame; off at the SE and the toolbar viewports;
+    - **the envelope goes on O5's stage floor and on the share sheet's "sent" line**, never on blue (1.1:1).
+  - **Checks:** `tools/test.sh` 368/368; strict `tools/build_web.sh` green (the text lint is 0).
+  - **→ game-developer:** §10 D1 (§5.2.1, §5.14), U3, U6, U9, U11, U13, U14; U1 and U2 with the TA and the 2D Artist.
+  - **→ technical-artist:** T1 (`sheet_modal` slice top 24).
+  - **→ 2d-artist:** A4 (the white primary button), U7 (the silhouette row), U8 (the tab icon), U10 (EVOLVE_TX as a notice); A5 is optional.
+  - **→ animator:** M3 (optional: the hemicycle fill).
+  - **→ game-designer:** G2 (the ticker units lint).
+  - No objection outstanding.
