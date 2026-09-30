@@ -33,3 +33,62 @@ index 4ccd699..0cfa724 100644
 +    last. The flash (O3b) follows on an empty stage.
 +  - The roll: the two pages move locked, the words are whole, and 90 % of the travel is done by 100 ms.
 +  - Reduced motion: fades on the mark, and the ticker's cross-fade.
+diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
+index 7e277c8..7f9e2ac 100644
+--- a/tools/web/motion_web.mjs
++++ b/tools/web/motion_web.mjs
+@@ -62,7 +62,9 @@ async function open(d, query, reduced) {
+ }
+ 
+ // Captures `n` frames of a logical-px rect as fast as the renderer allows; returns [{t, file}].
+-async function strip(o, prefix, rect, n, gapMs = 60, slow = SLOW) {
++// `untilMs` > 0: keep going until that much game time is covered (n is then the cap), so the strip
++// covers the motion whatever a screenshot costs on the machine.
++async function strip(o, prefix, rect, n, gapMs = 60, slow = SLOW, untilMs = 0) {
+ 	const [x0, y0] = o.css(rect[0], rect[1]);
+ 	const [x1, y1] = o.css(rect[0] + rect[2], rect[1] + rect[3]);
+ 	const clip = { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
+@@ -70,6 +72,7 @@ async function strip(o, prefix, rect, n, gapMs = 60, slow = SLOW) {
+ 	const frames = [];
+ 	for (let i = 0; i < n; i++) {
+ 		const t = (Date.now() - t0) / slow;
++		if (untilMs > 0 && frames.length > 0 && frames.at(-1).t >= untilMs) break;
+ 		const file = `${prefix}-${String(i).padStart(3, '0')}.png`;
+ 		await o.page.screenshot({ path: file, clip });
+ 		frames.push({ t: Math.round(t), file });
+@@ -145,12 +148,12 @@ for (const d of DEVICES) {
+ 			const stage = stageRect(disp);
+ 			// the walk-in: the picker's commit (≈ 520 ms), then 640 ms of walk (RM: a 150 ms fade)
+ 			check(await pickTile(o, 'bennett', WS), 'the picker is open and Bennett\'s tile is tapped');
+-			const inFrames = await strip(o, `${out}/walk-in-${tag}`, stage, reduced ? 24 : 45, 0, WS);
++			const inFrames = await strip(o, `${out}/walk-in-${tag}`, stage, 90, 0, WS, reduced ? 650 : 1250);
+ 			fs.writeFileSync(`${out}/walk-in-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: inFrames }, null, 1));
+ 			await untilStage(o);
+ 			let s = await o.probe();
+ 			check(s && s.leader === 'bennett' && s.mode === 'title', `Bennett's round, pre-tap (leader ${s && s.leader}, mode ${s && s.mode})`);
+-			check(inFrames.at(-1).t >= (reduced ? 600 : 1100), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
++			check(inFrames.at(-1).t >= (reduced ? 650 : 1250), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
+ 			// tap 1 starts the round; then the forced ceremony: 1200 ms to the card's lift, then the walk-out
+ 			const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
+ 			await o.tap(hx, hy, 8);
+@@ -158,7 +161,7 @@ for (const d of DEVICES) {
+ 			await o.page.evaluate(() => { window.odDevElect = 1; });
+ 			await o.page.waitForFunction(() => window.odDevElect === 0, null, { timeout: 600000 });   // taken: EVOLVE_TX's f0
+ 			await o.page.waitForTimeout((reduced ? 900 : 1100) * WS);   // ms of game time, under the card
+-			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, reduced ? 20 : 34, 0, WS);
++			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, 70, 0, WS, reduced ? 500 : 950);
+ 			fs.writeFileSync(`${out}/walk-out-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: outFrames }, null, 1));
+ 			await o.page.waitForFunction(() => window.odDev && (window.odDev.mode === 'pick' || window.odDev.modal !== ''), null, { timeout: 600000 }).catch(() => {});
+ 			s = await o.probe();
+@@ -183,9 +186,9 @@ for (const d of DEVICES) {
+ 			const tk = disp.ticker;
+ 			check(tk && tk.mode === 'page' && tk.transition === (reduced ? 'fade' : 'roll'), `odDisplay.ticker: ${JSON.stringify(tk)}`);
+ 			const row = [disp.ox + tk.clipX - 8, disp.lowerY + tk.clipY, tk.clipW + 16, tk.clipH];
+-			const frames = await strip(o, `${out}/ticker-${tag}`, row, 300, 0, TS);
++			const frames = await strip(o, `${out}/ticker-${tag}`, row, 400, 0, TS, 6000);   // 6 s: at least one page change
+ 			fs.writeFileSync(`${out}/ticker-${tag}.json`, JSON.stringify({ k: disp.k, slow: TS, frames, clip: row }, null, 1));
+-			check(frames.length === 300, `ticker: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
++			check(frames.at(-1).t >= 6000, `ticker: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
+ 			check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
+ 			await o.ctx.close();
+ 		}
