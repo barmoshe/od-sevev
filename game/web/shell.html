@@ -28,6 +28,18 @@
 		<meta name="twitter:description" content="{{OG_DESCRIPTION}}">
 		<meta name="twitter:image" content="__OD_SITE_URL__og.jpg">
 		<meta name="twitter:image:alt" content="{{OG_IMAGE_ALT}}">
+		<script>
+			// Vercel Web Analytics: cookieless visit counts (visitors, pages, referrers, countries,
+			// devices), read in the Vercel dashboard. Loaded on the deployed host only, so local and
+			// headless test runs never report. window.va queues events until the script arrives.
+			window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+			if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+				var vaScript = document.createElement('script');
+				vaScript.defer = true;
+				vaScript.src = '/_vercel/insights/script.js';
+				document.head.appendChild(vaScript);
+			}
+		</script>
 		<style>
 html, body, #canvas {
 	margin: 0;
