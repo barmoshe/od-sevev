@@ -1,7 +1,8 @@
 // "עוד סבב" content lint (Game Designer paper check, not a test suite; studio invariant I1).
 // Reads design/content.json, design/facts.json and design/redlines.json and reports:
 //   red-line hits, poll-number hits, src ids missing from the fact sheet, the סבב rule, lowercase
-//   Latin, invented quotes of real people in the ticker, length budgets, duplicate ids, counts, and the
+//   Latin, invented quotes of real people in the ticker, length budgets, the ticker's no-break units
+//   (≤ 280 px, ux/mobile-first-layout.md §5.2.1), duplicate ids, counts, and the
 //   About page's public facts[].aboutHe (required on every launch fact; Hebrew, one sentence, red lines).
 // Usage: node design/sim/content-lint.mjs [--strict] [--verbose]   (exit 1 on any error; --strict also fails on warnings)
 // The developer's build lint (UX §6.3 item 4, engine O-U3 pixel widths) can import the same JSON files.
@@ -195,6 +196,38 @@ for (const s of game) {
   if (/\.(flavor|levelUp)$/.test(s.path) && L > 60) err(s.path, `flavour ${L} > 60: ${s.text}`);
   if (/\.story\.beats/.test(s.path) && L > 50) warn(s.path, `story line ${L} > 50`);
 }
+// ---------- 7b. ticker no-break units fit the narrowest clip (ux/mobile-first-layout.md §5.2.1, ask G2) ----------
+// The pager never splits a strong glue unit: G1 the ₪ with what it measures, G2 closing punctuation
+// with the word before it, G3 opening punctuation with the word after it. G4 (a number with its
+// magnitude word, "850.6 מיליארד") is weak: the pager may break there, so it is not one unit.
+// Every strong unit must fit 280 px (the narrowest ticker clip) at ×4 in sevev9 (its xadvance).
+const FONT_ADV = new Map([...readFileSync(new URL('../../game/assets/fonts/sevev9.fnt', import.meta.url), 'utf8')
+  .matchAll(/^char id=(\d+) .*?xadvance=(-?\d+)/gm)].map(m => [Number(m[1]), Number(m[2])]));
+const pxWidth = t => [...t].reduce((a, ch) => a + (FONT_ADV.get(ch.codePointAt(0)) ?? FONT_ADV.get(32)), 0) * 4;
+const TICKER_CLIP_MIN = 280;
+const CLOSERS = /^[.,:;!?…)\]״"׳']+$/, OPENERS = /^[(\[„"״]$/;
+function glueUnits(text) {
+  const toks = text.replace(/\{[^{}]*(\{[^{}]*\}[^{}]*)*\}/g, '00').split(' ').filter(Boolean);
+  const units = [];
+  let cur = null, openNext = false;
+  for (let i = 0; i < toks.length; i++) {
+    const t = toks[i], prev = toks[i - 1] || '';
+    const glue = cur !== null && (openNext || t.startsWith('₪') || CLOSERS.test(t)
+      || (prev === '₪' && /^[\d⁦-⁩]/.test(t)));
+    if (glue) cur += ' ' + t; else { if (cur !== null) units.push(cur); cur = t; }
+    openNext = OPENERS.test(t);
+  }
+  if (cur !== null) units.push(cur);
+  return units;
+}
+let tickerUnits = 0, widestUnit = ['', 0];
+for (const s of game.filter(tickerPaths)) for (const u of glueUnits(s.text)) {
+  tickerUnits++;
+  const w = pxWidth(u);
+  if (w > widestUnit[1]) widestUnit = [u, w];
+  if (w > TICKER_CLIP_MIN) err(s.path, `ticker unit "${u}" is ${w} px at ×4 > the ${TICKER_CLIP_MIN} clip (§5.2.1): reword, or split it at a weak joint`);
+}
+
 for (const p of C.perks.list) {
   const v = Math.max(...p.levels.map(Number));
   const d = p.desc.replace('{v}', String(v));
@@ -431,6 +464,7 @@ console.log(`sources ${C.producers.length} · spins ${C.upgrades.length} (${C.up
 console.log(`src-tagged strings: ${game.filter(s => (s.holder.src || []).length).length}`);
 console.log(`approved pictograms in use (2D Artist draws them as glyphs): ${[...pictUsed].join(' ')}`);
 console.log(`ticker lines over the 45-char ideal (≤ 60 enforced): ${over45.length}` + (verbose ? '\n  ' + over45.join('\n  ') : ' (--verbose lists them)'));
+console.log(`ticker no-break units (§5.2.1 strong glue): ${tickerUnits}, all ≤ ${TICKER_CLIP_MIN} px at ×4 required; the widest "${widestUnit[0]}" ${widestUnit[1]} px`);
 if (leaderReport.length) console.log(`leaders (pending engine): ${leaderReport.join(' · ')}`);
 if (warns.length) console.log(`\nWARN (${warns.length})\n  ` + warns.join('\n  '));
 if (errors.length) console.log(`\nERROR (${errors.length})\n  ` + errors.join('\n  '));

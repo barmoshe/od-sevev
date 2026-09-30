@@ -137,7 +137,7 @@ func test_the_open_election_card_holds_the_round() -> void:
 		if Coalition.counts(s, str(p["id"])) and Coalition.can_leave(str(p["id"])) and int(p.get("seats", 0)) > 0:
 			who = str(p["id"])
 			break
-	var u := Coalition._post(s, {"type": "ultimatum", "partner": who, "price": 1.0, "kind": "money", "leftSec": 0.3, "state": "open"}, [])
+	var u := Coalition._post(s, {"type": "ultimatum", "partner": who, "price": 1.0, "kind": "money", "leftSec": 0.3, "state": "open", "graced": true}, [])   # graced: this test is the hold, not the finish grace
 	m._open_evolution()
 	await _wait(0.4)
 	runner.check(m.vote_open(), "O3 is up: the vote is on")
@@ -153,6 +153,9 @@ func test_the_open_election_card_holds_the_round() -> void:
 	c.cancel("close")
 	for i in 30:
 		m._process(0.1)
+	m._presses[7] = {"kind": "cta"}
+	runner.check(m.vote_open(), "a finger on 'עוד סבב!' already holds the round (the CTA → card window)")
+	m._presses.erase(7)
 	runner.check(not m.vote_open(), "closed: the vote is off")
 	runner.check(s.run_time_sec > run and u["state"] == "expired", "the round resumes where it stood: the ultimatum runs out")
 

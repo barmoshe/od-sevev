@@ -204,6 +204,11 @@ static func leader_buff(s: GameState, e: Dictionary) -> void:
 # Scheduling
 # ---------------------------------------------------------------------------------------------
 
+## Card effects that take seats off the 61 (a frozen pair, a raised gate, drained seats, a lost
+## partner, Kaia's nip): never fired while the gate is open.
+const SEAT_COSTS := ["brawl", "pledge", "seatDrain", "loseRandomPartner", "kaia"]
+
+
 static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:
 	var st := _st(s)
 	if e.has("flag") and not flag_on(str(e["flag"])):
@@ -213,6 +218,10 @@ static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:
 	if float(st["cooldowns"].get(e["id"], 0.0)) > 0.0:
 		return false
 	if e.get("oncePerRound", false) == true and (st["round"] as Array).has(e["id"]):
+		return false
+	# The finish line is quiet (spec §7.4): while the 61 gate is open no card that costs seats fires,
+	# so between "עוד סבב!" appearing and the vote only a counted-down ultimatum can take a seat.
+	if SEAT_COSTS.has(str(e.get("effect", {}).get("type", ""))) and Coalition.gate_open(s):
 		return false
 	return float(e.get("weight", 1.0)) > 0.0 and Conditions.ok(s, e.get("when", {}), ctx)
 

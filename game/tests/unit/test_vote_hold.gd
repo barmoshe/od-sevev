@@ -92,3 +92,44 @@ func test_cards_and_the_court_hold_under_the_card() -> void:
 func test_the_vote_flag_is_the_only_switch() -> void:
 	runner.check(Politics.holds_for_vote({"vote": true}), "ctx.vote holds")
 	runner.check(not Politics.holds_for_vote({}) and not Politics.holds_for_vote({"vote": false}), "no vote key: the round runs (the bench, every other modal)")
+
+
+## The finish line is quiet (spec §7.4): while the 61 gate is open, no card that costs seats fires
+## (the brawl's frozen pair, the pledge's raised gate, a seat drain, a lost partner, Kaia), so
+## between "עוד סבב!" appearing and the vote only a counted-down ultimatum can take a seat.
+func test_no_seat_card_fires_while_the_gate_is_open() -> void:
+	var s := _with(["bengvir", "smotrich", "amsalem", "deri", "levin", "goldknopf", "regev", "karhi", "gotliv"])
+	s.evolutions = 1
+	for id in Content.producer_ids():
+		s.owned[id] = 50
+	runner.check(Coalition.gate_open(s), "the fixture coalition holds 61 (%s)" % str(Coalition.seat_info(s)))
+	for id in ["brawl", "bennett"]:
+		runner.check(not Events.eligible(s, Events.event(id)), "%s never fires at 61" % id)
+	runner.check(Events.eligible(s, Events.event("interview")), "a card that costs no seats still can")
+	Coalition.ps(s, "bengvir")["status"] = "left"
+	Coalition.ps(s, "deri")["status"] = "left"
+	runner.check(not Coalition.gate_open(s) and Events.eligible(s, Events.event("brawl")), "below 61 the brawl is back in the deck")
+
+
+## The finish grace (ultimatum.finishGraceSec, spec §7.4): the frame the 61 gate opens, a running
+## ultimatum gets at least 10 s left, once, so reaching for "עוד סבב!" never loses the gate to a timer.
+func test_reaching_61_gives_a_running_ultimatum_the_finish_grace() -> void:
+	var s := _with(["smotrich", "amsalem", "deri", "levin", "goldknopf", "regev", "karhi"])   # 55 + Deri's 9
+	s.coalition["nextDemandSec"] = 1e12
+	for id in Content.producer_ids():
+		s.owned[id] = 50
+	Coalition.ps(s, "deri")["status"] = "left"   # under the gate
+	var u := Coalition._post(s, {"type": "ultimatum", "partner": "smotrich", "price": 1e12, "kind": "money", "leftSec": 1.0, "state": "open"}, [])
+	_politics(s, 0.5, false)
+	runner.check(not Coalition.gate_open(s) and is_equal_approx(float(u["leftSec"]), 0.5), "under 61 the clock runs as ever")
+	Coalition.ps(s, "deri")["status"] = "member"   # 61
+	_politics(s, 0.5, false)
+	runner.check(Coalition.gate_open(s) and float(u["leftSec"]) >= 9.0 and u.get("graced", false), "61: the ultimatum gets the 10 s finish grace (%.1f left)" % float(u["leftSec"]))
+	Coalition.ps(s, "deri")["status"] = "left"
+	_politics(s, 0.5, false)
+	Coalition.ps(s, "deri")["status"] = "member"
+	var left := float(u["leftSec"])
+	_politics(s, 0.5, false)
+	runner.check(float(u["leftSec"]) < left, "once per ultimatum: a flapping gate never tops it up again")
+	_politics(s, 12.0, false)
+	runner.check(u["state"] == "expired", "not a shield: the timer still runs out if the vote isn't called")

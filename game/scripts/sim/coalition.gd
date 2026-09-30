@@ -531,6 +531,7 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 		c["declineCdSec"] = maxf(0.0, float(c["declineCdSec"]) - dt)
 	if float(c.get("mergeCdSec", 0.0)) > 0.0:
 		c["mergeCdSec"] = maxf(0.0, float(c["mergeCdSec"]) - dt)
+	_finish_grace(s, d)
 	for id: Variant in c["partners"]:
 		var st: Dictionary = c["partners"][id]
 		if st["status"] == "member":
@@ -548,6 +549,22 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 	_tick_demands(s, dt, d, rng, out)
 	_tick_transfers(s, dt, d, out)
 	return out
+
+
+## The finish grace (spec §7.4, ultimatum.finishGraceSec): the frame the 61 gate opens, a running
+## ultimatum gets at least that long left, once per ultimatum, so the reach for "עוד סבב!" never
+## loses the gate to a timer (the vote hold starts at the press). Not a farm: it only delays an
+## expiry by seconds, and it cannot repeat on the same ultimatum.
+static func _finish_grace(s: GameState, d: Economy.Derived) -> void:
+	var c := _c(s)
+	var gate := d.seats_gate_open if d != null else gate_open(s)
+	if gate and not bool(c.get("gateWas", false)):
+		var g := float(_ult().get("finishGraceSec", 10.0))
+		for m: Dictionary in c["chat"]:
+			if m["type"] == "ultimatum" and m["state"] == "open" and not m.get("graced", false):
+				m["leftSec"] = maxf(float(m["leftSec"]), g)
+				m["graced"] = true
+	c["gateWas"] = gate
 
 
 static func _tick_messages(s: GameState, dt: float, out: Array) -> void:

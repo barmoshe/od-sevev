@@ -665,7 +665,9 @@
     60,
     30
    ],
-   "maxOpen": 1
+   "maxOpen": 1,
+   "finishGraceSec": 10,
+   "_finishGrace": "Game Designer 2026-09-30 (spec §7.4): when the 61 gate opens, a running ultimatum gets at least this long left, once, so reaching for 'עוד סבב!' never loses the gate to a timer."
   },
   "rejoinMult": 1.5,
   "poachSec": 60,

@@ -44,7 +44,8 @@ func _rich() -> GameState:
 	s.investigation["courtDays"] = 2
 	for id in Content.producer_ids():
 		s.owned[id] = 5
-	for id in ["bengvir", "smotrich", "amsalem", "deri"]:
+	# three members, under the 61 gate: at 61 no seat-costing card fires (test_vote_hold.gd)
+	for id in ["bengvir", "smotrich", "amsalem"]:
 		Coalition.ps(s, id)["status"] = "member"
 	return s
 

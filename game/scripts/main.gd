@@ -1264,10 +1264,13 @@ func _follow_os_motion(dt: float) -> void:
 		_apply_settings()
 
 
-## The vote stops the clock (Game Designer; sim/politics.gd): while the election card is open
-## and not yet confirmed, the round holds. The seats the player saw when they opened it are the
+## The vote stops the clock (Game Designer; sim/politics.gd): from the press on "עוד סבב!" until
+## the election card is confirmed or closed, the round holds. The seats the player saw when they opened it are the
 ## seats they vote on, and nothing is lost behind a card that covers the chat.
 func vote_open() -> bool:
+	for pr: Variant in _presses.values():
+		if pr is Dictionary and str((pr as Dictionary).get("kind", "")) == "cta":
+			return true   # the finger is on "עוד סבב!": the hold starts at the press, not at the card
 	var t := overlays.top()
 	return t is ElectionCard and not (t as ElectionCard).committed and not t.closing
 
