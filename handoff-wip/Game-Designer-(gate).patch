@@ -1,4 +1,19 @@
 # binary files changed (not carried):
+diff --git a/design/content.json b/design/content.json
+index c2e6044..d214942 100644
+--- a/design/content.json
++++ b/design/content.json
+@@ -665,7 +665,9 @@
+     60,
+     30
+    ],
+-   "maxOpen": 1
++   "maxOpen": 1,
++   "finishGraceSec": 10,
++   "_finishGrace": "Game Designer 2026-09-30 (spec §7.4): when the 61 gate opens, a running ultimatum gets at least this long left, once, so reaching for 'עוד סבב!' never loses the gate to a timer."
+   },
+   "rejoinMult": 1.5,
+   "poachSec": 60,
 diff --git a/design/leader-select-spec.md b/design/leader-select-spec.md
 index 0acb38e..3f62c5a 100644
 --- a/design/leader-select-spec.md
@@ -66,6 +81,21 @@ index 0acb38e..3f62c5a 100644
  
  ### 7.4 The vote stops the clock (Game Designer, 2026-09-30)
  
+diff --git a/game/data/content.json b/game/data/content.json
+index c2e6044..d214942 100644
+--- a/game/data/content.json
++++ b/game/data/content.json
+@@ -665,7 +665,9 @@
+     60,
+     30
+    ],
+-   "maxOpen": 1
++   "maxOpen": 1,
++   "finishGraceSec": 10,
++   "_finishGrace": "Game Designer 2026-09-30 (spec §7.4): when the 61 gate opens, a running ultimatum gets at least this long left, once, so reaching for 'עוד סבב!' never loses the gate to a timer."
+   },
+   "rejoinMult": 1.5,
+   "poachSec": 60,
 diff --git a/game/scripts/main.gd b/game/scripts/main.gd
 index 7b20300..a1ee026 100644
 --- a/game/scripts/main.gd
@@ -86,6 +116,41 @@ index 7b20300..a1ee026 100644
  	var t := overlays.top()
  	return t is ElectionCard and not (t as ElectionCard).committed and not t.closing
  
+diff --git a/game/scripts/sim/coalition.gd b/game/scripts/sim/coalition.gd
+index fe057ea..d648918 100644
+--- a/game/scripts/sim/coalition.gd
++++ b/game/scripts/sim/coalition.gd
+@@ -531,6 +531,7 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary =
+ 		c["declineCdSec"] = maxf(0.0, float(c["declineCdSec"]) - dt)
+ 	if float(c.get("mergeCdSec", 0.0)) > 0.0:
+ 		c["mergeCdSec"] = maxf(0.0, float(c["mergeCdSec"]) - dt)
++	_finish_grace(s, d)
+ 	for id: Variant in c["partners"]:
+ 		var st: Dictionary = c["partners"][id]
+ 		if st["status"] == "member":
+@@ -550,6 +551,22 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary =
+ 	return out
+ 
+ 
++## The finish grace (spec §7.4, ultimatum.finishGraceSec): the frame the 61 gate opens, a running
++## ultimatum gets at least that long left, once per ultimatum, so the reach for "עוד סבב!" never
++## loses the gate to a timer (the vote hold starts at the press). Not a farm: it only delays an
++## expiry by seconds, and it cannot repeat on the same ultimatum.
++static func _finish_grace(s: GameState, d: Economy.Derived) -> void:
++	var c := _c(s)
++	var gate := d.seats_gate_open if d != null else gate_open(s)
++	if gate and not bool(c.get("gateWas", false)):
++		var g := float(_ult().get("finishGraceSec", 10.0))
++		for m: Dictionary in c["chat"]:
++			if m["type"] == "ultimatum" and m["state"] == "open" and not m.get("graced", false):
++				m["leftSec"] = maxf(float(m["leftSec"]), g)
++				m["graced"] = true
++	c["gateWas"] = gate
++
++
+ static func _tick_messages(s: GameState, dt: float, out: Array) -> void:
+ 	var marks: Array = _ult().get("marksSec", [])
+ 	var expired: Array = []
 diff --git a/game/scripts/sim/events.gd b/game/scripts/sim/events.gd
 index 76dc5d0..1c48594 100644
 --- a/game/scripts/sim/events.gd

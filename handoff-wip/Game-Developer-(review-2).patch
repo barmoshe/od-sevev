@@ -388,10 +388,27 @@ index 19571e5..342c4fd 100644
  
  func publish_closed() -> void:
 diff --git a/game/scripts/ui/views/view_share.gd b/game/scripts/ui/views/view_share.gd
-index ba909e6..7cce0fb 100644
+index ba909e6..e8622aa 100644
 --- a/game/scripts/ui/views/view_share.gd
 +++ b/game/scripts/ui/views/view_share.gd
-@@ -41,6 +41,10 @@ const C_NIGHT := Color("#00237a")
+@@ -17,11 +17,12 @@ extends Overlay
+ ## Layout, sheet-local (Rect2(0, vs.y − inset − h, 720, h + inset), h = min(content, 0.8 · vs.y)):
+ ##   ✕ top-left (visual 64 at +16, hit 104), the title centred in the 432 box, y 24
+ ##   the preview centred under the 104 header
+-##   a status line (SHARE_SAVED / SHARE_COPIED / SHARE_FAIL) under it, one line
++##   a status line (SHARE_SAVED / SHARE_COPIED / SHARE_FAIL) under it, one line; after a share
++##   went out, the envelope (§5.14.3 E2, "sent") leads it
+ ##   "לשתף" (primary, LEFT Rect2(88, y, 256, 96)) beside "לשמור תמונה" (RIGHT Rect2(376, y, 256, 96))
+-##   "לשתף בוואטסאפ" full width Rect2(88, y + 112, 544, 96) with the speech-bubble icon at the
+-##   label's right (Bar 2026-09-29: WhatsApp is the main channel; wa.me takes text only, the link
+-##   preview (OG) carries the picture)
++##   "לשתף בוואטסאפ" full width Rect2(24, y + 112, 672, 96), the label only (review U11, U14;
++##   Bar 2026-09-29: WhatsApp is the main channel; wa.me takes text only, the link preview (OG)
++##   carries the picture)
+ ##   "סגור" full width Rect2(24, h − 112, 672, 88), fixed
+ 
+ const S := 5                                  # card px per art px (the export grid)
+@@ -41,6 +42,10 @@ const C_NIGHT := Color("#00237a")
  ## The status line sits on the sheet's cream notice (#fff4e0), not on blue: the v4 map's ui_mute was
  ## 1.3:1 there; flag blue is 8.3:1 (UX review 2026-09-30, U5).
  const C_STATUS := Color("#0038b8")
@@ -402,7 +419,7 @@ index ba909e6..7cce0fb 100644
  
  var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
  var art_px := 2.0                             # the preview's logical px per art px
-@@ -53,6 +57,7 @@ var share_btn: PxButton
+@@ -53,6 +58,7 @@ var share_btn: PxButton
  var save_btn: PxButton
  var wa_btn: PxButton
  var status: PxText
@@ -410,7 +427,7 @@ index ba909e6..7cce0fb 100644
  var _vp: SubViewport
  var _preview: Sprite2D
  var _printing: Node2D
-@@ -110,6 +115,9 @@ func build() -> ShareSheet:
+@@ -110,6 +116,9 @@ func build() -> ShareSheet:
  	status.reading = true
  	status.wrap_width = 640.0 + L.dx
  	status.max_lines = 1
@@ -420,7 +437,7 @@ index ba909e6..7cce0fb 100644
  	y += STATUS_H
  	var hw := L.floor4((544.0 + L.dx - 32.0) / 2.0)
  	share_btn = button(Rect2(88, y, hw, BTN_H), Rect2(80, y - 4.0, hw + 16.0, BTN_H + 8.0), Strings.s("SHARE_BTN"), func() -> void: share(), "kit_primary", L.TEXT)
-@@ -120,8 +128,13 @@ func build() -> ShareSheet:
+@@ -120,8 +129,13 @@ func build() -> ShareSheet:
  			b.label.max_lines = 1
  			b.label.center_in(b.visual.position.x, b.visual.size.x)
  	y += BTN_H + GAP
@@ -436,7 +453,7 @@ index ba909e6..7cce0fb 100644
  	var cy := pr.end.y - CLOSE_AREA - inset
  	button(Rect2(24, cy, 672.0 + L.dx, 88), Rect2(24, cy, 672.0 + L.dx, 88), Strings.s("SHARE_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
  	focusables.append(close)
-@@ -245,6 +258,12 @@ static func _build_result(root: Node2D, m: Dictionary) -> void:
+@@ -245,6 +259,12 @@ static func _build_result(root: Node2D, m: Dictionary) -> void:
  	Ui.img(root, Vector2.ZERO, fid, 0, S)
  	var z: Dictionary = Art.kit(fid).get("zones", {})
  	var anchor: Array = z.get("castAnchor", [108, 198])
@@ -449,6 +466,101 @@ index ba909e6..7cce0fb 100644
  	_place_figure(root, Vector2(float(anchor[0]), float(anchor[1])))
  	var hz: Array = z.get("headline", [28, 43, 160, 20])
  	card_text(root, str(m["head"]), float(hz[0]), float(hz[2]), float(hz[1]), "center", C_WHITE, 2)
+@@ -379,11 +399,33 @@ func on_share_result(result: String) -> void:
+ 			key = "SHARE_COPIED"
+ 		"fail":
+ 			key = "SHARE_FAIL"
++	if result == "shared" and Strings.has("SHARE_SENT"):
++		key = "SHARE_SENT"
+ 	status.text = Strings.s(key) if key != "" else ""
+ 	status.center_in(0, L.cw)
+ 	if result == "fallback" and not png.is_empty():
+ 		status.text = Strings.s("SHARE_SAVED") + " " + Strings.s("SHARE_COPIED")
+ 		status.center_in(0, L.cw)
++	_place_sent(result == "shared")
++
++
++## §5.14.3 E2: on `shared` only, the envelope at ×4 leads the status line (at its right end, RTL
++## leading, 16 before the text; alone and centred when the line has no text). saved / copied /
++## fail: none.
++func _place_sent(on: bool) -> void:
++	if sent_mark == null:
++		return
++	sent_mark.visible = on
++	if not on:
++		return
++	var ew := float(Art.sprite_size("envelope_blue").x) * 4.0
++	var tw := float(status.width()) if status.text != "" else 0.0
++	var total := ew + (ENVELOPE_GAP + tw if tw > 0.0 else 0.0)
++	var x0 := Ui.snap((L.cw - total) / 2.0, 4)
++	if tw > 0.0:
++		status.h_anchor = 0
++		status.position.x = x0
++	sent_mark.position.x = x0 + total - ew
+ 
+ 
+ func cancel(via: String) -> void:
+@@ -391,60 +433,6 @@ func cancel(via: String) -> void:
+ 	mgr.close(self, via)
+ 
+ 
+-# ------------------------------------------------------------------ the WhatsApp icon
+-
+-## A 9×9 speech bubble with a handset in it (the kit's white and ink; no WhatsApp green: the style
+-## guide keeps army-adjacent greens off the UI and UX 4.3 keeps WhatsApp's own colours out).
+-## A stand-in drawn by the engine until the 2D Artist ships `icon_share_wa`.
+-const WA_ICON := [
+-	"..wwwww..",
+-	".wkkkkkw.",
+-	"wkwkkkkkw",
+-	"wkwwkkkkw",
+-	"wkkwwkwkw",
+-	"wkkkwwwkw",
+-	".wkkkkkw.",
+-	"wwwwwww..",
+-	"w........",
+-]
+-
+-
+-static func wa_icon_texture() -> Texture2D:
+-	if Art.has_sprite("icon_share_wa"):
+-		return Art.tex("icon_share_wa", 0)
+-	var img := Image.create(9, 9, false, Image.FORMAT_RGBA8)
+-	img.fill(Color(0, 0, 0, 0))
+-	for y in WA_ICON.size():
+-		var row: String = WA_ICON[y]
+-		for x in row.length():
+-			match row[x]:
+-				"w":
+-					img.set_pixel(x, y, C_WHITE)
+-				"k":
+-					img.set_pixel(x, y, Color("#1045b5"))
+-	return ImageTexture.create_from_image(img)
+-
+-
+-func _place_wa_icon(b: PxButton) -> void:
+-	if b.label == null:
+-		return
+-	b.label.wrap_width = 440.0
+-	b.label.max_lines = 1
+-	var lw := float(b.label.width())
+-	var total := lw + 16.0 + 36.0
+-	var x0 := Ui.snap(b.visual.position.x + (b.visual.size.x - total) / 2.0, 4)
+-	b.label.h_anchor = 0
+-	b.label.position.x = x0
+-	var icon := Sprite2D.new()
+-	icon.texture = wa_icon_texture()
+-	icon.centered = false
+-	icon.scale = Vector2(4, 4)
+-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+-	icon.position = Vector2(Ui.snap(x0 + lw + 16.0, 4), b.visual.position.y + 28.0)
+-	icon.name = "WaIcon"
+-	panel.add_child(icon)
+-
+-
+ # ------------------------------------------------------------------ web debug
+ 
+ ## window.odModal (the browser driver): the buttons' centres in viewport logical px, `ready` once
 diff --git a/game/tests/unit/test_mobile_layout.gd b/game/tests/unit/test_mobile_layout.gd
 index a80eaf2..8a1c2a0 100644
 --- a/game/tests/unit/test_mobile_layout.gd
@@ -476,3 +588,49 @@ index a80eaf2..8a1c2a0 100644
  	var cb := TopBar.counter_box()
  	runner.check(cb.size.x == 328.0 + L.dx and TopBar.COUNTER_SCALE == 6, "%s: the counter ×6 in a stretched box (%d)" % [name, cb.size.x])
  	var p0: Rect2 = m.shop.PILL_RECT
+diff --git a/game/tests/unit/test_share_view.gd b/game/tests/unit/test_share_view.gd
+index bec3211..aafcdc9 100644
+--- a/game/tests/unit/test_share_view.gd
++++ b/game/tests/unit/test_share_view.gd
+@@ -215,7 +215,17 @@ func test_the_result_card_uses_the_kits_zones() -> void:
+ 		runner.check(fig.position.y + (fig.texture as AtlasTexture).region.size.y * 2.0 <= 210.0 * ShareSheet.S, "the figure stands on the stage floor")
+ 		runner.check(fig.position.y >= 78.0 * ShareSheet.S, "the figure clears the headline plate (top y %s)" % (fig.position.y / ShareSheet.S))
+ 		runner.check(feet.x >= 0.0, "on the card")
++	# §5.14.3 E1: the blank envelope on the stage floor at card-art (38, 197), after the floor and
++	# before the cast; the receipt has none
++	var env := root.get_node_or_null("Envelope") as Sprite2D
++	runner.check(env != null and env.position == Vector2(38, 197) * ShareSheet.S and env.scale == Vector2(ShareSheet.S, ShareSheet.S), "E1: the envelope lies on the floor at (38, 197)")
++	if env != null and fig != null:
++		runner.check(env.get_index() < fig.get_index(), "drawn before the leader")
+ 	root.free()
++	var rc := Node2D.new()
++	ShareSheet.build_card(rc, "receipt", s, _derived(s), 0.0)
++	runner.check(rc.get_node_or_null("Envelope") == null, "not on the receipt (a thermal slip carries no props)")
++	rc.free()
+ 
+ 
+ func test_the_preview_scale_is_whole_device_px() -> void:
+@@ -251,7 +261,10 @@ func test_t4_rows_open_the_receipt_and_the_result_sheets() -> void:
+ 		runner.check(sh.panel_rect.size.y <= floorf(m._vs.y / 4.0) * 4.0 - m._top_y + 4.0, "a sheet of at most the safe height (mobile-first §5.12)")
+ 		runner.check(sh.wa_btn.visual.position.y > sh.share_btn.visual.position.y, "§5.12: WhatsApp is the nearest action to the thumb (under the pair)")
+ 		runner.check(sh.wa_btn != null and sh.wa_btn.label.text == Strings.s("SHARE_WA") and sh.wa_btn.is_enabled(), "the WhatsApp button is there and live at once (text only)")
+-		runner.check(sh.panel.get_node_or_null("WaIcon") != null, "with its speech-bubble icon")
++		runner.check(sh.panel.get_node_or_null("WaIcon") == null, "review U11: the label only, no WhatsApp-mark icon")
++		runner.check(sh.wa_btn.visual.position.x == 24.0 and sh.wa_btn.visual.size.x == 672.0 + L.dx and sh.wa_btn.hit.size == sh.wa_btn.visual.size + Vector2(16, 16),
++			"review U14: full width (672 + dx), hit + 8 on every side (%s)" % sh.wa_btn.visual)
++		runner.check(absf(sh.wa_btn.label.position.x + sh.wa_btn.label.width() / 2.0 - sh.wa_btn.visual.get_center().x) <= 4.0, "the label centred")
+ 		runner.check(sh.share_btn.label.text == Strings.s("SHARE_BTN") and sh.save_btn.label.text == Strings.s("SHARE_SAVE"), "לשתף beside לשמור תמונה")
+ 		runner.check(sh.share_btn.visual.position.x < sh.save_btn.visual.position.x, "§7.1: the commit (share) on the left")
+ 		runner.check(sh.text_to_share.ends_with(ShareKit.site_url()), "the message ends with the URL")
+@@ -261,8 +274,11 @@ func test_t4_rows_open_the_receipt_and_the_result_sheets() -> void:
+ 		runner.check(sh.png.is_empty() == not sh.save_btn.is_enabled(), "לשמור תמונה only with an image")
+ 		var dp := sh.art_px * (Display.f if Display.integer else 1.0)
+ 		runner.check(is_equal_approx(dp, roundf(dp)), "the preview is whole device px per art px")
++		sh.on_share_result("shared")
++		runner.check(sh.sent_mark != null and sh.sent_mark.visible and sh.sent_mark.scale == Vector2(4, 4), "E2: a share that went out shows the envelope on the status line")
+ 		sh.on_share_result("fail")
+ 		runner.check(sh.status.text == Strings.s("SHARE_FAIL"), "a failed share says so in the sheet")
++		runner.check(not sh.sent_mark.visible, "no envelope for saved / copied / fail")
+ 		m.overlays.back()
+ 		for i in 12:
+ 			await tree.process_frame
