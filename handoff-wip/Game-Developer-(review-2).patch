@@ -1,6 +1,6 @@
 # binary files changed (not carried):
 diff --git a/game/scripts/main.gd b/game/scripts/main.gd
-index f7d6e3e..07d4640 100644
+index f7d6e3e..16f4a3d 100644
 --- a/game/scripts/main.gd
 +++ b/game/scripts/main.gd
 @@ -127,6 +127,8 @@ var _bottom_inset := 0.0
@@ -81,6 +81,55 @@ index f7d6e3e..07d4640 100644
  func _blackout() -> bool:
  	return Calendar.active() and Calendar.is_blackout(SaveStore.now_ms())
  
+@@ -2368,10 +2405,10 @@ func _on_pick_done() -> void:
+ 	# figure when the line pops); the leader's own line 1.7 s after it, as before
+ 	var at := _now + bb.walk_left_ms() + PICK_LINE_AFTER_LAND_MS
+ 	_pick_seq = [{"at": at, "fn": func() -> void:
+-		toasts.say(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at, 1600.0)}]
++		_say_pick(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at)}]
+ 	var line := str(Leaders.leader(id).get("pick", {}).get("line", "")) if Leaders.leader(id).get("pick") is Dictionary else ""
+ 	if Leaders.stat(state, id, "taps") > 0.0 and line != "":
+-		_pick_seq.append({"at": at + PICK_LINE_GAP_MS, "fn": func() -> void: toasts.say(line, dubi_at, 1600.0)})
++		_pick_seq.append({"at": at + PICK_LINE_GAP_MS, "fn": func() -> void: _say_pick(line, dubi_at)})
+ 	if _pick_res.get("fresh", false) == true:
+ 		toasts.show_toast(Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}))
+ 	var pk: Variant = Leaders.ls().get("pick", {})
+@@ -2384,6 +2421,35 @@ func _on_pick_done() -> void:
+ 		_save_now()
+ 
+ 
++## Review U9: a pick line of Dubi's. Before tap 1 (ftue P0) Dubi is not on screen (he lives in the
++## ticker, hidden pre-tap), so the line goes in the toast dock above the leader's head, as a chat
++## toast headed "דובי · דובר הלשכה" with his 16-px face; from H1 on, his bubble by the ticker.
++func _say_pick(text: String, dubi_at: Vector2) -> void:
++	if mode != "main" and state.taps_lifetime == 0:
++		var t: String = str(toasts.dubi_line.call(text)) if toasts.dubi_line.is_valid() else text
++		toasts.show_chat_toast(dubi_head(), t, dubi_face())
++		return
++	toasts.say(text, dubi_at, 1600.0)
++
++
++## The pre-tap toast's head line: the narrator's name and title from the content.
++static func dubi_head() -> String:
++	var n: Dictionary = Content.data().get("narrator", Content.data().get("dubi", {}))
++	var nm := str(n.get("name", ""))
++	var ti := str(n.get("title", ""))
++	return nm + (" · " + ti if ti != "" and nm != "" else ti)
++
++
++## Dubi's face for the toast: his chat avatar at the manifest's scale ([id, scale, density]).
++static func dubi_face() -> Array:
++	var c: Dictionary = SpriteStrip.manifest().get("chars", {}).get(SpriteStrip.resolve("dubi"), {})
++	var art := str(c.get("avatar", "avatar_dubi"))
++	if not Art.has_sprite(art):
++		return []
++	var dens := maxi(1, int(c.get("avatarDensity", Art.kit(art).get("density", 1))))
++	return [art, float(SpriteStrip.art_scale()) / float(dens), dens]
++
++
+ ## Test / tool hook: picks `id` at once (the commit and the stage, no animation: the walk-in lands at
+ ## once unless `walk`).
+ func commit_pick(id: String, walk := false) -> bool:
 diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
 index 1558947..1878272 100644
 --- a/game/scripts/ui/dev_probe.gd
