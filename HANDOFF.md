@@ -1,3 +1,63 @@
+# HANDOFF: "עוד סבב" store videos (2026-09-30, session 7: marketing reels)
+
+Bar stopped here: "write a handoff and push to main". Nothing in this session touched the live
+site's build; the game changes it made are dev-only (the capture driver) plus the HaTikva tap and
+mix work already logged in `STATUS.md` and deployed earlier.
+
+## State at the stop
+
+- **Branch `tap-hatikva` merged into `main`**, both pushed. `vercel.json` has git deploys off, so
+  the push deploys nothing.
+- **Deliverables** (all in `store/`, each with a cover = its last frame, also in frames 0-1):
+  - `instagram/profile-b-hd.png`: the profile picture Bar picked.
+  - `teaser/od-sevev-teaser.mp4` (30 s) and `teaser/od-sevev-teaser-2.mp4` (41 s, Mordechai David "חוסם").
+  - `gameplay/od-sevev-gameplay.mp4` (v3, Ben Gvir, bare screen on velvet).
+  - `gameplay/od-sevev-gameplay-iphone.mp4` (v4.1, Ben Gvir on a drawn iPhone): Bar's reference
+    for the look. Rendered before the v4.2 drift fix (see Next 2).
+  - `gameplay/od-sevev-liberman.mp4` (Liberman on the iPhone, `music/glitch-warfare.wav`).
+    **The committed mp4 still has the OLD captions.** Bar: "הקופירייט גרוע". The new copy is in
+    `src/reel_liberman.py` (rewritten against `creative-pack/voice/review-rubric.md`: every line a
+    named mechanism, punch on the last word; the punch lands 0.75 s after the setup) but was never
+    rendered: Bar stopped the render.
+- **Takes are gone.** The Movie Maker frames lived in the session scratchpad. Re-render = recapture
+  first (`store/gameplay/README.md`, about 7 min per 2,250 frames), then the reel script (about 8 min).
+
+## Next, in order
+
+1. **Bar's next demo video: several leaders, in segments, on the iPhone, not one character.**
+   - One continuous take can pass through leaders: the forced `elect` now works, and after the
+     ceremony the picker opens again, so a plan can pick A, play ~20 s, elect, pick B, and so on.
+     Or one short plan per leader. Either way, reuse `gameplay_iphone.py` as the base, the way
+     `reel_liberman.py` configures it (clips, captions, camera keys, `TAP_AT`, end card, music offset).
+   - Each leader's joke comes from their kit in `game/data/content.json` (`leaders[].kit`: tap verb,
+     crit name, rule, sources, ticker). Roast coalition and opposition about equally (rubric balance check).
+   - Copy: short, native, a mechanism per line, punch last; true where it claims truth; no polls,
+     no groups as the punchline, nothing copied from Eretz Nehederet (rubric gate 5).
+   - Music: ask Bar (`music/soundtrack.wav` 98.4 BPM, bar = 0.092 + 2.438k; `music/glitch-warfare.wav`
+     ~132.7 BPM, bar = 1.554 + 1.808k).
+   - Mordechai David: little or none (Bar). The game fires his event by itself around 24-25 s into a
+     take (1:00 of play at dev speed 3); cut around it.
+2. **Re-render the Liberman reel with the new copy**, and the Ben Gvir iPhone reel with the v4.2 drift
+   fix, if Bar still wants them.
+
+## Tools and lessons (this session)
+
+- Capture driver `game/tests/dev/gameplay_capture.gd` (dev only, loaded through a temporary
+  `game/override.cfg` that must never be committed): pick, hat, grant, buy, event, tab, pay,
+  **decline** (Liberman's "לא יושב", read from the chat's hits), **demand** (the next member demand
+  now; a decline needs a member demand, join offers have no decline pill), **elect** (works now: the
+  dev flag is on for the call), esc, tapxy, speed, log. The log prints buy rows, pay and decline
+  positions; a pay that found no pill prints nothing, so pin taps per plan step (`TAP_AT`).
+- The election's "הכנסת פוזרה" card is up only ~0.4 s; hold it with a slow clip speed. After it the
+  game shows the era story card (about Bibi's hat), not the leader's.
+- Flicker, two real bugs fixed: frame caches keyed by `id()` (Python reuses ids, stale frames
+  flashed in) and drift rounded apart from the camera (the phone hopped a pixel and back). The A-B-A
+  frame scan in the session log is the check; run it on every render.
+- Handheld rotation and bar-line zoom kicks shimmer pixel text: keep them off.
+- Files over 30 MB cannot be sent to Bar through the chat: send a 3.2 Mbps copy.
+
+---
+
 # HANDOFF: "עוד סבב" (2026-09-30, end of session 6)
 
 **For the next agent:** work directly, never through the base67 studio (Bar: "dont use base67 studio").

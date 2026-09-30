@@ -278,6 +278,8 @@ def find_pill(take, t):
     return (float(xs.mean()), float((y0 + y1) / 2))
 
 
+SUB_DELAY = 0.35                    # the sub line (the punch) lands this long after the headline
+
 TAPS = []
 TAP_AT = {}                         # plan time -> (x, y) capture px, for taps a reel pins by hand
 
@@ -449,11 +451,12 @@ def captions(c, t):
             him = text(head, 8, grad=True)
             sim = text(sub, 6) if sub else None
             w = max(him.width, sim.width if sim else 0) + 70
-            h = him.height + (sim.height + 14 if sim else 0) + 36
+            show = sim is not None and t - s0 > SUB_DELAY    # the plate grows when the punch lands
+            h = him.height + (sim.height + 14 if show else 0) + 36
             y = 118
             paste(c, scaled(plate(w, h, NIGHT, INK, 6), sc), W // 2, y + h // 2 - 20)
             paste(c, scaled(him, sc), W // 2, y + him.height // 2 - 2)
-            if sim and t - s0 > 0.35:
+            if show:
                 paste(c, sim, W // 2, y + him.height + 10 + sim.height // 2)
 
 
