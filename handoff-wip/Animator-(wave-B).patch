@@ -1,6 +1,6 @@
 # binary files changed (not carried):
 diff --git a/game/scripts/main.gd b/game/scripts/main.gd
-index 9d1553c..2232787 100644
+index 9d1553c..644a398 100644
 --- a/game/scripts/main.gd
 +++ b/game/scripts/main.gd
 @@ -19,6 +19,8 @@ extends Node2D
@@ -20,7 +20,24 @@ index 9d1553c..2232787 100644
  var _ceremony_on_marker := false    # the Audio emits marker("fanfare", "fanfareEnd")
  var _settings_existed := false      # the player (or a previous session) saved settings
  var golden: GoldenView
-@@ -1024,6 +1027,10 @@ func _process(delta: float) -> void:
+@@ -289,6 +292,16 @@ func _read_dev_params() -> void:
+ 		_dev["speed"] = 1.0
+ 
+ 
++## Dev only (web, ?dev=1): `window.odDevElect = 1` runs the election ceremony now, gate or not (the
++## leader swap's frame strips in tools/web/motion_web.mjs). The flag is cleared when it is taken.
++func _dev_poll_elect() -> void:
++	if not OS.has_feature("web") or mode != "main" or _tx_locked or overlays.is_open():
++		return
++	if js_bool(JavaScriptBridge.eval("window.odDevElect === 1", true)):
++		JavaScriptBridge.eval("window.odDevElect = 0", true)
++		_start_evolve(true)
++
++
+ func _default_settings() -> Dictionary:
+ 	return {"sfx": true, "music": true, "reducedMotion": _os_reduced_motion(), "reducedMotionFollowsOs": true,
+ 		"haptics": true, "notation": "letters", "sfxVolume": 1.0, "musicVolume": 1.0, "shake": 1.0, "largeText": false}
+@@ -1024,6 +1037,10 @@ func _process(delta: float) -> void:
  	# Bibi's court day on the stage (the exit, the hat, the return): polled from the sim's phase
  	bb.court_sync(running and BigBanana.wants_court(state), tx.running)
  	bb.update_view(dt)
@@ -31,7 +48,35 @@ index 9d1553c..2232787 100644
  	court_echo.update_view(dt, state, str(Story.era_for(state.evolutions).get("id", "")), running and Leaders.has_court())
  	toasts.update_view(dt)
  	prop_fx.update_view(dt)
-@@ -2221,21 +2228,39 @@ func _start_evolve() -> void:
+@@ -1049,6 +1066,7 @@ func _process(delta: float) -> void:
+ 	_update_shake(dt)
+ 	if bool(_dev["on"]):
+ 		DevProbe.publish(self, dt)   # window.odDev for the browser drivers (tools/web/round_web.mjs)
++		_dev_poll_elect()
+ 	_audio_clocks(dt)
+ 	Juice.tick(dt)
+ 	_follow_os_motion(dt)
+@@ -2172,11 +2190,18 @@ func _do_reset() -> void:
+ 
+ # ================================================================== evolve (E7: idempotent, save first, input locked)
+ 
+-func _start_evolve() -> void:
++func _start_evolve(dev_force := false) -> void:
+ 	if _tx_locked:
+ 		return
+ 	var nxt := state.duplicate_state()
+ 	var res := Meta.evolve(nxt)
++	if res.is_empty() and dev_force and bool(_dev["on"]):
++		# dev only (?dev=1, window.odDevElect = 1; tools/web/motion_web.mjs): the election card's
++		# ceremony without the 61 gate, for the leader swap's frame strips. The round is not paid.
++		nxt = state.duplicate_state()
++		nxt.evolutions += 1
++		Politics.on_election(nxt)
++		res = {"multBefore": d.prestige_mult, "multAfter": d.prestige_mult, "gained": 0}
+ 	if res.is_empty():
+ 		return
+ 	_tx_locked = true
+@@ -2221,21 +2246,39 @@ func _start_evolve() -> void:
  			diorama.set_era(era)
  			_economy_frozen = false
  			_acc = 0.0,
@@ -77,7 +122,7 @@ index 9d1553c..2232787 100644
  # ================================================================== persistence
  
  func _mark_dirty() -> void:
-@@ -2299,29 +2324,32 @@ func _on_pick_commit(id: String, via: String) -> bool:
+@@ -2299,29 +2342,32 @@ func _on_pick_commit(id: String, via: String) -> bool:
  	return true
  
  
@@ -117,8 +162,29 @@ index 9d1553c..2232787 100644
  	if _pick_res.get("fresh", false) == true:
  		toasts.show_toast(Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}))
  	var pk: Variant = Leaders.ls().get("pick", {})
+@@ -2334,8 +2380,9 @@ func _on_pick_done() -> void:
+ 		_save_now()
+ 
+ 
+-## Test / tool hook: picks `id` at once (the commit and the stage, no animation).
+-func commit_pick(id: String) -> bool:
++## Test / tool hook: picks `id` at once (the commit and the stage, no animation: the walk-in lands at
++## once unless `walk`).
++func commit_pick(id: String, walk := false) -> bool:
+ 	if mode != "pick":
+ 		if not Leaders.pick_pending(state):
+ 			return false   # a loaded round (or content without leader select): nothing to pick
+@@ -2350,6 +2397,8 @@ func commit_pick(id: String) -> bool:
+ 	if not picker.locked:
+ 		return false
+ 	picker.finish_now()
++	if not walk:
++		bb.walk_land()
+ 	return true
+ 
+ 
 diff --git a/game/scripts/ui/big_banana.gd b/game/scripts/ui/big_banana.gd
-index 43b06f8..601339e 100644
+index 43b06f8..a40d581 100644
 --- a/game/scripts/ui/big_banana.gd
 +++ b/game/scripts/ui/big_banana.gd
 @@ -29,6 +29,10 @@ var on_court_fx: Callable
@@ -179,7 +245,7 @@ index 43b06f8..601339e 100644
  
  
  ## The hat's mark (stage coordinates): its mouth on idle.f0, where it hovers on court day.
-@@ -600,14 +608,79 @@ func hat_node() -> Sprite2D:
+@@ -600,14 +608,85 @@ func hat_node() -> Sprite2D:
  func off_stage_ap() -> float:
  	if hero == null:
  		return -170.0
@@ -248,6 +314,12 @@ index 43b06f8..601339e 100644
 +	return true
 +
 +
++## A walk-in ends on the mark now (the controller's instant path: tests and tools).
++func walk_land() -> void:
++	walk.land()
++	_apply_figure()
++
++
 +## A walk is running (out or in).
 +func walking() -> bool:
 +	return walk.walking()
@@ -264,7 +336,7 @@ index 43b06f8..601339e 100644
  
  
  func _build_court() -> void:
-@@ -644,11 +717,13 @@ func _place_court() -> void:
+@@ -644,11 +723,13 @@ func _place_court() -> void:
  		var p: Array = (arr as Array)[0]
  		mouth = (Vector2(float(p[0]), float(p[1])) - hero._anchor()) * hero.scale_px
  	_mark = (feet + mouth).snapped(Vector2(CourtMotion.AP, CourtMotion.AP))
@@ -280,7 +352,7 @@ index 43b06f8..601339e 100644
  		court_sync(true)
  	court.tick(dt_ms)
  	for e: Dictionary in court.take_events():
-@@ -692,8 +767,29 @@ func _hold_frame(f: int) -> void:
+@@ -692,8 +773,29 @@ func _hold_frame(f: int) -> void:
  	hero.paused = true
  
  
@@ -311,7 +383,7 @@ index 43b06f8..601339e 100644
  		return
  	var in_c := court.in_court()
  	if in_c:
-@@ -704,10 +800,7 @@ func _apply_court_pose() -> void:
+@@ -704,10 +806,7 @@ func _apply_court_pose() -> void:
  			_held_frame = -1
  			hero.paused = false
  			hero.play("idle")
