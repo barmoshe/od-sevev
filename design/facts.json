@@ -1461,9 +1461,7 @@
    "label": "F",
    "text": "Yair Golan won the Labor leadership primary on 28 May 2024 with over 95% of the vote, on a promise to unite the left.",
    "aboutHe": "במאי 2024 ניצח יאיר גולן בפריימריז לראשות מפלגת העבודה, בהבטחה לאחד את השמאל.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; JNS; Wikipedia",
    "url": "https://www.timesofisrael.com/yair-golan-wins-landslide-victory-in-labor-primary-with-promise-to-unite-the-left/",
    "url2": "https://en.wikipedia.org/wiki/2024_Israeli_Labor_Party_leadership_election",
@@ -1487,9 +1485,7 @@
    "label": "F",
    "text": "In May 2026 a Democrats party conference in Tel Aviv ratified the merger of the Labor and Meretz factions, guaranteeing Meretz the 6th, 8th and 14th slots on the joint list (the merger itself was first ratified on 12 Jul 2024).",
    "aboutHe": "במאי 2026 אישר כנס מפלגת הדמוקרטים את איחוד סיעות העבודה ומרצ, עם מקומות שמורים למרצ ברשימה.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "Haaretz; ToI",
    "url": "https://www.haaretz.com/israel-news/elections/2026-05-31/ty-article/.premium/democrats-party-approves-left-wing-merger-of-meretz-labor-ahead-of-elections/0000019e-7ec8-d813-a9be-ffcfd71b0000",
    "url2": "https://www.timesofisrael.com/liveblog_entry/left-wing-democrats-party-ratifies-merger-of-labor-and-meretz-factions-at-party-conference/",
@@ -1697,6 +1693,7 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "leaders.eisenkot.kit.ticker.te15",
+    "leaders.golan.kit.ticker.ty14",
     "leaders.liberman.kit.ticker.tl12"
    ],
    "ref": 80
@@ -1807,9 +1804,59 @@
    "verifiedAt": "2026-09-30",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
-    "leaders.bennett.kit.ticker.tb14"
+    "leaders.bennett.kit.ticker.tb14",
+    "leaders.golan.coalition.lineup.eisenkot",
+    "leaders.golan.kit.ticker.ty15"
    ],
    "ref": 85
+  },
+  {
+   "id": "democrats-slate",
+   "label": "F",
+   "text": "In the Democrats' 2026 primary the sitting MKs kept the top: Naama Lazimi No. 2, Gilad Kariv No. 3, Efrat Rayten No. 4; No. 1 is reserved for chairman Yair Golan.",
+   "aboutHe": "בפריימריז של הדמוקרטים ב־2026 נבחרה נעמה לזימי למקום השני וגלעד קריב למקום השלישי, אחרי יושב הראש יאיר גולן.",
+   "notUsed": false,
+   "outlet": "Israel Hayom; Calcalist; N12",
+   "url": "https://www.calcalist.co.il/local_news/article/r1g11u0s4zx",
+   "url2": "https://www.mako.co.il/news-politics/2026_q3/Article-56925b75e108f91027.htm",
+   "moreUrls": [
+    "https://news.walla.co.il/item/3854981"
+   ],
+   "date": "2026-08",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.kariv",
+    "leaderSelect.partnerProfiles.lazimi",
+    "leaders.golan.kit.sources.t6",
+    "leaders.golan.kit.sources.t6.firstOwned",
+    "leaders.golan.kit.story",
+    "leaders.golan.kit.ticker.ty11"
+   ],
+   "ref": 86
+  },
+  {
+   "id": "golan-million",
+   "label": "Q",
+   "text": "Launching the Democrats' campaign, Golan said the party would go out to the field and bring in one million votes (about 30 seats; polls give it about 10).",
+   "aboutHe": "בפתיחת הקמפיין של הדמוקרטים הודיע יאיר גולן שהמפלגה תביא מיליון קולות.",
+   "notUsed": false,
+   "outlet": "Times of Israel",
+   "url": "https://www.timesofisrael.com/launching-election-campaign-democrats-golan-says-blood-spilled-in-west-bank-is-on-pms-hands/",
+   "date": "2026-09",
+   "heStatus": "unverified",
+   "verifyHebrew": true,
+   "gameRendering": "reported speech: \"מיליון קולות\" only; nothing else from that speech.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.golan",
+    "leaders.golan.kit.story",
+    "leaders.golan.kit.ticker.ty13"
+   ],
+   "ref": 87
   }
  ],
  "deliberatelyOut": [

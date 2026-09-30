@@ -71,6 +71,12 @@ CAST = {
                          arm=None, react='no', head=(290, 20, 780, 510)),
     'mk-switcher': dict(neck=470, waist=970, eyes=[(492, 246, 24, 11), (608, 264, 24, 11)],
                         arm=None, react='hop', head=(360, 20, 800, 480)),
+    # The Democrats' No. 2 and No. 3 (Golan's round; ChatGPT batch 2026-09-30, keyed out with cutout.py, Lazimi with
+    # --clear boxes over the curls). Lazimi's pointing arm is raised to her head, so the neck cut sits under its elbow.
+    'lazimi': dict(neck=640, waist=800, eyes=[(457, 221, 20, 9), (550, 234, 20, 9)],
+                   arm=None, react='hop', head=(300, 30, 840, 570)),
+    'kariv': dict(neck=560, waist=960, eyes=[(431, 270, 24, 11), (567, 298, 24, 11)],
+                  arm=None, react='no', head=(300, 20, 820, 560)),
 }
 
 # The two custom-rig leaders (build.py magician / bennett) take the same recipe keys. Bibi's is his approved hat rig

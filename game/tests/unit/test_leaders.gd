@@ -380,8 +380,8 @@ func test_story_follows_the_leader_just_played() -> void:
 	var beats: Array = Leaders.kit("bennett")["story"]["beats"]
 	runner.check(f["leader"] == "bennett" and f["n"] == 1 and Array(f["lines"]) == beats[0] and f["id"] == "beat_bennett_1", "Bennett's first beat by HIS election count")
 	runner.check(str(f["title"]) == str(Leaders.kit("bennett")["story"]["titles"][0]), "his title")
-	s.leaders["bennett"]["elections"] = 4.0
-	runner.check(Array(Story.flash(s)["lines"]) == Array(Content.data()["story"]["encore"]), "after his 3 beats: the shared encore")
+	s.leaders["bennett"]["elections"] = float(beats.size() + 1)
+	runner.check(Array(Story.flash(s)["lines"]) == Array(Content.data()["story"]["encore"]), "after his %d beats: the shared encore" % beats.size())
 	var b := _round("bibi")
 	Meta.on_round_end(b, 400.0)
 	b.evolutions += 1
@@ -684,9 +684,9 @@ func test_merge_members() -> void:
 	s.coalition["mergeCdSec"] = 0.0
 	runner.check(Coalition.merge(s, "eisenkot", "liberman")["ok"] == true, "a second merge")
 	s.coalition["mergeCdSec"] = 0.0
-	_member(s, "mk_offer")
-	Coalition.ps(s, "mk_offer")["memberSec"] = 90.0
-	runner.check(Coalition.merge_block(s, "lapid", "mk_offer") == "limit", "2 per round")
+	_member(s, "kariv")
+	Coalition.ps(s, "kariv")["memberSec"] = 90.0
+	runner.check(Coalition.merge_block(s, "lapid", "kariv") == "limit", "2 per round")
 	Coalition._post(s, {"type": "ultimatum", "partner": "lapid", "price": 100.0, "leftSec": 0.05, "state": "open"}, [])
 	Coalition._tick_messages(s, 0.1, [])
 	var left := (s.coalition["chat"] as Array).filter(func(m: Dictionary) -> bool: return m.get("key", "") == "chat.sys.left" and m.get("partner", "") == "lapid")

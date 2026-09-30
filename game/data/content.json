@@ -5135,17 +5135,19 @@
     "bloc": "left",
     "lines": {
      "demand": "בוא נתאחד. אחר כך נדבר על {price} ₪.",
-     "threat": "אם זה לא עובר, אני מתאחד עם מישהו אחר.",
+     "threat": "זה לא עובר? אתאחד עם מישהו אחר. יש תור.",
      "thanks": "סגרנו. איחוד מוצלח. לפחות עד הבא.",
      "return": "חזרתי. התאחדתי עם עצמי."
     },
     "linesVariants": {
      "demand": [
       "בוא נתאחד. אחר כך נדבר על {price} ₪.",
-      "הצעת איחוד: אתה, אני, ועוד {price} ₪."
+      "הצעת איחוד: אתה, אני, ועוד {price} ₪.",
+      "מיליון קולות, {price} ₪. אפשר לאחד את התשלומים."
      ]
     },
     "src": [
+     "golan-million",
      "labor-meretz-merger"
     ],
     "_guardrail": "Politics only: mergers and the Democrats. Never his public story outside politics (brief red lines)."
@@ -5293,6 +5295,64 @@
      "return": "חזרתי. שוב. הבית לא השתנה."
     },
     "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him. Art: still the no-photo stand-in. The 2026-09-30 candidate (refs/candidates/mk-returner.png) came out resembling Netanyahu and must be regenerated with a made-up face before it renders."
+   },
+   {
+    "id": "lazimi",
+    "name": "נעמה לזימי",
+    "short": "לזימי",
+    "g": "f",
+    "avatar": "lazimi_avatar",
+    "art": "lazimi",
+    "bloc": "left",
+    "lines": {
+     "demand": "מצאתי {price} ₪ בסעיף שאף אחד לא קרא. תעביר.",
+     "threat": "זה לא עובר? אקרא את כל התקציב בקול. מהתחלה.",
+     "thanks": "התקבל. סימנתי בטוש צהוב.",
+     "return": "חזרתי. עם הערות שוליים."
+    },
+    "linesVariants": {
+     "demand": [
+      "מצאתי {price} ₪ בסעיף שאף אחד לא קרא. תעביר.",
+      "עמוד 412, סעיף ג׳: {price} ₪. בדקתי פעמיים."
+     ],
+     "thanks": [
+      "התקבל. סימנתי בטוש צהוב.",
+      "התקבל. נכנס לטבלה."
+     ]
+    },
+    "src": [
+     "democrats-slate"
+    ],
+    "_note": "Real person (Democrats No. 2, fact democrats-slate). Joke: the one MK who reads the budget line by line; never her private life. Mechanics: none (takes the generic mk_undecided slot L1 in Golan's round, same numbers)."
+   },
+   {
+    "id": "kariv",
+    "name": "גלעד קריב",
+    "short": "קריב",
+    "g": "m",
+    "avatar": "kariv_avatar",
+    "art": "kariv",
+    "bloc": "left",
+    "lines": {
+     "demand": "אני מוכן לחתן כל שתי מפלגות. דמי החופה: {price} ₪.",
+     "threat": "זה לא עובר? אעצור את הטקס באמצע.",
+     "thanks": "מזל טוב. האיחוד תקף עד הוויכוח הראשון.",
+     "return": "חזרתי. מישהו פינה לי את היציאה מהחניון."
+    },
+    "linesVariants": {
+     "demand": [
+      "אני מוכן לחתן כל שתי מפלגות. דמי החופה: {price} ₪.",
+      "יש לי הצעת חוק. גם תיקון. גם הסתייגות. {price} ₪."
+     ],
+     "return": [
+      "חזרתי. מישהו פינה לי את היציאה מהחניון.",
+      "חזרתי. עם שלושה תיקונים לחוק."
+     ]
+    },
+    "src": [
+     "democrats-slate"
+    ],
+    "_note": "Real person (Democrats No. 3, fact democrats-slate; the car blocked in fact md-blocks-cars, whose aboutHe names him). Joke: the officiant of Golan's mergers and a bill-and-amendment machine; never his community or his rabbinate as a punchline. Mechanics: none (takes the generic mk_offer slot S5 in Golan's round, same numbers)."
    }
   ],
   "cardProfiles": [
@@ -8437,13 +8497,19 @@
       }
      },
      "t6": {
-      "name": "יועצי איחודים",
-      "flavor": "מתמחים בשני דברים: לאחד, ולאחד שוב.",
-      "levelUp": "עוד יועץ. הוא כבר מציע לאחד את היועצים.",
+      "name": "הסעיף של לזימי",
+      "flavor": "מספר 2 ברשימה קוראת כל סעיף בתקציב. מוצאת כסף.",
+      "levelUp": "עוד סעיף נקרא. עוד שקל נמצא.",
+      "src": [
+       "democrats-slate"
+      ],
       "firstOwned": {
        "id": "hy_t6",
-       "text": "נשכרו יועצי איחודים. ביום הראשון: מיזוג משרדים.",
-       "poll_like": false
+       "text": "לזימי מצאה כסף בסעיף שאף אחד לא קרא. גולן הציע לאחד סעיפים.",
+       "poll_like": false,
+       "src": [
+        "democrats-slate"
+       ]
       }
      },
      "t7": {
@@ -8544,6 +8610,7 @@
       "איחוד!",
       "הדמוקרטים!",
       "עוד איחוד!",
+      "מיליון!",
       "כנס!",
       "בחירות!",
       "לאחד את השמאל!"
@@ -8562,11 +8629,12 @@
      "titles": [
       "עוד איחוד",
       "העבודה ומרצ",
-      "אושר שוב"
+      "אושר שוב",
+      "מיליון"
      ],
      "beats": [
       [
-       "גולן איחד 61 דברים.",
+       "61 מושבים, 61 הצעות איחוד.",
        "חלקם כבר היו מאוחדים.",
        "דובי: \"איחוד! איחוד!\"",
        "הוחלט על בחירות. גולן הציע להן איחוד."
@@ -8580,6 +8648,12 @@
        "ב־2024 האיחוד אושר.",
        "ב־2026 הוא אושר שוב, בכנס.",
        "דובי: \"עוד איחוד! עוד איחוד!\""
+      ],
+      [
+       "גולן הבטיח מיליון קולות.",
+       "במטה ספרו: זה המון קולות.",
+       "לזימי בדקה את החשבון. קריב כבר חיתן אותם.",
+       "דובי: \"מיליון! מיליון!\""
       ]
      ],
      "src": {
@@ -8590,6 +8664,10 @@
       "3": [
        "labor-meretz-merger",
        "democrats-merger-2026"
+      ],
+      "4": [
+       "golan-million",
+       "democrats-slate"
       ]
      },
      "poll_like": false
@@ -8660,13 +8738,40 @@
      },
      {
       "id": "ty11",
-      "text": "הוצע איחוד בין הקפה לתה. גולן כבר בדרך.",
-      "poll_like": false
+      "text": "קריב מוכן לחתן כל שתי מפלגות. גולן כבר שלח הזמנות.",
+      "poll_like": false,
+      "src": [
+       "democrats-slate"
+      ]
      },
      {
       "id": "ty12",
       "text": "גולן פתח קבוצה. תוך דקה היא התאחדה עם קבוצה אחרת.",
       "poll_like": false
+     },
+     {
+      "id": "ty13",
+      "text": "גולן הבטיח מיליון קולות. הציע לאחד אותם לקול אחד גדול.",
+      "poll_like": false,
+      "src": [
+       "golan-million"
+      ]
+     },
+     {
+      "id": "ty14",
+      "text": "ראשי הגוש חתמו לא לתקוף זה את זה. גולן הציע לאחד את החתימות.",
+      "poll_like": false,
+      "src": [
+       "change-bloc-pact"
+      ]
+     },
+     {
+      "id": "ty15",
+      "text": "ביחד וישר רצות בנפרד. גולן עדיין מחכה ליד הטלפון.",
+      "poll_like": false,
+      "src": [
+       "no-merger-slates"
+      ]
      }
     ],
     "trophy": {
@@ -8688,7 +8793,13 @@
     "lineup": [
      {
       "id": "eisenkot",
-      "slot": "S1"
+      "slot": "S1",
+      "lines": {
+       "demand": "איחוד? ישר: לא. תקציב? {price} ₪."
+      },
+      "src": [
+       "no-merger-slates"
+      ]
      },
      {
       "id": "lapid",
@@ -8703,12 +8814,14 @@
       "slot": "S4"
      },
      {
-      "id": "mk_offer",
-      "slot": "S5"
+      "id": "kariv",
+      "slot": "S5",
+      "_why": "List No. 3 (democrats-slate), in the generic S5 slot: same numbers as mk_offer."
      },
      {
-      "id": "mk_undecided",
-      "slot": "L1"
+      "id": "lazimi",
+      "slot": "L1",
+      "_why": "List No. 2 (democrats-slate), in the generic L1 slot: same numbers as mk_undecided."
      },
      {
       "id": "gafni",

@@ -10,6 +10,282 @@
   219
  ],
  "chars": {
+  "lazimi": {
+   "frameW": 192,
+   "frameH": 310,
+   "anchor": [
+    96,
+    309
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/lazimi_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/lazimi_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3,
+     "cols": 7,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 128,
+     "frameH": 206,
+     "anchor": [
+      64,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/lazimi_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/lazimi_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_lazimi",
+   "avatar24": "avatar24_lazimi"
+  },
+  "kariv": {
+   "frameW": 155,
+   "frameH": 289,
+   "anchor": [
+    77,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/kariv_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/kariv_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3,
+     "cols": 5,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      1,
+      0,
+      2,
+      3,
+      4,
+      1,
+      1,
+      0,
+      2,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 104,
+     "frameH": 193,
+     "anchor": [
+      52,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/kariv_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/kariv_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        1,
+        0,
+        2,
+        3,
+        4,
+        1,
+        1,
+        0,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_kariv",
+   "avatar24": "avatar24_kariv"
+  },
   "mk-offer": {
    "frameW": 140,
    "frameH": 310,
@@ -14367,9 +14643,25 @@
     24
    ]
   },
+  "avatar24_kariv.png": {
+   "bytes": 1094,
+   "sha": "9b611c59e9b1ac4f",
+   "size": [
+    24,
+    24
+   ]
+  },
   "avatar24_lapid.png": {
    "bytes": 866,
    "sha": "53e17aed220cb9f1",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_lazimi.png": {
+   "bytes": 1167,
+   "sha": "1be6c482c8d8cb40",
    "size": [
     24,
     24
@@ -14663,9 +14955,25 @@
     32
    ]
   },
+  "avatar_kariv.png": {
+   "bytes": 1738,
+   "sha": "724ea3b12285bc59",
+   "size": [
+    32,
+    32
+   ]
+  },
   "avatar_lapid.png": {
    "bytes": 1350,
    "sha": "4a5eb99ca537d1f2",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_lazimi.png": {
+   "bytes": 1971,
+   "sha": "fbac8f4e88e81ff8",
    "size": [
     32,
     32
@@ -15823,6 +16131,38 @@
     195
    ]
   },
+  "cast/kariv_idle.png": {
+   "bytes": 82801,
+   "sha": "b73c20c98082787b",
+   "size": [
+    930,
+    289
+   ]
+  },
+  "cast/kariv_idle_d2.png": {
+   "bytes": 39262,
+   "sha": "9fb63ba3d698029d",
+   "size": [
+    624,
+    193
+   ]
+  },
+  "cast/kariv_react.png": {
+   "bytes": 67413,
+   "sha": "c01bd88c7cd2f4f4",
+   "size": [
+    775,
+    289
+   ]
+  },
+  "cast/kariv_react_d2.png": {
+   "bytes": 33852,
+   "sha": "48ab87f063717a35",
+   "size": [
+    520,
+    193
+   ]
+  },
   "cast/lapid_idle.png": {
    "bytes": 249386,
    "sha": "6d80fb9001fa98c0",
@@ -15852,6 +16192,38 @@
    "sha": "2793ed7ac1bc23ab",
    "size": [
     987,
+    206
+   ]
+  },
+  "cast/lazimi_idle.png": {
+   "bytes": 101381,
+   "sha": "9dda5d5fa7cecf39",
+   "size": [
+    1152,
+    310
+   ]
+  },
+  "cast/lazimi_idle_d2.png": {
+   "bytes": 48943,
+   "sha": "75ef4aa53cae6166",
+   "size": [
+    768,
+    206
+   ]
+  },
+  "cast/lazimi_react.png": {
+   "bytes": 303301,
+   "sha": "f4c4790c829b3d34",
+   "size": [
+    1344,
+    310
+   ]
+  },
+  "cast/lazimi_react_d2.png": {
+   "bytes": 144045,
+   "sha": "522d8ab0e9e405f0",
+   "size": [
+    896,
     206
    ]
   },
@@ -18613,7 +18985,9 @@
    "herzog.png": "455757b1fba3a804",
    "hitech.png": "9947ca2bbfd76400",
    "karhi.png": "7fd58bb71e43344c",
+   "kariv.png": "e2c1734b7fd97171",
    "lapid.png": "147fdf47a91f9069",
+   "lazimi.png": "58e3089ed4f34ee6",
    "levin.png": "7dc21a1b8c2842c8",
    "liberman.png": "58629f47e6ad609d",
    "may-golan.png": "b708ecb18b8548fd",

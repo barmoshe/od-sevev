@@ -16,7 +16,9 @@
   "sprites/avatar24_gotliv.png": 1169,
   "sprites/avatar24_herzog.png": 1069,
   "sprites/avatar24_karhi.png": 918,
+  "sprites/avatar24_kariv.png": 1094,
   "sprites/avatar24_lapid.png": 913,
+  "sprites/avatar24_lazimi.png": 1167,
   "sprites/avatar24_levin.png": 1135,
   "sprites/avatar24_liberman.png": 981,
   "sprites/avatar24_may-golan.png": 1117,
@@ -53,7 +55,9 @@
   "sprites/avatar_gotliv.png": 1986,
   "sprites/avatar_herzog.png": 1723,
   "sprites/avatar_karhi.png": 1392,
+  "sprites/avatar_kariv.png": 1738,
   "sprites/avatar_lapid.png": 1473,
+  "sprites/avatar_lazimi.png": 1971,
   "sprites/avatar_levin.png": 1888,
   "sprites/avatar_liberman.png": 1612,
   "sprites/avatar_may-golan.png": 1953,
@@ -198,10 +202,18 @@
   "sprites/cast/karhi_idle_d2.png": 94957,
   "sprites/cast/karhi_react.png": 145791,
   "sprites/cast/karhi_react_d2.png": 75201,
+  "sprites/cast/kariv_idle.png": 82801,
+  "sprites/cast/kariv_idle_d2.png": 39262,
+  "sprites/cast/kariv_react.png": 67413,
+  "sprites/cast/kariv_react_d2.png": 33852,
   "sprites/cast/lapid_idle.png": 249386,
   "sprites/cast/lapid_idle_d2.png": 90127,
   "sprites/cast/lapid_react.png": 258363,
   "sprites/cast/lapid_react_d2.png": 122062,
+  "sprites/cast/lazimi_idle.png": 101381,
+  "sprites/cast/lazimi_idle_d2.png": 48943,
+  "sprites/cast/lazimi_react.png": 303301,
+  "sprites/cast/lazimi_react_d2.png": 144045,
   "sprites/cast/levin_idle.png": 250900,
   "sprites/cast/levin_idle_d2.png": 115674,
   "sprites/cast/levin_react.png": 198482,
@@ -551,8 +563,16 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 189784404,
+ "vramBytes": 197117528,
  "vramByDensity": {
+  "lazimi": {
+   "3": 3095040,
+   "2": 1371136
+  },
+  "kariv": {
+   "3": 1970980,
+   "2": 883168
+  },
   "mk-offer": {
    "3": 2256800,
    "2": 1006928
@@ -687,13 +707,13 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 8123688,
-  "3": 13786536,
-  "4": 8123688,
-  "6": 13786536,
-  "7": 13786536,
-  "8": 8123688,
-  "9": 13786536
+  "2": 8136488,
+  "3": 13799336,
+  "4": 8136488,
+  "6": 13799336,
+  "7": 13799336,
+  "8": 8136488,
+  "9": 13799336
  },
  "vramSourcesByK": {
   "2": 259200,
@@ -706,6 +726,8 @@
  },
  "vramPerPartnerByK": {
   "2": {
+   "lazimi": 1371136,
+   "kariv": 883168,
    "mk-offer": 1006928,
    "mk-undecided": 840708,
    "mk-switcher": 1124760,
@@ -737,6 +759,8 @@
    "nophoto": 15520
   },
   "3": {
+   "lazimi": 3095040,
+   "kariv": 1970980,
    "mk-offer": 2256800,
    "mk-undecided": 1894684,
    "mk-switcher": 2498600,
@@ -768,6 +792,8 @@
    "nophoto": 15520
   },
   "4": {
+   "lazimi": 1371136,
+   "kariv": 883168,
    "mk-offer": 1006928,
    "mk-undecided": 840708,
    "mk-switcher": 1124760,
@@ -799,6 +825,8 @@
    "nophoto": 15520
   },
   "6": {
+   "lazimi": 3095040,
+   "kariv": 1970980,
    "mk-offer": 2256800,
    "mk-undecided": 1894684,
    "mk-switcher": 2498600,
@@ -830,6 +858,8 @@
    "nophoto": 15520
   },
   "7": {
+   "lazimi": 3095040,
+   "kariv": 1970980,
    "mk-offer": 2256800,
    "mk-undecided": 1894684,
    "mk-switcher": 2498600,
@@ -861,6 +891,8 @@
    "nophoto": 15520
   },
   "8": {
+   "lazimi": 1371136,
+   "kariv": 883168,
    "mk-offer": 1006928,
    "mk-undecided": 840708,
    "mk-switcher": 1124760,
@@ -892,6 +924,8 @@
    "nophoto": 15520
   },
   "9": {
+   "lazimi": 3095040,
+   "kariv": 1970980,
    "mk-offer": 2256800,
    "mk-undecided": 1894684,
    "mk-switcher": 2498600,
@@ -995,9 +1029,11 @@
    "golan": 2803640
   }
  },
- "vramTypical": 13786536,
- "vramCastAll": 184745316,
+ "vramTypical": 13799336,
+ "vramCastAll": 192065640,
  "vramPerPartner": {
+  "lazimi": 3095040,
+  "kariv": 1970980,
   "mk-offer": 2256800,
   "mk-undecided": 1894684,
   "mk-switcher": 2498600,
@@ -1110,9 +1146,19 @@
    "imported": 442
   },
   {
+   "file": "assets/sprites/avatar24_kariv.png",
+   "source": 1094,
+   "imported": 470
+  },
+  {
    "file": "assets/sprites/avatar24_lapid.png",
    "source": 866,
    "imported": 420
+  },
+  {
+   "file": "assets/sprites/avatar24_lazimi.png",
+   "source": 1167,
+   "imported": 528
   },
   {
    "file": "assets/sprites/avatar24_levin.png",
@@ -1295,9 +1341,19 @@
    "imported": 574
   },
   {
+   "file": "assets/sprites/avatar_kariv.png",
+   "source": 1738,
+   "imported": 666
+  },
+  {
    "file": "assets/sprites/avatar_lapid.png",
    "source": 1350,
    "imported": 576
+  },
+  {
+   "file": "assets/sprites/avatar_lazimi.png",
+   "source": 1971,
+   "imported": 752
   },
   {
    "file": "assets/sprites/avatar_levin.png",
@@ -2020,6 +2076,26 @@
    "imported": 26056
   },
   {
+   "file": "assets/sprites/cast/kariv_idle.png",
+   "source": 82801,
+   "imported": 25714
+  },
+  {
+   "file": "assets/sprites/cast/kariv_idle_d2.png",
+   "source": 39262,
+   "imported": 13320
+  },
+  {
+   "file": "assets/sprites/cast/kariv_react.png",
+   "source": 67413,
+   "imported": 23954
+  },
+  {
+   "file": "assets/sprites/cast/kariv_react_d2.png",
+   "source": 33852,
+   "imported": 12212
+  },
+  {
    "file": "assets/sprites/cast/lapid_idle.png",
    "source": 249386,
    "imported": 76130
@@ -2038,6 +2114,26 @@
    "file": "assets/sprites/cast/lapid_react_d2.png",
    "source": 122062,
    "imported": 42574
+  },
+  {
+   "file": "assets/sprites/cast/lazimi_idle.png",
+   "source": 101381,
+   "imported": 33652
+  },
+  {
+   "file": "assets/sprites/cast/lazimi_idle_d2.png",
+   "source": 48943,
+   "imported": 16960
+  },
+  {
+   "file": "assets/sprites/cast/lazimi_react.png",
+   "source": 303301,
+   "imported": 113746
+  },
+  {
+   "file": "assets/sprites/cast/lazimi_react_d2.png",
+   "source": 144045,
+   "imported": 58170
   },
   {
    "file": "assets/sprites/cast/levin_idle.png",
@@ -3783,8 +3879,16 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 6091551,
+ "pckBytes": 6391695,
  "pckByAsset": {
+  "lazimi": {
+   "3": 147398,
+   "2": 75130
+  },
+  "kariv": {
+   "3": 49668,
+   "2": 25532
+  },
   "mk-offer": {
    "3": 137484,
    "2": 68572
@@ -4042,5 +4146,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 17696491
+ "sourceTotal": 18523459
 }
