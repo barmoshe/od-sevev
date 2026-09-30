@@ -1,4 +1,90 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
+index 1558947..1878272 100644
+--- a/game/scripts/ui/dev_probe.gd
++++ b/game/scripts/ui/dev_probe.gd
+@@ -95,7 +95,9 @@ static func snapshot(host: Node) -> Dictionary:
+ 	# mobile-first §5.4: the silhouette and teaser rows the pane shows whole (no price or no target)
+ 	out["shop"] = {"tab": shop.tab, "list": [shop.list_rect.position.y + o.y, shop.list_rect.end.y + o.y], "rows": rows,
+ 		"all": all_rows, "silhouettes": shop.rows_in_view(["silhouette", "teaser"]),
+-		"card": [shop.list_rect.position.x + o.x, shop.list_rect.end.x + o.x]}   # the cards' x span (the width rule)
++		"card": [shop.list_rect.position.x + o.x, shop.list_rect.end.x + o.x],   # the cards' x span (the width rule)
++		# review U6 / S7: every row the pane shows at least partly, its pill [top, bottom, drawn]
++		"pills": shop.pill_rects().map(func(p: Array) -> Array: return [float(p[0]) + o.y, float(p[1]) + o.y, p[2]])}
+ 	var court: CourtView = host.get("court")
+ 	var ct := court.button_rect("testify").get_center() + o if court.card_visible() else Vector2(-1, -1)
+ 	out["court"] = {"card": court.card_visible(), "mode": court.mode(), "phase": court.phase(), "testify": [ct.x, ct.y]}
+diff --git a/game/scripts/ui/shop.gd b/game/scripts/ui/shop.gd
+index 7544ab8..c6f1882 100644
+--- a/game/scripts/ui/shop.gd
++++ b/game/scripts/ui/shop.gd
+@@ -487,6 +487,7 @@ func refresh(s: GameState, dt_ms: float, animate_reveal: bool, d: Economy.Derive
+ 			if t == "upgrades" and _reflow_from >= 0 and k >= _reflow_from:
+ 				y += _reflow_offset
+ 			c.position.y = y
++			_clip_pill(v, y)
+ 		if t == "upgrades":
+ 			for e in _empty:
+ 				e.visible = models.is_empty()
+@@ -495,6 +496,40 @@ func refresh(s: GameState, dt_ms: float, animate_reveal: bool, d: Economy.Derive
+ 	_update_nudge(dt_ms, animate_reveal)
+ 
+ 
++## Review U6 (mobile-first §0 rule 5, S7): a row the pane cuts shows no pill (a tappable
++## half-button); plate, icon and name only, and the pill appears once it is fully in.
++func _clip_pill(v: Dictionary, y: float) -> void:
++	var shown := pill_whole(y)
++	v["pillCut"] = not shown
++	if shown:
++		(v["pill1"] as PxText).visible = true
++		(v["pill2"] as PxText).visible = true
++		return
++	for n: CanvasItem in [v["pill"], v["fill"], v["pill1"], v["pill2"]]:
++		n.visible = false
++
++
++## True when the pill of a row whose top is at `y` (`_lower`-local) lies wholly inside the pane.
++func pill_whole(y: float) -> bool:
++	return y + PILL_RECT.position.y >= list_rect.position.y - 0.5 and y + PILL_RECT.end.y <= list_rect.end.y + 0.5
++
++
++## The pills the pane shows (web probe, S7): [top, bottom, visible] in `_lower`-local y for every
++## row that is at least partly in the pane (source cards, the locked row, the teasers).
++func pill_rects() -> Array:
++	var out: Array = []
++	var views: Array = _rows[tab] if _rows.has(tab) else []
++	for v: Dictionary in views:
++		var c: Node2D = v["c"]
++		if not c.visible:
++			continue
++		var y := c.position.y
++		if y + float(L.SHOP["rowVisualH"]) <= list_rect.position.y or y >= list_rect.end.y:
++			continue
++		out.append([y + PILL_RECT.position.y, y + PILL_RECT.end.y, (v["pill"] as NinePatchRect).visible and (v["pill2"] as PxText).visible])
++	return out
++
++
+ func _badge_label(n: int) -> String:
+ 	return "" if n <= 0 else Strings.s("TAB_BADGE", {"count": "9+" if n > 9 else str(n)})
+ 
+@@ -614,9 +649,15 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 	l2t.text = line2
+ 	var ot: PxText = v["owned"]
+ 	ot.text = owned_s
+-	var orect: Rect2 = R["owned"]
++	# review U13: the chip is sized to its text (text + 16, min 48, h 40) at the plate's bottom-left
++	# corner, so it covers the portrait's corner, not its torso
++	var orect := owned_rect(float(ot.width()))
++	var obg: ColorRect = v["ownedBg"]
++	obg.position = orect.position
++	obg.size = orect.size
++	ot.position.y = orect.position.y
+ 	ot.center_in(orect.position.x, orect.size.x)   # re-centred every render: large text changes the width
+-	(v["ownedBg"] as ColorRect).visible = owned_s != ""
++	obg.visible = owned_s != ""
+ 	if v["afford"] == false and afford and active and _visible_shop and not is_btn:
+ 		if _now >= float(v["glintReadyAt"]):
+ 			v["glintReadyAt"] = _now + float(Tune.T["affordGlintCooldownMs"])
 diff --git a/game/scripts/ui/views/view_pick.gd b/game/scripts/ui/views/view_pick.gd
 index 19571e5..342c4fd 100644
 --- a/game/scripts/ui/views/view_pick.gd
@@ -106,3 +192,30 @@ index 19571e5..342c4fd 100644
  
  
  func publish_closed() -> void:
+diff --git a/game/tests/unit/test_mobile_layout.gd b/game/tests/unit/test_mobile_layout.gd
+index a80eaf2..8a1c2a0 100644
+--- a/game/tests/unit/test_mobile_layout.gd
++++ b/game/tests/unit/test_mobile_layout.gd
+@@ -199,10 +199,20 @@ func _check_booted(dev: Vector2i, name: String) -> void:
+ 	# the title and not the 12 above the strip; the engine keeps the title clear of the wordmark)
+ 	var th_ok: bool = m.picker.tile.y <= float(pf["th"]) and m.picker.tile.y >= float(pf["th"]) - 16.0
+ 	runner.check(m.picker.tile.x == float(pf["tw"]) and th_ok and m.picker.avatar == float(pf["A"]), "%s: pick tiles %s, A %d (got %s, %d)" % [name, [pf["tw"], pf["th"]], int(pf["A"]), m.picker.tile, m.picker.avatar])
+-	var title_top: float = m.picker.grid.x - 16.0 - 44.0
++	# §5.14.2: the booth frames the grid on the tall phones (free: tiles unchanged), never at the SE
++	var bo: Rect2 = m.picker.booth
++	var want_booth := not name.begins_with("SE")
++	runner.check(bo.has_area() == want_booth, "%s: the booth is %s (%s)" % [name, "on" if want_booth else "off", bo])
++	var title_top: float = (bo.position.y if bo.has_area() else m.picker.grid.x) - 16.0 - 44.0
+ 	runner.check(title_top >= 12.0 + (116.0 if m._vs.y >= 1280.0 else 64.0) + 12.0 - 0.5, "%s: the title line clears the wordmark (%d)" % [name, title_top])
+ 	var H: float = float(m._vs.y) - float(m._bottom_inset)
+-	runner.check(m.picker.grid.y + 12.0 == H - 16.0 - PickView.STRIP_H, "%s: the grid sits on the strip (bottom %d)" % [name, m.picker.grid.y])
++	var gap := PickView.BOOTH_GRID_GAP if bo.has_area() else 12.0
++	runner.check(m.picker.grid.y + gap == H - 16.0 - PickView.STRIP_H, "%s: the grid sits on the strip (bottom %d, + %d)" % [name, m.picker.grid.y, gap])
++	if bo.has_area():
++		runner.check(bo.position.x == 0.0 and bo.size.x == L.cw and bo.position.y == m.picker.grid.x - 36.0 and bo.end.y == m.picker.grid.y + 12.0,
++			"%s: the booth spans the canvas, 36 above and 12 below the grid (%s)" % [name, bo])
++		var xs: Array = m.picker.cells.map(func(c: Dictionary) -> float: return (c["rect"] as Rect2).position.x)
++		runner.check(xs.min() == 20.0 and abs(xs.max() + m.picker.tile.x - (L.cw - 20.0)) < 0.5, "%s: the columns move in to 20" % name)
+ 	var cb := TopBar.counter_box()
+ 	runner.check(cb.size.x == 328.0 + L.dx and TopBar.COUNTER_SCALE == 6, "%s: the counter ×6 in a stretched box (%d)" % [name, cb.size.x])
+ 	var p0: Rect2 = m.shop.PILL_RECT
