@@ -199,10 +199,20 @@ func _check_booted(dev: Vector2i, name: String) -> void:
 	# the title and not the 12 above the strip; the engine keeps the title clear of the wordmark)
 	var th_ok: bool = m.picker.tile.y <= float(pf["th"]) and m.picker.tile.y >= float(pf["th"]) - 16.0
 	runner.check(m.picker.tile.x == float(pf["tw"]) and th_ok and m.picker.avatar == float(pf["A"]), "%s: pick tiles %s, A %d (got %s, %d)" % [name, [pf["tw"], pf["th"]], int(pf["A"]), m.picker.tile, m.picker.avatar])
-	var title_top: float = m.picker.grid.x - 16.0 - 44.0
+	# §5.14.2: the booth frames the grid on the tall phones (free: tiles unchanged), never at the SE
+	var bo: Rect2 = m.picker.booth
+	var want_booth := not name.begins_with("SE")
+	runner.check(bo.has_area() == want_booth, "%s: the booth is %s (%s)" % [name, "on" if want_booth else "off", bo])
+	var title_top: float = (bo.position.y if bo.has_area() else m.picker.grid.x) - 16.0 - 44.0
 	runner.check(title_top >= 12.0 + (116.0 if m._vs.y >= 1280.0 else 64.0) + 12.0 - 0.5, "%s: the title line clears the wordmark (%d)" % [name, title_top])
 	var H: float = float(m._vs.y) - float(m._bottom_inset)
-	runner.check(m.picker.grid.y + 12.0 == H - 16.0 - PickView.STRIP_H, "%s: the grid sits on the strip (bottom %d)" % [name, m.picker.grid.y])
+	var gap := PickView.BOOTH_GRID_GAP if bo.has_area() else 12.0
+	runner.check(m.picker.grid.y + gap == H - 16.0 - PickView.STRIP_H, "%s: the grid sits on the strip (bottom %d, + %d)" % [name, m.picker.grid.y, gap])
+	if bo.has_area():
+		runner.check(bo.position.x == 0.0 and bo.size.x == L.cw and bo.position.y == m.picker.grid.x - 36.0 and bo.end.y == m.picker.grid.y + 12.0,
+			"%s: the booth spans the canvas, 36 above and 12 below the grid (%s)" % [name, bo])
+		var xs: Array = m.picker.cells.map(func(c: Dictionary) -> float: return (c["rect"] as Rect2).position.x)
+		runner.check(xs.min() == 20.0 and abs(xs.max() + m.picker.tile.x - (L.cw - 20.0)) < 0.5, "%s: the columns move in to 20" % name)
 	var cb := TopBar.counter_box()
 	runner.check(cb.size.x == 328.0 + L.dx and TopBar.COUNTER_SCALE == 6, "%s: the counter ×6 in a stretched box (%d)" % [name, cb.size.x])
 	var p0: Rect2 = m.shop.PILL_RECT

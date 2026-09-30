@@ -127,6 +127,8 @@ var _bottom_inset := 0.0
 var _seats_up := false               # the Row B fill is drawn (C2, mobile-first §3.3)
 var _tabs_up := false                # the tab bar is revealed (C1)
 var _slots_known := false
+var _pane_up := false                 # the pane's white field is drawn (card 1, review U3)
+var _pane_known := false
 var _tab_slide: Tween
 ## R9 (rtl-map §7.1 "History"): one browser history entry per open layer (web only).
 var history := LayerHistory.new()
@@ -964,7 +966,9 @@ func _set_mode(m: String, animate: bool) -> void:
 	_title_ground.visible = not main and not diorama.has_background()
 	_place_title_floor()
 	_title_floor.modulate.a = 1.0
-	_title_floor.visible = not main or animate   # fades out with the title (below)
+	# review U3: between tap 1 and card 1 the pre-tap apron stays (the pane's white comes with card 1)
+	var floor_stays := main and not bool(Ftue.reveals(state).get("card1", false))
+	_title_floor.visible = not main or animate or floor_stays   # fades out with the title (below)
 	if not main:
 		title_view.show_title(not Leaders.active())   # D26: the pre-tap state has no title lines
 		_top.visible = false
@@ -980,8 +984,9 @@ func _set_mode(m: String, animate: bool) -> void:
 		var tw := create_tween().set_parallel()
 		tw.tween_property(_top, "modulate:a", 1.0, ms / 1000.0)
 		tw.tween_property(_lower, "modulate:a", 1.0, ms / 1000.0)
-		tw.tween_property(_title_floor, "modulate:a", 0.0, ms / 1000.0)
-		tw.chain().tween_callback(func() -> void: _title_floor.visible = mode != "main")
+		if not floor_stays:
+			tw.tween_property(_title_floor, "modulate:a", 0.0, ms / 1000.0)
+			tw.chain().tween_callback(func() -> void: _title_floor.visible = mode != "main" or not _pane_up)
 	else:
 		title_view.show_title(false)
 
@@ -1147,12 +1152,44 @@ func _apply_reveals() -> void:
 		court.relayout()
 		_publish_display()
 	_slots_known = true
+	_apply_pane(main and bool(_reveals["card1"]))
 	ticker.visible = main and bool(_reveals["counter"])
 	ticker.set_cta(main and state.evolutions >= 0 and Coalition.gate_open(state) and Coalition.active())
 	if bool(_reveals["seats"]):
 		var si := Coalition.seat_info(state)
 		top_bar.set_seats(int(si["effective"]), int(si["gateSeats"]), _blackout())
 	top_bar.set_muted(not bool(settings.get("sfx", true)) and not bool(settings.get("music", true)))
+
+
+## Review U3 (mobile-first §0 rule 4, §3.3): the pane's white field (`_fills["shop"]`) appears
+## with card 1, not at tap 1; until then the pre-tap apron (the diorama's plaza + the paving floor)
+## stays drawn below the ticker. At card 1 the field fades in as the apron fades out (150 ms;
+## reduced motion: a cut).
+func _apply_pane(up: bool) -> void:
+	if up == _pane_up and _pane_known:
+		return
+	var anim := _pane_known and up and mode == "main" and not bool(settings.get("reducedMotion", false))
+	_pane_up = up
+	_pane_known = true
+	var fill: ColorRect = _fills["shop"]
+	fill.visible = up
+	if mode != "main":
+		return
+	if not up:
+		fill.modulate.a = 1.0
+		_place_title_floor()
+		_title_floor.modulate.a = 1.0
+		_title_floor.visible = true
+		return
+	if anim:
+		fill.modulate.a = 0.0
+		var tw := create_tween().set_parallel()
+		tw.tween_property(fill, "modulate:a", 1.0, 0.15)
+		tw.tween_property(_title_floor, "modulate:a", 0.0, 0.15)
+		tw.chain().tween_callback(func() -> void: _title_floor.visible = mode != "main" or not _pane_up)
+	else:
+		fill.modulate.a = 1.0
+		_title_floor.visible = false
 
 
 func _blackout() -> bool:
@@ -2368,10 +2405,10 @@ func _on_pick_done() -> void:
 	# figure when the line pops); the leader's own line 1.7 s after it, as before
 	var at := _now + bb.walk_left_ms() + PICK_LINE_AFTER_LAND_MS
 	_pick_seq = [{"at": at, "fn": func() -> void:
-		toasts.say(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at, 1600.0)}]
+		_say_pick(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at)}]
 	var line := str(Leaders.leader(id).get("pick", {}).get("line", "")) if Leaders.leader(id).get("pick") is Dictionary else ""
 	if Leaders.stat(state, id, "taps") > 0.0 and line != "":
-		_pick_seq.append({"at": at + PICK_LINE_GAP_MS, "fn": func() -> void: toasts.say(line, dubi_at, 1600.0)})
+		_pick_seq.append({"at": at + PICK_LINE_GAP_MS, "fn": func() -> void: _say_pick(line, dubi_at)})
 	if _pick_res.get("fresh", false) == true:
 		toasts.show_toast(Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}))
 	var pk: Variant = Leaders.ls().get("pick", {})
@@ -2382,6 +2419,35 @@ func _on_pick_done() -> void:
 		_show_offline()   # O1 waited for the pick
 	if mode == "main":
 		_save_now()
+
+
+## Review U9: a pick line of Dubi's. Before tap 1 (ftue P0) Dubi is not on screen (he lives in the
+## ticker, hidden pre-tap), so the line goes in the toast dock above the leader's head, as a chat
+## toast headed "דובי · דובר הלשכה" with his 16-px face; from H1 on, his bubble by the ticker.
+func _say_pick(text: String, dubi_at: Vector2) -> void:
+	if mode != "main" and state.taps_lifetime == 0:
+		var t: String = str(toasts.dubi_line.call(text)) if toasts.dubi_line.is_valid() else text
+		toasts.show_chat_toast(dubi_head(), t, dubi_face(), "", true)
+		return
+	toasts.say(text, dubi_at, 1600.0)
+
+
+## The pre-tap toast's head line: the narrator's name and title from the content.
+static func dubi_head() -> String:
+	var n: Dictionary = Content.data().get("narrator", Content.data().get("dubi", {}))
+	var nm := str(n.get("name", ""))
+	var ti := str(n.get("title", ""))
+	return nm + (" · " + ti if ti != "" and nm != "" else ti)
+
+
+## Dubi's face for the toast: his chat avatar at the manifest's scale ([id, scale, density]).
+static func dubi_face() -> Array:
+	var c: Dictionary = SpriteStrip.manifest().get("chars", {}).get(SpriteStrip.resolve("dubi"), {})
+	var art := str(c.get("avatar", "avatar_dubi"))
+	if not Art.has_sprite(art):
+		return []
+	var dens := maxi(1, int(c.get("avatarDensity", Art.kit(art).get("density", 1))))
+	return [art, float(SpriteStrip.art_scale()) / float(dens), dens]
 
 
 ## Test / tool hook: picks `id` at once (the commit and the stage, no animation: the walk-in lands at

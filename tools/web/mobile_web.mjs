@@ -151,6 +151,15 @@ for (const spec of list.split(',')) {
 		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
 	};
 	const probe = () => page.evaluate(() => window.odDev || null);
+	// S7 + review U6: the pill rect of every row the pane shows at least partly (source cards, the
+	// locked row, the teasers); a pill is drawn only when it lies wholly inside the pane
+	const pillCheck = (step, st) => {
+		if (!st || !st.shop || !st.shop.list) return;
+		const [lt, lb] = st.shop.list;
+		const pills = st.shop.pills || [];
+		const cut = pills.filter((p) => p[2] && (p[0] < lt - 0.5 || p[1] > lb + 0.5));
+		check('spec', pills.length > 0 && cut.length === 0, `${step}: no pill on a partly visible row (${pills.length} rows in the pane; cut pills ${JSON.stringify(cut.map((p) => p.slice(0, 2).map(Math.round)))})`);
+	};
 	const refresh = async () => { disp = await page.evaluate(() => window.odDisplay); };
 	const shot = async (step) => {
 		const p = `${out}/${name}-${step}.png`;
@@ -240,7 +249,18 @@ for (const spec of list.split(',')) {
 		const lastRow = Math.max(...bottoms);
 		const th = pk.tile ? pk.tile[1] : 0;
 		const stripTop = H0 - 16 - 112;
-		check('spec', pk.tile && Math.abs(lastRow + th / 2 + 12 - stripTop) <= 4, `the grid is bottom-anchored: last row bottom ${Math.round(lastRow + th / 2)} + 12 = the strip top ${stripTop}`);
+		// §5.14.2 (F15): the booth frames the grid wherever it costs no tile pixel (the tall phones and
+		// the desktop frame), never at the SE or the toolbar viewports; with it the grid sits 20 over
+		// the strip (the booth's bottom 8 over it), without it 12
+		const wantBooth = framed || (H >= 780 && !(W === 375 && H === 667));
+		const booth = pk.booth || null;
+		check('spec', !!booth === wantBooth, `the booth is ${wantBooth ? 'on' : 'off'} here (${JSON.stringify(booth)})`);
+		const gap = booth ? 20 : 12;
+		check('spec', pk.tile && Math.abs(lastRow + th / 2 + gap - stripTop) <= 4, `the grid is bottom-anchored: last row bottom ${Math.round(lastRow + th / 2)} + ${gap} = the strip top ${stripTop}`);
+		if (booth) {
+			check('width', booth[0] <= 0.5 && booth[2] >= disp.cw - 0.5, `the booth spans the canvas (${booth[0]}, ${booth[2]} of ${disp.cw})`);
+			check('spec', Math.abs(booth[1] + booth[3] - (stripTop - 8)) <= 4, `the booth's bottom is 8 over the strip (${booth[1] + booth[3]} vs ${stripTop - 8})`);
+		}
 		// §5.8 avatar choice: the largest of 192 (even k only), 128, 96, 64 whose 3 × 3 fits `avail`
 		const header = pk.variant === 'after' ? 132 : (12 + (H0 >= 1280 ? 116 : 64) + 12 + 44 + 12);
 		const avail = H0 - header - 112 - (pk.variant === 'after' ? 116 : 16);
@@ -268,12 +288,20 @@ for (const spec of list.split(',')) {
 
 	// ---- tap 1-3 (card 1), then the first buy
 	const hat = css(disp.hat[0], disp.hat[1]);
-	for (let i = 0; i < 4; i++) { await tap([hat[0], hat[1] + 4 * i]); await wait(350); }
+	// review U3: after tap 1 (before card 1) the pre-tap apron stays below the ticker; the pane's
+	// white field comes with card 1, so no blank band may open under the stage here
+	await tap([hat[0], hat[1]]);
+	await wait(1200);
+	await refresh();
+	const tap1 = await shot('tap1');
+	await bandCheck('tap 1', tap1, 'the apron stays until card 1 (U3)');
+	for (let i = 1; i < 4; i++) { await tap([hat[0], hat[1] + 4 * i]); await wait(350); }
 	await wait(1200);
 	await refresh();
 	const card1 = await shot('card1');
 	await bandCheck('card 1', card1, 'card 1 + silhouettes fill the pane; the pane covers the tab slot before C1');
 	let s = await probe();
+	pillCheck('card 1', s);
 	const buyRow = async () => {
 		s = await probe();
 		const r = ((s && s.shop && s.shop.rows) || []).filter((x) => x[3]);
@@ -285,6 +313,7 @@ for (const spec of list.split(',')) {
 	await refresh();
 	const bought = await shot('bought');
 	await bandCheck('bought', bought, 'Row B shows the sky before C2; the pane fills to the safe bottom before C1');
+	pillCheck('bought', await probe());
 
 	// ---- C1: three kinds of source (the tab bar), then T3 and a paid demand (C2: Row B)
 	for (let i = 0; i < 8; i++) {
@@ -310,7 +339,10 @@ for (const spec of list.split(',')) {
 		const partial = all.map((r) => Math.max(0, Math.min(lb, r[1] + 60) - Math.max(lt, r[1] - 60))).filter((v) => v > 0 && v < 119);
 		const silh = (s.shop.silhouettes || 0);   // §4.4: the engine publishes the teaser rows it draws
 		check('spec', vis + silh >= E.n, `the pane shows ≥ ${E.n} whole rows: cards + silhouettes (got ${vis} cards of ${all.length} + ${silh} silhouettes)`);
-		check('spec', partial.every((v) => v <= PEEK + 4), `a cut card shows ≤ ${PEEK} px (the peek), never its pill (partials ${JSON.stringify(partial.map(Math.round))})`);
+		check('spec', partial.every((v) => v <= PEEK + 4), `a cut card shows ≤ ${PEEK} px (the peek) (partials ${JSON.stringify(partial.map(Math.round))})`);
+		// review U6: the pill rect of every row the pane shows at least partly (source cards, the
+		// locked row, the teasers): a pill is drawn only when it lies wholly inside the pane
+		pillCheck('C1', s);
 		const card = s.shop.card || [0, 0];
 		check('width', card[0] <= 16 + 0.5 && disp.cw - card[1] <= 16 + 0.5, `the cards keep ≤ 4 art px of gutter per side (x ${Math.round(card[0])}-${Math.round(card[1])} of ${disp.cw})`);
 	}

@@ -44,6 +44,12 @@ const STRIP_H := 112.0              # 12 + 2 lines × 44 + 12
 ## the 2D Artist's piece lands (manifest chars.<art>.avatarPickXL, else this id) the 32-px pick
 ## avatar draws at ×6 (1.5 art px per sprite px: whole device px at every even k).
 const XL_PREFIX := "avatar_pick_xl_"   # only when the manifest names no avatarPickXL (it ships avatar_pick_<c>_d3)
+## mobile-first §5.14.2 (F15): the booth frame (kit `booth_frame` at ×4, content box [5, 9, 30, 28]
+## → insets left 20, top 36, right 20, bottom 12) around the grid, where it costs no tile pixel.
+const BOOTH_TOP := 36.0
+const BOOTH_BOTTOM := 12.0
+const BOOTH_SIDE := 20.0           # the tile columns move in from 16 to 20
+const BOOTH_GRID_GAP := 20.0       # the grid bottom = the strip top − 20 (the booth's bottom = − 8)
 
 var host: Node
 var reduced_motion := false
@@ -65,6 +71,8 @@ var locked := false
 var avatar := 128.0                 # the avatar size drawn (XL 192 / L 128 / M 96 / S 64)
 var tile := Vector2(216, 284)       # the 3 × 3 tile [tw, th] (window.odPick.tile)
 var grid := Vector2.ZERO            # the grid's [top, bottom], picker-local (window.odPick.grid)
+var booth := Rect2()                # the booth frame, picker-local (empty = no booth; window.odPick.booth)
+var _booth_node: NinePatchRect
 
 var _top := 0.0
 var _bot := float(L.H)
@@ -272,6 +280,7 @@ func _build() -> void:
 		_layer.remove_child(c)
 		c.queue_free()
 	cells.clear()
+	_booth_node = null
 	again_btn = null
 	_again_group.clear()
 	var H := _bot - _top
@@ -335,33 +344,50 @@ func _build() -> void:
 	# the toolbar viewports) the tiles give back those 16 px instead
 	var tl_est := clampf(ceilf(float(PxText.measure(_title_text(), L.TEXT)) / (656.0 + L.dx)), 1.0, 2.0)
 	var gmin := wm_bottom + 12.0 + LH * tl_est + 16.0 + (64.0 if variant == "after" else 0.0)
+	var shrunk := false
 	if three and gb - gh < gmin:
 		th = maxf(tile_h(avatar, true), L.floor4((gb - gmin - 2.0 * ROW_GAP) / 3.0))
 		gh = 3.0 * th + 2.0 * ROW_GAP
+		shrunk = true
+	# the title (measured now: the booth's room depends on its lines)
+	var title := PxText.make(_layer, Vector2.ZERO, _title_text(), L.TEXT, "plain", C_NAME)
+	title.wrap_width = 656.0 + L.dx
+	title.max_lines = 2
+	title.align = 1
+	var tlines := maxf(1.0, float(title.line_count()))
+	var chip_h := 64.0 if variant == "after" else 0.0   # the fresh chip (56) + 8
+	# mobile-first §5.14.2: the booth never costs a tile pixel. tw, th and A stay; it takes 36 above
+	# the grid and 8 below it from the sky, and is drawn only if the title's top still clears the
+	# wordmark (first) or the safe top (after) by 12
+	var sky_top := (wm_bottom + 12.0) if variant == "first" else (_top + 12.0)
+	booth = Rect2()
+	if not shrunk and Art.has_sprite("booth_frame"):
+		var gy_b := sy - BOOTH_GRID_GAP - gh
+		if gy_b - BOOTH_TOP - 16.0 - chip_h - LH * tlines >= sky_top:
+			booth = Rect2(0.0, gy_b - BOOTH_TOP, cw, gh + BOOTH_TOP + BOOTH_BOTTOM)
+			gb = sy - BOOTH_GRID_GAP
 	var gy := gb - gh
 	tile = Vector2(tw, th)
 	grid = Vector2(gy, gb)
-	var cols: Array = [cw - 16.0 - tw, L.floor4((cw - tw) / 2.0), 16.0] if three else [cw - 16.0 - tw, 16.0]
+	var side := BOOTH_SIDE if booth.has_area() else 16.0
+	if booth.has_area():
+		_booth_node = Ui.nine(_layer, booth, "booth_frame")
+	var cols: Array = [cw - side - tw, L.floor4((cw - tw) / 2.0), side] if three else [cw - side - tw, side]
 	for i in n:
 		var rc := cell_rc(i, n)
 		var r := Rect2(cols[rc.y], gy + rc.x * (th + ROW_GAP), tw, th)
 		cells.append(_make_cell(str(order[i]), r, three))
 	# הפתעה: the centre cell (3 × 3) or the full-width bar under a 2 × 2
 	if model.get("random", true) == true:
-		var rr := Rect2(cols[1], gy + th + ROW_GAP, tw, th) if three else Rect2(16, gy + 2.0 * (th + ROW_GAP), 688.0 + L.dx, 96)
+		var rr := Rect2(cols[1], gy + th + ROW_GAP, tw, th) if three else Rect2(side, gy + 2.0 * (th + ROW_GAP), cw - 2.0 * side, 96)
 		var rc_cell := _make_cell("", rr, three)
 		if three:
 			cells.insert(4, rc_cell)   # reading order: the centre is 5th (§8.5)
 		else:
 			cells.append(rc_cell)
 	# the title line (+ the fresh chip after an election), attached to the grid: the title's cell
-	# bottom 16 above the grid (after: title, 8, the chip, 16, the grid)
-	var title := PxText.make(_layer, Vector2.ZERO, _title_text(), L.TEXT, "plain", C_NAME)
-	title.wrap_width = 656.0 + L.dx
-	title.max_lines = 2
-	title.align = 1
-	var tlines := maxf(1.0, float(title.line_count()))
-	var ty := gy - 16.0
+	# bottom 16 above the grid (after: title, 8, the chip, 16, the grid); with the booth, 16 above it
+	var ty := (booth.position.y if booth.has_area() else gy) - 16.0
 	if variant == "after":
 		var chip_t := Strings.s("LEADER_PICK_FRESH_CHIP", {"pct": int(roundf(fresh_pct))})
 		var cy := ty - 56.0
@@ -768,8 +794,11 @@ func web_info() -> Dictionary:
 	if again_btn != null:
 		var q := again_btn.visual.get_center() + off
 		ag = [q.x, q.y, again_id]
+	var bo: Variant = null
+	if booth.has_area():
+		bo = [booth.position.x + off.x, booth.position.y + off.y, booth.size.x, booth.size.y]
 	return {"open": visible, "variant": variant, "cells": cs, "again": ag, "avatar": avatar,
-		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y]}
+		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y], "booth": bo}
 
 
 func publish_closed() -> void:
