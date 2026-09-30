@@ -111,10 +111,20 @@ export function makePlayer({ page, cdp, DPR, out, wh, log }) {
 	// the chat: every affordable pill and "צאו החוצה", scrolling to each. Returns the last probe.
 	async function payChat(s) {
 		st.chatLooks++;
-		if (!s.chat.open) { act('tab chat'); await tapAt(tab(3)); await wait(500); }
+		if (!s.chat.open) { await settle(); act('tab chat'); await tapAt(tab(3)); await wait(500); }
 		for (let guard = 0; guard < 16; guard++) {
 			s = await probe();
 			if (!s.chat.open || s.modal !== '' || (s.ready && s.cta)) break;
+			// A summons that came in under T3 opens its card the frame T3 closes: that is the
+			// LayerHistory race (a push while T3's history.go(-1) is still landing; the next close
+			// leaves the page). Until the game is fixed the driver stays in the chat until the
+			// summons serves itself (court day shows a chip, not a layer), then closes it.
+			if (s.court.phase === 'summons') {
+				act('summons under T3: wait it out');
+				st.summonsWaits = (st.summonsWaits || 0) + 1;
+				await page.waitForFunction(() => window.odDev && window.odDev.court.phase !== 'summons', null, { timeout: 20000 }).catch(() => {});
+				continue;
+			}
 			const [top, bot] = s.chat.thread;
 			const pills = s.chat.pills.filter((p) => p[3]).concat((s.chat.brawls || []).map((b) => [b[0], b[1], b[2], true, false]));
 			if (!pills.length) break;
@@ -174,6 +184,7 @@ export function makePlayer({ page, cdp, DPR, out, wh, log }) {
 				act('testify');
 				await tapAt(css(s.court.testify[0], s.court.testify[1]));
 				await wait(400);
+				await settle();   // the card's history entry rewinds before the next layer opens
 				continue;
 			}
 			if (!clear(s)) { await wait(200); continue; }

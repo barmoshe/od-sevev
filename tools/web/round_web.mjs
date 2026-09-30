@@ -98,6 +98,7 @@ if (!called) {
 }
 if (heldFail) log('  FAIL: the gate moved under the open election card (the vote must stop the clock)');
 if (Object.keys(P.st.modals).length) log(`  overlays closed on the way: ${JSON.stringify(P.st.modals)}`);
+if (P.st.summonsWaits) log(`  summonses left to serve themselves under T3 (the LayerHistory race, a game bug): ${P.st.summonsWaits}`);
 if (P.st.navs.length) { log(`  FAIL: the page left the game mid-run (${P.st.navs.length}x, see NAVIGATION above)`); ok = false; }
 log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
 log(ok && !errors.length ? 'ROUND_WEB: PASS' : 'ROUND_WEB: FAIL');

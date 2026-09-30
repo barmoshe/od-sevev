@@ -151,6 +151,7 @@ if (called) {
 	await shot('p11-liberman-taps');
 }
 if (Object.keys(P.st.modals).length) log(`  overlays closed on the way: ${JSON.stringify(P.st.modals)}`);
+if (P.st.summonsWaits) log(`  summonses left to serve themselves under T3 (the LayerHistory race, a game bug): ${P.st.summonsWaits}`);
 check(!P.st.navs.length, `the page never left the game mid-run (${P.st.navs.length} navigations, see NAVIGATION above)`);
 log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
 const ok = checks.every((x) => x[0]) && !errors.length;

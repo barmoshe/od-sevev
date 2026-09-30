@@ -540,21 +540,27 @@ down and had its grace can take a seat. With the median player reading nothing a
   something they could not see.
 - **Keep the live grey-out** (the status quo). It is the issue itself.
 
-**Per leader.** The rule is leader-neutral, and every rule effect is covered by it:
-- **Liberman** (the tightest lineup): his last seats are often a join
-  demand paid on the edge; he held 9/9 under the card (7/9 before).
-- **Golan:** a merged pair walks out together and costs double. Under the card no ultimatum
-  expires, so no merged walkout happens there (9/9, was 7/9). The merge itself needs the chat, so
-  it cannot happen under the card either.
-- **Bennett:** his pledge card raises the gate by 1 while it is up. In his own round it only fires
-  below 61 (L7, `seatsBelow`). As a rival card in rounds 2+ of other leaders it has no such guard,
-  but no card fires under the election card, and a pledge already up keeps its timer frozen.
-- **Ben Gvir** (halved threats; an unpaid demand still escalates): was the worst case (5/9 after 30 s),
-  now 9/9.
-- **Deri** (cheap rejoins), **Smotrich**, **Eisenkot**, **Bibi**: now 9/9 (7-8/9 before).
+**Per leader.** The rule is leader-neutral, and every rule effect is covered by it. Bench V1
+(`test_leaders_balance.gd`): the gate after 30 s on the card, seeds 1-9, with the hold / without it
+(the rest of the rules as shipped, finish grace included):
 
-**Pacing is unchanged.** The bench calls the election the moment the gate opens, so every median
-in §7.2.1 is the same to the second. `test_leaders_balance.gd` V1 now checks every leader and deal:
+| ביבי | בנט | בן גביר | ליברמן | אייזנקוט | סמוטריץ׳ | דרעי | גולן |
+|---|---|---|---|---|---|---|---|
+| 9/9 · 8/9 | 9/9 · 6/9 | 9/9 · 5/9 | 9/9 · 8/9 | 9/9 · 8/9 | 9/9 · 8/9 | 9/9 · 7/9 | 9/9 · 7/9 |
+
+- **Liberman** (the tightest lineup): his last seats are often a join demand paid on the edge.
+- **Golan:** a merged pair walks out together and costs double. Under the card no ultimatum
+  expires, so no merged walkout happens there. The merge itself needs the chat, so it cannot happen
+  under the card either.
+- **Bennett:** his pledge card raises the gate by 1 while it is up. In his own round it only fires
+  below 61 (L7, `seatsBelow`). As a rival card in rounds 2+ of other leaders it had no such guard;
+  now no seat-costing card fires while the gate is open, and a pledge already up keeps its timer
+  frozen under the card.
+- **Ben Gvir** (halved threats; an unpaid demand still escalates) was the worst case without the hold.
+
+**Pacing is unchanged by this rule.** The bench calls the election the moment the gate opens, so
+the hold, the grace and the quiet finish line move no median (§7.2.2's lineup fix is what moved
+Bennett, Eisenkot and Golan). `test_leaders_balance.gd` V1 now checks every leader and deal:
 the gate holds after 30 s on the card, and it prints the no-hold count for contrast.
 
 **Where it lives.**
