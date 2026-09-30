@@ -527,7 +527,12 @@
     "ambientHeadlinesV2.list.x02",
     "ambientHeadlinesV2.list.x07",
     "ambientHeadlinesV2.list.x16",
-    "events.bennett"
+    "events.bennett",
+    "leaderSelect.partnerProfiles.bennett",
+    "leaders.bennett.kit.story",
+    "leaders.bennett.pick",
+    "leaders.bennett.rule",
+    "leaders.liberman.coalition.lineup.bennett"
    ],
    "usedInLeaderSelect": [
     "leaderSelect.partnerProfiles.bennett",
@@ -1182,9 +1187,7 @@
    "label": "F",
    "text": "As finance minister Liberman imposed a tax on disposable tableware (2021) and on sugary drinks (2022); his successor Smotrich cancelled both in 2023.",
    "aboutHe": "כשר האוצר הנהיג אביגדור ליברמן מס על כלים חד־פעמיים ב־2021 ועל משקאות ממותקים ב־2022, ובצלאל סמוטריץ׳, שהחליף אותו, ביטל את שניהם ב־2023.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; JPost",
    "url": "https://www.timesofisrael.com/in-1st-move-as-minister-smotrich-orders-taxes-on-plasticware-sugary-drinks-nixed/",
    "url2": "https://www.timesofisrael.com/finance-minister-cancels-tax-on-sweetened-drinks-doctors-slam-move-as-irresponsible/",
@@ -1202,7 +1205,6 @@
     "leaders.liberman.kit.sources.t5.firstOwned",
     "leaders.liberman.kit.sources.t8",
     "leaders.liberman.kit.sources.t8.firstOwned",
-    "leaders.liberman.kit.story",
     "leaders.liberman.kit.ticker.tl03",
     "leaders.liberman.kit.ticker.tl09",
     "leaders.smotrich.kit.story",
@@ -1215,9 +1217,7 @@
    "label": "F",
    "text": "In May 2019 Liberman refused to join a Netanyahu government; with no 61, the Knesset dissolved and a repeat election was held on 17 Sep 2019.",
    "aboutHe": "במאי 2019 סירב אביגדור ליברמן להצטרף לממשלת נתניהו, הכנסת התפזרה ונערכו בחירות חוזרות ב־17 בספטמבר 2019.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI",
    "url": "https://www.timesofisrael.com/infuriating-but-not-finishing-netanyahu-liberman-drags-israel-back-to-the-polls/",
    "url2": "https://www.timesofisrael.com/liberman-accuses-netanyahu-of-offering-dishonest-coalition-compromise/",
@@ -1237,9 +1237,7 @@
    "label": "Q",
    "text": "At a May 2026 press conference Liberman said that even if the world turns upside down he will not sit with Netanyahu; Yisrael Beytenu says it will form a government without Netanyahu.",
    "aboutHe": "במאי 2026 הודיע אביגדור ליברמן שגם אם העולם יתהפך, הוא לא ישב עם נתניהו.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "INN; Srugim; JFeed",
    "url": "https://www.inn.co.il/news/696237",
    "url2": "http://www.srugim.co.il/101011458-%D7%9C%D7%99%D7%91%D7%A8%D7%9E%D7%9F-%D7%9E%D7%AA%D7%97%D7%99%D7%99%D7%91-%D7%99%D7%AA%D7%94%D7%A4%D7%9A-%D7%94%D7%A2%D7%95%D7%9C%D7%9D-%D7%90%D7%A0%D7%97%D7%A0%D7%95-%D7%9C%D7%90-%D7%A0%D7%A9%D7%91",
@@ -1268,9 +1266,7 @@
    "label": "F",
    "text": "In Aug 2026 Liberman ruled out a minority government (one resting on 58 MKs), even an opposition-led one.",
    "aboutHe": "באוגוסט 2026 הודיע אביגדור ליברמן שמפלגתו לא תשב בממשלת מיעוט.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "Israel Hayom",
    "url": "https://www.israelhayom.co.il/news/politics/article/21214874",
    "date": "2026-08",
@@ -1595,6 +1591,123 @@
    "usedIn": [
     "events.mordechai.copy.skins.bengvir"
    ]
+  },
+  {
+   "id": "liberman-principles",
+   "label": "F",
+   "text": "Liberman presented a \"document of principles\" as the basic guidelines for the next government: a constitution (drafted by an expert team, put to a referendum within six months), one chief rabbi, civil marriage and divorce, public transport on Shabbat by local decision, a two-term limit for the prime minister.",
+   "aboutHe": "אביגדור ליברמן הציג מסמך קווי יסוד לממשלה הבאה, ובו חוקה שתעלה למשאל עם, רב ראשי אחד, נישואים אזרחיים והגבלת כהונת ראש הממשלה.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Maariv; Walla",
+   "url": "https://www.timesofisrael.com/calling-for-constitution-liberman-presents-document-of-principles-to-unite-opposition/",
+   "url2": "https://www.maariv.co.il/news/politics/article-1231888",
+   "moreUrls": [
+    "https://news.walla.co.il/item/3779943",
+    "https://www.timesofisrael.com/liveblog_entry/liberman-calls-for-referendum-on-constitution-within-next-governments-first-6-months/"
+   ],
+   "date": "2025-09",
+   "gameRendering": "paraphrase: the document, the constitution and the referendum; the game never lists the religion clauses as a joke on anyone.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "events.liberman",
+    "leaderSelect.partnerProfiles.liberman",
+    "leaders.liberman.kit.sources.t4",
+    "leaders.liberman.kit.sources.t4.firstOwned",
+    "leaders.liberman.kit.sources.t6",
+    "leaders.liberman.kit.sources.t6.firstOwned",
+    "leaders.liberman.kit.story",
+    "leaders.liberman.kit.ticker.tl08",
+    "leaders.liberman.kit.ticker.tl10",
+    "leaders.liberman.pick"
+   ],
+   "ref": 76
+  },
+  {
+   "id": "liberman-pm-goal",
+   "label": "F",
+   "text": "Liberman said his goal in the 2026 election is to become prime minister, running Yisrael Beytenu independently.",
+   "aboutHe": "אביגדור ליברמן הודיע שמטרתו בבחירות 2026 היא לכהן כראש הממשלה.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Jerusalem Post",
+   "url": "https://www.timesofisrael.com/liberman-says-his-goal-for-the-upcoming-election-is-to-become-prime-minister/",
+   "url2": "https://www.jpost.com/breaking-news/article-853446",
+   "date": "2025",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.liberman.kit.story",
+    "leaders.liberman.kit.ticker.tl14"
+   ],
+   "ref": 77
+  },
+  {
+   "id": "eisenkot-eight-seats",
+   "label": "Q",
+   "text": "Eisenkot accused Bennett and Liberman of \"old politics\" that hurt the bloc's chances, ruled out a rotation, and said anyone counting on becoming prime minister with eight seats does not understand what has happened in Israel. Yisrael Beytenu answered that he should tell the public who his partners are.",
+   "aboutHe": "גדי אייזנקוט האשים את נפתלי בנט ואת אביגדור ליברמן בפוליטיקה ישנה, שלל רוטציה ואמר שמי שמתכנן להיות ראש ממשלה עם שמונה מנדטים לא מבין מה קרה במדינה.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Ynet; INN",
+   "url": "https://www.timesofisrael.com/old-politics-eisenkot-accuses-bennett-liberman-of-damaging-oppositions-chances/",
+   "url2": "https://www.ynet.co.il/news/elections2026/article/skkuvzykzg",
+   "moreUrls": [
+    "https://www.israelnationalnews.com/news/433312"
+   ],
+   "date": "2026",
+   "heStatus": "unverified",
+   "verifyHebrew": true,
+   "gameRendering": "reported speech, no quote marks (\"עם שמונה מנדטים\" is the only borrowed phrase).",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.eisenkot.coalition.lineup.liberman",
+    "leaders.liberman.coalition.lineup.eisenkot",
+    "leaders.liberman.kit.story"
+   ],
+   "ref": 78
+  },
+  {
+   "id": "bennett-liberman-rotation",
+   "label": "A",
+   "text": "A TV report said Bennett and Liberman were discussing a post-election merger or rotation to be the biggest party in the bloc and stop Eisenkot from becoming prime minister.",
+   "aboutHe": "לפי דיווח בטלוויזיה, נפתלי בנט ואביגדור ליברמן שוחחו על איחוד או רוטציה אחרי הבחירות.",
+   "notUsed": false,
+   "outlet": "Times of Israel (liveblog, citing a TV report)",
+   "url": "https://www.timesofisrael.com/liveblog_entry/tv-report-claims-bennett-liberman-discussing-post-election-merger-to-give-them-most-seats-in-bloc-stop-eisenkot-from-becoming-pm/",
+   "date": "2026",
+   "gameRendering": "allegation wording: \"מדברים על\", never a signed deal.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bennett.coalition.lineup.liberman",
+    "leaders.liberman.coalition.lineup.bennett",
+    "leaders.liberman.kit.headlines.firstPartner",
+    "leaders.liberman.kit.story",
+    "leaders.liberman.kit.ticker.tl13"
+   ],
+   "ref": 79
+  },
+  {
+   "id": "change-bloc-pact",
+   "label": "F",
+   "text": "On 26 Sep 2026 the leaders of the change bloc signed a joint principles document for a \"Zionist, statist\" government; one clause says that until the government is formed none of them or their people will attack a partner party or its leader.",
+   "aboutHe": "ב־26 בספטמבר 2026 חתמו ראשי גוש השינוי על מסמך עקרונות משותף, ובו התחייבות שלא לתקוף מפלגה שותפה או את העומד בראשה עד הקמת הממשלה.",
+   "notUsed": false,
+   "outlet": "Channel 13; N12",
+   "url": "https://13tv.co.il/item/news/politics/politics/tge5a-905370628/",
+   "url2": "https://www.mako.co.il/news-israel-elections/2026/Article-2234d5d24aed0a1027.htm",
+   "date": "2026-09-26",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.liberman.kit.ticker.tl12"
+   ],
+   "ref": 80
   }
  ],
  "deliberatelyOut": [

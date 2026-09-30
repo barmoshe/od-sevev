@@ -1754,10 +1754,13 @@
    "copy": {
     "name": "אביגדור ליברמן",
     "avatar": "liberman_avatar",
-    "text": "מקבל כל הצעה בכבוד, ודוחה אותה באותו כבוד.",
+    "text": "כבר כתב קווי יסוד לממשלה הבאה. אותך לא הכניס לאף סעיף.",
     "buttonLabel": "לא יושב",
     "_note": "Every button on his card is grey ('לא יושב'). If the chat pills grey out too, ultimatum timers must pause (every loss recoverable)."
-   }
+   },
+   "src": [
+    "liberman-principles"
+   ]
   },
   {
    "id": "bennett",
@@ -5090,7 +5093,12 @@
     "linesVariants": {
      "demand": [
       "ממשלה ציונית. ותקציב. בסדר הזה.",
-      "עוד {price} ₪ ואני שוקל לשבת. לשקול, לא לשבת."
+      "עוד {price} ₪ ואני שוקל לשבת. לשקול, לא לשבת.",
+      "{price} ₪. זה כתוב בסעיף 4. תקרא."
+     ],
+     "thanks": [
+      "התקבל. אני עדיין עומד.",
+      "התקבל. נכנס לנספח."
      ]
     },
     "excludes": [
@@ -5100,7 +5108,8 @@
      "gafni"
     ],
     "src": [
-     "liberman-wont-sit"
+     "liberman-wont-sit",
+     "liberman-principles"
     ],
     "_note": "Trait: Liberman and these never sit together (the `excludes`, as Abbas has for Ben Gvir; the bigger side has precedence, sim/coalition.gd _excluded). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Gafni in the change-bloc rounds. Not Abbas: he sat with Ra'am in the 2021 Bennett-Lapid government (fact raam-2021, Abbas's own line in Bennett's round), and excluding him soft-locked Bennett's round for a player who pays every pill (Game Designer 2026-09-30, spec §7.2.2)."
    },
@@ -5996,7 +6005,13 @@
     "lineup": [
      {
       "id": "liberman",
-      "slot": "S1"
+      "slot": "S1",
+      "lines": {
+       "thanks": "סגרנו. עכשיו רק צריך להחליט מי ראשון ברוטציה."
+      },
+      "src": [
+       "bennett-liberman-rotation"
+      ]
      },
      {
       "id": "lapid",
@@ -6486,10 +6501,11 @@
    "art": "liberman",
    "avatar": "liberman_avatar",
    "pick": {
-    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
+    "blurb": "לא יושב כמעט עם אף אחד. הממשלה כבר כתובה.",
     "line": "לא יושב! לא יושב!",
     "src": [
-     "liberman-wont-sit"
+     "liberman-wont-sit",
+     "liberman-principles"
     ]
    },
    "rule": {
@@ -6538,19 +6554,28 @@
      },
      "firstPartner": {
       "id": "hl_first_partner",
-      "text": "בנט הצטרף לקבוצה. חתם שזה סופי.",
-      "poll_like": false
+      "text": "בנט הצטרף לקבוצה. כבר שואלים מי ראשון ברוטציה.",
+      "poll_like": false,
+      "src": [
+       "bennett-liberman-rotation"
+      ]
      }
     },
     "sources": {
      "t4": {
-      "name": "תומך ותיק",
-      "flavor": "עומד לידך כל הזמן, מתוך סולידריות.",
-      "levelUp": "עוד תומך ותיק. גם הוא לא יושב.",
+      "name": "קווי היסוד",
+      "flavor": "ממשלה שלמה במגירה. חסרים רק 61 אנשים.",
+      "levelUp": "עוד סעיף. המגירה כבר לא נסגרת.",
+      "src": [
+       "liberman-principles"
+      ],
       "firstOwned": {
        "id": "hl_t4",
-       "text": "תומך ותיק הצטרף. שאלו אותו אם לשבת. הוא לא ענה.",
-       "poll_like": false
+       "text": "ליברמן פרסם קווי יסוד לממשלה. הממשלה עוד לא יודעת.",
+       "poll_like": false,
+       "src": [
+        "liberman-principles"
+       ]
       }
      },
      "t5": {
@@ -6570,18 +6595,24 @@
       }
      },
      "t6": {
-      "name": "צוות לא יושבים",
-      "flavor": "יועצים שעומדים. ישיבות צוות: בעמידה.",
-      "levelUp": "עוד יועץ. הכיסאות נשארו במחסן.",
+      "name": "צוות החוקה",
+      "flavor": "מומחים כותבים חוקה. משאל עם בעוד חצי שנה.",
+      "levelUp": "עוד מומחה, עוד פרק. משאל העם מחכה.",
+      "src": [
+       "liberman-principles"
+      ],
       "firstOwned": {
        "id": "hl_t6",
-       "text": "נשכר צוות לא יושבים. אף אחד לא התיישב על זה.",
-       "poll_like": false
+       "text": "הוקם צוות לחוקה. ביקשו כיסאות. לא יושבים.",
+       "poll_like": false,
+       "src": [
+        "liberman-principles"
+       ]
       }
      },
      "t7": {
       "name": "הסרטון היומי",
-      "flavor": "מול המצלמה, אומר לא. 40,000 צפיות, אותה תשובה.",
+      "flavor": "מול המצלמה, שתי מילים, בלי חיוך. אלף שיתופים.",
       "levelUp": "סרטון חדש. אותו לא, זווית אחרת.",
       "firstOwned": {
        "id": "hl_t7",
@@ -6633,9 +6664,9 @@
      },
      {
       "slot": "E",
-      "name": "אימון לא",
-      "flavor": "לא מול המראה, כל בוקר. יוצא יותר חד.",
-      "visualHook": "a mirror with a bold 'לא' on it"
+      "name": "סעיף ארבע",
+      "flavor": "כל תשובה מפנה לסעיף 4. יותר סירובים מוחלטים.",
+      "visualHook": "a thick stapled document open at section 4"
      },
      {
       "slot": "G",
@@ -6655,21 +6686,21 @@
      {
       "slot": "I",
       "name": "כל יריב מחזק",
-      "flavor": "כל כרטיס של היריבים מביא תומכים. לא מפתיע.",
+      "flavor": "כל כרטיס של היריבים מביא תומכים. הם כבר בנספח.",
       "visualHook": "a red line drawn under a rival's card"
      }
     ],
     "hazard": {
      "skin": "press",
-     "postponeVerb": "לא יושב באולפן",
+     "postponeVerb": "מפנה למסמך",
      "postponePrefix": "התגובה נדחתה:",
      "excuses": [
-      "לא יושב.",
-      "לא יושב. גם לא עומד בתור.",
-      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה.",
-      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה. האולפן הציע כיסא.",
-      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה. האולפן הציע כיסא. לא יושב עם כיסאות.",
-      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה. האולפן הציע כיסא. לא יושב עם כיסאות. התגובה הבאה: בתחקיר הבא."
+      "לא מגיב.",
+      "לא מגיב. יש מסמך.",
+      "לא מגיב. יש מסמך. התשובה בסעיף 4.",
+      "לא מגיב. יש מסמך. התשובה בסעיף 4. סעיף 4: לא.",
+      "לא מגיב. יש מסמך. התשובה בסעיף 4. סעיף 4: לא. נספח א׳: גם לא.",
+      "לא מגיב. יש מסמך. התשובה בסעיף 4. סעיף 4: לא. נספח א׳: גם לא. בעוד חצי שנה: משאל עם על התגובה."
      ]
     },
     "dubi": {
@@ -6681,11 +6712,12 @@
      },
      "talkingPoints": [
       "לא יושב!",
-      "לא!",
       "מס!",
-      "ממשלה ציונית!",
+      "סעיף ארבע!",
+      "חוקה!",
+      "רוטציה!",
       "בחירות!",
-      "גם לא!"
+      "ממשלה ציונית!"
      ]
     },
     "suitcase": {
@@ -6701,14 +6733,15 @@
      "titles": [
       "הכיסא הריק",
       "שוב לקלפי",
-      "המס על הצלחת"
+      "ממשלה במגירה",
+      "רוטציה בעמידה"
      ],
      "beats": [
       [
-       "ליברמן סירב לשבת עם 61 אנשים.",
-       "נשאר עם כיסא אחד. ריק.",
+       "61 כיסאות חיכו לליברמן.",
+       "הוא עבר ביניהם ובדק כל אחד.",
        "דובי: \"לא יושב! לא יושב!\"",
-       "הוחלט על בחירות. ליברמן לא ישב עם זה."
+       "הוחלט על בחירות. ליברמן נשאר לעמוד."
       ],
       [
        "ב־2019 הוא לא הצטרף, והכנסת התפזרה.",
@@ -6716,9 +6749,16 @@
        "והכנסת? מתפזרת שוב."
       ],
       [
-       "ליברמן היה שר האוצר.",
-       "הנהיג מס על צלחות ועל משקאות ממותקים.",
-       "דובי: \"מס! מס!\""
+       "ליברמן כתב קווי יסוד לממשלה הבאה.",
+       "חוקה, משאל עם, רב ראשי אחד.",
+       "חסר רק פרט קטן אחד: הממשלה.",
+       "דובי: \"סעיף ארבע! סעיף ארבע!\""
+      ],
+      [
+       "ליברמן רץ לראשות הממשלה.",
+       "בגוש אמרו: עם שמונה מנדטים? לא רציני.",
+       "ליברמן הציע רוטציה.",
+       "לא יושב, אבל מוכן להתחלף."
       ]
      ],
      "src": {
@@ -6726,7 +6766,12 @@
        "liberman-2019"
       ],
       "3": [
-       "liberman-finance-taxes"
+       "liberman-principles"
+      ],
+      "4": [
+       "liberman-pm-goal",
+       "eisenkot-eight-seats",
+       "bennett-liberman-rotation"
       ]
      },
      "poll_like": false
@@ -6782,8 +6827,11 @@
      },
      {
       "id": "tl08",
-      "text": "בקבוצה של ליברמן: 3 דרישות, 3 פעמים לא יושב.",
-      "poll_like": false
+      "text": "ליברמן פרסם קווי יסוד לממשלה. הממשלה: בהמשך.",
+      "poll_like": false,
+      "src": [
+       "liberman-principles"
+      ]
      },
      {
       "id": "tl09",
@@ -6795,8 +6843,11 @@
      },
      {
       "id": "tl10",
-      "text": "תחקיר על ישראל ביתנו. התגובה: לא יושבים עם תחקירים.",
-      "poll_like": false
+      "text": "חוקה תוך חצי שנה, במשאל עם. ליברמן כבר יודע מה יענה.",
+      "poll_like": false,
+      "src": [
+       "liberman-principles"
+      ]
      },
      {
       "id": "tl11",
@@ -6805,8 +6856,27 @@
      },
      {
       "id": "tl12",
-      "text": "הפחיות הממותקות הודיעו על איחוד. ליברמן לא יושב עם פחיות.",
-      "poll_like": false
+      "text": "ראשי הגוש חתמו: לא תוקפים זה את זה. השעון התחיל.",
+      "poll_like": false,
+      "src": [
+       "change-bloc-pact"
+      ]
+     },
+     {
+      "id": "tl13",
+      "text": "בנט וליברמן על רוטציה: כל אחד מציע לשני להיות שני.",
+      "poll_like": false,
+      "src": [
+       "bennett-liberman-rotation"
+      ]
+     },
+     {
+      "id": "tl14",
+      "text": "ליברמן רץ לראשות הממשלה. בעמידה, כמובן.",
+      "poll_like": false,
+      "src": [
+       "liberman-pm-goal"
+      ]
      }
     ],
     "trophy": {
@@ -6828,7 +6898,14 @@
     "lineup": [
      {
       "id": "bennett",
-      "slot": "S1"
+      "slot": "S1",
+      "lines": {
+       "thanks": "חתמתי: אתה ראשון ברוטציה. בתוקף עד השידור הבא."
+      },
+      "src": [
+       "bennett-liberman-rotation",
+       "bennett-pledge"
+      ]
      },
      {
       "id": "lapid",
@@ -6840,7 +6917,13 @@
      },
      {
       "id": "eisenkot",
-      "slot": "S4"
+      "slot": "S4",
+      "lines": {
+       "threat": "אפשר לדבר ישר? עם שמונה מנדטים לא מבקשים רוטציה."
+      },
+      "src": [
+       "eisenkot-eight-seats"
+      ]
      },
      {
       "id": "mk_offer",
@@ -7251,7 +7334,13 @@
      },
      {
       "id": "liberman",
-      "slot": "S4"
+      "slot": "S4",
+      "lines": {
+       "thanks": "התקבל. גם שמונה מנדטים יודעים לספור."
+      },
+      "src": [
+       "eisenkot-eight-seats"
+      ]
      },
      {
       "id": "mk_offer",
