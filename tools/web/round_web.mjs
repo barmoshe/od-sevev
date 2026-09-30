@@ -185,6 +185,11 @@ if (ok) {
 	ok = !!(m && m.open && m.id === 'EVOLUTION' && m.ready);
 	log(`  O3 ${JSON.stringify(m)}`);
 	if (ok) {
+		// odModal.ready is published once, at open; at ×10 a walkout can drop the gate between the shot
+		// and the tap (the card disables its button live): wait for the live gate (odDev.ready)
+		let live = await probe();
+		for (let i = 0; i < 90 && !live.ready; i++) { await wait(500); live = await probe(); }
+		if (!live.ready) log('  the gate slipped under the card and did not come back');
 		await tapAt(css(m.buttons[0][0], m.buttons[0][1]));
 		await wait(900);
 		await shot('e2-transition');
