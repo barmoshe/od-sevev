@@ -1,6 +1,6 @@
 # binary files changed (not carried):
 diff --git a/game/scripts/ui/evolve_tx.gd b/game/scripts/ui/evolve_tx.gd
-index 62cd9f3..8832275 100644
+index 62cd9f3..762793b 100644
 --- a/game/scripts/ui/evolve_tx.gd
 +++ b/game/scripts/ui/evolve_tx.gd
 @@ -18,6 +18,14 @@ const MULT_Y := 704.0
@@ -11,7 +11,7 @@ index 62cd9f3..8832275 100644
 +## gate's printed notice, a white card ruled in flag blue (slice [3, 7, 3, 5], content box [4, 8,
 +## 32, 26] → insets 16 / 32 / 16 / 24 at ×4), centred around them; the title lines in flag
 +## (8.5:1), the body in night (13.9:1). A card, not full bleed (§2.4: never the whole page as the flag).
-+const NOTICE := Rect2(16, 536, 688, 356)
++const NOTICE := Rect2(16, 508, 688, 388)   # holds the title through its 32-px drop
 +const C_PAGE := Color("#0038b8")     # flag
 +const C_TITLE := Color("#0038b8")    # flag on the notice's white
 +const C_BODY := Color("#0f2350")     # night
