@@ -681,6 +681,99 @@ index 1d7eb62..0375cd0 100644
 -		strip.position = feet + Vector2(float(p["dx"]), float(p["dy"])) * AP
 -		strip.modulate.a = float(p["alpha"])
 +		_write()
+diff --git a/motion/state-graph-magician.md b/motion/state-graph-magician.md
+index 6afb8b3..d8c5db1 100644
+--- a/motion/state-graph-magician.md
++++ b/motion/state-graph-magician.md
+@@ -739,3 +739,88 @@ audio: "none"
+ - celebration: `tap.f1` crouch, the `crit` trick, idle bow.
+ 
+ The TA has nothing more to render for them.
++
++## 9. `leader-walk` (orthogonal; animator wave B: the leader swap, spec §9.3.4)
++
++Every leader, not only Bibi. The round's leader leaves the stage at the election and the picked one arrives after the
++pick. **No walk strip exists or is requested:** a walk is the leader's own `idle` strip carried across at an even pace,
++with a stepped 1-ap bob. Code: `ui/leader_walk.gd` (the pose), `BigBanana.walk_out` / `walk_in` / `_apply_figure`
++(the wiring), `EvolveTx` `walk` cue, `MainController._tx_release` / `_on_pick_done`.
++
++**One owner of the figure's position.** `BigBanana._apply_figure` is the only writer of the figure's position,
++visibility and alpha. It sums the mark, the court day's zip offset (§2) and the walk's travel and bob, each in whole ap,
++and multiplies the two alphas. The walk and the court never both move him:
++- a walk-out cuts a running court day home first (hat hidden, `court.reset()`); he is under the lifting card then;
++- the court does not start while a walk runs or while he is off after a walk-out (`courtStart` latches as pending and
++  starts on the landing, like `exitPending` in §2);
++- the court's own clock keeps running (the hat's states), but its body offset is 0 outside court.
++
++```yaml
++graph:
++  id: leader-walk
++  description: The round's leader walking off at the election and on after the pick
++  runtime: godot-transform-tweens   # the idle strip plays; motion is transform only
++  default_state: home
++  states:
++    - { id: home, loop: true, interrupt_priority: low, on_entry: [ { pose: "on the mark, alpha 1" } ] }
++    - id: out
++      animation_key: idle
++      interrupt_priority: high       # input is locked (the EVOLVE_TX lock is held until gone)
++      on_entry: [ { tween: "x mark → offRight, 560 ms Sine.In, snap S" },
++                  { bob: "y −1 ap on every other 125 ms beat (4 bobs/s), flat on the last beat" } ]
++      reduced_motion: "no travel, no bob: alpha 1 → 0 on the mark, 150 ms Linear"
++    - { id: gone, interrupt_priority: low, on_entry: [ { visible: false } ] }
++    - id: in
++      animation_key: idle
++      interrupt_priority: medium     # taps play the tap/crit strip on the moving figure; the walk goes on
++      on_entry: [ { pose: "offLeft, fully off the canvas" },
++                  { tween: "x offLeft → mark, 640 ms Sine.Out, snap S" },
++                  { bob: "as out; the last beat is flat so he lands on idle's own frame" } ]
++      reduced_motion: "no travel, no bob: alpha 0 → 1 on the mark, 150 ms Linear"
++  transitions:
++    - { from: home, to: out,  on: txWalkCue,   type: cut, condition: "a pick follows (Leaders.pick_pending)", note: "EVOLVE_TX's fade-in f0 (1200 ms; RM: 1000 ms)" }
++    - { from: out,  to: gone, on: walkEnd,     type: cut }
++    - { from: [home, gone, in], to: in, on: pickDone, type: cut, note: "PickView.on_done, ≈ 520 ms after the commit; 'again' walks the same leader back in" }
++    - { from: in,   to: home, on: walkEnd,     type: cut, note: "Dubi's pick line 120 ms later" }
++    - { from: in,   to: home, on: instantPick, type: cut, note: "commit_pick (tests and tools)" }
++    - { from: [out, gone, in], to: home, on: [runReset, courtReset, load], type: cut }
++offLeft / offRight: "the figure's frame rect (its loose prop included) clears the canvas edge by 4 ap; the canvas is the viewport, so the stage column's x (_sx) is added on each side"
++```
++
++**Timeline (ms from `electionConfirm`, normal motion):**
++
++| t | Card | Stage |
++|---|---|---|
++| 0-270 | stepped dim 25 → 100 % | the leader stands (locked) |
++| 270 | seam: the new round's state | hidden under the card |
++| 400-1200 | the title card | hidden |
++| **1200** | the fade-in starts (67 %) | **walk-out f0**: he sets off (Sine.In: 4 % of the way at 1300) |
++| 1300, 1400 | 33 %, 0 % | he walks off screen-right across the new round's stage |
++| 1500 | EVOLVE_TX ends; the music cue (`evolveTransitionEnd`) fires on time | he is ~33 % of the way |
++| **1760** | – | **gone**; input unlocks; the flash (O3b) or the picker opens on an empty stage |
++
++- The walk-out ends 260 ms after the card, so the lock lasts 1760 ms instead of 1500. It is below the 400 ms "drag"
++  threshold and it is watched motion, not a wait.
++- The alternative, starting the walk under the opaque card at 940 ms so that it ends with the card, shows only its last
++  100 ms unobstructed, so the exit would not read.
++- **Reduced motion:** the fade starts at 1000 (the cross-fade out's f0) and ends at 1150, inside the 1200 ms
++  ceremony, so there is no tail.
++
++**Pick (ms from the commit):**
++
++| t | What |
++|---|---|
++| 0-520 | the picker's pop, dim, hold and fade (`PickView`) |
++| 520 | `on_done`: the stage returns; **walk-in f0**, fully off screen-left; the lower-third toast |
++| 1160 | he lands on the feet point (idle's own frame) |
++| 1280 | Dubi's line (`DUBI_LEARNED` / `LEADER_PICK_RANDOM_LINE`); was 900, over the empty mark |
++| 2980 | the leader's own `pick.line` (a returning leader) |
++
++- **The swap budget:** 560 + 640 = 1200 ms of leader motion, within the 1.5 s of §9.3.4.
++- **The undo:** "להחליף ראש רשימה" mid-walk reopens the picker over the hidden stage. Dubi's pending lines are
++  dropped. The re-pick walks the new leader in from off-stage, and "again" walks the same leader in again.
++- **Taps during the walk-in** (the pre-tap state's first tap): the tap is credited, and the tap/crit strip plays on the
++  moving figure, which keeps walking. Nothing pops to the mark, and no input is dropped.
++
++**Audio markers:** none new. `leaderPick` stays on the commit frame, and the walk has no footsteps; a 4 Hz step click
++would compete with the sting and Dubi's babble.
 diff --git a/game/tests/dev/ticker_pages.gd b/game/tests/dev/ticker_pages.gd
 new file mode 100644
 index 0000000..9a17d26

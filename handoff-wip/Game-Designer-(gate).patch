@@ -97,6 +97,43 @@ index 0f532f3..b1c79a9 100644
  ## Trophy "לילה לבן" (stat tapsAt2to4): taps made while the clock reads 02:00-03:59. The hour is
  ## ctx.hour (the device's local hour; the engine should pass it), else Israel time from ctx.nowMs.
  static func _count_night_taps(s: GameState, ctx: Dictionary) -> void:
+diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
+index 1558947..f242548 100644
+--- a/game/scripts/ui/dev_probe.gd
++++ b/game/scripts/ui/dev_probe.gd
+@@ -9,6 +9,8 @@ extends RefCounted
+ ##   chat {open, thread [top, bottom], pills [[x, y, seq, afford, ceremony]], brawls [[x, y, seq]],
+ ##        avatars [[x, y, id]] (in view), openBrawl}: every open pay pill and "צאו החוצה" button, in
+ ##        or out of view (the driver drags the thread to bring one into view)
++##   coal {lines, afford, ultLeft, save, vote}: the open pay lines, how many the bank covers, the
++##        nearest ultimatum (s, -1 none), the biggest ultimatum / rejoin price, the election card holding
+ ##   shop {tab, list [top, bottom], rows [[x, y, id, afford]]}: the source cards in view
+ 
+ static var _ms := 0.0
+@@ -69,6 +71,23 @@ static func snapshot(host: Node) -> Dictionary:
+ 			pills.append([c.x, c.y, int(h["seq"]), s.bananas >= float(m.get("price", 0.0)), str(m.get("kind", "")) == "ceremony"])
+ 	out["chat"] = {"open": chat.is_open(), "thread": [top, bottom], "pills": pills, "avatars": avatars, "brawls": brawls,
+ 		"openBrawl": not Coalition.open_brawl(s).is_empty()}
++	# the sim's open lines whether or not T3 is open (the driver saves for an ultimatum like a player)
++	var lines := 0
++	var afford := 0
++	var ult_left := -1.0
++	var ult_price := 0.0
++	if s.coalition is Dictionary:
++		for m: Dictionary in s.coalition.get("chat", []):
++			if m["state"] != "open" or not Coalition.is_payable(m):
++				continue
++			lines += 1
++			if s.bananas >= float(m.get("price", 0.0)):
++				afford += 1
++			if m["type"] == "ultimatum" or str(m.get("payable", "")) == "rejoin":
++				ult_price = maxf(ult_price, float(m.get("price", 0.0)))
++				if m["type"] == "ultimatum":
++					ult_left = float(m["leftSec"]) if ult_left < 0.0 else minf(ult_left, float(m["leftSec"]))
++	out["coal"] = {"lines": lines, "afford": afford, "ultLeft": ult_left, "save": ult_price, "vote": bool(host.call("vote_open")) if host.has_method("vote_open") else false}
+ 	# the "{n} ממתינים ↑" chip and the brawl stage cue (views wave 6): centres in viewport px
+ 	var pi := chat.pending_info()
+ 	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
 diff --git a/game/tests/bench/test_leaders_balance.gd b/game/tests/bench/test_leaders_balance.gd
 index 6baa0e1..62a6b39 100644
 --- a/game/tests/bench/test_leaders_balance.gd
