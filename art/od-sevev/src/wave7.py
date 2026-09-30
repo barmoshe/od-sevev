@@ -16,7 +16,7 @@ the Knesset lawn's specks 11, the courthouse's panels 30 and tubes 60, Washingto
 wing_<era>_l leftward from art column 0 (its last column abuts column 0) and wing_<era>_r rightward from
 column 180 (its first column abuts column 179). Seamless both ways by construction: every wing is drawn in
 stage-art coordinates on a canvas that wraps x mod W (`Wrap`), so an element that crosses the art's edge (a
-tree, a protester, a bench, a sign) is continued exactly and repeats every W; wing-native elements never cross
+tree, a protester, a bench, a kraft sign) is continued exactly and repeats every W; wing-native elements never cross
 the wing's own edges. `seam_report()` checks the column next to the art against the art's edge column.
 
 Plaza (A1). The rows under the lane were flat padBottom. The plaza tile is Jerusalem-stone paving (2026-09-30:
@@ -79,16 +79,42 @@ def _balfour_crowd():
     return out
 
 
-def _protester(L, x, h, sign=None, pink=True, floor=216):
+# B14 (Bar, 2026-09-30: option D'): the protest signs are handmade kraft cardboard. A verbatim copy of the creative
+# pack's locations.kraft_sign (same SIGN_MARKS, same (k, side) indexing), so a board that crosses the seam is the
+# same board on both sides of it. See locations.py for the marker rule (right-aligned rows, never a centred gap).
+SIGN_MARKS = [("ink",     [(0, 5), (6, 2)], 4),
+              ("flag_hi", [(0, 2), (3, 5)], 5),
+              ("ink",     [(0, 6)],         3),
+              ("flag_hi", [(0, 3), (4, 3)], 6)]
+
+
+def _kraft_sign(L, sx, top, k, side):
+    """k = the sign's index along its side (the art's i // 2; wing-native signs continue it past 0..3),
+    side 0 left / 1 right (the art's side, not the wing's)."""
+    L.vline(sx + 2, top - 6, top + 6, "wood")
+    x0, y0 = sx - 2, top - 14
+    fill = "stone" if (k + side) % 2 == 0 else "stone_sh"
+    shade = "stone_sh" if fill == "stone" else "wood"
+    cx, cy = [(x0, y0), (x0 + 9, y0), (x0 + 9, y0 + 7), (x0, y0 + 7)][(k + side) % 4]
+    behind = L.get(cx, cy)
+    L.rect(x0, y0, 10, 8, fill)
+    L.hline(x0, x0 + 9, y0 + 7, shade)
+    L.set(cx, cy, behind)
+    c, top_row, n2 = SIGN_MARKS[(k + 2 * side) % 4]
+    rm = x0 + 8
+    for off, n in top_row:
+        L.hline(rm - off - n + 1, rm - off, y0 + 2, c)
+    L.hline(rm - n2 + 1, rm, y0 + 4, c)
+
+
+def _protester(L, x, h, sign=None, k=0, side=0, floor=216):
     top = floor - h
     L.rect(x - 3, top + 6, 7, h - 6, "night")
     L.ellipse(x, top + 3, 2.6, 3, "skin_sh")
     for dx in (-1, 0, 1):
         L.set(x + dx, top + 1, "hair_dk")
-    if sign is not None:                                  # a blank sign on a stick (never lettered)
-        L.vline(sign + 2, top - 6, top + 6, "wood")
-        L.rect(sign - 2, top - 14, 10, 8, "pink" if pink else "white")
-        L.hline(sign - 2, sign + 7, top - 7, "pink_sh" if pink else "paper")
+    if sign is not None:                                  # a handmade kraft sign on a stick (never lettered)
+        _kraft_sign(L, sign, top, k, side)
 
 
 def wing_balfour(side):
@@ -113,14 +139,14 @@ def wing_balfour(side):
     crowd = _balfour_crowd()
     if side == "l":
         seam = [c for c in crowd if c[0] == 0 and (c[2] - 3 < 0 or (c[4] is not None and c[4] - 2 < 0))]
-        native = [(-11, 23, None, True), (-5, 21, -11, False)]
+        native = [(-11, 23, None, -2), (-5, 21, -11, -1)]  # (x, h, sign x, k): k continues the art's 0..3 outward
     else:
         seam = [c for c in crowd if c[0] == 1 and (c[2] + 3 > SW - 1 or (c[4] is not None and c[4] + 7 > SW - 1))]
-        native = [(183, 22, 182, False), (190, 24, None, True), (196, 21, 192, True)]
+        native = [(183, 22, 182, 4), (190, 24, None, 5), (196, 21, 192, 5)]
     for (sd, i, x, h, sx) in seam:
-        _protester(L, x, h, sx, pink=(i // 2) % 2 == 0)
-    for (x, h, sx, pink) in native:
-        _protester(L, x, h, sx, pink=pink)
+        _protester(L, x, h, sx, k=i // 2, side=sd)
+    for (x, h, sx, k) in native:
+        _protester(L, x, h, sx, k=k, side=0 if side == "l" else 1)
     # the police barrier in front of them: two grey rails, a post every 10 (the art's are 9 apart; 10 tiles)
     L.hline(x0, x0 + W - 1, 209, "grey")
     L.hline(x0, x0 + W - 1, 213, "grey")

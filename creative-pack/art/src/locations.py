@@ -61,6 +61,42 @@ def stars(L, n, y0, y1, seed):
 
 
 # ---------------------------------------------------------------------------
+# B14 (Bar, 2026-09-30: option D'): the Balfour protest signs are handmade kraft cardboard, the one thing every
+# 2020 Balfour group carried (no movement colour, no flag object, no legible text). Geometry is the approved
+# sign's: a 10x8 board at (sx-2, top-14) on a `wood` stick at sx+2 (top-6 .. top+6), a 1-row shade at its foot.
+#   board   `stone` / `stone_sh` alternating (k + side), shade row `stone_sh` / `wood`
+#   cut     one corner px knocked out per board (hand-cut), the corner varies with (k + side)
+#   marker  two straight 1-px rows, RIGHT-aligned like Hebrew handwriting (x0+8 is the right margin): a long
+#           row with one off-centre word gap over a shorter row. A straight 1-px row can't form a letter; the
+#           gap is never centred and the lower row never centred (a centred "- -" over "-" reads as a face).
+#           One marker colour per board, `ink` or `flag_hi` only (`red` is the alert colour: never here).
+# The wide-phone wings repaint the same boards (art/od-sevev/src/wave7.py _kraft_sign, a verbatim copy): keep
+# the two in step, or a board changes across the seam (wave7.seam_report checks it).
+SIGN_MARKS = [("ink",     [(0, 5), (6, 2)], 4),     # (colour, top row as [(dx from the right margin, length)],
+              ("flag_hi", [(0, 2), (3, 5)], 5),     #  lower row length)
+              ("ink",     [(0, 6)],         3),
+              ("flag_hi", [(0, 3), (4, 3)], 6)]
+
+
+def kraft_sign(L, sx, top, k, side):
+    """One protest sign: k = the sign's index along its side (0..3), side 0 left / 1 right."""
+    L.vline(sx + 2, top - 6, top + 6, "wood")
+    x0, y0 = sx - 2, top - 14
+    fill = "stone" if (k + side) % 2 == 0 else "stone_sh"
+    shade = "stone_sh" if fill == "stone" else "wood"
+    cx, cy = [(x0, y0), (x0 + 9, y0), (x0 + 9, y0 + 7), (x0, y0 + 7)][(k + side) % 4]
+    behind = L.get(cx, cy)                                 # the hand-cut corner shows what was behind the board
+    L.rect(x0, y0, 10, 8, fill)
+    L.hline(x0, x0 + 9, y0 + 7, shade)
+    L.set(cx, cy, behind)
+    c, top_row, n2 = SIGN_MARKS[(k + 2 * side) % 4]
+    rm = x0 + 8                                            # the right margin
+    for off, n in top_row:
+        L.hline(rm - off - n + 1, rm - off, y0 + 2, c)
+    L.hline(rm - n2 + 1, rm, y0 + 4, c)
+
+
+# ---------------------------------------------------------------------------
 def balfour():
     """Era 1: the residence at night. Mood: late, warm lamp light, the street is awake."""
     L = Layer(SW, SH)
@@ -107,7 +143,7 @@ def balfour():
     # the street
     L.rect(0, 216, SW, 14, "suit_dk")
     spotlight(L, "suit_dk", "slate")
-    # protest crowd behind barriers, left and right (generic people, blank signs)
+    # protest crowd behind barriers, left and right (generic people, handmade kraft signs: B14 D')
     r = random.Random(7)
     for side in (0, 1):
         xs = range(2, 56, 7) if side == 0 else range(126, 178, 7)
@@ -117,11 +153,9 @@ def balfour():
             L.rect(x - 3, top + 6, 7, h - 6, "night")            # body
             L.ellipse(x, top + 3, 2.6, 3, "skin_sh")             # head (lamp-lit side)
             L.set(x - 1, top + 1, "hair_dk"); L.set(x, top + 1, "hair_dk"); L.set(x + 1, top + 1, "hair_dk")
-            if i % 2 == 0:                                        # blank sign on a stick
+            if i % 2 == 0:                                        # a handmade kraft sign on a stick (B14 D')
                 sx = x + r.choice((-2, 1))
-                L.vline(sx + 2, top - 6, top + 6, "wood")
-                L.rect(sx - 2, top - 14, 10, 8, "pink" if (i // 2) % 2 == 0 else "white")
-                L.hline(sx - 2, sx + 7, top - 7, "pink_sh" if (i // 2) % 2 == 0 else "paper")
+                kraft_sign(L, sx, top, i // 2, side)
         bx0 = 0 if side == 0 else 122
         L.hline(bx0, bx0 + 57, FLOOR - 7, "grey"); L.hline(bx0, bx0 + 57, FLOOR - 3, "grey")
         for x in range(bx0 + 2, bx0 + 58, 9):

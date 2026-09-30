@@ -409,7 +409,7 @@
   "sprites/spin_slot_G.png": 350,
   "sprites/spin_slot_H.png": 361,
   "sprites/spin_slot_I.png": 363,
-  "sprites/stage_balfour.png": 4388,
+  "sprites/stage_balfour.png": 4344,
   "sprites/stage_courthouse.png": 3212,
   "sprites/stage_knesset.png": 1959,
   "sprites/stage_washington.png": 2830,
@@ -502,8 +502,8 @@
   "sprites/trophy_suitcase_locked.png": 189,
   "sprites/trophy_wand.png": 175,
   "sprites/trophy_wand_locked.png": 171,
-  "sprites/wing_balfour_l.png": 570,
-  "sprites/wing_balfour_r.png": 535,
+  "sprites/wing_balfour_l.png": 766,
+  "sprites/wing_balfour_r.png": 724,
   "sprites/wing_courthouse_l.png": 590,
   "sprites/wing_courthouse_r.png": 583,
   "sprites/wing_knesset_l.png": 549,
@@ -2998,8 +2998,8 @@
   },
   {
    "file": "assets/sprites/stage_balfour.png",
-   "source": 4388,
-   "imported": 1336
+   "source": 4344,
+   "imported": 1396
   },
   {
    "file": "assets/sprites/stage_courthouse.png",
@@ -3463,13 +3463,13 @@
   },
   {
    "file": "assets/sprites/wing_balfour_l.png",
-   "source": 570,
-   "imported": 314
+   "source": 766,
+   "imported": 342
   },
   {
    "file": "assets/sprites/wing_balfour_r.png",
-   "source": 535,
-   "imported": 300
+   "source": 724,
+   "imported": 322
   },
   {
    "file": "assets/sprites/wing_courthouse_l.png",
@@ -3555,7 +3555,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 5352937,
+ "pckBytes": 5353047,
  "pckByAsset": {
   "bibi": {
    "3": 193236,
@@ -3798,5 +3798,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 15663940
+ "sourceTotal": 15664281
 }

@@ -39,7 +39,7 @@ SWATCHES = [
     ("maroon",    "#8a1538", "maroon",  "RESERVED: the Suitcase only. Nothing else on screen may be maroon."),
     ("maroon_dk", "#560b24", "maroon",  "RESERVED: Suitcase shadow."),
     ("red",       "#d02a36", "red",     "Danger (court meter, quit threats), the news-flash label, Smotrich's tie. White on red = 4.70:1. Always paired with a shape cue."),
-    ("pink",      "#f07fad", "pink",    "Sara's blazer, the protest's signs, Gotliv's top."),
+    ("pink",      "#f07fad", "pink",    "Sara's blazer, Gotliv's top (not the protest signs: kraft since B14)."),
     ("pink_sh",   "#c4507f", "pink",    "Pink shadow."),
     # --- oranges & golds -----------------------------------------------------
     ("orange",    "#f5871f", "orange",  "Carrot, street lamps, Gotliv's loud jacket."),

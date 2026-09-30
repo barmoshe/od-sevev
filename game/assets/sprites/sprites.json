@@ -16866,8 +16866,8 @@
    ]
   },
   "stage_balfour.png": {
-   "bytes": 4388,
-   "sha": "12b9df6eeb784320",
+   "bytes": 4344,
+   "sha": "ecdd86bd5c5621d2",
    "size": [
     180,
     320
@@ -17610,16 +17610,16 @@
    ]
   },
   "wing_balfour_l.png": {
-   "bytes": 570,
-   "sha": "06869c41daafebf8",
+   "bytes": 766,
+   "sha": "94ed06b9f62e7d3e",
    "size": [
     20,
     230
    ]
   },
   "wing_balfour_r.png": {
-   "bytes": 535,
-   "sha": "92df8f2c94e1af0a",
+   "bytes": 724,
+   "sha": "65e643b691fdb654",
    "size": [
     20,
     230

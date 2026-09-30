@@ -242,6 +242,21 @@ the Knesset's sun on stone): v4 repaints no stage and the cast is untouched (ful
   a character. The flag's colours and stripes are the frame; the booth, the envelope, the slip and the hemicycle are
   blank civic objects. No October 7 imagery (do/don't 13).
 
+**The Balfour protest signs (B14, Bar's pick D', 2026-09-30).** v4 took `pink` out of the chrome, so the stage's 8 pink /
+white boards read as a v2 leftover. They are now **handmade kraft cardboard**, the one thing every 2020 Balfour group
+carried (no movement colour, no flag as an object, no text). Options, references and the squint / deuteranopia sheet:
+the 2D Artist's B14 note (session 5 scratchpad, `B14-options.md`).
+- **Board:** the approved geometry (10x8 on a `wood` stick, 4 per side); face `stone` / `stone_sh` alternating, shade row
+  `stone_sh` / `wood`; one corner px knocked out per board (hand-cut), the corner varying board to board.
+- **Marker:** `ink` or `flag_hi` only, one per board (never `red`: it is the alert colour). Two straight 1-px rows,
+  **right-aligned like Hebrew handwriting**: a long row with one off-centre word gap over a shorter row. A straight
+  1-px row cannot form a letter. **Never centre the gap or the lower row**: a centred "- -" over "-" reads as a face.
+- **Readability:** `stone` 2.55:1 and `stone_sh` 1.43:1 on the lamp-lit wall (`slate`); the marker 12:1 on the board.
+  The signs sit inside the wall's value band, so the eye goes lamp → leader → gate and the signs read as texture.
+- **One painter, two copies:** `creative-pack/art/src/locations.py` `kraft_sign` (the stage) and `src/wave7.py`
+  `_kraft_sign` (the wings) are verbatim copies indexed by the art's (k, side), so a board crossing the seam is the same
+  board. The stage re-render is Bar-approved drift (624 px, art rows 177-188); the approved `showcase/out/` was updated.
+
 ## 3. Outline and rim (v2)
 
 - **Outline:** exactly 1 art px of `outline` around every graphic-tier silhouette. UI pieces draw it
@@ -685,7 +700,7 @@ drawn *around* (wings) and *over* (lane, plaza) the stage on its own x4 grid. Pr
 |---|---|---|
 | A1 the lane | `lane_<era>` redrawn **32x28** (same ids; **superseded 2026-09-30 by §17.4: 192x28, no cable**) | The lip, its dither and the course seams stay; added running-bond joints (8-px slabs far, 16 near), a lit top-left pixel per slab, the press cable (every era: the TV crews are always there), a flyer / spike-tape X / dropped page / carpet weave. Every swatch ≥ 4.5:1 against `rim` (asserted), so the flying Suitcase keeps its edge. |
 | A1 the plaza | `plaza_<era>` **128x96** tile (**superseded 2026-09-30 by §17.4: 192x192, no cable**) | The floor from art row 258 to the screen bottom. The apron's own base with one-value-step texture: 12-row courses (nearer than the lane's 4-7), slabs 32 wide, broken lit edges, 50 % checker scuffs, sparse litter, the cable meandering off. 128 wide so a phone shows under two copies across and the litter never reads as wallpaper. **No barrier or fence** in it (a fence repeated down the screen would read as a border fence: do/don't 13), no gold, no text. |
-| A2 the wings | `wing_<era>_l` / `_r`, W x 230 | Each era's rows 0-229 continued past the art's edges, tileable with period W = a multiple of the era's rhythm (Balfour 20: wall panels every 10; Knesset 22: the lawn's specks every 11; courthouse 60: panels 30, tubes 60; Washington 36: specks every 9). Drawn in art coordinates on a canvas that wraps x mod W, so an element crossing the art's edge (Balfour's tree and protester, the courthouse benches, Washington's blossom trees) continues exactly and repeats every W; wing-native elements (more protesters with blank signs, an olive tree, an aisle between benches) never cross the wing's own edges. Balfour's protesters are the art's own seeded crowd; its barrier posts go every 10 (the art's are 9 apart, which does not tile). |
+| A2 the wings | `wing_<era>_l` / `_r`, W x 230 | Each era's rows 0-229 continued past the art's edges, tileable with period W = a multiple of the era's rhythm (Balfour 20: wall panels every 10; Knesset 22: the lawn's specks every 11; courthouse 60: panels 30, tubes 60; Washington 36: specks every 9). Drawn in art coordinates on a canvas that wraps x mod W, so an element crossing the art's edge (Balfour's tree and protester, the courthouse benches, Washington's blossom trees) continues exactly and repeats every W; wing-native elements (more protesters with kraft signs, §2.4 B14, an olive tree, an aisle between benches) never cross the wing's own edges. Balfour's protesters are the art's own seeded crowd; its barrier posts go every 10 (the art's are 9 apart, which does not tile). |
 | A3 the XL picker heads | `avatar_pick_<c>_d3` 96, `_d2` 64 (TA render-down, `showcase/src/build.py` `avatar_pick_xl`) | First-generation crops from the ref (never an upscale of the 32), the leader's locked d 3 palette, binary alpha, the same neutral `rim` ring (4 px: 8 logical at the picker's 2 logical per px, the 32's weight at x4) and cream disc. |
 | Animator: brawl cue | `brawl_cloud_cue` 26x20 x 4 | `brawl_cloud`'s loop redrawn at half size so the stage cue draws at x4 (the grid) instead of x2: the same puffs, shading bands, sleeves with cuffs and fists, shoes, the flying page and star; limbs keep their fist inside the frame. |
 | Animator: court echo | `court_window` `spots` (data) | Moved out of the sky band (the phones crop art rows < ~110 under Row A and the toast dock) to the right side, clear of the leader: Balfour (167, 167) behind the wall, right of the lamp; Knesset (158, 166) on the lawn at the colonnade's end; Washington (162, 152) in the horizon band right of the mansion. |

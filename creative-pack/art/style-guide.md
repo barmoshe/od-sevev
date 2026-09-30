@@ -75,7 +75,7 @@ impression, and we are pixel puppetry. None of their current bits appear.
 | `grey` | `#a4a9b8` | neutral | 0.40 | Grey hair / beards / stubble. |
 | `silver` | `#d3d6df` | neutral | 0.67 | Silver hair (the Magician, Lapid); metal highlights. |
 | `white` | `#f7f4ec` | neutral | 0.91 | Shirts, text, highlights. Warm white, never #fff. |
-| `paper` | `#ddd5c0` | neutral | 0.67 | White-cloth shadow, signs, paper. |
+| `paper` | `#ddd5c0` | neutral | 0.67 | White-cloth shadow, paper. |
 | `skin_hi` | `#f7cfa6` | skin | 0.67 | Skin light plane (forehead, nose tip). |
 | `skin` | `#e3a97c` | skin | 0.46 | Skin base. |
 | `skin_sh` | `#c27f58` | skin | 0.27 | Skin shadow (right side, under brows, under chin). |
@@ -92,7 +92,7 @@ impression, and we are pixel puppetry. None of their current bits appear.
 | `maroon` | `#8a1538` | maroon | 0.06 | RESERVED: the Suitcase only. Nothing else on screen may be maroon. |
 | `maroon_dk` | `#560b24` | maroon | 0.02 | RESERVED: Suitcase shadow. |
 | `red` | `#d02a36` | red | 0.15 | Danger (court meter, quit threats), the news-flash label, Smotrich's tie. White on red = 4.70:1. Always paired with a shape cue. |
-| `pink` | `#f07fad` | pink | 0.37 | Sara's blazer, the protest's signs, Gotliv's top. |
+| `pink` | `#f07fad` | pink | 0.37 | Sara's blazer, Gotliv's top. (Not the protest signs: kraft since B14, 2026-09-30.) |
 | `pink_sh` | `#c4507f` | pink | 0.19 | Pink shadow. |
 | `orange` | `#f5871f` | orange | 0.37 | Carrot, street lamps, Gotliv's loud jacket. |
 | `orange_sh` | `#b85a17` | orange | 0.18 | Orange shadow. |
@@ -105,7 +105,7 @@ impression, and we are pixel puppetry. None of their current bits appear.
 | `teal_dk` | `#1e3a37` | teal | 0.04 | Courthouse deep shadow. |
 | `teal` | `#3a655e` | teal | 0.11 | Courthouse walls. |
 | `teal_hi` | `#79a597` | teal | 0.33 | Courthouse fluorescent-lit planes. |
-| `stone` | `#e4d3a8` | stone | 0.66 | Jerusalem stone (Knesset), Balfour walls in lamp light. |
+| `stone` | `#e4d3a8` | stone | 0.66 | Jerusalem stone (Knesset), Balfour walls in lamp light, Balfour's kraft protest signs (with `stone_sh`). |
 | `stone_sh` | `#b39d72` | stone | 0.35 | Stone shadow. |
 | `wood` | `#8a5632` | wood | 0.12 | Court benches, the Balfour gate, podium. |
 | `wood_dk` | `#55331f` | wood | 0.04 | Wood shadow. |
@@ -363,7 +363,7 @@ edge).
 
 | Era | Mood (one line) | Swatch subset | Backdrop L at the slot | Landmark | Never draw |
 |---|---|---|---|---|---|
-| 1 · בלפור | Late night, warm lamps, the street is awake | `night`, `plum`, `plum_hi`, `slate`, `grey`, `orange`, `gold_hi` (lamp cores), `pink` / `white` signs | 0.33 | A stone villa behind a wall and gate; a generic protest crowd behind barriers with **blank** signs | Real protest slogans, flags as emblems, identifiable protesters |
+| 1 · בלפור | Late night, warm lamps, the street is awake | `night`, `plum`, `plum_hi`, `slate`, `grey`, `orange`, `gold_hi` (lamp cores), `stone` / `stone_sh` kraft signs with an `ink` / `flag_hi` marker | 0.33 | A stone villa behind a wall and gate; a generic protest crowd behind barriers with **handmade kraft** signs whose marker rows never form a letter or a face (B14 D', `locations.kraft_sign`) | Real protest slogans, flags as emblems, identifiable protesters |
 | 2 · הכנסת | Midday, warm stone, a little too orderly | `sky`, `white`, `stone`, `stone_sh`, `green`, `lime`, `teal_hi` (hills) | 0.53 | The flat roof slab and square colonnade; olive trees | **The Knesset Menorah (it is the state emblem)**, flags, party banners |
 | 3 · בית המשפט | Cold fluorescent green; time dragging | `teal_dk`, `teal`, `teal_hi`, `wood`, `wood_dk`, `paper` | 0.38 | Three empty judges' chairs, a raised bench, a clock where an emblem would hang, the case files labelled 1000 / 2000 / 4000 | **The state emblem above the bench** (the panel stays blank, always), judges' faces |
 | 4 · וושינגטון | Shiny white marble, blossom-pink, the big stage | `sky`, `white`, `paper`, `pink`, `pink_sh`, `green`, `navy` (the plane) | 0.65 | A *generic* columned white mansion, the obelisk, cherry blossoms, the small "Wing of Zion" plane, a laundry bag by the path | The US seal and eagle, an exact White House replica |
