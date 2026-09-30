@@ -66,9 +66,9 @@ CLIPS = [
     (BAR(8), BAR(10), 15.0, 1.0, 380),     # more sources
     (BAR(10), BAR(12) + 1.0, 21.5, 1.0, 0),  # Mordechai David blocks (the stage)
     (BAR(12) + 1.0, BAR(13), 27.0, 0.6, 0),  # the break: hold on the toast
-    (BAR(13), BAR(17), 32.3, 1.0, 380),    # the coalition chat, paying
-    (BAR(17), BAR(21), 40.0, 1.3, 380),    # the numbers go up
-    (BAR(21), BAR(23), 54.6, 1.0, 0),      # the election
+    (BAR(13), BAR(17), 32.3, 1.0, 0),      # the coalition chat, paying (the seats bar in view)
+    (BAR(17), BAR(21), 40.0, 1.3, 0),      # the numbers go up
+    (BAR(21), BAR(23), 50.3, 1.0, 0),      # 47 of 61: the chat again, still short
 ]
 T_END = BAR(23)
 
@@ -79,7 +79,7 @@ CAPTIONS = [  # (start, end, text): the step, on the panel
     (BAR(10), BAR(13), "אירוע: חסימה"),
     (BAR(13), BAR(17), "משלמים לשותפים"),
     (BAR(17), BAR(21), "מגיעים ל־61"),
-    (BAR(21), BAR(23), "בחירות. שוב."),
+    (BAR(21), BAR(23), "47 מתוך 61"),
 ]
 
 LINES = [  # (start, end, line, pose): Mordechai David, the host
@@ -95,7 +95,7 @@ LINES = [  # (start, end, line, pose): Mordechai David, the host
     (BAR(15), BAR(17), "בן גביר? מאיים לפרוש. לפי לוח זמנים.", "glance"),
     (BAR(17), BAR(19), "העברה, העברה, העברה.", "idle"),
     (BAR(19), BAR(21), "עוד תקציב. מחר: דרישה להגדלה.", "glance"),
-    (BAR(21), BAR(23), "ואז... בחירות. שוב.", "idle"),
+    (BAR(21), BAR(23), "חסרים 14 מנדטים. אז... עוד סבב.", "glance"),
     (BAR(23), DUR, "אני חוסם אותך... עד שתעקוב.", "block"),
 ]
 
@@ -175,10 +175,12 @@ def panel(c, t):
     for vs, ve, ts, sp, cy in CLIPS:
         if vs <= t < ve:
             fr = take_frame(ts + (t - vs) * sp)
-            c.paste(fr.crop((0, cy, W, cy + PANEL_H)), (0, 0))
-            if cy > 0:   # the game's HUD (the ₪ counter) stays on every shot
+            if cy > 0:   # the game's HUD (the ₪ counter) stays on every shot, the view under it moves
                 c.paste(fr.crop((0, 0, W, HUD_H)), (0, 0))
+                c.paste(fr.crop((0, cy + HUD_H, W, cy + PANEL_H)), (0, HUD_H))
                 ImageDraw.Draw(c).rectangle((0, HUD_H, W, HUD_H + 5), fill=INK)
+            else:
+                c.paste(fr.crop((0, 0, W, PANEL_H)), (0, 0))
             flash(c, t, vs, 0.08, 0.35)
             return True
     return False
