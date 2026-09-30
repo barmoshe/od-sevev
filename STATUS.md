@@ -1195,3 +1195,28 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - **Checks:** `tools/test.sh` 353/353 (new `test_mobile_layout.gd`: grid, width, split, tab slots, picker plan, ticker clip, pager, modal and share scale against `ux/tools/mobile_layout.py --json` for all 12 devices, plus the scene booted at 4 phones; `test_leader_pick` covers the merge-ready line); strict `tools/build_web.sh` green; `mobile_web.mjs` **PASS on the whole matrix, 0 baseline / 0 layout / 0 width failures, in v4**; res, views, modals, share, motion PASS; `round_web` PASS on the mobile build before the palette (b827500); on v4 three runs lost the gate to the driver (a walkout at ×10 under the election card, a random leader's round out of budget, one page navigation), not the layout, and the driver now retries the gate; `picker_web` passes the pick, the leader card, the undo and tap 1, then its Bennett round never holds 61 at ×12 in the driver's budget (the same stall on the pre-palette build), so the after-election steps stay unverified in the browser (the unit tests cover them)
   - **Before/after:** `scratchpad/shots/mobile-after/compare.png` (v4; `compare-v2-palette.png` is the same pass before the palette): 375×667@2, 390×844@3, 430×932@3, 412×915@2.625 × pick, pre-tap, card 1, C1, T3, settings.
   - No objection outstanding.
+
+## 2026-09-30, Animator wave B: the leader walk wired, M1 (the ticker roll), the slip stamp
+- **LeaderWalk wired** (`motion/state-graph-magician.md` §9):
+  - **Walk-out:** the old leader walks off screen-right (560 ms Sine.In, 1-ap bob) as the EVOLVE_TX card lifts (new `walk` cue at t 1200), before the flash or the picker. Input stays locked until he is off (t 1760; +260 ms on the 1.5 s ceremony, and the music cue is still on time). Reduced motion: a 150 ms fade on the mark at t 1000, no tail.
+  - **Walk-in:** after the pick, from screen-left to the feet point (640 ms Sine.Out). It replaces the 250 ms placeholder fade. Dubi's line follows the landing (+120 ms, 1280 ms after the commit). The undo mid-walk and "again" both walk in from off-stage.
+  - **The conflict is resolved:** `BigBanana._apply_figure` is the one writer of the figure's position, visibility and alpha (mark + court offset + walk offset). The court yields while a walk runs (courtStart latches until the landing), and a walk-out cuts a court day home.
+  - The swap is 1.2 s of leader motion, within the 1.5 s budget.
+  - The seam drops the old round's pending pick lines and Dubi's bubble.
+  - Dev: `window.odDevElect = 1` forces the ceremony (no 61 gate) for the strips.
+- **M1, the ticker:**
+  - **A roll, not UX's push:** the next page rises as the old one lifts, 240 ms Cubic.Out, 4-px steps, the pages locked one row apart. The x never moves, so no Hebrew prefix fragment ever shows at a clip edge (a deviation from §5.2's push, argued in the audit). Reduced motion keeps the 200 ms cross-fade.
+  - **The dwell is per page by length:** a first page 1.2 s + 70 ms a character, a continuation 0.5 s + 70 ms, 2.0-5.5 s; FTUE 1.5 s + 85 ms, 4.5-7.0 s. A median headline now takes 4-6 s (was 7.0; every page sat on the old 3.5 s floor). Measured on 275 lines by `game/tests/dev/ticker_pages.gd`.
+- **The v4 slip stamp:** a spin card's tag on the `card_plate` slip slams in at ×6 → ×5 → ×4 over 90 ms when it appears or changes on the same card; reduced motion cuts.
+- **Envelope flap:** not built; it needs art. The ask to the 2D Artist is a 3-frame `sheet_modal_flap`, in the audit.
+- **Checks:**
+  - `tools/test.sh` 368/368 (new `test_leader_walk` 9, `test_ticker_roll` 4, `test_slip_stamp` 2; the mobile-layout dwell check retuned);
+  - strict `tools/build_web.sh` green;
+  - `tools/web/motion_web.mjs` (new walk + ticker sections, duration-based strips) PASS at 390×844@2;
+  - `mobile_web.mjs` PASS at 390×844@3 and 375×667@2 (one C1 probe race on the first 390 run under load; the rerun passed).
+- **Strips:** `scratchpad/shots/motion-b/`: walk-in/out (+ `-rm`), the browser ticker (+ `-rm`), and `ticker-strip-{roll,rm}` (the engine, 16 ms steps).
+- **Asks:**
+  - 2D Artist: the flap strip.
+  - Audio: a cue for the slip stamp at its f0.
+  - Dev/UX: the pager wraps "10,000 ₪." before the ₪; bind the sign to its number.
+- No objection outstanding. A deviation is logged: the roll replaces §5.2's push. UX may counter-object with an alternative.

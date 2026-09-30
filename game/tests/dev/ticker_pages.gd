@@ -1,0 +1,78 @@
+extends SceneTree
+## Dev probe for the ticker pager (animator, M1): every ticker line in design/content.json broken
+## into pages at the clip widths of the matrix (Ticker.paginate, the real text route), with the
+## characters per page, the pages per headline and the dwell per page under Ticker.dwell_ms.
+##   godot --headless --path game -s res://tests/dev/ticker_pages.gd
+
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+
+## Every ticker line (the content lint's ticker paths): the headlines, the ambient lines (v1, v2), each
+## leader's kit headlines, and every `ticker` / `tickerStart` / `onPaidTicker` string.
+func _texts() -> Array:
+	var out: Array = []
+	_walk(Content.data(), false, out)
+	return out.filter(func(t: String) -> bool: return t != "" and not t.contains("{"))
+
+
+func _walk(v: Variant, in_ticker: bool, out: Array) -> void:
+	if v is Dictionary:
+		for k: Variant in v:
+			var key := str(k)
+			if key.begins_with("_"):
+				continue
+			var val: Variant = v[k]
+			var tick := in_ticker or key in ["headlines", "ambientHeadlines", "ambientHeadlinesV2"]
+			if key == "text" and in_ticker and val is String:
+				out.append(val)
+			elif key in ["ticker", "tickerStart", "onPaidTicker"] and val is String:
+				out.append(val)
+			else:
+				_walk(val, tick, out)
+	elif v is Array:
+		for x: Variant in v:
+			if x is String and in_ticker:
+				out.append(x)
+			else:
+				_walk(x, in_ticker, out)
+
+
+func _pct(a: Array, p: float) -> float:
+	var s := a.duplicate()
+	s.sort()
+	return float(s[clampi(int(floorf(p * float(s.size() - 1) + 0.5)), 0, s.size() - 1)])
+
+
+func _run() -> void:
+	await process_frame   # the autoloads (Art, Content) exist from the first frame
+	var Ticker: GDScript = load("res://scripts/ui/ticker.gd")
+	Content.load_from(Content.PATH)
+	var texts := _texts()
+	print("ticker lines: %d" % texts.size())
+	for clip: float in [280.0, 324.0, 392.0, 464.0]:
+		var chars: Array = []
+		var dw: Array = []
+		var per_head: Array = []
+		var head_ms: Array = []
+		for t: String in texts:
+			var pages: Array = Ticker.paginate(t, clip, 4, 2)
+			per_head.append(float(pages.size()))
+			var hm := 0.0
+			for pi in pages.size():
+				var pg: Variant = pages[pi]
+				var n := 0
+				for ln: String in pg:
+					n += ln.length()
+				chars.append(float(n))
+				var ms: float = Ticker.dwell_ms(pg, "flavor", pi == 0)
+				dw.append(ms)
+				hm += ms
+			head_ms.append(hm + Ticker.ROLL_MS * float(pages.size() - 1))
+		print("clip %d: pages/headline mean %.2f max %d | chars/page p10 %d p50 %d p90 %d max %d | dwell/page p10 %.1f p50 %.1f p90 %.1f max %.1f s | headline dwell p50 %.1f p90 %.1f s" % [
+			int(clip), per_head.reduce(func(a: float, b: float) -> float: return a + b, 0.0) / per_head.size(), int(per_head.max()),
+			int(_pct(chars, 0.1)), int(_pct(chars, 0.5)), int(_pct(chars, 0.9)), int(chars.max()),
+			_pct(dw, 0.1) / 1000.0, _pct(dw, 0.5) / 1000.0, _pct(dw, 0.9) / 1000.0, float(dw.max()) / 1000.0,
+			_pct(head_ms, 0.5) / 1000.0, _pct(head_ms, 0.9) / 1000.0])
+	quit(0)
