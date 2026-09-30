@@ -1,10 +1,10 @@
 # binary files changed (not carried):
 diff --git a/game/tests/dev/ticker_pages.gd b/game/tests/dev/ticker_pages.gd
 new file mode 100644
-index 0000000..311cac9
+index 0000000..1edcd2c
 --- /dev/null
 +++ b/game/tests/dev/ticker_pages.gd
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,66 @@
 +extends SceneTree
 +## Dev probe for the ticker pager (animator, M1): every ticker line in design/content.json broken
 +## into pages at the clip widths of the matrix (Ticker.paginate, the real text route), with the
@@ -13,7 +13,7 @@ index 0000000..311cac9
 +
 +
 +func _initialize() -> void:
-+	_run()
++	_run.call_deferred()
 +
 +
 +func _texts() -> Array:
@@ -30,7 +30,7 @@ index 0000000..311cac9
 +		ls = (ls as Dictionary).values()
 +	for l: Variant in ls:
 +		if l is Dictionary:
-+			for t: Variant in (l as Dictionary).get("kit", {}).get("ticker", []):
++			for t: Variant in (l as Dictionary).get("kit", {}).get("headlines", []):
 +				out.append(str((t as Dictionary).get("text", "")) if t is Dictionary else str(t))
 +	return out.filter(func(t: String) -> bool: return t != "")
 +
@@ -42,7 +42,9 @@ index 0000000..311cac9
 +
 +
 +func _run() -> void:
-+	TestFixture.use_game_content()
++	await process_frame   # the autoloads (Art, Content) exist from the first frame
++	var Ticker: GDScript = load("res://scripts/ui/ticker.gd")
++	Content.load_from(Content.PATH)
 +	var texts := _texts()
 +	print("ticker lines: %d" % texts.size())
 +	for clip: float in [280.0, 324.0, 392.0, 464.0]:
