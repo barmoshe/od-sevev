@@ -1,6 +1,6 @@
 # binary files changed (not carried):
 diff --git a/game/scripts/main.gd b/game/scripts/main.gd
-index f7d6e3e..16f4a3d 100644
+index f7d6e3e..13f60a3 100644
 --- a/game/scripts/main.gd
 +++ b/game/scripts/main.gd
 @@ -127,6 +127,8 @@ var _bottom_inset := 0.0
@@ -104,7 +104,7 @@ index f7d6e3e..16f4a3d 100644
 +func _say_pick(text: String, dubi_at: Vector2) -> void:
 +	if mode != "main" and state.taps_lifetime == 0:
 +		var t: String = str(toasts.dubi_line.call(text)) if toasts.dubi_line.is_valid() else text
-+		toasts.show_chat_toast(dubi_head(), t, dubi_face())
++		toasts.show_chat_toast(dubi_head(), t, dubi_face(), "", true)
 +		return
 +	toasts.say(text, dubi_at, 1600.0)
 +
@@ -224,6 +224,62 @@ index 7544ab8..c45d177 100644
  	if v["afford"] == false and afford and active and _visible_shop and not is_btn:
  		if _now >= float(v["glintReadyAt"]):
  			v["glintReadyAt"] = _now + float(Tune.T["affordGlintCooldownMs"])
+diff --git a/game/scripts/ui/toasts.gd b/game/scripts/ui/toasts.gd
+index ce2c589..1dbac71 100644
+--- a/game/scripts/ui/toasts.gd
++++ b/game/scripts/ui/toasts.gd
+@@ -42,6 +42,7 @@ const FACE_X := 612.0
+ const FACE_ART := 16.0
+ const C_HEAD := Color("#c9d6f2")    # grey: the sender line, as the thread's names
+ var _chats: Array[Dictionary] = []
++var _passive := false               # the shown toast takes no tap (show_chat_toast passive)
+ var _face: Sprite2D
+ var _head: PxText
+ var _preview: PxText
+@@ -113,13 +114,15 @@ func show_toast(text: String, tag: String = "") -> void:
+ ## message preview, one line, ellipsised; both right-aligned at 596 (box x 32-596). Always two
+ ## lines (132). `avatar` = [art id, logical px per sprite px, density] (ChatView.avatar_art); an
+ ## empty id draws no face. The tag is "chat" (a tap opens T3).
+-func show_chat_toast(head: String, preview: String, avatar: Array) -> void:
++## `tag` "" and `passive` (review U9, Dubi's pre-tap pick line over the leader): no tap target, so
++## tap 1 aimed at the leader is never taken by the dock.
++func show_chat_toast(head: String, preview: String, avatar: Array, tag: String = "chat", passive: bool = false) -> void:
+ 	if preview == "" and head == "":
+ 		return
+ 	_queue.append(preview)
+-	_tags.append("chat")
++	_tags.append(tag)
+ 	_sync_chats()
+-	_chats.append({"head": head, "avatar": avatar})
++	_chats.append({"head": head, "avatar": avatar, "passive": passive})
+ 
+ 
+ ## Called right after a text is queued: the chat meta lines up with the texts already waiting
+@@ -188,6 +191,8 @@ func covered_rect() -> Rect2:
+ 
+ 
+ func tap(p: Vector2) -> bool:
++	if _passive:
++		return false
+ 	if _plate.visible and Ui.in_rect(Rect2(_plate.position, _plate.size * 4.0), p):
+ 		_t = SHOW_MS
+ 		if on_tap.is_valid() and _tag != "":
+@@ -255,6 +260,7 @@ func update_view(dt_ms: float) -> void:
+ 				n.modulate.a = a
+ 		if _t >= SHOW_MS:
+ 			_t = -1.0
++			_passive = false
+ 			_gap = GAP_MS
+ 			_plate.visible = false
+ 			_text.visible = false
+@@ -272,6 +278,7 @@ func update_view(dt_ms: float) -> void:
+ 	while _chats.size() > _queue.size():
+ 		_chats.pop_front()
+ 	var shown_nodes: Array[CanvasItem] = [_plate]
++	_passive = bool(chat.get("passive", false))
+ 	var y0 := float(L.STAGE["y"]) + 8.0
+ 	if chat.is_empty():
+ 		_text.text = msg
 diff --git a/game/scripts/ui/views/view_pick.gd b/game/scripts/ui/views/view_pick.gd
 index 19571e5..342c4fd 100644
 --- a/game/scripts/ui/views/view_pick.gd
@@ -331,6 +387,68 @@ index 19571e5..342c4fd 100644
  
  
  func publish_closed() -> void:
+diff --git a/game/scripts/ui/views/view_share.gd b/game/scripts/ui/views/view_share.gd
+index ba909e6..7cce0fb 100644
+--- a/game/scripts/ui/views/view_share.gd
++++ b/game/scripts/ui/views/view_share.gd
+@@ -41,6 +41,10 @@ const C_NIGHT := Color("#00237a")
+ ## The status line sits on the sheet's cream notice (#fff4e0), not on blue: the v4 map's ui_mute was
+ ## 1.3:1 there; flag blue is 8.3:1 (UX review 2026-09-30, U5).
+ const C_STATUS := Color("#0038b8")
++## mobile-first §5.14.3: the envelope (kit `envelope_blue`, 14×10) on the result card's stage floor
++## (E1, card-art px) and, ×4 (56×40), leading the status line after a share went out (E2, "sent").
++const ENVELOPE_AT := Vector2(38, 197)
++const ENVELOPE_GAP := 16.0
+ 
+ var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
+ var art_px := 2.0                             # the preview's logical px per art px
+@@ -53,6 +57,7 @@ var share_btn: PxButton
+ var save_btn: PxButton
+ var wa_btn: PxButton
+ var status: PxText
++var sent_mark: Sprite2D                       # E2: the envelope on the status line (shared only)
+ var _vp: SubViewport
+ var _preview: Sprite2D
+ var _printing: Node2D
+@@ -110,6 +115,9 @@ func build() -> ShareSheet:
+ 	status.reading = true
+ 	status.wrap_width = 640.0 + L.dx
+ 	status.max_lines = 1
++	if Art.has_sprite("envelope_blue"):
++		sent_mark = Ui.img(panel, Vector2(0, y + Ui.snap((STATUS_H - float(Art.sprite_size("envelope_blue").y) * 4.0) / 2.0, 4)), "envelope_blue", 0, 4)
++		sent_mark.visible = false
+ 	y += STATUS_H
+ 	var hw := L.floor4((544.0 + L.dx - 32.0) / 2.0)
+ 	share_btn = button(Rect2(88, y, hw, BTN_H), Rect2(80, y - 4.0, hw + 16.0, BTN_H + 8.0), Strings.s("SHARE_BTN"), func() -> void: share(), "kit_primary", L.TEXT)
+@@ -120,8 +128,13 @@ func build() -> ShareSheet:
+ 			b.label.max_lines = 1
+ 			b.label.center_in(b.visual.position.x, b.visual.size.x)
+ 	y += BTN_H + GAP
+-	wa_btn = button(Rect2(88, y, 544.0 + L.dx, BTN_H), Rect2(80, y - 4.0, 560.0 + L.dx, BTN_H + 8.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
+-	_place_wa_icon(wa_btn)
++	# review U14: full width like "סגור" below it (§5.12), hit + 8 on every side; U11: the label
++	# only, centred (no speech-bubble-with-tick icon: WhatsApp's mark under another name)
++	wa_btn = button(Rect2(24, y, 672.0 + L.dx, BTN_H), Rect2(16, y - 8.0, 688.0 + L.dx, BTN_H + 16.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
++	if wa_btn.label != null:
++		wa_btn.label.wrap_width = 672.0 + L.dx - 32.0
++		wa_btn.label.max_lines = 1
++		wa_btn.label.center_in(wa_btn.visual.position.x, wa_btn.visual.size.x)
+ 	var cy := pr.end.y - CLOSE_AREA - inset
+ 	button(Rect2(24, cy, 672.0 + L.dx, 88), Rect2(24, cy, 672.0 + L.dx, 88), Strings.s("SHARE_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
+ 	focusables.append(close)
+@@ -245,6 +258,12 @@ static func _build_result(root: Node2D, m: Dictionary) -> void:
+ 	Ui.img(root, Vector2.ZERO, fid, 0, S)
+ 	var z: Dictionary = Art.kit(fid).get("zones", {})
+ 	var anchor: Array = z.get("castAnchor", [108, 198])
++	# mobile-first §5.14.3 E1: a blank ballot envelope left on the stage floor, left of the leader's
++	# feet, after the floor and before the cast (no number, no party; not on the receipt)
++	if Art.has_sprite("envelope_blue"):
++		var env := Ui.img(root, ENVELOPE_AT * float(S), "envelope_blue", 0, S)
++		env.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
++		env.name = "Envelope"
+ 	_place_figure(root, Vector2(float(anchor[0]), float(anchor[1])))
+ 	var hz: Array = z.get("headline", [28, 43, 160, 20])
+ 	card_text(root, str(m["head"]), float(hz[0]), float(hz[2]), float(hz[1]), "center", C_WHITE, 2)
 diff --git a/game/tests/unit/test_mobile_layout.gd b/game/tests/unit/test_mobile_layout.gd
 index a80eaf2..8a1c2a0 100644
 --- a/game/tests/unit/test_mobile_layout.gd
