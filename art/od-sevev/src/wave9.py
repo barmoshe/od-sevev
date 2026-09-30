@@ -11,7 +11,7 @@ pixel. sheet_modal itself is unchanged.
 
 Why the strip is 24 rows and not 23: the flap's shadow at the point sits on sheet_modal's art row 23, the first row
 of the stretched centre patch. Inside a 9-slice that one row is stretched down the whole body (at 624 logical px
-wide and 480 tall: a 190x60 dark slab under the point). As part of the flap strip it stays one art row.
+wide and 480 tall: a ~190x45 dark slab, confirmed in the engine under the point). As part of the flap strip it stays one art row.
 """
 import json
 import os

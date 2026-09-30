@@ -363,7 +363,7 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for 
     motion:** frame 2 from the first frame.
   - **Why 24 rows, not the 9-slice's 23:** the flap's shadow at the point is on art row 23, the first row
     of `sheet_modal`'s stretched centre. Inside the 9-slice that one row stretches down the body (at a
-    624×480 card, a ~190×60 dark slab under the point: `proofs/kit-w9-flap.png`, right column). In the flap
+    624×480 card, a ~190×45 dark slab under the point, seen in the engine too: `proofs/kit-w9-flap.png`, right column). In the flap
     strip it stays one art row, so body + flap also drops that slab.
 
 ## 6. Fonts: Sevev 9
