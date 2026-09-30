@@ -141,7 +141,8 @@ func test_density_one_and_three_from_the_manifest() -> void:
 		runner.check(Display.k == k and s3.material == null and s3.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
 			"k %d: a sprite px is %d device px, nearest" % [k, k / 3])
 	# the money sources on the stage: taxpayer rendered (d 3 + a d 2 alternate), washington → the
-	# hand-drawn checkbook (d 1). Art.source picks the variant crisp at k, like SpriteStrip does.
+	# checkbook, rendered from its ref since 2026-09-30 (it was the 2D Artist's d 1 drawing). Art.source
+	# picks the variant crisp at k, like SpriteStrip does.
 	Display.update(Vector2(780, 1688))
 	var spr := Sprite2D.new()
 	parent.add_child(spr)
@@ -164,7 +165,7 @@ func test_density_one_and_three_from_the_manifest() -> void:
 	var spr1 := Sprite2D.new()
 	parent.add_child(spr1)
 	Diorama._scale_sprite(spr1, "washington")
-	runner.check(spr1.scale.is_equal_approx(Vector2(4, 4)) and spr1.material == null, "the d 1 checkbook stays ×4, nearest")
+	runner.check(is_equal_approx(spr1.scale.x, 4.0 / 3.0) and spr1.material == null, "washington → the rendered d 3 checkbook, 4/3 at k 6, nearest (got %s)" % spr1.scale)
 	# the manifest before the re-render (no density keys): d 1, ×4, the same size on screen
 	var size3: Vector2 = s3.frame_size()
 	_use_manifest(_d1_manifest())

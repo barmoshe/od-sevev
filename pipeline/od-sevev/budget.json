@@ -395,30 +395,34 @@
   "sprites/source_advisers_icon.png": 1346,
   "sprites/source_advisers_icon_sil.png": 264,
   "sprites/source_advisers_icon_sil_pale.png": 266,
-  "sprites/source_checkbook.png": 743,
-  "sprites/source_checkbook_icon.png": 329,
-  "sprites/source_checkbook_icon_sil.png": 145,
-  "sprites/source_checkbook_icon_sil_pale.png": 148,
+  "sprites/source_checkbook.png": 23801,
+  "sprites/source_checkbook_d2.png": 11595,
+  "sprites/source_checkbook_icon.png": 974,
+  "sprites/source_checkbook_icon_sil.png": 251,
+  "sprites/source_checkbook_icon_sil_pale.png": 259,
   "sprites/source_cigars.png": 16777,
   "sprites/source_cigars_d2.png": 8988,
   "sprites/source_cigars_icon.png": 1362,
   "sprites/source_cigars_icon_sil.png": 248,
   "sprites/source_cigars_icon_sil_pale.png": 253,
-  "sprites/source_donor.png": 871,
-  "sprites/source_donor_icon.png": 541,
-  "sprites/source_donor_icon_sil.png": 228,
-  "sprites/source_donor_icon_sil_pale.png": 229,
-  "sprites/source_funds.png": 615,
-  "sprites/source_funds_icon.png": 297,
-  "sprites/source_funds_icon_sil.png": 132,
-  "sprites/source_funds_icon_sil_pale.png": 132,
+  "sprites/source_donor.png": 10397,
+  "sprites/source_donor_d2.png": 5429,
+  "sprites/source_donor_icon.png": 989,
+  "sprites/source_donor_icon_sil.png": 265,
+  "sprites/source_donor_icon_sil_pale.png": 267,
+  "sprites/source_funds.png": 14013,
+  "sprites/source_funds_d2.png": 7626,
+  "sprites/source_funds_icon.png": 902,
+  "sprites/source_funds_icon_sil.png": 231,
+  "sprites/source_funds_icon_sil_pale.png": 235,
   "sprites/source_hitech.png": 12936,
   "sprites/source_hitech_d2.png": 6618,
   "sprites/source_hitech_icon.png": 1019,
   "sprites/source_hitech_icon_sil.png": 238,
   "sprites/source_hitech_icon_sil_pale.png": 245,
-  "sprites/source_poison.png": 634,
-  "sprites/source_poison_icon.png": 241,
+  "sprites/source_poison.png": 20522,
+  "sprites/source_poison_d2.png": 10624,
+  "sprites/source_poison_icon.png": 1576,
   "sprites/source_poison_icon_sil.png": 96,
   "sprites/source_poison_icon_sil_pale.png": 97,
   "sprites/source_qatari.png": 16142,
@@ -426,10 +430,11 @@
   "sprites/source_qatari_icon.png": 1344,
   "sprites/source_qatari_icon_sil.png": 264,
   "sprites/source_qatari_icon_sil_pale.png": 266,
-  "sprites/source_submarine.png": 1084,
-  "sprites/source_submarine_icon.png": 446,
-  "sprites/source_submarine_icon_sil.png": 232,
-  "sprites/source_submarine_icon_sil_pale.png": 236,
+  "sprites/source_submarine.png": 27576,
+  "sprites/source_submarine_d2.png": 13720,
+  "sprites/source_submarine_icon.png": 1082,
+  "sprites/source_submarine_icon_sil.png": 262,
+  "sprites/source_submarine_icon_sil_pale.png": 276,
   "sprites/source_taxpayer.png": 14730,
   "sprites/source_taxpayer_d2.png": 7576,
   "sprites/source_taxpayer_icon.png": 978,
@@ -575,7 +580,7 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 202936196,
+ "vramBytes": 203681156,
  "vramByDensity": {
   "tibi": {
    "3": 1576784,
@@ -727,22 +732,22 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 8149288,
-  "3": 13812136,
-  "4": 8149288,
-  "6": 13812136,
-  "7": 13812136,
-  "8": 8149288,
-  "9": 13812136
+  "2": 8337448,
+  "3": 14310056,
+  "4": 8337448,
+  "6": 14310056,
+  "7": 14310056,
+  "8": 8337448,
+  "9": 14310056
  },
  "vramSourcesByK": {
-  "2": 259200,
-  "3": 579840,
-  "4": 259200,
-  "6": 579840,
-  "7": 579840,
-  "8": 259200,
-  "9": 579840
+  "2": 506240,
+  "3": 1136640,
+  "4": 506240,
+  "6": 1136640,
+  "7": 1136640,
+  "8": 506240,
+  "9": 1136640
  },
  "vramPerPartnerByK": {
   "2": {
@@ -1063,7 +1068,7 @@
    "golan": 2803640
   }
  },
- "vramTypical": 13812136,
+ "vramTypical": 14310056,
  "vramCastAll": 197871508,
  "vramPerPartner": {
   "tibi": 1576784,
@@ -3078,23 +3083,28 @@
   },
   {
    "file": "assets/sprites/source_checkbook.png",
-   "source": 743,
-   "imported": 434
+   "source": 23801,
+   "imported": 8104
+  },
+  {
+   "file": "assets/sprites/source_checkbook_d2.png",
+   "source": 11595,
+   "imported": 4052
   },
   {
    "file": "assets/sprites/source_checkbook_icon.png",
-   "source": 329,
-   "imported": 252
+   "source": 974,
+   "imported": 466
   },
   {
    "file": "assets/sprites/source_checkbook_icon_sil.png",
-   "source": 145,
-   "imported": 132
+   "source": 251,
+   "imported": 174
   },
   {
    "file": "assets/sprites/source_checkbook_icon_sil_pale.png",
-   "source": 148,
-   "imported": 138
+   "source": 259,
+   "imported": 180
   },
   {
    "file": "assets/sprites/source_cigars.png",
@@ -3123,43 +3133,53 @@
   },
   {
    "file": "assets/sprites/source_donor.png",
-   "source": 871,
-   "imported": 494
+   "source": 10397,
+   "imported": 3344
+  },
+  {
+   "file": "assets/sprites/source_donor_d2.png",
+   "source": 5429,
+   "imported": 1856
   },
   {
    "file": "assets/sprites/source_donor_icon.png",
-   "source": 541,
-   "imported": 316
+   "source": 989,
+   "imported": 448
   },
   {
    "file": "assets/sprites/source_donor_icon_sil.png",
-   "source": 228,
-   "imported": 164
+   "source": 265,
+   "imported": 186
   },
   {
    "file": "assets/sprites/source_donor_icon_sil_pale.png",
-   "source": 229,
-   "imported": 170
+   "source": 267,
+   "imported": 192
   },
   {
    "file": "assets/sprites/source_funds.png",
-   "source": 615,
-   "imported": 396
+   "source": 14013,
+   "imported": 4656
+  },
+  {
+   "file": "assets/sprites/source_funds_d2.png",
+   "source": 7626,
+   "imported": 2584
   },
   {
    "file": "assets/sprites/source_funds_icon.png",
-   "source": 297,
-   "imported": 270
+   "source": 902,
+   "imported": 448
   },
   {
    "file": "assets/sprites/source_funds_icon_sil.png",
-   "source": 132,
-   "imported": 130
+   "source": 231,
+   "imported": 176
   },
   {
    "file": "assets/sprites/source_funds_icon_sil_pale.png",
-   "source": 132,
-   "imported": 136
+   "source": 235,
+   "imported": 180
   },
   {
    "file": "assets/sprites/source_hitech.png",
@@ -3188,13 +3208,18 @@
   },
   {
    "file": "assets/sprites/source_poison.png",
-   "source": 634,
-   "imported": 372
+   "source": 20522,
+   "imported": 6324
+  },
+  {
+   "file": "assets/sprites/source_poison_d2.png",
+   "source": 10624,
+   "imported": 3128
   },
   {
    "file": "assets/sprites/source_poison_icon.png",
-   "source": 241,
-   "imported": 206
+   "source": 1576,
+   "imported": 550
   },
   {
    "file": "assets/sprites/source_poison_icon_sil.png",
@@ -3233,23 +3258,28 @@
   },
   {
    "file": "assets/sprites/source_submarine.png",
-   "source": 1084,
-   "imported": 548
+   "source": 27576,
+   "imported": 8388
+  },
+  {
+   "file": "assets/sprites/source_submarine_d2.png",
+   "source": 13720,
+   "imported": 4286
   },
   {
    "file": "assets/sprites/source_submarine_icon.png",
-   "source": 446,
-   "imported": 316
+   "source": 1082,
+   "imported": 480
   },
   {
    "file": "assets/sprites/source_submarine_icon_sil.png",
-   "source": 232,
-   "imported": 172
+   "source": 262,
+   "imported": 192
   },
   {
    "file": "assets/sprites/source_submarine_icon_sil_pale.png",
-   "source": 236,
-   "imported": 180
+   "source": 276,
+   "imported": 196
   },
   {
    "file": "assets/sprites/source_taxpayer.png",
@@ -3975,7 +4005,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 6662057,
+ "pckBytes": 6707821,
  "pckByAsset": {
   "tibi": {
    "3": 41446,
@@ -4111,6 +4141,26 @@
   "nophoto": {
    "1": 496
   },
+  "source_submarine": {
+   "3": 8388,
+   "2": 4286
+  },
+  "source_poison": {
+   "3": 6324,
+   "2": 3128
+  },
+  "source_checkbook": {
+   "3": 8104,
+   "2": 4052
+  },
+  "source_donor": {
+   "3": 3344,
+   "2": 1856
+  },
+  "source_funds": {
+   "3": 4656,
+   "2": 2584
+  },
   "source_taxpayer": {
    "3": 4670,
    "2": 2454
@@ -4134,21 +4184,6 @@
   "source_advisers": {
    "3": 5544,
    "2": 2916
-  },
-  "source_checkbook": {
-   "1": 434
-  },
-  "source_donor": {
-   "1": 494
-  },
-  "source_funds": {
-   "1": 396
-  },
-  "source_poison": {
-   "1": 372
-  },
-  "source_submarine": {
-   "1": 548
   }
  },
  "specimenVisual": [
@@ -4250,5 +4285,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 19229045
+ "sourceTotal": 19374634
 }
