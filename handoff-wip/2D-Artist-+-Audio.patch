@@ -1,4 +1,5 @@
 # binary files changed (not carried):
+#   pipeline/od-sevev/proofs/font-density2.png
 diff --git a/art/od-sevev/src/build_all.py b/art/od-sevev/src/build_all.py
 index cca0858..7a9b0f4 100644
 --- a/art/od-sevev/src/build_all.py
@@ -151,6 +152,2903 @@ index 971b80b..39d9107 100644
    {
     "id": "sheet_plain",
     "group": "sheet",
+diff --git a/game/assets/sprites/sprites.json b/game/assets/sprites/sprites.json
+index d319756..8571cf2 100644
+--- a/game/assets/sprites/sprites.json
++++ b/game/assets/sprites/sprites.json
+@@ -12480,6 +12480,58 @@
+    ],
+    "label": "white"
+   },
++  "sheet_modal_body": {
++   "id": "sheet_modal_body",
++   "group": "sheet",
++   "w": 38,
++   "h": 38,
++   "slice": [
++    7,
++    23,
++    7,
++    7
++   ],
++   "mode": "stretch",
++   "content": [
++    7,
++    23,
++    24,
++    8
++   ],
++   "label": "white"
++  },
++  "sheet_modal_flap": {
++   "id": "sheet_modal_flap",
++   "group": "sheet",
++   "w": 114,
++   "h": 24,
++   "slice": [
++    7,
++    0,
++    7,
++    0
++   ],
++   "mode": "stretch",
++   "label": "white",
++   "frames": 3,
++   "frameW": 38,
++   "pivot": [
++    0,
++    0
++   ],
++   "frameNames": [
++    "sealed",
++    "lifting",
++    "open"
++   ],
++   "fps": 25,
++   "loop": false,
++   "base": "sheet_modal_body",
++   "rows": [
++    0,
++    24
++   ]
++  },
+   "sheet_plain": {
+    "id": "sheet_plain",
+    "group": "sheet",
+@@ -15956,6 +16008,22 @@
+     38
+    ]
+   },
++  "sheet_modal_body.png": {
++   "bytes": 225,
++   "sha": "776f852f7958671a",
++   "size": [
++    38,
++    38
++   ]
++  },
++  "sheet_modal_flap.png": {
++   "bytes": 585,
++   "sha": "830370e3822cea84",
++   "size": [
++    114,
++    24
++   ]
++  },
+   "sheet_plain.png": {
+    "bytes": 164,
+    "sha": "335e5b8d7a548960",
+diff --git a/pipeline/od-sevev/budget.json b/pipeline/od-sevev/budget.json
+index d0875de..1cf1d2f 100644
+--- a/pipeline/od-sevev/budget.json
++++ b/pipeline/od-sevev/budget.json
+@@ -326,6 +326,8 @@
+   "sprites/share_receipt_bg.png": 2141,
+   "sprites/share_result_frame.png": 3117,
+   "sprites/sheet_modal.png": 320,
++  "sprites/sheet_modal_body.png": 225,
++  "sprites/sheet_modal_flap.png": 585,
+   "sprites/sheet_plain.png": 164,
+   "sprites/source_advisers.png": 16290,
+   "sprites/source_advisers_d2.png": 8308,
+@@ -501,7 +503,7 @@
+   "fonts/sevev9@2.png": 2799,
+   "fonts/sevev9@2.fnt": 15149
+  },
+- "vramBytes": 169657684,
++ "vramBytes": 169674404,
+  "vramByDensity": {
+   "bibi": {
+    "3": 9697848,
+@@ -621,13 +623,13 @@
+   "golan"
+  ],
+  "vramTypicalByK": {
+-  "2": 7566728,
+-  "3": 13229576,
+-  "4": 7566728,
+-  "6": 13229576,
+-  "7": 13229576,
+-  "8": 7566728,
+-  "9": 13229576
++  "2": 7583448,
++  "3": 13246296,
++  "4": 7583448,
++  "6": 13246296,
++  "7": 13246296,
++  "8": 7583448,
++  "9": 13246296
+  },
+  "vramSourcesByK": {
+   "2": 259200,
+@@ -901,7 +903,7 @@
+    "golan": 2803640
+   }
+  },
+- "vramTypical": 13229576,
++ "vramTypical": 13246296,
+  "vramCastAll": 165175556,
+  "vramPerPartner": {
+   "sara": 4144800,
+@@ -930,2753 +932,5 @@
+   "dubi-mic": 5035536,
+   "nophoto": 15520
+  },
+- "imported": [
+-  {
+-   "file": "assets/sprites/avatar24_abbas.png",
+-   "source": 956,
+-   "imported": 438
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_amsalem.png",
+-   "source": 1128,
+-   "imported": 478
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_ben-gvir.png",
+-   "source": 1147,
+-   "imported": 472
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_bennett.png",
+-   "source": 1088,
+-   "imported": 518
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_bibi.png",
+-   "source": 1185,
+-   "imported": 486
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_deri.png",
+-   "source": 1062,
+-   "imported": 456
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_distel.png",
+-   "source": 901,
+-   "imported": 424
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_dubi.png",
+-   "source": 1187,
+-   "imported": 544
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_eisenkot.png",
+-   "source": 903,
+-   "imported": 408
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_gafni.png",
+-   "source": 1143,
+-   "imported": 494
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_gantz.png",
+-   "source": 771,
+-   "imported": 386
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_golan.png",
+-   "source": 1012,
+-   "imported": 432
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_goldknopf.png",
+-   "source": 1112,
+-   "imported": 488
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_gotliv.png",
+-   "source": 1169,
+-   "imported": 522
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_herzog.png",
+-   "source": 1069,
+-   "imported": 478
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_karhi.png",
+-   "source": 918,
+-   "imported": 442
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_lapid.png",
+-   "source": 913,
+-   "imported": 420
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_levin.png",
+-   "source": 1135,
+-   "imported": 484
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_liberman.png",
+-   "source": 981,
+-   "imported": 440
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_may-golan.png",
+-   "source": 1117,
+-   "imported": 480
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_nophoto.png",
+-   "source": 344,
+-   "imported": 248
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_ben-gvir.png",
+-   "source": 1158,
+-   "imported": 476
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_bennett.png",
+-   "source": 1087,
+-   "imported": 514
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_bibi.png",
+-   "source": 1193,
+-   "imported": 486
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_deri.png",
+-   "source": 1057,
+-   "imported": 454
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_eisenkot.png",
+-   "source": 905,
+-   "imported": 412
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_golan.png",
+-   "source": 1012,
+-   "imported": 440
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_liberman.png",
+-   "source": 977,
+-   "imported": 442
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_pick_smotrich.png",
+-   "source": 944,
+-   "imported": 432
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_regev.png",
+-   "source": 1186,
+-   "imported": 498
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_sara.png",
+-   "source": 1163,
+-   "imported": 510
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_smotrich.png",
+-   "source": 945,
+-   "imported": 430
+-  },
+-  {
+-   "file": "assets/sprites/avatar24_trump.png",
+-   "source": 1004,
+-   "imported": 484
+-  },
+-  {
+-   "file": "assets/sprites/avatar_abbas.png",
+-   "source": 1573,
+-   "imported": 614
+-  },
+-  {
+-   "file": "assets/sprites/avatar_amsalem.png",
+-   "source": 1854,
+-   "imported": 668
+-  },
+-  {
+-   "file": "assets/sprites/avatar_ben-gvir.png",
+-   "source": 2128,
+-   "imported": 740
+-  },
+-  {
+-   "file": "assets/sprites/avatar_bennett.png",
+-   "source": 1828,
+-   "imported": 766
+-  },
+-  {
+-   "file": "assets/sprites/avatar_bibi.png",
+-   "source": 2056,
+-   "imported": 720
+-  },
+-  {
+-   "file": "assets/sprites/avatar_deri.png",
+-   "source": 1771,
+-   "imported": 662
+-  },
+-  {
+-   "file": "assets/sprites/avatar_distel.png",
+-   "source": 1423,
+-   "imported": 590
+-  },
+-  {
+-   "file": "assets/sprites/avatar_dubi.png",
+-   "source": 1953,
+-   "imported": 770
+-  },
+-  {
+-   "file": "assets/sprites/avatar_eisenkot.png",
+-   "source": 1543,
+-   "imported": 582
+-  },
+-  {
+-   "file": "assets/sprites/avatar_gafni.png",
+-   "source": 1919,
+-   "imported": 704
+-  },
+-  {
+-   "file": "assets/sprites/avatar_gantz.png",
+-   "source": 1219,
+-   "imported": 504
+-  },
+-  {
+-   "file": "assets/sprites/avatar_golan.png",
+-   "source": 1613,
+-   "imported": 606
+-  },
+-  {
+-   "file": "assets/sprites/avatar_goldknopf.png",
+-   "source": 1868,
+-   "imported": 706
+-  },
+-  {
+-   "file": "assets/sprites/avatar_gotliv.png",
+-   "source": 1986,
+-   "imported": 790
+-  },
+-  {
+-   "file": "assets/sprites/avatar_herzog.png",
+-   "source": 1723,
+-   "imported": 650
+-  },
+-  {
+-   "file": "assets/sprites/avatar_karhi.png",
+-   "source": 1392,
+-   "imported": 574
+-  },
+-  {
+-   "file": "assets/sprites/avatar_lapid.png",
+-   "source": 1473,
+-   "imported": 576
+-  },
+-  {
+-   "file": "assets/sprites/avatar_levin.png",
+-   "source": 1888,
+-   "imported": 718
+-  },
+-  {
+-   "file": "assets/sprites/avatar_liberman.png",
+-   "source": 1612,
+-   "imported": 614
+-  },
+-  {
+-   "file": "assets/sprites/avatar_may-golan.png",
+-   "source": 1953,
+-   "imported": 714
+-  },
+-  {
+-   "file": "assets/sprites/avatar_nophoto.png",
+-   "source": 442,
+-   "imported": 292
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_ben-gvir.png",
+-   "source": 2094,
+-   "imported": 736
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_ben-gvir_d2.png",
+-   "source": 6385,
+-   "imported": 1958
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_ben-gvir_d3.png",
+-   "source": 12507,
+-   "imported": 3982
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bennett.png",
+-   "source": 1821,
+-   "imported": 770
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bennett_d2.png",
+-   "source": 4949,
+-   "imported": 1808
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bennett_d3.png",
+-   "source": 9645,
+-   "imported": 3472
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bibi.png",
+-   "source": 2048,
+-   "imported": 720
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bibi_d2.png",
+-   "source": 5917,
+-   "imported": 1874
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_bibi_d3.png",
+-   "source": 10889,
+-   "imported": 3554
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_deri.png",
+-   "source": 1770,
+-   "imported": 662
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_deri_d2.png",
+-   "source": 5041,
+-   "imported": 1680
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_deri_d3.png",
+-   "source": 9745,
+-   "imported": 3264
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_eisenkot.png",
+-   "source": 1538,
+-   "imported": 580
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_eisenkot_d2.png",
+-   "source": 4502,
+-   "imported": 1422
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_eisenkot_d3.png",
+-   "source": 8253,
+-   "imported": 2646
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_golan.png",
+-   "source": 1617,
+-   "imported": 606
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_golan_d2.png",
+-   "source": 4557,
+-   "imported": 1512
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_golan_d3.png",
+-   "source": 8378,
+-   "imported": 2770
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_liberman.png",
+-   "source": 1619,
+-   "imported": 614
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_liberman_d2.png",
+-   "source": 4477,
+-   "imported": 1480
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_liberman_d3.png",
+-   "source": 8399,
+-   "imported": 2760
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_smotrich.png",
+-   "source": 1564,
+-   "imported": 600
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_smotrich_d2.png",
+-   "source": 4710,
+-   "imported": 1546
+-  },
+-  {
+-   "file": "assets/sprites/avatar_pick_smotrich_d3.png",
+-   "source": 9186,
+-   "imported": 2956
+-  },
+-  {
+-   "file": "assets/sprites/avatar_regev.png",
+-   "source": 2060,
+-   "imported": 760
+-  },
+-  {
+-   "file": "assets/sprites/avatar_sara.png",
+-   "source": 2073,
+-   "imported": 828
+-  },
+-  {
+-   "file": "assets/sprites/avatar_smotrich.png",
+-   "source": 1560,
+-   "imported": 602
+-  },
+-  {
+-   "file": "assets/sprites/avatar_trump.png",
+-   "source": 1703,
+-   "imported": 704
+-  },
+-  {
+-   "file": "assets/sprites/badge_count.png",
+-   "source": 152,
+-   "imported": 158
+-  },
+-  {
+-   "file": "assets/sprites/booth_frame.png",
+-   "source": 258,
+-   "imported": 194
+-  },
+-  {
+-   "file": "assets/sprites/brawl_cloud.png",
+-   "source": 2133,
+-   "imported": 1428
+-  },
+-  {
+-   "file": "assets/sprites/brawl_cloud_cue.png",
+-   "source": 1174,
+-   "imported": 676
+-  },
+-  {
+-   "file": "assets/sprites/button_danger_default.png",
+-   "source": 152,
+-   "imported": 158
+-  },
+-  {
+-   "file": "assets/sprites/button_danger_disabled.png",
+-   "source": 123,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/button_danger_pressed.png",
+-   "source": 128,
+-   "imported": 138
+-  },
+-  {
+-   "file": "assets/sprites/button_gold_default.png",
+-   "source": 153,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/button_gold_disabled.png",
+-   "source": 126,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/button_gold_pressed.png",
+-   "source": 139,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/button_primary_default.png",
+-   "source": 150,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/button_primary_disabled.png",
+-   "source": 126,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/button_primary_pressed.png",
+-   "source": 133,
+-   "imported": 140
+-  },
+-  {
+-   "file": "assets/sprites/button_secondary_default.png",
+-   "source": 166,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/button_secondary_disabled.png",
+-   "source": 126,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/button_secondary_pressed.png",
+-   "source": 127,
+-   "imported": 140
+-  },
+-  {
+-   "file": "assets/sprites/card_back_mark.png",
+-   "source": 121,
+-   "imported": 108
+-  },
+-  {
+-   "file": "assets/sprites/card_opposition.png",
+-   "source": 289,
+-   "imported": 210
+-  },
+-  {
+-   "file": "assets/sprites/card_opposition_back.png",
+-   "source": 315,
+-   "imported": 238
+-  },
+-  {
+-   "file": "assets/sprites/card_plate.png",
+-   "source": 165,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/card_row.png",
+-   "source": 182,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/card_row_locked.png",
+-   "source": 144,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/card_source_affordable.png",
+-   "source": 220,
+-   "imported": 186
+-  },
+-  {
+-   "file": "assets/sprites/card_source_locked.png",
+-   "source": 144,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/card_source_unaffordable.png",
+-   "source": 182,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/card_spin.png",
+-   "source": 190,
+-   "imported": 178
+-  },
+-  {
+-   "file": "assets/sprites/card_spin_locked.png",
+-   "source": 159,
+-   "imported": 140
+-  },
+-  {
+-   "file": "assets/sprites/cast/abbas_idle.png",
+-   "source": 71106,
+-   "imported": 20112
+-  },
+-  {
+-   "file": "assets/sprites/cast/abbas_idle_d2.png",
+-   "source": 38747,
+-   "imported": 11350
+-  },
+-  {
+-   "file": "assets/sprites/cast/abbas_react.png",
+-   "source": 63611,
+-   "imported": 21158
+-  },
+-  {
+-   "file": "assets/sprites/cast/abbas_react_d2.png",
+-   "source": 33622,
+-   "imported": 11214
+-  },
+-  {
+-   "file": "assets/sprites/cast/amsalem_idle.png",
+-   "source": 241595,
+-   "imported": 78230
+-  },
+-  {
+-   "file": "assets/sprites/cast/amsalem_idle_d2.png",
+-   "source": 122015,
+-   "imported": 39086
+-  },
+-  {
+-   "file": "assets/sprites/cast/amsalem_react.png",
+-   "source": 179804,
+-   "imported": 69118
+-  },
+-  {
+-   "file": "assets/sprites/cast/amsalem_react_d2.png",
+-   "source": 96674,
+-   "imported": 36360
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_idle.png",
+-   "source": 245706,
+-   "imported": 73698
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_idle_d2.png",
+-   "source": 128933,
+-   "imported": 37430
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_react.png",
+-   "source": 172053,
+-   "imported": 59780
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_react_d2.png",
+-   "source": 94087,
+-   "imported": 32290
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_tap.png",
+-   "source": 235633,
+-   "imported": 81322
+-  },
+-  {
+-   "file": "assets/sprites/cast/ben-gvir_tap_d2.png",
+-   "source": 127850,
+-   "imported": 44376
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_flip.png",
+-   "source": 206846,
+-   "imported": 78430
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_flip_d2.png",
+-   "source": 112240,
+-   "imported": 44434
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_idle.png",
+-   "source": 138900,
+-   "imported": 44060
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_idle_d2.png",
+-   "source": 46789,
+-   "imported": 14648
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_tap.png",
+-   "source": 196646,
+-   "imported": 73224
+-  },
+-  {
+-   "file": "assets/sprites/cast/bennett_tap_d2.png",
+-   "source": 108772,
+-   "imported": 40794
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_crit.png",
+-   "source": 186029,
+-   "imported": 64400
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_crit_d2.png",
+-   "source": 100543,
+-   "imported": 35086
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_idle.png",
+-   "source": 163306,
+-   "imported": 52158
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_idle_d2.png",
+-   "source": 87271,
+-   "imported": 28900
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_tap.png",
+-   "source": 211715,
+-   "imported": 76678
+-  },
+-  {
+-   "file": "assets/sprites/cast/bibi_tap_d2.png",
+-   "source": 113896,
+-   "imported": 41696
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_idle.png",
+-   "source": 217721,
+-   "imported": 69978
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_idle_d2.png",
+-   "source": 78558,
+-   "imported": 24688
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_react.png",
+-   "source": 255460,
+-   "imported": 93792
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_react_d2.png",
+-   "source": 125886,
+-   "imported": 47662
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_tap.png",
+-   "source": 208344,
+-   "imported": 78114
+-  },
+-  {
+-   "file": "assets/sprites/cast/deri_tap_d2.png",
+-   "source": 106764,
+-   "imported": 41046
+-  },
+-  {
+-   "file": "assets/sprites/cast/distel_idle.png",
+-   "source": 193133,
+-   "imported": 59216
+-  },
+-  {
+-   "file": "assets/sprites/cast/distel_idle_d2.png",
+-   "source": 96064,
+-   "imported": 31682
+-  },
+-  {
+-   "file": "assets/sprites/cast/distel_react.png",
+-   "source": 153239,
+-   "imported": 57990
+-  },
+-  {
+-   "file": "assets/sprites/cast/distel_react_d2.png",
+-   "source": 80246,
+-   "imported": 31924
+-  },
+-  {
+-   "file": "assets/sprites/cast/dubi-mic_idle.png",
+-   "source": 252450,
+-   "imported": 72706
+-  },
+-  {
+-   "file": "assets/sprites/cast/dubi-mic_idle_d2.png",
+-   "source": 124038,
+-   "imported": 35320
+-  },
+-  {
+-   "file": "assets/sprites/cast/dubi-mic_talk.png",
+-   "source": 56455,
+-   "imported": 20526
+-  },
+-  {
+-   "file": "assets/sprites/cast/dubi-mic_talk_d2.png",
+-   "source": 31524,
+-   "imported": 10914
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_idle.png",
+-   "source": 66446,
+-   "imported": 21004
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_idle_d2.png",
+-   "source": 36937,
+-   "imported": 11716
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_react.png",
+-   "source": 231175,
+-   "imported": 84264
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_react_d2.png",
+-   "source": 126592,
+-   "imported": 44950
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_tap.png",
+-   "source": 197739,
+-   "imported": 72952
+-  },
+-  {
+-   "file": "assets/sprites/cast/eisenkot_tap_d2.png",
+-   "source": 108419,
+-   "imported": 39318
+-  },
+-  {
+-   "file": "assets/sprites/cast/gafni_idle.png",
+-   "source": 78862,
+-   "imported": 24298
+-  },
+-  {
+-   "file": "assets/sprites/cast/gafni_idle_d2.png",
+-   "source": 42142,
+-   "imported": 12388
+-  },
+-  {
+-   "file": "assets/sprites/cast/gafni_react.png",
+-   "source": 208306,
+-   "imported": 70098
+-  },
+-  {
+-   "file": "assets/sprites/cast/gafni_react_d2.png",
+-   "source": 94718,
+-   "imported": 29900
+-  },
+-  {
+-   "file": "assets/sprites/cast/gantz_idle.png",
+-   "source": 147728,
+-   "imported": 46810
+-  },
+-  {
+-   "file": "assets/sprites/cast/gantz_idle_d2.png",
+-   "source": 50124,
+-   "imported": 15596
+-  },
+-  {
+-   "file": "assets/sprites/cast/gantz_react.png",
+-   "source": 113917,
+-   "imported": 42652
+-  },
+-  {
+-   "file": "assets/sprites/cast/gantz_react_d2.png",
+-   "source": 59123,
+-   "imported": 23110
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_idle.png",
+-   "source": 53397,
+-   "imported": 18422
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_idle_d2.png",
+-   "source": 27592,
+-   "imported": 9984
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_react.png",
+-   "source": 186119,
+-   "imported": 73106
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_react_d2.png",
+-   "source": 97352,
+-   "imported": 38570
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_tap.png",
+-   "source": 150269,
+-   "imported": 60754
+-  },
+-  {
+-   "file": "assets/sprites/cast/golan_tap_d2.png",
+-   "source": 79835,
+-   "imported": 32340
+-  },
+-  {
+-   "file": "assets/sprites/cast/goldknopf_idle.png",
+-   "source": 81656,
+-   "imported": 23162
+-  },
+-  {
+-   "file": "assets/sprites/cast/goldknopf_idle_d2.png",
+-   "source": 42554,
+-   "imported": 12100
+-  },
+-  {
+-   "file": "assets/sprites/cast/goldknopf_react.png",
+-   "source": 263908,
+-   "imported": 88050
+-  },
+-  {
+-   "file": "assets/sprites/cast/goldknopf_react_d2.png",
+-   "source": 138259,
+-   "imported": 46740
+-  },
+-  {
+-   "file": "assets/sprites/cast/gotliv_idle.png",
+-   "source": 260612,
+-   "imported": 82576
+-  },
+-  {
+-   "file": "assets/sprites/cast/gotliv_idle_d2.png",
+-   "source": 128332,
+-   "imported": 41878
+-  },
+-  {
+-   "file": "assets/sprites/cast/gotliv_react.png",
+-   "source": 181349,
+-   "imported": 66568
+-  },
+-  {
+-   "file": "assets/sprites/cast/gotliv_react_d2.png",
+-   "source": 95515,
+-   "imported": 35780
+-  },
+-  {
+-   "file": "assets/sprites/cast/herzog_idle.png",
+-   "source": 198386,
+-   "imported": 67690
+-  },
+-  {
+-   "file": "assets/sprites/cast/herzog_idle_d2.png",
+-   "source": 99843,
+-   "imported": 33760
+-  },
+-  {
+-   "file": "assets/sprites/cast/herzog_react.png",
+-   "source": 188382,
+-   "imported": 69298
+-  },
+-  {
+-   "file": "assets/sprites/cast/herzog_react_d2.png",
+-   "source": 97523,
+-   "imported": 36844
+-  },
+-  {
+-   "file": "assets/sprites/cast/karhi_idle.png",
+-   "source": 179922,
+-   "imported": 51096
+-  },
+-  {
+-   "file": "assets/sprites/cast/karhi_idle_d2.png",
+-   "source": 94957,
+-   "imported": 26322
+-  },
+-  {
+-   "file": "assets/sprites/cast/karhi_react.png",
+-   "source": 145791,
+-   "imported": 51902
+-  },
+-  {
+-   "file": "assets/sprites/cast/karhi_react_d2.png",
+-   "source": 75201,
+-   "imported": 26056
+-  },
+-  {
+-   "file": "assets/sprites/cast/lapid_idle.png",
+-   "source": 249386,
+-   "imported": 76130
+-  },
+-  {
+-   "file": "assets/sprites/cast/lapid_idle_d2.png",
+-   "source": 90127,
+-   "imported": 25566
+-  },
+-  {
+-   "file": "assets/sprites/cast/lapid_react.png",
+-   "source": 258363,
+-   "imported": 82874
+-  },
+-  {
+-   "file": "assets/sprites/cast/lapid_react_d2.png",
+-   "source": 122062,
+-   "imported": 42574
+-  },
+-  {
+-   "file": "assets/sprites/cast/levin_idle.png",
+-   "source": 250900,
+-   "imported": 76674
+-  },
+-  {
+-   "file": "assets/sprites/cast/levin_idle_d2.png",
+-   "source": 115674,
+-   "imported": 38138
+-  },
+-  {
+-   "file": "assets/sprites/cast/levin_react.png",
+-   "source": 198482,
+-   "imported": 69012
+-  },
+-  {
+-   "file": "assets/sprites/cast/levin_react_d2.png",
+-   "source": 101013,
+-   "imported": 37830
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_idle.png",
+-   "source": 81922,
+-   "imported": 26120
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_idle_d2.png",
+-   "source": 42765,
+-   "imported": 13712
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_react.png",
+-   "source": 64373,
+-   "imported": 21920
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_react_d2.png",
+-   "source": 34108,
+-   "imported": 11574
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_tap.png",
+-   "source": 199588,
+-   "imported": 73266
+-  },
+-  {
+-   "file": "assets/sprites/cast/liberman_tap_d2.png",
+-   "source": 105004,
+-   "imported": 38738
+-  },
+-  {
+-   "file": "assets/sprites/cast/may-golan_idle.png",
+-   "source": 106307,
+-   "imported": 33578
+-  },
+-  {
+-   "file": "assets/sprites/cast/may-golan_idle_d2.png",
+-   "source": 55442,
+-   "imported": 17140
+-  },
+-  {
+-   "file": "assets/sprites/cast/may-golan_react.png",
+-   "source": 328019,
+-   "imported": 111878
+-  },
+-  {
+-   "file": "assets/sprites/cast/may-golan_react_d2.png",
+-   "source": 170579,
+-   "imported": 58048
+-  },
+-  {
+-   "file": "assets/sprites/cast/regev_idle.png",
+-   "source": 97924,
+-   "imported": 28770
+-  },
+-  {
+-   "file": "assets/sprites/cast/regev_idle_d2.png",
+-   "source": 50140,
+-   "imported": 15188
+-  },
+-  {
+-   "file": "assets/sprites/cast/regev_react.png",
+-   "source": 306855,
+-   "imported": 98442
+-  },
+-  {
+-   "file": "assets/sprites/cast/regev_react_d2.png",
+-   "source": 161669,
+-   "imported": 53542
+-  },
+-  {
+-   "file": "assets/sprites/cast/sara_idle.png",
+-   "source": 197709,
+-   "imported": 56440
+-  },
+-  {
+-   "file": "assets/sprites/cast/sara_idle_d2.png",
+-   "source": 67008,
+-   "imported": 18522
+-  },
+-  {
+-   "file": "assets/sprites/cast/sara_offended.png",
+-   "source": 235506,
+-   "imported": 80386
+-  },
+-  {
+-   "file": "assets/sprites/cast/sara_offended_d2.png",
+-   "source": 120133,
+-   "imported": 41692
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_idle.png",
+-   "source": 87909,
+-   "imported": 25118
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_idle_d2.png",
+-   "source": 44288,
+-   "imported": 12594
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_react.png",
+-   "source": 154638,
+-   "imported": 50984
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_react_d2.png",
+-   "source": 81812,
+-   "imported": 26560
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_tap.png",
+-   "source": 225284,
+-   "imported": 73952
+-  },
+-  {
+-   "file": "assets/sprites/cast/smotrich_tap_d2.png",
+-   "source": 120221,
+-   "imported": 39650
+-  },
+-  {
+-   "file": "assets/sprites/cast/trump_idle.png",
+-   "source": 267776,
+-   "imported": 87124
+-  },
+-  {
+-   "file": "assets/sprites/cast/trump_idle_d2.png",
+-   "source": 137419,
+-   "imported": 41510
+-  },
+-  {
+-   "file": "assets/sprites/cast/trump_react.png",
+-   "source": 176222,
+-   "imported": 65400
+-  },
+-  {
+-   "file": "assets/sprites/cast/trump_react_d2.png",
+-   "source": 89706,
+-   "imported": 31838
+-  },
+-  {
+-   "file": "assets/sprites/chat_bubble_in.png",
+-   "source": 163,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/chat_bubble_out.png",
+-   "source": 175,
+-   "imported": 160
+-  },
+-  {
+-   "file": "assets/sprites/chat_bubble_ultimatum.png",
+-   "source": 269,
+-   "imported": 216
+-  },
+-  {
+-   "file": "assets/sprites/chat_composer_disabled.png",
+-   "source": 245,
+-   "imported": 160
+-  },
+-  {
+-   "file": "assets/sprites/chat_header.png",
+-   "source": 191,
+-   "imported": 148
+-  },
+-  {
+-   "file": "assets/sprites/chat_icon_chevron.png",
+-   "source": 99,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/chat_icon_lock.png",
+-   "source": 148,
+-   "imported": 156
+-  },
+-  {
+-   "file": "assets/sprites/chat_icon_mute.png",
+-   "source": 134,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/chat_icon_pin.png",
+-   "source": 149,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/chat_pinned.png",
+-   "source": 148,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/chat_system_pill.png",
+-   "source": 150,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/chip_countdown.png",
+-   "source": 153,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/chip_court.png",
+-   "source": 148,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/chip_icon_calendar.png",
+-   "source": 139,
+-   "imported": 168
+-  },
+-  {
+-   "file": "assets/sprites/chip_icon_gavel.png",
+-   "source": 146,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/chip_icon_press.png",
+-   "source": 155,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/chip_owned.png",
+-   "source": 139,
+-   "imported": 142
+-  },
+-  {
+-   "file": "assets/sprites/chip_ultimatum.png",
+-   "source": 147,
+-   "imported": 156
+-  },
+-  {
+-   "file": "assets/sprites/cottage_cup.png",
+-   "source": 881,
+-   "imported": 556
+-  },
+-  {
+-   "file": "assets/sprites/cottage_pixel.png",
+-   "source": 70,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/court_frame.png",
+-   "source": 288,
+-   "imported": 202
+-  },
+-  {
+-   "file": "assets/sprites/court_window.png",
+-   "source": 309,
+-   "imported": 238
+-  },
+-  {
+-   "file": "assets/sprites/court_window_glow.png",
+-   "source": 148,
+-   "imported": 202
+-  },
+-  {
+-   "file": "assets/sprites/curtain_hem.png",
+-   "source": 184,
+-   "imported": 166
+-  },
+-  {
+-   "file": "assets/sprites/curtain_panel.png",
+-   "source": 140,
+-   "imported": 124
+-  },
+-  {
+-   "file": "assets/sprites/curtain_valance.png",
+-   "source": 294,
+-   "imported": 210
+-  },
+-  {
+-   "file": "assets/sprites/depboard.png",
+-   "source": 1534,
+-   "imported": 592
+-  },
+-  {
+-   "file": "assets/sprites/dubi_placeholder_avatar.png",
+-   "source": 329,
+-   "imported": 294
+-  },
+-  {
+-   "file": "assets/sprites/dubi_placeholder_body.png",
+-   "source": 452,
+-   "imported": 372
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_fly.png",
+-   "source": 641,
+-   "imported": 418
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_idle.png",
+-   "source": 1066,
+-   "imported": 524
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_land.png",
+-   "source": 720,
+-   "imported": 380
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_peck.png",
+-   "source": 967,
+-   "imported": 486
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_squawk.png",
+-   "source": 832,
+-   "imported": 464
+-  },
+-  {
+-   "file": "assets/sprites/dubi_small_talk.png",
+-   "source": 574,
+-   "imported": 356
+-  },
+-  {
+-   "file": "assets/sprites/envelope_blue.png",
+-   "source": 155,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/ftue_hand.png",
+-   "source": 357,
+-   "imported": 260
+-  },
+-  {
+-   "file": "assets/sprites/ftue_tap_ring.png",
+-   "source": 141,
+-   "imported": 120
+-  },
+-  {
+-   "file": "assets/sprites/fx_ink.png",
+-   "source": 70,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/fx_ink2.png",
+-   "source": 74,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/fx_puff0.png",
+-   "source": 106,
+-   "imported": 122
+-  },
+-  {
+-   "file": "assets/sprites/fx_puff1.png",
+-   "source": 90,
+-   "imported": 120
+-  },
+-  {
+-   "file": "assets/sprites/fx_slip.png",
+-   "source": 87,
+-   "imported": 104
+-  },
+-  {
+-   "file": "assets/sprites/fx_slip_tilt.png",
+-   "source": 82,
+-   "imported": 104
+-  },
+-  {
+-   "file": "assets/sprites/hemicycle_fill.png",
+-   "source": 465,
+-   "imported": 478
+-  },
+-  {
+-   "file": "assets/sprites/hemicycle_track.png",
+-   "source": 867,
+-   "imported": 490
+-  },
+-  {
+-   "file": "assets/sprites/icon_clock.png",
+-   "source": 189,
+-   "imported": 188
+-  },
+-  {
+-   "file": "assets/sprites/icon_close.png",
+-   "source": 288,
+-   "imported": 214
+-  },
+-  {
+-   "file": "assets/sprites/icon_coin9.png",
+-   "source": 169,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/icon_gear.png",
+-   "source": 229,
+-   "imported": 176
+-  },
+-  {
+-   "file": "assets/sprites/icon_sound_off.png",
+-   "source": 190,
+-   "imported": 192
+-  },
+-  {
+-   "file": "assets/sprites/icon_sound_on.png",
+-   "source": 191,
+-   "imported": 190
+-  },
+-  {
+-   "file": "assets/sprites/icon_trash.png",
+-   "source": 134,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/lane_balfour.png",
+-   "source": 315,
+-   "imported": 232
+-  },
+-  {
+-   "file": "assets/sprites/lane_courthouse.png",
+-   "source": 277,
+-   "imported": 212
+-  },
+-  {
+-   "file": "assets/sprites/lane_knesset.png",
+-   "source": 289,
+-   "imported": 212
+-  },
+-  {
+-   "file": "assets/sprites/lane_washington.png",
+-   "source": 278,
+-   "imported": 212
+-  },
+-  {
+-   "file": "assets/sprites/laundry_bag.png",
+-   "source": 251,
+-   "imported": 200
+-  },
+-  {
+-   "file": "assets/sprites/laundry_shirt.png",
+-   "source": 172,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/laundry_shorts.png",
+-   "source": 123,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/laundry_sock.png",
+-   "source": 124,
+-   "imported": 146
+-  },
+-  {
+-   "file": "assets/sprites/laundry_towel.png",
+-   "source": 126,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/nophoto_idle.png",
+-   "source": 975,
+-   "imported": 496
+-  },
+-  {
+-   "file": "assets/sprites/opp_timer_fill.png",
+-   "source": 100,
+-   "imported": 138
+-  },
+-  {
+-   "file": "assets/sprites/pay_pill_default.png",
+-   "source": 165,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/pay_pill_fill.png",
+-   "source": 87,
+-   "imported": 100
+-  },
+-  {
+-   "file": "assets/sprites/pay_pill_pressed.png",
+-   "source": 150,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/pay_pill_track.png",
+-   "source": 145,
+-   "imported": 156
+-  },
+-  {
+-   "file": "assets/sprites/pick_random.png",
+-   "source": 208,
+-   "imported": 178
+-  },
+-  {
+-   "file": "assets/sprites/pick_tile_focus.png",
+-   "source": 246,
+-   "imported": 198
+-  },
+-  {
+-   "file": "assets/sprites/pick_tile_idle.png",
+-   "source": 184,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/pick_tile_pressed.png",
+-   "source": 174,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/pick_tile_selected.png",
+-   "source": 216,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/plate_silhouette.png",
+-   "source": 245,
+-   "imported": 198
+-  },
+-  {
+-   "file": "assets/sprites/plaza_balfour.png",
+-   "source": 1203,
+-   "imported": 574
+-  },
+-  {
+-   "file": "assets/sprites/plaza_courthouse.png",
+-   "source": 1143,
+-   "imported": 508
+-  },
+-  {
+-   "file": "assets/sprites/plaza_knesset.png",
+-   "source": 1114,
+-   "imported": 530
+-  },
+-  {
+-   "file": "assets/sprites/plaza_washington.png",
+-   "source": 1049,
+-   "imported": 492
+-  },
+-  {
+-   "file": "assets/sprites/prop_bill.png",
+-   "source": 140,
+-   "imported": 128
+-  },
+-  {
+-   "file": "assets/sprites/prop_calculator.png",
+-   "source": 375,
+-   "imported": 296
+-  },
+-  {
+-   "file": "assets/sprites/prop_chair.png",
+-   "source": 478,
+-   "imported": 340
+-  },
+-  {
+-   "file": "assets/sprites/prop_coffee.png",
+-   "source": 373,
+-   "imported": 276
+-  },
+-  {
+-   "file": "assets/sprites/prop_coin0.png",
+-   "source": 130,
+-   "imported": 142
+-  },
+-  {
+-   "file": "assets/sprites/prop_coin1.png",
+-   "source": 109,
+-   "imported": 118
+-  },
+-  {
+-   "file": "assets/sprites/prop_coin2.png",
+-   "source": 100,
+-   "imported": 120
+-  },
+-  {
+-   "file": "assets/sprites/prop_coin3.png",
+-   "source": 103,
+-   "imported": 118
+-  },
+-  {
+-   "file": "assets/sprites/prop_hat.png",
+-   "source": 325,
+-   "imported": 232
+-  },
+-  {
+-   "file": "assets/sprites/prop_hat_glow.png",
+-   "source": 174,
+-   "imported": 152
+-  },
+-  {
+-   "file": "assets/sprites/prop_pen.png",
+-   "source": 500,
+-   "imported": 332
+-  },
+-  {
+-   "file": "assets/sprites/prop_phone.png",
+-   "source": 372,
+-   "imported": 294
+-  },
+-  {
+-   "file": "assets/sprites/prop_rabbit.png",
+-   "source": 266,
+-   "imported": 212
+-  },
+-  {
+-   "file": "assets/sprites/prop_ruler.png",
+-   "source": 244,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/prop_spark.png",
+-   "source": 89,
+-   "imported": 120
+-  },
+-  {
+-   "file": "assets/sprites/prop_stapler.png",
+-   "source": 304,
+-   "imported": 258
+-  },
+-  {
+-   "file": "assets/sprites/receipt_body.png",
+-   "source": 107,
+-   "imported": 108
+-  },
+-  {
+-   "file": "assets/sprites/receipt_bottom.png",
+-   "source": 281,
+-   "imported": 256
+-  },
+-  {
+-   "file": "assets/sprites/receipt_rule.png",
+-   "source": 76,
+-   "imported": 96
+-  },
+-  {
+-   "file": "assets/sprites/receipt_top.png",
+-   "source": 285,
+-   "imported": 250
+-  },
+-  {
+-   "file": "assets/sprites/seats_fill.png",
+-   "source": 98,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/seats_goal_frame.png",
+-   "source": 174,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/seats_tick.png",
+-   "source": 77,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/seats_track.png",
+-   "source": 122,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/share_receipt_bg.png",
+-   "source": 2141,
+-   "imported": 686
+-  },
+-  {
+-   "file": "assets/sprites/share_result_frame.png",
+-   "source": 3117,
+-   "imported": 1042
+-  },
+-  {
+-   "file": "assets/sprites/sheet_modal.png",
+-   "source": 320,
+-   "imported": 242
+-  },
+-  {
+-   "file": "assets/sprites/sheet_plain.png",
+-   "source": 164,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/source_advisers.png",
+-   "source": 16290,
+-   "imported": 5544
+-  },
+-  {
+-   "file": "assets/sprites/source_advisers_d2.png",
+-   "source": 8308,
+-   "imported": 2916
+-  },
+-  {
+-   "file": "assets/sprites/source_advisers_icon.png",
+-   "source": 1346,
+-   "imported": 534
+-  },
+-  {
+-   "file": "assets/sprites/source_advisers_icon_sil.png",
+-   "source": 264,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_checkbook.png",
+-   "source": 743,
+-   "imported": 434
+-  },
+-  {
+-   "file": "assets/sprites/source_checkbook_icon.png",
+-   "source": 329,
+-   "imported": 252
+-  },
+-  {
+-   "file": "assets/sprites/source_checkbook_icon_sil.png",
+-   "source": 145,
+-   "imported": 132
+-  },
+-  {
+-   "file": "assets/sprites/source_cigars.png",
+-   "source": 16777,
+-   "imported": 4894
+-  },
+-  {
+-   "file": "assets/sprites/source_cigars_d2.png",
+-   "source": 8988,
+-   "imported": 2636
+-  },
+-  {
+-   "file": "assets/sprites/source_cigars_icon.png",
+-   "source": 1362,
+-   "imported": 530
+-  },
+-  {
+-   "file": "assets/sprites/source_cigars_icon_sil.png",
+-   "source": 248,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/source_donor.png",
+-   "source": 871,
+-   "imported": 494
+-  },
+-  {
+-   "file": "assets/sprites/source_donor_icon.png",
+-   "source": 541,
+-   "imported": 316
+-  },
+-  {
+-   "file": "assets/sprites/source_donor_icon_sil.png",
+-   "source": 228,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/source_funds.png",
+-   "source": 615,
+-   "imported": 396
+-  },
+-  {
+-   "file": "assets/sprites/source_funds_icon.png",
+-   "source": 297,
+-   "imported": 270
+-  },
+-  {
+-   "file": "assets/sprites/source_funds_icon_sil.png",
+-   "source": 132,
+-   "imported": 130
+-  },
+-  {
+-   "file": "assets/sprites/source_hitech.png",
+-   "source": 12936,
+-   "imported": 4338
+-  },
+-  {
+-   "file": "assets/sprites/source_hitech_d2.png",
+-   "source": 6618,
+-   "imported": 2312
+-  },
+-  {
+-   "file": "assets/sprites/source_hitech_icon.png",
+-   "source": 1019,
+-   "imported": 444
+-  },
+-  {
+-   "file": "assets/sprites/source_hitech_icon_sil.png",
+-   "source": 238,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_poison.png",
+-   "source": 634,
+-   "imported": 372
+-  },
+-  {
+-   "file": "assets/sprites/source_poison_icon.png",
+-   "source": 241,
+-   "imported": 206
+-  },
+-  {
+-   "file": "assets/sprites/source_poison_icon_sil.png",
+-   "source": 96,
+-   "imported": 94
+-  },
+-  {
+-   "file": "assets/sprites/source_qatari.png",
+-   "source": 16142,
+-   "imported": 5478
+-  },
+-  {
+-   "file": "assets/sprites/source_qatari_d2.png",
+-   "source": 8333,
+-   "imported": 2910
+-  },
+-  {
+-   "file": "assets/sprites/source_qatari_icon.png",
+-   "source": 1344,
+-   "imported": 536
+-  },
+-  {
+-   "file": "assets/sprites/source_qatari_icon_sil.png",
+-   "source": 264,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_submarine.png",
+-   "source": 1084,
+-   "imported": 548
+-  },
+-  {
+-   "file": "assets/sprites/source_submarine_icon.png",
+-   "source": 446,
+-   "imported": 316
+-  },
+-  {
+-   "file": "assets/sprites/source_submarine_icon_sil.png",
+-   "source": 232,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_taxpayer.png",
+-   "source": 14730,
+-   "imported": 4670
+-  },
+-  {
+-   "file": "assets/sprites/source_taxpayer_d2.png",
+-   "source": 7576,
+-   "imported": 2454
+-  },
+-  {
+-   "file": "assets/sprites/source_taxpayer_icon.png",
+-   "source": 978,
+-   "imported": 462
+-  },
+-  {
+-   "file": "assets/sprites/source_taxpayer_icon_sil.png",
+-   "source": 208,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/source_vat.png",
+-   "source": 16207,
+-   "imported": 4996
+-  },
+-  {
+-   "file": "assets/sprites/source_vat_d2.png",
+-   "source": 9063,
+-   "imported": 2828
+-  },
+-  {
+-   "file": "assets/sprites/source_vat_icon.png",
+-   "source": 1417,
+-   "imported": 548
+-  },
+-  {
+-   "file": "assets/sprites/source_vat_icon_sil.png",
+-   "source": 160,
+-   "imported": 138
+-  },
+-  {
+-   "file": "assets/sprites/spin_s01.png",
+-   "source": 407,
+-   "imported": 266
+-  },
+-  {
+-   "file": "assets/sprites/spin_s02.png",
+-   "source": 452,
+-   "imported": 284
+-  },
+-  {
+-   "file": "assets/sprites/spin_s03.png",
+-   "source": 399,
+-   "imported": 292
+-  },
+-  {
+-   "file": "assets/sprites/spin_s04.png",
+-   "source": 274,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/spin_s05.png",
+-   "source": 407,
+-   "imported": 278
+-  },
+-  {
+-   "file": "assets/sprites/spin_s06.png",
+-   "source": 361,
+-   "imported": 268
+-  },
+-  {
+-   "file": "assets/sprites/spin_s07.png",
+-   "source": 411,
+-   "imported": 286
+-  },
+-  {
+-   "file": "assets/sprites/spin_s08.png",
+-   "source": 371,
+-   "imported": 292
+-  },
+-  {
+-   "file": "assets/sprites/spin_s09.png",
+-   "source": 430,
+-   "imported": 276
+-  },
+-  {
+-   "file": "assets/sprites/spin_s10.png",
+-   "source": 432,
+-   "imported": 308
+-  },
+-  {
+-   "file": "assets/sprites/spin_s11.png",
+-   "source": 457,
+-   "imported": 308
+-  },
+-  {
+-   "file": "assets/sprites/spin_s12.png",
+-   "source": 523,
+-   "imported": 344
+-  },
+-  {
+-   "file": "assets/sprites/spin_s13.png",
+-   "source": 441,
+-   "imported": 318
+-  },
+-  {
+-   "file": "assets/sprites/spin_s14.png",
+-   "source": 397,
+-   "imported": 286
+-  },
+-  {
+-   "file": "assets/sprites/spin_s15.png",
+-   "source": 418,
+-   "imported": 334
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_A.png",
+-   "source": 384,
+-   "imported": 262
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_B.png",
+-   "source": 347,
+-   "imported": 260
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_C.png",
+-   "source": 305,
+-   "imported": 244
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_D.png",
+-   "source": 315,
+-   "imported": 246
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_E.png",
+-   "source": 322,
+-   "imported": 234
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_G.png",
+-   "source": 350,
+-   "imported": 288
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_H.png",
+-   "source": 361,
+-   "imported": 252
+-  },
+-  {
+-   "file": "assets/sprites/spin_slot_I.png",
+-   "source": 363,
+-   "imported": 272
+-  },
+-  {
+-   "file": "assets/sprites/stage_balfour.png",
+-   "source": 4388,
+-   "imported": 1336
+-  },
+-  {
+-   "file": "assets/sprites/stage_courthouse.png",
+-   "source": 3212,
+-   "imported": 1004
+-  },
+-  {
+-   "file": "assets/sprites/stage_knesset.png",
+-   "source": 1959,
+-   "imported": 536
+-  },
+-  {
+-   "file": "assets/sprites/stage_washington.png",
+-   "source": 2830,
+-   "imported": 1068
+-  },
+-  {
+-   "file": "assets/sprites/stamp_blackout_dark.png",
+-   "source": 309,
+-   "imported": 206
+-  },
+-  {
+-   "file": "assets/sprites/stamp_blackout_dark_rot.png",
+-   "source": 456,
+-   "imported": 286
+-  },
+-  {
+-   "file": "assets/sprites/stamp_blackout_paper.png",
+-   "source": 306,
+-   "imported": 206
+-  },
+-  {
+-   "file": "assets/sprites/stamp_blackout_paper_rot.png",
+-   "source": 444,
+-   "imported": 286
+-  },
+-  {
+-   "file": "assets/sprites/stamp_camera.png",
+-   "source": 166,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/stamp_frame_dark.png",
+-   "source": 156,
+-   "imported": 122
+-  },
+-  {
+-   "file": "assets/sprites/stamp_frame_paper.png",
+-   "source": 149,
+-   "imported": 122
+-  },
+-  {
+-   "file": "assets/sprites/stamp_paid_dark.png",
+-   "source": 221,
+-   "imported": 160
+-  },
+-  {
+-   "file": "assets/sprites/stamp_paid_dark_rot.png",
+-   "source": 269,
+-   "imported": 182
+-  },
+-  {
+-   "file": "assets/sprites/stamp_paid_paper.png",
+-   "source": 218,
+-   "imported": 160
+-  },
+-  {
+-   "file": "assets/sprites/stamp_paid_paper_rot.png",
+-   "source": 275,
+-   "imported": 182
+-  },
+-  {
+-   "file": "assets/sprites/stamp_pardon_dark.png",
+-   "source": 382,
+-   "imported": 260
+-  },
+-  {
+-   "file": "assets/sprites/stamp_pardon_dark_rot.png",
+-   "source": 607,
+-   "imported": 388
+-  },
+-  {
+-   "file": "assets/sprites/stamp_pardon_paper.png",
+-   "source": 377,
+-   "imported": 260
+-  },
+-  {
+-   "file": "assets/sprites/stamp_pardon_paper_rot.png",
+-   "source": 593,
+-   "imported": 388
+-  },
+-  {
+-   "file": "assets/sprites/stamp_postponed_dark.png",
+-   "source": 210,
+-   "imported": 150
+-  },
+-  {
+-   "file": "assets/sprites/stamp_postponed_dark_rot.png",
+-   "source": 277,
+-   "imported": 184
+-  },
+-  {
+-   "file": "assets/sprites/stamp_postponed_paper.png",
+-   "source": 204,
+-   "imported": 150
+-  },
+-  {
+-   "file": "assets/sprites/stamp_postponed_paper_rot.png",
+-   "source": 285,
+-   "imported": 184
+-  },
+-  {
+-   "file": "assets/sprites/stamp_tool_down.png",
+-   "source": 262,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/stamp_tool_up.png",
+-   "source": 273,
+-   "imported": 220
+-  },
+-  {
+-   "file": "assets/sprites/suitcase.png",
+-   "source": 452,
+-   "imported": 282
+-  },
+-  {
+-   "file": "assets/sprites/suitcase_norim.png",
+-   "source": 373,
+-   "imported": 258
+-  },
+-  {
+-   "file": "assets/sprites/suitcase_plain.png",
+-   "source": 380,
+-   "imported": 234
+-  },
+-  {
+-   "file": "assets/sprites/suitcase_plain_norim.png",
+-   "source": 320,
+-   "imported": 212
+-  },
+-  {
+-   "file": "assets/sprites/sweat_drop.png",
+-   "source": 114,
+-   "imported": 144
+-  },
+-  {
+-   "file": "assets/sprites/tab_active.png",
+-   "source": 179,
+-   "imported": 142
+-  },
+-  {
+-   "file": "assets/sprites/tabbar.png",
+-   "source": 205,
+-   "imported": 160
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_cases_active.png",
+-   "source": 195,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_cases_idle.png",
+-   "source": 194,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_coalition_active.png",
+-   "source": 191,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_coalition_idle.png",
+-   "source": 181,
+-   "imported": 166
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_sources_active.png",
+-   "source": 229,
+-   "imported": 206
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_sources_idle.png",
+-   "source": 205,
+-   "imported": 176
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_spins_active.png",
+-   "source": 299,
+-   "imported": 240
+-  },
+-  {
+-   "file": "assets/sprites/tabicon_spins_idle.png",
+-   "source": 269,
+-   "imported": 214
+-  },
+-  {
+-   "file": "assets/sprites/tag_worn.png",
+-   "source": 257,
+-   "imported": 204
+-  },
+-  {
+-   "file": "assets/sprites/thermo_bubble.png",
+-   "source": 106,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/thermo_fill.png",
+-   "source": 80,
+-   "imported": 118
+-  },
+-  {
+-   "file": "assets/sprites/thermo_floor_hatch.png",
+-   "source": 100,
+-   "imported": 106
+-  },
+-  {
+-   "file": "assets/sprites/thermo_icon_gavel.png",
+-   "source": 159,
+-   "imported": 168
+-  },
+-  {
+-   "file": "assets/sprites/thermo_icon_magnifier.png",
+-   "source": 175,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/thermo_icon_press.png",
+-   "source": 176,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/thermo_meniscus.png",
+-   "source": 80,
+-   "imported": 118
+-  },
+-  {
+-   "file": "assets/sprites/thermo_tube.png",
+-   "source": 364,
+-   "imported": 286
+-  },
+-  {
+-   "file": "assets/sprites/thermo_tube_short.png",
+-   "source": 349,
+-   "imported": 266
+-  },
+-  {
+-   "file": "assets/sprites/ticker_bar.png",
+-   "source": 168,
+-   "imported": 134
+-  },
+-  {
+-   "file": "assets/sprites/ticker_flash_plate.png",
+-   "source": 154,
+-   "imported": 166
+-  },
+-  {
+-   "file": "assets/sprites/ticker_flash_plate_text.png",
+-   "source": 222,
+-   "imported": 194
+-  },
+-  {
+-   "file": "assets/sprites/toast.png",
+-   "source": 178,
+-   "imported": 160
+-  },
+-  {
+-   "file": "assets/sprites/transfer_banner.png",
+-   "source": 718,
+-   "imported": 424
+-  },
+-  {
+-   "file": "assets/sprites/transfer_card.png",
+-   "source": 157,
+-   "imported": 164
+-  },
+-  {
+-   "file": "assets/sprites/trophy_aide.png",
+-   "source": 270,
+-   "imported": 226
+-  },
+-  {
+-   "file": "assets/sprites/trophy_aide_locked.png",
+-   "source": 234,
+-   "imported": 188
+-  },
+-  {
+-   "file": "assets/sprites/trophy_ballot.png",
+-   "source": 207,
+-   "imported": 202
+-  },
+-  {
+-   "file": "assets/sprites/trophy_ballot_locked.png",
+-   "source": 189,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/trophy_clock.png",
+-   "source": 212,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/trophy_clock_locked.png",
+-   "source": 190,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/trophy_coin.png",
+-   "source": 218,
+-   "imported": 188
+-  },
+-  {
+-   "file": "assets/sprites/trophy_coin_locked.png",
+-   "source": 212,
+-   "imported": 172
+-  },
+-  {
+-   "file": "assets/sprites/trophy_cottage.png",
+-   "source": 108,
+-   "imported": 116
+-  },
+-  {
+-   "file": "assets/sprites/trophy_cottage_locked.png",
+-   "source": 108,
+-   "imported": 116
+-  },
+-  {
+-   "file": "assets/sprites/trophy_folder.png",
+-   "source": 190,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/trophy_folder_locked.png",
+-   "source": 190,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/trophy_gavel.png",
+-   "source": 188,
+-   "imported": 186
+-  },
+-  {
+-   "file": "assets/sprites/trophy_gavel_locked.png",
+-   "source": 189,
+-   "imported": 176
+-  },
+-  {
+-   "file": "assets/sprites/trophy_hat.png",
+-   "source": 189,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/trophy_hat_locked.png",
+-   "source": 148,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/trophy_moon.png",
+-   "source": 262,
+-   "imported": 210
+-  },
+-  {
+-   "file": "assets/sprites/trophy_moon_locked.png",
+-   "source": 246,
+-   "imported": 192
+-  },
+-  {
+-   "file": "assets/sprites/trophy_parrot.png",
+-   "source": 289,
+-   "imported": 246
+-  },
+-  {
+-   "file": "assets/sprites/trophy_parrot_locked.png",
+-   "source": 240,
+-   "imported": 198
+-  },
+-  {
+-   "file": "assets/sprites/trophy_phone.png",
+-   "source": 252,
+-   "imported": 204
+-  },
+-  {
+-   "file": "assets/sprites/trophy_phone_locked.png",
+-   "source": 192,
+-   "imported": 162
+-  },
+-  {
+-   "file": "assets/sprites/trophy_pin.png",
+-   "source": 195,
+-   "imported": 216
+-  },
+-  {
+-   "file": "assets/sprites/trophy_pin_locked.png",
+-   "source": 184,
+-   "imported": 194
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plane.png",
+-   "source": 177,
+-   "imported": 184
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plane_locked.png",
+-   "source": 172,
+-   "imported": 170
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plate_earned.png",
+-   "source": 190,
+-   "imported": 174
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plate_locked.png",
+-   "source": 164,
+-   "imported": 154
+-  },
+-  {
+-   "file": "assets/sprites/trophy_plate_secret.png",
+-   "source": 206,
+-   "imported": 178
+-  },
+-  {
+-   "file": "assets/sprites/trophy_rabbit.png",
+-   "source": 242,
+-   "imported": 202
+-  },
+-  {
+-   "file": "assets/sprites/trophy_rabbit_locked.png",
+-   "source": 230,
+-   "imported": 184
+-  },
+-  {
+-   "file": "assets/sprites/trophy_stamp.png",
+-   "source": 227,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/trophy_stamp_locked.png",
+-   "source": 200,
+-   "imported": 188
+-  },
+-  {
+-   "file": "assets/sprites/trophy_suitcase.png",
+-   "source": 220,
+-   "imported": 212
+-  },
+-  {
+-   "file": "assets/sprites/trophy_suitcase_locked.png",
+-   "source": 189,
+-   "imported": 182
+-  },
+-  {
+-   "file": "assets/sprites/trophy_wand.png",
+-   "source": 175,
+-   "imported": 180
+-  },
+-  {
+-   "file": "assets/sprites/trophy_wand_locked.png",
+-   "source": 171,
+-   "imported": 168
+-  },
+-  {
+-   "file": "assets/sprites/wing_balfour_l.png",
+-   "source": 570,
+-   "imported": 314
+-  },
+-  {
+-   "file": "assets/sprites/wing_balfour_r.png",
+-   "source": 535,
+-   "imported": 300
+-  },
+-  {
+-   "file": "assets/sprites/wing_courthouse_l.png",
+-   "source": 590,
+-   "imported": 224
+-  },
+-  {
+-   "file": "assets/sprites/wing_courthouse_r.png",
+-   "source": 583,
+-   "imported": 220
+-  },
+-  {
+-   "file": "assets/sprites/wing_knesset_l.png",
+-   "source": 549,
+-   "imported": 296
+-  },
+-  {
+-   "file": "assets/sprites/wing_knesset_r.png",
+-   "source": 558,
+-   "imported": 300
+-  },
+-  {
+-   "file": "assets/sprites/wing_washington_l.png",
+-   "source": 712,
+-   "imported": 300
+-  },
+-  {
+-   "file": "assets/sprites/wing_washington_r.png",
+-   "source": 679,
+-   "imported": 292
+-  },
+-  {
+-   "file": "assets/sprites/wordmark.png",
+-   "source": 1072,
+-   "imported": 710
+-  },
+-  {
+-   "file": "assets/sprites/wordmark_mono.png",
+-   "source": 440,
+-   "imported": 318
+-  },
+-  {
+-   "file": "assets/sprites/wordmark_norim.png",
+-   "source": 961,
+-   "imported": 652
+-  },
+-  {
+-   "file": "assets/sprites/wordmark_small.png",
+-   "source": 607,
+-   "imported": 380
+-  },
+-  {
+-   "file": "assets/fonts/sevev9.fnt",
+-   "source": 14781,
+-   "imported": 7381
+-  },
+-  {
+-   "file": "assets/fonts/sevev9.png",
+-   "source": 1207,
+-   "imported": 0,
+-   "note": "embedded in the .fontdata"
+-  },
+-  {
+-   "file": "assets/fonts/sevev9@2.fnt",
+-   "source": 15149,
+-   "imported": 10807
+-  },
+-  {
+-   "file": "assets/fonts/sevev9@2.png",
+-   "source": 2799,
+-   "imported": 0,
+-   "note": "embedded in the .fontdata"
+-  },
+-  {
+-   "file": "assets/fonts/sevev9_outline.fnt",
+-   "source": 15106,
+-   "imported": 8905
+-  },
+-  {
+-   "file": "assets/fonts/sevev9_outline.png",
+-   "source": 2443,
+-   "imported": 0,
+-   "note": "embedded in the .fontdata"
+-  }
+- ],
+- "pckBytes": 5339675,
+- "pckByAsset": {
+-  "bibi": {
+-   "3": 193236,
+-   "2": 105682
+-  },
+-  "sara": {
+-   "3": 136826,
+-   "2": 60214
+-  },
+-  "bennett": {
+-   "3": 195714,
+-   "2": 99876
+-  },
+-  "regev": {
+-   "3": 127212,
+-   "2": 68730
+-  },
+-  "gotliv": {
+-   "3": 149144,
+-   "2": 77658
+-  },
+-  "deri": {
+-   "3": 241884,
+-   "2": 113396
+-  },
+-  "levin": {
+-   "3": 145686,
+-   "2": 75968
+-  },
+-  "ben-gvir": {
+-   "3": 214800,
+-   "2": 114096
+-  },
+-  "goldknopf": {
+-   "3": 111212,
+-   "2": 58840
+-  },
+-  "gafni": {
+-   "3": 94396,
+-   "2": 42288
+-  },
+-  "smotrich": {
+-   "3": 150054,
+-   "2": 78804
+-  },
+-  "amsalem": {
+-   "3": 147348,
+-   "2": 75446
+-  },
+-  "lapid": {
+-   "3": 159004,
+-   "2": 68140
+-  },
+-  "eisenkot": {
+-   "3": 178220,
+-   "2": 95984
+-  },
+-  "gantz": {
+-   "3": 89462,
+-   "2": 38706
+-  },
+-  "liberman": {
+-   "3": 121306,
+-   "2": 64024
+-  },
+-  "golan": {
+-   "3": 152282,
+-   "2": 80894
+-  },
+-  "abbas": {
+-   "3": 41270,
+-   "2": 22564
+-  },
+-  "distel": {
+-   "3": 117206,
+-   "2": 63606
+-  },
+-  "karhi": {
+-   "3": 102998,
+-   "2": 52378
+-  },
+-  "herzog": {
+-   "3": 136988,
+-   "2": 70604
+-  },
+-  "trump": {
+-   "3": 152524,
+-   "2": 73348
+-  },
+-  "may-golan": {
+-   "3": 145456,
+-   "2": 75188
+-  },
+-  "dubi": {
+-   "1": 2628
+-  },
+-  "dubi-mic": {
+-   "3": 93232,
+-   "2": 46234
+-  },
+-  "nophoto": {
+-   "1": 496
+-  },
+-  "source_taxpayer": {
+-   "3": 4670,
+-   "2": 2454
+-  },
+-  "source_hitech": {
+-   "3": 4338,
+-   "2": 2312
+-  },
+-  "source_vat": {
+-   "3": 4996,
+-   "2": 2828
+-  },
+-  "source_cigars": {
+-   "3": 4894,
+-   "2": 2636
+-  },
+-  "source_qatari": {
+-   "3": 5478,
+-   "2": 2910
+-  },
+-  "source_advisers": {
+-   "3": 5544,
+-   "2": 2916
+-  },
+-  "source_checkbook": {
+-   "1": 434
+-  },
+-  "source_donor": {
+-   "1": 494
+-  },
+-  "source_funds": {
+-   "1": 396
+-  },
+-  "source_poison": {
+-   "1": 372
+-  },
+-  "source_submarine": {
+-   "1": 548
+-  }
+- },
+- "specimenVisual": [
+-  {
+-   "tofu": 0,
+-   "visual": "תשרקץצףפעסןנםמלךכיטחזוהדגבא",
+-   "width": 143.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "בבס דוע",
+-   "width": 37.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": ".שגרנ רוביצה .6 ׳סמ תוריחב בבס",
+-   "width": 138.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "היינשל ₪  +1.2K ",
+-   "width": 64.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "₪  12,400  · ונרגס",
+-   "width": 70.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "3־ו · ש״מעוי · כ״הס · *18% מ״עמ",
+-   "width": 136.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "תידוהי המצוע ← דוכילה",
+-   "width": 102.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "{םש} [הטויט] (טפשמה תיב)",
+-   "width": 113.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "…םולכ ןיא יכ םולכ היהי אל",
+-   "width": 119.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "DOHA · OK · 1.2K 3M 4B 5T · +12 − 3 × 2 = 30",
+-   "width": 191.0
+-  },
+-  {
+-   "tofu": 0,
+-   "visual": "— – 0123456789 ?!:;~|`_^\\@&$#",
+-   "width": 129.0
+-  }
+- ],
+- "densityProofWidths": [
+-  {
+-   "w1": 183.0,
+-   "w2": 366.0
+-  },
+-  {
+-   "w1": 33.0,
+-   "w2": 66.0
+-  },
+-  {
+-   "w1": 282.0,
+-   "w2": 564.0
+-  },
+-  {
+-   "w1": 62.0,
+-   "w2": 124.0
+-  },
+-  {
+-   "w1": 164.0,
+-   "w2": 328.0
+-  },
+-  {
+-   "w1": 47.0,
+-   "w2": 94.0
+-  },
+-  {
+-   "w1": 89.0,
+-   "w2": 178.0
+-  },
+-  {
+-   "w1": 143.0,
+-   "w2": 286.0
+-  },
+-  {
+-   "w1": 209.0,
+-   "w2": 418.0
+-  },
+-  {
+-   "w1": 147.0,
+-   "w2": 294.0
+-  }
+- ],
+- "sourceTotal": 15641013
++ "sourceTotal": 15641823
+ }
+\ No newline at end of file
+diff --git a/pipeline/od-sevev/proofs/font-density2.png b/pipeline/od-sevev/proofs/font-density2.png
+index 6dbff58..a3da542 100644
+Binary files a/pipeline/od-sevev/proofs/font-density2.png and b/pipeline/od-sevev/proofs/font-density2.png differ
 # untracked binary: art/od-sevev/out/ui/sheet/sheet_modal_body.png
 # untracked binary: art/od-sevev/out/ui/sheet/sheet_modal_flap.png
 # untracked binary: art/od-sevev/proofs/kit-w9-flap.png
@@ -316,3 +3214,51 @@ index 0000000..d799b9c
 +    write_manifest()
 +    print(proof())
 # untracked binary: art/od-sevev/src/wave9.py
+# untracked binary: game/assets/sprites/sheet_modal_body.png
+diff --git a/game/assets/sprites/sheet_modal_body.png.import b/game/assets/sprites/sheet_modal_body.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/sheet_modal_body.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/sheet_modal_body.png.import
+# untracked binary: game/assets/sprites/sheet_modal_flap.png
+diff --git a/game/assets/sprites/sheet_modal_flap.png.import b/game/assets/sprites/sheet_modal_flap.png.import
+new file mode 100644
+index 0000000..031034f
+--- /dev/null
++++ b/game/assets/sprites/sheet_modal_flap.png.import
+@@ -0,0 +1,16 @@
++[remap]
++
++importer="texture"
++type="CompressedTexture2D"
++
++[params]
++
++compress/mode=0
++compress/high_quality=false
++compress/lossy_quality=0.7
++mipmaps/generate=false
++mipmaps/limit=-1
++process/fix_alpha_border=true
++process/premult_alpha=false
++process/size_limit=0
++detect_3d/compress_to=0
+# untracked binary: game/assets/sprites/sheet_modal_flap.png.import
