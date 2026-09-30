@@ -54,23 +54,22 @@ func _tap_leader() -> void:
 
 # ------------------------------------------------------------------ U3
 
+## Superseded by A2 (2026-09-30 manual test, mobile-first §3.3 rev): with leader select, card 1
+## (dim) and its white field are up from the pick, so the screen under the stage is never half stone;
+## the plaza stays only as the strip in the (still free) ticker slot until H1.
 func test_u3_the_apron_stays_until_card_1() -> void:
 	await _boot()
 	m.commit_pick("bibi")
 	await _frames(2)
+	var fill: ColorRect = m._fills["shop"]
+	runner.check(m.mode == "title" and fill.visible and m.shop.visible, "pre-tap: card 1 and the pane's white are up from the pick (fill %s, shop %s)" % [fill.visible, m.shop.visible])
+	runner.check(m._title_floor.visible and not m.ticker.visible, "the ticker slot is still the plaza strip (floor %s, ticker %s)" % [m._title_floor.visible, m.ticker.visible])
 	_tap_leader()
 	await _frames(3)
-	var fill: ColorRect = m._fills["shop"]
 	runner.check(m.mode == "main" and m.state.taps_lifetime == 1, "tap 1 starts the round")
-	runner.check(not fill.visible and m._title_floor.visible and m._title_floor.modulate.a > 0.99,
-		"between tap 1 and card 1 the pane's white is not drawn; the apron stays (fill %s, floor %s)" % [fill.visible, m._title_floor.visible])
-	for i in 2:
-		await _frames(20)   # past the tap-burst guard
-		_tap_leader()
-	await _frames(20)
-	runner.check(m.state.taps_lifetime >= 3 and fill.visible, "card 1: the white field comes with the pane (taps %d)" % m.state.taps_lifetime)
-	await _frames(30)
-	runner.check(not m._title_floor.visible or m._title_floor.modulate.a < 0.01, "and the apron is gone under it")
+	runner.check(fill.visible and m.ticker.visible, "H1: the ticker takes the strip's slot; the pane stays")
+	await tree.create_timer(1.0).timeout   # past the title fade
+	runner.check(not m._title_floor.visible or m._title_floor.modulate.a < 0.01, "and the strip's floor is gone under the ticker")
 
 
 # ------------------------------------------------------------------ U6

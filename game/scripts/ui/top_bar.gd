@@ -8,6 +8,14 @@ extends Node2D
 ## first purchase (R1), Row B at the first paid demand (C2). The fork's stat window, thumbs line
 ## and Evolve button are gone: the election CTA lives in the ticker row (rtl-map §5.3).
 ## Juice kept from the fork: J2 bank pop and big-gain pop, the rate line's hop and tint.
+##
+## The identity chip (od-sevev A7/B10, ux/mobile-first-layout.md §5.1.1): Row A's right end shows
+## the round's leader, a 64-logical face medallion (the pick avatar at whole device px) with the
+## short name to its left, from the pick on (the pre-tap state included). It replaces the
+## round-start name toast that covered the stage. The name shares its slot with the Cottage Index:
+## the name shows while the cup is not revealed, and at every round start until the round's first
+## tap or buy; then it yields (a 150 ms fade) and the cup takes the slot. The name also yields if the
+## counter or the rate line would reach it (a width guard; only the 360-wide phones can hit it).
 
 const BANK_GAIN := [Vector2(5, 5), Vector2(5, 5), Vector2(5, 5), Vector2(5, 3), Vector2(5, 3), Vector2(4, 5), Vector2(4, 5), Vector2(4, 4)]
 const BANK_GAIN_REDUCED_TINT_MS := 300.0
@@ -30,6 +38,14 @@ var gear: Sprite2D
 var mute: Sprite2D
 var seats_label: PxText
 var seats_value: PxText
+var face: Sprite2D                 # the identity chip's medallion (null until a leader is set)
+var leader_name: PxText
+
+var _leader := "~"                 # the leader shown ("" = none: content without leader select)
+var _face_k := -1                  # the device scale the face sprite was chosen for
+var _id_on := false
+var _name_want := false
+var _name_tw: Tween
 
 var _counter_on := false
 var _rate_on := false
@@ -78,6 +94,9 @@ func _ready() -> void:
 	seats_label.fit_width = float(T["seatsLabelRight"]) - tr.end.x - 8.0
 	seats_value = PxText.make(self, Vector2(float(T["seatsValueX"]), float(T["seatsY"])), "", L.TEXT, "plain", "w")
 	seats_value.fit_width = tr.position.x - float(T["seatsValueX"]) - 8.0
+	leader_name = PxText.make(self, Vector2(0, float(T["nameY"])), "", L.TEXT, "plain", "w")
+	leader_name.max_lines = 1
+	leader_name.visible = false
 	relayout()
 	_apply_reveal()
 
@@ -115,6 +134,11 @@ func relayout() -> void:
 		bank.center_in(counter_box().position.x, counter_box().size.x)
 	if bps.text != "":
 		bps.center_in(rate_box().position.x, rate_box().size.x)
+	if _leader != "~" and _leader != "" and _face_k != Display.k:
+		var again := _leader
+		_leader = "~"
+		set_leader(again)   # a new device scale: the medallion's densest crisp head
+	_place_identity()
 
 
 func _icon(hit: Rect2, id: String) -> Sprite2D:
@@ -150,6 +174,138 @@ func _apply_reveal() -> void:
 	for t in _ticks:
 		t.visible = _seats_on
 	_goal.visible = _goal.visible and _seats_on
+
+
+# ------------------------------------------------------------------ the identity chip (A7/B10)
+
+## The face medallion's rect and hit, `_top`-local (R-anchored).
+static func face_rect() -> Rect2:
+	return L.ra(L.TOP["face"])
+
+
+static func face_hit() -> Rect2:
+	return L.ra(L.TOP["faceHit"])
+
+
+## The name's right edge (R): 16 left of the face hit's inner edge.
+static func name_right() -> float:
+	return L.rx(float(L.TOP["nameRight"]))
+
+
+## The pick avatar that draws the 64-logical (16-art) medallion at whole device px: the densest of
+## the 96 (d3), 64 (d2) and 32 px heads whose pixel count divides 16·k (k 6 → 96, k 4 → 64,
+## k 2 → 32; a fractional scale falls back to the densest available). [id, logical px per sprite px].
+static func face_sprite(art: String, k: int, integer: bool) -> Array:
+	var ch: Dictionary = SpriteStrip.manifest().get("chars", {}).get(art, {})
+	var cands := [[str(ch.get("avatarPickXL", "avatar_pick_" + art + "_d3")), 96], [str(ch.get("avatarPick64", "avatar_pick_" + art + "_d2")), 64],
+		[str(ch.get("avatarPick", "avatar_pick_" + art)), 32]]
+	var fallback: Array = []
+	for c: Array in cands:
+		if not Art.has_sprite(str(c[0])) or Art.sprite_size(str(c[0])).x != int(c[1]):
+			continue
+		if fallback.is_empty():
+			fallback = [str(c[0]), 64.0 / float(c[1])]
+		if integer and (16 * k) % int(c[1]) == 0:
+			return [str(c[0]), 64.0 / float(c[1])]
+	return fallback
+
+
+## The round's leader (""/unknown: the chip hides). Rebuilds the face only when the leader changes.
+func set_leader(leader_id: String) -> void:
+	if leader_id == _leader:
+		return
+	_leader = leader_id
+	if face != null:
+		face.queue_free()
+		face = null
+	leader_name.text = LeaderUi.short(leader_id) if leader_id != "" else ""
+	if leader_id != "":
+		_face_k = Display.k
+		var fs := face_sprite(LeaderUi.art(leader_id), Display.k, Display.integer)
+		if not fs.is_empty():
+			face = Ui.img(self, Vector2.ZERO, str(fs[0]), 0, 4)
+			face.scale = Vector2(float(fs[1]), float(fs[1]))
+	_place_identity()
+	_apply_identity(false)
+
+
+func leader_shown() -> String:
+	return _leader if _id_on else ""
+
+
+## `on`: the chip is on screen (a leader is set and Row A is up); `name_on`: the name holds the slot
+## (no cup yet, or the round has not started). The width guard applies on top of it.
+func set_identity(on: bool, name_on: bool) -> void:
+	var fade := on and _id_on and name_on != _name_want
+	_id_on = on
+	_name_want = name_on
+	_apply_identity(fade and not reduced_motion)
+
+
+## The name holds the slot it shares with the Cottage Index (the cup stays hidden meanwhile).
+func name_claims_slot() -> bool:
+	return _id_on and _name_want and leader_name.text != ""
+
+
+## The name's visible state (tests, window.odDev): wanted and clear of the counter and rate line.
+func name_visible() -> bool:
+	return leader_name.visible and leader_name.modulate.a > 0.5
+
+
+## The chip's drawn rect (face + name when shown), `_top`-local; empty when hidden.
+func identity_rect() -> Rect2:
+	if not _id_on or face == null:
+		return Rect2()
+	var r := face_rect()
+	if name_visible():
+		var nw := float(leader_name.width())
+		r = r.merge(Rect2(name_right() - nw, float(L.TOP["nameY"]), nw, 44.0))
+	return r
+
+
+## The name clears the counter's and the rate line's drawn ink by nameGap (16).
+func name_fits() -> bool:
+	var left := name_right() - float(leader_name.width())
+	var gap := float(L.TOP["nameGap"])
+	for t: PxText in [bank, bps]:
+		if t.visible and t.text != "" and t.position.x + float(t.width()) + gap > left:
+			return false
+	return true
+
+
+func _place_identity() -> void:
+	if leader_name == null:
+		return
+	if face != null:
+		var fr := face_rect()
+		var sz := Vector2(Art.sprite_size(face.get_meta("sprite", ""))) * face.scale if face.has_meta("sprite") else fr.size
+		face.position = fr.position + ((fr.size - sz) / 2.0).floor()
+	leader_name.right_at(name_right())
+
+
+func _apply_identity(fade: bool) -> void:
+	if face != null:
+		face.visible = _id_on
+	var show := _id_on and _name_want and leader_name.text != "" and name_fits()
+	if _name_tw:
+		_name_tw.kill()
+		_name_tw = null
+	if not fade or not _id_on:
+		leader_name.visible = show
+		leader_name.modulate.a = 1.0
+		return
+	if show:
+		if not leader_name.visible:
+			leader_name.modulate.a = 0.0
+		leader_name.visible = true
+		_name_tw = create_tween()
+		_name_tw.tween_property(leader_name, "modulate:a", 1.0, 0.15)
+	elif leader_name.visible:
+		_name_tw = create_tween()
+		_name_tw.tween_property(leader_name, "modulate:a", 0.0, 0.15)
+		_name_tw.tween_callback(func() -> void:
+			leader_name.visible = false
+			leader_name.modulate.a = 1.0)
 
 
 # ------------------------------------------------------------------ counter / rate
@@ -321,3 +477,6 @@ func update_view(dt_ms: float) -> void:
 			bank.scale = Vector2.ONE
 	if _rate_on and not _frenzy and _now - _rate_changed_at >= RATE_DIM_AFTER_MS:
 		bps.self_modulate.a = RATE_DIM_ALPHA
+	# the width guard: the counter or the rate line grew into the name's slot (or left it again)
+	if _id_on and _name_want and (_name_tw == null or not _name_tw.is_running()) and leader_name.visible != name_fits():
+		_apply_identity(not reduced_motion)

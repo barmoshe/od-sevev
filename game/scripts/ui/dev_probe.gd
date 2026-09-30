@@ -33,7 +33,8 @@ static func snapshot(host: Node) -> Dictionary:
 		"modal": "", "groupOpen": bool(s.coalition.get("opened", false)) if s.coalition is Dictionary else false,
 		# leader select: the controller's mode (pick | title | main) and the round's leader
 		"mode": str(host.get("mode")), "leader": Leaders.current(s), "pickPending": Leaders.pick_pending(s),
-		"undo": bool(host.call("undo_visible")) if host.has_method("undo_visible") else false}
+		"undo": bool(host.call("undo_visible")) if host.has_method("undo_visible") else false,
+		"hud": host.call("hud_info") if host.has_method("hud_info") else {}}
 	var pk: Variant = host.get("picker")
 	if pk is PickView and (pk as PickView).visible:
 		out["pick"] = (pk as PickView).web_info()

@@ -145,7 +145,16 @@ const TOP := {
 	"rateBox": Rect2(188, 56, 344, 36),
 	"muteHit": Rect2(100, 4, 88, 88),
 	"gearHit": Rect2(8, 4, 88, 88),
-	"cottageHit": Rect2(624, 4, 88, 88),
+	# od-sevev A7/B10 (mobile-first §5.1.1): the round's identity chip at Row A's right (R): the
+	# leader's face (a 64 medallion, 16 art) with the short name to its left; the Cottage Index moves
+	# one slot left of the face (its cup and the name share that slot: the name at round start or
+	# before Q1, the cup after)
+	"faceHit": Rect2(624, 4, 88, 88),
+	"face": Rect2(636, 16, 64, 64),
+	"nameRight": 624,
+	"nameY": 28,
+	"nameGap": 16,
+	"cottageHit": Rect2(536, 4, 88, 88),
 	"seatsHit": Rect2(0, 96, 720, 88),
 	"seatsLabelRight": 704,
 	"seatsY": 120,

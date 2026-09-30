@@ -63,11 +63,12 @@ func test_the_cup_appears_at_1000_and_loses_a_pixel_per_x10() -> void:
 	runner.check(c.visible and c.shown() and c.frame() == 1, "Q1: the cup appears on frame 1 (frame %d)" % c.frame())
 	runner.check(c.events.has("appear") and c.events.has("drop:1"), "it appears and drops its first pixel (%s)" % str(c.events))
 	var r: Rect2 = L.TOP["cottageHit"]
-	runner.check(r == Rect2(624, 4, 88, 88) and c.hit_rect() == r, "the hit is 88×88 at the right end of Row A")
+	# mobile-first §5.1.1 (A7/B10): one slot left of the identity chip's face (624-712)
+	runner.check(r == Rect2(536, 4, 88, 88) and c.hit_rect() == r, "the hit is 88×88, left of the face at Row A's right end")
 	await tree.create_timer(0.25).timeout   # past the appear hop
 	var cup: Sprite2D = c._cup
 	var sz := Vector2(Art.sprite_size(cup.get_meta("sprite"))) * cup.scale
-	runner.check(sz == Vector2(64, 72) and cup.position == Vector2(636, 12), "the kit cup at ×4: 64×72 at (636, 12), got %s at %s" % [sz, cup.position])
+	runner.check(sz == Vector2(64, 72) and cup.position + c.position == Vector2(548, 12), "the kit cup at ×4: 64×72 at (548, 12) in Row A, got %s at %s" % [sz, cup.position + c.position])
 	m.state.all_time_bananas = 2.0e4
 	await _frames(2)
 	runner.check(c.frame() == 2 and c.events.has("drop:2"), "10,000 ₪: frame 2 (frame %d)" % c.frame())
@@ -121,4 +122,4 @@ func test_a_tap_opens_the_tooltip_toast() -> void:
 	runner.check(n + (1 if toasts._text.text == tip and toasts._text.visible else 0) == 1, "a second tap does not queue the tip twice")
 	runner.check(m.state.taps_lifetime == 1, "the cup's hit does not tap the Magician")
 	# the corners of the hit and the gear/mute neighbours
-	runner.check(c.contains(Vector2(624, 4)) and c.contains(Vector2(711, 91)) and not c.contains(Vector2(620, 48)), "88×88, no more")
+	runner.check(c.contains(Vector2(536, 4)) and c.contains(Vector2(623, 91)) and not c.contains(Vector2(532, 48)) and not c.contains(Vector2(628, 48)), "88×88, no more")

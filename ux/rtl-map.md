@@ -82,11 +82,12 @@ Positions (screen y): `top_y = floor4(top_inset)`; Row A `top_y`; Row B `top_y +
 
 ## 2. Row A: `TopBar`, y 0-96 in `_top`
 
-The fork's stat window, banana icon, thumbs line, Evolve button and badge are **removed**. Reading order right → left: **Cottage Index · counter · mute · settings**.
+The fork's stat window, banana icon, thumbs line, Evolve button and badge are **removed**. Reading order right → left: **identity chip (face · name, or the Cottage Index in the name's slot) · counter · mute · settings** (rev 2026-09-30).
 
 | Element | Node | Rect | Content |
 |---|---|---|---|
-| Cottage Index | `TopBar.cottage` | hit `Rect2(624, 4, 88, 88)`; kit `cottage_cup` 16×18 art = 64×72 at (636, 12) | Tooltip `HUD_COTTAGE_TIP` as a toast. 50% opacity, 100% for 3 s on a pixel drop. Hidden until `ui.cottageRevealed`. |
+| Identity chip (rev 2026-09-30, A7/B10) | `TopBar.face`, `TopBar.leader_name` | face hit `Rect2(624, 4, 88, 88)`, medallion `Rect2(636, 16, 64, 64)`; name right-aligned at 624, y 28 | The round's leader: the pick avatar medallion + `leaders[].short`. From the pick on, the pre-tap state included. `mobile-first-layout.md` §5.1.1. |
+| Cottage Index | `TopBar.cottage` | hit `Rect2(536, 4, 88, 88)` (rev 2026-09-30; was 624); kit `cottage_cup` 16×18 art = 64×72 at (548, 12) | Tooltip `HUD_COTTAGE_TIP` as a toast. 50% opacity, 100% for 3 s on a pixel drop. Hidden until `ui.cottageRevealed`, and while the identity chip's name holds the slot (before Q1, and at a round start until the first tap or buy). |
 | Counter | `TopBar.bank` (`Label`, numeral cut) | box x 196-524, y 8, **centred** | `HUD_BANK`, gold (money), never fades |
 | Rate line | `TopBar.bps` (`Label`) | box x 188-532, y 52, centred | `HUD_BPS` (frenzy: `HUD_BPS_FRENZY` in the frenzy tint). 100% for 3 s after a change, then 90% (was 60%: on the v4 flag-blue Row A that is 2.9:1; 90% is 4.9:1, review 2026-09-30 U4). Hidden until `ui.rateRevealed`. |
 | Mute | `TopBar.mute` (`PxButton`) | hit `Rect2(100, 4, 88, 88)`, icon 9×9 art = 36×36 at (126, 30) | a11y `HUD_MUTE` / `HUD_UNMUTE`; muted = slash shape |
@@ -172,17 +173,17 @@ Everything in §1-§7 is shared by all leaders: every rect, every flex rule and 
 | Place | Key | When |
 |---|---|---|
 | The pick tiles and the again button | `leaders[].short` + `party`, `LEADER_PICK_AGAIN` | `LEADER_PICK` |
-| The round's lower third (toast 1) | `LEADER_PICK_PLATE` "{short} · {party}" | every round start (§8.6) |
+| ~~The round's lower third (toast 1)~~ → **Row A's identity chip** (rev 2026-09-30, A7/B10) | face + `leaders[].short` | the whole round; the name until Q1 and at every round start until the first tap or buy (`mobile-first-layout.md` §5.1.1). `LEADER_PICK_PLATE` stays for the share cards. |
 | T4 header status line | `DOS_STATUS_LEADER` "{short} · {party}" (box `tall.status`, x 32-616) | always, once T4 is revealed |
 | T4 "ראשי רשימה" section | `DOS_LEADERS`, `DOS_LEADER_ROUNDS_*`, `DOS_LEADER_TAPS` (§6.3) | after a second leader has been played |
 | O3 election card | `ELECT_LEADER` under `ELECT_TITLE` | every election |
 | Share cards (O4 / O5) | the round's leader art + `short` (views, spec §10.1) | — |
 | Chat | the system lines are **second person** ("יצרת את הקבוצה…", "ניקית את הצ׳אט…"), as a chat app words them for the group's creator: the player *is* this round's leader (D32) | — |
 
-**No persistent HUD label** (a principled omission, not an oversight):
-- **The figure is the identity:** it is the largest sprite on screen.
-- **Row A is money and Row B is seats.** A name beside the seat numeral ("בנט · 58/61") reads as a poll, which is exactly the red line.
-- **The stage has no free slot:** the toast dock is at the top, the leader's hit is in the middle, the Suitcase band is at the bottom, the thermometer is on the left and the cameo/Sara on the right.
+**A persistent identity chip in Row A, never a label on the stage or in Row B** (rev 2026-09-30, D52; was "no persistent HUD label"):
+- **The figure is still the identity**, but the manual test found the round-start name toast over the stage (A7) and Row A's right end empty (B10). The chip (a 64 face + the short name, Row A's right end) answers both, and keeps the identity on screen when T3/T4 cover the stage.
+- **Row A is money and Row B is seats.** A name beside the seat numeral ("בנט · 58/61") still reads as a poll, the red line: the chip is in Row A at the right end, Row B's numeral is at the left end of the other row, and before C2 Row B is not drawn.
+- **The stage still has no free slot:** nothing about the leader's name is drawn on the stage.
 
 **Hazard skin: the court (Bibi) vs the press (everyone else).** The meter, the numbers, the phases and the card geometry (§6.4) are all shared; only the words and two icons change.
 
@@ -569,7 +570,7 @@ Input locks on the commit frame (idempotent, like EVOLVE!). The `leaderPick` sti
 |---|---|
 | 0 | Commit. Input locks, the sting plays, and `leader`, `leaderHistory`, `seatDeal`, the fresh-face bonus and `leaderSwitches` are written (spec §6.3). |
 | 0.52 s | The picker is gone. The leader walks in to the feet point (≤ 600 ms, Animator; reduced motion: appears). **`Ftue.handoff_ms` is set here**: every FTUE clock starts at the pick, not at the HTML hand-off, so a player reading tiles is never counted as idle. |
-| 0.52 s | Toast 1, the round's lower third: `LEADER_PICK_PLATE` "{short} · {party}" (≥ 3 s). **The undo chip appears.** |
+| 0.52 s | The round's name: **Row A's identity chip** (rev 2026-09-30: was toast 1, `LEADER_PICK_PLATE`, which covered the stage; `mobile-first-layout.md` §5.1.1). **The undo chip appears.** |
 | ≈ 0.9 s | Dubi arrives (`fly` / `land`; appears under reduced motion) at the right column, feet (644, S−140), which is free at round start. He says `DUBI_LEARNED` (after הפתעה: `LEADER_PICK_RANDOM_LINE`) for 1.6 s. If this leader has been played before (`leaders[id].taps > 0`), he then says their `pick.line` for 1.6 s; a first-timer's line waits for their first tap (D31, `ftue.md` H1L). |
 | ≈ 4.5 s | Toast 2, **on a switch only:** `LEADER_PICK_FRESH` "פנים חדשות: +10% לבסיס בסבב הבחירות הזה" |
 | 5.52 s, or the first tap or buy | The undo chip goes |
@@ -580,7 +581,7 @@ Input locks on the commit frame (idempotent, like EVOLVE!). The `leaderPick` sti
 
 | Property | Value |
 |---|---|
-| Where | Stage-local, at the left end of the Suitcase band: visual `Rect2(16, S−96, 392, 80)`, hit `Rect2(8, S−100, 408, 88)`. It is below the leader's hit and the thermometer's hit (both end at S−140) and under the thermometer's state word (it ends at S−100), and in the thumb zone. |
+| Where | **Pre-tap (rev 2026-09-30, B12):** centred in a full-bleed navy bar (`#072a7a`) over the ticker slot, which is free until H1: visual `Rect2(floor4((cw − 392) / 2), 8, 392, 64)` `_lower`-local, hit 408 × 88; the timer runs along the bar's bottom edge (`mobile-first-layout.md` §5.9). **After an election:** stage-local, at the left end of the Suitcase band: visual `Rect2(16, S−96, 392, 80)`, hit `Rect2(8, S−100, 408, 88)`. It is below the leader's hit and the thermometer's hit (both end at S−140) and under the thermometer's state word (it ends at S−100), and in the thumb zone. |
 | Look | Kit `button_secondary`, `LEADER_PICK_UNDO` "להחליף ראש רשימה" centred (box `pick.undo` 352), and a 2-art-px (8 logical) timer bar along the chip's bottom inner edge that drains left → right over `undoSec` (`mirror`, as the buff chip does). Reduced motion: no bar. |
 | When | From 0.52 s, for `leaderSelect.pick.undoSec` (5 s) of wall time, only while `runTaps == 0` and nothing has been bought. **After every pick**, not only the first one (D29). |
 | Tap / `U` | Reopens `LEADER_PICK` (the same variant and order, with focus on the tile just picked) and reverts the pick: `leader`, the fresh bonus, `leaderSwitches` and the `leaderHistory` append. `seatDeal` keeps its seed (spec L4). The leader walks out (reduced motion: disappears). |

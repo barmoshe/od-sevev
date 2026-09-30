@@ -318,13 +318,13 @@ func test_r16_title_floor_fills_the_reserved_sections() -> void:
 	runner.check(f.visible and is_equal_approx(f.position.y, sb + reach), "the paving starts where the plaza ends (%s)" % f.position.y)
 	runner.check(f.position.x <= 0.0 and f.position.x + f.size.x * 4.0 >= m._vs.x, "full width, no inner rect")
 	runner.check(f.texture == Diorama.paving_texture(m.diorama.pad_bottom, false), "the paving in the stage's floor colour")
-	# review U3 (2026-09-30): it stays through tap 1 until card 1 (the pane's white comes with card 1)
-	m._set_mode("main", false)
-	runner.check(f.visible, "kept in the main state until card 1")
-	m.state.taps_lifetime = 3
+	# A2 (2026-09-30 manual test): card 1 is up from the pick, so the floor is only the strip in the
+	# free ticker slot (the pane's white covers the rest); the main state has the ticker there
 	await tree.process_frame
-	await tree.create_timer(0.4).timeout   # the 150 ms fade under the pane's white
-	runner.check(not f.visible, "gone once card 1 is up")
+	runner.check(m._fills["shop"].visible and m.shop.visible, "the pane is up in the pre-tap state (card 1 from the pick)")
+	m._set_mode("main", false)
+	await tree.process_frame
+	runner.check(not f.visible, "gone in the main state (card 1 is up)")
 
 
 func test_r19_suitcase_sparkles_clear_after_the_flight() -> void:

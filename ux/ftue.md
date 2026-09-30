@@ -1,6 +1,6 @@
 # "עוד סבב": FTUE and prompt triggers on the fork (`ftue-flow` + `prompt-trigger-spec`, engine-concrete)
 
-**Owner:** UX Designer · **Consumers:** Game Developer (`game/scripts/ui/ftue.gd`, `main.gd`, `sim/game_state.gd`), Game Designer (tuning values in `design/content.json`), Animator (prompt motion), Audio Director (cue moments) · **Date:** 2026-09-28 · **Rev 4 (2026-09-29, leader select):** the FTUE starts at the leader pick (§8); P0 taps the leader; H1L; LP.
+**Owner:** UX Designer · **Consumers:** Game Developer (`game/scripts/ui/ftue.gd`, `main.gd`, `sim/game_state.gd`), Game Designer (tuning values in `design/content.json`), Animator (prompt motion), Audio Director (cue moments) · **Date:** 2026-09-28 · **Rev 4 (2026-09-29, leader select):** the FTUE starts at the leader pick (§8); P0 taps the leader; H1L; LP. **Rev 5 (2026-09-30, manual test A2/A7/B10/B12):** the pre-tap state is the round's screen before its first tap: Row A (the identity chip: face + name; mute; settings) and card 1 (dim) over the teaser rows are up from the pick; the round's name is no longer a toast over the stage; the pre-tap undo chip sits in a navy bar in the ticker slot (`mobile-first-layout.md` §3.3, §5.1.1, §5.9).
 
 **Above this file:** `creative-pack/od-sevev/ux/first-minute.md` §2 (approved beats and triggers) and `pitch.md` §5 and §11 (the numbers). This file restates every trigger as a predicate over the fork's **real** state fields, names the fields the developer must add, and says what replaces each of the fork's P1-P7 prompts. Layout references (`§n` of `rtl-map.md`) are the geometry. **Supersedes** the fork's `ux/ftue-flow.md` for od-sevev.
 
@@ -62,7 +62,7 @@ ui = {
 
 | Fork prompt (`ftue.gd`) | Fork form | od-sevev | Form |
 |---|---|---|---|
-| P1 tap the banana | ticker text `F1_TAP`, banana emphasis, hand after idle | **P0** tap the leader (was: the hat) | Textless: idle loop, then Dubi pecks the tap object (Bibi: the hat; others: their prop), then the hand (§3). It runs in the **pre-tap state** after the pick (rev 4; the title state without its lines), where the ticker does not exist yet. |
+| P1 tap the banana | ticker text `F1_TAP`, banana emphasis, hand after idle | **P0** tap the leader (was: the hat) | Textless: idle loop, then Dubi pecks the tap object (Bibi: the hat; others: their prop), then the hand (§3). It runs in the **pre-tap state** after the pick (rev 4; the title state without its lines), where the ticker does not exist yet. **Rev 5:** Row A (without the counter) and card 1 (dim, the fill at 0) are already on screen, so the tap has a visible goal; the leader is still the one lit, moving object. |
 | P2 hire | ticker `F2_HIRE`, hand on the row | **P1** first buy | Card and pill; then Dubi on the card with `DUBI_BUY`; then the hand |
 | P3 upgrade | ticker + badge | **K3** spins unlock | Toast `TOAST_SPINS` + tab slot 2 appears. No hand. |
 | P4 golden | callout `CALLOUT_GOLDEN` + ticker | **S1** first Suitcase | Textless: slow first flight + sparkle. No callout. |
@@ -84,9 +84,9 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
 |---|---|---|---|---|---|---|
 | **P0** tap the leader | introduce(tap) | `mode == "title" and taps_lifetime == 0 and handoff_ms > 0` (rev 4: "title" = the pre-tap stage after the pick; `handoff_ms` = the pick, §8) | Diegetic: the leader's idle loop (Bibi: wand taps hat, a coin peeks and sinks) + 1 Hz brightness pulse on the **tap object**: the hat for Bibi, the prop at `propMouth` for every other leader (`BigBanana.emphasize`; static rim under reduced motion). **No text.** The target is the leader's whole hit (rtl-map §4.3), never the prop alone. | **F1** `idle ≥ 3 s` **and Dubi's pick lines are done** (rtl-map §8.6): Dubi pecks the tap object; one coin pops with "+1 ₪" (a demonstration, not credited). **F2** `idle ≥ 9 s` (F1 + 6): the pixel hand (`Ftue.hand`) taps the hat on loop, pointing from the lower-right (`dir "upleft"`, hand at the hat's right side, since a right thumb comes from there). **F3** `idle ≥ 20 s`: the hand stays; the hat pulse doubles to 2 Hz (≤ 3 Hz, photosensitivity rule). No modal, ever. | `taps_lifetime ≥ 1` | `ftue_step_entered{step:"tap"}`, `ftue_first_agency` |
 | **I0** idle coin-peek (main mode) | — | `mode == "main" and evolutions == 0 and owned_total < 3 and idle ≥ 20 s and stage_unobstructed()` | The Animator's `idleInvite`: one coin peek every 10 s. **Not** after `owned_total ≥ 3`: from then on tapping is optional and a recurring peek is a nag (rtl-map §4.2). | — | any tap, or the predicate turns false | — |
-| **H1** first laugh | — | `taps_lifetime == 1` (edge) | Dubi bubble: the leader's `kit.dubi.squawks.firsttap` (Bibi: `DUBI_FIRSTTAP` "אין כלום! אין כלום!") over the leader for 1.6 s; ticker docks and enqueues H1 (deck T25) at `ftue` priority; Row A fades in with the counter only | — | edge fires once | `ftue_step_completed{step:"tap"}` |
+| **H1** first laugh | — | `taps_lifetime == 1` (edge) | Dubi bubble: the leader's `kit.dubi.squawks.firsttap` (Bibi: `DUBI_FIRSTTAP` "אין כלום! אין כלום!") over the leader for 1.6 s; the ticker fades into the plaza strip's slot and enqueues H1 (deck T25) at `ftue` priority; the counter fades into Row A (rev 5: Row A itself, with the identity chip, mute and settings, is up from the pick) | — | edge fires once | `ftue_step_completed{step:"tap"}` |
 | **H2** first rabbit | introduce(crit) | `taps_lifetime == 7 and crits_lifetime == 0` (the 7th registered tap) | `Economy.tap(state, force_crit = true)` pays ×4 (pitch §11 Q5); rabbit hop; ticker H2 (deck T03) | — | edge | — |
-| **card 1 reveal** | — | `taps_lifetime ≥ 3 and owned_total == 0 and evolutions == 0` | Panel slides up with one card (`producerNames.intern`), pill at 40% opacity, fill growing right → left (rtl-map §6.1) | — | card shown (it never hides again this run) | — |
+| **card 1 reveal** | — | **rev 5:** `picked(s)` (leader select on, a leader installed, no pick pending) **or** `taps_lifetime ≥ 3` (content without leader select) | Card 1 (`producerNames.intern`) on the white field over the dim teaser rows, pill at 40% opacity, fill growing right → left as taps come in (rtl-map §6.1). With leader select it is **up from the pick**, in the pre-tap state (A2: before, the lower half of the first screen was bare stone until tap 3). Its fill growing with each tap is the tap's first visible consequence after the coin. | — | card shown (it never hides again this run) | — |
 | **P1** first buy | introduce(buy) | `bananas ≥ cost(intern) and owned_of("intern") == 0 and evolutions == 0` | Pill full, 100% opacity, gold, one brightness pulse; `becameAffordable` cue | **F1** affordable-and-ignored `≥ 5 s` while taps continue: Dubi hops onto the card and squawks `DUBI_BUY` "לקנות! לקנות!". **F2** `+8 s` (13 s): the hand on the card, at the pill's centre, `dir "right"`, pointing at the pill from its right. **F3** after 2 more ignored 8-s windows: the card bounces once each time `bananas` crosses a multiple of the price. | `owned_of("intern") ≥ 1` | `ftue_step_entered{step:"buy"}`, `ftue_step_completed{step:"buy"}` |
 | **R1** rate reveal | — | `owned_total ≥ 1` (first time) | Rate line `HUD_BPS` appears under the counter; the taxpayer walks onto the stage; ticker H3 (deck T01) | — | `ui.rateRevealed` | — |
 | **P2** the choice | isolate(buy) | `owned_total ≥ 1 and bananas ≥ 0.5 × cost(tree)` | Card 2's name replaces `ROW_LOCKED_NAME` "מקור עלום" (before this, card 2 shows as locked from `owned_total ≥ 1`) | If `owned_total == 1 and bananas ≥ cost(tree)` for 10 s of play: card 2's pill pulses once | card 2 named | `ftue_step_entered{step:"choose"}` |
@@ -118,9 +118,9 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
 
 | t after hand-off | Player state | Fires |
 |---|---|---|
-| 0 | the pick has committed (rev 4: t = 0 is the pick, §8); pre-tap stage, `taps_lifetime 0` | P0 (idle loop); the lower third and Dubi's `DUBI_LEARNED` play over the first ~2.5 s, and P0's F1 waits for them |
+| 0 | the pick has committed (rev 4: t = 0 is the pick, §8); pre-tap stage, `taps_lifetime 0` | P0 (idle loop); Row A with the identity chip (the face and name: the round's "lower third", rev 5) and card 1 (dim) are up; the undo bar holds the ticker slot for 5 s; Dubi's `DUBI_LEARNED` plays over the first ~2.5 s, and P0's F1 waits for it |
 | ~2 | tap 1 | H1 (Dubi, ticker, counter) |
-| ~3 | tap 3 | card 1 reveal (dim) |
+| ~3 | tap 3 | (rev 5: card 1 is already up; its fill is at 3/15) |
 | ~5 | tap 7 | H2 (rabbit ×4) |
 | ~8-10 | tap 12: 15 ₪ | P1 (pill gold) |
 | ~11 | first buy | R1 (rate line, taxpayer walks on) |
@@ -135,7 +135,7 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
 | 3:00+ | `demands_paid ≥ 2`, 180 s | U1 gate open |
 | ~7-9 min | 61 seats | E1 |
 
-**Strip test.** Remove every toast, Dubi fallback and hand: the player still reaches first agency by reading the world (one moving, glowing object; then one card with one price that fills as they tap). None of the prompts above carries the load alone.
+**Strip test.** Remove every toast, Dubi fallback and hand: the player still reaches first agency by reading the world (one moving, glowing object, and below it one dim card with one price; the card fills as they tap). None of the prompts above carries the load alone.
 
 **Time to first agency:** warm ≈ 2-3.5 s after the disclaimer tap; cold on 4G ≤ 7 s; worst case with F1 and F2 ≤ 16 s. All within the studio's 30-s web budget.
 
@@ -231,7 +231,7 @@ It takes the tap the title state already needed (the WebAudio gesture), so the f
 - **Every later picker** repeats only the chip.
 
 **Timing seams:**
-- **The pick sequence** (rtl-map §8.6: the lower third, then Dubi's line, then the fresh toast) runs before P0's F1 can fire. P0's F1 requires "Dubi's pick lines done", so Dubi never pecks the prop while he is still talking.
+- **The pick sequence** (rtl-map §8.6: the identity chip with Row A, then Dubi's line, then the fresh toast) runs before P0's F1 can fire. P0's F1 requires "Dubi's pick lines done", so Dubi never pecks the prop while he is still talking.
 - **The undo chip** is gone by P0's F2 (9 s).
 - **C1's chat ping and every other prompt** wait on their own predicates, all ≥ 40 s in.
 

@@ -40,6 +40,9 @@ const HOLD_AFTER_MS := 250.0
 const FADE_MS := 250.0
 const ROW_GAP := 12.0
 const STRIP_H := 112.0              # 12 + 2 lines × 44 + 12
+## A3 (mobile-first §5.8.1): the caption strip sits on a full-bleed navy plate, the ticker's panel
+## colour, so its white text never lies on the plaza stone (#f7f4ec on #072a7a is 12.9:1).
+const STRIP_PLATE := Color("#072a7a")
 ## mobile-first §5.8 A3: the XL pick avatar (96×96 at d3, drawn 2 logical px per sprite px); until
 ## the 2D Artist's piece lands (manifest chars.<art>.avatarPickXL, else this id) the 32-px pick
 ## avatar draws at ×6 (1.5 art px per sprite px: whole device px at every even k).
@@ -83,6 +86,8 @@ var _hover := -1
 var _age := 0.0
 var _commit: Dictionary = {}        # {cell, t, id}
 var _strip: PxText
+var _strip_plate: ColorRect
+var strip_rect := Rect2()           # the navy plate, picker-local (window.odPick.strip)
 var _scrim: ColorRect
 var _layer := Node2D.new()
 var _again_group: Array[CanvasItem] = []
@@ -299,6 +304,8 @@ func _build() -> void:
 	# the caption strip and the foot, pinned to the bottom
 	var foot := float(plan["foot"])
 	var sy := _bot - foot - STRIP_H
+	strip_rect = Rect2(-_ox, sy, _full_w, STRIP_H)
+	_strip_plate = Ui.rect(_layer, strip_rect, STRIP_PLATE)
 	_strip = PxText.make(_layer, Vector2(0, sy + 12.0), _strip_default(), L.TEXT, "plain", C_STRIP)
 	_strip.reading = true
 	_strip.wrap_width = 656.0 + L.dx
@@ -404,14 +411,21 @@ func _build() -> void:
 	_publish()
 
 
-## The strip's text, bottom-aligned in its box (its last line's ink ≤ 28 above the foot) and
-## centred on the canvas.
+## The strip's text, centred in its navy plate (A3: one line or two) and on the canvas.
 func _place_strip() -> void:
 	if _strip == null:
 		return
 	var sy := _bot - (116.0 if (variant == "after" and again_id != "") else 16.0) - STRIP_H
 	var lines := clampf(float(_strip.line_count()), 1.0, 2.0)
-	_strip.position.y = sy + 12.0 + LH * (2.0 - lines)
+	# A3: the plate hugs the text: the Hebrew body's ink sits in rows +4 … +24 of a 44 cell at ×4, so a
+	# plate of 44·lines + 24 with the cell top 20 below its top leaves 24 of navy above and below the
+	# ink (112 for two lines: the whole strip; 68 for one, centred in the strip's box)
+	var ph := LH * lines + 24.0
+	strip_rect = Rect2(-_ox, sy + Ui.snap((STRIP_H - ph) / 2.0, 4), _full_w, ph)
+	if _strip_plate != null:
+		_strip_plate.position = strip_rect.position
+		_strip_plate.size = strip_rect.size
+	_strip.position.y = strip_rect.position.y + 20.0
 	_strip.center_in(32.0, 656.0 + L.dx)
 
 
@@ -798,7 +812,9 @@ func web_info() -> Dictionary:
 	if booth.has_area():
 		bo = [booth.position.x + off.x, booth.position.y + off.y, booth.size.x, booth.size.y]
 	return {"open": visible, "variant": variant, "cells": cs, "again": ag, "avatar": avatar,
-		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y], "booth": bo}
+		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y], "booth": bo,
+		"strip": [strip_rect.position.x + off.x, strip_rect.position.y + off.y, strip_rect.size.x, strip_rect.size.y],
+		"stripText": [_strip.position.y + off.y, _strip.position.y + off.y + LH * clampf(float(_strip.line_count()), 1.0, 2.0)] if _strip != null else []}
 
 
 func publish_closed() -> void:

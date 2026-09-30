@@ -171,7 +171,9 @@ static func reveals(s: GameState) -> Dictionary:
 	var tabs := played or owned >= open_at or paid >= 1
 	return {
 		"counter": played or s.taps_lifetime >= 1,
-		"card1": played or owned > 0 or s.taps_lifetime >= 3,
+		# A2 (ftue.md §3 "card 1 reveal", rev 5): with leader select, card 1 (dim) is up from the
+		# pick, so the pre-tap screen is never half stone; the fork's content keeps tap 3
+		"card1": played or owned > 0 or s.taps_lifetime >= 3 or picked(s),
 		"single": not played and owned == 0,                      # only card 1, named
 		"rate": played or owned >= 1,
 		"tabs": tabs,                                             # C1: the tab bar appears with it
@@ -180,6 +182,12 @@ static func reveals(s: GameState) -> Dictionary:
 		"buyMode": bool(s.ui.get("buyModeRevealed", false)),      # B1 (the fork's rule, in the controller)
 		"suitcase": played or owned >= 2,                         # S1: no Suitcase before 2 sources
 	}
+
+
+## A leader is picked for this round (leader select on and no pick pending): the pre-tap state
+## shows the round's HUD from here (A2, B10).
+static func picked(s: GameState) -> bool:
+	return Leaders.active() and Leaders.current(s) != "" and not Leaders.pick_pending(s)
 
 
 ## S1: the first Suitcase is due now (the controller forces the spawn when the band is clear).

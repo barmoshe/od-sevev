@@ -8,6 +8,8 @@
 
 **Revision 2026-09-30 (UX review 2, `ux/review-2026-09-30.md`):** §5.2 takes the Animator's roll and dwell (D47, D48); new §5.2.1, the no-break (glue) rule (D49); new §5.14, the v4 civic pieces' placement (F15, D50); asks T1, A4, A5, M3, G2, D1 in §10.
 
+**Revision 2026-09-30 (manual test pass, `HANDOFF.md` A2, A3, A7, B10, B12; UX Designer + Game Developer, pre-tap + HUD slice):** §3.3 and §5.9, the pre-tap screen is the round's screen before its first tap: Row A (with the new identity chip) and card 1 over the teaser rows are up from the pick, and the plaza is one 84-px strip in the still-free ticker slot (A2, D51); new §5.1.1, Row A's identity chip, the leader's face and short name at the right end, which replaces the round-start name toast over the stage, and the Cottage Index moves one slot left (A7, B10, D52); §5.8.1, the picker's caption on a full-bleed navy plate (A3, D53); §5.9, the pre-tap undo chip in a navy bar in the ticker slot (B12, D54); §9.1 adds S13-S16. Shots: `ux/manual-test-2026-09-30/fixes/dev2-*`.
+
 **Reference implementation of every number here:** `ux/tools/mobile_layout.py` (the tables in §2-§5 are its output). **Check:** `tools/web/mobile_web.mjs` (§9). **Wireframes:** `ux/mockups/mobile-first-*.png` (`ux/tools/mobile_mockup.py`).
 
 ---
@@ -161,9 +163,9 @@ leader art ×4 when S ≥ 560, else ×3 (rtl-map §4, unchanged)
 
 | State | Today | Spec |
 |---|---|---|
-| **Pre-tap** (after the pick, before tap 1; ftue P0) | Ticker, pane and tabs hidden; the rest is the floor colour (R16): 191 art of one colour at 390. | The region below the stage shows **the stage's apron art continued to the safe bottom** (2D ask A1, §10). Interim, engine only: the stage art's bottom rows are drawn instead of `_title_floor` (the art is 320 rows tall and its rows 254-319 are under the lane today), plus the lane. **Nothing interactive moves:** the leader stays where tap 1 will find him. The undo chip stays in the lane (rtl-map §8.6). |
-| **Tap 1 → 2** | The ticker appears (H1) | The ticker appears. **Below it the pre-tap apron (the plaza) stays drawn to the safe bottom; the white field (`_fills["shop"]`) appears only with card 1's slide-up** (review 2026-09-30 U3: the white field painted at H1 left 45% of the screen blank for the 2.3 s of Dubi's first line). `mobile_web.mjs` adds S8 at "tap 1". |
-| **Card 1** (tap 3) | The pane slides up with one card over an empty pane | The pane slides up to the **safe bottom** (it covers the tab slot) holding card 1 and **dim silhouette rows** for the sources still to come (§4.4). Card 1's pill is the only lit object, so first-minute's "one card, one price" holds. |
+| **Pre-tap** (after the pick, before tap 1; ftue P0) | *(2026-09-30 manual test A2: the plaza filled the whole lower half, about 45% of the screen, with no content, hint or card.)* | **Rev 2026-09-30 (D51): the pre-tap screen is the round's screen before its first tap.** From the pick: **Row A** (the identity chip §5.1.1, mute and settings; the counter still comes at H1), the stage, then **the ticker slot as one 84-px strip of the plaza floor** (the diorama's plaza + the paving; the only stone left), then **the pane: card 1, dim (its pill at 40%), over the teaser rows**, to the safe bottom on the white field. **Nothing interactive moves:** the leader stays where tap 1 will find him, and card 1 is where it will be. For the first 5 s the undo chip sits in a navy bar over the strip (§5.9, B12). |
+| **Tap 1 → 2** | The ticker appears (H1) | The ticker fades into the strip's slot (the same 84 px, the same navy as the undo bar); the counter fades into Row A. The pane was already up, so nothing else changes. (Supersedes review U3's "white field with card 1": card 1 is now up from the pick.) |
+| **Card 1** (tap 3 on the fork's content) | The pane slides up with one card over an empty pane | With leader select, card 1 is already up (above). On content without leader select the fork's tap-3 slide-up stands. Card 1's pill stays the only lit object in the pane: it goes gold at 15 ₪ (P1), so first-minute's "one card, one price" holds. |
 | **First buy → C1** | Empty pane below the cards; an empty tab slot | Pane full to the safe bottom |
 | **C1** | The tab bar appears in its slot | **The tab bar slides up from the screen bottom over the pane's last 104 px** (the pane's clip shrinks by 104). Nothing above moves; the list keeps its scroll offset. |
 | **Before C2** | Row B's slot painted #140c24, empty (25 art) | Row B's slot is **not filled**: the diorama sky, already drawn behind it (`diorama.extend`), shows through. `_fills["top"]` height = `ins_t + 96` (not `+ 180`). The toast dock and the stage items keep their screen positions. |
@@ -194,7 +196,7 @@ Helpers in `L`: `ra(r)`, `ca(r)`, `sa(r)` return the transformed `Rect2`, and `r
 
 | Region | R | L | C | S | F |
 |---|---|---|---|---|---|
-| **Row A** | cottage hit/icon | gear, mute | counter, rate | counter box, rate box (`w + dx`) | fill |
+| **Row A** | the identity chip (face, name; §5.1.1), cottage hit/icon | gear, mute | counter, rate | counter box, rate box (`w + dx`) | fill |
 | **Row B** | label "מנדטים" | numeral / blackout stamp | — | track (`x 144`, `w 424 + dx`), notches recomputed on the new width | hit (0 … vs.x), fill |
 | **Stage** | — | thermometer (x 12: it is HUD-like and must not drift inward) | the 720 stage column (`stage_ox = floor4(dx/2)`): leader, props, diorama slots, cameo, Sara, buff chip, banner | toast dock (`x 16`, `w 688 + dx`; text box right edge `676 + dx`) | sky bands, lane, stage-art wings (2D ask A2) |
 | **Suitcase** | enters at `x 760 + dx` | exits at x −104 | — | band `w 720 + dx` | — |
@@ -229,7 +231,35 @@ Helpers in `L`: `ra(r)`, `ca(r)`, `sa(r)` return the transformed `Rect2`, and `r
   - Worst "₪ 8.888mm" = 46 font px × 6 = 276 ≤ the 328 box. At dx = 0 the box, centred, runs x 196-524, clear of the mute hit (100-188) and the cottage hit (624-712).
   - ×6 is 1.5 art px per font px: whole device px at every even k (4 → 6 px, 6 → 9, 2 → 3), which is every phone of the matrix. On an odd k, `PxText.text_scale` snaps it.
   - **Rejected alternative:** ×8 would need Row A at 28 art, which costs the SE its ×4 leader.
-- **The cottage slot is empty until Q1 (≈ 1:30).** Accepted: it is an 88×88 corner, not a band, and the counter stays centred on the canvas, above the leader.
+- **The right end is the identity chip (§5.1.1, rev 2026-09-30).** Before it, the cottage slot was empty until Q1 (≈ 1:30) and B10 found Row A lopsided. The counter stays centred on the canvas, above the leader.
+
+#### 5.1.1 The identity chip: the round's face and name at Row A's right end (A7, B10; D52)
+
+**Why:** the round-start name toast (`LEADER_PICK_PLATE` in the toast dock, stage y 8-96) covered the top of the building at 390 and the leader's head on the SE (A7); and Row A's right end sat empty for round 1's first 90 s while the counter and the rate crowded the centre (B10, D22).
+
+**What:** from the pick on (the pre-tap state included), Row A's right end shows the round's leader. Reading order right → left: **face · name · (counter, centred) · mute · settings**.
+
+| Part | Rect (`_top`-local, anchor) | Content |
+|---|---|---|
+| Face | hit `Rect2(624, 4, 88, 88)`, medallion `Rect2(636, 16, 64, 64)`, **R** | The pick avatar (the lavender-ringed medallion) drawn at 16 art: the densest of `avatar_pick_<art>_d3` (96 px), `_d2` (64 px), `avatar_pick_<art>` (32 px) whose pixel count divides 16·k, so every sprite px is whole device px (k 6 → d3 at 1 dp, k 4 → d2 at 1 dp, k 2 → 32 at 1 dp). Not a target (no tap). |
+| Name | right edge `624 + dx`, y 28, ×4, **R**, one line | `leaders[].short` in `w` #fff8ec. 8.8:1 on the flag blue. Widest today: סמוטריץ׳ 144 (box x 480-624 at dx 0). |
+| Cottage Index | hit `Rect2(536, 4, 88, 88)` (was 624), cup at (548, 12), **R** | Unchanged behaviour (§2 of rtl-map: 50%, 100% for 3 s on a change). It **shares the name's slot**: the cup shows only when the name has yielded. |
+
+**When the name shows** (a state predicate, never a timer): `a leader is set` and (`the Cottage Index is not revealed` **or** `the round has not started`: `run_taps == 0` and no source owned). So round 1 shows the name until Q1 (≈ 1:30), and every round start (after an election, when the cup is long revealed) shows the name until the first tap or buy, then it fades out (150 ms; reduced motion: a cut) and the cup takes the slot. The face stays for the whole round.
+
+**Width guard:** the name also hides whenever the counter's or the rate line's drawn ink would come within 16 px of it (`TopBar.name_fits`). At dx 0 the widest name (144) starts at 480 and the counter's worst ink ("₪ 8.888mm" ×6) ends at 498, so only a 360-/412-wide phone with a late-game counter can trip it, and the face stays.
+
+**HUD DOG (hud-design) per element:**
+
+| Element | State surfaced | Tier | Update | Region | Taxonomy (why) | Fade rule |
+|---|---|---|---|---|---|---|
+| Face | who you play this round | informational (each leader has their own rule and hazard skin: the court vs the press) | low-frequency (once a round) | Row A right, R, inside the safe top | non-diegetic: the stage figure is the diegetic identity; the face keeps it on screen when T3/T4 cover the stage | none: informational; it changes only at a pick (a 200 ms fade-in with Row A) |
+| Name | the leader's name (for players who do not know every face) | informational | low-frequency | Row A right, R | non-diegetic, as above | yields to the cup after the round starts (state predicate above) |
+| Cottage Index | the Cottage Index | peripheral | event-driven | Row A, one slot left of the face | meta (a satire indicator) | its own rule, unchanged |
+
+**Red line check (rtl-map §4.3):** the name is never on Row B's line and never beside a seat number: Row B's numeral is at the left end of another row (x 16-136), and before C2 Row B is not drawn at all. Row A holds money, not seats.
+
+**Contrast:** name 8.8:1 (#fff8ec on #0038b8); the medallion's lavender ring 6.1:1 on the flag blue (a 3:1 non-text boundary).
 
 **Row B:** as rtl-map §3 with §4.1's anchors. The label/numeral baseline stays at y 120.
 
@@ -442,11 +472,30 @@ The tile hit is the whole tile: 216-260 × 236-416 logical, ≥ 108 CSS on the s
 
 **Leader card (§8.7):** a modal card, width `624 + min(dx, 64)`; the ✕ hit 104; the button full width at the bottom, which is the thumb zone. It is centred per §5.10.
 
-**The undo chip** (§8.6): its visual `Rect2(16, S−96, 392, 80)` is L-anchored in the lane, unchanged.
+**The undo chip** (§8.6): after an election its visual `Rect2(16, S−96, 392, 80)` is L-anchored in the lane, unchanged. Pre-tap it moves to the ticker slot's navy bar (§5.9, B12).
 
-### 5.9 Pre-tap stage (V11)
+#### 5.8.1 The caption strip's plate (A3; D53)
 
-See §3.3: the apron art below the stage, the undo chip in the lane, the leader where tap 1 will find him. Nothing else is added: first-minute's "one moving, glowing object" is the whole screen until tap 1, and the apron is scenery, not UI.
+**Why:** the strip's white text ("בכל סבב בחירות אפשר להחליף ראש רשימה. הבסיס נשאר.", or the disclaimer) sat straight on the light plaza stone, and the stone's joints ran behind the letters (`09-picker-after-election-390.png`).
+
+**What:** the strip's whole box (`STRIP_H` 112, from the strip top to the foot) is a **full-bleed navy plate** (**F**, `#072a7a`, the ticker's panel colour, "like the ticker"). The text (×4, the reading cut, up to 2 lines) **hugs the text**: the plate is `44 · lines + 24` tall (112 for two lines, the whole strip box; 68 for one, centred in the box), the cell top 20 below its top, so the ink (rows +4 … +24 of the ×4 cell) has 24 of navy above and below, and centred on the canvas as before. #f7f4ec on #072a7a is **11.8:1**. The plate ends where the foot begins: the again button (white) stays on the stone below it, so the two never merge. The booth (§5.14.2) keeps its 8 px of stone above the plate. `window.odPick.strip` = the plate `[x, y, w, h]`, `odPick.stripText` = the text's `[top, bottom]` (S13).
+
+### 5.9 Pre-tap stage (V11; rev 2026-09-30, A2 + B12)
+
+See §3.3: from the pick, Row A (the identity chip, mute, settings), the stage with the leader where tap 1 will find him, the ticker slot as the plaza strip, and card 1 (dim) over the teaser rows. **First-minute's "one moving, glowing object" still holds:** the leader pulses (P0) and card 1 is dim, the teaser rows have no price, and Row A is quiet chrome. The screen now answers the two questions a new player has before tap 1 (who am I playing, and what am I tapping for) without a word of instruction: the face and name, and one card with one price.
+
+**Mute and settings work before tap 1** (Row A is up): neither counts as tap 1.
+
+**The undo bar (B12):** before tap 1 the ticker slot is free, so the undo chip sits there instead of floating on the stone:
+- a full-bleed navy bar (**F**, `#072a7a`, the ticker's panel colour: at H1 the ticker takes the same slot in the same navy), 84 tall;
+- the chip (kit `button_secondary`, `LEADER_PICK_UNDO`) centred (**C**): visual `Rect2(floor4((cw − 392) / 2), 8, 392, 64)`, hit 408 × 88 (y −2 … 86);
+- the timer: a 2-art-px (8) line along the bar's bottom edge, full bleed, draining left → right (`mirror`) over `undoSec`; reduced motion: no line;
+- it lives exactly as the chip does (§8.6: 5 s, until the first tap or buy); when it goes, the plaza strip shows until H1.
+- Contrast: the label 6.8:1 on the chip face; the chip's light top rim 3.8:1 on the bar.
+
+After an election the ticker is live, so the chip stays in the lane (§5.8).
+
+**Open (accepted per §3.4, not in this slice):** on short stages (S < 560, the SE) Dubi's pre-tap chat toast (U9, ≈ 0.9-4 s after the pick) still sits over the leader's head in the toast dock. Proposed next: while Row B is not revealed, dock the toast in Row B's empty slot (84 px higher), so it covers ≤ 48 px of the stage top.
 
 ### 5.10 Modals (O1, O3, O6, O10, O11/O12, O15, the leader card, the partner card, the aide confirm)
 
@@ -660,6 +709,10 @@ Default matrix: 375×667@2, 390×844@3, 393×852@3, 430×932@3, 360×780@3, 412�
 | S10 | picker grid | the last row's bottom + 12 == the strip top (± 4) |
 | S11 | picker avatar | `odPick.avatar` == §5.8's A for the device |
 | S12 | picker band | S8 over the grid, strip and foot |
+| S13 | picker caption plate (A3) | `odPick.strip` is full bleed and holds `odPick.stripText` |
+| S14 | name plate clear of the leader (A7) | `odDev.hud.identity.rect` does not intersect `odDev.hud.leaderHit` and lies inside Row A: pre-tap and at card 1 |
+| S15 | pre-tap screen (A2) | pre-tap: `hud.card1` and `hud.top` true, `hud.ticker` false |
+| S16 | pre-tap undo bar (B12) | while the chip is up pre-tap, `hud.undo.home == "row"` and its rect lies in the ticker slot (`lowerY … lowerY + 84`) |
 
 **Today's run** (full matrix, `MOBILE_BASELINE=1`, `scratchpad/shots/mobile-ux/`): `MOBILE_WEB: PASS (baseline; 108 spec checks open)`. Baseline: 0 failures on all 9 devices. Spec checks open: 13 per phone, 10 at 375×548 and 7 at the frame (the band checks are skipped inside the bezel). Every V-finding of §1 shows up as a spec failure: S8 reports the Row B slot, the lane, the empty pane and the pre-tap floor; S7 the 86-px cut at the SE and the 80-px cut at 390×664; S3 every phone's stage (e.g. 390×844: S 760 vs 680); S10/S12 the picker band.
 
@@ -709,6 +762,10 @@ For **each** device of the matrix:
 | # | Was | Now | Reason |
 |---|---|---|---|
 | D36 | §1 flex rule: the stage takes 40% of the extra height; the list is P = R − S in any size | §3.2 split: the stage stays near 160 art, extra height buys whole card rows, a 40-px peek | V1, V2, V5: buying is the verb from minute 2, and a half-cut pill is a false target |
+| D51 | §3.3 pre-tap: the apron continued to the safe bottom; card 1 at tap 3; the white field with card 1 (U3) | Row A and card 1 (dim) + the teaser rows from the pick; the plaza is one 84-px strip in the ticker slot | A2: the stone filled ~45% of the first screen after the pick, with nothing to read or aim at |
+| D52 | rtl-map §4.3 "no persistent HUD label"; the name as the round-start toast in the dock | Row A's identity chip (face + short name, R); the name yields to the Cottage Index once the round starts; the cup moves one slot left | A7 (the toast covered the building / the SE leader's head), B10 / D22 (Row A's right end empty in round 1) |
+| D53 | §5.8 caption strip: white text on the scrimmed stage / plaza | on a full-bleed navy plate, text centred in it | A3: low contrast, cracks behind the letters |
+| D54 | §5.8 / rtl-map §8.6 undo chip in the lane in every variant | pre-tap: centred in a navy bar in the free ticker slot; after an election: the lane | B12: the chip floated on the stone |
 | D37 | The 720 column centred (`_ox`) for all chrome | Fluid chrome with anchors (§4); only the stage column is centred | V9 |
 | D38 | Reserved slots stay empty until their reveal | Row B shows the sky, the pane covers the tab slot, silhouettes fill the pane (§3.3) | V1, V3; nothing moves at the reveal |
 | D39 | The ticker crawl through a 324 clip (D16) | 2-line pages, whole words, a clip of 324 + dx (§5.2) | V6: no headline fits the window, so every frame showed cut words |

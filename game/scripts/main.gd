@@ -112,8 +112,15 @@ var picker: PickView                # LEADER_PICK (ui/views/view_pick.gd)
 var _pick_res: Dictionary = {}      # the last commit's Leaders.start_round result + {via}
 var _pick_seq: Array = []           # [{at (ms, _now), fn}]: the round-start sequence (rtl-map §8.6)
 var _pick_shown_ms := 0.0
-var _undo_btn: PxButton             # "להחליף ראש רשימה" (rtl-map §8.6)
+var _undo_btn: PxButton             # "להחליף ראש רשימה" (rtl-map §8.6): the one on screen now
 var _undo_bar: ColorRect
+var _undo_lane_btn: PxButton        # after an election: in the lane, over the stage floor
+var _undo_lane_bar: ColorRect
+var _undo_row: Node2D               # B12, pre-tap: a navy bar in the (free) ticker slot, `_lower`-local
+var _undo_row_btn: PxButton
+var _undo_row_bar: ColorRect
+var _undo_band: ColorRect
+var _undo_in_row := false
 var _undo_ms := 0.0                 # wall ms left on the undo chip
 var _undo_full := 5000.0
 var court_echo: CourtEcho            # the courthouse window on the stage (Bibi's rounds; ui/court_echo.gd)
@@ -646,7 +653,9 @@ func _relayout() -> void:
 	picker.layout(_top_y, _vs.y - bottom_inset, _vs.x, _ox)
 	_place_undo_chip()
 	top_bar.relayout()
-	cottage.position.x = L.dx
+	# the cup draws at its own x 636 inside the node; its hit is L.TOP.cottageHit (R), one slot left
+	# of the identity chip's face (mobile-first §5.1.1)
+	cottage.position.x = L.rx(float((L.TOP["cottageHit"] as Rect2).position.x)) - 624.0
 	ticker.relayout()
 	toasts.relayout()
 	golden.relayout()
@@ -712,6 +721,30 @@ func _publish_display() -> void:
 		"lowerY": _lower_y, "hat": [hat.x, hat.y], "reducedMotion": bool(settings.get("reducedMotion", false)),
 		"cw": L.cw, "S": L.stage_h, "P": L.panel_h, "rows": L.rows_whole, "cols": Display.cols, "artRows": Display.rows,
 		"ticker": ticker.web_info()}), true)
+
+
+## window.odDev.hud (dev only, DevProbe): what tools/web/mobile_web.mjs measures for A7/B10/B12, in
+## viewport logical px: the leader's hit, the identity chip (face + name; the name's own box), the
+## undo chip (its home and visual rect) and the toast dock's plate.
+func hud_info() -> Dictionary:
+	var sto := Vector2(_sx, _stage_y)
+	var tpo := Vector2(_ox, _top_y)
+	var r2a := func(r: Rect2, o: Vector2) -> Array: return [r.position.x + o.x, r.position.y + o.y, r.size.x, r.size.y] if r.has_area() else []
+	var idr: Rect2 = top_bar.identity_rect()
+	var nm: Rect2 = Rect2()
+	if top_bar.name_visible():
+		var nw := float(top_bar.leader_name.width())
+		nm = Rect2(TopBar.name_right() - nw, float(L.TOP["nameY"]), nw, 44.0)
+	var ur := Rect2()
+	if undo_visible():
+		ur = _undo_btn.visual
+	var uo := Vector2(_ox, _lower_y) if _undo_in_row else sto
+	return {"leaderHit": r2a.call(bb.hit_rect(), sto), "top": _top.visible,
+		"identity": {"leader": top_bar.leader_shown(), "rect": r2a.call(idr, tpo), "name": r2a.call(nm, tpo),
+			"face": r2a.call(TopBar.face_rect() if top_bar.face != null and top_bar.face.visible else Rect2(), tpo)},
+		"undo": {"on": undo_visible(), "home": undo_home(), "rect": r2a.call(ur, uo)},
+		"toast": r2a.call(toasts.covered_rect(), sto), "counter": _top.visible and top_bar.bank.visible,
+		"card1": shop.visible, "ticker": ticker.visible}
 
 
 ## The safe band in modal space (y top, y bottom): the sheet cards and the flash place in it.
@@ -969,26 +1002,47 @@ func _set_mode(m: String, animate: bool) -> void:
 	# review U3: between tap 1 and card 1 the pre-tap apron stays (the pane's white comes with card 1)
 	var floor_stays := main and not bool(Ftue.reveals(state).get("card1", false))
 	_title_floor.visible = not main or animate or floor_stays   # fades out with the title (below)
+	var ms := float(Tune.MC["titleFadeReducedMs"] if settings["reducedMotion"] else Tune.MC["titleFadeMs"])
 	if not main:
 		title_view.show_title(not Leaders.active())   # D26: the pre-tap state has no title lines
-		_top.visible = false
-		_lower.visible = false
+		# A2/B10 (mobile-first §3.3, §5.9): with a leader picked, the pre-tap state is the round's
+		# screen before its first tap: Row A (the identity chip, mute, settings; the counter comes
+		# at H1) and the pane (card 1, dim, over the teaser rows) are up from the pick; only the
+		# ticker waits for H1, its slot a strip of the plaza floor
+		var pretap := pretap_hud()
+		if pretap and not _top.visible:
+			_fade_in([_top, _lower], ms)
+		_top.visible = pretap
+		_lower.visible = pretap
 		return
-	var ms := float(Tune.MC["titleFadeReducedMs"] if settings["reducedMotion"] else Tune.MC["titleFadeMs"])
+	var shown := _top.visible and _lower.visible   # the pre-tap HUD is already up: no second fade
 	_top.visible = true
 	_lower.visible = true
 	if animate:
 		title_view.fade_out(ms)
-		_top.modulate.a = 0.0
-		_lower.modulate.a = 0.0
-		var tw := create_tween().set_parallel()
-		tw.tween_property(_top, "modulate:a", 1.0, ms / 1000.0)
-		tw.tween_property(_lower, "modulate:a", 1.0, ms / 1000.0)
+		if not shown:
+			_fade_in([_top, _lower], ms)
+		else:
+			_fade_in([ticker], ms)   # H1: only the ticker is new (it takes the floor strip's slot)
 		if not floor_stays:
+			var tw := create_tween()
 			tw.tween_property(_title_floor, "modulate:a", 0.0, ms / 1000.0)
 			tw.chain().tween_callback(func() -> void: _title_floor.visible = mode != "main" or not _pane_up)
 	else:
 		title_view.show_title(false)
+
+
+## A2/B10: the pre-tap state shows the round's HUD (a leader is picked; content without leader
+## select keeps the fork's title screen).
+func pretap_hud() -> bool:
+	return Leaders.active() and Leaders.current(state) != "" and not Leaders.pick_pending(state)
+
+
+func _fade_in(nodes: Array, ms: float) -> void:
+	var tw := create_tween().set_parallel()
+	for n: CanvasItem in nodes:
+		n.modulate.a = 0.0 if not bool(settings.get("reducedMotion", false)) else 1.0
+		tw.tween_property(n, "modulate:a", 1.0, maxf(0.01, ms / 1000.0))
 
 
 func _start_from_title(tap_at: Vector2, tapped: bool) -> void:
@@ -1057,7 +1111,7 @@ func _process(delta: float) -> void:
 	fx_stage.update_view(dt)
 	fx_ui.update_view(dt)
 	top_bar.update_view(dt)
-	cottage.update_view(dt, state, running and bool(_reveals.get("counter", false)))
+	cottage.update_view(dt, state, cottage_allowed(running))
 	_refresh_all(dt)
 	shop.tick_hold(dt, state)
 	chat.update_view(dt, state, d, {"main": running and not tx.running and not _tx_locked, "overlay": overlays.is_open()})
@@ -1133,8 +1187,10 @@ func _apply_reveals() -> void:
 		_sources_sent = owned
 		_audio_call("set_sources_owned", [owned])   # the Audio's L1 follows the round's sources
 	var main := mode == "main"
+	var live := main or (mode == "title" and pretap_hud())   # A2: the pre-tap HUD (card 1 from the pick)
 	top_bar.set_revealed(bool(_reveals["counter"]), bool(_reveals["rate"]), bool(_reveals["seats"]))
-	shop.set_shop_visible(main and bool(_reveals["card1"]))
+	_apply_identity(live)
+	shop.set_shop_visible(live and bool(_reveals["card1"]))
 	shop.ftue_single = bool(_reveals["single"])
 	shop.ftue_dim = state.evolutions == 0 and Ftue.owned_total(state) == 0
 	var dos := dossier.tab_revealed()   # K2 (ux/ftue.md), derived in the dossier view
@@ -1154,13 +1210,28 @@ func _apply_reveals() -> void:
 		court.relayout()
 		_publish_display()
 	_slots_known = true
-	_apply_pane(main and bool(_reveals["card1"]))
+	_apply_pane(live and bool(_reveals["card1"]))
 	ticker.visible = main and bool(_reveals["counter"])
 	ticker.set_cta(main and state.evolutions >= 0 and Coalition.gate_open(state) and Coalition.active())
 	if bool(_reveals["seats"]):
 		var si := Coalition.seat_info(state)
 		top_bar.set_seats(int(si["effective"]), int(si["gateSeats"]), _blackout())
 	top_bar.set_muted(not bool(settings.get("sfx", true)) and not bool(settings.get("music", true)))
+
+
+## A7/B10 (mobile-first §5.1.1): Row A's identity chip, the round's face and short name. The name
+## holds the slot the Cottage Index shares while the cup is not revealed, and at a round start until
+## the round's first tap or buy; the cup shows only when the name has yielded.
+func _apply_identity(live: bool) -> void:
+	var lid := Leaders.current(state) if pretap_hud() or (live and Leaders.active()) else ""
+	top_bar.set_leader(lid)
+	var round_start := state.run_taps == 0 and Ftue.owned_total(state) == 0
+	top_bar.set_identity(live and lid != "", round_start or not ViewRules.cottage_revealed(state))
+
+
+## The cup may show (its own reveal and fade rules apply): Row A is up and the name has yielded.
+func cottage_allowed(running: bool) -> bool:
+	return running and bool(_reveals.get("counter", false)) and not top_bar.name_claims_slot()
 
 
 ## Review U3 (mobile-first §0 rule 4, §3.3): the pane's white field (`_fills["shop"]`) appears
@@ -1506,6 +1577,12 @@ func _gameplay_input() -> bool:
 	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked and overlays.now_ms() >= overlays.input_locked_until
 
 
+## Row A's mute and settings: live in the round and in the pre-tap state (B10: Row A is up there).
+func _hud_input() -> bool:
+	return (_gameplay_input() or (mode == "title" and pretap_hud() and not overlays.is_open() and not tx.running
+		and not _tx_locked and overlays.now_ms() >= overlays.input_locked_until))
+
+
 func _unhandled_input(e: InputEvent) -> void:
 	if e is InputEventScreenTouch:
 		var t := e as InputEventScreenTouch
@@ -1590,13 +1667,20 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		picker.pointer_down(_in_pick(p))
 		_presses[idx] = {"kind": "pick"}
 		return
-	if undo_visible() and _undo_btn.contains(sp):
+	if undo_visible() and _undo_btn.contains(_in_undo(p)):
 		_undo_btn.down()
 		_presses[idx] = {"kind": "undo"}
 		return
 	if mode == "title":
 		# the disclaimer is HTML over the canvas; until it hands off, nothing here is live
 		if ftue.handoff_ms <= 0.0:
+			return
+		# B10: Row A is up in the pre-tap state, so its mute and settings work before tap 1
+		if pretap_hud() and top_bar.gear_contains(tp):
+			_presses[idx] = {"kind": "gear"}
+			return
+		if pretap_hud() and top_bar.mute_contains(tp):
+			_presses[idx] = {"kind": "mute"}
 			return
 		var on_hat := Ui.in_rect(bb.hit_rect(), sp)
 		if on_hat:
@@ -1678,7 +1762,7 @@ func _pointer_up(idx: int, p: Vector2) -> void:
 		"pick":
 			picker.pointer_up(_in_pick(p))
 		"undo":
-			var inside := undo_visible() and _undo_btn.contains(_in_stage(p))
+			var inside := undo_visible() and _undo_btn.contains(_in_undo(p))
 			_undo_btn.up(inside)
 		"overlay":
 			overlays.pointer_up(_in_modal(p))
@@ -1703,13 +1787,13 @@ func _pointer_up(idx: int, p: Vector2) -> void:
 			if ticker.cta.contains(lp) and _gameplay_input():
 				_open_evolution()
 		"gear":
-			if top_bar.gear_contains(tp) and _gameplay_input():
+			if top_bar.gear_contains(tp) and _hud_input():
 				_open_settings()
 		"cottage":
 			if cottage.contains(tp) and _gameplay_input():
 				cottage.tap()
 		"mute":
-			if top_bar.mute_contains(tp) and _gameplay_input():
+			if top_bar.mute_contains(tp) and _hud_input():
 				_toggle_mute()
 
 
@@ -2417,7 +2501,8 @@ func _on_pick_done() -> void:
 		_audio_call("start_music", [])
 	ftue.on_input()   # rtl-map §8.6: every FTUE clock starts at the pick
 	var id := Leaders.current(state)
-	toasts.show_toast(Strings.s("LEADER_PICK_PLATE", {"short": LeaderUi.short(id), "party": LeaderUi.party(id)}))
+	# A7 (mobile-first §5.1.1): the round's name is Row A's identity chip, not a toast over the stage
+	_apply_identity(true)
 	var dubi_at := Vector2(644, L.stage_bottom() - 232.0)
 	var random := str(_pick_res.get("via", "")) == "random"
 	# Dubi's bubble follows the landing (a 120 ms settle after the walk, so the eye is on the still
@@ -2505,38 +2590,92 @@ func _open_leader_card(id: String, via: String) -> void:
 		return o.build())
 
 
-## The undo chip (rtl-map §8.6): kit button_secondary at the left of the Suitcase band, a 2-art-px
-## bar draining left → right over undoSec; up for undoSec of wall time after every pick while the
-## round has not started (no tap, no buy).
+## The undo chip (rtl-map §8.6, mobile-first §5.9 B12): kit button_secondary with a 2-art-px bar
+## draining left → right over undoSec; up for undoSec of wall time after every pick while the round
+## has not started (no tap, no buy). Two homes:
+## - pre-tap (the first launch, a reset): the ticker slot is free until H1, so the chip sits centred
+##   in a full-bleed navy bar there (the ticker's own panel colour: at H1 the ticker takes the same
+##   navy slot), the timer bar along the bar's bottom edge;
+## - after an election (the ticker is live): the lane at the stage's bottom-left, as before.
 func _build_undo_chip() -> void:
-	_undo_btn = PxButton.make(_ui, Rect2(16, 0, 392, 80), {"kind": "kit_secondary", "label": Strings.s("LEADER_PICK_UNDO"),
+	_undo_lane_btn = PxButton.make(_ui, Rect2(16, 0, 392, 80), {"kind": "kit_secondary", "label": Strings.s("LEADER_PICK_UNDO"),
 		"label_box": 352.0, "on_commit": _undo_pick})
-	_undo_bar = ColorRect.new()
-	_undo_bar.color = Color("#fff8ec")
-	_undo_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ui.add_child(_undo_bar)
-	_undo_btn.set_visible(false)
-	_undo_bar.visible = false
+	_undo_lane_bar = _undo_timer(_ui)
+	_undo_row = Node2D.new()
+	_lower.add_child(_undo_row)
+	_lower.move_child(_undo_row, ticker.get_index() + 1)   # over the ticker slot, under the tall tabs
+	_undo_band = Ui.rect(_undo_row, Rect2(0, 0, L.W, L.TICKER_H), Color("#072a7a"))
+	_undo_row_btn = PxButton.make(_undo_row, Rect2(0, 8, 392, 64), {"kind": "kit_secondary", "label": Strings.s("LEADER_PICK_UNDO"),
+		"label_box": 352.0, "on_commit": _undo_pick})
+	_undo_row_bar = _undo_timer(_undo_row)
+	_undo_row.visible = false
+	for b: PxButton in [_undo_lane_btn, _undo_row_btn]:
+		b.set_visible(false)
+	_undo_btn = _undo_lane_btn
+	_undo_bar = _undo_lane_bar
+
+
+func _undo_timer(parent: Node) -> ColorRect:
+	var r := ColorRect.new()
+	r.color = Color("#fff8ec")
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(r)
+	r.visible = false
+	return r
+
+
+## B12: the pre-tap chip lives in the ticker slot (free until H1); otherwise the lane.
+func _undo_wants_row() -> bool:
+	return mode == "title"
+
+
+## The pre-tap chip's visual rect, `_lower`-local (tests and window.odDev read it).
+static func undo_row_rect() -> Rect2:
+	return Rect2(L.floor4((L.cw - 392.0) / 2.0), 8.0, 392.0, 64.0)
 
 
 func _place_undo_chip() -> void:
-	if _undo_btn == null:
+	if _undo_lane_btn == null:
 		return
-	# rtl-map §8.6 / mobile-first §5.8: L-anchored in the lane (canvas x 16; `_ui` is the stage column)
+	_undo_in_row = _undo_wants_row()
+	_undo_btn = _undo_row_btn if _undo_in_row else _undo_lane_btn
+	_undo_bar = _undo_row_bar if _undo_in_row else _undo_lane_bar
+	# the lane: rtl-map §8.6 / mobile-first §5.8, L-anchored (canvas x 16; `_ui` is the stage column)
 	var y := L.stage_bottom() - 96.0
 	var x := 16.0 - L.sox()
-	_undo_btn.visual = Rect2(x, y, 392, 80)
-	_undo_btn.hit = Rect2(x - 8.0, y - 4.0, 408, 88)
-	Ui.set_nine_rect(_undo_btn.bg, _undo_btn.visual)
-	if _undo_btn.label != null:
-		_undo_btn.label.position.y = y + Ui.snap((80.0 - 28.0) / 2.0, 4)
-		_undo_btn.label.center_in(x, 392)
-	_undo_bar.position = Vector2(x + 8.0, y + 64.0)
-	_undo_bar.size = Vector2(376, 8)
+	_set_chip(_undo_lane_btn, Rect2(x, y, 392, 80), Rect2(x - 8.0, y - 4.0, 408, 88))
+	_undo_lane_bar.position = Vector2(x + 8.0, y + 64.0)
+	_undo_lane_bar.size = Vector2(376, 8)
+	# the row: full bleed (F) over the ticker slot, the chip centred (C), its hit 88 tall
+	var rr := undo_row_rect()
+	_undo_band.position = Vector2(-_ox, 0)
+	_undo_band.size = Vector2(_vs.x, float(L.TICKER_H))
+	_set_chip(_undo_row_btn, rr, Rect2(rr.position.x - 8.0, rr.position.y - 10.0, rr.size.x + 16.0, 88.0))
+	_undo_row_bar.position = Vector2(-_ox, float(L.TICKER_H) - 8.0)
+	_undo_row_bar.size = Vector2(_vs.x, 8)
+
+
+func _set_chip(b: PxButton, vis: Rect2, hit: Rect2) -> void:
+	b.visual = vis
+	b.hit = hit
+	Ui.set_nine_rect(b.bg, vis)
+	if b.label != null:
+		b.label.position.y = vis.position.y + Ui.snap((vis.size.y - 28.0) / 2.0, 4)
+		b.label.center_in(vis.position.x, vis.size.x)
 
 
 func undo_visible() -> bool:
 	return _undo_ms > 0.0 and mode != "pick" and _undo_btn != null
+
+
+## The undo chip's home now: "row" (the pre-tap ticker slot) or "lane".
+func undo_home() -> String:
+	return "row" if _undo_in_row else "lane"
+
+
+## The point `p` (viewport) in the undo chip's parent space.
+func _in_undo(p: Vector2) -> Vector2:
+	return _in_lower(p) if _undo_in_row else _in_stage(p)
 
 
 func _update_undo_chip(dt: float) -> void:
@@ -2544,13 +2683,22 @@ func _update_undo_chip(dt: float) -> void:
 		_undo_ms -= dt
 		if not Leaders.can_repick(state) or state.run_taps > 0 or Ftue.owned_total(state) > 0 or tx.running:
 			_undo_ms = 0.0
+	if _undo_wants_row() != _undo_in_row:
+		_place_undo_chip()
 	var on := undo_visible()
-	_undo_btn.set_visible(on)
-	_undo_bar.visible = on and not settings["reducedMotion"]
+	_undo_row.visible = on and _undo_in_row
+	_undo_lane_btn.set_visible(on and not _undo_in_row)
+	_undo_row_btn.set_visible(on and _undo_in_row)
+	_undo_lane_bar.visible = on and not _undo_in_row and not settings["reducedMotion"]
+	_undo_row_bar.visible = on and _undo_in_row and not settings["reducedMotion"]
 	if on:
 		var f := clampf(_undo_ms / maxf(1.0, _undo_full), 0.0, 1.0)
-		_undo_bar.size.x = Ui.snap(376.0 * f, 4)
-		_undo_bar.position.x = 24.0 + 376.0 - _undo_bar.size.x   # drains left → right (mirror)
+		if _undo_in_row:
+			_undo_row_bar.size.x = Ui.snap(_vs.x * f, 4)
+			_undo_row_bar.position.x = -_ox + _vs.x - _undo_row_bar.size.x   # drains left → right (mirror)
+		else:
+			_undo_lane_bar.size.x = Ui.snap(376.0 * f, 4)
+			_undo_lane_bar.position.x = 24.0 + 376.0 - _undo_lane_bar.size.x
 
 
 ## "להחליף ראש רשימה" / U: back to the same picker (the same variant, order and seat seed), with

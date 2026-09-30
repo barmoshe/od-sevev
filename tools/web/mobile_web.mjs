@@ -10,6 +10,11 @@
 //             (odDisplay.ticker), the bottom-anchored picker grid (odPick.tile / odPick.grid).
 // Screens: the picker (when the build has one), the pre-tap stage, card 1, the first buy ("bought"),
 // C1 (the tab bar) and C2 (Row B), T3 (the chat), and the settings sheet.
+// The pre-tap + HUD fixes (2026-09-30 manual test; mobile-first §3.3, §5.1.1, §5.8.1, §5.9): the
+// picker's caption on its navy plate (A3), card 1 up from the pick (A2), the round's name in Row A's
+// identity chip, never over the leader's hit (A7/B10, checked pre-tap and at card 1), and the
+// pre-tap undo chip in its navy bar in the ticker slot (B12). They read window.odPick.strip and
+// window.odDev.hud.
 //   node tools/web/mobile_web.mjs <url> <out dir> [devices]
 //     devices: comma list of WxH@DPR (a phone: touch, isMobile) or frame-WxH@DPR (a desktop window,
 //     mouse: the shell's 390-CSS phone frame). Default: the spec's matrix (below).
@@ -271,6 +276,11 @@ for (const spec of list.split(',')) {
 		const gx1 = Math.max(...pk.cells.map((c) => c[0])) + (pk.tile ? pk.tile[0] : 0) / 2;
 		check('width', (gx1 - gx0) >= 0.92 * disp.cw, `the picker grid spans ${Math.round(gx1 - gx0)} of ${disp.cw} (≥ 92%)`);
 		await bandCheck('pick', buf, 'grid, strip and foot; the scrimmed stage above the title line is the exempt sky', { exempt: [[0, gridTop - 72]] });
+		// A3 (mobile-first §5.8.1): the caption strip sits on a full-bleed navy plate, its text inside it
+		const sp = pk.strip || [];
+		const st = pk.stripText || [];
+		check('spec', sp.length === 4 && sp[0] <= 0.5 && sp[2] >= disp.logical[0] - 0.5 && st.length === 2 && st[0] >= sp[1] && st[1] <= sp[1] + sp[3],
+			`A3: the caption is on its full-bleed plate (plate ${JSON.stringify(sp)}, text ${JSON.stringify(st)})`);
 		// pick הפתעה (the centre cell, id "")
 		const rnd = pk.cells.find((c) => c[2] === '') || pk.cells[0];
 		await tap(css(rnd[0], rnd[1]));
@@ -279,7 +289,23 @@ for (const spec of list.split(',')) {
 		await refresh();
 	}
 	const pre = await shot('pretap');
-	await bandCheck('pre-tap', pre, 'the pre-tap stage paints the apron below the stage');
+	await bandCheck('pre-tap', pre, 'Row A, the stage, the plaza strip in the ticker slot, card 1 and the teaser rows');
+	// the pre-tap HUD (A2, A7/B10, B12)
+	const inter = (a, b) => a && b && a.length === 4 && b.length === 4 && a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
+	const hudCheck = async (step) => {
+		const h = ((await probe()) || {}).hud || {};
+		const idr = (h.identity && h.identity.rect) || [];
+		check('spec', idr.length === 4 && !inter(idr, h.leaderHit) && idr[1] + idr[3] <= disp.stageY + 160 - ROW_B,
+			`${step}: the name plate (Row A's identity chip ${JSON.stringify(idr)}, ${h.identity && h.identity.leader}) is clear of the leader's hit ${JSON.stringify(h.leaderHit)} and inside Row A`);
+		return h;
+	};
+	if (pk && pk.open) {
+		const h0 = await hudCheck('pre-tap');
+		check('spec', h0.card1 === true && h0.ticker === false && h0.top === true, `A2: card 1 and Row A are up before tap 1, the ticker waits for H1 (${JSON.stringify({ card1: h0.card1, ticker: h0.ticker, top: h0.top })})`);
+		const u = h0.undo || {};
+		check('spec', !u.on || (u.home === 'row' && u.rect.length === 4 && u.rect[1] >= disp.lowerY && u.rect[1] + u.rect[3] <= disp.lowerY + TICKER),
+			`B12: the pre-tap undo chip sits in its bar in the ticker slot (${JSON.stringify(u)}, slot ${disp.lowerY}-${disp.lowerY + TICKER})`);
+	}
 
 	// ---- the verticals (the engine publishes lowerY today)
 	check('spec', disp.lowerY === E.lowerY, `lowerY (stage bottom) = ${E.lowerY} (S ${E.S}; got ${disp.lowerY}, S ${disp.lowerY - E.stageTop})`);
@@ -288,13 +314,13 @@ for (const spec of list.split(',')) {
 
 	// ---- tap 1-3 (card 1), then the first buy
 	const hat = css(disp.hat[0], disp.hat[1]);
-	// review U3: after tap 1 (before card 1) the pre-tap apron stays below the ticker; the pane's
-	// white field comes with card 1, so no blank band may open under the stage here
+	// A2 (supersedes review U3): card 1 and its white field are up from the pick; at tap 1 the ticker
+	// takes the plaza strip's slot, so no blank band may open under the stage here
 	await tap([hat[0], hat[1]]);
 	await wait(1200);
 	await refresh();
 	const tap1 = await shot('tap1');
-	await bandCheck('tap 1', tap1, 'the apron stays until card 1 (U3)');
+	await bandCheck('tap 1', tap1, 'the ticker takes the strip; the pane stays (A2)');
 	for (let i = 1; i < 4; i++) { await tap([hat[0], hat[1] + 4 * i]); await wait(350); }
 	await wait(1200);
 	await refresh();
@@ -306,6 +332,7 @@ for (const spec of list.split(',')) {
 		check('spec', tk.visible === true && String(tk.text || '').trim() !== '', `${step}: the ticker strip shows text (${tk.idle ? 'the standing line' : tk.held ? 'a held headline' : 'a headline'}: "${tk.text || ''}")`);
 	};
 	await tickerText('card 1');
+	if (pk && pk.open) await hudCheck('card 1');
 	let s = await probe();
 	pillCheck('card 1', s);
 	const buyRow = async () => {
