@@ -6,6 +6,8 @@
 
 **Supersedes:** `rtl-map.md` §1 (the flex rule), §5.2 (the crawl), §8.2-§8.3 (the picker's vertical placement and tile width). **Amends:** `rtl-map.md` §2 (the counter scale), §6.1 (the pill), §6.2 (the tab slots), §7.1 (modal width and placement). Everything else in `rtl-map.md`, `ftue.md` and `screen-graph.md` §0 stands: the RTL rules, the reveal order, the red lines, the name "ביבי".
 
+**Revision 2026-09-30 (UX review 2, `ux/review-2026-09-30.md`):** §5.2 takes the Animator's roll and dwell (D47, D48); new §5.2.1, the no-break (glue) rule (D49); new §5.14, the v4 civic pieces' placement (F15, D50); asks T1, A4, A5, M3, G2, D1 in §10.
+
 **Reference implementation of every number here:** `ux/tools/mobile_layout.py` (the tables in §2-§5 are its output). **Check:** `tools/web/mobile_web.mjs` (§9). **Wireframes:** `ux/mockups/mobile-first-*.png` (`ux/tools/mobile_mockup.py`).
 
 ---
@@ -251,13 +253,33 @@ Replaces rtl-map §5.2 (the crawl). The Animator's D16 cadence is retired with i
 |---|---|
 | Clip | `x 192 … 516 + dx` (324-464; court day 288 + dx, press 280 + dx) |
 | Lines | **2**, at pitch 40 (the "tight UI" pitch): line 1 cell at y 2, line 2 at y 42, so the full ink including ascenders and descenders runs 6-42 and 46-82 in the 84 row. Right-aligned at the clip's right edge. The @2 reading cut, as today. |
-| Paging | The headline is broken at spaces into lines ≤ clip width, then into pages of 2 lines. **A word is never split.** The widest word in the content today is "ההייטקיסטים" at 216, which is < 280, the narrowest clip. The lint (`content-lint.mjs`) adds: every ticker word ≤ 280 px at ×4. |
-| Dwell | max(3.5 s, 55 ms × the page's characters); an ftue line: max(4.5 s, …) |
-| Transition | The new page enters from the **left** edge of the clip and pushes the old one out to the right, in 300 ms (the old crawl's direction, so the "first word enters first" metaphor holds). The curve is the Animator's. Reduced motion: the existing 200 ms cross-fade. |
+| Paging | The headline is broken at spaces into lines ≤ clip width, then into pages of 2 lines. **A word is never split, and a glued unit is never split** (§5.2.1: a currency sign stays with its number, punctuation stays with its word). The widest word in the content today is "ההייטקיסטים" at 216, which is < 280, the narrowest clip. The lint (`content-lint.mjs`) adds: every ticker **unit** (§5.2.1, strong glue) ≤ 280 px at ×4. |
+| Dwell | **Superseded by the Animator's M1 (accepted 2026-09-30, D48):** `Ticker.dwell_ms`, a first page 1.2 s + 70 ms a character, a continuation 0.5 s + 70 ms, clamped 2.0-5.5 s; an ftue line 1.5 s + 85 ms (continuation 0.5 s + 85 ms), clamped 4.5-7.0 s. (Was max(3.5 s, 55 ms × characters), under which every page sat on the 3.5 s floor.) |
+| Transition | **A vertical roll (the Animator's M1, accepted 2026-09-30, D47; replaces the sideways push):** the next page rises from under the 84 row as the old one lifts out, locked one row (84) apart, 240 ms Cubic.Out in 4-px steps. **x never moves**, so every visible glyph keeps its word on every frame: only whole glyph rows cross the clip's top and bottom edges. Three conditions: (1) a roll always completes (a higher-priority headline waits the ≤ 240 ms, or cuts to its first page with no roll; never a half-rolled rest state); (2) a tap during a roll opens O6 on the **incoming** headline; (3) reduced motion: the existing 200 ms cross-fade, no roll. |
 | Tap | As today: the row opens O6 while a headline shows |
 | Large text | One line at ×5 (two ×5 lines are 100 > 84), paged the same way |
 | Numbers (390 / 430 / 360) | 2-line pages per headline: mean 1.84 / 1.56 / 1.97, max 3 / 2 / 3 (measured on all 173 ticker lines in `content.json`). Today's crawl takes 15.6 s per median headline through a keyhole; paging takes ≈ 7 s, with every word still. |
 | Publish | `window.odDisplay.ticker = {mode: "page", clipW, lines: 2}` (the check reads it) |
+
+#### 5.2.1 The no-break rule (glue): a number keeps its sign, a word keeps its punctuation
+
+**Seen** (Animator wave B, browser strip; reproduced on the content): the pager breaks "…הקופה עברה 100,000 ₪." before the shekel sign, so "₪." opens line 2 on its own. On the whole `content.json` (1,394 Hebrew strings, measured with `sevev9.fnt` at ×4), plain space wrapping opens a line with "₪", a closing mark or a bare magnitude word **18 / 20 / 14 / 11 times** at the 280 / 324 / 384 / 464 clips. With the glue below: **none at 324, 384 and 464, and one at 280**, where "850.6 מיליארד ₪." (288 px) is wider than the line and falls back to its weak joint. (A magnitude word used as a noun, "הקופה עברה מיליארד ₪.", may still open a line; that break is correct Hebrew.)
+
+**The rule.** Before a text is wrapped (the ticker pager **and** every `PxText` that wraps: bubbles, toasts, modal bodies, captions), spaces inside a glued unit are replaced with U+00A0 (NBSP). `Ticker.wrap_lines_px` splits on U+0020 only, and TextServer's word-bound breaking does not break at U+00A0, so one substitution serves both paths. **All three shipped fonts (`sevev9`, `sevev9@2`, `sevev9_outline`) have U+00A0 with the space's advance (4 / 8 / 4)**, so no width, no line count and no string budget changes. The substitution is display-time only (never written into `content.json` or `ui-strings.json`), and it never touches an LRI/RLI/FSI/PDI isolate.
+
+| # | Glue | Pattern (logical order) | Strength |
+|---|---|---|---|
+| G1 | The currency sign to what it measures | a space **before ₪** (`X ₪` becomes X, U+00A0, ₪, whatever X is: a number, `{price}`'s isolate close U+2069, or a magnitude word) and a space **after a prefix ₪** before a digit or an isolate (`₪ 15`) | **strong** |
+| G2 | Closing punctuation to the word before it | a space before a token that is only `. , : ; ! ? … ) ] ״ " ׳ '` followed by a space or the end | **strong** |
+| G3 | Opening punctuation to the word after it | a space after `( [ „` (and after an opening `"` / `״` that stands alone as a token) | **strong** |
+| G4 | A number to its magnitude word | `<digits> אלף/אלפי/מיליון/מיליוני/מיליארד/מיליארדי/טריליון` | **weak** |
+
+- **Strong glue never breaks.** Every strong unit in today's ticker lines is ≤ 280 px at ×4 (the narrowest clip); the lint keeps it so (below).
+- **Weak glue breaks only when the whole unit is wider than the line**, and then only at its weak joint ("850.6 | מיליארד ₪." at 280), never before ₪.
+- **Fallback (never lose text):** if a unit is still wider than the line (a future string), the wrapper breaks it at its NBSPs as if they were spaces, weak joints first. Nothing is ever ellipsised by the glue.
+- **Where it lives:** one pure function `Bidi.glue(text: String) -> String` (or in `Strings`), called by `PxText` before shaping a wrapping text and by `Ticker.paginate` before `wrap_lines_px`. Test (`test_ticker_roll.gd` or a new `test_glue.gd`): (a) `wrap_lines_px(glue("הקופה עברה 100,000 ₪."), w, 4)` never returns a line that starts with "₪" for every w from the unit's width to 464; (b) over every ticker line in `content.json` at clips 280 / 324 / 384 / 464, no line starts with ₪ or a G2 mark and none ends with a G3 mark, except a weak-joint fallback; (c) `glue()` is idempotent and leaves isolates untouched.
+- **Lint (`content-lint.mjs`, Game Designer):** every ticker line's strong units ≤ 280 px at ×4 (replaces "every ticker word ≤ 280").
+- **Not in scope:** Hebrew prefixes (ב־, ל־, מ־) are already one word; the maqaf keeps its words together in ICU.
 
 ### 5.3 Tab bar
 
@@ -408,6 +430,57 @@ See §3.3: the apron art below the stage, the undo chip in the lane, the leader 
 
 - They are full bleed. Their content is C-anchored, at integer art scale as today (the flash's ×4 at k 6 and ×3 at k 4 are unchanged).
 - The flash's stacked `FLASH_NEXT` over `FLASH_SKIP` (rtl-map §7.2) is bottom-anchored to the safe bottom (the skip's bottom 24 above it), full width `672 + dx`, in the thumb zone.
+
+### 5.14 The v4 civic pieces: where the hemicycle, the booth and the envelope go (F15, 2026-09-30)
+
+Bar approved palette v4 with three pieces drawn but not placed (style guide §2.4, §16 F15). The Game Developer measured the room (STATUS 2026-09-30). **Decision, in one line:** the hemicycle lives **only in the election card (O3)**; the booth frames the **picker grid wherever it costs no tile pixel**; the envelope goes **on the result card's stage floor and the share sheet's "sent" line**. Everything else keeps what it has.
+
+| Piece | Goes | Does not go | Why |
+|---|---|---|---|
+| `hemicycle_track` + `hemicycle_fill` (72×38) | **O3, every device class, at ×4** (288×152 logical) when the card still fits (below) | **Row B** (the bar stays, every device); **the result card O5**; the picker; T3 / T4; EVOLVE_TX | See §5.14.1 |
+| `booth_frame` (40×40, 9-slice [6, 10, 6, 4], content box [5, 9, 30, 28]) | **The picker (first and after), at ×4, on every viewport where it fits without shrinking a tile** (the tall phones and the desktop frame) | The SE, the toolbar viewports, and any viewport where it would cost tile height, tile width or the avatar size | See §5.14.2 |
+| `envelope_blue` (14×10) | **O5's image**, on the stage floor; **the O4 / O5 share sheet's status line** after a share | Any blue surface (modals, sheets, buttons, T4 rows, the HUD); the chat; the receipt image | See §5.14.3 |
+
+#### 5.14.1 The hemicycle: O3 only
+
+**Row B keeps the bar on every device class.** At the only scale that fits the 84 row (×2, 0.5 art px per sprite px), each seat is a 2×2-CSS-px dot and the plate is 144×76 CSS: 120 dots cannot be told apart at arm's length, and the ×2 scale breaks the kit's rule that UI is drawn whole art px (k device px per art px). The bar is the glanceable readout (the fill, the 61 notch, the numeral), and it already survives the blackout (the numeral goes, the fill stays). At ×4 the hemicycle would cost a 152-logical row of stage on every phone, which the split (§3.2) gives back only by losing a card row.
+
+**Not on the result card (O5), overriding the orchestrator's suggestion.** A filled 120-seat hemicycle beside a real party leader's face is exactly the TV seat-projection graphic that Israeli channels use for polls. O5 is the image people forward on WhatsApp, out of context. Two standing rules already forbid it: style guide §13 ("No seat numbers, ever", my UX 5 on the result card) and the red lines' `poll-number` rule (no seat count near a politician outside the in-game, blackout-aware HUD). A drawn count is a count. An *empty* hemicycle would carry no number, but it would only invite the question "why is it empty". The card keeps its stage and gets the envelope (§5.14.3).
+
+**O3 (the election card), the hemicycle as the card's hero.** This is the ≥ 61 moment, private and in-game, and it is where the seat count means something ("you have a majority: call it").
+- **Order** (`ElectionCard.build`, after `title()`): the title band → **the hemicycle** → the leader line `ELECT_LEADER` (now its caption: whose coalition) → the mood → `EVO_MULT` → the body → the stacked buttons. Moving the leader line under the hemicycle also takes it off the flap's point (U1).
+- **Geometry** (card-local, the card width `cwc = 624 + min(dx, 64)`, snapped as the engine already does): gap 16 under the header, then `Rect2(floor4((cwc − 288) / 2), HEADER_H + 16, 288, 152)`, then gap 16 before the leader line. `HEADER_H` is 96 once the TA's slice fix lands (U1); until then 88 + 8. The card grows by **184** (16 + 152 + 16).
+- **Drawing:** `hemicycle_track` at ×4 (4 logical per sprite px, whole device px at every k), then, over it, `hemicycle_fill`'s rects `seats[0 : n]` (kit order is the fill order: seat 1 at the right end, sweeping left by angle: RTL). `n = clamp(Coalition.seat_info(s)["effective"], 0, 120)`. The majority tick at seat 61 is baked in the track. Taken seats flag blue on white (8.5:1); empty seats silver (4.4:1 vs taken, and a different lit corner, so colour is not the only channel). The plate is white on the card's `ui_panel` body: the strongest figure on the card, above the text.
+- **Blackout (23.10 00:00 → 27.10 22:00):** drawn as usual. It carries no numeral, and its fill obeys the same rule as the bar's fill (rtl-map §3: "the numeral node is removed, the fill still moves").
+- **a11y name:** `HUD_SEATS` + `HUD_SEATS_VALUE` ("מנדטים 64/61"), or `HUD_SEATS_BLACKOUT` in the blackout. No new string.
+- **When it fits:** the card is laid out with the hemicycle. If the card's height is then more than the modal band (`ins_t + 24` to `tabs_y − 24`, the §5.10 band), the hemicycle is left out and the card is exactly today's. On the matrix at normal text it fits everywhere except **375×548@2** (Safari bars: band 944, card ≈ 785 + 184 = 969). Under large text it may drop on the SE-class viewports too. That is the rule working, not a bug: Row B's bar under the scrim still shows the fill.
+- **Not a target.** The hemicycle takes no input. A tap on it is a tap on the card body (nothing).
+- **Motion (the Animator's, M3):** optional fill-in on the card's drop. The seats fill `0 → n` in fill order over ≤ 480 ms, whole seats per frame (stepped, no easing blur), and the tick gets a one-frame white flash when the fill passes 61. Reduced motion: static at n from f0.
+- **Publish:** `window.odModal.hemicycle = [x, y, w, h, n]` (viewport logical) for `modals_web` / `round_web` (e1-election-card).
+
+#### 5.14.2 The booth: the picker, where it is free
+
+**Rule: the booth never costs a tile pixel.** `grid_plan` (§5.8) runs unchanged (tw, A, th). The booth is drawn only if the picker still fits with it, and it takes its room from the scrimmed sky above the title, never from the tiles.
+
+- **Geometry** (×4, the kit's content box [5, 9, 30, 28] → insets **left 20, top 36, right 20, bottom 12** logical):
+  - booth rect `B = Rect2(0, gy − 36, cw, gh + 48)`: full canvas width, so its side wings touch both edges (the width rule, §9.1);
+  - the tile columns move in from 16 to **20**: `cols = [cw − 20 − tw, floor4((cw − tw) / 2), 20]`. The column gaps become `(cw − 40 − 3·tw) / 2`: 16 at cw 720 and 780, 18-20 at 784 and 860 (was 20). **tw, th and A do not change**;
+  - the grid bottom = strip top − **20** (the booth's bottom edge = strip top − 8);
+  - the title's cell bottom (or, after an election, the fresh chip's bottom) = **B.top − 16**.
+  - Net vertical cost: **44** logical (36 above the grid + 8 below), taken from the sky.
+- **Condition:** draw the booth when, with it, the title's top is still ≥ `wm_bottom + 12` (first launch) or ≥ `_top + 12` (after), i.e. the plan's sky above the title is ≥ 44. Otherwise lay out exactly as today (no booth). The check is made at runtime per viewport and variant, so large text, a 2-line title or the chip are covered.
+- **Resolved on the matrix** (sky from §5.8's table, first / after): 390×844, 393×852, 430×932, 360×780, 412×915 and the desktop frame: **booth on** in both variants (sky 212 → 168 at 390; the smallest is 360×780 after an election, 132 → 88). **SE 375×667, 390×664, 375×548, 360×640: no booth** (sky 0-8).
+- **2×2 variant (n = 4):** the same, with `gh` the 2×2 block plus the הפתעה bar.
+- **Z-order and input:** above the pick scrim, below the tiles; no input (its area outside the tiles is not a target; the tiles' hits are unchanged). The selected plate's 4-px growth stays inside the 20 inset and the 16 gaps.
+- **Header strip:** blank flag blue, as drawn: no title, no text in it. The title stays above the booth. (Optional ask A5 to the 2D Artist: a variant with a 12-row header, `booth_frame_tall`, so the ×4 title can sit in the header, white on flag 8.5:1. That would return 36 of the 44 px to the sky. Not needed to ship.)
+- **Publish:** `window.odPick.booth = [x, y, w, h]` or `null`. `mobile_web.mjs` S10 then expects the last row's bottom + **20** (booth) or + 12 (no booth) == the strip top.
+
+#### 5.14.3 The envelope: on light and warm surfaces only
+
+`envelope_blue`'s body is flag blue (`#0038b8`), with an `outline` edge and `flag_hi` flap lines. On a v4 blue surface the body is **1.1:1** (flag vs `ui_bubble`) and only a dark outlined box is left. So it goes only where its blue reads: on cream, white or wood.
+- **E1, the result card O5 (the shared image):** on the stage floor, **card-art `Rect2(38, 197, 14, 10)`** (image px 190, 985, 70×50 at ×5). It lies on the brown boards (`#8a5632`; its `outline` edge 3.2:1 there, over the 3:1 non-text floor) left of the leader (the leader's feet at `castAnchor` (108, 198) span about x 94-134), inside the 1080 square (y 27-242), clear of the curtain swag. It is drawn after the floor and before the cast, on every leader's card. It is a blank ballot envelope left on the stage: the round's material culture in the image people forward, with no number and no party. **Not on the receipt (O4):** a thermal slip carries no props.
+- **E2, the share sheet (O4 / O5), the status line:** when `ShareKit` answers `shared` (the sheet's cream notice, `#fff4e0`), the status line shows the envelope at ×4 (56×40) at its right end (RTL leading), 16 before the text: "sent". It shows no envelope for `saved` / `copied` / `fail`. The envelope's body on cream is 8.5:1.
+- **Not in modals:** `sheet_modal`'s title band already *is* the envelope's flap (§2.4), so an envelope inside it is a pun on a pun. **Not on blue buttons or T4's share rows** (1.1:1). **Not in the chat:** a "sent" envelope in a messaging thread is WhatsApp's semantics (UX §4.3 keeps its marks out). **Not on the WhatsApp button:** its label stays functional only (Bar, 2026-09-29).
 
 ---
 
@@ -571,6 +644,12 @@ For **each** device of the matrix:
 | G1 | **Game Designer** | `producerReveal.fillSilhouettes: true`: the unrevealed sources show as priceless silhouette rows. | §5.4: the pane is never shorter than its content early on |
 | M1 | **Animator** | The ticker page transition (§5.2: push from the left, 300 ms; your curve), which replaces the crawl cadence (D16) | §5.2 |
 | S1 | **UX (me), next strings pass** | `CHAT_SYS_MERGE_READY`, measured into `chat.sys` | §5.5 |
+| T1 | **Technical Artist** (+ Game Developer) | `sheet_modal`'s 9-slice top margin **23 → 24** (the flap point's shadow row 23 sits in the stretched centre slice and paints a dark slab behind every SheetCard's first body line, review U1); `SheetCard.HEADER_H` 88 → **96** | U1 |
+| A4 | **2D Artist** (+ Game Developer) | v4 `button_primary`: a **white** face (`#f7f4ec`), `flag` label (8.5:1), `outline` edge; `button_secondary` stays `ui_bubble` + white. O3's `ELECT_GO` takes the gold CTA skin of "עוד סבב!" (it completes that CTA) | U2 (F11 resolved) |
+| A5 | 2D Artist (optional) | `booth_frame_tall`: the booth with a 12-row header, so the ×4 picker title sits in it | §5.14.2 |
+| M3 | Animator (optional) | The hemicycle's fill-in on O3's drop (≤ 480 ms, whole seats, one-frame tick flash at 61; RM static) | §5.14.1 |
+| G2 | Game Designer | `content-lint.mjs`: every ticker line's **strong glue units** (§5.2.1) ≤ 280 px at ×4 | §5.2.1 |
+| D1 | **Game Developer** | Implement §5.2.1 (`glue()` in `PxText` and `Ticker.paginate`), §5.14.1 (O3 hemicycle), §5.14.2 (booth + `odPick.booth` + S10), §5.14.3 (E1 on the result card, E2 on the status line) | review 2026-09-30 |
 
 ---
 
@@ -589,5 +668,9 @@ For **each** device of the matrix:
 | D44 | Share sheet 0.8 · vs.y | The full safe height; WhatsApp nearest the thumb (§5.12) | A larger preview; the main channel first |
 | D45 | Toasts always take taps | No toast hit during a tap burst (§3.4) | Short stages put the dock over the leader's head |
 | D46 | Golan's merge only from the partner card | Plus a merge-ready system pill in the thread (§5.5) | Discoverability of the leader's signature rule |
+| D47 | §5.2 transition: a 300 ms sideways push from the left | **The Animator's vertical roll** (240 ms Cubic.Out, pages locked one row apart, x fixed), with three conditions (§5.2) | Accepted, no counter-objection: a push shows a word's first or last letters at the clip edge for ~300 ms, and Hebrew one-letter prefixes (ה ו ב ל ש מ כ) make those fragments read as other words. A roll cuts glyph *rows* at the top/bottom edge, which no reader parses as a letter, and keeps every word's x, so the eye stays at the right edge where the next line starts |
+| D48 | §5.2 dwell max(3.5 s, 55 ms × chars) | The Animator's per-page dwell (first page 1.2 s + 70 ms/char, continuation 0.5 s + 70 ms/char, 2.0-5.5 s; ftue 4.5-7.0 s) | Every page sat on the 3.5 s floor; long pages now get up to 4.6 s and tails 2.0 s |
+| D49 | Pages and wraps break at any space | The glue rule (§5.2.1): a currency sign stays with its number, punctuation with its word; number + magnitude is weak glue | "₪." opened a ticker line on its own (Animator wave B); 11-20 such breaks per clip width in the content |
+| D50 | F15 unplaced | The hemicycle on O3 only (not Row B, **not O5**); the booth on the picker where it is free; the envelope on O5's floor and the "sent" line (§5.14) | The poll-graphic risk on the forwarded card; the 1.1:1 envelope on blue |
 
 **No objection is outstanding.** The one design error found (the picker's centred grid, V10) is this role's own §8.2, revised here as D42. It is not an objection against the engine, which built §8.2 as written.
