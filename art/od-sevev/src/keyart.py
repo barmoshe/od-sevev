@@ -301,7 +301,8 @@ def og(key=KEY, proofs=PROOFS, d=OG_D):
 
 
 def build():
-    icon()
+    import logo                    # v5 (2026-09-30): the icon is the hat-and-loop mark; icon() above is the retired ring of heads
+    logo.build()
     og()
 
 

@@ -547,21 +547,93 @@
  },
  "cues": {
   "tap": {
-   "meaning": "The trick worked; money came out.",
+   "meaning": "The trick worked; money came out, to the next note of HaTikva.",
    "bus": "SFX-Frequent",
    "priority": 2,
-   "poly": 4,
+   "poly": 6,
    "steal": "oldest",
    "ducks": [],
    "jitterDb": 1.5,
    "pitch": {
-    "type": "walk",
-    "fromDegree": 5,
-    "steps": 8,
-    "rootOctave": 4
+    "type": "semis",
+    "rootOctave": 5,
+    "semis": {
+     "n-5": -5,
+     "n0": 0,
+     "n2": 2,
+     "n3": 3,
+     "n5": 5,
+     "n7": 7,
+     "n8": 8,
+     "n10": 10,
+     "n12": 12
+    }
    },
+   "melody": [
+    "n0",
+    "n2",
+    "n3",
+    "n5",
+    "n7",
+    "n7",
+    "n8",
+    "n7",
+    "n8",
+    "n12",
+    "n7",
+    "n5",
+    "n5",
+    "n5",
+    "n3",
+    "n3",
+    "n2",
+    "n0",
+    "n2",
+    "n3",
+    "n0",
+    "n-5",
+    "n7",
+    "n7",
+    "n7",
+    "n7",
+    "n8",
+    "n7",
+    "n5",
+    "n7",
+    "n5",
+    "n5",
+    "n5",
+    "n5",
+    "n7",
+    "n5",
+    "n3",
+    "n5",
+    "n12",
+    "n12",
+    "n12",
+    "n12",
+    "n10",
+    "n8",
+    "n7",
+    "n8",
+    "n5",
+    "n5",
+    "n5",
+    "n3",
+    "n3",
+    "n2",
+    "n0",
+    "n2",
+    "n3",
+    "n0"
+   ],
+   "phrases": [
+    0,
+    22,
+    38
+   ],
    "variants": {
-    "d25": [
+    "bell": [
      {
       "id": "puff",
       "wave": "noiseMetal",
@@ -579,63 +651,42 @@
       "gain": 0.35
      },
      {
-      "id": "blip",
-      "wave": "pulse",
-      "duty": 0.25,
-      "freqStart": "A4",
-      "delay": 0.012,
-      "attack": 0.001,
-      "decay": 0.03,
-      "sustain": 0.45,
-      "duration": 0.04,
-      "release": 0.012,
-      "gain": 1.0,
-      "filter": {
-       "type": "highpass",
-       "freq": 1000,
-       "Q": -3.0103
-      }
-     }
-    ],
-    "d12": [
-     {
-      "id": "puff",
-      "wave": "noiseMetal",
-      "clockStart": 40000,
-      "filter": {
-       "type": "bandpass",
-       "freq": 5000,
-       "Q": 0.9
-      },
-      "attack": 0.001,
-      "decay": 0.015,
+      "id": "bell0",
+      "wave": "sine",
+      "freqStart": 440.0,
+      "attack": 0.002,
+      "decay": 0.55,
       "sustain": 0.0,
-      "duration": 0.015,
-      "release": 0.004,
-      "gain": 0.35
+      "duration": 0.55,
+      "release": 0.04,
+      "gain": 1.0
      },
      {
-      "id": "blip",
-      "wave": "pulse",
-      "duty": 0.125,
-      "freqStart": "A4",
-      "delay": 0.012,
-      "attack": 0.001,
-      "decay": 0.03,
-      "sustain": 0.45,
-      "duration": 0.04,
-      "release": 0.012,
-      "gain": 1.0,
-      "filter": {
-       "type": "highpass",
-       "freq": 1000,
-       "Q": -3.0103
-      }
+      "id": "bell1",
+      "wave": "sine",
+      "freqStart": 880.0,
+      "attack": 0.002,
+      "decay": 0.26,
+      "sustain": 0.0,
+      "duration": 0.26,
+      "release": 0.04,
+      "gain": 0.3
+     },
+     {
+      "id": "bell2",
+      "wave": "sine",
+      "freqStart": 1320.0,
+      "attack": 0.002,
+      "decay": 0.09,
+      "sustain": 0.0,
+      "duration": 0.09,
+      "release": 0.04,
+      "gain": 0.12
      }
     ]
    },
-   "runtime": "Step = the tap streak index mod 8 (walk and wrap); the streak resets after 400 ms without a tap. Variant alternates d25 / d12 per tap. Gain jitter +-1.5 dB. One file = one tap.",
-   "lengthMs": 80,
+   "runtime": "Each tap plays the next note of `melody`. A streak (taps under 400 ms apart) walks on and wraps; after a gap the next streak starts on the next entry of `phrases`, so each streak opens on a different phrase. A new round starts again at phrase 0. Gain jitter +-1.5 dB.",
+   "lengthMs": 640,
    "target": {
     "type": "stream",
     "rateHz": 5,

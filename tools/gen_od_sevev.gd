@@ -28,7 +28,7 @@ extends SceneTree
 
 const D := preload("lib_dsp.gd")
 const OUT := "res://assets/audio/od/"
-const PEAK := 0.891251   # -1 dBFS
+const PEAK := 0.707946   # -3 dBFS (v1.6: QOA overshoots a full-scale file by up to ~1 dB; play_db keeps the loudness)
 const TAIL_S := 2.0
 const LAYERS := ["L0", "L1", "L2"]
 const ORDER := ["A", "A2", "B", "T"]
@@ -401,6 +401,7 @@ func _render_stinger(sid: String, st: Dictionary, target: Dictionary) -> Diction
 				end -= 1
 			buf = buf.slice(0, mini(buf.size(), end + int(0.01 * rate)))
 			var name := ("stinger_%s_%s.res" % [sid, key]) if lengths.size() == 1 else ("stinger_%s_%s_t%d.res" % [sid, key, li])
+			buf = _clean(buf, rate)
 			bufs[name] = [buf, rate, n_samples, key, li]
 			pk = maxf(pk, D.peak(buf))
 	var scale := PEAK / maxf(pk, 1e-9)
@@ -475,6 +476,14 @@ func _pitches(cue: Dictionary) -> Array:
 					var idx := start + s
 					var semis := int(sc[idx % 7]) + 12 * (idx / 7)
 					out.append({"key": k, "pitch": "s%d" % s, "ratio": _hz(_key_root(k, int(p["rootOctave"])) + semis) / _a4})
+		"semis":
+			# v1.5: fixed semitones above the key's root (the tap's HaTikva: natural minor in every key,
+			# F included, so the anthem is never re-moded)
+			for k: String in keys:
+				if k.begins_with("_"):
+					continue
+				for lab: String in p["semis"]:
+					out.append({"key": k, "pitch": lab, "ratio": _hz(_key_root(k, int(p["rootOctave"])) + int(p["semis"][lab])) / _a4})
 		"degrees":
 			for k: String in keys:
 				if k.begins_with("_"):
@@ -486,6 +495,25 @@ func _pitches(cue: Dictionary) -> Array:
 						var pc := posmod(int(PCS[k]) + int(msc[int(dg.trim_prefix("b")) - 1]), 12)
 						out.append({"key": k, "pitch": "%s_%d" % [dg, int(o)], "ratio": _hz((int(o) + 1) * 12 + pc) / _a4})
 	return out
+
+
+## v1.6 mix pass: a one-shot's clean-up. A DC blocker (one-pole high-pass, 20 Hz) and a 1.5 ms
+## raised-cosine fade-in, so no cue starts on a step (the measured onsets reached -19 dBFS at
+## sample 0: a click on a phone speaker). Loops (the music stems) never pass through here.
+func _clean(x: PackedFloat32Array, rate: int) -> PackedFloat32Array:
+	var y := PackedFloat32Array()
+	y.resize(x.size())
+	var k := exp(-TAU * 20.0 / rate)
+	var prev_x := 0.0
+	var prev_y := 0.0
+	for i in x.size():
+		prev_y = x[i] - prev_x + k * prev_y
+		prev_x = x[i]
+		y[i] = prev_y
+	var nf := mini(y.size(), int(0.0015 * rate))
+	for i in nf:
+		y[i] *= 0.5 - 0.5 * cos(PI * float(i) / float(nf))
+	return y
 
 
 func _render_one(key: String, layers: Array, ratio: float) -> PackedFloat32Array:
@@ -514,6 +542,7 @@ func _render_cue(id: String, cue: Dictionary, man: Dictionary) -> Dictionary:
 				if s != "_" and s != "":
 					parts.append(s)
 			var name := "_".join(parts) + ".res"
+			x = _clean(x, rate)
 			bufs[name] = x
 			pk = maxf(pk, D.peak(x))
 			longest = maxf(longest, x.size() * 1000.0 / rate)
@@ -573,7 +602,7 @@ func _render_cue(id: String, cue: Dictionary, man: Dictionary) -> Dictionary:
 	var info := {"meaning": cue["meaning"], "bus": cue["bus"], "priority": cue["priority"], "poly": cue["poly"],
 		"steal": cue["steal"], "ducks": cue["ducks"], "play_db": play_db, "momentaryMax": snappedf(mmax, 0.01), "burstMax": snappedf(bmax, 0.01), "limitedBy": limited,
 		"lengthMs": snappedf(longest, 0.1), "files": tree, "runtime": cue.get("runtime", ""), "target": tg}
-	for k: String in ["jitterDb", "pan", "shapes", "markers", "firstSound"]:
+	for k: String in ["jitterDb", "pan", "shapes", "markers", "firstSound", "melody", "phrases"]:
 		if cue.has(k):
 			info[k] = cue[k]
 	print("  cue %-16s %3d files  play %+7.2f dB  burst %+6.2f  M-max %+6.2f LUFS  %5.0f ms  %s" % [id, bufs.size(), play_db, bmax, mmax, longest, limited])

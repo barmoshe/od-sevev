@@ -102,7 +102,7 @@
  },
  "targets": {
   "_doc": "Loudness targets (K-weighted BS.1770, dual mono) that set each item's play_db. music = all three layers of an era together (every era lands on the same value, so era changes do not jump). Stingers: integrated = over the whole stinger; momentary = the loudest 400 ms.",
-  "music": -17.3,
+  "music": -18.3,
   "fanfare": {
    "type": "integrated",
    "lufs": -17.0

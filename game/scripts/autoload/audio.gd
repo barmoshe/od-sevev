@@ -146,6 +146,10 @@ var _tap_prev := -1e12
 var _tap_streak := -1
 var _tap_n := 0
 var _tap_steps := 8                   # read from the manifest (the rendered tap pitches)
+var _tap_melody: Array = []           # v1.5: HaTikva, one pitch key per tap (manifest tap.melody)
+var _tap_phrases: Array = [0]
+var _tap_phrase := -1                 # the phrase the current streak opened on (-1: none yet this round)
+var _tap_note := -1
 var _rabbit_due := -1.0               # a crit's cue is due then (the rabbit, or the leader's react event)
 var _rabbit_n := 0
 var _leader := ""                     # set_leader(); "" reads the scene state's leader (default bibi)
@@ -256,6 +260,8 @@ func _ensure() -> void:
 		add_child(o)
 		_op.append(o)
 	_tap_steps = OdAudio.tap_steps(_man)
+	_tap_melody = OdAudio.tap_melody(_man)
+	_tap_phrases = OdAudio.tap_phrases(_man)
 	_warm()
 	_apply_buses()
 
@@ -726,7 +732,7 @@ func track_name() -> String:
 	var s := _track + ":"
 	var on: Array[String] = []
 	for l: String in LAYERS:
-		if float(_lt[l]) > 0.5:
+		if float(_lt[l]) > 0.01:   # v1.6: the lead under the bell sits at 0.5, and is on
 			on.append(l)
 	return s + "+".join(on)
 
@@ -806,7 +812,13 @@ func _on_tap(now: float, crit: bool) -> void:
 	_tap_prev = now
 	var v := OdAudio.tap_variant(_tap_n)
 	_tap_n += 1
-	_cue("tap", now, v, OdAudio.tap_pitch(_tap_streak, _tap_steps), _rng.randf_range(-OdAudio.TAP_JITTER_DB, OdAudio.TAP_JITTER_DB))
+	var pitch := OdAudio.tap_pitch(_tap_streak, _tap_steps)
+	if not _tap_melody.is_empty():
+		var st := OdAudio.melody_step(_tap_streak, _tap_phrase, _tap_note, _tap_melody.size(), _tap_phrases)
+		_tap_phrase = st.x
+		_tap_note = st.y
+		pitch = String(_tap_melody[_tap_note])
+	_cue("tap", now, v, pitch, _rng.randf_range(-OdAudio.TAP_JITTER_DB, OdAudio.TAP_JITTER_DB))
 	if crit:
 		_rabbit_due = now + _rabbit_ms()
 	if _pink_on:
@@ -1150,6 +1162,8 @@ func _game_reset(_now_ms: float) -> void:
 	_first_tap = false
 	_tap_streak = -1
 	_tap_prev = -1e12
+	_tap_phrase = -1
+	_tap_note = -1
 	_sources = 0
 	_leader = ""
 
@@ -1167,6 +1181,9 @@ func _collapse(_now_ms: float) -> void:
 ## The election fanfare (§2.4): on the confirm frame, in the incoming era's key, tags by the
 ## election number; the bed stops in 30 ms; the incoming era starts at bar 1 after musicalSamples.
 func _election(now: float, arg: Variant) -> void:
+	# v1.5: a new round starts HaTikva again from its first phrase
+	_tap_phrase = -1
+	_tap_note = -1
 	var n := _evolutions + 1
 	if (arg is int or arg is float) and int(arg) > 0:
 		n = int(arg)
@@ -1430,10 +1447,17 @@ func _layer_want(layer: String, bar_n: int) -> bool:
 	return not OdAudio.af_off_during(_man, layer, _loop, bar_n, OdAudio.bars_per_loop(_man, _track))
 
 
+## A layer's gain when it sounds: 1, except the lead under the tap's HaTikva (v1.6).
+func _layer_level(layer: String, bar_n: int) -> float:
+	if not _layer_want(layer, bar_n):
+		return 0.0
+	return OdAudio.L2_UNDER_BELL if layer == "L2" and not _tap_melody.is_empty() else 1.0
+
+
 func _snap_layers(bar_n: int) -> void:
 	_lramp = {}
 	for l: String in LAYERS:
-		var g := 1.0 if _layer_want(l, bar_n) else 0.0
+		var g := _layer_level(l, bar_n)
 		_lg[l] = g
 		_lt[l] = g
 	_push_layers()
@@ -1548,7 +1572,7 @@ func _on_bar_line(now: float, bar_n: int) -> void:
 	_court_stinger = ""
 	var bar_ms := OdAudio.bar_seconds(_man, _track) * 1000.0
 	for l: String in LAYERS:
-		var to := 1.0 if _layer_want(l, bar_n) else 0.0
+		var to := _layer_level(l, bar_n)
 		if to != float(_lt[l]):
 			_lt[l] = to
 			_lramp[l] = {"from": float(_lg[l]), "to": to, "t0": now, "ms": bar_ms}

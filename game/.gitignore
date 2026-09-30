@@ -1,0 +1,3 @@
+
+# the gameplay capture writes a temporary override (store/gameplay/README.md); it must never ship
+override.cfg

@@ -54,13 +54,17 @@ log "exporting to $OUT"
 [ -f "$OUT/index.html" ] && [ -f "$OUT/index.wasm" ] || { log "export failed, see build/web-export.log"; exit 1; }
 
 # Home Screen app files (the engine's PWA export is off: no service worker) and the build
-# stamp the settings screen shows. Icons come from tools/icon.sh once it has run.
+# stamp the settings screen shows. Icons come from pipeline/od-sevev/build.py (art/od-sevev/src/logo.py).
 # (privacy.html / support.html are the fork's Monkey Bananas store pages: not shipped. The
 # game's About page (O8) is its own HTML surface, a later wave.)
 cp "$HERE/web/index.manifest.json" "$OUT/"
 for n in 144 180 512; do
   [ -f "$GAME/assets/icon/pwa_$n.png" ] && cp "$GAME/assets/icon/pwa_$n.png" "$OUT/index.${n}x${n}.png"
 done
+# The iPhone's "Add to Home Screen" reads the apple-touch-icon link the engine writes (html/export_icon).
+# The engine renders that file from application/config/icon, and falls back to Godot's robot when it's
+# unset. Overwrite it with the pipeline's LANCZOS 180 so it never depends on the engine's resize.
+[ -f "$GAME/assets/icon/pwa_180.png" ] && cp "$GAME/assets/icon/pwa_180.png" "$OUT/index.apple-touch-icon.png"
 STAMP="$(git -C "$HERE" rev-parse --short HEAD 2>/dev/null || echo dev)"
 git -C "$HERE" diff --quiet HEAD -- "$GAME" 2>/dev/null || STAMP="$STAMP+"
 sed_inplace "s|__MB_BUILD__|$STAMP|" "$OUT/index.html"
