@@ -14,7 +14,7 @@ G = "controls"
 
 VARIANTS = {
     #          face         hi           lo          lip         press_face   press_shadow  label
-    "primary":   ("flag",      "flag_hi",   "flag_dk",  "flag_dk",  "flag_dk",   "outline",    "white"),
+    "primary":   ("flag",      "white",     "flag_dk",  "flag_dk",  "flag_dk",   "outline",    "white"),   # v4: a white light edge
     "secondary": ("ui_bubble", "ui_bub_hi", "ui_panel", "ui_scrim", "ui_panel",  "outline",    "white"),
     "gold":      ("gold",      "gold_hi",   "gold_sh",  "gold_dk",  "gold_sh",   "gold_dk",    "ink"),
     # wave 6 (UX R7): the destructive commit. The red ramp (danger), built exactly like primary so it is one family.
@@ -60,11 +60,13 @@ def tabbar():
     B = Layer(180, 26)
     B.rect(0, 0, 180, 26, "ui_panel")
     B.hline(0, 179, 0, "outline")
-    B.hline(0, 179, 1, "ui_bub_hi")
+    B.hline(0, 179, 1, "white")                   # v3: the flag's white stripe over a flag-blue one, the bar's top edge
+    B.hline(0, 179, 2, "flag")
     for x in (44, 89, 134):                       # hairline separators between the four tabs
         B.vline(x, 5, 20, "ui_scrim")
     save(B, "tabbar", G, slice=[2, 3, 2, 2], notes="Tab bar body, 180x26 (4 tabs x 45). Separators at x 44/89/134. "
-         "Order RIGHT to LEFT (RTL): מקורות · ספינים · קואליציה · תיקים.")
+         "Order RIGHT to LEFT (RTL): מקורות · ספינים · קואליציה · תיקים. "
+         "v3: the top edge is a white stripe over a flag-blue one (rows 1-2), the chrome's national frame.")
     a = Layer(45, 26)
     a.rect(0, 0, 45, 26, "ui_bubble")
     a.hline(0, 44, 0, "outline")
@@ -161,7 +163,7 @@ def dim(L):
 
 
 def spins_icon():
-    """Dubi's microphone broadcasting two pink arcs: 'spins' = talking points on repeat."""
+    """Dubi's microphone broadcasting two sky-blue arcs (v3; were pink): 'spins' = talking points on repeat."""
     import math
     L = Layer(15, 15)
     head = ["..kkkk..",
@@ -184,7 +186,7 @@ def spins_icon():
     for r in (6.2, 8.8):
         for a in range(-42, 43, 3):
             x = cx + r * math.cos(math.radians(a)); y = cy + r * math.sin(math.radians(a))
-            L.set(int(round(x)), int(round(y)), "pink")
+            L.set(int(round(x)), int(round(y)), "sky")      # v3: pink accents move to the blue family
     return L
 
 
@@ -212,9 +214,13 @@ def cards():
     lk.paste(lf, 0, 1)
     save(lk, "card_row_locked", G, state="locked", slice=[4, 4, 4, 4], content=[3, 3, W - 6, H - 6], label="grey",
          notes="The silhouette / not-yet-revealed card: flat, sunk, grey label '???'.")
-    p = panel(26, 26, "night", "ui_scrim", "ui_bub_hi", corner=1)
+    p = panel(26, 26, "white", "white", "paper", corner=1)       # v4: a white ballot slip (פתק), not a dark well
+    p.hline(2, 23, 13, "receipt")                                  # the slip's fold, one value step
     save(p, "card_plate", G, slice=[3, 3, 3, 3],
-         notes="Recessed plate for the 24x24 source icon or the 32x32 cast avatar (then 34x34, slice keeps the bevel).")
+         notes="v4: a white ballot slip (פתק הצבעה) the 24x24 source icon or the 32x32 cast avatar lies on (then 34x34, "
+               "slice keeps the edge): white face, paper shadow edge, a fold at row 13, the outline. Blank: never a "
+               "party letter. Every icon and silhouette keeps its own outline, so it reads on the slip (outline vs white "
+               "17.4:1).")
 
 
 def build():

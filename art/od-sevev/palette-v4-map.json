@@ -1,0 +1,138 @@
+{
+ "_doc": "Palette v4 colour map for code (2D Artist, 2026-09-30; Bar: 'more Israel theme and palette'). Supersedes palette-v3-map.json (v3 was never applied to the scripts): every pair maps the v2 colour the scripts hard-code TODAY straight to v4. The flag's layout on the main screen: the HUD band is flag blue, the card pane between the blue ticker and the blue tab bar is a WHITE field, the cards on it are flag blue with white text, navy stays only behind the stage and in wells. Text colours that sat on navy are lifted so they clear 4.5:1 on the flag blues. Apply with tools/apply_palette_map.py (dry run by default, --write, --check). 'perFile' overrides a pair for one file where one hex plays two roles.",
+ "_roles": {
+  "#2a2340": "night: the diorama's night pad and clear colour -> v3/v4 night #0f2350; in main.gd it is the CARD PANE -> the white field #f7f4ec (perFile)",
+  "#140c24": "ui_scrim: the title/picker scrim -> v4 navy #061029 (the blue tiles pop on it); in main.gd the HUD Row A/B band -> flag #0038b8 (perFile); in view_share.gd the share card's night -> flag_dk #00237a (perFile, the blue envelope)",
+  "#1b1426": "ink used as a surface: the flash screen frame, the settings toggle track, the '?' card, the chat's ink on gold -> navy #061029 (11.6:1 on gold); in main.gd the bottom fill under the tab bar and in ticker.gd the news strip's body -> ui_panel #072a7a (perFile)",
+  "#1e1636": "ui_panel: the chat thread and dossier backgrounds -> v4 ui_panel #072a7a (white 11.8:1)",
+  "#2e2250": "ui_bubble: Dubi's toast bubble, the share mask -> v4 ui_bubble #1045b5 (white 7.5:1)",
+  "#4a3c7c": "ui_bub_hi -> v4 #4f82e8",
+  "#4a2552": "plum -> v3/v4 #16357a (project.godot's boot splash)",
+  "#7a3a7d": "plum_hi -> #2a57a6",
+  "#2e2548": "the dossier divider -> v4 ui_rule #2a5cc4",
+  "#9e99ad": "UX's lavender party / idle grey -> v4 ui_mute #c9d6f2 (5.7:1 on ui_bubble)",
+  "#a4a9b8": "grey TEXT (names, sender lines, muted lines, the court prefix, locked labels) -> ui_mute #c9d6f2 (grey is 3.5:1 on the v4 blue; ui_mute 5.7 on ui_bubble, 8.9 on ui_panel, 8.0 on the court's teal)",
+  "#b8b3c7": "the shop's lavender line-2 tint Color(0.72, 0.7, 0.78) -> ui_mute #c9d6f2",
+  "#7d8398": "slate TEXT (timestamps, muted counts) -> v4 ui_dim #b4c3e8 (4.7:1 on ui_bubble; slate is 2.2:1)",
+  "#f86b5d": "red_hi TEXT ('אולטימטום', the last seconds) -> v4 alert_lt #ffaa9f (4.5:1 on ui_bubble; red_hi is 2.9:1). It keeps its hazard band and clock.",
+  "#d6d0e6": "lavender 'silver' on the ticker -> silver #d3d6df (6.9:1 on ui_panel)",
+  "#dbd6e6": "the shop's lavender name/owned tint Color(0.86, 0.84, 0.9) -> silver #d3d6df (5.7:1 on ui_bubble)",
+  "#8a8494": "the '?' placeholder card fill -> slate #7d8398"
+ },
+ "_notMapped": {
+  "#f7f4ec / #fff8ec / #fff4e0": "the flag's white and the cream: they ARE v4's white",
+  "#0038b8": "flag blue",
+  "#ffd23a / #f5c542 / #fff1a6": "gold = money: the buy pill stays gold (5.1:1 on the v4 cards, 10.4 on ui_panel; the only warm hue)",
+  "#d02a36": "red = alerts (the flash badge plate, the court tint)",
+  "#8fc0ff / #9fc3ff": "sky (the seats pips, links): 4.4:1 on ui_bubble as a non-text mark, 6.9 on ui_panel",
+  "#5b3b9e": "stamp violet on paper (5.6:1)",
+  "#1a1a1a / #f4f1e8": "receipt",
+  "#0b0a12, Color(0.043, 0.039, 0.071, 0.6)": "outline / the modal scrim",
+  "#d9d9f2": "diorama.gd fork star/tower tint (not od-sevev chrome)",
+  "Color(0.84, 0.8, 0.93)": "scroll thumbs = rim #d6ccec (4.7:1 on ui_panel as a mark)",
+  "Color(0.78, 0.74, 0.62) / Color(0.78, 0.9, 0.62)": "the shop's warm can't-afford ink and green income line (5.1 / 6.0:1 on ui_bubble)",
+  "neutral modulates": "Color(0.45, 0.45, 0.5), Color(0.5, 0.5, 0.5), Color(0.6, 0.6, 0.6), Color(1, 1, 1, a)"
+ },
+ "_engineNotes": "The white card pane (main.gd _fills.shop) is a field for CARDS: never draw text straight on it (white labels would vanish; if the mobile layout needs a pane label, give it a ui_panel plate or draw it in ui_bubble-on-white #1045b5, 7.5:1). The kit's new pieces for adoption (UX / engine): hemicycle_track + hemicycle_fill (the 120 seats, `seats` in RTL fill order, `goal` 61), booth_frame (the picker grid's frame), envelope_blue (confetti, share card).",
+ "_alsoElsewhere": "Not default targets (pass them as paths when wanted): game/project.godot (boot_splash/bg_color = plum #4a2552 -> #16357a, default_clear_color = night -> #0f2350); game/tests/unit/test_review_engine.gd:60/297 and game/tests/dev/density_compare.gd:60 (test constants; the contrast tests hold on v4: white on #1045b5 is 7.5:1 >= 7); pipeline/od-sevev/build.py:140,195,202-204,462 (font-proof backgrounds); tools/web/mobile_web.mjs:156 (a comment).",
+ "_shellApplied": "game/web/shell.html is v4 in this branch (by hand, v3 -> v4): the gate and About are white notices (navy text 14:1, flag-blue rules top and bottom, the flag-blue buttons with white text 8.5:1), the page behind is flag-blue, theme-color #0038b8, the desktop phone frame on navy with a white bezel rule.",
+ "perFile": {
+  "game/scripts/main.gd": {
+   "#2a2340": "#f7f4ec",
+   "#140c24": "#0038b8",
+   "#1b1426": "#072a7a"
+  },
+  "game/scripts/ui/ticker.gd": {
+   "#1b1426": "#072a7a"
+  },
+  "game/scripts/ui/views/view_share.gd": {
+   "#140c24": "#00237a"
+  }
+ },
+ "#2a2340": "#0f2350",
+ "#140c24": "#061029",
+ "#1b1426": "#061029",
+ "#1e1636": "#072a7a",
+ "#2e2250": "#1045b5",
+ "#4a3c7c": "#4f82e8",
+ "#4a2552": "#16357a",
+ "#7a3a7d": "#2a57a6",
+ "#2e2548": "#2a5cc4",
+ "#9e99ad": "#c9d6f2",
+ "#a4a9b8": "#c9d6f2",
+ "#b8b3c7": "#c9d6f2",
+ "#7d8398": "#b4c3e8",
+ "#f86b5d": "#ffaa9f",
+ "#d6d0e6": "#d3d6df",
+ "#dbd6e6": "#d3d6df",
+ "#8a8494": "#7d8398",
+ "_sites": {
+  "#140c24": [
+   "game/scripts/main.gd:313",
+   "game/scripts/main.gd:315",
+   "game/scripts/ui/title_view.gd:11",
+   "game/scripts/ui/title_view.gd:11",
+   "game/scripts/ui/views/view_share.gd:40"
+  ],
+  "#1b1426": [
+   "game/scripts/art/art.gd:156",
+   "game/scripts/main.gd:317",
+   "game/scripts/ui/overlays.gd:140",
+   "game/scripts/ui/ticker.gd:52",
+   "game/scripts/ui/views/view_chat.gd:58",
+   "game/scripts/ui/views/view_flash.gd:223"
+  ],
+  "#1e1636": [
+   "game/scripts/ui/views/view_chat.gd:55",
+   "game/scripts/ui/views/view_dossier.gd:38"
+  ],
+  "#2a2340": [
+   "game/scripts/main.gd:316",
+   "game/scripts/ui/diorama.gd:12",
+   "game/scripts/ui/diorama.gd:130",
+   "game/scripts/ui/diorama.gd:131",
+   "game/scripts/ui/diorama.gd:132"
+  ],
+  "#2e2250": [
+   "game/scripts/ui/toasts.gd:51",
+   "game/scripts/ui/views/view_share.gd:413"
+  ],
+  "#2e2548": [
+   "game/scripts/ui/views/view_dossier.gd:41"
+  ],
+  "#7d8398": [
+   "game/scripts/ui/views/view_chat.gd:57",
+   "game/scripts/ui/views/view_dossier.gd:40"
+  ],
+  "#8a8494": [
+   "game/scripts/art/art.gd:157"
+  ],
+  "#9e99ad": [
+   "game/scripts/ui/shop.gd:185",
+   "game/scripts/ui/views/view_pick.gd:28"
+  ],
+  "#a4a9b8": [
+   "game/scripts/ui/toasts.gd:40",
+   "game/scripts/ui/views/view_chat.gd:56",
+   "game/scripts/ui/views/view_court.gd:441",
+   "game/scripts/ui/views/view_dossier.gd:42",
+   "game/scripts/ui/views/view_share.gd:41",
+   "game/scripts/ui/views/view_sheet_card.gd:34"
+  ],
+  "#b8b3c7": [
+   "game/scripts/ui/shop.gd:546"
+  ],
+  "#d6d0e6": [
+   "game/scripts/ui/views/view_flash.gd:60"
+  ],
+  "#dbd6e6": [
+   "game/scripts/ui/shop.gd:545",
+   "game/scripts/ui/shop.gd:547"
+  ],
+  "#f86b5d": [
+   "game/scripts/ui/views/view_chat.gd:59",
+   "game/scripts/ui/views/view_sheet_card.gd:36"
+  ]
+ },
+ "_siteCount": 38
+}

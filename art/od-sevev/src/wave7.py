@@ -215,10 +215,11 @@ WINGS = {"balfour": wing_balfour, "knesset": wing_knesset, "courthouse": wing_co
 # ------------------------------------------------------------------ the plaza (A1)
 PLAZA = {
     # era: (base, joint, light, details...)  -- base = the apron (stages[era].padBottom)
-    "balfour":    ("night",   "ink",     "suit_dk", "suit", "pink_sh"),   # night paving, flyers
-    "knesset":    ("wood_dk", "ink",     "hair_br", "hair_dk", "wood"),    # stage boards
-    "courthouse": ("ink",     "outline", "teal_dk", "suit_dk", "teal"),    # corridor tiles
-    "washington": ("navy",    "night",   "suit_dk", "ink", "night"),       # carpet
+    # v4: warm Jerusalem limestone (Washington: pale concrete), the lane's swatches
+    "balfour":    ("stone_sh", "paper",    "stone", "white", "pink_sh"),   # stone slabs in lamp light, pale mortar, flyers
+    "knesset":    ("stone",    "stone_sh", "white", "paper", "wood"),      # sunlit stone slabs
+    "courthouse": ("paper",    "stone_sh", "white", "stone_sh", "white"),  # polished limestone tiles
+    "washington": ("silver",   "grey",     "white", "slate", "grey"),      # concrete panels
 }
 
 
@@ -233,21 +234,14 @@ def plaza(era):
     L.rect(0, 0, PW, PH, base)
     r = random.Random(ERAS.index(era) + 580)
     course = 12
-    if era == "washington":
-        # the carpet: a woven diamond lattice (32 x 12) in the shadow tone, a dotted weave row between
-        for y in range(PH):
-            for x in range(PW):
-                u, v = x % 32, y % course
-                if abs(u - 16) == abs(v - 6) * 2 + 4 or (abs(u - 16) <= 1 and v == 6):
-                    L.set(x, y, joint)
-                elif v == 0 and x % 4 == 0:
-                    L.set(x, y, light)
+    if False:                                               # v4: no carpet any more (Washington is concrete panels)
+        pass
     else:
         for c in range(PH // course):
             y0 = c * course
             L.hline(0, PW - 1, y0, joint)                  # the seam
-            if era == "knesset":                            # boards: long, ends every 64, staggered
-                step, off = 64, (c * 23) % 64
+            if era == "washington":                         # v4 concrete panels: a grid, 64 wide
+                step, off = 64, 0
             elif era == "courthouse":                       # corridor tiles: a grid, 32 wide
                 step, off = 32, 0
             else:                                           # paving slabs: running bond, 32 wide
@@ -255,8 +249,6 @@ def plaza(era):
             for x in range(off, PW, step):
                 L.vline(x, y0 + 1, y0 + course - 1, joint)
                 L.set(x + 1, y0 + 1, light)                 # the slab's lit top-left corner
-                if era == "knesset":                        # two nail heads by each board end
-                    L.set(x - 2, y0 + 3, d1); L.set(x + 2, y0 + 8, d1)
             for x in range(0, PW):                          # the lit top edge, broken (worn)
                 if (x * 7 + c * 5) % 13 < 3 and L.get(x, y0 + 1) == base:
                     L.set(x, y0 + 1, light)
@@ -273,7 +265,7 @@ def plaza(era):
                                 (66, 86, 3, 2, d2), (118, 22, 3, 2, "suit_dk")):
             L.rect(x, y, w, h, c)
             L.set(x, y, "suit_hi" if c == d1 else c)
-        L.rect(56, 28, 8, 5, "suit_dk")                     # a drain grate
+        L.rect(56, 28, 8, 5, "wood_dk")                     # a drain grate
         for x in range(57, 63, 2):
             L.vline(x, 29, 31, "ink")
     elif era == "knesset":

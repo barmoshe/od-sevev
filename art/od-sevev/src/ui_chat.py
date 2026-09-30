@@ -78,11 +78,12 @@ def bars():
     h = Layer(180, Hh)
     h.rect(0, 0, 180, Hh, "ui_panel")
     h.hline(0, 179, 0, "ui_bub_hi")
-    h.hline(0, 179, Hh - 2, "ui_scrim")
+    h.hline(0, 179, Hh - 3, "flag")                 # v3: a flag-blue and a white stripe under the header (the national
+    h.hline(0, 179, Hh - 2, "white")                # frame; the header body stays navy so the grey status line keeps 7:1)
     h.hline(0, 179, Hh - 1, "outline")
     save(h, "chat_header", G, slice=[2, 2, 2, 3], content=[4, 3, 172, 20], label="white",
          notes="Full-width tall-tab header (UX 4.1). Right 22 px: collapse chevron (chat_icon_chevron) centred in a "
-         "20x26 hit column (hit area 44 CSS = 20 art). Title line y=4, status line y=14 (both 9-row cells).")
+         "20x26 hit column (hit area 44 CSS = 20 art). Title line y=4, status line y=14 (both 9-row cells). v3: flag + white stripes in the bottom slice (rows 23-24).")
     # pinned bar: 30 CSS = 14 art
     p = Layer(180, 14)
     p.rect(0, 0, 180, 14, "ui_scrim")
