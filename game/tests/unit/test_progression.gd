@@ -17,7 +17,9 @@ func setup(_r: Object) -> void:
 ## One round: taps at 1.5/s, catches Suitcases, buys the greedy best source, testifies, ends
 ## brawls; every `every` seconds pays the open payable messages (all, or the `newest` N).
 ## Returns {gate: seconds or -1, seats, left, rejoins}.
-static func play_round(every: float, newest: int, seed_: int, max_t: float = 1200.0, brawls: bool = true) -> Dictionary:
+## `force_brawl`: the brawl event fires once the group has 3 members (the scheduler's draw is luck, and
+## the brawl tests need one).
+static func play_round(every: float, newest: int, seed_: int, max_t: float = 1200.0, brawls: bool = true, force_brawl: bool = false) -> Dictionary:
 	var s := GameState.fresh()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_
@@ -39,6 +41,8 @@ static func play_round(every: float, newest: int, seed_: int, max_t: float = 120
 			Economy.apply_golden(s, Economy.roll_golden_outcome(r, s))
 			Economy.schedule_next_golden(s, r)
 		Politics.tick(s, dt, d, ctx, r)
+		if force_brawl and Coalition.member_count(s) >= 3 and not (s.events["round"] as Array).has("brawl"):
+			Events.fire(s, "brawl", d, r)
 		if Investigation.phase(s) == "summons":
 			Investigation.testify(s)
 		var b := Coalition.open_brawl(s)
@@ -84,8 +88,8 @@ func test_a_player_who_pays_the_chat_reaches_61() -> void:
 ## this pins the rule so the view keeps surfacing the brawl (the tab badge counts it, a toast says
 ## it with the chat closed: test_chat_view).
 func test_an_unended_brawl_keeps_the_round_below_61() -> void:
-	var stuck := play_round(30.0, 0, 11, 1500.0, false)
-	var ended := play_round(30.0, 0, 11, 1500.0, true)
+	var stuck := play_round(30.0, 0, 11, 1500.0, false, true)
+	var ended := play_round(30.0, 0, 11, 1500.0, true, true)
 	runner.check(float(stuck["gate"]) < 0.0 and int(stuck["seats"]) < 61,
 		"paying every pill but never pressing 'צאו החוצה' stays below 61 for 25 min (seats %d)" % int(stuck["seats"]))
 	runner.check(float(ended["gate"]) > 0.0, "ending the brawl opens the gate (%s)" % PacingSim.fmt_t(float(ended["gate"])))
