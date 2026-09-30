@@ -22,7 +22,7 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun 
 | `sprites/avatar_pick_<c>_d3.png`, `avatar_pick_<c>_d2.png` | The picker's XL heads (UX A3), 96×96 and 64×64, the 8 leaders | `chars[c].avatarPickXL` / `avatarPick64` (§4c) |
 | `sprites/brawl_cloud_cue.png` | The brawl cloud cut for the stage cue: 4 frames of 26×20 (UX / Animator) | `Art.tex("brawl_cloud_cue", f)`, `sprites.json.ui` |
 | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
-| `sprites/<ui id>.png` | The 2D Artist's UI kit, 212 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
+| `sprites/<ui id>.png` | The 2D Artist's UI kit, 261 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
 | `fonts/sevev9.fnt` | **Sevev 9**, the Hebrew pixel font (a BMFont; Godot imports it as a `FontFile`) | `load("res://assets/fonts/sevev9.fnt")` |
 | `fonts/sevev9_outline.fnt` | The same font with a baked 1 px ink ring | the same |
 | `fonts/sevev9@2.fnt` | **Sevev 9 @2**, the density-2 companion: every glyph redrawn on a 2× grid, drawn at half the scale into the same box (§6.1) | `fonts.json` `fonts["sevev9@2"]` (`density: 2`) |
@@ -347,6 +347,24 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for 
 - `brawl_cloud_cue` (26×20, 4 frames, pivot [13, 18]): the brawl cloud for the stage cue at the
   stage's own ×4 (104×80 logical, the box the ×2 `brawl_cloud` fills today); same frame count,
   order and 8 fps. `brawl_cloud` (52×40) stays for the thread's inline cloud at ×4.
+- **The envelope flap** (2D Artist wave 9, 2026-09-30, the Animator's wave-B ask): the blue envelope's flap
+  as its own layer, so a modal can open like an envelope. `sheet_modal` is unchanged and stays the default.
+  - `sheet_modal_body` (38×38, 9-slice [7, 23, 7, 7], `content` as `sheet_modal`): the envelope without its
+    flap. Never drawn alone.
+  - `sheet_modal_flap` (3 frames of 38×24, `slice [7, 0, 7, 0]`, `pivot [0, 0]`, `frameNames` sealed /
+    lifting / open, `base` sheet_modal_body): f0 a V from the corners to the point, f1 lifting, f2 = the
+    title band. **Body + f2 = `sheet_modal`, pixel for pixel** (asserted by `art/od-sevev/src/wave9.py`).
+  - **Wiring:** draw the body with `Ui.nine(panel, panel_rect, "sheet_modal_body")` where `sheet_modal` is
+    drawn today, then the flap with `Ui.nine(panel, Rect2(panel_rect.position, Vector2(panel_rect.size.x,
+    96)), "sheet_modal_flap", 0)`: the same x, width and top as the body, 24 art rows (96 logical at ×4).
+    The pivot is the top-left; nothing scales or flips. **Draw order:** body → flap → the title and ✕.
+    **Frames:** 0 → 1 → 2 by `Ui.set_nine_frame` at 0 / 40 / 80 ms from the sheet's open (inside its 240 ms
+    drop), then hold 2. Show the title and ✕ from f2 (in f0 / f1 the band isn't there yet). **Reduced
+    motion:** frame 2 from the first frame.
+  - **Why 24 rows, not the 9-slice's 23:** the flap's shadow at the point is on art row 23, the first row
+    of `sheet_modal`'s stretched centre. Inside the 9-slice that one row stretches down the body (at a
+    624×480 card, a ~190×45 dark slab under the point, seen in the engine too: `proofs/kit-w9-flap.png`, right column). In the flap
+    strip it stays one art row, so body + flap also drops that slab.
 
 ## 6. Fonts: Sevev 9
 - **Where it's used:** every Hebrew or mixed string goes through a `Label` or `RichTextLabel`

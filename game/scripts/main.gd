@@ -19,6 +19,8 @@ extends Node2D
 
 const STEP_MS := 1000.0 / 60.0
 const AWAY_GAP_SEC := 2.0          # a wall-clock gap longer than this between frames = time away
+const PICK_LINE_AFTER_LAND_MS := 120.0   # Dubi's pick line: the walk-in's landing + this settle
+const PICK_LINE_GAP_MS := 1700.0         # then the leader's own pick line
 
 var state: GameState
 var d: Economy.Derived
@@ -86,6 +88,7 @@ var _last_tap_ms := -1e9            # play-time ms of the last registered tap (S
 var _sources_sent := -1             # the last owned total sent to the Audio
 var _progress_ms := 0.0             # set_era_progress throttle
 var _trick_fired := false           # this election's trickCue (EvolveTx)
+var _after_walk := Callable()       # runs once the leader's walk-out has cleared the stage
 var _ceremony_on_marker := false    # the Audio emits marker("fanfare", "fanfareEnd")
 var _settings_existed := false      # the player (or a previous session) saved settings
 var golden: GoldenView
@@ -287,6 +290,16 @@ func _read_dev_params() -> void:
 			_dev[kv[0]] = maxf(0.0, float(kv[1]))
 	if float(_dev["speed"]) <= 0.0:
 		_dev["speed"] = 1.0
+
+
+## Dev only (web, ?dev=1): `window.odDevElect = 1` runs the election ceremony now, gate or not (the
+## leader swap's frame strips in tools/web/motion_web.mjs). The flag is cleared when it is taken.
+func _dev_poll_elect() -> void:
+	if not OS.has_feature("web") or mode != "main" or _tx_locked or overlays.is_open():
+		return
+	if js_bool(JavaScriptBridge.eval("window.odDevElect === 1", true)):
+		JavaScriptBridge.eval("window.odDevElect = 0", true)
+		_start_evolve(true)
 
 
 func _default_settings() -> Dictionary:
@@ -1025,6 +1038,10 @@ func _process(delta: float) -> void:
 	# Bibi's court day on the stage (the exit, the hat, the return): polled from the sim's phase
 	bb.court_sync(running and BigBanana.wants_court(state), tx.running)
 	bb.update_view(dt)
+	if _after_walk.is_valid() and not bb.walking():
+		var after := _after_walk
+		_after_walk = Callable()
+		after.call()
 	court_echo.update_view(dt, state, str(Story.era_for(state.evolutions).get("id", "")), running and Leaders.has_court())
 	toasts.update_view(dt)
 	prop_fx.update_view(dt)
@@ -1050,6 +1067,7 @@ func _process(delta: float) -> void:
 	_update_shake(dt)
 	if bool(_dev["on"]):
 		DevProbe.publish(self, dt)   # window.odDev for the browser drivers (tools/web/round_web.mjs)
+		_dev_poll_elect()
 	_audio_clocks(dt)
 	Juice.tick(dt)
 	_follow_os_motion(dt)
@@ -2187,11 +2205,19 @@ func _do_reset() -> void:
 
 # ================================================================== evolve (E7: idempotent, save first, input locked)
 
-func _start_evolve() -> void:
+func _start_evolve(dev_force := false) -> void:
 	if _tx_locked:
 		return
 	var nxt := state.duplicate_state()
 	var res := Meta.evolve(nxt)
+	if res.is_empty() and dev_force and bool(_dev["on"]):
+		# dev only (?dev=1, window.odDevElect = 1; tools/web/motion_web.mjs): the election card's
+		# ceremony without the 61 gate, for the leader swap's frame strips. The round is not paid.
+		nxt = state.duplicate_state()
+		nxt.evolutions += 1
+		nxt.run_taps = 0   # as Economy.evolve's run reset: the next round is untouched, so the pick is open
+		Politics.on_election(nxt)
+		res = {"multBefore": d.prestige_mult, "multAfter": d.prestige_mult, "gained": 0}
 	if res.is_empty():
 		return
 	_tx_locked = true
@@ -2234,21 +2260,42 @@ func _start_evolve() -> void:
 				ticker.enqueue("milestone", Strings.s("F_ERA", {"era": era.get("name", "")}))
 				_audio("era", era.get("id", ""))
 			diorama.set_era(era)
+			# the old round's pick lines never carry over the card into the walk-out
+			_pick_seq.clear()
+			toasts.clear_bubble()
 			_economy_frozen = false
 			_acc = 0.0,
+		# the leader swap (spec §9.3.4): when a pick follows, the old leader walks off screen-right as
+		# the card lifts, so the flash and the picker open on an empty stage
+		"walk": func() -> void:
+			if Leaders.pick_pending(state):
+				bb.walk_out(),
 		"hello": func() -> void: bb.hello(),
 		"unlock": func() -> void:
-			_tx_locked = false
-			overlays.tx_active = false
-			bb.unlock()
 			_audio("evolveTransitionEnd")
 			if not _ceremony_on_marker:
 				_audio("ceremonyEnd")
 			ticker.defer_until(ticker.now_ms() + float(Tune.MC["headlineDeferAfterEvolveMs"]))
-			ftue.on_tx_done(state, Economy.derive(state))
-			_show_story_beat()
-			_save_now(),
+			# input stays locked until the walk-out has cleared the stage (≤ 260 ms past the card:
+			# motion/state-graph-magician.md §9); the flash, the FTUE and the picker follow it
+			if bb.walking():
+				_after_walk = _tx_release
+			else:
+				_tx_release(),
 	})
+
+
+## The end of EVOLVE_TX once the stage is clear: input unlocks, the FTUE and the story beat (O3b)
+## follow; the picker opens by its own rule on the next frame. A walked-off figure stays locked
+## until the pick puts the next leader on the stage.
+func _tx_release() -> void:
+	_tx_locked = false
+	overlays.tx_active = false
+	if not bb.walked_off():
+		bb.unlock()
+	ftue.on_tx_done(state, Economy.derive(state))
+	_show_story_beat()
+	_save_now()
 
 
 # ================================================================== persistence
@@ -2314,29 +2361,32 @@ func _on_pick_commit(id: String, via: String) -> bool:
 	return true
 
 
-## ≈ 520 ms after the commit (PickView.on_done): the leader walks in (appears; the walk is the
-## Animator's), the lower third, Dubi's line, the fresh toast and the 5 s undo chip (rtl-map §8.6).
+## ≈ 520 ms after the commit (PickView.on_done): the leader walks in from screen-left to the feet
+## point (LeaderWalk, 640 ms; reduced motion a 150 ms fade on the mark), the lower third, Dubi's line
+## once he has landed, the fresh toast and the 5 s undo chip (rtl-map §8.6).
 func _on_pick_done() -> void:
 	picker.publish_closed()
+	bb.modulate.a = 1.0
 	bb.set_leader(LeaderUi.art(), LeaderUi.tap())
+	bb.walk_in()
 	bb.unlock()
 	var first := state.evolutions == 0 and state.taps_lifetime == 0
 	_set_mode("title" if first else "main", not first)
 	if not first:
 		_audio_call("start_music", [])
-	bb.modulate.a = 0.0 if not settings["reducedMotion"] else 1.0
-	if not settings["reducedMotion"]:
-		create_tween().tween_property(bb, "modulate:a", 1.0, 0.25)
 	ftue.on_input()   # rtl-map §8.6: every FTUE clock starts at the pick
 	var id := Leaders.current(state)
 	toasts.show_toast(Strings.s("LEADER_PICK_PLATE", {"short": LeaderUi.short(id), "party": LeaderUi.party(id)}))
 	var dubi_at := Vector2(644, L.stage_bottom() - 232.0)
 	var random := str(_pick_res.get("via", "")) == "random"
-	_pick_seq = [{"at": _now + 380.0, "fn": func() -> void:
+	# Dubi's bubble follows the landing (a 120 ms settle after the walk, so the eye is on the still
+	# figure when the line pops); the leader's own line 1.7 s after it, as before
+	var at := _now + bb.walk_left_ms() + PICK_LINE_AFTER_LAND_MS
+	_pick_seq = [{"at": at, "fn": func() -> void:
 		toasts.say(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at, 1600.0)}]
 	var line := str(Leaders.leader(id).get("pick", {}).get("line", "")) if Leaders.leader(id).get("pick") is Dictionary else ""
 	if Leaders.stat(state, id, "taps") > 0.0 and line != "":
-		_pick_seq.append({"at": _now + 2080.0, "fn": func() -> void: toasts.say(line, dubi_at, 1600.0)})
+		_pick_seq.append({"at": at + PICK_LINE_GAP_MS, "fn": func() -> void: toasts.say(line, dubi_at, 1600.0)})
 	if _pick_res.get("fresh", false) == true:
 		toasts.show_toast(Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}))
 	var pk: Variant = Leaders.ls().get("pick", {})
@@ -2349,8 +2399,9 @@ func _on_pick_done() -> void:
 		_save_now()
 
 
-## Test / tool hook: picks `id` at once (the commit and the stage, no animation).
-func commit_pick(id: String) -> bool:
+## Test / tool hook: picks `id` at once (the commit and the stage, no animation: the walk-in lands at
+## once unless `walk`).
+func commit_pick(id: String, walk := false) -> bool:
 	if mode != "pick":
 		if not Leaders.pick_pending(state):
 			return false   # a loaded round (or content without leader select): nothing to pick
@@ -2365,6 +2416,8 @@ func commit_pick(id: String) -> bool:
 	if not picker.locked:
 		return false
 	picker.finish_now()
+	if not walk:
+		bb.walk_land()
 	return true
 
 

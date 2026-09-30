@@ -29,6 +29,10 @@ var on_court_fx: Callable
 var hero: SpriteStrip
 ## Bibi's court-day exit and return (CourtMotion; motion/state-graph-magician.md §1.3, §3, §5).
 var court := CourtMotion.new()
+## The leader swap's walk-out / walk-in (LeaderWalk; spec §9.3.4). BigBanana is the one owner of the
+## figure's position, visibility and alpha: `_apply_figure` composes the walk's pose with the court
+## day's every frame, and the court yields while a walk runs (it neither starts nor ticks the body).
+var walk := LeaderWalk.new()
 var _court_pending := false           # courtStart came mid-tap: he leaves when the strip is back on idle
 var _suppress_coins := false          # the land / flinch reuse the tap strip: no coins
 var _held_frame := -1                 # the tap-strip frame the court holds (-1 = the strip plays)
@@ -144,6 +148,7 @@ func set_leader(slug: String, kit: Dictionary) -> void:
 	_prop_info = {}
 	_prop_frame = 0
 	hero = SpriteStrip.make(body, slug, L.magician_feet())
+	walk.home()
 	var on := hero != null
 	for n: CanvasItem in [halo, sprite, flash, fidget]:
 		n.visible = not on and (n == sprite or n == halo)   # the banana stands in (flash/fidget show on demand)
@@ -518,7 +523,7 @@ func _sync_halo() -> void:
 			pulse = 0.35 if reduced_motion else 0.35 * (0.5 - 0.5 * cos(TAU * _pulse_hz * _pulse_t / 1000.0))
 		var k := maxf(maxf(_aura_alpha, _hover_alpha), pulse)
 		hero.modulate = Color(1, 1, 1).lerp(Color(1.3, 1.25, 1.05), k)
-		hero.modulate.a = court.body_alpha()
+		hero.modulate.a = figure_alpha()
 		if prop != null:   # rtl-map §4.3: P0's pulse sits on the prop too; it leaves with the figure
 			prop.modulate = hero.modulate
 			prop.visible = hero.visible
@@ -549,6 +554,9 @@ func court_sync(want: bool, quick: bool = false) -> void:
 	if hero == null:
 		return
 	if want and not court.in_court():
+		if walk.walking() or walk.gone():
+			_court_pending = true   # the court yields to the walk: he leaves after he has landed
+			return
 		if hero.anim != "idle":
 			_court_pending = true   # exitPending: he leaves at the strip's end (§2)
 			return
@@ -566,9 +574,9 @@ func court_sync(want: bool, quick: bool = false) -> void:
 func court_reset() -> void:
 	_court_pending = false
 	court.reset()
+	walk.home()
 	if hero != null:
 		_hold_frame(-1)
-		hero.visible = true
 		_place_court()
 		_apply_court_pose()
 
@@ -583,7 +591,7 @@ func court_flinch() -> void:
 
 ## True while the Magician stands on his mark and is drawn (the sweat reads it).
 func on_stage() -> bool:
-	return hero == null or (not court.in_court() and hero.visible)
+	return hero == null or (not court.in_court() and walk.state() == "home" and hero.visible)
 
 
 ## The hat's mark (stage coordinates): its mouth on idle.f0, where it hovers on court day.
@@ -600,14 +608,85 @@ func hat_node() -> Sprite2D:
 func off_stage_ap() -> float:
 	if hero == null:
 		return -170.0
-	var ox := 0.0
+	var right := hero.rect().end.x   # the frame's right edge from the feet (logical)
+	return -ceilf((L.magician_feet().x + _stage_ox() + right + 8.0 * CourtMotion.AP) / CourtMotion.AP)
+
+
+## The stage column's x on the canvas (the widest the canvas gets is the viewport, this far to the
+## left of the design canvas, and as far to the right).
+func _stage_ox() -> float:
 	var h := get_parent()
 	while h != null and not "_sx" in h:
 		h = h.get_parent()
-	if h != null:
-		ox = float(h.get("_sx"))   # the stage column's x on the canvas
-	var right := hero.rect().end.x   # the frame's right edge from the feet (logical)
-	return -ceilf((L.magician_feet().x + ox + right + 8.0 * CourtMotion.AP) / CourtMotion.AP)
+	return float(h.get("_sx")) if h != null else 0.0
+
+
+# ------------------------------------------------------------------ the leader swap (spec §9.3.4)
+
+## The figure's rect from the feet (logical), its loose prop included: what must clear the canvas.
+func _figure_rect() -> Rect2:
+	var r := hero.rect()
+	if prop != null and prop.texture != null:
+		var pr := Rect2(prop.position - hero.position + prop.offset * prop.scale, Vector2(prop.texture.get_size()) * prop.scale)
+		r = r.merge(pr)
+	return r
+
+
+## EVOLVE_TX, the card lifting: the leader walks off screen-right (560 ms Sine.In; reduced motion a
+## 150 ms fade on the mark). A court day is cut home first (he is under the card when it ends).
+## False without a figure (the banana stand-in has no walk).
+func walk_out() -> bool:
+	if hero == null:
+		return false
+	if court.in_court() or _court_pending:
+		court.reset()
+		_court_pending = false
+		_hold_frame(-1)
+	walk.feet = L.magician_feet()
+	walk.reduced = reduced_motion
+	walk.walk_out(1, _figure_rect(), _stage_ox())
+	hero.visible = true
+	if hero.anim != "idle":
+		hero.play("idle")
+	_apply_figure()
+	return true
+
+
+## After the pick commit: the round's leader walks in from screen-left to the feet point (640 ms
+## Sine.Out; reduced motion a 150 ms fade on the mark). Taps during the walk play on the moving
+## figure (never dropped, never a pop); the court waits for the landing.
+func walk_in() -> bool:
+	if hero == null:
+		return false
+	walk.feet = L.magician_feet()
+	walk.reduced = reduced_motion
+	walk.walk_in(-1, _figure_rect(), _stage_ox())
+	hero.visible = true
+	if hero.anim != "idle" and _state != "pressed" and _state != "crit":
+		hero.play("idle")
+	_apply_figure()
+	return true
+
+
+## A walk-in ends on the mark now (the controller's instant path: tests and tools).
+func walk_land() -> void:
+	walk.land()
+	_apply_figure()
+
+
+## A walk is running (out or in).
+func walking() -> bool:
+	return walk.walking()
+
+
+## ms left in the running walk (0 when none): the controller times Dubi's line after the landing.
+func walk_left_ms() -> float:
+	return walk.left_ms()
+
+
+## The figure is off the canvas after a walk-out (until the next walk-in or a reset).
+func walked_off() -> bool:
+	return walk.gone()
 
 
 func _build_court() -> void:
@@ -644,11 +723,13 @@ func _place_court() -> void:
 		var p: Array = (arr as Array)[0]
 		mouth = (Vector2(float(p[0]), float(p[1])) - hero._anchor()) * hero.scale_px
 	_mark = (feet + mouth).snapped(Vector2(CourtMotion.AP, CourtMotion.AP))
-	hero.position = feet + Vector2(float(court.body_dx_ap()) * CourtMotion.AP, 0.0)
+	walk.feet = feet
+	_apply_figure()
 
 
 func _update_court(dt_ms: float) -> void:
-	if _court_pending and hero.anim == "idle":
+	walk.advance(dt_ms)
+	if _court_pending and hero.anim == "idle" and not walk.walking() and not walk.gone():
 		court_sync(true)
 	court.tick(dt_ms)
 	for e: Dictionary in court.take_events():
@@ -692,8 +773,29 @@ func _hold_frame(f: int) -> void:
 	hero.paused = true
 
 
+## The one writer of the figure's position, visibility and alpha: the mark, plus the court day's
+## zip offset, plus the walk's travel and bob (whole art px each, so the sum is whole art px). The
+## court and the walk never both move him: the walk cuts the court home when it starts, and the court
+## does not start while a walk runs or he is off after a walk-out.
+func _apply_figure() -> void:
+	if hero == null:
+		return
+	var feet := L.magician_feet()
+	hero.position = feet + Vector2(float(court.body_dx_ap() + walk.dx_ap()), float(walk.dy_ap())) * CourtMotion.AP
+	hero.visible = court.body_visible() and walk.shows()
+	hero.modulate.a = figure_alpha()
+
+
+## The figure's alpha: the court's fades times the walk's (reduced motion) fades.
+func figure_alpha() -> float:
+	return court.body_alpha() * walk.alpha()
+
+
 func _apply_court_pose() -> void:
-	if hero == null or _hat == null:
+	if hero == null:
+		return
+	if _hat == null:
+		_apply_figure()
 		return
 	var in_c := court.in_court()
 	if in_c:
@@ -704,10 +806,7 @@ func _apply_court_pose() -> void:
 			_held_frame = -1
 			hero.paused = false
 			hero.play("idle")
-	var feet := L.magician_feet()
-	hero.position = feet + Vector2(float(court.body_dx_ap()) * CourtMotion.AP, 0.0)
-	hero.visible = court.body_visible()
-	hero.modulate.a = court.body_alpha()
+	_apply_figure()
 	var dir := court.travel_dir()
 	for i in _smears.size():
 		var g := _smears[i]

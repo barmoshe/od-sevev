@@ -3849,6 +3849,62 @@
    "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20; v4: the blue ballot envelope, the band is the flap and points 2 rows deeper at the centre, the body is the v4 ui_panel blue, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map §7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece is 38x38 and every margin grew by 1. Draw it at the card rect grown by 4 logical px per side to keep the title band and body exactly where they were."
   },
   {
+   "id": "sheet_modal_body",
+   "group": "sheet",
+   "file": "out/ui/sheet/sheet_modal_body.png",
+   "w": 38,
+   "h": 38,
+   "slice": [
+    7,
+    23,
+    7,
+    7
+   ],
+   "mode": "stretch",
+   "content": [
+    7,
+    23,
+    24,
+    8
+   ],
+   "label": "white",
+   "notes": "The blue envelope without its flap (wave 9, the Animator's wave-B ask): sheet_modal's body, edge and 9-slice [7, 23, 7, 7] exactly, with no title band. Never drawn alone: sheet_modal_flap sits on its top 24 rows (frame 2 at rest), and body + flap f2 = sheet_modal pixel for pixel. Use it only where the flap animates; everywhere else sheet_modal stays."
+  },
+  {
+   "id": "sheet_modal_flap",
+   "group": "sheet",
+   "file": "out/ui/sheet/sheet_modal_flap.png",
+   "w": 114,
+   "h": 24,
+   "slice": [
+    7,
+    0,
+    7,
+    0
+   ],
+   "mode": "stretch",
+   "label": "white",
+   "frames": 3,
+   "frameW": 38,
+   "pivot": [
+    0,
+    0
+   ],
+   "notes": "The blue envelope's flap as a layer (wave 9, the Animator's wave-B ask). 3 frames of 38x24: f0 sealed (a V from the corners down to the point), f1 lifting, f2 open = sheet_modal's title band (the rest frame; body + f2 = sheet_modal, pixel for pixel). A horizontal 3-slice [7, 0, 7, 0] (the body's own columns; the V lives in the stretched centre, so it stays one even staircase at any width). Draw it with Ui.nine at the SAME x / width as the body and its top-left (pivot [0, 0]), 24 art rows tall (96 logical at x4), over sheet_modal_body and under the title and the close x. 0 -> 1 -> 2 at 40 ms each on open, then hold 2. Reduced motion: frame 2 from the first frame. Transparent below the flap: the body shows through. Blank: no text, no emblem, no seal.",
+   "frameNames": [
+    "sealed",
+    "lifting",
+    "open"
+   ],
+   "fps": 25,
+   "loop": false,
+   "base": "sheet_modal_body",
+   "rows": [
+    0,
+    24
+   ]
+  },
+  {
    "id": "sheet_plain",
    "group": "sheet",
    "file": "out/ui/sheet/sheet_plain.png",

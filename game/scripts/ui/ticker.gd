@@ -10,24 +10,37 @@ extends Node2D
 ## lines no wider than the clip, then into pages of 2 lines (1 in large text: two ×5 lines are
 ## taller than the row). A word is never split, so no glyph is ever cut at a clip edge, and the text
 ## is still while it is read. Line cells at y 2 and 42 (pitch 40), right-aligned at the clip's
-## right edge; a one-line page sits centred in the row. Dwell max(3.5 s, 55 ms × the page's
-## characters) (an ftue line: max(4.5 s, …)). The next page enters from the clip's LEFT edge and
-## pushes the old one out to the right in 300 ms (the crawl's direction: the first word enters
-## first); reduced motion: a 200 ms cross-fade.
+## right edge; a one-line page sits centred in the row.
+##
+## M1, the page change (the Animator; motion/motion-audit-2026-09-29.md "Ticker pager"): a ROLL, not
+## a push. The next page rises from under the row as the old one lifts out through its top, both
+## locked one row (84) apart, 240 ms Cubic.Out in 4-px steps. The x of every glyph never moves, so
+## no word is ever cut into a fragment at a clip edge (a sideways push shows the first letters of a
+## word for ~300 ms, and in Hebrew a word's first letters are often another word); only whole glyph
+## rows pass the row's top and bottom edges. Reduced motion: the 200 ms cross-fade.
+## The dwell is per page, by its length (dwell_ms): a first page 1.2 s to find the strip + 70 ms a
+## character, a continuation page 0.5 s + 70 ms a character, clamped to 2.0-5.5 s (an ftue line:
+## 1.5 s + 85 ms a character, 4.5-7.0 s).
 
 const PRIORITY := {"ftue": 3, "milestone": 2, "flavor": 1, "ambient": 0}
 const SCALE := L.TEXT
 const TAG_BOX := 88.0         # string-budgets ticker.tag
 const LINE_Y := [2.0, 42.0]   # mobile-first §5.2: the two line cells (pitch 40)
 const ONE_LINE_Y := 22.0      # a one-line page, centred in the 84 row
-const DWELL_MS := 3500.0
-const DWELL_FTUE_MS := 4500.0
-const DWELL_PER_CHAR_MS := 55.0
-const PUSH_MS := 300.0
-const FADE_MS := 200.0
-## M1 (the Animator, later): the push is built but off; until the Animator tunes its curve every
-## page change uses the reduced-motion cross-fade (the spec's base pager, mobile-first §8.4).
-const PAGE_PUSH := false
+## Dwell per page (M1): the eye's trip to the strip, then a steady read. 70 ms a character is ≈ 14 cps,
+## under the 17 cps adult subtitle rate because the ticker is read in glances between taps.
+const DWELL_ORIENT_MS := 1200.0       # a headline's first page: find the strip, first fixation
+const DWELL_NEXT_MS := 500.0          # a continuation page: the eye is already on the row
+const DWELL_PER_CHAR_MS := 70.0
+const DWELL_MIN_MS := 2000.0          # a one-word tail page still reads as a beat, not a flicker
+const DWELL_MAX_MS := 5500.0
+const DWELL_FTUE_ORIENT_MS := 1500.0  # FTUE lines teach: slower, with the UX floor of 4.5 s
+const DWELL_FTUE_PER_CHAR_MS := 85.0
+const DWELL_FTUE_MIN_MS := 4500.0
+const DWELL_FTUE_MAX_MS := 7000.0
+const ROLL_MS := 240.0                # the page roll (Cubic.Out, 4-px steps)
+const STEP_PX := 4.0                  # one stage art px: whole device px at every crisp k
+const FADE_MS := 200.0                # reduced motion: the cross-fade
 
 var reduced_motion := false
 var on_milestone_start: Callable
@@ -241,7 +254,8 @@ func set_reduced_motion(on: bool) -> void:
 
 ## window.odDisplay.ticker (mobile-first §5.2; tools/web/mobile_web.mjs reads it).
 func web_info() -> Dictionary:
-	return {"mode": "page", "clipW": _clip.size.x, "lines": lines_per_page()}
+	return {"mode": "page", "clipW": _clip.size.x, "lines": lines_per_page(), "transition": "fade" if reduced_motion else "roll",
+		"rollMs": ROLL_MS, "clipX": _clip.position.x, "clipY": _clip.position.y, "clipH": _clip.size.y}
 
 
 ## 2 lines a page; 1 in large text (two ×5 lines are 100 > 84).
@@ -317,11 +331,24 @@ static func wrap_pages_px(text: String, max_px: float, scale_px: int) -> PackedS
 	return wrap_lines_px(text, max_px, scale_px)
 
 
-static func dwell_ms(page: PackedStringArray, kind: String) -> float:
+## How long page `page` stays still (M1): by its characters (spaces included); `first` = the
+## headline's first page (the eye has to find the strip), else a continuation.
+static func dwell_ms(page: PackedStringArray, kind: String, first: bool = true) -> float:
 	var chars := 0
 	for l in page:
 		chars += l.length()
-	return maxf(DWELL_FTUE_MS if kind == "ftue" else DWELL_MS, DWELL_PER_CHAR_MS * chars)
+	if kind == "ftue":
+		var f := (DWELL_FTUE_ORIENT_MS if first else DWELL_NEXT_MS) + DWELL_FTUE_PER_CHAR_MS * chars
+		return clampf(f, DWELL_FTUE_MIN_MS, DWELL_FTUE_MAX_MS)
+	var ms := (DWELL_ORIENT_MS if first else DWELL_NEXT_MS) + DWELL_PER_CHAR_MS * chars
+	return clampf(ms, DWELL_MIN_MS, DWELL_MAX_MS)
+
+
+## The roll at progress `p` (0-1, time over ROLL_MS): how far both pages have risen, in whole px on
+## the 4-px grid (Cubic.Out). The incoming page sits at y `row_h − rise`, the outgoing at `−rise`.
+static func roll_rise(p: float, row_h: float) -> float:
+	var e := 1.0 - pow(1.0 - clampf(p, 0.0, 1.0), 3.0)
+	return Ui.snap(row_h * e, int(STEP_PX))
 
 
 func _start_item(it: Dictionary) -> void:
@@ -345,7 +372,7 @@ func _restart_item() -> void:
 	_tr = {}
 	for n in _pages_n:
 		n.visible = false
-		n.position.x = 0.0
+		n.position = Vector2.ZERO
 		n.modulate.a = 1.0
 	_show_page(0, false)
 
@@ -359,7 +386,7 @@ func _show_page(i: int, animate: bool) -> void:
 	_page_idx = i
 	_page_t = 0.0
 	var page: PackedStringArray = _pages[i]
-	_dwell = dwell_ms(page, String(_item["kind"]))
+	_dwell = dwell_ms(page, String(_item["kind"]), i == 0)
 	var col := Art.col(K["milestoneText"] if _item["kind"] == "milestone" else K["text"])
 	var pair: Array = _lines[nxt]
 	var w := _clip.size.x
@@ -376,9 +403,9 @@ func _show_page(i: int, animate: bool) -> void:
 	var n: Node2D = _pages_n[nxt]
 	n.visible = true
 	n.modulate.a = 1.0
-	n.position.x = 0.0
+	n.position = Vector2.ZERO
 	if animate and out >= 0 and out != nxt:
-		_tr = {"t": 0.0, "out": out, "fade": reduced_motion or not PAGE_PUSH}
+		_tr = {"t": 0.0, "out": out, "fade": reduced_motion}
 		_apply_transition(0.0)
 	else:
 		_tr = {}
@@ -386,8 +413,9 @@ func _show_page(i: int, animate: bool) -> void:
 			_pages_n[out].visible = false
 
 
-## The page transition at t ms: the push (the new page enters from the left edge, the old leaves
-## through the right, 4-px steps, cubic ease-out) or the reduced-motion cross-fade.
+## The page transition at t ms: the roll (the new page rises from under the row as the old one
+## lifts out through its top; x never moves, so no word is cut into a fragment) or the
+## reduced-motion cross-fade.
 func _apply_transition(t: float) -> void:
 	var out: int = _tr["out"]
 	var n_in: Node2D = _pages_n[_cur]
@@ -395,33 +423,44 @@ func _apply_transition(t: float) -> void:
 	if _tr["fade"]:
 		var p := minf(1.0, t / FADE_MS)
 		n_in.modulate.a = p
-		n_in.position.x = 0.0
+		n_in.position = Vector2.ZERO
 		if n_out != null:
 			n_out.modulate.a = 1.0 - p
 		if p >= 1.0:
 			_end_transition()
 		return
-	var p2 := minf(1.0, t / PUSH_MS)
-	var e := 1.0 - pow(1.0 - p2, 3.0)
-	var w := _clip.size.x
-	var dir := 1.0 if L.RTL else -1.0
-	var off := Ui.snap(w * e, 4)
-	n_in.position.x = -dir * (w - off)
+	var p2 := minf(1.0, t / ROLL_MS)
+	var h := _clip.size.y
+	var rise := roll_rise(p2, h)
+	n_in.position = Vector2(0.0, h - rise)
 	if n_out != null:
-		n_out.position.x = dir * off
+		n_out.position = Vector2(0.0, -rise)
 	if p2 >= 1.0:
 		_end_transition()
+
+
+## The page nodes' offsets now (tests, the motion check): [in, out] (out is null without one).
+func page_offsets() -> Array:
+	var out: Variant = null
+	if not _tr.is_empty() and int(_tr["out"]) >= 0:
+		out = (_pages_n[int(_tr["out"])] as Node2D).position
+	return [(_pages_n[_cur] as Node2D).position, out]
+
+
+## A page change is running.
+func in_transition() -> bool:
+	return not _tr.is_empty()
 
 
 func _end_transition() -> void:
 	var out: int = _tr["out"]
 	_tr = {}
-	(_pages_n[_cur] as Node2D).position.x = 0.0
+	(_pages_n[_cur] as Node2D).position = Vector2.ZERO
 	(_pages_n[_cur] as Node2D).modulate.a = 1.0
 	if out >= 0 and out != _cur:
 		var n: Node2D = _pages_n[out]
 		n.visible = false
-		n.position.x = 0.0
+		n.position = Vector2.ZERO
 		n.modulate.a = 1.0
 
 
@@ -446,7 +485,7 @@ func _end_item(requeue: bool) -> void:
 		l.visible = false
 	_cur = 1 - _cur
 	(_pages_n[_cur] as Node2D).visible = true
-	_tr = {"t": 0.0, "out": out, "fade": reduced_motion or not PAGE_PUSH}
+	_tr = {"t": 0.0, "out": out, "fade": reduced_motion}
 	_apply_transition(0.0)
 
 

@@ -1195,3 +1195,83 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - **Checks:** `tools/test.sh` 353/353 (new `test_mobile_layout.gd`: grid, width, split, tab slots, picker plan, ticker clip, pager, modal and share scale against `ux/tools/mobile_layout.py --json` for all 12 devices, plus the scene booted at 4 phones; `test_leader_pick` covers the merge-ready line); strict `tools/build_web.sh` green; `mobile_web.mjs` **PASS on the whole matrix, 0 baseline / 0 layout / 0 width failures, in v4**; res, views, modals, share, motion PASS; `round_web` PASS on the mobile build before the palette (b827500); on v4 three runs lost the gate to the driver (a walkout at ×10 under the election card, a random leader's round out of budget, one page navigation), not the layout, and the driver now retries the gate; `picker_web` passes the pick, the leader card, the undo and tap 1, then its Bennett round never holds 61 at ×12 in the driver's budget (the same stall on the pre-palette build), so the after-election steps stay unverified in the browser (the unit tests cover them)
   - **Before/after:** `scratchpad/shots/mobile-after/compare.png` (v4; `compare-v2-palette.png` is the same pass before the palette): 375×667@2, 390×844@3, 430×932@3, 412×915@2.625 × pick, pre-tap, card 1, C1, T3, settings.
   - No objection outstanding.
+
+## 2026-09-30, Animator wave B: the leader walk wired, M1 (the ticker roll), the slip stamp
+- **LeaderWalk wired** (`motion/state-graph-magician.md` §9):
+  - **Walk-out:** the old leader walks off screen-right (560 ms Sine.In, 1-ap bob) as the EVOLVE_TX card lifts (new `walk` cue at t 1200), before the flash or the picker. Input stays locked until he is off (t 1760; +260 ms on the 1.5 s ceremony, and the music cue is still on time). Reduced motion: a 150 ms fade on the mark at t 1000, no tail.
+  - **Walk-in:** after the pick, from screen-left to the feet point (640 ms Sine.Out). It replaces the 250 ms placeholder fade. Dubi's line follows the landing (+120 ms, 1280 ms after the commit). The undo mid-walk and "again" both walk in from off-stage.
+  - **The conflict is resolved:** `BigBanana._apply_figure` is the one writer of the figure's position, visibility and alpha (mark + court offset + walk offset). The court yields while a walk runs (courtStart latches until the landing), and a walk-out cuts a court day home.
+  - The swap is 1.2 s of leader motion, within the 1.5 s budget.
+  - The seam drops the old round's pending pick lines and Dubi's bubble.
+  - Dev: `window.odDevElect = 1` forces the ceremony (no 61 gate) for the strips.
+- **M1, the ticker:**
+  - **A roll, not UX's push:** the next page rises as the old one lifts, 240 ms Cubic.Out, 4-px steps, the pages locked one row apart. The x never moves, so no Hebrew prefix fragment ever shows at a clip edge (a deviation from §5.2's push, argued in the audit). Reduced motion keeps the 200 ms cross-fade.
+  - **The dwell is per page by length:** a first page 1.2 s + 70 ms a character, a continuation 0.5 s + 70 ms, 2.0-5.5 s; FTUE 1.5 s + 85 ms, 4.5-7.0 s. A median headline now takes 4-6 s (was 7.0; every page sat on the old 3.5 s floor). Measured on 275 lines by `game/tests/dev/ticker_pages.gd`.
+- **The v4 slip stamp:** a spin card's tag on the `card_plate` slip slams in at ×6 → ×5 → ×4 over 90 ms when it appears or changes on the same card; reduced motion cuts.
+- **Envelope flap:** not built; it needs art. The ask to the 2D Artist is a 3-frame `sheet_modal_flap`, in the audit.
+- **Checks:**
+  - `tools/test.sh` 368/368 (new `test_leader_walk` 9, `test_ticker_roll` 4, `test_slip_stamp` 2; the mobile-layout dwell check retuned);
+  - strict `tools/build_web.sh` green;
+  - `tools/web/motion_web.mjs` (new walk + ticker sections, duration-based strips) PASS at 390×844@2;
+  - `mobile_web.mjs` PASS at 390×844@3 and 375×667@2 (one C1 probe race on the first 390 run under load; the rerun passed).
+- **Strips:** `scratchpad/shots/motion-b/`: walk-in/out (+ `-rm`), the browser ticker (+ `-rm`), and `ticker-strip-{roll,rm}` (the engine, 16 ms steps).
+- **Asks:**
+  - 2D Artist: the flap strip.
+  - Audio: a cue for the slip stamp at its f0.
+  - Dev/UX: the pager wraps "10,000 ₪." before the ₪; bind the sign to its number.
+- No objection outstanding. A deviation is logged: the roll replaces §5.2's push. UX may counter-object with an alternative.
+
+## 2026-09-30, 2D Artist + Audio Director: the envelope flap and the slip stamp's cue (Animator wave B asks)
+- **The flap (2D, `art/od-sevev/src/wave9.py`, style guide §17.2, CONTRACT §5):** `sheet_modal_body` (38×38, 9-slice [7, 23, 7, 7], the envelope without its flap) and `sheet_modal_flap` (3 frames of 38×24, 3-slice [7, 0, 7, 0], pivot [0, 0]). f0 is sealed (a V from the corners to the point), f1 is lifting, and f2 is open (= the title band). Body + f2 = `sheet_modal` pixel for pixel, and the build asserts it. `sheet_modal` is unchanged.
+  - **Wiring:** the body where `sheet_modal` is drawn today, then the flap at the same x, width and top, 96 logical tall. Draw order: body → flap → title and ✕. Frames 0/1/2 at 0/40/80 ms of the open, then hold 2; the title and ✕ show from f2. Reduced motion: f2 at once.
+  - **Deviation:** "open" is the band, not a flap pointing up, so that the rest look stays the approved v4.
+  - **Why 24 rows:** the point's shadow is on art row 23, the stretched centre's first row. Inside the 9-slice it becomes a ~190×45 dark slab under the point on every modal today (seen in the engine). The flap path draws it as one row. **→ Game Developer:** moving the modals to body + flap removes the slab.
+  - The pipeline re-import has 0 cast drift and 261 kit pieces. VRAM +16,720 B.
+- **`slipStamp` (Audio v1.4, cue-spec §3.2 and §4):**
+  - A dry rubber-on-paper thunk: a slap, a pad, a rubber knock and a thud, staggered over 12 ms, then a lift-off tick. UI bus, 89 ms, one unpitched file.
+  - Burst −20.5 LUFS, 2 dB under the stamp's heard −18.5 and 4.5 under `buy`. play_db −5.17. True peak −6.2 dBTP. Centroid 0.69 kHz. It is not Herzog's stamp (§5.6).
+  - **Hook:** one line in `shop.gd` where `tagSlam` starts, to main 3 levels up. It is a no-op without the host or the cue.
+  - **Tests:** `test_audio` adds the scan entry, a cue test and a host-path test. Renders are deterministic (317 files).
+- **Checks:** `tools/test.sh` 370/370; strict `tools/build_web.sh` green.
+- **Sheets:** the scratchpad `shots/flap/`: `flap-contact.png` (Python, 4 sizes), `flap-engine.png` (Godot, Ui.nine + set_nine_frame) and `flap-strip-x8.png`.
+- No objection outstanding.
+
+- 2026-09-30 · ux-designer · **UX review 2 of the full build** (the picker, mobile-first, v4, the walk, the roll) + **F15 placement** + **rulings on the roll and the pager** · `ux/review-2026-09-30.md` (new), `ux/mobile-first-layout.md` (§5.2, new §5.2.1, new §5.14, §10, §11), `ux/rtl-map.md` §2, `ux/tools/gen_strings.py` → strings, `game/scripts/ui/top_bar.gd`, `game/scripts/ui/views/view_share.gd`
+  - **Played:**
+    - touch-only in Chromium at 390×844@3 and 375×667@2, spot-checked at 430×932@3;
+    - the gate, the picker, the first minute, C1, T3, a forced election, the flash and the picker again;
+    - `round_web` PASS (a full round to O3 and round 2's picker);
+    - `mobile_web` PASS on the three sizes;
+    - `share_web` PASS at @2 (its @3 pending-chip probes are timing);
+    - `modals_web`: all shots taken, but its "C1: the group opened" step fails at @2 and at @3 (6 buys × 2.6 s on a court day at ×0.5 income; C1 opens at 42-48 s in touch-only play). That is a driver question for the Game Developer.
+  - **Findings U1-U16, no blockers.** Majors:
+    - **U1** (TA + engine): `sheet_modal`'s flap shadow row 23 falls in the stretched centre slice, and paints a slab behind the first line of every SheetCard (O3, O10, O1, the leader card). Fix: slice top 24, `HEADER_H` 96.
+    - **U2** (2D + engine): primary and secondary buttons are the same blue (1.13:1). Fix: a white-face primary with a flag label; O3's commit takes the gold CTA skin.
+    - **U3** (engine): a blank white field fills 45% of the screen between tap 1 and card 1. Fix: keep the plaza until card 1.
+    - **U4 / U5** (fixed here): the rate line at 60% on flag blue was 2.9:1 → alpha 0.9, 4.9:1; the share status line in `ui_mute` on cream was 1.3:1 → flag, 8.5:1.
+  - **Minors:**
+    - the SE peek shows a pill's top (the S7 check misses pills);
+    - the slate silhouettes and system pills are off-palette;
+    - the "61" in the coalition tab icon reads as an unread count;
+    - Dubi's pick line sits over the leader pre-tap;
+    - EVOLVE_TX is a blank cream page;
+    - the WhatsApp button's bubble-with-tick icon;
+    - the stale reduced-motion caption (fixed);
+    - the owned badge covers the portrait;
+    - the WhatsApp row is not full width.
+  - **Roll (M1): accepted, no counter-objection** (D47, D48). A push shows Hebrew prefix fragments; a roll cuts glyph rows and keeps x. Conditions: a roll always completes; a tap mid-roll opens the incoming headline; reduced motion keeps the cross-fade.
+  - **Pager: the no-break rule, §5.2.1** (D49):
+    - strong glue (₪ with its number, punctuation with its word) and weak glue (a number with its magnitude word);
+    - NBSP at display time, in `PxText` and `Ticker.paginate`; all three fonts have U+00A0 at the space's advance;
+    - the bad breaks on the content go from 18/20/14/11 to 1/0/0/0 at the 280/324/384/464 clips.
+  - **F15, §5.14** (D50):
+    - **the hemicycle goes on O3 only** (×4 as the card's hero, `seats[0:n]` RTL, drawn in the blackout; left out if the card exceeds the modal band). **Not Row B** (the bar stays on every device). **Not the result card:** a filled arc beside a leader is the TV poll graphic on a forwarded image (style guide §13 and the `poll-number` red line; this overrides the dispatch suggestion);
+    - **the booth goes on the picker wherever it is free:** tiles unchanged, 44 px from the sky, the columns at 20. On at 390, 393, 430, 360, 412 and the frame; off at the SE and the toolbar viewports;
+    - **the envelope goes on O5's stage floor and on the share sheet's "sent" line**, never on blue (1.1:1).
+  - **Checks:** `tools/test.sh` 368/368; strict `tools/build_web.sh` green (the text lint is 0).
+  - **→ game-developer:** §10 D1 (§5.2.1, §5.14), U3, U6, U9, U11, U13, U14; U1 and U2 with the TA and the 2D Artist.
+  - **→ technical-artist:** T1 (`sheet_modal` slice top 24).
+  - **→ 2d-artist:** A4 (the white primary button), U7 (the silhouette row), U8 (the tab icon), U10 (EVOLVE_TX as a notice); A5 is optional.
+  - **→ animator:** M3 (optional: the hemicycle fill).
+  - **→ game-designer:** G2 (the ticker units lint).
+  - No objection outstanding.

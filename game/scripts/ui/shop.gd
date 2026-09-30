@@ -43,6 +43,7 @@ const TALL_TABS := ["coalition", "dossier"]
 const SPIN_BARS := Rect2(220, 104, 360, 8)
 ## The spin tag's stamp: the bottom band of the plate (kit card_plate at 588-692 × 8-112).
 const SPIN_TAG := Rect2(592, 72, 96, 40)
+const TAG_SLAM_STEP_MS := 30.0      # the slip's stamp slam: ×6, ×5, ×4 (90 ms, Stepped)
 const SPIN_BAR_PUBLIC := "e"
 const SPIN_BAR_FRIENDLY := "O"
 
@@ -666,10 +667,44 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	(v["owned"] as PxText).tint = Color(0.827, 0.839, 0.875)
 	_render_bars(v, bars)
 	var tg: PxText = v["tag"]
+	# the stamp on the ballot slip (animator wave B): a tag that appears or changes on the same card
+	# (a line's "1/5" → "2/5" after a buy, "שחוק") slams like the chat's pay-pill stamp; a card that
+	# only scrolled or changed tab keeps its tag still
+	var tkey := "%s:%s" % [m["kind"], id]
+	if tag_s != str(v.get("tagText", "")):
+		var same := str(v.get("tagKey", "")) == tkey
+		v["tagSlam"] = 0.0 if (same and tag_s != "" and not reduced_motion) else -1.0
+		if same and tag_s != "" and get_node_or_null("../../..") != null and get_node("../../..").has_method("audio_event"): get_node("../../..").call("audio_event", "slipStamp")   # Audio v1.4: the thunk on f0 (×6), on the cut in reduced motion; main is 3 up (_lower, _root); a no-op without it or the cue
+		v["tagText"] = tag_s
+	v["tagKey"] = tkey
 	tg.text = tag_s
-	tg.center_in(SPIN_TAG.position.x, SPIN_TAG.size.x)
 	tg.visible = tag_s != ""
 	(v["tagBg"] as ColorRect).visible = tg.visible
+	_place_tag(v)
+
+
+## The slip's stamp at its slam step (TAG_SLAM: integer text scale 6 → 5 → 4 over 90 ms, the backing
+## growing with it around the tag's centre in 4-px steps; a transient under 180 ms). At rest: ×4 in
+## SPIN_TAG.
+func _place_tag(v: Dictionary) -> void:
+	var tg: PxText = v["tag"]
+	var bg: ColorRect = v["tagBg"]
+	var px := tag_slam_px(float(v.get("tagSlam", -1.0)))
+	var c := SPIN_TAG.get_center()
+	var sz := Vector2(Ui.snap(SPIN_TAG.size.x * float(px) / float(L.TEXT), 4), Ui.snap(SPIN_TAG.size.y * float(px) / float(L.TEXT), 4))
+	bg.position = Vector2(Ui.snap(c.x - sz.x / 2.0, 4), Ui.snap(c.y - sz.y / 2.0, 4))
+	bg.size = sz
+	if tg.px != px:
+		tg.px = px
+	tg.center_in(bg.position.x, bg.size.x)
+	tg.position.y = bg.position.y + Ui.snap((sz.y - 9.0 * float(px)) / 2.0, 2)   # at rest: SPIN_TAG.y + 2
+
+
+## The stamp's text scale `t` ms into its slam (-1 = at rest): 6 for 30 ms, 5 for 30, then 4.
+static func tag_slam_px(t: float) -> int:
+	if t < 0.0 or t >= 3.0 * TAG_SLAM_STEP_MS:
+		return L.TEXT
+	return L.TEXT + 2 - int(t / TAG_SLAM_STEP_MS)
 
 
 ## S08's split bar: "public" from the right (the RTL fill side), the drained share after it.
@@ -728,6 +763,11 @@ func _start_hello(v: Dictionary) -> void:
 
 
 func _animate_row(v: Dictionary, dt_ms: float) -> void:
+	if float(v.get("tagSlam", -1.0)) >= 0.0:
+		v["tagSlam"] = float(v["tagSlam"]) + dt_ms
+		if float(v["tagSlam"]) >= 3.0 * TAG_SLAM_STEP_MS:
+			v["tagSlam"] = -1.0
+		_place_tag(v)
 	var S: Dictionary = L.SHOP
 	var target := 1.0 if v["pressed"] else 0.0
 	var dur := float(Tune.T["buyPressMs"] if v["pressed"] else Tune.T["buyReleaseMs"])

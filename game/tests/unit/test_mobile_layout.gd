@@ -144,8 +144,10 @@ func test_the_pager_never_splits_a_word() -> void:
 				runner.check(PxText.measure(ln, 4) <= int(clip), "'%s' fits the %d clip" % [ln, int(clip)])
 				words.append_array(Array(ln.split(" ")))
 		runner.check(" ".join(words) == text, "clip %d: the words, in order, none split" % int(clip))
-	runner.check(Ticker.dwell_ms(PackedStringArray(["קצר"]), "flavor") == 3500.0 and Ticker.dwell_ms(PackedStringArray(["קצר"]), "ftue") == 4500.0, "dwell floors 3.5 s / 4.5 s (ftue)")
-	runner.check(Ticker.dwell_ms(PackedStringArray(["x".repeat(100)]), "flavor") == 5500.0, "55 ms a character above the floor")
+	# M1 (the Animator) retunes the dwell by page length: floors 2.0 s / 4.5 s (ftue), caps 5.5 / 7.0 s
+	runner.check(Ticker.dwell_ms(PackedStringArray(["קצר"]), "flavor") == 2000.0 and Ticker.dwell_ms(PackedStringArray(["קצר"]), "ftue") == 4500.0, "dwell floors 2.0 s / 4.5 s (ftue)")
+	runner.check(Ticker.dwell_ms(PackedStringArray(["x".repeat(30)]), "flavor") == 3300.0, "1.2 s + 70 ms a character above the floor")
+	runner.check(Ticker.dwell_ms(PackedStringArray(["x".repeat(100)]), "flavor") == 5500.0, "capped at 5.5 s")
 
 
 ## §5.10-§5.12: modal growth and the share preview scale.

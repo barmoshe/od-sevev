@@ -1013,6 +1013,31 @@ def cues():
                          "runtime": "Once per upward crossing of 75 % (the view's calm -> hot change). Silent at 95 % "
                                     "(boiling): the visual boil and the coming gavel carry it.",
                          "target": {"type": "burst", "lufs": -20.0}}
+
+    # slipStamp (v1.4, the Animator's wave B): the rubber stamp on the ballot slip (a spin card's tag slams
+    # x6 -> x5 -> x4). A dry rubber-on-paper thunk: a paper slap (band-passed noise at 1.2 kHz), a dark noise
+    # body (low-passed at 900 Hz: the pad on the desk), a short crushed TRI rubber knock (380 -> 260 Hz, the
+    # phone-speaker body, too short to read as a note), a low TRI thud under it for headphones, and a faint
+    # lift-off tick. It is NOT Herzog's stamp: no 2.5 kHz thump, no pitched 'ink' glide, no bell. That stamp's
+    # sameness is its joke (cue-spec §5.6) and stays unspent. Unpitched, one file, like the stamp.
+    slip = [L(id="slap", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 1200, "Q": 0.8},
+              attack=0.0005, decay=0.022, sustain=0.0, duration=0.022, release=0.004, gain=1.0),
+            L(id="pad", wave="noise", clockStart=14000, filter={"type": "lowpass", "freq": 900, "Q": 0.0},
+              delay=0.006, attack=0.002, decay=0.06, sustain=0.0, duration=0.06, release=0.012, gain=0.9),
+            L(id="rubber", wave="triangle", crush=4, freqStart=380, freqEnd=260, freqCurve="exp", glide=0.03,
+              followPitch=False, delay=0.009, attack=0.001, decay=0.035, sustain=0.0, duration=0.035, release=0.01,
+              gain=0.8),
+            L(id="thud", wave="triangle", freqStart=150, freqEnd=100, freqCurve="exp", glide=0.05, followPitch=False,
+              delay=0.012, attack=0.001, decay=0.06, sustain=0.0, duration=0.06, release=0.01, gain=0.25),
+            L(id="lift", wave="noiseMetal", clockStart=44000, filter={"type": "highpass", "freq": 3500, "Q": 0.7},
+              delay=0.075, attack=0.0005, decay=0.006, sustain=0.0, duration=0.006, release=0.003, gain=0.2)]
+    C["slipStamp"] = {"meaning": "The ballot slip is stamped (a spin card's tag appears or changes: '1/5' -> '2/5', 'שחוק').",
+                      "bus": "UI", "priority": 1, "poly": 2, "steal": "oldest", "ducks": [], "pitch": {"type": "none"},
+                      "variants": {"": slip},
+                      "runtime": "On the slam's f0 (the x6 frame) in shop.gd; in reduced motion on the cut. It often lands "
+                                 "with `buy` (the purchase that changed the tag): it sits 4.5 dB under it, centred at 0.7 kHz under its "
+                                 "1-4 kHz blips. Repeats per purchase, so it sits 2 dB under the stamp's heard -18.5 (0.5 over uiClick).",
+                      "target": {"type": "burst", "lufs": -20.5}}
     return {
         "version": "od-1",
         "_doc": "עוד סבב SFX cues. Owner: Audio Director. Written by audio/tools/compose_od.py; rendered by "
@@ -1234,6 +1259,8 @@ def check_cues(c):
             # v1.3 mix pass: UI cues keep short tails; a first sound starts at t=0 and ends inside 1 s
             if cue["bus"] == "UI" and end > 0.4:
                 err("%s/%s: UI cue ends at %.2f s (> 0.4 s tail)" % (cid, vid, end))
+            if cid == "slipStamp" and end > 0.25:                # v1.4: a stamp that can repeat stays a thunk
+                err("%s/%s: ends at %.2f s (> 0.25 s)" % (cid, vid, end))
             if cue.get("firstSound") and cid == "leaderPick":
                 if min(Lr.get("delay", 0) for Lr in layers) > 0.0005:
                     err("%s: a first sound must start at t=0 (no silent lead-in)" % cid)
