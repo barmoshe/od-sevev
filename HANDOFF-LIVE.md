@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `6f0423e` docs(od-sevev): live handoff snapshot 03:03
+- Branch head: `2d4cd32` docs(od-sevev): live handoff snapshot 03:04
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -43,7 +43,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | 2D Artist + TA | DONE, merged (lane, plaza, wings, XL pick heads avatar_pick_<c>_d3/_d2, brawl_cloud_cue x4, court spots as kit data) | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
 | 2D Artist + TA (palette) | DONE, v4 landed through the mobile merge | `worktree-agent-a5e8cafeb35582361` | 0 | 0 | - |
 | Animator (wave B) | wire LeaderWalk (walk-out at election, walk-in on pick; resolve the court-pose position conflict); M1 ticker page transition; v4 envelope/stamp motion where present | `worktree-agent-ae7ba45935a398eb9` | 2 | 1 | `Animator-(wave-B).commits.patch` `Animator-(wave-B).patch` |
-| Game Designer (gate) | hold the election gate (seats slipping under 61 while the card is open); make round_web + picker_web pass 3x; balance re-check | `worktree-agent-aaf6cad83faca5924` | 0 | 9 | `Game-Designer-(gate).patch` |
+| Game Designer (gate) | hold the election gate (seats slipping under 61 while the card is open); make round_web + picker_web pass 3x; balance re-check | `worktree-agent-aaf6cad83faca5924` | 0 | 11 | `Game-Designer-(gate).patch` |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
