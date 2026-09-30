@@ -418,6 +418,88 @@ Median player, first election, median of seeds 1-9 (one seat deal per seed); the
 | L9 | **Blackout 23.10-27.10** | The picker shows no numbers. Partner cards with `pollLike` hide as today. Shuffled seats are game values, never polls. |
 | L10 | **Aide drops then switching** | The −3% is on the shared base and persists; the aide drop only exists in Bibi's round. |
 | L11 | **Karhi's s08 line** | Available whenever Karhi is a member. It resets with the round as today. |
+| L12 | **The gate slips under the open election card** | "The vote stops the clock" (§7.4). |
+
+### 7.4 The vote stops the clock (Game Designer, 2026-09-30)
+
+**The issue.** A player reaches 61, taps "עוד סבב!", and reads O3. Before today the round kept
+running under the card: an ultimatum ran out, a partner walked, a card fired, and "לפזר את הכנסת"
+went grey while the card covered the chat that would have shown why. The browser drivers hit it
+at ×10 ("seats dropped under the open election card"), and it is not only a fast-clock artefact.
+The bench measured it at ×1 for the median player on every leader, seeds 1-9 (72 first elections),
+reading the card with no other input after the gate first opened:
+
+| Time on the card | 3 s | 10 s | 30 s | 60 s |
+|---|---|---|---|---|
+| The gate fell under it (of 72) | 3 | 6 | 15 | 27 |
+
+Ben Gvir lost it in 4 of 9 deals within 30 s. When the gate opens there is almost always an
+ultimatum running (61 of 72 deals), because the last seats come from paying a demand while
+another partner is still threatening.
+
+**The rule.** While the election card (O3) is open and not yet confirmed, the round holds:
+- No ultimatum counts down or runs out. No demand ages into one.
+- No partner joins, and Gotliv's meter stands still.
+- No card fires, and every live card's timer stops (the pledge, a seat drain, a nip).
+- The court waits.
+- The economy holds too: no income, no timed buffs running out, no automation.
+- Only the calendar follows the real clock (it is the real date).
+
+The seats the player opened the card with are the seats they vote on. Closing the card ("עוד לא",
+✕, the backdrop, Esc, back) resumes everything where it stood. The card can still open without a
+majority (E, a stale CTA): it is then a pause with the button disabled, which gains nothing.
+
+**Why this rule.**
+- **Fairness.** The card covers the chat. A loss the player cannot see and cannot answer is not a
+  decision; it is a tax on reading. Every other timer loss in the game is visible and recoverable
+  (pitch §11 Q4); this one was neither.
+- **Feel.** The election is the round's climax. The press should be the payoff of the round, not
+  a race against a hidden clock. Nothing moving on the card also makes its numbers ("×now ← ×after")
+  stable while they are read.
+- **No exploit.** Because the money stops as well, holding the card open farms nothing: no income,
+  no growth of the pending base, no demand skipped. It is strictly worse than closing the card and
+  playing on, and worse than hiding the tab (which still earns the away income).
+
+**Rejected.**
+- **Freeze only the politics.** Ultimatums would stop while income ran. An idle player at 61 could
+  leave the card open and skip about half the coalition's cost while the pending base grew: a
+  dominant AFK strategy.
+- **A grace window after 61** (the gate latches for N s, or for as long as the card is open).
+  Walkouts would still happen behind the card, so the player would call an election on 55 while the
+  HUD reads "מנדטים 55/61". That breaks the gate's one fiction, and a latch that lasts while the card
+  is open is the same free farm as above.
+- **Close the card when the gate slips.** It is honest, but the player still loses the moment to
+  something they could not see.
+- **Keep the live grey-out** (the status quo). It is the issue itself.
+
+**Per leader.** The rule is leader-neutral, and every rule effect is covered by it:
+- **Liberman** (the tightest lineup): his last seats are often a join
+  demand paid on the edge; he held 9/9 under the card (7/9 before).
+- **Golan:** a merged pair walks out together and costs double. Under the card no ultimatum
+  expires, so no merged walkout happens there (9/9, was 7/9). The merge itself needs the chat, so
+  it cannot happen under the card either.
+- **Bennett:** his pledge card raises the gate by 1 while it is up. In his own round it only fires
+  below 61 (L7, `seatsBelow`). As a rival card in rounds 2+ of other leaders it has no such guard,
+  but no card fires under the election card, and a pledge already up keeps its timer frozen.
+- **Ben Gvir** (halved threats; an unpaid demand still escalates): was the worst case (5/9 after 30 s),
+  now 9/9.
+- **Deri** (cheap rejoins), **Smotrich**, **Eisenkot**, **Bibi**: now 9/9 (7-8/9 before).
+
+**Pacing is unchanged.** The bench calls the election the moment the gate opens, so every median
+in §7.2.1 is the same to the second. `test_leaders_balance.gd` V1 now checks every leader and deal:
+the gate holds after 30 s on the card, and it prints the no-hold count for contrast.
+
+**Where it lives.**
+- The sim: `Politics.tick(ctx.vote)` and `Politics.holds_for_vote`.
+- The controller: `main.gd` `vote_open()`, which is the top overlay being an unconfirmed
+  `ElectionCard`, and `_step_economy(…, vote)`.
+- The browser drivers check it live: `odDev.coal.vote`, and `runSec` and the seats unchanged over
+  1.5 s on the card.
+- Tests: `test_vote_hold.gd` (sim) and `test_modals.gd` (scene).
+
+**Open for UX (optional).** Nothing on the card says the round is paused. The counter stops moving,
+which reads naturally as "the vote". If playtest shows confusion, a muted line under the title
+("הספירה עוצרת עד ההצבעה") is the lever. It is a UX string, not a rule change.
 
 ---
 

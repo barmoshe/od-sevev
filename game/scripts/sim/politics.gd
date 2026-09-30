@@ -10,6 +10,15 @@ extends RefCounted
 ##   nowMs: float     Calendar.resolve_now() result; when present the calendar mode updates.
 ##   weekday: int     device clock, 0 = Sunday (the Pink Front drum line)
 ##   hour: int        device clock, 0-23
+##   vote: bool       the election card (O3) is open: "the vote stops the clock" (below).
+##
+## The vote stops the clock (Game Designer, 2026-09-30). While O3 is open the round holds:
+## no ultimatum counts down or expires, no demand ages into one, no partner joins, Gotliv's
+## meter and every live card's timer stand still, the court waits and no new card fires. The
+## calendar alone follows the real clock. The controller also stops the economy for the same
+## frames (main.gd `_step_economy`), so the card is a pause, never a farm: whatever the seats read
+## when the player opened the card is what they vote on, and nothing is lost behind a modal that
+## hides the chat. See design/leader-select-spec.md §7.4.
 
 
 ## Registers the systems' modifiers (once). With a state it installs that state's round (the
@@ -35,11 +44,18 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 	Leaders.ensure(s)
 	if ctx.has("nowMs"):
 		out.append_array(Calendar.update(s, float(ctx["nowMs"])))
+	if holds_for_vote(ctx):
+		return out
 	out.append_array(Coalition.tick(s, dt, d, ctx, rng))
 	out.append_array(Investigation.tick(s, dt, d))
 	out.append_array(Events.tick(s, dt, d, ctx, rng))
 	_count_night_taps(s, ctx)
 	return out
+
+
+## The vote stops the clock: ctx.vote (the election card is open).
+static func holds_for_vote(ctx: Dictionary) -> bool:
+	return ctx.get("vote", false) == true
 
 
 ## Trophy "לילה לבן" (stat tapsAt2to4): taps made while the clock reads 02:00-03:59. The hour is
