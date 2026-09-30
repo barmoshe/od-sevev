@@ -14,7 +14,7 @@ index dd08875..f7d6e3e 100644
  			_acc = 0.0,
  		# the leader swap (spec §9.3.4): when a pick follows, the old leader walks off screen-right as
 diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
-index 3dc157b..7c1840e 100644
+index 3dc157b..ddbf538 100644
 --- a/tools/web/motion_web.mjs
 +++ b/tools/web/motion_web.mjs
 @@ -1,17 +1,23 @@
@@ -71,7 +71,7 @@ index 3dc157b..7c1840e 100644
  		const file = `${prefix}-${String(i).padStart(3, '0')}.png`;
  		await o.page.screenshot({ path: file, clip });
  		frames.push({ t: Math.round(t), file });
-@@ -68,35 +75,117 @@ async function strip(o, prefix, rect, n, gapMs = 60) {
+@@ -68,35 +75,118 @@ async function strip(o, prefix, rect, n, gapMs = 60) {
  	return frames;
  }
  
@@ -176,10 +176,11 @@ index 3dc157b..7c1840e 100644
 +			await o.tap(hx, hy, 8);
 +			await o.page.waitForTimeout(1500);
 +			await o.page.evaluate(() => { window.odDevElect = 1; });
++			await o.page.waitForFunction(() => window.odDevElect === 0, null, { timeout: 600000 });   // taken: EVOLVE_TX's f0
 +			await o.page.waitForTimeout((reduced ? 900 : 1100) * WS);   // ms of game time, under the card
 +			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, reduced ? 20 : 34, 0, WS);
 +			fs.writeFileSync(`${out}/walk-out-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: outFrames }, null, 1));
-+			await o.page.waitForFunction(() => window.odDev && (window.odDev.mode === 'pick' || window.odDev.modal !== ''), null, { timeout: 60000 }).catch(() => {});
++			await o.page.waitForFunction(() => window.odDev && (window.odDev.mode === 'pick' || window.odDev.modal !== ''), null, { timeout: 600000 }).catch(() => {});
 +			s = await o.probe();
 +			check(s && (s.mode === 'pick' || s.modal !== ''), `after the walk-out: the flash or the picker (mode ${s && s.mode}, modal ${s && s.modal})`);
 +			check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
