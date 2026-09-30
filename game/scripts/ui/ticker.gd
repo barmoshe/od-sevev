@@ -301,7 +301,22 @@ func _top_queued_priority() -> int:
 static func wrap_lines_px(text: String, max_px: float, scale_px: int) -> PackedStringArray:
 	var out := PackedStringArray()
 	var cur := ""
+	# §5.2.1 fallback: a glued unit wider than the line breaks at its weak joints first, then at
+	# every NBSP (as if they were spaces); nothing is ever lost
+	var words := PackedStringArray()
 	for w in text.split(" ", false):
+		if not w.contains(Bidi.NBSP) or PxText.measure(w, scale_px) <= max_px:
+			words.append(w)
+			continue
+		var plain := w.replace(Bidi.NBSP, " ")
+		var strong := Bidi.glue_strong(plain)
+		var parts := strong.split(" ", false)
+		var ok := true
+		for p in parts:
+			if PxText.measure(p, scale_px) > max_px:
+				ok = false
+		words.append_array(parts if ok else plain.split(" ", false))
+	for w in words:
 		var trial := w if cur == "" else cur + " " + w
 		if cur == "" or PxText.measure(trial, scale_px) <= max_px:
 			cur = trial
@@ -317,7 +332,7 @@ static func wrap_lines_px(text: String, max_px: float, scale_px: int) -> PackedS
 
 ## mobile-first §5.2: the pages of a headline, `per` lines each.
 static func paginate(text: String, max_px: float, scale_px: int, per: int) -> Array:
-	var lines := wrap_lines_px(text, max_px, scale_px)
+	var lines := wrap_lines_px(Bidi.glue(text), max_px, scale_px)   # §5.2.1: the glue, then the pages
 	var pages: Array = []
 	var i := 0
 	while i < lines.size():

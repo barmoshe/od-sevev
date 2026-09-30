@@ -36,7 +36,7 @@ extends Overlay
 
 const CARD_X := 48.0
 const CARD_W := 624.0
-const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
+const HEADER_H := 96.0               # the envelope flap (24 art rows, review U1)
 const SCREEN_X := 72.0
 const SCREEN_W := 576.0
 const SCREEN_FRAME := 4.0            # 1 art px of ink around the screen
@@ -214,12 +214,13 @@ func build() -> FlashCard:
 	var y := Ui.snap(maxf(band.x + BAND_MARGIN, band.y - (24.0 - PAD) - h), 4)
 	# the panel: the kit's dark sheet (white labels), title band on top
 	var g2 := SheetCard.grow_half()   # the width rule: ≥ 92% of the canvas, as the sheet cards
-	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
-	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
+	make_envelope(Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h))   # body + flap (review U1)
 	var head := text(Vector2(0, y + 24.0), str(lead["title"]) if not lead.is_empty() and str(lead["title"]) != "" else header_text(evolutions), L.TEXT, C_TITLE)
 	head.wrap_width = TEXT_W
 	head.max_lines = 1
 	head.center_in(CARD_X - g2, CARD_W + 2.0 * g2)
+	flap_head.clear()
+	flap_head.append(head)
 	# the news screen
 	var sy := y + HEADER_H + PAD
 	screen_rect = Rect2(SCREEN_X, sy + SCREEN_FRAME, SCREEN_W, screen_h)
