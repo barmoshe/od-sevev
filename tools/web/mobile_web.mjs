@@ -300,6 +300,12 @@ for (const spec of list.split(',')) {
 	await refresh();
 	const card1 = await shot('card1');
 	await bandCheck('card 1', card1, 'card 1 + silhouettes fill the pane; the pane covers the tab slot before C1');
+	// D19 (mobile-first §5.2.2): the strip is never empty: a headline, a held one or the standing line
+	const tickerText = async (step) => {
+		const tk = ((await probe()) || {}).ticker || {};
+		check('spec', tk.visible === true && String(tk.text || '').trim() !== '', `${step}: the ticker strip shows text (${tk.idle ? 'the standing line' : tk.held ? 'a held headline' : 'a headline'}: "${tk.text || ''}")`);
+	};
+	await tickerText('card 1');
 	let s = await probe();
 	pillCheck('card 1', s);
 	const buyRow = async () => {
@@ -312,6 +318,7 @@ for (const spec of list.split(',')) {
 	await wait(1500);
 	await refresh();
 	const bought = await shot('bought');
+	await tickerText('bought');
 	await bandCheck('bought', bought, 'Row B shows the sky before C2; the pane fills to the safe bottom before C1');
 	pillCheck('bought', await probe());
 
@@ -330,6 +337,7 @@ for (const spec of list.split(',')) {
 	s = await probe();
 	check('base', !!(s && s.groupOpen), 'C1: the group opened (the tab bar is revealed)');
 	const c1 = await shot('c1-tabs');
+	await tickerText('C1');
 	if (s && s.shop && s.shop.list) {
 		const [lt, lb] = s.shop.list;
 		const insB = 0;

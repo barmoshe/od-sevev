@@ -137,6 +137,13 @@
       "linesLarge": 1,
       "where": "Press-day chip line 1 (rtl-map §5.1: the chip widens to 220, the crawl clip becomes x 236-516 = 280)"
     },
+    "ticker.idle": {
+      "widthPx": 280,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Ticker standing line (D19): one line, the narrowest clip (press day 280); shown while no headline is queued"
+    },
     "ticker.crawl": {
       "widthPx": null,
       "scale": 4,
@@ -901,6 +908,18 @@
       },
       "largeText": "step-down"
     },
+    "TICKER_IDLE": {
+      "surface": "label",
+      "spec": "hud.ticker.idle",
+      "note": "D19 (mobile-first §5.2.2): the strip's standing line between headlines, in ui_mute; never an empty strip. A channel's lower third on an election night",
+      "box": "ticker.idle",
+      "maxChars": 11,
+      "worstPx": {
+        "4": 264,
+        "5": 330
+      },
+      "largeText": "step-down"
+    },
     "TAB_PRODUCERS": {
       "surface": "label",
       "spec": "tab.sources",
@@ -1035,6 +1054,17 @@
       "worstPx": {
         "4": 180,
         "5": 225
+      }
+    },
+    "ROW_TEASER_HINT": {
+      "surface": "label",
+      "spec": "card.teaser.hint",
+      "note": "B9 (mobile-first §5.4): line 2 of the first teaser row only; the teasers under it are wordless slips fading down",
+      "box": "card.line2wide",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 316,
+        "5": 395
       }
     },
     "UPG_EMPTY_1": {

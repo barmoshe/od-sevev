@@ -54,6 +54,8 @@ static func snapshot(host: Node) -> Dictionary:
 	var tk: Ticker = host.get("ticker")
 	var cc := tk.cta.visual.get_center() + tk.position + o
 	out["ctaAt"] = [cc.x, cc.y]
+	# D19 (mobile-first §5.2.2): what the ticker strip shows, live (never "" while the row is up)
+	out["ticker"] = {"visible": tk.visible, "text": tk.strip_text(), "idle": tk.idle_showing(), "held": tk.holding()}
 	var si := Coalition.seat_info(s)
 	out["seats"] = {"effective": si["effective"], "gate": si["gateSeats"]}
 	var chat: ChatView = host.get("chat")

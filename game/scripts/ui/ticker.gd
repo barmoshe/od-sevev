@@ -21,6 +21,16 @@ extends Node2D
 ## The dwell is per page, by its length (dwell_ms): a first page 1.2 s to find the strip + 70 ms a
 ## character, a continuation page 0.5 s + 70 ms a character, clamped to 2.0-5.5 s (an ftue line:
 ## 1.5 s + 85 ms a character, 4.5-7.0 s).
+##
+## D19, the strip is never empty (mobile-first §5.2.2): the pager used to roll the last page out
+## into an EMPTY page node when nothing was queued, and nothing refills it for a long while in the
+## first minute (`ticker.ambientFrom: "C1"` holds every ambient line until the group opens, and the
+## ambient interval is 10 s after that). So the row showed the plate, Dubi and the date over a blank
+## clip. Now: a one-page headline (not an FTUE instruction) HOLDS on screen until the next item
+## rolls in, for up to HOLD_MAX_MS; a multi-page headline (its last page alone is a fragment), an
+## FTUE line (stale once done) and a hold that ran out roll to the STANDING LINE instead
+## (TICKER_IDLE "מהדורה מיוחדת", ui_mute, one line), which is also what the row shows before its
+## first headline.
 
 const PRIORITY := {"ftue": 3, "milestone": 2, "flavor": 1, "ambient": 0}
 const SCALE := L.TEXT
@@ -41,6 +51,8 @@ const DWELL_FTUE_MAX_MS := 7000.0
 const ROLL_MS := 240.0                # the page roll (Cubic.Out, 4-px steps)
 const STEP_PX := 4.0                  # one stage art px: whole device px at every crisp k
 const FADE_MS := 200.0                # reduced motion: the cross-fade
+const HOLD_MAX_MS := 15000.0          # D19: a held headline gives way to the standing line after this
+const IDLE_COLOR := Color("#c9d6f2")  # D19: the standing line in ui_mute (8.9:1 on ui_panel), a step under the headline's white
 
 var reduced_motion := false
 var on_milestone_start: Callable
@@ -65,6 +77,9 @@ var _page_idx := -1
 var _page_t := 0.0
 var _dwell := 0.0
 var _tr: Dictionary = {}          # the running transition {t, out (node index or -1), fade}
+var _held := false                # D19: the ended headline's page stays on screen (no item plays)
+var _hold_ms := 0.0
+var _idle := false                # D19: the standing line shows
 
 
 var cta: PxButton
@@ -130,6 +145,7 @@ func _ready() -> void:
 	cta = PxButton.make(self, Rect2(8, 2, 704, 80), {"hit": L.TICKER["hit"], "label": Strings.s("HUD_CTA_ELECTION"), "label_scale": 5, "kind": "kit_gold"})
 	cta.set_visible(false)
 	relayout()
+	_show_idle(false)   # D19: before the first headline the row reads its standing line, never a blank clip
 
 
 ## mobile-first §4.1: the panel is full bleed (F), the anchor right (R: tagRight 700 + dx), the
@@ -144,6 +160,8 @@ func relayout() -> void:
 	cta.set_rects(Rect2(8, 2, 704.0 + L.dx, 80), L.sa(L.TICKER["hit"]))
 	if not _item.is_empty():
 		_restart_item()   # the clip width changed: re-break the headline into pages
+	elif _idle:
+		_show_idle(false)   # re-align the standing line on the new clip
 
 
 ## The anchor, right → left (rtl-map §5.1): the red plate hugging "מבזק" (text right-aligned at
@@ -226,6 +244,8 @@ func set_court_chip(on: bool, chip_right: float = 0.0) -> void:
 	_clip.size.x = _clip_x1 - x0
 	if not _item.is_empty():
 		_restart_item()
+	elif _idle:
+		_show_idle(false)
 
 
 func cta_on() -> bool:
@@ -255,12 +275,36 @@ func set_reduced_motion(on: bool) -> void:
 ## window.odDisplay.ticker (mobile-first §5.2; tools/web/mobile_web.mjs reads it).
 func web_info() -> Dictionary:
 	return {"mode": "page", "clipW": _clip.size.x, "lines": lines_per_page(), "transition": "fade" if reduced_motion else "roll",
-		"rollMs": ROLL_MS, "clipX": _clip.position.x, "clipY": _clip.position.y, "clipH": _clip.size.y}
+		"rollMs": ROLL_MS, "clipX": _clip.position.x, "clipY": _clip.position.y, "clipH": _clip.size.y,
+		"text": strip_text(), "idle": _idle, "held": _held}
 
 
 ## 2 lines a page; 1 in large text (two ×5 lines are 100 > 84).
 static func lines_per_page() -> int:
 	return 1 if PxText.body_scale() > L.TEXT else 2
+
+
+## What the strip shows right now, whatever its source: a headline page (playing or held), the
+## standing line, or "" (D19: never "" once the row is built; tests and window.odDisplay.ticker).
+func strip_text() -> String:
+	var n: Node2D = _pages_n[_cur]
+	if not n.visible:
+		return ""   # (a cross-fade's incoming page starts at alpha 0, but the outgoing one still shows)
+	var parts := PackedStringArray()
+	for l: PxText in _lines[_cur]:
+		if l.visible and l.text != "":
+			parts.append(l.text)
+	return " ".join(parts)
+
+
+## The standing line is on screen (D19).
+func idle_showing() -> bool:
+	return _idle
+
+
+## A headline's page is held after its dwell (D19).
+func holding() -> bool:
+	return _held
 
 
 ## The text showing: the current page's lines ("" = none; tests).
@@ -374,6 +418,8 @@ func _start_item(it: Dictionary) -> void:
 		if not reduced_motion:
 			_flash.modulate.a = 0.8
 			create_tween().tween_property(_flash, "modulate:a", 0.0, float(Tune.T["headlineFlashMs"]) / 1000.0).set_ease(Tween.EASE_OUT)
+	_held = false
+	_idle = false
 	_item = it
 	_pages = paginate(String(it["text"]), _clip.size.x, PxText.body_scale(), lines_per_page())
 	_page_idx = -1
@@ -390,19 +436,43 @@ func _restart_item() -> void:
 		n.position = Vector2.ZERO
 		n.modulate.a = 1.0
 	_show_page(0, false)
+	if _held and _pages.size() > 1:
+		_to_idle(false)   # D19: a held line that now breaks into pages would hold a fragment
 
 
 ## Puts page i on the other page node and starts the push (or the fade); `animate` false = cut.
 func _show_page(i: int, animate: bool) -> void:
 	var K: Dictionary = Art.theme["ticker"]
-	var out := _cur if _pages_n[_cur].visible else -1
-	var nxt := 1 - _cur if out >= 0 else _cur
-	_cur = nxt
 	_page_idx = i
 	_page_t = 0.0
 	var page: PackedStringArray = _pages[i]
 	_dwell = dwell_ms(page, String(_item["kind"]), i == 0)
-	var col := Art.col(K["milestoneText"] if _item["kind"] == "milestone" else K["text"])
+	_put_lines(page, Art.col(K["milestoneText"] if _item["kind"] == "milestone" else K["text"]), animate)
+
+
+## D19: the standing line (TICKER_IDLE, one line, ui_mute) on the other page node.
+func _show_idle(animate: bool) -> void:
+	_idle = true
+	_held = false
+	_put_lines(PackedStringArray([Strings.s("TICKER_IDLE")]), IDLE_COLOR, animate)
+
+
+## D19: the headline is over; the standing line rolls in (never an empty clip).
+func _to_idle(animate: bool) -> void:
+	_item = {}
+	_pages = []
+	_page_idx = -1
+	_show_idle(animate)
+
+
+## One page (1-2 lines, colour `col`) onto the page node that is not showing, then the roll (or the
+## fade) from the one that is; `animate` false = cut.
+func _put_lines(page: PackedStringArray, col: Color, animate: bool) -> void:
+	if not _tr.is_empty():
+		_end_transition()   # a roll still running (a re-layout, a pre-emption): settle it first
+	var out := _cur if _pages_n[_cur].visible else -1
+	var nxt := 1 - _cur if out >= 0 else _cur
+	_cur = nxt
 	var pair: Array = _lines[nxt]
 	var w := _clip.size.x
 	for j in 2:
@@ -479,29 +549,32 @@ func _end_transition() -> void:
 		n.modulate.a = 1.0
 
 
-## The headline ended (its last page read) or was pre-empted: the next item pushes it out, or
-## it leaves on its own (the same push with nothing entering, or the fade).
+## The headline ended (its last page read) or was pre-empted: the next item rolls it out. With
+## nothing queued (D19) a one-page headline holds, anything else rolls to the standing line; the
+## strip never goes blank.
 func _end_item(requeue: bool) -> void:
 	if requeue:
 		_requeue(_item)
-	_item = {}
-	_pages = []
-	_page_idx = -1
 	_ambient_ms = 0.0
 	var nxt := _next_item()
 	if not nxt.is_empty():
+		_item = {}
+		_pages = []
+		_page_idx = -1
 		_start_item(nxt)
 		return
-	# nothing queued: the page leaves (an empty page node enters)
-	var out := _cur
-	var pair: Array = _lines[1 - _cur]
-	for l: PxText in pair:
-		l.text = ""
-		l.visible = false
-	_cur = 1 - _cur
-	(_pages_n[_cur] as Node2D).visible = true
-	_tr = {"t": 0.0, "out": out, "fade": reduced_motion}
-	_apply_transition(0.0)
+	if not requeue and should_hold(String(_item.get("kind", "")), _pages.size()):
+		_held = true
+		_hold_ms = 0.0
+		return
+	_to_idle(true)
+
+
+## D19, pure: does a headline of `kind` with `pages` pages stay on screen after its dwell when
+## nothing is queued? Only a whole one-page headline; an FTUE line is an instruction that goes stale,
+## and the last page of a longer headline alone is a fragment.
+static func should_hold(kind: String, pages: int) -> bool:
+	return kind != "ftue" and kind != "" and pages == 1
 
 
 func update_view(dt_ms: float) -> void:
@@ -518,16 +591,20 @@ func update_view(dt_ms: float) -> void:
 		_tr["t"] = float(_tr["t"]) + dt_ms
 		_apply_transition(float(_tr["t"]))
 	# a higher-priority headline pre-empts the showing one (it returns to its queue)
-	if not _item.is_empty() and _top_queued_priority() > int(PRIORITY[_item["kind"]]):
+	if not _item.is_empty() and not _held and _top_queued_priority() > int(PRIORITY[_item["kind"]]):
 		_end_item(true)
 		return
-	if _item.is_empty():
+	if _item.is_empty() or _held:
 		var it := _next_item()
 		if not it.is_empty():
-			_start_item(it)
+			_start_item(it)   # rolls in over the held page or the standing line
 			_ambient_ms = 0.0
-		else:
-			_tick_ambient(dt_ms)
+			return
+		_tick_ambient(dt_ms)
+		if _held:
+			_hold_ms += dt_ms
+			if _hold_ms >= HOLD_MAX_MS and _tr.is_empty():
+				_to_idle(true)   # D19: a long-held headline gives way to the standing line
 		return
 	if not _tr.is_empty():
 		return   # the dwell starts when the page is still

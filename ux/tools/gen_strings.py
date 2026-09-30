@@ -39,6 +39,7 @@ BOXES = {
     "ticker.tag":     (88, 4, 1, 1, "Ticker anchor label"),
     "ticker.chip":    (160, 4, 1, 1, "Ticker chip line: date (+ calendar icon) or court day (2 lines)"),
     "ticker.chipWide":(168, 4, 1, 1, "Press-day chip line 1 (rtl-map §5.1: the chip widens to 220, the crawl clip becomes x 236-516 = 280)"),
+    "ticker.idle":    (280, 4, 1, 1, "Ticker standing line (D19): one line, the narrowest clip (press day 280); shown while no headline is queued"),
     "ticker.crawl":   (None, 4, 1, 1, "Crawl: no width limit; paged by the live clip width under reduced motion (324 at x4, 302 at x5; 288 / 266 on court day)"),
     "cta.election":   (688, 4, 1, 1, "Election CTA"),
     "card.name":      (360, 4, 1, 2, "Card name x 220-580"),
@@ -196,6 +197,7 @@ e("BANNER_FRENZY", "טורבו בכובע! ⟦×{mult}⟧", "stage.banner", "*",
 e("BANNER_TAPFRENZY", "ידיים של קוסם! ⟦×{mult}⟧", "stage.banner", "*", note="Shared by every leader: an idiom, not Bibi's name (Bar 2026-09-29)")
 e("CALLOUT_GOLDEN", "תפוס אותה!", "stage.toast", note="Not used by the od-sevev FTUE (S1 is textless)")
 e("TICKER_TAG", "מבזק", "ticker.tag", "", "hud.ticker.tag")
+e("TICKER_IDLE", "מהדורה מיוחדת", "ticker.idle", "", "hud.ticker.idle", "D19 (mobile-first §5.2.2): the strip's standing line between headlines, in ui_mute; never an empty strip. A channel's lower third on an election night")
 e("TAB_PRODUCERS", "מקורות", "tab.label", "*", "tab.sources")
 e("TAB_UPGRADES", "ספינים", "tab.label", "", "tab.spins")
 e("TAB_BADGE", "{count}", "tab.badge")
@@ -210,6 +212,7 @@ e("ROW_OWNED", "×{owned}", "card.owned")
 e("ROW_OWNED_BPS", "⟦+{rate}⟧~₪ לשנייה", "card.line2", "", "card.yield", "The owned count is its own node (CARD_OWNED)")
 e("ROW_OWNED_NEXT", "{owned}/{next}", "unused", note="No milestone counter on the card at x4; milestones announce on the ticker (F_MILESTONE)")
 e("ROW_LOCKED_NAME", "מקור עלום", "card.name", "*", "card.locked.name")
+e("ROW_TEASER_HINT", "עוד מקורות ייפתחו", "card.line2wide", "", "card.teaser.hint", "B9 (mobile-first §5.4): line 2 of the first teaser row only; the teasers under it are wordless slips fading down")
 e("UPG_EMPTY_1", "אין ספינים כרגע.", "list.empty")
 e("UPG_EMPTY_2", "דובי עוד מתאמן על המסר.", "list.empty", "*")
 e("SET_TITLE", "הגדרות", "sheet.title", "", "set.title")
