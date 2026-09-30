@@ -24,6 +24,52 @@ Everything is merged into `claude/magical-ride-ntn3u5` and into `main`. No agent
 - The optional M3 (the hemicycle fill-in motion); A5's tall booth header is wired only if it fits.
 - **Bar's pre-launch list** below still stands.
 
+## Manual test pass (2026-09-30, orchestrator by hand, no agents) and the recommended work
+
+**What I ran:** build `d73c206`, the one deployed. I played it by hand in headless Chromium at 390×844@3 (iPhone 14) and 375×667@2 (SE), and forced one election with `?dev=1` + `window.odDevElect = 1`:
+- disclaimer → picker → pick → tap 1 → card 1 → first buy → C1 tabs → C2 seats row → coalition chat → settings;
+- the election ceremony → Dubi's story card → the picker after the election (with the +10% chip and "עוד סבב עם ביבי").
+
+**Result:** `mobile_web.mjs` PASS on both phones, no page errors, and the whole flow works end to end. The screenshots are in `ux/manual-test-2026-09-30/` (half size). What still looks bad or rough, most important first:
+
+### A. Visible defects (fix first)
+1. **The Jerusalem-stone plaza reads as worms, not stone** (`01`, `02`, `09`). The plaza tile's long black wavy joints line up across tiles into big snake shapes. They fill about 45% of the screen before tap 1 and sit behind the picker's footer.
+   - *Fix (2D):* redraw `plaza_<era>` with short, sparse, low-contrast joints (mortar tone, never black), break the repeat with 2-3 tile variants, and add a few stone details.
+2. **Before tap 1 and until card 1, the lower half of the screen is only stone** (`01`, `02`). There's no content, no hint and no card. It's the first thing a new player sees after the pick.
+   - *Fix (UX + dev):* show the first card (or the teaser rows) from the first frame, or a clear "tap him" hint card. Keep the floor to a strip.
+3. **The picker's footer caption is white text straight on light stone**: "בכל סבב בחירות אפשר להחליף ראש רשימה. הבסיס נשאר." has low contrast and the cracks run behind the letters (`09`).
+   - *Fix:* put it on a navy plate or a white notice card, like the ticker.
+4. **The election ceremony card is translucent over the ticker** (`07`). Its lines ("סבב בחירות מס׳ 2", "תחנה חדשה: הכנסת", "×1.0 → ×1.0", "+0 לבסיס") print over the ticker's own text, so two texts overlap and neither reads.
+   - *Fix (dev):* make the EVOLVE_TX card opaque (the v4 notice) or hide the ticker under it.
+5. **The era changes before the old leader walks out** (`07`). About 0.9 s into the ceremony, the stage is already the next era (Knesset) with the old leader on it.
+   - *Fix (Animator + dev):* the walk-out runs on the old stage; swap the stage under the opaque card afterwards.
+6. **The SE settings sheet hides "איפוס התקדמות"** (`06`). The sheet ends at "אודות ומקורות" and "סגור", and the reset row isn't reachable.
+   - *Fix (dev):* scroll the sheet, or tighten the rows on short screens. Add a `mobile_web` check that every settings row is on screen.
+7. **The leader's name plate covers the stage** (`01`, `02`). At 390 it covers the top of the building, and on the SE it sits on the leader's head.
+   - *Fix (UX + dev):* a slim plate under Row A, or in the stage's sky clear of the hit box. Check it on the SE.
+8. **The settings toggles don't show their state** (`05`, `06`): a dark/white half-block labelled only "כבוי".
+   - *Fix (2D + dev):* a clear ON look (flag-blue fill with a knob on the right, labelled "פועל") vs OFF (grey, "כבוי").
+
+### B. Rough, worth polishing
+9. **Teaser rows:** 5-6 identical pale "מקור עלום" rows (`03`) read as filler. Show one or two, fading down, with varied silhouettes, or a one-line hint ("עוד מקורות ייפתחו").
+10. **The HUD's right side is empty in round 1:** only the settings and mute icons sit on the left, and the money and rate are crowded in the centre. Consider the leader's mini-portrait and name there (which also answers item 7).
+11. **Chat** (`04`):
+    - a large empty blue area sits above the first messages;
+    - the gold "העברה:" chip floats alone at the left edge;
+    - fix: anchor the thread under the header, or fill it with the date or system line, and give the chip a row.
+12. **The "להחליף ראש רשימה" button before tap 1** floats on the stone. Give it a proper bar or chip position.
+13. **The picker's top** is an empty sky band over the title, and the `booth_frame` reads as a thin brown line rather than a קלפי. Try `booth_frame_tall` with a header, or a cardboard colour, so it reads as a polling booth.
+14. **The stage protest signs are still pink and white** (v2 accents). v4 moved pink off the UI only because the stages were frozen. *Bar's call:* recolour the Balfour crowd signs to blue and white (a stage re-render, no cast drift).
+15. **Dubi's post-election story card** ("הכובע שלא נגמר") is Bibi-specific. Check that every leader gets their own story card, and re-run the quote lint on the story lines ("בלשכה מסרו", "דובי:") under the reported-speech rule.
+
+### C. Verification still open
+16. Re-run on an idle machine:
+    - `tools/web/motion_web.mjs` (it hit a 15-min cap after the walk-out at `slow=40`);
+    - `round_web` and `picker_web` 3× each;
+    - the full `tools/balance.sh`, after the gate rule.
+17. Real-device checks on an iPhone: the share sheet, audio (the first sound is now `leaderPick`), the safe areas, and the Safari toolbar heights.
+18. Bar's pre-launch list below: publisher and mail, domain, source links, the legal reads.
+
 ## Session 3: where it stopped
 
 **Health of the branch:** `tools/test.sh` 340/340; `node design/sim/content-lint.mjs --strict`
