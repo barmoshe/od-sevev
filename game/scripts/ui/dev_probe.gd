@@ -5,10 +5,12 @@ extends RefCounted
 ## game; it only reports where the targets are, in viewport logical px (the driver maps them to CSS
 ## with window.odDisplay, like window.odFlash / window.odModal).
 ##   bank, seats {effective, gate}, evolutions, runSec, cta (the "עוד סבב!" CTA is up), ready
-##   (the election can be called), modal (the top overlay's id or "")
+##   (the election can be called), ctaAt [x, y] (the CTA's centre), modal (the top overlay's id or "")
 ##   chat {open, thread [top, bottom], pills [[x, y, seq, afford, ceremony]], brawls [[x, y, seq]],
 ##        avatars [[x, y, id]] (in view), openBrawl}: every open pay pill and "צאו החוצה" button, in
 ##        or out of view (the driver drags the thread to bring one into view)
+##   coal {lines, afford, ultLeft, save, vote}: the open pay lines, how many the bank covers, the
+##        nearest ultimatum (s, -1 none), the biggest ultimatum / rejoin price, the election card holding
 ##   shop {tab, list [top, bottom], rows [[x, y, id, afford]]}: the source cards in view
 
 static var _ms := 0.0
@@ -48,6 +50,10 @@ static func snapshot(host: Node) -> Dictionary:
 			if t.body_focusables.has(b):
 				c.y -= t.scroll
 			out["modalButtons"].append([c.x, c.y, b.label.text if b.label != null else ""])
+	# the "עוד סבב!" CTA's centre, live (the lower band moves when the layout splits again)
+	var tk: Ticker = host.get("ticker")
+	var cc := tk.cta.visual.get_center() + tk.position + o
+	out["ctaAt"] = [cc.x, cc.y]
 	var si := Coalition.seat_info(s)
 	out["seats"] = {"effective": si["effective"], "gate": si["gateSeats"]}
 	var chat: ChatView = host.get("chat")
@@ -69,6 +75,23 @@ static func snapshot(host: Node) -> Dictionary:
 			pills.append([c.x, c.y, int(h["seq"]), s.bananas >= float(m.get("price", 0.0)), str(m.get("kind", "")) == "ceremony"])
 	out["chat"] = {"open": chat.is_open(), "thread": [top, bottom], "pills": pills, "avatars": avatars, "brawls": brawls,
 		"openBrawl": not Coalition.open_brawl(s).is_empty()}
+	# the sim's open lines whether or not T3 is open (the driver saves for an ultimatum like a player)
+	var lines := 0
+	var n_afford := 0
+	var ult_left := -1.0
+	var ult_price := 0.0
+	if s.coalition is Dictionary:
+		for m: Dictionary in s.coalition.get("chat", []):
+			if m["state"] != "open" or not Coalition.is_payable(m):
+				continue
+			lines += 1
+			if s.bananas >= float(m.get("price", 0.0)):
+				n_afford += 1
+			if m["type"] == "ultimatum" or str(m.get("payable", "")) == "rejoin":
+				ult_price = maxf(ult_price, float(m.get("price", 0.0)))
+				if m["type"] == "ultimatum":
+					ult_left = float(m["leftSec"]) if ult_left < 0.0 else minf(ult_left, float(m["leftSec"]))
+	out["coal"] = {"lines": lines, "afford": n_afford, "ultLeft": ult_left, "save": ult_price, "vote": bool(host.call("vote_open")) if host.has_method("vote_open") else false}
 	# the "{n} ממתינים ↑" chip and the brawl stage cue (views wave 6): centres in viewport px
 	var pi := chat.pending_info()
 	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
