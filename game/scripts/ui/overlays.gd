@@ -211,8 +211,9 @@ class SettingsOverlay:
 ## ON: a flag-blue track, the white knob on the LEFT (rtl-map §7.4, `mirror`: the RTL platforms'
 ## ON side) and the word "פועל" in flag blue. OFF: a grey track, the knob on the right, "כבוי" in
 ## slate. Colour is never the only cue: the knob side and the word change too. Contrast on the sheet's
-## paper (#f7f4ec): the night outline 13.9:1 (the control's boundary, WCAG 1.4.11 ≥ 3:1 in both
-## states), flag 8.1:1, slate 5.8:1 (text ≥ 4.5:1). Corners step 1 art px twice (a pill).
+## paper (#fff4e0, sampled): the night outline 14.0:1 (the control's boundary, WCAG 1.4.11 ≥ 3:1 in both
+## states), flag 8.5:1, slate 6.9:1 (text ≥ 4.5:1); the knob keeps its night outline on either track
+## (8.4:1 on the grey). Corners step 1 art px twice (a pill).
 class SettingSwitch:
 	extends Node2D
 	const SIZE := Vector2(120, 60)
