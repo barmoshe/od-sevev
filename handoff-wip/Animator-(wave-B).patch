@@ -14,10 +14,10 @@ index dd08875..f7d6e3e 100644
  			_acc = 0.0,
  		# the leader swap (spec §9.3.4): when a pick follows, the old leader walks off screen-right as
 diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
-index 3dc157b..ddbf538 100644
+index 3dc157b..7e277c8 100644
 --- a/tools/web/motion_web.mjs
 +++ b/tools/web/motion_web.mjs
-@@ -1,17 +1,23 @@
+@@ -1,17 +1,26 @@
 -// Motion check in the runtime origin (animator, 2026-09-29): frame strips of Bibi's court-day exit
 -// and return (the startle, the zip left, the hat on his mark, the fetch, the land) and of the brawl
 -// cloud's boil (the stage cue and the inline cloud in T3). The game runs at 1/SLOW speed
@@ -35,7 +35,9 @@ index 3dc157b..ddbf538 100644
  //   node tools/web/motion_web.mjs <url> <out dir> [WxH@DPR,...]
 -// Serve build/web first (python3 -m http.server --directory build/web). Runs each device twice for the
 -// court (motion, then prefers-reduced-motion: the fades) and once for the brawl.
-+//   MOTION_ONLY=walk,ticker node tools/web/motion_web.mjs ...   (sections: court, brawl, walk, ticker)
++//   MOTION_ONLY=walk,ticker MOTION_VARIANTS=rm node tools/web/motion_web.mjs ...   (sections: court, brawl,
++//   walk, ticker; MOTION_SLOW_WALK / MOTION_SLOW_TICKER raise the slow-down on a loaded machine). The
++//   engine-rendered ticker strip (16 ms steps): game/tests/dev/ticker_strip.gd.
 +// Serve build/web first (python3 -m http.server --directory build/web). Each device runs the court, the
 +// walk and the ticker twice (motion, then prefers-reduced-motion: the fades) and the brawl once.
  const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
@@ -45,10 +47,11 @@ index 3dc157b..ddbf538 100644
  fs.mkdirSync(out, { recursive: true });
  const SLOW = 40;
 +const ONLY = (process.env.MOTION_ONLY || 'court,brawl,walk,ticker').split(',');
++const VARIANTS = (process.env.MOTION_VARIANTS || 'motion,rm').split(',').map((v) => v === 'rm');   // walk and ticker
  const DEVICES = list.split(',').map((s) => {
  	const [wh, dpr] = s.split('@');
  	const [w, h] = wh.split('x').map(Number);
-@@ -48,18 +54,19 @@ async function open(d, query, reduced) {
+@@ -48,18 +57,19 @@ async function open(d, query, reduced) {
  	check(disp.reducedMotion === reduced, `the game follows prefers-reduced-motion: ${reduced ? 'reduce' : 'no-preference'} (${disp.reducedMotion})`);
  	const cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y }; });
  	const css = (lx, ly) => [cv.x + lx * disp.f / d.dpr, cv.y + ly * disp.f / d.dpr];
@@ -71,7 +74,7 @@ index 3dc157b..ddbf538 100644
  		const file = `${prefix}-${String(i).padStart(3, '0')}.png`;
  		await o.page.screenshot({ path: file, clip });
  		frames.push({ t: Math.round(t), file });
-@@ -68,35 +75,118 @@ async function strip(o, prefix, rect, n, gapMs = 60) {
+@@ -68,35 +78,118 @@ async function strip(o, prefix, rect, n, gapMs = 60) {
  	return frames;
  }
  
@@ -157,7 +160,7 @@ index 3dc157b..ddbf538 100644
 +	if (ONLY.includes('walk')) {
 +		// wave B: the leader swap. SLOW 40: a stage screenshot every ~0.5 s of wall time is ~12 ms of game time.
 +		const WS = Number(process.env.MOTION_SLOW_WALK || 40);   // raise it on a loaded machine (each screenshot is slower)
-+		for (const reduced of [false, true]) {
++		for (const reduced of VARIANTS) {
 +			const tag = `${d.name}${reduced ? '-rm' : ''}`;
 +			console.log(`walk ${tag}`);
 +			const o = await open(d, `slow=${WS}&grant=50000`, reduced);
@@ -190,7 +193,7 @@ index 3dc157b..ddbf538 100644
 +	if (ONLY.includes('ticker')) {
 +		// M1: the ticker row, SLOW 20 (a frame every ~10-20 ms of game time; 300 frames hold at least one page change)
 +		const TS = Number(process.env.MOTION_SLOW_TICKER || 20);
-+		for (const reduced of [false, true]) {
++		for (const reduced of VARIANTS) {
 +			const tag = `${d.name}${reduced ? '-rm' : ''}`;
 +			console.log(`ticker ${tag}`);
 +			const o = await open(d, `slow=${TS}&grant=50000`, reduced);
@@ -213,3 +216,75 @@ index 3dc157b..ddbf538 100644
  }
  await browser.close();
  console.log(failed ? `MOTION_WEB: ${failed} FAILED` : 'MOTION_WEB: PASS');
+diff --git a/game/tests/dev/ticker_strip.gd b/game/tests/dev/ticker_strip.gd
+new file mode 100644
+index 0000000..8600f22
+--- /dev/null
++++ b/game/tests/dev/ticker_strip.gd
+@@ -0,0 +1,57 @@
++extends SceneTree
++## Dev tool (animator, M1): a deterministic frame strip of the ticker's page change, rendered by the
++## engine itself in 16 ms steps (the browser capture in tools/web/motion_web.mjs is too coarse on a
++## loaded machine to catch a 240 ms roll reliably). A three-page headline at the 324 clip; frames from
++## 32 ms before the first page change to 32 ms after it, motion and reduced motion, at logical px
++## (1 art px = 4 px), plus a JSON index {frames: [{t, file}]} for the contact sheet.
++##   xvfb-run -a godot --path game -s res://tests/dev/ticker_strip.gd -- --out=<dir>
++
++const HEAD := "ההייטקיסטים יוצאים לרחובות שוב, והפעם עם שלטים חדשים ועם כובע של קוסם ישן מהטלוויזיה"
++
++
++func _initialize() -> void:
++	_run.call_deferred()
++
++
++func _run() -> void:
++	await process_frame
++	var out := "user://ticker_strip"
++	for a in OS.get_cmdline_user_args():
++		if a.begins_with("--out="):
++			out = a.substr(6)
++	DirAccess.make_dir_recursive_absolute(out)
++	Content.load_from(Content.PATH)
++	var TickerS: GDScript = load("res://scripts/ui/ticker.gd")
++	for reduced: bool in [false, true]:
++		var sv := SubViewport.new()
++		sv.size = Vector2i(L.W, 84)
++		sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
++		sv.transparent_bg = false
++		root.add_child(sv)
++		var t: Node2D = TickerS.new()
++		sv.add_child(t)
++		await process_frame
++		t.call("set_reduced_motion", reduced)
++		t.call("defer_until", 0.0)
++		t.call("enqueue", "flavor", HEAD)
++		t.call("update_view", 16.0)
++		var dwell: float = float(t.get("_dwell"))
++		t.call("update_view", dwell - 48.0)
++		var tag := "rm" if reduced else "roll"
++		var frames: Array = []
++		var ms := -32.0
++		var end := (float(TickerS.get("FADE_MS")) if reduced else float(TickerS.get("ROLL_MS"))) + 32.0
++		while ms <= end:
++			t.call("update_view", 16.0)
++			await RenderingServer.frame_post_draw
++			var img := sv.get_texture().get_image()
++			var file := "%s/ticker-strip-%s-%03d.png" % [out, tag, frames.size()]
++			img.save_png(file)
++			frames.append({"t": int(ms), "file": file})
++			ms += 16.0
++		var f := FileAccess.open("%s/ticker-strip-%s.json" % [out, tag], FileAccess.WRITE)
++		f.store_string(JSON.stringify({"frames": frames, "note": "t = ms from the page change's f0; logical px"}))
++		f.close()
++		print("%s: %d frames (first-page dwell %.0f ms)" % [tag, frames.size(), dwell])
++		sv.queue_free()
++	quit(0)
+# untracked binary: game/tests/dev/ticker_strip.gd
+diff --git a/game/tests/dev/ticker_strip.gd.uid b/game/tests/dev/ticker_strip.gd.uid
+new file mode 100644
+index 0000000..65bc74b
+--- /dev/null
++++ b/game/tests/dev/ticker_strip.gd.uid
+@@ -0,0 +1 @@
++uid://cjt8uyea1tl8f
+# untracked binary: game/tests/dev/ticker_strip.gd.uid
