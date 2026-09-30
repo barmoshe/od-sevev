@@ -158,10 +158,11 @@ class Font:
         if not any("֐" <= c <= "׿" for c in s):
             return s  # numbers and handles are already in display order
         runs, cur, cur_ltr = [], "", None
-        for c in s:
+        for j, c in enumerate(s):
             ltr = c.isascii() and (c.isalnum() or c in "@_") or c == "₪"
-            if c in ".,:%" and cur_ltr and cur and cur[-1].isalnum():
-                ltr = True  # 1,000 / 1.5 / od.sevev stay inside their run
+            nxt = s[j + 1] if j + 1 < len(s) else ""
+            if c in ".,:%" and cur_ltr and cur and cur[-1].isalnum() and nxt.isascii() and nxt.isalnum():
+                ltr = True  # 1,000 / 1.5 / od.sevev stay inside their run; a full stop after "61" does not
             if cur_ltr is None or ltr == cur_ltr:
                 cur += c
                 cur_ltr = ltr if cur_ltr is None else cur_ltr
