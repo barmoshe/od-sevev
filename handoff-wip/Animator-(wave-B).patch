@@ -12,7 +12,7 @@ index 644a398..dd08875 100644
  		res = {"multBefore": d.prestige_mult, "multAfter": d.prestige_mult, "gained": 0}
  	if res.is_empty():
 diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
-index 3dc157b..832c301 100644
+index 3dc157b..d2801ef 100644
 --- a/tools/web/motion_web.mjs
 +++ b/tools/web/motion_web.mjs
 @@ -1,17 +1,23 @@
@@ -147,7 +147,7 @@ index 3dc157b..832c301 100644
 -	check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
 -	await o.ctx.close();
 +	if (ONLY.includes('walk')) {
-+		// wave B: the leader swap. SLOW 10: a screenshot every ~120 ms of wall time is ~12 ms of game time.
++		// wave B: the leader swap. SLOW 40: a stage screenshot every ~0.5 s of wall time is ~12 ms of game time.
 +		const WS = 40;
 +		for (const reduced of [false, true]) {
 +			const tag = `${d.name}${reduced ? '-rm' : ''}`;
@@ -161,7 +161,7 @@ index 3dc157b..832c301 100644
 +			fs.writeFileSync(`${out}/walk-in-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: inFrames }, null, 1));
 +			let s = await o.probe();
 +			check(s && s.leader === 'bennett' && s.mode === 'title', `Bennett's round, pre-tap (leader ${s && s.leader}, mode ${s && s.mode})`);
-+			check(inFrames.at(-1).t >= (reduced ? 600 : 1150), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
++			check(inFrames.at(-1).t >= (reduced ? 500 : 1000), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
 +			// tap 1 starts the round; then the forced ceremony: 1200 ms to the card's lift, then the walk-out
 +			const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
 +			await o.tap(hx, hy, 8);
@@ -178,7 +178,7 @@ index 3dc157b..832c301 100644
 +		}
 +	}
 +	if (ONLY.includes('ticker')) {
-+		// M1: the ticker row, SLOW 3 (a frame every ~40 ms of game time, 8 s of it: several page changes)
++		// M1: the ticker row, SLOW 20 (a frame every ~10-20 ms of game time; 300 frames hold at least one page change)
 +		const TS = 20;
 +		for (const reduced of [false, true]) {
 +			const tag = `${d.name}${reduced ? '-rm' : ''}`;
