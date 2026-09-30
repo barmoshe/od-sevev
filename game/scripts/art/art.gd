@@ -153,8 +153,8 @@ func source(id: String, picked: bool = true) -> Dictionary:
 ## A 16x16 neutral stand-in: an ink-outlined grey card with a "?" (art pending).
 func _bake_placeholder() -> ImageTexture:
 	var img := Image.create_empty(16, 16, false, Image.FORMAT_RGBA8)
-	var ink := Color("#1b1426")
-	var fill := Color("#8a8494")
+	var ink := Color("#061029")
+	var fill := Color8(0x7d, 0x83, 0x98)   # the v4 slate fill (the placeholder card; a fill, not the slate-text role the map lifts)
 	var q := ["......", ".####.", ".#..#.", "....#.", "..##..", "..#...", "......", "..#..."]
 	for y in range(1, 15):
 		for x in range(2, 14):

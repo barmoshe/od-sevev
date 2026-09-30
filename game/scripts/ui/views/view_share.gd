@@ -37,8 +37,8 @@ const STATUS_H := 48.0
 const C_INK := Color("#1a1a1a")               # receipt ink on #f4f1e8 paper (15.4:1)
 const C_PAPER := Color("#f4f1e8")
 const C_WHITE := Color("#f7f4ec")
-const C_NIGHT := Color("#140c24")
-const C_STATUS := Color("#a4a9b8")
+const C_NIGHT := Color("#00237a")
+const C_STATUS := Color("#c9d6f2")
 
 var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
 var art_px := 2.0                             # the preview's logical px per art px
@@ -419,7 +419,7 @@ static func wa_icon_texture() -> Texture2D:
 				"w":
 					img.set_pixel(x, y, C_WHITE)
 				"k":
-					img.set_pixel(x, y, Color("#2e2250"))
+					img.set_pixel(x, y, Color("#1045b5"))
 	return ImageTexture.create_from_image(img)
 
 

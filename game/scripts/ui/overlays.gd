@@ -142,7 +142,7 @@ class SettingsOverlay:
 		var t := _sheet_text(body, Vector2(0, y + LABEL_DY), Strings.s(label_key), th["modal"]["body"], false)
 		if cap_key != "":
 			_sheet_text(body, Vector2(0, y + LABEL_DY + _lh(t) * float(maxi(1, t.line_count())) + 2.0), Strings.s(cap_key), th["modal"]["note"], true)
-		var track := Ui.rect(body, Rect2(40, y + 14.0, 120, 60), Color("#1b1426"))
+		var track := Ui.rect(body, Rect2(40, y + 14.0, 120, 60), Color("#061029"))
 		var fill := Ui.rect(body, Rect2(44, y + 18.0, 112, 52), Color("#0038b8"))
 		var knob := Ui.rect(body, Rect2(44, y + 18.0, 52, 52), Color("#f7f4ec"))
 		var st := PxText.make(body, Vector2(176, y + LABEL_DY), "", L.TEXT, "plain", th["modal"]["body"])

@@ -9,7 +9,7 @@ var reduced_motion := false
 var ground_y := 0
 var play_fx: Callable      # func(id: String, x: float, y: float)
 ## The era's padBottom (sprites.json stages): the floor colour under the stage art.
-var pad_bottom := Color("#2a2340")
+var pad_bottom := Color("#0f2350")
 ## Dev only (`?dev=1&clear=1`, tools/web/mobile_web.mjs's width rule): a sentinel clear colour, so
 ## any pixel nothing draws (a gap between the chrome, the art or a card and the canvas edge) shows.
 static var clear_override := Color(0, 0, 0, 0)
@@ -132,9 +132,9 @@ func set_era(era: Dictionary) -> void:
 	for t in _ground_tiles:
 		t.visible = not has_bg
 	# beyond the 180x320 art (wide or very tall screens): the stage's own pad colours
-	pad_bottom = Color.html(String(stage.get("padBottom", "#2a2340")))
-	RenderingServer.set_default_clear_color(clear_override if clear_override.a > 0.0 else (Color.html(String(stage.get("padBottom", "#2a2340"))) if has_bg \
-		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.165, 0.137, 0.251))))
+	pad_bottom = Color.html(String(stage.get("padBottom", "#0f2350")))
+	RenderingServer.set_default_clear_color(clear_override if clear_override.a > 0.0 else (Color.html(String(stage.get("padBottom", "#0f2350"))) if has_bg \
+		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.059, 0.137, 0.314))))
 	if has_bg:
 		# full-stage art at x4 (first child of _props: above the sky bands, under every prop),
 		# placed so its magicianFeet slot (sprites.json, art px) lands on the Magician's feet

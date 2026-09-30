@@ -57,11 +57,11 @@ const INPUT_AFTER_OPEN_MS := 140.0   # motion tall-tab: the thread accepts taps 
 const CEREMONY_MS := 3000.0          # sim: a ceremony (Regev) needs "the UI's 3 s ribbon"
 
 ## palette (style guide v2 §2.1)
-const C_THREAD := Color("#1e1636")    # ui_panel
-const C_NAME := Color("#a4a9b8")      # grey
-const C_MUTED := Color("#7d8398")     # slate
-const C_INK := Color("#1b1426")       # ink (on gold)
-const C_ALERT := Color("#f86b5d")     # red_hi ("אולטימטום", the last seconds)
+const C_THREAD := Color("#072a7a")    # ui_panel
+const C_NAME := Color("#c9d6f2")      # grey
+const C_MUTED := Color("#b4c3e8")     # slate
+const C_INK := Color("#061029")       # ink (on gold)
+const C_ALERT := Color("#ffaa9f")     # red_hi ("אולטימטום", the last seconds)
 const C_GOLD_HI := Color("#fff1a6")
 const C_SKY := Color("#8fc0ff")       # the seats fill (pips)
 
@@ -213,7 +213,7 @@ func _ready() -> void:
 	_clip.position = Vector2(0, THREAD_Y)
 	_panel.add_child(_clip)
 	_clip.add_child(_content)
-	_thumb = Ui.rect(_panel, Rect2(4, THREAD_Y, 4, 48), Color(0.84, 0.8, 0.93), 0.0)
+	_thumb = Ui.rect(_panel, Rect2(4, THREAD_Y, 4, 48), Color(0.788, 0.839, 0.949), 0.0)   # v4 ui_mute
 	_build_pending_chip()
 	add_child(_brawl_cue)
 	_brawl_cue.visible = false

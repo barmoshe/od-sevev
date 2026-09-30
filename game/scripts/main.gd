@@ -320,11 +320,11 @@ func _build() -> void:
 	var th := Art.theme
 	_fills["sky"] = null
 	# the top bar's full-width backing lives in the top section, above the (extended) sky
-	# od-sevev (rtl-map §1): Row A/B sit on the #140C24 scrim (92%); the panel on the night blue;
+	# od-sevev (rtl-map §1): Row A/B sit on the #0038B8 scrim (92%); the panel on the night blue;
 	# the tab bar's kit art is drawn by the shop; the bottom inset continues the tab bar colour
-	_fills["top"] = Ui.rect(_top, Rect2(), Color(0.078, 0.047, 0.141, 0.92))
-	_fills["shop"] = Ui.rect(_lower, Rect2(), Color("#2a2340"))
-	_fills["bottom"] = Ui.rect(_lower, Rect2(), Color("#1b1426"))
+	_fills["top"] = Ui.rect(_top, Rect2(), Color(0.0, 0.22, 0.722, 0.92))
+	_fills["shop"] = Ui.rect(_lower, Rect2(), Color("#f7f4ec"))
+	_fills["bottom"] = Ui.rect(_lower, Rect2(), Color("#072a7a"))
 	_title_ground = TextureRect.new()
 	_title_ground.texture = Art.tex("env_ground")
 	_title_ground.stretch_mode = TextureRect.STRETCH_TILE

@@ -214,7 +214,7 @@ func _refresh_tabs() -> void:
 		Ui.set_frame(ic, Art.sprite_or(TAB_ICONS[i] + ("_active" if active else "_idle")), 0)
 		var lb: PxText = d["label"]
 		lb.visible = on
-		lb.tint = Art.col("w") if active else Color(0.62, 0.6, 0.68)
+		lb.tint = Art.col("w") if active else Color(0.788, 0.839, 0.949)
 		(d["badge"] as NinePatchRect).visible = on and (d["badgeText"] as PxText).text != ""
 		(d["badgeText"] as PxText).visible = (d["badge"] as NinePatchRect).visible
 
@@ -503,7 +503,7 @@ func _card_sprite(kind: String, afford: bool) -> String:
 		"silhouette":
 			return Art.sprite_or("card_source_locked")
 		"teaser":
-			return Art.sprite_or("card_row")
+			return Art.sprite_or("card_source_locked")
 		"upgrade":
 			return Art.sprite_or("card_spin" if afford else "card_spin_locked")
 		"buymode":
@@ -586,7 +586,10 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	var ic: Sprite2D = v["icon"]
 	var is_btn: bool = m["kind"] == "buymode"
 	var teaser: bool = m["kind"] == "teaser"
-	(v["c"] as Node2D).modulate.a = 0.5 if teaser else 1.0
+	# v4 (style guide F14): the pane is the white field, so a teaser is the locked card at full
+	# opacity (a 50% card would put its white text straight on white); it reads dim by its sprite,
+	# its muted icon and name, and the missing pill
+	(v["c"] as Node2D).modulate.a = 1.0
 	if v["key"] != key:
 		v["key"] = key
 		v["model"] = m
@@ -658,9 +661,9 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 		flash.texture = ic.texture
 		flash.position = ic.position
 	ic.modulate = Color.WHITE if (m["kind"] == "silhouette" or teaser or afford) else Color(0.6, 0.6, 0.6)
-	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.86, 0.84, 0.9)
-	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.72, 0.7, 0.78)
-	(v["owned"] as PxText).tint = Color(0.86, 0.84, 0.9)
+	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.827, 0.839, 0.875)
+	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.788, 0.839, 0.949)
+	(v["owned"] as PxText).tint = Color(0.827, 0.839, 0.875)
 	_render_bars(v, bars)
 	var tg: PxText = v["tag"]
 	tg.text = tag_s

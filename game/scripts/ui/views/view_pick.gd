@@ -28,7 +28,7 @@ extends Node2D
 
 const SCRIM := Color(0.043, 0.039, 0.071, 0.6)    # #0b0a12 at 60% (rtl-map §7.1)
 const C_NAME := Color("#fff8ec")
-const C_PARTY := Color("#9e99ad")
+const C_PARTY := Color("#c9d6f2")
 const C_STRIP := Color("#f7f4ec")
 const LH := 44.0                   # the line pitch at ×4
 const HOLD_MS := 600.0             # §8.4: a hold opens the leader card

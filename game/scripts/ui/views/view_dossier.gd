@@ -35,11 +35,11 @@ const K2_DELAY_MS := 5000.0
 const INPUT_AFTER_OPEN_MS := 140.0
 const TEXT_REFRESH_MS := 250.0      # stat rows re-shape at most 4× a second (the total climbs every frame)
 
-const C_BG := Color("#1e1636")      # ui_panel
+const C_BG := Color("#072a7a")      # ui_panel
 const C_LABEL := Color.WHITE
-const C_MUTED := Color("#7d8398")   # slate
-const C_DIVIDER := Color("#2e2548")
-const C_LOCKED := Color("#a4a9b8")  # grey
+const C_MUTED := Color("#b4c3e8")   # slate
+const C_DIVIDER := Color("#2a5cc4")
+const C_LOCKED := Color("#c9d6f2")  # grey
 
 var host: Node
 var reduced_motion := false
@@ -92,7 +92,7 @@ func _ready() -> void:
 	_clip.position = Vector2(0, BODY_Y)
 	_panel.add_child(_clip)
 	_clip.add_child(_content)
-	_thumb = Ui.rect(_panel, Rect2(4, BODY_Y, 4, 48), Color(0.84, 0.8, 0.93), 0.0)
+	_thumb = Ui.rect(_panel, Rect2(4, BODY_Y, 4, 48), Color(0.788, 0.839, 0.949), 0.0)
 	_header = Ui.nine(_panel, Rect2(0, 0, L.W, HEADER_H), Art.sprite_or("chat_header"))
 	var chev_id := Art.sprite_or("chat_icon_chevron")
 	var cs := Vector2(Art.sprite_size(chev_id)) * 4.0

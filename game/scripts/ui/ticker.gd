@@ -72,7 +72,7 @@ var _clip_x0 := float(L.TICKER["clipX0"])
 func _ready() -> void:
 	var K: Dictionary = Art.theme["ticker"]
 	var panel: Rect2 = L.TICKER["panel"]
-	_panel = Ui.rect(self, panel, Color("#1b1426"))
+	_panel = Ui.rect(self, panel, Color("#072a7a"))
 	_clip.clip_contents = true
 	_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_clip.position = Vector2(L.TICKER["clipX0"], panel.position.y)

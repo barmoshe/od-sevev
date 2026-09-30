@@ -40,7 +40,7 @@ const CHAT_TEXT_RIGHT := 596.0
 const CHAT_TEXT_W := 564.0          # string-budgets stage.toastHead / stage.toastChat box
 const FACE_X := 612.0
 const FACE_ART := 16.0
-const C_HEAD := Color("#a4a9b8")    # grey: the sender line, as the thread's names
+const C_HEAD := Color("#c9d6f2")    # grey: the sender line, as the thread's names
 var _chats: Array[Dictionary] = []
 var _face: Sprite2D
 var _head: PxText
@@ -51,7 +51,7 @@ var _preview: PxText
 ## toast's content box ends 24 px before the plate's right edge, where the accent stripe is).
 const TEXT_RIGHT := 676.0
 const TEXT_W := 644.0
-## Dubi's bubble text: white `w` on the kit bubble's #2e2250 (13.6:1; rtl-map §4 "Dubi's bubble").
+## Dubi's bubble text: white `w` on the kit bubble's #1045b5 (13.6:1; rtl-map §4 "Dubi's bubble").
 const BUBBLE_INK := "w"
 
 

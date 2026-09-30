@@ -57,7 +57,7 @@ const TALK_OPEN_MS := 60.0           # state-graph-dubi §3
 const TALK_IDLE_MS := 250.0
 const C_BODY := Color("#f7f4ec")     # white label on the sheet (kit note)
 const C_TITLE := Color("#f7f4ec")
-const C_LOWER := Color("#d6d0e6")    # silver on the ticker bar
+const C_LOWER := Color("#d3d6df")    # silver on the ticker bar
 
 var evolutions := 1
 var archive := false
@@ -223,7 +223,7 @@ func build() -> FlashCard:
 	# the news screen
 	var sy := y + HEADER_H + PAD
 	screen_rect = Rect2(SCREEN_X, sy + SCREEN_FRAME, SCREEN_W, screen_h)
-	Ui.rect(panel, screen_rect.grow(SCREEN_FRAME), Color("#1b1426"))
+	Ui.rect(panel, screen_rect.grow(SCREEN_FRAME), Color("#061029"))
 	_build_screen(s)
 	# the body, revealed line by line
 	var by := screen_rect.end.y + SCREEN_FRAME + PAD

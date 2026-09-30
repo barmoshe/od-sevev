@@ -438,7 +438,7 @@ func _build_card() -> void:
 	_title.position.y = 24.0
 	var y := 96.0
 	if _mode == "postponed":
-		_prefix = _t(LeaderUi.s("COURT_POSTPONED_PREFIX"), Color("#a4a9b8"), TEXT_W, 1)
+		_prefix = _t(LeaderUi.s("COURT_POSTPONED_PREFIX"), Color("#c9d6f2"), TEXT_W, 1)
 		_prefix.right_at(CARD_X + TEXT_RIGHT + L.dx)
 		_prefix.position.y = y
 		y += _lh(_prefix)

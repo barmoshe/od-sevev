@@ -32,9 +32,9 @@ const BTN_GAP := 16.0
 const HALF_LABEL_W := 224.0          # string-budgets modal.btnHalf
 const BAND_MARGIN := 16.0
 const C_TEXT := Color("#f7f4ec")     # white label on the sheet (kit note: 15.6:1 on ui_panel)
-const C_MUTED := Color("#a4a9b8")    # grey
+const C_MUTED := Color("#c9d6f2")    # grey
 const C_GOLD := Color("#ffd23a")     # money (style guide: gold is money-only)
-const C_ALERT := Color("#f86b5d")    # red_hi
+const C_ALERT := Color("#ffaa9f")    # red_hi
 
 var title_text: PxText
 var paras: Array[PxText] = []
