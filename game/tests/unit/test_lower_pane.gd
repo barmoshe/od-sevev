@@ -125,3 +125,41 @@ func test_b11_the_thread_starts_under_the_header() -> void:
 		if n is PxText and (n as PxText).text == LeaderUi.short():
 			named = true
 	runner.check(named and (o["bubbleRect"] as Rect2).position.y == ChatView.OUT_NAME_H, "the reply's row is headed by the leader's name (%s), the bubble under it" % LeaderUi.short())
+
+
+## Merge review M3 (D57): from the fourth teaser (j ≥ 3, on the 0.2 floor) only the silhouette plate
+## draws, at 0.2: no slip fill and no slip outline on the ruled white field.
+func test_m3_floor_teasers_draw_only_the_silhouette_plate() -> void:
+	runner.check(Shop.teaser_slip(0) and Shop.teaser_slip(1) and Shop.teaser_slip(2), "the hint and the two fading slips keep their slip")
+	runner.check(not Shop.teaser_slip(3) and not Shop.teaser_slip(6), "j ≥ 3: no slip")
+	runner.check(Shop.teaser_alpha(3) == 0.2 and Shop.teaser_alpha(7) == 0.2, "the plate alone at 0.2")
+	await _boot()
+	for i in 4:
+		await tree.process_frame
+	var slips := 0
+	var plates := 0
+	var bad := 0
+	var why: Array = []
+	# the current models (a view's own `model` is re-read only when its kind:id key changes)
+	var models: Array = m.shop._models(m.state, "producers")
+	var views: Array = m.shop._rows["producers"]
+	for k in mini(views.size(), models.size()):
+		var v: Dictionary = views[k]
+		var mk: Dictionary = models[k]
+		if str(mk.get("kind", "")) != "teaser" or not (v["c"] as Node2D).visible:
+			continue
+		var j := int(mk.get("t", 0))
+		var panel_on: bool = (v["panel"] as NinePatchRect).visible
+		var plate_on: bool = (v["plate"] as NinePatchRect).visible
+		if j >= 3:
+			plates += 1
+			if panel_on or not plate_on or not is_equal_approx((v["c"] as Node2D).modulate.a, 0.2):
+				bad += 1
+				why.append("j%d panel %s plate %s a %.2f" % [j, panel_on, plate_on, (v["c"] as Node2D).modulate.a])
+		else:
+			slips += 1
+			if not panel_on:
+				bad += 1
+				why.append("j%d no slip" % j)
+	runner.check(slips >= 1 and plates >= 1, "the pane draws both kinds (%d slips, %d plates)" % [slips, plates])
+	runner.check(bad == 0, "every floor teaser is the plate alone at 0.2, every earlier one keeps its slip (%d wrong: %s)" % [bad, str(why)])

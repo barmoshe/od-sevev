@@ -101,8 +101,20 @@ func test_the_early_round_fills_the_right_half() -> void:
 func test_the_pane_fills_with_silhouettes() -> void:
 	runner.check(Content.data()["producerReveal"].get("fillSilhouettes") == true, "the content turns the fill on")
 	var s := GameState.fresh()
+	# merge review M2: the first source is revealed at every run start (revealAtRunEarned 0), so the
+	# pane is card 1 + the fill from the pick, whatever the purse
+	runner.check(float(Content.data()["producers"][0].get("revealAtRunEarned", -1)) == 0.0, "producers[0] reveals at the run start")
 	var r0 := Economy.producer_rows(s)
-	runner.check((r0["fill"] as PackedStringArray).is_empty(), "nothing fills before the first reveal (%s)" % str(r0))
+	runner.check(r0["revealed"] == PackedStringArray([Content.producer_ids()[0]]) and not (r0["fill"] as PackedStringArray).is_empty(),
+		"a fresh run: card 1 and the fill (%s)" % str(r0))
+	# the fill keys on "card 1 is shown", not only on a source revealed by money
+	var c0: Dictionary = Content.data().duplicate(true)
+	(c0["producers"][0] as Dictionary).erase("revealAtRunEarned")
+	Content.replace(c0)
+	var rn := Economy.producer_rows(s)
+	runner.check((rn["revealed"] as PackedStringArray).is_empty() and (rn["fill"] as PackedStringArray).is_empty(), "no money reveal and no card 1: no fill (%s)" % str(rn))
+	runner.check(not (Economy.producer_rows(s, true)["fill"] as PackedStringArray).is_empty(), "card 1 shown: the fill comes with it")
+	TestFixture.use_game_content()
 	s.owned["taxpayer"] = 1
 	var r := Economy.producer_rows(s)
 	var ids := Content.producer_ids()

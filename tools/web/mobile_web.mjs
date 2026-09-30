@@ -26,6 +26,12 @@
 // the HUD, the ticker, the pane, the tab bar, the stage with its wings and the plaza reach both
 // edges. Plus: cards keep ≤ 4 art px (16 logical) of gutter per side; the settings sheet and the
 // picker grid span ≥ 92% of the canvas. It keys on "not the background", never on a palette.
+// S18 (merge review M1, D62; mobile-first §5.9), kind 'spec': window.odDev.hud.toast is sampled every
+// 250 ms (in the page) from the pick to tap 1, and from round 2's pick to 7 s, and must never
+// intersect hud.leaderHit: before the round starts toasts dock in the lane band under his feet.
+// Round 2 with an empty purse (merge review M2, S8 + S15), kind 'spec': a second page per device, no
+// grant, 3 taps (≤ 5 ₪ in hand), a forced election (window.odDevElect), a new leader: at round 2's
+// start card 1 is a real source card over the teaser rows, and the dead-band rule holds.
 // The settings reach (manual test 2026-09-30 A6), kind 'spec': every settings row is built, and each
 // one is wholly on screen or brought on screen by dragging the sheet's body; the fixed "סגור" stays on
 // screen under the rows (window.odDev.modalRows / modalClip).
@@ -142,11 +148,11 @@ for (const spec of list.split(',')) {
 		console.log(`  ${ok ? 'ok  ' : 'FAIL'} [${kind}] ${msg}`);
 		if (!ok) { if (kind === 'base') { failedBase++; res.base++; } else if (kind === 'width') { failedWidth++; res.width++; } else { failedSpec++; res.spec++; } }
 	};
-	const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: !framed, hasTouch: !framed });
-	const page = await ctx.newPage();
+	let ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: !framed, hasTouch: !framed });
+	let page = await ctx.newPage();
 	const errors = [];
 	page.on('pageerror', (e) => errors.push(e.message));
-	const cdp = await ctx.newCDPSession(page);
+	let cdp = await ctx.newCDPSession(page);
 	const wait = (ms) => page.waitForTimeout(ms);
 	let tid = 1;
 	let cv, disp, fr;
@@ -159,6 +165,27 @@ for (const spec of list.split(',')) {
 		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
 	};
 	const probe = () => page.evaluate(() => window.odDev || null);
+	// S18: an in-page sampler of hud.toast ∩ hud.leaderHit, every 250 ms (odDev publishes at 4 Hz)
+	const s18Start = () => page.evaluate(() => {
+		const hit = (a, b) => a && b && a.length === 4 && b.length === 4 && a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
+		if (window.__s18 && window.__s18.id) clearInterval(window.__s18.id);
+		const t0 = performance.now();
+		const S = { n: 0, seen: 0, bad: [], rects: [] };
+		S.id = setInterval(() => {
+			const h = (window.odDev && window.odDev.hud) || {};
+			S.n++;
+			if (h.toast && h.toast.length === 4) {
+				S.seen++;
+				const k = h.toast.map(Math.round).join(',');
+				if (!S.rects.includes(k)) S.rects.push(k);
+			}
+			if (hit(h.toast, h.leaderHit)) S.bad.push([Math.round(performance.now() - t0), h.toast.map(Math.round), h.leaderHit.map(Math.round)]);
+		}, 250);
+		window.__s18 = S;
+	});
+	const s18Stop = () => page.evaluate(() => { const S = window.__s18 || { n: 0, seen: 0, bad: [], rects: [] }; clearInterval(S.id); S.id = 0; return S; });
+	const s18Check = (what, S) => check('spec', S.n > 0 && S.seen > 0 && S.bad.length === 0,
+		`S18 ${what}: no toast over the leader's hit (${S.n} samples, a toast in ${S.seen}${S.rects.length ? ` at ${S.rects.map((r) => `[${r}]`).join(' ')}` : ''}${S.bad.length ? `; OVER THE HIT ${JSON.stringify(S.bad.slice(0, 3))}` : ''})`);
 	// a drag from a to b (CSS px): touch on a phone, the mouse in the desktop frame
 	const swipe = async ([x0, y0], [x1, y1], steps = 8) => {
 		if (framed) {
@@ -332,6 +359,7 @@ for (const spec of list.split(',')) {
 			`A3: the caption is on its full-bleed plate (plate ${JSON.stringify(sp)}, text ${JSON.stringify(st)})`);
 		// pick הפתעה (the centre cell, id "")
 		const rnd = pk.cells.find((c) => c[2] === '') || pk.cells[0];
+		await s18Start();
 		await tap(css(rnd[0], rnd[1]));
 		await page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 8000 }).catch(() => {});
 		await wait(1200);
@@ -363,6 +391,12 @@ for (const spec of list.split(',')) {
 
 	// ---- tap 1-3 (card 1), then the first buy
 	const hat = css(disp.hat[0], disp.hat[1]);
+	if (pk && pk.open) {
+		// S18 round 1: Dubi's pre-tap line lands ≈ 0.9 s after the pick and shows 3 s; give it the time
+		// to show before tap 1 retires it, so the check samples a real toast
+		for (let t = 0; t < 24 && !((await page.evaluate(() => (window.__s18 || {}).seen || 0)) > 0); t++) await wait(250);
+		s18Check('round 1, the pick to tap 1', await s18Stop());
+	}
 	// A2 (supersedes review U3): card 1 and its white field are up from the pick; at tap 1 the ticker
 	// takes the plaza strip's slot, so no blank band may open under the stage here
 	await tap([hat[0], hat[1]]);
@@ -463,8 +497,70 @@ for (const spec of list.split(',')) {
 	await wait(600);
 
 	check('base', errors.length === 0, `no page errors ${errors.length ? JSON.stringify(errors.slice(0, 3)) : ''}`);
-	summary.push(res);
 	await ctx.close();
+
+	// ---- round 2 with an empty purse (merge review M1 S18 + M2 S8/S15): a second page, no grant
+	if (pk && pk.open) {
+		ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: !framed, hasTouch: !framed });
+		page = await ctx.newPage();
+		const errors2 = [];
+		page.on('pageerror', (e) => errors2.push(e.message));
+		cdp = await ctx.newCDPSession(page);
+		await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&clear=1`);
+		if (!framed) await page.evaluate(() => { document.documentElement.style.background = '#ff00ff'; document.body.style.background = '#ff00ff'; });
+		await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
+		await page.click('#od-quiet');
+		await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay && window.odPick && window.odPick.open, null, { timeout: 120000 });
+		await wait(1500);
+		await refresh();
+		cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, bw: c.width, bh: c.height }; });
+		let pk2 = await page.evaluate(() => window.odPick);
+		const first = pk2.cells.find((c) => c[2] !== '') || pk2.cells[0];
+		await tap(css(first[0], first[1]));
+		await page.waitForFunction(() => window.odDev && window.odDev.mode === 'title', null, { timeout: 8000 }).catch(() => {});
+		await wait(1200);
+		await refresh();
+		const h2 = css(disp.hat[0], disp.hat[1]);
+		for (let i = 0; i < 3; i++) { await tap([h2[0], h2[1] + 4 * i]); await wait(400); }
+		await wait(800);
+		await page.evaluate(() => { window.odDevElect = 1; });
+		for (let t = 0; t < 90; t++) {
+			await wait(1000);
+			pk2 = await page.evaluate(() => window.odPick || null);
+			if (pk2 && pk2.open && pk2.variant === 'after') break;
+			const mdl = await page.evaluate(() => (window.odDev && window.odDev.modalButtons) || []);
+			if (mdl.length) { await refresh(); await tap(css(mdl[mdl.length - 1][0], mdl[mdl.length - 1][1])); }
+			const fl = await page.evaluate(() => window.odFlash || null);
+			if (fl && fl.open) { await refresh(); const b = fl.skip && fl.skip[0] >= 0 ? fl.skip : fl.next; await tap(css(b[0], b[1])); }
+		}
+		await wait(1200);
+		if (pk2 && pk2.open && pk2.variant === 'after') {
+			await refresh();
+			const bank = Number(((await probe()) || {}).bank || 0);
+			const other = pk2.cells.find((c) => c[2] !== '' && c[2] !== first[2]) || pk2.cells[0];
+			await s18Start();
+			const t0 = Date.now();
+			await tap(css(other[0], other[1]));
+			await page.waitForFunction(() => window.odDev && window.odDev.mode === 'main', null, { timeout: 8000 }).catch(() => {});
+			await wait(1300);
+			await refresh();
+			const r2 = await shot('round2-start');
+			const st = (await probe()) || {};
+			const sh = st.shop || {};
+			const hh = st.hud || {};
+			check('spec', bank <= 5 && hh.card1 === true && (sh.rows || []).length >= 1 && (sh.silhouettes || 0) >= 1,
+				`M2/S15: round 2 starts with ${bank.toFixed(1)} ₪ (≤ 5): card 1 is a source card (${JSON.stringify((sh.rows || []).map((r) => r[2]))}) over ${sh.silhouettes || 0} teaser rows, never a locked row alone`);
+			await bandCheck('round 2 start', r2, 'M2: card 1 and the teasers fill the pane with an empty purse');
+			// S18 round 2: to 7 s after the pick (the fresh toast waits for the undo chip, then docks in the lane)
+			// (on a loaded machine the game clock can lag the wall clock: past 7 s, wait up to 11 s for the toast)
+			while (Date.now() - t0 < 7000 || (Date.now() - t0 < 11000 && !((await page.evaluate(() => (window.__s18 || {}).seen || 0)) > 0))) await wait(250);
+			s18Check('round 2, the pick to 7 s', await s18Stop());
+			await shot('round2-fresh');
+		} else check('spec', false, 'round 2: the after-election picker opened');
+		check('base', errors2.length === 0, `round 2: no page errors ${errors2.length ? JSON.stringify(errors2.slice(0, 3)) : ''}`);
+		await ctx.close();
+	}
+	summary.push(res);
 }
 await browser.close();
 console.log('\nsummary (failed checks: baseline / spec / width)');

@@ -236,3 +236,203 @@ func test_a3_the_picker_caption_sits_on_a_navy_plate() -> void:
 		return 0.2126 * f.call(c.r) + 0.7152 * f.call(c.g) + 0.0722 * f.call(c.b)
 	var ratio: float = (float(lum.call(fg)) + 0.05) / (float(lum.call(bg)) + 0.05)
 	runner.check(ratio >= 7.0, "white on the plate reads at %.1f:1 (≥ 7, AAA)" % ratio)
+
+
+# ------------------------------------------------------------------ merge review M1 (D62, S18)
+
+## Runs the toast dock `ms` of scene time with the controller's per-frame rule (D62).
+func _pump_toasts(ms: float) -> void:
+	var t := 0.0
+	while t < ms:
+		m._dock_toasts()
+		m.toasts.update_view(50.0)
+		t += 50.0
+
+
+func _toast_rect() -> Rect2:
+	return m.toasts.covered_rect()
+
+
+func test_d62_the_pretap_toast_docks_in_the_lane_band_clear_of_the_leader() -> void:
+	await _boot()
+	m.ftue.handoff_ms = 1.0
+	m.commit_pick("bengvir")
+	await _frames(2)
+	runner.check(m.mode == "title" and m.state.run_taps == 0, "pre-tap")
+	for e: Dictionary in m._pick_seq:
+		(e["fn"] as Callable).call()
+	m._pick_seq.clear()
+	_pump_toasts(400.0)
+	var tt: Toasts = m.toasts
+	var r := _toast_rect()
+	runner.check(r.has_area() and tt.dock() == "lane", "Dubi's pick toast shows, in the lane band (%s, %s)" % [tt.dock(), r])
+	runner.check(is_equal_approx(r.position.y, L.stage_bottom() - 136.0) and r.end.y <= L.stage_bottom(),
+		"at S − 136, inside the stage (%s; stage bottom %s)" % [r, L.stage_bottom()])
+	runner.check(not r.intersects(m.bb.hit_rect()), "clear of the leader's hit (%s vs %s)" % [r, m.bb.hit_rect()])
+	runner.check(is_equal_approx(r.position.x, Toasts.dock_x()) and is_equal_approx(r.size.x, Toasts.dock_w()), "the dock's width (cw − 32)")
+	var sh := tt.shown()
+	runner.check(sh["head"] != "" and tt._head.position.y >= r.position.y and tt._preview.position.y + 44.0 <= r.end.y,
+		"its two lines sit on the lane plate (%s, %s in %s)" % [tt._head.position.y, tt._preview.position.y, r])
+	# the S18 sample, every 250 ms of the toast's life: never over the hit
+	var bad := 0
+	for i in 12:
+		_pump_toasts(250.0)
+		if _toast_rect().intersects(m.bb.hit_rect()):
+			bad += 1
+	runner.check(bad == 0, "S18: no sample over the leader's hit (%d)" % bad)
+	# after the first tap the dock returns to the stage top
+	_tap_leader()
+	runner.check(not tt.lane_dock or m.state.run_taps > 0, "the round has started")
+	_pump_toasts(4000.0)
+	tt.show_toast("בדיקה")
+	_pump_toasts(200.0)
+	runner.check(tt.dock() == "top" and is_equal_approx(_toast_rect().position.y, Toasts.top_y()), "after tap 1 a toast docks at the stage top again (%s)" % tt.dock())
+
+
+func test_d62_the_fresh_toast_waits_for_the_undo_chip_then_docks_in_the_lane() -> void:
+	var s := GameState.fresh()
+	Leaders.set_salt(s, 7)
+	Politics.install(s, "bennett")
+	Economy.tap(s)
+	s.evolutions = 1
+	s.run_taps = 0
+	Politics.on_election(s)
+	SaveStore.new(dir).save_game(s)
+	await _boot()
+	m.commit_pick("liberman")
+	await _frames(2)
+	var tt: Toasts = m.toasts
+	var want := Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(m._pick_res.get("freshPct", 0.0))))})
+	runner.check(m._pick_res.get("fresh", false) == true, "a switch: the fresh-face bonus")
+	runner.check(m.undo_visible() and m.undo_home() == "lane", "the chip holds the lane")
+	runner.check(m._fresh_due == want and not tt._queue.has(want) and tt._text.text != want, "the fresh toast waits while the undo chip is up")
+	m._dock_toasts()
+	runner.check(tt.hold, "the queue holds while the chip holds the lane")
+	# the chip's 5 s run out
+	m._undo_ms = 0.0
+	m._update_undo_chip(16.0)
+	m._dock_toasts()
+	runner.check(m._fresh_due == "" and (tt._queue.has(want) or tt._text.text == want), "the chip gone: the fresh toast is queued")
+	runner.check(not tt.hold, "the queue runs again")
+	_pump_toasts(300.0)
+	var r := _toast_rect()
+	runner.check(tt._text.text == want and tt.dock() == "lane" and r.has_area(), "it shows in the lane band (%s)" % tt.dock())
+	runner.check(not r.intersects(m.bb.hit_rect()), "clear of the new leader's hit (%s vs %s)" % [r, m.bb.hit_rect()])
+
+
+func test_d62_an_undo_drops_the_waiting_fresh_toast() -> void:
+	var s := GameState.fresh()
+	Leaders.set_salt(s, 7)
+	Politics.install(s, "bennett")
+	Economy.tap(s)
+	s.evolutions = 1
+	s.run_taps = 0
+	Politics.on_election(s)
+	SaveStore.new(dir).save_game(s)
+	await _boot()
+	m.commit_pick("liberman")
+	await _frames(2)
+	runner.check(m._fresh_due != "", "the fresh toast waits")
+	m._undo_pick()
+	await _frames(2)
+	runner.check(m.mode == "pick" and m._fresh_due == "", "the undo reverts the bonus: its toast never shows")
+
+
+func test_d62_the_first_tap_ends_the_chip_and_the_fresh_toast_still_docks_in_the_lane() -> void:
+	var s := GameState.fresh()
+	Leaders.set_salt(s, 7)
+	Politics.install(s, "bennett")
+	Economy.tap(s)
+	s.evolutions = 1
+	s.run_taps = 0
+	Politics.on_election(s)
+	SaveStore.new(dir).save_game(s)
+	await _boot()
+	m.commit_pick("liberman")
+	bb_land()
+	await _frames(2)
+	_tap_leader()
+	m._update_undo_chip(16.0)
+	m._dock_toasts()
+	var tt: Toasts = m.toasts
+	runner.check(not m.undo_visible() and m._fresh_due == "", "tap 1 ends the chip, and the fresh toast is due")
+	runner.check(tt.queued_dock(tt._queue.size() - 1) == "lane" or tt.dock() == "lane", "it asks for the lane band, whatever ended the chip")
+
+
+func bb_land() -> void:
+	m.bb.walk_land()
+
+
+# ------------------------------------------------------------------ merge review M4
+
+func test_m4_the_p0_hand_points_at_the_pulse_on_the_tap_object() -> void:
+	await _boot()
+	m.ftue.handoff_ms = 1.0
+	m.commit_pick("bengvir")
+	await _frames(2)
+	var ctx: Dictionary = m._ftue_ctx(true)
+	var tp: Vector2 = ctx["tapPoint"]
+	var head: Vector2 = ctx["hat"]
+	runner.check(tp == m.bb.pulse_point(), "the ctx carries the pulse's own point")
+	runner.check(tp.distance_to(head) >= 40.0, "for a leader with a prop it is not the head (%s vs %s)" % [tp, head])
+	runner.check(m.bb.hit_rect().has_point(tp), "and it is on the leader (inside his hit)")
+	var f: Ftue = m.ftue
+	f.reduced_motion = true
+	f._idle_ms = 10000.0
+	f.update_view(16.0, m.state, m.d, ctx)
+	runner.check(f.hand.visible and f.hand.position == tp + Vector2(56, 40), "F2: the hand at the tap object's right side (%s, want %s)" % [f.hand.position, tp + Vector2(56, 40)])
+
+
+# ------------------------------------------------------------------ merge review M5
+
+func test_m5_after_an_election_the_chip_docks_on_a_navy_tab_from_x_0() -> void:
+	var s := GameState.fresh()
+	Leaders.set_salt(s, 7)
+	Politics.install(s, "bennett")
+	Economy.tap(s)
+	s.evolutions = 1
+	s.run_taps = 0
+	Politics.on_election(s)
+	SaveStore.new(dir).save_game(s)
+	await _boot()
+	m.commit_pick("liberman")
+	await _frames(2)
+	runner.check(m.undo_home() == "lane" and m.undo_visible(), "after an election: the lane")
+	var tab: ColorRect = m._undo_tab
+	var chip: Rect2 = m._undo_lane_btn.visual
+	runner.check(tab.visible and tab.color == Color("#072a7a"), "a flat navy tab, the undo bar's colour")
+	runner.check(is_equal_approx(tab.position.x, -L.sox()), "from the canvas's left edge (x 0; %s)" % tab.position.x)
+	runner.check(is_equal_approx(tab.position.x + tab.size.x, chip.end.x + 8.0), "to the chip's right edge + 8 (%s vs %s)" % [tab.position.x + tab.size.x, chip.end.x + 8.0])
+	runner.check(is_equal_approx(tab.size.y, chip.size.y + 16.0) and is_equal_approx(tab.position.y, chip.position.y - 8.0), "the chip's height + 16, centred on it")
+	var bar: ColorRect = m._undo_lane_bar
+	runner.check(is_equal_approx(bar.position.y + bar.size.y, tab.position.y + tab.size.y) and bar.position.x >= tab.position.x - 0.5 \
+		and bar.position.x + bar.size.x <= tab.position.x + tab.size.x + 0.5, "the timer line runs along the tab's bottom (%s in %s)" % [Rect2(bar.position, bar.size), Rect2(tab.position, tab.size)])
+	runner.check(tab.get_index() < m._undo_lane_btn.bg.get_index(), "under the chip")
+	m._undo_ms = 0.0
+	m._update_undo_chip(16.0)
+	runner.check(not tab.visible, "it goes with the chip")
+
+
+# ------------------------------------------------------------------ merge review M2
+
+func test_m2_a_round_begun_with_an_empty_purse_shows_card_1_and_the_teasers() -> void:
+	var s := GameState.fresh()
+	Leaders.set_salt(s, 7)
+	Politics.install(s, "bennett")
+	for i in 3:
+		Economy.tap(s)
+	s.evolutions = 1
+	s.run_taps = 0
+	s.run_bananas = 0.0
+	Politics.on_election(s)
+	s.bananas = 3.0
+	SaveStore.new(dir).save_game(s)
+	await _boot()
+	m.commit_pick("liberman")
+	await _frames(3)
+	runner.check(m.state.bananas <= 5.0 and m.shop.visible, "round 2, ≤ 5 ₪ in hand, the pane up (%s ₪)" % m.state.bananas)
+	var models: Array = m.shop._models(m.state, "producers")
+	var kinds: Array = models.map(func(x: Dictionary) -> String: return str(x["kind"]))
+	var first := kinds.find("producer")
+	runner.check(first >= 0 and str(models[first]["id"]) == Content.producer_ids()[0], "card 1 is the first source, a real card (%s)" % str(kinds))
+	runner.check(kinds.count("teaser") >= 1, "with the teaser rows under it (%s)" % str(kinds))
