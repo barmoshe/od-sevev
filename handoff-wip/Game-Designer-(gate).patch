@@ -16,6 +16,54 @@ index 0769f5d..45fcede 100644
  **Player actions** (each returns a result, and a Dictionary of UI events where there are any):
  
  | Action | Call |
+diff --git a/game/scripts/sim/pacing_sim.gd b/game/scripts/sim/pacing_sim.gd
+index a2455b4..b9635b4 100644
+--- a/game/scripts/sim/pacing_sim.gd
++++ b/game/scripts/sim/pacing_sim.gd
+@@ -27,6 +27,8 @@ extends RefCounted
+ ##   spins            false never buys a spin (the source tab only)
+ ##   politics_every   seconds between two looks at the chat, the court card and the brawl (0: every frame)
+ ##   ping_after_buy   C1's controller half: the chat pings only this long after the last purchase
++##   save_for_lines   true: no purchase while an open pay line costs more than the bank (the
++##                    coalition first, as tools/web/round_play.mjs plays)
+ ## A browser driver acts in wall-clock time while the dev clock (?speed=N) runs the game N times
+ ## faster, so in game time it taps and buys N times less often: tests/bench/test_web_driver.gd
+ ## replays tools/web/round_web.mjs's measured cadence through these keys (the 34-vs-8-minute gap).
+@@ -83,6 +85,7 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
+ 	var buy_units := int(player.get("buy_units", 0))
+ 	var pol_every := float(player.get("politics_every", 0.0))
+ 	var ping_gap := float(player.get("ping_after_buy", 0.0))
++	var save_lines: bool = player.get("save_for_lines", false) == true
+ 	var last_buy := -INF
+ 	var last_pol := -INF
+ 	while t < max_t:
+@@ -132,7 +135,8 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
+ 				events.append([t, "milestone:" + key])
+ 		d = Economy.derive(s)
+ 		# Nothing is affordable -> the greedy player can't buy this frame; skip ranking (same result).
+-		var best := {} if s.bananas < _cheapest(s, d) or t - last_buy < buy_every else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {}, player)
++		var saving := save_lines and pol and _owes(s)
++		var best := {} if saving or s.bananas < _cheapest(s, d) or t - last_buy < buy_every else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {}, player)
+ 		if not best.is_empty() and s.bananas >= float(best["cost"]):
+ 			last_buy = t
+ 			if best.has("upgrade"):
+@@ -161,6 +165,16 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
+ 	return {"t": t, "gate_t": gate_t, "first": first, "state": s}
+ 
+ 
++## An open pay line (a demand, an ultimatum, a rejoin or a poach) the bank can't cover yet.
++static func _owes(s: GameState) -> bool:
++	if not Coalition.active():
++		return false
++	for m: Dictionary in Coalition._c(s)["chat"]:
++		if m["state"] == "open" and Coalition.is_payable(m) and float(m.get("price", 0.0)) > s.bananas:
++			return true
++	return false
++
++
+ static func _cheapest(s: GameState, d: Economy.Derived) -> float:
+ 	var c := INF
+ 	for id in Content.producer_ids():
 diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
 index 1558947..d372f2a 100644
 --- a/game/scripts/ui/dev_probe.gd
