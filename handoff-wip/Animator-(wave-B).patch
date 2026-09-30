@@ -1,0 +1,72 @@
+# binary files changed (not carried):
+diff --git a/game/tests/dev/ticker_pages.gd b/game/tests/dev/ticker_pages.gd
+new file mode 100644
+index 0000000..9c6abbf
+--- /dev/null
++++ b/game/tests/dev/ticker_pages.gd
+@@ -0,0 +1,64 @@
++extends SceneTree
++## Dev probe for the ticker pager (animator, M1): every ticker line in design/content.json broken
++## into pages at the clip widths of the matrix (Ticker.paginate, the real text route), with the
++## characters per page, the pages per headline and the dwell per page under Ticker.dwell_ms.
++##   godot --headless --path game -s res://tests/dev/ticker_pages.gd
++
++
++func _initialize() -> void:
++	_run.call_deferred()
++
++
++func _texts() -> Array:
++	var c: Dictionary = Content.data()
++	var out: Array = []
++	for h: Variant in c.get("headlines", []):
++		out.append(str((h as Dictionary).get("text", "")))
++	for h: Variant in c.get("ambientHeadlines", []):
++		out.append(str(h))
++	for h: Variant in c.get("ambientHeadlinesV2", []):
++		out.append(str((h as Dictionary).get("text", "")) if h is Dictionary else str(h))
++	var ls: Variant = c.get("leaders", [])
++	if ls is Dictionary:
++		ls = (ls as Dictionary).values()
++	for l: Variant in ls:
++		if l is Dictionary:
++			for t: Variant in (l as Dictionary).get("kit", {}).get("ticker", []):
++				out.append(str((t as Dictionary).get("text", "")) if t is Dictionary else str(t))
++	return out.filter(func(t: String) -> bool: return t != "")
++
++
++func _pct(a: Array, p: float) -> float:
++	var s := a.duplicate()
++	s.sort()
++	return float(s[clampi(int(floorf(p * float(s.size() - 1) + 0.5)), 0, s.size() - 1)])
++
++
++func _run() -> void:
++	TestFixture.use_game_content()
++	var texts := _texts()
++	print("ticker lines: %d" % texts.size())
++	for clip: float in [280.0, 324.0, 392.0, 464.0]:
++		var chars: Array = []
++		var dw: Array = []
++		var per_head: Array = []
++		var head_ms: Array = []
++		for t: String in texts:
++			var pages := Ticker.paginate(t, clip, 4, 2)
++			per_head.append(float(pages.size()))
++			var hm := 0.0
++			for pg: Variant in pages:
++				var n := 0
++				for ln: String in pg:
++					n += ln.length()
++				chars.append(float(n))
++				var ms := Ticker.dwell_ms(pg, "flavor")
++				dw.append(ms)
++				hm += ms
++			head_ms.append(hm)
++		print("clip %d: pages/headline mean %.2f max %d | chars/page p10 %d p50 %d p90 %d max %d | dwell/page p10 %.1f p50 %.1f p90 %.1f max %.1f s | headline dwell p50 %.1f p90 %.1f s" % [
++			int(clip), per_head.reduce(func(a: float, b: float) -> float: return a + b, 0.0) / per_head.size(), int(per_head.max()),
++			int(_pct(chars, 0.1)), int(_pct(chars, 0.5)), int(_pct(chars, 0.9)), int(chars.max()),
++			_pct(dw, 0.1) / 1000.0, _pct(dw, 0.5) / 1000.0, _pct(dw, 0.9) / 1000.0, float(dw.max()) / 1000.0,
++			_pct(head_ms, 0.5) / 1000.0, _pct(head_ms, 0.9) / 1000.0])
++	quit(0)
+# untracked binary: game/tests/dev/ticker_pages.gd
