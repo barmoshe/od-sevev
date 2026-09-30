@@ -225,6 +225,17 @@ func mouth_point() -> Vector2:
 	return hero.position + body.position + hero.point(track, fb)
 
 
+## ftue.md P0 (merge review M4): the point the brightness pulse sits on, stage coordinates: the tap
+## object's tracked point (`propMouth` for a leader with a prop; Bibi's baked hat at `hatMouth`), the
+## same track `_sync_prop` draws the prop on. The P0 hand points here, not at the head.
+func pulse_point() -> Vector2:
+	if hero == null:
+		return body.position + Vector2(L.BB["pivotX"], L.BB["pivotY"])
+	var track := str(_prop_info.get("track", "hatMouth"))
+	var fb := hero.point("hatMouth", Vector2(0, -hero.frame_size().y * 0.7))
+	return Display.snap(body.position + hero.position + hero.point(track, fb))
+
+
 ## The loose prop follows the figure's track every frame and shows its squash frame while pressed.
 func _sync_prop() -> void:
 	if prop == null or hero == null:

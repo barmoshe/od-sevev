@@ -223,7 +223,8 @@ func update_view(dt_ms: float, s: GameState, _d: Economy.Derived, ctx: Dictionar
 	if ctx.get("title", false) and s.taps_lifetime == 0:
 		_set_pulse(2.0 if _idle_ms >= 20000.0 else 1.0)
 		if _idle_ms >= 9000.0:
-			_point(ctx.get("hat", Vector2(376, 300)) + Vector2(56, 40), "upleft")
+			# M4: at the tap object the pulse is on (the prop / Bibi's hat), the hand at its right side
+			_point(ctx.get("tapPoint", ctx.get("hat", Vector2(376, 300))) + Vector2(56, 40), "upleft")
 		return
 	_set_pulse(0.0)
 	if blocked or not ctx.get("inMain", false):

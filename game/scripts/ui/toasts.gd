@@ -17,6 +17,14 @@ const IN_MS := 180.0
 const OUT_MS := 120.0
 
 var reduced_motion := false
+## D62 (mobile-first §5.9, merge review M1): while the round has not started (no tap, nothing bought)
+## the controller sets this, and a toast that shows then docks in the lane band under the leader's
+## feet (`lane_y()`), never in the stage-top dock over his head. Read when a toast is shown, so a
+## toast never jumps mid-life; after the first tap the next toast docks at the stage top again.
+var lane_dock := false
+## D62: while the undo chip holds the lane (after an election) the queue waits, so a lane toast never
+## lands on the chip; the controller sets it every frame.
+var hold := false
 ## Called with the shown toast's tag when it is tapped (T3: a "chat" toast opens the chat).
 var on_tap: Callable
 ## Dubi's line filter, func(text) -> String: every squawk is a talking point, so the controller
@@ -46,6 +54,8 @@ var _passive := false               # the shown toast takes no tap (show_chat_to
 var _face: Sprite2D
 var _head: PxText
 var _preview: PxText
+var _y0 := -1.0                     # the shown toast's plate top (stage-local design y)
+var _in_lane := false               # the shown toast docks in the lane band (D62)
 
 
 ## rtl-map §4 (rev 2026-09-29): the toast text box is x 32-676, right-aligned at 676 (the kit
@@ -70,10 +80,29 @@ static func rdx() -> float:
 	return L.dx - L.sox()
 
 
+## The stage-top dock's plate top (rtl-map §4).
+static func top_y() -> float:
+	return float(L.STAGE["y"]) + 8.0
+
+
+## D62 (mobile-first §5.9): the lane band under the leader's feet, `Rect2(16, S − 136, cw − 32, 132)`
+## stage-local; the leader's and the thermometer's hits end at S − 140, so a plate here never
+## touches them. Returns the plate top in stage-local design y.
+static func lane_y() -> float:
+	return L.stage_bottom() - 136.0
+
+
+## Where the shown toast docks now: "lane" or "top" (tests, window.odDev).
+func dock() -> String:
+	return "lane" if _in_lane else "top"
+
+
 func relayout() -> void:
 	if _plate == null:
 		return
 	var r := Rect2(dock_x(), _plate.position.y, dock_w(), _plate.size.y * 4.0)
+	if _in_lane and _plate.visible:
+		r.position.y = lane_y()   # the stage height changed under a lane toast: it keeps its band
 	Ui.set_nine_rect(_plate, r)
 	_text.wrap_width = TEXT_W + L.dx
 	_text.right_at(TEXT_RIGHT + rdx())
@@ -82,6 +111,19 @@ func relayout() -> void:
 	_preview.wrap_width = CHAT_TEXT_W + L.dx
 	_preview.right_at(CHAT_TEXT_RIGHT + rdx())
 	_face.position.x = FACE_X + rdx()
+	if _plate.visible:
+		_place_y(r.position.y)
+
+
+## Puts the shown toast's lines at plate top `y0` (the stage-top dock or the lane band).
+func _place_y(y0: float) -> void:
+	var dy := y0 - _y0
+	_y0 = y0
+	_text.position.y = y0 + 16.0
+	_head.position.y = y0 + 16.0
+	_preview.position.y = y0 + 16.0 + float(HeFont.line_height()) * _head.eff_px()
+	if dy != 0.0 and _face.visible:
+		_face.position.y += dy
 
 
 func _ready() -> void:
@@ -101,12 +143,14 @@ func _ready() -> void:
 	relayout()
 
 
-func show_toast(text: String, tag: String = "") -> void:
+## `dock` "lane" forces the lane band whatever the round's state (D62: `LEADER_PICK_FRESH`, which
+## shows when the undo chip goes, the first tap included); "" follows `lane_dock`.
+func show_toast(text: String, tag: String = "", dock_at: String = "") -> void:
 	if text != "":
 		_queue.append(text)
 		_tags.append(tag)
 		_sync_chats()
-		_chats.append({})
+		_chats.append({"dock": dock_at} if dock_at != "" else {})
 
 
 ## A chat toast (rtl-map §4 "Chat toast", review R5): the sender's 16×16-art face crop inside the
@@ -123,6 +167,12 @@ func show_chat_toast(head: String, preview: String, avatar: Array, tag: String =
 	_tags.append(tag)
 	_sync_chats()
 	_chats.append({"head": head, "avatar": avatar, "passive": passive})
+
+
+## Test hook: the dock the next queued toast asked for ("" = follow `lane_dock`).
+func queued_dock(i: int) -> String:
+	var k := i + (_chats.size() - _queue.size())
+	return str((_chats[k] as Dictionary).get("dock", "")) if k >= 0 and k < _chats.size() else ""
 
 
 ## Called right after a text is queued: the chat meta lines up with the texts already waiting
@@ -157,7 +207,7 @@ func _build_chat_nodes() -> void:
 
 ## The face crop: the middle 16×16 art px of the 32×32 chat avatar, drawn at the avatar's own
 ## scale (art ×4 = 64 logical), so the toast keeps the pixel grid of the thread's avatar.
-func _set_face(avatar: Array) -> bool:
+func _set_face(avatar: Array, y0: float) -> bool:
 	var id := str(avatar[0]) if avatar.size() >= 1 else ""
 	if id == "" or id == Art.PLACEHOLDER or not Art.has_sprite(id):
 		return false
@@ -168,7 +218,6 @@ func _set_face(avatar: Array) -> bool:
 	var crop := minf(FACE_ART * dens, minf(tsz.x, tsz.y))
 	_face.region_rect = Rect2(floorf((tsz.x - crop) / 2.0), floorf((tsz.y - crop) / 2.0), crop, crop)
 	_face.scale = Vector2(sc, sc)
-	var y0 := float(L.STAGE["y"]) + 8.0
 	_face.position = Vector2(FACE_X + rdx(), y0 + Ui.snap((132.0 - crop * sc) / 2.0, 4))
 	return true
 
@@ -177,7 +226,7 @@ func _set_face(avatar: Array) -> bool:
 func shown() -> Dictionary:
 	return {"head": _head.text if _head.visible else "", "preview": _preview.text if _preview.visible else "",
 		"text": _text.text if _text.visible else "", "face": _face.visible,
-		"h": _plate.size.y * 4.0 if _plate.visible else 0.0}
+		"h": _plate.size.y * 4.0 if _plate.visible else 0.0, "dock": dock() if _plate.visible else ""}
 
 
 ## Review U9: tap 1 retires Dubi's pre-tap dock line (shown or queued); from H1 his bubble speaks.
@@ -283,7 +332,7 @@ func update_view(dt_ms: float) -> void:
 	if _gap > 0.0:
 		_gap -= dt_ms
 		return
-	if _queue.is_empty():
+	if _queue.is_empty() or hold:
 		return
 	var msg: String = _queue.pop_front()
 	_tag = _tags.pop_front() if not _tags.is_empty() else ""
@@ -292,8 +341,13 @@ func update_view(dt_ms: float) -> void:
 		_chats.pop_front()
 	var shown_nodes: Array[CanvasItem] = [_plate]
 	_passive = bool(chat.get("passive", false))
-	var y0 := float(L.STAGE["y"]) + 8.0
-	if chat.is_empty():
+	# D62: the lane band while the round has not started (or when the toast asks for it)
+	_in_lane = str(chat.get("dock", "")) == "lane" or (str(chat.get("dock", "")) == "" and lane_dock)
+	var y0 := lane_y() if _in_lane else top_y()
+	_y0 = y0
+	_text.position.y = y0 + 16.0
+	_head.position.y = y0 + 16.0
+	if not chat.has("head"):
 		_text.text = msg
 		Ui.set_nine_rect(_plate, Rect2(dock_x(), y0, dock_w(), plate_h()))
 		shown_nodes.append(_text)
@@ -309,7 +363,7 @@ func update_view(dt_ms: float) -> void:
 		_preview.position.y = y0 + 16.0 + lh_head
 		Ui.set_nine_rect(_plate, Rect2(dock_x(), y0, dock_w(), maxf(132.0, Ui.snap(44.0 + lh_head + lh_prev, 4))))
 		shown_nodes.append_array([_head, _preview])
-		if _set_face(chat.get("avatar", [])):
+		if _set_face(chat.get("avatar", []), y0):
 			shown_nodes.append(_face)
 	for n: CanvasItem in shown_nodes:
 		n.visible = true

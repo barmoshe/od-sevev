@@ -111,11 +111,13 @@ var thermo: Thermo                  # the suspicion thermometer + the sweat (ui/
 var picker: PickView                # LEADER_PICK (ui/views/view_pick.gd)
 var _pick_res: Dictionary = {}      # the last commit's Leaders.start_round result + {via}
 var _pick_seq: Array = []           # [{at (ms, _now), fn}]: the round-start sequence (rtl-map §8.6)
+var _fresh_due := ""                # D62: the LEADER_PICK_FRESH text, waiting for the undo chip to go
 var _pick_shown_ms := 0.0
 var _undo_btn: PxButton             # "להחליף ראש רשימה" (rtl-map §8.6): the one on screen now
 var _undo_bar: ColorRect
 var _undo_lane_btn: PxButton        # after an election: in the lane, over the stage floor
 var _undo_lane_bar: ColorRect
+var _undo_tab: ColorRect            # M5: after an election the lane chip docks on a flat navy tab from x 0
 var _undo_row: Node2D               # B12, pre-tap: a navy bar in the (free) ticker slot, `_lower`-local
 var _undo_row_btn: PxButton
 var _undo_row_bar: ColorRect
@@ -742,7 +744,8 @@ func hud_info() -> Dictionary:
 	return {"leaderHit": r2a.call(bb.hit_rect(), sto), "top": _top.visible,
 		"identity": {"leader": top_bar.leader_shown(), "rect": r2a.call(idr, tpo), "name": r2a.call(nm, tpo),
 			"face": r2a.call(TopBar.face_rect() if top_bar.face != null and top_bar.face.visible else Rect2(), tpo)},
-		"undo": {"on": undo_visible(), "home": undo_home(), "rect": r2a.call(ur, uo)},
+		"undo": {"on": undo_visible(), "home": undo_home(), "rect": r2a.call(ur, uo),
+			"tab": r2a.call(Rect2(_undo_tab.position, _undo_tab.size) if _undo_tab != null and _undo_tab.visible else Rect2(), sto)},
 		"toast": r2a.call(toasts.covered_rect(), sto), "counter": _top.visible and top_bar.bank.visible,
 		"card1": shop.visible, "ticker": ticker.visible}
 
@@ -1108,6 +1111,7 @@ func _process(delta: float) -> void:
 		_after_walk = Callable()
 		after.call()
 	court_echo.update_view(dt, state, str(Story.era_for(state.evolutions).get("id", "")), running and Leaders.has_court())
+	_dock_toasts()
 	toasts.update_view(dt)
 	prop_fx.update_view(dt)
 	golden.update_view(dt, modal or not running)
@@ -1177,6 +1181,9 @@ func _ftue_ctx(running: bool) -> Dictionary:
 	return {
 		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open() or dossier.is_open() or mode == "pick",
 		"hat": L.magician_feet() - Vector2(0, 380), "pill": pill,
+		# M4 (merge review; ftue.md P0): the hand points at the pulse's own point, the tap object
+		# (the prop at `propMouth`; Bibi's hat at `hatMouth`); H1's squawk keeps the head point
+		"tapPoint": bb.pulse_point() if bb.hero != null else L.magician_feet() - Vector2(0, 380),
 		"price": Economy.producer_cost(state, first, 1),
 		"bounce": func() -> void: shop.bounce_row(k),
 		"gateOpen": ticker.cta_on(), "ctaPoint": Vector2(360, L.stage_bottom() - 8.0),
@@ -2327,6 +2334,7 @@ func _do_reset() -> void:
 	Leaders.set_salt(state, randi())
 	_undo_ms = 0.0
 	_pick_seq.clear()
+	_fresh_due = ""
 	if Leaders.pick_pending(state):
 		_open_picker()   # screen-graph §0: O10 → LEADER_PICK (first)
 	else:
@@ -2465,6 +2473,7 @@ func _open_picker(keep: Array = [], focus_id: String = "") -> void:
 	var lp := variant == "after" and str(state.ui.get("lp", "")) == ""
 	_undo_ms = 0.0
 	_pick_seq.clear()
+	_fresh_due = ""   # an undo reverts the bonus: its toast never shows
 	toasts.clear_bubble()
 	shop.cancel_press()
 	_presses.clear()
@@ -2523,8 +2532,10 @@ func _on_pick_done() -> void:
 	var line := str(Leaders.leader(id).get("pick", {}).get("line", "")) if Leaders.leader(id).get("pick") is Dictionary else ""
 	if Leaders.stat(state, id, "taps") > 0.0 and line != "":
 		_pick_seq.append({"at": at + PICK_LINE_GAP_MS, "fn": func() -> void: _say_pick(line, dubi_at)})
-	if _pick_res.get("fresh", false) == true:
-		toasts.show_toast(Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}))
+	# D62 (mobile-first §5.9, rtl-map §8.6): the fresh toast waits until the undo chip goes (5 s, or
+	# the first tap or buy): the +10% is only final then; it docks in the lane band (_dock_toasts)
+	_fresh_due = Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}) \
+		if _pick_res.get("fresh", false) == true else ""
 	var pk: Variant = Leaders.ls().get("pick", {})
 	_undo_full = 1000.0 * (float((pk as Dictionary).get("undoSec", 5.0)) if pk is Dictionary else 5.0)
 	_undo_ms = _undo_full
@@ -2535,9 +2546,21 @@ func _on_pick_done() -> void:
 		_save_now()
 
 
+## D62 (mobile-first §5.9, merge review M1), every frame: while the round has not started (no tap,
+## nothing bought) a toast docks in the lane band under the leader's feet, never over his head; the
+## queue holds while the undo chip holds the lane (after an election); the fresh toast shows once
+## the chip has gone, in the lane band, whatever ended the chip (5 s, the first tap or buy).
+func _dock_toasts() -> void:
+	toasts.lane_dock = state.run_taps == 0 and Ftue.owned_total(state) == 0
+	toasts.hold = undo_visible() and not _undo_in_row
+	if _fresh_due != "" and mode != "pick" and not undo_visible() and not tx.running:
+		toasts.show_toast(_fresh_due, "", "lane")
+		_fresh_due = ""
+
+
 ## Review U9: a pick line of Dubi's. Before tap 1 (ftue P0) Dubi is not on screen (he lives in the
-## ticker, hidden pre-tap), so the line goes in the toast dock above the leader's head, as a chat
-## toast headed "דובי · דובר הלשכה" with his 16-px face; from H1 on, his bubble by the ticker.
+## ticker, hidden pre-tap), so the line goes in the toast dock as a chat toast headed "דובי · דובר הלשכה" with his 16-px face; from H1 on, his bubble by the ticker.
+## D62: the toast docks in the lane band under the leader's feet (Toasts.lane_dock), not over him.
 func _say_pick(text: String, dubi_at: Vector2) -> void:
 	if mode != "main" and state.taps_lifetime == 0:
 		var t: String = str(toasts.dubi_line.call(text)) if toasts.dubi_line.is_valid() else text
@@ -2606,8 +2629,13 @@ func _open_leader_card(id: String, via: String) -> void:
 ## - pre-tap (the first launch, a reset): the ticker slot is free until H1, so the chip sits centred
 ##   in a full-bleed navy bar there (the ticker's own panel colour: at H1 the ticker takes the same
 ##   navy slot), the timer bar along the bar's bottom edge;
-## - after an election (the ticker is live): the lane at the stage's bottom-left, as before.
+## - after an election (the ticker is live): the lane at the stage's bottom-left, docked on a flat
+##   navy tab (merge review M5: `#072a7a`, the undo bar's colour) from the canvas's left edge to the
+##   chip's right edge + 8, the chip's height + 16, its timer line along the tab's bottom, so it
+##   reads as the same control in both variants and never floats on the stone (B12).
 func _build_undo_chip() -> void:
+	_undo_tab = Ui.rect(_ui, Rect2(0, 0, 424, 96), Color("#072a7a"))
+	_undo_tab.visible = false
 	_undo_lane_btn = PxButton.make(_ui, Rect2(16, 0, 392, 80), {"kind": "kit_secondary", "label": Strings.s("LEADER_PICK_UNDO"),
 		"label_box": 352.0, "on_commit": _undo_pick})
 	_undo_lane_bar = _undo_timer(_ui)
@@ -2654,8 +2682,12 @@ func _place_undo_chip() -> void:
 	var y := L.stage_bottom() - 96.0
 	var x := 16.0 - L.sox()
 	_set_chip(_undo_lane_btn, Rect2(x, y, 392, 80), Rect2(x - 8.0, y - 4.0, 408, 88))
-	_undo_lane_bar.position = Vector2(x + 8.0, y + 64.0)
-	_undo_lane_bar.size = Vector2(376, 8)
+	# M5: the tab, canvas x 0 → the chip's right + 8, y − 8 … y + 88; the timer on its bottom 8 px
+	var tr := undo_tab_rect()
+	_undo_tab.position = tr.position
+	_undo_tab.size = tr.size
+	_undo_lane_bar.position = Vector2(tr.position.x, tr.end.y - 8.0)
+	_undo_lane_bar.size = Vector2(tr.size.x, 8)
 	# the row: full bleed (F) over the ticker slot, the chip centred (C), its hit 88 tall
 	var rr := undo_row_rect()
 	_undo_band.position = Vector2(-_ox, 0)
@@ -2663,6 +2695,13 @@ func _place_undo_chip() -> void:
 	_set_chip(_undo_row_btn, rr, Rect2(rr.position.x - 8.0, rr.position.y - 10.0, rr.size.x + 16.0, 88.0))
 	_undo_row_bar.position = Vector2(-_ox, float(L.TICKER_H) - 8.0)
 	_undo_row_bar.size = Vector2(_vs.x, 8)
+
+
+## M5: the after-election chip's navy tab, stage-local (`_ui` is the stage column): from the canvas's
+## left edge (x 0) to the chip's right edge + 8, the chip's height + 16.
+static func undo_tab_rect() -> Rect2:
+	var y := L.stage_bottom() - 96.0
+	return Rect2(-L.sox(), y - 8.0, 16.0 + 392.0 + 8.0, 80.0 + 16.0)
 
 
 func _set_chip(b: PxButton, vis: Rect2, hit: Rect2) -> void:
@@ -2698,6 +2737,7 @@ func _update_undo_chip(dt: float) -> void:
 	var on := undo_visible()
 	_undo_row.visible = on and _undo_in_row
 	_undo_lane_btn.set_visible(on and not _undo_in_row)
+	_undo_tab.visible = on and not _undo_in_row
 	_undo_row_btn.set_visible(on and _undo_in_row)
 	_undo_lane_bar.visible = on and not _undo_in_row and not settings["reducedMotion"]
 	_undo_row_bar.visible = on and _undo_in_row and not settings["reducedMotion"]
@@ -2707,8 +2747,9 @@ func _update_undo_chip(dt: float) -> void:
 			_undo_row_bar.size.x = Ui.snap(_vs.x * f, 4)
 			_undo_row_bar.position.x = -_ox + _vs.x - _undo_row_bar.size.x   # drains left → right (mirror)
 		else:
-			_undo_lane_bar.size.x = Ui.snap(376.0 * f, 4)
-			_undo_lane_bar.position.x = 24.0 + 376.0 - _undo_lane_bar.size.x
+			var tr := undo_tab_rect()
+			_undo_lane_bar.size.x = Ui.snap(tr.size.x * f, 4)
+			_undo_lane_bar.position.x = tr.end.x - _undo_lane_bar.size.x   # drains left → right (mirror)
 
 
 ## "להחליף ראש רשימה" / U: back to the same picker (the same variant, order and seat seed), with
