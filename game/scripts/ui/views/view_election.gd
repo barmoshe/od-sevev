@@ -97,7 +97,7 @@ func build() -> ElectionCard:
 		need_text = para(Strings.s("EVO_NEED"), C_ALERT)
 	close_x(func() -> void: cancel("close"))
 	# stacked (rtl-map §7.2): "לפזר את הכנסת" does not fit a 224 half at ×4
-	_specs.append([Rect2(88, Ui.snap(_y - PARA_GAP + PAD, 4), 544, BTN_H), Strings.s("ELECT_GO"), "kit_primary", _do_confirm])
+	_specs.append([Rect2(88, Ui.snap(_y - PARA_GAP + PAD, 4), 544, BTN_H), Strings.s("ELECT_GO"), "kit_gold", _do_confirm])   # review U2: it completes the gold "עוד סבב!" CTA
 	_y = Ui.snap(_y - PARA_GAP + PAD, 4) + BTN_H + BTN_GAP
 	_specs.append([Rect2(88, _y, 544, BTN_H), Strings.s("ELECT_CANCEL"), "kit_secondary", func() -> void: cancel("close")])
 	_y += BTN_H

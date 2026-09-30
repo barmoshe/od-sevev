@@ -124,3 +124,38 @@ func test_u13_the_owned_chip_fits_its_text() -> void:
 	runner.check(r == Rect2(572, 76, 56, 40), "text 40 → 56 × 40 at the plate's bottom-left (%s)" % r)
 	runner.check(Shop.owned_rect(8.0).size.x == 48.0, "min 48")
 	runner.check(Shop.owned_rect(40.0).size.x < 104.0, "smaller than the old 104 × 44 chip")
+
+
+# ------------------------------------------------------------------ the 2D Artist's wave 10 (U2, U7, U10)
+
+func test_u2_the_white_primary_and_the_gold_election_call() -> void:
+	var k: Dictionary = PxButton.kinds()["kit_primary"]
+	runner.check(str(k["normal"][0]) == "button_white_default" and str(k["pressed"][0]) == "button_white_pressed", "kit_primary is the white button (%s)" % k["normal"][0])
+	runner.check(str(k["normal"][2]) == "u" and str(k["pressed"][2]) == "u" and PxButton.label_color("kit_primary") == Color("#0038b8"), "its label is flag blue, never white on white")
+	runner.check(str(PxButton.kinds()["kit_secondary"]["normal"][2]) == "w", "the secondary keeps its white label")
+	await _boot()
+	m._open_evolution()
+	await tree.create_timer(0.3).timeout
+	var c := m.overlays.top() as ElectionCard
+	runner.check(c != null and c.go_button.kind == "kit_gold", "O3's ELECT_GO takes the gold CTA skin")
+
+
+func test_u7_the_teaser_rows_and_the_system_pill() -> void:
+	var sh := Shop.new()
+	runner.check(sh._card_sprite("teaser", false) == "card_row_silhouette" and sh._card_sprite("silhouette", true) == "card_row_silhouette", "teaser and locked rows are the pale slip")
+	sh.free()
+	var sil := "source_taxpayer_icon_sil"
+	runner.check(Shop.pale_sil(sil) == sil + "_pale", "the silhouette draws its pale cut")
+	runner.check(Art.has_sprite("chat_system_pill_navy"), "T3's navy system pill ships")
+
+
+func test_u10_the_transition_is_the_printed_notice() -> void:
+	await _boot()
+	var tx: EvolveTx = m.tx
+	tx.start({"round": 2, "multBefore": 1.0, "multAfter": 1.2, "gained": 12, "era": ""}, false, {})
+	tx.update_view(400.0)
+	runner.check(tx._notice != null and tx._notice.visible and tx._card.color == Color("#0038b8"), "a white notice on the flag-blue page")
+	runner.check(tx._species.tint == Color("#0038b8") and tx._gain.tint == Color("#0f2350"), "the title in flag, the body in night")
+	var nr := Rect2(tx._notice.position, tx._notice.size * 4.0)
+	runner.check(nr.position.y + 32.0 <= tx._line.position.y and nr.end.y - 24.0 >= EvolveTx.ERA_Y + 36.0, "the notice frames the lines (%s)" % nr)
+	tx._finish()

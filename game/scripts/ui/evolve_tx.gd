@@ -18,6 +18,14 @@ const MULT_Y := 704.0
 const GAIN_Y := 760.0
 const ERA_Y := 816.0
 const WRAP := 656.0                  # string-budgets tx.line
+## Review U10 (style guide §17.3 `notice_frame`): the page is flag blue and the lines sit on the
+## gate's printed notice, a white card ruled in flag blue (slice [3, 7, 3, 5], content box [4, 8,
+## 32, 26] → insets 16 / 32 / 16 / 24 at ×4), centred around them; the title lines in flag
+## (8.5:1), the body in night (13.9:1). A card, not full bleed (§2.4: never the whole page as the flag).
+const NOTICE := Rect2(16, 508, 688, 388)   # holds the title through its 32-px drop
+const C_PAGE := Color("#0038b8")     # flag
+const C_TITLE := Color("#0038b8")    # flag on the notice's white
+const C_BODY := Color("#0f2350")     # night
 
 var running := false
 var _card: ColorRect
@@ -26,6 +34,7 @@ var _species: PxText
 var _mult: PxText
 var _gain: PxText
 var _era: PxText
+var _notice: NinePatchRect            # null without the kit piece (the fork's cream card)
 var _t := 0.0
 var _reduced := false
 var _cb: Dictionary = {}
@@ -36,6 +45,9 @@ func _ready() -> void:
 	visible = false
 	var X: Dictionary = Art.theme["evolveTx"]
 	_card = Ui.rect(self, Rect2(-4000, -4000, 8720, 9280), X["card"], 1.0)
+	if Art.has_sprite("notice_frame"):
+		_notice = Ui.nine(self, NOTICE, "notice_frame")
+		_notice.visible = false
 	_line = _tx_text(SPECIES_Y - 48.0, Strings.s("EVOTX_LINE"), X["text"])
 	_species = _tx_text(SPECIES_Y, "", X["text"])
 	_mult = _tx_text(MULT_Y, "", X["text"])
@@ -67,6 +79,12 @@ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
 	_card.color = Art.col(X["reducedMotionCard" if reduced else "card"])
 	for t: PxText in [_line, _species, _mult, _gain]:
 		t.tint = Art.col(X["reducedMotionText" if reduced else "text"])
+	if _notice != null:   # U10: the notice on the flag-blue page, in both modes
+		_card.color = C_PAGE
+		_line.tint = C_TITLE
+		_species.tint = C_TITLE
+		for t: PxText in [_mult, _gain]:
+			t.tint = C_BODY
 	_line.center_in(0, L.W)
 	_species.text = Strings.s("ELECT_TITLE", {"n": int(info["round"])}) if info.has("round") else String(info.get("species", ""))
 	_species.center_in(0, L.W)
@@ -79,10 +97,13 @@ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
 	_era.center_in(0, L.W)
 	_era.tint = _gain.tint
 	_set_texts(false, false)
+	_text_alpha(1.0)
 	_card.modulate.a = 0.0
 
 
 func _set_texts(title: bool, mult: bool) -> void:
+	if _notice != null:
+		_notice.visible = title
 	_line.visible = title
 	_species.visible = title
 	_mult.visible = mult
@@ -111,6 +132,8 @@ func update_view(dt_ms: float) -> void:
 func _text_alpha(a: float) -> void:
 	for x: CanvasItem in [_line, _species, _mult, _gain, _era]:
 		x.modulate.a = a
+	if _notice != null:
+		_notice.modulate.a = a
 
 
 func _update_full(t: float) -> void:

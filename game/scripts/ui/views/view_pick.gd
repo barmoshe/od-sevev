@@ -309,7 +309,7 @@ func _build() -> void:
 		var vis := Rect2(24, _bot - 100.0, 672.0 + L.dx, 80)
 		again_btn = PxButton.make(_layer, vis, {"hit": Rect2(16, _bot - 104.0, 688.0 + L.dx, 88), "kind": "kit_primary",
 			"on_commit": func() -> void: commit_again("again")})
-		var lab := PxText.make(_layer, Vector2(0, vis.position.y + 20.0), Strings.s("LEADER_PICK_AGAIN", {"short": LeaderUi.short(again_id)}), L.TEXT, "plain", "w")
+		var lab := PxText.make(_layer, Vector2(0, vis.position.y + 20.0), Strings.s("LEADER_PICK_AGAIN", {"short": LeaderUi.short(again_id)}), L.TEXT, "plain", PxButton.label_color("kit_primary"))   # U2: flag on the white primary
 		lab.wrap_width = 560.0
 		lab.max_lines = 1
 		var art := LeaderUi.art(again_id)
