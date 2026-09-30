@@ -139,7 +139,7 @@ index 464c340..da21aff 100644
                  if min(Lr.get("delay", 0) for Lr in layers) > 0.0005:
                      err("%s: a first sound must start at t=0 (no silent lead-in)" % cid)
 diff --git a/game/assets/audio/od/od_manifest.json b/game/assets/audio/od/od_manifest.json
-index 15d9622..8bc9e74 100644
+index 15d9622..7e1e3f5 100644
 --- a/game/assets/audio/od/od_manifest.json
 +++ b/game/assets/audio/od/od_manifest.json
 @@ -1419,6 +1419,31 @@
@@ -147,7 +147,7 @@ index 15d9622..8bc9e74 100644
  			}
  		},
 +		"slipStamp": {
-+			"burstMax": -24.62,
++			"burstMax": -19.5,
 +			"bus": "UI",
 +			"ducks": [],
 +			"files": {
@@ -157,11 +157,11 @@ index 15d9622..8bc9e74 100644
 +					}
 +				}
 +			},
-+			"lengthMs": 88.5,
-+			"limitedBy": "ceiling",
++			"lengthMs": 98.0,
++			"limitedBy": "target",
 +			"meaning": "The ballot slip is stamped (a spin card's tag appears or changes: '1/5' -> '2/5', 'שחוק').",
-+			"momentaryMax": -30.64,
-+			"play_db": -5.0,
++			"momentaryMax": -25.53,
++			"play_db": -9.06,
 +			"poly": 2.0,
 +			"priority": 1.0,
 +			"runtime": "On the slam's f0 (the x6 frame) in shop.gd; in reduced motion on the cut. It often lands with `buy` (the purchase that changed the tag): it sits 3.5 dB under it and below its 1-4 kHz blips. Repeats per purchase, so it stays 1 dB under the stamp's heard level.",
@@ -185,7 +185,7 @@ index 15d9622..8bc9e74 100644
  		"music_bytes": 9237588,
  		"outside_bytes": 53847,
 -		"sfx_bytes": 817279,
-+		"sfx_bytes": 818830,
++		"sfx_bytes": 818950,
  		"stinger_bytes": 1486635
  	},
  	"stingers": {
