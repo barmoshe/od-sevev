@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `afdea89` docs(od-sevev): live handoff snapshot 05:06
+- Branch head: `586746d` chore(od-sevev): merge the envelope flap layers and the slipStamp cue
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -31,6 +31,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 - 00:23 Bar approved v4 ('מאשר, תכניס את זה'). Landing: the mobile Game Developer merges the v4 branch and applies the code map as its slice's last step (it owns the colour sites). F15 placement (hemicycle, booth, envelope) is a follow-up slice.
 - 02:06 Mobile + v4 merged (353/353, mobile_web PASS on all 9 devices in v4). Open: round_web/picker_web fail on reaching/holding 61 at 10x (seats slip under the open election card: a game issue for the Designer). F15: hemicycle only fits at x2 in the seats row, booth fits on tall phones, envelope anywhere. Next wave: Animator B (LeaderWalk + M1 ticker), Designer (hold the election gate), then UX review, strict build, redeploy.
 - 04:22 Animator wave B merged (368/368). Dispatched: UX review 2 + F15 placement; 2D flap strip + audio slipStamp. Designer (gate + drivers) still running. After them: one Game Developer pass on the review findings + F15 + the flap wiring, then strict build and redeploy.
+- 05:10 Flap + slipStamp merged (370/370). Orchestrator accepted 'open flap = today's band' (keeps the approved v4 look). Existing defect for the dev pass: a dark slab under every modal's flap point; fixed by drawing body + flap.
 
 ## Agents
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
@@ -46,7 +47,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | Animator (wave B) | DONE, merged (walk wired, one position owner BigBanana._apply_figure; ticker roll 240 ms with per-page dwell; slip stamp). Asks: 2D sheet_modal_flap strip; Audio slip-stamp cue; dev/UX keep "₪." with its number in the pager | `worktree-agent-ae7ba45935a398eb9` | 0 | 0 | - |
 | Game Designer (gate) | hold the election gate (seats slipping under 61 while the card is open); make round_web + picker_web pass 3x; balance re-check | `worktree-agent-aaf6cad83faca5924` | 1 | 11 | `Game-Designer-(gate).commits.patch` `Game-Designer-(gate).patch` |
 | UX Designer (review 2) | ux/review-2026-09-30.md on the full build (picker, mobile, v4, walk, ticker); F15 placement (hemicycle, booth, envelope) as spec §5.14; rule on the ticker roll; the pager no-break rule for "₪." | `worktree-agent-ad4a270e4f3452e94` | 3 | 0 | `UX-Designer-(review-2).commits.patch`  |
-| 2D Artist + Audio | sheet_modal_flap 3-frame strip (envelope opening); slipStamp cue wired in shop.gd | `worktree-agent-a771e189416072b63` | 5 | 0 | `2D-Artist-+-Audio.commits.patch`  |
+| 2D Artist + Audio | DONE, merged (sheet_modal_body + 3-frame sheet_modal_flap, open frame = the approved band; slipStamp cue wired). For the dev pass: switch modals to body + flap (removes the existing dark slab under the flap point, ~190x45) | `worktree-agent-a771e189416072b63` | 0 | 0 | - |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
