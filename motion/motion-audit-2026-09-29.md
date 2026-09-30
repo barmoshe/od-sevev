@@ -153,3 +153,29 @@ pages get more time than before (up to 4.6 s instead of 3.5), and the short tail
   slam's f0 (the ×6 frame).
 - **The court's zip** still exits screen-left while the walk-out goes screen-right, per spec §9.3.4. They never
   share a frame: the walk-out cuts a court day home under the card.
+
+## Verified (wave B)
+
+- **Unit tests:** `test_leader_walk.gd`, 9 cases:
+  - the state machine, and reduced motion;
+  - the TX cue: at the card's lift, and ≤ 260 ms past the card;
+  - the pick walk-in, with Dubi after the landing;
+  - a tap during the walk-in;
+  - the undo mid-walk and the re-pick;
+  - the election, with the lock held until the stage is clear;
+  - the court yielding: one owner of the position;
+  - reduced motion on the stage.
+- **More unit tests:** `test_ticker_roll.gd` (4) and `test_slip_stamp.gd` (2).
+- **Browser:** `tools/web/motion_web.mjs` has a `walk` and a `ticker` section, and `MOTION_VARIANTS` / `MOTION_SLOW_*`
+  for a loaded machine.
+  - On this 4-core container, shared with the other agents, a stage screenshot costs 2-4 s of wall time. The walk runs
+    at `slow=100`, which gives ~35 ms of game time per frame.
+  - The ticker's 240 ms roll is too short to catch reliably that way, so `game/tests/dev/ticker_strip.gd` renders it
+    in the engine in 16 ms steps (under `xvfb-run`).
+- **Looked at** (scratchpad `shots/motion-b/`):
+  - The walk-in comes from off screen-left once the picker has faded and lands on the feet point; Dubi's bubble
+    follows the landing.
+  - The walk-out starts as the stepped card lifts, crosses the new era's stage and clears the right edge, the pen
+    last. The flash (O3b) follows on an empty stage.
+  - The roll: the two pages move locked, the words are whole, and 90 % of the travel is done by 100 ms.
+  - Reduced motion: fades on the mark, and the ticker's cross-fade.
