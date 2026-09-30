@@ -49,7 +49,8 @@ static func kinds() -> Dictionary:
 			"disabled": [th["pill"]["sprite"], th["pill"]["frames"]["need"], th["pill"]["labelNeed"]],
 		},
 		# od-sevev: the 2D Artist's kit buttons (separate PNG per state, frame 0, white label)
-		"kit_primary": _kit_kind("button_primary"),
+		# review U2 (style guide §17.3): the v4 primary is the flag's white on its blue, a flag label
+		"kit_primary": _kit_kind("button_white") if Art.has_sprite("button_white_default") else _kit_kind("button_primary"),
 		"kit_secondary": _kit_kind("button_secondary"),
 		"kit_gold": _kit_kind("button_gold"),
 		"kit_danger": _kit_kind("button_danger") if Art.has_sprite("button_danger_default") else _kit_kind("button_secondary"),
@@ -69,11 +70,19 @@ static func _kit_kind(base: String) -> Dictionary:
 	var ok := Art.has_sprite(d)
 	var fb: Array = [Art.theme["button"]["sprite"], Art.theme["button"]["frames"]["normal"], "w"]
 	# the kit's label colour: ink on gold (money buttons; white on gold is unreadable), else white
-	var lab := "k" if (str(Art.kit(d).get("label", "")) == "ink" or base == "button_gold") else "w"
+	# and flag blue ("u", #0038b8, 8.5:1) on the white primary (review U2)
+	var kl := str(Art.kit(d).get("label", ""))
+	var lab := "k" if (kl == "ink" or base == "button_gold") else ("u" if kl == "flag" else "w")
 	return {
 		"normal": [d, 0, lab] if ok else fb, "pressed": [p, 0, lab] if ok else fb,
 		"hover": [d, 0, lab] if ok else fb, "disabled": [x, 0, "w"] if ok else fb,
 	}
+
+
+## The label colour of a button kind in a state ("normal" | "pressed" | "hover" | "disabled"), for a
+## view that draws its own label lines over the plate (the court's postpone, the picker's again).
+static func label_color(kind_: String, state: String = "normal") -> Color:
+	return Art.col(kinds()[kind_][state][2])
 
 
 ## Resizes a 9-slice drawn at `r` by (dw, dh) logical px: width centred, height anchored at the

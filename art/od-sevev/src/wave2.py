@@ -59,14 +59,17 @@ def sheet_modal_layer(bottom=sheet_flap_bottom, band=True):
 def sheets():
     L = sheet_modal_layer()
     W, H = L.w, L.h
-    save(L, "sheet_modal", "sheet", slice=[7, 23, 7, 7], content=[7, 23, W - 14, H - 30], label="white",
+    save(L, "sheet_modal", "sheet", slice=[7, 24, 7, 7], content=[7, 24, W - 14, H - 31], label="white",
          notes="Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round "
                "card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20; v4: the blue ballot envelope, the band is the flap and points 2 rows deeper at the centre, the body is the v4 ui_panel blue, the close ✕ at the band's LEFT end in RTL); body "
                "ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map "
                "§7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the "
                "outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece "
                "is 38x38 and every margin grew by 1. Draw it at the card rect grown by 4 logical px per side to keep the "
-               "title band and body exactly where they were.")
+               "title band and body exactly where they were. Wave 10 (UX review 2 U1, mobile-first §10 T1): the top "
+               "margin is 24, not 23: rows 0-23 are the band and the flap point with its shadow row (23), so the "
+               "stretched centre is the plain ui_panel body and no dark slab runs down under the point. The pixels "
+               "did not change.")
     P = panel(24, 24, "ui_panel", "ui_bub_hi", "ui_scrim", corner=2)
     save(P, "sheet_plain", "sheet", slice=[5, 5, 5, 5], content=[4, 3, 16, 17], label="white",
          notes="Title-less sheet (toast stacks, the pardon desk form behind the stamp, tooltips).")

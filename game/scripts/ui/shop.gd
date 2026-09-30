@@ -44,6 +44,7 @@ const SPIN_BARS := Rect2(220, 104, 360, 8)
 ## The spin tag's stamp: the bottom band of the plate (kit card_plate at 588-692 × 8-112).
 const SPIN_TAG := Rect2(592, 72, 96, 40)
 const TAG_SLAM_STEP_MS := 30.0      # the slip's stamp slam: ×6, ×5, ×4 (90 ms, Stepped)
+const C_SIL_TEXT := Color("#072a7a")   # ui_panel on card_row_silhouette (review U7)
 const SPIN_BAR_PUBLIC := "e"
 const SPIN_BAR_FRIENDLY := "O"
 
@@ -487,6 +488,7 @@ func refresh(s: GameState, dt_ms: float, animate_reveal: bool, d: Economy.Derive
 			if t == "upgrades" and _reflow_from >= 0 and k >= _reflow_from:
 				y += _reflow_offset
 			c.position.y = y
+			_clip_pill(v, y)
 		if t == "upgrades":
 			for e in _empty:
 				e.visible = models.is_empty()
@@ -495,16 +497,66 @@ func refresh(s: GameState, dt_ms: float, animate_reveal: bool, d: Economy.Derive
 	_update_nudge(dt_ms, animate_reveal)
 
 
+## Review U13: the owned chip for a label `text_w` px wide, card-local (R side): w = text + 16
+## (min 48), h 40, its left and bottom edges where the old fixed chip had them (x 572, y 116).
+static func owned_rect(text_w: float) -> Rect2:
+	var o: Rect2 = L.ROW["owned"]
+	var w := maxf(48.0, Ui.snap(text_w + 16.0, 4))
+	return Rect2(o.position.x, o.end.y - 40.0, w, 40.0)
+
+
+## Review U6 (mobile-first §0 rule 5, S7): a row the pane cuts shows no pill (a tappable
+## half-button); plate, icon and name only, and the pill appears once it is fully in.
+func _clip_pill(v: Dictionary, y: float) -> void:
+	var shown := pill_whole(y)
+	v["pillCut"] = not shown
+	if shown:
+		(v["pill1"] as PxText).visible = true
+		(v["pill2"] as PxText).visible = true
+		return
+	for n: CanvasItem in [v["pill"], v["fill"], v["pill1"], v["pill2"]]:
+		n.visible = false
+
+
+## True when the pill of a row whose top is at `y` (`_lower`-local) lies wholly inside the pane.
+func pill_whole(y: float) -> bool:
+	return y + PILL_RECT.position.y >= list_rect.position.y - 0.5 and y + PILL_RECT.end.y <= list_rect.end.y + 0.5
+
+
+## The pills the pane shows (web probe, S7): [top, bottom, visible] in `_lower`-local y for every
+## row that is at least partly in the pane (source cards, the locked row, the teasers).
+func pill_rects() -> Array:
+	var out: Array = []
+	var views: Array = _rows[tab] if _rows.has(tab) else []
+	for v: Dictionary in views:
+		var c: Node2D = v["c"]
+		if not c.visible:
+			continue
+		var y := c.position.y
+		if y + float(L.SHOP["rowVisualH"]) <= list_rect.position.y or y >= list_rect.end.y:
+			continue
+		out.append([y + PILL_RECT.position.y, y + PILL_RECT.end.y, (v["pill"] as NinePatchRect).visible and (v["pill2"] as PxText).visible])
+	return out
+
+
 func _badge_label(n: int) -> String:
 	return "" if n <= 0 else Strings.s("TAB_BADGE", {"count": "9+" if n > 9 else str(n)})
 
 
+## Review U7: a silhouette's pale cut on the pale slip (`<silhouette>_pale`: a ui_dim mask with a
+## ui_rule edge, drawn unmodulated), when the pipeline ships one; else the silhouette itself.
+static func pale_sil(sil: String) -> String:
+	if not Art.has_sprite("card_row_silhouette"):
+		return sil
+	return sil + "_pale" if Art.has_sprite(sil + "_pale") else sil
+
+
 func _card_sprite(kind: String, afford: bool) -> String:
 	match kind:
-		"silhouette":
-			return Art.sprite_or("card_source_locked")
-		"teaser":
-			return Art.sprite_or("card_source_locked")
+		"silhouette", "teaser":
+			# review U7 (style guide §17.3): a blank pale slip on the white pane (ui_mute face,
+			# ui_rule edge), not the slate locked card
+			return "card_row_silhouette" if Art.has_sprite("card_row_silhouette") else Art.sprite_or("card_source_locked")
 		"upgrade":
 			return Art.sprite_or("card_spin" if afford else "card_spin_locked")
 		"buymode":
@@ -549,7 +601,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			l2 = Strings.s("CARD_PRICE", {"price": Fmt.cost(price)})
 		"silhouette":
 			var sks := LeaderUi.producer_art(id)
-			icon = Art.sprite_or(str(sks["silhouette"]) if not sks.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id))))
+			icon = pale_sil(Art.sprite_or(str(sks["silhouette"]) if not sks.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id)))))
 			nm = Strings.s("ROW_LOCKED_NAME")
 			line2 = Strings.s("CARD_LOCKED_CAP")
 			wide = true
@@ -559,7 +611,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 		"teaser":
 			# mobile-first §5.4: the silhouette, "מקור עלום", no price, no pill, not a target
 			var skt := LeaderUi.producer_art(id)
-			icon = Art.sprite_or(str(skt["silhouette"]) if not skt.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id))))
+			icon = pale_sil(Art.sprite_or(str(skt["silhouette"]) if not skt.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id)))))
 			nm = Strings.s("ROW_LOCKED_NAME")
 			wide = true
 		"buymode":
@@ -614,9 +666,15 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	l2t.text = line2
 	var ot: PxText = v["owned"]
 	ot.text = owned_s
-	var orect: Rect2 = R["owned"]
+	# review U13: the chip is sized to its text (text + 16, min 48, h 40) at the plate's bottom-left
+	# corner, so it covers the portrait's corner, not its torso
+	var orect := owned_rect(float(ot.width()))
+	var obg: ColorRect = v["ownedBg"]
+	obg.position = orect.position
+	obg.size = orect.size
+	ot.position.y = orect.position.y + Ui.snap((orect.size.y - 9.0 * float(ot.eff_px())) / 2.0, 2)   # as the slip's tag
 	ot.center_in(orect.position.x, orect.size.x)   # re-centred every render: large text changes the width
-	(v["ownedBg"] as ColorRect).visible = owned_s != ""
+	obg.visible = owned_s != ""
 	if v["afford"] == false and afford and active and _visible_shop and not is_btn:
 		if _now >= float(v["glintReadyAt"]):
 			v["glintReadyAt"] = _now + float(Tune.T["affordGlintCooldownMs"])
@@ -664,6 +722,10 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	ic.modulate = Color.WHITE if (m["kind"] == "silhouette" or teaser or afford) else Color(0.6, 0.6, 0.6)
 	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.827, 0.839, 0.875)
 	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.788, 0.839, 0.949)
+	if (m["kind"] == "silhouette" or teaser) and Art.has_sprite("card_row_silhouette"):
+		# U7: the pale slip's text is ui_panel (8.9:1 on its ui_mute face)
+		(v["name"] as PxText).tint = C_SIL_TEXT
+		(v["line2"] as PxText).tint = C_SIL_TEXT
 	(v["owned"] as PxText).tint = Color(0.827, 0.839, 0.875)
 	_render_bars(v, bars)
 	var tg: PxText = v["tag"]

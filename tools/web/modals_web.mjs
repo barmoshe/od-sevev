@@ -85,12 +85,25 @@ const tab = (P, i) => col(P, tabX(P, i), P.d.logical[1] - 104 + 52);
 	s = await probe(P);
 	check(s.court.mode === 'chip' && !s.modal, `Esc folds the card to the chip, no settings (${s.court.mode}, modal '${s.modal}')`);
 	await shot(P, 'r10-court-chip-summons');
-	// the group: buy sources (one every 2.6 s: C1 pings 2 s after the last purchase)
-	for (let k = 0; k < 6; k++) {
-		const r = (s.shop.rows || []).filter((x) => x[3]);   // one of each kind, top down (C1's tab needs 3 kinds)
-		if (r.length) await tap(P, css(P, r[k % r.length][0], r[k % r.length][1]));
-		await P.wait(2600);
+	// the group: C1 opens at 3 sources owned (coalition.openAtSourcesOwned, a total, not kinds) and
+	// ≥ 60 ₪, when the controller allows the ping: no modal, the last purchase ≥ 2 s ago, no toast
+	// showing or queued, Dubi silent (main.gd _step_economy). The old driver bought six times, 2.6 s
+	// apart, and checked at once: every buy queues a toast or a Dubi line (3 s + a 1 s gap each), so
+	// the ping never found its quiet window inside the loop (a court day's ×0.5 income made no
+	// difference). Buy three, then stop buying and wait for the quiet window.
+	for (let k = 0; k < 3; k++) {
+		const r = (s.shop.rows || []).filter((x) => x[3]);
+		if (r.length) await tap(P, css(P, r[0][0], r[0][1]));
+		await P.wait(700);
 		s = await probe(P);
+	}
+	for (let t = 0; t < 3 && !s.groupOpen; t++) {
+		await P.page.waitForFunction(() => window.odDev && window.odDev.groupOpen, null, { timeout: 15000 }).catch(() => {});
+		s = await probe(P);
+		if (!s.groupOpen) {   // a missed tap: one more source, then wait again
+			const r = (s.shop.rows || []).filter((x) => x[3]);
+			if (r.length) await tap(P, css(P, r[0][0], r[0][1]));
+		}
 	}
 	check(s.groupOpen, 'C1: the group opened');
 	await P.wait(300);

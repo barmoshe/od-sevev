@@ -30,6 +30,15 @@ var body_focusables: Array[PxButton] = []
 var _drag := {}
 var _anim: Dictionary = {}
 var _drop: Array = []
+## The v4 envelope (style guide §17.2, review U1): a modal drawn as `sheet_modal_body` + the
+## 3-frame `sheet_modal_flap` (sealed, lifting, open = the title band). `frame` is the body; the
+## flap sits over its top 96 (24 art rows). On the open the flap plays f0/f1/f2 at 0/40/80 ms and
+## holds f2; the title and the ✕ (`flap_head`) show from f2. Reduced motion: f2 at once.
+var flap: NinePatchRect
+var flap_head: Array[CanvasItem] = []
+var _flap_t := -1.0
+const FLAP_H := 96.0
+const FLAP_STEP_MS := 40.0
 
 
 func _init() -> void:
@@ -54,6 +63,36 @@ func setup(host_: Node, mgr_: OverlayManager) -> void:
 func make_panel(r: Rect2) -> void:
 	panel_rect = r
 	frame = Ui.nine(panel, r, Art.theme["modal"]["sprite"], int(Art.theme["modal"]["frame"]))
+
+
+## The envelope sheet at `r` (review U1): the body, then the flap over its top 96, at rest (f2 =
+## `sheet_modal`, pixel for pixel). Without the wave-9 pieces: the one-piece `sheet_modal`.
+## Sets `frame` (the body) and `flap`; the caller draws the title and the ✕ after it.
+func make_envelope(r: Rect2) -> void:
+	panel_rect = r
+	var split := Art.has_sprite("sheet_modal_body") and Art.has_sprite("sheet_modal_flap")
+	frame = Ui.nine(panel, r, Art.sprite_or("sheet_modal_body" if split else "sheet_modal"))
+	flap = Ui.nine(panel, Rect2(r.position, Vector2(r.size.x, FLAP_H)), "sheet_modal_flap", 2) if split else null
+
+
+## The flap's frame by the time since the open (0 sealed, 1 lifting, 2 open).
+static func flap_frame(t_ms: float) -> int:
+	return clampi(int(floorf(t_ms / FLAP_STEP_MS)), 0, 2)
+
+
+func _set_flap(f: int) -> void:
+	if flap != null:
+		Ui.set_nine_frame(flap, "sheet_modal_flap", f)
+	for n: CanvasItem in flap_head:
+		if is_instance_valid(n):
+			n.visible = f >= 2
+
+
+## The flap follows the body's squish (its top edge and width).
+func _sync_flap() -> void:
+	if flap != null and frame != null:
+		flap.position = frame.position
+		flap.size = Vector2(frame.size.x, FLAP_H / 4.0)
 
 
 func text(pos: Vector2, s: String, sc: int, role: Variant = null) -> PxText:
@@ -217,6 +256,9 @@ func enter(reduced: bool) -> void:
 	panel.modulate.a = 0.0
 	scrim.modulate.a = 0.0
 	_anim = {"kind": "enter", "t": 0.0, "reduced": reduced}
+	if flap != null:
+		_flap_t = -1.0 if reduced else 0.0
+		_set_flap(2 if reduced else 0)
 
 
 func exit(reduced: bool, done: Callable) -> void:
@@ -226,6 +268,12 @@ func exit(reduced: bool, done: Callable) -> void:
 
 func tick(dt_ms: float) -> void:
 	_age += dt_ms
+	if _flap_t >= 0.0:
+		_flap_t += dt_ms
+		var ff := flap_frame(_flap_t)
+		_set_flap(ff)
+		if ff >= 2:
+			_flap_t = -1.0
 	if not _anim.is_empty():
 		_anim["t"] = float(_anim["t"]) + dt_ms
 		var t: float = _anim["t"]
@@ -245,6 +293,7 @@ func tick(dt_ms: float) -> void:
 					panel.position.y = 0.0
 					if frame:
 						PxButton.squish_nine(frame, panel_rect, 0, 0)
+						_sync_flap()
 					panel.modulate.a = 1.0
 					scrim.modulate.a = backdrop
 					_anim = {}
@@ -254,6 +303,7 @@ func tick(dt_ms: float) -> void:
 					panel.position.y = float(d[0])
 					if frame:
 						PxButton.squish_nine(frame, panel_rect, float(d[1]), float(d[2]))
+						_sync_flap()
 					panel.modulate.a = minf(1.0, 1.0 - pow(1.0 - minf(1.0, t / 100.0), 2.0))
 					scrim.modulate.a = backdrop * minf(1.0, 1.0 - pow(1.0 - minf(1.0, t / 200.0), 2.0))
 		else:

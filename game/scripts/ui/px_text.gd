@@ -225,7 +225,7 @@ static func fits(t: String, box_w: float, lines: int, scale_px: int) -> bool:
 	p.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(t) else TextServer.DIRECTION_LTR
 	p.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
 	p.justification_flags = TextServer.JUSTIFICATION_NONE
-	p.add_string(t, HeFont.font(), HeFont.size())
+	p.add_string(Bidi.glue(t) if lines > 1 else t, HeFont.font(), HeFont.size())   # §5.2.1: as it will wrap
 	p.width = w
 	if p.get_line_count() > maxi(1, lines):
 		return false
@@ -301,24 +301,48 @@ func _relayout() -> void:
 		# the @2 cut shapes at 18 in units half a Sevev 9 px wide: every box below is in shaped
 		# units, i.e. the Sevev 9 box × _u (floored in Sevev 9 px first, so both cuts wrap alike)
 		_u = HeFont.SHARP_DENSITY if _wants_sharp() else 1
-		_para = TextParagraph.new()
-		_para.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(text) else TextServer.DIRECTION_LTR
-		_para.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
-		_para.justification_flags = TextServer.JUSTIFICATION_NONE
-		if _u > 1:
-			_para.add_string(text, HeFont.sharp(), HeFont.sharp_size())
-		else:
-			_para.add_string(text, _shaped_font(), HeFont.size())
-		if wrap_width > 0.0:
-			_para.width = _wrap_units()
-			_para.max_lines_visible = maxi(1, max_lines_large if (_up and max_lines_large > 0) else max_lines)
-			_para.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		# mobile-first §5.2.1: a wrapping text is glued (a number keeps its ₪, a word its mark); if
+		# a unit is still wider than the line, its weak joints open, then all of them (never lost)
+		var wraps := wrap_width > 0.0 and maxi(max_lines, max_lines_large) > 1
+		var tries: Array = [Bidi.glue(text), Bidi.glue_strong(text), text] if wraps else [text]
+		for shown: String in tries:
+			_shape(shown)
+			if not _overflows() or shown == text:
+				break
 		_box_w = 0.0
 		for i in _para.get_line_count():
 			_box_w = maxf(_box_w, _para.get_line_width(i))
 		if wrap_width > 0.0:
 			_box_w = minf(_box_w, _wrap_units())
 	queue_redraw()
+
+
+func _shape(shown: String) -> void:
+	_para = TextParagraph.new()
+	_para.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(shown) else TextServer.DIRECTION_LTR
+	_para.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+	_para.justification_flags = TextServer.JUSTIFICATION_NONE
+	if _u > 1:
+		_para.add_string(shown, HeFont.sharp(), HeFont.sharp_size())
+	else:
+		_para.add_string(shown, _shaped_font(), HeFont.size())
+	if wrap_width > 0.0:
+		_para.width = _wrap_units()
+
+
+## True when a shaped line is wider than the wrap box (a glued unit longer than the line). Read
+## before the line cap and the ellipsis are set, then sets them.
+func _overflows() -> bool:
+	if _para == null or wrap_width <= 0.0:
+		return false
+	var w := _wrap_units()
+	var over := false
+	for i in _para.get_line_count():
+		if _para.get_line_width(i) > w + 0.01:
+			over = true
+	_para.max_lines_visible = maxi(1, max_lines_large if (_up and max_lines_large > 0) else max_lines)
+	_para.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	return over
 
 
 ## The wrap box in shaped units: whole Sevev 9 px at the drawn scale, × _u.

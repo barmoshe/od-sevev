@@ -215,7 +215,17 @@ func test_the_result_card_uses_the_kits_zones() -> void:
 		runner.check(fig.position.y + (fig.texture as AtlasTexture).region.size.y * 2.0 <= 210.0 * ShareSheet.S, "the figure stands on the stage floor")
 		runner.check(fig.position.y >= 78.0 * ShareSheet.S, "the figure clears the headline plate (top y %s)" % (fig.position.y / ShareSheet.S))
 		runner.check(feet.x >= 0.0, "on the card")
+	# §5.14.3 E1: the blank envelope on the stage floor at card-art (38, 197), after the floor and
+	# before the cast; the receipt has none
+	var env := root.get_node_or_null("Envelope") as Sprite2D
+	runner.check(env != null and env.position == Vector2(38, 197) * ShareSheet.S and env.scale == Vector2(ShareSheet.S, ShareSheet.S), "E1: the envelope lies on the floor at (38, 197)")
+	if env != null and fig != null:
+		runner.check(env.get_index() < fig.get_index(), "drawn before the leader")
 	root.free()
+	var rc := Node2D.new()
+	ShareSheet.build_card(rc, "receipt", s, _derived(s), 0.0)
+	runner.check(rc.get_node_or_null("Envelope") == null, "not on the receipt (a thermal slip carries no props)")
+	rc.free()
 
 
 func test_the_preview_scale_is_whole_device_px() -> void:
@@ -251,7 +261,10 @@ func test_t4_rows_open_the_receipt_and_the_result_sheets() -> void:
 		runner.check(sh.panel_rect.size.y <= floorf(m._vs.y / 4.0) * 4.0 - m._top_y + 4.0, "a sheet of at most the safe height (mobile-first §5.12)")
 		runner.check(sh.wa_btn.visual.position.y > sh.share_btn.visual.position.y, "§5.12: WhatsApp is the nearest action to the thumb (under the pair)")
 		runner.check(sh.wa_btn != null and sh.wa_btn.label.text == Strings.s("SHARE_WA") and sh.wa_btn.is_enabled(), "the WhatsApp button is there and live at once (text only)")
-		runner.check(sh.panel.get_node_or_null("WaIcon") != null, "with its speech-bubble icon")
+		runner.check(sh.panel.get_node_or_null("WaIcon") == null, "review U11: the label only, no WhatsApp-mark icon")
+		runner.check(sh.wa_btn.visual.position.x == 24.0 and sh.wa_btn.visual.size.x == 672.0 + L.dx and sh.wa_btn.hit.size == sh.wa_btn.visual.size + Vector2(16, 16),
+			"review U14: full width (672 + dx), hit + 8 on every side (%s)" % sh.wa_btn.visual)
+		runner.check(absf(sh.wa_btn.label.position.x + sh.wa_btn.label.width() / 2.0 - sh.wa_btn.visual.get_center().x) <= 4.0, "the label centred")
 		runner.check(sh.share_btn.label.text == Strings.s("SHARE_BTN") and sh.save_btn.label.text == Strings.s("SHARE_SAVE"), "לשתף beside לשמור תמונה")
 		runner.check(sh.share_btn.visual.position.x < sh.save_btn.visual.position.x, "§7.1: the commit (share) on the left")
 		runner.check(sh.text_to_share.ends_with(ShareKit.site_url()), "the message ends with the URL")
@@ -261,8 +274,11 @@ func test_t4_rows_open_the_receipt_and_the_result_sheets() -> void:
 		runner.check(sh.png.is_empty() == not sh.save_btn.is_enabled(), "לשמור תמונה only with an image")
 		var dp := sh.art_px * (Display.f if Display.integer else 1.0)
 		runner.check(is_equal_approx(dp, roundf(dp)), "the preview is whole device px per art px")
+		sh.on_share_result("shared")
+		runner.check(sh.sent_mark != null and sh.sent_mark.visible and sh.sent_mark.scale == Vector2(4, 4), "E2: a share that went out shows the envelope on the status line")
 		sh.on_share_result("fail")
 		runner.check(sh.status.text == Strings.s("SHARE_FAIL"), "a failed share says so in the sheet")
+		runner.check(not sh.sent_mark.visible, "no envelope for saved / copied / fail")
 		m.overlays.back()
 		for i in 12:
 			await tree.process_frame

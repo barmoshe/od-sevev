@@ -126,3 +126,99 @@ static func fill(template: String, params: Dictionary) -> String:
 		out += ch
 		i += 1
 	return out
+
+
+# ------------------------------------------------------------------ the glue (mobile-first §5.2.1)
+
+## G2: the marks that close onto the word before them (a token made only of these).
+const GLUE_CLOSE := ".,:;!?…)]״\"׳'"
+## G3: the marks that open onto the word after them.
+const GLUE_OPEN := "([„"
+## G4 (weak): the magnitude words a number keeps.
+const GLUE_MAGNITUDES := ["אלף", "אלפי", "מיליון", "מיליוני", "מיליארד", "מיליארדי", "טריליון"]
+
+
+## mobile-first §5.2.1: the spaces inside a glued unit become U+00A0 (display time only), so the
+## pager (which splits on U+0020) and TextServer (which does not break at U+00A0) keep the unit on
+## one line. Strong glue: a currency sign with what it measures (G1), closing punctuation with the
+## word before it (G2), opening punctuation with the word after it (G3). Weak glue (`weak`): a
+## number with its magnitude word (G4). Spaces inside an LRI/RLI/FSI…PDI isolate are never
+## touched. Idempotent (a glued unit has no U+0020 left to match).
+static func glue(text: String, weak: bool = true) -> String:
+	if not text.contains(" "):
+		return text
+	var n := text.length()
+	# token boundaries: the U+0020 spaces outside any isolate
+	var spaces: Array[int] = []
+	var depth := 0
+	for i in n:
+		var ch := text[i]
+		if ch == LRI or ch == RLI or ch == FSI:
+			depth += 1
+		elif ch == PDI:
+			depth = maxi(0, depth - 1)
+		elif ch == " " and depth == 0:
+			spaces.append(i)
+	if spaces.is_empty():
+		return text
+	var out := text
+	# standalone quote tokens seen so far (odd = inside a pair); a quote opening the text counts
+	var quotes := 1 if _only(strip_controls(text.substr(0, spaces[0])), "\"״") else 0
+	var prev_start := 0
+	for si in spaces.size():
+		var i := spaces[si]
+		var next_end := spaces[si + 1] if si + 1 < spaces.size() else n
+		var prev := text.substr(prev_start, i - prev_start)
+		var next := text.substr(i + 1, next_end - i - 1)
+		prev_start = i + 1
+		if prev == "" or next == "":
+			continue
+		var glue_it := false
+		var nx := strip_controls(next)
+		var pv := strip_controls(prev)
+		if nx.begins_with(SHEKEL):
+			glue_it = true                                    # G1: "100 ₪", "{price} ₪", "מיליון ₪"
+		elif pv.ends_with(SHEKEL) and (next[0] == LRI or next[0] == FSI or next[0] == RLI or (nx != "" and nx[0] >= "0" and nx[0] <= "9")):
+			glue_it = true                                    # G1: a prefix "₪ 15"
+		elif _only(nx, GLUE_CLOSE) and not _only(nx, "\"״"):
+			glue_it = true                                    # G2: "word ." / "word )"
+		elif _only(pv, GLUE_OPEN):
+			glue_it = true                                    # G3: "( word"
+		elif _only(nx, "\"״") or _only(pv, "\"״"):
+			# a standalone quote: the first of a pair opens (G3), the second closes (G2)
+			if _only(pv, "\"״") and quotes % 2 == 1:
+				glue_it = true
+			elif _only(nx, "\"״") and quotes % 2 == 1:
+				glue_it = true
+		elif weak and _ends_with_digit(pv) and GLUE_MAGNITUDES.has(_strip_close(nx)):
+			glue_it = true                                    # G4 (weak): "850.6 מיליארד"
+		if _only(nx, "\"״"):
+			quotes += 1
+		if glue_it:
+			out = out.substr(0, i) + NBSP + out.substr(i + 1)
+	return out
+
+
+## The glue's fallback (§5.2.1 "never lose text"): the weak joints of a unit opened back to spaces.
+static func glue_strong(text: String) -> String:
+	return glue(text, false)
+
+
+static func _only(t: String, chars: String) -> bool:
+	if t == "":
+		return false
+	for i in t.length():
+		if not chars.contains(t[i]):
+			return false
+	return true
+
+
+static func _ends_with_digit(t: String) -> bool:
+	return t != "" and t[t.length() - 1] >= "0" and t[t.length() - 1] <= "9"
+
+
+static func _strip_close(t: String) -> String:
+	var e := t.length()
+	while e > 0 and GLUE_CLOSE.contains(t[e - 1]):
+		e -= 1
+	return t.substr(0, e)

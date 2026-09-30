@@ -52,6 +52,13 @@ CONTRAST = [
     # the Suitcase's outline on the stone lanes
     ("white", "ui_bubble", 4.5), ("white", "ui_panel", 4.5), ("gold", "ui_bubble", 3.0), ("flag", "white", 3.0),
     ("stamp_lt", "ui_bubble", 4.5), ("outline", "stone", 4.5), ("outline", "stone_sh", 4.5), ("outline", "paper", 4.5),
+    # wave 10 (UX review 2): the white primary's label (default / pressed), the teaser row's name, the navy system
+    # pill's label, the notice's title and text, the tall booth's title; non-text: the white primary vs the secondary
+    # and the modal body, the teaser row's edge on the white pane, the navy pill's edge vs its well, the pale
+    # silhouette's edge on the white slip
+    ("flag", "white", 4.5), ("flag", "silver", 4.5), ("ui_panel", "ui_mute", 4.5), ("ui_mute", "ui_scrim", 4.5),
+    ("night", "white", 4.5), ("white", "flag", 4.5),
+    ("white", "ui_bubble", 3.0), ("white", "ui_panel", 3.0), ("ui_rule", "white", 3.0), ("ui_rule", "ui_scrim", 3.0),
 ]
 
 

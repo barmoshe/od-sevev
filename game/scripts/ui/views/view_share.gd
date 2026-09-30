@@ -17,11 +17,12 @@ extends Overlay
 ## Layout, sheet-local (Rect2(0, vs.y − inset − h, 720, h + inset), h = min(content, 0.8 · vs.y)):
 ##   ✕ top-left (visual 64 at +16, hit 104), the title centred in the 432 box, y 24
 ##   the preview centred under the 104 header
-##   a status line (SHARE_SAVED / SHARE_COPIED / SHARE_FAIL) under it, one line
+##   a status line (SHARE_SAVED / SHARE_COPIED / SHARE_FAIL) under it, one line; after a share
+##   went out, the envelope (§5.14.3 E2, "sent") leads it
 ##   "לשתף" (primary, LEFT Rect2(88, y, 256, 96)) beside "לשמור תמונה" (RIGHT Rect2(376, y, 256, 96))
-##   "לשתף בוואטסאפ" full width Rect2(88, y + 112, 544, 96) with the speech-bubble icon at the
-##   label's right (Bar 2026-09-29: WhatsApp is the main channel; wa.me takes text only, the link
-##   preview (OG) carries the picture)
+##   "לשתף בוואטסאפ" full width Rect2(24, y + 112, 672, 96), the label only (review U11, U14;
+##   Bar 2026-09-29: WhatsApp is the main channel; wa.me takes text only, the link preview (OG)
+##   carries the picture)
 ##   "סגור" full width Rect2(24, h − 112, 672, 88), fixed
 
 const S := 5                                  # card px per art px (the export grid)
@@ -41,6 +42,10 @@ const C_NIGHT := Color("#00237a")
 ## The status line sits on the sheet's cream notice (#fff4e0), not on blue: the v4 map's ui_mute was
 ## 1.3:1 there; flag blue is 8.3:1 (UX review 2026-09-30, U5).
 const C_STATUS := Color("#0038b8")
+## mobile-first §5.14.3: the envelope (kit `envelope_blue`, 14×10) on the result card's stage floor
+## (E1, card-art px) and, ×4 (56×40), leading the status line after a share went out (E2, "sent").
+const ENVELOPE_AT := Vector2(38, 197)
+const ENVELOPE_GAP := 16.0
 
 var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
 var art_px := 2.0                             # the preview's logical px per art px
@@ -53,6 +58,7 @@ var share_btn: PxButton
 var save_btn: PxButton
 var wa_btn: PxButton
 var status: PxText
+var sent_mark: Sprite2D                       # E2: the envelope on the status line (shared only)
 var _vp: SubViewport
 var _preview: Sprite2D
 var _printing: Node2D
@@ -110,6 +116,9 @@ func build() -> ShareSheet:
 	status.reading = true
 	status.wrap_width = 640.0 + L.dx
 	status.max_lines = 1
+	if Art.has_sprite("envelope_blue"):
+		sent_mark = Ui.img(panel, Vector2(0, y + Ui.snap((STATUS_H - float(Art.sprite_size("envelope_blue").y) * 4.0) / 2.0, 4)), "envelope_blue", 0, 4)
+		sent_mark.visible = false
 	y += STATUS_H
 	var hw := L.floor4((544.0 + L.dx - 32.0) / 2.0)
 	share_btn = button(Rect2(88, y, hw, BTN_H), Rect2(80, y - 4.0, hw + 16.0, BTN_H + 8.0), Strings.s("SHARE_BTN"), func() -> void: share(), "kit_primary", L.TEXT)
@@ -120,8 +129,13 @@ func build() -> ShareSheet:
 			b.label.max_lines = 1
 			b.label.center_in(b.visual.position.x, b.visual.size.x)
 	y += BTN_H + GAP
-	wa_btn = button(Rect2(88, y, 544.0 + L.dx, BTN_H), Rect2(80, y - 4.0, 560.0 + L.dx, BTN_H + 8.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
-	_place_wa_icon(wa_btn)
+	# review U14: full width like "סגור" below it (§5.12), hit + 8 on every side; U11: the label
+	# only, centred (no speech-bubble-with-tick icon: WhatsApp's mark under another name)
+	wa_btn = button(Rect2(24, y, 672.0 + L.dx, BTN_H), Rect2(16, y - 8.0, 688.0 + L.dx, BTN_H + 16.0), Strings.s("SHARE_WA"), func() -> void: whatsapp(), "kit_secondary", L.TEXT)
+	if wa_btn.label != null:
+		wa_btn.label.wrap_width = 672.0 + L.dx - 32.0
+		wa_btn.label.max_lines = 1
+		wa_btn.label.center_in(wa_btn.visual.position.x, wa_btn.visual.size.x)
 	var cy := pr.end.y - CLOSE_AREA - inset
 	button(Rect2(24, cy, 672.0 + L.dx, 88), Rect2(24, cy, 672.0 + L.dx, 88), Strings.s("SHARE_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
 	focusables.append(close)
@@ -245,6 +259,12 @@ static func _build_result(root: Node2D, m: Dictionary) -> void:
 	Ui.img(root, Vector2.ZERO, fid, 0, S)
 	var z: Dictionary = Art.kit(fid).get("zones", {})
 	var anchor: Array = z.get("castAnchor", [108, 198])
+	# mobile-first §5.14.3 E1: a blank ballot envelope left on the stage floor, left of the leader's
+	# feet, after the floor and before the cast (no number, no party; not on the receipt)
+	if Art.has_sprite("envelope_blue"):
+		var env := Ui.img(root, ENVELOPE_AT * float(S), "envelope_blue", 0, S)
+		env.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		env.name = "Envelope"
 	_place_figure(root, Vector2(float(anchor[0]), float(anchor[1])))
 	var hz: Array = z.get("headline", [28, 43, 160, 20])
 	card_text(root, str(m["head"]), float(hz[0]), float(hz[2]), float(hz[1]), "center", C_WHITE, 2)
@@ -379,70 +399,38 @@ func on_share_result(result: String) -> void:
 			key = "SHARE_COPIED"
 		"fail":
 			key = "SHARE_FAIL"
+	if result == "shared" and Strings.has("SHARE_SENT"):
+		key = "SHARE_SENT"
 	status.text = Strings.s(key) if key != "" else ""
 	status.center_in(0, L.cw)
 	if result == "fallback" and not png.is_empty():
 		status.text = Strings.s("SHARE_SAVED") + " " + Strings.s("SHARE_COPIED")
 		status.center_in(0, L.cw)
+	_place_sent(result == "shared")
+
+
+## §5.14.3 E2: on `shared` only, the envelope at ×4 leads the status line (at its right end, RTL
+## leading, 16 before the text; alone and centred when the line has no text). saved / copied /
+## fail: none.
+func _place_sent(on: bool) -> void:
+	if sent_mark == null:
+		return
+	sent_mark.visible = on
+	if not on:
+		return
+	var ew := float(Art.sprite_size("envelope_blue").x) * 4.0
+	var tw := float(status.width()) if status.text != "" else 0.0
+	var total := ew + (ENVELOPE_GAP + tw if tw > 0.0 else 0.0)
+	var x0 := Ui.snap((L.cw - total) / 2.0, 4)
+	if tw > 0.0:
+		status.h_anchor = 0
+		status.position.x = x0
+	sent_mark.position.x = x0 + total - ew
 
 
 func cancel(via: String) -> void:
 	host.audio_event("panelClose")
 	mgr.close(self, via)
-
-
-# ------------------------------------------------------------------ the WhatsApp icon
-
-## A 9×9 speech bubble with a handset in it (the kit's white and ink; no WhatsApp green: the style
-## guide keeps army-adjacent greens off the UI and UX 4.3 keeps WhatsApp's own colours out).
-## A stand-in drawn by the engine until the 2D Artist ships `icon_share_wa`.
-const WA_ICON := [
-	"..wwwww..",
-	".wkkkkkw.",
-	"wkwkkkkkw",
-	"wkwwkkkkw",
-	"wkkwwkwkw",
-	"wkkkwwwkw",
-	".wkkkkkw.",
-	"wwwwwww..",
-	"w........",
-]
-
-
-static func wa_icon_texture() -> Texture2D:
-	if Art.has_sprite("icon_share_wa"):
-		return Art.tex("icon_share_wa", 0)
-	var img := Image.create(9, 9, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	for y in WA_ICON.size():
-		var row: String = WA_ICON[y]
-		for x in row.length():
-			match row[x]:
-				"w":
-					img.set_pixel(x, y, C_WHITE)
-				"k":
-					img.set_pixel(x, y, Color("#1045b5"))
-	return ImageTexture.create_from_image(img)
-
-
-func _place_wa_icon(b: PxButton) -> void:
-	if b.label == null:
-		return
-	b.label.wrap_width = 440.0
-	b.label.max_lines = 1
-	var lw := float(b.label.width())
-	var total := lw + 16.0 + 36.0
-	var x0 := Ui.snap(b.visual.position.x + (b.visual.size.x - total) / 2.0, 4)
-	b.label.h_anchor = 0
-	b.label.position.x = x0
-	var icon := Sprite2D.new()
-	icon.texture = wa_icon_texture()
-	icon.centered = false
-	icon.scale = Vector2(4, 4)
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.position = Vector2(Ui.snap(x0 + lw + 16.0, 4), b.visual.position.y + 28.0)
-	icon.name = "WaIcon"
-	panel.add_child(icon)
 
 
 # ------------------------------------------------------------------ web debug

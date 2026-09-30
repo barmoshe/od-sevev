@@ -521,6 +521,10 @@ func _update_card_live() -> void:
 		var ok := Investigation.can_postpone(_state, _d)
 		if _primary.is_enabled() != ok and not bool(_press.get("primary", false)):
 			_primary.set_enabled(ok)
+		# review U2: the white primary takes a flag label (the slate disabled face, white)
+		var lc := PxButton.label_color("kit_primary", "normal" if _primary.is_enabled() else "disabled")
+		_verb.tint = lc
+		_price.tint = lc
 		var dx := 0.0
 		if _shake_t >= 0.0:
 			_shake_t += Tune.FRAME_MS

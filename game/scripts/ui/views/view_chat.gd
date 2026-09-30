@@ -60,6 +60,7 @@ const CEREMONY_MS := 3000.0          # sim: a ceremony (Regev) needs "the UI's 3
 const C_THREAD := Color("#072a7a")    # ui_panel
 const C_NAME := Color("#c9d6f2")      # grey
 const C_MUTED := Color("#b4c3e8")     # slate
+const C_SYS_TEXT := Color("#c9d6f2")  # ui_mute on chat_system_pill_navy (12.9:1, review U7)
 const C_INK := Color("#061029")       # ink (on gold)
 const C_ALERT := Color("#ffaa9f")     # red_hi ("אולטימטום", the last seconds)
 const C_GOLD_HI := Color("#fff1a6")
@@ -957,13 +958,15 @@ func _build_out(row: Dictionary, y: float) -> Dictionary:
 func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
 	var root := _root(y)
 	var r := {"root": root, "pills": []}
-	var pill_bg := Ui.nine(root, Rect2(0, 0, 64, 52), Art.sprite_or("chat_system_pill"))
+	# review U7: the v4 thread's system pill is a flat ui_scrim well, ui_rule edge, ui_mute label
+	var navy := Art.has_sprite("chat_system_pill_navy")
+	var pill_bg := Ui.nine(root, Rect2(0, 0, 64, 52), "chat_system_pill_navy" if navy else Art.sprite_or("chat_system_pill"))
 	var icon_w := 0.0
 	var icon: Sprite2D = null
 	if str(m.get("key", "")) == "chat.sys.muted" and Art.has_sprite("chat_icon_mute"):
 		icon = Ui.img(root, Vector2.ZERO, "chat_icon_mute", 0, 4)
 		icon_w = float(Art.sprite_size("chat_icon_mute").x) * 4.0 + 12.0
-	var tx := _text(root, text, Color.WHITE, SYS_TEXT_W - icon_w, 2, true)
+	var tx := _text(root, text, C_SYS_TEXT if navy else Color.WHITE, SYS_TEXT_W - icon_w, 2, true)
 	tx.align = 1
 	var lines := maxf(1.0, float(tx.line_count()))
 	var w := Ui.snap(float(tx.width()) + icon_w + 48.0, 4)

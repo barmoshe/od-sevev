@@ -57,6 +57,39 @@
    "notes": "The card's back (Bennett's pledge flip, Golan's merge shuffle). Diagonal stripe period 6: TILE. Centre card_back_mark on it (never inside the 9-slice, or it would repeat)."
   },
   {
+   "id": "card_row_silhouette",
+   "group": "cards",
+   "file": "out/ui/cards/card_row_silhouette.png",
+   "w": 32,
+   "h": 30,
+   "state": "teaser",
+   "slice": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    3,
+    26,
+    24
+   ],
+   "label": "ui_panel",
+   "notes": "U7 (UX review 2): a not-yet-revealed source row on the white pane, a blank pale slip. ui_mute face, a 1 art px ui_rule edge (5.58:1 on the white pane; the face alone is 1.33:1, so the edge carries the shape), sunk 1 px with a ui_dim inner top row, chamfered, no ink outline (a blank slip, the lightest object on the pane; the saturated blue cards with gold pills stay the strong ones). Replaces card_source_locked (suit_dk slate, the pane's heaviest value) for the teaser and silhouette rows. Name 'מקור עלום' in ui_panel 8.87:1; the plate keeps card_plate, the icon is the pale silhouette `<silhouette>_pale` (ui_dim with a ui_rule edge, 5.58:1 on the slip); no pill.",
+   "textColors": {
+    "name": "ui_panel",
+    "line2": "ui_panel"
+   },
+   "hex": {
+    "ui_mute": "#c9d6f2",
+    "ui_rule": "#2a5cc4",
+    "ui_panel": "#072a7a",
+    "ui_dim": "#b4c3e8"
+   }
+  },
+  {
    "id": "card_source_affordable",
    "group": "cards",
    "file": "out/ui/cards/card_source_affordable.png",
@@ -440,6 +473,33 @@
    ],
    "label": "white",
    "notes": "System lines, day divider 'היום', unread divider, 'ההודעה נמחקה'. white on suit_dk 11.8:1. Text cell is 9 rows (5x9 cut): exactly the content height."
+  },
+  {
+   "id": "chat_system_pill_navy",
+   "group": "chat",
+   "file": "out/ui/chat/chat_system_pill_navy.png",
+   "w": 20,
+   "h": 13,
+   "slice": [
+    4,
+    3,
+    4,
+    3
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    14,
+    9
+   ],
+   "label": "ui_mute",
+   "notes": "U7 (UX review 2): T3's system pill on the v4 thread (ui_panel). A flat ui_scrim well with a 1 art px ui_rule edge (fill 1.46:1 and edge 2.11:1 vs the thread, the edge 3.08:1 vs the well), no light bevel (a system line is not a button). Label ui_mute 12.91:1. Same size, 9-slice and content box as chat_system_pill, which stays (the picker's fresh chip still reads it).",
+   "hex": {
+    "ui_scrim": "#061029",
+    "ui_rule": "#2a5cc4",
+    "ui_mute": "#c9d6f2"
+   }
   },
   {
    "id": "icon_clock",
@@ -833,6 +893,75 @@
    ],
    "label": "white",
    "notes": "Pressed: label moves +2 art px down with the face."
+  },
+  {
+   "id": "button_white_default",
+   "group": "controls",
+   "file": "out/ui/controls/button_white_default.png",
+   "w": 24,
+   "h": 20,
+   "state": "default",
+   "slice": [
+    3,
+    3,
+    3,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    2,
+    18,
+    14
+   ],
+   "label": "flag",
+   "notes": "U2 / A4 (UX review 2): the v4 primary button, the flag's white on its blue. A white face, a silver bottom/right shade, a 2-row flag-blue lip (flag over flag_dk: the key's side) and the outline. Label `flag` (#0038b8) 8.46:1. Same size, 9-slice and content box as button_primary_*, so it is a drop-in: kit_primary -> button_white. It tells itself from button_secondary (ui_bubble + white, 7.5:1) by value (white vs ui_bubble 7.5:1; was flag vs ui_bubble 1.13:1) and by the label colour. One per screen. On a cream or white surface (the share sheet, the gate) the outline carries it (17.9:1 vs white)."
+  },
+  {
+   "id": "button_white_disabled",
+   "group": "controls",
+   "file": "out/ui/controls/button_white_disabled.png",
+   "w": 24,
+   "h": 20,
+   "state": "disabled",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "grey",
+   "notes": "Disabled: the shared sunk, flat slate (= button_primary_disabled, pixel for pixel), label grey 5.5:1. Disabled never masquerades as a colour variant."
+  },
+  {
+   "id": "button_white_pressed",
+   "group": "controls",
+   "file": "out/ui/controls/button_white_pressed.png",
+   "w": 24,
+   "h": 20,
+   "state": "pressed",
+   "slice": [
+    3,
+    5,
+    3,
+    2
+   ],
+   "mode": "stretch",
+   "content": [
+    3,
+    4,
+    18,
+    14
+   ],
+   "label": "flag",
+   "notes": "Pressed: the face drops 2 art px into the lip (the blue side disappears), silver with a grey inner shadow; the label moves +2 with it. flag on silver 6.40:1."
   },
   {
    "id": "card_plate",
@@ -3335,6 +3464,40 @@
    "notes": "The picker frame as the cardboard voting booth (קלפי, v4): a 9-slice [6, 10, 6, 4] drawn around the tile grid; the opening is transparent. Cardboard `paper` with the two side wings folded back, a blank flag-blue header strip and a white rule (no text, no emblem, no letters: the booth, not the committee). Optional: the engine may draw the picker title in its header (white on flag 8.5:1)."
   },
   {
+   "id": "booth_frame_tall",
+   "group": "picker",
+   "file": "out/ui/picker/booth_frame_tall.png",
+   "w": 40,
+   "h": 46,
+   "slice": [
+    6,
+    16,
+    6,
+    4
+   ],
+   "mode": "stretch",
+   "content": [
+    5,
+    15,
+    30,
+    28
+   ],
+   "label": "white",
+   "notes": "A5 (mobile-first §5.14.2, optional): booth_frame with a 12-row flag-blue header (rows 1-12), so the picker title can sit in the booth: white on flag 8.46:1. `titleBox` [6, 2, w - 12, 9] is the text cell (the x4 Sevev 9 cell is 9 art rows; x5 large text is 45 logical, inside the 48 of the header). The opening, the wings and the bottom are booth_frame's exactly, 6 rows lower: 9-slice [6, 16, 6, 4], content [5, 15, 30, 28] (booth_frame: [6, 10, 6, 4], [5, 9, 30, 28]). Net: the title's own row and its 16 gap above the booth go back to the sky; the booth's top inset grows 36 -> 60 logical. One line only: a 2-line title keeps booth_frame with the title above it. Blank otherwise: no emblem, no letters.",
+   "titleBox": [
+    6,
+    2,
+    28,
+    9
+   ],
+   "header": [
+    1,
+    1,
+    38,
+    12
+   ]
+  },
+  {
    "id": "pick_random",
    "group": "picker",
    "file": "out/ui/picker/pick_random.png",
@@ -3827,6 +3990,39 @@
    "notes": "Trash can, 9x9 inline icon (one text cell tall): the settings danger row 'SET_RESET' (rtl-map §7.4), leading the label on the RIGHT, and optionally leading 'למחוק הכול' on button_danger. Never mirrored (rtl-map §1 'keep'). White lid and can + slate ribs: white on ui_panel 15.6:1, outline on paper 13.5:1, so it reads on the dark sheet and on a cream card alike (wave 6)."
   },
   {
+   "id": "notice_frame",
+   "group": "sheet",
+   "file": "out/ui/sheet/notice_frame.png",
+   "w": 40,
+   "h": 40,
+   "slice": [
+    3,
+    7,
+    3,
+    5
+   ],
+   "mode": "stretch",
+   "content": [
+    4,
+    8,
+    32,
+    26
+   ],
+   "label": "night",
+   "notes": "U10 (UX review 2): EVOLVE_TX dressed as the gate's printed notice. A white notice card ruled in flag blue edge to edge, at the top (3 rows, a white gap, 1 row) and the bottom (1, gap, 1), with the outline and 1-px chamfered corners: the HTML gate's card (#od-gate .od-card ::before/::after) on the kit grid. Draw it on the flag-blue page (`colors.page`), centred, around the card's lines (9-slice [3, 7, 3, 5]; the centre is plain white, so it stretches to any size). 'הכנסת פוזרה.' in `colors.title` (flag, 8.46:1), the rest in `colors.text` (night, 13.88:1). Not full bleed: a white screen with a blue stripe at the top and the bottom is the flag's own layout with the text where the star sits (style guide §2.4, the rejected 'whole page as the flag'). A notice card on the blue page is the approved gate. Blank: no emblem, no institution's name, no seal.",
+   "colors": {
+    "page": "flag",
+    "title": "flag",
+    "text": "night",
+    "frame": "white"
+   },
+   "hex": {
+    "flag": "#0038b8",
+    "night": "#0f2350",
+    "white": "#f7f4ec"
+   }
+  },
+  {
    "id": "sheet_modal",
    "group": "sheet",
    "file": "out/ui/sheet/sheet_modal.png",
@@ -3834,19 +4030,19 @@
    "h": 38,
    "slice": [
     7,
-    23,
+    24,
     7,
     7
    ],
    "mode": "stretch",
    "content": [
     7,
-    23,
     24,
-    8
+    24,
+    7
    ],
    "label": "white",
-   "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20; v4: the blue ballot envelope, the band is the flap and points 2 rows deeper at the centre, the body is the v4 ui_panel blue, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map §7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece is 38x38 and every margin grew by 1. Draw it at the card rect grown by 4 logical px per side to keep the title band and body exactly where they were."
+   "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20; v4: the blue ballot envelope, the band is the flap and points 2 rows deeper at the centre, the body is the v4 ui_panel blue, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map §7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece is 38x38 and every margin grew by 1. Draw it at the card rect grown by 4 logical px per side to keep the title band and body exactly where they were. Wave 10 (UX review 2 U1, mobile-first §10 T1): the top margin is 24, not 23: rows 0-23 are the band and the flap point with its shadow row (23), so the stretched centre is the plain ui_panel body and no dark slab runs down under the point. The pixels did not change."
   },
   {
    "id": "sheet_modal_body",
@@ -3868,7 +4064,7 @@
     8
    ],
    "label": "white",
-   "notes": "The blue envelope without its flap (wave 9, the Animator's wave-B ask): sheet_modal's body, edge and 9-slice [7, 23, 7, 7] exactly, with no title band. Never drawn alone: sheet_modal_flap sits on its top 24 rows (frame 2 at rest), and body + flap f2 = sheet_modal pixel for pixel. Use it only where the flap animates; everywhere else sheet_modal stays."
+   "notes": "The blue envelope without its flap (wave 9, the Animator's wave-B ask): sheet_modal's body and edge exactly, 9-slice [7, 23, 7, 7] (sheet_modal is [7, 24, 7, 7] since wave 10; the body's row 23 is plain, so both stretch the same), with no title band. Never drawn alone: sheet_modal_flap sits on its top 24 rows (frame 2 at rest), and body + flap f2 = sheet_modal pixel for pixel. Use it only where the flap animates; everywhere else sheet_modal stays."
   },
   {
    "id": "sheet_modal_flap",

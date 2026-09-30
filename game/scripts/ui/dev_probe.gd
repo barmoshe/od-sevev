@@ -95,7 +95,9 @@ static func snapshot(host: Node) -> Dictionary:
 	# mobile-first §5.4: the silhouette and teaser rows the pane shows whole (no price or no target)
 	out["shop"] = {"tab": shop.tab, "list": [shop.list_rect.position.y + o.y, shop.list_rect.end.y + o.y], "rows": rows,
 		"all": all_rows, "silhouettes": shop.rows_in_view(["silhouette", "teaser"]),
-		"card": [shop.list_rect.position.x + o.x, shop.list_rect.end.x + o.x]}   # the cards' x span (the width rule)
+		"card": [shop.list_rect.position.x + o.x, shop.list_rect.end.x + o.x],   # the cards' x span (the width rule)
+		# review U6 / S7: every row the pane shows at least partly, its pill [top, bottom, drawn]
+		"pills": shop.pill_rects().map(func(p: Array) -> Array: return [float(p[0]) + o.y, float(p[1]) + o.y, p[2]])}
 	var court: CourtView = host.get("court")
 	var ct := court.button_rect("testify").get_center() + o if court.card_visible() else Vector2(-1, -1)
 	out["court"] = {"card": court.card_visible(), "mode": court.mode(), "phase": court.phase(), "testify": [ct.x, ct.y]}

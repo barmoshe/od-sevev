@@ -20,7 +20,7 @@ extends Overlay
 
 const CARD_X := 48.0
 const CARD_W := 624.0
-const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
+const HEADER_H := 96.0               # the envelope flap (24 art rows, review U1: the first line clears the point)
 const TEXT_RIGHT := 640.0            # modal.body box x 80-640
 const TEXT_W := 560.0
 const BODY_MAX := 624.0              # mobile-first §4.1: a modal body stays ≤ 624 (≈ 24 glyphs)
@@ -129,16 +129,19 @@ func finish() -> void:
 	var h := Ui.snap(_y + PAD, 4)
 	var band := _band()
 	var lo := band.x + BAND_MARGIN
-	var hi := band.y - BAND_MARGIN
-	if host != null and host.has_method("modal_floor"):
-		hi = minf(hi, float(host.call("modal_floor")) - 24.0)
+	var hi := _hi(band)
 	var centre := band.x + (band.y - band.x) * (0.55 if band.y - band.x > 1400.0 else 0.5)
 	var y := Ui.snap(clampf(centre - h / 2.0, lo, maxf(lo, hi - h)), 4)
 	var g2 := grow_half()
 	_holder.position.x = 0.0
-	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
-	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
+	# the envelope (review U1, style guide §17.2): body, flap, then the title and the ✕
+	make_envelope(Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h))
 	panel.move_child(frame, 0)
+	if flap != null:
+		panel.move_child(flap, 1)
+	flap_head.clear()
+	if title_text != null:
+		flap_head.append(title_text)
 	_holder.position.y = y
 	buttons.clear()
 	for sp: Array in _specs:
@@ -157,8 +160,27 @@ func finish() -> void:
 		var sz := Vector2(Art.sprite_size(id)) * 4.0
 		var vis := Rect2(CARD_X - g2 + 16.0, y + 16.0, 64.0, 64.0)
 		close_btn = PxButton.make(panel, vis, {"hit": Rect2(CARD_X - g2, y, 104.0, 104.0), "ghost": true, "on_commit": _close_cb})
-		Ui.img(panel, (vis.position + (vis.size - sz) / 2.0).snapped(Vector2(4, 4)), id, 0, 4)
+		flap_head.append(Ui.img(panel, (vis.position + (vis.size - sz) / 2.0).snapped(Vector2(4, 4)), id, 0, 4))
 		focusables.append(close_btn)
+
+
+## The bottom limit of the card in the modal band (§5.10: 24 over the tab bar's top).
+func _hi(band: Vector2) -> float:
+	var hi := band.y - BAND_MARGIN
+	if host != null and host.has_method("modal_floor"):
+		hi = minf(hi, float(host.call("modal_floor")) - 24.0)
+	return hi
+
+
+## The tallest card the modal band holds (the height finish() can place without clamping).
+func room() -> float:
+	var band := _band()
+	return _hi(band) - (band.x + BAND_MARGIN)
+
+
+## The card's height as laid out so far (what finish() will size it to).
+func laid_h() -> float:
+	return Ui.snap(_y + PAD, 4)
 
 
 ## Half the card's growth, on the 4-px grid. Bar's width rule (2026-09-30, "the UX/UI fills the

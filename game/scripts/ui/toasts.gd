@@ -42,6 +42,7 @@ const FACE_X := 612.0
 const FACE_ART := 16.0
 const C_HEAD := Color("#c9d6f2")    # grey: the sender line, as the thread's names
 var _chats: Array[Dictionary] = []
+var _passive := false               # the shown toast takes no tap (show_chat_toast passive)
 var _face: Sprite2D
 var _head: PxText
 var _preview: PxText
@@ -113,13 +114,15 @@ func show_toast(text: String, tag: String = "") -> void:
 ## message preview, one line, ellipsised; both right-aligned at 596 (box x 32-596). Always two
 ## lines (132). `avatar` = [art id, logical px per sprite px, density] (ChatView.avatar_art); an
 ## empty id draws no face. The tag is "chat" (a tap opens T3).
-func show_chat_toast(head: String, preview: String, avatar: Array) -> void:
+## `tag` "" and `passive` (review U9, Dubi's pre-tap pick line over the leader): no tap target, so
+## tap 1 aimed at the leader is never taken by the dock.
+func show_chat_toast(head: String, preview: String, avatar: Array, tag: String = "chat", passive: bool = false) -> void:
 	if preview == "" and head == "":
 		return
 	_queue.append(preview)
-	_tags.append("chat")
+	_tags.append(tag)
 	_sync_chats()
-	_chats.append({"head": head, "avatar": avatar})
+	_chats.append({"head": head, "avatar": avatar, "passive": passive})
 
 
 ## Called right after a text is queued: the chat meta lines up with the texts already waiting
@@ -177,6 +180,19 @@ func shown() -> Dictionary:
 		"h": _plate.size.y * 4.0 if _plate.visible else 0.0}
 
 
+## Review U9: tap 1 retires Dubi's pre-tap dock line (shown or queued); from H1 his bubble speaks.
+func drop_passive() -> void:
+	for i in range(_chats.size() - 1, -1, -1):
+		if bool((_chats[i] as Dictionary).get("passive", false)):
+			var qi := i - (_chats.size() - _queue.size())
+			_chats.remove_at(i)
+			if qi >= 0 and qi < _queue.size():
+				_queue.remove_at(qi)
+				_tags.remove_at(qi)
+	if _passive and _t >= 0.0:
+		_t = maxf(_t, SHOW_MS - OUT_MS)   # its 120 ms fade-out, then the dock's gap
+
+
 ## True while nothing is showing and nothing waits (the C1 ping's allowPing half).
 func idle() -> bool:
 	return _t < 0.0 and _queue.is_empty()
@@ -188,6 +204,8 @@ func covered_rect() -> Rect2:
 
 
 func tap(p: Vector2) -> bool:
+	if _passive:
+		return false
 	if _plate.visible and Ui.in_rect(Rect2(_plate.position, _plate.size * 4.0), p):
 		_t = SHOW_MS
 		if on_tap.is_valid() and _tag != "":
@@ -255,6 +273,7 @@ func update_view(dt_ms: float) -> void:
 				n.modulate.a = a
 		if _t >= SHOW_MS:
 			_t = -1.0
+			_passive = false
 			_gap = GAP_MS
 			_plate.visible = false
 			_text.visible = false
@@ -272,6 +291,7 @@ func update_view(dt_ms: float) -> void:
 	while _chats.size() > _queue.size():
 		_chats.pop_front()
 	var shown_nodes: Array[CanvasItem] = [_plate]
+	_passive = bool(chat.get("passive", false))
 	var y0 := float(L.STAGE["y"]) + 8.0
 	if chat.is_empty():
 		_text.text = msg
