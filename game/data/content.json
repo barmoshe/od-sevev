@@ -824,7 +824,8 @@
     ]
    },
    "copy": {
-    "thanksSystem": "אמסלם כתב הודעה בלי סימן קריאה. לראשונה."
+    "onPaidTicker": "אמסלם כתב הודעה בלי סימן קריאה. לראשונה.",
+    "_onPaidTicker": "Was copy.thanksSystem (a chat system line with no reader); since 2026-09-30 it crawls on a paid demand, like Gafni's (main.on_partner_paid)."
    }
   },
   {

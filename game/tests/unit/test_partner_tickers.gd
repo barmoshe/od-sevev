@@ -71,6 +71,7 @@ func test_paid_pills_queue_the_partners_ticker_lines() -> void:
 	runner.check(m.on_partner_paid("gafni", "") == str(gafni["onPaidTicker"]), "a paid Gafni demand queues his tie line")
 	runner.check(m.on_partner_paid("almog", "poach") == str(almog["poachTicker"]), "the poach pill queues Almog's line")
 	runner.check(m.on_partner_paid("gafni", "rejoin") == "", "a rejoin pill queues nothing")
+	runner.check(m.on_partner_paid("amsalem", "") == str((Coalition.partner("amsalem").get("copy", {}) as Dictionary)["onPaidTicker"]), "Amsalem's no-exclamation-mark line")
 	runner.check(m.on_partner_paid("regev", "") == "", "a partner with no paid line queues nothing")
 
 
