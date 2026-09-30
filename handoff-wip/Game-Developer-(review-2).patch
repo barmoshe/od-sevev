@@ -36,6 +36,102 @@ index 5e578e7..d2210cb 100644
  ## Resizes a 9-slice drawn at `r` by (dw, dh) logical px: width centred, height anchored at the
  ## bottom (a press has weight) or the centre. (ox, oy) shift the whole rect.
  static func squish_nine(ns: NinePatchRect, r: Rect2, dw: float, dh: float, ox: float = 0.0, oy: float = 0.0, anchor: String = "bottom") -> void:
+diff --git a/game/scripts/ui/shop.gd b/game/scripts/ui/shop.gd
+index c45d177..d276c38 100644
+--- a/game/scripts/ui/shop.gd
++++ b/game/scripts/ui/shop.gd
+@@ -44,6 +44,7 @@ const SPIN_BARS := Rect2(220, 104, 360, 8)
+ ## The spin tag's stamp: the bottom band of the plate (kit card_plate at 588-692 × 8-112).
+ const SPIN_TAG := Rect2(592, 72, 96, 40)
+ const TAG_SLAM_STEP_MS := 30.0      # the slip's stamp slam: ×6, ×5, ×4 (90 ms, Stepped)
++const C_SIL_TEXT := Color("#072a7a")   # ui_panel on card_row_silhouette (review U7)
+ const SPIN_BAR_PUBLIC := "e"
+ const SPIN_BAR_FRIENDLY := "O"
+ 
+@@ -542,12 +543,20 @@ func _badge_label(n: int) -> String:
+ 	return "" if n <= 0 else Strings.s("TAB_BADGE", {"count": "9+" if n > 9 else str(n)})
+ 
+ 
++## Review U7: a silhouette's pale cut on the pale slip (`<silhouette>_pale`: a ui_dim mask with a
++## ui_rule edge, drawn unmodulated), when the pipeline ships one; else the silhouette itself.
++static func pale_sil(sil: String) -> String:
++	if not Art.has_sprite("card_row_silhouette"):
++		return sil
++	return sil + "_pale" if Art.has_sprite(sil + "_pale") else sil
++
++
+ func _card_sprite(kind: String, afford: bool) -> String:
+ 	match kind:
+-		"silhouette":
+-			return Art.sprite_or("card_source_locked")
+-		"teaser":
+-			return Art.sprite_or("card_source_locked")
++		"silhouette", "teaser":
++			# review U7 (style guide §17.3): a blank pale slip on the white pane (ui_mute face,
++			# ui_rule edge), not the slate locked card
++			return "card_row_silhouette" if Art.has_sprite("card_row_silhouette") else Art.sprite_or("card_source_locked")
+ 		"upgrade":
+ 			return Art.sprite_or("card_spin" if afford else "card_spin_locked")
+ 		"buymode":
+@@ -592,7 +601,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 			l2 = Strings.s("CARD_PRICE", {"price": Fmt.cost(price)})
+ 		"silhouette":
+ 			var sks := LeaderUi.producer_art(id)
+-			icon = Art.sprite_or(str(sks["silhouette"]) if not sks.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id))))
++			icon = pale_sil(Art.sprite_or(str(sks["silhouette"]) if not sks.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id)))))
+ 			nm = Strings.s("ROW_LOCKED_NAME")
+ 			line2 = Strings.s("CARD_LOCKED_CAP")
+ 			wide = true
+@@ -602,7 +611,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 		"teaser":
+ 			# mobile-first §5.4: the silhouette, "מקור עלום", no price, no pill, not a target
+ 			var skt := LeaderUi.producer_art(id)
+-			icon = Art.sprite_or(str(skt["silhouette"]) if not skt.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id))))
++			icon = pale_sil(Art.sprite_or(str(skt["silhouette"]) if not skt.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id)))))
+ 			nm = Strings.s("ROW_LOCKED_NAME")
+ 			wide = true
+ 		"buymode":
+@@ -713,6 +722,10 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 	ic.modulate = Color.WHITE if (m["kind"] == "silhouette" or teaser or afford) else Color(0.6, 0.6, 0.6)
+ 	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.827, 0.839, 0.875)
+ 	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.788, 0.839, 0.949)
++	if (m["kind"] == "silhouette" or teaser) and Art.has_sprite("card_row_silhouette"):
++		# U7: the pale slip's text is ui_panel (8.9:1 on its ui_mute face)
++		(v["name"] as PxText).tint = C_SIL_TEXT
++		(v["line2"] as PxText).tint = C_SIL_TEXT
+ 	(v["owned"] as PxText).tint = Color(0.827, 0.839, 0.875)
+ 	_render_bars(v, bars)
+ 	var tg: PxText = v["tag"]
+diff --git a/game/scripts/ui/views/view_chat.gd b/game/scripts/ui/views/view_chat.gd
+index c8452a7..bb582d0 100644
+--- a/game/scripts/ui/views/view_chat.gd
++++ b/game/scripts/ui/views/view_chat.gd
+@@ -60,6 +60,7 @@ const CEREMONY_MS := 3000.0          # sim: a ceremony (Regev) needs "the UI's 3
+ const C_THREAD := Color("#072a7a")    # ui_panel
+ const C_NAME := Color("#c9d6f2")      # grey
+ const C_MUTED := Color("#b4c3e8")     # slate
++const C_SYS_TEXT := Color("#c9d6f2")  # ui_mute on chat_system_pill_navy (12.9:1, review U7)
+ const C_INK := Color("#061029")       # ink (on gold)
+ const C_ALERT := Color("#ffaa9f")     # red_hi ("אולטימטום", the last seconds)
+ const C_GOLD_HI := Color("#fff1a6")
+@@ -957,13 +958,15 @@ func _build_out(row: Dictionary, y: float) -> Dictionary:
+ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
+ 	var root := _root(y)
+ 	var r := {"root": root, "pills": []}
+-	var pill_bg := Ui.nine(root, Rect2(0, 0, 64, 52), Art.sprite_or("chat_system_pill"))
++	# review U7: the v4 thread's system pill is a flat ui_scrim well, ui_rule edge, ui_mute label
++	var navy := Art.has_sprite("chat_system_pill_navy")
++	var pill_bg := Ui.nine(root, Rect2(0, 0, 64, 52), "chat_system_pill_navy" if navy else Art.sprite_or("chat_system_pill"))
+ 	var icon_w := 0.0
+ 	var icon: Sprite2D = null
+ 	if str(m.get("key", "")) == "chat.sys.muted" and Art.has_sprite("chat_icon_mute"):
+ 		icon = Ui.img(root, Vector2.ZERO, "chat_icon_mute", 0, 4)
+ 		icon_w = float(Art.sprite_size("chat_icon_mute").x) * 4.0 + 12.0
+-	var tx := _text(root, text, Color.WHITE, SYS_TEXT_W - icon_w, 2, true)
++	var tx := _text(root, text, C_SYS_TEXT if navy else Color.WHITE, SYS_TEXT_W - icon_w, 2, true)
+ 	tx.align = 1
+ 	var lines := maxf(1.0, float(tx.line_count()))
+ 	var w := Ui.snap(float(tx.width()) + icon_w + 48.0, 4)
 diff --git a/game/scripts/ui/views/view_court.gd b/game/scripts/ui/views/view_court.gd
 index 59ab54c..f6ed802 100644
 --- a/game/scripts/ui/views/view_court.gd
