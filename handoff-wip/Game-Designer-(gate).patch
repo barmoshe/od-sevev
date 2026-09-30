@@ -166,6 +166,20 @@ index 1558947..d372f2a 100644
  	# the "{n} ממתינים ↑" chip and the brawl stage cue (views wave 6): centres in viewport px
  	var pi := chat.pending_info()
  	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
+diff --git a/game/tests/unit/test_events.gd b/game/tests/unit/test_events.gd
+index df9dff8..fe92ae1 100644
+--- a/game/tests/unit/test_events.gd
++++ b/game/tests/unit/test_events.gd
+@@ -44,7 +44,8 @@ func _rich() -> GameState:
+ 	s.investigation["courtDays"] = 2
+ 	for id in Content.producer_ids():
+ 		s.owned[id] = 5
+-	for id in ["bengvir", "smotrich", "amsalem", "deri"]:
++	# three members, under the 61 gate: at 61 no seat-costing card fires (test_vote_hold.gd)
++	for id in ["bengvir", "smotrich", "amsalem"]:
+ 		Coalition.ps(s, id)["status"] = "member"
+ 	return s
+ 
 diff --git a/game/tests/unit/test_modals.gd b/game/tests/unit/test_modals.gd
 index 9b9f489..f21efb7 100644
 --- a/game/tests/unit/test_modals.gd

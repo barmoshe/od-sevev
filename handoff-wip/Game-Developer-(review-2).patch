@@ -524,6 +524,62 @@ index fcc26ed..6e1d635 100644
  ## Half the card's growth, on the 4-px grid. Bar's width rule (2026-09-30, "the UX/UI fills the
  ## phone's width"; it supersedes §5.10's 624 + min(dx, 64)): a modal card is ≥ 92% of the canvas,
  ## a floor4(3.5%) margin each side (24-28 logical: 672 at cw 720, 728 at 780, 800 at 860). Its body
+diff --git a/game/tests/unit/test_modals.gd b/game/tests/unit/test_modals.gd
+index 17c2808..ca58266 100644
+--- a/game/tests/unit/test_modals.gd
++++ b/game/tests/unit/test_modals.gd
+@@ -89,7 +89,20 @@ func test_the_election_card_is_the_o3_sheet_with_stacked_buttons() -> void:
+ 	# the width rule (Bar 2026-09-30): the card grows by 2·grow_half() about the 720 design's x 48-672
+ 	var g2 := SheetCard.grow_half()
+ 	runner.check(c.panel_rect.size.x == 624.0 + 2.0 * g2 and c.panel_rect.position.x == 48.0 - g2 and c.panel_rect.size.x >= 0.92 * L.cw, "a ≥ 92%% card, 624 + %d at x 48 − %d (%s)" % [2.0 * g2, g2, c.panel_rect])
+-	runner.check(c.frame.get_meta("sprite") == Art.sprite_or("sheet_modal"), "on the kit's sheet_modal")
++	runner.check(c.frame.get_meta("sprite") == "sheet_modal_body" and c.flap != null and c.flap.get_meta("sprite") == "sheet_modal_flap",
++		"the envelope: sheet_modal_body + sheet_modal_flap (review U1)")
++	runner.check(c.flap.position == c.panel_rect.position and c.flap.size * 4.0 == Vector2(c.panel_rect.size.x, 96.0) and c.flap.texture == Art.tex("sheet_modal_flap", 2),
++		"the flap spans the card's top 96 at rest on f2 (%s)" % [c.flap.size * 4.0])
++	runner.check(c.frame.get_index() < c.flap.get_index() and c.flap.get_index() < c.title_text.get_parent().get_index(), "draw order: body, flap, title")
++	# §5.14.1: the hemicycle is the card's hero, under the title band and over the leader line
++	runner.check(c.hemicycle != null, "the hemicycle is on O3 at 720×1280")
++	if c.hemicycle != null:
++		var hp := c.hemicycle.position
++		runner.check(hp.y == SheetCard.HEADER_H + 16.0 and c.hemicycle.size() == Vector2(288, 152), "×4 (288×152) at the header + 16 (%s)" % hp)
++		runner.check(absf(hp.x + 144.0 - (c.panel_rect.position.x + c.panel_rect.size.x / 2.0)) <= 4.0, "centred on the card")
++		runner.check(c.hemicycle.n == ElectionCard.hemi_seats(m.state), "it fills the effective seats (%d)" % c.hemicycle.n)
++		var first_para: PxText = c.paras[0]
++		runner.check(first_para.position.y >= hp.y + 152.0 + 16.0, "the leader line / the first line is its caption, below it")
+ 	var go := c.go_button
+ 	var no := c.cancel_button
+ 	runner.check(go.visual.size.x == 544.0 + 2.0 * g2 and no.visual.size.x == 544.0 + 2.0 * g2 and go.visual.position.y < no.visual.position.y,
+@@ -104,6 +117,29 @@ func test_the_election_card_is_the_o3_sheet_with_stacked_buttons() -> void:
+ 	runner.check(c.closing and not c.committed, "the backdrop is 'עוד לא'")
+ 
+ 
++## review U1 + style guide §17.2: the flap opens f0/f1/f2 at 0/40/80 ms and holds f2; the title and
++## the ✕ show from f2; reduced motion: f2 at once.
++func test_the_envelope_flap_opens_on_the_modal() -> void:
++	await _boot()
++	m._open_evolution()
++	var c := m.overlays.top() as ElectionCard
++	runner.check(c != null and c.flap != null, "O3 has a flap")
++	if c == null or c.flap == null:
++		return
++	c.enter(false)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 0) and not c.title_text.visible and c.flap_head.size() == 2, "0 ms: sealed, the title and ✕ hidden")
++	c.tick(40.0)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 1) and not c.title_text.visible, "40 ms: lifting")
++	c.tick(40.0)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 2) and c.title_text.visible, "80 ms: open, the title shows")
++	c.tick(400.0)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 2), "then it holds f2")
++	c.enter(true)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 2) and c.title_text.visible, "reduced motion: f2 at once")
++	# the hemicycle is left out when the card would not fit the band (§5.14.1)
++	runner.check(c.hemicycle == null or c.laid_h() <= c.room(), "the card fits its band, or the hemicycle is left out")
++
++
+ func test_the_election_confirm_runs_the_transition_with_the_round() -> void:
+ 	await _boot()
+ 	_gate_open()
 diff --git a/game/tests/unit/test_glue.gd b/game/tests/unit/test_glue.gd
 new file mode 100644
 index 0000000..32ef4b7
@@ -656,3 +712,11 @@ index 0000000..32ef4b7
 +			else:
 +				_walk(x, in_ticker, out)
 # untracked binary: game/tests/unit/test_glue.gd
+diff --git a/game/tests/unit/test_glue.gd.uid b/game/tests/unit/test_glue.gd.uid
+new file mode 100644
+index 0000000..3268cc2
+--- /dev/null
++++ b/game/tests/unit/test_glue.gd.uid
+@@ -0,0 +1 @@
++uid://c2uy1y6lporfo
+# untracked binary: game/tests/unit/test_glue.gd.uid
