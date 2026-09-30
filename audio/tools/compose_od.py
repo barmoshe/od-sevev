@@ -644,15 +644,21 @@ MODES = {"minor": [0, 2, 3, 5, 7, 8, 10], "mixolydian": [0, 2, 4, 5, 7, 9, 10],
 
 
 # HaTikva for the tap (v1.5, Bar 2026-09-30). Semitones above the key's root, one entry per tap.
-# Source: the Hatikvah score on English Wikipedia (rev 1375885586, CC BY-SA 4.0, melody Samuel Cohen
-# 1888, public domain), as converted by the npm package anthem-scores 0.1.1 (anthems/IL.json, D minor):
-# bars 1-4, "כל עוד בלבב פנימה / נפש יהודי הומיה", with the pickup A into the repeat. The second section
-# ("עוד לא אבדה...") is not in that source; add it here only from a verified score, then append its
-# phrase starts to "phrases".
+# Section A (bars 1-4, "כל עוד בלבב פנימה / נפש יהודי הומיה", with the pickup A into the repeat) is
+# verified: the Hatikvah score on English Wikipedia (rev 1375885586, CC BY-SA 4.0, melody Samuel Cohen
+# 1888, public domain), as converted by the npm package anthem-scores 0.1.1 (anthems/IL.json, D minor).
+# Section B (v1.6, Bar: "think of the notes yourself") is NOT from a score: it is written from the
+# anthem as it is sung, with no source reachable from the build container. Two lines a step apart
+# (repeated note, upper and lower neighbour), the high line on the octave, and the close on the
+# verified cadence of bar 3-4. Replace it from a verified score when one is at hand.
 TAP_ANTHEM = {
     "melody": ["n0", "n2", "n3", "n5", "n7", "n7", "n8", "n7", "n8", "n12", "n7",   # כל עוד בלבב פנימה
-               "n5", "n5", "n5", "n3", "n3", "n2", "n0", "n2", "n3", "n0", "n-5"],  # נפש יהודי הומיה
-    "phrases": [0, 11],
+               "n5", "n5", "n5", "n3", "n3", "n2", "n0", "n2", "n3", "n0", "n-5",   # נפש יהודי הומיה
+               "n7", "n7", "n7", "n7", "n8", "n7", "n5", "n7",                        # עוד לא אבדה תקוותנו
+               "n5", "n5", "n5", "n5", "n7", "n5", "n3", "n5",                        # התקווה בת שנות אלפיים
+               "n12", "n12", "n12", "n12", "n10", "n8", "n7", "n8",                   # להיות עם חופשי בארצנו
+               "n5", "n5", "n5", "n3", "n3", "n2", "n0", "n2", "n3", "n0"],           # ארץ ציון וירושלים
+    "phrases": [0, 22, 38],   # three 4-bar phrases: A, B's first two lines, B's last two
 }
 
 

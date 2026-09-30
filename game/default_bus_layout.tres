@@ -1,8 +1,20 @@
 [gd_resource type="AudioBusLayout" format=3 uid="uid://b5e7en1grmwc6"]
 
+[sub_resource type="AudioEffectHighPassFilter" id="AudioEffectHighPassFilter_master"]
+resource_name = "MasterHPF"
+cutoff_hz = 35.0
+
+[sub_resource type="AudioEffectCompressor" id="AudioEffectCompressor_master"]
+resource_name = "Glue"
+threshold = -14.0
+ratio = 2.0
+attack_us = 10000.0
+release_ms = 160.0
+
 [sub_resource type="AudioEffectHardLimiter" id="AudioEffectHardLimiter_master"]
 resource_name = "Limiter"
 ceiling_db = -1.0
+pre_gain_db = 2.0
 
 [sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_outside"]
 resource_name = "OutsideLPF"
@@ -17,8 +29,12 @@ pan = -0.3
 resource_name = "SuitcasePan"
 
 [resource]
-bus/0/effect/0/effect = SubResource("AudioEffectHardLimiter_master")
+bus/0/effect/0/effect = SubResource("AudioEffectHighPassFilter_master")
 bus/0/effect/0/enabled = true
+bus/0/effect/1/effect = SubResource("AudioEffectCompressor_master")
+bus/0/effect/1/enabled = true
+bus/0/effect/2/effect = SubResource("AudioEffectHardLimiter_master")
+bus/0/effect/2/enabled = true
 bus/1/name = &"Music"
 bus/1/solo = false
 bus/1/mute = false

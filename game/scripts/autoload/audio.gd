@@ -732,7 +732,7 @@ func track_name() -> String:
 	var s := _track + ":"
 	var on: Array[String] = []
 	for l: String in LAYERS:
-		if float(_lt[l]) > 0.5:
+		if float(_lt[l]) > 0.01:   # v1.6: the lead under the bell sits at 0.5, and is on
 			on.append(l)
 	return s + "+".join(on)
 
@@ -1447,10 +1447,17 @@ func _layer_want(layer: String, bar_n: int) -> bool:
 	return not OdAudio.af_off_during(_man, layer, _loop, bar_n, OdAudio.bars_per_loop(_man, _track))
 
 
+## A layer's gain when it sounds: 1, except the lead under the tap's HaTikva (v1.6).
+func _layer_level(layer: String, bar_n: int) -> float:
+	if not _layer_want(layer, bar_n):
+		return 0.0
+	return OdAudio.L2_UNDER_BELL if layer == "L2" and not _tap_melody.is_empty() else 1.0
+
+
 func _snap_layers(bar_n: int) -> void:
 	_lramp = {}
 	for l: String in LAYERS:
-		var g := 1.0 if _layer_want(l, bar_n) else 0.0
+		var g := _layer_level(l, bar_n)
 		_lg[l] = g
 		_lt[l] = g
 	_push_layers()
@@ -1565,7 +1572,7 @@ func _on_bar_line(now: float, bar_n: int) -> void:
 	_court_stinger = ""
 	var bar_ms := OdAudio.bar_seconds(_man, _track) * 1000.0
 	for l: String in LAYERS:
-		var to := 1.0 if _layer_want(l, bar_n) else 0.0
+		var to := _layer_level(l, bar_n)
 		if to != float(_lt[l]):
 			_lt[l] = to
 			_lramp[l] = {"from": float(_lg[l]), "to": to, "t0": now, "ms": bar_ms}

@@ -17,6 +17,9 @@ const TAP_STREAK_GAP_MS := 400.0
 const TAP_JITTER_DB := 1.5
 ## L2 (the lead) plays while the last Magician tap is younger than this (cue-spec §2.1).
 const L2_TAP_WINDOW_MS := 3000.0
+## v1.6 mix pass: when the tap plays HaTikva, the lead (L2) steps back 6 dB so the bell leads and the
+## two melodies don't fight in the same register.
+const L2_UNDER_BELL := 0.5
 ## Dubi (cue-spec §4 `dubiBlip`): 8 syllables a second, a 1.6 s cap, a doubled canned line
 ## repeats its contour after 150 ms.
 const BABBLE_RATE_HZ := 8.0

@@ -562,8 +562,8 @@
 			"lengthMs": 214.0,
 			"limitedBy": "target",
 			"meaning": "Bought a source or a spin.",
-			"momentaryMax": -20.72,
-			"play_db": -6.94,
+			"momentaryMax": -20.73,
+			"play_db": -4.95,
 			"poly": 2.0,
 			"priority": 3.0,
 			"runtime": "The tap blip on 5, then the motif's first bar note (1') on P1. Alternate d25 / d12.",
@@ -602,8 +602,8 @@
 			"lengthMs": 144.0,
 			"limitedBy": "target",
 			"meaning": "Not enough money.",
-			"momentaryMax": -26.71,
-			"play_db": -8.08,
+			"momentaryMax": -26.7,
+			"play_db": -5.82,
 			"poly": 1.0,
 			"priority": 1.0,
 			"runtime": "Two quiet P2 staccatos on the raised leading tone, left hanging.",
@@ -687,7 +687,7 @@
 			"limitedBy": "target",
 			"meaning": "A partner posted a demand.",
 			"momentaryMax": -19.65,
-			"play_db": -6.81,
+			"play_db": -4.78,
 			"poly": 1.0,
 			"priority": 3.0,
 			"runtime": "Variant = the partner id (unknown partners: default). At most one ping per 700 ms; pings inside that window coalesce into one 'burst'. Never during a Dubi squawk: queue it until 300 ms after Dubi stops (UX first-minute §9). 'left' = left the group.",
@@ -745,7 +745,7 @@
 			"limitedBy": "target",
 			"meaning": "Coins (the settings 'צ'ינג' preview; payout sparkle, at most 6 per tap).",
 			"momentaryMax": -24.93,
-			"play_db": -11.22,
+			"play_db": -9.75,
 			"poly": 3.0,
 			"priority": 1.0,
 			"runtime": "The deadpan rule: the payout never scales loudness or count (<= 6 coins per tap, whatever the sum).",
@@ -784,8 +784,8 @@
 			"lengthMs": 254.0,
 			"limitedBy": "target",
 			"meaning": "Court day is over; back to the era.",
-			"momentaryMax": -21.57,
-			"play_db": -9.61,
+			"momentaryMax": -21.59,
+			"play_db": -7.64,
 			"poly": 1.0,
 			"priority": 2.0,
 			"runtime": "Two TRI tiptoe notes, 5 -> 1' in the era key being returned to, on the crossfade bar line.",
@@ -857,8 +857,8 @@
 				}
 			},
 			"meaning": "A crit (every leader but Bibi): the leader's react landed.",
-			"momentaryMax": -14.64,
-			"play_db": -5.47,
+			"momentaryMax": -14.61,
+			"play_db": -3.4,
 			"poly": 1.0,
 			"priority": 5.0,
 			"runtime": "Variant = the react strip's event (crits table). Fires on that event's frame (sprites.json chars.<art>.anims.<critAnim>.events), a third of the delay in reduced motion, like rabbitCrit.",
@@ -897,8 +897,8 @@
 			"lengthMs": 264.0,
 			"limitedBy": "target",
 			"meaning": "You declined a partner's demand (Liberman's rule).",
-			"momentaryMax": -19.47,
-			"play_db": -5.11,
+			"momentaryMax": -19.51,
+			"play_db": -3.84,
 			"poly": 1.0,
 			"priority": 2.0,
 			"runtime": "On the decline pill's commit. The partner's 'left' ping is the sim's business, not this cue.",
@@ -909,7 +909,7 @@
 			}
 		},
 		"dubiBlip": {
-			"burstMax": -17.34,
+			"burstMax": -17.4,
 			"bus": "Voice",
 			"ducks": [
 				{
@@ -1052,8 +1052,8 @@
 			"lengthMs": 71.0,
 			"limitedBy": "ceiling",
 			"meaning": "One syllable of Dubi's babble.",
-			"momentaryMax": -23.36,
-			"play_db": -5.0,
+			"momentaryMax": -23.42,
+			"play_db": -3.0,
 			"poly": 1.0,
 			"priority": 4.0,
 			"runtime": "Replaces the F-pentatonic babble bank (ADR 0003). One blip per displayed syllable (about 1 per 2 Hebrew letters) at 8 per second; degrees drawn from the bank (seeded by the text), a final '!' steps up to the next higher degree. Capped at 1.6 s. The ticker babbles on at most one headline per 20 s. Canned lines use babbleContours instead.",
@@ -1065,7 +1065,7 @@
 			}
 		},
 		"dubiSquawk": {
-			"burstMax": -16.56,
+			"burstMax": -16.58,
 			"bus": "Voice",
 			"ducks": [
 				{
@@ -1104,8 +1104,8 @@
 			"lengthMs": 109.0,
 			"limitedBy": "ceiling",
 			"meaning": "Dubi is about to speak.",
-			"momentaryMax": -22.58,
-			"play_db": -5.0,
+			"momentaryMax": -22.6,
+			"play_db": -3.0,
 			"poly": 1.0,
 			"priority": 4.0,
 			"runtime": "Before a spoken line: 'up' before a headline, 'down' before a flash. +-7 semitones over 80 ms.",
@@ -1116,7 +1116,7 @@
 			}
 		},
 		"gavel": {
-			"burstMax": -21.5,
+			"burstMax": -21.52,
 			"bus": "SFX-Critical",
 			"ducks": [
 				{
@@ -1144,8 +1144,8 @@
 				}
 			},
 			"meaning": "Court day starts.",
-			"momentaryMax": -24.6,
-			"play_db": -2.0,
+			"momentaryMax": -24.63,
+			"play_db": 0.0,
 			"poly": 1.0,
 			"priority": 5.0,
 			"runtime": "Then the music moves to the courthouse track at the next bar line, where courtIn starts.",
@@ -1156,7 +1156,7 @@
 			}
 		},
 		"gavelWeak": {
-			"burstMax": -27.5,
+			"burstMax": -27.52,
 			"bus": "SFX-Frequent",
 			"ducks": [],
 			"files": {
@@ -1169,8 +1169,8 @@
 			"lengthMs": 115.0,
 			"limitedBy": "target",
 			"meaning": "Postponement granted.",
-			"momentaryMax": -33.52,
-			"play_db": -11.92,
+			"momentaryMax": -33.54,
+			"play_db": -9.51,
 			"poly": 1.0,
 			"priority": 2.0,
 			"runtime": "One weak knock, an octave up. The 'tik'.",
@@ -1224,8 +1224,8 @@
 				}
 			},
 			"meaning": "You picked this round's leader (the picker's commit).",
-			"momentaryMax": -17.94,
-			"play_db": -4.68,
+			"momentaryMax": -17.93,
+			"play_db": -2.83,
 			"poly": 1.0,
 			"priority": 5.0,
 			"runtime": "On the picker's commit (and again on a re-pick inside the undo window). It is the game's first sound now: it plays before the first-tap gate, and while the web audio context is still locked it is held (up to 5 s) and plays on the unlock, like the motif. It does not open the first-tap gate: the first tap still plays the motif.",
@@ -1236,7 +1236,7 @@
 			}
 		},
 		"merge": {
-			"burstMax": -16.08,
+			"burstMax": -16.09,
 			"bus": "SFX-Frequent",
 			"ducks": [],
 			"files": {
@@ -1264,8 +1264,8 @@
 			"lengthMs": 274.0,
 			"limitedBy": "ceiling",
 			"meaning": "Two members merged into one (Golan's rule).",
-			"momentaryMax": -18.92,
-			"play_db": -4.0,
+			"momentaryMax": -18.93,
+			"play_db": -2.0,
 			"poly": 1.0,
 			"priority": 2.0,
 			"runtime": "On the merge pill's commit (Coalition.merge).",
@@ -1333,8 +1333,8 @@
 				}
 			},
 			"meaning": "The trick went spectacularly right (rare).",
-			"momentaryMax": -13.21,
-			"play_db": -3.8,
+			"momentaryMax": -13.22,
+			"play_db": -1.62,
 			"poly": 1.0,
 			"priority": 5.0,
 			"runtime": "Round-robin s120 -> s150 -> s180. The head's 16ths are a fixed 75 ms in every era so the whole cue stays <= 600 ms (brief §5 cue 2).",
@@ -1381,8 +1381,8 @@
 			"lengthMs": 844.0,
 			"limitedBy": "target",
 			"meaning": "While you were away (the return).",
-			"momentaryMax": -17.64,
-			"play_db": -9.66,
+			"momentaryMax": -17.65,
+			"play_db": -7.62,
 			"poly": 1.0,
 			"priority": 3.0,
 			"runtime": "The catch's cha-ching, then the motif head (5-1). v1.3: a first sound like leaderPick (the return card comes before any tap after a reload, so the first-tap gate used to swallow it).",
@@ -1393,7 +1393,7 @@
 			}
 		},
 		"shutter": {
-			"burstMax": -22.81,
+			"burstMax": -23.53,
 			"bus": "UI",
 			"ducks": [],
 			"files": {
@@ -1408,8 +1408,8 @@
 			"lengthMs": 118.0,
 			"limitedBy": "ceiling",
 			"meaning": "You caught the people who live in our cameras (photobomb).",
-			"momentaryMax": -28.83,
-			"play_db": -5.0,
+			"momentaryMax": -29.55,
+			"play_db": -3.0,
 			"poly": 1.0,
 			"priority": 3.0,
 			"runtime": "Random variant (the pip +-1 semitone). The 'שלום בית בפריים' trophy plays the trophy stinger instead (shutter + the full motif on BLIP).",
@@ -1434,7 +1434,7 @@
 			"limitedBy": "target",
 			"meaning": "The ballot slip is stamped (a spin card's tag appears or changes: '1/5' -> '2/5', 'שחוק').",
 			"momentaryMax": -26.52,
-			"play_db": -5.17,
+			"play_db": -3.05,
 			"poly": 2.0,
 			"priority": 1.0,
 			"runtime": "On the slam's f0 (the x6 frame) in shop.gd; in reduced motion on the cut. It often lands with `buy` (the purchase that changed the tag): it sits 4.5 dB under it, centred at 0.7 kHz under its 1-4 kHz blips. Repeats per purchase, so it sits 2 dB under the stamp's heard -18.5 (0.5 over uiClick).",
@@ -1445,7 +1445,7 @@
 			}
 		},
 		"stamp": {
-			"burstMax": -18.53,
+			"burstMax": -18.38,
 			"bus": "SFX-Frequent",
 			"ducks": [],
 			"files": {
@@ -1459,8 +1459,8 @@
 			"lengthMs": 355.0,
 			"limitedBy": "ceiling",
 			"meaning": "Request bounced. Again. (נדרשים מסמכים נוספים)",
-			"momentaryMax": -22.12,
-			"play_db": -4.0,
+			"momentaryMax": -22.22,
+			"play_db": -2.0,
 			"poly": 2.0,
 			"priority": 2.0,
 			"runtime": "Deliberately identical (+-0.5 dB at most). Every 5th stamp plays the 'bell' variant.",
@@ -1513,8 +1513,8 @@
 				}
 			},
 			"meaning": "Got it.",
-			"momentaryMax": -16.69,
-			"play_db": -7.49,
+			"momentaryMax": -16.7,
+			"play_db": -5.6,
 			"poly": 1.0,
 			"priority": 4.0,
 			"runtime": "Also the first half of the 'while you were away' return (returnAway).",
@@ -1554,7 +1554,7 @@
 			"limitedBy": "target",
 			"meaning": "It reached its destination. Nobody knew. (deadpan)",
 			"momentaryMax": -26.46,
-			"play_db": -13.74,
+			"play_db": -11.74,
 			"poly": 1.0,
 			"priority": 1.0,
 			"runtime": "One quiet TRI bwomp down a semitone, under the ticker line. Nothing else.",
@@ -1565,7 +1565,7 @@
 			}
 		},
 		"suitcaseSpawn": {
-			"burstMax": -18.71,
+			"burstMax": -18.72,
 			"bus": "SFX-Critical",
 			"ducks": [
 				{
@@ -1587,9 +1587,9 @@
 			"lengthMs": 430.9,
 			"limitedBy": "ceiling",
 			"meaning": "A catchable opportunity is on screen.",
-			"momentaryMax": -20.95,
+			"momentaryMax": -20.96,
 			"pan": "the suitcase's x mapped to -0.4..+0.4 on the 'Suitcase' bus panner, set at spawn",
-			"play_db": -2.0,
+			"play_db": 0.0,
 			"poly": 1.0,
 			"priority": 4.0,
 			"runtime": "Random variant (gate rate 25/28/31 Hz). The whoosh is UX's spawn twin (first-minute §3).",
@@ -1628,8 +1628,8 @@
 			"lengthMs": 168.0,
 			"limitedBy": "target",
 			"meaning": "Suspicion is hot (the thermometer passed 75 %).",
-			"momentaryMax": -25.86,
-			"play_db": -10.63,
+			"momentaryMax": -25.85,
+			"play_db": -8.63,
 			"poly": 1.0,
 			"priority": 2.0,
 			"runtime": "Once per upward crossing of 75 % (the view's calm -> hot change). Silent at 95 % (boiling): the visual boil and the coming gavel carry it.",
@@ -1640,7 +1640,7 @@
 			}
 		},
 		"tap": {
-			"burstMax": -16.79,
+			"burstMax": -16.83,
 			"bus": "SFX-Frequent",
 			"ducks": [],
 			"files": {
@@ -1650,6 +1650,9 @@
 					},
 					"n0": {
 						"bell": "tap_D_n0_bell.res"
+					},
+					"n10": {
+						"bell": "tap_D_n10_bell.res"
 					},
 					"n12": {
 						"bell": "tap_D_n12_bell.res"
@@ -1677,6 +1680,9 @@
 					"n0": {
 						"bell": "tap_E_n0_bell.res"
 					},
+					"n10": {
+						"bell": "tap_E_n10_bell.res"
+					},
 					"n12": {
 						"bell": "tap_E_n12_bell.res"
 					},
@@ -1703,6 +1709,9 @@
 					"n0": {
 						"bell": "tap_F_n0_bell.res"
 					},
+					"n10": {
+						"bell": "tap_F_n10_bell.res"
+					},
 					"n12": {
 						"bell": "tap_F_n12_bell.res"
 					},
@@ -1728,6 +1737,9 @@
 					},
 					"n0": {
 						"bell": "tap_G_n0_bell.res"
+					},
+					"n10": {
+						"bell": "tap_G_n10_bell.res"
 					},
 					"n12": {
 						"bell": "tap_G_n12_bell.res"
@@ -1775,14 +1787,49 @@
 				"n2",
 				"n3",
 				"n0",
-				"n-5"
+				"n-5",
+				"n7",
+				"n7",
+				"n7",
+				"n7",
+				"n8",
+				"n7",
+				"n5",
+				"n7",
+				"n5",
+				"n5",
+				"n5",
+				"n5",
+				"n7",
+				"n5",
+				"n3",
+				"n5",
+				"n12",
+				"n12",
+				"n12",
+				"n12",
+				"n10",
+				"n8",
+				"n7",
+				"n8",
+				"n5",
+				"n5",
+				"n5",
+				"n3",
+				"n3",
+				"n2",
+				"n0",
+				"n2",
+				"n3",
+				"n0"
 			],
-			"momentaryMax": -22.66,
+			"momentaryMax": -22.7,
 			"phrases": [
 				0.0,
-				11.0
+				22.0,
+				38.0
 			],
-			"play_db": -10.0,
+			"play_db": -7.97,
 			"poly": 6.0,
 			"priority": 2.0,
 			"runtime": "Each tap plays the next note of `melody`. A streak (taps under 400 ms apart) walks on and wraps; after a gap the next streak starts on the next entry of `phrases`, so each streak opens on a different phrase. A new round starts again at phrase 0. Gain jitter +-1.5 dB.",
@@ -1824,7 +1871,7 @@
 			},
 			"meaning": "A partner switched jerseys (the transfer window).",
 			"momentaryMax": -15.35,
-			"play_db": -16.62,
+			"play_db": -14.58,
 			"poly": 1.0,
 			"priority": 4.0,
 			"runtime": "Random variant. Pitch-stable, no glide, 740 ms in total: siren-safe (brief §2).",
@@ -1864,7 +1911,7 @@
 			"limitedBy": "target",
 			"meaning": "A UI press.",
 			"momentaryMax": -27.02,
-			"play_db": -5.1,
+			"play_db": -3.35,
 			"poly": 2.0,
 			"priority": 1.0,
 			"runtime": "One P2 blip on degree 1 in octave 6 (1.2-1.6 kHz).",
@@ -1875,7 +1922,7 @@
 			}
 		},
 		"ultimatumTick": {
-			"burstMax": -23.24,
+			"burstMax": -22.83,
 			"bus": "SFX-Critical",
 			"ducks": [],
 			"files": {
@@ -1887,10 +1934,10 @@
 				}
 			},
 			"lengthMs": 15.5,
-			"limitedBy": "ceiling",
+			"limitedBy": "target",
 			"meaning": "Pay before zero or they walk.",
-			"momentaryMax": -29.26,
-			"play_db": -2.0,
+			"momentaryMax": -28.85,
+			"play_db": -1.72,
 			"poly": 1.0,
 			"priority": 3.0,
 			"runtime": "One per displayed second, alternating tick/tock. In the last 3 s: two per second, and force L2 off (tension by subtraction). No duck (a tick every 500 ms would pump the music).",
@@ -1945,7 +1992,7 @@
 			},
 			"meaning": "Time ran out: they left the group.",
 			"momentaryMax": -18.38,
-			"play_db": -7.61,
+			"play_db": -5.63,
 			"poly": 1.0,
 			"priority": 4.0,
 			"runtime": "A TRI deflate a minor third down (b3 -> 1), then the 'left the group' ping. No alarm beep, ever.",
@@ -1995,9 +2042,9 @@
 					99000
 				],
 				"loopSamples": 132000,
-				"play_db": -7.35
+				"play_db": -5.35
 			},
-			"play_db": -3.96,
+			"play_db": -1.96,
 			"rate": 31900,
 			"stepSamples": 4125,
 			"stepsPerBar": 16,
@@ -2021,7 +2068,7 @@
 				"full": -18.3
 			},
 			"mode": "minor",
-			"play_db": -3.61,
+			"play_db": -1.61,
 			"rate": 22044,
 			"stepSamples": 5010,
 			"stepsPerBar": 12,
@@ -2045,7 +2092,7 @@
 				"full": -17.3
 			},
 			"mode": "minor",
-			"play_db": -3.8,
+			"play_db": -1.8,
 			"rate": 32032,
 			"stepSamples": 3640,
 			"stepsPerBar": 16,
@@ -2069,7 +2116,7 @@
 				"full": -17.3
 			},
 			"mode": "mixolydian",
-			"play_db": -2.69,
+			"play_db": -0.69,
 			"rate": 31968,
 			"stepSamples": 3330,
 			"stepsPerBar": 16,
@@ -2144,12 +2191,12 @@
 		"files": {
 			"music": 12,
 			"outside": 1,
-			"sfx": 234,
+			"sfx": 238,
 			"stingers": 37
 		},
 		"music_bytes": 9237588,
 		"outside_bytes": 53847,
-		"sfx_bytes": 996270,
+		"sfx_bytes": 1028746,
 		"stinger_bytes": 1486635
 	},
 	"stingers": {
@@ -2166,7 +2213,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -10.68,
+			"play_db": -8.73,
 			"target": {
 				"lufs": -16.0,
 				"type": "momentary"
@@ -2209,7 +2256,7 @@
 				}
 			},
 			"limitedBy": "ceiling",
-			"play_db": -5.0,
+			"play_db": -3.0,
 			"target": {
 				"lufs": -15.0,
 				"type": "burst"
@@ -2524,7 +2571,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -2.6,
+			"play_db": -0.61,
 			"target": {
 				"lufs": -17.0,
 				"type": "integrated"
@@ -2567,7 +2614,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -13.01,
+			"play_db": -10.74,
 			"target": {
 				"lufs": -15.0,
 				"type": "burst"
@@ -2610,7 +2657,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -8.38,
+			"play_db": -6.28,
 			"target": {
 				"lufs": -15.0,
 				"type": "momentary"
@@ -2653,7 +2700,7 @@
 				}
 			},
 			"limitedBy": "ceiling",
-			"play_db": -5.0,
+			"play_db": -3.0,
 			"target": {
 				"lufs": -18.0,
 				"type": "momentary"

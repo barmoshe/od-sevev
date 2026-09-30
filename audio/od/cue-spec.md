@@ -443,6 +443,7 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 
 ## 6. HaTikva: where it is, and the guardrail (v1.2)
 
+> **v1.6 (2026-09-30, Bar, ADR 0005):** HaTikva's second section joins the tap (written from the anthem as sung, not a score); files normalise to -3 dBFS with a DC blocker and a 1.5 ms fade-in on every one-shot; the master is HPF 35 Hz, 2:1 glue, limiter -1 dB with +2 dB; L2 sits 6 dB down while the bell plays.
 > **v1.5 (2026-09-30, Bar, ADR 0004):** the tap plays HaTikva, one note per tap, on a bell, in phrases (`tap.melody`, `tap.phrases`). The 2-bar cap below is lifted for the tap only; every other rule stands.
 
 **Where the anthem's contour appears:**

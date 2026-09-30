@@ -101,9 +101,14 @@ func test_bus_layout_is_the_od_topology() -> void:
 		if i >= 0:
 			runner.check(String(AudioServer.get_bus_send(i)) == sends[b], "%s sends to %s" % [b, sends[b]])
 			runner.check(absf(AudioServer.get_bus_volume_db(i)) < 0.01, "%s sits at unity" % b)
-	runner.check(AudioServer.get_bus_effect_count(0) == 1, "the master chain is the limiter alone")
-	var lim := AudioServer.get_bus_effect(0, 0) as AudioEffectHardLimiter
-	runner.check(lim != null and absf(lim.ceiling_db + 1.0) < 1e-4 and absf(lim.pre_gain_db) < 1e-4, "HardLimiter at -1 dB, no pre-gain")
+	# v1.6 mix pass: HPF 35 Hz (below what a phone plays), a 2:1 glue compressor, then the limiter
+	runner.check(AudioServer.get_bus_effect_count(0) == 3, "the master chain is HPF, glue, limiter")
+	var hpf := AudioServer.get_bus_effect(0, 0) as AudioEffectHighPassFilter
+	var glue := AudioServer.get_bus_effect(0, 1) as AudioEffectCompressor
+	var lim := AudioServer.get_bus_effect(0, 2) as AudioEffectHardLimiter
+	runner.check(hpf != null and absf(hpf.cutoff_hz - 35.0) < 1e-3, "master HPF at 35 Hz")
+	runner.check(glue != null and absf(glue.ratio - 2.0) < 1e-4 and absf(glue.threshold + 14.0) < 1e-4, "glue: 2:1 from -14 dB")
+	runner.check(lim != null and absf(lim.ceiling_db + 1.0) < 1e-4 and absf(lim.pre_gain_db - 2.0) < 1e-4, "HardLimiter at -1 dB, +2 dB pre-gain")
 	var o := AudioServer.get_bus_index("Outside")
 	var lpf := AudioServer.get_bus_effect(o, 0) as AudioEffectLowPassFilter
 	var pan := AudioServer.get_bus_effect(o, 1) as AudioEffectPanner
@@ -185,17 +190,17 @@ func test_tap_walk_is_strict_and_wraps() -> void:
 func test_tap_plays_hatikva_one_note_per_tap() -> void:
 	var mel := OdAudio.tap_melody(_man)
 	var ph := OdAudio.tap_phrases(_man)
-	runner.check(mel.size() == 22 and ph == [0, 11], "the manifest carries HaTikva's first section and its two phrases, got %d notes %s" % [mel.size(), str(ph)])
+	runner.check(mel.size() == 56 and ph == [0, 22, 38], "the manifest carries HaTikva in three 4-bar phrases, got %d notes %s" % [mel.size(), str(ph)])
 	var iv: Array[int] = []
 	for i in 10:
 		iv.append(int(String(mel[i + 1]).substr(1)) - int(String(mel[i]).substr(1)))
 	runner.check(iv == [2, 1, 2, 2, 0, 1, -1, 1, 4, -5], "it opens with the anthem's first two bars, got %s" % str(iv))
 	# pure: a streak opens the next phrase, then walks on and wraps
-	runner.check(OdAudio.melody_step(0, -1, -1, 22, ph) == Vector2i(0, 0), "the first streak opens phrase 0")
-	runner.check(OdAudio.melody_step(1, 0, 0, 22, ph) == Vector2i(0, 1), "the streak walks on")
-	runner.check(OdAudio.melody_step(5, 0, 21, 22, ph) == Vector2i(0, 0), "and wraps at the end of the melody")
-	runner.check(OdAudio.melody_step(0, 0, 7, 22, ph) == Vector2i(1, 11), "after a pause the next streak opens the next phrase")
-	runner.check(OdAudio.melody_step(0, 1, 15, 22, ph) == Vector2i(0, 0), "and the phrases rotate")
+	runner.check(OdAudio.melody_step(0, -1, -1, 56, ph) == Vector2i(0, 0), "the first streak opens phrase 0")
+	runner.check(OdAudio.melody_step(1, 0, 0, 56, ph) == Vector2i(0, 1), "the streak walks on")
+	runner.check(OdAudio.melody_step(5, 2, 55, 56, ph) == Vector2i(2, 0), "and wraps at the end of the melody")
+	runner.check(OdAudio.melody_step(0, 0, 7, 56, ph) == Vector2i(1, 22), "after a pause the next streak opens the next phrase")
+	runner.check(OdAudio.melody_step(0, 2, 40, 56, ph) == Vector2i(0, 0), "and the phrases rotate")
 	var a := _audio()
 	a.set_evolutions(0)
 	a.event("tap")   # the motif
@@ -207,7 +212,10 @@ func test_tap_plays_hatikva_one_note_per_tap() -> void:
 		"taps play HaTikva in D, got %s" % str(files))
 	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
 	a.event("tap")
-	runner.check(_last(a) == "tap_D_%s_bell.res" % mel[11], "a pause, then the next phrase (נפש יהודי הומיה), got %s" % _last(a))
+	runner.check(_last(a) == "tap_D_%s_bell.res" % mel[22], "a pause, then the next phrase (עוד לא אבדה), got %s" % _last(a))
+	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
+	a.event("tap")
+	runner.check(_last(a) == "tap_D_%s_bell.res" % mel[38], "then the third (להיות עם חופשי), got %s" % _last(a))
 	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
 	a.event("tap")
 	runner.check(_last(a) == "tap_D_%s_bell.res" % mel[0], "then back to the first phrase, got %s" % _last(a))
@@ -242,7 +250,7 @@ func test_layers_follow_sources_taps_and_the_bar_line() -> void:
 	var a: Node = await _playing()
 	var bar_s := OdAudio.bar_seconds(_man, "balfour")
 	runner.check(a.layer_target("L1") == 0.0, "no source yet: L1 off")
-	runner.check(a.layer_target("L2") == 1.0, "tapped under 3 s ago: L2 on")
+	runner.check(a.layer_target("L2") == OdAudio.L2_UNDER_BELL, "tapped under 3 s ago: L2 on, 6 dB under the bell (v1.6)")
 	a.event("buy")
 	runner.check(a.layer_target("L1") == 0.0, "L1 waits for the next bar line")
 	a.debug_seek(bar_s + 0.01)
