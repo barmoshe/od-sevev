@@ -28,6 +28,18 @@
 		<meta name="twitter:description" content="בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה.">
 		<meta name="twitter:image" content="https://od-sevev.vercel.app/og.jpg">
 		<meta name="twitter:image:alt" content="שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב">
+		<script>
+			// Vercel Web Analytics: cookieless visit counts (visitors, pages, referrers, countries,
+			// devices), read in the Vercel dashboard. Loaded on the deployed host only, so local and
+			// headless test runs never report. window.va queues events until the script arrives.
+			window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+			if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+				var vaScript = document.createElement('script');
+				vaScript.defer = true;
+				vaScript.src = '/_vercel/insights/script.js';
+				document.head.appendChild(vaScript);
+			}
+		</script>
 		<style>
 html, body, #canvas {
 	margin: 0;
@@ -344,7 +356,7 @@ html.od-framed #od-phone {
 
 		<script>
 // Build stamp (the git commit), written in by tools/build_web.sh; Settings shows it.
-window.mbBuild = '7902d78';
+window.mbBuild = 'e668348+';
 // The deployed origin (OD_SITE_URL, tools/build_web.sh; its default is ShareKit.SITE_URL): the link
 // on the share cards, in the share texts and in the OG tags above.
 window.odSiteUrl = 'https://od-sevev.vercel.app/';

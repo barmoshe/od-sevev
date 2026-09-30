@@ -1,4 +1,4 @@
 # עוד סבב: web build (deploy branch)
 
-Generated output of `tools/build_web.sh` from branch `main` at e668348 (game code as of 7902d78). Do not edit by hand.
+Generated output of `tools/build_web.sh` from branch `main` at 328eabb. Do not edit by hand.
 Vercel deploys this branch as static files; the source lives on the main branches.
