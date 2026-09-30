@@ -193,8 +193,11 @@ flag_hi, flag_dk, sky, white, cream, gold, red, ink, outline, rim, stamp).
   the centre with the white stripe following it; the body is the v4 `ui_panel` blue. Wave 9 (§17.2) splits it into
   `sheet_modal_body` + the 3-frame `sheet_modal_flap` (sealed V → lifting → the band), so a modal opens like one. `envelope_blue` (14x10, new) is the
   envelope as a prop; the OG's confetti mixes blank envelopes into the white slips.
-- **The cardboard booth (קלפי):** `booth_frame` (40x40, new, 9-slice [6, 10, 6, 4]) is the picker grid's frame: off-white
-  cardboard, the two side wings folded back, a blank flag-blue header strip. For UX / the engine to adopt.
+- **The cardboard booth (קלפי):** `booth_frame` (40x40, 9-slice [6, 10, 6, 4]) is the picker grid's frame, drawn as a
+  tabletop folding screen in **kraft cardboard** (2026-09-30, §17.4: the off-white first cut with a transparent opening
+  read as a thin brown line): the back panel with a blank flag-blue printed band, two unprinted side wings 2 rows lower
+  (left lit, right in shade, a crease at each fold), the back panel's face in shadow **behind** the grid (opaque, so the
+  gaps between the tiles are cardboard), and a shelf.
 - **The 120-seat hemicycle:** `hemicycle_track` / `hemicycle_fill` (72x38, new): a white half-disc plate, 120 seats on six
   rows, the majority tick at the top centre; `seats` lists the seat rects in RTL fill order, `goal` 61. Taken seats are
   flag blue (8.5:1 on the plate), empty ones silver (6.4:1 vs taken, and a different corner). A new widget beside the
@@ -205,9 +208,9 @@ flag_hi, flag_dk, sky, white, cream, gold, red, ink, outline, rim, stamp).
 - **The primary button** gets a white light edge (it would otherwise merge with the blue cards, 1.1:1); the round
   close ✕ has a deep-blue face (white ✕ 11.8:1).
 
-**Place:** the lanes (`lane_<era>`) and plazas (`plaza_<era>`) are **warm Jerusalem limestone**: `stone_sh` slabs with
-pale mortar in Balfour's lamp light, sunlit `stone` at the Knesset, polished `paper` limestone tiles in the courthouse;
-Washington is not Jerusalem, so it gets pale concrete panels. The Suitcase keeps its edge by its outline (13.3:1 on
+**Place:** the lanes (`lane_<era>`) and plazas (`plaza_<era>`) are **warm Jerusalem limestone** paving (§17.4): `stone_sh`
+and `blonde_sh` slabs with grey cement joints in Balfour's lamp light, sunlit `stone` / `blonde` / `paper` at the Knesset,
+long polished `paper` / `stone` slabs in the courthouse; Washington is not Jerusalem, so it gets pale concrete panels. The Suitcase keeps its edge by its outline (13.3:1 on
 stone) and maroon body (≥ 3.6:1), not its rim (the lane assertion changed accordingly). The OG stands the lineup on a
 stone floor with a flag-blue-over-white apron trim and a white-over-flag rule under the valance; the icon's disc is flag
 blue in a white ring. The wings keep their olive tree (Knesset); the stages keep their own light (Balfour's warm lamps,
@@ -680,8 +683,8 @@ drawn *around* (wings) and *over* (lane, plaza) the stage on its own x4 grid. Pr
 
 | Need (UX) | Pieces | Rules |
 |---|---|---|
-| A1 the lane | `lane_<era>` redrawn **32x28** (same ids) | The lip, its dither and the course seams stay; added running-bond joints (8-px slabs far, 16 near), a lit top-left pixel per slab, the press cable (every era: the TV crews are always there), a flyer / spike-tape X / dropped page / carpet weave. Every swatch ≥ 4.5:1 against `rim` (asserted), so the flying Suitcase keeps its edge. |
-| A1 the plaza | `plaza_<era>` **128x96** tile | The floor from art row 258 to the screen bottom. The apron's own base with one-value-step texture: 12-row courses (nearer than the lane's 4-7), slabs 32 wide, broken lit edges, 50 % checker scuffs, sparse litter, the cable meandering off. 128 wide so a phone shows under two copies across and the litter never reads as wallpaper. **No barrier or fence** in it (a fence repeated down the screen would read as a border fence: do/don't 13), no gold, no text. |
+| A1 the lane | `lane_<era>` redrawn **32x28** (same ids; **superseded 2026-09-30 by §17.4: 192x28, no cable**) | The lip, its dither and the course seams stay; added running-bond joints (8-px slabs far, 16 near), a lit top-left pixel per slab, the press cable (every era: the TV crews are always there), a flyer / spike-tape X / dropped page / carpet weave. Every swatch ≥ 4.5:1 against `rim` (asserted), so the flying Suitcase keeps its edge. |
+| A1 the plaza | `plaza_<era>` **128x96** tile (**superseded 2026-09-30 by §17.4: 192x192, no cable**) | The floor from art row 258 to the screen bottom. The apron's own base with one-value-step texture: 12-row courses (nearer than the lane's 4-7), slabs 32 wide, broken lit edges, 50 % checker scuffs, sparse litter, the cable meandering off. 128 wide so a phone shows under two copies across and the litter never reads as wallpaper. **No barrier or fence** in it (a fence repeated down the screen would read as a border fence: do/don't 13), no gold, no text. |
 | A2 the wings | `wing_<era>_l` / `_r`, W x 230 | Each era's rows 0-229 continued past the art's edges, tileable with period W = a multiple of the era's rhythm (Balfour 20: wall panels every 10; Knesset 22: the lawn's specks every 11; courthouse 60: panels 30, tubes 60; Washington 36: specks every 9). Drawn in art coordinates on a canvas that wraps x mod W, so an element crossing the art's edge (Balfour's tree and protester, the courthouse benches, Washington's blossom trees) continues exactly and repeats every W; wing-native elements (more protesters with blank signs, an olive tree, an aisle between benches) never cross the wing's own edges. Balfour's protesters are the art's own seeded crowd; its barrier posts go every 10 (the art's are 9 apart, which does not tile). |
 | A3 the XL picker heads | `avatar_pick_<c>_d3` 96, `_d2` 64 (TA render-down, `showcase/src/build.py` `avatar_pick_xl`) | First-generation crops from the ref (never an upscale of the 32), the leader's locked d 3 palette, binary alpha, the same neutral `rim` ring (4 px: 8 logical at the picker's 2 logical per px, the 32's weight at x4) and cream disc. |
 | Animator: brawl cue | `brawl_cloud_cue` 26x20 x 4 | `brawl_cloud`'s loop redrawn at half size so the stage cue draws at x4 (the grid) instead of x2: the same puffs, shading bands, sleeves with cuffs and fists, shoes, the flying page and star; limbs keep their fist inside the frame. |
@@ -726,8 +729,36 @@ New ids only, except the coalition tab icon (same ids, redrawn) and `sheet_modal
 | U7 | `chat_system_pill_navy` 20x13 [4,3,4,3] | T3's system pill on the v4 thread: a flat `ui_scrim` well, a `ui_rule` edge, label `ui_mute` 12.91:1. `chat_system_pill` stays (the picker's chip). |
 | U8 | `tabicon_coalition_{active,idle}` (same ids) | Two bubbles, the front one with three `ui_bubble` dots, the back one `ui_mute`. No digits. The badge (top-left) sits over the back bubble; its rounded corner leaves the first dot whole. |
 | U10 | `notice_frame` 40x40 [3,7,3,5] | EVOLVE_TX as the gate's printed notice: a white card ruled edge to edge in flag blue (top 3 + gap + 1, bottom 1 + gap + 1), outline, for the flag-blue page. Data `colors` = page `flag`, title `flag` (8.46:1), text `night` (13.88:1). **A card, not full bleed:** a white screen with a blue stripe at its top and bottom is the flag's layout with the text where the star sits (§2.4's rejected "whole page as the flag"). |
-| A5 | `booth_frame_tall` 40x46 [6,16,6,4] | `booth_frame` with a 12-row flag header; `titleBox` [6, 2, w-12, 9] for the title, white on flag 8.46:1. The opening and wings are `booth_frame`'s, 6 rows lower. |
+| A5 | `booth_frame_tall` 40x46 [6,16,6,4] | `booth_frame` with an 11-row flag printed band (rows 2-12); `titleBox` [6, 2, w-12, 9] for the title, white on flag 8.46:1. The back panel, wings and shelf are `booth_frame`'s, 6 rows lower (kraft since §17.4). |
 | U1 / T1 | `sheet_modal` slice [7,23,7,7] → **[7,24,7,7]**, content y 24 | Rows 0-23 (the band, the flap point and its shadow row) are fixed, so the stretched centre is plain body: no slab under the point on a modal that still draws `sheet_modal` alone (the kit says to keep it where the flap does not animate). Body + flap needs nothing. |
+
+### 17.4 Manual test fixes: the paving and the booth (`src/wave5.py`, `wave7.py`, `wave8.py`, 2026-09-30)
+
+From the orchestrator's manual test pass (HANDOFF "Manual test pass (2026-09-30)", A1 and B13). Proof:
+`proofs/kit-w7-mobile.png`; in the build: `ux/manual-test-2026-09-30/fixes/art-*.png`.
+
+**A1, the paving.** The plaza read as worms: the old tile's 1-px `ink` press cable meandered down the 128x96 tile and
+lined up across the copies into long snakes, and the lane's cable was a black wavy line above the ticker. Under it, one
+tone in a 32-px running bond with full-length pale seams read as a brick wall. Now `wave5.Paving(era)` lays ONE floor
+for the lane and the plaza:
+
+| Rule | How |
+|---|---|
+| Stone reads by tone, not by lines | Every slab takes one of the era's 2-3 stone tones (Balfour `stone_sh` / `blonde_sh` 1.27:1; Knesset `stone` / `blonde` / `paper`; courthouse `paper` / `stone` / `receipt_sh`; Washington `silver` / `receipt_sh` / `paper`), a lit top-left edge (worn: 30-70 % of the slab) and a chisel fleck (3 %, 1 % on polished stone and concrete) |
+| Joints: short, broken, mortar | 1 px of mortar one value step off the stone (Balfour `slate` 1.43-1.82:1, Knesset `blonde_sh` 1.40-1.60, courthouse / Washington `grey` 1.54-1.62), never black, never the outline. Vertical joints are one course tall (half of them with a filled pixel); seams are one slab long with 2-4 px gaps. No cable, no meander, no line longer than one slab |
+| No repeat to spot | Running bond with random lengths (16-38; courthouse 26-48), course heights 10/12/14 shuffled, every joint >= 5 px from the joints above and below (so nothing lines up into a column); a 192-px period (a phone shows 180-215 columns: <= 1.1 copies across, ~1 down before tap 1); breakers: one or two square "big stones" across two courses, two grey cement repairs placed far apart (Balfour), a grate, blank flyers / pages / olive leaves / petals |
+| One floor | The lane (192x28) keeps the stage apron's lip (rows 0-3) and courses of 3, 4, 5, 6 rows toward the viewer; its last course (seam on row 25) IS the plaza's last course, which runs on in the plaza's rows 0-4, so the two meet without a seam |
+| Decorative, not interactive | Everything on the floor is <= 3:1 against its stone (flyer 2.4, grate 1.4, leaf 1.9, petal 1.7, lanyard 1.6); every slab tone keeps >= 4.5:1 against the Suitcase's outline and >= 3:1 against its maroon (asserted in `lane()`) |
+
+Cost: the 4 plazas and 4 lanes add 0.47 MB VRAM (typical 13.30 -> 13.76 MB) and 10 KB to the web .pck.
+
+**B13, the booth.** `booth_frame` read as a thin brown line: at x4 its off-white wings are 12-16 logical px, and the
+transparent opening let the dimmed stage show between the tiles. Same size, 9-slice and content box (the engine's
+BOOTH_TOP 36 / SIDE 20 / BOTTOM 12 are unchanged), redrawn as a kraft folding screen: `blonde_sh` face, `stone` light,
+`stone_sh` shade, `wood` creases, the `flag` printed band on the back panel only, the wings 2 rows lower, the back
+panel's face opaque `stone_sh` behind the grid (the tiles' outline 7.5:1 on it, their `ui_bubble` face 3.1:1). Every
+stretched row and column is flat. Blank: no text, no emblem, no ballot letters, no party colour, no flag stripes.
+`booth_frame_tall` shares the drawing (`wave8.booth_art`).
 
 ## 18. Foundations (referenced, not paraphrased)
 
