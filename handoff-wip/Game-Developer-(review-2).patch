@@ -1,0 +1,79 @@
+# binary files changed (not carried):
+diff --git a/game/scripts/ui/px_button.gd b/game/scripts/ui/px_button.gd
+index 5e578e7..d2210cb 100644
+--- a/game/scripts/ui/px_button.gd
++++ b/game/scripts/ui/px_button.gd
+@@ -49,7 +49,8 @@ static func kinds() -> Dictionary:
+ 			"disabled": [th["pill"]["sprite"], th["pill"]["frames"]["need"], th["pill"]["labelNeed"]],
+ 		},
+ 		# od-sevev: the 2D Artist's kit buttons (separate PNG per state, frame 0, white label)
+-		"kit_primary": _kit_kind("button_primary"),
++		# review U2 (style guide §17.3): the v4 primary is the flag's white on its blue, a flag label
++		"kit_primary": _kit_kind("button_white") if Art.has_sprite("button_white_default") else _kit_kind("button_primary"),
+ 		"kit_secondary": _kit_kind("button_secondary"),
+ 		"kit_gold": _kit_kind("button_gold"),
+ 		"kit_danger": _kit_kind("button_danger") if Art.has_sprite("button_danger_default") else _kit_kind("button_secondary"),
+@@ -69,13 +70,21 @@ static func _kit_kind(base: String) -> Dictionary:
+ 	var ok := Art.has_sprite(d)
+ 	var fb: Array = [Art.theme["button"]["sprite"], Art.theme["button"]["frames"]["normal"], "w"]
+ 	# the kit's label colour: ink on gold (money buttons; white on gold is unreadable), else white
+-	var lab := "k" if (str(Art.kit(d).get("label", "")) == "ink" or base == "button_gold") else "w"
++	# and flag blue ("u", #0038b8, 8.5:1) on the white primary (review U2)
++	var kl := str(Art.kit(d).get("label", ""))
++	var lab := "k" if (kl == "ink" or base == "button_gold") else ("u" if kl == "flag" else "w")
+ 	return {
+ 		"normal": [d, 0, lab] if ok else fb, "pressed": [p, 0, lab] if ok else fb,
+ 		"hover": [d, 0, lab] if ok else fb, "disabled": [x, 0, "w"] if ok else fb,
+ 	}
+ 
+ 
++## The label colour of a button kind in a state ("normal" | "pressed" | "hover" | "disabled"), for a
++## view that draws its own label lines over the plate (the court's postpone, the picker's again).
++static func label_color(kind_: String, state: String = "normal") -> Color:
++	return Art.col(kinds()[kind_][state][2])
++
++
+ ## Resizes a 9-slice drawn at `r` by (dw, dh) logical px: width centred, height anchored at the
+ ## bottom (a press has weight) or the centre. (ox, oy) shift the whole rect.
+ static func squish_nine(ns: NinePatchRect, r: Rect2, dw: float, dh: float, ox: float = 0.0, oy: float = 0.0, anchor: String = "bottom") -> void:
+diff --git a/game/scripts/ui/views/view_court.gd b/game/scripts/ui/views/view_court.gd
+index 59ab54c..f6ed802 100644
+--- a/game/scripts/ui/views/view_court.gd
++++ b/game/scripts/ui/views/view_court.gd
+@@ -521,6 +521,10 @@ func _update_card_live() -> void:
+ 		var ok := Investigation.can_postpone(_state, _d)
+ 		if _primary.is_enabled() != ok and not bool(_press.get("primary", false)):
+ 			_primary.set_enabled(ok)
++		# review U2: the white primary takes a flag label (the slate disabled face, white)
++		var lc := PxButton.label_color("kit_primary", "normal" if _primary.is_enabled() else "disabled")
++		_verb.tint = lc
++		_price.tint = lc
+ 		var dx := 0.0
+ 		if _shake_t >= 0.0:
+ 			_shake_t += Tune.FRAME_MS
+diff --git a/game/scripts/ui/views/view_election.gd b/game/scripts/ui/views/view_election.gd
+index d8b19f4..c673341 100644
+--- a/game/scripts/ui/views/view_election.gd
++++ b/game/scripts/ui/views/view_election.gd
+@@ -97,7 +97,7 @@ func build() -> ElectionCard:
+ 		need_text = para(Strings.s("EVO_NEED"), C_ALERT)
+ 	close_x(func() -> void: cancel("close"))
+ 	# stacked (rtl-map §7.2): "לפזר את הכנסת" does not fit a 224 half at ×4
+-	_specs.append([Rect2(88, Ui.snap(_y - PARA_GAP + PAD, 4), 544, BTN_H), Strings.s("ELECT_GO"), "kit_primary", _do_confirm])
++	_specs.append([Rect2(88, Ui.snap(_y - PARA_GAP + PAD, 4), 544, BTN_H), Strings.s("ELECT_GO"), "kit_gold", _do_confirm])   # review U2: it completes the gold "עוד סבב!" CTA
+ 	_y = Ui.snap(_y - PARA_GAP + PAD, 4) + BTN_H + BTN_GAP
+ 	_specs.append([Rect2(88, _y, 544, BTN_H), Strings.s("ELECT_CANCEL"), "kit_secondary", func() -> void: cancel("close")])
+ 	_y += BTN_H
+diff --git a/game/scripts/ui/views/view_pick.gd b/game/scripts/ui/views/view_pick.gd
+index 342c4fd..9e271a0 100644
+--- a/game/scripts/ui/views/view_pick.gd
++++ b/game/scripts/ui/views/view_pick.gd
+@@ -309,7 +309,7 @@ func _build() -> void:
+ 		var vis := Rect2(24, _bot - 100.0, 672.0 + L.dx, 80)
+ 		again_btn = PxButton.make(_layer, vis, {"hit": Rect2(16, _bot - 104.0, 688.0 + L.dx, 88), "kind": "kit_primary",
+ 			"on_commit": func() -> void: commit_again("again")})
+-		var lab := PxText.make(_layer, Vector2(0, vis.position.y + 20.0), Strings.s("LEADER_PICK_AGAIN", {"short": LeaderUi.short(again_id)}), L.TEXT, "plain", "w")
++		var lab := PxText.make(_layer, Vector2(0, vis.position.y + 20.0), Strings.s("LEADER_PICK_AGAIN", {"short": LeaderUi.short(again_id)}), L.TEXT, "plain", PxButton.label_color("kit_primary"))   # U2: flag on the white primary
+ 		lab.wrap_width = 560.0
+ 		lab.max_lines = 1
+ 		var art := LeaderUi.art(again_id)
