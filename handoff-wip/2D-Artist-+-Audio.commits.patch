@@ -1,7 +1,7 @@
 From 17c411e09d121f6217f17eed2cca3c9f0afef76e Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 04:47:01 +0000
-Subject: [PATCH 1/2] feat(od-sevev): envelope flap as its own layer
+Subject: [PATCH 1/4] feat(od-sevev): envelope flap as its own layer
  (sheet_modal_body + 3-frame sheet_modal_flap)
 
 The Animator's wave-B ask: the blue envelope's flap, baked into sheet_modal's
@@ -879,7 +879,7 @@ index d0875de..150392d 100644
 From e862992c628b2afd804a78b5ecc357e2cfe924ba Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:00:56 +0000
-Subject: [PATCH 2/2] feat(od-sevev): slipStamp cue for the ballot-slip stamp
+Subject: [PATCH 2/4] feat(od-sevev): slipStamp cue for the ballot-slip stamp
  (audio v1.4)
 
 A rubber-stamp thunk on the spin tag's slam f0 (the Animator's wave B): UI
@@ -1296,6 +1296,87 @@ index dc211db..f577840 100644
 +		for f in d.get_files():
 +			d.remove(f)
 +	DirAccess.remove_absolute(dir)
+-- 
+2.43.0
+
+
+From a4415da2733da50daf6f0056e1d7f0090e433e6c Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 05:07:19 +0000
+Subject: [PATCH 3/4] docs(od-sevev): measured slab size under the flap point
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ art/od-sevev/src/wave9.py       | 2 +-
+ game/assets/sprites/CONTRACT.md | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/art/od-sevev/src/wave9.py b/art/od-sevev/src/wave9.py
+index d799b9c..d99b981 100644
+--- a/art/od-sevev/src/wave9.py
++++ b/art/od-sevev/src/wave9.py
+@@ -11,7 +11,7 @@ pixel. sheet_modal itself is unchanged.
+ 
+ Why the strip is 24 rows and not 23: the flap's shadow at the point sits on sheet_modal's art row 23, the first row
+ of the stretched centre patch. Inside a 9-slice that one row is stretched down the whole body (at 624 logical px
+-wide and 480 tall: a 190x60 dark slab under the point). As part of the flap strip it stays one art row.
++wide and 480 tall: a ~190x45 dark slab, confirmed in the engine under the point). As part of the flap strip it stays one art row.
+ """
+ import json
+ import os
+diff --git a/game/assets/sprites/CONTRACT.md b/game/assets/sprites/CONTRACT.md
+index 46a0a01..132f910 100644
+--- a/game/assets/sprites/CONTRACT.md
++++ b/game/assets/sprites/CONTRACT.md
+@@ -363,7 +363,7 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for
+     motion:** frame 2 from the first frame.
+   - **Why 24 rows, not the 9-slice's 23:** the flap's shadow at the point is on art row 23, the first row
+     of `sheet_modal`'s stretched centre. Inside the 9-slice that one row stretches down the body (at a
+-    624×480 card, a ~190×60 dark slab under the point: `proofs/kit-w9-flap.png`, right column). In the flap
++    624×480 card, a ~190×45 dark slab under the point, seen in the engine too: `proofs/kit-w9-flap.png`, right column). In the flap
+     strip it stays one art row, so body + flap also drops that slab.
+ 
+ ## 6. Fonts: Sevev 9
+-- 
+2.43.0
+
+
+From a1681988cefc56d6608a4c0c1245f717eb61226a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 05:07:36 +0000
+Subject: [PATCH 4/4] docs(od-sevev): STATUS entry for the envelope flap and
+ the slipStamp cue
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ STATUS.md | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/STATUS.md b/STATUS.md
+index 388eeb9..e66a694 100644
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -1220,3 +1220,18 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
+   - Audio: a cue for the slip stamp at its f0.
+   - Dev/UX: the pager wraps "10,000 ₪." before the ₪; bind the sign to its number.
+ - No objection outstanding. A deviation is logged: the roll replaces §5.2's push. UX may counter-object with an alternative.
++
++## 2026-09-30, 2D Artist + Audio Director: the envelope flap and the slip stamp's cue (Animator wave B asks)
++- **The flap (2D, `art/od-sevev/src/wave9.py`, style guide §17.2, CONTRACT §5):** `sheet_modal_body` (38×38, 9-slice [7, 23, 7, 7], the envelope without its flap) and `sheet_modal_flap` (3 frames of 38×24, 3-slice [7, 0, 7, 0], pivot [0, 0]). f0 is sealed (a V from the corners to the point), f1 is lifting, and f2 is open (= the title band). Body + f2 = `sheet_modal` pixel for pixel, and the build asserts it. `sheet_modal` is unchanged.
++  - **Wiring:** the body where `sheet_modal` is drawn today, then the flap at the same x, width and top, 96 logical tall. Draw order: body → flap → title and ✕. Frames 0/1/2 at 0/40/80 ms of the open, then hold 2; the title and ✕ show from f2. Reduced motion: f2 at once.
++  - **Deviation:** "open" is the band, not a flap pointing up, so that the rest look stays the approved v4.
++  - **Why 24 rows:** the point's shadow is on art row 23, the stretched centre's first row. Inside the 9-slice it becomes a ~190×45 dark slab under the point on every modal today (seen in the engine). The flap path draws it as one row. **→ Game Developer:** moving the modals to body + flap removes the slab.
++  - The pipeline re-import has 0 cast drift and 261 kit pieces. VRAM +16,720 B.
++- **`slipStamp` (Audio v1.4, cue-spec §3.2 and §4):**
++  - A dry rubber-on-paper thunk: a slap, a pad, a rubber knock and a thud, staggered over 12 ms, then a lift-off tick. UI bus, 89 ms, one unpitched file.
++  - Burst −20.5 LUFS, 2 dB under the stamp's heard −18.5 and 4.5 under `buy`. play_db −5.17. True peak −6.2 dBTP. Centroid 0.69 kHz. It is not Herzog's stamp (§5.6).
++  - **Hook:** one line in `shop.gd` where `tagSlam` starts, to main 3 levels up. It is a no-op without the host or the cue.
++  - **Tests:** `test_audio` adds the scan entry, a cue test and a host-path test. Renders are deterministic (317 files).
++- **Checks:** `tools/test.sh` 370/370; strict `tools/build_web.sh` green.
++- **Sheets:** the scratchpad `shots/flap/`: `flap-contact.png` (Python, 4 sizes), `flap-engine.png` (Godot, Ui.nine + set_nine_frame) and `flap-strip-x8.png`.
++- No objection outstanding.
 -- 
 2.43.0
 
