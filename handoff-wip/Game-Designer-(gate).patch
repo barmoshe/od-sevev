@@ -1,6 +1,113 @@
 # binary files changed (not carried):
+diff --git a/design/content.json b/design/content.json
+index 35e512a..c2e6044 100644
+--- a/design/content.json
++++ b/design/content.json
+@@ -5038,13 +5038,12 @@
+      "bibi",
+      "deri",
+      "goldknopf",
+-     "gafni",
+-     "abbas"
++     "gafni"
+     ],
+     "src": [
+      "liberman-wont-sit"
+     ],
+-    "_note": "Trait: while Liberman is a member these can't join (the existing `excludes`, as Abbas has for Ben Gvir). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Abbas and Gafni in Bennett's round."
++    "_note": "Trait: Liberman and these never sit together (the `excludes`, as Abbas has for Ben Gvir; the bigger side has precedence, sim/coalition.gd _excluded). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Gafni in the change-bloc rounds. Not Abbas: he sat with Ra'am in the 2021 Bennett-Lapid government (fact raam-2021, Abbas's own line in Bennett's round), and excluding him soft-locked Bennett's round for a player who pays every pill (Game Designer 2026-09-30, spec §7.2.2)."
+    },
+    {
+     "id": "golan",
+diff --git a/design/leader-select-spec.md b/design/leader-select-spec.md
+index 0acb38e..3f62c5a 100644
+--- a/design/leader-select-spec.md
++++ b/design/leader-select-spec.md
+@@ -404,6 +404,54 @@ Median player, first election, median of seeds 1-9 (one seat deal per seed); the
+ 
+ **Watch:** Eisenkot's median (8:50) and casual (9:00) sit on the edge. Bennett's and Ben Gvir's worst deals run past 10:00 (a late-slot-heavy early deal). If the picker playtest shows long first rounds for them, the lever is to keep S2/S3 out of the shuffle (a fixed early core); it is not a number change.
+ 
++### 7.2.2 Bennett's trap: a pill never trades seats down (Game Designer, 2026-09-30)
++
++**Found by** `picker_web`, whose Bennett round never held 61. The bench's attentive player hides
++the trap: before paying a join, it checks who would walk (`PacingSim._join_costs_seats`).
++
++**The trap.** Liberman (S1, 12 seats) "won't sit with" Gafni and Abbas. Their join demands came
++while he sat. Paying one threw him out on the spot, with no rejoin pill. He could only come back
++once both were gone, and after that any pill of theirs threw him out again. In the tighter deals
++neither side of the lineup reaches 61 without a fast player's own seats.
++
++A player who simply pays every pill never held 61 in 5 of 9 of Bennett's deals within 45 minutes.
++Every other leader needed 8:42-10:21 median for the same player. The slow browser driver never got
++there in those deals within an hour; every other leader took it 19-29 minutes.
++
++**The rules** (sim `Coalition._excluded` / `_on_joined`, content):
++1. **Won't-sit-with holds both ways, and the bigger side comes first.** A partner's weight is its
++   seats plus half its abstentions.
++   - The smaller side does not ask to join while the bigger sits. Its open offer (a join demand or
++     a rejoin pill) closes when the bigger comes in.
++   - The bigger side may ask, or come back, while the smaller sits. Paying it sends the smaller out.
++     This is "Abbas leaves when Ben Gvir returns", as shipped.
++
++   So a pill never trades seats down. The lineup's choice is still there, and it is made in the
++   open: Liberman walks (a visible ultimatum), Gafni asks, and Liberman's rejoin pill stays in the
++   thread next to Gafni's join demand. The player pays one of them.
++2. **Liberman no longer excludes Abbas.** They sat in one coalition in June 2021 (fact
++   `raam-2021`; Abbas's own line in Bennett's round is "כמו ב־2021"). His sourced line
++   (`liberman-wont-sit`) is about Netanyahu. His refusal of the Haredi parties (Gafni, Goldknopf,
++   Deri) stays.
++
++Bibi's round is unchanged: Abbas never asks while Ben Gvir sits, and Ben Gvir's return sends him
++out. The one new detail is that Abbas's own rejoin pill closes when Ben Gvir returns. Before, paying
++it seated them together.
++
++**Measured (median of seeds 1-9):**
++
++| | ביבי | בנט | בן גביר | ליברמן | אייזנקוט | סמוטריץ׳ | דרעי | גולן |
++|---|---|---|---|---|---|---|---|---|
++| Median player, before | 8:01 | 8:08 (worst 10:30) | 8:19 | 7:51 | 8:50 | 8:06 | 8:05 | 8:30 |
++| Median player, after | 8:01 | **8:03** (worst 10:11) | 8:19 | 7:51 | **8:10** | 8:06 | 8:05 | **7:59** |
++| Pays every pill, before | 8:46 | **never ×5** | 10:21 | 8:42 | 9:44 (1 never) | 9:14 | 9:25 | 9:24 (worst 24:26) |
++| Pays every pill, after | PAYALL_AFTER |
++
++Only the three change-bloc rounds move (Bennett, Eisenkot and Golan: Liberman with Gafni and Abbas).
++Eisenkot leaves the 9:00 edge that §7.2.1 watched: casual 9:00 becomes 8:29. The slow driver-like
++player (0.1 taps/s, the priciest card every 72 s, the chat every 49 s) now reaches Bennett's gate
++in 19:36-24:30 on all 9 deals (before: never in 3 of 5), in line with the other leaders.
++
+ ### 7.3 Dominant strategies and edge cases
+ | # | Case | Closing rule |
+ |---|---|---|
+@@ -419,6 +467,7 @@ Median player, first election, median of seeds 1-9 (one seat deal per seed); the
+ | L10 | **Aide drops then switching** | The −3% is on the shared base and persists; the aide drop only exists in Bibi's round. |
+ | L11 | **Karhi's s08 line** | Available whenever Karhi is a member. It resets with the round as today. |
+ | L12 | **The gate slips under the open election card** | "The vote stops the clock" (§7.4). |
++| L13 | **A pill that trades seats down** (Gafni's join throwing Liberman out) | Won't-sit-with holds both ways, bigger side first (§7.2.2). |
+ 
+ ### 7.4 The vote stops the clock (Game Designer, 2026-09-30)
+ 
+diff --git a/game/data/content.json b/game/data/content.json
+index 35e512a..c2e6044 100644
+--- a/game/data/content.json
++++ b/game/data/content.json
+@@ -5038,13 +5038,12 @@
+      "bibi",
+      "deri",
+      "goldknopf",
+-     "gafni",
+-     "abbas"
++     "gafni"
+     ],
+     "src": [
+      "liberman-wont-sit"
+     ],
+-    "_note": "Trait: while Liberman is a member these can't join (the existing `excludes`, as Abbas has for Ben Gvir). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Abbas and Gafni in Bennett's round."
++    "_note": "Trait: Liberman and these never sit together (the `excludes`, as Abbas has for Ben Gvir; the bigger side has precedence, sim/coalition.gd _excluded). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Gafni in the change-bloc rounds. Not Abbas: he sat with Ra'am in the 2021 Bennett-Lapid government (fact raam-2021, Abbas's own line in Bennett's round), and excluding him soft-locked Bennett's round for a player who pays every pill (Game Designer 2026-09-30, spec §7.2.2)."
+    },
+    {
+     "id": "golan",
 diff --git a/game/scripts/sim/README.md b/game/scripts/sim/README.md
-index 0769f5d..45fcede 100644
+index 0769f5d..ebed58b 100644
 --- a/game/scripts/sim/README.md
 +++ b/game/scripts/sim/README.md
 @@ -31,6 +31,12 @@ var ev := Politics.tick(state, dt, d, {"allowPing": not modal and last_buy_age >
@@ -16,54 +123,84 @@ index 0769f5d..45fcede 100644
  **Player actions** (each returns a result, and a Dictionary of UI events where there are any):
  
  | Action | Call |
-diff --git a/game/scripts/sim/pacing_sim.gd b/game/scripts/sim/pacing_sim.gd
-index a2455b4..b9635b4 100644
---- a/game/scripts/sim/pacing_sim.gd
-+++ b/game/scripts/sim/pacing_sim.gd
-@@ -27,6 +27,8 @@ extends RefCounted
- ##   spins            false never buys a spin (the source tab only)
- ##   politics_every   seconds between two looks at the chat, the court card and the brawl (0: every frame)
- ##   ping_after_buy   C1's controller half: the chat pings only this long after the last purchase
-+##   save_for_lines   true: no purchase while an open pay line costs more than the bank (the
-+##                    coalition first, as tools/web/round_play.mjs plays)
- ## A browser driver acts in wall-clock time while the dev clock (?speed=N) runs the game N times
- ## faster, so in game time it taps and buys N times less often: tests/bench/test_web_driver.gd
- ## replays tools/web/round_web.mjs's measured cadence through these keys (the 34-vs-8-minute gap).
-@@ -83,6 +85,7 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
- 	var buy_units := int(player.get("buy_units", 0))
- 	var pol_every := float(player.get("politics_every", 0.0))
- 	var ping_gap := float(player.get("ping_after_buy", 0.0))
-+	var save_lines: bool = player.get("save_for_lines", false) == true
- 	var last_buy := -INF
- 	var last_pol := -INF
- 	while t < max_t:
-@@ -132,7 +135,8 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
- 				events.append([t, "milestone:" + key])
- 		d = Economy.derive(s)
- 		# Nothing is affordable -> the greedy player can't buy this frame; skip ranking (same result).
--		var best := {} if s.bananas < _cheapest(s, d) or t - last_buy < buy_every else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {}, player)
-+		var saving := save_lines and pol and _owes(s)
-+		var best := {} if saving or s.bananas < _cheapest(s, d) or t - last_buy < buy_every else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {}, player)
- 		if not best.is_empty() and s.bananas >= float(best["cost"]):
- 			last_buy = t
- 			if best.has("upgrade"):
-@@ -161,6 +165,16 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
- 	return {"t": t, "gate_t": gate_t, "first": first, "state": s}
+@@ -113,7 +119,7 @@ mechanic each: `priceMult`, `priceGrowth` (Goldknopf, lifetime), `abstain` (Gafn
+ `demandKind: ceremony` (Regev), `effects[]` (economy effect types; Smotrich `producerMult`, Levin
+ `suspicionGainMult`), `onPay {suspicion}` (Golan, Distel), `cannotLeave` + `statusLine` (Deri),
+ `transfer {to, meterPerSec, fireAt}` (Gotliv), `rebel` (Almog: poach only), `standIn` (Gantz),
+-`excludes [ids]` (Abbas), `mutedLine` (Distel), `side`, `pollLike`, `lines` / `linesVariants`.
++`excludes [ids]` (Abbas, Liberman: the two never sit together, either way round; the bigger side (seats + abstain/2) comes first, so a pill never trades seats down, spec §7.2.2), `mutedLine` (Distel), `side`, `pollLike`, `lines` / `linesVariants`.
+ 
+ ### `court`
+ `sources {producerId: weight}` (pts/s at 100% share of ₪/s), `max`, `floorPerRoundPct`, `floorMaxPct`,
+diff --git a/game/scripts/sim/coalition.gd b/game/scripts/sim/coalition.gd
+index c420b8e..fe057ea 100644
+--- a/game/scripts/sim/coalition.gd
++++ b/game/scripts/sim/coalition.gd
+@@ -363,13 +363,35 @@ static func threat_count(s: GameState) -> int:
+ 	return open_ultimatums(s)
  
  
-+## An open pay line (a demand, an ultimatum, a rejoin or a poach) the bank can't cover yet.
-+static func _owes(s: GameState) -> bool:
-+	if not Coalition.active():
-+		return false
-+	for m: Dictionary in Coalition._c(s)["chat"]:
-+		if m["state"] == "open" and Coalition.is_payable(m) and float(m.get("price", 0.0)) > s.bananas:
-+			return true
-+	return false
++## "Won't sit with" (`excludes`, either way round) with the bigger side first (Game Designer
++## 2026-09-30, spec §7.2.2). Two partners who won't sit together never do; of the two, the one who
++## brings more (seats + half the abstentions) has precedence:
++##   - the smaller does not ask to join while the bigger sits (here), and its open offer (a join
++##     demand, a rejoin pill) closes when the bigger comes in (_on_joined);
++##   - the bigger may ask or come back while the smaller sits; paying it sends the smaller out
++##     (Abbas leaves when Ben Gvir returns, as shipped).
++## So a pill never trades seats down. Before, in Bennett's round (Liberman 12 excludes Abbas and
++## Gafni), paying Abbas's join silently threw Liberman out with no rejoin pill, and a player who
++## pays every pill never reached 61 in 5 of 9 deals.
+ static func _excluded(s: GameState, p: Dictionary) -> bool:
+-	for x: Variant in p.get("excludes", []):
+-		if status(s, str(x)) == "member":
++	var id := str(p.get("id", ""))
++	for q: Dictionary in partners():
++		var qid := str(q["id"])
++		if qid != id and status(s, qid) == "member" and wont_sit(p, q) and weight(q) >= weight(p):
+ 			return true
+ 	return false
+ 
+ 
++## The two won't sit together (either one's `excludes` names the other).
++static func wont_sit(a: Dictionary, b: Dictionary) -> bool:
++	return (a.get("excludes", []) as Array).has(str(b.get("id", ""))) or (b.get("excludes", []) as Array).has(str(a.get("id", "")))
 +
 +
- static func _cheapest(s: GameState, d: Economy.Derived) -> float:
- 	var c := INF
- 	for id in Content.producer_ids():
++## What a partner brings to the 61: seats, plus half the abstentions (they lower the majority by half).
++static func weight(p: Dictionary) -> float:
++	return float(p.get("seats", 0)) + float(p.get("abstain", 0)) / 2.0
++
++
+ ## For the UI: every partner's row, in content order.
+ static func roster(s: GameState) -> Array:
+ 	var out: Array = []
+@@ -790,18 +812,22 @@ static func _on_joined(s: GameState, id: String, out: Array) -> void:
+ 	if p.get("statusLine", false):
+ 		_post(s, {"type": "status", "partner": id, "line": "status", "variant": 0}, out)
+ 	out.append({"ev": "partnerJoined", "partner": id})
+-	# Anyone who only sits while this partner is out leaves now (Abbas when Ben Gvir returns).
++	# Won't sit with the newcomer (_excluded): a member leaves now (Abbas when Ben Gvir returns);
++	# a smaller partner's open offer (join demand, rejoin pill) closes; a bigger one's stays.
+ 	for q: Dictionary in partners():
+ 		var qid: String = q["id"]
+-		if not (q.get("excludes", []) as Array).has(id):
++		if qid == id or not wont_sit(p, q):
+ 			continue
+ 		var qs := status(s, qid)
+-		if qs == "member" or qs == "pending":
+-			var om := open_msg(s, qid)
++		var om := open_msg(s, qid)
++		if qs == "member" or (qs == "pending" and weight(q) <= weight(p)):
+ 			if not om.is_empty():
+ 				om["state"] = "expired"
+ 			ps(s, qid)["status"] = "absent"
+ 			_sys(s, "chat.sys.left", {"partner": qid}, out)
++		elif qs == "left" and weight(q) <= weight(p) and not om.is_empty():
++			om["state"] = "expired"   # the rejoin pill closes; they ask again once the newcomer is out
++			ps(s, qid)["status"] = "absent"
+ 
+ 
+ ## Liberman's "לא יושב" (leader rule declineDemand, spec §5.1, L5): an open MEMBER demand closes for
 diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
 index 1558947..d372f2a 100644
 --- a/game/scripts/ui/dev_probe.gd
@@ -117,6 +254,86 @@ index 1558947..d372f2a 100644
  	# the "{n} ממתינים ↑" chip and the brawl stage cue (views wave 6): centres in viewport px
  	var pi := chat.pending_info()
  	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
+diff --git a/game/tests/unit/test_coalition.gd b/game/tests/unit/test_coalition.gd
+index fb28a82..c95d50a 100644
+--- a/game/tests/unit/test_coalition.gd
++++ b/game/tests/unit/test_coalition.gd
+@@ -280,6 +280,28 @@ func test_poach_a_rebel() -> void:
+ 	runner.check(last.get("key", "") == "chat.sys.added" and last.get("partner", "") == "almog", "'צורף על ידי מנהל'")
+ 
+ 
++## "Won't sit with" both ways, the bigger side first (spec §7.2.2): Abbas (4) excludes Ben Gvir (12).
++## Abbas's rejoin pill closes when Ben Gvir comes back, so paying it can never throw Ben Gvir out;
++## and a member who excludes a smaller partner keeps that partner from asking.
++func test_wont_sit_with_the_bigger_side_first() -> void:
++	var s := _with(["smotrich"], 0.0, 0, true)
++	s.run_bananas = 60000.0
++	Coalition.ps(s, "abbas")["status"] = "left"
++	var am := Coalition._post(s, {"type": "sys", "key": "chat.sys.left", "partner": "abbas", "payable": "rejoin", "price": 10.0, "state": "open"}, [])
++	Coalition.ps(s, "bengvir")["status"] = "left"
++	var bm := Coalition._post(s, {"type": "sys", "key": "chat.sys.left", "partner": "bengvir", "payable": "rejoin", "price": 10.0, "state": "open"}, [])
++	s.bananas = 10.0
++	Coalition.pay(s, int(bm["seq"]))
++	runner.check(Coalition.status(s, "bengvir") == "member" and am["state"] == "expired" and Coalition.status(s, "abbas") == "absent",
++		"Ben Gvir back: Abbas's rejoin pill closes (a pill never trades 12 seats for 4)")
++	# the other direction: a bigger member who excludes a smaller partner keeps him from asking
++	(Coalition.partner("bengvir") as Dictionary)["excludes"] = ["amsalem"]
++	_tick(s, 300.0, 1.0, _one)
++	runner.check(Coalition.status(s, "amsalem") == "absent", "Ben Gvir won't sit with Amsalem (2): Amsalem never asks while he sits")
++	runner.check(Coalition.roster(s).any(func(r: Dictionary) -> bool: return r["id"] == "amsalem" and r["excluded"]), "the roster marks him excluded")
++	(Coalition.partner("bengvir") as Dictionary).erase("excludes")
++
++
+ func test_abbas_sits_only_while_ben_gvir_is_out() -> void:
+ 	var s := _with([], 0.0, 0, true)
+ 	s.run_bananas = 60000.0
+diff --git a/game/tests/unit/test_leaders.gd b/game/tests/unit/test_leaders.gd
+index dc99e8d..014f53d 100644
+--- a/game/tests/unit/test_leaders.gd
++++ b/game/tests/unit/test_leaders.gd
+@@ -106,6 +106,7 @@ func test_install_bennett() -> void:
+ 	runner.check(int(gafni["seats"]) == 0 and int(gafni["abstain"]) == int(slot["seats"]), "Gafni turns his slot's seats into abstentions")
+ 	runner.check(str(_p("gantz")["slot"]) == "SI" and _p("gantz").get("standIn") == true, "Gantz stays the stand-in")
+ 	runner.check((_p("liberman")["excludes"] as Array).has("gafni"), "Liberman's excludes ride along (the real choice)")
++	runner.check(not (_p("liberman")["excludes"] as Array).has("abbas"), "but not Abbas: they sat together in 2021 (fact raam-2021)")
+ 	runner.check(str(_p("abbas").get("lines", {}).get("thanks", "")).begins_with("כמו ב־2021"), "a lineup line override")
+ 	var ev := _ids(Events.list())
+ 	for id: String in ["card_bibi", "card_bengvir", "card_smotrich", "card_deri", "bennett", "leak", "brawl"]:
+@@ -138,6 +139,34 @@ func test_install_bengvir() -> void:
+ 	runner.check(s.leader == "bengvir", "the round is his")
+ 
+ 
++## Spec §7.2.2: in Bennett's round a pill never trades Liberman's 12 seats away. Before, Gafni's
++## (or Abbas's) join demand came while Liberman sat, and paying it threw him out with no pill.
++func test_bennett_round_never_trades_liberman_away() -> void:
++	var s := _round("bennett", 2)   # this deal has Gafni and Abbas in round 1
++	s.run_bananas = 1e9
++	s.run_time_sec = 900.0
++	s.stats["playtimeSec"] = 900.0
++	s.coalition["opened"] = true
++	s.coalition["nextDemandSec"] = 1e12
++	_member(s, "liberman")
++	for i in 200:
++		Coalition.tick(s, 1.0, Economy.derive(s), {}, func() -> float: return 0.5)
++	runner.check(Coalition.status(s, "gafni") == "absent", "Gafni never asks while Liberman sits (the bigger side first)")
++	runner.check(Coalition.status(s, "abbas") != "absent", "Abbas asks and sits with him, as in 2021 (%s)" % Coalition.status(s, "abbas"))
++	# Liberman walks (an ultimatum ran out): now Gafni asks, next to Liberman's rejoin pill
++	Coalition._leave(s, "liberman", 10.0, [])
++	for i in 60:
++		Coalition.tick(s, 1.0, Economy.derive(s), {}, func() -> float: return 0.5)
++	runner.check(Coalition.status(s, "gafni") == "pending", "Liberman out: Gafni asks (%s)" % Coalition.status(s, "gafni"))
++	var g := Coalition.open_msg(s, "gafni")
++	s.bananas = 1e12
++	Coalition.pay(s, int(g["seq"]))
++	var pill := Coalition.open_msg(s, "liberman")
++	runner.check(Coalition.status(s, "gafni") == "member" and str(pill.get("payable", "")) == "rejoin", "paying Gafni keeps Liberman's rejoin pill open (the bigger side's offer stays)")
++	Coalition.pay(s, int(pill["seq"]))
++	runner.check(Coalition.status(s, "liberman") == "member" and Coalition.status(s, "gafni") == "absent", "paying Liberman's pill brings him back and Gafni goes: they never sit together")
++
++
+ func test_install_liberman() -> void:
+ 	_round("liberman")
+ 	var ids := _ids(Coalition.partners())
 diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
 index 2c1abb4..288ae9d 100644
 --- a/tools/web/picker_web.mjs

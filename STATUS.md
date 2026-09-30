@@ -1220,3 +1220,18 @@ Internal state names stay the fork's (`bananas` = shekels, `thumbs` = the presti
   - Audio: a cue for the slip stamp at its f0.
   - Dev/UX: the pager wraps "10,000 ₪." before the ₪; bind the sign to its number.
 - No objection outstanding. A deviation is logged: the roll replaces §5.2's push. UX may counter-object with an alternative.
+
+## 2026-09-30, 2D Artist + Audio Director: the envelope flap and the slip stamp's cue (Animator wave B asks)
+- **The flap (2D, `art/od-sevev/src/wave9.py`, style guide §17.2, CONTRACT §5):** `sheet_modal_body` (38×38, 9-slice [7, 23, 7, 7], the envelope without its flap) and `sheet_modal_flap` (3 frames of 38×24, 3-slice [7, 0, 7, 0], pivot [0, 0]). f0 is sealed (a V from the corners to the point), f1 is lifting, and f2 is open (= the title band). Body + f2 = `sheet_modal` pixel for pixel, and the build asserts it. `sheet_modal` is unchanged.
+  - **Wiring:** the body where `sheet_modal` is drawn today, then the flap at the same x, width and top, 96 logical tall. Draw order: body → flap → title and ✕. Frames 0/1/2 at 0/40/80 ms of the open, then hold 2; the title and ✕ show from f2. Reduced motion: f2 at once.
+  - **Deviation:** "open" is the band, not a flap pointing up, so that the rest look stays the approved v4.
+  - **Why 24 rows:** the point's shadow is on art row 23, the stretched centre's first row. Inside the 9-slice it becomes a ~190×45 dark slab under the point on every modal today (seen in the engine). The flap path draws it as one row. **→ Game Developer:** moving the modals to body + flap removes the slab.
+  - The pipeline re-import has 0 cast drift and 261 kit pieces. VRAM +16,720 B.
+- **`slipStamp` (Audio v1.4, cue-spec §3.2 and §4):**
+  - A dry rubber-on-paper thunk: a slap, a pad, a rubber knock and a thud, staggered over 12 ms, then a lift-off tick. UI bus, 89 ms, one unpitched file.
+  - Burst −20.5 LUFS, 2 dB under the stamp's heard −18.5 and 4.5 under `buy`. play_db −5.17. True peak −6.2 dBTP. Centroid 0.69 kHz. It is not Herzog's stamp (§5.6).
+  - **Hook:** one line in `shop.gd` where `tagSlam` starts, to main 3 levels up. It is a no-op without the host or the cue.
+  - **Tests:** `test_audio` adds the scan entry, a cue test and a host-path test. Renders are deterministic (317 files).
+- **Checks:** `tools/test.sh` 370/370; strict `tools/build_web.sh` green.
+- **Sheets:** the scratchpad `shots/flap/`: `flap-contact.png` (Python, 4 sizes), `flap-engine.png` (Godot, Ui.nine + set_nine_frame) and `flap-strip-x8.png`.
+- No objection outstanding.

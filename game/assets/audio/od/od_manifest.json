@@ -1419,6 +1419,31 @@
 				"type": "burst"
 			}
 		},
+		"slipStamp": {
+			"burstMax": -20.5,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"_": {
+					"_": {
+						"_": "slipStamp.res"
+					}
+				}
+			},
+			"lengthMs": 88.5,
+			"limitedBy": "target",
+			"meaning": "The ballot slip is stamped (a spin card's tag appears or changes: '1/5' -> '2/5', 'שחוק').",
+			"momentaryMax": -26.52,
+			"play_db": -5.17,
+			"poly": 2.0,
+			"priority": 1.0,
+			"runtime": "On the slam's f0 (the x6 frame) in shop.gd; in reduced motion on the cut. It often lands with `buy` (the purchase that changed the tag): it sits 4.5 dB under it, centred at 0.7 kHz under its 1-4 kHz blips. Repeats per purchase, so it sits 2 dB under the stamp's heard -18.5 (0.5 over uiClick).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -20.5,
+				"type": "burst"
+			}
+		},
 		"stamp": {
 			"burstMax": -18.53,
 			"bus": "SFX-Frequent",
@@ -2123,12 +2148,12 @@
 		"files": {
 			"music": 12,
 			"outside": 1,
-			"sfx": 265,
+			"sfx": 266,
 			"stingers": 37
 		},
 		"music_bytes": 9237588,
 		"outside_bytes": 53847,
-		"sfx_bytes": 817279,
+		"sfx_bytes": 818830,
 		"stinger_bytes": 1486635
 	},
 	"stingers": {
