@@ -86,11 +86,13 @@ func test_the_election_card_is_the_o3_sheet_with_stacked_buttons() -> void:
 	var texts := c.paras.map(func(p: PxText) -> String: return p.text)
 	for k in ["ELECT_RESET", "ELECT_KEEP_CASES", ElectionCard.mood_key(1)]:
 		runner.check(texts.has(Strings.s(k)), "O3 says %s" % k)
-	runner.check(c.panel_rect.size.x == 624.0 and c.panel_rect.position.x == 48.0, "a 624 card at x 48 (%s)" % c.panel_rect)
+	# the width rule (Bar 2026-09-30): the card grows by 2·grow_half() about the 720 design's x 48-672
+	var g2 := SheetCard.grow_half()
+	runner.check(c.panel_rect.size.x == 624.0 + 2.0 * g2 and c.panel_rect.position.x == 48.0 - g2 and c.panel_rect.size.x >= 0.92 * L.cw, "a ≥ 92%% card, 624 + %d at x 48 − %d (%s)" % [2.0 * g2, g2, c.panel_rect])
 	runner.check(c.frame.get_meta("sprite") == Art.sprite_or("sheet_modal"), "on the kit's sheet_modal")
 	var go := c.go_button
 	var no := c.cancel_button
-	runner.check(go.visual.size.x == 544.0 and no.visual.size.x == 544.0 and go.visual.position.y < no.visual.position.y,
+	runner.check(go.visual.size.x == 544.0 + 2.0 * g2 and no.visual.size.x == 544.0 + 2.0 * g2 and go.visual.position.y < no.visual.position.y,
 		"§7.1 stacked: ELECT_GO full width over ELECT_CANCEL")
 	runner.check(go.label.text == Strings.s("ELECT_GO") and no.label.text == Strings.s("ELECT_CANCEL"), "the ELECT_* labels, not the fork's EVO_*")
 	runner.check(not go.is_enabled() and c.need_text != null and c.focus_index == 1, "no majority yet: 'לפזר' is disabled, EVO_NEED says why, focus on 'עוד לא'")
@@ -143,7 +145,7 @@ func test_the_return_card_speaks_by_absence_band() -> void:
 	runner.check(c.amount_text.text == Strings.s("RET_GAIN", {"x": Fmt.amount(12345.0)}), "a cold load shows the whole gain (%s)" % c.amount_text.text)
 	runner.check(texts.has(Strings.plural("RET_CHAT", 3, {"n": "3"})), "the chat line counts the unread messages")
 	runner.check(texts.has(Strings.s("RET_CAP", {"h": str(int(c.info.get("capHours", 8)))})), "the cap line when the cap was reached")
-	runner.check(c.buttons.size() == 1 and c.buttons[0].label.text == Strings.s("RET_BTN") and c.buttons[0].visual.size.x == 544.0, "one full-width 'לאסוף'")
+	runner.check(c.buttons.size() == 1 and c.buttons[0].label.text == Strings.s("RET_BTN") and c.buttons[0].visual.size.x == 544.0 + 2.0 * SheetCard.grow_half(), "one full-width 'לאסוף'")
 	_no_ellipsis(c)
 	c.cancel("backdrop")
 	runner.check(c.closing, "the backdrop collects too")
@@ -165,7 +167,8 @@ func test_the_reset_confirm_puts_cancel_first_and_keeps_the_backdrop() -> void:
 	_no_ellipsis(c)
 	var cancel := c.cancel_button
 	var commit := c.commit_button
-	runner.check(cancel.visual == Rect2(376, cancel.visual.position.y, 256, 96) and commit.visual == Rect2(88, cancel.visual.position.y, 256, 96),
+	var gh := SheetCard.grow_half()
+	runner.check(cancel.visual == SheetCard._grow_btn(Rect2(376, cancel.visual.position.y, 256, 96), gh) and commit.visual == SheetCard._grow_btn(Rect2(88, cancel.visual.position.y, 256, 96), gh),
 		"§7.1 side by side: 'התחרטתי' on the right, 'למחוק הכול' on the left (%s / %s)" % [cancel.visual, commit.visual])
 	runner.check(c.focus_index == c.focusables.find(cancel), "focus starts on cancel")
 	runner.check(commit.kind == ResetCard.danger_kind() and ["kit_danger", "kit_secondary"].has(commit.kind), "the commit is a kit button (danger when drawn), never the fork's red (%s)" % commit.kind)
@@ -185,7 +188,7 @@ func test_the_reset_buttons_stack_under_large_text() -> void:
 	runner.check(c != null, "O10 opens")
 	if c == null:
 		return
-	runner.check(c.commit_button.visual.size.x == 544.0 and c.commit_button.visual.position.y < c.cancel_button.visual.position.y,
+	runner.check(c.commit_button.visual.size.x == 544.0 + 2.0 * SheetCard.grow_half() and c.commit_button.visual.position.y < c.cancel_button.visual.position.y,
 		"×5 'למחוק הכול' is wider than a 224 half: stacked, commit on top")
 	_no_ellipsis(c)
 

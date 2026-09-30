@@ -155,7 +155,10 @@ func test_modal_and_share_per_device() -> void:
 		Display.update(dev)
 		L.set_width(float(row["cw"]))
 		var mw := float(SheetCard.CARD_W) + 2.0 * SheetCard.grow_half()
-		runner.check(mw <= float(row["modalW"]) and mw >= float(row["modalW"]) - 4.0, "%s: the modal card %d wide (spec %d; the growth is split evenly on the 4 grid)" % [row["name"], int(mw), int(row["modalW"])])
+		# Bar's width rule (2026-09-30) supersedes §5.10's 624 + min(dx, 64): ≥ 92% of the canvas, the
+		# body text still ≤ 624
+		runner.check(mw >= 0.92 * L.cw and mw <= L.cw - 40.0, "%s: the modal card %d wide, ≥ 92%% of cw %d" % [row["name"], int(mw), int(L.cw)])
+		runner.check(SheetCard.body_w() <= 624.0, "%s: the modal body stays ≤ 624" % row["name"])
 		var ins: Array = row["insets"]
 		var sheet := L.floor4(float(row["logical"][1])) - float(ins[0]) - float(ins[1])
 		var a := ShareSheet.preview_scale(sheet - 520.0, float(row["cw"]) - 32.0)

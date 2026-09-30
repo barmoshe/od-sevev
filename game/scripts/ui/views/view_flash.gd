@@ -213,12 +213,13 @@ func build() -> FlashCard:
 	# bottom-anchored, the skip's bottom 24 above the safe bottom (its PAD included)
 	var y := Ui.snap(maxf(band.x + BAND_MARGIN, band.y - (24.0 - PAD) - h), 4)
 	# the panel: the kit's dark sheet (white labels), title band on top
-	panel_rect = Rect2(CARD_X, y, CARD_W, h)
+	var g2 := SheetCard.grow_half()   # the width rule: ≥ 92% of the canvas, as the sheet cards
+	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
 	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
 	var head := text(Vector2(0, y + 24.0), str(lead["title"]) if not lead.is_empty() and str(lead["title"]) != "" else header_text(evolutions), L.TEXT, C_TITLE)
 	head.wrap_width = TEXT_W
 	head.max_lines = 1
-	head.center_in(CARD_X, CARD_W)
+	head.center_in(CARD_X - g2, CARD_W + 2.0 * g2)
 	# the news screen
 	var sy := y + HEADER_H + PAD
 	screen_rect = Rect2(SCREEN_X, sy + SCREEN_FRAME, SCREEN_W, screen_h)
@@ -232,14 +233,16 @@ func build() -> FlashCard:
 		p.modulate.a = 0.0 if not mgr.reduced else 1.0
 	# the buttons
 	var bt := by + body_h + PAD
+	var bx := BTN.position.x - g2
+	var bw := BTN.size.x + 2.0 * g2
 	if archive:
-		next_button = button(Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y),
+		next_button = button(Rect2(bx, bt, bw, BTN.size.y), Rect2(bx, bt, bw, BTN.size.y),
 			Strings.s("SYS_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
 	else:
-		next_button = button(Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y),
+		next_button = button(Rect2(bx, bt, bw, BTN.size.y), Rect2(bx, bt, bw, BTN.size.y),
 			Strings.s("FLASH_NEXT"), func() -> void: _close("next"), "kit_primary", L.TEXT)
 		var bt2 := bt + BTN.size.y + BTN_GAP
-		skip_button = button(Rect2(BTN.position.x, bt2, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt2, BTN.size.x, BTN.size.y),
+		skip_button = button(Rect2(bx, bt2, bw, BTN.size.y), Rect2(bx, bt2, bw, BTN.size.y),
 			Strings.s("FLASH_SKIP"), func() -> void: _close("skip"), "kit_secondary", L.TEXT)
 	# audio: the dubiFlash head, then Dubi reads what is on the card
 	_audio("storyCard")

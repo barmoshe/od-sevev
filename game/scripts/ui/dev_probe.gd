@@ -40,6 +40,8 @@ static func snapshot(host: Node) -> Dictionary:
 	if mgr != null and mgr.is_open():
 		var t := mgr.top()
 		out["modal"] = t.id
+		# the width rule (mobile_web.mjs): the top overlay's panel, viewport logical x and width
+		out["modalRect"] = [t.panel_rect.position.x + t.position.x + float(host.get("_ox")), t.panel_rect.size.x]
 		var ov := Vector2(float(host.get("_ox")), float(host.get("_ovl_y")))
 		for b: PxButton in t.focusables:
 			var c := b.visual.get_center() + Vector2(t.position.x, t.panel.position.y) + ov
@@ -92,7 +94,8 @@ static func snapshot(host: Node) -> Dictionary:
 			rows.append([360.0 + o.x, y + float(L.SHOP["rowVisualH"]) / 2.0 + o.y, id, afford])
 	# mobile-first §5.4: the silhouette and teaser rows the pane shows whole (no price or no target)
 	out["shop"] = {"tab": shop.tab, "list": [shop.list_rect.position.y + o.y, shop.list_rect.end.y + o.y], "rows": rows,
-		"all": all_rows, "silhouettes": shop.rows_in_view(["silhouette", "teaser"])}
+		"all": all_rows, "silhouettes": shop.rows_in_view(["silhouette", "teaser"]),
+		"card": [shop.list_rect.position.x + o.x, shop.list_rect.end.x + o.x]}   # the cards' x span (the width rule)
 	var court: CourtView = host.get("court")
 	var ct := court.button_rect("testify").get_center() + o if court.card_visible() else Vector2(-1, -1)
 	out["court"] = {"card": court.card_visible(), "mode": court.mode(), "phase": court.phase(), "testify": [ct.x, ct.y]}

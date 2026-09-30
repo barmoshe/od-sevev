@@ -276,6 +276,9 @@ func _read_dev_params() -> void:
 		return
 	_dev["on"] = true
 	_dev["forkscale"] = q.contains("forkscale=1")
+	if q.contains("clear=1"):   # the width rule's sentinel (Diorama.clear_override)
+		Diorama.clear_override = Color("#ff00ff")
+		RenderingServer.set_default_clear_color(Diorama.clear_override)
 	if q.contains("sharp=0"):
 		PxText.set_sharp_text(get_tree(), false)
 	for part in q.trim_prefix("?").split("&"):

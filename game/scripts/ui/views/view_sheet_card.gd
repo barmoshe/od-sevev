@@ -23,6 +23,7 @@ const CARD_W := 624.0
 const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
 const TEXT_RIGHT := 640.0            # modal.body box x 80-640
 const TEXT_W := 560.0
+const BODY_MAX := 624.0              # mobile-first §4.1: a modal body stays ≤ 624 (≈ 24 glyphs)
 const TITLE_W := 432.0
 const PAD := 24.0
 const PARA_GAP := 16.0
@@ -69,11 +70,12 @@ func para(t: String, col: Color = C_TEXT, centre: bool = false, lines: int = 8) 
 	var p := PxText.make(_holder, Vector2(0, _y), t, L.TEXT, "plain", col)
 	p.reading = not centre   # a body paragraph reads on @2; a centred number or mood line is display
 	var g2 := grow_half()   # mobile-first §4.1: the body box grows with the card (≤ 624)
-	p.wrap_width = TEXT_W + 2.0 * g2
+	var bw := body_w()
+	p.wrap_width = bw
 	p.max_lines = lines
 	if centre:
 		p.align = 1
-		p.center_in(CARD_X + (CARD_W - TEXT_W) / 2.0 - g2, TEXT_W + 2.0 * g2)
+		p.center_in(CARD_X + (CARD_W - bw) / 2.0, bw)
 	else:
 		p.right_at(TEXT_RIGHT + g2)
 	paras.append(p)
@@ -159,9 +161,18 @@ func finish() -> void:
 		focusables.append(close_btn)
 
 
-## Half the card's growth (mobile-first §5.10: the width is 624 + min(dx, 64)), on the 4-px grid.
+## Half the card's growth, on the 4-px grid. Bar's width rule (2026-09-30, "the UX/UI fills the
+## phone's width"; it supersedes §5.10's 624 + min(dx, 64)): a modal card is ≥ 92% of the canvas,
+## a floor4(3.5%) margin each side (24-28 logical: 672 at cw 720, 728 at 780, 800 at 860). Its body
+## text keeps the ≤ 624 reading measure (BODY_MAX); the title band, the buttons and the frame grow.
 static func grow_half() -> float:
-	return L.floor4(minf(L.dx, 64.0) / 2.0)
+	var m := L.floor4(0.035 * L.cw)
+	return maxf(0.0, L.floor4((L.cw - 2.0 * m - CARD_W) / 2.0))
+
+
+## The body box's width: the grown card's, never past the 624 reading measure (§4.1).
+static func body_w() -> float:
+	return minf(TEXT_W + 2.0 * grow_half(), BODY_MAX)
 
 
 ## A button spec (card-local x, 720 design) widened with the card: a full-width button grows by the
