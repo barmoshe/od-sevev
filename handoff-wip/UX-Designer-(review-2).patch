@@ -42,3 +42,44 @@ index eb38130..1f6f533 100644
  | Mute | `TopBar.mute` (`PxButton`) | hit `Rect2(100, 4, 88, 88)`, icon 9×9 art = 36×36 at (126, 30) | a11y `HUD_MUTE` / `HUD_UNMUTE`; muted = slash shape |
  | Settings | `TopBar.gear` | hit `Rect2(8, 4, 88, 88)`, icon at (34, 30) | a11y `HUD_SETTINGS` (mirrored from the fork's right corner) |
  
+diff --git a/ux/string-budgets.json b/ux/string-budgets.json
+index 3a6f3c3..db7b77a 100644
+--- a/ux/string-budgets.json
++++ b/ux/string-budgets.json
+@@ -4192,8 +4192,8 @@
+       "box": "sheet.caption",
+       "maxChars": 15,
+       "worstPx": {
+-        "4": 656,
+-        "5": 820
++        "4": 772,
++        "5": 965
+       }
+     },
+     "SET_LARGE": {
+diff --git a/ux/tools/gen_strings.py b/ux/tools/gen_strings.py
+index fb42dff..7fe733c 100644
+--- a/ux/tools/gen_strings.py
++++ b/ux/tools/gen_strings.py
+@@ -565,7 +565,7 @@ e("FMT_WORD_M", "{n} מיליון", "share-text:20")
+ e("FMT_WORD_B", "{n} מיליארד", "share-text:20")
+ e("FMT_WORD_T", "{n} טריליון", "share-text:20")
+ # --- settings (new rows)
+-e("SET_MOTION_CAP", "בלי טיקר רץ, בלי רעידות, בלי קפיצות.", "sheet.caption", "", "set.motion.cap")
++e("SET_MOTION_CAP", "בלי רעידות, בלי קפיצות. הכול מתחלף בשקט.", "sheet.caption", "", "set.motion.cap")
+ e("SET_LARGE", "טקסט גדול", "sheet.label", "", "set.large")
+ e("SET_LARGE_CAP", "לקריאה ממרחק זרוע.", "sheet.caption", "*", "set.large.cap")
+ e("SET_ABOUT", "אודות ומקורות", "sheet.label", "", "set.about")
+diff --git a/ux/ui-strings.json b/ux/ui-strings.json
+index 39dc571..4b72585 100644
+--- a/ux/ui-strings.json
++++ b/ux/ui-strings.json
+@@ -376,7 +376,7 @@
+     "FMT_WORD_M": "{n} מיליון",
+     "FMT_WORD_B": "{n} מיליארד",
+     "FMT_WORD_T": "{n} טריליון",
+-    "SET_MOTION_CAP": "בלי טיקר רץ, בלי רעידות, בלי קפיצות.",
++    "SET_MOTION_CAP": "בלי רעידות, בלי קפיצות. הכול מתחלף בשקט.",
+     "SET_LARGE": "טקסט גדול",
+     "SET_LARGE_CAP": "לקריאה ממרחק זרוע.",
+     "SET_ABOUT": "אודות ומקורות",
