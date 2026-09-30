@@ -817,7 +817,7 @@ def source_at(sid, cfg, d):
     is source_<id>.png plus the 1x icon + silhouette; an alternate is source_<id>_d<d>.png in
     atlas sources[id].densities["<d>"] with its own frame size, anchor and points."""
     D = d                                                  # this render's density (the module's D is the main)
-    rig = Rig(sid, 38 * D, pad=(0.14, 0.0), ncolors=64,   # 38 art + the 2-art-px rim = 40 art tall (120 sprite px at 3)
+    rig = Rig(sid, 38 * D, pad=(cfg.get('pad', 0.14), 0.0), ncolors=64,   # 38 art + the 2-art-px rim = 40 art tall (120 sprite px at 3); a wide source narrows its side pad
               ref=cfg.get('ref'), recolor=cfg.get('recolor'))
     rig.density = D
     st = round(D / rig.s)
@@ -868,15 +868,26 @@ def source_at(sid, cfg, d):
     # the shop icon + silhouette are UI (Bar: the UI stays 1x chunky), so they come from a 1x render of
     # f0 (a 38-art-px rig of the same ref, the pre-density pipeline's 32 colours, so the approved icons
     # reproduce pixel for pixel): a 24x24 crop, density 1
-    r1 = Rig(sid, 38, pad=(0.14, 0.0), ncolors=32, ref=cfg.get('ref'), recolor=cfg.get('recolor'))
-    i0 = r1.rim(r1.down(r1.canvas()))
-    iw, ih = i0.size
     S_ = 24
-    cx, cy = r1.to_art(*r1.c(*cfg['icon']))
-    x0 = min(max(int(round(cx)) + 1 - S_ // 2, 0), max(iw - S_, 0)) if iw >= S_ else (iw - S_) // 2
-    y0 = min(max(int(round(cy)) + 1 - S_ // 2, 0), ih - S_)
-    icon = _I.new('RGBA', (S_, S_), (0, 0, 0, 0))
-    icon.alpha_composite(i0.crop((max(x0, 0), y0, max(x0, 0) + min(S_, iw), y0 + S_)), (max(-x0, 0), 0))
+    if cfg.get('iconFit'):
+        # a wide object (the submarine, the chequebook): a 24-px crop of it reads as a patch of colour, so the
+        # icon is the whole object re-rendered small enough to fit (never a downscale of the 38-px render)
+        for hh in range(22, 8, -1):
+            r1 = Rig(sid, hh, pad=(0.0, 0.0), ncolors=32, ref=cfg.get('ref'), recolor=cfg.get('recolor'))
+            i0 = r1.rim(r1.down(r1.canvas()))
+            if i0.width <= S_ and i0.height <= S_:
+                break
+        icon = _I.new('RGBA', (S_, S_), (0, 0, 0, 0))
+        icon.alpha_composite(i0, ((S_ - i0.width) // 2, S_ - i0.height))
+    else:
+        r1 = Rig(sid, 38, pad=(0.14, 0.0), ncolors=32, ref=cfg.get('ref'), recolor=cfg.get('recolor'))
+        i0 = r1.rim(r1.down(r1.canvas()))
+        iw, ih = i0.size
+        cx, cy = r1.to_art(*r1.c(*cfg['icon']))
+        x0 = min(max(int(round(cx)) + 1 - S_ // 2, 0), max(iw - S_, 0)) if iw >= S_ else (iw - S_) // 2
+        y0 = min(max(int(round(cy)) + 1 - S_ // 2, 0), ih - S_)
+        icon = _I.new('RGBA', (S_, S_), (0, 0, 0, 0))
+        icon.alpha_composite(i0.crop((max(x0, 0), y0, max(x0, 0) + min(S_, iw), y0 + S_)), (max(-x0, 0), 0))
     icon.save(os.path.join(OUT, f'source_{sid}_icon.png'))
     import numpy as _np
     al = _np.asarray(icon.getchannel('A')) > 0

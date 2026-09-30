@@ -9859,6 +9859,161 @@
   }
  },
  "sources": {
+  "submarine": {
+   "sprite": "source_submarine",
+   "frames": 2,
+   "frameW": 138,
+   "frameH": 120,
+   "pivot": [
+    69,
+    119
+   ],
+   "icon": "source_submarine_icon",
+   "silhouette": "source_submarine_icon_sil",
+   "points": {},
+   "origin": "render-down",
+   "density": 3,
+   "iconDensity": 1,
+   "fallback": "the coins spill across the waterline, so the hull and the coins bob together",
+   "densities": {
+    "2": {
+     "sprite": "source_submarine_d2",
+     "frameW": 92,
+     "frameH": 80,
+     "pivot": [
+      46,
+      79
+     ],
+     "points": {},
+     "density": 2
+    }
+   },
+   "silhouettePale": "source_submarine_icon_sil_pale"
+  },
+  "poison": {
+   "sprite": "source_poison",
+   "frames": 2,
+   "frameW": 92,
+   "frameH": 120,
+   "pivot": [
+    46,
+    119
+   ],
+   "icon": "source_poison_icon",
+   "silhouette": "source_poison_icon_sil",
+   "points": {},
+   "origin": "render-down",
+   "density": 3,
+   "iconDensity": 1,
+   "fallback": "the LED rows are sub-pixel at 40 px: the rack bobs above its wheels",
+   "densities": {
+    "2": {
+     "sprite": "source_poison_d2",
+     "frameW": 61,
+     "frameH": 80,
+     "pivot": [
+      30,
+      79
+     ],
+     "points": {},
+     "density": 2
+    }
+   },
+   "silhouettePale": "source_poison_icon_sil_pale"
+  },
+  "checkbook": {
+   "sprite": "source_checkbook",
+   "frames": 2,
+   "frameW": 160,
+   "frameH": 120,
+   "pivot": [
+    80,
+    119
+   ],
+   "icon": "source_checkbook_icon",
+   "silhouette": "source_checkbook_icon_sil",
+   "points": {},
+   "origin": "render-down",
+   "density": 3,
+   "iconDensity": 1,
+   "fallback": "no loose page corner: the book bobs, with a 1-px glint on the gold edge",
+   "densities": {
+    "2": {
+     "sprite": "source_checkbook_d2",
+     "frameW": 107,
+     "frameH": 80,
+     "pivot": [
+      53,
+      79
+     ],
+     "points": {},
+     "density": 2
+    }
+   },
+   "silhouettePale": "source_checkbook_icon_sil_pale"
+  },
+  "donor": {
+   "sprite": "source_donor",
+   "frames": 2,
+   "frameW": 78,
+   "frameH": 120,
+   "pivot": [
+    39,
+    119
+   ],
+   "icon": "source_donor_icon",
+   "silhouette": "source_donor_icon_sil",
+   "points": {},
+   "origin": "render-down",
+   "density": 3,
+   "iconDensity": 1,
+   "fallback": "a faceless figure: the bob only (no eyes to blink)",
+   "densities": {
+    "2": {
+     "sprite": "source_donor_d2",
+     "frameW": 52,
+     "frameH": 80,
+     "pivot": [
+      26,
+      79
+     ],
+     "points": {},
+     "density": 2
+    }
+   },
+   "silhouettePale": "source_donor_icon_sil_pale"
+  },
+  "funds": {
+   "sprite": "source_funds",
+   "frames": 2,
+   "frameW": 112,
+   "frameH": 120,
+   "pivot": [
+    56,
+    119
+   ],
+   "icon": "source_funds_icon",
+   "silhouette": "source_funds_icon_sil",
+   "points": {},
+   "origin": "render-down",
+   "density": 3,
+   "iconDensity": 1,
+   "fallback": "the binder and its coins bob together",
+   "densities": {
+    "2": {
+     "sprite": "source_funds_d2",
+     "frameW": 74,
+     "frameH": 80,
+     "pivot": [
+      37,
+      79
+     ],
+     "points": {},
+     "density": 2
+    }
+   },
+   "silhouettePale": "source_funds_icon_sil_pale"
+  },
   "taxpayer": {
    "sprite": "source_taxpayer",
    "frames": 2,
@@ -10062,91 +10217,6 @@
     }
    },
    "silhouettePale": "source_advisers_icon_sil_pale"
-  },
-  "checkbook": {
-   "sprite": "source_checkbook",
-   "frames": 2,
-   "frameW": 42,
-   "frameH": 40,
-   "pivot": [
-    21,
-    39
-   ],
-   "icon": "source_checkbook_icon",
-   "silhouette": "source_checkbook_icon_sil",
-   "points": {},
-   "origin": "hand-drawn",
-   "density": 1,
-   "iconDensity": 1,
-   "silhouettePale": "source_checkbook_icon_sil_pale"
-  },
-  "donor": {
-   "sprite": "source_donor",
-   "frames": 2,
-   "frameW": 28,
-   "frameH": 40,
-   "pivot": [
-    14,
-    39
-   ],
-   "icon": "source_donor_icon",
-   "silhouette": "source_donor_icon_sil",
-   "points": {},
-   "origin": "hand-drawn",
-   "density": 1,
-   "iconDensity": 1,
-   "silhouettePale": "source_donor_icon_sil_pale"
-  },
-  "funds": {
-   "sprite": "source_funds",
-   "frames": 2,
-   "frameW": 30,
-   "frameH": 40,
-   "pivot": [
-    15,
-    39
-   ],
-   "icon": "source_funds_icon",
-   "silhouette": "source_funds_icon_sil",
-   "points": {},
-   "origin": "hand-drawn",
-   "density": 1,
-   "iconDensity": 1,
-   "silhouettePale": "source_funds_icon_sil_pale"
-  },
-  "poison": {
-   "sprite": "source_poison",
-   "frames": 2,
-   "frameW": 34,
-   "frameH": 40,
-   "pivot": [
-    17,
-    39
-   ],
-   "icon": "source_poison_icon",
-   "silhouette": "source_poison_icon_sil",
-   "points": {},
-   "origin": "hand-drawn",
-   "density": 1,
-   "iconDensity": 1,
-   "silhouettePale": "source_poison_icon_sil_pale"
-  },
-  "submarine": {
-   "sprite": "source_submarine",
-   "frames": 2,
-   "frameW": 50,
-   "frameH": 40,
-   "pivot": [
-    25,
-    39
-   ],
-   "icon": "source_submarine_icon",
-   "silhouette": "source_submarine_icon_sil",
-   "points": {},
-   "origin": "hand-drawn",
-   "density": 1,
-   "iconDensity": 1,
-   "silhouettePale": "source_submarine_icon_sil_pale"
   }
  },
  "sourceAliases": {
@@ -13941,126 +14011,6 @@
     17
    ],
    "label": "white"
-  },
-  "source_checkbook": {
-   "id": "source_checkbook",
-   "group": "sources",
-   "w": 84,
-   "h": 40,
-   "frames": 2,
-   "frameW": 42,
-   "pivot": [
-    21,
-    39
-   ]
-  },
-  "source_checkbook_icon": {
-   "id": "source_checkbook_icon",
-   "group": "sources",
-   "w": 24,
-   "h": 24
-  },
-  "source_checkbook_icon_sil": {
-   "id": "source_checkbook_icon_sil",
-   "group": "sources",
-   "w": 24,
-   "h": 24
-  },
-  "source_donor": {
-   "id": "source_donor",
-   "group": "sources",
-   "w": 56,
-   "h": 40,
-   "frames": 2,
-   "frameW": 28,
-   "pivot": [
-    14,
-    39
-   ]
-  },
-  "source_donor_icon": {
-   "id": "source_donor_icon",
-   "group": "sources",
-   "w": 24,
-   "h": 24
-  },
-  "source_donor_icon_sil": {
-   "id": "source_donor_icon_sil",
-   "group": "sources",
-   "w": 24,
-   "h": 24
-  },
-  "source_funds": {
-   "id": "source_funds",
-   "group": "sources",
-   "w": 60,
-   "h": 40,
-   "frames": 2,
-   "frameW": 30,
-   "pivot": [
-    15,
-    39
-   ]
-  },
-  "source_funds_icon": {
-   "id": "source_funds_icon",
-   "group": "sources",
-   "w": 24,
-   "h": 24
-  },
-  "source_funds_icon_sil": {
-   "id": "source_funds_icon_sil",
-   "group": "sources",
-   "w": 24,
-   "h": 24
-  },
-  "source_poison": {
-   "id": "source_poison",
-   "group": "sources",
-   "w": 68,
-   "h": 40,
-   "frames": 2,
-   "frameW": 34,
-   "pivot": [
-    17,
-    39
-   ]
-  },
-  "source_poison_icon": {
-   "id": "source_poison_icon",
-   "group": "sources",
-   "w": 24,
-   "h": 24
-  },
-  "source_poison_icon_sil": {
-   "id": "source_poison_icon_sil",
-   "group": "sources",
-   "w": 24,
-   "h": 24
-  },
-  "source_submarine": {
-   "id": "source_submarine",
-   "group": "sources",
-   "w": 100,
-   "h": 40,
-   "frames": 2,
-   "frameW": 50,
-   "pivot": [
-    25,
-    39
-   ]
-  },
-  "source_submarine_icon": {
-   "id": "source_submarine_icon",
-   "group": "sources",
-   "w": 24,
-   "h": 24
-  },
-  "source_submarine_icon_sil": {
-   "id": "source_submarine_icon_sil",
-   "group": "sources",
-   "w": 24,
-   "h": 24
   },
   "spin_s01": {
    "id": "spin_s01",
@@ -17951,32 +17901,40 @@
    ]
   },
   "source_checkbook.png": {
-   "bytes": 743,
-   "sha": "68830329dffffcd7",
+   "bytes": 23801,
+   "sha": "b4876a773a4f2a83",
    "size": [
-    84,
-    40
+    320,
+    120
+   ]
+  },
+  "source_checkbook_d2.png": {
+   "bytes": 11595,
+   "sha": "89ec6e2475293d8c",
+   "size": [
+    214,
+    80
    ]
   },
   "source_checkbook_icon.png": {
-   "bytes": 329,
-   "sha": "e6e50e8b6ea9054e",
+   "bytes": 974,
+   "sha": "ba9b55634b43d2a5",
    "size": [
     24,
     24
    ]
   },
   "source_checkbook_icon_sil.png": {
-   "bytes": 145,
-   "sha": "7326518b18401338",
+   "bytes": 251,
+   "sha": "e6950424a6e7cfd0",
    "size": [
     24,
     24
    ]
   },
   "source_checkbook_icon_sil_pale.png": {
-   "bytes": 148,
-   "sha": "ae4b9b01b94c4e98",
+   "bytes": 259,
+   "sha": "41be6776307be36f",
    "size": [
     24,
     24
@@ -18023,64 +17981,80 @@
    ]
   },
   "source_donor.png": {
-   "bytes": 871,
-   "sha": "0c58eb887a1bdfd5",
+   "bytes": 10397,
+   "sha": "11dc872e3a9ed606",
    "size": [
-    56,
-    40
+    156,
+    120
+   ]
+  },
+  "source_donor_d2.png": {
+   "bytes": 5429,
+   "sha": "af218e8e5a01b4d2",
+   "size": [
+    104,
+    80
    ]
   },
   "source_donor_icon.png": {
-   "bytes": 541,
-   "sha": "f526c82e259f66cc",
+   "bytes": 989,
+   "sha": "9db9abd480a43127",
    "size": [
     24,
     24
    ]
   },
   "source_donor_icon_sil.png": {
-   "bytes": 228,
-   "sha": "1d974768e7a55bb8",
+   "bytes": 265,
+   "sha": "a17b44065bc69faa",
    "size": [
     24,
     24
    ]
   },
   "source_donor_icon_sil_pale.png": {
-   "bytes": 229,
-   "sha": "70ee74ac64675a90",
+   "bytes": 267,
+   "sha": "6a1a6f21475e7e93",
    "size": [
     24,
     24
    ]
   },
   "source_funds.png": {
-   "bytes": 615,
-   "sha": "302014fcd52aee67",
+   "bytes": 14013,
+   "sha": "59add22623607be5",
    "size": [
-    60,
-    40
+    224,
+    120
+   ]
+  },
+  "source_funds_d2.png": {
+   "bytes": 7626,
+   "sha": "4bf4f11a3ac660b8",
+   "size": [
+    148,
+    80
    ]
   },
   "source_funds_icon.png": {
-   "bytes": 297,
-   "sha": "801c1ba0e35c5f21",
+   "bytes": 902,
+   "sha": "61cebd353f23044b",
    "size": [
     24,
     24
    ]
   },
   "source_funds_icon_sil.png": {
-   "bytes": 132,
-   "sha": "235512d9bd402737",
+   "bytes": 231,
+   "sha": "3732ce1e2d84314b",
    "size": [
     24,
     24
    ]
   },
   "source_funds_icon_sil_pale.png": {
-   "bytes": 132,
-   "sha": "ee3dc14150734543",
+   "bytes": 235,
+   "sha": "130746e524fe1d07",
    "size": [
     24,
     24
@@ -18127,16 +18101,24 @@
    ]
   },
   "source_poison.png": {
-   "bytes": 634,
-   "sha": "bb1938eda522c547",
+   "bytes": 20522,
+   "sha": "e3227aa2504c4c59",
    "size": [
-    68,
-    40
+    184,
+    120
+   ]
+  },
+  "source_poison_d2.png": {
+   "bytes": 10624,
+   "sha": "166d9fd4a0f8f69c",
+   "size": [
+    122,
+    80
    ]
   },
   "source_poison_icon.png": {
-   "bytes": 241,
-   "sha": "bf7cde734b061c21",
+   "bytes": 1576,
+   "sha": "c557864536d1e779",
    "size": [
     24,
     24
@@ -18199,32 +18181,40 @@
    ]
   },
   "source_submarine.png": {
-   "bytes": 1084,
-   "sha": "bc4485f2e2bc0b3f",
+   "bytes": 27576,
+   "sha": "2f82cf3a1425d402",
    "size": [
-    100,
-    40
+    276,
+    120
+   ]
+  },
+  "source_submarine_d2.png": {
+   "bytes": 13720,
+   "sha": "c1ce39c52b427c81",
+   "size": [
+    184,
+    80
    ]
   },
   "source_submarine_icon.png": {
-   "bytes": 446,
-   "sha": "b2561d7d8d63ad32",
+   "bytes": 1082,
+   "sha": "30a4e0eef502f6b4",
    "size": [
     24,
     24
    ]
   },
   "source_submarine_icon_sil.png": {
-   "bytes": 232,
-   "sha": "e5453fdd061d32d3",
+   "bytes": 262,
+   "sha": "6c56c95dcd4374f6",
    "size": [
     24,
     24
    ]
   },
   "source_submarine_icon_sil_pale.png": {
-   "bytes": 236,
-   "sha": "32a0ee4d445bca75",
+   "bytes": 276,
+   "sha": "2d3d2f739d971157",
    "size": [
     24,
     24
@@ -19344,11 +19334,14 @@
    "ben-gvir.png": "8e73a1ad7829f65b",
    "bennett.png": "726e32bcfad8a682",
    "bibi.png": "75c3c9c492882b8b",
+   "checkbook.png": "6390e980b2f6d6d0",
    "cigars.png": "2a184a8ca4251f27",
    "deri.png": "b702c823799aa59d",
    "distel.png": "c4d9a313389fba53",
+   "donor.png": "c0e354c394bf19fc",
    "dubi.png": "bfce6ff0751bcc3e",
    "eisenkot.png": "372210d8059f6902",
+   "funds.png": "81cbd3dd9ae66107",
    "gafni.png": "dad9df69f7eb74aa",
    "gantz.png": "b42e1a744868ef04",
    "golan.png": "a3c1e5ba79b6540d",
@@ -19367,10 +19360,12 @@
    "mk-switcher.png": "d593dc5077819193",
    "mk-undecided.png": "bfbddb0f010602f9",
    "mordechai-david.png": "dc811d49eaa656a4",
+   "poison.png": "0ee43dc28ae965e4",
    "qatari.png": "f385089ae968a264",
    "regev.png": "2a1a39cd3cb195da",
    "sara.png": "56989776f43a9335",
    "smotrich.png": "4c86097e39338044",
+   "submarine.png": "9b3648f89fd7b2f3",
    "taxpayer.png": "d8da78b12f46e44d",
    "tibi.png": "b3409aa6a75712f7",
    "trump.png": "bdd29b89aa43a3b6",

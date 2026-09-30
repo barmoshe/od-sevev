@@ -13,7 +13,16 @@ Every file in this batch came back RGB on a flat off-white field. `rig.py` crops
 alpha box, so each approved one is keyed out first:
 `python3 creative-pack/art/showcase/src/cutout.py refs/candidates/<id>.png refs/<id>.png`.
 
-- **In the game (2026-09-30):** `mk-offer`, `mk-undecided`, `mk-switcher` (the generic MKs in the
-  opposition lineups), keyed out into `../`, landmarks in `cast.py`, rendered at d3 + d2.
+- **In the game (2026-09-30):**
+  - the generic MKs `mk-offer`, `mk-undecided`, `mk-switcher`;
+  - the real MKs `lazimi`, `kariv`, `tibi` (Golan's round) and `almog` (Bibi's and Ben Gvir's);
+  - the money sources `submarine`, `poison`, `checkbook` (Washington), `donor`, `funds`. These replaced
+    the 2D Artist's 1x drawings; their 15 `ui-kit.json` rows are gone. The wide ones take `iconFit`
+    (the whole object in the 24-px icon), and the submarine a narrower side `pad`, so it clears the
+    thermometer column.
+
+  Each was keyed out into `../`, given landmarks or a recipe in `cast.py`, and rendered at d3 + d2.
+- **Not used yet:** `aide`. The engine has no slot to draw the aide figure (the aide is a button and a
+  15-px trophy icon).
 - **Rejected as drawn:** `mk-returner` looks like Netanyahu (the style ref's face leaked). Regenerate
   with a made-up face; the game keeps the no-photo stand-in for him until then.
