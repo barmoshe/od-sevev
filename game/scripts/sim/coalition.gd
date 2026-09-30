@@ -810,6 +810,7 @@ static func pay(s: GameState, seq: int, ceremony_done: bool = false) -> Dictiona
 			out.append({"ev": "leaderBuff", "partner": id, "type": str(odp.get("type", "")),
 				"mult": float(odp.get("mult", 1.0)), "sec": float(odp.get("durationSec", 0.0))})
 	Meta.count(s, "countPartnerPaid", id)   # "gafniPaid" (trophy "תיקו כמו שהזמנת")
+	out.append({"ev": "partnerPaid", "partner": id, "payable": payable})   # the partner's paid ticker (copy.onPaidTicker / poachTicker)
 	if p.has("priceGrowth"):
 		c["levels"][id] = int(c["levels"].get(id, 0)) + 1
 	var sus := float(p.get("onPay", {}).get("suspicion", 0.0))

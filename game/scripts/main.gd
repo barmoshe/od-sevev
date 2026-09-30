@@ -1471,6 +1471,18 @@ static func politics_ctx(now_ms: float, allow_ping: bool, local: Dictionary, vot
 
 ## Politics events the engine shows or voices this wave. The Audio runtime (another developer)
 ## subscribes by name: courtSummons, courtStart, courtEnd(reason) (motion/state-graph-magician §2.1).
+## A paid pill (Coalition.pay, routed through the chat): the partner's own ticker line, when content
+## wrote one. Gafni's copy.onPaidTicker on a paid demand ("he went to the bathroom: a tie"), Almog's
+## copy.poachTicker when the poach pill brings him in. Returns the queued text ("" = none).
+func on_partner_paid(id: String, payable: String) -> String:
+	var c: Dictionary = Coalition.partner(id).get("copy", {}) if Coalition.partner(id).get("copy") is Dictionary else {}
+	var key := "poachTicker" if payable == "poach" else ("" if payable == "rejoin" else "onPaidTicker")
+	var line := str(c.get(key, "")) if key != "" else ""
+	if line != "":
+		ticker.enqueue("flavor", line)
+	return line
+
+
 func _on_politics_event(e: Dictionary) -> void:
 	chat.on_politics_event(e)   # chat pings, toasts, chatLeft / ultimatumZero
 	court.on_politics_event(e)  # the court card and chip (the card now carries the summons text)
@@ -1480,6 +1492,11 @@ func _on_politics_event(e: Dictionary) -> void:
 			if str(e.get("id", "")) == StreetFigure.EVENT_ID:
 				_on_street_event(e.get("result", {}))
 		"eventEnd":
+			if str(e.get("type", "")) == "pledge":
+				# Bennett's pledge flips when its timer runs out (his card elsewhere, his own rule in his round)
+				var flip := str((Events.event("bennett").get("copy", {}) as Dictionary).get("flipText", ""))
+				if flip != "":
+					toasts.show_toast(flip)
 			if str(e.get("type", "")) == "blockade" and _street_partner != "":
 				var endc := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
 				toasts.show_toast(StreetFigure.fill(str(endc.get("endText", "")), _street_partner), "", "lane")

@@ -1449,6 +1449,9 @@ func on_politics_event(e: Dictionary) -> void:
 				_audio("chatBrawl")   # Audio v1.3: the brawl's own ping (two voices at once)
 				if host != null and "toasts" in host and host.get("toasts") != null:
 					(host.get("toasts") as Toasts).show_toast(sys_text({"key": "chat.sys.brawl", "a": msg.get("a", ""), "b": msg.get("b", "")}), "chat")
+		"partnerPaid":
+			if host != null and host.has_method("on_partner_paid"):
+				host.call("on_partner_paid", str(e.get("partner", "")), str(e.get("payable", "")))
 		"partnerLeft":
 			var pid := str(e.get("partner", e.get("id", "")))
 			if _ultimatum_ran_out(pid):
