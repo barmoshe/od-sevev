@@ -87,13 +87,27 @@ def center(im, layer, cy):
     im.alpha_composite(layer, ((N - layer.width) // 2, int(cy - layer.height / 2)))
 
 
-def dubi_bust(height):
-    """Dubi's head and shoulders from the ref, glow dropped, snapped to the art-pixel grid."""
+def dubi_bust(height, detail=False):
+    """Dubi's head and shoulders from the ref, glow dropped, snapped to the art-pixel grid.
+
+    detail=True keeps the ref's own drawing (no snap to the 9-px grid) for the HD export."""
     ref = Image.open(os.path.join(ROOT, "creative-pack", "art", "refs", "dubi.png")).convert("RGBA")
-    bust = ref.crop((190, 60, 900, 900))
+    bust = ref.crop((25, 60, 1000, 900))  # whole raised wing and far shoulder, no hard crop edge
     a = bust.getchannel("A").point(lambda v: 255 if v > 200 else 0)
     bust.putalpha(a)
     w = round(bust.width * height / bust.height)
+    if detail:
+        big = bust.resize((w, height), Image.LANCZOS)
+        big.putalpha(big.getchannel("A").point(lambda v: 255 if v > 128 else 0))
+        t = max(2, PX // 3)  # dark outline, a third of an art px thick
+        out = Image.new("RGBA", (w + 2 * t, height + 2 * t), (0, 0, 0, 0))
+        sil = Image.new("RGBA", big.size, (11, 10, 18, 255))
+        sil.putalpha(big.getchannel("A"))
+        for dx in range(0, 2 * t + 1, t):
+            for dy in range(0, 2 * t + 1, t):
+                out.alpha_composite(sil, (dx, dy))
+        out.alpha_composite(big, (t, t))
+        return out
     small = bust.resize((w // PX * 1 or 1, height // PX), Image.LANCZOS)
     small.putalpha(small.getchannel("A").point(lambda v: 255 if v > 128 else 0))
     # 1-art-px dark outline so the bird reads on the curtain at 110 px
@@ -116,17 +130,20 @@ def option_a():
     return im
 
 
-def option_b():
-    """Dubi the parrot, mid-heckle, with the wordmark as his nameplate."""
+def option_b(detail=False):
+    """Dubi the parrot, mid-heckle, with the wordmark as his nameplate.
+
+    Layout is in 1080 units and scales with N, so the HD export is the same picture."""
+    k = N / 1080
     im = curtain()
-    im = vignette(spotlight(im, N / 2, 470, 430), 150)
-    im = confetti(im, 3, (200, 170, 880, 330), 18)
-    center(im, dubi_bust(630), 450)
-    plate = spr("wordmark.png", 4)
+    im = vignette(spotlight(im, N / 2, 470 * k, 430 * k), 150)
+    im = confetti(im, 3, tuple(int(v * k) for v in (200, 170, 880, 330)), 18)
+    center(im, dubi_bust(int(630 * k), detail), 450 * k)
+    plate = spr("wordmark.png", 4 * PX // 9)
     # a night plate under the wordmark so it never fights the suit
     d = ImageDraw.Draw(im)
-    pw, ph = plate.width + PX * 6, plate.height + PX * 4
-    py = 790
+    pw, ph = plate.width + PX * 18, plate.height + PX * 4  # wide enough to hide the sleeve cut
+    py = int(790 * k)
     box = ((N - pw) // 2, py - ph // 2, (N + pw) // 2, py + ph // 2)
     d.rectangle(box, fill=GOLD_SH)
     d.rectangle((box[0] + PX, box[1] + PX, box[2] - PX, box[3] - PX), fill=NIGHT + (255,))
@@ -165,6 +182,10 @@ def main():
     for name, im in opts:
         im.convert("RGB").save(os.path.join(OUT, f"profile-{name[0]}.png"))
     circle_preview(opts).convert("RGB").save(os.path.join(OUT, "profile-preview.png"))
+    # the chosen one (b), at 2160 with Dubi at the ref's full detail
+    global N, PX
+    N, PX = 2160, 18
+    option_b(detail=True).convert("RGB").save(os.path.join(OUT, "profile-b-hd.png"))
 
 
 if __name__ == "__main__":
