@@ -113,7 +113,15 @@
 #   art/od-sevev/out/ui/trophies/trophy_wand.png
 #   art/od-sevev/out/ui/trophies/trophy_wand_locked.png
 #   art/od-sevev/out/ui/widgets/cottage_cup.png
+#   art/od-sevev/proofs/cvd-deut-prot-and-squint-x2.png
+#   art/od-sevev/proofs/game-scale-hud-chat-overlays-x2.png
+#   art/od-sevev/proofs/game-scale-hud-x4.png
+#   art/od-sevev/proofs/kit-chat.png
+#   art/od-sevev/proofs/kit-controls.png
+#   art/od-sevev/proofs/kit-w2-cards.png
 #   art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png
+#   art/od-sevev/proofs/kit-w9-flap.png
+#   art/od-sevev/proofs/phone-390css-read.png
 diff --git a/art/od-sevev/out/ui/cards/card_back_mark.png b/art/od-sevev/out/ui/cards/card_back_mark.png
 index c64002c..9a7b7b0 100644
 Binary files a/art/od-sevev/out/ui/cards/card_back_mark.png and b/art/od-sevev/out/ui/cards/card_back_mark.png differ
@@ -187,10 +195,10 @@ diff --git a/art/od-sevev/out/ui/controls/tabicon_cases_idle.png b/art/od-sevev/
 index 8d49593..f0b4ff0 100644
 Binary files a/art/od-sevev/out/ui/controls/tabicon_cases_idle.png and b/art/od-sevev/out/ui/controls/tabicon_cases_idle.png differ
 diff --git a/art/od-sevev/out/ui/controls/tabicon_coalition_active.png b/art/od-sevev/out/ui/controls/tabicon_coalition_active.png
-index c1aebbe..26427f7 100644
+index c1aebbe..5455d9c 100644
 Binary files a/art/od-sevev/out/ui/controls/tabicon_coalition_active.png and b/art/od-sevev/out/ui/controls/tabicon_coalition_active.png differ
 diff --git a/art/od-sevev/out/ui/controls/tabicon_coalition_idle.png b/art/od-sevev/out/ui/controls/tabicon_coalition_idle.png
-index 8a8af37..b4556e6 100644
+index 8a8af37..056890a 100644
 Binary files a/art/od-sevev/out/ui/controls/tabicon_coalition_idle.png and b/art/od-sevev/out/ui/controls/tabicon_coalition_idle.png differ
 diff --git a/art/od-sevev/out/ui/controls/tabicon_sources_active.png b/art/od-sevev/out/ui/controls/tabicon_sources_active.png
 index b4e964c..e0f98bb 100644
@@ -456,9 +464,93 @@ Binary files a/art/od-sevev/out/ui/trophies/trophy_wand_locked.png and b/art/od-
 diff --git a/art/od-sevev/out/ui/widgets/cottage_cup.png b/art/od-sevev/out/ui/widgets/cottage_cup.png
 index 177e3e4..9d3601e 100644
 Binary files a/art/od-sevev/out/ui/widgets/cottage_cup.png and b/art/od-sevev/out/ui/widgets/cottage_cup.png differ
+diff --git a/art/od-sevev/proofs/contrast-table.md b/art/od-sevev/proofs/contrast-table.md
+index 94099e5..43ff9da 100644
+--- a/art/od-sevev/proofs/contrast-table.md
++++ b/art/od-sevev/proofs/contrast-table.md
+@@ -53,3 +53,13 @@
+ | `outline` | `stone` | 13.30:1 | 4.5:1 | yes |
+ | `outline` | `stone_sh` | 7.49:1 | 4.5:1 | yes |
+ | `outline` | `paper` | 13.46:1 | 4.5:1 | yes |
++| `flag` | `white` | 8.46:1 | 4.5:1 | yes |
++| `flag` | `silver` | 6.40:1 | 4.5:1 | yes |
++| `ui_panel` | `ui_mute` | 8.87:1 | 4.5:1 | yes |
++| `ui_mute` | `ui_scrim` | 12.91:1 | 4.5:1 | yes |
++| `night` | `white` | 13.88:1 | 4.5:1 | yes |
++| `white` | `flag` | 8.46:1 | 4.5:1 | yes |
++| `white` | `ui_bubble` | 7.52:1 | 3.0:1 | yes |
++| `white` | `ui_panel` | 11.78:1 | 3.0:1 | yes |
++| `ui_rule` | `white` | 5.58:1 | 3.0:1 | yes |
++| `ui_rule` | `ui_scrim` | 3.08:1 | 3.0:1 | yes |
+diff --git a/art/od-sevev/proofs/cvd-deut-prot-and-squint-x2.png b/art/od-sevev/proofs/cvd-deut-prot-and-squint-x2.png
+index ce40b10..4204a29 100644
+Binary files a/art/od-sevev/proofs/cvd-deut-prot-and-squint-x2.png and b/art/od-sevev/proofs/cvd-deut-prot-and-squint-x2.png differ
+diff --git a/art/od-sevev/proofs/game-scale-hud-chat-overlays-x2.png b/art/od-sevev/proofs/game-scale-hud-chat-overlays-x2.png
+index a81fc3d..c5104e7 100644
+Binary files a/art/od-sevev/proofs/game-scale-hud-chat-overlays-x2.png and b/art/od-sevev/proofs/game-scale-hud-chat-overlays-x2.png differ
+diff --git a/art/od-sevev/proofs/game-scale-hud-x4.png b/art/od-sevev/proofs/game-scale-hud-x4.png
+index 4dbd4be..f653d99 100644
+Binary files a/art/od-sevev/proofs/game-scale-hud-x4.png and b/art/od-sevev/proofs/game-scale-hud-x4.png differ
+diff --git a/art/od-sevev/proofs/kit-chat.png b/art/od-sevev/proofs/kit-chat.png
+index 00a41c7..1949ce6 100644
+Binary files a/art/od-sevev/proofs/kit-chat.png and b/art/od-sevev/proofs/kit-chat.png differ
+diff --git a/art/od-sevev/proofs/kit-controls.png b/art/od-sevev/proofs/kit-controls.png
+index 15f28be..5991bde 100644
+Binary files a/art/od-sevev/proofs/kit-controls.png and b/art/od-sevev/proofs/kit-controls.png differ
+diff --git a/art/od-sevev/proofs/kit-w2-cards.png b/art/od-sevev/proofs/kit-w2-cards.png
+index 403558e..2d90fa3 100644
+Binary files a/art/od-sevev/proofs/kit-w2-cards.png and b/art/od-sevev/proofs/kit-w2-cards.png differ
 diff --git a/art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png b/art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png
-index 40dc27d..711b093 100644
+index 40dc27d..66cde3c 100644
 Binary files a/art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png and b/art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png differ
+diff --git a/art/od-sevev/proofs/kit-w9-flap.png b/art/od-sevev/proofs/kit-w9-flap.png
+index 0655711..4adf093 100644
+Binary files a/art/od-sevev/proofs/kit-w9-flap.png and b/art/od-sevev/proofs/kit-w9-flap.png differ
+diff --git a/art/od-sevev/proofs/phone-390css-read.png b/art/od-sevev/proofs/phone-390css-read.png
+index ef5c16f..81fbe9e 100644
+Binary files a/art/od-sevev/proofs/phone-390css-read.png and b/art/od-sevev/proofs/phone-390css-read.png differ
+diff --git a/art/od-sevev/src/build_all.py b/art/od-sevev/src/build_all.py
+index 7a9b0f4..24db743 100644
+--- a/art/od-sevev/src/build_all.py
++++ b/art/od-sevev/src/build_all.py
+@@ -1,16 +1,17 @@
+ """Rebuild every od-sevev graphic-tier asset, the manifest, and the proofs:  python3 build_all.py"""
+ import palette  # noqa: F401  (writes nothing on import)
+-import ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, wave7, wave8, wave9, leaders, keyart, proofs
++import ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, wave7, wave8, wave9, wave10, leaders, keyart, proofs
+ from kit import write_manifest, REGISTRY
+ 
+ if __name__ == "__main__":
+     import runpy, os
+     runpy.run_path(os.path.join(os.path.dirname(__file__), "palette.py"), run_name="__main__")
+-    for m in (ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, wave7, wave8, wave9, leaders):
++    for m in (ui_chat, ui_controls, ui_meters, ui_widgets, wordmark, ui_events, props, ui_share, wave2, sources, dubi_small, wave5, wave6, wave7, wave8, wave9, wave10, leaders):
+         m.build()
+     print(write_manifest(), len(REGISTRY), "pieces")
+     print(wave7.proof())
+     print(wave9.proof())
++    print(wave10.proof())
+     keyart.build()
+     fails, over = proofs.build()
+     print("contrast fails:", fails, "| receipt overflow:", over)
+diff --git a/art/od-sevev/src/proofs.py b/art/od-sevev/src/proofs.py
+index ee06f7e..68de5af 100644
+--- a/art/od-sevev/src/proofs.py
++++ b/art/od-sevev/src/proofs.py
+@@ -52,6 +52,13 @@ CONTRAST = [
+     # the Suitcase's outline on the stone lanes
+     ("white", "ui_bubble", 4.5), ("white", "ui_panel", 4.5), ("gold", "ui_bubble", 3.0), ("flag", "white", 3.0),
+     ("stamp_lt", "ui_bubble", 4.5), ("outline", "stone", 4.5), ("outline", "stone_sh", 4.5), ("outline", "paper", 4.5),
++    # wave 10 (UX review 2): the white primary's label (default / pressed), the teaser row's name, the navy system
++    # pill's label, the notice's title and text, the tall booth's title; non-text: the white primary vs the secondary
++    # and the modal body, the teaser row's edge on the white pane, the navy pill's edge vs its well, the pale
++    # silhouette's edge on the white slip
++    ("flag", "white", 4.5), ("flag", "silver", 4.5), ("ui_panel", "ui_mute", 4.5), ("ui_mute", "ui_scrim", 4.5),
++    ("night", "white", 4.5), ("white", "flag", 4.5),
++    ("white", "ui_bubble", 3.0), ("white", "ui_panel", 3.0), ("ui_rule", "white", 3.0), ("ui_rule", "ui_scrim", 3.0),
+ ]
+ 
+ 
 diff --git a/art/od-sevev/src/ui_controls.py b/art/od-sevev/src/ui_controls.py
 index 9f5a6a9..32ca375 100644
 --- a/art/od-sevev/src/ui_controls.py
@@ -579,12 +671,288 @@ index d99b981..82c2ffa 100644
          for c, t in enumerate(tiles):
              out.alpha_composite(t, (pad + c * cw, y))
          y += h + pad
+diff --git a/art/od-sevev/ui-kit.json b/art/od-sevev/ui-kit.json
+index 39d9107..c7e697e 100644
+--- a/art/od-sevev/ui-kit.json
++++ b/art/od-sevev/ui-kit.json
+@@ -56,6 +56,39 @@
+    "mode": "tile",
+    "notes": "The card's back (Bennett's pledge flip, Golan's merge shuffle). Diagonal stripe period 6: TILE. Centre card_back_mark on it (never inside the 9-slice, or it would repeat)."
+   },
++  {
++   "id": "card_row_silhouette",
++   "group": "cards",
++   "file": "out/ui/cards/card_row_silhouette.png",
++   "w": 32,
++   "h": 30,
++   "state": "teaser",
++   "slice": [
++    4,
++    4,
++    4,
++    4
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    3,
++    26,
++    24
++   ],
++   "label": "ui_panel",
++   "notes": "U7 (UX review 2): a not-yet-revealed source row on the white pane, a blank pale slip. ui_mute face, a 1 art px ui_rule edge (5.58:1 on the white pane; the face alone is 1.33:1, so the edge carries the shape), sunk 1 px with a ui_dim inner top row, chamfered, no ink outline (a blank slip, the lightest object on the pane; the saturated blue cards with gold pills stay the strong ones). Replaces card_source_locked (suit_dk slate, the pane's heaviest value) for the teaser and silhouette rows. Name 'מקור עלום' in ui_panel 8.87:1; the plate keeps card_plate, the icon is the pale silhouette `<silhouette>_pale` (ui_dim with a ui_rule edge, 5.58:1 on the slip); no pill.",
++   "textColors": {
++    "name": "ui_panel",
++    "line2": "ui_panel"
++   },
++   "hex": {
++    "ui_mute": "#c9d6f2",
++    "ui_rule": "#2a5cc4",
++    "ui_panel": "#072a7a",
++    "ui_dim": "#b4c3e8"
++   }
++  },
+   {
+    "id": "card_source_affordable",
+    "group": "cards",
+@@ -441,6 +474,33 @@
+    "label": "white",
+    "notes": "System lines, day divider 'היום', unread divider, 'ההודעה נמחקה'. white on suit_dk 11.8:1. Text cell is 9 rows (5x9 cut): exactly the content height."
+   },
++  {
++   "id": "chat_system_pill_navy",
++   "group": "chat",
++   "file": "out/ui/chat/chat_system_pill_navy.png",
++   "w": 20,
++   "h": 13,
++   "slice": [
++    4,
++    3,
++    4,
++    3
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    2,
++    14,
++    9
++   ],
++   "label": "ui_mute",
++   "notes": "U7 (UX review 2): T3's system pill on the v4 thread (ui_panel). A flat ui_scrim well with a 1 art px ui_rule edge (fill 1.46:1 and edge 2.11:1 vs the thread, the edge 3.08:1 vs the well), no light bevel (a system line is not a button). Label ui_mute 12.91:1. Same size, 9-slice and content box as chat_system_pill, which stays (the picker's fresh chip still reads it).",
++   "hex": {
++    "ui_scrim": "#061029",
++    "ui_rule": "#2a5cc4",
++    "ui_mute": "#c9d6f2"
++   }
++  },
+   {
+    "id": "icon_clock",
+    "group": "chat",
+@@ -834,6 +894,75 @@
+    "label": "white",
+    "notes": "Pressed: label moves +2 art px down with the face."
+   },
++  {
++   "id": "button_white_default",
++   "group": "controls",
++   "file": "out/ui/controls/button_white_default.png",
++   "w": 24,
++   "h": 20,
++   "state": "default",
++   "slice": [
++    3,
++    3,
++    3,
++    4
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    2,
++    18,
++    14
++   ],
++   "label": "flag",
++   "notes": "U2 / A4 (UX review 2): the v4 primary button, the flag's white on its blue. A white face, a silver bottom/right shade, a 2-row flag-blue lip (flag over flag_dk: the key's side) and the outline. Label `flag` (#0038b8) 8.46:1. Same size, 9-slice and content box as button_primary_*, so it is a drop-in: kit_primary -> button_white. It tells itself from button_secondary (ui_bubble + white, 7.5:1) by value (white vs ui_bubble 7.5:1; was flag vs ui_bubble 1.13:1) and by the label colour. One per screen. On a cream or white surface (the share sheet, the gate) the outline carries it (17.9:1 vs white)."
++  },
++  {
++   "id": "button_white_disabled",
++   "group": "controls",
++   "file": "out/ui/controls/button_white_disabled.png",
++   "w": 24,
++   "h": 20,
++   "state": "disabled",
++   "slice": [
++    3,
++    5,
++    3,
++    2
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    4,
++    18,
++    14
++   ],
++   "label": "grey",
++   "notes": "Disabled: the shared sunk, flat slate (= button_primary_disabled, pixel for pixel), label grey 5.5:1. Disabled never masquerades as a colour variant."
++  },
++  {
++   "id": "button_white_pressed",
++   "group": "controls",
++   "file": "out/ui/controls/button_white_pressed.png",
++   "w": 24,
++   "h": 20,
++   "state": "pressed",
++   "slice": [
++    3,
++    5,
++    3,
++    2
++   ],
++   "mode": "stretch",
++   "content": [
++    3,
++    4,
++    18,
++    14
++   ],
++   "label": "flag",
++   "notes": "Pressed: the face drops 2 art px into the lip (the blue side disappears), silver with a grey inner shadow; the label moves +2 with it. flag on silver 6.40:1."
++  },
+   {
+    "id": "card_plate",
+    "group": "controls",
+@@ -3334,6 +3463,40 @@
+    ],
+    "notes": "The picker frame as the cardboard voting booth (קלפי, v4): a 9-slice [6, 10, 6, 4] drawn around the tile grid; the opening is transparent. Cardboard `paper` with the two side wings folded back, a blank flag-blue header strip and a white rule (no text, no emblem, no letters: the booth, not the committee). Optional: the engine may draw the picker title in its header (white on flag 8.5:1)."
+   },
++  {
++   "id": "booth_frame_tall",
++   "group": "picker",
++   "file": "out/ui/picker/booth_frame_tall.png",
++   "w": 40,
++   "h": 46,
++   "slice": [
++    6,
++    16,
++    6,
++    4
++   ],
++   "mode": "stretch",
++   "content": [
++    5,
++    15,
++    30,
++    28
++   ],
++   "label": "white",
++   "notes": "A5 (mobile-first §5.14.2, optional): booth_frame with a 12-row flag-blue header (rows 1-12), so the picker title can sit in the booth: white on flag 8.46:1. `titleBox` [6, 2, w - 12, 9] is the text cell (the x4 Sevev 9 cell is 9 art rows; x5 large text is 45 logical, inside the 48 of the header). The opening, the wings and the bottom are booth_frame's exactly, 6 rows lower: 9-slice [6, 16, 6, 4], content [5, 15, 30, 28] (booth_frame: [6, 10, 6, 4], [5, 9, 30, 28]). Net: the title's own row and its 16 gap above the booth go back to the sky; the booth's top inset grows 36 -> 60 logical. One line only: a 2-line title keeps booth_frame with the title above it. Blank otherwise: no emblem, no letters.",
++   "titleBox": [
++    6,
++    2,
++    28,
++    9
++   ],
++   "header": [
++    1,
++    1,
++    38,
++    12
++   ]
++  },
+   {
+    "id": "pick_random",
+    "group": "picker",
+@@ -3826,6 +3989,39 @@
+    "h": 9,
+    "notes": "Trash can, 9x9 inline icon (one text cell tall): the settings danger row 'SET_RESET' (rtl-map §7.4), leading the label on the RIGHT, and optionally leading 'למחוק הכול' on button_danger. Never mirrored (rtl-map §1 'keep'). White lid and can + slate ribs: white on ui_panel 15.6:1, outline on paper 13.5:1, so it reads on the dark sheet and on a cream card alike (wave 6)."
+   },
++  {
++   "id": "notice_frame",
++   "group": "sheet",
++   "file": "out/ui/sheet/notice_frame.png",
++   "w": 40,
++   "h": 40,
++   "slice": [
++    3,
++    7,
++    3,
++    5
++   ],
++   "mode": "stretch",
++   "content": [
++    4,
++    8,
++    32,
++    26
++   ],
++   "label": "night",
++   "notes": "U10 (UX review 2): EVOLVE_TX dressed as the gate's printed notice. A white notice card ruled in flag blue edge to edge, at the top (3 rows, a white gap, 1 row) and the bottom (1, gap, 1), with the outline and 1-px chamfered corners: the HTML gate's card (#od-gate .od-card ::before/::after) on the kit grid. Draw it on the flag-blue page (`colors.page`), centred, around the card's lines (9-slice [3, 7, 3, 5]; the centre is plain white, so it stretches to any size). 'הכנסת פוזרה.' in `colors.title` (flag, 8.46:1), the rest in `colors.text` (night, 13.88:1). Not full bleed: a white screen with a blue stripe at the top and the bottom is the flag's own layout with the text where the star sits (style guide §2.4, the rejected 'whole page as the flag'). A notice card on the blue page is the approved gate. Blank: no emblem, no institution's name, no seal.",
++   "colors": {
++    "page": "flag",
++    "title": "flag",
++    "text": "night",
++    "frame": "white"
++   },
++   "hex": {
++    "flag": "#0038b8",
++    "night": "#0f2350",
++    "white": "#f7f4ec"
++   }
++  },
+   {
+    "id": "sheet_modal",
+    "group": "sheet",
+@@ -3834,19 +4030,19 @@
+    "h": 38,
+    "slice": [
+     7,
+-    23,
++    24,
+     7,
+     7
+    ],
+    "mode": "stretch",
+    "content": [
+     7,
+-    23,
+     24,
+-    8
++    24,
++    7
+    ],
+    "label": "white",
+-   "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20; v4: the blue ballot envelope, the band is the flap and points 2 rows deeper at the centre, the body is the v4 ui_panel blue, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map §7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece is 38x38 and every margin grew by 1. Draw it at the card rect grown by 4 logical px per side to keep the title band and body exactly where they were."
++   "notes": "Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20; v4: the blue ballot envelope, the band is the flap and points 2 rows deeper at the centre, the body is the v4 ui_panel blue, the close ✕ at the band's LEFT end in RTL); body ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map §7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece is 38x38 and every margin grew by 1. Draw it at the card rect grown by 4 logical px per side to keep the title band and body exactly where they were. Wave 10 (UX review 2 U1, mobile-first §10 T1): the top margin is 24, not 23: rows 0-23 are the band and the flap point with its shadow row (23), so the stretched centre is the plain ui_panel body and no dark slab runs down under the point. The pixels did not change."
+   },
+   {
+    "id": "sheet_modal_body",
+@@ -3868,7 +4064,7 @@
+     8
+    ],
+    "label": "white",
+-   "notes": "The blue envelope without its flap (wave 9, the Animator's wave-B ask): sheet_modal's body, edge and 9-slice [7, 23, 7, 7] exactly, with no title band. Never drawn alone: sheet_modal_flap sits on its top 24 rows (frame 2 at rest), and body + flap f2 = sheet_modal pixel for pixel. Use it only where the flap animates; everywhere else sheet_modal stays."
++   "notes": "The blue envelope without its flap (wave 9, the Animator's wave-B ask): sheet_modal's body and edge exactly, 9-slice [7, 23, 7, 7] (sheet_modal is [7, 24, 7, 7] since wave 10; the body's row 23 is plain, so both stretch the same), with no title band. Never drawn alone: sheet_modal_flap sits on its top 24 rows (frame 2 at rest), and body + flap f2 = sheet_modal pixel for pixel. Use it only where the flap animates; everywhere else sheet_modal stays."
+   },
+   {
+    "id": "sheet_modal_flap",
+# untracked binary: art/od-sevev/out/ui/cards/card_row_silhouette.png
+# untracked binary: art/od-sevev/out/ui/chat/chat_system_pill_navy.png
+# untracked binary: art/od-sevev/out/ui/controls/button_white_default.png
+# untracked binary: art/od-sevev/out/ui/controls/button_white_disabled.png
+# untracked binary: art/od-sevev/out/ui/controls/button_white_pressed.png
+# untracked binary: art/od-sevev/out/ui/picker/booth_frame_tall.png
+# untracked binary: art/od-sevev/out/ui/sheet/notice_frame.png
+# untracked binary: art/od-sevev/proofs/kit-w10-review2.png
 diff --git a/art/od-sevev/src/wave10.py b/art/od-sevev/src/wave10.py
 new file mode 100644
-index 0000000..f78a8d8
+index 0000000..2382f7f
 --- /dev/null
 +++ b/art/od-sevev/src/wave10.py
-@@ -0,0 +1,155 @@
+@@ -0,0 +1,310 @@
 +"""Wave 10 (2026-09-30): the art side of UX build review 2 (ux/review-2026-09-30.md U2, U7, U10; mobile-first §10 A4,
 +A5). New ids only: the old pieces stay as they are, so the engine switches when it is ready.
 +
@@ -728,6 +1096,160 @@ index 0000000..f78a8d8
 +               "a 2-line title keeps booth_frame with the title above it. Blank otherwise: no emblem, no letters.")
 +
 +
++# ------------------------------------------------------------------ proof
++PALE = {"suit": "ui_dim", "rim": "ui_rule"}          # the pale silhouette recolour (the pipeline's pale_silhouettes)
++
++
++def proof():
++    """proofs/kit-w10-review2.png: every wave-10 piece in its v4 context, before | after, at the game's x4."""
++    import json
++    import os
++    from PIL import Image, ImageDraw
++    import hebfont
++    import sheet
++    from kit import PROOFS, ROOT
++    from palette import rgb
++    kit = {e["id"]: e for e in json.load(open(os.path.join(ROOT, "ui-kit.json")))["pieces"]}
++
++    def img(pid):
++        return Image.open(os.path.join(ROOT, kit[pid]["file"])).convert("RGBA")
++
++    def nine(pid, w, h):
++        e = kit[pid]
++        return sheet.nine(img(pid), e["slice"], w, h, e.get("mode", "stretch"))
++
++    def text(t, color):
++        L = Layer(max(hebfont.measure(t), 1) + 2, 11)
++        hebfont.draw(L, t, 0, 0, color, align="left")
++        return L.to_image(1)
++
++    def put_c(dst, im, cx, y):
++        dst.alpha_composite(im, (cx - im.width // 2, y))
++
++    def pale(im):
++        inv = {rgb(k): v for k, v in PALE.items()}
++        out = im.copy()
++        px = out.load()
++        for y in range(out.height):
++            for x in range(out.width):
++                r, g, b, a = px[x, y]
++                if a:
++                    px[x, y] = rgb(inv[(r, g, b)]) + (255,)
++        return out
++
++    def plain(w, h, sw):
++        return Image.new("RGBA", (w, h), (rgb(sw) if isinstance(sw, str) else sw) + (255,))
++
++    W = 180
++    tiles = []
++    # 1. O3's buttons on the modal body: before (flag primary / ui_bubble secondary) | after (white / the gold CTA)
++    for kind in ("before", "after"):
++        t = plain(W, 84, "ui_panel")
++        prim = "button_primary_default" if kind == "before" else "button_white_default"
++        lab = "white" if kind == "before" else "flag"
++        for i, (pid, lbl, col) in enumerate(((prim, "לשתף", lab), ("button_secondary_default", "סגור", "white"))):
++            t.alpha_composite(nine(pid, 76, 22), (12 + i * 80, 4))
++            put_c(t, text(lbl, col), 12 + i * 80 + 38, 4 + 7)
++        g = "button_primary_default" if kind == "before" else "button_gold_default"
++        t.alpha_composite(nine(g, 136, 22), (22, 32))
++        put_c(t, text("לפזר את הכנסת", "white" if kind == "before" else "ink"), 90, 32 + 7)
++        t.alpha_composite(nine("button_secondary_default", 136, 22), (22, 58))
++        put_c(t, text("עוד לא", "white"), 90, 58 + 7)
++        tiles.append((f"U2 a pair + O3's stack, {kind}", t))
++    t = plain(W, 84, "ui_panel")
++    for i, st in enumerate(("default", "pressed", "disabled")):
++        t.alpha_composite(nine(f"button_white_{st}", 52, 22), (6 + i * 58, 8))
++        dy = 2 if st != "default" else 0
++        put_c(t, text("לשתף", "flag" if st != "disabled" else "grey"), 6 + i * 58 + 26, 8 + 7 + dy)
++    cream = plain(W, 44, (255, 244, 224))
++    cream.alpha_composite(nine("button_white_default", 136, 22), (22, 11))
++    put_c(cream, text("לשמור תמונה", "flag"), 90, 11 + 7)
++    t.alpha_composite(cream, (0, 40))
++    tiles.append(("U2 white: default / pressed / disabled; on cream", t))
++    # 2. the white pane: a real card over teaser rows, before | after
++    for kind in ("before", "after"):
++        t = plain(W, 100, "white")
++        t.alpha_composite(nine("card_source_unaffordable", 172, 30), (4, 2))
++        t.alpha_composite(img("card_plate"), (4 + 172 - 29, 4))
++        t.alpha_composite(img("source_checkbook_icon"), (4 + 172 - 28, 5))
++        t.alpha_composite(text("פנקס צ'קים", "white"), (4 + 172 - 32 - hebfont.measure("פנקס צ'קים"), 6))
++        t.alpha_composite(nine("pay_pill_default", 54, 17), (8, 8))
++        for r, sil in enumerate(("source_submarine_icon_sil", "source_poison_icon_sil")):
++            y = 34 + r * 32
++            row = "card_source_locked" if kind == "before" else "card_row_silhouette"
++            t.alpha_composite(nine(row, 172, 30), (4, y))
++            t.alpha_composite(img("card_plate"), (4 + 172 - 29, y + 3))
++            t.alpha_composite(img(sil) if kind == "before" else pale(img(sil)), (4 + 172 - 28, y + 4))
++            nm = "מקור עלום"
++            t.alpha_composite(text(nm, "silver" if kind == "before" else "ui_panel"),
++                              (4 + 172 - 32 - hebfont.measure(nm), y + 6))
++        tiles.append((f"U7 the pane, {kind}", t))
++    # 3. the thread: the system pill, before | after
++    t = plain(W, 40, "ui_panel")
++    for i, (pid, col) in enumerate((("chat_system_pill", "white"), ("chat_system_pill_navy", "ui_mute"))):
++        lbl = "היום"
++        w = hebfont.measure(lbl) + 12
++        t.alpha_composite(nine(pid, w + 20, 13), (20 + i * 80, 14))
++        put_c(t, text(lbl, col), 20 + i * 80 + (w + 20) // 2, 16)
++    tiles.append(("U7 T3 system pill: before | after", t))
++    # 4. the tab bar: the coalition icon, idle / active, with and without the badge
++    t = plain(W, 40, "ui_panel")
++    t.alpha_composite(sheet.nine(img("tabbar"), kit["tabbar"]["slice"], W, 26), (0, 7))
++    for i, (st, badge) in enumerate((("idle", False), ("idle", True), ("active", False), ("active", True))):
++        x = i * 45
++        if st == "active":
++            t.alpha_composite(img("tab_active"), (x, 7))
++        t.alpha_composite(img(f"tabicon_coalition_{st}"), (x + 15, 9))
++        if badge:
++            t.alpha_composite(img("badge_count"), (x + 11, 7))
++            put_c(t, text("1", "white"), x + 16, 8)
++    tiles.append(("U8 coalition tab: idle, +badge, active, +badge", t))
++    # 5. EVOLVE_TX as the printed notice
++    t = plain(W, 110, "flag")
++    t.alpha_composite(nine("notice_frame", 164, 80), (8, 15))
++    for y, (line, col) in zip((25, 37, 51, 61, 71), (("הכנסת פוזרה. מתחילים:", "flag"), ("סבב בחירות מס׳ 2", "flag"),
++                                                    ("×1.0 ← ×3.7", "night"), ("+12 אגודלים", "night"),
++                                                    ("תקופה: הכנסת", "night"))):
++        put_c(t, text(line, col), 90, y)
++    tiles.append(("U10 EVOLVE_TX: the notice on the flag-blue page", t))
++    # 6. the booth, and the tall booth with the title in its header
++    t = plain(W, 110, "night")
++    t.alpha_composite(nine("booth_frame", 84, 60), (2, 40))
++    put_c(t, text("מי ינהל?", "white"), 44, 26)
++    t.alpha_composite(nine("booth_frame_tall", 84, 66), (94, 34))
++    put_c(t, text("מי ינהל?", "white"), 136, 36)
++    for bx in (9, 101):
++        for c in range(2):
++            t.alpha_composite(nine("pick_tile_idle", 30, 36), (bx + 4 + c * 36, 51 if bx == 9 else 51))
++    tiles.append(("A5 booth_frame | booth_frame_tall", t))
++    # 7. U1: sheet_modal 9-sliced at a card size with its own slice (no slab under the point)
++    t = plain(W, 110, "outline")
++    t.alpha_composite(nine("sheet_modal", 164, 100), (8, 5))
++    put_c(t, text("לפזר את הכנסת?", "white"), 90, 9)
++    put_c(t, text("בן גביר · עוצמה יהודית", "white"), 90, 30)
++    tiles.append(("U1 sheet_modal [7, 24, 7, 7]: no slab", t))
++
++    pad, cap = 6, 12
++    rows = [tiles[i:i + 2] for i in range(0, len(tiles), 2)]
++    H = sum(max(t.height for _, t in r) + cap + pad for r in rows) + pad
++    out = Image.new("RGBA", (2 * (W + pad) + pad, H), (46, 40, 62, 255))
++    y = pad
++    caps = []
++    for r in rows:
++        for i, (name, t) in enumerate(r):
++            caps.append((pad + i * (W + pad), y, name))
++            out.alpha_composite(t, (pad + i * (W + pad), y + cap))
++        y += max(t.height for _, t in r) + cap + pad
++    Z = 4
++    out = out.resize((out.width * Z, out.height * Z), Image.NEAREST)
++    d = ImageDraw.Draw(out)
++    for x, yy, name in caps:
++        d.text((x * Z, yy * Z + 8), name, fill=(235, 235, 245), font=sheet.FONT)
++    fn = os.path.join(PROOFS, "kit-w10-review2.png")
++    out.convert("RGB").save(fn)
++    return fn
++
++
 +def build():
 +    button_white()
 +    silhouette_row()
@@ -740,4 +1262,5 @@ index 0000000..f78a8d8
 +    from kit import write_manifest
 +    build()
 +    print(write_manifest())
++    print(proof())
 # untracked binary: art/od-sevev/src/wave10.py
