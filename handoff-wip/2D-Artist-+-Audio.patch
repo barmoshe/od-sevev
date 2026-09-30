@@ -1,9 +1,9 @@
 # binary files changed (not carried):
 diff --git a/audio/od/cues.json b/audio/od/cues.json
-index fd7d401..26bef5c 100644
+index fd7d401..16b9c3e 100644
 --- a/audio/od/cues.json
 +++ b/audio/od/cues.json
-@@ -4678,6 +4678,90 @@
+@@ -4678,6 +4678,92 @@
      "type": "burst",
      "lufs": -20.0
     }
@@ -30,27 +30,28 @@ index fd7d401..26bef5c 100644
 +       "Q": 1.0
 +      },
 +      "attack": 0.0005,
-+      "decay": 0.014,
++      "decay": 0.02,
 +      "sustain": 0.0,
-+      "duration": 0.014,
++      "duration": 0.02,
 +      "release": 0.004,
-+      "gain": 0.9
++      "gain": 0.6
 +     },
 +     {
 +      "id": "rubber",
 +      "wave": "triangle",
 +      "crush": 4,
 +      "freqStart": 420,
-+      "freqEnd": 300,
++      "freqEnd": 280,
 +      "freqCurve": "exp",
-+      "glide": 0.04,
++      "glide": 0.05,
 +      "followPitch": false,
-+      "attack": 0.001,
-+      "decay": 0.05,
-+      "sustain": 0.0,
-+      "duration": 0.05,
-+      "release": 0.01,
-+      "gain": 0.7
++      "delay": 0.002,
++      "attack": 0.002,
++      "decay": 0.07,
++      "sustain": 0.25,
++      "duration": 0.07,
++      "release": 0.02,
++      "gain": 1.0
 +     },
 +     {
 +      "id": "thud",
@@ -60,12 +61,13 @@ index fd7d401..26bef5c 100644
 +      "freqCurve": "exp",
 +      "glide": 0.05,
 +      "followPitch": false,
++      "delay": 0.003,
 +      "attack": 0.001,
 +      "decay": 0.06,
 +      "sustain": 0.0,
 +      "duration": 0.06,
 +      "release": 0.01,
-+      "gain": 0.35
++      "gain": 0.2
 +     },
 +     {
 +      "id": "lift",
@@ -95,10 +97,10 @@ index fd7d401..26bef5c 100644
   }
  }
 diff --git a/audio/tools/compose_od.py b/audio/tools/compose_od.py
-index 464c340..03b2d74 100644
+index 464c340..da21aff 100644
 --- a/audio/tools/compose_od.py
 +++ b/audio/tools/compose_od.py
-@@ -1013,6 +1013,27 @@ def cues():
+@@ -1013,6 +1013,28 @@ def cues():
                           "runtime": "Once per upward crossing of 75 % (the view's calm -> hot change). Silent at 95 % "
                                      "(boiling): the visual boil and the coming gavel carry it.",
                           "target": {"type": "burst", "lufs": -20.0}}
@@ -109,11 +111,12 @@ index 464c340..03b2d74 100644
 +    # faint lift-off tick. It is NOT Herzog's stamp: no 2.5 kHz thump, no pitched 'ink' glide, no bell. That
 +    # stamp's sameness is its joke (cue-spec §5.6) and stays unspent. Unpitched, one file, like the stamp.
 +    slip = [L(id="slap", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 1400, "Q": 1.0},
-+              attack=0.0005, decay=0.014, sustain=0.0, duration=0.014, release=0.004, gain=0.9),
-+            L(id="rubber", wave="triangle", crush=4, freqStart=420, freqEnd=300, freqCurve="exp", glide=0.04,
-+              followPitch=False, attack=0.001, decay=0.05, sustain=0.0, duration=0.05, release=0.01, gain=0.7),
++              attack=0.0005, decay=0.02, sustain=0.0, duration=0.02, release=0.004, gain=0.6),
++            L(id="rubber", wave="triangle", crush=4, freqStart=420, freqEnd=280, freqCurve="exp", glide=0.05,
++              followPitch=False, delay=0.002, attack=0.002, decay=0.07, sustain=0.25, duration=0.07, release=0.02,
++              gain=1.0),
 +            L(id="thud", wave="triangle", freqStart=150, freqEnd=110, freqCurve="exp", glide=0.05, followPitch=False,
-+              attack=0.001, decay=0.06, sustain=0.0, duration=0.06, release=0.01, gain=0.35),
++              delay=0.003, attack=0.001, decay=0.06, sustain=0.0, duration=0.06, release=0.01, gain=0.2),
 +            L(id="lift", wave="noiseMetal", clockStart=44000, filter={"type": "highpass", "freq": 3500, "Q": 0.7},
 +              delay=0.075, attack=0.0005, decay=0.006, sustain=0.0, duration=0.006, release=0.003, gain=0.2)]
 +    C["slipStamp"] = {"meaning": "The ballot slip is stamped (a spin card's tag appears or changes: '1/5' -> '2/5', 'שחוק').",
@@ -126,7 +129,7 @@ index 464c340..03b2d74 100644
      return {
          "version": "od-1",
          "_doc": "עוד סבב SFX cues. Owner: Audio Director. Written by audio/tools/compose_od.py; rendered by "
-@@ -1234,6 +1255,8 @@ def check_cues(c):
+@@ -1234,6 +1256,8 @@ def check_cues(c):
              # v1.3 mix pass: UI cues keep short tails; a first sound starts at t=0 and ends inside 1 s
              if cue["bus"] == "UI" and end > 0.4:
                  err("%s/%s: UI cue ends at %.2f s (> 0.4 s tail)" % (cid, vid, end))
