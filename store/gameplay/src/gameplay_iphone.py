@@ -203,10 +203,32 @@ PEEKS = [  # (start, length, line, stays): Mordechai David peeks out from behind
 
 
 def take_at(t):
-    for vs, ve, ts, sp in CLIPS:
+    """-> (take time, speed, clip start, take key). A clip's optional 5th field names a take in TAKES
+    (a montage cuts between several captures); without it the clip plays the main take."""
+    for clip in CLIPS:
+        vs, ve, ts, sp = clip[:4]
         if vs <= t < ve:
-            return ts + (t - vs) * sp, sp, vs
+            return ts + (t - vs) * sp, sp, vs, (clip[4] if len(clip) > 4 else None)
     return None
+
+
+TAKES = {}                          # key -> take dir, for montage clips (None = the main take)
+PLANS = {}                          # key -> that take's plan
+_tf = {}
+
+
+def take_frame(key, tt):
+    """The take's frame at tt, cached by (take, index): object ids are never cache keys (v4.1)."""
+    d = TAKES.get(key, g.TAKE)
+    i = max(0, int(round(tt * FPS)))
+    while not os.path.exists(os.path.join(d, "f%08d.png" % i)) and i > 0:
+        i -= 1
+    kk = (key, i)
+    if kk not in _tf:
+        if len(_tf) > 16:
+            _tf.clear()
+        _tf[kk] = Image.open(os.path.join(d, "f%08d.png" % i)).convert("RGBA")
+    return _tf[kk], i
 
 
 # ---------------------------------------------------------------------------- taps (take time, x, y in capture px)
@@ -216,8 +238,9 @@ TAB = {3: (405, 2260), 1: (945, 2260)}
 PICK = (194, 1836)                  # the Ben Gvir cell on the picker
 
 
-def build_taps(take):
-    plan = __import__("json").load(open(PLAN))
+def build_taps(take, plan_path=None, tap_at=None):
+    plan = __import__("json").load(open(plan_path or PLAN))
+    tap_at = TAP_AT if tap_at is None else tap_at
     take = os.path.abspath(take)
     log = take.rstrip("/") + ".log"          # <take>.log next to the take folder (takeL -> takeL.log)
     if not os.path.exists(log):
@@ -238,7 +261,7 @@ def build_taps(take):
         t, what = step[0], step[1]
         a = step[2] if len(step) > 2 else {}
         if what == "pick":
-            taps.append((t, *PICK))
+            taps.append((t, *tap_at.get(t, PICK)))   # the picker shuffles: a reel pins the cell
         elif what == "hat":
             n, rate = int(a.get("n", 1)), float(a.get("rate", 6))
             for i in range(n):
@@ -250,7 +273,7 @@ def build_taps(take):
         elif what == "tab":
             taps.append((t, *TAB[int(a.get("i", 3))]))
         elif what in ("pay", "decline"):
-            p = TAP_AT[t] if t in TAP_AT else (find_pill(take, t) if what == "pay" else None)
+            p = tap_at[t] if t in tap_at else (find_pill(take, t) if what == "pay" else None)
             if p:
                 taps.append((t, *p))
     return sorted(taps)
@@ -281,14 +304,16 @@ def find_pill(take, t):
 SUB_DELAY = 0.35                    # the sub line (the punch) lands this long after the headline
 
 TAPS = []
+TAPS_BY = {}                        # key -> taps of that montage take
+TAP_AT_BY = {}                      # key -> that take's pinned taps
 TAP_AT = {}                         # plan time -> (x, y) capture px, for taps a reel pins by hand
 
 
-def draw_touches(scr, tt, sp, s, oy):
+def draw_touches(scr, tt, sp, s, oy, key=None):
     """iOS 'show touches': a white disc that presses in and fades, and a ripple ring (the kit's shapes)."""
     gs = s * GW / CAP_W            # capture px -> screen image px
     dia = 0.1 * SW * s
-    for t0, x, y in TAPS:
+    for t0, x, y in (TAPS_BY[key] if key in TAPS_BY else TAPS):
         age = (tt - t0) / sp       # video seconds since the tap
         if age < -0.01 or age > 0.42:
             continue
@@ -399,7 +424,7 @@ def background(frame, fi):
     return _bg[kk].copy()
 
 
-def screen(frame, fi, tt, sp, s):
+def screen(frame, fi, tt, sp, s, key=None):
     """The lit screen at scale s: status bar, the game, touches, home indicator, rounded corners."""
     sw, sb = round(SW * s), round(SB * s)
     gh = round(GH * s)
@@ -407,7 +432,7 @@ def screen(frame, fi, tt, sp, s):
     scr = Image.new("RGBA", (sw, sh), (0, 0, 0, 255))
     scr.paste(resized("status", STATUS, (sw, sb)), (0, 0))
     scr.paste(resized(("game", fi), frame, (sw, gh)), (0, sb))
-    draw_touches(scr, tt, sp, s, sb)
+    draw_touches(scr, tt, sp, s, sb, key)
     d = ImageDraw.Draw(scr)
     hw, hh = 134 / 393 * sw, 5 / 393 * sw
     hy = sh - 5 / 393 * sw
@@ -421,9 +446,9 @@ def screen(frame, fi, tt, sp, s):
     return scr
 
 
-def phone(frame, fi, tt, sp, s):
+def phone(frame, fi, tt, sp, s, key=None):
     body = resized("chrome", CHROME, (round((PW + 2 * MARGIN) * s), round(PH * s))).copy()
-    scr = screen(frame, fi, tt, sp, s)
+    scr = screen(frame, fi, tt, sp, s, key)
     body.alpha_composite(scr, (round((MARGIN + BZ) * s), round(BZ * s)))
     return body
 
@@ -461,9 +486,9 @@ def captions(c, t):
 
 
 def game_frame(t):
-    tt, sp, vs = take_at(t)
-    fr = g.take_frame(tt)
-    fi = max(0, int(round(tt * FPS)))
+    tt, sp, vs, key = take_at(t)
+    fr, i = take_frame(key, tt)
+    fi = (key, i)                  # cache key for the resized frame and the blurred backdrop
     c = background(fr, fi)
     z, f = cam(t)
     dx, dy = sway(t)
@@ -475,7 +500,7 @@ def game_frame(t):
     paste(c, shs, cx + 10 * s, cy + 34 * s)
     edge = cx - PW * s / 2
     peek(c, t, edge, s)
-    paste(c, phone(fr, fi, tt, sp, s), cx, cy)
+    paste(c, phone(fr, fi, tt, sp, s, key), cx, cy)
     flash(c, t, vs, 0.07, 0.3)
     captions(c, t)
     return c
@@ -519,6 +544,8 @@ def main():
     CHROME, MASK, STATUS, GLARE = build_chrome(), build_mask(), build_status(), build_glare()
     SHADOW = build_shadow()
     TAPS = build_taps(take)
+    for kk, d in TAKES.items():
+        TAPS_BY[kk] = build_taps(d, PLANS[kk], TAP_AT_BY.get(kk, {}))
     KEYS = cam_keys()
     g.T_END = T_END
     if "--stills" in sys.argv:
