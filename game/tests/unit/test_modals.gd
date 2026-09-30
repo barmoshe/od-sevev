@@ -218,7 +218,9 @@ func test_the_about_page_prints_only_public_hebrew() -> void:
 	runner.check(ul >= 0 and items == want and want > 0, "an RTL list of %d public sources (%d)" % [want, items])
 	for bad in ["NOT USED", "GAP:", "Bench only", "The game never names"]:
 		runner.check(not html.contains(bad), "no internal note '%s'" % bad)
-	runner.check(html.contains("#9fc3ff"), "links are #9fc3ff (10.6:1), not the browser's #0000ee")
+	# palette v4: About is a white notice, so its links are flag blue on white (8.5:1; was #9fc3ff on the dark page)
+	runner.check(html.contains("#od-about a, #od-about a:visited { color: #0038b8;"),
+		"links are #0038b8 on the white notice (8.5:1), not the browser's #0000ee")
 	var back := html.find("id=\"od-about-back\"")
 	runner.check(back >= 0 and back < html.find("id=\"od-about-title\"") and html.contains("position: sticky"),
 		"ABOUT_BACK sticks at the top, before the title")
