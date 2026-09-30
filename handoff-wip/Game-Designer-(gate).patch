@@ -212,7 +212,7 @@ index fb28a82..c95d50a 100644
  	var s := _with([], 0.0, 0, true)
  	s.run_bananas = 60000.0
 diff --git a/game/tests/unit/test_leaders.gd b/game/tests/unit/test_leaders.gd
-index dc99e8d..4c2f08a 100644
+index dc99e8d..014f53d 100644
 --- a/game/tests/unit/test_leaders.gd
 +++ b/game/tests/unit/test_leaders.gd
 @@ -106,6 +106,7 @@ func test_install_bennett() -> void:
@@ -223,7 +223,7 @@ index dc99e8d..4c2f08a 100644
  	runner.check(str(_p("abbas").get("lines", {}).get("thanks", "")).begins_with("כמו ב־2021"), "a lineup line override")
  	var ev := _ids(Events.list())
  	for id: String in ["card_bibi", "card_bengvir", "card_smotrich", "card_deri", "bennett", "leak", "brawl"]:
-@@ -138,6 +139,33 @@ func test_install_bengvir() -> void:
+@@ -138,6 +139,34 @@ func test_install_bengvir() -> void:
  	runner.check(s.leader == "bengvir", "the round is his")
  
  
@@ -232,17 +232,18 @@ index dc99e8d..4c2f08a 100644
 +func test_bennett_round_never_trades_liberman_away() -> void:
 +	var s := _round("bennett", 2)   # this deal has Gafni and Abbas in round 1
 +	s.run_bananas = 1e9
++	s.run_time_sec = 900.0
 +	s.stats["playtimeSec"] = 900.0
 +	s.coalition["opened"] = true
 +	s.coalition["nextDemandSec"] = 1e12
 +	_member(s, "liberman")
-+	for i in 40:
++	for i in 200:
 +		Coalition.tick(s, 1.0, Economy.derive(s), {}, func() -> float: return 0.5)
 +	runner.check(Coalition.status(s, "gafni") == "absent", "Gafni never asks while Liberman sits (the bigger side first)")
 +	runner.check(Coalition.status(s, "abbas") != "absent", "Abbas asks and sits with him, as in 2021 (%s)" % Coalition.status(s, "abbas"))
 +	# Liberman walks (an ultimatum ran out): now Gafni asks, next to Liberman's rejoin pill
 +	Coalition._leave(s, "liberman", 10.0, [])
-+	for i in 20:
++	for i in 60:
 +		Coalition.tick(s, 1.0, Economy.derive(s), {}, func() -> float: return 0.5)
 +	runner.check(Coalition.status(s, "gafni") == "pending", "Liberman out: Gafni asks (%s)" % Coalition.status(s, "gafni"))
 +	var g := Coalition.open_msg(s, "gafni")
