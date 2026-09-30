@@ -180,6 +180,19 @@ func shown() -> Dictionary:
 		"h": _plate.size.y * 4.0 if _plate.visible else 0.0}
 
 
+## Review U9: tap 1 retires Dubi's pre-tap dock line (shown or queued); from H1 his bubble speaks.
+func drop_passive() -> void:
+	for i in range(_chats.size() - 1, -1, -1):
+		if bool((_chats[i] as Dictionary).get("passive", false)):
+			var qi := i - (_chats.size() - _queue.size())
+			_chats.remove_at(i)
+			if qi >= 0 and qi < _queue.size():
+				_queue.remove_at(qi)
+				_tags.remove_at(qi)
+	if _passive and _t >= 0.0:
+		_t = maxf(_t, SHOW_MS - OUT_MS)   # its 120 ms fade-out, then the dock's gap
+
+
 ## True while nothing is showing and nothing waits (the C1 ping's allowPing half).
 func idle() -> bool:
 	return _t < 0.0 and _queue.is_empty()

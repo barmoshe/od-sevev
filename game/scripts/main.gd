@@ -992,6 +992,7 @@ func _set_mode(m: String, animate: bool) -> void:
 
 
 func _start_from_title(tap_at: Vector2, tapped: bool) -> void:
+	toasts.drop_passive()   # review U9: Dubi's pre-tap dock line gives way to his first-tap bubble
 	_set_mode("main", true)
 	if tapped:
 		_handle_tap(tap_at)

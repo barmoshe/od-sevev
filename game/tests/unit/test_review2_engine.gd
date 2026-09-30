@@ -110,8 +110,9 @@ func test_u9_the_pre_tap_pick_line_goes_in_the_toast_dock() -> void:
 	var chat: Dictionary = tt._chats[tt._chats.size() - 1] if not tt._chats.is_empty() else {}
 	runner.check(str(chat.get("head", "")) == m.dubi_head() and m.dubi_head().begins_with("דובי"), "a chat-toast plate headed by Dubi (%s)" % chat.get("head", ""))
 	runner.check(bool(chat.get("passive", false)) and (chat.get("avatar", []) as Array).size() == 3, "with his face, and it takes no tap (tap 1 is the leader's)")
-	# from H1 on, his bubble by the ticker
+	# from H1 on, his bubble by the ticker; tap 1 retires the dock line
 	_tap_leader()
+	runner.check(tt._chats.all(func(c: Dictionary) -> bool: return not bool(c.get("passive", false))), "tap 1 drops Dubi's queued dock line")
 	m._say_pick(Strings.s("DUBI_LEARNED"), Vector2(644, 300))
 	runner.check(tt.saying(), "after tap 1 the line is Dubi's bubble again")
 
