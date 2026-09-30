@@ -12480,6 +12480,58 @@
    ],
    "label": "white"
   },
+  "sheet_modal_body": {
+   "id": "sheet_modal_body",
+   "group": "sheet",
+   "w": 38,
+   "h": 38,
+   "slice": [
+    7,
+    23,
+    7,
+    7
+   ],
+   "mode": "stretch",
+   "content": [
+    7,
+    23,
+    24,
+    8
+   ],
+   "label": "white"
+  },
+  "sheet_modal_flap": {
+   "id": "sheet_modal_flap",
+   "group": "sheet",
+   "w": 114,
+   "h": 24,
+   "slice": [
+    7,
+    0,
+    7,
+    0
+   ],
+   "mode": "stretch",
+   "label": "white",
+   "frames": 3,
+   "frameW": 38,
+   "pivot": [
+    0,
+    0
+   ],
+   "frameNames": [
+    "sealed",
+    "lifting",
+    "open"
+   ],
+   "fps": 25,
+   "loop": false,
+   "base": "sheet_modal_body",
+   "rows": [
+    0,
+    24
+   ]
+  },
   "sheet_plain": {
    "id": "sheet_plain",
    "group": "sheet",
@@ -15954,6 +16006,22 @@
    "size": [
     38,
     38
+   ]
+  },
+  "sheet_modal_body.png": {
+   "bytes": 225,
+   "sha": "776f852f7958671a",
+   "size": [
+    38,
+    38
+   ]
+  },
+  "sheet_modal_flap.png": {
+   "bytes": 585,
+   "sha": "830370e3822cea84",
+   "size": [
+    114,
+    24
    ]
   },
   "sheet_plain.png": {
