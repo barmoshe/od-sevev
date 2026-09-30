@@ -1,9 +1,9 @@
 # binary files changed (not carried):
 diff --git a/design/content.json b/design/content.json
-index 35e512a..8416077 100644
+index 35e512a..b3ef82a 100644
 --- a/design/content.json
 +++ b/design/content.json
-@@ -5943,12 +5943,13 @@
+@@ -5943,16 +5943,18 @@
       {
        "id": "lapid",
        "slot": "S2",
@@ -18,11 +18,17 @@ index 35e512a..8416077 100644
       },
       {
        "id": "eisenkot",
+-      "slot": "S3"
++      "slot": "S3",
++      "fixed": true
+      },
+      {
+       "id": "golan",
 diff --git a/game/data/content.json b/game/data/content.json
-index 35e512a..8416077 100644
+index 35e512a..b3ef82a 100644
 --- a/game/data/content.json
 +++ b/game/data/content.json
-@@ -5943,12 +5943,13 @@
+@@ -5943,16 +5943,18 @@
       {
        "id": "lapid",
        "slot": "S2",
@@ -37,6 +43,12 @@ index 35e512a..8416077 100644
       },
       {
        "id": "eisenkot",
+-      "slot": "S3"
++      "slot": "S3",
++      "fixed": true
+      },
+      {
+       "id": "golan",
 diff --git a/game/scripts/sim/README.md b/game/scripts/sim/README.md
 index 0769f5d..45fcede 100644
 --- a/game/scripts/sim/README.md
