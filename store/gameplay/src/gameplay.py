@@ -115,16 +115,24 @@ def peek(c, t):
             paste(c, b, 250, y - 200)   # above the caption plate, never on it
 
 
+GAME_H = H                                  # v3: the whole phone screen, never cropped
+GAME_W = round(W * GAME_H / 2338)           # 887 px: the 1080x2338 capture scaled to the reel's height
+GAME_X = (W - GAME_W) // 2
+
+
 def panel(c, t):
-    for vs, ve, ts, sp, cy in CLIPS:
+    """The full game screen, scaled to the frame's height, on the game's velvet with a gold rim."""
+    for vs, ve, ts, sp, _cy in CLIPS:
         if vs <= t < ve:
+            curtain(c, 0, dim=0.35)
+            d = ImageDraw.Draw(c)
+            d.rectangle((GAME_X - 12, 0, GAME_X + GAME_W + 11, H), fill=GOLD_SH)
+            d.rectangle((GAME_X - 6, 0, GAME_X + GAME_W + 5, H), fill=INK)
             fr = take_frame(ts + (t - vs) * sp)
-            if cy > 0:   # the game's HUD (the ₪ counter) stays on every shot, the view under it moves
-                c.paste(fr.crop((0, 0, W, HUD_H)), (0, 0))
-                c.paste(fr.crop((0, cy + HUD_H, W, cy + PANEL_H)), (0, HUD_H))
-                ImageDraw.Draw(c).rectangle((0, HUD_H, W, HUD_H + 5), fill=INK)
-            else:
-                c.paste(fr.crop((0, 0, W, PANEL_H)), (0, 0))
+            key = ("scaled", id(fr))
+            if key not in _frames:
+                _frames[key] = fr.resize((GAME_W, GAME_H), Image.LANCZOS)
+            c.paste(_frames[key], (GAME_X, 0))
             flash(c, t, vs, 0.08, 0.35)
             return True
     return False
