@@ -83,8 +83,8 @@
   "sprites/avatar_smotrich.png": 1560,
   "sprites/avatar_trump.png": 1703,
   "sprites/badge_count.png": 152,
-  "sprites/booth_frame.png": 258,
-  "sprites/booth_frame_tall.png": 265,
+  "sprites/booth_frame.png": 296,
+  "sprites/booth_frame_tall.png": 306,
   "sprites/brawl_cloud.png": 2133,
   "sprites/brawl_cloud_cue.png": 1174,
   "sprites/button_danger_default.png": 152,
@@ -1368,13 +1368,13 @@
   },
   {
    "file": "assets/sprites/booth_frame.png",
-   "source": 258,
-   "imported": 194
+   "source": 296,
+   "imported": 196
   },
   {
    "file": "assets/sprites/booth_frame_tall.png",
-   "source": 265,
-   "imported": 194
+   "source": 306,
+   "imported": 196
   },
   {
    "file": "assets/sprites/brawl_cloud.png",
@@ -3555,7 +3555,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 5352933,
+ "pckBytes": 5352937,
  "pckByAsset": {
   "bibi": {
    "3": 193236,
@@ -3798,5 +3798,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 15663861
+ "sourceTotal": 15663940
 }

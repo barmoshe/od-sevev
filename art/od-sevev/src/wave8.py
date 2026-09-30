@@ -77,26 +77,57 @@ def hemicycle():
          "seats[0:n] of this image over the track.", extra={"seats": rects, "goal": 61})
 
 
-def booth():
-    """The cardboard voting booth (קלפי): a folding screen, the side wings angled back, a header strip. 9-slice."""
-    W, H = 40, 40
+BOOTH = {"light": "stone", "face": "blonde_sh", "shade": "stone_sh", "crease": "wood", "band": "flag"}
+
+
+def booth_art(W, H, band, top):
+    """The cardboard voting booth (קלפי) as a 9-slice, read as a tabletop folding screen: a back panel with a blank
+    flag-blue printed band across its top, two side wings folded toward the viewer (2 rows lower than the back panel,
+    unprinted; the left one in the key light, the right one in shade, a crease where each folds), the back panel's
+    face IN shadow behind the grid, and the shelf at the bottom. Kraft cardboard (2026-09-30, manual test B13: the
+    v4 off-white frame with a transparent opening read as a thin brown line at x4: the gaps between the tiles showed
+    the stage). band = the printed band's rows (a range), top = the back panel's first row. Every stretched row and
+    column is flat, so the 9-slice never smears."""
+    c = BOOTH
     L = Layer(W, H)
-    L.rect(0, 0, W, H, "paper")                               # cardboard, off-white
-    L.rect(0, 0, W, 7, "flag")                                # the header strip (a blank flag-blue band, no text)
-    L.hline(0, W - 1, 7, "white")
-    for y in range(8, H):                                     # the two side wings, folded back (a shade band)
-        L.hline(0, 3, y, "stone_sh"); L.hline(W - 4, W - 1, y, "stone_sh")
-        L.set(4, y, "receipt_sh"); L.set(W - 5, y, "receipt_sh")
-    for y in range(9, H - 3):                                 # the opening: transparent (the grid shows through)
-        for x in range(5, W - 5):
+    L.rect(0, 0, W, H, c["face"])
+    L.hline(5, W - 6, 1, c["light"])                         # the back panel's top edge, catching the light
+    for y in band:
+        L.hline(5, W - 6, y, c["band"])                      # the printed band (blank: no text, no emblem)
+    L.hline(5, W - 6, top - 1, c["shade"])                   # the band's shadow on the panel
+    L.rect(5, top, W - 10, H - top - 3, c["shade"])          # the back panel's face, in the wings' shadow
+    L.hline(5, W - 6, top, c["crease"])                      # ... darkest right under the header
+    L.vline(5, 2, H - 4, c["crease"])                        # the left fold (the lit wing meets the panel)
+    L.vline(W - 6, 2, H - 4, c["crease"])                    # the right fold
+    for y in range(3, H - 3):                                # the wings: left lit, right in shade
+        L.set(1, y, c["light"])
+        L.set(4, y, c["shade"])
+        L.hline(W - 5, W - 2, y, c["shade"])
+    L.hline(1, 4, 2, c["light"])                             # the wings' top edges
+    L.hline(W - 5, W - 2, 2, c["face"])
+    for y in range(0, 2):                                    # the wings stand 2 rows lower than the back panel
+        for x in list(range(0, 5)) + list(range(W - 5, W)):
             L.px[y][x] = None
-    L.hline(5, W - 6, H - 3, "receipt_sh")                    # the lip under the opening, a cardboard fold
-    outline_inplace(L)                                        # also rings the opening's inner edge
+    L.hline(1, W - 2, H - 3, c["light"])                     # the shelf: its lit edge and face
+    L.hline(1, W - 2, H - 2, c["face"])
+    outline_inplace(L)
+    return L
+
+
+def booth():
+    """The cardboard voting booth (קלפי) around the picker grid. 9-slice [6, 10, 6, 4], content [5, 9, 30, 28]."""
+    W, H = 40, 40
+    L = booth_art(W, H, range(2, 7), 9)
     save(L, "booth_frame", "picker", slice=[6, 10, 6, 4], mode="stretch", content=[5, 9, W - 10, H - 12],
-         notes="The picker frame as the cardboard voting booth (קלפי, v4): a 9-slice [6, 10, 6, 4] drawn around the tile "
-               "grid; the opening is transparent. Cardboard `paper` with the two side wings folded back, a blank "
-               "flag-blue header strip and a white rule (no text, no emblem, no letters: the booth, not the committee). "
-               "Optional: the engine may draw the picker title in its header (white on flag 8.5:1).")
+         notes="The picker frame as the cardboard voting booth (קלפי): a 9-slice [6, 10, 6, 4] drawn around the tile "
+               "grid, content [5, 9, 30, 28] (the tiles). Kraft cardboard (2026-09-30, manual test B13: the off-white "
+               "frame with a transparent opening read as a thin brown line), a tabletop folding screen: the back panel "
+               "with a lit top edge and a blank flag-blue printed band (rows 2-6, cols 5-34), the two side wings "
+               "folded forward, 2 rows lower and unprinted (left lit, right in shade, a crease at each fold), the back "
+               "panel in shadow INSIDE the frame (opaque: the gaps between the tiles are cardboard, so the grid stands "
+               "in the booth), the shelf at the bottom. Tiles on the back panel: their outline 7.5:1, their ui_bubble face "
+               "3.1:1. No text, no emblem, no letters, no party colour: the booth, not the committee.")
+    return L
 
 
 def envelope():

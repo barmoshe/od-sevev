@@ -115,24 +115,14 @@ def notice_frame(W=40, H=40):
 
 # ------------------------------------------------------------------ A5: the booth with a title header
 def booth_tall(W=40, HDR=12):
+    from wave8 import booth_art
     H = 40 + (HDR - 7) + 1                              # booth_frame is 40 tall with a 7-row header (row 0 = outline)
-    L = Layer(W, H)
-    L.rect(0, 0, W, H, "paper")                          # cardboard, off-white
-    L.rect(0, 0, W, HDR + 1, "flag")                     # rows 1..HDR: the header (row 0 becomes the outline)
-    L.hline(0, W - 1, HDR + 1, "white")
-    top = HDR + 3                                        # the opening's first row (booth_frame: 9)
-    for y in range(HDR + 2, H):                          # the side wings, folded back
-        L.hline(0, 3, y, "stone_sh"); L.hline(W - 4, W - 1, y, "stone_sh")
-        L.set(4, y, "receipt_sh"); L.set(W - 5, y, "receipt_sh")
-    for y in range(top, H - 3):
-        for x in range(5, W - 5):
-            L.px[y][x] = None
-    L.hline(5, W - 6, H - 3, "receipt_sh")
-    outline_inplace(L)
+    top = HDR + 3                                        # the back panel's first row (booth_frame: 9)
+    L = booth_art(W, H, range(2, HDR + 1), top)          # the printed band holds the title box (rows 2-10)
     save(L, "booth_frame_tall", "picker", slice=[6, top + 1, 6, 4], mode="stretch", content=[5, top, W - 10, H - top - 3],
          label="white",
          extra={"titleBox": [6, 2, W - 12, 9], "header": [1, 1, W - 2, HDR]},
-         notes="A5 (mobile-first §5.14.2, optional): booth_frame with a 12-row flag-blue header (rows 1-12), so the "
+         notes="A5 (mobile-first §5.14.2, optional): booth_frame with an 11-row flag-blue printed band (rows 2-12), so the "
                "picker title can sit in the booth: white on flag 8.46:1. `titleBox` [6, 2, w - 12, 9] is the text cell "
                "(the x4 Sevev 9 cell is 9 art rows; x5 large text is 45 logical, inside the 48 of the header). The "
                "opening, the wings and the bottom are booth_frame's exactly, 6 rows lower: 9-slice [6, 16, 6, 4], "

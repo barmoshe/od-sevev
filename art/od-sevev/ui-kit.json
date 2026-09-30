@@ -3461,7 +3461,7 @@
     30,
     28
    ],
-   "notes": "The picker frame as the cardboard voting booth (קלפי, v4): a 9-slice [6, 10, 6, 4] drawn around the tile grid; the opening is transparent. Cardboard `paper` with the two side wings folded back, a blank flag-blue header strip and a white rule (no text, no emblem, no letters: the booth, not the committee). Optional: the engine may draw the picker title in its header (white on flag 8.5:1)."
+   "notes": "The picker frame as the cardboard voting booth (קלפי): a 9-slice [6, 10, 6, 4] drawn around the tile grid, content [5, 9, 30, 28] (the tiles). Kraft cardboard (2026-09-30, manual test B13: the off-white frame with a transparent opening read as a thin brown line), a tabletop folding screen: the back panel with a lit top edge and a blank flag-blue printed band (rows 2-6, cols 5-34), the two side wings folded forward, 2 rows lower and unprinted (left lit, right in shade, a crease at each fold), the back panel in shadow INSIDE the frame (opaque: the gaps between the tiles are cardboard, so the grid stands in the booth), the shelf at the bottom. Tiles on the back panel: their outline 7.5:1, their ui_bubble face 3.1:1. No text, no emblem, no letters, no party colour: the booth, not the committee."
   },
   {
    "id": "booth_frame_tall",
@@ -3483,7 +3483,7 @@
     28
    ],
    "label": "white",
-   "notes": "A5 (mobile-first §5.14.2, optional): booth_frame with a 12-row flag-blue header (rows 1-12), so the picker title can sit in the booth: white on flag 8.46:1. `titleBox` [6, 2, w - 12, 9] is the text cell (the x4 Sevev 9 cell is 9 art rows; x5 large text is 45 logical, inside the 48 of the header). The opening, the wings and the bottom are booth_frame's exactly, 6 rows lower: 9-slice [6, 16, 6, 4], content [5, 15, 30, 28] (booth_frame: [6, 10, 6, 4], [5, 9, 30, 28]). Net: the title's own row and its 16 gap above the booth go back to the sky; the booth's top inset grows 36 -> 60 logical. One line only: a 2-line title keeps booth_frame with the title above it. Blank otherwise: no emblem, no letters.",
+   "notes": "A5 (mobile-first §5.14.2, optional): booth_frame with an 11-row flag-blue printed band (rows 2-12), so the picker title can sit in the booth: white on flag 8.46:1. `titleBox` [6, 2, w - 12, 9] is the text cell (the x4 Sevev 9 cell is 9 art rows; x5 large text is 45 logical, inside the 48 of the header). The opening, the wings and the bottom are booth_frame's exactly, 6 rows lower: 9-slice [6, 16, 6, 4], content [5, 15, 30, 28] (booth_frame: [6, 10, 6, 4], [5, 9, 30, 28]). Net: the title's own row and its 16 gap above the booth go back to the sky; the booth's top inset grows 36 -> 60 logical. One line only: a 2-line title keeps booth_frame with the title above it. Blank otherwise: no emblem, no letters.",
    "titleBox": [
     6,
     2,
