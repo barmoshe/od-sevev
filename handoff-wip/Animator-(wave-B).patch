@@ -1,6 +1,18 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index 644a398..dd08875 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -2200,6 +2200,7 @@ func _start_evolve(dev_force := false) -> void:
+ 		# ceremony without the 61 gate, for the leader swap's frame strips. The round is not paid.
+ 		nxt = state.duplicate_state()
+ 		nxt.evolutions += 1
++		nxt.run_taps = 0   # as Economy.evolve's run reset: the next round is untouched, so the pick is open
+ 		Politics.on_election(nxt)
+ 		res = {"multBefore": d.prestige_mult, "multAfter": d.prestige_mult, "gained": 0}
+ 	if res.is_empty():
 diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
-index 3dc157b..ff91153 100644
+index 3dc157b..832c301 100644
 --- a/tools/web/motion_web.mjs
 +++ b/tools/web/motion_web.mjs
 @@ -1,17 +1,23 @@
@@ -136,7 +148,7 @@ index 3dc157b..ff91153 100644
 -	await o.ctx.close();
 +	if (ONLY.includes('walk')) {
 +		// wave B: the leader swap. SLOW 10: a screenshot every ~120 ms of wall time is ~12 ms of game time.
-+		const WS = 10;
++		const WS = 40;
 +		for (const reduced of [false, true]) {
 +			const tag = `${d.name}${reduced ? '-rm' : ''}`;
 +			console.log(`walk ${tag}`);
@@ -145,7 +157,7 @@ index 3dc157b..ff91153 100644
 +			const stage = stageRect(disp);
 +			// the walk-in: the picker's commit (≈ 520 ms), then 640 ms of walk (RM: a 150 ms fade)
 +			check(await pickTile(o, 'bennett'), 'the picker is open and Bennett\'s tile is tapped');
-+			const inFrames = await strip(o, `${out}/walk-in-${tag}`, stage, reduced ? 40 : 90, 0, WS);
++			const inFrames = await strip(o, `${out}/walk-in-${tag}`, stage, reduced ? 60 : 100, 0, WS);
 +			fs.writeFileSync(`${out}/walk-in-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: inFrames }, null, 1));
 +			let s = await o.probe();
 +			check(s && s.leader === 'bennett' && s.mode === 'title', `Bennett's round, pre-tap (leader ${s && s.leader}, mode ${s && s.mode})`);
@@ -155,8 +167,8 @@ index 3dc157b..ff91153 100644
 +			await o.tap(hx, hy, 8);
 +			await o.page.waitForTimeout(1500);
 +			await o.page.evaluate(() => { window.odDevElect = 1; });
-+			await o.page.waitForTimeout(reduced ? 8500 : 10500);   // ≈ 850 / 1050 ms of game time, under the card
-+			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, reduced ? 40 : 80, 0, WS);
++			await o.page.waitForTimeout(reduced ? 36000 : 44000);   // ≈ 900 / 1100 ms of game time, under the card
++			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, reduced ? 50 : 100, 0, WS);
 +			fs.writeFileSync(`${out}/walk-out-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: outFrames }, null, 1));
 +			await o.page.waitForFunction(() => window.odDev && (window.odDev.mode === 'pick' || window.odDev.modal !== ''), null, { timeout: 60000 }).catch(() => {});
 +			s = await o.probe();
@@ -167,7 +179,7 @@ index 3dc157b..ff91153 100644
 +	}
 +	if (ONLY.includes('ticker')) {
 +		// M1: the ticker row, SLOW 3 (a frame every ~40 ms of game time, 8 s of it: several page changes)
-+		const TS = 3;
++		const TS = 20;
 +		for (const reduced of [false, true]) {
 +			const tag = `${d.name}${reduced ? '-rm' : ''}`;
 +			console.log(`ticker ${tag}`);
@@ -181,9 +193,9 @@ index 3dc157b..ff91153 100644
 +			const tk = disp.ticker;
 +			check(tk && tk.mode === 'page' && tk.transition === (reduced ? 'fade' : 'roll'), `odDisplay.ticker: ${JSON.stringify(tk)}`);
 +			const row = [disp.ox + tk.clipX - 8, disp.lowerY + tk.clipY, tk.clipW + 16, tk.clipH];
-+			const frames = await strip(o, `${out}/ticker-${tag}`, row, 160, 0, TS);
++			const frames = await strip(o, `${out}/ticker-${tag}`, row, 300, 0, TS);
 +			fs.writeFileSync(`${out}/ticker-${tag}.json`, JSON.stringify({ k: disp.k, slow: TS, frames, clip: row }, null, 1));
-+			check(frames.length === 160, `ticker: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
++			check(frames.length === 300, `ticker: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
 +			check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
 +			await o.ctx.close();
 +		}
