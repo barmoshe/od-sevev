@@ -445,7 +445,7 @@ test: every row above stays distinguishable with colour removed.
 - **Shop icons 24x24** (money sources and, since wave 5, spins): they fill `card_plate` (26x26) edge to edge.
   Spins are built from outlined parts back to front (`src/icons24.py`), no rim (UI, not a stage touchable).
 - **Tab icons 15x15** (active + idle): מקורות = a faucet dripping a shekel (what you tap); ספינים = Dubi's
-  microphone broadcasting two pink arcs; קואליציה = a chat bubble that says 61; תיקים = a manila case file
+  microphone broadcasting two pink arcs; קואליציה = two chat bubbles, the front one with three dots (wave 10; it said "61" until UX review 2 U8: a number in a bubble reads as an unread count); תיקים = a manila case file
   with a violet "filed" mark. Four different silhouettes, four different dominant hues; idle collapses
   to a 3-step slate ramp.
 - **9x9 inline icons** (one text cell tall): lock, pin, mute, chevron, clock (4 hand states), calendar,
@@ -556,7 +556,7 @@ hierarchy.
 | F7 | Orchestrator | The `suitcase` ChatGPT row | Not needed in-game: hand-drawn (`props/suitcase.png`); keep it only for a large key-art version. |
 | F8 | Animator | Stamp tool, brawl, cottage pixel drop, bubbles, clock hand, seats pulse | Key poses / frames are here; timing, easing and the reduced-motion behaviour are yours. |
 | F10 | Orchestrator / UX | **v3 tested: the buy pill stays gold.** Bar's blue-white direction invites a blue pill; a flag pill on a `ui_bubble` card is 1.47:1 and would stop reading as the call to action, and gold vs `ui_panel` is 10.4:1 and the chrome's only warm hue | Keep gold (shipped). No objection raised. |
-| F11 | UX / engine | v3 primary (`flag`) and secondary (`ui_bubble`) buttons differ by value 1.47:1 (v2 had a hue split too); shape, the `flag_hi` bevel (3.2:1 vs `ui_bubble`) and the white label carry it | If a review finds them confusable, give `button_secondary` a 1 px `white` inner ring (a kit-only redraw, same ids). |
+| F11 | UX / engine | v3 primary (`flag`) and secondary (`ui_bubble`) buttons differ by value 1.47:1 (v2 had a hue split too); shape, the `flag_hi` bevel (3.2:1 vs `ui_bubble`) and the white label carry it | **Resolved (wave 10, UX review 2 U2 found them 1.13:1 in v4):** `button_white_*`, a white primary with a flag label (8.5:1) and a flag-blue lip; 7.5:1 vs the secondary. New ids: the engine switches `kit_primary` to them. |
 | F12 | Views (cast) | The chat avatars' blue react ring (`flag_hi`) now sits on navy chrome (3.9:1 vs `ui_panel`, was a hue contrast on violet) | Holds ≥ 3:1; if it reads as chrome, the TA can move the blue ring to `sky` in `showcase/src/build.py` (a cast-ring recolour, not a re-render). |
 | F13 | Key art | The OG and icon curtain (`plum`, now velvet blue) vs the cast's navy suits is 1.15:1 by value (v2 was 1.06:1, carried by hue) | The outlines, white shirts, lit faces and the spot pool carry every figure at 1200 and at the 630 square; if a thumbnail reads muddy, lift the curtain body to `plum_hi` (a keyart.py change, no cast change). |
 | F14 | Orchestrator / engine | **v4 sequencing:** the v4 kit without the code map leaves script text at 2.2-3.5:1 on the new blues | Apply `palette-v4-map.json` in the same merge as the kit (after the mobile-first merge); `--check` must report 0 before shipping. |
@@ -712,6 +712,22 @@ body, f0, f1, f2 over the body, today's `sheet_modal`; at 38x38, 158x64 and 158x
   flap strip it stays one art row, so the flap path also fixes that slab. Flagged for the developer: moving every
   modal to body + flap f2 removes it everywhere.
 - **Blank:** no seal, no emblem, no text, no party mark. It is a civic object (§2.4).
+
+### 17.3 Wave 10: UX build review 2 (`src/wave10.py`, `ux/review-2026-09-30.md`, 2026-09-30)
+
+New ids only, except the coalition tab icon (same ids, redrawn) and `sheet_modal`'s slice (pixels unchanged). Proof:
+`proofs/kit-w10-review2.png` (before | after in context, at the game's x4).
+
+| UX | Piece | What |
+|---|---|---|
+| U2 / A4 | `button_white_{default,pressed,disabled}` 24x20, [3,3,3,4] / [3,5,3,2] | The v4 primary: the flag's white on its blue. A white face, a silver bottom/right shade, a 2-row lip in `flag` over `flag_dk` (the key's side), the outline. Label `flag` 8.46:1; pressed = a silver face down 2 into the lip (the blue side goes), 6.40:1; disabled = the shared sunk slate. White vs the secondary's `ui_bubble` 7.52:1 (was 1.13:1). Same size, slices and content box as `button_primary_*`: a drop-in. |
+| U2 | (none) | O3's `ELECT_GO` takes `button_gold_*`, which already is the "עוד סבב!" CTA's skin at full width (the ticker, 704x80): no new id. UX's `ui_button_evolve` is the fork's blue diamond in `art.json`, not the gold CTA. |
+| U7 | `card_row_silhouette` 32x30 [4,4,4,4] | A not-yet-revealed row on the white pane as a blank pale slip: `ui_mute` face, 1 px `ui_rule` edge (5.58:1 on the pane; the face is 1.33:1), sunk 1 px, no ink outline. Name in `ui_panel` 8.87:1. The icon is `<silhouette>_pale` (pipeline): `ui_dim` mask, `ui_rule` edge. |
+| U7 | `chat_system_pill_navy` 20x13 [4,3,4,3] | T3's system pill on the v4 thread: a flat `ui_scrim` well, a `ui_rule` edge, label `ui_mute` 12.91:1. `chat_system_pill` stays (the picker's chip). |
+| U8 | `tabicon_coalition_{active,idle}` (same ids) | Two bubbles, the front one with three `ui_bubble` dots, the back one `ui_mute`. No digits. The badge (top-left) sits over the back bubble; its rounded corner leaves the first dot whole. |
+| U10 | `notice_frame` 40x40 [3,7,3,5] | EVOLVE_TX as the gate's printed notice: a white card ruled edge to edge in flag blue (top 3 + gap + 1, bottom 1 + gap + 1), outline, for the flag-blue page. Data `colors` = page `flag`, title `flag` (8.46:1), text `night` (13.88:1). **A card, not full bleed:** a white screen with a blue stripe at its top and bottom is the flag's layout with the text where the star sits (§2.4's rejected "whole page as the flag"). |
+| A5 | `booth_frame_tall` 40x46 [6,16,6,4] | `booth_frame` with a 12-row flag header; `titleBox` [6, 2, w-12, 9] for the title, white on flag 8.46:1. The opening and wings are `booth_frame`'s, 6 rows lower. |
+| U1 / T1 | `sheet_modal` slice [7,23,7,7] → **[7,24,7,7]**, content y 24 | Rows 0-23 (the band, the flap point and its shadow row) are fixed, so the stretched centre is plain body: no slab under the point on a modal that still draws `sheet_modal` alone (the kit says to keep it where the flap does not animate). Body + flap needs nothing. |
 
 ## 18. Foundations (referenced, not paraphrased)
 

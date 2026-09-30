@@ -53,3 +53,13 @@
 | `outline` | `stone` | 13.30:1 | 4.5:1 | yes |
 | `outline` | `stone_sh` | 7.49:1 | 4.5:1 | yes |
 | `outline` | `paper` | 13.46:1 | 4.5:1 | yes |
+| `flag` | `white` | 8.46:1 | 4.5:1 | yes |
+| `flag` | `silver` | 6.40:1 | 4.5:1 | yes |
+| `ui_panel` | `ui_mute` | 8.87:1 | 4.5:1 | yes |
+| `ui_mute` | `ui_scrim` | 12.91:1 | 4.5:1 | yes |
+| `night` | `white` | 13.88:1 | 4.5:1 | yes |
+| `white` | `flag` | 8.46:1 | 4.5:1 | yes |
+| `white` | `ui_bubble` | 7.52:1 | 3.0:1 | yes |
+| `white` | `ui_panel` | 11.78:1 | 3.0:1 | yes |
+| `ui_rule` | `white` | 5.58:1 | 3.0:1 | yes |
+| `ui_rule` | `ui_scrim` | 3.08:1 | 3.0:1 | yes |
