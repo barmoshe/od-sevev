@@ -260,7 +260,7 @@ index 9b9f489..f21efb7 100644
  	runner.check(s.run_time_sec > run and u["state"] == "expired", "the round resumes where it stood: the ultimatum runs out")
  
 diff --git a/game/tests/unit/test_vote_hold.gd b/game/tests/unit/test_vote_hold.gd
-index 52da8af..0aeafef 100644
+index 52da8af..b0419a8 100644
 --- a/game/tests/unit/test_vote_hold.gd
 +++ b/game/tests/unit/test_vote_hold.gd
 @@ -92,3 +92,44 @@ func test_cards_and_the_court_hold_under_the_card() -> void:
@@ -289,7 +289,7 @@ index 52da8af..0aeafef 100644
 +## The finish grace (ultimatum.finishGraceSec, spec §7.4): the frame the 61 gate opens, a running
 +## ultimatum gets at least 10 s left, once, so reaching for "עוד סבב!" never loses the gate to a timer.
 +func test_reaching_61_gives_a_running_ultimatum_the_finish_grace() -> void:
-+	var s := _with(["bengvir", "smotrich", "amsalem", "deri", "levin", "goldknopf", "regev", "karhi"])
++	var s := _with(["smotrich", "amsalem", "deri", "levin", "goldknopf", "regev", "karhi"])   # 55 + Deri's 9
 +	s.coalition["nextDemandSec"] = 1e12
 +	for id in Content.producer_ids():
 +		s.owned[id] = 50
