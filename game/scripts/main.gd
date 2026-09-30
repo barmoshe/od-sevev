@@ -2245,6 +2245,9 @@ func _start_evolve(dev_force := false) -> void:
 				ticker.enqueue("milestone", Strings.s("F_ERA", {"era": era.get("name", "")}))
 				_audio("era", era.get("id", ""))
 			diorama.set_era(era)
+			# the old round's pick lines never carry over the card into the walk-out
+			_pick_seq.clear()
+			toasts.clear_bubble()
 			_economy_frozen = false
 			_acc = 0.0,
 		# the leader swap (spec §9.3.4): when a pick follows, the old leader walks off screen-right as
