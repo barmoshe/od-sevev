@@ -31,6 +31,9 @@ var _extend_x := 0.0
 var _extend_top := 0.0
 var _sky: Array[ColorRect] = []
 var _props := Node2D.new()
+## A figure on the street (Mordechai David, StreetFigure): over the stage art and its crowd, under
+## the money sources and the leader (design/mordechai-david-spec.md §9.3). Kept across era swaps.
+var _street := Node2D.new()
 var _stars: Array[Dictionary] = []
 var _era: Dictionary = {}
 var _owned: Dictionary = {}
@@ -49,6 +52,7 @@ const PIECE_FIRST_MS := {"lob": 4000.0, "launch": 9000.0, "blink": 6000.0}
 func _ready() -> void:
 	add_child(_bg)
 	add_child(_props)
+	add_child(_street)
 	add_child(_env)
 	add_child(_back)
 	add_child(_front)
@@ -452,6 +456,15 @@ func _build_backdrop() -> void:
 
 
 ## True while the era draws full-stage art (the title hides the fork's dirt under it).
+func street_layer() -> Node2D:
+	return _street
+
+
+## The era on stage now ("" before the first set_era).
+func era_id() -> String:
+	return String(_era.get("id", ""))
+
+
 func has_background() -> bool:
 	return _has_bg
 

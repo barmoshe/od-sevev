@@ -121,7 +121,7 @@ func _place_y(y0: float) -> void:
 	_y0 = y0
 	_text.position.y = y0 + 16.0
 	_head.position.y = y0 + 16.0
-	_preview.position.y = y0 + 16.0 + float(HeFont.line_height()) * _head.eff_px()
+	_preview.position.y = y0 + 16.0 + (float(HeFont.line_height()) * _head.eff_px() if _head.visible and _head.text != "" else 0.0)
 	if dy != 0.0 and _face.visible:
 		_face.position.y += dy
 
@@ -160,13 +160,20 @@ func show_toast(text: String, tag: String = "", dock_at: String = "") -> void:
 ## empty id draws no face. The tag is "chat" (a tap opens T3).
 ## `tag` "" and `passive` (review U9, Dubi's pre-tap pick line over the leader): no tap target, so
 ## tap 1 aimed at the leader is never taken by the dock.
-func show_chat_toast(head: String, preview: String, avatar: Array, tag: String = "chat", passive: bool = false) -> void:
+## `lines` 2 lets the preview wrap to a second line: a stage event's toast (Mordechai David,
+## design/mordechai-david-spec.md §7.2), whose line is longer than a chat bubble. With an empty `head`
+## the preview takes line 1, so a face plus two lines stays the 132 two-line plate. `dock_at` as
+## show_toast ("lane": the band under the leader's feet, D62).
+func show_chat_toast(head: String, preview: String, avatar: Array, tag: String = "chat", passive: bool = false, lines: int = 1, dock_at: String = "") -> void:
 	if preview == "" and head == "":
 		return
 	_queue.append(preview)
 	_tags.append(tag)
 	_sync_chats()
-	_chats.append({"head": head, "avatar": avatar, "passive": passive})
+	var meta := {"head": head, "avatar": avatar, "passive": passive, "lines": maxi(1, lines)}
+	if dock_at != "":
+		meta["dock"] = dock_at
+	_chats.append(meta)
 
 
 ## Test hook: the dock the next queued toast asked for ("" = follow `lane_dock`).
@@ -355,14 +362,18 @@ func update_view(dt_ms: float) -> void:
 		_text.text = ""
 		_head.text = str(chat.get("head", ""))
 		_head.right_at(CHAT_TEXT_RIGHT + rdx())
+		_preview.max_lines = int(chat.get("lines", 1))
 		_preview.text = msg
 		_preview.right_at(CHAT_TEXT_RIGHT + rdx())
-		# two one-line rows at the scale drawn (132 at ×4; the lines grow under large text)
-		var lh_head := float(HeFont.line_height()) * _head.eff_px()
-		var lh_prev := float(HeFont.line_height()) * _preview.eff_px()
+		# two one-line rows at the scale drawn (132 at ×4; the lines grow under large text), plus a
+		# line pitch per extra preview line
+		var lh_head := float(HeFont.line_height()) * _head.eff_px() if _head.text != "" else 0.0
+		var lh_prev := float(HeFont.line_height()) * _preview.eff_px() * float(maxi(1, _preview.line_count()))
 		_preview.position.y = y0 + 16.0 + lh_head
 		Ui.set_nine_rect(_plate, Rect2(dock_x(), y0, dock_w(), maxf(132.0, Ui.snap(44.0 + lh_head + lh_prev, 4))))
-		shown_nodes.append_array([_head, _preview])
+		shown_nodes.append(_preview)
+		if _head.text != "":
+			shown_nodes.append(_head)
 		if _set_face(chat.get("avatar", []), y0):
 			shown_nodes.append(_face)
 	for n: CanvasItem in shown_nodes:

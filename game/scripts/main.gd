@@ -80,6 +80,8 @@ var _lower := Node2D.new()          # ticker + shop
 var _ui := Node2D.new()             # FTUE, UI FX
 var _modal := Node2D.new()          # overlays + EVOLVE_TX
 var diorama: Diorama
+var street: StreetFigure        # Mordechai David on the Balfour stage (design/mordechai-david-spec.md)
+var _street_partner := ""       # the partner his blockade stuck, for the end toast
 var bb: BigBanana
 var prop_fx: PropFx                 # the Magician's coins and rabbit
 var toasts: Toasts                  # the toast dock + Dubi's bubble (ux/ftue.md)
@@ -313,6 +315,17 @@ func _dev_poll_elect() -> void:
 		_start_evolve(true)
 
 
+## Dev only (web, ?dev=1): `window.odDevEvent = "mordechai"` fires that event now, bypassing the
+## scheduler's gap and weights (its own effect still applies: a forced-event look at a phone size).
+func _dev_poll_event() -> void:
+	if not OS.has_feature("web") or mode != "main" or _tx_locked:
+		return
+	var id: Variant = JavaScriptBridge.eval("(typeof window.odDevEvent === 'string') ? window.odDevEvent : ''", true)
+	if id is String and id != "":
+		JavaScriptBridge.eval("window.odDevEvent = ''", true)
+		_on_politics_event(Events.fire(state, id, d))
+
+
 func _default_settings() -> Dictionary:
 	return {"sfx": true, "music": true, "reducedMotion": _os_reduced_motion(), "reducedMotionFollowsOs": true,
 		"haptics": true, "notation": "letters", "sfxVolume": 1.0, "musicVolume": 1.0, "shake": 1.0, "largeText": false}
@@ -369,6 +382,9 @@ func _build() -> void:
 	_build_history()
 	diorama = Diorama.new()
 	_stage.add_child(diorama)
+	street = StreetFigure.new()
+	diorama.street_layer().add_child(street)
+	street.on_marker = func(n: String) -> void: _audio(n)
 	bb = BigBanana.new()
 	_stage.add_child(bb)
 	prop_fx = PropFx.new()
@@ -818,6 +834,7 @@ func _apply_settings() -> void:
 	prop_fx.reduced_motion = rm
 	golden.reduced_motion = rm
 	diorama.set_reduced_motion(rm)
+	street.reduced_motion = rm
 	floaters.reduced_motion = rm
 	top_bar.set_reduced_motion(rm)
 	buffs.set_reduced_motion(rm)
@@ -1116,6 +1133,7 @@ func _process(delta: float) -> void:
 	prop_fx.update_view(dt)
 	golden.update_view(dt, modal or not running)
 	diorama.update_view(dt)
+	street.update_view(dt, state, running and diorama.era_id() == "balfour")
 	floaters.update_view(dt)
 	fx_stage.update_view(dt)
 	fx_ui.update_view(dt)
@@ -1137,6 +1155,7 @@ func _process(delta: float) -> void:
 	if bool(_dev["on"]):
 		DevProbe.publish(self, dt)   # window.odDev for the browser drivers (tools/web/round_web.mjs)
 		_dev_poll_elect()
+		_dev_poll_event()
 	_audio_clocks(dt)
 	Juice.tick(dt)
 	_follow_os_motion(dt)
@@ -1453,6 +1472,14 @@ func _on_politics_event(e: Dictionary) -> void:
 	court.on_politics_event(e)  # the court card and chip (the card now carries the summons text)
 	thermo.on_politics_event(e) # the summons gulp
 	match String(e.get("ev", "")):
+		"event":
+			if str(e.get("id", "")) == StreetFigure.EVENT_ID:
+				_on_street_event(e.get("result", {}))
+		"eventEnd":
+			if str(e.get("type", "")) == "blockade" and _street_partner != "":
+				var endc := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
+				toasts.show_toast(StreetFigure.fill(str(endc.get("endText", "")), _street_partner), "", "lane")
+				_street_partner = ""
 		"summons":
 			_audio("courtSummons")
 			if Leaders.has_court():
@@ -1468,6 +1495,22 @@ func _on_politics_event(e: Dictionary) -> void:
 				toasts.show_toast(LeaderUi.s("TOAST_COURT_END"))
 		"transfer":
 			_audio("transfer")
+
+
+## Mordechai David's blockade fired (spec §7.2): the figure walks in, Dubi's ticker runs the headline,
+## and a chat-style toast carries his face, name, role and the round's skinned line; then who is stuck
+## (or nobody). No buttons, no tap target on him.
+func _on_street_event(result: Dictionary) -> void:
+	var lid := Leaders.current(state)
+	var c := StreetFigure.copy_for(lid, str(Leaders.leader(lid).get("side", "")))
+	_street_partner = str(result.get("partner", ""))
+	street.on_fire()
+	ticker.enqueue("flavor", str(c.get("ticker", "")), true)
+	# the lane band (D62): mid-round a top-dock toast covers the leader's head on short stages; the lane
+	# is clear of his hit on every device, and the ticker right under it names Mordechai David
+	toasts.show_chat_toast("", str(c.get("text", "")), StreetFigure.toast_avatar(), "", false, 2, "lane")
+	var line := str(c.get("blockedText", "")) if _street_partner != "" else str(c.get("aloneText", ""))
+	toasts.show_toast(StreetFigure.fill(line, _street_partner), "", "lane")
 
 
 ## The court day's stage FX from the Magician (BigBanana.on_court_fx): the zip's dust at his feet, the
