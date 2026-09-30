@@ -70,3 +70,11 @@ index 0000000..311cac9
 +			_pct(head_ms, 0.5) / 1000.0, _pct(head_ms, 0.9) / 1000.0])
 +	quit(0)
 # untracked binary: game/tests/dev/ticker_pages.gd
+diff --git a/game/tests/dev/ticker_pages.gd.uid b/game/tests/dev/ticker_pages.gd.uid
+new file mode 100644
+index 0000000..32692f3
+--- /dev/null
++++ b/game/tests/dev/ticker_pages.gd.uid
+@@ -0,0 +1 @@
++uid://iu1njkt3r8w0
+# untracked binary: game/tests/dev/ticker_pages.gd.uid
