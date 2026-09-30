@@ -50,14 +50,17 @@ func _tx_text(y: float, t: String, col: Variant) -> PxText:
 	return p
 
 
-## info: {round (the new round's number), multBefore, multAfter, gained, era}; cb: {seam, hello,
-## unlock} Callables. A caller without `round` gets the old species title.
+## info: {round (the new round's number), multBefore, multAfter, gained, era}; cb: {seam, walk, hello,
+## unlock} Callables. A caller without `round` gets the old species title. `walk` fires when the card
+## starts to lift (the fade-in's f0; reduced motion: the cross-fade out's f0): the leader swap's
+## walk-out (spec §9.3.4, motion/state-graph-magician.md §9) starts there, so the lifting card reveals
+## the new round's stage with the old leader setting off.
 func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
 	_reduced = reduced
 	_cb = cb
 	_t = 0.0
 	running = true
-	_fired = {"seam": false, "hello": false, "unlock": false}
+	_fired = {"seam": false, "walk": false, "hello": false, "unlock": false}
 	visible = true
 	modulate.a = 1.0
 	var X: Dictionary = Art.theme["evolveTx"]
@@ -146,6 +149,8 @@ func _update_full(t: float) -> void:
 		_mult.px = sc
 		_mult.center_in(0, L.W)
 		_mult.position.y = MULT_Y - Ui.snap((9.0 * float(sc - L.TEXT)) / 2.0, 4)
+	if t >= card_end:
+		_fire("walk")
 	if t >= card_end + fade_in / 3.0:
 		_fire("hello")
 	if t >= total:
@@ -160,6 +165,8 @@ func _update_reduced(t: float) -> void:
 	_card.modulate.a = a
 	if t >= xfade:
 		_fire("seam")
+	if t >= card_end:
+		_fire("walk")
 	_set_texts(t >= xfade and t < total, t >= MULT_MS and t < total)
 	_text_alpha(a if t >= card_end else 1.0)
 	_species.position.y = SPECIES_Y
@@ -174,4 +181,19 @@ func _update_reduced(t: float) -> void:
 func _finish() -> void:
 	running = false
 	visible = false
+	_fire("walk")   # a caller that skipped ahead still gets it, before the unlock
 	_fire("unlock")
+
+
+## When the card starts to lift, in ms from the start: the walk-out's cue.
+func walk_ms(reduced: bool) -> float:
+	if reduced:
+		return 200.0 + float(Tune.T["evolveTitleCardMs"])
+	return float(Tune.T["evolveFadeOutMs"]) + float(Tune.T["evolveTitleCardMs"])
+
+
+## The whole transition in ms.
+func total_ms(reduced: bool) -> float:
+	if reduced:
+		return 400.0 + float(Tune.T["evolveTitleCardMs"])
+	return float(Tune.T["evolveFadeOutMs"]) + float(Tune.T["evolveTitleCardMs"]) + float(Tune.T["evolveFadeInMs"])
