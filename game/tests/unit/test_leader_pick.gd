@@ -315,3 +315,15 @@ func test_leader_pick_sting_is_sent() -> void:
 	m.audio_sent.connect(func(n: String, a: Variant) -> void: sent.append([n, a]))
 	m.commit_pick("deri")
 	runner.check(sent.any(func(x: Array) -> bool: return x[0] == "leaderPick" and x[1] == "deri"), "the pick sends leaderPick (the Audio plays it if its cue table has it)")
+
+
+func test_every_tap_on_the_character_sends_a_coin() -> void:
+	await _boot()
+	m.commit_pick("bibi")
+	var sent: Array = []
+	m.audio_sent.connect(func(n: String, a: Variant) -> void: sent.append([n, a]))
+	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
+	for i in 3:
+		m._handle_tap(at)
+	var coins := sent.filter(func(x: Array) -> bool: return x[0] == "coin")
+	runner.check(coins.size() == 3, "a coin cue on every tap (%d of 3)" % coins.size())

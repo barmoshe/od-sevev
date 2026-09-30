@@ -77,6 +77,14 @@ CAST = {
                    arm=None, react='hop', head=(300, 30, 840, 570)),
     'kariv': dict(neck=560, waist=960, eyes=[(431, 270, 24, 11), (567, 298, 24, 11)],
                   arm=None, react='no', head=(300, 20, 820, 560)),
+    # Almog Cohen (Bibi's and Ben Gvir's L8; the no-photo stand-in until 2026-09-30). Keyed out with --holes 286,786
+    # (the pocket between his left arm and the jacket).
+    'almog': dict(neck=500, waist=900, eyes=[(385, 237, 22, 10), (495, 258, 22, 10)],
+                  arm=None, react='hop', head=(230, 20, 760, 540)),
+    # Ahmad Tibi (the Joint List No. 2; Golan's round, the switcher's seat). His chin rests on his hand, so the neck cut
+    # sits under the hand and the forearm crossing the chest rides the chest band.
+    'tibi': dict(neck=540, waist=900, eyes=[(407, 235, 20, 9), (508, 264, 20, 9)],
+                 arm=None, react='no', head=(270, 40, 760, 560)),
 }
 
 # The two custom-rig leaders (build.py magician / bennett) take the same recipe keys. Bibi's is his approved hat rig
@@ -139,6 +147,19 @@ SOURCES = {
     'advisers': dict(ref='qatari', neck=460, f1=[('headx', 1)], icon=(510, 480),
                      recolor=[([(778, 630), (915, 630), (1000, 790), (1000, 950), (690, 900), (690, 830), (722, 785)], (125, 131, 152))],
                      fallback='two aides, no phone: the glance is both heads leaning 1 ap toward the whisper'),
+    # The five that were the 2D Artist's 1x drawings (ChatGPT batch 2026-09-30, keyed out with cutout.py). Their
+    # render-requests §C recipes need landmarks these refs do not have in a usable form (no waterline cut that keeps
+    # the coins, the LED rows are too small at 40 px, no page corner that moves), so each takes the bob and says why.
+    'submarine': dict(waist=1000, f1=[('body', 1)], icon=(500, 780), iconFit=True, pad=0.03,
+                      fallback='the coins spill across the waterline, so the hull and the coins bob together'),
+    'poison': dict(waist=1400, f1=[('body', 1)], icon=(510, 560),
+                   fallback='the LED rows are sub-pixel at 40 px: the rack bobs above its wheels'),
+    'checkbook': dict(waist=1150, f1=[('body', 1), ('px', (700, 330), (255, 246, 196), (0, 0))], icon=(520, 700), iconFit=True,
+                      fallback='no loose page corner: the book bobs, with a 1-px glint on the gold edge'),
+    'donor': dict(waist=950, f1=[('body', 1)], icon=(480, 470),
+                  fallback='a faceless figure: the bob only (no eyes to blink)'),
+    'funds': dict(waist=1300, f1=[('body', 1)], icon=(560, 560), iconFit=True,
+                  fallback='the binder and its coins bob together'),
 }
 SOURCE_ALIASES = {'washington': 'checkbook'}       # content id -> hand-drawn source id (2D Artist)
 

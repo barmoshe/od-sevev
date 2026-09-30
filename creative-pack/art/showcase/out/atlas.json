@@ -2,6 +2,126 @@
  "artHeight": 96,
  "density": 3,
  "chars": {
+  "tibi": {
+   "frameW": 151,
+   "frameH": 317,
+   "anchor": [
+    75,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "tibi_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "tibi_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 101,
+     "frameH": 211,
+     "anchor": [
+      50,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "tibi_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "tibi_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "almog": {
+   "frameW": 182,
+   "frameH": 317,
+   "anchor": [
+    91,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "almog_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "almog_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 121,
+     "frameH": 211,
+     "anchor": [
+      60,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "almog_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "almog_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
   "lazimi": {
    "frameW": 231,
    "frameH": 317,
@@ -7555,6 +7675,192 @@
   }
  },
  "sources": {
+  "submarine": {
+   "file": "source_submarine.png",
+   "frames": 2,
+   "frameW": 138,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    69,
+    119
+   ],
+   "icon": "source_submarine_icon.png",
+   "sil": "source_submarine_icon_sil.png",
+   "iconDensity": 1,
+   "points": {},
+   "recipe": [
+    "body"
+   ],
+   "fallback": "the coins spill across the waterline, so the hull and the coins bob together",
+   "densities": {
+    "2": {
+     "file": "source_submarine_d2.png",
+     "frames": 2,
+     "frameW": 92,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      46,
+      79
+     ],
+     "points": {}
+    }
+   }
+  },
+  "poison": {
+   "file": "source_poison.png",
+   "frames": 2,
+   "frameW": 92,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    46,
+    119
+   ],
+   "icon": "source_poison_icon.png",
+   "sil": "source_poison_icon_sil.png",
+   "iconDensity": 1,
+   "points": {},
+   "recipe": [
+    "body"
+   ],
+   "fallback": "the LED rows are sub-pixel at 40 px: the rack bobs above its wheels",
+   "densities": {
+    "2": {
+     "file": "source_poison_d2.png",
+     "frames": 2,
+     "frameW": 61,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      30,
+      79
+     ],
+     "points": {}
+    }
+   }
+  },
+  "checkbook": {
+   "file": "source_checkbook.png",
+   "frames": 2,
+   "frameW": 160,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    80,
+    119
+   ],
+   "icon": "source_checkbook_icon.png",
+   "sil": "source_checkbook_icon_sil.png",
+   "iconDensity": 1,
+   "points": {},
+   "recipe": [
+    "body",
+    "px"
+   ],
+   "fallback": "no loose page corner: the book bobs, with a 1-px glint on the gold edge",
+   "densities": {
+    "2": {
+     "file": "source_checkbook_d2.png",
+     "frames": 2,
+     "frameW": 107,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      53,
+      79
+     ],
+     "points": {}
+    }
+   }
+  },
+  "donor": {
+   "file": "source_donor.png",
+   "frames": 2,
+   "frameW": 78,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    39,
+    119
+   ],
+   "icon": "source_donor_icon.png",
+   "sil": "source_donor_icon_sil.png",
+   "iconDensity": 1,
+   "points": {},
+   "recipe": [
+    "body"
+   ],
+   "fallback": "a faceless figure: the bob only (no eyes to blink)",
+   "densities": {
+    "2": {
+     "file": "source_donor_d2.png",
+     "frames": 2,
+     "frameW": 52,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      26,
+      79
+     ],
+     "points": {}
+    }
+   }
+  },
+  "funds": {
+   "file": "source_funds.png",
+   "frames": 2,
+   "frameW": 112,
+   "frameH": 120,
+   "fps": null,
+   "density": 3,
+   "loop": true,
+   "anchor": [
+    56,
+    119
+   ],
+   "icon": "source_funds_icon.png",
+   "sil": "source_funds_icon_sil.png",
+   "iconDensity": 1,
+   "points": {},
+   "recipe": [
+    "body"
+   ],
+   "fallback": "the binder and its coins bob together",
+   "densities": {
+    "2": {
+     "file": "source_funds_d2.png",
+     "frames": 2,
+     "frameW": 74,
+     "frameH": 80,
+     "fps": null,
+     "density": 2,
+     "loop": true,
+     "anchor": [
+      37,
+      79
+     ],
+     "points": {}
+    }
+   }
+  },
   "taxpayer": {
    "file": "source_taxpayer.png",
    "frames": 2,

@@ -699,7 +699,7 @@
    "avatar": "ben-gvir_avatar",
    "lines": {
     "demand": "צריך תקציב לביטחון לאומי. היום. זה לא איום. עדיין 🔥",
-    "threat": "אם זה לא עובר, אני יוצא מהממשלה.",
+    "threat": "זה לא עובר? אני יוצא מהממשלה. בשעה עגולה.",
     "thanks": "קיבלתי. זה לא אומר שאני מרוצה 🔥",
     "return": "חזרתי. לא בגלל הכסף. גם בגלל הכסף."
    },
@@ -707,14 +707,22 @@
     "demand": [
      "צריך תקציב לביטחון לאומי. היום. זה לא איום. עדיין 🔥",
      "ביקשתי תקציב. קיבלתי חצי. אני מוחה על החצי 🔥",
-     "רוצה משרד גדול יותר. עם מרפסת. לנאומים 🔥"
+     "רוצה משרד גדול יותר. עם מרפסת. לנאומים 🔥",
+     "רוצה את משרד הביטחון. בינתיים יספיקו {price} ₪ 🔥"
+    ],
+    "thanks": [
+     "קיבלתי. זה לא אומר שאני מרוצה 🔥",
+     "קיבלתי. רשמתי ברשימת הקניות 🔥"
     ]
    },
    "copy": {
     "threatForwarded": true,
     "firstDemandIsC1": true,
     "_note": "The first demand is FTUE C1, the first chat bubble of the game, pill 60 ₪. His threat always renders as a forwarded message ('הועברה פעמים רבות')."
-   }
+   },
+   "src": [
+    "bengvir-ministries"
+   ]
   },
   {
    "id": "regev",
@@ -738,7 +746,12 @@
    "linesVariants": {
     "demand": [
      "רוצה לחנוך משהו. לא משנה מה. עם סרט ומספריים ✂",
-     "יש לי סרט. חסר רק משהו לגזור אותו עליו ✂"
+     "יש לי סרט. חסר רק משהו לגזור אותו עליו ✂",
+     "חנכתי כביש. עכשיו צריך טקס לסרט של הכביש ✂"
+    ],
+    "thanks": [
+     "איזה ערב. בכיתי. מישהו צילם?",
+     "איזה ערב. אפשר לחנוך אותו שוב מחר?"
     ]
    }
   },
@@ -771,6 +784,10 @@
     "demand": [
      "בתור שר האוצר: אין כסף. בתור יו״ר מפלגה: תעביר 💸",
      "צריך העברה דחופה. אל תדאג, זה מתקציב שאין 💸"
+    ],
+    "thanks": [
+     "הגיע. תודה. ולהזכירכם: אין כסף.",
+     "קיבלתי. רשמתי כהוצאה חד־פעמית. כמו כל השאר 💸"
     ]
    },
    "copy": {
@@ -798,7 +815,12 @@
    "linesVariants": {
     "demand": [
      "תעביר תקציב ואני מפסיק לצעוק. לא, לא מפסיק. אבל תעביר.",
-     "אני לא צועק. זה הקול שלי כשאין תקציב."
+     "אני לא צועק. זה הקול שלי כשאין תקציב.",
+     "יש לי חבר לכל דירקטוריון. תעביר ונתחיל למנות!"
+    ],
+    "return": [
+     "חזרתי. שקט פה. אני אתקן.",
+     "חזרתי! מישהו הנמיך את הווליום? החזרתי אותו!"
     ]
    },
    "copy": {
@@ -832,9 +854,17 @@
    "linesVariants": {
     "demand": [
      "צריך ועדה לבחירת שופטים. הרכב מוצע: אני, אני ועוד אני ⚖️",
-     "רעיון קטן: שופטים לפי תור. התור מתחיל בי ⚖️"
+     "רעיון קטן: שופטים לפי תור. התור מתחיל בי ⚖️",
+     "בג״ץ הורה לי לכנס ועדה. אכנס. בכנסת הבאה ⚖️"
+    ],
+    "thanks": [
+     "עבר. נתראה ברפורמה הבאה.",
+     "עבר. את הוועדה אכנס כשיהיה לי זמן. אין לי ⚖️"
     ]
-   }
+   },
+   "src": [
+    "levin-committee"
+   ]
   },
   {
    "id": "deri",
@@ -852,8 +882,8 @@
    },
    "avatar": "deri_avatar",
    "src": [
-    "haredi-left-gov",
-    "deri-disqualified"
+    "deri-disqualified",
+    "haredi-left-gov"
    ],
    "lines": {
     "demand": "ידידי היקר, בוא נשב על קפה ☕ תביא פנקס.",
@@ -864,7 +894,12 @@
    "linesVariants": {
     "demand": [
      "ידידי היקר, בוא נשב על קפה ☕ תביא פנקס.",
-     "ידידי, יש לי רעיון קטן. הוא עולה {price} ₪ ☕"
+     "ידידי, יש לי רעיון קטן. הוא עולה {price} ₪ ☕",
+     "אני לא שר, ידידי. רק מבקש {price} ₪ בשביל השרים ☕"
+    ],
+    "thanks": [
+     "תודה, ידידי. נדבר ☕",
+     "תודה, ידידי. רשמתי על מפית ☕"
     ]
    },
    "copy": {
@@ -903,6 +938,10 @@
     "demand": [
      "צריכה עוד 3 תקנים למשרד. דחוף 👻",
      "עוד 2 תקנים. הם שקטים מאוד. לא תרגיש בהם 👻"
+    ],
+    "thanks": [
+     "תודה!! הצוות מתחיל מחר 👻",
+     "תודה!! הצוות מתחיל מחר. הצוות לא יודע 👻"
     ]
    },
    "copy": {
@@ -939,7 +978,12 @@
    "linesVariants": {
     "demand": [
      "{price} וסגרנו. אחרון, באמת.",
-     "{price}. זה המחיר הסופי. עד המחיר הבא."
+     "{price}. זה המחיר הסופי. עד המחיר הבא.",
+     "חבילה: {price}. בלי החזרות. גם בלי הנחות 📈"
+    ],
+    "return": [
+     "חזרתי. המחיר עלה בזמן שלא הייתי 📈",
+     "חזרתי. בזמן שלא הייתי, העליתי מחירים 📈"
     ]
    },
    "copy": {
@@ -981,7 +1025,8 @@
    "linesVariants": {
     "demand": [
      "אני דורשת מקום ריאלי!!! לא \"ריאלי בערך\". ריאלי!!!",
-     "אני פה!!! מישהו רואה אותי??? ריאלי!!!"
+     "אני פה!!! מישהו רואה אותי??? ריאלי!!!",
+     "הציעו לי מקום 20!!! אני שוקלת הצעות!!! יש לי!!!"
     ]
    },
    "copy": {
@@ -1070,6 +1115,16 @@
     "originSystem": "chat.sys.removed",
     "poachTicker": "אלמוג כהן הוסר מקבוצה אחת וצורף לאחרת. ניידות חברתית.",
     "_guardrail": "His outbursts are off-limits; his lines are only about group mobility (fact #39)."
+   },
+   "linesVariants": {
+    "demand": [
+     "הוסרתי מקבוצה אחת. אשמח להצטרף לזאת. בתשלום.",
+     "עברתי מקבוצה לקבוצה. בקבוצה הזאת יש תקציב?"
+    ],
+    "return": [
+     "צורפתי שוב. אני מתחיל להתמצא.",
+     "צורפתי שוב. הפעם דרך הפריימריז."
+    ]
    }
   },
   {
@@ -1096,13 +1151,25 @@
    "linesVariants": {
     "demand": [
      "לא בעד, לא נגד. יוצא לשירותים. המחיר בהתאם.",
-     "אני לא מבקש הרבה. רק ללכת לשירותים בזמן הנכון."
+     "אני לא מבקש הרבה. רק ללכת לשירותים בזמן הנכון.",
+     "38 שנה בכנסת. בכנסת הבאה לא אהיה. בינתיים, יוצא לשירותים. {price} ₪."
+    ],
+    "return": [
+     "חזרתי מהשירותים.",
+     "חזרתי. עד הכנסת הבאה, אני עוד פה."
+    ],
+    "thanks": [
+     "סגרנו. יצא תיקו, כמו שהזמנת.",
+     "סגרנו. ההצבעה האחרונה שלי? יצא תיקו."
     ]
    },
    "copy": {
     "onPaidTicker": "שילמת לגפני. הוא יצא לשירותים. ההצבעה: תיקו.",
     "onPaidTickerDeck": "T14"
-   }
+   },
+   "src": [
+    "gafni-off-list"
+   ]
   },
   {
    "id": "abbas",
@@ -1123,8 +1190,9 @@
    },
    "avatar": "abbas_avatar",
    "src": [
-    "bibi-or-tibi",
-    "abbas-talks"
+    "abbas-talks",
+    "arab-lists-barred",
+    "bibi-or-tibi"
    ],
    "lines": {
     "demand": "אני פתוח לדבר. על תקציבים, לא על סלוגנים.",
@@ -1147,6 +1215,16 @@
      "abbas-talks"
     ],
     "_note": "A hidden seat source while Ben Gvir is out. The target is the flip-flop, never Arab citizens."
+   },
+   "linesVariants": {
+    "demand": [
+     "אני פתוח לדבר. על תקציבים, לא על סלוגנים.",
+     "ועדת הבחירות פסלה, בג״ץ יחליט. בינתיים מדברים על תקציבים."
+    ],
+    "return": [
+     "חזרתי. שוב מדברים.",
+     "חזרתי. עם ערעור ביד אחת ותקציב ביד השנייה."
+    ]
    }
   },
   {
@@ -1163,6 +1241,7 @@
    },
    "avatar": "karhi_avatar",
    "src": [
+    "karhi-media-law",
     "karhi-remote"
    ],
    "lines": {
@@ -1175,6 +1254,10 @@
     "demand": [
      "25 מיליון בשנה עוברים מ\"כאן\" ל\"שם\" 📺⬅️📺",
      "המשך יבוא. בערוץ אחר 📺"
+    ],
+    "thanks": [
+     "עבר. שלט אחד, כל הערוצים 📺",
+     "עבר. החוק עבר, בג״ץ הקפיא חלק. השאר בשידור 📺"
     ]
    },
    "copy": {
@@ -1207,7 +1290,8 @@
    },
    "avatar": "distel_avatar",
    "src": [
-    "distel-mute"
+    "distel-mute",
+    "distel-not-running"
    ],
    "lines": {
     "demand": "חוק חדש, עובר תוך 4 שניות. לפני שמישהו אומר \"אבל\".",
@@ -1219,6 +1303,10 @@
     "demand": [
      "חוק חדש, עובר תוך 4 שניות. לפני שמישהו אומר \"אבל\".",
      "יש לי חוק חדש. השאלות אחרי שהוא עובר 🔇"
+    ],
+    "return": [
+     "חזרתי. במיוט 🔇",
+     "חזרתי. עד סוף הקדנציה. אחר כך במיוט קבוע 🔇"
     ]
    },
    "copy": {
@@ -1242,7 +1330,8 @@
    "unlock": {},
    "avatar": "gantz_avatar",
    "src": [
-    "gantz-rotation"
+    "gantz-rotation",
+    "gantz-threshold"
    ],
    "lines": {
     "status": "בני גנץ מקליד…"
@@ -1257,6 +1346,13 @@
     },
     "rotationPct": 99,
     "_note": "Never demands, never posts. His rotation bar sits at 99% forever."
+   },
+   "linesVariants": {
+    "status": [
+     "בני גנץ מקליד…",
+     "בני גנץ מקליד… מוחק… מקליד…",
+     "בני גנץ יחליט בשבוע האחרון."
+    ]
    }
   }
  ],
@@ -1992,6 +2088,30 @@
     },
     "_note": "design/mordechai-david-spec.md. Effect 'blockade' (events.gd), presented by StreetFigure (the stage figure, a chat-style toast, the ticker); on for launch (flags.mordechaiDavid); fires once at 1:00 of play (atPlaySec, Bar 2026-09-30). Skin lookup: leader id, then side 'opposition', then the default. No player action on him, ever: no button, no tap target.",
     "_guardrail": "Documented public conduct only (he stands in the way of cars and protests; his Kaplan rationale is reported speech). Never his conviction, restraining orders, family, the minors in his group, October 7, the hostages, or army service (so never the Eisenkot beach exchange, fact 47). Blocking is standing still with arms out: nobody is touched, pushed or hurt. His name appears only in this event and his facts (redlines.json allow 'mordechai')."
+   }
+  },
+  {
+   "id": "trump",
+   "kind": "card",
+   "weight": 1,
+   "cooldownSec": 900,
+   "when": {
+    "era": "washington"
+   },
+   "effect": {
+    "type": "none",
+    "sec": 15
+   },
+   "pollLike": false,
+   "src": [
+    "trump-no-endorse",
+    "trump-herzog-ashamed"
+   ],
+   "copy": {
+    "name": "דונלד טראמפ",
+    "avatar": "trump_avatar",
+    "text": "אמר להרצוג להתבייש. לך הוא עוד לא אמר כלום. אולי אחרי הבחירות.",
+    "_note": "Washington-era cameo in Bibi's round (bibiOnly.events): the endorsement that never lands. Effect none, so no balance change beyond sharing the event slot."
    }
   }
  ],
@@ -4561,6 +4681,17 @@
      "mode": "negotiation"
     },
     "poll_like": false
+   },
+   {
+    "id": "m22",
+    "text": "גפני לא ברשימה הבאה, אחרי 38 שנה. יצא לשירותים הכי ארוכים.",
+    "when": {
+     "partnerMember": "gafni"
+    },
+    "poll_like": false,
+    "src": [
+     "gafni-off-list"
+    ]
    }
   ]
  },
@@ -4964,7 +5095,8 @@
     "pardon",
     "kaia",
     "pinkfront",
-    "defector"
+    "defector",
+    "trump"
    ],
    "trophies": [
     "a_rabbit_10",
@@ -4989,7 +5121,8 @@
    "_why": {
     "pinkfront": "The drum line protested outside Balfour; it belongs to Bibi's round.",
     "defector": "Its ticker is Illouz on Likud; in other rounds a defector walks toward the player's building (backlog).",
-    "a_s_lapid": "Counts Lapid's card, which exists only while Lapid is a rival (Bibi's and Ben Gvir's rounds); earnable there, listed here for simplicity."
+    "a_s_lapid": "Counts Lapid's card, which exists only while Lapid is a rival (Bibi's and Ben Gvir's rounds); earnable there, listed here for simplicity.",
+    "trump": "Trump's card is about Bibi's pardon and endorsement; it belongs to his round."
    }
   },
   "neutralCopy": {
@@ -5030,7 +5163,7 @@
     "bloc": "right",
     "lines": {
      "demand": "תעביר לליכוד. אין כלום, רק תעביר.",
-     "threat": "אם זה לא עובר, אני הולך לבחירות. אני אוהב בחירות.",
+     "threat": "זה לא עובר? אז בחירות. אני אוהב בחירות.",
      "thanks": "קיבלתי. לא היה כלום.",
      "return": "חזרתי. תמיד חוזרים אליי."
     },
@@ -5038,11 +5171,23 @@
      "demand": [
       "תעביר לליכוד. אין כלום, רק תעביר.",
       "צריך תקציב לבלפור. הווילונות. אתה יודע.",
-      "יש לי רעיון קטן. הוא עולה {price} ₪. אין כלום."
+      "יש לי רעיון קטן. הוא עולה {price} ₪. אין כלום.",
+      "הניפו לי שלט: אין ישר. אז ישר לעניין: {price} ₪."
+     ],
+     "thanks": [
+      "קיבלתי. לא היה כלום.",
+      "קיבלתי. הבקשה לחנינה עדיין אצל הרצוג. הכסף כבר אצלי."
+     ],
+     "return": [
+      "חזרתי. תמיד חוזרים אליי.",
+      "חזרתי. מוושינגטון עוד לא התקשרו."
      ]
     },
     "src": [
-     "ein-klum"
+     "ein-klum",
+     "bibi-no-straight",
+     "pardon-shelved",
+     "trump-no-endorse"
     ],
     "_note": "Bibi as a partner (Ben Gvir's round, and any right-bloc leader's). His demands are his own catchphrase; the chat is the fictional voice (lint: chat bubbles are exempt from the quote rule)."
    },
@@ -5353,6 +5498,34 @@
      "democrats-slate"
     ],
     "_note": "Real person (Democrats No. 3, fact democrats-slate; the car blocked in fact md-blocks-cars, whose aboutHe names him). Joke: the officiant of Golan's mergers and a bill-and-amendment machine; never his community or his rabbinate as a punchline. Mechanics: none (takes the generic mk_offer slot S5 in Golan's round, same numbers)."
+   },
+   {
+    "id": "tibi",
+    "name": "אחמד טיבי",
+    "short": "טיבי",
+    "g": "m",
+    "avatar": "tibi_avatar",
+    "art": "tibi",
+    "bloc": "left",
+    "lines": {
+     "demand": "יש לי שלוש דרישות, ארבעה סעיפים ונוהל. {price} ₪.",
+     "threat": "זה לא עובר? אבקש דיון חוזר. לפי התקנון.",
+     "thanks": "התקבל. נרשם בפרוטוקול.",
+     "return": "חזרתי. לפי התקנון, מותר."
+    },
+    "linesVariants": {
+     "demand": [
+      "יש לי שלוש דרישות, ארבעה סעיפים ונוהל. {price} ₪.",
+      "פסלו אותנו בוועדה. ערערנו. בינתיים, {price} ₪."
+     ]
+    },
+    "rebel": true,
+    "src": [
+     "joint-list-slate",
+     "arab-lists-barred",
+     "bibi-or-tibi"
+    ],
+    "_note": "Real person (the Joint List No. 2). Joke: the rulebook and the procedure; never his voters. Poach only (rebel), like the generic switcher whose L6 seat he takes in Golan's round."
    }
   ],
   "cardProfiles": [
@@ -5568,6 +5741,33 @@
     "text": "עוצמה הצביעה נגד התקציב. התקציב עבר בכל זאת.",
     "src": [
      "otzma-budget-2025"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "r09",
+    "rival": "bibi",
+    "text": "ביבי הניף שלט צומת: אין ישר. הנווט עדיין מחשב מסלול.",
+    "src": [
+     "bibi-no-straight"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "r10",
+    "rival": "bibi",
+    "text": "בקשת החנינה של ביבי עדיין אצל הרצוג. גם הטופס עדיין בכחול.",
+    "src": [
+     "pardon-shelved"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "r11",
+    "rival": "bibi",
+    "text": "טראמפ נשאל אם הוא תומך בביבי. ארבע פעמים. ענה על משהו אחר.",
+    "src": [
+     "trump-no-endorse"
     ],
     "poll_like": false
    }
@@ -6360,9 +6560,12 @@
      },
      {
       "slot": "H",
-      "name": "משרד גדול יותר",
-      "flavor": "עם מרפסת. לנאומים.",
-      "visualHook": "an office door with a balcony drawn on the sign"
+      "name": "רשימת קניות",
+      "flavor": "משרד גדול יותר, ועוד אחד לגוטליב. הכל גדל.",
+      "visualHook": "a long handwritten shopping list with ministry names crossed and re-added",
+      "src": [
+       "bengvir-ministries"
+      ]
      },
      {
       "slot": "I",
@@ -6396,6 +6599,7 @@
       "תקציב!",
       "ביטחון לאומי!",
       "זה לא איום!",
+      "עוד משרד!",
       "בחירות!",
       "עוצמה!"
      ]
@@ -6413,11 +6617,13 @@
      "titles": [
       "ההודעה שלא נגמרת",
       "המשרד קיבל שם",
-      "הקבוצה של עצמו"
+      "הקבוצה של עצמו",
+      "רשימת קניות",
+      "חלון העברות"
      ],
      "beats": [
       [
-       "בן גביר איים לפרוש מ־61 דברים.",
+       "61 איומי פרישה, לפי לוח זמנים.",
        "חזר מכולם לפני הצהריים.",
        "דובי: \"אני פורש! אני פורש!\"",
        "הוחלט על בחירות. הוא עוד שוקל לפרוש מהן."
@@ -6431,6 +6637,18 @@
        "בן גביר הקים קבוצה.",
        "תוך דקה מישהו הוסר ממנה.",
        "תוך שתיים: איום פרישה. מהקבוצה של עצמו."
+      ],
+      [
+       "בן גביר פרסם דרישות לממשלה הבאה.",
+       "משרד הביטחון לו, המשפטים לגוטליב.",
+       "בליכוד ענו: אלה המשרדים שלנו.",
+       "דובי: \"עוד משרד! עוד משרד!\""
+      ],
+      [
+       "גוטליב עברה מהליכוד לעוצמה.",
+       "אלמוג כהן עבר מעוצמה לליכוד.",
+       "ההעברות נסגרו לפני פתיחת העונה.",
+       "דובי: \"העברה! העברה!\""
       ]
      ],
      "src": {
@@ -6438,6 +6656,13 @@
        "bengvir-ministry-rename"
       ],
       "3": [
+       "almog-cohen"
+      ],
+      "4": [
+       "bengvir-ministries"
+      ],
+      "5": [
+       "gotliv",
        "almog-cohen"
       ]
      },
@@ -6518,6 +6743,31 @@
       "id": "tg12",
       "text": "הקבוצה של עוצמה: 400 הודעות. 399 הועברו.",
       "poll_like": false
+     },
+     {
+      "id": "tg13",
+      "text": "בן גביר דרש את משרד הביטחון. בליכוד: זה שלנו. גם המרפסת.",
+      "poll_like": false,
+      "src": [
+       "bengvir-ministries"
+      ]
+     },
+     {
+      "id": "tg14",
+      "text": "ביבי ביקש בסרטון איחוד עם סמוטריץ׳. בן גביר ענה בסרטון.",
+      "poll_like": false,
+      "src": [
+       "bengvir-no-merger"
+      ]
+     },
+     {
+      "id": "tg15",
+      "text": "גוטליב ואלמוג כהן החליפו מפלגות. חסר רק פרשן ספורט.",
+      "poll_like": false,
+      "src": [
+       "gotliv",
+       "almog-cohen"
+      ]
      }
     ],
     "trophy": {
@@ -6539,7 +6789,13 @@
     "lineup": [
      {
       "id": "bibi",
-      "slot": "S1"
+      "slot": "S1",
+      "lines": {
+       "demand": "צילמתי לך סרטון: תתאחד עם סמוטריץ׳. בינתיים, {price} ₪."
+      },
+      "src": [
+       "bengvir-no-merger"
+      ]
      },
      {
       "id": "gotliv",
@@ -6560,7 +6816,13 @@
      },
      {
       "id": "smotrich",
-      "slot": "S3"
+      "slot": "S3",
+      "lines": {
+       "thanks": "קיבלתי. ועדיין לא רצים יחד."
+      },
+      "src": [
+       "bengvir-no-merger"
+      ]
      },
      {
       "id": "regev",
@@ -7771,6 +8033,7 @@
       "מע״מ!",
       "גירעון!",
       "תקציב!",
+      "לבד!",
       "בחירות!",
       "קיצוץ!"
      ]
@@ -7788,11 +8051,12 @@
      "titles": [
       "אין כסף",
       "הצעד הראשון",
-      "רשימה טכנית"
+      "רשימה טכנית",
+      "לבד"
      ],
      "beats": [
       [
-       "סמוטריץ׳ חישב 61 פעמים.",
+       "61 חישובים, תוצאה אחת.",
        "בכל פעם יצא: אין כסף.",
        "דובי: \"אין כסף! אין כסף!\"",
        "הוחלט על בחירות. להן יש תקציב."
@@ -7808,6 +8072,12 @@
        "רשימה משותפת. טכנית.",
        "אפשר להתפצל אחרי שנכנסים.",
        "דובי: \"טכני! טכני!\""
+      ],
+      [
+       "ביבי ביקש בסרטון שירוץ עם בן גביר.",
+       "סמוטריץ׳ פתח מחשבון.",
+       "יצא לו שלבד זה זול יותר. עם פייגלין.",
+       "דובי: \"לבד! לבד!\""
       ]
      ],
      "src": {
@@ -7815,6 +8085,10 @@
        "liberman-finance-taxes"
       ],
       "3": [
+       "smotrich-feiglin"
+      ],
+      "4": [
+       "bengvir-no-merger",
        "smotrich-feiglin"
       ]
      },
@@ -7895,6 +8169,22 @@
       "id": "ts12",
       "text": "הגירעון ביקש פגישה. היא נקבעה לתקציב הבא.",
       "poll_like": false
+     },
+     {
+      "id": "ts13",
+      "text": "הדלק שבר שיא: 8.25 ₪ לליטר. באוצר אין כסף. בתחנה יש.",
+      "poll_like": false,
+      "src": [
+       "fuel-record"
+      ]
+     },
+     {
+      "id": "ts14",
+      "text": "ביבי ביקש איחוד עם בן גביר. סמוטריץ׳ חישב: לבד זול יותר.",
+      "poll_like": false,
+      "src": [
+       "bengvir-no-merger"
+      ]
      }
     ],
     "trophy": {
@@ -7924,7 +8214,13 @@
      },
      {
       "id": "bengvir",
-      "slot": "S3"
+      "slot": "S3",
+      "lines": {
+       "thanks": "קיבלתי. ועדיין לא רצים יחד. ככה זה זול יותר."
+      },
+      "src": [
+       "bengvir-no-merger"
+      ]
      },
      {
       "id": "levin",
@@ -8202,11 +8498,12 @@
      "titles": [
       "ידידי",
       "ההסדר",
-      "החוק עם השם"
+      "החוק עם השם",
+      "הספסל"
      ],
      "beats": [
       [
-       "דרעי הזמין 61 איש לקפה.",
+       "61 כוסות קפה, 61 ידידים.",
        "כולם באו. אף אחד לא שילם.",
        "דובי: \"ידידי! ידידי!\"",
        "הוחלט על בחירות. הקפה נשאר חם."
@@ -8221,6 +8518,12 @@
        "עכשיו אפשר להיות שר עם תנאי.",
        "בג״ץ פסל את המינוי.",
        "דובי: \"ידידי?\""
+      ],
+      [
+       "בג״ץ קבע: לא שר.",
+       "דרעי העביר את הלשכה לספסל במסדרון.",
+       "כל השרים עוברים שם בדרך למשרד.",
+       "דובי: \"ידידי! ידידי!\""
       ]
      ],
      "src": {
@@ -8229,6 +8532,9 @@
       ],
       "3": [
        "deri-law",
+       "deri-disqualified"
+      ],
+      "4": [
        "deri-disqualified"
       ]
      },
@@ -8309,6 +8615,19 @@
       "src": [
        "deri-disqualified"
       ]
+     },
+     {
+      "id": "td13",
+      "text": "דרעי לא שר. כל השרים עוברים ליד הספסל שלו.",
+      "poll_like": false,
+      "src": [
+       "deri-disqualified"
+      ]
+     },
+     {
+      "id": "td14",
+      "text": "בש״ס ביקשו לוח זמנים לבחירות. דרעי ביקש לוח זמנים לקפה.",
+      "poll_like": false
      }
     ],
     "trophy": {
@@ -8832,8 +9151,9 @@
       "slot": "L5"
      },
      {
-      "id": "mk_switcher",
-      "slot": "L6"
+      "id": "tibi",
+      "slot": "L6",
+      "_why": "The Joint List No. 2 (joint-list-slate), in the generic switcher's poach-only L6 seat: same numbers, same rebel trait."
      },
      {
       "id": "gantz",

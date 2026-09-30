@@ -61,13 +61,60 @@ mix work already logged in `STATUS.md` and deployed earlier.
   frame scan in the session log is the check; run it on every render.
 - Handheld rotation and bar-line zoom kicks shimmer pixel text: keep them off.
 - Files over 30 MB cannot be sent to Bar through the chat: send a 3.2 Mbps copy.
-# HANDOFF: "עוד סבב" (2026-09-30, the character-copy session, stopped by Bar)
+# HANDOFF: "עוד סבב" (2026-09-30, the character-copy session, stopped by Bar again)
 
 **For the next agent:** this session reworked character copy and brought in the ChatGPT candidates,
 **one character at a time** (Bar: "do all in loop, each character, each work we have"). Bar stopped it
-mid-loop ("stop, write a handoff, push to main"). Everything is on `main` and on
-`claude/game-character-copyright-8q4liq`. **Not deployed:** the live site still serves the last
-deploy logged in `STATUS.md`.
+twice. The second time was "stop, update the handoff, push to main". Everything below is on `main`.
+**Not deployed:** the live site still serves the last deploy logged in `STATUS.md`.
+
+## Done (all on main)
+| Character / asset | Commit | What |
+|---|---|---|
+| Liberman | `daf077c` | The drawer government, a PM run from 8 seats, rotation talk with Bennett, the bloc pact |
+| Generic MKs | `b8d67f8` | mk-offer, mk-undecided and mk-switcher rendered; `cutout.py` added |
+| Eisenkot, Bennett, Lapid | `fdccfc8` | The "אין ישר" sign, no rotation, Tropper, Together as an "acquisition", Lapid offering No. 3 |
+| Golan + Lazimi + Kariv | `df2e56e` | Both rendered, in Golan's round in the generic S5/L1 seats (same numbers); the "million votes" beat |
+| Bibi + Herzog + Trump | `57cdd67` | Herzog's avatar on the pardon desk; a Washington-era Trump card (effect none, Bibi only); Bibi partner lines and rival ticker |
+| Ben Gvir + Almog | `3258fbd` | The ministry shopping list, the merger with Smotrich he refused, the Gotliv/Almog "transfer window"; Almog rendered |
+| Smotrich, Deri, Gafni, the partner bench, Tibi | `2c322e6` | Smotrich runs alone; Deri's corridor bench; Gafni off the next slate; sourced variants for Levin, Karhi, Distel, Abbas, Gantz and others. Tibi rendered, in Golan's round in the poach-only L6 seat |
+| The 5 money sources | `f4dfaad` | submarine, poison, checkbook, donor and funds rendered (replacing the 1x drawings; 15 ui-kit rows removed); `iconFit` and a per-source `pad` in `build.py` |
+
+**Totals:**
+- about 38 new sourced facts;
+- every leader-select fact launched on the About page;
+- 11 candidates rendered.
+
+**Last clean run:** `tools/test.sh` 439/439 and lint 0/0, on `f4dfaad` before main's parallel merge
+(`59a04bf`, which added a `main.gd` line and picker tests). **Re-run the suite on main first.**
+
+## Open items, in order
+1. **Re-run `tools/test.sh` on main.** The one run after the merge overlapped an edit (439 passed,
+   3 failed), so it proves nothing either way.
+2. **The ambient `target` filter, not on main:** `handoff-wip/ambient-target-filter (untested).patch`.
+   - **What it does:**
+     - a shared roast aimed at a leader (x04 "ליברמן לא יושב…") skips that leader's own round;
+     - the "all" roasts (x13, x14, x21, x22: "האופוזיציה…") skip the opposition leaders' rounds, where
+       that bloc is the player's own.
+   - **Plus:** a test in `test_ambient_and_headlines_per_leader`.
+   - **Why it is not on main:** it was never tested cleanly. Apply it (`git apply`), run the suite, and fix
+     `test_ambient_and_headlines_per_leader` if it fails.
+3. **Sara:** rendered but never shown. Her Balfour stage mark is fully specified in
+   `motion/state-graph-cast.md` §3: Bibi's round only; she huffs at the S01 bottle-deposit buy with an
+   8 s cooldown; never a tap target. It is engine work in `ui/diorama.gd`, modelled on `StreetFigure`.
+4. **Art still waiting:**
+   - `mk-returner` looks like Netanyahu: regenerate it with a made-up face.
+   - `aide` has no engine slot.
+   - Karine Elharrar, Vaturi, Zohar, Bismuth and Boaron were never generated.
+5. **Copy not reached:**
+   - Dubi's shared lines;
+   - the shared copy that assumes Bibi (`ret_sitter`, "מדבקת DOHA", the prestige titles);
+   - `copy.*` fields that no code reads (Gotliv's transfer script, the brawl scripts).
+6. **Bar's calls:**
+   - legal read of the new facts. Especially: `arab-lists-barred` (it never names the petitioners),
+     `gotliv`, `trump-herzog-ashamed` and `eisenkot-eight-seats`.
+   - Kariv, Lazimi and Tibi joining other lineups (this changes balance: run `tools/balance.sh`).
+   - review of the new renders (`pipeline/od-sevev/proofs/sprites-contact.png`).
 
 ## The loop (per character)
 1. **Copy:** dump the character (leader kit, partner profile, event card, lineup overrides in other
@@ -94,45 +141,6 @@ deploy logged in `STATUS.md`.
 - no invented quote marks on real people;
 - ticker ≤ 60 characters, flavor ≤ 60, story lines ≤ 50;
 - Eretz Nehederet's bits stay theirs (their spirit is fine).
-
-## Done
-| Character | Commit | What |
-|---|---|---|
-| Liberman | `daf077c` | Drawer government (guidelines, constitution referendum, the "section 4" hazard ladder), a PM run from 8 seats, rotation talk with Bennett, Eisenkot's jab, the bloc pact. 4 story beats |
-| Generic MKs | `b8d67f8` | mk-offer / mk-undecided / mk-switcher rendered from the candidates (were grey stand-ins); `cutout.py` added |
-| Eisenkot, Bennett, Lapid | `fdccfc8` | The "אין ישר" sign duel with Likud, no rotation, Tropper, the Together list as an "acquisition", the Yesh Atid exodus, Lapid offering No. 3 |
-| Golan + Lazimi + Kariv | `df2e56e` | Lazimi (No. 2) and Kariv (No. 3) rendered, in Golan's round in the generic S5/L1 seats (same slot numbers, so no balance change); the "million votes" beat |
-
-## Open items, in order
-1. **Re-run `tools/test.sh`** on `main`. The last full run was 437/438. The one failure was
-   `test_story_follows_the_leader_just_played`, which assumed Bennett has 3 beats; it now counts the
-   beats. That one-line fix went in untested because Bar stopped the run.
-2. **The Liberman reel on `main`** (`store/gameplay/src/reel_liberman.py:60`) captions the t4 source
-   "תומך ותיק". Liberman's t4 is now "קווי היסוד". Update the caption, or recapture.
-3. **Continue the loop:**
-   - Bibi, with Sara, Herzog and Trump (Sara/Herzog/Trump are rendered but unused; Herzog as the
-     pardon "bank" is the research's open angle).
-   - Ben Gvir, with the Gotliv/Almog transfer (Gotliv went to Otzma No. 2 on 4 Sep, Almog Cohen to Likud).
-   - Smotrich, Deri.
-   - **Gafni is stale:** he was taken off the list on 5 Sep 2026.
-   - Goldknopf; Abbas with Tibi (both lists were disqualified by the committee, appeal pending; red line: the flip-flop, never Arab citizens).
-   - Regev, Levin, Amsalem, Karhi, Distel (not running again), May Golan, Gantz (1 line today; under the threshold).
-   - Dubi.
-4. **Art still waiting:**
-   - almog, tibi, aide;
-   - the five money sources: submarine, poison, checkbook, donor, funds. They share an id space with
-     the UI kit, so remove their 15 `ui-kit.json` rows first. `motion/render-requests.md` §C has
-     their frame-1 recipes;
-   - mk-returner **looks like Netanyahu**: regenerate it with a made-up face.
-5. **Engine gaps found:**
-   - The ambient filter ignores `target`, so opposition roast lines like x04 "ליברמן לא יושב…" run in
-     that leader's own round.
-   - Some shared copy assumes Bibi (`ret_sitter`, "מדבקת DOHA", the prestige titles).
-   - Many `copy.*` fields have no reader (Gotliv's transfer script, the brawl scripts).
-6. **Bar's calls:**
-   - legal read of the new facts;
-   - whether Kariv/Lazimi also join other lineups (this changes balance: run `tools/balance.sh`);
-   - review the new renders.
 
 The research behind the rewrite (Eretz Nehederet portrayals per character, the 2025-26 cross-party
 arcs, fresh angles) was done this session by web search; the sources are in each fact's URLs.

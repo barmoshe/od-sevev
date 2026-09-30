@@ -125,11 +125,13 @@ func test_lines_and_system_text_come_from_content_and_ui_strings() -> void:
 	var av: Array = ChatView.avatar_art("bengvir")
 	var px := Vector2(Art.sprite_size(av[0])) * float(av[1])
 	runner.check(px == Vector2(128, 128), "the chat avatar is 32 art px drawn at artScale/density = 128 logical (%s)" % str(px))
-	# a partner with no ref (Almog Cohen) draws the 2D Artist's no-photo stand-in, never the "?" card (wave 6)
+	# Almog Cohen was the no-photo stand-in until his ref landed (2026-09-30): now his own face, same 128 logical
 	var na: Array = ChatView.avatar_art("almog")
-	runner.check(ChatView.char_for("almog") == "nophoto" and na[0] == "avatar_nophoto" and Vector2(Art.sprite_size(na[0])) * float(na[1]) == Vector2(128, 128),
-		"almog resolves to the no-photo stand-in, avatar 128 logical (%s)" % str(na))
-	runner.check(ChatView.toast_avatar("almog")[0] == "avatar_nophoto", "the chat toast shows the stand-in's face too")
+	runner.check(ChatView.char_for("almog") == "almog" and na[0] == "avatar_almog" and Vector2(Art.sprite_size(na[0])) * float(na[1]) == Vector2(128, 128),
+		"almog resolves to his own cast slug, avatar 128 logical (%s)" % str(na))
+	runner.check(ChatView.toast_avatar("almog")[0] == "avatar_almog", "the chat toast shows his face too")
+	# the stand-in itself still exists for a partner with no ref yet (mk_returner)
+	runner.check(Art.has_sprite("avatar_nophoto"), "the no-photo stand-in is still in the kit")
 
 
 # ------------------------------------------------------------------ the real scene

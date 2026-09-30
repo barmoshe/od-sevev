@@ -1,6 +1,7 @@
 {
  "sourceBytes": {
   "sprites/avatar24_abbas.png": 956,
+  "sprites/avatar24_almog.png": 1036,
   "sprites/avatar24_amsalem.png": 1128,
   "sprites/avatar24_ben-gvir.png": 1147,
   "sprites/avatar24_bennett.png": 1088,
@@ -38,8 +39,10 @@
   "sprites/avatar24_regev.png": 1186,
   "sprites/avatar24_sara.png": 1163,
   "sprites/avatar24_smotrich.png": 945,
+  "sprites/avatar24_tibi.png": 1047,
   "sprites/avatar24_trump.png": 1004,
   "sprites/avatar_abbas.png": 1573,
+  "sprites/avatar_almog.png": 1680,
   "sprites/avatar_amsalem.png": 1854,
   "sprites/avatar_ben-gvir.png": 2128,
   "sprites/avatar_bennett.png": 1828,
@@ -93,6 +96,7 @@
   "sprites/avatar_regev.png": 2060,
   "sprites/avatar_sara.png": 2073,
   "sprites/avatar_smotrich.png": 1560,
+  "sprites/avatar_tibi.png": 1682,
   "sprites/avatar_trump.png": 1703,
   "sprites/badge_count.png": 152,
   "sprites/booth_frame.png": 296,
@@ -130,6 +134,10 @@
   "sprites/cast/abbas_idle_d2.png": 38747,
   "sprites/cast/abbas_react.png": 63611,
   "sprites/cast/abbas_react_d2.png": 33622,
+  "sprites/cast/almog_idle.png": 80564,
+  "sprites/cast/almog_idle_d2.png": 40820,
+  "sprites/cast/almog_react.png": 261145,
+  "sprites/cast/almog_react_d2.png": 130962,
   "sprites/cast/amsalem_idle.png": 241595,
   "sprites/cast/amsalem_idle_d2.png": 122015,
   "sprites/cast/amsalem_react.png": 179804,
@@ -264,6 +272,10 @@
   "sprites/cast/smotrich_react_d2.png": 81812,
   "sprites/cast/smotrich_tap.png": 225284,
   "sprites/cast/smotrich_tap_d2.png": 120221,
+  "sprites/cast/tibi_idle.png": 68308,
+  "sprites/cast/tibi_idle_d2.png": 34205,
+  "sprites/cast/tibi_react.png": 56326,
+  "sprites/cast/tibi_react_d2.png": 27811,
   "sprites/cast/trump_idle.png": 267776,
   "sprites/cast/trump_idle_d2.png": 137419,
   "sprites/cast/trump_react.png": 176222,
@@ -383,30 +395,34 @@
   "sprites/source_advisers_icon.png": 1346,
   "sprites/source_advisers_icon_sil.png": 264,
   "sprites/source_advisers_icon_sil_pale.png": 266,
-  "sprites/source_checkbook.png": 743,
-  "sprites/source_checkbook_icon.png": 329,
-  "sprites/source_checkbook_icon_sil.png": 145,
-  "sprites/source_checkbook_icon_sil_pale.png": 148,
+  "sprites/source_checkbook.png": 23801,
+  "sprites/source_checkbook_d2.png": 11595,
+  "sprites/source_checkbook_icon.png": 974,
+  "sprites/source_checkbook_icon_sil.png": 251,
+  "sprites/source_checkbook_icon_sil_pale.png": 259,
   "sprites/source_cigars.png": 16777,
   "sprites/source_cigars_d2.png": 8988,
   "sprites/source_cigars_icon.png": 1362,
   "sprites/source_cigars_icon_sil.png": 248,
   "sprites/source_cigars_icon_sil_pale.png": 253,
-  "sprites/source_donor.png": 871,
-  "sprites/source_donor_icon.png": 541,
-  "sprites/source_donor_icon_sil.png": 228,
-  "sprites/source_donor_icon_sil_pale.png": 229,
-  "sprites/source_funds.png": 615,
-  "sprites/source_funds_icon.png": 297,
-  "sprites/source_funds_icon_sil.png": 132,
-  "sprites/source_funds_icon_sil_pale.png": 132,
+  "sprites/source_donor.png": 10397,
+  "sprites/source_donor_d2.png": 5429,
+  "sprites/source_donor_icon.png": 989,
+  "sprites/source_donor_icon_sil.png": 265,
+  "sprites/source_donor_icon_sil_pale.png": 267,
+  "sprites/source_funds.png": 14013,
+  "sprites/source_funds_d2.png": 7626,
+  "sprites/source_funds_icon.png": 902,
+  "sprites/source_funds_icon_sil.png": 231,
+  "sprites/source_funds_icon_sil_pale.png": 235,
   "sprites/source_hitech.png": 12936,
   "sprites/source_hitech_d2.png": 6618,
   "sprites/source_hitech_icon.png": 1019,
   "sprites/source_hitech_icon_sil.png": 238,
   "sprites/source_hitech_icon_sil_pale.png": 245,
-  "sprites/source_poison.png": 634,
-  "sprites/source_poison_icon.png": 241,
+  "sprites/source_poison.png": 20522,
+  "sprites/source_poison_d2.png": 10624,
+  "sprites/source_poison_icon.png": 1576,
   "sprites/source_poison_icon_sil.png": 96,
   "sprites/source_poison_icon_sil_pale.png": 97,
   "sprites/source_qatari.png": 16142,
@@ -414,10 +430,11 @@
   "sprites/source_qatari_icon.png": 1344,
   "sprites/source_qatari_icon_sil.png": 264,
   "sprites/source_qatari_icon_sil_pale.png": 266,
-  "sprites/source_submarine.png": 1084,
-  "sprites/source_submarine_icon.png": 446,
-  "sprites/source_submarine_icon_sil.png": 232,
-  "sprites/source_submarine_icon_sil_pale.png": 236,
+  "sprites/source_submarine.png": 27576,
+  "sprites/source_submarine_d2.png": 13720,
+  "sprites/source_submarine_icon.png": 1082,
+  "sprites/source_submarine_icon_sil.png": 262,
+  "sprites/source_submarine_icon_sil_pale.png": 276,
   "sprites/source_taxpayer.png": 14730,
   "sprites/source_taxpayer_d2.png": 7576,
   "sprites/source_taxpayer_icon.png": 978,
@@ -563,8 +580,16 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 197117528,
+ "vramBytes": 203681156,
  "vramByDensity": {
+  "tibi": {
+   "3": 1576784,
+   "2": 704836
+  },
+  "almog": {
+   "3": 2442336,
+   "2": 1081912
+  },
   "lazimi": {
    "3": 3095040,
    "2": 1371136
@@ -707,25 +732,27 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 8136488,
-  "3": 13799336,
-  "4": 8136488,
-  "6": 13799336,
-  "7": 13799336,
-  "8": 8136488,
-  "9": 13799336
+  "2": 8337448,
+  "3": 14310056,
+  "4": 8337448,
+  "6": 14310056,
+  "7": 14310056,
+  "8": 8337448,
+  "9": 14310056
  },
  "vramSourcesByK": {
-  "2": 259200,
-  "3": 579840,
-  "4": 259200,
-  "6": 579840,
-  "7": 579840,
-  "8": 259200,
-  "9": 579840
+  "2": 506240,
+  "3": 1136640,
+  "4": 506240,
+  "6": 1136640,
+  "7": 1136640,
+  "8": 506240,
+  "9": 1136640
  },
  "vramPerPartnerByK": {
   "2": {
+   "tibi": 704836,
+   "almog": 1081912,
    "lazimi": 1371136,
    "kariv": 883168,
    "mk-offer": 1006928,
@@ -759,6 +786,8 @@
    "nophoto": 15520
   },
   "3": {
+   "tibi": 1576784,
+   "almog": 2442336,
    "lazimi": 3095040,
    "kariv": 1970980,
    "mk-offer": 2256800,
@@ -792,6 +821,8 @@
    "nophoto": 15520
   },
   "4": {
+   "tibi": 704836,
+   "almog": 1081912,
    "lazimi": 1371136,
    "kariv": 883168,
    "mk-offer": 1006928,
@@ -825,6 +856,8 @@
    "nophoto": 15520
   },
   "6": {
+   "tibi": 1576784,
+   "almog": 2442336,
    "lazimi": 3095040,
    "kariv": 1970980,
    "mk-offer": 2256800,
@@ -858,6 +891,8 @@
    "nophoto": 15520
   },
   "7": {
+   "tibi": 1576784,
+   "almog": 2442336,
    "lazimi": 3095040,
    "kariv": 1970980,
    "mk-offer": 2256800,
@@ -891,6 +926,8 @@
    "nophoto": 15520
   },
   "8": {
+   "tibi": 704836,
+   "almog": 1081912,
    "lazimi": 1371136,
    "kariv": 883168,
    "mk-offer": 1006928,
@@ -924,6 +961,8 @@
    "nophoto": 15520
   },
   "9": {
+   "tibi": 1576784,
+   "almog": 2442336,
    "lazimi": 3095040,
    "kariv": 1970980,
    "mk-offer": 2256800,
@@ -1029,9 +1068,11 @@
    "golan": 2803640
   }
  },
- "vramTypical": 13799336,
- "vramCastAll": 192065640,
+ "vramTypical": 14310056,
+ "vramCastAll": 197871508,
  "vramPerPartner": {
+  "tibi": 1576784,
+  "almog": 2442336,
   "lazimi": 3095040,
   "kariv": 1970980,
   "mk-offer": 2256800,
@@ -1069,6 +1110,11 @@
    "file": "assets/sprites/avatar24_abbas.png",
    "source": 916,
    "imported": 438
+  },
+  {
+   "file": "assets/sprites/avatar24_almog.png",
+   "source": 1036,
+   "imported": 458
   },
   {
    "file": "assets/sprites/avatar24_amsalem.png",
@@ -1256,6 +1302,11 @@
    "imported": 430
   },
   {
+   "file": "assets/sprites/avatar24_tibi.png",
+   "source": 1047,
+   "imported": 464
+  },
+  {
    "file": "assets/sprites/avatar24_trump.png",
    "source": 1004,
    "imported": 484
@@ -1264,6 +1315,11 @@
    "file": "assets/sprites/avatar_abbas.png",
    "source": 1473,
    "imported": 614
+  },
+  {
+   "file": "assets/sprites/avatar_almog.png",
+   "source": 1680,
+   "imported": 638
   },
   {
    "file": "assets/sprites/avatar_amsalem.png",
@@ -1531,6 +1587,11 @@
    "imported": 602
   },
   {
+   "file": "assets/sprites/avatar_tibi.png",
+   "source": 1682,
+   "imported": 648
+  },
+  {
    "file": "assets/sprites/avatar_trump.png",
    "source": 1703,
    "imported": 704
@@ -1714,6 +1775,26 @@
    "file": "assets/sprites/cast/abbas_react_d2.png",
    "source": 33622,
    "imported": 11214
+  },
+  {
+   "file": "assets/sprites/cast/almog_idle.png",
+   "source": 80564,
+   "imported": 28484
+  },
+  {
+   "file": "assets/sprites/cast/almog_idle_d2.png",
+   "source": 40820,
+   "imported": 14964
+  },
+  {
+   "file": "assets/sprites/cast/almog_react.png",
+   "source": 261145,
+   "imported": 106072
+  },
+  {
+   "file": "assets/sprites/cast/almog_react_d2.png",
+   "source": 130962,
+   "imported": 54810
   },
   {
    "file": "assets/sprites/cast/amsalem_idle.png",
@@ -2386,6 +2467,26 @@
    "imported": 39650
   },
   {
+   "file": "assets/sprites/cast/tibi_idle.png",
+   "source": 68308,
+   "imported": 21284
+  },
+  {
+   "file": "assets/sprites/cast/tibi_idle_d2.png",
+   "source": 34205,
+   "imported": 11610
+  },
+  {
+   "file": "assets/sprites/cast/tibi_react.png",
+   "source": 56326,
+   "imported": 20162
+  },
+  {
+   "file": "assets/sprites/cast/tibi_react_d2.png",
+   "source": 27811,
+   "imported": 10768
+  },
+  {
    "file": "assets/sprites/cast/trump_idle.png",
    "source": 267776,
    "imported": 87124
@@ -2982,23 +3083,28 @@
   },
   {
    "file": "assets/sprites/source_checkbook.png",
-   "source": 743,
-   "imported": 434
+   "source": 23801,
+   "imported": 8104
+  },
+  {
+   "file": "assets/sprites/source_checkbook_d2.png",
+   "source": 11595,
+   "imported": 4052
   },
   {
    "file": "assets/sprites/source_checkbook_icon.png",
-   "source": 329,
-   "imported": 252
+   "source": 974,
+   "imported": 466
   },
   {
    "file": "assets/sprites/source_checkbook_icon_sil.png",
-   "source": 145,
-   "imported": 132
+   "source": 251,
+   "imported": 174
   },
   {
    "file": "assets/sprites/source_checkbook_icon_sil_pale.png",
-   "source": 148,
-   "imported": 138
+   "source": 259,
+   "imported": 180
   },
   {
    "file": "assets/sprites/source_cigars.png",
@@ -3027,43 +3133,53 @@
   },
   {
    "file": "assets/sprites/source_donor.png",
-   "source": 871,
-   "imported": 494
+   "source": 10397,
+   "imported": 3344
+  },
+  {
+   "file": "assets/sprites/source_donor_d2.png",
+   "source": 5429,
+   "imported": 1856
   },
   {
    "file": "assets/sprites/source_donor_icon.png",
-   "source": 541,
-   "imported": 316
+   "source": 989,
+   "imported": 448
   },
   {
    "file": "assets/sprites/source_donor_icon_sil.png",
-   "source": 228,
-   "imported": 164
+   "source": 265,
+   "imported": 186
   },
   {
    "file": "assets/sprites/source_donor_icon_sil_pale.png",
-   "source": 229,
-   "imported": 170
+   "source": 267,
+   "imported": 192
   },
   {
    "file": "assets/sprites/source_funds.png",
-   "source": 615,
-   "imported": 396
+   "source": 14013,
+   "imported": 4656
+  },
+  {
+   "file": "assets/sprites/source_funds_d2.png",
+   "source": 7626,
+   "imported": 2584
   },
   {
    "file": "assets/sprites/source_funds_icon.png",
-   "source": 297,
-   "imported": 270
+   "source": 902,
+   "imported": 448
   },
   {
    "file": "assets/sprites/source_funds_icon_sil.png",
-   "source": 132,
-   "imported": 130
+   "source": 231,
+   "imported": 176
   },
   {
    "file": "assets/sprites/source_funds_icon_sil_pale.png",
-   "source": 132,
-   "imported": 136
+   "source": 235,
+   "imported": 180
   },
   {
    "file": "assets/sprites/source_hitech.png",
@@ -3092,13 +3208,18 @@
   },
   {
    "file": "assets/sprites/source_poison.png",
-   "source": 634,
-   "imported": 372
+   "source": 20522,
+   "imported": 6324
+  },
+  {
+   "file": "assets/sprites/source_poison_d2.png",
+   "source": 10624,
+   "imported": 3128
   },
   {
    "file": "assets/sprites/source_poison_icon.png",
-   "source": 241,
-   "imported": 206
+   "source": 1576,
+   "imported": 550
   },
   {
    "file": "assets/sprites/source_poison_icon_sil.png",
@@ -3137,23 +3258,28 @@
   },
   {
    "file": "assets/sprites/source_submarine.png",
-   "source": 1084,
-   "imported": 548
+   "source": 27576,
+   "imported": 8388
+  },
+  {
+   "file": "assets/sprites/source_submarine_d2.png",
+   "source": 13720,
+   "imported": 4286
   },
   {
    "file": "assets/sprites/source_submarine_icon.png",
-   "source": 446,
-   "imported": 316
+   "source": 1082,
+   "imported": 480
   },
   {
    "file": "assets/sprites/source_submarine_icon_sil.png",
-   "source": 232,
-   "imported": 172
+   "source": 262,
+   "imported": 192
   },
   {
    "file": "assets/sprites/source_submarine_icon_sil_pale.png",
-   "source": 236,
-   "imported": 180
+   "source": 276,
+   "imported": 196
   },
   {
    "file": "assets/sprites/source_taxpayer.png",
@@ -3879,8 +4005,16 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 6391695,
+ "pckBytes": 6707821,
  "pckByAsset": {
+  "tibi": {
+   "3": 41446,
+   "2": 22378
+  },
+  "almog": {
+   "3": 134556,
+   "2": 69774
+  },
   "lazimi": {
    "3": 147398,
    "2": 75130
@@ -4007,6 +4141,26 @@
   "nophoto": {
    "1": 496
   },
+  "source_submarine": {
+   "3": 8388,
+   "2": 4286
+  },
+  "source_poison": {
+   "3": 6324,
+   "2": 3128
+  },
+  "source_checkbook": {
+   "3": 8104,
+   "2": 4052
+  },
+  "source_donor": {
+   "3": 3344,
+   "2": 1856
+  },
+  "source_funds": {
+   "3": 4656,
+   "2": 2584
+  },
   "source_taxpayer": {
    "3": 4670,
    "2": 2454
@@ -4030,21 +4184,6 @@
   "source_advisers": {
    "3": 5544,
    "2": 2916
-  },
-  "source_checkbook": {
-   "1": 434
-  },
-  "source_donor": {
-   "1": 494
-  },
-  "source_funds": {
-   "1": 396
-  },
-  "source_poison": {
-   "1": 372
-  },
-  "source_submarine": {
-   "1": 548
   }
  },
  "specimenVisual": [
@@ -4146,5 +4285,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 18523459
+ "sourceTotal": 19374634
 }
