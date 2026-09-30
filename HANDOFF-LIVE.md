@@ -3,8 +3,8 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `ccdfac1` docs(od-sevev): live handoff snapshot 07:26
-- Loop lock: ACTIVE (loop running)
+- Branch head: `ff322a8` docs(od-sevev): final session-3 handoff; all agent work merged, wip patches removed
+- Loop lock: released
 
 ## Orchestrator notes
 - Session 3 goal: HANDOFF.md "Next" 1-4. Wave A (4 agents, parallel) dispatched from 76c8926.
@@ -35,6 +35,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 - 05:21 UX review 2 merged (U1-U16, no blockers). Dispatched: 2D (review art) + Game Developer (review engine + F15 + flap wiring); the dev merges the 2D branch when told. Designer got G2 (no-break lint). Then strict build and redeploy.
 - 05:56 Review-2 art done; routed to the review-2 Game Developer to merge and wire. The orchestrator accepted notice_frame as a centred white notice on a flag-blue page (not full-bleed stripes, which would mimic the flag with text where the star sits).
 - 07:22 Bar: fix what is stuck, stop the studio and restart it. Both agents stopped, hung processes killed, work checkpointed. Review-2 dev branch merged (384/384). Diagnosing: the balance bench (it looks slow under load, not hung) and motion_web (capped re-run).
+- 07:32 Bar: stop everything, update main, push, deploy. All branches merged (393/393), handoff-wip removed, main fast-forwarded, deployed.
 
 ## Agents
 | Role | Slice | Worktree branch | Commits not on claude/magical-ride-ntn3u5 | Uncommitted files | Saved patch |
@@ -48,7 +49,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | 2D Artist + TA | DONE, merged (lane, plaza, wings, XL pick heads avatar_pick_<c>_d3/_d2, brawl_cloud_cue x4, court spots as kit data) | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
 | 2D Artist + TA (palette) | DONE, v4 landed through the mobile merge | `worktree-agent-a5e8cafeb35582361` | 0 | 0 | - |
 | Animator (wave B) | DONE, merged (walk wired, one position owner BigBanana._apply_figure; ticker roll 240 ms with per-page dwell; slip stamp). Asks: 2D sheet_modal_flap strip; Audio slip-stamp cue; dev/UX keep "₪." with its number in the pager | `worktree-agent-ae7ba45935a398eb9` | 0 | 0 | - |
-| Game Designer (gate) | STOPPED for the studio restart; gate rule + shared web player committed on its branch (38e0173 wip), NOT merged; its balance run was slow, not hung (orchestrator re-running it capped) | `worktree-agent-aaf6cad83faca5924` | 6 | 0 | `Game-Designer-(gate).commits.patch`  |
+| Game Designer (gate) | STOPPED for the studio restart; gate rule + shared web player committed on its branch (38e0173 wip), NOT merged; its balance run was slow, not hung (orchestrator re-running it capped) | `worktree-agent-aaf6cad83faca5924` | 0 | 0 | - |
 | UX Designer (review 2) | DONE, merged (ux/review-2026-09-30.md U1-U16, no blockers; §5.14 F15: hemicycle in the election card only, booth on tall phones, envelope on light surfaces; roll accepted; §5.2.1 no-break rule) | `worktree-agent-ad4a270e4f3452e94` | 0 | 0 | - |
 | 2D Artist + Audio | DONE, merged (sheet_modal_body + 3-frame sheet_modal_flap, open frame = the approved band; slipStamp cue wired). For the dev pass: switch modals to body + flap (removes the existing dark slab under the flap point, ~190x45) | `worktree-agent-a771e189416072b63` | 0 | 0 | - |
 | 2D Artist + TA (review 2) | DONE on its branch (57c0b4e), not merged to main: the Game Developer (review 2) merges and wires it (the white button needs a px_button.gd label mapping first) | `worktree-agent-ab1026b098be42182` | 0 | 0 | - |
