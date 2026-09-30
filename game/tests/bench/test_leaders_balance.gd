@@ -78,6 +78,14 @@ func test_every_leader_first_election_median_7_to_9() -> void:
 		print("  %-9s median first election %s (seeds 1-9: %s)" % [id, PacingSim.fmt_t(med),
 			", ".join(ts.map(func(x: float) -> String: return PacingSim.fmt_t(x)))])
 		runner.check(_in(med, 7.0, 9.0), "L1 %s: the median first election over seeds 1-9 in 7-9 min, got %s" % [id, PacingSim.fmt_t(med)])
+		# Mordechai David's dose (design/mordechai-david-spec.md §6): the seeds where his blockade fired
+		# before the first election (Balfour is round 1 only)
+		var md := 0
+		for sd: int in SEEDS:
+			var rs := _first("median", id, sd)
+			if _first_event(rs["events"], "event:mordechai") <= _t(rs):
+				md += 1
+		print("  %-9s Mordechai David before the first election: %d of %d seeds" % [id, md, SEEDS.size()])
 		var r7 := _first("median", id, 7)
 		var c1 := _first_event(r7["events"], "c1")
 		var u := _first_event(r7["events"], "ultimatum")
