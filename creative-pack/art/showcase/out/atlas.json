@@ -6970,6 +6970,124 @@
     }
    }
   },
+  "mordechai-david": {
+   "frameW": 270,
+   "frameH": 305,
+   "anchor": [
+    135,
+    304
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "mordechai-david_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "walk": {
+     "file": "mordechai-david_walk.png",
+     "frames": 8,
+     "fps": 10,
+     "loop": true,
+     "events": {
+      "step": 0,
+      "step2": 4
+     },
+     "density": 3
+    },
+    "block_in": {
+     "file": "mordechai-david_block_in.png",
+     "frames": 4,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "plant": 1
+     },
+     "density": 3
+    },
+    "block": {
+     "file": "mordechai-david_block.png",
+     "frames": 3,
+     "fps": 6,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "glance": {
+     "file": "mordechai-david_glance.png",
+     "frames": 10,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "smirk": 4
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 180,
+     "frameH": 203,
+     "anchor": [
+      90,
+      202
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "mordechai-david_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "walk": {
+       "file": "mordechai-david_walk_d2.png",
+       "frames": 8,
+       "fps": 10,
+       "loop": true,
+       "events": {
+        "step": 0,
+        "step2": 4
+       },
+       "density": 2
+      },
+      "block_in": {
+       "file": "mordechai-david_block_in_d2.png",
+       "frames": 4,
+       "fps": 12,
+       "loop": false,
+       "events": {
+        "plant": 1
+       },
+       "density": 2
+      },
+      "block": {
+       "file": "mordechai-david_block_d2.png",
+       "frames": 3,
+       "fps": 6,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "glance": {
+       "file": "mordechai-david_glance_d2.png",
+       "frames": 10,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "smirk": 4
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
   "dubi": {
    "frameW": 20,
    "frameH": 23,

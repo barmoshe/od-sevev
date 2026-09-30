@@ -294,6 +294,20 @@ the 2D Artist's B14 note (session 5 scratchpad, `B14-options.md`).
   and beards drawn as individual traits, one skin approach for everyone, the public drawn sympathetically.
 - Red lines (brief): no party logos or party colours as emblems, no state emblem or Knesset Menorah, no
   uniforms, no children.
+- **Mordechai David** (session 5, Bar's call; on the legal-reads list): the satirical blocker who walks on and
+  stands in front of the protest crowd with his arms spread. Rendered down from Bar's ref (`refs/mordechai-david.png`)
+  by a custom rig (`showcase/src/mordechai.py`): the limbs are cut and posed at ref resolution (arms with their
+  sleeves about the shoulder, legs below the hem about the hip, the shoulder caps staying on the torso, a shaded tee
+  under the arms), then downscaled to 96·d px with one palette locked from idle frame 0. 96 art px like every other
+  cast member (the one-scale rule): on the Balfour stage he stands 13 art px under Bibi's hat and covers
+  one crowd block (x 0-58 or 122-180) edge to edge in the block pose (feet x 28 flipped or x 150), drawn behind the
+  leader and never stopping in the leader's slot (x 66-114).
+  - **Look:** the orange cap and tee are his real-life signature and stay: `orange` is the stage's lamp hue, not a
+    chrome colour, so he reads warm against the navy night and the v4 blue UI (he is the only full orange figure on
+    any stage). Dark jeans, black sneakers, the short beard, the ref's black outline.
+  - **Satire guardrails:** the joke is the public act (planting himself in front of a protest), drawn from his
+    public look; no text or slogan on the tee or cap, no flag, no party mark, no gesture beyond the block and the
+    smug glance.
 
 ## 6. Stages
 

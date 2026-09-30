@@ -227,6 +227,25 @@ Alpha is binary (0 or 255) on every texel. The pipeline refuses anything else.
     `ChatView.avatar_art` / `char_for`, the partner card and the ultimatum cameo draw it instead of the "?"
     card. When the partner's own render lands, its `chars` entry wins and the alias disappears on the rerun.
 
+- **Mordechai David, `chars["mordechai-david"]`** (session 5, 2D Artist; `showcase/src/mordechai.py`): the satirical
+  blocker who walks onto the stage and plants himself in front of a protest crowd. A rendered character like the
+  partners (96 art px, d 3 + a d 2 alternate, the one-scale rule), with its own anims. **He faces screen-right as
+  drawn**; for leftward travel or the left crowd set `flip_h` and mirror the anchor (`x' = frameW - 1 - anchor.x`).
+  - **Frames:** d 3 is 210×292 sprite px, anchor [85, 291]; d 2 is 141×195, anchor [57, 194] (the feet, as every
+    character). Avatars `avatar_mordechai-david` 32 and `avatar24_mordechai-david` 24 (neutral grey ring).
+  - **Anims** (every render, same timing): `idle` 20 @ 10 loop (breath, blink 9-11); `walk` 8 @ 10 loop, events
+    `step: 0`, `step2: 4` (the contacts), travel **≈ 31 art px/s** (a 25-art-px stride per cycle; move the root at a
+    constant speed, feet stay planted within ~1 ap); `block_in` 4 @ 12 once, `plant: 1` (feet step wide, arms rise;
+    play it backwards to stand down); `block` 3 @ 6 loop (the hold); `glance` 10 @ 10 once, `smirk: 4` (the smug
+    look at the player: chin up, eyes to camera; return to `block` or `idle`).
+  - **Reach (art px from the feet, as drawn):** idle / glance −20..+20, walk −23..+23, `block` −28..+41 (the arm on
+    his back, leader side is the low one; the outer arm spreads over the crowd).
+  - **Placement on Balfour (2D Artist's recommendation):** feet row 221 (a px in front of the leader's 219). Right
+    crowd: feet x 150 as drawn (covers 122-191; the outer hand runs 11 cols past the art into the wing or the
+    screen edge). Left crowd: feet x 28 with `flip_h` (covers −13-56). The leaders' widest frames span x 54-124, so
+    **draw him behind the leader**: his lowered hand can tuck ≤ 3 px under a leader's widest frame. Never
+    stop him inside x 66-114 (the leader's slot); the walk passes in front of the crowd, never through the slot.
+
 ## 4c. Leaders: `tap`, `propMouth`, `temple`, the tap prop (leader select, 2026-09-29)
 
 Every launch leader (`design/content.json` `leaderSelect.roster`: bibi, bennett, ben-gvir, smotrich, deri,

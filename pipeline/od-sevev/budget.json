@@ -20,6 +20,7 @@
   "sprites/avatar24_levin.png": 1135,
   "sprites/avatar24_liberman.png": 981,
   "sprites/avatar24_may-golan.png": 1117,
+  "sprites/avatar24_mordechai-david.png": 1021,
   "sprites/avatar24_nophoto.png": 344,
   "sprites/avatar24_pick_ben-gvir.png": 1158,
   "sprites/avatar24_pick_bennett.png": 1087,
@@ -53,6 +54,7 @@
   "sprites/avatar_levin.png": 1888,
   "sprites/avatar_liberman.png": 1612,
   "sprites/avatar_may-golan.png": 1953,
+  "sprites/avatar_mordechai-david.png": 1643,
   "sprites/avatar_nophoto.png": 442,
   "sprites/avatar_pick_ben-gvir.png": 2094,
   "sprites/avatar_pick_ben-gvir_d2.png": 6385,
@@ -208,6 +210,16 @@
   "sprites/cast/may-golan_idle_d2.png": 55442,
   "sprites/cast/may-golan_react.png": 328019,
   "sprites/cast/may-golan_react_d2.png": 170579,
+  "sprites/cast/mordechai-david_block.png": 53947,
+  "sprites/cast/mordechai-david_block_d2.png": 28974,
+  "sprites/cast/mordechai-david_block_in.png": 111045,
+  "sprites/cast/mordechai-david_block_in_d2.png": 58658,
+  "sprites/cast/mordechai-david_glance.png": 74625,
+  "sprites/cast/mordechai-david_glance_d2.png": 38779,
+  "sprites/cast/mordechai-david_idle.png": 57063,
+  "sprites/cast/mordechai-david_idle_d2.png": 28686,
+  "sprites/cast/mordechai-david_walk.png": 143999,
+  "sprites/cast/mordechai-david_walk_d2.png": 69288,
   "sprites/cast/regev_idle.png": 97924,
   "sprites/cast/regev_idle_d2.png": 50140,
   "sprites/cast/regev_react.png": 306855,
@@ -521,7 +533,7 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 170189044,
+ "vramBytes": 180142724,
  "vramByDensity": {
   "bibi": {
    "3": 9697848,
@@ -615,6 +627,10 @@
    "3": 3288480,
    "2": 1456832
   },
+  "mordechai-david": {
+   "3": 6867840,
+   "2": 3079440
+  },
   "dubi": {
    "1": 64400
   },
@@ -641,13 +657,13 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 8098088,
-  "3": 13760936,
-  "4": 8098088,
-  "6": 13760936,
-  "7": 13760936,
-  "8": 8098088,
-  "9": 13760936
+  "2": 8104488,
+  "3": 13767336,
+  "4": 8104488,
+  "6": 13767336,
+  "7": 13767336,
+  "8": 8104488,
+  "9": 13767336
  },
  "vramSourcesByK": {
   "2": 259200,
@@ -682,6 +698,7 @@
    "herzog": 2364120,
    "trump": 2515500,
    "may-golan": 1456832,
+   "mordechai-david": 3079440,
    "dubi": 64400,
    "dubi-mic": 2258872,
    "nophoto": 15520
@@ -709,6 +726,7 @@
    "herzog": 5245992,
    "trump": 5606400,
    "may-golan": 3288480,
+   "mordechai-david": 6867840,
    "dubi": 64400,
    "dubi-mic": 5035536,
    "nophoto": 15520
@@ -736,6 +754,7 @@
    "herzog": 2364120,
    "trump": 2515500,
    "may-golan": 1456832,
+   "mordechai-david": 3079440,
    "dubi": 64400,
    "dubi-mic": 2258872,
    "nophoto": 15520
@@ -763,6 +782,7 @@
    "herzog": 5245992,
    "trump": 5606400,
    "may-golan": 3288480,
+   "mordechai-david": 6867840,
    "dubi": 64400,
    "dubi-mic": 5035536,
    "nophoto": 15520
@@ -790,6 +810,7 @@
    "herzog": 5245992,
    "trump": 5606400,
    "may-golan": 3288480,
+   "mordechai-david": 6867840,
    "dubi": 64400,
    "dubi-mic": 5035536,
    "nophoto": 15520
@@ -817,6 +838,7 @@
    "herzog": 2364120,
    "trump": 2515500,
    "may-golan": 1456832,
+   "mordechai-david": 3079440,
    "dubi": 64400,
    "dubi-mic": 2258872,
    "nophoto": 15520
@@ -844,6 +866,7 @@
    "herzog": 5245992,
    "trump": 5606400,
    "may-golan": 3288480,
+   "mordechai-david": 6867840,
    "dubi": 64400,
    "dubi-mic": 5035536,
    "nophoto": 15520
@@ -921,8 +944,8 @@
    "golan": 2803640
   }
  },
- "vramTypical": 13760936,
- "vramCastAll": 165175556,
+ "vramTypical": 13767336,
+ "vramCastAll": 175122836,
  "vramPerPartner": {
   "sara": 4144800,
   "bennett": 6347520,
@@ -946,6 +969,7 @@
   "herzog": 5245992,
   "trump": 5606400,
   "may-golan": 3288480,
+  "mordechai-david": 6867840,
   "dubi": 64400,
   "dubi-mic": 5035536,
   "nophoto": 15520
@@ -1050,6 +1074,11 @@
    "file": "assets/sprites/avatar24_may-golan.png",
    "source": 1117,
    "imported": 480
+  },
+  {
+   "file": "assets/sprites/avatar24_mordechai-david.png",
+   "source": 1021,
+   "imported": 528
   },
   {
    "file": "assets/sprites/avatar24_nophoto.png",
@@ -1215,6 +1244,11 @@
    "file": "assets/sprites/avatar_may-golan.png",
    "source": 1953,
    "imported": 714
+  },
+  {
+   "file": "assets/sprites/avatar_mordechai-david.png",
+   "source": 1643,
+   "imported": 740
   },
   {
    "file": "assets/sprites/avatar_nophoto.png",
@@ -1990,6 +2024,56 @@
    "file": "assets/sprites/cast/may-golan_react_d2.png",
    "source": 170579,
    "imported": 58048
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_block.png",
+   "source": 53947,
+   "imported": 20328
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_block_d2.png",
+   "source": 28974,
+   "imported": 11680
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_block_in.png",
+   "source": 111045,
+   "imported": 44020
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_block_in_d2.png",
+   "source": 58658,
+   "imported": 24352
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_glance.png",
+   "source": 74625,
+   "imported": 25358
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_glance_d2.png",
+   "source": 38779,
+   "imported": 14052
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_idle.png",
+   "source": 57063,
+   "imported": 19750
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_idle_d2.png",
+   "source": 28686,
+   "imported": 10616
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_walk.png",
+   "source": 143999,
+   "imported": 55954
+  },
+  {
+   "file": "assets/sprites/cast/mordechai-david_walk_d2.png",
+   "source": 69288,
+   "imported": 28056
   },
   {
    "file": "assets/sprites/cast/regev_idle.png",
@@ -3555,7 +3639,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 5353047,
+ "pckBytes": 5608481,
  "pckByAsset": {
   "bibi": {
    "3": 193236,
@@ -3648,6 +3732,10 @@
   "may-golan": {
    "3": 145456,
    "2": 75188
+  },
+  "mordechai-david": {
+   "3": 165410,
+   "2": 88756
   },
   "dubi": {
    "1": 2628
@@ -3798,5 +3886,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 15664281
+ "sourceTotal": 16332009
 }

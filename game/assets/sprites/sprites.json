@@ -8448,6 +8448,234 @@
    "avatar": "avatar_may-golan",
    "avatar24": "avatar24_may-golan"
   },
+  "mordechai-david": {
+   "frameW": 210,
+   "frameH": 292,
+   "anchor": [
+    85,
+    291
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/mordechai-david_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "walk": {
+     "texture": "cast/mordechai-david_walk.png",
+     "frames": 8,
+     "fps": 10,
+     "loop": true,
+     "events": {
+      "step": 0,
+      "step2": 4
+     },
+     "density": 3,
+     "cols": 7,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      2,
+      6
+     ]
+    },
+    "block_in": {
+     "texture": "cast/mordechai-david_block_in.png",
+     "frames": 4,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "plant": 1
+     },
+     "density": 3,
+     "cols": 4,
+     "rows": 1
+    },
+    "block": {
+     "texture": "cast/mordechai-david_block.png",
+     "frames": 3,
+     "fps": 6,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 3,
+     "rows": 1
+    },
+    "glance": {
+     "texture": "cast/mordechai-david_glance.png",
+     "frames": 10,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "smirk": 4
+     },
+     "density": 3,
+     "cols": 8,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      6,
+      7,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 141,
+     "frameH": 195,
+     "anchor": [
+      57,
+      194
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/mordechai-david_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "walk": {
+       "texture": "cast/mordechai-david_walk_d2.png",
+       "frames": 8,
+       "fps": 10,
+       "loop": true,
+       "events": {
+        "step": 0,
+        "step2": 4
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        2,
+        6
+       ]
+      },
+      "block_in": {
+       "texture": "cast/mordechai-david_block_in_d2.png",
+       "frames": 4,
+       "fps": 12,
+       "loop": false,
+       "events": {
+        "plant": 1
+       },
+       "density": 2,
+       "cols": 4,
+       "rows": 1
+      },
+      "block": {
+       "texture": "cast/mordechai-david_block_d2.png",
+       "frames": 3,
+       "fps": 6,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 3,
+       "rows": 1
+      },
+      "glance": {
+       "texture": "cast/mordechai-david_glance_d2.png",
+       "frames": 10,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "smirk": 4
+       },
+       "density": 2,
+       "cols": 8,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        4,
+        6,
+        7,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_mordechai-david",
+   "avatar24": "avatar24_mordechai-david"
+  },
   "dubi": {
    "frameW": 20,
    "frameH": 23,
@@ -8625,6 +8853,8 @@
   "ben_gvir": "ben-gvir",
   "maygolan": "may-golan",
   "may_golan": "may-golan",
+  "mordechaidavid": "mordechai-david",
+  "mordechai_david": "mordechai-david",
   "dubimic": "dubi-mic",
   "dubi_mic": "dubi-mic",
   "almog": "nophoto"
@@ -13753,6 +13983,14 @@
     24
    ]
   },
+  "avatar24_mordechai-david.png": {
+   "bytes": 1021,
+   "sha": "1a877847d33a664b",
+   "size": [
+    24,
+    24
+   ]
+  },
   "avatar24_nophoto.png": {
    "bytes": 344,
    "sha": "817a45da2889916d",
@@ -14012,6 +14250,14 @@
   "avatar_may-golan.png": {
    "bytes": 1953,
    "sha": "71418636f37065e0",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_mordechai-david.png": {
+   "bytes": 1643,
+   "sha": "e2836e148e3870f7",
    "size": [
     32,
     32
@@ -15255,6 +15501,86 @@
    "size": [
     952,
     206
+   ]
+  },
+  "cast/mordechai-david_block.png": {
+   "bytes": 53947,
+   "sha": "2059031f489cedfb",
+   "size": [
+    630,
+    292
+   ]
+  },
+  "cast/mordechai-david_block_d2.png": {
+   "bytes": 28974,
+   "sha": "ed1d5cea2f987b73",
+   "size": [
+    423,
+    195
+   ]
+  },
+  "cast/mordechai-david_block_in.png": {
+   "bytes": 111045,
+   "sha": "55c72254c2292bf3",
+   "size": [
+    840,
+    292
+   ]
+  },
+  "cast/mordechai-david_block_in_d2.png": {
+   "bytes": 58658,
+   "sha": "f39362e2aae9d758",
+   "size": [
+    564,
+    195
+   ]
+  },
+  "cast/mordechai-david_glance.png": {
+   "bytes": 74625,
+   "sha": "631e4490bcf1554a",
+   "size": [
+    1680,
+    292
+   ]
+  },
+  "cast/mordechai-david_glance_d2.png": {
+   "bytes": 38779,
+   "sha": "53e5ce339412a8e9",
+   "size": [
+    1128,
+    195
+   ]
+  },
+  "cast/mordechai-david_idle.png": {
+   "bytes": 57063,
+   "sha": "83d1a8786e7306af",
+   "size": [
+    1260,
+    292
+   ]
+  },
+  "cast/mordechai-david_idle_d2.png": {
+   "bytes": 28686,
+   "sha": "f53cf7339a6da6be",
+   "size": [
+    846,
+    195
+   ]
+  },
+  "cast/mordechai-david_walk.png": {
+   "bytes": 143999,
+   "sha": "d89f2a030dccd20f",
+   "size": [
+    1470,
+    292
+   ]
+  },
+  "cast/mordechai-david_walk_d2.png": {
+   "bytes": 69288,
+   "sha": "6a17da346053ddc9",
+   "size": [
+    987,
+    195
    ]
   },
   "cast/regev_idle.png": {
@@ -17731,6 +18057,7 @@
    "levin.png": "7dc21a1b8c2842c8",
    "liberman.png": "58629f47e6ad609d",
    "may-golan.png": "b708ecb18b8548fd",
+   "mordechai-david.png": "dc811d49eaa656a4",
    "qatari.png": "f385089ae968a264",
    "regev.png": "2a1a39cd3cb195da",
    "sara.png": "56989776f43a9335",

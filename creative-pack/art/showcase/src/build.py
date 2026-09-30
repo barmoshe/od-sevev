@@ -708,6 +708,13 @@ for _n, _cfg in CAST.items():
     if not _only or _n in _only:
         render_char(_n, lambda d, n=_n, c=_cfg: generic(n, c, d), (_cfg['head'], _n, RINGS[_cfg['react']]))
 
+# ================================================================ MORDECHAI DAVID (session 5, Bar): the protest blocker
+# A custom rig (mordechai.py): cut limbs posed at ref resolution for a walk, a block and a smug glance, not generic()'s
+# breathing-only set. 96·d px like the rest of the cast; a neutral ring on his avatars (he is no party's partner).
+from mordechai import mordechai as _mordechai, HEAD_BOX as _MD_HEAD
+if not _only or 'mordechai-david' in _only:
+    render_char('mordechai-david', lambda d: _mordechai(d, ART_H, NC, breath), (_MD_HEAD, 'mordechai-david', RINGS['no']))
+
 # ================================================================ DUBI (motion/state-graph-dubi.md §1)
 from cast import DUBI as DB, SOURCES, SOURCE_ALIASES
 
