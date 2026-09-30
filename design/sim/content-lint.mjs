@@ -178,7 +178,8 @@ const pictUsed = new Set();
 
 // ---------- 6. invented quotes of real people in ticker lines ----------
 const realNames = ['לפיד', 'בנט', 'גנץ', 'ליברמן', 'אייזנקוט', 'גולן', 'עבאס', 'בן גביר', 'סמוטריץ׳', 'דרעי', 'גולדקנופף', 'גפני', 'לוין',
-  'רגב', 'גוטליב', 'אמסלם', 'קרעי', 'דיסטל', 'טראמפ', 'הרצוג', 'נתניהו', 'ביבי', 'אילוז', 'אלמוג כהן', 'מרדכי דוד'];
+  'רגב', 'גוטליב', 'אמסלם', 'קרעי', 'דיסטל', 'טראמפ', 'הרצוג', 'נתניהו', 'ביבי', 'אילוז', 'אלמוג כהן', 'מרדכי דוד',
+  'לזימי', 'קריב', 'טרופר'];
 const tickerPaths = s => /^\.(headlines|ambientHeadlinesV2)|\.ticker$|tickerStart$|\.onPaidTicker$/.test(s.path);
 for (const s of game.filter(tickerPaths)) {
   if (!/"/.test(s.text)) continue;

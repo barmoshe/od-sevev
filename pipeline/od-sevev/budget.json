@@ -16,10 +16,15 @@
   "sprites/avatar24_gotliv.png": 1169,
   "sprites/avatar24_herzog.png": 1069,
   "sprites/avatar24_karhi.png": 918,
+  "sprites/avatar24_kariv.png": 1094,
   "sprites/avatar24_lapid.png": 913,
+  "sprites/avatar24_lazimi.png": 1167,
   "sprites/avatar24_levin.png": 1135,
   "sprites/avatar24_liberman.png": 981,
   "sprites/avatar24_may-golan.png": 1117,
+  "sprites/avatar24_mk-offer.png": 1099,
+  "sprites/avatar24_mk-switcher.png": 1125,
+  "sprites/avatar24_mk-undecided.png": 1186,
   "sprites/avatar24_mordechai-david.png": 1021,
   "sprites/avatar24_nophoto.png": 344,
   "sprites/avatar24_pick_ben-gvir.png": 1158,
@@ -50,10 +55,15 @@
   "sprites/avatar_gotliv.png": 1986,
   "sprites/avatar_herzog.png": 1723,
   "sprites/avatar_karhi.png": 1392,
+  "sprites/avatar_kariv.png": 1738,
   "sprites/avatar_lapid.png": 1473,
+  "sprites/avatar_lazimi.png": 1971,
   "sprites/avatar_levin.png": 1888,
   "sprites/avatar_liberman.png": 1612,
   "sprites/avatar_may-golan.png": 1953,
+  "sprites/avatar_mk-offer.png": 1799,
+  "sprites/avatar_mk-switcher.png": 1920,
+  "sprites/avatar_mk-undecided.png": 1931,
   "sprites/avatar_mordechai-david.png": 1643,
   "sprites/avatar_nophoto.png": 442,
   "sprites/avatar_pick_ben-gvir.png": 2094,
@@ -192,10 +202,18 @@
   "sprites/cast/karhi_idle_d2.png": 94957,
   "sprites/cast/karhi_react.png": 145791,
   "sprites/cast/karhi_react_d2.png": 75201,
+  "sprites/cast/kariv_idle.png": 82801,
+  "sprites/cast/kariv_idle_d2.png": 39262,
+  "sprites/cast/kariv_react.png": 67413,
+  "sprites/cast/kariv_react_d2.png": 33852,
   "sprites/cast/lapid_idle.png": 249386,
   "sprites/cast/lapid_idle_d2.png": 90127,
   "sprites/cast/lapid_react.png": 258363,
   "sprites/cast/lapid_react_d2.png": 122062,
+  "sprites/cast/lazimi_idle.png": 101381,
+  "sprites/cast/lazimi_idle_d2.png": 48943,
+  "sprites/cast/lazimi_react.png": 303301,
+  "sprites/cast/lazimi_react_d2.png": 144045,
   "sprites/cast/levin_idle.png": 250900,
   "sprites/cast/levin_idle_d2.png": 115674,
   "sprites/cast/levin_react.png": 198482,
@@ -210,6 +228,18 @@
   "sprites/cast/may-golan_idle_d2.png": 55442,
   "sprites/cast/may-golan_react.png": 328019,
   "sprites/cast/may-golan_react_d2.png": 170579,
+  "sprites/cast/mk-offer_idle.png": 91366,
+  "sprites/cast/mk-offer_idle_d2.png": 44813,
+  "sprites/cast/mk-offer_react.png": 305183,
+  "sprites/cast/mk-offer_react_d2.png": 149853,
+  "sprites/cast/mk-switcher_idle.png": 82532,
+  "sprites/cast/mk-switcher_idle_d2.png": 41176,
+  "sprites/cast/mk-switcher_react.png": 259381,
+  "sprites/cast/mk-switcher_react_d2.png": 129365,
+  "sprites/cast/mk-undecided_idle.png": 88970,
+  "sprites/cast/mk-undecided_idle_d2.png": 42966,
+  "sprites/cast/mk-undecided_react.png": 80203,
+  "sprites/cast/mk-undecided_react_d2.png": 39614,
   "sprites/cast/mordechai-david_block.png": 53947,
   "sprites/cast/mordechai-david_block_d2.png": 28974,
   "sprites/cast/mordechai-david_block_in.png": 111045,
@@ -533,8 +563,28 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 180142724,
+ "vramBytes": 197117528,
  "vramByDensity": {
+  "lazimi": {
+   "3": 3095040,
+   "2": 1371136
+  },
+  "kariv": {
+   "3": 1970980,
+   "2": 883168
+  },
+  "mk-offer": {
+   "3": 2256800,
+   "2": 1006928
+  },
+  "mk-undecided": {
+   "3": 1894684,
+   "2": 840708
+  },
+  "mk-switcher": {
+   "3": 2498600,
+   "2": 1124760
+  },
   "bibi": {
    "3": 9697848,
    "2": 4355640
@@ -657,13 +707,13 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 8104488,
-  "3": 13767336,
-  "4": 8104488,
-  "6": 13767336,
-  "7": 13767336,
-  "8": 8104488,
-  "9": 13767336
+  "2": 8136488,
+  "3": 13799336,
+  "4": 8136488,
+  "6": 13799336,
+  "7": 13799336,
+  "8": 8136488,
+  "9": 13799336
  },
  "vramSourcesByK": {
   "2": 259200,
@@ -676,6 +726,11 @@
  },
  "vramPerPartnerByK": {
   "2": {
+   "lazimi": 1371136,
+   "kariv": 883168,
+   "mk-offer": 1006928,
+   "mk-undecided": 840708,
+   "mk-switcher": 1124760,
    "sara": 1874928,
    "bennett": 2825760,
    "regev": 1456832,
@@ -704,6 +759,11 @@
    "nophoto": 15520
   },
   "3": {
+   "lazimi": 3095040,
+   "kariv": 1970980,
+   "mk-offer": 2256800,
+   "mk-undecided": 1894684,
+   "mk-switcher": 2498600,
    "sara": 4144800,
    "bennett": 6347520,
    "regev": 3277872,
@@ -732,6 +792,11 @@
    "nophoto": 15520
   },
   "4": {
+   "lazimi": 1371136,
+   "kariv": 883168,
+   "mk-offer": 1006928,
+   "mk-undecided": 840708,
+   "mk-switcher": 1124760,
    "sara": 1874928,
    "bennett": 2825760,
    "regev": 1456832,
@@ -760,6 +825,11 @@
    "nophoto": 15520
   },
   "6": {
+   "lazimi": 3095040,
+   "kariv": 1970980,
+   "mk-offer": 2256800,
+   "mk-undecided": 1894684,
+   "mk-switcher": 2498600,
    "sara": 4144800,
    "bennett": 6347520,
    "regev": 3277872,
@@ -788,6 +858,11 @@
    "nophoto": 15520
   },
   "7": {
+   "lazimi": 3095040,
+   "kariv": 1970980,
+   "mk-offer": 2256800,
+   "mk-undecided": 1894684,
+   "mk-switcher": 2498600,
    "sara": 4144800,
    "bennett": 6347520,
    "regev": 3277872,
@@ -816,6 +891,11 @@
    "nophoto": 15520
   },
   "8": {
+   "lazimi": 1371136,
+   "kariv": 883168,
+   "mk-offer": 1006928,
+   "mk-undecided": 840708,
+   "mk-switcher": 1124760,
    "sara": 1874928,
    "bennett": 2825760,
    "regev": 1456832,
@@ -844,6 +924,11 @@
    "nophoto": 15520
   },
   "9": {
+   "lazimi": 3095040,
+   "kariv": 1970980,
+   "mk-offer": 2256800,
+   "mk-undecided": 1894684,
+   "mk-switcher": 2498600,
    "sara": 4144800,
    "bennett": 6347520,
    "regev": 3277872,
@@ -944,9 +1029,14 @@
    "golan": 2803640
   }
  },
- "vramTypical": 13767336,
- "vramCastAll": 175122836,
+ "vramTypical": 13799336,
+ "vramCastAll": 192065640,
  "vramPerPartner": {
+  "lazimi": 3095040,
+  "kariv": 1970980,
+  "mk-offer": 2256800,
+  "mk-undecided": 1894684,
+  "mk-switcher": 2498600,
   "sara": 4144800,
   "bennett": 6347520,
   "regev": 3277872,
@@ -977,32 +1067,32 @@
  "imported": [
   {
    "file": "assets/sprites/avatar24_abbas.png",
-   "source": 956,
+   "source": 916,
    "imported": 438
   },
   {
    "file": "assets/sprites/avatar24_amsalem.png",
-   "source": 1128,
+   "source": 1085,
    "imported": 478
   },
   {
    "file": "assets/sprites/avatar24_ben-gvir.png",
-   "source": 1147,
+   "source": 1094,
    "imported": 472
   },
   {
    "file": "assets/sprites/avatar24_bennett.png",
-   "source": 1088,
+   "source": 1055,
    "imported": 518
   },
   {
    "file": "assets/sprites/avatar24_bibi.png",
-   "source": 1185,
+   "source": 1113,
    "imported": 486
   },
   {
    "file": "assets/sprites/avatar24_deri.png",
-   "source": 1062,
+   "source": 993,
    "imported": 456
   },
   {
@@ -1017,17 +1107,17 @@
   },
   {
    "file": "assets/sprites/avatar24_eisenkot.png",
-   "source": 903,
+   "source": 864,
    "imported": 408
   },
   {
    "file": "assets/sprites/avatar24_gafni.png",
-   "source": 1143,
+   "source": 1091,
    "imported": 494
   },
   {
    "file": "assets/sprites/avatar24_gantz.png",
-   "source": 771,
+   "source": 719,
    "imported": 386
   },
   {
@@ -1037,12 +1127,12 @@
   },
   {
    "file": "assets/sprites/avatar24_goldknopf.png",
-   "source": 1112,
+   "source": 1052,
    "imported": 488
   },
   {
    "file": "assets/sprites/avatar24_gotliv.png",
-   "source": 1169,
+   "source": 1110,
    "imported": 522
   },
   {
@@ -1056,24 +1146,49 @@
    "imported": 442
   },
   {
+   "file": "assets/sprites/avatar24_kariv.png",
+   "source": 1094,
+   "imported": 470
+  },
+  {
    "file": "assets/sprites/avatar24_lapid.png",
-   "source": 913,
+   "source": 866,
    "imported": 420
   },
   {
+   "file": "assets/sprites/avatar24_lazimi.png",
+   "source": 1167,
+   "imported": 528
+  },
+  {
    "file": "assets/sprites/avatar24_levin.png",
-   "source": 1135,
+   "source": 1080,
    "imported": 484
   },
   {
    "file": "assets/sprites/avatar24_liberman.png",
-   "source": 981,
+   "source": 956,
    "imported": 440
   },
   {
    "file": "assets/sprites/avatar24_may-golan.png",
    "source": 1117,
    "imported": 480
+  },
+  {
+   "file": "assets/sprites/avatar24_mk-offer.png",
+   "source": 1099,
+   "imported": 524
+  },
+  {
+   "file": "assets/sprites/avatar24_mk-switcher.png",
+   "source": 1125,
+   "imported": 536
+  },
+  {
+   "file": "assets/sprites/avatar24_mk-undecided.png",
+   "source": 1186,
+   "imported": 518
   },
   {
    "file": "assets/sprites/avatar24_mordechai-david.png",
@@ -1127,17 +1242,17 @@
   },
   {
    "file": "assets/sprites/avatar24_regev.png",
-   "source": 1186,
+   "source": 1134,
    "imported": 498
   },
   {
    "file": "assets/sprites/avatar24_sara.png",
-   "source": 1163,
+   "source": 1122,
    "imported": 510
   },
   {
    "file": "assets/sprites/avatar24_smotrich.png",
-   "source": 945,
+   "source": 895,
    "imported": 430
   },
   {
@@ -1147,32 +1262,32 @@
   },
   {
    "file": "assets/sprites/avatar_abbas.png",
-   "source": 1573,
+   "source": 1473,
    "imported": 614
   },
   {
    "file": "assets/sprites/avatar_amsalem.png",
-   "source": 1854,
+   "source": 1745,
    "imported": 668
   },
   {
    "file": "assets/sprites/avatar_ben-gvir.png",
-   "source": 2128,
+   "source": 1949,
    "imported": 740
   },
   {
    "file": "assets/sprites/avatar_bennett.png",
-   "source": 1828,
+   "source": 1730,
    "imported": 766
   },
   {
    "file": "assets/sprites/avatar_bibi.png",
-   "source": 2056,
+   "source": 1867,
    "imported": 720
   },
   {
    "file": "assets/sprites/avatar_deri.png",
-   "source": 1771,
+   "source": 1616,
    "imported": 662
   },
   {
@@ -1187,17 +1302,17 @@
   },
   {
    "file": "assets/sprites/avatar_eisenkot.png",
-   "source": 1543,
+   "source": 1416,
    "imported": 582
   },
   {
    "file": "assets/sprites/avatar_gafni.png",
-   "source": 1919,
+   "source": 1803,
    "imported": 704
   },
   {
    "file": "assets/sprites/avatar_gantz.png",
-   "source": 1219,
+   "source": 1141,
    "imported": 504
   },
   {
@@ -1207,12 +1322,12 @@
   },
   {
    "file": "assets/sprites/avatar_goldknopf.png",
-   "source": 1868,
+   "source": 1708,
    "imported": 706
   },
   {
    "file": "assets/sprites/avatar_gotliv.png",
-   "source": 1986,
+   "source": 1892,
    "imported": 790
   },
   {
@@ -1226,24 +1341,49 @@
    "imported": 574
   },
   {
+   "file": "assets/sprites/avatar_kariv.png",
+   "source": 1738,
+   "imported": 666
+  },
+  {
    "file": "assets/sprites/avatar_lapid.png",
-   "source": 1473,
+   "source": 1350,
    "imported": 576
   },
   {
+   "file": "assets/sprites/avatar_lazimi.png",
+   "source": 1971,
+   "imported": 752
+  },
+  {
    "file": "assets/sprites/avatar_levin.png",
-   "source": 1888,
+   "source": 1726,
    "imported": 718
   },
   {
    "file": "assets/sprites/avatar_liberman.png",
-   "source": 1612,
+   "source": 1513,
    "imported": 614
   },
   {
    "file": "assets/sprites/avatar_may-golan.png",
    "source": 1953,
    "imported": 714
+  },
+  {
+   "file": "assets/sprites/avatar_mk-offer.png",
+   "source": 1799,
+   "imported": 740
+  },
+  {
+   "file": "assets/sprites/avatar_mk-switcher.png",
+   "source": 1920,
+   "imported": 748
+  },
+  {
+   "file": "assets/sprites/avatar_mk-undecided.png",
+   "source": 1931,
+   "imported": 740
   },
   {
    "file": "assets/sprites/avatar_mordechai-david.png",
@@ -1377,17 +1517,17 @@
   },
   {
    "file": "assets/sprites/avatar_regev.png",
-   "source": 2060,
+   "source": 1847,
    "imported": 760
   },
   {
    "file": "assets/sprites/avatar_sara.png",
-   "source": 2073,
+   "source": 1953,
    "imported": 828
   },
   {
    "file": "assets/sprites/avatar_smotrich.png",
-   "source": 1560,
+   "source": 1439,
    "imported": 602
   },
   {
@@ -1936,6 +2076,26 @@
    "imported": 26056
   },
   {
+   "file": "assets/sprites/cast/kariv_idle.png",
+   "source": 82801,
+   "imported": 25714
+  },
+  {
+   "file": "assets/sprites/cast/kariv_idle_d2.png",
+   "source": 39262,
+   "imported": 13320
+  },
+  {
+   "file": "assets/sprites/cast/kariv_react.png",
+   "source": 67413,
+   "imported": 23954
+  },
+  {
+   "file": "assets/sprites/cast/kariv_react_d2.png",
+   "source": 33852,
+   "imported": 12212
+  },
+  {
    "file": "assets/sprites/cast/lapid_idle.png",
    "source": 249386,
    "imported": 76130
@@ -1954,6 +2114,26 @@
    "file": "assets/sprites/cast/lapid_react_d2.png",
    "source": 122062,
    "imported": 42574
+  },
+  {
+   "file": "assets/sprites/cast/lazimi_idle.png",
+   "source": 101381,
+   "imported": 33652
+  },
+  {
+   "file": "assets/sprites/cast/lazimi_idle_d2.png",
+   "source": 48943,
+   "imported": 16960
+  },
+  {
+   "file": "assets/sprites/cast/lazimi_react.png",
+   "source": 303301,
+   "imported": 113746
+  },
+  {
+   "file": "assets/sprites/cast/lazimi_react_d2.png",
+   "source": 144045,
+   "imported": 58170
   },
   {
    "file": "assets/sprites/cast/levin_idle.png",
@@ -2026,53 +2206,113 @@
    "imported": 58048
   },
   {
+   "file": "assets/sprites/cast/mk-offer_idle.png",
+   "source": 91366,
+   "imported": 29410
+  },
+  {
+   "file": "assets/sprites/cast/mk-offer_idle_d2.png",
+   "source": 44813,
+   "imported": 14682
+  },
+  {
+   "file": "assets/sprites/cast/mk-offer_react.png",
+   "source": 305183,
+   "imported": 108074
+  },
+  {
+   "file": "assets/sprites/cast/mk-offer_react_d2.png",
+   "source": 149853,
+   "imported": 53890
+  },
+  {
+   "file": "assets/sprites/cast/mk-switcher_idle.png",
+   "source": 82532,
+   "imported": 27404
+  },
+  {
+   "file": "assets/sprites/cast/mk-switcher_idle_d2.png",
+   "source": 41176,
+   "imported": 14020
+  },
+  {
+   "file": "assets/sprites/cast/mk-switcher_react.png",
+   "source": 259381,
+   "imported": 96286
+  },
+  {
+   "file": "assets/sprites/cast/mk-switcher_react_d2.png",
+   "source": 129365,
+   "imported": 48722
+  },
+  {
+   "file": "assets/sprites/cast/mk-undecided_idle.png",
+   "source": 88970,
+   "imported": 29432
+  },
+  {
+   "file": "assets/sprites/cast/mk-undecided_idle_d2.png",
+   "source": 42966,
+   "imported": 14896
+  },
+  {
+   "file": "assets/sprites/cast/mk-undecided_react.png",
+   "source": 80203,
+   "imported": 27994
+  },
+  {
+   "file": "assets/sprites/cast/mk-undecided_react_d2.png",
+   "source": 39614,
+   "imported": 14454
+  },
+  {
    "file": "assets/sprites/cast/mordechai-david_block.png",
-   "source": 53947,
+   "source": 55014,
    "imported": 20328
   },
   {
    "file": "assets/sprites/cast/mordechai-david_block_d2.png",
-   "source": 28974,
+   "source": 29215,
    "imported": 11680
   },
   {
    "file": "assets/sprites/cast/mordechai-david_block_in.png",
-   "source": 111045,
+   "source": 113004,
    "imported": 44020
   },
   {
    "file": "assets/sprites/cast/mordechai-david_block_in_d2.png",
-   "source": 58658,
+   "source": 59331,
    "imported": 24352
   },
   {
    "file": "assets/sprites/cast/mordechai-david_glance.png",
-   "source": 74625,
+   "source": 75854,
    "imported": 25358
   },
   {
    "file": "assets/sprites/cast/mordechai-david_glance_d2.png",
-   "source": 38779,
+   "source": 39147,
    "imported": 14052
   },
   {
    "file": "assets/sprites/cast/mordechai-david_idle.png",
-   "source": 57063,
+   "source": 58146,
    "imported": 19750
   },
   {
    "file": "assets/sprites/cast/mordechai-david_idle_d2.png",
-   "source": 28686,
+   "source": 28933,
    "imported": 10616
   },
   {
    "file": "assets/sprites/cast/mordechai-david_walk.png",
-   "source": 143999,
+   "source": 146971,
    "imported": 55954
   },
   {
    "file": "assets/sprites/cast/mordechai-david_walk_d2.png",
-   "source": 69288,
+   "source": 70130,
    "imported": 28056
   },
   {
@@ -2567,7 +2807,7 @@
   },
   {
    "file": "assets/sprites/prop_bill.png",
-   "source": 140,
+   "source": 125,
    "imported": 128
   },
   {
@@ -2587,27 +2827,27 @@
   },
   {
    "file": "assets/sprites/prop_coin0.png",
-   "source": 130,
+   "source": 115,
    "imported": 142
   },
   {
    "file": "assets/sprites/prop_coin1.png",
-   "source": 109,
+   "source": 100,
    "imported": 118
   },
   {
    "file": "assets/sprites/prop_coin2.png",
-   "source": 100,
+   "source": 94,
    "imported": 120
   },
   {
    "file": "assets/sprites/prop_coin3.png",
-   "source": 103,
+   "source": 99,
    "imported": 118
   },
   {
    "file": "assets/sprites/prop_hat.png",
-   "source": 325,
+   "source": 302,
    "imported": 232
   },
   {
@@ -2627,7 +2867,7 @@
   },
   {
    "file": "assets/sprites/prop_rabbit.png",
-   "source": 266,
+   "source": 250,
    "imported": 212
   },
   {
@@ -2637,7 +2877,7 @@
   },
   {
    "file": "assets/sprites/prop_spark.png",
-   "source": 89,
+   "source": 90,
    "imported": 120
   },
   {
@@ -2772,12 +3012,12 @@
   },
   {
    "file": "assets/sprites/source_cigars_icon.png",
-   "source": 1362,
+   "source": 1257,
    "imported": 530
   },
   {
    "file": "assets/sprites/source_cigars_icon_sil.png",
-   "source": 248,
+   "source": 246,
    "imported": 170
   },
   {
@@ -2837,12 +3077,12 @@
   },
   {
    "file": "assets/sprites/source_hitech_icon.png",
-   "source": 1019,
+   "source": 947,
    "imported": 444
   },
   {
    "file": "assets/sprites/source_hitech_icon_sil.png",
-   "source": 238,
+   "source": 233,
    "imported": 172
   },
   {
@@ -2882,12 +3122,12 @@
   },
   {
    "file": "assets/sprites/source_qatari_icon.png",
-   "source": 1344,
+   "source": 1239,
    "imported": 536
   },
   {
    "file": "assets/sprites/source_qatari_icon_sil.png",
-   "source": 264,
+   "source": 257,
    "imported": 172
   },
   {
@@ -2927,12 +3167,12 @@
   },
   {
    "file": "assets/sprites/source_taxpayer_icon.png",
-   "source": 978,
+   "source": 899,
    "imported": 462
   },
   {
    "file": "assets/sprites/source_taxpayer_icon_sil.png",
-   "source": 208,
+   "source": 205,
    "imported": 172
   },
   {
@@ -2952,12 +3192,12 @@
   },
   {
    "file": "assets/sprites/source_vat_icon.png",
-   "source": 1417,
+   "source": 1340,
    "imported": 548
   },
   {
    "file": "assets/sprites/source_vat_icon_sil.png",
-   "source": 160,
+   "source": 158,
    "imported": 138
   },
   {
@@ -3087,12 +3327,12 @@
   },
   {
    "file": "assets/sprites/stage_courthouse.png",
-   "source": 3212,
+   "source": 3068,
    "imported": 1004
   },
   {
    "file": "assets/sprites/stage_knesset.png",
-   "source": 1959,
+   "source": 1883,
    "imported": 536
   },
   {
@@ -3639,8 +3879,28 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 5608481,
+ "pckBytes": 6391695,
  "pckByAsset": {
+  "lazimi": {
+   "3": 147398,
+   "2": 75130
+  },
+  "kariv": {
+   "3": 49668,
+   "2": 25532
+  },
+  "mk-offer": {
+   "3": 137484,
+   "2": 68572
+  },
+  "mk-undecided": {
+   "3": 57426,
+   "2": 29350
+  },
+  "mk-switcher": {
+   "3": 123690,
+   "2": 62742
+  },
   "bibi": {
    "3": 193236,
    "2": 105682
@@ -3790,57 +4050,57 @@
  "specimenVisual": [
   {
    "tofu": 0,
-   "visual": "תשרקץצףפעסןנםמלךכיטחזוהדגבא",
+   "visual": "\u05ea\u05e9\u05e8\u05e7\u05e5\u05e6\u05e3\u05e4\u05e2\u05e1\u05df\u05e0\u05dd\u05de\u05dc\u05da\u05db\u05d9\u05d8\u05d7\u05d6\u05d5\u05d4\u05d3\u05d2\u05d1\u05d0",
    "width": 143.0
   },
   {
    "tofu": 0,
-   "visual": "בבס דוע",
+   "visual": "\u05d1\u05d1\u05e1 \u05d3\u05d5\u05e2",
    "width": 37.0
   },
   {
    "tofu": 0,
-   "visual": ".שגרנ רוביצה .6 ׳סמ תוריחב בבס",
+   "visual": ".\u05e9\u05d2\u05e8\u05e0 \u05e8\u05d5\u05d1\u05d9\u05e6\u05d4 .6 \u05f3\u05e1\u05de \u05ea\u05d5\u05e8\u05d9\u05d7\u05d1 \u05d1\u05d1\u05e1",
    "width": 138.0
   },
   {
    "tofu": 0,
-   "visual": "היינשל ₪  +1.2K ",
+   "visual": "\u05d4\u05d9\u05d9\u05e0\u05e9\u05dc \u20aa\u00a0 +1.2K ",
    "width": 64.0
   },
   {
    "tofu": 0,
-   "visual": "₪  12,400  · ונרגס",
+   "visual": "\u20aa\u00a0 12,400  \u00b7 \u05d5\u05e0\u05e8\u05d2\u05e1",
    "width": 70.0
   },
   {
    "tofu": 0,
-   "visual": "3־ו · ש״מעוי · כ״הס · *18% מ״עמ",
+   "visual": "3\u05be\u05d5 \u00b7 \u05e9\u05f4\u05de\u05e2\u05d5\u05d9 \u00b7 \u05db\u05f4\u05d4\u05e1 \u00b7 *18% \u05de\u05f4\u05e2\u05de",
    "width": 136.0
   },
   {
    "tofu": 0,
-   "visual": "תידוהי המצוע ← דוכילה",
+   "visual": "\u05ea\u05d9\u05d3\u05d5\u05d4\u05d9 \u05d4\u05de\u05e6\u05d5\u05e2 \u2190 \u05d3\u05d5\u05db\u05d9\u05dc\u05d4",
    "width": 102.0
   },
   {
    "tofu": 0,
-   "visual": "{םש} [הטויט] (טפשמה תיב)",
+   "visual": "{\u05dd\u05e9} [\u05d4\u05d8\u05d5\u05d9\u05d8] (\u05d8\u05e4\u05e9\u05de\u05d4 \u05ea\u05d9\u05d1)",
    "width": 113.0
   },
   {
    "tofu": 0,
-   "visual": "…םולכ ןיא יכ םולכ היהי אל",
+   "visual": "\u2026\u05dd\u05d5\u05dc\u05db \u05df\u05d9\u05d0 \u05d9\u05db \u05dd\u05d5\u05dc\u05db \u05d4\u05d9\u05d4\u05d9 \u05d0\u05dc",
    "width": 119.0
   },
   {
    "tofu": 0,
-   "visual": "DOHA · OK · 1.2K 3M 4B 5T · +12 − 3 × 2 = 30",
+   "visual": "DOHA \u00b7 OK \u00b7 1.2K 3M 4B 5T \u00b7 +12 \u2212 3 \u00d7 2 = 30",
    "width": 191.0
   },
   {
    "tofu": 0,
-   "visual": "— – 0123456789 ?!:;~|`_^\\@&$#",
+   "visual": "\u2014 \u2013 0123456789 ?!:;~|`_^\\@&$#",
    "width": 129.0
   }
  ],
@@ -3886,5 +4146,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 16332009
+ "sourceTotal": 18523459
 }

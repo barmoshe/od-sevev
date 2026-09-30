@@ -1754,10 +1754,13 @@
    "copy": {
     "name": "אביגדור ליברמן",
     "avatar": "liberman_avatar",
-    "text": "מקבל כל הצעה בכבוד, ודוחה אותה באותו כבוד.",
+    "text": "כבר כתב קווי יסוד לממשלה הבאה. אותך לא הכניס לאף סעיף.",
     "buttonLabel": "לא יושב",
     "_note": "Every button on his card is grey ('לא יושב'). If the chat pills grey out too, ultimatum timers must pause (every loss recoverable)."
-   }
+   },
+   "src": [
+    "liberman-principles"
+   ]
   },
   {
    "id": "bennett",
@@ -5053,7 +5056,7 @@
     "bloc": "center",
     "lines": {
      "demand": "איפה הכסף? אה, פה. תעביר {price} ₪.",
-     "threat": "אם זה לא עובר, אני שואל איפה הכסף. בשידור חי.",
+     "threat": "זה לא עובר? אשאל איפה הכסף. בשידור חי.",
      "thanks": "קיבלתי. עכשיו אני יודע איפה הכסף.",
      "return": "חזרתי. עם שאלה.",
      "status": "במקום השני ברשימה. לא בקבוצה השנייה."
@@ -5061,7 +5064,17 @@
     "linesVariants": {
      "demand": [
       "איפה הכסף? אה, פה. תעביר {price} ₪.",
-      "שאלה פשוטה: איפה הכסף? תשובה פשוטה: אצלי."
+      "שאלה פשוטה: איפה הכסף? תשובה פשוטה: אצלי.",
+      "מוכן לרדת מקום ברשימה. {price} ₪ ואני יורד שניים."
+     ],
+     "thanks": [
+      "קיבלתי. עכשיו אני יודע איפה הכסף.",
+      "קיבלתי. אעביר לסיעה. למי שנשאר בה."
+     ],
+     "status": [
+      "במקום השני ברשימה. לא בקבוצה השנייה.",
+      "במקום השני. הצעתי שלישי. מחכה לתשובה.",
+      "במקום השני. חברי הסיעה במקום אחר."
      ]
     },
     "onPay": {
@@ -5069,7 +5082,9 @@
     },
     "src": [
      "lapid-where-money",
-     "beyachad-list"
+     "beyachad-list",
+     "lapid-third-spot",
+     "yesh-atid-exodus"
     ],
     "_note": "Paying Lapid draws the question he is known for: every payment adds a little heat (onPay). In Bennett's round he is list No. 2: cannotLeave + statusLine (lineup traits)."
    },
@@ -5090,7 +5105,12 @@
     "linesVariants": {
      "demand": [
       "ממשלה ציונית. ותקציב. בסדר הזה.",
-      "עוד {price} ₪ ואני שוקל לשבת. לשקול, לא לשבת."
+      "עוד {price} ₪ ואני שוקל לשבת. לשקול, לא לשבת.",
+      "{price} ₪. זה כתוב בסעיף 4. תקרא."
+     ],
+     "thanks": [
+      "התקבל. אני עדיין עומד.",
+      "התקבל. נכנס לנספח."
      ]
     },
     "excludes": [
@@ -5100,7 +5120,8 @@
      "gafni"
     ],
     "src": [
-     "liberman-wont-sit"
+     "liberman-wont-sit",
+     "liberman-principles"
     ],
     "_note": "Trait: Liberman and these never sit together (the `excludes`, as Abbas has for Ben Gvir; the bigger side has precedence, sim/coalition.gd _excluded). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Gafni in the change-bloc rounds. Not Abbas: he sat with Ra'am in the 2021 Bennett-Lapid government (fact raam-2021, Abbas's own line in Bennett's round), and excluding him soft-locked Bennett's round for a player who pays every pill (Game Designer 2026-09-30, spec §7.2.2)."
    },
@@ -5114,17 +5135,19 @@
     "bloc": "left",
     "lines": {
      "demand": "בוא נתאחד. אחר כך נדבר על {price} ₪.",
-     "threat": "אם זה לא עובר, אני מתאחד עם מישהו אחר.",
+     "threat": "זה לא עובר? אתאחד עם מישהו אחר. יש תור.",
      "thanks": "סגרנו. איחוד מוצלח. לפחות עד הבא.",
      "return": "חזרתי. התאחדתי עם עצמי."
     },
     "linesVariants": {
      "demand": [
       "בוא נתאחד. אחר כך נדבר על {price} ₪.",
-      "הצעת איחוד: אתה, אני, ועוד {price} ₪."
+      "הצעת איחוד: אתה, אני, ועוד {price} ₪.",
+      "מיליון קולות, {price} ₪. אפשר לאחד את התשלומים."
      ]
     },
     "src": [
+     "golan-million",
      "labor-meretz-merger"
     ],
     "_guardrail": "Politics only: mergers and the Democrats. Never his public story outside politics (brief red lines)."
@@ -5139,14 +5162,15 @@
     "bloc": "center",
     "lines": {
      "demand": "אפשר לדבר ישר? צריך {price} ₪.",
-     "threat": "אם זה לא עובר, אני אומר את זה ישר. בשידור.",
+     "threat": "זה לא עובר? אגיד את זה ישר. בשידור חי.",
      "thanks": "קיבלתי. תודה, ישר ולעניין.",
      "return": "חזרתי. ישר לעניין."
     },
     "linesVariants": {
      "demand": [
       "אפשר לדבר ישר? צריך {price} ₪.",
-      "בקשה ישרה, בלי קסמים: תקציב."
+      "בקשה ישרה, בלי קסמים: תקציב.",
+      "ראש ממשלה אחד, ארבע שנים. בינתיים: {price} ₪."
      ]
     },
     "effects": [
@@ -5156,7 +5180,8 @@
      }
     ],
     "src": [
-     "yashar"
+     "yashar",
+     "eisenkot-eight-seats"
     ],
     "_note": "Trait: 'ישר' while a member, every tap ×1.25 (straight, no tricks). His card elsewhere keeps noCrit.",
     "_guardrail": "Only 'ישר', plain talk and no magic. Never his career before politics, never anything personal (brief red lines)."
@@ -5171,14 +5196,19 @@
     "bloc": "center-right",
     "lines": {
      "demand": "אני חותם שאני בעד. תעביר {price} ₪ ואחתום שוב.",
-     "threat": "אם זה לא עובר, אני חותם על התחייבות נגדך.",
+     "threat": "זה לא עובר? אחתום על התחייבות נגדך. בשידור.",
      "thanks": "קיבלתי. חתמתי על תודה.",
      "return": "חזרתי. חתמתי שלא אעזוב. שוב."
     },
     "linesVariants": {
      "demand": [
       "אני חותם שאני בעד. תעביר {price} ₪ ואחתום שוב.",
-      "התחייבות חדשה: תמיכה מלאה. בתוקף עד השידור הבא."
+      "התחייבות חדשה: תמיכה מלאה. בתוקף עד השידור הבא.",
+      "גיוס הון: {price} ₪. בתמורה, התחייבות."
+     ],
+     "thanks": [
+      "קיבלתי. חתמתי על תודה.",
+      "קיבלתי. נכנס לדוח למשקיעים."
      ]
     },
     "src": [
@@ -5190,8 +5220,8 @@
     "name": "ח״כ שעבר צד",
     "short": "ח״כ שעבר צד",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "mk-switcher_avatar",
+    "art": "mk-switcher",
     "bloc": "any",
     "generic": true,
     "lines": {
@@ -5201,15 +5231,15 @@
      "return": "חזרתי. מהצד השני של הצד השני."
     },
     "rebel": true,
-    "_note": "Generic, not a real person (the no-photo stand-in). Fills a lineup any bloc can't; poach only, like Almog."
+    "_note": "Generic, not a real person (a made-up face, ChatGPT batch 2026-09-30, rendered like the cast). Fills a lineup any bloc can't; poach only, like Almog."
    },
    {
     "id": "mk_undecided",
     "name": "ח״כית מתלבטת",
     "short": "ח״כית מתלבטת",
     "g": "f",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "mk-undecided_avatar",
+    "art": "mk-undecided",
     "bloc": "any",
     "generic": true,
     "lines": {
@@ -5223,15 +5253,16 @@
       "עוד לא החלטתי. {price} ₪ יעזרו לי להחליט.",
       "אני בעד. כמעט. חסר רק תקציב."
      ]
-    }
+    },
+    "_note": "Generic, not a real person: a made-up face (ChatGPT batch 2026-09-30), rendered like the cast."
    },
    {
     "id": "mk_offer",
     "name": "ח״כ עם הצעה",
     "short": "ח״כ עם הצעה",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "mk-offer_avatar",
+    "art": "mk-offer",
     "bloc": "any",
     "generic": true,
     "lines": {
@@ -5245,7 +5276,8 @@
       "יש לי הצעת חוק. היא עולה {price} ₪.",
       "הצעת חוק קטנה, תקציב גדול."
      ]
-    }
+    },
+    "_note": "Generic, not a real person: a made-up face (ChatGPT batch 2026-09-30), rendered like the cast."
    },
    {
     "id": "mk_returner",
@@ -5262,7 +5294,65 @@
      "thanks": "עכשיו אני באמת בבית. עד הבחירות.",
      "return": "חזרתי. שוב. הבית לא השתנה."
     },
-    "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him."
+    "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him. Art: still the no-photo stand-in. The 2026-09-30 candidate (refs/candidates/mk-returner.png) came out resembling Netanyahu and must be regenerated with a made-up face before it renders."
+   },
+   {
+    "id": "lazimi",
+    "name": "נעמה לזימי",
+    "short": "לזימי",
+    "g": "f",
+    "avatar": "lazimi_avatar",
+    "art": "lazimi",
+    "bloc": "left",
+    "lines": {
+     "demand": "מצאתי {price} ₪ בסעיף שאף אחד לא קרא. תעביר.",
+     "threat": "זה לא עובר? אקרא את כל התקציב בקול. מהתחלה.",
+     "thanks": "התקבל. סימנתי בטוש צהוב.",
+     "return": "חזרתי. עם הערות שוליים."
+    },
+    "linesVariants": {
+     "demand": [
+      "מצאתי {price} ₪ בסעיף שאף אחד לא קרא. תעביר.",
+      "עמוד 412, סעיף ג׳: {price} ₪. בדקתי פעמיים."
+     ],
+     "thanks": [
+      "התקבל. סימנתי בטוש צהוב.",
+      "התקבל. נכנס לטבלה."
+     ]
+    },
+    "src": [
+     "democrats-slate"
+    ],
+    "_note": "Real person (Democrats No. 2, fact democrats-slate). Joke: the one MK who reads the budget line by line; never her private life. Mechanics: none (takes the generic mk_undecided slot L1 in Golan's round, same numbers)."
+   },
+   {
+    "id": "kariv",
+    "name": "גלעד קריב",
+    "short": "קריב",
+    "g": "m",
+    "avatar": "kariv_avatar",
+    "art": "kariv",
+    "bloc": "left",
+    "lines": {
+     "demand": "אני מוכן לחתן כל שתי מפלגות. דמי החופה: {price} ₪.",
+     "threat": "זה לא עובר? אעצור את הטקס באמצע.",
+     "thanks": "מזל טוב. האיחוד תקף עד הוויכוח הראשון.",
+     "return": "חזרתי. מישהו פינה לי את היציאה מהחניון."
+    },
+    "linesVariants": {
+     "demand": [
+      "אני מוכן לחתן כל שתי מפלגות. דמי החופה: {price} ₪.",
+      "יש לי הצעת חוק. גם תיקון. גם הסתייגות. {price} ₪."
+     ],
+     "return": [
+      "חזרתי. מישהו פינה לי את היציאה מהחניון.",
+      "חזרתי. עם שלושה תיקונים לחוק."
+     ]
+    },
+    "src": [
+     "democrats-slate"
+    ],
+    "_note": "Real person (Democrats No. 3, fact democrats-slate; the car blocked in fact md-blocks-cars, whose aboutHe names him). Joke: the officiant of Golan's mergers and a bill-and-amendment machine; never his community or his rabbinate as a punchline. Mechanics: none (takes the generic mk_offer slot S5 in Golan's round, same numbers)."
    }
   ],
   "cardProfiles": [
@@ -5733,7 +5823,7 @@
      },
      "t6": {
       "name": "מחלקת ההתחייבויות",
-      "flavor": "יועצים שמנסחים התחייבויות, ויועצים שמנסחים את ההיפוך.",
+      "flavor": "יועצים שמנסחים התחייבות, ויועצים שמנסחים את ההיפוך.",
       "levelUp": "עוד יועץ. עוד טופס, עם מקום לחתימה.",
       "firstOwned": {
        "id": "hb_t6",
@@ -5849,6 +5939,7 @@
       "חתמתי!",
       "איפה הכסף!",
       "נגיב מחר!",
+      "אקזיט!",
       "בחירות!",
       "רוטציה!"
      ],
@@ -5870,12 +5961,13 @@
      "titles": [
       "העט שלא נגמר",
       "רשימה אחת, שני ראשים",
-      "ההתחייבות הגדולה"
+      "ההתחייבות הגדולה",
+      "רכישה"
      ],
      "beats": [
       [
-       "בנט חתם על 61 התחייבויות.",
-       "חלקן אפילו הפוכות.",
+       "61 התחייבויות, 61 חתימות.",
+       "כל אחת בשידור חי. חלקן הפוכות.",
        "דובי: \"ביחד! ביחד!\"",
        "הוחלט על בחירות. הציבור חתם שהוא נרגש."
       ],
@@ -5888,6 +5980,12 @@
        "בנט חתם שלא יחתום יותר.",
        "ההתחייבות החזיקה עד השידור הבא.",
        "דובי: \"חתמתי! חתמתי!\""
+      ],
+      [
+       "ביחד נולדה ממיזוג של שתי מפלגות.",
+       "בשפת ההייטק: רכישה.",
+       "כמה חברי כנסת מהצד הנרכש לא נשארו לריצה.",
+       "דובי: \"אקזיט! אקזיט!\""
       ]
      ],
      "src": {
@@ -5897,6 +5995,10 @@
       ],
       "3": [
        "bennett-pledge"
+      ],
+      "4": [
+       "beyachad-list",
+       "yesh-atid-exodus"
       ]
      },
      "poll_like": false
@@ -5975,6 +6077,27 @@
       "id": "tb12",
       "text": "ישיבת סיעה: בנט מדבר, לפיד רושם, כולם חותמים.",
       "poll_like": false
+     },
+     {
+      "id": "tb13",
+      "text": "חברי כנסת מיש עתיד לא ירוצו בביחד. בהייטק: התייעלות.",
+      "poll_like": false,
+      "src": [
+       "yesh-atid-exodus"
+      ]
+     },
+     {
+      "id": "tb14",
+      "text": "ביחד וישר הגישו רשימות נפרדות. ביחד, אבל כל אחד לחוד.",
+      "poll_like": false,
+      "src": [
+       "no-merger-slates"
+      ]
+     },
+     {
+      "id": "tb15",
+      "text": "בנט הציג מצגת למשקיעים. שקף אחרון: עוד התחייבות.",
+      "poll_like": false
      }
     ],
     "trophy": {
@@ -5996,7 +6119,13 @@
     "lineup": [
      {
       "id": "liberman",
-      "slot": "S1"
+      "slot": "S1",
+      "lines": {
+       "thanks": "סגרנו. עכשיו רק צריך להחליט מי ראשון ברוטציה."
+      },
+      "src": [
+       "bennett-liberman-rotation"
+      ]
      },
      {
       "id": "lapid",
@@ -6010,7 +6139,13 @@
      },
      {
       "id": "eisenkot",
-      "slot": "S3"
+      "slot": "S3",
+      "lines": {
+       "thanks": "סגרנו. ורוטציה, כמו שאמרתי: אין."
+      },
+      "src": [
+       "eisenkot-eight-seats"
+      ]
      },
      {
       "id": "golan",
@@ -6486,10 +6621,11 @@
    "art": "liberman",
    "avatar": "liberman_avatar",
    "pick": {
-    "blurb": "לא יושב כמעט עם אף אחד. צריך רוב בכל זאת.",
+    "blurb": "לא יושב כמעט עם אף אחד. הממשלה כבר כתובה.",
     "line": "לא יושב! לא יושב!",
     "src": [
-     "liberman-wont-sit"
+     "liberman-wont-sit",
+     "liberman-principles"
     ]
    },
    "rule": {
@@ -6538,19 +6674,28 @@
      },
      "firstPartner": {
       "id": "hl_first_partner",
-      "text": "בנט הצטרף לקבוצה. חתם שזה סופי.",
-      "poll_like": false
+      "text": "בנט הצטרף לקבוצה. כבר שואלים מי ראשון ברוטציה.",
+      "poll_like": false,
+      "src": [
+       "bennett-liberman-rotation"
+      ]
      }
     },
     "sources": {
      "t4": {
-      "name": "תומך ותיק",
-      "flavor": "עומד לידך כל הזמן, מתוך סולידריות.",
-      "levelUp": "עוד תומך ותיק. גם הוא לא יושב.",
+      "name": "קווי היסוד",
+      "flavor": "ממשלה שלמה במגירה. חסרים רק 61 אנשים.",
+      "levelUp": "עוד סעיף. המגירה כבר לא נסגרת.",
+      "src": [
+       "liberman-principles"
+      ],
       "firstOwned": {
        "id": "hl_t4",
-       "text": "תומך ותיק הצטרף. שאלו אותו אם לשבת. הוא לא ענה.",
-       "poll_like": false
+       "text": "ליברמן פרסם קווי יסוד לממשלה. הממשלה עוד לא יודעת.",
+       "poll_like": false,
+       "src": [
+        "liberman-principles"
+       ]
       }
      },
      "t5": {
@@ -6570,18 +6715,24 @@
       }
      },
      "t6": {
-      "name": "צוות לא יושבים",
-      "flavor": "יועצים שעומדים. ישיבות צוות: בעמידה.",
-      "levelUp": "עוד יועץ. הכיסאות נשארו במחסן.",
+      "name": "צוות החוקה",
+      "flavor": "מומחים כותבים חוקה. משאל עם בעוד חצי שנה.",
+      "levelUp": "עוד מומחה, עוד פרק. משאל העם מחכה.",
+      "src": [
+       "liberman-principles"
+      ],
       "firstOwned": {
        "id": "hl_t6",
-       "text": "נשכר צוות לא יושבים. אף אחד לא התיישב על זה.",
-       "poll_like": false
+       "text": "הוקם צוות לחוקה. ביקשו כיסאות. לא יושבים.",
+       "poll_like": false,
+       "src": [
+        "liberman-principles"
+       ]
       }
      },
      "t7": {
       "name": "הסרטון היומי",
-      "flavor": "מול המצלמה, אומר לא. 40,000 צפיות, אותה תשובה.",
+      "flavor": "מול המצלמה, שתי מילים, בלי חיוך. אלף שיתופים.",
       "levelUp": "סרטון חדש. אותו לא, זווית אחרת.",
       "firstOwned": {
        "id": "hl_t7",
@@ -6633,9 +6784,9 @@
      },
      {
       "slot": "E",
-      "name": "אימון לא",
-      "flavor": "לא מול המראה, כל בוקר. יוצא יותר חד.",
-      "visualHook": "a mirror with a bold 'לא' on it"
+      "name": "סעיף ארבע",
+      "flavor": "כל תשובה מפנה לסעיף 4. יותר סירובים מוחלטים.",
+      "visualHook": "a thick stapled document open at section 4"
      },
      {
       "slot": "G",
@@ -6655,21 +6806,21 @@
      {
       "slot": "I",
       "name": "כל יריב מחזק",
-      "flavor": "כל כרטיס של היריבים מביא תומכים. לא מפתיע.",
+      "flavor": "כל כרטיס של היריבים מביא תומכים. הם כבר בנספח.",
       "visualHook": "a red line drawn under a rival's card"
      }
     ],
     "hazard": {
      "skin": "press",
-     "postponeVerb": "לא יושב באולפן",
+     "postponeVerb": "מפנה למסמך",
      "postponePrefix": "התגובה נדחתה:",
      "excuses": [
-      "לא יושב.",
-      "לא יושב. גם לא עומד בתור.",
-      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה.",
-      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה. האולפן הציע כיסא.",
-      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה. האולפן הציע כיסא. לא יושב עם כיסאות.",
-      "לא יושב. גם לא עומד בתור. מגיב רק בעמידה. האולפן הציע כיסא. לא יושב עם כיסאות. התגובה הבאה: בתחקיר הבא."
+      "לא מגיב.",
+      "לא מגיב. יש מסמך.",
+      "לא מגיב. יש מסמך. התשובה בסעיף 4.",
+      "לא מגיב. יש מסמך. התשובה בסעיף 4. סעיף 4: לא.",
+      "לא מגיב. יש מסמך. התשובה בסעיף 4. סעיף 4: לא. נספח א׳: גם לא.",
+      "לא מגיב. יש מסמך. התשובה בסעיף 4. סעיף 4: לא. נספח א׳: גם לא. בעוד חצי שנה: משאל עם על התגובה."
      ]
     },
     "dubi": {
@@ -6681,11 +6832,12 @@
      },
      "talkingPoints": [
       "לא יושב!",
-      "לא!",
       "מס!",
-      "ממשלה ציונית!",
+      "סעיף ארבע!",
+      "חוקה!",
+      "רוטציה!",
       "בחירות!",
-      "גם לא!"
+      "ממשלה ציונית!"
      ]
     },
     "suitcase": {
@@ -6701,14 +6853,15 @@
      "titles": [
       "הכיסא הריק",
       "שוב לקלפי",
-      "המס על הצלחת"
+      "ממשלה במגירה",
+      "רוטציה בעמידה"
      ],
      "beats": [
       [
-       "ליברמן סירב לשבת עם 61 אנשים.",
-       "נשאר עם כיסא אחד. ריק.",
+       "61 כיסאות חיכו לליברמן.",
+       "הוא עבר ביניהם ובדק כל אחד.",
        "דובי: \"לא יושב! לא יושב!\"",
-       "הוחלט על בחירות. ליברמן לא ישב עם זה."
+       "הוחלט על בחירות. ליברמן נשאר לעמוד."
       ],
       [
        "ב־2019 הוא לא הצטרף, והכנסת התפזרה.",
@@ -6716,9 +6869,16 @@
        "והכנסת? מתפזרת שוב."
       ],
       [
-       "ליברמן היה שר האוצר.",
-       "הנהיג מס על צלחות ועל משקאות ממותקים.",
-       "דובי: \"מס! מס!\""
+       "ליברמן כתב קווי יסוד לממשלה הבאה.",
+       "חוקה, משאל עם, רב ראשי אחד.",
+       "חסר רק פרט קטן אחד: הממשלה.",
+       "דובי: \"סעיף ארבע! סעיף ארבע!\""
+      ],
+      [
+       "ליברמן רץ לראשות הממשלה.",
+       "בגוש אמרו: עם שמונה מנדטים? לא רציני.",
+       "ליברמן הציע רוטציה.",
+       "לא יושב, אבל מוכן להתחלף."
       ]
      ],
      "src": {
@@ -6726,7 +6886,12 @@
        "liberman-2019"
       ],
       "3": [
-       "liberman-finance-taxes"
+       "liberman-principles"
+      ],
+      "4": [
+       "liberman-pm-goal",
+       "eisenkot-eight-seats",
+       "bennett-liberman-rotation"
       ]
      },
      "poll_like": false
@@ -6782,8 +6947,11 @@
      },
      {
       "id": "tl08",
-      "text": "בקבוצה של ליברמן: 3 דרישות, 3 פעמים לא יושב.",
-      "poll_like": false
+      "text": "ליברמן פרסם קווי יסוד לממשלה. הממשלה: בהמשך.",
+      "poll_like": false,
+      "src": [
+       "liberman-principles"
+      ]
      },
      {
       "id": "tl09",
@@ -6795,8 +6963,11 @@
      },
      {
       "id": "tl10",
-      "text": "תחקיר על ישראל ביתנו. התגובה: לא יושבים עם תחקירים.",
-      "poll_like": false
+      "text": "חוקה תוך חצי שנה, במשאל עם. ליברמן כבר יודע מה יענה.",
+      "poll_like": false,
+      "src": [
+       "liberman-principles"
+      ]
      },
      {
       "id": "tl11",
@@ -6805,8 +6976,27 @@
      },
      {
       "id": "tl12",
-      "text": "הפחיות הממותקות הודיעו על איחוד. ליברמן לא יושב עם פחיות.",
-      "poll_like": false
+      "text": "ראשי הגוש חתמו: לא תוקפים זה את זה. השעון התחיל.",
+      "poll_like": false,
+      "src": [
+       "change-bloc-pact"
+      ]
+     },
+     {
+      "id": "tl13",
+      "text": "בנט וליברמן על רוטציה: כל אחד מציע לשני להיות שני.",
+      "poll_like": false,
+      "src": [
+       "bennett-liberman-rotation"
+      ]
+     },
+     {
+      "id": "tl14",
+      "text": "ליברמן רץ לראשות הממשלה. בעמידה, כמובן.",
+      "poll_like": false,
+      "src": [
+       "liberman-pm-goal"
+      ]
      }
     ],
     "trophy": {
@@ -6828,7 +7018,14 @@
     "lineup": [
      {
       "id": "bennett",
-      "slot": "S1"
+      "slot": "S1",
+      "lines": {
+       "thanks": "חתמתי: אתה ראשון ברוטציה. בתוקף עד השידור הבא."
+      },
+      "src": [
+       "bennett-liberman-rotation",
+       "bennett-pledge"
+      ]
      },
      {
       "id": "lapid",
@@ -6840,7 +7037,13 @@
      },
      {
       "id": "eisenkot",
-      "slot": "S4"
+      "slot": "S4",
+      "lines": {
+       "threat": "אפשר לדבר ישר? עם שמונה מנדטים לא מבקשים רוטציה."
+      },
+      "src": [
+       "eisenkot-eight-seats"
+      ]
      },
      {
       "id": "mk_offer",
@@ -6956,7 +7159,7 @@
      "t4": {
       "name": "חבר מייסד",
       "flavor": "אחד מ־120 המייסדים. הביא רעיון, עט וצ׳ק ישר.",
-      "levelUp": "עוד מייסד. הרשימה עוד לא נגמרה.",
+      "levelUp": "עוד מייסד. גם חבר כנסת מגנץ ביקש כיסא.",
       "src": [
        "yashar-founded"
       ],
@@ -6996,13 +7199,19 @@
       }
      },
      "t7": {
-      "name": "הסרטון הישר",
-      "flavor": "דקה אחת מול המצלמה. בלי מוזיקה, בלי חיתוכים.",
-      "levelUp": "סרטון חדש. אותה זווית, אותו צילום, ישר.",
+      "name": "שלט הצומת",
+      "flavor": "בליכוד הניפו שלט: אין ישר. המטה מדד אותו בסרגל.",
+      "levelUp": "עוד שלט של היריבים. עוד מדידה, עוד תומכים.",
+      "src": [
+       "bibi-no-straight"
+      ],
       "firstOwned": {
        "id": "he_t7",
-       "text": "המטה הדיגיטלי עלה. כל סרטון באורך של סרגל.",
-       "poll_like": false
+       "text": "בליכוד הניפו שלט צומת: אין ישר. בישר הזמינו סרגל.",
+       "poll_like": false,
+       "src": [
+        "bibi-no-straight"
+       ]
       }
      },
      "t8": {
@@ -7032,7 +7241,7 @@
      {
       "slot": "C",
       "name": "קו ישר גם בלילה",
-      "flavor": "הקופה עובדת כשאתה ישן. בלי סטיות.",
+      "flavor": "הקופה עובדת כשאתה לא פה. קו ישר עד הבוקר.",
       "visualHook": "a moon over a straight horizon line"
      },
      {
@@ -7052,9 +7261,12 @@
      },
      {
       "slot": "G",
-      "name": "ראיון בלי ספין",
-      "flavor": "ראיון שלם בלי אף ספין. זה הספין.",
-      "visualHook": "a studio mic with a ruler taped to it"
+      "name": "ראש ממשלה אחד",
+      "flavor": "ארבע שנים, בלי רוטציה. הכותרות של היום מתיישרות.",
+      "visualHook": "one chair with a four-year calendar on it",
+      "src": [
+       "eisenkot-eight-seats"
+      ]
      },
      {
       "slot": "H",
@@ -7096,7 +7308,8 @@
       "ישר!",
       "בלי קסמים!",
       "סימן קריאה!",
-      "קו ישר!",
+      "בלי רוטציה!",
+      "ארבע שנים!",
       "בחירות!",
       "לעניין!"
      ]
@@ -7114,12 +7327,13 @@
      "titles": [
       "הקו הישר",
       "המושב שחזר",
-      "סימן קריאה"
+      "סימן קריאה",
+      "אין ישר"
      ],
      "beats": [
       [
-       "אייזנקוט הקיש 61 פעמים.",
-       "אף הקשה לא הפתיעה.",
+       "אייזנקוט ספר עד 61. בלי לדלג.",
+       "אף מספר לא הפתיע.",
        "דובי: \"ישר! ישר!\"",
        "הוחלט על בחירות. גם זה, ישר."
       ],
@@ -7133,6 +7347,12 @@
        "עם סימן קריאה, שלא יהיו ספקות.",
        "120 מייסדים חתמו.",
        "דובי: \"ישר! ישר!\""
+      ],
+      [
+       "בליכוד הניפו שלט צומת: אין ישר.",
+       "במטה של ישר מדדו את השלט.",
+       "יצא ישר.",
+       "דובי: \"ישר! ישר!\""
       ]
      ],
      "src": {
@@ -7142,6 +7362,9 @@
       ],
       "3": [
        "yashar-founded"
+      ],
+      "4": [
+       "bibi-no-straight"
       ]
      },
      "poll_like": false
@@ -7201,8 +7424,11 @@
      },
      {
       "id": "te09",
-      "text": "המטה הזמין סרגלים בסיטונאות. ההנחה: ישרה.",
-      "poll_like": false
+      "text": "בליכוד הניפו שלט צומת: אין ישר. בישר מדדו. יצא ישר.",
+      "poll_like": false,
+      "src": [
+       "bibi-no-straight"
+      ]
      },
      {
       "id": "te10",
@@ -7211,13 +7437,40 @@
      },
      {
       "id": "te11",
-      "text": "בישר ביקשו קו ישר לקלפי. משרד התחבורה עוד בודק.",
-      "poll_like": false
+      "text": "אייזנקוט שלל רוטציה: ראש ממשלה אחד, ארבע שנים, קו אחד.",
+      "poll_like": false,
+      "src": [
+       "eisenkot-eight-seats"
+      ]
      },
      {
       "id": "te12",
       "text": "ישר פרסמה תוכנית. בלי כוכביות, בלי אותיות קטנות.",
       "poll_like": false
+     },
+     {
+      "id": "te13",
+      "text": "חילי טרופר עזב את גנץ ועבר לישר. גנץ עדיין מקליד.",
+      "poll_like": false,
+      "src": [
+       "tropper-yashar"
+      ]
+     },
+     {
+      "id": "te14",
+      "text": "לפיד הציע לרדת למקום שלישי בשביל אייזנקוט. הוא המשיך ישר.",
+      "poll_like": false,
+      "src": [
+       "lapid-third-spot"
+      ]
+     },
+     {
+      "id": "te15",
+      "text": "ראשי הגוש חתמו לא לתקוף זה את זה. אייזנקוט סימן קו.",
+      "poll_like": false,
+      "src": [
+       "change-bloc-pact"
+      ]
      }
     ],
     "trophy": {
@@ -7239,11 +7492,23 @@
     "lineup": [
      {
       "id": "bennett",
-      "slot": "S1"
+      "slot": "S1",
+      "lines": {
+       "threat": "בלי רוטציה? אז אני חותם על התחייבות חדשה. נגדך."
+      },
+      "src": [
+       "eisenkot-eight-seats"
+      ]
      },
      {
       "id": "lapid",
-      "slot": "S2"
+      "slot": "S2",
+      "lines": {
+       "demand": "מוכן לרדת למקום שלישי. בשביל {price} ₪ גם לרביעי."
+      },
+      "src": [
+       "lapid-third-spot"
+      ]
      },
      {
       "id": "golan",
@@ -7251,7 +7516,13 @@
      },
      {
       "id": "liberman",
-      "slot": "S4"
+      "slot": "S4",
+      "lines": {
+       "thanks": "התקבל. גם שמונה מנדטים יודעים לספור."
+      },
+      "src": [
+       "eisenkot-eight-seats"
+      ]
      },
      {
       "id": "mk_offer",
@@ -8226,13 +8497,19 @@
       }
      },
      "t6": {
-      "name": "יועצי איחודים",
-      "flavor": "מתמחים בשני דברים: לאחד, ולאחד שוב.",
-      "levelUp": "עוד יועץ. הוא כבר מציע לאחד את היועצים.",
+      "name": "הסעיף של לזימי",
+      "flavor": "מספר 2 ברשימה קוראת כל סעיף בתקציב. מוצאת כסף.",
+      "levelUp": "עוד סעיף נקרא. עוד שקל נמצא.",
+      "src": [
+       "democrats-slate"
+      ],
       "firstOwned": {
        "id": "hy_t6",
-       "text": "נשכרו יועצי איחודים. ביום הראשון: מיזוג משרדים.",
-       "poll_like": false
+       "text": "לזימי מצאה כסף בסעיף שאף אחד לא קרא. גולן הציע לאחד סעיפים.",
+       "poll_like": false,
+       "src": [
+        "democrats-slate"
+       ]
       }
      },
      "t7": {
@@ -8333,6 +8610,7 @@
       "איחוד!",
       "הדמוקרטים!",
       "עוד איחוד!",
+      "מיליון!",
       "כנס!",
       "בחירות!",
       "לאחד את השמאל!"
@@ -8351,11 +8629,12 @@
      "titles": [
       "עוד איחוד",
       "העבודה ומרצ",
-      "אושר שוב"
+      "אושר שוב",
+      "מיליון"
      ],
      "beats": [
       [
-       "גולן איחד 61 דברים.",
+       "61 מושבים, 61 הצעות איחוד.",
        "חלקם כבר היו מאוחדים.",
        "דובי: \"איחוד! איחוד!\"",
        "הוחלט על בחירות. גולן הציע להן איחוד."
@@ -8369,6 +8648,12 @@
        "ב־2024 האיחוד אושר.",
        "ב־2026 הוא אושר שוב, בכנס.",
        "דובי: \"עוד איחוד! עוד איחוד!\""
+      ],
+      [
+       "גולן הבטיח מיליון קולות.",
+       "במטה ספרו: זה המון קולות.",
+       "לזימי בדקה את החשבון. קריב כבר חיתן אותם.",
+       "דובי: \"מיליון! מיליון!\""
       ]
      ],
      "src": {
@@ -8379,6 +8664,10 @@
       "3": [
        "labor-meretz-merger",
        "democrats-merger-2026"
+      ],
+      "4": [
+       "golan-million",
+       "democrats-slate"
       ]
      },
      "poll_like": false
@@ -8449,13 +8738,40 @@
      },
      {
       "id": "ty11",
-      "text": "הוצע איחוד בין הקפה לתה. גולן כבר בדרך.",
-      "poll_like": false
+      "text": "קריב מוכן לחתן כל שתי מפלגות. גולן כבר שלח הזמנות.",
+      "poll_like": false,
+      "src": [
+       "democrats-slate"
+      ]
      },
      {
       "id": "ty12",
       "text": "גולן פתח קבוצה. תוך דקה היא התאחדה עם קבוצה אחרת.",
       "poll_like": false
+     },
+     {
+      "id": "ty13",
+      "text": "גולן הבטיח מיליון קולות. הציע לאחד אותם לקול אחד גדול.",
+      "poll_like": false,
+      "src": [
+       "golan-million"
+      ]
+     },
+     {
+      "id": "ty14",
+      "text": "ראשי הגוש חתמו לא לתקוף זה את זה. גולן הציע לאחד את החתימות.",
+      "poll_like": false,
+      "src": [
+       "change-bloc-pact"
+      ]
+     },
+     {
+      "id": "ty15",
+      "text": "ביחד וישר רצות בנפרד. גולן עדיין מחכה ליד הטלפון.",
+      "poll_like": false,
+      "src": [
+       "no-merger-slates"
+      ]
      }
     ],
     "trophy": {
@@ -8477,7 +8793,13 @@
     "lineup": [
      {
       "id": "eisenkot",
-      "slot": "S1"
+      "slot": "S1",
+      "lines": {
+       "demand": "איחוד? ישר: לא. תקציב? {price} ₪."
+      },
+      "src": [
+       "no-merger-slates"
+      ]
      },
      {
       "id": "lapid",
@@ -8492,12 +8814,14 @@
       "slot": "S4"
      },
      {
-      "id": "mk_offer",
-      "slot": "S5"
+      "id": "kariv",
+      "slot": "S5",
+      "_why": "List No. 3 (democrats-slate), in the generic S5 slot: same numbers as mk_offer."
      },
      {
-      "id": "mk_undecided",
-      "slot": "L1"
+      "id": "lazimi",
+      "slot": "L1",
+      "_why": "List No. 2 (democrats-slate), in the generic L1 slot: same numbers as mk_undecided."
      },
      {
       "id": "gafni",

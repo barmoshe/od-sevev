@@ -62,6 +62,21 @@ CAST = {
     # the left ghost rides the head band, the right one the body band.
     'may-golan': dict(neck=510, waist=945, eyes=[(445, 217, 23, 12), (542, 238, 26, 12)],
                       arm=None, react='hop', head=(330, 40, 710, 420)),
+    # The generic MKs (the no-photo stand-ins until 2026-09-30; ChatGPT batch, made-up faces, keyed out with cutout.py).
+    # The offer man's envelope arm stays on the body band (a sway would tear it at the hip hand); the undecided MK's
+    # neck cut sits under both phones so neither splits between bands; the switcher's box rides the chest band.
+    'mk-offer': dict(neck=470, waist=900, eyes=[(467, 245, 24, 11), (569, 271, 24, 11)],
+                     arm=None, react='hop', head=(300, 20, 780, 500)),
+    'mk-undecided': dict(neck=570, waist=760, eyes=[(463, 216, 22, 10), (556, 246, 22, 10)],
+                         arm=None, react='no', head=(290, 20, 780, 510)),
+    'mk-switcher': dict(neck=470, waist=970, eyes=[(492, 246, 24, 11), (608, 264, 24, 11)],
+                        arm=None, react='hop', head=(360, 20, 800, 480)),
+    # The Democrats' No. 2 and No. 3 (Golan's round; ChatGPT batch 2026-09-30, keyed out with cutout.py, Lazimi with
+    # --clear boxes over the curls). Lazimi's pointing arm is raised to her head, so the neck cut sits under its elbow.
+    'lazimi': dict(neck=640, waist=800, eyes=[(457, 221, 20, 9), (550, 234, 20, 9)],
+                   arm=None, react='hop', head=(300, 30, 840, 570)),
+    'kariv': dict(neck=560, waist=960, eyes=[(431, 270, 24, 11), (567, 298, 24, 11)],
+                  arm=None, react='no', head=(300, 20, 820, 560)),
 }
 
 # The two custom-rig leaders (build.py magician / bennett) take the same recipe keys. Bibi's is his approved hat rig

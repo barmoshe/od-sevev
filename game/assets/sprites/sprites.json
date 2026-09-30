@@ -10,6 +10,692 @@
   219
  ],
  "chars": {
+  "lazimi": {
+   "frameW": 192,
+   "frameH": 310,
+   "anchor": [
+    96,
+    309
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/lazimi_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/lazimi_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3,
+     "cols": 7,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 128,
+     "frameH": 206,
+     "anchor": [
+      64,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/lazimi_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/lazimi_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_lazimi",
+   "avatar24": "avatar24_lazimi"
+  },
+  "kariv": {
+   "frameW": 155,
+   "frameH": 289,
+   "anchor": [
+    77,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/kariv_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/kariv_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3,
+     "cols": 5,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      1,
+      0,
+      2,
+      3,
+      4,
+      1,
+      1,
+      0,
+      2,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 104,
+     "frameH": 193,
+     "anchor": [
+      52,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/kariv_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/kariv_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        1,
+        0,
+        2,
+        3,
+        4,
+        1,
+        1,
+        0,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_kariv",
+   "avatar24": "avatar24_kariv"
+  },
+  "mk-offer": {
+   "frameW": 140,
+   "frameH": 310,
+   "anchor": [
+    70,
+    309
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/mk-offer_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/mk-offer_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3,
+     "cols": 7,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 94,
+     "frameH": 206,
+     "anchor": [
+      47,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/mk-offer_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/mk-offer_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_mk-offer",
+   "avatar24": "avatar24_mk-offer"
+  },
+  "mk-undecided": {
+   "frameW": 149,
+   "frameH": 289,
+   "anchor": [
+    74,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/mk-undecided_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/mk-undecided_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3,
+     "cols": 5,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      1,
+      0,
+      2,
+      3,
+      4,
+      1,
+      1,
+      0,
+      2,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 99,
+     "frameH": 193,
+     "anchor": [
+      49,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/mk-undecided_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/mk-undecided_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        1,
+        0,
+        2,
+        3,
+        4,
+        1,
+        1,
+        0,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_mk-undecided",
+   "avatar24": "avatar24_mk-undecided"
+  },
+  "mk-switcher": {
+   "frameW": 155,
+   "frameH": 310,
+   "anchor": [
+    77,
+    309
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/mk-switcher_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/mk-switcher_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3,
+     "cols": 7,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 105,
+     "frameH": 206,
+     "anchor": [
+      52,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/mk-switcher_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/mk-switcher_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_mk-switcher",
+   "avatar24": "avatar24_mk-switcher"
+  },
   "bibi": {
    "frameW": 201,
    "frameH": 326,
@@ -8849,6 +9535,12 @@
   }
  },
  "aliases": {
+  "mkoffer": "mk-offer",
+  "mk_offer": "mk-offer",
+  "mkundecided": "mk-undecided",
+  "mk_undecided": "mk-undecided",
+  "mkswitcher": "mk-switcher",
+  "mk_switcher": "mk-switcher",
   "bengvir": "ben-gvir",
   "ben_gvir": "ben-gvir",
   "maygolan": "may-golan",
@@ -13824,48 +14516,48 @@
  },
  "files": {
   "avatar24_abbas.png": {
-   "bytes": 956,
-   "sha": "fdeccec44e8a210d",
+   "bytes": 916,
+   "sha": "57000f1929dd933b",
    "size": [
     24,
     24
    ]
   },
   "avatar24_amsalem.png": {
-   "bytes": 1128,
-   "sha": "d3528ca90359ebd9",
+   "bytes": 1085,
+   "sha": "7cd846a172bf351f",
    "size": [
     24,
     24
    ]
   },
   "avatar24_ben-gvir.png": {
-   "bytes": 1147,
-   "sha": "44b296a5dce213a5",
+   "bytes": 1094,
+   "sha": "8f70d6f329a8309f",
    "size": [
     24,
     24
    ]
   },
   "avatar24_bennett.png": {
-   "bytes": 1088,
-   "sha": "7e902265e25691b4",
+   "bytes": 1055,
+   "sha": "9a6cc926de9b1eab",
    "size": [
     24,
     24
    ]
   },
   "avatar24_bibi.png": {
-   "bytes": 1185,
-   "sha": "357927cde8046ba5",
+   "bytes": 1113,
+   "sha": "b1903fe782a2cd05",
    "size": [
     24,
     24
    ]
   },
   "avatar24_deri.png": {
-   "bytes": 1062,
-   "sha": "363215836c65e4f8",
+   "bytes": 993,
+   "sha": "980586689bb1bdd6",
    "size": [
     24,
     24
@@ -13888,24 +14580,24 @@
    ]
   },
   "avatar24_eisenkot.png": {
-   "bytes": 903,
-   "sha": "6fc9c5c57326e420",
+   "bytes": 864,
+   "sha": "67a456d820ebba44",
    "size": [
     24,
     24
    ]
   },
   "avatar24_gafni.png": {
-   "bytes": 1143,
-   "sha": "40abf8214d834123",
+   "bytes": 1091,
+   "sha": "8ff111982615f83d",
    "size": [
     24,
     24
    ]
   },
   "avatar24_gantz.png": {
-   "bytes": 771,
-   "sha": "75e9ee520851ff8c",
+   "bytes": 719,
+   "sha": "b01a9021af89f38b",
    "size": [
     24,
     24
@@ -13920,16 +14612,16 @@
    ]
   },
   "avatar24_goldknopf.png": {
-   "bytes": 1112,
-   "sha": "9c8653eeaf779e62",
+   "bytes": 1052,
+   "sha": "f9b9f0787b126d58",
    "size": [
     24,
     24
    ]
   },
   "avatar24_gotliv.png": {
-   "bytes": 1169,
-   "sha": "fb12534bdf8335d1",
+   "bytes": 1110,
+   "sha": "1d19c09c60a4de31",
    "size": [
     24,
     24
@@ -13951,25 +14643,41 @@
     24
    ]
   },
+  "avatar24_kariv.png": {
+   "bytes": 1094,
+   "sha": "9b611c59e9b1ac4f",
+   "size": [
+    24,
+    24
+   ]
+  },
   "avatar24_lapid.png": {
-   "bytes": 913,
-   "sha": "f9af0383c7793f9f",
+   "bytes": 866,
+   "sha": "53e17aed220cb9f1",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_lazimi.png": {
+   "bytes": 1167,
+   "sha": "1be6c482c8d8cb40",
    "size": [
     24,
     24
    ]
   },
   "avatar24_levin.png": {
-   "bytes": 1135,
-   "sha": "62b5d9aee2c94eb5",
+   "bytes": 1080,
+   "sha": "77044fe9258d0f62",
    "size": [
     24,
     24
    ]
   },
   "avatar24_liberman.png": {
-   "bytes": 981,
-   "sha": "87bfdbfe7a64a7ab",
+   "bytes": 956,
+   "sha": "c9560a3f16f0eecc",
    "size": [
     24,
     24
@@ -13978,6 +14686,30 @@
   "avatar24_may-golan.png": {
    "bytes": 1117,
    "sha": "37a6517ffc51c087",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_mk-offer.png": {
+   "bytes": 1099,
+   "sha": "bd7114be5da976a2",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_mk-switcher.png": {
+   "bytes": 1125,
+   "sha": "20d34dcfc0700806",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_mk-undecided.png": {
+   "bytes": 1186,
+   "sha": "e24d582c73fe25b1",
    "size": [
     24,
     24
@@ -14064,24 +14796,24 @@
    ]
   },
   "avatar24_regev.png": {
-   "bytes": 1186,
-   "sha": "fc27cc487f3289ac",
+   "bytes": 1134,
+   "sha": "151ce029c72522b1",
    "size": [
     24,
     24
    ]
   },
   "avatar24_sara.png": {
-   "bytes": 1163,
-   "sha": "605e4f7d327b32be",
+   "bytes": 1122,
+   "sha": "90d35ab77642b30c",
    "size": [
     24,
     24
    ]
   },
   "avatar24_smotrich.png": {
-   "bytes": 945,
-   "sha": "fc8c9ad6954f526c",
+   "bytes": 895,
+   "sha": "f2e708b491f33dbb",
    "size": [
     24,
     24
@@ -14096,48 +14828,48 @@
    ]
   },
   "avatar_abbas.png": {
-   "bytes": 1573,
-   "sha": "a7871a5d28db8892",
+   "bytes": 1473,
+   "sha": "e2b4c33ea2424a50",
    "size": [
     32,
     32
    ]
   },
   "avatar_amsalem.png": {
-   "bytes": 1854,
-   "sha": "fae0247db02fe65b",
+   "bytes": 1745,
+   "sha": "e553733b7373ace2",
    "size": [
     32,
     32
    ]
   },
   "avatar_ben-gvir.png": {
-   "bytes": 2128,
-   "sha": "d4d6a5d3f6130476",
+   "bytes": 1949,
+   "sha": "41c0638bc7c9744c",
    "size": [
     32,
     32
    ]
   },
   "avatar_bennett.png": {
-   "bytes": 1828,
-   "sha": "55012a98ede4c2bc",
+   "bytes": 1730,
+   "sha": "d388bb1959c05a3a",
    "size": [
     32,
     32
    ]
   },
   "avatar_bibi.png": {
-   "bytes": 2056,
-   "sha": "b5ee4932ab33b87f",
+   "bytes": 1867,
+   "sha": "409c5b72607ddea6",
    "size": [
     32,
     32
    ]
   },
   "avatar_deri.png": {
-   "bytes": 1771,
-   "sha": "e55d2b158da627fd",
+   "bytes": 1616,
+   "sha": "b926b65e5fd148cb",
    "size": [
     32,
     32
@@ -14160,24 +14892,24 @@
    ]
   },
   "avatar_eisenkot.png": {
-   "bytes": 1543,
-   "sha": "cf1f95341994efa1",
+   "bytes": 1416,
+   "sha": "14aa1392be8dd2f1",
    "size": [
     32,
     32
    ]
   },
   "avatar_gafni.png": {
-   "bytes": 1919,
-   "sha": "404b11c9b8a84bb2",
+   "bytes": 1803,
+   "sha": "297a38f7c7c573da",
    "size": [
     32,
     32
    ]
   },
   "avatar_gantz.png": {
-   "bytes": 1219,
-   "sha": "7091d12b930a1d28",
+   "bytes": 1141,
+   "sha": "65208f05a42cc2f5",
    "size": [
     32,
     32
@@ -14192,16 +14924,16 @@
    ]
   },
   "avatar_goldknopf.png": {
-   "bytes": 1868,
-   "sha": "ec0a208dbf661ac4",
+   "bytes": 1708,
+   "sha": "ec171582719e74b9",
    "size": [
     32,
     32
    ]
   },
   "avatar_gotliv.png": {
-   "bytes": 1986,
-   "sha": "ca50e11e3873c494",
+   "bytes": 1892,
+   "sha": "7ea87a7aed47bec0",
    "size": [
     32,
     32
@@ -14223,25 +14955,41 @@
     32
    ]
   },
+  "avatar_kariv.png": {
+   "bytes": 1738,
+   "sha": "724ea3b12285bc59",
+   "size": [
+    32,
+    32
+   ]
+  },
   "avatar_lapid.png": {
-   "bytes": 1473,
-   "sha": "4dbd615e5786b21c",
+   "bytes": 1350,
+   "sha": "4a5eb99ca537d1f2",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_lazimi.png": {
+   "bytes": 1971,
+   "sha": "fbac8f4e88e81ff8",
    "size": [
     32,
     32
    ]
   },
   "avatar_levin.png": {
-   "bytes": 1888,
-   "sha": "eb1091df5ccfdecc",
+   "bytes": 1726,
+   "sha": "ef86df7365b22f45",
    "size": [
     32,
     32
    ]
   },
   "avatar_liberman.png": {
-   "bytes": 1612,
-   "sha": "b7265ec7b12b6d12",
+   "bytes": 1513,
+   "sha": "2394fcabee688d39",
    "size": [
     32,
     32
@@ -14250,6 +14998,30 @@
   "avatar_may-golan.png": {
    "bytes": 1953,
    "sha": "71418636f37065e0",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_mk-offer.png": {
+   "bytes": 1799,
+   "sha": "5ad96033e4704891",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_mk-switcher.png": {
+   "bytes": 1920,
+   "sha": "ef33da482f6b6708",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_mk-undecided.png": {
+   "bytes": 1931,
+   "sha": "6470d49004bfbd56",
    "size": [
     32,
     32
@@ -14464,24 +15236,24 @@
    ]
   },
   "avatar_regev.png": {
-   "bytes": 2060,
-   "sha": "9df2477ee564fb89",
+   "bytes": 1847,
+   "sha": "a26fadc2de6102b6",
    "size": [
     32,
     32
    ]
   },
   "avatar_sara.png": {
-   "bytes": 2073,
-   "sha": "d5d265ca56cdc103",
+   "bytes": 1953,
+   "sha": "264db593cb752a79",
    "size": [
     32,
     32
    ]
   },
   "avatar_smotrich.png": {
-   "bytes": 1560,
-   "sha": "274ea9f225690a1e",
+   "bytes": 1439,
+   "sha": "11dcb3ba5ff4df45",
    "size": [
     32,
     32
@@ -15359,6 +16131,38 @@
     195
    ]
   },
+  "cast/kariv_idle.png": {
+   "bytes": 82801,
+   "sha": "b73c20c98082787b",
+   "size": [
+    930,
+    289
+   ]
+  },
+  "cast/kariv_idle_d2.png": {
+   "bytes": 39262,
+   "sha": "9fb63ba3d698029d",
+   "size": [
+    624,
+    193
+   ]
+  },
+  "cast/kariv_react.png": {
+   "bytes": 67413,
+   "sha": "c01bd88c7cd2f4f4",
+   "size": [
+    775,
+    289
+   ]
+  },
+  "cast/kariv_react_d2.png": {
+   "bytes": 33852,
+   "sha": "48ab87f063717a35",
+   "size": [
+    520,
+    193
+   ]
+  },
   "cast/lapid_idle.png": {
    "bytes": 249386,
    "sha": "6d80fb9001fa98c0",
@@ -15388,6 +16192,38 @@
    "sha": "2793ed7ac1bc23ab",
    "size": [
     987,
+    206
+   ]
+  },
+  "cast/lazimi_idle.png": {
+   "bytes": 101381,
+   "sha": "9dda5d5fa7cecf39",
+   "size": [
+    1152,
+    310
+   ]
+  },
+  "cast/lazimi_idle_d2.png": {
+   "bytes": 48943,
+   "sha": "75ef4aa53cae6166",
+   "size": [
+    768,
+    206
+   ]
+  },
+  "cast/lazimi_react.png": {
+   "bytes": 303301,
+   "sha": "f4c4790c829b3d34",
+   "size": [
+    1344,
+    310
+   ]
+  },
+  "cast/lazimi_react_d2.png": {
+   "bytes": 144045,
+   "sha": "522d8ab0e9e405f0",
+   "size": [
+    896,
     206
    ]
   },
@@ -15503,81 +16339,177 @@
     206
    ]
   },
+  "cast/mk-offer_idle.png": {
+   "bytes": 91366,
+   "sha": "c2068d65c530d30d",
+   "size": [
+    840,
+    310
+   ]
+  },
+  "cast/mk-offer_idle_d2.png": {
+   "bytes": 44813,
+   "sha": "eed0690fdce38200",
+   "size": [
+    564,
+    206
+   ]
+  },
+  "cast/mk-offer_react.png": {
+   "bytes": 305183,
+   "sha": "039aee19e2ff429e",
+   "size": [
+    980,
+    310
+   ]
+  },
+  "cast/mk-offer_react_d2.png": {
+   "bytes": 149853,
+   "sha": "9e9bf9569175afbc",
+   "size": [
+    658,
+    206
+   ]
+  },
+  "cast/mk-switcher_idle.png": {
+   "bytes": 82532,
+   "sha": "1ebb4f3b1437bcd7",
+   "size": [
+    930,
+    310
+   ]
+  },
+  "cast/mk-switcher_idle_d2.png": {
+   "bytes": 41176,
+   "sha": "67267e6d65012218",
+   "size": [
+    630,
+    206
+   ]
+  },
+  "cast/mk-switcher_react.png": {
+   "bytes": 259381,
+   "sha": "559356b86b289b72",
+   "size": [
+    1085,
+    310
+   ]
+  },
+  "cast/mk-switcher_react_d2.png": {
+   "bytes": 129365,
+   "sha": "4dfa72609dac461c",
+   "size": [
+    735,
+    206
+   ]
+  },
+  "cast/mk-undecided_idle.png": {
+   "bytes": 88970,
+   "sha": "3f2ccada9fc5a0e6",
+   "size": [
+    894,
+    289
+   ]
+  },
+  "cast/mk-undecided_idle_d2.png": {
+   "bytes": 42966,
+   "sha": "7cdf614e75ef1803",
+   "size": [
+    594,
+    193
+   ]
+  },
+  "cast/mk-undecided_react.png": {
+   "bytes": 80203,
+   "sha": "62c1263aa52d34f9",
+   "size": [
+    745,
+    289
+   ]
+  },
+  "cast/mk-undecided_react_d2.png": {
+   "bytes": 39614,
+   "sha": "0b6c4306ad7d84b5",
+   "size": [
+    495,
+    193
+   ]
+  },
   "cast/mordechai-david_block.png": {
-   "bytes": 53947,
-   "sha": "2059031f489cedfb",
+   "bytes": 55014,
+   "sha": "04e7eb649d65b3d8",
    "size": [
     630,
     292
    ]
   },
   "cast/mordechai-david_block_d2.png": {
-   "bytes": 28974,
-   "sha": "ed1d5cea2f987b73",
+   "bytes": 29215,
+   "sha": "6877dd6b8a35e4bf",
    "size": [
     423,
     195
    ]
   },
   "cast/mordechai-david_block_in.png": {
-   "bytes": 111045,
-   "sha": "55c72254c2292bf3",
+   "bytes": 113004,
+   "sha": "d032c9eaf9a163f4",
    "size": [
     840,
     292
    ]
   },
   "cast/mordechai-david_block_in_d2.png": {
-   "bytes": 58658,
-   "sha": "f39362e2aae9d758",
+   "bytes": 59331,
+   "sha": "dc3d2bd6a1d4ebfe",
    "size": [
     564,
     195
    ]
   },
   "cast/mordechai-david_glance.png": {
-   "bytes": 74625,
-   "sha": "631e4490bcf1554a",
+   "bytes": 75854,
+   "sha": "7333a3dbaab55aae",
    "size": [
     1680,
     292
    ]
   },
   "cast/mordechai-david_glance_d2.png": {
-   "bytes": 38779,
-   "sha": "53e5ce339412a8e9",
+   "bytes": 39147,
+   "sha": "2b38131cd67dd746",
    "size": [
     1128,
     195
    ]
   },
   "cast/mordechai-david_idle.png": {
-   "bytes": 57063,
-   "sha": "83d1a8786e7306af",
+   "bytes": 58146,
+   "sha": "346caa3c3beb0287",
    "size": [
     1260,
     292
    ]
   },
   "cast/mordechai-david_idle_d2.png": {
-   "bytes": 28686,
-   "sha": "f53cf7339a6da6be",
+   "bytes": 28933,
+   "sha": "d9fd8a55004c2098",
    "size": [
     846,
     195
    ]
   },
   "cast/mordechai-david_walk.png": {
-   "bytes": 143999,
-   "sha": "d89f2a030dccd20f",
+   "bytes": 146971,
+   "sha": "cadb33f3b745d13e",
    "size": [
     1470,
     292
    ]
   },
   "cast/mordechai-david_walk_d2.png": {
-   "bytes": 69288,
-   "sha": "6a17da346053ddc9",
+   "bytes": 70130,
+   "sha": "3cf4535011d33d36",
    "size": [
     987,
     195
@@ -16368,8 +17300,8 @@
    ]
   },
   "prop_bill.png": {
-   "bytes": 140,
-   "sha": "c8728a35a70171e9",
+   "bytes": 125,
+   "sha": "c2d99fcdce03689b",
    "size": [
     8,
     5
@@ -16400,40 +17332,40 @@
    ]
   },
   "prop_coin0.png": {
-   "bytes": 130,
-   "sha": "a15614880f3a46c9",
+   "bytes": 115,
+   "sha": "fca7eddf9dd18ef7",
    "size": [
     5,
     5
    ]
   },
   "prop_coin1.png": {
-   "bytes": 109,
-   "sha": "ac7c1b2e53d70851",
+   "bytes": 100,
+   "sha": "0870d782d4e7c78d",
    "size": [
     4,
     5
    ]
   },
   "prop_coin2.png": {
-   "bytes": 100,
-   "sha": "abed57b75463a684",
+   "bytes": 94,
+   "sha": "595e1e72228b5c91",
    "size": [
     3,
     5
    ]
   },
   "prop_coin3.png": {
-   "bytes": 103,
-   "sha": "77fee8933a4075d0",
+   "bytes": 99,
+   "sha": "4f200b611eed7339",
    "size": [
     4,
     5
    ]
   },
   "prop_hat.png": {
-   "bytes": 325,
-   "sha": "91f288575914fe40",
+   "bytes": 302,
+   "sha": "0feceae4f9b8583e",
    "size": [
     22,
     16
@@ -16464,8 +17396,8 @@
    ]
   },
   "prop_rabbit.png": {
-   "bytes": 266,
-   "sha": "c221939430d972ae",
+   "bytes": 250,
+   "sha": "835bc88dae47822b",
    "size": [
     15,
     15
@@ -16480,8 +17412,8 @@
    ]
   },
   "prop_spark.png": {
-   "bytes": 89,
-   "sha": "a6c908a5e2a1cee4",
+   "bytes": 90,
+   "sha": "6a455ff98667f6b3",
    "size": [
     5,
     5
@@ -16696,16 +17628,16 @@
    ]
   },
   "source_cigars_icon.png": {
-   "bytes": 1362,
-   "sha": "abbd6b761612a3e8",
+   "bytes": 1257,
+   "sha": "f23a73b42d2c3948",
    "size": [
     24,
     24
    ]
   },
   "source_cigars_icon_sil.png": {
-   "bytes": 248,
-   "sha": "ca0547f7b4a23a3d",
+   "bytes": 246,
+   "sha": "342b38e16234aea2",
    "size": [
     24,
     24
@@ -16800,16 +17732,16 @@
    ]
   },
   "source_hitech_icon.png": {
-   "bytes": 1019,
-   "sha": "ec5af397c305b8e6",
+   "bytes": 947,
+   "sha": "2b5d4621b6649aa6",
    "size": [
     24,
     24
    ]
   },
   "source_hitech_icon_sil.png": {
-   "bytes": 238,
-   "sha": "9818cd9fbae3998a",
+   "bytes": 233,
+   "sha": "7772a8d03db701cc",
    "size": [
     24,
     24
@@ -16872,16 +17804,16 @@
    ]
   },
   "source_qatari_icon.png": {
-   "bytes": 1344,
-   "sha": "ebc0e9123b13ed75",
+   "bytes": 1239,
+   "sha": "471e1bf7744bb212",
    "size": [
     24,
     24
    ]
   },
   "source_qatari_icon_sil.png": {
-   "bytes": 264,
-   "sha": "67b6d665bf7ff054",
+   "bytes": 257,
+   "sha": "f36800efe986348c",
    "size": [
     24,
     24
@@ -16944,16 +17876,16 @@
    ]
   },
   "source_taxpayer_icon.png": {
-   "bytes": 978,
-   "sha": "2804c1fa95f98945",
+   "bytes": 899,
+   "sha": "a4db00e41f1355b5",
    "size": [
     24,
     24
    ]
   },
   "source_taxpayer_icon_sil.png": {
-   "bytes": 208,
-   "sha": "0931a3680b21bab7",
+   "bytes": 205,
+   "sha": "77e466f52f532cfd",
    "size": [
     24,
     24
@@ -16984,16 +17916,16 @@
    ]
   },
   "source_vat_icon.png": {
-   "bytes": 1417,
-   "sha": "60c098d658ede653",
+   "bytes": 1340,
+   "sha": "33950073f91074bb",
    "size": [
     24,
     24
    ]
   },
   "source_vat_icon_sil.png": {
-   "bytes": 160,
-   "sha": "b810f1c72e89c61e",
+   "bytes": 158,
+   "sha": "cd434d8668cb3b03",
    "size": [
     24,
     24
@@ -17200,16 +18132,16 @@
    ]
   },
   "stage_courthouse.png": {
-   "bytes": 3212,
-   "sha": "be95fe8426aa77fa",
+   "bytes": 3068,
+   "sha": "b2a77bc0aa1e871b",
    "size": [
     180,
     320
    ]
   },
   "stage_knesset.png": {
-   "bytes": 1959,
-   "sha": "725b6548259e13a7",
+   "bytes": 1883,
+   "sha": "2de23ac680647959",
    "size": [
     180,
     320
@@ -18053,10 +18985,15 @@
    "herzog.png": "455757b1fba3a804",
    "hitech.png": "9947ca2bbfd76400",
    "karhi.png": "7fd58bb71e43344c",
+   "kariv.png": "e2c1734b7fd97171",
    "lapid.png": "147fdf47a91f9069",
+   "lazimi.png": "58e3089ed4f34ee6",
    "levin.png": "7dc21a1b8c2842c8",
    "liberman.png": "58629f47e6ad609d",
    "may-golan.png": "b708ecb18b8548fd",
+   "mk-offer.png": "94ca79e8fb4ea3e0",
+   "mk-switcher.png": "d593dc5077819193",
+   "mk-undecided.png": "bfbddb0f010602f9",
    "mordechai-david.png": "dc811d49eaa656a4",
    "qatari.png": "f385089ae968a264",
    "regev.png": "2a1a39cd3cb195da",
