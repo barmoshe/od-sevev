@@ -1993,6 +1993,30 @@
     "_note": "design/mordechai-david-spec.md. Effect 'blockade' (events.gd), presented by StreetFigure (the stage figure, a chat-style toast, the ticker); on for launch (flags.mordechaiDavid); fires once at 1:00 of play (atPlaySec, Bar 2026-09-30). Skin lookup: leader id, then side 'opposition', then the default. No player action on him, ever: no button, no tap target.",
     "_guardrail": "Documented public conduct only (he stands in the way of cars and protests; his Kaplan rationale is reported speech). Never his conviction, restraining orders, family, the minors in his group, October 7, the hostages, or army service (so never the Eisenkot beach exchange, fact 47). Blocking is standing still with arms out: nobody is touched, pushed or hurt. His name appears only in this event and his facts (redlines.json allow 'mordechai')."
    }
+  },
+  {
+   "id": "trump",
+   "kind": "card",
+   "weight": 1,
+   "cooldownSec": 900,
+   "when": {
+    "era": "washington"
+   },
+   "effect": {
+    "type": "none",
+    "sec": 15
+   },
+   "pollLike": false,
+   "src": [
+    "trump-no-endorse",
+    "trump-herzog-ashamed"
+   ],
+   "copy": {
+    "name": "דונלד טראמפ",
+    "avatar": "trump_avatar",
+    "text": "אמר להרצוג להתבייש. לך הוא עוד לא אמר כלום. אולי אחרי הבחירות.",
+    "_note": "Washington-era cameo in Bibi's round (bibiOnly.events): the endorsement that never lands. Effect none, so no balance change beyond sharing the event slot."
+   }
   }
  ],
  "calendar": {
@@ -4964,7 +4988,8 @@
     "pardon",
     "kaia",
     "pinkfront",
-    "defector"
+    "defector",
+    "trump"
    ],
    "trophies": [
     "a_rabbit_10",
@@ -4989,7 +5014,8 @@
    "_why": {
     "pinkfront": "The drum line protested outside Balfour; it belongs to Bibi's round.",
     "defector": "Its ticker is Illouz on Likud; in other rounds a defector walks toward the player's building (backlog).",
-    "a_s_lapid": "Counts Lapid's card, which exists only while Lapid is a rival (Bibi's and Ben Gvir's rounds); earnable there, listed here for simplicity."
+    "a_s_lapid": "Counts Lapid's card, which exists only while Lapid is a rival (Bibi's and Ben Gvir's rounds); earnable there, listed here for simplicity.",
+    "trump": "Trump's card is about Bibi's pardon and endorsement; it belongs to his round."
    }
   },
   "neutralCopy": {
@@ -5030,7 +5056,7 @@
     "bloc": "right",
     "lines": {
      "demand": "תעביר לליכוד. אין כלום, רק תעביר.",
-     "threat": "אם זה לא עובר, אני הולך לבחירות. אני אוהב בחירות.",
+     "threat": "זה לא עובר? אז בחירות. אני אוהב בחירות.",
      "thanks": "קיבלתי. לא היה כלום.",
      "return": "חזרתי. תמיד חוזרים אליי."
     },
@@ -5038,11 +5064,23 @@
      "demand": [
       "תעביר לליכוד. אין כלום, רק תעביר.",
       "צריך תקציב לבלפור. הווילונות. אתה יודע.",
-      "יש לי רעיון קטן. הוא עולה {price} ₪. אין כלום."
+      "יש לי רעיון קטן. הוא עולה {price} ₪. אין כלום.",
+      "הניפו לי שלט: אין ישר. אז ישר לעניין: {price} ₪."
+     ],
+     "thanks": [
+      "קיבלתי. לא היה כלום.",
+      "קיבלתי. הבקשה לחנינה עדיין אצל הרצוג. הכסף כבר אצלי."
+     ],
+     "return": [
+      "חזרתי. תמיד חוזרים אליי.",
+      "חזרתי. מוושינגטון עוד לא התקשרו."
      ]
     },
     "src": [
-     "ein-klum"
+     "ein-klum",
+     "bibi-no-straight",
+     "pardon-shelved",
+     "trump-no-endorse"
     ],
     "_note": "Bibi as a partner (Ben Gvir's round, and any right-bloc leader's). His demands are his own catchphrase; the chat is the fictional voice (lint: chat bubbles are exempt from the quote rule)."
    },
@@ -5568,6 +5606,33 @@
     "text": "עוצמה הצביעה נגד התקציב. התקציב עבר בכל זאת.",
     "src": [
      "otzma-budget-2025"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "r09",
+    "rival": "bibi",
+    "text": "ביבי הניף שלט צומת: אין ישר. הנווט עדיין מחשב מסלול.",
+    "src": [
+     "bibi-no-straight"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "r10",
+    "rival": "bibi",
+    "text": "בקשת החנינה של ביבי עדיין אצל הרצוג. גם הטופס עדיין בכחול.",
+    "src": [
+     "pardon-shelved"
+    ],
+    "poll_like": false
+   },
+   {
+    "id": "r11",
+    "rival": "bibi",
+    "text": "טראמפ נשאל אם הוא תומך בביבי. ארבע פעמים. ענה על משהו אחר.",
+    "src": [
+     "trump-no-endorse"
     ],
     "poll_like": false
    }

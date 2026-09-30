@@ -208,6 +208,9 @@ func test_the_pardon_desk_files_through_the_sim() -> void:
 	runner.check(desk != null, "the pardon row opens the desk (O15)")
 	if desk == null:
 		return
+	var hz: Array = desk.panel.get_children().filter(func(n: Node) -> bool: return n.get_meta("role", "") == "herzog")
+	runner.check(hz.size() == 1 and (hz[0] as Sprite2D).position.x + 96.0 <= desk.panel_rect.end.x,
+		"Herzog's avatar sits inside the desk's title band")
 	heard.clear()
 	var k := desk.submit()
 	runner.check(int(m.state.investigation["pardons"]) == 1 and float(m.state.stats.get("pardonRequests", 0.0)) == 1.0,

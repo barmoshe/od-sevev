@@ -686,6 +686,10 @@ class PardonDesk:
 		title.wrap_width = 432.0
 		title.max_lines = 1
 		title.center_in(pr.position.x + 96.0, 432.0)
+		# the desk is Herzog's (pitch §6): his 24-px avatar in the title band's reading-side corner, on the art grid
+		var hz := "avatar24_herzog"
+		if Art.has_sprite(hz):
+			Ui.img(panel, Vector2(pr.end.x - 104.0, y + 4.0), hz, 0, 4).set_meta("role", "herzog")
 		var cy := y + 104.0
 		_form = text(Vector2(0, cy), "", L.TEXT, th["modal"]["body"])
 		_form.wrap_width = 560.0

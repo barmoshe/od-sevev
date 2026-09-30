@@ -211,7 +211,8 @@
    "usedIn": [
     "ambientHeadlinesV2.list.c03",
     "court.pardon.copy",
-    "court.pardon.copy.stampsSrc.6"
+    "leaderSelect.partnerProfiles.bibi",
+    "leaderSelect.rivalTicker.r10"
    ]
   },
   {
@@ -1715,6 +1716,8 @@
    "verifiedAt": "2026-09-30",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaderSelect.partnerProfiles.bibi",
+    "leaderSelect.rivalTicker.r09",
     "leaders.eisenkot.kit.sources.t7",
     "leaders.eisenkot.kit.sources.t7.firstOwned",
     "leaders.eisenkot.kit.story",
@@ -1857,6 +1860,51 @@
     "leaders.golan.kit.ticker.ty13"
    ],
    "ref": 87
+  },
+  {
+   "id": "trump-no-endorse",
+   "label": "A",
+   "text": "Axios (14 Aug 2026): asked four times in recent weeks, Trump avoided endorsing Netanyahu; privately he reportedly called him \"his own worst enemy\". In June he had said he would \"most likely\" endorse him. A Netanyahu aide reportedly assured Trump \"he is winning\".",
+   "aboutHe": "לפי דיווח באקסיוס מאוגוסט 2026, דונלד טראמפ נמנע שוב ושוב מלהביע תמיכה מפורשת בבנימין נתניהו לקראת הבחירות.",
+   "notUsed": false,
+   "outlet": "Axios; Times of Israel; Jerusalem Post",
+   "url": "https://www.axios.com/2026/08/14/trump-netanyahu-israel-election-endorsement",
+   "url2": "https://www.timesofisrael.com/liveblog_entry/mr-president-he-is-winning-netanyahu-aide-tried-assuring-trump-pm-polling-well-amid-lackluster-numbers/",
+   "moreUrls": [
+    "https://www.jpost.com/israel-election-2026/article-905601"
+   ],
+   "date": "2026-08-14",
+   "gameRendering": "the public part only: no endorsement yet. The private quote is not used.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "events.trump",
+    "leaderSelect.partnerProfiles.bibi",
+    "leaderSelect.rivalTicker.r11"
+   ],
+   "ref": 88
+  },
+  {
+   "id": "trump-herzog-ashamed",
+   "label": "Q",
+   "text": "On 12 Feb 2026 Trump said Herzog \"should be ashamed of himself\" for not pardoning Netanyahu; Herzog's office answered that no decision had been made and the request is handled by the Justice Ministry under the rules.",
+   "aboutHe": "בפברואר 2026 אמר דונלד טראמפ שהנשיא יצחק הרצוג צריך להתבייש על שלא העניק חנינה לבנימין נתניהו, ובלשכת הנשיא השיבו שטרם התקבלה החלטה.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Axios; Israel Hayom",
+   "url": "https://www.timesofisrael.com/trump-says-herzog-should-be-ashamed-of-himself-for-not-pardoning-netanyahu/",
+   "url2": "https://www.axios.com/2026/02/12/trump-netanyahu-pardon-president-herzog-ashamed",
+   "date": "2026-02-12",
+   "heStatus": "unverified",
+   "verifyHebrew": true,
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "events.trump"
+   ],
+   "ref": 89
   }
  ],
  "deliberatelyOut": [
