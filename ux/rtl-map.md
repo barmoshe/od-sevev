@@ -88,7 +88,7 @@ The fork's stat window, banana icon, thumbs line, Evolve button and badge are **
 |---|---|---|---|
 | Cottage Index | `TopBar.cottage` | hit `Rect2(624, 4, 88, 88)`; kit `cottage_cup` 16×18 art = 64×72 at (636, 12) | Tooltip `HUD_COTTAGE_TIP` as a toast. 50% opacity, 100% for 3 s on a pixel drop. Hidden until `ui.cottageRevealed`. |
 | Counter | `TopBar.bank` (`Label`, numeral cut) | box x 196-524, y 8, **centred** | `HUD_BANK`, gold (money), never fades |
-| Rate line | `TopBar.bps` (`Label`) | box x 188-532, y 52, centred | `HUD_BPS` (frenzy: `HUD_BPS_FRENZY` in the frenzy tint). 100% for 3 s after a change, then 60%. Hidden until `ui.rateRevealed`. |
+| Rate line | `TopBar.bps` (`Label`) | box x 188-532, y 52, centred | `HUD_BPS` (frenzy: `HUD_BPS_FRENZY` in the frenzy tint). 100% for 3 s after a change, then 90% (was 60%: on the v4 flag-blue Row A that is 2.9:1; 90% is 4.9:1, review 2026-09-30 U4). Hidden until `ui.rateRevealed`. |
 | Mute | `TopBar.mute` (`PxButton`) | hit `Rect2(100, 4, 88, 88)`, icon 9×9 art = 36×36 at (126, 30) | a11y `HUD_MUTE` / `HUD_UNMUTE`; muted = slash shape |
 | Settings | `TopBar.gear` | hit `Rect2(8, 4, 88, 88)`, icon at (34, 30) | a11y `HUD_SETTINGS` (mirrored from the fork's right corner) |
 

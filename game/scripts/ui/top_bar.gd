@@ -17,6 +17,10 @@ const COUNTER_SCALE := 6
 const COUNTER_Y := 0.0
 const RATE_Y := 52.0
 const RATE_DIM_AFTER_MS := 3000.0
+## The settled rate line's alpha (first-minute §3.2 #1b). v4 puts Row A on flag blue #0038b8: the
+## rate green #8fe052 at 0.6 blends to #569d7b, 2.9:1 (fails AA); at 0.9 it is #81cf5c, 4.9:1
+## (UX review 2026-09-30, U4).
+const RATE_DIM_ALPHA := 0.9
 
 var reduced_motion := false
 var evo_state := "hidden"          # kept for the controller's API; the Evolve button is gone
@@ -222,7 +226,7 @@ func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
 	var tint: Variant = th["statText"]["bpsFrenzy"] if _frenzy else (th["juiceGain"] if _now < _bps_tint_until else th["statText"]["bps"])
 	bps.tint = Art.col(tint)
 	# 100% for 3 s after a change, then 60% (first-minute §3.2 #1b)
-	bps.self_modulate.a = 1.0 if (_frenzy or _now - _rate_changed_at < RATE_DIM_AFTER_MS) else 0.6
+	bps.self_modulate.a = 1.0 if (_frenzy or _now - _rate_changed_at < RATE_DIM_AFTER_MS) else RATE_DIM_ALPHA
 
 
 func reset_rate() -> void:
@@ -316,4 +320,4 @@ func update_view(dt_ms: float) -> void:
 			_pop_t = -1.0
 			bank.scale = Vector2.ONE
 	if _rate_on and not _frenzy and _now - _rate_changed_at >= RATE_DIM_AFTER_MS:
-		bps.self_modulate.a = 0.6
+		bps.self_modulate.a = RATE_DIM_ALPHA

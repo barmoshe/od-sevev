@@ -4192,8 +4192,8 @@
       "box": "sheet.caption",
       "maxChars": 15,
       "worstPx": {
-        "4": 656,
-        "5": 820
+        "4": 652,
+        "5": 815
       }
     },
     "SET_LARGE": {

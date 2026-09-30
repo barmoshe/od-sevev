@@ -38,7 +38,9 @@ const C_INK := Color("#1a1a1a")               # receipt ink on #f4f1e8 paper (15
 const C_PAPER := Color("#f4f1e8")
 const C_WHITE := Color("#f7f4ec")
 const C_NIGHT := Color("#00237a")
-const C_STATUS := Color("#c9d6f2")
+## The status line sits on the sheet's cream notice (#fff4e0), not on blue: the v4 map's ui_mute was
+## 1.3:1 there; flag blue is 8.3:1 (UX review 2026-09-30, U5).
+const C_STATUS := Color("#0038b8")
 
 var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
 var art_px := 2.0                             # the preview's logical px per art px
