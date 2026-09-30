@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `eea8991` docs(od-sevev): live handoff snapshot 00:34
+- Branch head: `ec41d25` docs(od-sevev): live handoff snapshot 00:35
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
