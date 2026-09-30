@@ -168,7 +168,7 @@ for (const spec of list.split(',')) {
 	const refresh = async () => { disp = await page.evaluate(() => window.odDisplay); };
 	const shot = async (step) => {
 		const p = `${out}/${name}-${step}.png`;
-		const buf = await page.screenshot({ path: p });
+		const buf = await page.screenshot({ path: p, timeout: 120000 });   // a loaded machine: swiftshader frames can take seconds
 		console.log('  shot', p);
 		return buf;
 	};
@@ -350,7 +350,9 @@ for (const spec of list.split(',')) {
 	pillCheck('bought', await probe());
 
 	// ---- C1: three kinds of source (the tab bar), then T3 and a paid demand (C2: Row B)
-	for (let i = 0; i < 8; i++) {
+	// up to 20 rounds (it breaks as soon as the group opens): on a loaded machine the game clock runs
+	// slower than the wall clock (frames over 250 ms), so 60 ₪ after 3 sources can take longer
+	for (let i = 0; i < 20; i++) {
 		s = await probe();
 		if (s && s.groupOpen) break;
 		const rows = ((s && s.shop && s.shop.rows) || []).filter((x) => x[3]);

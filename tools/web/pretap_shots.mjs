@@ -1,7 +1,7 @@
 // The pre-tap + HUD slice's screenshots (2026-09-30 manual test, fixes A2/A3/A7/B10/B12): the
 // first picker, the pre-tap stage with the undo bar (≈ 1 s after the pick) and after it (≈ 7 s),
-// card 1 (tap 3), and the picker after a forced election (the F9_PICK caption on its plate), at
-// each device. Shots are saved at half the device size (ImageMagick-free: a 2×2 box filter in JS).
+// card 1 (tap 3), the picker after a forced election (the F9_PICK caption on its plate) and round
+// 2's first second (the new name in Row A, the undo chip in the lane), at each device. Shots are saved at half the device size (ImageMagick-free: a 2×2 box filter in JS).
 //   node tools/web/pretap_shots.mjs <url> <out dir> [WxH@DPR,...] [leader] [prefix]
 // Serve build/web first: python3 -m http.server 8833 --directory build/web
 const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
@@ -94,8 +94,16 @@ for (const spec of list.split(',')) {
 		if (fl && fl.open) { await refresh(); const b = fl.skip && fl.skip[0] >= 0 ? fl.skip : fl.next; await tap(css(b[0], b[1])); }
 	}
 	await wait(1200);
-	if (pk && pk.open && pk.variant === 'after') await shot('picker-after');
-	else { console.log('  FAIL the after-election picker did not open'); failed++; }
+	if (pk && pk.open && pk.variant === 'after') {
+		await shot('picker-after');
+		// round 2 starts: a different leader (the name back in Row A, the undo chip in the lane)
+		await refresh();
+		const other = pk.cells.find((c) => c[2] !== '' && c[2] !== leader) || pk.cells[0];
+		await tap(css(other[0], other[1]));
+		await page.waitForFunction(() => window.odDev && window.odDev.mode === 'main', null, { timeout: 8000 }).catch(() => {});
+		await wait(1300);
+		await shot('round2-start');
+	} else { console.log('  FAIL the after-election picker did not open'); failed++; }
 	if (errors.length) { console.log(`  FAIL page errors ${JSON.stringify(errors.slice(0, 3))}`); failed++; }
 	await ctx.close();
 }
