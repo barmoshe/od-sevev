@@ -323,7 +323,9 @@ def curtain(canvas, open_amt=0.0, dim=0.0):
     paste(canvas, half, -off - 12, 0, "tl")
     paste(canvas, half, W // 2 + off, 0, "tl")
     val = img("curtain_valance", 6)
-    paste(canvas, val, 0, 0, "tl")
+    # the valance's top row is its ink outline: start it one art px above the frame, so the reel's
+    # first rows (and the cover) are velvet, not a black strip
+    paste(canvas, val, 0, -6, "tl")
 
 
 def spotlight(canvas, cx, top, bottom, w_top, w_bot, a=0.22, color=(160, 200, 255)):
