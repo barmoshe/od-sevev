@@ -44,3 +44,62 @@ index bc9af92..fd89d4f 100644
  ## 18. Foundations (referenced, not paraphrased)
  
  v1 §15's list stands (colour theory, palette construction, squint test, colour-blindness redundancy,
+diff --git a/game/assets/sprites/CONTRACT.md b/game/assets/sprites/CONTRACT.md
+index 132f910..6722187 100644
+--- a/game/assets/sprites/CONTRACT.md
++++ b/game/assets/sprites/CONTRACT.md
+@@ -22,7 +22,7 @@ Nothing in `game/assets/sprites/` or `game/assets/fonts/` is hand-edited; rerun
+ | `sprites/avatar_pick_<c>_d3.png`, `avatar_pick_<c>_d2.png` | The picker's XL heads (UX A3), 96×96 and 64×64, the 8 leaders | `chars[c].avatarPickXL` / `avatarPick64` (§4c) |
+ | `sprites/brawl_cloud_cue.png` | The brawl cloud cut for the stage cue: 4 frames of 26×20 (UX / Animator) | `Art.tex("brawl_cloud_cue", f)`, `sprites.json.ui` |
+ | `sprites/fx_*.png`, `sprites/prop_hat_glow.png` | Pipeline-owned FX sprites (ballot slips, ink specks, floor dust) and the hat glow ring (draw at the hat's top-left − (1, 1)) | `pipeline/fx-data.json` → `art.json` `fx` (`ballotConfetti`, `dustPuff`, `inkSpecks`), `sprites.json.fx` |
+-| `sprites/<ui id>.png` | The 2D Artist's UI kit, 261 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
++| `sprites/<ui id>.png` | The 2D Artist's UI kit, 268 pieces today (bubbles, pills, buttons, meters, stamps, the wordmark, the suitcase, ...) | `Art.tex(id)`, metadata in `sprites.json.ui[id]` |
+ | `fonts/sevev9.fnt` | **Sevev 9**, the Hebrew pixel font (a BMFont; Godot imports it as a `FontFile`) | `load("res://assets/fonts/sevev9.fnt")` |
+ | `fonts/sevev9_outline.fnt` | The same font with a baked 1 px ink ring | the same |
+ | `fonts/sevev9@2.fnt` | **Sevev 9 @2**, the density-2 companion: every glyph redrawn on a 2× grid, drawn at half the scale into the same box (§6.1) | `fonts.json` `fonts["sevev9@2"]` (`density: 2`) |
+@@ -291,6 +291,7 @@ its react / crit, tap), at d 3 and d 2.
+ ```jsonc
+ "taxpayer": { "sprite": "source_taxpayer", "frames": 2, "frameW": 76, "frameH": 120, "pivot": [38, 119],
+               "icon": "source_taxpayer_icon", "silhouette": "source_taxpayer_icon_sil",
++              "silhouettePale": "source_taxpayer_icon_sil_pale",
+               "points": { "hand": [23, 80] }, "origin": "render-down", "density": 3, "iconDensity": 1,
+               "densities": { "2": { "sprite": "source_taxpayer_d2", "frameW": 51, "frameH": 80, "pivot": [25, 79],
+                                     "points": { "hand": [15, 54] }, "density": 2 } } }
+@@ -303,6 +304,9 @@ its react / crit, tap), at d 3 and d 2.
+ - **Density:** `frameW`, `frameH`, `pivot` and `points` are sprite px of the strip (d = 3 for
+   the 5 rendered sources, d = 1 for the hand-drawn three). Draw the strip at `artScale /
+   density`. The icon and silhouette are always 24×24 at d = 1 (`iconDensity`).
++- **`silhouettePale`** (2026-09-30, UX review 2 U7): the silhouette recoloured for the pale teaser row
++  (`card_row_silhouette`): the `suit` mask → `ui_dim`, its `rim` edge → `ui_rule`, pixel for pixel. The pipeline
++  writes it for every source (`sprites.py` `pale_silhouettes`) and fails on any other colour in a silhouette.
+ - **Frames:** 2, equal holds. The strip has **no fps**; the period is `producers[].idleFrameMs`,
+   per the animator's diorama spec.
+ - **Pivot:** the feet, bottom centre. Every source is 40 art px tall, including a 1-art-px pale
+@@ -365,6 +369,27 @@ The 2D Artist's `art/od-sevev/ui-kit.json` passes through unchanged, except for
+     of `sheet_modal`'s stretched centre. Inside the 9-slice that one row stretches down the body (at a
+     624×480 card, a ~190×45 dark slab under the point, seen in the engine too: `proofs/kit-w9-flap.png`, right column). In the flap
+     strip it stays one art row, so body + flap also drops that slab.
++- **UX build review 2** (2D Artist wave 10, 2026-09-30; `art/od-sevev/style-guide.md` §17.3). New ids beside the old
++  ones, so each is a switch:
++  - `button_white_{default,pressed,disabled}` (24×20, the slices and content box of `button_primary_*`), `label`
++    `flag`: the v4 primary (U2). **Wiring:** `PxButton.kinds()["kit_primary"] = _kit_kind("button_white")`, and the
++    label tint from the kit's `label` swatch: `"flag"` → palette char `"u"` (#0038b8) for normal / pressed / hover;
++    `_kit_kind` today maps anything but ink to `"w"`, which would draw a white label on the white face. Disabled stays
++    `"w"`/grey on the sunk slate. O3's `ELECT_GO` → `kit_gold` (`button_gold_*`, the CTA's own skin).
++  - `card_row_silhouette` (32×30, [4, 4, 4, 4], `label` `ui_panel` #072a7a): the teaser / silhouette row (U7), in place
++    of `card_source_locked` in `shop.gd` `_card_sprite`. Its icon: `sources[id].silhouettePale` (= `<silhouette>_pale`,
++    24×24, the pipeline's exact recolour of the silhouette: `ui_dim` mask, `ui_rule` edge); for any silhouette id,
++    `Art.has_sprite(id + "_pale")` resolves it. Draw it unmodulated (no 0.6 grey).
++  - `chat_system_pill_navy` (20×13, [4, 3, 4, 3], `label` `ui_mute` #c9d6f2): T3's system pill (U7), in place of
++    `chat_system_pill` in `view_chat.gd`.
++  - `notice_frame` (40×40, [3, 7, 3, 5], content [4, 8, 32, 26], `colors` {page flag, title flag, text night} + `hex`):
++    EVOLVE_TX's notice (U10). The card stays full bleed in `colors.page`; the frame is centred around the lines
++    (rules at its top and bottom, not at the screen's).
++  - `booth_frame_tall` (40×46, [6, 16, 6, 4], content [5, 15, 30, 28], `titleBox` [6, 2, w − 12, 9], `header`):
++    A5, optional. At ×4 the top inset is 60 logical (booth_frame: 36); the title's cell is `titleBox` × 4 from the
++    booth's top-left, one line only.
++  - `sheet_modal`: slice **[7, 24, 7, 7]**, content y 24 (was 23; U1 / T1). The pixels are unchanged; the dark row
++    under the flap point is no longer stretched down the body.
+ 
+ ## 6. Fonts: Sevev 9
+ - **Where it's used:** every Hebrew or mixed string goes through a `Label` or `RichTextLabel`
