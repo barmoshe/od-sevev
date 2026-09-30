@@ -1,0 +1,29 @@
+# binary files changed (not carried):
+diff --git a/tools/web/round_web.mjs b/tools/web/round_web.mjs
+index 679aad0..30e1bcc 100644
+--- a/tools/web/round_web.mjs
++++ b/tools/web/round_web.mjs
+@@ -195,13 +195,18 @@ if (!ok) continue;
+ 		await wait(500);
+ 		continue;
+ 	}
++	// odModal.ready is published once, at open; at ×10 a walkout can drop the gate between the shot
++	// and the tap (the card disables its button live, and no pill can be paid under it): check the
++	// live gate (odDev.ready) and, when it slipped, close the card and play on
++	const live = await probe();
++	if (!live.ready) {
++		log('  the gate slipped under the card: back to the round');
++		await page.keyboard.press('Escape');
++		await wait(500);
++		continue;
++	}
+ 	called = true;
+ 	{
+-		// odModal.ready is published once, at open; at ×10 a walkout can drop the gate between the shot
+-		// and the tap (the card disables its button live): wait for the live gate (odDev.ready)
+-		let live = await probe();
+-		for (let i = 0; i < 90 && !live.ready; i++) { await wait(500); live = await probe(); }
+-		if (!live.ready) log('  the gate slipped under the card and did not come back');
+ 		await tapAt(css(m.buttons[0][0], m.buttons[0][1]));
+ 		await wait(900);
+ 		await shot('e2-transition');
