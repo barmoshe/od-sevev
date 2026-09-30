@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `f42ac2d` docs(od-sevev): live handoff snapshot 05:02
+- Branch head: `f1a922b` docs(od-sevev): live handoff snapshot 05:03
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -44,7 +44,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | 2D Artist + TA | DONE, merged (lane, plaza, wings, XL pick heads avatar_pick_<c>_d3/_d2, brawl_cloud_cue x4, court spots as kit data) | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
 | 2D Artist + TA (palette) | DONE, v4 landed through the mobile merge | `worktree-agent-a5e8cafeb35582361` | 0 | 0 | - |
 | Animator (wave B) | DONE, merged (walk wired, one position owner BigBanana._apply_figure; ticker roll 240 ms with per-page dwell; slip stamp). Asks: 2D sheet_modal_flap strip; Audio slip-stamp cue; dev/UX keep "₪." with its number in the pager | `worktree-agent-ae7ba45935a398eb9` | 0 | 0 | - |
-| Game Designer (gate) | hold the election gate (seats slipping under 61 while the card is open); make round_web + picker_web pass 3x; balance re-check | `worktree-agent-aaf6cad83faca5924` | 1 | 10 | `Game-Designer-(gate).commits.patch` `Game-Designer-(gate).patch` |
+| Game Designer (gate) | hold the election gate (seats slipping under 61 while the card is open); make round_web + picker_web pass 3x; balance re-check | `worktree-agent-aaf6cad83faca5924` | 1 | 11 | `Game-Designer-(gate).commits.patch` `Game-Designer-(gate).patch` |
 | UX Designer (review 2) | ux/review-2026-09-30.md on the full build (picker, mobile, v4, walk, ticker); F15 placement (hemicycle, booth, envelope) as spec §5.14; rule on the ticker roll; the pager no-break rule for "₪." | `worktree-agent-ad4a270e4f3452e94` | 2 | 0 | `UX-Designer-(review-2).commits.patch`  |
 | 2D Artist + Audio | sheet_modal_flap 3-frame strip (envelope opening); slipStamp cue wired in shop.gd | `worktree-agent-a771e189416072b63` | 2 | 0 | `2D-Artist-+-Audio.commits.patch`  |
 
