@@ -99,7 +99,17 @@ twice. The second time was "stop, update the handoff, push to main". Everything 
   - **Code:** `ui/sara_mark.gd`; tested by `test_sara_mark`.
 - This commit: `leaderSelect.neutralCopy` is finally read. `Meta.perks()` and `Meta.achievements()`
   give neutral names outside Bibi's round: no wand and no DOHA sticker for the opposition.
-- **Last run:** `tools/test.sh` 444/444 and lint 0/0 on main.
+- `4fbb852` and `682af64`: partner lines that had no reader now show:
+  - Gafni's `onPaidTicker` on a paid demand;
+  - Almog's `poachTicker` on the poach pill;
+  - Amsalem's no-exclamation-mark line (moved to `onPaidTicker`);
+  - Bennett's `flipText` toast when a pledge runs out.
+- **Browser check:** the full `mobile_web` matrix passed on this build (0/0/0 on all 9 devices, 16 min;
+  strict `build_web.sh` green). The in-game shot is `creative-pack/art/sara-options/in-game-390x844.png`.
+  - Sara reads well right of Bibi.
+  - In the early round the taxpayer stands at her feet. Bar may want her 1-2 art px further right, or
+    the taxpayer's slot moved.
+- **Last run:** `tools/test.sh` 447/447 and lint 0/0 on main.
 
 ## Open items, in order
 1. **Art still waiting:**
@@ -108,9 +118,9 @@ twice. The second time was "stop, update the handoff, push to main". Everything 
    - Elharrar, Vaturi, Zohar, Bismuth and Boaron were never generated.
 2. **Unread copy:**
    - `neutralCopy`'s `ambient.*` and `golden.*` keys;
-   - `copy.*` fields no code reads (Gotliv's transfer script, the brawl scripts, `karhi.copy.review`, and others).
-3. **A fresh `mobile_web` / `round_web` run in a browser** before the next deploy. The new sprites
-   (sources, MKs, Sara) passed the unit tests, but no browser run has seen them.
+   - `copy.*` fields no code reads: Gotliv's transfer script, the brawl scripts, the partners'
+     `copy.card` (there is no partner-card UI yet), `maygolan.cardLabel`.
+3. **Before the next deploy:** `round_web` / `picker_web` / `motion_web`. `mobile_web` passed.
 4. **Bar's calls:**
    - legal read of the new facts (`arab-lists-barred`, `gotliv`, `trump-herzog-ashamed`, `eisenkot-eight-seats`, `gafni-off-list`);
    - Kariv, Lazimi and Tibi in other lineups (run `tools/balance.sh`);
