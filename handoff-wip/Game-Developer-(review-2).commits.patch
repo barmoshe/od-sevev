@@ -1,7 +1,7 @@
 From a368d7aaf54b08de55cf35929c7e1d993c5cd75f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:31:13 +0000
-Subject: [PATCH 1/7] feat(od-sevev): envelope flap on every sheet modal, the
+Subject: [PATCH 1/8] feat(od-sevev): envelope flap on every sheet modal, the
  glue rule, O3 hemicycle
 
 - Overlay.make_envelope: sheet_modal_body + sheet_modal_flap, f0/f1/f2 at 0/40/80 ms, title and close from f2, reduced motion f2 at once (review U1, style guide 17.2); SheetCard and FlashCard HEADER_H 96
@@ -752,7 +752,7 @@ index 17c2808..ca58266 100644
 From eb7f8244aed096f9de4b33cfc9522a2bb96965e4 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:41:04 +0000
-Subject: [PATCH 2/7] feat(od-sevev): booth on the picker, envelope on O5 and
+Subject: [PATCH 2/8] feat(od-sevev): booth on the picker, envelope on O5 and
  the sent line, review 2 engine fixes
 
 - picker: booth_frame around the grid where it costs no tile pixel (columns at 20, grid 20 over the strip), odPick.booth (mobile-first 5.14.2)
@@ -1698,7 +1698,7 @@ index 8027911..4caf505 100644
 From 4c2493d6d88d25a2e94772d479dd56e20d794fe0 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:52:08 +0000
-Subject: [PATCH 3/7] feat(od-sevev): UX review 2 art kit, white primary, pale
+Subject: [PATCH 3/8] feat(od-sevev): UX review 2 art kit, white primary, pale
  teaser rows, notice, tall booth
 
 Wave 10 (art/od-sevev/src/wave10.py): button_white_{default,pressed,disabled}
@@ -10816,7 +10816,7 @@ index 7365743..48d268a 100644
 From 161b48f99697648544caa97bcf0283cddf6585d2 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:54:58 +0000
-Subject: [PATCH 4/7] docs(od-sevev): style guide wave 10 and the contract's
+Subject: [PATCH 4/8] docs(od-sevev): style guide wave 10 and the contract's
  new kit ids
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10945,7 +10945,7 @@ index 132f910..6722187 100644
 From 57c0b4eef4e91cecf317a62de5d337ffcf4db851 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:55:29 +0000
-Subject: [PATCH 5/7] docs(od-sevev): status for the review-2 art slice
+Subject: [PATCH 5/8] docs(od-sevev): status for the review-2 art slice
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
@@ -10980,7 +10980,7 @@ index ca05153..c21bfd3 100644
 From d5145f01f34f28827dbea1435f15702193ffef75 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:56:54 +0000
-Subject: [PATCH 6/7] fix(od-sevev): tap 1 retires Dubi's pre-tap dock line
+Subject: [PATCH 6/8] fix(od-sevev): tap 1 retires Dubi's pre-tap dock line
  (U9)
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
@@ -11049,7 +11049,7 @@ index fe11673..5c5ef2c 100644
 From 59f4281cfa4510e1a0eba7d893a9f987934a6cfb Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 06:02:54 +0000
-Subject: [PATCH 7/7] feat(od-sevev): wire the review-2 art: white primary,
+Subject: [PATCH 7/8] feat(od-sevev): wire the review-2 art: white primary,
  gold election call, pale teaser rows, navy system pill, EVOLVE_TX notice
 
 - U2: kit_primary is button_white with a flag label (PxButton maps the kit label flag to u); the court's postpone and the picker's again labels follow it; O3 ELECT_GO takes kit_gold
@@ -11360,6 +11360,47 @@ index 5c5ef2c..62acd89 100644
 +	var nr := Rect2(tx._notice.position, tx._notice.size * 4.0)
 +	runner.check(nr.position.y + 32.0 <= tx._line.position.y and nr.end.y - 24.0 >= EvolveTx.ERA_Y + 36.0, "the notice frames the lines (%s)" % nr)
 +	tx._finish()
+-- 
+2.43.0
+
+
+From 8eff138485f5ecc1a342e478072cb0d11264c8c3 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 06:56:17 +0000
+Subject: [PATCH 8/8] docs(od-sevev): tick UX review 2's engine items
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ ux/review-2026-09-30.md | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/ux/review-2026-09-30.md b/ux/review-2026-09-30.md
+index 00e2541..67e37fa 100644
+--- a/ux/review-2026-09-30.md
++++ b/ux/review-2026-09-30.md
+@@ -133,3 +133,21 @@ A **currency sign stays with what it measures**, and **punctuation stays with it
+ - **Checks:** `tools/test.sh` 368/368; strict `tools/build_web.sh` green (the text lint is 0 after the caption change).
+ 
+ **No objection is outstanding.** The Animator's roll is accepted, not countered. The one place this review overrides a dispatch suggestion (no hemicycle on O5) is a UX call on the red lines, stated in §5.14.1.
++
++## Closed (Game Developer, engine pass, 2026-09-30)
++
++- [x] **U1** every sheet modal (SheetCard: O1, O3, O10, the leader card, MergeCard; the O3b flash) is `sheet_modal_body` + `sheet_modal_flap`: f0/f1/f2 at 0/40/80 ms of the open, then f2; the title and ✕ from f2; reduced motion f2 at once. The slab is gone. `HEADER_H` 96. (The TA's slice 24 covers any lone `sheet_modal`.)
++- [x] **U2** `kit_primary` = `button_white_*` with a flag label (the court's postpone and the picker's again follow it); O3's `ELECT_GO` = `kit_gold`.
++- [x] **U3** the pane's white comes with card 1; the apron (plaza + paving) stays from tap 1 to card 1. `mobile_web` checks the band at tap 1.
++- [x] **U6** a row whose pill is not wholly in the pane draws no pill; `odDev.shop.pills` publishes every visible row's pill rect and S7 tests it (card 1, bought, C1).
++- [x] **U7** teaser and locked rows on `card_row_silhouette` with the `_pale` silhouettes and `ui_panel` text; T3 system pills on `chat_system_pill_navy` (`ui_mute`).
++- [x] **U8** the tab icons ship redrawn under the same ids (no code).
++- [x] **U9** before tap 1 Dubi's pick lines go in the toast dock as a passive chat toast ("דובי · דובר הלשכה", his face), which takes no tap; tap 1 retires it; from H1 his bubble.
++- [x] **U10** EVOLVE_TX: the `notice_frame` card on a flag-blue page, the title in flag, the body in night.
++- [x] **U11** the WhatsApp icon is gone; the label is centred.
++- [x] **U13** the owned chip is text + 16 (min 48) × 40 at the plate's bottom-left.
++- [x] **U14** the WhatsApp row is `Rect2(24, y, 672 + dx, 96)`, hit + 8 on every side.
++- [x] **U15** §5.14: the hemicycle on O3 (×4, effective seats RTL, left out past the modal band; `odModal.hemicycle`); the booth on the picker where free (`odPick.booth`, S10 + 20); the envelope on O5's floor (E1) and on the status line after `shared` (E2; alone and centred, no "sent" string exists).
++- [x] **U16** §5.2.1: `Bidi.glue` in every wrapping `PxText` and in `Ticker.paginate`, with the weak-joint and plain fallbacks (`test_glue`).
++- [x] `modals_web` "C1: the group opened": the driver now buys three sources and waits for the ping's quiet window (no modal, 2 s since a buy, no toast, Dubi silent) instead of buying six and checking at once.
++- Not taken: A5 `booth_frame_tall` (optional), M3 the hemicycle fill motion (Animator, optional).
 -- 
 2.43.0
 
