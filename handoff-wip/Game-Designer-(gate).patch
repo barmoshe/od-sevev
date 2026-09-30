@@ -1,6 +1,6 @@
 # binary files changed (not carried):
 diff --git a/design/leader-select-spec.md b/design/leader-select-spec.md
-index 0acb38e..1c81629 100644
+index 0acb38e..2e403a6 100644
 --- a/design/leader-select-spec.md
 +++ b/design/leader-select-spec.md
 @@ -404,6 +404,54 @@ Median player, first election, median of seeds 1-9 (one seat deal per seed); the
@@ -48,7 +48,7 @@ index 0acb38e..1c81629 100644
 +| Median player, before | 8:01 | 8:08 (worst 10:30) | 8:19 | 7:51 | 8:50 | 8:06 | 8:05 | 8:30 |
 +| Median player, after | 8:01 | **8:03** (worst 10:11) | 8:19 | 7:51 | **8:10** | 8:06 | 8:05 | **7:59** |
 +| Pays every pill, before | 8:46 | **never ×5** | 10:21 | 8:42 | 9:44 (1 never) | 9:14 | 9:25 | 9:24 (worst 24:26) |
-+| Pays every pill, after | PAYALL_AFTER |
++| Pays every pill, after | 8:46 | **9:58** (worst 13:11) | 10:21 | 8:42 | **9:44** (worst 11:29) | 9:14 | 9:25 | **8:52** (worst 13:55) |
 +
 +Only the three change-bloc rounds move (Bennett, Eisenkot and Golan: Liberman with Gafni and Abbas).
 +Eisenkot leaves the 9:00 edge that §7.2.1 watched: casual 9:00 becomes 8:29. The slow driver-like
