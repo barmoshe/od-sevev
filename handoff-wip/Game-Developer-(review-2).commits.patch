@@ -1,0 +1,750 @@
+From a368d7aaf54b08de55cf35929c7e1d993c5cd75f Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 05:31:13 +0000
+Subject: [PATCH] feat(od-sevev): envelope flap on every sheet modal, the glue
+ rule, O3 hemicycle
+
+- Overlay.make_envelope: sheet_modal_body + sheet_modal_flap, f0/f1/f2 at 0/40/80 ms, title and close from f2, reduced motion f2 at once (review U1, style guide 17.2); SheetCard and FlashCard HEADER_H 96
+- Bidi.glue (mobile-first 5.2.1): NBSP inside currency, punctuation and magnitude units, in wrapping PxText and Ticker.paginate, with the weak-joint fallback (U16)
+- ElectionCard: the 120-seat hemicycle at x4 as O3's hero, effective seats RTL, left out when the card exceeds the modal band; odModal.hemicycle (5.14.1)
+- tests: test_glue, the flap and hemicycle in test_modals
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/scripts/core/bidi.gd                |  96 +++++++++++++++++
+ game/scripts/ui/overlay.gd               |  50 +++++++++
+ game/scripts/ui/px_text.gd               |  50 ++++++---
+ game/scripts/ui/ticker.gd                |  17 ++-
+ game/scripts/ui/views/view_election.gd   |  72 ++++++++++++-
+ game/scripts/ui/views/view_flash.gd      |   7 +-
+ game/scripts/ui/views/view_sheet_card.gd |  36 +++++--
+ game/tests/unit/test_glue.gd             | 125 +++++++++++++++++++++++
+ game/tests/unit/test_glue.gd.uid         |   1 +
+ game/tests/unit/test_modals.gd           |  38 ++++++-
+ 10 files changed, 466 insertions(+), 26 deletions(-)
+ create mode 100644 game/tests/unit/test_glue.gd
+ create mode 100644 game/tests/unit/test_glue.gd.uid
+
+diff --git a/game/scripts/core/bidi.gd b/game/scripts/core/bidi.gd
+index 02927ec..f0aebd8 100644
+--- a/game/scripts/core/bidi.gd
++++ b/game/scripts/core/bidi.gd
+@@ -126,3 +126,99 @@ static func fill(template: String, params: Dictionary) -> String:
+ 		out += ch
+ 		i += 1
+ 	return out
++
++
++# ------------------------------------------------------------------ the glue (mobile-first §5.2.1)
++
++## G2: the marks that close onto the word before them (a token made only of these).
++const GLUE_CLOSE := ".,:;!?…)]״\"׳'"
++## G3: the marks that open onto the word after them.
++const GLUE_OPEN := "([„"
++## G4 (weak): the magnitude words a number keeps.
++const GLUE_MAGNITUDES := ["אלף", "אלפי", "מיליון", "מיליוני", "מיליארד", "מיליארדי", "טריליון"]
++
++
++## mobile-first §5.2.1: the spaces inside a glued unit become U+00A0 (display time only), so the
++## pager (which splits on U+0020) and TextServer (which does not break at U+00A0) keep the unit on
++## one line. Strong glue: a currency sign with what it measures (G1), closing punctuation with the
++## word before it (G2), opening punctuation with the word after it (G3). Weak glue (`weak`): a
++## number with its magnitude word (G4). Spaces inside an LRI/RLI/FSI…PDI isolate are never
++## touched. Idempotent (a glued unit has no U+0020 left to match).
++static func glue(text: String, weak: bool = true) -> String:
++	if not text.contains(" "):
++		return text
++	var n := text.length()
++	# token boundaries: the U+0020 spaces outside any isolate
++	var spaces: Array[int] = []
++	var depth := 0
++	for i in n:
++		var ch := text[i]
++		if ch == LRI or ch == RLI or ch == FSI:
++			depth += 1
++		elif ch == PDI:
++			depth = maxi(0, depth - 1)
++		elif ch == " " and depth == 0:
++			spaces.append(i)
++	if spaces.is_empty():
++		return text
++	var out := text
++	# standalone quote tokens seen so far (odd = inside a pair); a quote opening the text counts
++	var quotes := 1 if _only(strip_controls(text.substr(0, spaces[0])), "\"״") else 0
++	var prev_start := 0
++	for si in spaces.size():
++		var i := spaces[si]
++		var next_end := spaces[si + 1] if si + 1 < spaces.size() else n
++		var prev := text.substr(prev_start, i - prev_start)
++		var next := text.substr(i + 1, next_end - i - 1)
++		prev_start = i + 1
++		if prev == "" or next == "":
++			continue
++		var glue_it := false
++		var nx := strip_controls(next)
++		var pv := strip_controls(prev)
++		if nx.begins_with(SHEKEL):
++			glue_it = true                                    # G1: "100 ₪", "{price} ₪", "מיליון ₪"
++		elif pv.ends_with(SHEKEL) and (next[0] == LRI or next[0] == FSI or next[0] == RLI or (nx != "" and nx[0] >= "0" and nx[0] <= "9")):
++			glue_it = true                                    # G1: a prefix "₪ 15"
++		elif _only(nx, GLUE_CLOSE) and not _only(nx, "\"״"):
++			glue_it = true                                    # G2: "word ." / "word )"
++		elif _only(pv, GLUE_OPEN):
++			glue_it = true                                    # G3: "( word"
++		elif _only(nx, "\"״") or _only(pv, "\"״"):
++			# a standalone quote: the first of a pair opens (G3), the second closes (G2)
++			if _only(pv, "\"״") and quotes % 2 == 1:
++				glue_it = true
++			elif _only(nx, "\"״") and quotes % 2 == 1:
++				glue_it = true
++		elif weak and _ends_with_digit(pv) and GLUE_MAGNITUDES.has(_strip_close(nx)):
++			glue_it = true                                    # G4 (weak): "850.6 מיליארד"
++		if _only(nx, "\"״"):
++			quotes += 1
++		if glue_it:
++			out = out.substr(0, i) + NBSP + out.substr(i + 1)
++	return out
++
++
++## The glue's fallback (§5.2.1 "never lose text"): the weak joints of a unit opened back to spaces.
++static func glue_strong(text: String) -> String:
++	return glue(text, false)
++
++
++static func _only(t: String, chars: String) -> bool:
++	if t == "":
++		return false
++	for i in t.length():
++		if not chars.contains(t[i]):
++			return false
++	return true
++
++
++static func _ends_with_digit(t: String) -> bool:
++	return t != "" and t[t.length() - 1] >= "0" and t[t.length() - 1] <= "9"
++
++
++static func _strip_close(t: String) -> String:
++	var e := t.length()
++	while e > 0 and GLUE_CLOSE.contains(t[e - 1]):
++		e -= 1
++	return t.substr(0, e)
+diff --git a/game/scripts/ui/overlay.gd b/game/scripts/ui/overlay.gd
+index 3f5cfa8..910f3f3 100644
+--- a/game/scripts/ui/overlay.gd
++++ b/game/scripts/ui/overlay.gd
+@@ -30,6 +30,15 @@ var body_focusables: Array[PxButton] = []
+ var _drag := {}
+ var _anim: Dictionary = {}
+ var _drop: Array = []
++## The v4 envelope (style guide §17.2, review U1): a modal drawn as `sheet_modal_body` + the
++## 3-frame `sheet_modal_flap` (sealed, lifting, open = the title band). `frame` is the body; the
++## flap sits over its top 96 (24 art rows). On the open the flap plays f0/f1/f2 at 0/40/80 ms and
++## holds f2; the title and the ✕ (`flap_head`) show from f2. Reduced motion: f2 at once.
++var flap: NinePatchRect
++var flap_head: Array[CanvasItem] = []
++var _flap_t := -1.0
++const FLAP_H := 96.0
++const FLAP_STEP_MS := 40.0
+ 
+ 
+ func _init() -> void:
+@@ -56,6 +65,36 @@ func make_panel(r: Rect2) -> void:
+ 	frame = Ui.nine(panel, r, Art.theme["modal"]["sprite"], int(Art.theme["modal"]["frame"]))
+ 
+ 
++## The envelope sheet at `r` (review U1): the body, then the flap over its top 96, at rest (f2 =
++## `sheet_modal`, pixel for pixel). Without the wave-9 pieces: the one-piece `sheet_modal`.
++## Sets `frame` (the body) and `flap`; the caller draws the title and the ✕ after it.
++func make_envelope(r: Rect2) -> void:
++	panel_rect = r
++	var split := Art.has_sprite("sheet_modal_body") and Art.has_sprite("sheet_modal_flap")
++	frame = Ui.nine(panel, r, Art.sprite_or("sheet_modal_body" if split else "sheet_modal"))
++	flap = Ui.nine(panel, Rect2(r.position, Vector2(r.size.x, FLAP_H)), "sheet_modal_flap", 2) if split else null
++
++
++## The flap's frame by the time since the open (0 sealed, 1 lifting, 2 open).
++static func flap_frame(t_ms: float) -> int:
++	return clampi(int(floorf(t_ms / FLAP_STEP_MS)), 0, 2)
++
++
++func _set_flap(f: int) -> void:
++	if flap != null:
++		Ui.set_nine_frame(flap, "sheet_modal_flap", f)
++	for n: CanvasItem in flap_head:
++		if is_instance_valid(n):
++			n.visible = f >= 2
++
++
++## The flap follows the body's squish (its top edge and width).
++func _sync_flap() -> void:
++	if flap != null and frame != null:
++		flap.position = frame.position
++		flap.size = Vector2(frame.size.x, FLAP_H / 4.0)
++
++
+ func text(pos: Vector2, s: String, sc: int, role: Variant = null) -> PxText:
+ 	return PxText.make(panel, pos, s, sc, "plain", role if role != null else Art.theme["modal"]["body"])
+ 
+@@ -217,6 +256,9 @@ func enter(reduced: bool) -> void:
+ 	panel.modulate.a = 0.0
+ 	scrim.modulate.a = 0.0
+ 	_anim = {"kind": "enter", "t": 0.0, "reduced": reduced}
++	if flap != null:
++		_flap_t = -1.0 if reduced else 0.0
++		_set_flap(2 if reduced else 0)
+ 
+ 
+ func exit(reduced: bool, done: Callable) -> void:
+@@ -226,6 +268,12 @@ func exit(reduced: bool, done: Callable) -> void:
+ 
+ func tick(dt_ms: float) -> void:
+ 	_age += dt_ms
++	if _flap_t >= 0.0:
++		_flap_t += dt_ms
++		var ff := flap_frame(_flap_t)
++		_set_flap(ff)
++		if ff >= 2:
++			_flap_t = -1.0
+ 	if not _anim.is_empty():
+ 		_anim["t"] = float(_anim["t"]) + dt_ms
+ 		var t: float = _anim["t"]
+@@ -245,6 +293,7 @@ func tick(dt_ms: float) -> void:
+ 					panel.position.y = 0.0
+ 					if frame:
+ 						PxButton.squish_nine(frame, panel_rect, 0, 0)
++						_sync_flap()
+ 					panel.modulate.a = 1.0
+ 					scrim.modulate.a = backdrop
+ 					_anim = {}
+@@ -254,6 +303,7 @@ func tick(dt_ms: float) -> void:
+ 					panel.position.y = float(d[0])
+ 					if frame:
+ 						PxButton.squish_nine(frame, panel_rect, float(d[1]), float(d[2]))
++						_sync_flap()
+ 					panel.modulate.a = minf(1.0, 1.0 - pow(1.0 - minf(1.0, t / 100.0), 2.0))
+ 					scrim.modulate.a = backdrop * minf(1.0, 1.0 - pow(1.0 - minf(1.0, t / 200.0), 2.0))
+ 		else:
+diff --git a/game/scripts/ui/px_text.gd b/game/scripts/ui/px_text.gd
+index 2727d58..4ccea13 100644
+--- a/game/scripts/ui/px_text.gd
++++ b/game/scripts/ui/px_text.gd
+@@ -225,7 +225,7 @@ static func fits(t: String, box_w: float, lines: int, scale_px: int) -> bool:
+ 	p.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(t) else TextServer.DIRECTION_LTR
+ 	p.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+ 	p.justification_flags = TextServer.JUSTIFICATION_NONE
+-	p.add_string(t, HeFont.font(), HeFont.size())
++	p.add_string(Bidi.glue(t) if lines > 1 else t, HeFont.font(), HeFont.size())   # §5.2.1: as it will wrap
+ 	p.width = w
+ 	if p.get_line_count() > maxi(1, lines):
+ 		return false
+@@ -301,18 +301,14 @@ func _relayout() -> void:
+ 		# the @2 cut shapes at 18 in units half a Sevev 9 px wide: every box below is in shaped
+ 		# units, i.e. the Sevev 9 box × _u (floored in Sevev 9 px first, so both cuts wrap alike)
+ 		_u = HeFont.SHARP_DENSITY if _wants_sharp() else 1
+-		_para = TextParagraph.new()
+-		_para.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(text) else TextServer.DIRECTION_LTR
+-		_para.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+-		_para.justification_flags = TextServer.JUSTIFICATION_NONE
+-		if _u > 1:
+-			_para.add_string(text, HeFont.sharp(), HeFont.sharp_size())
+-		else:
+-			_para.add_string(text, _shaped_font(), HeFont.size())
+-		if wrap_width > 0.0:
+-			_para.width = _wrap_units()
+-			_para.max_lines_visible = maxi(1, max_lines_large if (_up and max_lines_large > 0) else max_lines)
+-			_para.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
++		# mobile-first §5.2.1: a wrapping text is glued (a number keeps its ₪, a word its mark); if
++		# a unit is still wider than the line, its weak joints open, then all of them (never lost)
++		var wraps := wrap_width > 0.0 and maxi(max_lines, max_lines_large) > 1
++		var tries: Array = [Bidi.glue(text), Bidi.glue_strong(text), text] if wraps else [text]
++		for shown: String in tries:
++			_shape(shown)
++			if not _overflows() or shown == text:
++				break
+ 		_box_w = 0.0
+ 		for i in _para.get_line_count():
+ 			_box_w = maxf(_box_w, _para.get_line_width(i))
+@@ -321,6 +317,34 @@ func _relayout() -> void:
+ 	queue_redraw()
+ 
+ 
++func _shape(shown: String) -> void:
++	_para = TextParagraph.new()
++	_para.direction = TextServer.DIRECTION_RTL if Bidi.paragraph_rtl(shown) else TextServer.DIRECTION_LTR
++	_para.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
++	_para.justification_flags = TextServer.JUSTIFICATION_NONE
++	if _u > 1:
++		_para.add_string(shown, HeFont.sharp(), HeFont.sharp_size())
++	else:
++		_para.add_string(shown, _shaped_font(), HeFont.size())
++	if wrap_width > 0.0:
++		_para.width = _wrap_units()
++
++
++## True when a shaped line is wider than the wrap box (a glued unit longer than the line). Read
++## before the line cap and the ellipsis are set, then sets them.
++func _overflows() -> bool:
++	if _para == null or wrap_width <= 0.0:
++		return false
++	var w := _wrap_units()
++	var over := false
++	for i in _para.get_line_count():
++		if _para.get_line_width(i) > w + 0.01:
++			over = true
++	_para.max_lines_visible = maxi(1, max_lines_large if (_up and max_lines_large > 0) else max_lines)
++	_para.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
++	return over
++
++
+ ## The wrap box in shaped units: whole Sevev 9 px at the drawn scale, × _u.
+ func _wrap_units() -> float:
+ 	return floorf(wrap_width / float(eff_px())) * _u
+diff --git a/game/scripts/ui/ticker.gd b/game/scripts/ui/ticker.gd
+index 44febf2..c995887 100644
+--- a/game/scripts/ui/ticker.gd
++++ b/game/scripts/ui/ticker.gd
+@@ -301,7 +301,22 @@ func _top_queued_priority() -> int:
+ static func wrap_lines_px(text: String, max_px: float, scale_px: int) -> PackedStringArray:
+ 	var out := PackedStringArray()
+ 	var cur := ""
++	# §5.2.1 fallback: a glued unit wider than the line breaks at its weak joints first, then at
++	# every NBSP (as if they were spaces); nothing is ever lost
++	var words := PackedStringArray()
+ 	for w in text.split(" ", false):
++		if not w.contains(Bidi.NBSP) or PxText.measure(w, scale_px) <= max_px:
++			words.append(w)
++			continue
++		var plain := w.replace(Bidi.NBSP, " ")
++		var strong := Bidi.glue_strong(plain)
++		var parts := strong.split(" ", false)
++		var ok := true
++		for p in parts:
++			if PxText.measure(p, scale_px) > max_px:
++				ok = false
++		words.append_array(parts if ok else plain.split(" ", false))
++	for w in words:
+ 		var trial := w if cur == "" else cur + " " + w
+ 		if cur == "" or PxText.measure(trial, scale_px) <= max_px:
+ 			cur = trial
+@@ -317,7 +332,7 @@ static func wrap_lines_px(text: String, max_px: float, scale_px: int) -> PackedS
+ 
+ ## mobile-first §5.2: the pages of a headline, `per` lines each.
+ static func paginate(text: String, max_px: float, scale_px: int, per: int) -> Array:
+-	var lines := wrap_lines_px(text, max_px, scale_px)
++	var lines := wrap_lines_px(Bidi.glue(text), max_px, scale_px)   # §5.2.1: the glue, then the pages
+ 	var pages: Array = []
+ 	var i := 0
+ 	while i < lines.size():
+diff --git a/game/scripts/ui/views/view_election.gd b/game/scripts/ui/views/view_election.gd
+index a990ede..d8b19f4 100644
+--- a/game/scripts/ui/views/view_election.gd
++++ b/game/scripts/ui/views/view_election.gd
+@@ -13,6 +13,11 @@ extends SheetCard
+ ## Backdrop, Esc and back = "עוד לא". The confirm is idempotent (E7): the first press commits.
+ 
+ const MOODS := [1, 3, 5, 6, 10, 20]
++## mobile-first §5.14.1 (F15): the hemicycle, the card's hero between the title band and the
++## leader line (now its caption), ×4 (288 × 152), gaps 16 above and below; left out when the card
++## would not fit the modal band (on the matrix: 375×548 only).
++const HEMI_SCALE := 4.0
++const HEMI_GAP := 16.0
+ 
+ var committed := false
+ var go_button: PxButton
+@@ -20,6 +25,32 @@ var cancel_button: PxButton
+ var ready_state := false
+ var need_text: PxText
+ var leader_text: PxText   # ELECT_LEADER "{short} · {party}" (leader select)
++var hemicycle: Hemicycle  # null when left out (no room, no coalition, no art)
++
++
++## The 120-seat hemicycle: `hemicycle_track`, then `hemicycle_fill`'s seats[0 : n] over it (the
++## kit's order is the fill order: seat 1 at the right end, sweeping left, RTL). No numeral, no
++## input; drawn in the blackout too (its fill obeys the bar's rule, rtl-map §3).
++class Hemicycle extends Node2D:
++	var n := 0
++	var scale_px := 4.0
++
++	func size() -> Vector2:
++		return Vector2(Art.sprite_size("hemicycle_track")) * scale_px
++
++	func _draw() -> void:
++		draw_texture_rect(Art.tex("hemicycle_track"), Rect2(Vector2.ZERO, size()), false)
++		var fill := Art.tex("hemicycle_fill")
++		var seats: Array = Art.kit("hemicycle_fill").get("seats", [])
++		for i in mini(n, seats.size()):
++			var r: Array = seats[i]
++			var src := Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
++			draw_texture_rect_region(fill, Rect2(src.position * scale_px, src.size * scale_px), src)
++
++
++## The seats the hemicycle fills: the effective seats (the gate's own count), 0-120.
++static func hemi_seats(s: GameState) -> int:
++	return clampi(int(Coalition.seat_info(s)["effective"]), 0, 120)
+ 
+ 
+ ## The public-mood line for round n: the MOOD_k with the largest k ≤ n (MOOD_1 … MOOD_20).
+@@ -49,6 +80,11 @@ func build() -> ElectionCard:
+ 	_begin()
+ 	var n := s.evolutions + 1
+ 	title(Strings.s("ELECT_TITLE", {"n": n}))
++	var with_hemi := Coalition.active() and Art.has_sprite("hemicycle_track") and Art.has_sprite("hemicycle_fill")
++	var hemi_y := HEADER_H + HEMI_GAP
++	var hemi_h := float(Art.sprite_size("hemicycle_track").y) * HEMI_SCALE if with_hemi else 0.0
++	if with_hemi:
++		_y = hemi_y + hemi_h + HEMI_GAP
+ 	if LeaderUi.short() != "":   # rtl-map §8.8 (D33): the round's leader under the title
+ 		leader_text = para(Strings.s("ELECT_LEADER", {"short": LeaderUi.short(), "party": LeaderUi.party()}), C_TEXT, true, 1)
+ 	para(Strings.s(mood_key(n)), C_MUTED, true, 2)
+@@ -65,6 +101,26 @@ func build() -> ElectionCard:
+ 	_y = Ui.snap(_y - PARA_GAP + PAD, 4) + BTN_H + BTN_GAP
+ 	_specs.append([Rect2(88, _y, 544, BTN_H), Strings.s("ELECT_CANCEL"), "kit_secondary", func() -> void: cancel("close")])
+ 	_y += BTN_H
++	# §5.14.1 "when it fits": laid out with the hemicycle; if the card is then taller than the modal
++	# band, the hemicycle is left out and the card is exactly the one without it
++	if with_hemi and laid_h() > room():
++		var dy := (hemi_y + hemi_h + HEMI_GAP) - (HEADER_H + PAD)
++		for p: PxText in paras:
++			p.position.y -= dy
++		for sp: Array in _specs:
++			var r: Rect2 = sp[0]
++			r.position.y -= dy
++			sp[0] = r
++		_y -= dy
++		with_hemi = false
++	if with_hemi:
++		hemicycle = Hemicycle.new()
++		hemicycle.scale_px = HEMI_SCALE
++		hemicycle.n = hemi_seats(s)
++		var g2 := grow_half()
++		var cwc := CARD_W + 2.0 * g2
++		hemicycle.position = Vector2(CARD_X - g2 + L.floor4((cwc - hemicycle.size().x) / 2.0), hemi_y)
++		_holder.add_child(hemicycle)
+ 	finish()
+ 	go_button = buttons[0]
+ 	cancel_button = buttons[1]
+@@ -79,12 +135,26 @@ func default_focus() -> int:
+ 
+ 
+ func on_opened() -> void:
+-	publish_web({"ready": ready_state})
++	publish_web({"ready": ready_state, "hemicycle": hemi_view()})
++
++
++## §5.14.1 publish: the hemicycle's [x, y, w, h, n] in viewport logical px, or null when left out.
++func hemi_view() -> Variant:
++	if hemicycle == null:
++		return null
++	var p := to_view(hemicycle.position + _holder.position)
++	var sz := hemicycle.size()
++	return [p.x, p.y, sz.x, sz.y, hemicycle.n]
+ 
+ 
+ func update_view(_dt_ms: float) -> void:
+ 	if committed or go_button == null:
+ 		return
++	if hemicycle != null:
++		var hn := hemi_seats(host.state)
++		if hn != hemicycle.n:
++			hemicycle.n = hn
++			hemicycle.queue_redraw()
+ 	var ready: bool = (host.d as Economy.Derived).evolve_enabled
+ 	if ready != ready_state:
+ 		ready_state = ready
+diff --git a/game/scripts/ui/views/view_flash.gd b/game/scripts/ui/views/view_flash.gd
+index 231e3e2..10568fa 100644
+--- a/game/scripts/ui/views/view_flash.gd
++++ b/game/scripts/ui/views/view_flash.gd
+@@ -36,7 +36,7 @@ extends Overlay
+ 
+ const CARD_X := 48.0
+ const CARD_W := 624.0
+-const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
++const HEADER_H := 96.0               # the envelope flap (24 art rows, review U1)
+ const SCREEN_X := 72.0
+ const SCREEN_W := 576.0
+ const SCREEN_FRAME := 4.0            # 1 art px of ink around the screen
+@@ -214,12 +214,13 @@ func build() -> FlashCard:
+ 	var y := Ui.snap(maxf(band.x + BAND_MARGIN, band.y - (24.0 - PAD) - h), 4)
+ 	# the panel: the kit's dark sheet (white labels), title band on top
+ 	var g2 := SheetCard.grow_half()   # the width rule: ≥ 92% of the canvas, as the sheet cards
+-	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
+-	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
++	make_envelope(Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h))   # body + flap (review U1)
+ 	var head := text(Vector2(0, y + 24.0), str(lead["title"]) if not lead.is_empty() and str(lead["title"]) != "" else header_text(evolutions), L.TEXT, C_TITLE)
+ 	head.wrap_width = TEXT_W
+ 	head.max_lines = 1
+ 	head.center_in(CARD_X - g2, CARD_W + 2.0 * g2)
++	flap_head.clear()
++	flap_head.append(head)
+ 	# the news screen
+ 	var sy := y + HEADER_H + PAD
+ 	screen_rect = Rect2(SCREEN_X, sy + SCREEN_FRAME, SCREEN_W, screen_h)
+diff --git a/game/scripts/ui/views/view_sheet_card.gd b/game/scripts/ui/views/view_sheet_card.gd
+index fcc26ed..6e1d635 100644
+--- a/game/scripts/ui/views/view_sheet_card.gd
++++ b/game/scripts/ui/views/view_sheet_card.gd
+@@ -20,7 +20,7 @@ extends Overlay
+ 
+ const CARD_X := 48.0
+ const CARD_W := 624.0
+-const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
++const HEADER_H := 96.0               # the envelope flap (24 art rows, review U1: the first line clears the point)
+ const TEXT_RIGHT := 640.0            # modal.body box x 80-640
+ const TEXT_W := 560.0
+ const BODY_MAX := 624.0              # mobile-first §4.1: a modal body stays ≤ 624 (≈ 24 glyphs)
+@@ -129,16 +129,19 @@ func finish() -> void:
+ 	var h := Ui.snap(_y + PAD, 4)
+ 	var band := _band()
+ 	var lo := band.x + BAND_MARGIN
+-	var hi := band.y - BAND_MARGIN
+-	if host != null and host.has_method("modal_floor"):
+-		hi = minf(hi, float(host.call("modal_floor")) - 24.0)
++	var hi := _hi(band)
+ 	var centre := band.x + (band.y - band.x) * (0.55 if band.y - band.x > 1400.0 else 0.5)
+ 	var y := Ui.snap(clampf(centre - h / 2.0, lo, maxf(lo, hi - h)), 4)
+ 	var g2 := grow_half()
+ 	_holder.position.x = 0.0
+-	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
+-	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
++	# the envelope (review U1, style guide §17.2): body, flap, then the title and the ✕
++	make_envelope(Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h))
+ 	panel.move_child(frame, 0)
++	if flap != null:
++		panel.move_child(flap, 1)
++	flap_head.clear()
++	if title_text != null:
++		flap_head.append(title_text)
+ 	_holder.position.y = y
+ 	buttons.clear()
+ 	for sp: Array in _specs:
+@@ -157,10 +160,29 @@ func finish() -> void:
+ 		var sz := Vector2(Art.sprite_size(id)) * 4.0
+ 		var vis := Rect2(CARD_X - g2 + 16.0, y + 16.0, 64.0, 64.0)
+ 		close_btn = PxButton.make(panel, vis, {"hit": Rect2(CARD_X - g2, y, 104.0, 104.0), "ghost": true, "on_commit": _close_cb})
+-		Ui.img(panel, (vis.position + (vis.size - sz) / 2.0).snapped(Vector2(4, 4)), id, 0, 4)
++		flap_head.append(Ui.img(panel, (vis.position + (vis.size - sz) / 2.0).snapped(Vector2(4, 4)), id, 0, 4))
+ 		focusables.append(close_btn)
+ 
+ 
++## The bottom limit of the card in the modal band (§5.10: 24 over the tab bar's top).
++func _hi(band: Vector2) -> float:
++	var hi := band.y - BAND_MARGIN
++	if host != null and host.has_method("modal_floor"):
++		hi = minf(hi, float(host.call("modal_floor")) - 24.0)
++	return hi
++
++
++## The tallest card the modal band holds (the height finish() can place without clamping).
++func room() -> float:
++	var band := _band()
++	return _hi(band) - (band.x + BAND_MARGIN)
++
++
++## The card's height as laid out so far (what finish() will size it to).
++func laid_h() -> float:
++	return Ui.snap(_y + PAD, 4)
++
++
+ ## Half the card's growth, on the 4-px grid. Bar's width rule (2026-09-30, "the UX/UI fills the
+ ## phone's width"; it supersedes §5.10's 624 + min(dx, 64)): a modal card is ≥ 92% of the canvas,
+ ## a floor4(3.5%) margin each side (24-28 logical: 672 at cw 720, 728 at 780, 800 at 860). Its body
+diff --git a/game/tests/unit/test_glue.gd b/game/tests/unit/test_glue.gd
+new file mode 100644
+index 0000000..32ef4b7
+--- /dev/null
++++ b/game/tests/unit/test_glue.gd
+@@ -0,0 +1,125 @@
++extends RefCounted
++## ux/mobile-first-layout.md §5.2.1 (D49, review 2026-09-30 U16), the no-break rule: a currency sign
++## stays with what it measures and punctuation with its word (strong glue, never broken); a number
++## stays with its magnitude word (weak glue, broken only when the unit is wider than the line). Spaces
++## inside a unit become U+00A0 at display time, in the ticker pager and in every wrapping PxText.
++
++var runner: Object
++const NB := " "
++const CLOSE := ".,:;!?…)]"
++
++
++func setup(_r: Object) -> void:
++	TestFixture.use_game_content()
++
++
++## (a) the Animator's case: "₪." never opens a line, at every width from the unit's own to 464.
++func test_the_shekel_never_opens_a_line() -> void:
++	var t := "הקופה עברה 100,000 ₪."
++	var unit := PxText.measure("100,000" + NB + "₪.", 4)
++	var bad := 0
++	var w := float(unit)
++	while w <= 464.0:
++		for l in Ticker.wrap_lines_px(Bidi.glue(t), w, 4):
++			if l.strip_edges().begins_with("₪"):
++				bad += 1
++		w += 4.0
++	runner.check(bad == 0, "no line starts with ₪ from %d to 464 (%d bad)" % [unit, bad])
++	runner.check(Bidi.glue(t) == "הקופה עברה 100,000" + NB + "₪.", "G1: the space before ₪ is glued")
++
++
++func test_the_rules() -> void:
++	runner.check(Bidi.glue("₪ 15 לכל אחד") == "₪" + NB + "15 לכל אחד", "G1: a prefix ₪ keeps its number")
++	runner.check(Bidi.glue("אמר משהו .") == "אמר משהו" + NB + ".", "G2: a lone closing mark keeps its word")
++	runner.check(Bidi.glue("( בערך ) היום") == "(" + NB + "בערך" + NB + ") היום", "G2 + G3: brackets keep their word")
++	runner.check(Bidi.glue("עלה 850.6 מיליארד ₪.") == "עלה 850.6" + NB + "מיליארד" + NB + "₪.", "G4 (weak) + G1")
++	runner.check(Bidi.glue("עלה 850.6 מיליארד ₪.", false) == "עלה 850.6 מיליארד" + NB + "₪.", "strong only: the weak joint stays a space")
++	runner.check(Bidi.glue("הקופה עברה מיליארד ₪.") == "הקופה עברה מיליארד" + NB + "₪.", "a magnitude word as a noun: only its ₪ is glued")
++	runner.check(Bidi.glue("אמר \" שלום \" והלך") == "אמר \"" + NB + "שלום" + NB + "\" והלך", "a quote pair: the first opens, the second closes")
++	runner.check(Bidi.glue("בלי שום דבק") == "בלי שום דבק", "plain words: untouched")
++
++
++## (c) idempotent, and an isolate is never touched.
++func test_idempotent_and_isolates_untouched() -> void:
++	var iso := Bidi.LRI + "12 / 61" + Bidi.PDI + " ₪ ."
++	var g := Bidi.glue(iso)
++	runner.check(g.begins_with(Bidi.LRI + "12 / 61" + Bidi.PDI), "the spaces inside LRI…PDI stay (got %s)" % g.c_escape())
++	runner.check(g == Bidi.LRI + "12 / 61" + Bidi.PDI + NB + "₪" + NB + ".", "outside the isolate the glue applies")
++	for t: String in ["הקופה עברה 100,000 ₪.", "( בערך ) היום", "עלה 850.6 מיליארד ₪.", iso, "אמר \" שלום \" והלך"]:
++		runner.check(Bidi.glue(Bidi.glue(t)) == Bidi.glue(t), "glue(glue(x)) == glue(x): %s" % t)
++	runner.check(Bidi.glue(Bidi.money("12.4K")) == Bidi.money("12.4K"), "a price is already one unit")
++
++
++## The fallback: a unit wider than the line breaks at its weak joint first, never before ₪, and no
++## text is lost.
++func test_a_unit_wider_than_the_line_falls_back_to_its_weak_joint() -> void:
++	var t := "עלה 850.6 מיליארד ₪."
++	var unit := PxText.measure("850.6" + NB + "מיליארד" + NB + "₪.", 4)
++	var w := float(unit - 8)
++	var lines := Ticker.wrap_lines_px(Bidi.glue(t), w, 4)
++	var joined := " ".join(lines).replace(NB, " ")
++	runner.check(joined == t, "nothing is lost (%s)" % " | ".join(lines))
++	var ok := true
++	for l in lines:
++		ok = ok and not l.strip_edges().begins_with("₪")
++	runner.check(ok and lines.size() >= 2, "it breaks at the weak joint, never before ₪ (%s)" % " | ".join(lines))
++
++
++## (b) every ticker line in content.json at the four clips: no line starts with ₪ or a closing mark,
++## none ends with an opening one (a weak-joint fallback may still start with a magnitude word).
++func test_every_ticker_line_keeps_its_units() -> void:
++	var texts: Array = []
++	_walk(Content.data(), false, texts)
++	texts = texts.filter(func(t: String) -> bool: return t != "" and not t.contains("{"))
++	runner.check(texts.size() > 100, "the ticker lines are found (%d)" % texts.size())
++	var bad: Array = []
++	for clip: float in [280.0, 324.0, 384.0, 464.0]:
++		for t: String in texts:
++			var pages: Array = Ticker.paginate(t, clip, 4, 2)
++			for pg: Variant in pages:
++				for l: String in pg:
++					var s := l.strip_edges()
++					if s == "":
++						continue
++					if s.begins_with("₪") or CLOSE.contains(s[0]) or "([„".contains(s[s.length() - 1]):
++						bad.append("%d: %s" % [int(clip), s])
++	runner.check(bad.is_empty(), "no line opens with ₪ or a closing mark (%d: %s)" % [bad.size(), str(bad.slice(0, 4))])
++
++
++## A wrapping PxText breaks the same way: "₪." stays on the number's line.
++func test_a_wrapping_text_keeps_the_shekel_with_its_number() -> void:
++	var p := PxText.new()
++	p.px = 4
++	p.text = "הקופה עברה 100,000 ₪."
++	p.wrap_width = float(PxText.measure("הקופה עברה 100,000", 4) + 8)
++	p.max_lines = 3
++	var ls: Array = p.line_layout()
++	var starts_shekel := false
++	for l: Variant in ls:
++		var r: Vector2i = (l as Array)[0]
++		if r.y > r.x and p.text.substr(r.x, r.y - r.x).strip_edges().begins_with("₪"):
++			starts_shekel = true
++	runner.check(p.line_count() >= 2 and not starts_shekel, "the unit moves down whole (%d lines)" % p.line_count())
++	p.free()
++
++
++func _walk(v: Variant, in_ticker: bool, out: Array) -> void:
++	if v is Dictionary:
++		for k: Variant in v:
++			var key := str(k)
++			if key.begins_with("_"):
++				continue
++			var val: Variant = v[k]
++			var tick := in_ticker or key in ["headlines", "ambientHeadlines", "ambientHeadlinesV2"]
++			if key == "text" and in_ticker and val is String:
++				out.append(val)
++			elif key in ["ticker", "tickerStart", "onPaidTicker"] and val is String:
++				out.append(val)
++			else:
++				_walk(val, tick, out)
++	elif v is Array:
++		for x: Variant in v:
++			if x is String and in_ticker:
++				out.append(x)
++			else:
++				_walk(x, in_ticker, out)
+diff --git a/game/tests/unit/test_glue.gd.uid b/game/tests/unit/test_glue.gd.uid
+new file mode 100644
+index 0000000..3268cc2
+--- /dev/null
++++ b/game/tests/unit/test_glue.gd.uid
+@@ -0,0 +1 @@
++uid://c2uy1y6lporfo
+diff --git a/game/tests/unit/test_modals.gd b/game/tests/unit/test_modals.gd
+index 17c2808..ca58266 100644
+--- a/game/tests/unit/test_modals.gd
++++ b/game/tests/unit/test_modals.gd
+@@ -89,7 +89,20 @@ func test_the_election_card_is_the_o3_sheet_with_stacked_buttons() -> void:
+ 	# the width rule (Bar 2026-09-30): the card grows by 2·grow_half() about the 720 design's x 48-672
+ 	var g2 := SheetCard.grow_half()
+ 	runner.check(c.panel_rect.size.x == 624.0 + 2.0 * g2 and c.panel_rect.position.x == 48.0 - g2 and c.panel_rect.size.x >= 0.92 * L.cw, "a ≥ 92%% card, 624 + %d at x 48 − %d (%s)" % [2.0 * g2, g2, c.panel_rect])
+-	runner.check(c.frame.get_meta("sprite") == Art.sprite_or("sheet_modal"), "on the kit's sheet_modal")
++	runner.check(c.frame.get_meta("sprite") == "sheet_modal_body" and c.flap != null and c.flap.get_meta("sprite") == "sheet_modal_flap",
++		"the envelope: sheet_modal_body + sheet_modal_flap (review U1)")
++	runner.check(c.flap.position == c.panel_rect.position and c.flap.size * 4.0 == Vector2(c.panel_rect.size.x, 96.0) and c.flap.texture == Art.tex("sheet_modal_flap", 2),
++		"the flap spans the card's top 96 at rest on f2 (%s)" % [c.flap.size * 4.0])
++	runner.check(c.frame.get_index() < c.flap.get_index() and c.flap.get_index() < c.title_text.get_parent().get_index(), "draw order: body, flap, title")
++	# §5.14.1: the hemicycle is the card's hero, under the title band and over the leader line
++	runner.check(c.hemicycle != null, "the hemicycle is on O3 at 720×1280")
++	if c.hemicycle != null:
++		var hp := c.hemicycle.position
++		runner.check(hp.y == SheetCard.HEADER_H + 16.0 and c.hemicycle.size() == Vector2(288, 152), "×4 (288×152) at the header + 16 (%s)" % hp)
++		runner.check(absf(hp.x + 144.0 - (c.panel_rect.position.x + c.panel_rect.size.x / 2.0)) <= 4.0, "centred on the card")
++		runner.check(c.hemicycle.n == ElectionCard.hemi_seats(m.state), "it fills the effective seats (%d)" % c.hemicycle.n)
++		var first_para: PxText = c.paras[0]
++		runner.check(first_para.position.y >= hp.y + 152.0 + 16.0, "the leader line / the first line is its caption, below it")
+ 	var go := c.go_button
+ 	var no := c.cancel_button
+ 	runner.check(go.visual.size.x == 544.0 + 2.0 * g2 and no.visual.size.x == 544.0 + 2.0 * g2 and go.visual.position.y < no.visual.position.y,
+@@ -104,6 +117,29 @@ func test_the_election_card_is_the_o3_sheet_with_stacked_buttons() -> void:
+ 	runner.check(c.closing and not c.committed, "the backdrop is 'עוד לא'")
+ 
+ 
++## review U1 + style guide §17.2: the flap opens f0/f1/f2 at 0/40/80 ms and holds f2; the title and
++## the ✕ show from f2; reduced motion: f2 at once.
++func test_the_envelope_flap_opens_on_the_modal() -> void:
++	await _boot()
++	m._open_evolution()
++	var c := m.overlays.top() as ElectionCard
++	runner.check(c != null and c.flap != null, "O3 has a flap")
++	if c == null or c.flap == null:
++		return
++	c.enter(false)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 0) and not c.title_text.visible and c.flap_head.size() == 2, "0 ms: sealed, the title and ✕ hidden")
++	c.tick(40.0)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 1) and not c.title_text.visible, "40 ms: lifting")
++	c.tick(40.0)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 2) and c.title_text.visible, "80 ms: open, the title shows")
++	c.tick(400.0)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 2), "then it holds f2")
++	c.enter(true)
++	runner.check(c.flap.texture == Art.tex("sheet_modal_flap", 2) and c.title_text.visible, "reduced motion: f2 at once")
++	# the hemicycle is left out when the card would not fit the band (§5.14.1)
++	runner.check(c.hemicycle == null or c.laid_h() <= c.room(), "the card fits its band, or the hemicycle is left out")
++
++
+ func test_the_election_confirm_runs_the_transition_with_the_round() -> void:
+ 	await _boot()
+ 	_gate_open()
+-- 
+2.43.0
+

@@ -459,3 +459,244 @@ Binary files a/art/od-sevev/out/ui/widgets/cottage_cup.png and b/art/od-sevev/ou
 diff --git a/art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png b/art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png
 index 40dc27d..711b093 100644
 Binary files a/art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png and b/art/od-sevev/proofs/kit-w2-sheet-ticker-ftue.png differ
+diff --git a/art/od-sevev/src/ui_controls.py b/art/od-sevev/src/ui_controls.py
+index 9f5a6a9..32ca375 100644
+--- a/art/od-sevev/src/ui_controls.py
++++ b/art/od-sevev/src/ui_controls.py
+@@ -87,7 +87,8 @@ def tabbar():
+ # ------------------------------------------------------------------ tab icons 15x15
+ LEG = {"k": "outline", "s": "silver", "l": "slate", "w": "white", "y": "gold", "Y": "gold_hi", "o": "gold_sh",
+        "g": "grey", "p": "pink", "P": "pink_sh", "d": "suit_dk", "u": "suit", "t": "stone", "T": "stone_sh",
+-       "v": "stamp", "i": "ink", "b": "ui_bubble", "B": "ui_bub_hi"}
++       "v": "stamp", "i": "ink", "b": "ui_bubble", "B": "ui_bub_hi",
++       "S": "ui_mute"}
+ 
+ ICONS = {
+     # a faucet on a wall, a coin dropping out of it: "sources" = what you tap
+@@ -108,23 +109,26 @@ ICONS = {
+         "........koyook.",
+         ".........kkkk..",
+     ],
+-    # a chat bubble that says 61: "coalition" = the group chat, and the number it is for
++    # wave 10 (UX review 2, U8): two chat bubbles, the front one with three dots: "coalition" = the group chat. It said
++    # "61" until 2026-09-30, but a number in a chat bubble reads as an unread count, and at C1 the red badge covered the
++    # "6" ("1 1"). No digits now; the badge (top-left) sits over the back bubble, which it may hide without loss, and the
++    # dots stay clear of it (the badge's rounded corner leaves the first dot whole).
+     "coalition": [
+-        "kkkkkkkkkkkkkkk",
+-        "kwwwwwwwwwwwwwk",
+-        "kwwwwwwwwwwwwwk",
+-        "kwwwiiwwiwwwwwk",
+-        "kwwiwwwiiwwwwwk",
+-        "kwwiiiwwiwwwwwk",
+-        "kwwiwwiwiwwwwwk",
+-        "kwwwiiwiiiwwwwk",
+-        "kwwwwwwwwwwwwwk",
+-        "kgggggggggggggk",
+-        "kkkkkkkkkkkggkk",
++        "kkkkkkkkk......",
++        "kSSSSSSSk......",
++        "kSSSSSSSk......",
++        "kSSSSSSSk......",
++        "kSSSSSSSk......",
++        "kSSkkkkkkkkkkkk",
++        "kSSkwwwwwwwwwwk",
++        "kSSkwwwwwwwwwwk",
++        "kkkkwbbwbbwbbwk",
++        "...kwbbwbbwbbwk",
++        "...kwwwwwwwwwwk",
++        "...kggggggggggk",
++        "...kkkkkkkggkkk",
+         "..........kgk..",
+         "..........kk...",
+-        "...............",
+-        "...............",
+     ],
+     # a manila case file with a violet 'filed' mark and paper peeking: "cases"
+     "cases": [
+diff --git a/art/od-sevev/src/wave2.py b/art/od-sevev/src/wave2.py
+index 4246843..2b93747 100644
+--- a/art/od-sevev/src/wave2.py
++++ b/art/od-sevev/src/wave2.py
+@@ -59,14 +59,17 @@ def sheet_modal_layer(bottom=sheet_flap_bottom, band=True):
+ def sheets():
+     L = sheet_modal_layer()
+     W, H = L.w, L.h
+-    save(L, "sheet_modal", "sheet", slice=[7, 23, 7, 7], content=[7, 23, W - 14, H - 30], label="white",
++    save(L, "sheet_modal", "sheet", slice=[7, 24, 7, 7], content=[7, 24, W - 14, H - 31], label="white",
+          notes="Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round "
+                "card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20; v4: the blue ballot envelope, the band is the flap and points 2 rows deeper at the centre, the body is the v4 ui_panel blue, the close ✕ at the band's LEFT end in RTL); body "
+                "ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map "
+                "§7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the "
+                "outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece "
+                "is 38x38 and every margin grew by 1. Draw it at the card rect grown by 4 logical px per side to keep the "
+-               "title band and body exactly where they were.")
++               "title band and body exactly where they were. Wave 10 (UX review 2 U1, mobile-first §10 T1): the top "
++               "margin is 24, not 23: rows 0-23 are the band and the flap point with its shadow row (23), so the "
++               "stretched centre is the plain ui_panel body and no dark slab runs down under the point. The pixels "
++               "did not change.")
+     P = panel(24, 24, "ui_panel", "ui_bub_hi", "ui_scrim", corner=2)
+     save(P, "sheet_plain", "sheet", slice=[5, 5, 5, 5], content=[4, 3, 16, 17], label="white",
+          notes="Title-less sheet (toast stacks, the pardon desk form behind the stamp, tooltips).")
+diff --git a/art/od-sevev/src/wave10.py b/art/od-sevev/src/wave10.py
+new file mode 100644
+index 0000000..f78a8d8
+--- /dev/null
++++ b/art/od-sevev/src/wave10.py
+@@ -0,0 +1,155 @@
++"""Wave 10 (2026-09-30): the art side of UX build review 2 (ux/review-2026-09-30.md U2, U7, U10; mobile-first §10 A4,
++A5). New ids only: the old pieces stay as they are, so the engine switches when it is ready.
++
++  button_white_{default,pressed,disabled}  24x20   U2 / A4: the v4 primary button, the flag's white on its blue: a white
++                                                  face, a flag-blue lip (the key's side) and the outline; label `flag`
++                                                  8.5:1. Pressed: a silver face, down 2 into the lip (label 6.4:1).
++                                                  Disabled: the shared sunk slate (every kind's disabled is one shape).
++  card_row_silhouette                      32x30   U7: a not-yet-revealed source row on the white pane, a blank pale slip:
++                                                  `ui_mute` face, 1 art px `ui_rule` edge (5.6:1 on the pane: the edge
++                                                  carries the shape, the face is 1.3:1), sunk 1 px, no ink outline.
++                                                  Name label `ui_panel` 8.9:1.
++  chat_system_pill_navy                    20x13   U7: T3's system pill on the thread: a flat `ui_scrim` well with a
++                                                  `ui_rule` edge (1.5:1 fill + the edge vs the ui_panel thread), label
++                                                  `ui_mute` 12.9:1. Flat, no light bevel: a system line is not a button.
++  notice_frame                             40x40   U10: EVOLVE_TX as the gate's printed notice, a white notice card for the
++                                                  flag-blue page, ruled in flag blue at its top (thick, a white gap, thin)
++                                                  and bottom (thin, gap, thin) like the HTML gate's card. 9-slice.
++  booth_frame_tall                         40x46   A5: booth_frame with a 12-row header, so the picker title (x4, white on
++                                                  flag 8.5:1) can sit in it.
++
++The pale silhouettes for the teaser rows (`<silhouette>_pale`, U7: the plate icon in `ui_dim` with a `ui_rule` edge) are
++made by the pipeline from every shipped `source_*_icon_sil` (pipeline/od-sevev/sprites.py `pale_silhouettes`), because the
++rendered sources' silhouettes are not authored here.
++"""
++from pix import Layer
++from kit import save, panel, chamfer, outline_inplace
++from palette import PAL
++
++G = "controls"
++
++
++# ------------------------------------------------------------------ U2 / A4: the white primary button
++def button_white(W=24, H=20):
++    # default: rows 0 outline | 1..15 white face | 16 silver shade | 17 flag | 18 flag_dk | 19 outline
++    d = panel(W, H, "white", "white", "silver", lip=2, lip_c="flag")
++    d.hline(1, W - 2, H - 2, "flag_dk")                 # the lip's lower row: the key's side in the flag's blue
++    save(d, "button_white_default", G, state="default", slice=[3, 3, 3, 4], content=[3, 2, W - 6, H - 6],
++         label="flag",
++         notes="U2 / A4 (UX review 2): the v4 primary button, the flag's white on its blue. A white face, a silver "
++               "bottom/right shade, a 2-row flag-blue lip (flag over flag_dk: the key's side) and the outline. Label "
++               "`flag` (#0038b8) 8.46:1. Same size, 9-slice and content box as button_primary_*, so it is a drop-in: "
++               "kit_primary -> button_white. It tells itself from button_secondary (ui_bubble + white, 7.5:1) by value "
++               "(white vs ui_bubble 7.5:1; was flag vs ui_bubble 1.13:1) and by the label colour. One per screen. On a "
++               "cream or white surface (the share sheet, the gate) the outline carries it (17.9:1 vs white).")
++    p = Layer(W, H)
++    pf = panel(W, H - 2, "silver", "grey", "silver", bevel=1)
++    pf.hline(1, W - 2, 1, "grey"); pf.vline(1, 1, H - 4, "grey")        # the inner shadow: the key is down
++    pf.hline(1, W - 2, H - 4, "silver"); pf.vline(W - 2, 2, H - 4, "silver")
++    p.paste(pf, 0, 2)
++    save(p, "button_white_pressed", G, state="pressed", slice=[3, 5, 3, 2], content=[3, 4, W - 6, H - 6],
++         label="flag", notes="Pressed: the face drops 2 art px into the lip (the blue side disappears), silver with a "
++         "grey inner shadow; the label moves +2 with it. flag on silver 6.40:1.")
++    x = Layer(W, H)
++    x.paste(panel(W, H - 2, "suit_dk", "suit_dk", "night", bevel=0), 0, 2)
++    save(x, "button_white_disabled", G, state="disabled", slice=[3, 5, 3, 2], content=[3, 4, W - 6, H - 6],
++         label="grey", notes="Disabled: the shared sunk, flat slate (= button_primary_disabled, pixel for pixel), label "
++         "grey 5.5:1. Disabled never masquerades as a colour variant.")
++
++
++# ------------------------------------------------------------------ U7: teaser rows and the navy system pill
++def silhouette_row(W=32, H=30):
++    L = Layer(W, H)
++    L.rect(0, 1, W, H - 1, "ui_mute")                  # sunk 1 art px, like card_source_locked
++    L.hline(1, W - 2, 2, "ui_dim")                      # the sunk top: one inner shadow row
++    chamfer(L, 0, 1, W, H - 1, 1)
++    outline_inplace(L, "ui_rule")                      # the edge in the dividers' blue, no ink outline
++    save(L, "card_row_silhouette", "cards", state="teaser", slice=[4, 4, 4, 4], content=[3, 3, W - 6, H - 6],
++         label="ui_panel",
++         notes="U7 (UX review 2): a not-yet-revealed source row on the white pane, a blank pale slip. ui_mute face, a "
++               "1 art px ui_rule edge (5.58:1 on the white pane; the face alone is 1.33:1, so the edge carries the "
++               "shape), sunk 1 px with a ui_dim inner top row, chamfered, no ink outline (a blank slip, the lightest "
++               "object on the pane; the saturated blue cards with gold pills stay the strong ones). Replaces "
++               "card_source_locked (suit_dk slate, the pane's heaviest value) for the teaser and silhouette rows. "
++               "Name 'מקור עלום' in ui_panel 8.87:1; the plate keeps card_plate, the icon is the pale silhouette "
++               "`<silhouette>_pale` (ui_dim with a ui_rule edge, 5.58:1 on the slip); no pill.",
++         extra={"textColors": {"name": "ui_panel", "line2": "ui_panel"},
++                "hex": {"ui_mute": PAL["ui_mute"], "ui_rule": PAL["ui_rule"], "ui_panel": PAL["ui_panel"],
++                        "ui_dim": PAL["ui_dim"]}})
++
++
++def system_pill_navy(W=20, H=13):
++    L = Layer(W, H)
++    L.rect(0, 0, W, H, "ui_scrim")
++    chamfer(L, 0, 0, W, H, 2)
++    outline_inplace(L, "ui_rule")
++    save(L, "chat_system_pill_navy", "chat", slice=[4, 3, 4, 3], content=[3, 2, W - 6, 9], label="ui_mute",
++         notes="U7 (UX review 2): T3's system pill on the v4 thread (ui_panel). A flat ui_scrim well with a 1 art px "
++               "ui_rule edge (fill 1.46:1 and edge 2.11:1 vs the thread, the edge 3.08:1 vs the well), no light bevel "
++               "(a system line is not a button). Label ui_mute 12.91:1. Same size, 9-slice and content box as "
++               "chat_system_pill, which stays (the picker's fresh chip still reads it).",
++         extra={"hex": {"ui_scrim": PAL["ui_scrim"], "ui_rule": PAL["ui_rule"], "ui_mute": PAL["ui_mute"]}})
++
++
++# ------------------------------------------------------------------ U10: the printed notice
++def notice_frame(W=40, H=40):
++    L = Layer(W, H)
++    L.rect(0, 0, W, H, "white")
++    for y in (1, 2, 3, 5, H - 4, H - 2):                # top: flag x3, a white gap, flag x1; bottom: flag, gap, flag
++        L.hline(0, W - 1, y, "flag")
++    chamfer(L, 0, 0, W, H, 1)
++    outline_inplace(L)
++    save(L, "notice_frame", "sheet", slice=[3, 7, 3, 5], content=[4, 8, W - 8, H - 14], label="night",
++         notes="U10 (UX review 2): EVOLVE_TX dressed as the gate's printed notice. A white notice card ruled in flag "
++               "blue edge to edge, at the top (3 rows, a white gap, 1 row) and the bottom (1, gap, 1), with the outline "
++               "and 1-px chamfered corners: the HTML gate's card (#od-gate .od-card ::before/::after) on the kit grid. "
++               "Draw it on the flag-blue page (`colors.page`), centred, around the card's lines (9-slice [3, 7, 3, 5]; "
++               "the centre is plain white, so it stretches to any size). 'הכנסת פוזרה.' in `colors.title` (flag, "
++               "8.46:1), the rest in `colors.text` (night, 13.88:1). Not full bleed: a white screen with a blue stripe "
++               "at the top and the bottom is the flag's own layout with the text where the star sits (style guide "
++               "§2.4, the rejected 'whole page as the flag'). A notice card on the blue page is the approved gate. "
++               "Blank: no emblem, no institution's name, no seal.",
++         extra={"colors": {"page": "flag", "title": "flag", "text": "night", "frame": "white"},
++                "hex": {"flag": PAL["flag"], "night": PAL["night"], "white": PAL["white"]}})
++
++
++# ------------------------------------------------------------------ A5: the booth with a title header
++def booth_tall(W=40, HDR=12):
++    H = 40 + (HDR - 7) + 1                              # booth_frame is 40 tall with a 7-row header (row 0 = outline)
++    L = Layer(W, H)
++    L.rect(0, 0, W, H, "paper")                          # cardboard, off-white
++    L.rect(0, 0, W, HDR + 1, "flag")                     # rows 1..HDR: the header (row 0 becomes the outline)
++    L.hline(0, W - 1, HDR + 1, "white")
++    top = HDR + 3                                        # the opening's first row (booth_frame: 9)
++    for y in range(HDR + 2, H):                          # the side wings, folded back
++        L.hline(0, 3, y, "stone_sh"); L.hline(W - 4, W - 1, y, "stone_sh")
++        L.set(4, y, "receipt_sh"); L.set(W - 5, y, "receipt_sh")
++    for y in range(top, H - 3):
++        for x in range(5, W - 5):
++            L.px[y][x] = None
++    L.hline(5, W - 6, H - 3, "receipt_sh")
++    outline_inplace(L)
++    save(L, "booth_frame_tall", "picker", slice=[6, top + 1, 6, 4], mode="stretch", content=[5, top, W - 10, H - top - 3],
++         label="white",
++         extra={"titleBox": [6, 2, W - 12, 9], "header": [1, 1, W - 2, HDR]},
++         notes="A5 (mobile-first §5.14.2, optional): booth_frame with a 12-row flag-blue header (rows 1-12), so the "
++               "picker title can sit in the booth: white on flag 8.46:1. `titleBox` [6, 2, w - 12, 9] is the text cell "
++               "(the x4 Sevev 9 cell is 9 art rows; x5 large text is 45 logical, inside the 48 of the header). The "
++               "opening, the wings and the bottom are booth_frame's exactly, 6 rows lower: 9-slice [6, 16, 6, 4], "
++               "content [5, 15, 30, 28] (booth_frame: [6, 10, 6, 4], [5, 9, 30, 28]). Net: the title's own row and its "
++               "16 gap above the booth go back to the sky; the booth's top inset grows 36 -> 60 logical. One line only: "
++               "a 2-line title keeps booth_frame with the title above it. Blank otherwise: no emblem, no letters.")
++
++
++def build():
++    button_white()
++    silhouette_row()
++    system_pill_navy()
++    notice_frame()
++    booth_tall()
++
++
++if __name__ == "__main__":
++    from kit import write_manifest
++    build()
++    print(write_manifest())
+# untracked binary: art/od-sevev/src/wave10.py
