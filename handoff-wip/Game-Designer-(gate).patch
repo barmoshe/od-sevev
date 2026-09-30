@@ -98,7 +98,7 @@ index 0f532f3..b1c79a9 100644
  ## ctx.hour (the device's local hour; the engine should pass it), else Israel time from ctx.nowMs.
  static func _count_night_taps(s: GameState, ctx: Dictionary) -> void:
 diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
-index 1558947..f242548 100644
+index 1558947..75d17ca 100644
 --- a/game/scripts/ui/dev_probe.gd
 +++ b/game/scripts/ui/dev_probe.gd
 @@ -9,6 +9,8 @@ extends RefCounted
@@ -116,7 +116,7 @@ index 1558947..f242548 100644
  		"openBrawl": not Coalition.open_brawl(s).is_empty()}
 +	# the sim's open lines whether or not T3 is open (the driver saves for an ultimatum like a player)
 +	var lines := 0
-+	var afford := 0
++	var n_afford := 0
 +	var ult_left := -1.0
 +	var ult_price := 0.0
 +	if s.coalition is Dictionary:
@@ -125,12 +125,12 @@ index 1558947..f242548 100644
 +				continue
 +			lines += 1
 +			if s.bananas >= float(m.get("price", 0.0)):
-+				afford += 1
++				n_afford += 1
 +			if m["type"] == "ultimatum" or str(m.get("payable", "")) == "rejoin":
 +				ult_price = maxf(ult_price, float(m.get("price", 0.0)))
 +				if m["type"] == "ultimatum":
 +					ult_left = float(m["leftSec"]) if ult_left < 0.0 else minf(ult_left, float(m["leftSec"]))
-+	out["coal"] = {"lines": lines, "afford": afford, "ultLeft": ult_left, "save": ult_price, "vote": bool(host.call("vote_open")) if host.has_method("vote_open") else false}
++	out["coal"] = {"lines": lines, "afford": n_afford, "ultLeft": ult_left, "save": ult_price, "vote": bool(host.call("vote_open")) if host.has_method("vote_open") else false}
  	# the "{n} ממתינים ↑" chip and the brawl stage cue (views wave 6): centres in viewport px
  	var pi := chat.pending_info()
  	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
@@ -642,10 +642,10 @@ index 0000000..0509389
 # untracked binary: game/tests/unit/test_vote_hold.gd.uid
 diff --git a/tools/web/round_play.mjs b/tools/web/round_play.mjs
 new file mode 100644
-index 0000000..1fdf2b8
+index 0000000..49ae749
 --- /dev/null
 +++ b/tools/web/round_play.mjs
-@@ -0,0 +1,216 @@
+@@ -0,0 +1,217 @@
 +// The scripted player shared by round_web.mjs and picker_web.mjs (Game Designer 2026-09-30): one
 +// loop that plays a round to the 61 gate through the real UI with real touches, and one election
 +// call that checks "the vote stops the clock" (sim/politics.gd, design/leader-select-spec.md §7.4).
@@ -665,12 +665,12 @@ index 0000000..1fdf2b8
 +export function makePlayer({ page, cdp, DPR, out, wh, log }) {
 +	const wait = (ms) => page.waitForTimeout(ms);
 +	const st = { disp: null, cv: null, tid: 1, t0: Date.now(), lastSeats: -1, paid: 0, loops: 0, lastBuy: 0,
-+		hatTaps: 0, buyActions: 0, cardTaps: 0, chatLooks: 0, modals: {}, actions: [], navs: [], shots: [] };
++		hatTaps: 0, buyActions: 0, cardTaps: 0, chatLooks: 0, modals: {}, actions: [], navs: [], shots: [], armed: false };
 +	const wall = () => Math.round((Date.now() - st.t0) / 1000);
 +	const act = (what) => { st.actions.push(`${wall()}s ${what}`); if (st.actions.length > 12) st.actions.shift(); };
 +	// "the page navigated mid-run" (seen once on v4): record where to and what the driver just did
 +	page.on('framenavigated', (fr) => {
-+		if (fr !== page.mainFrame()) return;
++		if (fr !== page.mainFrame() || !st.armed) return;
 +		const n = { url: fr.url(), wall: wall(), last: st.actions.slice(-6) };
 +		st.navs.push(n);
 +		log(`  NAVIGATION to ${n.url} at ${n.wall}s wall; the last actions: ${n.last.join(' | ')}`);
@@ -746,6 +746,7 @@ index 0000000..1fdf2b8
 +	// one approach to the gate: returns 'gate' (the CTA is up and the election can be called),
 +	// 'card' (the election card is already open) or 'budget'
 +	async function playToGate(budgetMs, hooks = {}) {
++		st.armed = true   // a navigation from here on is the game's or the driver's, not the boot's
 +		while (Date.now() - st.t0 < budgetMs) {
 +			st.loops++;
 +			let s = await probe();
