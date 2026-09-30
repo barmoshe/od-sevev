@@ -250,7 +250,7 @@ def build_taps(take):
         elif what == "tab":
             taps.append((t, *TAB[int(a.get("i", 3))]))
         elif what in ("pay", "decline"):
-            p = TAP_AT.get(t) or (find_pill(take, t) if what == "pay" else None)
+            p = TAP_AT[t] if t in TAP_AT else (find_pill(take, t) if what == "pay" else None)
             if p:
                 taps.append((t, *p))
     return sorted(taps)
@@ -370,11 +370,12 @@ def cam(t):
 
 
 def sway(t):
-    """A slow handheld drift, whole pixels only: no rotation and no bar-line zoom kick, both resample the
-    pixel-art text every frame and read as flicker (Bar, v4.1)."""
+    """A slow handheld drift: no rotation and no bar-line zoom kick, both resample the pixel-art text
+    every frame and read as flicker (Bar, v4.1). Kept fractional: the phone's position is rounded once,
+    camera + drift together (rounding each apart made it hop a pixel and back, v4.2)."""
     dx = 4 * math.sin(2 * math.pi * t / 4.1)
     dy = 3 * math.sin(2 * math.pi * t / 3.3 + 1.0)
-    return round(dx), round(dy)
+    return dx, dy
 
 
 # ---------------------------------------------------------------------------- layers

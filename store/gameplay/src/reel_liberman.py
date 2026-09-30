@@ -43,13 +43,13 @@ CLIPS = [
     (VB(4), VB(8), 3.0, 1.0),             # the first refusals
     (VB(8), VB(10), 9.0, 1.2),            # the drop: buying
     (VB(10), VB(12), 15.0, 1.0),          # more sources
-    (VB(12), VB(14), 22.0, 1.0),          # the big buys
-    (VB(14), VB(16), 26.0, 1.0),          # refusing, 400K in the bank
+    (VB(12), VB(14), 18.6, 1.0),          # refusing: a "לא מוחלט" crit
+    (VB(14), VB(16), 22.0, 0.7),          # 400K and the big buys (cut before the in-game Mordechai David event, ~24.5)
     (VB(16), VB(19), 29.8, 1.0),          # the coalition: partners join, he pays
     (VB(19), VB(24), 36.79, 1.0),         # the demand, "לא יושב" on the break's last beat, the next one
     (VB(24), VB(26), 48.0, 1.0),          # 5M, buying
     (VB(26), VB(27), 55.7, 1.0),          # the seats
-    (VB(27), VB(28), 57.3, 1.0),          # the Knesset dissolves
+    (VB(27), VB(28), 58.52, 0.22),        # "the Knesset dissolved": the ceremony card is up 0.4 s, held
 ]
 
 CAPTIONS = [
@@ -57,14 +57,14 @@ CAPTIONS = [
     (VB(2), VB(4), "בוחרים ראש רשימה", "הוא כבר הודיע: ראש הממשלה הבא."),
     (VB(4), VB(6), "כל לחיצה = סירוב", "הכיסא מקבל שקל."),
     (VB(6), VB(8), "ליברמן לא מתיישב", "גם לא על הכיסא שלו."),
-    (VB(8), VB(10), "קונים מקורות", "תומך ותיק. עומד לידך. כל הזמן."),
-    (VB(10), VB(12), "חזק בכלכלה", "מס על צלחות חד־פעמיות. חזר."),
+    (VB(8), VB(10), "קונים מקורות", "משלם המסים. תמיד הוא."),
+    (VB(10), VB(12), "עוד מקורות", "ההייטק משלם. ליברמן עומד."),
     (VB(12), VB(14), "חזק בביטחון", "חלש בישיבה."),
-    (VB(14), VB(16), "והקואליציה?", "ציונית. רחבה. על הנייר."),
-    (VB(16), VB(18), "מצרפים שותפים", "כל אחד חתם שזה סופי."),
-    (VB(18), VB(20), "שותף ביקש תקציב", "ליברמן שוקל..."),
+    (VB(14), VB(16), "חזק בכלכלה", "400 אלף. ועדיין לא התיישב."),
+    (VB(16), VB(18), "והקואליציה?", "ציונית. רחבה. על הנייר."),
+    (VB(18), VB(20), "לפיד ביקש תקציב", "ליברמן שוקל..."),
     (VB(20), VB(22), "לא יושב.", "הדרישה נסגרה. בחינם."),
-    (VB(22), VB(24), "והשותף?", "נשאר. לאן כבר ילך."),
+    (VB(22), VB(24), "עוד דרישה?", "הפעם שילם. הסירוב בטעינה."),
     (VB(24), VB(26), "המספרים עולים", "הכיסא עדיין ריק."),
     (VB(26), VB(27), "49 מתוך 61", ""),
     (VB(27), VB(28), "אז בחירות.", "שוב. כמו ב־2019."),
@@ -80,14 +80,14 @@ def cam_keys():
         (b(4), 1.0, None, None), (b(8), 1.18, None, None),                                # a slow creep to the drop
         (b(8), 1.0, None, None), (b(8) + 0.8, 1.28, 540, 1560), (b(10), 1.28, 540, 1600),  # onto the shop
         (b(10), 1.0, None, None), (b(12), 1.0, None, None),
-        (b(12), 1.0, None, None), (b(12) + 0.8, 1.26, 540, 1600), (b(14), 1.26, 540, 1600),
-        (b(14), 1.0, None, None), (b(14) + 0.9, 1.3, 540, 760), (b(16), 1.3, 540, 760),    # on him, refusing
+        (b(12), 1.0, None, None), (b(12) + 0.8, 1.3, 540, 760), (b(14), 1.3, 540, 760),    # on him, refusing
+        (b(14), 1.0, None, None), (b(14) + 0.9, 1.26, 540, 1600), (b(16), 1.26, 540, 1600),
         (b(16), 1.0, None, None), (b(17), 1.0, None, None), (b(17) + 0.9, 1.25, 540, 1250), (b(19), 1.25, 540, 1250),
         (b(19), 1.25, 540, 1300), (b(20) - 0.35, 1.45, 540, 1500), (b(20) + 1.2, 1.45, 540, 1500),  # the pill
         (b(21) + 0.5, 1.0, None, None), (b(24), 1.0, None, None),
         (b(24), 1.0, None, None), (b(24) + 0.8, 1.26, 540, 1600), (b(26), 1.26, 540, 1600),
         (b(26), 1.0, None, None), (b(26) + 0.6, 1.5, 540, 200), (b(27), 1.5, 540, 200),     # the meter
-        (b(27), 1.0, None, None), (b(28), 1.0, None, None),
+        (b(27), 1.0, None, None), (b(27) + 0.5, 1.5, 540, 1385), (b(28), 1.55, 540, 1385),
     ]
 
 
@@ -117,24 +117,32 @@ def end_card(c, t):
     # Liberman, arms crossed, and the chair he will not sit on
     rise = ease_out(clamp((tt - 0.2) / 0.35))
     fr, anc = lib_frame("react" if 1.0 <= tt < 2.2 else "idle", tt, 2)
-    x, y = 380, 1560 + int((1 - rise) * 500)
+    x, y = 330, 1610 + int((1 - rise) * 500)
+    chair = k.img("prop_chair", 10)
+    chair = chair.crop((0, 0, chair.width // 2, chair.height))   # the sheet holds two frames
+    paste(c, chair, 790, y, "b")
     paste(c, fr, x - anc[0] * 2, y - anc[1] * 2, "tl")
-    chair = k.img("prop_chair", 6)
-    paste(c, chair, 760, y, "b")
     if tt >= 1.0:
         b = k.bubble("לא יושב.", 6)
-        paste(c, b, x + 150, y - 640)
+        paste(c, b, x + 290, y - 560)
     if tt >= 1.6:
-        slam(c, badge("בקרוב"), tt, 1.6, W // 2, 760, angle=-4, frm=2.4)
+        slam(c, badge("בקרוב"), tt, 1.6, W // 2, 740, angle=-4, frm=2.4)
     if tt >= 2.2:
         cta = text("עקבו: @od.sevev", 8)
-        paste(c, plate(cta.width + 50, cta.height + 26, INK, INK, 6), W // 2, 1690)
-        paste(c, cta, W // 2, 1690)
-        paste(c, text("סאטירה. לא מטעם אף מפלגה.", 5, fill=(190, 196, 220)), W // 2, 1790)
+        paste(c, plate(cta.width + 50, cta.height + 26, INK, INK, 6), W // 2, 1735)
+        paste(c, cta, W // 2, 1735)
+        paste(c, text("סאטירה. לא מטעם אף מפלגה.", 5, fill=(190, 196, 220)), W // 2, 1830)
     k.flash(c, tt, 0, 0.16, 1.0)
 
 
+# The chat taps, read off the take's log and frames (x, y in capture px): the log prints a pay only
+# when it found a pill, so each is pinned to its plan step here; None = that step tapped nothing.
+TAP_AT = {33: (552, 855), 34: (552, 1167), 35: (552, 1275), 36: None, 38.6: (552, 1953), 42.2: (552, 1839),
+          53: None, 54: (552, 1953)}
+
+
 def main():
+    gi.TAP_AT = TAP_AT
     gi.NAME = "od-sevev-liberman"
     gi.PLAN = os.path.join(OUT, "plan-liberman.json")
     gi.MUSIC = os.path.join(OUT, "music", "glitch-warfare.wav")

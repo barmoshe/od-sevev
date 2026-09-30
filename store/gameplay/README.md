@@ -6,7 +6,11 @@ Two cuts of the same take, 1080x1920, 68 s, each with its cover (the last frame,
   of the footage, iOS "show touches" at every real tap, camera push-ins, captions in the top band.
 - `od-sevev-gameplay.mp4` (v3): the bare screen on velvet.
 
-Mordechai David is an easter egg in both: two short peeks, one of them on the cover.
+- `od-sevev-liberman.mp4` (reel 2, 57.9 s): Liberman's round on the same iPhone, cut to
+  `music/glitch-warfare.wav` from its bar 10 (19.63 s; ~132.7 BPM, a bar is 1.808 s). Plan
+  `plan-liberman.json`, cut and copy in `src/reel_liberman.py`. No Mordechai David in this one.
+
+Mordechai David is an easter egg in the Ben Gvir cuts: two short peeks, one of them on the cover.
 
 ## How it is made
 
