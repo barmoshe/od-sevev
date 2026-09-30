@@ -9,7 +9,10 @@ var reduced_motion := false
 var ground_y := 0
 var play_fx: Callable      # func(id: String, x: float, y: float)
 ## The era's padBottom (sprites.json stages): the floor colour under the stage art.
-var pad_bottom := Color("#2a2340")
+var pad_bottom := Color("#0f2350")
+## Dev only (`?dev=1&clear=1`, tools/web/mobile_web.mjs's width rule): a sentinel clear colour, so
+## any pixel nothing draws (a gap between the chrome, the art or a card and the canvas edge) shows.
+static var clear_override := Color(0, 0, 0, 0)
 
 var _critters: Array[Dictionary] = []
 var _clouds: Array[Dictionary] = []
@@ -73,7 +76,9 @@ func _ready() -> void:
 			s.position = Vector2(x + 32, y + 64)
 			s.visible = false
 			(_front if row == "F" else _back).add_child(s)
-			_critters.append(_critter(s, id, slot, int(th[slot]), x + 32, y + 64))
+			var cr := _critter(s, id, slot, int(th[slot]), x + 32, y + 64)
+			cr["ground"] = row != "S"
+			_critters.append(cr)
 		_add_crowd(id, slots)
 
 
@@ -127,9 +132,9 @@ func set_era(era: Dictionary) -> void:
 	for t in _ground_tiles:
 		t.visible = not has_bg
 	# beyond the 180x320 art (wide or very tall screens): the stage's own pad colours
-	pad_bottom = Color.html(String(stage.get("padBottom", "#2a2340")))
-	RenderingServer.set_default_clear_color(Color.html(String(stage.get("padBottom", "#2a2340"))) if has_bg \
-		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.165, 0.137, 0.251)))
+	pad_bottom = Color.html(String(stage.get("padBottom", "#0f2350")))
+	RenderingServer.set_default_clear_color(clear_override if clear_override.a > 0.0 else (Color.html(String(stage.get("padBottom", "#0f2350"))) if has_bg \
+		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.059, 0.137, 0.314))))
 	if has_bg:
 		# full-stage art at x4 (first child of _props: above the sky bands, under every prop),
 		# placed so its magicianFeet slot (sprites.json, art px) lands on the Magician's feet
@@ -167,6 +172,34 @@ func _place_lane(era_id: String, art_origin: Vector2) -> void:
 	tr.scale = Vector2(4, 4)
 	tr.set_meta("lane", id)
 	_props.add_child(tr)
+
+
+static var _paving_cache := {}
+
+
+## The engine's backstop floor tile (mobile-first §3.3): a 16 × 8 art-px running bond of 8 × 4
+## setts in `base`, with darker joints and a lit top edge, so every row has horizontal detail. The
+## 2D plaza (A1) is the floor; this only continues it past floor_reach() on a stage without one.
+## `joints_only`: the joints alone on a transparent tile.
+static func paving_texture(base: Color, joints_only: bool) -> ImageTexture:
+	var key := "%s:%s" % [base.to_html(false), joints_only]
+	if _paving_cache.has(key):
+		return _paving_cache[key]
+	var img := Image.create(16, 8, false, Image.FORMAT_RGBA8)
+	var joint := base.darkened(0.35)
+	var lit := base.lightened(0.10)
+	img.fill(Color(0, 0, 0, 0) if joints_only else base)
+	for y in 8:
+		var off := 0 if y < 4 else 8
+		for x in 16:
+			var jx := (x + off) % 8 == 7
+			if y % 4 == 3 or jx:
+				img.set_pixel(x, y, Color(joint, 0.55) if joints_only else joint)
+			elif y % 4 == 0 and not joints_only and (x + off) % 8 < 3:
+				img.set_pixel(x, y, lit)
+	var t := ImageTexture.create_from_image(img)
+	_paving_cache[key] = t
+	return t
 
 
 ## The stage's side wings (2D Artist, ux/mobile-first-layout.md A2; art/od-sevev/src/wave7.py): kit tiles
@@ -269,8 +302,13 @@ func _add_crowd(id: String, slots: Array) -> void:
 	var sky := String(slots[0]).begins_with("S") if not slots.is_empty() else false
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(id)
+	# never under the thermometer column (Thermo.WORD_BOX, canvas x 12-132, L-anchored: the stage
+	# column only moves right of it on a wider canvas): the sprite's left edge stays ≥ 132
+	var half := floorf(float(Art.tex(_sprite_of(id), 0).get_size().x) / 2.0) * _scale_of(id).x
+	var wander := 16.0 if Tune.critter_wanders(id) else 0.0   # _start_hop: homeX ± 16
+	var x_min := ceilf(maxf(24.0, Thermo.WORD_BOX.x + Thermo.WORD_BOX.y + half + wander - 32.0) / 4.0) * 4.0
 	for i in CROWD_AT.size():
-		var x := Ui.snap(rng.randf_range(24, L.W - 88), 4)
+		var x := maxf(x_min, Ui.snap(rng.randf_range(24, L.W - 88), 4))
 		var y: float
 		var front := rng.randf() < 0.5
 		if sky:
@@ -286,7 +324,9 @@ func _add_crowd(id: String, slots: Array) -> void:
 		s.position = Vector2(x + 32, y + 64)
 		s.visible = false
 		(_front if front else _back).add_child(s)
-		_critters.append(_critter(s, id, 3 + i, int(CROWD_AT[i]), x + 32, y + 64))
+		var cr := _critter(s, id, 3 + i, int(CROWD_AT[i]), x + 32, y + 64)
+		cr["ground"] = not sky
+		_critters.append(cr)
 
 
 ## The critter sprite of a producer: producers[].sprite, else "critter_<id>", else the neutral
@@ -332,8 +372,22 @@ func _pivot_of(id: String) -> Vector2:
 
 func _critter(s: Sprite2D, id: String, slot: int, th: int, x: float, y: float) -> Dictionary:
 	return {"s": s, "type": id, "sprite": _sprite_of(id), "frameMs": Tune.critter_frame_ms(id), "wander": Tune.critter_wanders(id),
-		"piece": Tune.set_piece(id), "slot": slot, "th": th, "homeX": x, "x": x, "y": y,
+		"piece": Tune.set_piece(id), "slot": slot, "th": th, "homeX": x, "x": x, "y": y, "yBase": y, "ground": true,
 		"visible": false, "hopping": false, "nextHop": 0.0, "frame": 0, "frameT": 0.0, "rate": 1.0, "anim": false, "hop": {}}
+
+
+## mobile-first §3.2: the stage height follows the split, and the stage art is placed on the
+## leader's feet (the stage bottom), so the ground rows (B, F and their crowd) follow the stage
+## bottom too: their design y holds at S = S_PREF (640) and moves by S − 640. The sky row stays
+## top-anchored (no source uses it).
+func _anchor_rows() -> void:
+	var dy := L.stage_h - float(L.S_PREF)
+	for c: Dictionary in _critters:
+		var y := float(c["yBase"]) + (dy if bool(c.get("ground", true)) else 0.0)
+		if is_equal_approx(y, float(c["y"])):
+			continue
+		c["y"] = y
+		(c["s"] as Sprite2D).position.y = y
 
 
 ## Rebuilds the sky and ground to cover `extend_x` px on each side and `extend_top` px above.
@@ -341,6 +395,7 @@ func extend(extend_x: float, extend_top: float) -> void:
 	if is_equal_approx(extend_x, _extend_x) and is_equal_approx(extend_top, _extend_top) and is_equal_approx(L.stage_h, _built_h):
 		return
 	_built_h = L.stage_h
+	_anchor_rows()
 	_extend_x = extend_x
 	_extend_top = extend_top
 	for c in _bg.get_children():

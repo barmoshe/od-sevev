@@ -14,6 +14,13 @@
 //     devices: comma list of WxH@DPR (a phone: touch, isMobile) or frame-WxH@DPR (a desktop window,
 //     mouse: the shell's 390-CSS phone frame). Default: the spec's matrix (below).
 //   MOBILE_BASELINE=1  report the spec checks but fail only on the baseline (today's build)
+// The width rule (Bar, 2026-09-30: "make sure the UX/UI fills the phone's width"), kind 'width', on
+// every phone of the matrix: the game runs with `&clear=1`, a sentinel clear colour (#ff00ff) that
+// only shows where nothing is drawn, and the page's own background is set to it too; every shot's
+// left and right 3% columns (1%, 2%, 3% / 97%, 98%, 99%, one row every 8 art px) must never show it:
+// the HUD, the ticker, the pane, the tab bar, the stage with its wings and the plaza reach both
+// edges. Plus: cards keep ≤ 4 art px (16 logical) of gutter per side; the settings sheet and the
+// picker grid span ≥ 92% of the canvas. It keys on "not the background", never on a palette.
 // Serve build/web first: python3 -m http.server <port> --directory build/web
 const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
 const { chromium } = await import(PW);
@@ -113,7 +120,7 @@ function deadBands(img, k, minArt = 8) {
 
 // ------------------------------------------------------------------ the run
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-let failedBase = 0, failedSpec = 0;
+let failedBase = 0, failedSpec = 0, failedWidth = 0;
 const summary = [];
 for (const spec of list.split(',')) {
 	const framed = spec.startsWith('frame-');
@@ -122,10 +129,10 @@ for (const spec of list.split(',')) {
 	const DPR = Number(dprS);
 	const name = `${framed ? 'frame-' : ''}${wh}@${DPR}`;
 	console.log(`\n${name}`);
-	const res = { name, base: 0, spec: 0 };
+	const res = { name, base: 0, spec: 0, width: 0 };
 	const check = (kind, ok, msg) => {
 		console.log(`  ${ok ? 'ok  ' : 'FAIL'} [${kind}] ${msg}`);
-		if (!ok) { if (kind === 'base') { failedBase++; res.base++; } else { failedSpec++; res.spec++; } }
+		if (!ok) { if (kind === 'base') { failedBase++; res.base++; } else if (kind === 'width') { failedWidth++; res.width++; } else { failedSpec++; res.spec++; } }
 	};
 	const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: !framed, hasTouch: !framed });
 	const page = await ctx.newPage();
@@ -156,7 +163,23 @@ for (const spec of list.split(',')) {
 	// HUD fill #140c24 (an empty, covered Row B slot is never sky); Row B itself once revealed (the
 	// whole row is one target); `opts.exempt` replaces the sky interval (the picker).
 	const hudFill = [0x14, 0x0c, 0x24];
+	// the width rule: the sentinel background in the edge columns = a gap to the canvas edge
+	const edgeCheck = (step, buf) => {
+		if (!buf || framed) return;
+		const img = readPng(buf);
+		const hits = new Set();
+		for (let y = 0; y < img.h; y += Math.max(1, disp.k * 8)) {
+			for (const fx of [0.01, 0.02, 0.03, 0.97, 0.98, 0.99]) {
+				const x = Math.min(img.w - 1, Math.floor(img.w * fx));
+				const i = (y * img.w + x) * img.bpp;
+				if (Math.abs(img.px[i] - 255) + img.px[i + 1] + Math.abs(img.px[i + 2] - 255) <= 12) hits.add(`${fx < 0.5 ? 'L' : 'R'}${Math.round(y / disp.f)}`);
+			}
+		}
+		const list = [...hits];
+		check('width', list.length === 0, `${step}: the chrome, art and cards reach both canvas edges (no background in the edge 3%)${list.length ? `: ${list.slice(0, 12).join(' ')}${list.length > 12 ? ' …' : ''}` : ''}`);
+	};
 	const bandCheck = async (step, buf, why, opts = {}) => {
+		edgeCheck(step, buf);
 		if (!buf || framed) return;   // the frame's bezel and page margin are not the game's
 		const img = readPng(buf);
 		const k = disp.k;             // device px per art px (the screenshot is in device px)
@@ -179,7 +202,8 @@ for (const spec of list.split(',')) {
 		check('spec', bad.length === 0, `${step}: no band of ≥ 8 art px without content outside the stage sky${why ? ` (${why})` : ''}${bad.length ? `: logical y ${bad.join(', ')}` : ''}`);
 	};
 
-	await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&grant=500`);
+	await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&grant=500&clear=1`);
+	if (!framed) await page.evaluate(() => { document.documentElement.style.background = '#ff00ff'; document.body.style.background = '#ff00ff'; });
 	await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
 	await page.click('#od-quiet');
 	await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
@@ -223,6 +247,9 @@ for (const spec of list.split(',')) {
 		const wantA = ([...(disp.k % 2 === 0 ? [192] : []), 128, 96, 64]).find((a) => a + 24 <= tw && 3 * (156 + a) + 24 <= avail) || 64;
 		check('spec', pk.avatar === wantA, `the avatar is the largest crisp size that fits: ${wantA} (got ${pk.avatar})`);
 		const gridTop = Math.min(...pk.cells.map((c) => c[1])) - (th || 0) / 2;
+		const gx0 = Math.min(...pk.cells.map((c) => c[0])) - (pk.tile ? pk.tile[0] : 0) / 2;
+		const gx1 = Math.max(...pk.cells.map((c) => c[0])) + (pk.tile ? pk.tile[0] : 0) / 2;
+		check('width', (gx1 - gx0) >= 0.92 * disp.cw, `the picker grid spans ${Math.round(gx1 - gx0)} of ${disp.cw} (≥ 92%)`);
 		await bandCheck('pick', buf, 'grid, strip and foot; the scrimmed stage above the title line is the exempt sky', { exempt: [[0, gridTop - 72]] });
 		// pick הפתעה (the centre cell, id "")
 		const rnd = pk.cells.find((c) => c[2] === '') || pk.cells[0];
@@ -284,6 +311,8 @@ for (const spec of list.split(',')) {
 		const silh = (s.shop.silhouettes || 0);   // §4.4: the engine publishes the teaser rows it draws
 		check('spec', vis + silh >= E.n, `the pane shows ≥ ${E.n} whole rows: cards + silhouettes (got ${vis} cards of ${all.length} + ${silh} silhouettes)`);
 		check('spec', partial.every((v) => v <= PEEK + 4), `a cut card shows ≤ ${PEEK} px (the peek), never its pill (partials ${JSON.stringify(partial.map(Math.round))})`);
+		const card = s.shop.card || [0, 0];
+		check('width', card[0] <= 16 + 0.5 && disp.cw - card[1] <= 16 + 0.5, `the cards keep ≤ 4 art px of gutter per side (x ${Math.round(card[0])}-${Math.round(card[1])} of ${disp.cw})`);
 	}
 	await bandCheck('C1', c1, 'the tab bar is up');
 	// T3 (tab slot 3), pay the first demand
@@ -296,7 +325,7 @@ for (const spec of list.split(',')) {
 	for (let t = 0; t < 12 && s && s.chat && !(s.chat.pills || []).some((p) => p[3]); t++) { await wait(1000); s = await probe(); }
 	const pill = ((s && s.chat && s.chat.pills) || []).find((p) => p[3]);
 	if (pill) { await tap(css(pill[0], pill[1])); await wait(1800); }
-	await shot('t3-chat');
+	edgeCheck('T3', await shot('t3-chat'));
 	await page.keyboard.press('Escape');
 	await wait(1200);
 	await refresh();
@@ -305,7 +334,10 @@ for (const spec of list.split(',')) {
 	// the settings sheet (gear, Row A left)
 	await tap(css(disp.ox + 52, 48));
 	await wait(1200);
-	await shot('settings');
+	edgeCheck('settings', await shot('settings'));
+	s = await probe();
+	const mr = (s && s.modalRect) || [0, 0];
+	check('width', mr[1] >= 0.92 * disp.cw, `the settings sheet spans ${Math.round(mr[1])} of ${disp.cw} (≥ 92%)`);
 	await page.keyboard.press('Escape');
 	await wait(600);
 
@@ -314,8 +346,8 @@ for (const spec of list.split(',')) {
 	await ctx.close();
 }
 await browser.close();
-console.log('\nsummary (failed checks: baseline / spec)');
-for (const r of summary) console.log(`  ${r.name.padEnd(22)} ${r.base} / ${r.spec}`);
-const failed = failedBase + (BASELINE_ONLY ? 0 : failedSpec);
-console.log(failed ? `MOBILE_WEB: ${failedBase} baseline, ${failedSpec} spec FAILED${BASELINE_ONLY ? ' (spec not gating: MOBILE_BASELINE=1)' : ''}` : `MOBILE_WEB: PASS${BASELINE_ONLY && failedSpec ? ` (baseline; ${failedSpec} spec checks open)` : ''}`);
+console.log('\nsummary (failed checks: baseline / spec / width)');
+for (const r of summary) console.log(`  ${r.name.padEnd(22)} ${r.base} / ${r.spec} / ${r.width}`);
+const failed = failedBase + (BASELINE_ONLY ? 0 : failedSpec + failedWidth);
+console.log(failed ? `MOBILE_WEB: ${failedBase} baseline, ${failedSpec} spec, ${failedWidth} width FAILED${BASELINE_ONLY ? ' (spec and width not gating: MOBILE_BASELINE=1)' : ''}` : `MOBILE_WEB: PASS${BASELINE_ONLY && (failedSpec + failedWidth) ? ` (baseline; ${failedSpec} spec, ${failedWidth} width checks open)` : ''}`);
 process.exit(failed ? 1 : 0);

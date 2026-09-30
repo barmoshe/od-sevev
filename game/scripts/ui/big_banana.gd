@@ -602,10 +602,10 @@ func off_stage_ap() -> float:
 		return -170.0
 	var ox := 0.0
 	var h := get_parent()
-	while h != null and not "_ox" in h:
+	while h != null and not "_sx" in h:
 		h = h.get_parent()
 	if h != null:
-		ox = float(h.get("_ox"))
+		ox = float(h.get("_sx"))   # the stage column's x on the canvas
 	var right := hero.rect().end.x   # the frame's right edge from the feet (logical)
 	return -ceilf((L.magician_feet().x + ox + right + 8.0 * CourtMotion.AP) / CourtMotion.AP)
 

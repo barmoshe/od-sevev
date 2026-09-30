@@ -68,6 +68,16 @@ for (const d of DEVICES) {
 	}
 	await shot('title');
 	const css = (lx, ly) => [fr.left + lx * disp.f / d.dpr, fr.top + ly * disp.f / d.dpr];
+	// LEADER_PICK replaced the title (rtl-map §8): pick הפתעה first, so tap 1 lands on the pre-tap stage
+	const pk = await page.evaluate(() => window.odPick || null);
+	if (pk && pk.open) {
+		const c = pk.cells.find((q) => q[2] === '') || pk.cells[0];
+		await page.waitForTimeout(500);
+		const [px, py] = css(c[0], c[1]);
+		await tap(px, py, 90);
+		await page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
+		await page.waitForTimeout(1500);
+	}
 	const [hx, hy] = css(disp.hat[0], disp.hat[1]);
 	// tap 1: the motif, and Dubi's first line only after its musicalSeconds (O-A3), measured on
 	// the Audio's clock (exact to one frame; game time, which Godot slows on frames over 8/60 s)

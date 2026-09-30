@@ -67,12 +67,27 @@ func is_visible_state() -> bool:
 	return state != "gone"
 
 
+## mobile-first §4.1: the band spans the canvas; it enters at canvas x 760 + dx and exits at
+## -104 (the node is in the stage column, canvas x = stage x + L.sox()).
+func _right_edge() -> float:
+	return L.W + 40.0 + L.dx - L.sox()
+
+
+func _left_edge() -> float:
+	return -_half.x * 8.0 - L.sox()
+
+
 func _x0() -> float:
-	return L.W + 40.0 if _dir < 0.0 else -_half.x * 8.0
+	return _right_edge() if _dir < 0.0 else _left_edge()
 
 
 func _x1() -> float:
-	return -_half.x * 8.0 if _dir < 0.0 else L.W + 40.0
+	return _left_edge() if _dir < 0.0 else _right_edge()
+
+
+## Nothing to move: the flight's ends are read from L at every step.
+func relayout() -> void:
+	pass
 
 
 func spawn() -> void:

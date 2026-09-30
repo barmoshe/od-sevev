@@ -539,6 +539,7 @@
     "CHAT_PILL_MERGE_CD": "איחוד · ⁦{s}⁩ שנ׳",
     "MERGE_PICK_TITLE": "לאחד עם…",
     "CHAT_SYS_MERGED": "{a} ו{b} התאחדו. מעכשיו: {a}־{b}.",
+    "CHAT_SYS_MERGE_READY": "{a} ו{b} יכולים להתאחד",
     "HUD_RATE": "⁦+{rate}⁩ ₪ לשנייה",
     "HUD_TICKER_TAG": "מבזק",
     "CARD_LOCKED_NAME": "מקור עלום",

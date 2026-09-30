@@ -1,7 +1,15 @@
-"""The 'Od Sevev' GRAPHIC-TIER palette, v2 (UI kit, wordmark, key art, hand-drawn props).
+"""The 'Od Sevev' GRAPHIC-TIER palette, v4 (UI kit, wordmark, key art, hand-drawn props).
 
-v1 (creative pack) had 45 swatches in 15 families. v2 keeps all 45 unchanged and adds the
-UI / new-look swatches at the bottom (see style-guide.md section 2). The CAST tier (rendered-down
+v1 (creative pack) had 45 swatches in 15 families. v2 kept all 45 and added the UI / new-look
+swatches. v3 (2026-09-29, Bar: "more in Israel's palette, with blue and white") re-values the
+plum/violet chrome darks into a navy family around the flag blue (#0038b8), keeping every id, and
+adds `ui_mute` and `ui_rule` (style-guide.md section 2.3). `night`, `plum` and `plum_hi` shift in the
+creative pack's palette too, so Balfour's sky and the curtain move with the chrome.
+v4 (2026-09-29, Bar: "more Israel theme and palette"): the flag's LAYOUT, not just its colours. The raised
+chrome (cards, bubbles, tiles, panels) moves from navy up to the flag's own blue, white text stays white
+(7.5-11.8:1), navy stays only as the deepest base (wells, behind the stage); the code map (palette-v4-map.json)
+makes the card pane a white field between the blue ticker and the blue tab bar. Text-on-blue swatches are
+lifted to clear 4.5:1 on the flag blues (`ui_mute`, `stamp_lt`; new `ui_dim`, `alert_lt`). style-guide.md 2.4. The CAST tier (rendered-down
 caricatures) does not draw from this list: each character has its own locked palette.
 Every pixel in every graphic-tier asset is one of these.
 Names are the swatch keys used in every sprite legend; hex values are sRGB.
@@ -13,7 +21,7 @@ from collections import OrderedDict
 SWATCHES = [
     # --- inks & neutrals -------------------------------------------------
     ("ink",       "#1b1426", "ink",     "Outline for every sprite and glyph. Darkest value; never pure black."),
-    ("night",     "#2a2340", "ink",     "Night sky base, deepest background, text plates."),
+    ("night",     "#0f2350", "ink",     "v3 navy (was #2a2340): night sky base (Balfour), deepest background, text plates, the shop pane."),
     ("suit_dk",   "#2f3042", "neutral", "Dark-suit shadow; interior lines on suits."),
     ("suit",      "#454a60", "neutral", "Dark-suit base (the Magician, most politicians)."),
     ("suit_hi",   "#636a86", "neutral", "Dark-suit light plane (top-left)."),
@@ -63,15 +71,15 @@ SWATCHES = [
     ("wood",      "#8a5632", "wood",    "Court benches, the Balfour gate, podium."),
     ("wood_dk",   "#55331f", "wood",    "Wood shadow."),
     # --- stage purple ---------------------------------------------------------
-    ("plum",      "#4a2552", "plum",    "Stage curtain base (title screen)."),
-    ("plum_hi",   "#7a3a7d", "plum",    "Curtain fold light plane."),
+    ("plum",      "#16357a", "plum",    "v3 velvet blue (was #4a2552): stage curtain base (title, OG, icon), Balfour's mid sky. Id kept."),
+    ("plum_hi",   "#2a57a6", "plum",    "v3 (was #7a3a7d): curtain fold light plane, Balfour's horizon band. Id kept."),
     # --- v2 additions: the new look (dark outline, pale rim) and the UI kit ----------
     ("outline",   "#0b0a12", "ink",     "v2: outer silhouette of every graphic-tier sprite and UI piece; matches the cast's near-black outline."),
     ("rim",       "#d6ccec", "rim",     "v2: pale 1px rim outside the outline on things the player touches on the stage (the Magician, hat, rabbit, the Suitcase)."),
-    ("ui_scrim",  "#140c24", "ui",      "v2: HUD row A scrim, wells (meter tracks), the deepest UI surface."),
-    ("ui_panel",  "#1e1636", "ui",      "v2: panel / header / tab-bar body."),
-    ("ui_bubble", "#2e2250", "ui",      "v2: incoming chat bubble (UX), secondary button face."),
-    ("ui_bub_hi", "#4a3c7c", "ui",      "v2: top/left bevel light on ui_bubble and ui_panel."),
+    ("ui_scrim",  "#061029", "ui",      "v3 deep navy (was #140c24): HUD row A scrim, wells (meter tracks), the deepest UI surface."),
+    ("ui_panel",  "#072a7a", "ui",      "v4 deep flag blue (v3 #0a1a42, v2 #1e1636): panel / header / tab-bar / sheet body (the blue envelope). white 11.8:1."),
+    ("ui_bubble", "#1045b5", "ui",      "v4 flag blue, raised (v3 #112a64, v2 #2e2250): cards, picker tiles, incoming bubbles, secondary button. white 7.5:1."),
+    ("ui_bub_hi", "#4f82e8", "ui",      "v4 (v3 #26499c, v2 #4a3c7c): top/left bevel light on ui_bubble and ui_panel; the round close face."),
     ("ui_out",    "#4a3a10", "gold",    "v2: the player's own chat bubble (UX: dark gold, because the player is the one paying)."),
     ("ui_out_hi", "#72601f", "gold",    "v2: bevel light on ui_out."),
     ("gold_dk",   "#7d5412", "gold",    "v2: gold lip / pressed gold face edge (money controls only)."),
@@ -79,10 +87,15 @@ SWATCHES = [
     ("red_hi",    "#f86b5d", "red",     "v2: danger-fill light plane (thermometer, ultimatum chip)."),
     ("red_dk",    "#8f1d22", "red",     "v2: danger-fill shadow; hatch stripe partner. Not maroon: hue 357, and never on a case shape."),
     ("stamp",     "#5b3b9e", "stamp",   "v2: rubber-stamp ink on light (paper) surfaces. Bureaucracy violet: not danger, not money."),
-    ("stamp_lt",  "#b9a0ef", "stamp",   "v2: the same stamp on dark surfaces (chat bubbles, HUD)."),
+    ("stamp_lt",  "#d8ccff", "stamp",   "v4 (v2 #b9a0ef): the same stamp on dark and blue surfaces (5.5:1 on the v4 ui_bubble)."),
     ("receipt",   "#f4f1e8", "receipt", "v2: thermal-receipt paper (UX 5.1)."),
     ("receipt_sh","#d8d1bf", "receipt", "v2: receipt paper shadow, curl, tear-edge fibre."),
     ("receipt_ink","#1a1a1a","receipt", "v2: thermal print ink (UX 5.1: 15.4:1 on receipt). The one near-neutral black; used only on the receipt."),
+    # --- v3 additions: the blue-and-white chrome (Bar, 2026-09-29) ---------------------------------
+    ("ui_mute",   "#c9d6f2", "ui",      "v4 (v3 #a3b3d3): secondary labels on blue (the picker's party line, idle tab labels, names); replaces UX's #9e99ad and the code's grey text. 5.7:1 on ui_bubble."),
+    ("ui_rule",   "#2a5cc4", "ui",      "v4 (v3 #1c3876): dividers and hairlines on the blue panels (replaces #2e2548)."),
+    ("ui_dim",    "#b4c3e8", "ui",      "v4: tertiary text on blue (the code's slate text: timestamps, counts). 4.7:1 on ui_bubble, 7.4:1 on ui_panel."),
+    ("alert_lt",  "#ffaa9f", "red",     "v4: alert TEXT on blue ('אולטימטום', the last seconds): red_hi was 2.9:1 on the flag blue. 4.5:1 on ui_bubble. Always with its shape (hazard band, clock)."),
 ]
 
 
@@ -115,8 +128,8 @@ if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
     out = os.path.join(here, "..", "out")
     # GIMP / Aseprite palette
-    with open(os.path.join(out, "palette-v2.gpl"), "w") as f:
-        f.write("GIMP Palette\nName: od-sevev-graphic-v2\nColumns: 8\n#\n")
+    with open(os.path.join(out, "palette-v4.gpl"), "w") as f:
+        f.write("GIMP Palette\nName: od-sevev-graphic-v4\nColumns: 8\n#\n")
         for n, h, fam, role in SWATCHES:
             r, g, b = rgb(n)
             f.write(f"{r:3d} {g:3d} {b:3d}\t{n}\n")
@@ -134,5 +147,5 @@ if __name__ == "__main__":
         d.rectangle([x + 4, y + 4, x + 40, y + sh - 4], fill=rgb(n))
         d.text((x + 48, y + 8), n, fill=(240, 240, 240), font=font)
         d.text((x + 48, y + 24), f"{h}  L={luminance(n):.2f}", fill=(170, 170, 185), font=font)
-    img.save(os.path.join(out, "palette-v2.png"))
+    img.save(os.path.join(out, "palette-v4.png"))
     print(len(SWATCHES), "swatches,", len({s[2] for s in SWATCHES}), "families")

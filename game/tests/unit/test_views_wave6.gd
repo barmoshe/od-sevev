@@ -41,7 +41,7 @@ func _boot() -> void:
 		await tree.process_frame
 	m.ftue.handoff_ms = 1.0
 	m.commit_pick("bibi")   # LEADER_PICK (leader select): Bibi's round, the shipped game
-	_touch(L.magician_hit().get_center() + Vector2(m._ox, m._stage_y))   # title → main (tap 1)
+	_touch(L.magician_hit().get_center() + Vector2(m._sx, m._stage_y))   # title → main (tap 1)
 	m.audio_sent.connect(func(n: String, a: Variant) -> void: heard.append([n, a]))
 
 
@@ -172,8 +172,10 @@ func test_an_open_brawl_puts_a_cloud_under_row_b() -> void:
 	var cloud: Sprite2D = chat._brawl_cloud
 	# the boil (animator 2026-09-29) steps the cloud around a 1-ap ring (4 logical) off its rest
 	var boil := cloud.position - ChatView.BRAWL_CLOUD
-	runner.check(absf(boil.x) + absf(boil.y) <= 4.0 and is_equal_approx(cloud.scale.x, 2.0) and ChatView.BRAWL_CUE.encloses(Rect2(cloud.position, Vector2(104, 80))),
-		"the cloud at ×2 inside its bubble at the stage's top-left (%s)" % str(cloud.position))
+	# the 2D Artist's 26×20 cue cut draws at ×4 (the stage's art px); the 52×40 cloud at ×2 without it
+	var want_sc := 4.0 if Art.has_sprite("brawl_cloud_cue") else 2.0
+	runner.check(absf(boil.x) + absf(boil.y) <= 4.0 and is_equal_approx(cloud.scale.x, want_sc) and ChatView.BRAWL_CUE.encloses(Rect2(cloud.position, Vector2(104, 80))),
+		"the cloud at ×%d inside its bubble at the stage's top-left (%s)" % [int(want_sc), str(cloud.position)])
 	runner.check(ChatView.BRAWL_CUE_HIT.size.y >= 88.0 and ChatView.BRAWL_CUE_HIT.encloses(ChatView.BRAWL_CUE), "its hit is ≥ 88 tall and covers it")
 	var brawl := Coalition.open_brawl(m.state)
 	_touch(_tall_pt(ChatView.BRAWL_CUE.get_center()))

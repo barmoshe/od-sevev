@@ -57,7 +57,7 @@ const TALK_OPEN_MS := 60.0           # state-graph-dubi §3
 const TALK_IDLE_MS := 250.0
 const C_BODY := Color("#f7f4ec")     # white label on the sheet (kit note)
 const C_TITLE := Color("#f7f4ec")
-const C_LOWER := Color("#d6d0e6")    # silver on the ticker bar
+const C_LOWER := Color("#d3d6df")    # silver on the ticker bar
 
 var evolutions := 1
 var archive := false
@@ -209,18 +209,21 @@ func build() -> FlashCard:
 		func(sc: int) -> bool: return fixed + _screen_h(fig_art_h * sc) <= avail)
 	var screen_h := _screen_h(fig_art_h * art_scale)
 	var h := fixed + screen_h
-	var y := Ui.snap((band.x + band.y) / 2.0 - h / 2.0, 4)
+	# mobile-first §5.13: the stacked FLASH_NEXT over FLASH_SKIP sit in the thumb zone: the card is
+	# bottom-anchored, the skip's bottom 24 above the safe bottom (its PAD included)
+	var y := Ui.snap(maxf(band.x + BAND_MARGIN, band.y - (24.0 - PAD) - h), 4)
 	# the panel: the kit's dark sheet (white labels), title band on top
-	panel_rect = Rect2(CARD_X, y, CARD_W, h)
+	var g2 := SheetCard.grow_half()   # the width rule: ≥ 92% of the canvas, as the sheet cards
+	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
 	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
 	var head := text(Vector2(0, y + 24.0), str(lead["title"]) if not lead.is_empty() and str(lead["title"]) != "" else header_text(evolutions), L.TEXT, C_TITLE)
 	head.wrap_width = TEXT_W
 	head.max_lines = 1
-	head.center_in(CARD_X, CARD_W)
+	head.center_in(CARD_X - g2, CARD_W + 2.0 * g2)
 	# the news screen
 	var sy := y + HEADER_H + PAD
 	screen_rect = Rect2(SCREEN_X, sy + SCREEN_FRAME, SCREEN_W, screen_h)
-	Ui.rect(panel, screen_rect.grow(SCREEN_FRAME), Color("#1b1426"))
+	Ui.rect(panel, screen_rect.grow(SCREEN_FRAME), Color("#061029"))
 	_build_screen(s)
 	# the body, revealed line by line
 	var by := screen_rect.end.y + SCREEN_FRAME + PAD
@@ -230,14 +233,16 @@ func build() -> FlashCard:
 		p.modulate.a = 0.0 if not mgr.reduced else 1.0
 	# the buttons
 	var bt := by + body_h + PAD
+	var bx := BTN.position.x - g2
+	var bw := BTN.size.x + 2.0 * g2
 	if archive:
-		next_button = button(Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y),
+		next_button = button(Rect2(bx, bt, bw, BTN.size.y), Rect2(bx, bt, bw, BTN.size.y),
 			Strings.s("SYS_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
 	else:
-		next_button = button(Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y),
+		next_button = button(Rect2(bx, bt, bw, BTN.size.y), Rect2(bx, bt, bw, BTN.size.y),
 			Strings.s("FLASH_NEXT"), func() -> void: _close("next"), "kit_primary", L.TEXT)
 		var bt2 := bt + BTN.size.y + BTN_GAP
-		skip_button = button(Rect2(BTN.position.x, bt2, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt2, BTN.size.x, BTN.size.y),
+		skip_button = button(Rect2(bx, bt2, bw, BTN.size.y), Rect2(bx, bt2, bw, BTN.size.y),
 			Strings.s("FLASH_SKIP"), func() -> void: _close("skip"), "kit_secondary", L.TEXT)
 	# audio: the dubiFlash head, then Dubi reads what is on the card
 	_audio("storyCard")
@@ -303,13 +308,12 @@ func _screen_h(fig_h: float) -> float:
 	return ceilf((fig_h + HEADROOM + FEET_UP) / 4.0) * 4.0
 
 
-## The visible band of the modal space (y top, y bottom): MainController centres the 1280-tall
-## modal space between the insets (_ovl_y), so the band is symmetric around 640.
+## The visible band of the modal space (y top, y bottom): the safe band, less the modal node's y
+## (MainController.modal_band: _ovl_y puts the 1280 space's centre at 50% / 55% of the band).
 func _band() -> Vector2:
-	if host == null or not ("_ovl_y" in host and "_top_y" in host):
+	if host == null or not host.has_method("modal_band"):
 		return Vector2(0.0, float(L.H))
-	var over := float(host.get("_ovl_y")) - float(host.get("_top_y"))
-	return Vector2(-over, float(L.H) + over)
+	return host.call("modal_band")
 
 
 func _lh(t: PxText) -> float:
@@ -331,7 +335,7 @@ func default_focus() -> int:
 func on_opened() -> void:
 	if not OS.has_feature("web") or host == null or not ("_ox" in host and "_ovl_y" in host):
 		return
-	var o := Vector2(float(host.get("_ox")), float(host.get("_ovl_y")))
+	var o := Vector2(float(host.get("_ox")) + position.x, float(host.get("_ovl_y")))
 	var nx := next_button.visual.get_center() + o
 	var sk := skip_button.visual.get_center() + o if skip_button else Vector2(-1, -1)
 	JavaScriptBridge.eval("window.odFlash = %s" % JSON.stringify({"open": true, "artScale": art_scale,

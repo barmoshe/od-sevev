@@ -4,6 +4,9 @@ extends Node2D
 ## x 32-676 right-aligned) and Dubi's speech bubble (ux/ftue.md H1, P1 F1, E1). A child of the
 ## stage node (design y = STAGE.y + stage-local y).
 ## ux/ftue.md §3.1: one toast at a time, each ≥ 3 s (or until tapped), 1 s gap between toasts.
+## Mobile-first §4.1: the dock stretches with the canvas (canvas x 16, w 688 + dx; the text's right
+## edge 676 + dx); the node sits in the stage column, so canvas x = stage x + L.sox(). §3.4: during
+## a tap burst the controller skips tap() so taps on a toast over the leader's head reach him.
 
 const SHOW_MS := 3000.0
 const GAP_MS := 1000.0
@@ -37,7 +40,7 @@ const CHAT_TEXT_RIGHT := 596.0
 const CHAT_TEXT_W := 564.0          # string-budgets stage.toastHead / stage.toastChat box
 const FACE_X := 612.0
 const FACE_ART := 16.0
-const C_HEAD := Color("#a4a9b8")    # grey: the sender line, as the thread's names
+const C_HEAD := Color("#c9d6f2")    # grey: the sender line, as the thread's names
 var _chats: Array[Dictionary] = []
 var _face: Sprite2D
 var _head: PxText
@@ -48,8 +51,36 @@ var _preview: PxText
 ## toast's content box ends 24 px before the plate's right edge, where the accent stripe is).
 const TEXT_RIGHT := 676.0
 const TEXT_W := 644.0
-## Dubi's bubble text: white `w` on the kit bubble's #2e2250 (13.6:1; rtl-map §4 "Dubi's bubble").
+## Dubi's bubble text: white `w` on the kit bubble's #1045b5 (13.6:1; rtl-map §4 "Dubi's bubble").
 const BUBBLE_INK := "w"
+
+
+## The dock in stage-local x (the node is in the stage column at canvas x L.sox()).
+static func dock_x() -> float:
+	return 16.0 - L.sox()
+
+
+static func dock_w() -> float:
+	return 688.0 + L.dx
+
+
+## A right edge given in the 720 design (R anchor), in stage-local x.
+static func rdx() -> float:
+	return L.dx - L.sox()
+
+
+func relayout() -> void:
+	if _plate == null:
+		return
+	var r := Rect2(dock_x(), _plate.position.y, dock_w(), _plate.size.y * 4.0)
+	Ui.set_nine_rect(_plate, r)
+	_text.wrap_width = TEXT_W + L.dx
+	_text.right_at(TEXT_RIGHT + rdx())
+	_head.wrap_width = CHAT_TEXT_W + L.dx
+	_head.right_at(CHAT_TEXT_RIGHT + rdx())
+	_preview.wrap_width = CHAT_TEXT_W + L.dx
+	_preview.right_at(CHAT_TEXT_RIGHT + rdx())
+	_face.position.x = FACE_X + rdx()
 
 
 func _ready() -> void:
@@ -66,6 +97,7 @@ func _ready() -> void:
 	for n: CanvasItem in [_plate, _text, _bubble, _btext]:
 		n.visible = false
 	_build_chat_nodes()
+	relayout()
 
 
 func show_toast(text: String, tag: String = "") -> void:
@@ -134,7 +166,7 @@ func _set_face(avatar: Array) -> bool:
 	_face.region_rect = Rect2(floorf((tsz.x - crop) / 2.0), floorf((tsz.y - crop) / 2.0), crop, crop)
 	_face.scale = Vector2(sc, sc)
 	var y0 := float(L.STAGE["y"]) + 8.0
-	_face.position = Vector2(FACE_X, y0 + Ui.snap((132.0 - crop * sc) / 2.0, 4))
+	_face.position = Vector2(FACE_X + rdx(), y0 + Ui.snap((132.0 - crop * sc) / 2.0, 4))
 	return true
 
 
@@ -169,7 +201,7 @@ func say(text: String, at: Vector2, ms: float = 1600.0) -> void:
 	_btext.text = dubi_line.call(text) if dubi_line.is_valid() else text
 	var w := float(_btext.width()) + 48.0
 	var h := float(HeFont.line_height()) * _btext.eff_px() + 24.0
-	var x := clampf(Ui.snap(at.x - w / 2.0, 4), 16.0, L.W - 16.0 - w)
+	var x := clampf(Ui.snap(at.x - w / 2.0, 4), 16.0 - L.sox(), L.cw - L.sox() - 16.0 - w)
 	var r := Rect2(x, Ui.snap(at.y - h, 4), Ui.snap(w, 4), Ui.snap(h, 4))
 	Ui.set_nine_rect(_bubble, r)
 	_btext.position = Vector2(r.position.x + 24.0, r.position.y + 12.0)
@@ -243,19 +275,19 @@ func update_view(dt_ms: float) -> void:
 	var y0 := float(L.STAGE["y"]) + 8.0
 	if chat.is_empty():
 		_text.text = msg
-		Ui.set_nine_rect(_plate, Rect2(16, y0, 688, plate_h()))
+		Ui.set_nine_rect(_plate, Rect2(dock_x(), y0, dock_w(), plate_h()))
 		shown_nodes.append(_text)
 	else:
 		_text.text = ""
 		_head.text = str(chat.get("head", ""))
-		_head.right_at(CHAT_TEXT_RIGHT)
+		_head.right_at(CHAT_TEXT_RIGHT + rdx())
 		_preview.text = msg
-		_preview.right_at(CHAT_TEXT_RIGHT)
+		_preview.right_at(CHAT_TEXT_RIGHT + rdx())
 		# two one-line rows at the scale drawn (132 at ×4; the lines grow under large text)
 		var lh_head := float(HeFont.line_height()) * _head.eff_px()
 		var lh_prev := float(HeFont.line_height()) * _preview.eff_px()
 		_preview.position.y = y0 + 16.0 + lh_head
-		Ui.set_nine_rect(_plate, Rect2(16, y0, 688, maxf(132.0, Ui.snap(44.0 + lh_head + lh_prev, 4))))
+		Ui.set_nine_rect(_plate, Rect2(dock_x(), y0, dock_w(), maxf(132.0, Ui.snap(44.0 + lh_head + lh_prev, 4))))
 		shown_nodes.append_array([_head, _preview])
 		if _set_face(chat.get("avatar", [])):
 			shown_nodes.append(_face)

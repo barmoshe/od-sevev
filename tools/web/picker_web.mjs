@@ -53,7 +53,9 @@ async function shot(name) {
 	console.log('  shot', p);
 }
 const tabsY = () => disp.logical[1] - 104;
-const tab = (i) => col(540 - 180 * (i - 1) + 90, tabsY() + 52);
+// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
+const tabX = (i) => { const cw = disp.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
+const tab = (i) => col(tabX(i), tabsY() + 52);
 const log = (...a) => console.log(...a);
 const checks = [];
 const check = (ok, what) => { checks.push([ok, what]); log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}`); };
@@ -188,9 +190,19 @@ for (let attempt = 0; attempt < 6 && !called && Date.now() - t0 < budget; attemp
 	await wait(700);
 	await shot('p6-election-card');
 	md = await modal();
-	if (md && md.open && md.id === 'EVOLUTION' && md.ready) {
+	s = await probe();
+	// odModal.ready is published once, when the card opens; odDev.ready is live (a walkout at ×12
+	// speed can drop 30 seats in the 700 ms above)
+	if (md && md.open && md.id === 'EVOLUTION' && md.ready && s.ready) {
 		await tapAt(css(md.buttons[0][0], md.buttons[0][1]));
-		called = true;
+		// committed: EVOLVE_TX runs, then the flash or the picker opens
+		called = await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open)
+			|| (window.odDev && window.odDev.evolutions > 0), null, { timeout: 40000 }).then(() => true).catch(() => false);
+		if (!called) {
+			log('  the gate slipped as the card was confirmed: back to the round');
+			await page.keyboard.press('Escape');
+			await wait(500);
+		}
 	} else {
 		log('  the gate slipped under the card: back to the round');
 		await page.keyboard.press('Escape');

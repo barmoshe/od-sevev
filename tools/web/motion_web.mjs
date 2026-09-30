@@ -75,7 +75,7 @@ for (const d of DEVICES) {
 		const o = await open(d, `court=2&slow=${SLOW}&grant=50000`, reduced);
 		const { disp } = o;
 		// the whole stage: the thermometer, the courthouse window, the Magician and the hat
-		const stage = [disp.ox, disp.stageY + 160, 720, disp.lowerY - disp.stageY - 160];
+		const stage = [disp.sx ?? disp.ox, disp.stageY + 160, 720, disp.lowerY - disp.stageY - 160];   // the stage column (mobile-first §4.1)
 		const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
 		await o.tap(hx, hy, 100);   // title → main; the court day is already running
 		const frames = await strip(o, `${out}/court-${tag}`, stage, reduced ? 70 : 110, 10);

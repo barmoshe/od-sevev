@@ -41,16 +41,16 @@ export const PALETTE: Record<string, string> = {
   "t": "#2c845e",
   "c": "#fff4e0",
   "m": "#d8f6e1",
-  "i": "#e4dcef",
-  "I": "#b8a5dd",
-  "j": "#b98ff2",
+  "i": "#dfe6f3",
+  "I": "#a3b3d3",
+  "j": "#8fc0ff",
   "v": "#8fe052",
-  "q": "#ff78bf",
-  "Q": "#c42a7e",
+  "q": "#8fc0ff",
+  "Q": "#00237a",
   "e": "#4ccbf5",
   "E": "#1f7fc6",
-  "u": "#7c44d6",
-  "U": "#3a1e72",
+  "u": "#0038b8",
+  "U": "#0f2350",
   "x": "#ff705f",
   "a": "#3ee2c1",
   "z": "#0b0a12",
@@ -66,18 +66,18 @@ export const SKY_BANDS: { color: string; from: number; to: number }[] = [{"color
 export const UI_THEME = {
   "letterbox": {
     "char": "U",
-    "hex": "#3a1e72"
+    "hex": "#0f2350"
   },
   "topBar": {
     "sprite": "ui_topbar",
     "frame": 0,
     "fill": {
       "char": "q",
-      "hex": "#ff78bf"
+      "hex": "#8fc0ff"
     },
     "lip": {
       "char": "Q",
-      "hex": "#c42a7e"
+      "hex": "#00237a"
     },
     "ink": {
       "char": "k",
@@ -92,11 +92,11 @@ export const UI_THEME = {
     },
     "fill": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     },
     "bezel": {
       "char": "j",
-      "hex": "#b98ff2"
+      "hex": "#8fc0ff"
     },
     "bezelFrenzy": {
       "char": "O",
@@ -133,11 +133,11 @@ export const UI_THEME = {
   },
   "juiceGain": {
     "char": "q",
-    "hex": "#ff78bf"
+    "hex": "#8fc0ff"
   },
   "juiceGainOnLight": {
     "char": "Q",
-    "hex": "#c42a7e"
+    "hex": "#00237a"
   },
   "evolve": {
     "ready": {
@@ -162,7 +162,7 @@ export const UI_THEME = {
     },
     "dropShadow": {
       "char": "Q",
-      "hex": "#c42a7e"
+      "hex": "#00237a"
     },
     "glint": {
       "char": "w",
@@ -170,7 +170,7 @@ export const UI_THEME = {
     },
     "barTrack": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     },
     "barFillTop": {
       "char": "v",
@@ -202,7 +202,7 @@ export const UI_THEME = {
     },
     "barTrack": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     },
     "barFillTop": {
       "char": "O",
@@ -263,11 +263,11 @@ export const UI_THEME = {
     "frame": 0,
     "bg": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     },
     "trim": {
       "char": "q",
-      "hex": "#ff78bf"
+      "hex": "#8fc0ff"
     },
     "text": {
       "char": "w",
@@ -275,7 +275,7 @@ export const UI_THEME = {
     },
     "milestoneText": {
       "char": "q",
-      "hex": "#ff78bf"
+      "hex": "#8fc0ff"
     },
     "flash": {
       "char": "w",
@@ -286,7 +286,7 @@ export const UI_THEME = {
       "frame": 0,
       "fill": {
         "char": "q",
-        "hex": "#ff78bf"
+        "hex": "#8fc0ff"
       },
       "text": {
         "char": "k",
@@ -307,7 +307,7 @@ export const UI_THEME = {
     },
     "scrollThumb": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     }
   },
   "tab": {
@@ -369,7 +369,7 @@ export const UI_THEME = {
     ],
     "fillCantAfford": {
       "char": "i",
-      "hex": "#e4dcef"
+      "hex": "#dfe6f3"
     },
     "name": {
       "char": "k",
@@ -377,7 +377,7 @@ export const UI_THEME = {
     },
     "line2": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     },
     "nameCantAfford": {
       "char": "k",
@@ -385,7 +385,7 @@ export const UI_THEME = {
     },
     "line2CantAfford": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     },
     "affordFlash": {
       "char": "w",
@@ -427,12 +427,12 @@ export const UI_THEME = {
     },
     "bureaucrat": {
       "char": "j",
-      "hex": "#b98ff2",
+      "hex": "#8fc0ff",
       "plateFrame": 3
     },
     "catapult": {
       "char": "q",
-      "hex": "#ff78bf",
+      "hex": "#8fc0ff",
       "plateFrame": 4
     },
     "rocket": {
@@ -447,7 +447,7 @@ export const UI_THEME = {
     },
     "moon": {
       "char": "u",
-      "hex": "#7c44d6",
+      "hex": "#0038b8",
       "plateFrame": 7
     }
   },
@@ -470,11 +470,11 @@ export const UI_THEME = {
   "silhouette": {
     "rim": {
       "char": "u",
-      "hex": "#7c44d6"
+      "hex": "#0038b8"
     },
     "fill": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     },
     "plateFrame": 9,
     "rowFrame": 1
@@ -497,19 +497,19 @@ export const UI_THEME = {
     },
     "groupLabel": {
       "char": "u",
-      "hex": "#7c44d6"
+      "hex": "#0038b8"
     },
     "note": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     },
     "divider": {
       "char": "I",
-      "hex": "#b8a5dd"
+      "hex": "#a3b3d3"
     },
     "version": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     }
   },
   "button": {
@@ -593,7 +593,7 @@ export const UI_THEME = {
     },
     "reducedMotionCard": {
       "char": "U",
-      "hex": "#3a1e72"
+      "hex": "#0f2350"
     },
     "reducedMotionText": {
       "char": "w",

@@ -754,6 +754,7 @@ e("CHAT_PILL_MERGE", "לאחד", "chat.pill", "*", "leaders.golan.rule.copy.pill
 e("CHAT_PILL_MERGE_CD", "איחוד · ⟦{s}⟧ שנ׳", "chat.pill", "", "leaders.golan.rule.copy.cooldown", "The same pill, disabled, during the 120 s cooldown")
 e("MERGE_PICK_TITLE", "לאחד עם…", "modal.title", "", "leaders.golan.rule.copy.pickPrompt", "The pair prompt: one full-width button per candidate (Coalition.merge_candidates)")
 e("CHAT_SYS_MERGED", "{a} ו{b} התאחדו. מעכשיו: {a}־{b}.", "chat.sys", "*", "leaders.golan.rule.copy.sys", "Gender-free: one key")
+e("CHAT_SYS_MERGE_READY", "{a} ו{b} יכולים להתאחד", "chat.sys", "*", "ux mobile-first-layout §5.5", "The thread's merge-ready notice (Golan's round): a system line with the לאחד pill under it; posted when a pair first qualifies with the cooldown at 0, again after each cooldown (≥ 120 s apart). Gender-free: one key")
 
 # ---------------------------------------------------------------- content names (copy deck §C, §D)
 PRODUCERS = [  # fork id -> (deck name, plural)

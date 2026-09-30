@@ -40,10 +40,18 @@ CONTRAST = [
     ("white", "wood", 4.5), ("grey", "suit_dk", 4.5), ("grey", "ui_scrim", 4.5), ("slate", "ui_scrim", 3.0),
     ("stamp", "paper", 4.5), ("stamp", "receipt", 4.5), ("stamp_lt", "ui_bubble", 4.5), ("stamp_lt", "ui_out", 4.5),
     ("stamp_lt", "ui_scrim", 4.5), ("receipt_ink", "receipt", 4.5), ("orange", "outline", 4.5),
-    ("gold_hi", "ui_panel", 4.5), ("red_hi", "ui_bubble", 4.5), ("silver", "ui_panel", 4.5),
+    ("gold_hi", "ui_panel", 4.5), ("alert_lt", "ui_bubble", 4.5), ("silver", "ui_panel", 4.5),
     ("sky", "night", 3.0), ("red", "ui_scrim", 3.0), ("red", "outline", 3.0), ("rim", "night", 3.0), ("rim", "plum", 3.0),
     # wave 6: button_danger (default / pressed) and the round ✕
-    ("white", "red_dk", 4.5), ("white", "ui_bub_hi", 4.5),
+    ("white", "red_dk", 4.5), ("white", "ui_panel", 4.5),
+    # v3 (blue and white): the new labels, the sky crawl, text over the curtain, and the non-text stripes and edges
+    ("ui_mute", "ui_bubble", 4.5), ("ui_mute", "ui_panel", 4.5), ("ui_dim", "ui_bubble", 4.5), ("sky", "ui_scrim", 4.5),
+    ("white", "night", 4.5), ("white", "plum", 4.5), ("white", "plum_hi", 4.5), ("flag", "receipt", 4.5),
+    ("white", "flag", 3.0), ("flag_hi", "night", 3.0), ("gold", "ui_panel", 3.0), ("gold", "flag", 3.0),
+    # v4: white text on the flag blues, gold / green on the blue HUD band, the hemicycle's seats on its white plate,
+    # the Suitcase's outline on the stone lanes
+    ("white", "ui_bubble", 4.5), ("white", "ui_panel", 4.5), ("gold", "ui_bubble", 3.0), ("flag", "white", 3.0),
+    ("stamp_lt", "ui_bubble", 4.5), ("outline", "stone", 4.5), ("outline", "stone_sh", 4.5), ("outline", "paper", 4.5),
 ]
 
 

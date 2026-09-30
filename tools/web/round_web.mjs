@@ -60,7 +60,9 @@ async function shot(name) {
 	console.log('  shot', p);
 }
 const tabsY = () => disp.logical[1] - 104;
-const tab = (i) => col(540 - 180 * (i - 1) + 90, tabsY() + 52);
+// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
+const tabX = (i) => { const cw = disp.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
+const tab = (i) => col(tabX(i), tabsY() + 52);
 const log = (...a) => console.log(...a);
 
 await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&speed=${speed}`);
@@ -81,6 +83,9 @@ let paid = 0;
 let rounds = 0;
 let lastBuy = 0;
 let hatTaps = 0, buyActions = 0, cardTaps = 0, chatLooks = 0;
+// the gate can slip (a walkout at ×speed) between the CTA and the card: play on and try again, as
+// picker_web does (the loop below is one approach to the gate)
+async function playToGate() {
 while (Date.now() - t0 < budget) {
 	rounds++;
 	let s = await probe();
@@ -148,7 +153,13 @@ while (Date.now() - t0 < budget) {
 	await page.keyboard.press('Escape');
 	await wait(300);
 }
-let s = await probe();
+}
+let s;
+let called = false;
+let ok = false;
+for (let attempt = 0; attempt < 5 && !called && Date.now() - t0 < budget; attempt++) {
+await playToGate();
+s = await probe();
 log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${paid} pills, loops ${rounds}`);
 {
 	// The cadence it played at, in GAME seconds (compare the bench's median player: 1.5 taps/s, a buy
@@ -159,13 +170,9 @@ log(`  gate: seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta $
 		+ `the chat every ${(g / Math.max(1, chatLooks)).toFixed(1)} s, a loop every ${(g / Math.max(1, rounds)).toFixed(1)} s; `
 		+ 'no spins, no Suitcase. Not a pacing measurement (tools/balance.sh is).');
 }
-let ok = s.ready && s.cta;
-if (!ok) {
-	// evidence for the stall: the thread as it stands
-	if (!s.chat.open && s.groupOpen) { await tapAt(tab(3)); await wait(900); }
-	await shot('stall-chat');
-}
-if (ok) {
+ok = s.ready && s.cta;
+if (!ok) continue;
+{
 	// close T3 (the CTA sits in the ticker row under it); Esc folds an expanded court card first
 	for (let i = 0; i < 3 && s.modal !== 'EVOLUTION' && (s.chat.open || s.modal !== ''); i++) {
 		await page.keyboard.press('Escape');
@@ -182,7 +189,24 @@ if (ok) {
 	const m = await modal();
 	ok = !!(m && m.open && m.id === 'EVOLUTION' && m.ready);
 	log(`  O3 ${JSON.stringify(m)}`);
-	if (ok) {
+	if (!ok) {
+		log('  the gate slipped before the card: back to the round');
+		await page.keyboard.press('Escape');
+		await wait(500);
+		continue;
+	}
+	// odModal.ready is published once, at open; at ×10 a walkout can drop the gate between the shot
+	// and the tap (the card disables its button live, and no pill can be paid under it): check the
+	// live gate (odDev.ready) and, when it slipped, close the card and play on
+	const live = await probe();
+	if (!live.ready) {
+		log('  the gate slipped under the card: back to the round');
+		await page.keyboard.press('Escape');
+		await wait(500);
+		continue;
+	}
+	called = true;
+	{
 		await tapAt(css(m.buttons[0][0], m.buttons[0][1]));
 		await wait(900);
 		await shot('e2-transition');
@@ -196,6 +220,14 @@ if (ok) {
 		if (fl && fl.open) { await tapAt(css(fl.next[0], fl.next[1])); await wait(900); }
 		await shot('e4-round2');
 	}
+}
+}
+if (!called) {
+	// evidence for the stall: the thread as it stands
+	s = await probe();
+	if (s && !s.chat.open && s.groupOpen) { await tapAt(tab(3)); await wait(900); }
+	await shot('stall-chat');
+	ok = false;
 }
 log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
 log(ok && !errors.length ? 'ROUND_WEB: PASS' : 'ROUND_WEB: FAIL');

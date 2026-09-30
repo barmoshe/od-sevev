@@ -22,8 +22,11 @@ class SettingsOverlay:
 	const TEXT_W := 360.0        # string-budgets sheet.label / sheet.caption (x 296-656)
 	const LABEL_DY := 26.0
 
+	## mobile-first §5.11: a full-bleed sheet; labels, their captions and the danger icon R-anchored
+	## (656 + dx), the switches left (L), the title centred, the rows and the bottom "סגור" stretched.
 	func build() -> SettingsOverlay:
 		id = "SETTINGS"
+		full_bleed = true
 		_built_large = PxText.large_text
 		var th := Art.theme
 		var rows: Array = [["g", "SET_GROUP_SOUND"], ["t", "sfx", "SET_SFX", ""], ["t", "music", "SET_MUSIC", ""],
@@ -58,7 +61,7 @@ class SettingsOverlay:
 				"g":
 					var g := PxText.make(body, Vector2(0, ry + 8.0), Strings.s(r[1]), L.TEXT, "plain", th["modal"]["groupLabel"])
 					g.fit_width = TEXT_W   # sheet.group
-					g.right_at(656.0)
+					g.right_at(656.0 + L.dx)
 				"t":
 					_toggle(ry, h, r[1], r[2], r[3])
 				"about":
@@ -72,11 +75,11 @@ class SettingsOverlay:
 					var trash := Art.has_sprite("icon_trash")
 					_row_button(ry, h, Strings.s("SET_RESET"), func() -> void:
 						host.audio_event("uiClick")
-						open_reset.call(), th["modal"]["title"], 656.0 - (48.0 if trash else 0.0))
+						open_reset.call(), th["modal"]["title"], 656.0 + L.dx - (48.0 if trash else 0.0))
 					if trash:
-						Ui.img(body, Vector2(620.0, ry + LABEL_DY), "icon_trash", 0, 4)
+						Ui.img(body, Vector2(620.0 + L.dx, ry + LABEL_DY), "icon_trash", 0, 4)
 		content_bottom = y0 + y + 8.0
-		var sc := button(Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Rect2(pr.position.x + 24, close_y + 12.0, 672, 88), Strings.s("SYS_CLOSE"),
+		var sc := button(Rect2(pr.position.x + 24, close_y + 12.0, 672.0 + L.dx, 88), Rect2(pr.position.x + 24, close_y + 12.0, 672.0 + L.dx, 88), Strings.s("SYS_CLOSE"),
 			func() -> void: cancel("close"), "kit_secondary", L.TEXT)
 		focusables.append(close)
 		sync()
@@ -84,7 +87,9 @@ class SettingsOverlay:
 
 	## A settings text in its box (right-aligned at x 656, 360 wide): a label (1 line, 2 at ×5)
 	## or a caption (2 lines, 3 at ×5), string-budgets sheet.label / sheet.caption.
-	func _sheet_text(parent: Node, pos: Vector2, s: String, role: Variant, caption: bool, right: float = 656.0) -> PxText:
+	func _sheet_text(parent: Node, pos: Vector2, s: String, role: Variant, caption: bool, right: float = -1.0) -> PxText:
+		if right < 0.0:
+			right = 656.0 + L.dx
 		var t := PxText.make(parent, pos, s, L.TEXT, "plain", role)
 		t.reading = true   # settings labels and captions: the @2 reading cut where crisp
 		t.wrap_width = TEXT_W
@@ -120,15 +125,15 @@ class SettingsOverlay:
 		probe_parent.free()
 		return ceilf(h / 4.0) * 4.0   # up to the 4-px grid: a row never cuts its last line
 
-	func _row_button(y: float, h: float, label: String, on_commit: Callable, role: Variant = null, right: float = 656.0) -> void:
-		var b := PxButton.make(body, Rect2(24, y, 672, h), {"hit": Rect2(24, y, 672, h), "ghost": true, "on_commit": on_commit})
+	func _row_button(y: float, h: float, label: String, on_commit: Callable, role: Variant = null, right: float = -1.0) -> void:
+		var b := PxButton.make(body, Rect2(24, y, 672.0 + L.dx, h), {"hit": Rect2(24, y, 672.0 + L.dx, h), "ghost": true, "on_commit": on_commit})
 		focusables.append(b)
 		body_focusables.append(b)
 		_sheet_text(body, Vector2(0, y + LABEL_DY), label, role if role != null else Art.theme["modal"]["body"], false, right)
 
 	func _toggle(y: float, h: float, key: String, label_key: String, cap_key: String) -> void:
 		var th := Art.theme
-		var b := PxButton.make(body, Rect2(24, y, 672, h), {"hit": Rect2(24, y, 672, h), "ghost": true,
+		var b := PxButton.make(body, Rect2(24, y, 672.0 + L.dx, h), {"hit": Rect2(24, y, 672.0 + L.dx, h), "ghost": true,
 			"on_commit": func() -> void:
 				host.toggle_setting(key)
 				sync()})
@@ -137,7 +142,7 @@ class SettingsOverlay:
 		var t := _sheet_text(body, Vector2(0, y + LABEL_DY), Strings.s(label_key), th["modal"]["body"], false)
 		if cap_key != "":
 			_sheet_text(body, Vector2(0, y + LABEL_DY + _lh(t) * float(maxi(1, t.line_count())) + 2.0), Strings.s(cap_key), th["modal"]["note"], true)
-		var track := Ui.rect(body, Rect2(40, y + 14.0, 120, 60), Color("#1b1426"))
+		var track := Ui.rect(body, Rect2(40, y + 14.0, 120, 60), Color("#061029"))
 		var fill := Ui.rect(body, Rect2(44, y + 18.0, 112, 52), Color("#0038b8"))
 		var knob := Ui.rect(body, Rect2(44, y + 18.0, 52, 52), Color("#f7f4ec"))
 		var st := PxText.make(body, Vector2(176, y + LABEL_DY), "", L.TEXT, "plain", th["modal"]["body"])

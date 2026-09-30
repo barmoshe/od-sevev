@@ -63,7 +63,9 @@ async function shot(P, name) {
 	console.log('  shot', p);
 }
 const hat = (P) => css(P, P.d.hat[0], P.d.hat[1]);
-const tab = (P, i) => col(P, 540 - 180 * (i - 1) + 90, P.d.logical[1] - 104 + 52);
+// mobile-first §5.3: four fluid slots of floor4(cw / 4), right → left; the remainder goes to slot 4
+const tabX = (P, i) => { const cw = P.d.cw || 720; const w = Math.floor(cw / 16) * 4; return i >= 4 ? (cw - 3 * w) / 2 : cw - i * w + w / 2; };
+const tab = (P, i) => col(P, tabX(P, i), P.d.logical[1] - 104 + 52);
 
 // 1. the court: the summons card and chip, then the testimony over T3
 {
@@ -179,7 +181,8 @@ const tab = (P, i) => col(P, 540 - 180 * (i - 1) + 90, P.d.logical[1] - 104 + 52
 		return { items: items.length, dir: el.querySelector('ul').getAttribute('dir'), link: link ? getComputedStyle(link).color : '', text: el.innerText };
 	});
 	check(a.items === 44 && a.dir === 'rtl', `44 public sources in an RTL list (${a.items}, ${a.dir})`);
-	check(a.link === 'rgb(159, 195, 255)', `links are #9fc3ff (${a.link})`);
+	// palette v4: About is a white notice, its links flag blue (8.5:1; was #9fc3ff on the dark page)
+	check(a.link === 'rgb(0, 56, 184)', `links are #0038b8 on the white notice (${a.link})`);
 	check(!/NOT USED|GAP:|Bench only|never names/.test(a.text), 'no internal notes');
 	await P.page.evaluate(() => { const el = document.getElementById('od-about'); el.scrollTop = el.scrollHeight / 2; });
 	await P.wait(300);

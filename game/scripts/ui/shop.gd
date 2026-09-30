@@ -12,6 +12,11 @@ extends Node2D
 ## dossier tabs are tall tabs: their slot emits tall_tab_requested (the controller opens the view).
 ## Juice kept from the fork: press squish, pill hello and nudge, glint, can't-afford shake,
 ## success flash, icon hop and cascade, the upgrade shelf reflow, momentum scroll.
+## Mobile-first (ux/mobile-first-layout.md §4.1, §5.1, §5.3, §5.4): the card stretches to 688 + dx
+## (its plate, icon, name and line 2 R-anchored, the pill L), the pill grows by min(dx, 40) and
+## shows its price at ×5 where it fits; after the real rows, one dim teaser row per source still to
+## come fills the pane (no price, no pill, not a target); the tab bar has four fluid slots of
+## floor4(cw / 4) and slides up from the screen bottom at C1.
 
 signal buy_producer_requested(id: String, is_repeat: bool, result: Array)
 signal buy_upgrade_requested(id: String, result: Array)
@@ -81,6 +86,7 @@ var _nudge_cursor := -1
 var _now := 0.0
 var _visible_shop := true
 var _state: GameState
+var _layout_dx := -1.0
 
 # juice tables
 var SQ := 8.0
@@ -89,6 +95,10 @@ var ICON_NUDGE: Array
 var PILL_HELLO: Array
 var TAB_IN: Array
 var PILL_RECT: Rect2
+## mobile-first §5.1: the pill's growth, min(dx, 40)
+var _pill_g := 0.0
+var _tab_dy := 0.0
+var _tab_tw: Tween
 
 
 func _ready() -> void:
@@ -133,7 +143,7 @@ func _build_tabs() -> void:
 		d["plate"] = Ui.nine(self, Rect2(0, 0, 180, L.TABS_H), Art.sprite_or("tab_active"))
 		d["icon"] = Ui.img(self, Vector2.ZERO, Art.sprite_or(TAB_ICONS[i] + "_idle"), 0, 4)
 		d["label"] = PxText.make(self, Vector2.ZERO, Strings.s(TAB_KEYS[i]), L.TEXT, "plain", "w")
-		(d["label"] as PxText).fit_width = 164.0   # tab.label: at ×5 "קואליציה" (195) steps down
+		(d["label"] as PxText).fit_width = 164.0   # tab.label (slot − 16): at ×5 "קואליציה" (195) steps down
 		d["badge"] = Ui.nine(self, Rect2(0, 0, 44, 44), Art.sprite_or("badge_count"))
 		d["badgeText"] = PxText.make(self, Vector2.ZERO, "", L.TEXT, "plain", "w")
 		(d["badgeText"] as PxText).fit_width = 40.0   # tab.badge
@@ -141,21 +151,43 @@ func _build_tabs() -> void:
 	_layout_tabs()
 
 
+## mobile-first §5.3: the plate full bleed; per slot the icon (60 × 60) centred at slot_w/2 − 30,
+## y 8; the label centred at y 64 in a slot_w − 16 box; the badge at the icon's top-left (RTL
+## trailing); the active plate inset 12 each side. `_tab_dy` is the C1 slide.
 func _layout_tabs() -> void:
-	var y := L.tabs_y()
-	Ui.set_nine_rect(_tabbar, Rect2(0, y, L.W, L.TABS_H))
+	var y := L.tabs_y() + _tab_dy
+	Ui.set_nine_rect(_tabbar, Rect2(0, y, L.cw + 4.0, L.TABS_H))
 	for i in 4:
 		var d: Dictionary = _slots[i]
 		var r := L.tab_rect(i + 1)
-		Ui.set_nine_rect(d["plate"], Rect2(r.position.x + 12, y, 156, L.TABS_H))
+		var w := L.tab_w()
+		if i == 3:
+			r = Rect2(r.end.x - w, r.position.y, w, r.size.y)   # slot 4's visuals: its own width, the remainder is plate
+		Ui.set_nine_rect(d["plate"], Rect2(r.position.x + 12, y, w - 24.0, L.TABS_H))
 		var ic: Sprite2D = d["icon"]
-		ic.position = r.position + Vector2(60, 4)
+		var ix := Ui.snap(w / 2.0 - 30.0, 4)
+		ic.position = Vector2(r.position.x + ix, y + 8.0)
 		var lb: PxText = d["label"]
-		lb.position.y = y + 60
-		lb.center_in(r.position.x, r.size.x)
-		Ui.set_nine_rect(d["badge"], Rect2(r.position.x + 44, y, 44, 44))
-		(d["badgeText"] as PxText).position = Vector2(r.position.x + 44, y + 4)
+		lb.fit_width = w - 16.0
+		lb.position.y = y + 64
+		lb.center_in(r.position.x, w)
+		Ui.set_nine_rect(d["badge"], Rect2(r.position.x + ix - 16.0, y, 44, 44))
+		(d["badgeText"] as PxText).position = Vector2(r.position.x + ix - 16.0, y + 4)
+		(d["badgeText"] as PxText).center_in(r.position.x + ix - 16.0, 44)
 	_refresh_tabs()
+
+
+## C1 (mobile-first §3.3): the bar slides up from `from_dy` px below its slot over the pane's
+## last 104 px; the list keeps its scroll offset. Reduced motion never calls it (instant).
+func slide_tabs(from_dy: float, sec: float) -> void:
+	if _tab_tw:
+		_tab_tw.kill()
+	_tab_dy = from_dy
+	_layout_tabs()
+	_tab_tw = create_tween()
+	_tab_tw.tween_method(func(v: float) -> void:
+		_tab_dy = Ui.snap(v, 4)
+		_layout_tabs(), from_dy, 0.0, sec).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 ## ux/ftue.md: the bar appears at C1; each slot at its own reveal. Slots never move.
@@ -182,7 +214,7 @@ func _refresh_tabs() -> void:
 		Ui.set_frame(ic, Art.sprite_or(TAB_ICONS[i] + ("_active" if active else "_idle")), 0)
 		var lb: PxText = d["label"]
 		lb.visible = on
-		lb.tint = Art.col("w") if active else Color(0.62, 0.6, 0.68)
+		lb.tint = Art.col("w") if active else Color(0.788, 0.839, 0.949)
 		(d["badge"] as NinePatchRect).visible = on and (d["badgeText"] as PxText).text != ""
 		(d["badgeText"] as PxText).visible = (d["badge"] as NinePatchRect).visible
 
@@ -194,13 +226,23 @@ func set_tab_badge(slot: int, text: String) -> void:
 	if bt.text == text:
 		return
 	bt.text = text
-	bt.center_in(L.tab_rect(slot).position.x + 44, 44)
+	var bg: NinePatchRect = d["badge"]
+	bt.center_in(bg.position.x, 44)
 	_refresh_tabs()
 
 
-## The list grows with P (the flex rule); the tab bar follows it.
+## The pane: P (the split), + the tab slot until C1 (mobile-first §3.3); the tab bar follows it.
+## The cards stretch with the canvas (688 + dx).
 func set_list_height(h: float) -> void:
-	list_rect = Rect2(float(L.SHOP["listX"]), float(L.SHOP["listY"]), float(L.SHOP["listW"]), h)
+	list_rect = Rect2(float(L.SHOP["listX"]), float(L.SHOP["listY"]), float(L.SHOP["listW"]) + L.dx, h)
+	var g := minf(L.dx, 40.0)
+	if not is_equal_approx(g, _pill_g) or _layout_dx != L.dx:
+		_pill_g = g
+		_layout_dx = L.dx
+		PILL_RECT = Rect2((L.ROW["pill"] as Rect2).position, (L.ROW["pill"] as Rect2).size + Vector2(g, 0))
+		for t: String in _rows:
+			for v: Dictionary in _rows[t]:
+				_layout_row(v)
 	_clip.position = list_rect.position
 	_clip.size = list_rect.size
 	for t: String in _lists:
@@ -226,16 +268,19 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 	var panel := Ui.nine(c, Rect2(lx, 0, lw, row_h), Art.sprite_or("card_source_affordable"))
 	var content := Node2D.new()
 	c.add_child(content)
-	var plate := Ui.nine(content, R["plate"], Art.sprite_or("card_plate"))
-	var icon := Ui.img(content, Vector2.ZERO, Art.PLACEHOLDER, 0, 4)
+	# the R-anchored side (plate, icon, name, line 2, owned badge, spin tag and bars): x + dx
+	var rside := Node2D.new()
+	content.add_child(rside)
+	var plate := Ui.nine(rside, R["plate"], Art.sprite_or("card_plate"))
+	var icon := Ui.img(rside, Vector2.ZERO, Art.PLACEHOLDER, 0, 4)
 	var icon_flash := Sprite2D.new()
 	icon_flash.centered = false
 	icon_flash.scale = Vector2(4, 4)
 	icon_flash.visible = false
 	icon_flash.material = Ui.fill_material(Art.col(th["row"]["affordFlash"]))
-	content.add_child(icon_flash)
-	var name := PxText.make(content, Vector2(float(R["nameRight"]), float(R["nameY"])), "", L.TEXT, "plain", "w")
-	var line2 := PxText.make(content, Vector2(float(R["line2Right"]), float(R["line2Y"])), "", L.TEXT, "plain", "w")
+	rside.add_child(icon_flash)
+	var name := PxText.make(rside, Vector2(float(R["nameRight"]), float(R["nameY"])), "", L.TEXT, "plain", "w")
+	var line2 := PxText.make(rside, Vector2(float(R["line2Right"]), float(R["line2Y"])), "", L.TEXT, "plain", "w")
 	line2.reading = true   # the card's description (line 2): the @2 reading cut where crisp
 	for t: PxText in [name, line2]:
 		t.max_lines = 1
@@ -244,9 +289,9 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 	line2.wrap_width = float(R["line2W"])
 	# the owned badge (rtl-map §6.1, D4): a dark chip on the plate's bottom-left corner
 	var orect: Rect2 = R["owned"]
-	var owned_bg := Ui.rect(content, orect, th["scrim"], 0.85)
+	var owned_bg := Ui.rect(rside, orect, th["scrim"], 0.85)
 	owned_bg.visible = false
-	var owned := PxText.make(content, Vector2(orect.position.x, orect.position.y + 2.0), "", L.TEXT, "plain", "w")
+	var owned := PxText.make(rside, Vector2(orect.position.x, orect.position.y + 2.0), "", L.TEXT, "plain", "w")
 	owned.fit_width = orect.size.x - 8.0   # card.owned 96
 	var pill := Ui.nine(content, PILL_RECT, Art.sprite_or("pay_pill_default"))
 	var fill := Ui.nine(content, Rect2(PILL_RECT.end.x - 16, PILL_RECT.position.y + 8, 8, PILL_RECT.size.y - 24), Art.sprite_or("pay_pill_fill"))
@@ -260,26 +305,49 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 	# S08's card-only bars (Spins.card bars): one split track under line 2, "public" from the right
 	var sb: Rect2 = SPIN_BARS
 	# a spin's tag ("שחוק", a line's "1/5"): a stamp over the plate's bottom edge (rtl-map §6.1)
-	var tag_bg := Ui.rect(content, SPIN_TAG, th["scrim"], 0.85)
-	var tag := PxText.make(content, Vector2(SPIN_TAG.position.x, SPIN_TAG.position.y + 2.0), "", L.TEXT, "plain", "w")
+	var tag_bg := Ui.rect(rside, SPIN_TAG, th["scrim"], 0.85)
+	var tag := PxText.make(rside, Vector2(SPIN_TAG.position.x, SPIN_TAG.position.y + 2.0), "", L.TEXT, "plain", "w")
 	tag.fit_width = SPIN_TAG.size.x - 8.0
 	tag_bg.visible = false
 	tag.visible = false
-	var bar_pub := Ui.rect(content, sb, Art.col(SPIN_BAR_PUBLIC))
-	var bar_fr := Ui.rect(content, Rect2(sb.position, Vector2(0, sb.size.y)), Art.col(SPIN_BAR_FRIENDLY))
+	var bar_pub := Ui.rect(rside, sb, Art.col(SPIN_BAR_PUBLIC))
+	var bar_fr := Ui.rect(rside, Rect2(sb.position, Vector2(0, sb.size.y)), Art.col(SPIN_BAR_FRIENDLY))
 	bar_pub.visible = false
 	bar_fr.visible = false
 	c.visible = false
 	return {
-		"c": c, "panel": panel, "content": content, "plate": plate, "icon": icon, "iconFlash": icon_flash,
+		"c": c, "panel": panel, "content": content, "rside": rside, "plate": plate, "icon": icon, "iconFlash": icon_flash,
 		"barPublic": bar_pub, "barFriendly": bar_fr, "tag": tag, "tagBg": tag_bg,
 		"name": name, "line2": line2, "owned": owned, "ownedBg": owned_bg, "pill": pill, "fill": fill, "pill1": pill1, "pill2": pill2,
 		"flash": flash, "dim": dim, "glint": glint, "index": k, "model": {"kind": "none", "id": ""}, "key": "",
 		"afford": null, "glintReadyAt": 0.0, "pressP": 0.0, "pressed": false, "shakeT": -1.0, "hopT": -1.0,
 		"popT": -1.0, "upgradePopT": -1.0, "tintUntil": 0.0, "pillWasPressed": false, "pillNoRebound": false,
 		"pillReboundT": -1.0, "helloT": -1.0, "helloLast": -1e9, "cascadeAt": -1.0, "rippleAt": -1.0, "glintT": -1.0,
-		"iconBase": Vector2.ZERO,
+		"iconBase": Vector2.ZERO, "pricePx": 4,
 	}
+
+
+## mobile-first §4.1 / §5.1 for one row: the R side at x + dx, the name and line-2 boxes grow by
+## dx − the pill's growth (never narrower than at 720), the flash / dim / glint span the card.
+func _layout_row(v: Dictionary) -> void:
+	var R: Dictionary = L.ROW
+	var lx := float(L.SHOP["listX"])
+	var lw := float(L.SHOP["listW"]) + L.dx
+	var row_h := float(L.SHOP["rowVisualH"])
+	var grow := L.dx - _pill_g
+	(v["rside"] as Node2D).position.x = L.dx
+	(v["name"] as PxText).wrap_width = float(R["nameW"]) + grow
+	for k in ["flash", "dim"]:
+		var r: ColorRect = v[k]
+		r.position = Vector2(lx, 0)
+		r.size = Vector2(lw, row_h)
+	var sb := SPIN_BARS
+	(v["barPublic"] as ColorRect).position.x = sb.position.x - grow
+	var pill: NinePatchRect = v["pill"]
+	Ui.set_nine_rect(pill, PILL_RECT)
+	for t: PxText in [v["pill1"], v["pill2"]]:
+		t.fit_width = PILL_RECT.size.x - 16.0
+	v["key"] = ""   # re-render: the line-2 box, the price scale and the pill text follow
 
 
 func set_shop_visible(v: bool) -> void:
@@ -297,15 +365,44 @@ func _models(s: GameState, t: String) -> Array:
 			out.append({"kind": "buymode", "id": ""})
 		if ftue_single:
 			out.append({"kind": "producer", "id": Content.producer_ids()[0]})
+			_append_teasers(out, s)
 			return out
 		var pr := Economy.producer_rows(s)
 		for id: String in pr["revealed"]:
 			out.append({"kind": "producer", "id": id})
 		if pr["silhouette"] != "":
 			out.append({"kind": "silhouette", "id": pr["silhouette"]})
+		for id: String in pr.get("fill", PackedStringArray()):
+			out.append({"kind": "teaser", "id": id})
 		return out
 	var ids: Array = _frozen_upgrades if not _frozen_upgrades.is_empty() else Economy.available_upgrades(s).map(func(u: Dictionary) -> String: return u["id"])
 	return ids.map(func(id: String) -> Dictionary: return {"kind": "upgrade", "id": id})
+
+
+## mobile-first §5.4 (D38, G1 `producerReveal.fillSilhouettes`; the sim's producer_rows().fill
+## outside the first card): after card 1, one teaser row per source still to come.
+static func _append_teasers(out: Array, _s: GameState) -> void:
+	if not bool((Content.data().get("producerReveal", {}) as Dictionary).get("fillSilhouettes", false)):
+		return
+	var shown := {}
+	for m: Dictionary in out:
+		shown[str(m["id"])] = true
+	for id: String in Content.producer_ids():
+		if not shown.has(id):
+			out.append({"kind": "teaser", "id": id})
+
+
+## Rows of `kind` fully inside the pane (the web probe: the pane's filled rows).
+func rows_in_view(kinds: Array) -> int:
+	var n := 0
+	var views: Array = _rows["producers"]
+	if tab != "producers":
+		return 0
+	for k in views.size():
+		var v: Dictionary = views[k]
+		if (v["c"] as Node2D).visible and kinds.has(str(v["model"]["kind"])) and row_screen_y(k, "producers") >= 0.0:
+			n += 1
+	return n
 
 
 func _max_scroll(n: int) -> float:
@@ -342,7 +439,7 @@ func row_index_of(s: GameState, kind: String, id: String) -> int:
 
 ## Row icon centre, `_lower`-local (the confetti anchor).
 func icon_pos(k: int) -> Vector2:
-	return Vector2(L.ROW["iconCenter"]) + Vector2(0, _row_top(k, tab))
+	return Vector2(L.ROW["iconCenter"]) + Vector2(L.dx, _row_top(k, tab))
 
 
 ## The pill centre of row k, `_lower`-local (the FTUE hand's target).
@@ -364,7 +461,10 @@ func refresh(s: GameState, dt_ms: float, animate_reveal: bool, d: Economy.Derive
 			rev_n += 1
 	if _revealed_count >= 0 and rev_n > _revealed_count and animate_reveal:
 		producer_revealed.emit()
-		_maybe_auto_scroll(models_p.size() - 1)
+		var last := models_p.size() - 1
+		while last > 0 and models_p[last]["kind"] == "teaser":
+			last -= 1
+		_maybe_auto_scroll(last)
 	_revealed_count = rev_n
 
 	for t in ["producers", "upgrades"]:
@@ -401,6 +501,8 @@ func _badge_label(n: int) -> String:
 func _card_sprite(kind: String, afford: bool) -> String:
 	match kind:
 		"silhouette":
+			return Art.sprite_or("card_source_locked")
+		"teaser":
 			return Art.sprite_or("card_source_locked")
 		"upgrade":
 			return Art.sprite_or("card_spin" if afford else "card_spin_locked")
@@ -453,6 +555,12 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			price = float(Economy.quote(s, id, 1)["cost"])
 			l1 = Strings.s("CARD_VERB_FIRST")
 			l2 = Strings.s("CARD_PRICE", {"price": Fmt.cost(price)})
+		"teaser":
+			# mobile-first §5.4: the silhouette, "מקור עלום", no price, no pill, not a target
+			var skt := LeaderUi.producer_art(id)
+			icon = Art.sprite_or(str(skt["silhouette"]) if not skt.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id))))
+			nm = Strings.s("ROW_LOCKED_NAME")
+			wide = true
 		"buymode":
 			nm = Strings.s("BUYMODE_LABEL")
 			afford = true
@@ -477,6 +585,11 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	var key := "%s:%s" % [m["kind"], id]
 	var ic: Sprite2D = v["icon"]
 	var is_btn: bool = m["kind"] == "buymode"
+	var teaser: bool = m["kind"] == "teaser"
+	# v4 (style guide F14): the pane is the white field, so a teaser is the locked card at full
+	# opacity (a 50% card would put its white text straight on white); it reads dim by its sprite,
+	# its muted icon and name, and the missing pill
+	(v["c"] as Node2D).modulate.a = 1.0
 	if v["key"] != key:
 		v["key"] = key
 		v["model"] = m
@@ -494,7 +607,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 		ic.scale = Vector2(4, 4)
 	# line 2: x 220-568 beside the owned badge, x 220-580 without it (string-budgets card.line2*)
 	var l2t: PxText = v["line2"]
-	l2t.wrap_width = float(R["line2WideW"] if wide else R["line2W"])
+	l2t.wrap_width = float(R["line2WideW"] if wide else R["line2W"]) + L.dx - _pill_g
 	l2t.position.x = float(R["line2WideRight"] if wide else R["line2Right"])
 	(v["name"] as PxText).text = nm
 	l2t.text = line2
@@ -516,7 +629,8 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	var pill_id := "button_secondary_default" if is_btn else ("pay_pill_pressed" if (afford and v["pressed"]) else ("pay_pill_default" if afford else "pay_pill_track"))
 	Ui.set_nine_frame(v["pill"], Art.sprite_or(pill_id), 0)
 	var fill: NinePatchRect = v["fill"]
-	fill.visible = not afford and price > 0.0 and not is_btn
+	fill.visible = not afford and price > 0.0 and not is_btn and not teaser
+	(v["pill"] as NinePatchRect).visible = not teaser
 	if fill.visible:
 		var inner := Rect2(PILL_RECT.position + Vector2(8, 8), PILL_RECT.size - Vector2(16, 24))
 		var w := maxf(8.0, Ui.snap(inner.size.x * clampf(s.bananas / price, 0.0, 1.0), 4))
@@ -525,6 +639,11 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	var p1: PxText = v["pill1"]
 	var p2: PxText = v["pill2"]
 	p1.text = l1
+	# mobile-first §5.1: the price at ×5 when it fits the pill box (the verb stays ×4); large
+	# text keeps ×4 here and steps it up by its own rule
+	var ppx := 5 if (not is_btn and PxText.body_scale() == L.TEXT and PxText.measure(l2, 5) <= int(PILL_RECT.size.x - 16.0)) else L.TEXT
+	v["pricePx"] = ppx
+	p2.px = ppx
 	p2.text = l2
 	p1.tint = ink
 	p2.tint = ink
@@ -541,10 +660,10 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	if tinted:
 		flash.texture = ic.texture
 		flash.position = ic.position
-	ic.modulate = Color.WHITE if (m["kind"] == "silhouette" or afford) else Color(0.6, 0.6, 0.6)
-	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.86, 0.84, 0.9)
-	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.72, 0.7, 0.78)
-	(v["owned"] as PxText).tint = Color(0.86, 0.84, 0.9)
+	ic.modulate = Color.WHITE if (m["kind"] == "silhouette" or teaser or afford) else Color(0.6, 0.6, 0.6)
+	(v["name"] as PxText).tint = Art.col("w") if (afford or is_btn) else Color(0.827, 0.839, 0.875)
+	(v["line2"] as PxText).tint = Color(0.78, 0.9, 0.62) if afford else Color(0.788, 0.839, 0.949)
+	(v["owned"] as PxText).tint = Color(0.827, 0.839, 0.875)
 	_render_bars(v, bars)
 	var tg: PxText = v["tag"]
 	tg.text = tag_s
@@ -561,7 +680,8 @@ func _render_bars(v: Dictionary, bars: Dictionary) -> void:
 	fr.visible = pub.visible
 	if not pub.visible:
 		return
-	var sb := SPIN_BARS
+	var grow := L.dx - _pill_g
+	var sb := Rect2(SPIN_BARS.position.x - grow, SPIN_BARS.position.y, SPIN_BARS.size.x + grow, SPIN_BARS.size.y)
 	var wp := Ui.snap(sb.size.x * clampf(float(bars.get("public", 100.0)) / 100.0, 0.0, 1.0), 4)
 	pub.position = Vector2(L.bar_x(sb, wp), sb.position.y)
 	pub.size = Vector2(wp, sb.size.y)
@@ -616,7 +736,7 @@ func _animate_row(v: Dictionary, dt_ms: float) -> void:
 		pp = minf(1.0, pp + dt_ms / dur) if target > pp else maxf(0.0, pp - dt_ms / dur)
 		v["pressP"] = pp
 	var lx := float(S["listX"])
-	var lw := float(S["listW"])
+	var lw := float(S["listW"]) + L.dx
 	var row_h := float(S["rowVisualH"])
 	var bps_ := float(Tune.T["buyPressScale"])
 	var max_x := maxf(1.0, roundf(lw * (1.0 - bps_) / 2.0 / 4.0))
@@ -722,7 +842,8 @@ func _animate_pill(v: Dictionary, dt_ms: float) -> void:
 	PxButton.squish_nine(v["pill"], PILL_RECT, dw, dh, 0, dy, anchor)
 	if v["model"]["kind"] != "buymode":
 		(v["pill1"] as PxText).position.y = float(L.ROW["pillLine1Y"]) + dy
-		(v["pill2"] as PxText).position.y = float(L.ROW["pillLine2Y"]) + dy
+		# a ×5 price sits 4 px higher so its ink stays inside the pill's well
+		(v["pill2"] as PxText).position.y = float(L.ROW["pillLine2Y"]) + dy - (4.0 if int(v["pricePx"]) > L.TEXT else 0.0)
 
 
 func _update_nudge(dt_ms: float, live: bool) -> void:
@@ -802,7 +923,7 @@ func tabs_down(p: Vector2) -> bool:
 		if _slot_shown(i) and Ui.in_rect(L.tab_rect(i + 1), p):
 			_tab_pressed = i
 			return true
-	return Ui.in_rect(Rect2(0, L.tabs_y(), L.W, L.TABS_H), p)   # the bar swallows presses between slots
+	return Ui.in_rect(Rect2(0, L.tabs_y(), L.cw, L.TABS_H), p)   # the bar swallows presses between slots
 
 
 func tab_up(p: Vector2 = Vector2(-1, -1)) -> void:
@@ -885,7 +1006,7 @@ func list_down(p: Vector2, s: GameState) -> void:
 		_scroll_tw.kill()
 	var k := _row_at(p.y)
 	var rows: Array = _rows[tab]
-	var valid: bool = k >= 0 and k < rows.size() and rows[k]["model"]["kind"] != "none" and (rows[k]["c"] as Node2D).visible
+	var valid: bool = k >= 0 and k < rows.size() and not ["none", "teaser"].has(str(rows[k]["model"]["kind"])) and (rows[k]["c"] as Node2D).visible
 	_press = {"tab": tab, "row": k if valid else -1, "x0": p.x, "y0": p.y, "scroll0": _scroll[tab], "dragging": false,
 		"repeated": false, "repeats": 0, "holdMs": -1.0, "lastY": p.y, "lastT": _now, "vel": 0.0}
 	if not valid:

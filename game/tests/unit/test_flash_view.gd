@@ -55,7 +55,7 @@ func _boot(dev: Vector2i = Vector2i.ZERO) -> void:
 	var e := InputEventScreenTouch.new()
 	for pressed in [true, false]:
 		e = InputEventScreenTouch.new()
-		e.position = L.magician_hit().get_center() + Vector2(m._ox, m._stage_y)
+		e.position = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
 		e.pressed = pressed
 		m._unhandled_input(e)   # title → main (tap 1)
 
@@ -162,8 +162,8 @@ func test_the_flash_shows_after_an_election_and_closes() -> void:
 	fig.position += f.strip.position
 	runner.check(fig.position.y >= 0.0 and fig.end.y <= f.screen_rect.size.y and fig.position.x >= 0.0 and fig.end.x <= f.screen_rect.size.x,
 		"the figure fits the news screen (%s in %s)" % [fig, f.screen_rect.size])
-	runner.check(f.panel_rect.size.x == 624.0 and f.panel_rect.position.y >= 0.0 and f.panel_rect.end.y <= float(L.H),
-		"the card is 624 wide and inside the modal space (%s)" % f.panel_rect)
+	runner.check(f.panel_rect.size.x == 624.0 + 2.0 * SheetCard.grow_half() and f.panel_rect.size.x >= 0.92 * L.cw and f.panel_rect.position.y >= 0.0 and f.panel_rect.end.y <= float(L.H),
+		"the card is ≥ 92%% of the canvas (the width rule) and inside the modal space (%s)" % f.panel_rect)
 	runner.check(f.lines.size() == Story.beat_for(1).size(), "one text per beat line")
 	for p: PxText in f.lines:
 		runner.check(not p.truncated(), "a beat line wraps, never ellipsizes (%s)" % p.text)

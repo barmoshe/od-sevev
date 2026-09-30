@@ -122,8 +122,10 @@ def icon(key=KEY, proofs=PROOFS):
     for y in range(N):                                   # one follow-spot, centred: the ring shares it equally
         for x in range(N):
             dd = math.hypot(x + 0.5 - 32, y + 0.5 - 32)
-            if dd < 29:
-                L.set(x, y, "plum_hi")
+            if dd < 26.5:                                # v4: the flag's blue in the middle, a white ring round it
+                L.set(x, y, "flag")
+            elif dd < 28.5:
+                L.set(x, y, "white")
             elif dd < 31 and (x + y) % 2 == 0:
                 L.set(x, y, "plum_hi")
     ring(L, 32, 32, 7.2, 11.0, gap=(-110, -62))          # the gold "again" loop in the middle
@@ -190,10 +192,12 @@ def og(key=KEY, proofs=PROOFS, d=OG_D):
         for y in range(8, FEET - 12):
             if 2 <= m <= 6 or (m in (1, 7) and (x + y) % 2 == 0):
                 L.set(x, y, "plum_hi")
-    L.rect(0, FEET - 12, W, H - FEET + 12, "night")       # the stage floor
-    L.hline(0, W - 1, FEET - 12, "plum_hi")
+    L.rect(0, FEET - 12, W, H - FEET + 12, "stone_sh")    # the stage floor: v4 warm Jerusalem stone (was night)
+    L.hline(0, W - 1, FEET - 12, "stone")
     for x in range(0, W, 2):
-        L.set(x, FEET - 11, "plum_hi")
+        L.set(x, FEET - 11, "stone")
+    for y in range(FEET - 6, H, 6):                       # the stone's courses, one value step
+        L.hline(0, W - 1, y, "wood")
     CW = 16                                               # the side curtains, draped back
     for side in (0, 1):
         for x in range(CW):
@@ -210,6 +214,10 @@ def og(key=KEY, proofs=PROOFS, d=OG_D):
         L.ellipse(x + 4.5, 6, 5, 3, "plum")
         L.ellipse(x + 4.5, 5, 4, 2, "plum_hi")
     L.hline(0, W - 1, 0, "outline")
+    # v4: the chrome's national frame on the stage: a white rule over a flag-blue one under the valance, and the
+    # stage apron's trim (flag blue over white) above the stone floor. Stripes on the set, never a flag object.
+    L.hline(0, W - 1, 9, "white"); L.hline(0, W - 1, 10, "flag")
+    L.hline(0, W - 1, FEET - 14, "flag"); L.hline(0, W - 1, FEET - 13, "white")
     pos, gap = lineup_positions(d, CW + 2, W - CW - 2)
     for c, f, anc, px in pos:                             # one follow-spot pool per leader, all the same
         cx = (px + anc[0]) / d
@@ -217,7 +225,7 @@ def og(key=KEY, proofs=PROOFS, d=OG_D):
             for x in range(int(cx - 22), int(cx + 23)):
                 e = ((x + 0.5 - cx) / 21) ** 2 + ((y + 0.5 - FEET) / 4.2) ** 2
                 if e <= 1 and (e < 0.6 or (x + y) % 2 == 0):
-                    L.set(x, y, "plum_hi")
+                    L.set(x, y, "stone")                      # v4: a warm pool on the stone
     # ballot slips and coins raining over the stage (no letters on the slips), seeded
     rnd = random.Random(1027)
     confetti = Layer(W, H)
@@ -229,6 +237,10 @@ def og(key=KEY, proofs=PROOFS, d=OG_D):
             shape = [(0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2)] if rnd.random() < 0.5 else [(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1)]
             for i, (a, b) in enumerate(shape):
                 confetti.set(x + a, y + b, "white" if i < 4 else "paper")
+        elif rnd.random() < 0.5:                          # v4: a blue ballot envelope (המעטפה הכחולה), blank
+            for j, row in enumerate(("hffh", "fhhf", "ffff")):
+                for i, ch in enumerate(row):
+                    confetti.set(x + i, y + j, "flag_hi" if ch == "h" else "flag")
     img = up(L.to_image(1), d)
     img.alpha_composite(up(confetti.to_image(1), d))
     for _ in range(14):

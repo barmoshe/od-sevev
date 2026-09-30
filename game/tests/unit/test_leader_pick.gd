@@ -116,7 +116,7 @@ func test_picking_bennett_puts_him_on_stage_and_saves() -> void:
 	await _frames(2)
 	runner.check(m.undo_visible(), "the undo chip is up after the pick")
 	# tap 1: the pre-tap state starts the round, the prop squashes, the chip goes
-	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._ox, m._stage_y)
+	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
 	for pressed in [true, false]:
 		var e := InputEventScreenTouch.new()
 		e.position = at
@@ -262,6 +262,41 @@ func test_golans_merge_prompt() -> void:
 	runner.check(Coalition.status(s, "bennett") == "merged", "a pick merges them")
 	var sys: Array = (s.coalition["chat"] as Array).filter(func(x: Dictionary) -> bool: return x.get("key", "") == "chat.sys.merged")
 	runner.check(sys.size() == 1 and ChatView.sys_text(sys[0]) != "", "CHAT_SYS_MERGED (%s)" % (ChatView.sys_text(sys[0]) if sys.size() > 0 else ""))
+
+
+## mobile-first §5.5 (D46): the thread teaches Golan's rule: a merge-ready system line with the
+## "לאחד" pill under it, once per qualifying stretch, whose pill opens the pair prompt, pair first.
+func test_golans_merge_ready_line() -> void:
+	await _boot()
+	m.commit_pick("golan")
+	m._set_mode("main", false)
+	var s: GameState = m.state
+	s.coalition["opened"] = true
+	for id: String in ["lapid", "bennett"]:
+		Coalition.ps(s, id)["status"] = "member"
+		Coalition.ps(s, id)["memberSec"] = 90.0
+	await _frames(3)
+	var ready: Array = (s.coalition["chat"] as Array).filter(func(x: Dictionary) -> bool: return x.get("key", "") == "chat.sys.merge_ready")
+	runner.check(ready.size() == 1, "one merge-ready line is posted (%d)" % ready.size())
+	if ready.is_empty():
+		return
+	runner.check(ChatView.sys_text(ready[0]) == Strings.s("CHAT_SYS_MERGE_READY", {"a": ChatView.partner_name(str(ready[0]["a"])), "b": ChatView.partner_name(str(ready[0]["b"]))}), "CHAT_SYS_MERGE_READY names the pair (%s)" % ChatView.sys_text(ready[0]))
+	await _frames(3)
+	var again: Array = (s.coalition["chat"] as Array).filter(func(x: Dictionary) -> bool: return x.get("key", "") == "chat.sys.merge_ready")
+	runner.check(again.size() == 1, "and only once while the pair stays ready")
+	m.chat.open()
+	await _frames(30)
+	m.chat.reveal_all()
+	await _frames(3)
+	var hit: Array = m.chat.hits().filter(func(h: Dictionary) -> bool: return h["kind"] == "merge")
+	runner.check(hit.size() == 1 and (hit[0]["rect"] as Rect2).size == Vector2(536, 88), "the לאחד pill under it, hit 536 × 88 (%d)" % hit.size())
+	if hit.is_empty():
+		return
+	m.chat._press = {"hit": hit[0]}
+	m.chat._release_hit(true)
+	await _frames(2)
+	var o: Overlay = m.overlays.top()
+	runner.check(o != null and o.id == "MERGE_CARD" and (o as ChatView.MergeCard).first == str(ready[0]["b"]), "its pill opens the pair prompt, that pair first")
 
 
 func test_the_share_texts_and_card_follow_the_leader() -> void:

@@ -35,11 +35,11 @@ const K2_DELAY_MS := 5000.0
 const INPUT_AFTER_OPEN_MS := 140.0
 const TEXT_REFRESH_MS := 250.0      # stat rows re-shape at most 4× a second (the total climbs every frame)
 
-const C_BG := Color("#1e1636")      # ui_panel
+const C_BG := Color("#072a7a")      # ui_panel
 const C_LABEL := Color.WHITE
-const C_MUTED := Color("#7d8398")   # slate
-const C_DIVIDER := Color("#2e2548")
-const C_LOCKED := Color("#a4a9b8")  # grey
+const C_MUTED := Color("#b4c3e8")   # slate
+const C_DIVIDER := Color("#2a5cc4")
+const C_LOCKED := Color("#c9d6f2")  # grey
 
 var host: Node
 var reduced_motion := false
@@ -92,7 +92,7 @@ func _ready() -> void:
 	_clip.position = Vector2(0, BODY_Y)
 	_panel.add_child(_clip)
 	_clip.add_child(_content)
-	_thumb = Ui.rect(_panel, Rect2(4, BODY_Y, 4, 48), Color(0.84, 0.8, 0.93), 0.0)
+	_thumb = Ui.rect(_panel, Rect2(4, BODY_Y, 4, 48), Color(0.788, 0.839, 0.949), 0.0)
 	_header = Ui.nine(_panel, Rect2(0, 0, L.W, HEADER_H), Art.sprite_or("chat_header"))
 	var chev_id := Art.sprite_or("chat_icon_chevron")
 	var cs := Vector2(Art.sprite_size(chev_id)) * 4.0
@@ -115,8 +115,20 @@ func relayout() -> void:
 		return
 	_bg.position = Vector2(-_ox - 8.0, 0)
 	_bg.size = Vector2(_vs_w + 16.0, _h)
-	_clip.size = Vector2(L.W, body_h())
+	_clip.size = Vector2(L.cw, body_h())
+	# mobile-first §4.1 / §5.6: the header stretches, its chevron and title R-anchored; the rows
+	# rebuild with their labels at 688 + dx and full-width buttons 688 + dx
+	Ui.set_nine_rect(_header, Rect2(0, 0, L.cw + 4.0, HEADER_H))
+	var cs := Vector2(Art.sprite_size(_chev.get_meta("sprite"))) * 4.0
+	_chev.position = (L.ra(CHEVRON_HIT).get_center() - cs / 2.0).snapped(Vector2(4, 4))
+	_title.right_at(TITLE_RIGHT + L.dx)
+	_sig = ""
 	_set_scroll(_scroll)
+
+
+## The rows' label right edge (R-anchored, mobile-first §5.6).
+static func label_right() -> float:
+	return LABEL_RIGHT + L.dx
 
 
 func body_h() -> float:
@@ -345,14 +357,14 @@ func _build() -> void:
 	var y := 8.0
 	for r: Dictionary in rows(_state, _d):
 		var t := _text(_content, str(r["text"]), C_LABEL, 656.0, 1)
-		t.right_at(LABEL_RIGHT)
+		t.right_at(label_right())
 		t.position.y = y + 24.0
-		Ui.rect(_content, Rect2(32, y + ROW_H - 4.0, 656, 4), C_DIVIDER)
+		Ui.rect(_content, Rect2(32, y + ROW_H - 4.0, 656.0 + L.dx, 4), C_DIVIDER)
 		_row_texts.append({"key": r["key"], "text": t})
 		y += ROW_H
 	if Investigation.can_drop_aide(_state):
 		var ah := _text(_content, Strings.s("AIDE_HOLDS"), C_LOCKED, 656.0, 1)
-		ah.right_at(LABEL_RIGHT)
+		ah.right_at(label_right())
 		ah.position.y = y + 24.0
 		y += ROW_H
 		y = _add_button(y, "aide", Strings.s("AIDE_BTN"), "kit_primary")
@@ -362,12 +374,12 @@ func _build() -> void:
 	y += 24.0
 	# the trophies section (BOOK_TROPHIES): the fork's Troop Book list in the dossier's frame
 	var hd := _text(_content, Strings.s("BOOK_TROPHIES"), C_LABEL, 656.0, 1)
-	hd.right_at(LABEL_RIGHT)
+	hd.right_at(label_right())
 	hd.position.y = y + 8.0
 	var n := Meta.trophy_count(_state)
 	var pct := Meta.achievement_pct(_state) * n * 100.0
 	var sm := _text(_content, Strings.s("TROPHY_SUMMARY", {"n": n, "total": Meta.achievements().size(), "pct": Fmt.mult(pct).trim_suffix(".0")}), C_MUTED, 656.0, 1)
-	sm.right_at(LABEL_RIGHT)
+	sm.right_at(label_right())
 	sm.position.y = y + 52.0
 	y += ROW_H + 8.0
 	for a: Dictionary in Meta.achievements():
@@ -376,13 +388,13 @@ func _build() -> void:
 
 
 func _add_button(y: float, kind: String, label: String, look: String) -> float:
-	var vis := Rect2(16, y + 4.0, 688, 80)
-	var btn := PxButton.make(_content, vis, {"hit": Rect2(16, y, 688, 88), "label": label, "kind": look})
+	var vis := Rect2(16, y + 4.0, 688.0 + L.dx, 80)
+	var btn := PxButton.make(_content, vis, {"hit": Rect2(16, y, 688.0 + L.dx, 88), "label": label, "kind": look})
 	if btn.label != null:
 		btn.label.wrap_width = 624.0
 		btn.label.max_lines = 1
 		btn.label.center_in(vis.position.x, vis.size.x)
-	_hits.append({"rect": Rect2(16, y, 688, 88), "kind": kind, "button": btn})
+	_hits.append({"rect": Rect2(16, y, 688.0 + L.dx, 88), "kind": kind, "button": btn})
 	return y + BTN_PITCH
 
 
@@ -407,7 +419,7 @@ func _add_trophy(y: float, a: Dictionary) -> float:
 	var secret: bool = a.get("secret", false)
 	var shown := got or not secret
 	var art := trophy_art(a, got)
-	var plate_x := LABEL_RIGHT - 84.0
+	var plate_x := label_right() - 84.0
 	Ui.img(_content, Vector2(plate_x, y + 10.0), art[0], 0, 4)
 	if str(art[1]) != "":
 		Ui.img(_content, Vector2(plate_x + 12.0, y + 22.0), art[1], 0, 4)
@@ -417,7 +429,7 @@ func _add_trophy(y: float, a: Dictionary) -> float:
 	var ds := _text(_content, str(a["desc"]) if shown else Strings.s("TROPHY_SECRET"), C_MUTED, 556.0, 1)
 	ds.right_at(plate_x - 16.0)
 	ds.position.y = y + 56.0
-	Ui.rect(_content, Rect2(32, y + TROPHY_H - 4.0, 656, 4), C_DIVIDER)
+	Ui.rect(_content, Rect2(32, y + TROPHY_H - 4.0, 656.0 + L.dx, 4), C_DIVIDER)
 	return y + TROPHY_H
 
 
@@ -437,7 +449,7 @@ func _refresh_texts() -> void:
 		var txt := str(model[i]["text"])
 		if t.text != txt:
 			t.text = txt
-			t.right_at(LABEL_RIGHT)
+			t.right_at(label_right())
 
 
 ## Test / tool hook: the stat rows as drawn, [{key, text}].
@@ -570,7 +582,7 @@ func pointer_down(p: Vector2) -> bool:
 		return false
 	_vel = 0.0
 	_press = {"kind": "body", "y0": q.y, "x0": q.x, "scroll0": _scroll, "dragging": false, "lastT": _now, "vel": 0.0, "hit": {}}
-	if Ui.in_rect(CHEVRON_HIT, q):
+	if Ui.in_rect(L.ra(CHEVRON_HIT), q):
 		_press["kind"] = "chevron"
 		return true
 	var c := _content_pt(q)
@@ -610,7 +622,7 @@ func pointer_up(p: Vector2) -> void:
 	var q := _tall(p)
 	match String(pr["kind"]):
 		"chevron":
-			if Ui.in_rect(CHEVRON_HIT, q):
+			if Ui.in_rect(L.ra(CHEVRON_HIT), q):
 				close()
 		"body":
 			if pr["dragging"]:

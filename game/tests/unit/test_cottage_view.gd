@@ -37,7 +37,7 @@ func _boot() -> void:
 		await tree.process_frame
 	m.ftue.handoff_ms = 1.0
 	m.commit_pick("bibi")   # LEADER_PICK (leader select): Bibi's round, the shipped game
-	_touch(L.magician_hit().get_center() + Vector2(m._ox, m._stage_y))   # title → main
+	_touch(L.magician_hit().get_center() + Vector2(m._sx, m._stage_y))   # title → main
 
 
 func _touch(p: Vector2) -> void:

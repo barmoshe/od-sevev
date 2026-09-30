@@ -43,6 +43,12 @@ const FORK_H := 1280
 static var k := 4
 static var f := 1.0
 static var integer := true
+## The art grid (ux/mobile-first-layout.md §0.1, §2): whole art columns and rows of the device
+## surface at k. Two phones with the same k (390@3 and 430@3 are both k 6) differ only here: the
+## layout fills this grid instead of centring a 180 × 267 column in it. The fallback (no integer
+## scale) keeps 180 × 320.
+static var cols := ART_W
+static var rows := 320
 
 
 ## The integer art scale for a device size (crisp_k of the largest that fits); 0 when not even
@@ -88,12 +94,21 @@ static func update(win: Vector2, force_fractional: bool = false) -> bool:
 	var ni := nk >= 1
 	var nf := nk / float(ART_PX) if ni else fork_f(win)
 	nk = maxi(1, nk)
+	# the grid first: it changes with the size even when k does not (before the early return)
+	cols = int(floorf(win.x / nk)) if ni else ART_W
+	rows = int(floorf(win.y / nk)) if ni else 320
 	if nk == k and ni == integer and is_equal_approx(nf, f):
 		return false
 	k = nk
 	f = nf
 	integer = ni
 	return true
+
+
+## The layout width in logical px (mobile-first §2): whole art columns on the 4-px grid, 720 at
+## 180 columns. The chrome spans it; only the stage art stays a centred 720 column.
+static func cw() -> float:
+	return float(cols * ART_PX)
 
 
 ## The logical viewport size for a device size at the current f.

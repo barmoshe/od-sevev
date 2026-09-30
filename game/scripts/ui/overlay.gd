@@ -12,6 +12,9 @@ var scrim: ColorRect
 var frame: NinePatchRect
 var focusables: Array[PxButton] = []
 var panel_rect := Rect2(0, 0, L.W, L.H)
+## mobile-first §4.1: a sheet spans the canvas (its rows use the sheet anchors); everything else
+## is a centred card on the 720 design, placed at the canvas centre (anchor C).
+var full_bleed := false
 var backdrop_closes := true
 var focus_index := 0
 var opened_ms := 0.0
@@ -35,6 +38,10 @@ func _init() -> void:
 	_drop = [[-D, 0, 0], [-D, 0, 0], [-D * 7 / 8, 0, 0], [-D * 3 / 4, 0, 0], [-D * 9 / 16, 0, 0], [-D * 5 / 16, 0, 0],
 		[0, 2 * SQ, -SQ], [0, 2 * SQ, -SQ], [-SQ / 2, -SQ, SQ], [-SQ, -SQ, SQ], [-SQ, 0, 0], [-SQ / 2, 0, 0],
 		[0, SQ, -SQ / 2], [0, 0, 0], [0, 0, 0]]
+
+
+func anchor_x() -> float:
+	return 0.0 if full_bleed else L.sox()
 
 
 func setup(host_: Node, mgr_: OverlayManager) -> void:

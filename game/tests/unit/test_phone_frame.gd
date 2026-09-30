@@ -97,7 +97,7 @@ func test_the_game_in_the_frame_is_integer_and_playable() -> void:
 		for v: float in [m._ox, m._top_y, m._stage_y, m._lower_y, m._ovl_y]:
 			runner.check(is_equal_approx(fmod(absf(v) * f, 1.0), 0.0), "%s: section offset %.1f is a whole device px" % [dev, v])
 		var taps: int = m.state.taps_lifetime   # the boots share a save folder
-		_touch(L.magician_hit().get_center() + Vector2(m._ox, m._stage_y), k)
+		_touch(L.magician_hit().get_center() + Vector2(m._sx, m._stage_y), k)
 		runner.check(m.mode == "main" and m.state.taps_lifetime == taps + 1, "%s: a device-px tap on the Magician lands" % dev)
 		# Dubi's flash fits the frame's band at an integer art scale, on whole device px
 		m.show_flash(1)

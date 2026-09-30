@@ -3183,9 +3183,9 @@
     "name": "בלפור",
     "fromEvolutions": 0,
     "skyBands": [
-     "#2a2340",
-     "#4a2552",
-     "#7a3a7d"
+     "#0f2350",
+     "#16357a",
+     "#2a57a6"
     ],
     "background": "stage_balfour",
     "props": []

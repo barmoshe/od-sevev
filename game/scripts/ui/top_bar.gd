@@ -11,7 +11,11 @@ extends Node2D
 
 const BANK_GAIN := [Vector2(5, 5), Vector2(5, 5), Vector2(5, 5), Vector2(5, 3), Vector2(5, 3), Vector2(4, 5), Vector2(4, 5), Vector2(4, 4)]
 const BANK_GAIN_REDUCED_TINT_MS := 300.0
-const COUNTER_SCALE := 5          # rtl-map §0: the counter leads the hierarchy
+## mobile-first §5.1 (D40): ×6, digits 30 logical = 15 CSS, 1.5× the body text; its cell top at y 0,
+## the rate line at y 52 (Row A stays 96). ×6 is whole device px at every even k.
+const COUNTER_SCALE := 6
+const COUNTER_Y := 0.0
+const RATE_Y := 52.0
 const RATE_DIM_AFTER_MS := 3000.0
 
 var reduced_motion := false
@@ -47,10 +51,10 @@ var _seat_frac := -1.0
 func _ready() -> void:
 	var th := Art.theme
 	var T: Dictionary = L.TOP
-	var cb: Rect2 = T["counterBox"]
-	bank = PxText.make(self, cb.position, "", COUNTER_SCALE, "plain", th["statText"]["bank"])
-	var rb: Rect2 = T["rateBox"]
-	bps = PxText.make(self, rb.position, "", L.TEXT, "plain", th["statText"]["bps"])
+	var cb: Rect2 = counter_box()
+	bank = PxText.make(self, Vector2(cb.position.x, COUNTER_Y), "", COUNTER_SCALE, "plain", th["statText"]["bank"])
+	var rb: Rect2 = rate_box()
+	bps = PxText.make(self, Vector2(rb.position.x, RATE_Y), "", L.TEXT, "plain", th["statText"]["bps"])
 	bps.fit_width = rb.size.x   # rtl-map §0.2: ×5 only when the filled rate fits rowA.rate (344)
 	gear = _icon(T["gearHit"], "icon_gear")
 	mute = _icon(T["muteHit"], "icon_sound_on")
@@ -61,18 +65,52 @@ func _ready() -> void:
 	_track = Ui.nine(self, tr, Art.sprite_or("seats_track"))
 	_fill = Ui.nine(self, Rect2(tr.end.x - 12, tr.position.y + 4, 8, tr.size.y - 8), Art.sprite_or("seats_fill"))
 	for i in range(1, 7):
-		var t := Ui.img(self, Vector2(Ui.snap(tr.end.x - 4.0 - (tr.size.x - 8.0) * float(i * 10) / 61.0, 4), tr.position.y + 4), Art.sprite_or("seats_tick"), 0, 4)
-		_ticks.append(t)
+		_ticks.append(Ui.img(self, Vector2.ZERO, Art.sprite_or("seats_tick"), 0, 4))
 	_goal = Ui.nine(self, tr.grow(12), Art.sprite_or("seats_goal_frame"))
 	_goal.visible = false
 	seats_label = PxText.make(self, Vector2(0, float(T["seatsY"])), Strings.s("HUD_SEATS"), L.TEXT, "plain", "w")
 	# rtl-map §0.2: Row B's label box is x 576-704 (128) and the numeral's x 16-136 (120); at ×5
 	# "מנדטים" (155) would run over the track, so it steps down
 	seats_label.fit_width = float(T["seatsLabelRight"]) - tr.end.x - 8.0
-	seats_label.right_at(float(T["seatsLabelRight"]))
 	seats_value = PxText.make(self, Vector2(float(T["seatsValueX"]), float(T["seatsY"])), "", L.TEXT, "plain", "w")
 	seats_value.fit_width = tr.position.x - float(T["seatsValueX"]) - 8.0
+	relayout()
 	_apply_reveal()
+
+
+## mobile-first §4.1 Row A / Row B anchors: the counter and rate boxes stretch (their text centred on
+## the canvas), the gear and mute stay left (L), the cottage right (R, its own view); Row B's label
+## is R, its numeral L, the track stretches (the notches follow it), the hit spans the canvas.
+static func counter_box() -> Rect2:
+	return L.sa(L.TOP["counterBox"])
+
+
+static func rate_box() -> Rect2:
+	return L.sa(L.TOP["rateBox"])
+
+
+static func track_rect() -> Rect2:
+	return L.sa(L.TOP["seatsTrack"])
+
+
+static func seats_hit() -> Rect2:
+	return Rect2(0, (L.TOP["seatsHit"] as Rect2).position.y, L.cw, (L.TOP["seatsHit"] as Rect2).size.y)
+
+
+func relayout() -> void:
+	if _track == null:
+		return
+	var tr := track_rect()
+	Ui.set_nine_rect(_track, tr)
+	for i in _ticks.size():
+		_ticks[i].position = Vector2(Ui.snap(tr.end.x - 4.0 - (tr.size.x - 8.0) * float((i + 1) * 10) / 61.0, 4), tr.position.y + 4)
+	Ui.set_nine_rect(_goal, tr.grow(12))
+	seats_label.right_at(L.rx(float(L.TOP["seatsLabelRight"])))
+	_seat_frac = -1.0
+	if bank.text != "":
+		bank.center_in(counter_box().position.x, counter_box().size.x)
+	if bps.text != "":
+		bps.center_in(rate_box().position.x, rate_box().size.x)
 
 
 func _icon(hit: Rect2, id: String) -> Sprite2D:
@@ -114,7 +152,7 @@ func _apply_reveal() -> void:
 
 func set_bank(bananas: float) -> void:
 	bank.text = Strings.s("HUD_BANK", {"n": Fmt.bank(maxf(0.0, bananas - _roll_remainder))})
-	bank.center_in((L.TOP["counterBox"] as Rect2).position.x, (L.TOP["counterBox"] as Rect2).size.x)
+	bank.center_in(counter_box().position.x, counter_box().size.x)
 	var th := Art.theme
 	var tint: Variant = th["statText"]["bankGoldenRoll"] if (_roll_tw and _roll_tw.is_valid() and _roll_tw.is_running()) \
 		else (th["juiceGain"] if _now < _gain_tint_until else th["statText"]["bank"])
@@ -154,7 +192,7 @@ func roll_bank(award: float) -> void:
 ## line then reads HUD_BPS_POUR in the frenzy tint rather than "+0.0 ₪ לשנייה" (review R24).
 func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
 	var th := Art.theme
-	var rb0: Rect2 = L.TOP["rateBox"]
+	var rb0: Rect2 = rate_box()
 	if pour:
 		_frenzy = true
 		_prev_rate = -1.0
@@ -164,13 +202,13 @@ func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
 		bps.self_modulate.a = 1.0
 		return
 	var rate := rate_bps * frenzy_mult
-	var rb: Rect2 = L.TOP["rateBox"]
+	var rb: Rect2 = rate_box()
 	if _prev_rate >= 0.0 and absf(rate - _prev_rate) > 1e-9:
 		_rate_changed_at = _now
 		if rate > _prev_rate:
 			_bps_tint_until = _now + float(Tune.MC["bpsTintHoldMs"])
 			if not reduced_motion and not Juice.has(bps):
-				var y0 := rb.position.y
+				var y0 := RATE_Y
 				Juice.play(bps, _bps_hop.size() * Tune.FRAME_MS, func(t: float) -> void: bps.position.y = y0 + float(Juice.sample(_bps_hop, t)),
 					func() -> void: bps.position.y = y0)
 	_prev_rate = rate
@@ -195,9 +233,9 @@ func reset_rate() -> void:
 
 ## effective / gate seats; the blackout removes the numeral (rtl-map §3; its stamp is a later piece).
 func set_seats(effective: int, gate: int, blackout: bool) -> void:
-	var tr: Rect2 = L.TOP["seatsTrack"]
+	var tr: Rect2 = track_rect()
 	var frac := clampf(float(effective) / maxf(1.0, float(gate)), 0.0, 1.0)
-	if not is_equal_approx(frac, _seat_frac):
+	if not is_equal_approx(frac, _seat_frac) or _seat_frac < 0.0:
 		_seat_frac = frac
 		var inner := Rect2(tr.position + Vector2(4, 4), tr.size - Vector2(8, 8))
 		var w := maxf(8.0, Ui.snap(inner.size.x * frac, 4))
@@ -208,7 +246,7 @@ func set_seats(effective: int, gate: int, blackout: bool) -> void:
 
 
 func seats_contains(p: Vector2) -> bool:
-	return _seats_on and Ui.in_rect(L.TOP["seatsHit"], p)
+	return _seats_on and Ui.in_rect(seats_hit(), p)
 
 
 # ------------------------------------------------------------------ controls

@@ -23,6 +23,7 @@ const CARD_W := 624.0
 const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
 const TEXT_RIGHT := 640.0            # modal.body box x 80-640
 const TEXT_W := 560.0
+const BODY_MAX := 624.0              # mobile-first §4.1: a modal body stays ≤ 624 (≈ 24 glyphs)
 const TITLE_W := 432.0
 const PAD := 24.0
 const PARA_GAP := 16.0
@@ -31,9 +32,9 @@ const BTN_GAP := 16.0
 const HALF_LABEL_W := 224.0          # string-budgets modal.btnHalf
 const BAND_MARGIN := 16.0
 const C_TEXT := Color("#f7f4ec")     # white label on the sheet (kit note: 15.6:1 on ui_panel)
-const C_MUTED := Color("#a4a9b8")    # grey
+const C_MUTED := Color("#c9d6f2")    # grey
 const C_GOLD := Color("#ffd23a")     # money (style guide: gold is money-only)
-const C_ALERT := Color("#f86b5d")    # red_hi
+const C_ALERT := Color("#ffaa9f")    # red_hi
 
 var title_text: PxText
 var paras: Array[PxText] = []
@@ -68,13 +69,15 @@ func para(t: String, col: Color = C_TEXT, centre: bool = false, lines: int = 8) 
 		return null
 	var p := PxText.make(_holder, Vector2(0, _y), t, L.TEXT, "plain", col)
 	p.reading = not centre   # a body paragraph reads on @2; a centred number or mood line is display
-	p.wrap_width = TEXT_W
+	var g2 := grow_half()   # mobile-first §4.1: the body box grows with the card (≤ 624)
+	var bw := body_w()
+	p.wrap_width = bw
 	p.max_lines = lines
 	if centre:
 		p.align = 1
-		p.center_in(CARD_X + (CARD_W - TEXT_W) / 2.0, TEXT_W)
+		p.center_in(CARD_X + (CARD_W - bw) / 2.0, bw)
 	else:
-		p.right_at(TEXT_RIGHT)
+		p.right_at(TEXT_RIGHT + g2)
 	paras.append(p)
 	_y += Ui.snap(_lh(p) * maxf(1.0, float(p.line_count())), 4) + PARA_GAP
 	return p
@@ -116,14 +119,24 @@ func one_button(label: String, kind: String, on_commit: Callable) -> void:
 	_y += BTN_H
 
 
-## Sizes the sheet to the content, centres it in the visible band, moves the texts there and
+## Sizes the sheet to the content, places it in the visible band, moves the texts there and
 ## builds the buttons (in declaration order into `buttons`, then the ✕) at their final rects.
+## mobile-first §5.10 (D43): centred on a safe band ≤ 1400, else its centre at 55% of the band
+## (the buttons into the lower half), never closer than 24 to the tab bar's top; the card grows
+## by min(dx, 64) (g/2 each side; the node sits at the canvas centre, anchor C), its body box and
+## its full-width buttons with it.
 func finish() -> void:
 	var h := Ui.snap(_y + PAD, 4)
 	var band := _band()
 	var lo := band.x + BAND_MARGIN
-	var y := Ui.snap(clampf((band.x + band.y) / 2.0 - h / 2.0, lo, maxf(lo, band.y - BAND_MARGIN - h)), 4)
-	panel_rect = Rect2(CARD_X, y, CARD_W, h)
+	var hi := band.y - BAND_MARGIN
+	if host != null and host.has_method("modal_floor"):
+		hi = minf(hi, float(host.call("modal_floor")) - 24.0)
+	var centre := band.x + (band.y - band.x) * (0.55 if band.y - band.x > 1400.0 else 0.5)
+	var y := Ui.snap(clampf(centre - h / 2.0, lo, maxf(lo, hi - h)), 4)
+	var g2 := grow_half()
+	_holder.position.x = 0.0
+	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
 	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
 	panel.move_child(frame, 0)
 	_holder.position.y = y
@@ -131,6 +144,7 @@ func finish() -> void:
 	for sp: Array in _specs:
 		var r: Rect2 = sp[0]
 		r.position.y += y
+		r = _grow_btn(r, g2)
 		var b := PxButton.make(panel, r, {"hit": r, "label": sp[1], "label_scale": L.TEXT, "kind": sp[2], "on_commit": sp[3]})
 		if b.label != null:
 			b.label.wrap_width = r.size.x - 32.0
@@ -141,30 +155,53 @@ func finish() -> void:
 	if _close_cb.is_valid():
 		var id := Art.sprite_or("icon_close")
 		var sz := Vector2(Art.sprite_size(id)) * 4.0
-		var vis := Rect2(CARD_X + 16.0, y + 16.0, 64.0, 64.0)
-		close_btn = PxButton.make(panel, vis, {"hit": Rect2(CARD_X, y, 104.0, 104.0), "ghost": true, "on_commit": _close_cb})
+		var vis := Rect2(CARD_X - g2 + 16.0, y + 16.0, 64.0, 64.0)
+		close_btn = PxButton.make(panel, vis, {"hit": Rect2(CARD_X - g2, y, 104.0, 104.0), "ghost": true, "on_commit": _close_cb})
 		Ui.img(panel, (vis.position + (vis.size - sz) / 2.0).snapped(Vector2(4, 4)), id, 0, 4)
 		focusables.append(close_btn)
+
+
+## Half the card's growth, on the 4-px grid. Bar's width rule (2026-09-30, "the UX/UI fills the
+## phone's width"; it supersedes §5.10's 624 + min(dx, 64)): a modal card is ≥ 92% of the canvas,
+## a floor4(3.5%) margin each side (24-28 logical: 672 at cw 720, 728 at 780, 800 at 860). Its body
+## text keeps the ≤ 624 reading measure (BODY_MAX); the title band, the buttons and the frame grow.
+static func grow_half() -> float:
+	var m := L.floor4(0.035 * L.cw)
+	return maxf(0.0, L.floor4((L.cw - 2.0 * m - CARD_W) / 2.0))
+
+
+## The body box's width: the grown card's, never past the 624 reading measure (§4.1).
+static func body_w() -> float:
+	return minf(TEXT_W + 2.0 * grow_half(), BODY_MAX)
+
+
+## A button spec (card-local x, 720 design) widened with the card: a full-width button grows by the
+## whole growth; a half (side by side) by half of it, the gap kept.
+static func _grow_btn(r: Rect2, g2: float) -> Rect2:
+	if r.size.x >= 500.0:
+		return Rect2(r.position.x - g2, r.position.y, r.size.x + 2.0 * g2, r.size.y)
+	if r.position.x < 360.0:
+		return Rect2(r.position.x - g2, r.position.y, r.size.x + g2, r.size.y)
+	return Rect2(r.position.x, r.position.y, r.size.x + g2, r.size.y)
 
 
 func _lh(t: PxText) -> float:
 	return float(HeFont.line_height()) * t.eff_px()
 
 
-## The visible band of the modal space (y top, y bottom), as FlashCard: the 1280-tall modal space
-## is centred between the insets (MainController._ovl_y).
+## The visible band of the modal space (y top, y bottom): the safe band, less the modal node's y
+## (MainController.modal_band: _ovl_y puts the 1280 space's centre at 50% / 55% of the band).
 func _band() -> Vector2:
-	if host == null or not ("_ovl_y" in host and "_top_y" in host):
+	if host == null or not host.has_method("modal_band"):
 		return Vector2(0.0, float(L.H))
-	var over := float(host.get("_ovl_y")) - float(host.get("_top_y"))
-	return Vector2(-over, float(L.H) + over)
+	return host.call("modal_band")
 
 
 ## Viewport logical px of a modal-space point (tests and the web driver aim with it).
 func to_view(p: Vector2) -> Vector2:
 	if host == null or not ("_ox" in host and "_ovl_y" in host):
 		return p
-	return p + Vector2(float(host.get("_ox")), float(host.get("_ovl_y")))
+	return p + Vector2(float(host.get("_ox")) + position.x, float(host.get("_ovl_y")))
 
 
 ## Web debug: the buttons' centres in viewport logical px (window.odModal), for the browser

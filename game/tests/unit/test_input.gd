@@ -42,7 +42,7 @@ func _boot(pick: bool = true) -> void:
 
 ## A design-space point in a section to a viewport point.
 func _stage_pt(p: Vector2) -> Vector2:
-	return p + Vector2(m._ox, m._stage_y)
+	return p + Vector2(m._sx, m._stage_y)
 
 
 ## The Magician's hit centre (rtl-map §4), stage design space.

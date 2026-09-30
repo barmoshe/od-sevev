@@ -8,7 +8,7 @@ extends Node2D
 ## A child of the stage node, whose origin is the screen at stage-top − STAGE.y; `top_y` places
 ## the lines relative to the screen's safe top.
 
-const SCRIM := Color(0.078, 0.047, 0.141, 0.82)   # #140C24 at 82%
+const SCRIM := Color(0.024, 0.063, 0.161, 0.82)   # #061029 at 82%
 
 var _items: Array[CanvasItem] = []
 var _lines: Array = []   # [PxText, plate]

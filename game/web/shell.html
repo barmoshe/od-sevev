@@ -12,7 +12,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
 		<title>עוד סבב: הבחירות שלא נגמרות</title>
 		<meta name="description" content="{{OG_DESCRIPTION}}">
-		<meta name="theme-color" content="#2a2340">
+		<meta name="theme-color" content="#0038b8">
 		<meta property="og:title" content="עוד סבב: הבחירות שלא נגמרות">
 		<meta property="og:description" content="{{OG_DESCRIPTION}}">
 		<meta property="og:url" content="__OD_SITE_URL__">
@@ -38,12 +38,12 @@ html, body, #canvas {
 html, body {
 	width: 100%;
 	height: 100%;
-	background-color: #2a2340;
+	background-color: #0038b8;
 }
 
 body {
 	color: white;
-	background-color: #2a2340;
+	background-color: #0038b8;
 	overflow: hidden;
 	overscroll-behavior: none;
 	touch-action: none;
@@ -143,8 +143,8 @@ body {
 	position: fixed;
 	inset: 0;
 	z-index: 20;
-	background: #140c24;
-	color: #f7f4ec;
+	background: #0038b8;
+	color: #0f2350;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -159,56 +159,64 @@ body {
 	overflow-y: auto;
 }
 #od-gate.od-out { opacity: 0; pointer-events: none; }
-#od-gate .od-card { width: 100%; max-width: 358px; }
+#od-gate .od-card { width: 100%; max-width: 358px; background: #f7f4ec; color: #0f2350; padding: 0 18px 18px;
+	box-sizing: border-box; border-radius: 4px; box-shadow: 0 0 0 3px #061029; }
+/* palette v4 (2D Artist; Bar: "more Israel theme and palette"): the gate and About are white official notices on the
+   flag blue, ruled top and bottom in flag blue like a printed notice. Colours and rules only: never a flag object, a star,
+   an emblem or a party mark, and no institution's name. */
+#od-gate .od-card::before, #od-about .od-card::before { content: ""; display: block; height: 6px; background: #0038b8;
+	border-bottom: 3px solid #f7f4ec; box-shadow: 0 3px 0 0 #0038b8; margin: 0 -18px 22px; }
+#od-gate .od-card::after, #od-about .od-card::after { content: ""; display: block; height: 3px; background: #0038b8;
+	margin: 18px -18px 0; box-shadow: 0 6px 0 0 #0038b8; }
 #od-gate img.od-wordmark { display: block; margin: 0 auto 20px; width: 286px; height: 58px; image-rendering: pixelated; }
 #od-gate h1 { font-size: 22px; margin: 0 0 12px; text-align: center; }
 #od-gate p { margin: 0 0 10px; }
-#od-gate .od-by { font-size: 14px; color: #c9c3d6; margin-top: 14px; }
-#od-gate a { color: #f7f4ec; }
+#od-gate .od-by { font-size: 14px; color: #34466e; margin-top: 14px; }
+#od-gate a { color: #0038b8; }
 #od-gate .od-buttons { display: flex; gap: 12px; margin-top: 22px; direction: rtl; }
 #od-gate .od-btn { flex: 1; display: flex; flex-direction: column; align-items: stretch; }
 #od-gate button { min-height: 52px; width: 100%; font: inherit; font-size: 18px; font-weight: 600; color: #f7f4ec;
-	background: #0038b8; border: 3px solid #1b1426; border-radius: 6px; cursor: pointer; }
-#od-gate button:focus-visible { outline: 3px solid #f7f4ec; outline-offset: 2px; }
-#od-gate .od-cap { font-size: 14px; color: #c9c3d6; text-align: center; margin-top: 4px; min-height: 21px; }
-#od-gate .od-bar { height: 52px; border: 3px solid #1b1426; border-radius: 6px; background: #2a2340; position: relative; overflow: hidden; }
-#od-gate .od-bar i { position: absolute; top: 0; bottom: 0; right: 0; width: 0; background: #0038b8; transition: width 200ms linear; }
+	background: #0038b8; border: 3px solid #061029; border-radius: 6px; cursor: pointer; }
+#od-gate button:focus-visible { outline: 3px solid #0f2350; outline-offset: 2px; }
+#od-gate .od-cap { font-size: 14px; color: #34466e; text-align: center; margin-top: 4px; min-height: 21px; }
+#od-gate .od-bar { height: 52px; border: 3px solid #061029; border-radius: 6px; background: #0f2350; position: relative; overflow: hidden; }
+#od-gate .od-bar i { position: absolute; top: 0; bottom: 0; right: 0; width: 0; background: #3f74e6; transition: width 200ms linear; }   /* v3 flag_hi: 3.5:1 on the night track */
 #od-gate .od-line { text-align: center; margin-top: 10px; min-height: 24px; }
 #od-gate .od-splash { text-align: center; }
-#od-about { position: fixed; inset: 0; z-index: 30; background: #140c24; color: #f7f4ec; overflow-y: auto;
+#od-about { position: fixed; inset: 0; z-index: 30; background: #f7f4ec; color: #0f2350; overflow-y: auto;
 	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.5;
 	padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 32px; box-sizing: border-box; display: none; }
-#od-about .od-card { max-width: 520px; margin: 0 auto; }
+#od-about .od-card { max-width: 520px; margin: 0 auto; padding: 0 18px; box-sizing: border-box; }
 #od-about h1 { font-size: 22px; margin: 0 0 12px; }
 #od-about h2 { font-size: 18px; margin: 20px 0 8px; }
 #od-about ul { padding: 0 20px 0 0; margin: 0; text-align: right; }
 #od-about li { margin-bottom: 8px; }
-#od-about .od-src { font-size: 14px; color: #c9c3d6; }
-#od-about a, #od-about a:visited { color: #9fc3ff; text-decoration: underline; }
+#od-about .od-src { font-size: 14px; color: #34466e; }
+#od-about a, #od-about a:visited { color: #0038b8; text-decoration: underline; }
 #od-about .od-invite { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 4px; align-items: center; }
 #od-about .od-invite a.od-btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; color: #f7f4ec;
-	background: #2a2340; border: 3px solid #f7f4ec; border-radius: 6px; text-decoration: none; box-sizing: border-box; }
-#od-about .od-invite-status { min-height: 24px; color: #c9c3d6; font-size: 14px; }
-#od-about button { min-height: 48px; padding: 0 20px; font: inherit; color: #f7f4ec; background: #2a2340; border: 3px solid #f7f4ec; border-radius: 6px; cursor: pointer; }
+	background: #0038b8; border: 3px solid #061029; border-radius: 6px; text-decoration: none; box-sizing: border-box; }
+#od-about .od-invite-status { min-height: 24px; color: #34466e; font-size: 14px; }
+#od-about button { min-height: 48px; padding: 0 20px; font: inherit; color: #f7f4ec; background: #0038b8; border: 3px solid #061029; border-radius: 6px; cursor: pointer; }
 /* ABOUT_BACK sticks to the top-left of the page (ux/rtl-map.md §9, review R2): the left end of the
    RTL row, 48 CSS tall, over a strip of the page colour so the list scrolls under it */
 #od-about .od-back { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 1; display: flex;
-	justify-content: flex-end; padding: 8px 0; margin: 0 0 4px; background: #140c24;
-	box-shadow: 0 calc(-16px - env(safe-area-inset-top, 0px)) 0 0 #140c24; }   /* also covers the page padding above it */
+	justify-content: flex-end; padding: 8px 0; margin: 0 0 4px; background: #f7f4ec;
+	box-shadow: 0 calc(-16px - env(safe-area-inset-top, 0px)) 0 0 #f7f4ec; }   /* also covers the page padding above it */
 
 /* od-sevev desktop phone frame (ux/first-minute.md §1.3, ux/rtl-map.md §1): on a wide window with a
    mouse the canvas is a 390-CSS phone column, centred, in a bezel. odFit() below places both; the
    bezel is decoration only (no input, no text). */
 html.od-framed, html.od-framed body {
-	background-color: #140c24;
+	background-color: #0038b8;
 }
 #od-phone {
 	display: none;
 	position: fixed;
 	box-sizing: border-box;
 	border-radius: 40px;
-	background: #0b0714;
-	border: 3px solid #3a2f55;
+	background: #061029;
+	border: 3px solid #f7f4ec;
 	box-shadow: 0 24px 72px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #000;
 	pointer-events: none;
 }

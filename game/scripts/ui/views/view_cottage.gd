@@ -72,7 +72,7 @@ func _ready() -> void:
 
 
 func hit_rect() -> Rect2:
-	return L.TOP["cottageHit"]
+	return L.ra(L.TOP["cottageHit"])   # mobile-first §4.1: Row A right (R); the node sits at x dx
 
 
 func contains(p: Vector2) -> bool:

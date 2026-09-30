@@ -22,9 +22,15 @@ def sheets():
     W = H = 36
     L = Layer(W, H)
     L.rect(0, 0, W, H, "ui_panel")
-    L.rect(1, 1, W - 2, 18, "ui_bubble")                      # the title band
-    L.hline(1, W - 2, 1, "ui_bub_hi"); L.vline(1, 1, H - 2, "ui_bub_hi")
-    L.hline(1, W - 2, 19, "outline"); L.hline(1, W - 2, 20, "ui_scrim")
+    L.rect(1, 1, W - 2, 18, "flag")                           # the title band: flag blue (v3), v4 the envelope's flap
+    L.vline(1, 1, H - 2, "ui_bub_hi"); L.hline(1, W - 2, 1, "flag_hi")
+    cx = (W - 1) / 2
+    for x in range(1, W - 1):                                 # v4: the flap's point, 0-2 rows deeper toward the centre
+        d = int(round(2 * (1 - abs(x - cx) / cx)))
+        for y in range(19, 19 + d):
+            L.set(x, y, "flag")
+        L.set(x, 19 + d, "white")                             # the white stripe follows the flap's edge
+        L.set(x, 20 + d, "ui_scrim")
     L.hline(1, W - 2, H - 2, "ui_scrim"); L.vline(W - 2, 2, H - 2, "ui_scrim")
     chamfer(L, 0, 0, W, H, 2)
     outline_inplace(L)
@@ -34,7 +40,7 @@ def sheets():
     W, H = L.w, L.h
     save(L, "sheet_modal", "sheet", slice=[7, 23, 7, 7], content=[7, 23, W - 14, H - 30], label="white",
          notes="Generic sheet / modal: settings O7, About O8, return card O1, the 'לפזר את הכנסת' election modal, the round "
-               "card. Title band y 2..19 (title white on ui_bubble 13.1:1, the close ✕ at the band's LEFT end in RTL); body "
+               "card. Title band y 2..19 (v3: flag blue, title white on flag 8.5:1, a white stripe under it at y 20; v4: the blue ballot envelope, the band is the flap and points 2 rows deeper at the centre, the body is the v4 ui_panel blue, the close ✕ at the band's LEFT end in RTL); body "
                "ui_panel (white 15.6:1). Engine scrim under it: the outline swatch #0b0a12 at 60% (UX R15 / rtl-map "
                "§7.1 D23; never the fork's grape, which lifts the dark base). Wave 6 (F9): a 1 px suit_hi edge outside the "
                "outline on all four sides (3.6:1 vs the scrimmed dark), so the modal reads lifted, not cut out; the piece "
@@ -46,10 +52,10 @@ def sheets():
     # wave 6 (UX R26: "one ✕ style for every card"): the round ✕. Same silhouette and ✕ as the modals' round ✕
     # (the fork's ui_close16, pixel for pixel), recoloured into the kit's raised language: rim-lit top arc,
     # ui_bub_hi face (one step above a ui_bubble title band, so it never vanishes into it), ui_bubble shadow.
-    x = grid_layer(CLOSE16, {"k": "outline", "j": "rim", "u": "ui_bub_hi", "U": "ui_bubble", "w": "white"})
+    x = grid_layer(CLOSE16, {"k": "outline", "j": "rim", "u": "ui_panel", "U": "ui_scrim", "w": "white"})   # v4: deep blue face
     save(x, "icon_close", "sheet", notes="Close ✕ for every card and sheet (UX R26: one ✕ style): 16x16, drawn x4 = the "
          "64x64 visual of rtl-map §7.1, centred in its 104 (or the court card's 88) hit. Same silhouette as the modals' "
-         "round ✕; white ✕ on ui_bub_hi 8.6:1. Reads on the court header wood, a ui_bubble title band, the dark sheet "
+         "round ✕; v4: white ✕ on a ui_panel face 11.8:1 (the v4 ui_bub_hi is too light for the white ✕), rim-lit arc. Reads on the court header wood, a ui_bubble title band, the dark sheet "
          "body and a cream card (wave 6; was a thin 9x9 X).")
     t = grid_layer(TRASH9, {"k": "outline", "w": "white", "l": "slate"})
     save(t, "icon_trash", "sheet", notes="Trash can, 9x9 inline icon (one text cell tall): the settings danger row "
@@ -78,11 +84,11 @@ def ticker():
     T = Layer(180, 20)
     T.rect(0, 0, 180, 20, "ui_panel")
     T.hline(0, 179, 0, "outline")
-    T.hline(0, 179, 1, "red")                                  # the lower-third's red top rule
-    T.hline(0, 179, 2, "ui_bub_hi")
+    T.hline(0, 179, 1, "white")                                # v3: the lower third's white rule over flag blue
+    T.hline(0, 179, 2, "flag")                                 # (red stays for alerts: the 'מבזק' plate only)
     T.hline(0, 179, 19, "outline")
     save(T, "ticker_bar", "ticker", slice=[2, 4, 2, 2], content=[2, 5, 176, 12], label="silver",
-         notes="Dubi's lower third (UX 3.1 ticker, 44 CSS = 20 art). Crawl text silver on ui_panel 11.8:1, y 6. The "
+         notes="Dubi's lower third (UX 3.1 ticker, 44 CSS = 20 art). Crawl text silver on ui_panel 11.7:1, y 6. v3: a white rule over a flag-blue one on top (was red; red is alerts only). The "
                "'מבזק' plate sits at the RIGHT end (RTL start), Dubi's avatar just left of it, the 27.10 chip at the left.")
     W, H = 32, 14
     p = Layer(W, H)
@@ -136,13 +142,13 @@ def source_cards():
 def spin_cards():
     W, H = 32, 30
     c = panel(W, H, "ui_bubble", "ui_bub_hi", "ui_panel", lip=1, lip_c="ui_scrim")
-    c.rect(W - 4, 2, 2, H - 5, "pink_sh"); c.vline(W - 4, 2, H - 4, "pink")   # the spin stripe (RTL start)
+    c.rect(W - 4, 2, 2, H - 5, "flag_hi"); c.vline(W - 4, 2, H - 4, "sky")   # the spin stripe (RTL start; v3 blue, was pink)
     save(c, "card_spin", "cards", state="default", slice=[4, 4, 6, 4], content=[3, 2, W - 9, H - 6], label="white",
-         notes="Spin card (ספינים tab). Pink stripe on the RIGHT = 'this is a talking point' (spins own pink; money "
-               "cards don't have it). Icon 24x24 (spin_<id>, upgrades[].icon) on card_plate at the right, price pill left.")
+         notes="Spin card (ספינים tab). Blue stripe on the RIGHT = 'this is a talking point' (v3: flag_hi + a sky edge, was "
+               "pink; money cards don't have it, and the stripe is a shape as well as a colour). Icon 24x24 (spin_<id>, upgrades[].icon) on card_plate at the right, price pill left.")
     b = Layer(W, H)
     b.paste(panel(W, H - 1, "suit_dk", "suit_dk", "night", bevel=0), 0, 1)
-    b.rect(W - 4, 3, 2, H - 6, "pink_sh")
+    b.rect(W - 4, 3, 2, H - 6, "suit")                         # v3: the dimmed stripe (was pink_sh)
     save(b, "card_spin_locked", "cards", state="locked", slice=[4, 4, 6, 4], content=[3, 3, W - 9, H - 6], label="grey",
          notes="A spin not yet unlocked / a once-spin already aired: sunk and flat, the stripe dimmed.")
     tw = hebfont.measure("שחוק")

@@ -304,9 +304,9 @@ func _device_tap_and_buy(dev: Vector2i, k: int) -> void:
 	var t := sv.get_final_transform()
 	runner.check(t.get_scale().is_equal_approx(Vector2(f, f)) and t.origin == Vector2.ZERO, "%s: the viewport stretch is ×%.2f, got %s" % [dev, f, t])
 	runner.check(m.get_viewport_rect().size.is_equal_approx((Vector2(dev) / f).floor()), "%s: logical %s" % [dev, m.get_viewport_rect().size])
-	for v: float in [m._ox, m._top_y, m._stage_y, m._lower_y]:
+	for v: float in [m._ox, m._sx, m._top_y, m._stage_y, m._lower_y]:
 		runner.check(is_equal_approx(fmod(v * f, 1.0), 0.0), "%s: section offset %.1f is a whole device px" % [dev, v])
-	var hat: Vector2 = L.magician_hit().get_center() + Vector2(m._ox, m._stage_y)
+	var hat: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
 	_touch(hat, k)
 	runner.check(m.mode == "main" and m.state.taps_lifetime == 1, "%s: a device-px tap on the Magician starts the game (%s, %d)" % [dev, m.mode, m.state.taps_lifetime])
 	for i in 2:

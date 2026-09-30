@@ -15,17 +15,20 @@ extends Node2D
 ##   on_done()                    ≈ 520 ms later (the pop, the dim, the hold, the fade): the stage
 ##   on_card(id, via)             the leader card (long-press ≥ 600 ms or `I`)
 ##
-## Layout (§8.2-8.3): the header pinned to the top (first: the kit wordmark + LEADER_PICK_TITLE;
-## after: LEADER_PICK_TITLE_AFTER + the fresh chip), the caption strip and the foot (after: the
-## again button) pinned to the bottom, and the grid centred in what is left. 8 leaders: 3 × 3 with
-## הפתעה in the centre cell; 4: 2 × 2 and a full-width הפתעה bar. The avatar size (L 128, M 96,
-## S 64) is the largest whose grid fits. The order is drawn on every open, balanced by bloc
+## Layout (ux/mobile-first-layout.md §5.8, D42, replaces rtl-map §8.2-8.3's placement): the
+## wordmark (first launch) pinned at the top, the caption strip and the foot (after: the again
+## button) pinned to the bottom, the grid BOTTOM-anchored on the strip (the thumb zone), the title
+## line (+ the fresh chip) attached to the grid; the scrimmed stage above is the exempt "sky".
+## Tiles are fluid: tw = floor4((cw − 72) / 3), growing in height to fill up to a 1.6:1 card, the
+## content block centred in the tile. 8 leaders: 3 × 3 with הפתעה in the centre cell; 4: 2 × 2 and
+## a full-width הפתעה bar. The avatar A is the first of [192 (even k only), 128, 96, 64] whose grid
+## fits. The order is drawn on every open, balanced by bloc
 ## (§8.3.1: a checkerboard / the diagonals; no left/right cue), and kept by an undo reopen.
 ## No number anywhere but the fresh chip's +10% (§8.8).
 
 const SCRIM := Color(0.043, 0.039, 0.071, 0.6)    # #0b0a12 at 60% (rtl-map §7.1)
 const C_NAME := Color("#fff8ec")
-const C_PARTY := Color("#9e99ad")
+const C_PARTY := Color("#c9d6f2")
 const C_STRIP := Color("#f7f4ec")
 const LH := 44.0                   # the line pitch at ×4
 const HOLD_MS := 600.0             # §8.4: a hold opens the leader card
@@ -35,9 +38,12 @@ const POP_MS := 120.0
 const DIM_MS := 150.0
 const HOLD_AFTER_MS := 250.0
 const FADE_MS := 250.0
-const COLS3 := [488.0, 252.0, 16.0]   # 3 × 3 columns, reading order right → left (tile 216, gap 20)
-const COLS2 := [368.0, 16.0]          # 2 × 2 columns (tile 336, gap 16)
 const ROW_GAP := 12.0
+const STRIP_H := 112.0              # 12 + 2 lines × 44 + 12
+## mobile-first §5.8 A3: the XL pick avatar (96×96 at d3, drawn 2 logical px per sprite px); until
+## the 2D Artist's piece lands (manifest chars.<art>.avatarPickXL, else this id) the 32-px pick
+## avatar draws at ×6 (1.5 art px per sprite px: whole device px at every even k).
+const XL_PREFIX := "avatar_pick_xl_"   # only when the manifest names no avatarPickXL (it ships avatar_pick_<c>_d3)
 
 var host: Node
 var reduced_motion := false
@@ -56,7 +62,9 @@ var again_btn: PxButton
 var focus := -1                     # a cell index, cells.size() = the again button
 var show_focus := false
 var locked := false
-var avatar := 128.0                 # the avatar size drawn (L / M / S)
+var avatar := 128.0                 # the avatar size drawn (XL 192 / L 128 / M 96 / S 64)
+var tile := Vector2(216, 284)       # the 3 × 3 tile [tw, th] (window.odPick.tile)
+var grid := Vector2.ZERO            # the grid's [top, bottom], picker-local (window.odPick.grid)
 
 var _top := 0.0
 var _bot := float(L.H)
@@ -229,12 +237,34 @@ func _strip_default() -> String:
 	return Strings.s("F9_PICK") if lp else Strings.s("LEADER_PICK_DISCLAIMER")
 
 
+## The minimum tile height for an avatar: the content block (A + 8 + 44 + 80) + 24 of padding (3 × 3),
+## or A + 120 (2 × 2).
 static func tile_h(a: float, three: bool) -> float:
 	return (156.0 if three else 120.0) + a
 
 
 static func grid_h(a: float, three: bool) -> float:
 	return 3.0 * tile_h(a, true) + 2.0 * ROW_GAP if three else 2.0 * tile_h(a, false) + ROW_GAP + 12.0 + 96.0
+
+
+## mobile-first §5.8, pure (tests pin the table): for a safe height H, a canvas width cw, the art
+## scale k and the variant ("first" | "after", with or without the again foot), returns
+## {tw, A, th, avail, header, foot}. header = 12 + wordmark + 12 + 44 + 12 (first) or
+## 12 + 44 + 8 + 56 + 12 (after); strip 112; foot 16 (first) or 116 (the again button).
+static func grid_plan(H: float, cw: float, k: int, variant_: String, again: bool = true) -> Dictionary:
+	var wm := 116.0 if H >= 1280.0 else 64.0
+	var header := (12.0 + wm + 12.0 + 44.0 + 12.0) if variant_ == "first" else (12.0 + 44.0 + 8.0 + 56.0 + 12.0)
+	var foot := 116.0 if (variant_ == "after" and again) else 16.0
+	var avail := H - header - STRIP_H - foot
+	var tw := L.floor4((cw - 32.0 - 40.0) / 3.0)
+	var sizes: Array = ([192.0] if k % 2 == 0 else []) + [128.0, 96.0, 64.0]
+	var a := 64.0
+	for x: float in sizes:
+		if x + 24.0 <= tw and 3.0 * (156.0 + x) + 24.0 <= avail:
+			a = x
+			break
+	var th := maxf(156.0 + a, minf(L.floor4((avail - 24.0) / 3.0), L.floor4(1.6 * tw)))
+	return {"tw": tw, "A": a, "th": th, "avail": avail, "header": header, "foot": foot, "wm": wm}
 
 
 func _build() -> void:
@@ -245,70 +275,30 @@ func _build() -> void:
 	again_btn = null
 	_again_group.clear()
 	var H := _bot - _top
-	var y := _top + 12.0
-	var header := 0.0
+	var cw := L.cw
+	var has_again := variant == "after" and again_id != ""
+	var plan := grid_plan(H, cw, Display.k if Display.integer else 2, variant, has_again)
+	var wm_bottom := _top
+	# the wordmark (first launch), pinned at top + 12, centred on the canvas
 	if variant == "first":
 		var wm := Art.sprite_or("wordmark" if H >= 1280.0 else "wordmark_small")
 		if not Art.has_sprite("wordmark_small"):
 			wm = Art.sprite_or("wordmark")
 		var wsz := Vector2(Art.sprite_size(wm)) * 4.0
-		Ui.img(_layer, Vector2(Ui.snap((L.W - wsz.x) / 2.0, 4), y), wm, 0, 4)
-		y += wsz.y + 12.0
-	var title := PxText.make(_layer, Vector2(0, y), _title_text(), L.TEXT, "plain", C_NAME)
-	title.wrap_width = 656.0
-	title.max_lines = 2
-	title.align = 1
-	title.center_in(32.0, 656.0)
-	y += LH * maxf(1.0, float(title.line_count()))
-	if variant == "after":
-		y += 8.0
-		var chip_t := Strings.s("LEADER_PICK_FRESH_CHIP", {"pct": int(roundf(fresh_pct))})
-		var ct := PxText.make(_layer, Vector2(0, y + 10.0), chip_t, L.TEXT, "plain", "w")
-		ct.max_lines = 1
-		var cw := minf(592.0, Ui.snap(float(ct.width()) + 32.0, 4))
-		var cx := Ui.snap((L.W - cw) / 2.0, 4)
-		var chip := Ui.nine(_layer, Rect2(cx, y, cw, 56.0), Art.sprite_or("chat_system_pill"))
-		_layer.move_child(chip, ct.get_index())
-		ct.center_in(cx, cw)
-		y += 56.0
-	header = y + 12.0 - _top
-	var strip_h := 12.0 + 2.0 * LH + 12.0
-	var foot := 116.0 if variant == "after" and again_id != "" else 16.0
-	var avail := H - header - strip_h - foot
-	var n := order.size()
-	var three := n > 4
-	avatar = 64.0
-	for a: float in [128.0, 96.0, 64.0]:
-		if grid_h(a, three) <= avail:
-			avatar = a
-			break
-	var gh := grid_h(avatar, three)
-	var gy := Ui.snap(_top + header + maxf(0.0, (avail - gh) / 2.0), 4)
-	var th := tile_h(avatar, three)
-	var tw := 216.0 if three else 336.0
-	for i in n:
-		var rc := cell_rc(i, n)
-		var r := Rect2((COLS3 if three else COLS2)[rc.y], gy + rc.x * (th + ROW_GAP), tw, th)
-		cells.append(_make_cell(str(order[i]), r, three))
-	# הפתעה: the centre cell (3 × 3) or the full-width bar under a 2 × 2
-	if model.get("random", true) == true:
-		var rr := Rect2(COLS3[1], gy + th + ROW_GAP, tw, th) if three else Rect2(16, gy + 2.0 * (th + ROW_GAP), 688, 96)
-		var rc_cell := _make_cell("", rr, three)
-		if three:
-			cells.insert(4, rc_cell)   # reading order: the centre is 5th (§8.5)
-		else:
-			cells.append(rc_cell)
+		Ui.img(_layer, Vector2(Ui.snap((cw - wsz.x) / 2.0, 4), _top + 12.0), wm, 0, 4)
+		wm_bottom = _top + 12.0 + wsz.y
 	# the caption strip and the foot, pinned to the bottom
-	var sy := _bot - foot - strip_h
+	var foot := float(plan["foot"])
+	var sy := _bot - foot - STRIP_H
 	_strip = PxText.make(_layer, Vector2(0, sy + 12.0), _strip_default(), L.TEXT, "plain", C_STRIP)
 	_strip.reading = true
-	_strip.wrap_width = 656.0
+	_strip.wrap_width = 656.0 + L.dx
 	_strip.max_lines = 2
 	_strip.align = 1
-	_strip.center_in(32.0, 656.0)
-	if foot > 16.0:
-		var vis := Rect2(24, _bot - 100.0, 672, 80)
-		again_btn = PxButton.make(_layer, vis, {"hit": Rect2(16, _bot - 104.0, 688, 88), "kind": "kit_primary",
+	_place_strip()
+	if has_again:
+		var vis := Rect2(24, _bot - 100.0, 672.0 + L.dx, 80)
+		again_btn = PxButton.make(_layer, vis, {"hit": Rect2(16, _bot - 104.0, 688.0 + L.dx, 88), "kind": "kit_primary",
 			"on_commit": func() -> void: commit_again("again")})
 		var lab := PxText.make(_layer, Vector2(0, vis.position.y + 20.0), Strings.s("LEADER_PICK_AGAIN", {"short": LeaderUi.short(again_id)}), L.TEXT, "plain", "w")
 		lab.wrap_width = 560.0
@@ -316,13 +306,87 @@ func _build() -> void:
 		var art := LeaderUi.art(again_id)
 		var av_id := str(SpriteStrip.manifest().get("chars", {}).get(art, {}).get("avatar24Pick", "avatar24_pick_" + art))
 		var gw := float(lab.width()) + (64.0 if Art.has_sprite(av_id) else 0.0)
-		var gx := Ui.snap((L.W - gw) / 2.0, 4)
+		var gx := Ui.snap((cw - gw) / 2.0, 4)
 		lab.position.x = gx
 		_again_group.append(lab)
 		if Art.has_sprite(av_id):
 			var img := Ui.img(_layer, Vector2(gx + float(lab.width()) + 16.0, vis.position.y + 16.0), av_id, 0, 2)
 			_again_group.append(img)
+	# the grid, bottom-anchored on the strip (its bottom = the strip top − 12)
+	var n := order.size()
+	var three := n > 4
+	var gb := sy - 12.0
+	var tw := float(plan["tw"])
+	var th := float(plan["th"])
+	var gh := 3.0 * th + 2.0 * ROW_GAP
+	avatar = float(plan["A"])
+	if not three:
+		tw = L.floor4((cw - 48.0) / 2.0)
+		var avail := float(plan["avail"])
+		avatar = 64.0
+		for a2: float in ([192.0] if (Display.k % 2 == 0 and Display.integer) else []) + [128.0, 96.0, 64.0]:
+			if a2 + 24.0 <= tw and grid_h(a2, false) <= avail:
+				avatar = a2
+				break
+		th = maxf(tile_h(avatar, false), minf(L.floor4((avail - ROW_GAP - 12.0 - 96.0) / 2.0), L.floor4(1.6 * tw)))
+		gh = 2.0 * th + ROW_GAP + 12.0 + 96.0
+	# the title (and chip) never ride up into the wordmark: §5.8's `avail` leaves out the 12 above the
+	# strip and counts 12 (not 16) under the title, so where the tile height is capped by avail (the SE,
+	# the toolbar viewports) the tiles give back those 16 px instead
+	var tl_est := clampf(ceilf(float(PxText.measure(_title_text(), L.TEXT)) / (656.0 + L.dx)), 1.0, 2.0)
+	var gmin := wm_bottom + 12.0 + LH * tl_est + 16.0 + (64.0 if variant == "after" else 0.0)
+	if three and gb - gh < gmin:
+		th = maxf(tile_h(avatar, true), L.floor4((gb - gmin - 2.0 * ROW_GAP) / 3.0))
+		gh = 3.0 * th + 2.0 * ROW_GAP
+	var gy := gb - gh
+	tile = Vector2(tw, th)
+	grid = Vector2(gy, gb)
+	var cols: Array = [cw - 16.0 - tw, L.floor4((cw - tw) / 2.0), 16.0] if three else [cw - 16.0 - tw, 16.0]
+	for i in n:
+		var rc := cell_rc(i, n)
+		var r := Rect2(cols[rc.y], gy + rc.x * (th + ROW_GAP), tw, th)
+		cells.append(_make_cell(str(order[i]), r, three))
+	# הפתעה: the centre cell (3 × 3) or the full-width bar under a 2 × 2
+	if model.get("random", true) == true:
+		var rr := Rect2(cols[1], gy + th + ROW_GAP, tw, th) if three else Rect2(16, gy + 2.0 * (th + ROW_GAP), 688.0 + L.dx, 96)
+		var rc_cell := _make_cell("", rr, three)
+		if three:
+			cells.insert(4, rc_cell)   # reading order: the centre is 5th (§8.5)
+		else:
+			cells.append(rc_cell)
+	# the title line (+ the fresh chip after an election), attached to the grid: the title's cell
+	# bottom 16 above the grid (after: title, 8, the chip, 16, the grid)
+	var title := PxText.make(_layer, Vector2.ZERO, _title_text(), L.TEXT, "plain", C_NAME)
+	title.wrap_width = 656.0 + L.dx
+	title.max_lines = 2
+	title.align = 1
+	var tlines := maxf(1.0, float(title.line_count()))
+	var ty := gy - 16.0
+	if variant == "after":
+		var chip_t := Strings.s("LEADER_PICK_FRESH_CHIP", {"pct": int(roundf(fresh_pct))})
+		var cy := ty - 56.0
+		var ct := PxText.make(_layer, Vector2(0, cy + 10.0), chip_t, L.TEXT, "plain", "w")
+		ct.max_lines = 1
+		var chw := minf(592.0, Ui.snap(float(ct.width()) + 32.0, 4))
+		var chx := Ui.snap((cw - chw) / 2.0, 4)
+		var chip := Ui.nine(_layer, Rect2(chx, cy, chw, 56.0), Art.sprite_or("chat_system_pill"))
+		_layer.move_child(chip, ct.get_index())
+		ct.center_in(chx, chw)
+		ty = cy - 8.0
+	title.position.y = ty - LH * tlines
+	title.center_in(32.0, 656.0 + L.dx)
 	_publish()
+
+
+## The strip's text, bottom-aligned in its box (its last line's ink ≤ 28 above the foot) and
+## centred on the canvas.
+func _place_strip() -> void:
+	if _strip == null:
+		return
+	var sy := _bot - (116.0 if (variant == "after" and again_id != "") else 16.0) - STRIP_H
+	var lines := clampf(float(_strip.line_count()), 1.0, 2.0)
+	_strip.position.y = sy + 12.0 + LH * (2.0 - lines)
+	_strip.center_in(32.0, 656.0 + L.dx)
 
 
 func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
@@ -337,7 +401,7 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 	if id == "":
 		var bar := not three
 		var ic := Art.sprite_or("pick_random")
-		var sc := 2 if (bar or avatar <= 64.0) else 4
+		var sc := 2 if (bar or avatar <= 64.0) else (6 if avatar == 192.0 else 4)
 		var isz := Vector2(Art.sprite_size(ic)) * float(sc)
 		var nm := PxText.make(content, Vector2.ZERO, Strings.s("LEADER_PICK_RANDOM"), L.TEXT, "plain", C_NAME)
 		nm.max_lines = 1
@@ -347,10 +411,12 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 			nm.position = Vector2(gx, Ui.snap((r.size.y - LH) / 2.0, 4) + 4.0)
 			Ui.img(content, Vector2(gx + float(nm.width()) + 16.0, Ui.snap((r.size.y - isz.y) / 2.0, 4)), ic, 0, sc)
 		else:
-			Ui.img(content, Vector2(Ui.snap((w - isz.x) / 2.0, 4), 12.0 + Ui.snap((avatar - isz.y) / 2.0, 4)), ic, 0, sc)
+			# mobile-first §5.8: the content block (A + 8 + 44 + 80) centred in the tile
+			var top := _block_top(r.size.y)
+			Ui.img(content, Vector2(Ui.snap((w - isz.x) / 2.0, 4), top + Ui.snap((avatar - isz.y) / 2.0, 4)), ic, 0, sc)
 			nm.wrap_width = w - 24.0
 			nm.center_in(12.0, w - 24.0)
-			nm.position.y = 12.0 + avatar + 8.0
+			nm.position.y = top + avatar + 8.0
 		c["blurb"] = Strings.s("LEADER_PICK_RANDOM_CAP")
 		c["name"] = nm
 		return c
@@ -358,11 +424,19 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 	var art := LeaderUi.art(id)
 	var ch: Dictionary = SpriteStrip.manifest().get("chars", {}).get(art, {})
 	var av := str(ch.get("avatar24Pick", "avatar24_pick_" + art)) if avatar == 96.0 else str(ch.get("avatarPick", "avatar_pick_" + art))
+	var sc := 2.0 if avatar == 64.0 else (6.0 if avatar == 192.0 else 4.0)
+	# the 2D Artist's denser heads (A3): 96×96 d3 for A 192, 64×64 d2 for A 128 (at an even k), at
+	# 2 logical px per sprite px; else the 32-px head at ×6 / ×4
+	var dense := str(ch.get("avatarPickXL", XL_PREFIX + art)) if avatar == 192.0 else (str(ch.get("avatarPick64", "")) if avatar == 128.0 else "")
+	if dense != "" and Art.has_sprite(dense) and (avatar == 192.0 or Display.k % 2 == 0):
+		av = dense
+		sc = avatar / float(maxi(1, Art.sprite_size(dense).x))
+	var top := _block_top(r.size.y) if three else 12.0
 	if Art.has_sprite(av):
-		var sc := 2 if avatar == 64.0 else 4
-		var asz := Vector2(Art.sprite_size(av)) * float(sc)
-		Ui.img(content, Vector2(Ui.snap((w - asz.x) / 2.0, 4), 12.0), av, 0, sc)
-	var nm := PxText.make(content, Vector2(0, 12.0 + avatar + 8.0), str(t.get("short", id)), L.TEXT, "plain", C_NAME)
+		var asz := Vector2(Art.sprite_size(av)) * sc
+		var img := Ui.img(content, Vector2(Ui.snap((w - asz.x) / 2.0, 4), top), av, 0, 4)
+		img.scale = Vector2(sc, sc)
+	var nm := PxText.make(content, Vector2(0, top + avatar + 8.0), str(t.get("short", id)), L.TEXT, "plain", C_NAME)
 	nm.wrap_width = w - 24.0
 	nm.max_lines = 1
 	nm.center_in(12.0, w - 24.0)
@@ -376,6 +450,11 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 	c["party"] = pt
 	c["blurb"] = str(t.get("blurb", ""))
 	return c
+
+
+## The content block's top in a tile of height h: (h − (A + 8 + 44 + 80)) / 2, at least 12.
+func _block_top(h: float) -> float:
+	return maxf(12.0, Ui.snap((h - (avatar + 8.0 + LH + 80.0)) / 2.0, 4))
 
 
 func _random_index() -> int:
@@ -421,7 +500,7 @@ func _refresh() -> void:
 			txt = str(cells[active]["blurb"])
 		if _strip.text != txt:
 			_strip.text = txt
-			_strip.center_in(32.0, 656.0)
+			_place_strip()
 
 
 ## A 9-slice's sprite and its own slice margins (the selected plate's rim is 1 art px wider).
@@ -689,7 +768,8 @@ func web_info() -> Dictionary:
 	if again_btn != null:
 		var q := again_btn.visual.get_center() + off
 		ag = [q.x, q.y, again_id]
-	return {"open": visible, "variant": variant, "cells": cs, "again": ag, "avatar": avatar}
+	return {"open": visible, "variant": variant, "cells": cs, "again": ag, "avatar": avatar,
+		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y]}
 
 
 func publish_closed() -> void:
