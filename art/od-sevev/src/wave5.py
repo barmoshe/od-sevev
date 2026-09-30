@@ -30,14 +30,14 @@ LANES = {
     # era: (line, base, lip shadow, course top edge, course gap)  -- line/base are the stage art's own
     # v4 (Bar: "more Israel"): warm Jerusalem limestone, lamp-lit at Balfour, sunlit at the Knesset, polished inside the
     # courthouse; Washington is not Jerusalem, so it gets pale concrete pavement.
-    "balfour":    ("wood_dk", "stone_sh", "wood",     "stone",  "wood"),      # Jerusalem stone at night, in lamp light
+    "balfour":    ("wood_dk", "stone_sh", "wood",     "stone",  "paper"),     # Jerusalem stone at night, in lamp light
     "knesset":    ("stone_sh", "stone",  "stone_sh", "white",  "stone_sh"),  # sunlit Jerusalem stone
     "courthouse": ("teal_dk", "paper",   "stone_sh", "white",  "stone_sh"),  # polished limestone tiles
     "washington": ("slate",   "silver",  "grey",     "white",  "grey"),      # pale concrete pavement
 }
 # per era: (joint, light, cable, (detail 1, detail 2)); every one >= 4.5:1 against `rim`
 DETAIL = {
-    "balfour":    ("wood",     "stone",  "ink",     ("paper", "pink_sh")),    # slab joints, the cable, a flyer
+    "balfour":    ("paper",    "stone",  "ink",     ("white", "pink_sh")),    # pale mortar joints, the cable, a flyer
     "knesset":    ("stone_sh", "white",  "ink",     ("wood", "stone_sh")),    # slab joints, the cable, a spike-tape X
     "courthouse": ("stone_sh", "white",  "ink",     ("white", "stone_sh")),   # tile joints, the cable, a dropped page
     "washington": ("grey",     "white",  "ink",     ("grey", "slate")),       # expansion joints, the cable

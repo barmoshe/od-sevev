@@ -216,7 +216,7 @@ WINGS = {"balfour": wing_balfour, "knesset": wing_knesset, "courthouse": wing_co
 PLAZA = {
     # era: (base, joint, light, details...)  -- base = the apron (stages[era].padBottom)
     # v4: warm Jerusalem limestone (Washington: pale concrete), the lane's swatches
-    "balfour":    ("stone_sh", "wood",     "stone", "paper", "pink_sh"),   # stone slabs in lamp light, flyers
+    "balfour":    ("stone_sh", "paper",    "stone", "white", "pink_sh"),   # stone slabs in lamp light, pale mortar, flyers
     "knesset":    ("stone",    "stone_sh", "white", "paper", "wood"),      # sunlit stone slabs
     "courthouse": ("paper",    "stone_sh", "white", "stone_sh", "white"),  # polished limestone tiles
     "washington": ("silver",   "grey",     "white", "slate", "grey"),      # concrete panels

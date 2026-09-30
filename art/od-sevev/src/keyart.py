@@ -214,6 +214,10 @@ def og(key=KEY, proofs=PROOFS, d=OG_D):
         L.ellipse(x + 4.5, 6, 5, 3, "plum")
         L.ellipse(x + 4.5, 5, 4, 2, "plum_hi")
     L.hline(0, W - 1, 0, "outline")
+    # v4: the chrome's national frame on the stage: a white rule over a flag-blue one under the valance, and the
+    # stage apron's trim (flag blue over white) above the stone floor. Stripes on the set, never a flag object.
+    L.hline(0, W - 1, 9, "white"); L.hline(0, W - 1, 10, "flag")
+    L.hline(0, W - 1, FEET - 14, "flag"); L.hline(0, W - 1, FEET - 13, "white")
     pos, gap = lineup_positions(d, CW + 2, W - CW - 2)
     for c, f, anc, px in pos:                             # one follow-spot pool per leader, all the same
         cx = (px + anc[0]) / d
