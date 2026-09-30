@@ -1,12 +1,29 @@
-# HANDOFF-LIVE: the studio loop's live state (auto, every minute)
+# HANDOFF-LIVE: the studio loop's live state
 
-Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
-If the session died, restore unmerged agent work from `handoff-wip/` (see below).
+Read `HANDOFF.md` first; this file is the orchestrator's addendum while the loop runs.
 
-- Branch head: `ff322a8` docs(od-sevev): final session-3 handoff; all agent work merged, wip patches removed
-- Loop lock: released
+- Branch: `claude/magical-ride-ntn3u5` (= `main` at `2cc33b1` when session 4 started)
+- Loop lock: **taken** (session 4, 2026-09-30 08:12 UTC)
 
-## Orchestrator notes
+## Session 4 (2026-09-30)
+- Goal: HANDOFF.md "Manual test pass" work list: A1-A8, B9-B13, B15, D19-D21. B14 (the pink signs) stays Bar's call. C16 re-runs happen after the merges, on a quiet machine.
+- Baseline: `tools/test.sh` 393/393 at `2cc33b1`.
+- Bar: "use the studio". The loop runs as the base67 studio: lock at `/tmp/gamestudio-loop-active.lock`, each agent works under its `gamestudio/.claude/agents/<role>.md` prompt and returns an artifact or a typed objection.
+- Wave A (parallel, git worktrees, one http port each):
+
+| Role | Slice | Port |
+|---|---|---|
+| 2D Artist + TA | A1 plaza (mortar joints, no snakes), the lane line, B13 booth | 8831 |
+| Game Developer (+ Animator discipline, Game Designer for B15) | A4 opaque election card, A5 walk-out on the old stage, A6 SE settings reach + mobile_web check, A8 toggle states, B15 story card per leader | 8832 |
+| UX Designer + Game Developer (pre-tap) | A2 empty lower half, A3 picker caption plate, A7 name plate, B10/D22 HUD right side, B12 switch button | 8833 |
+| UX Designer + Game Developer (pane) | D19 empty ticker, D20 white slivers, D21 empty tab slots, B9 teaser rows, B11 chat | 8834 |
+
+- Wave B: merge; tests, strict build, mobile_web on the full matrix; a studio UX Designer review of the merged build; fixes; then the C16 re-runs and a redeploy.
+
+---
+*Session 3's notes follow.*
+
+## Orchestrator notes (session 3)
 - Session 3 goal: HANDOFF.md "Next" 1-4. Wave A (4 agents, parallel) dispatched from 76c8926.
 - Audio merged (d13256e). Live site redeployed from d13256e (web-dist 96064c8): fixes the relative og:image and the dirty 5df9291+ build that was live.
 - After wave A: merge dev (picker) + designer + animator; then wave B = Animator walk-out/walk-in on the pick, UX review of the picker; strict build; redeploy.
