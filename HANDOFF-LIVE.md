@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `0a43b57` docs(od-sevev): live handoff snapshot 00:32
+- Branch head: `94840b3` docs(od-sevev): live handoff snapshot 00:33
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -38,7 +38,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | Animator | DONE, merged (court day, motion audit, brawl boil, reduced-motion fix; LeaderWalk helper ready, unwired) | `worktree-agent-a4cee2a31acb16b09` | 0 | 0 | - |
 | Audio Director | DONE, merged in d13256e (audio v1.3: leaderPick, crit_for, coverage) | `worktree-agent-a1284a1d8c4b3dc94` | 0 | 0 | - |
 | UX Designer | DONE, merged (ux/mobile-first-layout.md, tools/web/mobile_web.mjs: baseline PASS, 108 layout checks open until the implementation lands) | `worktree-agent-afa76d8266b2e2b6f` | 0 | 0 | - |
-| Game Developer (mobile) | RESUMED; also lands palette v4 at the end (merge the v4 branch + apply palette-v4-map.json). All work committed on its branch (see handoff-wip). Was mid web-check run; not yet confirmed: the full mobile_web matrix pass, the art-id swap, the R17 crowd clamp, the before/after sheet | `worktree-agent-a8bd968153c51c052` | 14 | 1 | `Game-Developer-(mobile).commits.patch` `Game-Developer-(mobile).patch` |
+| Game Developer (mobile) | RESUMED; also lands palette v4 at the end (merge the v4 branch + apply palette-v4-map.json). All work committed on its branch (see handoff-wip). Was mid web-check run; not yet confirmed: the full mobile_web matrix pass, the art-id swap, the R17 crowd clamp, the before/after sheet | `worktree-agent-a8bd968153c51c052` | 14 | 5 | `Game-Developer-(mobile).commits.patch` `Game-Developer-(mobile).patch` |
 | 2D Artist + TA | DONE, merged (lane, plaza, wings, XL pick heads avatar_pick_<c>_d3/_d2, brawl_cloud_cue x4, court spots as kit data) | `worktree-agent-ab7cb5f96a4c16bc8` | 0 | 0 | - |
 | 2D Artist + TA (palette) | v4 DONE on its branch (87c8d12), NOT merged: APPROVED by Bar. Land the kit and palette-v4-map.json together, after the mobile merge (F14: without the map, script-coloured text sits at 2.2-3.5:1) | `worktree-agent-a5e8cafeb35582361` | 12 | 0 | `2D-Artist-+-TA-(palette).commits.patch`  |
 

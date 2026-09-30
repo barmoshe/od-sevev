@@ -1,4 +1,131 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
+index 1aab079..1558947 100644
+--- a/game/scripts/ui/dev_probe.gd
++++ b/game/scripts/ui/dev_probe.gd
+@@ -40,6 +40,8 @@ static func snapshot(host: Node) -> Dictionary:
+ 	if mgr != null and mgr.is_open():
+ 		var t := mgr.top()
+ 		out["modal"] = t.id
++		# the width rule (mobile_web.mjs): the top overlay's panel, viewport logical x and width
++		out["modalRect"] = [t.panel_rect.position.x + t.position.x + float(host.get("_ox")), t.panel_rect.size.x]
+ 		var ov := Vector2(float(host.get("_ox")), float(host.get("_ovl_y")))
+ 		for b: PxButton in t.focusables:
+ 			var c := b.visual.get_center() + Vector2(t.position.x, t.panel.position.y) + ov
+@@ -92,7 +94,8 @@ static func snapshot(host: Node) -> Dictionary:
+ 			rows.append([360.0 + o.x, y + float(L.SHOP["rowVisualH"]) / 2.0 + o.y, id, afford])
+ 	# mobile-first §5.4: the silhouette and teaser rows the pane shows whole (no price or no target)
+ 	out["shop"] = {"tab": shop.tab, "list": [shop.list_rect.position.y + o.y, shop.list_rect.end.y + o.y], "rows": rows,
+-		"all": all_rows, "silhouettes": shop.rows_in_view(["silhouette", "teaser"])}
++		"all": all_rows, "silhouettes": shop.rows_in_view(["silhouette", "teaser"]),
++		"card": [shop.list_rect.position.x + o.x, shop.list_rect.end.x + o.x]}   # the cards' x span (the width rule)
+ 	var court: CourtView = host.get("court")
+ 	var ct := court.button_rect("testify").get_center() + o if court.card_visible() else Vector2(-1, -1)
+ 	out["court"] = {"card": court.card_visible(), "mode": court.mode(), "phase": court.phase(), "testify": [ct.x, ct.y]}
+diff --git a/game/scripts/ui/views/view_flash.gd b/game/scripts/ui/views/view_flash.gd
+index 29f8b2b..2e2ac02 100644
+--- a/game/scripts/ui/views/view_flash.gd
++++ b/game/scripts/ui/views/view_flash.gd
+@@ -213,12 +213,13 @@ func build() -> FlashCard:
+ 	# bottom-anchored, the skip's bottom 24 above the safe bottom (its PAD included)
+ 	var y := Ui.snap(maxf(band.x + BAND_MARGIN, band.y - (24.0 - PAD) - h), 4)
+ 	# the panel: the kit's dark sheet (white labels), title band on top
+-	panel_rect = Rect2(CARD_X, y, CARD_W, h)
++	var g2 := SheetCard.grow_half()   # the width rule: ≥ 92% of the canvas, as the sheet cards
++	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
+ 	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
+ 	var head := text(Vector2(0, y + 24.0), str(lead["title"]) if not lead.is_empty() and str(lead["title"]) != "" else header_text(evolutions), L.TEXT, C_TITLE)
+ 	head.wrap_width = TEXT_W
+ 	head.max_lines = 1
+-	head.center_in(CARD_X, CARD_W)
++	head.center_in(CARD_X - g2, CARD_W + 2.0 * g2)
+ 	# the news screen
+ 	var sy := y + HEADER_H + PAD
+ 	screen_rect = Rect2(SCREEN_X, sy + SCREEN_FRAME, SCREEN_W, screen_h)
+@@ -232,14 +233,16 @@ func build() -> FlashCard:
+ 		p.modulate.a = 0.0 if not mgr.reduced else 1.0
+ 	# the buttons
+ 	var bt := by + body_h + PAD
++	var bx := BTN.position.x - g2
++	var bw := BTN.size.x + 2.0 * g2
+ 	if archive:
+-		next_button = button(Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y),
++		next_button = button(Rect2(bx, bt, bw, BTN.size.y), Rect2(bx, bt, bw, BTN.size.y),
+ 			Strings.s("SYS_CLOSE"), func() -> void: cancel("close"), "kit_secondary", L.TEXT)
+ 	else:
+-		next_button = button(Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt, BTN.size.x, BTN.size.y),
++		next_button = button(Rect2(bx, bt, bw, BTN.size.y), Rect2(bx, bt, bw, BTN.size.y),
+ 			Strings.s("FLASH_NEXT"), func() -> void: _close("next"), "kit_primary", L.TEXT)
+ 		var bt2 := bt + BTN.size.y + BTN_GAP
+-		skip_button = button(Rect2(BTN.position.x, bt2, BTN.size.x, BTN.size.y), Rect2(BTN.position.x, bt2, BTN.size.x, BTN.size.y),
++		skip_button = button(Rect2(bx, bt2, bw, BTN.size.y), Rect2(bx, bt2, bw, BTN.size.y),
+ 			Strings.s("FLASH_SKIP"), func() -> void: _close("skip"), "kit_secondary", L.TEXT)
+ 	# audio: the dubiFlash head, then Dubi reads what is on the card
+ 	_audio("storyCard")
+diff --git a/game/scripts/ui/views/view_sheet_card.gd b/game/scripts/ui/views/view_sheet_card.gd
+index 62b5f87..c1ee7c2 100644
+--- a/game/scripts/ui/views/view_sheet_card.gd
++++ b/game/scripts/ui/views/view_sheet_card.gd
+@@ -23,6 +23,7 @@ const CARD_W := 624.0
+ const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
+ const TEXT_RIGHT := 640.0            # modal.body box x 80-640
+ const TEXT_W := 560.0
++const BODY_MAX := 624.0              # mobile-first §4.1: a modal body stays ≤ 624 (≈ 24 glyphs)
+ const TITLE_W := 432.0
+ const PAD := 24.0
+ const PARA_GAP := 16.0
+@@ -69,11 +70,12 @@ func para(t: String, col: Color = C_TEXT, centre: bool = false, lines: int = 8)
+ 	var p := PxText.make(_holder, Vector2(0, _y), t, L.TEXT, "plain", col)
+ 	p.reading = not centre   # a body paragraph reads on @2; a centred number or mood line is display
+ 	var g2 := grow_half()   # mobile-first §4.1: the body box grows with the card (≤ 624)
+-	p.wrap_width = TEXT_W + 2.0 * g2
++	var bw := body_w()
++	p.wrap_width = bw
+ 	p.max_lines = lines
+ 	if centre:
+ 		p.align = 1
+-		p.center_in(CARD_X + (CARD_W - TEXT_W) / 2.0 - g2, TEXT_W + 2.0 * g2)
++		p.center_in(CARD_X + (CARD_W - bw) / 2.0, bw)
+ 	else:
+ 		p.right_at(TEXT_RIGHT + g2)
+ 	paras.append(p)
+@@ -159,9 +161,18 @@ func finish() -> void:
+ 		focusables.append(close_btn)
+ 
+ 
+-## Half the card's growth (mobile-first §5.10: the width is 624 + min(dx, 64)), on the 4-px grid.
++## Half the card's growth, on the 4-px grid. Bar's width rule (2026-09-30, "the UX/UI fills the
++## phone's width"; it supersedes §5.10's 624 + min(dx, 64)): a modal card is ≥ 92% of the canvas,
++## a floor4(3.5%) margin each side (24-28 logical: 672 at cw 720, 728 at 780, 800 at 860). Its body
++## text keeps the ≤ 624 reading measure (BODY_MAX); the title band, the buttons and the frame grow.
+ static func grow_half() -> float:
+-	return L.floor4(minf(L.dx, 64.0) / 2.0)
++	var m := L.floor4(0.035 * L.cw)
++	return maxf(0.0, L.floor4((L.cw - 2.0 * m - CARD_W) / 2.0))
++
++
++## The body box's width: the grown card's, never past the 624 reading measure (§4.1).
++static func body_w() -> float:
++	return minf(TEXT_W + 2.0 * grow_half(), BODY_MAX)
+ 
+ 
+ ## A button spec (card-local x, 720 design) widened with the card: a full-width button grows by the
+diff --git a/game/tests/unit/test_mobile_layout.gd b/game/tests/unit/test_mobile_layout.gd
+index 5977a79..a52b35c 100644
+--- a/game/tests/unit/test_mobile_layout.gd
++++ b/game/tests/unit/test_mobile_layout.gd
+@@ -155,7 +155,10 @@ func test_modal_and_share_per_device() -> void:
+ 		Display.update(dev)
+ 		L.set_width(float(row["cw"]))
+ 		var mw := float(SheetCard.CARD_W) + 2.0 * SheetCard.grow_half()
+-		runner.check(mw <= float(row["modalW"]) and mw >= float(row["modalW"]) - 4.0, "%s: the modal card %d wide (spec %d; the growth is split evenly on the 4 grid)" % [row["name"], int(mw), int(row["modalW"])])
++		# Bar's width rule (2026-09-30) supersedes §5.10's 624 + min(dx, 64): ≥ 92% of the canvas, the
++		# body text still ≤ 624
++		runner.check(mw >= 0.92 * L.cw and mw <= L.cw - 40.0, "%s: the modal card %d wide, ≥ 92%% of cw %d" % [row["name"], int(mw), int(L.cw)])
++		runner.check(SheetCard.body_w() <= 624.0, "%s: the modal body stays ≤ 624" % row["name"])
+ 		var ins: Array = row["insets"]
+ 		var sheet := L.floor4(float(row["logical"][1])) - float(ins[0]) - float(ins[1])
+ 		var a := ShareSheet.preview_scale(sheet - 520.0, float(row["cw"]) - 32.0)
 diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
 index a42fecb..2c1abb4 100644
 --- a/tools/web/picker_web.mjs
