@@ -1,7 +1,7 @@
 From 6b3d5c7e23cb7e702477a3af1ca81c6e1d48339e Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 03:12:53 +0000
-Subject: [PATCH 1/2] feat(od-sevev): the vote stops the clock under the
+Subject: [PATCH 1/3] feat(od-sevev): the vote stops the clock under the
  election card
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -435,7 +435,7 @@ index 0000000..0509389
 From 14778153a516256fb8639f07e0d35fb87646d37d Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 05:25:18 +0000
-Subject: [PATCH 2/2] fix(od-sevev): a coalition pill never trades seats down
+Subject: [PATCH 2/3] fix(od-sevev): a coalition pill never trades seats down
  (Bennett's trap)
 
 Won't-sit-with (excludes) now holds both ways with the bigger side
@@ -677,6 +677,306 @@ index dc99e8d..014f53d 100644
  func test_install_liberman() -> void:
  	_round("liberman")
  	var ids := _ids(Coalition.partners())
+-- 
+2.43.0
+
+
+From f3e415e8890d4a187f1ab92a734a8c2070c627ae Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 05:49:12 +0000
+Subject: [PATCH 3/3] =?UTF-8?q?feat(od-sevev):=20cover=20the=20window=20be?=
+ =?UTF-8?q?tween=20"=D7=A2=D7=95=D7=93=20=D7=A1=D7=91=D7=91!"=20and=20the?=
+ =?UTF-8?q?=20election=20card?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+UX saw the 61 gate slip once between the CTA and O3. Three parts:
+- the vote hold starts at the press on the CTA (vote_open sees it);
+- the finish grace: the frame the gate opens, a running ultimatum gets
+  at least ultimatum.finishGraceSec (10 s) left, once per ultimatum;
+- the finish line is quiet: no card that costs seats (brawl, pledge,
+  seat drain, lost partner, Kaia) fires while the gate is open.
+Bench: median-player gates that fell within 3 s: 3 of 72 -> 0 of 72.
+
+Also G2 (UX review 2): content-lint checks every ticker no-break unit
+(ux/mobile-first-layout.md §5.2.1 strong glue) fits the 280 px clip at
+x4; the number-magnitude joint is weak, so "850.6 מיליארד ₪." passes
+as the spec allows. Widest unit today 216 px.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ design/content.json               |  4 ++-
+ design/sim/content-lint.mjs       | 36 ++++++++++++++++++++++++++-
+ game/data/content.json            |  4 ++-
+ game/scripts/main.gd              |  7 ++++--
+ game/scripts/sim/coalition.gd     | 17 +++++++++++++
+ game/scripts/sim/events.gd        |  9 +++++++
+ game/tests/unit/test_events.gd    |  3 ++-
+ game/tests/unit/test_modals.gd    |  5 +++-
+ game/tests/unit/test_vote_hold.gd | 41 +++++++++++++++++++++++++++++++
+ 9 files changed, 119 insertions(+), 7 deletions(-)
+
+diff --git a/design/content.json b/design/content.json
+index c2e6044..d214942 100644
+--- a/design/content.json
++++ b/design/content.json
+@@ -665,7 +665,9 @@
+     60,
+     30
+    ],
+-   "maxOpen": 1
++   "maxOpen": 1,
++   "finishGraceSec": 10,
++   "_finishGrace": "Game Designer 2026-09-30 (spec §7.4): when the 61 gate opens, a running ultimatum gets at least this long left, once, so reaching for 'עוד סבב!' never loses the gate to a timer."
+   },
+   "rejoinMult": 1.5,
+   "poachSec": 60,
+diff --git a/design/sim/content-lint.mjs b/design/sim/content-lint.mjs
+index 0218422..6ec4efd 100644
+--- a/design/sim/content-lint.mjs
++++ b/design/sim/content-lint.mjs
+@@ -1,7 +1,8 @@
+ // "עוד סבב" content lint (Game Designer paper check, not a test suite; studio invariant I1).
+ // Reads design/content.json, design/facts.json and design/redlines.json and reports:
+ //   red-line hits, poll-number hits, src ids missing from the fact sheet, the סבב rule, lowercase
+-//   Latin, invented quotes of real people in the ticker, length budgets, duplicate ids, counts, and the
++//   Latin, invented quotes of real people in the ticker, length budgets, the ticker's no-break units
++//   (≤ 280 px, ux/mobile-first-layout.md §5.2.1), duplicate ids, counts, and the
+ //   About page's public facts[].aboutHe (required on every launch fact; Hebrew, one sentence, red lines).
+ // Usage: node design/sim/content-lint.mjs [--strict] [--verbose]   (exit 1 on any error; --strict also fails on warnings)
+ // The developer's build lint (UX §6.3 item 4, engine O-U3 pixel widths) can import the same JSON files.
+@@ -195,6 +196,38 @@ for (const s of game) {
+   if (/\.(flavor|levelUp)$/.test(s.path) && L > 60) err(s.path, `flavour ${L} > 60: ${s.text}`);
+   if (/\.story\.beats/.test(s.path) && L > 50) warn(s.path, `story line ${L} > 50`);
+ }
++// ---------- 7b. ticker no-break units fit the narrowest clip (ux/mobile-first-layout.md §5.2.1, ask G2) ----------
++// The pager never splits a strong glue unit: G1 the ₪ with what it measures, G2 closing punctuation
++// with the word before it, G3 opening punctuation with the word after it. G4 (a number with its
++// magnitude word, "850.6 מיליארד") is weak: the pager may break there, so it is not one unit.
++// Every strong unit must fit 280 px (the narrowest ticker clip) at ×4 in sevev9 (its xadvance).
++const FONT_ADV = new Map([...readFileSync(new URL('../../game/assets/fonts/sevev9.fnt', import.meta.url), 'utf8')
++  .matchAll(/^char id=(\d+) .*?xadvance=(-?\d+)/gm)].map(m => [Number(m[1]), Number(m[2])]));
++const pxWidth = t => [...t].reduce((a, ch) => a + (FONT_ADV.get(ch.codePointAt(0)) ?? FONT_ADV.get(32)), 0) * 4;
++const TICKER_CLIP_MIN = 280;
++const CLOSERS = /^[.,:;!?…)\]״"׳']+$/, OPENERS = /^[(\[„"״]$/;
++function glueUnits(text) {
++  const toks = text.replace(/\{[^{}]*(\{[^{}]*\}[^{}]*)*\}/g, '00').split(' ').filter(Boolean);
++  const units = [];
++  let cur = null, openNext = false;
++  for (let i = 0; i < toks.length; i++) {
++    const t = toks[i], prev = toks[i - 1] || '';
++    const glue = cur !== null && (openNext || t.startsWith('₪') || CLOSERS.test(t)
++      || (prev === '₪' && /^[\d⁦-⁩]/.test(t)));
++    if (glue) cur += ' ' + t; else { if (cur !== null) units.push(cur); cur = t; }
++    openNext = OPENERS.test(t);
++  }
++  if (cur !== null) units.push(cur);
++  return units;
++}
++let tickerUnits = 0, widestUnit = ['', 0];
++for (const s of game.filter(tickerPaths)) for (const u of glueUnits(s.text)) {
++  tickerUnits++;
++  const w = pxWidth(u);
++  if (w > widestUnit[1]) widestUnit = [u, w];
++  if (w > TICKER_CLIP_MIN) err(s.path, `ticker unit "${u}" is ${w} px at ×4 > the ${TICKER_CLIP_MIN} clip (§5.2.1): reword, or split it at a weak joint`);
++}
++
+ for (const p of C.perks.list) {
+   const v = Math.max(...p.levels.map(Number));
+   const d = p.desc.replace('{v}', String(v));
+@@ -431,6 +464,7 @@ console.log(`sources ${C.producers.length} · spins ${C.upgrades.length} (${C.up
+ console.log(`src-tagged strings: ${game.filter(s => (s.holder.src || []).length).length}`);
+ console.log(`approved pictograms in use (2D Artist draws them as glyphs): ${[...pictUsed].join(' ')}`);
+ console.log(`ticker lines over the 45-char ideal (≤ 60 enforced): ${over45.length}` + (verbose ? '\n  ' + over45.join('\n  ') : ' (--verbose lists them)'));
++console.log(`ticker no-break units (§5.2.1 strong glue): ${tickerUnits}, all ≤ ${TICKER_CLIP_MIN} px at ×4 required; the widest "${widestUnit[0]}" ${widestUnit[1]} px`);
+ if (leaderReport.length) console.log(`leaders (pending engine): ${leaderReport.join(' · ')}`);
+ if (warns.length) console.log(`\nWARN (${warns.length})\n  ` + warns.join('\n  '));
+ if (errors.length) console.log(`\nERROR (${errors.length})\n  ` + errors.join('\n  '));
+diff --git a/game/data/content.json b/game/data/content.json
+index c2e6044..d214942 100644
+--- a/game/data/content.json
++++ b/game/data/content.json
+@@ -665,7 +665,9 @@
+     60,
+     30
+    ],
+-   "maxOpen": 1
++   "maxOpen": 1,
++   "finishGraceSec": 10,
++   "_finishGrace": "Game Designer 2026-09-30 (spec §7.4): when the 61 gate opens, a running ultimatum gets at least this long left, once, so reaching for 'עוד סבב!' never loses the gate to a timer."
+   },
+   "rejoinMult": 1.5,
+   "poachSec": 60,
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index 7b20300..a1ee026 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -1264,10 +1264,13 @@ func _follow_os_motion(dt: float) -> void:
+ 		_apply_settings()
+ 
+ 
+-## The vote stops the clock (Game Designer; sim/politics.gd): while the election card is open
+-## and not yet confirmed, the round holds. The seats the player saw when they opened it are the
++## The vote stops the clock (Game Designer; sim/politics.gd): from the press on "עוד סבב!" until
++## the election card is confirmed or closed, the round holds. The seats the player saw when they opened it are the
+ ## seats they vote on, and nothing is lost behind a card that covers the chat.
+ func vote_open() -> bool:
++	for pr: Variant in _presses.values():
++		if pr is Dictionary and str((pr as Dictionary).get("kind", "")) == "cta":
++			return true   # the finger is on "עוד סבב!": the hold starts at the press, not at the card
+ 	var t := overlays.top()
+ 	return t is ElectionCard and not (t as ElectionCard).committed and not t.closing
+ 
+diff --git a/game/scripts/sim/coalition.gd b/game/scripts/sim/coalition.gd
+index fe057ea..d648918 100644
+--- a/game/scripts/sim/coalition.gd
++++ b/game/scripts/sim/coalition.gd
+@@ -531,6 +531,7 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary =
+ 		c["declineCdSec"] = maxf(0.0, float(c["declineCdSec"]) - dt)
+ 	if float(c.get("mergeCdSec", 0.0)) > 0.0:
+ 		c["mergeCdSec"] = maxf(0.0, float(c["mergeCdSec"]) - dt)
++	_finish_grace(s, d)
+ 	for id: Variant in c["partners"]:
+ 		var st: Dictionary = c["partners"][id]
+ 		if st["status"] == "member":
+@@ -550,6 +551,22 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary =
+ 	return out
+ 
+ 
++## The finish grace (spec §7.4, ultimatum.finishGraceSec): the frame the 61 gate opens, a running
++## ultimatum gets at least that long left, once per ultimatum, so the reach for "עוד סבב!" never
++## loses the gate to a timer (the vote hold starts at the press). Not a farm: it only delays an
++## expiry by seconds, and it cannot repeat on the same ultimatum.
++static func _finish_grace(s: GameState, d: Economy.Derived) -> void:
++	var c := _c(s)
++	var gate := d.seats_gate_open if d != null else gate_open(s)
++	if gate and not bool(c.get("gateWas", false)):
++		var g := float(_ult().get("finishGraceSec", 10.0))
++		for m: Dictionary in c["chat"]:
++			if m["type"] == "ultimatum" and m["state"] == "open" and not m.get("graced", false):
++				m["leftSec"] = maxf(float(m["leftSec"]), g)
++				m["graced"] = true
++	c["gateWas"] = gate
++
++
+ static func _tick_messages(s: GameState, dt: float, out: Array) -> void:
+ 	var marks: Array = _ult().get("marksSec", [])
+ 	var expired: Array = []
+diff --git a/game/scripts/sim/events.gd b/game/scripts/sim/events.gd
+index 76dc5d0..1c48594 100644
+--- a/game/scripts/sim/events.gd
++++ b/game/scripts/sim/events.gd
+@@ -204,6 +204,11 @@ static func leader_buff(s: GameState, e: Dictionary) -> void:
+ # Scheduling
+ # ---------------------------------------------------------------------------------------------
+ 
++## Card effects that take seats off the 61 (a frozen pair, a raised gate, drained seats, a lost
++## partner, Kaia's nip): never fired while the gate is open.
++const SEAT_COSTS := ["brawl", "pledge", "seatDrain", "loseRandomPartner", "kaia"]
++
++
+ static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:
+ 	var st := _st(s)
+ 	if e.has("flag") and not flag_on(str(e["flag"])):
+@@ -214,6 +219,10 @@ static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:
+ 		return false
+ 	if e.get("oncePerRound", false) == true and (st["round"] as Array).has(e["id"]):
+ 		return false
++	# The finish line is quiet (spec §7.4): while the 61 gate is open no card that costs seats fires,
++	# so between "עוד סבב!" appearing and the vote only a counted-down ultimatum can take a seat.
++	if SEAT_COSTS.has(str(e.get("effect", {}).get("type", ""))) and Coalition.gate_open(s):
++		return false
+ 	return float(e.get("weight", 1.0)) > 0.0 and Conditions.ok(s, e.get("when", {}), ctx)
+ 
+ 
+diff --git a/game/tests/unit/test_events.gd b/game/tests/unit/test_events.gd
+index df9dff8..fe92ae1 100644
+--- a/game/tests/unit/test_events.gd
++++ b/game/tests/unit/test_events.gd
+@@ -44,7 +44,8 @@ func _rich() -> GameState:
+ 	s.investigation["courtDays"] = 2
+ 	for id in Content.producer_ids():
+ 		s.owned[id] = 5
+-	for id in ["bengvir", "smotrich", "amsalem", "deri"]:
++	# three members, under the 61 gate: at 61 no seat-costing card fires (test_vote_hold.gd)
++	for id in ["bengvir", "smotrich", "amsalem"]:
+ 		Coalition.ps(s, id)["status"] = "member"
+ 	return s
+ 
+diff --git a/game/tests/unit/test_modals.gd b/game/tests/unit/test_modals.gd
+index 9b9f489..4a9979e 100644
+--- a/game/tests/unit/test_modals.gd
++++ b/game/tests/unit/test_modals.gd
+@@ -137,7 +137,7 @@ func test_the_open_election_card_holds_the_round() -> void:
+ 		if Coalition.counts(s, str(p["id"])) and Coalition.can_leave(str(p["id"])) and int(p.get("seats", 0)) > 0:
+ 			who = str(p["id"])
+ 			break
+-	var u := Coalition._post(s, {"type": "ultimatum", "partner": who, "price": 1.0, "kind": "money", "leftSec": 0.3, "state": "open"}, [])
++	var u := Coalition._post(s, {"type": "ultimatum", "partner": who, "price": 1.0, "kind": "money", "leftSec": 0.3, "state": "open", "graced": true}, [])   # graced: this test is the hold, not the finish grace
+ 	m._open_evolution()
+ 	await _wait(0.4)
+ 	runner.check(m.vote_open(), "O3 is up: the vote is on")
+@@ -153,6 +153,9 @@ func test_the_open_election_card_holds_the_round() -> void:
+ 	c.cancel("close")
+ 	for i in 30:
+ 		m._process(0.1)
++	m._presses[7] = {"kind": "cta"}
++	runner.check(m.vote_open(), "a finger on 'עוד סבב!' already holds the round (the CTA → card window)")
++	m._presses.erase(7)
+ 	runner.check(not m.vote_open(), "closed: the vote is off")
+ 	runner.check(s.run_time_sec > run and u["state"] == "expired", "the round resumes where it stood: the ultimatum runs out")
+ 
+diff --git a/game/tests/unit/test_vote_hold.gd b/game/tests/unit/test_vote_hold.gd
+index 52da8af..b0419a8 100644
+--- a/game/tests/unit/test_vote_hold.gd
++++ b/game/tests/unit/test_vote_hold.gd
+@@ -92,3 +92,44 @@ func test_cards_and_the_court_hold_under_the_card() -> void:
+ func test_the_vote_flag_is_the_only_switch() -> void:
+ 	runner.check(Politics.holds_for_vote({"vote": true}), "ctx.vote holds")
+ 	runner.check(not Politics.holds_for_vote({}) and not Politics.holds_for_vote({"vote": false}), "no vote key: the round runs (the bench, every other modal)")
++
++
++## The finish line is quiet (spec §7.4): while the 61 gate is open, no card that costs seats fires
++## (the brawl's frozen pair, the pledge's raised gate, a seat drain, a lost partner, Kaia), so
++## between "עוד סבב!" appearing and the vote only a counted-down ultimatum can take a seat.
++func test_no_seat_card_fires_while_the_gate_is_open() -> void:
++	var s := _with(["bengvir", "smotrich", "amsalem", "deri", "levin", "goldknopf", "regev", "karhi", "gotliv"])
++	s.evolutions = 1
++	for id in Content.producer_ids():
++		s.owned[id] = 50
++	runner.check(Coalition.gate_open(s), "the fixture coalition holds 61 (%s)" % str(Coalition.seat_info(s)))
++	for id in ["brawl", "bennett"]:
++		runner.check(not Events.eligible(s, Events.event(id)), "%s never fires at 61" % id)
++	runner.check(Events.eligible(s, Events.event("interview")), "a card that costs no seats still can")
++	Coalition.ps(s, "bengvir")["status"] = "left"
++	Coalition.ps(s, "deri")["status"] = "left"
++	runner.check(not Coalition.gate_open(s) and Events.eligible(s, Events.event("brawl")), "below 61 the brawl is back in the deck")
++
++
++## The finish grace (ultimatum.finishGraceSec, spec §7.4): the frame the 61 gate opens, a running
++## ultimatum gets at least 10 s left, once, so reaching for "עוד סבב!" never loses the gate to a timer.
++func test_reaching_61_gives_a_running_ultimatum_the_finish_grace() -> void:
++	var s := _with(["smotrich", "amsalem", "deri", "levin", "goldknopf", "regev", "karhi"])   # 55 + Deri's 9
++	s.coalition["nextDemandSec"] = 1e12
++	for id in Content.producer_ids():
++		s.owned[id] = 50
++	Coalition.ps(s, "deri")["status"] = "left"   # under the gate
++	var u := Coalition._post(s, {"type": "ultimatum", "partner": "smotrich", "price": 1e12, "kind": "money", "leftSec": 1.0, "state": "open"}, [])
++	_politics(s, 0.5, false)
++	runner.check(not Coalition.gate_open(s) and is_equal_approx(float(u["leftSec"]), 0.5), "under 61 the clock runs as ever")
++	Coalition.ps(s, "deri")["status"] = "member"   # 61
++	_politics(s, 0.5, false)
++	runner.check(Coalition.gate_open(s) and float(u["leftSec"]) >= 9.0 and u.get("graced", false), "61: the ultimatum gets the 10 s finish grace (%.1f left)" % float(u["leftSec"]))
++	Coalition.ps(s, "deri")["status"] = "left"
++	_politics(s, 0.5, false)
++	Coalition.ps(s, "deri")["status"] = "member"
++	var left := float(u["leftSec"])
++	_politics(s, 0.5, false)
++	runner.check(float(u["leftSec"]) < left, "once per ultimatum: a flapping gate never tops it up again")
++	_politics(s, 12.0, false)
++	runner.check(u["state"] == "expired", "not a shield: the timer still runs out if the vote isn't called")
 -- 
 2.43.0
 
