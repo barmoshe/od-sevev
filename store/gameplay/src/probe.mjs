@@ -1,0 +1,36 @@
+// Quick look: the picker's cells, a Ben Gvir pick, a few taps, the Mordechai event, screencast fps.
+const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
+const { chromium } = await import(PW);
+const fs = await import('node:fs');
+const { makePlayer } = await import('../../../tools/web/round_play.mjs');
+const [base, out] = process.argv.slice(2);
+fs.mkdirSync(out, { recursive: true });
+const W = 390, H = 844, DPR = 3;
+const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: true, hasTouch: true });
+const page = await ctx.newPage();
+const cdp = await ctx.newCDPSession(page);
+const P = makePlayer({ page, cdp, DPR, out, wh: `${W}x${H}`, log: console.log });
+await P.st.ready;
+await page.goto(`${base}?dev=1&speed=3`);
+await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
+await page.click('#od-quiet');
+await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
+await P.wait(1200); await P.refresh();
+const p = await page.evaluate(() => window.odPick);
+console.log('cells', JSON.stringify(p.cells));
+let n = 0, t0 = Date.now();
+cdp.on('Page.screencastFrame', async (f) => { n++; if (n % 20 === 1) fs.writeFileSync(`${out}/sc${n}.jpg`, Buffer.from(f.data, 'base64')); await cdp.send('Page.screencastFrameAck', { sessionId: f.sessionId }); });
+await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 85, maxWidth: W * DPR, maxHeight: H * DPR, everyNthFrame: 1 });
+const c = p.cells.find((x) => /gvir/.test(x[2]));
+await P.tapAt(P.css(c[0], c[1]));
+await P.wait(1500);
+console.log('after pick', JSON.stringify(await P.probe()).slice(0, 400));
+await P.tapAt(P.hat()); await P.wait(800);
+for (let i = 0; i < 30; i++) { await P.tapAt(P.hat(), 40); await P.wait(120); }
+await page.evaluate(() => { window.odDevEvent = 'mordechai'; });
+await P.wait(6000);
+const sec = (Date.now() - t0) / 1000;
+console.log('screencast frames', n, 'in', sec.toFixed(1), 's =', (n / sec).toFixed(1), 'fps');
+await page.screenshot({ path: `${out}/end.png` });
+await browser.close();
