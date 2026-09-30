@@ -11,6 +11,75 @@ index 644a398..dd08875 100644
  		Politics.on_election(nxt)
  		res = {"multBefore": d.prestige_mult, "multAfter": d.prestige_mult, "gained": 0}
  	if res.is_empty():
+diff --git a/game/scripts/ui/shop.gd b/game/scripts/ui/shop.gd
+index 3021039..103019f 100644
+--- a/game/scripts/ui/shop.gd
++++ b/game/scripts/ui/shop.gd
+@@ -43,6 +43,7 @@ const TALL_TABS := ["coalition", "dossier"]
+ const SPIN_BARS := Rect2(220, 104, 360, 8)
+ ## The spin tag's stamp: the bottom band of the plate (kit card_plate at 588-692 × 8-112).
+ const SPIN_TAG := Rect2(592, 72, 96, 40)
++const TAG_SLAM_STEP_MS := 30.0      # the slip's stamp slam: ×6, ×5, ×4 (90 ms, Stepped)
+ const SPIN_BAR_PUBLIC := "e"
+ const SPIN_BAR_FRIENDLY := "O"
+ 
+@@ -666,10 +667,43 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
+ 	(v["owned"] as PxText).tint = Color(0.827, 0.839, 0.875)
+ 	_render_bars(v, bars)
+ 	var tg: PxText = v["tag"]
++	# the stamp on the ballot slip (animator wave B): a tag that appears or changes on the same card
++	# (a line's "1/5" → "2/5" after a buy, "שחוק") slams like the chat's pay-pill stamp; a card that
++	# only scrolled or changed tab keeps its tag still
++	var tkey := "%s:%s" % [m["kind"], id]
++	if tag_s != str(v.get("tagText", "")):
++		var same := str(v.get("tagKey", "")) == tkey
++		v["tagSlam"] = 0.0 if (same and tag_s != "" and not reduced_motion) else -1.0
++		v["tagText"] = tag_s
++	v["tagKey"] = tkey
+ 	tg.text = tag_s
+-	tg.center_in(SPIN_TAG.position.x, SPIN_TAG.size.x)
+ 	tg.visible = tag_s != ""
+ 	(v["tagBg"] as ColorRect).visible = tg.visible
++	_place_tag(v)
++
++
++## The slip's stamp at its slam step (TAG_SLAM: integer text scale 6 → 5 → 4 over 90 ms, the backing
++## growing with it around the tag's centre in 4-px steps; a transient under 180 ms). At rest: ×4 in
++## SPIN_TAG.
++func _place_tag(v: Dictionary) -> void:
++	var tg: PxText = v["tag"]
++	var bg: ColorRect = v["tagBg"]
++	var px := tag_slam_px(float(v.get("tagSlam", -1.0)))
++	var c := SPIN_TAG.get_center()
++	var sz := Vector2(Ui.snap(SPIN_TAG.size.x * float(px) / float(L.TEXT), 4), Ui.snap(SPIN_TAG.size.y * float(px) / float(L.TEXT), 4))
++	bg.position = Vector2(Ui.snap(c.x - sz.x / 2.0, 4), Ui.snap(c.y - sz.y / 2.0, 4))
++	bg.size = sz
++	if tg.px != px:
++		tg.px = px
++	tg.center_in(bg.position.x, bg.size.x)
++	tg.position.y = bg.position.y + Ui.snap((sz.y - 9.0 * float(px)) / 2.0, 2)   # at rest: SPIN_TAG.y + 2
++
++
++## The stamp's text scale `t` ms into its slam (-1 = at rest): 6 for 30 ms, 5 for 30, then 4.
++static func tag_slam_px(t: float) -> int:
++	if t < 0.0 or t >= 3.0 * TAG_SLAM_STEP_MS:
++		return L.TEXT
++	return L.TEXT + 2 - int(t / TAG_SLAM_STEP_MS)
+ 
+ 
+ ## S08's split bar: "public" from the right (the RTL fill side), the drained share after it.
+@@ -728,6 +762,11 @@ func _start_hello(v: Dictionary) -> void:
+ 
+ 
+ func _animate_row(v: Dictionary, dt_ms: float) -> void:
++	if float(v.get("tagSlam", -1.0)) >= 0.0:
++		v["tagSlam"] = float(v["tagSlam"]) + dt_ms
++		if float(v["tagSlam"]) >= 3.0 * TAG_SLAM_STEP_MS:
++			v["tagSlam"] = -1.0
++		_place_tag(v)
+ 	var S: Dictionary = L.SHOP
+ 	var target := 1.0 if v["pressed"] else 0.0
+ 	var dur := float(Tune.T["buyPressMs"] if v["pressed"] else Tune.T["buyReleaseMs"])
 diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
 index 3dc157b..d2801ef 100644
 --- a/tools/web/motion_web.mjs
@@ -203,3 +272,49 @@ index 3dc157b..d2801ef 100644
  }
  await browser.close();
  console.log(failed ? `MOTION_WEB: ${failed} FAILED` : 'MOTION_WEB: PASS');
+diff --git a/game/tests/unit/test_slip_stamp.gd b/game/tests/unit/test_slip_stamp.gd
+new file mode 100644
+index 0000000..436759f
+--- /dev/null
++++ b/game/tests/unit/test_slip_stamp.gd
+@@ -0,0 +1,39 @@
++extends RefCounted
++## The stamp on the ballot slip (animator wave B, v4 kit `card_plate`): a spin card's tag slams in at
++## integer text scale 6 → 5 → 4 over 90 ms when it appears or changes on the same card, the backing
++## growing around the tag's centre on the 4-px grid, and rests exactly in SPIN_TAG.
++
++var runner: Object
++var tree: SceneTree
++
++
++func setup(r: Object) -> void:
++	TestFixture.use_game_content()
++	tree = r as SceneTree
++
++
++func test_the_slam_steps() -> void:
++	var seq: Array = []
++	for t in [-1.0, 0.0, 29.0, 30.0, 59.0, 60.0, 89.0, 90.0]:
++		seq.append(ShopView.tag_slam_px(t) if false else Shop.tag_slam_px(t))
++	runner.check(seq == [4, 6, 6, 5, 5, 4, 4, 4], "×6 for 30 ms, ×5 for 30, ×4 (%s)" % str(seq))
++
++
++func test_the_backing_grows_on_the_grid_and_rests_in_place() -> void:
++	var host := Node2D.new()
++	tree.root.add_child(host)
++	var bg := ColorRect.new()
++	host.add_child(bg)
++	var tg := PxText.make(host, Vector2.ZERO, "2/5", L.TEXT, "plain", "w")
++	var v := {"tag": tg, "tagBg": bg, "tagSlam": 0.0}
++	var shop := Shop.new()
++	shop._place_tag(v)
++	runner.check(tg.px == 6 and is_equal_approx(fmod(bg.position.x, 4.0), 0.0) and is_equal_approx(fmod(bg.size.x, 4.0), 0.0) and bg.size.x > Shop.SPIN_TAG.size.x,
++		"f0: ×6 on a grown backing, on the grid (%s)" % str(Rect2(bg.position, bg.size)))
++	runner.check(absf(Rect2(bg.position, bg.size).get_center().x - Shop.SPIN_TAG.get_center().x) <= 2.0, "grown around the tag's centre")
++	v["tagSlam"] = -1.0
++	shop._place_tag(v)
++	runner.check(tg.px == L.TEXT and Rect2(bg.position, bg.size) == Shop.SPIN_TAG and tg.position.y == Shop.SPIN_TAG.position.y + 2.0,
++		"at rest: ×4 exactly in SPIN_TAG (%s)" % str(Rect2(bg.position, bg.size)))
++	shop.free()
++	host.queue_free()
+# untracked binary: game/tests/unit/test_slip_stamp.gd
