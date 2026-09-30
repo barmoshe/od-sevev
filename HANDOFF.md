@@ -1,3 +1,87 @@
+# HANDOFF: "עוד סבב" (2026-09-30, end of session 6)
+
+**For the next agent:** work directly, never through the base67 studio (Bar: "dont use base67 studio").
+The repo is now a **bar_builds sibling at `~/od-sevev`** (moved out of `~/base67/`; pointer folder
+`bar_builds/lab/personal/od-sevev/`, registered in `bar_builds/.repos.json`).
+
+## State at the stop
+
+- **Live:** https://od-sevev.vercel.app serves the build of **`e668348`** (web-dist `b4c9126`, Vercel
+  `dpl_7XGqyhEBfokqa2JASf2C6PATLXpp`; live `index.html` + `index.pck` match the build byte for byte).
+- **Branches:** `main`, `claude/magical-ride-ntn3u5` and `s5-mordechai` all point at `e668348`, pushed.
+- **Worktrees on this Mac:** `~/od-sevev-s5` (`s5-mordechai`) and `~/od-sevev-webdist` (`web-dist`).
+  Remove them with `git worktree remove` when done, never by deleting the folders.
+- **Running at the stop:** `tools/balance.sh` in `~/od-sevev-s5` (the last step of the check chain;
+  about 95 min; log `…/scratchpad/verify2/balance.log`, summary `verify2/summary.txt` in session
+  467e07fc's scratchpad). If the scratchpad is gone, re-run `tools/balance.sh` on `main`.
+
+## What session 6 did
+
+1. **Mordechai David, built and on for launch** (spec `design/mordechai-david-spec.md`; §2, §4, §7.2, §9
+   now say how it landed):
+   - `blockade` effect (`events.gd`): a counting partner of 1-4 seats is benched 20 s; in `SEAT_COSTS`.
+   - **He comes on at 1:00 of play** in the save's first round (Balfour), Bar's call: per-event
+     `atPlaySec: 60`, fired ahead of the scheduler, never from the weighted pool; the two-member
+     condition is gone, so at 1:00 the card usually reads `aloneText`.
+   - `StreetFigure` (`game/scripts/ui/street_figure.gd`): walk in from the right (flip_h), plant at art
+     x 150 in front of the right crowd, hold, one glance, walk out as the effect ends; a diorama layer
+     behind the sources and the leader. The sprite faces screen-right as drawn (spec §2 fixed).
+   - His toasts dock in the **lane band** (face + two lines, then who is stuck, then the end toast);
+     a top-dock toast covered the leader's head on the SE. Ticker headline names him.
+   - Dev hook: `?dev=1` + `window.odDevEvent = "mordechai"`.
+   - Tests 438/438 (`test_events` blockade ×4, `test_street_figure` ×4; `test_progression`'s brawl
+     test now starts its brawl explicitly), content lint 0/0, strict build green.
+2. **Checks** (chain on `cf3e58b`, before the 1:00 change): `round_web` 2/3 (run 2: see "LayerHistory"
+   below), `picker_web` 3/3, **full `mobile_web` matrix PASS**, strict build green.
+3. **ChatGPT image batch** (Claude in Chrome, Bar's account): 16 refs in
+   `creative-pack/art/refs/candidates/`, contact sheet `creative-pack/art/b14-options/chatgpt-batch-2026-09-30.png`:
+   almog, kariv, lazimi, tibi, mk-switcher, mk-undecided, mk-offer, mk-returner, aide, donor, submarine,
+   poison, checkbook, funds. **Not reviewed by Bar yet; none is rendered into the game.**
+
+## Next, in order
+
+1. **Read the balance result** and fill spec §6 (`RESULTS_PLACEHOLDER`): the per-leader first-election
+   medians must stay 7-9 min, and the bench now prints "Mordechai David before the first election:
+   n of 9 seeds" (expect 9/9 with the 1:00 timer).
+2. **Run the full `mobile_web` matrix on `e668348`**: he now walks on at 1:00 in every fresh round, so
+   every browser driver meets his toasts in the lane band. Serve `build/web` on a free port, one job at a time.
+3. **Fix the LayerHistory back-button race.** `round_web` run 2: after "testify" while the chat layer
+   was closing, a `go(-1)` fired with no layer left and the page navigated to `about:blank` (log in
+   `verify2/round2.log`; the history calls are printed there). A player's back gesture can hit it.
+4. **Image review with Bar, then render-down** (`creative-pack/art/CHATGPT-REQUESTS.md` "After generating"):
+   - **mk-returner looks like Bibi** (the style ref's face leaked): regenerate with only `regev.png`
+     attached, or with a note "must not resemble the attached men".
+   - **kariv**: the prompt described glasses and a beard from memory; check the likeness before use.
+   - Approved files move from `refs/candidates/` to `refs/`, then `cast.py` landmarks, d3 + d2 render,
+     swap `avatar_nophoto`/`nophoto` for the four generic MKs, pipeline 0 cast drift.
+5. **New MKs need game content, not only art** (Bar asked for Kariv and more MKs from both sides):
+   a partner profile per leader lineup, facts with sources in `design/facts.json`, the red-lines and
+   quote rules, and a place in the rosters. Kariv also ties to fact 73 (Mordechai David blocked his car).
+   Design this with Bar before building (it changes lineups and balance).
+6. **Still to generate** (stopped by Bar mid-batch): Karine Elharrar, Nissim Vaturi, Miki Zohar,
+   Boaz Bismuth, Avichai Boaron, and the optional `bibi-hat-rabbit.png`.
+
+## How the ChatGPT batch was driven (works; reuse it)
+
+- One chat per image at chatgpt.com (Chat mode). Refs come from a folder this session can read (the
+  upload tool rejects `~/od-sevev`; copy the refs into the session's scratchpad first).
+- People: attach `refs/bibi.png` + `refs/regev.png`. Objects: attach `refs/hitech.png` + `refs/cigars.png`
+  (the crisp sources) so they match the stage sources.
+- **Keystrokes go to whichever tab is in front**, so typing into a background tab lands elsewhere. Insert
+  the prompt by script: focus `.ProseMirror[contenteditable="true"]`, `execCommand('insertText', …)`,
+  then click the button whose `aria-label` is `Send`. Wait about 9 s after an upload first.
+- Download: fetch the last `img[alt^="Generated image"]` blob in the page and click an `<a download>`;
+  Chrome saves to `~/Downloads`. Space the downloads a few seconds apart (three fired together were dropped).
+- Real people: ask for "true to his/her real public likeness" and don't describe features.
+
+## Bar's calls (don't decide them)
+- Legal reads, now including Mordechai David's three facts and copy, and any new MK.
+- Spec §14 D2 (Balfour only, or also the Knesset) and D3 (his orange).
+- Which ChatGPT images are approved; which new MKs join which lineups.
+- The pre-launch list (publisher and mail, domain).
+
+---
+
 # HANDOFF: "עוד סבב" (2026-09-30, end of session 5)
 
 **For the next agent:** Bar stopped the studio loop and asked for a plain handoff. **Work directly.**
