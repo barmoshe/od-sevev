@@ -1934,6 +1934,66 @@
     "ticker": "מוצאי שבת. תופים בחוץ. בפנים מתייעצים ביטחונית.",
     "_note": "Depicts the movement, never individuals."
    }
+  },
+  {
+   "id": "mordechai",
+   "kind": "stage",
+   "flag": "mordechaiDavid",
+   "weight": 5,
+   "oncePerRound": true,
+   "cooldownSec": 900,
+   "when": {
+    "era": "balfour",
+    "membersAtLeast": 2
+   },
+   "effect": {
+    "type": "none",
+    "sec": 20
+   },
+   "designerEffect": {
+    "type": "blockade",
+    "sec": 20,
+    "maxSeats": 4
+   },
+   "pollLike": false,
+   "src": [
+    "md-blocks-cars"
+   ],
+   "copy": {
+    "name": "מרדכי דוד",
+    "role": "פעיל ימין",
+    "avatar": "mordechai_avatar",
+    "text": "לדבריו, בקפלן חסמו כבישים, אז גם הוא חוסם. את כולם.",
+    "textSrc": [
+     "md-kaplan-method"
+    ],
+    "reportedSpeech": true,
+    "blockedText": "{name} תקוע בחסימה. לא נספר בהצבעה {sec} שניות.",
+    "aloneText": "חסם את ההפגנה. הפעם אף שר שלך לא עבר שם.",
+    "endText": "החסימה התפזרה. {name} חזר להצבעה.",
+    "ticker": "מרדכי דוד חוסם את החוסמים. השר תקוע באמצע.",
+    "tickerSrc": [
+     "md-blocks-cars",
+     "md-kaplan-method"
+    ],
+    "skins": {
+     "bengvir": {
+      "role": "מטה הצעירים שלך",
+      "text": "העובד שלך במטה הצעירים יצא לחסום. השר שלך בפקק.",
+      "textSrc": [
+       "md-otzma-youth"
+      ]
+     },
+     "opposition": {
+      "text": "כבר חסם רכב של ח״כ מהאופוזיציה. היום: רחוב שלם.",
+      "textSrc": [
+       "md-blocks-cars"
+      ]
+     }
+    },
+    "_note": "design/mordechai-david-spec.md. Ships as effect 'none' until the Game Developer adds effect type 'blockade' (designerEffect) and the stage presenter; flip flags.mordechaiDavid to true and the three md-* facts' notUsed to false in that same change-set. Skin lookup: leader id, then side 'opposition', then the default. No player action on him, ever: no button, no tap target.",
+    "_guardrail": "Documented public conduct only (he stands in the way of cars and protests; his Kaplan rationale is reported speech). Never his conviction, restraining orders, family, the minors in his group, October 7, the hostages, or army service (so never the Eisenkot beach exchange, fact 47). Blocking is standing still with arms out: nobody is touched, pushed or hurt. His name appears only in this event and his facts (redlines.json allow 'mordechai')."
+   }
   }
  ],
  "calendar": {

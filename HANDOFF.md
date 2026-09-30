@@ -487,9 +487,10 @@ On Bar's Mac, `OD_VERCEL_PROJECT=od-sevev tools/deploy_web.sh` still works with 
 - **Legal reads:**
   - Deri's kit (the 2022 tax plea and "חוק דרעי");
   - בן גביר as a playable protagonist;
-  - the brawl and Illouz lines stay reported speech.
+  - the brawl and Illouz lines stay reported speech;
+  - **מרדכי דוד** (session 5, Bar reversed the drop): his stage event "החסימה" and its three facts (refs 73-75: the cars he blocked, his Kaplan rationale as reported speech, his paid youth-HQ role). A private but newsworthy activist; the satire rests on documented public conduct only. Read `design/mordechai-david-spec.md` §8 and §12 before the flag goes on.
 - **Device checks:** on a real iPhone, check the share sheet (only the download/clipboard fallback was browser-tested) and listen to the HaTikva-based audio.
 - **Art wanted from ChatGPT:** see `creative-pack/art/CHATGPT-REQUESTS.md` (12 images, with prompts). Tell the TA if you want Bibi's hat and rabbit at 3× (it needs a cast re-render).
-- **Old flags:** decide the Mordechai David and Yair flags (off by default).
+- **Old flags:** Mordechai David is decided (Bar, 2026-09-30: on for launch; it flips in the change-set that wires his event, `design/mordechai-david-spec.md` §7.5). The Yair flag stays off by default.
 - **Pro Max pixel scale:** the orchestrator chose to drop k 7 to 6 (crisp, about 14% smaller), part of Bar's "sharp on every phone" request. Revert the crisp-k rule in `display.gd` if you'd rather have the bigger, softer picture.
 - **App icon:** it is now the ring of eight heads. Revert `art/od-sevev/out/key/icon-128-art.png` and re-run the pipeline if you prefer the old one.

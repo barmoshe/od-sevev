@@ -914,14 +914,23 @@
    "id": "eisenkot-quote",
    "ref": 47,
    "label": "Q",
-   "text": "Eisenkot to Mordechai David: \"לך תשרת ותחזור אליי\" (7 Aug 2026). NOT USED at launch.",
+   "text": "Eisenkot to Mordechai David on a beach (Aug 2026): \"לך תשרת בצבא ותחזור אליי\". David's question was about the war and a hostage deal. NOT USED.",
    "notUsed": true,
-   "notUsedWhy": "Flagged character (Mordechai David); drop recommended (pitch §2.10).",
-   "outlet": "",
-   "url": null,
+   "notUsedWhy": "Bar reversed the Mordechai David drop on 2026-09-30, but this exchange stays out for good: David's question was about October 7 and a hostage deal, and Eisenkot's answer is about army service. Both are red lines (redlines.json oct7-hostages, military). Never use it, in any round.",
+   "outlet": "Ynet; Maariv; Walla; N12; Israel Hayom",
+   "url": "https://www.ynet.co.il/news/article/bkxbhdqife",
    "date": "2026-08-07",
-   "urlNeeded": true,
-   "usedIn": []
+   "urlNeeded": false,
+   "usedIn": [],
+   "moreUrls": [
+    "https://www.maariv.co.il/news/politics/article-1353413",
+    "https://news.walla.co.il/item/3859134",
+    "https://www.mako.co.il/news-politics/2026_q3/Article-024cfdeff9cdf91027.htm",
+    "https://www.israelhayom.co.il/news/politics/article/21150136"
+   ],
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Ynet page opened 2026-09-30: the question and the answer as above; the page shows no date. The 7 Aug 2026 date is from references.md and was not re-checked. The other URLs are search-result only."
   },
   {
    "id": "kaia",
@@ -1511,6 +1520,83 @@
     "leaders.golan.kit.story",
     "leaders.golan.kit.ticker.ty02",
     "leaders.golan.kit.ticker.ty10"
+   ]
+  },
+  {
+   "id": "md-blocks-cars",
+   "ref": 73,
+   "label": "F",
+   "text": "Right-wing activist Mordechai David stood in front of MK Gilad Kariv's car in the exit lane as Kariv left a protest on 21 Nov 2025; the Knesset Guard intervened and police detained David for questioning (Walla, Ynet, N12). In late Jan 2026 David and others blocked retired Supreme Court President Aharon Barak's car in a Tel Aviv parking lot after a Movement for Quality Government conference; police opened an investigation (ToI, Ynet).",
+   "aboutHe": "בנובמבר 2025 עמד פעיל הימין מרדכי דוד מול רכבו של ח״כ גלעד קריב ביציאה מהפגנה, ובינואר 2026 חסם עם אחרים את רכבו של נשיא בית המשפט העליון בדימוס אהרן ברק בחניון בתל אביב.",
+   "notUsed": true,
+   "notUsedWhy": "Mordechai David's stage event (design/mordechai-david-spec.md). Bar reversed the pitch §2.10 drop on 2026-09-30. Flip notUsed to false in the change-set that wires the event (flags.mordechaiDavid true); aboutHe is already written and linted.",
+   "launchWith": "mordechaiDavid",
+   "outlet": "Walla; Ynet; N12; ToI",
+   "url": "https://www.walla.co.il/news/politics/3795837",
+   "url2": "https://www.timesofisrael.com/cops-reportedly-probing-right-wing-agitator-who-blocked-ex-judge-aharon-baraks-car/",
+   "moreUrls": [
+    "https://www.ynet.co.il/news/article/by7bp9hgwe",
+    "https://www.mako.co.il/news-law/e9f61eb3e8509910/Article-fec913f2c91aa91026.htm",
+    "https://www.ynet.co.il/news/article/rjbo0qtlzl"
+   ],
+   "date": "2025-11-21",
+   "_guardrail": "Documented public conduct only: he stands in the way. Never his 2021 conviction, the restraining orders, the Shin Bet warnings, the minors in his group, his family (his daughter drove in the Barak incident: never mention her), or anything about the hostages' protests or October 7. Never shown touching or hurting anyone.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Page opened and read on 2026-09-30 (WebFetch from the design worktree), not only the search result. Walla (21.11.2025): video shows him standing in front of Kariv's car in the exit lane. ToI (29.1.2026): Barak's car blocked in a parking lot; investigation opened.",
+   "usedIn": [
+    "events.mordechai",
+    "events.mordechai.copy.ticker",
+    "events.mordechai.copy.skins.opposition"
+   ]
+  },
+  {
+   "id": "md-kaplan-method",
+   "ref": 74,
+   "label": "F",
+   "text": "Ynet, 1 Feb 2026: questioned over blocking Barak's car, David argued that just as roads were blocked and traffic disrupted in the Kaplan Street protest, so he does in his own protest (reported speech in the article: \"כמו שבמחאה ברחוב קפלן ... נחסמו כבישים ... כך הוא עושה במסגרת המחאה שלו\").",
+   "aboutHe": "בפברואר 2026 טען מרדכי דוד, לפי הדיווח, שכמו שבמחאת קפלן נחסמו כבישים, כך הוא עושה במחאה שלו.",
+   "notUsed": true,
+   "notUsedWhy": "Mordechai David's stage event (design/mordechai-david-spec.md). Bar reversed the pitch §2.10 drop on 2026-09-30. Flip notUsed to false in the change-set that wires the event (flags.mordechaiDavid true); aboutHe is already written and linted.",
+   "launchWith": "mordechaiDavid",
+   "outlet": "Ynet",
+   "url": "https://www.ynet.co.il/news/article/rjbo0qtlzl",
+   "url2": "https://www.c14.co.il/article/1374337",
+   "date": "2026-02-01",
+   "_guardrail": "The article reports his argument in indirect speech. The game renders it as reported speech (לדבריו), never in quote marks and never as his words.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Page opened and read on 2026-09-30 (WebFetch from the design worktree), not only the search result. The wording is the article's indirect speech, not a direct quote.",
+   "verifiedHe": null,
+   "heStatus": "unverified",
+   "gameRendering": "paraphrase",
+   "usedIn": [
+    "events.mordechai.copy.text",
+    "events.mordechai.copy.ticker"
+   ]
+  },
+  {
+   "id": "md-otzma-youth",
+   "ref": 75,
+   "label": "F",
+   "text": "31 Aug 2026: David announced, in a video with Otzma Yehudit chair Itamar Ben Gvir, that he is joining the party; he is to take part in Ben Gvir's campaign in a paid role in the party's youth HQ (מטה הצעירים), with Viktor Shriki and Ziv Barnes (Kipa, Srugim). The brief's 'co-chair from 1 Sep 2026' is NOT confirmed by these sources: the game says only 'a paid role in the youth HQ'.",
+   "aboutHe": "בסוף אוגוסט 2026 הודיע מרדכי דוד שהוא מצטרף לעוצמה יהודית, ולפי הדיווחים יקבל תפקיד בשכר במטה הצעירים של המפלגה בקמפיין.",
+   "notUsed": true,
+   "notUsedWhy": "Mordechai David's stage event (design/mordechai-david-spec.md). Bar reversed the pitch §2.10 drop on 2026-09-30. Flip notUsed to false in the change-set that wires the event (flags.mordechaiDavid true); aboutHe is already written and linted.",
+   "launchWith": "mordechaiDavid",
+   "outlet": "Kipa; Srugim; C14",
+   "url": "https://kipa.co.il/%D7%97%D7%93%D7%A9%D7%95%D7%AA/1230632-0",
+   "url2": "https://www.srugim.co.il/101009894-%D7%9E%D7%A8%D7%93%D7%9B%D7%99-%D7%93%D7%95%D7%93-%D7%9E%D7%A6%D7%98%D7%A8%D7%A3-%D7%9C%D7%9E%D7%A4%D7%9C%D7%92%D7%AA-%D7%94%D7%99%D7%9E%D7%99%D7%9F",
+   "moreUrls": [
+    "https://www.c14.co.il/article/1686564"
+   ],
+   "date": "2026-08-31",
+   "_guardrail": "Role only. Say 'מטה הצעירים', never 'נוער' as a group, and never depict the youth activists (minors are a red line).",
+   "verification": "corrected",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Page opened and read on 2026-09-30 (WebFetch from the design worktree), not only the search result. Corrected: the brief said co-chair from 1 Sep 2026; Kipa and Srugim say a paid role in the youth HQ, announced 31 Aug 2026. C14 is search-result only (not opened).",
+   "usedIn": [
+    "events.mordechai.copy.skins.bengvir"
    ]
   }
  ],

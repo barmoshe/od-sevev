@@ -166,7 +166,7 @@
   },
   {
    "id": "private-people-and-off-cast",
-   "why": "Private individuals and flagged/off people (round 2; pitch §2.9-2.10; fact sheet 'Stay away from').",
+   "why": "Private individuals and flagged/off people (round 2; pitch §2.9-2.10; fact sheet 'Stay away from'). מרדכי דוד is NARROWED, not lifted (Bar, 2026-09-30: he ships as a stage event): his name is allowed only in his own event's strings (content events[] id 'mordechai') and his own facts' aboutHe (md-blocks-cars, md-kaplan-method, md-otzma-youth), per the scoped allow entries below. Everywhere else (tickers, story cards, leader kits, chat, UI strings, share texts) it still fails the build.",
    "terms": [
     "הדס קליין",
     "יאיר נתניהו",
@@ -301,6 +301,34 @@
     "וואטסאפ"
    ],
    "why": "Bar 2026-09-29: the same label on About's invite link (wa.me). Functional, not styling (see SHARE_WA)."
+  },
+  {
+   "id": "mordechai",
+   "terms": [
+    "מרדכי דוד"
+   ],
+   "why": "Bar 2026-09-30 reversed the pitch §2.10 drop: Mordechai David ships as a stage event (design/mordechai-david-spec.md). Scoped to his own event's strings (path segment '.mordechai.' = content events[] id 'mordechai'). Documented public conduct only (he stands in the way of cars and protests; his stated Kaplan rationale is reported speech); never his conviction, restraining orders, family, the minors in his group, October 7 or the hostages; never violence. Legal read on Bar's pre-launch list (HANDOFF)."
+  },
+  {
+   "id": "facts.md-blocks-cars",
+   "terms": [
+    "מרדכי דוד"
+   ],
+   "why": "About page (facts.json aboutHe, public once the event ships): the cars he stood in front of (Kariv 21.11.2025, Barak Jan 2026). Same scope and guardrails as the 'mordechai' event entry."
+  },
+  {
+   "id": "facts.md-kaplan-method",
+   "terms": [
+    "מרדכי דוד"
+   ],
+   "why": "About page (facts.json aboutHe, public once the event ships): his Kaplan rationale, as reported speech. Same scope and guardrails as the 'mordechai' event entry."
+  },
+  {
+   "id": "facts.md-otzma-youth",
+   "terms": [
+    "מרדכי דוד"
+   ],
+   "why": "About page (facts.json aboutHe, public once the event ships): his paid role in Otzma's youth HQ (31.8.2026). Same scope and guardrails as the 'mordechai' event entry."
   }
  ]
 }
