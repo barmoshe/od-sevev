@@ -40,6 +40,7 @@ def BT(n):
 
 
 SFX = []
+COVER_FRAMES = 2  # 2 frames = 67 ms at the very start: long enough to be frame 0, short enough to read as a cut
 
 
 def sfx(t, name, db=0.0):
@@ -525,15 +526,18 @@ def main():
            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-shortest", video]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     nf = int(DUR * FPS)
+    cover = frame((nf - 1) / FPS)
     for i in range(nf):
-        p.stdin.write(frame(i / FPS).tobytes())
+        # the first COVER_FRAMES frames repeat the last one, so a platform that takes frame 0 as the
+        # thumbnail still shows Mordechai David blocking "coming soon"
+        p.stdin.write((cover if i < COVER_FRAMES else frame(i / FPS)).tobytes())
         if i % 120 == 0:
             print(f"frame {i}/{nf}", flush=True)
     p.stdin.close()
     if p.wait() != 0:
         raise SystemExit("ffmpeg failed")
     # the Reels cover is the video's last frame: Mordechai David blocking "coming soon"
-    frame((nf - 1) / FPS).save(os.path.join(OUT, "od-sevev-teaser-2-cover.png"))
+    cover.save(os.path.join(OUT, "od-sevev-teaser-2-cover.png"))
     print(video)
 
 
