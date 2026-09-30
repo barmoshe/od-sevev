@@ -613,7 +613,7 @@ def music():
             "_doc": "Loudness targets (K-weighted BS.1770, dual mono) that set each item's play_db. music = all "
                     "three layers of an era together (every era lands on the same value, so era changes do not jump). "
                     "Stingers: integrated = over the whole stinger; momentary = the loudest 400 ms.",
-            "music": -17.3,
+            "music": -18.3,   # v1.7: 1 dB further back, under the gameplay SFX
             "fanfare": {"type": "integrated", "lufs": -17.0},
             "courtIn": {"type": "momentary", "lufs": -16.0},
             "motif": {"type": "momentary", "lufs": -15.0},

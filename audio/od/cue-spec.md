@@ -443,6 +443,7 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 
 ## 6. HaTikva: where it is, and the guardrail (v1.2)
 
+> **v1.7 (2026-09-30, Bar: "refine the background music"):** the Music bus gets an EQ6 (-2.5 dB at 3.2 kHz, the SFX slot; -2 dB at 10 kHz, the pulse fizz) and a small room (wet 0.1, hipass 0.3, 25 ms predelay); the music target moves to -18.3 LUFS. Measured on a recorded session: highs -1.1 dB, 1.5-4 kHz -0.4 dB on the full mix, width +2 dB, integrated unchanged (-16.4 LUFS).
 > **v1.6 (2026-09-30, Bar, ADR 0005):** HaTikva's second section joins the tap (written from the anthem as sung, not a score); files normalise to -3 dBFS with a DC blocker and a 1.5 ms fade-in on every one-shot; the master is HPF 35 Hz, 2:1 glue, limiter -1 dB with +2 dB; L2 sits 6 dB down while the bell plays.
 > **v1.5 (2026-09-30, Bar, ADR 0004):** the tap plays HaTikva, one note per tap, on a bell, in phrases (`tap.melody`, `tap.phrases`). The 2-bar cap below is lifted for the tap only; every other rule stands.
 

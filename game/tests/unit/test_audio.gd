@@ -109,6 +109,12 @@ func test_bus_layout_is_the_od_topology() -> void:
 	runner.check(hpf != null and absf(hpf.cutoff_hz - 35.0) < 1e-3, "master HPF at 35 Hz")
 	runner.check(glue != null and absf(glue.ratio - 2.0) < 1e-4 and absf(glue.threshold + 14.0) < 1e-4, "glue: 2:1 from -14 dB")
 	runner.check(lim != null and absf(lim.ceiling_db + 1.0) < 1e-4 and absf(lim.pre_gain_db - 2.0) < 1e-4, "HardLimiter at -1 dB, +2 dB pre-gain")
+	# v1.7: the music bus is refined: a presence dip for the SFX slot, a softer top, a small room
+	var mu := AudioServer.get_bus_index("Music")
+	var eq := AudioServer.get_bus_effect(mu, 0) as AudioEffectEQ6
+	var room := AudioServer.get_bus_effect(mu, 1) as AudioEffectReverb
+	runner.check(eq != null and absf(eq.get_band_gain_db(4) + 2.5) < 1e-3 and absf(eq.get_band_gain_db(5) + 2.0) < 1e-3, "music EQ: -2.5 dB at 3.2 kHz, -2 dB at 10 kHz")
+	runner.check(room != null and room.wet <= 0.15 and room.hipass >= 0.2, "music room: a light wet, the bass kept dry")
 	var o := AudioServer.get_bus_index("Outside")
 	var lpf := AudioServer.get_bus_effect(o, 0) as AudioEffectLowPassFilter
 	var pan := AudioServer.get_bus_effect(o, 1) as AudioEffectPanner
