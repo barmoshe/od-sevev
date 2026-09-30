@@ -1,449 +1,161 @@
 # binary files changed (not carried):
-diff --git a/art/od-sevev/palette-v3-map.json b/art/od-sevev/palette-v3-map.json
-deleted file mode 100644
-index 8690ab0..0000000
---- a/art/od-sevev/palette-v3-map.json
-+++ /dev/null
-@@ -1,111 +0,0 @@
--{
-- "_doc": "Palette v3 colour map for code (2D Artist, 2026-09-29; Bar: 'more in Israel's palette, with blue and white'). Every top-level '#old': '#new' pair re-values a CHROME colour hard-coded in game/scripts/** and game/web/shell.html from the v2 plum/violet family to the v3 navy / blue-and-white family (art/od-sevev/style-guide.md section 2.3). Apply with tools/apply_palette_map.py (dry run by default, --write to apply, --check for CI). The tool also rewrites GDScript float colours Color(r, g, b[, a]) within 1/255 of a mapped hex, keeping alpha. Keys starting with '_' are notes.",
-- "_roles": {
--  "#2a2340": "night -> v3 night #0f2350 (the shop pane fill, the diorama pad/clear colour, the shell page)",
--  "#140c24": "ui_scrim -> v3 ui_scrim #061029 (HUD Row A/B scrim, title scrim, share night, the gate and About pages)",
--  "#1e1636": "ui_panel -> v3 ui_panel #0a1a42 (dossier and chat thread backgrounds)",
--  "#2e2250": "ui_bubble -> v3 ui_bubble #112a64 (Dubi's bubble, the share mask)",
--  "#4a3c7c": "ui_bub_hi -> v3 #26499c (bevel light; listed for completeness)",
--  "#4a2552": "plum -> v3 velvet blue #16357a (project.godot boot splash; design/content.json Balfour skyBands already moved)",
--  "#7a3a7d": "plum_hi -> v3 #2a57a6",
--  "#2e2548": "the dossier divider -> v3 ui_rule #1c3876",
--  "#9e99ad": "UX's lavender party/idle grey -> v3 ui_mute #a3b3d3 (6.5:1 on ui_bubble; the picker's party line, the shop's idle tab label)",
--  "#d6d0e6": "lavender 'silver' on the ticker -> the kit's silver #d3d6df",
--  "#dbd6e6": "the shop's lavender name/owned tint Color(0.86, 0.84, 0.9) -> silver #d3d6df",
--  "#b8b3c7": "the shop's lavender line-2 tint Color(0.72, 0.7, 0.78) -> grey #a4a9b8 (5.8:1 on v3 ui_bubble)",
--  "#1b1426": "ink used as a SURFACE (ticker panel, bottom fill, flash screen frame, settings toggle track, gate button borders) and as the chat's ink on gold -> v3 ui_scrim #061029 (11.6:1 on gold). The kit's `ink` swatch itself is unchanged (the stages share it).",
--  "#8a8494": "the '?' placeholder card fill -> slate #7d8398",
--  "#c9c3d6": "shell: lavender secondary text -> silver #d3d6df (12.9:1 on v3 ui_scrim)",
--  "#0b0714": "shell: the desktop phone-frame screen well -> #030a1f (navy-black)",
--  "#3a2f55": "shell: the phone-frame bezel border -> v3 ui_rule #1c3876"
-- },
-- "_notMapped": {
--  "#f7f4ec / #fff8ec / #fff4e0": "the flag's white and the cream: unchanged (they ARE the v3 white)",
--  "#0038b8": "flag blue: unchanged",
--  "#ffd23a / #f5c542 / #fff1a6": "gold = money: unchanged (the buy pill stays gold)",
--  "#d02a36 / #f86b5d": "red = alerts (the flash badge, the court tint, ultimatums): unchanged",
--  "#8fc0ff / #9fc3ff": "sky (seats, links): unchanged",
--  "#a4a9b8 / #7d8398": "grey / slate: cool neutrals, already sit on navy",
--  "#5b3b9e": "stamp violet: rubber-stamp ink stays (bureaucracy, not chrome)",
--  "#1a1a1a / #f4f1e8": "receipt ink and paper: unchanged",
--  "#0b0a12 and Color(0.043, 0.039, 0.071, 0.6)": "outline / the modal scrim: neutral near-black, unchanged",
--  "#d9d9f2": "diorama.gd fork star/tower tint (not od-sevev chrome)",
--  "#5b3943 / #9b3943 / #e0e0e0": "shell: Godot's error notice (an alert)",
--  "Color(0.84, 0.8, 0.93)": "scroll thumbs = the kit's rim #d6ccec, unchanged (shared with the cast)",
--  "Color(0.78, 0.74, 0.62) / Color(0.78, 0.9, 0.62)": "the shop's warm can't-afford ink and green income line: not chrome",
--  "Color(0.45, 0.45, 0.5), Color(0.5, 0.5, 0.5), Color(0.6, 0.6, 0.6), Color(1, 1, 1, a)": "neutral modulates"
-- },
-- "_alsoElsewhere": "Not default targets of the tool (pass them as paths when wanted): game/project.godot (boot_splash/bg_color = plum, default_clear_color = night); game/tests/unit/test_review_engine.gd:60/297 and game/tests/dev/density_compare.gd:60 (test constants for #2e2250 / #140c24 / #2a2340; the contrast tests hold on v3 too); pipeline/od-sevev/build.py:140,195,202-204,462 (font-proof backgrounds); tools/web/mobile_web.mjs:156 (a comment).",
-- "_shellApplied": "Applied in this branch by the 2D Artist (tools/apply_palette_map.py --write game/web/shell.html): 19 literals at the v2 lines 15 (theme-color), 41, 46 (page), 146, 166, 171, 173, 174 x2 (the gate), 178, 186, 190, 191, 192 x2, 196, 197 (About), 203, 210, 211 (the desktop phone frame). Plus, by hand: the gate's and About's white-over-flag rule (.od-card::before) and the load bar's fill #0038b8 -> #3f74e6 (flag_hi, 3.5:1 on the night track; flag was 1.6:1).",
-- "_scriptsPending": "game/scripts/** is NOT applied here (the Game Developer's mobile-first rewrite is in flight): 28 literals on 26 lines in 13 files, listed per old colour in _sites (line numbers at this branch). After the mobile merge: python3 tools/apply_palette_map.py (review the dry run: line numbers move, the colours don't), then --write, then --check.",
-- "_siteCount": 28,
-- "_sites": {
--  "#140c24": [
--   "game/scripts/main.gd:313",
--   "game/scripts/main.gd:315",
--   "game/scripts/ui/title_view.gd:11",
--   "game/scripts/ui/title_view.gd:11",
--   "game/scripts/ui/views/view_share.gd:40"
--  ],
--  "#1b1426": [
--   "game/scripts/art/art.gd:156",
--   "game/scripts/main.gd:317",
--   "game/scripts/ui/overlays.gd:140",
--   "game/scripts/ui/ticker.gd:52",
--   "game/scripts/ui/views/view_chat.gd:58",
--   "game/scripts/ui/views/view_flash.gd:223"
--  ],
--  "#1e1636": [
--   "game/scripts/ui/views/view_chat.gd:55",
--   "game/scripts/ui/views/view_dossier.gd:38"
--  ],
--  "#2a2340": [
--   "game/scripts/main.gd:316",
--   "game/scripts/ui/diorama.gd:12",
--   "game/scripts/ui/diorama.gd:130",
--   "game/scripts/ui/diorama.gd:131",
--   "game/scripts/ui/diorama.gd:132"
--  ],
--  "#2e2250": [
--   "game/scripts/ui/toasts.gd:51",
--   "game/scripts/ui/views/view_share.gd:413"
--  ],
--  "#2e2548": [
--   "game/scripts/ui/views/view_dossier.gd:41"
--  ],
--  "#8a8494": [
--   "game/scripts/art/art.gd:157"
--  ],
--  "#9e99ad": [
--   "game/scripts/ui/shop.gd:185",
--   "game/scripts/ui/views/view_pick.gd:28"
--  ],
--  "#b8b3c7": [
--   "game/scripts/ui/shop.gd:546"
--  ],
--  "#d6d0e6": [
--   "game/scripts/ui/views/view_flash.gd:60"
--  ],
--  "#dbd6e6": [
--   "game/scripts/ui/shop.gd:545",
--   "game/scripts/ui/shop.gd:547"
--  ]
-- },
-- "#2a2340": "#0f2350",
-- "#140c24": "#061029",
-- "#1e1636": "#0a1a42",
-- "#2e2250": "#112a64",
-- "#4a3c7c": "#26499c",
-- "#4a2552": "#16357a",
-- "#7a3a7d": "#2a57a6",
-- "#2e2548": "#1c3876",
-- "#9e99ad": "#a3b3d3",
-- "#d6d0e6": "#d3d6df",
-- "#dbd6e6": "#d3d6df",
-- "#b8b3c7": "#a4a9b8",
-- "#1b1426": "#061029",
-- "#8a8494": "#7d8398",
-- "#c9c3d6": "#d3d6df",
-- "#0b0714": "#030a1f",
-- "#3a2f55": "#1c3876"
--}
-diff --git a/art/od-sevev/palette-v4-map.json b/art/od-sevev/palette-v4-map.json
-new file mode 100644
-index 0000000..5997bb4
---- /dev/null
-+++ b/art/od-sevev/palette-v4-map.json
-@@ -0,0 +1,138 @@
-+{
-+ "_doc": "Palette v4 colour map for code (2D Artist, 2026-09-30; Bar: 'more Israel theme and palette'). Supersedes palette-v3-map.json (v3 was never applied to the scripts): every pair maps the v2 colour the scripts hard-code TODAY straight to v4. The flag's layout on the main screen: the HUD band is flag blue, the card pane between the blue ticker and the blue tab bar is a WHITE field, the cards on it are flag blue with white text, navy stays only behind the stage and in wells. Text colours that sat on navy are lifted so they clear 4.5:1 on the flag blues. Apply with tools/apply_palette_map.py (dry run by default, --write, --check). 'perFile' overrides a pair for one file where one hex plays two roles.",
-+ "_roles": {
-+  "#2a2340": "night: the diorama's night pad and clear colour -> v3/v4 night #0f2350; in main.gd it is the CARD PANE -> the white field #f7f4ec (perFile)",
-+  "#140c24": "ui_scrim: the title/picker scrim -> v4 navy #061029 (the blue tiles pop on it); in main.gd the HUD Row A/B band -> flag #0038b8 (perFile); in view_share.gd the share card's night -> flag_dk #00237a (perFile, the blue envelope)",
-+  "#1b1426": "ink used as a surface: the flash screen frame, the settings toggle track, the '?' card, the chat's ink on gold -> navy #061029 (11.6:1 on gold); in main.gd the bottom fill under the tab bar and in ticker.gd the news strip's body -> ui_panel #072a7a (perFile)",
-+  "#1e1636": "ui_panel: the chat thread and dossier backgrounds -> v4 ui_panel #072a7a (white 11.8:1)",
-+  "#2e2250": "ui_bubble: Dubi's toast bubble, the share mask -> v4 ui_bubble #1045b5 (white 7.5:1)",
-+  "#4a3c7c": "ui_bub_hi -> v4 #4f82e8",
-+  "#4a2552": "plum -> v3/v4 #16357a (project.godot's boot splash)",
-+  "#7a3a7d": "plum_hi -> #2a57a6",
-+  "#2e2548": "the dossier divider -> v4 ui_rule #2a5cc4",
-+  "#9e99ad": "UX's lavender party / idle grey -> v4 ui_mute #c9d6f2 (5.7:1 on ui_bubble)",
-+  "#a4a9b8": "grey TEXT (names, sender lines, muted lines, the court prefix, locked labels) -> ui_mute #c9d6f2 (grey is 3.5:1 on the v4 blue; ui_mute 5.7 on ui_bubble, 8.9 on ui_panel, 8.0 on the court's teal)",
-+  "#b8b3c7": "the shop's lavender line-2 tint Color(0.72, 0.7, 0.78) -> ui_mute #c9d6f2",
-+  "#7d8398": "slate TEXT (timestamps, muted counts) -> v4 ui_dim #b4c3e8 (4.7:1 on ui_bubble; slate is 2.2:1)",
-+  "#f86b5d": "red_hi TEXT ('אולטימטום', the last seconds) -> v4 alert_lt #ffaa9f (4.5:1 on ui_bubble; red_hi is 2.9:1). It keeps its hazard band and clock.",
-+  "#d6d0e6": "lavender 'silver' on the ticker -> silver #d3d6df (6.9:1 on ui_panel)",
-+  "#dbd6e6": "the shop's lavender name/owned tint Color(0.86, 0.84, 0.9) -> silver #d3d6df (5.7:1 on ui_bubble)",
-+  "#8a8494": "the '?' placeholder card fill -> slate #7d8398"
-+ },
-+ "_notMapped": {
-+  "#f7f4ec / #fff8ec / #fff4e0": "the flag's white and the cream: they ARE v4's white",
-+  "#0038b8": "flag blue",
-+  "#ffd23a / #f5c542 / #fff1a6": "gold = money: the buy pill stays gold (5.1:1 on the v4 cards, 10.4 on ui_panel; the only warm hue)",
-+  "#d02a36": "red = alerts (the flash badge plate, the court tint)",
-+  "#8fc0ff / #9fc3ff": "sky (the seats pips, links): 4.4:1 on ui_bubble as a non-text mark, 6.9 on ui_panel",
-+  "#5b3b9e": "stamp violet on paper (5.6:1)",
-+  "#1a1a1a / #f4f1e8": "receipt",
-+  "#0b0a12, Color(0.043, 0.039, 0.071, 0.6)": "outline / the modal scrim",
-+  "#d9d9f2": "diorama.gd fork star/tower tint (not od-sevev chrome)",
-+  "Color(0.84, 0.8, 0.93)": "scroll thumbs = rim #d6ccec (4.7:1 on ui_panel as a mark)",
-+  "Color(0.78, 0.74, 0.62) / Color(0.78, 0.9, 0.62)": "the shop's warm can't-afford ink and green income line (5.1 / 6.0:1 on ui_bubble)",
-+  "neutral modulates": "Color(0.45, 0.45, 0.5), Color(0.5, 0.5, 0.5), Color(0.6, 0.6, 0.6), Color(1, 1, 1, a)"
-+ },
-+ "_engineNotes": "The white card pane (main.gd _fills.shop) is a field for CARDS: never draw text straight on it (white labels would vanish; if the mobile layout needs a pane label, give it a ui_panel plate or draw it in ui_bubble-on-white #1045b5, 7.5:1). The kit's new pieces for adoption (UX / engine): hemicycle_track + hemicycle_fill (the 120 seats, `seats` in RTL fill order, `goal` 61), booth_frame (the picker grid's frame), envelope_blue (confetti, share card).",
-+ "_alsoElsewhere": "Not default targets (pass them as paths when wanted): game/project.godot (boot_splash/bg_color = plum #4a2552 -> #16357a, default_clear_color = night -> #0f2350); game/tests/unit/test_review_engine.gd:60/297 and game/tests/dev/density_compare.gd:60 (test constants; the contrast tests hold on v4: white on #1045b5 is 7.5:1 >= 7); pipeline/od-sevev/build.py:140,195,202-204,462 (font-proof backgrounds); tools/web/mobile_web.mjs:156 (a comment).",
-+ "_shellApplied": "game/web/shell.html is v4 in this branch (by hand, v3 -> v4): the gate and About are white notices (navy text 14:1, flag-blue rules top and bottom, the flag-blue buttons with white text 8.5:1), the page behind is flag-blue, theme-color #0038b8, the desktop phone frame on navy with a white bezel rule.",
-+ "perFile": {
-+  "game/scripts/main.gd": {
-+   "#2a2340": "#f7f4ec",
-+   "#140c24": "#0038b8",
-+   "#1b1426": "#072a7a"
-+  },
-+  "game/scripts/ui/ticker.gd": {
-+   "#1b1426": "#072a7a"
-+  },
-+  "game/scripts/ui/views/view_share.gd": {
-+   "#140c24": "#00237a"
-+  }
-+ },
-+ "#2a2340": "#0f2350",
-+ "#140c24": "#061029",
-+ "#1b1426": "#061029",
-+ "#1e1636": "#072a7a",
-+ "#2e2250": "#1045b5",
-+ "#4a3c7c": "#4f82e8",
-+ "#4a2552": "#16357a",
-+ "#7a3a7d": "#2a57a6",
-+ "#2e2548": "#2a5cc4",
-+ "#9e99ad": "#c9d6f2",
-+ "#a4a9b8": "#c9d6f2",
-+ "#b8b3c7": "#c9d6f2",
-+ "#7d8398": "#b4c3e8",
-+ "#f86b5d": "#ffaa9f",
-+ "#d6d0e6": "#d3d6df",
-+ "#dbd6e6": "#d3d6df",
-+ "#8a8494": "#7d8398",
-+ "_sites": {
-+  "#140c24": [
-+   "game/scripts/main.gd:313",
-+   "game/scripts/main.gd:315",
-+   "game/scripts/ui/title_view.gd:11",
-+   "game/scripts/ui/title_view.gd:11",
-+   "game/scripts/ui/views/view_share.gd:40"
-+  ],
-+  "#1b1426": [
-+   "game/scripts/art/art.gd:156",
-+   "game/scripts/main.gd:317",
-+   "game/scripts/ui/overlays.gd:140",
-+   "game/scripts/ui/ticker.gd:52",
-+   "game/scripts/ui/views/view_chat.gd:58",
-+   "game/scripts/ui/views/view_flash.gd:223"
-+  ],
-+  "#1e1636": [
-+   "game/scripts/ui/views/view_chat.gd:55",
-+   "game/scripts/ui/views/view_dossier.gd:38"
-+  ],
-+  "#2a2340": [
-+   "game/scripts/main.gd:316",
-+   "game/scripts/ui/diorama.gd:12",
-+   "game/scripts/ui/diorama.gd:130",
-+   "game/scripts/ui/diorama.gd:131",
-+   "game/scripts/ui/diorama.gd:132"
-+  ],
-+  "#2e2250": [
-+   "game/scripts/ui/toasts.gd:51",
-+   "game/scripts/ui/views/view_share.gd:413"
-+  ],
-+  "#2e2548": [
-+   "game/scripts/ui/views/view_dossier.gd:41"
-+  ],
-+  "#7d8398": [
-+   "game/scripts/ui/views/view_chat.gd:57",
-+   "game/scripts/ui/views/view_dossier.gd:40"
-+  ],
-+  "#8a8494": [
-+   "game/scripts/art/art.gd:157"
-+  ],
-+  "#9e99ad": [
-+   "game/scripts/ui/shop.gd:185",
-+   "game/scripts/ui/views/view_pick.gd:28"
-+  ],
-+  "#a4a9b8": [
-+   "game/scripts/ui/toasts.gd:40",
-+   "game/scripts/ui/views/view_chat.gd:56",
-+   "game/scripts/ui/views/view_court.gd:441",
-+   "game/scripts/ui/views/view_dossier.gd:42",
-+   "game/scripts/ui/views/view_share.gd:41",
-+   "game/scripts/ui/views/view_sheet_card.gd:34"
-+  ],
-+  "#b8b3c7": [
-+   "game/scripts/ui/shop.gd:546"
-+  ],
-+  "#d6d0e6": [
-+   "game/scripts/ui/views/view_flash.gd:60"
-+  ],
-+  "#dbd6e6": [
-+   "game/scripts/ui/shop.gd:545",
-+   "game/scripts/ui/shop.gd:547"
-+  ],
-+  "#f86b5d": [
-+   "game/scripts/ui/views/view_chat.gd:59",
-+   "game/scripts/ui/views/view_sheet_card.gd:36"
-+  ]
-+ },
-+ "_siteCount": 38
-+}
-diff --git a/game/web/shell.html b/game/web/shell.html
-index efbf9b2..102e5c8 100644
---- a/game/web/shell.html
-+++ b/game/web/shell.html
-@@ -12,7 +12,7 @@
- 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
- 		<title>עוד סבב: הבחירות שלא נגמרות</title>
- 		<meta name="description" content="{{OG_DESCRIPTION}}">
--		<meta name="theme-color" content="#0f2350">
-+		<meta name="theme-color" content="#0038b8">
- 		<meta property="og:title" content="עוד סבב: הבחירות שלא נגמרות">
- 		<meta property="og:description" content="{{OG_DESCRIPTION}}">
- 		<meta property="og:url" content="__OD_SITE_URL__">
-@@ -38,12 +38,12 @@ html, body, #canvas {
- html, body {
- 	width: 100%;
- 	height: 100%;
--	background-color: #0f2350;
-+	background-color: #0038b8;
- }
+diff --git a/art/od-sevev/style-guide.md b/art/od-sevev/style-guide.md
+index 8e45666..ac39d01 100644
+--- a/art/od-sevev/style-guide.md
++++ b/art/od-sevev/style-guide.md
+@@ -1,7 +1,7 @@
+-# "עוד סבב": style guide v3 (the approved detailed look + the UI kit, in Israel's blue and white)
++# "עוד סבב": style guide v4 (the approved detailed look + the UI kit, in Israel's blue and white, the flag's layout)
  
- body {
- 	color: white;
--	background-color: #0f2350;
-+	background-color: #0038b8;
- 	overflow: hidden;
- 	overscroll-behavior: none;
- 	touch-action: none;
-@@ -143,8 +143,8 @@ body {
- 	position: fixed;
- 	inset: 0;
- 	z-index: 20;
--	background: #061029;
--	color: #f7f4ec;
-+	background: #0038b8;
-+	color: #0f2350;
- 	display: flex;
- 	flex-direction: column;
- 	align-items: center;
-@@ -159,60 +159,64 @@ body {
- 	overflow-y: auto;
- }
- #od-gate.od-out { opacity: 0; pointer-events: none; }
--#od-gate .od-card { width: 100%; max-width: 358px; }
--/* palette v3 (2D Artist, Bar: "Israel's palette, blue and white"): the chrome's national frame, a white rule over a
--   flag-blue rule, heads the gate and About like an official notice. Colours only: never a flag, a star or a party mark. */
--#od-gate .od-card::before, #od-about .od-card::before { content: ""; display: block; height: 3px; background: #f7f4ec;
--	border-bottom: 3px solid #0038b8; margin: 0 0 18px; }
-+#od-gate .od-card { width: 100%; max-width: 358px; background: #f7f4ec; color: #0f2350; padding: 0 18px 18px;
-+	box-sizing: border-box; border-radius: 4px; box-shadow: 0 0 0 3px #061029; }
-+/* palette v4 (2D Artist; Bar: "more Israel theme and palette"): the gate and About are white official notices on the
-+   flag blue, ruled top and bottom in flag blue like a printed notice. Colours and rules only: never a flag object, a star,
-+   an emblem or a party mark, and no institution's name. */
-+#od-gate .od-card::before, #od-about .od-card::before { content: ""; display: block; height: 6px; background: #0038b8;
-+	border-bottom: 3px solid #f7f4ec; box-shadow: 0 3px 0 0 #0038b8; margin: 0 -18px 22px; }
-+#od-gate .od-card::after, #od-about .od-card::after { content: ""; display: block; height: 3px; background: #0038b8;
-+	margin: 18px -18px 0; box-shadow: 0 6px 0 0 #0038b8; }
- #od-gate img.od-wordmark { display: block; margin: 0 auto 20px; width: 286px; height: 58px; image-rendering: pixelated; }
- #od-gate h1 { font-size: 22px; margin: 0 0 12px; text-align: center; }
- #od-gate p { margin: 0 0 10px; }
--#od-gate .od-by { font-size: 14px; color: #d3d6df; margin-top: 14px; }
--#od-gate a { color: #f7f4ec; }
-+#od-gate .od-by { font-size: 14px; color: #34466e; margin-top: 14px; }
-+#od-gate a { color: #0038b8; }
- #od-gate .od-buttons { display: flex; gap: 12px; margin-top: 22px; direction: rtl; }
- #od-gate .od-btn { flex: 1; display: flex; flex-direction: column; align-items: stretch; }
- #od-gate button { min-height: 52px; width: 100%; font: inherit; font-size: 18px; font-weight: 600; color: #f7f4ec;
- 	background: #0038b8; border: 3px solid #061029; border-radius: 6px; cursor: pointer; }
--#od-gate button:focus-visible { outline: 3px solid #f7f4ec; outline-offset: 2px; }
--#od-gate .od-cap { font-size: 14px; color: #d3d6df; text-align: center; margin-top: 4px; min-height: 21px; }
-+#od-gate button:focus-visible { outline: 3px solid #0f2350; outline-offset: 2px; }
-+#od-gate .od-cap { font-size: 14px; color: #34466e; text-align: center; margin-top: 4px; min-height: 21px; }
- #od-gate .od-bar { height: 52px; border: 3px solid #061029; border-radius: 6px; background: #0f2350; position: relative; overflow: hidden; }
- #od-gate .od-bar i { position: absolute; top: 0; bottom: 0; right: 0; width: 0; background: #3f74e6; transition: width 200ms linear; }   /* v3 flag_hi: 3.5:1 on the night track */
- #od-gate .od-line { text-align: center; margin-top: 10px; min-height: 24px; }
- #od-gate .od-splash { text-align: center; }
--#od-about { position: fixed; inset: 0; z-index: 30; background: #061029; color: #f7f4ec; overflow-y: auto;
-+#od-about { position: fixed; inset: 0; z-index: 30; background: #f7f4ec; color: #0f2350; overflow-y: auto;
- 	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.5;
- 	padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 32px; box-sizing: border-box; display: none; }
--#od-about .od-card { max-width: 520px; margin: 0 auto; }
-+#od-about .od-card { max-width: 520px; margin: 0 auto; padding: 0 18px; box-sizing: border-box; }
- #od-about h1 { font-size: 22px; margin: 0 0 12px; }
- #od-about h2 { font-size: 18px; margin: 20px 0 8px; }
- #od-about ul { padding: 0 20px 0 0; margin: 0; text-align: right; }
- #od-about li { margin-bottom: 8px; }
--#od-about .od-src { font-size: 14px; color: #d3d6df; }
--#od-about a, #od-about a:visited { color: #9fc3ff; text-decoration: underline; }
-+#od-about .od-src { font-size: 14px; color: #34466e; }
-+#od-about a, #od-about a:visited { color: #0038b8; text-decoration: underline; }
- #od-about .od-invite { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 4px; align-items: center; }
- #od-about .od-invite a.od-btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; color: #f7f4ec;
--	background: #0f2350; border: 3px solid #f7f4ec; border-radius: 6px; text-decoration: none; box-sizing: border-box; }
--#od-about .od-invite-status { min-height: 24px; color: #d3d6df; font-size: 14px; }
--#od-about button { min-height: 48px; padding: 0 20px; font: inherit; color: #f7f4ec; background: #0f2350; border: 3px solid #f7f4ec; border-radius: 6px; cursor: pointer; }
-+	background: #0038b8; border: 3px solid #061029; border-radius: 6px; text-decoration: none; box-sizing: border-box; }
-+#od-about .od-invite-status { min-height: 24px; color: #34466e; font-size: 14px; }
-+#od-about button { min-height: 48px; padding: 0 20px; font: inherit; color: #f7f4ec; background: #0038b8; border: 3px solid #061029; border-radius: 6px; cursor: pointer; }
- /* ABOUT_BACK sticks to the top-left of the page (ux/rtl-map.md §9, review R2): the left end of the
-    RTL row, 48 CSS tall, over a strip of the page colour so the list scrolls under it */
- #od-about .od-back { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 1; display: flex;
--	justify-content: flex-end; padding: 8px 0; margin: 0 0 4px; background: #061029;
--	box-shadow: 0 calc(-16px - env(safe-area-inset-top, 0px)) 0 0 #061029; }   /* also covers the page padding above it */
-+	justify-content: flex-end; padding: 8px 0; margin: 0 0 4px; background: #f7f4ec;
-+	box-shadow: 0 calc(-16px - env(safe-area-inset-top, 0px)) 0 0 #f7f4ec; }   /* also covers the page padding above it */
+ **Artifact:** `style-guide` (+ `ui-artwork`, `wordmark`, `key-art`). **Owner:** 2D Artist.
+-**Status:** v3 (2026-09-29, palette only: Bar, "the design should be more in Israel's palette, with blue and white"; §2.3) on v2, which supersedes the creative-pack v1 where they differ. Bar approved the look (the cast in
++**Status:** v4 (2026-09-30, Bar: "more Israel theme and palette"; §2.4) on v3 (2026-09-29, palette only: Bar, "the design should be more in Israel's palette, with blue and white"; §2.3) on v2, which supersedes the creative-pack v1 where they differ. Bar approved the look (the cast in
+ `creative-pack/od-sevev/art/showcase/out/`); v2 codifies it and adds the UI.
+ **Consumers:** Technical Artist, Game Developer, UX Designer, Animator, Audio Director (key-art pairing).
+ **v1:** `gamestudio/output/artifacts/creative-pack/od-sevev/art/style-guide.md`. Sections v2 does not
+@@ -17,8 +17,9 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
+ | Wordmark (rim, no rim, mono, small) | `out/ui/key/wordmark*.png` |
+ | App icon 1024 + 60 | `out/key/icon-1024.png`, `out/key/icon-60.png` (master `icon-128-art.png` = 64 art px at d 2) |
+ | OG image 1200x630 | `out/key/og-1200x630.jpg` (203 KB at q 82 4:4:4 since the lineup, WhatsApp needs ≤ 300 KB) + `.png`; shipped as `game/web/og.jpg` |
+-| Graphic-tier palette | `out/palette-v3.gpl`, `out/palette-v3.png`, source `src/palette.py` |
+-| Colour map for code (v2 → v3) | `palette-v3-map.json`, applied by `tools/apply_palette_map.py` (§2.3) |
++| Graphic-tier palette | `out/palette-v4.gpl`, `out/palette-v4.png`, source `src/palette.py` |
++| Colour map for code (v2 → v4) | `palette-v4-map.json` (with `perFile` roles), applied by `tools/apply_palette_map.py` (§2.4) |
++| Election material culture (wave 8) | `out/ui/meters/hemicycle_{track,fill}.png`, `out/ui/picker/booth_frame.png`, `out/ui/props/envelope_blue.png` (§2.4) |
+ | Proofs | `proofs/` (see §15) |
  
- /* od-sevev desktop phone frame (ux/first-minute.md §1.3, ux/rtl-map.md §1): on a wide window with a
-    mouse the canvas is a 390-CSS phone column, centred, in a bezel. odFit() below places both; the
-    bezel is decoration only (no input, no text). */
- html.od-framed, html.od-framed body {
--	background-color: #061029;
-+	background-color: #0038b8;
- }
- #od-phone {
- 	display: none;
- 	position: fixed;
- 	box-sizing: border-box;
- 	border-radius: 40px;
--	background: #030a1f;
--	border: 3px solid #1c3876;
-+	background: #061029;
-+	border: 3px solid #f7f4ec;
- 	box-shadow: 0 24px 72px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #000;
- 	pointer-events: none;
- }
-diff --git a/tools/apply_palette_map.py b/tools/apply_palette_map.py
-index 395c6fb..7f1a912 100644
---- a/tools/apply_palette_map.py
-+++ b/tools/apply_palette_map.py
-@@ -1,8 +1,10 @@
- #!/usr/bin/env python3
- """Apply a palette colour map (old hex -> new hex) to hard-coded colours in code.
+ ---
+@@ -44,7 +45,7 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
+ | What | The Magician, partners, opposition, Dubi, critters, photobombers | UI kit, wordmark, icons, the Suitcase, stamps, stages, props with text |
+ | Made by | ChatGPT reference → `showcase/src/rig.py` render-down (orchestrator + Bar) | Hand-authored char-grids and primitives in `art/od-sevev/src/` |
+ | Height | 96 art px (the partner idle); avatars 32x32 | Per piece, on the 1x grid |
+-| Palette | **One locked palette per character**, ≤ 48 colours (measured 44-57 incl. props), locked from the rest pose so frames never flicker | The **64-swatch graphic palette** (§2); nothing off-list |
++| Palette | **One locked palette per character**, ≤ 48 colours (measured 44-57 incl. props), locked from the rest pose so frames never flicker | The **66-swatch graphic palette** (§2); nothing off-list |
+ | Rendering | Dense painterly shading from the ref, no dithering added | 3-band cel (light / base / shadow) + an extra glint or deep band where it earns it (§4) |
+ | Outline | Near-black, from the ref (measured `#000000`–`#0e0f13`) | `outline` `#0b0a12`, 1 art px |
+ | Rim | Pale `#d6ccec` on the Magician and his props | `rim` `#d6ccec` on stage-touchables (§3) |
+@@ -57,9 +58,9 @@ restate stay in force from there (lineage §1, caricature grid §7, era moods §
  
--The map is art/od-sevev/palette-v3-map.json (the 2D Artist's palette v3, Bar's "Israel's palette, blue
--and white"): top-level "#rrggbb": "#rrggbb" pairs; keys starting with "_" are notes and are ignored.
-+The map is art/od-sevev/palette-v4-map.json (the 2D Artist's palette v4, Bar's "more Israel theme and
-+palette"): top-level "#rrggbb": "#rrggbb" pairs; "perFile": {"<repo path>": {"#old": "#new"}} overrides a pair
-+for one file (one hex, two roles: #2a2340 is the card pane in main.gd but the night pad in diorama.gd);
-+other keys starting with "_" are notes and are ignored.
+ ## 2. Palette (graphic tier)
  
- It rewrites three literal forms, keeping everything else on the line:
-   - "#rrggbb" and "#rrggbbaa" (GDScript strings, CSS): the rgb part is replaced, a trailing alpha kept;
-@@ -29,7 +31,7 @@ import re
- import sys
+-- **64 swatches in 19 families** = v1's 45 + 17 v2 additions + 2 v3 additions (`ui_mute`, `ui_rule`); v3 re-values 7
+-  ids in place (§2.3). Well inside the ≤ 24-family cap.
+-- Source: `src/palette.py`; export `out/palette-v3.gpl` / `.png`. v1's table (§2 there) still describes
++- **66 swatches in 19 families** = v1's 45 + 17 v2 additions + 2 v3 additions (`ui_mute`, `ui_rule`) + 2 v4 additions
++  (`ui_dim`, `alert_lt`); v3 re-values 7 ids in place (§2.3), v4 re-values 6 more (§2.4). Well inside the ≤ 24-family cap.
++- Source: `src/palette.py`; export `out/palette-v4.gpl` / `.png`. v1's table (§2 there) still describes
+   the first 45.
  
- ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
--DEFAULT_MAP = os.path.join(ROOT, "art", "od-sevev", "palette-v3-map.json")
-+DEFAULT_MAP = os.path.join(ROOT, "art", "od-sevev", "palette-v4-map.json")
- DEFAULT_TARGETS = ["game/scripts", "game/web/shell.html"]
- EXTS = (".gd", ".html", ".css", ".js", ".tscn", ".tres", ".godot")
+ ### 2.1 v2 additions
+@@ -131,7 +132,7 @@ The fork's cream `ui_card` modal (settings) becomes the "white panel": its lette
+ lavender → pale blue and pink → sky / flag_dk (`art/sprites.ts` → `game/data/art.json`), so it reads as a white notice
+ with a blue frame and blue section heads.
  
-@@ -42,12 +44,19 @@ def load_map(path):
-     raw = json.load(open(path))
-     m = {}
-     for k, v in raw.items():
--        if k.startswith("_"):
-+        if k.startswith("_") or k == "perFile":
-             continue
-         if not (re.fullmatch(r"#[0-9a-fA-F]{6}", k) and re.fullmatch(r"#[0-9a-fA-F]{6}", v)):
-             raise SystemExit(f"bad map entry {k!r}: {v!r} (want '#rrggbb': '#rrggbb')")
-         m[k.lower()] = v.lower()
--    return raw, m
-+    per = {}
-+    for f, pairs in raw.get("perFile", {}).items():
-+        per[f] = dict(m)
-+        for k, v in pairs.items():
-+            if not (re.fullmatch(r"#[0-9a-fA-F]{6}", k) and re.fullmatch(r"#[0-9a-fA-F]{6}", v)):
-+                raise SystemExit(f"bad perFile entry {f}: {k!r}: {v!r}")
-+            per[f][k.lower()] = v.lower()
-+    return raw, m, per
+-**Code:** the colours the scripts hard-code are mapped in `palette-v3-map.json` (17 pairs, roles, the colours left alone,
++**Code (superseded by §2.4's `palette-v4-map.json`; v3's map was never applied):** the colours the scripts hard-code were mapped in `palette-v3-map.json` (17 pairs, roles, the colours left alone,
+ the file:line sites); `tools/apply_palette_map.py` applies it (dry run by default). The shell is applied; `game/scripts/**`
+ is applied by the orchestrator after the mobile-first merge.
  
+@@ -150,6 +151,93 @@ is applied by the orchestrator after the mobile-first merge.
+   (the axis both keep), gold stays yellow, red goes olive but keeps its hatch, clock, badge number and word; the
+   flag-blue title band vs the navy body differs by the white stripe as well as by value (1.8:1).
  
- def rgb(h):
-@@ -135,11 +144,12 @@ def main():
-     ap.add_argument("--scan", action="store_true", help="also list unmapped colour literals")
-     ap.add_argument("--refresh-notes", action="store_true", help="rewrite the map's _sites note")
-     a = ap.parse_args()
--    raw, m = load_map(a.map)
-+    raw, m_all, per = load_map(a.map)
-     files = targets(a.paths)
-     total, per_file, sites, others = 0, {}, {}, []
-     for f in files:
-         rel = os.path.relpath(f, ROOT)
-+        m = per.get(rel, m_all)
-         lines = open(f, encoding="utf-8").read().split("\n")
-         changed = False
-         for i, line in enumerate(lines):
++### 2.4 v4: the flag's layout and Israeli election material culture (2026-09-30)
++
++**Direction (Bar, on the v3 before/after):** "More Israel theme and palette". v3 read as "navy instead of plum". v4 makes
++it unmistakably Israeli in two ways: the flag's *layout* (much more white and flag blue, navy only as the deepest base),
++and the material culture of an Israeli election day as the UI's language (the ballot slip, the blue envelope, the
++cardboard booth, the 120-seat hemicycle, the news strip, the printed notice). Stones and light are Jerusalem's.
++
++**The main screen as the flag's layout (kit + `palette-v4-map.json`):**
++
++| Band (top to bottom) | v4 | Why |
++|---|---|---|
++| HUD (Row A/B) | **flag blue** band (`#0038b8`, main.gd per-file) | The flag's top stripe. Gold bank 6.4:1, green income 5.7:1, white labels 8.5:1, the navy seats well sunk in it |
++| Stage | the approved art (navy night at Balfour) on **Jerusalem stone** lanes and plaza | Navy only behind the stage; the stage stays the star |
++| Ticker | the **news strip**: `ui_panel` deep flag blue, a white rule over a flag rule | An Israeli channel's lower third; red only on the "מבזק" plate |
++| Card pane | the **white field** (`#f7f4ec`, main.gd per-file) | The flag's white; the cards sit on it like blue envelopes (edge 7.5:1) |
++| Cards | **flag blue** (`ui_bubble` `#1045b5`), white text 7.5:1, gold pills 5.1:1, the icon on a **white ballot slip** (`card_plate`) | White text on blue: no per-view text flip needed |
++| Tab bar | deep flag blue with the white-over-flag stripe | The flag's bottom stripe |
++
++**Re-valued (ids stable):**
++
++| Swatch | v2 | v3 | v4 | Role in v4 |
++|---|---|---|---|---|
++| `ui_panel` | `#1e1636` | `#0a1a42` | `#072a7a` | Deep flag blue: panels, the chat thread, the tab bar, the sheet body (the blue envelope); white 11.8:1 |
++| `ui_bubble` | `#2e2250` | `#112a64` | `#1045b5` | Flag blue, raised: cards, picker tiles, incoming bubbles, secondary buttons; white 7.5:1 |
++| `ui_bub_hi` | `#4a3c7c` | `#26499c` | `#4f82e8` | The raised bevel light |
++| `ui_mute` | (UX `#9e99ad`) | `#a3b3d3` | `#c9d6f2` | Secondary text on blue (party lines, names, idle tabs): 5.7:1 on `ui_bubble`, 8.9 on `ui_panel` |
++| `ui_rule` | (`#2e2548`) | `#1c3876` | `#2a5cc4` | Dividers on the blue panels |
++| `stamp_lt` | `#b9a0ef` | = | `#d8ccff` | The stamp on blue surfaces: 5.5:1 on `ui_bubble` |
++| `ui_dim` (new) | | | `#b4c3e8` | Tertiary text on blue (the code's slate text): 4.7:1 on `ui_bubble` |
++| `alert_lt` (new) | | | `#ffaa9f` | Alert TEXT on blue ("אולטימטום", the last seconds): 4.5:1 on `ui_bubble` (`red_hi` is 2.9:1 there); always with its hazard band and clock |
++
++Unchanged from v3: `ui_scrim` `#061029` and `night` `#0f2350` (the navy base: wells, the pinned bar, the composer, behind
++the stage, the picker's scrim), `plum` / `plum_hi` (the velvet-blue curtain, Balfour's sky), and everything v3 kept (flag,
++flag_hi, flag_dk, sky, white, cream, gold, red, ink, outline, rim, stamp).
++
++**Drawn (the material culture):**
++- **The ballot slip (פתק):** `card_plate` is a blank white slip with a fold (the icon lies on it; outline vs white 17.4:1);
++  `pick_random` was already a folded slip. Blank or "?" only: never a real party's ballot letters (מחל, פה, …).
++- **The blue envelope (המעטפה הכחולה):** `sheet_modal`'s title band is the envelope's flap, pointed 2 rows deeper at
++  the centre with the white stripe following it; the body is the v4 `ui_panel` blue. `envelope_blue` (14x10, new) is the
++  envelope as a prop; the OG's confetti mixes blank envelopes into the white slips.
++- **The cardboard booth (קלפי):** `booth_frame` (40x40, new, 9-slice [6, 10, 6, 4]) is the picker grid's frame: off-white
++  cardboard, the two side wings folded back, a blank flag-blue header strip. For UX / the engine to adopt.
++- **The 120-seat hemicycle:** `hemicycle_track` / `hemicycle_fill` (72x38, new): a white half-disc plate, 120 seats on six
++  rows, the majority tick at the top centre; `seats` lists the seat rects in RTL fill order, `goal` 61. Taken seats are
++  flag blue (8.5:1 on the plate), empty ones silver (6.4:1 vs taken, and a different corner). A new widget beside the
++  horizontal bar (which stays); UX decides where it lives (Row B, the ≥ 61 moment, the result card).
++- **The news strip:** the ticker (above). **The printed notice:** the settings card (the fork's cream card with the
++  v3 letters: flag-blue heads, a blue frame) and, in the HTML shell, the gate and About as white notices ruled in
++  flag blue on the flag-blue page (navy text 13.9:1). The look of a notice, never an institution's name or emblem.
++- **The primary button** gets a white light edge (it would otherwise merge with the blue cards, 1.1:1); the round
++  close ✕ has a deep-blue face (white ✕ 11.8:1).
++
++**Place:** the lanes (`lane_<era>`) and plazas (`plaza_<era>`) are **warm Jerusalem limestone**: `stone_sh` slabs with
++pale mortar in Balfour's lamp light, sunlit `stone` at the Knesset, polished `paper` limestone tiles in the courthouse;
++Washington is not Jerusalem, so it gets pale concrete panels. The Suitcase keeps its edge by its outline (13.3:1 on
++stone) and maroon body (≥ 3.6:1), not its rim (the lane assertion changed accordingly). The OG stands the lineup on a
++stone floor with a flag-blue-over-white apron trim and a white-over-flag rule under the valance; the icon's disc is flag
++blue in a white ring. The wings keep their olive tree (Knesset); the stages keep their own light (Balfour's warm lamps,
++the Knesset's sun on stone): v4 repaints no stage and the cast is untouched (full render: 0 drift).
++
++**Chosen with evidence (and the rejected alternatives):**
++- **Light cards (white slips with navy text) — rejected**, tested as a simulation (`shots/palette-v4/main-before-after.png`,
++  4th panel): text reads either way (navy on white 13.9, white on blue 7.5), but (1) the gold buy pill on a white card
++  drops to 1.48:1 and keeps only its outline, so the one warm call to action stops popping; (2) the white slip plate
++  merges into a white card; (3) the code draws the card and chat labels white (`Art.col("w")`, per-view constants), so
++  light cards need a per-view text flip in the Game Developer's views, not a colour map. **Chosen:** blue cards on a
++  white field (the same flag layout, inverted where the text is).
++- **"Blue/white on navy" (v3) — rejected:** it read as "navy instead of plum" (Bar).
++- **A white HUD band — rejected:** the gold bank is 1.5:1 on white; the HUD is the flag's top blue stripe instead.
++- **Blue buy pills / a ballot-slip pill — rejected:** a flag pill is 1.1:1 on the v4 cards; a white slip pill loses the
++  warm CTA. Gold stays (5.1:1 on the card, the only warm hue). The ballot slip carries the icon instead.
++- **The whole desktop page as the flag (white field, two stripes, the phone in the middle) — rejected:** it would put
++  the game where the Star of David sits. The page is plain flag blue; the stripes are on the notices and the chrome.
++
++**Rules (v4, extending §2.3):**
++- **Kit and code map land together.** Without the map, the scripts' text colours sit on the v4 blues at 2.2-3.5:1 (the
++  party line `#9e99ad` 3.0, grey 3.5, slate 2.2, red_hi 2.9). Merge the v4 kit only with `tools/apply_palette_map.py
++  --write` in the same step (after the mobile-first merge).
++- **Never text straight on the white pane**; if a pane label is needed, give it a `ui_panel` plate or draw it in
++  `ui_bubble` blue (7.5:1).
++- **No blue text on navy, no gold text on white.**
++- **Party neutrality (unchanged, sharpened):** no party ballot letters, no party logo shapes or wordmarks, no Likud-blue
++  logo mimicry, no "כחול לבן" wordmark; no state emblem or menorah; no star of David or flag as an object, least of all on
++  a character. The flag's colours and stripes are the frame; the booth, the envelope, the slip and the hemicycle are
++  blank civic objects. No October 7 imagery (do/don't 13).
++
+ ## 3. Outline and rim (v2)
+ 
+ - **Outline:** exactly 1 art px of `outline` around every graphic-tier silhouette. UI pieces draw it
+@@ -470,6 +558,8 @@ hierarchy.
+ | F11 | UX / engine | v3 primary (`flag`) and secondary (`ui_bubble`) buttons differ by value 1.47:1 (v2 had a hue split too); shape, the `flag_hi` bevel (3.2:1 vs `ui_bubble`) and the white label carry it | If a review finds them confusable, give `button_secondary` a 1 px `white` inner ring (a kit-only redraw, same ids). |
+ | F12 | Views (cast) | The chat avatars' blue react ring (`flag_hi`) now sits on navy chrome (3.9:1 vs `ui_panel`, was a hue contrast on violet) | Holds ≥ 3:1; if it reads as chrome, the TA can move the blue ring to `sky` in `showcase/src/build.py` (a cast-ring recolour, not a re-render). |
+ | F13 | Key art | The OG and icon curtain (`plum`, now velvet blue) vs the cast's navy suits is 1.15:1 by value (v2 was 1.06:1, carried by hue) | The outlines, white shirts, lit faces and the spot pool carry every figure at 1200 and at the 630 square; if a thumbnail reads muddy, lift the curtain body to `plum_hi` (a keyart.py change, no cast change). |
++| F14 | Orchestrator / engine | **v4 sequencing:** the v4 kit without the code map leaves script text at 2.2-3.5:1 on the new blues | Apply `palette-v4-map.json` in the same merge as the kit (after the mobile-first merge); `--check` must report 0 before shipping. |
++| F15 | UX / engine | New v4 pieces need a home: `hemicycle_*` (seats), `booth_frame` (picker), `envelope_blue` | UX places them; the kit is ready (manifest data: `seats`, `goal`, the booth's 9-slice and content box). |
+ | F9 | Views / UX | **Closed (wave 6 polish): `sheet_modal` carries the 1 px `suit_hi` edge outside its outline (38x38, margins +1).** On the outline scrim a dark kit sheet's edge nearly vanishes over a dark stage (`ui_panel` 1.1:1, `ui_bubble` 1.4:1, the `ui_bub_hi` bevel 2.1:1 vs `#0f0b19`); the cream fork cards are unaffected (17.8:1) | When the modals move to `sheet_modal` (UX R7/R8), give the sheet's top and side edges a 1 px `suit_hi` line **outside** the outline (3.6:1 on the scrimmed dark; `ui_bub_hi` would be only 2.1:1, `slate` 5.2:1 reads as a grey frame). The modal then reads as lifted, not cut out. I'll redraw `sheet_modal` / `sheet_plain` that way when the views developer adopts them for the modals; the scrim stays the outline. Not a WCAG failure (a dialog's region is not a control), a figure/ground one. |
+ 
+ ## 17. Wave 2 (the flat UI the TA found missing + the Animator's art needs)
