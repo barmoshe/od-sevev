@@ -281,12 +281,37 @@ Replaces rtl-map §5.2 (the crawl). The Animator's D16 cadence is retired with i
 - **Lint (`content-lint.mjs`, Game Designer):** every ticker line's strong units ≤ 280 px at ×4 (replaces "every ticker word ≤ 280").
 - **Not in scope:** Hebrew prefixes (ב־, ל־, מ־) are already one word; the maqaf keeps its words together in ICU.
 
+#### 5.2.2 The strip is never empty (D19, manual test pass 2026-09-30)
+
+**Seen:** on Bar's iPhone and in the headless card-1 shot the row showed the "מבזק" plate, Dubi and the date over an empty clip. **Cause (engine):** when a headline's last page had dwelt and nothing was queued, the pager rolled an *empty* page node in; nothing refills it for most of the first minute, because `ticker.ambientFrom: "C1"` holds every ambient line until the group opens (and the ambient interval is 10 s after that). The FTUE lines H1-H3 each played once and left a blank strip behind them.
+
+| Case (nothing queued) | The strip |
+|---|---|
+| Before the first headline (the row appears at H1) | The **standing line** `TICKER_IDLE` "מהדורה מיוחדת" (an election-night channel's lower third) |
+| A whole one-page headline (flavor, milestone, ambient) has dwelt | It **holds**, still, until the next item rolls in over it, for at most `HOLD_MAX_MS` 15 s; then the standing line rolls in |
+| A multi-page headline has dwelt | The standing line rolls in (its last page alone is a fragment: "הרע.") |
+| An FTUE line has dwelt | The standing line rolls in (an instruction goes stale once it is done) |
+
+- **Look:** one line, centred in the row at `ONE_LINE_Y`, right-aligned at the clip edge like a page, in **ui_mute** `#c9d6f2` (8.9:1 on ui_panel): a step under the headline's white, so a new headline still reads as news. The same roll (or the reduced-motion fade) as a page change; a roll still running is settled first, so condition (1) of §5.2 holds.
+- **Budget:** `ticker.idle` = 280 px at ×4, one line (the press-day clip, the narrowest). "מהדורה מיוחדת" is 264. Overflow strategy: none needed (fixed string, lint-checked); a longer future line would fail `gen_strings.py`.
+- **HUD taxonomy (hud-design DOG 1, 3, 5, 7):** the standing line is `peripheral`, non-diegetic, `event-driven` (it only enters when a headline leaves); it does not fade to nothing because an empty strip reads as broken (the defect itself), so its attention demotion is the muted tone and the absence of motion while it stands. Headlines keep their tiers.
+- **Checks:** `test_ticker_idle.gd` samples every 16-ms frame of each path (boot, hold, hold-out, roll-over, multi-page, FTUE, reduced motion, court-day clip) and finds no blank frame. `window.odDev.ticker = {visible, text, idle, held}`; `mobile_web.mjs` asserts a non-empty strip at card 1, bought and C1.
+
 ### 5.3 Tab bar
 
 - The bar is pinned to the safe bottom (§3.1), with 4 fluid slots (§4.1).
 - Per slot: the icon 60×60 centred at `slot_w/2 − 30`, y 8; the label centred at y 64 (box `slot_w − 16`); the badge at the icon's top-left (RTL trailing), (icon.x − 16, 0).
 - The hit is the whole slot, `slot_w × 104` (180-215 × 104 logical = 90-108 × 52 CSS).
 - Slot order, reveal and badges are unchanged (ftue).
+
+#### 5.3.1 Four slots, always (D21)
+
+**Seen:** at C1 the bar showed two tabs and two empty slots, still framed by the kit's three baked dividers, so the bar read as broken. The plate's dividers also stretched with the 9-slice (1 art px became 1.08 at cw 780).
+
+- **The plate** is drawn from the kit `tabbar`'s divider-free first column (`region_rect` 0-39 × 26: the white-over-flag rules, no divider).
+- **Dividers:** the engine draws one per slot boundary (x = cw − i·slot_w, i 1-3), 4 × 64 logical (the kit's rows 5-20), in the kit's divider colour, always whole art px.
+- **A slot not yet revealed is a locked slot**, not an empty one: its own tab icon as a silhouette in ui_bubble `#1045b5` on ui_panel (1.6:1, deliberately quiet: WCAG 1.4.11 exempts inactive components) and the kit padlock `chat_icon_lock` (×4, dimmed toward ui_mute) where the label would sit. **No label**: the tab's name stays its reveal (ftue K2/K3). It is **not a target**: the bar swallows the press, nothing opens, no sound. The state is carried twice (silhouette + padlock), never by colour alone.
+- **IA (information-architecture DOG 1, 3, 8):** the pattern stays hub-and-spoke with four fixed spokes; a locked slot has no edge, so it adds no node, no dead end and no modal; the player's location is still the one lit slot.
 
 ### 5.4 T1 sources and T2 spins (the list)
 
@@ -298,10 +323,27 @@ Replaces rtl-map §5.2 (the crawl). The Animator's D16 cadence is retired with i
     - **no price, no pill, not a target**.
   - The first locked source keeps today's rule: it is a real row with its price visible (`producerReveal.showNextAsSilhouette`).
   - The silhouettes stop at the content's last source: 8 at launch. That is enough on every phone of the matrix (the most rows are 7 + 24 px before C1 at 430).
+  - **B9 (manual test pass 2026-09-30): the rows are not identical.** Five or six pale "מקור עלום" slips read as filler. Teaser j (0-based, after the priced locked row when there is one) draws at opacity `max(0.2, 0.62^j)`: the first is the whole pale slip and carries the only text, `ROW_TEASER_HINT` "עוד מקורות ייפתחו" on its name line (ui_panel on the slip, 8.9:1; box `card.name` 360); every later slip is **wordless** and fades down the pane, each with its own source's pale silhouette. **Why not only one or two rows** (the handoff's first option): below them the white field would open an 8+ art band with nothing in it, which §0 rule 4 and `mobile_web.mjs`'s dead-band check forbid for good reason (it reads as an unfinished screen); a slip at 0.2 still paints its face and edge (Δ ≥ 16 per pixel against the field), so the pane stays filled while the eye reads one hint and a fade.
   - **Ask to the Game Designer (G1):** add `producerReveal.fillSilhouettes: true` so this is a content decision, not a view default.
 - **Buy-mode row** (B1): row 0 as today, full width.
 - **T2 spins:** the same card geometry, the same peek rule. The spin list is long (15 lines), so it always overflows and needs no silhouettes.
 - **Scrolling:** the peek (§3.2) is the signifier. The scroll track stays at the left (`x 4`) in both the pane and the tall tabs.
+
+#### 5.4.1 The ruled margin (D20)
+
+**Seen:** the 4-art gutter showed the white field as thin strips beside the blue cards, and the grey scroll thumb as a line at the far left: on the phone it read as a rendering gap.
+
+**Chosen: an intentional margin, not full bleed.** The white field is palette v4's (Bar approved: "the cards sit on it like blue envelopes", style guide §2.4); making the pane edge-to-edge blue would drop the flag's white from the main screen. So the gutter becomes a **ruled margin**, the way v4 already treats its printed notices ("white notices ruled in flag blue"):
+
+| x (logical, from each canvas edge) | Draws |
+|---|---|
+| 0-4 (1 art) | a **flag-blue rule** `#0038b8` (8.5:1 on the field), the pane's full height; on the right it also covers the < 4 px aspect remainder |
+| 4-16 (3 art) | the white field |
+| 16 … cw − 16 | the cards (unchanged, 688 + dx) |
+
+- The rule meets the ticker's flag rule above and the tab bar's plate below, so the white field sits inside a blue frame and reads as a sheet, not a gap.
+- **The scroll thumb** is ui_panel, 12 × (≥ 48), at x 0 (it rides the left rule and never reaches the cards), shown only while the list moves (drag, momentum, wheel) and **hidden when idle**. The resting scroll signifier is the 40-px peek (§3.2).
+- **The width rule holds unchanged:** cards keep ≤ 4 art px of gutter per side (`mobile_web.mjs`, commented), and the edge columns never show the background.
 
 ### 5.5 T3 coalition chat (tall tab)
 
@@ -316,6 +358,15 @@ Replaces rtl-map §5.2 (the crawl). The Animator's D16 cadence is retired with i
     - Proposed copy: "{a} ו{b} יכולים להתאחד" (UX writes the key with the next strings pass; ≤ 568 at ×4, `chat.sys`).
     - The pill opens the same `MergeCard`, with that pair pre-selected first.
   - **Hit:** the partner-card pill is 328×68 grown by (12, 10, 12, 10) = 352×88, which meets the pill floor (rtl-map §10) as built. Keep it C-anchored in the card.
+
+#### 5.5.1 A short thread starts at the top (B11)
+
+**Seen** (`04-chat-390.png`): a new group's three rows sat at the bottom of a 1,300-px blue field, and the player's one-word reply ("העברתי.") floated alone at the left edge like a chip.
+
+- **Anchoring:** while the thread is shorter than its viewport it starts **under the pinned bar**, top-down, like any new conversation; once it overflows, the stick-to-bottom scroll takes over unchanged (the newest message stays at the bottom, rtl-map §6.3). The composer and the thumb zone are unaffected; the empty area, when there is one, is below the last message, where the next one will land.
+- **The day chip:** the thread opens with `CHAT_TODAY` "היום" (the messenger convention; the string and its `chat.divider` box were already specced) on the navy system pill with ui_mute text (12.9:1), centred, the system pill's metrics, then the usual 24 gap. The empty thread (T3 before the group) keeps its single `CHAT_EMPTY` line.
+- **The reply's row:** the first reply of a run is headed by the round's leader's short name (`LeaderUi.short()`, C_NAME `#c9d6f2`, 8.9:1), left-aligned at x 20 over the bubble, 44 above it: the partners' name-over-bubble, mirrored. The bubble keeps rtl-map's x 16. A run of replies names the first only.
+- **RTL actions (localization-aware-layout DOG):** day chip `keep` (centred); reply name `mirror` (the partner name's right edge ↔ the reply's left edge); the thread's direction `keep` (top-down in both).
 
 ### 5.6 T4 dossier (tall tab)
 
@@ -672,5 +723,18 @@ For **each** device of the matrix:
 | D48 | §5.2 dwell max(3.5 s, 55 ms × chars) | The Animator's per-page dwell (first page 1.2 s + 70 ms/char, continuation 0.5 s + 70 ms/char, 2.0-5.5 s; ftue 4.5-7.0 s) | Every page sat on the 3.5 s floor; long pages now get up to 4.6 s and tails 2.0 s |
 | D49 | Pages and wraps break at any space | The glue rule (§5.2.1): a currency sign stays with its number, punctuation with its word; number + magnitude is weak glue | "₪." opened a ticker line on its own (Animator wave B); 11-20 such breaks per clip width in the content |
 | D50 | F15 unplaced | The hemicycle on O3 only (not Row B, **not O5**); the booth on the picker where it is free; the envelope on O5's floor and the "sent" line (§5.14) | The poll-graphic risk on the forwarded card; the 1.1:1 envelope on blue |
+
+| D51 | §5.2: a headline leaves on its own when nothing is queued (the strip empties) | The strip is never empty: a one-page headline holds ≤ 15 s, else the standing line `TICKER_IDLE` (§5.2.2) | D19: the empty strip read as broken on Bar's iPhone |
+| D52 | §5.3: unrevealed slots draw nothing; the plate's baked dividers | Locked slots (silhouette + padlock, no label, no target), the divider-free plate and engine dividers (§5.3.1) | D21: two empty framed slots read as missing tabs |
+| D53 | §5.4: every teaser "מקור עלום" at one opacity | One hint row, then wordless slips fading down (0.62 a row, floor 0.2) (§5.4) | B9: identical rows read as filler; the fade keeps §0 rule 4 |
+| D54 | §4.1: the 16-px gutter is bare white field; the thumb ui_mute at x 4, dimmed when idle | A flag rule on each canvas edge + 3 art of white; the thumb rides the left rule, hidden when idle (§5.4.1) | D20: the bare strips read as a rendering gap; full bleed would drop v4's white field |
+| D55 | rtl-map §6.3: a short thread sits at the bottom | A short thread starts under the header with a day chip; the reply's row is named (§5.5.1) | B11: 1,300 px of empty blue over three rows; the reply read as a loose chip |
+
+**DOG check for D51-D55 (2026-09-30, UX + Game Developer, lower pane):**
+- *hud-design:* every new element has a tier and a category: the standing line peripheral / non-diegetic / event-driven (muted, still, never blank: the fade would recreate the defect); the locked tab silhouettes peripheral / non-diegetic / low-frequency (they change only at a reveal); the rules and the day chip are structure, not state. Text contrast: standing line 8.9:1, teaser hint 8.9:1, day chip 12.9:1, reply name 8.9:1 (all ≥ 4.5:1); the flag rule 8.5:1 against the field (≥ 3:1). The only sub-3:1 graphic is the locked silhouette (1.6:1), an inactive component, whose state is carried redundantly by the padlock.
+- *information-architecture-and-navigation:* no node, edge or modal added; a locked slot is not a target; back behaviour unchanged.
+- *localization-aware-layout:* two new strings, both boxed and linted by `gen_strings.py` (0 errors): `TICKER_IDLE` 264 / 280 (`ticker.idle`), `ROW_TEASER_HINT` in `card.name` 360; `CHAT_TODAY` reuses its specced `chat.divider` box. RTL actions are listed in §5.5.1; the rules are symmetric (`keep`).
+- *Verified by:* `tools/test.sh` (new `test_ticker_idle.gd`, `test_lower_pane.gd`), the strict build, `mobile_web.mjs`, and the after-shots `ux/manual-test-2026-09-30/fixes/dev3-*.png` at 390×844@3 and 375×667@2.
+- **No objection raised:** B9's "show one or two rows" collided with §0 rule 4 / the dead-band check; resolved inside this role by the fade (D53), which gives the handoff's intent (one hint, fading, varied silhouettes) without an empty band.
 
 **No objection is outstanding.** The one design error found (the picker's centred grid, V10) is this role's own §8.2, revised here as D42. It is not an objection against the engine, which built §8.2 as written.
