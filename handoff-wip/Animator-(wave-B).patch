@@ -308,10 +308,10 @@ index 0000000..32692f3
 # untracked binary: game/tests/dev/ticker_pages.gd.uid
 diff --git a/game/tests/unit/test_ticker_roll.gd b/game/tests/unit/test_ticker_roll.gd
 new file mode 100644
-index 0000000..0dcf1e9
+index 0000000..0764c8d
 --- /dev/null
 +++ b/game/tests/unit/test_ticker_roll.gd
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,108 @@
 +extends RefCounted
 +## M1, the ticker page change (animator wave B; ux/mobile-first-layout.md §5.2, §10 M1): the roll
 +## (the next page rises from under the row as the old one lifts out, 240 ms Cubic.Out, 4-px steps,
@@ -386,7 +386,9 @@ index 0000000..0dcf1e9
 +		for pair: Array in t._lines:
 +			for l: PxText in pair:
 +				if l.visible and l.text != "":
-+					ok_x = ok_x and l.position.x >= 0.0 and l.position.x + float(l.width()) <= w + 0.5
++					# right-aligned (h_anchor 2): the ink runs from x − width to x
++					var x0 := l.position.x - float(l.width()) if l.h_anchor == 2 else l.position.x
++					ok_x = ok_x and x0 >= 0.0 and x0 + float(l.width()) <= w + 0.5
 +		t.update_view(16.0)
 +		ms += 16.0
 +	runner.check(ok_x, "x never moves and every line stays inside the clip's width: no word is cut into a fragment")
@@ -419,3 +421,11 @@ index 0000000..0dcf1e9
 +	runner.check(Ticker.dwell_ms(p.call(23), "flavor", false) == 2110.0, "a continuation page skips the 1.2 s orientation (0.5 s)")
 +	runner.check(Ticker.dwell_ms(p.call(40), "ftue") == 4900.0 and Ticker.dwell_ms(p.call(10), "ftue") == 4500.0, "ftue: 1.5 s + 85 ms a character, floor 4.5 s")
 # untracked binary: game/tests/unit/test_ticker_roll.gd
+diff --git a/game/tests/unit/test_ticker_roll.gd.uid b/game/tests/unit/test_ticker_roll.gd.uid
+new file mode 100644
+index 0000000..91091ac
+--- /dev/null
++++ b/game/tests/unit/test_ticker_roll.gd.uid
+@@ -0,0 +1 @@
++uid://cbxb26rlxj71i
+# untracked binary: game/tests/unit/test_ticker_roll.gd.uid
