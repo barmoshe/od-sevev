@@ -7,7 +7,8 @@ extends Node
 ##
 ## Actions: pick {leader}, hat {n, rate} (taps on the leader), grant {amount}, buy {id?} (the most
 ## expensive affordable card, or that id), event {id} (fires a politics event now, as ?dev=1's
-## window.odDevEvent), tab {i}, pay (the first affordable chat pill), esc, elect (forces the
+## window.odDevEvent), tab {i}, pay (the first affordable chat pill), decline (Liberman's "לא יושב"
+## pill, the first in view), demand (the next member demand now), esc, elect (forces the
 ## ceremony, as window.odDevElect), tapxy {x, y} (logical), log, speed {x} (the dev game speed).
 
 var _plan: Array = []
@@ -119,7 +120,29 @@ func _run(what: String, a: Dictionary) -> void:
 			for p: Array in s.get("chat", {}).get("pills", []):
 				if bool(p[3]):
 					_tap_logical(Vector2(float(p[0]), float(p[1])))
+					print("[capture] pay : [%.1f, %.1f]" % [float(p[0]), float(p[1])])
 					break
+		"decline":
+			# Liberman's "לא יושב" pill under a member demand (view_chat.gd declinable): DevProbe
+			# lists only pay pills, so read the chat's hits the way the probe does
+			var chat: Node = h.get("chat")
+			var o := Vector2(float(h.get("_ox")), float(h.get("_lower_y")))
+			var top := float(chat.position.y) + float(ChatView.THREAD_Y) + o.y
+			var bottom := top + float(chat.call("thread_h")) - float(chat.call("bottom_pad"))
+			for hh: Dictionary in chat.call("hits"):
+				if String(hh["kind"]) != "decline":
+					continue
+				var c: Vector2 = chat.call("content_to_tall", (hh["rect"] as Rect2).get_center()) + chat.position + o
+				if c.y > top and c.y < bottom:
+					_tap_logical(c)
+					print("[capture] decline : [%.1f, %.1f]" % [c.x, c.y])
+					break
+		"demand":
+			# the next member demand now (Coalition._tick_demands posts it on the next tick when a member
+			# is free), so a capture can show a demand, and Liberman's "לא יושב", on cue
+			var st2: GameState = h.get("state")
+			if st2.coalition is Dictionary:
+				st2.coalition["nextDemandSec"] = 0.001
 		"esc":
 			for down: bool in [true, false]:
 				var k := InputEventKey.new()
@@ -128,7 +151,12 @@ func _run(what: String, a: Dictionary) -> void:
 				k.pressed = down
 				Input.parse_input_event(k)
 		"elect":
+			# the dev-forced ceremony needs the dev flag (main.gd _start_evolve); on only for the call
+			var dv: Dictionary = h.get("_dev")
+			var was := bool(dv["on"])
+			dv["on"] = true
 			h.call("_start_evolve", true)
+			dv["on"] = was
 		"tapxy":
 			_tap_logical(Vector2(float(a.get("x", 0)), float(a.get("y", 0))))
 		"speed":

@@ -32,6 +32,9 @@ from teaser import (INK, NIGHT, GOLD_HI, W, H, FPS, paste, scaled, text, plate, 
                     clamp, ease_out, ease_inout)
 from gameplay import BAR, DUR, MUSIC, OUT, md_frame  # noqa: E402
 
+NAME = "od-sevev-gameplay-iphone"   # output stem (a reel module built on this one sets its own)
+PLAN = os.path.join(OUT, "plan-bengvir.json")
+MUSIC_AT = 0.0                     # where in MUSIC the reel starts (s)
 CAP_W, CAP_H = 1080, 2338          # the Movie Maker take (1080x2338, the game's 720x1559 logical x 1.5)
 
 # ---------------------------------------------------------------------------- the phone (wide shot)
@@ -190,6 +193,9 @@ CAPTIONS = [  # (start, end, headline, sub): copy rules, no dashes, short
     (BAR(21), BAR(23), "47 מתוך 61", "אז... עוד סבב."),
 ]
 
+STILLS = [0.3, 1.5, 2.5, 5.4, 6.4, 11.0, 13.5, 16.0, 19.0, 21.0, 24.0, 26.0, 29.0, 31.5, 34.0, 36.5,
+          40.0, 42.0, 44.0, 46.5, 48.0, 52.0, 54.5, 57.0, 60.0, 67.9]
+
 PEEKS = [  # (start, length, line, stays): Mordechai David peeks out from behind the phone
     (BAR(8) + 0.5, 1.7, "חוסם.", False),   # a wide-shot bar, so the phone's edge is on screen
     (DUR - 2.6, 2.6, "חוסם.", True),       # on the end card, and on the cover (the last frame)
@@ -211,15 +217,21 @@ PICK = (194, 1836)                  # the Ben Gvir cell on the picker
 
 
 def build_taps(take):
-    plan = __import__("json").load(open(os.path.join(OUT, "plan-bengvir.json")))
-    log = os.path.join(os.path.dirname(os.path.abspath(take)), "take1.log") if not os.path.exists(
-        os.path.join(take, "take1.log")) else os.path.join(take, "take1.log")
-    rows = []
+    plan = __import__("json").load(open(PLAN))
+    take = os.path.abspath(take)
+    log = take.rstrip("/") + ".log"          # <take>.log next to the take folder (takeL -> takeL.log)
+    if not os.path.exists(log):
+        log = os.path.join(os.path.dirname(take), "take1.log")
+    rows, logged = [], {"pay": [], "decline": []}
     if os.path.exists(log):
         for ln in open(log, encoding="utf-8"):
             if ln.startswith("[capture] buy"):
                 a = ln.split(": [", 1)[1].split("]", 1)[0].split(",")
                 rows.append(float(a[1]))
+            for kind in logged:
+                if ln.startswith("[capture] %s : [" % kind):
+                    a = ln.split(": [", 1)[1].split("]", 1)[0].split(",")
+                    logged[kind].append((float(a[0]) * 1.5, float(a[1]) * 1.5))
     rng = random.Random(7)
     taps, bi = [], 0
     for step in plan:
@@ -237,8 +249,8 @@ def build_taps(take):
             taps.append((t, BUY_X + rng.uniform(-8, 8), y + rng.uniform(-6, 6)))
         elif what == "tab":
             taps.append((t, *TAB[int(a.get("i", 3))]))
-        elif what == "pay":
-            p = find_pill(take, t)
+        elif what in ("pay", "decline"):
+            p = TAP_AT.get(t) or (find_pill(take, t) if what == "pay" else None)
             if p:
                 taps.append((t, *p))
     return sorted(taps)
@@ -267,6 +279,7 @@ def find_pill(take, t):
 
 
 TAPS = []
+TAP_AT = {}                         # plan time -> (x, y) capture px, for taps a reel pins by hand
 
 
 def draw_touches(scr, tt, sp, s, oy):
@@ -464,13 +477,20 @@ def game_frame(t):
     return c
 
 
+def end_default(c, t):
+    g.end_card(c, t)
+    peek_end(c, t)
+
+
+END = end_default
+
+
 def frame(t):
     if t < T_END:
         c = game_frame(t)
     else:
         c = Image.new("RGBA", (W, H), INK + (255,))
-        g.end_card(c, t)
-        peek_end(c, t)
+        END(c, t)
     return c.convert("RGB")
 
 
@@ -498,20 +518,20 @@ def main():
     KEYS = cam_keys()
     g.T_END = T_END
     if "--stills" in sys.argv:
-        ts = [0.3, 1.5, 2.5, 5.4, 6.4, 11.0, 13.5, 16.0, 19.0, 21.0, 24.0, 26.0, 29.0, 31.5, 34.0, 36.5,
-              40.0, 42.0, 44.0, 46.5, 48.0, 52.0, 54.5, 57.0, 60.0, 67.9]
+        ts = STILLS
         k.frame = frame
         k.OUT = OUT
         k.stills(ts, os.path.join(OUT, "_stills.png"))
-        os.replace(os.path.join(OUT, "_stills.png"), os.path.join(OUT, "_stills_iphone.png"))
+        os.replace(os.path.join(OUT, "_stills.png"), os.path.join(OUT, "_stills_%s.png" % NAME))
         return
     if "--one" in sys.argv:
         t = float(sys.argv[sys.argv.index("--one") + 1])
         frame(t).save(os.path.join(OUT, "_stills_one.png"))
         return
-    video = os.path.join(OUT, "od-sevev-gameplay-iphone.mp4")
+    video = os.path.join(OUT, NAME + ".mp4")
     cmd = [k.ffmpeg(), "-y", "-loglevel", "error",
-           "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-", "-i", MUSIC,
+           "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
+           "-ss", str(MUSIC_AT), "-i", MUSIC,
            "-map", "0:v", "-map", "1:a",
            "-c:v", "libx264", "-preset", "slow", "-crf", "17", "-pix_fmt", "yuv420p", "-profile:v", "high",
            "-movflags", "+faststart", "-af", f"afade=t=out:st={DUR - 0.4}:d=0.4,loudnorm=I=-14:TP=-1.0:LRA=11",
@@ -519,7 +539,7 @@ def main():
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     nf = int(DUR * FPS)
     cover = frame((nf - 1) / FPS)
-    cover.save(os.path.join(OUT, "od-sevev-gameplay-iphone-cover.png"))
+    cover.save(os.path.join(OUT, NAME + "-cover.png"))
     for i in range(nf):
         p.stdin.write((cover if i < 2 else frame(i / FPS)).tobytes())
         if i % 300 == 0:
