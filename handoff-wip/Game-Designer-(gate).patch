@@ -249,7 +249,7 @@ index 17c2808..9b9f489 100644
  
  func test_the_return_card_speaks_by_absence_band() -> void:
 diff --git a/tools/web/round_web.mjs b/tools/web/round_web.mjs
-index 30e1bcc..b11044a 100644
+index 30e1bcc..d4e468a 100644
 --- a/tools/web/round_web.mjs
 +++ b/tools/web/round_web.mjs
 @@ -1,24 +1,26 @@
@@ -282,14 +282,14 @@ index 30e1bcc..b11044a 100644
 +// faster, so in game time it taps and buys about N times less often than a player, never buys a
 +// spin and never catches the Suitcase. It prints its game-time cadence at the end, and
 +// tests/bench/test_web_driver.gd replays that cadence through PacingSim. The pacing gates live in
-+// tools/balance.sh. Speed 6 (2026-09-30): at ×10 an ultimatum's 90 s pass in 9 s of wall time, less
++// tools/balance.sh. Speed 5 (2026-09-30): at ×10 an ultimatum's 90 s pass in 9 s of wall time, less
 +// than one loop of this driver on a loaded machine, so the round was a race against the machine.
  const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
  const { chromium } = await import(PW);
  const fs = await import('node:fs');
 -const [base, out, dev = '390x844@2', speed = '10', budgetArg = '900'] = process.argv.slice(2);
 +const { makePlayer } = await import('./round_play.mjs');
-+const [base, out, dev = '390x844@2', speed = '6', budgetArg = '900'] = process.argv.slice(2);
++const [base, out, dev = '390x844@2', speed = '5', budgetArg = '900'] = process.argv.slice(2);
  fs.mkdirSync(out, { recursive: true });
  const [wh, dprS] = dev.split('@');
  const [W, H] = wh.split('x').map(Number);
@@ -532,7 +532,7 @@ index 30e1bcc..b11044a 100644
 +	await shot('e4-round2');
  }
 +s = await probe();
-+if (s) log(`  ${P.cadence(speed, s.runSec)}`);
++log(`  ${P.cadence(speed)}`);
  if (!called) {
  	// evidence for the stall: the thread as it stands
 -	s = await probe();
@@ -658,10 +658,10 @@ index 0000000..0509389
 # untracked binary: game/tests/unit/test_vote_hold.gd.uid
 diff --git a/tools/web/round_play.mjs b/tools/web/round_play.mjs
 new file mode 100644
-index 0000000..4f08422
+index 0000000..668ee1c
 --- /dev/null
 +++ b/tools/web/round_play.mjs
-@@ -0,0 +1,228 @@
+@@ -0,0 +1,230 @@
 +// The scripted player shared by round_web.mjs and picker_web.mjs (Game Designer 2026-09-30): one
 +// loop that plays a round to the 61 gate through the real UI with real touches, and one election
 +// call that checks "the vote stops the clock" (sim/politics.gd, design/leader-select-spec.md §7.4).
@@ -790,6 +790,7 @@ index 0000000..4f08422
 +				await wait(400);
 +				continue;
 +			}
++			st.runSec = s.runSec;
 +			if (s.cta && s.ready) return 'gate';
 +			if (hooks.loop) await hooks.loop(s);
 +			if (s.court.card && s.court.phase === 'summons' && s.court.testify[0] > 0) {
@@ -800,11 +801,13 @@ index 0000000..4f08422
 +				continue;
 +			}
 +			if (!clear(s)) { await wait(200); continue; }
-+			for (let i = 0; i < 4; i++) { await tapAt(hat(), 40); await wait(60); st.hatTaps++; }
-+			act('4 taps');
++			// taps: the leader matters early; once sources pay, two taps a loop keep the verb alive
++			const nTaps = s.groupOpen ? 2 : 4;
++			for (let i = 0; i < nTaps; i++) { await tapAt(hat(), 40); await wait(50); st.hatTaps++; }
++			act(`${nTaps} taps`);
 +			s = await probe();
-+			// the chat first: a line to pay, an ultimatum or a rejoin to save for, a brawl
-+			if (s.groupOpen && (s.coal.afford > 0 || s.coal.ultLeft >= 0 || s.chat.openBrawl)) {
++			// the chat first: a line the bank covers, or a brawl ("צאו החוצה")
++			if (s.groupOpen && (s.coal.afford > 0 || s.chat.openBrawl)) {
 +				s = await payChat(s);
 +				if (s.ready && s.cta) return 'gate';
 +			}
@@ -812,29 +815,28 @@ index 0000000..4f08422
 +			// sources: the most expensive affordable card, scrolled into view. Before the group opens
 +			// (C1) buy at most every 4 s: C1 pings only when the last purchase is >= 2 s old.
 +			const quiet = !s.groupOpen && Date.now() - st.lastBuy < 4000;
-+			if (s.groupOpen && s.shop.tab !== 'producers') { act('tab sources'); await tapAt(tab(1)); await wait(250); s = await probe(); }
-+			if (!clear(s) || s.shop.tab !== 'producers') continue;
-+			const aff = quiet ? [] : (s.shop.all || []).filter((r) => r[3]);
-+			if (!aff.length) continue;
-+			const r = aff[aff.length - 1];
-+			// save for the open ultimatum / rejoin: never spend the bank below its price
++			if (quiet) continue;
++			// save for the open ultimatum / rejoin: never spend the bank below twice its price
 +			if (s.coal.save > 0 && s.bank < s.coal.save * 2) continue;
-+			st.lastBuy = Date.now();
-+			st.buyActions++;
-+			const [top, bot] = s.shop.list;
-+			if (r[1] < top + 60 || r[1] > bot - 60) {
-+				act('drag shop');
-+				await drag(css(360 + st.disp.ox, (top + bot) / 2), -(r[1] - (top + bot) / 2) * st.disp.f / DPR);
-+				await wait(250);
-+			} else {
-+				for (let k = 0; k < 3; k++) {
-+					const q = await probe();
-+					if (!clear(q) || q.shop.tab !== 'producers' || q.chat.open) break;   // an overlay came up: never tap into it
-+					act(`buy ${r[2]}`);
-+					await tapAt(css(r[0], r[1]));
-+					await wait(80);
-+					st.cardTaps++;
++			if (s.groupOpen && s.shop.tab !== 'producers') { act('tab sources'); await tapAt(tab(1)); await wait(250); s = await probe(); }
++			for (let pass = 0; pass < 2; pass++) {
++				if (!clear(s) || s.shop.tab !== 'producers' || s.chat.open) break;   // an overlay came up: never tap into it
++				const aff = (s.shop.all || []).filter((r) => r[3]);
++				if (!aff.length) break;
++				const r = aff[aff.length - 1];
++				const [top, bot] = s.shop.list;
++				if (r[1] < top + 60 || r[1] > bot - 60) {
++					act('drag shop');
++					await drag(css(360 + st.disp.ox, (top + bot) / 2), -(r[1] - (top + bot) / 2) * st.disp.f / DPR);
++					await wait(200);
++					s = await probe();
++					continue;
 +				}
++				st.lastBuy = Date.now();
++				st.buyActions++;
++				act(`buy ${r[2]} ×3`);
++				for (let k = 0; k < 3; k++) { await tapAt(css(r[0], r[1])); await wait(60); st.cardTaps++; }
++				break;
 +			}
 +		}
 +		return 'budget';
@@ -880,7 +882,7 @@ index 0000000..4f08422
 +		return 'called';
 +	}
 +
-+	function cadence(speed, runSec) {
++	function cadence(speed, runSec = st.runSec) {
 +		const g = Math.max(1, runSec), w = (Date.now() - st.t0) / 1000;
 +		return `cadence (game time, speed ${speed}, ${Math.round(w)} s wall): ${(st.hatTaps / g).toFixed(3)} taps/s, `
 +			+ `a purchase action every ${(g / Math.max(1, st.buyActions)).toFixed(1)} s (${st.cardTaps} card taps), `
