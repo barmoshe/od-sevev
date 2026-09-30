@@ -24,7 +24,47 @@ static func _c() -> Dictionary:
 # ---------------------------------------------------------------------------------------------
 
 static func perks() -> Array:
-	return _c().get("perks", {}).get("list", [])
+	return _neutral("perks", _c().get("perks", {}).get("list", []))
+
+
+static var _neutral_key := ""
+static var _neutral_c: Dictionary = {}
+static var _neutral_lists := {}
+
+## Outside the default leader's round, the shared perks and trophies read
+## leaderSelect.neutralCopy (spec §9): "perks.<id>.<field>" / "achievements.<id>.<field>" → the
+## neutral text, so an opposition leader's shop never offers Bibi's wand or hat. Bibi's round (and
+## content without leader select) keeps the shipped texts. Cached per installed leader and content.
+static func _neutral(kind: String, list: Array) -> Array:
+	var nc: Variant = Leaders.ls().get("neutralCopy", {})
+	if not nc is Dictionary or (nc as Dictionary).is_empty() or Leaders.installed() == "" or Leaders.installed_default():
+		return list
+	var key := Leaders.installed()
+	if key != _neutral_key or not is_same(_neutral_c, Content.data()):
+		_neutral_key = key
+		_neutral_c = Content.data()
+		_neutral_lists = {}
+	if _neutral_lists.has(kind):
+		return _neutral_lists[kind]
+	var out: Array = []
+	for item: Variant in list:
+		if not item is Dictionary:
+			out.append(item)
+			continue
+		var d: Dictionary = item
+		var copy := {}
+		for field: String in ["name", "desc"]:
+			var k := "%s.%s.%s" % [kind, str(d.get("id", "")), field]
+			if (nc as Dictionary).has(k):
+				copy[field] = (nc as Dictionary)[k]
+		if copy.is_empty():
+			out.append(d)
+		else:
+			var dd := d.duplicate()
+			dd.merge(copy, true)
+			out.append(dd)
+	_neutral_lists[kind] = out
+	return out
 
 
 static func perk(id: String) -> Dictionary:
@@ -128,7 +168,7 @@ static func all_producers_mult(s: GameState) -> float:
 # ---------------------------------------------------------------------------------------------
 
 static func achievements() -> Array:
-	return _c().get("achievements", {}).get("list", [])
+	return _neutral("achievements", _c().get("achievements", {}).get("list", []))
 
 
 static func achievement_pct(s: GameState) -> float:

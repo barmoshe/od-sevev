@@ -5126,7 +5126,7 @@
    }
   },
   "neutralCopy": {
-   "_doc": "Replacement copy for shared strings that today assume Bibi (spec §9). The engine uses these once the picker ships; content.json keeps Bibi's texts until then. Keys are paths into content.json; values are the neutral text. UI strings are in the spec's replacement checklist (UX owns ux/ui-strings.json).",
+   "_doc": "Replacement copy for shared strings that assume Bibi (spec §9). Meta.perks() / Meta.achievements() apply the perks.* and achievements.* keys outside the default leader's round (2026-09-30); ambient.* and golden.* keys are still unread. Keys are paths into content.json; values are the neutral text.",
    "achievements.a_tap_100.name": "עבודה קשה",
    "achievements.a_tap_100.desc": "100 הקשות. בכל תפקיד.",
    "achievements.a_tap_1000.desc": "1,000 הקשות.",
@@ -5150,7 +5150,8 @@
     "ראשת ממשלת מעבר אמריטוס",
     "ראשת ממשלת מעבר נצחית"
    ],
-   "_speciesTitlesF": "For a future leader with g f (none at launch). The male list stays prestige.speciesTitles."
+   "_speciesTitlesF": "For a future leader with g f (none at launch). The male list stays prestige.speciesTitles.",
+   "perks.p_magnet.name": "מדבקת עדיפות"
   },
   "partnerProfiles": [
    {

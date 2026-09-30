@@ -750,3 +750,16 @@ func test_merge_guards() -> void:
 	st.save_game(g, 1.0)
 	var l: GameState = st.load_game()["state"]
 	runner.check(Coalition.status(l, "bennett") == "merged" and (Coalition.ps(l, "lapid")["carry"] as Array).has("bennett") and int(l.coalition["mergesRound"]) == 1, "a merge survives a reload")
+
+
+func test_shared_perks_and_trophies_read_neutral_copy_outside_bibis_round() -> void:
+	var nc: Dictionary = Leaders.ls().get("neutralCopy", {})
+	_round("bennett")
+	runner.check(str(Meta.perk("p_autotap")["name"]) == str(nc["perks.p_autotap.name"]), "Bennett's shop: the neutral auto-tapper, not Bibi's wand (%s)" % Meta.perk("p_autotap")["name"])
+	runner.check(str(Meta.perk("p_magnet")["name"]) == str(nc["perks.p_magnet.name"]), "no DOHA sticker outside Bibi's round")
+	var a := Meta.achievements().filter(func(x: Dictionary) -> bool: return x["id"] == "a_tap_100")
+	runner.check(a.size() == 1 and str(a[0]["name"]) == str(nc["achievements.a_tap_100.name"]), "a shared trophy reads its neutral name")
+	runner.check(int(Meta.perk("p_autotap")["costs"][0]) == int(Content.data()["perks"]["list"][0]["costs"][0]), "only the words change, never the numbers")
+	_round("bibi")
+	var shipped: Dictionary = (Content.data()["perks"]["list"] as Array).filter(func(x: Dictionary) -> bool: return x["id"] == "p_magnet")[0]
+	runner.check(str(Meta.perk("p_magnet")["name"]) == str(shipped["name"]), "Bibi's round keeps the shipped texts")
