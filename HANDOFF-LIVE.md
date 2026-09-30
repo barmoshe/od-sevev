@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the minute-by-minute addendum while the loop runs.
 If the session died, restore unmerged agent work from `handoff-wip/` (see below).
 
-- Branch head: `645813b` docs(od-sevev): live handoff snapshot 06:33
+- Branch head: `a806d4c` docs(od-sevev): live handoff snapshot 06:34
 - Loop lock: ACTIVE (loop running)
 
 ## Orchestrator notes
@@ -51,7 +51,7 @@ If the session died, restore unmerged agent work from `handoff-wip/` (see below)
 | UX Designer (review 2) | DONE, merged (ux/review-2026-09-30.md U1-U16, no blockers; §5.14 F15: hemicycle in the election card only, booth on tall phones, envelope on light surfaces; roll accepted; §5.2.1 no-break rule) | `worktree-agent-ad4a270e4f3452e94` | 0 | 0 | - |
 | 2D Artist + Audio | DONE, merged (sheet_modal_body + 3-frame sheet_modal_flap, open frame = the approved band; slipStamp cue wired). For the dev pass: switch modals to body + flap (removes the existing dark slab under the flap point, ~190x45) | `worktree-agent-a771e189416072b63` | 0 | 0 | - |
 | 2D Artist + TA (review 2) | DONE on its branch (57c0b4e), not merged to main: the Game Developer (review 2) merges and wires it (the white button needs a px_button.gd label mapping first) | `worktree-agent-ab1026b098be42182` | 4 | 0 | `2D-Artist-+-TA-(review-2).commits.patch`  |
-| Game Developer (review 2) | U1 modals as body+flap with the flap animation; D1 no-break rule + F15 placement (hemicycle in the election card, booth on tall phones, envelope); U3 U6 U9 U11 U13 U14; fix modals_web C1; then wire the 2D art when told | `worktree-agent-a643866e6649bba55` | 9 | 0 | `Game-Developer-(review-2).commits.patch`  |
+| Game Developer (review 2) | U1 modals as body+flap with the flap animation; D1 no-break rule + F15 placement (hemicycle in the election card, booth on tall phones, envelope); U3 U6 U9 U11 U13 U14; fix modals_web C1; then wire the 2D art when told | `worktree-agent-a643866e6649bba55` | 9 | 1 | `Game-Developer-(review-2).commits.patch` `Game-Developer-(review-2).patch` |
 
 Restore: `git checkout -b restore-<role> claude/magical-ride-ntn3u5 && git am --3way handoff-wip/<Role>.commits.patch; git apply --3way handoff-wip/<Role>.patch`.
 `*.commits.patch` carries committed work in full, binaries included. `*.patch` (uncommitted work) is text-only: binary files are listed in its header.
