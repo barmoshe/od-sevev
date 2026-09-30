@@ -361,6 +361,18 @@ func width() -> int:
 	return Art.measure(_ft, px)
 
 
+## The drawn lines' widths in logical px, top to bottom (D64: the picker caption's balanced break).
+func line_widths() -> Array:
+	var out: Array = []
+	if _para != null:
+		for i in line_count():
+			out.append(_para.get_line_width(i) * _unit_px())
+	elif _ft != "":
+		for l in _ft.split("\n"):
+			out.append(float(Art.measure(l, px)))
+	return out
+
+
 ## Number of drawn lines (the lint and tests check wrapping).
 func line_count() -> int:
 	if _para != null:

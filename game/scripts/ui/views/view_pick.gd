@@ -411,10 +411,46 @@ func _build() -> void:
 	_publish()
 
 
+## D64 (mobile-first §5.8.1): a two-line caption breaks balanced, its second line ≥ 40% of its
+## first. A one-word tail ("… מי שיוצא, / חוזר.") left the plate's second row almost empty navy,
+## which reads as a dead band (S8) and breaks D53's "the plate hugs its text".
+const STRIP_BALANCE := 0.4
+const STRIP_BALANCE_STEP := 8.0
+
+
+## Balances `t`'s break inside `full_w` (logical px): when two lines come out with the second under
+## STRIP_BALANCE of the first, the wrap box narrows in STRIP_BALANCE_STEP steps (never below half
+## the text's width) and keeps the widest box that still gives two whole lines at the ratio, else
+## the most balanced two-line box it met. One line, or a text that does not fit two, is left as is.
+static func balance_wrap(t: PxText, full_w: float) -> void:
+	t.wrap_width = full_w
+	var ws := t.line_widths()
+	if ws.size() != 2 or t.truncated() or float(ws[1]) >= STRIP_BALANCE * float(ws[0]):
+		return
+	var best_w := full_w
+	var best_r := float(ws[1]) / maxf(1.0, float(ws[0]))
+	var floor_w := (float(ws[0]) + float(ws[1])) / 2.0
+	var w := full_w - STRIP_BALANCE_STEP
+	while w >= floor_w:
+		t.wrap_width = w
+		var lw := t.line_widths()
+		if lw.size() != 2 or t.truncated():
+			break
+		var r := minf(float(lw[1]), float(lw[0])) / maxf(float(lw[1]), float(lw[0]))
+		if r > best_r:
+			best_r = r
+			best_w = w
+		if float(lw[1]) >= STRIP_BALANCE * float(lw[0]):
+			return
+		w -= STRIP_BALANCE_STEP
+	t.wrap_width = best_w
+
+
 ## The strip's text, centred in its navy plate (A3: one line or two) and on the canvas.
 func _place_strip() -> void:
 	if _strip == null:
 		return
+	balance_wrap(_strip, 656.0 + L.dx)   # D64
 	var sy := _bot - (116.0 if (variant == "after" and again_id != "") else 16.0) - STRIP_H
 	var lines := clampf(float(_strip.line_count()), 1.0, 2.0)
 	# A3: the plate hugs the text: the Hebrew body's ink sits in rows +4 … +24 of a 44 cell at ×4, so a

@@ -436,3 +436,52 @@ func test_m2_a_round_begun_with_an_empty_purse_shows_card_1_and_the_teasers() ->
 	var first := kinds.find("producer")
 	runner.check(first >= 0 and str(models[first]["id"]) == Content.producer_ids()[0], "card 1 is the first source, a real card (%s)" % str(kinds))
 	runner.check(kinds.count("teaser") >= 1, "with the teaser rows under it (%s)" % str(kinds))
+
+
+# ------------------------------------------------------------------ D64
+
+## D64 (mobile-first §5.8.1): every caption the picker's strip can show (the disclaimer, F9_PICK,
+## הפתעה's line and each leader's blurb), at every (f, cw) of the mobile_web matrix, breaks with
+## its second line ≥ 40% of its first; nothing is cut and it stays within two lines.
+func test_d64_every_picker_caption_breaks_balanced_across_the_matrix() -> void:
+	var caps: Array = [Strings.s("LEADER_PICK_DISCLAIMER"), Strings.s("F9_PICK"), Strings.s("LEADER_PICK_RANDOM_CAP")]
+	for id in Leaders.pickable():
+		var b := str(Leaders.tile(id).get("blurb", ""))
+		if b != "":
+			caps.append(b)
+	runner.check(caps.size() >= 5, "the captions: 3 system lines + the leaders' blurbs (%d)" % caps.size())
+	# (Display.f, cw) of tools/web/mobile_web.mjs's matrix: 375×667@2, 390×844@3, 393×852@3,
+	# 430×932@3, 360×780@3, 412×915@2.625, the desktop frame, 390×664@3, 375×548@2
+	var matrix := [[1.0, 748.0], [1.5, 780.0], [1.5, 784.0], [1.5, 860.0], [1.5, 720.0], [0.5, 780.0]]
+	var was := [Display.f, Display.integer, L.cw]
+	var host := Node2D.new()
+	var t := PxText.make(host, Vector2.ZERO, "", L.TEXT, "plain", PickView.C_STRIP)
+	t.reading = true
+	t.max_lines = 2
+	t.align = 1
+	var bad: Array = []
+	var two := 0
+	var needed := 0
+	for fc: Array in matrix:
+		Display.f = float(fc[0])
+		Display.integer = true
+		L.set_width(float(fc[1]))
+		for c: String in caps:
+			t.text = c
+			t.wrap_width = 656.0 + L.dx
+			var raw := t.line_widths()
+			if raw.size() == 2 and float(raw[1]) < PickView.STRIP_BALANCE * float(raw[0]):
+				needed += 1
+			PickView.balance_wrap(t, 656.0 + L.dx)
+			var ws := t.line_widths()
+			if ws.size() == 2:
+				two += 1
+			if t.truncated() or ws.size() > 2 or (ws.size() == 2 and float(ws[1]) < PickView.STRIP_BALANCE * float(ws[0])) \
+					or t.width() > 656.0 + L.dx + 0.5:
+				bad.append("f %s cw %s: %s %s" % [fc[0], fc[1], c.substr(0, 16), str(ws.map(func(v: float) -> int: return int(v)))])
+	Display.f = was[0]
+	Display.integer = was[1]
+	L.set_width(was[2])
+	host.free()
+	runner.check(two >= 1, "some captions take two lines (%d cases; %d broke unbalanced at the full box and were rebalanced)" % [two, needed])
+	runner.check(bad.is_empty(), "every two-line caption has line 2 ≥ 40%% of line 1, uncut, in the box (%s)" % str(bad))
