@@ -23,7 +23,8 @@ DEST = os.path.join(FORK, "game", "assets", "sprites")
 ICON_DEST = os.path.join(FORK, "game", "assets", "icon")
 KIT_ROOT = os.path.join(FORK, "art", "od-sevev")          # the 2D Artist's slice (read only here)
 KIT = os.path.join(KIT_ROOT, "ui-kit.json")
-ICON_MASTER = os.path.join(KIT_ROOT, "out", "key", "icon-128-art.png")   # 64 art px at d 2 (keyart.py)
+ICON_MASTER = os.path.join(KIT_ROOT, "out", "key", "icon-128-art.png")   # 64 art px at d 2 (logo.py)
+SPLASH_MASTER = os.path.join(KIT_ROOT, "out", "key", "logo-stacked-art.png")  # the mark over the wordmark, 1x (logo.py)
 # every size the export presets name (game/export_presets.cfg), from the 64 art-px master, nearest
 ICON_SIZES = {"icon_1024.png": 1024, "pwa_512.png": 512, "pwa_180.png": 180, "pwa_144.png": 144,
               "android_192.png": 192, "android_fg_432.png": 432}
@@ -792,10 +793,18 @@ def import_icons(log):
         log("icons: no master at " + ICON_MASTER + " (kept the existing icons)")
         return []
     m = Image.open(ICON_MASTER).convert("RGBA")
+    big = m.resize((1024, 1024), Image.NEAREST)
     out = []
     for f, s in ICON_SIZES.items():
-        m.resize((s, s), Image.NEAREST).save(os.path.join(ICON_DEST, f))
+        # an integer multiple of the 64 art px stays nearest-neighbour; 180 / 144 / 192 / 432 are LANCZOS from the
+        # 1024, as the OS scales an icon (nearest there would draw art px 2 and 3 px wide at random)
+        im = m.resize((s, s), Image.NEAREST) if s % 64 == 0 else big.resize((s, s), Image.LANCZOS)
+        im.save(os.path.join(ICON_DEST, f))
         out.append(f)
+    if os.path.exists(SPLASH_MASTER):                       # the boot splash: the stacked logo at the game's x4
+        sp = Image.open(SPLASH_MASTER).convert("RGBA")
+        sp.resize((sp.width * 4, sp.height * 4), Image.NEAREST).save(os.path.join(ICON_DEST, "splash.png"))
+        out.append("splash.png")
     bg = Image.new("RGBA", (432, 432), m.getpixel((0, 0)))   # adaptive background = the icon's field colour
     bg.save(os.path.join(ICON_DEST, "android_bg_432.png"))
     out.append("android_bg_432.png")
