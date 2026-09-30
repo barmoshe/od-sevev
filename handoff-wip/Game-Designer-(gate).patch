@@ -16,6 +16,47 @@ index 0769f5d..45fcede 100644
  **Player actions** (each returns a result, and a Dictionary of UI events where there are any):
  
  | Action | Call |
+diff --git a/game/scripts/sim/coalition.gd b/game/scripts/sim/coalition.gd
+index c420b8e..f89b71a 100644
+--- a/game/scripts/sim/coalition.gd
++++ b/game/scripts/sim/coalition.gd
+@@ -363,10 +363,20 @@ static func threat_count(s: GameState) -> int:
+ 	return open_ultimatums(s)
+ 
+ 
++## "Won't sit with" (`excludes`) holds both ways (Game Designer 2026-09-30, spec §7.2.2): `p` does
++## not ask to join while a member it excludes sits, NOR while a member who excludes `p` sits. So in
++## Bennett's round Abbas and Gafni never ask while Liberman sits (before, paying Abbas's join
++## silently threw Liberman's 12 seats out, with no rejoin pill: a trap that left 5 of 9 deals
++## short of 61 for a player who pays every pill). They ask once Liberman has walked, next to his
++## rejoin pill: the lineup's choice made in the open.
+ static func _excluded(s: GameState, p: Dictionary) -> bool:
+ 	for x: Variant in p.get("excludes", []):
+ 		if status(s, str(x)) == "member":
+ 			return true
++	var id := str(p.get("id", ""))
++	for q: Dictionary in partners():
++		if status(s, str(q["id"])) == "member" and (q.get("excludes", []) as Array).has(id):
++			return true
+ 	return false
+ 
+ 
+@@ -790,10 +800,13 @@ static func _on_joined(s: GameState, id: String, out: Array) -> void:
+ 	if p.get("statusLine", false):
+ 		_post(s, {"type": "status", "partner": id, "line": "status", "variant": 0}, out)
+ 	out.append({"ev": "partnerJoined", "partner": id})
+-	# Anyone who only sits while this partner is out leaves now (Abbas when Ben Gvir returns).
++	# Anyone who won't sit with the newcomer leaves now, either way round (Abbas when Ben Gvir
++	# returns; Abbas and Gafni when Liberman's rejoin pill is paid in Bennett's round): the pill the
++	# player paid decides the lineup.
++	var mine: Array = p.get("excludes", [])
+ 	for q: Dictionary in partners():
+ 		var qid: String = q["id"]
+-		if not (q.get("excludes", []) as Array).has(id):
++		if not (q.get("excludes", []) as Array).has(id) and not mine.has(qid):
+ 			continue
+ 		var qs := status(s, qid)
+ 		if qs == "member" or qs == "pending":
 diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
 index 1558947..d372f2a 100644
 --- a/game/scripts/ui/dev_probe.gd
