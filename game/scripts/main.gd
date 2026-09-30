@@ -1152,8 +1152,8 @@ func _audio_clocks(dt: float) -> void:
 		if mk.has("rollEnd") and float(a.call("fanfare_clock_ms")) >= float(mk["rollEnd"]) * 1000.0 - float(Tune.MC.get("trickLeadMs", 333)):
 			_trick_fired = true
 			_audio("trickCue")
-			if bb.hero != null:
-				bb.hero.play(str(LeaderUi.tap()["critAnim"]), true, 1)   # the round's crit (Bibi: "crit")
+			if bb.hero != null and not bb.walking() and not bb.walked_off():
+				bb.hero.play(str(LeaderUi.tap()["critAnim"]), true, 1)   # the round's crit (Bibi: "crit"); never on a walked-off leader
 	_progress_ms += dt
 	if _progress_ms >= 1000.0 and mode == "main" and Coalition.active():
 		_progress_ms = 0.0
@@ -2363,7 +2363,14 @@ func _start_evolve(dev_force := false) -> void:
 	diorama.poof_all()
 	var new_era := Story.era_for(nxt.evolutions)
 	var era_name: String = new_era.get("name", "") if new_era.get("id", "") != Story.era_for(state.evolutions).get("id", "") else ""
-	tx.start({"round": nxt.evolutions + 1, "multBefore": res["multBefore"], "multAfter": res["multAfter"], "gained": res["gained"], "era": era_name},
+	# the leader swap (spec §9.3.4, motion/state-graph-magician.md §9 rev 2; manual test A5): when a
+	# pick follows, the old leader walks off the OLD stage first; the card waits for him, and the new
+	# round's state and stage swap under its opaque page
+	var lead := EvolveTx.lead_ms(bool(settings["reducedMotion"])) if Leaders.pick_pending(nxt) and bb.hero != null else 0.0
+	if lead > 0.0:
+		_pick_seq.clear()        # no round line pops over the walk-out (A4: one text at a time)
+		toasts.clear_bubble()
+	tx.start({"round": nxt.evolutions + 1, "multBefore": res["multBefore"], "multAfter": res["multAfter"], "gained": res["gained"], "era": era_name, "leadMs": lead},
 		bool(settings["reducedMotion"]), {
 		"seam": func() -> void:
 			state = _next_state
@@ -2390,19 +2397,17 @@ func _start_evolve(dev_force := false) -> void:
 			toasts.clear_bubble()
 			_economy_frozen = false
 			_acc = 0.0,
-		# the leader swap (spec §9.3.4): when a pick follows, the old leader walks off screen-right as
-		# the card lifts, so the flash and the picker open on an empty stage
-		"walk": func() -> void:
-			if Leaders.pick_pending(state):
-				bb.walk_out(),
+		# the leader swap: f0 of the ceremony (only with a lead), before the card, on the old stage, so
+		# the flash and the picker open on the new round's empty stage
+		"walk": func() -> void: bb.walk_out(),
 		"hello": func() -> void: bb.hello(),
 		"unlock": func() -> void:
 			_audio("evolveTransitionEnd")
 			if not _ceremony_on_marker:
 				_audio("ceremonyEnd")
 			ticker.defer_until(ticker.now_ms() + float(Tune.MC["headlineDeferAfterEvolveMs"]))
-			# input stays locked until the walk-out has cleared the stage (≤ 260 ms past the card:
-			# motion/state-graph-magician.md §9); the flash, the FTUE and the picker follow it
+			# input stays locked until the stage is clear (the walk-out ran before the card now, so
+			# this only waits on a caller that skipped ahead); the flash, the FTUE and the picker follow
 			if bb.walking():
 				_after_walk = _tx_release
 			else:

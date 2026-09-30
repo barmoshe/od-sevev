@@ -1,8 +1,9 @@
 class_name LeaderWalk
 extends RefCounted
 ## A leader walking off or onto the stage (design/leader-select-spec.md §9.3.4, motion/state-graph-magician.md §9):
-## the old leader walks out screen-right when the EVOLVE_TX card lifts, before the flash or the
-## picker; the picked leader walks in from screen-left to the feet point after the pick commit.
+## the old leader walks out screen-right on the election's confirm frame, across the OLD stage and
+## before the EVOLVE_TX card covers it (§9 revision 2: the new era is swapped under the opaque card
+## afterwards); the picked leader walks in from screen-left to the feet point after the pick commit.
 ##
 ## No leader has a walk strip, and none is requested: a 1-2 s walk cycle across a 180-ap stage is dead
 ## time, and the TA budget (CONTRACT §4c) has no room for 8 more strips. So a walk is the leader's own

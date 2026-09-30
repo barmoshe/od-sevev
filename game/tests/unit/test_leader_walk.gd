@@ -122,28 +122,53 @@ func test_reduced_motion_walks_are_fades_on_the_mark() -> void:
 	runner.check(w.state() == "home" and w.alpha() == 1.0, "in: shown after 150 ms")
 
 
-func test_the_tx_cues_the_walk_when_the_card_lifts() -> void:
+## Manual test 2026-09-30 A5 (state-graph §9 rev 2): with a lead, the walk cue is f0, the card waits
+## until the walk and its empty beat are over, and the seam lands under the opaque page. A4: a
+## ceremony line is only ever drawn over the fully opaque page (never over a translucent one).
+func test_the_tx_walks_out_before_the_card_and_lifts_empty() -> void:
 	for reduced: bool in [false, true]:
-		var tx := EvolveTx.new()
-		var fired: Array = []
-		tree.root.add_child(tx)
-		await tree.process_frame
-		tx.start({"round": 2, "multBefore": 1.0, "multAfter": 1.1, "gained": 3, "era": ""}, reduced, {
-			"seam": func() -> void: fired.append("seam"),
-			"walk": func() -> void: fired.append("walk"),
-			"unlock": func() -> void: fired.append("unlock")})
-		var t := 0.0
-		var at := -1.0
-		while tx.running and t < 5000.0:
-			tx.update_view(10.0)
-			t += 10.0
-			if at < 0.0 and fired.has("walk"):
-				at = t
-		runner.check(absf(at - tx.walk_ms(reduced)) <= 10.0 and fired == ["seam", "walk", "unlock"],
-			"%s: the walk cue at the card's lift (%.0f ms, want %.0f), after the seam, before the unlock (%s)" % ["rm" if reduced else "full", at, tx.walk_ms(reduced), str(fired)])
-		runner.check(tx.walk_ms(reduced) + LeaderWalk.length_ms(true, reduced) - tx.total_ms(reduced) <= 260.0,
-			"%s: the walk-out ends ≤ 260 ms after the card is gone" % ("rm" if reduced else "full"))
-		tx.queue_free()
+		var tag := "rm" if reduced else "full"
+		for with_lead: bool in [true, false]:
+			var tx := EvolveTx.new()
+			var fired: Array = []
+			tree.root.add_child(tx)
+			await tree.process_frame
+			var lead := EvolveTx.lead_ms(reduced) if with_lead else 0.0
+			var seam_a: Array = [-1.0]   # (a lambda captures locals by value)
+			tx.start({"round": 2, "multBefore": 1.0, "multAfter": 1.1, "gained": 3, "era": "הכנסת", "leadMs": lead}, reduced, {
+				"seam": func() -> void:
+					fired.append("seam")
+					seam_a[0] = tx._card.modulate.a,
+				"walk": func() -> void: fired.append("walk"),
+				"unlock": func() -> void: fired.append("unlock")})
+			var t := 0.0
+			var walk_at := -1.0
+			var seam_at := -1.0
+			var card_before_lead := false
+			var over_translucent: Array = []
+			while tx.running and t < 6000.0:
+				tx.update_view(10.0)
+				if walk_at < 0.0 and fired.has("walk"):
+					walk_at = t
+				t += 10.0
+				if seam_at < 0.0 and fired.has("seam"):
+					seam_at = t
+				if t < lead and tx._card.modulate.a > 0.0:
+					card_before_lead = true
+				for p: PxText in [tx._line, tx._species, tx._mult, tx._gain, tx._era]:
+					if p.visible and p.modulate.a > 0.0 and p.text != "" and tx._card.modulate.a < 1.0:
+						over_translucent.append("%s @%.0f (page %.2f)" % [p.text, t, tx._card.modulate.a])
+			if with_lead:
+				runner.check(walk_at == 0.0 and fired == ["walk", "seam", "unlock"], "%s: the walk cue is f0, before the seam (%s at %.0f)" % [tag, str(fired), walk_at])
+				runner.check(not card_before_lead, "%s: no card while he walks off the old stage (%.0f ms)" % [tag, lead])
+				runner.check(seam_at >= LeaderWalk.length_ms(true, reduced) and absf(seam_at - tx.seam_ms(reduced, lead)) <= 10.0,
+					"%s: the seam (the new stage) after the walk-out has ended (%.0f ms; walk %.0f)" % [tag, seam_at, LeaderWalk.length_ms(true, reduced)])
+			else:
+				runner.check(fired == ["seam", "unlock"], "%s, no pick: no walk cue (%s)" % [tag, str(fired)])
+			runner.check(float(seam_a[0]) == 1.0, "%s: the seam lands under the fully opaque page (a %.2f)" % [tag, float(seam_a[0])])
+			runner.check(over_translucent.is_empty(), "%s: no ceremony line over a translucent page (%s)" % [tag, str(over_translucent.slice(0, 3))])
+			runner.check(absf(t - tx.total_ms(reduced, lead)) <= 10.0, "%s: the ceremony ends on time (%.0f vs %.0f)" % [tag, t, tx.total_ms(reduced, lead)])
+			tx.queue_free()
 
 
 # ------------------------------------------------------------------ on the stage
@@ -211,27 +236,32 @@ func test_the_election_walks_the_leader_out_before_the_flash_or_picker() -> void
 	m._set_mode("main", false)
 	m._dev["on"] = true   # the dev-forced ceremony (no 61 gate); the flow after it is the real one
 	var bb: BigBanana = m.bb
+	var old_era := str(m.diorama._era.get("id", ""))
 	m._start_evolve(true)
 	runner.check(m.tx.running and m._tx_locked, "the ceremony runs, input locked")
-	var walk_at: float = m.tx.walk_ms(false)
-	var total: float = m.tx.total_ms(false)
+	runner.check(bb.walking(), "he sets off on the ceremony's f0 (before any card)")
+	var total: float = m.tx.total_ms(false, EvolveTx.lead_ms(false))
 	var t := 0.0
-	var early := false
 	var xs: Array = []
 	var picker_during := false
 	var unlocked := false
 	var grid := true
+	var off_old := true     # every walk frame on the old stage, no card over it
+	var swap_a := -1.0      # the page's alpha on the frame the stage changed
 	while t < total + 600.0:
 		_frames(1)
 		t += 16.0
-		if t < walk_at - 16.0 and (bb.walking() or bb.walked_off()):
-			early = true
+		var era := str(m.diorama._era.get("id", ""))
+		if swap_a < 0.0 and era != old_era:
+			swap_a = m.tx._card.modulate.a
 		if bb.walking():
 			xs.append(_off().x)
 			grid = grid and _on_grid(_off())
+			off_old = off_old and era == old_era and m.tx._card.modulate.a == 0.0
 			picker_during = picker_during or m.mode == "pick" or m.overlays.is_open()
 			unlocked = unlocked or not m._tx_locked
-	runner.check(not early, "he stands until the card lifts")
+	runner.check(off_old, "the walk-out runs on the old stage (%s), with no card over it" % old_era)
+	runner.check(swap_a == 1.0, "the stage swaps under the opaque page (a %.2f)" % swap_a)
 	runner.check(xs.size() >= 30 and float(xs[-1]) > float(xs[0]) and grid, "he walks off screen-right in whole art px (%d frames)" % xs.size())
 	runner.check(not picker_during, "neither the flash nor the picker opens while he walks")
 	runner.check(not unlocked, "input stays locked while he walks")
@@ -310,4 +340,4 @@ func test_reduced_motion_the_swap_fades_on_the_mark() -> void:
 		if t > 3000.0:
 			break
 	runner.check(not moved and bb.walked_off(), "walk-out: a fade on the mark, then gone")
-	runner.check(t <= m.tx.total_ms(true) + 32.0, "no tail after the reduced ceremony (%.0f ms)" % t)
+	runner.check(t <= m.tx.total_ms(true, EvolveTx.lead_ms(true)) + 32.0, "no tail after the reduced ceremony (%.0f ms)" % t)

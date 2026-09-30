@@ -7,12 +7,22 @@ extends Node2D
 ## "הכנסת פוזרה. מתחילים:" over "סבב בחירות מס׳ {n}" (the new round), then EVO_MULT "×before ←
 ## ×after" (the string orders it for RTL; the fork's "×a → ×b" ran left to right), the base gained
 ## (EVO_THUMBS_GAIN) and the era line, all at the ×4 body scale (large text ×5), centred.
+##
+## Manual test 2026-09-30 (A4, A5; motion/state-graph-magician.md §9, revision 2): when a pick follows,
+## the old leader walks out FIRST, on the old stage, before any card (`leadMs`: the walk plus an
+## 80 ms empty beat); the card then dims in over the empty stage, the new round's state and stage are
+## swapped under the fully opaque page (the seam), and the lines leave (3 steps of 40 ms) while the
+## page is still opaque, so the page lifts empty: no ceremony line ever prints over the ticker, the
+## Row A readout or the stage below a translucent page.
 
 const FADE_STEPS := [[0.0, 0.25], [90.0, 0.5], [180.0, 0.75], [270.0, 1.0]]
 const SEAM_MS := 270.0
 const LAND_MS := 570.0
 const MULT_MS := 720.0
 const DROP_PX := 32.0
+const TEXT_OUT := [[0.0, 0.67], [40.0, 0.33], [80.0, 0.0]]   # the lines' stepped exit, opaque page
+const TEXT_OUT_MS := 120.0
+const WALK_BEAT_MS := 80.0           # the empty old stage between the walk-out and the card
 const SPECIES_Y := 628.0
 const MULT_Y := 704.0
 const GAIN_Y := 760.0
@@ -36,6 +46,7 @@ var _gain: PxText
 var _era: PxText
 var _notice: NinePatchRect            # null without the kit piece (the fork's cream card)
 var _t := 0.0
+var _lead := 0.0                      # ms before the card: the walk-out on the old stage (0: none)
 var _reduced := false
 var _cb: Dictionary = {}
 var _fired := {}
@@ -62,15 +73,17 @@ func _tx_text(y: float, t: String, col: Variant) -> PxText:
 	return p
 
 
-## info: {round (the new round's number), multBefore, multAfter, gained, era}; cb: {seam, walk, hello,
-## unlock} Callables. A caller without `round` gets the old species title. `walk` fires when the card
-## starts to lift (the fade-in's f0; reduced motion: the cross-fade out's f0): the leader swap's
-## walk-out (spec §9.3.4, motion/state-graph-magician.md §9) starts there, so the lifting card reveals
-## the new round's stage with the old leader setting off.
+## info: {round (the new round's number), multBefore, multAfter, gained, era, leadMs}; cb: {seam, walk,
+## hello, unlock} Callables. A caller without `round` gets the old species title. `leadMs` (> 0 when a
+## pick follows: `lead_ms`) holds the card back while the old leader walks off the OLD stage; `walk`
+## fires on f0 then (the leader swap's walk-out, spec §9.3.4, motion/state-graph-magician.md §9 rev 2),
+## and never without a lead. The seam (the new round's state and stage) always lands under the
+## fully opaque page, after the walk.
 func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
 	_reduced = reduced
 	_cb = cb
 	_t = 0.0
+	_lead = maxf(0.0, float(info.get("leadMs", 0.0)))
 	running = true
 	_fired = {"seam": false, "walk": false, "hello": false, "unlock": false}
 	visible = true
@@ -99,6 +112,8 @@ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
 	_set_texts(false, false)
 	_text_alpha(1.0)
 	_card.modulate.a = 0.0
+	if _lead > 0.0:
+		_fire("walk")   # f0, the confirm frame: he sets off on the old stage; the card waits for him
 
 
 func _set_texts(title: bool, mult: bool) -> void:
@@ -123,10 +138,14 @@ func update_view(dt_ms: float) -> void:
 	if not running:
 		return
 	_t += dt_ms
+	if _t < _lead:
+		_card.modulate.a = 0.0
+		_set_texts(false, false)
+		return
 	if _reduced:
-		_update_reduced(_t)
+		_update_reduced(_t - _lead)
 	else:
-		_update_full(_t)
+		_update_full(_t - _lead)
 
 
 func _text_alpha(a: float) -> void:
@@ -139,22 +158,23 @@ func _text_alpha(a: float) -> void:
 func _update_full(t: float) -> void:
 	var fade_out_end := float(Tune.T["evolveFadeOutMs"])
 	var card_end := fade_out_end + float(Tune.T["evolveTitleCardMs"])
+	var lift := card_end + TEXT_OUT_MS   # the lines are gone; the page lifts empty
 	var fade_in := float(Tune.T["evolveFadeInMs"])
-	var total := card_end + fade_in
+	var total := lift + fade_in
 	var a := 0.0
 	for st: Array in FADE_STEPS:
 		if t >= float(st[0]):
 			a = float(st[1])
-	if t >= card_end:
-		var k := mini(3, int(floorf((t - card_end) / fade_in * 3.0)))
+	if t >= lift:
+		var k := mini(3, int(floorf((t - lift) / fade_in * 3.0)))
 		a = [0.67, 0.33, 0.0, 0.0][k]
 	_card.modulate.a = a
 	if t >= SEAM_MS:
 		_fire("seam")
-	var title_on := t >= fade_out_end and t < total
-	var mult_on := t >= MULT_MS and t < total
+	var title_on := t >= fade_out_end and t < lift
+	var mult_on := t >= MULT_MS and t < lift
 	_set_texts(title_on, mult_on)
-	_text_alpha(a if t >= card_end else 1.0)
+	_text_alpha(text_out_alpha(t - card_end))
 	if title_on:
 		var dy := 0.0
 		var dt := t - fade_out_end
@@ -172,12 +192,20 @@ func _update_full(t: float) -> void:
 		_mult.px = sc
 		_mult.center_in(0, L.W)
 		_mult.position.y = MULT_Y - Ui.snap((9.0 * float(sc - L.TEXT)) / 2.0, 4)
-	if t >= card_end:
-		_fire("walk")
-	if t >= card_end + fade_in / 3.0:
+	if t >= lift + fade_in / 3.0:
 		_fire("hello")
 	if t >= total:
 		_finish()
+
+
+## The lines' alpha `dt` ms after the title card's end: 1 before it, then TEXT_OUT's steps (the page
+## stays opaque until they are gone).
+static func text_out_alpha(dt: float) -> float:
+	var a := 1.0
+	for st: Array in TEXT_OUT:
+		if dt >= float(st[0]):
+			a = float(st[1])
+	return a
 
 
 func _update_reduced(t: float) -> void:
@@ -188,10 +216,9 @@ func _update_reduced(t: float) -> void:
 	_card.modulate.a = a
 	if t >= xfade:
 		_fire("seam")
-	if t >= card_end:
-		_fire("walk")
-	_set_texts(t >= xfade and t < total, t >= MULT_MS and t < total)
-	_text_alpha(a if t >= card_end else 1.0)
+	# the lines cut as the cross-fade out starts: the page fades out empty
+	_set_texts(t >= xfade and t < card_end, t >= MULT_MS and t < card_end)
+	_text_alpha(1.0)
 	_species.position.y = SPECIES_Y
 	_line.position.y = SPECIES_Y - 48.0
 	_mult.px = L.TEXT
@@ -204,19 +231,32 @@ func _update_reduced(t: float) -> void:
 func _finish() -> void:
 	running = false
 	visible = false
-	_fire("walk")   # a caller that skipped ahead still gets it, before the unlock
+	if _lead > 0.0:
+		_fire("walk")   # a caller that skipped ahead still gets it, before the unlock
 	_fire("unlock")
 
 
-## When the card starts to lift, in ms from the start: the walk-out's cue.
-func walk_ms(reduced: bool) -> float:
-	if reduced:
-		return 200.0 + float(Tune.T["evolveTitleCardMs"])
-	return float(Tune.T["evolveFadeOutMs"]) + float(Tune.T["evolveTitleCardMs"])
+## The lead a leader swap needs before the card (a pick follows): the walk-out on the old stage and an
+## 80 ms empty beat. Reduced motion: the 150 ms fade on the mark and the beat.
+static func lead_ms(reduced: bool) -> float:
+	return LeaderWalk.length_ms(true, reduced) + WALK_BEAT_MS
 
 
-## The whole transition in ms.
-func total_ms(reduced: bool) -> float:
+## The seam in ms from the start with `lead` ms of walk-out first: the new round's state and stage,
+## under the fully opaque page.
+func seam_ms(reduced: bool, lead: float = 0.0) -> float:
+	return lead + (200.0 if reduced else SEAM_MS)
+
+
+## When the page starts to lift, in ms from the start (the lines are gone by then).
+func lift_ms(reduced: bool, lead: float = 0.0) -> float:
 	if reduced:
-		return 400.0 + float(Tune.T["evolveTitleCardMs"])
-	return float(Tune.T["evolveFadeOutMs"]) + float(Tune.T["evolveTitleCardMs"]) + float(Tune.T["evolveFadeInMs"])
+		return lead + 200.0 + float(Tune.T["evolveTitleCardMs"])
+	return lead + float(Tune.T["evolveFadeOutMs"]) + float(Tune.T["evolveTitleCardMs"]) + TEXT_OUT_MS
+
+
+## The whole transition in ms (with `lead` ms of walk-out first).
+func total_ms(reduced: bool, lead: float = 0.0) -> float:
+	if reduced:
+		return lead + 400.0 + float(Tune.T["evolveTitleCardMs"])
+	return lift_ms(false, lead) + float(Tune.T["evolveFadeInMs"])

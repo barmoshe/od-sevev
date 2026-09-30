@@ -1,7 +1,7 @@
 // Motion check in the runtime origin (animator, 2026-09-29; wave B 2026-09-30): frame strips of
 // - Bibi's court-day exit and return (the startle, the zip left, the hat on his mark, the fetch, the land);
 // - the brawl cloud's boil (the stage cue and the inline cloud in T3);
-// - the leader swap (wave B): the walk-in after a pick and the walk-out as the EVOLVE_TX card lifts
+// - the leader swap (wave B): the walk-in after a pick and the walk-out on the old stage before the EVOLVE_TX card
 //   (the ceremony is forced with the dev flag window.odDevElect = 1, no 61 gate);
 // - the ticker's page roll (M1) and its reduced-motion cross-fade.
 // The game runs at 1/SLOW speed (&slow=N, Engine.time_scale) so a headless screenshot every ~100 ms of
@@ -154,14 +154,14 @@ for (const d of DEVICES) {
 			let s = await o.probe();
 			check(s && s.leader === 'bennett' && s.mode === 'title', `Bennett's round, pre-tap (leader ${s && s.leader}, mode ${s && s.mode})`);
 			check(inFrames.at(-1).t >= (reduced ? 650 : 1250), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
-			// tap 1 starts the round; then the forced ceremony: 1200 ms to the card's lift, then the walk-out
+			// tap 1 starts the round; then the forced ceremony: the walk-out is its f0, on the old stage,
+			// before the card (state-graph §9 rev 2); the strip covers the walk, the empty beat and the dim
 			const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
 			await o.tap(hx, hy, 8);
 			await o.page.waitForTimeout(1500);
 			await o.page.evaluate(() => { window.odDevElect = 1; });
 			await o.page.waitForFunction(() => window.odDevElect === 0, null, { timeout: 600000 });   // taken: EVOLVE_TX's f0
-			await o.page.waitForTimeout((reduced ? 900 : 1100) * WS);   // ms of game time, under the card
-			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, 70, 0, WS, reduced ? 500 : 950);
+			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, 70, 0, WS, reduced ? 450 : 950);
 			fs.writeFileSync(`${out}/walk-out-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: outFrames }, null, 1));
 			await o.page.waitForFunction(() => window.odDev && (window.odDev.mode === 'pick' || window.odDev.modal !== ''), null, { timeout: 600000 }).catch(() => {});
 			s = await o.probe();

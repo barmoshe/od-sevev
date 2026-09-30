@@ -750,7 +750,7 @@ with a stepped 1-ap bob. Code: `ui/leader_walk.gd` (the pose), `BigBanana.walk_o
 **One owner of the figure's position.** `BigBanana._apply_figure` is the only writer of the figure's position,
 visibility and alpha. It sums the mark, the court day's zip offset (§2) and the walk's travel and bob, each in whole ap,
 and multiplies the two alphas. The walk and the court never both move him:
-- a walk-out cuts a running court day home first (hat hidden, `court.reset()`); he is under the lifting card then;
+- a walk-out cuts a running court day home first (hat hidden, `court.reset()`), on the old stage, before the card;
 - the court does not start while a walk runs or while he is off after a walk-out (`courtStart` latches as pending and
   starts on the landing, like `exitPending` in §2);
 - the court's own clock keeps running (the hat's states), but its body offset is 0 outside court.
@@ -765,7 +765,7 @@ graph:
     - { id: home, loop: true, interrupt_priority: low, on_entry: [ { pose: "on the mark, alpha 1" } ] }
     - id: out
       animation_key: idle
-      interrupt_priority: high       # input is locked (the EVOLVE_TX lock is held until gone)
+      interrupt_priority: high       # input is locked (EVOLVE_TX's lock, from the confirm frame)
       on_entry: [ { tween: "x mark → offRight, 560 ms Sine.In, snap S" },
                   { bob: "y −1 ap on every other 125 ms beat (4 bobs/s), flat on the last beat" } ]
       reduced_motion: "no travel, no bob: alpha 1 → 0 on the mark, 150 ms Linear"
@@ -778,7 +778,7 @@ graph:
                   { bob: "as out; the last beat is flat so he lands on idle's own frame" } ]
       reduced_motion: "no travel, no bob: alpha 0 → 1 on the mark, 150 ms Linear"
   transitions:
-    - { from: home, to: out,  on: txWalkCue,   type: cut, condition: "a pick follows (Leaders.pick_pending)", note: "EVOLVE_TX's fade-in f0 (1200 ms; RM: 1000 ms)" }
+    - { from: home, to: out,  on: txWalkCue,   type: cut, condition: "a pick follows (Leaders.pick_pending of the next state)", note: "rev 2: EVOLVE_TX's f0, the confirm frame, BEFORE the card (the card waits `leadMs` = walk + 80 ms); was the fade-in f0 at 1200 ms" }
     - { from: out,  to: gone, on: walkEnd,     type: cut }
     - { from: [home, gone, in], to: in, on: pickDone, type: cut, note: "PickView.on_done, ≈ 520 ms after the commit; 'again' walks the same leader back in" }
     - { from: in,   to: home, on: walkEnd,     type: cut, note: "Dubi's pick line 120 ms later" }
@@ -787,24 +787,37 @@ graph:
 offLeft / offRight: "the figure's frame rect (its loose prop included) clears the canvas edge by 4 ap; the canvas is the viewport, so the stage column's x (_sx) is added on each side"
 ```
 
-**Timeline (ms from `electionConfirm`, normal motion):**
+**Timeline (ms from `electionConfirm`, normal motion; revision 2, manual test 2026-09-30 A4/A5):**
+
+The first cut walked him off as the card lifted, across the NEW round's stage (Knesset under Balfour's leader, seen
+through a translucent page with the card's lines still printing over the ticker). Revision 2 puts the exit where the
+story needs it: he leaves the stage he played on, the card covers the empty stage, the new era is swapped under the
+opaque page, and the page lifts empty. `EvolveTx.lead_ms` = the walk (560; RM 150) + an 80 ms empty beat = 640
+(RM 230).
 
 | t | Card | Stage |
 |---|---|---|
-| 0-270 | stepped dim 25 → 100 % | the leader stands (locked) |
-| 270 | seam: the new round's state | hidden under the card |
-| 400-1200 | the title card | hidden |
-| **1200** | the fade-in starts (67 %) | **walk-out f0**: he sets off (Sine.In: 4 % of the way at 1300) |
-| 1300, 1400 | 33 %, 0 % | he walks off screen-right across the new round's stage |
-| 1500 | EVOLVE_TX ends; the music cue (`evolveTransitionEnd`) fires on time | he is ~33 % of the way |
-| **1760** | – | **gone**; input unlocks; the flash (O3b) or the picker opens on an empty stage |
+| **0** | none (the election modal exits, 160 ms) | **walk-out f0** on the OLD stage: he sets off (Sine.In; the sources poof) |
+| 560 | – | **gone**; the old stage stands empty for one 80 ms beat |
+| 640-910 | stepped dim 25 → 100 % | the empty old stage |
+| **910** | seam: the new round's state | the **new era swapped under the opaque page** |
+| 1040-1840 | the title card (the lines, on the white notice) | hidden |
+| 1840-1960 | the lines step out (67 / 33 / 0 %, 40 ms each); the page stays opaque | hidden |
+| 1960, 2060, 2160 | the empty page lifts: 67, 33, 0 % | the new round's empty stage shows |
+| **2260** | EVOLVE_TX ends; input unlocks; `evolveTransitionEnd` | the flash (O3b) or the picker opens on the empty stage |
 
-- The walk-out ends 260 ms after the card, so the lock lasts 1760 ms instead of 1500. It is below the 400 ms "drag"
-  threshold and it is watched motion, not a wait.
-- The alternative, starting the walk under the opaque card at 940 ms so that it ends with the card, shows only its last
-  100 ms unobstructed, so the exit would not read.
-- **Reduced motion:** the fade starts at 1000 (the cross-fade out's f0) and ends at 1150, inside the 1200 ms
-  ceremony, so there is no tail.
+- **No two texts ever overlap:** a ceremony line is drawn only while the page is fully opaque (the lines leave before
+  the lift; reduced motion: they cut as the cross-fade out starts). The ticker below never shows through a line.
+- The lock lasts 2260 ms (was 1760). It is watched motion from the first frame (the walk, then the card), never a wait:
+  the walk-out answers the confirm tap within one frame. The page's lift lands next to the fanfare's `rollEnd`
+  (2069 at 116 BPM), so the new stage is revealed on the sting instead of 570 ms before it.
+- No pick (a default-content run, a tool): no lead, no walk; the card starts on f0 as before and the leader, still
+  on his mark, winks on the lift (`hello`).
+- The trick cue (`rollEnd − 333`) never plays the crit on a walked-off figure.
+- **Reduced motion:** the fade on the mark (0-150), the beat, then the dark cross-fade from 230; the seam at 430; the
+  lines cut at 1230; the page is gone at 1430. No tail.
+- Rejected: walking him under the opaque card (only the last 100 ms would read), and walking him on the new stage
+  (revision 1: the new era appears before its round has begun, with the old leader standing on it).
 
 **Pick (ms from the commit):**
 
