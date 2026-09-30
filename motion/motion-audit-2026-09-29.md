@@ -179,3 +179,6 @@ pages get more time than before (up to 4.6 s instead of 3.5), and the short tail
     last. The flash (O3b) follows on an empty stage.
   - The roll: the two pages move locked, the words are whole, and 90 % of the travel is done by 100 ms.
   - Reduced motion: fades on the mark, and the ticker's cross-fade.
+- **Game Developer / UX, seen in the browser ticker strip (not motion):** the pager breaks "…10,000 ₪." at the space
+  before the shekel sign, so "₪." opens line 2 on its own. `Ticker.wrap_lines_px` could bind a currency sign to its
+  number (treat "N ₪" as one word, or join with a no-break space) the same way it keeps words whole.
