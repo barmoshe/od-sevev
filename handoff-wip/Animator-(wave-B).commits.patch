@@ -1,7 +1,7 @@
 From 69926a9b0dc473e104a4bb29e70426b83f72825c Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 02:40:21 +0000
-Subject: [PATCH 1/3] feat(od-sevev): wire the leader walk into the election
+Subject: [PATCH 1/5] feat(od-sevev): wire the leader walk into the election
  and the pick
 
 The old leader walks off screen-right as the EVOLVE_TX card lifts, before
@@ -1135,7 +1135,7 @@ index 6afb8b3..d8c5db1 100644
 From 68e7d638eb2b855fcbaacd442793527f49f07303 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 02:45:07 +0000
-Subject: [PATCH 2/3] feat(od-sevev): roll the ticker pages and time each page
+Subject: [PATCH 2/5] feat(od-sevev): roll the ticker pages and time each page
  by its length
 
 M1: the next page rises from under the row as the old one lifts out, 240 ms
@@ -1594,7 +1594,7 @@ index 0000000..91091ac
 From 497dde7b484ceafc99ede03279b29122adff9d2a Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Wed, 30 Sep 2026 03:11:28 +0000
-Subject: [PATCH 3/3] feat(od-sevev): stamp the ballot slip's tag and log wave
+Subject: [PATCH 3/5] feat(od-sevev): stamp the ballot slip's tag and log wave
  B in the motion audit
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -1836,6 +1836,435 @@ index 4c29ade..4ccd699 100644
 +  slam's f0 (the ×6 frame).
 +- **The court's zip** still exits screen-left while the walk-out goes screen-right, per spec §9.3.4. They never
 +  share a frame: the walk-out cuts a court day home under the card.
+-- 
+2.43.0
+
+
+From 473861a6f605f16cef52117e6d1bff8ee9b15161 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 03:42:04 +0000
+Subject: [PATCH 4/5] test(od-sevev): walk and ticker strips in motion_web, an
+ engine ticker strip
+
+motion_web.mjs gains the walk-in after a pick, the walk-out as the forced
+EVOLVE_TX card lifts (window.odDevElect) and the ticker row, each with its
+reduced-motion pass, and waits for the picker's tap guard in game time.
+tests/dev/ticker_strip.gd renders the page roll in 16 ms steps. The seam
+drops the old round's pending pick lines and Dubi's bubble.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ game/scripts/main.gd               |   3 +
+ game/tests/dev/ticker_strip.gd     |  57 +++++++++++
+ game/tests/dev/ticker_strip.gd.uid |   1 +
+ tools/web/motion_web.mjs           | 159 +++++++++++++++++++++++------
+ 4 files changed, 187 insertions(+), 33 deletions(-)
+ create mode 100644 game/tests/dev/ticker_strip.gd
+ create mode 100644 game/tests/dev/ticker_strip.gd.uid
+
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index dd08875..f7d6e3e 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -2245,6 +2245,9 @@ func _start_evolve(dev_force := false) -> void:
+ 				ticker.enqueue("milestone", Strings.s("F_ERA", {"era": era.get("name", "")}))
+ 				_audio("era", era.get("id", ""))
+ 			diorama.set_era(era)
++			# the old round's pick lines never carry over the card into the walk-out
++			_pick_seq.clear()
++			toasts.clear_bubble()
+ 			_economy_frozen = false
+ 			_acc = 0.0,
+ 		# the leader swap (spec §9.3.4): when a pick follows, the old leader walks off screen-right as
+diff --git a/game/tests/dev/ticker_strip.gd b/game/tests/dev/ticker_strip.gd
+new file mode 100644
+index 0000000..8600f22
+--- /dev/null
++++ b/game/tests/dev/ticker_strip.gd
+@@ -0,0 +1,57 @@
++extends SceneTree
++## Dev tool (animator, M1): a deterministic frame strip of the ticker's page change, rendered by the
++## engine itself in 16 ms steps (the browser capture in tools/web/motion_web.mjs is too coarse on a
++## loaded machine to catch a 240 ms roll reliably). A three-page headline at the 324 clip; frames from
++## 32 ms before the first page change to 32 ms after it, motion and reduced motion, at logical px
++## (1 art px = 4 px), plus a JSON index {frames: [{t, file}]} for the contact sheet.
++##   xvfb-run -a godot --path game -s res://tests/dev/ticker_strip.gd -- --out=<dir>
++
++const HEAD := "ההייטקיסטים יוצאים לרחובות שוב, והפעם עם שלטים חדשים ועם כובע של קוסם ישן מהטלוויזיה"
++
++
++func _initialize() -> void:
++	_run.call_deferred()
++
++
++func _run() -> void:
++	await process_frame
++	var out := "user://ticker_strip"
++	for a in OS.get_cmdline_user_args():
++		if a.begins_with("--out="):
++			out = a.substr(6)
++	DirAccess.make_dir_recursive_absolute(out)
++	Content.load_from(Content.PATH)
++	var TickerS: GDScript = load("res://scripts/ui/ticker.gd")
++	for reduced: bool in [false, true]:
++		var sv := SubViewport.new()
++		sv.size = Vector2i(L.W, 84)
++		sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
++		sv.transparent_bg = false
++		root.add_child(sv)
++		var t: Node2D = TickerS.new()
++		sv.add_child(t)
++		await process_frame
++		t.call("set_reduced_motion", reduced)
++		t.call("defer_until", 0.0)
++		t.call("enqueue", "flavor", HEAD)
++		t.call("update_view", 16.0)
++		var dwell: float = float(t.get("_dwell"))
++		t.call("update_view", dwell - 48.0)
++		var tag := "rm" if reduced else "roll"
++		var frames: Array = []
++		var ms := -32.0
++		var end := (float(TickerS.get("FADE_MS")) if reduced else float(TickerS.get("ROLL_MS"))) + 32.0
++		while ms <= end:
++			t.call("update_view", 16.0)
++			await RenderingServer.frame_post_draw
++			var img := sv.get_texture().get_image()
++			var file := "%s/ticker-strip-%s-%03d.png" % [out, tag, frames.size()]
++			img.save_png(file)
++			frames.append({"t": int(ms), "file": file})
++			ms += 16.0
++		var f := FileAccess.open("%s/ticker-strip-%s.json" % [out, tag], FileAccess.WRITE)
++		f.store_string(JSON.stringify({"frames": frames, "note": "t = ms from the page change's f0; logical px"}))
++		f.close()
++		print("%s: %d frames (first-page dwell %.0f ms)" % [tag, frames.size(), dwell])
++		sv.queue_free()
++	quit(0)
+diff --git a/game/tests/dev/ticker_strip.gd.uid b/game/tests/dev/ticker_strip.gd.uid
+new file mode 100644
+index 0000000..65bc74b
+--- /dev/null
++++ b/game/tests/dev/ticker_strip.gd.uid
+@@ -0,0 +1 @@
++uid://cjt8uyea1tl8f
+diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
+index 3dc157b..7e277c8 100644
+--- a/tools/web/motion_web.mjs
++++ b/tools/web/motion_web.mjs
+@@ -1,17 +1,26 @@
+-// Motion check in the runtime origin (animator, 2026-09-29): frame strips of Bibi's court-day exit
+-// and return (the startle, the zip left, the hat on his mark, the fetch, the land) and of the brawl
+-// cloud's boil (the stage cue and the inline cloud in T3). The game runs at 1/SLOW speed
+-// (&slow=N, Engine.time_scale) so a headless screenshot every ~100 ms of wall time is a frame every
+-// few ms of game time; each frame is saved with its game-time stamp (device px: one art px is k px).
++// Motion check in the runtime origin (animator, 2026-09-29; wave B 2026-09-30): frame strips of
++// - Bibi's court-day exit and return (the startle, the zip left, the hat on his mark, the fetch, the land);
++// - the brawl cloud's boil (the stage cue and the inline cloud in T3);
++// - the leader swap (wave B): the walk-in after a pick and the walk-out as the EVOLVE_TX card lifts
++//   (the ceremony is forced with the dev flag window.odDevElect = 1, no 61 gate);
++// - the ticker's page roll (M1) and its reduced-motion cross-fade.
++// The game runs at 1/SLOW speed (&slow=N, Engine.time_scale) so a headless screenshot every ~100 ms of
++// wall time is a frame every few ms of game time; each frame is saved with its game-time stamp (device
++// px: one art px is k px).
+ //   node tools/web/motion_web.mjs <url> <out dir> [WxH@DPR,...]
+-// Serve build/web first (python3 -m http.server --directory build/web). Runs each device twice for the
+-// court (motion, then prefers-reduced-motion: the fades) and once for the brawl.
++//   MOTION_ONLY=walk,ticker MOTION_VARIANTS=rm node tools/web/motion_web.mjs ...   (sections: court, brawl,
++//   walk, ticker; MOTION_SLOW_WALK / MOTION_SLOW_TICKER raise the slow-down on a loaded machine). The
++//   engine-rendered ticker strip (16 ms steps): game/tests/dev/ticker_strip.gd.
++// Serve build/web first (python3 -m http.server --directory build/web). Each device runs the court, the
++// walk and the ticker twice (motion, then prefers-reduced-motion: the fades) and the brawl once.
+ const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
+ const { chromium } = await import(PW);
+ const [base, out, list = '390x844@2'] = process.argv.slice(2);
+ const fs = await import('node:fs');
+ fs.mkdirSync(out, { recursive: true });
+ const SLOW = 40;
++const ONLY = (process.env.MOTION_ONLY || 'court,brawl,walk,ticker').split(',');
++const VARIANTS = (process.env.MOTION_VARIANTS || 'motion,rm').split(',').map((v) => v === 'rm');   // walk and ticker
+ const DEVICES = list.split(',').map((s) => {
+ 	const [wh, dpr] = s.split('@');
+ 	const [w, h] = wh.split('x').map(Number);
+@@ -48,18 +57,19 @@ async function open(d, query, reduced) {
+ 	check(disp.reducedMotion === reduced, `the game follows prefers-reduced-motion: ${reduced ? 'reduce' : 'no-preference'} (${disp.reducedMotion})`);
+ 	const cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y }; });
+ 	const css = (lx, ly) => [cv.x + lx * disp.f / d.dpr, cv.y + ly * disp.f / d.dpr];
+-	return { ctx, page, errors, tap, disp, css };
++	const probe = () => page.evaluate(() => window.odDev || null);
++	return { ctx, page, errors, tap, disp, css, probe };
+ }
+ 
+ // Captures `n` frames of a logical-px rect as fast as the renderer allows; returns [{t, file}].
+-async function strip(o, prefix, rect, n, gapMs = 60) {
++async function strip(o, prefix, rect, n, gapMs = 60, slow = SLOW) {
+ 	const [x0, y0] = o.css(rect[0], rect[1]);
+ 	const [x1, y1] = o.css(rect[0] + rect[2], rect[1] + rect[3]);
+ 	const clip = { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
+ 	const t0 = Date.now();
+ 	const frames = [];
+ 	for (let i = 0; i < n; i++) {
+-		const t = (Date.now() - t0) / SLOW;
++		const t = (Date.now() - t0) / slow;
+ 		const file = `${prefix}-${String(i).padStart(3, '0')}.png`;
+ 		await o.page.screenshot({ path: file, clip });
+ 		frames.push({ t: Math.round(t), file });
+@@ -68,35 +78,118 @@ async function strip(o, prefix, rect, n, gapMs = 60) {
+ 	return frames;
+ }
+ 
++// A fresh game opens LEADER_PICK: tap `id`'s tile (window.odDev.pick, viewport logical px).
++async function pickTile(o, id, slow = SLOW) {
++	await o.page.waitForFunction(() => window.odDev && window.odDev.pick && window.odDev.pick.open, null, { timeout: 600000 });
++	await o.page.waitForTimeout(400 * slow);   // the picker's 300 ms tap-burst guard, in game time
++	const s = await o.probe();
++	const c = (s.pick.cells || []).find((x) => x[2] === id);
++	if (!c) return false;
++	const [x, y] = o.css(c[0], c[1]);
++	await o.tap(x, y, 7);
++	return true;
++}
++
++// After a pick: the stage is back (the pre-tap state or the round).
++async function untilStage(o) {
++	await o.page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 600000 }).catch(() => {});
++}
++
++// The whole stage column, full canvas width: a walk starts and ends off the canvas.
++const stageRect = (disp) => [0, disp.stageY + 160, disp.logical[0], disp.lowerY - disp.stageY - 160];
++
+ for (const d of DEVICES) {
+-	for (const reduced of [false, true]) {
+-		const tag = `${d.name}${reduced ? '-rm' : ''}`;
+-		console.log(`court ${tag}`);
+-		const o = await open(d, `court=2&slow=${SLOW}&grant=50000`, reduced);
++	if (ONLY.includes('court')) {
++		for (const reduced of [false, true]) {
++			const tag = `${d.name}${reduced ? '-rm' : ''}`;
++			console.log(`court ${tag}`);
++			const o = await open(d, `court=2&slow=${SLOW}&grant=50000`, reduced);
++			const { disp } = o;
++			// the whole stage: the thermometer, the courthouse window, the Magician and the hat
++			const stage = [disp.sx ?? disp.ox, disp.stageY + 160, 720, disp.lowerY - disp.stageY - 160];   // the stage column (mobile-first §4.1)
++			// leader select: a fresh game opens the picker first; the court is Bibi's
++			await pickTile(o, 'bibi', SLOW);
++			await untilStage(o);
++			const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
++			await o.tap(hx, hy, 100);   // title → main; the court day is already running
++			const frames = await strip(o, `${out}/court-${tag}`, stage, reduced ? 70 : 110, 10);
++			fs.writeFileSync(`${out}/court-${tag}.json`, JSON.stringify({ k: disp.k, slow: SLOW, frames }, null, 1));
++			check(frames.length > 0, `${frames.length} frames over ${frames.at(-1).t} ms of game time`);
++			check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
++			await o.ctx.close();
++		}
++	}
++	if (ONLY.includes('brawl')) {
++		console.log(`brawl ${d.name}`);
++		const o = await open(d, `chat=3&slow=${SLOW}&grant=50000`, false);
+ 		const { disp } = o;
+-		// the whole stage: the thermometer, the courthouse window, the Magician and the hat
+-		const stage = [disp.sx ?? disp.ox, disp.stageY + 160, 720, disp.lowerY - disp.stageY - 160];   // the stage column (mobile-first §4.1)
+ 		const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
+-		await o.tap(hx, hy, 100);   // title → main; the court day is already running
+-		const frames = await strip(o, `${out}/court-${tag}`, stage, reduced ? 70 : 110, 10);
+-		fs.writeFileSync(`${out}/court-${tag}.json`, JSON.stringify({ k: disp.k, slow: SLOW, frames }, null, 1));
+-		check(frames.length > 0, `${frames.length} frames over ${frames.at(-1).t} ms of game time`);
++		await o.tap(hx, hy, 100);
++		await o.page.waitForTimeout(800);
++		// the stage cue: ChatView BRAWL_CUE (8, 4, 144, 104) tall-local = stage-local + STAGE.y (160)
++		const cue = [disp.ox, disp.stageY + 160, 176, 128];
++		const frames = await strip(o, `${out}/brawl-cue-${d.name}`, cue, 30, 10);
++		fs.writeFileSync(`${out}/brawl-cue-${d.name}.json`, JSON.stringify({ k: disp.k, slow: SLOW, frames }, null, 1));
++		check(frames.length === 30, `brawl cue: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
+ 		check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
+ 		await o.ctx.close();
+ 	}
+-	console.log(`brawl ${d.name}`);
+-	const o = await open(d, `chat=3&slow=${SLOW}&grant=50000`, false);
+-	const { disp } = o;
+-	const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
+-	await o.tap(hx, hy, 100);
+-	await o.page.waitForTimeout(800);
+-	// the stage cue: ChatView BRAWL_CUE (8, 4, 144, 104) tall-local = stage-local + STAGE.y (160)
+-	const cue = [disp.ox, disp.stageY + 160, 176, 128];
+-	const frames = await strip(o, `${out}/brawl-cue-${d.name}`, cue, 30, 10);
+-	fs.writeFileSync(`${out}/brawl-cue-${d.name}.json`, JSON.stringify({ k: disp.k, slow: SLOW, frames }, null, 1));
+-	check(frames.length === 30, `brawl cue: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
+-	check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
+-	await o.ctx.close();
++	if (ONLY.includes('walk')) {
++		// wave B: the leader swap. SLOW 40: a stage screenshot every ~0.5 s of wall time is ~12 ms of game time.
++		const WS = Number(process.env.MOTION_SLOW_WALK || 40);   // raise it on a loaded machine (each screenshot is slower)
++		for (const reduced of VARIANTS) {
++			const tag = `${d.name}${reduced ? '-rm' : ''}`;
++			console.log(`walk ${tag}`);
++			const o = await open(d, `slow=${WS}&grant=50000`, reduced);
++			const { disp } = o;
++			const stage = stageRect(disp);
++			// the walk-in: the picker's commit (≈ 520 ms), then 640 ms of walk (RM: a 150 ms fade)
++			check(await pickTile(o, 'bennett', WS), 'the picker is open and Bennett\'s tile is tapped');
++			const inFrames = await strip(o, `${out}/walk-in-${tag}`, stage, reduced ? 24 : 45, 0, WS);
++			fs.writeFileSync(`${out}/walk-in-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: inFrames }, null, 1));
++			await untilStage(o);
++			let s = await o.probe();
++			check(s && s.leader === 'bennett' && s.mode === 'title', `Bennett's round, pre-tap (leader ${s && s.leader}, mode ${s && s.mode})`);
++			check(inFrames.at(-1).t >= (reduced ? 600 : 1100), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
++			// tap 1 starts the round; then the forced ceremony: 1200 ms to the card's lift, then the walk-out
++			const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
++			await o.tap(hx, hy, 8);
++			await o.page.waitForTimeout(1500);
++			await o.page.evaluate(() => { window.odDevElect = 1; });
++			await o.page.waitForFunction(() => window.odDevElect === 0, null, { timeout: 600000 });   // taken: EVOLVE_TX's f0
++			await o.page.waitForTimeout((reduced ? 900 : 1100) * WS);   // ms of game time, under the card
++			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, reduced ? 20 : 34, 0, WS);
++			fs.writeFileSync(`${out}/walk-out-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: outFrames }, null, 1));
++			await o.page.waitForFunction(() => window.odDev && (window.odDev.mode === 'pick' || window.odDev.modal !== ''), null, { timeout: 600000 }).catch(() => {});
++			s = await o.probe();
++			check(s && (s.mode === 'pick' || s.modal !== ''), `after the walk-out: the flash or the picker (mode ${s && s.mode}, modal ${s && s.modal})`);
++			check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
++			await o.ctx.close();
++		}
++	}
++	if (ONLY.includes('ticker')) {
++		// M1: the ticker row, SLOW 20 (a frame every ~10-20 ms of game time; 300 frames hold at least one page change)
++		const TS = Number(process.env.MOTION_SLOW_TICKER || 20);
++		for (const reduced of VARIANTS) {
++			const tag = `${d.name}${reduced ? '-rm' : ''}`;
++			console.log(`ticker ${tag}`);
++			const o = await open(d, `slow=${TS}&grant=50000`, reduced);
++			check(await pickTile(o, 'deri', TS), 'Deri\'s tile is tapped');
++			await untilStage(o);
++			const [hx, hy] = o.css(o.disp.hat[0], o.disp.hat[1]);
++			await o.tap(hx, hy, 9);
++			await o.page.waitForTimeout(1500);
++			const disp = await o.page.evaluate(() => window.odDisplay);
++			const tk = disp.ticker;
++			check(tk && tk.mode === 'page' && tk.transition === (reduced ? 'fade' : 'roll'), `odDisplay.ticker: ${JSON.stringify(tk)}`);
++			const row = [disp.ox + tk.clipX - 8, disp.lowerY + tk.clipY, tk.clipW + 16, tk.clipH];
++			const frames = await strip(o, `${out}/ticker-${tag}`, row, 300, 0, TS);
++			fs.writeFileSync(`${out}/ticker-${tag}.json`, JSON.stringify({ k: disp.k, slow: TS, frames, clip: row }, null, 1));
++			check(frames.length === 300, `ticker: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
++			check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
++			await o.ctx.close();
++		}
++	}
+ }
+ await browser.close();
+ console.log(failed ? `MOTION_WEB: ${failed} FAILED` : 'MOTION_WEB: PASS');
+-- 
+2.43.0
+
+
+From 7e56b4a307810b6dba67932c961511f3c275370a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 03:55:14 +0000
+Subject: [PATCH 5/5] test(od-sevev): cover game time in the motion strips, log
+ the wave B checks
+
+The walk and ticker strips now run until they cover the motion in game
+time (a screenshot costs 2-4 s on a loaded container), and each section can
+run one variant (MOTION_VARIANTS). The motion audit records what the strips
+and the engine ticker strip showed.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JZ6f2h5tcXVKGAwuAga5z8
+---
+ motion/motion-audit-2026-09-29.md | 26 ++++++++++++++++++++++++++
+ tools/web/motion_web.mjs          | 15 +++++++++------
+ 2 files changed, 35 insertions(+), 6 deletions(-)
+
+diff --git a/motion/motion-audit-2026-09-29.md b/motion/motion-audit-2026-09-29.md
+index 4ccd699..0cfa724 100644
+--- a/motion/motion-audit-2026-09-29.md
++++ b/motion/motion-audit-2026-09-29.md
+@@ -153,3 +153,29 @@ pages get more time than before (up to 4.6 s instead of 3.5), and the short tail
+   slam's f0 (the ×6 frame).
+ - **The court's zip** still exits screen-left while the walk-out goes screen-right, per spec §9.3.4. They never
+   share a frame: the walk-out cuts a court day home under the card.
++
++## Verified (wave B)
++
++- **Unit tests:** `test_leader_walk.gd`, 9 cases:
++  - the state machine, and reduced motion;
++  - the TX cue: at the card's lift, and ≤ 260 ms past the card;
++  - the pick walk-in, with Dubi after the landing;
++  - a tap during the walk-in;
++  - the undo mid-walk and the re-pick;
++  - the election, with the lock held until the stage is clear;
++  - the court yielding: one owner of the position;
++  - reduced motion on the stage.
++- **More unit tests:** `test_ticker_roll.gd` (4) and `test_slip_stamp.gd` (2).
++- **Browser:** `tools/web/motion_web.mjs` has a `walk` and a `ticker` section, and `MOTION_VARIANTS` / `MOTION_SLOW_*`
++  for a loaded machine.
++  - On this 4-core container, shared with the other agents, a stage screenshot costs 2-4 s of wall time. The walk runs
++    at `slow=100`, which gives ~35 ms of game time per frame.
++  - The ticker's 240 ms roll is too short to catch reliably that way, so `game/tests/dev/ticker_strip.gd` renders it
++    in the engine in 16 ms steps (under `xvfb-run`).
++- **Looked at** (scratchpad `shots/motion-b/`):
++  - The walk-in comes from off screen-left once the picker has faded and lands on the feet point; Dubi's bubble
++    follows the landing.
++  - The walk-out starts as the stepped card lifts, crosses the new era's stage and clears the right edge, the pen
++    last. The flash (O3b) follows on an empty stage.
++  - The roll: the two pages move locked, the words are whole, and 90 % of the travel is done by 100 ms.
++  - Reduced motion: fades on the mark, and the ticker's cross-fade.
+diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
+index 7e277c8..7f9e2ac 100644
+--- a/tools/web/motion_web.mjs
++++ b/tools/web/motion_web.mjs
+@@ -62,7 +62,9 @@ async function open(d, query, reduced) {
+ }
+ 
+ // Captures `n` frames of a logical-px rect as fast as the renderer allows; returns [{t, file}].
+-async function strip(o, prefix, rect, n, gapMs = 60, slow = SLOW) {
++// `untilMs` > 0: keep going until that much game time is covered (n is then the cap), so the strip
++// covers the motion whatever a screenshot costs on the machine.
++async function strip(o, prefix, rect, n, gapMs = 60, slow = SLOW, untilMs = 0) {
+ 	const [x0, y0] = o.css(rect[0], rect[1]);
+ 	const [x1, y1] = o.css(rect[0] + rect[2], rect[1] + rect[3]);
+ 	const clip = { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
+@@ -70,6 +72,7 @@ async function strip(o, prefix, rect, n, gapMs = 60, slow = SLOW) {
+ 	const frames = [];
+ 	for (let i = 0; i < n; i++) {
+ 		const t = (Date.now() - t0) / slow;
++		if (untilMs > 0 && frames.length > 0 && frames.at(-1).t >= untilMs) break;
+ 		const file = `${prefix}-${String(i).padStart(3, '0')}.png`;
+ 		await o.page.screenshot({ path: file, clip });
+ 		frames.push({ t: Math.round(t), file });
+@@ -145,12 +148,12 @@ for (const d of DEVICES) {
+ 			const stage = stageRect(disp);
+ 			// the walk-in: the picker's commit (≈ 520 ms), then 640 ms of walk (RM: a 150 ms fade)
+ 			check(await pickTile(o, 'bennett', WS), 'the picker is open and Bennett\'s tile is tapped');
+-			const inFrames = await strip(o, `${out}/walk-in-${tag}`, stage, reduced ? 24 : 45, 0, WS);
++			const inFrames = await strip(o, `${out}/walk-in-${tag}`, stage, 90, 0, WS, reduced ? 650 : 1250);
+ 			fs.writeFileSync(`${out}/walk-in-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: inFrames }, null, 1));
+ 			await untilStage(o);
+ 			let s = await o.probe();
+ 			check(s && s.leader === 'bennett' && s.mode === 'title', `Bennett's round, pre-tap (leader ${s && s.leader}, mode ${s && s.mode})`);
+-			check(inFrames.at(-1).t >= (reduced ? 600 : 1100), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
++			check(inFrames.at(-1).t >= (reduced ? 650 : 1250), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
+ 			// tap 1 starts the round; then the forced ceremony: 1200 ms to the card's lift, then the walk-out
+ 			const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
+ 			await o.tap(hx, hy, 8);
+@@ -158,7 +161,7 @@ for (const d of DEVICES) {
+ 			await o.page.evaluate(() => { window.odDevElect = 1; });
+ 			await o.page.waitForFunction(() => window.odDevElect === 0, null, { timeout: 600000 });   // taken: EVOLVE_TX's f0
+ 			await o.page.waitForTimeout((reduced ? 900 : 1100) * WS);   // ms of game time, under the card
+-			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, reduced ? 20 : 34, 0, WS);
++			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, 70, 0, WS, reduced ? 500 : 950);
+ 			fs.writeFileSync(`${out}/walk-out-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: outFrames }, null, 1));
+ 			await o.page.waitForFunction(() => window.odDev && (window.odDev.mode === 'pick' || window.odDev.modal !== ''), null, { timeout: 600000 }).catch(() => {});
+ 			s = await o.probe();
+@@ -183,9 +186,9 @@ for (const d of DEVICES) {
+ 			const tk = disp.ticker;
+ 			check(tk && tk.mode === 'page' && tk.transition === (reduced ? 'fade' : 'roll'), `odDisplay.ticker: ${JSON.stringify(tk)}`);
+ 			const row = [disp.ox + tk.clipX - 8, disp.lowerY + tk.clipY, tk.clipW + 16, tk.clipH];
+-			const frames = await strip(o, `${out}/ticker-${tag}`, row, 300, 0, TS);
++			const frames = await strip(o, `${out}/ticker-${tag}`, row, 400, 0, TS, 6000);   // 6 s: at least one page change
+ 			fs.writeFileSync(`${out}/ticker-${tag}.json`, JSON.stringify({ k: disp.k, slow: TS, frames, clip: row }, null, 1));
+-			check(frames.length === 300, `ticker: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
++			check(frames.at(-1).t >= 6000, `ticker: ${frames.length} frames over ${frames.at(-1).t} ms of game time`);
+ 			check(o.errors.length === 0, `no page errors ${o.errors.length ? JSON.stringify(o.errors.slice(0, 3)) : ''}`);
+ 			await o.ctx.close();
+ 		}
 -- 
 2.43.0
 
