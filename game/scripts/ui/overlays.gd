@@ -427,12 +427,22 @@ class BookOverlay:
 				var t := PxText.make(page, Vector2(0, y), l, 3, "plain", th["modal"]["note"])
 				t.center_in(panel_rect.position.x, panel_rect.size.x)
 				y += 36.0
-		for n in range(s.evolutions, 0, -1):
-			var era: Dictionary = Story.era_for(n)
-			var h := PxText.make(page, Vector2(80, y), Strings.s("STORY_EVOLUTION", {"n": n, "era": era.get("name", "")}), 3, "plain", th["modal"]["groupLabel"])
+		# B15: each election's card is the one its leader got (Story.archive, from story_seen), newest
+		# first, headed by that card's title and the leader; without leader select, the round's beats
+		var cards: Array = Story.archive(s) if Leaders.active() else []
+		if cards.is_empty():
+			for n in range(s.evolutions, 0, -1):
+				cards.append({"leader": "", "title": Strings.s("STORY_EVOLUTION", {"n": n, "era": Story.era_for(n).get("name", "")}), "lines": Story.beat_for(n)})
+		for c: Dictionary in cards:
+			var head := str(c["title"])
+			if head == "":
+				head = Strings.s("STORY_EVOLUTION", {"n": int(c.get("n", 0)), "era": ""}).trim_suffix(": ")
+			if str(c["leader"]) != "":
+				head += " · " + LeaderUi.short(str(c["leader"]))
+			PxText.make(page, Vector2(80, y), head, 3, "plain", th["modal"]["groupLabel"])
 			y += 36.0
-			for l in Story.beat_for(n):
-				PxText.make(page, Vector2(80, y), l, 3, "plain", th["modal"]["body"])
+			for l in c["lines"]:
+				PxText.make(page, Vector2(80, y), str(l), 3, "plain", th["modal"]["body"])
 				y += 30.0
 			Ui.rect(page, Rect2(80, y + 6, 560, 4), th["modal"]["divider"])
 			y += 28.0

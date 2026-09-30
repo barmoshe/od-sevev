@@ -187,6 +187,26 @@ for (const s of game.filter(tickerPaths)) {
   if (!q && !s.holder.reportedSpeech) err(s.path, `quote marks + real name without a [Q] src: ${s.text}`);
 }
 
+// ---------- 6b. the reported-speech rule on Dubi's story cards (manual test 2026-09-30, B15) ----------
+// Every leader's post-election flash (content.story and leaders[].kit.story): invented quotes of real
+// people are forbidden. A quote is allowed only in the narrator's mouth ("דובי: \"...\"", a fictional
+// parrot parroting), or with a [Q] src / reportedSpeech on the holder. Reported speech without quote
+// marks ("בלשכה מסרו ש...", "לפי הפרסומים") is fine. A real name followed by a speech verb and a colon
+// ("X ענה: ...", "X: ...") is an invented line in that person's mouth, quote marks or not.
+const narrator = C.narrator?.name || 'דובי';
+const speechVerb = '(?:\\s+(?:אמר|אמרה|ענה|ענתה|הודיע|הודיעה|הגיב|הגיבה|הבטיח|הבטיחה|מסר|מסרה|טען|טענה|צעק|צעקה|הוסיף|הוסיפה|השיב|השיבה))?';
+const storyLines = game.filter(s => /\.story\.beats\[/.test(s.path));
+let storyQuoted = 0;
+for (const s of storyLines) {
+  const q = (s.holder.src || []).some(f => factIds.get(f)?.label === 'Q') || s.holder.reportedSpeech;
+  const quoted = /["“”„]/.test(s.text.replace(/[א-ת]״[א-ת]/g, ''));
+  if (quoted) {
+    storyQuoted++;
+    if (!new RegExp(`^${narrator}:\\s*["“„]`).test(s.text) && !q) err(s.path, `story: a quote outside the narrator's mouth (use reported speech, e.g. "בלשכה מסרו ש..."): ${s.text}`);
+  }
+  for (const n of realNames) if (new RegExp(`(^|[^\\u05D0-\\u05EA])${n}${speechVerb}\\s*:`).test(s.text)) err(s.path, `story: an invented line in ${n}'s mouth (reported speech only): ${s.text}`);
+}
+
 // ---------- 7. length budgets ----------
 const over45 = [];
 const len = t => [...t.replace(/\{[^}]*\}/g, '00')].length;
@@ -466,6 +486,7 @@ console.log(`approved pictograms in use (2D Artist draws them as glyphs): ${[...
 console.log(`ticker lines over the 45-char ideal (≤ 60 enforced): ${over45.length}` + (verbose ? '\n  ' + over45.join('\n  ') : ' (--verbose lists them)'));
 console.log(`ticker no-break units (§5.2.1 strong glue): ${tickerUnits}, all ≤ ${TICKER_CLIP_MIN} px at ×4 required; the widest "${widestUnit[0]}" ${widestUnit[1]} px`);
 if (leaderReport.length) console.log(`leaders (pending engine): ${leaderReport.join(' · ')}`);
+console.log(`story cards (reported-speech rule): ${storyLines.length} lines, ${storyQuoted} quoted (the narrator's only); per leader: ${(C.leaders || []).map(L => `${L.id} ${((L.id === (C.leaderSelect?.defaultLeader || 'bibi') ? C.story : L.kit?.story)?.beats || []).length}`).join(' · ')}`);
 if (warns.length) console.log(`\nWARN (${warns.length})\n  ` + warns.join('\n  '));
 if (errors.length) console.log(`\nERROR (${errors.length})\n  ` + errors.join('\n  '));
 else console.log('\nno errors');

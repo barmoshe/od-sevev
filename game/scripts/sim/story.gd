@@ -50,6 +50,12 @@ static func flash(s: GameState) -> Dictionary:
 	if id == "" or not Leaders.playable(id):
 		id = Leaders.current(s)
 	var n := int(Leaders.stat(s, id, "elections")) if Leaders.active() else s.evolutions
+	return card(id, n)
+
+
+## Leader `id`'s flash for their own election number `n` (1-based): their beat and title, then the
+## shared encore. {leader, n, title, lines, id}.
+static func card(id: String, n: int) -> Dictionary:
 	var st := Leaders.story(id)
 	var beats: Array = st["beats"]
 	var titles: Array = st["titles"]
@@ -62,6 +68,24 @@ static func flash(s: GameState) -> Dictionary:
 	var title := str(titles[n - 1]) if n >= 1 and n <= titles.size() else ""
 	var bid := beat_id(n) if Leaders.is_default(id) else "beat_%s_%d" % [id, n]
 	return {"leader": id, "n": n, "title": title, "lines": lines, "id": bid}
+
+
+## The story archive (T4 → the book's story page; manual test B15): every flash the player was shown,
+## newest first, rebuilt from `story_seen` ("beat_<n>" = the default leader's n-th, "beat_<leader>_<n>"),
+## so each election reads with the card of the leader who played it, not always Bibi's.
+static func archive(s: GameState) -> Array:
+	var out: Array = []
+	for bid: String in s.story_seen:
+		var parts := bid.split("_")
+		if parts.size() < 2 or parts[0] != "beat" or not parts[parts.size() - 1].is_valid_int():
+			continue
+		var n := int(parts[parts.size() - 1])
+		var id := "_".join(parts.slice(1, parts.size() - 1)) if parts.size() > 2 else Leaders.default_leader()
+		if parts.size() > 2 and not Leaders.playable(id):
+			continue
+		out.append(card(id, n) if Leaders.active() else {"leader": "", "n": n, "title": "", "lines": beat_for(n), "id": bid})
+	out.reverse()
+	return out
 
 
 ## One ambient headline whose conditions hold, avoiding the recent window. `recent` is updated.
