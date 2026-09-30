@@ -351,6 +351,8 @@ for (const spec of list.split(',')) {
 		// review U6: the pill rect of every row the pane shows at least partly (source cards, the
 		// locked row, the teasers): a pill is drawn only when it lies wholly inside the pane
 		pillCheck('C1', s);
+		// D20 (mobile-first §5.4.1): the 4-art gutter stays; it is now a deliberate ruled margin (a
+		// flag-blue 1-art rule on each canvas edge + 3 art of the white field), so the rule is unchanged
 		const card = s.shop.card || [0, 0];
 		check('width', card[0] <= 16 + 0.5 && disp.cw - card[1] <= 16 + 0.5, `the cards keep ≤ 4 art px of gutter per side (x ${Math.round(card[0])}-${Math.round(card[1])} of ${disp.cw})`);
 	}

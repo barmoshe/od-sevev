@@ -1059,8 +1059,8 @@
     "ROW_TEASER_HINT": {
       "surface": "label",
       "spec": "card.teaser.hint",
-      "note": "B9 (mobile-first §5.4): line 2 of the first teaser row only; the teasers under it are wordless slips fading down",
-      "box": "card.line2wide",
+      "note": "B9 (mobile-first §5.4): the name line of the first teaser row only (ui_panel on the pale slip); the teasers under it are wordless slips fading down",
+      "box": "card.name",
       "maxChars": 15,
       "worstPx": {
         "4": 316,

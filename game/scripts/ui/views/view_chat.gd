@@ -51,6 +51,10 @@ const SYS_TEXT_W := 568.0
 const CHIP_W := 128.0
 const CHIP_H := 52.0
 const RUN_GAP := 24.0
+## B11 (mobile-first §5.5.1): the thread opens under the header with a day chip ("היום", the
+## messenger convention), then the messages top-down; the player's reply gets a row of its own: the
+## round's leader named over the bubble (the partners' name-over-bubble, mirrored to the left).
+const OUT_NAME_H := 44.0
 const IN_RUN_GAP := 8.0
 const CASCADE_MAX := 4               # more pending than this on open: show them at once
 const INPUT_AFTER_OPEN_MS := 140.0   # motion tall-tab: the thread accepts taps from 140 ms
@@ -740,6 +744,8 @@ func _build_thread() -> void:
 	_hits.clear()
 	var model := thread_model(_chat(_state), _upto)
 	var y := 16.0
+	if not model.is_empty():
+		y += _build_day_chip(y) + RUN_GAP   # B11: the thread starts under the header, dated
 	if model.is_empty():
 		var r := _build_sys(Strings.s("CHAT_EMPTY"), {}, y)
 		r["y"] = y          # the empty thread's one row (T3 opened before the group exists)
@@ -762,7 +768,7 @@ func _build_thread() -> void:
 				r = _build_bubble(row, y)
 				rx = L.dx   # mobile-first §4.1: incoming avatar and bubble, R-anchored
 			"out":
-				r = _build_out(row, y)
+				r = _build_out(row, y, prev_kind != "out")
 			"sys":
 				r = _build_sys(sys_text(row["msg"]), row["msg"], y)
 			"transfer":
@@ -938,19 +944,44 @@ func _make_pill(parent: Node, pr: Rect2, seq: int, wide: bool) -> Dictionary:
 		"pressed": false, "key": "", "base": pr.position}
 
 
-func _build_out(row: Dictionary, y: float) -> Dictionary:
+## The player's reply (rtl-map §6.3: x 16, left). B11: the first reply of a run is headed by the
+## round's leader's short name, left-aligned over the bubble (C_NAME, as a partner's name), so the
+## reply reads as a message in its own row, not a chip loose at the edge.
+func _build_out(row: Dictionary, y: float, named: bool = true) -> Dictionary:
 	var m: Dictionary = row["msg"]
 	var root := _root(y)
 	var n := clampi(int(m.get("n", 1)), 1, 3)
-	var bubble := Ui.nine(root, Rect2(16, 0, 64, 64), Art.sprite_or("chat_bubble_out"))
+	var top := 0.0
+	var who := LeaderUi.short() if named else ""
+	if who != "":
+		var nm := _text(root, who, C_NAME, NAME_HIT_W, 1)
+		nm.position = Vector2(20.0, 0.0)
+		top = OUT_NAME_H
+	var bubble := Ui.nine(root, Rect2(16, top, 64, 64), Art.sprite_or("chat_bubble_out"))
 	var tx := _text(root, Strings.s("CHAT_REPLY_%d" % n), Color.WHITE, TEXT_W, 99, true)
 	var tw := float(tx.width())
 	var bw := clampf(Ui.snap(tw + 36.0 + 16.0 + 2.0, 4), 96.0, 480.0)
 	tx.right_at(16.0 + bw - 16.0)
-	tx.position.y = 12.0
+	tx.position.y = top + 12.0
 	var bh := Ui.snap(12.0 + _lh(tx) * maxf(1.0, float(tx.line_count())) + 12.0, 4)
-	Ui.set_nine_rect(bubble, Rect2(16, 0, bw, bh))
-	return {"root": root, "pills": [], "h": bh, "bubbleRect": Rect2(16, 0, bw, bh)}
+	Ui.set_nine_rect(bubble, Rect2(16, top, bw, bh))
+	return {"root": root, "pills": [], "h": top + bh, "bubbleRect": Rect2(16, top, bw, bh)}
+
+
+## B11: the day chip at the top of the thread (CHAT_TODAY, chat.divider box), centred on the canvas:
+## the navy system pill, smaller and quieter than a system line. Returns its height.
+func _build_day_chip(y: float) -> float:
+	var root := _root(y)
+	var navy := Art.has_sprite("chat_system_pill_navy")
+	var bg := Ui.nine(root, Rect2(0, 0, 64, 52), "chat_system_pill_navy" if navy else Art.sprite_or("chat_system_pill"))
+	var tx := _text(root, Strings.s("CHAT_TODAY"), C_SYS_TEXT if navy else Color.WHITE, 480.0, 1)
+	var w := Ui.snap(float(tx.width()) + 64.0, 4)
+	var h := Ui.snap(_lh(tx) + 12.0, 4)   # the system pill's metrics (6 over, 6 under the line)
+	var x := Ui.snap((L.cw - w) / 2.0, 4)
+	Ui.set_nine_rect(bg, Rect2(x, 0, w, h))
+	tx.position = Vector2(x + 32.0, 6.0)
+	tx.h_anchor = 0
+	return h
 
 
 ## A centred system pill (≤ 600 wide, ≤ 2 lines); a "left" line carries the rejoin pill, a
@@ -1555,10 +1586,10 @@ func _update_scroll(dt: float) -> void:
 			_scroll = _max_scroll()   # the card came or went: the newest stays in view
 		else:
 			_set_scroll(_scroll)
-	# content shorter than the thread sits at the bottom (newest at the bottom, rtl-map §6.3),
-	# above the court card when it is expanded over the tab
-	var off := maxf(0.0, thread_h() - pad - _content_h)
-	_content.position.y = Ui.snap(off - _scroll, 4)
+	# B11 (mobile-first §5.5.1): content shorter than the thread starts under the header (the day
+	# chip first), like a new conversation; once it overflows, the newest stays at the bottom (the
+	# stick-to-bottom scroll, rtl-map §6.3), above the court card when it is expanded over the tab
+	_content.position.y = Ui.snap(-_scroll, 4)
 	var th := thread_h()
 	var scrollable := _content_h + pad > th
 	_thumb.visible = scrollable

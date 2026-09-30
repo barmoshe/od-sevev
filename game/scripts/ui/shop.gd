@@ -45,6 +45,26 @@ const SPIN_BARS := Rect2(220, 104, 360, 8)
 const SPIN_TAG := Rect2(592, 72, 96, 40)
 const TAG_SLAM_STEP_MS := 30.0      # the slip's stamp slam: ×6, ×5, ×4 (90 ms, Stepped)
 const C_SIL_TEXT := Color("#072a7a")   # ui_panel on card_row_silhouette (review U7)
+## D21 (mobile-first §5.3.1): the tab bar is always four slots. The plate is drawn from the kit's
+## divider-free first column (its three baked dividers stretch with the 9-slice and sat beside empty
+## slots); the engine draws one 1-art-px divider per slot boundary; a slot not yet revealed shows its
+## own icon as a locked silhouette (ui_bubble on ui_panel, like the pale teaser slips) with the kit's
+## padlock where the label goes. Not a target, no label: its name stays a reveal.
+const TABBAR_PLAIN := Rect2(0, 0, 40, 26)     # kit `tabbar` columns 0-39: the rules, no divider
+const C_TAB_DIVIDER := Color("#061029")       # the kit divider (ui_scrim)
+const C_TAB_LOCKED := Color("#1045b5")        # ui_bubble: the locked slot's icon silhouette, a raised step on ui_panel (quiet: not a target)
+const C_TAB_LOCK := Color(0.75, 0.82, 1.0, 0.6)   # the kit padlock, dimmed toward ui_mute (its keyhole stays legible)
+## D20 (mobile-first §5.4.1): the white field is a ruled sheet, not a gap. A flag-blue rule, 1 art px,
+## runs down each side of the pane on the canvas edge (x 0 and cw − 4), so the 4-art
+## gutter reads as the ruled margin of a printed notice framed by the blue ticker and tab bar (style guide v4: "white notices ruled in flag
+## blue"). The scroll thumb rides the left rule: 3 art px of deep blue while the list moves, hidden
+## when idle (the peek is the resting scroll signifier, §3.2).
+const RULE_INSET := 0.0
+const RULE_W := 4.0
+const C_RULE := Color("#0038b8")        # flag
+const C_THUMB := Color("#072a7a")       # ui_panel
+const THUMB_X := 0.0
+const THUMB_W := 12.0
 const SPIN_BAR_PUBLIC := "e"
 const SPIN_BAR_FRIENDLY := "O"
 
@@ -63,9 +83,11 @@ var ftue_single := false
 var _tabs_on := false
 var _slot_on := [true, false, false, false]
 var _tabbar: NinePatchRect
+var _dividers: Array[ColorRect] = []
 var _slots: Array[Dictionary] = []
 var _tab_pressed := -1
 var _thumb: ColorRect
+var _rules: Array[ColorRect] = []
 var _clip := Control.new()
 var _lists := {}
 var _rows := {"producers": [], "upgrades": []}
@@ -116,7 +138,9 @@ func _ready() -> void:
 	var V := float(Tune.MC["tabListOvershootPx"])
 	TAB_IN = [O, O * 3 / 4, O / 2, O / 4, 0.0, -V, -V, -V, 0.0]
 	PILL_RECT = R["pill"]
-	_thumb = Ui.rect(self, Rect2(float(L.SHOP["scrollTrackX"]), float(L.SHOP["listY"]), 4, 48), th["shop"]["scrollThumb"])
+	for i in 2:
+		_rules.append(Ui.rect(self, Rect2(0, 0, RULE_W, 4), C_RULE))
+	_thumb = Ui.rect(self, Rect2(THUMB_X, float(L.SHOP["listY"]), THUMB_W, 48), C_THUMB)
 	_clip.clip_contents = true
 	_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_clip)
@@ -140,9 +164,18 @@ func _ready() -> void:
 
 func _build_tabs() -> void:
 	_tabbar = Ui.nine(self, Rect2(0, 0, L.W, L.TABS_H), Art.sprite_or("tabbar"))
+	if Art.has_sprite("tabbar") and Vector2(Art.sprite_size("tabbar")) == Vector2(180, 26):
+		_tabbar.region_rect = TABBAR_PLAIN   # D21: the plate without its baked dividers
+	for i in 3:
+		_dividers.append(Ui.rect(self, Rect2(0, 0, 4, 64), C_TAB_DIVIDER))
 	for i in 4:
 		var d := {}
 		d["plate"] = Ui.nine(self, Rect2(0, 0, 180, L.TABS_H), Art.sprite_or("tab_active"))
+		# D21: the locked slot (drawn under the live icon; only one of the two shows)
+		d["lockedIcon"] = Ui.img(self, Vector2.ZERO, Art.sprite_or(TAB_ICONS[i] + "_idle"), 0, 4)
+		(d["lockedIcon"] as Sprite2D).material = Ui.fill_material(C_TAB_LOCKED)
+		d["lock"] = Ui.img(self, Vector2.ZERO, Art.sprite_or("chat_icon_lock"), 0, 4)
+		(d["lock"] as Sprite2D).modulate = C_TAB_LOCK
 		d["icon"] = Ui.img(self, Vector2.ZERO, Art.sprite_or(TAB_ICONS[i] + "_idle"), 0, 4)
 		d["label"] = PxText.make(self, Vector2.ZERO, Strings.s(TAB_KEYS[i]), L.TEXT, "plain", "w")
 		(d["label"] as PxText).fit_width = 164.0   # tab.label (slot − 16): at ×5 "קואליציה" (195) steps down
@@ -169,6 +202,10 @@ func _layout_tabs() -> void:
 		var ic: Sprite2D = d["icon"]
 		var ix := Ui.snap(w / 2.0 - 30.0, 4)
 		ic.position = Vector2(r.position.x + ix, y + 8.0)
+		(d["lockedIcon"] as Sprite2D).position = ic.position
+		var lk: Sprite2D = d["lock"]
+		var lsz := Vector2(Art.sprite_size(lk.get_meta("sprite"))) * 4.0
+		lk.position = Vector2(r.position.x + Ui.snap((w - lsz.x) / 2.0, 4), y + 64.0)   # where the label would sit
 		var lb: PxText = d["label"]
 		lb.fit_width = w - 16.0
 		lb.position.y = y + 64
@@ -176,6 +213,11 @@ func _layout_tabs() -> void:
 		Ui.set_nine_rect(d["badge"], Rect2(r.position.x + ix - 16.0, y, 44, 44))
 		(d["badgeText"] as PxText).position = Vector2(r.position.x + ix - 16.0, y + 4)
 		(d["badgeText"] as PxText).center_in(r.position.x + ix - 16.0, 44)
+	# D21: one divider per slot boundary (x = cw − i·w), the kit's rows 5-20 (logical 20-84)
+	for i in _dividers.size():
+		var dv := _dividers[i]
+		dv.position = Vector2(L.cw - float(i + 1) * L.tab_w() - 2.0, y + 20.0)
+		dv.size = Vector2(4, 64)
 	_refresh_tabs()
 
 
@@ -204,11 +246,21 @@ func _slot_shown(i: int) -> bool:
 	return _visible_shop and _tabs_on and bool(_slot_on[i]) and bool(TAB_BUILT[i])
 
 
+## D21: slot i (0-3) is on the bar but not revealed yet: it draws its locked silhouette.
+func slot_locked(i: int) -> bool:
+	return _visible_shop and _tabs_on and not _slot_shown(i)
+
+
 func _refresh_tabs() -> void:
 	_tabbar.visible = _visible_shop and _tabs_on
+	for dv in _dividers:
+		dv.visible = _tabbar.visible
 	for i in 4:
 		var d: Dictionary = _slots[i]
 		var on := _slot_shown(i)
+		var locked := slot_locked(i)
+		(d["lockedIcon"] as Sprite2D).visible = locked
+		(d["lock"] as Sprite2D).visible = locked
 		var active: bool = on and (TABS[i] == tall if tall != "" else TABS[i] == tab)
 		(d["plate"] as NinePatchRect).visible = active
 		var ic: Sprite2D = d["icon"]
@@ -247,6 +299,10 @@ func set_list_height(h: float) -> void:
 				_layout_row(v)
 	_clip.position = list_rect.position
 	_clip.size = list_rect.size
+	for i in _rules.size():
+		var rl := _rules[i]
+		rl.position = Vector2(RULE_INSET if i == 0 else L.cw - RULE_INSET - RULE_W, list_rect.position.y)
+		rl.size = Vector2(RULE_W + (4.0 if i == 1 else 0.0), list_rect.size.y)   # the right one covers the < 4 px aspect remainder too (as the ticker panel)
 	for t: String in _lists:
 		(_lists[t] as Node2D).position = -list_rect.position
 	for i in _empty.size():
@@ -374,8 +430,10 @@ func _models(s: GameState, t: String) -> Array:
 			out.append({"kind": "producer", "id": id})
 		if pr["silhouette"] != "":
 			out.append({"kind": "silhouette", "id": pr["silhouette"]})
+		var j := 0
 		for id: String in pr.get("fill", PackedStringArray()):
-			out.append({"kind": "teaser", "id": id})
+			out.append({"kind": "teaser", "id": id, "t": j})
+			j += 1
 		return out
 	var ids: Array = _frozen_upgrades if not _frozen_upgrades.is_empty() else Economy.available_upgrades(s).map(func(u: Dictionary) -> String: return u["id"])
 	return ids.map(func(id: String) -> Dictionary: return {"kind": "upgrade", "id": id})
@@ -389,9 +447,24 @@ static func _append_teasers(out: Array, _s: GameState) -> void:
 	var shown := {}
 	for m: Dictionary in out:
 		shown[str(m["id"])] = true
+	var j := 0
 	for id: String in Content.producer_ids():
 		if not shown.has(id):
-			out.append({"kind": "teaser", "id": id})
+			out.append({"kind": "teaser", "id": id, "t": j})
+			j += 1
+
+
+## B9 (mobile-first §5.4): teaser j's opacity. The first is the whole pale slip carrying the one-line
+## hint; the rest are wordless slips fading down the pane (never under 0.2: each still paints its
+## slip and silhouette, so the pane keeps no empty band, §0 rule 4).
+static func teaser_alpha(j: int) -> float:
+	return maxf(0.2, pow(0.62, float(maxi(0, j))))
+
+
+## B9: the name line of teaser j: the hint on the first, nothing on the rest (six identical
+## "מקור עלום" rows read as filler).
+static func teaser_name(j: int) -> String:
+	return Strings.s("ROW_TEASER_HINT") if j == 0 else ""
 
 
 ## Rows of `kind` fully inside the pane (the web probe: the pane's filled rows).
@@ -612,7 +685,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			# mobile-first §5.4: the silhouette, "מקור עלום", no price, no pill, not a target
 			var skt := LeaderUi.producer_art(id)
 			icon = pale_sil(Art.sprite_or(str(skt["silhouette"]) if not skt.is_empty() else String(Content.producer(id).get("silhouette", Art.source(id).get("silhouette", "sil_" + id)))))
-			nm = Strings.s("ROW_LOCKED_NAME")
+			nm = teaser_name(int(m.get("t", 0)))   # B9: the hint once, then wordless slips
 			wide = true
 		"buymode":
 			nm = Strings.s("BUYMODE_LABEL")
@@ -642,7 +715,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	# v4 (style guide F14): the pane is the white field, so a teaser is the locked card at full
 	# opacity (a 50% card would put its white text straight on white); it reads dim by its sprite,
 	# its muted icon and name, and the missing pill
-	(v["c"] as Node2D).modulate.a = 1.0
+	(v["c"] as Node2D).modulate.a = teaser_alpha(int(m.get("t", 0))) if teaser else 1.0   # B9: fading down
 	if v["key"] != key:
 		v["key"] = key
 		v["model"] = m
@@ -1348,7 +1421,7 @@ func _update_scroll(s: GameState, dt_ms: float) -> void:
 		_thumb.size.y = Ui.snap(th, 4)
 		_thumb.position.y = Ui.snap(y, 4)
 		var active: bool = (not _press.is_empty() and _press["dragging"]) or _now - _thumb_active_at < float(Tune.MC["thumbIdleMs"])
-		_thumb.modulate.a = 1.0 if active else float(Tune.MC["thumbIdleAlpha"])
+		_thumb.modulate.a = 1.0 if active else 0.0   # D20: hidden when idle; the left rule stays as the track
 
 
 func reset_run() -> void:
