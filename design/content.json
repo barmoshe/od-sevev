@@ -1057,7 +1057,7 @@
       ],
       [
        "bengvir",
-       "@ביבי יש לך 90 שניות להעביר לה את התקציב ⏳"
+       "יש לך 90 שניות להעביר לה את התקציב ⏳"
       ],
       [
        "bengvir",
@@ -1084,7 +1084,8 @@
        }
       ]
      ],
-     "ticker": "מבזק ספורט: גוטליב החליפה חולצה. הווליום נשאר."
+     "ticker": "מבזק ספורט: גוטליב החליפה חולצה. הווליום נשאר.",
+     "_note": "Wired 2026-09-30: the plain bengvir lines post as the window opens, the onPaid line when his transfer ultimatum is paid, the ticker on the transfer event. The atMark rows stay unread (the ultimatum chip counts down). '@ביבי' dropped: the transfer also fires in Smotrich's and Deri's rounds."
     },
     "_note": "pollLike covers her card only (it names a seat number); her bubbles are poll_like:false. Request: the sim hides only the card in the blackout, not her membership."
    }

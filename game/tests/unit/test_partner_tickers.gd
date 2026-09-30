@@ -98,3 +98,33 @@ func test_the_pledge_flip_shows_bennetts_flip_line() -> void:
 	var t: Toasts = m.toasts
 	var shown := (t._text != null and str(t._text.text) == flip) or t._queue.has(flip)
 	runner.check(shown, "the flip line is on the toast or queued for it")
+
+
+func test_gotlivs_transfer_window_speaks_its_script() -> void:
+	await _boot()
+	runner.check(_start_round(), "Bibi's round starts")
+	var s: GameState = m.state
+	s.coalition["opened"] = true
+	s.bananas = 1.0e9
+	for pid: String in ["gotliv", "bengvir"]:
+		Coalition.ps(s, pid)["status"] = "member"
+	Coalition.ps(s, "gotliv")["meter"] = 100.0
+	s.coalition["paidLifetime"] = 5                 # ultimatums unlock after 2 paid demands and 3 min of play
+	s.stats["playtimeSec"] = 600.0
+	var out: Array = []
+	Coalition._tick_transfers(s, 0.1, Economy.derive(s), out)
+	var chat: Array = s.coalition["chat"]
+	var welcome := chat.filter(func(x: Dictionary) -> bool: return x.get("scriptFrom", "") == "gotliv" and x.get("partner", "") == "bengvir")
+	runner.check(welcome.size() == 2, "Ben Gvir's two welcome lines post as the window opens (%d)" % welcome.size())
+	runner.check(ChatView.line_text(welcome[0], s, null) == "ברוכה הבאה טלי!" if welcome.size() > 0 else false, "the text comes from content")
+	runner.check(not ChatView.line_text(welcome[1], s, null).contains("ביבי") if welcome.size() > 1 else false, "no '@ביבי': the transfer also fires in other leaders' rounds")
+	var ult := chat.filter(func(x: Dictionary) -> bool: return x.get("type", "") == "ultimatum" and x.get("transfer", "") == "gotliv")
+	runner.check(ult.size() == 1, "the 90 s transfer ultimatum is open")
+	if ult.size() == 1:
+		var r := Coalition.pay(s, int(ult[0]["seq"]))
+		var thanks := (s.coalition["chat"] as Array).filter(func(x: Dictionary) -> bool: return x.get("scriptFrom", "") == "gotliv" and x.get("partner", "") == "gotliv")
+		runner.check(r.get("ok", false) and thanks.size() == 1 and ChatView.line_text(thanks[0], s, null).begins_with("תודה איתמר"), "paid: Gotliv's own thanks line")
+	for e: Variant in out:
+		m._on_politics_event(e)
+	var q: Array = m.ticker._queues["flavor"]
+	runner.check(q.any(func(x: Dictionary) -> bool: return str(x["text"]).begins_with("מבזק ספורט")), "the sports-flash ticker line is queued")

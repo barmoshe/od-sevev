@@ -1516,6 +1516,9 @@ func _on_politics_event(e: Dictionary) -> void:
 				toasts.show_toast(LeaderUi.s("TOAST_COURT_END"))
 		"transfer":
 			_audio("transfer")
+			var tw: Variant = Coalition.partner(str(e.get("partner", ""))).get("copy", {}).get("transferWindow")
+			if tw is Dictionary and str((tw as Dictionary).get("ticker", "")) != "":
+				ticker.enqueue("flavor", str(tw["ticker"]))
 
 
 ## Mordechai David's blockade fired (spec §7.2): the figure walks in, Dubi's ticker runs the headline,

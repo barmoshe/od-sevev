@@ -706,10 +706,32 @@ static func _tick_transfers(s: GameState, dt: float, d: Economy.Derived, out: Ar
 		c["transferDone"] = true
 		_post(s, {"type": "transfer", "partner": id, "to": to}, out)
 		_sys(s, "chat.sys.transfer", {"partner": id, "to": to}, out)
+		for i: int in _script_lines(p, to, "welcome"):   # the target's welcome lines (copy.transferWindow.script)
+			_post(s, {"type": "thanks", "partner": to, "scriptFrom": id, "scriptIdx": i}, out)
 		_post(s, {"type": "ultimatum", "partner": to, "price": demand_price(s, to, d), "kind": "money",
 			"leftSec": float(_ult().get("sec", 90.0)), "state": "open", "line": "threat", "variant": 0, "transfer": id}, out)
 		out.append({"ev": "transfer", "partner": id, "to": to})
 		return
+
+
+## Gotliv's transfer script (partners[].copy.transferWindow.script, deck §E): the indexes of the
+## lines spoken by `speaker`. "welcome" = the plain lines said as the window opens (no timing
+## option); "onPaid" = the lines marked {onPaid: true}. The countdown lines ({atMark}) are the
+## ultimatum chip's job, and "uxSys" rows are the sim's own system line.
+static func _script_lines(p: Dictionary, speaker: String, when: String) -> Array:
+	var out: Array = []
+	var tw: Variant = p.get("copy", {}).get("transferWindow") if p.get("copy") is Dictionary else null
+	if not tw is Dictionary:
+		return out
+	var sc: Array = (tw as Dictionary).get("script", []) if (tw as Dictionary).get("script") is Array else []
+	for i in sc.size():
+		var row: Variant = sc[i]
+		if not row is Array or (row as Array).size() < 2 or str(row[0]) != speaker:
+			continue
+		var opt: Dictionary = row[3] if (row as Array).size() > 3 and row[3] is Dictionary else {}
+		if (when == "onPaid" and opt.get("onPaid", false) == true) or (when == "welcome" and opt.is_empty()):
+			out.append(i)
+	return out
 
 
 ## An ultimatum ran out: the partner (with anyone in their row) leaves; the "left" line carries
@@ -809,6 +831,11 @@ static func pay(s: GameState, seq: int, ceremony_done: bool = false) -> Dictiona
 			Events.leader_buff(s, odp)
 			out.append({"ev": "leaderBuff", "partner": id, "type": str(odp.get("type", "")),
 				"mult": float(odp.get("mult", 1.0)), "sec": float(odp.get("durationSec", 0.0))})
+	if m.get("transfer", "") != "":
+		# the transfer ultimatum paid: the transferred partner's own thanks line (copy.transferWindow.script, onPaid)
+		var tid := str(m["transfer"])
+		for i: int in _script_lines(partner(tid), tid, "onPaid"):
+			_post(s, {"type": "thanks", "partner": tid, "scriptFrom": tid, "scriptIdx": i}, out)
 	Meta.count(s, "countPartnerPaid", id)   # "gafniPaid" (trophy "תיקו כמו שהזמנת")
 	out.append({"ev": "partnerPaid", "partner": id, "payable": payable})   # the partner's paid ticker (copy.onPaidTicker / poachTicker)
 	if p.has("priceGrowth"):

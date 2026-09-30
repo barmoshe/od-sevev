@@ -618,6 +618,12 @@ static func partner_name(id: String) -> String:
 ## (content copy; the sim holds no Hebrew). {price} is the message's price; Goldknopf's thanks
 ## falls back to his "after" line, whose {next_price} is the price he asks next.
 static func line_text(m: Dictionary, s: GameState, d: Economy.Derived) -> String:
+	if m.has("scriptFrom"):
+		# a transfer-window line: the text stays in content (copy.transferWindow.script), the save keeps the index
+		var tw: Variant = Coalition.partner(str(m["scriptFrom"])).get("copy", {}).get("transferWindow")
+		var sc: Array = (tw as Dictionary).get("script", []) if tw is Dictionary else []
+		var i := int(m.get("scriptIdx", -1))
+		return str((sc[i] as Array)[1]) if i >= 0 and i < sc.size() and sc[i] is Array else ""
 	var id := str(m.get("partner", ""))
 	var p := Coalition.partner(id)
 	var line := str(m.get("line", ""))
