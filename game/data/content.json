@@ -1942,9 +1942,9 @@
    "weight": 5,
    "oncePerRound": true,
    "cooldownSec": 900,
+   "atPlaySec": 60,
    "when": {
-    "era": "balfour",
-    "membersAtLeast": 2
+    "era": "balfour"
    },
    "effect": {
     "type": "blockade",
@@ -1987,7 +1987,7 @@
       ]
      }
     },
-    "_note": "design/mordechai-david-spec.md. Effect 'blockade' (events.gd), presented by StreetFigure (the stage figure, a chat-style toast, the ticker); on for launch (flags.mordechaiDavid). Skin lookup: leader id, then side 'opposition', then the default. No player action on him, ever: no button, no tap target.",
+    "_note": "design/mordechai-david-spec.md. Effect 'blockade' (events.gd), presented by StreetFigure (the stage figure, a chat-style toast, the ticker); on for launch (flags.mordechaiDavid); fires once at 1:00 of play (atPlaySec, Bar 2026-09-30). Skin lookup: leader id, then side 'opposition', then the default. No player action on him, ever: no button, no tap target.",
     "_guardrail": "Documented public conduct only (he stands in the way of cars and protests; his Kaplan rationale is reported speech). Never his conviction, restraining orders, family, the minors in his group, October 7, the hostages, or army service (so never the Eisenkot beach exchange, fact 47). Blocking is standing still with arms out: nobody is touched, pushed or hurt. His name appears only in this event and his facts (redlines.json allow 'mordechai')."
    }
   }

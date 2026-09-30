@@ -31,6 +31,9 @@ is **your own minister**, in the traffic behind the blockade. The satire lands o
 collateral) and on his own stated logic. It does not land on the protesters, and it does not land on him as a
 person.
 
+**Timing (Bar, 2026-09-30):** one minute into the first round of a save (`atPlaySec: 60`, §4). So every
+save meets him once, early, whoever the leader is.
+
 **Why this answers the pitch §2.10 objection:**
 - "Streaming at an opposition figure is too close to harassment as a player action." Here **there is no player
   action**: no button, no tap target, no reward for aiming him at anyone. He is weather, like Kaia or the defector.
@@ -87,8 +90,9 @@ In `content.json` `events[]` (landed):
 |---|---|---|
 | `kind` | `stage` | He is a figure on the stage (like `defector`, `kaia`), with a card |
 | `flag` | `mordechaiDavid` | Declared in `flags`; **false until the change-set that wires it** (§7.5) |
-| `when` | `{era: "balfour", membersAtLeast: 2}` | Balfour's crowd (§2). Two members means there is usually a small partner to strand |
-| `weight` | 5 | Round 1's eligible pool is small (brawl 3, interview 2, lapid 2, pardon 1 when it applies). At weight 5 he is the likeliest pick without being certain (§6) |
+| `atPlaySec` | 60 | **Bar, 2026-09-30: "after one minute of game".** He fires once when the save's play time reaches 1:00, ahead of the scheduler's 4-minute first wait, and never through the weighted pool (`Events.tick`) |
+| `when` | `{era: "balfour"}` | Balfour's crowd (§2). The first build also asked for 2 members; at 1:00 the group has only just opened, so that is dropped and the card often reads `aloneText` |
+| `weight` | 5 | Kept for eligibility only: a timed event never enters the weighted pool |
 | `oncePerRound` | true | Once, full stop. Balfour is one round anyway |
 | `cooldownSec` | 900 | Kept from the stub; it only matters after a save reset |
 | `pollLike` | false | No numbers, no seats in copy |

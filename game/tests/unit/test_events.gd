@@ -260,6 +260,28 @@ func test_blockade_only_on_its_stage_and_never_at_the_gate() -> void:
 	runner.check(not Events.eligible(_md_state(), e), "never with the flag off")
 
 
+## atPlaySec (spec §4, Bar 2026-09-30): Mordechai David fires once at one minute of play, ahead of
+## the scheduler's 4-minute first wait, with or without partners in the group.
+func test_blockade_fires_at_one_minute_of_play() -> void:
+	_flags(["mordechaiDavid"])
+	var s := GameState.fresh()
+	var fires: Array = []
+	var rng := func() -> float: return 0.5
+	for i in 240:   # 0.5 s steps to 2:00
+		s.stats["playtimeSec"] = float(s.stats["playtimeSec"]) + 0.5
+		for ev: Dictionary in Events.tick(s, 0.5, Economy.derive(s), {}, rng):
+			if ev["ev"] == "event":
+				fires.append([float(s.stats["playtimeSec"]), ev["id"], ev["result"]])
+	runner.check(fires.size() == 1 and fires[0][1] == "mordechai", "one event by 2:00, his (%s)" % str(fires))
+	runner.check(not fires.is_empty() and is_equal_approx(float(fires[0][0]), 60.0), "at 1:00 of play")
+	runner.check(not fires.is_empty() and str(fires[0][2].get("partner", "x")) == "", "an empty group: nobody is stuck, the card only")
+	# never through the weighted pool: before his minute the scheduler never draws him
+	var early := _md_state()
+	early.stats["playtimeSec"] = 30.0
+	var seen := _run(early, 300)
+	runner.check(not seen.has("mordechai") and not seen.is_empty(), "the timer, not the weighted pool (%s)" % str(seen))
+
+
 func test_lose_random_partner_skips_deri() -> void:
 	var s := GameState.fresh()
 	Coalition.ps(s, "deri")["status"] = "member"

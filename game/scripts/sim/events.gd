@@ -5,7 +5,7 @@ extends RefCounted
 ## GameState.album (the photobomb album, lifetime).
 ##
 ## Every eventsConfig.gapSec seconds of visible play one event fires, picked by weight among the
-## eligible ones. Eligible means:
+## eligible ones (an event with `atPlaySec` instead fires once at that play time). Eligible means:
 ##   - its flag is on (flags default off, so post-launch content and the flagged characters,
 ##     Mordechai David and Yair, never fire until switched on);
 ##   - its `when` holds (Conditions);
@@ -264,6 +264,13 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 			cds.erase(id)
 	if not active():
 		return out
+	# A timed event (`atPlaySec`): it fires once when the save's play time reaches it, ahead of the
+	# scheduler's first wait, gap and weights, and never through the weighted pool (Mordechai David at
+	# one minute, design/mordechai-david-spec.md §4). Its other rules (flag, when, once, gate) still hold.
+	for e: Dictionary in list():
+		if e.has("atPlaySec") and float(s.stats.get("playtimeSec", 0.0)) >= float(e["atPlaySec"]) and eligible(s, e, ctx):
+			out.append(fire(s, e["id"], d, rng))
+			return out
 	var c := cfg()
 	if float(st["nextSec"]) < 0.0:
 		var first := float(c.get("firstAfterPlaySec", 0.0)) - float(s.stats.get("playtimeSec", 0.0))
@@ -275,7 +282,7 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 	var pool: Array = []
 	var total := 0.0
 	for e: Dictionary in list():
-		if eligible(s, e, ctx):
+		if not e.has("atPlaySec") and eligible(s, e, ctx):
 			pool.append(e)
 			total += float(e.get("weight", 1.0))
 	if pool.is_empty():
