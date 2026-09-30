@@ -2,11 +2,11 @@
 
 What changed from gameplay.py (v3, the bare screen on velvet), after the research pass:
   * a drawn iPhone (titanium rim, Dynamic Island, iOS status bar, home indicator) over a blurred copy of
-    the footage, with a slow handheld sway so it reads as a phone in a hand, not a flat screenshot;
+    the footage, with a slow handheld drift so it reads as a phone in a hand, not a flat screenshot;
   * "show touches" circles at every real tap of the capture (Ben Gvir, the buy buttons, the tabs, the
     coalition payments), the same disc + ripple the workshop's video-tutorial kit uses;
   * a camera that opens tight on the game (gameplay in the first frame), pulls back to reveal the phone,
-    and pushes in on each action (push 0.9 s, zoom 1.1-1.6), with a small kick on the bar lines;
+    and pushes in on each action (push 0.9 s, zoom 1.1-1.6);
   * captions moved to the top band (Reels hides the bottom ~320 px under its own caption and buttons);
   * the hook is late-game footage, so the full screen (meter, tab bar) is on it from frame one;
   * Mordechai David stays an easter egg: he peeks out from behind the phone, and holds on the cover.
@@ -356,28 +356,20 @@ def cam(t):
     return st(prev)
 
 
-def kick(t):
-    """A small push on each bar line once the beat has dropped."""
-    if t < BAR(6):
-        return 1.0
-    n = math.floor((t - BAR(0)) / (BAR(1) - BAR(0)))
-    dt = t - BAR(n)
-    return 1.0 + 0.014 * math.exp(-dt / 0.12)
-
-
 def sway(t):
-    a = 0.55 * math.sin(2 * math.pi * t / 5.3) + 0.22 * math.sin(2 * math.pi * t / 2.7 + 1.1)
-    dx = 5 * math.sin(2 * math.pi * t / 4.1)
-    dy = 4 * math.sin(2 * math.pi * t / 3.3 + 1.0)
-    return a, dx, dy
+    """A slow handheld drift, whole pixels only: no rotation and no bar-line zoom kick, both resample the
+    pixel-art text every frame and read as flicker (Bar, v4.1)."""
+    dx = 4 * math.sin(2 * math.pi * t / 4.1)
+    dy = 3 * math.sin(2 * math.pi * t / 3.3 + 1.0)
+    return round(dx), round(dy)
 
 
 # ---------------------------------------------------------------------------- layers
 _bg = {}
 
 
-def background(frame):
-    kk = id(frame)
+def background(frame, fi):
+    kk = fi                        # the take frame index: object ids are reused once frames are freed
     if kk not in _bg:
         if len(_bg) > 8:
             _bg.clear()
@@ -391,14 +383,14 @@ def background(frame):
     return _bg[kk].copy()
 
 
-def screen(frame, tt, sp, s):
+def screen(frame, fi, tt, sp, s):
     """The lit screen at scale s: status bar, the game, touches, home indicator, rounded corners."""
     sw, sb = round(SW * s), round(SB * s)
     gh = round(GH * s)
     sh = sb + gh
     scr = Image.new("RGBA", (sw, sh), (0, 0, 0, 255))
     scr.paste(resized("status", STATUS, (sw, sb)), (0, 0))
-    scr.paste(resized(("game", id(frame)), frame, (sw, gh)), (0, sb))
+    scr.paste(resized(("game", fi), frame, (sw, gh)), (0, sb))
     draw_touches(scr, tt, sp, s, sb)
     d = ImageDraw.Draw(scr)
     hw, hh = 134 / 393 * sw, 5 / 393 * sw
@@ -413,9 +405,9 @@ def screen(frame, tt, sp, s):
     return scr
 
 
-def phone(frame, tt, sp, s):
+def phone(frame, fi, tt, sp, s):
     body = resized("chrome", CHROME, (round((PW + 2 * MARGIN) * s), round(PH * s))).copy()
-    scr = screen(frame, tt, sp, s)
+    scr = screen(frame, fi, tt, sp, s)
     body.alpha_composite(scr, (round((MARGIN + BZ) * s), round(BZ * s)))
     return body
 
@@ -454,10 +446,10 @@ def captions(c, t):
 def game_frame(t):
     tt, sp, vs = take_at(t)
     fr = g.take_frame(tt)
-    c = background(fr)
+    fi = max(0, int(round(tt * FPS)))
+    c = background(fr, fi)
     z, f = cam(t)
-    z *= kick(t)
-    a, dx, dy = sway(t)
+    dx, dy = sway(t)
     s = z
     cx = C[0] + (C[0] - f[0]) * z + dx
     cy = C[1] + (C[1] - f[1]) * z + dy
@@ -466,9 +458,7 @@ def game_frame(t):
     paste(c, shs, cx + 10 * s, cy + 34 * s)
     edge = cx - PW * s / 2
     peek(c, t, edge, s)
-    ph = phone(fr, tt, sp, s)
-    ph = ph.rotate(a, resample=Image.BICUBIC, expand=True)
-    paste(c, ph, cx, cy)
+    paste(c, phone(fr, fi, tt, sp, s), cx, cy)
     flash(c, t, vs, 0.07, 0.3)
     captions(c, t)
     return c

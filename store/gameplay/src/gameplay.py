@@ -129,7 +129,7 @@ def panel(c, t):
             d.rectangle((GAME_X - 12, 0, GAME_X + GAME_W + 11, H), fill=GOLD_SH)
             d.rectangle((GAME_X - 6, 0, GAME_X + GAME_W + 5, H), fill=INK)
             fr = take_frame(ts + (t - vs) * sp)
-            key = ("scaled", id(fr))
+            key = ("scaled", int(round((ts + (t - vs) * sp) * FPS)))
             if key not in _frames:
                 _frames[key] = fr.resize((GAME_W, GAME_H), Image.LANCZOS)
             c.paste(_frames[key], (GAME_X, 0))
