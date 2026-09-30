@@ -176,7 +176,7 @@ index 1558947..d372f2a 100644
  	var pi := chat.pending_info()
  	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
 diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
-index 2c1abb4..05744d7 100644
+index 2c1abb4..ccfd9bf 100644
 --- a/tools/web/picker_web.mjs
 +++ b/tools/web/picker_web.mjs
 @@ -1,16 +1,21 @@
@@ -412,8 +412,8 @@ index 2c1abb4..05744d7 100644
 -		await page.keyboard.press('Escape');
 -		await wait(500);
 -	}
-+	log(`  gate (${why}): seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${P.st.paid} pills, loops ${P.st.loops}`);
-+	if (why === 'budget' || why === 'navigated') break;
++	if (s) log(`  gate (${why}): seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${P.st.paid} pills, loops ${P.st.loops}`);
++	if (why === 'budget' || why === 'navigated' || !s) break;
 +	const r = await P.callElection({ card: 'p6-election-card' });
 +	if (r === 'held-fail') { held = false; break; }
 +	if (r === 'navigated') break;
@@ -506,7 +506,7 @@ index 2c1abb4..05744d7 100644
  const ok = checks.every((x) => x[0]) && !errors.length;
  log(ok ? 'PICKER_WEB: PASS' : 'PICKER_WEB: FAIL');
 diff --git a/tools/web/round_web.mjs b/tools/web/round_web.mjs
-index 30e1bcc..3a432e0 100644
+index 30e1bcc..e03f046 100644
 --- a/tools/web/round_web.mjs
 +++ b/tools/web/round_web.mjs
 @@ -1,24 +1,26 @@
@@ -730,8 +730,8 @@ index 30e1bcc..3a432e0 100644
 +for (let attempt = 0; attempt < 6 && !called && !heldFail && Date.now() - P.st.t0 < budget; attempt++) {
 +	const why = await P.playToGate(budget, hooks);
 +	s = await probe();
-+	log(`  gate (${why}): seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${P.st.paid} pills, loops ${P.st.loops}`);
-+	if (why === 'budget' || why === 'navigated') break;
++	if (s) log(`  gate (${why}): seats ${s.seats.effective}/${s.seats.gate}, ready ${s.ready}, cta ${s.cta}, run ${Math.round(s.runSec)}s, paid ${P.st.paid} pills, loops ${P.st.loops}`);
++	if (why === 'budget' || why === 'navigated' || !s) break;
  	await shot('e0-cta');
 -	if (s.modal !== 'EVOLUTION') {
 -		await tapAt(col(360, disp.lowerY + 42));
@@ -808,10 +808,10 @@ index 30e1bcc..3a432e0 100644
  await browser.close();
 diff --git a/tools/web/round_play.mjs b/tools/web/round_play.mjs
 new file mode 100644
-index 0000000..19e712a
+index 0000000..9ed9cbf
 --- /dev/null
 +++ b/tools/web/round_play.mjs
-@@ -0,0 +1,266 @@
+@@ -0,0 +1,277 @@
 +// The scripted player shared by round_web.mjs and picker_web.mjs (Game Designer 2026-09-30): one
 +// loop that plays a round to the 61 gate through the real UI with real touches, and one election
 +// call that checks "the vote stops the clock" (sim/politics.gd, design/leader-select-spec.md §7.4).
@@ -850,10 +850,11 @@ index 0000000..19e712a
 +			const push = H.pushState.bind(H);
 +			const go = H.go.bind(H);
 +			const back = H.back.bind(H);
-+			H.pushState = (...a) => { push(...a); say('push'); };
-+			H.go = (n) => { say(`go(${n})`); go(n); };
-+			H.back = () => { say('back()'); back(); };
-+			window.addEventListener('popstate', () => say('popstate'));
++			window.odGoPending = 0;   // history.go / back traversals not yet landed (their popstate)
++			H.pushState = (...a) => { push(...a); say(`push (${window.odGoPending} go pending)`); };
++			H.go = (n) => { window.odGoPending++; say(`go(${n})`); go(n); };
++			H.back = () => { window.odGoPending++; say('back()'); back(); };
++			window.addEventListener('popstate', () => { window.odGoPending = Math.max(0, window.odGoPending - 1); say('popstate'); });
 +			window.addEventListener('pagehide', (e) => say(`pagehide persisted ${e.persisted}`));
 +			say(`new document ${location.href}`);
 +		}),
@@ -890,6 +891,20 @@ index 0000000..19e712a
 +		}
 +		await wait(60);
 +		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
++	}
++	// Escape closes the top layer, and the game rewinds its history entry with history.go(-1), which
++	// lands asynchronously. A layer opened before it lands (a tap in the next frame on a loaded
++	// machine) pushes an entry the traversal then skips past: the game's count of entries is one too
++	// high and its next go(-1) leaves the page (LayerHistory; seen as "the page navigated mid-run").
++	// That is a game bug (reported, not fixed here); a person never acts within that frame, so the
++	// driver waits for the traversal to land before its next action.
++	async function settle() {
++		await page.waitForFunction(() => !window.odGoPending, null, { timeout: 3000 }).catch(() => {});
++	}
++	async function esc(wait_ms = 250) {
++		await page.keyboard.press('Escape');
++		await wait(wait_ms);
++		await settle();
 +	}
 +	const probe = () => page.evaluate(() => window.odDev || null);
 +	const modal = () => page.evaluate(() => window.odModal || null);
@@ -932,8 +947,7 @@ index 0000000..19e712a
 +			}
 +		}
 +		act('esc chat');
-+		await page.keyboard.press('Escape');
-+		await wait(250);
++		await esc(250);
 +		return probe();
 +	}
 +
@@ -963,8 +977,7 @@ index 0000000..19e712a
 +				if (s.modal === 'EVOLUTION') return 'card';
 +				st.modals[s.modal] = (st.modals[s.modal] || 0) + 1;
 +				act(`esc overlay ${s.modal}`);
-+				await page.keyboard.press('Escape');
-+				await wait(400);
++				await esc(400);
 +				continue;
 +			}
 +			st.runSec = s.runSec;
@@ -1035,8 +1048,7 @@ index 0000000..19e712a
 +	async function callOnce(names) {
 +		let s = await probe();
 +		for (let i = 0; i < 3 && s.modal !== 'EVOLUTION' && (s.chat.open || s.modal !== ''); i++) {
-+			await page.keyboard.press('Escape');
-+			await wait(250);
++			await esc(250);
 +			s = await probe();
 +		}
 +		if (s.modal !== 'EVOLUTION') {
@@ -1052,8 +1064,7 @@ index 0000000..19e712a
 +		}
 +		if (!m.ready) {
 +			log(`  the gate fell between the CTA and the card (seats ${s0.seats.effective}): close it, play on`);
-+			await page.keyboard.press('Escape');
-+			await wait(400);
++			await esc(400);
 +			return 'slipped';
 +		}
 +		// the vote stops the clock: read the card for a while at ×speed; nothing may move
@@ -1076,6 +1087,6 @@ index 0000000..19e712a
 +			+ 'no spins, no Suitcase. Not a pacing measurement (tools/balance.sh is).';
 +	}
 +
-+	return { st, wait, refresh, css, col, tapAt, drag, probe, modal, shot, tab, hat, playToGate, payChat, callElection, cadence };
++	return { st, wait, refresh, css, col, tapAt, drag, probe, modal, shot, tab, hat, esc, settle, playToGate, payChat, callElection, cadence };
 +}
 # untracked binary: tools/web/round_play.mjs
