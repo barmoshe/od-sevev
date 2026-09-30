@@ -1,9 +1,9 @@
 # binary files changed (not carried):
 diff --git a/design/leader-select-spec.md b/design/leader-select-spec.md
-index 8da50c8..a0d1a59 100644
+index 8da50c8..0acb38e 100644
 --- a/design/leader-select-spec.md
 +++ b/design/leader-select-spec.md
-@@ -418,6 +418,87 @@ Median player, first election, median of seeds 1-9 (one seat deal per seed); the
+@@ -418,6 +418,88 @@ Median player, first election, median of seeds 1-9 (one seat deal per seed); the
  | L9 | **Blackout 23.10-27.10** | The picker shows no numbers. Partner cards with `pollLike` hide as today. Shuffled seats are game values, never polls. |
  | L10 | **Aide drops then switching** | The −3% is on the shared base and persists; the aide drop only exists in Bibi's round. |
  | L11 | **Karhi's s08 line** | Available whenever Karhi is a member. It resets with the round as today. |
@@ -62,13 +62,14 @@ index 8da50c8..a0d1a59 100644
 +- **Keep the live grey-out** (the status quo). It is the issue itself.
 +
 +**Per leader.** The rule is leader-neutral, and every rule effect is covered by it:
-+- **Liberman** (the tightest lineup, capacity 42 + mk_returner): his last seats are often a join
++- **Liberman** (the tightest lineup): his last seats are often a join
 +  demand paid on the edge; he held 9/9 under the card (7/9 before).
 +- **Golan:** a merged pair walks out together and costs double. Under the card no ultimatum
 +  expires, so no merged walkout happens there (9/9, was 7/9). The merge itself needs the chat, so
 +  it cannot happen under the card either.
-+- **Bennett:** his pledge card raises the gate by 1 while it is up. Under the card its timer stops;
-+  it never fires once seats ≥ 61 (L7), so it cannot open under the card.
++- **Bennett:** his pledge card raises the gate by 1 while it is up. In his own round it only fires
++  below 61 (L7, `seatsBelow`). As a rival card in rounds 2+ of other leaders it has no such guard,
++  but no card fires under the election card, and a pledge already up keeps its timer frozen.
 +- **Ben Gvir** (halved threats; an unpaid demand still escalates): was the worst case (5/9 after 30 s),
 +  now 9/9.
 +- **Deri** (cheap rejoins), **Smotrich**, **Eisenkot**, **Bibi**: now 9/9 (7-8/9 before).
@@ -341,7 +342,7 @@ index 17c2808..9b9f489 100644
  
  func test_the_return_card_speaks_by_absence_band() -> void:
 diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
-index 2c1abb4..e24d035 100644
+index 2c1abb4..6fcb70f 100644
 --- a/tools/web/picker_web.mjs
 +++ b/tools/web/picker_web.mjs
 @@ -1,16 +1,21 @@
@@ -370,7 +371,7 @@ index 2c1abb4..e24d035 100644
  fs.mkdirSync(out, { recursive: true });
  const [wh, dprS] = dev.split('@');
  const [W, H] = wh.split('x').map(Number);
-@@ -21,42 +26,10 @@ const page = await ctx.newPage();
+@@ -21,53 +26,21 @@ const page = await ctx.newPage();
  const errors = [];
  page.on('pageerror', (e) => errors.push(e.message));
  const cdp = await ctx.newCDPSession(page);
@@ -416,7 +417,10 @@ index 2c1abb4..e24d035 100644
  const checks = [];
  const check = (ok, what) => { checks.push([ok, what]); log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}`); };
  const cellOf = (p, id) => ((p && p.cells) || []).find((c) => c[2] === id) || [-1, -1, ""];
-@@ -66,8 +39,7 @@ await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
+ 
++await P.st.ready;   // the history log (round_play.mjs) is in place before the page loads
+ await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&speed=${speed}`);
+ await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
  await page.click('#od-quiet');
  await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
  await wait(1200);
@@ -426,7 +430,7 @@ index 2c1abb4..e24d035 100644
  
  // 1. the first picker
  let p = await pick();
-@@ -95,159 +67,81 @@ check(s && s.leader === 'bennett' && s.mode === 'title', `"לשחק בתור ב
+@@ -95,159 +68,81 @@ check(s && s.leader === 'bennett' && s.mode === 'title', `"לשחק בתור ב
  check(s && s.undo, 'the undo chip is up');
  await shot('p3-bennett-pretap');
  // tap 1
@@ -648,7 +652,7 @@ index 2c1abb4..e24d035 100644
  const ok = checks.every((x) => x[0]) && !errors.length;
  log(ok ? 'PICKER_WEB: PASS' : 'PICKER_WEB: FAIL');
 diff --git a/tools/web/round_web.mjs b/tools/web/round_web.mjs
-index 30e1bcc..d4e468a 100644
+index 30e1bcc..fd5c141 100644
 --- a/tools/web/round_web.mjs
 +++ b/tools/web/round_web.mjs
 @@ -1,24 +1,26 @@
@@ -692,7 +696,7 @@ index 30e1bcc..d4e468a 100644
  fs.mkdirSync(out, { recursive: true });
  const [wh, dprS] = dev.split('@');
  const [W, H] = wh.split('x').map(Number);
-@@ -29,206 +31,72 @@ const page = await ctx.newPage();
+@@ -29,206 +31,73 @@ const page = await ctx.newPage();
  const errors = [];
  page.on('pageerror', (e) => errors.push(e.message));
  const cdp = await ctx.newCDPSession(page);
@@ -734,6 +738,7 @@ index 30e1bcc..d4e468a 100644
 +const P = makePlayer({ page, cdp, DPR, out, wh, log });
 +const { wait, probe, shot } = P;
  
++await P.st.ready;   // the history log (round_play.mjs) is in place before the page loads
  await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&speed=${speed}`);
  await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
  await page.click('#od-quiet');
@@ -1057,10 +1062,10 @@ index 0000000..0509389
 # untracked binary: game/tests/unit/test_vote_hold.gd.uid
 diff --git a/tools/web/round_play.mjs b/tools/web/round_play.mjs
 new file mode 100644
-index 0000000..668ee1c
+index 0000000..cb94420
 --- /dev/null
 +++ b/tools/web/round_play.mjs
-@@ -0,0 +1,230 @@
+@@ -0,0 +1,248 @@
 +// The scripted player shared by round_web.mjs and picker_web.mjs (Game Designer 2026-09-30): one
 +// loop that plays a round to the 61 gate through the real UI with real touches, and one election
 +// call that checks "the vote stops the clock" (sim/politics.gd, design/leader-select-spec.md §7.4).
@@ -1086,19 +1091,37 @@ index 0000000..668ee1c
 +	// "the page navigated mid-run" (seen once on v4): a real document load after the round started
 +	// (the game's own history.pushState / history.go for its layers fire framenavigated too, with
 +	// the same URL, and are not navigations). Record where to and what the driver just did.
++	// the page's history calls (the game's LayerHistory: pushState per layer, history.go(-n) when
++	// layers close; the shell's About), kept on the Node side so they survive a navigation
++	st.hist = [];
++	st.ready = Promise.all([
++		page.exposeFunction('odHistLog', (e) => { st.hist.push(`${wall()}s ${e}`); if (st.hist.length > 16) st.hist.shift(); }),
++		page.addInitScript(() => {
++			const H = window.history;
++			const say = (e) => { try { window.odHistLog(`${e} len ${H.length} layers ${window.odLayers}`); } catch (x) { /* ignore */ } };
++			const push = H.pushState.bind(H);
++			const go = H.go.bind(H);
++			const back = H.back.bind(H);
++			H.pushState = (...a) => { push(...a); say('push'); };
++			H.go = (n) => { say(`go(${n})`); go(n); };
++			H.back = () => { say('back()'); back(); };
++			window.addEventListener('popstate', () => say('popstate'));
++			window.addEventListener('pagehide', () => say('pagehide'));
++		}),
++	]);
 +	page.on('framenavigated', (fr) => {
 +		if (fr !== page.mainFrame() || !st.armed) return;
 +		const url = fr.url();
 +		if (url === st.url) return;
-+		const n = { url, wall: wall(), last: st.actions.slice(-6) };
++		const n = { url, wall: wall(), last: st.actions.slice(-6), hist: st.hist.slice(-10) };
 +		st.navs.push(n);
-+		log(`  NAVIGATION to ${n.url} at ${n.wall}s wall; the last actions: ${n.last.join(' | ')}`);
++		log(`  NAVIGATION to ${n.url} at ${n.wall}s wall; the last actions: ${n.last.join(' | ')}; history: ${n.hist.join(' | ')}`);
 +	});
 +	page.on('load', () => {
 +		if (!st.armed) return;
-+		const n = { url: page.url(), wall: wall(), load: true, last: st.actions.slice(-6) };
++		const n = { url: page.url(), wall: wall(), load: true, last: st.actions.slice(-6), hist: st.hist.slice(-10) };
 +		st.navs.push(n);
-+		log(`  PAGE LOAD (${n.url}) at ${n.wall}s wall; the last actions: ${n.last.join(' | ')}`);
++		log(`  PAGE LOAD (${n.url}) at ${n.wall}s wall; the last actions: ${n.last.join(' | ')}; history: ${n.hist.join(' | ')}`);
 +	});
 +	async function refresh() {
 +		st.disp = await page.evaluate(() => window.odDisplay);
