@@ -912,7 +912,7 @@ def frame(t):
         c = c2
     # fade in from black and out at the very end
     overlay(c, INK, 1 - clamp(t / 0.08))
-    overlay(c, INK, clamp((t - (DUR - 0.25)) / 0.25))
+    # no fade-out: the last frame (the title card) is also the Reels cover
     return c.convert("RGB")
 
 
@@ -1088,8 +1088,11 @@ def main():
            "-shortest", video]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     nf = int(DUR * FPS)
+    cover = frame((nf - 1) / FPS)
+    cover.save(os.path.join(OUT, "od-sevev-teaser-cover.png"))
     for i in range(nf):
-        p.stdin.write(frame(i / FPS).tobytes())
+        # the first 2 frames repeat the last one, so a thumbnail taken from frame 0 is the title card
+        p.stdin.write((cover if i < 2 else frame(i / FPS)).tobytes())
         if i % 60 == 0:
             print(f"frame {i}/{nf}", flush=True)
     p.stdin.close()
