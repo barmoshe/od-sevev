@@ -77,6 +77,10 @@ CAST = {
                    arm=None, react='hop', head=(300, 30, 840, 570)),
     'kariv': dict(neck=560, waist=960, eyes=[(431, 270, 24, 11), (567, 298, 24, 11)],
                   arm=None, react='no', head=(300, 20, 820, 560)),
+    # Almog Cohen (Bibi's and Ben Gvir's L8; the no-photo stand-in until 2026-09-30). Keyed out with --holes 286,786
+    # (the pocket between his left arm and the jacket).
+    'almog': dict(neck=500, waist=900, eyes=[(385, 237, 22, 10), (495, 258, 22, 10)],
+                  arm=None, react='hop', head=(230, 20, 760, 540)),
 }
 
 # The two custom-rig leaders (build.py magician / bennett) take the same recipe keys. Bibi's is his approved hat rig

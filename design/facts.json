@@ -636,9 +636,12 @@
    "gameRendering": "card: paraphrase in reported speech (\"...היא צופה שתמצא את עצמה במתקן כליאה של השב״כ\"); \"סיכול ממוקד\" is in quote marks and is her own term, verbatim.",
    "verificationNote": "Corrected: she did not formally leave the Likud faction. Haaretz: \"תעבור למפלגת עוצמה יהודית ולא תוכרז כפורשת\". The 19-seat wording is Ynet's headline quote. The \"סיכול ממוקד\" claim is reported by Walla/Ynet/JPost (JPost: \"targeted assassination\"/\"targeted elimination\").",
    "usedIn": [
+    "leaders.bengvir.coalition.lineup.gotliv",
+    "leaders.bengvir.kit.story",
+    "leaders.bengvir.kit.ticker.tg05",
+    "leaders.bengvir.kit.ticker.tg15",
     "partners.gotliv",
-    "partners.gotliv.copy.card",
-    "partners.gotliv.copy.transferWindow.script[0]"
+    "partners.gotliv.copy.card"
    ],
    "usedInLeaderSelect": [
     "leaders.bengvir.coalition.lineup.gotliv",
@@ -758,6 +761,11 @@
    "verifiedAt": "2026-09-29",
    "verificationNote": "Otzma removed him from its WhatsApp groups after he broke the party line on budget votes (Jan 2025, per a Makor Rishon screenshot reported by ToI). He came 8th in the Likud primary (Aug 2026) and was placed 14th on the final slate after the reserved slots.",
    "usedIn": [
+    "leaders.bengvir.coalition.lineup.almog",
+    "leaders.bengvir.kit.sources.t7.firstOwned",
+    "leaders.bengvir.kit.story",
+    "leaders.bengvir.kit.ticker.tg06",
+    "leaders.bengvir.kit.ticker.tg15",
     "partners.almog"
    ],
    "usedInLeaderSelect": [
@@ -1111,9 +1119,7 @@
    "label": "F",
    "text": "Under the coalition deal the Public Security Ministry became the National Security Ministry; the cabinet approved the rebranding (signs, websites, documents) in Jan 2023 at an estimated NIS 2-3 million.",
    "aboutHe": "בהסכם הקואליציוני הפך המשרד לביטחון הפנים למשרד לביטחון לאומי, ובינואר 2023 אישרה הממשלה את החלפת השם, השלטים והאתרים בעלות מוערכת של 2 עד 3 מיליון ₪.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; Ynet",
    "url": "https://www.timesofisrael.com/rebranding-of-police-ministry-to-cost-between-nis-2-3-million/",
    "url2": "https://www.ynetnews.com/article/sjnwjyaii",
@@ -1136,9 +1142,7 @@
    "label": "F",
    "text": "In May 2023 Otzma Yehudit walked out of Knesset votes to press for more money for its Negev and Galilee ministry in the 2023-24 budget; Netanyahu then agreed to raise that funding.",
    "aboutHe": "במאי 2023 החרימה עוצמה יהודית הצבעות בכנסת כדי להשיג עוד תקציב למשרד לפיתוח הנגב והגליל שבידיה, והעניין הסתיים בהסכמה להגדיל את התקציב.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI; INN",
    "url": "https://www.timesofisrael.com/in-latest-coalition-upheaval-otzma-yehudit-boycotts-knesset-votes-over-budget-dispute/",
    "url2": "https://www.israelnationalnews.com/news/400838",
@@ -1159,9 +1163,7 @@
    "label": "F",
    "text": "In Dec 2024 Otzma Yehudit voted against the 2025 state budget bill, which passed anyway (59-57).",
    "aboutHe": "בדצמבר 2024 הצביעה עוצמה יהודית נגד הצעת תקציב המדינה ל־2025, וההצעה עברה בכל זאת.",
-   "notUsed": true,
-   "notUsedWhy": "Leader select (design/leader-select-spec.md): ships with the picker. Flip notUsed to false in the change-set that ships the picker; aboutHe is already written and linted.",
-   "launchWith": "leaderSelect",
+   "notUsed": false,
    "outlet": "ToI",
    "url": "https://www.timesofisrael.com/otzma-yehudit-votes-against-budget-as-coalition-splits-over-bid-to-fire-ag/",
    "url2": "https://www.timesofisrael.com/otzma-yehudit-again-votes-against-budget-related-bill-which-passes-anyway/",
@@ -1905,6 +1907,54 @@
     "events.trump"
    ],
    "ref": 89
+  },
+  {
+   "id": "bengvir-ministries",
+   "label": "F",
+   "text": "On 22 Sep 2026, unveiling Otzma Yehudit's platform, Ben Gvir said the party will demand the Defense Ministry for him and the Justice Ministry for his No. 2, Tally Gotliv. Likud answered that both are its core portfolios and it will not give them up.",
+   "aboutHe": "בספטמבר 2026 הודיע איתמר בן גביר שעוצמה יהודית תדרוש את משרד הביטחון עבורו ואת משרד המשפטים עבור טלי גוטליב, ובליכוד השיבו שלא יוותרו על המשרדים האלה.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Haaretz; Jerusalem Post",
+   "url": "https://www.timesofisrael.com/ben-gvir-demands-role-of-defense-minister-in-next-government-gotliv-as-justice-minister/",
+   "url2": "https://www.haaretz.com/israel-news/israel-politics/2026-09-22/ty-article/.premium/ben-gvir-says-he-will-demand-defense-minister-post-in-next-government/000001a0-c9c5-dfe2-a1ae-f9ed5ddd0000",
+   "moreUrls": [
+    "http://www.jpost.com/israel-election-2026/article-909411"
+   ],
+   "date": "2026-09-22",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bengvir.kit.spins[6]",
+    "leaders.bengvir.kit.story",
+    "leaders.bengvir.kit.ticker.tg13",
+    "partners.bengvir"
+   ],
+   "ref": 90
+  },
+  {
+   "id": "bengvir-no-merger",
+   "label": "F",
+   "text": "On 28 Aug 2026 Netanyahu asked Ben Gvir and Smotrich in a video to run together; Ben Gvir refused, calling the decision final, and accused Netanyahu of wanting a small Otzma so he could go with Eisenkot. Likud answered that he was crowning Eisenkot. Smotrich also said he would run alone.",
+   "aboutHe": "באוגוסט 2026 ביקש בנימין נתניהו בסרטון מאיתמר בן גביר ומבצלאל סמוטריץ׳ לרוץ יחד, ושניהם סירבו.",
+   "notUsed": false,
+   "outlet": "Times of Israel; Haaretz; The Media Line",
+   "url": "https://www.timesofisrael.com/ben-gvir-rejects-pms-demand-to-merge-with-smotrich-drawing-scathing-response-from-likud/",
+   "url2": "https://www.haaretz.com/israel-news/elections/2026-08-28/ty-article/.premium/ben-gvir-rejects-netanyahu-push-for-joint-election-run-with-smotrich/000001a0-47a8-d2c5-a1b2-e7ab87f10000",
+   "moreUrls": [
+    "https://www.jpost.com/israel-election-2026/article-905489"
+   ],
+   "date": "2026-08-28",
+   "gameRendering": "reported, no quote marks; the Eisenkot jab as reported speech only.",
+   "verification": "verified",
+   "verifiedAt": "2026-09-30",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bengvir.coalition.lineup.bibi",
+    "leaders.bengvir.coalition.lineup.smotrich",
+    "leaders.bengvir.kit.ticker.tg14"
+   ],
+   "ref": 91
   }
  ],
  "deliberatelyOut": [
