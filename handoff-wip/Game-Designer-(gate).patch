@@ -1,4 +1,42 @@
 # binary files changed (not carried):
+diff --git a/design/content.json b/design/content.json
+index 35e512a..8416077 100644
+--- a/design/content.json
++++ b/design/content.json
+@@ -5943,12 +5943,13 @@
+      {
+       "id": "lapid",
+       "slot": "S2",
++      "fixed": true,
+       "traits": {
+        "cannotLeave": true,
+        "statusLine": true,
+        "threatChance": 0
+       },
+-      "_why": "List No. 2 (beyachad-list): same list, can't walk out."
++      "_why": "List No. 2 (beyachad-list): same list, can't walk out, and never dealt out of the early core (fixed: spec §7.2.2)."
+      },
+      {
+       "id": "eisenkot",
+diff --git a/game/data/content.json b/game/data/content.json
+index 35e512a..8416077 100644
+--- a/game/data/content.json
++++ b/game/data/content.json
+@@ -5943,12 +5943,13 @@
+      {
+       "id": "lapid",
+       "slot": "S2",
++      "fixed": true,
+       "traits": {
+        "cannotLeave": true,
+        "statusLine": true,
+        "threatChance": 0
+       },
+-      "_why": "List No. 2 (beyachad-list): same list, can't walk out."
++      "_why": "List No. 2 (beyachad-list): same list, can't walk out, and never dealt out of the early core (fixed: spec §7.2.2)."
+      },
+      {
+       "id": "eisenkot",
 diff --git a/game/scripts/sim/README.md b/game/scripts/sim/README.md
 index 0769f5d..45fcede 100644
 --- a/game/scripts/sim/README.md
@@ -16,6 +54,21 @@ index 0769f5d..45fcede 100644
  **Player actions** (each returns a result, and a Dictionary of UI events where there are any):
  
  | Action | Call |
+diff --git a/game/scripts/sim/leaders.gd b/game/scripts/sim/leaders.gd
+index fb7db74..8f58064 100644
+--- a/game/scripts/sim/leaders.gd
++++ b/game/scripts/sim/leaders.gd
+@@ -287,7 +287,9 @@ static func deal(id: String, seed_: int) -> Dictionary:
+ 			continue
+ 		var sl := str((m as Dictionary).get("slot", ""))
+ 		out[str(m["id"])] = sl
+-		if shuffles(id) and not FIXED_SLOTS.has(sl):
++		# `fixed`: a member who keeps his slot in every deal (Lapid in Bennett's round: List No. 2
++		# of the leader's own list is there from tap one, never dealt into a round-2 slot)
++		if shuffles(id) and not FIXED_SLOTS.has(sl) and (m as Dictionary).get("fixed", false) != true:
+ 			movers.append(str(m["id"]))
+ 			slots_.append(sl)
+ 	if movers.size() > 1:
 diff --git a/game/scripts/sim/pacing_sim.gd b/game/scripts/sim/pacing_sim.gd
 index a2455b4..b9635b4 100644
 --- a/game/scripts/sim/pacing_sim.gd
