@@ -1,4 +1,21 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/sim/README.md b/game/scripts/sim/README.md
+index 0769f5d..45fcede 100644
+--- a/game/scripts/sim/README.md
++++ b/game/scripts/sim/README.md
+@@ -31,6 +31,12 @@ var ev := Politics.tick(state, dt, d, {"allowPing": not modal and last_buy_age >
+ for e in ev: match e.ev: ...   # see the event list below
+ ```
+ 
++**The vote stops the clock** (design/leader-select-spec.md §7.4): while the election card (O3) is
++open and unconfirmed, pass `"vote": true`. Politics then advances only the calendar: no
++ultimatum, demand, join, transfer, card or court timer moves. The controller also skips
++`Economy.tick` and automation for those steps (`main.gd` `vote_open()`, `_step_economy`), so the
++card is a pause and never a farm.
++
+ **Player actions** (each returns a result, and a Dictionary of UI events where there are any):
+ 
+ | Action | Call |
 diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
 index 1558947..d372f2a 100644
 --- a/game/scripts/ui/dev_probe.gd
