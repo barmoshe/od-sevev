@@ -674,6 +674,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	if tag_s != str(v.get("tagText", "")):
 		var same := str(v.get("tagKey", "")) == tkey
 		v["tagSlam"] = 0.0 if (same and tag_s != "" and not reduced_motion) else -1.0
+		if same and tag_s != "" and get_node_or_null("../../..") != null and get_node("../../..").has_method("audio_event"): get_node("../../..").call("audio_event", "slipStamp")   # Audio v1.4: the thunk on f0 (×6), on the cut in reduced motion; main is 3 up (_lower, _root); a no-op without it or the cue
 		v["tagText"] = tag_s
 	v["tagKey"] = tkey
 	tg.text = tag_s

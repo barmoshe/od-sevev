@@ -612,7 +612,7 @@ func test_every_event_the_game_sends_has_a_cue_or_is_silent_on_purpose() -> void
 	var a := _audio()
 	var sent := _sent_events()
 	runner.check(sent.size() >= 40, "the scan finds the game's audio events (%d)" % sent.size())
-	for n: String in ["chatBrawl", "suspicionHot", "gameReset", "spinEnd", "cottagePixel", "stamp", "offlineCollect", "tapCrit"]:
+	for n: String in ["chatBrawl", "suspicionHot", "gameReset", "spinEnd", "cottagePixel", "stamp", "offlineCollect", "tapCrit", "slipStamp"]:
 		runner.check(sent.has(n), "the scan sees %s" % n)
 	var gaps: Array[String] = []
 	for n: String in sent + CONTROLLER_EVENTS:
@@ -781,3 +781,51 @@ func test_brawl_ping_and_game_reset() -> void:
 	a.event("tap")
 	runner.check(_last(a) == "stinger_motif_D.res", "the next first tap plays the motif again, got %s" % _last(a))
 	await _release()
+
+
+# ------------------------------------------------------------------ v1.4: the slip stamp (animator wave B)
+
+func test_slip_stamp_is_a_short_ui_thunk_at_the_stamp_family_level() -> void:
+	var c: Dictionary = _man["cues"].get("slipStamp", {})
+	runner.check(not c.is_empty(), "the cue table registers exactly 'slipStamp'")
+	runner.check(c.get("bus") == "UI" and (c.get("ducks", [1]) as Array).is_empty(), "UI bus, no duck")
+	runner.check(float(c.get("lengthMs", 9999)) <= 250.0, "<= 0.25 s, got %.0f ms" % float(c.get("lengthMs", 9999)))
+	var stamp := float(_man["cues"]["stamp"]["burstMax"])
+	var slip := float(c.get("burstMax", 0.0))
+	runner.check(slip <= stamp + 0.1 and slip >= stamp - 3.0,
+		"at the stamp's heard level or a little under (it repeats): slip %.2f vs stamp %.2f LUFS burst" % [slip, stamp])
+	runner.check(slip < float(_man["cues"]["buy"]["burstMax"]), "under the buy it lands with")
+	for k: String in LEADER_KEYS:
+		runner.check(OdAudio.cue_file(_man, "slipStamp", k) == "slipStamp.res", "one unpitched file in %s" % k)
+	var a := _audio()
+	runner.check(a.route("slipStamp") == "cue:slipStamp", "routes to its cue, got %s" % a.route("slipStamp"))
+	a.set_evolutions(0)
+	a.event("slipStamp")
+	runner.check(a.recent_files().is_empty(), "behind the first-tap gate like every UI cue")
+	a.event("tap")
+	a.event("slipStamp")
+	runner.check(_last(a) == "slipStamp.res", "plays after the gate, got %s" % _last(a))
+	await _release()
+
+
+## shop.gd's one-line hook reaches the controller three levels up (Shop → _lower → _root → main). If that
+## path ever moves, the stamp would go silent with no error, so pin it on the real scene.
+func test_the_shop_hook_reaches_the_audio_host() -> void:
+	var tree := runner as SceneTree
+	var dir := "user://test_slipstamp_%d" % Time.get_ticks_usec()
+	DirAccess.make_dir_recursive_absolute(dir)
+	var m: Node = load("res://scenes/main.tscn").instantiate()
+	m.store = SaveStore.new(dir)
+	tree.root.add_child(m)
+	await _frames(3)
+	var shop: Node = m.get("shop")
+	runner.check(shop != null and shop.get_node_or_null("../../..") == m and m.has_method("audio_event"),
+		"Shop's ../../.. is main, which has audio_event")
+	m.set_process(false)
+	tree.root.remove_child(m)
+	m.queue_free()
+	var d := DirAccess.open(dir)
+	if d:
+		for f in d.get_files():
+			d.remove(f)
+	DirAccess.remove_absolute(dir)
