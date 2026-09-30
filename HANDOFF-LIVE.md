@@ -3,7 +3,7 @@
 Read `HANDOFF.md` first; this file is the orchestrator's addendum while the loop runs.
 
 - Branch: `claude/magical-ride-ntn3u5` (= `main` at `2cc33b1` when session 4 started)
-- Loop lock: **taken** (session 4, 2026-09-30 08:12 UTC)
+- Loop lock: released (session 4 stopped by Bar; see HANDOFF.md "Session 4: where it stopped")
 
 ## Session 4 (2026-09-30)
 - Goal: HANDOFF.md "Manual test pass" work list: A1-A8, B9-B13, B15, D19-D21. B14 (the pink signs) stays Bar's call. C16 re-runs happen after the merges, on a quiet machine.
@@ -18,7 +18,8 @@ Read `HANDOFF.md` first; this file is the orchestrator's addendum while the loop
 | UX Designer + Game Developer (pre-tap) | A2 empty lower half, A3 picker caption plate, A7 name plate, B10/D22 HUD right side, B12 switch button | 8833 |
 | UX Designer + Game Developer (pane) | D19 empty ticker, D20 white slivers, D21 empty tab slots, B9 teaser rows, B11 chat | 8834 |
 
-- Wave B: merge; tests, strict build, mobile_web on the full matrix; a studio UX Designer review of the merged build; fixes; then the C16 re-runs and a redeploy.
+- Stop: Bar asked to update the handoff and stop. All four agents were stopped, their work checkpointed and saved as `handoff-wip/*.commits.patch`, and the lock released. Nothing from wave A is merged.
+- Wave B (not started): merge; tests, strict build, mobile_web on the full matrix; a studio UX Designer review of the merged build; fixes; then the C16 re-runs and a redeploy.
 
 ---
 *Session 3's notes follow.*

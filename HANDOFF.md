@@ -1,6 +1,82 @@
-# HANDOFF: "עוד סבב" (2026-09-30, end of session 3)
+# HANDOFF: "עוד סבב" (2026-09-30, end of session 4)
 
-No agent is running and the loop lock is released. Everything is committed and pushed to
+No agent is running and the studio loop lock is released. `main` and `claude/magical-ride-ntn3u5` are unchanged since session 3, apart from docs. **Session 4's work is NOT merged:** it is four patches in `handoff-wip/`. The live site still serves build `d73c206`.
+
+## Session 4: where it stopped (Bar: "update the handoff and stop")
+
+**Goal:** the manual-test work list below (A1-A8, B9-B13, B15, D19-D21). B14, the pink signs, stays Bar's call.
+
+**How it ran:** Bar said "use the studio". The loop ran as the base67 studio: the lock was at `/tmp/gamestudio-loop-active.lock`, and each agent worked under its `gamestudio/.claude/agents/<role>.md` prompt and returned an artifact or a typed objection. No objection was raised before the stop.
+- **Baseline:** `tools/test.sh` 393/393 at `2cc33b1`.
+- **Environment:** Godot 4.7.2 went into the scratchpad and the export templates into `~/.local/share/godot/export_templates/4.7.2.stable/`.
+
+**The four slices** (git worktrees off `2cc33b1`; local branches `worktree-agent-*`, this container only):
+
+| Slice (studio role) | Items | State at the stop | Patch |
+|---|---|---|---|
+| 2D Artist + TA | A1 plaza + lane, B13 booth | **Done.** It reported test 393/393, a green strict build and `mobile_web` PASS on 390 and SE. It had not yet reported back. Its wip commit carries its STATUS/style-guide lines and after-shots | `handoff-wip/2D-Artist-+-TA.commits.patch` (3 commits) |
+| Game Developer (+ Animator, + Game Designer for B15) | A4, A5, B15 committed; A6 settings reach, A8 toggle states in the wip commit | A4/A5/B15 committed with tests. **A6/A8 unfinished:** it was waiting on the full `mobile_web` matrix | `handoff-wip/Game-Developer-(ceremony+settings).commits.patch` (3 commits) |
+| UX Designer + Game Developer (pre-tap) | A2, A3, A7, B10/D22, B12 | Committed with `test_pretap_hud.gd` (9) and `mobile_web` S13-S16. Its last `mobile_web.mjs` / `pretap_shots.mjs` edits are in the wip commit. It was waiting on the full matrix | `handoff-wip/Game-Developer-(pre-tap+HUD).commits.patch` (2 commits) |
+| UX Designer + Game Developer (pane) | D19, D20, D21, B9, B11 | Committed (3 commits, nothing uncommitted). It was waiting on the full `mobile_web` matrix | `handoff-wip/Game-Developer-(pane).commits.patch` (3 commits) |
+
+**What each slice changed** (details in the patches' commit messages and their `STATUS.md` lines):
+- **A1:** one Jerusalem-stone paving per era (`wave5.Paving`). Random-length slabs in 2-3 tones, short broken mortar joints (never black), no press cable (that cable was the "worms" and the black line above the ticker). The plaza goes 192x192 and the lane 192x28 (+0.47 MB VRAM).
+- **B13:** `booth_frame` / `_tall` become a kraft-cardboard folding screen with a blank flag-blue band. Same size and 9-slice.
+- **A4/A5:**
+  - the walk-out is the ceremony's f0, on the old stage;
+  - the card dims in over the empty stage, and the era swaps under the fully opaque page;
+  - the lines step out before the page lifts empty;
+  - `motion/state-graph-magician.md` §9 is at rev 2.
+- **B15:** all 8 leaders already had their own flash cards. The T4 story archive replayed Bibi's beats for everyone; it now rebuilds from `story_seen` (`Story.archive`). The content lint gains §6b, and three lines move to reported speech.
+- **A2/A7/B10/B12/A3:**
+  - card 1 (dim) and Row A are up from the pick, and the plaza is an 84-px strip;
+  - Row A's right end shows the leader's medallion and short name, replacing the name toast over the stage;
+  - the undo chip sits on a navy bar;
+  - the picker caption sits on a navy plate;
+  - ux decisions D51-D54, `ux/ftue.md` rev 5.
+- **D19:** root cause: the pager rolled in an empty page when nothing was queued. A one-page headline now holds for up to 15 s, else the pager shows the standing line `TICKER_IDLE` ("מהדורה מיוחדת").
+- **D20/D21/B9/B11:**
+  - the white field becomes a ruled margin;
+  - the tab bar always shows four slots, with padlock silhouettes;
+  - the first teaser carries "עוד מקורות ייפתחו" and the rest fade;
+  - the chat starts under the header with a "היום" chip;
+  - ux decisions D51-D55.
+
+**Merge notes (expected conflicts):**
+- **The pre-tap and pane slices both number new deviations D51+** in `ux/mobile-first-layout.md`. Renumber one set (pane → D55-D59) and its references.
+- **Shared files:**
+  - `tools/web/mobile_web.mjs` (three slices), `game/scripts/ui/dev_probe.gd` and `game/scripts/main.gd`: keep both sides;
+  - `STATUS.md`: append-only, keep both sides;
+  - the generated `ux/ui-strings.json`, `ux/string-budgets.json` and `game/data/ui-strings.json`: re-run `ux/tools/gen_strings.py` and `tools/sync_data.sh`; `design/content.json` → `tools/sync_data.sh`.
+- **Merge order:** art first, then pane, then pre-tap (Row A and the pane both use the ticker slot, so check the pre-tap plaza strip against D19's standing line), then ceremony.
+
+**Restore:**
+```
+git checkout -b restore-s4 claude/magical-ride-ntn3u5
+git am --3way "handoff-wip/2D-Artist-+-TA.commits.patch"
+git am --3way "handoff-wip/Game-Developer-(pane).commits.patch"
+git am --3way "handoff-wip/Game-Developer-(pre-tap+HUD).commits.patch"
+git am --3way "handoff-wip/Game-Developer-(ceremony+settings).commits.patch"
+```
+The patches include binaries. All four are based on `2cc33b1`, and the commits after it on this branch are docs only.
+
+## Next, in order (session 5)
+1. Restore and merge the four patches (merge notes above). Finish A6/A8 in the ceremony slice.
+2. Run `tools/test.sh`, `node design/sim/content-lint.mjs --strict`, strict `tools/build_web.sh`, and `tools/web/mobile_web.mjs` on the **full matrix**, one run at a time. None of the slices got a full-matrix pass before the stop.
+3. A studio UX Designer review of the merged build against the after-shots in `ux/manual-test-2026-09-30/fixes/`, then fixes.
+4. The C16 re-runs on a quiet machine: `motion_web.mjs` (A5 changed the ceremony timing), `round_web`/`picker_web` 3× each, the full `tools/balance.sh`.
+5. Redeploy (see "Deploy" below), then delete `handoff-wip/` in the final handoff.
+
+**Still waiting on Bar:**
+- B14, the pink protest signs;
+- the pre-launch list at the bottom;
+- permission to push agents' wip branches to GitHub (so far only patches).
+
+---
+
+## HANDOFF: "עוד סבב" (2026-09-30, end of session 3)
+
+*Session 3's handoff (still accurate except where session 4 above supersedes it):* no agent was running at its end. Everything was committed and pushed to
 `claude/magical-ride-ntn3u5`. `STATUS.md` is the full agent log, newest at the bottom.
 `HANDOFF-LIVE.md` is the last minute-by-minute snapshot of the loop (agents, slices, notes).
 

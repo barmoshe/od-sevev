@@ -1,0 +1,1637 @@
+From 02477ddc1029984461e3fd6080c12fd49581437e Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 09:06:04 +0000
+Subject: [PATCH 1/2] fix(od-sevev): pre-tap screen, Row A identity chip, undo
+ bar, picker caption plate
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fixes from the 2026-09-30 manual test pass (HANDOFF A2, A3, A7, B10, B12),
+decided as UX and recorded in ux/mobile-first-layout.md (D51-D54, §3.3,
+§5.1.1, §5.8.1, §5.9), ux/ftue.md rev 5 and ux/rtl-map.md §2/§4.3/§8.6.
+
+- A2: card 1 (dim) over the teaser rows and Row A are up from the pick;
+  the plaza is one 84-px strip in the free ticker slot until H1.
+- A7/B10: Row A's right end shows the round's leader (a 64-logical
+  pick-avatar medallion at whole device px + the short name); the
+  round-start name toast over the stage is gone. The name yields to the
+  Cottage Index once the round has started, and the cup moves one slot
+  left. Mute and settings work before tap 1.
+- B12: the pre-tap undo chip sits centred in a full-bleed navy bar in the
+  ticker slot; after an election it stays in the lane.
+- A3: the picker's caption sits on a full-bleed navy plate (11.8:1).
+
+Checks: test_pretap_hud.gd (9), mobile_web S13-S16, window.odDev.hud,
+tools/web/pretap_shots.mjs.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UJWVH11egMQ4r4GfyoMb4p
+---
+ STATUS.md                              |   5 +
+ game/scripts/main.gd                   | 234 +++++++++++++++++++-----
+ game/scripts/ui/dev_probe.gd           |   3 +-
+ game/scripts/ui/ftue.gd                |  10 +-
+ game/scripts/ui/layout.gd              |  11 +-
+ game/scripts/ui/top_bar.gd             | 159 +++++++++++++++++
+ game/scripts/ui/views/view_pick.gd     |  24 ++-
+ game/tests/unit/test_cottage_view.gd   |   7 +-
+ game/tests/unit/test_pretap_hud.gd     | 238 +++++++++++++++++++++++++
+ game/tests/unit/test_pretap_hud.gd.uid |   1 +
+ game/tests/unit/test_review2_engine.gd |  19 +-
+ game/tests/unit/test_review_engine.gd  |  10 +-
+ tools/web/mobile_web.mjs               |  35 +++-
+ tools/web/pretap_shots.mjs             | 104 +++++++++++
+ ux/ftue.md                             |  16 +-
+ ux/mobile-first-layout.md              |  73 +++++++-
+ ux/rtl-map.md                          |  19 +-
+ 17 files changed, 871 insertions(+), 97 deletions(-)
+ create mode 100644 game/tests/unit/test_pretap_hud.gd
+ create mode 100644 game/tests/unit/test_pretap_hud.gd.uid
+ create mode 100644 tools/web/pretap_shots.mjs
+
+diff --git a/STATUS.md b/STATUS.md
+index c21bfd3..fa586a8 100644
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -195,6 +195,11 @@ Cross-slice requests go under **Requests** with the owner named.
+   - **Checks:** `tools/balance.sh` 5/0 (G1-G4 still pass). `tools/test.sh` 167/1 (the known `test_input.gd::test_buy_a_producer_by_touch`). Content lint and `Politics.validate()` 0 errors.
+   - **Open finding:** the clean route's first round is 21:19 (the default's is 7:21), against pitch §10.3's "about 40% slower". It was already 2.3× before this change, and no gate covers it.
+   - **Files:** `design/content.json` (+ `game/data/`), `design/progression-curve.md` §0, `design/sim/economy-sim.mjs` (retired banner), `game/scripts/sim/pacing_sim.gd`, `game/tests/bench/test_session.gd`
++- 2026-09-30 · Game Developer (pre-tap+HUD) · A2: the pre-tap screen is the round's screen before its first tap: Row A and card 1 (dim) over the teaser rows are up from the pick (`Ftue.picked`), the plaza is one 84-px strip in the free ticker slot, the ticker fades into it at H1; U3's "white field with card 1" superseded (UX decision D51, ux/mobile-first-layout.md §3.3/§5.9, ux/ftue.md rev 5) · `game/scripts/ui/ftue.gd`, `game/scripts/main.gd`, `game/tests/unit/test_review2_engine.gd`, `game/tests/unit/test_review_engine.gd`
++- 2026-09-30 · Game Developer (pre-tap+HUD) · A7/B10: Row A's identity chip (the leader's pick-avatar medallion at 64 logical, the densest head that is whole device px, + the short name, R-anchored at the right end) from the pick on; the round-start `LEADER_PICK_PLATE` toast over the stage is gone; the name yields to the Cottage Index once the round has started (state predicate) and to a wide counter (width guard); the cup moves one slot left (hit 536-624); mute and settings work before tap 1 (D52, mobile-first §5.1.1, rtl-map §2/§4.3/§8.6) · `game/scripts/ui/top_bar.gd`, `game/scripts/ui/layout.gd`, `game/scripts/main.gd`, `game/tests/unit/test_cottage_view.gd`
++- 2026-09-30 · Game Developer (pre-tap+HUD) · B12: the pre-tap undo chip sits centred in a full-bleed navy bar (the ticker's #072a7a) in the free ticker slot, its timer along the bar's bottom edge; after an election it stays in the lane (D54, mobile-first §5.9, rtl-map §8.6) · `game/scripts/main.gd`
++- 2026-09-30 · Game Developer (pre-tap+HUD) · A3: the picker's caption strip on a full-bleed navy plate that hugs its text (44·lines + 24; 11.8:1); `odPick.strip` / `stripText` (D53, mobile-first §5.8.1) · `game/scripts/ui/views/view_pick.gd`
++- 2026-09-30 · Game Developer (pre-tap+HUD) · checks: `test_pretap_hud.gd` (9 tests: card 1 from the pick, the chip in Row A clear of the leader's hit, whole-px face, the width guard, the name/cup hand-over, the undo bar, Row A input before tap 1, the caption plate); `mobile_web.mjs` S13-S16 (A3 plate, the name plate clear of the hit pre-tap and at card 1, the pre-tap screen, the undo bar); `window.odDev.hud`; `tools/web/pretap_shots.mjs`; shots `ux/manual-test-2026-09-30/fixes/dev2-*` · `game/tests/unit/test_pretap_hud.gd`, `tools/web/mobile_web.mjs`, `game/scripts/ui/dev_probe.gd`, `tools/web/pretap_shots.mjs`
+ 
+ ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
+ 
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index d3fa4a1..7e5e71a 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -112,8 +112,15 @@ var picker: PickView                # LEADER_PICK (ui/views/view_pick.gd)
+ var _pick_res: Dictionary = {}      # the last commit's Leaders.start_round result + {via}
+ var _pick_seq: Array = []           # [{at (ms, _now), fn}]: the round-start sequence (rtl-map §8.6)
+ var _pick_shown_ms := 0.0
+-var _undo_btn: PxButton             # "להחליף ראש רשימה" (rtl-map §8.6)
++var _undo_btn: PxButton             # "להחליף ראש רשימה" (rtl-map §8.6): the one on screen now
+ var _undo_bar: ColorRect
++var _undo_lane_btn: PxButton        # after an election: in the lane, over the stage floor
++var _undo_lane_bar: ColorRect
++var _undo_row: Node2D               # B12, pre-tap: a navy bar in the (free) ticker slot, `_lower`-local
++var _undo_row_btn: PxButton
++var _undo_row_bar: ColorRect
++var _undo_band: ColorRect
++var _undo_in_row := false
+ var _undo_ms := 0.0                 # wall ms left on the undo chip
+ var _undo_full := 5000.0
+ var court_echo: CourtEcho            # the courthouse window on the stage (Bibi's rounds; ui/court_echo.gd)
+@@ -646,7 +653,9 @@ func _relayout() -> void:
+ 	picker.layout(_top_y, _vs.y - bottom_inset, _vs.x, _ox)
+ 	_place_undo_chip()
+ 	top_bar.relayout()
+-	cottage.position.x = L.dx
++	# the cup draws at its own x 636 inside the node; its hit is L.TOP.cottageHit (R), one slot left
++	# of the identity chip's face (mobile-first §5.1.1)
++	cottage.position.x = L.rx(float((L.TOP["cottageHit"] as Rect2).position.x)) - 624.0
+ 	ticker.relayout()
+ 	toasts.relayout()
+ 	golden.relayout()
+@@ -714,6 +723,30 @@ func _publish_display() -> void:
+ 		"ticker": ticker.web_info()}), true)
+ 
+ 
++## window.odDev.hud (dev only, DevProbe): what tools/web/mobile_web.mjs measures for A7/B10/B12, in
++## viewport logical px: the leader's hit, the identity chip (face + name; the name's own box), the
++## undo chip (its home and visual rect) and the toast dock's plate.
++func hud_info() -> Dictionary:
++	var sto := Vector2(_sx, _stage_y)
++	var tpo := Vector2(_ox, _top_y)
++	var r2a := func(r: Rect2, o: Vector2) -> Array: return [r.position.x + o.x, r.position.y + o.y, r.size.x, r.size.y] if r.has_area() else []
++	var idr: Rect2 = top_bar.identity_rect()
++	var nm: Rect2 = Rect2()
++	if top_bar.name_visible():
++		var nw := float(top_bar.leader_name.width())
++		nm = Rect2(TopBar.name_right() - nw, float(L.TOP["nameY"]), nw, 44.0)
++	var ur := Rect2()
++	if undo_visible():
++		ur = _undo_btn.visual
++	var uo := Vector2(_ox, _lower_y) if _undo_in_row else sto
++	return {"leaderHit": r2a.call(bb.hit_rect(), sto), "top": _top.visible,
++		"identity": {"leader": top_bar.leader_shown(), "rect": r2a.call(idr, tpo), "name": r2a.call(nm, tpo),
++			"face": r2a.call(TopBar.face_rect() if top_bar.face != null and top_bar.face.visible else Rect2(), tpo)},
++		"undo": {"on": undo_visible(), "home": undo_home(), "rect": r2a.call(ur, uo)},
++		"toast": r2a.call(toasts.covered_rect(), sto), "counter": _top.visible and top_bar.bank.visible,
++		"card1": shop.visible, "ticker": ticker.visible}
++
++
+ ## The safe band in modal space (y top, y bottom): the sheet cards and the flash place in it.
+ func modal_band() -> Vector2:
+ 	return Vector2(_top_y - _ovl_y, _vs.y - _bottom_inset - _ovl_y)
+@@ -969,28 +1002,49 @@ func _set_mode(m: String, animate: bool) -> void:
+ 	# review U3: between tap 1 and card 1 the pre-tap apron stays (the pane's white comes with card 1)
+ 	var floor_stays := main and not bool(Ftue.reveals(state).get("card1", false))
+ 	_title_floor.visible = not main or animate or floor_stays   # fades out with the title (below)
++	var ms := float(Tune.MC["titleFadeReducedMs"] if settings["reducedMotion"] else Tune.MC["titleFadeMs"])
+ 	if not main:
+ 		title_view.show_title(not Leaders.active())   # D26: the pre-tap state has no title lines
+-		_top.visible = false
+-		_lower.visible = false
+-		return
+-	var ms := float(Tune.MC["titleFadeReducedMs"] if settings["reducedMotion"] else Tune.MC["titleFadeMs"])
++		# A2/B10 (mobile-first §3.3, §5.9): with a leader picked, the pre-tap state is the round's
++		# screen before its first tap: Row A (the identity chip, mute, settings; the counter comes
++		# at H1) and the pane (card 1, dim, over the teaser rows) are up from the pick; only the
++		# ticker waits for H1, its slot a strip of the plaza floor
++		var pretap := pretap_hud()
++		if pretap and not _top.visible:
++			_fade_in([_top, _lower], ms)
++		_top.visible = pretap
++		_lower.visible = pretap
++		return
++	var shown := _top.visible and _lower.visible   # the pre-tap HUD is already up: no second fade
+ 	_top.visible = true
+ 	_lower.visible = true
+ 	if animate:
+ 		title_view.fade_out(ms)
+-		_top.modulate.a = 0.0
+-		_lower.modulate.a = 0.0
+-		var tw := create_tween().set_parallel()
+-		tw.tween_property(_top, "modulate:a", 1.0, ms / 1000.0)
+-		tw.tween_property(_lower, "modulate:a", 1.0, ms / 1000.0)
++		if not shown:
++			_fade_in([_top, _lower], ms)
++		else:
++			_fade_in([ticker], ms)   # H1: only the ticker is new (it takes the floor strip's slot)
+ 		if not floor_stays:
++			var tw := create_tween()
+ 			tw.tween_property(_title_floor, "modulate:a", 0.0, ms / 1000.0)
+ 			tw.chain().tween_callback(func() -> void: _title_floor.visible = mode != "main" or not _pane_up)
+ 	else:
+ 		title_view.show_title(false)
+ 
+ 
++## A2/B10: the pre-tap state shows the round's HUD (a leader is picked; content without leader
++## select keeps the fork's title screen).
++func pretap_hud() -> bool:
++	return Leaders.active() and Leaders.current(state) != "" and not Leaders.pick_pending(state)
++
++
++func _fade_in(nodes: Array, ms: float) -> void:
++	var tw := create_tween().set_parallel()
++	for n: CanvasItem in nodes:
++		n.modulate.a = 0.0 if not bool(settings.get("reducedMotion", false)) else 1.0
++		tw.tween_property(n, "modulate:a", 1.0, maxf(0.01, ms / 1000.0))
++
++
+ func _start_from_title(tap_at: Vector2, tapped: bool) -> void:
+ 	toasts.drop_passive()   # review U9: Dubi's pre-tap dock line gives way to his first-tap bubble
+ 	_set_mode("main", true)
+@@ -1057,7 +1111,7 @@ func _process(delta: float) -> void:
+ 	fx_stage.update_view(dt)
+ 	fx_ui.update_view(dt)
+ 	top_bar.update_view(dt)
+-	cottage.update_view(dt, state, running and bool(_reveals.get("counter", false)))
++	cottage.update_view(dt, state, cottage_allowed(running))
+ 	_refresh_all(dt)
+ 	shop.tick_hold(dt, state)
+ 	chat.update_view(dt, state, d, {"main": running and not tx.running and not _tx_locked, "overlay": overlays.is_open()})
+@@ -1133,8 +1187,10 @@ func _apply_reveals() -> void:
+ 		_sources_sent = owned
+ 		_audio_call("set_sources_owned", [owned])   # the Audio's L1 follows the round's sources
+ 	var main := mode == "main"
++	var live := main or (mode == "title" and pretap_hud())   # A2: the pre-tap HUD (card 1 from the pick)
+ 	top_bar.set_revealed(bool(_reveals["counter"]), bool(_reveals["rate"]), bool(_reveals["seats"]))
+-	shop.set_shop_visible(main and bool(_reveals["card1"]))
++	_apply_identity(live)
++	shop.set_shop_visible(live and bool(_reveals["card1"]))
+ 	shop.ftue_single = bool(_reveals["single"])
+ 	shop.ftue_dim = state.evolutions == 0 and Ftue.owned_total(state) == 0
+ 	var dos := dossier.tab_revealed()   # K2 (ux/ftue.md), derived in the dossier view
+@@ -1154,7 +1210,7 @@ func _apply_reveals() -> void:
+ 		court.relayout()
+ 		_publish_display()
+ 	_slots_known = true
+-	_apply_pane(main and bool(_reveals["card1"]))
++	_apply_pane(live and bool(_reveals["card1"]))
+ 	ticker.visible = main and bool(_reveals["counter"])
+ 	ticker.set_cta(main and state.evolutions >= 0 and Coalition.gate_open(state) and Coalition.active())
+ 	if bool(_reveals["seats"]):
+@@ -1163,6 +1219,21 @@ func _apply_reveals() -> void:
+ 	top_bar.set_muted(not bool(settings.get("sfx", true)) and not bool(settings.get("music", true)))
+ 
+ 
++## A7/B10 (mobile-first §5.1.1): Row A's identity chip, the round's face and short name. The name
++## holds the slot the Cottage Index shares while the cup is not revealed, and at a round start until
++## the round's first tap or buy; the cup shows only when the name has yielded.
++func _apply_identity(live: bool) -> void:
++	var lid := Leaders.current(state) if pretap_hud() or (live and Leaders.active()) else ""
++	top_bar.set_leader(lid)
++	var round_start := state.run_taps == 0 and Ftue.owned_total(state) == 0
++	top_bar.set_identity(live and lid != "", round_start or not ViewRules.cottage_revealed(state))
++
++
++## The cup may show (its own reveal and fade rules apply): Row A is up and the name has yielded.
++func cottage_allowed(running: bool) -> bool:
++	return running and bool(_reveals.get("counter", false)) and not top_bar.name_claims_slot()
++
++
+ ## Review U3 (mobile-first §0 rule 4, §3.3): the pane's white field (`_fills["shop"]`) appears
+ ## with card 1, not at tap 1; until then the pre-tap apron (the diorama's plaza + the paving floor)
+ ## stays drawn below the ticker. At card 1 the field fades in as the apron fades out (150 ms;
+@@ -1506,6 +1577,12 @@ func _gameplay_input() -> bool:
+ 	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked and overlays.now_ms() >= overlays.input_locked_until
+ 
+ 
++## Row A's mute and settings: live in the round and in the pre-tap state (B10: Row A is up there).
++func _hud_input() -> bool:
++	return (_gameplay_input() or (mode == "title" and pretap_hud() and not overlays.is_open() and not tx.running
++		and not _tx_locked and overlays.now_ms() >= overlays.input_locked_until))
++
++
+ func _unhandled_input(e: InputEvent) -> void:
+ 	if e is InputEventScreenTouch:
+ 		var t := e as InputEventScreenTouch
+@@ -1590,7 +1667,7 @@ func _pointer_down(idx: int, p: Vector2) -> void:
+ 		picker.pointer_down(_in_pick(p))
+ 		_presses[idx] = {"kind": "pick"}
+ 		return
+-	if undo_visible() and _undo_btn.contains(sp):
++	if undo_visible() and _undo_btn.contains(_in_undo(p)):
+ 		_undo_btn.down()
+ 		_presses[idx] = {"kind": "undo"}
+ 		return
+@@ -1598,6 +1675,13 @@ func _pointer_down(idx: int, p: Vector2) -> void:
+ 		# the disclaimer is HTML over the canvas; until it hands off, nothing here is live
+ 		if ftue.handoff_ms <= 0.0:
+ 			return
++		# B10: Row A is up in the pre-tap state, so its mute and settings work before tap 1
++		if pretap_hud() and top_bar.gear_contains(tp):
++			_presses[idx] = {"kind": "gear"}
++			return
++		if pretap_hud() and top_bar.mute_contains(tp):
++			_presses[idx] = {"kind": "mute"}
++			return
+ 		var on_hat := Ui.in_rect(bb.hit_rect(), sp)
+ 		if on_hat:
+ 			_start_from_title(sp, true)
+@@ -1678,7 +1762,7 @@ func _pointer_up(idx: int, p: Vector2) -> void:
+ 		"pick":
+ 			picker.pointer_up(_in_pick(p))
+ 		"undo":
+-			var inside := undo_visible() and _undo_btn.contains(_in_stage(p))
++			var inside := undo_visible() and _undo_btn.contains(_in_undo(p))
+ 			_undo_btn.up(inside)
+ 		"overlay":
+ 			overlays.pointer_up(_in_modal(p))
+@@ -1703,13 +1787,13 @@ func _pointer_up(idx: int, p: Vector2) -> void:
+ 			if ticker.cta.contains(lp) and _gameplay_input():
+ 				_open_evolution()
+ 		"gear":
+-			if top_bar.gear_contains(tp) and _gameplay_input():
++			if top_bar.gear_contains(tp) and _hud_input():
+ 				_open_settings()
+ 		"cottage":
+ 			if cottage.contains(tp) and _gameplay_input():
+ 				cottage.tap()
+ 		"mute":
+-			if top_bar.mute_contains(tp) and _gameplay_input():
++			if top_bar.mute_contains(tp) and _hud_input():
+ 				_toggle_mute()
+ 
+ 
+@@ -2417,7 +2501,8 @@ func _on_pick_done() -> void:
+ 		_audio_call("start_music", [])
+ 	ftue.on_input()   # rtl-map §8.6: every FTUE clock starts at the pick
+ 	var id := Leaders.current(state)
+-	toasts.show_toast(Strings.s("LEADER_PICK_PLATE", {"short": LeaderUi.short(id), "party": LeaderUi.party(id)}))
++	# A7 (mobile-first §5.1.1): the round's name is Row A's identity chip, not a toast over the stage
++	_apply_identity(true)
+ 	var dubi_at := Vector2(644, L.stage_bottom() - 232.0)
+ 	var random := str(_pick_res.get("via", "")) == "random"
+ 	# Dubi's bubble follows the landing (a 120 ms settle after the walk, so the eye is on the still
+@@ -2505,52 +2590,115 @@ func _open_leader_card(id: String, via: String) -> void:
+ 		return o.build())
+ 
+ 
+-## The undo chip (rtl-map §8.6): kit button_secondary at the left of the Suitcase band, a 2-art-px
+-## bar draining left → right over undoSec; up for undoSec of wall time after every pick while the
+-## round has not started (no tap, no buy).
++## The undo chip (rtl-map §8.6, mobile-first §5.9 B12): kit button_secondary with a 2-art-px bar
++## draining left → right over undoSec; up for undoSec of wall time after every pick while the round
++## has not started (no tap, no buy). Two homes:
++## - pre-tap (the first launch, a reset): the ticker slot is free until H1, so the chip sits centred
++##   in a full-bleed navy bar there (the ticker's own panel colour: at H1 the ticker takes the same
++##   navy slot), the timer bar along the bar's bottom edge;
++## - after an election (the ticker is live): the lane at the stage's bottom-left, as before.
+ func _build_undo_chip() -> void:
+-	_undo_btn = PxButton.make(_ui, Rect2(16, 0, 392, 80), {"kind": "kit_secondary", "label": Strings.s("LEADER_PICK_UNDO"),
++	_undo_lane_btn = PxButton.make(_ui, Rect2(16, 0, 392, 80), {"kind": "kit_secondary", "label": Strings.s("LEADER_PICK_UNDO"),
+ 		"label_box": 352.0, "on_commit": _undo_pick})
+-	_undo_bar = ColorRect.new()
+-	_undo_bar.color = Color("#fff8ec")
+-	_undo_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+-	_ui.add_child(_undo_bar)
+-	_undo_btn.set_visible(false)
+-	_undo_bar.visible = false
++	_undo_lane_bar = _undo_timer(_ui)
++	_undo_row = Node2D.new()
++	_lower.add_child(_undo_row)
++	_lower.move_child(_undo_row, ticker.get_index() + 1)   # over the ticker slot, under the tall tabs
++	_undo_band = Ui.rect(_undo_row, Rect2(0, 0, L.W, L.TICKER_H), Color("#072a7a"))
++	_undo_row_btn = PxButton.make(_undo_row, Rect2(0, 8, 392, 64), {"kind": "kit_secondary", "label": Strings.s("LEADER_PICK_UNDO"),
++		"label_box": 352.0, "on_commit": _undo_pick})
++	_undo_row_bar = _undo_timer(_undo_row)
++	_undo_row.visible = false
++	for b: PxButton in [_undo_lane_btn, _undo_row_btn]:
++		b.set_visible(false)
++	_undo_btn = _undo_lane_btn
++	_undo_bar = _undo_lane_bar
++
++
++func _undo_timer(parent: Node) -> ColorRect:
++	var r := ColorRect.new()
++	r.color = Color("#fff8ec")
++	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
++	parent.add_child(r)
++	r.visible = false
++	return r
++
++
++## B12: the pre-tap chip lives in the ticker slot (free until H1); otherwise the lane.
++func _undo_wants_row() -> bool:
++	return mode == "title"
++
++
++## The pre-tap chip's visual rect, `_lower`-local (tests and window.odDev read it).
++static func undo_row_rect() -> Rect2:
++	return Rect2(L.floor4((L.cw - 392.0) / 2.0), 8.0, 392.0, 64.0)
+ 
+ 
+ func _place_undo_chip() -> void:
+-	if _undo_btn == null:
++	if _undo_lane_btn == null:
+ 		return
+-	# rtl-map §8.6 / mobile-first §5.8: L-anchored in the lane (canvas x 16; `_ui` is the stage column)
++	_undo_in_row = _undo_wants_row()
++	_undo_btn = _undo_row_btn if _undo_in_row else _undo_lane_btn
++	_undo_bar = _undo_row_bar if _undo_in_row else _undo_lane_bar
++	# the lane: rtl-map §8.6 / mobile-first §5.8, L-anchored (canvas x 16; `_ui` is the stage column)
+ 	var y := L.stage_bottom() - 96.0
+ 	var x := 16.0 - L.sox()
+-	_undo_btn.visual = Rect2(x, y, 392, 80)
+-	_undo_btn.hit = Rect2(x - 8.0, y - 4.0, 408, 88)
+-	Ui.set_nine_rect(_undo_btn.bg, _undo_btn.visual)
+-	if _undo_btn.label != null:
+-		_undo_btn.label.position.y = y + Ui.snap((80.0 - 28.0) / 2.0, 4)
+-		_undo_btn.label.center_in(x, 392)
+-	_undo_bar.position = Vector2(x + 8.0, y + 64.0)
+-	_undo_bar.size = Vector2(376, 8)
++	_set_chip(_undo_lane_btn, Rect2(x, y, 392, 80), Rect2(x - 8.0, y - 4.0, 408, 88))
++	_undo_lane_bar.position = Vector2(x + 8.0, y + 64.0)
++	_undo_lane_bar.size = Vector2(376, 8)
++	# the row: full bleed (F) over the ticker slot, the chip centred (C), its hit 88 tall
++	var rr := undo_row_rect()
++	_undo_band.position = Vector2(-_ox, 0)
++	_undo_band.size = Vector2(_vs.x, float(L.TICKER_H))
++	_set_chip(_undo_row_btn, rr, Rect2(rr.position.x - 8.0, rr.position.y - 10.0, rr.size.x + 16.0, 88.0))
++	_undo_row_bar.position = Vector2(-_ox, float(L.TICKER_H) - 8.0)
++	_undo_row_bar.size = Vector2(_vs.x, 8)
++
++
++func _set_chip(b: PxButton, vis: Rect2, hit: Rect2) -> void:
++	b.visual = vis
++	b.hit = hit
++	Ui.set_nine_rect(b.bg, vis)
++	if b.label != null:
++		b.label.position.y = vis.position.y + Ui.snap((vis.size.y - 28.0) / 2.0, 4)
++		b.label.center_in(vis.position.x, vis.size.x)
+ 
+ 
+ func undo_visible() -> bool:
+ 	return _undo_ms > 0.0 and mode != "pick" and _undo_btn != null
+ 
+ 
++## The undo chip's home now: "row" (the pre-tap ticker slot) or "lane".
++func undo_home() -> String:
++	return "row" if _undo_in_row else "lane"
++
++
++## The point `p` (viewport) in the undo chip's parent space.
++func _in_undo(p: Vector2) -> Vector2:
++	return _in_lower(p) if _undo_in_row else _in_stage(p)
++
++
+ func _update_undo_chip(dt: float) -> void:
+ 	if _undo_ms > 0.0:
+ 		_undo_ms -= dt
+ 		if not Leaders.can_repick(state) or state.run_taps > 0 or Ftue.owned_total(state) > 0 or tx.running:
+ 			_undo_ms = 0.0
++	if _undo_wants_row() != _undo_in_row:
++		_place_undo_chip()
+ 	var on := undo_visible()
+-	_undo_btn.set_visible(on)
+-	_undo_bar.visible = on and not settings["reducedMotion"]
++	_undo_row.visible = on and _undo_in_row
++	_undo_lane_btn.set_visible(on and not _undo_in_row)
++	_undo_row_btn.set_visible(on and _undo_in_row)
++	_undo_lane_bar.visible = on and not _undo_in_row and not settings["reducedMotion"]
++	_undo_row_bar.visible = on and _undo_in_row and not settings["reducedMotion"]
+ 	if on:
+ 		var f := clampf(_undo_ms / maxf(1.0, _undo_full), 0.0, 1.0)
+-		_undo_bar.size.x = Ui.snap(376.0 * f, 4)
+-		_undo_bar.position.x = 24.0 + 376.0 - _undo_bar.size.x   # drains left → right (mirror)
++		if _undo_in_row:
++			_undo_row_bar.size.x = Ui.snap(_vs.x * f, 4)
++			_undo_row_bar.position.x = -_ox + _vs.x - _undo_row_bar.size.x   # drains left → right (mirror)
++		else:
++			_undo_lane_bar.size.x = Ui.snap(376.0 * f, 4)
++			_undo_lane_bar.position.x = 24.0 + 376.0 - _undo_lane_bar.size.x
+ 
+ 
+ ## "להחליף ראש רשימה" / U: back to the same picker (the same variant, order and seat seed), with
+diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
+index 4274fbb..b7f94d2 100644
+--- a/game/scripts/ui/dev_probe.gd
++++ b/game/scripts/ui/dev_probe.gd
+@@ -33,7 +33,8 @@ static func snapshot(host: Node) -> Dictionary:
+ 		"modal": "", "groupOpen": bool(s.coalition.get("opened", false)) if s.coalition is Dictionary else false,
+ 		# leader select: the controller's mode (pick | title | main) and the round's leader
+ 		"mode": str(host.get("mode")), "leader": Leaders.current(s), "pickPending": Leaders.pick_pending(s),
+-		"undo": bool(host.call("undo_visible")) if host.has_method("undo_visible") else false}
++		"undo": bool(host.call("undo_visible")) if host.has_method("undo_visible") else false,
++		"hud": host.call("hud_info") if host.has_method("hud_info") else {}}
+ 	var pk: Variant = host.get("picker")
+ 	if pk is PickView and (pk as PickView).visible:
+ 		out["pick"] = (pk as PickView).web_info()
+diff --git a/game/scripts/ui/ftue.gd b/game/scripts/ui/ftue.gd
+index f65a0c0..a249b71 100644
+--- a/game/scripts/ui/ftue.gd
++++ b/game/scripts/ui/ftue.gd
+@@ -171,7 +171,9 @@ static func reveals(s: GameState) -> Dictionary:
+ 	var tabs := played or owned >= open_at or paid >= 1
+ 	return {
+ 		"counter": played or s.taps_lifetime >= 1,
+-		"card1": played or owned > 0 or s.taps_lifetime >= 3,
++		# A2 (ftue.md §3 "card 1 reveal", rev 5): with leader select, card 1 (dim) is up from the
++		# pick, so the pre-tap screen is never half stone; the fork's content keeps tap 3
++		"card1": played or owned > 0 or s.taps_lifetime >= 3 or picked(s),
+ 		"single": not played and owned == 0,                      # only card 1, named
+ 		"rate": played or owned >= 1,
+ 		"tabs": tabs,                                             # C1: the tab bar appears with it
+@@ -182,6 +184,12 @@ static func reveals(s: GameState) -> Dictionary:
+ 	}
+ 
+ 
++## A leader is picked for this round (leader select on and no pick pending): the pre-tap state
++## shows the round's HUD from here (A2, B10).
++static func picked(s: GameState) -> bool:
++	return Leaders.active() and Leaders.current(s) != "" and not Leaders.pick_pending(s)
++
++
+ ## S1: the first Suitcase is due now (the controller forces the spawn when the band is clear).
+ static func s1_due(s: GameState, last_tap_age_ms: float) -> bool:
+ 	return s.golden_caught_lifetime == 0 and int(float(s.stats.get("goldenMissed", 0.0))) == 0 \
+diff --git a/game/scripts/ui/layout.gd b/game/scripts/ui/layout.gd
+index f5f76c8..a932b76 100644
+--- a/game/scripts/ui/layout.gd
++++ b/game/scripts/ui/layout.gd
+@@ -145,7 +145,16 @@ const TOP := {
+ 	"rateBox": Rect2(188, 56, 344, 36),
+ 	"muteHit": Rect2(100, 4, 88, 88),
+ 	"gearHit": Rect2(8, 4, 88, 88),
+-	"cottageHit": Rect2(624, 4, 88, 88),
++	# od-sevev A7/B10 (mobile-first §5.1.1): the round's identity chip at Row A's right (R): the
++	# leader's face (a 64 medallion, 16 art) with the short name to its left; the Cottage Index moves
++	# one slot left of the face (its cup and the name share that slot: the name at round start or
++	# before Q1, the cup after)
++	"faceHit": Rect2(624, 4, 88, 88),
++	"face": Rect2(636, 16, 64, 64),
++	"nameRight": 624,
++	"nameY": 28,
++	"nameGap": 16,
++	"cottageHit": Rect2(536, 4, 88, 88),
+ 	"seatsHit": Rect2(0, 96, 720, 88),
+ 	"seatsLabelRight": 704,
+ 	"seatsY": 120,
+diff --git a/game/scripts/ui/top_bar.gd b/game/scripts/ui/top_bar.gd
+index 062511c..08937e5 100644
+--- a/game/scripts/ui/top_bar.gd
++++ b/game/scripts/ui/top_bar.gd
+@@ -8,6 +8,14 @@ extends Node2D
+ ## first purchase (R1), Row B at the first paid demand (C2). The fork's stat window, thumbs line
+ ## and Evolve button are gone: the election CTA lives in the ticker row (rtl-map §5.3).
+ ## Juice kept from the fork: J2 bank pop and big-gain pop, the rate line's hop and tint.
++##
++## The identity chip (od-sevev A7/B10, ux/mobile-first-layout.md §5.1.1): Row A's right end shows
++## the round's leader, a 64-logical face medallion (the pick avatar at whole device px) with the
++## short name to its left, from the pick on (the pre-tap state included). It replaces the
++## round-start name toast that covered the stage. The name shares its slot with the Cottage Index:
++## the name shows while the cup is not revealed, and at every round start until the round's first
++## tap or buy; then it yields (a 150 ms fade) and the cup takes the slot. The name also yields if the
++## counter or the rate line would reach it (a width guard; only the 360-wide phones can hit it).
+ 
+ const BANK_GAIN := [Vector2(5, 5), Vector2(5, 5), Vector2(5, 5), Vector2(5, 3), Vector2(5, 3), Vector2(4, 5), Vector2(4, 5), Vector2(4, 4)]
+ const BANK_GAIN_REDUCED_TINT_MS := 300.0
+@@ -30,6 +38,14 @@ var gear: Sprite2D
+ var mute: Sprite2D
+ var seats_label: PxText
+ var seats_value: PxText
++var face: Sprite2D                 # the identity chip's medallion (null until a leader is set)
++var leader_name: PxText
++
++var _leader := "~"                 # the leader shown ("" = none: content without leader select)
++var _face_k := -1                  # the device scale the face sprite was chosen for
++var _id_on := false
++var _name_want := false
++var _name_tw: Tween
+ 
+ var _counter_on := false
+ var _rate_on := false
+@@ -78,6 +94,9 @@ func _ready() -> void:
+ 	seats_label.fit_width = float(T["seatsLabelRight"]) - tr.end.x - 8.0
+ 	seats_value = PxText.make(self, Vector2(float(T["seatsValueX"]), float(T["seatsY"])), "", L.TEXT, "plain", "w")
+ 	seats_value.fit_width = tr.position.x - float(T["seatsValueX"]) - 8.0
++	leader_name = PxText.make(self, Vector2(0, float(T["nameY"])), "", L.TEXT, "plain", "w")
++	leader_name.max_lines = 1
++	leader_name.visible = false
+ 	relayout()
+ 	_apply_reveal()
+ 
+@@ -115,6 +134,11 @@ func relayout() -> void:
+ 		bank.center_in(counter_box().position.x, counter_box().size.x)
+ 	if bps.text != "":
+ 		bps.center_in(rate_box().position.x, rate_box().size.x)
++	if _leader != "~" and _leader != "" and _face_k != Display.k:
++		var again := _leader
++		_leader = "~"
++		set_leader(again)   # a new device scale: the medallion's densest crisp head
++	_place_identity()
+ 
+ 
+ func _icon(hit: Rect2, id: String) -> Sprite2D:
+@@ -152,6 +176,138 @@ func _apply_reveal() -> void:
+ 	_goal.visible = _goal.visible and _seats_on
+ 
+ 
++# ------------------------------------------------------------------ the identity chip (A7/B10)
++
++## The face medallion's rect and hit, `_top`-local (R-anchored).
++static func face_rect() -> Rect2:
++	return L.ra(L.TOP["face"])
++
++
++static func face_hit() -> Rect2:
++	return L.ra(L.TOP["faceHit"])
++
++
++## The name's right edge (R): 16 left of the face hit's inner edge.
++static func name_right() -> float:
++	return L.rx(float(L.TOP["nameRight"]))
++
++
++## The pick avatar that draws the 64-logical (16-art) medallion at whole device px: the densest of
++## the 96 (d3), 64 (d2) and 32 px heads whose pixel count divides 16·k (k 6 → 96, k 4 → 64,
++## k 2 → 32; a fractional scale falls back to the densest available). [id, logical px per sprite px].
++static func face_sprite(art: String, k: int, integer: bool) -> Array:
++	var ch: Dictionary = SpriteStrip.manifest().get("chars", {}).get(art, {})
++	var cands := [[str(ch.get("avatarPickXL", "avatar_pick_" + art + "_d3")), 96], [str(ch.get("avatarPick64", "avatar_pick_" + art + "_d2")), 64],
++		[str(ch.get("avatarPick", "avatar_pick_" + art)), 32]]
++	var fallback: Array = []
++	for c: Array in cands:
++		if not Art.has_sprite(str(c[0])) or Art.sprite_size(str(c[0])).x != int(c[1]):
++			continue
++		if fallback.is_empty():
++			fallback = [str(c[0]), 64.0 / float(c[1])]
++		if integer and (16 * k) % int(c[1]) == 0:
++			return [str(c[0]), 64.0 / float(c[1])]
++	return fallback
++
++
++## The round's leader (""/unknown: the chip hides). Rebuilds the face only when the leader changes.
++func set_leader(leader_id: String) -> void:
++	if leader_id == _leader:
++		return
++	_leader = leader_id
++	if face != null:
++		face.queue_free()
++		face = null
++	leader_name.text = LeaderUi.short(leader_id) if leader_id != "" else ""
++	if leader_id != "":
++		_face_k = Display.k
++		var fs := face_sprite(LeaderUi.art(leader_id), Display.k, Display.integer)
++		if not fs.is_empty():
++			face = Ui.img(self, Vector2.ZERO, str(fs[0]), 0, 4)
++			face.scale = Vector2(float(fs[1]), float(fs[1]))
++	_place_identity()
++	_apply_identity(false)
++
++
++func leader_shown() -> String:
++	return _leader if _id_on else ""
++
++
++## `on`: the chip is on screen (a leader is set and Row A is up); `name_on`: the name holds the slot
++## (no cup yet, or the round has not started). The width guard applies on top of it.
++func set_identity(on: bool, name_on: bool) -> void:
++	var fade := on and _id_on and name_on != _name_want
++	_id_on = on
++	_name_want = name_on
++	_apply_identity(fade and not reduced_motion)
++
++
++## The name holds the slot it shares with the Cottage Index (the cup stays hidden meanwhile).
++func name_claims_slot() -> bool:
++	return _id_on and _name_want and leader_name.text != ""
++
++
++## The name's visible state (tests, window.odDev): wanted and clear of the counter and rate line.
++func name_visible() -> bool:
++	return leader_name.visible and leader_name.modulate.a > 0.5
++
++
++## The chip's drawn rect (face + name when shown), `_top`-local; empty when hidden.
++func identity_rect() -> Rect2:
++	if not _id_on or face == null:
++		return Rect2()
++	var r := face_rect()
++	if name_visible():
++		var nw := float(leader_name.width())
++		r = r.merge(Rect2(name_right() - nw, float(L.TOP["nameY"]), nw, 44.0))
++	return r
++
++
++## The name clears the counter's and the rate line's drawn ink by nameGap (16).
++func name_fits() -> bool:
++	var left := name_right() - float(leader_name.width())
++	var gap := float(L.TOP["nameGap"])
++	for t: PxText in [bank, bps]:
++		if t.visible and t.text != "" and t.position.x + float(t.width()) + gap > left:
++			return false
++	return true
++
++
++func _place_identity() -> void:
++	if leader_name == null:
++		return
++	if face != null:
++		var fr := face_rect()
++		var sz := Vector2(Art.sprite_size(face.get_meta("sprite", ""))) * face.scale if face.has_meta("sprite") else fr.size
++		face.position = fr.position + ((fr.size - sz) / 2.0).floor()
++	leader_name.right_at(name_right())
++
++
++func _apply_identity(fade: bool) -> void:
++	if face != null:
++		face.visible = _id_on
++	var show := _id_on and _name_want and leader_name.text != "" and name_fits()
++	if _name_tw:
++		_name_tw.kill()
++		_name_tw = null
++	if not fade or not _id_on:
++		leader_name.visible = show
++		leader_name.modulate.a = 1.0
++		return
++	if show:
++		if not leader_name.visible:
++			leader_name.modulate.a = 0.0
++		leader_name.visible = true
++		_name_tw = create_tween()
++		_name_tw.tween_property(leader_name, "modulate:a", 1.0, 0.15)
++	elif leader_name.visible:
++		_name_tw = create_tween()
++		_name_tw.tween_property(leader_name, "modulate:a", 0.0, 0.15)
++		_name_tw.tween_callback(func() -> void:
++			leader_name.visible = false
++			leader_name.modulate.a = 1.0)
++
++
+ # ------------------------------------------------------------------ counter / rate
+ 
+ func set_bank(bananas: float) -> void:
+@@ -321,3 +477,6 @@ func update_view(dt_ms: float) -> void:
+ 			bank.scale = Vector2.ONE
+ 	if _rate_on and not _frenzy and _now - _rate_changed_at >= RATE_DIM_AFTER_MS:
+ 		bps.self_modulate.a = RATE_DIM_ALPHA
++	# the width guard: the counter or the rate line grew into the name's slot (or left it again)
++	if _id_on and _name_want and (_name_tw == null or not _name_tw.is_running()) and leader_name.visible != name_fits():
++		_apply_identity(not reduced_motion)
+diff --git a/game/scripts/ui/views/view_pick.gd b/game/scripts/ui/views/view_pick.gd
+index 9e271a0..3141060 100644
+--- a/game/scripts/ui/views/view_pick.gd
++++ b/game/scripts/ui/views/view_pick.gd
+@@ -40,6 +40,9 @@ const HOLD_AFTER_MS := 250.0
+ const FADE_MS := 250.0
+ const ROW_GAP := 12.0
+ const STRIP_H := 112.0              # 12 + 2 lines × 44 + 12
++## A3 (mobile-first §5.8.1): the caption strip sits on a full-bleed navy plate, the ticker's panel
++## colour, so its white text never lies on the plaza stone (#f7f4ec on #072a7a is 12.9:1).
++const STRIP_PLATE := Color("#072a7a")
+ ## mobile-first §5.8 A3: the XL pick avatar (96×96 at d3, drawn 2 logical px per sprite px); until
+ ## the 2D Artist's piece lands (manifest chars.<art>.avatarPickXL, else this id) the 32-px pick
+ ## avatar draws at ×6 (1.5 art px per sprite px: whole device px at every even k).
+@@ -83,6 +86,8 @@ var _hover := -1
+ var _age := 0.0
+ var _commit: Dictionary = {}        # {cell, t, id}
+ var _strip: PxText
++var _strip_plate: ColorRect
++var strip_rect := Rect2()           # the navy plate, picker-local (window.odPick.strip)
+ var _scrim: ColorRect
+ var _layer := Node2D.new()
+ var _again_group: Array[CanvasItem] = []
+@@ -299,6 +304,8 @@ func _build() -> void:
+ 	# the caption strip and the foot, pinned to the bottom
+ 	var foot := float(plan["foot"])
+ 	var sy := _bot - foot - STRIP_H
++	strip_rect = Rect2(-_ox, sy, _full_w, STRIP_H)
++	_strip_plate = Ui.rect(_layer, strip_rect, STRIP_PLATE)
+ 	_strip = PxText.make(_layer, Vector2(0, sy + 12.0), _strip_default(), L.TEXT, "plain", C_STRIP)
+ 	_strip.reading = true
+ 	_strip.wrap_width = 656.0 + L.dx
+@@ -404,14 +411,21 @@ func _build() -> void:
+ 	_publish()
+ 
+ 
+-## The strip's text, bottom-aligned in its box (its last line's ink ≤ 28 above the foot) and
+-## centred on the canvas.
++## The strip's text, centred in its navy plate (A3: one line or two) and on the canvas.
+ func _place_strip() -> void:
+ 	if _strip == null:
+ 		return
+ 	var sy := _bot - (116.0 if (variant == "after" and again_id != "") else 16.0) - STRIP_H
+ 	var lines := clampf(float(_strip.line_count()), 1.0, 2.0)
+-	_strip.position.y = sy + 12.0 + LH * (2.0 - lines)
++	# A3: the plate hugs the text: the Hebrew body's ink sits in rows +4 … +24 of a 44 cell at ×4, so a
++	# plate of 44·lines + 24 with the cell top 20 below its top leaves 24 of navy above and below the
++	# ink (112 for two lines: the whole strip; 68 for one, centred in the strip's box)
++	var ph := LH * lines + 24.0
++	strip_rect = Rect2(-_ox, sy + Ui.snap((STRIP_H - ph) / 2.0, 4), _full_w, ph)
++	if _strip_plate != null:
++		_strip_plate.position = strip_rect.position
++		_strip_plate.size = strip_rect.size
++	_strip.position.y = strip_rect.position.y + 20.0
+ 	_strip.center_in(32.0, 656.0 + L.dx)
+ 
+ 
+@@ -798,7 +812,9 @@ func web_info() -> Dictionary:
+ 	if booth.has_area():
+ 		bo = [booth.position.x + off.x, booth.position.y + off.y, booth.size.x, booth.size.y]
+ 	return {"open": visible, "variant": variant, "cells": cs, "again": ag, "avatar": avatar,
+-		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y], "booth": bo}
++		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y], "booth": bo,
++		"strip": [strip_rect.position.x + off.x, strip_rect.position.y + off.y, strip_rect.size.x, strip_rect.size.y],
++		"stripText": [_strip.position.y + off.y, _strip.position.y + off.y + LH * clampf(float(_strip.line_count()), 1.0, 2.0)] if _strip != null else []}
+ 
+ 
+ func publish_closed() -> void:
+diff --git a/game/tests/unit/test_cottage_view.gd b/game/tests/unit/test_cottage_view.gd
+index 8497861..342fd2b 100644
+--- a/game/tests/unit/test_cottage_view.gd
++++ b/game/tests/unit/test_cottage_view.gd
+@@ -63,11 +63,12 @@ func test_the_cup_appears_at_1000_and_loses_a_pixel_per_x10() -> void:
+ 	runner.check(c.visible and c.shown() and c.frame() == 1, "Q1: the cup appears on frame 1 (frame %d)" % c.frame())
+ 	runner.check(c.events.has("appear") and c.events.has("drop:1"), "it appears and drops its first pixel (%s)" % str(c.events))
+ 	var r: Rect2 = L.TOP["cottageHit"]
+-	runner.check(r == Rect2(624, 4, 88, 88) and c.hit_rect() == r, "the hit is 88×88 at the right end of Row A")
++	# mobile-first §5.1.1 (A7/B10): one slot left of the identity chip's face (624-712)
++	runner.check(r == Rect2(536, 4, 88, 88) and c.hit_rect() == r, "the hit is 88×88, left of the face at Row A's right end")
+ 	await tree.create_timer(0.25).timeout   # past the appear hop
+ 	var cup: Sprite2D = c._cup
+ 	var sz := Vector2(Art.sprite_size(cup.get_meta("sprite"))) * cup.scale
+-	runner.check(sz == Vector2(64, 72) and cup.position == Vector2(636, 12), "the kit cup at ×4: 64×72 at (636, 12), got %s at %s" % [sz, cup.position])
++	runner.check(sz == Vector2(64, 72) and cup.position + c.position == Vector2(548, 12), "the kit cup at ×4: 64×72 at (548, 12) in Row A, got %s at %s" % [sz, cup.position + c.position])
+ 	m.state.all_time_bananas = 2.0e4
+ 	await _frames(2)
+ 	runner.check(c.frame() == 2 and c.events.has("drop:2"), "10,000 ₪: frame 2 (frame %d)" % c.frame())
+@@ -121,4 +122,4 @@ func test_a_tap_opens_the_tooltip_toast() -> void:
+ 	runner.check(n + (1 if toasts._text.text == tip and toasts._text.visible else 0) == 1, "a second tap does not queue the tip twice")
+ 	runner.check(m.state.taps_lifetime == 1, "the cup's hit does not tap the Magician")
+ 	# the corners of the hit and the gear/mute neighbours
+-	runner.check(c.contains(Vector2(624, 4)) and c.contains(Vector2(711, 91)) and not c.contains(Vector2(620, 48)), "88×88, no more")
++	runner.check(c.contains(Vector2(536, 4)) and c.contains(Vector2(623, 91)) and not c.contains(Vector2(532, 48)) and not c.contains(Vector2(628, 48)), "88×88, no more")
+diff --git a/game/tests/unit/test_pretap_hud.gd b/game/tests/unit/test_pretap_hud.gd
+new file mode 100644
+index 0000000..dd72684
+--- /dev/null
++++ b/game/tests/unit/test_pretap_hud.gd
+@@ -0,0 +1,238 @@
++extends RefCounted
++## The 2026-09-30 manual test pass, the pre-tap + HUD slice (ux/mobile-first-layout.md §3.3, §5.1.1,
++## §5.8.1, §5.9; ux/ftue.md rev 5): A2 card 1 from the pick (no half-stone screen), A3 the picker's
++## caption on a navy plate, A7/B10 the round's identity chip in Row A (face + name, clear of the
++## leader's hit; no name toast over the stage), B12 the pre-tap undo chip in a navy bar in the free
++## ticker slot. Runs on the game content, on the real scene.
++
++var runner: Object
++var tree: SceneTree
++var dir := ""
++var m: Node
++
++
++func setup(r: Object) -> void:
++	TestFixture.use_game_content()
++	tree = r as SceneTree
++	dir = "user://test_pretap_hud_%d" % Time.get_ticks_usec()
++	DirAccess.make_dir_recursive_absolute(dir)
++
++
++func teardown() -> void:
++	if m and is_instance_valid(m):
++		m.set_process(false)
++		if m.get_parent():
++			m.get_parent().remove_child(m)
++		m.queue_free()
++	var d := DirAccess.open(dir)
++	if d:
++		for f in d.get_files():
++			d.remove(f)
++	DirAccess.remove_absolute(dir)
++
++
++func _boot() -> void:
++	m = load("res://scenes/main.tscn").instantiate()
++	m.store = SaveStore.new(dir)
++	tree.root.add_child(m)
++	for i in 3:
++		await tree.process_frame
++
++
++func _frames(n: int) -> void:
++	for i in n:
++		await tree.process_frame
++
++
++func _touch(p: Vector2) -> void:
++	for pressed in [true, false]:
++		var e := InputEventScreenTouch.new()
++		e.position = p
++		e.pressed = pressed
++		m._unhandled_input(e)
++
++
++func _tap_leader() -> void:
++	_touch(L.magician_hit().get_center() + Vector2(m._sx, m._stage_y))
++
++
++## A viewport-space rect of a `_top`-local one.
++func _top_rect(r: Rect2) -> Rect2:
++	return Rect2(r.position + Vector2(m._ox, m._top_y), r.size)
++
++
++func _leader_hit() -> Rect2:
++	return Rect2(m.bb.hit_rect().position + Vector2(m._sx, m._stage_y), m.bb.hit_rect().size)
++
++
++# ------------------------------------------------------------------ A2
++
++func test_a2_card_1_is_up_from_the_pick() -> void:
++	await _boot()
++	m.ftue.handoff_ms = 1.0
++	m.commit_pick("bengvir")
++	await _frames(2)
++	runner.check(m.mode == "title" and m.state.taps_lifetime == 0, "the pre-tap state")
++	runner.check(Ftue.reveals(m.state)["card1"] and m.shop.visible and m._fills["shop"].visible,
++		"card 1 and the pane's white field are up before tap 1 (shop %s)" % m.shop.visible)
++	runner.check(m.shop.ftue_dim, "card 1 is dim (its pill at 40%%): the leader stays the one lit object")
++	runner.check(not m.ticker.visible, "the ticker still waits for H1")
++	# the floor is a strip: only the ticker slot shows it (the pane covers everything below)
++	var strip_top: float = m._lower_y
++	var pane_top: float = m._lower_y + float(L.SHOP["listY"])
++	runner.check(is_equal_approx(pane_top - strip_top, float(L.TICKER_H)), "the plaza shows as one 84-px strip between the stage and the pane")
++	# the fork's content keeps the tap-3 reveal
++	var s := GameState.fresh()
++	runner.check(Ftue.reveals(s)["card1"] == Ftue.picked(s), "without a pick, card 1 waits (tap 3 on the fork)")
++
++
++# ------------------------------------------------------------------ A7 / B10
++
++func test_a7_b10_the_identity_chip_is_in_row_a_clear_of_the_leader() -> void:
++	await _boot()
++	m.ftue.handoff_ms = 1.0
++	m.commit_pick("smotrich")   # the widest short name (144 at ×4)
++	await _frames(3)
++	var tb: TopBar = m.top_bar
++	runner.check(m._top.visible, "Row A is up in the pre-tap state")
++	runner.check(tb.leader_shown() == "smotrich" and tb.face != null and tb.face.visible, "the face medallion is drawn")
++	runner.check(tb.leader_name.text == LeaderUi.short("smotrich") and tb.name_visible(), "the short name is shown (%s)" % tb.leader_name.text)
++	var idr := _top_rect(tb.identity_rect())
++	runner.check(idr.has_area() and not idr.intersects(_leader_hit()), "the chip %s never touches the leader's hit %s" % [idr, _leader_hit()])
++	runner.check(idr.position.y >= m._top_y and idr.end.y <= m._top_y + float(L.ROW_A_H), "the chip sits inside Row A (%s)" % idr)
++	var face := _top_rect(TopBar.face_rect())
++	runner.check(is_equal_approx(face.end.x, m._ox + L.cw - 20.0) and face.size == Vector2(64, 64), "the face is R-anchored, 64×64, 20 from the canvas edge (%s)" % face)
++	runner.check(not tb.bank.visible, "the counter still waits for H1")
++	# the name clears the gear/mute and the counter's box centre
++	runner.check(idr.position.x - m._ox >= float((L.TOP["muteHit"] as Rect2).end.x), "the chip clears the mute hit")
++	# no round-start name toast over the stage (the chip replaces it)
++	var plate := Strings.s("LEADER_PICK_PLATE", {"short": LeaderUi.short("smotrich"), "party": LeaderUi.party("smotrich")})
++	var toasts: Toasts = m.toasts
++	runner.check(toasts._text.text != plate and not toasts._queue.has(plate), "the name is not a toast over the stage")
++
++
++func test_b10_the_name_width_guard_at_dx_0() -> void:
++	await _boot()
++	m.ftue.handoff_ms = 1.0
++	m.commit_pick("smotrich")
++	await _frames(2)
++	_tap_leader()
++	await _frames(3)
++	var tb: TopBar = m.top_bar
++	runner.check(L.dx >= 0.0, "the canvas")
++	m.state.bananas = 504.0
++	await _frames(2)
++	runner.check(tb.name_visible() and tb.name_fits(), "round 1: the name fits beside the counter (dx %d)" % int(L.dx))
++	m.state.bananas = 8.888e15
++	await _frames(12)
++	var fits := tb.name_fits()
++	runner.check(tb.name_visible() == fits, "a counter that reaches the name's slot hides the name (fits %s, shown %s)" % [fits, tb.name_visible()])
++
++
++func test_face_sprite_is_whole_device_px() -> void:
++	var art := LeaderUi.art("bengvir")
++	var k6 := TopBar.face_sprite(art, 6, true)
++	var k4 := TopBar.face_sprite(art, 4, true)
++	var k2 := TopBar.face_sprite(art, 2, true)
++	runner.check(not k6.is_empty() and Art.sprite_size(str(k6[0])).x == 96, "k 6: the 96-px d3 head (1 device px each), got %s" % str(k6))
++	runner.check(not k4.is_empty() and Art.sprite_size(str(k4[0])).x == 64, "k 4: the 64-px d2 head, got %s" % str(k4))
++	runner.check(not k2.is_empty() and Art.sprite_size(str(k2[0])).x == 32, "k 2: the 32-px head, got %s" % str(k2))
++	for fs: Array in [k6, k4, k2]:
++		runner.check(is_equal_approx(float(fs[1]) * Art.sprite_size(str(fs[0])).x, 64.0), "each draws 64 logical (%s)" % str(fs))
++
++
++func test_b10_the_name_yields_to_the_cottage_after_the_round_starts() -> void:
++	await _boot()
++	m.ftue.handoff_ms = 1.0
++	m.commit_pick("bibi")
++	await _frames(2)
++	m.state.all_time_bananas = 5000.0   # Q1 already reached (a later round, or a big away credit)
++	await _frames(3)
++	var tb: TopBar = m.top_bar
++	var c: CottageCup = m.cottage
++	runner.check(tb.name_visible() and not c.visible, "round start: the name holds the slot, the cup waits")
++	_tap_leader()
++	await _frames(20)
++	runner.check(not tb.name_claims_slot() and not tb.name_visible(), "after the first tap the name yields")
++	runner.check(c.visible, "and the cup takes the slot")
++	runner.check(tb.face.visible, "the face stays")
++	var cr := _top_rect(c.hit_rect())
++	var face := _top_rect(TopBar.face_hit())
++	runner.check(not cr.intersects(face) and is_equal_approx(cr.end.x, face.position.x), "the cup's hit sits just left of the face's (%s, %s)" % [cr, face])
++
++
++# ------------------------------------------------------------------ B12
++
++func test_b12_the_pretap_undo_chip_sits_in_a_navy_bar_in_the_ticker_slot() -> void:
++	await _boot()
++	m.ftue.handoff_ms = 1.0
++	m.commit_pick("liberman")
++	await _frames(2)
++	runner.check(m.undo_visible() and m.undo_home() == "row", "pre-tap: the chip's home is the ticker slot (%s)" % m.undo_home())
++	var rr: Rect2 = m.undo_row_rect()
++	runner.check(rr.position.y >= 0.0 and rr.end.y <= float(L.TICKER_H), "inside the 84-px slot (%s)" % rr)
++	runner.check(is_equal_approx(rr.get_center().x, L.cw / 2.0), "centred on the canvas")
++	var band: ColorRect = m._undo_band
++	runner.check(m._undo_row.visible and band.position.x <= -m._ox and band.size.x >= m._vs.x, "on a full-bleed navy bar")
++	runner.check(band.color == Color("#072a7a"), "the ticker's panel colour (the ticker takes the same slot at H1)")
++	var hit: Rect2 = m._undo_row_btn.hit
++	runner.check(hit.size.y >= 88.0 and hit.size.x >= 408.0, "a full 88-px hit (%s)" % hit)
++	# a real tap on it reopens the picker
++	_touch(rr.get_center() + Vector2(m._ox, m._lower_y))
++	await _frames(2)
++	runner.check(m.mode == "pick" and m.picker.visible, "tapping it reopens the picker")
++
++
++func test_b12_after_an_election_the_chip_stays_in_the_lane() -> void:
++	var s := GameState.fresh()
++	Leaders.set_salt(s, 7)
++	Politics.install(s, "bennett")
++	Economy.tap(s)
++	s.evolutions = 1
++	s.run_taps = 0
++	Politics.on_election(s)
++	SaveStore.new(dir).save_game(s)
++	await _boot()
++	m.commit_pick("liberman")
++	await _frames(2)
++	runner.check(m.mode == "main" and m.undo_visible() and m.undo_home() == "lane", "the ticker is live: the lane (%s)" % m.undo_home())
++	runner.check(not m._undo_row.visible, "no bar over the ticker")
++	runner.check(m.top_bar.name_visible() and m.top_bar.leader_shown() == "liberman", "the new round's name shows in Row A")
++
++
++# ------------------------------------------------------------------ Row A input before tap 1
++
++func test_b10_mute_and_settings_work_before_tap_1() -> void:
++	await _boot()
++	m.ftue.handoff_ms = 1.0
++	m.commit_pick("deri")
++	await _frames(2)
++	var was: bool = bool(m.settings.get("sfx", true)) or bool(m.settings.get("music", true))
++	_touch((L.TOP["muteHit"] as Rect2).get_center() + Vector2(m._ox, m._top_y))
++	var now: bool = bool(m.settings.get("sfx", true)) or bool(m.settings.get("music", true))
++	runner.check(now != was and m.mode == "title", "mute toggles in the pre-tap state")
++	_touch((L.TOP["gearHit"] as Rect2).get_center() + Vector2(m._ox, m._top_y))
++	await _frames(2)
++	runner.check(m.overlays.is_open(), "the gear opens settings before tap 1")
++	runner.check(m.state.taps_lifetime == 0, "neither counts as tap 1")
++
++
++# ------------------------------------------------------------------ A3
++
++func test_a3_the_picker_caption_sits_on_a_navy_plate() -> void:
++	await _boot()
++	var p: PickView = m.picker
++	runner.check(m.mode == "pick" and p.visible, "the picker")
++	var sr: Rect2 = p.strip_rect
++	runner.check(sr.has_area() and sr.position.x <= -m._ox and sr.size.x >= m._vs.x, "the plate is full bleed (%s)" % sr)
++	var t: PxText = p._strip
++	var lines := clampf(float(t.line_count()), 1.0, 2.0)
++	runner.check(t.position.y >= sr.position.y + 8.0 and t.position.y + 44.0 * lines <= sr.end.y,
++		"the caption's lines sit inside it (%s..%s in %s)" % [t.position.y, t.position.y + 44.0 * lines, sr])
++	var fg := Color("#f7f4ec")
++	var bg := PickView.STRIP_PLATE
++	var lum := func(c: Color) -> float:
++		var f := func(v: float) -> float: return v / 12.92 if v <= 0.03928 else pow((v + 0.055) / 1.055, 2.4)
++		return 0.2126 * f.call(c.r) + 0.7152 * f.call(c.g) + 0.0722 * f.call(c.b)
++	var ratio: float = (float(lum.call(fg)) + 0.05) / (float(lum.call(bg)) + 0.05)
++	runner.check(ratio >= 7.0, "white on the plate reads at %.1f:1 (≥ 7, AAA)" % ratio)
+diff --git a/game/tests/unit/test_pretap_hud.gd.uid b/game/tests/unit/test_pretap_hud.gd.uid
+new file mode 100644
+index 0000000..6d19aa6
+--- /dev/null
++++ b/game/tests/unit/test_pretap_hud.gd.uid
+@@ -0,0 +1 @@
++uid://d2ygpj5f5hhib
+diff --git a/game/tests/unit/test_review2_engine.gd b/game/tests/unit/test_review2_engine.gd
+index 62acd89..6f529d7 100644
+--- a/game/tests/unit/test_review2_engine.gd
++++ b/game/tests/unit/test_review2_engine.gd
+@@ -54,23 +54,22 @@ func _tap_leader() -> void:
+ 
+ # ------------------------------------------------------------------ U3
+ 
++## Superseded by A2 (2026-09-30 manual test, mobile-first §3.3 rev): with leader select, card 1
++## (dim) and its white field are up from the pick, so the screen under the stage is never half stone;
++## the plaza stays only as the strip in the (still free) ticker slot until H1.
+ func test_u3_the_apron_stays_until_card_1() -> void:
+ 	await _boot()
+ 	m.commit_pick("bibi")
+ 	await _frames(2)
++	var fill: ColorRect = m._fills["shop"]
++	runner.check(m.mode == "title" and fill.visible and m.shop.visible, "pre-tap: card 1 and the pane's white are up from the pick (fill %s, shop %s)" % [fill.visible, m.shop.visible])
++	runner.check(m._title_floor.visible and not m.ticker.visible, "the ticker slot is still the plaza strip (floor %s, ticker %s)" % [m._title_floor.visible, m.ticker.visible])
+ 	_tap_leader()
+ 	await _frames(3)
+-	var fill: ColorRect = m._fills["shop"]
+ 	runner.check(m.mode == "main" and m.state.taps_lifetime == 1, "tap 1 starts the round")
+-	runner.check(not fill.visible and m._title_floor.visible and m._title_floor.modulate.a > 0.99,
+-		"between tap 1 and card 1 the pane's white is not drawn; the apron stays (fill %s, floor %s)" % [fill.visible, m._title_floor.visible])
+-	for i in 2:
+-		await _frames(20)   # past the tap-burst guard
+-		_tap_leader()
+-	await _frames(20)
+-	runner.check(m.state.taps_lifetime >= 3 and fill.visible, "card 1: the white field comes with the pane (taps %d)" % m.state.taps_lifetime)
+-	await _frames(30)
+-	runner.check(not m._title_floor.visible or m._title_floor.modulate.a < 0.01, "and the apron is gone under it")
++	runner.check(fill.visible and m.ticker.visible, "H1: the ticker takes the strip's slot; the pane stays")
++	await tree.create_timer(1.0).timeout   # past the title fade
++	runner.check(not m._title_floor.visible or m._title_floor.modulate.a < 0.01, "and the strip's floor is gone under the ticker")
+ 
+ 
+ # ------------------------------------------------------------------ U6
+diff --git a/game/tests/unit/test_review_engine.gd b/game/tests/unit/test_review_engine.gd
+index 505acd0..f4d381b 100644
+--- a/game/tests/unit/test_review_engine.gd
++++ b/game/tests/unit/test_review_engine.gd
+@@ -318,13 +318,13 @@ func test_r16_title_floor_fills_the_reserved_sections() -> void:
+ 	runner.check(f.visible and is_equal_approx(f.position.y, sb + reach), "the paving starts where the plaza ends (%s)" % f.position.y)
+ 	runner.check(f.position.x <= 0.0 and f.position.x + f.size.x * 4.0 >= m._vs.x, "full width, no inner rect")
+ 	runner.check(f.texture == Diorama.paving_texture(m.diorama.pad_bottom, false), "the paving in the stage's floor colour")
+-	# review U3 (2026-09-30): it stays through tap 1 until card 1 (the pane's white comes with card 1)
++	# A2 (2026-09-30 manual test): card 1 is up from the pick, so the floor is only the strip in the
++	# free ticker slot (the pane's white covers the rest); the main state has the ticker there
++	await tree.process_frame
++	runner.check(m._fills["shop"].visible and m.shop.visible, "the pane is up in the pre-tap state (card 1 from the pick)")
+ 	m._set_mode("main", false)
+-	runner.check(f.visible, "kept in the main state until card 1")
+-	m.state.taps_lifetime = 3
+ 	await tree.process_frame
+-	await tree.create_timer(0.4).timeout   # the 150 ms fade under the pane's white
+-	runner.check(not f.visible, "gone once card 1 is up")
++	runner.check(not f.visible, "gone in the main state (card 1 is up)")
+ 
+ 
+ func test_r19_suitcase_sparkles_clear_after_the_flight() -> void:
+diff --git a/tools/web/mobile_web.mjs b/tools/web/mobile_web.mjs
+index 8baaba4..10168a5 100644
+--- a/tools/web/mobile_web.mjs
++++ b/tools/web/mobile_web.mjs
+@@ -10,6 +10,11 @@
+ //             (odDisplay.ticker), the bottom-anchored picker grid (odPick.tile / odPick.grid).
+ // Screens: the picker (when the build has one), the pre-tap stage, card 1, the first buy ("bought"),
+ // C1 (the tab bar) and C2 (Row B), T3 (the chat), and the settings sheet.
++// The pre-tap + HUD fixes (2026-09-30 manual test; mobile-first §3.3, §5.1.1, §5.8.1, §5.9): the
++// picker's caption on its navy plate (A3), card 1 up from the pick (A2), the round's name in Row A's
++// identity chip, never over the leader's hit (A7/B10, checked pre-tap and at card 1), and the
++// pre-tap undo chip in its navy bar in the ticker slot (B12). They read window.odPick.strip and
++// window.odDev.hud.
+ //   node tools/web/mobile_web.mjs <url> <out dir> [devices]
+ //     devices: comma list of WxH@DPR (a phone: touch, isMobile) or frame-WxH@DPR (a desktop window,
+ //     mouse: the shell's 390-CSS phone frame). Default: the spec's matrix (below).
+@@ -271,6 +276,11 @@ for (const spec of list.split(',')) {
+ 		const gx1 = Math.max(...pk.cells.map((c) => c[0])) + (pk.tile ? pk.tile[0] : 0) / 2;
+ 		check('width', (gx1 - gx0) >= 0.92 * disp.cw, `the picker grid spans ${Math.round(gx1 - gx0)} of ${disp.cw} (≥ 92%)`);
+ 		await bandCheck('pick', buf, 'grid, strip and foot; the scrimmed stage above the title line is the exempt sky', { exempt: [[0, gridTop - 72]] });
++		// A3 (mobile-first §5.8.1): the caption strip sits on a full-bleed navy plate, its text inside it
++		const sp = pk.strip || [];
++		const st = pk.stripText || [];
++		check('spec', sp.length === 4 && sp[0] <= 0.5 && sp[2] >= disp.logical[0] - 0.5 && st.length === 2 && st[0] >= sp[1] && st[1] <= sp[1] + sp[3],
++			`A3: the caption is on its full-bleed plate (plate ${JSON.stringify(sp)}, text ${JSON.stringify(st)})`);
+ 		// pick הפתעה (the centre cell, id "")
+ 		const rnd = pk.cells.find((c) => c[2] === '') || pk.cells[0];
+ 		await tap(css(rnd[0], rnd[1]));
+@@ -279,7 +289,23 @@ for (const spec of list.split(',')) {
+ 		await refresh();
+ 	}
+ 	const pre = await shot('pretap');
+-	await bandCheck('pre-tap', pre, 'the pre-tap stage paints the apron below the stage');
++	await bandCheck('pre-tap', pre, 'Row A, the stage, the plaza strip in the ticker slot, card 1 and the teaser rows');
++	// the pre-tap HUD (A2, A7/B10, B12)
++	const inter = (a, b) => a && b && a.length === 4 && b.length === 4 && a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
++	const hudCheck = async (step) => {
++		const h = ((await probe()) || {}).hud || {};
++		const idr = (h.identity && h.identity.rect) || [];
++		check('spec', idr.length === 4 && !inter(idr, h.leaderHit) && idr[1] + idr[3] <= disp.stageY + 160 - ROW_B,
++			`${step}: the name plate (Row A's identity chip ${JSON.stringify(idr)}, ${h.identity && h.identity.leader}) is clear of the leader's hit ${JSON.stringify(h.leaderHit)} and inside Row A`);
++		return h;
++	};
++	if (pk && pk.open) {
++		const h0 = await hudCheck('pre-tap');
++		check('spec', h0.card1 === true && h0.ticker === false && h0.top === true, `A2: card 1 and Row A are up before tap 1, the ticker waits for H1 (${JSON.stringify({ card1: h0.card1, ticker: h0.ticker, top: h0.top })})`);
++		const u = h0.undo || {};
++		check('spec', !u.on || (u.home === 'row' && u.rect.length === 4 && u.rect[1] >= disp.lowerY && u.rect[1] + u.rect[3] <= disp.lowerY + TICKER),
++			`B12: the pre-tap undo chip sits in its bar in the ticker slot (${JSON.stringify(u)}, slot ${disp.lowerY}-${disp.lowerY + TICKER})`);
++	}
+ 
+ 	// ---- the verticals (the engine publishes lowerY today)
+ 	check('spec', disp.lowerY === E.lowerY, `lowerY (stage bottom) = ${E.lowerY} (S ${E.S}; got ${disp.lowerY}, S ${disp.lowerY - E.stageTop})`);
+@@ -288,18 +314,19 @@ for (const spec of list.split(',')) {
+ 
+ 	// ---- tap 1-3 (card 1), then the first buy
+ 	const hat = css(disp.hat[0], disp.hat[1]);
+-	// review U3: after tap 1 (before card 1) the pre-tap apron stays below the ticker; the pane's
+-	// white field comes with card 1, so no blank band may open under the stage here
++	// A2 (supersedes review U3): card 1 and its white field are up from the pick; at tap 1 the ticker
++	// takes the plaza strip's slot, so no blank band may open under the stage here
+ 	await tap([hat[0], hat[1]]);
+ 	await wait(1200);
+ 	await refresh();
+ 	const tap1 = await shot('tap1');
+-	await bandCheck('tap 1', tap1, 'the apron stays until card 1 (U3)');
++	await bandCheck('tap 1', tap1, 'the ticker takes the strip; the pane stays (A2)');
+ 	for (let i = 1; i < 4; i++) { await tap([hat[0], hat[1] + 4 * i]); await wait(350); }
+ 	await wait(1200);
+ 	await refresh();
+ 	const card1 = await shot('card1');
+ 	await bandCheck('card 1', card1, 'card 1 + silhouettes fill the pane; the pane covers the tab slot before C1');
++	if (pk && pk.open) await hudCheck('card 1');
+ 	let s = await probe();
+ 	pillCheck('card 1', s);
+ 	const buyRow = async () => {
+diff --git a/tools/web/pretap_shots.mjs b/tools/web/pretap_shots.mjs
+new file mode 100644
+index 0000000..74478b5
+--- /dev/null
++++ b/tools/web/pretap_shots.mjs
+@@ -0,0 +1,104 @@
++// The pre-tap + HUD slice's screenshots (2026-09-30 manual test, fixes A2/A3/A7/B10/B12): the
++// first picker, the pre-tap stage with the undo bar (≈ 1 s after the pick) and after it (≈ 7 s),
++// card 1 (tap 3), and the picker after a forced election (the F9_PICK caption on its plate), at
++// each device. Shots are saved at half the device size (ImageMagick-free: a 2×2 box filter in JS).
++//   node tools/web/pretap_shots.mjs <url> <out dir> [WxH@DPR,...] [leader] [prefix]
++// Serve build/web first: python3 -m http.server 8833 --directory build/web
++const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
++const { chromium } = await import(PW);
++const fs = await import('node:fs');
++const [base, out, list = '390x844@3,375x667@2,430x932@3', leader = 'bengvir', prefix = 'dev2-'] = process.argv.slice(2);
++if (!base || !out) {
++	console.log('usage: node tools/web/pretap_shots.mjs <url> <out dir> [WxH@DPR,...] [leader] [prefix]');
++	process.exit(2);
++}
++fs.mkdirSync(out, { recursive: true });
++const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
++let failed = 0;
++for (const spec of list.split(',')) {
++	const [wh, dprS] = spec.split('@');
++	const [W, H] = wh.split('x').map(Number);
++	const DPR = Number(dprS);
++	const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: true, hasTouch: true });
++	const page = await ctx.newPage();
++	const errors = [];
++	page.on('pageerror', (e) => errors.push(e.message));
++	const cdp = await ctx.newCDPSession(page);
++	const wait = (ms) => page.waitForTimeout(ms);
++	let tid = 1;
++	let disp;
++	const refresh = async () => { disp = await page.evaluate(() => window.odDisplay); };
++	const css = (x, y) => [x * disp.f / DPR, y * disp.f / DPR];
++	const tap = async ([x, y], hold = 60) => {
++		const id = tid++;
++		await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id }] });
++		await wait(hold);
++		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
++	};
++	const shot = async (step) => {
++		// half size: the viewport at DPR / 2
++		const p = `${out}/${prefix}${step}-${W}x${H}.png`;
++		const buf = await page.screenshot({ scale: 'device', timeout: 120000 });
++		const half = await page.evaluate(async ({ b64, w, h }) => {
++			const img = new Image();
++			img.src = `data:image/png;base64,${b64}`;
++			await img.decode();
++			const c = document.createElement('canvas');
++			c.width = Math.round(w / 2); c.height = Math.round(h / 2);
++			const g = c.getContext('2d');
++			g.imageSmoothingEnabled = true;
++			g.imageSmoothingQuality = 'high';
++			g.drawImage(img, 0, 0, c.width, c.height);
++			return c.toDataURL('image/png').split(',')[1];
++		}, { b64: buf.toString('base64'), w: Math.round(W * DPR), h: Math.round(H * DPR) });
++		fs.writeFileSync(p, Buffer.from(half, 'base64'));
++		console.log('  shot', p);
++	};
++	console.log(`\n${spec}`);
++	await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1`);
++	await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
++	await page.click('#od-quiet');
++	await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay && window.odPick && window.odPick.open, null, { timeout: 120000 });
++	await wait(1500);
++	await refresh();
++	await shot('picker');
++	let pk = await page.evaluate(() => window.odPick);
++	const cell = pk.cells.find((c) => c[2] === leader) || pk.cells[0];
++	await tap(css(cell[0], cell[1]));
++	await page.waitForFunction(() => window.odDev && window.odDev.mode === 'title', null, { timeout: 8000 }).catch(() => {});
++	await wait(1100);
++	await refresh();
++	let dev = await page.evaluate(() => window.odDev);
++	const hud = dev.hud || {};
++	console.log(`  hud ${JSON.stringify(hud)}`);
++	const inter = (a, b) => a.length && b.length && a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
++	const ok = hud.identity && hud.identity.rect.length && !inter(hud.identity.rect, hud.leaderHit);
++	console.log(`  ${ok ? 'ok  ' : 'FAIL'} the identity chip ${JSON.stringify(hud.identity && hud.identity.rect)} is clear of the leader's hit ${JSON.stringify(hud.leaderHit)}`);
++	if (!ok) failed++;
++	await shot('pretap-undo');
++	await wait(6000);
++	await shot('pretap');
++	const hat = css(disp.hat[0], disp.hat[1]);
++	for (let i = 0; i < 3; i++) { await tap([hat[0], hat[1] + 4 * i]); await wait(400); }
++	await wait(1600);
++	await shot('card1');
++	// a forced election (dev) → EVOLVE_TX → the flash → the picker (after)
++	await page.evaluate(() => { window.odDevElect = 1; });
++	for (let t = 0; t < 90; t++) {
++		await wait(1000);
++		pk = await page.evaluate(() => window.odPick || null);
++		if (pk && pk.open && pk.variant === 'after') break;
++		const mdl = await page.evaluate(() => (window.odDev && window.odDev.modalButtons) || []);
++		if (mdl.length) { await refresh(); await tap(css(mdl[mdl.length - 1][0], mdl[mdl.length - 1][1])); }
++		const fl = await page.evaluate(() => window.odFlash || null);
++		if (fl && fl.open) { await refresh(); const b = fl.skip && fl.skip[0] >= 0 ? fl.skip : fl.next; await tap(css(b[0], b[1])); }
++	}
++	await wait(1200);
++	if (pk && pk.open && pk.variant === 'after') await shot('picker-after');
++	else { console.log('  FAIL the after-election picker did not open'); failed++; }
++	if (errors.length) { console.log(`  FAIL page errors ${JSON.stringify(errors.slice(0, 3))}`); failed++; }
++	await ctx.close();
++}
++await browser.close();
++console.log(failed ? `PRETAP_SHOTS: ${failed} FAILED` : 'PRETAP_SHOTS: PASS');
++process.exit(failed ? 1 : 0);
+diff --git a/ux/ftue.md b/ux/ftue.md
+index 7c92013..4a19a74 100644
+--- a/ux/ftue.md
++++ b/ux/ftue.md
+@@ -1,6 +1,6 @@
+ # "עוד סבב": FTUE and prompt triggers on the fork (`ftue-flow` + `prompt-trigger-spec`, engine-concrete)
+ 
+-**Owner:** UX Designer · **Consumers:** Game Developer (`game/scripts/ui/ftue.gd`, `main.gd`, `sim/game_state.gd`), Game Designer (tuning values in `design/content.json`), Animator (prompt motion), Audio Director (cue moments) · **Date:** 2026-09-28 · **Rev 4 (2026-09-29, leader select):** the FTUE starts at the leader pick (§8); P0 taps the leader; H1L; LP.
++**Owner:** UX Designer · **Consumers:** Game Developer (`game/scripts/ui/ftue.gd`, `main.gd`, `sim/game_state.gd`), Game Designer (tuning values in `design/content.json`), Animator (prompt motion), Audio Director (cue moments) · **Date:** 2026-09-28 · **Rev 4 (2026-09-29, leader select):** the FTUE starts at the leader pick (§8); P0 taps the leader; H1L; LP. **Rev 5 (2026-09-30, manual test A2/A7/B10/B12):** the pre-tap state is the round's screen before its first tap: Row A (the identity chip: face + name; mute; settings) and card 1 (dim) over the teaser rows are up from the pick; the round's name is no longer a toast over the stage; the pre-tap undo chip sits in a navy bar in the ticker slot (`mobile-first-layout.md` §3.3, §5.1.1, §5.9).
+ 
+ **Above this file:** `creative-pack/od-sevev/ux/first-minute.md` §2 (approved beats and triggers) and `pitch.md` §5 and §11 (the numbers). This file restates every trigger as a predicate over the fork's **real** state fields, names the fields the developer must add, and says what replaces each of the fork's P1-P7 prompts. Layout references (`§n` of `rtl-map.md`) are the geometry. **Supersedes** the fork's `ux/ftue-flow.md` for od-sevev.
+ 
+@@ -62,7 +62,7 @@ ui = {
+ 
+ | Fork prompt (`ftue.gd`) | Fork form | od-sevev | Form |
+ |---|---|---|---|
+-| P1 tap the banana | ticker text `F1_TAP`, banana emphasis, hand after idle | **P0** tap the leader (was: the hat) | Textless: idle loop, then Dubi pecks the tap object (Bibi: the hat; others: their prop), then the hand (§3). It runs in the **pre-tap state** after the pick (rev 4; the title state without its lines), where the ticker does not exist yet. |
++| P1 tap the banana | ticker text `F1_TAP`, banana emphasis, hand after idle | **P0** tap the leader (was: the hat) | Textless: idle loop, then Dubi pecks the tap object (Bibi: the hat; others: their prop), then the hand (§3). It runs in the **pre-tap state** after the pick (rev 4; the title state without its lines), where the ticker does not exist yet. **Rev 5:** Row A (without the counter) and card 1 (dim, the fill at 0) are already on screen, so the tap has a visible goal; the leader is still the one lit, moving object. |
+ | P2 hire | ticker `F2_HIRE`, hand on the row | **P1** first buy | Card and pill; then Dubi on the card with `DUBI_BUY`; then the hand |
+ | P3 upgrade | ticker + badge | **K3** spins unlock | Toast `TOAST_SPINS` + tab slot 2 appears. No hand. |
+ | P4 golden | callout `CALLOUT_GOLDEN` + ticker | **S1** first Suitcase | Textless: slow first flight + sparkle. No callout. |
+@@ -84,9 +84,9 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
+ |---|---|---|---|---|---|---|
+ | **P0** tap the leader | introduce(tap) | `mode == "title" and taps_lifetime == 0 and handoff_ms > 0` (rev 4: "title" = the pre-tap stage after the pick; `handoff_ms` = the pick, §8) | Diegetic: the leader's idle loop (Bibi: wand taps hat, a coin peeks and sinks) + 1 Hz brightness pulse on the **tap object**: the hat for Bibi, the prop at `propMouth` for every other leader (`BigBanana.emphasize`; static rim under reduced motion). **No text.** The target is the leader's whole hit (rtl-map §4.3), never the prop alone. | **F1** `idle ≥ 3 s` **and Dubi's pick lines are done** (rtl-map §8.6): Dubi pecks the tap object; one coin pops with "+1 ₪" (a demonstration, not credited). **F2** `idle ≥ 9 s` (F1 + 6): the pixel hand (`Ftue.hand`) taps the hat on loop, pointing from the lower-right (`dir "upleft"`, hand at the hat's right side, since a right thumb comes from there). **F3** `idle ≥ 20 s`: the hand stays; the hat pulse doubles to 2 Hz (≤ 3 Hz, photosensitivity rule). No modal, ever. | `taps_lifetime ≥ 1` | `ftue_step_entered{step:"tap"}`, `ftue_first_agency` |
+ | **I0** idle coin-peek (main mode) | — | `mode == "main" and evolutions == 0 and owned_total < 3 and idle ≥ 20 s and stage_unobstructed()` | The Animator's `idleInvite`: one coin peek every 10 s. **Not** after `owned_total ≥ 3`: from then on tapping is optional and a recurring peek is a nag (rtl-map §4.2). | — | any tap, or the predicate turns false | — |
+-| **H1** first laugh | — | `taps_lifetime == 1` (edge) | Dubi bubble: the leader's `kit.dubi.squawks.firsttap` (Bibi: `DUBI_FIRSTTAP` "אין כלום! אין כלום!") over the leader for 1.6 s; ticker docks and enqueues H1 (deck T25) at `ftue` priority; Row A fades in with the counter only | — | edge fires once | `ftue_step_completed{step:"tap"}` |
++| **H1** first laugh | — | `taps_lifetime == 1` (edge) | Dubi bubble: the leader's `kit.dubi.squawks.firsttap` (Bibi: `DUBI_FIRSTTAP` "אין כלום! אין כלום!") over the leader for 1.6 s; the ticker fades into the plaza strip's slot and enqueues H1 (deck T25) at `ftue` priority; the counter fades into Row A (rev 5: Row A itself, with the identity chip, mute and settings, is up from the pick) | — | edge fires once | `ftue_step_completed{step:"tap"}` |
+ | **H2** first rabbit | introduce(crit) | `taps_lifetime == 7 and crits_lifetime == 0` (the 7th registered tap) | `Economy.tap(state, force_crit = true)` pays ×4 (pitch §11 Q5); rabbit hop; ticker H2 (deck T03) | — | edge | — |
+-| **card 1 reveal** | — | `taps_lifetime ≥ 3 and owned_total == 0 and evolutions == 0` | Panel slides up with one card (`producerNames.intern`), pill at 40% opacity, fill growing right → left (rtl-map §6.1) | — | card shown (it never hides again this run) | — |
++| **card 1 reveal** | — | **rev 5:** `picked(s)` (leader select on, a leader installed, no pick pending) **or** `taps_lifetime ≥ 3` (content without leader select) | Card 1 (`producerNames.intern`) on the white field over the dim teaser rows, pill at 40% opacity, fill growing right → left as taps come in (rtl-map §6.1). With leader select it is **up from the pick**, in the pre-tap state (A2: before, the lower half of the first screen was bare stone until tap 3). Its fill growing with each tap is the tap's first visible consequence after the coin. | — | card shown (it never hides again this run) | — |
+ | **P1** first buy | introduce(buy) | `bananas ≥ cost(intern) and owned_of("intern") == 0 and evolutions == 0` | Pill full, 100% opacity, gold, one brightness pulse; `becameAffordable` cue | **F1** affordable-and-ignored `≥ 5 s` while taps continue: Dubi hops onto the card and squawks `DUBI_BUY` "לקנות! לקנות!". **F2** `+8 s` (13 s): the hand on the card, at the pill's centre, `dir "right"`, pointing at the pill from its right. **F3** after 2 more ignored 8-s windows: the card bounces once each time `bananas` crosses a multiple of the price. | `owned_of("intern") ≥ 1` | `ftue_step_entered{step:"buy"}`, `ftue_step_completed{step:"buy"}` |
+ | **R1** rate reveal | — | `owned_total ≥ 1` (first time) | Rate line `HUD_BPS` appears under the counter; the taxpayer walks onto the stage; ticker H3 (deck T01) | — | `ui.rateRevealed` | — |
+ | **P2** the choice | isolate(buy) | `owned_total ≥ 1 and bananas ≥ 0.5 × cost(tree)` | Card 2's name replaces `ROW_LOCKED_NAME` "מקור עלום" (before this, card 2 shows as locked from `owned_total ≥ 1`) | If `owned_total == 1 and bananas ≥ cost(tree)` for 10 s of play: card 2's pill pulses once | card 2 named | `ftue_step_entered{step:"choose"}` |
+@@ -118,9 +118,9 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
+ 
+ | t after hand-off | Player state | Fires |
+ |---|---|---|
+-| 0 | the pick has committed (rev 4: t = 0 is the pick, §8); pre-tap stage, `taps_lifetime 0` | P0 (idle loop); the lower third and Dubi's `DUBI_LEARNED` play over the first ~2.5 s, and P0's F1 waits for them |
++| 0 | the pick has committed (rev 4: t = 0 is the pick, §8); pre-tap stage, `taps_lifetime 0` | P0 (idle loop); Row A with the identity chip (the face and name: the round's "lower third", rev 5) and card 1 (dim) are up; the undo bar holds the ticker slot for 5 s; Dubi's `DUBI_LEARNED` plays over the first ~2.5 s, and P0's F1 waits for it |
+ | ~2 | tap 1 | H1 (Dubi, ticker, counter) |
+-| ~3 | tap 3 | card 1 reveal (dim) |
++| ~3 | tap 3 | (rev 5: card 1 is already up; its fill is at 3/15) |
+ | ~5 | tap 7 | H2 (rabbit ×4) |
+ | ~8-10 | tap 12: 15 ₪ | P1 (pill gold) |
+ | ~11 | first buy | R1 (rate line, taxpayer walks on) |
+@@ -135,7 +135,7 @@ Columns: **Predicate** is evaluated once per frame by `Ftue.update_view` (as the
+ | 3:00+ | `demands_paid ≥ 2`, 180 s | U1 gate open |
+ | ~7-9 min | 61 seats | E1 |
+ 
+-**Strip test.** Remove every toast, Dubi fallback and hand: the player still reaches first agency by reading the world (one moving, glowing object; then one card with one price that fills as they tap). None of the prompts above carries the load alone.
++**Strip test.** Remove every toast, Dubi fallback and hand: the player still reaches first agency by reading the world (one moving, glowing object, and below it one dim card with one price; the card fills as they tap). None of the prompts above carries the load alone.
+ 
+ **Time to first agency:** warm ≈ 2-3.5 s after the disclaimer tap; cold on 4G ≤ 7 s; worst case with F1 and F2 ≤ 16 s. All within the studio's 30-s web budget.
+ 
+@@ -231,7 +231,7 @@ It takes the tap the title state already needed (the WebAudio gesture), so the f
+ - **Every later picker** repeats only the chip.
+ 
+ **Timing seams:**
+-- **The pick sequence** (rtl-map §8.6: the lower third, then Dubi's line, then the fresh toast) runs before P0's F1 can fire. P0's F1 requires "Dubi's pick lines done", so Dubi never pecks the prop while he is still talking.
++- **The pick sequence** (rtl-map §8.6: the identity chip with Row A, then Dubi's line, then the fresh toast) runs before P0's F1 can fire. P0's F1 requires "Dubi's pick lines done", so Dubi never pecks the prop while he is still talking.
+ - **The undo chip** is gone by P0's F2 (9 s).
+ - **C1's chat ping and every other prompt** wait on their own predicates, all ≥ 40 s in.
+ 
+diff --git a/ux/mobile-first-layout.md b/ux/mobile-first-layout.md
+index a38c77a..a6e8d16 100644
+--- a/ux/mobile-first-layout.md
++++ b/ux/mobile-first-layout.md
+@@ -8,6 +8,8 @@
+ 
+ **Revision 2026-09-30 (UX review 2, `ux/review-2026-09-30.md`):** §5.2 takes the Animator's roll and dwell (D47, D48); new §5.2.1, the no-break (glue) rule (D49); new §5.14, the v4 civic pieces' placement (F15, D50); asks T1, A4, A5, M3, G2, D1 in §10.
+ 
++**Revision 2026-09-30 (manual test pass, `HANDOFF.md` A2, A3, A7, B10, B12; UX Designer + Game Developer, pre-tap + HUD slice):** §3.3 and §5.9, the pre-tap screen is the round's screen before its first tap: Row A (with the new identity chip) and card 1 over the teaser rows are up from the pick, and the plaza is one 84-px strip in the still-free ticker slot (A2, D51); new §5.1.1, Row A's identity chip, the leader's face and short name at the right end, which replaces the round-start name toast over the stage, and the Cottage Index moves one slot left (A7, B10, D52); §5.8.1, the picker's caption on a full-bleed navy plate (A3, D53); §5.9, the pre-tap undo chip in a navy bar in the ticker slot (B12, D54); §9.1 adds S13-S16. Shots: `ux/manual-test-2026-09-30/fixes/dev2-*`.
++
+ **Reference implementation of every number here:** `ux/tools/mobile_layout.py` (the tables in §2-§5 are its output). **Check:** `tools/web/mobile_web.mjs` (§9). **Wireframes:** `ux/mockups/mobile-first-*.png` (`ux/tools/mobile_mockup.py`).
+ 
+ ---
+@@ -161,9 +163,9 @@ leader art ×4 when S ≥ 560, else ×3 (rtl-map §4, unchanged)
+ 
+ | State | Today | Spec |
+ |---|---|---|
+-| **Pre-tap** (after the pick, before tap 1; ftue P0) | Ticker, pane and tabs hidden; the rest is the floor colour (R16): 191 art of one colour at 390. | The region below the stage shows **the stage's apron art continued to the safe bottom** (2D ask A1, §10). Interim, engine only: the stage art's bottom rows are drawn instead of `_title_floor` (the art is 320 rows tall and its rows 254-319 are under the lane today), plus the lane. **Nothing interactive moves:** the leader stays where tap 1 will find him. The undo chip stays in the lane (rtl-map §8.6). |
+-| **Tap 1 → 2** | The ticker appears (H1) | The ticker appears. **Below it the pre-tap apron (the plaza) stays drawn to the safe bottom; the white field (`_fills["shop"]`) appears only with card 1's slide-up** (review 2026-09-30 U3: the white field painted at H1 left 45% of the screen blank for the 2.3 s of Dubi's first line). `mobile_web.mjs` adds S8 at "tap 1". |
+-| **Card 1** (tap 3) | The pane slides up with one card over an empty pane | The pane slides up to the **safe bottom** (it covers the tab slot) holding card 1 and **dim silhouette rows** for the sources still to come (§4.4). Card 1's pill is the only lit object, so first-minute's "one card, one price" holds. |
++| **Pre-tap** (after the pick, before tap 1; ftue P0) | *(2026-09-30 manual test A2: the plaza filled the whole lower half, about 45% of the screen, with no content, hint or card.)* | **Rev 2026-09-30 (D51): the pre-tap screen is the round's screen before its first tap.** From the pick: **Row A** (the identity chip §5.1.1, mute and settings; the counter still comes at H1), the stage, then **the ticker slot as one 84-px strip of the plaza floor** (the diorama's plaza + the paving; the only stone left), then **the pane: card 1, dim (its pill at 40%), over the teaser rows**, to the safe bottom on the white field. **Nothing interactive moves:** the leader stays where tap 1 will find him, and card 1 is where it will be. For the first 5 s the undo chip sits in a navy bar over the strip (§5.9, B12). |
++| **Tap 1 → 2** | The ticker appears (H1) | The ticker fades into the strip's slot (the same 84 px, the same navy as the undo bar); the counter fades into Row A. The pane was already up, so nothing else changes. (Supersedes review U3's "white field with card 1": card 1 is now up from the pick.) |
++| **Card 1** (tap 3 on the fork's content) | The pane slides up with one card over an empty pane | With leader select, card 1 is already up (above). On content without leader select the fork's tap-3 slide-up stands. Card 1's pill stays the only lit object in the pane: it goes gold at 15 ₪ (P1), so first-minute's "one card, one price" holds. |
+ | **First buy → C1** | Empty pane below the cards; an empty tab slot | Pane full to the safe bottom |
+ | **C1** | The tab bar appears in its slot | **The tab bar slides up from the screen bottom over the pane's last 104 px** (the pane's clip shrinks by 104). Nothing above moves; the list keeps its scroll offset. |
+ | **Before C2** | Row B's slot painted #140c24, empty (25 art) | Row B's slot is **not filled**: the diorama sky, already drawn behind it (`diorama.extend`), shows through. `_fills["top"]` height = `ins_t + 96` (not `+ 180`). The toast dock and the stage items keep their screen positions. |
+@@ -194,7 +196,7 @@ Helpers in `L`: `ra(r)`, `ca(r)`, `sa(r)` return the transformed `Rect2`, and `r
+ 
+ | Region | R | L | C | S | F |
+ |---|---|---|---|---|---|
+-| **Row A** | cottage hit/icon | gear, mute | counter, rate | counter box, rate box (`w + dx`) | fill |
++| **Row A** | the identity chip (face, name; §5.1.1), cottage hit/icon | gear, mute | counter, rate | counter box, rate box (`w + dx`) | fill |
+ | **Row B** | label "מנדטים" | numeral / blackout stamp | — | track (`x 144`, `w 424 + dx`), notches recomputed on the new width | hit (0 … vs.x), fill |
+ | **Stage** | — | thermometer (x 12: it is HUD-like and must not drift inward) | the 720 stage column (`stage_ox = floor4(dx/2)`): leader, props, diorama slots, cameo, Sara, buff chip, banner | toast dock (`x 16`, `w 688 + dx`; text box right edge `676 + dx`) | sky bands, lane, stage-art wings (2D ask A2) |
+ | **Suitcase** | enters at `x 760 + dx` | exits at x −104 | — | band `w 720 + dx` | — |
+@@ -229,7 +231,35 @@ Helpers in `L`: `ra(r)`, `ca(r)`, `sa(r)` return the transformed `Rect2`, and `r
+   - Worst "₪ 8.888mm" = 46 font px × 6 = 276 ≤ the 328 box. At dx = 0 the box, centred, runs x 196-524, clear of the mute hit (100-188) and the cottage hit (624-712).
+   - ×6 is 1.5 art px per font px: whole device px at every even k (4 → 6 px, 6 → 9, 2 → 3), which is every phone of the matrix. On an odd k, `PxText.text_scale` snaps it.
+   - **Rejected alternative:** ×8 would need Row A at 28 art, which costs the SE its ×4 leader.
+-- **The cottage slot is empty until Q1 (≈ 1:30).** Accepted: it is an 88×88 corner, not a band, and the counter stays centred on the canvas, above the leader.
++- **The right end is the identity chip (§5.1.1, rev 2026-09-30).** Before it, the cottage slot was empty until Q1 (≈ 1:30) and B10 found Row A lopsided. The counter stays centred on the canvas, above the leader.
++
++#### 5.1.1 The identity chip: the round's face and name at Row A's right end (A7, B10; D52)
++
++**Why:** the round-start name toast (`LEADER_PICK_PLATE` in the toast dock, stage y 8-96) covered the top of the building at 390 and the leader's head on the SE (A7); and Row A's right end sat empty for round 1's first 90 s while the counter and the rate crowded the centre (B10, D22).
++
++**What:** from the pick on (the pre-tap state included), Row A's right end shows the round's leader. Reading order right → left: **face · name · (counter, centred) · mute · settings**.
++
++| Part | Rect (`_top`-local, anchor) | Content |
++|---|---|---|
++| Face | hit `Rect2(624, 4, 88, 88)`, medallion `Rect2(636, 16, 64, 64)`, **R** | The pick avatar (the lavender-ringed medallion) drawn at 16 art: the densest of `avatar_pick_<art>_d3` (96 px), `_d2` (64 px), `avatar_pick_<art>` (32 px) whose pixel count divides 16·k, so every sprite px is whole device px (k 6 → d3 at 1 dp, k 4 → d2 at 1 dp, k 2 → 32 at 1 dp). Not a target (no tap). |
++| Name | right edge `624 + dx`, y 28, ×4, **R**, one line | `leaders[].short` in `w` #fff8ec. 8.8:1 on the flag blue. Widest today: סמוטריץ׳ 144 (box x 480-624 at dx 0). |
++| Cottage Index | hit `Rect2(536, 4, 88, 88)` (was 624), cup at (548, 12), **R** | Unchanged behaviour (§2 of rtl-map: 50%, 100% for 3 s on a change). It **shares the name's slot**: the cup shows only when the name has yielded. |
++
++**When the name shows** (a state predicate, never a timer): `a leader is set` and (`the Cottage Index is not revealed` **or** `the round has not started`: `run_taps == 0` and no source owned). So round 1 shows the name until Q1 (≈ 1:30), and every round start (after an election, when the cup is long revealed) shows the name until the first tap or buy, then it fades out (150 ms; reduced motion: a cut) and the cup takes the slot. The face stays for the whole round.
++
++**Width guard:** the name also hides whenever the counter's or the rate line's drawn ink would come within 16 px of it (`TopBar.name_fits`). At dx 0 the widest name (144) starts at 480 and the counter's worst ink ("₪ 8.888mm" ×6) ends at 498, so only a 360-/412-wide phone with a late-game counter can trip it, and the face stays.
++
++**HUD DOG (hud-design) per element:**
++
++| Element | State surfaced | Tier | Update | Region | Taxonomy (why) | Fade rule |
++|---|---|---|---|---|---|---|
++| Face | who you play this round | informational (each leader has their own rule and hazard skin: the court vs the press) | low-frequency (once a round) | Row A right, R, inside the safe top | non-diegetic: the stage figure is the diegetic identity; the face keeps it on screen when T3/T4 cover the stage | none: informational; it changes only at a pick (a 200 ms fade-in with Row A) |
++| Name | the leader's name (for players who do not know every face) | informational | low-frequency | Row A right, R | non-diegetic, as above | yields to the cup after the round starts (state predicate above) |
++| Cottage Index | the Cottage Index | peripheral | event-driven | Row A, one slot left of the face | meta (a satire indicator) | its own rule, unchanged |
++
++**Red line check (rtl-map §4.3):** the name is never on Row B's line and never beside a seat number: Row B's numeral is at the left end of another row (x 16-136), and before C2 Row B is not drawn at all. Row A holds money, not seats.
++
++**Contrast:** name 8.8:1 (#fff8ec on #0038b8); the medallion's lavender ring 6.1:1 on the flag blue (a 3:1 non-text boundary).
+ 
+ **Row B:** as rtl-map §3 with §4.1's anchors. The label/numeral baseline stays at y 120.
+ 
+@@ -391,11 +421,30 @@ The tile hit is the whole tile: 216-260 × 236-416 logical, ≥ 108 CSS on the s
+ 
+ **Leader card (§8.7):** a modal card, width `624 + min(dx, 64)`; the ✕ hit 104; the button full width at the bottom, which is the thumb zone. It is centred per §5.10.
+ 
+-**The undo chip** (§8.6): its visual `Rect2(16, S−96, 392, 80)` is L-anchored in the lane, unchanged.
++**The undo chip** (§8.6): after an election its visual `Rect2(16, S−96, 392, 80)` is L-anchored in the lane, unchanged. Pre-tap it moves to the ticker slot's navy bar (§5.9, B12).
++
++#### 5.8.1 The caption strip's plate (A3; D53)
++
++**Why:** the strip's white text ("בכל סבב בחירות אפשר להחליף ראש רשימה. הבסיס נשאר.", or the disclaimer) sat straight on the light plaza stone, and the stone's joints ran behind the letters (`09-picker-after-election-390.png`).
++
++**What:** the strip's whole box (`STRIP_H` 112, from the strip top to the foot) is a **full-bleed navy plate** (**F**, `#072a7a`, the ticker's panel colour, "like the ticker"). The text (×4, the reading cut, up to 2 lines) **hugs the text**: the plate is `44 · lines + 24` tall (112 for two lines, the whole strip box; 68 for one, centred in the box), the cell top 20 below its top, so the ink (rows +4 … +24 of the ×4 cell) has 24 of navy above and below, and centred on the canvas as before. #f7f4ec on #072a7a is **11.8:1**. The plate ends where the foot begins: the again button (white) stays on the stone below it, so the two never merge. The booth (§5.14.2) keeps its 8 px of stone above the plate. `window.odPick.strip` = the plate `[x, y, w, h]`, `odPick.stripText` = the text's `[top, bottom]` (S13).
++
++### 5.9 Pre-tap stage (V11; rev 2026-09-30, A2 + B12)
++
++See §3.3: from the pick, Row A (the identity chip, mute, settings), the stage with the leader where tap 1 will find him, the ticker slot as the plaza strip, and card 1 (dim) over the teaser rows. **First-minute's "one moving, glowing object" still holds:** the leader pulses (P0) and card 1 is dim, the teaser rows have no price, and Row A is quiet chrome. The screen now answers the two questions a new player has before tap 1 (who am I playing, and what am I tapping for) without a word of instruction: the face and name, and one card with one price.
++
++**Mute and settings work before tap 1** (Row A is up): neither counts as tap 1.
++
++**The undo bar (B12):** before tap 1 the ticker slot is free, so the undo chip sits there instead of floating on the stone:
++- a full-bleed navy bar (**F**, `#072a7a`, the ticker's panel colour: at H1 the ticker takes the same slot in the same navy), 84 tall;
++- the chip (kit `button_secondary`, `LEADER_PICK_UNDO`) centred (**C**): visual `Rect2(floor4((cw − 392) / 2), 8, 392, 64)`, hit 408 × 88 (y −2 … 86);
++- the timer: a 2-art-px (8) line along the bar's bottom edge, full bleed, draining left → right (`mirror`) over `undoSec`; reduced motion: no line;
++- it lives exactly as the chip does (§8.6: 5 s, until the first tap or buy); when it goes, the plaza strip shows until H1.
++- Contrast: the label 6.8:1 on the chip face; the chip's light top rim 3.8:1 on the bar.
+ 
+-### 5.9 Pre-tap stage (V11)
++After an election the ticker is live, so the chip stays in the lane (§5.8).
+ 
+-See §3.3: the apron art below the stage, the undo chip in the lane, the leader where tap 1 will find him. Nothing else is added: first-minute's "one moving, glowing object" is the whole screen until tap 1, and the apron is scenery, not UI.
++**Open (accepted per §3.4, not in this slice):** on short stages (S < 560, the SE) Dubi's pre-tap chat toast (U9, ≈ 0.9-4 s after the pick) still sits over the leader's head in the toast dock. Proposed next: while Row B is not revealed, dock the toast in Row B's empty slot (84 px higher), so it covers ≤ 48 px of the stage top.
+ 
+ ### 5.10 Modals (O1, O3, O6, O10, O11/O12, O15, the leader card, the partner card, the aide confirm)
+ 
+@@ -609,6 +658,10 @@ Default matrix: 375×667@2, 390×844@3, 393×852@3, 430×932@3, 360×780@3, 412
+ | S10 | picker grid | the last row's bottom + 12 == the strip top (± 4) |
+ | S11 | picker avatar | `odPick.avatar` == §5.8's A for the device |
+ | S12 | picker band | S8 over the grid, strip and foot |
++| S13 | picker caption plate (A3) | `odPick.strip` is full bleed and holds `odPick.stripText` |
++| S14 | name plate clear of the leader (A7) | `odDev.hud.identity.rect` does not intersect `odDev.hud.leaderHit` and lies inside Row A: pre-tap and at card 1 |
++| S15 | pre-tap screen (A2) | pre-tap: `hud.card1` and `hud.top` true, `hud.ticker` false |
++| S16 | pre-tap undo bar (B12) | while the chip is up pre-tap, `hud.undo.home == "row"` and its rect lies in the ticker slot (`lowerY … lowerY + 84`) |
+ 
+ **Today's run** (full matrix, `MOBILE_BASELINE=1`, `scratchpad/shots/mobile-ux/`): `MOBILE_WEB: PASS (baseline; 108 spec checks open)`. Baseline: 0 failures on all 9 devices. Spec checks open: 13 per phone, 10 at 375×548 and 7 at the frame (the band checks are skipped inside the bezel). Every V-finding of §1 shows up as a spec failure: S8 reports the Row B slot, the lane, the empty pane and the pre-tap floor; S7 the 86-px cut at the SE and the 80-px cut at 390×664; S3 every phone's stage (e.g. 390×844: S 760 vs 680); S10/S12 the picker band.
+ 
+@@ -658,6 +711,10 @@ For **each** device of the matrix:
+ | # | Was | Now | Reason |
+ |---|---|---|---|
+ | D36 | §1 flex rule: the stage takes 40% of the extra height; the list is P = R − S in any size | §3.2 split: the stage stays near 160 art, extra height buys whole card rows, a 40-px peek | V1, V2, V5: buying is the verb from minute 2, and a half-cut pill is a false target |
++| D51 | §3.3 pre-tap: the apron continued to the safe bottom; card 1 at tap 3; the white field with card 1 (U3) | Row A and card 1 (dim) + the teaser rows from the pick; the plaza is one 84-px strip in the ticker slot | A2: the stone filled ~45% of the first screen after the pick, with nothing to read or aim at |
++| D52 | rtl-map §4.3 "no persistent HUD label"; the name as the round-start toast in the dock | Row A's identity chip (face + short name, R); the name yields to the Cottage Index once the round starts; the cup moves one slot left | A7 (the toast covered the building / the SE leader's head), B10 / D22 (Row A's right end empty in round 1) |
++| D53 | §5.8 caption strip: white text on the scrimmed stage / plaza | on a full-bleed navy plate, text centred in it | A3: low contrast, cracks behind the letters |
++| D54 | §5.8 / rtl-map §8.6 undo chip in the lane in every variant | pre-tap: centred in a navy bar in the free ticker slot; after an election: the lane | B12: the chip floated on the stone |
+ | D37 | The 720 column centred (`_ox`) for all chrome | Fluid chrome with anchors (§4); only the stage column is centred | V9 |
+ | D38 | Reserved slots stay empty until their reveal | Row B shows the sky, the pane covers the tab slot, silhouettes fill the pane (§3.3) | V1, V3; nothing moves at the reveal |
+ | D39 | The ticker crawl through a 324 clip (D16) | 2-line pages, whole words, a clip of 324 + dx (§5.2) | V6: no headline fits the window, so every frame showed cut words |
+diff --git a/ux/rtl-map.md b/ux/rtl-map.md
+index 1f6f533..6b9a29e 100644
+--- a/ux/rtl-map.md
++++ b/ux/rtl-map.md
+@@ -82,11 +82,12 @@ Positions (screen y): `top_y = floor4(top_inset)`; Row A `top_y`; Row B `top_y +
+ 
+ ## 2. Row A: `TopBar`, y 0-96 in `_top`
+ 
+-The fork's stat window, banana icon, thumbs line, Evolve button and badge are **removed**. Reading order right → left: **Cottage Index · counter · mute · settings**.
++The fork's stat window, banana icon, thumbs line, Evolve button and badge are **removed**. Reading order right → left: **identity chip (face · name, or the Cottage Index in the name's slot) · counter · mute · settings** (rev 2026-09-30).
+ 
+ | Element | Node | Rect | Content |
+ |---|---|---|---|
+-| Cottage Index | `TopBar.cottage` | hit `Rect2(624, 4, 88, 88)`; kit `cottage_cup` 16×18 art = 64×72 at (636, 12) | Tooltip `HUD_COTTAGE_TIP` as a toast. 50% opacity, 100% for 3 s on a pixel drop. Hidden until `ui.cottageRevealed`. |
++| Identity chip (rev 2026-09-30, A7/B10) | `TopBar.face`, `TopBar.leader_name` | face hit `Rect2(624, 4, 88, 88)`, medallion `Rect2(636, 16, 64, 64)`; name right-aligned at 624, y 28 | The round's leader: the pick avatar medallion + `leaders[].short`. From the pick on, the pre-tap state included. `mobile-first-layout.md` §5.1.1. |
++| Cottage Index | `TopBar.cottage` | hit `Rect2(536, 4, 88, 88)` (rev 2026-09-30; was 624); kit `cottage_cup` 16×18 art = 64×72 at (548, 12) | Tooltip `HUD_COTTAGE_TIP` as a toast. 50% opacity, 100% for 3 s on a pixel drop. Hidden until `ui.cottageRevealed`, and while the identity chip's name holds the slot (before Q1, and at a round start until the first tap or buy). |
+ | Counter | `TopBar.bank` (`Label`, numeral cut) | box x 196-524, y 8, **centred** | `HUD_BANK`, gold (money), never fades |
+ | Rate line | `TopBar.bps` (`Label`) | box x 188-532, y 52, centred | `HUD_BPS` (frenzy: `HUD_BPS_FRENZY` in the frenzy tint). 100% for 3 s after a change, then 90% (was 60%: on the v4 flag-blue Row A that is 2.9:1; 90% is 4.9:1, review 2026-09-30 U4). Hidden until `ui.rateRevealed`. |
+ | Mute | `TopBar.mute` (`PxButton`) | hit `Rect2(100, 4, 88, 88)`, icon 9×9 art = 36×36 at (126, 30) | a11y `HUD_MUTE` / `HUD_UNMUTE`; muted = slash shape |
+@@ -172,17 +173,17 @@ Everything in §1-§7 is shared by all leaders: every rect, every flex rule and
+ | Place | Key | When |
+ |---|---|---|
+ | The pick tiles and the again button | `leaders[].short` + `party`, `LEADER_PICK_AGAIN` | `LEADER_PICK` |
+-| The round's lower third (toast 1) | `LEADER_PICK_PLATE` "{short} · {party}" | every round start (§8.6) |
++| ~~The round's lower third (toast 1)~~ → **Row A's identity chip** (rev 2026-09-30, A7/B10) | face + `leaders[].short` | the whole round; the name until Q1 and at every round start until the first tap or buy (`mobile-first-layout.md` §5.1.1). `LEADER_PICK_PLATE` stays for the share cards. |
+ | T4 header status line | `DOS_STATUS_LEADER` "{short} · {party}" (box `tall.status`, x 32-616) | always, once T4 is revealed |
+ | T4 "ראשי רשימה" section | `DOS_LEADERS`, `DOS_LEADER_ROUNDS_*`, `DOS_LEADER_TAPS` (§6.3) | after a second leader has been played |
+ | O3 election card | `ELECT_LEADER` under `ELECT_TITLE` | every election |
+ | Share cards (O4 / O5) | the round's leader art + `short` (views, spec §10.1) | — |
+ | Chat | the system lines are **second person** ("יצרת את הקבוצה…", "ניקית את הצ׳אט…"), as a chat app words them for the group's creator: the player *is* this round's leader (D32) | — |
+ 
+-**No persistent HUD label** (a principled omission, not an oversight):
+-- **The figure is the identity:** it is the largest sprite on screen.
+-- **Row A is money and Row B is seats.** A name beside the seat numeral ("בנט · 58/61") reads as a poll, which is exactly the red line.
+-- **The stage has no free slot:** the toast dock is at the top, the leader's hit is in the middle, the Suitcase band is at the bottom, the thermometer is on the left and the cameo/Sara on the right.
++**A persistent identity chip in Row A, never a label on the stage or in Row B** (rev 2026-09-30, D52; was "no persistent HUD label"):
++- **The figure is still the identity**, but the manual test found the round-start name toast over the stage (A7) and Row A's right end empty (B10). The chip (a 64 face + the short name, Row A's right end) answers both, and keeps the identity on screen when T3/T4 cover the stage.
++- **Row A is money and Row B is seats.** A name beside the seat numeral ("בנט · 58/61") still reads as a poll, the red line: the chip is in Row A at the right end, Row B's numeral is at the left end of the other row, and before C2 Row B is not drawn.
++- **The stage still has no free slot:** nothing about the leader's name is drawn on the stage.
+ 
+ **Hazard skin: the court (Bibi) vs the press (everyone else).** The meter, the numbers, the phases and the card geometry (§6.4) are all shared; only the words and two icons change.
+ 
+@@ -569,7 +570,7 @@ Input locks on the commit frame (idempotent, like EVOLVE!). The `leaderPick` sti
+ |---|---|
+ | 0 | Commit. Input locks, the sting plays, and `leader`, `leaderHistory`, `seatDeal`, the fresh-face bonus and `leaderSwitches` are written (spec §6.3). |
+ | 0.52 s | The picker is gone. The leader walks in to the feet point (≤ 600 ms, Animator; reduced motion: appears). **`Ftue.handoff_ms` is set here**: every FTUE clock starts at the pick, not at the HTML hand-off, so a player reading tiles is never counted as idle. |
+-| 0.52 s | Toast 1, the round's lower third: `LEADER_PICK_PLATE` "{short} · {party}" (≥ 3 s). **The undo chip appears.** |
++| 0.52 s | The round's name: **Row A's identity chip** (rev 2026-09-30: was toast 1, `LEADER_PICK_PLATE`, which covered the stage; `mobile-first-layout.md` §5.1.1). **The undo chip appears.** |
+ | ≈ 0.9 s | Dubi arrives (`fly` / `land`; appears under reduced motion) at the right column, feet (644, S−140), which is free at round start. He says `DUBI_LEARNED` (after הפתעה: `LEADER_PICK_RANDOM_LINE`) for 1.6 s. If this leader has been played before (`leaders[id].taps > 0`), he then says their `pick.line` for 1.6 s; a first-timer's line waits for their first tap (D31, `ftue.md` H1L). |
+ | ≈ 4.5 s | Toast 2, **on a switch only:** `LEADER_PICK_FRESH` "פנים חדשות: +10% לבסיס בסבב הבחירות הזה" |
+ | 5.52 s, or the first tap or buy | The undo chip goes |
+@@ -580,7 +581,7 @@ Input locks on the commit frame (idempotent, like EVOLVE!). The `leaderPick` sti
+ 
+ | Property | Value |
+ |---|---|
+-| Where | Stage-local, at the left end of the Suitcase band: visual `Rect2(16, S−96, 392, 80)`, hit `Rect2(8, S−100, 408, 88)`. It is below the leader's hit and the thermometer's hit (both end at S−140) and under the thermometer's state word (it ends at S−100), and in the thumb zone. |
++| Where | **Pre-tap (rev 2026-09-30, B12):** centred in a full-bleed navy bar (`#072a7a`) over the ticker slot, which is free until H1: visual `Rect2(floor4((cw − 392) / 2), 8, 392, 64)` `_lower`-local, hit 408 × 88; the timer runs along the bar's bottom edge (`mobile-first-layout.md` §5.9). **After an election:** stage-local, at the left end of the Suitcase band: visual `Rect2(16, S−96, 392, 80)`, hit `Rect2(8, S−100, 408, 88)`. It is below the leader's hit and the thermometer's hit (both end at S−140) and under the thermometer's state word (it ends at S−100), and in the thumb zone. |
+ | Look | Kit `button_secondary`, `LEADER_PICK_UNDO` "להחליף ראש רשימה" centred (box `pick.undo` 352), and a 2-art-px (8 logical) timer bar along the chip's bottom inner edge that drains left → right over `undoSec` (`mirror`, as the buff chip does). Reduced motion: no bar. |
+ | When | From 0.52 s, for `leaderSelect.pick.undoSec` (5 s) of wall time, only while `runTaps == 0` and nothing has been bought. **After every pick**, not only the first one (D29). |
+ | Tap / `U` | Reopens `LEADER_PICK` (the same variant and order, with focus on the tile just picked) and reverts the pick: `leader`, the fresh bonus, `leaderSwitches` and the `leaderHistory` append. `seatDeal` keeps its seed (spec L4). The leader walks out (reduced motion: disappears). |
+-- 
+2.43.0
+
+
+From 69f6a9399d6968b87c25c793a42896ccb1e405df Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 30 Sep 2026 09:15:10 +0000
+Subject: [PATCH 2/2] chore(od-sevev): wip checkpoint when the session-4 loop
+ was stopped
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UJWVH11egMQ4r4GfyoMb4p
+---
+ tools/web/mobile_web.mjs   |  6 ++++--
+ tools/web/pretap_shots.mjs | 16 ++++++++++++----
+ 2 files changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/tools/web/mobile_web.mjs b/tools/web/mobile_web.mjs
+index 10168a5..be44449 100644
+--- a/tools/web/mobile_web.mjs
++++ b/tools/web/mobile_web.mjs
+@@ -168,7 +168,7 @@ for (const spec of list.split(',')) {
+ 	const refresh = async () => { disp = await page.evaluate(() => window.odDisplay); };
+ 	const shot = async (step) => {
+ 		const p = `${out}/${name}-${step}.png`;
+-		const buf = await page.screenshot({ path: p });
++		const buf = await page.screenshot({ path: p, timeout: 120000 });   // a loaded machine: swiftshader frames can take seconds
+ 		console.log('  shot', p);
+ 		return buf;
+ 	};
+@@ -343,7 +343,9 @@ for (const spec of list.split(',')) {
+ 	pillCheck('bought', await probe());
+ 
+ 	// ---- C1: three kinds of source (the tab bar), then T3 and a paid demand (C2: Row B)
+-	for (let i = 0; i < 8; i++) {
++	// up to 20 rounds (it breaks as soon as the group opens): on a loaded machine the game clock runs
++	// slower than the wall clock (frames over 250 ms), so 60 ₪ after 3 sources can take longer
++	for (let i = 0; i < 20; i++) {
+ 		s = await probe();
+ 		if (s && s.groupOpen) break;
+ 		const rows = ((s && s.shop && s.shop.rows) || []).filter((x) => x[3]);
+diff --git a/tools/web/pretap_shots.mjs b/tools/web/pretap_shots.mjs
+index 74478b5..0fed0fe 100644
+--- a/tools/web/pretap_shots.mjs
++++ b/tools/web/pretap_shots.mjs
+@@ -1,7 +1,7 @@
+ // The pre-tap + HUD slice's screenshots (2026-09-30 manual test, fixes A2/A3/A7/B10/B12): the
+ // first picker, the pre-tap stage with the undo bar (≈ 1 s after the pick) and after it (≈ 7 s),
+-// card 1 (tap 3), and the picker after a forced election (the F9_PICK caption on its plate), at
+-// each device. Shots are saved at half the device size (ImageMagick-free: a 2×2 box filter in JS).
++// card 1 (tap 3), the picker after a forced election (the F9_PICK caption on its plate) and round
++// 2's first second (the new name in Row A, the undo chip in the lane), at each device. Shots are saved at half the device size (ImageMagick-free: a 2×2 box filter in JS).
+ //   node tools/web/pretap_shots.mjs <url> <out dir> [WxH@DPR,...] [leader] [prefix]
+ // Serve build/web first: python3 -m http.server 8833 --directory build/web
+ const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
+@@ -94,8 +94,16 @@ for (const spec of list.split(',')) {
+ 		if (fl && fl.open) { await refresh(); const b = fl.skip && fl.skip[0] >= 0 ? fl.skip : fl.next; await tap(css(b[0], b[1])); }
+ 	}
+ 	await wait(1200);
+-	if (pk && pk.open && pk.variant === 'after') await shot('picker-after');
+-	else { console.log('  FAIL the after-election picker did not open'); failed++; }
++	if (pk && pk.open && pk.variant === 'after') {
++		await shot('picker-after');
++		// round 2 starts: a different leader (the name back in Row A, the undo chip in the lane)
++		await refresh();
++		const other = pk.cells.find((c) => c[2] !== '' && c[2] !== leader) || pk.cells[0];
++		await tap(css(other[0], other[1]));
++		await page.waitForFunction(() => window.odDev && window.odDev.mode === 'main', null, { timeout: 8000 }).catch(() => {});
++		await wait(1300);
++		await shot('round2-start');
++	} else { console.log('  FAIL the after-election picker did not open'); failed++; }
+ 	if (errors.length) { console.log(`  FAIL page errors ${JSON.stringify(errors.slice(0, 3))}`); failed++; }
+ 	await ctx.close();
+ }
+-- 
+2.43.0
+

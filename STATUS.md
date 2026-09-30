@@ -195,6 +195,7 @@ Cross-slice requests go under **Requests** with the owner named.
   - **Checks:** `tools/balance.sh` 5/0 (G1-G4 still pass). `tools/test.sh` 167/1 (the known `test_input.gd::test_buy_a_producer_by_touch`). Content lint and `Politics.validate()` 0 errors.
   - **Open finding:** the clean route's first round is 21:19 (the default's is 7:21), against pitch §10.3's "about 40% slower". It was already 2.3× before this change, and no gate covers it.
   - **Files:** `design/content.json` (+ `game/data/`), `design/progression-curve.md` §0, `design/sim/economy-sim.mjs` (retired banner), `game/scripts/sim/pacing_sim.gd`, `game/tests/bench/test_session.gd`
+- 2026-09-30 · orchestrator (studio) · session 4 stopped by Bar: four wave-A slices (2D Artist+TA; Game Developer ceremony+settings; UX+Dev pre-tap; UX+Dev pane) checkpointed as `handoff-wip/*.commits.patch`, not merged; lock released · `HANDOFF.md`, `HANDOFF-LIVE.md`, `handoff-wip/`
 
 ## Data contract: politics content (game-developer sim → game-designer) — v1 BINDING, v2 withdrawn
 
