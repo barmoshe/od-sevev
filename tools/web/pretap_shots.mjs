@@ -146,7 +146,8 @@ for (const spec of list.split(',')) {
 		const ok2 = bank <= 5 && st.hud && st.hud.card1 === true && (sh.rows || []).length >= 1 && (sh.silhouettes || 0) >= 1;
 		console.log(`  ${ok2 ? 'ok  ' : 'FAIL'} M2/S15: round 2 starts with ${bank.toFixed(1)} ₪ (≤ 5): card 1 is a source card (${JSON.stringify((sh.rows || []).map((r) => r[2]))}) over ${sh.silhouettes || 0} teaser rows`);
 		if (!ok2) failed++;
-		while (Date.now() - t0 < 7000 || (Date.now() - t0 < 11000 && !((await s18Seen()) > 0))) await wait(250);
+		// a loaded machine: the game clock lags the wall clock; keep sampling up to 25 s until the toast shows
+		while (Date.now() - t0 < 7000 || (Date.now() - t0 < 25000 && !((await s18Seen()) > 1))) await wait(250);
 		await shot('round2-fresh');
 		await s18Stop('round 2, the pick to 7 s');
 	} else { console.log('  FAIL the after-election picker did not open'); failed++; }

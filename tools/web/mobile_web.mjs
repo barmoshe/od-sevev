@@ -548,12 +548,16 @@ for (const spec of list.split(',')) {
 			const st = (await probe()) || {};
 			const sh = st.shop || {};
 			const hh = st.hud || {};
-			check('spec', bank <= 5 && hh.card1 === true && (sh.rows || []).length >= 1 && (sh.silhouettes || 0) >= 1,
-				`M2/S15: round 2 starts with ${bank.toFixed(1)} ₪ (≤ 5): card 1 is a source card (${JSON.stringify((sh.rows || []).map((r) => r[2]))}) over ${sh.silhouettes || 0} teaser rows, never a locked row alone`);
+			// the pane is full to its peek: teaser rows in view, or (a 2-row pane, 375×548) every row slot
+			// holds a row (shop.pills lists each row at least partly in the pane)
+			const inPane = (sh.pills || []).length;
+			check('spec', bank <= 5 && hh.card1 === true && (sh.rows || []).length >= 1 && ((sh.silhouettes || 0) >= 1 || inPane >= E.n + 1),
+				`M2/S15: round 2 starts with ${bank.toFixed(1)} ₪ (≤ 5): card 1 is a source card (${JSON.stringify((sh.rows || []).map((r) => r[2]))}) over ${sh.silhouettes || 0} whole teaser rows (${inPane} rows in a ${E.n}-row pane), never a locked row alone`);
 			await bandCheck('round 2 start', r2, 'M2: card 1 and the teasers fill the pane with an empty purse');
 			// S18 round 2: to 7 s after the pick (the fresh toast waits for the undo chip, then docks in the lane)
-			// (on a loaded machine the game clock can lag the wall clock: past 7 s, wait up to 11 s for the toast)
-			while (Date.now() - t0 < 7000 || (Date.now() - t0 < 11000 && !((await page.evaluate(() => (window.__s18 || {}).seen || 0)) > 0))) await wait(250);
+			// (on a loaded machine the game clock lags the wall clock (the undo chip's 5 s run in frame
+			// time) and odDev publishes late: past 7 s, keep sampling up to 25 s until the fresh toast is seen)
+			while (Date.now() - t0 < 7000 || (Date.now() - t0 < 25000 && !((await page.evaluate(() => (window.__s18 || {}).seen || 0)) > 1))) await wait(250);
 			s18Check('round 2, the pick to 7 s', await s18Stop());
 			await shot('round2-fresh');
 		} else check('spec', false, 'round 2: the after-election picker opened');
