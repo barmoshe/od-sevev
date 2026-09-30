@@ -1,4 +1,155 @@
-# HANDOFF: "עוד סבב" (2026-09-30, end of session 4)
+# HANDOFF: "עוד סבב" (2026-09-30, end of session 5)
+
+**For the next agent:** Bar stopped the studio loop and asked for a plain handoff. **Work directly.**
+- Don't run the base67 gamestudio loop, and don't write a `/tmp/gamestudio-loop-active.lock`.
+- No agent is running, and no lock is held.
+- Everything below is on `claude/magical-ride-ntn3u5`, which was pushed.
+- **The live site still serves `d73c206`.** Session 5 did not deploy.
+
+## State at the stop
+
+**Code:** `claude/magical-ride-ntn3u5` holds the four session-4 slices, merged, plus all of session 5's fixes. Its source HEAD for the next deploy is `c935f51`; the handoff commit only adds docs and patches on top.
+- `main` is still behind: fast-forward it at the deploy (step 2).
+- The session-4 patches are merged and deleted from `handoff-wip/`.
+
+**Health at `c935f51`** (this Mac, one run at a time):
+
+| Check | Result |
+|---|---|
+| `tools/test.sh` | 430/430 |
+| `node design/sim/content-lint.mjs --strict` | 0 errors, 0 warnings |
+| Strict `tools/build_web.sh` | green |
+| `tools/web/mobile_web.mjs`, full default matrix | **PASS in one run.** 0/0/0 on all 9 devices: 375×667@2, 390×844@3, 393×852@3, 430×932@3, 360×780@3, 412×915@2.625, frame-1440×900@1, 390×664@3, 375×548@2. Includes S17 (settings reach), S18 (no toast over the leader) and the round-2 M2/S8 checks |
+| `tools/web/motion_web.mjs` | **PASS** (936 s; the old 15-min cap problem is gone) |
+| `round_web` / `picker_web` ×3 each | **NOT RUN.** Stopped at `round_web` run 1 |
+| `tools/balance.sh` | **NOT RUN after M2.** It takes about 95 min here. The Game Developer argues M2's pacing delta is 0 by invariant (`bananas ≤ run_bananas`); the bench was 11/11 before M2 |
+
+## What session 5 did (details in `STATUS.md` and the commit messages)
+**The session-4 merge:**
+- The four patches went in with `git am --3way`.
+- Conflicts were only in `STATUS.md` and `tools/web/mobile_web.mjs`; both sides were kept.
+- The pane slice's deviations were renumbered D51-D55 → **D55-D59**. Pre-tap keeps D51-D54.
+- The generated strings came out identical.
+
+**A6/A8 (settings):**
+- The sheet can rise to Row A, the headers shrink 48→36, then it scrolls (D60, S17).
+- A three-cue switch (D61).
+- **The ON knob sits on the LEFT:** the RTL mirror, rtl-map §7.4 / R6. The dev objected to the old note "knob on the right", and Bar confirmed left.
+
+**The UX merge review:** `ux/review-2026-09-30-merge.md` (M1-M8). Every HANDOFF A/B/D item is closed.
+
+**M1-M5:**
+- toasts dock in the lane band before tap 1 and hold for the undo chip at round 2 (D62/D63, S18);
+- card 1 at every round start (`producers[0].revealAtRunEarned: 0`);
+- the teaser floor rows show silhouette only;
+- the P0 hand points at the tap prop;
+- the after-election undo chip sits on a navy tab.
+
+**D64:** a balanced picker caption break (it fixed an S8 flake at 360×780).
+
+**After-shots:**
+- The fresh `dev2-*` in `ux/manual-test-2026-09-30/fixes/` are the merged build's evidence.
+- `review/*-after.png` are the M1-M5 crops.
+- The `art-*` and `dev1-ceremony-*` shots predate the merge (M6), so don't cite them as proof.
+
+## Next, in order
+
+### 1. Finish verification (quiet machine, one job at a time)
+```
+python3 -m http.server 8872 --directory build/web &
+export PLAYWRIGHT_MODULE=/Users/barmoshe/fretboard-897887/node_modules/playwright/index.mjs
+node tools/web/round_web.mjs  http://127.0.0.1:8872/ <out>/round1    # ×3
+node tools/web/picker_web.mjs http://127.0.0.1:8872/ <out>/picker1   # ×3
+tools/balance.sh                                                     # ~95 min
+```
+- Rebuild first (strict `tools/build_web.sh`) if `build/web` is older than `c935f51`.
+- A runner that does all of this in sequence: see "Environment".
+
+### 2. Deploy #1: this build
+Bar's standing instruction: deploy and push automatically when everything is green.
+1. Run strict `tools/build_web.sh` from `c935f51` (or the branch HEAD; the handoff commit is docs only).
+2. Follow "Deploy" below:
+   - replace the `web-dist` files with `build/web/*` + `tools/web/vercel.json` + `tools/web/.vercelignore` and a README naming the source sha;
+   - commit `chore(od-sevev): web build of <sha> for Vercel` and push `web-dist`;
+   - run the Vercel connector's `create_deployment` from `web-dist`.
+   There's no Vercel CLI on this Mac, and `tools/deploy_web.sh` needs one (`npx vercel` + `vercel login`).
+3. Check https://od-sevev.vercel.app serves the new build.
+4. Fast-forward `main` to the branch and push both.
+
+### 3. Mordechai David + B14 signs: the next slice, deploy #2
+Bar's decisions this session:
+- **B14 = option D'**: handmade kraft cardboard, with ink and flag-blue marker lines.
+- **Mordechai David is IN**: a satirical blocker who walks onto the Balfour stage and stands in front of the protest crowd. This reverses the pitch's "drop".
+- Ship it *after* deploy #1.
+
+Two patches hold the work, based on `eb14e83`, the merge-review commit on this branch:
+```
+git checkout -b s5-mordechai claude/magical-ride-ntn3u5
+git am --3way "handoff-wip/s5-art (B14 D' + Mordechai sprite).patch"      # 2 commits
+git am --3way "handoff-wip/s5-design (Mordechai spec + content).patch"    # 2 commits
+```
+- **Expected conflicts:**
+  - `STATUS.md` (append-only: keep both);
+  - `HANDOFF.md` (keep this session-5 text, and add the design patch's legal-reads line);
+  - generated `game/assets/sprites/sprites.json` / `pipeline/od-sevev/budget.json`: re-run `pipeline/od-sevev/build.py --no-render --godot`, never hand-merge;
+  - `design/content.json` → `tools/sync_data.sh`.
+- **The art patch** (`61a29f8`, `f4431a6`):
+  - the D' signs in `creative-pack/art/src/locations.py` `balfour()` and `art/od-sevev/src/wave7.py`, with the approved showcase `stage_balfour.png` updated;
+  - Mordechai rendered down from Bar's ref (`creative-pack/art/refs/mordechai-david.png`; rig in `creative-pack/art/showcase/src/mordechai.py`).
+  - **His anims:**
+
+    | Anim | Frames | fps | Loop | Events |
+    |---|---|---|---|---|
+    | `idle` | 20 | 10 | yes | — |
+    | `walk` | 8 | 10 | yes | step 0/4 |
+    | `block_in` | 4 | 12 | no | plant 1 |
+    | `block` | 3 | 6 | yes | — |
+    | `glance` | 10 | 10 | no | smirk 4 |
+
+  - Frame sizes: 210×292 at d3, anchor [85,291]; d2 is 141×195 [57,194]. Placement is in `pipeline/od-sevev/CONTRACT.md` §4.
+  - Pipeline: 0 cast drift; tests 421/421 on its base.
+  - The sheet: `creative-pack/art/b14-options/s5-art-sheet-signs-and-mordechai.png`. The options and references: `creative-pack/art/b14-options/B14-options.md`.
+- **The design patch** (`83b73b4`, wip `505ec85`):
+  - the `mordechai` event in `design/content.json`, with effect `none` and `designerEffect: "blockade"` and the flag still false;
+  - facts 73-75 with URLs; fact 47 stays out;
+  - the name in `design/redlines.json` is **narrowed, not lifted**;
+  - the spec `design/mordechai-david-spec.md`: Balfour-only, so a first-round cameo, at most once per save; all 8 leaders with three copy skins; the effect `blockade`, a small cost in every round and never a buff.
+- **To do:**
+  1. **The spec's §6 bench is unfinished** (`RESULTS_PLACEHOLDER`). Implement §7.1's effect, run the leader bench with `flags.mordechaiDavid: true`, and fill in §6. The first-election medians must stay 7-9 min per leader.
+  2. Implement §7.1 (the effect), §7.2 (the presenter; there is no event view today), §7.3 and the §7.4 lint.
+  3. Wire the sprite: walk in from the right edge, `block_in` → `block` hold, `glance`, then walk out, per spec §9 and CONTRACT §4. Draw him **behind** the leader, and never stop him inside art x 66-114.
+  4. **Reconcile the facing.** Spec §2 says "the ref faces screen-left, toward the leader". The artist's sprite faces **screen-right as drawn**, facing the right crowd at feet x 150, and uses `flip_h` for the left crowd at x 28. Check the real frames (the sheet) and fix the spec's line to match the sprite.
+  5. Turn it on (§7.5: `mordechaiDavid: true`). Then run the lint, `test.sh`, the strict build, `mobile_web` (the full matrix) and a forced-event look at 390 and SE.
+  6. Deploy #2 the same way as step 2.
+
+### 4. Bar's calls (don't decide them)
+- **Legal reads**, now including Mordechai David's three facts and copy (spec §14 D1).
+- **Spec §14:**
+  - D2, the dose: Balfour-only, or also the Knesset with a portable crowd;
+  - D3, his orange: keep it, as recommended, or neutralise it.
+- The pre-launch list at the bottom: publisher and mail, domain. Bar said "not yet".
+
+## Environment (this Mac)
+- **Godot:** 4.7.2 at `/usr/local/bin/godot`; `tools/godot.sh` finds it. The export templates are in `~/Library/Application Support/Godot/export_templates/4.7.2.stable`.
+- **Playwright:** `mobile_web.mjs` and friends default to `/opt/node22/...`. Set `PLAYWRIGHT_MODULE=/Users/barmoshe/fretboard-897887/node_modules/playwright/index.mjs` (v1.62.1, which matches the installed chromium-headless-shell).
+- **Run times:**
+
+  | Job | Time |
+  |---|---|
+  | `test.sh` | about 3 min |
+  | strict build | a few min |
+  | full `mobile_web` | about 40 min |
+  | `motion_web` | about 16 min |
+  | `balance.sh` | about 95 min |
+
+  Use a unique http port per job, and never run two browser jobs at once.
+- **The Pillow encoder** on this Mac writes PNGs byte-differently from the repo's. After a pipeline import, restore HEAD bytes for pixel-identical files so the diff only holds real changes.
+
+---
+
+## HANDOFF: "עוד סבב" (2026-09-30, end of session 4)
+
+*Session 4's handoff (superseded where session 5 above says so; its patches are merged).*
 
 No agent is running and the studio loop lock is released. `main` and `claude/magical-ride-ntn3u5` are unchanged since session 3, apart from docs. **Session 4's work is NOT merged:** it is four patches in `handoff-wip/`. The live site still serves build `d73c206`.
 
