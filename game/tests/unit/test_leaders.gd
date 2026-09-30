@@ -401,6 +401,11 @@ func test_ambient_and_headlines_per_leader() -> void:
 	var gids := _ids(Leaders.ambient(g))
 	runner.check(gids.has("tg01") or gids.any(func(x: String) -> bool: return x.begins_with("t")), "Ben Gvir's own ticker")
 	runner.check(not gids.has("r01") and not gids.has("r03"), "no rival ticker about the coalition in a coalition leader's round")
+	var lib := _ids(Leaders.ambient(_round("liberman")))
+	runner.check(not lib.has("x04") and not lib.has("x18") and lib.has("x09"), "a roast aimed at Liberman skips his own round; Lapid's stays")
+	runner.check(not lib.has("x14") and not lib.has("x21"), "'the opposition' lines skip an opposition leader's round (it is his bloc)")
+	runner.check(not ids.has("x02") and ids.has("x04"), "Bennett's round drops the Bennett roast, keeps Liberman's")
+	runner.check(gids.has("x14") and gids.has("x04"), "a coalition leader's round keeps the opposition roasts")
 	var hl := _ids(Leaders.headlines(s))
 	runner.check(not hl.has("h_first_tap") and hl.has("hb_first_tap") and hl.has("hb_t5"), "his headlines replace Bibi's")
 	var h: Dictionary = Leaders.headlines(s).filter(func(x: Dictionary) -> bool: return x["id"] == "hb_first_tap")[0]

@@ -976,7 +976,9 @@ static func headline_hit(s: GameState, t: Dictionary) -> Variant:
 
 ## The round's ambient ticker lines: content ambientHeadlinesV2.list (+ listPolitics when asked),
 ## minus bibiOnly.ambient / ambientPolitics outside his round, plus the leader's kit.ticker and the
-## rivalTicker lines whose rival is a rival card this round (spec §5.8).
+## rivalTicker lines whose rival is a rival card this round (spec §5.8). A shared roast aimed at a
+## person (`target`) skips that person's own round, and the ones aimed at the whole opposition
+## (`target: all`) skip the opposition leaders' rounds, where that bloc is the player's own.
 static func ambient(s: GameState, with_politics: bool = true) -> Array:
 	var v2: Dictionary = Content.data().get("ambientHeadlinesV2", {}) if Content.data().get("ambientHeadlinesV2") is Dictionary else {}
 	var base: Array = Array(v2.get("list", [])) + (Array(v2.get("listPolitics", [])) if with_politics else [])
@@ -984,10 +986,15 @@ static func ambient(s: GameState, with_politics: bool = true) -> Array:
 	if is_default(id):
 		return base
 	var drop := bibi_only("ambient") + bibi_only("ambientPolitics")
+	var opposition := str(leader(id).get("side", "")) == "opposition"
 	var out: Array = []
 	for h: Variant in base:
-		if h is Dictionary and not drop.has(str((h as Dictionary).get("id", ""))):
-			out.append(h)
+		if not h is Dictionary or drop.has(str((h as Dictionary).get("id", ""))):
+			continue
+		var tgt := str((h as Dictionary).get("target", ""))
+		if tgt == id or (tgt == "all" and opposition):
+			continue
+		out.append(h)
 	for t: Variant in kit(id).get("ticker", []):
 		if t is Dictionary:
 			out.append(t)
