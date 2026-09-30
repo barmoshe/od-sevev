@@ -1,6 +1,6 @@
 # binary files changed (not carried):
 diff --git a/tools/web/motion_web.mjs b/tools/web/motion_web.mjs
-index 3dc157b..b4b0592 100644
+index 3dc157b..7c1840e 100644
 --- a/tools/web/motion_web.mjs
 +++ b/tools/web/motion_web.mjs
 @@ -1,17 +1,23 @@
@@ -57,13 +57,14 @@ index 3dc157b..b4b0592 100644
  		const file = `${prefix}-${String(i).padStart(3, '0')}.png`;
  		await o.page.screenshot({ path: file, clip });
  		frames.push({ t: Math.round(t), file });
-@@ -68,35 +75,115 @@ async function strip(o, prefix, rect, n, gapMs = 60) {
+@@ -68,35 +75,117 @@ async function strip(o, prefix, rect, n, gapMs = 60) {
  	return frames;
  }
  
 +// A fresh game opens LEADER_PICK: tap `id`'s tile (window.odDev.pick, viewport logical px).
-+async function pickTile(o, id) {
-+	await o.page.waitForFunction(() => window.odDev && window.odDev.pick && window.odDev.pick.open, null, { timeout: 60000 });
++async function pickTile(o, id, slow = SLOW) {
++	await o.page.waitForFunction(() => window.odDev && window.odDev.pick && window.odDev.pick.open, null, { timeout: 600000 });
++	await o.page.waitForTimeout(400 * slow);   // the picker's 300 ms tap-burst guard, in game time
 +	const s = await o.probe();
 +	const c = (s.pick.cells || []).find((x) => x[2] === id);
 +	if (!c) return false;
@@ -94,7 +95,7 @@ index 3dc157b..b4b0592 100644
 +			// the whole stage: the thermometer, the courthouse window, the Magician and the hat
 +			const stage = [disp.sx ?? disp.ox, disp.stageY + 160, 720, disp.lowerY - disp.stageY - 160];   // the stage column (mobile-first §4.1)
 +			// leader select: a fresh game opens the picker first; the court is Bibi's
-+			await pickTile(o, 'bibi');
++			await pickTile(o, 'bibi', SLOW);
 +			await untilStage(o);
 +			const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
 +			await o.tap(hx, hy, 100);   // title → main; the court day is already running
@@ -149,19 +150,20 @@ index 3dc157b..b4b0592 100644
 +			const { disp } = o;
 +			const stage = stageRect(disp);
 +			// the walk-in: the picker's commit (≈ 520 ms), then 640 ms of walk (RM: a 150 ms fade)
-+			check(await pickTile(o, 'bennett'), 'the picker is open and Bennett\'s tile is tapped');
-+			const inFrames = await strip(o, `${out}/walk-in-${tag}`, stage, reduced ? 60 : 100, 0, WS);
++			check(await pickTile(o, 'bennett', WS), 'the picker is open and Bennett\'s tile is tapped');
++			const inFrames = await strip(o, `${out}/walk-in-${tag}`, stage, reduced ? 24 : 45, 0, WS);
 +			fs.writeFileSync(`${out}/walk-in-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: inFrames }, null, 1));
++			await untilStage(o);
 +			let s = await o.probe();
 +			check(s && s.leader === 'bennett' && s.mode === 'title', `Bennett's round, pre-tap (leader ${s && s.leader}, mode ${s && s.mode})`);
-+			check(inFrames.at(-1).t >= (reduced ? 500 : 1000), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
++			check(inFrames.at(-1).t >= (reduced ? 600 : 1100), `walk-in: ${inFrames.length} frames over ${inFrames.at(-1).t} ms of game time`);
 +			// tap 1 starts the round; then the forced ceremony: 1200 ms to the card's lift, then the walk-out
 +			const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
 +			await o.tap(hx, hy, 8);
 +			await o.page.waitForTimeout(1500);
 +			await o.page.evaluate(() => { window.odDevElect = 1; });
 +			await o.page.waitForTimeout((reduced ? 900 : 1100) * WS);   // ms of game time, under the card
-+			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, reduced ? 50 : 100, 0, WS);
++			const outFrames = await strip(o, `${out}/walk-out-${tag}`, stage, reduced ? 20 : 34, 0, WS);
 +			fs.writeFileSync(`${out}/walk-out-${tag}.json`, JSON.stringify({ k: disp.k, slow: WS, frames: outFrames }, null, 1));
 +			await o.page.waitForFunction(() => window.odDev && (window.odDev.mode === 'pick' || window.odDev.modal !== ''), null, { timeout: 60000 }).catch(() => {});
 +			s = await o.probe();
@@ -177,7 +179,7 @@ index 3dc157b..b4b0592 100644
 +			const tag = `${d.name}${reduced ? '-rm' : ''}`;
 +			console.log(`ticker ${tag}`);
 +			const o = await open(d, `slow=${TS}&grant=50000`, reduced);
-+			check(await pickTile(o, 'deri'), 'Deri\'s tile is tapped');
++			check(await pickTile(o, 'deri', TS), 'Deri\'s tile is tapped');
 +			await untilStage(o);
 +			const [hx, hy] = o.css(o.disp.hat[0], o.disp.hat[1]);
 +			await o.tap(hx, hy, 9);
