@@ -427,7 +427,7 @@ def frame(t):
         c2.alpha_composite(c, (max(0, dx), max(0, dy)), (max(0, -dx), max(0, -dy)))
         c = c2
     overlay(c, INK, 1 - clamp(t / 0.08))
-    overlay(c, INK, clamp((t - (DUR - 0.35)) / 0.35))
+    # no fade-out: the last frame (Mordechai David blocking "בקרוב") is the Reels cover
     return c.convert("RGB")
 
 
@@ -532,8 +532,8 @@ def main():
     p.stdin.close()
     if p.wait() != 0:
         raise SystemExit("ffmpeg failed")
-    # a Reels cover: the eight, the title
-    frame(BT(41.6)).save(os.path.join(OUT, "od-sevev-teaser-2-cover.png"))
+    # the Reels cover is the video's last frame: Mordechai David blocking "coming soon"
+    frame((nf - 1) / FPS).save(os.path.join(OUT, "od-sevev-teaser-2-cover.png"))
     print(video)
 
 
