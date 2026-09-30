@@ -1,4 +1,18 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index 02ac91c..31ca9ec 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -276,6 +276,9 @@ func _read_dev_params() -> void:
+ 		return
+ 	_dev["on"] = true
+ 	_dev["forkscale"] = q.contains("forkscale=1")
++	if q.contains("clear=1"):   # the width rule's sentinel (Diorama.clear_override)
++		Diorama.clear_override = Color("#ff00ff")
++		RenderingServer.set_default_clear_color(Diorama.clear_override)
+ 	if q.contains("sharp=0"):
+ 		PxText.set_sharp_text(get_tree(), false)
+ 	for part in q.trim_prefix("?").split("&"):
 diff --git a/game/scripts/ui/dev_probe.gd b/game/scripts/ui/dev_probe.gd
 index 1aab079..1558947 100644
 --- a/game/scripts/ui/dev_probe.gd
@@ -22,6 +36,31 @@ index 1aab079..1558947 100644
  	var court: CourtView = host.get("court")
  	var ct := court.button_rect("testify").get_center() + o if court.card_visible() else Vector2(-1, -1)
  	out["court"] = {"card": court.card_visible(), "mode": court.mode(), "phase": court.phase(), "testify": [ct.x, ct.y]}
+diff --git a/game/scripts/ui/diorama.gd b/game/scripts/ui/diorama.gd
+index 1623ab4..a19b2c8 100644
+--- a/game/scripts/ui/diorama.gd
++++ b/game/scripts/ui/diorama.gd
+@@ -10,6 +10,9 @@ var ground_y := 0
+ var play_fx: Callable      # func(id: String, x: float, y: float)
+ ## The era's padBottom (sprites.json stages): the floor colour under the stage art.
+ var pad_bottom := Color("#2a2340")
++## Dev only (`?dev=1&clear=1`, tools/web/mobile_web.mjs's width rule): a sentinel clear colour, so
++## any pixel nothing draws (a gap between the chrome, the art or a card and the canvas edge) shows.
++static var clear_override := Color(0, 0, 0, 0)
+ 
+ var _critters: Array[Dictionary] = []
+ var _clouds: Array[Dictionary] = []
+@@ -130,8 +133,8 @@ func set_era(era: Dictionary) -> void:
+ 		t.visible = not has_bg
+ 	# beyond the 180x320 art (wide or very tall screens): the stage's own pad colours
+ 	pad_bottom = Color.html(String(stage.get("padBottom", "#2a2340")))
+-	RenderingServer.set_default_clear_color(Color.html(String(stage.get("padBottom", "#2a2340"))) if has_bg \
+-		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.165, 0.137, 0.251)))
++	RenderingServer.set_default_clear_color(clear_override if clear_override.a > 0.0 else (Color.html(String(stage.get("padBottom", "#2a2340"))) if has_bg \
++		else ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color(0.165, 0.137, 0.251))))
+ 	if has_bg:
+ 		# full-stage art at x4 (first child of _props: above the sky bands, under every prop),
+ 		# placed so its magicianFeet slot (sprites.json, art px) lands on the Magician's feet
 diff --git a/game/scripts/ui/views/view_flash.gd b/game/scripts/ui/views/view_flash.gd
 index 29f8b2b..2e2ac02 100644
 --- a/game/scripts/ui/views/view_flash.gd
@@ -126,6 +165,133 @@ index 5977a79..a52b35c 100644
  		var ins: Array = row["insets"]
  		var sheet := L.floor4(float(row["logical"][1])) - float(ins[0]) - float(ins[1])
  		var a := ShareSheet.preview_scale(sheet - 520.0, float(row["cw"]) - 32.0)
+diff --git a/tools/web/mobile_web.mjs b/tools/web/mobile_web.mjs
+index 09bafc6..2321393 100644
+--- a/tools/web/mobile_web.mjs
++++ b/tools/web/mobile_web.mjs
+@@ -14,6 +14,13 @@
+ //     devices: comma list of WxH@DPR (a phone: touch, isMobile) or frame-WxH@DPR (a desktop window,
+ //     mouse: the shell's 390-CSS phone frame). Default: the spec's matrix (below).
+ //   MOBILE_BASELINE=1  report the spec checks but fail only on the baseline (today's build)
++// The width rule (Bar, 2026-09-30: "make sure the UX/UI fills the phone's width"), kind 'width', on
++// every phone of the matrix: the game runs with `&clear=1`, a sentinel clear colour (#ff00ff) that
++// only shows where nothing is drawn, and the page's own background is set to it too; every shot's
++// left and right 3% columns (1%, 2%, 3% / 97%, 98%, 99%, one row every 8 art px) must never show it:
++// the HUD, the ticker, the pane, the tab bar, the stage with its wings and the plaza reach both
++// edges. Plus: cards keep ≤ 4 art px (16 logical) of gutter per side; the settings sheet and the
++// picker grid span ≥ 92% of the canvas. It keys on "not the background", never on a palette.
+ // Serve build/web first: python3 -m http.server <port> --directory build/web
+ const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
+ const { chromium } = await import(PW);
+@@ -113,7 +120,7 @@ function deadBands(img, k, minArt = 8) {
+ 
+ // ------------------------------------------------------------------ the run
+ const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+-let failedBase = 0, failedSpec = 0;
++let failedBase = 0, failedSpec = 0, failedWidth = 0;
+ const summary = [];
+ for (const spec of list.split(',')) {
+ 	const framed = spec.startsWith('frame-');
+@@ -122,10 +129,10 @@ for (const spec of list.split(',')) {
+ 	const DPR = Number(dprS);
+ 	const name = `${framed ? 'frame-' : ''}${wh}@${DPR}`;
+ 	console.log(`\n${name}`);
+-	const res = { name, base: 0, spec: 0 };
++	const res = { name, base: 0, spec: 0, width: 0 };
+ 	const check = (kind, ok, msg) => {
+ 		console.log(`  ${ok ? 'ok  ' : 'FAIL'} [${kind}] ${msg}`);
+-		if (!ok) { if (kind === 'base') { failedBase++; res.base++; } else { failedSpec++; res.spec++; } }
++		if (!ok) { if (kind === 'base') { failedBase++; res.base++; } else if (kind === 'width') { failedWidth++; res.width++; } else { failedSpec++; res.spec++; } }
+ 	};
+ 	const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: !framed, hasTouch: !framed });
+ 	const page = await ctx.newPage();
+@@ -156,7 +163,23 @@ for (const spec of list.split(',')) {
+ 	// HUD fill #140c24 (an empty, covered Row B slot is never sky); Row B itself once revealed (the
+ 	// whole row is one target); `opts.exempt` replaces the sky interval (the picker).
+ 	const hudFill = [0x14, 0x0c, 0x24];
++	// the width rule: the sentinel background in the edge columns = a gap to the canvas edge
++	const edgeCheck = (step, buf) => {
++		if (!buf || framed) return;
++		const img = readPng(buf);
++		const hits = new Set();
++		for (let y = 0; y < img.h; y += Math.max(1, disp.k * 8)) {
++			for (const fx of [0.01, 0.02, 0.03, 0.97, 0.98, 0.99]) {
++				const x = Math.min(img.w - 1, Math.floor(img.w * fx));
++				const i = (y * img.w + x) * img.bpp;
++				if (Math.abs(img.px[i] - 255) + img.px[i + 1] + Math.abs(img.px[i + 2] - 255) <= 12) hits.add(`${fx < 0.5 ? 'L' : 'R'}${Math.round(y / disp.f)}`);
++			}
++		}
++		const list = [...hits];
++		check('width', list.length === 0, `${step}: the chrome, art and cards reach both canvas edges (no background in the edge 3%)${list.length ? `: ${list.slice(0, 12).join(' ')}${list.length > 12 ? ' …' : ''}` : ''}`);
++	};
+ 	const bandCheck = async (step, buf, why, opts = {}) => {
++		edgeCheck(step, buf);
+ 		if (!buf || framed) return;   // the frame's bezel and page margin are not the game's
+ 		const img = readPng(buf);
+ 		const k = disp.k;             // device px per art px (the screenshot is in device px)
+@@ -179,7 +202,8 @@ for (const spec of list.split(',')) {
+ 		check('spec', bad.length === 0, `${step}: no band of ≥ 8 art px without content outside the stage sky${why ? ` (${why})` : ''}${bad.length ? `: logical y ${bad.join(', ')}` : ''}`);
+ 	};
+ 
+-	await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&grant=500`);
++	await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&grant=500&clear=1`);
++	if (!framed) await page.evaluate(() => { document.documentElement.style.background = '#ff00ff'; document.body.style.background = '#ff00ff'; });
+ 	await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
+ 	await page.click('#od-quiet');
+ 	await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
+@@ -223,6 +247,9 @@ for (const spec of list.split(',')) {
+ 		const wantA = ([...(disp.k % 2 === 0 ? [192] : []), 128, 96, 64]).find((a) => a + 24 <= tw && 3 * (156 + a) + 24 <= avail) || 64;
+ 		check('spec', pk.avatar === wantA, `the avatar is the largest crisp size that fits: ${wantA} (got ${pk.avatar})`);
+ 		const gridTop = Math.min(...pk.cells.map((c) => c[1])) - (th || 0) / 2;
++		const gx0 = Math.min(...pk.cells.map((c) => c[0])) - (pk.tile ? pk.tile[0] : 0) / 2;
++		const gx1 = Math.max(...pk.cells.map((c) => c[0])) + (pk.tile ? pk.tile[0] : 0) / 2;
++		check('width', (gx1 - gx0) >= 0.92 * disp.cw, `the picker grid spans ${Math.round(gx1 - gx0)} of ${disp.cw} (≥ 92%)`);
+ 		await bandCheck('pick', buf, 'grid, strip and foot; the scrimmed stage above the title line is the exempt sky', { exempt: [[0, gridTop - 72]] });
+ 		// pick הפתעה (the centre cell, id "")
+ 		const rnd = pk.cells.find((c) => c[2] === '') || pk.cells[0];
+@@ -284,6 +311,8 @@ for (const spec of list.split(',')) {
+ 		const silh = (s.shop.silhouettes || 0);   // §4.4: the engine publishes the teaser rows it draws
+ 		check('spec', vis + silh >= E.n, `the pane shows ≥ ${E.n} whole rows: cards + silhouettes (got ${vis} cards of ${all.length} + ${silh} silhouettes)`);
+ 		check('spec', partial.every((v) => v <= PEEK + 4), `a cut card shows ≤ ${PEEK} px (the peek), never its pill (partials ${JSON.stringify(partial.map(Math.round))})`);
++		const card = s.shop.card || [0, 0];
++		check('width', card[0] <= 16 + 0.5 && disp.cw - card[1] <= 16 + 0.5, `the cards keep ≤ 4 art px of gutter per side (x ${Math.round(card[0])}-${Math.round(card[1])} of ${disp.cw})`);
+ 	}
+ 	await bandCheck('C1', c1, 'the tab bar is up');
+ 	// T3 (tab slot 3), pay the first demand
+@@ -296,7 +325,7 @@ for (const spec of list.split(',')) {
+ 	for (let t = 0; t < 12 && s && s.chat && !(s.chat.pills || []).some((p) => p[3]); t++) { await wait(1000); s = await probe(); }
+ 	const pill = ((s && s.chat && s.chat.pills) || []).find((p) => p[3]);
+ 	if (pill) { await tap(css(pill[0], pill[1])); await wait(1800); }
+-	await shot('t3-chat');
++	edgeCheck('T3', await shot('t3-chat'));
+ 	await page.keyboard.press('Escape');
+ 	await wait(1200);
+ 	await refresh();
+@@ -305,7 +334,10 @@ for (const spec of list.split(',')) {
+ 	// the settings sheet (gear, Row A left)
+ 	await tap(css(disp.ox + 52, 48));
+ 	await wait(1200);
+-	await shot('settings');
++	edgeCheck('settings', await shot('settings'));
++	s = await probe();
++	const mr = (s && s.modalRect) || [0, 0];
++	check('width', mr[1] >= 0.92 * disp.cw, `the settings sheet spans ${Math.round(mr[1])} of ${disp.cw} (≥ 92%)`);
+ 	await page.keyboard.press('Escape');
+ 	await wait(600);
+ 
+@@ -314,8 +346,8 @@ for (const spec of list.split(',')) {
+ 	await ctx.close();
+ }
+ await browser.close();
+-console.log('\nsummary (failed checks: baseline / spec)');
+-for (const r of summary) console.log(`  ${r.name.padEnd(22)} ${r.base} / ${r.spec}`);
+-const failed = failedBase + (BASELINE_ONLY ? 0 : failedSpec);
+-console.log(failed ? `MOBILE_WEB: ${failedBase} baseline, ${failedSpec} spec FAILED${BASELINE_ONLY ? ' (spec not gating: MOBILE_BASELINE=1)' : ''}` : `MOBILE_WEB: PASS${BASELINE_ONLY && failedSpec ? ` (baseline; ${failedSpec} spec checks open)` : ''}`);
++console.log('\nsummary (failed checks: baseline / spec / width)');
++for (const r of summary) console.log(`  ${r.name.padEnd(22)} ${r.base} / ${r.spec} / ${r.width}`);
++const failed = failedBase + (BASELINE_ONLY ? 0 : failedSpec + failedWidth);
++console.log(failed ? `MOBILE_WEB: ${failedBase} baseline, ${failedSpec} spec, ${failedWidth} width FAILED${BASELINE_ONLY ? ' (spec and width not gating: MOBILE_BASELINE=1)' : ''}` : `MOBILE_WEB: PASS${BASELINE_ONLY && (failedSpec + failedWidth) ? ` (baseline; ${failedSpec} spec, ${failedWidth} width checks open)` : ''}`);
+ process.exit(failed ? 1 : 0);
 diff --git a/tools/web/picker_web.mjs b/tools/web/picker_web.mjs
 index a42fecb..2c1abb4 100644
 --- a/tools/web/picker_web.mjs
