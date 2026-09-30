@@ -1,0 +1,159 @@
+# binary files changed (not carried):
+diff --git a/game/scripts/ui/overlay.gd b/game/scripts/ui/overlay.gd
+index 3f5cfa8..910f3f3 100644
+--- a/game/scripts/ui/overlay.gd
++++ b/game/scripts/ui/overlay.gd
+@@ -30,6 +30,15 @@ var body_focusables: Array[PxButton] = []
+ var _drag := {}
+ var _anim: Dictionary = {}
+ var _drop: Array = []
++## The v4 envelope (style guide §17.2, review U1): a modal drawn as `sheet_modal_body` + the
++## 3-frame `sheet_modal_flap` (sealed, lifting, open = the title band). `frame` is the body; the
++## flap sits over its top 96 (24 art rows). On the open the flap plays f0/f1/f2 at 0/40/80 ms and
++## holds f2; the title and the ✕ (`flap_head`) show from f2. Reduced motion: f2 at once.
++var flap: NinePatchRect
++var flap_head: Array[CanvasItem] = []
++var _flap_t := -1.0
++const FLAP_H := 96.0
++const FLAP_STEP_MS := 40.0
+ 
+ 
+ func _init() -> void:
+@@ -56,6 +65,36 @@ func make_panel(r: Rect2) -> void:
+ 	frame = Ui.nine(panel, r, Art.theme["modal"]["sprite"], int(Art.theme["modal"]["frame"]))
+ 
+ 
++## The envelope sheet at `r` (review U1): the body, then the flap over its top 96, at rest (f2 =
++## `sheet_modal`, pixel for pixel). Without the wave-9 pieces: the one-piece `sheet_modal`.
++## Sets `frame` (the body) and `flap`; the caller draws the title and the ✕ after it.
++func make_envelope(r: Rect2) -> void:
++	panel_rect = r
++	var split := Art.has_sprite("sheet_modal_body") and Art.has_sprite("sheet_modal_flap")
++	frame = Ui.nine(panel, r, Art.sprite_or("sheet_modal_body" if split else "sheet_modal"))
++	flap = Ui.nine(panel, Rect2(r.position, Vector2(r.size.x, FLAP_H)), "sheet_modal_flap", 2) if split else null
++
++
++## The flap's frame by the time since the open (0 sealed, 1 lifting, 2 open).
++static func flap_frame(t_ms: float) -> int:
++	return clampi(int(floorf(t_ms / FLAP_STEP_MS)), 0, 2)
++
++
++func _set_flap(f: int) -> void:
++	if flap != null:
++		Ui.set_nine_frame(flap, "sheet_modal_flap", f)
++	for n: CanvasItem in flap_head:
++		if is_instance_valid(n):
++			n.visible = f >= 2
++
++
++## The flap follows the body's squish (its top edge and width).
++func _sync_flap() -> void:
++	if flap != null and frame != null:
++		flap.position = frame.position
++		flap.size = Vector2(frame.size.x, FLAP_H / 4.0)
++
++
+ func text(pos: Vector2, s: String, sc: int, role: Variant = null) -> PxText:
+ 	return PxText.make(panel, pos, s, sc, "plain", role if role != null else Art.theme["modal"]["body"])
+ 
+@@ -217,6 +256,9 @@ func enter(reduced: bool) -> void:
+ 	panel.modulate.a = 0.0
+ 	scrim.modulate.a = 0.0
+ 	_anim = {"kind": "enter", "t": 0.0, "reduced": reduced}
++	if flap != null:
++		_flap_t = -1.0 if reduced else 0.0
++		_set_flap(2 if reduced else 0)
+ 
+ 
+ func exit(reduced: bool, done: Callable) -> void:
+@@ -226,6 +268,12 @@ func exit(reduced: bool, done: Callable) -> void:
+ 
+ func tick(dt_ms: float) -> void:
+ 	_age += dt_ms
++	if _flap_t >= 0.0:
++		_flap_t += dt_ms
++		var ff := flap_frame(_flap_t)
++		_set_flap(ff)
++		if ff >= 2:
++			_flap_t = -1.0
+ 	if not _anim.is_empty():
+ 		_anim["t"] = float(_anim["t"]) + dt_ms
+ 		var t: float = _anim["t"]
+@@ -245,6 +293,7 @@ func tick(dt_ms: float) -> void:
+ 					panel.position.y = 0.0
+ 					if frame:
+ 						PxButton.squish_nine(frame, panel_rect, 0, 0)
++						_sync_flap()
+ 					panel.modulate.a = 1.0
+ 					scrim.modulate.a = backdrop
+ 					_anim = {}
+@@ -254,6 +303,7 @@ func tick(dt_ms: float) -> void:
+ 					panel.position.y = float(d[0])
+ 					if frame:
+ 						PxButton.squish_nine(frame, panel_rect, float(d[1]), float(d[2]))
++						_sync_flap()
+ 					panel.modulate.a = minf(1.0, 1.0 - pow(1.0 - minf(1.0, t / 100.0), 2.0))
+ 					scrim.modulate.a = backdrop * minf(1.0, 1.0 - pow(1.0 - minf(1.0, t / 200.0), 2.0))
+ 		else:
+diff --git a/game/scripts/ui/views/view_flash.gd b/game/scripts/ui/views/view_flash.gd
+index 231e3e2..b95700b 100644
+--- a/game/scripts/ui/views/view_flash.gd
++++ b/game/scripts/ui/views/view_flash.gd
+@@ -36,7 +36,7 @@ extends Overlay
+ 
+ const CARD_X := 48.0
+ const CARD_W := 624.0
+-const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
++const HEADER_H := 96.0               # the envelope flap (24 art rows, review U1)
+ const SCREEN_X := 72.0
+ const SCREEN_W := 576.0
+ const SCREEN_FRAME := 4.0            # 1 art px of ink around the screen
+@@ -214,8 +214,7 @@ func build() -> FlashCard:
+ 	var y := Ui.snap(maxf(band.x + BAND_MARGIN, band.y - (24.0 - PAD) - h), 4)
+ 	# the panel: the kit's dark sheet (white labels), title band on top
+ 	var g2 := SheetCard.grow_half()   # the width rule: ≥ 92% of the canvas, as the sheet cards
+-	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
+-	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
++	make_envelope(Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h))   # body + flap (review U1)
+ 	var head := text(Vector2(0, y + 24.0), str(lead["title"]) if not lead.is_empty() and str(lead["title"]) != "" else header_text(evolutions), L.TEXT, C_TITLE)
+ 	head.wrap_width = TEXT_W
+ 	head.max_lines = 1
+diff --git a/game/scripts/ui/views/view_sheet_card.gd b/game/scripts/ui/views/view_sheet_card.gd
+index fcc26ed..8d1f3cc 100644
+--- a/game/scripts/ui/views/view_sheet_card.gd
++++ b/game/scripts/ui/views/view_sheet_card.gd
+@@ -20,7 +20,7 @@ extends Overlay
+ 
+ const CARD_X := 48.0
+ const CARD_W := 624.0
+-const HEADER_H := 88.0               # sheet_modal title band (slice top 22 art)
++const HEADER_H := 96.0               # the envelope flap (24 art rows, review U1: the first line clears the point)
+ const TEXT_RIGHT := 640.0            # modal.body box x 80-640
+ const TEXT_W := 560.0
+ const BODY_MAX := 624.0              # mobile-first §4.1: a modal body stays ≤ 624 (≈ 24 glyphs)
+@@ -136,9 +136,14 @@ func finish() -> void:
+ 	var y := Ui.snap(clampf(centre - h / 2.0, lo, maxf(lo, hi - h)), 4)
+ 	var g2 := grow_half()
+ 	_holder.position.x = 0.0
+-	panel_rect = Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h)
+-	frame = Ui.nine(panel, panel_rect, Art.sprite_or("sheet_modal"))
++	# the envelope (review U1, style guide §17.2): body, flap, then the title and the ✕
++	make_envelope(Rect2(CARD_X - g2, y, CARD_W + 2.0 * g2, h))
+ 	panel.move_child(frame, 0)
++	if flap != null:
++		panel.move_child(flap, 1)
++	flap_head.clear()
++	if title_text != null:
++		flap_head.append(title_text)
+ 	_holder.position.y = y
+ 	buttons.clear()
+ 	for sp: Array in _specs:
+@@ -157,7 +162,7 @@ func finish() -> void:
+ 		var sz := Vector2(Art.sprite_size(id)) * 4.0
+ 		var vis := Rect2(CARD_X - g2 + 16.0, y + 16.0, 64.0, 64.0)
+ 		close_btn = PxButton.make(panel, vis, {"hit": Rect2(CARD_X - g2, y, 104.0, 104.0), "ghost": true, "on_commit": _close_cb})
+-		Ui.img(panel, (vis.position + (vis.size - sz) / 2.0).snapped(Vector2(4, 4)), id, 0, 4)
++		flap_head.append(Ui.img(panel, (vis.position + (vis.size - sz) / 2.0).snapped(Vector2(4, 4)), id, 0, 4))
+ 		focusables.append(close_btn)
+ 
+ 
