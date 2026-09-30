@@ -1,4 +1,122 @@
 # binary files changed (not carried):
+diff --git a/game/scripts/main.gd b/game/scripts/main.gd
+index 9d1553c..2232787 100644
+--- a/game/scripts/main.gd
++++ b/game/scripts/main.gd
+@@ -19,6 +19,8 @@ extends Node2D
+ 
+ const STEP_MS := 1000.0 / 60.0
+ const AWAY_GAP_SEC := 2.0          # a wall-clock gap longer than this between frames = time away
++const PICK_LINE_AFTER_LAND_MS := 120.0   # Dubi's pick line: the walk-in's landing + this settle
++const PICK_LINE_GAP_MS := 1700.0         # then the leader's own pick line
+ 
+ var state: GameState
+ var d: Economy.Derived
+@@ -86,6 +88,7 @@ var _last_tap_ms := -1e9            # play-time ms of the last registered tap (S
+ var _sources_sent := -1             # the last owned total sent to the Audio
+ var _progress_ms := 0.0             # set_era_progress throttle
+ var _trick_fired := false           # this election's trickCue (EvolveTx)
++var _after_walk := Callable()       # runs once the leader's walk-out has cleared the stage
+ var _ceremony_on_marker := false    # the Audio emits marker("fanfare", "fanfareEnd")
+ var _settings_existed := false      # the player (or a previous session) saved settings
+ var golden: GoldenView
+@@ -1024,6 +1027,10 @@ func _process(delta: float) -> void:
+ 	# Bibi's court day on the stage (the exit, the hat, the return): polled from the sim's phase
+ 	bb.court_sync(running and BigBanana.wants_court(state), tx.running)
+ 	bb.update_view(dt)
++	if _after_walk.is_valid() and not bb.walking():
++		var after := _after_walk
++		_after_walk = Callable()
++		after.call()
+ 	court_echo.update_view(dt, state, str(Story.era_for(state.evolutions).get("id", "")), running and Leaders.has_court())
+ 	toasts.update_view(dt)
+ 	prop_fx.update_view(dt)
+@@ -2221,21 +2228,39 @@ func _start_evolve() -> void:
+ 			diorama.set_era(era)
+ 			_economy_frozen = false
+ 			_acc = 0.0,
++		# the leader swap (spec §9.3.4): when a pick follows, the old leader walks off screen-right as
++		# the card lifts, so the flash and the picker open on an empty stage
++		"walk": func() -> void:
++			if Leaders.pick_pending(state):
++				bb.walk_out(),
+ 		"hello": func() -> void: bb.hello(),
+ 		"unlock": func() -> void:
+-			_tx_locked = false
+-			overlays.tx_active = false
+-			bb.unlock()
+ 			_audio("evolveTransitionEnd")
+ 			if not _ceremony_on_marker:
+ 				_audio("ceremonyEnd")
+ 			ticker.defer_until(ticker.now_ms() + float(Tune.MC["headlineDeferAfterEvolveMs"]))
+-			ftue.on_tx_done(state, Economy.derive(state))
+-			_show_story_beat()
+-			_save_now(),
++			# input stays locked until the walk-out has cleared the stage (≤ 260 ms past the card:
++			# motion/state-graph-magician.md §9); the flash, the FTUE and the picker follow it
++			if bb.walking():
++				_after_walk = _tx_release
++			else:
++				_tx_release(),
+ 	})
+ 
+ 
++## The end of EVOLVE_TX once the stage is clear: input unlocks, the FTUE and the story beat (O3b)
++## follow; the picker opens by its own rule on the next frame. A walked-off figure stays locked
++## until the pick puts the next leader on the stage.
++func _tx_release() -> void:
++	_tx_locked = false
++	overlays.tx_active = false
++	if not bb.walked_off():
++		bb.unlock()
++	ftue.on_tx_done(state, Economy.derive(state))
++	_show_story_beat()
++	_save_now()
++
++
+ # ================================================================== persistence
+ 
+ func _mark_dirty() -> void:
+@@ -2299,29 +2324,32 @@ func _on_pick_commit(id: String, via: String) -> bool:
+ 	return true
+ 
+ 
+-## ≈ 520 ms after the commit (PickView.on_done): the leader walks in (appears; the walk is the
+-## Animator's), the lower third, Dubi's line, the fresh toast and the 5 s undo chip (rtl-map §8.6).
++## ≈ 520 ms after the commit (PickView.on_done): the leader walks in from screen-left to the feet
++## point (LeaderWalk, 640 ms; reduced motion a 150 ms fade on the mark), the lower third, Dubi's line
++## once he has landed, the fresh toast and the 5 s undo chip (rtl-map §8.6).
+ func _on_pick_done() -> void:
+ 	picker.publish_closed()
++	bb.modulate.a = 1.0
+ 	bb.set_leader(LeaderUi.art(), LeaderUi.tap())
++	bb.walk_in()
+ 	bb.unlock()
+ 	var first := state.evolutions == 0 and state.taps_lifetime == 0
+ 	_set_mode("title" if first else "main", not first)
+ 	if not first:
+ 		_audio_call("start_music", [])
+-	bb.modulate.a = 0.0 if not settings["reducedMotion"] else 1.0
+-	if not settings["reducedMotion"]:
+-		create_tween().tween_property(bb, "modulate:a", 1.0, 0.25)
+ 	ftue.on_input()   # rtl-map §8.6: every FTUE clock starts at the pick
+ 	var id := Leaders.current(state)
+ 	toasts.show_toast(Strings.s("LEADER_PICK_PLATE", {"short": LeaderUi.short(id), "party": LeaderUi.party(id)}))
+ 	var dubi_at := Vector2(644, L.stage_bottom() - 232.0)
+ 	var random := str(_pick_res.get("via", "")) == "random"
+-	_pick_seq = [{"at": _now + 380.0, "fn": func() -> void:
++	# Dubi's bubble follows the landing (a 120 ms settle after the walk, so the eye is on the still
++	# figure when the line pops); the leader's own line 1.7 s after it, as before
++	var at := _now + bb.walk_left_ms() + PICK_LINE_AFTER_LAND_MS
++	_pick_seq = [{"at": at, "fn": func() -> void:
+ 		toasts.say(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at, 1600.0)}]
+ 	var line := str(Leaders.leader(id).get("pick", {}).get("line", "")) if Leaders.leader(id).get("pick") is Dictionary else ""
+ 	if Leaders.stat(state, id, "taps") > 0.0 and line != "":
+-		_pick_seq.append({"at": _now + 2080.0, "fn": func() -> void: toasts.say(line, dubi_at, 1600.0)})
++		_pick_seq.append({"at": at + PICK_LINE_GAP_MS, "fn": func() -> void: toasts.say(line, dubi_at, 1600.0)})
+ 	if _pick_res.get("fresh", false) == true:
+ 		toasts.show_toast(Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}))
+ 	var pk: Variant = Leaders.ls().get("pick", {})
 diff --git a/game/scripts/ui/big_banana.gd b/game/scripts/ui/big_banana.gd
 index 43b06f8..601339e 100644
 --- a/game/scripts/ui/big_banana.gd
@@ -205,6 +323,69 @@ index 43b06f8..601339e 100644
  	var dir := court.travel_dir()
  	for i in _smears.size():
  		var g := _smears[i]
+diff --git a/game/scripts/ui/evolve_tx.gd b/game/scripts/ui/evolve_tx.gd
+index 080af7a..62cd9f3 100644
+--- a/game/scripts/ui/evolve_tx.gd
++++ b/game/scripts/ui/evolve_tx.gd
+@@ -50,14 +50,17 @@ func _tx_text(y: float, t: String, col: Variant) -> PxText:
+ 	return p
+ 
+ 
+-## info: {round (the new round's number), multBefore, multAfter, gained, era}; cb: {seam, hello,
+-## unlock} Callables. A caller without `round` gets the old species title.
++## info: {round (the new round's number), multBefore, multAfter, gained, era}; cb: {seam, walk, hello,
++## unlock} Callables. A caller without `round` gets the old species title. `walk` fires when the card
++## starts to lift (the fade-in's f0; reduced motion: the cross-fade out's f0): the leader swap's
++## walk-out (spec §9.3.4, motion/state-graph-magician.md §9) starts there, so the lifting card reveals
++## the new round's stage with the old leader setting off.
+ func start(info: Dictionary, reduced: bool, cb: Dictionary) -> void:
+ 	_reduced = reduced
+ 	_cb = cb
+ 	_t = 0.0
+ 	running = true
+-	_fired = {"seam": false, "hello": false, "unlock": false}
++	_fired = {"seam": false, "walk": false, "hello": false, "unlock": false}
+ 	visible = true
+ 	modulate.a = 1.0
+ 	var X: Dictionary = Art.theme["evolveTx"]
+@@ -146,6 +149,8 @@ func _update_full(t: float) -> void:
+ 		_mult.px = sc
+ 		_mult.center_in(0, L.W)
+ 		_mult.position.y = MULT_Y - Ui.snap((9.0 * float(sc - L.TEXT)) / 2.0, 4)
++	if t >= card_end:
++		_fire("walk")
+ 	if t >= card_end + fade_in / 3.0:
+ 		_fire("hello")
+ 	if t >= total:
+@@ -160,6 +165,8 @@ func _update_reduced(t: float) -> void:
+ 	_card.modulate.a = a
+ 	if t >= xfade:
+ 		_fire("seam")
++	if t >= card_end:
++		_fire("walk")
+ 	_set_texts(t >= xfade and t < total, t >= MULT_MS and t < total)
+ 	_text_alpha(a if t >= card_end else 1.0)
+ 	_species.position.y = SPECIES_Y
+@@ -174,4 +181,19 @@ func _update_reduced(t: float) -> void:
+ func _finish() -> void:
+ 	running = false
+ 	visible = false
++	_fire("walk")   # a caller that skipped ahead still gets it, before the unlock
+ 	_fire("unlock")
++
++
++## When the card starts to lift, in ms from the start: the walk-out's cue.
++func walk_ms(reduced: bool) -> float:
++	if reduced:
++		return 200.0 + float(Tune.T["evolveTitleCardMs"])
++	return float(Tune.T["evolveFadeOutMs"]) + float(Tune.T["evolveTitleCardMs"])
++
++
++## The whole transition in ms.
++func total_ms(reduced: bool) -> float:
++	if reduced:
++		return 400.0 + float(Tune.T["evolveTitleCardMs"])
++	return float(Tune.T["evolveFadeOutMs"]) + float(Tune.T["evolveTitleCardMs"]) + float(Tune.T["evolveFadeInMs"])
 diff --git a/game/scripts/ui/leader_walk.gd b/game/scripts/ui/leader_walk.gd
 index 1d7eb62..0375cd0 100644
 --- a/game/scripts/ui/leader_walk.gd
