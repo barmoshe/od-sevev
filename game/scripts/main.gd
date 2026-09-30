@@ -2200,6 +2200,7 @@ func _start_evolve(dev_force := false) -> void:
 		# ceremony without the 61 gate, for the leader swap's frame strips. The round is not paid.
 		nxt = state.duplicate_state()
 		nxt.evolutions += 1
+		nxt.run_taps = 0   # as Economy.evolve's run reset: the next round is untouched, so the pick is open
 		Politics.on_election(nxt)
 		res = {"multBefore": d.prestige_mult, "multAfter": d.prestige_mult, "gained": 0}
 	if res.is_empty():
