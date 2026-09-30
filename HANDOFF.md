@@ -73,6 +73,15 @@ The layout holds on a real device inside an in-app browser with its own top and 
 22. **The HUD's right side is empty,** confirming item 10.
 23. **Pink protest signs,** confirming item 14.
 
+### E. Images to generate in ChatGPT
+The full list, with prompts and rules, is in **`creative-pack/art/CHATGPT-REQUESTS.md`**. In short:
+- **Must-have** (today a silhouette):
+  - אלמוג כהן;
+  - the four generic MKs (switcher, undecided, offer, returner);
+  - the aide.
+- **Worth doing** (chunky 1× next to the crisp cast): the submarine, the poison machine, the golden chequebook, the generic donor, the budget binder.
+- **Optional:** Bibi's hat and rabbit as a hi-res ref.
+
 ### C. Verification still open
 16. Re-run on an idle machine:
     - `tools/web/motion_web.mjs` (it hit a 15-min cap after the walk-out at `slow=40`);
@@ -253,7 +262,7 @@ On Bar's Mac, `OD_VERCEL_PROJECT=od-sevev tools/deploy_web.sh` still works with 
   - בן גביר as a playable protagonist;
   - the brawl and Illouz lines stay reported speech.
 - **Device checks:** on a real iPhone, check the share sheet (only the download/clipboard fallback was browser-tested) and listen to the HaTikva-based audio.
-- **Art wanted from ChatGPT:** `almog` (he shows the no-photo silhouette), `aide`, `mk-generic`. Tell the TA if you want Bibi's hat and rabbit at 3× (it needs a cast re-render).
+- **Art wanted from ChatGPT:** see `creative-pack/art/CHATGPT-REQUESTS.md` (12 images, with prompts). Tell the TA if you want Bibi's hat and rabbit at 3× (it needs a cast re-render).
 - **Old flags:** decide the Mordechai David and Yair flags (off by default).
 - **Pro Max pixel scale:** the orchestrator chose to drop k 7 to 6 (crisp, about 14% smaller), part of Bar's "sharp on every phone" request. Revert the crisp-k rule in `display.gd` if you'd rather have the bigger, softer picture.
 - **App icon:** it is now the ring of eight heads. Revert `art/od-sevev/out/key/icon-128-art.png` and re-run the pipeline if you prefer the old one.
