@@ -1,4 +1,58 @@
 # binary files changed (not carried):
+#   game/assets/sprites/avatar24_abbas.png
+#   game/assets/sprites/avatar24_amsalem.png
+#   game/assets/sprites/avatar24_ben-gvir.png
+#   game/assets/sprites/avatar24_bennett.png
+#   game/assets/sprites/avatar24_bibi.png
+#   game/assets/sprites/avatar24_deri.png
+#   game/assets/sprites/avatar24_eisenkot.png
+#   game/assets/sprites/avatar24_gafni.png
+#   game/assets/sprites/avatar24_gantz.png
+#   game/assets/sprites/avatar24_goldknopf.png
+#   game/assets/sprites/avatar24_gotliv.png
+#   game/assets/sprites/avatar24_lapid.png
+#   game/assets/sprites/avatar24_levin.png
+#   game/assets/sprites/avatar24_liberman.png
+#   game/assets/sprites/avatar24_regev.png
+#   game/assets/sprites/avatar24_sara.png
+#   game/assets/sprites/avatar24_smotrich.png
+#   game/assets/sprites/avatar_abbas.png
+#   game/assets/sprites/avatar_amsalem.png
+#   game/assets/sprites/avatar_ben-gvir.png
+#   game/assets/sprites/avatar_bennett.png
+#   game/assets/sprites/avatar_bibi.png
+#   game/assets/sprites/avatar_deri.png
+#   game/assets/sprites/avatar_eisenkot.png
+#   game/assets/sprites/avatar_gafni.png
+#   game/assets/sprites/avatar_gantz.png
+#   game/assets/sprites/avatar_goldknopf.png
+#   game/assets/sprites/avatar_gotliv.png
+#   game/assets/sprites/avatar_lapid.png
+#   game/assets/sprites/avatar_levin.png
+#   game/assets/sprites/avatar_liberman.png
+#   game/assets/sprites/avatar_regev.png
+#   game/assets/sprites/avatar_sara.png
+#   game/assets/sprites/avatar_smotrich.png
+#   game/assets/sprites/prop_bill.png
+#   game/assets/sprites/prop_coin0.png
+#   game/assets/sprites/prop_coin1.png
+#   game/assets/sprites/prop_coin2.png
+#   game/assets/sprites/prop_coin3.png
+#   game/assets/sprites/prop_hat.png
+#   game/assets/sprites/prop_rabbit.png
+#   game/assets/sprites/prop_spark.png
+#   game/assets/sprites/source_cigars_icon.png
+#   game/assets/sprites/source_cigars_icon_sil.png
+#   game/assets/sprites/source_hitech_icon.png
+#   game/assets/sprites/source_hitech_icon_sil.png
+#   game/assets/sprites/source_qatari_icon.png
+#   game/assets/sprites/source_qatari_icon_sil.png
+#   game/assets/sprites/source_taxpayer_icon.png
+#   game/assets/sprites/source_taxpayer_icon_sil.png
+#   game/assets/sprites/source_vat_icon.png
+#   game/assets/sprites/source_vat_icon_sil.png
+#   game/assets/sprites/stage_courthouse.png
+#   game/assets/sprites/stage_knesset.png
 #   pipeline/od-sevev/proofs/font-density2.png
 diff --git a/art/od-sevev/src/build_all.py b/art/od-sevev/src/build_all.py
 index cca0858..7a9b0f4 100644
@@ -152,8 +206,164 @@ index 971b80b..39d9107 100644
    {
     "id": "sheet_plain",
     "group": "sheet",
+diff --git a/game/assets/sprites/avatar24_abbas.png b/game/assets/sprites/avatar24_abbas.png
+index 292cd99..a175679 100644
+Binary files a/game/assets/sprites/avatar24_abbas.png and b/game/assets/sprites/avatar24_abbas.png differ
+diff --git a/game/assets/sprites/avatar24_amsalem.png b/game/assets/sprites/avatar24_amsalem.png
+index 7134fcf..7e50c82 100644
+Binary files a/game/assets/sprites/avatar24_amsalem.png and b/game/assets/sprites/avatar24_amsalem.png differ
+diff --git a/game/assets/sprites/avatar24_ben-gvir.png b/game/assets/sprites/avatar24_ben-gvir.png
+index fc46b93..9cecde7 100644
+Binary files a/game/assets/sprites/avatar24_ben-gvir.png and b/game/assets/sprites/avatar24_ben-gvir.png differ
+diff --git a/game/assets/sprites/avatar24_bennett.png b/game/assets/sprites/avatar24_bennett.png
+index 2fcf835..3fea192 100644
+Binary files a/game/assets/sprites/avatar24_bennett.png and b/game/assets/sprites/avatar24_bennett.png differ
+diff --git a/game/assets/sprites/avatar24_bibi.png b/game/assets/sprites/avatar24_bibi.png
+index 6af4f94..eec4848 100644
+Binary files a/game/assets/sprites/avatar24_bibi.png and b/game/assets/sprites/avatar24_bibi.png differ
+diff --git a/game/assets/sprites/avatar24_deri.png b/game/assets/sprites/avatar24_deri.png
+index 0553c6b..cad7035 100644
+Binary files a/game/assets/sprites/avatar24_deri.png and b/game/assets/sprites/avatar24_deri.png differ
+diff --git a/game/assets/sprites/avatar24_eisenkot.png b/game/assets/sprites/avatar24_eisenkot.png
+index ee84e37..17e5273 100644
+Binary files a/game/assets/sprites/avatar24_eisenkot.png and b/game/assets/sprites/avatar24_eisenkot.png differ
+diff --git a/game/assets/sprites/avatar24_gafni.png b/game/assets/sprites/avatar24_gafni.png
+index f01709d..d8abf4a 100644
+Binary files a/game/assets/sprites/avatar24_gafni.png and b/game/assets/sprites/avatar24_gafni.png differ
+diff --git a/game/assets/sprites/avatar24_gantz.png b/game/assets/sprites/avatar24_gantz.png
+index 7292b57..fe0963f 100644
+Binary files a/game/assets/sprites/avatar24_gantz.png and b/game/assets/sprites/avatar24_gantz.png differ
+diff --git a/game/assets/sprites/avatar24_goldknopf.png b/game/assets/sprites/avatar24_goldknopf.png
+index d827d2e..15844c9 100644
+Binary files a/game/assets/sprites/avatar24_goldknopf.png and b/game/assets/sprites/avatar24_goldknopf.png differ
+diff --git a/game/assets/sprites/avatar24_gotliv.png b/game/assets/sprites/avatar24_gotliv.png
+index 2be9824..514d468 100644
+Binary files a/game/assets/sprites/avatar24_gotliv.png and b/game/assets/sprites/avatar24_gotliv.png differ
+diff --git a/game/assets/sprites/avatar24_lapid.png b/game/assets/sprites/avatar24_lapid.png
+index 5f990aa..5fe5342 100644
+Binary files a/game/assets/sprites/avatar24_lapid.png and b/game/assets/sprites/avatar24_lapid.png differ
+diff --git a/game/assets/sprites/avatar24_levin.png b/game/assets/sprites/avatar24_levin.png
+index 37be496..32834db 100644
+Binary files a/game/assets/sprites/avatar24_levin.png and b/game/assets/sprites/avatar24_levin.png differ
+diff --git a/game/assets/sprites/avatar24_liberman.png b/game/assets/sprites/avatar24_liberman.png
+index 2493bd1..25c7325 100644
+Binary files a/game/assets/sprites/avatar24_liberman.png and b/game/assets/sprites/avatar24_liberman.png differ
+diff --git a/game/assets/sprites/avatar24_regev.png b/game/assets/sprites/avatar24_regev.png
+index 40c9609..5dc12b0 100644
+Binary files a/game/assets/sprites/avatar24_regev.png and b/game/assets/sprites/avatar24_regev.png differ
+diff --git a/game/assets/sprites/avatar24_sara.png b/game/assets/sprites/avatar24_sara.png
+index d2203ab..2d39d16 100644
+Binary files a/game/assets/sprites/avatar24_sara.png and b/game/assets/sprites/avatar24_sara.png differ
+diff --git a/game/assets/sprites/avatar24_smotrich.png b/game/assets/sprites/avatar24_smotrich.png
+index 821c8b0..6c5241a 100644
+Binary files a/game/assets/sprites/avatar24_smotrich.png and b/game/assets/sprites/avatar24_smotrich.png differ
+diff --git a/game/assets/sprites/avatar_abbas.png b/game/assets/sprites/avatar_abbas.png
+index ea1b196..a5bcac2 100644
+Binary files a/game/assets/sprites/avatar_abbas.png and b/game/assets/sprites/avatar_abbas.png differ
+diff --git a/game/assets/sprites/avatar_amsalem.png b/game/assets/sprites/avatar_amsalem.png
+index 21c8a3f..f447c83 100644
+Binary files a/game/assets/sprites/avatar_amsalem.png and b/game/assets/sprites/avatar_amsalem.png differ
+diff --git a/game/assets/sprites/avatar_ben-gvir.png b/game/assets/sprites/avatar_ben-gvir.png
+index 96c18d2..f563c29 100644
+Binary files a/game/assets/sprites/avatar_ben-gvir.png and b/game/assets/sprites/avatar_ben-gvir.png differ
+diff --git a/game/assets/sprites/avatar_bennett.png b/game/assets/sprites/avatar_bennett.png
+index 8004662..45b73e2 100644
+Binary files a/game/assets/sprites/avatar_bennett.png and b/game/assets/sprites/avatar_bennett.png differ
+diff --git a/game/assets/sprites/avatar_bibi.png b/game/assets/sprites/avatar_bibi.png
+index 1c47115..6a6ac8c 100644
+Binary files a/game/assets/sprites/avatar_bibi.png and b/game/assets/sprites/avatar_bibi.png differ
+diff --git a/game/assets/sprites/avatar_deri.png b/game/assets/sprites/avatar_deri.png
+index 7de2f8f..c718e64 100644
+Binary files a/game/assets/sprites/avatar_deri.png and b/game/assets/sprites/avatar_deri.png differ
+diff --git a/game/assets/sprites/avatar_eisenkot.png b/game/assets/sprites/avatar_eisenkot.png
+index 3c95082..d0e9830 100644
+Binary files a/game/assets/sprites/avatar_eisenkot.png and b/game/assets/sprites/avatar_eisenkot.png differ
+diff --git a/game/assets/sprites/avatar_gafni.png b/game/assets/sprites/avatar_gafni.png
+index 30bb698..568d77a 100644
+Binary files a/game/assets/sprites/avatar_gafni.png and b/game/assets/sprites/avatar_gafni.png differ
+diff --git a/game/assets/sprites/avatar_gantz.png b/game/assets/sprites/avatar_gantz.png
+index 5f79020..6f61277 100644
+Binary files a/game/assets/sprites/avatar_gantz.png and b/game/assets/sprites/avatar_gantz.png differ
+diff --git a/game/assets/sprites/avatar_goldknopf.png b/game/assets/sprites/avatar_goldknopf.png
+index dcc1284..1dd89ba 100644
+Binary files a/game/assets/sprites/avatar_goldknopf.png and b/game/assets/sprites/avatar_goldknopf.png differ
+diff --git a/game/assets/sprites/avatar_gotliv.png b/game/assets/sprites/avatar_gotliv.png
+index 4675a3a..a936926 100644
+Binary files a/game/assets/sprites/avatar_gotliv.png and b/game/assets/sprites/avatar_gotliv.png differ
+diff --git a/game/assets/sprites/avatar_lapid.png b/game/assets/sprites/avatar_lapid.png
+index eb035fc..c2f9b21 100644
+Binary files a/game/assets/sprites/avatar_lapid.png and b/game/assets/sprites/avatar_lapid.png differ
+diff --git a/game/assets/sprites/avatar_levin.png b/game/assets/sprites/avatar_levin.png
+index d12d8d6..0adb2fc 100644
+Binary files a/game/assets/sprites/avatar_levin.png and b/game/assets/sprites/avatar_levin.png differ
+diff --git a/game/assets/sprites/avatar_liberman.png b/game/assets/sprites/avatar_liberman.png
+index 0376f7e..4c2dba0 100644
+Binary files a/game/assets/sprites/avatar_liberman.png and b/game/assets/sprites/avatar_liberman.png differ
+diff --git a/game/assets/sprites/avatar_regev.png b/game/assets/sprites/avatar_regev.png
+index 546181c..b1976c9 100644
+Binary files a/game/assets/sprites/avatar_regev.png and b/game/assets/sprites/avatar_regev.png differ
+diff --git a/game/assets/sprites/avatar_sara.png b/game/assets/sprites/avatar_sara.png
+index 52d0d4b..fd46b3b 100644
+Binary files a/game/assets/sprites/avatar_sara.png and b/game/assets/sprites/avatar_sara.png differ
+diff --git a/game/assets/sprites/avatar_smotrich.png b/game/assets/sprites/avatar_smotrich.png
+index 64ddf6c..e8bc35a 100644
+Binary files a/game/assets/sprites/avatar_smotrich.png and b/game/assets/sprites/avatar_smotrich.png differ
+diff --git a/game/assets/sprites/prop_bill.png b/game/assets/sprites/prop_bill.png
+index fc73cce..6077dc5 100644
+Binary files a/game/assets/sprites/prop_bill.png and b/game/assets/sprites/prop_bill.png differ
+diff --git a/game/assets/sprites/prop_coin0.png b/game/assets/sprites/prop_coin0.png
+index 5d353f3..af9f6ba 100644
+Binary files a/game/assets/sprites/prop_coin0.png and b/game/assets/sprites/prop_coin0.png differ
+diff --git a/game/assets/sprites/prop_coin1.png b/game/assets/sprites/prop_coin1.png
+index 4c4f23c..97d6bd7 100644
+Binary files a/game/assets/sprites/prop_coin1.png and b/game/assets/sprites/prop_coin1.png differ
+diff --git a/game/assets/sprites/prop_coin2.png b/game/assets/sprites/prop_coin2.png
+index d749901..d05f60c 100644
+Binary files a/game/assets/sprites/prop_coin2.png and b/game/assets/sprites/prop_coin2.png differ
+diff --git a/game/assets/sprites/prop_coin3.png b/game/assets/sprites/prop_coin3.png
+index ad510e2..238e6ed 100644
+Binary files a/game/assets/sprites/prop_coin3.png and b/game/assets/sprites/prop_coin3.png differ
+diff --git a/game/assets/sprites/prop_hat.png b/game/assets/sprites/prop_hat.png
+index b82c8bc..1c9da5b 100644
+Binary files a/game/assets/sprites/prop_hat.png and b/game/assets/sprites/prop_hat.png differ
+diff --git a/game/assets/sprites/prop_rabbit.png b/game/assets/sprites/prop_rabbit.png
+index 5498473..8bb5317 100644
+Binary files a/game/assets/sprites/prop_rabbit.png and b/game/assets/sprites/prop_rabbit.png differ
+diff --git a/game/assets/sprites/prop_spark.png b/game/assets/sprites/prop_spark.png
+index c1261ed..ff9c580 100644
+Binary files a/game/assets/sprites/prop_spark.png and b/game/assets/sprites/prop_spark.png differ
+diff --git a/game/assets/sprites/source_cigars_icon.png b/game/assets/sprites/source_cigars_icon.png
+index 0a62f25..f082c2d 100644
+Binary files a/game/assets/sprites/source_cigars_icon.png and b/game/assets/sprites/source_cigars_icon.png differ
+diff --git a/game/assets/sprites/source_cigars_icon_sil.png b/game/assets/sprites/source_cigars_icon_sil.png
+index d3ec195..2d7a25b 100644
+Binary files a/game/assets/sprites/source_cigars_icon_sil.png and b/game/assets/sprites/source_cigars_icon_sil.png differ
+diff --git a/game/assets/sprites/source_hitech_icon.png b/game/assets/sprites/source_hitech_icon.png
+index 95018f2..ab74546 100644
+Binary files a/game/assets/sprites/source_hitech_icon.png and b/game/assets/sprites/source_hitech_icon.png differ
+diff --git a/game/assets/sprites/source_hitech_icon_sil.png b/game/assets/sprites/source_hitech_icon_sil.png
+index aad1c6f..1ce35e0 100644
+Binary files a/game/assets/sprites/source_hitech_icon_sil.png and b/game/assets/sprites/source_hitech_icon_sil.png differ
+diff --git a/game/assets/sprites/source_qatari_icon.png b/game/assets/sprites/source_qatari_icon.png
+index 33afb74..e9b7ca5 100644
+Binary files a/game/assets/sprites/source_qatari_icon.png and b/game/assets/sprites/source_qatari_icon.png differ
+diff --git a/game/assets/sprites/source_qatari_icon_sil.png b/game/assets/sprites/source_qatari_icon_sil.png
+index 44baea9..8fb9ca2 100644
+Binary files a/game/assets/sprites/source_qatari_icon_sil.png and b/game/assets/sprites/source_qatari_icon_sil.png differ
+diff --git a/game/assets/sprites/source_taxpayer_icon.png b/game/assets/sprites/source_taxpayer_icon.png
+index 143f03c..64a8894 100644
+Binary files a/game/assets/sprites/source_taxpayer_icon.png and b/game/assets/sprites/source_taxpayer_icon.png differ
+diff --git a/game/assets/sprites/source_taxpayer_icon_sil.png b/game/assets/sprites/source_taxpayer_icon_sil.png
+index 92dd1f7..991e359 100644
+Binary files a/game/assets/sprites/source_taxpayer_icon_sil.png and b/game/assets/sprites/source_taxpayer_icon_sil.png differ
+diff --git a/game/assets/sprites/source_vat_icon.png b/game/assets/sprites/source_vat_icon.png
+index 0806986..eca8fc2 100644
+Binary files a/game/assets/sprites/source_vat_icon.png and b/game/assets/sprites/source_vat_icon.png differ
+diff --git a/game/assets/sprites/source_vat_icon_sil.png b/game/assets/sprites/source_vat_icon_sil.png
+index 3c10e48..3fdcd85 100644
+Binary files a/game/assets/sprites/source_vat_icon_sil.png and b/game/assets/sprites/source_vat_icon_sil.png differ
 diff --git a/game/assets/sprites/sprites.json b/game/assets/sprites/sprites.json
-index d319756..8571cf2 100644
+index d319756..50997ed 100644
 --- a/game/assets/sprites/sprites.json
 +++ b/game/assets/sprites/sprites.json
 @@ -12480,6 +12480,58 @@
@@ -215,6 +425,440 @@ index d319756..8571cf2 100644
    "sheet_plain": {
     "id": "sheet_plain",
     "group": "sheet",
+@@ -13349,48 +13401,48 @@
+  },
+  "files": {
+   "avatar24_abbas.png": {
+-   "bytes": 956,
+-   "sha": "fdeccec44e8a210d",
++   "bytes": 916,
++   "sha": "57000f1929dd933b",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_amsalem.png": {
+-   "bytes": 1128,
+-   "sha": "d3528ca90359ebd9",
++   "bytes": 1085,
++   "sha": "7cd846a172bf351f",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_ben-gvir.png": {
+-   "bytes": 1147,
+-   "sha": "44b296a5dce213a5",
++   "bytes": 1094,
++   "sha": "8f70d6f329a8309f",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_bennett.png": {
+-   "bytes": 1088,
+-   "sha": "7e902265e25691b4",
++   "bytes": 1055,
++   "sha": "9a6cc926de9b1eab",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_bibi.png": {
+-   "bytes": 1185,
+-   "sha": "357927cde8046ba5",
++   "bytes": 1113,
++   "sha": "b1903fe782a2cd05",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_deri.png": {
+-   "bytes": 1062,
+-   "sha": "363215836c65e4f8",
++   "bytes": 993,
++   "sha": "980586689bb1bdd6",
+    "size": [
+     24,
+     24
+@@ -13413,24 +13465,24 @@
+    ]
+   },
+   "avatar24_eisenkot.png": {
+-   "bytes": 903,
+-   "sha": "6fc9c5c57326e420",
++   "bytes": 864,
++   "sha": "67a456d820ebba44",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_gafni.png": {
+-   "bytes": 1143,
+-   "sha": "40abf8214d834123",
++   "bytes": 1091,
++   "sha": "8ff111982615f83d",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_gantz.png": {
+-   "bytes": 771,
+-   "sha": "75e9ee520851ff8c",
++   "bytes": 719,
++   "sha": "b01a9021af89f38b",
+    "size": [
+     24,
+     24
+@@ -13445,16 +13497,16 @@
+    ]
+   },
+   "avatar24_goldknopf.png": {
+-   "bytes": 1112,
+-   "sha": "9c8653eeaf779e62",
++   "bytes": 1052,
++   "sha": "f9b9f0787b126d58",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_gotliv.png": {
+-   "bytes": 1169,
+-   "sha": "fb12534bdf8335d1",
++   "bytes": 1110,
++   "sha": "1d19c09c60a4de31",
+    "size": [
+     24,
+     24
+@@ -13477,24 +13529,24 @@
+    ]
+   },
+   "avatar24_lapid.png": {
+-   "bytes": 913,
+-   "sha": "f9af0383c7793f9f",
++   "bytes": 866,
++   "sha": "53e17aed220cb9f1",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_levin.png": {
+-   "bytes": 1135,
+-   "sha": "62b5d9aee2c94eb5",
++   "bytes": 1080,
++   "sha": "77044fe9258d0f62",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_liberman.png": {
+-   "bytes": 981,
+-   "sha": "87bfdbfe7a64a7ab",
++   "bytes": 956,
++   "sha": "c9560a3f16f0eecc",
+    "size": [
+     24,
+     24
+@@ -13581,24 +13633,24 @@
+    ]
+   },
+   "avatar24_regev.png": {
+-   "bytes": 1186,
+-   "sha": "fc27cc487f3289ac",
++   "bytes": 1134,
++   "sha": "151ce029c72522b1",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_sara.png": {
+-   "bytes": 1163,
+-   "sha": "605e4f7d327b32be",
++   "bytes": 1122,
++   "sha": "90d35ab77642b30c",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "avatar24_smotrich.png": {
+-   "bytes": 945,
+-   "sha": "fc8c9ad6954f526c",
++   "bytes": 895,
++   "sha": "f2e708b491f33dbb",
+    "size": [
+     24,
+     24
+@@ -13613,48 +13665,48 @@
+    ]
+   },
+   "avatar_abbas.png": {
+-   "bytes": 1573,
+-   "sha": "a7871a5d28db8892",
++   "bytes": 1473,
++   "sha": "e2b4c33ea2424a50",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_amsalem.png": {
+-   "bytes": 1854,
+-   "sha": "fae0247db02fe65b",
++   "bytes": 1745,
++   "sha": "e553733b7373ace2",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_ben-gvir.png": {
+-   "bytes": 2128,
+-   "sha": "d4d6a5d3f6130476",
++   "bytes": 1949,
++   "sha": "41c0638bc7c9744c",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_bennett.png": {
+-   "bytes": 1828,
+-   "sha": "55012a98ede4c2bc",
++   "bytes": 1730,
++   "sha": "d388bb1959c05a3a",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_bibi.png": {
+-   "bytes": 2056,
+-   "sha": "b5ee4932ab33b87f",
++   "bytes": 1867,
++   "sha": "409c5b72607ddea6",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_deri.png": {
+-   "bytes": 1771,
+-   "sha": "e55d2b158da627fd",
++   "bytes": 1616,
++   "sha": "b926b65e5fd148cb",
+    "size": [
+     32,
+     32
+@@ -13677,24 +13729,24 @@
+    ]
+   },
+   "avatar_eisenkot.png": {
+-   "bytes": 1543,
+-   "sha": "cf1f95341994efa1",
++   "bytes": 1416,
++   "sha": "14aa1392be8dd2f1",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_gafni.png": {
+-   "bytes": 1919,
+-   "sha": "404b11c9b8a84bb2",
++   "bytes": 1803,
++   "sha": "297a38f7c7c573da",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_gantz.png": {
+-   "bytes": 1219,
+-   "sha": "7091d12b930a1d28",
++   "bytes": 1141,
++   "sha": "65208f05a42cc2f5",
+    "size": [
+     32,
+     32
+@@ -13709,16 +13761,16 @@
+    ]
+   },
+   "avatar_goldknopf.png": {
+-   "bytes": 1868,
+-   "sha": "ec0a208dbf661ac4",
++   "bytes": 1708,
++   "sha": "ec171582719e74b9",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_gotliv.png": {
+-   "bytes": 1986,
+-   "sha": "ca50e11e3873c494",
++   "bytes": 1892,
++   "sha": "7ea87a7aed47bec0",
+    "size": [
+     32,
+     32
+@@ -13741,24 +13793,24 @@
+    ]
+   },
+   "avatar_lapid.png": {
+-   "bytes": 1473,
+-   "sha": "4dbd615e5786b21c",
++   "bytes": 1350,
++   "sha": "4a5eb99ca537d1f2",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_levin.png": {
+-   "bytes": 1888,
+-   "sha": "eb1091df5ccfdecc",
++   "bytes": 1726,
++   "sha": "ef86df7365b22f45",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_liberman.png": {
+-   "bytes": 1612,
+-   "sha": "b7265ec7b12b6d12",
++   "bytes": 1513,
++   "sha": "2394fcabee688d39",
+    "size": [
+     32,
+     32
+@@ -13973,24 +14025,24 @@
+    ]
+   },
+   "avatar_regev.png": {
+-   "bytes": 2060,
+-   "sha": "9df2477ee564fb89",
++   "bytes": 1847,
++   "sha": "a26fadc2de6102b6",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_sara.png": {
+-   "bytes": 2073,
+-   "sha": "d5d265ca56cdc103",
++   "bytes": 1953,
++   "sha": "264db593cb752a79",
+    "size": [
+     32,
+     32
+    ]
+   },
+   "avatar_smotrich.png": {
+-   "bytes": 1560,
+-   "sha": "274ea9f225690a1e",
++   "bytes": 1439,
++   "sha": "11dcb3ba5ff4df45",
+    "size": [
+     32,
+     32
+@@ -15741,8 +15793,8 @@
+    ]
+   },
+   "prop_bill.png": {
+-   "bytes": 140,
+-   "sha": "c8728a35a70171e9",
++   "bytes": 125,
++   "sha": "c2d99fcdce03689b",
+    "size": [
+     8,
+     5
+@@ -15773,40 +15825,40 @@
+    ]
+   },
+   "prop_coin0.png": {
+-   "bytes": 130,
+-   "sha": "a15614880f3a46c9",
++   "bytes": 115,
++   "sha": "fca7eddf9dd18ef7",
+    "size": [
+     5,
+     5
+    ]
+   },
+   "prop_coin1.png": {
+-   "bytes": 109,
+-   "sha": "ac7c1b2e53d70851",
++   "bytes": 100,
++   "sha": "0870d782d4e7c78d",
+    "size": [
+     4,
+     5
+    ]
+   },
+   "prop_coin2.png": {
+-   "bytes": 100,
+-   "sha": "abed57b75463a684",
++   "bytes": 94,
++   "sha": "595e1e72228b5c91",
+    "size": [
+     3,
+     5
+    ]
+   },
+   "prop_coin3.png": {
+-   "bytes": 103,
+-   "sha": "77fee8933a4075d0",
++   "bytes": 99,
++   "sha": "4f200b611eed7339",
+    "size": [
+     4,
+     5
+    ]
+   },
+   "prop_hat.png": {
+-   "bytes": 325,
+-   "sha": "91f288575914fe40",
++   "bytes": 302,
++   "sha": "0feceae4f9b8583e",
+    "size": [
+     22,
+     16
+@@ -15837,8 +15889,8 @@
+    ]
+   },
+   "prop_rabbit.png": {
+-   "bytes": 266,
+-   "sha": "c221939430d972ae",
++   "bytes": 250,
++   "sha": "835bc88dae47822b",
+    "size": [
+     15,
+     15
+@@ -15853,8 +15905,8 @@
+    ]
+   },
+   "prop_spark.png": {
+-   "bytes": 89,
+-   "sha": "a6c908a5e2a1cee4",
++   "bytes": 90,
++   "sha": "6a455ff98667f6b3",
+    "size": [
+     5,
+     5
 @@ -15956,6 +16008,22 @@
      38
     ]
@@ -238,6 +882,147 @@ index d319756..8571cf2 100644
    "sheet_plain.png": {
     "bytes": 164,
     "sha": "335e5b8d7a548960",
+@@ -16037,16 +16105,16 @@
+    ]
+   },
+   "source_cigars_icon.png": {
+-   "bytes": 1362,
+-   "sha": "abbd6b761612a3e8",
++   "bytes": 1257,
++   "sha": "f23a73b42d2c3948",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "source_cigars_icon_sil.png": {
+-   "bytes": 248,
+-   "sha": "ca0547f7b4a23a3d",
++   "bytes": 246,
++   "sha": "342b38e16234aea2",
+    "size": [
+     24,
+     24
+@@ -16117,16 +16185,16 @@
+    ]
+   },
+   "source_hitech_icon.png": {
+-   "bytes": 1019,
+-   "sha": "ec5af397c305b8e6",
++   "bytes": 947,
++   "sha": "2b5d4621b6649aa6",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "source_hitech_icon_sil.png": {
+-   "bytes": 238,
+-   "sha": "9818cd9fbae3998a",
++   "bytes": 233,
++   "sha": "7772a8d03db701cc",
+    "size": [
+     24,
+     24
+@@ -16173,16 +16241,16 @@
+    ]
+   },
+   "source_qatari_icon.png": {
+-   "bytes": 1344,
+-   "sha": "ebc0e9123b13ed75",
++   "bytes": 1239,
++   "sha": "471e1bf7744bb212",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "source_qatari_icon_sil.png": {
+-   "bytes": 264,
+-   "sha": "67b6d665bf7ff054",
++   "bytes": 257,
++   "sha": "f36800efe986348c",
+    "size": [
+     24,
+     24
+@@ -16229,16 +16297,16 @@
+    ]
+   },
+   "source_taxpayer_icon.png": {
+-   "bytes": 978,
+-   "sha": "2804c1fa95f98945",
++   "bytes": 899,
++   "sha": "a4db00e41f1355b5",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "source_taxpayer_icon_sil.png": {
+-   "bytes": 208,
+-   "sha": "0931a3680b21bab7",
++   "bytes": 205,
++   "sha": "77e466f52f532cfd",
+    "size": [
+     24,
+     24
+@@ -16261,16 +16329,16 @@
+    ]
+   },
+   "source_vat_icon.png": {
+-   "bytes": 1417,
+-   "sha": "60c098d658ede653",
++   "bytes": 1340,
++   "sha": "33950073f91074bb",
+    "size": [
+     24,
+     24
+    ]
+   },
+   "source_vat_icon_sil.png": {
+-   "bytes": 160,
+-   "sha": "b810f1c72e89c61e",
++   "bytes": 158,
++   "sha": "cd434d8668cb3b03",
+    "size": [
+     24,
+     24
+@@ -16469,16 +16537,16 @@
+    ]
+   },
+   "stage_courthouse.png": {
+-   "bytes": 3212,
+-   "sha": "be95fe8426aa77fa",
++   "bytes": 3068,
++   "sha": "b2a77bc0aa1e871b",
+    "size": [
+     180,
+     320
+    ]
+   },
+   "stage_knesset.png": {
+-   "bytes": 1959,
+-   "sha": "725b6548259e13a7",
++   "bytes": 1883,
++   "sha": "2de23ac680647959",
+    "size": [
+     180,
+     320
+@@ -17336,6 +17404,6 @@
+   },
+   "renderDown": "creative-pack art/showcase/src (rig.py, build.py, cast.py)",
+   "stagesAndWordmark": "creative-pack art/src (locations.py, wordmark.py)",
+-  "renderedFrom": "refs"
++  "renderedFrom": "approved out/"
+  }
+ }
+\ No newline at end of file
+diff --git a/game/assets/sprites/stage_courthouse.png b/game/assets/sprites/stage_courthouse.png
+index f5b2c5d..b2bf640 100644
+Binary files a/game/assets/sprites/stage_courthouse.png and b/game/assets/sprites/stage_courthouse.png differ
+diff --git a/game/assets/sprites/stage_knesset.png b/game/assets/sprites/stage_knesset.png
+index 9fc5970..f20e33d 100644
+Binary files a/game/assets/sprites/stage_knesset.png and b/game/assets/sprites/stage_knesset.png differ
 diff --git a/pipeline/od-sevev/budget.json b/pipeline/od-sevev/budget.json
 index d0875de..1cf1d2f 100644
 --- a/pipeline/od-sevev/budget.json
@@ -3217,48 +4002,96 @@ index 0000000..d799b9c
 # untracked binary: game/assets/sprites/sheet_modal_body.png
 diff --git a/game/assets/sprites/sheet_modal_body.png.import b/game/assets/sprites/sheet_modal_body.png.import
 new file mode 100644
-index 0000000..031034f
+index 0000000..23d2834
 --- /dev/null
 +++ b/game/assets/sprites/sheet_modal_body.png.import
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,40 @@
 +[remap]
 +
 +importer="texture"
 +type="CompressedTexture2D"
++uid="uid://btlo3grbosjk1"
++path="res://.godot/imported/sheet_modal_body.png-f2634ed5c2639cf29bc850b167068cad.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/sheet_modal_body.png"
++dest_files=["res://.godot/imported/sheet_modal_body.png-f2634ed5c2639cf29bc850b167068cad.ctex"]
 +
 +[params]
 +
 +compress/mode=0
 +compress/high_quality=false
 +compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
 +mipmaps/generate=false
 +mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
 +process/fix_alpha_border=true
 +process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
 +process/size_limit=0
 +detect_3d/compress_to=0
 # untracked binary: game/assets/sprites/sheet_modal_body.png.import
 # untracked binary: game/assets/sprites/sheet_modal_flap.png
 diff --git a/game/assets/sprites/sheet_modal_flap.png.import b/game/assets/sprites/sheet_modal_flap.png.import
 new file mode 100644
-index 0000000..031034f
+index 0000000..15068f2
 --- /dev/null
 +++ b/game/assets/sprites/sheet_modal_flap.png.import
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,40 @@
 +[remap]
 +
 +importer="texture"
 +type="CompressedTexture2D"
++uid="uid://cimo1ulopnimk"
++path="res://.godot/imported/sheet_modal_flap.png-cd47a2b94e47b661cd2b6abdcc63f111.ctex"
++metadata={
++"vram_texture": false
++}
++
++[deps]
++
++source_file="res://assets/sprites/sheet_modal_flap.png"
++dest_files=["res://.godot/imported/sheet_modal_flap.png-cd47a2b94e47b661cd2b6abdcc63f111.ctex"]
 +
 +[params]
 +
 +compress/mode=0
 +compress/high_quality=false
 +compress/lossy_quality=0.7
++compress/uastc_level=0
++compress/rdo_quality_loss=0.0
++compress/hdr_compression=1
++compress/normal_map=0
++compress/channel_pack=0
 +mipmaps/generate=false
 +mipmaps/limit=-1
++roughness/mode=0
++roughness/src_normal=""
++process/channel_remap/red=0
++process/channel_remap/green=1
++process/channel_remap/blue=2
++process/channel_remap/alpha=3
 +process/fix_alpha_border=true
 +process/premult_alpha=false
++process/normal_map_invert_y=false
++process/hdr_as_srgb=false
++process/hdr_clamp_exposure=false
 +process/size_limit=0
 +detect_3d/compress_to=0
 # untracked binary: game/assets/sprites/sheet_modal_flap.png.import
