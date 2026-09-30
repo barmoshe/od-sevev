@@ -494,7 +494,7 @@ index 39d9107..c7e697e 100644
    {
     "id": "sheet_modal_flap",
 diff --git a/game/assets/sprites/sprites.json b/game/assets/sprites/sprites.json
-index 8571cf2..a194b1c 100644
+index 8571cf2..0cfbfdb 100644
 --- a/game/assets/sprites/sprites.json
 +++ b/game/assets/sprites/sprites.json
 @@ -8699,7 +8699,8 @@
@@ -844,356 +844,6 @@ index 8571cf2..a194b1c 100644
     ],
     "label": "white"
    },
-@@ -13401,48 +13594,48 @@
-  },
-  "files": {
-   "avatar24_abbas.png": {
--   "bytes": 956,
--   "sha": "fdeccec44e8a210d",
-+   "bytes": 916,
-+   "sha": "57000f1929dd933b",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_amsalem.png": {
--   "bytes": 1128,
--   "sha": "d3528ca90359ebd9",
-+   "bytes": 1085,
-+   "sha": "7cd846a172bf351f",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_ben-gvir.png": {
--   "bytes": 1147,
--   "sha": "44b296a5dce213a5",
-+   "bytes": 1094,
-+   "sha": "8f70d6f329a8309f",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_bennett.png": {
--   "bytes": 1088,
--   "sha": "7e902265e25691b4",
-+   "bytes": 1055,
-+   "sha": "9a6cc926de9b1eab",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_bibi.png": {
--   "bytes": 1185,
--   "sha": "357927cde8046ba5",
-+   "bytes": 1113,
-+   "sha": "b1903fe782a2cd05",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_deri.png": {
--   "bytes": 1062,
--   "sha": "363215836c65e4f8",
-+   "bytes": 993,
-+   "sha": "980586689bb1bdd6",
-    "size": [
-     24,
-     24
-@@ -13465,24 +13658,24 @@
-    ]
-   },
-   "avatar24_eisenkot.png": {
--   "bytes": 903,
--   "sha": "6fc9c5c57326e420",
-+   "bytes": 864,
-+   "sha": "67a456d820ebba44",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_gafni.png": {
--   "bytes": 1143,
--   "sha": "40abf8214d834123",
-+   "bytes": 1091,
-+   "sha": "8ff111982615f83d",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_gantz.png": {
--   "bytes": 771,
--   "sha": "75e9ee520851ff8c",
-+   "bytes": 719,
-+   "sha": "b01a9021af89f38b",
-    "size": [
-     24,
-     24
-@@ -13497,16 +13690,16 @@
-    ]
-   },
-   "avatar24_goldknopf.png": {
--   "bytes": 1112,
--   "sha": "9c8653eeaf779e62",
-+   "bytes": 1052,
-+   "sha": "f9b9f0787b126d58",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_gotliv.png": {
--   "bytes": 1169,
--   "sha": "fb12534bdf8335d1",
-+   "bytes": 1110,
-+   "sha": "1d19c09c60a4de31",
-    "size": [
-     24,
-     24
-@@ -13529,24 +13722,24 @@
-    ]
-   },
-   "avatar24_lapid.png": {
--   "bytes": 913,
--   "sha": "f9af0383c7793f9f",
-+   "bytes": 866,
-+   "sha": "53e17aed220cb9f1",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_levin.png": {
--   "bytes": 1135,
--   "sha": "62b5d9aee2c94eb5",
-+   "bytes": 1080,
-+   "sha": "77044fe9258d0f62",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_liberman.png": {
--   "bytes": 981,
--   "sha": "87bfdbfe7a64a7ab",
-+   "bytes": 956,
-+   "sha": "c9560a3f16f0eecc",
-    "size": [
-     24,
-     24
-@@ -13633,24 +13826,24 @@
-    ]
-   },
-   "avatar24_regev.png": {
--   "bytes": 1186,
--   "sha": "fc27cc487f3289ac",
-+   "bytes": 1134,
-+   "sha": "151ce029c72522b1",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_sara.png": {
--   "bytes": 1163,
--   "sha": "605e4f7d327b32be",
-+   "bytes": 1122,
-+   "sha": "90d35ab77642b30c",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "avatar24_smotrich.png": {
--   "bytes": 945,
--   "sha": "fc8c9ad6954f526c",
-+   "bytes": 895,
-+   "sha": "f2e708b491f33dbb",
-    "size": [
-     24,
-     24
-@@ -13665,48 +13858,48 @@
-    ]
-   },
-   "avatar_abbas.png": {
--   "bytes": 1573,
--   "sha": "a7871a5d28db8892",
-+   "bytes": 1473,
-+   "sha": "e2b4c33ea2424a50",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_amsalem.png": {
--   "bytes": 1854,
--   "sha": "fae0247db02fe65b",
-+   "bytes": 1745,
-+   "sha": "e553733b7373ace2",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_ben-gvir.png": {
--   "bytes": 2128,
--   "sha": "d4d6a5d3f6130476",
-+   "bytes": 1949,
-+   "sha": "41c0638bc7c9744c",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_bennett.png": {
--   "bytes": 1828,
--   "sha": "55012a98ede4c2bc",
-+   "bytes": 1730,
-+   "sha": "d388bb1959c05a3a",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_bibi.png": {
--   "bytes": 2056,
--   "sha": "b5ee4932ab33b87f",
-+   "bytes": 1867,
-+   "sha": "409c5b72607ddea6",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_deri.png": {
--   "bytes": 1771,
--   "sha": "e55d2b158da627fd",
-+   "bytes": 1616,
-+   "sha": "b926b65e5fd148cb",
-    "size": [
-     32,
-     32
-@@ -13729,24 +13922,24 @@
-    ]
-   },
-   "avatar_eisenkot.png": {
--   "bytes": 1543,
--   "sha": "cf1f95341994efa1",
-+   "bytes": 1416,
-+   "sha": "14aa1392be8dd2f1",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_gafni.png": {
--   "bytes": 1919,
--   "sha": "404b11c9b8a84bb2",
-+   "bytes": 1803,
-+   "sha": "297a38f7c7c573da",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_gantz.png": {
--   "bytes": 1219,
--   "sha": "7091d12b930a1d28",
-+   "bytes": 1141,
-+   "sha": "65208f05a42cc2f5",
-    "size": [
-     32,
-     32
-@@ -13761,16 +13954,16 @@
-    ]
-   },
-   "avatar_goldknopf.png": {
--   "bytes": 1868,
--   "sha": "ec0a208dbf661ac4",
-+   "bytes": 1708,
-+   "sha": "ec171582719e74b9",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_gotliv.png": {
--   "bytes": 1986,
--   "sha": "ca50e11e3873c494",
-+   "bytes": 1892,
-+   "sha": "7ea87a7aed47bec0",
-    "size": [
-     32,
-     32
-@@ -13793,24 +13986,24 @@
-    ]
-   },
-   "avatar_lapid.png": {
--   "bytes": 1473,
--   "sha": "4dbd615e5786b21c",
-+   "bytes": 1350,
-+   "sha": "4a5eb99ca537d1f2",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_levin.png": {
--   "bytes": 1888,
--   "sha": "eb1091df5ccfdecc",
-+   "bytes": 1726,
-+   "sha": "ef86df7365b22f45",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_liberman.png": {
--   "bytes": 1612,
--   "sha": "b7265ec7b12b6d12",
-+   "bytes": 1513,
-+   "sha": "2394fcabee688d39",
-    "size": [
-     32,
-     32
-@@ -14025,24 +14218,24 @@
-    ]
-   },
-   "avatar_regev.png": {
--   "bytes": 2060,
--   "sha": "9df2477ee564fb89",
-+   "bytes": 1847,
-+   "sha": "a26fadc2de6102b6",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_sara.png": {
--   "bytes": 2073,
--   "sha": "d5d265ca56cdc103",
-+   "bytes": 1953,
-+   "sha": "264db593cb752a79",
-    "size": [
-     32,
-     32
-    ]
-   },
-   "avatar_smotrich.png": {
--   "bytes": 1560,
--   "sha": "274ea9f225690a1e",
-+   "bytes": 1439,
-+   "sha": "11dcb3ba5ff4df45",
-    "size": [
-     32,
-     32
 @@ -14072,6 +14265,14 @@
      40
     ]
@@ -1285,90 +935,6 @@ index 8571cf2..a194b1c 100644
    "opp_timer_fill.png": {
     "bytes": 100,
     "sha": "531e9f2d3b5d0072",
-@@ -15793,8 +16042,8 @@
-    ]
-   },
-   "prop_bill.png": {
--   "bytes": 140,
--   "sha": "c8728a35a70171e9",
-+   "bytes": 125,
-+   "sha": "c2d99fcdce03689b",
-    "size": [
-     8,
-     5
-@@ -15825,40 +16074,40 @@
-    ]
-   },
-   "prop_coin0.png": {
--   "bytes": 130,
--   "sha": "a15614880f3a46c9",
-+   "bytes": 115,
-+   "sha": "fca7eddf9dd18ef7",
-    "size": [
-     5,
-     5
-    ]
-   },
-   "prop_coin1.png": {
--   "bytes": 109,
--   "sha": "ac7c1b2e53d70851",
-+   "bytes": 100,
-+   "sha": "0870d782d4e7c78d",
-    "size": [
-     4,
-     5
-    ]
-   },
-   "prop_coin2.png": {
--   "bytes": 100,
--   "sha": "abed57b75463a684",
-+   "bytes": 94,
-+   "sha": "595e1e72228b5c91",
-    "size": [
-     3,
-     5
-    ]
-   },
-   "prop_coin3.png": {
--   "bytes": 103,
--   "sha": "77fee8933a4075d0",
-+   "bytes": 99,
-+   "sha": "4f200b611eed7339",
-    "size": [
-     4,
-     5
-    ]
-   },
-   "prop_hat.png": {
--   "bytes": 325,
--   "sha": "91f288575914fe40",
-+   "bytes": 302,
-+   "sha": "0feceae4f9b8583e",
-    "size": [
-     22,
-     16
-@@ -15889,8 +16138,8 @@
-    ]
-   },
-   "prop_rabbit.png": {
--   "bytes": 266,
--   "sha": "c221939430d972ae",
-+   "bytes": 250,
-+   "sha": "835bc88dae47822b",
-    "size": [
-     15,
-     15
-@@ -15905,8 +16154,8 @@
-    ]
-   },
-   "prop_spark.png": {
--   "bytes": 89,
--   "sha": "a6c908a5e2a1cee4",
-+   "bytes": 90,
-+   "sha": "6a455ff98667f6b3",
-    "size": [
-     5,
-     5
 @@ -16064,6 +16313,14 @@
      24
     ]
@@ -1399,35 +965,21 @@ index 8571cf2..a194b1c 100644
    "source_cigars.png": {
     "bytes": 16777,
     "sha": "00901a83c74f65ef",
-@@ -16105,16 +16370,24 @@
-    ]
-   },
-   "source_cigars_icon.png": {
--   "bytes": 1362,
--   "sha": "abbd6b761612a3e8",
-+   "bytes": 1257,
-+   "sha": "f23a73b42d2c3948",
-    "size": [
-     24,
+@@ -16120,6 +16385,14 @@
      24
     ]
    },
-   "source_cigars_icon_sil.png": {
--   "bytes": 248,
--   "sha": "ca0547f7b4a23a3d",
-+   "bytes": 246,
-+   "sha": "342b38e16234aea2",
++  "source_cigars_icon_sil_pale.png": {
++   "bytes": 253,
++   "sha": "d8bd481883a76ad0",
 +   "size": [
 +    24,
 +    24
 +   ]
 +  },
-+  "source_cigars_icon_sil_pale.png": {
-+   "bytes": 253,
-+   "sha": "d8bd481883a76ad0",
-    "size": [
-     24,
-     24
+   "source_donor.png": {
+    "bytes": 871,
+    "sha": "0c58eb887a1bdfd5",
 @@ -16144,6 +16417,14 @@
      24
     ]
@@ -1458,35 +1010,21 @@ index 8571cf2..a194b1c 100644
    "source_hitech.png": {
     "bytes": 12936,
     "sha": "82969e9115c7fb2a",
-@@ -16185,16 +16474,24 @@
-    ]
-   },
-   "source_hitech_icon.png": {
--   "bytes": 1019,
--   "sha": "ec5af397c305b8e6",
-+   "bytes": 947,
-+   "sha": "2b5d4621b6649aa6",
-    "size": [
-     24,
+@@ -16200,6 +16489,14 @@
      24
     ]
    },
-   "source_hitech_icon_sil.png": {
--   "bytes": 238,
--   "sha": "9818cd9fbae3998a",
-+   "bytes": 233,
-+   "sha": "7772a8d03db701cc",
++  "source_hitech_icon_sil_pale.png": {
++   "bytes": 245,
++   "sha": "79178148ee7c4e59",
 +   "size": [
 +    24,
 +    24
 +   ]
 +  },
-+  "source_hitech_icon_sil_pale.png": {
-+   "bytes": 245,
-+   "sha": "79178148ee7c4e59",
-    "size": [
-     24,
-     24
+   "source_poison.png": {
+    "bytes": 634,
+    "sha": "bb1938eda522c547",
 @@ -16224,6 +16521,14 @@
      24
     ]
@@ -1502,35 +1040,21 @@ index 8571cf2..a194b1c 100644
    "source_qatari.png": {
     "bytes": 16142,
     "sha": "ccb378b83f61778a",
-@@ -16241,16 +16546,24 @@
-    ]
-   },
-   "source_qatari_icon.png": {
--   "bytes": 1344,
--   "sha": "ebc0e9123b13ed75",
-+   "bytes": 1239,
-+   "sha": "471e1bf7744bb212",
-    "size": [
-     24,
+@@ -16256,6 +16561,14 @@
      24
     ]
    },
-   "source_qatari_icon_sil.png": {
--   "bytes": 264,
--   "sha": "67b6d665bf7ff054",
-+   "bytes": 257,
-+   "sha": "f36800efe986348c",
++  "source_qatari_icon_sil_pale.png": {
++   "bytes": 266,
++   "sha": "ed9a2fb841a4cc71",
 +   "size": [
 +    24,
 +    24
 +   ]
 +  },
-+  "source_qatari_icon_sil_pale.png": {
-+   "bytes": 266,
-+   "sha": "ed9a2fb841a4cc71",
-    "size": [
-     24,
-     24
+   "source_submarine.png": {
+    "bytes": 1084,
+    "sha": "bc4485f2e2bc0b3f",
 @@ -16280,6 +16593,14 @@
      24
     ]
@@ -1546,83 +1070,36 @@ index 8571cf2..a194b1c 100644
    "source_taxpayer.png": {
     "bytes": 14730,
     "sha": "08fd3e53636b9df5",
-@@ -16297,16 +16618,24 @@
-    ]
-   },
-   "source_taxpayer_icon.png": {
--   "bytes": 978,
--   "sha": "2804c1fa95f98945",
-+   "bytes": 899,
-+   "sha": "a4db00e41f1355b5",
-    "size": [
-     24,
+@@ -16312,6 +16633,14 @@
      24
     ]
    },
-   "source_taxpayer_icon_sil.png": {
-+   "bytes": 205,
-+   "sha": "77e466f52f532cfd",
-+   "size": [
-+    24,
-+    24
-+   ]
-+  },
 +  "source_taxpayer_icon_sil_pale.png": {
-    "bytes": 208,
--   "sha": "0931a3680b21bab7",
++   "bytes": 208,
 +   "sha": "5bc12271069fa3f9",
-    "size": [
-     24,
-     24
-@@ -16329,16 +16658,24 @@
-    ]
-   },
-   "source_vat_icon.png": {
--   "bytes": 1417,
--   "sha": "60c098d658ede653",
-+   "bytes": 1340,
-+   "sha": "33950073f91074bb",
-    "size": [
-     24,
-     24
-    ]
-   },
-   "source_vat_icon_sil.png": {
-+   "bytes": 158,
-+   "sha": "cd434d8668cb3b03",
 +   "size": [
 +    24,
 +    24
 +   ]
 +  },
-+  "source_vat_icon_sil_pale.png": {
-    "bytes": 160,
--   "sha": "b810f1c72e89c61e",
-+   "sha": "defaad8c84cf63a2",
-    "size": [
-     24,
+   "source_vat.png": {
+    "bytes": 16207,
+    "sha": "de4680da5add627e",
+@@ -16344,6 +16673,14 @@
      24
-@@ -16537,16 +16874,16 @@
     ]
    },
-   "stage_courthouse.png": {
--   "bytes": 3212,
--   "sha": "be95fe8426aa77fa",
-+   "bytes": 3068,
-+   "sha": "b2a77bc0aa1e871b",
-    "size": [
-     180,
-     320
-    ]
-   },
-   "stage_knesset.png": {
--   "bytes": 1959,
--   "sha": "725b6548259e13a7",
-+   "bytes": 1883,
-+   "sha": "2de23ac680647959",
-    "size": [
-     180,
-     320
++  "source_vat_icon_sil_pale.png": {
++   "bytes": 160,
++   "sha": "defaad8c84cf63a2",
++   "size": [
++    24,
++    24
++   ]
++  },
+   "spin_s01.png": {
+    "bytes": 407,
+    "sha": "1d5358d1a8d18859",
 @@ -16801,16 +17138,16 @@
     ]
    },
@@ -1644,15 +1121,6 @@ index 8571cf2..a194b1c 100644
     "size": [
      15,
      15
-@@ -17404,6 +17741,6 @@
-   },
-   "renderDown": "creative-pack art/showcase/src (rig.py, build.py, cast.py)",
-   "stagesAndWordmark": "creative-pack art/src (locations.py, wordmark.py)",
--  "renderedFrom": "refs"
-+  "renderedFrom": "approved out/"
-  }
- }
-\ No newline at end of file
 diff --git a/game/assets/sprites/tabicon_coalition_active.png b/game/assets/sprites/tabicon_coalition_active.png
 index c1aebbe..5455d9c 100644
 Binary files a/game/assets/sprites/tabicon_coalition_active.png and b/game/assets/sprites/tabicon_coalition_active.png differ
