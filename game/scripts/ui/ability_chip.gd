@@ -1,17 +1,19 @@
 class_name AbilityChip
 extends Node2D
 ## The round's active ability (leaders v3 phase 2, design/leaders-v3.md; sim: Ability). A chip at the
-## stage's bottom right, the buff chip's look: the leader's verb ("אני פורש", "לחתום", "להעביר תקציב"…)
+## stage's top right, the buff chip's look: the leader's verb ("אני פורש", "לחתום", "להעביר תקציב"…)
 ## with a number (cooldown seconds, the offer's countdown, Liberman's clauses 3/5) and a bar.
 ## Ready or an open offer: full colour and a slow pulse, and a tap uses it (main._use_ability).
 ## Cooldown: dimmed, the bar fills back. Hidden when the round's leader has no ability, or the ability
 ## has nothing to show (Smotrich between budgets, Golan between offers, Bibi's once-a-round used).
 ## Placeholder look until the GPT ability icons land (creative-pack/art/briefs/leaders-v3-gpt.md C).
 
-## Stage px: the stage's bottom right, right of the leader's hit box (L.magician_hit ends at x 564, so
-## rapid taps on the leader never land on it) and below the toast lane (toasts sit at the stage's top
-## and would cover it). The Suitcase's band crosses it: the Suitcase takes the tap first (main).
-const RECT := Rect2(572, 524, 140, 92)
+## Stage px: the empty sky at the stage's top right (Bar's playtest 2026-10-01: at the bottom right it
+## sat on the bought sources' figures), right of the leader's hit box (L.magician_hit ends at x 564, so
+## rapid taps on the leader never land on it), in the top toast dock's row: while the chip is up the
+## toasts dock in the lane band instead (main._dock_toasts). Tall enough for the ability's icon on top.
+const RECT := Rect2(572, 168, 140, 132)   # ends at 300: an ultimatum cameo's timer chip starts below
+const ICON_H := 48.0
 const TEXT_SCALE := 3
 
 var reduced_motion := false
@@ -20,6 +22,8 @@ var _text: PxText
 var _sub: PxText
 var _track: ColorRect
 var _fill: ColorRect
+var _icon: Sprite2D
+var _icon_id := "-"
 var _view: Dictionary = {}
 var _t := 0.0
 var _shake := 0.0   # ms left of the "blocked" shake (nudge)
@@ -28,14 +32,31 @@ var _shake := 0.0   # ms left of the "blocked" shake (nudge)
 func _ready() -> void:
 	var C: Dictionary = Art.theme["buffChip"]
 	_bg = Ui.nine(self, RECT, C["sprite"], int(C["frame"]))
-	_text = PxText.make(self, RECT.position + Vector2(10, 8), "", TEXT_SCALE, "plain", C["text"])
+	_text = PxText.make(self, RECT.position + Vector2(10, 8 + ICON_H), "", TEXT_SCALE, "plain", C["text"])
 	_text.fit_width = RECT.size.x - 20.0
-	_sub = PxText.make(self, RECT.position + Vector2(10, 40), "", TEXT_SCALE, "plain", C["text"])
+	_sub = PxText.make(self, RECT.position + Vector2(10, 40 + ICON_H), "", TEXT_SCALE, "plain", C["text"])
 	_sub.fit_width = RECT.size.x - 20.0
 	var bar := Rect2(RECT.position.x + 10, RECT.end.y - 16, RECT.size.x - 20, 8)
 	_track = Ui.rect(self, bar, C["barTrack"])
 	_fill = Ui.rect(self, bar, C["barFillTop"])
+	_icon = Sprite2D.new()
+	_icon.centered = true
+	_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_icon.position = RECT.position + Vector2(RECT.size.x / 2.0, 8.0 + ICON_H / 2.0)
+	add_child(_icon)
 	visible = false
+
+
+## The ability's icon (`v.icon`, an Art sprite id such as prop_ability_bennett) drawn whole-px on top;
+## none yet: the space stays empty.
+func _set_icon(id: String) -> void:
+	if id == _icon_id:
+		return
+	_icon_id = id
+	_icon.texture = Art.tex(id) if id != "" and Art.has_sprite(id) else null
+	if _icon.texture != null:
+		var k := maxf(1.0, floorf(ICON_H / float(_icon.texture.get_height())))
+		_icon.scale = Vector2(k, k)
 
 
 ## A blocked tap (Mordechai David's block): a short shake, at once.
@@ -61,6 +82,7 @@ func update_view(dt_ms: float, v: Dictionary, stage_visible: bool) -> void:
 	if not visible:
 		return
 	_t += dt_ms
+	_set_icon(str(v.get("icon", "")))
 	var label := str(v.get("label", ""))
 	var sub := str(v.get("sub", ""))
 	var price := float(v.get("price", 0.0))

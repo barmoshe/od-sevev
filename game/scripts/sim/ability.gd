@@ -380,6 +380,11 @@ static func apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 		d.taps_paused = true
 
 
+## The chip's icon: the leader's cut from the GPT grid (prop_ability_<leader id>; "" until it is rigged).
+static func icon(s: GameState) -> String:
+	return "prop_ability_" + Leaders.current(s)
+
+
 ## An offer is open on the chip (the unity offer, Smotrich's budget, Golan's swipe).
 static func window_open(s: GameState) -> bool:
 	if def(s).is_empty():
@@ -405,7 +410,8 @@ static func view(s: GameState, d: Economy.Derived = null) -> Dictionary:
 			"fill": clampf(float(a["uT"]) / maxf(1.0, _n(u, "windowSec", 20.0)), 0.0, 1.0), "state": "offer"}
 	var c := copy(s)
 	var why := block(s, d)
-	var out := {"show": true, "label": str(c.get("btn", "")), "sub": "", "ready": why == "", "fill": 0.0, "state": "ready" if why == "" else "cooldown"}
+	var out := {"show": true, "label": str(c.get("btn", "")), "sub": "", "ready": why == "", "fill": 0.0, "state": "ready" if why == "" else "cooldown",
+		"icon": icon(s)}
 	match str(e["type"]):
 		"clauses":
 			var need := int(_n(e, "clauses", 5.0))

@@ -293,6 +293,12 @@ for (const e of C.events) {
   if (!eventEffects.has(e.effect?.type)) err(`events.${e.id}`, `effect ${e.effect?.type} unknown to Events.EFFECTS`);
   if (e.flag && !(e.flag in C.flags)) err(`events.${e.id}`, `flag ${e.flag} not declared in flags`);
   for (const pr of e.effect?.pairs || []) for (const x of pr) if (!C.partners.some(p => p.id === x)) err(`events.${e.id}`, `unknown partner ${x}`);
+  // Mordechai David per leader (effect.byLeader, Events.visit_mode): leader ids, block | none | tapBuff
+  for (const [lid, ov] of Object.entries(e.effect?.byLeader || {})) {
+    if (!(C.leaders || []).some(L => L.id === lid)) err(`events.${e.id}.effect.byLeader`, `unknown leader ${lid}`);
+    if (!['block', 'none', 'tapBuff'].includes(ov?.type)) err(`events.${e.id}.effect.byLeader.${lid}`, `type must be block | none | tapBuff, got ${ov?.type}`);
+    if (ov?.type === 'tapBuff' && !(Number(ov.mult) > 1)) err(`events.${e.id}.effect.byLeader.${lid}`, `tapBuff needs mult > 1`);
+  }
 }
 for (const p of C.partners) {
   for (const k of Object.keys(p.unlock || {})) if (!condKeys.has(k)) err(`partners.${p.id}`, `unlock key ${k} unknown to Conditions`);

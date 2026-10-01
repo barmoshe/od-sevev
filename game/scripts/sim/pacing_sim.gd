@@ -78,7 +78,11 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 	var milestones_seen := {}
 	var pol := politics_on()
 	var strat := strategy(player)
-	var ctx := {"allowPing": true, "weekday": 2, "hour": 12}
+	# Mordechai David's periodic roll from the seed, never the clock (Events._every_roll is salted by
+	# the wall clock), so a bench run repeats
+	var every_rng := RandomNumberGenerator.new()
+	every_rng.seed = seed_ * 7919 + 3
+	var ctx := {"allowPing": true, "weekday": 2, "hour": 12, "everyRoll": func() -> float: return every_rng.randf()}
 	var buy_every := float(player.get("buy_every", 0.0))
 	var buy_units := int(player.get("buy_units", 0))
 	var pol_every := float(player.get("politics_every", 0.0))

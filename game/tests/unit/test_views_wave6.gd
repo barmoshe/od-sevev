@@ -164,7 +164,9 @@ func test_an_open_brawl_puts_a_cloud_under_row_b() -> void:
 		chat.on_politics_event(e)
 	await tree.process_frame
 	await tree.process_frame
-	runner.check(not chat.brawl_cue_visible(), "the brawl toast is showing: the cue yields to the toast dock")
+	# the cue yields to a top-dock toast; while the ability chip is up the toasts dock in the lane instead
+	var lane := str(m.toasts.shown().get("dock", "")) == "lane"
+	runner.check(chat.brawl_cue_visible() == lane, "the brawl toast is showing: the cue yields to a top-dock toast (dock %s)" % str(m.toasts.shown().get("dock", "")))
 	_quiet_toasts()
 	await tree.process_frame
 	await tree.process_frame

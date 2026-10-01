@@ -1656,7 +1656,8 @@ func herzog_from_pardon() -> void:
 ## The chip's view: while Mordechai David blocks, the block's own countdown (copy.chipText, the
 ## seconds left, a draining bar); otherwise the round's ability (Ability.view).
 func _chip_view() -> Dictionary:
-	if Events.screen_blocked(state):
+	var buff := Events.visit_tap_mult(state) > 1.0
+	if Events.screen_blocked(state) or buff:
 		var bl := Events.block_left(state)
 		var c := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
 		return {"show": true, "label": str(c.get("chipText", "")), "sub": "%d" % ceili(float(bl[0])), "ready": false,
@@ -1667,6 +1668,8 @@ func _chip_view() -> Dictionary:
 ## Leaders v3: a tap on the ability chip (AbilityChip → Ability.use). The sim's events (toasts, chat
 ## lines) go through the same handlers as the politics tick's.
 func _use_ability() -> void:
+	if Events.visit_tap_mult(state) > 1.0:
+		return   # the chip counts Mordechai's cheer down: a tap here is not the ability
 	var r := Ability.use(state, d)
 	if not bool(r.get("ok", false)):
 		_audio("cantAfford")
@@ -1763,6 +1766,9 @@ func _on_street_event(result: Dictionary) -> void:
 	if not Events.is_active(state, "screenBlock"):
 		var line := str(c.get("blockedText", "")) if _street_partner != "" else str(c.get("aloneText", ""))
 		toasts.show_toast(StreetFigure.fill(line, _street_partner), "", "lane", here)
+	elif str(result.get("mode", "")) == "tapBuff" and str(c.get("buffText", "")) != "":
+		# Ben Gvir's / Bibi's round (effect.byLeader): he cheers, taps count more while he stands there
+		toasts.show_toast(Bidi.fill(str(c["buffText"]), {"mult": str(int(float(result.get("mult", 1.0))))}), "", "lane", here)
 
 
 ## The court day's stage FX from the Magician (BigBanana.on_court_fx): the zip's dust at his feet, the
@@ -2059,8 +2065,12 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if thermo.is_shown() and Ui.in_rect(thermo.hit_rect(), sp):
 		_presses[idx] = {"kind": "thermo"}   # rtl-map §4: tap → T4
 		return
-	# the chip first: it sits in front, and Herzog's tap box covers most of it
-	if ability_chip.takes_tap(sp):
+	if golden.hit_test(sp):
+		_catch_golden()
+		return
+	# the chip before Herzog and Kaia: it sits in front (Herzog's head reaches it on short stages);
+	# never through a toast that covers it
+	if ability_chip.takes_tap(sp) and not Ui.in_rect(toasts.covered_rect(), sp):
 		_use_ability()
 		return
 	if herzog.tappable() and Ui.in_rect(herzog.hit_rect(), sp):
@@ -2068,9 +2078,6 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		return
 	if kaia.tappable() and Ui.in_rect(kaia.hit_rect(), sp):
 		_feed_kaia()
-		return
-	if golden.hit_test(sp):
-		_catch_golden()
 		return
 	# mobile-first §3.4: during a tap burst (the last leader tap < 1 s ago) a toast takes no tap, so
 	# a toast over the leader's head never eats the rapid taps (it stays visible)
@@ -2918,7 +2925,8 @@ func _on_pick_done() -> void:
 ## queue holds while the undo chip holds the lane (after an election); the fresh toast shows once
 ## the chip has gone, in the lane band, whatever ended the chip (5 s, the first tap or buy).
 func _dock_toasts() -> void:
-	toasts.lane_dock = state.run_taps == 0 and Ftue.owned_total(state) == 0
+	# the ability chip sits in the top dock's row (AbilityChip.RECT): while it is up, toasts dock in the lane
+	toasts.lane_dock = (state.run_taps == 0 and Ftue.owned_total(state) == 0) or ability_chip.visible
 	toasts.hold = undo_visible() and not _undo_in_row
 	if _fresh_due != "" and mode != "pick" and not undo_visible() and not tx.running:
 		toasts.show_toast(_fresh_due, "", "lane")

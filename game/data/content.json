@@ -2166,7 +2166,21 @@
     "type": "screenBlock",
     "sec": 6,
     "approachSec": 2,
-    "exitSec": 2
+    "exitSec": 2,
+    "_byLeader": "Bar 2026-10-01: he never blocks Ben Gvir, Netanyahu or Smotrich. Ben Gvir's round: taps x3 while he stands on his mark; Bibi's: x2; Smotrich's: he just stands there. Events.visit_mode / visit_tap_mult.",
+    "byLeader": {
+     "bengvir": {
+      "type": "tapBuff",
+      "mult": 3
+     },
+     "bibi": {
+      "type": "tapBuff",
+      "mult": 2
+     },
+     "smotrich": {
+      "type": "none"
+     }
+    }
    },
    "pollLike": false,
    "src": [
@@ -2192,10 +2206,29 @@
     "skins": {
      "bengvir": {
       "role": "מטה הצעירים שלך",
-      "text": "העובד שלך במטה הצעירים יצא לחסום. השר שלך בפקק.",
+      "text": "העובד שלך במטה הצעירים בא לעודד. אותך הוא לא חוסם.",
       "textSrc": [
        "md-otzma-youth"
-      ]
+      ],
+      "buffText": "מרדכי דוד מעודד: כל הקשה שווה פי {mult} כל עוד הוא כאן.",
+      "chipText": "פי 3",
+      "ticker": "מרדכי דוד ממטה הצעירים בא להריע. ההקשות שוות פי שלוש."
+     },
+     "bibi": {
+      "text": "בא להריע לראש הממשלה. את בלפור הוא לא חוסם.",
+      "textSrc": [
+       "md-blocks-cars"
+      ],
+      "buffText": "מרדכי דוד מריע: כל הקשה שווה פי {mult} כל עוד הוא כאן.",
+      "chipText": "פי 2",
+      "ticker": "מרדכי דוד בא להריע לראש הממשלה. ההקשות כפולות."
+     },
+     "smotrich": {
+      "text": "עובר ליד שר האוצר. אותו הוא לא חוסם.",
+      "textSrc": [
+       "md-blocks-cars"
+      ],
+      "ticker": "מרדכי דוד עבר ליד שר האוצר. הפעם בלי לחסום."
      },
      "opposition": {
       "text": "כבר חסם רכב של ח״כ מהאופוזיציה. היום: רחוב שלם.",

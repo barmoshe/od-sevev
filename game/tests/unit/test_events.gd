@@ -299,7 +299,7 @@ func test_mordechai_blocks_the_screen_for_six_seconds() -> void:
 	_flags(["mordechaiDavid"])
 	var s := _md_state()
 	var fired := Events.fire(s, "mordechai", Economy.derive(s), func() -> float: return 0.0)
-	runner.check(Events.is_active(s, "screenBlock") and fired["result"].is_empty(), "the screen block is live; nobody is benched")
+	runner.check(Events.is_active(s, "screenBlock") and str(fired["result"].get("mode", "")) == "block" and not fired["result"].has("partner"), "the screen block is live; nobody is benched")
 	runner.check(Coalition.counts(s, "amsalem"), "no seats are taken any more")
 	var ev: Array = []
 	for i in 7:

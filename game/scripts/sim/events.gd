@@ -95,11 +95,18 @@ static var EFFECTS: Dictionary = {
 		# Three phases on one clock (block_phase): `approachSec` he walks in (taps still work), `sec` he
 		# stands on his mark and blocks, `exitSec` he walks out (taps work again). The block starts
 		# when he is on the screen and ends when he turns to go, so the cause is always in view.
+		# effect.byLeader[the round's leader] swaps what he does on his mark (visit_mode).
 		var ap := float(e.get("approachSec", 0.0))
 		var bl := float(e.get("sec", 0.0))
 		var ex := float(e.get("exitSec", 0.0))
-		_activate(s, "screenBlock", e, {"sec": ap + bl + ex, "approachSec": ap, "blockSec": bl, "exitSec": ex})
-		return {},
+		var by: Dictionary = e.get("byLeader", {}) if e.get("byLeader") is Dictionary else {}
+		var ov: Dictionary = by.get(Leaders.current(s), {}) if by.get(Leaders.current(s)) is Dictionary else {}
+		var mode := str(ov.get("type", "block"))
+		var extra := {"sec": ap + bl + ex, "approachSec": ap, "blockSec": bl, "exitSec": ex, "mode": mode}
+		if mode == "tapBuff":
+			extra["tapMult"] = float(ov.get("mult", 1.0))
+		_activate(s, "screenBlock", e, extra)
+		return {"mode": mode, "mult": float(ov.get("mult", 1.0))},
 	"mediation": func(s: GameState, e: Dictionary, _d: Economy.Derived, _r: Callable) -> Dictionary:
 		# Herzog's compromise outline (fact herzog-framework, March 2023): he stands on the stage for
 		# `sec`; a tap on him accepts it (act "accept": every open demand drops `pct`%); ignored, it
@@ -184,26 +191,48 @@ static func active_effects(s: GameState) -> Array:
 	return _st(s)["active"]
 
 
-## Mordechai David's block (effect screenBlock): "" when none is live, else approach | block | exit.
+## Mordechai David's visit (effect screenBlock): "" when none is live, else approach | block | exit.
+## "block" is the time he stands on his mark, whatever he does there (mode).
 static func block_phase(s: GameState) -> String:
 	for a: Dictionary in s.events.get("active", []):
-		if a["type"] != "screenBlock":
-			continue
-		var ex := float(a.get("exitSec", 0.0))
-		var bl := float(a.get("blockSec", float(a["leftSec"]) - ex))
-		var left := float(a["leftSec"])
-		if left <= ex:
-			return "exit"
-		if left <= ex + bl:
-			return "block"
-		return "approach"
+		if a["type"] == "screenBlock":
+			return _phase_of(a)
+	return ""
+
+
+static func _phase_of(a: Dictionary) -> String:
+	var ex := float(a.get("exitSec", 0.0))
+	var bl := float(a.get("blockSec", float(a["leftSec"]) - ex))
+	var left := float(a["leftSec"])
+	if left <= ex:
+		return "exit"
+	if left <= ex + bl:
+		return "block"
+	return "approach"
+
+
+## What he does on his mark this round (effect.byLeader, Bar 2026-10-01): "block" (the default),
+## "tapBuff" (Ben Gvir ×3, Bibi ×2: taps count more while he stands there) or "none" (Smotrich: he
+## just stands there). "" when he is not here.
+static func visit_mode(s: GameState) -> String:
+	for a: Dictionary in s.events.get("active", []):
+		if a["type"] == "screenBlock":
+			return str(a.get("mode", "block"))
 	return ""
 
 
 ## True while the block holds the screen: nothing takes a tap, and the timers the player has to
 ## react to (ultimatums, the summons, offers, live cards) wait (Politics.tick).
 static func screen_blocked(s: GameState) -> bool:
-	return block_phase(s) == "block"
+	return block_phase(s) == "block" and visit_mode(s) == "block"
+
+
+## His tap multiplier while he stands on his mark in a tapBuff round (1 otherwise).
+static func visit_tap_mult(s: GameState) -> float:
+	for a: Dictionary in s.events.get("active", []):
+		if a["type"] == "screenBlock" and str(a.get("mode", "block")) == "tapBuff" and _phase_of(a) == "block":
+			return maxf(1.0, float(a.get("tapMult", 1.0)))
+	return 1.0
 
 
 ## The block's seconds left and its share of the whole block (the chip's countdown and bar).
@@ -273,6 +302,9 @@ static func _apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 				d.tap_mult *= float(a.get("tapMult", 1.0))
 			"leaderBuff":
 				d.tap_mult *= maxf(1.0, float(a.get("tapMult", 1.0)))
+			"screenBlock":
+				if str(a.get("mode", "block")) == "tapBuff" and _phase_of(a) == "block":
+					d.tap_mult *= maxf(1.0, float(a.get("tapMult", 1.0)))
 
 
 ## A leader rule's timed tap buff (Deri's ☕ onDemandPaid {type: tapBuff, mult, durationSec}):
@@ -350,6 +382,12 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 		for a: Dictionary in st["active"]:
 			if a["type"] == "screenBlock":
 				a["leftSec"] = float(a["leftSec"]) - dt
+		# the periodic events' clocks are play time: they keep counting (no roll while he blocks)
+		var ev: Dictionary = st.get("every", {}) if st.get("every") is Dictionary else {}
+		st["every"] = ev
+		for e: Dictionary in list():
+			if e.has("everySec"):
+				ev[str(e["id"])] = float(ev.get(str(e["id"]), 0.0)) + dt
 		return out
 	_tick_active(s, dt, rng, out)
 	if float(st["invoiceSec"]) > 0.0:
@@ -693,6 +731,15 @@ static func validate(c: Dictionary) -> PackedStringArray:
 			err.append("events.%s.when: unknown condition %s" % [id, k])
 		if e.has("flag") and not (flags is Dictionary and (flags as Dictionary).has(e["flag"])):
 			err.append("events.%s.flag: %s is not declared in `flags`" % [id, e["flag"]])
+		if t == "screenBlock" and e.get("effect", {}).get("byLeader") != null:
+			var by: Variant = e.get("effect", {}).get("byLeader")
+			if not by is Dictionary:
+				err.append("events.%s.effect.byLeader: must be a map of leader id -> {type}" % id)
+			else:
+				for lid: Variant in by:
+					var bt := str((by[lid] as Dictionary).get("type", "")) if by[lid] is Dictionary else ""
+					if not ["block", "none", "tapBuff"].has(bt):
+						err.append("events.%s.effect.byLeader.%s.type: block | none | tapBuff, got %s" % [id, lid, bt])
 		if t == "brawl":
 			for pr: Variant in e.get("effect", {}).get("pairs", []):
 				for x: Variant in (pr if pr is Array else []):

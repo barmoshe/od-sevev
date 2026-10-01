@@ -28,7 +28,8 @@ static func play_round(every: float, newest: int, seed_: int, max_t: float = 120
 	var dt := 0.25
 	var acc := 0.0
 	var next_visit := every
-	var ctx := {"allowPing": true, "weekday": 2, "hour": 12}
+	# Mordechai David's roll is clock-salted (Events._every_roll): never in this seeded round
+	var ctx := {"allowPing": true, "weekday": 2, "hour": 12, "everyRoll": func() -> float: return 1.0}
 	var d := Economy.derive(s)
 	while t < max_t:
 		acc += 1.5 * dt
