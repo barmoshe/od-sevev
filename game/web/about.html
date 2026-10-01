@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!-- "עוד סבב": the static About page (2026-10-01). The game is a canvas, and crawlers that run no
+     JS (GPTBot, ClaudeBot, PerplexityBot) read only server HTML: this page carries the game's text
+     for search and answer engines. Templated by tools/lib/render_shell.py from ux/ui-strings.json
+     (the same keys as the in-game About), __OD_SITE_URL__ by tools/build_web.sh. No script. -->
+<html lang="he" dir="rtl">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>{{ABOUT_PAGE_TITLE}} | על המשחק</title>
+		<meta name="description" content="{{META_DESCRIPTION}}">
+		<meta name="theme-color" content="#0038b8">
+		<link rel="canonical" href="__OD_SITE_URL__about.html">
+		<meta name="robots" content="index,follow,max-image-preview:large">
+		<meta property="og:title" content="{{ABOUT_PAGE_TITLE}}">
+		<meta property="og:description" content="{{OG_DESCRIPTION}}">
+		<meta property="og:url" content="__OD_SITE_URL__about.html">
+		<meta property="og:image" content="__OD_SITE_URL__og.jpg">
+		<meta property="og:image:width" content="1200">
+		<meta property="og:image:height" content="630">
+		<meta property="og:image:alt" content="{{OG_IMAGE_ALT}}">
+		<meta property="og:locale" content="he_IL">
+		<meta property="og:type" content="website">
+		<meta property="og:site_name" content="עוד סבב">
+		<meta name="twitter:card" content="summary_large_image">
+		<link rel="icon" href="index.icon.png">
+		<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","inLanguage":"he","url":"__OD_SITE_URL__about.html","dateModified":"{{BUILD_DATE_ISO}}","mainEntity":[
+{"@type":"Question","name":{{FAQ_Q1_JSON}},"acceptedAnswer":{"@type":"Answer","text":{{FAQ_A1_JSON}}}},
+{"@type":"Question","name":{{FAQ_Q2_JSON}},"acceptedAnswer":{"@type":"Answer","text":{{FAQ_A2_JSON}}}},
+{"@type":"Question","name":{{FAQ_Q3_JSON}},"acceptedAnswer":{"@type":"Answer","text":{{FAQ_A3_JSON}}}},
+{"@type":"Question","name":{{FAQ_Q4_JSON}},"acceptedAnswer":{"@type":"Answer","text":{{FAQ_A4_JSON}}}},
+{"@type":"Question","name":{{FAQ_Q5_JSON}},"acceptedAnswer":{"@type":"Answer","text":{{FAQ_A5_JSON}}}}]}
+		</script>
+		<style>
+body { margin: 0; background: #f7f4ec; color: #0f2350; font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+	font-size: 16px; line-height: 1.5; }
+main { max-width: 520px; margin: 0 auto; padding: 0 18px 32px; box-sizing: border-box; }
+main::before { content: ""; display: block; height: 6px; background: #0038b8; margin: 0 -18px 20px; }
+h1 { font-size: 24px; margin: 0 0 12px; }
+h2 { font-size: 18px; margin: 24px 0 8px; }
+h3 { font-size: 16px; margin: 14px 0 4px; }
+.lead { font-size: 18px; }
+.play { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; margin: 8px 0 4px; color: #f7f4ec;
+	background: #0038b8; border: 3px solid #061029; border-radius: 6px; text-decoration: none; font-weight: 600; }
+a, a:visited { color: #0038b8; }
+.play, .play:visited { color: #f7f4ec; }
+ul { padding: 0 20px 0 0; margin: 0; }
+li { margin-bottom: 8px; }
+.od-src, .meta { font-size: 14px; color: #34466e; }
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1>{{ABOUT_PAGE_TITLE}}</h1>
+			<p class="lead">{{ABOUT_LEAD}}</p>
+			<p><a class="play" href="./">{{ABOUT_PLAY}}</a></p>
+			<h2>{{FAQ_TITLE}}</h2>
+			<h3>{{FAQ_Q1}}</h3>
+			<p>{{FAQ_A1}}</p>
+			<h3>{{FAQ_Q2}}</h3>
+			<p>{{FAQ_A2}}</p>
+			<h3>{{FAQ_Q3}}</h3>
+			<p>{{FAQ_A3}}</p>
+			<h3>{{FAQ_Q4}}</h3>
+			<p>{{FAQ_A4}}</p>
+			<h3>{{FAQ_Q5}}</h3>
+			<p>{{FAQ_A5}}</p>
+			<h2>{{ABOUT_TITLE}}</h2>
+			<p>{{ABOUT_1}}</p>
+			<p>{{ABOUT_2}}</p>
+			<p>{{ABOUT_3}}</p>
+			<p>{{ABOUT_4}}</p>
+			<p>{{ABOUT_5}}</p>
+			<p>{{ABOUT_6}}</p>
+			<p>{{ABOUT_7_TELEMETRY}}</p>
+			<p>{{ABOUT_WHO_HTML}}</p>
+			<h2>{{ABOUT_SOURCES}}</h2>
+			<ul>{{ABOUT_SOURCES_LIST}}</ul>
+			<p class="meta">{{ABOUT_UPDATED}}</p>
+			<p><a class="play" href="./">{{ABOUT_PLAY}}</a></p>
+		</main>
+	</body>
+</html>

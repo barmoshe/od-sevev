@@ -619,6 +619,18 @@ e("FAQ_Q2", "כמה זה עולה?", "html:30", "", "about.faq q2")
 e("FAQ_A2", "כלום. אין פרסומות, אין רכישות ואין הרשמה.", "html:80", "", "about.faq a2")
 e("FAQ_Q3", "איפה משחקים?", "html:30", "", "about.faq q3")
 e("FAQ_A3", "בטלפון או במחשב, ישר בדפדפן, בלי להוריד אפליקציה.", "html:80", "", "about.faq a3")
+e("FAQ_Q4", "המשחק בעד מפלגה מסוימת?", "html:30", "", "about.faq q4")
+e("FAQ_A4", "לא. הסאטירה היא על כולם, המשחק לא קשור לאף מפלגה ולא ממומן על ידה, והמספרים בו בדיוניים ואינם סקר.", "html:120", "L", "about.faq a4")
+e("FAQ_Q5", "מתי הבחירות לכנסת?", "html:30", "", "about.faq q5")
+e("FAQ_A5", "ב־27.10.2026. מ־23.10 ועד סגירת הקלפיות המשחק לא מציג מספרי מנדטים.", "html:100", "L", "about.faq a5")
+# --- search (2026-10-01, Bar: brand + the queries Israeli autocomplete shows): <meta description>, the
+# static /about.html (crawlers that run no JS read it) and its links
+e("META_DESCRIPTION", "משחק בחירות סאטירי בעברית: בוחרים ראש רשימה, אוספים שקלים, משלמים לשותפים לקואליציה והולכים לבחירות שוב ושוב. חינם, בלי הרשמה, סאטירה על כולם.", "html:160", "", "<meta name=description> + JSON-LD (OG keeps OG_DESCRIPTION)")
+e("ABOUT_PAGE_TITLE", "עוד סבב: משחק הבחירות שלא נגמרות", "html:40", "", "/about.html h1")
+e("ABOUT_LEAD", "עוד סבב הוא משחק דפדפן סאטירי וחינמי בעברית על הבחירות לכנסת ה־26 (27.10.2026): בוחרים ראש רשימה, אוספים שקלים, משלמים לשותפים לקואליציה והולכים לבחירות שוב ושוב. בלי הרשמה, לא קשור לאף מפלגה.", "html:220", "", "/about.html lead, the direct answer")
+e("ABOUT_PLAY", "לשחק עכשיו", "html:14", "", "/about.html link to the game")
+e("ABOUT_MORE", "על המשחק", "html:14", "", "About dialog + noscript link to /about.html")
+e("ABOUT_UPDATED", "עודכן: {date}", "html:24", "", "/about.html, the build date")
 # --- plural fragments for the result line and the deep-link toast
 e("ROUNDS_ONE", "סבב בחירות אחד", "result.head", "", "§5.2 ICU rounds one")
 e("ROUNDS_TWO", "שני סבבי בחירות", "result.head", "", "§5.2 ICU rounds two")

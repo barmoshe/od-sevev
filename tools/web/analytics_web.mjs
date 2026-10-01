@@ -16,6 +16,12 @@ const [W, H] = wh.split('x').map(Number);
 const DPR = Number(dprS);
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: true, hasTouch: true });
+// a page that was playing and comes back without a pagehide (&crash=1): an iOS out-of-memory reload
+await ctx.addInitScript(() => {
+	if (location.search.includes('crash=1')) {
+		sessionStorage.setItem('odsevev.playing', '1');
+	}
+});
 // a returning player: first played 3 days ago, last seen yesterday → return/d2-7
 await ctx.addInitScript(() => {
 	if (sessionStorage.getItem('seeded')) {
@@ -51,6 +57,10 @@ const head = await page.evaluate(() => {
 		json,
 		faqAbout: document.querySelectorAll('#od-about h3').length,
 		about: document.getElementById('od-about').textContent,
+		aboutLink: !!document.querySelector('#od-about a[href="about.html"]'),
+		mailto: !!document.querySelector('#od-about a[href="mailto:1barmoshe1@gmail.com"]'),
+		title: document.title,
+		description: (document.querySelector('meta[name="description"]') || {}).content || '',
 		left: (document.documentElement.innerHTML.match(/\{\{[A-Z0-9_]+\}\}/g) || []),
 	};
 });
@@ -58,7 +68,31 @@ check(/^https:\/\/.+\/$/.test(head.canonical), `canonical is the absolute site U
 check(head.robots.includes('index'), `robots meta (${head.robots})`);
 check(!!head.json && head.json['@type'].includes('VideoGame') && head.json.inLanguage === 'he' && head.json.description.length > 20
 	&& head.json.offers.price === '0', `JSON-LD parses: VideoGame, he, a description, free (${head.json && head.json.description})`);
-check(head.faqAbout === 3, `About carries the three FAQ questions (${head.faqAbout})`);
+check(head.faqAbout === 5, `About carries the five FAQ questions (${head.faqAbout})`);
+check(head.aboutLink, 'About links to about.html');
+check(head.about.includes('בר משה') && head.mailto, 'About names its maker, with the mail as a link');
+check(head.title.includes('משחק הבחירות') && head.title.includes('2026'), `the title carries the search words (${head.title})`);
+check(head.description.startsWith('משחק בחירות סאטירי'), `meta description is META_DESCRIPTION (${head.description})`);
+check(!!head.json && head.json.author && head.json.author.name === 'בר משה' && /^\d{4}-\d\d-\d\d$/.test(head.json.dateModified || ''),
+	`JSON-LD names the author and a dateModified (${head.json && head.json.dateModified})`);
+
+// 1b. the static About page (crawlers that run no JS read it)
+const ap = await page.evaluate(async () => {
+	const r = await fetch('about.html');
+	const t = await r.text();
+	const doc = new DOMParser().parseFromString(t, 'text/html');
+	let ld = null;
+	try { ld = JSON.parse(doc.querySelector('script[type="application/ld+json"]').textContent); } catch (e) { /* null */ }
+	return { status: r.status, h1: (doc.querySelector('h1') || {}).textContent || '', faq: doc.querySelectorAll('h3').length,
+		left: (t.match(/\{\{[A-Z0-9_]+\}\}/g) || []), canonical: (doc.querySelector('link[rel="canonical"]') || {}).href || '',
+		lead: (doc.querySelector('.lead') || {}).textContent || '', scripts: doc.querySelectorAll('script:not([type])').length,
+		ld: ld ? ld['@type'] + ':' + (ld.mainEntity || []).length : '' };
+});
+check(ap.status === 200 && ap.h1.includes('משחק הבחירות'), `about.html serves its h1 (${ap.status}, ${ap.h1})`);
+check(ap.lead.startsWith('עוד סבב הוא משחק דפדפן'), 'about.html opens on the direct answer');
+check(ap.faq === 5 && ap.ld === 'FAQPage:5', `about.html: 5 FAQ questions, FAQPage JSON-LD (${ap.faq}, ${ap.ld})`);
+check(ap.left.length === 0 && ap.scripts === 0, `about.html: no placeholder, no script (${ap.left.join(', ')})`);
+check(/\/about\.html$/.test(ap.canonical), `about.html canonical (${ap.canonical})`);
 check(head.about.includes('נתוני שימוש אנונימיים'), 'About says anonymous usage data is collected (ABOUT_7_TELEMETRY)');
 check(head.left.length === 0, `no placeholder left in the page (${head.left.join(', ')})`);
 
@@ -78,7 +112,7 @@ await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, n
 await wait(1200);
 await P.refresh();
 let st = await steps();
-check(st.includes('loaded'), `the engine's load reports loaded (${st})`);
+check(st.some((x) => /^loaded\/back\/(lt3|3-8|8-20|gt20)s$/.test(x)), `a returning device's load reports loaded/back/<time> (${st})`);
 check(st.includes('return/d2-7'), `a player back 3 days after the first visit reports return/d2-7 (${st})`);
 
 // 4. a pick, the first taps
@@ -99,14 +133,24 @@ for (let i = 0; i < 3; i++) {
 await wait(500);
 st = await steps();
 check(st.includes('picked/bennett'), `the pick reports picked/bennett (${st})`);
-check(st.filter((x) => x === 'first-tap').length === 1, `first-tap once in three taps (${st})`);
-const again = await page.evaluate(() => { window.odTrack('first-tap'); window.odTrack('seats/61'); return window.odTrackLog.length; });
-check(again === st.length, 'a second first-tap and an unknown step are dropped');
+check(st.filter((x) => x.startsWith('first-tap/')).length === 1 && st.includes('first-tap/off'),
+	`first-tap once in three taps, with the disclaimer's choice (quiet → off) (${st})`);
+const again = await page.evaluate(() => { window.odTrack('first-tap/on'); window.odTrack('seats/61'); return window.odTrackLog.length; });
+check(again === st.length, 'a second first-tap (other sound) and an unknown step are dropped');
+// leaving the tab: one session step, however many times it is hidden
+const sess = await page.evaluate(() => {
+	Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+	document.dispatchEvent(new Event('visibilitychange'));
+	document.dispatchEvent(new Event('visibilitychange'));
+	Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+	return window.odTrackLog.filter((x) => x.startsWith('session/'));
+});
+check(sess.length === 1 && /^session\/(lt1|1-3|3-10|10-30|gt30)m$/.test(sess[0]), `hiding the page logs one session step (${sess})`);
 const funnel = await page.evaluate(() => (window.odFunnel || []).map((e) => e.ev));
 check(funnel.includes('first_tap') && funnel.includes('leader_pick_committed'), `window.odFunnel keeps the engine's events (${funnel})`);
 
-// 5. a reload the same day: no second return step, no second first-tap
-await page.reload();
+// 5. back the same day after a crash-like reload: reload-after-crash, no second return step
+await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&crash=1`);
 await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 }).catch(async () => {
 	await page.click('#od-quiet').catch(() => {});
 	await page.waitForFunction(() => window.mbHandoffDone > 0, null, { timeout: 120000 });
@@ -114,6 +158,7 @@ await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, n
 await wait(800);
 st = await steps();
 check(!st.some((x) => x.startsWith('return/')), `the same day again reports no return (${st})`);
+check(st.includes('reload-after-crash'), `a playing page reloaded without pagehide reports reload-after-crash (${st})`);
 await P.shot('a1-after-reload');
 
 log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
