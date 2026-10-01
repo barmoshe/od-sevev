@@ -111,7 +111,7 @@ Assets: `creative-pack/art/briefs/leaders-v3-gpt.md`.
 | Deri | 8:05 | 8:20 | +3% |
 | Golan | 7:59 | 8:28 (worst 11:50) | +6% |
 
-## Phase 3: shared events, the art, and Bar's playtest fixes (deployed 2026-10-01, `cab64b0`)
+## Phase 3: shared events, the art, and Bar's playtest fixes (deployed 2026-10-01, `c726a5e`)
 - **Unity offer** (3a): Netanyahu's offer for Bennett, Liberman and Eisenkot (`leaderSelect.unityOffer`);
   the chip reads "לא" while it is open; a tap refuses it (+1% base and the leader's line).
 - **The countdown to 27.10** (3b): two `priorityOnce` lines per leader, a countdown until 22.10 and a
@@ -124,7 +124,8 @@ Assets: `creative-pack/art/briefs/leaders-v3-gpt.md`.
 - **Mordechai David by leader** (Bar): he never blocks Ben Gvir (taps ×3 while he stands), Bibi (×2) or
   Smotrich (he just stands there): `effect.byLeader`. Everyone else: approach 2 s, block 6 s, exit 2 s.
 - **The chip** moved to the top-right sky; toasts dock in the lane while it is up.
-- **Gantz** is on the picker as a joke (`leaderSelect.decoy`): a line about the threshold, pick again.
+- **Gantz** is on the picker as a joke (`leaderSelect.decoy`): the first time he stands in for הפתעה as a
+  regular tile; picking him gets a line about the threshold, the cell turns back into הפתעה, pick again.
 
 **Bench (2026-10-01):** the median player's median first election over seeds 1-9 (Mordechai's roll
 seeded since this phase). ±10% is about ±48 s.

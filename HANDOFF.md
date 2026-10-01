@@ -1,117 +1,66 @@
-# HANDOFF: playtest fixes + leaders v3 phase 3 (2026-10-01 evening, cloud session; read this first)
+# HANDOFF: leaders v3 phase 3 + Bar's playtest asks, all live (2026-10-01 night, cloud session; read this first)
 
-Bar is playing the live build on his iPhone and reporting bugs as he goes. His working rule for this
-session: **implement and deploy first; test after Bar has played** (he says when, then run every test
-you can). Order is up to you (Bar: "לא אכפת לי באיזה סדר"). Commit each step on `main`, push, log
-hashes in `STATUS.md`.
+**Live: `c726a5e`** (web-dist `3e8ed88`, Vercel `dpl_5aWgDf3DQSifGJU3ZSSB4CR54Wj4`). Tests 497/497, content lint 0,
+gen_strings 0, lint_text 0. The L1 bench is within ±10% for all 8 leaders (table in `design/leaders-v3.md`).
+Every item of the leaders-v3 handoff below (phases 3a/3b, trophies and squawks, the deploy, the art rig) is
+**done**; that section is history now.
 
-## Live
-- **`6ae87f5`** = leaders v3 **phase 3a** (Netanyahu's unity offer for Bennett, Liberman, Eisenkot) +
-  an in-scene chip test. web-dist `9762c80`, Vercel `dpl_36DFQ95YY7GdZwfJrNwaE4CpJPjm` (READY,
-  aliased to od-sevev.vercel.app). Tests 488/488 before the build. The L1 bench for the three leaders
-  was **not** run (Bar asked to skip testing for now).
-- **How to deploy from a cloud container (no Vercel CLI login there):**
-  1. `tools/build_web.sh`. Godot 4.7.2 is fetched into the scratchpad; `tools/godot.sh` finds it there.
-  2. Commit `build/web/*` onto the `web-dist` branch in a worktree. Keep that branch's `README.md`;
-     copy `tools/web/vercel.json` and `.vercelignore` in. Message: `web build <main sha> (<what>)`.
-  3. Push `web-dist`, then create the deployment with the **Vercel connector**:
-     `create_deployment` with team `team_ok1MqoSMeupTyBE6CXAR91UT`, project
-     `prj_ZbQ1ubW0AU5hfhSVnVtcsgmm6BVA`, `target: production`, and `gitSource {type: github,
-     org: barmoshe, repo: od-sevev, ref: web-dist, sha: <web-dist sha>}`.
-  4. Check it with `get_deployment` (READY, alias od-sevev.vercel.app). Bar asked to use the
-     connector, not curl polling.
+## Done this session (details and hashes in `STATUS.md`)
+- **Blocks and interruptions** (Bar's bug: "מרדכי דוד חוסם" with him off the stage):
+  - Mordechai's block has 3 phases: walk in 2 s (taps work), block 6 s, walk out 2 s.
+  - Toasts carry an `alive` check (`Toasts.show_toast(..., alive)`, `prune`), so a stale line is dropped.
+  - One stage interruption at a time (`Events.STAGE_INTERRUPTS`, `stage_busy`).
+  - Reaction timers wait out the block (Politics dt 0).
+  - A blocked tap shakes the chip, which counts the block down.
+  - Back, keys and hold-to-buy obey the block.
+- **Mordechai by leader** (`effect.byLeader`): Ben Gvir taps ×3 while he stands, Bibi ×2, Smotrich no
+  block.
+- **The ability chip** is in the top-right sky with the GPT icon; toasts dock in the lane while it's up.
+- **Phase 3b:** a countdown and a negotiation line per leader (`priorityOnce`; it also wakes cal08).
+- **Ability trophies** (`kit.abilityTrophy`) and Dubi's ability squawk.
+- **The GPT art** is rigged (no drift):
+  - 9 pose chars, played on each use via `rule.active.poses` / `BigBanana.flash_pose`;
+  - 7 props (PressDesk draws the podium, bench and box);
+  - 8 icons;
+  - Kaia (still flag-off).
+- **The boot loading screen:** a progress bar in `#od-gate` for new and returning players, then
+  "סופר את הקולות…" while the engine starts.
+- **Gantz on the picker:** the first time, he is a normal-looking tile in place of הפתעה. Picking him
+  gets a threshold line, the cell turns into הפתעה, pick again. He fools a save once (stat
+  `gantzFooled`).
 
-## In progress on `main` (WIP commit, not deployed): stage interruptions and tap blocking
-**Bar's bug (screenshot, Bennett's round):** "מרדכי דוד חוסם. רגע." showed with Mordechai nowhere on
-the stage. Bar: the timing and logic of the blocks are wrong and several logics collide; look at
-tap-blocking in general, not only Mordechai.
+## How to deploy from a cloud container (no Vercel CLI login)
+1. `tools/build_web.sh`. Godot 4.7.2 goes in the scratchpad; `tools/godot.sh` finds it.
+2. Commit `build/web/*` onto `web-dist` in a worktree. Keep its README, and copy `tools/web/vercel.json`
+   and `.vercelignore` in.
+3. Push, then deploy with the Vercel connector: `create_deployment` with team
+   `team_ok1MqoSMeupTyBE6CXAR91UT`, project `prj_ZbQ1ubW0AU5hfhSVnVtcsgmm6BVA`, `target: production`,
+   and `gitSource {type: github, org: barmoshe, repo: od-sevev, ref: web-dist, sha: <the real sha>}`.
+4. `get_deployment` until it's READY on od-sevev.vercel.app.
 
-**What three read-only audits found** (the reports are summarised here; nothing else records them):
-- **Three clocks, no owner.**
-  - The sim starts a block when the event fires.
-  - The figure walks in on animation time (124 px/s). At 720 wide he was on his mark only about
-    2.3-3.7 s of the 6 s block. On a wide canvas he turned back before arriving; at about cw ≥ 1500
-    he never showed at all.
-  - The toast dock is one FIFO: every toast is 3 s on screen plus a 1 s gap, with no expiry and no
-    state check. So "screenText" showed at 4-7 s, every "tapBlocked" toast at 8-23 s (after the
-    block), and the end line up to 24 s.
-  - Herzog's 15 s "tap him", Kaia, the offer windows, the court-day "no taps" line and the
-    court-end line all lag the same way.
-- **Timers kept running while the player couldn't tap.** Ultimatums (a partner leaves), the summons
-  (forced court day), Smotrich's budget window (a miss raises the gate), unity/swipe offers, Herzog,
-  the Suitcase (a guaranteed miss: its flight is shorter than the block), frenzy buffs, automation.
-- **No arbiter.** Mordechai could fire on the court day, over Herzog, over an open offer, behind a
-  modal, on the same frame as a weighted card. Back, wheel, Space and hold-to-buy bypassed the block.
-  Herzog's tap box covered the ability chip, and Herzog was checked first. On a court day an
-  auto-tap made the hat hop and floated "+0".
-- **Separate bug:** a budget or swipe offer due on the court day restarted its whole first wait
-  (`next < 0` was read as unset).
+## Art pipeline notes (cloud)
+- Set up with `pip install --user pillow numpy`.
+- Re-render a character with `cd creative-pack/art/showcase/src && python3 build.py <char>`, then
+  import with `xvfb-run -a python3 pipeline/od-sevev/build.py --no-render`.
+- This Pillow re-encodes untouched PNGs. After an import:
+  - restore HEAD bytes for every pixel-identical PNG;
+  - put `sprites.json`'s `files` entries for those back to HEAD's;
+  - leave `budget.json` and the proofs at HEAD unless they really changed.
 
-**The fix, as coded (uncommitted until this handoff's WIP commit):**
-- `ui/toasts.gd`: `show_toast` / `show_chat_toast` take an optional `alive` callable. A queued toast
-  whose state ended is dropped (`prune`), and one on screen fades out early.
-- `sim/events.gd`: `screenBlock` has 3 phases on one clock (`approachSec 2` walk in, taps OK →
-  `sec 6` block → `exitSec 2` walk out, taps OK), via `block_phase`, `screen_blocked` and
-  `block_left`. Also:
-  - `STAGE_INTERRUPTS` + `stage_busy`: one stage interruption at a time (block, Herzog, Kaia; not
-    over the summons, court, an open offer or Ben Gvir's walk-off).
-  - No block behind a covered stage (`ctx.stageHidden`).
-  - The gate opening cuts the block to its exit.
-  - While blocked only the block's clock runs.
-  - A block never survives a load.
-- `sim/politics.gd`: Coalition, Investigation and Ability tick with dt 0 while blocked.
-- `sim/ability.gd`: `window_open`; offers wait out the summons and interruptions; the `next`
-  clamp fixes the restart bug.
-- `ui/street_figure.gd`: follows the phases. The walk pace comes from the phase time left, so he lands
-  as the block starts and turns as it ends at any width.
-- `main.gd`:
-  - `_input_blocked` means the block phase only; keys, Android/browser back and hold-to-buy obey it.
-  - A blocked tap shakes the chip (plus a sound) instead of queueing a toast.
-  - During the block the chip shows `copy.chipText` "חסום" with the seconds and a draining bar
-    (`_chip_view`).
-  - The press is cancelled at the block's start edge; the end line is short-lived (`_on_block_edge`).
-  - The chip is checked before Herzog and Kaia.
-  - The Suitcase never spawns or flies during a block.
-  - Automation stops while blocked; no auto-taps while taps are paused.
-  - FTUE waits out the block.
-  - `alive` is set on the card, ability, paused-tap and court-end toasts.
-- `design/content.json`: mordechai `effect.approachSec 2, exitSec 2`, `copy.chipText "חסום"`.
-  `screenText` and `tapBlockedText` are no longer shown (kept in content).
-
-**State of the WIP:** `tools/test.sh` gives 485 passed, **9 failed**:
-- `test_events::test_mordechai_rolls_every_minute_at_45_percent` (expects rolls at 60/120/180/240;
-  now 60/126/192/258, because the periodic accumulator freezes during the block). Fix: keep advancing
-  the `every` accumulators in the blocked branch of `Events.tick`.
-- `test_progression::test_an_unended_brawl_keeps_the_round_below_61` (now reaches 61). Not yet
-  diagnosed: likely the arbiter or freeze changes which seat-cost cards fire. Check before changing
-  the test.
-- `test_street_figure` × 2 (`walks_in_blocks_and_leaves_by_the_end`, `reduced_motion_fades_on_the_mark`):
-  they assert the old timing (block from the fire frame, release lead). Rewrite them for the phases.
-
-## Bar's new asks (2026-10-01 evening), not started
-1. **Mordechai David by leader** (Bar, verbatim, corrected: "מרדכי דוד לא חוסם את בן גביר ואת נתניהו
-   ואת סמוטריץ. לבן גביר הוא נותן פי שלוש, לנתניהו נותן פי שתיים, ולסמוטריץ הוא פשוט לא חוסם אותו"):
-   - In Ben Gvir's, Bibi's and Smotrich's rounds he never blocks.
-   - Ben Gvir: he gives **×3**. Bibi: **×2**. Smotrich: nothing, he just doesn't block.
-   - **Open:** ×3/×2 of what is not stated. The proposed reading is a tap multiplier while he stands
-     there (his `sec`, via `Events.leader_buff`-style `leaderBuff`). Confirm with Bar if unsure.
-   - The copy needs the skins (`copy.skins.bengvir` already exists: "מטה הצעירים שלך") and a toast
-     line for the buff.
-   - Put the per-leader behaviour in content (e.g. `effect.byLeader {bengvir: {type: tapBuff, mult: 3},
-     bibi: {…2}, smotrich: {type: none}}`), never hard-coded.
-2. **Move the ability chip** (screenshot, Ben Gvir's "אני פורש 78"): at `AbilityChip.RECT`
-   (572, 524, 140, 92, the stage's bottom right) it sits on the vending machine and the bought
-   sources' figures. Bar: "צריך להיות במקום אחר".
-   - Proposed: the empty sky at the stage's top right, under the HUD and right of the building, clear
-     of the leader's hit box (x ≤ 564).
-   - Mind the top toast dock (`Toasts.top_y()` = STAGE.y + 8, full width, 88/132 tall): either sit
-     below it or keep top-dock toasts off that corner.
-   - The chip also shows the block countdown now.
-3. **A loading screen at boot** (Bar: "Add loading screen in the boot"). Look at `game/web/shell.html`
-   (the HTML disclaimer, `window.mbHandoffDone`, the analytics `loaded/<time>` step) and the Godot
-   boot. A real progress screen while the 39 MB wasm + 20 MB pck download.
-4. **Then continue the leaders v3 handoff below:** 3b (countdown to 27.10, `priorityOnce`), the
-   ability trophies + Dubi squawks, deploy phase 3, rig the GPT art, the full bench.
+## Open
+1. **Bar plays the build.** Then run the full test pass: the web drivers (`tools/web/*.mjs`,
+   Playwright with the pre-installed Chromium) and `tools/balance.sh`. Its last run was cut short by a
+   container restart; L1 passed.
+2. **Unwired art:**
+   - `prop_round-table`, `prop_pledge-scroll`, `prop_budget-book` and `prop_clause-doc` have no hook
+     yet.
+   - Ben Gvir's walk-out pose isn't played, because the court walk ends a pose.
+3. **Bar only** (from the analytics handoff):
+   - Search Console indexing for `/` and `/about.html`;
+   - the press pitch;
+   - deleting `dpl_aas8f96abYdAJdkMHYQp21BrCws8`;
+   - the domain (not now);
+   - the smaller web engine (the Mac's disk).
 
 # HANDOFF: leaders v3, a storyline and gameplay for every leader (2026-10-01, the character-copy session)
 
