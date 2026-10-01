@@ -615,10 +615,10 @@ func _refresh() -> void:
 		again_btn.hover(show_focus and focus == cells.size())
 	if _strip != null:
 		var txt := _strip_default()
-		if active >= 0 and str(cells[active]["blurb"]) != "":
+		if _decoy_ms > 0.0:
+			txt = _decoy_line   # Gantz's line wins over a hovered tile's caption while it shows
+		elif active >= 0 and str(cells[active]["blurb"]) != "":
 			txt = str(cells[active]["blurb"])
-		elif _decoy_ms > 0.0:
-			txt = _decoy_line
 		if _strip.text != txt:
 			_strip.text = txt
 			_place_strip()
