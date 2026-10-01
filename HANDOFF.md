@@ -7,7 +7,8 @@ assets made with GPT ("אל תתקמצן"). Bar's planning answers:
 - it ships in phases, each one deployed.
 
 Design and tables: **`design/leaders-v3.md`**. GPT assets: **`creative-pack/art/briefs/leaders-v3-gpt.md`**.
-**Live: `5eaecd5`** (web-dist `ad28161`, Vercel `dpl_9q8R6t3GMYgppFgGfNagwbJBMHgw`). Hashes and bench numbers: `STATUS.md`.
+**Live: `5eaecd5`** (web-dist `ad28161`, Vercel `dpl_9q8R6t3GMYgppFgGfNagwbJBMHgw`). **`main` is ahead:** the GPT art and
+phase 3a WIP (`1790c43`), not deployed. Hashes and bench numbers: `STATUS.md`.
 Tests 484/484, content lint 0, gen_strings 0, lint_text 0. The bench (L1) is within ±10% for all 8 leaders.
 
 ## Done (on main)
@@ -36,29 +37,102 @@ Tests 484/484, content lint 0, gen_strings 0, lint_text 0. The bench (L1) is wit
   - **Bibi's pardon desk:** the "הסדר טיעון" stamp brings Herzog.
   - **Bench:** `PacingSim._play_ability` plays the abilities.
 
-## Open, in order
-1. **GPT art (generated 2026-10-01, rigging open):** the brief lists second poses A1–A9, props B1–B7, the 8
-   icons and Kaia. The agent generates them in Bar's ChatGPT via Chrome; every chat, its verdict and
-   whether it is downloaded is in `creative-pack/art/briefs/leaders-v3-gpt-runs.md`.
-   - **All in `refs/`:** A1–A9, B1–B7, the C icon grid (`ability-icons.png`), `kaia.png` and
-     `kaia-happy.png`. Skipped as optional: `mk-returner.png` and the picker key art.
-   - Golan's swipe pose came out smaller in frame: check it against `golan.png` when rigging.
-   - Downloading: use ChatGPT's own Download button in the image viewer. Chrome holds a second
-     script-triggered download until it is allowed (Bar allowed multiple downloads on 2026-10-01).
+## Open, in order (2026-10-01, handed to a CLOUD agent)
 
-   Then rig them like `herzog-shrug` (`cast.py` pose react), and:
-   - `PressDesk` → the podium/bench/box sprites;
-   - `AbilityChip` → the icons.
-2. **Phase 3:**
-   - a shared "הצעת אחדות" for every opposition leader (today only Golan's ability has it);
-   - the countdown to 27.10 with a line per leader (`calendar`, `negotiation` mode).
-3. **Ability trophies** (one per leader, `stats.abilityUses` is ready) and Dubi squawks for the abilities.
-4. **The bench:**
-   - Only L1 (the median first election) was run per leader. The full `tools/balance.sh` (profiles,
-     the median hour) timed out at 25 min in the container: run it on the Mac.
-   - Bennett sits at −9%, close to the edge. If he goes out, raise his cooldown (`rule.active.cooldownSec`).
-   - Golan's worst seed is 11:50.
-   - Tune only `rule.active` numbers; never the shared economy.
+**Read first:** you run in a cloud environment, not on Bar's Mac. You have no Chrome, no ChatGPT, no
+`~/Downloads` and no scratchpad from earlier sessions. Everything you need is pushed to `main`. Work on
+`main` (or a branch Bar names), commit each step, push, and log hashes in `STATUS.md`. Earlier phases were
+built, tested and deployed from a container, so `tools/test.sh`, the L1 bench and `tools/deploy_web.sh`
+should work for you. If Godot or the Vercel token is missing, say so in `STATUS.md` and leave that step
+for Bar's Mac. Don't block on it.
+
+**Where it stands:** live is still `5eaecd5` (phase 2). On `main` and not deployed:
+- `c6a90ec` and the art commits before it: all the GPT art, not rigged;
+- `1790c43`: phase 3a as WIP.
+
+1. **Finish phase 3a, the shared unity offer** (`1790c43`, WIP).
+   - **Built:** Netanyahu's offer for every opposition leader but Golan, whose swipe already is one.
+     - Content: `leaderSelect.unityOffer`, first at 150 s, then every 240 s, open 20 s, +1%.
+     - Each leader's refusal: `kit.unity.refuse` for bennett, liberman and eisenkot.
+     - The chip shows "לא" while the offer is open; a tap refuses it, for +1% base, the leader's toast
+       and `stats.unityRefusals`. Ignoring it does nothing (Bar's call, 2026-10-01).
+     - The offer waits out the court day and the leader's own live ability (a walk-off, a pledge he
+       can still flip).
+     - Code: `Ability.unity_*`, `_tick_unity`, `_refuse_unity` in `sim/ability.gd`, all in the same
+       state dict (`uPhase`, `uT`, `uNext`). `main.gd _on_ability_event` handles the `unityOffer` and
+       `unityRefuse` toasts. `PacingSim._play_ability` refuses every offer. `gen_strings.py` now
+       measures `kit.unity.refuse` and `unityOffer.copy`.
+   - **Checked:** `test_abilities` 14/14 (4 new unity tests), content lint 0, gen_strings 0.
+   - **Not checked:**
+     - Run the full `tools/test.sh`. Expect 488+ tests. `test_data_sync` needs `tools/sync_data.sh`,
+       which `test.sh` runs.
+     - Add an in-scene chip test in `test_event_copy.gd`, after the pattern of
+       `test_the_ability_chip_walks_ben_gvir_out`: force `uNext` to 0, tick, tap the chip, expect the
+       refusal toast.
+   - **Bench:** run L1 for bennett, liberman and eisenkot (the median first election, seeds 1–9, as in
+     `design/leaders-v3.md`). Bennett was at −9% before this, and +1% per refusal pushes him faster.
+     If he falls out of ±10%, lengthen `unityOffer.everySec`, or exclude him via a `skip` list in
+     `unityOffer`. Never touch the shared economy.
+2. **Phase 3b, the countdown to 27.10 with a line per leader.** Not started. The design is in
+   `design/leaders-v3.md` ("Next phases"), and Bar answered (2026-10-01):
+   - **Countdown line:** two lines per leader in `kit.ticker[]`. The countdown is shaped like `cal01`:
+     `icu: true` with `{d, plural…}`, `when {mode: [campaign], dateTo: "2026-10-22"}` (it stops
+     before the blackout), and `poll_like`.
+   - **Negotiation line:** `when {mode: [negotiation]}`, and it never shows results.
+   - **Placement:** each line shows **once at the start of a round**, then joins the random pool. Wire
+     `priorityOnce` in `game/scripts/core/ambient.gd pick()`: take the first eligible unseen
+     `priorityOnce` line, tracked per round in `s.leader_round`. Nothing reads `priorityOnce` today.
+     Wiring it also wakes `calendar.negotiation.opener` (`cal08`); that's intended, so mention it in
+     `STATUS.md`.
+   - **Copy rules:** the leader's own voice, ≤ 60 chars (content-lint `checkTick`), no poll numbers,
+     no em dashes, no quote marks on reported speech, nothing true in the 23.10–27.10 blackout.
+   - **Lint:** `checkTick` must accept `priorityOnce`; allow at most 2 per kit.
+   - **Test:** extend `test_calendar.gd` or an ambient test: picked first, once per round, never in
+     the blackout.
+3. **Ability trophies + Dubi squawks.** Not started.
+   - **Trophies:** a new `kit.abilityTrophy` per leader (8),
+     `trigger {type: "leaderStat", leader, key: "abilityUses", value: N}`.
+     - Proposed N: Bibi 5 (his is once a round), Liberman 5 documents, Smotrich 10, Bennett / Ben Gvir /
+       Eisenkot 10, Deri 25, Golan 15.
+     - Names and descriptions in the leader's joke voice, `icon_folder` like the others.
+     - `Leaders.trophies()` (`leaders.gd:805`) must also append `kit.abilityTrophy`.
+     - Lint: unique ids against shipped trophies and `kit.trophy` (`content-lint.mjs:440`).
+     - Test: `test_trophy_stats.gd`.
+   - **Squawks:** `kit.dubi.squawks.ability` per leader, fired from `_on_ability_event` on a use via
+     `Audio.squawk_text(id, "ability")` (`audio.gd:532`, which falls back to a shared `dubi.ability`).
+     Throttle to one per 20 s. `gen_strings.py` already measures every squawk key.
+4. **Deploy phase 3** once 1–3 are green: `tools/build_web.sh` (strict), then `tools/deploy_web.sh`
+   following the last deploy entries in `STATUS.md`. Verify that the live `mbBuild` matches. Log it in
+   `STATUS.md`, `design/leaders-v3.md` (a Phase 3 section with the bench table) and this file.
+5. **Rig the GPT art** (all in `creative-pack/art/refs/`; the run log with every chat is
+   `creative-pack/art/briefs/leaders-v3-gpt-runs.md`).
+   - **The files:**
+     - poses: `bennett-sign`, `ben-gvir-walkout`, `ben-gvir-back`, `liberman-document`,
+       `eisenkot-summit`, `smotrich-budget`, `deri-bench`, `golan-swipe`, `bibi-matchmaker`;
+     - props: `podium`, `corridor-bench`, `round-table`, `cardboard-box`, `pledge-scroll`,
+       `budget-book`, `clause-doc`;
+     - icons: `ability-icons` (a 4×2 grid in the brief's order, 1254×1254);
+     - Kaia: `kaia` and `kaia-happy`.
+   - **The rig:**
+     - Poses are a second ref per leader, like `herzog-shrug` over `herzog` (pose react in
+       `creative-pack/art/showcase/src/cast.py`, built by `showcase/src/build.py`; the game sprites
+       come out of `pipeline/od-sevev/build.py`).
+       Check that the feet line and head size match the first ref. `golan-swipe` came out smaller in
+       frame than the rest.
+     - Props go in the props block of those same scripts.
+     - `PressDesk` (`game/scripts/ui/press_desk.gd`) swaps its drawn map for the `podium` and
+       `corridor-bench` sprites.
+     - `AbilityChip` swaps its letter for the cut icon.
+     - `kaia_figure.gd` swaps the drawn dog for `kaia` / `kaia-happy`.
+   - **Caution:** the earlier "scratchpad `import.sh`" lived in a local session. Use the repo's own art
+     pipeline (`art/`, `pipeline/`, `node art/tools/export-godot-data.mjs`; see `HOW-TO-RUN.md`). If a
+     step needs a local-only tool, stop and note it.
+6. **The full bench** (`tools/balance.sh`, profiles and the median hour) timed out at 25 min in a
+   container. Try it in the background. If it times out again, leave it for Bar's Mac. Golan's worst
+   seed is 11:50.
+
+**Can't be done from the cloud:** anything in ChatGPT (new art or retries: give Bar a prompt instead),
+Bar's Chrome, Bing Webmaster sign-in.
 
 ## How to change an ability
 - **Numbers and copy:** `design/content.json` `leaders[].rule.active`, then `tools/sync_data.sh`.
