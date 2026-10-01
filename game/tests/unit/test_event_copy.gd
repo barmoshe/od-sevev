@@ -143,3 +143,77 @@ func test_a_stage_event_runs_its_ticker_line() -> void:
 	m._on_card_event({"ev": "event", "id": "kaia", "kind": "stage", "result": {}})
 	var q: Array = m.ticker._queues["flavor"]
 	runner.check(str(q).contains(line), "Kaia's line is queued in the ticker (%s)" % str(q))
+
+
+# ------------------------------------------------------------------ Herzog's outline (events.herzog)
+
+func test_herzogs_outline_discounts_open_demands_when_accepted() -> void:
+	var s := GameState.fresh()
+	_members(s, ["amsalem", "smotrich", "bengvir"])
+	var out: Array = []
+	Coalition._post(s, {"type": "demand", "partner": "amsalem", "price": 100.0, "state": "open", "payable": "demand"}, out)
+	Coalition._post(s, {"type": "demand", "partner": "smotrich", "price": 40.0, "state": "paid", "payable": "demand"}, out)
+	Events.fire(s, "herzog", Economy.derive(s))
+	runner.check(Events.is_active(s, "mediation"), "the outline stands (effect mediation)")
+	var r := Events.act(s, "mediation", "accept", Economy.derive(s))
+	var chat: Array = s.coalition["chat"]
+	runner.check(int(r.get("cut", 0)) == 1, "one open demand re-priced (%s)" % str(r))
+	runner.check(float(chat[0]["price"]) == 70.0 and float(chat[1]["price"]) == 40.0, "the open one drops 30%%, a paid one stays (%s, %s)" % [chat[0]["price"], chat[1]["price"]])
+	runner.check(not Events.is_active(s, "mediation"), "accepted: the outline is gone")
+	runner.check(Events.act(s, "mediation", "accept", Economy.derive(s)).is_empty(), "and cannot be accepted twice")
+
+
+func test_herzogs_outline_lapses_with_an_event_end() -> void:
+	var s := GameState.fresh()
+	_members(s, ["amsalem", "smotrich", "bengvir"])
+	Events.fire(s, "herzog", Economy.derive(s))
+	var ends: Array = []
+	for i in 40:
+		for e: Dictionary in Events.tick(s, 0.5, Economy.derive(s), {}, func() -> float: return 0.99):
+			if e.get("ev", "") == "eventEnd":
+				ends.append(e.get("type", ""))
+	runner.check(ends.has("mediation") and not Events.is_active(s, "mediation"), "ignored, it lapses (%s)" % str(ends))
+
+
+func test_herzog_walks_in_takes_a_tap_and_walks_out() -> void:
+	await _boot()
+	runner.check(_start_round(), "Bibi's round starts")
+	var s: GameState = m.state
+	_members(s, ["amsalem", "smotrich", "bengvir"])
+	var out: Array = []
+	Coalition._post(s, {"type": "demand", "partner": "amsalem", "price": 100.0, "state": "open", "payable": "demand"}, out)
+	m.herzog.reduced_motion = true
+	m._on_politics_event(Events.fire(s, "herzog", m.d))
+	var c: Dictionary = Events.event("herzog")["copy"]
+	runner.check(m.toasts._queue.has(str(c["text"])), "his card line is toasted")
+	for i in 3:
+		m._process(0.05)
+	var hz: HerzogFigure = m.herzog
+	runner.check(hz.visible and hz.tappable() and hz.position == HerzogFigure.mark(), "he stands on the front-right mark")
+	runner.check(not m.sara.visible, "Sara steps off her mark while he stands there")
+	var at: Vector2 = hz.hit_rect().get_center() + Vector2(m._sx, m._stage_y)
+	for pressed in [true, false]:
+		var e := InputEventScreenTouch.new()
+		e.position = at
+		e.pressed = pressed
+		m._unhandled_input(e)
+	runner.check(not Events.is_active(s, "mediation"), "a tap on him accepts the outline")
+	runner.check(float((s.coalition["chat"] as Array)[0]["price"]) == 70.0, "the open demand is 30% cheaper")
+	var want := Bidi.fill(str(c["acceptText"]), {"pct": "30"})
+	runner.check(m.toasts._queue.has(want) or (m.toasts._text != null and m.toasts._text.text == want), "the accept line is toasted")
+	for i in 3:
+		m._process(0.05)
+	runner.check(not hz.visible, "and he walks out (reduced motion: at once)")
+
+
+func test_herzog_shrugs_when_ignored() -> void:
+	await _boot()
+	runner.check(_start_round(), "Bibi's round starts")
+	var s: GameState = m.state
+	_members(s, ["amsalem", "smotrich", "bengvir"])
+	m.herzog.reduced_motion = true
+	m._on_politics_event(Events.fire(s, "herzog", m.d))
+	m._process(0.05)
+	Events._st(s)["active"] = (Events._st(s)["active"] as Array).filter(func(a: Dictionary) -> bool: return a["type"] != "mediation")
+	m._process(0.05)
+	runner.check(m.herzog.state == "shrug" and m.herzog.strip.anim == "react", "the outline lapsed: he shrugs (the react)")

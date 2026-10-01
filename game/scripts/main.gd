@@ -82,6 +82,7 @@ var _modal := Node2D.new()          # overlays + EVOLVE_TX
 var diorama: Diorama
 var street: StreetFigure        # Mordechai David on the Balfour stage (design/mordechai-david-spec.md)
 var sara: SaraMark              # Sara on the Balfour stage, Bibi's round (motion/state-graph-cast.md §3)
+var herzog: HerzogFigure        # President Herzog's compromise outline (events.herzog, effect "mediation")
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
 var bb: BigBanana
 var prop_fx: PropFx                 # the Magician's coins and rabbit
@@ -388,6 +389,8 @@ func _build() -> void:
 	street.on_marker = func(n: String) -> void: _audio(n)
 	sara = SaraMark.new()
 	diorama.street_layer().add_child(sara)
+	herzog = HerzogFigure.new()
+	diorama.street_layer().add_child(herzog)
 	bb = BigBanana.new()
 	_stage.add_child(bb)
 	prop_fx = PropFx.new()
@@ -838,6 +841,8 @@ func _apply_settings() -> void:
 	golden.reduced_motion = rm
 	diorama.set_reduced_motion(rm)
 	street.reduced_motion = rm
+	if herzog != null:
+		herzog.reduced_motion = rm
 	floaters.reduced_motion = rm
 	top_bar.set_reduced_motion(rm)
 	buffs.set_reduced_motion(rm)
@@ -1138,6 +1143,7 @@ func _process(delta: float) -> void:
 	diorama.update_view(dt)
 	street.update_view(dt, state, running)   # any stage since 2026-10-01 (Bar): he comes every minute, 45%
 	sara.update_view(dt, state, running and diorama.era_id() == "balfour")
+	herzog.update_view(dt, state, running)
 	floaters.update_view(dt)
 	fx_stage.update_view(dt)
 	fx_ui.update_view(dt)
@@ -1502,6 +1508,9 @@ func _on_politics_event(e: Dictionary) -> void:
 			if str(e.get("type", "")) == "screenBlock":
 				var sc := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
 				toasts.show_toast(str(sc.get("screenEndText", "")), "", "lane")
+			if str(e.get("type", "")) == "mediation":
+				# nobody took Herzog's outline: it lapses (he shrugs on his own, HerzogFigure)
+				toasts.show_toast(str((Events.event("herzog").get("copy", {}) as Dictionary).get("rejectText", "")), "", "lane")
 			if str(e.get("type", "")) == "pledge":
 				# Bennett's pledge flips when its timer runs out (his card elsewhere, his own rule in his round)
 				var flip := str((Events.event("bennett").get("copy", {}) as Dictionary).get("flipText", ""))
@@ -1558,13 +1567,27 @@ func _on_card_event(e: Dictionary) -> void:
 	if str(c.get("system", "")) != "":
 		toasts.show_toast(str(c["system"]))
 	var text := str(c.get("text", ""))
-	if str(e.get("kind", "")) != "card" or text == "":
+	if (str(e.get("kind", "")) != "card" and not bool(c.get("toast", false))) or text == "":
 		return
 	var person := str(ev.get("person", id))
 	var face := ChatView.toast_avatar(person)
 	if str(face[0]) == "" and str(c.get("avatar", "")) != "":
 		face = _art_face(str(c["avatar"]))
 	toasts.show_chat_toast(str(c.get("name", "")), text, face, "", true, 2)
+
+
+## A tap on Herzog while his outline stands (HerzogFigure): accepted. Every open demand drops by the
+## effect's pct (Coalition.discount_open); he walks out; the toast says what it saved.
+func _accept_mediation() -> void:
+	var r := Events.act(state, "mediation", "accept", d)
+	if r.is_empty():
+		return
+	herzog.accept()
+	var c: Dictionary = Events.event("herzog").get("copy", {}) if Events.event("herzog").get("copy") is Dictionary else {}
+	var key := "acceptText" if int(r.get("cut", 0)) > 0 else "acceptNone"
+	toasts.show_toast(Bidi.fill(str(c.get(key, "")), {"pct": str(int(r.get("pct", 0)))}), "", "lane")
+	_audio("stamp")
+	_mark_dirty()
 
 
 ## A toast face for an art id: [art, logical px per sprite px, density], or ["", …] without the art.
@@ -1873,6 +1896,9 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		return
 	if thermo.is_shown() and Ui.in_rect(thermo.hit_rect(), sp):
 		_presses[idx] = {"kind": "thermo"}   # rtl-map §4: tap → T4
+		return
+	if herzog.tappable() and Ui.in_rect(herzog.hit_rect(), sp):
+		_accept_mediation()
 		return
 	if golden.hit_test(sp):
 		_catch_golden()

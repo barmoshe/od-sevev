@@ -726,7 +726,8 @@ func _signature() -> String:
 	parts.append(str(_upto))
 	for m: Dictionary in _chat(_state):
 		if int(m.get("seq", 0)) <= _upto:
-			parts.append("%d%s" % [int(m["seq"]), str(m.get("state", ""))[0] if str(m.get("state", "")) != "" else "_"])
+			# the price too: Herzog's outline (Coalition.discount_open) re-prices open pills in place
+			parts.append("%d%s%d" % [int(m["seq"]), str(m.get("state", ""))[0] if str(m.get("state", "")) != "" else "_", int(m.get("price", 0.0))])
 	parts.append(str(Coalition.member_count(_state)) if _state != null and Coalition.active() else "0")
 	for pid: String in _statuses():
 		parts.append(pid)

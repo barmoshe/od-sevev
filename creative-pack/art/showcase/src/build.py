@@ -590,11 +590,11 @@ def _sh(rig, shape):
 from PIL import Image as _I
 
 RINGS = {'hop': (242, 193, 78, 255), 'jab': (208, 42, 54, 255), 'bang': (122, 74, 40, 255),
-         'sneak': (60, 60, 70, 255), 'no': (90, 90, 100, 255)}
+         'sneak': (60, 60, 70, 255), 'no': (90, 90, 100, 255), 'shrug': (90, 90, 100, 255)}
 
 
 def generic(name, cfg, d):
-    rig = Rig(name, ART_H * d, pad=(0.14, 0.10), ncolors=NC)
+    rig = Rig(name, ART_H * d, pad=cfg.get('pad', (0.14, 0.10)), ncolors=NC)
     rig.density = d
     st = round(d / rig.s)
     neck, waist = rig.c(0, cfg['neck'])[1], rig.c(0, cfg['waist'])[1]
@@ -687,6 +687,21 @@ def generic(name, cfg, d):
                (-10, 1, 1.02), (8, 1.04, .95), (12, 1.05, .94), (4, 1, 1), (0, 1, 1), (0, 1, 1)]
         react = [pose(ang=a, sx=sx, sy=sy) for a, sx, sy in seq]
         anims.append(('react', react, 14, False, {'bang': 4, 'bang2': 8}, tracks(react)))
+    elif cfg['react'] == 'shrug':  # a second ref (cfg['shrug']) in the rest pose's ref coordinates: dip, pop into the shrug, hold, settle back
+        sim = _I.open(os.path.join(REFS_DIR, cfg['shrug'] + '.png')).convert('RGBA')
+        sbb = sim.getchannel('A').point(lambda v: 255 if v > 128 else 0).getbbox()
+        shrug_cv = rig.canvas().copy()
+        shrug_cv.paste((0, 0, 0, 0), (0, 0, *shrug_cv.size))
+        shrug_cv.alpha_composite(sim.crop(sbb), (sbb[0] - rig.ox + rig.padx, sbb[1] - rig.oy + rig.padt))
+
+        def shrug(sx=1.0, sy=1.0, dy=0):
+            cv = rig.squash(shrug_cv.copy(), sx, sy)
+            if dy:
+                sh = _I.new('RGBA', cv.size, (0, 0, 0, 0)); sh.paste(cv, (0, -dy * st), cv); cv = sh
+            return rig.down(cv)
+        react = [pose(), pose(sx=1.03, sy=.96), shrug(.98, 1.03, 1), shrug(), shrug(1.0, 1.01), shrug(), shrug(),
+                 shrug(1.0, 1.01), shrug(), pose(sx=1.02, sy=.98), pose(), pose()]
+        anims.append(('react', react, 12, False, {'shrug': 2}, tracks(react)))
     elif cfg['react'] == 'jab':
         seq = [(0, 0, 1, 1, 0), (-6, 0, 1.02, .97, 0), (8, 0, 1, 1.01, 1), (-4, 0, 1, 1, -1), (8, 0, 1, 1.01, 1),
                (-4, 0, 1, 1, -1), (8, 0, 1, 1.01, 1), (2, 0, 1, 1, 0), (0, 0, 1, 1, 0), (0, 0, 1, 1, 0)]

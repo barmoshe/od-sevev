@@ -94,6 +94,12 @@ static var EFFECTS: Dictionary = {
 		# the screen takes a tap (main._input_blocked). No seats, no money: the cost is the lost seconds.
 		_activate(s, "screenBlock", e, {})
 		return {},
+	"mediation": func(s: GameState, e: Dictionary, _d: Economy.Derived, _r: Callable) -> Dictionary:
+		# Herzog's compromise outline (fact herzog-framework, March 2023): he stands on the stage for
+		# `sec`; a tap on him accepts it (act "accept": every open demand drops `pct`%); ignored, it
+		# lapses and he shrugs. No seats, no penalty: the cost of ignoring him is the missed discount.
+		_activate(s, "mediation", e, {})
+		return {},
 	"loseRandomPartner": func(s: GameState, _e: Dictionary, d: Economy.Derived, r: Callable) -> Dictionary:
 		var pool: Array = []
 		for p: Dictionary in Coalition.partners():
@@ -477,6 +483,10 @@ static func act(s: GameState, type: String, action: String, d: Economy.Derived) 
 			return {"award": award}
 		if type == "pardonDesk" and action == "request":
 			return {"stamp": Investigation.request_pardon(s)}
+		if type == "mediation" and action == "accept":
+			(st["active"] as Array).erase(a)
+			var pct := clampf(float(e.get("pct", 30.0)), 0.0, 100.0)
+			return {"accepted": true, "pct": pct, "cut": Coalition.discount_open(s, 1.0 - pct / 100.0)}
 	return {}
 
 

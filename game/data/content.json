@@ -2225,6 +2225,38 @@
     "text": "אמר להרצוג להתבייש. לך הוא עוד לא אמר כלום. אולי אחרי הבחירות.",
     "_note": "Washington-era cameo in Bibi's round (bibiOnly.events): the endorsement that never lands. Effect none, so no balance change beyond sharing the event slot."
    }
+  },
+  {
+   "id": "herzog",
+   "kind": "stage",
+   "weight": 2,
+   "cooldownSec": 600,
+   "when": {
+    "membersAtLeast": 2
+   },
+   "effect": {
+    "type": "mediation",
+    "sec": 15,
+    "pct": 30
+   },
+   "pollLike": false,
+   "src": [
+    "herzog-framework"
+   ],
+   "copy": {
+    "name": "יצחק הרצוג",
+    "role": "נשיא המדינה",
+    "toast": true,
+    "text": "הנשיא מציע מתווה פשרה. לגעת בו כדי לקבל אותו.",
+    "ticker": "מתווה פשרה מבית הנשיא. בקואליציה: חד־צדדי. עוד לפני שקראו.",
+    "tickerSrc": [
+     "herzog-framework"
+    ],
+    "acceptText": "קיבלת את המתווה. כל דרישה פתוחה ירדה ב־{pct}%.",
+    "acceptNone": "קיבלת את המתווה. לא היה על מה להתפשר.",
+    "rejectText": "המתווה נדחה. הנשיא משך בכתפיים.",
+    "_note": "Bar, 2026-10-01: Herzog v2 art (rest + shrug). HerzogFigure walks in to the front-right mark; a tap accepts (Events.act mediation accept, Coalition.discount_open); ignored, he shrugs and the outline lapses (eventEnd mediation, rejectText)."
+   }
   }
  ],
  "calendar": {
@@ -4805,6 +4837,19 @@
     "src": [
      "gafni-back",
      "gafni-off-list"
+    ]
+   },
+   {
+    "id": "h01",
+    "text": "הנשיא קרא לאחדות. שני הצדדים הסכימו: שהשני יתאחד.",
+    "poll_like": false
+   },
+   {
+    "id": "h02",
+    "text": "בקשת החנינה אצל הנשיא. הנשיא אצל הגישור.",
+    "poll_like": false,
+    "src": [
+     "pardon-shelved"
     ]
    }
   ]

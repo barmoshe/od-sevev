@@ -1027,6 +1027,21 @@ static func post_leak(s: GameState, idx: int, n_lines: int, skin: String = "") -
 	return out
 
 
+## Every open demand and ultimatum costs `mult` of its price (Herzog's outline, Events "mediation"),
+## rounded to a whole shekel and never below 1. Returns how many messages changed.
+static func discount_open(s: GameState, mult: float) -> int:
+	var n := 0
+	for m: Dictionary in _c(s)["chat"]:
+		if str(m.get("state", "")) != "open" or not ["demand", "ultimatum"].has(str(m.get("type", ""))):
+			continue
+		var p := float(m.get("price", 0.0))
+		if p <= 0.0:
+			continue
+		m["price"] = maxf(1.0, roundf(p * mult))
+		n += 1
+	return n
+
+
 ## "צאו החוצה": they stay in the coalition and take the argument to "המסדרון".
 static func resolve_brawl(s: GameState, seq: int) -> Array:
 	var out: Array = []
