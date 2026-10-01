@@ -31,3 +31,19 @@ own start, with "לשחק בחינם · הלינק בביו" on screen the whole
 Copy follows the game after the 2026-10-01 copy audit and `creative-pack/voice/character-research-2026-10-01.md`.
 
     python3 src/shorts.py <scratch> pov|stop|speedrun|tap [--stills | --one <sec>]
+
+## LinkedIn: one looping GIF (`src/linkedin.py`)
+
+LinkedIn animates a GIF only under 5 MB and 400 frames (past either it freezes on frame 0), plays it
+silent, and gives 4:5 the most feed. So: 18 s at 12 fps (216 frames), 1080x1350, flat backgrounds, and
+frame 0 (`od-sevev-linkedin-cover.png`) is a complete still: "בניתי משחק על הבחירות.", the wordmark,
+the eight, "אף אחד לא מגיע ל־61.". Then four real frames (pick, tap, money, coalition), four leaders'
+mechanics, "כל עובדה במשחק באה עם מקור. הבדיחות לא.", the hemicycle stuck at 60, and "בקרוב" with
+"עקבו באינסטגרם @od.sevev". No link until the game is announced.
+
+| File | Size |
+|---|---|
+| `od-sevev-linkedin.gif` | 1080x1350, about 4.5 MB |
+| `od-sevev-linkedin-small.gif` | 540x675, about 1.5 MB, if LinkedIn freezes the big one |
+
+    python3 src/linkedin.py <scratch> [--stills | --one <sec>]
