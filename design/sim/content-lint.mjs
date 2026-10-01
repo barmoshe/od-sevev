@@ -385,8 +385,16 @@ if (C.leaderSelect || C.leaders) {
     if (!hebStr(o.text)) return err(path, 'ticker text missing');
     if (allTicker.has(o.id)) err(path, `duplicate ticker id ${o.id}`); allTicker.add(o.id);
     if (typeof o.poll_like !== 'boolean') err(path, 'poll_like missing');
-    const L = len(o.text);
+    // nested ICU ({d, plural, one {…} other {…}}) counts as one token
+    const L = [...o.text.replace(/\{[^{}]*(\{[^{}]*\}[^{}]*)*\}/g, '00')].length;
     if (L > 60) err(path, `ticker ${L} > 60: ${o.text}`);
+    if (o.text.includes('\u2014')) err(path, `em dash in a ticker line: ${o.text}`);
+    // leaders v3 phase 3b: a priorityOnce countdown never shows in the blackout (23.10-27.10)
+    if (o.priorityOnce) {
+      const md = [].concat(o.when?.mode || []);
+      if (md.includes('blackout')) err(path, 'priorityOnce line may not show in the blackout');
+      if (o.icu && !(o.when?.dateTo && o.when.dateTo <= '2026-10-22')) err(path, 'a priorityOnce countdown needs when.dateTo <= 2026-10-22');
+    }
     if (/"/.test(o.text) && realNames.some(n => o.text.includes(n))) {
       const q = [...holderSrc, ...(o.src || [])].some(f => factIds.get(f)?.label === 'Q');
       if (!q && !o.reportedSpeech) err(path, `quote marks + real name without a [Q] src: ${o.text}`);
@@ -443,6 +451,7 @@ if (C.leaderSelect || C.leaders) {
       if ((st.titles || []).length !== (st.beats || []).length || (st.beats || []).length < 3) err(`${P}.kit.story`, 'needs ≥ 3 beats and one title per beat');
       if ((K.ticker || []).length < 10) err(`${P}.kit.ticker`, `${(K.ticker || []).length} lines < 10`);
       for (const t of K.ticker || []) checkTick(t, `${P}.kit.ticker.${t.id}`);
+      if ((K.ticker || []).filter(t => t.priorityOnce).length > 2) err(`${P}.kit.ticker`, 'at most 2 priorityOnce lines per leader');
       if (!K.trophy?.id || trIds.has(K.trophy.id)) err(`${P}.kit.trophy`, 'missing, or id collides with a shipped trophy');
       if (!L.rule?.effect) err(P, 'rule missing (every leader has one signature rule, spec §5.1)');
     }

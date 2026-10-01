@@ -392,6 +392,32 @@ func test_story_follows_the_leader_just_played() -> void:
 	runner.check(Story.flash(b)["id"] == "beat_1" and Array(Story.flash(b)["lines"]) == Array(Story.beat_for(1)), "Bibi's flash is the shipped beat")
 
 
+## Leaders v3 phase 3b: the leader's countdown line (priorityOnce) is the round's first ambient line,
+## once a round, back after a new round begins, and never after 22.10 (the blackout).
+func test_the_countdown_line_comes_first_once_a_round() -> void:
+	var s := _round("bennett")
+	s.evolutions = 1   # past the C1 gate
+	s.calendar["mode"] = "campaign"
+	var oct5 := Time.get_unix_time_from_datetime_string("2026-10-05T09:00:00") * 1000.0
+	var recent: Array = []
+	var first := Ambient.pick(s, recent, func() -> float: return 0.99, oct5)
+	runner.check(first.begins_with("עוד") and first.contains("בנט כבר חתם"), "the countdown first (%s)" % first)
+	var again := false
+	for i in 20:
+		if Ambient.pick(s, recent, func() -> float: return float(i) / 20.0, oct5).contains("בנט כבר חתם"):
+			again = true
+	runner.check(not again, "once a round")
+	Leaders._begin(s, "bennett", "bennett")
+	runner.check(Ambient.pick(s, [], func() -> float: return 0.99, oct5).contains("בנט כבר חתם"), "back in the next round")
+	Leaders._begin(s, "bennett", "bennett")
+	var oct24 := Time.get_unix_time_from_datetime_string("2026-10-24T09:00:00") * 1000.0
+	runner.check(not Ambient.pick(s, [], func() -> float: return 0.99, oct24).contains("בנט כבר חתם"), "never in the blackout")
+	s.calendar["mode"] = "negotiation"
+	Leaders._begin(s, "bennett", "bennett")
+	var neg := Ambient.pick(s, [], func() -> float: return 0.99, oct5)
+	runner.check(neg.begins_with("משא ומתן") or neg.begins_with("מתחיל משא ומתן"), "negotiation: a negotiation opener first (%s)" % neg)
+
+
 func test_ambient_and_headlines_per_leader() -> void:
 	var b := _round("bibi")
 	var v2: Dictionary = Content.data()["ambientHeadlinesV2"]

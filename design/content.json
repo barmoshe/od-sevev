@@ -4925,6 +4925,36 @@
     "src": [
      "golan-salon"
     ]
+   },
+   {
+    "id": "cal20",
+    "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. ביבי כבר סופר הפוך.",
+    "poll_like": false,
+    "src": [
+     "election-2026"
+    ],
+    "icu": true,
+    "priorityOnce": true,
+    "when": {
+     "mode": [
+      "campaign"
+     ],
+     "dateTo": "2026-10-22"
+    }
+   },
+   {
+    "id": "cal21",
+    "text": "משא ומתן. ביבי מחלק תיקים שעוד אין לו.",
+    "poll_like": false,
+    "src": [
+     "election-2026"
+    ],
+    "priorityOnce": true,
+    "when": {
+     "mode": [
+      "negotiation"
+     ]
+    }
    }
   ]
  },
@@ -5307,7 +5337,9 @@
     "m04",
     "m21",
     "cal04",
-    "h03"
+    "h03",
+    "cal20",
+    "cal21"
    ],
    "upgrades": [
     "s07",
@@ -6765,6 +6797,36 @@
       "id": "tb15",
       "text": "בנט הציג מצגת למשקיעים. שקף אחרון: עוד התחייבות.",
       "poll_like": false
+     },
+     {
+      "id": "tb16",
+      "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. בנט כבר חתם שהוא לא יחתום.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "icu": true,
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "campaign"
+       ],
+       "dateTo": "2026-10-22"
+      }
+     },
+     {
+      "id": "tb17",
+      "text": "משא ומתן. בנט בודק עם מי הוא התחייב לא לשבת.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "negotiation"
+       ]
+      }
      }
     ],
     "trophy": {
@@ -7294,6 +7356,36 @@
        "gotliv",
        "almog-cohen"
       ]
+     },
+     {
+      "id": "tg16",
+      "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. בן גביר מאיים לפרוש מהקלפי.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "icu": true,
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "campaign"
+       ],
+       "dateTo": "2026-10-22"
+      }
+     },
+     {
+      "id": "tg17",
+      "text": "משא ומתן. בן גביר דורש משרד שכבר יש לו.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "negotiation"
+       ]
+      }
      }
     ],
     "trophy": {
@@ -7840,6 +7932,36 @@
       "src": [
        "liberman-pm-goal"
       ]
+     },
+     {
+      "id": "tl15",
+      "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. ליברמן כבר כתב מסמך מה לא יקרה.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "icu": true,
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "campaign"
+       ],
+       "dateTo": "2026-10-22"
+      }
+     },
+     {
+      "id": "tl16",
+      "text": "משא ומתן. ליברמן מגיש רשימה של מי לא ישב איתו.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "negotiation"
+       ]
+      }
      }
     ],
     "trophy": {
@@ -8371,6 +8493,36 @@
       "src": [
        "change-bloc-pact"
       ]
+     },
+     {
+      "id": "te16",
+      "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. אייזנקוט מכנס עוד שולחן עגול.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "icu": true,
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "campaign"
+       ],
+       "dateTo": "2026-10-22"
+      }
+     },
+     {
+      "id": "te17",
+      "text": "משא ומתן. אייזנקוט מחפש שולחן שיש בו מקום לכולם.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "negotiation"
+       ]
+      }
      }
     ],
     "trophy": {
@@ -8893,6 +9045,36 @@
       "src": [
        "bengvir-no-merger"
       ]
+     },
+     {
+      "id": "ts15",
+      "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. סמוטריץ׳ יתקצב את זה בדקה ה־90.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "icu": true,
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "campaign"
+       ],
+       "dateTo": "2026-10-22"
+      }
+     },
+     {
+      "id": "ts16",
+      "text": "משא ומתן. סמוטריץ׳ שואל מי משלם על הקפה.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "negotiation"
+       ]
+      }
      }
     ],
     "trophy": {
@@ -9401,6 +9583,36 @@
        "deri-door-window",
        "deri-disqualified"
       ]
+     },
+     {
+      "id": "td16",
+      "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. דרעי כבר מחכה במסדרון.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "icu": true,
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "campaign"
+       ],
+       "dateTo": "2026-10-22"
+      }
+     },
+     {
+      "id": "td17",
+      "text": "משא ומתן. דרעי במסדרון, כמו תמיד, עם כולם.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "negotiation"
+       ]
+      }
      }
     ],
     "trophy": {
@@ -9933,6 +10145,36 @@
       "src": [
        "golan-salon"
       ]
+     },
+     {
+      "id": "ty17",
+      "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. גולן מחליק שמאלה כל הצעה.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "icu": true,
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "campaign"
+       ],
+       "dateTo": "2026-10-22"
+      }
+     },
+     {
+      "id": "ty18",
+      "text": "משא ומתן. גולן מאחד עוד מפלגה, ליתר ביטחון.",
+      "poll_like": false,
+      "src": [
+       "election-2026"
+      ],
+      "priorityOnce": true,
+      "when": {
+       "mode": [
+        "negotiation"
+       ]
+      }
      }
     ],
     "trophy": {

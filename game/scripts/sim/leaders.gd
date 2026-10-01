@@ -592,6 +592,7 @@ static func _begin(s: GameState, id: String, prev: String) -> Dictionary:
 	s.leader_round["freshPct"] = pct
 	s.leader_round["begun"] = true
 	s.leader_round["picked"] = false   # start_round marks a pick
+	s.leader_round["tickOnce"] = []    # Ambient.pick: each priorityOnce line once a round
 	s.leader_round.erase("undo")
 	s.seat_deal = deal(id, deal_seed(s, id))
 	s.leader_ver += 1
@@ -1083,6 +1084,9 @@ static func sanitize_into(s: GameState, r: Dictionary) -> void:
 		round_["freshPct"] = minf(GameState._num(rr.get("freshPct")), cap)
 		var sv: Variant = rr.get("salt")
 		round_["salt"] = int(sv) if (sv is int or sv is float) and is_finite(float(sv)) else 0
+		var to: Variant = rr.get("tickOnce")
+		if to is Array:
+			round_["tickOnce"] = (to as Array).filter(func(x: Variant) -> bool: return x is String)
 		var ab := Ability.sanitize(rr.get("ability"))
 		if not ab.is_empty():
 			round_["ability"] = ab

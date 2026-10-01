@@ -11,35 +11,48 @@ extends RefCounted
 ## Lines marked poll_like never show in the blackout. `ticker.ambientFrom: "C1"` keeps the first
 ## minute free of ambient lines until the first chat ping would fire (3 sources owned).
 ## ICU plural lines ({d, plural, one {…} two {…} other {# …}}) get `d` = days to the election.
+## `priorityOnce` lines (leaders v3 phase 3b: each leader's countdown and negotiation line; the
+## calendar's negotiation opener cal08) jump the queue: the first eligible one not yet shown this
+## round is picked ahead of the random draw, once a round (s.leader_round.tickOnce), and the
+## no-repeat window never holds it back. `now_ms` (tests): the clock, else SaveStore.now_ms().
 
-static func pick(s: GameState, recent: Array, rng: Callable = randf) -> String:
+static func pick(s: GameState, recent: Array, rng: Callable = randf, now_ms: float = -1.0) -> String:
 	var c := Content.data()
 	var v2: Dictionary = c.get("ambientHeadlinesV2", {})
 	var t: Dictionary = c.get("ticker", {})
 	if String(t.get("ambientFrom", "")) == "C1" and s.evolutions == 0 and Conditions.sources_owned(s) < int(c.get("coalition", {}).get("openAtSourcesOwned", 3)):
 		return ""
-	var now := SaveStore.now_ms()
+	var now := now_ms if now_ms >= 0.0 else SaveStore.now_ms()
 	var blackout := Calendar.active() and Calendar.is_blackout(now)
 	var dt := Time.get_datetime_dict_from_system()
 	var ctx := {"hour": int(dt["hour"]), "weekday": int(dt["weekday"])}
 	var window := int(v2.get("noRepeatWindow", 12))
 	var pool: Array = []
+	var once: Array = s.leader_round.get("tickOnce", []) if s.leader_round.get("tickOnce") is Array else []
+	var prio: Dictionary = {}
 	# The round's lines: list + listPolitics, minus Bibi's own outside his round, plus the leader's
 	# ticker and the rival ticker (Leaders.ambient; identical to the shipped lists in Bibi's round).
 	for h: Variant in Leaders.ambient(s):
 		if not h is Dictionary:
 			continue
 		var text := String((h as Dictionary).get("text", ""))
-		if text == "" or recent.has(text):
+		var first := bool((h as Dictionary).get("priorityOnce", false)) and not once.has(str((h as Dictionary).get("id", text)))
+		if text == "" or (recent.has(text) and not first):
 			continue
 		if blackout and bool((h as Dictionary).get("poll_like", false)):
 			continue
 		if ok(s, (h as Dictionary).get("when", {}), ctx, now):
+			if first and prio.is_empty():
+				prio = h
 			pool.append(h)
 	if pool.is_empty():
 		recent.clear()
 		return ""
 	var pickd: Dictionary = pool[int(float(rng.call()) * pool.size()) % pool.size()]
+	if not prio.is_empty():
+		pickd = prio
+		once.append(str(prio.get("id", prio.get("text", ""))))
+		s.leader_round["tickOnce"] = once
 	var out := String(pickd["text"])
 	recent.append(out)
 	while recent.size() > window:
