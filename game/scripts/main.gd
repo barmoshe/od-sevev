@@ -1653,6 +1653,25 @@ func herzog_from_pardon() -> void:
 	_on_politics_event(e)
 
 
+var _ability_squawk_at := -1.0e9
+
+
+## Leaders v3: Dubi squawks the leader's ability word (kit.dubi.squawks.ability; Bibi's is the shared
+## dubi.ability) on a use, at most once every 20 s.
+func _ability_squawk(kind: String) -> void:
+	if not ["unite", "roundTable", "corridor", "sign", "flip", "walkout", "clausesDone", "budgetPaid", "swipe"].has(kind):
+		return
+	if _now - _ability_squawk_at < 20000.0:
+		return
+	var a := get_node_or_null("/root/Audio")
+	var text := str(a.call("squawk_text", Leaders.current(state), "ability")) if a != null and a.has_method("squawk_text") else ""
+	if text == "":
+		return
+	_ability_squawk_at = _now
+	toasts.say(text, L.magician_feet() - Vector2(0, 380), 1600.0)
+	_audio("squawk", "ability")
+
+
 ## The chip's view: while Mordechai David blocks, the block's own countdown (copy.chipText, the
 ## seconds left, a draining bar); otherwise the round's ability (Ability.view).
 func _chip_view() -> Dictionary:
@@ -1684,6 +1703,7 @@ func _use_ability() -> void:
 
 ## The ability's toasts (Ability events {ev: "ability", kind}): the leader's own lines, rule.active.copy.
 func _on_ability_event(e: Dictionary) -> void:
+	_ability_squawk(str(e.get("kind", "")))
 	var c := Ability.copy(state)
 	var pair: Array = Ability.def(state).get("pair", [])
 	var fill := {"a": ChatView.partner_name(str(pair[0])) if pair.size() > 0 else "", "b": ChatView.partner_name(str(pair[1])) if pair.size() > 1 else "",

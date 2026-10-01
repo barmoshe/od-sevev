@@ -2614,6 +2614,19 @@
         "5": 150
       }
     },
+    "DUBI_ABILITY": {
+      "surface": "label",
+      "spec": "dubi.ability",
+      "joke": true,
+      "deckWords": true,
+      "note": "Bibi's ability squawk (leaders v3). Other leaders: kit.dubi.squawks.ability, on an ability use, at most every 20 s",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 296,
+        "5": 370
+      }
+    },
     "TAB_SOURCES": {
       "surface": "label",
       "spec": "tab.sources",

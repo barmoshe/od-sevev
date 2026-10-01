@@ -814,6 +814,11 @@ static func trophies() -> Array:
 		var t: Variant = kit(id).get("trophy")
 		if t is Dictionary and (t as Dictionary).has("id"):
 			out.append(t)
+	# leaders v3: the ability trophy (kit.abilityTrophy, stat abilityUses), Bibi's included
+	for id in pickable():
+		var a: Variant = kit(id).get("abilityTrophy")
+		if a is Dictionary and (a as Dictionary).has("id"):
+			out.append(a)
 	return out
 
 

@@ -531,7 +531,7 @@ func crit_for(id: String) -> Dictionary:
 ## shared Dubi (Bibi). "" when there is none. Every one of them has a canned contour.
 func squawk_text(id: String, kind: String) -> String:
 	var d: Variant = Leaders.kit(id).get("dubi")
-	if d is Dictionary and (d as Dictionary).get("squawks") is Dictionary:
+	if d is Dictionary and (d as Dictionary).get("squawks") is Dictionary and (d as Dictionary)["squawks"].has(kind):
 		return String((d as Dictionary)["squawks"].get(kind, ""))
 	var shared: Variant = Content.data().get("dubi", {})
 	if shared is Dictionary and (shared as Dictionary).get("squawks") is Dictionary:

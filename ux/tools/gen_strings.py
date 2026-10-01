@@ -400,6 +400,7 @@ e("DUBI_BUY", "לקנות! לקנות!", "stage.toast", "*G", "dubi.buy")
 e("DUBI_ELECT", "בחירות! בחירות!", "stage.toast", "*G", "dubi.elect")
 e("DUBI_MISS", "לא ידענו! לא ידענו!", "stage.toast", "*G", "dubi.miss")
 e("DUBI_DROP", "מי? מי?", "stage.toast", "*G", "dubi.drop", "Bibi-only (the aide drop)")
+e("DUBI_ABILITY", "תתאחדו! תתאחדו!", "stage.toast", "*G", "dubi.ability", "Bibi's ability squawk (leaders v3). Other leaders: kit.dubi.squawks.ability, on an ability use, at most every 20 s")
 # --- tabs, toasts
 e("TAB_SOURCES", "מקורות", "tab.label", "*", "tab.sources")
 e("TAB_SPINS", "ספינים", "tab.label", "", "tab.spins")

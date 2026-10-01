@@ -3504,7 +3504,8 @@
    "dubi.buy": "לקנות! לקנות!",
    "dubi.elect": "בחירות! בחירות!",
    "dubi.miss": "לא ידענו! לא ידענו!",
-   "dubi.drop": "מי? מי?"
+   "dubi.drop": "מי? מי?",
+   "dubi.ability": "תתאחדו! תתאחדו!"
   },
   "talkingPoints": [
    "אין כלום!",
@@ -6281,6 +6282,18 @@
      "firstCrit": "h_first_rabbit",
      "taps1000": "h_taps_1000",
      "firstPartner": "h_first_partner"
+    },
+    "abilityTrophy": {
+     "id": "a_ability_bibi",
+     "name": "תתאחדו!",
+     "desc": "איחדת את השותפים 5 פעמים בתור ביבי.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "bibi",
+      "key": "abilityUses",
+      "value": 5
+     }
     }
    },
    "coalition": {
@@ -6585,7 +6598,8 @@
       "firsttap": "ביחד! ביחד!",
       "buy": "לחתום! לחתום!",
       "elect": "בחירות! בחירות!",
-      "miss": "נגיב מחר! נגיב מחר!"
+      "miss": "נגיב מחר! נגיב מחר!",
+      "ability": "הפוך! הפוך!"
      },
      "talkingPoints": [
       "ביחד!",
@@ -6847,6 +6861,18 @@
       "bennett-pledge"
      ],
      "_note": "The joke is his pledge habit (bennett-pledge); no claim that he refused a real offer."
+    },
+    "abilityTrophy": {
+     "id": "a_ability_bennett",
+     "name": "חתמתי, הפכתי",
+     "desc": "10 חתימות והיפוכים בתור בנט.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "bennett",
+      "key": "abilityUses",
+      "value": 10
+     }
     }
    },
    "coalition": {
@@ -7152,7 +7178,8 @@
       "firsttap": "אני פורש! אני פורש!",
       "buy": "תקציב! תקציב!",
       "elect": "בחירות! בחירות!",
-      "miss": "לא איום! לא איום!"
+      "miss": "לא איום! לא איום!",
+      "ability": "פורש! פורש!"
      },
      "talkingPoints": [
       "אני פורש!",
@@ -7398,6 +7425,18 @@
       "leader": "bengvir",
       "key": "crits",
       "value": 100
+     }
+    },
+    "abilityTrophy": {
+     "id": "a_ability_bengvir",
+     "name": "פורש סדרתי",
+     "desc": "10 פרישות בתור בן גביר.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "bengvir",
+      "key": "abilityUses",
+      "value": 10
      }
     }
    },
@@ -7724,7 +7763,8 @@
       "firsttap": "לא אשב! לא אשב!",
       "buy": "מס! מס!",
       "elect": "בחירות! בחירות!",
-      "miss": "לא! לא!"
+      "miss": "לא! לא!",
+      "ability": "מסמך! מסמך!"
      },
      "talkingPoints": [
       "לא אשב!",
@@ -7982,6 +8022,18 @@
       "liberman-wont-sit"
      ],
      "_note": "Reported speech of his May 2026 line, no quote marks."
+    },
+    "abilityTrophy": {
+     "id": "a_ability_liberman",
+     "name": "המסמך המלא",
+     "desc": "5 מסמכים חתומים בתור ליברמן.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "liberman",
+      "key": "abilityUses",
+      "value": 5
+     }
     }
    },
    "coalition": {
@@ -8291,7 +8343,8 @@
       "firsttap": "ישר! ישר!",
       "buy": "ישר לקופה!",
       "elect": "בחירות! בחירות!",
-      "miss": "עקום! עקום!"
+      "miss": "עקום! עקום!",
+      "ability": "שולחן! שולחן!"
      },
      "talkingPoints": [
       "ישר!",
@@ -8543,6 +8596,18 @@
       "eisenkot-invites-opposition"
      ],
      "_note": "His round table of opposition heads; no claim of a real offer."
+    },
+    "abilityTrophy": {
+     "id": "a_ability_eisenkot",
+     "name": "שולחן עגול מאוד",
+     "desc": "10 שולחנות עגולים בתור אייזנקוט.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "eisenkot",
+      "key": "abilityUses",
+      "value": 10
+     }
     }
    },
    "coalition": {
@@ -8854,7 +8919,8 @@
       "firsttap": "לא לך! לא לך!",
       "buy": "תקציב! תקציב!",
       "elect": "בחירות! בחירות!",
-      "miss": "גירעון! גירעון!"
+      "miss": "גירעון! גירעון!",
+      "ability": "תקציב! תקציב!"
      },
      "talkingPoints": [
       "יש כסף!",
@@ -9087,6 +9153,18 @@
       "leader": "smotrich",
       "key": "crits",
       "value": 100
+     }
+    },
+    "abilityTrophy": {
+     "id": "a_ability_smotrich",
+     "name": "עבר בדקה ה־90",
+     "desc": "10 תקציבים שעברו בתור סמוטריץ׳.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "smotrich",
+      "key": "abilityUses",
+      "value": 10
      }
     }
    },
@@ -9389,7 +9467,8 @@
       "firsttap": "מסדרון! מסדרון!",
       "buy": "נסגור! נסגור!",
       "elect": "בחירות! בחירות!",
-      "miss": "לא שר? לא שר?"
+      "miss": "לא שר? לא שר?",
+      "ability": "מסדרון! מסדרון!"
      },
      "talkingPoints": [
       "מסדרון!",
@@ -9625,6 +9704,18 @@
       "leader": "deri",
       "key": "elections",
       "value": 3
+     }
+    },
+    "abilityTrophy": {
+     "id": "a_ability_deri",
+     "name": "מלך המסדרון",
+     "desc": "25 שיחות במסדרון בתור דרעי.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "deri",
+      "key": "abilityUses",
+      "value": 25
      }
     }
    },
@@ -9928,7 +10019,8 @@
       "firsttap": "איחוד! איחוד!",
       "buy": "עוד אחד! עוד אחד!",
       "elect": "בחירות! בחירות!",
-      "miss": "פיצול! פיצול!"
+      "miss": "פיצול! פיצול!",
+      "ability": "שמאלה! שמאלה!"
      },
      "talkingPoints": [
       "איחוד!",
@@ -10187,6 +10279,18 @@
       "leader": "golan",
       "key": "merges",
       "value": 5
+     }
+    },
+    "abilityTrophy": {
+     "id": "a_ability_golan",
+     "name": "החלקה שמאלה",
+     "desc": "15 החלקות שמאלה בתור גולן.",
+     "icon": "icon_folder",
+     "trigger": {
+      "type": "leaderStat",
+      "leader": "golan",
+      "key": "abilityUses",
+      "value": 15
      }
     }
    },

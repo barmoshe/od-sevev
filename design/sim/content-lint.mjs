@@ -400,6 +400,19 @@ if (C.leaderSelect || C.leaders) {
       if (!q && !o.reportedSpeech) err(path, `quote marks + real name without a [Q] src: ${o.text}`);
     }
   };
+  // leaders v3: the ability trophies (kit.abilityTrophy, all 8 leaders): unique across every trophy id
+  {
+    const seen = new Set([...trIds, ...(LS.trophies || []).map(t => t.id)]);
+    for (const L of C.leaders || []) if (L.kit?.trophy?.id) seen.add(L.kit.trophy.id);
+    for (const L of C.leaders || []) {
+      const A = L.kit?.abilityTrophy, P = `leaders.${L.id}.kit.abilityTrophy`;
+      if (!A) { err(P, 'missing'); continue; }
+      if (!A.id || seen.has(A.id)) err(P, `id ${A.id} missing or collides with another trophy`); seen.add(A.id);
+      if (!hebStr(A.name) || !hebStr(A.desc)) err(P, 'name / desc missing');
+      const T = A.trigger || {};
+      if (T.type !== 'leaderStat' || T.leader !== L.id || T.key !== 'abilityUses' || !(T.value > 0)) err(P, 'trigger must be {leaderStat, this leader, abilityUses, value > 0}');
+    }
+  }
   for (const t of LS.rivalTicker || []) { checkTick(t, `leaderSelect.rivalTicker.${t.id}`); if (!profiles.has(t.rival) && !cards.has(`card_${t.rival}`)) err(`leaderSelect.rivalTicker.${t.id}`, `rival ${t.rival} unknown`); }
   if (LS.leakRight?.ticker && len(LS.leakRight.ticker) > 60) err('leaderSelect.leakRight.ticker', 'ticker > 60');
   // each leader
@@ -444,7 +457,7 @@ if (C.leaderSelect || C.leaders) {
       if (!hebStr(H.postponeVerb)) err(`${P}.kit.hazard`, 'postponeVerb missing');
       if ((H.excuses || []).length !== steps) err(`${P}.kit.hazard`, `excuses ${(H.excuses || []).length} != court.postpone.excuseSteps ${steps}`);
       (H.excuses || []).forEach((x, i) => { if (i && !x.startsWith(H.excuses[i - 1].replace(/\.$/, ''))) warn(`${P}.kit.hazard.excuses[${i}]`, 'does not grow from the previous excuse (the gag is that it gets one sentence longer)'); });
-      for (const k of ['firsttap', 'buy', 'elect', 'miss']) if (!hebStr(K.dubi?.squawks?.[k])) err(`${P}.kit.dubi.squawks`, `${k} missing`);
+      for (const k of ['firsttap', 'buy', 'elect', 'miss', 'ability']) if (!hebStr(K.dubi?.squawks?.[k])) err(`${P}.kit.dubi.squawks`, `${k} missing`);
       if ((K.dubi?.talkingPoints || []).length < 4) err(`${P}.kit.dubi`, 'talkingPoints < 4 (word salad needs three)');
       for (const k of ['cash', 'frenzy', 'tapFrenzy', 'miss']) if (!hebStr(K.suitcase?.lines?.[k])) err(`${P}.kit.suitcase.lines`, `${k} missing`);
       const st = K.story || {};
