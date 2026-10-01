@@ -848,6 +848,8 @@ func _apply_settings() -> void:
 	golden.reduced_motion = rm
 	diorama.set_reduced_motion(rm)
 	street.reduced_motion = rm
+	if sara != null:
+		sara.reduced_motion = rm
 	if herzog != null:
 		herzog.reduced_motion = rm
 	if kaia != null:
