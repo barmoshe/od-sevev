@@ -2200,6 +2200,13 @@
       "joke": true,
       "maxChars": 18
     },
+    "LOAD_PREP": {
+      "surface": "html",
+      "spec": "load.prep",
+      "joke": true,
+      "note": "Shell load bar, every byte in, the engine still starting (wasm compile, pck mount, boot): replaces the rotating LOAD_1..3 until hand-off. Singular like LOAD_1..3",
+      "maxChars": 18
+    },
     "LOAD_BAR_LABEL": {
       "surface": "html",
       "spec": "load.bar.label",
