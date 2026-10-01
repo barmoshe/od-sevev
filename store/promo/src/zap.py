@@ -1,4 +1,10 @@
-"""'עוד סבב': "מכונת הרעל", one evening zapped across channels 12, 13 and 14 (Reels, 9:16).
+"""'עוד סבב': "ערוצי התבהלה נגד מכונת הרעל", one evening zapped across 12, 13 and 14 (Reels, 9:16).
+
+Each camp's insult, worn as the channel's own style. "ערוצי התבהלה" (panic channels) is what 14's
+panel calls 12 and 13 (Yinon Magal made it a catchphrase; Netanyahu added "תבהלה 12", and "התבהלה
+והתרעלה"); "מכונת הרעל" is what the other camp calls Netanyahu's spin network, 14 included. Amit Segal
+once answered: "כולנו ערוצי תבהלה", "תבהלה 14" too. So 12 and 13 run a panic meter, 14 runs a poison
+meter, and both are the same parrot (sources in store/promo/README.md).
 
 Research, Oct 2026 (sources in store/promo/README.md): nearly every Israeli newscast is red now; 12 has
 the red-white studio with blue behind its rhomboid logo and the Friday panel of commentators; 13 has
@@ -37,29 +43,31 @@ N13, N13B, R13 = (6, 8, 70), (4, 32, 108), (222, 36, 46)
 R14, R14D, B14, G14 = (204, 26, 32), (116, 8, 14), (18, 46, 130), (236, 192, 72)
 OSD = (90, 255, 110)
 
-HOOK = 2.6
-SEG = 3.2
-L2_AT = 1.0
-STORIES = [  # (channel, event, tag, line 1, line 2), zapped 12 -> 13 -> 14 for each event
-    (12, "hat", "ערב דרמטי", "הקוסם שלף 61 מכובע ריק.", "פרשננו: תחילת הסוף. בפעם ה־40."),
-    (13, "hat", "חשיפה", "חשיפה: מה באמת יש בכובע.", "ארנב. הוא סירב להגיב."),
-    (14, "hat", "הישג היסטורי", "הקוסם שלף 61. הישג היסטורי.", "הפאנל: כולם מסכימים. בצעקות."),
-    (12, "chair", "פאנל", "ליברמן הודיע: לא יושב.", "הפאנל ישב על זה עד 2 בלילה."),
-    (13, "chair", "תחקיר", "תחקיר: הכיסא של ליברמן.", "חצי שנה מעקב. הוא עדיין ריק."),
-    (14, "chair", "דחוף", "ליברמן לא יושב.", "פרשננו: אשמת ערוץ 12."),
-    (12, "vote", "מבזק", "הכנסת התפזרה. שוב.", "מדורת השבט דולקת. השבט עייף."),
-    (13, "vote", "בלעדי", "בלעדי ל־13: יש בחירות.", "המקורות: כל המדינה."),
-    (14, "vote", "ניצחון", "הכנסת התפזרה. ניצחון ענק.", "על מי? נעדכן."),
+BAR = 4 * 60 / 122.54              # Bar's track (store/gameplay/music/panic-vs-poison.wav), 122.5 BPM
+M0 = 0.055                         # its first downbeat; video 0 sits on it, every zap on a bar line
+HOOK = 2 * BAR
+SEG = 2 * BAR                      # 3.92 s a story
+L2_AT = 1.15
+STORIES = [  # (channel, event, tag, line 1, line 2, meter from, meter to), zapped 12 -> 13 -> 14 per event
+    (12, "hat", "ערב גורלי", "הקוסם שלף 61 מכובע ריק.", "פרשננו: הרגע הכי מסוכן. מאז אתמול.", 62, 91),
+    (13, "hat", "חשיפה", "חשיפה: מה באמת יש בכובע.", "ארנב. הוא סירב להגיב.", 70, 88),
+    (14, "hat", "הישג היסטורי", "הקוסם שלף 61. הישג היסטורי.", "הפאנל: כולם מסכימים. בצעקות.", 80, 96),
+    (12, "chair", "חשש כבד", "ליברמן הודיע: לא יושב.", "14 פרשנים. 15 תרחישי אימה.", 91, 99),
+    (13, "chair", "תחקיר", "תחקיר: הכיסא של ליברמן.", "חצי שנה מעקב. הוא עדיין ריק.", 88, 97),
+    (14, "chair", "דחוף", "ליברמן לא יושב.", "פרשננו: אשמת ערוצי התבהלה.", 96, 100),
+    (12, "vote", "מבזק", "הכנסת התפזרה. שוב.", "מד התבהלה שבר שיא. גם זה שוב.", 99, 100),
+    (13, "vote", "בלעדי", "בלעדי ל־13: יש בחירות.", "המקורות: כל המדינה.", 97, 100),
+    (14, "vote", "ניצחון", "הכנסת התפזרה. ניצחון ענק.", "על מי? נעדכן.", 100, 100),
 ]
-T_F1 = HOOK + SEG * len(STORIES)    # 31.4: three TVs, one parrot
-T_F2 = T_F1 + 2.4                   # the poison machine
-T_END = T_F2 + 2.6
-DUR = T_END + 3.4                   # 39.8
+T_F1 = HOOK + SEG * len(STORIES)    # 39.2: three TVs, one parrot
+T_F2 = T_F1 + 1.5 * BAR             # the poison machine
+T_END = T_F2 + 1.5 * BAR
+DUR = T_END + 2 * BAR               # 49.0
 
 TICKER = {
-    12: "באולפן 14 פרשנים. אחרי הפרסומות: 15  ·  לפי ערוץ 12: ערוץ 14 הוא מכונת רעל  ·  אנחנו נמשיך לעקוב  ·  ",
-    13: "בהמשך: חשיפה. אחריה: חשיפה על החשיפה  ·  לפי ערוץ 13: ערוץ 14 הוא מכונת רעל  ·  התגובה תובא כשתגיע  ·  ",
-    14: "לפי ערוץ 14: ערוצים 12 ו־13 הם ערוצי תעמולה  ·  כל הפאנל מסכים  ·  גם הפאנל של מחר  ·  ",
+    12: "לפי ערוץ 12: ערוץ 14 הוא מכונת רעל  ·  הישארו איתנו. מפחיד פה  ·  אחרי הפרסומות: עוד פחד  ·  ",
+    13: "לפי ערוץ 13: יש מכונת רעל. הפרטים בהמשך  ·  בהמשך: חשיפה. אחריה: חשיפה על החשיפה  ·  ",
+    14: "לפי ערוץ 14: ערוצים 12 ו־13 הם ערוצי תבהלה  ·  מד הרעל: 0%. כמו תמיד  ·  כל הפאנל מסכים  ·  ",
 }
 
 Y_LT = 1262                         # the lower third's top
@@ -194,6 +202,29 @@ def lower_third(c, u, ch, tag, l1, l2):
     if u > L2_AT:
         b = text(l2, 6, fill=f2, ring=None if ch == 12 else INK, shadow=ch != 12)
         paste(c, scaled(b, pop_scale(u, L2_AT, 0.12, 1.15)), xr - 26 - b.width // 2, Y_LT + 132)
+
+
+def meter(c, ch, u, lo, hi):
+    """12 and 13 run a panic meter; 14 a poison meter. It climbs to the punch line."""
+    poison = ch == 14
+    v = lo + (hi - lo) * ease_out(clamp((u - 0.3) / (L2_AT + 0.3)))
+    x0, y0, n = 330, 228, 10
+    lab = text("מד רעל" if poison else "מד תבהלה", 4, fill=WHITE)
+    paste(c, lab, x0 + 470 - lab.width, y0 - 50, "tl")
+    d = ImageDraw.Draw(c)
+    d.rectangle((x0 - 6, y0 - 6, x0 + 476, y0 + 46), fill=INK)
+    lit = int(round(v / 100 * n))
+    full = (90, 255, 60) if poison else (255, 60, 40)
+    for j in range(n):                                           # RTL: it fills from the right
+        x = x0 + 470 - (j + 1) * 47
+        on = j < lit
+        col = full if on else (40, 40, 52)
+        if on and j >= n - 2 and int(u * 8) % 2:
+            col = WHITE
+        d.rectangle((x + 4, y0, x + 44, y0 + 40), fill=col)
+    if u >= 1.2:                                                 # after the TV's channel number has gone
+        pc = text("%d%%" % round(v), 6, fill=full if v < 100 or int(u * 8) % 2 else WHITE, rtl=False)
+        paste(c, pc, x0 + 540 + pc.width // 2, y0 + 20)
 
 
 def osd(c, ch, u):
@@ -348,8 +379,9 @@ def set14(c, t, u, ev, talk):
     wall = footage(ev, u, (640, 400))
     framed(c, wall, 220, 380, G14, 10)
     if ev == "chair" and u > L2_AT:                              # the culprit, found
-        paste(c, bug(12, 0.9), 330, 700)
-        slam(c, k.stamp_img("אשם", 7), u, L2_AT + 0.15, 330, 700, angle=-14, frm=2.2)
+        paste(c, bug(12, 0.8), 330, 640)
+        paste(c, bug(13, 0.8), 330, 770)
+        slam(c, k.stamp_img("אשמים", 7), u, L2_AT + 0.15, 330, 705, angle=-14, frm=2.2)
     if ev == "vote":
         coins_burst(c, u, 0.4, 540, 560, n=30, seed=14, life=1.6, kinds=("coin", "bill"))
     d.rectangle((0, 1040, W, 1250), fill=B14)                    # the long desk
@@ -372,10 +404,11 @@ LOOK = {12: ((28, 60, 150), WHITE), 13: (WHITE, N13), 14: (B14, G14)}
 
 
 def broadcast(c, t, i, u):
-    ch, ev, tag, l1, l2 = STORIES[i]
+    ch, ev, tag, l1, l2, lo, hi = STORIES[i]
     talk = L2_AT <= u < L2_AT + 1.0
     SETS[ch](c, t, u, ev, talk)
     paste(c, bug(ch), 70 + bug(ch).width // 2, 260)
+    meter(c, ch, u, lo, hi)
     lower_third(c, u, ch, tag, l1, l2)
     ticker(c, ch, t, *LOOK[ch])
     live_strip(c, ch)
@@ -401,23 +434,34 @@ def room(c, t, press=None, pu=9.0):
         paste(c, n, bx, y0 + 115 + dy)
 
 
+PANIC, TOXIC = (255, 92, 64), (120, 255, 80)
+
+
 def s_hook(c, t):
-    c.alpha_composite(grad((8, 10, 30), (20, 26, 70)))
+    """The bill: ערוצי התבהלה, נגד, מכונת הרעל. Each side under the other side's name for it."""
+    c.alpha_composite(grad((50, 10, 20), (8, 10, 30), 800), (0, 0))
+    c.alpha_composite(grad((8, 10, 30), (10, 44, 20), Y_TV - 800), (0, 800))
     if t < 0.3:                                                  # the CRT switching on
         d = ImageDraw.Draw(c)
         h = int(6 + 1200 * ease_out(t / 0.3) ** 3)
         d.rectangle((0, Y_TV // 2 - h // 2, W, Y_TV // 2 + h // 2), fill=(230, 236, 255))
         return
-    slam(c, badge("מכונת הרעל", 13), t, 0.4, W // 2, 520, angle=-3, frm=2.6)
-    for j, ch in enumerate((12, 13, 14)):
-        t0 = 0.75 + j * 0.18
+    if t >= 0.35:
+        paste(c, scaled(text("ערוצי התבהלה", 10, fill=PANIC), pop_scale(t, 0.35, 0.14, 1.4)), W // 2, 400)
+    for j, ch in enumerate((12, 13)):
+        t0 = 0.6 + j * 0.15
         if t >= t0:
-            paste(c, scaled(bug(ch, 1.3), pop_scale(t, t0, 0.14, 1.6)), W - 220 - j * 320, 860)
-    if t >= 1.4:
-        paste(c, text("אותו ערב.", 9, grad=True), W // 2, 1080)
-    if t >= 1.75:
-        paste(c, text("שלושה ערוצים.", 9, grad=True), W // 2, 1200)
+            paste(c, scaled(bug(ch, 1.2), pop_scale(t, t0, 0.14, 1.6)), W // 2 + 170 - j * 340, 590)
+    if t >= 1.1:
+        slam(c, badge("נגד", 13), t, 1.1, W // 2, 820, angle=-4, frm=2.8)
+    if t >= 1.5:
+        paste(c, scaled(text("מכונת הרעל", 10, fill=TOXIC), pop_scale(t, 1.5, 0.14, 1.4)), W // 2, 1040)
+    if t >= 1.8:
+        paste(c, scaled(bug(14, 1.2), pop_scale(t, 1.8, 0.14, 1.6)), W // 2, 1230)
+    if t >= 2.5:
+        paste(c, text("הערב, בשידור חי.", 7, fill=WHITE), W // 2, 1450)
     flash(c, t, 0.3, 0.1, 0.8)
+    flash(c, t, 1.1, 0.1, 0.5)
 
 
 def mini_tv(i, t):
@@ -435,7 +479,7 @@ def s_reveal(c, t):
         tv = mini_tv(i, t)
         framed(c, tv, x - 165, 420, (40, 38, 50), 14)
     if u > 0.1:
-        paste(c, text("שלושה ערוצים.", 9, grad=True), W // 2, 290)
+        paste(c, text("תבהלה? רעל?", 9, grad=True), W // 2, 290)
     if u > 0.8:
         anchor(c, W // 2, 1700, u, int(u * 6) % 2 == 0, scale=2)
         slam(c, text("תוכי אחד.", 11, fill=WHITE), u, 0.8, W // 2, 990, frm=2.2)
@@ -510,48 +554,45 @@ def noise(dur, db_):
 
 def audio(path):
     m = P.Mix(DUR)
-    bed = k.load_wav("music_knesset_L0") + k.load_wav("music_knesset_L1")
-    t = HOOK
-    while t < T_F2:
-        m.put(t, bed[: int(min(len(bed) / SR, T_F2 - t) * SR)], -12)
-        t += len(bed) / SR
-    m.put(0.0, noise(0.3, -20))
-    m.cue(0.4, "stamp", -2)
-    for j in range(3):
-        m.cue(0.75 + j * 0.18, "uiClick_D", -6)
-    key = {12: "D", 13: "E", 14: "G"}                             # one jingle, three keys
-    for i, (ch, ev, tag, l1, l2) in enumerate(STORIES):
+    m.put(0.0, P.music_seg(os.path.join(P.GAMEPLAY, "music", "panic-vs-poison.wav"), M0, DUR), -4)
+    m.put(0.0, noise(0.3, -22))
+    m.cue(0.35, "uiClick_D", -6)
+    for j in range(2):
+        m.cue(0.6 + j * 0.15, "uiClick_D", -8)
+    m.cue(1.1, "stamp", -1)
+    m.cue(1.5, "uiClick_D", -6)
+    m.cue(1.8, "uiClick_D", -8)
+    for i, st in enumerate(STORIES):
+        ch, ev, l2 = st[0], st[1], st[4]
         t0 = HOOK + i * SEG
         m.cue(t0 - 0.02, "uiClick_D", -4)
-        m.put(t0, noise(0.14, -16))
-        m.cue(t0 + 0.14, "stinger_dubiFlash_" + key[ch], -9)
-        m.cue(t0 + 0.3, "slipStamp", -10)
+        m.put(t0, noise(0.14, -18))
+        m.cue(t0 + 0.3, "slipStamp", -12)
         if ch == 14 and ev == "hat":
             for j in range(5):
                 P.dubi_says(m, t0 + L2_AT + 0.1 + j * 0.12, "נכון", 3)
         else:
             P.dubi_says(m, t0 + L2_AT, l2, 7)
         if ch == 13 and ev != "chair":
-            m.cue(t0 + 0.55, "stamp", -5)
+            m.cue(t0 + 0.55, "stamp", -6)
         if ch == 14 and ev == "chair":
             m.cue(t0 + L2_AT + 0.15, "stamp", -4)
         if ch == 14 and ev == "vote":
             for j in range(0, 12, 2):
                 m.cue(t0 + 0.4 + j * 0.06, "coin_D_a", -14)
-    m.cue(T_F1, "critReact_D_whoosh", -4)
+    m.cue(T_F1, "critReact_D_whoosh", -6)
     for j in range(3):
         P.dubi_says(m, T_F1 + 0.8 + j * 0.04, "עוד", 5)
-    m.cue(T_F2, "critReact_D_whoosh", -4)
+    m.cue(T_F2, "critReact_D_whoosh", -6)
     m.cue(T_F2 + 0.15, "stamp", -3)
-    m.cue(T_END, "stinger_motif_D", -1)
     m.cue(T_END + 0.8, "stamp", -2)
-    m.write(path, 0.5)
+    m.write(path, 1.2)
 
 
 def main():
     P.SCRATCH = sys.argv[1]
     if "--stills" in sys.argv:
-        ts = [0.2, 1.0, 2.4] + [HOOK + i * SEG + x for i in range(9) for x in (0.6, 2.6)] + [T_F1 + 1.8, T_F2 + 2.0, T_END + 2.6]
+        ts = [0.2, 1.3, 3.5] + [HOOK + i * SEG + x for i in range(9) for x in (0.6, 3.2)] + [T_F1 + 1.8, T_F2 + 2.0, T_END + 2.6]
         ims = [frame(x).resize((216, 384)) for x in ts]
         cols = 8
         rows = (len(ims) + cols - 1) // cols

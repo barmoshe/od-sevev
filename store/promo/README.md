@@ -48,23 +48,30 @@ mechanics, "כל עובדה במשחק באה עם מקור. הבדיחות לא
 
     python3 src/linkedin.py <scratch> [--stills | --one <sec>]
 
-## "מכונת הרעל": one evening, three channels (`src/zap.py`)
+## "ערוצי התבהלה נגד מכונת הרעל": one evening, three channels (`src/zap.py`)
 
-`od-sevev-promo-zap.mp4`, 40 s, 9:16. A remote zaps 12 → 13 → 14 through the same three game events
-(the hat, Liberman won't sit, the Knesset dissolves), each channel in its own spin: 12 the drama and
-the wall of commentators ("פרשננו: תחילת הסוף. בפעם ה־40."), 13 the investigation of nothing ("ארנב.
-הוא סירב להגיב."), 14 the panel that agrees out loud and finds 12 guilty. Every channel's ticker calls
-another channel the poison machine. The reveal: three TVs, one parrot (every anchor is Dubi), then the
-game's own מכונת הרעל source ("10,000 חשבונות. דעה אחת."), "בקרוב" and the Instagram handle.
+`od-sevev-promo-zap.mp4`, 49 s, 9:16, on Bar's track `store/gameplay/music/panic-vs-poison.wav`
+(122.5 BPM; every zap lands on a bar line, two bars a story). Each camp's insult for the other, worn as
+the channel's own style: "ערוצי התבהלה" (the panic channels) is what 14's panel calls 12 and 13, and
+"מכונת הרעל" is what the other side calls Netanyahu's spin network, 14 included. The open is a fight
+bill (ערוצי התבהלה, נגד, מכונת הרעל); 12 and 13 run a panic meter, 14 a poison meter, and both max out.
+
+A remote zaps 12 → 13 → 14 through the same three game events (the hat, Liberman won't sit, the
+Knesset dissolves): 12 panics ("פרשננו: הרגע הכי מסוכן. מאז אתמול.", "14 פרשנים. 15 תרחישי אימה."),
+13 investigates nothing ("ארנב. הוא סירב להגיב."), 14 agrees out loud and finds the panic channels
+guilty. 14's ticker: "מד הרעל: 0%. כמו תמיד", under a poison meter at 100%. The reveal: "תבהלה? רעל?",
+three TVs, one parrot (every anchor is Dubi); then the game's own מכונת הרעל source, "בקרוב" and the
+Instagram handle.
 
 The looks are evoked, never copied: colours, shapes and numbers, no real logos, show names or anchors.
 What they rest on (Oct 2026, search results only, page fetches were blocked):
+- "ערוצי התבהלה": Yinon Magal's catchphrase on 14 (maariv.co.il/culture/tv/article-1158514); Netanyahu's
+  "תבהלה 12" (srugim.co.il/1072723) and "ערוצי התבהלה והתרעלה" (youtube.com/shorts/ykbiZLYH89Y); Amit
+  Segal's "כולנו ערוצי תבהלה... תבהלה 14" (ice.co.il/media/news/article/1043629)
+- "מכונת הרעל": he.wikipedia.org/wiki/מכונת_הרעל; 14 as its TV arm in the other camp's usage: the7eye.org.il/522467
 - almost every Israeli newscast is red now: alefalefalef.co.il/red-news/
-- 12: red-white studio, blue behind the rhomboid logo, the screen "squares" for guests: he.wikipedia.org/wiki/חברת_החדשות, logos.fandom.com/wiki/Keshet_12
-- 13: the red double-line logo (2022), the navy set with two big square screens that join: ice.co.il/tv/news/article/839864, vizrt.com/case-studies/israels-channel-13-opens-new-studio/
+- 12: red-white studio, blue behind the rhomboid logo, the screen "squares" for guests: he.wikipedia.org/wiki/חברת_החדשות
+- 13: the red double-line logo (2022), the navy set with two big square screens that join: ice.co.il/tv/news/article/839864
 - 14: the red-square logo, and Walla calling the rebrand suspiciously similar to 12's ("רגע, זה לא 12?"): b.walla.co.il/item/3729452
-- "מכונת הרעל" from the anti-Netanyahu camp, mirrored by "ערוצי התעמולה" from his: he.wikipedia.org/wiki/מכונת_הרעל, srugim.co.il/1131956
-
-Each channel's sting is the same Dubi jingle in another key (12 in D, 13 in E, 14 in G).
 
     python3 src/zap.py <scratch> [--stills | --one <sec>]
