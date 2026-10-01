@@ -1152,6 +1152,9 @@ func _process(delta: float) -> void:
 	bb.set_away_kind("box" if walked and not BigBanana.wants_court(state) else "")
 	bb.court_sync(running and (BigBanana.wants_court(state) or walked), tx.running)
 	bb.update_view(dt)
+	if _pose_due != "":
+		if _now > _pose_due_until or bb.flash_pose(_pose_due, 1400.0):
+			_pose_due = ""
 	if _after_walk.is_valid() and not bb.walking():
 		var after := _after_walk
 		_after_walk = Callable()
@@ -1654,6 +1657,8 @@ func herzog_from_pardon() -> void:
 
 
 var _ability_squawk_at := -1.0e9
+var _pose_due := ""            # a pose that couldn't play yet (he was walking back): tried until _pose_due_until
+var _pose_due_until := 0.0
 
 
 ## Leaders v3: Dubi squawks the leader's ability word (kit.dubi.squawks.ability; Bibi's is the shared
@@ -1704,6 +1709,14 @@ func _use_ability() -> void:
 ## The ability's toasts (Ability events {ev: "ability", kind}): the leader's own lines, rule.active.copy.
 func _on_ability_event(e: Dictionary) -> void:
 	_ability_squawk(str(e.get("kind", "")))
+	# the leader's GPT pose for this use (rule.active.poses {kind: art id}, BigBanana.flash_pose);
+	# Ben Gvir's "back" waits until he has landed on his mark (_pose_due, polled in _process)
+	var poses: Variant = Ability.def(state).get("poses")
+	if poses is Dictionary and (poses as Dictionary).has(str(e.get("kind", ""))):
+		var pid := str(poses[str(e["kind"])])
+		if not bb.flash_pose(pid, 1400.0):
+			_pose_due = pid
+			_pose_due_until = _now + 4000.0
 	var c := Ability.copy(state)
 	var pair: Array = Ability.def(state).get("pair", [])
 	var fill := {"a": ChatView.partner_name(str(pair[0])) if pair.size() > 0 else "", "b": ChatView.partner_name(str(pair[1])) if pair.size() > 1 else "",

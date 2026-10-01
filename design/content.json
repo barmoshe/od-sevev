@@ -6255,7 +6255,10 @@
      "src": [
       "bengvir-no-merger"
      ],
-     "_note": "Leaders v3 (design/leaders-v3.md). Once a round: both partners go quiet for quietSec (Coalition.quiet). True shape: Aug 2026 he asked them to run together and both refused."
+     "_note": "Leaders v3 (design/leaders-v3.md). Once a round: both partners go quiet for quietSec (Coalition.quiet). True shape: Aug 2026 he asked them to run together and both refused.",
+     "poses": {
+      "unite": "bibi-matchmaker"
+     }
     }
    },
    "kit": {
@@ -6421,7 +6424,11 @@
      "src": [
       "bennett-pledge"
      ],
-     "_note": "Sign = events.bennett's pledge effect (gate +1 for its sec, then base). Flip while it is up: the gate drops now, cash = bps × flipBpsSec, headlines + flipHeadlines, no base."
+     "_note": "Sign = events.bennett's pledge effect (gate +1 for its sec, then base). Flip while it is up: the gate drops now, cash = bps × flipBpsSec, headlines + flipHeadlines, no base.",
+     "poses": {
+      "sign": "bennett-sign",
+      "flip": "bennett-sign"
+     }
     }
    },
    "kit": {
@@ -6995,7 +7002,10 @@
      "src": [
       "bengvir-resign-return"
      ],
-     "_note": "Pattern only (out in Jan 2025, back in March); never the reason (a red line). While out: income × outBpsMult and no taps; the stage walks him off and leaves his box."
+     "_note": "Pattern only (out in Jan 2025, back in March); never the reason (a red line). While out: income × outBpsMult and no taps; the stage walks him off and leaves his box.",
+     "poses": {
+      "back": "ben-gvir-back"
+     }
     }
    },
    "kit": {
@@ -7574,7 +7584,10 @@
      "src": [
       "liberman-principles"
      ],
-     "_note": "Every 'לא אשב' writes a clause; five = + basePct on this round's base, then a new page. Nothing to press: the chip counts."
+     "_note": "Every 'לא אשב' writes a clause; five = + basePct on this round's base, then a new page. Nothing to press: the chip counts.",
+     "poses": {
+      "clausesDone": "liberman-document"
+     }
     }
    },
    "kit": {
@@ -8156,7 +8169,10 @@
      "src": [
       "eisenkot-invites-opposition"
      ],
-     "_note": "Every member quiet for quietSec, open demands − discountPct."
+     "_note": "Every member quiet for quietSec, open demands − discountPct.",
+     "poses": {
+      "roundTable": "eisenkot-summit"
+     }
     }
    },
    "kit": {
@@ -8745,7 +8761,10 @@
      "src": [
       "budget-2026-deadline"
      ],
-     "_note": "An offer every everySec (never on an open gate or the court day) for windowSec at bps × priceBpsSec. Paid: + basePct, + lastBasePct in the last lastSec (the real budget passed hours before automatic dissolution). Missed: the gate + missGatePlus for missSec."
+     "_note": "An offer every everySec (never on an open gate or the court day) for windowSec at bps × priceBpsSec. Paid: + basePct, + lastBasePct in the last lastSec (the real budget passed hours before automatic dissolution). Missed: the gate + missGatePlus for missSec.",
+     "poses": {
+      "budgetPaid": "smotrich-budget"
+     }
     }
    },
    "kit": {
@@ -9286,7 +9305,10 @@
      "src": [
       "deri-disqualified"
      ],
-     "_note": "The oldest open demand (never an ultimatum): its partner quiet for quietSec, and the ☕ tap buff for tapSec. The minister without a ministry runs it from the corridor bench."
+     "_note": "The oldest open demand (never an ultimatum): its partner quiet for quietSec, and the ☕ tap buff for tapSec. The minister without a ministry runs it from the corridor bench.",
+     "poses": {
+      "corridor": "deri-bench"
+     }
     }
    },
    "kit": {
@@ -9845,7 +9867,10 @@
      "src": [
       "golan-tinder"
      ],
-     "_note": "A unity offer every everySec for windowSec; a swipe = + basePct. Reported speech, no quote marks."
+     "_note": "A unity offer every everySec for windowSec; a swipe = + basePct. Reported speech, no quote marks.",
+     "poses": {
+      "swipe": "golan-swipe"
+     }
     }
    },
    "kit": {
