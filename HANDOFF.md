@@ -35,12 +35,12 @@ Live at `7578546` (web-dist `5dab84a`). Details and hashes in `STATUS.md` (2026-
 - **`game/web/about.html`:** a static page rendered by `render_shell.py`, so crawlers that run no JS can read it. It has the direct answer, a 5-question FAQ (`FAQ_*` keys in `ux/tools/gen_strings.py`) and FAQPage JSON-LD. It's linked from About and `<noscript>`.
 - **Files from `build_web.sh`:** `robots.txt` (all bots), `sitemap.xml` (`/`, `/about.html`), the Search Console file `tools/web/google934215264611e5f3.html` (**keep it**) and the IndexNow key file `tools/web/27bc5ef5ff8e4f8b98acf2f714e15c3c.txt`.
 - **Search Console:** the URL-prefix property is verified in Bar's account and the sitemap is submitted. As of 01/10 nothing was indexed yet.
+- **Bing Webmaster Tools** (imported from Search Console, 01/10): `/` and `/about.html` are **indexed in Bing**, the sitemap reads Success (2 URLs), and the live test shows no SEO/GEO issues. Bing flagged "more than one h1" and a missing alt; both fixed in `ca86932`. ChatGPT search draws on Bing's index.
 - **Ping IndexNow after content changes:** `https://api.indexnow.org/indexnow?url=<url>&key=27bc5ef5ff8e4f8b98acf2f714e15c3c`.
 
 ## Open
 1. **02/10:** request indexing for `/` and `/about.html` in Bar's Chrome (Search Console → URL Inspection). It hit the daily quota on 01/10.
 2. **Bar only:**
-   - Bing Webmaster Tools sign-in, then "Import from Google Search Console".
    - Send the press pitch: `bar_builds/lab/personal/od-sevev/press-pitch.md`, a draft.
    - Delete the throwaway preview deploy `dpl_aas8f96abYdAJdkMHYQp21BrCws8` (a stub page).
 3. **Domain:** not now (Bar, 01/10). odsevev.com was free at $11.25 a year.
