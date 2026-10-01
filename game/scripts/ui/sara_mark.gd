@@ -7,8 +7,9 @@ extends Node2D
 ##
 ## She huffs (`offended`) 150 ms after the bottle-deposit spin S01 is bought: it is her only reference
 ## in the game and its copy never names her, so the huff is the joke. An 8 s cooldown drops triggers
-## inside it. Mordechai David's blockade plants him on the same mark, so she is off stage while it
-## holds. Reduced motion keeps her: every motion is in place.
+## inside it. The old seat `blockade` planted Mordechai David on her mark, so she steps off while one
+## holds; his screen block (since 2026-10-01) comes from the left and leaves her be. Reduced motion
+## keeps her: every motion is in place.
 
 const CHAR := "sara"
 const MARK_ART := Vector2(150, 221)       # the right crowd's front row, feet as drawn (StreetFigure's mark)
@@ -30,7 +31,7 @@ static func mark() -> Vector2:
 
 ## On stage only in Bibi's round, in Balfour, and not while the blockade holds her mark.
 static func wanted(s: GameState, on_stage: bool) -> bool:
-	return on_stage and s != null and Leaders.is_default(Leaders.current(s)) and StreetFigure.live(s).is_empty()
+	return on_stage and s != null and Leaders.is_default(Leaders.current(s)) and not Events.is_active(s, "blockade")
 
 
 func _ready() -> void:

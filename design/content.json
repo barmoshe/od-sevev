@@ -2099,16 +2099,11 @@
    "kind": "stage",
    "flag": "mordechaiDavid",
    "weight": 5,
-   "oncePerRound": true,
-   "cooldownSec": 900,
-   "atPlaySec": 60,
-   "when": {
-    "era": "balfour"
-   },
+   "cooldownSec": 0,
+   "when": {},
    "effect": {
-    "type": "blockade",
-    "sec": 20,
-    "maxSeats": 4
+    "type": "screenBlock",
+    "sec": 6
    },
    "pollLike": false,
    "src": [
@@ -2146,9 +2141,14 @@
       ]
      }
     },
-    "_note": "design/mordechai-david-spec.md. Effect 'blockade' (events.gd), presented by StreetFigure (the stage figure, a chat-style toast, the ticker); on for launch (flags.mordechaiDavid); fires once at 1:00 of play (atPlaySec, Bar 2026-09-30). Skin lookup: leader id, then side 'opposition', then the default. No player action on him, ever: no button, no tap target.",
-    "_guardrail": "Documented public conduct only (he stands in the way of cars and protests; his Kaplan rationale is reported speech). Never his conviction, restraining orders, family, the minors in his group, October 7, the hostages, or army service (so never the Eisenkot beach exchange, fact 47). Blocking is standing still with arms out: nobody is touched, pushed or hurt. His name appears only in this event and his facts (redlines.json allow 'mordechai')."
-   }
+    "_note": "design/mordechai-david-spec.md, changed by Bar 2026-10-01: every minute of play he appears with probability 0.45 (everySec 60, chance 0.45, any stage, any leader), walks in from the LEFT only, and for 6 s nothing on the screen takes a tap (effect screenBlock; main._input_blocked). No seats are benched any more (the old 'blockade' effect stays in the code, unused). Presented by StreetFigure (the stage figure, a chat-style toast, the ticker). Skin lookup: leader id, then side 'opposition', then the default. No player action on him, ever: no button, no tap target.",
+    "_guardrail": "Documented public conduct only (he stands in the way of cars and protests; his Kaplan rationale is reported speech). Never his conviction, restraining orders, family, the minors in his group, October 7, the hostages, or army service (so never the Eisenkot beach exchange, fact 47). Blocking is standing still with arms out: nobody is touched, pushed or hurt. His name appears only in this event and his facts (redlines.json allow 'mordechai').",
+    "screenText": "חוסם לך את המסך. {sec} שניות אי אפשר ללחוץ על כלום.",
+    "screenEndText": "החסימה התפזרה. אפשר ללחוץ שוב.",
+    "tapBlockedText": "מרדכי דוד חוסם. רגע."
+   },
+   "everySec": 60,
+   "chance": 0.45
   },
   {
    "id": "trump",

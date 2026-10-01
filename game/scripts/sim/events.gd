@@ -89,6 +89,11 @@ static var EFFECTS: Dictionary = {
 			Coalition.bench(s, id, float(e.get("sec", 20.0)))
 		_activate(s, "blockade", e, {"partner": id})
 		return {"partner": id},
+	"screenBlock": func(s: GameState, e: Dictionary, _d: Economy.Derived, _r: Callable) -> Dictionary:
+		# Mordechai David since 2026-10-01 (Bar): he walks in from the left and, for `sec`, nothing on
+		# the screen takes a tap (main._input_blocked). No seats, no money: the cost is the lost seconds.
+		_activate(s, "screenBlock", e, {})
+		return {},
 	"loseRandomPartner": func(s: GameState, _e: Dictionary, d: Economy.Derived, r: Callable) -> Dictionary:
 		var pool: Array = []
 		for p: Dictionary in Coalition.partners():
@@ -237,7 +242,23 @@ static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:
 	# so between "עוד סבב!" appearing and the vote only a counted-down ultimatum can take a seat.
 	if SEAT_COSTS.has(str(e.get("effect", {}).get("type", ""))) and Coalition.gate_open(s):
 		return false
+	# nor a screen block: the vote button stays tappable at the finish line
+	if str(e.get("effect", {}).get("type", "")) == "screenBlock" and Coalition.gate_open(s):
+		return false
 	return float(e.get("weight", 1.0)) > 0.0 and Conditions.ok(s, e.get("when", {}), ctx)
+
+
+## The periodic roll in [0, 1): a hash of the event, its roll count and a per-save salt (drawn once from
+## the clock), never the shared rng.
+static func _every_roll(s: GameState, eid: String) -> float:
+	var st := _st(s)
+	if not st.has("everySalt"):
+		st["everySalt"] = int(Time.get_ticks_usec() % 1000003)
+	var n: Dictionary = st.get("everyN", {}) if st.get("everyN") is Dictionary else {}
+	st["everyN"] = n
+	n[eid] = int(n.get(eid, 0)) + 1
+	var h := hash("%s|%d|%d" % [eid, int(n[eid]), int(st["everySalt"])])
+	return float(posmod(h, 1000003)) / 1000003.0
 
 
 ## One visible frame. Returns UI events: {ev: event, id, kind, side, result} when one fires,
@@ -264,6 +285,27 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 			cds.erase(id)
 	if not active():
 		return out
+	# A periodic event (`everySec` + `chance`, Mordechai David since 2026-10-01): every `everySec` of play
+	# it rolls once and fires with probability `chance`, outside the weighted pool and its gap; it never
+	# stacks on itself (a live one skips the roll). Its other rules (flag, when, cooldown) still hold.
+	# The roll has its own source (_every_roll; ctx.everyRoll in tests) and the weighted scheduler runs
+	# on in the same tick, so the shared rng stream, and everything seeded by it, is untouched.
+	var every: Dictionary = st.get("every", {}) if st.get("every") is Dictionary else {}
+	st["every"] = every
+	for e: Dictionary in list():
+		if not e.has("everySec"):
+			continue
+		var eid := str(e["id"])
+		every[eid] = float(every.get(eid, 0.0)) + dt
+		if float(every[eid]) < float(e["everySec"]):
+			continue
+		every[eid] = float(every[eid]) - float(e["everySec"])
+		var typ := str(e.get("effect", {}).get("type", ""))
+		if is_active(s, typ) or not eligible(s, e, ctx):
+			continue
+		var roll := float((ctx["everyRoll"] as Callable).call()) if ctx.get("everyRoll") is Callable else _every_roll(s, eid)
+		if roll < float(e.get("chance", 1.0)):
+			out.append(fire(s, eid, d, func() -> float: return 0.0))
 	# A timed event (`atPlaySec`): it fires once when the save's play time reaches it, ahead of the
 	# scheduler's first wait, gap and weights, and never through the weighted pool (Mordechai David at
 	# one minute, design/mordechai-david-spec.md §4). Its other rules (flag, when, once, gate) still hold.
@@ -282,7 +324,7 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 	var pool: Array = []
 	var total := 0.0
 	for e: Dictionary in list():
-		if not e.has("atPlaySec") and eligible(s, e, ctx):
+		if not e.has("atPlaySec") and not e.has("everySec") and eligible(s, e, ctx):
 			pool.append(e)
 			total += float(e.get("weight", 1.0))
 	if pool.is_empty():

@@ -212,7 +212,9 @@ func test_blockade_benches_a_small_partner_for_20_seconds() -> void:
 	_flags(["mordechaiDavid"])
 	var s := _md_state()
 	var before := int(Coalition.seat_info(s)["effective"])
-	var fired := Events.fire(s, "mordechai", Economy.derive(s), func() -> float: return 0.0)
+	# the seat bench stays in the code (the event moved to the screen block, Bar 2026-10-01): drive the effect
+	var res: Dictionary = Events.EFFECTS["blockade"].call(s, {"sec": 20, "maxSeats": 4}, Economy.derive(s), func() -> float: return 0.0)
+	var fired := {"result": res}
 	runner.check(str(fired["result"].get("partner", "")) == "amsalem", "the only 1-4 seat member is picked (got %s)" % fired["result"])
 	runner.check(not Coalition.counts(s, "amsalem"), "amsalem misses the vote")
 	runner.check(int(Coalition.seat_info(s)["effective"]) == before - 2, "the seats bar drops by his 2 seats")
@@ -247,10 +249,11 @@ func test_blockade_only_on_its_stage_and_never_at_the_gate() -> void:
 	_flags(["mordechaiDavid"])
 	var s := _md_state()
 	var e := Events.event("mordechai")
-	runner.check(Events.eligible(s, e), "eligible on the first stage with 3 members")
+	runner.check(Events.eligible(s, e), "eligible with 3 members")
 	var e2 := e.duplicate(true)
 	e2["when"]["era"] = "no-such-era"
-	runner.check(not Events.eligible(s, e2), "not on another stage (no crowd)")
+	runner.check(not Events.eligible(s, e2), "a `when` still holds (here: an era that never comes)")
+	runner.check((e["when"] as Dictionary).is_empty(), "since 2026-10-01: any stage, any round")
 	for p: Dictionary in Coalition.partners():
 		if not p.get("standIn", false) and p.get("side", "coalition") == "coalition":
 			Coalition.ps(s, str(p["id"]))["status"] = "member"
@@ -260,26 +263,51 @@ func test_blockade_only_on_its_stage_and_never_at_the_gate() -> void:
 	runner.check(not Events.eligible(_md_state(), e), "never with the flag off")
 
 
-## atPlaySec (spec §4, Bar 2026-09-30): Mordechai David fires once at one minute of play, ahead of
-## the scheduler's 4-minute first wait, with or without partners in the group.
-func test_blockade_fires_at_one_minute_of_play() -> void:
-	_flags(["mordechaiDavid"])
+## Bar, 2026-10-01: every minute of play Mordechai David rolls once and comes with probability 0.45
+## (everySec 60, chance 0.45), outside the weighted pool; while he is there nothing takes a tap
+## (effect screenBlock, 6 s), and a live block never stacks a second one.
+func _md_minutes(rng_value: float, minutes: float) -> Array:
 	var s := GameState.fresh()
 	var fires: Array = []
-	var rng := func() -> float: return 0.5
-	for i in 240:   # 0.5 s steps to 2:00
+	var roll := func() -> float: return rng_value
+	for i in int(minutes * 120.0):   # 0.5 s steps
 		s.stats["playtimeSec"] = float(s.stats["playtimeSec"]) + 0.5
-		for ev: Dictionary in Events.tick(s, 0.5, Economy.derive(s), {}, rng):
-			if ev["ev"] == "event":
-				fires.append([float(s.stats["playtimeSec"]), ev["id"], ev["result"]])
-	runner.check(fires.size() == 1 and fires[0][1] == "mordechai", "one event by 2:00, his (%s)" % str(fires))
-	runner.check(not fires.is_empty() and is_equal_approx(float(fires[0][0]), 60.0), "at 1:00 of play")
-	runner.check(not fires.is_empty() and str(fires[0][2].get("partner", "x")) == "", "an empty group: nobody is stuck, the card only")
-	# never through the weighted pool: before his minute the scheduler never draws him
-	var early := _md_state()
-	early.stats["playtimeSec"] = 30.0
-	var seen := _run(early, 300)
-	runner.check(not seen.has("mordechai") and not seen.is_empty(), "the timer, not the weighted pool (%s)" % str(seen))
+		for ev: Dictionary in Events.tick(s, 0.5, Economy.derive(s), {"everyRoll": roll}, func() -> float: return 0.99):
+			if ev["ev"] == "event" and ev["id"] == "mordechai":
+				fires.append(float(s.stats["playtimeSec"]))
+	return fires
+
+
+func test_mordechai_rolls_every_minute_at_45_percent() -> void:
+	_flags(["mordechaiDavid"])
+	var hit := _md_minutes(0.30, 5.0)
+	runner.check(hit.size() == 5 and is_equal_approx(float(hit[0]), 60.0), "a roll under 0.45: he comes at every minute mark (%s)" % str(hit))
+	var miss := _md_minutes(0.60, 5.0)
+	runner.check(miss.is_empty(), "a roll over 0.45: he never comes (%s)" % str(miss))
+	var e := Events.event("mordechai")
+	runner.check(is_equal_approx(float(e["chance"]), 0.45) and is_equal_approx(float(e["everySec"]), 60.0), "the content says every 60 s at 45%")
+	# the real roll: its own hash source, about 45% over many minutes, and the shared rng untouched
+	var s := GameState.fresh()
+	var n := 0
+	for k in 2000:
+		if Events._every_roll(s, "mordechai") < 0.45:
+			n += 1
+	runner.check(n > 800 and n < 1000, "the hash roll lands near 45%% (%d of 2000)" % n)
+
+
+func test_mordechai_blocks_the_screen_for_six_seconds() -> void:
+	_flags(["mordechaiDavid"])
+	var s := _md_state()
+	var fired := Events.fire(s, "mordechai", Economy.derive(s), func() -> float: return 0.0)
+	runner.check(Events.is_active(s, "screenBlock") and fired["result"].is_empty(), "the screen block is live; nobody is benched")
+	runner.check(Coalition.counts(s, "amsalem"), "no seats are taken any more")
+	var ev: Array = []
+	for i in 7:
+		ev.append_array(Events.tick(s, 1.0, Economy.derive(s), {}, func() -> float: return 0.99))
+	runner.check(not Events.is_active(s, "screenBlock") and ev.any(func(x: Dictionary) -> bool: return x["ev"] == "eventEnd" and x["type"] == "screenBlock"),
+		"it ends after 6 s (eventEnd screenBlock)")
+	var seen := _run(_md_state(), 300)
+	runner.check(not seen.has("mordechai"), "never through the weighted pool (%s)" % str(seen))
 
 
 func test_lose_random_partner_skips_deri() -> void:

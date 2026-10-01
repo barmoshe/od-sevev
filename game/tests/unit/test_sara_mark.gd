@@ -93,7 +93,7 @@ func test_she_stands_and_huffs_at_the_bottle_deposits() -> void:
 	runner.check(sara.strip.anim == "idle", "a second trigger inside the 8 s cooldown is dropped")
 	m._on_politics_event(Events.fire(m.state, "mordechai", m.d, func() -> float: return 0.0))
 	_frames(2)
-	runner.check(not sara.showing(), "the blockade holds her mark: she is off stage")
+	runner.check(sara.showing(), "Mordechai David comes from the left now: she stays")
 
 
 func test_not_in_another_leaders_round() -> void:

@@ -5,19 +5,20 @@ extends Node2D
 ## `blockade` effect (Events.active_effects), so a save loaded mid-blockade, an election that clears
 ## it, or a reset all land right without extra wiring.
 ##
-## Beats: walk in from beyond the canvas's right edge (`walk`, flip_h: heading left) to his mark in
-## front of the right crowd (art x 150, feet row 221), turn to face the crowd as drawn, `block_in`
-## (plant), hold `block`, one smug `glance` at the player, then `block_in` backwards and walk out to
-## the right. Timed so he is off the canvas as the effect ends. He never stops inside the leader's
-## slot (art x 66-114); the walk stays right of it. Reduced motion: no walk, a 150 ms fade on the
-## mark in the hold pose, frozen.
+## Beats (Bar, 2026-10-01: from the left only): walk in from beyond the canvas's left edge (`walk`, as
+## drawn: heading right) to his mark in front of the left crowd (art x 34, feet row 221), `block_in`
+## (plant), hold `block` facing the leader, one smug `glance` at the player, then `block_in` backwards
+## and walk out to the left (flip_h). Timed so he is off the canvas as the effect ends. He never stops
+## inside the leader's slot (art x 66-114); the walk stays left of it. Reduced motion: no walk, a
+## 150 ms fade on the mark in the hold pose, frozen. Live on the `blockade` effect (the old seat
+## bench) and on `screenBlock` (the tap block his event fires now).
 ##
 ## No player action on him, ever: no tap target (spec §1).
 
 const CHAR := "mordechai-david"
 const EVENT_ID := "mordechai"
-const MARK_ART := Vector2(150, 221)   # CONTRACT §4: right crowd, feet as drawn, a px in front of the leader's row
-const SLOT_ART_END := 114             # the leader's slot ends here: he never stops left of it
+const MARK_ART := Vector2(34, 221)    # the left crowd's front row, feet as drawn (Bar 2026-10-01: from the left)
+const SLOT_ART_START := 66            # the leader's slot starts here: he never stops right of it
 const WALK_AP_S := 31.0               # CONTRACT §4: travel ≈ 31 art px/s, feet planted
 const AP := 4.0
 const REACH_AP := 23.0                # the walk's widest reach from the feet (CONTRACT §4)
@@ -46,9 +47,10 @@ static func mark() -> Vector2:
 	return L.magician_feet() + (MARK_ART - Vector2(float(mf[0]), float(mf[1]))) * AP
 
 
-## Fully off the canvas on the right (the stage column sits at canvas x L.sox()).
+## Fully off the canvas on the left (the stage column sits at canvas x L.sox(), so the canvas's left
+## edge is stage-local −L.sox()).
 static func off_x() -> float:
-	return 720.0 + L.dx - L.sox() + REACH_AP * AP + OFF_MARGIN
+	return -L.sox() - REACH_AP * AP - OFF_MARGIN
 
 
 func _ready() -> void:
@@ -56,12 +58,12 @@ func _ready() -> void:
 	visible = false
 
 
-## The live blockade effect, or {}.
+## The live blockade or screen-block effect, or {}.
 static func live(s: GameState) -> Dictionary:
 	if s == null:
 		return {}
 	for a: Dictionary in Events.active_effects(s):
-		if str(a.get("type", "")) == "blockade":
+		if ["blockade", "screenBlock"].has(str(a.get("type", ""))):
 			return a
 	return {}
 
@@ -80,7 +82,7 @@ func on_fire() -> void:
 
 
 func _walk_in_ms() -> float:
-	return maxf(0.0, off_x() - mark().x) / (WALK_AP_S * AP) * 1000.0
+	return maxf(0.0, mark().x - off_x()) / (WALK_AP_S * AP) * 1000.0
 
 
 ## How long before the effect ends the release starts, so he is off the canvas at the end.
@@ -100,7 +102,9 @@ func update_view(dt_ms: float, s: GameState, on_stage: bool) -> void:
 			_go()
 		elif _mode in ["in", "plant", "hold"]:
 			_start_release()   # an election or a reset cleared it early: he still leaves
-	elif _mode == "gone" or (_mode == "out" and left_ms > release_lead_ms() + 500.0):
+	elif (_mode == "gone" or _mode == "out") and left_ms > release_lead_ms() + 500.0:
+		# (re)enter only with time to leave again: a figure just gone with a few ms of effect left
+		# would otherwise pop back on his mark and walk out twice
 		_enter(_walk_in_next)
 	elif _mode in ["in", "plant", "hold"] and left_ms <= release_lead_ms():
 		_start_release()
@@ -123,7 +127,7 @@ func _enter(walk: bool) -> void:
 		return
 	if walk:
 		_mode = "in"
-		_place(off_x(), -1.0)
+		_place(off_x(), 1.0)
 		strip.paused = false
 		strip.play("walk")
 		_marker("mdEnter")
@@ -140,7 +144,7 @@ func _start_release() -> void:
 		_t = 0.0
 		return
 	_t = 0.0
-	_place(maxf(_x, mark().x), 1.0)
+	_place(minf(_x, mark().x), 1.0)
 	strip.play("block_in")
 	strip.paused = true
 	strip.frame = strip.frame_count() - 1
@@ -156,8 +160,8 @@ func _go() -> void:
 	modulate.a = 1.0
 
 
-## Feet at stage-local x, facing `dir` (1 = as drawn, screen-right; -1 = flip_h, screen-left). Whole
-## art px only.
+## Feet at stage-local x, facing `dir` (1 = as drawn, screen-right, toward the leader; -1 = flip_h,
+## screen-left). Whole art px only.
 func _place(x: float, dir: float) -> void:
 	_x = x
 	position = Vector2(roundf(x / AP) * AP, mark().y)
@@ -180,9 +184,9 @@ func _step(dt_ms: float) -> void:
 	var v := WALK_AP_S * AP / 1000.0
 	match _mode:
 		"in":
-			var x := maxf(mark().x, _x - v * dt_ms)
-			_place(x, -1.0)
-			if x <= mark().x:
+			var x := minf(mark().x, _x + v * dt_ms)
+			_place(x, 1.0)
+			if x >= mark().x:
 				_mode = "plant"
 				_t = 0.0
 				_place(mark().x, 1.0)
@@ -210,9 +214,9 @@ func _step(dt_ms: float) -> void:
 				strip.paused = false
 				strip.play("walk")
 		"out":
-			var x := _x + v * dt_ms
-			_place(x, 1.0)
-			if x >= off_x():
+			var x := _x - v * dt_ms
+			_place(x, -1.0)
+			if x <= off_x():
 				_go()
 	if not strip.paused:
 		strip.update_view(dt_ms)
