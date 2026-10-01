@@ -1136,7 +1136,7 @@ func _process(delta: float) -> void:
 	prop_fx.update_view(dt)
 	golden.update_view(dt, modal or not running)
 	diorama.update_view(dt)
-	street.update_view(dt, state, running and diorama.era_id() == "balfour")
+	street.update_view(dt, state, running)   # any stage since 2026-10-01 (Bar): he comes every minute, 45%
 	sara.update_view(dt, state, running and diorama.era_id() == "balfour")
 	floaters.update_view(dt)
 	fx_stage.update_view(dt)
@@ -1492,6 +1492,9 @@ func _on_politics_event(e: Dictionary) -> void:
 			if str(e.get("id", "")) == StreetFigure.EVENT_ID:
 				_on_street_event(e.get("result", {}))
 		"eventEnd":
+			if str(e.get("type", "")) == "screenBlock":
+				var sc := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
+				toasts.show_toast(str(sc.get("screenEndText", "")), "", "lane")
 			if str(e.get("type", "")) == "pledge":
 				# Bennett's pledge flips when its timer runs out (his card elsewhere, his own rule in his round)
 				var flip := str((Events.event("bennett").get("copy", {}) as Dictionary).get("flipText", ""))
@@ -1529,11 +1532,17 @@ func _on_street_event(result: Dictionary) -> void:
 	var c := StreetFigure.copy_for(lid, str(Leaders.leader(lid).get("side", "")))
 	_street_partner = str(result.get("partner", ""))
 	street.on_fire()
+	if Events.is_active(state, "screenBlock"):
+		# a press already down when he arrives never lands: the block starts clean
+		shop.cancel_press()
+		_presses.clear()
 	ticker.enqueue("flavor", str(c.get("ticker", "")), true)
 	# the lane band (D62): mid-round a top-dock toast covers the leader's head on short stages; the lane
 	# is clear of his hit on every device, and the ticker right under it names Mordechai David
 	toasts.show_chat_toast("", str(c.get("text", "")), StreetFigure.toast_avatar(), "", false, 2, "lane")
 	var line := str(c.get("blockedText", "")) if _street_partner != "" else str(c.get("aloneText", ""))
+	if Events.is_active(state, "screenBlock"):
+		line = str(c.get("screenText", ""))
 	toasts.show_toast(StreetFigure.fill(line, _street_partner), "", "lane")
 
 
@@ -1653,7 +1662,26 @@ func _refresh_all(dt: float) -> void:
 # ================================================================== input boundary
 
 func _gameplay_input() -> bool:
-	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked and overlays.now_ms() >= overlays.input_locked_until
+	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked and overlays.now_ms() >= overlays.input_locked_until \
+		and not _input_blocked()
+
+
+## Mordechai David's screen block (events.mordechai, effect screenBlock; Bar 2026-10-01): while it is
+## live, nothing on the screen takes a tap or a key, modals and settings included.
+func _input_blocked() -> bool:
+	return mode == "main" and state != null and Events.is_active(state, "screenBlock")
+
+
+var _blocked_toast_at := -1.0e9
+
+
+## A tap while he blocks: swallowed, with a short reminder (at most every 1.5 s).
+func _on_blocked_tap() -> void:
+	if _now - _blocked_toast_at < 1500.0:
+		return
+	_blocked_toast_at = _now
+	var c := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
+	toasts.show_toast(str(c.get("tapBlockedText", "")), "", "lane")
 
 
 ## Row A's mute and settings: live in the round and in the pre-tap state (B10: Row A is up there).
@@ -1700,7 +1728,8 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e is InputEventKey:
 		var k := e as InputEventKey
 		if k.pressed and not k.echo:
-			_on_key(k)
+			if not _input_blocked():
+				_on_key(k)
 			get_viewport().set_input_as_handled()
 
 
@@ -1727,6 +1756,9 @@ func _notification(what: int) -> void:
 func _pointer_down(idx: int, p: Vector2) -> void:
 	_first_input = true
 	_keyboard_active = false
+	if _input_blocked():
+		_on_blocked_tap()
+		return
 	ftue.on_input()
 	if tx.running or _tx_locked:
 		return

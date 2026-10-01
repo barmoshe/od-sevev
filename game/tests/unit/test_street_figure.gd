@@ -90,7 +90,7 @@ func test_the_copy_skins_per_leader() -> void:
 	var opp := StreetFigure.copy_for("bennett", "opposition")
 	runner.check(str(opp["text"]).contains("אופוזיציה") and str(opp["role"]) == "פעיל ימין", "an opposition leader: the opposition line, the default role")
 	var filled := StreetFigure.fill(str(base["blockedText"]), "")
-	runner.check(filled.contains("20") and not filled.contains("{"), "{sec} fills in (%s)" % filled)
+	runner.check(filled.contains("6") and not filled.contains("{"), "{sec} fills in from the effect (%s)" % filled)
 
 
 func test_he_walks_in_blocks_and_leaves_by_the_end() -> void:
@@ -103,20 +103,29 @@ func test_he_walks_in_blocks_and_leaves_by_the_end() -> void:
 	var fig: StreetFigure = m.street
 	var mark := StreetFigure.mark()
 	m._on_politics_event(Events.fire(m.state, "mordechai", m.d, func() -> float: return 0.0))
-	var picked := str(m._street_partner)
-	runner.check(picked != "" and not Coalition.counts(m.state, picked), "a small partner is stuck (%s)" % picked)
+	runner.check(str(m._street_partner) == "" and Coalition.counts(m.state, stuck), "no partner is benched any more: he blocks the screen")
 	_frames(1)
-	runner.check(fig.mode() == "in" and fig.visible and fig.position.x > m.street.off_x() - 40.0, "f1: walking in from off the canvas's right edge (x %.0f)" % fig.position.x)
-	runner.check(fig.scale.x < 0.0, "the walk-in heads left: flip_h")
+	runner.check(fig.mode() == "in" and fig.visible and fig.position.x < m.street.off_x() + 40.0, "f1: walking in from off the canvas's LEFT edge (x %.0f)" % fig.position.x)
+	runner.check(fig.scale.x > 0.0, "the walk-in heads right, as drawn")
+	runner.check(not m._gameplay_input() and m._input_blocked(), "while he is there, nothing takes a tap")
+	var presses_before: int = m._presses.size()
+	m._pointer_down(0, L.magician_hit().get_center() + Vector2(m._sx, m._stage_y))
+	runner.check(m._presses.size() == presses_before, "a tap on the leader is swallowed")
 	var never_left := true
 	var modes := {}
 	var head_seen := false
 	var grid := true
-	for i in 1300:   # 20.8 s at 16 ms
+	var gone_at := -1
+	for i in 500:   # 8 s at 16 ms (the block is 6 s)
 		_frames(1)
+		if gone_at < 0 and fig.mode() == "gone":
+			gone_at = i
+		if gone_at >= 0 and fig.mode() != "gone":
+			runner.check(false, "once gone he stays gone (back as %s at frame %d)" % [fig.mode(), i])
+			gone_at = 1 << 30
 		modes[fig.mode()] = true
 		if fig.visible:
-			never_left = never_left and fig.position.x >= mark.x - 0.5
+			never_left = never_left and fig.position.x <= mark.x + 0.5
 			grid = grid and is_equal_approx(fmod(absf(fig.position.x), 4.0), 0.0)
 		if fig.mode() == "hold" and not modes.has("_hold_checked"):
 			modes["_hold_checked"] = true
@@ -129,8 +138,8 @@ func test_he_walks_in_blocks_and_leaves_by_the_end() -> void:
 	for k in ["in", "plant", "hold", "release", "out", "gone"]:
 		runner.check(modes.has(k), "the beat %s ran" % k)
 	runner.check(head_seen, "his toast: his face and his reported line, docked in the lane band under the leader's feet")
-	runner.check(fig.mode() == "gone" and not fig.visible, "off the stage as the effect ends")
-	runner.check(Coalition.counts(m.state, picked), "the stuck partner counts again")
+	runner.check(fig.mode() == "gone" and not fig.visible, "off the stage as the effect ends (mode %s, gone at frame %d)" % [fig.mode(), gone_at])
+	runner.check(m._gameplay_input() and not m._input_blocked(), "and the screen takes taps again")
 
 
 func test_reduced_motion_fades_on_the_mark() -> void:

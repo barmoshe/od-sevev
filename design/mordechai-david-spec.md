@@ -1,5 +1,15 @@
 # mechanic-spec: Mordechai David, "החסימה" (a stage event)
 
+> **Changed by Bar, 2026-10-01.** Every minute of play Mordechai David rolls once and comes with
+> probability 0.45 (`everySec: 60`, `chance: 0.45`; any stage, any leader). He walks in from the
+> **left only**, plants at the left crowd (art x 34), and for 6 s **nothing on the screen takes a tap or
+> a key** (effect `screenBlock`, `main._input_blocked`; a press already down is cancelled). He no longer
+> benches a partner's seats (the `blockade` effect stays in the code, unused), and never fires while the
+> 61 gate is open. The roll has its own hash source (`Events._every_roll`), so the shared rng stream
+> and the seeded benches are unchanged. The sections below describe the launch design (one blockade
+> at 1:00, from the right) and are kept for the record.
+
+
 **Owner:** Game Designer · **Date:** 2026-09-30 (session 5) · **Status:** built and on for launch (session 6,
 2026-09-30): the `blockade` effect, the presenter (`game/scripts/ui/street_figure.gd`), the lint and the flag.
 §7.2 and §9 say where the build departs from the design, and why.

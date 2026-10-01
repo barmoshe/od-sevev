@@ -283,7 +283,7 @@ for (const o of C.ambientHeadlinesV2.list) for (const k of Object.keys(o.when ||
 const condKeys = new Set(['era', 'evolutionsAtLeast', 'evolutionsBelow', 'runBananasAtLeast', 'allTimeAtLeast', 'ownedAtLeast', 'sourcesOwnedAtLeast', 'shadyOwnedAtLeast',
   'seatsAtLeast', 'seatsBelow', 'membersAtLeast', 'partnerMember', 'partnerNotMember', 'suspicionAtLeast', 'suspicionBelow', 'courtDaysAtLeast', 'critsLifetimeAtLeast',
   'goldenCaughtLifetimeAtLeast', 'playSecAtLeast', 'runSecAtLeast', 'partnersInAtLeast', 'weekday', 'hour', 'mode', 'pendingEngine']);
-const eventEffects = new Set(['none', 'blockade', 'suspicion', 'noCrit', 'brawl', 'leak', 'interview', 'pardonDesk', 'seatDrain', 'roulette', 'kaia', 'drumline', 'loseRandomPartner', 'pledge']);
+const eventEffects = new Set(['none', 'blockade', 'screenBlock', 'suspicion', 'noCrit', 'brawl', 'leak', 'interview', 'pardonDesk', 'seatDrain', 'roulette', 'kaia', 'drumline', 'loseRandomPartner', 'pledge']);
 const econEffects = new Set(['tapMult', 'tapPctOfBps', 'critChance', 'goldenIntervalMult', 'goldenLifeMult', 'globalMult', 'producerMult', 'suspicionGainMult', 'baseMult', 'bpsMult',
   'tapAdd', 'offlineMult', 'basePctThisRound', 'suspicionFreeze', 'wipeSourceSuspicion',
   // spin effects in game/scripts/sim/spins.gd (Spins.TYPES)
