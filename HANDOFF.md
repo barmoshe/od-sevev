@@ -1,3 +1,53 @@
+# HANDOFF: analytics and search (2026-10-01, the analytics session; parallel, not ordered)
+
+Live at `7578546` (web-dist `5dab84a`). Details and hashes in `STATUS.md` (2026-10-01, analytics session).
+
+## How the analytics work
+- **Vercel Web Analytics, Hobby plan:** page views only (custom events are Pro). Play milestones are sent as **virtual page views** under `/play/`. Read them in Analytics → Pages, with Routes showing the family totals.
+- **Code:**
+  - `game/web/shell.html`, the "Analytics" block: `window.odTrack(step)` holds a step until the script's own page view has been sent.
+  - The allowlist is `STEP`, and once-per-device steps are deduped in localStorage `odsevev.seen`.
+  - `window.odTrackFunnel` maps `main.gd _funnel()` events (signal `funnel_sent`) to steps.
+  - Nothing is sent on localhost or with `?dev=1`. `window.odTrackLog` keeps every step for the drivers.
+- **Steps:**
+  - `loaded/<new|back>/<time>s`, `load-error`
+  - `return/d1|d2-7|d8-30|d30+`
+  - `first-tap/<on|off|na>`, `first-election/<time>`, `elections-5`
+  - `picked|switch|stay/<leader>`
+  - `quit/disclaimer|loading` or `session/<len>m` (one per page)
+  - `feature/chat|court|mordechai`
+  - `share/<kind>/<result>`
+  - `reload-after-crash`, `ctx-lost`
+- **Constraints:**
+  - The 50K events a month are shared across Bar's whole Vercel account. Add new steps sparingly.
+  - No seat or poll numbers in any path (the 23.10 blackout).
+  - Speed Insights is on.
+- **Don't retry:**
+  - A `vercel.json` rewrite into `/_vercel/*` returns 404 on this static deploy.
+  - The Vercel analytics API/MCP returns 404 on Hobby. Read the numbers in the dashboard instead.
+- **Test:** `tools/web/analytics_web.mjs` (Playwright; it also checks the head and `about.html`), plus `game/tests/unit/test_funnel.gd`.
+
+## Search (SEO/AEO)
+- **Head:**
+  - Title: "עוד סבב: משחק הבחירות שלא נגמרות | סאטירה 2026".
+  - `META_DESCRIPTION`, canonical, VideoGame + WebApplication JSON-LD (author בר משה, dateModified).
+  - The maker line "מאת בר משה · לפניות: 1barmoshe1@gmail.com" (Bar's call, `render_shell.py` defaults).
+- **`game/web/about.html`:** a static page rendered by `render_shell.py`, so crawlers that run no JS can read it. It has the direct answer, a 5-question FAQ (`FAQ_*` keys in `ux/tools/gen_strings.py`) and FAQPage JSON-LD. It's linked from About and `<noscript>`.
+- **Files from `build_web.sh`:** `robots.txt` (all bots), `sitemap.xml` (`/`, `/about.html`), the Search Console file `tools/web/google934215264611e5f3.html` (**keep it**) and the IndexNow key file `tools/web/27bc5ef5ff8e4f8b98acf2f714e15c3c.txt`.
+- **Search Console:** the URL-prefix property is verified in Bar's account and the sitemap is submitted. As of 01/10 nothing was indexed yet.
+- **Ping IndexNow after content changes:** `https://api.indexnow.org/indexnow?url=<url>&key=27bc5ef5ff8e4f8b98acf2f714e15c3c`.
+
+## Open
+1. **02/10:** request indexing for `/` and `/about.html` in Bar's Chrome (Search Console → URL Inspection). It hit the daily quota on 01/10.
+2. **Bar only:**
+   - Bing Webmaster Tools sign-in, then "Import from Google Search Console".
+   - Send the press pitch: `bar_builds/lab/personal/od-sevev/press-pitch.md`, a draft.
+   - Delete the throwaway preview deploy `dpl_aas8f96abYdAJdkMHYQp21BrCws8` (a stub page).
+3. **Domain:** not now (Bar, 01/10). odsevev.com was free at $11.25 a year.
+4. **Smaller web engine template:** custom Godot build without 3D/XR/navigation, wasm about 9.5 → 5 MB brotli. Blocked: the Mac's disk was full (4.4 GB free).
+
+---
+
 > **Copy audit, 2026-10-01 (character-copy session): done and live (`a9e5aa9`).** Every signature was checked against sources; the before/after table, the parallel research cross-check and the open items (store videos still show Deri's "ידידי" and the coffee; optional swaps: Deri's "הדלת והחלון", Smotrich's "יש כסף, לא לך") are in `design/copy-audit-2026-10-01.md`.
 
 > **Two sessions ran at the same time on 2026-09-30 and both handed off:** the store-videos session
