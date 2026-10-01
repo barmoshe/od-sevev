@@ -34,13 +34,12 @@
 {"@context":"https://schema.org","@type":["VideoGame","WebApplication"],"name":"עוד סבב","alternateName":"עוד סבב: הבחירות שלא נגמרות","url":"__OD_SITE_URL__","image":"__OD_SITE_URL__og.jpg","description":{{META_DESCRIPTION_JSON}},"inLanguage":"he","genre":["Idle","Satire"],"gamePlatform":"Web browser","playMode":"SinglePlayer","applicationCategory":"GameApplication","operatingSystem":"Any","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"ILS"},"author":{"@type":"Person","name":"בר משה"},"publisher":{"@type":"Person","name":"בר משה"},"dateModified":"{{BUILD_DATE_ISO}}","about":{"@type":"Event","name":"הבחירות לכנסת ה־26","startDate":"2026-10-27"},"subjectOf":{"@type":"WebPage","url":"__OD_SITE_URL__about.html"}}
 		</script>
 		<script>
-			// Analytics (Vercel Web Analytics + Speed Insights): cookieless, no ids, read in the Vercel
+			// Analytics (Vercel Web Analytics; Speed Insights is off: Hobby allows it on one project only): cookieless, no ids, read in the Vercel
 			// dashboard. Loaded on the deployed host only, so local runs never report (the script also
 			// skips webdriver/headless browsers). A visit is the page view of `/`; the milestones of play
 			// go in as virtual page views under /play/ (window.odTrack below), because a page view works on
 			// the Hobby plan and a custom event does not. The Pages panel is then the funnel.
 			window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-			window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
 			// the Home Screen icon of older installs opens /index.html: count it as /
 			window.va('beforeSend', function (e) {
 				try {
@@ -225,7 +224,6 @@
 						ready = true;
 						held.splice(0).forEach(send);
 					});
-					load('/_vercel/speed-insights/script.js', '', '');
 				}
 			}());
 		</script>

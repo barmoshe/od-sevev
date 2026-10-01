@@ -21,7 +21,7 @@ Live at `7578546` (web-dist `5dab84a`). Details and hashes in `STATUS.md` (2026-
 - **Constraints:**
   - The 50K events a month are shared across Bar's whole Vercel account. Add new steps sparingly.
   - No seat or poll numbers in any path (the 23.10 blackout).
-  - Speed Insights: the script loads, but the project isn't enabled yet (vitals POST 503). Bar runs `npx vercel project speed-insights enable od-sevev --scope barmoshes-projects` in a terminal; the CLI won't let an agent turn on a paid-tier feature.
+  - Speed Insights is off: Hobby allows it on one project only, and enabling it here needs Plus (CLI, 01/10). The script was removed from the shell; `loaded/<new|back>/<time>s` covers load time.
 - **Don't retry:**
   - A `vercel.json` rewrite into `/_vercel/*` returns 404 on this static deploy.
   - The Vercel analytics API/MCP returns 404 on Hobby. Read the numbers in the dashboard instead.
@@ -42,7 +42,6 @@ Live at `7578546` (web-dist `5dab84a`). Details and hashes in `STATUS.md` (2026-
 2. **Bar only:**
    - Bing Webmaster Tools sign-in, then "Import from Google Search Console".
    - Send the press pitch: `bar_builds/lab/personal/od-sevev/press-pitch.md`, a draft.
-   - Enable Speed Insights (command above).
    - Delete the throwaway preview deploy `dpl_aas8f96abYdAJdkMHYQp21BrCws8` (a stub page).
 3. **Domain:** not now (Bar, 01/10). odsevev.com was free at $11.25 a year.
 4. **Smaller web engine template:** custom Godot build without 3D/XR/navigation, wasm about 9.5 → 5 MB brotli. Blocked: the Mac's disk was full (4.4 GB free).
