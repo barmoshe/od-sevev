@@ -76,7 +76,7 @@ Assets: `creative-pack/art/briefs/leaders-v3-gpt.md`.
 ## Phase 2: active abilities
 - **One engine and one chip.**
   - `game/scripts/sim/ability.gd` (`Ability`) reads `leaders[].rule.active {type, numbers, copy, src}`.
-  - `game/scripts/ui/ability_chip.gd` sits at the stage's top right, at x 572 or more, right of the
+  - `game/scripts/ui/ability_chip.gd` sits at the stage's bottom right, below the toast lane, at x 572 or more, right of the
     leader's hit box, so rapid taps never land on it.
   - It shows the leader's verb, a number (cooldown, countdown, or clauses 3/5) and a bar.
   - The leader card in the picker shows `copy.desc`.
@@ -96,7 +96,20 @@ Assets: `creative-pack/art/briefs/leaders-v3-gpt.md`.
 
 - **Bench:** `PacingSim._play_ability` plays a median player: Bennett signs on a closed gate and never
   flips; Ben Gvir, Eisenkot and Deri act when a demand is open; Smotrich approves what he can afford;
-  Golan swipes. Results are in the STATUS log.
+  Golan swipes.
+- **Bench (2026-10-01):** the median player's median first election over seeds 1–9, before → after the
+  abilities. ±10% is about ±48 s.
+
+| Leader | Before | After | Change |
+|---|---|---|---|
+| Bibi | 8:01 | 8:07 | +1% |
+| Bennett | 8:03 | 7:07 at cooldown 150 s, out of range | re-run at 300 s: see STATUS |
+| Ben Gvir | 8:19 | 8:55 | +7% |
+| Liberman | 7:51 | 7:58 | +1.5% |
+| Eisenkot | 8:10 | 8:42 | +6.5% |
+| Smotrich | 8:06 | 8:05 | 0% |
+| Deri | 8:05 | 8:20 | +3% |
+| Golan | 7:59 | 8:28 (worst 11:50) | +6% |
 
 ## Next phases
 - **Phase 2:** done (above). Still open: the pardon desk handing off to Herzog (Bibi).

@@ -1,16 +1,17 @@
 class_name AbilityChip
 extends Node2D
 ## The round's active ability (leaders v3 phase 2, design/leaders-v3.md; sim: Ability). A chip at the
-## stage's top right, the buff chip's look: the leader's verb ("אני פורש", "לחתום", "להעביר תקציב"…)
+## stage's bottom right, the buff chip's look: the leader's verb ("אני פורש", "לחתום", "להעביר תקציב"…)
 ## with a number (cooldown seconds, the offer's countdown, Liberman's clauses 3/5) and a bar.
 ## Ready or an open offer: full colour and a slow pulse, and a tap uses it (main._use_ability).
 ## Cooldown: dimmed, the bar fills back. Hidden when the round's leader has no ability, or the ability
 ## has nothing to show (Smotrich between budgets, Golan between offers, Bibi's once-a-round used).
 ## Placeholder look until the GPT ability icons land (creative-pack/art/briefs/leaders-v3-gpt.md C).
 
-## Stage px (the band is y 160..), right of the leader's hit box (L.magician_hit ends at x 564): rapid
-## taps on the leader never land on the chip.
-const RECT := Rect2(572, 172, 140, 92)
+## Stage px: the stage's bottom right, right of the leader's hit box (L.magician_hit ends at x 564, so
+## rapid taps on the leader never land on it) and below the toast lane (toasts sit at the stage's top
+## and would cover it). The Suitcase's band crosses it: the Suitcase takes the tap first (main).
+const RECT := Rect2(572, 524, 140, 92)
 const TEXT_SCALE := 3
 
 var reduced_motion := false
@@ -59,8 +60,12 @@ func update_view(dt_ms: float, v: Dictionary, stage_visible: bool) -> void:
 	var price := float(v.get("price", 0.0))
 	if price > 0.0:
 		sub = Fmt.amount(price) + "₪" + ((" · " + sub) if sub != "" else "")
-	_text.text = label
-	_sub.text = sub
+	if _text.text != label:
+		_text.text = label
+		_text.center_in(RECT.position.x, RECT.size.x)
+	if _sub.text != sub:
+		_sub.text = sub
+		_sub.center_in(RECT.position.x, RECT.size.x)
 	var fill := clampf(float(v.get("fill", 0.0)), 0.0, 1.0)
 	var state := str(v.get("state", "ready"))
 	if state == "ready":

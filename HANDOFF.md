@@ -1,3 +1,61 @@
+# HANDOFF: leaders v3, a storyline and gameplay for every leader (2026-10-01, the character-copy session)
+
+Bar asked to improve each leader's storyline and gameplay ("אל תתמקד רק בביבי"), and said yes to more
+assets made with GPT ("אל תתקמצן"). Bar's planning answers:
+- an active ability on top of each rule;
+- ±10% round length stays;
+- it ships in phases, each one deployed.
+
+Design and tables: **`design/leaders-v3.md`**. GPT assets: **`creative-pack/art/briefs/leaders-v3-gpt.md`**.
+Live and hashes: `STATUS.md` (2026-10-01, leaders v3).
+
+## Done (on main)
+- **Phase 1** (`7276e30`, live):
+  - Every leader leaves the stage on the press day. The mark holds a podium (Deri: a bench); the
+    drawn placeholder is `PressDesk`. A tap only wiggles it, and the toast is the leader's own line
+    (`kit.hazard.tapPaused`).
+  - Story v3: 6 beats per leader (Bibi 7), new beat 1s, beats 5–6 from true 2025–26 arcs, 14 facts.
+  - `kit.story.when`: a beat waits for the leader's own deed.
+  - Every leader has an encore of their own.
+  - Leftovers: Deri's coffee, Smotrich's "אין כסף".
+- **Phase 2:**
+  - **Engine and chip:** an active ability for every leader (`sim/ability.gd`, content
+    `leaders[].rule.active`). `AbilityChip` sits at the stage's bottom right; the picker card explains
+    it (`copy.desc`).
+  - **Abilities:**
+    - Bibi: תתאחדו
+    - Bennett: לחתום/להפוך
+    - Ben Gvir: אני פורש (walks off, leaves his box)
+    - Liberman: המסמך
+    - Eisenkot: לכנס
+    - Smotrich: תקציב בדקה ה־90
+    - Deri: למסדרון
+    - Golan: שמאלה
+  - **Quiet partners:** `Coalition.quiet`.
+  - **Bibi's pardon desk:** the "הסדר טיעון" stamp brings Herzog.
+  - **Bench:** `PacingSim._play_ability` plays the abilities.
+
+## Open, in order
+1. **GPT art (Bar):** the brief lists second poses A1–A9, props B1–B7, the 8 icons and Kaia. On
+   arrival, rig them like `herzog-shrug` (`cast.py` pose react), then:
+   - `PressDesk` → the podium/bench/box sprites;
+   - `AbilityChip` → the icons.
+2. **Phase 3:**
+   - a shared "הצעת אחדות" for every opposition leader (today only Golan's ability has it);
+   - the countdown to 27.10 with a line per leader (`calendar`, `negotiation` mode).
+3. **Ability trophies** (one per leader, `stats.abilityUses` is ready) and Dubi squawks for the abilities.
+4. **The bench:** if a leader leaves ±10%, tune only `rule.active` numbers (cooldown, pct). Never the
+   shared economy.
+
+## How to change an ability
+- **Numbers and copy:** `design/content.json` `leaders[].rule.active`, then `tools/sync_data.sh`.
+- **Lints:** `node design/sim/content-lint.mjs --strict` and `python3 ux/tools/gen_strings.py` (`btn*`
+  ≤ 120 px at ×3, toasts in `stage.toast`, `desc` in `pick.card`).
+- **Tests:** `game/tests/unit/test_abilities.gd` (a sim test per type),
+  `test_event_copy.gd::test_the_ability_chip_walks_ben_gvir_out`, and
+  `test_every_leader_leaves_the_stage_on_the_hazard_day`.
+- **A new type:** `Ability.TYPES`, `block`/`use`/`tick`/`view`, then `_play_ability` in PacingSim.
+
 # HANDOFF: analytics and search (2026-10-01, the analytics session; parallel, not ordered)
 
 Live at `7578546` (web-dist `5dab84a`). Details and hashes in `STATUS.md` (2026-10-01, analytics session).

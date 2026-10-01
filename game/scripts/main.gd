@@ -2008,11 +2008,11 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if kaia.tappable() and Ui.in_rect(kaia.hit_rect(), sp):
 		_feed_kaia()
 		return
-	if ability_chip.takes_tap(sp):
-		_use_ability()
-		return
 	if golden.hit_test(sp):
 		_catch_golden()
+		return
+	if ability_chip.takes_tap(sp):
+		_use_ability()
 		return
 	# mobile-first §3.4: during a tap burst (the last leader tap < 1 s ago) a toast takes no tap, so
 	# a toast over the leader's head never eats the rapid taps (it stays visible)
@@ -2427,8 +2427,8 @@ func _show_story_beat() -> void:
 	if not fl.is_empty():
 		# story v3: Story.flash picks the next UNSEEN beat, so once per election (the leader's own count)
 		var st := Leaders.stats(state, str(fl["leader"]))
-		var el := float(st.get("elections", 0.0))
-		if float(st.get("flashedAt", -1.0)) >= el:
+		var el := float(st.get("elections", 0.0)) + 1.0   # stored +1: a fresh stat (0) never blocks
+		if float(st.get("flashedAt", 0.0)) >= el:
 			return
 		st["flashedAt"] = el
 	state.story_seen.append(bid)

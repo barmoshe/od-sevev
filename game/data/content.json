@@ -6313,7 +6313,7 @@
     "_note": "Reuses the shipped pledge effect (events.bennett: gatePlus 1, sec 45, baseAdd 1) as the player's own card. No new sim effect.",
     "active": {
      "type": "pledgeFlip",
-     "cooldownSec": 150,
+     "cooldownSec": 300,
      "flipBpsSec": 20,
      "flipHeadlines": 8,
      "copy": {
