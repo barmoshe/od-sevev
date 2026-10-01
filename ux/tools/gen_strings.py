@@ -85,6 +85,7 @@ BOXES = {
     "modal.btnFull":  (512, 4, 1, 1, "Full-width modal button inner"),
     "court.body":     (624, 4, 2, 3, "Court card text"),
     "court.btn":      (384, 4, 1, 1, "Court primary button line (2-line button: verb / price)"),
+    "stage.ability":  (120, 3, 1, 1, "Leaders v3 ability chip label (AbilityChip.RECT 140 wide, 10 px pads; PxText fit_width may step down)"),
     "court.btn2":     (192, 4, 1, 1, "Court secondary button inner (visual 224)"),
     "tx.line":        (656, 4, 1, 2, "Election transition line"),
     "title.line":     (656, 4, 1, 2, "Title-state line"),
@@ -1030,6 +1031,11 @@ if os.path.exists(CONTENT):
         r = L.get("rule")
         if isinstance(r, dict):
             lint_content(f"leaders.{lid}.rule.text", r.get("text", ""), "pick.card"); nl += 1
+            act = r.get("active")
+            if isinstance(act, dict):
+                for ck, cv in (act.get("copy") or {}).items():
+                    box = "stage.ability" if ck.startswith("btn") else ("pick.card" if ck == "desc" else "stage.toast")
+                    lint_content(f"leaders.{lid}.rule.active.copy.{ck}", cv, box, box == "stage.ability"); nl += 1
         k = L.get("kit")
         if isinstance(k, dict):
             tp = k.get("tap", {})

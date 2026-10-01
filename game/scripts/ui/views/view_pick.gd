@@ -882,6 +882,8 @@ class LeaderCard extends SheetCard:
 		if str(t.get("ruleName", "")) != "":
 			para(Strings.s("LEADER_PICK_CARD_RULE", {"rule": str(t["ruleName"])}), C_TEXT)   # not gold: gold is money-only
 			para(str(t.get("ruleText", "")), C_TEXT, false, 6)
+			if str(t.get("abilityText", "")) != "":
+				para(str(t["abilityText"]), C_TEXT, false, 6)   # leaders v3: the active ability (rule.active.copy.desc)
 		close_x(func() -> void: cancel("close"))
 		one_button(Strings.s("LEADER_PICK_CARD_GO", {"short": str(t.get("short", ""))}), "kit_primary", func() -> void:
 			mgr.close(self, "go")

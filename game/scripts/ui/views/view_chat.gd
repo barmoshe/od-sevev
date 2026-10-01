@@ -664,6 +664,8 @@ static func sys_text(m: Dictionary) -> String:
 		var who := str(lines[j][0])
 		var said := str(lines[j][1])
 		return said if who == "sys" or who == "typing" else "%s: %s" % [who, said]
+	if key == "ability.line":
+		return Ability.line_text(m, partner_name)   # leaders v3: the leader's own line (rule.active.copy)
 	var base := key.to_upper().replace(".", "_")
 	var pid := str(m.get("partner", ""))
 	var p := Coalition.partner(pid)

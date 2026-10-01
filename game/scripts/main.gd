@@ -84,6 +84,7 @@ var street: StreetFigure        # Mordechai David on the Balfour stage (design/m
 var sara: SaraMark              # Sara on the Balfour stage, Bibi's round (motion/state-graph-cast.md §3)
 var _paused_toast_ms := -1.0e9     # the last "no taps on the court day" toast
 var herzog: HerzogFigure        # President Herzog's compromise outline (events.herzog, effect "mediation")
+var ability_chip: AbilityChip   # leaders v3: the round's active ability (sim Ability)
 var kaia: KaiaFigure            # Kaia on the Balfour stage (events.kaia): a tap feeds her (placeholder art)
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
 var bb: BigBanana
@@ -410,6 +411,8 @@ func _build() -> void:
 	_stage.add_child(floaters)
 	buffs = BuffViews.new()
 	_stage.add_child(buffs)
+	ability_chip = AbilityChip.new()
+	_stage.add_child(ability_chip)
 	golden = GoldenView.new()
 	_stage.add_child(golden)
 	golden.on_despawn_start = func() -> void:
@@ -853,6 +856,8 @@ func _apply_settings() -> void:
 		sara.reduced_motion = rm
 	if herzog != null:
 		herzog.reduced_motion = rm
+	if ability_chip != null:
+		ability_chip.reduced_motion = rm
 	if kaia != null:
 		kaia.reduced_motion = rm
 	floaters.reduced_motion = rm
@@ -1142,7 +1147,10 @@ func _process(delta: float) -> void:
 	_check_reveals()
 	_apply_reveals()
 	# the hazard day on the stage (the exit, the hat or the press desk, the return): polled from the sim's phase
-	bb.court_sync(running and BigBanana.wants_court(state), tx.running)
+	# leaders v3: Ben Gvir's walkout walks him off the same way and leaves his cardboard box
+	var walked := Ability.walked_out(state)
+	bb.set_away_kind("box" if walked and not BigBanana.wants_court(state) else "")
+	bb.court_sync(running and (BigBanana.wants_court(state) or walked), tx.running)
 	bb.update_view(dt)
 	if _after_walk.is_valid() and not bb.walking():
 		var after := _after_walk
@@ -1508,6 +1516,8 @@ func _on_politics_event(e: Dictionary) -> void:
 	court.on_politics_event(e)  # the court card and chip (the card now carries the summons text)
 	thermo.on_politics_event(e) # the summons gulp
 	match String(e.get("ev", "")):
+		"ability":
+			_on_ability_event(e)
 		"event":
 			if str(e.get("id", "")) == StreetFigure.EVENT_ID:
 				_on_street_event(e.get("result", {}))
@@ -1608,6 +1618,66 @@ func _accept_mediation() -> void:
 	toasts.show_toast(Bidi.fill(str(c.get(key, "")), {"pct": str(int(r.get("pct", 0)))}), "", "lane")
 	_audio("stamp")
 	_mark_dirty()
+
+
+## Leaders v3 (Bibi): the pardon desk's plea-talks stamp brings Herzog with his outline (fact
+## pardon-shelved: the president froze the request and called for plea talks). Not while he is out.
+func herzog_from_pardon() -> void:
+	if Events.is_active(state, "mediation"):
+		return
+	var e := Events.fire(state, "herzog", d)
+	if e.is_empty():
+		return
+	toasts.show_toast(str(Investigation.cfg().get("pardon", {}).get("copy", {}).get("herzog", "")), "", "lane")
+	_on_politics_event(e)
+
+
+## Leaders v3: a tap on the ability chip (AbilityChip → Ability.use). The sim's events (toasts, chat
+## lines) go through the same handlers as the politics tick's.
+func _use_ability() -> void:
+	var r := Ability.use(state, d)
+	if not bool(r.get("ok", false)):
+		_audio("cantAfford")
+		return
+	_audio("stamp")
+	d = Economy.derive(state)
+	for e: Variant in r.get("events", []):
+		if e is Dictionary:
+			_on_politics_event(e)
+	_mark_dirty()
+
+
+## The ability's toasts (Ability events {ev: "ability", kind}): the leader's own lines, rule.active.copy.
+func _on_ability_event(e: Dictionary) -> void:
+	var c := Ability.copy(state)
+	var pair: Array = Ability.def(state).get("pair", [])
+	var fill := {"a": ChatView.partner_name(str(pair[0])) if pair.size() > 0 else "", "b": ChatView.partner_name(str(pair[1])) if pair.size() > 1 else "",
+		"pct": str(int(e.get("pct", 0)))}
+	var key := ""
+	match str(e.get("kind", "")):
+		"unite", "roundTable", "corridor":
+			key = "toastUse"
+		"sign":
+			key = "toastSign"
+		"flip":
+			key = "toastFlip"
+		"walkout":
+			key = "toastWalkout"
+		"back":
+			key = "toastBack"
+		"clausesDone":
+			key = "toastDone"
+		"offer":
+			key = "toastOffer"
+		"budgetPaid":
+			key = "toastLate" if bool(e.get("late", false)) else "toastPaid"
+		"budgetMissed":
+			key = "toastMissed"
+		"swipe":
+			key = "toastSwipe"
+	var line := str(c.get(key, ""))
+	if line != "":
+		toasts.show_toast(Bidi.fill(line, fill), "", "lane")
 
 
 ## A tap on Kaia while she is out (KaiaFigure): the cucumber. Events.act("kaia", "feed") swaps her nip
@@ -1764,6 +1834,7 @@ func _refresh_all(dt: float) -> void:
 	_evolve_was_visible = vis
 	top_bar.set_evolve_badge(Ftue.badge_on(state) and vis)
 	buffs.update_chip(state.buff_frenzy, state.buff_tap_frenzy, main, Spins.active_effects(state))
+	ability_chip.update_view(dt, Ability.view(state, d), main and bb.walk.state() == "home")
 	buffs.update_view(dt, main)
 	shop.refresh(state, dt, main and dt > 0.0, d)
 
@@ -1936,6 +2007,9 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		return
 	if kaia.tappable() and Ui.in_rect(kaia.hit_rect(), sp):
 		_feed_kaia()
+		return
+	if ability_chip.takes_tap(sp):
+		_use_ability()
 		return
 	if golden.hit_test(sp):
 		_catch_golden()
@@ -2129,7 +2203,7 @@ func _handle_tap(at: Vector2) -> void:
 		bb.tap(false, true)
 		if _now - _paused_toast_ms >= 4000.0:
 			_paused_toast_ms = _now
-			toasts.show_toast(LeaderUi.tap_paused_line(), "", "lane")
+			toasts.show_toast(LeaderUi.tap_paused_line(state), "", "lane")
 		return
 	var crit: bool = r["crit"]
 	if state.buff_tap_frenzy > 0.0:

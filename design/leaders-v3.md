@@ -73,17 +73,32 @@ Assets: `creative-pack/art/briefs/leaders-v3-gpt.md`.
 - no poll numbers;
 - reported speech without quote marks.
 
+## Phase 2: active abilities
+- **One engine and one chip.**
+  - `game/scripts/sim/ability.gd` (`Ability`) reads `leaders[].rule.active {type, numbers, copy, src}`.
+  - `game/scripts/ui/ability_chip.gd` sits at the stage's top right, at x 572 or more, right of the
+    leader's hit box, so rapid taps never land on it.
+  - It shows the leader's verb, a number (cooldown, countdown, or clauses 3/5) and a bar.
+  - The leader card in the picker shows `copy.desc`.
+- **A "quiet" partner** (`Coalition.quiet` / `is_quiet`): busy elsewhere for X seconds. Their open demand
+  doesn't age or count down, and they post no new one. It never removes seats.
+
+| Leader | Ability | Numbers |
+|---|---|---|
+| Bibi | **תתאחדו** (once per round): Ben Gvir and Smotrich refuse each other and both go quiet | 60 s (fact bengvir-no-merger) |
+| Bennett | **לחתום / להפוך**: sign = the pledge (gate +1, then base); flip = the gate drops now, cash and headlines, no base | cooldown 150 s, cash = bps × 20, headlines +8 |
+| Ben Gvir | **אני פורש**: walks off the stage (the walk-off, a cardboard box on the mark), income ×0.6 and no taps; **חזרתי**: demands −40%, patience full, taps ×1.3 | out 20 s, cooldown 150 s, buff 30 s |
+| Liberman | **המסמך**: every "לא אשב" writes a clause; 5 clauses = +5% to the round's base | nothing to press |
+| Eisenkot | **שולחן עגול** ("לכנס"): every partner quiet, open demands −20% | 30 s, cooldown 150 s |
+| Smotrich | **תקציב בדקה ה־90**: a budget every 3 min for 60 s at bps × 20. Approve: +3%; in the last 10 s: +5%. Not approved: the gate +1 for 30 s | not on an open gate or the court day |
+| Deri | **למסדרון**: the oldest demand waits, taps ×1.2 | quiet 45 s, buff 15 s, cooldown 60 s |
+| Golan | **שמאלה**: a unity offer from Netanyahu every 2.5 min for 20 s; a swipe = +2% base | — |
+
+- **Bench:** `PacingSim._play_ability` plays a median player: Bennett signs on a closed gate and never
+  flips; Ben Gvir, Eisenkot and Deri act when a demand is open; Smotrich approves what he can afford;
+  Golan swipes. Results are in the STATUS log.
+
 ## Next phases
-- **Phase 2, active abilities.** A shared ability chip, plus one ability per leader:
-  - Bennett: לחתום/להפוך
-  - Ben Gvir: אני פורש (reuses this walk-off)
-  - Liberman: המסמך, 5 clauses
-  - Eisenkot: שולחן עגול
-  - Smotrich: תקציב בדקה ה־90
-  - Deri: נסגור במסדרון
-  - Golan: החלקה שמאלה
-  - Bibi: תתאחדו, and the pardon desk handing off to Herzog
-  
-  Then the bench at ±10%.
+- **Phase 2:** done (above). Still open: the pardon desk handing off to Herzog (Bibi).
 - **Phase 3, shared events:** הצעת אחדות, and the countdown to 27.10 with a line per leader.
 - **Phase 4:** rig the GPT art (the brief).

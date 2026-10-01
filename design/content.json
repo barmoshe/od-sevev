@@ -1623,8 +1623,11 @@
      "pardon-request",
      "pardon-shelved"
     ],
-    "_rule": "Random, never the same stamp twice in a row."
-   }
+    "_rule": "Random, never the same stamp twice in a row.",
+    "herzog": "הנשיא הקפיא את הבקשה וקרא לחזור למגעים. הוא כבר בדרך.",
+    "_herzogNote": "Leaders v3: the stamp \"מומלץ לשקול הסדר טיעון\" (herzogStamp, 1-based) brings Herzog himself: events.herzog fires (his outline), unless he is already out. Fact pardon-shelved (26.4.2026)."
+   },
+   "herzogStamp": 7
   },
   "copy": {
    "courtDayTicker": "יום משפט. הכל מאט. הארנב מתחבא בכובע.",
@@ -6152,7 +6155,25 @@
      "trial",
      "pardon-request"
     ],
-    "_note": "Game Designer 2026-09-29 (HANDOFF Next 3): the picker's long-press and T4 show rule.name / rule.text for every leader, Bibi included. Reported mechanics, no quote. 'כל דחייה עולה כפול' = court.postpone.growth 2."
+    "_note": "Game Designer 2026-09-29 (HANDOFF Next 3): the picker's long-press and T4 show rule.name / rule.text for every leader, Bibi included. Reported mechanics, no quote. 'כל דחייה עולה כפול' = court.postpone.growth 2.",
+    "active": {
+     "type": "unite",
+     "pair": [
+      "bengvir",
+      "smotrich"
+     ],
+     "quietSec": 60,
+     "copy": {
+      "btn": "תתאחדו",
+      "sys": "ביבי ביקש מ{a} ומ{b} להתאחד. שניהם עסוקים בלסרב.",
+      "toastUse": "{a} ו{b} סירבו להתאחד. עד שיגמרו לריב, הם לא דורשים.",
+      "desc": "בנוסף, פעם בסבב בחירות: ״תתאחדו״. בן גביר וסמוטריץ׳ מסרבים זה לזה, ובינתיים לא דורשים."
+     },
+     "src": [
+      "bengvir-no-merger"
+     ],
+     "_note": "Leaders v3 (design/leaders-v3.md). Once a round: both partners go quiet for quietSec (Coalition.quiet). True shape: Aug 2026 he asked them to run together and both refused."
+    }
    },
    "kit": {
     "_doc": "Bibi's kit is today's game: every field points at the shipped content. Nothing new to author.",
@@ -6289,7 +6310,24 @@
     "src": [
      "bennett-pledge"
     ],
-    "_note": "Reuses the shipped pledge effect (events.bennett: gatePlus 1, sec 45, baseAdd 1) as the player's own card. No new sim effect."
+    "_note": "Reuses the shipped pledge effect (events.bennett: gatePlus 1, sec 45, baseAdd 1) as the player's own card. No new sim effect.",
+    "active": {
+     "type": "pledgeFlip",
+     "cooldownSec": 150,
+     "flipBpsSec": 20,
+     "flipHeadlines": 8,
+     "copy": {
+      "btn": "לחתום",
+      "btnFlip": "להפוך",
+      "toastSign": "בנט חתם על התחייבות. לרגע צריך עוד מנדט.",
+      "toastFlip": "ההתחייבות התהפכה. הכסף נכנס. הכותרות גם.",
+      "desc": "בנוסף: ״לחתום״ על התחייבות מתי שבא לך, ו״להפוך״ אותה תמורת כסף מיד וכותרות."
+     },
+     "src": [
+      "bennett-pledge"
+     ],
+     "_note": "Sign = events.bennett's pledge effect (gate +1 for its sec, then base). Flip while it is up: the gate drops now, cash = bps × flipBpsSec, headlines + flipHeadlines, no base."
+    }
    },
    "kit": {
     "tap": {
@@ -6791,7 +6829,29 @@
      "type": "partnerThreatMult",
      "mult": 0.5
     },
-    "_note": "A new one-line sim knob (Coalition: threatChance × mult while this leader plays). The only new rule in wave 1 besides Liberman's decline."
+    "_note": "A new one-line sim knob (Coalition: threatChance × mult while this leader plays). The only new rule in wave 1 besides Liberman's decline.",
+    "active": {
+     "type": "walkout",
+     "cooldownSec": 150,
+     "outSec": 20,
+     "outBpsMult": 0.6,
+     "backDiscountPct": 40,
+     "backTapMult": 1.3,
+     "backTapSec": 30,
+     "copy": {
+      "btn": "אני פורש",
+      "btnOut": "פרש",
+      "toastWalkout": "בן גביר פרש מהממשלה. יחזור אחרי הצהריים.",
+      "toastBack": "בן גביר חזר. הדרישות ירדו, כולם שמחים.",
+      "back": "בן גביר חזר לקבוצה. אף אחד לא שאל למה.",
+      "tapPaused": "בן גביר פרש. ההקשות יחזרו איתו.",
+      "desc": "בנוסף: ״אני פורש״. 20 שניות בלי הקשות ובחצי כוח, ואז חוזר: הדרישות זולות ב־40%."
+     },
+     "src": [
+      "bengvir-resign-return"
+     ],
+     "_note": "Pattern only (out in Jan 2025, back in March); never the reason (a red line). While out: income × outBpsMult and no taps; the stage walks him off and leaves his box."
+    }
    },
    "kit": {
     "tap": {
@@ -7313,7 +7373,21 @@
      "sys": "הדרישה של {name} נדחתה · לא אשב",
      "cooldown": "לא אשב · ⁦{s}⁩ שנ׳"
     },
-    "_note": "New: a pill variant in T3 and Coalition.decline(state, seq). The partner's patience clock still runs on their next demand."
+    "_note": "New: a pill variant in T3 and Coalition.decline(state, seq). The partner's patience clock still runs on their next demand.",
+    "active": {
+     "type": "clauses",
+     "clauses": 5,
+     "basePct": 5,
+     "copy": {
+      "btn": "המסמך",
+      "toastDone": "המסמך הוגש: חמישה סעיפים, חמש פעמים לא. הבסיס עלה.",
+      "desc": "בנוסף: כל ״לא אשב״ כותב סעיף. חמישה סעיפים: המסמך מוגש, והבסיס עולה ב־5%."
+     },
+     "src": [
+      "liberman-principles"
+     ],
+     "_note": "Every 'לא אשב' writes a clause; five = + basePct on this round's base, then a new page. Nothing to press: the chip counts."
+    }
    },
    "kit": {
     "tap": {
@@ -7830,7 +7904,22 @@
      "tap7": "בלי קסמים. רק ישר.",
      "chip": "ישר ×⁦{mult}⁩"
     },
-    "_note": "One new sim knob. critChance is 0 and the tap-7 first crit is off (the FTUE beat shows copy.tap7 as the floater and plays the react). Every tap is × (1 + c × (critMult − 1)), c = the round's crit chance: base 0.02 → ×1.18, slot E (s11 sets 0.07) → ×1.63. Expected value equals everyone else's, so equal footing holds by construction and the bench risk is ~0; the cost is feel (no crit pops; the Suitcase tap frenzy stays). A rival noCrit card (card_smotrich) sets the bonus to ×1 for its seconds. Replaces the plan's flat ×2 (+69% tap value, a round-length risk in the tap-led first minutes)."
+    "_note": "One new sim knob. critChance is 0 and the tap-7 first crit is off (the FTUE beat shows copy.tap7 as the floater and plays the react). Every tap is × (1 + c × (critMult − 1)), c = the round's crit chance: base 0.02 → ×1.18, slot E (s11 sets 0.07) → ×1.63. Expected value equals everyone else's, so equal footing holds by construction and the bench risk is ~0; the cost is feel (no crit pops; the Suitcase tap frenzy stays). A rival noCrit card (card_smotrich) sets the bonus to ×1 for its seconds. Replaces the plan's flat ×2 (+69% tap value, a round-length risk in the tap-led first minutes).",
+    "active": {
+     "type": "roundTable",
+     "cooldownSec": 150,
+     "quietSec": 30,
+     "discountPct": 20,
+     "copy": {
+      "btn": "לכנס",
+      "toastUse": "אייזנקוט כינס שולחן עגול. כולם יושבים בשקט. הדרישות ירדו.",
+      "desc": "בנוסף: ״שולחן עגול״. כולם יושבים בשקט 30 שניות, והדרישות הפתוחות זולות ב־20%."
+     },
+     "src": [
+      "eisenkot-invites-opposition"
+     ],
+     "_note": "Every member quiet for quietSec, open demands − discountPct."
+    }
    },
    "kit": {
     "tap": {
@@ -8344,7 +8433,32 @@
     "src": [
      "vat-18"
     ],
-    "_note": "No new effect type. producerMult is his shipped partner trait (the 18% joke), moved onto the leader from t 0; demandDiscountPct is the p_deal perk knob (adds to the perk). Both are small and the bench decides (spec §7)."
+    "_note": "No new effect type. producerMult is his shipped partner trait (the 18% joke), moved onto the leader from t 0; demandDiscountPct is the p_deal perk knob (adds to the perk). Both are small and the bench decides (spec §7).",
+    "active": {
+     "type": "budget",
+     "firstSec": 120,
+     "everySec": 180,
+     "windowSec": 60,
+     "priceBpsSec": 20,
+     "basePct": 3,
+     "lastSec": 10,
+     "lastBasePct": 5,
+     "missGatePlus": 1,
+     "missSec": 30,
+     "copy": {
+      "btn": "תקציב",
+      "btnOffer": "לאשר",
+      "toastOffer": "התקציב על השולחן. אם לא יעבור, הכנסת מתפזרת.",
+      "toastPaid": "התקציב עבר. הבסיס עלה.",
+      "toastLate": "התקציב עבר בדקה ה־90. בדיוק לפי התוכנית.",
+      "toastMissed": "התקציב לא עבר. הכנסת כמעט התפזרה: צריך עוד מנדט.",
+      "desc": "בנוסף: כל כמה דקות עולה תקציב. תאשר והבסיס עולה, בדקה האחרונה עוד יותר. לא תאשר: צריך עוד מנדט."
+     },
+     "src": [
+      "budget-2026-deadline"
+     ],
+     "_note": "An offer every everySec (never on an open gate or the court day) for windowSec at bps × priceBpsSec. Paid: + basePct, + lastBasePct in the last lastSec (the real budget passed hours before automatic dissolution). Missed: the gate + missGatePlus for missSec."
+    }
    },
    "kit": {
     "tap": {
@@ -8825,7 +8939,24 @@
      "chip": "☕ ⁦×1.2⁩",
      "sys": "{name} סגר עם דרעי במסדרון. ☕"
     },
-    "_note": "No new effect type. coalition.rejoinMult overrides the shipped 1.5 while he plays (the rejoin pill is priced at the missed price); onDemandPaid fires the existing spin effect tapBuff (a new trigger, not a new effect). Paying a demand does not stack the buff: a new pay refreshes the 30 s."
+    "_note": "No new effect type. coalition.rejoinMult overrides the shipped 1.5 while he plays (the rejoin pill is priced at the missed price); onDemandPaid fires the existing spin effect tapBuff (a new trigger, not a new effect). Paying a demand does not stack the buff: a new pay refreshes the 30 s.",
+    "active": {
+     "type": "corridor",
+     "cooldownSec": 60,
+     "quietSec": 45,
+     "tapMult": 1.2,
+     "tapSec": 15,
+     "copy": {
+      "btn": "למסדרון",
+      "sys": "דרעי לקח את {name} למסדרון. הדרישה מחכה.",
+      "toastUse": "נסגור במסדרון.",
+      "desc": "בנוסף: ״למסדרון״. הדרישה הכי ישנה מחכה 45 שניות, ובינתיים ההקשות שוות יותר."
+     },
+     "src": [
+      "deri-disqualified"
+     ],
+     "_note": "The oldest open demand (never an ultimatum): its partner quiet for quietSec, and the ☕ tap buff for tapSec. The minister without a ministry runs it from the corridor bench."
+    }
    },
    "kit": {
     "tap": {
@@ -9323,7 +9454,25 @@
     "src": [
      "labor-meretz-merger"
     ],
-    "_note": "The one new sim rule of wave 2 (already requested for his card as events.golan.copy.designerEffect \"merge\"). Coalition.merge(state, a, b): the entry keeps a's id and name \"a־b\", seats and upkeep are summed, demands come on one stream at max(price a, price b), and a walkout takes both (one rejoin pill for the pair). Never the stand-in or a member with an open ultimatum; 2 per round, 120 s apart. The trade: fewer demands to pay against one bigger walkout. Predicted round length −3% to −6%; the bench decides."
+    "_note": "The one new sim rule of wave 2 (already requested for his card as events.golan.copy.designerEffect \"merge\"). Coalition.merge(state, a, b): the entry keeps a's id and name \"a־b\", seats and upkeep are summed, demands come on one stream at max(price a, price b), and a walkout takes both (one rejoin pill for the pair). Never the stand-in or a member with an open ultimatum; 2 per round, 120 s apart. The trade: fewer demands to pay against one bigger walkout. Predicted round length −3% to −6%; the bench decides.",
+    "active": {
+     "type": "swipeLeft",
+     "firstSec": 90,
+     "everySec": 150,
+     "windowSec": 20,
+     "basePct": 2,
+     "copy": {
+      "btn": "החלקה",
+      "btnOffer": "שמאלה",
+      "toastOffer": "נתניהו מציע ממשלת אחדות.",
+      "toastSwipe": "גולן החליק שמאלה. לדבריו: דייט עם נוכל הטינדר.",
+      "desc": "בנוסף: נתניהו מציע אחדות כל כמה דקות. החלקה שמאלה מעלה את הבסיס."
+     },
+     "src": [
+      "golan-tinder"
+     ],
+     "_note": "A unity offer every everySec for windowSec; a swipe = + basePct. Reported speech, no quote marks."
+    }
    },
    "kit": {
     "tap": {

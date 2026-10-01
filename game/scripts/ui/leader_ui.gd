@@ -72,7 +72,9 @@ static func stage_skin_for_art(slug: String) -> String:
 
 ## The toast on a paused tap (courtPausesTaps): Bibi's court line, else the leader's own
 ## kit.hazard.tapPaused, else the generic press line by gender.
-static func tap_paused_line() -> String:
+static func tap_paused_line(s: GameState = null) -> String:
+	if s != null and Ability.walked_out(s) and str(Ability.copy(s).get("tapPaused", "")) != "":
+		return str(Ability.copy(s)["tapPaused"])   # Ben Gvir's walkout (leaders v3)
 	if court():
 		return Strings.s("COURT_TAP_PAUSED")
 	var own := str(Leaders.hazard(id()).get("tapPaused", ""))

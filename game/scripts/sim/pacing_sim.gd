@@ -245,6 +245,22 @@ static func _burst_return(s: GameState, u: Dictionary, d: Economy.Derived, tappi
 
 
 ## The simulated player's answers to the politics this frame (see the header for the strategies).
+## Leaders v3: the median player's use of the round's active ability (Ability). Bennett signs when
+## the gate is shut and never flips (he keeps the base); Ben Gvir, Eisenkot and Deri use theirs when a
+## demand is open; Smotrich pays a budget he can afford; Golan swipes; Bibi unites once.
+static func _play_ability(s: GameState, d: Economy.Derived) -> void:
+	if not Ability.can_use(s, d):
+		return
+	match Ability.type(s):
+		"pledgeFlip":
+			if Events.is_active(s, "pledge") or d.seats_gate_open:
+				return
+		"walkout", "roundTable":
+			if Coalition.open_demands(s).is_empty():
+				return
+	Ability.use(s, d)
+
+
 static func play_politics(s: GameState, strat: Dictionary) -> void:
 	var d := Economy.derive(s)
 	var b := Coalition.open_brawl(s)
@@ -287,6 +303,7 @@ static func play_politics(s: GameState, strat: Dictionary) -> void:
 						pair = [ids[i], ids[j]]
 		if not pair.is_empty():
 			Coalition.merge(s, pair[0], pair[1])
+	_play_ability(s, d)
 	var all: bool = strat.get("coalition", "subset") == "all"
 	var keep := float(strat.get("keepFrac", 0.25))
 	for m: Dictionary in (Coalition._c(s)["chat"] as Array).duplicate():

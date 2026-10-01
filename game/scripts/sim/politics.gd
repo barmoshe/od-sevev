@@ -49,6 +49,7 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 	out.append_array(Coalition.tick(s, dt, d, ctx, rng))
 	out.append_array(Investigation.tick(s, dt, d))
 	out.append_array(Events.tick(s, dt, d, ctx, rng))
+	out.append_array(Ability.tick(s, dt, d))   # leaders v3: the round's active ability
 	_count_night_taps(s, ctx)
 	return out
 
@@ -85,6 +86,7 @@ static func on_election(s: GameState) -> void:
 	Coalition.on_election(s)
 	Investigation.on_election(s)
 	Events.on_election(s)
+	Ability.on_election(s)
 
 
 ## Every broken reference in a content dictionary (defaults to the loaded content). Empty = OK.

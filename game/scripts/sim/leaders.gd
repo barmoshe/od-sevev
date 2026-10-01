@@ -22,7 +22,7 @@ extends RefCounted
 ## (start_round) until the first tap. A build without the picker therefore keeps running as that
 ## leader (Bibi) forever. A repick undoes the automatic round's bookkeeping, so it counts once.
 
-const STAT_KEYS := ["rounds", "elections", "taps", "crits", "declines", "merges", "bestRunSec", "playSec"]
+const STAT_KEYS := ["rounds", "elections", "taps", "crits", "declines", "merges", "bestRunSec", "playSec", "abilityUses", "flashedAt"]
 const HISTORY_MAX := 10
 ## The per-slot numbers a lineup deals; every other partner field is the person's trait.
 const SLOT_NUMBERS := ["seats", "upkeepPct", "demandWeight", "threatChance", "unlock"]
@@ -489,7 +489,8 @@ static func tile(id: String) -> Dictionary:
 	var pk: Dictionary = L.get("pick", {}) if L.get("pick") is Dictionary else {}
 	return {"id": id, "name": L.get("name", ""), "short": L.get("short", ""), "party": L.get("party", ""),
 		"g": L.get("g", "m"), "side": L.get("side", ""), "art": L.get("art", id), "avatar": L.get("avatar", ""),
-		"blurb": pk.get("blurb", ""), "line": pk.get("line", ""), "ruleName": rule(id).get("name", ""), "ruleText": rule(id).get("text", "")}
+		"blurb": pk.get("blurb", ""), "line": pk.get("line", ""), "ruleName": rule(id).get("name", ""), "ruleText": rule(id).get("text", ""),
+		"abilityText": str(((rule(id).get("active", {}) as Dictionary).get("copy", {}) as Dictionary).get("desc", "")) if rule(id).get("active") is Dictionary and (rule(id)["active"] as Dictionary).get("copy") is Dictionary else ""}
 
 
 static func pick_copy() -> Dictionary:
@@ -720,6 +721,7 @@ static func on_demand_paid() -> Dictionary:
 static func _apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 	_refresh_content()
 	d.base_pct_round += float(s.leader_round.get("freshPct", 0.0))
+	Ability.apply_modifiers(s, d)   # leaders v3: the active ability's round base, Ben Gvir away
 	if _eff.is_empty():
 		return
 	var effs: Array = [_eff]
@@ -1081,6 +1083,9 @@ static func sanitize_into(s: GameState, r: Dictionary) -> void:
 		round_["freshPct"] = minf(GameState._num(rr.get("freshPct")), cap)
 		var sv: Variant = rr.get("salt")
 		round_["salt"] = int(sv) if (sv is int or sv is float) and is_finite(float(sv)) else 0
+		var ab := Ability.sanitize(rr.get("ability"))
+		if not ab.is_empty():
+			round_["ability"] = ab
 	s.leader_round = round_
 	s.leaders = {}
 	var ld: Variant = r.get("leaders")

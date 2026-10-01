@@ -867,6 +867,21 @@ func _apply_court_pose() -> void:
 		_desk.visible = false
 
 
+## Leaders v3: what holds the mark for an away that isn't the hazard day ("box": Ben Gvir's walkout);
+## "" = the round's own stage skin (LeaderUi.stage_skin). Applied while he is on stage or away.
+func set_away_kind(kind: String) -> void:
+	if kind == "" and court.in_court():
+		return   # the box zips out as a box; the podium comes back once he has landed
+	var want := kind if kind != "" else LeaderUi.stage_skin_for_art(hero.char_id if hero != null else "")
+	if want == court_skin:
+		return
+	if court_skin == "court" or want == "court":
+		return   # Bibi's hat never swaps (he has no walkout)
+	court_skin = want
+	if _desk != null:
+		_desk.set_kind(want)
+
+
 ## The press desk on the mark (tests): null in Bibi's round or before the figure is built.
 func desk_node() -> PressDesk:
 	return _desk

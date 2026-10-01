@@ -767,6 +767,9 @@ class PardonDesk:
 			_stamp_text.position.y = -th / 2.0 + 24.0
 		_submit.set_label(Strings.s("PARDON_AGAIN"))
 		_sync(s)
+		# leaders v3: the plea-talks stamp brings the president himself (court.pardon.herzogStamp)
+		if line == int(Investigation.cfg().get("pardon", {}).get("herzogStamp", 0)) and host.has_method("herzog_from_pardon"):
+			host.call("herzog_from_pardon")
 		if host.has_method("_mark_dirty"):
 			host.call("_mark_dirty")
 		_slam_t = 0.0

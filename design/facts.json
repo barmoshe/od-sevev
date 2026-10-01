@@ -531,6 +531,7 @@
     "leaders.deri.kit.ticker.td12",
     "leaders.deri.kit.ticker.td13",
     "leaders.deri.kit.ticker.td15",
+    "leaders.deri.rule.active",
     "partners.deri",
     "partners.deri.copy.card"
    ],
@@ -562,6 +563,7 @@
     "leaders.bennett.kit.ticker.tb06",
     "leaders.bennett.pick",
     "leaders.bennett.rule",
+    "leaders.bennett.rule.active",
     "leaders.liberman.coalition.lineup.bennett"
    ],
    "usedInLeaderSelect": [
@@ -1634,7 +1636,8 @@
     "leaders.liberman.kit.story",
     "leaders.liberman.kit.ticker.tl08",
     "leaders.liberman.kit.ticker.tl10",
-    "leaders.liberman.pick"
+    "leaders.liberman.pick",
+    "leaders.liberman.rule.active"
    ],
    "ref": 76
   },
@@ -1988,6 +1991,7 @@
     "leaders.bengvir.coalition.lineup.bibi",
     "leaders.bengvir.coalition.lineup.smotrich",
     "leaders.bengvir.kit.ticker.tg14",
+    "leaders.bibi.rule.active",
     "leaders.smotrich.coalition.lineup.bengvir",
     "leaders.smotrich.kit.story",
     "leaders.smotrich.kit.ticker.ts14"
@@ -2499,7 +2503,8 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "leaders.golan.kit.story",
-    "leaders.golan.kit.ticker.ty05"
+    "leaders.golan.kit.ticker.ty05",
+    "leaders.golan.rule.active"
    ],
    "ref": 117
   },
@@ -2951,7 +2956,8 @@
    "_guardrail": "The cause of the 2025 resignation is a red line: the game never names it.",
    "ref": 141,
    "usedIn": [
-    "leaders.bengvir.kit.story"
+    "leaders.bengvir.kit.story",
+    "leaders.bengvir.rule.active"
    ]
   },
   {
@@ -3005,7 +3011,8 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "ref": 144,
    "usedIn": [
-    "leaders.eisenkot.kit.story"
+    "leaders.eisenkot.kit.story",
+    "leaders.eisenkot.rule.active"
    ]
   },
   {
@@ -3042,7 +3049,8 @@
    "_guardrail": "The coalition-funds angle names a community: out. The joke is the clock.",
    "ref": 146,
    "usedIn": [
-    "leaders.smotrich.kit.story"
+    "leaders.smotrich.kit.story",
+    "leaders.smotrich.rule.active"
    ]
   },
   {

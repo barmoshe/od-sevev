@@ -336,3 +336,27 @@ func test_every_leader_leaves_the_stage_on_the_hazard_day() -> void:
 			m._process(0.016)
 		runner.check(not m.bb.court.in_court(), "%s: back on the mark when the day ends" % lid)
 		runner.check(lid != "deri" or skin == "bench", "deri sits on the corridor bench")
+
+
+## Leaders v3 phase 2: the ability chip is on the stage, a tap on it uses the ability. Ben Gvir's
+## "אני פורש" walks him off like a press day and leaves his cardboard box on the mark; no taps while out.
+func test_the_ability_chip_walks_ben_gvir_out() -> void:
+	await _boot()
+	runner.check(_start_round("bengvir"), "Ben Gvir's round starts")
+	for i in 3:
+		m._process(0.016)
+	runner.check(m.ability_chip.visible and m.ability_chip.takes_tap(m.ability_chip.hit_rect().get_center()), "the chip is up and ready")
+	var at: Vector2 = m.ability_chip.hit_rect().get_center() + Vector2(m._sx, m._stage_y)
+	for pressed in [true, false]:
+		var e := InputEventScreenTouch.new()
+		e.position = at
+		e.pressed = pressed
+		m._unhandled_input(e)
+	runner.check(Ability.walked_out(m.state), "a tap on the chip: he walks out")
+	for i in 180:
+		m._process(0.016)
+	runner.check(m.bb.court.in_court() and m.bb.desk_node().visible and m.bb.desk_node().kind == "box", "off the stage, his box on the mark")
+	m.toasts._queue.clear()
+	m._last_tap_ms = -1.0e9
+	_tap_leader()
+	runner.check(m.toasts._queue.has(str(Ability.copy(m.state)["tapPaused"])), "a tap while he is out says so (%s)" % str(m.toasts._queue))

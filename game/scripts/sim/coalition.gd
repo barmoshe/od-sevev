@@ -107,7 +107,7 @@ static func fresh_state() -> Dictionary:
 ## memberSec: visible seconds as a member this round (Golan's merge needs 60 s). A partner merged
 ## into another's row has status "merged" and sits in that row's `carry` (like Gotliv's transfer).
 static func _fresh_partner() -> Dictionary:
-	return {"status": "absent", "meter": 0.0, "carry": [], "frozen": false, "benchSec": 0.0, "corridor": false, "memberSec": 0.0}
+	return {"status": "absent", "meter": 0.0, "carry": [], "frozen": false, "benchSec": 0.0, "corridor": false, "memberSec": 0.0, "quietSec": 0.0}
 
 
 static func _c(s: GameState) -> Dictionary:
@@ -538,6 +538,8 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 			st["memberSec"] = float(st.get("memberSec", 0.0)) + dt
 		if float(st["benchSec"]) > 0.0:
 			st["benchSec"] = maxf(0.0, float(st["benchSec"]) - dt)
+		if float(st.get("quietSec", 0.0)) > 0.0:
+			st["quietSec"] = maxf(0.0, float(st["quietSec"]) - dt)
 	_tick_messages(s, dt, out)
 	# Partners join one at a time as they unlock (the chat's "joined" cascade).
 	c["joinCooldownSec"] = maxf(0.0, float(c["joinCooldownSec"]) - dt)
@@ -574,6 +576,8 @@ static func _tick_messages(s: GameState, dt: float, out: Array) -> void:
 	for m: Dictionary in _c(s)["chat"]:
 		if m["state"] != "open":
 			continue
+		if is_quiet(s, str(m.get("partner", ""))):
+			continue   # leaders v3: a quiet partner's demand or ultimatum waits (no ageing, no countdown)
 		if m["type"] == "ultimatum":
 			var before := float(m["leftSec"])
 			m["leftSec"] = maxf(0.0, before - dt)
@@ -639,7 +643,7 @@ static func _tick_demands(s: GameState, dt: float, d: Economy.Derived, rng: Call
 			busy[m.get("partner", "")] = true
 	var pool: Array = []
 	for p: Dictionary in partners():
-		if counts(s, p["id"]) and float(p.get("demandWeight", 1.0)) > 0.0 and not busy.has(p["id"]):
+		if counts(s, p["id"]) and float(p.get("demandWeight", 1.0)) > 0.0 and not busy.has(p["id"]) and not is_quiet(s, p["id"]):
 			pool.append(p)
 	if pool.is_empty():
 		return
@@ -992,6 +996,48 @@ static func merge(s: GameState, a: String, b: String) -> Dictionary:
 	return {"ok": true, "a": a, "b": b, "events": out}
 
 
+## Leaders v3 (design/leaders-v3.md): a QUIET partner is busy elsewhere for `sec` (Eisenkot's round
+## table, Deri's corridor, Bibi's "תתאחדו"): their open demand or ultimatum stops ageing and counting
+## down, and they post no new demand. It never removes seats and never closes anything.
+static func quiet(s: GameState, id: String, sec: float) -> void:
+	if not _c(s)["partners"].has(id):
+		return
+	var st := ps(s, id)
+	st["quietSec"] = maxf(float(st.get("quietSec", 0.0)), sec)
+
+
+static func is_quiet(s: GameState, id: String) -> bool:
+	var st: Variant = _c(s)["partners"].get(id)
+	return st is Dictionary and float((st as Dictionary).get("quietSec", 0.0)) > 0.0
+
+
+## The open payable messages (demands and ultimatums, never a join, rejoin or poach pill), oldest first.
+static func open_demands(s: GameState, include_ultimatums: bool = true) -> Array:
+	var out: Array = []
+	for m: Dictionary in _c(s)["chat"]:
+		if m["state"] == "open" and (m["type"] == "demand" or (include_ultimatums and m["type"] == "ultimatum")) \
+				and m.get("join", false) != true and str(m.get("payable", "")) == "" and status(s, str(m.get("partner", ""))) == "member":
+			out.append(m)
+	return out
+
+
+## Leaders v3: a partner's patience back to full (their open demand ages from 0, an ultimatum gets
+## its whole window again). Ben Gvir's return ("חזרתי").
+static func refill_patience(s: GameState) -> void:
+	for m: Dictionary in open_demands(s):
+		if m["type"] == "ultimatum":
+			m["leftSec"] = maxf(float(m["leftSec"]), float(_ult().get("sec", 90.0)))
+		else:
+			m["ageSec"] = 0.0
+
+
+## A system line in the chat from outside the sim (Ability): chat.sys.<key> with fields.
+static func post_sys(s: GameState, key: String, fields: Dictionary) -> Array:
+	var out: Array = []
+	_sys(s, key, fields, out)
+	return out
+
+
 ## The brawl (deck §E): both rows freeze until the player presses "צאו החוצה".
 static func can_brawl(s: GameState, a: String, b: String) -> bool:
 	return a != b and counts(s, a) and counts(s, b) and open_msg(s, a).is_empty() and open_msg(s, b).is_empty()
@@ -1161,6 +1207,7 @@ static func sanitize(raw: Variant) -> Dictionary:
 			st["corridor"] = src.get("corridor") == true
 			st["benchSec"] = _n(src.get("benchSec"))
 			st["memberSec"] = _n(src.get("memberSec"))
+			st["quietSec"] = minf(_n(src.get("quietSec")), 120.0)
 			if src.get("carry") is Array:
 				for x: Variant in src["carry"]:
 					if x is String and known.has(x) and not (st["carry"] as Array).has(x):

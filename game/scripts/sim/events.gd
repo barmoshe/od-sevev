@@ -197,7 +197,7 @@ static func seat_drain(s: GameState) -> int:
 static func gate_plus(s: GameState) -> int:
 	var n := 0
 	for a: Dictionary in s.events.get("active", []):
-		if a["type"] == "pledge":
+		if a["type"] == "pledge" or a["type"] == "gateHold":   # gateHold: Smotrich's missed budget (Ability)
 			n += int(a.get("gatePlus", 0))
 	return n
 

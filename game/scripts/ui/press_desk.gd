@@ -48,21 +48,38 @@ const BENCH := [
 	".KDK..............KDK...",
 	".KKK..............KKK...",
 ]
+## Ben Gvir's walkout (leaders v3): the cardboard office box he leaves on his mark, a plant and a mug in it
+const BOX := [
+	"....G...........",
+	"...GGG......MM..",
+	"....S......MWWM.",
+	"....S......MWWM.",
+	"KKKKKKKKKKKKKKKK",
+	"KLLLLLLLLLLLLLLK",
+	"KBBBBBBBBBBBBBBK",
+	"KBBBBKKKKKBBBBBK",
+	"KBBBBBBBBBBBBBBK",
+	"KBBBBBBBBBBBBBBK",
+	"KBBBBBBBBBBBBBBK",
+	"KKKKKKKKKKKKKKKK",
+]
 const COLORS := {
 	"K": Color("#1d1a2b"), "W": Color("#9a6a3f"), "D": Color("#6e4a2b"), "L": Color("#c99a62"),
 	"M": Color("#2b2840"), "G": Color("#6b6880"), "S": Color("#3b3850"), "R": Color("#e0473c"),
+	"B": Color("#c49a5c"),
 }
+const BOX_COLORS := {"G": Color("#3f9a3a"), "S": Color("#2f6b2b"), "M": Color("#f3efe6"), "W": Color("#6b4a2b")}
 
-var kind := "podium"   # podium | bench
+var kind := "podium"   # podium | bench | box
 
 
 func set_kind(k: String) -> void:
-	kind = "bench" if k == "bench" else "podium"
+	kind = k if k in ["bench", "box"] else "podium"
 	queue_redraw()
 
 
 func map() -> Array:
-	return BENCH if kind == "bench" else PODIUM
+	return BENCH if kind == "bench" else (BOX if kind == "box" else PODIUM)
 
 
 ## The drawn size in logical px (tests, layout).
@@ -82,5 +99,6 @@ func _draw() -> void:
 		var row: String = m[y]
 		for x in row.length():
 			var ch := row[x]
-			if COLORS.has(ch):
-				draw_rect(Rect2(origin + Vector2(x, y) * AP, Vector2(AP, AP)), COLORS[ch])
+			var col: Variant = BOX_COLORS.get(ch) if kind == "box" and BOX_COLORS.has(ch) else COLORS.get(ch)
+			if col != null:
+				draw_rect(Rect2(origin + Vector2(x, y) * AP, Vector2(AP, AP)), col)

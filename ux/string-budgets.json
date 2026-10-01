@@ -459,6 +459,13 @@
       "linesLarge": 1,
       "where": "Court primary button line (2-line button: verb / price)"
     },
+    "stage.ability": {
+      "widthPx": 120,
+      "scale": 3,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Leaders v3 ability chip label (AbilityChip.RECT 140 wide, 10 px pads; PxText fit_width may step down)"
+    },
     "court.btn2": {
       "widthPx": 192,
       "scale": 4,
