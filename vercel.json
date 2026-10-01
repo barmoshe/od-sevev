@@ -3,6 +3,10 @@
   "buildCommand": "",
   "installCommand": "",
   "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/k7/:path*", "destination": "/_vercel/insights/:path*" },
+    { "source": "/k8/:path*", "destination": "/_vercel/speed-insights/:path*" }
+  ],
   "headers": [
     { "source": "/(.*)\\.wasm", "headers": [ { "key": "Content-Type", "value": "application/wasm" }, { "key": "Cache-Control", "value": "public, max-age=600" } ] },
     { "source": "/(.*)\\.pck", "headers": [ { "key": "Cache-Control", "value": "public, max-age=600" } ] }
