@@ -37,8 +37,15 @@ Tests 484/484, content lint 0, gen_strings 0, lint_text 0. The bench (L1) is wit
   - **Bench:** `PacingSim._play_ability` plays the abilities.
 
 ## Open, in order
-1. **GPT art (Bar):** the brief lists second poses A1–A9, props B1–B7, the 8 icons and Kaia. On
-   arrival, rig them like `herzog-shrug` (`cast.py` pose react), then:
+1. **GPT art (in progress, 2026-10-01):** the brief lists second poses A1–A9, props B1–B7, the 8
+   icons and Kaia. The agent generates them in Bar's ChatGPT via Chrome; every chat, its verdict and
+   whether it is downloaded is in `creative-pack/art/briefs/leaders-v3-gpt-runs.md`.
+   - **In `refs/`:** A1–A9 and B2. B1, B3–B7, C and D are in progress.
+   - Golan's swipe pose came out smaller in frame: check it against `golan.png` when rigging.
+   - Downloading: use ChatGPT's own Download button in the image viewer. Chrome holds a second
+     script-triggered download until it is allowed (Bar allowed multiple downloads on 2026-10-01).
+
+   Then rig them like `herzog-shrug` (`cast.py` pose react), and:
    - `PressDesk` → the podium/bench/box sprites;
    - `AbilityChip` → the icons.
 2. **Phase 3:**

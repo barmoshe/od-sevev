@@ -13,6 +13,11 @@ Bar is at the Mac, open each chat, download the image and save it to `creative-p
 | A6 | `smotrich-budget.png` | https://chatgpt.com/c/6abea702-f524-83ed-9fa9-64598b1903c0 | ok |
 | A7 | `deri-bench.png` | https://chatgpt.com/c/6abea737-93cc-83eb-8bb2-559a5d4bce1f | ok |
 | A8 | `golan-swipe.png` | https://chatgpt.com/c/6abea768-9790-83ed-a8fe-763df045f409 | ok (figure smaller in frame; check against golan.png when rigging) |
-| A9 | `bibi-matchmaker.png` | https://chatgpt.com/c/6abea7a2-4460-83ed-96a0-325c5d856ea5 | pending |
+| A9 | `bibi-matchmaker.png` | https://chatgpt.com/c/6abea7a2-4460-83ed-96a0-325c5d856ea5 | ok after retry 1 (first came out hands clasped at the chest), downloaded |
+| B1 | `podium.png` | https://chatgpt.com/c/6abea96e-e5b0-83ed-9753-89ac09281ee8 | pending |
+| B2 | `corridor-bench.png` | https://chatgpt.com/c/6abea93e-e110-83ed-a5ce-bac0d0b1b35f | ok (a pew-style bench), downloaded |
+| B3 | `round-table.png` | https://chatgpt.com/c/6abea9de-88a4-83ed-950f-96a921454a80 | pending |
+| B4 | `cardboard-box.png` | https://chatgpt.com/c/6abea9de-b4c8-83eb-9eea-da75445b4aab | pending |
+| B5 | `pledge-scroll.png` | https://chatgpt.com/c/6abea9e8-222c-83ed-8616-cfb76a5d3f34 | pending |
 
-**Downloaded 2026-10-01 into `refs/`:** A1–A8. Not rigged yet.
+**Downloaded 2026-10-01 into `refs/`:** A1–A9, B2. Not rigged yet.
