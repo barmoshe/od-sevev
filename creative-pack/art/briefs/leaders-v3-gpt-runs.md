@@ -17,8 +17,12 @@ Bar is at the Mac, open each chat, download the image and save it to `creative-p
 | B1 | `podium.png` | https://chatgpt.com/c/6abea96e-e5b0-83ed-9753-89ac09281ee8 | ok, downloaded |
 | B2 | `corridor-bench.png` | https://chatgpt.com/c/6abea93e-e110-83ed-a5ce-bac0d0b1b35f | ok (a pew-style bench), downloaded |
 | B3 | `round-table.png` | https://chatgpt.com/c/6abea9de-88a4-83ed-950f-96a921454a80 | ok, downloaded |
-| B4 | `cardboard-box.png` | https://chatgpt.com/c/6abea9de-b4c8-83eb-9eea-da75445b4aab | pending (chat failed to load, ChatGPT outage) |
-| B5 | `pledge-scroll.png` | https://chatgpt.com/c/6abea9e8-222c-83ed-8616-cfb76a5d3f34 | pending (chat failed to load, ChatGPT outage) |
+| B4 | `cardboard-box.png` | https://chatgpt.com/c/6abea9de-b4c8-83eb-9eea-da75445b4aab | ok, downloaded (after a ChatGPT load error) |
+| B5 | `pledge-scroll.png` | https://chatgpt.com/c/6abea9e8-222c-83ed-8616-cfb76a5d3f34 | ok, downloaded (after a ChatGPT load error) |
 | B6 | `budget-book.png` | https://chatgpt.com/c/6abeaa41-c52c-83ed-9083-bcfe94ec7ae9 | ok, downloaded |
 
-**Downloaded 2026-10-01 into `refs/`:** A1–A9, B1, B2, B3, B6. Not rigged yet.
+| B7 | `clause-doc.png` | https://chatgpt.com/c/6abeabd8-7878-83ed-9991-25f095a69bd3 | pending |
+| C | `ability-icons.png` (4×2 grid) | https://chatgpt.com/c/6abeabd8-97bc-83eb-a259-dee3bbb0e74e | pending |
+| D | `kaia.png`, then `kaia-happy.png` | https://chatgpt.com/c/6abeabd9-516c-83eb-bfae-9da644cf9af2 | pending |
+
+**Downloaded 2026-10-01 into `refs/`:** A1–A9, B1–B6. Not rigged yet.
