@@ -149,8 +149,10 @@
      }
     }
    },
-   "avatar": "avatar_herzog",
-   "avatar24": "avatar24_herzog"
+   "avatar": "avatar_herzog_d2",
+   "avatar24": "avatar24_herzog",
+   "avatar32": "avatar_herzog",
+   "avatarDensity": 2
   },
   "tibi": {
    "frameW": 124,
@@ -291,8 +293,10 @@
      }
     }
    },
-   "avatar": "avatar_tibi",
-   "avatar24": "avatar24_tibi"
+   "avatar": "avatar_tibi_d2",
+   "avatar24": "avatar24_tibi",
+   "avatar32": "avatar_tibi",
+   "avatarDensity": 2
   },
   "almog": {
    "frameW": 152,
@@ -425,8 +429,10 @@
      }
     }
    },
-   "avatar": "avatar_almog",
-   "avatar24": "avatar24_almog"
+   "avatar": "avatar_almog_d2",
+   "avatar24": "avatar24_almog",
+   "avatar32": "avatar_almog",
+   "avatarDensity": 2
   },
   "lazimi": {
    "frameW": 192,
@@ -559,8 +565,10 @@
      }
     }
    },
-   "avatar": "avatar_lazimi",
-   "avatar24": "avatar24_lazimi"
+   "avatar": "avatar_lazimi_d2",
+   "avatar24": "avatar24_lazimi",
+   "avatar32": "avatar_lazimi",
+   "avatarDensity": 2
   },
   "kariv": {
    "frameW": 155,
@@ -701,8 +709,10 @@
      }
     }
    },
-   "avatar": "avatar_kariv",
-   "avatar24": "avatar24_kariv"
+   "avatar": "avatar_kariv_d2",
+   "avatar24": "avatar24_kariv",
+   "avatar32": "avatar_kariv",
+   "avatarDensity": 2
   },
   "mk-offer": {
    "frameW": 140,
@@ -835,8 +845,10 @@
      }
     }
    },
-   "avatar": "avatar_mk-offer",
-   "avatar24": "avatar24_mk-offer"
+   "avatar": "avatar_mk-offer_d2",
+   "avatar24": "avatar24_mk-offer",
+   "avatar32": "avatar_mk-offer",
+   "avatarDensity": 2
   },
   "mk-undecided": {
    "frameW": 149,
@@ -977,8 +989,10 @@
      }
     }
    },
-   "avatar": "avatar_mk-undecided",
-   "avatar24": "avatar24_mk-undecided"
+   "avatar": "avatar_mk-undecided_d2",
+   "avatar24": "avatar24_mk-undecided",
+   "avatar32": "avatar_mk-undecided",
+   "avatarDensity": 2
   },
   "mk-switcher": {
    "frameW": 155,
@@ -1111,8 +1125,10 @@
      }
     }
    },
-   "avatar": "avatar_mk-switcher",
-   "avatar24": "avatar24_mk-switcher"
+   "avatar": "avatar_mk-switcher_d2",
+   "avatar24": "avatar24_mk-switcher",
+   "avatar32": "avatar_mk-switcher",
+   "avatarDensity": 2
   },
   "bibi": {
    "frameW": 201,
@@ -2311,12 +2327,14 @@
     "track": "hatMouth",
     "path": "held"
    },
-   "avatar": "avatar_bibi",
+   "avatar": "avatar_bibi_d2",
    "avatar24": "avatar24_bibi",
    "avatarPick": "avatar_pick_bibi",
    "avatar24Pick": "avatar24_pick_bibi",
    "avatarPickXL": "avatar_pick_bibi_d3",
-   "avatarPick64": "avatar_pick_bibi_d2"
+   "avatarPick64": "avatar_pick_bibi_d2",
+   "avatar32": "avatar_bibi",
+   "avatarDensity": 2
   },
   "sara": {
    "frameW": 157,
@@ -2457,8 +2475,10 @@
      }
     }
    },
-   "avatar": "avatar_sara",
-   "avatar24": "avatar24_sara"
+   "avatar": "avatar_sara_d2",
+   "avatar24": "avatar24_sara",
+   "avatar32": "avatar_sara",
+   "avatarDensity": 2
   },
   "bennett": {
    "frameW": 180,
@@ -3221,12 +3241,14 @@
     "track": "propMouth",
     "path": "held"
    },
-   "avatar": "avatar_bennett",
+   "avatar": "avatar_bennett_d2",
    "avatar24": "avatar24_bennett",
    "avatarPick": "avatar_pick_bennett",
    "avatar24Pick": "avatar24_pick_bennett",
    "avatarPickXL": "avatar_pick_bennett_d3",
-   "avatarPick64": "avatar_pick_bennett_d2"
+   "avatarPick64": "avatar_pick_bennett_d2",
+   "avatar32": "avatar_bennett",
+   "avatarDensity": 2
   },
   "regev": {
    "frameW": 204,
@@ -3359,8 +3381,10 @@
      }
     }
    },
-   "avatar": "avatar_regev",
-   "avatar24": "avatar24_regev"
+   "avatar": "avatar_regev_d2",
+   "avatar24": "avatar24_regev",
+   "avatar32": "avatar_regev",
+   "avatarDensity": 2
   },
   "gotliv": {
    "frameW": 200,
@@ -3453,8 +3477,10 @@
      }
     }
    },
-   "avatar": "avatar_gotliv",
-   "avatar24": "avatar24_gotliv"
+   "avatar": "avatar_gotliv_d2",
+   "avatar24": "avatar24_gotliv",
+   "avatar32": "avatar_gotliv",
+   "avatarDensity": 2
   },
   "deri": {
    "frameW": 147,
@@ -4193,12 +4219,14 @@
     "track": "propMouth",
     "path": "held"
    },
-   "avatar": "avatar_deri",
+   "avatar": "avatar_deri_d2",
    "avatar24": "avatar24_deri",
    "avatarPick": "avatar_pick_deri",
    "avatar24Pick": "avatar24_pick_deri",
    "avatarPickXL": "avatar_pick_deri_d3",
-   "avatarPick64": "avatar_pick_deri_d2"
+   "avatarPick64": "avatar_pick_deri_d2",
+   "avatar32": "avatar_deri",
+   "avatarDensity": 2
   },
   "levin": {
    "frameW": 165,
@@ -4297,8 +4325,10 @@
      }
     }
    },
-   "avatar": "avatar_levin",
-   "avatar24": "avatar24_levin"
+   "avatar": "avatar_levin_d2",
+   "avatar24": "avatar24_levin",
+   "avatar32": "avatar_levin",
+   "avatarDensity": 2
   },
   "ben-gvir": {
    "frameW": 186,
@@ -5073,12 +5103,14 @@
     "track": "propMouth",
     "path": "held"
    },
-   "avatar": "avatar_ben-gvir",
+   "avatar": "avatar_ben-gvir_d2",
    "avatar24": "avatar24_ben-gvir",
    "avatarPick": "avatar_pick_ben-gvir",
    "avatar24Pick": "avatar24_pick_ben-gvir",
    "avatarPickXL": "avatar_pick_ben-gvir_d3",
-   "avatarPick64": "avatar_pick_ben-gvir_d2"
+   "avatarPick64": "avatar_pick_ben-gvir_d2",
+   "avatar32": "avatar_ben-gvir",
+   "avatarDensity": 2
   },
   "goldknopf": {
    "frameW": 189,
@@ -5211,8 +5243,10 @@
      }
     }
    },
-   "avatar": "avatar_goldknopf",
-   "avatar24": "avatar24_goldknopf"
+   "avatar": "avatar_goldknopf_d2",
+   "avatar24": "avatar24_goldknopf",
+   "avatar32": "avatar_goldknopf",
+   "avatarDensity": 2
   },
   "gafni": {
    "frameW": 162,
@@ -5353,8 +5387,10 @@
      }
     }
    },
-   "avatar": "avatar_gafni",
-   "avatar24": "avatar24_gafni"
+   "avatar": "avatar_gafni_d2",
+   "avatar24": "avatar24_gafni",
+   "avatar32": "avatar_gafni",
+   "avatarDensity": 2
   },
   "smotrich": {
    "frameW": 154,
@@ -6173,12 +6209,14 @@
     "track": "propMouth",
     "path": "held"
    },
-   "avatar": "avatar_smotrich",
+   "avatar": "avatar_smotrich_d2",
    "avatar24": "avatar24_smotrich",
    "avatarPick": "avatar_pick_smotrich",
    "avatar24Pick": "avatar24_pick_smotrich",
    "avatarPickXL": "avatar_pick_smotrich_d3",
-   "avatarPick64": "avatar_pick_smotrich_d2"
+   "avatarPick64": "avatar_pick_smotrich_d2",
+   "avatar32": "avatar_smotrich",
+   "avatarDensity": 2
   },
   "amsalem": {
    "frameW": 204,
@@ -6271,8 +6309,10 @@
      }
     }
    },
-   "avatar": "avatar_amsalem",
-   "avatar24": "avatar24_amsalem"
+   "avatar": "avatar_amsalem_d2",
+   "avatar24": "avatar24_amsalem",
+   "avatar32": "avatar_amsalem",
+   "avatarDensity": 2
   },
   "lapid": {
    "frameW": 210,
@@ -6361,8 +6401,10 @@
      }
     }
    },
-   "avatar": "avatar_lapid",
-   "avatar24": "avatar24_lapid"
+   "avatar": "avatar_lapid_d2",
+   "avatar24": "avatar24_lapid",
+   "avatar32": "avatar_lapid",
+   "avatarDensity": 2
   },
   "eisenkot": {
    "frameW": 162,
@@ -7145,12 +7187,14 @@
     "track": "propMouth",
     "path": "hop"
    },
-   "avatar": "avatar_eisenkot",
+   "avatar": "avatar_eisenkot_d2",
    "avatar24": "avatar24_eisenkot",
    "avatarPick": "avatar_pick_eisenkot",
    "avatar24Pick": "avatar24_pick_eisenkot",
    "avatarPickXL": "avatar_pick_eisenkot_d3",
-   "avatarPick64": "avatar_pick_eisenkot_d2"
+   "avatarPick64": "avatar_pick_eisenkot_d2",
+   "avatar32": "avatar_eisenkot",
+   "avatarDensity": 2
   },
   "gantz": {
    "frameW": 123,
@@ -7243,12 +7287,14 @@
      }
     }
    },
-   "avatar": "avatar_gantz",
+   "avatar": "avatar_gantz_d2",
    "avatar24": "avatar24_gantz",
    "avatarPick": "avatar_pick_gantz",
    "avatar24Pick": "avatar24_pick_gantz",
    "avatarPickXL": "avatar_pick_gantz_d3",
-   "avatarPick64": "avatar_pick_gantz_d2"
+   "avatarPick64": "avatar_pick_gantz_d2",
+   "avatar32": "avatar_gantz",
+   "avatarDensity": 2
   },
   "liberman": {
    "frameW": 157,
@@ -8103,12 +8149,14 @@
     "track": "propMouth",
     "path": "push"
    },
-   "avatar": "avatar_liberman",
+   "avatar": "avatar_liberman_d2",
    "avatar24": "avatar24_liberman",
    "avatarPick": "avatar_pick_liberman",
    "avatar24Pick": "avatar24_pick_liberman",
    "avatarPickXL": "avatar_pick_liberman_d3",
-   "avatarPick64": "avatar_pick_liberman_d2"
+   "avatarPick64": "avatar_pick_liberman_d2",
+   "avatar32": "avatar_liberman",
+   "avatarDensity": 2
   },
   "golan": {
    "frameW": 119,
@@ -8891,12 +8939,14 @@
     "track": "propMouth",
     "path": "held"
    },
-   "avatar": "avatar_golan",
+   "avatar": "avatar_golan_d2",
    "avatar24": "avatar24_golan",
    "avatarPick": "avatar_pick_golan",
    "avatar24Pick": "avatar24_pick_golan",
    "avatarPickXL": "avatar_pick_golan_d3",
-   "avatarPick64": "avatar_pick_golan_d2"
+   "avatarPick64": "avatar_pick_golan_d2",
+   "avatar32": "avatar_golan",
+   "avatarDensity": 2
   },
   "abbas": {
    "frameW": 145,
@@ -9037,8 +9087,10 @@
      }
     }
    },
-   "avatar": "avatar_abbas",
-   "avatar24": "avatar24_abbas"
+   "avatar": "avatar_abbas_d2",
+   "avatar24": "avatar24_abbas",
+   "avatar32": "avatar_abbas",
+   "avatarDensity": 2
   },
   "distel": {
    "frameW": 188,
@@ -9131,8 +9183,10 @@
      }
     }
    },
-   "avatar": "avatar_distel",
-   "avatar24": "avatar24_distel"
+   "avatar": "avatar_distel_d2",
+   "avatar24": "avatar24_distel",
+   "avatar32": "avatar_distel",
+   "avatarDensity": 2
   },
   "karhi": {
    "frameW": 155,
@@ -9225,8 +9279,10 @@
      }
     }
    },
-   "avatar": "avatar_karhi",
-   "avatar24": "avatar24_karhi"
+   "avatar": "avatar_karhi_d2",
+   "avatar24": "avatar24_karhi",
+   "avatar32": "avatar_karhi",
+   "avatarDensity": 2
   },
   "trump": {
    "frameW": 192,
@@ -9319,8 +9375,10 @@
      }
     }
    },
-   "avatar": "avatar_trump",
-   "avatar24": "avatar24_trump"
+   "avatar": "avatar_trump_d2",
+   "avatar24": "avatar24_trump",
+   "avatar32": "avatar_trump",
+   "avatarDensity": 2
   },
   "may-golan": {
    "frameW": 204,
@@ -9453,8 +9511,10 @@
      }
     }
    },
-   "avatar": "avatar_may-golan",
-   "avatar24": "avatar24_may-golan"
+   "avatar": "avatar_may-golan_d2",
+   "avatar24": "avatar24_may-golan",
+   "avatar32": "avatar_may-golan",
+   "avatarDensity": 2
   },
   "mordechai-david": {
    "frameW": 210,
@@ -9681,8 +9741,10 @@
      }
     }
    },
-   "avatar": "avatar_mordechai-david",
-   "avatar24": "avatar24_mordechai-david"
+   "avatar": "avatar_mordechai-david_d2",
+   "avatar24": "avatar24_mordechai-david",
+   "avatar32": "avatar_mordechai-david",
+   "avatarDensity": 2
   },
   "dubi": {
    "frameW": 20,
@@ -9762,9 +9824,11 @@
      "rows": 1
     }
    },
-   "avatar": "avatar_dubi",
+   "avatar": "avatar_dubi_d2",
    "avatar24": "avatar24_dubi",
-   "origin": "hand-drawn"
+   "origin": "hand-drawn",
+   "avatar32": "avatar_dubi",
+   "avatarDensity": 2
   },
   "dubi-mic": {
    "frameW": 198,
@@ -20261,6 +20325,262 @@
    "size": [
     96,
     96
+   ]
+  },
+  "avatar_abbas_d2.png": {
+   "bytes": 5989,
+   "sha": "1aae9f2c31b1df9a",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_almog_d2.png": {
+   "bytes": 4516,
+   "sha": "739f52bc4963d200",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_amsalem_d2.png": {
+   "bytes": 5109,
+   "sha": "55cedf0c2b08d95b",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_ben-gvir_d2.png": {
+   "bytes": 5980,
+   "sha": "5282caf1e2e7d667",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_bennett_d2.png": {
+   "bytes": 5249,
+   "sha": "8cffa495009cc58e",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_bibi_d2.png": {
+   "bytes": 5622,
+   "sha": "b61a8e0ecfc1bfee",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_deri_d2.png": {
+   "bytes": 5165,
+   "sha": "f5a92429fb119d37",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_distel_d2.png": {
+   "bytes": 5110,
+   "sha": "741d921f92813223",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_dubi_d2.png": {
+   "bytes": 5888,
+   "sha": "8f39fdde9786925c",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_eisenkot_d2.png": {
+   "bytes": 5413,
+   "sha": "3b03a76a672aa258",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_gafni_d2.png": {
+   "bytes": 6626,
+   "sha": "cbd1e12203c3615a",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_gantz_d2.png": {
+   "bytes": 4823,
+   "sha": "898213dc776e2040",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_golan_d2.png": {
+   "bytes": 4504,
+   "sha": "9d2f06e9448b060d",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_goldknopf_d2.png": {
+   "bytes": 5468,
+   "sha": "aa3735f9e428b396",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_gotliv_d2.png": {
+   "bytes": 6020,
+   "sha": "91c404a82ebb3923",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_herzog_d2.png": {
+   "bytes": 5070,
+   "sha": "48a28cc505c5cd16",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_karhi_d2.png": {
+   "bytes": 5648,
+   "sha": "67757a292fe864c9",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_kariv_d2.png": {
+   "bytes": 5424,
+   "sha": "9bdb19bb20a9a12e",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_lapid_d2.png": {
+   "bytes": 5191,
+   "sha": "727904f341410b67",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_lazimi_d2.png": {
+   "bytes": 5946,
+   "sha": "434a6fc02da54e69",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_levin_d2.png": {
+   "bytes": 5743,
+   "sha": "f70294daa9172bd8",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_liberman_d2.png": {
+   "bytes": 5232,
+   "sha": "a3fddf3e89b9bb48",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_may-golan_d2.png": {
+   "bytes": 5686,
+   "sha": "436cc455a0334007",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_mk-offer_d2.png": {
+   "bytes": 5695,
+   "sha": "3eae8042a3e65eea",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_mk-switcher_d2.png": {
+   "bytes": 5652,
+   "sha": "51de4fa2970dcf3e",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_mk-undecided_d2.png": {
+   "bytes": 6118,
+   "sha": "eea023aa224406f5",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_mordechai-david_d2.png": {
+   "bytes": 4789,
+   "sha": "d0319ad03fd12df9",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_regev_d2.png": {
+   "bytes": 5948,
+   "sha": "d634b0fbbe0f9211",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_sara_d2.png": {
+   "bytes": 6184,
+   "sha": "d0253809a067fb14",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_smotrich_d2.png": {
+   "bytes": 5744,
+   "sha": "ee7f2f7e58a7ae77",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_tibi_d2.png": {
+   "bytes": 4816,
+   "sha": "7ef0086636784aad",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_trump_d2.png": {
+   "bytes": 5724,
+   "sha": "902274e1ca0945e9",
+   "size": [
+    64,
+    64
    ]
   }
  },

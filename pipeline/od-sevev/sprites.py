@@ -501,6 +501,16 @@ def import_sprites(src, log, provenance):
             if os.path.exists(ap):
                 put(ap, f"{key}_{name}.png")
                 chars[name][key] = f"{key}_{name}"
+        # the chat avatar at density 2 (64 px, drawn at artScale / 2): the engine reads avatarDensity
+        # (ChatView.avatar_art, the toasts); the 32 stays as avatar32 for anything that wants it
+        hd = os.path.join(src, f"{name}_avatar_d2.png")
+        if os.path.exists(hd):
+            if Image.open(hd).size != (64, 64):
+                raise SpriteError(f"{name}_avatar_d2.png is not 64x64")
+            put(hd, f"avatar_{name}_d2.png")
+            chars[name]["avatar32"] = chars[name].get("avatar", f"avatar_{name}")
+            chars[name]["avatar"] = f"avatar_{name}_d2"
+            chars[name]["avatarDensity"] = 2
         # a launch leader's picker avatars: the same heads on one neutral ring (CONTRACT §4c)
         # + the picker's XL heads (UX mobile-first A3): 96 (from the d 3 render; the 192-logical avatar) and 64 (the
         # 128-logical one), both drawn at 2 logical px per sprite px

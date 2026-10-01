@@ -130,6 +130,9 @@ def render_char(char, fn, avatar_args=None):
         put_render(char, d, anims)
         if d == D and avatar_args:
             avatar(rig, *avatar_args)
+            # Bar 2026-10-01 ("better graphics and resolution"): the chat avatar at twice the pixels, a
+            # first-generation 64 px crop from the ref (never an upscale), drawn at density 2
+            avatar_pick_xl(rig, avatar_args[0], avatar_args[1], avatar_args[2], sizes=((64, '_d2'),))
             if char in LEADERS:
                 avatar(rig, avatar_args[0], avatar_args[1], (214, 204, 236, 255), sizes=((32, 2, '_pick'), (24, 1, '24_pick')))
                 avatar_pick_xl(rig, avatar_args[0], avatar_args[1])
@@ -195,14 +198,14 @@ def avatar(rig, head_box_ref, name, ring, sizes=((32, 2, ''), (24, 1, '24'))):
 PICK_XL = ((96, '_pick_d3'), (64, '_pick_d2'))   # (size, suffix): the picker's XL avatars (UX mobile-first A3)
 
 
-def avatar_pick_xl(rig, head_box_ref, name, ring=(214, 204, 236, 255)):
+def avatar_pick_xl(rig, head_box_ref, name, ring=(214, 204, 236, 255), sizes=PICK_XL):
     """The leader picker's large avatars (ux/mobile-first-layout.md §5.8, A3): the same head crop, neutral ring and
     cream disc as <name>_avatar_pick.png (32), rendered from the ref at 96 px (<name>_avatar_pick_d3.png, for the
     192-logical avatar) and 64 px (<name>_avatar_pick_d2.png, for the 128-logical one), each drawn at 2 logical px per
     sprite px, so crisp at every even k. First-generation crops from the ref (never an upscale of the 32), quantised
     to the character's locked d 3 palette, binary alpha. The ring is 4 px at both sizes (8 logical, the 32's 2 px at
     x4); the face sits where the 32's does, scaled (x offset size/32, y offset size/16)."""
-    for size, suffix in PICK_XL:
+    for size, suffix in sizes:
         u = size / 32
         cv = rig.canvas()
         x0, y0 = rig.c(head_box_ref[0], head_box_ref[1])
