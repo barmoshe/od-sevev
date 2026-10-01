@@ -2827,6 +2827,30 @@
     "events.herzog.copy"
    ],
    "ref": 135
+  },
+  {
+   "id": "golan-salon",
+   "label": "Q",
+   "text": "On 1 Mar 2023 protesters massed outside a Tel Aviv hair salon where Sara Netanyahu was; Yair Golan, there, said in a selfie video that she came for a haircut and look what a wonderful surprise awaited her, and told Kan she is a political figure. Police escorted her out.",
+   "aboutHe": "במרץ 2023 השתתף יאיר גולן בהפגנה מול מספרה בתל אביב שבה הסתפרה שרה נתניהו, ובסרטון סלפי אמר שהיא באה להסתפר וחיכתה לה הפתעה.",
+   "notUsed": false,
+   "outlet": "AP (via ADN, Washington Post); Times of Israel",
+   "url": "https://www.adn.com/nation-world/2023/03/02/netanyahu-denounces-israeli-protesters-after-siege-at-his-wifes-hair-salon/",
+   "url2": "https://www.washingtonpost.com/world/netanyahu-sara-wife-hair-salon-protests-israel/2023/03/02/43ec03c0-b918-11ed-b0df-8ca14de679ad_story.html",
+   "moreUrls": [
+    "https://www.timesofisrael.com/sara-netanyahu-and-sons-to-get-shin-bet-protection-after-hair-salon-siege/"
+   ],
+   "date": "2023-03",
+   "gameRendering": "the salon and Golan being there only (light, no quote). Never the siege, the police, her safety, or the 2026 lawsuits between them (one of them touches Oct 7, a red line).",
+   "_guardrail": "Live litigation between the two (2026): keep to the documented 2023 protest; no claim about what he called for.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "ambientHeadlinesV2.listPolitics.h03",
+    "leaders.golan.kit.ticker.ty16"
+   ],
+   "ref": 136
   }
  ],
  "deliberatelyOut": [

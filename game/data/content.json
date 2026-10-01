@@ -4857,6 +4857,14 @@
     "src": [
      "pardon-shelved"
     ]
+   },
+   {
+    "id": "h03",
+    "text": "שרה קבעה תור למספרה. בלשכה בדקו קודם איפה גולן.",
+    "poll_like": false,
+    "src": [
+     "golan-salon"
+    ]
    }
   ]
  },
@@ -5238,7 +5246,8 @@
     "m03",
     "m04",
     "m21",
-    "cal04"
+    "cal04",
+    "h03"
    ],
    "upgrades": [
     "s07",
@@ -9456,6 +9465,14 @@
       "poll_like": false,
       "src": [
        "no-merger-slates"
+      ]
+     },
+     {
+      "id": "ty16",
+      "text": "2023: גולן הפגין מול מספרה. הספר הציע תספורת. גולן: איחוד.",
+      "poll_like": false,
+      "src": [
+       "golan-salon"
       ]
      }
     ],
