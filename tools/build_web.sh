@@ -86,6 +86,10 @@ cp "$GAME/assets/sprites/wordmark.png" "$OUT/wordmark.png"
 # PerplexityBot, Claude-SearchBot), and points at the one-page sitemap. Absolute site URL only.
 if [ -n "$SITE" ]; then
   printf 'User-agent: *\nAllow: /\n\nSitemap: %ssitemap.xml\n' "$SITE" > "$OUT/robots.txt"
+  # site ownership: Google Search Console's file (URL-prefix property) and the IndexNow id file
+  # (Bing and the other IndexNow engines; ping https://api.indexnow.org/indexnow?url=<site>&key=<id>)
+  cp "$HERE"/web/google*.html "$OUT/" 2>/dev/null || true
+  cp "$HERE"/web/27bc5ef5ff8e4f8b98acf2f714e15c3c.txt "$OUT/"
   printf '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n</urlset>\n' "$SITE" "$(date +%F)" > "$OUT/sitemap.xml"
 fi
 grep -q "mbBuild = '$STAMP'" "$OUT/index.html" || { log "build stamp missing from index.html"; exit 1; }
