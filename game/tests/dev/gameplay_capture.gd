@@ -7,7 +7,7 @@ extends Node
 ##
 ## Actions: pick {leader}, hat {n, rate} (taps on the leader), grant {amount}, buy {id?} (the most
 ## expensive affordable card, or that id), event {id} (fires a politics event now, as ?dev=1's
-## window.odDevEvent), tab {i}, pay (the first affordable chat pill), decline (Liberman's "לא יושב"
+## window.odDevEvent), tab {i}, pay (the first affordable chat pill), decline (Liberman's "לא אשב"
 ## pill, the first in view), demand (the next member demand now), esc, elect (forces the
 ## ceremony, as window.odDevElect), tapxy {x, y} (logical), log, speed {x} (the dev game speed).
 
@@ -123,7 +123,7 @@ func _run(what: String, a: Dictionary) -> void:
 					print("[capture] pay : [%.1f, %.1f]" % [float(p[0]), float(p[1])])
 					break
 		"decline":
-			# Liberman's "לא יושב" pill under a member demand (view_chat.gd declinable): DevProbe
+			# Liberman's "לא אשב" pill under a member demand (view_chat.gd declinable): DevProbe
 			# lists only pay pills, so read the chat's hits the way the probe does
 			var chat: Node = h.get("chat")
 			var o := Vector2(float(h.get("_ox")), float(h.get("_lower_y")))
@@ -139,7 +139,7 @@ func _run(what: String, a: Dictionary) -> void:
 					break
 		"demand":
 			# the next member demand now (Coalition._tick_demands posts it on the next tick when a member
-			# is free), so a capture can show a demand, and Liberman's "לא יושב", on cue
+			# is free), so a capture can show a demand, and Liberman's "לא אשב", on cue
 			var st2: GameState = h.get("state")
 			if st2.coalition is Dictionary:
 				st2.coalition["nextDemandSec"] = 0.001

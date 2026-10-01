@@ -652,7 +652,7 @@
     "verb": "העברה",
     "verbPlural": "כוסות קפה",
     "critName": "לא מוחלט",
-    "critPlural": "לא מוחלטים",
+    "critPlural": "שיחות מסדרון",
     "banner": "טורבו בהעברות!",
     "rule": "לוח הזמנים",
     "postpone": "אין תקציב לתגובה"
@@ -5371,8 +5371,8 @@
       "box": "dos.row",
       "maxChars": 27,
       "worstPx": {
-        "4": 580,
-        "5": 725
+        "4": 600,
+        "5": 750
       }
     },
     "BUFF_CHIP_TAPFRENZY_LEADER": {

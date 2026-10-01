@@ -1009,7 +1009,7 @@ def cues():
                                  "chars.<art>.anims.<critAnim>.events), a third of the delay in reduced motion, like rabbitCrit.",
                       "target": {"type": "burst", "lufs": -12.0}}
 
-    # decline (Liberman's "לא יושב" pill): the same "no. no." without the crit's head. A refusal,
+    # decline (Liberman's "לא אשב" pill): the same "no. no." without the crit's head. A refusal,
     # not a loss and not a shortfall (cantAfford hangs on the leading tone; this closes on b7).
     C["decline"] = {"meaning": "You declined a partner's demand (Liberman's rule).", "bus": "SFX-Frequent", "priority": 2, "poly": 1,
                     "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 4}, "variants": {"": no_knocks()},
@@ -1114,7 +1114,7 @@ def cues():
             "אני פורש!": [["3", 5], ["5", 5], ["b7", 5], ["1", 6]],
             "תקציב!": [["1", 6], ["5", 6]],
             "לא איום!": [["5", 6], ["3", 6], ["1", 6]],
-            "לא יושב!": [["1", 6], ["1", 6], ["5", 5]],
+            "לא אשב!": [["1", 6], ["1", 6], ["5", 5]],
             "מס!": [["1", 6]],
             "לא!": [["5", 5]],
             "ישר!": [["5", 5], ["5", 5]],
@@ -1123,9 +1123,9 @@ def cues():
             "אין כסף!": [["5", 6], ["5", 6], ["b7", 5]],
             "העברה!": [["1", 6], ["3", 6], ["4", 6], ["5", 6]],
             "גירעון!": [["5", 6], ["4", 6], ["b7", 5]],
-            "ידידי!": [["3", 6], ["1", 6], ["3", 6]],
+            "מסדרון!": [["3", 6], ["1", 6], ["3", 6]],
             "קפה!": [["4", 6], ["3", 6]],
-            "ידידי?": [["3", 6], ["1", 6], ["5", 6]],
+            "לא שר?": [["3", 6], ["5", 6]],
             "איחוד!": [["1", 6], ["3", 6]],
             "עוד אחד!": [["5", 5], ["1", 6], ["3", 6]],
             "פיצול!": [["3", 6], ["b7", 5]],

@@ -241,7 +241,7 @@ Format: a news-flash card after each election round, with a header and then 2-4 
 - **Thanks:** הגיע. תודה 👍 ולהזכירכם: אין כסף.
 
 ### Aryeh Deri
-- **Demand:** ידידי היקר, בוא נשב על קפה ☕ תביא פנקס.
+- **Demand:** נסגור את זה במסדרון ☕ תביא פנקס. (2026-10-01: "ידידי" removed; it is Ben Gvir's tic, see design/content.json)
 - **Threat:** ש"ס לא מאיימת. ש"ס מזכירה. זו תזכורת שלישית 🙏
 - **Status line** (permanent): יצאנו מהממשלה, לא מהקבוצה. פה נוח. `[src: Haredi parties left the government, July 2025]`
 

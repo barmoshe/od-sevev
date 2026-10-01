@@ -238,7 +238,7 @@ func test_libermans_decline_pill() -> void:
 	m.chat.reveal_all()
 	await _frames(3)
 	var hit: Array = m.chat.hits().filter(func(h: Dictionary) -> bool: return h["kind"] == "decline")
-	runner.check(hit.size() == 1, "the 'לא יושב' pill is under the pay pill (%d)" % hit.size())
+	runner.check(hit.size() == 1, "the 'לא אשב' pill is under the pay pill (%d)" % hit.size())
 	runner.check(m.chat.decline(int(msg["seq"])) and str(Coalition.message(s, int(msg["seq"]))["state"]) == "declined", "a press declines it for free")
 	var sys: Array = (s.coalition["chat"] as Array).filter(func(x: Dictionary) -> bool: return x.get("key", "") == "chat.sys.declined")
 	runner.check(sys.size() == 1 and ChatView.sys_text(sys[0]).contains(Strings.s("CHAT_PILL_DECLINE")), "CHAT_SYS_DECLINED (%s)" % (ChatView.sys_text(sys[0]) if sys.size() > 0 else ""))

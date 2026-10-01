@@ -427,7 +427,7 @@
    "id": "bibi-or-tibi",
    "ref": 25,
    "label": "F",
-   "text": "\"ביבי או טיבי\", a 2019 Likud slogan. The target is the flip-flop, never Arab citizens.",
+   "text": "\"ביבי או טיבי\", a Likud slogan aimed at Ahmad Tibi (2019; Likud reused it in a 2026 AI campaign video). The target is the slogan, never Arab citizens.",
    "aboutHe": "\"ביבי או טיבי\" הייתה סיסמת בחירות של הליכוד ב־2019.",
    "notUsed": false,
    "outlet": "ToI",
@@ -435,8 +435,10 @@
    "date": "2019",
    "usedIn": [
     "leaderSelect.partnerProfiles.tibi",
-    "partners.abbas",
-    "partners.abbas.copy.card"
+    "partners.abbas"
+   ],
+   "moreUrls": [
+    "https://www.mako.co.il/news-israel-elections/2026/Article-ec4ac22a5157c91026.htm"
    ]
   },
   {
@@ -513,6 +515,7 @@
    "url": "https://www.timesofisrael.com/in-bombshell-ruling-high-court-nixes-shas-head-deri-from-serving-as-minister/",
    "date": "2023-01",
    "usedIn": [
+    "leaderSelect.rivalTicker.r05",
     "leaders.deri.kit.sources.t8",
     "leaders.deri.kit.sources.t8.firstOwned",
     "leaders.deri.kit.story",
@@ -547,6 +550,7 @@
     "events.bennett",
     "leaderSelect.partnerProfiles.bennett",
     "leaders.bennett.kit.story",
+    "leaders.bennett.kit.ticker.tb06",
     "leaders.bennett.pick",
     "leaders.bennett.rule",
     "leaders.liberman.coalition.lineup.bennett"
@@ -1217,8 +1221,6 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "leaderSelect.rivalTicker.r07",
-    "leaders.liberman.kit.sources.t5",
-    "leaders.liberman.kit.sources.t5.firstOwned",
     "leaders.liberman.kit.sources.t8",
     "leaders.liberman.kit.sources.t8.firstOwned",
     "leaders.liberman.kit.ticker.tl03",
@@ -2116,6 +2118,663 @@
     "leaderSelect.partnerProfiles.tibi.copy.card"
    ],
    "ref": 98
+  },
+  {
+   "id": "deri-transparent",
+   "label": "Q",
+   "text": "In his 2015 campaign Deri addressed \"the transparent Israelis\" (הישראלים השקופים) under the slogan \"the revolution is back\"; Shas brought the theme back in its 2026 campaign.",
+   "aboutHe": "בקמפיין 2015 פנה אריה דרעי אל ״הישראלים השקופים״, וב־2026 ש״ס החזירה את המסר לקמפיין.",
+   "notUsed": false,
+   "outlet": "Maariv; mako",
+   "url": "https://www.maariv.co.il/news/elections-2015/Article-459986",
+   "url2": "https://www.mako.co.il/news-politics/2026_q3/Article-e3c216848094f91026.htm",
+   "date": "2015-01",
+   "gameRendering": "the word \"השקופים\" and the year only; the joke is on the speech coming back every campaign, never on the people it addressed.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.deri.kit.sources.t7",
+    "leaders.deri.kit.sources.t7.firstOwned",
+    "leaders.deri.kit.story",
+    "leaders.deri.kit.ticker.td01"
+   ],
+   "ref": 99
+  },
+  {
+   "id": "liberman-decide",
+   "label": "F",
+   "text": "Yisrael Beytenu's 2026 campaign slogan is \"חייבים להכריע – ליברמן\" (we must decide), presented with six \"fronts\", one of them a constitution.",
+   "aboutHe": "הסיסמה של ישראל ביתנו בבחירות 2026 היא ״חייבים להכריע״, ולצידה שישה נושאים, ואחד מהם הוא כינון חוקה.",
+   "notUsed": false,
+   "outlet": "Ladaat; Yisrael Beytenu",
+   "url": "https://ladaat.co/?p=107118",
+   "url2": "https://beytenu.org.il/מסיבת-העיתונאים-של-ישראל-ביתנו-חייבים/",
+   "date": "2026",
+   "gameRendering": "the slogan and a count of six items; the items are never listed.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.liberman.kit.sources.t5",
+    "leaders.liberman.kit.sources.t5.firstOwned"
+   ],
+   "ref": 100
+  },
+  {
+   "id": "liberman-old-likud",
+   "label": "F",
+   "text": "A 2026 Yisrael Beytenu campaign slogan says \"הליכוד של פעם – זה אנחנו\" (the Likud of old is us).",
+   "aboutHe": "באחת מסיסמאות הבחירות של ישראל ביתנו ב־2026 נכתב שהליכוד של פעם הוא ישראל ביתנו.",
+   "notUsed": false,
+   "outlet": "Kikar HaShabbat",
+   "url": "https://www.kikar.co.il/political-news/israel-beiteinu-new-slogan-likud-of-the-past",
+   "date": "2026",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.liberman.kit.ticker.tl06"
+   ],
+   "ref": 101
+  },
+  {
+   "id": "bengvir-deadline",
+   "label": "Q",
+   "text": "In a 2025 Meet the Press interview Ben Gvir described setting the government a deadline (\"הצבתי דד-ליין\") as part of a series of ultimatums; he had quit the government in January 2025 and later returned.",
+   "aboutHe": "בראיון ב־2025 סיפר איתמר בן גביר שהציב לממשלה דד־ליין, אחרי שפרש ממנה בינואר 2025 וחזר אליה.",
+   "notUsed": false,
+   "outlet": "mako (N12); Israel Hayom",
+   "url": "https://www.mako.co.il/news-politics/2025_q4/Article-631d17c6508f991026.htm",
+   "url2": "https://www.israelhayom.co.il/news/politics/article/17175739",
+   "date": "2025",
+   "gameRendering": "the word דד־ליין as an abstract ultimatum only; never what the real deadlines were about.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bengvir.kit.ticker.tg01",
+    "partners.bengvir"
+   ],
+   "ref": 102
+  },
+  {
+   "id": "gafni-back",
+   "label": "F",
+   "text": "Removed as Finance Committee chair in 2021, Gafni said \"I'll be back\" and returned to the post; in July 2025 he resigned as chair and was chairing it again five days later.",
+   "aboutHe": "משה גפני הודח מראשות ועדת הכספים ב־2021, הבטיח שיחזור וחזר; ביולי 2025 התפטר מראשות הוועדה וחזר לעמוד בראשה כעבור חמישה ימים.",
+   "notUsed": false,
+   "outlet": "TheMarker; Kikar HaShabbat",
+   "url": "https://www.themarker.com/news/politics/2025-07-20/ty-article/.premium/00000198-2727-d73f-a3bf-673f70340000",
+   "url2": "https://www.kikar.co.il/394405.html",
+   "date": "2025-07",
+   "gameRendering": "the five days and the promise to come back; reported, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "ambientHeadlinesV2.listPolitics.m22",
+    "partners.gafni"
+   ],
+   "ref": 103
+  },
+  {
+   "id": "abbas-no-pocket",
+   "label": "Q",
+   "text": "Mansour Abbas has said he is \"in nobody's pocket\"; his doctrine is influence over policy and budgets rather than which bloc he sits with.",
+   "aboutHe": "מנסור עבאס אמר שהוא לא בכיס של אף אחד, ושהעיקר בעיניו הוא השפעה ולא עם מי יושבים.",
+   "notUsed": false,
+   "outlet": "Ynet; Maariv",
+   "url": "https://www.ynet.co.il/news/article/SJbpNjocw",
+   "url2": "https://www.maariv.co.il/journalists/Article-869207",
+   "date": "2021",
+   "gameRendering": "reported speech, no quote marks; the joke is on him as a dealmaker, never on Arab citizens.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.abbas",
+    "partners.abbas.copy.card"
+   ],
+   "ref": 104
+  },
+  {
+   "id": "distel-ai",
+   "label": "Q",
+   "text": "After her committee's legal advisers walked out, Distel-Atbaryan compared them to AI that might develop self-awareness, saying they are a means and not the purpose; the Knesset legal adviser said the committee's pace allowed reading the clauses aloud, not studying them.",
+   "aboutHe": "גלית דיסטל־אטבריאן השוותה את היועצים המשפטיים שיצאו מהוועדה לבינה מלאכותית שעלולה לפתח מודעות עצמית.",
+   "notUsed": false,
+   "outlet": "Ynet; TheMarker; the7eye",
+   "url": "https://www.ynet.co.il/news/article/bkbpee92be",
+   "url2": "https://www.themarker.com/news/themedia/2026-04-13/ty-article/.premium/0000019d-8618-d8a8-afdd-8e3b3a3e0000",
+   "moreUrls": [
+    "https://www.the7eye.org.il/582468"
+   ],
+   "date": "2026-04",
+   "gameRendering": "reported speech, no quote marks: the self-aware AI image and the read-aloud pace.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.distel"
+   ],
+   "ref": 105
+  },
+  {
+   "id": "karhi-ratings",
+   "label": "F",
+   "text": "A 2024 bill from Karhi's ministry would let the communications minister decide who measures TV ratings.",
+   "aboutHe": "הצעת חוק של משרד התקשורת מ־2024 קבעה שהשר יחליט מי ימדוד את הרייטינג בטלוויזיה.",
+   "notUsed": false,
+   "outlet": "TheMarker",
+   "url": "https://www.themarker.com/advertising/2024-10-20/ty-article/.premium/00000192-9fe6-dfa0-a59a-bfeff6330000",
+   "date": "2024-10",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.karhi"
+   ],
+   "ref": 106
+  },
+  {
+   "id": "regev-ribbons",
+   "label": "F",
+   "text": "Regev is a prolific ribbon-cutter: Shomrim counted 23 launch events and 28 social-media photo shoots in the period it checked, and in May 2026 she cut the ribbon on the still-unfinished Eastern Railway.",
+   "aboutHe": "השרה מירי רגב חנכה פרויקטים רבים, ובמאי 2026 גזרה סרט על מסילה מזרחית שעוד לא הושלמה.",
+   "notUsed": false,
+   "outlet": "Shomrim; TheMarker",
+   "url": "https://www.shomrim.news/hebrew/face-of-base-regev",
+   "url2": "https://www.themarker.com/news/transport/2026-05-17/ty-article/.premium/0000019e-370c-d0ff-afbe-774ce72b0000",
+   "date": "2026-05",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.regev"
+   ],
+   "ref": 107
+  },
+  {
+   "id": "regev-foxtrot",
+   "label": "F",
+   "text": "As culture minister Regev attacked the film \"Foxtrot\" (2017) without having seen it, and in 2019 attacked another Ophir-winning film without seeing it (\"שוב\", Haaretz).",
+   "aboutHe": "כשרת התרבות תקפה מירי רגב את הסרט ״פוקסטרוט״ בלי שצפתה בו, וב־2019 עשתה זאת שוב עם סרט אחר.",
+   "notUsed": false,
+   "outlet": "Maariv; Walla; Haaretz",
+   "url": "https://www.maariv.co.il/culture/movies/Article-598229",
+   "url2": "https://www.haaretz.co.il/gallery/cinema/1.7875379",
+   "moreUrls": [
+    "https://e.walla.co.il/item/3093784"
+   ],
+   "date": "2017",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.regev"
+   ],
+   "ref": 108
+  },
+  {
+   "id": "bibi-scared",
+   "label": "Q",
+   "text": "\"הם מפחדים\" (they're scared), Netanyahu's line from a 1999 Likud rally about the media and the left, repeated since.",
+   "aboutHe": "בעצרת של הליכוד ב־1999 אמר בנימין נתניהו על התקשורת והשמאל ״הם מפחדים״, ומאז חזר על כך פעמים רבות.",
+   "notUsed": false,
+   "outlet": "mako; Maariv",
+   "url": "https://www.mako.co.il/news-specials/today-in-history/Article-a22ae9e0e009821004.htm",
+   "url2": "https://www.maariv.co.il/news/politics/article-846990",
+   "date": "1999",
+   "gameRendering": "the two words only, as a reflex answer.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.bibi"
+   ],
+   "ref": 109
+  },
+  {
+   "id": "bennett-with-lapid",
+   "label": "Q",
+   "text": "In 2021 Bennett signed on live TV that he would not let Lapid be prime minister, not even in a rotation; in 2026 he said he is with Lapid to the end.",
+   "aboutHe": "ב־2021 חתם נפתלי בנט בשידור שלא יאפשר ליאיר לפיד להיות ראש ממשלה, וב־2026 אמר שהוא עם לפיד עד הסוף.",
+   "notUsed": false,
+   "outlet": "Ynet; mako",
+   "url": "https://www.ynet.co.il/news/120andone/article/s100tqclqmg",
+   "url2": "https://www.mako.co.il/news-israel-elections/2021/Article-3e27a9f3e765871027.htm",
+   "date": "2026",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bennett.kit.ticker.tb06"
+   ],
+   "ref": 110
+  },
+  {
+   "id": "bennett-let-go",
+   "label": "Q",
+   "text": "At a 2026 Knesset press conference Bennett said he had three words for Netanyahu: \"it's over, let go\" (זה נגמר, שחרר).",
+   "aboutHe": "במסיבת עיתונאים בכנסת ב־2026 אמר נפתלי בנט שיש לו שלוש מילים לנתניהו: זה נגמר, שחרר.",
+   "notUsed": false,
+   "outlet": "Ynet; Israel Hayom",
+   "url": "https://www.ynet.co.il/news/article/bjpyomjygx",
+   "url2": "https://www.israelhayom.co.il/news/politics/article/20587596",
+   "date": "2026",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.bennett",
+    "leaders.bennett.kit.ticker.tb09"
+   ],
+   "ref": 111
+  },
+  {
+   "id": "bennett-stop-apologizing",
+   "label": "F",
+   "text": "Bennett's 2015 campaign ad \"מפסיקים להתנצל\" (we stop apologizing) had him in a disguise that he tears off.",
+   "aboutHe": "בקמפיין 2015 הופיע נפתלי בנט בתחפושת שהוא מוריד, תחת הסיסמה ״מפסיקים להתנצל״.",
+   "notUsed": false,
+   "outlet": "Globes; mako",
+   "url": "https://www.globes.co.il/news/article.aspx?did=1000993827&fid=2",
+   "url2": "https://www.mako.co.il/culture-showbiz/Article-bd6bd6c07b35a41006.htm",
+   "date": "2015",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.bennett.kit.ticker.tb12"
+   ],
+   "ref": 112
+  },
+  {
+   "id": "eisenkot-poilshtik",
+   "label": "Q",
+   "text": "In a 2026 Kan interview Eisenkot called the Bennett-Liberman talks \"פוילשטיקים\" (Yiddish for political tricks) and old politics.",
+   "aboutHe": "בראיון ב־2026 כינה גדי אייזנקוט את המגעים בין בנט לליברמן ״פוילשטיקים״ ופוליטיקה ישנה.",
+   "notUsed": false,
+   "outlet": "Ynet; INN",
+   "url": "https://www.ynet.co.il/news/elections2026/article/skkuvzykzg",
+   "url2": "https://www.inn.co.il/news/706536",
+   "date": "2026",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.eisenkot",
+    "leaders.eisenkot.kit.ticker.te10"
+   ],
+   "ref": 113
+  },
+  {
+   "id": "eisenkot-keep-straight",
+   "label": "A",
+   "text": "Police told Eisenkot's campaign van near a Likud event to \"keep going straight\" (תמשיך ישר); the ballot letters of his party Yashar are \"דרך\".",
+   "aboutHe": "שוטרים אמרו לרכב הקמפיין של אייזנקוט ליד אירוע של הליכוד להמשיך ישר; אותיות הפתק של ישר הן ״דרך״.",
+   "notUsed": false,
+   "outlet": "Ynet; mako",
+   "url": "https://www.ynet.co.il/news/elections2026/article/sjcuuoftfl",
+   "url2": "https://www.mako.co.il/news-israel-elections/2026/Article-ba49072ad691f91027.htm",
+   "date": "2026",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.eisenkot.kit.ticker.te12"
+   ],
+   "ref": 114
+  },
+  {
+   "id": "eisenkot-big-leads",
+   "label": "Q",
+   "text": "Eisenkot says the bloc should line up behind whichever party wins the widest public trust (the biggest party leads).",
+   "aboutHe": "גדי אייזנקוט אמר שהגוש צריך להתייצב מאחורי המפלגה שתזכה לאמון הציבור הרחב ביותר.",
+   "notUsed": false,
+   "outlet": "Ynet",
+   "url": "https://www.ynet.co.il/news/elections2026/article/b1ibxp3dzg",
+   "url2": "https://www.ynet.co.il/news/elections2026/article/rycwouffge",
+   "date": "2026",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.eisenkot",
+    "leaders.golan.kit.ticker.ty07"
+   ],
+   "ref": 115
+  },
+  {
+   "id": "golan-decisive",
+   "label": "Q",
+   "text": "Golan said the Democrats will be \"the decisive force\", \"not a rubber stamp\", and will not automatically recommend the biggest party (May 2026).",
+   "aboutHe": "יאיר גולן אמר שהדמוקרטים יהיו הכוח המכריע ולא חותמת גומי, ולא ימליצו אוטומטית על המפלגה הגדולה.",
+   "notUsed": false,
+   "outlet": "mako; Israel Hayom",
+   "url": "https://www.mako.co.il/news-israel-elections/2026/Article-a6ec78fb8ae7e91027.htm",
+   "url2": "https://www.israelhayom.co.il/news/politics/article/20656893",
+   "date": "2026",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.golan",
+    "leaders.golan.kit.ticker.ty07"
+   ],
+   "ref": 116
+  },
+  {
+   "id": "golan-tinder",
+   "label": "Q",
+   "text": "At a 2026 faction meeting Golan said forming a government with Netanyahu is like going on a date with the Tinder Swindler.",
+   "aboutHe": "בישיבת סיעה ב־2026 אמר יאיר גולן שהקמת ממשלה עם נתניהו היא כמו דייט עם נוכל הטינדר.",
+   "notUsed": false,
+   "outlet": "Israel Hayom; Zman",
+   "url": "https://www.israelhayom.co.il/news/politics/article/20869190",
+   "url2": "https://www.zman.co.il/live/699473/",
+   "date": "2026",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.golan.kit.ticker.ty05"
+   ],
+   "ref": 117
+  },
+  {
+   "id": "golan-gas-station",
+   "label": "Q",
+   "text": "On 29 Sep 2026 Golan tweeted that Netanyahu should pop into a gas station (to see the cost of living).",
+   "aboutHe": "ב־29 בספטמבר 2026 כתב יאיר גולן שנתניהו צריך לקפוץ לתחנת דלק.",
+   "notUsed": false,
+   "outlet": "ice",
+   "url": "https://www.ice.co.il/local-news/news/article/1131578",
+   "date": "2026-09",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.golan.kit.ticker.ty08"
+   ],
+   "ref": 118
+  },
+  {
+   "id": "smotrich-late-budget",
+   "label": "Q",
+   "text": "Late in 2024 Smotrich acknowledged the budget would not be approved on time.",
+   "aboutHe": "בסוף 2024 הודה בצלאל סמוטריץ׳ שהתקציב לא יאושר בזמן.",
+   "notUsed": false,
+   "outlet": "mako",
+   "url": "https://www.mako.co.il/news-money/2024_q4/Article-00cc9bdbefb8391027.htm",
+   "date": "2024",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaders.smotrich.kit.ticker.ts12"
+   ],
+   "ref": 119
+  },
+  {
+   "id": "lapid-rikki",
+   "label": "F",
+   "text": "In 2013, as finance minister, Lapid posted about \"Rikki Cohen from Hadera\", an imagined middle-class teacher, and drew a backlash.",
+   "aboutHe": "ב־2013, כשר האוצר, כתב יאיר לפיד על ״ריקי כהן מחדרה״, מורה מהמעמד הבינוני שהמציא, והפוסט עורר ביקורת.",
+   "notUsed": false,
+   "outlet": "Globes; Ynet; Haaretz",
+   "url": "https://www.globes.co.il/news/article.aspx?did=1000833086",
+   "url2": "https://www.ynet.co.il/articles/0,7340,L-4362734,00.html",
+   "date": "2013",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.lapid"
+   ],
+   "ref": 120
+  },
+  {
+   "id": "gantz-israel-first",
+   "label": "F",
+   "text": "\"ישראל לפני הכל\" (Israel before everything) was Gantz's 2019 slogan.",
+   "aboutHe": "הסיסמה של בני גנץ בבחירות 2019 הייתה ״ישראל לפני הכל״.",
+   "notUsed": false,
+   "outlet": "Maariv; Calcalist",
+   "url": "https://www.maariv.co.il/elections2019/news/Article-680623",
+   "url2": "https://www.calcalist.co.il/local/articles/0,7340,L-3754486,00.html",
+   "date": "2019",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.gantz"
+   ],
+   "ref": 121
+  },
+  {
+   "id": "gantz-no-61",
+   "label": "Q",
+   "text": "In 2026 Gantz said he would not give either bloc 61 seats and that it is time for a unity government.",
+   "aboutHe": "ב־2026 אמר בני גנץ שלא ייתן לאף גוש רוב בכנסת ושהגיע הזמן לממשלת אחדות.",
+   "notUsed": false,
+   "outlet": "Walla",
+   "url": "https://news.walla.co.il/item/3857026",
+   "date": "2026",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.gantz"
+   ],
+   "ref": 122
+  },
+  {
+   "id": "gantz-brought-gov",
+   "label": "Q",
+   "text": "In 2026 Gantz said he brought them a government and they took it apart.",
+   "aboutHe": "ב־2026 אמר בני גנץ שהביא להם ממשלה והם פירקו אותה.",
+   "notUsed": false,
+   "outlet": "mako",
+   "url": "https://www.mako.co.il/news-politics/2026_q2/Article-e66aea3c5d1ee91026.htm",
+   "date": "2026",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.gantz"
+   ],
+   "ref": 123
+  },
+  {
+   "id": "levin-amit",
+   "label": "F",
+   "text": "Levin does not recognise Yitzhak Amit as Supreme Court president; his letters refer to \"Justice Amit\", and a 2026 report said he found a way to work with him without saying his name.",
+   "aboutHe": "השר יריב לוין אינו מכיר במינויו של יצחק עמית לנשיא בית המשפט העליון, ובמכתביו הוא מכנה אותו ״השופט עמית״.",
+   "notUsed": false,
+   "outlet": "Israel Hayom; TheMarker",
+   "url": "https://www.israelhayom.co.il/news/law/article/17235952",
+   "url2": "https://www.themarker.com/law/2026-01-28/ty-article/.premium/0000019b-e484-dc5a-afff-f7dc4a7c0000",
+   "date": "2026",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.levin"
+   ],
+   "ref": 124
+  },
+  {
+   "id": "levin-extinct",
+   "label": "Q",
+   "text": "In May 2026 Levin said that if the justices do not agree with him on appointments the Supreme Court will go extinct (\"ייכחד\").",
+   "aboutHe": "במאי 2026 אמר יריב לוין שאם השופטים לא יסכימו איתו על המינויים, בית המשפט העליון ייכחד.",
+   "notUsed": false,
+   "outlet": "Haaretz",
+   "url": "https://www.haaretz.co.il/news/politi/2026-05-07/ty-article/0000019e-013b-d995-a1be-1ffb287b0000",
+   "date": "2026-05",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.levin"
+   ],
+   "ref": 125
+  },
+  {
+   "id": "amsalem-jobs",
+   "label": "Q",
+   "text": "Michal Rosenbaum resigned as head of the Government Companies Authority, saying that for Minister Amsalem the government companies were a jobs pool (\"מאגר ג'ובים\").",
+   "aboutHe": "מיכל רוזנבאום התפטרה מראשות רשות החברות הממשלתיות ואמרה שבעיני השר דוד אמסלם החברות הן מאגר ג׳ובים.",
+   "notUsed": false,
+   "outlet": "mako; TheMarker",
+   "url": "https://www.mako.co.il/news-money/2024_q1/Article-a02248e4cd28d81026.htm",
+   "url2": "https://www.themarker.com/allnews/2023-12-30/ty-article/0000018c-bb82-db94-afbd-bbfbc3a10000",
+   "date": "2023-12",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.amsalem"
+   ],
+   "ref": 126
+  },
+  {
+   "id": "amsalem-parrot",
+   "label": "A",
+   "text": "In a 2021 Knesset speech Amsalem attributed his insults of Bennett to a parrot that shouts them every morning.",
+   "aboutHe": "בנאום בכנסת ב־2021 ייחס דוד אמסלם את העלבונות שלו לבנט לתוכי שצועק אותם כל בוקר.",
+   "notUsed": false,
+   "outlet": "Maariv",
+   "url": "https://www.maariv.co.il/news/politics/article-854475",
+   "date": "2021-07",
+   "gameRendering": "the parrot as the messenger only; the insults themselves are never repeated.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.amsalem"
+   ],
+   "ref": 127
+  },
+  {
+   "id": "goldknopf-partial",
+   "label": "F",
+   "text": "In March 2025 Goldknopf resigned as a minister in the Prime Minister's Office but stayed Housing Minister; he resigned fully in June 2025, and the Transport Ministry said he had \"forgotten to report\" the resignation when his car kept its ministerial privileges.",
+   "aboutHe": "במרץ 2025 התפטר יצחק גולדקנופף מתפקידו כשר במשרד ראש הממשלה ונשאר שר הבינוי והשיכון; ביוני 2025 התפטר לגמרי, ולפי משרד התחבורה שכח לדווח על כך.",
+   "notUsed": false,
+   "outlet": "Ynet; Haaretz",
+   "url": "https://www.ynet.co.il/news/article/hkn3k111aye",
+   "url2": "https://www.ynet.co.il/news/article/hypgg000szx",
+   "date": "2025",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.goldknopf"
+   ],
+   "ref": 128
+  },
+  {
+   "id": "gotliv-eight",
+   "label": "Q",
+   "text": "Gotliv answered Likud sanctions saying she says it \"with eight exclamation marks\".",
+   "aboutHe": "בתגובה לסנקציות של הליכוד אמרה טלי גוטליב שהיא אומרת את דבריה בשמונה סימני קריאה.",
+   "notUsed": false,
+   "outlet": "Ynet",
+   "url": "https://www.ynet.co.il/news/article/hkydmpodh",
+   "date": "2026",
+   "gameRendering": "the count of eight only.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.gotliv"
+   ],
+   "ref": 129
+  },
+  {
+   "id": "gotliv-money",
+   "label": "A",
+   "text": "Likud's reported condition for letting Gotliv leave for Otzma Yehudit was that she give up the party-financing money (\"תוותרי על הכסף\").",
+   "aboutHe": "לפי הדיווח, התנאי של הליכוד לשחרור טלי גוטליב לעוצמה יהודית היה שתוותר על כספי המימון.",
+   "notUsed": false,
+   "outlet": "Maariv",
+   "url": "https://www.maariv.co.il/news/politics/article-1361843",
+   "date": "2026-09",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.gotliv"
+   ],
+   "ref": 130
+  },
+  {
+   "id": "maygolan-hearing",
+   "label": "A",
+   "text": "Summoned for questioning, May Golan did not appear and instead attended an associate's court hearing (per the report).",
+   "aboutHe": "לפי הדיווח, מאי גולן לא התייצבה לחקירה והגיעה במקום זאת לדיון בבית משפט של מקורבת.",
+   "notUsed": false,
+   "outlet": "Israel Hayom",
+   "url": "https://www.israelhayom.co.il/news/law/article/18853980",
+   "date": "2026",
+   "gameRendering": "allegation wording: לפי הדיווח; she is suspected, not convicted.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.maygolan"
+   ],
+   "ref": 131
+  },
+  {
+   "id": "maygolan-no-ministry",
+   "label": "A",
+   "text": "A report said May Golan's ministry would be closed but she would remain a minister.",
+   "aboutHe": "לפי הדיווח, המשרד של מאי גולן ייסגר והיא תישאר שרה.",
+   "notUsed": false,
+   "outlet": "Ynet",
+   "url": "https://www.ynet.co.il/news/article/sjfayimk6",
+   "date": "2026",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.maygolan"
+   ],
+   "ref": 132
+  },
+  {
+   "id": "almog-nevatim",
+   "label": "Q",
+   "text": "Netanyahu said Almog Cohen \"drilled a hole in my head\" to get a Negev airport at Nevatim; Cohen also said he could be a minister within the hour.",
+   "aboutHe": "בנימין נתניהו אמר שאלמוג כהן ״קדח לו חור בראש״ בעניין שדה תעופה בנגב, וכהן אמר שהוא יכול להיות שר תוך שעה.",
+   "notUsed": false,
+   "outlet": "Israel Hayom; Walla",
+   "url": "https://www.israelhayom.co.il/news/politics/article/21180250",
+   "url2": "https://news.walla.co.il/item/3810628",
+   "date": "2026",
+   "gameRendering": "reported speech, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "partners.almog"
+   ],
+   "ref": 133
   }
  ],
  "deliberatelyOut": [
