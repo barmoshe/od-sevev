@@ -26,3 +26,20 @@ alpha box, so each approved one is keyed out first:
   15-px trophy icon).
 - **Rejected as drawn:** `mk-returner` looks like Netanyahu (the style ref's face leaked). Regenerate
   with a made-up face; the game keeps the no-photo stand-in for him until then.
+
+## Leaders v3 GPT batch, 2026-10-01
+
+All 19 files (`creative-pack/art/briefs/leaders-v3-gpt.md`) came back RGB on an off-white field. The
+originals are kept here as `<id>-src.png`; the keyed copies in `../` are what `cast.py` / `build.py` read.
+Each was cut with `cutout.py` (`python3 creative-pack/art/showcase/src/cutout.py <id>-src.png ../<id>.png`),
+plus:
+
+- `deri-bench`: `--holes 123,901 123,793 125,1003` (the gaps between the bench slats) and the soft floor
+  shadow cleared: below y 1290, every keyed (partly transparent) field pixel goes fully clear; the shoes'
+  highlights are opaque and stay.
+- `round-table`: `--holes 295,736 719,736 830,677 193,676` (the floor between the chairs and the table).
+- `ability-icons`: the same floor rule over the whole sheet (the shadows under the table and the bench).
+
+**In the game:** the 9 poses as their own characters (`<leader>-<pose>`, laid into the leader's ref
+coordinates: `cast.POSES`), the 7 objects as 1x props (`cast.REF_PROPS`), the 8 icons as
+`prop_ability_<leader>` + `_d2` (`cast.ABILITY_ICONS`) and Kaia (`cast.KAIA`).

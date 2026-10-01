@@ -360,7 +360,7 @@ def proof_cast(manifest, Z=3, k=None, name="sprites-contact.png"):
     per_row, cell_w, cell_h = 8, 90 * Z, 150 * Z
     rows = -(-len(chars) // per_row)
     W = 180 * Z + 8 * Z + per_row * cell_w
-    Hh = max(320 * Z, rows * cell_h) + 60 * Z
+    Hh = max(320 * Z, rows * cell_h) + 104 * Z                            # the sources row + one wrapped props row
     img = Image.new("RGBA", (W, Hh), (27, 20, 38, 255))
     img.alpha_composite(up(load(manifest["stages"]["balfour"]["sprite"]), 1), (0, 0))
     b = chars.get("bibi")
@@ -373,7 +373,8 @@ def proof_cast(manifest, Z=3, k=None, name="sprites-contact.png"):
         d = c["density"]
         cx = 180 * Z + 8 * Z + (k % per_row) * cell_w + cell_w // 2
         base = (k // per_row) * cell_h + 112 * Z
-        fr = up(_frame(Image.open(os.path.join(D_, c["anims"]["idle"]["texture"])).convert("RGBA"), {**c, **c["anims"]["idle"]}), d)
+        a = c["anims"].get("idle") or next(iter(c["anims"].values()))     # a pose character has only 'pose'
+        fr = up(_frame(Image.open(os.path.join(D_, a["texture"])).convert("RGBA"), {**c, **a}), d)
         img.alpha_composite(fr, (cx - c["anchor"][0] * Z // d, base - c["anchor"][1] * Z // d))   # feet on one baseline
         if "avatar" in c:
             av = up(load(c["avatar"]), 1)
@@ -389,6 +390,8 @@ def proof_cast(manifest, Z=3, k=None, name="sprites-contact.png"):
         x += 6 * Z
     for sid in manifest["props"].values():
         im = up(load(sid), 1)
+        if x + im.width > W:                                               # wrap: the props row outgrew the sheet
+            x, y = 4 * Z, y + 44 * Z
         img.alpha_composite(im, (x, y))
         x += im.width + 4 * Z
     p = os.path.join(PROOFS, name)

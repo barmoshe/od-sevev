@@ -2,6 +2,422 @@
  "artHeight": 96,
  "density": 3,
  "chars": {
+  "bennett-sign": {
+   "frameW": 234,
+   "frameH": 323,
+   "anchor": [
+    117,
+    322
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "file": "bennett-sign_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 156,
+     "frameH": 215,
+     "anchor": [
+      78,
+      214
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "file": "bennett-sign_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "ben-gvir-walkout": {
+   "frameW": 224,
+   "frameH": 317,
+   "anchor": [
+    112,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "file": "ben-gvir-walkout_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 149,
+     "frameH": 211,
+     "anchor": [
+      74,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "file": "ben-gvir-walkout_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "ben-gvir-back": {
+   "frameW": 224,
+   "frameH": 317,
+   "anchor": [
+    112,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "file": "ben-gvir-back_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 149,
+     "frameH": 211,
+     "anchor": [
+      74,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "file": "ben-gvir-back_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "liberman-document": {
+   "frameW": 186,
+   "frameH": 317,
+   "anchor": [
+    93,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "file": "liberman-document_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 124,
+     "frameH": 211,
+     "anchor": [
+      62,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "file": "liberman-document_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "eisenkot-summit": {
+   "frameW": 225,
+   "frameH": 317,
+   "anchor": [
+    112,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "file": "eisenkot-summit_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 150,
+     "frameH": 211,
+     "anchor": [
+      75,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "file": "eisenkot-summit_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "smotrich-budget": {
+   "frameW": 189,
+   "frameH": 317,
+   "anchor": [
+    94,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "file": "smotrich-budget_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 126,
+     "frameH": 211,
+     "anchor": [
+      63,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "file": "smotrich-budget_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "deri-bench": {
+   "frameW": 209,
+   "frameH": 317,
+   "anchor": [
+    104,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "file": "deri-bench_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 139,
+     "frameH": 211,
+     "anchor": [
+      69,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "file": "deri-bench_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "golan-swipe": {
+   "frameW": 153,
+   "frameH": 317,
+   "anchor": [
+    76,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "file": "golan-swipe_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 102,
+     "frameH": 211,
+     "anchor": [
+      51,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "file": "golan-swipe_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "bibi-matchmaker": {
+   "frameW": 244,
+   "frameH": 374,
+   "anchor": [
+    122,
+    373
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "file": "bibi-matchmaker_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 163,
+     "frameH": 250,
+     "anchor": [
+      81,
+      249
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "file": "bibi-matchmaker_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "kaia": {
+   "frameW": 71,
+   "frameH": 78,
+   "anchor": [
+    35,
+    77
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "kaia_idle.png",
+     "frames": 2,
+     "fps": 4,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "happy": {
+     "file": "kaia_happy.png",
+     "frames": 2,
+     "fps": 6,
+     "loop": true,
+     "events": {},
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 47,
+     "frameH": 52,
+     "anchor": [
+      23,
+      51
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "kaia_idle_d2.png",
+       "frames": 2,
+       "fps": 4,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "happy": {
+       "file": "kaia_happy_d2.png",
+       "frames": 2,
+       "fps": 6,
+       "loop": true,
+       "events": {},
+       "density": 2
+      }
+     }
+    }
+   }
+  },
   "herzog": {
    "frameW": 190,
    "frameH": 317,
@@ -7670,6 +8086,121 @@
    "file": "prop_coin3.png",
    "w": 4,
    "h": 5
+  },
+  "podium": {
+   "file": "prop_podium.png",
+   "w": 27,
+   "h": 40
+  },
+  "corridor-bench": {
+   "file": "prop_corridor-bench.png",
+   "w": 31,
+   "h": 26
+  },
+  "cardboard-box": {
+   "file": "prop_cardboard-box.png",
+   "w": 25,
+   "h": 24
+  },
+  "round-table": {
+   "file": "prop_round-table.png",
+   "w": 31,
+   "h": 26
+  },
+  "pledge-scroll": {
+   "file": "prop_pledge-scroll.png",
+   "w": 25,
+   "h": 28
+  },
+  "budget-book": {
+   "file": "prop_budget-book.png",
+   "w": 25,
+   "h": 28
+  },
+  "clause-doc": {
+   "file": "prop_clause-doc.png",
+   "w": 22,
+   "h": 28
+  },
+  "ability_bennett": {
+   "file": "prop_ability_bennett.png",
+   "w": 16,
+   "h": 16
+  },
+  "ability_bennett_d2": {
+   "file": "prop_ability_bennett_d2.png",
+   "w": 32,
+   "h": 32
+  },
+  "ability_bengvir": {
+   "file": "prop_ability_bengvir.png",
+   "w": 16,
+   "h": 16
+  },
+  "ability_bengvir_d2": {
+   "file": "prop_ability_bengvir_d2.png",
+   "w": 32,
+   "h": 32
+  },
+  "ability_liberman": {
+   "file": "prop_ability_liberman.png",
+   "w": 16,
+   "h": 16
+  },
+  "ability_liberman_d2": {
+   "file": "prop_ability_liberman_d2.png",
+   "w": 32,
+   "h": 32
+  },
+  "ability_eisenkot": {
+   "file": "prop_ability_eisenkot.png",
+   "w": 16,
+   "h": 16
+  },
+  "ability_eisenkot_d2": {
+   "file": "prop_ability_eisenkot_d2.png",
+   "w": 32,
+   "h": 32
+  },
+  "ability_smotrich": {
+   "file": "prop_ability_smotrich.png",
+   "w": 16,
+   "h": 16
+  },
+  "ability_smotrich_d2": {
+   "file": "prop_ability_smotrich_d2.png",
+   "w": 32,
+   "h": 32
+  },
+  "ability_deri": {
+   "file": "prop_ability_deri.png",
+   "w": 16,
+   "h": 16
+  },
+  "ability_deri_d2": {
+   "file": "prop_ability_deri_d2.png",
+   "w": 32,
+   "h": 32
+  },
+  "ability_golan": {
+   "file": "prop_ability_golan.png",
+   "w": 16,
+   "h": 16
+  },
+  "ability_golan_d2": {
+   "file": "prop_ability_golan_d2.png",
+   "w": 32,
+   "h": 32
+  },
+  "ability_bibi": {
+   "file": "prop_ability_bibi.png",
+   "w": 16,
+   "h": 16
+  },
+  "ability_bibi_d2": {
+   "file": "prop_ability_bibi_d2.png",
+   "w": 32,
+   "h": 32
   }
  },
  "sources": {
