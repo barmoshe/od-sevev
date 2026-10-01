@@ -5,15 +5,18 @@ extends Node2D
 ## (main._feed_kaia → Events.act("kaia", "feed"): the kaiaBuff tap multiplier) and she trots off.
 ## Ignored until the effect lapses, she nips a minister (Events._tick_active → kaiaNip) and leaves.
 ##
-## PLACEHOLDER ART (2026-10-01): no Kaia sprite exists yet, so she is drawn here from a small pixel
-## map on the art grid (AP logical px per art px). Swap in a SpriteStrip once the 2D Artist delivers
-## a `kaia` character (idle + happy); the mark, the hit box and the states stay.
+## The art (leaders v3 D): the `kaia` character in sprites.json (the GPT refs kaia / kaia-happy,
+## 24 art px tall): `idle` wags her tail, `happy` holds the cucumber. Her hit box is the strip's rect
+## grown by HIT_PAD. Without that character (an older import) the small pixel map below stands in
+## (AP logical px per art px, the HIT box); the mark and the states are the same either way.
 
+const CHAR := "kaia"
 const MARK_ART := Vector2(58, 221)        # front-left, between the left crowd and the leader
 const AP := 4.0
 const WALK_MS := 420.0
 const OFF_X := -420.0
 const HIT := Vector2(112, 96)
+const HIT_PAD := 8.0                      # logical px around the strip's frame
 
 ## 16 x 9 art px, facing left, feet on the last row. K outline, W coat, B brown patch, N nose, E eye.
 const MAP := [
@@ -33,6 +36,7 @@ const COLORS := {"K": Color("#1d1a2b"), "W": Color("#f3efe6"), "B": Color("#a870
 const CUKE := Color("#3f9a3a")
 const CUKE_HI := Color("#8fd37a")
 
+var strip: SpriteStrip                    # null: the drawn map stands in
 var reduced_motion := false
 var state := ""                           # "" | enter | wait | fed | exit
 var _t := 0.0
@@ -49,6 +53,8 @@ static func live(s: GameState) -> bool:
 
 
 func _ready() -> void:
+	if SpriteStrip.has_char(CHAR):
+		strip = SpriteStrip.make(self, CHAR, Vector2.ZERO)
 	visible = false
 	position = mark()
 
@@ -61,6 +67,9 @@ func tappable() -> bool:
 func hit_rect() -> Rect2:
 	if not tappable():
 		return Rect2()
+	if strip != null:
+		var r := strip.rect()
+		return Rect2(position + r.position, r.size).grow(HIT_PAD)
 	return Rect2(position.x - HIT.x / 2.0, position.y - HIT.y, HIT.x, HIT.y)
 
 
@@ -73,6 +82,8 @@ func feed() -> void:
 func _go(st: String) -> void:
 	state = st
 	_t = 0.0
+	if strip != null:
+		strip.play("happy" if st == "fed" and strip.has_anim("happy") else "idle", st == "fed")
 	queue_redraw()
 
 
@@ -110,11 +121,14 @@ func update_view(dt_ms: float, s: GameState, on_stage: bool) -> void:
 			if k2 >= 1.0:
 				state = ""
 				visible = false
+	if strip != null:
+		strip.paused = reduced_motion   # reduced motion: no wag (the drawn map holds frame 0 too)
+		strip.update_view(dt_ms)
 	queue_redraw()
 
 
 func _draw() -> void:
-	if not visible:
+	if not visible or strip != null:
 		return
 	var h := MAP.size()
 	var w := 0
