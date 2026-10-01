@@ -1,7 +1,6 @@
 # Leaders v3 GPT runs (2026-10-01)
 
-Generated in Bar's ChatGPT through Chrome from `leaders-v3-gpt.md`. Rows marked downloaded are in `refs/`; for the rest,
-Bar is at the Mac, open each chat, download the image and save it to `creative-pack/art/refs/<file>`.
+Generated in Bar's ChatGPT through Chrome from `leaders-v3-gpt.md`. Every row is downloaded into `refs/`.
 
 | # | File | Chat | Verdict |
 |---|---|---|---|
@@ -21,8 +20,8 @@ Bar is at the Mac, open each chat, download the image and save it to `creative-p
 | B5 | `pledge-scroll.png` | https://chatgpt.com/c/6abea9e8-222c-83ed-8616-cfb76a5d3f34 | ok, downloaded (after a ChatGPT load error) |
 | B6 | `budget-book.png` | https://chatgpt.com/c/6abeaa41-c52c-83ed-9083-bcfe94ec7ae9 | ok, downloaded |
 
-| B7 | `clause-doc.png` | https://chatgpt.com/c/6abeabd8-7878-83ed-9991-25f095a69bd3 | pending |
+| B7 | `clause-doc.png` | https://chatgpt.com/c/6abeabd8-7878-83ed-9991-25f095a69bd3 | ok, downloaded |
 | C | `ability-icons.png` (4×2 grid) | https://chatgpt.com/c/6abeabd8-97bc-83eb-a259-dee3bbb0e74e | ok, all 8 in brief order (1254×1254), downloaded |
-| D | `kaia.png`, then `kaia-happy.png` | https://chatgpt.com/c/6abeabd9-516c-83eb-bfae-9da644cf9af2 | kaia ok, downloaded; kaia-happy pending |
+| D | `kaia.png`, then `kaia-happy.png` | https://chatgpt.com/c/6abeabd9-516c-83eb-bfae-9da644cf9af2 | both ok (same dog, cucumber in the happy one), downloaded |
 
-**Downloaded 2026-10-01 into `refs/`:** A1–A9, B1–B6, C, kaia. Not rigged yet.
+**Downloaded 2026-10-01 into `refs/`:** everything in the brief: A1–A9, B1–B7, C, kaia, kaia-happy. Not rigged yet. Skipped (optional in the brief): `mk-returner.png` and the picker key art.

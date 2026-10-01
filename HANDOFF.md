@@ -37,11 +37,11 @@ Tests 484/484, content lint 0, gen_strings 0, lint_text 0. The bench (L1) is wit
   - **Bench:** `PacingSim._play_ability` plays the abilities.
 
 ## Open, in order
-1. **GPT art (in progress, 2026-10-01):** the brief lists second poses A1–A9, props B1–B7, the 8
+1. **GPT art (generated 2026-10-01, rigging open):** the brief lists second poses A1–A9, props B1–B7, the 8
    icons and Kaia. The agent generates them in Bar's ChatGPT via Chrome; every chat, its verdict and
    whether it is downloaded is in `creative-pack/art/briefs/leaders-v3-gpt-runs.md`.
-   - **In `refs/`:** A1–A9, B1–B6, the C icon grid (`ability-icons.png`) and `kaia.png`. In ChatGPT
-     now: B7 (its chat keeps failing to load) and `kaia-happy.png`.
+   - **All in `refs/`:** A1–A9, B1–B7, the C icon grid (`ability-icons.png`), `kaia.png` and
+     `kaia-happy.png`. Skipped as optional: `mk-returner.png` and the picker key art.
    - Golan's swipe pose came out smaller in frame: check it against `golan.png` when rigging.
    - Downloading: use ChatGPT's own Download button in the image viewer. Chrome holds a second
      script-triggered download until it is allowed (Bar allowed multiple downloads on 2026-10-01).
