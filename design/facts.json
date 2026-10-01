@@ -193,7 +193,8 @@
     "court.pardon.copy",
     "events.pardon",
     "leaderSelect.partnerProfiles.bibi.copy.card",
-    "leaders.bibi.rule"
+    "leaders.bibi.rule",
+    "story"
    ]
   },
   {
@@ -217,7 +218,8 @@
     "court.pardon.copy.stampsSrc.6",
     "leaderSelect.partnerProfiles.bibi",
     "leaderSelect.partnerProfiles.bibi.copy.card",
-    "leaderSelect.rivalTicker.r10"
+    "leaderSelect.rivalTicker.r10",
+    "story"
    ]
   },
   {
@@ -474,6 +476,7 @@
     "ambientHeadlinesV2.list.g22",
     "leaders.smotrich.kit.sources.t8",
     "leaders.smotrich.kit.sources.t8.firstOwned",
+    "leaders.smotrich.kit.story",
     "leaders.smotrich.kit.ticker.ts03",
     "leaders.smotrich.pick"
    ],
@@ -1280,6 +1283,7 @@
    "usedIn": [
     "leaderSelect.partnerProfiles.liberman",
     "leaders.liberman.kit.spins[6]",
+    "leaders.liberman.kit.story",
     "leaders.liberman.kit.ticker.tl05",
     "leaders.liberman.pick"
    ]
@@ -1793,6 +1797,7 @@
    "usedIn": [
     "leaderSelect.partnerProfiles.lapid",
     "leaderSelect.partnerProfiles.lapid.copy.card",
+    "leaders.bennett.kit.story",
     "leaders.eisenkot.coalition.lineup.lapid",
     "leaders.eisenkot.kit.ticker.te14"
    ],
@@ -2165,7 +2170,8 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "leaders.liberman.kit.sources.t5",
-    "leaders.liberman.kit.sources.t5.firstOwned"
+    "leaders.liberman.kit.sources.t5.firstOwned",
+    "leaders.liberman.kit.story"
    ],
    "ref": 100
   },
@@ -2201,6 +2207,7 @@
    "verifiedAt": "2026-10-01",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaders.bengvir.kit.story",
     "leaders.bengvir.kit.ticker.tg01",
     "partners.bengvir"
    ],
@@ -2491,6 +2498,7 @@
    "verifiedAt": "2026-10-01",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaders.golan.kit.story",
     "leaders.golan.kit.ticker.ty05"
    ],
    "ref": 117
@@ -2851,6 +2859,265 @@
     "leaders.golan.kit.ticker.ty16"
    ],
    "ref": 136
+  },
+  {
+   "id": "likud-primaries-2026",
+   "label": "Q",
+   "text": "In the August 2026 Likud primaries, new party rules let Netanyahu reserve 8 of the top 30 slots for his own picks.",
+   "aboutHe": "בפריימריז של הליכוד באוגוסט 2026, לפי כללים חדשים, שמר בנימין נתניהו לבחירתו 8 מקומות מתוך 30 הראשונים ברשימה.",
+   "notUsed": false,
+   "outlet": "Times of Israel",
+   "url": "https://www.timesofisrael.com/likud-primary-marks-win-for-netanyahu-bid-to-reshape-sinking-party-and-win-back-voters/",
+   "date": "2026-08",
+   "gameRendering": "story beat: the reserved slots, as a hat joke. No poll, no seat count.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "ref": 137,
+   "usedIn": [
+    "story"
+   ]
+  },
+  {
+   "id": "bennett-zionist-only",
+   "label": "Q",
+   "text": "Naftali Bennett pledged that his next coalition would include Zionist parties only.",
+   "aboutHe": "נפתלי בנט התחייב שהקואליציה הבאה שלו תכלול רק מפלגות ציוניות.",
+   "notUsed": false,
+   "outlet": "Jerusalem Post",
+   "url": "https://www.jpost.com/israel-news/politics-and-diplomacy/article-894194",
+   "date": "2026",
+   "gameRendering": "the pledge as one more signed pledge. Never which parties are out or why.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "_guardrail": "Never name the excluded lists or their voters; the joke is the pen.",
+   "ref": 138,
+   "usedIn": [
+    "leaders.bennett.kit.story"
+   ]
+  },
+  {
+   "id": "bennett-eisenkot-not-now",
+   "label": "Q",
+   "text": "Bennett and Eisenkot met to discuss a merger in early September 2026 and decided not to merge for now.",
+   "aboutHe": "בתחילת ספטמבר 2026 נפגשו נפתלי בנט וגדי אייזנקוט לשיחה על איחוד, והחליטו שלא כרגע.",
+   "notUsed": false,
+   "outlet": "Times of Israel (liveblog)",
+   "url": "https://www.timesofisrael.com/liveblog-september-04-2026/",
+   "date": "2026-09-04",
+   "gameRendering": "the meeting and its outcome, 'not for now'. No polling claim.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "ref": 139,
+   "usedIn": [
+    "leaders.bennett.kit.story",
+    "leaders.eisenkot.kit.story"
+   ]
+  },
+  {
+   "id": "bengvir-hcj-framework",
+   "label": "Q",
+   "text": "At an April 2026 hearing on petitions over police independence, the High Court ordered Ben Gvir and the Attorney General to agree a framework of principles by 3 May; in July the AG told the court the talks had failed.",
+   "aboutHe": "באפריל 2026 הורה בג״ץ לאיתמר בן גביר וליועמ״שית לגבש מסגרת עקרונות עד 3 במאי, וביולי הודיעה היועמ״שית לבית המשפט שהמגעים נכשלו.",
+   "notUsed": false,
+   "outlet": "Israel Democracy Institute; Haaretz",
+   "url": "https://en.idi.org.il/articles/63988",
+   "date": "2026-04-15",
+   "gameRendering": "the deadline and its failure only. Never the police cases themselves.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "url2": "https://www.haaretz.com/israel-news/israel-politics/2026-07-20/ty-article/.premium/ag-to-top-court-intervene-in-ben-gvirs-violation-of-police-independence/0000019f-7e98-d7ce-a7df-7ebb661f0002",
+   "ref": 140,
+   "usedIn": [
+    "leaders.bengvir.kit.story"
+   ]
+  },
+  {
+   "id": "bengvir-resign-return",
+   "label": "Q",
+   "text": "Ben Gvir's party resigned from the government in January 2025 and rejoined it in March 2025.",
+   "aboutHe": "מפלגתו של איתמר בן גביר פרשה מהממשלה בינואר 2025 וחזרה אליה במרץ 2025.",
+   "notUsed": false,
+   "outlet": "JNS",
+   "url": "https://www.jns.org/ben-gvirs-otzma-yehudit-rejoins-israeli-govt/",
+   "date": "2025-03",
+   "gameRendering": "the pattern only: out, then back. Never the reason (a red-line topic).",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "_guardrail": "The cause of the 2025 resignation is a red line: the game never names it.",
+   "ref": 141,
+   "usedIn": [
+    "leaders.bengvir.kit.story"
+   ]
+  },
+  {
+   "id": "liberman-next-pm",
+   "label": "Q",
+   "text": "Yisrael Beytenu unveiled its 2026 slate presenting Avigdor Liberman as the next prime minister.",
+   "aboutHe": "בספטמבר 2026 הציגה ישראל ביתנו את רשימתה, ובראשה אביגדור ליברמן כראש הממשלה הבא.",
+   "notUsed": false,
+   "outlet": "Jerusalem Post",
+   "url": "https://www.jpost.com/israel-election-2026/article-907744",
+   "date": "2026-09",
+   "gameRendering": "the slate's billing only.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "ref": 142,
+   "usedIn": [
+    "leaders.liberman.kit.story"
+   ]
+  },
+  {
+   "id": "liberman-no-yashar-merger",
+   "label": "Q",
+   "text": "Liberman said Yisrael Beytenu had no immediate plans to merge with Eisenkot's Yashar.",
+   "aboutHe": "אביגדור ליברמן אמר שאין לישראל ביתנו תוכניות מיידיות להתאחד עם ישר של אייזנקוט.",
+   "notUsed": false,
+   "outlet": "Times of Israel (liveblog)",
+   "url": "https://www.timesofisrael.com/liveblog_entry/liberman-no-immediate-plans-for-yisrael-beytenu-to-merge-with-eisenkots-yashar-party/",
+   "date": "2026",
+   "gameRendering": "reported, no quote marks.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "ref": 143,
+   "usedIn": [
+    "leaders.liberman.kit.story"
+   ]
+  },
+  {
+   "id": "eisenkot-invites-opposition",
+   "label": "Q",
+   "text": "Eisenkot invited most opposition party leaders to meet and coordinate a path to a majority.",
+   "aboutHe": "גדי אייזנקוט הזמין את רוב ראשי מפלגות האופוזיציה לפגישה לתיאום הדרך לרוב.",
+   "notUsed": false,
+   "outlet": "Times of Israel",
+   "url": "https://www.timesofisrael.com/eisenkot-invites-most-opposition-chiefs-to-meet-coordinate-path-to-zionist-majority-victory/",
+   "date": "2026",
+   "gameRendering": "the invitation, the round table. Nothing about his past roles.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "ref": 144,
+   "usedIn": [
+    "leaders.eisenkot.kit.story"
+   ]
+  },
+  {
+   "id": "lists-filed-2026",
+   "label": "Q",
+   "text": "By the 8-9 September 2026 deadline, 38 lists were submitted for the October 2026 election; Yashar ran on its own.",
+   "aboutHe": "עד 9 בספטמבר 2026 הוגשו 38 רשימות לבחירות של אוקטובר 2026, ומפלגת ישר רצה לבדה.",
+   "notUsed": false,
+   "outlet": "Times of Israel",
+   "url": "https://www.timesofisrael.com/israels-election-takes-shape-as-38-parties-submit-slates-from-likud-to-joint-list/",
+   "date": "2026-09-09",
+   "gameRendering": "the list count and running alone. No polls.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "ref": 145,
+   "usedIn": [
+    "leaders.eisenkot.kit.story"
+   ]
+  },
+  {
+   "id": "budget-2026-deadline",
+   "label": "Q",
+   "text": "The Knesset passed the 2026 budget, 62-55, hours before the legal deadline that would have dissolved it automatically.",
+   "aboutHe": "בסוף מרץ 2026 אישרה הכנסת את תקציב 2026, שעות לפני המועד שבו הייתה מתפזרת אוטומטית.",
+   "notUsed": false,
+   "outlet": "Times of Israel",
+   "url": "https://www.timesofisrael.com/knesset-approves-2026-budget-israels-largest-ever-sending-billions-to-haredi-institutions/",
+   "date": "2026-03",
+   "gameRendering": "the last-minute timing and the size only. Never who got which money.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "_guardrail": "The coalition-funds angle names a community: out. The joke is the clock.",
+   "ref": 146,
+   "usedIn": [
+    "leaders.smotrich.kit.story"
+   ]
+  },
+  {
+   "id": "smotrich-winter",
+   "label": "Q",
+   "text": "Smotrich courted Ofer Winter's new party for a joint run; Winter ran alone and a public spat followed.",
+   "aboutHe": "בספטמבר 2026 ניסה בצלאל סמוטריץ׳ לצרף את מפלגתו החדשה של עופר וינטר לריצה משותפת, ווינטר רץ לבד.",
+   "notUsed": false,
+   "outlet": "Arutz Sheva",
+   "url": "https://www.israelnationalnews.com/news/432850",
+   "date": "2026-09",
+   "gameRendering": "the courtship and the no. Nothing about Winter's past roles.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "ref": 147,
+   "usedIn": [
+    "leaders.smotrich.kit.story"
+   ]
+  },
+  {
+   "id": "deri-law-2",
+   "label": "Q",
+   "text": "A bill dubbed 'Deri Law 2', letting a minister serve under indictment, was approved by the ministerial committee despite the Attorney General's objection.",
+   "aboutHe": "ב־2026 אישרה ועדת השרים לחקיקה הצעת חוק שכונתה חוק דרעי 2, שתאפשר לשר לכהן גם תחת כתב אישום, למרות התנגדות היועמ״שית.",
+   "notUsed": false,
+   "outlet": "ynet",
+   "url": "https://www.ynet.co.il/news/article/r1exkkips",
+   "date": "2026",
+   "gameRendering": "the nickname and the committee vote only.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "ref": 148,
+   "usedIn": [
+    "leaders.deri.kit.story"
+   ]
+  },
+  {
+   "id": "shas-half-in",
+   "label": "Q",
+   "text": "In July 2025 Shas ministers resigned from the government but the party stayed in the coalition; one minister briefly retracted his resignation to appoint a ministry director-general.",
+   "aboutHe": "ביולי 2025 התפטרו שרי ש״ס מהממשלה אבל המפלגה נשארה בקואליציה, ושר אחד ביטל זמנית את התפטרותו כדי למנות מנכ״ל.",
+   "notUsed": false,
+   "outlet": "Times of Israel",
+   "url": "https://www.timesofisrael.com/shas-bolts-government-over-haredi-enlistment-remains-part-of-pms-coalition/",
+   "date": "2025-07",
+   "gameRendering": "out of the cabinet, in the coalition, and the one-day retraction. Never the reason.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "url2": "https://www.timesofisrael.com/liveblog_entry/shas-minister-temporarily-retracts-his-resignation-to-appoint-ministry-director/",
+   "_guardrail": "The draft law is a red line: the game never says why they resigned, and never jokes about the community.",
+   "ref": 149,
+   "usedIn": [
+    "leaders.deri.kit.story"
+   ]
+  },
+  {
+   "id": "golan-big-merger",
+   "label": "Q",
+   "text": "Yair Golan urged a large center-left merger to oust Netanyahu; Lapid was not interested.",
+   "aboutHe": "יאיר גולן קרא לאיחוד גדול של מפלגות המרכז־שמאל, ויאיר לפיד לא התעניין.",
+   "notUsed": false,
+   "outlet": "Times of Israel",
+   "url": "https://www.timesofisrael.com/yair-golan-urges-center-left-merger-for-ousting-netanyahu-but-lapid-uninterested/",
+   "date": "2026",
+   "gameRendering": "the proposal and the shrug.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "ref": 150,
+   "usedIn": [
+    "leaders.golan.kit.story"
+   ]
   }
  ],
  "deliberatelyOut": [

@@ -910,10 +910,15 @@ static func spin_skin(id: String, upgrade_id: String) -> Dictionary:
 static func story(id: String) -> Dictionary:
 	var shared: Dictionary = Content.data().get("story", {}) if Content.data().get("story") is Dictionary else {}
 	if is_default(id):
-		return {"titles": shared.get("titles", []), "beats": shared.get("beats", []), "encore": shared.get("encore", [])}
+		return {"titles": shared.get("titles", []), "beats": shared.get("beats", []), "encore": shared.get("encore", []),
+			"when": shared.get("when", {}) if shared.get("when") is Dictionary else {}}
 	var k: Variant = kit(id).get("story")
 	var st: Dictionary = k if k is Dictionary else {}
-	return {"titles": st.get("titles", []), "beats": st.get("beats", []), "encore": shared.get("encore", [])}
+	# a leader's own encore (story v3) over the shared one
+	var enc: Variant = st.get("encore")
+	return {"titles": st.get("titles", []), "beats": st.get("beats", []),
+		"encore": enc if enc is Array and not (enc as Array).is_empty() else shared.get("encore", []),
+		"when": st.get("when", {}) if st.get("when") is Dictionary else {}}
 
 
 ## The leak's screenshot in an opposition leader's round (leaderSelect.leakRight), else {} (the

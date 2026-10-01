@@ -42,6 +42,10 @@ var _rabbit: Sprite2D                 # prop_rabbit, behind the hat
 var _rabbit_clip: Control             # the hat's opening: the rabbit shows only above it
 var _smears: Array[CourtSmear] = []
 var _mark := Vector2.ZERO             # the hat's mouth on idle.f0 (stage coordinates), the hat's mark
+## What takes the mark while the leader is off (LeaderUi.stage_skin): "court" = Bibi's hat and rabbit;
+## "podium" / "bench" = a PressDesk on the feet, riding the hat's track (Bar, 2026-10-01: every leader).
+var court_skin := "court"
+var _desk: PressDesk
 
 var _state := "idle"          # idle | pressed | crit | locked
 var _aura := "plain"          # plain | frenzy | tapFrenzy
@@ -148,6 +152,7 @@ func set_leader(slug: String, kit: Dictionary) -> void:
 	_prop_info = {}
 	_prop_frame = 0
 	hero = SpriteStrip.make(body, slug, L.magician_feet())
+	court_skin = LeaderUi.stage_skin_for_art(slug)
 	walk.home()
 	var on := hero != null
 	for n: CanvasItem in [halo, sprite, flash, fidget]:
@@ -181,9 +186,9 @@ func set_leader(slug: String, kit: Dictionary) -> void:
 
 ## The court-day nodes (the Animator's CourtMotion: the hat on the mark, the rabbit, the smears)
 ## belong to one figure: a leader swap frees them and builds them for the new strip. The court
-## only ever runs in the court's round (wants_court: Leaders.has_court).
+## runs in every round (wants_court): Bibi's hat, or the press desk (court_skin).
 func _rebuild_court() -> void:
-	for n: Node in [_rabbit_clip, _hat_ghost, _hat]:
+	for n: Node in [_rabbit_clip, _hat_ghost, _hat, _desk]:
 		if n != null and is_instance_valid(n):
 			n.get_parent().remove_child(n)
 			n.queue_free()
@@ -195,6 +200,7 @@ func _rebuild_court() -> void:
 	_rabbit_clip = null
 	_hat_ghost = null
 	_hat = null
+	_desk = null
 	_rabbit = null
 	_court_pending = false
 	_held_frame = -1
@@ -550,12 +556,13 @@ func emphasize(ms: float) -> void:
 	_hover_tw.tween_property(self, "_hover_alpha", 0.0, q)
 
 
-# ------------------------------------------------------------------ court day (Bibi only)
+# ------------------------------------------------------------------ the hazard day (every leader)
 
-## Is this state's court day on the stage now? Bibi's round only (Leaders.has_court): every other
-## leader's hazard is the press day, and he or she never leaves the stage.
+## Is this state's hazard day on the stage now? Bibi's court day, or any other leader's press day
+## (Bar, 2026-10-01: "not only Bibi"): the leader zips off and the mark holds the hat (court_skin
+## "court") or a PressDesk (podium / bench) until the day ends.
 static func wants_court(s: GameState) -> bool:
-	return s != null and Investigation.active() and Investigation.phase(s) == "court" and Leaders.has_court()
+	return s != null and Investigation.active() and Investigation.phase(s) == "court"
 
 
 ## Every frame from the controller: `want` = the court day is running (wants_court, main mode);
@@ -712,6 +719,10 @@ func _build_court() -> void:
 	_hat_ghost = Ui.img(body, Vector2.ZERO, hat_id, 0, 4)
 	_hat_ghost.modulate.a = 0.4
 	_hat = Ui.img(body, Vector2.ZERO, hat_id, 0, 4)
+	_desk = PressDesk.new()
+	_desk.set_kind(court_skin)
+	_desk.visible = false
+	body.add_child(_desk)
 	for i in 2:
 		var g := CourtSmear.new()
 		g.strip = hero
@@ -757,7 +768,8 @@ func _update_court(dt_ms: float) -> void:
 			"coins":
 				_court_fx("coins", _hat_mouth(), int(e.get("n", 1)))
 			"rabbit":
-				_court_fx("rabbit", _hat_mouth(), 0)
+				if court_skin == "court":
+					_court_fx("rabbit", _hat_mouth(), 0)
 	_apply_court_pose()
 
 
@@ -842,6 +854,22 @@ func _apply_court_pose() -> void:
 	_rabbit_clip.size = Vector2(rsz.x, rsz.y + CourtMotion.CRIT_AP * CourtMotion.AP)
 	_rabbit.position = Vector2(0.0, _rabbit_clip.size.y - up).snapped(Vector2(CourtMotion.AP, CourtMotion.AP))
 	_rabbit.modulate.a = court.hat_alpha()
+	if court_skin != "court":
+		# a press day: the desk rides the hat's x track on the feet (zip in, hush wiggle, zip out); no hat,
+		# no rabbit, no bob
+		_desk.visible = _hat.visible
+		_desk.position = (L.magician_feet() + Vector2(float(court.hat_dx_ap()) * CourtMotion.AP, 0.0)).snapped(Vector2(CourtMotion.AP, CourtMotion.AP))
+		_desk.modulate.a = court.hat_alpha()
+		_hat.visible = false
+		_hat_ghost.visible = false
+		_rabbit_clip.visible = false
+	else:
+		_desk.visible = false
+
+
+## The press desk on the mark (tests): null in Bibi's round or before the figure is built.
+func desk_node() -> PressDesk:
+	return _desk
 
 
 ## One after-image of the Magician's current frame (§2 `smear: on`): the strip's own texture region,

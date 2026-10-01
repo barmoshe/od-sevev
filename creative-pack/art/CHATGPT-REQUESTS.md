@@ -1,5 +1,8 @@
 # Images to generate in ChatGPT (as of 2026-09-30)
 
+> **New, 2026-10-01: leaders v3.** Second poses, stage props and ability icons for every leader are in
+> [`briefs/leaders-v3-gpt.md`](briefs/leaders-v3-gpt.md). Start there.
+
 Today these spots show a silhouette or a chunky 1× drawing next to the crisp cast. Each image
 becomes a reference in `creative-pack/art/refs/`. The TA then adds landmarks in
 `creative-pack/art/showcase/src/cast.py` and renders it down to pixel art at d3/d2 through the

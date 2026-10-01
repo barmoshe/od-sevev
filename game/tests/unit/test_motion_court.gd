@@ -255,7 +255,9 @@ func test_bibis_court_day_on_the_stage() -> void:
 	runner.check(not bb.court.in_court() and bb.hero.visible and bb.hero.position == feet and not hat.visible, "back on his mark, the hat gone")
 
 
-func test_only_bibi_goes_to_court() -> void:
+## Bar, 2026-10-01 ("not only Bibi"): every leader leaves the stage on the hazard day. Bibi leaves
+## the hat (court skin); Bennett's press day leaves a podium (LeaderUi.stage_skin).
+func test_every_leader_leaves_on_the_hazard_day() -> void:
 	var s := GameState.fresh()
 	Leaders.set_salt(s, 3)
 	var r := Politics.install(s, "bennett")
@@ -263,7 +265,9 @@ func test_only_bibi_goes_to_court() -> void:
 		runner.check(true, "no leader select in this content")
 		return
 	s.investigation["phase"] = "court"
-	runner.check(not BigBanana.wants_court(s), "Bennett's hazard is the press day: he never leaves the stage")
+	runner.check(BigBanana.wants_court(s), "Bennett's press day takes him off the stage too")
+	runner.check(LeaderUi.stage_skin("bennett") == "podium" and LeaderUi.stage_skin("deri") == "bench" and LeaderUi.stage_skin("bibi") == "court",
+		"what holds the mark: Bibi's hat, a podium, Deri's bench")
 	var e := CourtEcho.level(true, 100.0, "court")
 	runner.check(e == "open", "the echo's level is data; the controller gates it on Leaders.has_court (%s)" % e)
 	var s2 := GameState.fresh()

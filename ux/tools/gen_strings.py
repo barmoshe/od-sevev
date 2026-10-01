@@ -1040,6 +1040,8 @@ if os.path.exists(CONTENT):
             if isinstance(hz, dict):
                 lint_content(f"leaders.{lid}.kit.hazard.postponeVerb", hz.get("postponeVerb", ""), "court.btn", True); nl += 1
                 lint_content(f"leaders.{lid}.kit.hazard.postponePrefix", hz.get("postponePrefix", ""), "court.body"); nl += 1
+                if hz.get("tapPaused"):
+                    lint_content(f"leaders.{lid}.kit.hazard.tapPaused", hz["tapPaused"], "stage.toast"); nl += 1
             sq = (k.get("dubi") or {}).get("squawks") if isinstance(k.get("dubi"), dict) else None
             for sk, sv in (sq or {}).items():
                 lint_content(f"leaders.{lid}.kit.dubi.squawks.{sk}", sv, "stage.toast", True); nl += 1

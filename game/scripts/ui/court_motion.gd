@@ -8,8 +8,8 @@ extends RefCounted
 ## rabbit, land). Every offset is in whole ART px (ap) of the stage (×4 logical), snapped after easing,
 ## so nothing lands between device px at any integer scale.
 ##
-## Bibi only: the caller asks `CourtMotion.allowed(leader)` (Leaders.has_court()); every other leader's
-## hazard is the press day, and they never leave the stage.
+## Every leader (Bar, 2026-10-01): Bibi's court day leaves the hat on the mark; every other leader's
+## press day runs the same timeline and BigBanana draws a PressDesk on the hat's track instead.
 ##
 ## Reduced motion (motion/README rule 5) changes parameters, never the routing: the exit is a 150 ms
 ## fade of the body, then the hat fades in on the mark (150 ms); the return is the hat fading out,

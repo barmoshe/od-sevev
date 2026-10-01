@@ -297,4 +297,42 @@ func test_no_taps_while_bibi_testifies() -> void:
 
 
 func test_no_taps_on_another_leaders_press_day() -> void:
-	await _hazard_day_blocks_taps("bennett", Strings.gendered("PRESS_TAP_PAUSED", "m", {"short": str(Leaders.leader("bennett")["short"])}))
+	# each leader's own line (kit.hazard.tapPaused), not the generic press twin
+	await _hazard_day_blocks_taps("bennett", str(Leaders.hazard("bennett")["tapPaused"]))
+
+
+## Bar, 2026-10-01 ("not only Bibi"): every leader leaves the stage on the hazard day. Bibi leaves the
+## hat on his mark; everyone else leaves a PressDesk (Deri: the corridor bench). A tap during the day
+## wiggles what is on the mark and never plays the leader's tap strip.
+func test_every_leader_leaves_the_stage_on_the_hazard_day() -> void:
+	var base := dir
+	for lid: String in Leaders.pickable():
+		# a fresh game per leader (its own save dir), so every round starts from the picker
+		teardown()
+		dir = "%s_%s" % [base, lid]
+		DirAccess.make_dir_recursive_absolute(dir)
+		await _boot()
+		runner.check(_start_round(lid), "%s's round starts" % lid)
+		var s: GameState = m.state
+		s.investigation["phase"] = "court"
+		s.investigation["leftSec"] = 30.0
+		m.d = Economy.derive(s)
+		for i in 180:
+			m._process(0.016)
+		var skin := LeaderUi.stage_skin(lid)
+		runner.check(m.bb.court.in_court(), "%s: off the stage on the hazard day" % lid)
+		runner.check(m.bb.court_skin == skin, "%s: the mark holds %s (got %s)" % [lid, skin, m.bb.court_skin])
+		var desk: PressDesk = m.bb.desk_node()
+		if skin == "court":
+			runner.check(m.bb.hat_node().visible and not desk.visible, "%s: the hat on the mark, no desk" % lid)
+		else:
+			runner.check(desk.visible and desk.kind == skin and not m.bb.hat_node().visible, "%s: the %s on the mark, no hat" % [lid, skin])
+		m._last_tap_ms = -1.0e9
+		_tap_leader()
+		runner.check(m.bb.hero.anim != "tap" and m.bb.court.hat == "hatHush", "%s: a tap hushes the mark, the strip stays still" % lid)
+		s.investigation["phase"] = "idle"
+		m.d = Economy.derive(s)
+		for i in 120:
+			m._process(0.016)
+		runner.check(not m.bb.court.in_court(), "%s: back on the mark when the day ends" % lid)
+		runner.check(lid != "deri" or skin == "bench", "deri sits on the corridor bench")

@@ -47,6 +47,40 @@ static func court() -> bool:
 	return Leaders.has_court()
 
 
+## What takes a leader's mark while he or she is off on the hazard day (Bar, 2026-10-01: every leader
+## leaves the stage, not only Bibi): "court" (Bibi's hat), else kit.hazard.stage ("podium" | "bench").
+static func stage_skin(leader_id: String = "") -> String:
+	var lid := leader_id if leader_id != "" else id()
+	if Leaders.is_default(lid):
+		return "court"
+	var h := Leaders.hazard(lid)
+	if str(h.get("skin", "press")) == "court":
+		return "court"
+	return "bench" if str(h.get("stage", "podium")) == "bench" else "podium"
+
+
+## stage_skin for a manifest slug (BigBanana knows the figure, not the leader): the round's leader
+## when the slug is theirs, else the first playable leader drawn with it.
+static func stage_skin_for_art(slug: String) -> String:
+	if slug == art():
+		return stage_skin()
+	for lid: String in Leaders.pickable():
+		if art(lid) == slug:
+			return stage_skin(lid)
+	return "court" if slug == "bibi" else "podium"
+
+
+## The toast on a paused tap (courtPausesTaps): Bibi's court line, else the leader's own
+## kit.hazard.tapPaused, else the generic press line by gender.
+static func tap_paused_line() -> String:
+	if court():
+		return Strings.s("COURT_TAP_PAUSED")
+	var own := str(Leaders.hazard(id()).get("tapPaused", ""))
+	if own != "":
+		return own
+	return Strings.gendered("PRESS_TAP_PAUSED", g(), {"short": short()})
+
+
 ## The manifest slug of a leader's figure (the round's by default): leaders[].art, then the
 ## content's hero.char, then "bibi".
 static func art(leader_id: String = "") -> String:

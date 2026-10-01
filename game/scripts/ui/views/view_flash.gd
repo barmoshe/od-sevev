@@ -60,6 +60,9 @@ const C_TITLE := Color("#f7f4ec")
 const C_LOWER := Color("#d3d6df")    # silver on the ticker bar
 
 var evolutions := 1
+## The card main already booked (Story.flash at the election, story v3): the view shows it as is.
+## Empty = resolve it here (tests, dev, an old caller).
+var card: Dictionary = {}
 var archive := false
 ## The audio events this card sent, [[name, arg], …] (tests read it).
 var sent: Array = []
@@ -176,7 +179,7 @@ func build() -> FlashCard:
 	line_texts = PackedStringArray()
 	# leader select (spec §5.10, §10.1): a live flash plays the beat of the leader just played, by
 	# their own election count (Story.flash); the archive and the default content keep the round's
-	var lead := Story.flash(s) if (s != null and not archive and Leaders.active()) else {}
+	var lead := card if not card.is_empty() else (Story.flash(s) if (s != null and not archive and Leaders.active()) else {})
 	if not lead.is_empty() and int(lead["n"]) < 1:
 		lead = {}   # no election booked to that leader (a staged state): the round's beat
 	var beat: PackedStringArray = PackedStringArray(lead["lines"]) if not lead.is_empty() else Story.beat_for(evolutions)

@@ -380,8 +380,11 @@ func test_story_follows_the_leader_just_played() -> void:
 	var beats: Array = Leaders.kit("bennett")["story"]["beats"]
 	runner.check(f["leader"] == "bennett" and f["n"] == 1 and Array(f["lines"]) == beats[0] and f["id"] == "beat_bennett_1", "Bennett's first beat by HIS election count")
 	runner.check(str(f["title"]) == str(Leaders.kit("bennett")["story"]["titles"][0]), "his title")
+	# story v3: the next unseen beat whose `when` holds; with every beat seen, his own encore
+	for n in beats.size():
+		s.story_seen.append("beat_bennett_%d" % (n + 1))
 	s.leaders["bennett"]["elections"] = float(beats.size() + 1)
-	runner.check(Array(Story.flash(s)["lines"]) == Array(Content.data()["story"]["encore"]), "after his %d beats: the shared encore" % beats.size())
+	runner.check(Array(Story.flash(s)["lines"]) == Array(Leaders.story("bennett")["encore"]), "after his %d beats: his encore" % beats.size())
 	var b := _round("bibi")
 	Meta.on_round_end(b, 400.0)
 	b.evolutions += 1

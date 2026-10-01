@@ -1141,7 +1141,7 @@ func _process(delta: float) -> void:
 	_check_headlines()
 	_check_reveals()
 	_apply_reveals()
-	# Bibi's court day on the stage (the exit, the hat, the return): polled from the sim's phase
+	# the hazard day on the stage (the exit, the hat or the press desk, the return): polled from the sim's phase
 	bb.court_sync(running and BigBanana.wants_court(state), tx.running)
 	bb.update_view(dt)
 	if _after_walk.is_valid() and not bb.walking():
@@ -1542,8 +1542,7 @@ func _on_politics_event(e: Dictionary) -> void:
 				ticker.enqueue("flavor", str(kc["nipTicker"]))
 		"summons":
 			_audio("courtSummons")
-			if Leaders.has_court():
-				bb.court_flinch()   # the summons flinch (motion/state-graph-magician.md §1.3)
+			bb.court_flinch()   # the summons flinch (motion/state-graph-magician.md §1.3), every leader
 		"courtStart":
 			_audio("courtStart")
 			_funnel("court_start", {})
@@ -2130,8 +2129,7 @@ func _handle_tap(at: Vector2) -> void:
 		bb.tap(false, true)
 		if _now - _paused_toast_ms >= 4000.0:
 			_paused_toast_ms = _now
-			toasts.show_toast(Strings.s("COURT_TAP_PAUSED") if Leaders.has_court() \
-				else Strings.gendered("PRESS_TAP_PAUSED", LeaderUi.g(), {"short": LeaderUi.short()}), "", "lane")
+			toasts.show_toast(LeaderUi.tap_paused_line(), "", "lane")
 		return
 	var crit: bool = r["crit"]
 	if state.buff_tap_frenzy > 0.0:
@@ -2352,18 +2350,26 @@ func _show_story_beat() -> void:
 	var bid := str(fl["id"]) if not fl.is_empty() and int(fl["n"]) >= 1 else Story.beat_id(state.evolutions)
 	if state.story_seen.has(bid):
 		return
+	if not fl.is_empty():
+		# story v3: Story.flash picks the next UNSEEN beat, so once per election (the leader's own count)
+		var st := Leaders.stats(state, str(fl["leader"]))
+		var el := float(st.get("elections", 0.0))
+		if float(st.get("flashedAt", -1.0)) >= el:
+			return
+		st["flashedAt"] = el
 	state.story_seen.append(bid)
-	show_flash(state.evolutions)
+	show_flash(state.evolutions, false, fl)   # the booked card: Story.flash moves on once it is seen
 
 
 ## O3b, Dubi's news flash for round n (ui/views/view_flash.gd; it sends its own storyCard +
 ## babble). `archive` = a replay from T4 (SYS_CLOSE only, no word-salad roll).
-func show_flash(n: int, archive := false) -> void:
+func show_flash(n: int, archive := false, card: Dictionary = {}) -> void:
 	overlays.request(func() -> Overlay:
 		var o := FlashCard.new()
 		o.setup(self, overlays)
 		o.evolutions = n
 		o.archive = archive
+		o.card = card
 		return o.build())
 
 

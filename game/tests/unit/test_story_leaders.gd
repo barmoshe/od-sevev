@@ -59,14 +59,40 @@ func test_every_leader_gets_their_own_card_after_an_election() -> void:
 			runner.check(str(f["title"]) != bibi_title and str(f["id"]) == "beat_%s_1" % id, "%s: not Bibi's card (%s, %s)" % [id, f["title"], f["id"]])
 		titles[str(f["title"])] = id
 		firsts[" ".join(Array(f["lines"]))] = id
-		# his later beats by his own count, then the shared encore
-		for n in range(2, (st["beats"] as Array).size() + 2):
+		# story v3: his later beats in order, skipping a beat whose `when` is not met yet (a fresh state
+		# has no crits / declines / merges), then his own encore
+		var open_beats: Array = []
+		for n in range(2, (st["beats"] as Array).size() + 1):
+			if Story.beat_unlocked(s, id, n):
+				open_beats.append(n)
+		for n: int in open_beats:
 			var g := _elect(s)
-			if n <= (st["beats"] as Array).size():
-				runner.check(int(g["n"]) == n and Array(g["lines"]) == Array((st["beats"] as Array)[n - 1]), "%s: beat %d by his own election count" % [id, n])
-			else:
-				runner.check(Array(g["lines"]).size() == (Content.data()["story"]["encore"] as Array).size() and str(g["title"]) == "", "%s: after his beats, the shared encore" % id)
+			runner.check(int(g["n"]) == n and Array(g["lines"]) == Array((st["beats"] as Array)[n - 1]), "%s: beat %d next" % [id, n])
+		var e1 := _elect(s)
+		var e2 := _elect(s)
+		runner.check(Array(e1["lines"]) == Array(st["encore"]) and str(e1["title"]) == "", "%s: after his open beats, his encore" % id)
+		runner.check(str(e1["id"]) != str(e2["id"]), "%s: every encore is its own card (%s, %s)" % [id, e1["id"], e2["id"]])
 	runner.check(titles.size() == ROSTER.size() and firsts.size() == ROSTER.size(), "8 distinct first cards (%d titles, %d beats)" % [titles.size(), firsts.size()])
+
+
+## Story v3 (Bar 2026-10-01): a beat can wait for what the player did as that leader. Golan's merger
+## beat stays closed until his first merge, then it is the next card; every non-Bibi leader has an
+## encore of his own.
+func test_a_beat_waits_for_the_leaders_own_deed() -> void:
+	var s := _round("golan")
+	runner.check(not Story.beat_unlocked(s, "golan", 3), "golan: beat 3 waits for a merge")
+	var f1 := _elect(s)
+	var f2 := _elect(s)
+	runner.check(int(f1["n"]) == 1 and int(f2["n"]) == 2, "golan: beats 1 and 2 first")
+	var f3 := _elect(s)
+	runner.check(int(f3["n"]) == 4, "golan: beat 3 is skipped while it waits (got %d)" % int(f3["n"]))
+	Leaders.stats(s, "golan")["merges"] = 1.0
+	var f4 := _elect(s)
+	runner.check(int(f4["n"]) == 3, "golan: his first merge opens beat 3, shown next (got %d)" % int(f4["n"]))
+	for id: String in ROSTER:
+		if id != "bibi":
+			var enc: Array = Leaders.story(id)["encore"]
+			runner.check(enc != (Content.data()["story"]["encore"] as Array), "%s: an encore of his own" % id)
 
 
 func test_no_card_puts_a_quote_in_a_real_persons_mouth() -> void:

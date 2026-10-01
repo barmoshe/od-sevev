@@ -50,7 +50,34 @@ static func flash(s: GameState) -> Dictionary:
 	if id == "" or not Leaders.playable(id):
 		id = Leaders.current(s)
 	var n := int(Leaders.stat(s, id, "elections")) if Leaders.active() else s.evolutions
-	return card(id, n)
+	if not Leaders.active():
+		return card(id, n)
+	# story v3 (Bar 2026-10-01): the leader's first unseen beat whose `when` holds (a beat can wait for
+	# what the player did in that leader's rounds: Golan's merger beat after a merge), else the encore
+	var beats: Array = Leaders.story(id)["beats"]
+	for i in beats.size():
+		var bid := beat_id(i + 1) if Leaders.is_default(id) else "beat_%s_%d" % [id, i + 1]
+		if not s.story_seen.has(bid) and beat_unlocked(s, id, i + 1):
+			return card(id, i + 1)
+	# the encore: one number past the beats and every encore already shown (each id stays unique)
+	var shown := 0
+	var pre := "beat_" if Leaders.is_default(id) else "beat_%s_" % id
+	for bid: String in s.story_seen:
+		var tail := bid.substr(pre.length())
+		if bid.begins_with(pre) and tail.is_valid_int() and int(tail) > beats.size():
+			shown += 1
+	return card(id, beats.size() + 1 + shown)
+
+
+## A beat's `when` (kit.story.when / content.story.when, keyed by beat number): {stat, atLeast} on
+## the leader's own lifetime stats (Leaders.stat: elections, taps, crits, declines, merges, ...).
+## No entry = always open.
+static func beat_unlocked(s: GameState, id: String, n: int) -> bool:
+	var w: Variant = Leaders.story(id).get("when", {}).get(str(n))
+	if not w is Dictionary:
+		return true
+	var key := str((w as Dictionary).get("stat", ""))
+	return key == "" or float(Leaders.stat(s, id, key)) >= float((w as Dictionary).get("atLeast", 0))
 
 
 ## Leader `id`'s flash for their own election number `n` (1-based): their beat and title, then the

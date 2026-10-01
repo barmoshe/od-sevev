@@ -111,7 +111,7 @@ for (const d of DEVICES) {
 			// the whole stage: the thermometer, the courthouse window, the Magician and the hat
 			const stage = [disp.sx ?? disp.ox, disp.stageY + 160, 720, disp.lowerY - disp.stageY - 160];   // the stage column (mobile-first §4.1)
 			// leader select: a fresh game opens the picker first; the court is Bibi's
-			await pickTile(o, 'bibi', SLOW);
+			await pickTile(o, process.env.COURT_LEADER || 'bibi', SLOW);   // COURT_LEADER=deri: a press day (the podium / bench)
 			await untilStage(o);
 			const [hx, hy] = o.css(disp.hat[0], disp.hat[1]);
 			await o.tap(hx, hy, 100);   // title → main; the court day is already running
