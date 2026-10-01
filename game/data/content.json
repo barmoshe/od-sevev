@@ -6210,6 +6210,22 @@
    "src": [
     "golan-tinder"
    ]
+  },
+  "decoy": {
+   "_doc": "Bar 2026-10-01: Gantz is on the picker as a joke. Tapping him never starts a round: the caption strip says why (a line in turn) and the player picks again. Never a playable leader. PickView decoy button; Leaders.picker model.decoy.",
+   "id": "gantz",
+   "label": "גנץ",
+   "avatar": "avatar24_gantz",
+   "lines": [
+    "בני גנץ אמר שיפרוש אם לא יעבור את אחוז החסימה. בחר מישהו אחר.",
+    "גנץ עוד מחליט אם הוא רץ. יחליט בשבוע האחרון. בחר שוב.",
+    "גנץ ייכנס לקבוצה כשמישהו יעזוב. בינתיים, בחר מישהו אחר."
+   ],
+   "src": [
+    "gantz-threshold",
+    "gantz-rotation"
+   ],
+   "poll_like": false
   }
  },
  "leaders": [

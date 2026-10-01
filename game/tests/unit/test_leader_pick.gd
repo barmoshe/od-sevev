@@ -68,6 +68,22 @@ func _key(k: Key) -> void:
 
 # ---------------------------------------------------------------------------------------------
 
+## Bar 2026-10-01: Gantz is on the picker, as a joke. A tap shows a line about the threshold in the
+## caption strip and the picker stays open: pick again.
+func test_gantz_is_on_the_picker_and_sends_you_to_pick_again() -> void:
+	await _boot()
+	var p: PickView = m.picker
+	p._age = 1000.0   # past the tap guard
+	runner.check(p.decoy_btn != null, "Gantz's button is on the picker")
+	var at: Vector2 = p.decoy_btn.visual.get_center()
+	p.pointer_down(at)
+	p.pointer_up(at)
+	runner.check(m.mode == "pick" and p.visible and not p.locked, "no round starts: the picker stays open")
+	runner.check(p._strip.text.contains("גנץ"), "the strip says why (%s)" % p._strip.text)
+	runner.check(p.cells.all(func(c: Dictionary) -> bool: return str(c["id"]) != "gantz"), "he is never a leader tile")
+	runner.check(m.commit_pick("bennett"), "and the player picks again")
+
+
 func test_a_fresh_game_opens_the_picker_before_the_first_tap() -> void:
 	await _boot()
 	var p: PickView = m.picker

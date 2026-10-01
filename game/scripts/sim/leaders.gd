@@ -481,7 +481,8 @@ static func picker(s: GameState, rng: Callable = randf) -> Dictionary:
 		again = current(s)
 	var pk: Dictionary = ls().get("pick", {}) if ls().get("pick") is Dictionary else {}
 	return {"tiles": tiles, "again": again if playable(again) else "", "first": s.evolutions == 0,
-		"random": pk.get("randomTile", true) == true, "undoSec": float(pk.get("undoSec", 5.0)), "copy": pick_copy()}
+		"random": pk.get("randomTile", true) == true, "undoSec": float(pk.get("undoSec", 5.0)), "copy": pick_copy(),
+		"decoy": ls().get("decoy", {}) if ls().get("decoy") is Dictionary else {}}
 
 
 static func tile(id: String) -> Dictionary:

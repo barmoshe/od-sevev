@@ -473,6 +473,7 @@ func _build() -> void:
 	picker.on_commit = _on_pick_commit
 	picker.on_done = _on_pick_done
 	picker.on_card = _open_leader_card
+	picker.on_decoy = func(_id: String) -> void: _audio("cantAfford")   # Gantz: not this time
 	_build_undo_chip()
 	title_view.build(bool(settings["reducedMotion"]), show_key_hints())
 	var a := get_node_or_null("/root/Audio")

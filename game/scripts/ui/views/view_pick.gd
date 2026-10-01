@@ -91,6 +91,15 @@ var strip_rect := Rect2()           # the navy plate, picker-local (window.odPic
 var _scrim: ColorRect
 var _layer := Node2D.new()
 var _again_group: Array[CanvasItem] = []
+## Gantz, the decoy (content leaderSelect.decoy, Bar 2026-10-01): a small button on the title row's
+## left end. A tap never starts a round: the caption strip says why (the lines in turn, DECOY_MS)
+## and the picker stays open. `on_decoy(id)` lets the controller play a sound.
+const DECOY_MS := 3500.0
+var decoy_btn: PxButton
+var on_decoy: Callable
+var _decoy_ms := 0.0
+var _decoy_n := 0
+var _decoy_line := ""
 
 
 func _ready() -> void:
@@ -287,6 +296,7 @@ func _build() -> void:
 	cells.clear()
 	_booth_node = null
 	again_btn = null
+	decoy_btn = null
 	_again_group.clear()
 	var H := _bot - _top
 	var cw := L.cw
@@ -358,7 +368,16 @@ func _build() -> void:
 		shrunk = true
 	# the title (measured now: the booth's room depends on its lines)
 	var title := PxText.make(_layer, Vector2.ZERO, _title_text(), L.TEXT, "plain", C_NAME)
-	title.wrap_width = 656.0 + L.dx
+	# Gantz's button on the title row's left end: the title keeps clear of it on both sides (centred)
+	var dec: Dictionary = model.get("decoy", {}) if model.get("decoy") is Dictionary else {}
+	var dec_lab: PxText = null
+	var dec_w := 0.0
+	if str(dec.get("label", "")) != "":
+		dec_lab = PxText.make(_layer, Vector2.ZERO, str(dec["label"]), L.TEXT, "plain", PxButton.label_color("kit_secondary"))
+		dec_lab.max_lines = 1
+		dec_w = Ui.snap(float(dec_lab.width()) + (48.0 + 12.0 if Art.has_sprite(str(dec.get("avatar", ""))) else 0.0) + 32.0, 4)
+	var dec_off := (dec_w + 8.0) if dec_w > 0.0 else 0.0
+	title.wrap_width = 656.0 + L.dx - 2.0 * dec_off
 	title.max_lines = 2
 	title.align = 1
 	var tlines := maxf(1.0, float(title.line_count()))
@@ -407,8 +426,32 @@ func _build() -> void:
 		ct.center_in(chx, chw)
 		ty = cy - 8.0
 	title.position.y = ty - LH * tlines
-	title.center_in(32.0, 656.0 + L.dx)
+	title.center_in(32.0 + dec_off, 656.0 + L.dx - 2.0 * dec_off)
+	if dec_lab != null:
+		var by := Ui.snap(title.position.y + (LH * tlines - 56.0) / 2.0, 4)
+		var vis := Rect2(16.0, by, dec_w, 56.0)
+		decoy_btn = PxButton.make(_layer, vis, {"hit": vis.grow(8.0), "kind": "kit_secondary",
+			"on_commit": func() -> void: _tap_decoy()})
+		_layer.move_child(dec_lab, -1)
+		dec_lab.position = Vector2(vis.position.x + 16.0, vis.position.y + 8.0)
+		var av := str(dec.get("avatar", ""))
+		if Art.has_sprite(av):
+			Ui.img(_layer, Vector2(vis.position.x + 16.0 + float(dec_lab.width()) + 12.0, vis.position.y + 4.0), av, 0, 2)
 	_publish()
+
+
+## Gantz tapped: the next line in the caption strip for DECOY_MS; the picker stays open.
+func _tap_decoy() -> void:
+	var dec: Dictionary = model.get("decoy", {}) if model.get("decoy") is Dictionary else {}
+	var lines: Array = dec.get("lines", []) if dec.get("lines") is Array else []
+	if lines.is_empty():
+		return
+	_decoy_line = str(lines[_decoy_n % lines.size()])
+	_decoy_n += 1
+	_decoy_ms = DECOY_MS
+	_refresh()
+	if on_decoy.is_valid():
+		on_decoy.call(str(dec.get("id", "")))
 
 
 ## D64 (mobile-first §5.8.1): a two-line caption breaks balanced, its second line ≥ 40% of its
@@ -574,6 +617,8 @@ func _refresh() -> void:
 		var txt := _strip_default()
 		if active >= 0 and str(cells[active]["blurb"]) != "":
 			txt = str(cells[active]["blurb"])
+		elif _decoy_ms > 0.0:
+			txt = _decoy_line
 		if _strip.text != txt:
 			_strip.text = txt
 			_place_strip()
@@ -612,13 +657,17 @@ func pointer_down(p: Vector2) -> bool:
 		again_btn.down()
 		_press = {"cell": -2, "at": p, "t": 0.0, "card": false}
 		return true
+	if decoy_btn != null and decoy_btn.contains(p):
+		decoy_btn.down()
+		_press = {"cell": -3, "at": p, "t": 0.0, "card": false}
+		return true
 	return true
 
 
 func pointer_move(p: Vector2) -> void:
 	if _press.is_empty():
 		return
-	if int(_press["cell"]) == -2:
+	if int(_press["cell"]) < 0:
 		return
 	if not Ui.in_rect(cells[int(_press["cell"])]["rect"], p):
 		_press = {}   # slid off: cancel, the strip returns to its default
@@ -637,6 +686,10 @@ func pointer_up(p: Vector2) -> void:
 		if again_btn != null:
 			again_btn.up(inside)   # on_commit → commit_again
 		return
+	if int(pr["cell"]) == -3:
+		if decoy_btn != null:
+			decoy_btn.up(decoy_btn.contains(p))   # on_commit → _tap_decoy
+		return
 	if pr.get("card", false) == true:
 		_refresh()
 		return
@@ -654,7 +707,8 @@ func hover(p: Vector2) -> bool:
 		_hover = i
 		_refresh()
 	var on_again := again_btn != null and again_btn.contains(p)
-	return i >= 0 or on_again
+	var on_decoy_btn := decoy_btn != null and decoy_btn.contains(p)
+	return i >= 0 or on_again or on_decoy_btn
 
 
 ## Keys (§8.5). True = handled. Focus moves in reading order: the grid right → left, top →
@@ -784,6 +838,10 @@ func update_view(dt: float) -> void:
 	if not visible:
 		return
 	_age += dt
+	if _decoy_ms > 0.0:
+		_decoy_ms -= dt
+		if _decoy_ms <= 0.0:
+			_refresh()   # the caption strip returns to its default
 	if not _press.is_empty() and int(_press["cell"]) >= 0 and _press.get("card", false) != true:
 		_press["t"] = float(_press["t"]) + dt
 		if float(_press["t"]) >= HOLD_MS and _press.get("moved", false) != true:
