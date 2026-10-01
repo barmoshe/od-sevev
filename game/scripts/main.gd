@@ -82,6 +82,8 @@ var _modal := Node2D.new()          # overlays + EVOLVE_TX
 var diorama: Diorama
 var street: StreetFigure        # Mordechai David on the Balfour stage (design/mordechai-david-spec.md)
 var sara: SaraMark              # Sara on the Balfour stage, Bibi's round (motion/state-graph-cast.md §3)
+var herzog: HerzogFigure        # President Herzog's compromise outline (events.herzog, effect "mediation")
+var kaia: KaiaFigure            # Kaia on the Balfour stage (events.kaia): a tap feeds her (placeholder art)
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
 var bb: BigBanana
 var prop_fx: PropFx                 # the Magician's coins and rabbit
@@ -131,6 +133,8 @@ var _undo_full := 5000.0
 var court_echo: CourtEcho            # the courthouse window on the stage (Bibi's rounds; ui/court_echo.gd)
 ## Every cue sent to the Audio, by name (tests and tools listen; nothing in the game does).
 signal audio_sent(name: String, arg: Variant)
+## Every funnel event (_funnel), on every platform: tests listen; the web build also reports it.
+signal funnel_sent(name: String, payload: Dictionary)
 var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
 var _fills := {}
 var _title_ground: TextureRect
@@ -388,6 +392,10 @@ func _build() -> void:
 	street.on_marker = func(n: String) -> void: _audio(n)
 	sara = SaraMark.new()
 	diorama.street_layer().add_child(sara)
+	herzog = HerzogFigure.new()
+	diorama.street_layer().add_child(herzog)
+	kaia = KaiaFigure.new()
+	diorama.street_layer().add_child(kaia)
 	bb = BigBanana.new()
 	_stage.add_child(bb)
 	prop_fx = PropFx.new()
@@ -551,7 +559,9 @@ func _build_chat() -> void:
 			chat.toggle())
 	chat.open_changed.connect(func(on: bool) -> void:
 		shop.tall = "coalition" if on else ""
-		shop.cancel_press())
+		shop.cancel_press()
+		if on:
+			_funnel("chat_opened", {}))
 	toasts.on_tap = func(tag: String) -> void:
 		if tag == "chat" and _gameplay_input():
 			chat.open()
@@ -838,6 +848,10 @@ func _apply_settings() -> void:
 	golden.reduced_motion = rm
 	diorama.set_reduced_motion(rm)
 	street.reduced_motion = rm
+	if herzog != null:
+		herzog.reduced_motion = rm
+	if kaia != null:
+		kaia.reduced_motion = rm
 	floaters.reduced_motion = rm
 	top_bar.set_reduced_motion(rm)
 	buffs.set_reduced_motion(rm)
@@ -931,7 +945,8 @@ func _open_share(kind: String) -> void:
 
 
 ## The shell's share result (window.odShareDone): the open sheet shows it in its status line.
-func _on_share_result(_kind: String, result: String) -> void:
+func _on_share_result(kind: String, result: String) -> void:
+	_funnel("share_done", {"kind": kind, "result": result})
 	var t := overlays.top()
 	if t is ShareSheet:
 		(t as ShareSheet).on_share_result(result)
@@ -1138,6 +1153,8 @@ func _process(delta: float) -> void:
 	diorama.update_view(dt)
 	street.update_view(dt, state, running)   # any stage since 2026-10-01 (Bar): he comes every minute, 45%
 	sara.update_view(dt, state, running and diorama.era_id() == "balfour")
+	herzog.update_view(dt, state, running)
+	kaia.update_view(dt, state, running and diorama.era_id() == "balfour")
 	floaters.update_view(dt)
 	fx_stage.update_view(dt)
 	fx_ui.update_view(dt)
@@ -1491,10 +1508,20 @@ func _on_politics_event(e: Dictionary) -> void:
 		"event":
 			if str(e.get("id", "")) == StreetFigure.EVENT_ID:
 				_on_street_event(e.get("result", {}))
+			else:
+				_on_card_event(e)
+			# the effect's own chat events (a brawl's messages, a defector's exit): pings and toasts
+			var sub: Variant = (e.get("result", {}) as Dictionary).get("events", []) if e.get("result") is Dictionary else []
+			for se: Variant in (sub if sub is Array else []):
+				if se is Dictionary:
+					_on_politics_event(se)
 		"eventEnd":
 			if str(e.get("type", "")) == "screenBlock":
 				var sc := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
 				toasts.show_toast(str(sc.get("screenEndText", "")), "", "lane")
+			if str(e.get("type", "")) == "mediation":
+				# nobody took Herzog's outline: it lapses (he shrugs on his own, HerzogFigure)
+				toasts.show_toast(str((Events.event("herzog").get("copy", {}) as Dictionary).get("rejectText", "")), "", "lane")
 			if str(e.get("type", "")) == "pledge":
 				# Bennett's pledge flips when its timer runs out (his card elsewhere, his own rule in his round)
 				var flip := str((Events.event("bennett").get("copy", {}) as Dictionary).get("flipText", ""))
@@ -1504,12 +1531,19 @@ func _on_politics_event(e: Dictionary) -> void:
 				var endc := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
 				toasts.show_toast(StreetFigure.fill(str(endc.get("endText", "")), _street_partner), "", "lane")
 				_street_partner = ""
+		"kaiaNip":
+			# Kaia was ignored: a minister got nipped and misses the vote (Events._tick_active)
+			var kc: Dictionary = Events.event("kaia").get("copy", {}) if Events.event("kaia").get("copy") is Dictionary else {}
+			toasts.show_toast(Bidi.fill(str(kc.get("nipText", "")), {"name": ChatView.partner_name(str(e.get("partner", "")))}), "", "lane")
+			if str(kc.get("nipTicker", "")) != "":
+				ticker.enqueue("flavor", str(kc["nipTicker"]))
 		"summons":
 			_audio("courtSummons")
 			if Leaders.has_court():
 				bb.court_flinch()   # the summons flinch (motion/state-graph-magician.md §1.3)
 		"courtStart":
 			_audio("courtStart")
+			_funnel("court_start", {})
 		"courtEnd":
 			# testified | served (the sim's tick) | postponed (CourtView routes postpone()'s events
 			# on the stamp's impact frame; the Audio plays gavelWeak for it)
@@ -1524,10 +1558,83 @@ func _on_politics_event(e: Dictionary) -> void:
 				ticker.enqueue("flavor", str(tw["ticker"]))
 
 
+## A card or stage event fired (Events.fire): its copy is finally on screen (until 2026-10-01 only
+## the effect ran). A card shows a chat-style toast with the person's face, name and line; a stage
+## event's line crawls in the ticker; the leak posts its screenshot into the chat (Coalition.post_leak).
+## The pardon desk and the chat-only brawl carry no card text, so they show nothing here.
+func _on_card_event(e: Dictionary) -> void:
+	var id := str(e.get("id", ""))
+	var ev := Events.event(id)
+	var c: Dictionary = ev.get("copy", {}) if ev.get("copy") is Dictionary else {}
+	var result: Dictionary = e.get("result", {}) if e.get("result") is Dictionary else {}
+	if bool(result.get("skipped", false)):
+		return
+	if str(ev.get("effect", {}).get("type", "")) == "leak":
+		var skin := str(result.get("skin", ""))
+		var lines := Events.leak_lines(int(result.get("leak", 0)), skin)
+		var lc: Dictionary = Leaders.ls().get("leakRight", {}) if skin == "leakRight" and Leaders.ls().get("leakRight") is Dictionary else c
+		for pe: Variant in Coalition.post_leak(state, int(result.get("leak", 0)), lines.size(), skin):
+			if pe is Dictionary:
+				_on_politics_event(pe)
+		if str(lc.get("ticker", "")) != "":
+			ticker.enqueue("flavor", str(lc["ticker"]))
+		toasts.show_toast(Strings.s("LEAK_FRAME"), "chat")
+		return
+	if str(c.get("ticker", "")) != "":
+		ticker.enqueue("flavor", str(c["ticker"]))
+	if str(c.get("system", "")) != "":
+		toasts.show_toast(str(c["system"]))
+	var text := str(c.get("text", ""))
+	if (str(e.get("kind", "")) != "card" and not bool(c.get("toast", false))) or text == "":
+		return
+	var person := str(ev.get("person", id))
+	var face := ChatView.toast_avatar(person)
+	if str(face[0]) == "" and str(c.get("avatar", "")) != "":
+		face = _art_face(str(c["avatar"]))
+	toasts.show_chat_toast(str(c.get("name", "")), text, face, "", true, 2)
+
+
+## A tap on Herzog while his outline stands (HerzogFigure): accepted. Every open demand drops by the
+## effect's pct (Coalition.discount_open); he walks out; the toast says what it saved.
+func _accept_mediation() -> void:
+	var r := Events.act(state, "mediation", "accept", d)
+	if r.is_empty():
+		return
+	herzog.accept()
+	var c: Dictionary = Events.event("herzog").get("copy", {}) if Events.event("herzog").get("copy") is Dictionary else {}
+	var key := "acceptText" if int(r.get("cut", 0)) > 0 else "acceptNone"
+	toasts.show_toast(Bidi.fill(str(c.get(key, "")), {"pct": str(int(r.get("pct", 0)))}), "", "lane")
+	_audio("stamp")
+	_mark_dirty()
+
+
+## A tap on Kaia while she is out (KaiaFigure): the cucumber. Events.act("kaia", "feed") swaps her nip
+## for the kaiaBuff tap multiplier; she trots off and the toast says how long it lasts.
+func _feed_kaia() -> void:
+	var r := Events.act(state, "kaia", "feed", d)
+	if r.is_empty():
+		return
+	kaia.feed()
+	var c: Dictionary = Events.event("kaia").get("copy", {}) if Events.event("kaia").get("copy") is Dictionary else {}
+	toasts.show_toast(Bidi.fill(str(c.get("feedText", "")), {"sec": str(int(r.get("buffSec", 0)))}), "", "lane")
+	_audio("stamp")
+	_mark_dirty()
+
+
+## A toast face for an art id: [art, logical px per sprite px, density], or ["", …] without the art.
+func _art_face(art: String) -> Array:
+	if not Art.has_sprite(art):
+		return ["", 4.0, 1]
+	var dens := maxi(1, int(Art.kit(art).get("density", 1)))
+	var sc := float(SpriteStrip.art_scale()) / float(dens)
+	return [art, sc, maxi(1, int(roundf(float(SpriteStrip.art_scale()) / maxf(0.001, sc))))]
+
+
 ## Mordechai David's blockade fired (spec §7.2): the figure walks in, Dubi's ticker runs the headline,
 ## and a chat-style toast carries his face, name, role and the round's skinned line; then who is stuck
 ## (or nobody). No buttons, no tap target on him.
 func _on_street_event(result: Dictionary) -> void:
+	_funnel("street_event", {})
 	var lid := Leaders.current(state)
 	var c := StreetFigure.copy_for(lid, str(Leaders.leader(lid).get("side", "")))
 	_street_partner = str(result.get("partner", ""))
@@ -1822,6 +1929,12 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if thermo.is_shown() and Ui.in_rect(thermo.hit_rect(), sp):
 		_presses[idx] = {"kind": "thermo"}   # rtl-map §4: tap → T4
 		return
+	if herzog.tappable() and Ui.in_rect(herzog.hit_rect(), sp):
+		_accept_mediation()
+		return
+	if kaia.tappable() and Ui.in_rect(kaia.hit_rect(), sp):
+		_feed_kaia()
+		return
 	if golden.hit_test(sp):
 		_catch_golden()
 		return
@@ -2019,6 +2132,7 @@ func _handle_tap(at: Vector2) -> void:
 	_audio("tapCrit" if crit else "tap")
 	_audio("coin", 3 if crit else 1)   # Bar: a money "ching" on every tap of the character (a crit pays 3)
 	if state.taps_lifetime == 1:
+		_funnel("first_tap", {})
 		# after the tap, which opens the audio gate: the Audio holds Dubi's first line until the
 		# motif's musicalSeconds (O-A3); the ticker/toast line stays at f0 (ux/ftue.md H1)
 		_audio("babble", _first_squawk())
@@ -2466,6 +2580,7 @@ func _start_evolve(dev_force := false) -> void:
 	store.save_game(nxt)
 	_audio("evolveConfirm")
 	_audio("electionConfirm", nxt.evolutions)
+	_funnel("election_called", {"n": nxt.evolutions})
 	_trick_fired = false
 	_haptic(60)
 	var top := overlays.top()
@@ -2603,7 +2718,7 @@ func _on_pick_commit(id: String, via: String) -> bool:
 	if _shot.is_empty():
 		store.save_game(state)
 	_funnel("leader_pick_committed", {"leader": id, "via": via, "ms_to_pick": int(_now - _pick_shown_ms),
-		"fresh": bool(res.get("fresh", false)), "switched": bool(res.get("switched", false))})
+		"fresh": bool(res.get("fresh", false)), "switched": bool(res.get("switched", false)), "variant": picker.variant})
 	return true
 
 
@@ -2874,13 +2989,15 @@ func _undo_pick() -> void:
 	_open_picker(_pick_res.get("order", []), from)
 
 
-## Funnel events (ux/screen-graph.md §0.4; names only, the developer plumbs them): the web build
-## appends them to window.odFunnel for the drivers and a later analytics hook.
+## Funnel events (ux/screen-graph.md §0.4): the web build appends them to window.odFunnel for the
+## drivers and hands them to window.odTrackFunnel (shell.html), which maps a few to the virtual page
+## views of the analytics (/play/first-tap, /play/picked/<id>, …).
 func _funnel(name: String, payload: Dictionary) -> void:
+	funnel_sent.emit(name, payload)
 	if OS.has_feature("web"):
 		var ev := payload.duplicate()
 		ev["ev"] = name
-		JavaScriptBridge.eval("(window.odFunnel = window.odFunnel || []).push(%s)" % JSON.stringify(ev), true)
+		JavaScriptBridge.eval("(function (e) { (window.odFunnel = window.odFunnel || []).push(e); if (window.odTrackFunnel) { window.odTrackFunnel(e); } })(%s)" % JSON.stringify(ev), true)
 
 
 func _save_now() -> void:

@@ -15,7 +15,7 @@
   "sprites/avatar24_golan.png": 1012,
   "sprites/avatar24_goldknopf.png": 1112,
   "sprites/avatar24_gotliv.png": 1169,
-  "sprites/avatar24_herzog.png": 1069,
+  "sprites/avatar24_herzog.png": 1011,
   "sprites/avatar24_karhi.png": 918,
   "sprites/avatar24_kariv.png": 1094,
   "sprites/avatar24_lapid.png": 913,
@@ -56,7 +56,7 @@
   "sprites/avatar_golan.png": 1613,
   "sprites/avatar_goldknopf.png": 1868,
   "sprites/avatar_gotliv.png": 1986,
-  "sprites/avatar_herzog.png": 1723,
+  "sprites/avatar_herzog.png": 1648,
   "sprites/avatar_karhi.png": 1392,
   "sprites/avatar_kariv.png": 1738,
   "sprites/avatar_lapid.png": 1473,
@@ -202,10 +202,10 @@
   "sprites/cast/gotliv_idle_d2.png": 128332,
   "sprites/cast/gotliv_react.png": 181349,
   "sprites/cast/gotliv_react_d2.png": 95515,
-  "sprites/cast/herzog_idle.png": 198386,
-  "sprites/cast/herzog_idle_d2.png": 99843,
-  "sprites/cast/herzog_react.png": 188382,
-  "sprites/cast/herzog_react_d2.png": 97523,
+  "sprites/cast/herzog_idle.png": 63383,
+  "sprites/cast/herzog_idle_d2.png": 30761,
+  "sprites/cast/herzog_react.png": 200766,
+  "sprites/cast/herzog_react_d2.png": 100189,
   "sprites/cast/karhi_idle.png": 179922,
   "sprites/cast/karhi_idle_d2.png": 94957,
   "sprites/cast/karhi_react.png": 145791,
@@ -580,8 +580,12 @@
   "fonts/sevev9@2.png": 2799,
   "fonts/sevev9@2.fnt": 15149
  },
- "vramBytes": 203681156,
+ "vramBytes": 199925828,
  "vramByDensity": {
+  "herzog": {
+   "3": 2658432,
+   "2": 1196352
+  },
   "tibi": {
    "3": 1576784,
    "2": 704836
@@ -690,10 +694,6 @@
    "3": 4526000,
    "2": 2028000
   },
-  "herzog": {
-   "3": 5245992,
-   "2": 2364120
-  },
   "trump": {
    "3": 5606400,
    "2": 2515500
@@ -751,6 +751,7 @@
  },
  "vramPerPartnerByK": {
   "2": {
+   "herzog": 1196352,
    "tibi": 704836,
    "almog": 1081912,
    "lazimi": 1371136,
@@ -777,7 +778,6 @@
    "abbas": 832216,
    "distel": 2437500,
    "karhi": 2028000,
-   "herzog": 2364120,
    "trump": 2515500,
    "may-golan": 1456832,
    "mordechai-david": 3079440,
@@ -786,6 +786,7 @@
    "nophoto": 15520
   },
   "3": {
+   "herzog": 2658432,
    "tibi": 1576784,
    "almog": 2442336,
    "lazimi": 3095040,
@@ -812,7 +813,6 @@
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
-   "herzog": 5245992,
    "trump": 5606400,
    "may-golan": 3288480,
    "mordechai-david": 6867840,
@@ -821,6 +821,7 @@
    "nophoto": 15520
   },
   "4": {
+   "herzog": 1196352,
    "tibi": 704836,
    "almog": 1081912,
    "lazimi": 1371136,
@@ -847,7 +848,6 @@
    "abbas": 832216,
    "distel": 2437500,
    "karhi": 2028000,
-   "herzog": 2364120,
    "trump": 2515500,
    "may-golan": 1456832,
    "mordechai-david": 3079440,
@@ -856,6 +856,7 @@
    "nophoto": 15520
   },
   "6": {
+   "herzog": 2658432,
    "tibi": 1576784,
    "almog": 2442336,
    "lazimi": 3095040,
@@ -882,7 +883,6 @@
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
-   "herzog": 5245992,
    "trump": 5606400,
    "may-golan": 3288480,
    "mordechai-david": 6867840,
@@ -891,6 +891,7 @@
    "nophoto": 15520
   },
   "7": {
+   "herzog": 2658432,
    "tibi": 1576784,
    "almog": 2442336,
    "lazimi": 3095040,
@@ -917,7 +918,6 @@
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
-   "herzog": 5245992,
    "trump": 5606400,
    "may-golan": 3288480,
    "mordechai-david": 6867840,
@@ -926,6 +926,7 @@
    "nophoto": 15520
   },
   "8": {
+   "herzog": 1196352,
    "tibi": 704836,
    "almog": 1081912,
    "lazimi": 1371136,
@@ -952,7 +953,6 @@
    "abbas": 832216,
    "distel": 2437500,
    "karhi": 2028000,
-   "herzog": 2364120,
    "trump": 2515500,
    "may-golan": 1456832,
    "mordechai-david": 3079440,
@@ -961,6 +961,7 @@
    "nophoto": 15520
   },
   "9": {
+   "herzog": 2658432,
    "tibi": 1576784,
    "almog": 2442336,
    "lazimi": 3095040,
@@ -987,7 +988,6 @@
    "abbas": 1843820,
    "distel": 5489600,
    "karhi": 4526000,
-   "herzog": 5245992,
    "trump": 5606400,
    "may-golan": 3288480,
    "mordechai-david": 6867840,
@@ -1069,8 +1069,9 @@
   }
  },
  "vramTypical": 14310056,
- "vramCastAll": 197871508,
+ "vramCastAll": 194116180,
  "vramPerPartner": {
+  "herzog": 2658432,
   "tibi": 1576784,
   "almog": 2442336,
   "lazimi": 3095040,
@@ -1097,7 +1098,6 @@
   "abbas": 1843820,
   "distel": 5489600,
   "karhi": 4526000,
-  "herzog": 5245992,
   "trump": 5606400,
   "may-golan": 3288480,
   "mordechai-david": 6867840,
@@ -1183,8 +1183,8 @@
   },
   {
    "file": "assets/sprites/avatar24_herzog.png",
-   "source": 1069,
-   "imported": 478
+   "source": 1011,
+   "imported": 420
   },
   {
    "file": "assets/sprites/avatar24_karhi.png",
@@ -1388,8 +1388,8 @@
   },
   {
    "file": "assets/sprites/avatar_herzog.png",
-   "source": 1723,
-   "imported": 650
+   "source": 1648,
+   "imported": 594
   },
   {
    "file": "assets/sprites/avatar_karhi.png",
@@ -2118,23 +2118,23 @@
   },
   {
    "file": "assets/sprites/cast/herzog_idle.png",
-   "source": 198386,
-   "imported": 67690
+   "source": 63383,
+   "imported": 20278
   },
   {
    "file": "assets/sprites/cast/herzog_idle_d2.png",
-   "source": 99843,
-   "imported": 33760
+   "source": 30761,
+   "imported": 10434
   },
   {
    "file": "assets/sprites/cast/herzog_react.png",
-   "source": 188382,
-   "imported": 69298
+   "source": 200766,
+   "imported": 75914
   },
   {
    "file": "assets/sprites/cast/herzog_react_d2.png",
-   "source": 97523,
-   "imported": 36844
+   "source": 100189,
+   "imported": 38670
   },
   {
    "file": "assets/sprites/cast/karhi_idle.png",
@@ -4005,8 +4005,12 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 6707821,
+ "pckBytes": 6645411,
  "pckByAsset": {
+  "herzog": {
+   "3": 96192,
+   "2": 49104
+  },
   "tibi": {
    "3": 41446,
    "2": 22378
@@ -4114,10 +4118,6 @@
   "karhi": {
    "3": 102998,
    "2": 52378
-  },
-  "herzog": {
-   "3": 136988,
-   "2": 70604
   },
   "trump": {
    "3": 152524,
@@ -4285,5 +4285,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 19374634
+ "sourceTotal": 19185466
 }

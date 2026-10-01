@@ -801,7 +801,8 @@
     ],
     "thanks": [
      "הגיע. תודה. ולהזכירכם: אין כסף.",
-     "קיבלתי. רשמתי כהוצאה חד־פעמית. כמו כל השאר 💸"
+     "קיבלתי. רשמתי כהוצאה חד־פעמית. כמו כל השאר 💸",
+     "הגיע. יש כסף. רק לא לך 💸"
     ]
    },
    "copy": {
@@ -926,6 +927,7 @@
    "avatar": "deri_avatar",
    "src": [
     "deri-disqualified",
+    "deri-door-window",
     "haredi-left-gov"
    ],
    "lines": {
@@ -938,7 +940,8 @@
     "demand": [
      "נסגור את זה במסדרון ☕ תביא פנקס.",
      "יש לי רעיון קטן בשביל השקופים. הוא עולה {price} ₪ ☕",
-     "אני לא שר. רק מבקש {price} ₪ בשביל השרים ☕"
+     "אני לא שר. רק מבקש {price} ₪ בשביל השרים ☕",
+     "סגרו לי דלת? יש חלון. בינתיים, {price} ₪ ☕"
     ],
     "thanks": [
      "תודה. נדבר במסדרון ☕",
@@ -1344,11 +1347,11 @@
     ],
     "thanks": [
      "עבר. שלט אחד, כל הערוצים 📺",
-     "עבר. החוק עבר, בג״ץ הקפיא חלק. השאר בשידור 📺"
+     "עבר. החוק עבר, בג״ץ הקפיא חלק. השאר בשידור 📺",
+     "שפטתי לפי הביקורות. אחר כך ביקשתי עותק: 1/5 ⭐"
     ]
    },
    "copy": {
-    "review": "שפטתי לפי הביקורות. אחר כך ביקשתי עותק: 1/5 ⭐",
     "demandSrc": [
      "karhi-remote"
     ],
@@ -2114,7 +2117,13 @@
     "kaia"
    ],
    "copy": {
-    "ticker": "כאיה נשכה שר. השר החמיץ הצבעה. כאיה קיבלה מלפפון."
+    "name": "כאיה",
+    "toast": true,
+    "text": "כאיה יצאה לסיבוב בבלפור. מלפפון? לגעת בה.",
+    "feedText": "כאיה קיבלה מלפפון. ההקשות כפולות ל־{sec} שניות.",
+    "nipText": "כאיה נשכה שר. {name} מחוץ להצבעה לדקה.",
+    "nipTicker": "כאיה נשכה שר. השר החמיץ הצבעה. כאיה קיבלה מלפפון.",
+    "_note": "2026-10-01: KaiaFigure (placeholder art drawn in code until a kaia sprite exists). A tap feeds her (Events.act kaia feed → kaiaBuff); ignored, she nips (kaiaNip → nipText + nipTicker). Still behind flags.easterEggs."
    }
   },
   {
@@ -2221,6 +2230,38 @@
     "avatar": "trump_avatar",
     "text": "אמר להרצוג להתבייש. לך הוא עוד לא אמר כלום. אולי אחרי הבחירות.",
     "_note": "Washington-era cameo in Bibi's round (bibiOnly.events): the endorsement that never lands. Effect none, so no balance change beyond sharing the event slot."
+   }
+  },
+  {
+   "id": "herzog",
+   "kind": "stage",
+   "weight": 2,
+   "cooldownSec": 600,
+   "when": {
+    "membersAtLeast": 2
+   },
+   "effect": {
+    "type": "mediation",
+    "sec": 15,
+    "pct": 30
+   },
+   "pollLike": false,
+   "src": [
+    "herzog-framework"
+   ],
+   "copy": {
+    "name": "יצחק הרצוג",
+    "role": "נשיא המדינה",
+    "toast": true,
+    "text": "הנשיא מציע מתווה פשרה. לגעת בו כדי לקבל אותו.",
+    "ticker": "מתווה פשרה מבית הנשיא. בקואליציה: חד־צדדי. עוד לפני שקראו.",
+    "tickerSrc": [
+     "herzog-framework"
+    ],
+    "acceptText": "קיבלת את המתווה. כל דרישה פתוחה ירדה ב־{pct}%.",
+    "acceptNone": "קיבלת את המתווה. לא היה על מה להתפשר.",
+    "rejectText": "המתווה נדחה. הנשיא משך בכתפיים.",
+    "_note": "Bar, 2026-10-01: Herzog v2 art (rest + shrug). HerzogFigure walks in to the front-right mark; a tap accepts (Events.act mediation accept, Coalition.discount_open); ignored, he shrugs and the outline lapses (eventEnd mediation, rejectText)."
    }
   }
  ],
@@ -4803,6 +4844,19 @@
      "gafni-back",
      "gafni-off-list"
     ]
+   },
+   {
+    "id": "h01",
+    "text": "הנשיא קרא לאחדות. שני הצדדים הסכימו: שהשני יתאחד.",
+    "poll_like": false
+   },
+   {
+    "id": "h02",
+    "text": "בקשת החנינה אצל הנשיא. הנשיא אצל הגישור.",
+    "poll_like": false,
+    "src": [
+     "pardon-shelved"
+    ]
    }
   ]
  },
@@ -5832,8 +5886,11 @@
     "copy": {
      "name": "בצלאל סמוטריץ׳",
      "avatar": "smotrich_avatar",
-     "text": "שר האוצר הודיע שאין כסף. גם לא לבונוסים."
-    }
+     "text": "שר האוצר: יש כסף. לא לך. גם לא לבונוסים."
+    },
+    "src": [
+     "coalition-funds-2025"
+    ]
    },
    {
     "id": "card_deri",
@@ -5854,8 +5911,11 @@
     "copy": {
      "name": "אריה דרעי",
      "avatar": "deri_avatar",
-     "text": "הזמין את השותפים שלך לקפה. הם עוד לא חזרו ☕"
-    }
+     "text": "השותפים שלך יצאו לשיחת מסדרון. יחזרו. מהחלון."
+    },
+    "src": [
+     "deri-door-window"
+    ]
    }
   ],
   "leakRight": {
@@ -8097,8 +8157,12 @@
    "avatar": "smotrich_avatar",
    "_guardrail": "Money and budgets only (the finance ministry, VAT, the budget, the joint list). No settlement, security or war material. \"אין כסף\" is the game's gag, never presented as his quote.",
    "pick": {
-    "blurb": "שר האוצר. אין כסף. תעביר בכל זאת.",
-    "line": "אין כסף! אין כסף!"
+    "blurb": "שר האוצר. יש כסף. לא לך.",
+    "line": "יש כסף! לא לך!",
+    "src": [
+     "coalition-funds-2025",
+     "budget-2026"
+    ]
    },
    "rule": {
     "id": "treasury",
@@ -8206,14 +8270,14 @@
      },
      "t8": {
       "name": "תקציב המדינה",
-      "flavor": "הגדול אי־פעם: 850.6 מיליארד ₪. ובכל זאת, אין כסף.",
+      "flavor": "הגדול אי־פעם: 850.6 מיליארד ₪. יש כסף. לא לך.",
       "levelUp": "עוד מיליארד. אין כסף, אבל יש מיליארד.",
       "src": [
        "budget-2026"
       ],
       "firstOwned": {
        "id": "hs_t8",
-       "text": "תקציב 2026: הגדול אי־פעם. כותרת המשנה: אין כסף.",
+       "text": "תקציב 2026: הגדול אי־פעם. כותרת המשנה: לא לך.",
        "poll_like": false,
        "src": [
         "budget-2026"
@@ -8289,12 +8353,14 @@
     },
     "dubi": {
      "squawks": {
-      "firsttap": "אין כסף! אין כסף!",
+      "firsttap": "לא לך! לא לך!",
       "buy": "העברה! העברה!",
       "elect": "בחירות! בחירות!",
       "miss": "גירעון! גירעון!"
      },
      "talkingPoints": [
+      "יש כסף!",
+      "לא לך!",
       "אין כסף!",
       "מע״מ!",
       "גירעון!",
@@ -8379,7 +8445,7 @@
      },
      {
       "id": "ts03",
-      "text": "תקציב 2026, הגדול אי־פעם: 850.6 מיליארד ₪. אין כסף.",
+      "text": "תקציב 2026, הגדול אי־פעם: 850.6 מיליארד ₪. יש כסף. לא לך.",
       "poll_like": false,
       "src": [
        "budget-2026"
@@ -8766,7 +8832,7 @@
       "cash": "תפסת! בפנים: מזומן. סופרים אותו במסדרון.",
       "frenzy": "תפסת! בפנים: הזרמה. 15 שניות של קפה חזק.",
       "tapFrenzy": "תפסת! המכונה רותחת. כל קפה ×10.",
-      "miss": "המזוודה יצאה לקפה. היא תחזור. כולם חוזרים."
+      "miss": "המזוודה יצאה מהדלת. היא תחזור מהחלון."
      }
     },
     "story": {
@@ -8909,6 +8975,15 @@
       "id": "td14",
       "text": "בש״ס ביקשו לוח זמנים לבחירות. דרעי ביקש ספסל קרוב למליאה.",
       "poll_like": false
+     },
+     {
+      "id": "td15",
+      "text": "בג״ץ סגר לדרעי את הדלת. דרעי מדד את החלון.",
+      "poll_like": false,
+      "src": [
+       "deri-door-window",
+       "deri-disqualified"
+      ]
      }
     ],
     "trophy": {

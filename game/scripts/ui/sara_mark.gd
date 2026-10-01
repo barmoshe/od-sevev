@@ -29,9 +29,10 @@ static func mark() -> Vector2:
 	return L.magician_feet() + (MARK_ART - Vector2(float(mf[0]), float(mf[1]))) * AP
 
 
-## On stage only in Bibi's round, in Balfour, and not while the blockade holds her mark.
+## On stage only in Bibi's round, in Balfour, and not while the blockade or Herzog holds her mark.
 static func wanted(s: GameState, on_stage: bool) -> bool:
-	return on_stage and s != null and Leaders.is_default(Leaders.current(s)) and not Events.is_active(s, "blockade")
+	return on_stage and s != null and Leaders.is_default(Leaders.current(s)) and not Events.is_active(s, "blockade") \
+		and not Events.is_active(s, "mediation")   # Herzog stands on her mark while his outline is up
 
 
 func _ready() -> void:

@@ -250,7 +250,8 @@ def build_taps(take, plan_path=None, tap_at=None):
         for ln in open(log, encoding="utf-8"):
             if ln.startswith("[capture] buy"):
                 a = ln.split(": [", 1)[1].split("]", 1)[0].split(",")
-                rows.append(float(a[1]))
+                if len(a) > 1:          # "buy : [] of []": nothing was affordable at that step
+                    rows.append(float(a[1]))
             for kind in logged:
                 if ln.startswith("[capture] %s : [" % kind):
                     a = ln.split(": [", 1)[1].split("]", 1)[0].split(",")

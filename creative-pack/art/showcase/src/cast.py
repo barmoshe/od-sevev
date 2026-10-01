@@ -53,8 +53,11 @@ CAST = {
     'karhi': dict(neck=540, waist=1000, eyes=[(402, 320, 26, 12), (519, 345, 26, 12)],
                   arm=([(70, 640), (335, 575), (335, 700), (255, 965), (70, 985)], (300, 620)), react='jab',
                   head=(140, 20, 640, 520)),
-    'herzog': dict(neck=560, waist=980, eyes=[(542, 294, 26, 12), (659, 310, 26, 12)],
-                   arm=(40, 215, 235, 640, 200, 650), react='bang', head=(180, 20, 760, 600)),
+    # Herzog v2 (Bar, 2026-10-01): two refs. herzog.png is the rest pose (hands clasped, idle);
+    # herzog-shrug.png (palms out, a sweat drop) is the react's held pose, pasted in the same ref
+    # coordinates (both crops run y 39/40..1494). The wide pad leaves room for the shrug's arms.
+    'herzog': dict(neck=390, waist=960, eyes=[(462, 222, 22, 11), (552, 241, 22, 11)],
+                   arm=None, react='shrug', shrug='herzog-shrug', pad=(0.53, 0.10), head=(300, 20, 700, 420)),
     'trump': dict(neck=520, waist=1000, eyes=[(428, 250, 26, 12), (563, 290, 26, 12)],
                   arm=(110, 510, 335, 800, 235, 820), react='jab', head=(140, 10, 720, 590)),
     # May Golan (Bar's pick, opt1, 2026-09-29): two phantom employees float beside her. The cuts sit

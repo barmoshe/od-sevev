@@ -10,8 +10,8 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
-		<title>עוד סבב: הבחירות שלא נגמרות</title>
-		<meta name="description" content="{{OG_DESCRIPTION}}">
+		<title>עוד סבב: משחק הבחירות שלא נגמרות | סאטירה 2026</title>
+		<meta name="description" content="{{META_DESCRIPTION}}">
 		<meta name="theme-color" content="#0038b8">
 		<meta property="og:title" content="עוד סבב: הבחירות שלא נגמרות">
 		<meta property="og:description" content="{{OG_DESCRIPTION}}">
@@ -28,17 +28,204 @@
 		<meta name="twitter:description" content="{{OG_DESCRIPTION}}">
 		<meta name="twitter:image" content="__OD_SITE_URL__og.jpg">
 		<meta name="twitter:image:alt" content="{{OG_IMAGE_ALT}}">
+		<link rel="canonical" href="__OD_SITE_URL__">
+		<meta name="robots" content="index,follow,max-image-preview:large">
+		<script type="application/ld+json">
+{"@context":"https://schema.org","@type":["VideoGame","WebApplication"],"name":"עוד סבב","alternateName":"עוד סבב: הבחירות שלא נגמרות","url":"__OD_SITE_URL__","image":"__OD_SITE_URL__og.jpg","description":{{META_DESCRIPTION_JSON}},"inLanguage":"he","genre":["Idle","Satire"],"gamePlatform":"Web browser","playMode":"SinglePlayer","applicationCategory":"GameApplication","operatingSystem":"Any","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"ILS"},"author":{"@type":"Person","name":"בר משה"},"publisher":{"@type":"Person","name":"בר משה"},"dateModified":"{{BUILD_DATE_ISO}}","about":{"@type":"Event","name":"הבחירות לכנסת ה־26","startDate":"2026-10-27"},"subjectOf":{"@type":"WebPage","url":"__OD_SITE_URL__about.html"}}
+		</script>
 		<script>
-			// Vercel Web Analytics: cookieless visit counts (visitors, pages, referrers, countries,
-			// devices), read in the Vercel dashboard. Loaded on the deployed host only, so local and
-			// headless test runs never report. window.va queues events until the script arrives.
+			// Analytics (Vercel Web Analytics; Speed Insights is off: Hobby allows it on one project only): cookieless, no ids, read in the Vercel
+			// dashboard. Loaded on the deployed host only, so local runs never report (the script also
+			// skips webdriver/headless browsers). A visit is the page view of `/`; the milestones of play
+			// go in as virtual page views under /play/ (window.odTrack below), because a page view works on
+			// the Hobby plan and a custom event does not. The Pages panel is then the funnel.
 			window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-			if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
-				var vaScript = document.createElement('script');
-				vaScript.defer = true;
-				vaScript.src = '/_vercel/insights/script.js';
-				document.head.appendChild(vaScript);
-			}
+			// the Home Screen icon of older installs opens /index.html: count it as /
+			window.va('beforeSend', function (e) {
+				try {
+					var u = new URL(e.url);
+					if (u.pathname === '/index.html') {
+						u.pathname = '/';
+						e.url = u.href;
+					}
+				} catch (x) { /* keep it */ }
+				return e;
+			});
+			(function () {
+				var live = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+				var dev = /[?&]dev=1/.test(location.search);
+				var ready = false;
+				var held = [];
+				// The script reads window.vaq before it sends the visit's own page view, and a queued
+				// virtual one would relabel it: hold the milestones until the script has loaded.
+				// route = the step's family (/play/session/[v]): the Routes panel totals a family, Pages
+				// keeps every bucket
+				function send(step) {
+					var parts = step.split('/');
+					var route = '/play/' + parts[0] + parts.slice(1).map(function () { return '/[v]'; }).join('');
+					window.va('pageview', { path: '/play/' + step, route: route });
+				}
+				function store(k, v) {
+					try {
+						if (v === undefined) {
+							return localStorage.getItem(k);
+						}
+						localStorage.setItem(k, v);
+					} catch (e) { /* private mode: no dedupe, no return visits */ }
+					return null;
+				}
+				var STEP = new RegExp('^(' + [
+					'loaded/(new|back)/(lt3|3-8|8-20|gt20)s', 'load-error', 'reload-after-crash', 'ctx-lost',
+					'quit/(disclaimer|loading)', 'session/(lt1|1-3|3-10|10-30|gt30)m', 'return/d(1|2-7|8-30|30\\+)',
+					'first-tap/(on|off|na)', 'first-election/(lt15m|15-60m|1-6h|6-24h|gt1d)', 'elections-5',
+					'(picked|switch|stay)/[a-z0-9_-]{1,24}', 'feature/(chat|court|mordechai)',
+					'share/(receipt|result|invite)/(shared|saved|copied|whatsapp|fallback)'].join('|') + ')$');
+				// once per device: a milestone family (first-tap/on and first-tap/off share one key), or
+				// each feature/<id>
+				var ONCE = { 'first-tap': 1, 'first-election': 1, 'elections-5': 1 };
+				function onceKey(step) {
+					var base = step.split('/')[0];
+					return ONCE[base] ? base : (base === 'feature' ? step : '');
+				}
+				window.odTrackLog = [];
+				window.odTrack = function (step) {
+					try {
+						if (!STEP.test(step)) {
+							return;
+						}
+						var key = onceKey(step);
+						if (key) {
+							var seen = JSON.parse(store('odsevev.seen') || '[]');
+							if (seen.indexOf(key) >= 0) {
+								return;
+							}
+							seen.push(key);
+							store('odsevev.seen', JSON.stringify(seen));
+						}
+						window.odTrackLog.push(step);
+						if (live && !dev) {
+							if (ready) {
+								send(step);
+							} else {
+								held.push(step);
+							}
+						}
+					} catch (e) { /* analytics never breaks the game */ }
+				};
+				// The game's funnel events (main.gd _funnel) → steps. No seat or poll numbers here.
+				window.odTrackFunnel = function (e) {
+					if (!e || typeof e.ev !== 'string') {
+						return;
+					}
+					if (e.ev === 'leader_pick_committed' && typeof e.leader === 'string') {
+						// the first pick of a save, then after each election: the same leader again or another
+						var kind = e.variant === 'after' ? (e.switched ? 'switch' : 'stay') : 'picked';
+						window.odTrack(kind + '/' + e.leader.toLowerCase());
+					} else if (e.ev === 'first_tap') {
+						// the disclaimer's sound choice rides on it; the clock for time-to-first-election starts
+						if (!store('odsevev.t0')) {
+							store('odsevev.t0', String(Date.now()));
+						}
+						window.odTrack('first-tap/' + (window.odSound === 'on' || window.odSound === 'off' ? window.odSound : 'na'));
+					} else if (e.ev === 'election_called' && e.n === 1) {
+						// wall-clock time since the first tap: offline progress counts in an idle game
+						var t0 = Number(store('odsevev.t0'));
+						if (t0 > 0) {
+							var m = (Date.now() - t0) / 6e4;
+							window.odTrack('first-election/' + (m < 15 ? 'lt15m' : m < 60 ? '15-60m' : m < 360 ? '1-6h' : m < 1440 ? '6-24h' : 'gt1d'));
+						}
+					} else if (e.ev === 'chat_opened') {
+						window.odTrack('feature/chat');
+					} else if (e.ev === 'court_start') {
+						window.odTrack('feature/court');
+					} else if (e.ev === 'street_event') {
+						window.odTrack('feature/mordechai');
+					} else if (e.ev === 'election_called' && e.n === 5) {
+						window.odTrack('elections-5');
+					} else if (e.ev === 'share_done') {
+						window.odTrack('share/' + e.kind + '/' + e.result);
+					}
+				};
+				// Return visits: the first and last day on this device; a visit on a new day reports how
+				// many days since the first (bucketed). Nothing leaves the device but the bucket.
+				var d = new Date();
+				var today = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+				var first = store('odsevev.first');
+				var last = store('odsevev.last');
+				if (!first) {
+					store('odsevev.first', today);
+				} else if (last !== today) {
+					var p = first.split('-').map(Number);
+					var days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(p[0], p[1] - 1, p[2])) / 864e5);
+					if (days >= 1) {
+						window.odTrack('return/' + (days === 1 ? 'd1' : days <= 7 ? 'd2-7' : days <= 30 ? 'd8-30' : 'd30+'));
+					}
+				}
+				store('odsevev.last', today);
+				var isNew = !first;
+				// The engine is up (shell: startGame resolved): a new or returning device, and how long the
+				// page took to get here, bucketed.
+				window.odTrackLoaded = function () {
+					var sec = performance.now() / 1000;
+					window.odTrack('loaded/' + (isNew ? 'new' : 'back') + '/' + (sec < 3 ? 'lt3' : sec < 8 ? '3-8' : sec < 20 ? '8-20' : 'gt20') + 's');
+					try { sessionStorage.setItem('odsevev.playing', '1'); } catch (x) { /* ignore */ }
+				};
+				// A page that was playing and reloads without a pagehide was killed (iOS reloads a tab that
+				// ran out of memory; an evicted background tab looks the same).
+				try {
+					if (sessionStorage.getItem('odsevev.playing') === '1') {
+						window.odTrack('reload-after-crash');
+					}
+					sessionStorage.removeItem('odsevev.playing');
+				} catch (x) { /* ignore */ }
+				// One send when the page is first hidden or left: before the hand-off, where the player
+				// stopped (the disclaimer, or waiting for the load); after it, how long the first stretch of
+				// play lasted. keepalive fetches leave even as the page goes.
+				var exitSent = false;
+				function onExit(ev) {
+					if (ev.type === 'pagehide') {
+						try { sessionStorage.removeItem('odsevev.playing'); } catch (x) { /* ignore */ }
+					}
+					if (exitSent || (ev.type === 'visibilitychange' && document.visibilityState !== 'hidden')) {
+						return;
+					}
+					exitSent = true;
+					if (!window.mbHandoffDone) {
+						window.odTrack('quit/' + (window.odGateTapped && window.odGateTapped() ? 'loading' : 'disclaimer'));
+						return;
+					}
+					var m = (performance.now() - window.mbHandoffDone) / 6e4;
+					window.odTrack('session/' + (m < 1 ? 'lt1' : m < 3 ? '1-3' : m < 10 ? '3-10' : m < 30 ? '10-30' : 'gt30') + 'm');
+				}
+				document.addEventListener('visibilitychange', onExit);
+				window.addEventListener('pagehide', onExit);
+				document.addEventListener('DOMContentLoaded', function () {
+					var c = document.getElementById('canvas');
+					if (c) {
+						c.addEventListener('webglcontextlost', function () { window.odTrack('ctx-lost'); });
+					}
+				});
+				// The scripts stay on /_vercel: a vercel.json rewrite to them returns 404 on a static
+				// deploy (tried 2026-10-01), and an absolute-URL proxy would make Vercel the visitor (one
+				// IP, one country). The only blocker-proof path is @vercel/analytics v2's build-time one.
+				function load(src, endpoint, fallback, onload) {
+					var el = document.createElement('script');
+					el.defer = true;
+					el.src = src;
+					if (endpoint) {
+						el.dataset.endpoint = endpoint;
+					}
+					el.onload = onload || null;
+					el.onerror = fallback ? function () { load(fallback, '', '', onload); } : null;
+					document.head.appendChild(el);
+				}
+				if (live) {
+					load('/_vercel/insights/script.js', '', '', function () {
+						ready = true;
+						held.splice(0).forEach(send);
+					});
+				}
+			}());
 		</script>
 		<style>
 html, body, #canvas {
@@ -181,7 +368,7 @@ body {
 #od-gate .od-card::after, #od-about .od-card::after { content: ""; display: block; height: 3px; background: #0038b8;
 	margin: 18px -18px 0; box-shadow: 0 6px 0 0 #0038b8; }
 #od-gate img.od-wordmark { display: block; margin: 0 auto 20px; width: 286px; height: 58px; image-rendering: pixelated; }
-#od-gate h1 { font-size: 22px; margin: 0 0 12px; text-align: center; }
+#od-gate #od-title { font-size: 22px; margin: 0 0 12px; text-align: center; }
 #od-gate p { margin: 0 0 10px; }
 #od-gate .od-by { font-size: 14px; color: #34466e; margin-top: 14px; }
 #od-gate a { color: #0038b8; }
@@ -199,8 +386,11 @@ body {
 	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.5;
 	padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 32px; box-sizing: border-box; display: none; }
 #od-about .od-card { max-width: 520px; margin: 0 auto; padding: 0 18px; box-sizing: border-box; }
-#od-about h1 { font-size: 22px; margin: 0 0 12px; }
+#od-about #od-about-title { font-size: 22px; margin: 0 0 12px; }
+/* the page's one h1 (the game's name, for search and screen readers); the dialogs use h2 */
+.od-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 #od-about h2 { font-size: 18px; margin: 20px 0 8px; }
+#od-about h3 { font-size: 16px; margin: 12px 0 4px; }
 #od-about ul { padding: 0 20px 0 0; margin: 0; text-align: right; }
 #od-about li { margin-bottom: 8px; }
 #od-about .od-src { font-size: 14px; color: #34466e; }
@@ -240,6 +430,7 @@ html.od-framed #od-phone {
 		$GODOT_HEAD_INCLUDE
 	</head>
 	<body>
+		<h1 class="od-sr">{{ABOUT_PAGE_TITLE}}</h1>
 		<div id="od-phone" aria-hidden="true"></div>
 		<canvas id="canvas">
 			הדפדפן הזה לא תומך במשחק.
@@ -248,19 +439,31 @@ html.od-framed #od-phone {
 		<div id="safe-probe"></div>
 
 		<noscript>
-			<h1>{{DISC_TITLE}}</h1>
+			<h2>{{DISC_TITLE}}</h2>
 			<p>{{DISC_L1}}</p>
 			<p>{{DISC_L2}}</p>
 			<p>{{DISC_L3}}</p>
 			<p>{{DISC_L4}}</p>
 			<p>עוד סבב הוא משחק סאטירה. כדי לשחק צריך להפעיל JavaScript.</p>
+			<h2>{{FAQ_TITLE}}</h2>
+			<h3>{{FAQ_Q1}}</h3>
+			<p>{{FAQ_A1}}</p>
+			<h3>{{FAQ_Q2}}</h3>
+			<p>{{FAQ_A2}}</p>
+			<h3>{{FAQ_Q3}}</h3>
+			<p>{{FAQ_A3}}</p>
+			<h3>{{FAQ_Q4}}</h3>
+			<p>{{FAQ_A4}}</p>
+			<h3>{{FAQ_Q5}}</h3>
+			<p>{{FAQ_A5}}</p>
+			<p><a href="about.html">{{ABOUT_MORE}}</a></p>
 		</noscript>
 
 		<!-- N1 (first launch) / N0 (returning) : ux/rtl-map.md §9 -->
 		<div id="od-gate" role="dialog" aria-modal="true" aria-labelledby="od-title">
 			<div class="od-card" id="od-n1" hidden>
 				<img class="od-wordmark" src="wordmark.png" alt="{{TITLE_WORDMARK_1}}">
-				<h1 id="od-title">{{DISC_TITLE}}</h1>
+				<h2 id="od-title">{{DISC_TITLE}}</h2>
 				<p>{{DISC_L1}}</p>
 				<p>{{DISC_L2}}</p>
 				<p>{{DISC_L3}}</p>
@@ -281,27 +484,40 @@ html.od-framed #od-phone {
 		<div id="od-about" role="dialog" aria-modal="true" aria-labelledby="od-about-title" dir="rtl">
 			<div class="od-card">
 				<div class="od-back"><button id="od-about-back" type="button">{{ABOUT_BACK}}</button></div>
-				<h1 id="od-about-title">{{ABOUT_TITLE}}</h1>
+				<h2 id="od-about-title">{{ABOUT_TITLE}}</h2>
 				<p>{{ABOUT_1}}</p>
 				<p>{{ABOUT_2}}</p>
 				<p>{{ABOUT_3}}</p>
 				<p>{{ABOUT_4}}</p>
 				<p>{{ABOUT_5}}</p>
 				<p>{{ABOUT_6}}</p>
-				<p>{{ABOUT_7}}</p>
+				<p>{{ABOUT_7_TELEMETRY}}</p>
+				<p>{{ABOUT_WHO_HTML}}</p>
 				<!-- the invite (first-minute §5.3, Bar 2026-09-29: WhatsApp is the main channel) -->
 				<div class="od-invite">
 					<button id="od-invite" type="button">{{ABOUT_SHARE}}</button>
 					<a id="od-invite-wa" class="od-btn" href="https://wa.me/" rel="noopener">{{ABOUT_SHARE_WA}}</a>
 				</div>
 				<div class="od-invite-status" id="od-invite-status" aria-live="polite"></div>
+				<h2>{{FAQ_TITLE}}</h2>
+				<h3>{{FAQ_Q1}}</h3>
+				<p>{{FAQ_A1}}</p>
+				<h3>{{FAQ_Q2}}</h3>
+				<p>{{FAQ_A2}}</p>
+				<h3>{{FAQ_Q3}}</h3>
+				<p>{{FAQ_A3}}</p>
+				<h3>{{FAQ_Q4}}</h3>
+				<p>{{FAQ_A4}}</p>
+				<h3>{{FAQ_Q5}}</h3>
+				<p>{{FAQ_A5}}</p>
+				<p><a href="about.html">{{ABOUT_MORE}}</a></p>
 				<h2>{{ABOUT_SOURCES}}</h2>
 				<ul dir="rtl">{{ABOUT_SOURCES_LIST}}</ul>
 			</div>
 		</div>
 
 		<div id="status">
-			<img id="status-splash" class="$GODOT_SPLASH_CLASSES" src="$GODOT_SPLASH" alt="">
+			<img id="status-splash" class="$GODOT_SPLASH_CLASSES" src="$GODOT_SPLASH" alt="{{TITLE_WORDMARK_1}}">
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
@@ -531,6 +747,7 @@ if ('serviceWorker' in navigator) {
 	let loadTimer = 0;
 	window.mbHandoffDone = 0;
 	window.odSound = store.get('odsevev.sound') || '';
+	window.odGateTapped = () => tapped;   // the analytics' exit step: quit at the disclaimer or while loading
 	const firstLaunch = store.get('odsevev.disclaimer') !== DISC_V;
 	if (firstLaunch) {
 		n1.hidden = false;
@@ -630,21 +847,25 @@ if ('serviceWorker' in navigator) {
 	const invite = document.getElementById('od-invite');
 	const inviteWa = document.getElementById('od-invite-wa');
 	const inviteStatus = document.getElementById('od-invite-status');
+	const inviteDone = (r) => {
+		window.odShareLog.push(['invite', r]);
+		window.odTrack('share/invite/' + r);
+	};
 	if (inviteWa) {
 		inviteWa.href = 'https://wa.me/?text=' + encodeURIComponent(inviteText);
 		if (!window.odShare.mobile()) {
 			inviteWa.target = '_blank';
 		}
-		inviteWa.addEventListener('click', () => window.odShareLog.push(['invite', 'whatsapp']));
+		inviteWa.addEventListener('click', () => inviteDone('whatsapp'));
 	}
 	if (invite) {
 		invite.addEventListener('click', () => {
 			const copied = () => window.odShare.copy(inviteText).then((ok) => {
 				inviteStatus.textContent = ok ? '{{SHARE_COPIED_JS}}' : '{{SHARE_FAIL_JS}}';
-				window.odShareLog.push(['invite', ok ? 'copied' : 'fail']);
+				inviteDone(ok ? 'copied' : 'fail');
 			});
 			if (navigator.share) {
-				navigator.share({ text: inviteText }).then(() => window.odShareLog.push(['invite', 'shared']), (e) => {
+				navigator.share({ text: inviteText }).then(() => inviteDone('shared'), (e) => {
 					if (!(e && e.name === 'AbortError')) {
 						copied();
 					}
@@ -848,10 +1069,14 @@ window.mbSafeArea = function () {
 			},
 		}).then(() => {
 			setStatusMode('hidden');
+			window.odTrackLoaded();
 			if (window.odGateReady) {
 				window.odGateReady();
 			}
-		}, displayFailureNotice);
+		}, (err) => {
+			window.odTrack('load-error');
+			displayFailureNotice(err);
+		});
 	}
 }());
 		</script>

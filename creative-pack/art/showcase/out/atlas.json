@@ -2,6 +2,66 @@
  "artHeight": 96,
  "density": 3,
  "chars": {
+  "herzog": {
+   "frameW": 190,
+   "frameH": 317,
+   "anchor": [
+    95,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "herzog_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "herzog_react.png",
+     "frames": 12,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "shrug": 2
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 127,
+     "frameH": 211,
+     "anchor": [
+      63,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "herzog_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "herzog_react_d2.png",
+       "frames": 12,
+       "fps": 12,
+       "loop": false,
+       "events": {
+        "shrug": 2
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
   "tibi": {
    "frameW": 151,
    "frameH": 317,
@@ -7201,68 +7261,6 @@
        "loop": false,
        "events": {
         "shout": 2
-       },
-       "density": 2
-      }
-     }
-    }
-   }
-  },
-  "herzog": {
-   "frameW": 186,
-   "frameH": 317,
-   "anchor": [
-    93,
-    316
-   ],
-   "density": 3,
-   "anims": {
-    "idle": {
-     "file": "herzog_idle.png",
-     "frames": 20,
-     "fps": 10,
-     "loop": true,
-     "events": {},
-     "density": 3
-    },
-    "react": {
-     "file": "herzog_react.png",
-     "frames": 12,
-     "fps": 14,
-     "loop": false,
-     "events": {
-      "bang": 4,
-      "bang2": 8
-     },
-     "density": 3
-    }
-   },
-   "densities": {
-    "2": {
-     "frameW": 124,
-     "frameH": 211,
-     "anchor": [
-      62,
-      210
-     ],
-     "density": 2,
-     "anims": {
-      "idle": {
-       "file": "herzog_idle_d2.png",
-       "frames": 20,
-       "fps": 10,
-       "loop": true,
-       "events": {},
-       "density": 2
-      },
-      "react": {
-       "file": "herzog_react_d2.png",
-       "frames": 12,
-       "fps": 14,
-       "loop": false,
-       "events": {
-        "bang": 4,
-        "bang2": 8
        },
        "density": 2
       }

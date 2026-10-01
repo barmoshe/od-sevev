@@ -185,11 +185,11 @@ def end_card(c, tt, line, cta=None, seed=5):
 M_DUR = 24.0
 M_ITEMS = [  # (leader, headline line 1, line 2, Dubi's doubled talking point); the game's ticker lines
     ("bennett", "בנט חתם על התחייבות חדשה.", "הפעם בעיפרון.", "ביחד! ביחד!"),
-    ("smotrich", "המע״מ עלה ל־18%.", "באוצר חגגו בשקט. אין כסף לחגיגה.", "אין כסף! אין כסף!"),
-    ("liberman", "ליברמן הציג את הקווים האדומים שלו.", "זה פשוט דף אדום.", "לא יושב! לא יושב!"),
-    ("deri", "דרעי הזמין את כל הקואליציה לקפה.", "הקפה עלה יותר מהקואליציה.", "ידידי! ידידי!"),
+    ("smotrich", "המע״מ עלה ל־18%.", "באוצר חגגו בשקט. יש כסף. לא לך.", "לא לך! לא לך!"),
+    ("liberman", "ליברמן הציג את הקווים האדומים שלו.", "זה פשוט דף אדום.", "לא אשב! לא אשב!"),
+    ("deri", "בג״ץ סגר לדרעי את הדלת.", "דרעי מדד את החלון.", "מסדרון! מסדרון!"),
     ("eisenkot", "במטה של ישר תלו סרגל על הקיר.", "הקיר יושר.", "ישר! ישר!"),
-    ("bibi", "על פי פרסומים זרים,", "יש כובע.", "אין כלום! אין כלום!"),
+    ("bibi", "20:00, הצהרה דרמטית:", "יש כובע.", "אין כלום! אין כלום!"),
 ]
 M_T0 = 3.3
 M_STEP = 2.9
@@ -379,9 +379,9 @@ SELECT = [  # (id, stat 1, stat 2, special)
     ("bennett", ("חתימות", 99), ("התחייבויות שנשארו", 3), "היפוך"),
     ("bengvir", ("העברות הודעה", 99), ("איומים לפרוש", 100), "איום"),
     ("liberman", ("סירובים", 100), ("ישיבה", 0), "לא מוחלט"),
-    ("smotrich", ("חישובים", 99), ("כסף", 0), "אין כסף!"),
+    ("smotrich", ("חישובים", 99), ("כסף בשבילך", 0), "לא לך!"),
     ("eisenkot", ("יושר", 100), ("קסמים", 0), "אין. בלי קסמים."),
-    ("deri", ("כוסות קפה", 99), ("ידידים", 100), "ידידי"),
+    ("deri", ("שיחות מסדרון", 99), ("משרדים", 0), "מהחלון"),
     ("golan", ("איחודים", 99), ("מה שנשאר לאחד", 1), "עוד איחוד"),
 ]
 GRID = ["bibi", "bennett", "bengvir", "liberman", None, "smotrich", "eisenkot", "deri", "golan"]   # None = "?"
@@ -529,7 +529,7 @@ def select_audio(path):
     m.cue(BAR2 * 10 + 0.3, "stamp_bell", -2)
     m.cue(BAR2 * 11, "stamp", -3)
     for j in range(8):
-        m.cue(BAR2 * 12 + j * BEAT2, "tap_D_s%d_d25" % (j % 8), -6)
+        m.cue(BAR2 * 12 + j * BEAT2, k.tap_note(j % 8), -6)
     m.cue(BAR2 * 14, "stinger_motif_D", -2)
     m.write(path, 0.6)
 
@@ -754,7 +754,7 @@ def fakead_audio(path):
     real = k.load_wav("music_knesset_L0") + k.load_wav("music_knesset_L1") + k.load_wav("music_knesset_L2")
     m.put(F_REAL, real[: int((F_END - F_REAL) * SR)], -8)
     for j in range(8):
-        m.cue(F_REAL + j * 0.45, "tap_D_s%d_d25" % j, -6)
+        m.cue(F_REAL + j * 0.45, k.tap_note(j), -6)
     m.cue(F_END, "stinger_motif_D", -2)
     m.cue(F_END + 1.9, "uiClick_D", 0)
     m.cue(F_END + 1.95, "stamp_bell", -1)

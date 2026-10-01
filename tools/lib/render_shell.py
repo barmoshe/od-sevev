@@ -7,12 +7,16 @@ at export, <noscript> included).
 
 {{KEY}}     -> ux/ui-strings.json strings[KEY], HTML-escaped
 {{KEY_JS}}  -> the same, escaped for a single-quoted JS string
+{{KEY_JSON}} -> the same as a JSON string literal, quotes included (the JSON-LD block)
 {{DISC_BY_HTML}}        -> DISC_BY with {publisher}/{mail} from OD_PUBLISHER / OD_CONTACT_MAIL
                            (empty segments dropped) and "אודות" as the About link
+{{ABOUT_WHO_HTML}}      -> "מאת {publisher} · לפניות: {mail}" (ABOUT_WHO, ABOUT_CONTACT), the mail a link
+{{BUILD_DATE}} / {{BUILD_DATE_ISO}} -> today, as 1.10.2026 / 2026-10-01 (dateModified, "עודכן")
 {{ABOUT_SOURCES_LIST}}  -> design/facts.json facts as <li> with "למקור" links: only facts without
                            `notUsed: true`, and only their Hebrew `aboutHe` (about_items)
 Any {{KEY}} left over fails the build.
 """
+import datetime
 import html
 import json
 import os
@@ -27,8 +31,10 @@ def main(path):
     ui = json.load(open(os.path.join(ROOT, "ux", "ui-strings.json"), encoding="utf-8"))["strings"]
     facts_path = os.path.join(ROOT, "design", "facts.json")
     facts = json.load(open(facts_path, encoding="utf-8")).get("facts", []) if os.path.exists(facts_path) else []
-    publisher = os.environ.get("OD_PUBLISHER", "base67")
-    mail = os.environ.get("OD_CONTACT_MAIL", "")
+    # Bar 2026-10-01: the game names its maker (answer engines and the election-law reading both
+    # want a name and a contact on the page)
+    publisher = os.environ.get("OD_PUBLISHER", "בר משה")
+    mail = os.environ.get("OD_CONTACT_MAIL", "1barmoshe1@gmail.com")
     src = open(path, encoding="utf-8").read()
 
     def esc(k):
@@ -51,12 +57,26 @@ def main(path):
             out.append(html.escape(p))
     src = src.replace("{{DISC_BY_HTML}}", " · ".join(out))
 
+    who = [html.escape(ui.get("ABOUT_WHO", "").replace("{publisher}", publisher))]
+    if mail:
+        c = ui.get("ABOUT_CONTACT", "{mail}")
+        who.append(html.escape(c.split("{mail}")[0]) + '<a href="mailto:%s">%s</a>' % (html.escape(mail), html.escape(mail)))
+    src = src.replace("{{ABOUT_WHO_HTML}}", " · ".join(who))
+    today = datetime.date.today()
+    src = src.replace("{{BUILD_DATE_ISO}}", today.isoformat())
+    src = src.replace("{{BUILD_DATE}}", "%d.%d.%d" % (today.day, today.month, today.year))
+    src = src.replace("{{ABOUT_UPDATED}}", html.escape(ui.get("ABOUT_UPDATED", "{date}")).replace("{date}", "%d.%d.%d" % (today.day, today.month, today.year)))
+
     items, skipped = about_items(facts, ui)
     src = src.replace("{{ABOUT_SOURCES_LIST}}", "\n".join(items))
 
     def js(k):
         return ui.get(k, "").replace("\\", "\\\\").replace("'", "\\'")
 
+    def js_json(k):
+        return json.dumps(ui[k], ensure_ascii=False).replace("</", "<\\/") if k in ui else "{{%s_JSON}}" % k
+
+    src = re.sub(r"\{\{([A-Z0-9_]+)_JSON\}\}", lambda m: js_json(m.group(1)), src)
     src = re.sub(r"\{\{([A-Z0-9_]+)_JS\}\}", lambda m: js(m.group(1)), src)
     src = re.sub(r"\{\{([A-Z0-9_]+)\}\}", lambda m: esc(m.group(1)) if m.group(1) in ui else m.group(0), src)
     left = sorted(set(re.findall(r"\{\{[A-Z0-9_]+\}\}", src)))

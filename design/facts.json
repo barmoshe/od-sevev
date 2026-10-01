@@ -212,6 +212,7 @@
    "verificationNote": "ToI (26 Apr 2026): Herzog rebuffed the request \"at least for now\" and called for new plea-deal talks. Ynet: \"הרצוג מקפיא את ההחלטה בבקשת החנינה של נתניהו\". Frozen, not rejected; stamp 7 \"מומלץ לשקול הסדר טיעון\" fits.",
    "usedIn": [
     "ambientHeadlinesV2.list.c03",
+    "ambientHeadlinesV2.listPolitics.h02",
     "court.pardon.copy",
     "court.pardon.copy.stampsSrc.6",
     "leaderSelect.partnerProfiles.bibi",
@@ -470,7 +471,11 @@
    "usedOutsideContent": "Also the UX receipt 800M line",
    "usedIn": [
     "ambientHeadlinesV2.list.g21",
-    "ambientHeadlinesV2.list.g22"
+    "ambientHeadlinesV2.list.g22",
+    "leaders.smotrich.kit.sources.t8",
+    "leaders.smotrich.kit.sources.t8.firstOwned",
+    "leaders.smotrich.kit.ticker.ts03",
+    "leaders.smotrich.pick"
    ],
    "usedInLeaderSelect": [
     "leaders.smotrich.kit.sources.t8",
@@ -522,6 +527,7 @@
     "leaders.deri.kit.ticker.td04",
     "leaders.deri.kit.ticker.td12",
     "leaders.deri.kit.ticker.td13",
+    "leaders.deri.kit.ticker.td15",
     "partners.deri",
     "partners.deri.copy.card"
    ],
@@ -1417,9 +1423,11 @@
    "verifiedAt": "2026-09-29",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaderSelect.cardProfiles.card_smotrich",
     "leaders.smotrich.kit.sources.t5",
     "leaders.smotrich.kit.sources.t5.firstOwned",
-    "leaders.smotrich.kit.ticker.ts04"
+    "leaders.smotrich.kit.ticker.ts04",
+    "leaders.smotrich.pick"
    ]
   },
   {
@@ -2775,6 +2783,50 @@
     "partners.almog"
    ],
    "ref": 133
+  },
+  {
+   "id": "deri-door-window",
+   "label": "Q",
+   "text": "After the High Court disqualified him (Jan 2023), Deri said in effect that if they shut the door he would come in through the window, and if the window is shut, through the ceiling; Calcalist headlined it \"he went out the window but will come back through the door\".",
+   "aboutHe": "אחרי פסילת בג״ץ אמר אריה דרעי, בפרפרזה, שאם יסגרו את הדלת ייכנס מהחלון.",
+   "notUsed": false,
+   "outlet": "Ynet; Calcalist",
+   "url": "https://www.ynet.co.il/news/article/b1kf11ahss",
+   "url2": "https://www.calcalist.co.il/local_news/article/byeqdzoso",
+   "date": "2023-01",
+   "gameRendering": "paraphrase only: the door and the window; never a quote.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.cardProfiles.card_deri",
+    "leaders.deri.kit.ticker.td15",
+    "partners.deri"
+   ],
+   "ref": 134
+  },
+  {
+   "id": "herzog-framework",
+   "label": "F",
+   "text": "On 15 Mar 2023 President Herzog presented \"the People's Framework\", a compromise on the judicial overhaul; coalition leaders rejected it the same day as one-sided, biased and unacceptable, while five of the six opposition leaders backed it as a basis for talks.",
+   "aboutHe": "ב־15 במרץ 2023 הציג הנשיא יצחק הרצוג מתווה פשרה לרפורמה המשפטית, וראשי הקואליציה דחו אותו באותו יום בעוד רוב ראשי האופוזיציה תמכו בו.",
+   "notUsed": false,
+   "outlet": "Times of Israel; The National",
+   "url": "https://www.timesofisrael.com/liveblog_entry/the-central-tenants-of-herzogs-peoples-framework-for-judicial-compromise/",
+   "url2": "https://www.thenationalnews.com/world/2023/03/16/netanyahu-rejects-president-herzogs-compromise-offer-on-judicial-plan/",
+   "moreUrls": [
+    "https://www.timesofisrael.com/opposition-heads-back-herzogs-not-ideal-proposal-pan-coalition-for-dismissing-it/"
+   ],
+   "date": "2023-03",
+   "gameRendering": "the outline as a game mechanic (a price compromise on demands) and its rejection; never the reform's contents.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "events.herzog",
+    "events.herzog.copy"
+   ],
+   "ref": 135
   }
  ],
  "deliberatelyOut": [

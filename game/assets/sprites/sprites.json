@@ -10,6 +10,148 @@
   219
  ],
  "chars": {
+  "herzog": {
+   "frameW": 184,
+   "frameH": 301,
+   "anchor": [
+    90,
+    300
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/herzog_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/herzog_react.png",
+     "frames": 12,
+     "fps": 12,
+     "loop": false,
+     "events": {
+      "shrug": 2
+     },
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      3,
+      3,
+      4,
+      3,
+      5,
+      0,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 124,
+     "frameH": 201,
+     "anchor": [
+      60,
+      200
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/herzog_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/herzog_react_d2.png",
+       "frames": 12,
+       "fps": 12,
+       "loop": false,
+       "events": {
+        "shrug": 2
+       },
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        3,
+        3,
+        4,
+        3,
+        5,
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_herzog",
+   "avatar24": "avatar24_herzog"
+  },
   "tibi": {
    "frameW": 124,
    "frameH": 289,
@@ -9082,106 +9224,6 @@
    "avatar": "avatar_karhi",
    "avatar24": "avatar24_karhi"
   },
-  "herzog": {
-   "frameW": 163,
-   "frameH": 298,
-   "anchor": [
-    86,
-    297
-   ],
-   "density": 3,
-   "anims": {
-    "idle": {
-     "texture": "cast/herzog_idle.png",
-     "frames": 20,
-     "fps": 10,
-     "loop": true,
-     "events": {},
-     "density": 3,
-     "cols": 10,
-     "rows": 2
-    },
-    "react": {
-     "texture": "cast/herzog_react.png",
-     "frames": 12,
-     "fps": 14,
-     "loop": false,
-     "events": {
-      "bang": 4,
-      "bang2": 8
-     },
-     "density": 3,
-     "cols": 7,
-     "rows": 1,
-     "frameMap": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      1,
-      3,
-      4,
-      6,
-      0,
-      0
-     ]
-    }
-   },
-   "densities": {
-    "2": {
-     "frameW": 110,
-     "frameH": 199,
-     "anchor": [
-      58,
-      198
-     ],
-     "density": 2,
-     "anims": {
-      "idle": {
-       "texture": "cast/herzog_idle_d2.png",
-       "frames": 20,
-       "fps": 10,
-       "loop": true,
-       "events": {},
-       "density": 2,
-       "cols": 10,
-       "rows": 2
-      },
-      "react": {
-       "texture": "cast/herzog_react_d2.png",
-       "frames": 12,
-       "fps": 14,
-       "loop": false,
-       "events": {
-        "bang": 4,
-        "bang2": 8
-       },
-       "density": 2,
-       "cols": 7,
-       "rows": 1,
-       "frameMap": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        1,
-        3,
-        4,
-        6,
-        0,
-        0
-       ]
-      }
-     }
-    }
-   },
-   "avatar": "avatar_herzog",
-   "avatar24": "avatar24_herzog"
-  },
   "trump": {
    "frameW": 192,
    "frameH": 292,
@@ -14861,8 +14903,8 @@
    ]
   },
   "avatar24_herzog.png": {
-   "bytes": 1069,
-   "sha": "8a693def59ebc9af",
+   "bytes": 1011,
+   "sha": "99f4e2915e4f4480",
    "size": [
     24,
     24
@@ -15189,8 +15231,8 @@
    ]
   },
   "avatar_herzog.png": {
-   "bytes": 1723,
-   "sha": "59e789425d92b998",
+   "bytes": 1648,
+   "sha": "c9277d0d98c8adcb",
    "size": [
     32,
     32
@@ -16357,35 +16399,35 @@
    ]
   },
   "cast/herzog_idle.png": {
-   "bytes": 198386,
-   "sha": "7e11cee134510d1c",
+   "bytes": 63383,
+   "sha": "f86129162b35688c",
    "size": [
-    1630,
-    596
+    1104,
+    301
    ]
   },
   "cast/herzog_idle_d2.png": {
-   "bytes": 99843,
-   "sha": "dcd91a7f766a9896",
+   "bytes": 30761,
+   "sha": "afab7ad9bbcc1492",
    "size": [
-    1100,
-    398
+    744,
+    201
    ]
   },
   "cast/herzog_react.png": {
-   "bytes": 188382,
-   "sha": "10333fcddfe93b1f",
+   "bytes": 200766,
+   "sha": "51a595a69cf432e6",
    "size": [
-    1141,
-    298
+    1104,
+    301
    ]
   },
   "cast/herzog_react_d2.png": {
-   "bytes": 97523,
-   "sha": "4217b9e884d5029e",
+   "bytes": 100189,
+   "sha": "20eb342a3e4a2d32",
    "size": [
-    770,
-    199
+    744,
+    201
    ]
   },
   "cast/karhi_idle.png": {
@@ -19347,7 +19389,8 @@
    "golan.png": "a3c1e5ba79b6540d",
    "goldknopf.png": "7d9c7254192b2ee5",
    "gotliv.png": "9ab16d8359854d10",
-   "herzog.png": "455757b1fba3a804",
+   "herzog-shrug.png": "d19d733173ddadeb",
+   "herzog.png": "d3cc8be30a9bf784",
    "hitech.png": "9947ca2bbfd76400",
    "karhi.png": "7fd58bb71e43344c",
    "kariv.png": "e2c1734b7fd97171",

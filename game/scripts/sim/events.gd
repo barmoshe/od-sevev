@@ -39,7 +39,7 @@ static var EFFECTS: Dictionary = {
 		var pair := _brawl_pair(s, e, r)
 		if pair.is_empty():
 			return {"skipped": true}
-		var ev := Coalition.start_brawl(s, pair[0], pair[1])
+		var ev := Coalition.start_brawl(s, pair[0], pair[1], "brawl", _brawl_script(s, pair))
 		return {"a": pair[0], "b": pair[1], "events": ev},
 	"leak": func(s: GameState, e: Dictionary, _d: Economy.Derived, _r: Callable) -> Dictionary:
 		var st := _st(s)
@@ -93,6 +93,12 @@ static var EFFECTS: Dictionary = {
 		# Mordechai David since 2026-10-01 (Bar): he walks in from the left and, for `sec`, nothing on
 		# the screen takes a tap (main._input_blocked). No seats, no money: the cost is the lost seconds.
 		_activate(s, "screenBlock", e, {})
+		return {},
+	"mediation": func(s: GameState, e: Dictionary, _d: Economy.Derived, _r: Callable) -> Dictionary:
+		# Herzog's compromise outline (fact herzog-framework, March 2023): he stands on the stage for
+		# `sec`; a tap on him accepts it (act "accept": every open demand drops `pct`%); ignored, it
+		# lapses and he shrugs. No seats, no penalty: the cost of ignoring him is the missed discount.
+		_activate(s, "mediation", e, {})
 		return {},
 	"loseRandomPartner": func(s: GameState, _e: Dictionary, d: Economy.Derived, r: Callable) -> Dictionary:
 		var pool: Array = []
@@ -410,6 +416,30 @@ static func _effect_of(type: String) -> Dictionary:
 	return {}
 
 
+## The first brawl ever (events.brawl.counts 0) between the scripted pair (effect.pairs[0], e.g.
+## Amsalem × Smotrich) plays events.brawl.copy.script; every later brawl is the generic one.
+static func _brawl_script(s: GameState, pair: Array) -> Array:
+	var b := event("brawl")
+	var pairs: Array = b.get("effect", {}).get("pairs", [])
+	if pairs.is_empty() or not pairs[0] is Array or int(_st(s)["counts"].get("brawl", 0)) > 0:
+		return []
+	var p0: Array = pairs[0]
+	if not (p0.has(pair[0]) and p0.has(pair[1])):
+		return []
+	var sc: Variant = b.get("copy", {}).get("script", [])
+	return sc if sc is Array else []
+
+
+## The leak's lines in the round's skin (events.leak.copy.leaks, or leaderSelect.leakRight.leaks):
+## leak `idx` is 1-based; [] when it has none.
+static func leak_lines(idx: int, skin: String = "") -> Array:
+	var c: Variant = Leaders.ls().get("leakRight", {}) if skin == "leakRight" else event("leak").get("copy", {})
+	var leaks: Array = (c as Dictionary).get("leaks", []) if c is Dictionary else []
+	if idx < 1 or idx > leaks.size() or not leaks[idx - 1] is Array:
+		return []
+	return leaks[idx - 1]
+
+
 static func _brawl_pair(s: GameState, e: Dictionary, rng: Callable) -> Array:
 	for pr: Variant in e.get("pairs", []):
 		if pr is Array and (pr as Array).size() == 2 and Coalition.can_brawl(s, str(pr[0]), str(pr[1])):
@@ -453,6 +483,10 @@ static func act(s: GameState, type: String, action: String, d: Economy.Derived) 
 			return {"award": award}
 		if type == "pardonDesk" and action == "request":
 			return {"stamp": Investigation.request_pardon(s)}
+		if type == "mediation" and action == "accept":
+			(st["active"] as Array).erase(a)
+			var pct := clampf(float(e.get("pct", 30.0)), 0.0, 100.0)
+			return {"accepted": true, "pct": pct, "cut": Coalition.discount_open(s, 1.0 - pct / 100.0)}
 	return {}
 
 

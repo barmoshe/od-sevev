@@ -134,13 +134,13 @@ def hemicycle(c, filled, cx=W // 2, cy=1330, lost=0.0, t=0.0):
 
 LEADERS = [  # the eight, equal airtime; the order keeps no one first or last by rank
     ("bennett", "בנט", "ביחד! ביחד!", "critReact_D_whoosh", "knesset"),
-    ("smotrich", "סמוטריץ׳", "אין כסף! אין כסף!", "critReact_D_shout", "washington"),
+    ("smotrich", "סמוטריץ׳", "יש כסף! לא לך!", "critReact_D_shout", "washington"),
     ("eisenkot", "אייזנקוט", "ישר! ישר!", "critReact_D_land", "courthouse"),
     ("bibi", "ביבי", "אין כלום! אין כלום!", "critReact_D_shout", "balfour"),
     ("golan", "גולן", "איחוד! איחוד!", "critReact_D_whoosh", "knesset"),
     ("ben-gvir", "בן גביר", "אני פורש! אני פורש!", "critReact_D_shout", "washington"),
-    ("liberman", "ליברמן", "לא יושב! לא יושב!", "critReact_D_no", "courthouse"),
-    ("deri", "דרעי", "ידידי! ידידי!", "critReact_D_land", "balfour"),
+    ("liberman", "ליברמן", "לא אשב! לא אשב!", "critReact_D_no", "courthouse"),
+    ("deri", "דרעי", "מסדרון! מסדרון!", "critReact_D_land", "balfour"),
 ]
 BURST = [((22, 60, 140), (34, 87, 166)), ((120, 24, 40), (170, 40, 57)), ((20, 70, 60), (40, 120, 90)),
          ((70, 40, 110), (110, 70, 160)), ((130, 80, 20), (190, 130, 40)), ((20, 90, 120), (40, 140, 170))]
@@ -300,7 +300,7 @@ def s_loop(c, t):
         head = plate(W - 80, 150, NAVY, GOLD_SH, 9)
         paste(c, head, W // 2, 470)
         paste(c, text("קואליציה 61", 9, grad=True), W // 2, 470)
-        msgs = [("deri", "ידידי! ידידי! תעביר."), ("liberman", "לא יושב! לא יושב!"),
+        msgs = [("deri", "נסגור במסדרון. תעביר."), ("liberman", "לא אשב! לא אשב!"),
                 ("bennett", "ביחד! אחרי התשלום."), ("ben-gvir", "אני פורש! אני פורש!")]
         for j, (who, line) in enumerate(msgs[:3]):
             tj = BT(20 + j)
@@ -455,8 +455,8 @@ def build_sfx():
         sfx(BT(-20 + j), "slipStamp", -4)
     sfx(BT(-17), "stamp", -1); sfx(BT(-17), "stamp_bell", -8)
     for j, h in enumerate((0, 0.5, 1, 1.5, 2)):
-        sfx(BT(-16 + h), "tap_D_s%d_d25" % (j + 1), -6)
-    sfx(BT(-13), "tap_D_s7_d25", -4); sfx(BT(-13), "stamp_bell", -6)
+        sfx(BT(-16 + h), k.tap_note(j + 1), -6)
+    sfx(BT(-13), k.tap_note(7), -4); sfx(BT(-13), "stamp_bell", -6)
     sfx(BT(-12), "leaderPick_D", -6)
     for j in range(8):
         sfx(BT(-12) + j * BEAT / 2, "uiClick_D", -16)
@@ -465,7 +465,7 @@ def build_sfx():
         sfx(t0, react, -6)
         babble(t0 + 0.12, line.split(" ")[0] if line.count(" ") == 1 else line[:line.index("!") + 1])
     for b in range(4):
-        sfx(BT(16 + b), "tap_D_s%d_d25" % (b * 2), -6); sfx(BT(16 + b) + 0.05, "coin_D_a", -10)
+        sfx(BT(16 + b), k.tap_note(b * 2), -6); sfx(BT(16 + b) + 0.05, "coin_D_a", -10)
     for j, who in enumerate(("deri", "default", "default")):
         sfx(BT(20 + j), "chatPing_D_%s" % who, -6)
     sfx(BT(23), "stamp", -2)

@@ -80,8 +80,22 @@ sed_inplace "s|__OD_SITE_URL__|${SITE}|g" "$OUT/index.html"
 log "site url: ${SITE:-(relative)}"
 # the HTML surfaces (N1, N0, hand-off bar, About) take their Hebrew from ux/ui-strings.json
 python3 "$HERE/lib/render_shell.py" "$OUT/index.html"
+# the static About page (game/web/about.html): the game's text as server HTML, for crawlers that run no JS
+cp "$GAME/web/about.html" "$OUT/about.html"
+sed_inplace "s|__OD_SITE_URL__|${SITE}|g" "$OUT/about.html"
+python3 "$HERE/lib/render_shell.py" "$OUT/about.html"
 cp "$GAME/assets/sprites/wordmark.png" "$OUT/wordmark.png"
 [ -f "$GAME/web/og.jpg" ] && cp "$GAME/web/og.jpg" "$OUT/og.jpg"   # the 2D Artist's 1200x630 link preview (art/od-sevev/out/key/og-1200x630.jpg, the leader lineup, 203 KB)
+# Crawlers (SEO/AEO): robots.txt lets every bot in, AI search bots included (OAI-SearchBot,
+# PerplexityBot, Claude-SearchBot), and points at the sitemap (/ and /about.html). Absolute site URL only.
+if [ -n "$SITE" ]; then
+  printf 'User-agent: *\nAllow: /\n\nSitemap: %ssitemap.xml\n' "$SITE" > "$OUT/robots.txt"
+  # site ownership: Google Search Console's file (URL-prefix property) and the IndexNow id file
+  # (Bing and the other IndexNow engines; ping https://api.indexnow.org/indexnow?url=<site>&key=<id>)
+  cp "$HERE"/web/google*.html "$OUT/" 2>/dev/null || true
+  cp "$HERE"/web/27bc5ef5ff8e4f8b98acf2f714e15c3c.txt "$OUT/"
+  printf '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n  <url><loc>%sabout.html</loc><lastmod>%s</lastmod></url>\n</urlset>\n' "$SITE" "$(date +%F)" "$SITE" "$(date +%F)" > "$OUT/sitemap.xml"
+fi
 grep -q "mbBuild = '$STAMP'" "$OUT/index.html" || { log "build stamp missing from index.html"; exit 1; }
 log "build stamp: $STAMP"
 log "done:"
