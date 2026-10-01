@@ -539,7 +539,7 @@ func back_layer() -> bool:
 
 
 func _history_pop() -> void:
-	if history.on_pop():
+	if history.on_pop() and not _input_blocked():
 		back_layer()
 
 
@@ -1160,9 +1160,13 @@ func _process(delta: float) -> void:
 	_dock_toasts()
 	toasts.update_view(dt)
 	prop_fx.update_view(dt)
-	golden.update_view(dt, modal or not running)
+	golden.update_view(dt, modal or not running or Events.screen_blocked(state))   # a flight waits out the block
 	diorama.update_view(dt)
 	street.update_view(dt, state, running)   # any stage since 2026-10-01 (Bar): he comes every minute, 45%
+	var blk := running and Events.screen_blocked(state)
+	if blk != _was_blocked:
+		_was_blocked = blk
+		_on_block_edge(blk)
 	sara.update_view(dt, state, running and diorama.era_id() == "balfour")
 	herzog.update_view(dt, state, running)
 	kaia.update_view(dt, state, running and diorama.era_id() == "balfour")
@@ -1230,7 +1234,7 @@ func _ftue_ctx(running: bool) -> Dictionary:
 	if k >= 0 and shop.row_screen_y(k, "producers") >= 0.0 and shop.tab == "producers":
 		pill = shop.pill_pos(k) + Vector2(-L.sox(), float(L.STAGE["y"]) + L.stage_h)   # `_lower` → the stage column
 	return {
-		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open() or dossier.is_open() or mode == "pick",
+		"inMain": running and not tx.running, "title": mode == "title", "overlayOpen": overlays.is_open() or tx.running or chat.is_open() or dossier.is_open() or mode == "pick" or _input_blocked(),
 		"hat": L.magician_feet() - Vector2(0, 380), "pill": pill,
 		# M4 (merge review; ftue.md P0): the hand points at the pulse's own point, the tap object
 		# (the prop at `propMouth`; Bibi's hat at `hatMouth`); H1's squawk keeps the head point
@@ -1335,7 +1339,7 @@ func _blackout() -> bool:
 ## The band is clear for a Suitcase (ux/ftue.md: stage_unobstructed()).
 func stage_unobstructed() -> bool:
 	return mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked and not chat.is_open() \
-		and not dossier.is_open() and not court.covers_band() and not undo_visible()
+		and not dossier.is_open() and not court.covers_band() and not undo_visible() and Events.block_phase(state) == ""
 
 
 ## The HTML disclaimer faded out (shell.html sets window.mbHandoffDone): the FTUE clocks start,
@@ -1363,7 +1367,12 @@ func _poll_handoff() -> void:
 
 ## v2 automation from Thumb Perks: auto-taps, the Banana Butler and the Golden Net.
 func _run_automation(dt: float, modal: bool) -> void:
+	if _input_blocked():
+		return   # the block holds the player's hands, and the perks' too
 	var rate := Meta.auto_tap_rate(state) * float(_dev["speed"])
+	if d.taps_paused:
+		rate = 0.0   # the court day / walk-off: no taps, no "+0", the hat stays hushed (as a manual tap)
+		_auto_tap_acc = 0.0
 	if rate > 0.0:
 		_auto_tap_acc += rate * dt / 1000.0
 		while _auto_tap_acc >= 1.0:
@@ -1458,7 +1467,8 @@ func _step_economy(dt_sec: float, modal: bool, vote: bool = false) -> void:
 	# the politics sim (sim/politics.gd): calendar, coalition, court, events. C1's controller half
 	# (ux/ftue.md): no modal, the last purchase ≥ 2 s ago, no toast showing, Dubi not speaking.
 	var ping := not modal and _now - _last_buy_ms >= 2000.0 and toasts.idle() and not toasts.saying()
-	for pe: Variant in Politics.tick(state, dt_sec, d, politics_ctx(SaveStore.now_ms(), ping, Time.get_datetime_dict_from_system())):
+	var hidden := modal or chat.is_open() or dossier.is_open()
+	for pe: Variant in Politics.tick(state, dt_sec, d, politics_ctx(SaveStore.now_ms(), ping, Time.get_datetime_dict_from_system(), false, hidden)):
 		if pe is Dictionary:
 			_on_politics_event(pe)
 	if ev["frenzyEnded"]:
@@ -1493,8 +1503,11 @@ static func spin_end_text(id: String) -> String:
 
 ## The Politics.tick context (sim/README "Controller wiring"): the device's local hour and weekday
 ## (the night trophy "לילה לבן", the Pink Front drum line), the resolved clock and the ping gate.
-static func politics_ctx(now_ms: float, allow_ping: bool, local: Dictionary, vote: bool = false) -> Dictionary:
-	return {"nowMs": now_ms, "allowPing": allow_ping, "hour": int(local.get("hour", 0)), "weekday": int(local.get("weekday", 0)), "vote": vote}
+## `hidden`: the stage is covered (a modal, the chat, the dossier), so Mordechai David's block never
+## fires where the player can't see him (Events.eligible, ctx.stageHidden).
+static func politics_ctx(now_ms: float, allow_ping: bool, local: Dictionary, vote: bool = false, hidden: bool = false) -> Dictionary:
+	return {"nowMs": now_ms, "allowPing": allow_ping, "hour": int(local.get("hour", 0)), "weekday": int(local.get("weekday", 0)), "vote": vote,
+		"stageHidden": hidden}
 
 
 ## Politics events the engine shows or voices this wave. The Audio runtime (another developer)
@@ -1529,9 +1542,6 @@ func _on_politics_event(e: Dictionary) -> void:
 				if se is Dictionary:
 					_on_politics_event(se)
 		"eventEnd":
-			if str(e.get("type", "")) == "screenBlock":
-				var sc := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
-				toasts.show_toast(str(sc.get("screenEndText", "")), "", "lane")
 			if str(e.get("type", "")) == "mediation":
 				# nobody took Herzog's outline: it lapses (he shrugs on his own, HerzogFigure)
 				toasts.show_toast(str((Events.event("herzog").get("copy", {}) as Dictionary).get("rejectText", "")), "", "lane")
@@ -1562,7 +1572,7 @@ func _on_politics_event(e: Dictionary) -> void:
 			var reason := String(e.get("reason", "testified"))
 			_audio("courtEnd", reason)
 			if reason != "postponed":
-				toasts.show_toast(LeaderUi.s("TOAST_COURT_END"))
+				toasts.show_toast(LeaderUi.s("TOAST_COURT_END"), "", "", _fresh(4000.0))
 		"transfer":
 			_audio("transfer")
 			var tw: Variant = Coalition.partner(str(e.get("partner", ""))).get("copy", {}).get("transferWindow")
@@ -1603,7 +1613,18 @@ func _on_card_event(e: Dictionary) -> void:
 	var face := ChatView.toast_avatar(person)
 	if str(face[0]) == "" and str(c.get("avatar", "")) != "":
 		face = _art_face(str(c["avatar"]))
-	toasts.show_chat_toast(str(c.get("name", "")), text, face, "", true, 2)
+	# a card that stands on the stage (Herzog's outline, Kaia, the pledge): its toast only while it stands
+	var etype := str(ev.get("effect", {}).get("type", ""))
+	var alive := Callable()
+	if ["mediation", "kaia", "pledge"].has(etype):
+		alive = func() -> bool: return Events.is_active(state, etype)
+	toasts.show_chat_toast(str(c.get("name", "")), text, face, "", true, 2, "", alive)
+
+
+## A toast's `alive` for a one-off line: shown within `ms` of now, or dropped.
+func _fresh(ms: float) -> Callable:
+	var until := _now + ms
+	return func() -> bool: return _now < until
 
 
 ## A tap on Herzog while his outline stands (HerzogFigure): accepted. Every open demand drops by the
@@ -1628,8 +1649,19 @@ func herzog_from_pardon() -> void:
 	var e := Events.fire(state, "herzog", d)
 	if e.is_empty():
 		return
-	toasts.show_toast(str(Investigation.cfg().get("pardon", {}).get("copy", {}).get("herzog", "")), "", "lane")
+	toasts.show_toast(str(Investigation.cfg().get("pardon", {}).get("copy", {}).get("herzog", "")), "", "lane", func() -> bool: return Events.is_active(state, "mediation"))
 	_on_politics_event(e)
+
+
+## The chip's view: while Mordechai David blocks, the block's own countdown (copy.chipText, the
+## seconds left, a draining bar); otherwise the round's ability (Ability.view).
+func _chip_view() -> Dictionary:
+	if Events.screen_blocked(state):
+		var bl := Events.block_left(state)
+		var c := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
+		return {"show": true, "label": str(c.get("chipText", "")), "sub": "%d" % ceili(float(bl[0])), "ready": false,
+			"fill": float(bl[1]), "state": "blocked"}
+	return Ability.view(state, d)
 
 
 ## Leaders v3: a tap on the ability chip (AbilityChip → Ability.use). The sim's events (toasts, chat
@@ -1682,7 +1714,13 @@ func _on_ability_event(e: Dictionary) -> void:
 	elif str(e.get("kind", "")) == "unityRefuse":
 		line = Ability.unity_refuse_line(state)
 	if line != "":
-		toasts.show_toast(Bidi.fill(line, fill), "", "lane")
+		var alive := _fresh(6000.0)
+		match str(e.get("kind", "")):
+			"offer", "unityOffer":
+				alive = func() -> bool: return Ability.window_open(state)
+			"walkout":
+				alive = func() -> bool: return Ability.walked_out(state)
+		toasts.show_toast(Bidi.fill(line, fill), "", "lane", alive)
 
 
 ## A tap on Kaia while she is out (KaiaFigure): the cucumber. Events.act("kaia", "feed") swaps her nip
@@ -1716,18 +1754,15 @@ func _on_street_event(result: Dictionary) -> void:
 	var c := StreetFigure.copy_for(lid, str(Leaders.leader(lid).get("side", "")))
 	_street_partner = str(result.get("partner", ""))
 	street.on_fire()
-	if Events.is_active(state, "screenBlock"):
-		# a press already down when he arrives never lands: the block starts clean
-		shop.cancel_press()
-		_presses.clear()
 	ticker.enqueue("flavor", str(c.get("ticker", "")), true)
 	# the lane band (D62): mid-round a top-dock toast covers the leader's head on short stages; the lane
 	# is clear of his hit on every device, and the ticker right under it names Mordechai David
-	toasts.show_chat_toast("", str(c.get("text", "")), StreetFigure.toast_avatar(), "", false, 2, "lane")
-	var line := str(c.get("blockedText", "")) if _street_partner != "" else str(c.get("aloneText", ""))
-	if Events.is_active(state, "screenBlock"):
-		line = str(c.get("screenText", ""))
-	toasts.show_toast(StreetFigure.fill(line, _street_partner), "", "lane")
+	# his line stays only while he is on the stage (walking in or blocking): a backlog drops it
+	var here := func() -> bool: return ["approach", "block"].has(Events.block_phase(state)) or Events.is_active(state, "blockade")
+	toasts.show_chat_toast("", str(c.get("text", "")), StreetFigure.toast_avatar(), "", false, 2, "lane", here)
+	if not Events.is_active(state, "screenBlock"):
+		var line := str(c.get("blockedText", "")) if _street_partner != "" else str(c.get("aloneText", ""))
+		toasts.show_toast(StreetFigure.fill(line, _street_partner), "", "lane", here)
 
 
 ## The court day's stage FX from the Magician (BigBanana.on_court_fx): the zip's dust at his feet, the
@@ -1839,7 +1874,7 @@ func _refresh_all(dt: float) -> void:
 	_evolve_was_visible = vis
 	top_bar.set_evolve_badge(Ftue.badge_on(state) and vis)
 	buffs.update_chip(state.buff_frenzy, state.buff_tap_frenzy, main, Spins.active_effects(state))
-	ability_chip.update_view(dt, Ability.view(state, d), main and bb.walk.state() == "home")
+	ability_chip.update_view(dt, _chip_view(), main and (bb.walk.state() == "home" or Events.screen_blocked(state)))
 	buffs.update_view(dt, main)
 	shop.refresh(state, dt, main and dt > 0.0, d)
 
@@ -1851,22 +1886,35 @@ func _gameplay_input() -> bool:
 		and not _input_blocked()
 
 
-## Mordechai David's screen block (events.mordechai, effect screenBlock; Bar 2026-10-01): while it is
-## live, nothing on the screen takes a tap or a key, modals and settings included.
+## Mordechai David's screen block (events.mordechai, effect screenBlock; Bar 2026-10-01): while he
+## stands on his mark (Events.screen_blocked, the block phase), nothing on the screen takes a tap or a
+## key. It never fires behind a modal, the chat or the dossier (ctx.stageHidden), so the cause is in view.
 func _input_blocked() -> bool:
-	return mode == "main" and state != null and Events.is_active(state, "screenBlock")
+	return mode == "main" and state != null and Events.screen_blocked(state)
 
 
 var _blocked_toast_at := -1.0e9
+var _was_blocked := false
 
 
-## A tap while he blocks: swallowed, with a short reminder (at most every 1.5 s).
-func _on_blocked_tap() -> void:
-	if _now - _blocked_toast_at < 1500.0:
+## The block's edges: as it starts a press already down never lands (the block starts clean); as it
+## ends (he turns to go) the all-clear line, dropped if the dock is busy for more than a moment.
+func _on_block_edge(on: bool) -> void:
+	if on:
+		shop.cancel_press()
+		_presses.clear()
 		return
-	_blocked_toast_at = _now
 	var c := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
-	toasts.show_toast(str(c.get("tapBlockedText", "")), "", "lane")
+	toasts.show_toast(str(c.get("screenEndText", "")), "", "lane", _fresh(2500.0))
+
+
+## A tap or key while he blocks: swallowed, and the block chip (which counts the block down) shakes at
+## once. Never a toast: the FIFO showed "חוסם" lines long after he had gone.
+func _on_blocked_tap() -> void:
+	ability_chip.nudge()
+	if _now - _blocked_toast_at >= 600.0:
+		_blocked_toast_at = _now
+		_audio("cantAfford")
 
 
 ## Row A's mute and settings: live in the round and in the pre-tap state (B10: Row A is up there).
@@ -1913,7 +1961,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e is InputEventKey:
 		var k := e as InputEventKey
 		if k.pressed and not k.echo:
-			if not _input_blocked():
+			if _input_blocked():
+				_on_blocked_tap()
+			else:
 				_on_key(k)
 			get_viewport().set_input_as_handled()
 
@@ -1925,7 +1975,9 @@ func _notification(what: int) -> void:
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			# Android back: the top layer closes (the same rule as the browser's back, R9); with
 			# nothing open it opens settings, as before
-			if not back_layer() and mode == "main" and _gameplay_input():
+			if _input_blocked():
+				_on_blocked_tap()
+			elif not back_layer() and mode == "main" and _gameplay_input():
 				_open_settings()
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
 			_flush_save()
@@ -2007,6 +2059,10 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if thermo.is_shown() and Ui.in_rect(thermo.hit_rect(), sp):
 		_presses[idx] = {"kind": "thermo"}   # rtl-map §4: tap → T4
 		return
+	# the chip first: it sits in front, and Herzog's tap box covers most of it
+	if ability_chip.takes_tap(sp):
+		_use_ability()
+		return
 	if herzog.tappable() and Ui.in_rect(herzog.hit_rect(), sp):
 		_accept_mediation()
 		return
@@ -2015,9 +2071,6 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		return
 	if golden.hit_test(sp):
 		_catch_golden()
-		return
-	if ability_chip.takes_tap(sp):
-		_use_ability()
 		return
 	# mobile-first §3.4: during a tap burst (the last leader tap < 1 s ago) a toast takes no tap, so
 	# a toast over the leader's head never eats the rapid taps (it stays visible)
@@ -2208,7 +2261,7 @@ func _handle_tap(at: Vector2) -> void:
 		bb.tap(false, true)
 		if _now - _paused_toast_ms >= 4000.0:
 			_paused_toast_ms = _now
-			toasts.show_toast(LeaderUi.tap_paused_line(state), "", "lane")
+			toasts.show_toast(LeaderUi.tap_paused_line(state), "", "lane", func() -> bool: return d.taps_paused)
 		return
 	var crit: bool = r["crit"]
 	if state.buff_tap_frenzy > 0.0:
@@ -2335,8 +2388,8 @@ func _on_hero_event(ev: String, at: Vector2) -> void:
 func _on_buy_producer(id: String, is_repeat: bool, result: Array) -> void:
 	if not _gameplay_input() and not is_repeat:
 		return
-	if overlays.is_open() or _tx_locked:
-		return   # v2: hold-to-buy never buys behind a modal
+	if overlays.is_open() or _tx_locked or _input_blocked():
+		return   # v2: hold-to-buy never buys behind a modal, nor under the block
 	var q := Economy.buy_producer(state, id)
 	if q.is_empty():
 		return

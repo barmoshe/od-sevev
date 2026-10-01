@@ -92,7 +92,13 @@ static var EFFECTS: Dictionary = {
 	"screenBlock": func(s: GameState, e: Dictionary, _d: Economy.Derived, _r: Callable) -> Dictionary:
 		# Mordechai David since 2026-10-01 (Bar): he walks in from the left and, for `sec`, nothing on
 		# the screen takes a tap (main._input_blocked). No seats, no money: the cost is the lost seconds.
-		_activate(s, "screenBlock", e, {})
+		# Three phases on one clock (block_phase): `approachSec` he walks in (taps still work), `sec` he
+		# stands on his mark and blocks, `exitSec` he walks out (taps work again). The block starts
+		# when he is on the screen and ends when he turns to go, so the cause is always in view.
+		var ap := float(e.get("approachSec", 0.0))
+		var bl := float(e.get("sec", 0.0))
+		var ex := float(e.get("exitSec", 0.0))
+		_activate(s, "screenBlock", e, {"sec": ap + bl + ex, "approachSec": ap, "blockSec": bl, "exitSec": ex})
 		return {},
 	"mediation": func(s: GameState, e: Dictionary, _d: Economy.Derived, _r: Callable) -> Dictionary:
 		# Herzog's compromise outline (fact herzog-framework, March 2023): he stands on the stage for
@@ -178,6 +184,60 @@ static func active_effects(s: GameState) -> Array:
 	return _st(s)["active"]
 
 
+## Mordechai David's block (effect screenBlock): "" when none is live, else approach | block | exit.
+static func block_phase(s: GameState) -> String:
+	for a: Dictionary in s.events.get("active", []):
+		if a["type"] != "screenBlock":
+			continue
+		var ex := float(a.get("exitSec", 0.0))
+		var bl := float(a.get("blockSec", float(a["leftSec"]) - ex))
+		var left := float(a["leftSec"])
+		if left <= ex:
+			return "exit"
+		if left <= ex + bl:
+			return "block"
+		return "approach"
+	return ""
+
+
+## True while the block holds the screen: nothing takes a tap, and the timers the player has to
+## react to (ultimatums, the summons, offers, live cards) wait (Politics.tick).
+static func screen_blocked(s: GameState) -> bool:
+	return block_phase(s) == "block"
+
+
+## The block's seconds left and its share of the whole block (the chip's countdown and bar).
+static func block_left(s: GameState) -> Array:
+	for a: Dictionary in s.events.get("active", []):
+		if a["type"] == "screenBlock":
+			var ex := float(a.get("exitSec", 0.0))
+			var bl := maxf(0.001, float(a.get("blockSec", 1.0)))
+			var left := clampf(float(a["leftSec"]) - ex, 0.0, bl)
+			return [left, left / bl]
+	return [0.0, 0.0]
+
+
+## One interruption on the stage at a time: the cards that take the stage (Mordechai's block,
+## Herzog's outline, Kaia) never fire over one another, over the summons or the court day, nor over
+## an open ability offer or Ben Gvir's walk-off. Each system used to guard alone, so they piled up.
+const STAGE_INTERRUPTS := ["screenBlock", "mediation", "kaia"]
+
+
+static func interrupt_live(s: GameState) -> bool:
+	for a: Dictionary in s.events.get("active", []):
+		if STAGE_INTERRUPTS.has(str(a["type"])):
+			return true
+	return false
+
+
+static func stage_busy(s: GameState) -> bool:
+	if interrupt_live(s):
+		return true
+	if Investigation.active() and ["summons", "court"].has(Investigation.phase(s)):
+		return true
+	return Ability.window_open(s) or Ability.walked_out(s)
+
+
 static func is_active(s: GameState, type: String) -> bool:
 	for a: Dictionary in s.events.get("active", []):
 		if a["type"] == type:
@@ -249,7 +309,13 @@ static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:
 	if SEAT_COSTS.has(str(e.get("effect", {}).get("type", ""))) and Coalition.gate_open(s):
 		return false
 	# nor a screen block: the vote button stays tappable at the finish line
-	if str(e.get("effect", {}).get("type", "")) == "screenBlock" and Coalition.gate_open(s):
+	var etype := str(e.get("effect", {}).get("type", ""))
+	if etype == "screenBlock" and Coalition.gate_open(s):
+		return false
+	# one interruption at a time (STAGE_INTERRUPTS), and no block behind a modal or a covered stage
+	if STAGE_INTERRUPTS.has(etype) and stage_busy(s):
+		return false
+	if etype == "screenBlock" and ctx.get("stageHidden", false) == true:
 		return false
 	return float(e.get("weight", 1.0)) > 0.0 and Conditions.ok(s, e.get("when", {}), ctx)
 
@@ -273,6 +339,18 @@ static func _every_roll(s: GameState, eid: String) -> float:
 static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = {}, rng: Callable = randf) -> Array:
 	var out: Array = []
 	var st := _st(s)
+	# the gate opened under the block (a partner back, a join): he leaves now, the vote stays tappable
+	if Coalition.gate_open(s):
+		for a: Dictionary in st["active"]:
+			if a["type"] == "screenBlock" and float(a["leftSec"]) > float(a.get("exitSec", 0.0)):
+				a["leftSec"] = float(a.get("exitSec", 0.0)) + 0.001
+	# While the block holds the screen only the block's own clock runs: live cards, cooldowns and the
+	# scheduler wait with the player (nothing fires or runs out while nothing can be tapped).
+	if screen_blocked(s):
+		for a: Dictionary in st["active"]:
+			if a["type"] == "screenBlock":
+				a["leftSec"] = float(a["leftSec"]) - dt
+		return out
 	_tick_active(s, dt, rng, out)
 	if float(st["invoiceSec"]) > 0.0:
 		st["invoiceSec"] = maxf(0.0, float(st["invoiceSec"]) - dt)
@@ -566,7 +644,8 @@ static func sanitize(raw: Variant) -> Dictionary:
 	var ac: Variant = r.get("active")
 	if ac is Array:
 		for x: Variant in ac:
-			if x is Dictionary and str((x as Dictionary).get("type", "")) != "" and Coalition._n(x.get("leftSec")) > 0.0:
+			# a block never survives a load: he has walked off by the time the player is back
+			if x is Dictionary and str((x as Dictionary).get("type", "")) != "" and str((x as Dictionary).get("type", "")) != "screenBlock" and Coalition._n(x.get("leftSec")) > 0.0:
 				var a: Dictionary = (x as Dictionary).duplicate()
 				a["leftSec"] = Coalition._n(a["leftSec"])
 				(out["active"] as Array).append(a)

@@ -46,10 +46,14 @@ static func tick(s: GameState, dt: float, d: Economy.Derived, ctx: Dictionary = 
 		out.append_array(Calendar.update(s, float(ctx["nowMs"])))
 	if holds_for_vote(ctx):
 		return out
-	out.append_array(Coalition.tick(s, dt, d, ctx, rng))
-	out.append_array(Investigation.tick(s, dt, d))
+	# Mordechai David's block (Events.screen_blocked): the player can't tap, so every clock they
+	# would have to answer (demands and ultimatums, the summons, ability offers and cooldowns) waits
+	# with them. Events.tick runs only the block's own clock while it holds.
+	var pdt := 0.0 if Events.screen_blocked(s) else dt
+	out.append_array(Coalition.tick(s, pdt, d, ctx, rng))
+	out.append_array(Investigation.tick(s, pdt, d))
 	out.append_array(Events.tick(s, dt, d, ctx, rng))
-	out.append_array(Ability.tick(s, dt, d))   # leaders v3: the round's active ability
+	out.append_array(Ability.tick(s, pdt, d))   # leaders v3: the round's active ability
 	_count_night_taps(s, ctx)
 	return out
 

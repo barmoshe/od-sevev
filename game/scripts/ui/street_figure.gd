@@ -8,7 +8,8 @@ extends Node2D
 ## Beats (Bar, 2026-10-01: from the left only): walk in from beyond the canvas's left edge (`walk`, as
 ## drawn: heading right) to his mark in front of the left crowd (art x 34, feet row 221), `block_in`
 ## (plant), hold `block` facing the leader, one smug `glance` at the player, then `block_in` backwards
-## and walk out to the left (flip_h). Timed so he is off the canvas as the effect ends. He never stops
+## and walk out to the left (flip_h). The sim's phases time it (update_view): on his mark as the
+## block starts, turning to go as it ends, off the canvas as the effect ends. He never stops
 ## inside the leader's slot (art x 66-114); the walk stays left of it. Reduced motion: no walk, a
 ## 150 ms fade on the mark in the hold pose, frozen. Live on the `blockade` effect (the old seat
 ## bench) and on `screenBlock` (the tap block his event fires now).
@@ -38,6 +39,8 @@ var _x := 0.0                         # the feet's x, stage-local logical
 var _t := 0.0
 var _glanced := false
 var _walk_in_next := false            # set by the fire event: the next live blockade walks in
+var _vin := WALK_AP_S * AP / 1000.0   # px per ms: the walk in, paced to land as the block starts
+var _vout := WALK_AP_S * AP / 1000.0  # px per ms: the walk out, paced to be off as the exit ends
 
 
 ## The feet mark, stage-local (the diorama's coordinates): the stage art is placed so its
@@ -81,39 +84,45 @@ func on_fire() -> void:
 	_walk_in_next = true
 
 
-func _walk_in_ms() -> float:
-	return maxf(0.0, mark().x - off_x()) / (WALK_AP_S * AP) * 1000.0
-
-
-## How long before the effect ends the release starts, so he is off the canvas at the end.
-func release_lead_ms() -> float:
-	if reduced_motion:
-		return RM_FADE_MS
-	return 4.0 / PLANT_FPS * 1000.0 + _walk_in_ms()
-
-
+## Follows the block's phases (Events.block_phase, on the sim's clock): he walks in during
+## `approach` and lands on his mark as the block starts, holds while it blocks, and turns to go as it
+## ends, so the block is never on while he is off the screen. The walk's pace is set from the time
+## the phase has left, so the timing holds on every canvas width (a wide canvas walks a little faster).
 func update_view(dt_ms: float, s: GameState, on_stage: bool) -> void:
 	if strip == null:
 		return
 	var a := live(s) if on_stage else {}
+	var ph := ""
+	if not a.is_empty():
+		ph = Events.block_phase(s) if str(a.get("type", "")) == "screenBlock" else "block"
 	var left_ms := float(a.get("leftSec", 0.0)) * 1000.0
-	if a.is_empty():
-		if not on_stage:
-			_go()
-		elif _mode in ["in", "plant", "hold"]:
-			_start_release()   # an election or a reset cleared it early: he still leaves
-	elif (_mode == "gone" or _mode == "out") and left_ms > release_lead_ms() + 500.0:
-		# (re)enter only with time to leave again: a figure just gone with a few ms of effect left
-		# would otherwise pop back on his mark and walk out twice
-		_enter(_walk_in_next)
-	elif _mode in ["in", "plant", "hold"] and left_ms <= release_lead_ms():
-		_start_release()
+	var ex_ms := float(a.get("exitSec", 0.0)) * 1000.0
+	var bl_ms := float(a.get("blockSec", 0.0)) * 1000.0
+	match ph:
+		"":
+			if not on_stage:
+				_go()
+			elif _mode in ["in", "plant", "hold"]:
+				_start_release(-1.0)   # an election or a reset cleared it early: he still leaves
+		"approach":
+			if (_mode == "gone" or _mode == "out") and not reduced_motion:
+				_enter(true, left_ms - ex_ms - bl_ms)
+		"block":
+			if _mode == "gone" or _mode == "out":
+				_enter(false, 0.0)
+			elif _mode == "in":
+				_arrive()   # late on a slow frame: he is on his mark when the block starts
+		"exit":
+			if _mode in ["in", "plant", "hold"]:
+				_start_release(left_ms)
 	_walk_in_next = false
 	_step(dt_ms)
 
 
-func _enter(walk: bool) -> void:
+func _enter(walk: bool, in_ms: float = -1.0) -> void:
 	visible = true
+	var dist := maxf(0.0, mark().x - off_x())
+	_vin = dist / in_ms if in_ms > 0.0 else WALK_AP_S * AP / 1000.0
 	_glanced = false
 	_t = 0.0
 	if reduced_motion:
@@ -138,7 +147,11 @@ func _enter(walk: bool) -> void:
 		strip.play("block")
 
 
-func _start_release() -> void:
+## `total_ms`: the time left to be off the canvas (the exit phase), or -1 for the walk's own pace.
+func _start_release(total_ms: float) -> void:
+	var plant_ms := 4.0 / PLANT_FPS * 1000.0
+	var dist := maxf(0.0, mark().x - off_x())
+	_vout = dist / maxf(300.0, total_ms - plant_ms) if total_ms > 0.0 else WALK_AP_S * AP / 1000.0
 	_mode = "release"
 	if reduced_motion:
 		_t = 0.0
@@ -150,6 +163,14 @@ func _start_release() -> void:
 	strip.frame = strip.frame_count() - 1
 	strip.queue_redraw()
 	_marker("mdRelease")
+
+
+func _arrive() -> void:
+	_mode = "plant"
+	_t = 0.0
+	_place(mark().x, 1.0)
+	strip.paused = false
+	strip.play("block_in", true, 1)   # f0 is the idle rest pose (the cast seam rule)
 
 
 func _go() -> void:
@@ -181,16 +202,12 @@ func _step(dt_ms: float) -> void:
 				if _t >= RM_FADE_MS:
 					_go()
 		return
-	var v := WALK_AP_S * AP / 1000.0
 	match _mode:
 		"in":
-			var x := minf(mark().x, _x + v * dt_ms)
+			var x := minf(mark().x, _x + _vin * dt_ms)
 			_place(x, 1.0)
 			if x >= mark().x:
-				_mode = "plant"
-				_t = 0.0
-				_place(mark().x, 1.0)
-				strip.play("block_in", true, 1)   # f0 is the idle rest pose (the cast seam rule)
+				_arrive()
 		"plant":
 			if strip.anim == "block_in" and _t >= float(strip.frame_count()) / PLANT_FPS * 1000.0:
 				_mode = "hold"
@@ -214,7 +231,7 @@ func _step(dt_ms: float) -> void:
 				strip.paused = false
 				strip.play("walk")
 		"out":
-			var x := _x - v * dt_ms
+			var x := _x - _vout * dt_ms
 			_place(x, -1.0)
 			if x <= off_x():
 				_go()

@@ -2164,7 +2164,9 @@
    "when": {},
    "effect": {
     "type": "screenBlock",
-    "sec": 6
+    "sec": 6,
+    "approachSec": 2,
+    "exitSec": 2
    },
    "pollLike": false,
    "src": [
@@ -2206,7 +2208,8 @@
     "_guardrail": "Documented public conduct only (he stands in the way of cars and protests; his Kaplan rationale is reported speech). Never his conviction, restraining orders, family, the minors in his group, October 7, the hostages, or army service (so never the Eisenkot beach exchange, fact 47). Blocking is standing still with arms out: nobody is touched, pushed or hurt. His name appears only in this event and his facts (redlines.json allow 'mordechai').",
     "screenText": "חוסם לך את המסך. {sec} שניות אי אפשר ללחוץ על כלום.",
     "screenEndText": "החסימה התפזרה. אפשר ללחוץ שוב.",
-    "tapBlockedText": "מרדכי דוד חוסם. רגע."
+    "tapBlockedText": "מרדכי דוד חוסם. רגע.",
+    "chipText": "חסום"
    },
    "everySec": 60,
    "chance": 0.45

@@ -56,6 +56,9 @@ var _head: PxText
 var _preview: PxText
 var _y0 := -1.0                     # the shown toast's plate top (stage-local design y)
 var _in_lane := false               # the shown toast docks in the lane band (D62)
+## The shown toast's `alive` check (show_toast / show_chat_toast): when it turns false mid-show the
+## toast fades out early. A queued toast whose check is false when its turn comes is dropped.
+var _alive := Callable()
 
 
 ## rtl-map §4 (rev 2026-09-29): the toast text box is x 32-676, right-aligned at 676 (the kit
@@ -145,12 +148,32 @@ func _ready() -> void:
 
 ## `dock` "lane" forces the lane band whatever the round's state (D62: `LEADER_PICK_FRESH`, which
 ## shows when the undo chip goes, the first tap included); "" follows `lane_dock`.
-func show_toast(text: String, tag: String = "", dock_at: String = "") -> void:
+## `alive` (optional, func() -> bool): the toast describes a timed state (a block, an open offer, a
+## paused tap). The FIFO can hold a toast for many seconds, so a toast whose state ended before its
+## turn is dropped, and one on screen fades out when its state ends.
+func show_toast(text: String, tag: String = "", dock_at: String = "", alive: Callable = Callable()) -> void:
 	if text != "":
 		_queue.append(text)
 		_tags.append(tag)
 		_sync_chats()
-		_chats.append({"dock": dock_at} if dock_at != "" else {})
+		var meta := {"dock": dock_at} if dock_at != "" else {}
+		if alive.is_valid():
+			meta["alive"] = alive
+		_chats.append(meta)
+
+
+## Drops every queued toast whose `alive` check is false now (a state just ended: its lines go).
+func prune() -> void:
+	var off := _queue.size() - _chats.size()
+	for i in range(_queue.size() - 1, -1, -1):
+		var ci := i - off
+		if ci < 0 or ci >= _chats.size():
+			continue
+		var a: Variant = (_chats[ci] as Dictionary).get("alive")
+		if a is Callable and (a as Callable).is_valid() and not bool((a as Callable).call()):
+			_queue.remove_at(i)
+			_tags.remove_at(i)
+			_chats.remove_at(ci)
 
 
 ## A chat toast (rtl-map §4 "Chat toast", review R5): the sender's 16×16-art face crop inside the
@@ -164,7 +187,7 @@ func show_toast(text: String, tag: String = "", dock_at: String = "") -> void:
 ## design/mordechai-david-spec.md §7.2), whose line is longer than a chat bubble. With an empty `head`
 ## the preview takes line 1, so a face plus two lines stays the 132 two-line plate. `dock_at` as
 ## show_toast ("lane": the band under the leader's feet, D62).
-func show_chat_toast(head: String, preview: String, avatar: Array, tag: String = "chat", passive: bool = false, lines: int = 1, dock_at: String = "") -> void:
+func show_chat_toast(head: String, preview: String, avatar: Array, tag: String = "chat", passive: bool = false, lines: int = 1, dock_at: String = "", alive: Callable = Callable()) -> void:
 	if preview == "" and head == "":
 		return
 	_queue.append(preview)
@@ -173,6 +196,8 @@ func show_chat_toast(head: String, preview: String, avatar: Array, tag: String =
 	var meta := {"head": head, "avatar": avatar, "passive": passive, "lines": maxi(1, lines)}
 	if dock_at != "":
 		meta["dock"] = dock_at
+	if alive.is_valid():
+		meta["alive"] = alive
 	_chats.append(meta)
 
 
@@ -321,6 +346,8 @@ func update_view(dt_ms: float) -> void:
 			_btext.visible = false
 	if _t >= 0.0:
 		_t += dt_ms
+		if _alive.is_valid() and _t < SHOW_MS - OUT_MS and not bool(_alive.call()):
+			_t = SHOW_MS - OUT_MS   # its state ended: the 120 ms fade-out now
 		if _t < SHOW_MS:
 			var a := 1.0
 			if not reduced_motion:
@@ -330,6 +357,7 @@ func update_view(dt_ms: float) -> void:
 		if _t >= SHOW_MS:
 			_t = -1.0
 			_passive = false
+			_alive = Callable()
 			_gap = GAP_MS
 			_plate.visible = false
 			_text.visible = false
@@ -339,13 +367,17 @@ func update_view(dt_ms: float) -> void:
 	if _gap > 0.0:
 		_gap -= dt_ms
 		return
-	if _queue.is_empty() or hold:
+	if hold:
+		return
+	prune()
+	if _queue.is_empty():
 		return
 	var msg: String = _queue.pop_front()
 	_tag = _tags.pop_front() if not _tags.is_empty() else ""
 	var chat: Dictionary = _chats.pop_front() if _chats.size() > _queue.size() else {}
 	while _chats.size() > _queue.size():
 		_chats.pop_front()
+	_alive = chat.get("alive") if chat.get("alive") is Callable else Callable()
 	var shown_nodes: Array[CanvasItem] = [_plate]
 	_passive = bool(chat.get("passive", false))
 	# D62: the lane band while the round has not started (or when the toast asks for it)

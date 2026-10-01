@@ -22,6 +22,7 @@ var _track: ColorRect
 var _fill: ColorRect
 var _view: Dictionary = {}
 var _t := 0.0
+var _shake := 0.0   # ms left of the "blocked" shake (nudge)
 
 
 func _ready() -> void:
@@ -35,6 +36,11 @@ func _ready() -> void:
 	_track = Ui.rect(self, bar, C["barTrack"])
 	_fill = Ui.rect(self, bar, C["barFillTop"])
 	visible = false
+
+
+## A blocked tap (Mordechai David's block): a short shake, at once.
+func nudge() -> void:
+	_shake = 300.0
 
 
 ## True when a tap at `p` (stage coordinates) should use the ability.
@@ -74,7 +80,10 @@ func update_view(dt_ms: float, v: Dictionary, stage_visible: bool) -> void:
 	_fill.size.x = w
 	_fill.position.x = L.bar_x(Rect2(_track.position, _track.size), w)   # RTL: fills from the right
 	var a := 1.0
-	if not bool(v.get("ready", false)) and state != "passive" and state != "active":
+	if _shake > 0.0:
+		_shake = maxf(0.0, _shake - dt_ms)
+		position.x = 0.0 if reduced_motion or _shake <= 0.0 else roundf(sin(_shake / 300.0 * TAU * 3.0) * 6.0)
+	if not bool(v.get("ready", false)) and state != "passive" and state != "active" and state != "blocked":
 		a = 0.55   # cooling down
 	elif not reduced_motion and (state == "ready" or state == "offer"):
 		var hz := 1.6 if state == "offer" else 0.6

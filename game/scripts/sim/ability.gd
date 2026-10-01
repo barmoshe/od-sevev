@@ -130,8 +130,8 @@ static func _tick_unity(s: GameState, dt: float, e: Dictionary, a: Dictionary) -
 	if float(a["uNext"]) > 0.0:
 		return []
 	# it waits out the court day and the leader's own live ability (a walk-off, a pledge to flip)
-	var court := Investigation.active() and Investigation.phase(s) == "court"
-	var busy := str(a["phase"]) != "" or (str(e["type"]) == "pledgeFlip" and Events.is_active(s, "pledge"))
+	var court := Investigation.active() and ["summons", "court"].has(Investigation.phase(s))
+	var busy := str(a["phase"]) != "" or (str(e["type"]) == "pledgeFlip" and Events.is_active(s, "pledge")) or Events.interrupt_live(s)
 	if court or busy:
 		return []
 	a["uPhase"] = "offer"
@@ -352,12 +352,14 @@ static func tick(s: GameState, dt: float, d: Economy.Derived) -> Array:
 						out.append({"ev": "ability", "kind": "swipeMissed"})
 			else:
 				if float(a["next"]) < 0.0:
-					a["next"] = _n(e, "firstSec", 120.0)
-				a["next"] = float(a["next"]) - dt
-				# an offer never lands on an open gate (it would cost the 61) nor on the court day
-				var court := Investigation.active() and Investigation.phase(s) == "court"
+					a["next"] = _n(e, "firstSec", 120.0)   # -1: unset (a new round)
+				# clamped at 0: an offer held back by the court day waits, never restarts its first wait
+				a["next"] = maxf(0.0, float(a["next"]) - dt)
+				# an offer never lands on an open gate (it would cost the 61), the summons or the court
+				# day, nor over another interruption on the stage (Events.STAGE_INTERRUPTS)
+				var court := Investigation.active() and ["summons", "court"].has(Investigation.phase(s))
 				var gate := d.seats_gate_open if d != null else false
-				if float(a["next"]) <= 0.0 and not court and not (str(e["type"]) == "budget" and gate):
+				if float(a["next"]) <= 0.0 and not court and not Events.interrupt_live(s) and not (str(e["type"]) == "budget" and gate):
 					a["phase"] = "offer"
 					a["t"] = _n(e, "windowSec", 60.0)
 					a["price"] = maxf(10.0, ceilf((d.bps if d != null else 0.0) * _n(e, "priceBpsSec", 20.0))) if str(e["type"]) == "budget" else 0.0
@@ -376,6 +378,13 @@ static func apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 	if str(e["type"]) == "walkout" and str(a["phase"]) == "out":
 		d.bps_mult *= _n(e, "outBpsMult", 0.6)
 		d.taps_paused = true
+
+
+## An offer is open on the chip (the unity offer, Smotrich's budget, Golan's swipe).
+static func window_open(s: GameState) -> bool:
+	if def(s).is_empty():
+		return false
+	return unity_open(s) or str(st(s).get("phase", "")) == "offer"
 
 
 ## Ben Gvir is off the stage (the stage walks him off like a court day).
