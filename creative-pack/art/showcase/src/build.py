@@ -96,6 +96,26 @@ def same_motion(what, main, alts):
         raise SystemExit(f'{what}: a density alternate differs from the main render:\n  ' + '\n  '.join(bad))
 
 
+# Bar 2026-10-01 ("fix and re-centre every avatar"): the hand-set head boxes anchored a square crop at
+# their top-left corner, so a box that was not square, or sat over the back of the head (Gantz),
+# pushed the face to one side. Every crop is now centred on the eyes (the rig's own landmarks) at the
+# box's size, with the eye line at AVATAR_EYE_Y of the crop.
+AVATAR_EYE_Y = 0.45
+CUSTOM_EYES = {'bibi': [(403, 318), (525, 334)], 'sara': [(440, 283), (577, 305)], 'bennett': [(390, 356), (545, 389)]}
+
+
+def centered_head(char, head):
+    from cast import CAST
+    eyes = CUSTOM_EYES.get(char) or CAST.get(char, {}).get('eyes')
+    if not eyes:
+        return head
+    side = max(head[2] - head[0], head[3] - head[1])
+    cx = sum(e[0] for e in eyes) / len(eyes)
+    ey = sum(e[1] for e in eyes) / len(eyes)
+    x0, y0 = round(cx - side / 2), round(ey - AVATAR_EYE_Y * side)
+    return (x0, y0, x0 + side, y0 + side)
+
+
 def render_char(char, fn, avatar_args=None):
     """Render a character at every density in DENSITIES from one render function fn(d) -> (rig, anims);
     the avatars come from the main render's rig (its palette), exactly as before the alternates. A launch leader
@@ -103,6 +123,8 @@ def render_char(char, fn, avatar_args=None):
     with one neutral rim ring instead of their react colour (red, gold, blue, grey would read as party or bloc colours
     on the leader picker, UX rtl-map §8.3). The picker tiles and the app icon's ring use them."""
     from cast import LEADERS
+    if avatar_args:
+        avatar_args = (centered_head(char, avatar_args[0]),) + tuple(avatar_args[1:])
     for d in DENSITIES:
         rig, anims = fn(d)
         put_render(char, d, anims)
