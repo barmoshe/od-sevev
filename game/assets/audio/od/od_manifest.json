@@ -1139,6 +1139,46 @@
 				"type": "burst"
 			}
 		},
+		"fail": {
+			"burstMax": -17.0,
+			"bus": "SFX-Critical",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "fail_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "fail_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "fail_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "fail_G.res"
+					}
+				}
+			},
+			"lengthMs": 1604.0,
+			"limitedBy": "target",
+			"meaning": "A wrong pick (Gantz on the leader picker): the sad trombone.",
+			"momentaryMax": -18.25,
+			"play_db": -8.02,
+			"poly": 1.0,
+			"priority": 2.0,
+			"runtime": "On a Gantz tap in the picker, with the modal.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -17.0,
+				"type": "burst"
+			}
+		},
 		"gavel": {
 			"burstMax": -21.52,
 			"bus": "SFX-Critical",
@@ -2215,12 +2255,12 @@
 		"files": {
 			"music": 12,
 			"outside": 1,
-			"sfx": 238,
+			"sfx": 242,
 			"stingers": 37
 		},
 		"music_bytes": 9237588,
 		"outside_bytes": 53847,
-		"sfx_bytes": 1028746,
+		"sfx_bytes": 1113510,
 		"stinger_bytes": 1486635
 	},
 	"stingers": {

@@ -920,6 +920,18 @@ def cues():
                              "d12": [puff, dict(blip(0.125), freqStart="E5"), tone("A5", 0.07, 0.1, duty=0.125, gain=0.9, decay=0.08, sustain=0.4, release=0.04)]},
                 "runtime": "The tap blip on 5, then the motif's first bar note (1') on P1. Alternate d25 / d12.",
                 "target": {"type": "burst", "lufs": -16.0}}
+    # Bar 2026-10-01: Gantz on the picker. The sad trombone: three falling staccato pulses and a held
+    # fourth that sags a semitone with a wide vibrato. Wrong pick, said with a shrug.
+    C["fail"] = {"meaning": "A wrong pick (Gantz on the leader picker): the sad trombone.", "bus": "SFX-Critical",
+                 "priority": 2, "poly": 1, "steal": "oldest", "ducks": [],
+                 "pitch": {"type": "key", "rootOctave": 3},
+                 "variants": {"": [tone("D4", 0.0, 0.2, duty=0.25, gain=0.9, decay=0.16, sustain=0.6, release=0.04),
+                                   tone("C#4", 0.26, 0.2, duty=0.25, gain=0.9, decay=0.16, sustain=0.6, release=0.04),
+                                   tone("C4", 0.52, 0.2, duty=0.25, gain=0.9, decay=0.16, sustain=0.6, release=0.04),
+                                   L(id="sag", wave="pulse", duty=0.25, freqStart="B3", freqEnd="Bb3", freqCurve="exp", glide=0.2,
+                                     delay=0.78, attack=0.004, decay=0.3, sustain=0.7, duration=0.7, release=0.12, gain=1.0,
+                                     vibrato={"rateHz": 6.0, "depthCents": 45, "delay": 0.2})]},
+                 "runtime": "On a Gantz tap in the picker, with the modal.", "target": {"type": "burst", "lufs": -17.0}}
     C["cantAfford"] = {"meaning": "Not enough money.", "bus": "UI", "priority": 1, "poly": 1, "steal": "oldest", "ducks": [],
                        "pitch": {"type": "key", "rootOctave": 4},
                        "variants": {"": [tone("G#4", 0.0, 0.045, gain=1.0, decay=0.04, sustain=0.3), tone("G#4", 0.075, 0.045, gain=0.8, decay=0.04, sustain=0.3)]},

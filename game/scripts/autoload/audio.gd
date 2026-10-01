@@ -86,6 +86,7 @@ const DUBI_CUES := ["dubiSquawk", "dubiBlip", "dubiFlash"]
 const EVENT_CUE := {
 	"buy": "buy", "buyBulk": "buy", "upgradeBuy": "buy", "perkBuy": "buy",
 	"cantAfford": "cantAfford",
+	"fail": "fail",   # Gantz on the picker: the sad trombone
 	"uiClick": "uiClick", "uiToggle": "uiClick", "buyModeCycle": "uiClick", "panelOpen": "uiClick",
 	"panelClose": "uiClick", "evolveOpen": "uiClick", "evolveClose": "uiClick",
 	"goldenCatch": "suitcaseCatch", "goldenDespawn": "suitcaseMiss",

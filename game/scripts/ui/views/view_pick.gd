@@ -444,14 +444,18 @@ func _tap_decoy() -> void:
 	var lines: Array = dec.get("lines", []) if dec.get("lines") is Array else []
 	_decoy_line = str(lines[_decoy_n % lines.size()]) if not lines.is_empty() else ""
 	_decoy_n += 1
-	_decoy_ms = DECOY_MS if _decoy_line != "" else 0.0
 	_decoy_revealed = true
 	_press = {}
 	_build()
 	focus = _random_index()
 	_refresh()
+	# the controller plays the fail and opens DecoyCard (the line, "בחר שוב"); with no controller
+	# the line goes in the caption strip
 	if on_decoy.is_valid():
-		on_decoy.call(str(dec.get("id", "")))
+		on_decoy.call(str(dec.get("id", "")), _decoy_line)
+	else:
+		_decoy_ms = DECOY_MS if _decoy_line != "" else 0.0
+		_refresh()
 
 
 ## D64 (mobile-first §5.8.1): a two-line caption breaks balanced, its second line ≥ 40% of its
@@ -915,6 +919,38 @@ func publish_closed() -> void:
 
 ## The leader card over the picker (a SheetCard, depth 1): the face, the full name, the party, the
 ## blurb, the rule (hidden for a leader without one) and "לשחק בתור {short}", which commits.
+## Gantz picked (the decoy): a modal over the picker. His head, the title (decoy.title), the line,
+## and "בחר שוב" (decoy.btn), which closes it back to the picker (the centre is הפתעה again).
+class DecoyCard extends SheetCard:
+	var line := ""
+	var dec: Dictionary = {}
+	var ok_button: PxButton
+
+	func build() -> DecoyCard:
+		id = "DECOY_CARD"
+		_begin()
+		title(str(dec.get("title", "")))
+		var art := SpriteStrip.resolve(str(dec.get("art", "")))
+		var ch: Dictionary = SpriteStrip.manifest().get("chars", {}).get(art, {})
+		var av := str(ch.get("avatarPick64", "avatar_pick_" + art + "_d2"))
+		if Art.has_sprite(av):
+			Ui.img(_holder, Vector2(CARD_X + (CARD_W - 128.0) / 2.0, _y), av, 0, 2)   # the 64 px head at 2 px = 128
+			_y += 128.0 + PARA_GAP
+		para(line)
+		close_x(func() -> void: cancel("close"))
+		one_button(str(dec.get("btn", "")), "kit_primary", func() -> void: cancel("ok"))
+		finish()
+		ok_button = buttons[0]
+		focus_index = 0
+		return self
+
+	func on_opened() -> void:
+		publish_web({"decoy": str(dec.get("id", ""))})
+
+	func cancel(via: String) -> void:
+		mgr.close(self, via)
+
+
 class LeaderCard extends SheetCard:
 	var leader_id := ""
 	var picker: PickView

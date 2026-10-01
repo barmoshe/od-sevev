@@ -474,10 +474,11 @@ func _build() -> void:
 	picker.on_done = _on_pick_done
 	picker.on_card = _open_leader_card
 	# Gantz, the picker's decoy: fools the player once a save (Leaders.picker drops him after)
-	picker.on_decoy = func(_id: String) -> void:
+	picker.on_decoy = func(_id: String, line: String) -> void:
 		Meta.bump(state, "gantzFooled")
-		_audio("cantAfford")
+		_audio("fail")
 		_mark_dirty()
+		_open_decoy_card(line)
 	_build_undo_chip()
 	title_view.build(bool(settings["reducedMotion"]), show_key_hints())
 	var a := get_node_or_null("/root/Audio")
@@ -3020,6 +3021,18 @@ func commit_pick(id: String, walk := false) -> bool:
 	if not walk:
 		bb.walk_land()
 	return true
+
+
+## Gantz picked: the fail and a modal over the picker (PickView.DecoyCard); "בחר שוב" closes it.
+func _open_decoy_card(line: String) -> void:
+	if overlays.is_open():
+		return
+	overlays.request(func() -> Overlay:
+		var o := PickView.DecoyCard.new()
+		o.setup(self, overlays)
+		o.line = line
+		o.dec = picker.model.get("decoy", {}) if picker.model.get("decoy") is Dictionary else {}
+		return o.build())
 
 
 ## The leader card over the picker (rtl-map §8.7).
