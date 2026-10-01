@@ -652,7 +652,7 @@ def scene_magic(c, t):
     hud_counter(c, tt, magic_value(tt), 4 * B)
     # chat: the partners want their cut
     if tt >= 8 * B:
-        bubbles = [(8 * B, "ben-gvir", "אני פורש! אני פורש!", 1200), (8.9 * B, "smotrich", "אין כסף! אין כסף!", 1420)]
+        bubbles = [(8 * B, "ben-gvir", "אני פורש! אני פורש!", 1200), (8.9 * B, "smotrich", "יש כסף! לא לך!", 1420)]
         for t0, who, line, y in bubbles:
             if tt >= t0:
                 bim = bubble(line, 6, tail=None)
@@ -732,10 +732,10 @@ def ticker(c, tt, line):
 LEADERS = [  # (sprite id, name, line, react cue, era)
     ("bennett", "בנט", "ביחד! ביחד!", "critReact_D_whoosh", "knesset"),
     ("ben-gvir", "בן גביר", "אני פורש! אני פורש!", "critReact_D_shout", "washington"),
-    ("liberman", "ליברמן", "לא יושב! לא יושב!", "critReact_D_no", "courthouse"),
+    ("liberman", "ליברמן", "לא אשב! לא אשב!", "critReact_D_no", "courthouse"),
     ("eisenkot", "אייזנקוט", "ישר! ישר!", "critReact_D_land", "balfour"),
-    ("smotrich", "סמוטריץ׳", "אין כסף! אין כסף!", "critReact_D_shout", "knesset"),
-    ("deri", "דרעי", "ידידי! ידידי!", "critReact_D_land", "washington"),
+    ("smotrich", "סמוטריץ׳", "יש כסף! לא לך!", "critReact_D_shout", "knesset"),
+    ("deri", "דרעי", "מסדרון! מסדרון!", "critReact_D_land", "washington"),
     ("golan", "גולן", "איחוד! איחוד!", "critReact_D_whoosh", "courthouse"),
 ]
 LEAD_SLOTS = [(2, 2), (4, 2), (6, 2), (8, 1), (9, 1), (10, 1), (11, 1)]  # (start beat, beats)
@@ -929,9 +929,9 @@ def build_sfx():
     sfx(3 * B, "stamp", 0); sfx(3 * B, "gavel_a", -2); sfx(3 * B, "stamp_bell", -6)
     # count-up: the tap walk climbs with the numbers
     for k, h in enumerate([0, B / 2, B, 1.5 * B, 2 * B]):
-        sfx(T_COUNT + h, "tap_D_s%d_d25" % (k * 1 + 1), -2)
+        sfx(T_COUNT + h, tap_note(k * 1 + 1), -2)
         sfx(T_COUNT + h, "coin_D_a", -10)
-    sfx(T_COUNT + 3 * B, "tap_D_s7_d25", 0); sfx(T_COUNT + 3 * B, "stamp_bell", -3)
+    sfx(T_COUNT + 3 * B, tap_note(7), 0); sfx(T_COUNT + 3 * B, "stamp_bell", -3)
     sfx(T_COUNT + 3 * B, "merge_D", -4)
     # magician
     sfx(T_MAGIC, "shutter_p1", -6)
@@ -940,7 +940,7 @@ def build_sfx():
     walk = 0
     for k in range(8):
         tk = T_MAGIC + 6 * B + k * B / 2
-        sfx(tk, "tap_D_s%d_d25" % (walk % 8), -3); walk += 1
+        sfx(tk, tap_note(walk % 8), -3); walk += 1
         sfx(tk + 0.1, "coin_D_%s" % "ab"[k % 2], -8)
     sfx(T_MAGIC + 8 * B, "chatPing_D_benGvir", -2)
     sfx(T_MAGIC + 8.9 * B, "chatPing_D_smotrich", -2)
@@ -969,7 +969,7 @@ def build_sfx():
                     tt += 0.085
                 tt += 0.15
     for k in range(8):
-        sfx(T_LEAD + 12 * B + k * B / 2, "tap_D_s%d_d12" % k, -4)
+        sfx(T_LEAD + 12 * B + k * B / 2, tap_note(k), -4)
     # roll + title: the fanfare is the music bed; Dubi squawks across
     sfx(T_ROLL + 0.25, "dubiSquawk_D_up", -2); sfx(T_ROLL + 0.55, "dubiSquawk_D_down", -2)
     for k, (deg, octv) in enumerate(contours.get("בחירות!", [])):
@@ -977,6 +977,15 @@ def build_sfx():
     sfx(T_TITLE, "stamp_bell", -2); sfx(T_TITLE, "coin_D_a", -2)
     sfx(T_MOTIF + 0.776, "stamp", -1)
     sfx(T_MOTIF + 0.776, "dubiSquawk_D_up", -4)
+
+
+# The game's taps are HaTikva bell notes since the tap-hatikva merge (tap_D_n<semitones>_bell); the
+# teaser's old scale steps s0..s8 map onto them in order.
+TAP_NOTES = ["n-5", "n0", "n2", "n3", "n5", "n7", "n8", "n10", "n12"]
+
+
+def tap_note(k):
+    return "tap_D_%s_bell" % TAP_NOTES[max(0, min(len(TAP_NOTES) - 1, int(k)))]
 
 
 def load_wav(name):
@@ -1054,8 +1063,12 @@ def mix_audio(path):
 # ---------------------------------------------------------------------------- main
 
 def ffmpeg():
-    import imageio_ffmpeg
-    return imageio_ffmpeg.get_ffmpeg_exe()
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except ImportError:
+        import shutil
+        return shutil.which("ffmpeg") or "ffmpeg"   # the system ffmpeg (the container has no imageio)
 
 
 def stills(times, path):
