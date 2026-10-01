@@ -74,19 +74,19 @@ func test_only_in_bibis_round() -> void:
 	runner.check(SaraMark.mark().x > L.magician_feet().x, "her mark is right of the leader (option B)")
 
 
-func test_she_stands_and_huffs_at_the_bottle_deposits() -> void:
-	await _boot()
+func test_she_visits_to_huff_at_the_bottle_deposits() -> void:
+	await _boot(true)   # reduced motion: no walk, every step lands on a frame
 	runner.check(_start_round(), "the pick and tap 1 start the round")
 	_frames(30)
 	var sara: SaraMark = m.sara
-	runner.check(m.diorama.era_id() == "balfour" and sara.showing(), "Balfour, Bibi's round: she is on stage")
-	runner.check(sara.position == SaraMark.mark() and sara.strip.anim == "idle", "on her mark, idle")
+	sara.reduced_motion = true
+	runner.check(m.diorama.era_id() == "balfour" and not sara.showing(), "Bar 2026-10-01: not on stage the whole round")
 	sara.offend()
-	_frames(5)        # 80 ms: inside the reaction delay
-	runner.check(sara.strip.anim == "idle", "no huff before the 150 ms reaction delay")
-	_frames(10)
-	runner.check(sara.strip.anim == "offended", "then the huff")
-	_frames(80)       # past the anim
+	_frames(2)
+	runner.check(sara.showing() and sara.position == SaraMark.mark(), "S01: she comes in, on her mark")
+	_frames(10)       # the 150 ms reaction delay runs from her arrival
+	runner.check(sara.strip.anim == "offended", "and huffs after the reaction delay")
+	_frames(80)
 	runner.check(sara.strip.anim == "idle", "back to idle after the huff")
 	sara.offend()
 	_frames(20)
@@ -94,6 +94,25 @@ func test_she_stands_and_huffs_at_the_bottle_deposits() -> void:
 	m._on_politics_event(Events.fire(m.state, "mordechai", m.d, func() -> float: return 0.0))
 	_frames(2)
 	runner.check(sara.showing(), "Mordechai David comes from the left now: she stays")
+	_frames(int(SaraMark.VISIT_MS / 16.0) + 10)
+	runner.check(not sara.showing(), "after the visit she leaves")
+
+
+func test_she_drops_by_for_a_cameo_now_and_then() -> void:
+	await _boot(true)
+	runner.check(_start_round(), "the pick and tap 1 start the round")
+	var sara: SaraMark = m.sara
+	sara.reduced_motion = true
+	sara.update_view(SaraMark.CAMEO_FIRST_MS - 1000.0, m.state, true)
+	runner.check(not sara.showing(), "no cameo before the first one is due")
+	sara.update_view(1200.0, m.state, true)
+	sara.update_view(16.0, m.state, true)
+	runner.check(sara.showing(), "then a passing cameo")
+	sara.update_view(SaraMark.VISIT_MS + 100.0, m.state, true)
+	sara.update_view(16.0, m.state, true)
+	runner.check(not sara.showing(), "which ends after the visit")
+	sara.update_view(SaraMark.CAMEO_EVERY_MS / 2.0, m.state, true)
+	runner.check(not sara.showing(), "and the next one waits its turn")
 
 
 func test_not_in_another_leaders_round() -> void:
