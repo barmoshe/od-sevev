@@ -1676,6 +1676,11 @@ func _on_ability_event(e: Dictionary) -> void:
 		"swipe":
 			key = "toastSwipe"
 	var line := str(c.get(key, ""))
+	# Phase 3: the shared unity offer (leaderSelect.unityOffer) and the leader's own refusal
+	if str(e.get("kind", "")) == "unityOffer":
+		line = str(Ability.unity_copy(state).get("toastOffer", ""))
+	elif str(e.get("kind", "")) == "unityRefuse":
+		line = Ability.unity_refuse_line(state)
 	if line != "":
 		toasts.show_toast(Bidi.fill(line, fill), "", "lane")
 

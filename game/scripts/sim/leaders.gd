@@ -22,7 +22,7 @@ extends RefCounted
 ## (start_round) until the first tap. A build without the picker therefore keeps running as that
 ## leader (Bibi) forever. A repick undoes the automatic round's bookkeeping, so it counts once.
 
-const STAT_KEYS := ["rounds", "elections", "taps", "crits", "declines", "merges", "bestRunSec", "playSec", "abilityUses", "flashedAt"]
+const STAT_KEYS := ["rounds", "elections", "taps", "crits", "declines", "merges", "bestRunSec", "playSec", "abilityUses", "unityRefusals", "flashedAt"]
 const HISTORY_MAX := 10
 ## The per-slot numbers a lineup deals; every other partner field is the person's trait.
 const SLOT_NUMBERS := ["seats", "upkeepPct", "demandWeight", "threatChance", "unlock"]

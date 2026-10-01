@@ -247,9 +247,13 @@ static func _burst_return(s: GameState, u: Dictionary, d: Economy.Derived, tappi
 ## The simulated player's answers to the politics this frame (see the header for the strategies).
 ## Leaders v3: the median player's use of the round's active ability (Ability). Bennett signs when
 ## the gate is shut and never flips (he keeps the base); Ben Gvir, Eisenkot and Deri use theirs when a
-## demand is open; Smotrich pays a budget he can afford; Golan swipes; Bibi unites once.
+## demand is open; Smotrich pays a budget he can afford; Golan swipes; Bibi unites once. Phase 3:
+## every other opposition leader refuses each unity offer.
 static func _play_ability(s: GameState, d: Economy.Derived) -> void:
 	if not Ability.can_use(s, d):
+		return
+	if Ability.unity_open(s):
+		Ability.use(s, d)
 		return
 	match Ability.type(s):
 		"pledgeFlip":

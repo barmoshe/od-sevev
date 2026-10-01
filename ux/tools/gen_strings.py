@@ -1051,6 +1051,13 @@ if os.path.exists(CONTENT):
             sq = (k.get("dubi") or {}).get("squawks") if isinstance(k.get("dubi"), dict) else None
             for sk, sv in (sq or {}).items():
                 lint_content(f"leaders.{lid}.kit.dubi.squawks.{sk}", sv, "stage.toast", True); nl += 1
+            un = k.get("unity")
+            if isinstance(un, dict) and un.get("refuse"):
+                lint_content(f"leaders.{lid}.kit.unity.refuse", un["refuse"], "stage.toast", True); nl += 1
+    # leaders v3 phase 3: the shared unity offer (leaderSelect.unityOffer.copy)
+    for ck, cv in ((cj.get("leaderSelect", {}).get("unityOffer") or {}).get("copy") or {}).items():
+        box = "stage.ability" if ck.startswith("btn") else "stage.toast"
+        lint_content(f"leaderSelect.unityOffer.copy.{ck}", cv, box, True); nl += 1
     print("leader words linted:", nl)
 
     # ---- drift: the UI keys that mirror the designer's leader-select copy must say the same thing

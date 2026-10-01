@@ -22,7 +22,14 @@ extends RefCounted
 ##   swipeLeft   Golan     "החלקה שמאלה": every everySec a unity offer comes up for windowSec; swipe
 ##                         it: + basePct.
 ##
-## State: s.leader_round["ability"] {leader, cd, phase, t, next, price, basePct, n, seen, used}, reset
+## Phase 3, the shared unity offer (leaderSelect.unityOffer, Bar 2026-10-01): every OTHER opposition
+## leader (side "opposition", type not swipeLeft) also gets Netanyahu's offer every everySec for
+## windowSec. While it is up the chip says "לא"; a tap refuses it (+ basePct, the leader's own line from
+## kit.unity.refuse, stats.unityRefusals). Ignoring it does nothing. It shares the state below
+## (uPhase, uT, uNext) and never lands on the court day or over the leader's own live ability.
+##
+## State: s.leader_round["ability"] {leader, cd, phase, t, next, price, basePct, n, seen, used, uPhase,
+## uT, uNext}, reset
 ## per round and per leader (sanitized by Leaders.sanitize_into through `sanitize`). Pure: no nodes.
 ## Ticked by Politics.tick (so the vote card holds it like everything else).
 
@@ -48,7 +55,8 @@ static func copy(s: GameState) -> Dictionary:
 
 
 static func _fresh(leader: String) -> Dictionary:
-	return {"leader": leader, "cd": 0.0, "phase": "", "t": 0.0, "next": -1.0, "price": 0.0, "basePct": 0.0, "n": 0, "seen": -1.0, "used": false}
+	return {"leader": leader, "cd": 0.0, "phase": "", "t": 0.0, "next": -1.0, "price": 0.0, "basePct": 0.0, "n": 0, "seen": -1.0, "used": false,
+		"uPhase": "", "uT": 0.0, "uNext": -1.0}
 
 
 ## This round's state; a new leader (or none yet) starts fresh.
@@ -65,6 +73,72 @@ static func _n(e: Dictionary, k: String, dflt: float) -> float:
 	return float(e.get(k, dflt))
 
 
+# ------------------------------------------------------------------ the shared unity offer
+
+## leaderSelect.unityOffer when this round's leader gets it (opposition, not Golan's own swipe), else {}.
+static func unity_def(s: GameState) -> Dictionary:
+	if def(s).is_empty() or type(s) == "swipeLeft":
+		return {}
+	if str(Leaders.leader(Leaders.current(s)).get("side", "")) != "opposition":
+		return {}
+	var u: Variant = Leaders.ls().get("unityOffer")
+	return u if u is Dictionary else {}
+
+
+static func unity_copy(s: GameState) -> Dictionary:
+	var c: Variant = unity_def(s).get("copy")
+	return c if c is Dictionary else {}
+
+
+static func unity_open(s: GameState) -> bool:
+	return not unity_def(s).is_empty() and str(st(s).get("uPhase", "")) == "offer"
+
+
+## The leader's own refusal (kit.unity.refuse).
+static func unity_refuse_line(s: GameState) -> String:
+	var u: Variant = Leaders.kit(Leaders.current(s)).get("unity")
+	return str((u as Dictionary).get("refuse", "")) if u is Dictionary else ""
+
+
+static func _refuse_unity(s: GameState) -> Dictionary:
+	var u := unity_def(s)
+	var a := st(s)
+	var pct := _n(u, "basePct", 1.0)
+	a["basePct"] = float(a["basePct"]) + pct
+	a["uPhase"] = ""
+	a["uT"] = 0.0
+	a["uNext"] = _n(u, "everySec", 240.0)
+	Leaders._bump(s, Leaders.current(s), "unityRefusals", 1.0)
+	return {"ok": true, "kind": "unityRefuse", "events": [{"ev": "ability", "kind": "unityRefuse", "pct": pct}]}
+
+
+static func _tick_unity(s: GameState, dt: float, e: Dictionary, a: Dictionary) -> Array:
+	var u := unity_def(s)
+	if u.is_empty():
+		return []
+	if str(a["uPhase"]) == "offer":
+		a["uT"] = float(a["uT"]) - dt
+		if float(a["uT"]) > 0.0:
+			return []
+		a["uPhase"] = ""
+		a["uT"] = 0.0
+		a["uNext"] = _n(u, "everySec", 240.0)
+		return [{"ev": "ability", "kind": "unityMissed"}]
+	if float(a["uNext"]) < 0.0:
+		a["uNext"] = _n(u, "firstSec", 150.0)
+	a["uNext"] = maxf(0.0, float(a["uNext"]) - dt)
+	if float(a["uNext"]) > 0.0:
+		return []
+	# it waits out the court day and the leader's own live ability (a walk-off, a pledge to flip)
+	var court := Investigation.active() and Investigation.phase(s) == "court"
+	var busy := str(a["phase"]) != "" or (str(e["type"]) == "pledgeFlip" and Events.is_active(s, "pledge"))
+	if court or busy:
+		return []
+	a["uPhase"] = "offer"
+	a["uT"] = _n(u, "windowSec", 20.0)
+	return [{"ev": "ability", "kind": "unityOffer"}]
+
+
 # ------------------------------------------------------------------ the button
 
 ## Why the ability can't be used now: "" when it can, else none | passive | cooldown | out | court |
@@ -74,6 +148,8 @@ static func block(s: GameState, d: Economy.Derived = null) -> String:
 	if e.is_empty():
 		return "none"
 	var a := st(s)
+	if unity_open(s):
+		return ""   # the chip refuses the unity offer
 	match str(e["type"]):
 		"clauses":
 			return "passive"
@@ -121,6 +197,8 @@ static func use(s: GameState, d: Economy.Derived) -> Dictionary:
 	var why := block(s, d)
 	if why != "":
 		return {"ok": false, "reason": why}
+	if unity_open(s):
+		return _refuse_unity(s)
 	var e := def(s)
 	var a := st(s)
 	var out: Array = []
@@ -233,6 +311,7 @@ static func tick(s: GameState, dt: float, d: Economy.Derived) -> Array:
 	var a := st(s)
 	if float(a["cd"]) > 0.0:
 		a["cd"] = maxf(0.0, float(a["cd"]) - dt)
+	out.append_array(_tick_unity(s, dt, e, a))
 	match str(e["type"]):
 		"walkout":
 			if str(a["phase"]) == "out":
@@ -311,6 +390,10 @@ static func view(s: GameState, d: Economy.Derived = null) -> Dictionary:
 	if e.is_empty():
 		return {"show": false}
 	var a := st(s)
+	if unity_open(s):
+		var u := unity_def(s)
+		return {"show": true, "label": str(unity_copy(s).get("btn", "")), "sub": "%d" % ceili(float(a["uT"])), "ready": true,
+			"fill": clampf(float(a["uT"]) / maxf(1.0, _n(u, "windowSec", 20.0)), 0.0, 1.0), "state": "offer"}
 	var c := copy(s)
 	var why := block(s, d)
 	var out := {"show": true, "label": str(c.get("btn", "")), "sub": "", "ready": why == "", "fill": 0.0, "state": "ready" if why == "" else "cooldown"}
@@ -362,7 +445,7 @@ static func sanitize(raw: Variant) -> Dictionary:
 	if lid != "" and not Leaders.playable(lid):
 		return {}
 	var a := _fresh(lid)
-	for k in ["cd", "t", "next", "price", "basePct", "seen"]:
+	for k in ["cd", "t", "next", "price", "basePct", "seen", "uT", "uNext"]:
 		var v: Variant = r.get(k)
 		if (v is float or v is int) and is_finite(float(v)):
 			a[k] = float(v)
@@ -371,5 +454,8 @@ static func sanitize(raw: Variant) -> Dictionary:
 	a["basePct"] = clampf(float(a["basePct"]), 0.0, 100.0)
 	a["n"] = int(clampf(float(r.get("n", 0)) if (r.get("n") is float or r.get("n") is int) else 0.0, 0.0, 99.0))
 	a["phase"] = str(r.get("phase", "")) if PHASES.has(str(r.get("phase", ""))) else ""
+	a["uPhase"] = "offer" if str(r.get("uPhase", "")) == "offer" else ""
+	a["uT"] = clampf(float(a["uT"]), 0.0, 600.0)
+	a["uNext"] = clampf(float(a["uNext"]), -1.0, 600.0)
 	a["used"] = r.get("used") == true
 	return a

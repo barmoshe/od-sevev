@@ -156,6 +156,62 @@ func test_golan_swipes_the_unity_offer() -> void:
 	runner.check(is_equal_approx(float(Ability.st(s)["basePct"]), 2.0), "swiped left: +2% base")
 
 
+
+## Phase 3: Netanyahu's unity offer for every opposition leader but Golan (leaderSelect.unityOffer).
+func test_the_unity_offer_comes_to_every_other_opposition_leader() -> void:
+	var u: Dictionary = Leaders.ls().get("unityOffer", {})
+	var first := int(u.get("firstSec", 150))
+	for id: String in Leaders.pickable():
+		var s := _round(id)
+		var want := str(Leaders.leader(id).get("side", "")) == "opposition" and Ability.type(s) != "swipeLeft"
+		var d := _d(s)
+		var saw := false
+		for i in first + 1:
+			for e: Variant in Ability.tick(s, 1.0, d):
+				if e is Dictionary and str((e as Dictionary).get("kind", "")) == "unityOffer":
+					saw = true
+		runner.check(saw == want and Ability.unity_open(s) == want, "%s: the unity offer %s" % [id, "comes" if want else "never comes"])
+		if want:
+			runner.check(Ability.unity_refuse_line(s) != "", "%s: a refusal line of his own" % id)
+
+
+func test_refusing_unity_raises_the_base_and_counts() -> void:
+	var s := _round("liberman")
+	var d := _d(s)
+	var u: Dictionary = Leaders.ls().get("unityOffer", {})
+	for i in int(u.get("firstSec", 150)) + 1:
+		Ability.tick(s, 1.0, d)
+	var v := Ability.view(s, d)
+	runner.check(Ability.can_use(s, d) and str(v["state"]) == "offer" and str(v["label"]) == str(u.get("copy", {}).get("btn", "")), "the chip says no")
+	var r := Ability.use(s, d)
+	runner.check(str(r.get("kind", "")) == "unityRefuse" and is_equal_approx(float(Ability.st(s)["basePct"]), float(u.get("basePct", 1))), "refused: + base")
+	runner.check(is_equal_approx(Leaders.stat(s, "liberman", "unityRefusals"), 1.0) and not Ability.unity_open(s), "counted, and the offer is gone")
+	runner.check(Ability.block(s, d) == "passive", "the chip is his document again")
+
+
+func test_an_ignored_unity_offer_does_nothing() -> void:
+	var s := _round("eisenkot")
+	var d := _d(s)
+	var u: Dictionary = Leaders.ls().get("unityOffer", {})
+	for i in int(u.get("firstSec", 150)) + int(u.get("windowSec", 20)) + 2:
+		Ability.tick(s, 1.0, d)
+	runner.check(not Ability.unity_open(s) and is_equal_approx(float(Ability.st(s)["basePct"]), 0.0), "the window closed with no change")
+	_members(s, _first_member_ids(s, 1))
+	runner.check(Ability.use(s, d).get("kind", "") == "roundTable", "the chip is his round table again")
+
+
+func test_the_unity_offer_waits_for_a_live_pledge() -> void:
+	var s := _round("bennett")
+	var d := _d(s)
+	Ability.use(s, d)   # sign: the pledge is up
+	var u: Dictionary = Leaders.ls().get("unityOffer", {})
+	Ability.st(s)["uNext"] = 0.5
+	Ability.tick(s, 1.0, d)
+	runner.check(Events.is_active(s, "pledge") and not Ability.unity_open(s), "no offer over a pledge he can still flip")
+	var raw: Dictionary = JSON.parse_string(JSON.stringify(s.leader_round))
+	var a := Ability.sanitize(raw.get("ability"))
+	runner.check(a.has("uNext") and str(a.get("uPhase", "x")) in ["", "offer"], "the unity state survives a save")
+
 func test_the_ability_survives_a_save() -> void:
 	var s := _round("bengvir")
 	var d := _d(s)

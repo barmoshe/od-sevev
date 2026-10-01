@@ -6127,7 +6127,21 @@
      "value": 10
     }
    }
-  ]
+  ],
+  "unityOffer": {
+   "_doc": "Leaders v3 phase 3 (Bar 2026-10-01): Netanyahu's unity offer for every opposition leader but Golan (whose own ability is the swipe). Up every everySec for windowSec; the chip says btn, a tap refuses it: + basePct on the round's base and the leader's kit.unity.refuse toast. Ignoring it does nothing. Read by Ability.unity_def.",
+   "firstSec": 150,
+   "everySec": 240,
+   "windowSec": 20,
+   "basePct": 1,
+   "copy": {
+    "btn": "לא",
+    "toastOffer": "נתניהו מציע ממשלת אחדות."
+   },
+   "src": [
+    "golan-tinder"
+   ]
+  }
  },
  "leaders": [
   {
@@ -6728,6 +6742,13 @@
       "key": "taps",
       "value": 1000
      }
+    },
+    "unity": {
+     "refuse": "בנט סירב לאחדות. הפעם גם חתם על זה.",
+     "src": [
+      "bennett-pledge"
+     ],
+     "_note": "The joke is his pledge habit (bennett-pledge); no claim that he refused a real offer."
     }
    },
    "coalition": {
@@ -7796,6 +7817,13 @@
       "key": "declines",
       "value": 25
      }
+    },
+    "unity": {
+     "refuse": "ליברמן סירב. גם אם העולם יתהפך, הוא לא ישב עם נתניהו.",
+     "src": [
+      "liberman-wont-sit"
+     ],
+     "_note": "Reported speech of his May 2026 line, no quote marks."
     }
    },
    "coalition": {
@@ -8320,6 +8348,13 @@
       "key": "taps",
       "value": 2000
      }
+    },
+    "unity": {
+     "refuse": "אייזנקוט סירב. השולחן העגול נשאר בלי נתניהו.",
+     "src": [
+      "eisenkot-invites-opposition"
+     ],
+     "_note": "His round table of opposition heads; no claim of a real offer."
     }
    },
    "coalition": {
