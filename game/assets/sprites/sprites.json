@@ -7244,7 +7244,11 @@
     }
    },
    "avatar": "avatar_gantz",
-   "avatar24": "avatar24_gantz"
+   "avatar24": "avatar24_gantz",
+   "avatarPick": "avatar_pick_gantz",
+   "avatar24Pick": "avatar24_pick_gantz",
+   "avatarPickXL": "avatar_pick_gantz_d3",
+   "avatarPick64": "avatar_pick_gantz_d2"
   },
   "liberman": {
    "frameW": 157,
@@ -20225,6 +20229,38 @@
    "size": [
     31,
     26
+   ]
+  },
+  "avatar24_pick_gantz.png": {
+   "bytes": 772,
+   "sha": "635988ed2f050186",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar_pick_gantz.png": {
+   "bytes": 1230,
+   "sha": "93b98e55fa9714cc",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_pick_gantz_d2.png": {
+   "bytes": 3603,
+   "sha": "b94ad1b6c8ad3b70",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_pick_gantz_d3.png": {
+   "bytes": 6663,
+   "sha": "e964616aba2a02ee",
+   "size": [
+    96,
+    96
    ]
   }
  },

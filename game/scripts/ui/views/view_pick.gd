@@ -91,12 +91,14 @@ var strip_rect := Rect2()           # the navy plate, picker-local (window.odPic
 var _scrim: ColorRect
 var _layer := Node2D.new()
 var _again_group: Array[CanvasItem] = []
-## Gantz, the decoy (content leaderSelect.decoy, Bar 2026-10-01): a small button on the title row's
-## left end. A tap never starts a round: the caption strip says why (the lines in turn, DECOY_MS)
-## and the picker stays open. `on_decoy(id)` lets the controller play a sound.
+## Gantz, the decoy (content leaderSelect.decoy, Bar 2026-10-01): until he has fooled the player once
+## (the controller drops model.decoy after that), he stands in the centre cell instead of הפתעה,
+## drawn as a leader tile. A tap never starts a round: the caption strip says why (DECOY_MS), the
+## cell turns back into הפתעה and the player picks again. `on_decoy(id)`: the controller's sound
+## and the "fooled" stat.
 const DECOY_MS := 3500.0
-var decoy_btn: PxButton
 var on_decoy: Callable
+var _decoy_revealed := false
 var _decoy_ms := 0.0
 var _decoy_n := 0
 var _decoy_line := ""
@@ -144,6 +146,8 @@ func open(variant_: String, model_: Dictionary, keep_order: Array = [], focus_id
 	_press = {}
 	_hover = -1
 	_age = 0.0
+	_decoy_revealed = false
+	_decoy_ms = 0.0
 	modulate.a = 1.0
 	visible = true
 	_build()
@@ -168,8 +172,11 @@ func is_open() -> bool:
 	return visible
 
 
-## The tile model of a leader id ({} for הפתעה).
+## The tile model of a leader id ({} for הפתעה; the decoy's while he stands in the centre).
 func tile_of(id: String) -> Dictionary:
+	var dt_ := _decoy_tile()
+	if not dt_.is_empty() and str(dt_["id"]) == id:
+		return dt_
 	for t: Variant in model.get("tiles", []):
 		if str((t as Dictionary)["id"]) == id:
 			return t
@@ -296,7 +303,6 @@ func _build() -> void:
 	cells.clear()
 	_booth_node = null
 	again_btn = null
-	decoy_btn = null
 	_again_group.clear()
 	var H := _bot - _top
 	var cw := L.cw
@@ -368,16 +374,7 @@ func _build() -> void:
 		shrunk = true
 	# the title (measured now: the booth's room depends on its lines)
 	var title := PxText.make(_layer, Vector2.ZERO, _title_text(), L.TEXT, "plain", C_NAME)
-	# Gantz's button on the title row's left end: the title keeps clear of it on both sides (centred)
-	var dec: Dictionary = model.get("decoy", {}) if model.get("decoy") is Dictionary else {}
-	var dec_lab: PxText = null
-	var dec_w := 0.0
-	if str(dec.get("label", "")) != "":
-		dec_lab = PxText.make(_layer, Vector2.ZERO, str(dec["label"]), L.TEXT, "plain", PxButton.label_color("kit_secondary"))
-		dec_lab.max_lines = 1
-		dec_w = Ui.snap(float(dec_lab.width()) + (48.0 + 12.0 if Art.has_sprite(str(dec.get("avatar", ""))) else 0.0) + 32.0, 4)
-	var dec_off := (dec_w + 8.0) if dec_w > 0.0 else 0.0
-	title.wrap_width = 656.0 + L.dx - 2.0 * dec_off
+	title.wrap_width = 656.0 + L.dx
 	title.max_lines = 2
 	title.align = 1
 	var tlines := maxf(1.0, float(title.line_count()))
@@ -406,7 +403,8 @@ func _build() -> void:
 	# הפתעה: the centre cell (3 × 3) or the full-width bar under a 2 × 2
 	if model.get("random", true) == true:
 		var rr := Rect2(cols[1], gy + th + ROW_GAP, tw, th) if three else Rect2(side, gy + 2.0 * (th + ROW_GAP), cw - 2.0 * side, 96)
-		var rc_cell := _make_cell("", rr, three)
+		var dt_ := _decoy_tile()
+		var rc_cell := _make_cell(str(dt_["id"]) if three and not dt_.is_empty() else "", rr, three)
 		if three:
 			cells.insert(4, rc_cell)   # reading order: the centre is 5th (§8.5)
 		else:
@@ -426,29 +424,31 @@ func _build() -> void:
 		ct.center_in(chx, chw)
 		ty = cy - 8.0
 	title.position.y = ty - LH * tlines
-	title.center_in(32.0 + dec_off, 656.0 + L.dx - 2.0 * dec_off)
-	if dec_lab != null:
-		var by := Ui.snap(title.position.y + (LH * tlines - 56.0) / 2.0, 4)
-		var vis := Rect2(16.0, by, dec_w, 56.0)
-		decoy_btn = PxButton.make(_layer, vis, {"hit": vis.grow(8.0), "kind": "kit_secondary",
-			"on_commit": func() -> void: _tap_decoy()})
-		_layer.move_child(dec_lab, -1)
-		dec_lab.position = Vector2(vis.position.x + 16.0, vis.position.y + 8.0)
-		var av := str(dec.get("avatar", ""))
-		if Art.has_sprite(av):
-			Ui.img(_layer, Vector2(vis.position.x + 16.0 + float(dec_lab.width()) + 12.0, vis.position.y + 4.0), av, 0, 2)
+	title.center_in(32.0, 656.0 + L.dx)
 	_publish()
 
 
-## Gantz tapped: the next line in the caption strip for DECOY_MS; the picker stays open.
+## The decoy's tile model (Gantz, content leaderSelect.decoy) while he still stands in for הפתעה, else {}.
+func _decoy_tile() -> Dictionary:
+	var dec: Dictionary = model.get("decoy", {}) if model.get("decoy") is Dictionary else {}
+	if dec.is_empty() or _decoy_revealed:
+		return {}
+	return {"id": str(dec.get("id", "")), "short": str(dec.get("short", "")), "party": str(dec.get("party", "")),
+		"art": str(dec.get("art", "")), "blurb": str(dec.get("blurb", "")), "decoy": true}
+
+
+## Gantz picked: no round. His line in the caption strip (DECOY_MS), and the centre cell turns back
+## into הפתעה: the player picks again.
 func _tap_decoy() -> void:
 	var dec: Dictionary = model.get("decoy", {}) if model.get("decoy") is Dictionary else {}
 	var lines: Array = dec.get("lines", []) if dec.get("lines") is Array else []
-	if lines.is_empty():
-		return
-	_decoy_line = str(lines[_decoy_n % lines.size()])
+	_decoy_line = str(lines[_decoy_n % lines.size()]) if not lines.is_empty() else ""
 	_decoy_n += 1
-	_decoy_ms = DECOY_MS
+	_decoy_ms = DECOY_MS if _decoy_line != "" else 0.0
+	_decoy_revealed = true
+	_press = {}
+	_build()
+	focus = _random_index()
 	_refresh()
 	if on_decoy.is_valid():
 		on_decoy.call(str(dec.get("id", "")))
@@ -540,7 +540,7 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 		c["name"] = nm
 		return c
 	var t := tile_of(id)
-	var art := LeaderUi.art(id)
+	var art := LeaderUi.art(id) if not t.get("decoy", false) else (SpriteStrip.resolve(str(t["art"])) if SpriteStrip.resolve(str(t["art"])) != "" else str(t["art"]))
 	var ch: Dictionary = SpriteStrip.manifest().get("chars", {}).get(art, {})
 	var av := str(ch.get("avatar24Pick", "avatar24_pick_" + art)) if avatar == 96.0 else str(ch.get("avatarPick", "avatar_pick_" + art))
 	var sc := 2.0 if avatar == 64.0 else (6.0 if avatar == 192.0 else 4.0)
@@ -578,7 +578,7 @@ func _block_top(h: float) -> float:
 
 func _random_index() -> int:
 	for i in cells.size():
-		if str(cells[i]["id"]) == "":
+		if str(cells[i]["id"]) == "" or tile_of(str(cells[i]["id"])).get("decoy", false):
 			return i
 	return 0
 
@@ -657,10 +657,6 @@ func pointer_down(p: Vector2) -> bool:
 		again_btn.down()
 		_press = {"cell": -2, "at": p, "t": 0.0, "card": false}
 		return true
-	if decoy_btn != null and decoy_btn.contains(p):
-		decoy_btn.down()
-		_press = {"cell": -3, "at": p, "t": 0.0, "card": false}
-		return true
 	return true
 
 
@@ -686,10 +682,7 @@ func pointer_up(p: Vector2) -> void:
 		if again_btn != null:
 			again_btn.up(inside)   # on_commit → commit_again
 		return
-	if int(pr["cell"]) == -3:
-		if decoy_btn != null:
-			decoy_btn.up(decoy_btn.contains(p))   # on_commit → _tap_decoy
-		return
+
 	if pr.get("card", false) == true:
 		_refresh()
 		return
@@ -707,8 +700,7 @@ func hover(p: Vector2) -> bool:
 		_hover = i
 		_refresh()
 	var on_again := again_btn != null and again_btn.contains(p)
-	var on_decoy_btn := decoy_btn != null and decoy_btn.contains(p)
-	return i >= 0 or on_again or on_decoy_btn
+	return i >= 0 or on_again
 
 
 ## Keys (§8.5). True = handled. Focus moves in reading order: the grid right → left, top →
@@ -733,7 +725,7 @@ func key(e: InputEventKey) -> bool:
 				commit_cell(focus, "key")
 			return true
 		KEY_I:
-			if focus >= 0 and focus < n and str(cells[focus]["id"]) != "" and on_card.is_valid():
+			if focus >= 0 and focus < n and str(cells[focus]["id"]) != "" and not tile_of(str(cells[focus]["id"])).get("decoy", false) and on_card.is_valid():
 				on_card.call(str(cells[focus]["id"]), "key")
 		KEY_ESCAPE:
 			if variant == "after" and has_again:
@@ -807,6 +799,9 @@ func commit_cell(i: int, via: String) -> void:
 	if locked or i < 0 or i >= cells.size():
 		return
 	var id := str(cells[i]["id"])
+	if tile_of(id).get("decoy", false):
+		_tap_decoy()
+		return
 	if id == "":
 		id = Leaders.random_pick(randf)
 		via = "random"
@@ -847,7 +842,7 @@ func update_view(dt: float) -> void:
 		if float(_press["t"]) >= HOLD_MS and _press.get("moved", false) != true:
 			_press["card"] = true
 			var id := str(cells[int(_press["cell"])]["id"])
-			if id != "" and on_card.is_valid():
+			if id != "" and not tile_of(id).get("decoy", false) and on_card.is_valid():
 				on_card.call(id, "hold")
 	if _commit.is_empty():
 		return

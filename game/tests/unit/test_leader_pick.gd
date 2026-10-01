@@ -74,13 +74,15 @@ func test_gantz_is_on_the_picker_and_sends_you_to_pick_again() -> void:
 	await _boot()
 	var p: PickView = m.picker
 	p._age = 1000.0   # past the tap guard
-	runner.check(p.decoy_btn != null, "Gantz's button is on the picker")
-	var at: Vector2 = p.decoy_btn.visual.get_center()
+	runner.check(str(p.cells[4]["id"]) == "gantz" and p.cells[4].has("party"), "the first time Gantz stands in the centre as a leader tile")
+	var at: Vector2 = (p.cells[4]["rect"] as Rect2).get_center()
 	p.pointer_down(at)
 	p.pointer_up(at)
 	runner.check(m.mode == "pick" and p.visible and not p.locked, "no round starts: the picker stays open")
 	runner.check(p._strip.text.contains("גנץ"), "the strip says why (%s)" % p._strip.text)
-	runner.check(p.cells.all(func(c: Dictionary) -> bool: return str(c["id"]) != "gantz"), "he is never a leader tile")
+	runner.check(str(p.cells[4]["id"]) == "", "the centre turns back into הפתעה")
+	runner.check(float(m.state.stats.get("gantzFooled", 0.0)) == 1.0, "counted: he fools a save once")
+	runner.check((Leaders.picker(m.state)["decoy"] as Dictionary).is_empty(), "the next picker has no Gantz")
 	runner.check(m.commit_pick("bennett"), "and the player picks again")
 
 
@@ -89,7 +91,7 @@ func test_a_fresh_game_opens_the_picker_before_the_first_tap() -> void:
 	var p: PickView = m.picker
 	runner.check(m.mode == "pick" and p.visible and p.variant == "first", "LEADER_PICK (first) replaces the title (mode %s)" % m.mode)
 	runner.check(not m._top.visible and not m._lower.visible and not m.bb.visible, "rows A/B, the ticker, the panel and the stage figure are hidden")
-	runner.check(p.cells.size() == 9 and str(p.cells[4]["id"]) == "", "3 × 3: the 8 leaders and הפתעה in the centre (%d cells)" % p.cells.size())
+	runner.check(p.cells.size() == 9 and str(p.cells[4]["id"]) == "gantz", "3 × 3: the 8 leaders and, the first time, Gantz standing in for הפתעה in the centre (%d cells)" % p.cells.size())
 	runner.check(p.again_btn == null, "no again button on the first picker")
 	runner.check(p.focus == 4, "the initial focus is הפתעה, never a face (rtl-map §8.5)")
 	var t0: float = m.state.play_time_sec if "play_time_sec" in m.state else 0.0

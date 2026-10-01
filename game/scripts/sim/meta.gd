@@ -365,7 +365,7 @@ static func auto_catch(s: GameState) -> bool:
 const STATS := ["partnersPaid", "demandsPaid", "courtDays", "maxPostponesInRound", "pardonRequests", "aideDrops",
 	"brawlsEnded", "corridorMessages", "gafniPaid", "cleanRounds", "wingOfZionBought", "streakRoundsUnder240s",
 	"wordSaladSeen", "tapsAt2to4", "lapidCards", "capHits", "goldenMissed", "leaderSwitches",
-	"pressDays", "hazardDays"]
+	"pressDays", "hazardDays", "gantzFooled"]
 
 
 static func bump(s: GameState, key: String, n: float = 1.0) -> void:

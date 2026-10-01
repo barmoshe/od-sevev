@@ -111,7 +111,36 @@ Assets: `creative-pack/art/briefs/leaders-v3-gpt.md`.
 | Deri | 8:05 | 8:20 | +3% |
 | Golan | 7:59 | 8:28 (worst 11:50) | +6% |
 
-## Next phases
-- **Phase 2:** done (above). Still open: the pardon desk handing off to Herzog (Bibi).
-- **Phase 3, shared events:** הצעת אחדות, and the countdown to 27.10 with a line per leader.
-- **Phase 4:** rig the GPT art (the brief).
+## Phase 3: shared events, the art, and Bar's playtest fixes (deployed 2026-10-01, `cab64b0`)
+- **Unity offer** (3a): Netanyahu's offer for Bennett, Liberman and Eisenkot (`leaderSelect.unityOffer`);
+  the chip reads "לא" while it is open; a tap refuses it (+1% base and the leader's line).
+- **The countdown to 27.10** (3b): two `priorityOnce` lines per leader, a countdown until 22.10 and a
+  negotiation line (Bibi's in `listPolitics` + bibiOnly). `Ambient.pick` shows the first unseen one
+  once a round (`leader_round.tickOnce`), which also wakes `calendar.negotiation.opener` (cal08).
+- **Ability trophies**: `kit.abilityTrophy` (abilityUses: Bibi 5, Liberman 5, Deri 25, Golan 15,
+  the rest 10). **Dubi** squawks `kit.dubi.squawks.ability` on a use (every 20 s at most).
+- **The GPT art**: each ability plays the leader's pose (`rule.active.poses`, `BigBanana.flash_pose`);
+  the chip shows the cut icon; PressDesk draws the podium, bench and box; Kaia is a sprite.
+- **Mordechai David by leader** (Bar): he never blocks Ben Gvir (taps ×3 while he stands), Bibi (×2) or
+  Smotrich (he just stands there): `effect.byLeader`. Everyone else: approach 2 s, block 6 s, exit 2 s.
+- **The chip** moved to the top-right sky; toasts dock in the lane while it is up.
+- **Gantz** is on the picker as a joke (`leaderSelect.decoy`): a line about the threshold, pick again.
+
+**Bench (2026-10-01):** the median player's median first election over seeds 1-9 (Mordechai's roll
+seeded since this phase). ±10% is about ±48 s.
+
+| Leader | Phase 2 | Phase 3 |
+|---|---|---|
+| Bibi | 8:07 | 8:17 |
+| Bennett | 7:19 | 7:27 |
+| Ben Gvir | 8:55 | 8:55 |
+| Liberman | 7:58 | 8:21 |
+| Eisenkot | 8:42 | 8:36 |
+| Smotrich | 8:05 | 8:03 |
+| Deri | 8:20 | 8:31 |
+| Golan | 8:28 | 8:15 |
+
+## Next
+- Four rigged props wait for a hook: `prop_round-table`, `prop_pledge-scroll`, `prop_budget-book`,
+  `prop_clause-doc`.
+- Ben Gvir's walk-out pose is not played (the court walk ends any pose at once).

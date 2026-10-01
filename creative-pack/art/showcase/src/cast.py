@@ -96,7 +96,7 @@ BENNETT_TAP = dict(prop='prop_pen', hand=(165, 785), swing=1.5, path='held')
 BIBI_TAP = dict(prop='prop_hat', baked=True, track='hatMouth')
 # The 8 launch leaders (design/content.json leaderSelect.roster, by art slug): each gets a tap, and neutral-ring avatars
 # (<char>_avatar_pick.png 32, <char>_avatar24_pick.png 24: the picker tiles and the app icon, every ring the same).
-LEADERS = ['bibi', 'bennett', 'ben-gvir', 'smotrich', 'deri', 'eisenkot', 'liberman', 'golan']
+LEADERS = ['bibi', 'bennett', 'ben-gvir', 'smotrich', 'deri', 'eisenkot', 'liberman', 'golan', 'gantz']   # gantz: only the picker's decoy tile (Bar 2026-10-01)
 
 # ---------------------------------------------------------------- leaders v3 (creative-pack/art/briefs/leaders-v3-gpt.md)
 # The GPT batch of 2026-10-01 came back RGB on an off-white field; each ref was keyed out with cutout.py (the
