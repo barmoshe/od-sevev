@@ -34,13 +34,12 @@
 {"@context":"https://schema.org","@type":["VideoGame","WebApplication"],"name":"עוד סבב","alternateName":"עוד סבב: הבחירות שלא נגמרות","url":"https://od-sevev.vercel.app/","image":"https://od-sevev.vercel.app/og.jpg","description":"משחק בחירות סאטירי בעברית: בוחרים ראש רשימה, אוספים שקלים, משלמים לשותפים לקואליציה והולכים לבחירות שוב ושוב. חינם, בלי הרשמה, סאטירה על כולם.","inLanguage":"he","genre":["Idle","Satire"],"gamePlatform":"Web browser","playMode":"SinglePlayer","applicationCategory":"GameApplication","operatingSystem":"Any","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"ILS"},"author":{"@type":"Person","name":"בר משה"},"publisher":{"@type":"Person","name":"בר משה"},"dateModified":"2026-10-01","about":{"@type":"Event","name":"הבחירות לכנסת ה־26","startDate":"2026-10-27"},"subjectOf":{"@type":"WebPage","url":"https://od-sevev.vercel.app/about.html"}}
 		</script>
 		<script>
-			// Analytics (Vercel Web Analytics + Speed Insights): cookieless, no ids, read in the Vercel
+			// Analytics (Vercel Web Analytics; Speed Insights is off: Hobby allows it on one project only): cookieless, no ids, read in the Vercel
 			// dashboard. Loaded on the deployed host only, so local runs never report (the script also
 			// skips webdriver/headless browsers). A visit is the page view of `/`; the milestones of play
 			// go in as virtual page views under /play/ (window.odTrack below), because a page view works on
 			// the Hobby plan and a custom event does not. The Pages panel is then the funnel.
 			window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-			window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
 			// the Home Screen icon of older installs opens /index.html: count it as /
 			window.va('beforeSend', function (e) {
 				try {
@@ -225,7 +224,6 @@
 						ready = true;
 						held.splice(0).forEach(send);
 					});
-					load('/_vercel/speed-insights/script.js', '', '');
 				}
 			}());
 		</script>
@@ -370,7 +368,7 @@ body {
 #od-gate .od-card::after, #od-about .od-card::after { content: ""; display: block; height: 3px; background: #0038b8;
 	margin: 18px -18px 0; box-shadow: 0 6px 0 0 #0038b8; }
 #od-gate img.od-wordmark { display: block; margin: 0 auto 20px; width: 286px; height: 58px; image-rendering: pixelated; }
-#od-gate h1 { font-size: 22px; margin: 0 0 12px; text-align: center; }
+#od-gate #od-title { font-size: 22px; margin: 0 0 12px; text-align: center; }
 #od-gate p { margin: 0 0 10px; }
 #od-gate .od-by { font-size: 14px; color: #34466e; margin-top: 14px; }
 #od-gate a { color: #0038b8; }
@@ -388,7 +386,9 @@ body {
 	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.5;
 	padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 32px; box-sizing: border-box; display: none; }
 #od-about .od-card { max-width: 520px; margin: 0 auto; padding: 0 18px; box-sizing: border-box; }
-#od-about h1 { font-size: 22px; margin: 0 0 12px; }
+#od-about #od-about-title { font-size: 22px; margin: 0 0 12px; }
+/* the page's one h1 (the game's name, for search and screen readers); the dialogs use h2 */
+.od-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 #od-about h2 { font-size: 18px; margin: 20px 0 8px; }
 #od-about h3 { font-size: 16px; margin: 12px 0 4px; }
 #od-about ul { padding: 0 20px 0 0; margin: 0; text-align: right; }
@@ -432,6 +432,7 @@ html.od-framed #od-phone {
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="עוד סבב">
 	</head>
 	<body>
+		<h1 class="od-sr">עוד סבב: משחק הבחירות שלא נגמרות</h1>
 		<div id="od-phone" aria-hidden="true"></div>
 		<canvas id="canvas">
 			הדפדפן הזה לא תומך במשחק.
@@ -440,7 +441,7 @@ html.od-framed #od-phone {
 		<div id="safe-probe"></div>
 
 		<noscript>
-			<h1>רגע לפני הסבב</h1>
+			<h2>רגע לפני הסבב</h2>
 			<p>זו סאטירה. הדמויות הן קריקטורות פיקסל, ומה שהן עושות כאן בדיוני.</p>
 			<p>אין כאן טענה עובדתית על אף אחד. ציטוטים אמיתיים מסומנים כציטוט, עם מקור.</p>
 			<p>המשחק לא קשור לאף מפלגה או מועמד, ולא ממומן על ידי אף מפלגה, מועמד או מזוודה.</p>
@@ -464,7 +465,7 @@ html.od-framed #od-phone {
 		<div id="od-gate" role="dialog" aria-modal="true" aria-labelledby="od-title">
 			<div class="od-card" id="od-n1" hidden>
 				<img class="od-wordmark" src="wordmark.png" alt="עוד סבב">
-				<h1 id="od-title">רגע לפני הסבב</h1>
+				<h2 id="od-title">רגע לפני הסבב</h2>
 				<p>זו סאטירה. הדמויות הן קריקטורות פיקסל, ומה שהן עושות כאן בדיוני.</p>
 				<p>אין כאן טענה עובדתית על אף אחד. ציטוטים אמיתיים מסומנים כציטוט, עם מקור.</p>
 				<p>המשחק לא קשור לאף מפלגה או מועמד, ולא ממומן על ידי אף מפלגה, מועמד או מזוודה.</p>
@@ -485,7 +486,7 @@ html.od-framed #od-phone {
 		<div id="od-about" role="dialog" aria-modal="true" aria-labelledby="od-about-title" dir="rtl">
 			<div class="od-card">
 				<div class="od-back"><button id="od-about-back" type="button">חזרה</button></div>
-				<h1 id="od-about-title">אודות</h1>
+				<h2 id="od-about-title">אודות</h2>
 				<p>עוד סבב הוא משחק סאטירה. הדמויות הן קריקטורות פיקסל של אנשי ציבור, ומה שהן עושות ואומרות במשחק בדיוני.</p>
 				<p>אין במשחק טענות עובדתיות על אף אדם. ציטוטים אמיתיים מופיעים במירכאות, מסומנים ״ציטוט״ ומקושרים למקור. פרשות משפטיות מתוארות כמו ברשומות: נאשם, לכאורה, בחקירה.</p>
 				<p>המשחק לא קשור לאף מפלגה, רשימה או מועמד, ולא ממומן על ידם. גם לא על ידי מזוודה.</p>
@@ -644,14 +645,14 @@ html.od-framed #od-phone {
 		</div>
 
 		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--false use-filter--false" src="index.png" alt="">
+			<img id="status-splash" class="show-image--true fullsize--false use-filter--false" src="index.png" alt="עוד סבב">
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
 
 		<script>
 // Build stamp (the git commit), written in by tools/build_web.sh; Settings shows it.
-window.mbBuild = '7578546';
+window.mbBuild = 'ca86932';
 // The deployed origin (OD_SITE_URL, tools/build_web.sh; its default is ShareKit.SITE_URL): the link
 // on the share cards, in the share texts and in the OG tags above.
 window.odSiteUrl = 'https://od-sevev.vercel.app/';
