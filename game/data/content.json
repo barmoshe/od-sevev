@@ -718,7 +718,14 @@
    "copy": {
     "threatForwarded": true,
     "firstDemandIsC1": true,
-    "_note": "The first demand is FTUE C1, the first chat bubble of the game, pill 60 ₪. His threat always renders as a forwarded message ('הועברה פעמים רבות')."
+    "_note": "The first demand is FTUE C1, the first chat bubble of the game, pill 60 ₪. His threat always renders as a forwarded message ('הועברה פעמים רבות').",
+    "card": {
+     "text": "דרש את משרד הביטחון לעצמו ואת משרד המשפטים לגוטליב.",
+     "src": [
+      "bengvir-ministries"
+     ],
+     "poll_like": false
+    }
    },
    "src": [
     "bengvir-ministries"
@@ -791,7 +798,14 @@
     ]
    },
    "copy": {
-    "_note": "designer: VAT ×1.18 (the fixture's 1.2) so the buff is the 18% joke. One man, both sides of the ledger."
+    "_note": "designer: VAT ×1.18 (the fixture's 1.2) so the buff is the 18% joke. One man, both sides of the ledger.",
+    "card": {
+     "text": "כשר האוצר: המע״מ עלה ל־18% בינואר 2025.",
+     "src": [
+      "vat-18"
+     ],
+     "poll_like": false
+    }
    }
   },
   {
@@ -865,7 +879,16 @@
    },
    "src": [
     "levin-committee"
-   ]
+   ],
+   "copy": {
+    "card": {
+     "text": "ביוני 2026 הורה לו בג״ץ לכנס את הוועדה לבחירת שופטים.",
+     "src": [
+      "levin-committee"
+     ],
+     "poll_like": false
+    }
+   }
   },
   {
    "id": "deri",
@@ -906,7 +929,14 @@
    "copy": {
     "statusSrc": [
      "haredi-left-gov"
-    ]
+    ],
+    "card": {
+     "text": "בג״ץ פסל את מינויו לשר ב־2023.",
+     "src": [
+      "deri-disqualified"
+     ],
+     "poll_like": false
+    }
    }
   },
   {
@@ -1116,7 +1146,14 @@
    "copy": {
     "originSystem": "chat.sys.removed",
     "poachTicker": "אלמוג כהן הוסר מקבוצה אחת וצורף לאחרת. ניידות חברתית.",
-    "_guardrail": "His outbursts are off-limits; his lines are only about group mobility (fact #39)."
+    "_guardrail": "His outbursts are off-limits; his lines are only about group mobility (fact #39).",
+    "card": {
+     "text": "הוצא מקבוצות הצ׳אט של עוצמה, ונבחר למקום ה־8 בפריימריז של הליכוד.",
+     "src": [
+      "almog-cohen"
+     ],
+     "poll_like": false
+    }
    },
    "linesVariants": {
     "demand": [
@@ -1167,7 +1204,14 @@
    },
    "copy": {
     "onPaidTicker": "שילמת לגפני. הוא יצא לשירותים. ההצבעה: תיקו.",
-    "onPaidTickerDeck": "T14"
+    "onPaidTickerDeck": "T14",
+    "card": {
+     "text": "לא ייכלל ברשימה לכנסת הבאה, אחרי 38 שנה בכנסת.",
+     "src": [
+      "gafni-off-list"
+     ],
+     "poll_like": false
+    }
    },
    "src": [
     "gafni-off-list"
@@ -1270,7 +1314,14 @@
     "thanksSrc": [
      "karhi-remote"
     ],
-    "_note": "His first demand quotes the real transfer (the one sourced exception to the {price} rule); the pill carries the in-game price. He owns the S08 'השלט' line."
+    "_note": "His first demand quotes the real transfer (the one sourced exception to the {price} rule); the pill carries the in-game price. He owns the S08 'השלט' line.",
+    "card": {
+     "text": "חוק השידורים שלו עבר ביולי 2026. בג״ץ הקפיא חלקים ממנו.",
+     "src": [
+      "karhi-media-law"
+     ],
+     "poll_like": false
+    }
    }
   },
   {
@@ -1316,7 +1367,14 @@
     "mutedSrc": [
      "distel-mute"
     ],
-    "_note": "chat.sys.muted's {who} is the legal advisers, not Distel (request to UX)."
+    "_note": "chat.sys.muted's {who} is the legal advisers, not Distel (request to UX).",
+    "card": {
+     "text": "הודיעה במאי 2026 שלא תרוץ בבחירות הבאות.",
+     "src": [
+      "distel-not-running"
+     ],
+     "poll_like": false
+    }
    }
   },
   {
@@ -5192,7 +5250,17 @@
      "pardon-shelved",
      "trump-no-endorse"
     ],
-    "_note": "Bibi as a partner (Ben Gvir's round, and any right-bloc leader's). His demands are his own catchphrase; the chat is the fictional voice (lint: chat bubbles are exempt from the quote rule)."
+    "_note": "Bibi as a partner (Ben Gvir's round, and any right-bloc leader's). His demands are his own catchphrase; the chat is the fictional voice (lint: chat bubbles are exempt from the quote rule).",
+    "copy": {
+     "card": {
+      "text": "ביקש חנינה בנובמבר 2025. הנשיא הקפיא את הבקשה.",
+      "src": [
+       "pardon-request",
+       "pardon-shelved"
+      ],
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "lapid",
@@ -5234,7 +5302,16 @@
      "lapid-third-spot",
      "yesh-atid-exodus"
     ],
-    "_note": "Paying Lapid draws the question he is known for: every payment adds a little heat (onPay). In Bennett's round he is list No. 2: cannotLeave + statusLine (lineup traits)."
+    "_note": "Paying Lapid draws the question he is known for: every payment adds a little heat (onPay). In Bennett's round he is list No. 2: cannotLeave + statusLine (lineup traits).",
+    "copy": {
+     "card": {
+      "text": "הציע לרדת למקום השלישי ברשימה המשותפת אם אייזנקוט יצטרף.",
+      "src": [
+       "lapid-third-spot"
+      ],
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "liberman",
@@ -5271,7 +5348,16 @@
      "liberman-wont-sit",
      "liberman-principles"
     ],
-    "_note": "Trait: Liberman and these never sit together (the `excludes`, as Abbas has for Ben Gvir; the bigger side has precedence, sim/coalition.gd _excluded). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Gafni in the change-bloc rounds. Not Abbas: he sat with Ra'am in the 2021 Bennett-Lapid government (fact raam-2021, Abbas's own line in Bennett's round), and excluding him soft-locked Bennett's round for a player who pays every pill (Game Designer 2026-09-30, spec §7.2.2)."
+    "_note": "Trait: Liberman and these never sit together (the `excludes`, as Abbas has for Ben Gvir; the bigger side has precedence, sim/coalition.gd _excluded). That is his stated coalition line (fact liberman-wont-sit); the joke is his refusal, never the people he names. It makes his seats a real choice against Gafni in the change-bloc rounds. Not Abbas: he sat with Ra'am in the 2021 Bennett-Lapid government (fact raam-2021, Abbas's own line in Bennett's round), and excluding him soft-locked Bennett's round for a player who pays every pill (Game Designer 2026-09-30, spec §7.2.2).",
+    "copy": {
+     "card": {
+      "text": "פרסם קווי יסוד לממשלה הבאה, ובהם חוקה ומשאל עם.",
+      "src": [
+       "liberman-principles"
+      ],
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "golan",
@@ -5298,7 +5384,16 @@
      "golan-million",
      "labor-meretz-merger"
     ],
-    "_guardrail": "Politics only: mergers and the Democrats. Never his public story outside politics (brief red lines)."
+    "_guardrail": "Politics only: mergers and the Democrats. Never his public story outside politics (brief red lines).",
+    "copy": {
+     "card": {
+      "text": "הבטיח להביא מיליון קולות.",
+      "src": [
+       "golan-million"
+      ],
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "eisenkot",
@@ -5332,7 +5427,16 @@
      "eisenkot-eight-seats"
     ],
     "_note": "Trait: 'ישר' while a member, every tap ×1.25 (straight, no tricks). His card elsewhere keeps noCrit.",
-    "_guardrail": "Only 'ישר', plain talk and no magic. Never his career before politics, never anything personal (brief red lines)."
+    "_guardrail": "Only 'ישר', plain talk and no magic. Never his career before politics, never anything personal (brief red lines).",
+    "copy": {
+     "card": {
+      "text": "הקים את מפלגת ישר בספטמבר 2025.",
+      "src": [
+       "yashar-founded"
+      ],
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "bennett",
@@ -5361,7 +5465,16 @@
     },
     "src": [
      "bennett-pledge"
-    ]
+    ],
+    "copy": {
+     "card": {
+      "text": "רץ בראש רשימה משותפת עם יש עתיד.",
+      "src": [
+       "beyachad-list"
+      ],
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "mk_switcher",
@@ -5379,7 +5492,13 @@
      "return": "חזרתי. מהצד השני של הצד השני."
     },
     "rebel": true,
-    "_note": "Generic, not a real person (a made-up face, ChatGPT batch 2026-09-30, rendered like the cast). Fills a lineup any bloc can't; poach only, like Almog."
+    "_note": "Generic, not a real person (a made-up face, ChatGPT batch 2026-09-30, rendered like the cast). Fills a lineup any bloc can't; poach only, like Almog.",
+    "copy": {
+     "card": {
+      "text": "דמות בדויה. כל דמיון לחבר כנסת אמיתי מקרי בהחלט.",
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "mk_undecided",
@@ -5402,7 +5521,13 @@
       "אני בעד. כמעט. חסר רק תקציב."
      ]
     },
-    "_note": "Generic, not a real person: a made-up face (ChatGPT batch 2026-09-30), rendered like the cast."
+    "_note": "Generic, not a real person: a made-up face (ChatGPT batch 2026-09-30), rendered like the cast.",
+    "copy": {
+     "card": {
+      "text": "דמות בדויה. כל דמיון לחבר כנסת אמיתי מקרי בהחלט.",
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "mk_offer",
@@ -5425,7 +5550,13 @@
       "הצעת חוק קטנה, תקציב גדול."
      ]
     },
-    "_note": "Generic, not a real person: a made-up face (ChatGPT batch 2026-09-30), rendered like the cast."
+    "_note": "Generic, not a real person: a made-up face (ChatGPT batch 2026-09-30), rendered like the cast.",
+    "copy": {
+     "card": {
+      "text": "דמות בדויה. כל דמיון לחבר כנסת אמיתי מקרי בהחלט.",
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "mk_returner",
@@ -5442,7 +5573,13 @@
      "thanks": "עכשיו אני באמת בבית. עד הבחירות.",
      "return": "חזרתי. שוב. הבית לא השתנה."
     },
-    "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him. Art: still the no-photo stand-in. The 2026-09-30 candidate (refs/candidates/mk-returner.png) came out resembling Netanyahu and must be regenerated with a made-up face before it renders."
+    "_note": "Generic, not a real person (the no-photo stand-in), game-designer 2026-09-29: the fourth generic MK, so Liberman's lineup can hold the round-2 early slot SK (spec §7.2 lever; his rounds 2+ had no seat that unlocks after election 1 and ran longer than round 1, bench S5). Any bloc may use him. Art: still the no-photo stand-in. The 2026-09-30 candidate (refs/candidates/mk-returner.png) came out resembling Netanyahu and must be regenerated with a made-up face before it renders.",
+    "copy": {
+     "card": {
+      "text": "דמות בדויה. כל דמיון לחבר כנסת אמיתי מקרי בהחלט.",
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "lazimi",
@@ -5471,7 +5608,16 @@
     "src": [
      "democrats-slate"
     ],
-    "_note": "Real person (Democrats No. 2, fact democrats-slate). Joke: the one MK who reads the budget line by line; never her private life. Mechanics: none (takes the generic mk_undecided slot L1 in Golan's round, same numbers)."
+    "_note": "Real person (Democrats No. 2, fact democrats-slate). Joke: the one MK who reads the budget line by line; never her private life. Mechanics: none (takes the generic mk_undecided slot L1 in Golan's round, same numbers).",
+    "copy": {
+     "card": {
+      "text": "נבחרה למקום השני ברשימת הדמוקרטים.",
+      "src": [
+       "democrats-slate"
+      ],
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "kariv",
@@ -5500,7 +5646,16 @@
     "src": [
      "democrats-slate"
     ],
-    "_note": "Real person (Democrats No. 3, fact democrats-slate; the car blocked in fact md-blocks-cars, whose aboutHe names him). Joke: the officiant of Golan's mergers and a bill-and-amendment machine; never his community or his rabbinate as a punchline. Mechanics: none (takes the generic mk_offer slot S5 in Golan's round, same numbers)."
+    "_note": "Real person (Democrats No. 3, fact democrats-slate; the car blocked in fact md-blocks-cars, whose aboutHe names him). Joke: the officiant of Golan's mergers and a bill-and-amendment machine; never his community or his rabbinate as a punchline. Mechanics: none (takes the generic mk_offer slot S5 in Golan's round, same numbers).",
+    "copy": {
+     "card": {
+      "text": "נבחר למקום השלישי ברשימת הדמוקרטים.",
+      "src": [
+       "democrats-slate"
+      ],
+      "poll_like": false
+     }
+    }
    },
    {
     "id": "tibi",
@@ -5528,7 +5683,17 @@
      "arab-lists-barred",
      "bibi-or-tibi"
     ],
-    "_note": "Real person (the Joint List No. 2). Joke: the rulebook and the procedure; never his voters. Poach only (rebel), like the generic switcher whose L6 seat he takes in Golan's round."
+    "_note": "Real person (the Joint List No. 2). Joke: the rulebook and the procedure; never his voters. Poach only (rebel), like the generic switcher whose L6 seat he takes in Golan's round.",
+    "copy": {
+     "card": {
+      "text": "מספר 2 ברשימה המשותפת. ועדת הבחירות פסלה את הרשימה, והיא ערערה.",
+      "src": [
+       "joint-list-slate",
+       "arab-lists-barred"
+      ],
+      "poll_like": false
+     }
+    }
    }
   ],
   "cardProfiles": [

@@ -2043,6 +2043,20 @@ class PartnerCard:
 	## The figure's art scale (×4 / ×3 / ×2, picked per device k; tests read it).
 	var fig_scale := 3
 	var row_value: Array = []
+	## The card's record line (tests read it); "" when the partner has none or it is hidden now.
+	var card_text := ""
+	var card_node: PxText
+
+	static func card_line(pid: String, s: GameState) -> String:
+		var cp: Variant = Coalition.partner(pid).get("copy")
+		if not cp is Dictionary:
+			return ""
+		if s != null and Coalition.card_hidden(s, pid):
+			return ""
+		var cd: Variant = (cp as Dictionary).get("card")
+		if cd is Dictionary and str((cd as Dictionary).get("text", "")) != "":
+			return str(cd["text"])
+		return str((cp as Dictionary).get("cardLabel", ""))
 
 	func build() -> PartnerCard:
 		id = "PARTNER_CARD"
@@ -2052,6 +2066,18 @@ class PartnerCard:
 		var s: GameState = chat._state
 		var st := Coalition.status(s, partner_id) if s != null else "absent"
 		var gone := ["left", "removed", "transferred", "absent"].has(st)
+		# the partner's card line (copy.card.text, or May Golan's copy.cardLabel): the record behind the
+		# character, sourced in content; hidden in the blackout when poll-like (Coalition.card_hidden)
+		card_text = card_line(partner_id, s)
+		var lh := float(HeFont.line_height()) * float(L.TEXT) * (1.25 if PxText.large_text else 1.0)
+		var card_lines := 0.0
+		if card_text != "":
+			var probe := PxText.make(panel, Vector2.ZERO, card_text, L.TEXT, "plain", "w")
+			probe.wrap_width = 560.0
+			probe.max_lines = 4
+			card_lines = maxf(1.0, float(probe.line_count()))
+			probe.queue_free()
+		var card_h := card_lines * lh + 16.0 if card_text != "" else 0.0
 		var fig_h := 0.0
 		var dens := 1
 		if slug != "":
@@ -2066,11 +2092,11 @@ class PartnerCard:
 			var art_h := float(c.get("frameH", 0)) / float(dens)
 			var art_w := float(c.get("frameW", 0)) / float(dens)
 			fig_scale = FlashCard.pick_art_scale(Display.k, all_dens, func(sc: int) -> bool:
-				return art_w * sc <= 560.0 and 104.0 + art_h * sc + 24.0 + 104.0 + 208.0 + 120.0 <= float(L.H) - 32.0, [4, 3, 2])
+				return art_w * sc <= 560.0 and 104.0 + art_h * sc + 24.0 + 104.0 + 208.0 + 120.0 + card_h <= float(L.H) - 32.0, [4, 3, 2])
 			fig_h = art_h * float(fig_scale)
 		var om := Coalition.open_msg(s, partner_id) if s != null else {}
 		var mergeable := s != null and Coalition.merge_cooldown(s) >= 0.0 and st == "member"
-		var h := 104.0 + fig_h + 24.0 + 52.0 + 52.0 + (104.0 if not om.is_empty() else 0.0) + (104.0 if mergeable else 0.0) + 120.0
+		var h := 104.0 + fig_h + 24.0 + 52.0 + 52.0 + card_h + (104.0 if not om.is_empty() else 0.0) + (104.0 if mergeable else 0.0) + 120.0
 		var y := Ui.snap((L.H - h) / 2.0, 4)
 		var pr := Rect2(48, y, 624, h)
 		make_panel(pr)
@@ -2098,6 +2124,12 @@ class PartnerCard:
 		var up_label := Strings.s("PARTNER_UPKEEP") if Strings.has("PARTNER_UPKEEP") else ""
 		row_value.append(_row(cy, up_label, "−%d%%" % int(roundf(float(p.get("upkeepPct", 0.0)))), pr, th["modal"]["body"]))
 		cy += 52.0
+		if card_text != "":
+			card_node = text(Vector2(0, cy + 8.0), card_text, L.TEXT, th["modal"]["note"])
+			card_node.wrap_width = 560.0
+			card_node.max_lines = 4
+			card_node.right_at(pr.end.x - 32.0)
+			cy += card_h
 		if not om.is_empty():
 			_seq = int(om["seq"])
 			# the thread's own pill (ChatView._make_pill / _update_pill): the same states, the

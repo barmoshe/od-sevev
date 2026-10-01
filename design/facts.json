@@ -191,7 +191,9 @@
     "achievements.list.a_pardon_10",
     "ambientHeadlinesV2.list.c03",
     "court.pardon.copy",
-    "events.pardon"
+    "events.pardon",
+    "leaderSelect.partnerProfiles.bibi.copy.card",
+    "leaders.bibi.rule"
    ]
   },
   {
@@ -211,7 +213,9 @@
    "usedIn": [
     "ambientHeadlinesV2.list.c03",
     "court.pardon.copy",
+    "court.pardon.copy.stampsSrc.6",
     "leaderSelect.partnerProfiles.bibi",
+    "leaderSelect.partnerProfiles.bibi.copy.card",
     "leaderSelect.rivalTicker.r10"
    ]
   },
@@ -486,6 +490,10 @@
    "usedIn": [
     "ambientHeadlinesV2.list.o06",
     "headlines.h_vat",
+    "leaders.smotrich.kit.spins[6]",
+    "leaders.smotrich.kit.ticker.ts01",
+    "leaders.smotrich.rule",
+    "partners.smotrich.copy.card",
     "producers.vat"
    ],
    "usedInLeaderSelect": [
@@ -511,7 +519,8 @@
     "leaders.deri.kit.ticker.td04",
     "leaders.deri.kit.ticker.td12",
     "leaders.deri.kit.ticker.td13",
-    "partners.deri"
+    "partners.deri",
+    "partners.deri.copy.card"
    ],
    "usedInLeaderSelect": [
     "leaders.deri.kit.sources.t8",
@@ -648,7 +657,8 @@
     "leaders.bengvir.kit.ticker.tg05",
     "leaders.bengvir.kit.ticker.tg15",
     "partners.gotliv",
-    "partners.gotliv.copy.card"
+    "partners.gotliv.copy.card",
+    "partners.gotliv.copy.transferWindow.script[0]"
    ],
    "usedInLeaderSelect": [
     "leaders.bengvir.coalition.lineup.gotliv",
@@ -773,7 +783,8 @@
     "leaders.bengvir.kit.story",
     "leaders.bengvir.kit.ticker.tg06",
     "leaders.bengvir.kit.ticker.tg15",
-    "partners.almog"
+    "partners.almog",
+    "partners.almog.copy.card"
    ],
    "usedInLeaderSelect": [
     "leaders.bengvir.coalition.lineup.almog",
@@ -1029,6 +1040,7 @@
    "verifiedAt": "2026-09-29",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaderSelect.partnerProfiles.bennett.copy.card",
     "leaderSelect.partnerProfiles.lapid",
     "leaders.bennett",
     "leaders.bennett.kit.dubi",
@@ -1325,6 +1337,7 @@
    "verifiedAt": "2026-09-29",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaderSelect.partnerProfiles.eisenkot.copy.card",
     "leaders.eisenkot",
     "leaders.eisenkot.kit.sources.t4",
     "leaders.eisenkot.kit.sources.t4.firstOwned",
@@ -1599,6 +1612,7 @@
    "usedIn": [
     "events.liberman",
     "leaderSelect.partnerProfiles.liberman",
+    "leaderSelect.partnerProfiles.liberman.copy.card",
     "leaders.liberman.kit.sources.t4",
     "leaders.liberman.kit.sources.t4.firstOwned",
     "leaders.liberman.kit.sources.t6",
@@ -1768,6 +1782,7 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "leaderSelect.partnerProfiles.lapid",
+    "leaderSelect.partnerProfiles.lapid.copy.card",
     "leaders.eisenkot.coalition.lineup.lapid",
     "leaders.eisenkot.kit.ticker.te14"
    ],
@@ -1834,7 +1849,9 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "leaderSelect.partnerProfiles.kariv",
+    "leaderSelect.partnerProfiles.kariv.copy.card",
     "leaderSelect.partnerProfiles.lazimi",
+    "leaderSelect.partnerProfiles.lazimi.copy.card",
     "leaders.golan.kit.sources.t6",
     "leaders.golan.kit.sources.t6.firstOwned",
     "leaders.golan.kit.story",
@@ -1859,6 +1876,7 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "leaderSelect.partnerProfiles.golan",
+    "leaderSelect.partnerProfiles.golan.copy.card",
     "leaders.golan.kit.story",
     "leaders.golan.kit.ticker.ty13"
    ],
@@ -1929,7 +1947,8 @@
     "leaders.bengvir.kit.spins[6]",
     "leaders.bengvir.kit.story",
     "leaders.bengvir.kit.ticker.tg13",
-    "partners.bengvir"
+    "partners.bengvir",
+    "partners.bengvir.copy.card"
    ],
    "ref": 90
   },
@@ -1976,7 +1995,8 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "ambientHeadlinesV2.listPolitics.m22",
-    "partners.gafni"
+    "partners.gafni",
+    "partners.gafni.copy.card"
    ],
    "ref": 92
   },
@@ -1996,6 +2016,7 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
     "leaderSelect.partnerProfiles.tibi",
+    "leaderSelect.partnerProfiles.tibi.copy.card",
     "partners.abbas"
    ],
    "ref": 93
@@ -2014,7 +2035,8 @@
    "verifiedAt": "2026-09-30",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
-    "partners.levin"
+    "partners.levin",
+    "partners.levin.copy.card"
    ],
    "ref": 94
   },
@@ -2032,7 +2054,8 @@
    "verifiedAt": "2026-09-30",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
-    "partners.karhi"
+    "partners.karhi",
+    "partners.karhi.copy.card"
    ],
    "ref": 95
   },
@@ -2050,7 +2073,8 @@
    "verifiedAt": "2026-09-30",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
-    "partners.distel"
+    "partners.distel",
+    "partners.distel.copy.card"
    ],
    "ref": 96
   },
@@ -2088,7 +2112,8 @@
    "verifiedAt": "2026-09-30",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
-    "leaderSelect.partnerProfiles.tibi"
+    "leaderSelect.partnerProfiles.tibi",
+    "leaderSelect.partnerProfiles.tibi.copy.card"
    ],
    "ref": 98
   }

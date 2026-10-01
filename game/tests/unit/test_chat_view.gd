@@ -446,3 +446,20 @@ func test_a_chat_toast_has_the_face_and_the_sender() -> void:
 		"the face sits in x 612-676 (%s)" % str(t._face.position))
 	runner.check(t._preview.position.x == Toasts.CHAT_TEXT_RIGHT and not t._head.truncated(), "the lines are right-aligned at 596")
 	runner.check(t._tag == "chat", "a tap on it opens T3")
+
+
+func test_the_partner_card_shows_the_record_line() -> void:
+	await _boot()
+	_open_group()
+	await _open_chat_now()
+	var gantz := str(Coalition.partner("gantz")["copy"]["card"]["text"])
+	runner.check(ChatView.PartnerCard.card_line("gantz", m.state) == gantz, "Gantz's card line is his copy.card text")
+	runner.check(ChatView.PartnerCard.card_line("maygolan", m.state) == str(Coalition.partner("maygolan")["copy"]["cardLabel"]), "May Golan's falls back to her cardLabel")
+	runner.check(ChatView.PartnerCard.card_line("regev", m.state) == "", "no line for a partner without one")
+	m.chat.open_partner_card("gantz")
+	await tree.process_frame
+	var card: ChatView.PartnerCard = m.overlays.top() as ChatView.PartnerCard
+	runner.check(card != null and card.card_text == gantz and card.card_node != null, "the card shows it")
+	if card != null:
+		runner.check(card.panel_rect.end.y <= float(L.H) and card.card_node.position.y < card.panel_rect.end.y - 112.0,
+			"the line sits inside the card, above the close button (%s)" % card.panel_rect)
