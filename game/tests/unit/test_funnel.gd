@@ -78,3 +78,26 @@ func test_a_share_result_is_reported() -> void:
 	var sh := _named("share_done")
 	runner.check(sh.size() == 1 and sh[0][1].get("kind") == "receipt" and sh[0][1].get("result") == "shared",
 		"the share result is reported with its kind (%s)" % [sh])
+
+
+func test_the_first_pick_says_first() -> void:
+	await _boot()
+	m.commit_pick("golan")
+	var picks := _named("leader_pick_committed")
+	runner.check(picks.size() == 1 and picks[0][1].get("variant") == "first", "the save's first pick carries variant first (%s)" % [picks])
+
+
+func test_opening_the_chat_is_reported() -> void:
+	await _boot()
+	m.commit_pick("bibi")
+	m.chat.open()
+	runner.check(_named("chat_opened").size() == 1, "opening the coalition chat reports chat_opened (%d)" % _named("chat_opened").size())
+
+
+func test_the_court_day_and_mordechai_are_reported() -> void:
+	await _boot()
+	m.commit_pick("bibi")
+	m._on_politics_event({"ev": "courtStart"})
+	runner.check(_named("court_start").size() == 1, "courtStart reports court_start")
+	m._on_politics_event(Events.fire(m.state, StreetFigure.EVENT_ID, m.d))
+	runner.check(_named("street_event").size() == 1, "Mordechai David's event reports street_event (%d)" % _named("street_event").size())

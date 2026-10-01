@@ -59,8 +59,12 @@
 				var held = [];
 				// The script reads window.vaq before it sends the visit's own page view, and a queued
 				// virtual one would relabel it: hold the milestones until the script has loaded.
+				// route = the step's family (/play/session/[v]): the Routes panel totals a family, Pages
+				// keeps every bucket
 				function send(step) {
-					window.va('pageview', { path: '/play/' + step, route: '/play/' + step });
+					var parts = step.split('/');
+					var route = '/play/' + parts[0] + parts.slice(1).map(function () { return '/[v]'; }).join('');
+					window.va('pageview', { path: '/play/' + step, route: route });
 				}
 				function store(k, v) {
 					try {
@@ -71,20 +75,32 @@
 					} catch (e) { /* private mode: no dedupe, no return visits */ }
 					return null;
 				}
-				var STEP = /^(loaded|load-error|first-tap|first-election|elections-5|return\/d(1|2-7|8-30|30\+)|picked\/[a-z0-9_-]{1,24}|share\/(receipt|result|invite)\/(shared|saved|copied|whatsapp|fallback))$/;
+				var STEP = new RegExp('^(' + [
+					'loaded/(new|back)/(lt3|3-8|8-20|gt20)s', 'load-error', 'reload-after-crash', 'ctx-lost',
+					'quit/(disclaimer|loading)', 'session/(lt1|1-3|3-10|10-30|gt30)m', 'return/d(1|2-7|8-30|30\\+)',
+					'first-tap/(on|off|na)', 'first-election/(lt15m|15-60m|1-6h|6-24h|gt1d)', 'elections-5',
+					'(picked|switch|stay)/[a-z0-9_-]{1,24}', 'feature/(chat|court|mordechai)',
+					'share/(receipt|result|invite)/(shared|saved|copied|whatsapp|fallback)'].join('|') + ')$');
+				// once per device: a milestone family (first-tap/on and first-tap/off share one key), or
+				// each feature/<id>
 				var ONCE = { 'first-tap': 1, 'first-election': 1, 'elections-5': 1 };
+				function onceKey(step) {
+					var base = step.split('/')[0];
+					return ONCE[base] ? base : (base === 'feature' ? step : '');
+				}
 				window.odTrackLog = [];
 				window.odTrack = function (step) {
 					try {
 						if (!STEP.test(step)) {
 							return;
 						}
-						if (ONCE[step]) {
+						var key = onceKey(step);
+						if (key) {
 							var seen = JSON.parse(store('odsevev.seen') || '[]');
-							if (seen.indexOf(step) >= 0) {
+							if (seen.indexOf(key) >= 0) {
 								return;
 							}
-							seen.push(step);
+							seen.push(key);
 							store('odsevev.seen', JSON.stringify(seen));
 						}
 						window.odTrackLog.push(step);
@@ -103,11 +119,28 @@
 						return;
 					}
 					if (e.ev === 'leader_pick_committed' && typeof e.leader === 'string') {
-						window.odTrack('picked/' + e.leader.toLowerCase());
+						// the first pick of a save, then after each election: the same leader again or another
+						var kind = e.variant === 'after' ? (e.switched ? 'switch' : 'stay') : 'picked';
+						window.odTrack(kind + '/' + e.leader.toLowerCase());
 					} else if (e.ev === 'first_tap') {
-						window.odTrack('first-tap');
+						// the disclaimer's sound choice rides on it; the clock for time-to-first-election starts
+						if (!store('odsevev.t0')) {
+							store('odsevev.t0', String(Date.now()));
+						}
+						window.odTrack('first-tap/' + (window.odSound === 'on' || window.odSound === 'off' ? window.odSound : 'na'));
 					} else if (e.ev === 'election_called' && e.n === 1) {
-						window.odTrack('first-election');
+						// wall-clock time since the first tap: offline progress counts in an idle game
+						var t0 = Number(store('odsevev.t0'));
+						if (t0 > 0) {
+							var m = (Date.now() - t0) / 6e4;
+							window.odTrack('first-election/' + (m < 15 ? 'lt15m' : m < 60 ? '15-60m' : m < 360 ? '1-6h' : m < 1440 ? '6-24h' : 'gt1d'));
+						}
+					} else if (e.ev === 'chat_opened') {
+						window.odTrack('feature/chat');
+					} else if (e.ev === 'court_start') {
+						window.odTrack('feature/court');
+					} else if (e.ev === 'street_event') {
+						window.odTrack('feature/mordechai');
 					} else if (e.ev === 'election_called' && e.n === 5) {
 						window.odTrack('elections-5');
 					} else if (e.ev === 'share_done') {
@@ -130,6 +163,49 @@
 					}
 				}
 				store('odsevev.last', today);
+				var isNew = !first;
+				// The engine is up (shell: startGame resolved): a new or returning device, and how long the
+				// page took to get here, bucketed.
+				window.odTrackLoaded = function () {
+					var sec = performance.now() / 1000;
+					window.odTrack('loaded/' + (isNew ? 'new' : 'back') + '/' + (sec < 3 ? 'lt3' : sec < 8 ? '3-8' : sec < 20 ? '8-20' : 'gt20') + 's');
+					try { sessionStorage.setItem('odsevev.playing', '1'); } catch (x) { /* ignore */ }
+				};
+				// A page that was playing and reloads without a pagehide was killed (iOS reloads a tab that
+				// ran out of memory; an evicted background tab looks the same).
+				try {
+					if (sessionStorage.getItem('odsevev.playing') === '1') {
+						window.odTrack('reload-after-crash');
+					}
+					sessionStorage.removeItem('odsevev.playing');
+				} catch (x) { /* ignore */ }
+				// One send when the page is first hidden or left: before the hand-off, where the player
+				// stopped (the disclaimer, or waiting for the load); after it, how long the first stretch of
+				// play lasted. keepalive fetches leave even as the page goes.
+				var exitSent = false;
+				function onExit(ev) {
+					if (ev.type === 'pagehide') {
+						try { sessionStorage.removeItem('odsevev.playing'); } catch (x) { /* ignore */ }
+					}
+					if (exitSent || (ev.type === 'visibilitychange' && document.visibilityState !== 'hidden')) {
+						return;
+					}
+					exitSent = true;
+					if (!window.mbHandoffDone) {
+						window.odTrack('quit/' + (window.odGateTapped && window.odGateTapped() ? 'loading' : 'disclaimer'));
+						return;
+					}
+					var m = (performance.now() - window.mbHandoffDone) / 6e4;
+					window.odTrack('session/' + (m < 1 ? 'lt1' : m < 3 ? '1-3' : m < 10 ? '3-10' : m < 30 ? '10-30' : 'gt30') + 'm');
+				}
+				document.addEventListener('visibilitychange', onExit);
+				window.addEventListener('pagehide', onExit);
+				document.addEventListener('DOMContentLoaded', function () {
+					var c = document.getElementById('canvas');
+					if (c) {
+						c.addEventListener('webglcontextlost', function () { window.odTrack('ctx-lost'); });
+					}
+				});
 				if (live) {
 					var vaScript = document.createElement('script');
 					vaScript.defer = true;
@@ -652,6 +728,7 @@ if ('serviceWorker' in navigator) {
 	let loadTimer = 0;
 	window.mbHandoffDone = 0;
 	window.odSound = store.get('odsevev.sound') || '';
+	window.odGateTapped = () => tapped;   // the analytics' exit step: quit at the disclaimer or while loading
 	const firstLaunch = store.get('odsevev.disclaimer') !== DISC_V;
 	if (firstLaunch) {
 		n1.hidden = false;
@@ -973,7 +1050,7 @@ window.mbSafeArea = function () {
 			},
 		}).then(() => {
 			setStatusMode('hidden');
-			window.odTrack('loaded');
+			window.odTrackLoaded();
 			if (window.odGateReady) {
 				window.odGateReady();
 			}

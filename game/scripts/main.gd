@@ -559,7 +559,9 @@ func _build_chat() -> void:
 			chat.toggle())
 	chat.open_changed.connect(func(on: bool) -> void:
 		shop.tall = "coalition" if on else ""
-		shop.cancel_press())
+		shop.cancel_press()
+		if on:
+			_funnel("chat_opened", {}))
 	toasts.on_tap = func(tag: String) -> void:
 		if tag == "chat" and _gameplay_input():
 			chat.open()
@@ -1541,6 +1543,7 @@ func _on_politics_event(e: Dictionary) -> void:
 				bb.court_flinch()   # the summons flinch (motion/state-graph-magician.md §1.3)
 		"courtStart":
 			_audio("courtStart")
+			_funnel("court_start", {})
 		"courtEnd":
 			# testified | served (the sim's tick) | postponed (CourtView routes postpone()'s events
 			# on the stamp's impact frame; the Audio plays gavelWeak for it)
@@ -1631,6 +1634,7 @@ func _art_face(art: String) -> Array:
 ## and a chat-style toast carries his face, name, role and the round's skinned line; then who is stuck
 ## (or nobody). No buttons, no tap target on him.
 func _on_street_event(result: Dictionary) -> void:
+	_funnel("street_event", {})
 	var lid := Leaders.current(state)
 	var c := StreetFigure.copy_for(lid, str(Leaders.leader(lid).get("side", "")))
 	_street_partner = str(result.get("partner", ""))
@@ -2714,7 +2718,7 @@ func _on_pick_commit(id: String, via: String) -> bool:
 	if _shot.is_empty():
 		store.save_game(state)
 	_funnel("leader_pick_committed", {"leader": id, "via": via, "ms_to_pick": int(_now - _pick_shown_ms),
-		"fresh": bool(res.get("fresh", false)), "switched": bool(res.get("switched", false))})
+		"fresh": bool(res.get("fresh", false)), "switched": bool(res.get("switched", false)), "variant": picker.variant})
 	return true
 
 
