@@ -133,6 +133,8 @@ var _undo_full := 5000.0
 var court_echo: CourtEcho            # the courthouse window on the stage (Bibi's rounds; ui/court_echo.gd)
 ## Every cue sent to the Audio, by name (tests and tools listen; nothing in the game does).
 signal audio_sent(name: String, arg: Variant)
+## Every funnel event (_funnel), on every platform: tests listen; the web build also reports it.
+signal funnel_sent(name: String, payload: Dictionary)
 var _last_buy_ms := -1e9            # C1's allowPing: the last purchase ≥ 2 s ago
 var _fills := {}
 var _title_ground: TextureRect
@@ -941,7 +943,8 @@ func _open_share(kind: String) -> void:
 
 
 ## The shell's share result (window.odShareDone): the open sheet shows it in its status line.
-func _on_share_result(_kind: String, result: String) -> void:
+func _on_share_result(kind: String, result: String) -> void:
+	_funnel("share_done", {"kind": kind, "result": result})
 	var t := overlays.top()
 	if t is ShareSheet:
 		(t as ShareSheet).on_share_result(result)
@@ -2125,6 +2128,7 @@ func _handle_tap(at: Vector2) -> void:
 	_audio("tapCrit" if crit else "tap")
 	_audio("coin", 3 if crit else 1)   # Bar: a money "ching" on every tap of the character (a crit pays 3)
 	if state.taps_lifetime == 1:
+		_funnel("first_tap", {})
 		# after the tap, which opens the audio gate: the Audio holds Dubi's first line until the
 		# motif's musicalSeconds (O-A3); the ticker/toast line stays at f0 (ux/ftue.md H1)
 		_audio("babble", _first_squawk())
@@ -2572,6 +2576,7 @@ func _start_evolve(dev_force := false) -> void:
 	store.save_game(nxt)
 	_audio("evolveConfirm")
 	_audio("electionConfirm", nxt.evolutions)
+	_funnel("election_called", {"n": nxt.evolutions})
 	_trick_fired = false
 	_haptic(60)
 	var top := overlays.top()
@@ -2980,13 +2985,15 @@ func _undo_pick() -> void:
 	_open_picker(_pick_res.get("order", []), from)
 
 
-## Funnel events (ux/screen-graph.md §0.4; names only, the developer plumbs them): the web build
-## appends them to window.odFunnel for the drivers and a later analytics hook.
+## Funnel events (ux/screen-graph.md §0.4): the web build appends them to window.odFunnel for the
+## drivers and hands them to window.odTrackFunnel (shell.html), which maps a few to the virtual page
+## views of the analytics (/play/first-tap, /play/picked/<id>, …).
 func _funnel(name: String, payload: Dictionary) -> void:
+	funnel_sent.emit(name, payload)
 	if OS.has_feature("web"):
 		var ev := payload.duplicate()
 		ev["ev"] = name
-		JavaScriptBridge.eval("(window.odFunnel = window.odFunnel || []).push(%s)" % JSON.stringify(ev), true)
+		JavaScriptBridge.eval("(function (e) { (window.odFunnel = window.odFunnel || []).push(e); if (window.odTrackFunnel) { window.odTrackFunnel(e); } })(%s)" % JSON.stringify(ev), true)
 
 
 func _save_now() -> void:

@@ -7,6 +7,7 @@ at export, <noscript> included).
 
 {{KEY}}     -> ux/ui-strings.json strings[KEY], HTML-escaped
 {{KEY_JS}}  -> the same, escaped for a single-quoted JS string
+{{KEY_JSON}} -> the same as a JSON string literal, quotes included (the JSON-LD block)
 {{DISC_BY_HTML}}        -> DISC_BY with {publisher}/{mail} from OD_PUBLISHER / OD_CONTACT_MAIL
                            (empty segments dropped) and "אודות" as the About link
 {{ABOUT_SOURCES_LIST}}  -> design/facts.json facts as <li> with "למקור" links: only facts without
@@ -57,6 +58,10 @@ def main(path):
     def js(k):
         return ui.get(k, "").replace("\\", "\\\\").replace("'", "\\'")
 
+    def js_json(k):
+        return json.dumps(ui[k], ensure_ascii=False).replace("</", "<\\/") if k in ui else "{{%s_JSON}}" % k
+
+    src = re.sub(r"\{\{([A-Z0-9_]+)_JSON\}\}", lambda m: js_json(m.group(1)), src)
     src = re.sub(r"\{\{([A-Z0-9_]+)_JS\}\}", lambda m: js(m.group(1)), src)
     src = re.sub(r"\{\{([A-Z0-9_]+)\}\}", lambda m: esc(m.group(1)) if m.group(1) in ui else m.group(0), src)
     left = sorted(set(re.findall(r"\{\{[A-Z0-9_]+\}\}", src)))

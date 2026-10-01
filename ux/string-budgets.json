@@ -4546,6 +4546,41 @@
       "spec": "Bar 2026-09-29: the invite's WhatsApp link in About (O8)",
       "maxChars": 16
     },
+    "FAQ_TITLE": {
+      "surface": "html",
+      "spec": "about.faq title",
+      "maxChars": 16
+    },
+    "FAQ_Q1": {
+      "surface": "html",
+      "spec": "about.faq q1",
+      "maxChars": 30
+    },
+    "FAQ_A1": {
+      "surface": "html",
+      "spec": "about.faq a1",
+      "maxChars": 140
+    },
+    "FAQ_Q2": {
+      "surface": "html",
+      "spec": "about.faq q2",
+      "maxChars": 30
+    },
+    "FAQ_A2": {
+      "surface": "html",
+      "spec": "about.faq a2",
+      "maxChars": 80
+    },
+    "FAQ_Q3": {
+      "surface": "html",
+      "spec": "about.faq q3",
+      "maxChars": 30
+    },
+    "FAQ_A3": {
+      "surface": "html",
+      "spec": "about.faq a3",
+      "maxChars": 80
+    },
     "ROUNDS_ONE": {
       "surface": "label",
       "spec": "§5.2 ICU rounds one",

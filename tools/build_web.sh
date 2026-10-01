@@ -82,6 +82,12 @@ log "site url: ${SITE:-(relative)}"
 python3 "$HERE/lib/render_shell.py" "$OUT/index.html"
 cp "$GAME/assets/sprites/wordmark.png" "$OUT/wordmark.png"
 [ -f "$GAME/web/og.jpg" ] && cp "$GAME/web/og.jpg" "$OUT/og.jpg"   # the 2D Artist's 1200x630 link preview (art/od-sevev/out/key/og-1200x630.jpg, the leader lineup, 203 KB)
+# Crawlers (SEO/AEO): robots.txt lets every bot in, AI search bots included (OAI-SearchBot,
+# PerplexityBot, Claude-SearchBot), and points at the one-page sitemap. Absolute site URL only.
+if [ -n "$SITE" ]; then
+  printf 'User-agent: *\nAllow: /\n\nSitemap: %ssitemap.xml\n' "$SITE" > "$OUT/robots.txt"
+  printf '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n</urlset>\n' "$SITE" "$(date +%F)" > "$OUT/sitemap.xml"
+fi
 grep -q "mbBuild = '$STAMP'" "$OUT/index.html" || { log "build stamp missing from index.html"; exit 1; }
 log "build stamp: $STAMP"
 log "done:"
