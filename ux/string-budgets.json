@@ -3654,8 +3654,8 @@
       "box": "court.body",
       "maxChars": 26,
       "worstPx": {
-        "4": 560,
-        "5": 700
+        "4": 680,
+        "5": 850
       }
     },
     "COURT_TIMER": {
@@ -3746,6 +3746,36 @@
         "5": 245
       }
     },
+    "COURT_TAP_PAUSED": {
+      "surface": "label",
+      "spec": "new 2026-10-01 (Bar): a tap on the court day, courtPausesTaps",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 816,
+        "5": 1020
+      }
+    },
+    "PRESS_TAP_PAUSED_M": {
+      "surface": "label",
+      "spec": "COURT_TAP_PAUSED's press twin",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 904,
+        "5": 1130
+      }
+    },
+    "PRESS_TAP_PAUSED_F": {
+      "surface": "label",
+      "spec": "COURT_TAP_PAUSED's press twin",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 928,
+        "5": 1160
+      }
+    },
     "COURT_SUMMONS_TITLE": {
       "surface": "label",
       "spec": "court card title while phase == summons",
@@ -3774,8 +3804,8 @@
       "box": "court.body",
       "maxChars": 26,
       "worstPx": {
-        "4": 516,
-        "5": 645
+        "4": 636,
+        "5": 795
       }
     },
     "COURT_SUMMONS_TIMER": {
@@ -5597,8 +5627,8 @@
       "box": "court.body",
       "maxChars": 26,
       "worstPx": {
-        "4": 576,
-        "5": 720
+        "4": 696,
+        "5": 870
       }
     },
     "PRESS_TIMER": {
@@ -5638,8 +5668,8 @@
       "box": "court.body",
       "maxChars": 26,
       "worstPx": {
-        "4": 532,
-        "5": 665
+        "4": 652,
+        "5": 815
       }
     },
     "PRESS_SUMMONS_TIMER": {

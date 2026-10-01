@@ -1558,7 +1558,7 @@
   "floorMaxPct": 40,
   "courtDaySec": 30,
   "courtBpsMult": 0.5,
-  "courtPausesTaps": false,
+  "courtPausesTaps": true,
   "summonsAutoTestifySec": 30,
   "postpone": {
    "treasuryPct": 5,
@@ -5162,7 +5162,7 @@
     "dayTitle": "יום תחקיר",
     "dayBody": "{short} מגיב לתחקיר. ההכנסות מואטות.",
     "dayBodyF": "{short} מגיבה לתחקיר. ההכנסות מואטות.",
-    "dayEffect": "כל ההכנסות: ⁦×0.5⁩ עד סוף התגובה",
+    "dayEffect": "הכנסות ⁦×0.5⁩, בלי הקשות, עד סוף התגובה",
     "dayTicker": "יום תחקיר. הכל מאט. המטה עונה לשאלות.",
     "summonsTitle": "תחקיר בדרך",
     "summonsBody": "תחקיר עליך עולה הערב. אפשר לדחות, אפשר להגיב.",

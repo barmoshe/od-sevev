@@ -259,3 +259,42 @@ func test_an_ignored_kaia_nip_is_toasted_and_headlined() -> void:
 	var want := Bidi.fill(str(c["nipText"]), {"name": ChatView.partner_name("amsalem")})
 	runner.check(m.toasts._queue.has(want), "the nip names the minister (%s)" % str(m.toasts._queue))
 	runner.check(str(m.ticker._queues["flavor"]).contains(str(c["nipTicker"])), "and the nip headline runs")
+
+
+# ------------------------------------------------------------------ no taps on the court / press day (Bar 2026-10-01)
+
+func _tap_leader() -> void:
+	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
+	for pressed in [true, false]:
+		var e := InputEventScreenTouch.new()
+		e.position = at
+		e.pressed = pressed
+		m._unhandled_input(e)
+
+
+func _hazard_day_blocks_taps(leader: String, want: String) -> void:
+	await _boot()
+	runner.check(_start_round(leader), "%s's round starts" % leader)
+	var s: GameState = m.state
+	runner.check(bool(Investigation.cfg().get("courtPausesTaps", false)), "content: courtPausesTaps is on")
+	s.investigation["phase"] = "court"
+	s.investigation["leftSec"] = 30.0
+	m.d = Economy.derive(s)
+	m.toasts._queue.clear()
+	var bank := s.bananas
+	var taps := s.taps_lifetime
+	m._last_tap_ms = -1.0e9
+	_tap_leader()
+	runner.check(s.bananas == bank and s.taps_lifetime == taps, "%s: a tap on the hazard day earns and counts nothing" % leader)
+	runner.check(m.toasts._queue.has(want), "%s: the toast says why (%s)" % [leader, str(m.toasts._queue)])
+	m._last_tap_ms = -1.0e9
+	_tap_leader()
+	runner.check(m.toasts._queue.count(want) == 1, "%s: at most one such toast every 4 s" % leader)
+
+
+func test_no_taps_while_bibi_testifies() -> void:
+	await _hazard_day_blocks_taps("bibi", Strings.s("COURT_TAP_PAUSED"))
+
+
+func test_no_taps_on_another_leaders_press_day() -> void:
+	await _hazard_day_blocks_taps("bennett", Strings.gendered("PRESS_TAP_PAUSED", "m", {"short": str(Leaders.leader("bennett")["short"])}))

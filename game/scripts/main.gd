@@ -82,6 +82,7 @@ var _modal := Node2D.new()          # overlays + EVOLVE_TX
 var diorama: Diorama
 var street: StreetFigure        # Mordechai David on the Balfour stage (design/mordechai-david-spec.md)
 var sara: SaraMark              # Sara on the Balfour stage, Bibi's round (motion/state-graph-cast.md §3)
+var _paused_toast_ms := -1.0e9     # the last "no taps on the court day" toast
 var herzog: HerzogFigure        # President Herzog's compromise outline (events.herzog, effect "mediation")
 var kaia: KaiaFigure            # Kaia on the Balfour stage (events.kaia): a tap feeds her (placeholder art)
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
@@ -2123,6 +2124,15 @@ func _handle_tap(at: Vector2) -> void:
 		return
 	var r := Economy.tap(state)
 	_last_tap_ms = _now
+	if bool(r.get("paused", false)):
+		# the court / press day (content court.courtPausesTaps, Bar 2026-10-01): no taps while he testifies;
+		# no +0, no coin, just the hush and, at most every 4 s, why
+		bb.tap(false, true)
+		if _now - _paused_toast_ms >= 4000.0:
+			_paused_toast_ms = _now
+			toasts.show_toast(Strings.s("COURT_TAP_PAUSED") if Leaders.has_court() \
+				else Strings.gendered("PRESS_TAP_PAUSED", LeaderUi.g(), {"short": LeaderUi.short()}), "", "lane")
+		return
 	var crit: bool = r["crit"]
 	if state.buff_tap_frenzy > 0.0:
 		_tap_frenzy_taps += 1
