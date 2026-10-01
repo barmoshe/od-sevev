@@ -7,7 +7,8 @@ assets made with GPT ("אל תתקמצן"). Bar's planning answers:
 - it ships in phases, each one deployed.
 
 Design and tables: **`design/leaders-v3.md`**. GPT assets: **`creative-pack/art/briefs/leaders-v3-gpt.md`**.
-Live and hashes: `STATUS.md` (2026-10-01, leaders v3).
+**Live: `5eaecd5`** (web-dist `ad28161`, Vercel `dpl_9q8R6t3GMYgppFgGfNagwbJBMHgw`). Hashes and bench numbers: `STATUS.md`.
+Tests 484/484, content lint 0, gen_strings 0, lint_text 0. The bench (L1) is within ±10% for all 8 leaders.
 
 ## Done (on main)
 - **Phase 1** (`7276e30`, live):
@@ -44,8 +45,12 @@ Live and hashes: `STATUS.md` (2026-10-01, leaders v3).
    - a shared "הצעת אחדות" for every opposition leader (today only Golan's ability has it);
    - the countdown to 27.10 with a line per leader (`calendar`, `negotiation` mode).
 3. **Ability trophies** (one per leader, `stats.abilityUses` is ready) and Dubi squawks for the abilities.
-4. **The bench:** if a leader leaves ±10%, tune only `rule.active` numbers (cooldown, pct). Never the
-   shared economy.
+4. **The bench:**
+   - Only L1 (the median first election) was run per leader. The full `tools/balance.sh` (profiles,
+     the median hour) timed out at 25 min in the container: run it on the Mac.
+   - Bennett sits at −9%, close to the edge. If he goes out, raise his cooldown (`rule.active.cooldownSec`).
+   - Golan's worst seed is 11:50.
+   - Tune only `rule.active` numbers; never the shared economy.
 
 ## How to change an ability
 - **Numbers and copy:** `design/content.json` `leaders[].rule.active`, then `tools/sync_data.sh`.

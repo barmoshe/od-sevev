@@ -103,7 +103,7 @@ Assets: `creative-pack/art/briefs/leaders-v3-gpt.md`.
 | Leader | Before | After | Change |
 |---|---|---|---|
 | Bibi | 8:01 | 8:07 | +1% |
-| Bennett | 8:03 | 7:07 at cooldown 150 s, out of range | re-run at 300 s: see STATUS |
+| Bennett | 8:03 | 7:19 (cooldown 300 s; 7:07 at 150 s was out of range) | −9% |
 | Ben Gvir | 8:19 | 8:55 | +7% |
 | Liberman | 7:51 | 7:58 | +1.5% |
 | Eisenkot | 8:10 | 8:42 | +6.5% |
