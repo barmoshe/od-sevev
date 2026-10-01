@@ -379,9 +379,28 @@ body {
 #od-gate button:focus-visible { outline: 3px solid #0f2350; outline-offset: 2px; }
 #od-gate .od-cap { font-size: 14px; color: #34466e; text-align: center; margin-top: 4px; min-height: 21px; }
 #od-gate .od-bar { height: 52px; border: 3px solid #061029; border-radius: 6px; background: #0f2350; position: relative; overflow: hidden; }
-#od-gate .od-bar i { position: absolute; top: 0; bottom: 0; right: 0; width: 0; background: #3f74e6; transition: width 200ms linear; }   /* v3 flag_hi: 3.5:1 on the night track */
-#od-gate .od-line { text-align: center; margin-top: 10px; min-height: 24px; }
+/* the load bar from page open: a thin one under the disclaimer (N1, hidden once the tapped button
+   becomes the bar) or under the wordmark (N0); both fill right to left */
+#od-gate .od-load { margin-top: 12px; }
+#od-gate .od-thin { height: 8px; border: 2px solid #061029; border-radius: 4px; background: #0f2350; position: relative; overflow: hidden; }
+#od-gate .od-splash .od-thin { height: 12px; border-width: 3px; border-radius: 6px; }
+#od-gate .od-bar i, #od-gate .od-thin i { position: absolute; top: 0; bottom: 0; right: 0; width: 0; background: #3f74e6; transition: width 200ms linear; }   /* v3 flag_hi: 3.5:1 on the night track */
+/* indeterminate (bytes all in, the engine compiling and mounting; or the size unknown): a full bar
+   with slow diagonal stripes running the way the bar fills; still under reduced motion. The stripes
+   move by transform, so the compositor keeps them going while the engine holds the main thread */
+#od-gate .od-ind i { width: 100% !important; transition: none; overflow: hidden; }
+#od-gate .od-ind i::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: calc(100% + 20px);
+	background-image: linear-gradient(135deg, #5a88ec 25%, transparent 25%, transparent 50%, #5a88ec 50%, #5a88ec 75%, transparent 75%);
+	background-size: 20px 20px; will-change: transform; animation: od-stripe 900ms linear infinite; }
+@keyframes od-stripe { from { transform: translateX(0); } to { transform: translateX(-20px); } }
+@media (prefers-reduced-motion: reduce) { #od-gate .od-ind i::after { animation: none; } }
+#od-gate .od-status { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 6px; min-height: 24px; }
+#od-gate .od-line { text-align: right; }
+#od-gate .od-pct { flex: none; font-size: 14px; color: #34466e; font-variant-numeric: tabular-nums; }
 #od-gate .od-splash { text-align: center; }
+#od-gate .od-hat { width: 286px; height: 116px; margin: 0 auto 8px; overflow: hidden; }   /* the hat: index.png's top part, its own wordmark cropped off */
+#od-gate .od-hat img { display: block; width: 286px; height: 184px; image-rendering: pixelated; }
+#od-gate .od-splash img.od-wordmark { margin-bottom: 16px; }
 #od-about { position: fixed; inset: 0; z-index: 30; background: #f7f4ec; color: #0f2350; overflow-y: auto;
 	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.5;
 	padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 32px; box-sizing: border-box; display: none; }
@@ -473,11 +492,18 @@ html.od-framed #od-phone {
 					<div class="od-btn" id="od-sound-wrap"><button id="od-sound" type="button">{{DISC_BTN_SOUND}}</button><div class="od-cap"></div></div>
 					<div class="od-btn" id="od-quiet-wrap"><button id="od-quiet" type="button">{{DISC_BTN_QUIET}}</button><div class="od-cap">{{DISC_BTN_QUIET_CAP}}</div></div>
 				</div>
-				<div class="od-line" id="od-line" aria-live="polite"></div>
+				<div class="od-load">
+					<div class="od-thin" role="progressbar" aria-label="{{LOAD_BAR_LABEL}}" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+					<div class="od-status"><span class="od-line" id="od-line"></span><bdi dir="ltr" class="od-pct" aria-hidden="true"></bdi></div>
+				</div>
 			</div>
 			<div class="od-card od-splash" id="od-n0" hidden>
+				<div class="od-hat"><img src="index.png" alt="" width="286" height="184"></div>
 				<img class="od-wordmark" src="wordmark.png" alt="{{TITLE_WORDMARK_1}}">
-				<div class="od-line">{{SPLASH_LOADING}}</div>
+				<div class="od-load">
+					<div class="od-thin" role="progressbar" aria-label="{{LOAD_BAR_LABEL}}" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+					<div class="od-status"><span class="od-line">{{SPLASH_LOADING}}</span><bdi dir="ltr" class="od-pct" aria-hidden="true"></bdi></div>
+				</div>
 			</div>
 		</div>
 		<!-- O8 About: HTML over the canvas (ux/first-minute.md §6.2) -->
@@ -739,11 +765,9 @@ if ('serviceWorker' in navigator) {
 	const gate = document.getElementById('od-gate');
 	const n1 = document.getElementById('od-n1');
 	const n0 = document.getElementById('od-n0');
-	const line = document.getElementById('od-line');
 	const LOAD = ['{{LOAD_1_JS}}', '{{LOAD_2_JS}}', '{{LOAD_3_JS}}'];
 	let engineReady = false;
 	let tapped = false;
-	let bar = null;
 	let loadTimer = 0;
 	window.mbHandoffDone = 0;
 	window.odSound = store.get('odsevev.sound') || '';
@@ -755,6 +779,53 @@ if ('serviceWorker' in navigator) {
 		n0.hidden = false;
 		tapped = true;
 	}
+	// The load bar, from page open (one at a time): the thin bar in the shown card, then (N1, cold
+	// tap) the tapped button as the bar. Under it the percent and the rotating lines. State:
+	//   'det'  bytes arriving, total known: the percent (never goes back)
+	//   'dl'   bytes arriving, total unknown (onProgress total 0): indeterminate, the lines rotate
+	//   'prep' every byte in, the engine compiling the wasm, mounting the pck and booting: indeterminate, LOAD_PREP
+	//   'done' startGame resolved (odGateReady): full, 100%
+	const card = firstLaunch ? n1 : n0;
+	const thin = card.querySelector('.od-thin');
+	const line = card.querySelector('.od-line');
+	const pct = card.querySelector('.od-pct');
+	const LINES = firstLaunch ? LOAD : ['{{SPLASH_LOADING_JS}}'].concat(LOAD);
+	let bigBar = null;   // the tapped button's bar (N1)
+	let mode = 'det';
+	let shown = 0;
+	let k = 0;
+	function paint() {
+		const ind = mode === 'dl' || mode === 'prep';
+		[thin, bigBar].forEach((el) => {
+			if (!el) {
+				return;
+			}
+			el.classList.toggle('od-ind', ind);
+			el.querySelector('i').style.width = (mode === 'done' ? 100 : shown) + '%';
+			if (ind) {
+				el.removeAttribute('aria-valuenow');
+			} else {
+				el.setAttribute('aria-valuenow', String(mode === 'done' ? 100 : shown));
+			}
+			el.setAttribute('aria-busy', mode === 'done' ? 'false' : 'true');
+		});
+		pct.textContent = ind ? '' : (mode === 'done' ? 100 : shown) + '%';
+		if (mode === 'prep') {
+			line.textContent = '{{LOAD_PREP_JS}}';
+		} else if (mode === 'done') {
+			line.textContent = '';
+		} else if (line.textContent === '{{LOAD_PREP_JS}}' || !line.textContent) {
+			line.textContent = LINES[k];
+		}
+	}
+	line.textContent = LINES[0];
+	paint();
+	loadTimer = setInterval(() => {
+		if (mode === 'det' || mode === 'dl') {
+			k = (k + 1) % LINES.length;
+			line.textContent = LINES[k];
+		}
+	}, 1500);
 	function handoff() {
 		if (!engineReady || !tapped || window.mbHandoffDone) {
 			return;
@@ -782,28 +853,38 @@ if ('serviceWorker' in navigator) {
 			handoff();
 			return;
 		}
-		// cold: the tapped button becomes the hand-off bar (fills right to left)
+		// cold: the tapped button becomes the hand-off bar (fills right to left) and takes over from
+		// the thin one at the same fill; the percent and the lines stay under it
 		const other = btn === 'od-sound' ? 'od-quiet-wrap' : 'od-sound-wrap';
 		document.getElementById(other).style.visibility = 'hidden';
 		const wrap = document.getElementById(btn).parentElement;
-		wrap.innerHTML = '<div class="od-bar" role="progressbar" aria-label="{{LOAD_BAR_LABEL}}"><i></i></div><div class="od-cap"></div>';
-		bar = wrap.querySelector('.od-bar i');
-		let k = 0;
-		line.textContent = LOAD[0];
-		loadTimer = setInterval(() => { k = (k + 1) % LOAD.length; line.textContent = LOAD[k]; }, 1500);
+		wrap.innerHTML = '<div class="od-bar" role="progressbar" aria-label="{{LOAD_BAR_LABEL}}" aria-valuemin="0" aria-valuemax="100"><i></i></div><div class="od-cap"></div>';
+		bigBar = wrap.querySelector('.od-bar');
+		thin.hidden = true;
+		paint();
 	}
 	document.getElementById('od-sound').addEventListener('click', () => choose('on', 'od-sound'));
 	document.getElementById('od-quiet').addEventListener('click', () => choose('off', 'od-quiet'));
 	window.odGateProgress = function (cur, total) {
-		if (bar && total > 0) {
-			bar.style.width = Math.min(100, Math.round(100 * cur / total)) + '%';
+		if (mode === 'done') {
+			return;
 		}
+		if (!(total > 0)) {
+			mode = mode === 'prep' ? 'prep' : 'dl';
+		} else if (cur >= total) {
+			mode = 'prep';
+		} else {
+			mode = 'det';
+			// 99 at most while bytes are still coming: 100% is for the bytes all in
+			shown = Math.max(shown, Math.min(99, Math.floor(100 * cur / total)));
+		}
+		paint();
 	};
 	window.odGateReady = function () {
 		engineReady = true;
-		if (bar) {
-			bar.style.width = '100%';
-		}
+		mode = 'done';
+		clearInterval(loadTimer);
+		paint();
 		handoff();
 	};
 	// O8 About: opened from the disclaimer link or by the engine (settings) through odOpenAbout()
