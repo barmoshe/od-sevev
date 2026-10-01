@@ -14,3 +14,20 @@ The footage is the captures of `store/gameplay` (plans in `store/gameplay/plans/
 `plan-bengvir.json`, `plan-liberman.json`; capture steps in `store/gameplay/README.md`). Copy follows
 `creative-pack/voice/review-rubric.md`; the news lines are the game's own ticker
 (`creative-pack/voice/copy-deck.md`).
+
+## Shorts: four 7-10 s loops (`src/shorts.py`)
+
+Itay: short and crazy, so people want more and then download. Reels rank on replay and completion
+(6-12 s, a clean loop gets watched several times), so each short is one idea that drops back into its
+own start, with "לשחק בחינם · הלינק בביו" on screen the whole time.
+
+| File | Length | The idea |
+|---|---|---|
+| `od-sevev-short-pov.mp4` | 9 s | **POV: אתה המנדט ה־61.** The lock screen at 20:00 on election day; all eight leaders text you, then a flood; "כולם רוצים אותך." |
+| `od-sevev-short-stop.mp4` | 7 s | **עצרו את הסרטון!** A leader roulette too fast to read, each with his one true tag; pause to see who you are; it lands on "עוד סבב". |
+| `od-sevev-short-speedrun.mp4` | 10 s | **ספידראן ל־61.** The real game at x6-x8 against a clock; world record 49; the Knesset dissolves; the clock resets. |
+| `od-sevev-short-tap.mp4` | 8 s | **לחיצה = שקל.** Satisfying taps across the cast up to a billion; Ben Gvir: "ידידי, חסר לי משהו קטן."; back to zero. |
+
+Copy follows the game after the 2026-10-01 copy audit and `creative-pack/voice/character-research-2026-10-01.md`.
+
+    python3 src/shorts.py <scratch> pov|stop|speedrun|tap [--stills | --one <sec>]
