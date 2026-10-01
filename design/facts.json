@@ -470,7 +470,11 @@
    "usedOutsideContent": "Also the UX receipt 800M line",
    "usedIn": [
     "ambientHeadlinesV2.list.g21",
-    "ambientHeadlinesV2.list.g22"
+    "ambientHeadlinesV2.list.g22",
+    "leaders.smotrich.kit.sources.t8",
+    "leaders.smotrich.kit.sources.t8.firstOwned",
+    "leaders.smotrich.kit.ticker.ts03",
+    "leaders.smotrich.pick"
    ],
    "usedInLeaderSelect": [
     "leaders.smotrich.kit.sources.t8",
@@ -522,6 +526,7 @@
     "leaders.deri.kit.ticker.td04",
     "leaders.deri.kit.ticker.td12",
     "leaders.deri.kit.ticker.td13",
+    "leaders.deri.kit.ticker.td15",
     "partners.deri",
     "partners.deri.copy.card"
    ],
@@ -1417,9 +1422,11 @@
    "verifiedAt": "2026-09-29",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaderSelect.cardProfiles.card_smotrich",
     "leaders.smotrich.kit.sources.t5",
     "leaders.smotrich.kit.sources.t5.firstOwned",
-    "leaders.smotrich.kit.ticker.ts04"
+    "leaders.smotrich.kit.ticker.ts04",
+    "leaders.smotrich.pick"
    ]
   },
   {
@@ -2775,6 +2782,27 @@
     "partners.almog"
    ],
    "ref": 133
+  },
+  {
+   "id": "deri-door-window",
+   "label": "Q",
+   "text": "After the High Court disqualified him (Jan 2023), Deri said in effect that if they shut the door he would come in through the window, and if the window is shut, through the ceiling; Calcalist headlined it \"he went out the window but will come back through the door\".",
+   "aboutHe": "אחרי פסילת בג״ץ אמר אריה דרעי, בפרפרזה, שאם יסגרו את הדלת ייכנס מהחלון.",
+   "notUsed": false,
+   "outlet": "Ynet; Calcalist",
+   "url": "https://www.ynet.co.il/news/article/b1kf11ahss",
+   "url2": "https://www.calcalist.co.il/local_news/article/byeqdzoso",
+   "date": "2023-01",
+   "gameRendering": "paraphrase only: the door and the window; never a quote.",
+   "verification": "verified",
+   "verifiedAt": "2026-10-01",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
+   "usedIn": [
+    "leaderSelect.cardProfiles.card_deri",
+    "leaders.deri.kit.ticker.td15",
+    "partners.deri"
+   ],
+   "ref": 134
   }
  ],
  "deliberatelyOut": [

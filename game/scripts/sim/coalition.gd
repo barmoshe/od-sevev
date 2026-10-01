@@ -997,14 +997,33 @@ static func can_brawl(s: GameState, a: String, b: String) -> bool:
 	return a != b and counts(s, a) and counts(s, b) and open_msg(s, a).is_empty() and open_msg(s, b).is_empty()
 
 
-static func start_brawl(s: GameState, a: String, b: String) -> Array:
+static func start_brawl(s: GameState, a: String, b: String, script_ev: String = "", script: Array = []) -> Array:
 	var out: Array = []
 	if not can_brawl(s, a, b):
 		return out
+	# the scripted brawl (events.brawl.copy.script): the pair's own lines run before the freeze; the
+	# text stays in content, the message keeps the event id and the row index (line_text resolves it)
+	for i in script.size():
+		var row: Variant = script[i]
+		if row is Array and (row as Array).size() >= 2 and [a, b].has(str(row[0])):
+			_post(s, {"type": "thanks", "partner": str(row[0]), "scriptEv": script_ev, "scriptIdx": i}, out)
 	ps(s, a)["frozen"] = true
 	ps(s, b)["frozen"] = true
 	_sys(s, "chat.sys.brawl", {"a": a, "b": b}, out)
 	_post(s, {"type": "brawl", "a": a, "b": b, "state": "open"}, out)
+	return out
+
+
+## The leaked screenshot (events.leak, deck §E.2): a frame line, then every line of leak `idx`
+## (1-based), each a sys row that keeps only the leak's index, the line's index and the skin
+## ("leakRight": leaderSelect.leakRight in an opposition round); ChatView.sys_text reads the text.
+static func post_leak(s: GameState, idx: int, n_lines: int, skin: String = "") -> Array:
+	var out: Array = []
+	if not active() or idx < 1 or n_lines < 1:
+		return out
+	_sys(s, "leak.frame", {}, out)
+	for j in n_lines:
+		_sys(s, "leak.line", {"leak": idx, "line": j, "skin": skin}, out)
 	return out
 
 

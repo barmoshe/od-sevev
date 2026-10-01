@@ -39,7 +39,7 @@ static var EFFECTS: Dictionary = {
 		var pair := _brawl_pair(s, e, r)
 		if pair.is_empty():
 			return {"skipped": true}
-		var ev := Coalition.start_brawl(s, pair[0], pair[1])
+		var ev := Coalition.start_brawl(s, pair[0], pair[1], "brawl", _brawl_script(s, pair))
 		return {"a": pair[0], "b": pair[1], "events": ev},
 	"leak": func(s: GameState, e: Dictionary, _d: Economy.Derived, _r: Callable) -> Dictionary:
 		var st := _st(s)
@@ -408,6 +408,30 @@ static func _effect_of(type: String) -> Dictionary:
 		if eff.get("type", "") == type:
 			return eff
 	return {}
+
+
+## The first brawl ever (events.brawl.counts 0) between the scripted pair (effect.pairs[0], e.g.
+## Amsalem × Smotrich) plays events.brawl.copy.script; every later brawl is the generic one.
+static func _brawl_script(s: GameState, pair: Array) -> Array:
+	var b := event("brawl")
+	var pairs: Array = b.get("effect", {}).get("pairs", [])
+	if pairs.is_empty() or not pairs[0] is Array or int(_st(s)["counts"].get("brawl", 0)) > 0:
+		return []
+	var p0: Array = pairs[0]
+	if not (p0.has(pair[0]) and p0.has(pair[1])):
+		return []
+	var sc: Variant = b.get("copy", {}).get("script", [])
+	return sc if sc is Array else []
+
+
+## The leak's lines in the round's skin (events.leak.copy.leaks, or leaderSelect.leakRight.leaks):
+## leak `idx` is 1-based; [] when it has none.
+static func leak_lines(idx: int, skin: String = "") -> Array:
+	var c: Variant = Leaders.ls().get("leakRight", {}) if skin == "leakRight" else event("leak").get("copy", {})
+	var leaks: Array = (c as Dictionary).get("leaks", []) if c is Dictionary else []
+	if idx < 1 or idx > leaks.size() or not leaks[idx - 1] is Array:
+		return []
+	return leaks[idx - 1]
 
 
 static func _brawl_pair(s: GameState, e: Dictionary, rng: Callable) -> Array:

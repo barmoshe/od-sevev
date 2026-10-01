@@ -618,6 +618,11 @@ static func partner_name(id: String) -> String:
 ## (content copy; the sim holds no Hebrew). {price} is the message's price; Goldknopf's thanks
 ## falls back to his "after" line, whose {next_price} is the price he asks next.
 static func line_text(m: Dictionary, s: GameState, d: Economy.Derived) -> String:
+	if m.has("scriptEv"):
+		# a scripted event line (events.<id>.copy.script, e.g. the first brawl): text from content
+		var es: Variant = Events.event(str(m["scriptEv"])).get("copy", {}).get("script", [])
+		var ei := int(m.get("scriptIdx", -1))
+		return str((es[ei] as Array)[1]) if es is Array and ei >= 0 and ei < (es as Array).size() and es[ei] is Array else ""
 	if m.has("scriptFrom"):
 		# a transfer-window line: the text stays in content (copy.transferWindow.script), the save keeps the index
 		var tw: Variant = Coalition.partner(str(m["scriptFrom"])).get("copy", {}).get("transferWindow")
@@ -650,6 +655,15 @@ static func _pick_line(p: Dictionary, line: String, variant: int) -> String:
 ## the partner's gender), with {name}, {to}, {a}, {b}, {n} and Distel's {who} filled.
 static func sys_text(m: Dictionary) -> String:
 	var key := str(m.get("key", ""))
+	if key == "leak.line":
+		# one line of the leaked screenshot: "{who}: {text}", or the bare text for its sys and typing rows
+		var lines := Events.leak_lines(int(m.get("leak", 0)), str(m.get("skin", "")))
+		var j := int(m.get("line", -1))
+		if j < 0 or j >= lines.size() or not lines[j] is Array or (lines[j] as Array).size() < 2:
+			return ""
+		var who := str(lines[j][0])
+		var said := str(lines[j][1])
+		return said if who == "sys" or who == "typing" else "%s: %s" % [who, said]
 	var base := key.to_upper().replace(".", "_")
 	var pid := str(m.get("partner", ""))
 	var p := Coalition.partner(pid)

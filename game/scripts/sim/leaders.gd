@@ -987,9 +987,19 @@ static func ambient(s: GameState, with_politics: bool = true) -> Array:
 		return base
 	var drop := bibi_only("ambient") + bibi_only("ambientPolitics")
 	var opposition := str(leader(id).get("side", "")) == "opposition"
+	var nc: Dictionary = ls().get("neutralCopy", {}) if ls().get("neutralCopy") is Dictionary else {}
 	var out: Array = []
 	for h: Variant in base:
-		if not h is Dictionary or drop.has(str((h as Dictionary).get("id", ""))):
+		if not h is Dictionary:
+			continue
+		var nk := "ambient." + str((h as Dictionary).get("id", ""))
+		if nc.get(nk) is String:
+			# spec §9 neutralCopy: a Bibi line with a neutral rewording plays reworded, not dropped
+			var hn: Dictionary = (h as Dictionary).duplicate()
+			hn["text"] = str(nc[nk])
+			out.append(hn)
+			continue
+		if drop.has(str((h as Dictionary).get("id", ""))):
 			continue
 		var tgt := str((h as Dictionary).get("target", ""))
 		if tgt == id or (tgt == "all" and opposition):

@@ -1491,6 +1491,13 @@ func _on_politics_event(e: Dictionary) -> void:
 		"event":
 			if str(e.get("id", "")) == StreetFigure.EVENT_ID:
 				_on_street_event(e.get("result", {}))
+			else:
+				_on_card_event(e)
+			# the effect's own chat events (a brawl's messages, a defector's exit): pings and toasts
+			var sub: Variant = (e.get("result", {}) as Dictionary).get("events", []) if e.get("result") is Dictionary else []
+			for se: Variant in (sub if sub is Array else []):
+				if se is Dictionary:
+					_on_politics_event(se)
 		"eventEnd":
 			if str(e.get("type", "")) == "screenBlock":
 				var sc := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
@@ -1522,6 +1529,51 @@ func _on_politics_event(e: Dictionary) -> void:
 			var tw: Variant = Coalition.partner(str(e.get("partner", ""))).get("copy", {}).get("transferWindow")
 			if tw is Dictionary and str((tw as Dictionary).get("ticker", "")) != "":
 				ticker.enqueue("flavor", str(tw["ticker"]))
+
+
+## A card or stage event fired (Events.fire): its copy is finally on screen (until 2026-10-01 only
+## the effect ran). A card shows a chat-style toast with the person's face, name and line; a stage
+## event's line crawls in the ticker; the leak posts its screenshot into the chat (Coalition.post_leak).
+## The pardon desk and the chat-only brawl carry no card text, so they show nothing here.
+func _on_card_event(e: Dictionary) -> void:
+	var id := str(e.get("id", ""))
+	var ev := Events.event(id)
+	var c: Dictionary = ev.get("copy", {}) if ev.get("copy") is Dictionary else {}
+	var result: Dictionary = e.get("result", {}) if e.get("result") is Dictionary else {}
+	if bool(result.get("skipped", false)):
+		return
+	if str(ev.get("effect", {}).get("type", "")) == "leak":
+		var skin := str(result.get("skin", ""))
+		var lines := Events.leak_lines(int(result.get("leak", 0)), skin)
+		var lc: Dictionary = Leaders.ls().get("leakRight", {}) if skin == "leakRight" and Leaders.ls().get("leakRight") is Dictionary else c
+		for pe: Variant in Coalition.post_leak(state, int(result.get("leak", 0)), lines.size(), skin):
+			if pe is Dictionary:
+				_on_politics_event(pe)
+		if str(lc.get("ticker", "")) != "":
+			ticker.enqueue("flavor", str(lc["ticker"]))
+		toasts.show_toast(Strings.s("LEAK_FRAME"), "chat")
+		return
+	if str(c.get("ticker", "")) != "":
+		ticker.enqueue("flavor", str(c["ticker"]))
+	if str(c.get("system", "")) != "":
+		toasts.show_toast(str(c["system"]))
+	var text := str(c.get("text", ""))
+	if str(e.get("kind", "")) != "card" or text == "":
+		return
+	var person := str(ev.get("person", id))
+	var face := ChatView.toast_avatar(person)
+	if str(face[0]) == "" and str(c.get("avatar", "")) != "":
+		face = _art_face(str(c["avatar"]))
+	toasts.show_chat_toast(str(c.get("name", "")), text, face, "", true, 2)
+
+
+## A toast face for an art id: [art, logical px per sprite px, density], or ["", …] without the art.
+func _art_face(art: String) -> Array:
+	if not Art.has_sprite(art):
+		return ["", 4.0, 1]
+	var dens := maxi(1, int(Art.kit(art).get("density", 1)))
+	var sc := float(SpriteStrip.art_scale()) / float(dens)
+	return [art, sc, maxi(1, int(roundf(float(SpriteStrip.art_scale()) / maxf(0.001, sc))))]
 
 
 ## Mordechai David's blockade fired (spec §7.2): the figure walks in, Dubi's ticker runs the headline,
