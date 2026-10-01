@@ -22,7 +22,7 @@ Bar is at the Mac, open each chat, download the image and save it to `creative-p
 | B6 | `budget-book.png` | https://chatgpt.com/c/6abeaa41-c52c-83ed-9083-bcfe94ec7ae9 | ok, downloaded |
 
 | B7 | `clause-doc.png` | https://chatgpt.com/c/6abeabd8-7878-83ed-9991-25f095a69bd3 | pending |
-| C | `ability-icons.png` (4×2 grid) | https://chatgpt.com/c/6abeabd8-97bc-83eb-a259-dee3bbb0e74e | pending |
-| D | `kaia.png`, then `kaia-happy.png` | https://chatgpt.com/c/6abeabd9-516c-83eb-bfae-9da644cf9af2 | pending |
+| C | `ability-icons.png` (4×2 grid) | https://chatgpt.com/c/6abeabd8-97bc-83eb-a259-dee3bbb0e74e | ok, all 8 in brief order (1254×1254), downloaded |
+| D | `kaia.png`, then `kaia-happy.png` | https://chatgpt.com/c/6abeabd9-516c-83eb-bfae-9da644cf9af2 | kaia ok, downloaded; kaia-happy pending |
 
-**Downloaded 2026-10-01 into `refs/`:** A1–A9, B1–B6. Not rigged yet.
+**Downloaded 2026-10-01 into `refs/`:** A1–A9, B1–B6, C, kaia. Not rigged yet.
