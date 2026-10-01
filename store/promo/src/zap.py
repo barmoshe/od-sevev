@@ -11,8 +11,8 @@ the red-white studio with blue behind its rhomboid logo and the Friday panel of 
 the navy set with two big square screens and the investigative "חשיפה" brand; 14's rebrand was called
 suspiciously similar to 12's, with a red square logo, flag and blue-gold "patriot" panel. Each camp
 calls the other's channel "מכונת הרעל" or "ערוץ תעמולה". So: the same three game events (the hat,
-Liberman won't sit, the Knesset dissolves) on all three channels, each in its own spin, with a remote
-and a TV's green channel number between them. Every anchor is Dubi, the game's parrot, which is the
+Liberman won't sit, the Knesset dissolves) on all three channels, each in its own spin, an old TV's
+collapse-to-a-line between them. Every anchor is Dubi, the game's parrot, which is the
 reveal: three channels, one parrot. The channels' looks are evoked (colours, shapes, numbers), never
 their real logos, shows or anchors. Copy held to creative-pack/voice/review-rubric.md: the events are
 the game's own and plainly absurd, all three channels roasted alike, no polls.
@@ -38,10 +38,17 @@ OUT = P.OUT
 SR = P.SR
 
 # ---------------------------------------------------------------------------- the channels' looks
-R12, R12D, B12 = (200, 22, 34), (120, 6, 12), (28, 70, 170)
-N13, N13B, R13 = (6, 8, 70), (4, 32, 108), (222, 36, 46)
-R14, R14D, B14, G14 = (204, 26, 32), (116, 8, 14), (18, 46, 130), (236, 192, 72)
-OSD = (90, 255, 110)
+# One colour world per channel, so a zap reads at a glance: 12 red and white, 13 investigative noir,
+# 14 blue and gold. Per story: the logo and one meter on top, one screen, Dubi behind the lower third
+# (an anchor at his desk), the headline. Nothing else.
+
+R12, R13, B14, G14 = (214, 30, 44), (232, 44, 52), (22, 52, 150), (238, 196, 76)
+LOOK = {
+    12: dict(bg=((92, 12, 24), (24, 4, 10)), rim=WHITE, lt=WHITE, l1=INK, l2=R12, ring=None, tag=R12, tag_ink=WHITE),
+    13: dict(bg=((30, 30, 38), (8, 8, 12)), rim=R13, lt=(18, 18, 24), l1=WHITE, l2=(255, 120, 120), ring=INK, tag=R13, tag_ink=WHITE),
+    14: dict(bg=((24, 56, 150), (6, 14, 54)), rim=G14, lt=(12, 30, 100), l1=WHITE, l2=G14, ring=INK, tag=G14, tag_ink=INK),
+}
+PANIC, TOXIC = (255, 92, 64), (120, 255, 80)
 
 BAR = 4 * 60 / 122.54              # Bar's track (store/gameplay/music/panic-vs-poison.wav), 122.5 BPM
 M0 = 0.055                         # its first downbeat; video 0 sits on it, every zap on a bar line
@@ -59,20 +66,15 @@ STORIES = [  # (channel, event, tag, line 1, line 2, meter from, meter to), zapp
     (13, "vote", "בלעדי", "בלעדי ל־13: יש בחירות.", "המקורות: כל המדינה.", 97, 100),
     (14, "vote", "ניצחון", "הכנסת התפזרה. ניצחון ענק.", "על מי? נעדכן.", 100, 100),
 ]
-T_F1 = HOOK + SEG * len(STORIES)    # 39.2: three TVs, one parrot
+T_F1 = HOOK + SEG * len(STORIES)    # 39.2: three channels, one parrot
 T_F2 = T_F1 + 1.5 * BAR             # the poison machine
 T_END = T_F2 + 1.5 * BAR
 DUR = T_END + 2 * BAR               # 49.0
 
-TICKER = {
-    12: "לפי ערוץ 12: ערוץ 14 הוא מכונת רעל  ·  הישארו איתנו. מפחיד פה  ·  אחרי הפרסומות: עוד פחד  ·  ",
-    13: "לפי ערוץ 13: יש מכונת רעל. הפרטים בהמשך  ·  בהמשך: חשיפה. אחריה: חשיפה על החשיפה  ·  ",
-    14: "לפי ערוץ 14: ערוצים 12 ו־13 הם ערוצי תבהלה  ·  מד הרעל: 0%. כמו תמיד  ·  כל הפאנל מסכים  ·  ",
-}
-
-Y_LT = 1262                         # the lower third's top
-Y_TK = 1462                         # the ticker
-Y_TV = 1600                         # the broadcast ends here; the living room and the remote below
+Y_HEAD = 340                        # the logo and the meter
+SCREEN = {12: (40, 480, 740, 490), 13: (300, 480, 740, 490), 14: (170, 470, 740, 450)}   # x, y, w, h
+Y_LT = 1250                         # the lower third: Dubi stands behind it
+ZAP = 0.13                          # the CRT collapse-and-open between channels
 
 
 def seg_at(t):
@@ -82,12 +84,10 @@ def seg_at(t):
     return i, t - HOOK - i * SEG
 
 
-# ---------------------------------------------------------------------------- shared pieces
-
 _c = {}
 
 
-def grad(top, bot, h=Y_TV):
+def grad(top, bot, h=H):
     key = ("g", top, bot, h)
     if key not in _c:
         g = Image.new("RGBA", (1, 64))
@@ -98,6 +98,20 @@ def grad(top, bot, h=Y_TV):
     return _c[key]
 
 
+def studio(c, ch):
+    """The set: the channel's gradient, its number huge and faint, a soft key light."""
+    key = ("studio", ch)
+    if key not in _c:
+        s = grad(*LOOK[ch]["bg"]).copy()
+        n = text(str(ch), 70, fill=WHITE, ring=None, shadow=False, rtl=False)
+        n.putalpha(n.getchannel("A").point(lambda v: v * 10 // 255))
+        s.alpha_composite(n, (W - n.width + 120, 560))
+        spotlight(s, W // 2, 0, 1500, 90, 700, 0.10, (255, 255, 255))
+        vignette(s)
+        _c[key] = s
+    c.alpha_composite(_c[key])
+
+
 def bug(ch, s=1.0):
     """The corner logo, evoked: 12 a white numeral on a red rhomboid over blue; 13 red with a double
     rule; 14 a red square with a little flag."""
@@ -106,9 +120,8 @@ def bug(ch, s=1.0):
         if ch == 12:
             im = Image.new("RGBA", (230, 120), (0, 0, 0, 0))
             d = ImageDraw.Draw(im)
-            d.polygon([(40, 6), (226, 6), (190, 114), (4, 114)], fill=B12)
+            d.polygon([(40, 6), (226, 6), (190, 114), (4, 114)], fill=(28, 70, 170))
             d.polygon([(34, 0), (206, 0), (172, 104), (0, 104)], fill=R12)
-            d.polygon([(34, 0), (206, 0), (200, 18), (28, 18)], fill=(236, 70, 80))
             n = text("12", 9, ring=None, shadow=False, rtl=False)
             im.alpha_composite(n, (103 - n.width // 2, 52 - n.height // 2))
         elif ch == 13:
@@ -122,7 +135,7 @@ def bug(ch, s=1.0):
         else:
             im = Image.new("RGBA", (232, 120), (0, 0, 0, 0))
             d = ImageDraw.Draw(im)
-            d.rectangle((0, 0, 119, 119), fill=R14)
+            d.rectangle((0, 0, 119, 119), fill=(204, 26, 32))
             d.rectangle((0, 0, 119, 9), fill=G14)
             n = text("14", 9, ring=None, shadow=False, rtl=False)
             im.alpha_composite(n, (60 - n.width // 2, 62 - n.height // 2))
@@ -136,18 +149,12 @@ def bug(ch, s=1.0):
     return scaled(_c[key], s) if s != 1.0 else _c[key]
 
 
-def framed(c, im, x, y, rim, w=10):
-    d = ImageDraw.Draw(c)
-    d.rectangle((x - w, y - w, x + im.width + w - 1, y + im.height + w - 1), fill=rim)
-    c.alpha_composite(im, (x, y))
-
-
 def shot(who, t, size, box=(0, 330, 1080, 1050)):
     return P.stage_shot(who, t, size, box)
 
 
 def footage(ev, u, size):
-    """The event on the wall, from the real captures."""
+    """The event, from the real captures."""
     if ev == "hat":
         return shot("bibi", 7.0 + (u * 0.6) % 1.4, size)
     if ev == "chair":
@@ -156,352 +163,260 @@ def footage(ev, u, size):
     return shot("golan", 21.25, size, (0, 1382 - h // 2, 1080, 1382 + h // 2))
 
 
+def screen(c, ch, im):
+    """One screen per story, rimmed in the channel's colour."""
+    x, y, w, h = SCREEN[ch]
+    d = ImageDraw.Draw(c)
+    d.rectangle((x - 12, y - 12, x + w + 11, y + h + 11), fill=INK)
+    d.rectangle((x - 8, y - 8, x + w + 7, y + h + 7), fill=LOOK[ch]["rim"])
+    c.alpha_composite(im.resize((w, h), Image.NEAREST) if im.size != (w, h) else im, (x, y))
+
+
 def anchor(c, x, y, u, talking, scale=2):
-    """Dubi at the desk: idle, or talking while his line is read."""
+    """Dubi: idle, or talking while his line is read."""
     anim = "talk" if talking else "idle"
     a = k.SPRITES["chars"]["dubi-mic"]["anims"][anim]
     fr, anc = char_frame("dubi-mic", anim, int(u * a["fps"]) % a["frames"], scale)
     paste(c, fr, x - anc[0] * scale, y - anc[1] * scale, "tl")
 
 
-def ticker(c, ch, t, band, ink):
-    d = ImageDraw.Draw(c)
-    d.rectangle((0, Y_TK, W, Y_TK + 54), fill=band)
-    s = text(TICKER[ch] * 2, 4, fill=ink, ring=None, shadow=False)
-    x = -s.width // 2 + (t * 170) % (s.width // 2)          # Hebrew crawls left to right
-    paste(c, s, x, Y_TK + 5, "tl")
-
-
-def lower_third(c, u, ch, tag, l1, l2):
-    """Each channel's own bar; the tag on the right (RTL), line 1 then the punch."""
-    wipe = ease_out(clamp((u - 0.15) / 0.2))
-    if wipe <= 0:
-        return
-    d = ImageDraw.Draw(c)
-    xr = W - 24
-    wdt = int((W - 48) * wipe)
-    if ch == 12:
-        bar, top, f1, f2, tagc, tagr = WHITE, R12, INK, R12, R12, INK
-    elif ch == 13:
-        bar, top, f1, f2, tagc, tagr = N13, R13, WHITE, (200, 214, 255), R13, INK
-    else:
-        bar, top, f1, f2, tagc, tagr = R14D, G14, WHITE, G14, B14, G14
-    d.rectangle((xr - wdt, Y_LT, xr, Y_LT + 180), fill=bar)
-    d.rectangle((xr - wdt, Y_LT, xr, Y_LT + 9), fill=top)
-    if ch == 13:
-        d.rectangle((xr - wdt, Y_LT + 15, xr, Y_LT + 19), fill=top)
-    if ch == 12:
-        d.polygon([(xr - wdt, Y_LT + 180), (xr - wdt + 40, Y_LT + 180), (xr - wdt + 16, Y_LT + 120), (xr - wdt, Y_LT + 120)], fill=B12)
-    tg = text(tag, 6)
-    tw = tg.width + 44
-    paste(c, plate(tw, 76, tagc, tagr, 5), xr - tw // 2, Y_LT - 30)
-    paste(c, tg, xr - tw // 2, Y_LT - 30)
-    if u > 0.3:
-        a = text(l1, 6, fill=f1, ring=None if ch == 12 else INK, shadow=ch != 12)
-        paste(c, scaled(a, pop_scale(u, 0.3, 0.1, 1.08)), xr - 26 - a.width // 2, Y_LT + 62)
-    if u > L2_AT:
-        b = text(l2, 6, fill=f2, ring=None if ch == 12 else INK, shadow=ch != 12)
-        paste(c, scaled(b, pop_scale(u, L2_AT, 0.12, 1.15)), xr - 26 - b.width // 2, Y_LT + 132)
+def chip(c, s, x, y, fill, ink=WHITE, px=5):
+    im = text(s, px, fill=ink, ring=None, shadow=False)
+    paste(c, plate(im.width + 36, im.height + 22, fill, INK, 4), x, y)
+    paste(c, im, x, y)
 
 
 def meter(c, ch, u, lo, hi):
-    """12 and 13 run a panic meter; 14 a poison meter. It climbs to the punch line."""
+    """12 and 13 run a panic meter; 14 runs a poison meter that reads 0% at full. It climbs to the punch."""
     poison = ch == 14
-    v = lo + (hi - lo) * ease_out(clamp((u - 0.3) / (L2_AT + 0.3)))
-    x0, y0, n = 330, 228, 10
-    lab = text("מד רעל" if poison else "מד תבהלה", 4, fill=WHITE)
-    paste(c, lab, x0 + 470 - lab.width, y0 - 50, "tl")
+    v = lo + (hi - lo) * ease_out(clamp((u - 0.3) / (L2_AT + 0.2)))
+    n, sw = 8, 34
+    lab = text("רעל: 0%" if poison else "תבהלה", 5, fill=WHITE, ring=None, shadow=False)
+    w = n * sw + 28 + lab.width + 24
+    xr, y = W - 60, Y_HEAD
     d = ImageDraw.Draw(c)
-    d.rectangle((x0 - 6, y0 - 6, x0 + 476, y0 + 46), fill=INK)
+    d.rectangle((xr - w - 6, y - 40, xr + 5, y + 39), fill=INK)
+    d.rectangle((xr - w, y - 34, xr - 1, y + 33), fill=(26, 26, 34))
+    paste(c, lab, xr - 18 - lab.width // 2, y)
+    full = TOXIC if poison else PANIC
     lit = int(round(v / 100 * n))
-    full = (90, 255, 60) if poison else (255, 60, 40)
+    x0 = xr - 18 - lab.width - 24
     for j in range(n):                                           # RTL: it fills from the right
-        x = x0 + 470 - (j + 1) * 47
-        on = j < lit
-        col = full if on else (40, 40, 52)
-        if on and j >= n - 2 and int(u * 8) % 2:
+        x = x0 - (j + 1) * sw
+        col = full if j < lit else (54, 54, 66)
+        if j < lit and lit == n and int(u * 8) % 2:
             col = WHITE
-        d.rectangle((x + 4, y0, x + 44, y0 + 40), fill=col)
-    if u >= 1.2:                                                 # after the TV's channel number has gone
-        pc = text("%d%%" % round(v), 6, fill=full if v < 100 or int(u * 8) % 2 else WHITE, rtl=False)
-        paste(c, pc, x0 + 540 + pc.width // 2, y0 + 20)
+        d.rectangle((x + 4, y - 20, x + sw - 2, y + 19), fill=col)
 
 
-def osd(c, ch, u):
-    """The TV's own channel number, green, top right, for a second after each zap."""
-    if 0.08 <= u < 1.2:
-        n = text(str(ch), 13, fill=OSD, ring=(10, 40, 10), shadow=True, rtl=False)
-        paste(c, n, W - 70 - n.width // 2, 250)
-
-
-def static(c, u, dur=0.14):
-    if u >= dur:
+def lower_third(c, u, ch, tag, l1, l2):
+    """The channel's bar across the desk: the tag, then line 1, then the punch."""
+    L = LOOK[ch]
+    wipe = ease_out(clamp((u - 0.12) / 0.22))
+    if wipe <= 0:
         return
-    r = np.random.default_rng(int(u * 1000) + 7)
-    n = r.integers(0, 255, (Y_TV // 6, W // 6), dtype=np.uint8)
-    im = Image.fromarray(n, "L").resize((W, Y_TV), Image.NEAREST).convert("RGBA")
-    c.alpha_composite(im, (0, 0))
-
-
-def live_strip(c, ch):
-    """The broadcast's bottom edge: the clock and LIVE."""
     d = ImageDraw.Draw(c)
-    band = {12: B12, 13: N13B, 14: B14}[ch]
-    d.rectangle((0, Y_TK + 54, W, Y_TV), fill=band)
-    paste(c, text("20:00", 5, rtl=False), 110, Y_TK + 54 + (Y_TV - Y_TK - 54) // 2)
-    lv = text("שידור חי", 5)
-    paste(c, plate(lv.width + 30, 54, RED, INK, 4), W - 40 - (lv.width + 30) // 2, Y_TK + 54 + (Y_TV - Y_TK - 54) // 2)
-    paste(c, lv, W - 40 - (lv.width + 30) // 2, Y_TK + 54 + (Y_TV - Y_TK - 54) // 2)
+    xl, xr, y0, y1 = 36, W - 36, Y_LT, Y_LT + 230
+    xw = xr - int((xr - xl) * wipe)
+    d.rectangle((xw - 6, y0 - 6, xr + 5, y1 + 5), fill=INK)
+    d.rectangle((xw, y0, xr, y1), fill=L["lt"])
+    d.rectangle((xw, y0, xr, y0 + 10), fill=L["tag"])
+    if ch == 13:
+        d.rectangle((xw, y0 + 16, xr, y0 + 20), fill=L["tag"])
+    if u > 0.2:
+        tg = text(tag, 6, fill=L["tag_ink"], ring=None, shadow=False)
+        tw = tg.width + 48
+        paste(c, plate(tw, 80, L["tag"], INK, 5), xr - 20 - tw // 2, y0 - 26)
+        paste(c, tg, xr - 20 - tw // 2, y0 - 26)
+    if u > 0.32:
+        a = text(l1, 6, fill=L["l1"], ring=L["ring"], shadow=L["ring"] is not None)
+        paste(c, a, (xl + xr) // 2, y0 + 82)
+    if u > L2_AT:
+        b = text(l2, 6, fill=L["l2"], ring=L["ring"], shadow=L["ring"] is not None)
+        paste(c, scaled(b, pop_scale(u, L2_AT, 0.12, 1.15)), (xl + xr) // 2, y0 + 168)
 
 
-# ---------------------------------------------------------------------------- 12: the big studio
-
-def set12(c, t, u, ev, talk):
-    c.alpha_composite(grad((14, 20, 60), (40, 12, 30)))
-    d = ImageDraw.Draw(c)
-    for j in range(6):                                           # red and white rhomboid bands
-        x = (j * 260 + t * 30) % (W + 520) - 260
-        d.polygon([(x, 330), (x + 90, 330), (x + 10, 1250), (x - 80, 1250)], fill=(150, 18, 30) if j % 2 else (70, 20, 40))
-    spotlight(c, 540, 0, 1250, 60, 520, 0.12, (255, 200, 200))
-    if ev == "chair":                                            # the panel: a wall of commentators
-        n = 12 if u < L2_AT else 14
-        for i in range(n):
-            col, row = i % 4, i // 4
-            x, y = 60 + col * 245, 340 + row * 200
-            if row > 2:
-                x, y = 60 + (i - 12) * 245 + 245, 340 + 3 * 200
-            if i < 12 or u > L2_AT:
-                d.rectangle((x, y, x + 220, y + 180), fill=WHITE if (i + row) % 2 else R12)
-                d.rectangle((x + 8, y + 8, x + 212, y + 172), fill=(30, 40, 90))
-                bob = int(4 * ((int(u * 8) + i) % 2))
-                paste(c, img("avatar_dubi", 4), x + 110, y + 96 - bob)
-        cnt = text("פרשנים: %d" % n, 5, fill=WHITE)
-        paste(c, plate(cnt.width + 40, 60, R12, INK, 4), 540, 1060 if n == 12 else 1060)
-        paste(c, cnt, 540, 1060)
-        return
-    wall = footage(ev, u, (720, 450))
-    m = Image.new("L", wall.size, 0)
-    ImageDraw.Draw(m).polygon([(40, 0), (720, 0), (680, 450), (0, 450)], fill=255)
-    rim = Image.new("RGBA", (744, 474), (0, 0, 0, 0))
-    ImageDraw.Draw(rim).polygon([(46, 0), (744, 0), (698, 474), (0, 474)], fill=WHITE)
-    c.alpha_composite(rim, (28, 368))
-    c.paste(wall, (40, 380), m)
-    anchor(c, 880, 1150, u, talk)
-    d.rectangle((560, 1030, W, 1200), fill=R12)                  # the desk
-    d.rectangle((560, 1030, W, 1042), fill=WHITE)
-    d.polygon([(560, 1030), (600, 1030), (560, 1200)], fill=B12)
-    paste(c, bug(12, 0.6), 860, 1120)
-
-
-# ---------------------------------------------------------------------------- 13: the investigation
+# ---------------------------------------------------------------------------- the three sets
 
 def pixelated(im, block):
     sw, sh = max(1, im.width // block), max(1, im.height // block)
     return im.resize((sw, sh), Image.BILINEAR).resize(im.size, Image.NEAREST)
 
 
-def set13(c, t, u, ev, talk):
-    c.alpha_composite(grad(N13, N13B))
-    d = ImageDraw.Draw(c)
-    for j in range(5):
-        d.rectangle((0, 340 + j * 180, W, 342 + j * 180), fill=(20, 40, 120))
-    join = ev != "hat"                                           # the two squares join into one
-    if not join:
-        for i, x in enumerate((60, 560)):
-            d.rectangle((x - 8, 352, x + 468, 828), fill=R13)
-            d.rectangle((x - 2, 358, x + 462, 822), fill=N13)
-            d.rectangle((x - 8, 836, x + 468, 840), fill=R13)
-        # left: the rabbit, identity protected; right: the document, redacted
-        sc = Image.new("RGBA", (460, 460), (30, 34, 60, 255))
-        rab = img("prop_rabbit", 9)
-        sc.alpha_composite(rab, (230 - rab.width // 2, 260 - rab.height // 2))
-        sc = pixelated(sc, 26 if u > 0.4 else 3)
-        c.alpha_composite(sc, (60, 360))
-        lab = text("הארנב. פניו טושטשו.", 4)
-        paste(c, plate(lab.width + 24, 46, INK, INK, 3), 290, 395)
-        paste(c, lab, 290, 395)
-        doc = Image.new("RGBA", (380, 420), (238, 232, 214, 255))
-        dd = ImageDraw.Draw(doc)
-        for j in range(9):
-            w = 300 if j % 3 else 200
-            dd.rectangle((40, 50 + j * 38, 40 + w, 66 + j * 38), fill=(20, 20, 20) if j % 2 else (120, 120, 120))
-        c.alpha_composite(doc.rotate(4, resample=Image.NEAREST, expand=True), (590, 375))
-        if u > 0.5:
-            slam(c, k.stamp_img("סודי", 8), u, 0.5, 780, 600, angle=-12, frm=2.2)
+def set12(c, u, ev, talk):
+    x, y, w, h = SCREEN[12]
+    if ev == "chair":                                            # the screen fills with commentators
+        im = Image.new("RGBA", (w, h), (40, 10, 18, 255))
+        n = 12 if u < L2_AT else 14
+        cols, cw, chh = 5, w // 5, h // 3
+        for i in range(min(n, 15)):
+            cx, cy = (i % cols) * cw, (i // cols) * chh
+            col = WHITE if (i + i // cols) % 2 else R12
+            ImageDraw.Draw(im).rectangle((cx + 4, cy + 4, cx + cw - 5, cy + chh - 5), fill=col)
+            ImageDraw.Draw(im).rectangle((cx + 10, cy + 10, cx + cw - 11, cy + chh - 11), fill=(30, 34, 70))
+            bob = 4 * ((int(u * 8) + i) % 2)
+            av = img("avatar_dubi", 3)
+            im.alpha_composite(av, (cx + cw // 2 - av.width // 2, cy + chh // 2 - av.height // 2 - bob))
+        screen(c, 12, im)
+        chip(c, "פרשנים באולפן: %d" % n, x + w // 2, y + h + 46, R12)
     else:
-        d.rectangle((52, 352, 1028, 888), fill=R13)
-        d.rectangle((58, 358, 1022, 882), fill=N13)
-        if ev == "chair":                                        # a CCTV feed of an empty chair
-            sc = Image.new("RGBA", (960, 520), (34, 44, 38, 255))
-            sd = ImageDraw.Draw(sc)
-            sd.rectangle((0, 380, 960, 520), fill=(44, 56, 48))
-            ch = (90, 110, 96)
-            sd.rectangle((400, 180, 560, 200), fill=ch)          # the back
-            sd.rectangle((400, 180, 420, 330), fill=ch)
-            sd.rectangle((540, 180, 560, 330), fill=ch)
-            sd.rectangle((380, 320, 580, 345), fill=ch)          # the seat
-            for x in (390, 560):
-                sd.rectangle((x, 345, x + 18, 440), fill=ch)
-            for y in range(0, 520, 4):
-                sd.line((0, y, 960, y), fill=(0, 0, 0, 40))
-            c.alpha_composite(sc, (60, 360))
-            if int(u * 3) % 2 == 0:
-                d.ellipse((92, 390, 122, 420), fill=(255, 40, 40))
-            paste(c, text("REC", 5, fill=WHITE, rtl=False), 180, 405)
-            day = 1 + int(min(1.0, u / 2.6) * 182)
-            dl = text("יום %d" % day, 5, fill=WHITE)
-            paste(c, dl, 900, 405)
-        else:                                                    # the exclusive: a sheet and a stamp
-            doc = Image.new("RGBA", (620, 440), (238, 232, 214, 255))
-            dd = ImageDraw.Draw(doc)
-            ln = text("יש בחירות.", 8, fill=INK, ring=None, shadow=False)
-            doc.alpha_composite(ln, (310 - ln.width // 2, 80))
-            for j in range(4):
-                dd.rectangle((70, 260 + j * 36, 550 - j * 60, 276 + j * 36), fill=(150, 150, 150))
-            c.alpha_composite(doc, (120, 400))
-            if u > 0.55:
-                slam(c, k.stamp_img("בלעדי", 11), u, 0.55, 470, 740, angle=-10, frm=2.4)
-    d.rectangle((0, 1080, W, 1250), fill=(10, 14, 50))           # the desk
-    d.rectangle((0, 1080, W, 1086), fill=R13)
-    d.rectangle((0, 1094, W, 1098), fill=R13)
-    anchor(c, 540 if ev == "hat" else 880, 1200, u, talk)
+        screen(c, 12, footage(ev, u, (w, h)))
+    anchor(c, 880, Y_LT + 130, u, talk)
 
 
-# ---------------------------------------------------------------------------- 14: the panel
+def set13(c, u, ev, talk):
+    x, y, w, h = SCREEN[13]
+    if ev == "hat":                                              # the rabbit, identity withheld
+        im = grad((70, 74, 96), (36, 38, 52), h).crop((0, 0, w, h)).copy()
+        rab = img("prop_rabbit", 14)
+        im.alpha_composite(rab, (w // 2 - rab.width // 2, h // 2 - rab.height // 2 + 40))
+        im = pixelated(im, 34 if u > 0.45 else 2)
+        screen(c, 13, im)
+        chip(c, "זהותו שמורה במערכת", x + w // 2, y + 46, INK)
+    elif ev == "chair":                                          # a security camera on an empty chair
+        im = Image.new("RGBA", (w, h), (34, 44, 38, 255))
+        sd = ImageDraw.Draw(im)
+        sd.rectangle((0, 330, w, h), fill=(44, 56, 48))
+        cc = (100, 122, 106)
+        cx = w // 2
+        sd.rectangle((cx - 80, 130, cx + 80, 152), fill=cc)
+        sd.rectangle((cx - 80, 130, cx - 58, 290), fill=cc)
+        sd.rectangle((cx + 58, 130, cx + 80, 290), fill=cc)
+        sd.rectangle((cx - 100, 280, cx + 100, 306), fill=cc)
+        for xx in (cx - 90, cx + 72):
+            sd.rectangle((xx, 306, xx + 18, 400), fill=cc)
+        for yy in range(0, h, 4):
+            sd.line((0, yy, w, yy), fill=(0, 0, 0, 50))
+        if int(u * 3) % 2 == 0:
+            sd.ellipse((24, 24, 52, 52), fill=(255, 40, 40))
+        im.alpha_composite(text("REC", 5, rtl=False), (64, 18))
+        day = text("יום %d" % (1 + int(min(1.0, u / 2.8) * 182)), 5)
+        im.alpha_composite(day, (w - day.width - 24, 18))
+        screen(c, 13, im)
+    else:                                                        # the exclusive: one sheet, one stamp
+        im = Image.new("RGBA", (w, h), (24, 24, 30, 255))
+        doc = Image.new("RGBA", (520, 380), (240, 234, 216, 255))
+        ln = text("יש בחירות.", 8, fill=INK, ring=None, shadow=False)
+        doc.alpha_composite(ln, (260 - ln.width // 2, 70))
+        for j in range(4):
+            ImageDraw.Draw(doc).rectangle((60, 200 + j * 34, 460 - j * 50, 214 + j * 34), fill=(160, 156, 146))
+        im.alpha_composite(doc, (w // 2 - 260, h // 2 - 190))
+        screen(c, 13, im)
+        if u > 0.55:
+            slam(c, k.stamp_img("בלעדי", 11), u, 0.55, x + w // 2 + 60, y + h // 2 + 110, angle=-10, frm=2.4)
+    anchor(c, 190, Y_LT + 130, u, talk)
 
-def set14(c, t, u, ev, talk):
-    c.alpha_composite(grad((40, 12, 30), (14, 20, 60)))
-    d = ImageDraw.Draw(c)
-    for j in range(6):                                           # the same red bands. almost.
-        x = (j * 260 - t * 30) % (W + 520) - 260
-        d.polygon([(x, 330), (x + 90, 330), (x + 10, 1250), (x - 80, 1250)], fill=(150, 18, 30) if j % 2 else (60, 30, 70))
-    d.rectangle((0, 330, W, 338), fill=G14)
-    wall = footage(ev, u, (640, 400))
-    framed(c, wall, 220, 380, G14, 10)
-    if ev == "chair" and u > L2_AT:                              # the culprit, found
-        paste(c, bug(12, 0.8), 330, 640)
-        paste(c, bug(13, 0.8), 330, 770)
-        slam(c, k.stamp_img("אשמים", 7), u, L2_AT + 0.15, 330, 705, angle=-14, frm=2.2)
+
+def set14(c, u, ev, talk):
+    x, y, w, h = SCREEN[14]
+    screen(c, 14, footage(ev, u, (w, h)))
+    if ev == "chair" and u > L2_AT:                              # the culprits, found
+        c.alpha_composite(Image.new("RGBA", (w, h), (6, 14, 54, 200)), (x, y))
+        s_ = pop_scale(u, L2_AT, 0.14, 1.5)
+        paste(c, scaled(bug(12), s_), x + w // 2 + 150, y + h // 2 - 40)
+        paste(c, scaled(bug(13), s_), x + w // 2 - 150, y + h // 2 - 30)
+        if u > L2_AT + 0.25:
+            chip(c, "אשמים", x + w // 2, y + h - 70, (204, 26, 32), px=7)
     if ev == "vote":
-        coins_burst(c, u, 0.4, 540, 560, n=30, seed=14, life=1.6, kinds=("coin", "bill"))
-    d.rectangle((0, 1040, W, 1250), fill=B14)                    # the long desk
-    d.rectangle((0, 1040, W, 1050), fill=G14)
-    for i in range(5):
-        x = 120 + i * 210
+        coins_burst(c, u, 0.4, x + w // 2, y + 120, n=26, seed=14, life=1.6, kinds=("coin", "bill"))
+    for i in range(5):                                           # the panel: five of him
+        px = 140 + i * 200
         loud = talk or (ev == "hat" and u > L2_AT)
-        anchor(c, x, 1150, u + i * 0.13, loud and (int(u * 6) + i) % 3 != 0, scale=1)
+        anchor(c, px, Y_LT + 60, u + i * 0.13, loud and (int(u * 6) + i) % 3 != 0, scale=1)
         if ev == "hat" and u > L2_AT + 0.1 + i * 0.12:
-            paste(c, scaled(bubble("נכון!", 4), pop_scale(u, L2_AT + 0.1 + i * 0.12, 0.1, 1.5)), x, 850 + (i % 2) * 40)
-    if ev == "hat" and 0.35 <= u < 1.7:                         # the first zap onto 14
-        b = bubble("רגע, זה לא 12?", 5, tail=None)
-        paste(c, b, 640, 345)
+            paste(c, scaled(bubble("נכון!", 4), pop_scale(u, L2_AT + 0.1 + i * 0.12, 0.1, 1.5)), px, Y_LT - 300 + (i % 2) * 30)
 
-
-# ---------------------------------------------------------------------------- frames
 
 SETS = {12: set12, 13: set13, 14: set14}
-LOOK = {12: ((28, 60, 150), WHITE), 13: (WHITE, N13), 14: (B14, G14)}
 
 
-def broadcast(c, t, i, u):
+def broadcast(c, i, u):
     ch, ev, tag, l1, l2, lo, hi = STORIES[i]
     talk = L2_AT <= u < L2_AT + 1.0
-    SETS[ch](c, t, u, ev, talk)
-    paste(c, bug(ch), 70 + bug(ch).width // 2, 260)
+    studio(c, ch)
+    SETS[ch](c, u, ev, talk)
+    paste(c, bug(ch), 60 + bug(ch).width // 2, Y_HEAD)
     meter(c, ch, u, lo, hi)
     lower_third(c, u, ch, tag, l1, l2)
-    ticker(c, ch, t, *LOOK[ch])
-    live_strip(c, ch)
-    osd(c, ch, u)
-    static(c, u)
 
 
-def room(c, t, press=None, pu=9.0):
-    """Below the broadcast: the living room and the remote; the pressed button lights."""
-    d = ImageDraw.Draw(c)
-    d.rectangle((0, Y_TV, W, H), fill=(14, 12, 22))
-    d.rectangle((0, Y_TV, W, Y_TV + 12), fill=(40, 38, 50))     # the TV's bezel edge
-    x0, y0 = 340, Y_TV + 70
-    d.rounded_rectangle((x0, y0, x0 + 400, y0 + 340), radius=40, fill=(46, 46, 54))
-    d.rounded_rectangle((x0 + 8, y0 + 8, x0 + 392, y0 + 332), radius=34, fill=(30, 30, 36))
-    d.ellipse((x0 + 185, y0 + 22, x0 + 215, y0 + 52), fill=(200, 40, 40) if press is not None and pu < 0.25 else (90, 20, 20))
-    for j, ch in enumerate((12, 13, 14)):
-        bx = x0 + 300 - j * 110                                  # RTL: 12 on the right
-        on = press == ch and pu < 0.35
-        dy = 6 if on else 0
-        d.rounded_rectangle((bx - 44, y0 + 80 + dy, bx + 44, y0 + 150 + dy), radius=14, fill=GOLD if on else (70, 70, 82))
-        n = text(str(ch), 5, fill=INK if on else WHITE, ring=None, shadow=False, rtl=False)
-        paste(c, n, bx, y0 + 115 + dy)
+def zap(c, u):
+    """Between channels: the picture collapses to a line and opens again (an old TV changing over)."""
+    if u >= ZAP:
+        return c
+    e = ease_out(u / ZAP)
+    h = max(8, int(H * e))
+    out = Image.new("RGBA", (W, H), (0, 0, 0, 255))
+    out.alpha_composite(c.resize((W, h), Image.NEAREST), (0, (H - h) // 2))
+    if e < 0.5:
+        ImageDraw.Draw(out).rectangle((0, H // 2 - 4, W, H // 2 + 4), fill=(235, 240, 255))
+    return out
 
 
-PANIC, TOXIC = (255, 92, 64), (120, 255, 80)
-
+# ---------------------------------------------------------------------------- the open, the reveal, the end
 
 def s_hook(c, t):
     """The bill: ערוצי התבהלה, נגד, מכונת הרעל. Each side under the other side's name for it."""
-    c.alpha_composite(grad((50, 10, 20), (8, 10, 30), 800), (0, 0))
-    c.alpha_composite(grad((8, 10, 30), (10, 44, 20), Y_TV - 800), (0, 800))
-    if t < 0.3:                                                  # the CRT switching on
+    c.alpha_composite(grad((70, 10, 22), (10, 8, 20), H // 2), (0, 0))
+    c.alpha_composite(grad((8, 12, 20), (12, 54, 24), H - H // 2), (0, H // 2))
+    vignette(c)
+    if t < 0.3:                                                  # the TV switching on
         d = ImageDraw.Draw(c)
-        h = int(6 + 1200 * ease_out(t / 0.3) ** 3)
-        d.rectangle((0, Y_TV // 2 - h // 2, W, Y_TV // 2 + h // 2), fill=(230, 236, 255))
+        h = int(8 + 1400 * ease_out(t / 0.3) ** 3)
+        d.rectangle((0, H // 2 - h // 2, W, H // 2 + h // 2), fill=(230, 236, 255))
         return
     if t >= 0.35:
-        paste(c, scaled(text("ערוצי התבהלה", 10, fill=PANIC), pop_scale(t, 0.35, 0.14, 1.4)), W // 2, 400)
+        paste(c, scaled(text("ערוצי התבהלה", 11, fill=PANIC), pop_scale(t, 0.35, 0.14, 1.4)), W // 2, 470)
     for j, ch in enumerate((12, 13)):
         t0 = 0.6 + j * 0.15
         if t >= t0:
-            paste(c, scaled(bug(ch, 1.2), pop_scale(t, t0, 0.14, 1.6)), W // 2 + 170 - j * 340, 590)
+            paste(c, scaled(bug(ch, 1.15), pop_scale(t, t0, 0.14, 1.6)), W // 2 + 160 - j * 320, 660)
     if t >= 1.1:
-        slam(c, badge("נגד", 13), t, 1.1, W // 2, 820, angle=-4, frm=2.8)
+        slam(c, badge("נגד", 13), t, 1.1, W // 2, H // 2, angle=-4, frm=2.8)
     if t >= 1.5:
-        paste(c, scaled(text("מכונת הרעל", 10, fill=TOXIC), pop_scale(t, 1.5, 0.14, 1.4)), W // 2, 1040)
+        paste(c, scaled(text("מכונת הרעל", 11, fill=TOXIC), pop_scale(t, 1.5, 0.14, 1.4)), W // 2, 1230)
     if t >= 1.8:
-        paste(c, scaled(bug(14, 1.2), pop_scale(t, 1.8, 0.14, 1.6)), W // 2, 1230)
-    if t >= 2.5:
-        paste(c, text("הערב, בשידור חי.", 7, fill=WHITE), W // 2, 1450)
+        paste(c, scaled(bug(14, 1.15), pop_scale(t, 1.8, 0.14, 1.6)), W // 2, 1420)
     flash(c, t, 0.3, 0.1, 0.8)
     flash(c, t, 1.1, 0.1, 0.5)
 
 
-def mini_tv(i, t):
-    """A whole broadcast, shrunk into a little TV (for the reveal)."""
-    c = Image.new("RGBA", (W, H), INK + (255,))
-    broadcast(c, t, i, 2.2)
-    return c.crop((0, 200, W, Y_TV)).resize((330, 428), Image.NEAREST)
-
-
 def s_reveal(c, t):
+    """Three channels side by side, the same parrot in each, moving as one."""
     u = t - T_F1
-    c.alpha_composite(grad((8, 10, 30), (20, 26, 70)))
-    for j, i in enumerate((0, 1, 2)):
-        x = W - 190 - j * 350
-        tv = mini_tv(i, t)
-        framed(c, tv, x - 165, 420, (40, 38, 50), 14)
+    for j, ch in enumerate((14, 13, 12)):                        # RTL: 12 on the right
+        col = Image.new("RGBA", (W // 3, H))
+        col.alpha_composite(grad(*LOOK[ch]["bg"]).crop((0, 0, W // 3, H)))
+        c.alpha_composite(col, (j * W // 3, 0))
+        cx = j * W // 3 + W // 6
+        paste(c, bug(ch, 0.9), cx, 600)
+        anchor(c, cx, 1300, u, int(u * 6) % 2 == 0, scale=2)
+    d = ImageDraw.Draw(c)
+    for j in (1, 2):
+        d.rectangle((j * W // 3 - 3, 480, j * W // 3 + 2, 1300), fill=INK)
     if u > 0.1:
-        paste(c, text("תבהלה? רעל?", 9, grad=True), W // 2, 290)
+        paste(c, text("תבהלה? רעל?", 10, grad=True), W // 2, 380)
     if u > 0.8:
-        anchor(c, W // 2, 1700, u, int(u * 6) % 2 == 0, scale=2)
-        slam(c, text("תוכי אחד.", 11, fill=WHITE), u, 0.8, W // 2, 990, frm=2.2)
+        slam(c, text("תוכי אחד.", 12, fill=WHITE), u, 0.8, W // 2, 1450, frm=2.2)
     flash(c, u, 0, 0.1, 0.6)
 
 
 def s_machine(c, t):
     u = t - T_F2
-    c.alpha_composite(grad((10, 8, 24), (34, 14, 40)))
-    spotlight(c, W // 2, 0, 1500, 80, 600, 0.16, (255, 120, 120))
-    caption = text("ומכונת הרעל?", 9, grad=True)
-    paste(c, caption, W // 2, 320)
+    c.alpha_composite(grad((10, 8, 24), (20, 40, 22)))
+    spotlight(c, W // 2, 0, 1500, 80, 600, 0.16, (160, 255, 140))
+    vignette(c)
+    paste(c, text("ומכונת הרעל?", 10, grad=True), W // 2, 420)
     fr = int(u * 2.5) % 2
     sheet = img("source_poison", 5)
     rack = sheet.crop((fr * 92 * 5, 0, fr * 92 * 5 + 92 * 5, 120 * 5))
     s = pop_scale(u, 0.15, 0.18, 0.3)
     if s:
-        paste(c, scaled(rack, s), W // 2, 900)
+        paste(c, scaled(rack, s), W // 2, 960)
     if u > 0.9:
-        paste(c, text("במשחק יש לך אחת משלך.", 8), W // 2, 1300)
+        paste(c, text("במשחק יש לך אחת משלך.", 8), W // 2, 1360)
     if u > 1.4:
-        paste(c, text("10,000 חשבונות. דעה אחת.", 6, fill=GOLD_HI), W // 2, 1410)
+        paste(c, text("10,000 חשבונות. דעה אחת.", 6, fill=GOLD_HI), W // 2, 1470)
     flash(c, u, 0, 0.1, 0.6)
 
 
@@ -512,18 +427,18 @@ def s_end(c, tt):
     coins_burst(c, tt, 0, W // 2, 760, n=50, seed=12, life=2.0, kinds=("coin", "coin", "slip", "bill"))
     s = pop_scale(tt, 0, 0.18, 0.2)
     if s:
-        paste(c, scaled(img("wordmark", 6), s), W // 2, 330)
+        paste(c, scaled(img("wordmark", 6), s), W // 2, 400)
     if tt >= 0.3:
-        paste(c, text("כל הערוצים. משחק אחד.", 8), W // 2, 540)
+        paste(c, text("כל הערוצים. משחק אחד.", 8), W // 2, 610)
     if tt >= 0.8:
-        slam(c, badge("בקרוב"), tt, 0.8, W // 2, 790, angle=-4, frm=2.4)
+        slam(c, badge("בקרוב"), tt, 0.8, W // 2, 860, angle=-4, frm=2.4)
     if tt >= 1.3:
         h = text("@od.sevev", 8)
-        paste(c, plate(h.width + 50, h.height + 26, INK, INK, 6), W // 2, 1010)
-        paste(c, h, W // 2, 1010)
-        paste(c, text("עקבו באינסטגרם", 6, fill=GOLD_HI), W // 2, 1120)
+        paste(c, plate(h.width + 50, h.height + 26, INK, INK, 6), W // 2, 1080)
+        paste(c, h, W // 2, 1080)
+        paste(c, text("עקבו באינסטגרם", 6, fill=GOLD_HI), W // 2, 1190)
     if tt >= 1.9:
-        paste(c, text("סאטירה. לא מטעם אף ערוץ, ואף מפלגה.", 4, fill=(190, 196, 220)), W // 2, 1230)
+        paste(c, text("סאטירה. לא מטעם אף ערוץ, ואף מפלגה.", 4, fill=(190, 196, 220)), W // 2, 1300)
     flash(c, tt, 0, 0.16, 1.0)
 
 
@@ -531,11 +446,10 @@ def frame(t):
     c = Image.new("RGBA", (W, H), INK + (255,))
     if t < HOOK:
         s_hook(c, t)
-        room(c, t)
     elif t < T_F1:
         i, u = seg_at(t)
-        broadcast(c, t, i, u)
-        room(c, t, STORIES[i][0], u)
+        broadcast(c, i, u)
+        c = zap(c, u)
     elif t < T_F2:
         s_reveal(c, t)
     elif t < T_END:
@@ -566,7 +480,7 @@ def audio(path):
         ch, ev, l2 = st[0], st[1], st[4]
         t0 = HOOK + i * SEG
         m.cue(t0 - 0.02, "uiClick_D", -4)
-        m.put(t0, noise(0.14, -18))
+        m.put(t0, noise(0.08, -22))
         m.cue(t0 + 0.3, "slipStamp", -12)
         if ch == 14 and ev == "hat":
             for j in range(5):
@@ -592,7 +506,7 @@ def audio(path):
 def main():
     P.SCRATCH = sys.argv[1]
     if "--stills" in sys.argv:
-        ts = [0.2, 1.3, 3.5] + [HOOK + i * SEG + x for i in range(9) for x in (0.6, 3.2)] + [T_F1 + 1.8, T_F2 + 2.0, T_END + 2.6]
+        ts = [1.3, 3.5] + [HOOK + i * SEG + x for i in range(9) for x in (0.6, 3.2)] + [T_F1 + 1.8, T_F2 + 2.0, T_END + 2.6]
         ims = [frame(x).resize((216, 384)) for x in ts]
         cols = 8
         rows = (len(ims) + cols - 1) // cols

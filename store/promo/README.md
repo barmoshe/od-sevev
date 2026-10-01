@@ -56,12 +56,17 @@ the channel's own style: "ערוצי התבהלה" (the panic channels) is what 
 "מכונת הרעל" is what the other side calls Netanyahu's spin network, 14 included. The open is a fight
 bill (ערוצי התבהלה, נגד, מכונת הרעל); 12 and 13 run a panic meter, 14 a poison meter, and both max out.
 
-A remote zaps 12 → 13 → 14 through the same three game events (the hat, Liberman won't sit, the
+The TV zaps (an old set's collapse-to-a-line) 12 → 13 → 14 through the same three game events (the hat, Liberman won't sit, the
 Knesset dissolves): 12 panics ("פרשננו: הרגע הכי מסוכן. מאז אתמול.", "14 פרשנים. 15 תרחישי אימה."),
 13 investigates nothing ("ארנב. הוא סירב להגיב."), 14 agrees out loud and finds the panic channels
-guilty. 14's ticker: "מד הרעל: 0%. כמו תמיד", under a poison meter at 100%. The reveal: "תבהלה? רעל?",
-three TVs, one parrot (every anchor is Dubi); then the game's own מכונת הרעל source, "בקרוב" and the
-Instagram handle.
+guilty. 14's poison meter is labelled "רעל: 0%" and sits at full. The reveal: "תבהלה? רעל?", the three
+channels side by side, one parrot (every anchor is Dubi); then the game's own מכונת הרעל source,
+"בקרוב" and the Instagram handle.
+
+Design (after "it looks cheap, confusing, overwhelming"): one colour world per channel (12 red and
+white, 13 investigative noir, 14 blue and gold), the channel's number huge and faint on the set, and
+per story only the logo, one meter, one screen, Dubi behind the lower third, and the headline. No
+ticker, no static, no on-screen remote.
 
 The looks are evoked, never copied: colours, shapes and numbers, no real logos, show names or anchors.
 What they rest on (Oct 2026, search results only, page fetches were blocked):
