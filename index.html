@@ -28,17 +28,123 @@
 		<meta name="twitter:description" content="בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה.">
 		<meta name="twitter:image" content="https://od-sevev.vercel.app/og.jpg">
 		<meta name="twitter:image:alt" content="שמונה ראשי רשימות בפיקסלים עומדים בשורה על במה, מעליהם הכיתוב עוד סבב">
+		<link rel="canonical" href="https://od-sevev.vercel.app/">
+		<meta name="robots" content="index,follow,max-image-preview:large">
+		<script type="application/ld+json">
+{"@context":"https://schema.org","@type":["VideoGame","WebApplication"],"name":"עוד סבב","alternateName":"עוד סבב: הבחירות שלא נגמרות","url":"https://od-sevev.vercel.app/","image":"https://od-sevev.vercel.app/og.jpg","description":"בוחרים ראש רשימה, משלמים לשותפים ודוחים את מה שאפשר. סאטירה על כולם, לא קשורה לאף מפלגה.","inLanguage":"he","genre":["Idle","Satire"],"gamePlatform":"Web browser","playMode":"SinglePlayer","applicationCategory":"GameApplication","operatingSystem":"Any","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"ILS"}}
+		</script>
 		<script>
-			// Vercel Web Analytics: cookieless visit counts (visitors, pages, referrers, countries,
-			// devices), read in the Vercel dashboard. Loaded on the deployed host only, so local and
-			// headless test runs never report. window.va queues events until the script arrives.
+			// Analytics (Vercel Web Analytics + Speed Insights): cookieless, no ids, read in the Vercel
+			// dashboard. Loaded on the deployed host only, so local runs never report (the script also
+			// skips webdriver/headless browsers). A visit is the page view of `/`; the milestones of play
+			// go in as virtual page views under /play/ (window.odTrack below), because a page view works on
+			// the Hobby plan and a custom event does not. The Pages panel is then the funnel.
 			window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-			if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
-				var vaScript = document.createElement('script');
-				vaScript.defer = true;
-				vaScript.src = '/_vercel/insights/script.js';
-				document.head.appendChild(vaScript);
-			}
+			window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+			// the Home Screen icon of older installs opens /index.html: count it as /
+			window.va('beforeSend', function (e) {
+				try {
+					var u = new URL(e.url);
+					if (u.pathname === '/index.html') {
+						u.pathname = '/';
+						e.url = u.href;
+					}
+				} catch (x) { /* keep it */ }
+				return e;
+			});
+			(function () {
+				var live = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+				var dev = /[?&]dev=1/.test(location.search);
+				var ready = false;
+				var held = [];
+				// The script reads window.vaq before it sends the visit's own page view, and a queued
+				// virtual one would relabel it: hold the milestones until the script has loaded.
+				function send(step) {
+					window.va('pageview', { path: '/play/' + step, route: '/play/' + step });
+				}
+				function store(k, v) {
+					try {
+						if (v === undefined) {
+							return localStorage.getItem(k);
+						}
+						localStorage.setItem(k, v);
+					} catch (e) { /* private mode: no dedupe, no return visits */ }
+					return null;
+				}
+				var STEP = /^(loaded|load-error|first-tap|first-election|elections-5|return\/d(1|2-7|8-30|30\+)|picked\/[a-z0-9_-]{1,24}|share\/(receipt|result|invite)\/(shared|saved|copied|whatsapp|fallback))$/;
+				var ONCE = { 'first-tap': 1, 'first-election': 1, 'elections-5': 1 };
+				window.odTrackLog = [];
+				window.odTrack = function (step) {
+					try {
+						if (!STEP.test(step)) {
+							return;
+						}
+						if (ONCE[step]) {
+							var seen = JSON.parse(store('odsevev.seen') || '[]');
+							if (seen.indexOf(step) >= 0) {
+								return;
+							}
+							seen.push(step);
+							store('odsevev.seen', JSON.stringify(seen));
+						}
+						window.odTrackLog.push(step);
+						if (live && !dev) {
+							if (ready) {
+								send(step);
+							} else {
+								held.push(step);
+							}
+						}
+					} catch (e) { /* analytics never breaks the game */ }
+				};
+				// The game's funnel events (main.gd _funnel) → steps. No seat or poll numbers here.
+				window.odTrackFunnel = function (e) {
+					if (!e || typeof e.ev !== 'string') {
+						return;
+					}
+					if (e.ev === 'leader_pick_committed' && typeof e.leader === 'string') {
+						window.odTrack('picked/' + e.leader.toLowerCase());
+					} else if (e.ev === 'first_tap') {
+						window.odTrack('first-tap');
+					} else if (e.ev === 'election_called' && e.n === 1) {
+						window.odTrack('first-election');
+					} else if (e.ev === 'election_called' && e.n === 5) {
+						window.odTrack('elections-5');
+					} else if (e.ev === 'share_done') {
+						window.odTrack('share/' + e.kind + '/' + e.result);
+					}
+				};
+				// Return visits: the first and last day on this device; a visit on a new day reports how
+				// many days since the first (bucketed). Nothing leaves the device but the bucket.
+				var d = new Date();
+				var today = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+				var first = store('odsevev.first');
+				var last = store('odsevev.last');
+				if (!first) {
+					store('odsevev.first', today);
+				} else if (last !== today) {
+					var p = first.split('-').map(Number);
+					var days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(p[0], p[1] - 1, p[2])) / 864e5);
+					if (days >= 1) {
+						window.odTrack('return/' + (days === 1 ? 'd1' : days <= 7 ? 'd2-7' : days <= 30 ? 'd8-30' : 'd30+'));
+					}
+				}
+				store('odsevev.last', today);
+				if (live) {
+					var vaScript = document.createElement('script');
+					vaScript.defer = true;
+					vaScript.src = '/_vercel/insights/script.js';
+					vaScript.onload = function () {
+						ready = true;
+						held.splice(0).forEach(send);
+					};
+					document.head.appendChild(vaScript);
+					var siScript = document.createElement('script');
+					siScript.defer = true;
+					siScript.src = '/_vercel/speed-insights/script.js';
+					document.head.appendChild(siScript);
+				}
+			}());
 		</script>
 		<style>
 html, body, #canvas {
@@ -201,6 +307,7 @@ body {
 #od-about .od-card { max-width: 520px; margin: 0 auto; padding: 0 18px; box-sizing: border-box; }
 #od-about h1 { font-size: 22px; margin: 0 0 12px; }
 #od-about h2 { font-size: 18px; margin: 20px 0 8px; }
+#od-about h3 { font-size: 16px; margin: 12px 0 4px; }
 #od-about ul { padding: 0 20px 0 0; margin: 0; text-align: right; }
 #od-about li { margin-bottom: 8px; }
 #od-about .od-src { font-size: 14px; color: #34466e; }
@@ -256,6 +363,13 @@ html.od-framed #od-phone {
 			<p>המשחק לא קשור לאף מפלגה או מועמד, ולא ממומן על ידי אף מפלגה, מועמד או מזוודה.</p>
 			<p>ואין כאן המלצה להצביע לאף אחד.</p>
 			<p>עוד סבב הוא משחק סאטירה. כדי לשחק צריך להפעיל JavaScript.</p>
+			<h2>שאלות נפוצות</h2>
+			<h3>מה זה עוד סבב?</h3>
+			<p>משחק סאטירה בדפדפן על הבחירות לכנסת ב־27.10.2026. בוחרים ראש רשימה, אוספים שקלים, משלמים לשותפים והולכים לבחירות שוב ושוב.</p>
+			<h3>כמה זה עולה?</h3>
+			<p>כלום. אין פרסומות, אין רכישות ואין הרשמה.</p>
+			<h3>איפה משחקים?</h3>
+			<p>בטלפון או במחשב, ישר בדפדפן, בלי להוריד אפליקציה.</p>
 		</noscript>
 
 		<!-- N1 (first launch) / N0 (returning) : ux/rtl-map.md §9 -->
@@ -290,13 +404,20 @@ html.od-framed #od-phone {
 				<p>אין כאן המלצה להצביע לאף אחד, ואין כאן סקרים.</p>
 				<p>אין כאן מה לקנות: אין פרסומות, אין רכישות, אין פרסים.</p>
 				<p>לקראת הבחירות: מ־23.10 ועד סגירת הקלפיות לא יוצגו במשחק מספרי מנדטים.</p>
-				<p>ההתקדמות נשמרת רק במכשיר שלך.</p>
+				<p>ההתקדמות נשמרת רק במכשיר שלך, ונאספים נתוני שימוש אנונימיים.</p>
 				<!-- the invite (first-minute §5.3, Bar 2026-09-29: WhatsApp is the main channel) -->
 				<div class="od-invite">
 					<button id="od-invite" type="button">לשתף את המשחק</button>
 					<a id="od-invite-wa" class="od-btn" href="https://wa.me/" rel="noopener">לשתף בוואטסאפ</a>
 				</div>
 				<div class="od-invite-status" id="od-invite-status" aria-live="polite"></div>
+				<h2>שאלות נפוצות</h2>
+				<h3>מה זה עוד סבב?</h3>
+				<p>משחק סאטירה בדפדפן על הבחירות לכנסת ב־27.10.2026. בוחרים ראש רשימה, אוספים שקלים, משלמים לשותפים והולכים לבחירות שוב ושוב.</p>
+				<h3>כמה זה עולה?</h3>
+				<p>כלום. אין פרסומות, אין רכישות ואין הרשמה.</p>
+				<h3>איפה משחקים?</h3>
+				<p>בטלפון או במחשב, ישר בדפדפן, בלי להוריד אפליקציה.</p>
 				<h2>מקורות וציטוטים</h2>
 				<ul dir="rtl"><li>הבחירות לכנסת נקבעו ל־27.10.2026, בתום קדנציה מלאה.<br><span class="od-src"><bdi>Wikipedia</bdi> · <bdi>2026-10-27</bdi></span> <a href="https://en.wikipedia.org/wiki/2026_Israeli_legislative_election" target="_blank" rel="noopener">למקור</a></li>
 <li>המפלגות החרדיות פרשו מהממשלה ביולי 2025 על רקע המחלוקת על חוק הגיוס.<br><span class="od-src"><bdi>Wikipedia</bdi> · <bdi>2025-07</bdi></span> <a href="https://en.wikipedia.org/wiki/2026_Israeli_legislative_election" target="_blank" rel="noopener">למקור</a></li>
@@ -436,7 +557,7 @@ html.od-framed #od-phone {
 
 		<script>
 // Build stamp (the git commit), written in by tools/build_web.sh; Settings shows it.
-window.mbBuild = '25fd515';
+window.mbBuild = 'a9f1bcf';
 // The deployed origin (OD_SITE_URL, tools/build_web.sh; its default is ShareKit.SITE_URL): the link
 // on the share cards, in the share texts and in the OG tags above.
 window.odSiteUrl = 'https://od-sevev.vercel.app/';
@@ -758,21 +879,25 @@ if ('serviceWorker' in navigator) {
 	const invite = document.getElementById('od-invite');
 	const inviteWa = document.getElementById('od-invite-wa');
 	const inviteStatus = document.getElementById('od-invite-status');
+	const inviteDone = (r) => {
+		window.odShareLog.push(['invite', r]);
+		window.odTrack('share/invite/' + r);
+	};
 	if (inviteWa) {
 		inviteWa.href = 'https://wa.me/?text=' + encodeURIComponent(inviteText);
 		if (!window.odShare.mobile()) {
 			inviteWa.target = '_blank';
 		}
-		inviteWa.addEventListener('click', () => window.odShareLog.push(['invite', 'whatsapp']));
+		inviteWa.addEventListener('click', () => inviteDone('whatsapp'));
 	}
 	if (invite) {
 		invite.addEventListener('click', () => {
 			const copied = () => window.odShare.copy(inviteText).then((ok) => {
 				inviteStatus.textContent = ok ? 'הקישור הועתק.' : 'השיתוף לא עבד. נסה שוב.';
-				window.odShareLog.push(['invite', ok ? 'copied' : 'fail']);
+				inviteDone(ok ? 'copied' : 'fail');
 			});
 			if (navigator.share) {
-				navigator.share({ text: inviteText }).then(() => window.odShareLog.push(['invite', 'shared']), (e) => {
+				navigator.share({ text: inviteText }).then(() => inviteDone('shared'), (e) => {
 					if (!(e && e.name === 'AbortError')) {
 						copied();
 					}
@@ -790,7 +915,7 @@ if ('serviceWorker' in navigator) {
 		</script>
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":20431320,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":20432008,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 
 // The canvas size is the shell's (od-sevev): a phone gets the whole window, a desktop window a
@@ -976,10 +1101,14 @@ window.mbSafeArea = function () {
 			},
 		}).then(() => {
 			setStatusMode('hidden');
+			window.odTrack('loaded');
 			if (window.odGateReady) {
 				window.odGateReady();
 			}
-		}, displayFailureNotice);
+		}, (err) => {
+			window.odTrack('load-error');
+			displayFailureNotice(err);
+		});
 	}
 }());
 		</script>
