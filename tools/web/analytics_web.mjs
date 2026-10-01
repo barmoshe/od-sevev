@@ -60,6 +60,9 @@ const head = await page.evaluate(() => {
 		aboutLink: !!document.querySelector('#od-about a[href="about.html"]'),
 		mailto: !!document.querySelector('#od-about a[href="mailto:1barmoshe1@gmail.com"]'),
 		title: document.title,
+		h1s: [...document.querySelectorAll('h1')].map((x) => x.textContent),
+		headSizes: ['od-title', 'od-about-title'].map((id) => { const el = document.getElementById(id); el.closest('[hidden]') && el.closest('[hidden]').removeAttribute('hidden'); return el.tagName + ':' + getComputedStyle(el).fontSize; }),
+		splashAlt: (document.getElementById('status-splash') || {}).alt || '',
 		description: (document.querySelector('meta[name="description"]') || {}).content || '',
 		left: (document.documentElement.innerHTML.match(/\{\{[A-Z0-9_]+\}\}/g) || []),
 	};
@@ -70,6 +73,9 @@ check(!!head.json && head.json['@type'].includes('VideoGame') && head.json.inLan
 	&& head.json.offers.price === '0', `JSON-LD parses: VideoGame, he, a description, free (${head.json && head.json.description})`);
 check(head.faqAbout === 5, `About carries the five FAQ questions (${head.faqAbout})`);
 check(head.aboutLink, 'About links to about.html');
+check(head.h1s.length === 1 && head.h1s[0].includes('משחק הבחירות'), `one h1, the game's name (${head.h1s.join(' | ')})`);
+check(head.headSizes.every((x) => x === 'H2:22px'), `the dialogs' titles are h2 at the old size (${head.headSizes})`);
+check(head.splashAlt === 'עוד סבב', `the loading splash has alt text (${head.splashAlt})`);
 check(head.about.includes('בר משה') && head.mailto, 'About names its maker, with the mail as a link');
 check(head.title.includes('משחק הבחירות') && head.title.includes('2026'), `the title carries the search words (${head.title})`);
 check(head.description.startsWith('משחק בחירות סאטירי'), `meta description is META_DESCRIPTION (${head.description})`);
