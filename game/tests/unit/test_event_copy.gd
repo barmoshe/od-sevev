@@ -360,3 +360,28 @@ func test_the_ability_chip_walks_ben_gvir_out() -> void:
 	m._last_tap_ms = -1.0e9
 	_tap_leader()
 	runner.check(m.toasts._queue.has(str(Ability.copy(m.state)["tapPaused"])), "a tap while he is out says so (%s)" % str(m.toasts._queue))
+
+
+## Leaders v3 phase 3a: Netanyahu's unity offer turns the chip into "לא" for its window; a tap on it
+## refuses, and the toast is the leader's own refusal (kit.unity.refuse).
+func test_the_ability_chip_refuses_the_unity_offer() -> void:
+	await _boot()
+	runner.check(_start_round("liberman"), "Liberman's round starts")
+	Ability.st(m.state)["uNext"] = 0.0
+	m.toasts._queue.clear()
+	for i in 3:
+		m._process(0.016)
+	runner.check(Ability.unity_open(m.state), "the offer is up")
+	var offer := str(Ability.unity_copy(m.state)["toastOffer"])
+	runner.check(m.toasts._queue.has(offer) or (m.toasts._text != null and m.toasts._text.text == offer), "the offer toast (%s)" % str(m.toasts._queue))
+	runner.check(m.ability_chip.visible and m.ability_chip.takes_tap(m.ability_chip.hit_rect().get_center()), "the chip is up and takes the tap")
+	m.toasts._queue.clear()
+	var at: Vector2 = m.ability_chip.hit_rect().get_center() + Vector2(m._sx, m._stage_y)
+	for pressed in [true, false]:
+		var e := InputEventScreenTouch.new()
+		e.position = at
+		e.pressed = pressed
+		m._unhandled_input(e)
+	runner.check(not Ability.unity_open(m.state), "a tap on the chip: the offer is gone")
+	runner.check(is_equal_approx(Leaders.stat(m.state, "liberman", "unityRefusals"), 1.0), "the refusal is counted")
+	runner.check(m.toasts._queue.has(Ability.unity_refuse_line(m.state)), "Liberman's own refusal toast (%s)" % str(m.toasts._queue))
