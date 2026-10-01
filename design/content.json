@@ -2117,7 +2117,13 @@
     "kaia"
    ],
    "copy": {
-    "ticker": "כאיה נשכה שר. השר החמיץ הצבעה. כאיה קיבלה מלפפון."
+    "name": "כאיה",
+    "toast": true,
+    "text": "כאיה יצאה לסיבוב בבלפור. מלפפון? לגעת בה.",
+    "feedText": "כאיה קיבלה מלפפון. ההקשות כפולות ל־{sec} שניות.",
+    "nipText": "כאיה נשכה שר. {name} מחוץ להצבעה לדקה.",
+    "nipTicker": "כאיה נשכה שר. השר החמיץ הצבעה. כאיה קיבלה מלפפון.",
+    "_note": "2026-10-01: KaiaFigure (placeholder art drawn in code until a kaia sprite exists). A tap feeds her (Events.act kaia feed → kaiaBuff); ignored, she nips (kaiaNip → nipText + nipTicker). Still behind flags.easterEggs."
    }
   },
   {

@@ -139,10 +139,10 @@ func test_a_card_event_toasts_its_name_face_and_line() -> void:
 func test_a_stage_event_runs_its_ticker_line() -> void:
 	await _boot()
 	runner.check(_start_round(), "Bibi's round starts")
-	var line := str(Events.event("kaia")["copy"]["ticker"])
-	m._on_card_event({"ev": "event", "id": "kaia", "kind": "stage", "result": {}})
+	var line := str(Events.event("pinkfront")["copy"]["ticker"])
+	m._on_card_event({"ev": "event", "id": "pinkfront", "kind": "stage", "result": {}})
 	var q: Array = m.ticker._queues["flavor"]
-	runner.check(str(q).contains(line), "Kaia's line is queued in the ticker (%s)" % str(q))
+	runner.check(str(q).contains(line), "the Pink Front's line is queued in the ticker (%s)" % str(q))
 
 
 # ------------------------------------------------------------------ Herzog's outline (events.herzog)
@@ -217,3 +217,45 @@ func test_herzog_shrugs_when_ignored() -> void:
 	Events._st(s)["active"] = (Events._st(s)["active"] as Array).filter(func(a: Dictionary) -> bool: return a["type"] != "mediation")
 	m._process(0.05)
 	runner.check(m.herzog.state == "shrug" and m.herzog.strip.anim == "react", "the outline lapsed: he shrugs (the react)")
+
+
+# ------------------------------------------------------------------ Kaia (events.kaia, placeholder art)
+
+func test_kaia_trots_in_and_a_tap_feeds_her() -> void:
+	await _boot()
+	runner.check(_start_round(), "Bibi's round starts")
+	var s: GameState = m.state
+	_members(s, ["amsalem", "smotrich", "bengvir"])
+	m.kaia.reduced_motion = true
+	m._on_politics_event(Events.fire(s, "kaia", m.d))
+	var c: Dictionary = Events.event("kaia")["copy"]
+	runner.check(m.toasts._queue.has(str(c["text"])), "her line is toasted on arrival (%s)" % str(m.toasts._queue))
+	runner.check(not str(m.ticker._queues["flavor"]).contains(str(c["nipTicker"])), "the nip headline waits for a nip")
+	for i in 3:
+		m._process(0.05)
+	var k: KaiaFigure = m.kaia
+	runner.check(m.diorama.era_id() == "balfour" and k.visible and k.tappable() and k.position == KaiaFigure.mark(), "she stands on the front-left mark in Balfour")
+	var at: Vector2 = k.hit_rect().get_center() + Vector2(m._sx, m._stage_y)
+	for pressed in [true, false]:
+		var e := InputEventScreenTouch.new()
+		e.position = at
+		e.pressed = pressed
+		m._unhandled_input(e)
+	runner.check(not Events.is_active(s, "kaia") and Events.is_active(s, "kaiaBuff"), "a tap feeds her: the nip becomes the tap buff")
+	var want := Bidi.fill(str(c["feedText"]), {"sec": str(int(Events.event("kaia")["effect"]["buffSec"]))})
+	runner.check(m.toasts._queue.has(want) or (m.toasts._text != null and m.toasts._text.text == want), "the cucumber line is toasted (%s)" % want)
+	runner.check(k.state == "fed", "she holds the cucumber")
+	for i in 25:
+		m._process(0.05)
+	runner.check(not k.visible, "then she trots off")
+
+
+func test_an_ignored_kaia_nip_is_toasted_and_headlined() -> void:
+	await _boot()
+	runner.check(_start_round(), "Bibi's round starts")
+	var c: Dictionary = Events.event("kaia")["copy"]
+	m.toasts._queue.clear()
+	m._on_politics_event({"ev": "kaiaNip", "partner": "amsalem"})
+	var want := Bidi.fill(str(c["nipText"]), {"name": ChatView.partner_name("amsalem")})
+	runner.check(m.toasts._queue.has(want), "the nip names the minister (%s)" % str(m.toasts._queue))
+	runner.check(str(m.ticker._queues["flavor"]).contains(str(c["nipTicker"])), "and the nip headline runs")

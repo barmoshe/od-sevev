@@ -331,7 +331,7 @@ def sr_audio(path):
     seg = P.music_seg(os.path.join(P.GAMEPLAY, "music", "glitch-warfare.wav"), 34.10, SR_STOP)
     m.put(0, seg, -4)
     for j in range(int(SR_STOP / 0.11)):
-        m.cue(j * 0.11, "tap_D_s%d_d12" % (j % 8), -16)
+        m.cue(j * 0.11, k.tap_note(j % 8), -16)
     for vs, *_ in SR_PLAY:
         m.cue(vs, "critReact_D_whoosh", -6)
     m.cue(SR_STOP, "ultimatumZero_D", 0)
@@ -400,7 +400,7 @@ def tap_frame(t):
 def tap_audio(path):
     m = P.Mix(TAP_DUR)
     for j, x in enumerate(tap_times()):
-        m.cue(x, "tap_D_s%d_d25" % min(7, j // 6), -4)
+        m.cue(x, k.tap_note(min(7, j // 6)), -4)
         if j % 3 == 0:
             m.cue(x, "coin_D_a" if j % 2 else "coin_D_b", -10)
     m.cue(TAP_DRAIN, "chatPing_D_benGvir", 0)

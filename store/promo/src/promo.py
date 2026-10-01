@@ -529,7 +529,7 @@ def select_audio(path):
     m.cue(BAR2 * 10 + 0.3, "stamp_bell", -2)
     m.cue(BAR2 * 11, "stamp", -3)
     for j in range(8):
-        m.cue(BAR2 * 12 + j * BEAT2, "tap_D_s%d_d25" % (j % 8), -6)
+        m.cue(BAR2 * 12 + j * BEAT2, k.tap_note(j % 8), -6)
     m.cue(BAR2 * 14, "stinger_motif_D", -2)
     m.write(path, 0.6)
 
@@ -754,7 +754,7 @@ def fakead_audio(path):
     real = k.load_wav("music_knesset_L0") + k.load_wav("music_knesset_L1") + k.load_wav("music_knesset_L2")
     m.put(F_REAL, real[: int((F_END - F_REAL) * SR)], -8)
     for j in range(8):
-        m.cue(F_REAL + j * 0.45, "tap_D_s%d_d25" % j, -6)
+        m.cue(F_REAL + j * 0.45, k.tap_note(j), -6)
     m.cue(F_END, "stinger_motif_D", -2)
     m.cue(F_END + 1.9, "uiClick_D", 0)
     m.cue(F_END + 1.95, "stamp_bell", -1)

@@ -83,6 +83,7 @@ var diorama: Diorama
 var street: StreetFigure        # Mordechai David on the Balfour stage (design/mordechai-david-spec.md)
 var sara: SaraMark              # Sara on the Balfour stage, Bibi's round (motion/state-graph-cast.md §3)
 var herzog: HerzogFigure        # President Herzog's compromise outline (events.herzog, effect "mediation")
+var kaia: KaiaFigure            # Kaia on the Balfour stage (events.kaia): a tap feeds her (placeholder art)
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
 var bb: BigBanana
 var prop_fx: PropFx                 # the Magician's coins and rabbit
@@ -391,6 +392,8 @@ func _build() -> void:
 	diorama.street_layer().add_child(sara)
 	herzog = HerzogFigure.new()
 	diorama.street_layer().add_child(herzog)
+	kaia = KaiaFigure.new()
+	diorama.street_layer().add_child(kaia)
 	bb = BigBanana.new()
 	_stage.add_child(bb)
 	prop_fx = PropFx.new()
@@ -843,6 +846,8 @@ func _apply_settings() -> void:
 	street.reduced_motion = rm
 	if herzog != null:
 		herzog.reduced_motion = rm
+	if kaia != null:
+		kaia.reduced_motion = rm
 	floaters.reduced_motion = rm
 	top_bar.set_reduced_motion(rm)
 	buffs.set_reduced_motion(rm)
@@ -1144,6 +1149,7 @@ func _process(delta: float) -> void:
 	street.update_view(dt, state, running)   # any stage since 2026-10-01 (Bar): he comes every minute, 45%
 	sara.update_view(dt, state, running and diorama.era_id() == "balfour")
 	herzog.update_view(dt, state, running)
+	kaia.update_view(dt, state, running and diorama.era_id() == "balfour")
 	floaters.update_view(dt)
 	fx_stage.update_view(dt)
 	fx_ui.update_view(dt)
@@ -1520,6 +1526,12 @@ func _on_politics_event(e: Dictionary) -> void:
 				var endc := StreetFigure.copy_for(Leaders.current(state), str(Leaders.leader(Leaders.current(state)).get("side", "")))
 				toasts.show_toast(StreetFigure.fill(str(endc.get("endText", "")), _street_partner), "", "lane")
 				_street_partner = ""
+		"kaiaNip":
+			# Kaia was ignored: a minister got nipped and misses the vote (Events._tick_active)
+			var kc: Dictionary = Events.event("kaia").get("copy", {}) if Events.event("kaia").get("copy") is Dictionary else {}
+			toasts.show_toast(Bidi.fill(str(kc.get("nipText", "")), {"name": ChatView.partner_name(str(e.get("partner", "")))}), "", "lane")
+			if str(kc.get("nipTicker", "")) != "":
+				ticker.enqueue("flavor", str(kc["nipTicker"]))
 		"summons":
 			_audio("courtSummons")
 			if Leaders.has_court():
@@ -1586,6 +1598,19 @@ func _accept_mediation() -> void:
 	var c: Dictionary = Events.event("herzog").get("copy", {}) if Events.event("herzog").get("copy") is Dictionary else {}
 	var key := "acceptText" if int(r.get("cut", 0)) > 0 else "acceptNone"
 	toasts.show_toast(Bidi.fill(str(c.get(key, "")), {"pct": str(int(r.get("pct", 0)))}), "", "lane")
+	_audio("stamp")
+	_mark_dirty()
+
+
+## A tap on Kaia while she is out (KaiaFigure): the cucumber. Events.act("kaia", "feed") swaps her nip
+## for the kaiaBuff tap multiplier; she trots off and the toast says how long it lasts.
+func _feed_kaia() -> void:
+	var r := Events.act(state, "kaia", "feed", d)
+	if r.is_empty():
+		return
+	kaia.feed()
+	var c: Dictionary = Events.event("kaia").get("copy", {}) if Events.event("kaia").get("copy") is Dictionary else {}
+	toasts.show_toast(Bidi.fill(str(c.get("feedText", "")), {"sec": str(int(r.get("buffSec", 0)))}), "", "lane")
 	_audio("stamp")
 	_mark_dirty()
 
@@ -1899,6 +1924,9 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		return
 	if herzog.tappable() and Ui.in_rect(herzog.hit_rect(), sp):
 		_accept_mediation()
+		return
+	if kaia.tappable() and Ui.in_rect(kaia.hit_rect(), sp):
+		_feed_kaia()
 		return
 	if golden.hit_test(sp):
 		_catch_golden()
