@@ -206,9 +206,9 @@
 						c.addEventListener('webglcontextlost', function () { window.odTrack('ctx-lost'); });
 					}
 				});
-				// The scripts load through first-party paths (tools/web/vercel.json rewrites /k7 and /k8 to
-				// /_vercel/insights and /_vercel/speed-insights; blocker lists name the /_vercel paths), and
-				// fall back to the /_vercel paths if the rewrite ever fails. Bar 2026-10-01.
+				// The scripts stay on /_vercel: a vercel.json rewrite to them returns 404 on a static
+				// deploy (tried 2026-10-01), and an absolute-URL proxy would make Vercel the visitor (one
+				// IP, one country). The only blocker-proof path is @vercel/analytics v2's build-time one.
 				function load(src, endpoint, fallback, onload) {
 					var el = document.createElement('script');
 					el.defer = true;
@@ -221,11 +221,11 @@
 					document.head.appendChild(el);
 				}
 				if (live) {
-					load('/k7/script.js', '/k7', '/_vercel/insights/script.js', function () {
+					load('/_vercel/insights/script.js', '', '', function () {
 						ready = true;
 						held.splice(0).forEach(send);
 					});
-					load('/k8/script.js', '/k8/vitals', '/_vercel/speed-insights/script.js');
+					load('/_vercel/speed-insights/script.js', '', '');
 				}
 			}());
 		</script>
