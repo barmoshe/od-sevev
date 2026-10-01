@@ -1,3 +1,5 @@
+> **Copy audit, 2026-10-01 (character-copy session): done and live (`a9e5aa9`).** Every signature was checked against sources; the before/after table, the parallel research cross-check and the open items (store videos still show Deri's "ידידי" and the coffee; optional swaps: Deri's "הדלת והחלון", Smotrich's "יש כסף, לא לך") are in `design/copy-audit-2026-10-01.md`.
+
 > **Two sessions ran at the same time on 2026-09-30 and both handed off:** the store-videos session
 > (this first section) and the character-copy session (the next section). Neither is newer; both are
 > current. Read both before starting.
