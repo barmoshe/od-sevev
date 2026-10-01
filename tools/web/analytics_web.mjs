@@ -76,7 +76,7 @@ check(head.description.startsWith('משחק בחירות סאטירי'), `meta d
 check(!!head.json && head.json.author && head.json.author.name === 'בר משה' && /^\d{4}-\d\d-\d\d$/.test(head.json.dateModified || ''),
 	`JSON-LD names the author and a dateModified (${head.json && head.json.dateModified})`);
 
-// 1b. the static About page (crawlers that run no JS read it)
+// 1b. the static About page (crawlers that run no JS read it; its one script counts the visit)
 const ap = await page.evaluate(async () => {
 	const r = await fetch('about.html');
 	const t = await r.text();
@@ -91,7 +91,7 @@ const ap = await page.evaluate(async () => {
 check(ap.status === 200 && ap.h1.includes('משחק הבחירות'), `about.html serves its h1 (${ap.status}, ${ap.h1})`);
 check(ap.lead.startsWith('עוד סבב הוא משחק דפדפן'), 'about.html opens on the direct answer');
 check(ap.faq === 5 && ap.ld === 'FAQPage:5', `about.html: 5 FAQ questions, FAQPage JSON-LD (${ap.faq}, ${ap.ld})`);
-check(ap.left.length === 0 && ap.scripts === 0, `about.html: no placeholder, no script (${ap.left.join(', ')})`);
+check(ap.left.length === 0 && ap.scripts === 1, `about.html: no placeholder, only the page-view script (${ap.left.join(', ')}; ${ap.scripts})`);
 check(/\/about\.html$/.test(ap.canonical), `about.html canonical (${ap.canonical})`);
 check(head.about.includes('נתוני שימוש אנונימיים'), 'About says anonymous usage data is collected (ABOUT_7_TELEMETRY)');
 check(head.left.length === 0, `no placeholder left in the page (${head.left.join(', ')})`);
@@ -104,6 +104,8 @@ const rewritten = await page.evaluate(() => {
 check(rewritten === 'https://x.test/?dev=1', `beforeSend maps /index.html to / (${rewritten})`);
 const queuedViews = await page.evaluate(() => (window.vaq || []).filter((a) => a[0] === 'pageview').length);
 check(queuedViews === 0, `no page view is queued on localhost (${queuedViews})`);
+const loaders = await page.evaluate(() => [...document.querySelectorAll('script[src]')].map((x) => x.getAttribute('src')).filter((x) => /k7|k8|_vercel/.test(x)));
+check(loaders.length === 0, `no analytics script is loaded on localhost (${loaders})`);
 
 // 3. the load and the return visit
 await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });

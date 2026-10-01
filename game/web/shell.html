@@ -206,19 +206,26 @@
 						c.addEventListener('webglcontextlost', function () { window.odTrack('ctx-lost'); });
 					}
 				});
+				// The scripts load through first-party paths (tools/web/vercel.json rewrites /k7 and /k8 to
+				// /_vercel/insights and /_vercel/speed-insights; blocker lists name the /_vercel paths), and
+				// fall back to the /_vercel paths if the rewrite ever fails. Bar 2026-10-01.
+				function load(src, endpoint, fallback, onload) {
+					var el = document.createElement('script');
+					el.defer = true;
+					el.src = src;
+					if (endpoint) {
+						el.dataset.endpoint = endpoint;
+					}
+					el.onload = onload || null;
+					el.onerror = fallback ? function () { load(fallback, '', '', onload); } : null;
+					document.head.appendChild(el);
+				}
 				if (live) {
-					var vaScript = document.createElement('script');
-					vaScript.defer = true;
-					vaScript.src = '/_vercel/insights/script.js';
-					vaScript.onload = function () {
+					load('/k7/script.js', '/k7', '/_vercel/insights/script.js', function () {
 						ready = true;
 						held.splice(0).forEach(send);
-					};
-					document.head.appendChild(vaScript);
-					var siScript = document.createElement('script');
-					siScript.defer = true;
-					siScript.src = '/_vercel/speed-insights/script.js';
-					document.head.appendChild(siScript);
+					});
+					load('/k8/script.js', '/k8/vitals', '/_vercel/speed-insights/script.js');
 				}
 			}());
 		</script>

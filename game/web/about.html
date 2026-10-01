@@ -32,6 +32,22 @@
 {"@type":"Question","name":{{FAQ_Q4_JSON}},"acceptedAnswer":{"@type":"Answer","text":{{FAQ_A4_JSON}}}},
 {"@type":"Question","name":{{FAQ_Q5_JSON}},"acceptedAnswer":{"@type":"Answer","text":{{FAQ_A5_JSON}}}}]}
 		</script>
+		<script>
+			// visits of this page (Vercel Web Analytics, cookieless; shell.html has the whole layer):
+			// the first-party path with the /_vercel fallback, the deployed host only
+			if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+				(function load(src, endpoint, fallback) {
+					var el = document.createElement('script');
+					el.defer = true;
+					el.src = src;
+					if (endpoint) {
+						el.dataset.endpoint = endpoint;
+					}
+					el.onerror = fallback ? function () { load(fallback, '', ''); } : null;
+					document.head.appendChild(el);
+				}('/k7/script.js', '/k7', '/_vercel/insights/script.js'));
+			}
+		</script>
 		<style>
 body { margin: 0; background: #f7f4ec; color: #0f2350; font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
 	font-size: 16px; line-height: 1.5; }
