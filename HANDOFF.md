@@ -51,11 +51,18 @@ Every item of the leaders-v3 handoff below (phases 3a/3b, trophies and squawks, 
 1. **Bar plays the build.** Then run the full test pass: the web drivers (`tools/web/*.mjs`,
    Playwright with the pre-installed Chromium) and `tools/balance.sh`. Its last run was cut short by a
    container restart; L1 passed.
-2. **Unwired art:**
+2. **The full bench** (`tools/balance.sh`, about 25 min, runs in the background): 3 failures.
+   - Two predate this session (they fail on `5eaecd5` too):
+     - the browser-replay test (bench 40:24 vs browser 25:16);
+     - G1 alwaysPostpone dominates (1.47 then, 1.30 now).
+   - One is new: G1 aideDropper at a median base ratio of 1.06, marginal.
+   - Look at Bibi's aide drop and postpone economics (`test_politics_balance.gd`) before the next
+     balance pass.
+3. **Unwired art:**
    - `prop_round-table`, `prop_pledge-scroll`, `prop_budget-book` and `prop_clause-doc` have no hook
      yet.
    - Ben Gvir's walk-out pose isn't played, because the court walk ends a pose.
-3. **Bar only** (from the analytics handoff):
+4. **Bar only** (from the analytics handoff):
    - Search Console indexing for `/` and `/about.html`;
    - the press pitch;
    - deleting `dpl_aas8f96abYdAJdkMHYQp21BrCws8`;
