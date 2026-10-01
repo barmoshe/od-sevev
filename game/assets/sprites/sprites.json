@@ -9850,6 +9850,466 @@
    ],
    "origin": "hand-drawn",
    "density": 1
+  },
+  "bennett-sign": {
+   "frameW": 145,
+   "frameH": 289,
+   "anchor": [
+    60,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "texture": "cast/bennett-sign_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 97,
+     "frameH": 193,
+     "anchor": [
+      40,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "texture": "cast/bennett-sign_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
+  },
+  "ben-gvir-walkout": {
+   "frameW": 167,
+   "frameH": 289,
+   "anchor": [
+    97,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "texture": "cast/ben-gvir-walkout_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 112,
+     "frameH": 193,
+     "anchor": [
+      65,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "texture": "cast/ben-gvir-walkout_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
+  },
+  "ben-gvir-back": {
+   "frameW": 190,
+   "frameH": 289,
+   "anchor": [
+    96,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "texture": "cast/ben-gvir-back_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 128,
+     "frameH": 193,
+     "anchor": [
+      64,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "texture": "cast/ben-gvir-back_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
+  },
+  "liberman-document": {
+   "frameW": 161,
+   "frameH": 289,
+   "anchor": [
+    76,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "texture": "cast/liberman-document_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 108,
+     "frameH": 193,
+     "anchor": [
+      51,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "texture": "cast/liberman-document_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
+  },
+  "eisenkot-summit": {
+   "frameW": 182,
+   "frameH": 289,
+   "anchor": [
+    104,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "texture": "cast/eisenkot-summit_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 122,
+     "frameH": 193,
+     "anchor": [
+      70,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "texture": "cast/eisenkot-summit_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
+  },
+  "smotrich-budget": {
+   "frameW": 167,
+   "frameH": 290,
+   "anchor": [
+    81,
+    289
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "texture": "cast/smotrich-budget_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 113,
+     "frameH": 194,
+     "anchor": [
+      55,
+      193
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "texture": "cast/smotrich-budget_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
+  },
+  "deri-bench": {
+   "frameW": 192,
+   "frameH": 277,
+   "anchor": [
+    95,
+    276
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "texture": "cast/deri-bench_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 128,
+     "frameH": 185,
+     "anchor": [
+      63,
+      184
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "texture": "cast/deri-bench_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
+  },
+  "golan-swipe": {
+   "frameW": 113,
+   "frameH": 289,
+   "anchor": [
+    68,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "texture": "cast/golan-swipe_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 76,
+     "frameH": 193,
+     "anchor": [
+      46,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "texture": "cast/golan-swipe_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
+  },
+  "bibi-matchmaker": {
+   "frameW": 194,
+   "frameH": 289,
+   "anchor": [
+    98,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "pose": {
+     "texture": "cast/bibi-matchmaker_pose.png",
+     "frames": 2,
+     "fps": 2,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 131,
+     "frameH": 193,
+     "anchor": [
+      66,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "pose": {
+       "texture": "cast/bibi-matchmaker_pose_d2.png",
+       "frames": 2,
+       "fps": 2,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
+  },
+  "kaia": {
+   "frameW": 68,
+   "frameH": 73,
+   "anchor": [
+    34,
+    72
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/kaia_idle.png",
+     "frames": 2,
+     "fps": 4,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    },
+    "happy": {
+     "texture": "cast/kaia_happy.png",
+     "frames": 2,
+     "fps": 6,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 2,
+     "rows": 1
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 46,
+     "frameH": 49,
+     "anchor": [
+      23,
+      48
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/kaia_idle_d2.png",
+       "frames": 2,
+       "fps": 4,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      },
+      "happy": {
+       "texture": "cast/kaia_happy_d2.png",
+       "frames": 2,
+       "fps": 6,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 2,
+       "rows": 1
+      }
+     }
+    }
+   }
   }
  },
  "aliases": {
@@ -9866,7 +10326,25 @@
   "mordechaidavid": "mordechai-david",
   "mordechai_david": "mordechai-david",
   "dubimic": "dubi-mic",
-  "dubi_mic": "dubi-mic"
+  "dubi_mic": "dubi-mic",
+  "bennettsign": "bennett-sign",
+  "bennett_sign": "bennett-sign",
+  "bengvirwalkout": "ben-gvir-walkout",
+  "ben_gvir_walkout": "ben-gvir-walkout",
+  "bengvirback": "ben-gvir-back",
+  "ben_gvir_back": "ben-gvir-back",
+  "libermandocument": "liberman-document",
+  "liberman_document": "liberman-document",
+  "eisenkotsummit": "eisenkot-summit",
+  "eisenkot_summit": "eisenkot-summit",
+  "smotrichbudget": "smotrich-budget",
+  "smotrich_budget": "smotrich-budget",
+  "deribench": "deri-bench",
+  "deri_bench": "deri-bench",
+  "golanswipe": "golan-swipe",
+  "golan_swipe": "golan-swipe",
+  "bibimatchmaker": "bibi-matchmaker",
+  "bibi_matchmaker": "bibi-matchmaker"
  },
  "props": {
   "bill": "prop_bill",
@@ -9876,7 +10354,30 @@
   "coin3": "prop_coin3",
   "hat": "prop_hat",
   "rabbit": "prop_rabbit",
-  "spark": "prop_spark"
+  "spark": "prop_spark",
+  "ability_bengvir": "prop_ability_bengvir",
+  "ability_bengvir_d2": "prop_ability_bengvir_d2",
+  "ability_bennett": "prop_ability_bennett",
+  "ability_bennett_d2": "prop_ability_bennett_d2",
+  "ability_bibi": "prop_ability_bibi",
+  "ability_bibi_d2": "prop_ability_bibi_d2",
+  "ability_deri": "prop_ability_deri",
+  "ability_deri_d2": "prop_ability_deri_d2",
+  "ability_eisenkot": "prop_ability_eisenkot",
+  "ability_eisenkot_d2": "prop_ability_eisenkot_d2",
+  "ability_golan": "prop_ability_golan",
+  "ability_golan_d2": "prop_ability_golan_d2",
+  "ability_liberman": "prop_ability_liberman",
+  "ability_liberman_d2": "prop_ability_liberman_d2",
+  "ability_smotrich": "prop_ability_smotrich",
+  "ability_smotrich_d2": "prop_ability_smotrich_d2",
+  "budget-book": "prop_budget-book",
+  "cardboard-box": "prop_cardboard-box",
+  "clause-doc": "prop_clause-doc",
+  "corridor-bench": "prop_corridor-bench",
+  "pledge-scroll": "prop_pledge-scroll",
+  "podium": "prop_podium",
+  "round-table": "prop_round-table"
  },
  "stages": {
   "balfour": {
@@ -19365,6 +19866,366 @@
     66,
     16
    ]
+  },
+  "cast/ben-gvir-back_pose.png": {
+   "bytes": 99875,
+   "sha": "41ce0ed2fdca82d0",
+   "size": [
+    380,
+    289
+   ]
+  },
+  "cast/ben-gvir-back_pose_d2.png": {
+   "bytes": 52789,
+   "sha": "daf08136f0ac20b2",
+   "size": [
+    256,
+    193
+   ]
+  },
+  "cast/ben-gvir-walkout_pose.png": {
+   "bytes": 87667,
+   "sha": "cb0c9a18fae152eb",
+   "size": [
+    334,
+    289
+   ]
+  },
+  "cast/ben-gvir-walkout_pose_d2.png": {
+   "bytes": 44247,
+   "sha": "8c5856f9c136b775",
+   "size": [
+    224,
+    193
+   ]
+  },
+  "cast/bennett-sign_pose.png": {
+   "bytes": 74144,
+   "sha": "3c008e58b388305d",
+   "size": [
+    290,
+    289
+   ]
+  },
+  "cast/bennett-sign_pose_d2.png": {
+   "bytes": 40060,
+   "sha": "90b927fe3d9ec956",
+   "size": [
+    194,
+    193
+   ]
+  },
+  "cast/bibi-matchmaker_pose.png": {
+   "bytes": 83654,
+   "sha": "8c525519c78fc181",
+   "size": [
+    388,
+    289
+   ]
+  },
+  "cast/bibi-matchmaker_pose_d2.png": {
+   "bytes": 43096,
+   "sha": "0f761840ed92cda9",
+   "size": [
+    262,
+    193
+   ]
+  },
+  "cast/deri-bench_pose.png": {
+   "bytes": 101143,
+   "sha": "97eff767acd1b791",
+   "size": [
+    384,
+    277
+   ]
+  },
+  "cast/deri-bench_pose_d2.png": {
+   "bytes": 50752,
+   "sha": "de0e6242ad5520d4",
+   "size": [
+    256,
+    185
+   ]
+  },
+  "cast/eisenkot-summit_pose.png": {
+   "bytes": 84913,
+   "sha": "6b31311c8f422e1d",
+   "size": [
+    364,
+    289
+   ]
+  },
+  "cast/eisenkot-summit_pose_d2.png": {
+   "bytes": 45452,
+   "sha": "7e6a209b7b2e9497",
+   "size": [
+    244,
+    193
+   ]
+  },
+  "cast/golan-swipe_pose.png": {
+   "bytes": 62645,
+   "sha": "5256eafe52efab93",
+   "size": [
+    226,
+    289
+   ]
+  },
+  "cast/golan-swipe_pose_d2.png": {
+   "bytes": 33404,
+   "sha": "6a7809ce2c4efb27",
+   "size": [
+    152,
+    193
+   ]
+  },
+  "cast/kaia_happy.png": {
+   "bytes": 7338,
+   "sha": "2c80782e38b2c693",
+   "size": [
+    136,
+    73
+   ]
+  },
+  "cast/kaia_happy_d2.png": {
+   "bytes": 4053,
+   "sha": "1c733db64b8dba27",
+   "size": [
+    92,
+    49
+   ]
+  },
+  "cast/kaia_idle.png": {
+   "bytes": 7684,
+   "sha": "2011b386131c9a5f",
+   "size": [
+    136,
+    73
+   ]
+  },
+  "cast/kaia_idle_d2.png": {
+   "bytes": 4102,
+   "sha": "36f1c2c38e48077f",
+   "size": [
+    92,
+    49
+   ]
+  },
+  "cast/liberman-document_pose.png": {
+   "bytes": 79155,
+   "sha": "a46427c8e76867bb",
+   "size": [
+    322,
+    289
+   ]
+  },
+  "cast/liberman-document_pose_d2.png": {
+   "bytes": 43023,
+   "sha": "48ba24a6a4beaee7",
+   "size": [
+    216,
+    193
+   ]
+  },
+  "cast/smotrich-budget_pose.png": {
+   "bytes": 95909,
+   "sha": "2d542d8976f93612",
+   "size": [
+    334,
+    290
+   ]
+  },
+  "cast/smotrich-budget_pose_d2.png": {
+   "bytes": 49560,
+   "sha": "751a71d555a0b365",
+   "size": [
+    226,
+    194
+   ]
+  },
+  "prop_ability_bengvir.png": {
+   "bytes": 576,
+   "sha": "8a8276e12de7f2d0",
+   "size": [
+    16,
+    16
+   ]
+  },
+  "prop_ability_bengvir_d2.png": {
+   "bytes": 1336,
+   "sha": "5383482b6e7ef877",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "prop_ability_bennett.png": {
+   "bytes": 669,
+   "sha": "3215c1454ed4bb5f",
+   "size": [
+    16,
+    16
+   ]
+  },
+  "prop_ability_bennett_d2.png": {
+   "bytes": 1787,
+   "sha": "f6dbda4d524142f7",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "prop_ability_bibi.png": {
+   "bytes": 515,
+   "sha": "fdbd0ab185f87ab7",
+   "size": [
+    16,
+    16
+   ]
+  },
+  "prop_ability_bibi_d2.png": {
+   "bytes": 1373,
+   "sha": "7b7172817b898c88",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "prop_ability_deri.png": {
+   "bytes": 553,
+   "sha": "961124faa234e74e",
+   "size": [
+    16,
+    16
+   ]
+  },
+  "prop_ability_deri_d2.png": {
+   "bytes": 1381,
+   "sha": "8534a8cfd5e89617",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "prop_ability_eisenkot.png": {
+   "bytes": 611,
+   "sha": "b85320966bae9e80",
+   "size": [
+    16,
+    16
+   ]
+  },
+  "prop_ability_eisenkot_d2.png": {
+   "bytes": 1626,
+   "sha": "467e1b6bed7213f8",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "prop_ability_golan.png": {
+   "bytes": 493,
+   "sha": "cc876d8a02415f0d",
+   "size": [
+    16,
+    16
+   ]
+  },
+  "prop_ability_golan_d2.png": {
+   "bytes": 1265,
+   "sha": "fff78473d5273f6d",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "prop_ability_liberman.png": {
+   "bytes": 562,
+   "sha": "9869d22041f71d42",
+   "size": [
+    16,
+    16
+   ]
+  },
+  "prop_ability_liberman_d2.png": {
+   "bytes": 1450,
+   "sha": "a0f94112954fbcb8",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "prop_ability_smotrich.png": {
+   "bytes": 562,
+   "sha": "fc7d07d4c4e4a166",
+   "size": [
+    16,
+    16
+   ]
+  },
+  "prop_ability_smotrich_d2.png": {
+   "bytes": 1567,
+   "sha": "d8cc2bf400f13694",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "prop_budget-book.png": {
+   "bytes": 1412,
+   "sha": "53c0587f181b3510",
+   "size": [
+    25,
+    28
+   ]
+  },
+  "prop_cardboard-box.png": {
+   "bytes": 1019,
+   "sha": "a69ab46aae9eba48",
+   "size": [
+    25,
+    24
+   ]
+  },
+  "prop_clause-doc.png": {
+   "bytes": 1001,
+   "sha": "818deb950d969634",
+   "size": [
+    22,
+    28
+   ]
+  },
+  "prop_corridor-bench.png": {
+   "bytes": 1308,
+   "sha": "8c4c34708c6a602e",
+   "size": [
+    31,
+    26
+   ]
+  },
+  "prop_pledge-scroll.png": {
+   "bytes": 1475,
+   "sha": "648b87b8a4cc1aba",
+   "size": [
+    25,
+    28
+   ]
+  },
+  "prop_podium.png": {
+   "bytes": 1376,
+   "sha": "0b68c95732e6f072",
+   "size": [
+    27,
+    40
+   ]
+  },
+  "prop_round-table.png": {
+   "bytes": 1510,
+   "sha": "af8db4ea7a3180f4",
+   "size": [
+    31,
+    26
+   ]
   }
  },
  "provenance": {
@@ -19412,7 +20273,26 @@
    "taxpayer.png": "d8da78b12f46e44d",
    "tibi.png": "b3409aa6a75712f7",
    "trump.png": "bdd29b89aa43a3b6",
-   "vat.png": "5311ff78d98f502c"
+   "vat.png": "5311ff78d98f502c",
+   "ability-icons.png": "7e07d59e1589c620",
+   "ben-gvir-back.png": "d4f7a17a9eae7a1a",
+   "ben-gvir-walkout.png": "38e680bc7349f458",
+   "bennett-sign.png": "14284f5b50c24eeb",
+   "bibi-matchmaker.png": "19290b49423b45cc",
+   "budget-book.png": "a4e3d7504840798c",
+   "cardboard-box.png": "93a006b413068098",
+   "clause-doc.png": "b3360ff356204b2d",
+   "corridor-bench.png": "e038d8261e4486d9",
+   "deri-bench.png": "1cbdd88222f762df",
+   "eisenkot-summit.png": "26433eb387eb287c",
+   "golan-swipe.png": "5f18f477cc79271b",
+   "kaia-happy.png": "64cef4f3b4d9affa",
+   "kaia.png": "211e252dbe75a04e",
+   "liberman-document.png": "843a4b686797f9cc",
+   "pledge-scroll.png": "4c0d9cbe0c970092",
+   "podium.png": "db06751e2479b0d5",
+   "round-table.png": "80a527d56e8e4849",
+   "smotrich-budget.png": "03ac4fbaa2641555"
   },
   "renderDown": "creative-pack art/showcase/src (rig.py, build.py, cast.py)",
   "stagesAndWordmark": "creative-pack art/src (locations.py, wordmark.py)",

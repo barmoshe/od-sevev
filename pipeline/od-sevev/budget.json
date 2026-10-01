@@ -578,9 +578,54 @@
   "fonts/sevev9_outline.png": 2443,
   "fonts/sevev9_outline.fnt": 15106,
   "fonts/sevev9@2.png": 2799,
-  "fonts/sevev9@2.fnt": 15149
+  "fonts/sevev9@2.fnt": 15149,
+  "sprites/cast/ben-gvir-back_pose.png": 99875,
+  "sprites/cast/ben-gvir-back_pose_d2.png": 52789,
+  "sprites/cast/ben-gvir-walkout_pose.png": 87667,
+  "sprites/cast/ben-gvir-walkout_pose_d2.png": 44247,
+  "sprites/cast/bennett-sign_pose.png": 74144,
+  "sprites/cast/bennett-sign_pose_d2.png": 40060,
+  "sprites/cast/bibi-matchmaker_pose.png": 83654,
+  "sprites/cast/bibi-matchmaker_pose_d2.png": 43096,
+  "sprites/cast/deri-bench_pose.png": 101143,
+  "sprites/cast/deri-bench_pose_d2.png": 50752,
+  "sprites/cast/eisenkot-summit_pose.png": 84913,
+  "sprites/cast/eisenkot-summit_pose_d2.png": 45452,
+  "sprites/cast/golan-swipe_pose.png": 62645,
+  "sprites/cast/golan-swipe_pose_d2.png": 33404,
+  "sprites/cast/kaia_happy.png": 7338,
+  "sprites/cast/kaia_happy_d2.png": 4053,
+  "sprites/cast/kaia_idle.png": 7684,
+  "sprites/cast/kaia_idle_d2.png": 4102,
+  "sprites/cast/liberman-document_pose.png": 79155,
+  "sprites/cast/liberman-document_pose_d2.png": 43023,
+  "sprites/cast/smotrich-budget_pose.png": 95909,
+  "sprites/cast/smotrich-budget_pose_d2.png": 49560,
+  "sprites/prop_ability_bengvir.png": 576,
+  "sprites/prop_ability_bengvir_d2.png": 1336,
+  "sprites/prop_ability_bennett.png": 669,
+  "sprites/prop_ability_bennett_d2.png": 1787,
+  "sprites/prop_ability_bibi.png": 515,
+  "sprites/prop_ability_bibi_d2.png": 1373,
+  "sprites/prop_ability_deri.png": 553,
+  "sprites/prop_ability_deri_d2.png": 1381,
+  "sprites/prop_ability_eisenkot.png": 611,
+  "sprites/prop_ability_eisenkot_d2.png": 1626,
+  "sprites/prop_ability_golan.png": 493,
+  "sprites/prop_ability_golan_d2.png": 1265,
+  "sprites/prop_ability_liberman.png": 562,
+  "sprites/prop_ability_liberman_d2.png": 1450,
+  "sprites/prop_ability_smotrich.png": 562,
+  "sprites/prop_ability_smotrich_d2.png": 1567,
+  "sprites/prop_budget-book.png": 1412,
+  "sprites/prop_cardboard-box.png": 1019,
+  "sprites/prop_clause-doc.png": 1001,
+  "sprites/prop_corridor-bench.png": 1308,
+  "sprites/prop_pledge-scroll.png": 1475,
+  "sprites/prop_podium.png": 1376,
+  "sprites/prop_round-table.png": 1510
  },
- "vramBytes": 199925828,
+ "vramBytes": 205139716,
  "vramByDensity": {
   "herzog": {
    "3": 2658432,
@@ -715,6 +760,46 @@
   },
   "nophoto": {
    "1": 15520
+  },
+  "bennett-sign": {
+   "3": 335240,
+   "2": 149768
+  },
+  "ben-gvir-walkout": {
+   "3": 386104,
+   "2": 172928
+  },
+  "ben-gvir-back": {
+   "3": 439280,
+   "2": 197632
+  },
+  "liberman-document": {
+   "3": 372232,
+   "2": 166752
+  },
+  "eisenkot-summit": {
+   "3": 420784,
+   "2": 188368
+  },
+  "smotrich-budget": {
+   "3": 387440,
+   "2": 175376
+  },
+  "deri-bench": {
+   "3": 425472,
+   "2": 189440
+  },
+  "golan-swipe": {
+   "3": 261256,
+   "2": 117344
+  },
+  "bibi-matchmaker": {
+   "3": 448528,
+   "2": 202264
+  },
+  "kaia": {
+   "3": 79424,
+   "2": 36064
   }
  },
  "vramBibi": {
@@ -732,13 +817,13 @@
   "golan"
  ],
  "vramTypicalByK": {
-  "2": 8337448,
-  "3": 14310056,
-  "4": 8337448,
-  "6": 14310056,
-  "7": 14310056,
-  "8": 8337448,
-  "9": 14310056
+  "2": 8399640,
+  "3": 14372248,
+  "4": 8399640,
+  "6": 14372248,
+  "7": 14372248,
+  "8": 8399640,
+  "9": 14372248
  },
  "vramSourcesByK": {
   "2": 506240,
@@ -783,7 +868,17 @@
    "mordechai-david": 3079440,
    "dubi": 64400,
    "dubi-mic": 2258872,
-   "nophoto": 15520
+   "nophoto": 15520,
+   "bennett-sign": 149768,
+   "ben-gvir-walkout": 172928,
+   "ben-gvir-back": 197632,
+   "liberman-document": 166752,
+   "eisenkot-summit": 188368,
+   "smotrich-budget": 175376,
+   "deri-bench": 189440,
+   "golan-swipe": 117344,
+   "bibi-matchmaker": 202264,
+   "kaia": 36064
   },
   "3": {
    "herzog": 2658432,
@@ -818,7 +913,17 @@
    "mordechai-david": 6867840,
    "dubi": 64400,
    "dubi-mic": 5035536,
-   "nophoto": 15520
+   "nophoto": 15520,
+   "bennett-sign": 335240,
+   "ben-gvir-walkout": 386104,
+   "ben-gvir-back": 439280,
+   "liberman-document": 372232,
+   "eisenkot-summit": 420784,
+   "smotrich-budget": 387440,
+   "deri-bench": 425472,
+   "golan-swipe": 261256,
+   "bibi-matchmaker": 448528,
+   "kaia": 79424
   },
   "4": {
    "herzog": 1196352,
@@ -853,7 +958,17 @@
    "mordechai-david": 3079440,
    "dubi": 64400,
    "dubi-mic": 2258872,
-   "nophoto": 15520
+   "nophoto": 15520,
+   "bennett-sign": 149768,
+   "ben-gvir-walkout": 172928,
+   "ben-gvir-back": 197632,
+   "liberman-document": 166752,
+   "eisenkot-summit": 188368,
+   "smotrich-budget": 175376,
+   "deri-bench": 189440,
+   "golan-swipe": 117344,
+   "bibi-matchmaker": 202264,
+   "kaia": 36064
   },
   "6": {
    "herzog": 2658432,
@@ -888,7 +1003,17 @@
    "mordechai-david": 6867840,
    "dubi": 64400,
    "dubi-mic": 5035536,
-   "nophoto": 15520
+   "nophoto": 15520,
+   "bennett-sign": 335240,
+   "ben-gvir-walkout": 386104,
+   "ben-gvir-back": 439280,
+   "liberman-document": 372232,
+   "eisenkot-summit": 420784,
+   "smotrich-budget": 387440,
+   "deri-bench": 425472,
+   "golan-swipe": 261256,
+   "bibi-matchmaker": 448528,
+   "kaia": 79424
   },
   "7": {
    "herzog": 2658432,
@@ -923,7 +1048,17 @@
    "mordechai-david": 6867840,
    "dubi": 64400,
    "dubi-mic": 5035536,
-   "nophoto": 15520
+   "nophoto": 15520,
+   "bennett-sign": 335240,
+   "ben-gvir-walkout": 386104,
+   "ben-gvir-back": 439280,
+   "liberman-document": 372232,
+   "eisenkot-summit": 420784,
+   "smotrich-budget": 387440,
+   "deri-bench": 425472,
+   "golan-swipe": 261256,
+   "bibi-matchmaker": 448528,
+   "kaia": 79424
   },
   "8": {
    "herzog": 1196352,
@@ -958,7 +1093,17 @@
    "mordechai-david": 3079440,
    "dubi": 64400,
    "dubi-mic": 2258872,
-   "nophoto": 15520
+   "nophoto": 15520,
+   "bennett-sign": 149768,
+   "ben-gvir-walkout": 172928,
+   "ben-gvir-back": 197632,
+   "liberman-document": 166752,
+   "eisenkot-summit": 188368,
+   "smotrich-budget": 175376,
+   "deri-bench": 189440,
+   "golan-swipe": 117344,
+   "bibi-matchmaker": 202264,
+   "kaia": 36064
   },
   "9": {
    "herzog": 2658432,
@@ -993,7 +1138,17 @@
    "mordechai-david": 6867840,
    "dubi": 64400,
    "dubi-mic": 5035536,
-   "nophoto": 15520
+   "nophoto": 15520,
+   "bennett-sign": 335240,
+   "ben-gvir-walkout": 386104,
+   "ben-gvir-back": 439280,
+   "liberman-document": 372232,
+   "eisenkot-summit": 420784,
+   "smotrich-budget": 387440,
+   "deri-bench": 425472,
+   "golan-swipe": 261256,
+   "bibi-matchmaker": 448528,
+   "kaia": 79424
   }
  },
  "vramLeaderByK": {
@@ -1068,8 +1223,8 @@
    "golan": 2803640
   }
  },
- "vramTypical": 14310056,
- "vramCastAll": 194116180,
+ "vramTypical": 14372248,
+ "vramCastAll": 199267876,
  "vramPerPartner": {
   "herzog": 2658432,
   "tibi": 1576784,
@@ -1103,7 +1258,17 @@
   "mordechai-david": 6867840,
   "dubi": 64400,
   "dubi-mic": 5035536,
-  "nophoto": 15520
+  "nophoto": 15520,
+  "bennett-sign": 335240,
+  "ben-gvir-walkout": 386104,
+  "ben-gvir-back": 439280,
+  "liberman-document": 372232,
+  "eisenkot-summit": 420784,
+  "smotrich-budget": 387440,
+  "deri-bench": 425472,
+  "golan-swipe": 261256,
+  "bibi-matchmaker": 448528,
+  "kaia": 79424
  },
  "imported": [
   {
@@ -1817,6 +1982,26 @@
    "imported": 36360
   },
   {
+   "file": "assets/sprites/cast/ben-gvir-back_pose.png",
+   "source": 99875,
+   "imported": 36222
+  },
+  {
+   "file": "assets/sprites/cast/ben-gvir-back_pose_d2.png",
+   "source": 52789,
+   "imported": 19616
+  },
+  {
+   "file": "assets/sprites/cast/ben-gvir-walkout_pose.png",
+   "source": 87667,
+   "imported": 32328
+  },
+  {
+   "file": "assets/sprites/cast/ben-gvir-walkout_pose_d2.png",
+   "source": 44247,
+   "imported": 17100
+  },
+  {
    "file": "assets/sprites/cast/ben-gvir_idle.png",
    "source": 245706,
    "imported": 73698
@@ -1845,6 +2030,16 @@
    "file": "assets/sprites/cast/ben-gvir_tap_d2.png",
    "source": 127850,
    "imported": 44376
+  },
+  {
+   "file": "assets/sprites/cast/bennett-sign_pose.png",
+   "source": 74144,
+   "imported": 27112
+  },
+  {
+   "file": "assets/sprites/cast/bennett-sign_pose_d2.png",
+   "source": 40060,
+   "imported": 14900
   },
   {
    "file": "assets/sprites/cast/bennett_flip.png",
@@ -1877,6 +2072,16 @@
    "imported": 40794
   },
   {
+   "file": "assets/sprites/cast/bibi-matchmaker_pose.png",
+   "source": 83654,
+   "imported": 32432
+  },
+  {
+   "file": "assets/sprites/cast/bibi-matchmaker_pose_d2.png",
+   "source": 43096,
+   "imported": 16806
+  },
+  {
    "file": "assets/sprites/cast/bibi_crit.png",
    "source": 186029,
    "imported": 64400
@@ -1905,6 +2110,16 @@
    "file": "assets/sprites/cast/bibi_tap_d2.png",
    "source": 113896,
    "imported": 41696
+  },
+  {
+   "file": "assets/sprites/cast/deri-bench_pose.png",
+   "source": 101143,
+   "imported": 37364
+  },
+  {
+   "file": "assets/sprites/cast/deri-bench_pose_d2.png",
+   "source": 50752,
+   "imported": 19048
   },
   {
    "file": "assets/sprites/cast/deri_idle.png",
@@ -1977,6 +2192,16 @@
    "imported": 10914
   },
   {
+   "file": "assets/sprites/cast/eisenkot-summit_pose.png",
+   "source": 84913,
+   "imported": 32144
+  },
+  {
+   "file": "assets/sprites/cast/eisenkot-summit_pose_d2.png",
+   "source": 45452,
+   "imported": 16940
+  },
+  {
    "file": "assets/sprites/cast/eisenkot_idle.png",
    "source": 66446,
    "imported": 21004
@@ -2045,6 +2270,16 @@
    "file": "assets/sprites/cast/gantz_react_d2.png",
    "source": 59123,
    "imported": 23110
+  },
+  {
+   "file": "assets/sprites/cast/golan-swipe_pose.png",
+   "source": 62645,
+   "imported": 23522
+  },
+  {
+   "file": "assets/sprites/cast/golan-swipe_pose_d2.png",
+   "source": 33404,
+   "imported": 12700
   },
   {
    "file": "assets/sprites/cast/golan_idle.png",
@@ -2135,6 +2370,26 @@
    "file": "assets/sprites/cast/herzog_react_d2.png",
    "source": 100189,
    "imported": 38670
+  },
+  {
+   "file": "assets/sprites/cast/kaia_happy.png",
+   "source": 7338,
+   "imported": 2894
+  },
+  {
+   "file": "assets/sprites/cast/kaia_happy_d2.png",
+   "source": 4053,
+   "imported": 1750
+  },
+  {
+   "file": "assets/sprites/cast/kaia_idle.png",
+   "source": 7684,
+   "imported": 2970
+  },
+  {
+   "file": "assets/sprites/cast/kaia_idle_d2.png",
+   "source": 4102,
+   "imported": 1750
   },
   {
    "file": "assets/sprites/cast/karhi_idle.png",
@@ -2235,6 +2490,16 @@
    "file": "assets/sprites/cast/levin_react_d2.png",
    "source": 101013,
    "imported": 37830
+  },
+  {
+   "file": "assets/sprites/cast/liberman-document_pose.png",
+   "source": 79155,
+   "imported": 30626
+  },
+  {
+   "file": "assets/sprites/cast/liberman-document_pose_d2.png",
+   "source": 43023,
+   "imported": 16704
   },
   {
    "file": "assets/sprites/cast/liberman_idle.png",
@@ -2435,6 +2700,16 @@
    "file": "assets/sprites/cast/sara_offended_d2.png",
    "source": 120133,
    "imported": 41692
+  },
+  {
+   "file": "assets/sprites/cast/smotrich-budget_pose.png",
+   "source": 95909,
+   "imported": 34386
+  },
+  {
+   "file": "assets/sprites/cast/smotrich-budget_pose_d2.png",
+   "source": 49560,
+   "imported": 18260
   },
   {
    "file": "assets/sprites/cast/smotrich_idle.png",
@@ -2907,9 +3182,94 @@
    "imported": 1406
   },
   {
+   "file": "assets/sprites/prop_ability_bengvir.png",
+   "source": 576,
+   "imported": 336
+  },
+  {
+   "file": "assets/sprites/prop_ability_bengvir_d2.png",
+   "source": 1336,
+   "imported": 570
+  },
+  {
+   "file": "assets/sprites/prop_ability_bennett.png",
+   "source": 669,
+   "imported": 348
+  },
+  {
+   "file": "assets/sprites/prop_ability_bennett_d2.png",
+   "source": 1787,
+   "imported": 630
+  },
+  {
+   "file": "assets/sprites/prop_ability_bibi.png",
+   "source": 515,
+   "imported": 328
+  },
+  {
+   "file": "assets/sprites/prop_ability_bibi_d2.png",
+   "source": 1373,
+   "imported": 576
+  },
+  {
+   "file": "assets/sprites/prop_ability_deri.png",
+   "source": 553,
+   "imported": 334
+  },
+  {
+   "file": "assets/sprites/prop_ability_deri_d2.png",
+   "source": 1381,
+   "imported": 572
+  },
+  {
+   "file": "assets/sprites/prop_ability_eisenkot.png",
+   "source": 611,
+   "imported": 348
+  },
+  {
+   "file": "assets/sprites/prop_ability_eisenkot_d2.png",
+   "source": 1626,
+   "imported": 630
+  },
+  {
+   "file": "assets/sprites/prop_ability_golan.png",
+   "source": 493,
+   "imported": 324
+  },
+  {
+   "file": "assets/sprites/prop_ability_golan_d2.png",
+   "source": 1265,
+   "imported": 538
+  },
+  {
+   "file": "assets/sprites/prop_ability_liberman.png",
+   "source": 562,
+   "imported": 306
+  },
+  {
+   "file": "assets/sprites/prop_ability_liberman_d2.png",
+   "source": 1450,
+   "imported": 580
+  },
+  {
+   "file": "assets/sprites/prop_ability_smotrich.png",
+   "source": 562,
+   "imported": 328
+  },
+  {
+   "file": "assets/sprites/prop_ability_smotrich_d2.png",
+   "source": 1567,
+   "imported": 590
+  },
+  {
    "file": "assets/sprites/prop_bill.png",
    "source": 125,
    "imported": 128
+  },
+  {
+   "file": "assets/sprites/prop_budget-book.png",
+   "source": 1412,
+   "imported": 570
   },
   {
    "file": "assets/sprites/prop_calculator.png",
@@ -2917,9 +3277,19 @@
    "imported": 296
   },
   {
+   "file": "assets/sprites/prop_cardboard-box.png",
+   "source": 1019,
+   "imported": 474
+  },
+  {
    "file": "assets/sprites/prop_chair.png",
    "source": 478,
    "imported": 340
+  },
+  {
+   "file": "assets/sprites/prop_clause-doc.png",
+   "source": 1001,
+   "imported": 442
   },
   {
    "file": "assets/sprites/prop_coffee.png",
@@ -2947,6 +3317,11 @@
    "imported": 118
   },
   {
+   "file": "assets/sprites/prop_corridor-bench.png",
+   "source": 1308,
+   "imported": 564
+  },
+  {
    "file": "assets/sprites/prop_hat.png",
    "source": 302,
    "imported": 232
@@ -2967,9 +3342,24 @@
    "imported": 294
   },
   {
+   "file": "assets/sprites/prop_pledge-scroll.png",
+   "source": 1475,
+   "imported": 576
+  },
+  {
+   "file": "assets/sprites/prop_podium.png",
+   "source": 1376,
+   "imported": 642
+  },
+  {
    "file": "assets/sprites/prop_rabbit.png",
    "source": 250,
    "imported": 212
+  },
+  {
+   "file": "assets/sprites/prop_round-table.png",
+   "source": 1510,
+   "imported": 584
   },
   {
    "file": "assets/sprites/prop_ruler.png",
@@ -4005,7 +4395,7 @@
    "note": "embedded in the .fontdata"
   }
  ],
- "pckBytes": 6645411,
+ "pckBytes": 7104175,
  "pckByAsset": {
   "herzog": {
    "3": 96192,
@@ -4184,62 +4574,102 @@
   "source_advisers": {
    "3": 5544,
    "2": 2916
+  },
+  "bennett-sign": {
+   "3": 27112,
+   "2": 14900
+  },
+  "ben-gvir-walkout": {
+   "3": 32328,
+   "2": 17100
+  },
+  "ben-gvir-back": {
+   "3": 36222,
+   "2": 19616
+  },
+  "liberman-document": {
+   "3": 30626,
+   "2": 16704
+  },
+  "eisenkot-summit": {
+   "3": 32144,
+   "2": 16940
+  },
+  "smotrich-budget": {
+   "3": 34386,
+   "2": 18260
+  },
+  "deri-bench": {
+   "3": 37364,
+   "2": 19048
+  },
+  "golan-swipe": {
+   "3": 23522,
+   "2": 12700
+  },
+  "bibi-matchmaker": {
+   "3": 32432,
+   "2": 16806
+  },
+  "kaia": {
+   "3": 5864,
+   "2": 3500
   }
  },
  "specimenVisual": [
   {
    "tofu": 0,
-   "visual": "\u05ea\u05e9\u05e8\u05e7\u05e5\u05e6\u05e3\u05e4\u05e2\u05e1\u05df\u05e0\u05dd\u05de\u05dc\u05da\u05db\u05d9\u05d8\u05d7\u05d6\u05d5\u05d4\u05d3\u05d2\u05d1\u05d0",
+   "visual": "תשרקץצףפעסןנםמלךכיטחזוהדגבא",
    "width": 143.0
   },
   {
    "tofu": 0,
-   "visual": "\u05d1\u05d1\u05e1 \u05d3\u05d5\u05e2",
+   "visual": "בבס דוע",
    "width": 37.0
   },
   {
    "tofu": 0,
-   "visual": ".\u05e9\u05d2\u05e8\u05e0 \u05e8\u05d5\u05d1\u05d9\u05e6\u05d4 .6 \u05f3\u05e1\u05de \u05ea\u05d5\u05e8\u05d9\u05d7\u05d1 \u05d1\u05d1\u05e1",
+   "visual": ".שגרנ רוביצה .6 ׳סמ תוריחב בבס",
    "width": 138.0
   },
   {
    "tofu": 0,
-   "visual": "\u05d4\u05d9\u05d9\u05e0\u05e9\u05dc \u20aa\u00a0 +1.2K ",
+   "visual": "היינשל ₪  +1.2K ",
    "width": 64.0
   },
   {
    "tofu": 0,
-   "visual": "\u20aa\u00a0 12,400  \u00b7 \u05d5\u05e0\u05e8\u05d2\u05e1",
+   "visual": "₪  12,400  · ונרגס",
    "width": 70.0
   },
   {
    "tofu": 0,
-   "visual": "3\u05be\u05d5 \u00b7 \u05e9\u05f4\u05de\u05e2\u05d5\u05d9 \u00b7 \u05db\u05f4\u05d4\u05e1 \u00b7 *18% \u05de\u05f4\u05e2\u05de",
+   "visual": "3־ו · ש״מעוי · כ״הס · *18% מ״עמ",
    "width": 136.0
   },
   {
    "tofu": 0,
-   "visual": "\u05ea\u05d9\u05d3\u05d5\u05d4\u05d9 \u05d4\u05de\u05e6\u05d5\u05e2 \u2190 \u05d3\u05d5\u05db\u05d9\u05dc\u05d4",
+   "visual": "תידוהי המצוע ← דוכילה",
    "width": 102.0
   },
   {
    "tofu": 0,
-   "visual": "{\u05dd\u05e9} [\u05d4\u05d8\u05d5\u05d9\u05d8] (\u05d8\u05e4\u05e9\u05de\u05d4 \u05ea\u05d9\u05d1)",
+   "visual": "{םש} [הטויט] (טפשמה תיב)",
    "width": 113.0
   },
   {
    "tofu": 0,
-   "visual": "\u2026\u05dd\u05d5\u05dc\u05db \u05df\u05d9\u05d0 \u05d9\u05db \u05dd\u05d5\u05dc\u05db \u05d4\u05d9\u05d4\u05d9 \u05d0\u05dc",
+   "visual": "…םולכ ןיא יכ םולכ היהי אל",
    "width": 119.0
   },
   {
    "tofu": 0,
-   "visual": "DOHA \u00b7 OK \u00b7 1.2K 3M 4B 5T \u00b7 +12 \u2212 3 \u00d7 2 = 30",
+   "visual": "DOHA · OK · 1.2K 3M 4B 5T · +12 − 3 × 2 = 30",
    "width": 191.0
   },
   {
    "tofu": 0,
-   "visual": "\u2014 \u2013 0123456789 ?!:;~|`_^\\@&$#",
+   "visual": "— – 0123456789 ?!:;~|`_^\\@&$#",
    "width": 129.0
   }
  ],
@@ -4285,5 +4715,5 @@
    "w2": 294.0
   }
  ],
- "sourceTotal": 19185466
+ "sourceTotal": 20405558
 }

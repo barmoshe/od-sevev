@@ -98,6 +98,53 @@ BIBI_TAP = dict(prop='prop_hat', baked=True, track='hatMouth')
 # (<char>_avatar_pick.png 32, <char>_avatar24_pick.png 24: the picker tiles and the app icon, every ring the same).
 LEADERS = ['bibi', 'bennett', 'ben-gvir', 'smotrich', 'deri', 'eisenkot', 'liberman', 'golan']
 
+# ---------------------------------------------------------------- leaders v3 (creative-pack/art/briefs/leaders-v3-gpt.md)
+# The GPT batch of 2026-10-01 came back RGB on an off-white field; each ref was keyed out with cutout.py (the
+# originals are refs/candidates/<id>-src.png; the options per file are in candidates/README.md).
+#
+# A9 poses: each is its OWN character '<leader>-<pose>' (the leader's approved strips never move). The pose is laid
+# into the leader's rest-pose ref coordinates, the way herzog-shrug sits over herzog: scaled by k about its feet, its
+# lowest px on the leader's feet line (+ lift ref px), its head centre (the alpha span 120 ref px under its top) over
+# the leader's. So it renders at the leader's scale with the leader's anchor, and a swap leader -> pose keeps the feet
+# and the head size. k: golan-swipe and both Ben Gvir poses came out ~1.7% small, bibi-matchmaker 2.5% short (wider
+# stance); deri-bench sits, so his shoes (not the bench legs) stand on the line. Measured 2026-10-01.
+POSES = {
+    'bennett-sign': dict(leader='bennett', k=1.0),
+    'ben-gvir-walkout': dict(leader='ben-gvir', k=1.017),
+    'ben-gvir-back': dict(leader='ben-gvir', k=1.017),
+    'liberman-document': dict(leader='liberman', k=1.0),
+    'eisenkot-summit': dict(leader='eisenkot', k=1.0),
+    'smotrich-budget': dict(leader='smotrich', k=1.0),
+    'deri-bench': dict(leader='deri', k=1.0),
+    'golan-swipe': dict(leader='golan', k=1.017),
+    'bibi-matchmaker': dict(leader='bibi', k=1.025),
+}
+# the leader rigs' pads (build.py magician / bennett / generic): only the top pad matters, the side pad grows to fit
+LEADER_PAD = {'bibi': (0.30, 0.30), 'bennett': (0.20, 0.12)}
+
+# B1-B7 stage props, rendered 1x (density 1, like the stage and the 1x props) with the pale 1-px rim: h = art px tall
+# including the rim. The podium matches PressDesk's drawn map (16 x 20 cells of 2 art px: 40 tall); the box its
+# 32 x 24; the bench is seat-and-back high beside a 96-px leader (the drawn map's 22 was a side view).
+REF_PROPS = {'podium': dict(h=40), 'corridor-bench': dict(h=26), 'cardboard-box': dict(h=24),
+             'round-table': dict(h=26), 'pledge-scroll': dict(h=28), 'budget-book': dict(h=28),
+             'clause-doc': dict(h=28)}
+
+# C: the ability icons, one 4 x 2 sheet (refs/ability-icons.png, 1254 x 1254). Each cell = the alpha box of its
+# connected icon (x0, y0, x1, y1) plus erase boxes where a neighbour's px reach into it (the bench's seat end and the
+# phone's corner share columns 655-662). Each icon renders 1x into a 16 x 16 art-px tile (rim included), centred.
+ABILITY_ICONS = {
+    'bennett': ((29, 223, 313, 557), []), 'bengvir': ((346, 237, 640, 536), []),
+    'liberman': ((653, 239, 892, 546), []), 'eisenkot': ((930, 242, 1237, 547), []),
+    'smotrich': ((17, 659, 329, 1041), []), 'deri': ((331, 722, 662, 1019), [(655, 900, 663, 1019)]),
+    'golan': ((655, 677, 901, 1037), [(655, 677, 663, 900)]), 'bibi': ((910, 749, 1249, 988), []),
+}
+ICON_TILE = 16
+
+# D: Kaia (refs/kaia.png standing, refs/kaia-happy.png with the cucumber: the same frame, feet on y 1260). A small
+# custom rig, 24 art px tall: the tail (polygon, ref px) wags about its root; `keep` refills the root over the back.
+KAIA = dict(h=24, tail=[(770, 360), (975, 360), (975, 620), (905, 690), (850, 690), (790, 560)],
+            pivot=(870, 680), keep=(780, 600, 980, 720), wag=-12, happy='kaia-happy')
+
 # ---------------------------------------------------------------- Dubi (motion/state-graph-dubi.md §1)
 # Two figures from refs/dubi.png (parrot at a mic stand, wing raised, facing screen-left).
 # 'dubi' = small full body (18 art px) with the mic stand removed; 'dubi-mic' = the 96-px flash-card pose.

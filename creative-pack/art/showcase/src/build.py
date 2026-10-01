@@ -932,6 +932,129 @@ atlas['sourceAliases'] = SOURCE_ALIASES
 if MISSING:
     print('money sources waiting for a ref in refs/:', ', '.join(MISSING))
 
+# ================================================================ leaders v3 (cast.py POSES, REF_PROPS, ABILITY_ICONS, KAIA)
+from cast import POSES, LEADER_PAD, REF_PROPS, ABILITY_ICONS, ICON_TILE, KAIA
+
+
+def _alpha_box(im):
+    return im.getchannel('A').point(lambda v: 255 if v > 128 else 0).getbbox()
+
+
+def _head_cx(im, top, dy=120):
+    """The centre of the alpha span on the row dy ref px under the top (the head, above any raised hand)."""
+    x0, _, x1, _ = im.getchannel('A').crop((0, top + dy, im.width, top + dy + 1)).point(
+        lambda v: 255 if v > 128 else 0).getbbox()
+    return (x0 + x1 - 1) / 2
+
+
+def pose_char(name, cfg, d):
+    """A leader's second pose as its own character (cast.POSES): the pose ref laid into the leader's rest-pose ref
+    coordinates (scaled by k about its feet, feet on the leader's feet line + lift, head centre over the leader's
+    head centre), rendered by a Rig of the LEADER's ref: the leader's scale, feet line and anchor. The side pad grows
+    to hold the pose (a bench, an open arm). One anim, 'pose': the held pose and a 1-art-px breath, 2 fps, looping."""
+    leader = cfg['leader']
+    lim = _I.open(os.path.join(REFS_DIR, leader + '.png')).convert('RGBA')
+    lbb = _alpha_box(lim)
+    pim = _I.open(os.path.join(REFS_DIR, name + '.png')).convert('RGBA')
+    pbb = _alpha_box(pim)
+    k = cfg.get('k', 1.0)
+    hc = _head_cx(pim, pbb[1])
+    if k != 1.0:
+        pim = pim.resize((round(pim.width * k), round(pim.height * k)), _I.LANCZOS)
+    ox = round(_head_cx(lim, lbb[1]) - hc * k)
+    oy = round(lbb[3] - 1 - cfg.get('lift', 0) - (pbb[3] - 1) * k)
+    sbb = _alpha_box(pim)
+    px0, py0, px1 = sbb[0] + ox, sbb[1] + oy, sbb[2] + ox                    # the placed pose, leader ref px
+    cw = lbb[2] - lbb[0]
+    side, top = LEADER_PAD.get(leader, CAST.get(leader, {}).get('pad', (0.14, 0.10)))
+    need = max(lbb[0] - px0, px1 - lbb[2], 0) + 48                          # + ~3 art px of clear margin
+    rig = Rig(name, ART_H * d, pad=(max(side, need / cw), top), ncolors=NC, ref=leader)
+    rig.density = d
+    dest = (px0 - rig.ox + rig.padx, py0 - rig.oy + rig.padt)
+    if dest[0] < 0 or dest[1] < 0 or dest[0] + sbb[2] - sbb[0] > rig.W:
+        raise SystemExit(f'{name}: the pose leaves the {leader} canvas at {dest}')
+    cv = _I.new('RGBA', (rig.W, rig.H), (0, 0, 0, 0))
+    cv.alpha_composite(pim.crop(sbb), dest)
+    frames = [rig.down(cv.copy()), rig.down(rig.squash(cv.copy(), 1.0, 0.99))]
+    return rig, [('pose', frames, 2, True, None, None)]
+
+
+for _n, _cfg in POSES.items():
+    if (not _only or _n in _only) and os.path.exists(os.path.join(REFS_DIR, _n + '.png')):
+        render_char(_n, lambda d, n=_n, c=_cfg: pose_char(n, c, d))
+
+
+def kaia(d):
+    """Kaia (cast.KAIA), 24 art px tall: idle = the tail wags (2 frames), happy = the cucumber ref in the same
+    coordinates, wagging faster. One palette from both refs, so the cucumber's greens and the tongue's pink both stay."""
+    K = KAIA
+    rig = Rig('kaia', K['h'] * d, pad=(0.06, 0.08), ncolors=48)
+    rig.density = d
+    tail, piv, keep = _sh(rig, K['tail']), rig.c(*K['pivot']), _sh(rig, K['keep'])
+    him = _I.open(os.path.join(REFS_DIR, K['happy'] + '.png')).convert('RGBA')
+    hbb = _alpha_box(him)
+    happy_cv = _I.new('RGBA', (rig.W, rig.H), (0, 0, 0, 0))
+    happy_cv.alpha_composite(him.crop(hbb), (hbb[0] - rig.ox + rig.padx, hbb[1] - rig.oy + rig.padt))
+    both = _I.new('RGBA', (rig.W * 2, rig.H), (0, 0, 0, 0))                  # the palette, as Rig.down locks it
+    both.alpha_composite(rig.canvas())
+    both.alpha_composite(happy_cv, (rig.W, 0))
+    sm = both.resize((rig.aw * 2, rig.ah), _I.LANCZOS)
+    rgb = _I.new('RGB', sm.size, (0, 0, 0))
+    rgb.paste(sm.convert('RGB'), (0, 0), sm.getchannel('A').point(lambda v: 255 if v > 118 else 0))
+    rig.palette = rgb.quantize(colors=rig.ncolors, method=_I.MEDIANCUT)
+
+    def frame(cv, wag=0):
+        if wag:
+            cv = _keep(cv, rig.rotate_region(cv, tail, piv, wag), rig, keep)
+        return rig.down(cv)
+    idle = [frame(rig.canvas()), frame(rig.canvas(), K['wag'])]
+    happy = [frame(happy_cv.copy()), frame(happy_cv.copy(), K['wag'])]
+    return rig, [('idle', idle, 4, True, None, None), ('happy', happy, 6, True, None, None)]
+
+
+if (not _only or 'kaia' in _only) and os.path.exists(os.path.join(REFS_DIR, 'kaia.png')):
+    render_char('kaia', kaia)
+
+
+def ref_prop(name, h):
+    """A stage prop from its ref, 1x: h art px tall including the pale 1-px rim (the money sources' icon rule)."""
+    rig = Rig(name, h - 2, pad=(0.0, 0.0), ncolors=32)
+    return rig.rim(rig.down(rig.canvas()))
+
+
+def ability_icon(cell, d=1):
+    """One cell of refs/ability-icons.png in an ICON_TILE-art-px square tile (rim included), centred: the largest
+    render whose rimmed box fits the tile (iconFit). Everything outside the cell's box, and its erase boxes, is cut.
+    d = sprite px per art px: d 1 is the chunky 16-px UI icon (drawn x4); d 2 the same tile at 32 px (drawn x2), a
+    first-generation render from the ref where the sheet's five lines and the phone's arrow still read."""
+    (x0, y0, x1, y1), erase = cell
+    W, H = _I.open(os.path.join(REFS_DIR, 'ability-icons.png')).size
+    edits = [((0, 0, W, y0), None), ((0, y1, W, H), None), ((0, y0, x0, y1), None), ((x1, y0, W, y1), None)] + \
+        [(e, None) for e in erase]
+    T = ICON_TILE * d
+    for hh in range(T - 2 * d, 4, -1):
+        r = Rig('ability-icons', hh, pad=(0.0, 0.0), ncolors=32, edits=edits)
+        i0 = r.down(r.canvas())
+        for _ in range(d):                       # a 1-art-px rim = d sprite px
+            i0 = r.rim(i0)
+        if i0.width <= T and i0.height <= T:
+            break
+    tile = _I.new('RGBA', (T, T), (0, 0, 0, 0))
+    tile.alpha_composite(i0, ((T - i0.width) // 2, (T - i0.height) // 2))
+    return tile
+
+
+_new_props = [(_n, lambda n=_n, c=_c: ref_prop(n, c['h'])) for _n, _c in REF_PROPS.items()]
+if os.path.exists(os.path.join(REFS_DIR, 'ability-icons.png')):
+    _new_props += [('ability_' + _l + sfx, lambda c=_c, d=d: ability_icon(c, d))
+                   for _l, _c in ABILITY_ICONS.items() for d, sfx in ((1, ''), (2, '_d2'))]
+for _n, _fn in _new_props:
+    if not os.path.exists(os.path.join(REFS_DIR, _n + '.png')) and not _n.startswith('ability_'):
+        continue
+    _im = _fn()
+    _im.save(os.path.join(OUT, 'prop_' + _n + '.png'))
+    atlas['props'][_n] = {'file': 'prop_' + _n + '.png', 'w': _im.width, 'h': _im.height}
+
 # the leaders' tap prop (leader-select-spec §5.2): which kit prop sits at which track, and whether it is baked
 from cast import BENNETT_TAP, BIBI_TAP
 for _n, _tp in [('bibi', BIBI_TAP), ('bennett', BENNETT_TAP)] + [(n, c['tap']) for n, c in CAST.items() if c.get('tap')]:

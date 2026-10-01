@@ -46,6 +46,10 @@ var _mark := Vector2.ZERO             # the hat's mouth on idle.f0 (stage coordi
 ## "podium" / "bench" = a PressDesk on the feet, riding the hat's track (Bar, 2026-10-01: every leader).
 var court_skin := "court"
 var _desk: PressDesk
+## Leaders v3: an ability's held pose (flash_pose), a second SpriteStrip on the hero's feet while the
+## hero strip hides; _pose_ms counts down to the hero's return (<0 = none showing).
+var _pose: SpriteStrip
+var _pose_ms := -1.0
 
 var _state := "idle"          # idle | pressed | crit | locked
 var _aura := "plain"          # plain | frenzy | tapFrenzy
@@ -140,6 +144,7 @@ func set_leader(slug: String, kit: Dictionary) -> void:
 	_kit = kit.duplicate()
 	if hero != null and hero.char_id == slug:
 		return
+	end_pose()
 	if hero != null:
 		body.remove_child(hero)
 		hero.queue_free()
@@ -380,6 +385,7 @@ func _apply_flash() -> void:
 
 func update_view(dt_ms: float) -> void:
 	if hero != null:
+		_update_pose(dt_ms)
 		_update_court(dt_ms)
 		hero.update_view(dt_ms)
 		_pulse_t += dt_ms
@@ -543,7 +549,9 @@ func _sync_halo() -> void:
 		hero.modulate.a = figure_alpha()
 		if prop != null:   # rtl-map §4.3: P0's pulse sits on the prop too; it leaves with the figure
 			prop.modulate = hero.modulate
-			prop.visible = hero.visible
+			prop.visible = hero.visible   # (hidden under a flash_pose too: the pose holds its own props)
+		if _pose != null:
+			_pose.modulate = hero.modulate
 
 
 ## FTUE failure branch: a pulsed emphasis on the banana (through the halo).
@@ -579,6 +587,7 @@ func court_sync(want: bool, quick: bool = false) -> void:
 			_court_pending = true   # exitPending: he leaves at the strip's end (§2)
 			return
 		_court_pending = false
+		end_pose()   # the court day takes the figure: a held pose gives way at once
 		_leave_idle()
 		court.off_ap = off_stage_ap()
 		court.start(reduced_motion)
@@ -591,6 +600,7 @@ func court_sync(want: bool, quick: bool = false) -> void:
 ## A progress reset (O10) or a new state: he is simply home, the hat gone.
 func court_reset() -> void:
 	_court_pending = false
+	end_pose()
 	court.reset()
 	walk.home()
 	if hero != null:
@@ -609,7 +619,7 @@ func court_flinch() -> void:
 
 ## True while the Magician stands on his mark and is drawn (the sweat reads it).
 func on_stage() -> bool:
-	return hero == null or (not court.in_court() and walk.state() == "home" and hero.visible)
+	return hero == null or (not court.in_court() and walk.state() == "home" and (hero.visible or posing()))
 
 
 ## The hat's mark (stage coordinates): its mouth on idle.f0, where it hovers on court day.
@@ -656,6 +666,7 @@ func _figure_rect() -> Rect2:
 func walk_out() -> bool:
 	if hero == null:
 		return false
+	end_pose()
 	if court.in_court() or _court_pending:
 		court.reset()
 		_court_pending = false
@@ -676,6 +687,7 @@ func walk_out() -> bool:
 func walk_in() -> bool:
 	if hero == null:
 		return false
+	end_pose()
 	walk.feet = L.magician_feet()
 	walk.reduced = reduced_motion
 	walk.walk_in(-1, _figure_rect(), _stage_ox())
@@ -807,6 +819,12 @@ func _apply_figure() -> void:
 	hero.position = feet + Vector2(float(court.body_dx_ap() + walk.dx_ap()), float(walk.dy_ap())) * CourtMotion.AP
 	hero.visible = court.body_visible() and walk.shows()
 	hero.modulate.a = figure_alpha()
+	if _pose != null:   # a held pose stands in for the hero on the same feet (flash_pose)
+		_pose.position = hero.position
+		_pose.scale = hero.scale
+		_pose.visible = hero.visible
+		_pose.modulate = hero.modulate
+		hero.visible = false
 
 
 ## The figure's alpha: the court's fades times the walk's (reduced motion) fades.
@@ -865,6 +883,66 @@ func _apply_court_pose() -> void:
 		_rabbit_clip.visible = false
 	else:
 		_desk.visible = false
+
+
+## Leaders v3: an ability's held pose (sprites.json `<leader>-<pose>`, e.g. "bennett-sign",
+## "ben-gvir-walkout"): the hero strip hides and the pose strip stands on the same feet for `ms`, then
+## the hero is back. The pose char is rendered at the leader's scale and feet line, so the swap does not
+## jump. False (nothing changes) without that character, or while the hero is away: walking, off after
+## a walk-out, or on a court/press day (pending or running). Again while one shows: the same pose
+## restarts its timer, another pose replaces it. A court day, a walk or a leader swap ends it at once.
+func flash_pose(char_id: String, ms: float = 1200.0) -> bool:
+	if hero == null or not SpriteStrip.has_char(char_id):
+		return false
+	if court.in_court() or _court_pending or walk.walking() or walk.gone() or walk.state() != "home":
+		return false
+	var slug := SpriteStrip.resolve(char_id)
+	if _pose != null and _pose.char_id != slug:
+		end_pose()
+	if _pose == null:
+		_pose = SpriteStrip.make(body, slug, hero.position, "pose")
+		if _pose == null:
+			return false
+		if not _pose.has_anim("pose"):
+			_pose.play("idle")
+		body.move_child(_pose, hero.get_index() + 1)   # where the hero draws: under a loose prop, over the smears
+	_pose.paused = reduced_motion   # reduced motion: the held pose, no breath
+	_pose_ms = maxf(ms, 1.0)
+	_apply_figure()
+	return true
+
+
+## A flash_pose is showing.
+func posing() -> bool:
+	return _pose != null
+
+
+## The pose strip (tests): null when none shows.
+func pose_node() -> SpriteStrip:
+	return _pose
+
+
+## Ends a flash_pose now: the pose strip is freed and the hero shows again (no-op when none shows).
+func end_pose() -> void:
+	_pose_ms = -1.0
+	if _pose == null:
+		return
+	if is_instance_valid(_pose):
+		if _pose.get_parent() != null:
+			_pose.get_parent().remove_child(_pose)
+		_pose.queue_free()
+	_pose = null
+	_apply_figure()
+
+
+func _update_pose(dt_ms: float) -> void:
+	if _pose == null:
+		return
+	_pose_ms -= dt_ms
+	if _pose_ms <= 0.0 or court.in_court() or walk.walking() or walk.gone():
+		end_pose()
+		return
+	_pose.update_view(dt_ms)
 
 
 ## Leaders v3: what holds the mark for an away that isn't the hazard day ("box": Ben Gvir's walkout);

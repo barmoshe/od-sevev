@@ -6,11 +6,14 @@ extends Node2D
 ## corridor bench (kit.hazard.stage). BigBanana drives position and visibility from CourtMotion's hat
 ## track, so it zips in, wiggles on a paused tap (hatHush) and zips out exactly like the hat.
 ##
-## PLACEHOLDER ART (2026-10-01): drawn from a small pixel map on the art grid (AP logical px per map
-## cell, 2 art px), feet centred on the mark. Swap for the GPT `podium` / `corridor-bench` sprites when they land
-## (creative-pack/art/briefs/leaders-v3-gpt.md); the hook-up stays.
+## The art (leaders v3 B1/B2/B4): the GPT refs rendered 1x as `prop_podium`, `prop_corridor-bench` and
+## `prop_cardboard-box` (SPRITES), drawn at ART_PX logical px per art px, feet centred on the mark. When a
+## sprite is missing (an older import) the drawn pixel map below stands in (AP logical px per map cell,
+## 2 art px); the hook-up is the same either way.
 
 const AP := 8.0   # logical px per map cell: 2 art px (×4), so the podium stands about waist high
+const ART_PX := 4.0   # logical px per art px for the 1x prop sprites (the stage's artScale)
+const SPRITES := {"podium": "prop_podium", "bench": "prop_corridor-bench", "box": "prop_cardboard-box"}
 
 ## K outline, W wood, D dark wood, L light edge, M mic head, S stalk, R the red on-air light, G grille
 const PODIUM := [
@@ -82,8 +85,17 @@ func map() -> Array:
 	return BENCH if kind == "bench" else (BOX if kind == "box" else PODIUM)
 
 
-## The drawn size in logical px (tests, layout).
+## The sprite id this kind draws when it is shipped, else "" (the drawn map stands in).
+func sprite_id() -> String:
+	var id: String = SPRITES.get(kind, "")
+	return id if id != "" and Art.has_sprite(id) else ""
+
+
+## The drawn size in logical px (tests, layout): the sprite's, or the map's.
 func size_px() -> Vector2:
+	var id := sprite_id()
+	if id != "":
+		return Vector2(Art.sprite_size(id)) * ART_PX
 	var m := map()
 	var w := 0
 	for row: String in m:
@@ -92,8 +104,13 @@ func size_px() -> Vector2:
 
 
 func _draw() -> void:
-	var m := map()
 	var sz := size_px()
+	var id := sprite_id()
+	if id != "":
+		# feet centred on the mark, the left edge on a whole art px
+		draw_texture_rect(Art.tex(id), Rect2(Vector2(-floorf(sz.x / ART_PX / 2.0) * ART_PX, -sz.y), sz), false)
+		return
+	var m := map()
 	var origin := Vector2(-sz.x / 2.0, -sz.y)   # feet centred on the mark
 	for y in m.size():
 		var row: String = m[y]
