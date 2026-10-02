@@ -1,8 +1,8 @@
 # HANDOFF: five new MKs on `mk-rothman-bismuth`, PAUSED (2026-10-02; read this first)
 
 Bar stopped ("אני סוגר את המחשב"). Branch `mk-rothman-bismuth` is pushed (`2db6fed`, `89eac8c`, STATUS `ede1282`), not merged, not deployed. Tests 577/577, lints clean.
-- Rothman (Smotrich's round, Regev's S2, cannotLeave), Bismuth (Deri's, Regev's S2), Feiglin (Smotrich's, Amsalem's S5), Hendel + Zelekha (Bennett's, generic S5 + L1). All on nophoto art. Eight facts in `design/facts.json`.
-- **Next:** Bar's legal read of the five profiles; ChatGPT art for the five (Bar says when; flow below in "How the ChatGPT batch was driven"); `tools/balance.sh` (Rothman's threatChance 0); merge after the four WIP branches (the order below still stands).
+- Rothman (Smotrich's round, Regev's S2, cannotLeave), Bismuth (Deri's, Regev's S2), Feiglin (Smotrich's, Amsalem's S5), Hendel + Zelekha (Bennett's, generic S5 + L1), Winter + Haddad (Ben Gvir's, Amsalem's S5 + Regev's S4). All on nophoto art until Bar approves the ChatGPT candidates in `refs/candidates/` (then `cast.py` landmarks, d3 + d2 render, swap avatar/art). New tickers in four rounds. Bench first election 7:44-8:30 for every leader.
+- **Next:** Bar's legal read of the five profiles; Bar's likeness review of the seven candidates, then render-down; merge after the four WIP branches (the order below still stands).
 - Bar's calls left open: Feiglin's cannabis line (out for now); Hendel's list name stays out (military red line).
 
 # HANDOFF: idle-genre upgrade + reinvented sharing, LIVE (2026-10-02 evening; read this first)
