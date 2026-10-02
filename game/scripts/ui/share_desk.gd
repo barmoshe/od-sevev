@@ -81,7 +81,7 @@ func build_chips(stage: Node2D, chat_panel: Node2D) -> void:
 	chip = ShareChip.new()
 	chip.name = "ShareChip"
 	stage.add_child(chip)
-	chip.place(ShareChip.STAGE_RECT)
+	chip.place(ShareChip.LEFT_RECT)
 	chat_btn = ShareChip.new()
 	chat_btn.name = "ShareChatBtn"
 	chat_btn.compact = true
@@ -442,16 +442,17 @@ func tick(dt_ms: float, calm: bool, stage_up: bool, chat_open: bool) -> void:
 		chat_btn.update_view(dt_ms, chat_open)
 
 
-## The stage chip is L-anchored (like the thermometer: canvas x 8, never drifting inward on a wide
-## canvas). Where the thermometer's icon would reach it (a stage of 560-640: the full tube's icon
-## at S − 544), it moves under the ability chip (ALT_RECT; hidden while an ultimatum's cameo stands).
+## The stage chip: under the missions chip in the left column (LEFT_RECT) while the thermometer is
+## down; with the thermometer up, the right column: the ability chip's slot (TOP_RECT) while that
+## chip is hidden, else under it (ALT_RECT), where it hides while an ultimatum's cameo stands (its
+## timer chip shares the column). L-anchored on the left, like the missions chip.
 func _place_chip() -> void:
-	chip.position.x = -L.sox()
-	var want := ShareChip.STAGE_RECT
 	var th: Variant = host.get("thermo") if host != null else null
-	if th != null and (th as Thermo).is_shown() and (th as Thermo).icon_top() < ShareChip.STAGE_RECT.end.y + 8.0:
-		want = ShareChip.ALT_RECT
-		chip.position.x = 0.0
+	var want := ShareChip.LEFT_RECT
+	if th != null and (th as Thermo).is_shown() and (th as Thermo).icon_top() < ShareChip.LEFT_RECT.end.y + 8.0:
+		var ab: Variant = host.get("ability_chip")
+		want = ShareChip.ALT_RECT if ab != null and (ab as Node2D).visible else ShareChip.TOP_RECT
+	chip.position.x = -L.sox() if want == ShareChip.LEFT_RECT else 0.0
 	if chip.rect != want:
 		chip.place(want)
 
@@ -586,15 +587,17 @@ func debug_info() -> Dictionary:
 
 # =============================================================================================
 # The 📣 chip: the ability chip's look (the kit buffChip), a megaphone drawn here (no kit icon yet),
-# "הדלף" under it, a red dot while a moment waits. STAGE_RECT is stage px (the sky's top-left,
-# mirroring the ability chip; left of the leader's hit box, which starts at x 172); CHAT_RECT is
+# "הדלף" under it, a red dot while a moment waits. LEFT_RECT is stage px under the missions chip
+# (left of the leader's hit box, which starts at x 188); TOP_RECT and ALT_RECT the right column
+# with the thermometer up (the ability chip's slot, or under it); CHAT_RECT is
 # T3's tall-local header (its left end; the status line yields 96 px).
 # =============================================================================================
 
 class ShareChip:
 	extends Node2D
 
-	const STAGE_RECT := Rect2(8, 168, 96, 100)
+	const LEFT_RECT := Rect2(8, 256, 96, 100)   # under the missions chip (MissionsChip 168-248, full mode)
+	const TOP_RECT := Rect2(612, 168, 96, 100)   # the ability chip's slot (AbilityChip.RECT 572-712), its right edge
 	const ALT_RECT := Rect2(612, 308, 96, 100)   # under the ability chip (AbilityChip.RECT ends at 300)
 	const CHAT_RECT := Rect2(12, 8, 88, 88)
 	const ICON := ["............",

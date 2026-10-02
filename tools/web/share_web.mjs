@@ -225,6 +225,8 @@ async function seed(P) {
 	await P.wait(500);
 	ds = await desk(P);
 	check(ds.prompted, 'the moment brings the advisor\'s prompt after the calm beat');
+	// the prompt queues behind a toast already up: wait for its plate to report (odDev runs at 4 Hz)
+	await P.page.waitForFunction(() => window.odDev && window.odDev.hud && window.odDev.hud.toast && window.odDev.hud.toast.length === 4, null, { timeout: 8000 }).catch(() => {});
 	await shot(P, 'advisor-prompt');
 	const s = await probe(P);
 	const toast = s.hud && s.hud.toast;
@@ -353,14 +355,11 @@ const ctx = await context();
 
 // 5. the brawl cue and the pending chip
 {
-	// `&chat=N` seeds the group before the pick, which then refuses Bibi's round (seen 2026-10-02 on
-	// main too): the group is seeded after the pick instead (ShareDesk.seed_demo_chat: a demand, an
-	// ultimatum, a walkout with its rejoin pill, a brawl)
-	const P = await boot(ctx, 'dev=1&grant=50000');
+	// `&chat=N` seeds the group and an open brawl (dev_probe), as on main
+	const P = await boot(ctx, 'dev=1&grant=50000&chat=14');
 	await handoff(P);
 	await pickBibi(P);
 	await tap(P, hat(P));
-	await P.page.evaluate(() => { window.odDevChat = 1; });
 	await P.page.waitForFunction(() => window.odDev && window.odDev.brawlCue && window.odDev.brawlCue.visible, null, { timeout: 20000 }).catch(() => {});
 	await P.wait(600);
 	let s = await probe(P);
