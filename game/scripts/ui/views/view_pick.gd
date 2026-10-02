@@ -76,6 +76,9 @@ var tile := Vector2(216, 284)       # the 3 × 3 tile [tw, th] (window.odPick.ti
 var grid := Vector2.ZERO            # the grid's [top, bottom], picker-local (window.odPick.grid)
 var booth := Rect2()                # the booth frame, picker-local (empty = no booth; window.odPick.booth)
 var _booth_node: NinePatchRect
+## The free sky above the title [top, bottom], picker-local (seeded rounds: the controller puts the
+## Daily Round's entry there when it fits; main.gd _sync_daily_btn).
+var sky := Vector2.ZERO
 
 var _top := 0.0
 var _bot := float(L.H)
@@ -425,6 +428,7 @@ func _build() -> void:
 		ty = cy - 8.0
 	title.position.y = ty - LH * tlines
 	title.center_in(32.0, 656.0 + L.dx)
+	sky = Vector2(sky_top, title.position.y - 12.0)   # seeded rounds: the daily entry's band
 	_publish()
 
 

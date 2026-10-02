@@ -241,6 +241,7 @@ func _boot() -> void:
 	if mode == "main" and not OS.has_feature("web"):
 		_audio_call("start_music", [])   # web starts the song on the audio unlock (Audio autoload)
 	_refresh_all(0.0)
+	_round_boot()   # seeded rounds: the book, the round chip, the picker's daily entry, a link's arrival
 	if not _pending_offline.is_empty() and mode != "pick":
 		_show_offline()   # screen-graph §0.2 rule 2: O1 is queued until after the pick
 	if not _shot.is_empty():
@@ -577,6 +578,8 @@ func _build_chat() -> void:
 			chat.open()
 		elif tag == "perks" and _gameplay_input():
 			_open_perks()
+		else:
+			_round_toast_tap(tag)   # seeded rounds: "challenge" / "daily"
 
 
 ## The investigation cluster: the thermometer and the sweat on the stage (rtl-map §4, just above
@@ -963,6 +966,7 @@ func _open_share(kind: String) -> void:
 ## The shell's share result (window.odShareDone): the open sheet shows it in its status line.
 func _on_share_result(kind: String, result: String) -> void:
 	_funnel("share_done", {"kind": kind, "result": result})
+	_round_share_result(kind, result)   # seeded rounds
 	var t := overlays.top()
 	if t is ShareSheet:
 		(t as ShareSheet).on_share_result(result)
@@ -1150,6 +1154,7 @@ func _process(delta: float) -> void:
 			_check_meta()
 	_poll_handoff()
 	_check_pick(dt)
+	_round_frame(dt)   # seeded rounds
 	_check_buff_edges()
 	_check_headlines()
 	_check_reveals()
@@ -1388,7 +1393,7 @@ func _run_automation(dt: float, modal: bool) -> void:
 		_auto_tap_acc += rate * dt / 1000.0
 		while _auto_tap_acc >= 1.0:
 			_auto_tap_acc -= 1.0
-			var r := Economy.tap(state)
+			var r := Economy.tap(state, _rng("tap"))   # seeded rounds: _rng
 			top_bar.note_tap(float(r["value"]))   # the live rate line (display only)
 			bb.tap(r["crit"])
 			floaters.spawn(L.magician_hit().get_center().x + randf_range(-60, 60), L.magician_hit().get_center().y - 40.0,
@@ -1473,7 +1478,7 @@ func vote_open() -> bool:
 func _step_economy(dt_sec: float, modal: bool, vote: bool = false) -> void:
 	if vote:
 		# the economy holds too (a pause, never a farm); politics follows only the calendar
-		for pe: Variant in Politics.tick(state, dt_sec, d, politics_ctx(SaveStore.now_ms(), false, Time.get_datetime_dict_from_system(), true)):
+		for pe: Variant in Politics.tick(state, dt_sec, d, _round_ctx(politics_ctx(SaveStore.now_ms(), false, Time.get_datetime_dict_from_system(), true)), _rng("politics")):   # seeded rounds: pinned clock, seeded draws
 			if pe is Dictionary:
 				_on_politics_event(pe)
 		return
@@ -1482,7 +1487,7 @@ func _step_economy(dt_sec: float, modal: bool, vote: bool = false) -> void:
 	# (ux/ftue.md): no modal, the last purchase ≥ 2 s ago, no toast showing, Dubi not speaking.
 	var ping := not modal and _now - _last_buy_ms >= 2000.0 and toasts.idle() and not toasts.saying()
 	var hidden := modal or chat.is_open() or dossier.is_open()
-	for pe: Variant in Politics.tick(state, dt_sec, d, politics_ctx(SaveStore.now_ms(), ping, Time.get_datetime_dict_from_system(), false, hidden)):
+	for pe: Variant in Politics.tick(state, dt_sec, d, _round_ctx(politics_ctx(SaveStore.now_ms(), ping, Time.get_datetime_dict_from_system(), false, hidden)), _rng("politics")):   # seeded rounds
 		if pe is Dictionary:
 			_on_politics_event(pe)
 	if ev["frenzyEnded"]:
@@ -1494,9 +1499,9 @@ func _step_economy(dt_sec: float, modal: bool, vote: bool = false) -> void:
 	var allowed := bool(_reveals.get("suitcase", true)) and stage_unobstructed()
 	if allowed and not golden.is_visible_state() and Ftue.s1_due(state, _now - _last_tap_ms):
 		_spawn_suitcase()
-		Economy.schedule_next_golden(state)
+		Economy.schedule_next_golden(state, _rng("golden"))   # seeded rounds: _rng
 	elif not modal and allowed and Economy.tick_golden_timer(state, dt_sec):
-		Economy.schedule_next_golden(state)
+		Economy.schedule_next_golden(state, _rng("golden"))
 		if not golden.is_visible_state():
 			_spawn_suitcase()
 
@@ -2062,6 +2067,8 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		# the disclaimer is HTML over the canvas; until it hands off, nothing here is live
 		if ftue.handoff_ms <= 0.0:
 			return
+		if _round_pick_down(_in_pick(p), idx):   # seeded rounds: the daily entry in the picker's sky
+			return
 		picker.pointer_down(_in_pick(p))
 		_presses[idx] = {"kind": "pick"}
 		return
@@ -2095,6 +2102,8 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		return
 	if top_bar.seats_contains(tp):
 		_presses[idx] = {"kind": "seats"}   # rtl-map §3: the whole Row B opens T3
+		return
+	if _round_chip_down(lp, idx):   # seeded rounds: the round chip (the ticker's date slot)
 		return
 	# the court card sits over everything in `_lower`; T4 then T3 cover the stage
 	if court.pointer_down(lp):
@@ -2204,6 +2213,8 @@ func _pointer_up(idx: int, p: Vector2) -> void:
 		"mute":
 			if top_bar.mute_contains(tp) and _hud_input():
 				_toggle_mute()
+		_:
+			_round_pointer_up(String(pr["kind"]), p)   # seeded rounds
 
 
 ## 🔊 in Row A: one switch for both sound settings (the settings sheet keeps them separate).
@@ -2304,7 +2315,7 @@ func _on_key(e: InputEventKey) -> void:
 func _handle_tap(at: Vector2) -> void:
 	if not _limiter.try_register(Time.get_ticks_msec()):
 		return
-	var r := Economy.tap(state)
+	var r := Economy.tap(state, _rng("tap"))   # seeded rounds: _rng
 	_last_tap_ms = _now
 	if bool(r.get("paused", false)):
 		# the court / press day (content court.courtPausesTaps, Bar 2026-10-01): no taps while he testifies;
@@ -2378,7 +2389,7 @@ func _catch_golden() -> void:
 	var gp := Vector2(golden.gx, golden.gy)
 	if not golden.catch_it():
 		return
-	var id := Economy.roll_golden_outcome()
+	var id := Economy.roll_golden_outcome(_rng("golden"))   # seeded rounds: _rng
 	var kind := Content.outcome_type(id)   # instant | bpsFrenzy | tapFrenzy (content data)
 	var flight0 := Spins.flight_pct(state)
 	var award := Economy.apply_golden(state, id)
@@ -2610,12 +2621,13 @@ func cycle_notation() -> void:
 
 func export_save() -> void:
 	_flush_save()
-	DisplayServer.clipboard_set(SaveStore.export_code(state))
+	DisplayServer.clipboard_set(SaveStore.export_code(_main_state if in_round() and _main_state != null else state))   # seeded rounds: the main save
 	ticker.enqueue("ftue", Strings.s("F_EXPORTED"))
 	_audio("uiClick")
 
 
 func import_save() -> void:
+	leave_round()   # seeded rounds: an import replaces the main game, never the round
 	var code := ""
 	if OS.has_feature("web"):
 		var ask := Strings.s("IMP_PROMPT") if Strings.has("IMP_PROMPT") else "הדביקו את קוד השמירה (HK1:…)"
@@ -2669,6 +2681,8 @@ func _open_reset() -> void:
 func _open_evolution() -> void:
 	if overlays.is_open():
 		return
+	if _round_intercepts_election():   # seeded rounds: "עוד סבב!" ends a round (no election)
+		return
 	ftue.on_evolve_button(state)
 	_audio("evolveOpen")
 	var ready := d.evolve_enabled
@@ -2683,6 +2697,8 @@ func _open_evolution() -> void:
 ## One away rule (Economy.away_award) for a cold load and for time backgrounded alike. The credit
 ## happens first and is saved; the WELCOME BACK modal is only a receipt.
 func _credit_away(elapsed_sec: float, cold: bool) -> void:
+	if in_round():
+		return   # seeded rounds: no away money inside a round (the clock is play time)
 	var target := _next_state if _next_state != null else state
 	var e := maxf(0.0, elapsed_sec)
 	target.buff_frenzy = maxf(0.0, target.buff_frenzy - e)
@@ -2727,6 +2743,9 @@ func _show_offline() -> void:
 
 
 func _do_reset() -> void:
+	if in_round():
+		leave_round()   # seeded rounds: inside a round "reset" leaves the round; the main save stays
+		return
 	store.wipe_game()
 	_audio("panelClose")
 	_audio("gameReset")   # Audio v1.3: the music fades over a bar; the next first tap plays the motif again
@@ -2764,6 +2783,10 @@ func _do_reset() -> void:
 func _start_evolve(dev_force := false) -> void:
 	if _tx_locked:
 		return
+	if in_round():   # seeded rounds: never an election inside a round
+		if d.evolve_enabled or dev_force:
+			_finish_round()
+		return
 	var nxt := state.duplicate_state()
 	var res := Meta.evolve(nxt)
 	if res.is_empty() and dev_force and bool(_dev["on"]):
@@ -2776,6 +2799,7 @@ func _start_evolve(dev_force := false) -> void:
 		res = {"multBefore": d.prestige_mult, "multAfter": d.prestige_mult, "gained": 0}
 	if res.is_empty():
 		return
+	_round_note_election()   # seeded rounds: this round is what "אתגר חבר" sends
 	_tx_locked = true
 	_economy_frozen = true
 	_next_state = nxt
@@ -2961,6 +2985,7 @@ func _on_pick_done() -> void:
 	_place_undo_chip()
 	if not _pending_offline.is_empty():
 		_show_offline()   # O1 waited for the pick
+	_round_offer_toast()   # seeded rounds: "אתגר חבר" after an election's pick
 	if mode == "main":
 		_save_now()
 
@@ -3366,3 +3391,528 @@ func _run_shot() -> void:
 	img.save_png(String(_shot.get("out", "user://shot.png")))
 	print("SHOT ", _shot["name"], " ", img.get_width(), "x", img.get_height())
 	get_tree().quit(0)
+
+
+# ================================================================== seeded rounds (challenge + daily)
+# BEGIN seeded rounds (game-developer, 2026-10-02): "תעבור אותי" (Beat My Round, challenge links) and
+# "הסבב היומי" (the Daily Round). Sim: sim/seeded_round.gd, sim/challenge.gd, sim/daily.gd,
+# sim/round_book.gd; views: ui/round_chip.gd, ui/views/view_rounds.gd; share: ui/round_share.gd.
+# Elsewhere in this file the hooks are one-liners marked "seeded rounds:".
+#
+# The sandbox: while a round runs, `state` is the round's own GameState (SeededRound.fresh_state)
+# and `store` a RoundBook.Sandbox (saves land in memory). The main game's state waits in
+# `_main_state` (saved to its file first) and comes back untouched on leave_round(); nothing of the
+# round reaches it (no base, perks, trophies or stats). Every sim draw of the round comes from the
+# round's seeded streams (_rng) and the politics clock is pinned (_round_ctx). The round ends when
+# "עוד סבב!" is pressed with the gate open (_open_evolution / _start_evolve): no election, a result
+# card instead. Results and the device ref live in RoundBook (rounds.json beside the save).
+
+var round_run: SeededRound = null       # non-null while a seeded round runs
+var round_info: Dictionary = {}         # {kind, leader, seed, ch (challenge), key, n, official (daily)}
+var round_rec: Dictionary = {}          # SeededRound.new_record()
+var round_result: Dictionary = {}       # the finished round's result (the cards and the shares)
+var book: RoundBook
+var round_chip: RoundChip
+var _main_state: GameState = null
+var _main_store: SaveStore = null
+var _main_had_save := true
+var _round_done := false
+var _round_chip_on := false
+var _round_court_was := false
+var _arrival: Dictionary = {}           # a link's arrival, opened after the hand-off
+var _offer_due := false                 # "אתגר חבר" toast after the next pick
+var _round_toast_ms := 0.0
+var _daily_btn: PxButton
+var _daily_dot: ColorRect
+var _daily_layer := Node2D.new()
+
+
+func in_round() -> bool:
+	return round_run != null
+
+
+## The round's seeded stream, or the global one in the main game.
+func _rng(stream: String) -> Callable:
+	return round_run.rng(stream) if round_run != null else randf
+
+
+func _round_ctx(ctx: Dictionary) -> Dictionary:
+	return SeededRound.pin_ctx(ctx) if round_run != null else ctx
+
+
+func _round_today() -> String:
+	return DailyRound.day_key(SaveStore.now_ms())
+
+
+func _round_boot() -> void:
+	book = RoundBook.new(store.path.get_base_dir()).load_book()
+	round_chip = RoundChip.new()
+	_lower.add_child(round_chip)
+	picker.add_child(_daily_layer)
+	_daily_btn = PxButton.make(_daily_layer, Rect2(0, 0, 544, 80), {"hit": Rect2(0, 0, 544, 88), "label": " ", "label_scale": L.TEXT, "kind": "kit_secondary",
+		"on_commit": func() -> void: open_daily()})
+	_daily_dot = Ui.rect(_daily_layer, Rect2(0, 0, 20, 20), Color("#e0414c"))
+	_daily_layer.visible = false
+	_round_read_arrival()
+
+
+## A link's arrival: the share platform's window.odArrival {kind, via, ref, params} when the shell
+## has it, else the URL hash itself (Challenge's format). Read once; the hash is then cleared, so a
+## reload lands in the player's own game.
+func _round_read_arrival() -> void:
+	if not OS.has_feature("web") or not _shot.is_empty():
+		return
+	var js := "(function () { var a = window.odArrival; var o = (a && typeof a === 'object') ? {kind: String(a.kind || ''), params: (a.params && typeof a.params === 'object') ? a.params : {}} : {hash: String(location.hash || '')};" \
+		+ " if (location.hash) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} } return JSON.stringify(o); })()"
+	var v: Variant = JavaScriptBridge.eval(js, true)
+	var parsed: Variant = JSON.parse_string(str(v)) if v != null else null
+	if not parsed is Dictionary:
+		return
+	var p: Dictionary = parsed
+	var kind := str(p.get("kind", ""))
+	var params: Dictionary = p.get("params", {}) if p.get("params") is Dictionary else {}
+	if p.has("hash"):
+		params = Challenge.parse_pairs(str(p["hash"]))
+		kind = str(params.get("k", ""))
+	round_arrive(kind, params)
+
+
+## An arrival (a link, or a test): "challenge" with the hash's params, or "daily".
+func round_arrive(kind: String, params: Dictionary = {}) -> void:
+	if kind == Challenge.KIND:
+		var ch := Challenge.parse(params)
+		if not ch.is_empty():
+			_arrival = {"kind": kind, "ch": ch}
+	elif kind == "daily":
+		_arrival = {"kind": kind}
+
+
+func _round_frame(dt: float) -> void:
+	if book == null:
+		return
+	var free := ftue.handoff_ms > 0.0 and not tx.running and not _tx_locked and not overlays.is_open() and _shot.is_empty()
+	if not _arrival.is_empty() and free and not in_round():
+		var a := _arrival
+		_arrival = {}
+		if a["kind"] == "daily":
+			open_daily()
+		else:
+			_open_challenge_intro(a["ch"])
+	if in_round() and mode == "main" and not _round_done:
+		SeededRound.observe(round_rec, state)
+	_sync_round_chip()
+	_sync_daily_btn()
+	if bool(_dev["on"]) and OS.has_feature("web"):
+		_round_publish(dt)
+	# once a day, a returning player in their own game hears about the daily round (a tap opens it)
+	if not in_round() and mode == "main" and free and state.taps_lifetime > 0 and Leaders.active():
+		_round_toast_ms += dt
+		var today := _round_today()
+		if _round_toast_ms > 4000.0 and not book.played(today) and str(book.data.get("toastDay", "")) != today and toasts.idle():
+			book.data["toastDay"] = today
+			book.save_book()
+			toasts.show_toast(Strings.s("DAILY_TOAST", {"n": DailyRound.number_of(today)}), "daily")
+
+
+func _sync_round_chip() -> void:
+	var court_on := court.chip_visible()
+	var want := in_round() and mode == "main" and not _round_done and ticker.visible and not court_on \
+		and not ticker.cta_on() and not chat.is_open() and not dossier.is_open()
+	round_chip.visible = want
+	if want:
+		var target := int(round_info.get("ch", {}).get("t", 0)) if round_info.get("kind") == Challenge.KIND else 0
+		round_chip.show_lines(RoundChip.lines(str(round_info.get("kind", "")), state.run_time_sec, target, int(round_info.get("n", 0))))
+	# the crawl clip starts right of the chip (the court chip's rule); re-asserted when a court day
+	# hands the slot back
+	if want and (not _round_chip_on or (_round_court_was and not court_on)):
+		ticker.set_court_chip(true, round_chip.right())
+	elif not want and _round_chip_on and not court_on:
+		ticker.set_court_chip(false)
+	_round_chip_on = want
+	_round_court_was = court_on
+
+
+## The picker's entry (its sky above the title), with a dot while today's round is unplayed.
+func _sync_daily_btn() -> void:
+	var sky: Vector2 = picker.sky
+	var on := mode == "pick" and picker.visible and not in_round() and Leaders.active() and sky.y - sky.x >= 96.0 and not overlays.is_open()
+	_daily_layer.visible = on
+	if not on:
+		return
+	var today := _round_today()
+	var label := Strings.s("DAILY_PICK_BTN", {"n": DailyRound.number_of(today)})
+	if _daily_btn.label != null and _daily_btn.label.text != label:
+		_daily_btn.set_label(label)
+	var r := Rect2(L.floor4((L.cw - 544.0) / 2.0), sky.x + L.floor4((sky.y - sky.x - 80.0) / 2.0), 544.0, 80.0)
+	if _daily_btn.visual != r:
+		_daily_btn.set_rects(r, r.grow(4))
+	if _daily_btn.label != null:
+		_daily_btn.label.max_lines = 1
+		_daily_btn.label.center_in(r.position.x, r.size.x)
+	_daily_dot.position = Vector2(r.end.x - 12.0, r.position.y - 8.0)   # a badge on the corner
+	_daily_dot.visible = not book.played(today)
+
+
+var _round_pub_ms := 0.0
+
+
+## Dev only (web, ?dev=1): window.odRound for the browser driver (tools/web/rounds_web.mjs), 4 Hz:
+## {inRound, kind, leader, seed, runSec, done, result, chip [x, y, w, h] | null, chipLines,
+## daily [x, y] (the picker's entry centre) | null, today, played}; viewport logical px.
+func _round_publish(dt: float) -> void:
+	_round_pub_ms += dt
+	if _round_pub_ms < 250.0:
+		return
+	_round_pub_ms = 0.0
+	var chip: Variant = null
+	if round_chip.visible:
+		var r := round_chip.hit_rect()
+		chip = [r.position.x + _ox, r.position.y + _lower_y, r.size.x, r.size.y]
+	var dl: Variant = null
+	if _daily_layer.visible:
+		var c := _daily_btn.visual.get_center() + picker.position + _root.position
+		dl = [c.x, c.y]
+	var today := _round_today()
+	var info := {"inRound": in_round(), "kind": str(round_info.get("kind", "")), "leader": round_run.leader if in_round() else "",
+		"seed": round_run.seed_ if in_round() else -1, "runSec": state.run_time_sec, "done": _round_done, "result": round_result,
+		"chip": chip, "chipLines": [Bidi.strip_controls(round_chip._title.text), Bidi.strip_controls(round_chip._timer.text)] if round_chip.visible else [],
+		"daily": dl, "today": today, "played": book.played(today), "n": DailyRound.number_of(today)}
+	JavaScriptBridge.eval("window.odRound = %s" % JSON.stringify(info), true)
+
+
+func daily_btn_rect() -> Rect2:
+	return _daily_btn.visual if _daily_layer.visible else Rect2()
+
+
+## Input in the picker: the daily button (picker-local point). True when it took the press.
+func _round_pick_down(p: Vector2, idx: int) -> bool:
+	if not _daily_layer.visible or not _daily_btn.contains(p):
+		return false
+	_daily_btn.down()
+	_presses[idx] = {"kind": "daily_btn"}
+	return true
+
+
+## Input on the round chip (`_lower`-local point): a tap asks to leave the round.
+func _round_chip_down(lp: Vector2, idx: int) -> bool:
+	if not round_chip.visible or not Ui.in_rect(round_chip.hit_rect(), lp):
+		return false
+	_presses[idx] = {"kind": "round_chip"}
+	return true
+
+
+func _round_pointer_up(kind: String, p: Vector2) -> void:
+	match kind:
+		"daily_btn":
+			var inside := _daily_layer.visible and _daily_btn.contains(_in_pick(p))
+			_daily_btn.up(inside)
+		"round_chip":
+			if round_chip.visible and Ui.in_rect(round_chip.hit_rect(), _in_lower(p)) and _gameplay_input():
+				_open_round_card(RoundCards.QuitCard.new(), {})
+
+
+func _open_round_card(o: RoundCards.RoundCard, model: Dictionary) -> void:
+	_audio("panelOpen")
+	overlays.request(func() -> Overlay:
+		o.setup(self, overlays)
+		o.model = model
+		return o.call("build"))
+
+
+# ------------------------------------------------------------------ entry points
+
+func _open_challenge_intro(ch: Dictionary) -> void:
+	round_info = {"pending": ch}
+	_funnel("challenge_open", {"leader": ch["leader"], "back": int(ch.get("vs", -1)) > 0})
+	_open_round_card(RoundCards.ChallengeIntro.new(), ch)
+
+
+## ChallengeIntro's GO.
+func round_accept_arrival() -> void:
+	var ch: Dictionary = round_info.get("pending", {})
+	round_info = {}
+	if ch.is_empty():
+		return
+	start_round(Challenge.KIND, {"leader": ch["leader"], "seed": int(ch["seed"]), "ch": ch})
+
+
+## ChallengeIntro's LATER (or its backdrop): the player's own game, as it was.
+func round_decline_arrival() -> void:
+	round_info = {}
+
+
+## "הסבב היומי": the day's card (unplayed: GO; played: the grid, the streak, SHARE, REPLAY).
+func open_daily() -> void:
+	if in_round() or overlays.is_open() or book == null:
+		return
+	var today := _round_today()
+	var yd := book.daily_result(DailyRound.prev_key(today))
+	_funnel("daily_open", {"played": book.played(today)})
+	_open_round_card(RoundCards.DailyCard.new(), {"n": DailyRound.number_of(today), "key": today, "leader": DailyRound.leader_of(today),
+		"today": book.daily_result(today), "yesterday": yd, "streak": book.streak(today)})
+
+
+func daily_ready() -> bool:
+	return book != null and not in_round() and Leaders.active()
+
+
+## DailyCard's GO / REPLAY: today's seed and leader; official only while the day has no result.
+func start_daily() -> void:
+	var today := _round_today()
+	start_round("daily", {"leader": DailyRound.leader_of(today), "seed": DailyRound.seed_of(today), "key": today,
+		"n": DailyRound.number_of(today), "official": not book.played(today)})
+
+
+## "אתגר חבר" (T4 and the after-election toast): the main game's last election.
+func open_challenge_offer() -> void:
+	if not round_offer_ready() or overlays.is_open():
+		return
+	_open_round_card(RoundCards.ChallengeOffer.new(), book.last_round())
+
+
+func round_offer_ready() -> bool:
+	return book != null and not in_round() and not book.last_round().is_empty()
+
+
+## The main game's election (before the run resets): the round a challenge sends; its toast follows
+## the next pick.
+func _round_note_election() -> void:
+	if book == null or in_round() or not Leaders.active():
+		return
+	book.note_round(Leaders.current(state), int(floorf(state.run_time_sec)), Challenge.seed_for_round(state))
+	_offer_due = true
+
+
+func _round_offer_toast() -> void:
+	if not _offer_due or in_round():
+		return
+	_offer_due = false
+	var last := book.last_round()
+	if not last.is_empty():
+		toasts.show_toast(Strings.s("CHALLENGE_TOAST", {"mmss": SeededRound.mmss(float(last["t"]))}), "challenge")
+
+
+func _round_toast_tap(tag: String) -> bool:
+	if tag == "challenge" and _gameplay_input():
+		open_challenge_offer()
+		return true
+	if tag == "daily" and _gameplay_input():
+		open_daily()
+		return true
+	return false
+
+
+# ------------------------------------------------------------------ the sandbox
+
+## Starts a seeded round over the main game: {leader, seed, ch (challenge) | key, n, official (daily)}.
+func start_round(kind: String, info: Dictionary) -> bool:
+	if in_round() or tx.running or _tx_locked or book == null:
+		return false
+	overlays.close_all()
+	if chat.is_open():
+		chat.close()
+	if dossier.is_open():
+		dossier.close()
+	_main_store = store
+	_main_had_save = FileAccess.file_exists(store.path) or state.taps_lifetime > 0 or state.evolutions > 0
+	if _main_had_save and _shot.is_empty():
+		store.save_game(state)
+	_main_state = state
+	store = RoundBook.Sandbox.new(_main_store)
+	round_info = info.duplicate()
+	round_info["kind"] = kind
+	round_run = SeededRound.new(kind, str(info.get("leader", "")), int(info.get("seed", 0)))
+	round_rec = SeededRound.new_record()
+	round_result = {}
+	_round_done = false
+	_economy_frozen = false
+	state = SeededRound.fresh_state(round_run.leader, round_run.seed_, _main_state if _main_had_save else null)
+	_round_swap_views()
+	_round_stage()
+	_funnel("challenge_start" if kind == Challenge.KIND else "daily_start", {"leader": round_run.leader,
+		"official": info.get("official", false) == true})
+	return true
+
+
+## Back to the player's own game, exactly as it was (a new player: a new game at the picker).
+func leave_round() -> void:
+	if not in_round():
+		return
+	overlays.close_all()
+	if chat.is_open():
+		chat.close()
+	if dossier.is_open():
+		dossier.close()
+	var back := _main_state
+	round_run = null
+	round_info = {}
+	round_rec = {}
+	_round_done = false
+	_main_state = null
+	store = _main_store if _main_store != null else store
+	_economy_frozen = false
+	_acc = 0.0
+	if _main_had_save and back != null:
+		state = back
+	else:
+		state = GameState.fresh()
+		Leaders.set_salt(state, randi())
+	_round_swap_views()
+	if Leaders.pick_pending(state):
+		_open_picker()
+	else:
+		_round_stage()
+
+
+## The view resets of a state swap (as an import: the old state's figures, buffs and flights go).
+func _round_swap_views() -> void:
+	d = Economy.derive(state)
+	golden.clear()
+	diorama.clear_all()
+	diorama.sync(state.owned, false)
+	buffs.clear()
+	floaters.clear()
+	prop_fx.clear()
+	shop.reset_run()
+	if shop.tab != "producers":
+		shop.switch_tab("producers")   # (only then: a switch marks the state's tabsTouched)
+	top_bar.reset_rate()
+	bb.set_aura("plain")
+	bb.court_reset()
+	toasts.clear_bubble()
+	_seed_milestones()
+	diorama.set_era(Story.era_for(state.evolutions))
+	_audio_call("set_evolutions", [state.evolutions])
+	if Leaders.active():
+		_audio_call("set_leader", [Leaders.current(state)])
+	_evolve_was_visible = Economy.evolve_visible(state)
+	_prev_buffs = {"frenzy": state.buff_frenzy > 0.0, "tapFrenzy": state.buff_tap_frenzy > 0.0}
+	_undo_ms = 0.0
+	_pick_seq.clear()
+	_fresh_due = ""
+	_pending_offline = {}
+	_autosave_ms = 0.0
+	_acc = 0.0
+
+
+## The round's leader on the stage, before tap 1 (a fresh round: the pre-tap state; the clock
+## starts at the first tap) or in play (the main game coming back).
+func _round_stage() -> void:
+	bb.modulate.a = 1.0
+	bb.set_leader(LeaderUi.art(), LeaderUi.tap())
+	bb.walk_in()
+	bb.walk_land()
+	bb.unlock()
+	var pre := state.taps_lifetime == 0
+	_set_mode("title" if pre else "main", false)
+	_apply_identity(true)
+	if not pre:
+		_audio_call("start_music", [])
+
+
+## "עוד סבב!" pressed inside a round (the gate open): the round ends here.
+func _round_intercepts_election() -> bool:
+	if not in_round():
+		return false
+	if d.evolve_enabled:
+		_finish_round()
+	return true
+
+
+func _finish_round() -> void:
+	if not in_round() or _round_done:
+		return
+	_round_done = true
+	SeededRound.observe(round_rec, state)
+	_economy_frozen = true
+	shop.cancel_press()
+	_presses.clear()
+	_audio("milestone")
+	var secs := maxi(1, int(floorf(state.run_time_sec)))
+	var cells := SeededRound.cells(round_rec)
+	var fresh_player := not _main_had_save
+	if round_info.get("kind") == Challenge.KIND:
+		var ch: Dictionary = round_info.get("ch", {})
+		var oc := Challenge.outcome(secs, int(ch.get("t", 0)))
+		round_result = oc.duplicate()
+		round_result.merge({"leader": round_run.leader, "seed": round_run.seed_, "cells": cells, "newPlayer": fresh_player})
+		book.record_challenge({"leader": round_run.leader, "seed": round_run.seed_, "t": int(ch.get("t", 0)), "mine": secs,
+			"result": oc["result"], "at": int(SaveStore.now_ms() / 1000.0)})
+		_funnel("challenge_result", {"result": oc["result"]})
+		_open_round_card(RoundCards.ChallengeResult.new(), round_result)
+	else:
+		var key := str(round_info.get("key", ""))
+		var res := {"n": int(round_info.get("n", 0)), "leader": round_run.leader, "sec": secs, "cells": cells,
+			"court": SeededRound.court_word(round_rec), "press": round_rec.get("press", false) == true}
+		var official: bool = round_info.get("official", false) == true and book.record_daily(key, res)
+		round_result = res
+		_funnel("daily_done", {"official": official})
+		_open_round_card(RoundCards.DailyResult.new(), {"result": res, "official": official, "officialResult": book.daily_result(key),
+			"streak": book.streak(key), "newPlayer": fresh_player})
+
+
+# ------------------------------------------------------------------ sharing
+
+## The cards' share buttons: "offer" (the main game's round as a challenge), "return" (my answer to
+## a challenge), "daily" (today's official grid, else this round's).
+func round_share(which: String) -> void:
+	ShareKit.listen(_on_share_result)
+	var site := ShareKit.site_url()
+	var stub := RoundShare.platform()
+	var ref := book.ref()
+	var model := {}
+	var kind := Challenge.KIND
+	match which:
+		"offer":
+			var last := book.last_round()
+			if last.is_empty():
+				return
+			var ch := {"leader": str(last["leader"]), "seed": int(last["seed"]), "t": int(last["t"]), "ref": ref}
+			var url := Challenge.link(site, ch, stub)
+			model = ch.merged({"hash": Challenge.build_hash(ch), "url": url, "result": "", "vs": -1,
+				"text": ShareKit.plain(Strings.s("CHALLENGE_SHARE_TEXT", {"mmss": SeededRound.mmss(float(ch["t"])), "short": LeaderUi.short(ch["leader"]), "url": url}))})
+		"return":
+			var ch0: Dictionary = round_info.get("ch", {})
+			if ch0.is_empty() or round_result.is_empty():
+				return
+			var ch2 := Challenge.return_challenge(ch0, int(round_result["mine"]), ref)
+			var url2 := Challenge.link(site, ch2, stub)
+			var key2 := str({"win": "CHALLENGE_SHARE_WIN", "lose": "CHALLENGE_SHARE_LOSE"}.get(str(round_result["result"]), "CHALLENGE_SHARE_TIE"))
+			model = ch2.merged({"hash": Challenge.build_hash(ch2), "url": url2, "result": round_result["result"],
+				"mine": round_result["mine"], "theirs": round_result["theirs"],
+				"text": ShareKit.plain(Strings.s(key2, {"mine": SeededRound.mmss(float(round_result["mine"])), "theirs": SeededRound.mmss(float(round_result["theirs"])), "url": url2}))})
+		"daily":
+			kind = "daily"
+			var today := _round_today()
+			var res: Dictionary = book.daily_result(today)
+			if res.is_empty():
+				res = round_result if round_info.get("kind") == "daily" else {}
+			if res.is_empty():
+				return
+			model = daily_share_model(res, site, stub, Calendar.active() and Calendar.is_blackout(SaveStore.now_ms()))
+			model["streak"] = book.streak(today)
+			model["key"] = today
+	_funnel(kind + "_share", {"which": which})
+	RoundShare.share(kind, model)
+
+
+## The daily share's model: the grid text (DailyRound.share_text) and its parts.
+static func daily_share_model(res: Dictionary, site: String, stub: bool, blackout: bool) -> Dictionary:
+	var host_ := ShareKit.display_host(site)
+	var url := host_ + ("/s/daily" if stub else "/#k=daily")
+	var words := {"head": ShareKit.plain(Strings.s("DAILY_SHARE_HEAD", {"n": int(res.get("n", 0))})),
+		"court": ShareKit.plain(RoundCards.court_text(res)), "url": url}
+	return {"n": int(res.get("n", 0)), "leader": str(res.get("leader", "")), "sec": int(res.get("sec", 0)),
+		"mmss": SeededRound.mmss(float(res.get("sec", 0))), "cells": str(res.get("cells", "")),
+		"grid": Array(SeededRound.grid_lines(str(res.get("cells", "")))), "court": str(res.get("court", "")),
+		"press": res.get("press", false) == true, "url": url, "text": DailyRound.share_text(res, words, blackout)}
+
+
+## The shell's share result for a round card: its status line.
+func _round_share_result(kind: String, result: String) -> void:
+	if kind != Challenge.KIND and kind != "daily":
+		return
+	var t := overlays.top()
+	if t is RoundCards.RoundCard:
+		(t as RoundCards.RoundCard).on_share_result(result)
+# END seeded rounds

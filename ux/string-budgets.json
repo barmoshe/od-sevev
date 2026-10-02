@@ -612,6 +612,13 @@
       "lines": 6,
       "linesLarge": 8,
       "where": "Leader card (long-press / I): rule text; the card grows"
+    },
+    "pick.daily": {
+      "widthPx": 480,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "The Daily Round's entry in the picker's sky (kit button_secondary, visual 544 x 80, a dot when unplayed)"
     }
   },
   "worstCasePlaceholders": {
@@ -669,6 +676,8 @@
     "mail": "",
     "preview": "",
     "mood": "",
+    "mine": "88:88",
+    "theirs": "88:88",
     "short": "סמוטריץ׳",
     "party": "הציונות הדתית",
     "verb": "העברה",
@@ -692,6 +701,7 @@
     "lv",
     "m",
     "max",
+    "mine",
     "mmss",
     "mult",
     "n",
@@ -708,6 +718,7 @@
     "rate",
     "s",
     "seats",
+    "theirs",
     "thumbs",
     "total",
     "version",
@@ -6173,6 +6184,510 @@
         "4": 576,
         "5": 720
       }
+    },
+    "CHALLENGE_TITLE": {
+      "surface": "label",
+      "spec": "seeded rounds: the challenge intro card",
+      "note": "A friend's challenge link opened",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 192,
+        "5": 240
+      }
+    },
+    "CHALLENGE_INTRO_BODY": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1604,
+        "5": 2005
+      }
+    },
+    "CHALLENGE_INTRO_BACK": {
+      "surface": "label",
+      "spec": "seeded rounds: a return link (vs)",
+      "note": "{mine} = the friend's time (t), {theirs} = the time it answered (vs)",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 836,
+        "5": 1045
+      }
+    },
+    "CHALLENGE_SANDBOX": {
+      "surface": "label",
+      "spec": "seeded rounds: save isolation, said out loud",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 600,
+        "5": 750
+      }
+    },
+    "CHALLENGE_GO": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 284,
+        "5": 355
+      }
+    },
+    "CHALLENGE_LATER": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 160,
+        "5": 200
+      }
+    },
+    "CHALLENGE_CHIP": {
+      "surface": "label",
+      "spec": "seeded rounds: the ghost chip, line 1",
+      "note": "The ticker's date-chip slot during a challenge round",
+      "box": "ticker.chipWide",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 108,
+        "5": 135
+      }
+    },
+    "CHALLENGE_CHIP_TIME": {
+      "surface": "label",
+      "spec": "seeded rounds: the ghost chip, line 2",
+      "note": "The challenger's time left, counting down",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      }
+    },
+    "CHALLENGE_CHIP_OVER": {
+      "surface": "label",
+      "spec": "seeded rounds: the ghost chip past the challenger's time",
+      "note": "Drawn in red_hi, counting up",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 104,
+        "5": 130
+      }
+    },
+    "CHALLENGE_WIN": {
+      "surface": "label",
+      "spec": "seeded rounds: the result",
+      "joke": true,
+      "note": "{mmss} = your time",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 244,
+        "5": 305
+      }
+    },
+    "CHALLENGE_LOSE": {
+      "surface": "label",
+      "spec": "seeded rounds: the result",
+      "joke": true,
+      "note": "{mmss} = the gap",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 264,
+        "5": 330
+      }
+    },
+    "CHALLENGE_TIE": {
+      "surface": "label",
+      "spec": "seeded rounds: the result",
+      "joke": true,
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 216,
+        "5": 270
+      }
+    },
+    "CHALLENGE_VS": {
+      "surface": "label",
+      "spec": "seeded rounds: the result",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 532,
+        "5": 665
+      }
+    },
+    "CHALLENGE_SEND_BACK": {
+      "surface": "label",
+      "spec": "seeded rounds: the return link (the brief's 'שלח לו בחזרה' in the buttons' infinitive voice)",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 232,
+        "5": 290
+      }
+    },
+    "CHALLENGE_BACK_MAIN": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 340,
+        "5": 425
+      }
+    },
+    "CHALLENGE_START_MAIN": {
+      "surface": "label",
+      "spec": "seeded rounds: a new player after the round",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 344,
+        "5": 430
+      }
+    },
+    "CHALLENGE_OFFER_TITLE": {
+      "surface": "label",
+      "spec": "seeded rounds: the offer after an election / from T4",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 168,
+        "5": 210
+      }
+    },
+    "CHALLENGE_OFFER_BODY": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1600,
+        "5": 2000
+      }
+    },
+    "CHALLENGE_OFFER_NOTE": {
+      "surface": "label",
+      "spec": "seeded rounds: the fairness note",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 700,
+        "5": 875
+      }
+    },
+    "CHALLENGE_SEND": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 208,
+        "5": 260
+      }
+    },
+    "CHALLENGE_DOS_BTN": {
+      "surface": "label",
+      "spec": "seeded rounds: T4's row",
+      "box": "dos.btn",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 168,
+        "5": 210
+      }
+    },
+    "CHALLENGE_TOAST": {
+      "surface": "label",
+      "spec": "seeded rounds: after an election's pick; a tap opens the offer",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 520,
+        "5": 650
+      }
+    },
+    "CHALLENGE_SHARE_TEXT": {
+      "surface": "share-text",
+      "spec": "seeded rounds",
+      "joke": true,
+      "maxChars": 90
+    },
+    "CHALLENGE_SHARE_WIN": {
+      "surface": "share-text",
+      "spec": "seeded rounds: the return link",
+      "joke": true,
+      "maxChars": 90
+    },
+    "CHALLENGE_SHARE_LOSE": {
+      "surface": "share-text",
+      "spec": "seeded rounds: the return link",
+      "joke": true,
+      "maxChars": 90
+    },
+    "CHALLENGE_SHARE_TIE": {
+      "surface": "share-text",
+      "spec": "seeded rounds: the return link",
+      "joke": true,
+      "maxChars": 90
+    },
+    "ROUND_QUIT_TITLE": {
+      "surface": "label",
+      "spec": "seeded rounds: a tap on the ghost chip",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 248,
+        "5": 310
+      }
+    },
+    "ROUND_QUIT_BODY": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1008,
+        "5": 1260
+      }
+    },
+    "ROUND_QUIT_GO": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
+    },
+    "ROUND_QUIT_STAY": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.btnHalf",
+      "maxChars": 9,
+      "worstPx": {
+        "4": 128,
+        "5": 160
+      }
+    },
+    "DAILY_TITLE": {
+      "surface": "label",
+      "spec": "seeded rounds: the daily card",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 296,
+        "5": 370
+      }
+    },
+    "DAILY_BODY": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1692,
+        "5": 2115
+      }
+    },
+    "DAILY_ONCE": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 788,
+        "5": 985
+      }
+    },
+    "DAILY_GO": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
+    },
+    "DAILY_REPLAY": {
+      "surface": "label",
+      "spec": "seeded rounds: after the official attempt",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 360,
+        "5": 450
+      }
+    },
+    "DAILY_SHARE": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.btnFull",
+      "maxChars": 21,
+      "worstPx": {
+        "4": 92,
+        "5": 115
+      }
+    },
+    "DAILY_TODAY": {
+      "surface": "label",
+      "spec": "seeded rounds: today's official result",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      }
+    },
+    "DAILY_YESTERDAY": {
+      "surface": "label",
+      "spec": "seeded rounds: yesterday's grid",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 220,
+        "5": 275
+      }
+    },
+    "DAILY_STREAK_ONE": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 224,
+        "5": 280
+      }
+    },
+    "DAILY_STREAK_TWO": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      }
+    },
+    "DAILY_STREAK_OTHER": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 236,
+        "5": 295
+      }
+    },
+    "DAILY_RESULT": {
+      "surface": "label",
+      "spec": "seeded rounds: the daily result",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 240,
+        "5": 300
+      }
+    },
+    "DAILY_UNOFFICIAL": {
+      "surface": "label",
+      "spec": "seeded rounds",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 588,
+        "5": 735
+      }
+    },
+    "DAILY_COURT_NO": {
+      "surface": "label",
+      "spec": "seeded rounds: the grid's court line (and the share text's)",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 156,
+        "5": 195
+      }
+    },
+    "DAILY_COURT_YES": {
+      "surface": "label",
+      "spec": "seeded rounds: a court day was served",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 184,
+        "5": 230
+      }
+    },
+    "DAILY_PRESS_YES": {
+      "surface": "label",
+      "spec": "seeded rounds: a press day was served (every leader but Bibi)",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 244,
+        "5": 305
+      }
+    },
+    "DAILY_CHIP": {
+      "surface": "label",
+      "spec": "seeded rounds: the round chip, line 1 (line 2: CHALLENGE_CHIP_TIME, counting up)",
+      "box": "ticker.chipWide",
+      "maxChars": 7,
+      "worstPx": {
+        "4": 160,
+        "5": 200
+      },
+      "largeText": "step-down"
+    },
+    "DAILY_DOS_BTN": {
+      "surface": "label",
+      "spec": "seeded rounds: T4's row",
+      "box": "dos.btn",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 196,
+        "5": 245
+      }
+    },
+    "DAILY_PICK_BTN": {
+      "surface": "label",
+      "spec": "seeded rounds: the picker's entry",
+      "box": "pick.daily",
+      "maxChars": 20,
+      "worstPx": {
+        "4": 296,
+        "5": 370
+      }
+    },
+    "DAILY_TOAST": {
+      "surface": "label",
+      "spec": "seeded rounds: once a day on load; a tap opens the daily card",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 848,
+        "5": 1060
+      }
+    },
+    "DAILY_SHARE_HEAD": {
+      "surface": "share-text",
+      "spec": "seeded rounds: the grid text's head line (a Hebrew word first, for the bidi)",
+      "maxChars": 20
     },
     "HUD_RATE": {
       "aliasOf": "HUD_BPS",
