@@ -86,6 +86,10 @@ sed_inplace "s|__OD_SITE_URL__|${SITE}|g" "$OUT/about.html"
 python3 "$HERE/lib/render_shell.py" "$OUT/about.html"
 cp "$GAME/assets/sprites/wordmark.png" "$OUT/wordmark.png"
 [ -f "$GAME/web/og.jpg" ] && cp "$GAME/web/og.jpg" "$OUT/og.jpg"   # the 2D Artist's 1200x630 link preview (art/od-sevev/out/key/og-1200x630.jpg, the leader lineup, 203 KB)
+# The share platform: one link-preview stub per share variant (build/web/s/<variant>/index.html, its
+# own og:title and og:image from game/web/og/, rendered by tools/og.sh; the forward keeps ?via= and
+# the #hash). Regenerate the images with tools/og.sh after the cards or the OG_S_* strings change.
+python3 "$HERE/lib/gen_share_stubs.py" "$OUT" "$SITE"
 # Crawlers (SEO/AEO): robots.txt lets every bot in, AI search bots included (OAI-SearchBot,
 # PerplexityBot, Claude-SearchBot), and points at the sitemap (/ and /about.html). Absolute site URL only.
 if [ -n "$SITE" ]; then

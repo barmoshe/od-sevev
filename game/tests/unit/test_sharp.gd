@@ -147,7 +147,7 @@ func test_the_reading_cut_lays_out_exactly_like_sevev_9() -> void:
 	var tbl: Dictionary = Strings.data()["strings"]
 	for key: String in tbl:
 		var v := String(tbl[key])
-		if v.strip_edges() != "":
+		if v.strip_edges() != "" and not _has_emoji(v):
 			texts.append(v)
 	texts.append_array(["\u20661,250\u2069 ₪ לשנייה", "דובי: \"אין כלום, כי לא היה כלום!\"", "רה\"מ ביקש \u20663\u2069 מנדטים ועוד \u206645K\u2069 ₪ לתקציב הישיבות"])
 	var boxes := [[0.0, 1], [416.0, 99], [560.0, 4], [300.0, 2], [200.0, 1]]
@@ -281,3 +281,12 @@ func test_the_first_tap_after_esc_folds_the_court_card_reaches_t3() -> void:
 	_touch_up(lp)
 	cv.update_view(CourtView.mc("courtCollapseMs") + 20.0, m.state, m.d, {"main": true, "covered": true})
 	runner.check(cv.mode() == "chip", "the fold ends in the chip (%s)" % cv.mode())
+
+
+## The share platform's share texts (WhatsApp prose, never drawn on the canvas) end with an emoji,
+## which no pixel cut has: they are not canvas strings (ux/tools/gen_strings.py: surface share-text).
+static func _has_emoji(v: String) -> bool:
+	for i in v.length():
+		if v.unicode_at(i) >= 0x2300 and v.unicode_at(i) != 0x2066 and v.unicode_at(i) != 0x2069:
+			return true
+	return false

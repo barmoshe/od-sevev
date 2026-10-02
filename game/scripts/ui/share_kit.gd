@@ -263,3 +263,447 @@ static func whatsapp(kind: String, text: String) -> void:
 	if not OS.has_feature("web"):
 		return
 	JavaScriptBridge.eval("window.odShare && window.odShare.whatsapp(%s, %s)" % [_js_str(kind), _js_str(wa_url(text))], true)
+
+
+# ================================================================== the share platform (Bar 2026-10-02)
+# One entry point for every share: ShareKit.request(kind, model). On the web it opens the HTML share
+# drawer (game/web/shell.html window.odShareUI) through main's ShareDesk, which pre-renders the card
+# when the moment opens and hands the PNG to JS before the player's tap (Safari's user activation
+# then only covers navigator.share). Off the web (desktop, the headless tests) the canvas sheet
+# (ShareSheet) shows the same card. Kinds: leak, breaking, term, career, receipt, result, and the
+# challenge agent's challenge / daily. The pure parts live here: the models, the copy, the links.
+#
+# The link: SITE + "s/<variant>/?via=<channel>#r=<ref>&k=<kind>[&<model.url_hash>]". The /s/ stub
+# (tools/lib/gen_share_stubs.py) carries the variant's own og:title / og:image and forwards to the
+# game with the query and the hash; the hash (never seen by a crawler) is read by the shell as
+# window.odArrival = {kind, via, ref, params}.
+
+## The leaders with stub variants (the playable roster; Gantz is the picker's decoy).
+const STUB_LEADERS := ["bibi", "bennett", "bengvir", "deri", "eisenkot", "golan", "liberman", "smotrich"]
+## Every outcome a leader stub exists for (the neutral `all-*` set is NEUTRAL_STUBS).
+const STUB_OUTCOMES := ["61", "leak", "breaking", "term", "career", "challenge", "result"]
+const NEUTRAL_STUBS := ["leak", "breaking", "term", "career", "receipt", "result", "challenge"]
+## The drawer's tabs, in order (challenge / daily only when their model was passed in).
+const DRAWER_KINDS := ["leak", "breaking", "term", "career", "receipt", "result", "challenge", "daily"]
+
+## main's ShareDesk (ui/share_desk.gd), set when it is built: request() goes through it.
+static var desk: Object
+
+
+## THE API (the challenge / daily agent calls this): opens the share drawer on `kind` with `model`.
+##   challenge: {leader, secs, seed, url_hash}  → the leader's head, the big time, "תעבור אותי?"
+##   daily:     {n, grid_text, url_hash}         → "עוד סבב #N", the emoji grid as pixel squares,
+##              and the text-only share is the grid text itself.
+## `url_hash` ("s=123&t=452") is appended to the link's hash after r=<ref>&k=<kind>. Returns false
+## when there is no desk (a tool scene) or the kind is unknown.
+static func request(kind: String, model: Dictionary = {}) -> bool:
+	if desk == null or not is_instance_valid(desk) or not DRAWER_KINDS.has(kind):
+		return false
+	return bool(desk.call("request", kind, model))
+
+
+## "7:42", "1:02:03" (a run's clock; never a seat number).
+static func fmt_time(sec: float) -> String:
+	var s := maxi(0, int(floorf(sec)))
+	if s >= 3600:
+		return "%d:%02d:%02d" % [s / 3600, (s % 3600) / 60, s % 60]
+	return "%d:%02d" % [s / 60, s % 60]
+
+
+static func short_of(leader: String) -> String:
+	return str(Leaders.leader(leader).get("short", "")) if leader != "" else ""
+
+
+## The stub's variant path ("s/bibi-leak/", "s/all-term/", "s/daily/") for a kind / event.
+static func stub_path(kind: String, leader: String, event: String = "", neutral: bool = false) -> String:
+	if kind == "daily":
+		return "s/daily/"
+	var outcome := kind
+	if kind == "breaking" and event == "gate":
+		outcome = "61"
+	if neutral or kind == "receipt" or not STUB_LEADERS.has(leader):
+		if outcome == "61":
+			outcome = "breaking"
+		return "s/all-%s/" % (outcome if NEUTRAL_STUBS.has(outcome) else "result")
+	return "s/%s-%s/" % [leader, outcome if STUB_OUTCOMES.has(outcome) else "result"]
+
+
+## Every stub variant: "<leader>-<outcome>" | "all-<outcome>" | "daily" -> {leader, head} (the
+## og:title, which is also the headline on its og:image). tools/og.sh renders one JPEG per name and
+## tools/lib/gen_share_stubs.py writes one page per name (from the build's ui-strings + this list,
+## exported to build/og-variants.json by tools/og.sh).
+static func og_variants() -> Dictionary:
+	var out := {}
+	var heads := {"61": "OG_S_GATE", "leak": "OG_S_LEAK", "breaking": "OG_S_BREAKING", "term": "OG_S_TERM",
+		"career": "OG_S_CAREER", "challenge": "OG_S_CHALLENGE", "result": "OG_S_RESULT"}
+	for lid: String in STUB_LEADERS:
+		for o: String in STUB_OUTCOMES:
+			out["%s-%s" % [lid, o]] = {"leader": lid, "short": short_of(lid), "head": plain(Strings.s(heads[o], {"short": short_of(lid)}))}
+	for o: String in NEUTRAL_STUBS:
+		out["all-" + o] = {"leader": "", "head": plain(Strings.s("OG_N_" + o.to_upper()))}
+	out["daily"] = {"leader": "", "head": plain(Strings.s("OG_DAILY"))}
+	return out
+
+
+## The og:title of a stub path ("s/bibi-leak/" → "הודלף מהקואליציה של ביבי").
+static func og_head(stub: String) -> String:
+	var v := stub.trim_prefix("s/").trim_suffix("/")
+	return str(og_variants().get(v, {}).get("head", ""))
+
+
+## The copy variants (string keys) for a kind: the rotation picks one (copy_line).
+static func copy_keys(kind: String, event: String = "", neutral: bool = false) -> Array:
+	match kind:
+		"leak":
+			return ["SHARE_LEAK_N1", "SHARE_LEAK_N2", "SHARE_LEAK_N3"] if neutral else ["SHARE_LEAK_1", "SHARE_LEAK_2", "SHARE_LEAK_3", "SHARE_LEAK_4"]
+		"breaking":
+			if neutral:
+				return ["SHARE_BREAK_N1", "SHARE_BREAK_N2", "SHARE_BREAK_N3"]
+			match event:
+				"court":
+					return ["SHARE_BREAK_COURT_1", "SHARE_BREAK_COURT_2"]
+				"election":
+					return ["SHARE_BREAK_ELECTION_1", "SHARE_BREAK_ELECTION_2"]
+			return ["SHARE_BREAK_GATE_1", "SHARE_BREAK_GATE_2", "SHARE_BREAK_GATE_3"]
+		"term":
+			return ["SHARE_TERM_N1", "SHARE_TERM_N2"] if neutral else ["SHARE_TERM_1", "SHARE_TERM_2", "SHARE_TERM_3"]
+		"career":
+			return ["SHARE_CAREER_N1", "SHARE_CAREER_N2"] if neutral else ["SHARE_CAREER_1", "SHARE_CAREER_2", "SHARE_CAREER_3"]
+		"challenge":
+			return ["SHARE_CHAL_N1"] if neutral else ["SHARE_CHAL_1", "SHARE_CHAL_2"]
+		"daily":
+			return ["SHARE_DAILY"]
+		"receipt":
+			return ["SHARE_RECEIPT_2"]
+		"result":
+			return ["SHARE_RESULT_2"]
+	return ["SHARE_TEXT_INVITE"]
+
+
+## The share text (no link: the drawer adds "\n" + the link): the `rot`-th variant whose
+## placeholders the params can fill, as plain prose (no bidi isolates).
+static func copy_line(kind: String, params: Dictionary, rot: int = 0, event: String = "", neutral: bool = false) -> String:
+	var keys := copy_keys(kind, event, neutral)
+	for i in keys.size():
+		var k: String = keys[posmod(rot + i, keys.size())]
+		var raw := String(Strings.data()["strings"].get(k, ""))
+		var ok := true
+		for ph: String in _placeholders(raw):
+			if ph == "url":
+				continue
+			if not params.has(ph) or str(params[ph]) == "":
+				ok = false
+				break
+		if ok:
+			return _no_url(plain(Strings.s(k, params)))
+	return _no_url(plain(Strings.s(keys[0], params)))
+
+
+static func _no_url(t: String) -> String:
+	return t.replace(" {url}", "").replace("{url}", "").strip_edges()
+
+
+static func _placeholders(t: String) -> Array:
+	var out: Array = []
+	var i := t.find("{")
+	while i >= 0:
+		var j := t.find("}", i)
+		if j < 0:
+			break
+		out.append(t.substr(i + 1, j - i - 1))
+		i = t.find("{", j)
+	return out
+
+
+## The message as sent: the text, then the link alone on the last line.
+static func compose(text: String, link: String) -> String:
+	return text.strip_edges() + "\n" + link
+
+
+static func file_name(kind: String, fmt: String = "sq") -> String:
+	if kind == "receipt" and fmt == "sq":
+		return FILE_RECEIPT
+	if kind == "result" and fmt == "sq":
+		return FILE_RESULT
+	return "od-sevev-%s%s.png" % [kind, "-story" if fmt == "story" else ""]
+
+
+# ------------------------------------------------------------------ the models
+
+## The model of a kind, for the card and the copy: {kind, leader, neutral, quiet, event, stub,
+## text (rot-th variant), file, hash, ...the card's own fields}. `ext` is the caller's model (the
+## challenge / daily agent's), `opts` {neutral, rot, event}.
+static func model(kind: String, s: GameState, d: Economy.Derived, ext: Dictionary = {}, opts: Dictionary = {}) -> Dictionary:
+	var neutral := bool(opts.get("neutral", false))
+	var rot := int(opts.get("rot", 0))
+	var quiet := Calendar.seats_numeral_hidden(s) if s != null and Calendar.active() else false
+	var leader := str(ext.get("leader", s.leader if s != null else ""))
+	var m := {"kind": kind, "leader": "" if neutral else leader, "neutral": neutral, "quiet": quiet, "event": ""}
+	var params := {"short": short_of(leader)}
+	match kind:
+		"leak":
+			m["lines"] = leak_lines(s, neutral)
+			m["members"] = ChatView.group_size(s) if s != null else 0
+		"breaking":
+			var ev := str(opts.get("event", ext.get("event", breaking_event(s))))
+			m["event"] = ev
+			var gate := RoundLog.gate_sec(s) if s != null else -1.0
+			if ev == "election" and s != null and not s.history.is_empty():
+				var last: Dictionary = s.history[s.history.size() - 1]
+				gate = float(last.get("gate", -1.0))
+				if gate <= 0.0:
+					gate = float(last.get("sec", 0.0))
+				leader = str(last.get("leader", leader))
+				params["short"] = short_of(leader)
+				if not neutral:
+					m["leader"] = leader
+			var t := fmt_time(gate) if gate > 0.0 else ""
+			params["time"] = t
+			m["time"] = t
+			var hk: String = {"gate": "BREAK_HEAD_GATE", "court": "BREAK_HEAD_COURT", "election": "BREAK_HEAD_ELECTION"}.get(ev, "BREAK_HEAD_GATE")
+			if ev == "gate" and t == "":
+				hk = "BREAK_HEAD_ELECTION"
+			m["head"] = Strings.s(hk + ("_N" if neutral else ""), params)
+			m["sub"] = Strings.s("BREAK_SUB_%d" % (posmod(rot, 4) + 1))
+		"term":
+			var rec := term_record(s, d)
+			var tc := term_card(rec, neutral)
+			params.merge(tc["params"], true)
+			tc.erase("params")
+			m.merge(tc, true)
+			leader = str(rec.get("leader", leader))
+			params["short"] = short_of(leader)
+			if not neutral:
+				m["leader"] = leader
+		"career":
+			var c := RoundLog.career(s)
+			var cc := career_card(c, neutral)
+			params.merge(cc["params"], true)
+			cc.erase("params")
+			m.merge(cc, true)
+			leader = str(c.get("leader", leader))
+			m["leader"] = "" if neutral else leader
+		"challenge":
+			var secs := float(ext.get("secs", 0.0))
+			m["time"] = fmt_time(secs)
+			params["time"] = m["time"]
+			m["line"] = Strings.s("CHAL_LINE_N" if neutral else "CHAL_LINE", params)
+		"daily":
+			m["n"] = int(ext.get("n", ext.get("seed", 1)))
+			m["grid"] = str(ext.get("grid_text", ext.get("grid", "")))
+			params["n"] = str(m["n"])
+			params["grid"] = m["grid"]
+		"receipt":
+			params["amount"] = word_amount(float(receipt(s, d, SaveStore.now_ms())["total"])) if s != null else "0"
+		"result":
+			var rd := rounds_days(s) if s != null else ["", ""]
+			params["rounds"] = plain(rd[0])
+			params["days"] = plain(rd[1])
+	m["stub"] = stub_path(kind, leader, str(m.get("event", "")), neutral)
+	m["text"] = copy_line(kind, params, rot, str(m.get("event", "")), neutral)
+	m["hash"] = str(ext.get("url_hash", ""))
+	m["file"] = file_name(kind)
+	return m
+
+
+## The breaking card's event when none is given: the gate this round, else a court day this round,
+## else the last election.
+static func breaking_event(s: GameState) -> String:
+	if s == null:
+		return "election"
+	if RoundLog.gate_sec(s) > 0.0:
+		return "gate"
+	if s.investigation is Dictionary and str(s.investigation.get("phase", "")) == "court":
+		return "court"
+	return "election" if not s.history.is_empty() else "gate"
+
+
+## The term summary's record: the round just closed when the new round has not reached its gate
+## yet (and there is a closed round), else the live round so far.
+static func term_record(s: GameState, d: Economy.Derived) -> Dictionary:
+	if s == null:
+		return {}
+	if not s.history.is_empty() and RoundLog.gate_sec(s) < 0.0:
+		return s.history[s.history.size() - 1]
+	return RoundLog.current(s, d)
+
+
+## The term card's fields from a record: {round, time, stats[], title, params}.
+static func term_card(rec: Dictionary, neutral: bool) -> Dictionary:
+	var leader := str(rec.get("leader", ""))
+	var gate := float(rec.get("gate", -1.0))
+	var sec := float(rec.get("sec", 0.0))
+	var t := fmt_time(gate) if gate > 0.0 else (fmt_time(sec) if sec > 0.0 else "")
+	var stats: Array = []
+	var top := str(rec.get("top", ""))
+	var pct := int(roundf(float(rec.get("topPct", 0.0)) * 100.0))
+	var src := plain(Strings.producer_name(top)) if top != "" else ""
+	if top != "" and pct > 0:
+		stats.append(Strings.s("TERM_TOP", {"pct": str(pct), "source": src}))
+	stats.append(Strings.s("TERM_PAID", {"n": str(int(rec.get("paid", 0)))}))
+	for pair: Array in [["left", "TERM_LEFT"], ["court", "TERM_COURT"], ["post", "TERM_POST"]]:
+		if int(rec.get(pair[0], 0)) > 0:
+			stats.append(Strings.s(pair[1], {"n": str(int(rec.get(pair[0], 0)))}))
+	var title_key := term_title(rec)
+	var n := int(rec.get("n", 1))
+	return {"round": Strings.s("TERM_ROUND_N" if neutral or leader == "" else "TERM_ROUND", {"n": str(n), "short": short_of(leader)}),
+		"time": t, "stats": stats, "title": Strings.s(title_key),
+		"params": {"time": t, "paid": str(int(rec.get("paid", 0))), "title": plain(Strings.s(title_key)),
+			"pct": str(pct) if pct > 0 else "", "source": src, "court": str(int(rec.get("court", 0)))}}
+
+
+## The run's title (TERM_TITLE_*): the most striking thing about the round.
+static func term_title(rec: Dictionary) -> String:
+	var gate := float(rec.get("gate", -1.0))
+	if int(rec.get("court", 0)) >= 2:
+		return "TERM_TITLE_COURT"
+	if int(rec.get("left", 0)) >= 2:
+		return "TERM_TITLE_LEFT"
+	if gate > 0.0 and gate < 300.0:
+		return "TERM_TITLE_FAST"
+	if int(rec.get("paid", 0)) >= 8:
+		return "TERM_TITLE_PAID"
+	if gate > 1800.0:
+		return "TERM_TITLE_SLOW"
+	return "TERM_TITLE_PLAIN"
+
+
+## The career card's fields from RoundLog.career: {survived, as, stats[], title, rounds, params}.
+static func career_card(c: Dictionary, neutral: bool) -> Dictionary:
+	var rounds := int(c.get("rounds", 0))
+	var rw := Strings.plural("ROUNDS", rounds)
+	var stats: Array = []
+	stats.append(Strings.s("CAREER_TOTAL", {"amount": word_amount(float(c.get("earned", 0.0)))}))
+	var fast := float(c.get("fastest", 0.0))
+	if fast > 0.0:
+		stats.append(Strings.s("CAREER_FAST", {"time": fmt_time(fast)}))
+	var partner := str(c.get("partner", ""))
+	if partner != "" and not neutral:
+		stats.append(Strings.s("CAREER_PARTNER", {"name": ChatView.partner_name(partner)}))
+	if int(c.get("court", 0)) > 0:
+		stats.append(Strings.s("TERM_COURT", {"n": str(int(c.get("court", 0)))}))
+	if int(c.get("walked", 0)) > 0:
+		stats.append(Strings.s("TERM_LEFT", {"n": str(int(c.get("walked", 0)))}))
+	var tier := RoundLog.title_tier(rounds)
+	var title := Strings.s("CAREER_TITLE_%d" % maxi(1, tier))
+	var fav := str(c.get("leader", ""))
+	return {"survived": Strings.s("CAREER_SURVIVED", {"rounds": rw}),
+		"as": "" if neutral or fav == "" else Strings.s("CAREER_AS", {"short": short_of(fav)}),
+		"stats": stats, "title": title, "rounds": rounds,
+		"params": {"rounds": plain(rw), "title": plain(title), "time": fmt_time(fast) if fast > 0.0 else "", "short": short_of(fav)}}
+
+
+## The leak card's lines: the round's juiciest real chat lines (ultimatums, walkouts, brawls, the
+## transfer window, then demands), in their order, at most 6; [] when the group has said nothing.
+## Each {kind: in|out|sys, who, char, text, hot}. Neutral: the partners become "שותף א׳"… and lose
+## their faces. Short of 3 real lines, the leak event's scripted screenshot fills in.
+static func leak_lines(s: GameState, neutral: bool = false) -> Array:
+	if s == null or not s.coalition is Dictionary:
+		return []
+	var scored: Array = []
+	var aliases := {}
+	var d := Economy.derive(s)
+	for m: Variant in s.coalition.get("chat", []):
+		if not m is Dictionary:
+			continue
+		var t := str(m.get("type", ""))
+		var key := str(m.get("key", ""))
+		var score := 0
+		var kind := "in"
+		var text := ""
+		match t:
+			"ultimatum":
+				score = 5
+				text = ChatView.line_text(m, s, d)
+			"demand":
+				score = 2
+				text = ChatView.line_text(m, s, d)
+			"thanks", "status":
+				score = 1
+				text = ChatView.line_text(m, s, d)
+			"transfer":
+				score = 4
+				text = ChatView.line_text(m, s, d)
+			"sys":
+				kind = "sys"
+				if key in ["chat.sys.left", "chat.sys.removed", "chat.sys.brawl", "chat.sys.transfer", "chat.sys.merged", "leak.line"]:
+					score = 4
+				elif key in ["chat.sys.joined", "chat.sys.declined", "chat.sys.muted"]:
+					score = 2
+				if key != "chat.sys.advisor":
+					text = ChatView.sys_text(m)
+		if score <= 0 or plain(text).strip_edges() == "":
+			continue
+		var pid := str(m.get("partner", ""))
+		var who := ""
+		var ch := ""
+		if kind == "in" and pid != "":
+			if neutral:
+				if not aliases.has(pid):
+					aliases[pid] = aliases.size()
+				who = Strings.s("SHARE_ANON_%d" % (int(aliases[pid]) % 4 + 1))
+			else:
+				who = ChatView.partner_name(pid)
+				ch = ChatView.char_for(pid)
+		if neutral and kind == "sys":
+			text = _anon_sys(text)
+		scored.append({"seq": int(m.get("seq", 0)), "score": score, "kind": kind, "who": who, "char": ch,
+			"text": plain(text), "hot": t == "ultimatum"})
+	# the top 6 by score (the newest first on a tie), back in the thread's order
+	var best := scored.duplicate()
+	best.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a["score"]) > int(b["score"]) or (int(a["score"]) == int(b["score"]) and int(a["seq"]) > int(b["seq"])))
+	best = best.slice(0, 6)
+	best.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["seq"]) < int(b["seq"]))
+	# a run of one sender: the name and the face on its first bubble only (the thread's convention)
+	for i in range(1, best.size()):
+		if str(best[i]["kind"]) == "in" and str(best[i - 1]["kind"]) == "in" and str(best[i]["who"]) != "" and best[i]["who"] == best[i - 1]["who"]:
+			best[i]["cont"] = true
+	if not best.is_empty() and best.size() < 3:
+		for ln: Variant in Events.leak_lines(1, ""):
+			if best.size() >= 4:
+				break
+			if ln is Array and (ln as Array).size() >= 2 and str(ln[0]) != "typing":
+				var sysl := str(ln[0]) == "sys"
+				best.append({"seq": 0, "score": 1, "kind": "sys" if sysl else "in",
+					"who": "" if sysl else (Strings.s("SHARE_ANON_4") if neutral else str(ln[0])),
+					"char": "", "text": plain(str(ln[1])), "hot": false})
+	return best
+
+
+## A system line with the partners' names swapped out (the family-safe leak).
+static func _anon_sys(text: String) -> String:
+	var t := text
+	var i := 0
+	for p: Dictionary in Coalition.partners():
+		var nm := ChatView.partner_name(str(p["id"]))
+		if nm != "" and t.contains(nm):
+			t = t.replace(nm, Strings.s("SHARE_ANON_%d" % (i % 4 + 1)))
+			i += 1
+	return t
+
+
+## The kinds the drawer offers for this state, in DRAWER_KINDS order (challenge / daily only when
+## `extra` names them).
+static func kinds_for(s: GameState, extra: Array = []) -> Array:
+	var out: Array = []
+	for k: String in DRAWER_KINDS:
+		match k:
+			"leak":
+				if s != null and s.coalition is Dictionary and bool(s.coalition.get("opened", false)) and not leak_lines(s).is_empty():
+					out.append(k)
+			"breaking":
+				if s != null and (RoundLog.gate_sec(s) > 0.0 or not s.history.is_empty() or breaking_event(s) == "court"):
+					out.append(k)
+			"term":
+				if s != null and (RoundLog.gate_sec(s) > 0.0 or not s.history.is_empty()):
+					out.append(k)
+			"career":
+				if s != null and maxi(s.evolutions, s.history.size()) >= 1:
+					out.append(k)
+			"receipt", "result":
+				out.append(k)
+			_:
+				if extra.has(k):
+					out.append(k)
+	return out

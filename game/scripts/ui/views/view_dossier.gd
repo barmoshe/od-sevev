@@ -322,6 +322,9 @@ func buttons() -> Array:
 		out.append({"kind": "receipt", "key": "SHARE_RECEIPT_TITLE"})
 	if host != null and host.has_method("open_result_card"):
 		out.append({"kind": "result", "key": "SHARE_RESULT_BTN"})
+	# share platform: every round so far, once there was an election
+	if host != null and host.has_method("open_career_card") and _state != null and maxi(_state.evolutions, _state.history.size()) >= 1:
+		out.append({"kind": "career", "key": "SHARE_CAREER_BTN"})
 	if LeaderUi.court():   # Bibi-only: hidden, not disabled, in every other round (rtl-map §4.3)
 		out.append({"kind": "pardon", "key": "PARDON_ROW"})
 	out.append({"kind": "story", "key": "BOOK_STORY"})
@@ -481,6 +484,8 @@ func act(kind: String) -> void:
 			host.call("open_receipt")
 		"result":
 			host.call("open_result_card")
+		"career":
+			host.call("open_career_card")   # share platform
 
 
 ## O15: the pardon desk, a modal over T4 through the overlay stack.

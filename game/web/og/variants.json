@@ -1,0 +1,314 @@
+{
+	"all-breaking": {
+		"head": "מבזק: הכנסת התפזרה. שוב.",
+		"leader": ""
+	},
+	"all-career": {
+		"head": "סיכום כל הסבבים: כמה בחירות אפשר לשרוד?",
+		"leader": ""
+	},
+	"all-challenge": {
+		"head": "אתגר: להרכיב קואליציה הכי מהר",
+		"leader": ""
+	},
+	"all-leak": {
+		"head": "הודלף מקבוצת הקואליציה",
+		"leader": ""
+	},
+	"all-receipt": {
+		"head": "הקבלה החודשית של הקואליציה",
+		"leader": ""
+	},
+	"all-result": {
+		"head": "כמה סבבי בחירות אתם שורדים?",
+		"leader": ""
+	},
+	"all-term": {
+		"head": "סיכום קדנציה: מי שילם על הכול?",
+		"leader": ""
+	},
+	"bengvir-61": {
+		"head": "בן גביר הרכיב קואליציה. עכשיו תורך",
+		"leader": "bengvir",
+		"short": "בן גביר"
+	},
+	"bengvir-breaking": {
+		"head": "מבזק: בן גביר שוב בכותרות",
+		"leader": "bengvir",
+		"short": "בן גביר"
+	},
+	"bengvir-career": {
+		"head": "שרדתי עוד ועוד בחירות בתור בן גביר",
+		"leader": "bengvir",
+		"short": "בן גביר"
+	},
+	"bengvir-challenge": {
+		"head": "אתגר: להרכיב קואליציה מהר יותר מבן גביר",
+		"leader": "bengvir",
+		"short": "בן גביר"
+	},
+	"bengvir-leak": {
+		"head": "הודלף מהקואליציה של בן גביר",
+		"leader": "bengvir",
+		"short": "בן גביר"
+	},
+	"bengvir-result": {
+		"head": "שרדתי בתור בן גביר. עכשיו תורך",
+		"leader": "bengvir",
+		"short": "בן גביר"
+	},
+	"bengvir-term": {
+		"head": "סיכום הקדנציה של בן גביר",
+		"leader": "bengvir",
+		"short": "בן גביר"
+	},
+	"bennett-61": {
+		"head": "בנט הרכיב קואליציה. עכשיו תורך",
+		"leader": "bennett",
+		"short": "בנט"
+	},
+	"bennett-breaking": {
+		"head": "מבזק: בנט שוב בכותרות",
+		"leader": "bennett",
+		"short": "בנט"
+	},
+	"bennett-career": {
+		"head": "שרדתי עוד ועוד בחירות בתור בנט",
+		"leader": "bennett",
+		"short": "בנט"
+	},
+	"bennett-challenge": {
+		"head": "אתגר: להרכיב קואליציה מהר יותר מבנט",
+		"leader": "bennett",
+		"short": "בנט"
+	},
+	"bennett-leak": {
+		"head": "הודלף מהקואליציה של בנט",
+		"leader": "bennett",
+		"short": "בנט"
+	},
+	"bennett-result": {
+		"head": "שרדתי בתור בנט. עכשיו תורך",
+		"leader": "bennett",
+		"short": "בנט"
+	},
+	"bennett-term": {
+		"head": "סיכום הקדנציה של בנט",
+		"leader": "bennett",
+		"short": "בנט"
+	},
+	"bibi-61": {
+		"head": "ביבי הרכיב קואליציה. עכשיו תורך",
+		"leader": "bibi",
+		"short": "ביבי"
+	},
+	"bibi-breaking": {
+		"head": "מבזק: ביבי שוב בכותרות",
+		"leader": "bibi",
+		"short": "ביבי"
+	},
+	"bibi-career": {
+		"head": "שרדתי עוד ועוד בחירות בתור ביבי",
+		"leader": "bibi",
+		"short": "ביבי"
+	},
+	"bibi-challenge": {
+		"head": "אתגר: להרכיב קואליציה מהר יותר מביבי",
+		"leader": "bibi",
+		"short": "ביבי"
+	},
+	"bibi-leak": {
+		"head": "הודלף מהקואליציה של ביבי",
+		"leader": "bibi",
+		"short": "ביבי"
+	},
+	"bibi-result": {
+		"head": "שרדתי בתור ביבי. עכשיו תורך",
+		"leader": "bibi",
+		"short": "ביבי"
+	},
+	"bibi-term": {
+		"head": "סיכום הקדנציה של ביבי",
+		"leader": "bibi",
+		"short": "ביבי"
+	},
+	"daily": {
+		"head": "האתגר היומי של עוד סבב",
+		"leader": ""
+	},
+	"deri-61": {
+		"head": "דרעי הרכיב קואליציה. עכשיו תורך",
+		"leader": "deri",
+		"short": "דרעי"
+	},
+	"deri-breaking": {
+		"head": "מבזק: דרעי שוב בכותרות",
+		"leader": "deri",
+		"short": "דרעי"
+	},
+	"deri-career": {
+		"head": "שרדתי עוד ועוד בחירות בתור דרעי",
+		"leader": "deri",
+		"short": "דרעי"
+	},
+	"deri-challenge": {
+		"head": "אתגר: להרכיב קואליציה מהר יותר מדרעי",
+		"leader": "deri",
+		"short": "דרעי"
+	},
+	"deri-leak": {
+		"head": "הודלף מהקואליציה של דרעי",
+		"leader": "deri",
+		"short": "דרעי"
+	},
+	"deri-result": {
+		"head": "שרדתי בתור דרעי. עכשיו תורך",
+		"leader": "deri",
+		"short": "דרעי"
+	},
+	"deri-term": {
+		"head": "סיכום הקדנציה של דרעי",
+		"leader": "deri",
+		"short": "דרעי"
+	},
+	"eisenkot-61": {
+		"head": "אייזנקוט הרכיב קואליציה. עכשיו תורך",
+		"leader": "eisenkot",
+		"short": "אייזנקוט"
+	},
+	"eisenkot-breaking": {
+		"head": "מבזק: אייזנקוט שוב בכותרות",
+		"leader": "eisenkot",
+		"short": "אייזנקוט"
+	},
+	"eisenkot-career": {
+		"head": "שרדתי עוד ועוד בחירות בתור אייזנקוט",
+		"leader": "eisenkot",
+		"short": "אייזנקוט"
+	},
+	"eisenkot-challenge": {
+		"head": "אתגר: להרכיב קואליציה מהר יותר מאייזנקוט",
+		"leader": "eisenkot",
+		"short": "אייזנקוט"
+	},
+	"eisenkot-leak": {
+		"head": "הודלף מהקואליציה של אייזנקוט",
+		"leader": "eisenkot",
+		"short": "אייזנקוט"
+	},
+	"eisenkot-result": {
+		"head": "שרדתי בתור אייזנקוט. עכשיו תורך",
+		"leader": "eisenkot",
+		"short": "אייזנקוט"
+	},
+	"eisenkot-term": {
+		"head": "סיכום הקדנציה של אייזנקוט",
+		"leader": "eisenkot",
+		"short": "אייזנקוט"
+	},
+	"golan-61": {
+		"head": "גולן הרכיב קואליציה. עכשיו תורך",
+		"leader": "golan",
+		"short": "גולן"
+	},
+	"golan-breaking": {
+		"head": "מבזק: גולן שוב בכותרות",
+		"leader": "golan",
+		"short": "גולן"
+	},
+	"golan-career": {
+		"head": "שרדתי עוד ועוד בחירות בתור גולן",
+		"leader": "golan",
+		"short": "גולן"
+	},
+	"golan-challenge": {
+		"head": "אתגר: להרכיב קואליציה מהר יותר מגולן",
+		"leader": "golan",
+		"short": "גולן"
+	},
+	"golan-leak": {
+		"head": "הודלף מהקואליציה של גולן",
+		"leader": "golan",
+		"short": "גולן"
+	},
+	"golan-result": {
+		"head": "שרדתי בתור גולן. עכשיו תורך",
+		"leader": "golan",
+		"short": "גולן"
+	},
+	"golan-term": {
+		"head": "סיכום הקדנציה של גולן",
+		"leader": "golan",
+		"short": "גולן"
+	},
+	"liberman-61": {
+		"head": "ליברמן הרכיב קואליציה. עכשיו תורך",
+		"leader": "liberman",
+		"short": "ליברמן"
+	},
+	"liberman-breaking": {
+		"head": "מבזק: ליברמן שוב בכותרות",
+		"leader": "liberman",
+		"short": "ליברמן"
+	},
+	"liberman-career": {
+		"head": "שרדתי עוד ועוד בחירות בתור ליברמן",
+		"leader": "liberman",
+		"short": "ליברמן"
+	},
+	"liberman-challenge": {
+		"head": "אתגר: להרכיב קואליציה מהר יותר מליברמן",
+		"leader": "liberman",
+		"short": "ליברמן"
+	},
+	"liberman-leak": {
+		"head": "הודלף מהקואליציה של ליברמן",
+		"leader": "liberman",
+		"short": "ליברמן"
+	},
+	"liberman-result": {
+		"head": "שרדתי בתור ליברמן. עכשיו תורך",
+		"leader": "liberman",
+		"short": "ליברמן"
+	},
+	"liberman-term": {
+		"head": "סיכום הקדנציה של ליברמן",
+		"leader": "liberman",
+		"short": "ליברמן"
+	},
+	"smotrich-61": {
+		"head": "סמוטריץ׳ הרכיב קואליציה. עכשיו תורך",
+		"leader": "smotrich",
+		"short": "סמוטריץ׳"
+	},
+	"smotrich-breaking": {
+		"head": "מבזק: סמוטריץ׳ שוב בכותרות",
+		"leader": "smotrich",
+		"short": "סמוטריץ׳"
+	},
+	"smotrich-career": {
+		"head": "שרדתי עוד ועוד בחירות בתור סמוטריץ׳",
+		"leader": "smotrich",
+		"short": "סמוטריץ׳"
+	},
+	"smotrich-challenge": {
+		"head": "אתגר: להרכיב קואליציה מהר יותר מסמוטריץ׳",
+		"leader": "smotrich",
+		"short": "סמוטריץ׳"
+	},
+	"smotrich-leak": {
+		"head": "הודלף מהקואליציה של סמוטריץ׳",
+		"leader": "smotrich",
+		"short": "סמוטריץ׳"
+	},
+	"smotrich-result": {
+		"head": "שרדתי בתור סמוטריץ׳. עכשיו תורך",
+		"leader": "smotrich",
+		"short": "סמוטריץ׳"
+	},
+	"smotrich-term": {
+		"head": "סיכום הקדנציה של סמוטריץ׳",
+		"leader": "smotrich",
+		"short": "סמוטריץ׳"
+	}
+}
