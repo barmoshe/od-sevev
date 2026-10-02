@@ -236,6 +236,20 @@ func test_r9_layer_history_bookkeeping() -> void:
 	runner.check(not h.on_pop(), "one echo for the one go()")
 	runner.check(not h.on_pop(), "a back at the root is left to the browser")
 	runner.check(LayerHistory.js_for({"push": 2}).count("pushState") == 2 and LayerHistory.js_for({"back": 2}).contains("history.go(-2)"), "the JavaScript")
+	# the race (round_web's "LayerHistory race"): T3 closes, a summons card opens the next frame
+	var r := LayerHistory.new()
+	r.sync(1)
+	runner.check(r.sync(0) == {"back": 1}, "T3 closes: rewind")
+	runner.check(r.sync(1).is_empty() and r.pushed == 0, "the summons opens before the echo: the push waits")
+	runner.check(not r.on_pop(), "the echo lands (ignored)")
+	runner.check(r.sync(1) == {"push": 1} and r.pushed == 1, "then the push goes out, on top of the root")
+	var q := LayerHistory.new()
+	q.sync(1)
+	q.sync(0)
+	var got := {}
+	for i in LayerHistory.ECHO_WAIT_FRAMES:
+		got = q.sync(1)
+	runner.check(got == {"push": 1}, "an echo that never comes does not freeze the history")
 
 
 func test_r9_back_closes_the_top_layer_like_esc() -> void:

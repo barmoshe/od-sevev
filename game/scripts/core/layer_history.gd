@@ -15,12 +15,25 @@ extends RefCounted
 ## Entries this page has pushed above the root (= layers the browser knows about).
 var pushed := 0
 var _ignore := 0
+## history.go() lands asynchronously. A pushState sent before its popstate arrives lands under the
+## traversal (the browser ends on the root while `pushed` says 1), and the next close then went
+## back past the root and left the game (a summons opening the frame T3 closed: round_web's
+## "LayerHistory race"). So a push waits for the echo, at most ECHO_WAIT_FRAMES frames (a go()
+## that never fires a popstate must not freeze the history).
+const ECHO_WAIT_FRAMES := 30
+var _wait := 0
 
 
 ## The game now has `depth` layers open. Returns {"push": n} (history.pushState n times) or
 ## {"back": n} (history.go(-n)), or {} when the browser already agrees.
 func sync(depth: int) -> Dictionary:
 	depth = maxi(0, depth)
+	if depth > pushed and _ignore > 0:
+		_wait += 1
+		if _wait < ECHO_WAIT_FRAMES:
+			return {}   # our history.go is still landing: push once its popstate is in
+		_ignore = 0     # no echo came: carry on
+	_wait = 0
 	if depth > pushed:
 		var n := depth - pushed
 		pushed = depth
