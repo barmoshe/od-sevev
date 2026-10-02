@@ -10402,5 +10402,572 @@
     "_note": "S1 is Eisenkot (the spec's pick): his partner trait (taps ×1.25) runs from C1. The merge rule wants several mid-size members, which this lineup has; Liberman's excludes still force the Abbas/Gafni choice. Capacity 50 + own."
    }
   }
- ]
+ ],
+ "missions": {
+  "_doc": "Missions and ranks (Bar 2026-10-02: the game had no 'what next'; AdVenture Communist's spine). Engine: game/scripts/sim/missions.gd (Missions). Three slots show the current rank's missions in list order; a finished one shows 'לקחת' (claim), which pays its reward and brings the rank's next mission; when every mission of a rank is claimed the rank goes up and ranks[r].incomePct is added for good (a global income multiplier, summed over the ranks reached). Counted goals run from the moment the mission shows (taps, crits, earnRun, payDemands, suitcases, courtDays = court or press days, useAbility = ability uses + unity refusals, elections, buySpins, sourcesTotal = sources bought); ownSource / bpsAtLeast / seatsAtLeast read the state now. Rewards: cash {sec, min?} = sec × ₪/s now (at least min, else cashFloor), frenzy {sec} = the Suitcase's income frenzy (its own multiplier), basePct {pct} = + pct on this round's base payout. text may carry {verbPlural} / {critPlural} (the round's leader's tap words). Persists across elections; an older save starts at rank 1. Pacing (bench, median, auto-claim in PacingSim.run): rank 1 inside round 1, a mission every 1-3 min early and every 5-10 min later; the S-gates in game/tests/bench/test_session.gd hold.",
+  "slots": 3,
+  "cashFloor": 10,
+  "ranks": [
+   {
+    "title": "עוזר פרלמנטרי",
+    "incomePct": 0
+   },
+   {
+    "title": "יועץ תקשורת",
+    "incomePct": 3
+   },
+   {
+    "title": "ח״כ זוטר",
+    "incomePct": 4
+   },
+   {
+    "title": "יו״ר ועדה",
+    "incomePct": 5
+   },
+   {
+    "title": "סגן שר",
+    "incomePct": 5
+   },
+   {
+    "title": "שר",
+    "incomePct": 6
+   },
+   {
+    "title": "שר בכיר",
+    "incomePct": 7
+   },
+   {
+    "title": "ממלא מקום",
+    "incomePct": 8
+   },
+   {
+    "title": "ראש הממשלה",
+    "incomePct": 10
+   }
+  ],
+  "list": [
+   {
+    "id": "ms_pay1",
+    "rank": 1,
+    "text": "לשלם את הדרישה הראשונה בקבוצה",
+    "goal": {
+     "type": "payDemands",
+     "n": 1
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 10
+    }
+   },
+   {
+    "id": "ms_tax10",
+    "rank": 1,
+    "text": "לגייס 10 משלמי מסים. הם לא שאלו",
+    "goal": {
+     "type": "ownSource",
+     "source": "taxpayer",
+     "n": 10
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 2
+    }
+   },
+   {
+    "id": "ms_taps100",
+    "rank": 1,
+    "text": "לחמם את הקהל: 100 {verbPlural}",
+    "goal": {
+     "type": "taps",
+     "n": 100
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 10
+    }
+   },
+   {
+    "id": "ms_earn5k",
+    "rank": 1,
+    "text": "להרוויח 5,000 ₪. לא לשאול מאיפה",
+    "goal": {
+     "type": "earnRun",
+     "amount": 5000
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 3
+    }
+   },
+   {
+    "id": "ms_vat5",
+    "rank": 1,
+    "text": "5 העלאות מע״מ. אף אחד לא שם לב",
+    "goal": {
+     "type": "ownSource",
+     "source": "vat",
+     "n": 5
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 2
+    }
+   },
+   {
+    "id": "ms_case2",
+    "rank": 2,
+    "text": "2 מזוודות. לא לפתוח מול מצלמה",
+    "goal": {
+     "type": "suitcases",
+     "n": 2
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 3
+    }
+   },
+   {
+    "id": "ms_taps500",
+    "rank": 2,
+    "text": "500 {verbPlural}. היד כבר רגילה",
+    "goal": {
+     "type": "taps",
+     "n": 500
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 10
+    }
+   },
+   {
+    "id": "ms_pay5",
+    "rank": 2,
+    "text": "לשלם 5 דרישות בלי למצמץ",
+    "goal": {
+     "type": "payDemands",
+     "n": 5
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 3
+    }
+   },
+   {
+    "id": "ms_crit10",
+    "rank": 2,
+    "text": "10 {critPlural} מול המצלמות",
+    "goal": {
+     "type": "crits",
+     "n": 10
+    },
+    "reward": {
+     "type": "frenzy",
+     "sec": 15
+    }
+   },
+   {
+    "id": "ms_elect1",
+    "rank": 2,
+    "text": "לפזר את הכנסת. בפעם הראשונה",
+    "goal": {
+     "type": "elections",
+     "n": 1
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 60
+    }
+   },
+   {
+    "id": "ms_bps20k",
+    "rank": 3,
+    "text": "20,000 ₪ לשנייה. מתחילים לדבר עליך",
+    "goal": {
+     "type": "bpsAtLeast",
+     "n": 20000
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 5
+    }
+   },
+   {
+    "id": "ms_buy300",
+    "rank": 3,
+    "text": "לקנות 300 מקורות הכנסה",
+    "goal": {
+     "type": "sourcesTotal",
+     "n": 300
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 60
+    }
+   },
+   {
+    "id": "ms_spin2",
+    "rank": 3,
+    "text": "שני ספינים לפני הקפה",
+    "goal": {
+     "type": "buySpins",
+     "n": 2
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 60
+    }
+   },
+   {
+    "id": "ms_majority",
+    "rank": 3,
+    "text": "להגיע לרוב. איכשהו",
+    "goal": {
+     "type": "seatsAtLeast",
+     "n": 61
+    },
+    "reward": {
+     "type": "frenzy",
+     "sec": 15
+    }
+   },
+   {
+    "id": "ms_day3",
+    "rank": 3,
+    "text": "3 ימים בכותרות. מה זה כבר",
+    "goal": {
+     "type": "courtDays",
+     "n": 3
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 60
+    }
+   },
+   {
+    "id": "ms_elect2",
+    "rank": 4,
+    "text": "לפזר את הכנסת עוד פעמיים",
+    "goal": {
+     "type": "elections",
+     "n": 2
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 60
+    }
+   },
+   {
+    "id": "ms_taps3000",
+    "rank": 4,
+    "text": "3,000 {verbPlural}. מישהו סופר?",
+    "goal": {
+     "type": "taps",
+     "n": 3000
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 60
+    }
+   },
+   {
+    "id": "ms_case4",
+    "rank": 4,
+    "text": "4 מזוודות. אף אחת לא נספרה",
+    "goal": {
+     "type": "suitcases",
+     "n": 4
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 90
+    }
+   },
+   {
+    "id": "ms_ability2",
+    "rank": 4,
+    "text": "לשלוף את התרגיל הקבוע, פעמיים",
+    "goal": {
+     "type": "useAbility",
+     "n": 2
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 5
+    }
+   },
+   {
+    "id": "ms_pay20",
+    "rank": 4,
+    "text": "20 דרישות שולמו. הקופה בוכה",
+    "goal": {
+     "type": "payDemands",
+     "n": 20
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 90
+    }
+   },
+   {
+    "id": "ms_elect3",
+    "rank": 5,
+    "text": "3 פעמים לפזר את הכנסת. הציבור מצפה",
+    "goal": {
+     "type": "elections",
+     "n": 3
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 90
+    }
+   },
+   {
+    "id": "ms_bps100b",
+    "rank": 5,
+    "text": "100 מיליארד ₪ לשנייה. הכלכלה פורחת",
+    "goal": {
+     "type": "bpsAtLeast",
+     "n": 100000000000
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 5
+    }
+   },
+   {
+    "id": "ms_buy1500",
+    "rank": 5,
+    "text": "1,500 מקורות הכנסה. כולם חוקיים, כמעט",
+    "goal": {
+     "type": "sourcesTotal",
+     "n": 1500
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 90
+    }
+   },
+   {
+    "id": "ms_crit300",
+    "rank": 5,
+    "text": "300 {critPlural}. הקהל כבר מצפה",
+    "goal": {
+     "type": "crits",
+     "n": 300
+    },
+    "reward": {
+     "type": "frenzy",
+     "sec": 15
+    }
+   },
+   {
+    "id": "ms_spin20",
+    "rank": 5,
+    "text": "20 ספינים. המסר עובד",
+    "goal": {
+     "type": "buySpins",
+     "n": 20
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 90
+    }
+   },
+   {
+    "id": "ms_earn500t",
+    "rank": 6,
+    "text": "להרוויח 500 טריליון ₪. בשביל המדינה",
+    "goal": {
+     "type": "earnRun",
+     "amount": 500000000000000
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 120
+    }
+   },
+   {
+    "id": "ms_day8",
+    "rank": 6,
+    "text": "8 ימים בכותרות. כבר שגרה",
+    "goal": {
+     "type": "courtDays",
+     "n": 8
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 90
+    }
+   },
+   {
+    "id": "ms_case8",
+    "rank": 6,
+    "text": "8 מזוודות. כולן מתנות",
+    "goal": {
+     "type": "suitcases",
+     "n": 8
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 120
+    }
+   },
+   {
+    "id": "ms_ability4",
+    "rank": 6,
+    "text": "התרגיל הקבוע, 4 פעמים. עובד כל פעם",
+    "goal": {
+     "type": "useAbility",
+     "n": 4
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 5
+    }
+   },
+   {
+    "id": "ms_pay40",
+    "rank": 6,
+    "text": "40 דרישות. השותפים התרגלו",
+    "goal": {
+     "type": "payDemands",
+     "n": 40
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 120
+    }
+   },
+   {
+    "id": "ms_elect4",
+    "rank": 7,
+    "text": "עוד 4 בחירות. מי בכלל סופר",
+    "goal": {
+     "type": "elections",
+     "n": 4
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 120
+    }
+   },
+   {
+    "id": "ms_taps10k",
+    "rank": 7,
+    "text": "10,000 {verbPlural}. זה כבר סגנון",
+    "goal": {
+     "type": "taps",
+     "n": 10000
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 90
+    }
+   },
+   {
+    "id": "ms_buy3000",
+    "rank": 7,
+    "text": "3,000 מקורות. אף אחד לא סופר",
+    "goal": {
+     "type": "sourcesTotal",
+     "n": 3000
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 120
+    }
+   },
+   {
+    "id": "ms_crit700",
+    "rank": 7,
+    "text": "700 {critPlural}. אף אחד לא מופתע",
+    "goal": {
+     "type": "crits",
+     "n": 700
+    },
+    "reward": {
+     "type": "frenzy",
+     "sec": 20
+    }
+   },
+   {
+    "id": "ms_spin50",
+    "rank": 7,
+    "text": "50 ספינים. כבר אף אחד לא מקשיב",
+    "goal": {
+     "type": "buySpins",
+     "n": 50
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 8
+    }
+   },
+   {
+    "id": "ms_elect6",
+    "rank": 8,
+    "text": "לפזר את הכנסת 6 פעמים. שגרה",
+    "goal": {
+     "type": "elections",
+     "n": 6
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 120
+    }
+   },
+   {
+    "id": "ms_earnbig",
+    "rank": 8,
+    "text": "להרוויח סכום שעוד אין לו שם",
+    "goal": {
+     "type": "earnRun",
+     "amount": 20000000000000000
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 120
+    }
+   },
+   {
+    "id": "ms_pay60",
+    "rank": 8,
+    "text": "60 דרישות. הקואליציה מרוצה. לשעה",
+    "goal": {
+     "type": "payDemands",
+     "n": 60
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 120
+    }
+   },
+   {
+    "id": "ms_case12",
+    "rank": 8,
+    "text": "12 מזוודות. צריך ארון חדש",
+    "goal": {
+     "type": "suitcases",
+     "n": 12
+    },
+    "reward": {
+     "type": "cash",
+     "sec": 120
+    }
+   },
+   {
+    "id": "ms_day12",
+    "rank": 8,
+    "text": "12 ימים בכותרות. מתי עובדים?",
+    "goal": {
+     "type": "courtDays",
+     "n": 12
+    },
+    "reward": {
+     "type": "basePct",
+     "pct": 8
+    }
+   }
+  ]
+ }
 }

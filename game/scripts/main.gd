@@ -85,6 +85,7 @@ var sara: SaraMark              # Sara on the Balfour stage, Bibi's round (motio
 var _paused_toast_ms := -1.0e9     # the last "no taps on the court day" toast
 var herzog: HerzogFigure        # President Herzog's compromise outline (events.herzog, effect "mediation")
 var ability_chip: AbilityChip   # leaders v3: the round's active ability (sim Ability)
+var missions_chip: MissionsChip # missions + ranks: the stage's top-left entry (sim Missions, glue MissionsUi)
 var kaia: KaiaFigure            # Kaia on the Balfour stage (events.kaia): a tap feeds her (placeholder art)
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
 var bb: BigBanana
@@ -414,6 +415,8 @@ func _build() -> void:
 	_stage.add_child(buffs)
 	ability_chip = AbilityChip.new()
 	_stage.add_child(ability_chip)
+	missions_chip = MissionsChip.new()
+	_stage.add_child(missions_chip)
 	golden = GoldenView.new()
 	_stage.add_child(golden)
 	golden.on_despawn_start = func() -> void:
@@ -869,6 +872,8 @@ func _apply_settings() -> void:
 		herzog.reduced_motion = rm
 	if ability_chip != null:
 		ability_chip.reduced_motion = rm
+	if missions_chip != null:
+		missions_chip.reduced_motion = rm
 	if kaia != null:
 		kaia.reduced_motion = rm
 	floaters.reduced_motion = rm
@@ -1424,6 +1429,9 @@ func _check_meta() -> void:
 		_all_milestone_seen = all_m
 		ticker.enqueue("milestone", Strings.s("F_ALL_MILESTONE", {"n": Meta.min_owned(state)}))
 		_audio("milestone")
+	MissionsUi.check(self)   # missions: finished goals latch and roll on the ticker
+	if bool(_dev["on"]):
+		MissionsUi.publish_web(self, missions_chip)
 	if state.bananas >= 0.0 and state.evolutions >= 1 and not state.ui.get("perksHinted", false) and Meta.can_buy_any_perk(state):
 		state.ui["perksHinted"] = true
 		# coalition UX rev 5 (Bar's playtest: the agreement's entry was not found): the nudge is a toast
@@ -1930,6 +1938,9 @@ func _refresh_all(dt: float) -> void:
 	top_bar.set_evolve_badge(Ftue.badge_on(state) and vis)
 	buffs.update_chip(state.buff_frenzy, state.buff_tap_frenzy, main, Spins.active_effects(state))
 	ability_chip.update_view(dt, _chip_view(), main and (bb.walk.state() == "home" or Events.screen_blocked(state)))
+	# missions: from the first tap on (the pre-tap stage stays bare), beside the thermometer's column
+	missions_chip.update_view(dt, MissionsUi.chip_view(state, d), main and state.taps_lifetime > 0 and not Leaders.pick_pending(state),
+		thermo.icon_top() if thermo.is_shown() else INF, L.magician_hit().position.x)
 	buffs.update_view(dt, main)
 	shop.refresh(state, dt, main and dt > 0.0, d)
 
@@ -2114,6 +2125,9 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		return
 	if chat.pointer_down(lp):
 		_presses[idx] = {"kind": "chat"}
+		return
+	if missions_chip.takes_tap(sp) and not Ui.in_rect(toasts.covered_rect(), sp):
+		MissionsUi.open(self)   # before the thermometer: on a short stage their hit boxes touch
 		return
 	if thermo.is_shown() and Ui.in_rect(thermo.hit_rect(), sp):
 		_presses[idx] = {"kind": "thermo"}   # rtl-map §4: tap → T4
