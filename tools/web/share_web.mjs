@@ -227,8 +227,7 @@ async function seed(P) {
 	check(ds.prompted, 'the moment brings the advisor\'s prompt after the calm beat');
 	// the prompt queues behind a toast already up: wait for its plate to report (odDev runs at 4 Hz)
 	await P.page.waitForFunction(() => window.odDev && window.odDev.hud && window.odDev.hud.toast && window.odDev.hud.toast.length === 4, null, { timeout: 8000 }).catch(() => {});
-	await shot(P, 'advisor-prompt');
-	const s = await probe(P);
+	const s = await probe(P);   // a toast stays 3 s: read and tap it before any screenshot
 	const toast = s.hud && s.hud.toast;
 	if (toast && toast[2] > 0) {
 		await tap(P, css(P, toast[0] + toast[2] / 2, toast[1] + toast[3] / 2));
@@ -355,7 +354,17 @@ const ctx = await context();
 
 // 5. the brawl cue and the pending chip
 {
-	// `&chat=N` seeds the group and an open brawl (dev_probe), as on main
+	// `&chat=N` seeds the group and an open brawl (dev_probe) on a save that already has its leader
+	// (seeded before the first pick, the pick is refused): one plain visit picks Bibi first, as the
+	// old driver's earlier parts did on the shared context
+	{
+		const P0 = await boot(ctx, 'dev=1&grant=50000');
+		await handoff(P0);
+		await pickBibi(P0);
+		await tap(P0, hat(P0));
+		await P0.wait(1500);
+		await P0.page.close();
+	}
 	const P = await boot(ctx, 'dev=1&grant=50000&chat=14');
 	await handoff(P);
 	await pickBibi(P);
