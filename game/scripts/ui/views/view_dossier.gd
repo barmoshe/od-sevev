@@ -322,6 +322,11 @@ func buttons() -> Array:
 		out.append({"kind": "receipt", "key": "SHARE_RECEIPT_TITLE"})
 	if host != null and host.has_method("open_result_card"):
 		out.append({"kind": "result", "key": "SHARE_RESULT_BTN"})
+	# seeded rounds (main.gd): "אתגר חבר" once the main game has an election to send, "הסבב היומי"
+	if host != null and host.has_method("round_offer_ready") and bool(host.call("round_offer_ready")):
+		out.append({"kind": "challenge", "key": "CHALLENGE_DOS_BTN"})
+	if host != null and host.has_method("daily_ready") and bool(host.call("daily_ready")):
+		out.append({"kind": "daily", "key": "DAILY_DOS_BTN"})
 	if LeaderUi.court():   # Bibi-only: hidden, not disabled, in every other round (rtl-map §4.3)
 		out.append({"kind": "pardon", "key": "PARDON_ROW"})
 	out.append({"kind": "story", "key": "BOOK_STORY"})
@@ -481,6 +486,10 @@ func act(kind: String) -> void:
 			host.call("open_receipt")
 		"result":
 			host.call("open_result_card")
+		"challenge":
+			host.call("open_challenge_offer")   # seeded rounds
+		"daily":
+			host.call("open_daily")   # seeded rounds
 
 
 ## O15: the pardon desk, a modal over T4 through the overlay stack.

@@ -173,6 +173,7 @@ static func derive(s: GameState) -> Derived:
 	var p: Dictionary = c["prestige"]
 	Meta.install()
 	Spins.install()
+	Missions.install()    # the rank's permanent income bonus (missions.ranks[].incomePct)
 	Politics.install(s)   # the round's leader: lineup, rivals, rule (cheap when unchanged)
 	var d := Derived.new()
 	d.crit_chance = float(c["tap"]["critChance"])
@@ -381,6 +382,7 @@ static func buy_producer(s: GameState, id: String, mode: Variant = null) -> Dict
 	var before := s.owned_of(id)
 	s.owned[id] = before + int(q["qty"])
 	Investigation.on_buy(s, id, int(q["qty"]), before)   # shady sources feed suspicion per unit
+	Missions.on_source_bought(s, int(q["qty"]))          # the sourcesTotal goal's count
 	return q
 
 

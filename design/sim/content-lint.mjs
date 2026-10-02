@@ -504,8 +504,57 @@ if (C.leaderSelect || C.leaders) {
   }
 }
 
+// ---------- 10. missions + ranks (game/scripts/sim/missions.gd; Bar 2026-10-02) ----------
+// Ids unique, ranks in range and each rank before the last holding missions, goal / reward types the
+// engine knows with their numbers, sources that exist, the text ≤ 40 characters in the game's voice
+// (only the leader placeholders; no em dash, no quote marks) and its numbers the goal's.
+const missionReport = [];
+if (C.missions) {
+  const M = C.missions, P = 'missions';
+  const GOALS = { ownSource: ['source', 'n'], sourcesTotal: ['n'], bpsAtLeast: ['n'], earnRun: ['amount'], taps: ['n'], crits: ['n'], payDemands: ['n'],
+    seatsAtLeast: ['n'], suitcases: ['n'], courtDays: ['n'], useAbility: ['n'], elections: ['n'], buySpins: ['n'] };
+  const REWARDS = { cash: ['sec'], frenzy: ['sec'], basePct: ['pct'] };
+  const ranks = Array.isArray(M.ranks) ? M.ranks : [];
+  const list = Array.isArray(M.list) ? M.list : [];
+  if (!ranks.length) err(P, 'ranks[] missing');
+  if (!list.length) err(P, 'list[] missing');
+  if (!(Number(M.slots) >= 1 && Number(M.slots) <= 5)) err(`${P}.slots`, 'slots must be 1-5');
+  ranks.forEach((r, i) => {
+    if (typeof r.title !== 'string' || !heb.test(r.title)) err(`${P}.ranks[${i}]`, 'title must be Hebrew');
+    if (!(Number(r.incomePct) >= 0 && Number(r.incomePct) <= 25)) err(`${P}.ranks[${i}]`, `incomePct ${r.incomePct} outside 0-25`);
+  });
+  if (ranks.length && Number(ranks[0].incomePct) !== 0) err(`${P}.ranks[0]`, 'the starting rank pays no bonus (incomePct 0)');
+  const seen = new Set(), perRank = new Map();
+  for (const m of list) {
+    const p = `${P}.${m.id}`;
+    if (typeof m.id !== 'string' || !/^ms_[a-z0-9_]+$/.test(m.id)) err(p, 'id must be ms_<lowercase>');
+    if (seen.has(m.id)) err(p, 'duplicate mission id'); seen.add(m.id);
+    if (!(Number.isInteger(m.rank) && m.rank >= 1 && m.rank < Math.max(2, ranks.length))) err(p, `rank ${m.rank} outside 1-${ranks.length - 1} (the last rank is the top, it has no missions)`);
+    perRank.set(m.rank, (perRank.get(m.rank) || 0) + 1);
+    const g = m.goal || {}, r = m.reward || {};
+    if (!GOALS[g.type]) err(p, `goal type ${g.type} unknown (${Object.keys(GOALS).join(' | ')})`);
+    else for (const k of GOALS[g.type]) if (k === 'source' ? !producerIds.has(g.source) : !(Number(g[k]) > 0)) err(p, `goal.${k} missing or invalid`);
+    if (!REWARDS[r.type]) err(p, `reward type ${r.type} unknown (${Object.keys(REWARDS).join(' | ')})`);
+    else for (const k of REWARDS[r.type]) if (!(Number(r[k]) > 0)) err(p, `reward.${k} must be > 0`);
+    if (r.type === 'cash' && !(r.sec <= 120)) err(p, `cash ${r.sec} s of income > 120 (keep rewards modest: the pacing gates)`);
+    const t = String(m.text || '');
+    if (!heb.test(t)) err(p, 'text must be Hebrew');
+    if (len(t.replace(/\{(verbPlural|critPlural)\}/g, 'xxxxxx')) > 40) err(p, `text ${len(t)} > 40: ${t}`);
+    for (const ph of t.match(/\{[^}]*\}/g) || []) if (!['{verbPlural}', '{critPlural}'].includes(ph)) err(p, `placeholder ${ph} (only {verbPlural} / {critPlural})`);
+    if (/[—–]/.test(t)) err(p, `em / en dash: ${t}`);
+    if (/["“”„]|״(?![א-ת])/.test(t.replace(/[א-ת]״[א-ת]/g, ''))) err(p, `quote marks (no quoted speech in a mission): ${t}`);
+    const want = Number(g.n ?? g.amount);
+    const MAG = { 'אלף': 1e3, 'מיליון': 1e6, 'מיליארד': 1e9, 'טריליון': 1e12 };
+    for (const [, num, mag] of t.matchAll(/(\d[\d,]*)(?:\s+(אלף|מיליון|מיליארד|טריליון))?/g))
+      if (Number(num.replace(/,/g, '')) * (MAG[mag] || 1) !== want) err(p, `the text says ${num}${mag ? ' ' + mag : ''} but the goal is ${want}`);
+  }
+  for (let rk = 1; rk < ranks.length; rk++) if (!perRank.get(rk)) err(`${P}.ranks[${rk - 1}]`, `rank ${rk} has no missions (the player would be stuck)`);
+  if (list.length < 35) warn(P, `${list.length} missions (the design asks for ≥ 35)`);
+  missionReport.push(`${list.length} missions over ${ranks.length} ranks (${[...perRank.entries()].sort((a, b) => a[0] - b[0]).map(([k, v]) => `${k}:${v}`).join(' ')}), +${ranks.reduce((a, r) => a + Number(r.incomePct || 0), 0)}% at the top`);
+}
+
 // ---------- report ----------
-const tick = C.headlines.length + ambientAll.length;
+const tick =C.headlines.length + ambientAll.length;
 const bubbles = C.partners.reduce((a, p) => a + new Set([...Object.values(p.lines || {}), ...Object.values(p.linesVariants || {})].flat().filter(x => typeof x === 'string' && heb.test(x))).size, 0);
 console.log(`strings (Hebrew, player-facing): ${game.length}`);
 console.log(`ticker lines: ${tick} (milestones ${C.headlines.length}, ambient ${C.ambientHeadlinesV2.list.length} live + ${(C.ambientHeadlinesV2.listPolitics || []).length} politics-conditional); opposition-targeted ambient: ${ambientAll.filter(o => o.target).length}`);
@@ -515,6 +564,7 @@ console.log(`approved pictograms in use (2D Artist draws them as glyphs): ${[...
 console.log(`ticker lines over the 45-char ideal (≤ 60 enforced): ${over45.length}` + (verbose ? '\n  ' + over45.join('\n  ') : ' (--verbose lists them)'));
 console.log(`ticker no-break units (§5.2.1 strong glue): ${tickerUnits}, all ≤ ${TICKER_CLIP_MIN} px at ×4 required; the widest "${widestUnit[0]}" ${widestUnit[1]} px`);
 if (leaderReport.length) console.log(`leaders (pending engine): ${leaderReport.join(' · ')}`);
+if (missionReport.length) console.log(`missions: ${missionReport.join(' · ')}`);
 console.log(`story cards (reported-speech rule): ${storyLines.length} lines, ${storyQuoted} quoted (the narrator's only); per leader: ${(C.leaders || []).map(L => `${L.id} ${((L.id === (C.leaderSelect?.defaultLeader || 'bibi') ? C.story : L.kit?.story)?.beats || []).length}`).join(' · ')}`);
 if (warns.length) console.log(`\nWARN (${warns.length})\n  ` + warns.join('\n  '));
 if (errors.length) console.log(`\nERROR (${errors.length})\n  ` + errors.join('\n  '));
