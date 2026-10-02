@@ -501,6 +501,8 @@ static func model(kind: String, s: GameState, d: Economy.Derived, ext: Dictionar
 			params["days"] = plain(rd[1])
 	m["stub"] = stub_path(kind, leader, str(m.get("event", "")), neutral)
 	m["text"] = copy_line(kind, params, rot, str(m.get("event", "")), neutral)
+	if str(ext.get("text", "")).strip_edges() != "":
+		m["text"] = _no_url(str(ext["text"]).strip_edges())   # the caller's own copy (a round's return link, the daily grid)
 	m["hash"] = str(ext.get("url_hash", ""))
 	m["file"] = file_name(kind)
 	return m

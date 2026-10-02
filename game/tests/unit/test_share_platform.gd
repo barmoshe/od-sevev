@@ -330,3 +330,32 @@ func test_the_chip_and_t4s_career_row() -> void:
 	m.state.history.append({"n": 1, "leader": "bibi"})
 	var kinds: Array = m.dossier.buttons().map(func(b: Dictionary) -> String: return b["kind"])
 	runner.check(kinds.slice(0, 3) == ["receipt", "result", "career"], "T4: the receipt, the result, then the career (%s)" % [kinds])
+
+
+## The seeded rounds through the drawer (RoundShare.platform_model): a first challenge takes the
+## platform's copy with the round's time and hash (no k= / r=, the drawer adds its own); a return
+## link keeps its win line and sends its own time; the daily keeps its whole grid text; none of
+## them carries the URL in the prose. A link's hash parses back into the same challenge.
+func test_the_rounds_hand_the_drawer_its_model() -> void:
+	var ch := {"leader": "bibi", "seed": 12345, "t": 462, "ref": "abcd2345"}
+	var h := Challenge.build_hash(ch)
+	var url := "https://od-sevev.vercel.app/s/bibi-challenge#" + h
+	var offer := RoundShare.platform_model("challenge", ch.merged({"hash": h, "url": url, "result": "", "vs": -1, "text": "הגעתי ל־61. " + url}))
+	runner.check(offer["secs"] == 462.0 and offer["seed"] == 12345 and offer["leader"] == "bibi", "the offer: leader, seed, time (%s)" % [offer])
+	runner.check(offer["url_hash"] == "l=bibi&s=12345&t=462", "the offer's hash without k= and r= (%s)" % offer["url_hash"])
+	runner.check(not offer.has("text"), "the offer takes the platform's copy")
+	var om := ShareKit.model("challenge", GameState.fresh(), null, offer)
+	runner.check(str(om["text"]).contains("7:42") and not str(om["text"]).contains("http"), "the platform's line has the time and no URL (%s)" % om["text"])
+	var back := Challenge.parse(Challenge.parse_pairs("r=abcd2345&k=challenge&" + offer["url_hash"] + "&v=bibi-challenge"))
+	runner.check(back.get("seed") == 12345 and back.get("t") == 462 and back.get("ref") == "abcd2345", "the drawer's link parses back (%s)" % [back])
+	var ret := RoundShare.platform_model("challenge", ch.merged({"hash": h + "&vs=462", "url": url, "result": "win", "mine": 401, "theirs": 462, "text": "עברתי אותך: 6:41 מול 7:42. " + url}))
+	runner.check(ret["secs"] == 401.0 and str(ret["url_hash"]).ends_with("vs=462"), "the return link: my time, vs kept (%s)" % [ret])
+	var rm := ShareKit.model("challenge", GameState.fresh(), null, ret)
+	runner.check(rm["text"] == "עברתי אותך: 6:41 מול 7:42.", "the return link keeps its own line, URL out (%s)" % rm["text"])
+	var daily := RoundShare.platform_model("daily", {"n": 7, "grid": ["🟦🟦🟨", "🟥⬜"], "url": "od-sevev.vercel.app/s/daily",
+		"text": "עוד סבב #7 🗳️\n🟦🟦🟨\n🟥⬜\n61 ⏱️ 7:42\nod-sevev.vercel.app/s/daily"})
+	runner.check(daily["n"] == 7 and daily["grid_text"] == "🟦🟦🟨\n🟥⬜" and daily["url_hash"] == "", "the daily: n, the grid (%s)" % [daily])
+	var dm := ShareKit.model("daily", GameState.fresh(), null, daily)
+	runner.check(str(dm["text"]).ends_with("7:42") and str(dm["text"]).contains("🟦🟦🟨") and dm["stub"] == "s/daily/", "the daily's text is its grid, URL out (%s)" % dm["text"])
+	await _boot()
+	runner.check(RoundShare.platform(), "main built the desk")

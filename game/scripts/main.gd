@@ -3536,7 +3536,7 @@ func _round_boot() -> void:
 func _round_read_arrival() -> void:
 	if not OS.has_feature("web") or not _shot.is_empty():
 		return
-	var js := "(function () { var a = window.odArrival; var o = (a && typeof a === 'object') ? {kind: String(a.kind || ''), params: (a.params && typeof a.params === 'object') ? a.params : {}} : {hash: String(location.hash || '')};" \
+	var js := "(function () { var a = window.odArrival; var o = (a && typeof a === 'object') ? {kind: String(a.kind || ''), ref: String(a.ref || ''), params: (a.params && typeof a.params === 'object') ? a.params : {}} : {hash: String(location.hash || '')};" \
 		+ " if (location.hash) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} } return JSON.stringify(o); })()"
 	var v: Variant = JavaScriptBridge.eval(js, true)
 	var parsed: Variant = JSON.parse_string(str(v)) if v != null else null
@@ -3548,6 +3548,8 @@ func _round_read_arrival() -> void:
 	if p.has("hash"):
 		params = Challenge.parse_pairs(str(p["hash"]))
 		kind = str(params.get("k", ""))
+	elif str(p.get("ref", "")) != "" and not params.has("r"):
+		params["r"] = str(p["ref"])   # the shell keeps the sender's ref apart from the params
 	round_arrive(kind, params)
 
 
