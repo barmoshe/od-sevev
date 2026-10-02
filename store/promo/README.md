@@ -123,3 +123,14 @@ tips and one ghost line were rewritten to land a punch, and five new formats:
 The family, the reviewers and the searches are invented, and plainly so.
 
     python3 src/reels6.py <scratch> doc|trailer|starter|family|search [--stills | --one <sec>]
+
+## Safe-zone check (`src/framecheck.py`)
+
+Bar: "some things go out of the frame in all the videos". Every element pasted onto a frame is logged;
+the check reports what the frame clips and any text inside Instagram's UI (2026 guides: top 200,
+bottom 380, right 120 from about y 1000, where the like / comment / share icons sit). Hebrew is
+right-aligned, so the right margin bites first: text now ends at x 950 and centres on x 510.
+
+    python3 src/framecheck.py <scratch> zap zap | reels5 <name> | reels6 <name> | shorts <name> | promo <name> [step]
+
+Sliding cards, walkers crossing the loading screen and the curtain are clipped on purpose.

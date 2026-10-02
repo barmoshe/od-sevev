@@ -87,8 +87,8 @@ def grain(c, t):
 def subtitle(c, line, y, t, t0):
     if t < t0:
         return
-    im = text(line, 6, fill=WHITE, ring=INK, shadow=True)
-    paste(c, im, W // 2, y)
+    im = text(line, 5, fill=WHITE, ring=INK, shadow=True)
+    paste(c, im, 510, y)
 
 
 def doc_frame(t):
@@ -102,7 +102,7 @@ def doc_frame(t):
         if t > 0.8:
             paste(c, text("סדרת טבע. פרק 3.", 5, fill=(170, 160, 140), ring=None, shadow=False), W // 2, 980)
         if t > 1.4:
-            subtitle(c, "פעם בכמה חודשים, הטבע מתעורר.", 1420, t, 1.4)
+            subtitle(c, "פעם בכמה חודשים, הטבע מתעורר.", 1300, t, 1.4)
         grain(c, t)
         return c.convert("RGB")
     if t >= D_OUT:
@@ -133,8 +133,10 @@ def doc_frame(t):
         d.rectangle((x - 8, D_TOP + 60, x, D_TOP + 210), fill=(250, 200, 90))
         paste(c, nm, x - 24 - nm.width // 2, D_TOP + 110)
         paste(c, la, x - 24 - la.width // 2, D_TOP + 172)
-    subtitle(c, l1, D_BOT + 70, u, 0.6)
-    subtitle(c, l2, D_BOT + 150, u, 2.2)
+    shade = Image.new("RGBA", (W, 190), (0, 0, 0, 120))
+    c.alpha_composite(shade, (0, D_BOT - 190))
+    subtitle(c, l1, D_BOT - 135, u, 0.6)
+    subtitle(c, l2, D_BOT - 60, u, 2.2)
     if u < 0.25:
         c.alpha_composite(Image.new("RGBA", (W, H), (0, 0, 0, int(255 * (1 - u / 0.25)))))
     grain(c, t)
@@ -202,12 +204,12 @@ def trailer_frame(t):
         c.alpha_composite(Image.new("RGBA", (W, H), (0, 0, 0, int(255 * max(0, 1 - u / 0.5)))))
     elif b < 6:                                                  # eight leaders, one per beat
         u = t - 4 * T_BAR
-        paste(c, text("שמונה ראשי רשימה.", 8, fill=WHITE, ring=None, shadow=False), W // 2, 700)
+        paste(c, text("שמונה ראשי רשימה.", 8, fill=WHITE, ring=None, shadow=False), 510, 700)
         for i, who in enumerate(P.LEAD):
             if u >= i * (T_BAR / 4):
-                x = W - 135 - (i % 4) * 270
-                y = 980 + (i // 4) * 280
-                paste(c, scaled(R.S.avatar_round(who, 220), pop_scale(u, i * T_BAR / 4, 0.12, 1.4)), x, y)
+                x = 850 - (i % 4) * 235
+                y = 960 + (i // 4) * 250
+                paste(c, scaled(R.S.avatar_round(who, 190), pop_scale(u, i * T_BAR / 4, 0.12, 1.4)), x, y)
     elif b < 7:                                                  # 60 of 61
         u = t - 6 * T_BAR
         P.hemicycle(c, W // 2, 1060, 11, filled=min(60, int(u * 60)), t=t, pulse61=True)
@@ -300,7 +302,7 @@ def starter_frame(t):
         if t < t0:
             continue
         col, row = i % 2, i // 2
-        x, y = (790 if col == 0 else 290), 560 + row * 300
+        x, y = (720 if col == 0 else 280), 560 + row * 300
         s = pop_scale(t, t0, 0.14, 1.5)
         im = item_img(spr)
         rot = im.rotate([-6, 4, -3, 5, -5, 3, 6, -4][i], resample=Image.NEAREST, expand=True)
@@ -349,7 +351,8 @@ F_MSGS = [  # (time, who, text); who None = me (Noa), "sys" = a system line, "im
     (16.6, "אמא", "יופי. מגיעים לארוחת שישי?"),
     (18.4, "דוד שמעון", "לא אשב ליד רינה."),
     (20.0, "סבא", "גם ליברמן אמר את זה."),
-    (21.8, "אמא", "12 כיסאות. אף אחד לא מוכן לשבת."),
+    (21.8, "אמא", "12 כיסאות."),
+    (22.6, "אמא", "אף אחד לא מוכן לשבת."),
     (23.6, "אמא", "כמו בכנסת."),
 ]
 F_TOP, F_BOTTOM = 330, 1380         # the chat's viewport
@@ -386,17 +389,24 @@ def msg_img(who, body):
         im.paste(sh, (10, 10), m)
     else:
         mine = who is None
-        tx = text(body, 6, fill=WHITE, ring=None, shadow=False)
+        lines = [body]
+        if text(body, 6).width > 700:                            # wrap at the space nearest the middle
+            sp = [i for i, ch in enumerate(body) if ch == " "]
+            cut = min(sp, key=lambda i: abs(i - len(body) / 2))
+            lines = [body[:cut], body[cut + 1:]]
+        txs = [text(x, 6, fill=WHITE, ring=None, shadow=False) for x in lines]
         nm = None if mine else text(who, 4, fill=PEOPLE[who][1], ring=None, shadow=False)
-        w = max(tx.width, nm.width if nm else 0) + 60
-        h = tx.height + 44 + (nm.height + 10 if nm else 0)
+        w = max([x.width for x in txs] + [nm.width if nm else 0]) + 60
+        h = sum(x.height for x in txs) + 10 * (len(txs) - 1) + 44 + (nm.height + 10 if nm else 0)
         im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         ImageDraw.Draw(im).rounded_rectangle((0, 0, w - 1, h - 1), radius=26, fill=(0, 92, 75) if mine else (32, 44, 51))
         y = 22
         if nm:
             im.alpha_composite(nm, (w - 30 - nm.width, 16))
             y = 16 + nm.height + 10
-        im.alpha_composite(tx, (w - 30 - tx.width, y))
+        for tx in txs:
+            im.alpha_composite(tx, (w - 30 - tx.width, y))
+            y += tx.height + 10
     _c[key] = im
     return im
 
@@ -423,9 +433,9 @@ def family_frame(t):
         if who == "sys":
             x = W // 2 - im.width // 2
         elif who is None or who == "img":
-            x = W - 40 - im.width                                # mine: on the right (RTL)
+            x = 950 - im.width                                   # mine: on the right (RTL), clear of the icons
         else:
-            x = 140
+            x = 130
             if top + im.height - 72 >= F_TOP:
                 c.alpha_composite(avatar_letter(who), (40, top + im.height - 72 + dy))
         c.alpha_composite(im, (x, top + dy))
@@ -470,7 +480,7 @@ Q_DUR = 15.0
 Q_END = Q_DUR - END
 Q_TURNS = [  # (start, typed, suggestions)
     (0.3, "למה בישראל יש", [" בחירות כל שנה", " 5 בחירות ב־4 שנים", " עוד סבב", " 120 ח״כים ואין 61"]),
-    (6.2, "איך מגיעים ל־61", [" בלי ליברמן", " בלי בן גביר", " בלי אף אחד", " ? (אי אפשר)"]),
+    (6.2, "איך מגיעים ל־61", [" בלי ליברמן", " בלי בן גביר", " בלי אף אחד", " בכלל"]),
 ]
 Q_TYPE = 1.2                        # typing time
 Q_RESULT = 11.2
@@ -487,34 +497,33 @@ def search_frame(t):
     t0, typed, sugg = Q_TURNS[j]
     u = t - t0
     shown = k.typed(typed, t, t0, len(typed) / Q_TYPE)
-    d.rounded_rectangle((60, 500, W - 60, 620), radius=60, fill=WHITE, outline=(220, 222, 228), width=4)
+    d.rounded_rectangle((60, 500, 960, 620), radius=60, fill=WHITE, outline=(220, 222, 228), width=4)
     d.ellipse((110, 534, 152, 576), outline=(120, 124, 130), width=6)       # the magnifier
     d.line((146, 570, 170, 594), fill=(120, 124, 130), width=8)
     if shown:
         tx = text(shown, 6, fill=INK, ring=None, shadow=False)
-        paste(c, tx, W - 110 - tx.width // 2, 560)
+        paste(c, tx, 910 - tx.width // 2, 560)
         if int(t * 3) % 2:
-            d.rectangle((W - 116 - tx.width - 6, 532, W - 110 - tx.width - 6, 588), fill=INK)
+            d.rectangle((910 - tx.width - 12, 532, 910 - tx.width - 6, 588), fill=INK)
     if u > Q_TYPE + 0.2 and t < Q_RESULT:                        # the suggestions
-        d.rectangle((60, 640, W - 60, 640 + 130 * len(sugg)), fill=WHITE)
+        d.rectangle((60, 640, 960, 640 + 130 * len(sugg)), fill=WHITE)
         for i, s_ in enumerate(sugg):
             if u < Q_TYPE + 0.2 + i * 0.35:
                 continue
             y = 705 + i * 130
             a = text(typed, 5, fill=(110, 114, 120), ring=None, shadow=False)
             b = text(s_, 5, fill=INK, ring=None, shadow=False)
-            paste(c, a, W - 110 - a.width // 2, y)
-            paste(c, b, W - 110 - a.width - b.width // 2, y)
-            d.ellipse((110, y - 18, 146, y + 18), outline=(170, 174, 180), width=5)
+            paste(c, a, 910 - a.width // 2, y)
+            paste(c, b, 910 - a.width - b.width // 2, y)
             if i < len(sugg) - 1:
-                d.line((100, y + 65, W - 100, y + 65), fill=(236, 237, 240), width=2)
+                d.line((100, y + 65, 920, y + 65), fill=(236, 237, 240), width=2)
     if t >= Q_RESULT:                                            # the one result
         u2 = t - Q_RESULT
-        d.rounded_rectangle((60, 680, W - 60, 1180), radius=30, fill=WHITE, outline=(220, 222, 228), width=3)
-        paste(c, text("od.sevev · אינסטגרם", 4, fill=(32, 120, 60), ring=None, shadow=False, rtl=False), W - 300, 740)
-        paste(c, text("עוד סבב: משחק", 8, fill=(26, 13, 171), ring=None, shadow=False), W - 120 - text("עוד סבב: משחק", 8).width // 2, 830)
-        paste(c, text("אף אחד לא מגיע ל־61. אפשר לנסות.", 5, fill=(70, 74, 80), ring=None, shadow=False), W // 2 + 20, 950)
-        paste(c, img("wordmark", 4), W // 2, 1080)
+        d.rounded_rectangle((60, 680, 960, 1180), radius=30, fill=WHITE, outline=(220, 222, 228), width=3)
+        paste(c, text("od.sevev · אינסטגרם", 4, fill=(32, 120, 60), ring=None, shadow=False, rtl=False), 700, 740)
+        paste(c, text("עוד סבב: משחק", 8, fill=(26, 13, 171), ring=None, shadow=False), 900 - text("עוד סבב: משחק", 8).width // 2, 830)
+        paste(c, text("אף אחד לא מגיע ל־61. אפשר לנסות.", 5, fill=(70, 74, 80), ring=None, shadow=False), 510, 950)
+        paste(c, img("wordmark", 4), 510, 1080)
         if u2 > 0.6:
             slam(c, badge("בקרוב", 11), u2, 0.6, W // 2, 1340, angle=-4, frm=2.4)
     return c.convert("RGB")

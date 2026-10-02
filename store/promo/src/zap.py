@@ -56,7 +56,7 @@ HOOK = 2 * BAR
 SEG = 2 * BAR                      # 3.92 s a story
 L2_AT = 1.15
 STORIES = [  # (channel, event, tag, line 1, line 2, meter from, meter to), zapped 12 -> 13 -> 14 per event
-    (12, "hat", "ערב גורלי", "הקוסם שלף 61 מכובע ריק.", "פרשננו: הרגע הכי מסוכן. מאז אתמול.", 62, 91),
+    (12, "hat", "ערב גורלי", "הקוסם שלף 61 מכובע ריק.", "פרשננו: הכי מסוכן. מאז אתמול.", 62, 91),
     (13, "hat", "חשיפה", "חשיפה: מה באמת יש בכובע.", "ארנב. הוא סירב להגיב.", 70, 88),
     (14, "hat", "הישג היסטורי", "הקוסם שלף 61. הישג היסטורי.", "הפאנל: כולם מסכימים. בצעקות.", 80, 96),
     (12, "chair", "חשש כבד", "ליברמן הודיע: לא יושב.", "14 פרשנים. 15 תרחישי אימה.", 91, 99),
@@ -75,6 +75,7 @@ Y_HEAD = 340                        # the logo and the meter
 SCREEN = {12: (40, 480, 740, 490), 13: (300, 480, 740, 490), 14: (170, 470, 740, 450)}   # x, y, w, h
 Y_LT = 1250                         # the lower third: Dubi stands behind it
 ZAP = 0.13                          # the CRT collapse-and-open between channels
+SAFE_CX = 510                       # the middle of Instagram's safe area (x 60-960: the icons sit on the right)
 
 
 def seg_at(t):
@@ -226,14 +227,14 @@ def lower_third(c, u, ch, tag, l1, l2):
     if u > 0.2:
         tg = text(tag, 6, fill=L["tag_ink"], ring=None, shadow=False)
         tw = tg.width + 48
-        paste(c, plate(tw, 80, L["tag"], INK, 5), xr - 20 - tw // 2, y0 - 26)
-        paste(c, tg, xr - 20 - tw // 2, y0 - 26)
+        paste(c, plate(tw, 80, L["tag"], INK, 5), 950 - tw // 2, y0 - 26)
+        paste(c, tg, 950 - tw // 2, y0 - 26)
     if u > 0.32:
         a = text(l1, 6, fill=L["l1"], ring=L["ring"], shadow=L["ring"] is not None)
-        paste(c, a, (xl + xr) // 2, y0 + 82)
+        paste(c, a, SAFE_CX, y0 + 82)
     if u > L2_AT:
         b = text(l2, 6, fill=L["l2"], ring=L["ring"], shadow=L["ring"] is not None)
-        paste(c, scaled(b, pop_scale(u, L2_AT, 0.12, 1.15)), (xl + xr) // 2, y0 + 168)
+        paste(c, scaled(b, pop_scale(u, L2_AT, 0.12, 1.15)), SAFE_CX, y0 + 168)
 
 
 # ---------------------------------------------------------------------------- the three sets
@@ -304,7 +305,7 @@ def set13(c, u, ev, talk):
         screen(c, 13, im)
         if u > 0.55:
             slam(c, k.stamp_img("בלעדי", 11), u, 0.55, x + w // 2 + 60, y + h // 2 + 110, angle=-10, frm=2.4)
-    anchor(c, 190, Y_LT + 130, u, talk)
+    anchor(c, 220, Y_LT + 130, u, talk)
 
 
 def set14(c, u, ev, talk):
@@ -388,7 +389,7 @@ def s_reveal(c, t):
         col = Image.new("RGBA", (W // 3, H))
         col.alpha_composite(grad(*LOOK[ch]["bg"]).crop((0, 0, W // 3, H)))
         c.alpha_composite(col, (j * W // 3, 0))
-        cx = j * W // 3 + W // 6
+        cx = (200, 540, 880)[j]
         paste(c, bug(ch, 0.9), cx, 600)
         anchor(c, cx, 1300, u, int(u * 6) % 2 == 0, scale=2)
     d = ImageDraw.Draw(c)
@@ -397,7 +398,7 @@ def s_reveal(c, t):
     if u > 0.1:
         paste(c, text("תבהלה? רעל?", 10, grad=True), W // 2, 380)
     if u > 0.8:
-        slam(c, text("תוכי אחד.", 12, fill=WHITE), u, 0.8, W // 2, 1450, frm=2.2)
+        slam(c, text("תוכי אחד.", 11, fill=WHITE), u, 0.8, SAFE_CX, 1450, frm=2.2)
     flash(c, u, 0, 0.1, 0.6)
 
 
@@ -414,9 +415,9 @@ def s_machine(c, t):
     if s:
         paste(c, scaled(rack, s), W // 2, 960)
     if u > 0.9:
-        paste(c, text("במשחק יש לך אחת משלך.", 8), W // 2, 1360)
+        paste(c, text("במשחק יש לך אחת משלך.", 7), SAFE_CX, 1360)
     if u > 1.4:
-        paste(c, text("10,000 חשבונות. דעה אחת.", 6, fill=GOLD_HI), W // 2, 1470)
+        paste(c, text("10,000 חשבונות. דעה אחת.", 6, fill=GOLD_HI), SAFE_CX, 1460)
     flash(c, u, 0, 0.1, 0.6)
 
 
