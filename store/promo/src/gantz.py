@@ -1,5 +1,6 @@
-"""'עוד סבב': a hypothetical round as Gantz (Reels, 9:16, 31 s). He isn't playable: in the game he only
-stands on the picker once, as a joke (leaderSelect.decoy). This is the "what if".
+"""'עוד סבב': a round as Gantz, a teaser (Reels, 9:16, 31 s). Nothing is out yet, so it's a teaser like the
+rest, and it never says "hypothetical" (Bar). In the game he only stands on the picker once, as a joke
+(leaderSelect.decoy); the ending is that joke: "גנץ לא עבר", בחר שוב.
 
 The screens are the game's own: a real Movie Maker frame of the picker (take_bennett) and of a round's
 first seconds (take_golan), with the leader painted out (the Balfour stage redrawn from its sprite; the
@@ -45,11 +46,11 @@ FEET = (550, 1035)                  # his mark on the stage (take px)
 CHIP = (950, 225)                   # the ability chip, in the sky top right
 BAR0, BAR1 = 11.0, 14.2             # the rotation bar fills ... and is postponed
 CAPTIONS = [  # (start, end, head, sub)
-    (0.2, T_ROUND, "מה אם היה אפשר לשחק בגנץ?", "סבב היפותטי. במשחק אין כזה."),
+    (0.2, T_ROUND, "בחרתם בגנץ.", "בהצלחה."),
     (T_ROUND + 0.4, T_ABIL, "כל לחיצה: ₪0.", "הכסף מחכה לרוטציה."),
     (T_ABIL, T_NOTE, "יכולת מיוחדת: לחכות.", "מאז 2020."),
     (T_NOTE, T_REAL, "שלח תזכורת לגבי הרוטציה.", "סטטוס: נקרא."),
-    (T_REAL + 0.3, T_END, "במשחק האמיתי:", "גנץ רק בבוחר."),
+    (T_REAL + 0.3, T_END, "סוף הסבב.", "בחרו שוב."),
 ]
 TOASTS = [  # (start, end, name line, message): the toast lane of the round
     (8.0, T_ABIL, "דובי · דובר הלשכה", "הקופה: ₪0. גנץ: ממתין."),

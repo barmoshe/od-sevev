@@ -135,14 +135,15 @@ right-aligned, so the right margin bites first: text now ends at x 950 and centr
 
 Sliding cards, walkers crossing the loading screen and the curtain are clipped on purpose.
 
-## "מה אם היה אפשר לשחק בגנץ?" (`src/gantz.py`)
+## "בחרתם בגנץ." (`src/gantz.py`)
 
-`od-sevev-reel-gantz.mp4`, 31 s, 9:16, in the iPhone of the gameplay reels. A hypothetical round: Gantz
-isn't playable (in the game he only stands on the picker once, as a joke). The screens are the game's
-own Movie Maker frames (the picker from take_bennett, a round's first seconds from take_golan) with the
-leader painted out (the Balfour stage redrawn from its sprite at its exact offset) and Gantz painted in.
-The round: every tap pays "+0", the HUD stays at ₪0; his ability, "לחכות", fills a rotation bar to 99%
-and it's postponed ("מאז 2020", the 2020 rotation that never happened); "שלחתי תזכורת לגבי הרוטציה.
-סטטוס: נקרא." Then the real game: "גנץ לא עבר", בחר שוב, and the cell is הפתעה again.
+`od-sevev-reel-gantz.mp4`, 31 s, 9:16, in the iPhone of the gameplay reels. A teaser like the rest (Bar:
+nothing is out yet, so it never says "hypothetical"). In the game Gantz only stands on the picker once,
+as a joke; here he gets a round. The screens are the game's own Movie Maker frames (the picker from
+take_bennett, a round's first seconds from take_golan) with the leader painted out (the Balfour stage
+redrawn from its sprite at its exact offset) and Gantz painted in. "בחרתם בגנץ. בהצלחה." Every tap pays
+"+0", the HUD stays at ₪0; his ability, "לחכות", fills a rotation bar to 99% and it's postponed ("מאז
+2020", the 2020 rotation that never happened); "שלחתי תזכורת לגבי הרוטציה. סטטוס: נקרא." Then the game's
+own decoy: "גנץ לא עבר", בחר שוב, "סוף הסבב.", and the cell is הפתעה again.
 
     python3 src/gantz.py <scratch with take_bennett/, take_golan/> [--stills | --one <sec>]
