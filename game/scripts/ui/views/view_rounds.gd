@@ -40,9 +40,8 @@ class Grid extends Node2D:
 			draw_rect(rc, Color(0, 0, 0, 0.35), false, 4.0)
 
 
-## The base: stacked full-width buttons, a status line for share results, the grid helper.
+## The base: stacked full-width buttons, the share result on the share button, the grid helper.
 class RoundCard extends SheetCard:
-	var status: PxText
 	var model: Dictionary = {}
 
 	func stack(label: String, kind: String, cb: Callable) -> void:
@@ -68,22 +67,18 @@ class RoundCard extends SheetCard:
 		if LeaderUi.short(id) != "":
 			para(Strings.s("ELECT_LEADER", {"short": LeaderUi.short(id), "party": LeaderUi.party(id)}), C_TEXT, true, 1)
 
-	## The share status line (one line, centred, muted); empty until a share comes back.
-	func status_line() -> void:
-		status = para(" ", C_MUTED, true, 1)
-
-	## The shell's share result (window.odShareDone through the controller).
+	## The shell's share result (window.odShareDone through the controller): the share button (the
+	## card's first) says what happened, "הקישור הועתק." for the clipboard fallback; no extra line.
 	func on_share_result(result: String) -> void:
-		if status == null:
-			return
 		var key := ""
 		match result:
 			"fallback", "copied":
 				key = "SHARE_COPIED"
 			"fail":
 				key = "SHARE_FAIL"
-		status.text = Strings.s(key) if key != "" else " "
-		status.center_in(CARD_X + (CARD_W - body_w()) / 2.0, body_w())
+		if key == "" or buttons.is_empty() or str(buttons[0].label.text if buttons[0].label != null else "") == "":
+			return
+		buttons[0].set_label(Strings.s(key))
 
 	func _call(m: String, args: Array = []) -> void:
 		if host != null and host.has_method(m):
@@ -128,7 +123,6 @@ class ChallengeOffer extends RoundCard:
 		leader_line(lid)
 		para(Strings.s("CHALLENGE_OFFER_BODY", {"mmss": SeededRound.mmss(float(model.get("t", 0))), "short": LeaderUi.short(lid)}))
 		para(Strings.s("CHALLENGE_OFFER_NOTE"), C_MUTED)
-		status_line()
 		close_x(func() -> void: cancel("close"))
 		stack(Strings.s("CHALLENGE_SEND"), "kit_gold", func() -> void: _call("round_share", ["offer"]))
 		stack(Strings.s("SHARE_CLOSE"), "kit_secondary", func() -> void: cancel("close"))
@@ -161,7 +155,6 @@ class ChallengeResult extends RoundCard:
 		para(Strings.s("CHALLENGE_VS", {"mine": SeededRound.mmss(mine), "theirs": SeededRound.mmss(float(model.get("theirs", 0)))}), C_GOLD if r == "win" else C_TEXT, true, 1)
 		if str(model.get("cells", "")) != "":
 			grid(str(model["cells"]), RoundCards.CELL_SMALL)
-		status_line()
 		stack(Strings.s("CHALLENGE_SEND_BACK"), "kit_gold", func() -> void: _call("round_share", ["return"]))
 		stack(Strings.s("CHALLENGE_START_MAIN" if model.get("newPlayer", false) == true else "CHALLENGE_BACK_MAIN"), "kit_secondary", func() -> void: cancel("close"))
 		finish()
@@ -195,12 +188,10 @@ class DailyCard extends RoundCard:
 			grid(str(yd.get("cells", "")), RoundCards.CELL_SMALL)
 		close_x(func() -> void: cancel("close"))
 		if today.is_empty():
-			status = null
 			stack(Strings.s("DAILY_GO"), "kit_gold", func() -> void:
 				mgr.close(self, "confirm")
 				_call("start_daily"))
 		else:
-			status_line()
 			stack(Strings.s("DAILY_SHARE"), "kit_gold", func() -> void: _call("round_share", ["daily"]))
 			stack(Strings.s("DAILY_REPLAY"), "kit_secondary", func() -> void:
 				mgr.close(self, "confirm")
@@ -231,7 +222,6 @@ class DailyResult extends RoundCard:
 		else:
 			var off: Dictionary = model.get("officialResult", {})
 			para(Strings.s("DAILY_UNOFFICIAL", {"mmss": SeededRound.mmss(float(off.get("sec", 0)))}), C_MUTED)
-		status_line()
 		stack(Strings.s("DAILY_SHARE"), "kit_gold", func() -> void: _call("round_share", ["daily"]))
 		stack(Strings.s("CHALLENGE_START_MAIN" if model.get("newPlayer", false) == true else "CHALLENGE_BACK_MAIN"), "kit_secondary", func() -> void: cancel("close"))
 		finish()

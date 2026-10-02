@@ -3549,7 +3549,7 @@ func _sync_daily_btn() -> void:
 	if _daily_btn.label != null:
 		_daily_btn.label.max_lines = 1
 		_daily_btn.label.center_in(r.position.x, r.size.x)
-	_daily_dot.position = Vector2(r.end.x - 28.0, r.position.y + 8.0)
+	_daily_dot.position = Vector2(r.end.x - 12.0, r.position.y - 8.0)   # a badge on the corner
 	_daily_dot.visible = not book.played(today)
 
 

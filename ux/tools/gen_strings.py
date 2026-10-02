@@ -853,7 +853,7 @@ e("DAILY_TITLE", "הסבב היומי ⟦#{n}⟧", "modal.title", "", "seeded ro
 e("DAILY_BODY", "היום כולם משחקים את אותו הסבב: אותו ראש רשימה, אותה חלוקה, אותם אירועים. הזמן עד ⟦61⟧ קובע.", "modal.body", "", "seeded rounds")
 e("DAILY_ONCE", "ניסיון רשמי אחד ביום. המשחק שלך לא משתנה.", "modal.body", "", "seeded rounds")
 e("DAILY_GO", "לשחק", "modal.btnFull", "", "seeded rounds")
-e("DAILY_REPLAY", "לשחק שוב (לא נספר)", "modal.btnFull", "", "seeded rounds: after the official attempt")
+e("DAILY_REPLAY", "לשחק שוב · לא נספר", "modal.btnFull", "", "seeded rounds: after the official attempt")
 e("DAILY_SHARE", "לשתף", "modal.btnFull", "", "seeded rounds")
 e("DAILY_TODAY", "היום: ⟦{mmss}⟧", "modal.body", "", "seeded rounds: today's official result")
 e("DAILY_YESTERDAY", "אתמול: ⟦{mmss}⟧", "modal.body", "", "seeded rounds: yesterday's grid")

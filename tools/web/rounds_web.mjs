@@ -68,9 +68,13 @@ async function playRound(P, page, chipShot) {
 	P.st.t0 = Date.now();
 	for (let attempt = 0; attempt < 6; attempt++) {
 		const why = await P.playToGate(Number(budgetArg) * 1000, hooks);
-		const s = await P.probe();
+		let s = await P.probe();
 		log(`  gate (${why}): seats ${s.seats.effective}/${s.seats.gate}, run ${Math.round(s.runSec)}s`);
 		if (why !== 'gate') return null;
+		for (let i = 0; i < 3 && (s.chat.open || s.modal !== ''); i++) {
+			await P.esc(300);   // the chat (T3) covers the ticker's CTA
+			s = await P.probe();
+		}
 		await shot(page, `${chipShot}-gate`);
 		await P.tapAt(s.ctaAt ? P.css(s.ctaAt[0], s.ctaAt[1]) : P.col(360, P.st.disp.lowerY + 42));
 		await page.waitForTimeout(900);
@@ -80,9 +84,9 @@ async function playRound(P, page, chipShot) {
 	return null;
 }
 
-if (only !== 'daily') {
+if (only === '' || only === 'challenge') {
 	log('challenge');
-	const { ctx, page, P, errors } = await open('#k=challenge&l=bennett&s=31337&t=300&r=abcd1234');
+	const { ctx, page, P, errors } = await open(`#k=challenge&l=${process.env.OD_LEADER || 'bibi'}&s=31337&t=300&r=abcd1234`);
 	await page.waitForFunction(() => window.odModal && window.odModal.open && window.odModal.id === 'CHALLENGE_INTRO', null, { timeout: 15000 }).catch(() => {});
 	const m0 = await modal(page);
 	ok(m0 && m0.id === 'CHALLENGE_INTRO', 'the link opens the challenge card');
@@ -91,7 +95,7 @@ if (only !== 'daily') {
 	await page.waitForTimeout(400);
 	await tapModalButton(P, page, 0);
 	let r = await round(page);
-	ok(r && r.inRound && r.leader === 'bennett' && r.seed === 31337, `the round: ${r && r.leader} seed ${r && r.seed}`);
+	ok(r && r.inRound && r.leader === (process.env.OD_LEADER || 'bibi') && r.seed === 31337, `the round: ${r && r.leader} seed ${r && r.seed}`);
 	await shot(page, 'c2-pretap');
 	await P.tapAt(P.hat());
 	await page.waitForTimeout(800);
@@ -106,7 +110,7 @@ if (only !== 'daily') {
 	await tapModalButton(P, page, 0);
 	const copied = await page.evaluate(() => window.__copied || []);
 	log(`  share text: ${JSON.stringify(copied[copied.length - 1] || '')}`);
-	ok(copied.length > 0 && /#k=challenge&l=bennett&s=31337&t=\d+&r=[a-z0-9]{8}&vs=300/.test(copied[copied.length - 1]), 'the return link carries my time and vs=300');
+	ok(copied.length > 0 && /#k=challenge&l=[a-z]+&s=31337&t=\d+&r=[a-z0-9]{8}&vs=300/.test(copied[copied.length - 1]), 'the return link carries my time and vs=300');
 	await shot(page, 'c5-sent');
 	await tapModalButton(P, page, 1);
 	await page.waitForTimeout(1500);
@@ -118,7 +122,7 @@ if (only !== 'daily') {
 	await ctx.close();
 }
 
-if (only !== 'challenge') {
+if (only === '' || only === 'daily') {
 	log('daily');
 	const { ctx, page, P, errors } = await open('');
 	let r = await round(page);
@@ -155,6 +159,52 @@ if (only !== 'challenge') {
 			await page.waitForTimeout(900);
 			await shot(page, 'd6-card-played');
 		}
+	}
+	ok(!errors.length, `page errors: ${errors.length ? JSON.stringify(errors.slice(0, 3)) : 'none'}`);
+	await ctx.close();
+}
+if (only === '' || only === 'offer') {
+	// 3. the offer: an election in the player's own game (the dev election, window.odDevElect), the
+	//    after-election picker (its daily entry), the "אתגר חבר" toast after the pick, the offer card
+	log('offer');
+	const { ctx, page, P, errors } = await open('');
+	const pickCell = async (id) => {
+		const pk = await page.evaluate(() => window.odPick || null);
+		const c = pk && pk.cells && pk.cells.find((x) => x[2] === id);
+		if (c) await P.tapAt(P.css(c[0], c[1]));
+		await page.waitForTimeout(2500);
+	};
+	await pickCell('bibi');
+	for (let i = 0; i < 12; i++) { await P.tapAt(P.hat()); await page.waitForTimeout(120); }
+	await page.waitForTimeout(3000);
+	await page.evaluate(() => { window.odDevElect = 1; });
+	for (let i = 0; i < 60; i++) {
+		const st = await page.evaluate(() => ({ pick: window.odPick || null, flash: window.odFlash || null }));
+		if (st.pick && st.pick.open && st.pick.variant === 'after') break;
+		if (st.flash && st.flash.open && st.flash.next) { await P.tapAt(P.css(st.flash.next[0], st.flash.next[1])); }
+		await page.waitForTimeout(1000);
+	}
+	await page.waitForTimeout(1500);
+	const r = await round(page);
+	ok(r && r.daily, 'the after-election picker shows the daily entry');
+	await shot(page, 'o1-picker-after');
+	await pickCell('bibi');
+	await page.waitForTimeout(6000);   // the undo chip holds the lane toasts for 5 s
+	await shot(page, 'o2-offer-toast');
+	const hud = await page.evaluate(() => (window.odDev && window.odDev.hud) || {});
+	if (hud.toast && hud.toast.length === 4) {
+		await P.tapAt(P.css(hud.toast[0] + hud.toast[2] / 2, hud.toast[1] + hud.toast[3] / 2));
+		await page.waitForTimeout(900);
+	}
+	const m = await modal(page);
+	ok(m && m.id === 'CHALLENGE_OFFER', `the toast opens the offer card (${m && m.id})`);
+	await shot(page, 'o3-offer');
+	if (m && m.id === 'CHALLENGE_OFFER') {
+		await tapModalButton(P, page, 0);
+		const copied = await page.evaluate(() => window.__copied || []);
+		log(`  share text: ${JSON.stringify(copied[copied.length - 1] || '')}`);
+		ok(copied.length > 0 && /#k=challenge&l=bibi&s=\d+&t=\d+&r=[a-z0-9]{8}$/.test(copied[copied.length - 1]), 'the challenge link');
+		await shot(page, 'o4-offer-sent');
 	}
 	ok(!errors.length, `page errors: ${errors.length ? JSON.stringify(errors.slice(0, 3)) : 'none'}`);
 	await ctx.close();
