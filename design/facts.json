@@ -1398,7 +1398,8 @@
    "url": "https://www.timesofisrael.com/smotrich-feiglin-announce-joint-election-run-urge-other-right-wing-parties-to-join/",
    "url2": "https://www.jpost.com/israel-election-2026/article-907259",
    "moreUrls": [
-    "https://www.jns.org/news/israel-news/smotrich-feiglin-alliance-submits-final-list-for-oct-27-vote"
+    "https://www.jns.org/news/israel-news/smotrich-feiglin-alliance-submits-final-list-for-oct-27-vote",
+    "https://www.davar1.co.il/695669/"
    ],
    "date": "2026-09-01",
    "_guardrail": "The technical joint run only. Never a seat projection (poll rule), never the bids to disqualify lists.",
@@ -1406,8 +1407,12 @@
    "verifiedAt": "2026-09-29",
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "usedIn": [
+    "leaderSelect.partnerProfiles.feiglin",
+    "leaderSelect.partnerProfiles.feiglin.copy.card",
+    "leaders.smotrich.coalition.lineup.feiglin",
     "leaders.smotrich.kit.story",
-    "leaders.smotrich.kit.ticker.ts05"
+    "leaders.smotrich.kit.ticker.ts05",
+    "leaders.smotrich.kit.ticker.ts19"
    ]
   },
   {
@@ -3068,6 +3073,8 @@
    "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; the page itself could not be opened from the sandbox.",
    "ref": 147,
    "usedIn": [
+    "leaderSelect.partnerProfiles.winter",
+    "leaderSelect.partnerProfiles.winter.copy.card",
     "leaders.smotrich.kit.story"
    ]
   },
@@ -3146,7 +3153,8 @@
    "usedIn": [
     "leaderSelect.partnerProfiles.rothman",
     "leaderSelect.partnerProfiles.rothman.copy.card",
-    "leaders.smotrich.coalition.lineup.rothman"
+    "leaders.smotrich.coalition.lineup.rothman",
+    "leaders.smotrich.kit.ticker.ts18"
    ]
   },
   {
@@ -3214,29 +3222,9 @@
    "usedIn": [
     "leaderSelect.partnerProfiles.bismuth",
     "leaderSelect.partnerProfiles.bismuth.copy.card",
-    "leaders.deri.coalition.lineup.bismuth"
-   ]
-  },
-  {
-   "id": "feiglin-technical-bloc",
-   "label": "F",
-   "text": "On 1 Sep 2026 Smotrich and Zehut chairman Moshe Feiglin signed a joint run, described as a technical bloc rather than a full merger; Feiglin takes No. 2 after Smotrich and Zehut people get later slots (8, 10, 11). Zehut's platform pairs right-wing politics with libertarian economics (less state involvement in the economy).",
-   "aboutHe": "בספטמבר 2026 חתמו בצלאל סמוטריץ׳ ומשה פייגלין על ריצה משותפת של הציונות הדתית וזהות, שהוגדרה כחיבור טכני ולא כאיחוד מלא, ופייגלין שובץ במקום השני ברשימה.",
-   "notUsed": false,
-   "outlet": "Davar; Ynet; Walla",
-   "url": "https://www.davar1.co.il/695669/",
-   "url2": "https://www.ynet.co.il/news/elections2026/article/hytc0wadmx",
-   "moreUrls": [
-    "https://news.walla.co.il/item/3864083"
-   ],
-   "date": "2026-09-01",
-   "verification": "verified",
-   "verifiedAt": "2026-10-02",
-   "verificationNote": "Page opened and read on 2026-10-02 (WebFetch), not only the search result. Davar calls it a technical bloc (בלוק טכני).",
-   "usedIn": [
-    "leaderSelect.partnerProfiles.feiglin",
-    "leaderSelect.partnerProfiles.feiglin.copy.card",
-    "leaders.smotrich.coalition.lineup.feiglin"
+    "leaders.deri.coalition.lineup.bismuth",
+    "leaders.deri.kit.ticker.td18",
+    "leaders.deri.kit.ticker.td19"
    ]
   },
   {
@@ -3257,7 +3245,9 @@
     "leaderSelect.partnerProfiles.hendel.copy.card",
     "leaderSelect.partnerProfiles.zelekha",
     "leaderSelect.partnerProfiles.zelekha.copy.card",
-    "leaders.bennett.coalition.lineup.zelekha"
+    "leaders.bennett.coalition.lineup.zelekha",
+    "leaders.bennett.kit.ticker.tb18",
+    "leaders.bennett.kit.ticker.tb19"
    ]
   },
   {
@@ -3295,6 +3285,73 @@
    "usedIn": [
     "leaderSelect.partnerProfiles.zelekha",
     "leaderSelect.partnerProfiles.zelekha.copy.card"
+   ]
+  },
+  {
+   "id": "winter-amcha",
+   "label": "F",
+   "text": "Ofer Winter's new party Amcha Israel filed its list alone on 7 Sep 2026, ending merger talks; Smotrich had courted him for a joint run and said he regretted the decision. Yoseph Haddad is No. 2 on the list.",
+   "aboutHe": "בספטמבר 2026 הגיש עופר וינטר את רשימת עמך ישראל לכנסת ה־26 כרשימה עצמאית, אחרי שבצלאל סמוטריץ׳ ניסה לצרף אותו לריצה משותפת; יוסף חדאד במקום השני ברשימה.",
+   "notUsed": false,
+   "outlet": "Arutz 7; Ynet; Kipa",
+   "url": "https://www.inn.co.il/news/705835",
+   "url2": "https://www.ynet.co.il/news/elections2026/article/s13ku7jdzg",
+   "moreUrls": [
+    "https://kipa.co.il/%D7%97%D7%93%D7%A9%D7%95%D7%AA/1231198-0",
+    "https://www.inn.co.il/news/704817"
+   ],
+   "date": "2026-09-07",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verificationNote": "Page opened and read on 2026-10-02 (WebFetch), not only the search result. Arutz 7: Smotrich, \"אנחנו מיצרים על החלטתו של עופר וינטר להתמודד עצמאית\". Haddad at No. 2 from the search results (Ynet, Arutz 7 704817).",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.winter",
+    "leaderSelect.partnerProfiles.winter.copy.card",
+    "leaderSelect.partnerProfiles.haddad",
+    "leaderSelect.partnerProfiles.haddad.copy.card",
+    "leaders.bengvir.coalition.lineup.winter"
+   ]
+  },
+  {
+   "id": "haddad-offers",
+   "label": "Q",
+   "text": "Netanyahu's office worked until the day Amcha Israel presented its list to recruit Yoseph Haddad to Likud; he declined and stays No. 2 on Winter's list. Haddad: various parties approached Amcha Israel's members and him, directly and indirectly, with offers; Amcha Israel will bring only a new spirit to the Knesset.",
+   "aboutHe": "לפי הדיווחים, לשכת ראש הממשלה ניסתה עד הרגע האחרון לגייס את יוסף חדאד לליכוד, והוא סירב ונשאר במקום השני ברשימת עמך ישראל של עופר וינטר.",
+   "notUsed": false,
+   "outlet": "Ynet",
+   "url": "https://www.ynet.co.il/news/elections2026/article/syq11c6a00fg",
+   "date": "2026-09",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verifiedHe": "זה לא סוד שכל מיני מפלגות פנו באופן ישיר ועקיף לחברי נבחרת עמך ישראל ואליי עם כל מיני הצעות",
+   "verifiedHeSrc": "https://www.ynet.co.il/news/elections2026/article/syq11c6a00fg",
+   "heStatus": "verified",
+   "gameRendering": "paraphrase, never in quote marks: \"כל המפלגות פנו אליי עם הצעות\" and \"רוח חדשה\" in his lines.",
+   "verificationNote": "Page opened and read on 2026-10-02 (WebFetch), not only the search result.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.haddad",
+    "leaderSelect.partnerProfiles.haddad.copy.card",
+    "leaders.bengvir.coalition.lineup.haddad",
+    "leaders.bengvir.kit.ticker.tg19"
+   ]
+  },
+  {
+   "id": "ballot-letters-2026",
+   "label": "F",
+   "text": "Ballot letters for the 26th Knesset: Amcha Israel (Ofer Winter) got ך; the Hendel-Zelekha joint list got די.",
+   "aboutHe": "בבחירות לכנסת ה־26 קיבלה רשימת עמך ישראל של עופר וינטר את האות ך, והרשימה של יועז הנדל וירון זליכה את האותיות די.",
+   "notUsed": false,
+   "outlet": "Ynet",
+   "url": "https://www.ynet.co.il/news/elections2026/article/sjmed8uqgx",
+   "date": "2026-09",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verificationNote": "Page opened and read on 2026-10-02 (WebFetch), not only the search result.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.winter",
+    "leaderSelect.partnerProfiles.zelekha",
+    "leaders.bennett.kit.ticker.tb18",
+    "leaders.bengvir.kit.ticker.tg18"
    ]
   }
  ],

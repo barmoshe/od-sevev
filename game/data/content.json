@@ -6019,14 +6019,14 @@
      ]
     },
     "src": [
-     "feiglin-technical-bloc"
+     "smotrich-feiglin"
     ],
-    "_note": "Real person (Zehut chairman, No. 2 on the Religious Zionism joint list by a technical bloc, fact feiglin-technical-bloc). Joke: the 'technical' union and the less-state economics, both on the record; cannabis is deliberately out (Bar's call). Mechanics: none. Takes Amsalem's S5 in Smotrich's round (same numbers) and keeps threatening: the bloc is technical, not a merger. Art pending: nophoto until then.",
+    "_note": "Real person (Zehut chairman, No. 2 on the Religious Zionism joint list by a technical bloc, fact smotrich-feiglin). Joke: the 'technical' union and the less-state economics, both on the record; cannabis is deliberately out (Bar's call). Mechanics: none. Takes Amsalem's S5 in Smotrich's round (same numbers) and keeps threatening: the bloc is technical, not a merger. Art pending: nophoto until then.",
     "copy": {
      "card": {
       "text": "יושב ראש זהות. במקום השני ברשימה של הציונות הדתית, בחיבור טכני ולא באיחוד מלא.",
       "src": [
-       "feiglin-technical-bloc"
+       "smotrich-feiglin"
       ],
       "poll_like": false
      }
@@ -6080,7 +6080,7 @@
      "demand": "יש פה מונופול. לשבור אותו עולה {price} ₪.",
      "threat": "זה לא עובר? אכין מצגת על יוקר המחיה. ארוכה.",
      "thanks": "התקבל. רשמתי בספרים, כמו חשב כללי.",
-     "return": "חזרתי. המחירים לא ירדו, אז גם אני לא."
+     "return": "חזרתי. האות שלנו: די. גם למונופולים."
     },
     "linesVariants": {
      "demand": [
@@ -6090,7 +6090,8 @@
     },
     "src": [
      "hendel-zelekha-list",
-     "zelekha-accountant-general"
+     "zelekha-accountant-general",
+     "ballot-letters-2026"
     ],
     "_note": "Real person (No. 2 on the joint list with Hendel, fact hendel-zelekha-list; Accountant General 2003-2007, fact zelekha-accountant-general). Joke: monopolies, cost of living, the accountant's books; never the Olmert-era investigations. Mechanics: none. Takes mk_undecided's L1 in Bennett's round (same numbers), beside Hendel. Art pending: nophoto until then.",
     "copy": {
@@ -6099,6 +6100,79 @@
       "src": [
        "zelekha-accountant-general",
        "hendel-zelekha-list"
+      ],
+      "poll_like": false
+     }
+    }
+   },
+   {
+    "id": "winter",
+    "name": "עופר וינטר",
+    "short": "וינטר",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "right",
+    "lines": {
+     "demand": "אני רץ לבד. אבל {price} ₪ זה לא איחוד.",
+     "threat": "זה לא עובר? יש לי פתק משלי. האות ך.",
+     "thanks": "התקבל. עדיין לבד, רק עם תקציב.",
+     "return": "חזרתי. סמוטריץ׳ עוד שומר לי מקום?"
+    },
+    "linesVariants": {
+     "demand": [
+      "אני רץ לבד. אבל {price} ₪ זה לא איחוד.",
+      "קיבלנו את האות ך. סוף מילה, התחלה של דרישה: {price} ₪."
+     ]
+    },
+    "src": [
+     "winter-amcha",
+     "smotrich-winter",
+     "ballot-letters-2026"
+    ],
+    "_note": "Real person (chairman of Amcha Israel, which filed alone on 7 Sep 2026 after Smotrich courted it: facts winter-amcha, smotrich-winter; ballot letter ך, fact ballot-letters-2026). Joke: running alone, the ballot letter, Smotrich's held seat. Never his army career, rank or any security topic (military red line); no poll or threshold numbers. Mechanics: none. Takes Amsalem's S5 in Ben Gvir's round (same numbers), beside Haddad. Art pending: nophoto until then.",
+    "copy": {
+     "card": {
+      "text": "יושב ראש עמך ישראל. הגיש רשימה עצמאית לכנסת ה־26, אחרי שסמוטריץ׳ חיזר אחריו לריצה משותפת.",
+      "src": [
+       "winter-amcha",
+       "smotrich-winter"
+      ],
+      "poll_like": false
+     }
+    }
+   },
+   {
+    "id": "haddad",
+    "name": "יוסף חדאד",
+    "short": "חדאד",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "right",
+    "lines": {
+     "demand": "כל המפלגות פנו אליי עם הצעות. ההצעה שלך: {price} ₪.",
+     "threat": "זה לא עובר? יש לי עוד הצעות. מהליכוד, למשל.",
+     "thanks": "התקבל. אני נשאר. בינתיים.",
+     "return": "חזרתי. סירבתי לכולם, חוץ ממך."
+    },
+    "linesVariants": {
+     "demand": [
+      "כל המפלגות פנו אליי עם הצעות. ההצעה שלך: {price} ₪.",
+      "הבאתי רוח חדשה לכנסת. הרוח עולה {price} ₪."
+     ]
+    },
+    "src": [
+     "haddad-offers",
+     "winter-amcha"
+    ],
+    "_note": "Real person (No. 2 on Winter's Amcha Israel; turned down offers, Netanyahu's office among them: fact haddad-offers). Joke: the offers he says every party made him, and 'a new spirit', his own phrase paraphrased. Never his community, faith or origin as a punchline; never his army service or injury (military red line). Mechanics: none. Takes Regev's S4 in Ben Gvir's round (same numbers), beside Winter. Art pending: nophoto until then.",
+    "copy": {
+     "card": {
+      "text": "מספר 2 ברשימת עמך ישראל של עופר וינטר. לפי הדיווחים, לשכת ראש הממשלה ניסתה לגייס אותו לליכוד עד הרגע האחרון.",
+      "src": [
+       "haddad-offers",
+       "winter-amcha"
       ],
       "poll_like": false
      }
@@ -7023,6 +7097,23 @@
       "poll_like": false
      },
      {
+      "id": "tb18",
+      "text": "הנדל וזליכה רצים יחד. האות שלהם: די.",
+      "poll_like": false,
+      "src": [
+       "hendel-zelekha-list",
+       "ballot-letters-2026"
+      ]
+     },
+     {
+      "id": "tb19",
+      "text": "זליכה הביא מצגת על המונופולים. בנט חתם שיקרא.",
+      "poll_like": false,
+      "src": [
+       "hendel-zelekha-list"
+      ]
+     },
+     {
       "id": "tb16",
       "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. בנט כבר חתם שהוא לא יחתום.",
       "poll_like": false,
@@ -7609,6 +7700,22 @@
       ]
      },
      {
+      "id": "tg18",
+      "text": "עמך ישראל קיבלה את האות ך. המקלדת עוד מחפשת.",
+      "poll_like": false,
+      "src": [
+       "ballot-letters-2026"
+      ]
+     },
+     {
+      "id": "tg19",
+      "text": "חדאד סירב לליכוד. נשאר מספר 2 אצל וינטר.",
+      "poll_like": false,
+      "src": [
+       "haddad-offers"
+      ]
+     },
+     {
       "id": "tg16",
       "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. בן גביר מאיים לפרוש מהקלפי.",
       "poll_like": false,
@@ -7706,12 +7813,24 @@
       ]
      },
      {
-      "id": "regev",
-      "slot": "S4"
+      "id": "haddad",
+      "slot": "S4",
+      "src": [
+       "haddad-offers"
+      ],
+      "_why": "Winter's No. 2 (fact haddad-offers), so the list sits together. Replaces Regev's S4, same numbers (Bar, 2026-10-02)."
      },
      {
-      "id": "amsalem",
-      "slot": "S5"
+      "id": "winter",
+      "slot": "S5",
+      "lines": {
+       "thanks": "התקבל. גם בן גביר רץ לבד. לפחות על זה הסכמנו."
+      },
+      "src": [
+       "winter-amcha",
+       "bengvir-no-merger"
+      ],
+      "_why": "A right-wing list that filed alone (fact winter-amcha), in the round of the other leader who ran alone (bengvir-no-merger). Replaces Amsalem's S5, same numbers (Bar, 2026-10-02: minimal lineup change)."
      },
      {
       "id": "karhi",
@@ -9346,6 +9465,22 @@
       ]
      },
      {
+      "id": "ts18",
+      "text": "רוטמן במקום הרביעי. תיקון לחוק יסוד כבר בדרך.",
+      "poll_like": false,
+      "src": [
+       "rothman-slate"
+      ]
+     },
+     {
+      "id": "ts19",
+      "text": "פייגלין במקום השני. טכנית, גם הוא שותף.",
+      "poll_like": false,
+      "src": [
+       "smotrich-feiglin"
+      ]
+     },
+     {
       "id": "ts15",
       "text": "עוד {d, plural, one {יום אחד} two {יומיים} other {# ימים}} לבחירות. סמוטריץ׳ יתקצב את זה בדקה ה־90.",
       "poll_like": false,
@@ -9445,9 +9580,9 @@
        "demand": "חתמנו על בלוק טכני. התשלום ממש לא טכני: {price} ₪."
       },
       "src": [
-       "feiglin-technical-bloc"
+       "smotrich-feiglin"
       ],
-      "_why": "No. 2 on his list by a technical bloc (fact feiglin-technical-bloc), so he can still walk. Replaces Amsalem's S5, same numbers (Bar, 2026-10-02: minimal lineup change).",
+      "_why": "No. 2 on his list by a technical bloc (fact smotrich-feiglin), so he can still walk. Replaces Amsalem's S5, same numbers (Bar, 2026-10-02: minimal lineup change).",
       "slot": "S5"
      },
      {
@@ -9916,6 +10051,22 @@
       "src": [
        "deri-door-window",
        "deri-disqualified"
+      ]
+     },
+     {
+      "id": "td18",
+      "text": "ביסמוט הביא נוסח חדש לחוק הגיוס. דרעי מחכה לבא.",
+      "poll_like": false,
+      "src": [
+       "bismuth-draft-bill"
+      ]
+     },
+     {
+      "id": "td19",
+      "text": "חוק הגיוס נגנז, חזר ונגנז. בוועדה מקריאים שוב.",
+      "poll_like": false,
+      "src": [
+       "bismuth-draft-bill"
       ]
      },
      {
