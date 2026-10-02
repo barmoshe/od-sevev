@@ -3216,6 +3216,86 @@
     "leaderSelect.partnerProfiles.bismuth.copy.card",
     "leaders.deri.coalition.lineup.bismuth"
    ]
+  },
+  {
+   "id": "feiglin-technical-bloc",
+   "label": "F",
+   "text": "On 1 Sep 2026 Smotrich and Zehut chairman Moshe Feiglin signed a joint run, described as a technical bloc rather than a full merger; Feiglin takes No. 2 after Smotrich and Zehut people get later slots (8, 10, 11). Zehut's platform pairs right-wing politics with libertarian economics (less state involvement in the economy).",
+   "aboutHe": "בספטמבר 2026 חתמו בצלאל סמוטריץ׳ ומשה פייגלין על ריצה משותפת של הציונות הדתית וזהות, שהוגדרה כחיבור טכני ולא כאיחוד מלא, ופייגלין שובץ במקום השני ברשימה.",
+   "notUsed": false,
+   "outlet": "Davar; Ynet; Walla",
+   "url": "https://www.davar1.co.il/695669/",
+   "url2": "https://www.ynet.co.il/news/elections2026/article/hytc0wadmx",
+   "moreUrls": [
+    "https://news.walla.co.il/item/3864083"
+   ],
+   "date": "2026-09-01",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verificationNote": "Page opened and read on 2026-10-02 (WebFetch), not only the search result. Davar calls it a technical bloc (בלוק טכני).",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.feiglin",
+    "leaderSelect.partnerProfiles.feiglin.copy.card",
+    "leaders.smotrich.coalition.lineup.feiglin"
+   ]
+  },
+  {
+   "id": "hendel-zelekha-list",
+   "label": "F",
+   "text": "On 6-7 Sep 2026 Yoaz Hendel and Yaron Zelekha joined into one list for the 26th Knesset: 1. Hendel, 2. Zelekha, 3. Einat Wilf. They pitch it as a 'third bloc', between a coalition with the Haredi parties and an opposition relying on Arab parties; Zelekha's line is breaking the monopolies behind the cost of living.",
+   "aboutHe": "בספטמבר 2026 התאחדו יועז הנדל וירון זליכה לרשימה אחת לכנסת ה־26, הנדל במקום הראשון וזליכה במקום השני, והציגו אותה כגוש שלישי.",
+   "notUsed": false,
+   "outlet": "Maariv; Kipa",
+   "url": "https://www.maariv.co.il/news/politics/article-1364043",
+   "url2": "https://www.kipa.co.il/%D7%97%D7%93%D7%A9%D7%95%D7%AA/%D7%A4%D7%95%D7%9C%D7%99%D7%98%D7%99/1231200-0/",
+   "date": "2026-09-07",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verificationNote": "Page opened and read on 2026-10-02 (WebFetch), not only the search result. Kipa gives the order Hendel, Zelekha, Wilf; Maariv the third-bloc pitch and \"לשבור את המונופולים שבגללם יקר לחיות כאן\". The list's official name carries a military red-line term, so no game string or aboutHe uses it.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.hendel",
+    "leaderSelect.partnerProfiles.hendel.copy.card",
+    "leaderSelect.partnerProfiles.zelekha",
+    "leaderSelect.partnerProfiles.zelekha.copy.card",
+    "leaders.bennett.coalition.lineup.zelekha"
+   ]
+  },
+  {
+   "id": "hendel-communications",
+   "label": "F",
+   "text": "Yoaz Hendel served as Minister of Communications in 2020 and again in 2021-2022, the latter in the Bennett-Lapid government.",
+   "aboutHe": "יועז הנדל כיהן כשר התקשורת, בין השאר בממשלת בנט ולפיד בשנים 2021 עד 2022.",
+   "notUsed": false,
+   "outlet": "Wikipedia; JPost",
+   "url": "https://en.wikipedia.org/wiki/Yoaz_Hendel",
+   "url2": "https://m.jpost.com/breaking-news/yoaz-hendel-to-serve-as-communication-minister-628013",
+   "date": "2021-06",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.hendel",
+    "leaderSelect.partnerProfiles.hendel.copy.card",
+    "leaders.bennett.coalition.lineup.hendel"
+   ]
+  },
+  {
+   "id": "zelekha-accountant-general",
+   "label": "F",
+   "text": "Yaron Zelekha, an economist (PhD, Bar-Ilan), was the Finance Ministry's Accountant General from 2003 to 2007.",
+   "aboutHe": "ירון זליכה, כלכלן, היה החשב הכללי במשרד האוצר בשנים 2003 עד 2007.",
+   "notUsed": false,
+   "outlet": "Wikipedia; JPost",
+   "url": "https://en.wikipedia.org/wiki/Yaron_Zelekha",
+   "url2": "https://en.wikipedia.org/wiki/Accountant_General_of_Israel",
+   "date": "2007",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.zelekha",
+    "leaderSelect.partnerProfiles.zelekha.copy.card"
+   ]
   }
  ],
  "deliberatelyOut": [

@@ -5997,6 +5997,112 @@
       "poll_like": false
      }
     }
+   },
+   {
+    "id": "feiglin",
+    "name": "משה פייגלין",
+    "short": "פייגלין",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "right",
+    "lines": {
+     "demand": "פחות מדינה, פחות מסים. ועוד {price} ₪, אחרון.",
+     "threat": "זה לא עובר? האיחוד שלנו טכני. גם הפירוק יהיה טכני.",
+     "thanks": "התקבל. בפעם הבאה, בלי מדינה באמצע.",
+     "return": "חזרתי. טכנית."
+    },
+    "linesVariants": {
+     "demand": [
+      "פחות מדינה, פחות מסים. ועוד {price} ₪, אחרון.",
+      "חיבור טכני, דרישה אמיתית: {price} ₪."
+     ]
+    },
+    "src": [
+     "feiglin-technical-bloc"
+    ],
+    "_note": "Real person (Zehut chairman, No. 2 on the Religious Zionism joint list by a technical bloc, fact feiglin-technical-bloc). Joke: the 'technical' union and the less-state economics, both on the record; cannabis is deliberately out (Bar's call). Mechanics: none. Takes Amsalem's S5 in Smotrich's round (same numbers) and keeps threatening: the bloc is technical, not a merger. Art pending: nophoto until then.",
+    "copy": {
+     "card": {
+      "text": "יושב ראש זהות. במקום השני ברשימה של הציונות הדתית, בחיבור טכני ולא באיחוד מלא.",
+      "src": [
+       "feiglin-technical-bloc"
+      ],
+      "poll_like": false
+     }
+    }
+   },
+   {
+    "id": "hendel",
+    "name": "יועז הנדל",
+    "short": "הנדל",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "center-right",
+    "lines": {
+     "demand": "אנחנו הגוש השלישי. גוש שלישי עולה {price} ₪.",
+     "threat": "זה לא עובר? הגוש השלישי יחפש גוש ראשון אחר.",
+     "thanks": "התקבל. הגוש השלישי מצטרף. לבינתיים.",
+     "return": "חזרתי. יש קליטה."
+    },
+    "linesVariants": {
+     "demand": [
+      "אנחנו הגוש השלישי. גוש שלישי עולה {price} ₪.",
+      "הייתי שר התקשורת. הקליטה פה עולה {price} ₪."
+     ]
+    },
+    "src": [
+     "hendel-zelekha-list",
+     "hendel-communications"
+    ],
+    "_note": "Real person (No. 1 on the joint list with Zelekha, fact hendel-zelekha-list; Communications Minister in the Bennett-Lapid government, fact hendel-communications). Joke: the 'third bloc' pitch and the communications ministry (reception); the list's own name and his reservist movement hit the military red line, so they never appear. Mechanics: none. Takes mk_offer's S5 in Bennett's round (same numbers). Art pending: nophoto until then.",
+    "copy": {
+     "card": {
+      "text": "שר התקשורת בממשלת בנט ולפיד. עומד בראש רשימה משותפת עם ירון זליכה, שמציגה את עצמה כגוש שלישי.",
+      "src": [
+       "hendel-communications",
+       "hendel-zelekha-list"
+      ],
+      "poll_like": false
+     }
+    }
+   },
+   {
+    "id": "zelekha",
+    "name": "ירון זליכה",
+    "short": "זליכה",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "center-right",
+    "lines": {
+     "demand": "יש פה מונופול. לשבור אותו עולה {price} ₪.",
+     "threat": "זה לא עובר? אכין מצגת על יוקר המחיה. ארוכה.",
+     "thanks": "התקבל. רשמתי בספרים, כמו חשב כללי.",
+     "return": "חזרתי. המחירים לא ירדו, אז גם אני לא."
+    },
+    "linesVariants": {
+     "demand": [
+      "יש פה מונופול. לשבור אותו עולה {price} ₪.",
+      "הייתי החשב הכללי. אני יודע בדיוק כמה זה: {price} ₪."
+     ]
+    },
+    "src": [
+     "hendel-zelekha-list",
+     "zelekha-accountant-general"
+    ],
+    "_note": "Real person (No. 2 on the joint list with Hendel, fact hendel-zelekha-list; Accountant General 2003-2007, fact zelekha-accountant-general). Joke: monopolies, cost of living, the accountant's books; never the Olmert-era investigations. Mechanics: none. Takes mk_undecided's L1 in Bennett's round (same numbers), beside Hendel. Art pending: nophoto until then.",
+    "copy": {
+     "card": {
+      "text": "החשב הכללי במשרד האוצר בשנים 2003 עד 2007. מספר 2 ברשימה המשותפת עם יועז הנדל.",
+      "src": [
+       "zelekha-accountant-general",
+       "hendel-zelekha-list"
+      ],
+      "poll_like": false
+     }
+    }
    }
   ],
   "cardProfiles": [
@@ -7018,7 +7124,14 @@
       "slot": "S4"
      },
      {
-      "id": "mk_offer",
+      "id": "hendel",
+      "lines": {
+       "demand": "הייתי שר התקשורת שלך. החיבור מחדש עולה {price} ₪."
+      },
+      "src": [
+       "hendel-communications"
+      ],
+      "_why": "His Communications Minister in 2021-2022 (fact hendel-communications). Replaces the generic mk_offer slot, same numbers (Bar, 2026-10-02: minimal lineup change).",
       "slot": "S5"
      },
      {
@@ -7032,7 +7145,11 @@
       ]
      },
      {
-      "id": "mk_undecided",
+      "id": "zelekha",
+      "src": [
+       "hendel-zelekha-list"
+      ],
+      "_why": "Hendel's No. 2 (fact hendel-zelekha-list), so the joint list sits together. Replaces the generic mk_undecided slot, same numbers (Bar, 2026-10-02).",
       "slot": "L1"
      },
      {
@@ -9323,7 +9440,14 @@
       "slot": "S4"
      },
      {
-      "id": "amsalem",
+      "id": "feiglin",
+      "lines": {
+       "demand": "חתמנו על בלוק טכני. התשלום ממש לא טכני: {price} ₪."
+      },
+      "src": [
+       "feiglin-technical-bloc"
+      ],
+      "_why": "No. 2 on his list by a technical bloc (fact feiglin-technical-bloc), so he can still walk. Replaces Amsalem's S5, same numbers (Bar, 2026-10-02: minimal lineup change).",
       "slot": "S5"
      },
      {

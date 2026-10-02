@@ -94,7 +94,7 @@ func test_picker_lists_the_ready_leaders_without_numbers() -> void:
 func test_install_bennett() -> void:
 	var s := _round("bennett")
 	var ids := _ids(Coalition.partners())
-	var want := ["liberman", "lapid", "eisenkot", "golan", "mk_offer", "abbas", "mk_undecided", "gafni", "mk_switcher", "gantz"]
+	var want := ["liberman", "lapid", "eisenkot", "golan", "hendel", "abbas", "zelekha", "gafni", "mk_switcher", "gantz"]
 	for id: String in want:
 		runner.check(ids.has(id), "bennett's lineup has %s" % id)
 	runner.check(ids.size() == want.size() and not ids.has("bengvir") and not ids.has("bennett"), "nobody else, never the leader")
@@ -105,6 +105,7 @@ func test_install_bennett() -> void:
 	var slot: Dictionary = Leaders.slots()[str(gafni["slot"])]
 	runner.check(int(gafni["seats"]) == 0 and int(gafni["abstain"]) == int(slot["seats"]), "Gafni turns his slot's seats into abstentions")
 	runner.check(str(_p("gantz")["slot"]) == "SI" and _p("gantz").get("standIn") == true, "Gantz stays the stand-in")
+	runner.check(str(_p("hendel").get("lines", {}).get("demand", "")).begins_with("הייתי שר התקשורת שלך"), "Hendel's lineup line: he was Bennett's communications minister")
 	runner.check((_p("liberman")["excludes"] as Array).has("gafni"), "Liberman's excludes ride along (the real choice)")
 	runner.check(not (_p("liberman")["excludes"] as Array).has("abbas"), "but not Abbas: they sat together in 2021 (fact raam-2021)")
 	runner.check(str(_p("abbas").get("lines", {}).get("thanks", "")).begins_with("כמו ב־2021"), "a lineup line override")
