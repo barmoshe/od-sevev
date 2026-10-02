@@ -89,7 +89,7 @@ the whole series (the wordmark, "בקרוב", @od.sevev) so the feed still reads
 | File | Length | The idea | The look | The job |
 |---|---|---|---|---|
 | `od-sevev-reel-ghost.mp4` | 15 s | **דברים שכדאי לגוסט**: October's sheet-ghost trend. A pixel ghost in sunglasses holds signs (התחייבות חתומה, מכתב פרישה, לחכות לרוטציה, תקציב בזמן, הצעת אחדות); a leader's new pose answers each. The last sign, הבחירות, can't be ghosted: "הן חוזרות." | night purple, the moon | ride a live trend before 27.10 |
-| `od-sevev-reel-patch.mp4` | 15 s | **עדכון 3.0: הערות גרסה**: the leaders-v3 abilities as patch notes (חדש / איזון / באג ידוע), ending on the known bug: "הבחירות חוזרות. אין תיקון בטווח הנראה לעין." | a dark launcher | show the new update to gamers |
+| `od-sevev-reel-patch.mp4` | 15 s | **עדכון 3.0: הערות גרסה**: the leaders-v3 abilities as patch notes (חדש / איזון / באג ידוע), ending on the known bug: "הבחירות חוזרות. נסגר כ׳לא יתוקן׳." (copy sharpened after Bar's review: every note now ends on a punch, "זה פיצ׳ר", "אישור מוקדם הוסר. לא היה בשימוש.") | a dark launcher | show the new update to gamers |
 | `od-sevev-reel-loading.mp4` | 15 s | **סופר את הקולות…**: the game's real loading line, tips, characters you've never seen before crossing the screen; 99%, "הכנסת התפזרה.", 0%. Loops. | a 16-bit console | replays |
 | `od-sevev-reel-match.mp4` | 30 s | **אחדות**: a dating app. Netanyahu's unity card ("מחפש ממשלת אחדות. רק רציניים.") shown to Golan, Bennett, Liberman, Eisenkot: שמאלה, לא, לא אשב, לא. Then the coalition: Ben Gvir and Smotrich swipe left on each other. "0 התאמות. צריך 61." | a glossy pink app | DM sends |
 | `od-sevev-reel-process.mp4` | 30 s | **מהכותרת למכניקה**: four real headlines (design/facts.json), the design note, the ability in the game (Ben Gvir, Smotrich, Golan, Liberman). "העובדות: עם מקור. הבדיחות: שלנו." | newsprint and sticky notes | trust, the making-of |
@@ -106,3 +106,20 @@ Research behind it (Oct 2026, search results):
   opens as a game or a joke, and the caption should too; test reach with Trial Reels.
 
     python3 src/reels5.py <scratch> ghost|patch|loading|match|process [--stills | --one <sec>]
+
+## Five more, five new looks (`src/reels6.py`)
+
+After Bar's review ("some good, some not; better wording, newer ideas"): the patch notes, the loading
+tips and one ghost line were rewritten to land a punch, and five new formats:
+
+| File | Length | The idea | The look |
+|---|---|---|---|
+| `od-sevev-reel-doc.mp4` | 30 s | **עונת הקואליציה**: a nature documentary. Ben Gvir the migrant (out in January, back in March, "כמו הציפורים"), Deri's habitat the corridor, Liberman marks territory with one call, Gantz waits for the rotation since 2020, Netanyahu survives every season. A Latin name for each. "בפרק הבא: עוד סבב." | letterbox, film grain, subtitles |
+| `od-sevev-reel-trailer.mp4` | 30 s | **הטריילר**: "בעולם / שבו הבחירות / לא נגמרות", eight leaders, "מנדט אחד חסר. תמיד.", the drop into the real game, three plainly fake reviews ("׳ראיתי את זה כבר חמש פעמים.׳ — כל המדינה"). | black, letterbox, Glitch Warfare |
+| `od-sevev-reel-starter.mp4` | 15 s | **ערכת ראש רשימה למתחילים**: the starter-pack meme from the leaders-v3 props (התחייבות חתומה, בעיפרון; ארגז קרטון, לפרישה. ולחזרה.; שולחן עגול, אין ראש. אין סוף.). "לא כלול: 61 מנדטים." | white meme page |
+| `od-sevev-reel-family.mp4` | 30 s | **המשפחה**: a family group chat. "זה של השמאל?" "זה של הימין?" "זה צוחק על כולם." "חשוד." "חשוד מאוד." "לראשונה מאז 2019: שמעון ורינה הסכימו." Then Friday dinner: "לא אשב ליד רינה." "גם ליברמן אמר את זה." "12 כיסאות. אף אחד לא מוכן לשבת. כמו בכנסת." | dark-mode chat |
+| `od-sevev-reel-search.mp4` | 15 s | **למה בישראל יש...**: autocomplete (בחירות כל שנה, 5 בחירות ב־4 שנים, עוד סבב), then "איך מגיעים ל־61": בלי ליברמן, בלי בן גביר, בלי אף אחד. | a search page |
+
+The family, the reviewers and the searches are invented, and plainly so.
+
+    python3 src/reels6.py <scratch> doc|trailer|starter|family|search [--stills | --one <sec>]
