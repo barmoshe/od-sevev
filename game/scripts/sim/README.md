@@ -18,6 +18,7 @@ same game as the player.
 | `spins.gd` | Spin kinds (once / consumable / line), prices, fatigue, and the spin effects that aren't passive modifiers |
 | `conditions.gd` | The one condition vocabulary (`unlock`, `when`) |
 | `leaders.gd` | Leader select: the round's lineup, cards and rule, the pick, per-leader stats, the kit lookups |
+| `missions.gd` | Missions + ranks (meta): 3 slots of the rank's missions, goals, claims and rewards, the rank's income bonus |
 | `game_state.gd` / `save_store.gd` | What is saved (save v4), validation at load, migration |
 | `pacing_sim.gd` | The headless player for `tools/balance.sh` |
 
@@ -183,6 +184,46 @@ live one), `tapsAt2to4` (Politics.tick: ctx.hour, else Israel time from nowMs), 
 (`Story.roll_word_salad`). Content-driven through the trigger: `countEvent` (`lapidCards`),
 `countUpgrade` (`wingOfZionBought`), `countPartnerPaid` (`gafniPaid`). An older save seeds the lifetime
 ones from the modules' own counters.
+
+## Missions + ranks (`missions.gd`, content `missions`; Bar 2026-10-02)
+
+AdVenture Communist's spine: three missions at a time, "לקחת" pays, a finished rank pays a permanent
+income bonus. Meta progression: it persists across elections. Content without `missions` (the fork's,
+the fixtures) turns it off. The content's `_doc` has the shape; `design/sim/content-lint.mjs` §10 and
+`ux/tools/gen_strings.py` (`mis.text`) lint it.
+
+| What | Call |
+|---|---|
+| Fill the slots, latch finished goals (4×/s; the controller's `_check_meta` → `MissionsUi.check`) | `Missions.tick(s, d)` → the ids that just finished |
+| The rows | `Missions.slots_view(s, d)` → [{id, text, goal, reward, value, target, frac, done}]; `Missions.claimable(s)` |
+| "לקחת" | `Missions.claim(s, i, d)` → {ok, id, reward (`reward_now`), rankUp {} \| {rank, title, incomePct}} |
+| The rank | `Missions.rank_view(s)` → {rank, title, next, done, total, frac, incomePct, nextPct, top}; `Missions.income_pct(s)` |
+
+- **Goals.** Counted goals read lifetime counters the sim already keeps, as the difference from the
+  slot's `base` (the counter when the mission showed): taps, crits, earnRun (all-time ₪), payDemands
+  (`stats.demandsPaid`), suitcases, courtDays (`stats.hazardDays`: court or press days, so every leader
+  can do it), useAbility (every leader's `abilityUses` + `unityRefusals`: Liberman's ability has no
+  button, the unity offer's refusal counts), elections, buySpins. The only new counter is
+  sourcesTotal (`missions.bought`, from `Economy.buy_producer`). State goals (ownSource, bpsAtLeast,
+  seatsAtLeast) read the state now; a finished goal is latched (`done`), so an election that resets
+  the sources never un-does it.
+- **Rewards.** cash {sec, min?}: sec × ₪/s now (frenzy excluded), at least `min` or `cashFloor`;
+  frenzy {sec}: the Suitcase's income frenzy (`buff_frenzy`, golden bpsFrenzy's own ×5, refreshed,
+  never stacked: the design's `mult` is that outcome's, so the content gives only `sec`); basePct
+  {pct}: + pct on this round's base payout (`events.roundBasePct`, reset by the election).
+- **Ranks.** `ranks[r-1].incomePct` is paid on reaching rank r, summed over the ranks reached, as a
+  global multiplier (`Missions.install` registers it in `Economy.MODIFIERS`, like the trophies' morale).
+- **Pacing** (bench, `PacingSim.run` claims whatever is done each tick; `player.log_missions` adds the
+  claims to the events). Round 1's rewards are mostly basePct: cash or a frenzy in the first minutes
+  compounds, and the first cut (cash 30-60 s, a 50 ₪ floor) moved the median first election from
+  8:04 to 6:25. The shipped list: rank 1 inside the first ~3 minutes, rank 2 by round 2, then a
+  mission every ~3-8 min; the median player reaches the top rank in about two hours.
+- **Save.** `GameState.missions {rank, slots [{id, base, done}], claimed, bought}` (additive, no
+  version bump); `Missions.sanitize` drops unknown, duplicate, claimed and other-rank slots; a save
+  without the section starts at rank 1 (its old counters become the first slots' bases).
+- **UI** (`ui/missions_chip.gd`, `ui/missions_ui.gd`, `ui/views/view_missions.gd`): the chip in the
+  stage's top-left sky (from the first tap), the sheet, the ticker line on a finished mission, the
+  rank-up toast + ticker + confetti. Tests: `tests/unit/test_missions.gd`.
 
 ## Save v3
 `GameState` gained `coalition`, `investigation`, `events`, `album` and `calendar`. Each module owns

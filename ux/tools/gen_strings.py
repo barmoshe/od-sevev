@@ -108,6 +108,12 @@ BOXES = {
     "pick.again":     (560, 4, 1, 1, "'Again' button label (kit button_primary 672 wide: 48 face + 16 gap + label, centred as a group)"),
     "pick.undo":      (352, 4, 1, 1, "Undo chip on the stage after a pick (kit button_secondary, visual 392 x 80)"),
     "pick.card":      (560, 4, 6, 8, "Leader card (long-press / I): rule text; the card grows"),
+    # missions + ranks (game/scripts/ui/missions_chip.gd, ui/views/view_missions.gd; Bar 2026-10-02)
+    "stage.missions": (94, 3, 1, 1, "Missions chip word / second line (MissionsChip 152 wide: a 40 badge, 18 of pads; PxText fit_width may step down)"),
+    "mis.text":       (560, 4, 2, 3, "Missions sheet: a mission's text (content missions.list[].text), right-aligned in the modal.body box, <= 2 lines"),
+    "mis.progress":   (200, 3, 1, 1, "Missions sheet row: the progress (x3) over its bar, x 440-640 (MissionsSheet.RIGHT_W)"),
+    "mis.reward":     (336, 4, 1, 1, "Missions sheet row: the reward label, x 88-424 (gold; the claim button takes its place once done)"),
+    "mis.btn":        (192, 4, 1, 1, "Missions sheet 'לקחת' (the 224-wide gold kit button, 16 pads)"),
 }
 LARGE_OK = True  # every canvas label may step down from the large scale to the base scale
 
@@ -128,7 +134,7 @@ PH = {
 }
 NUMERIC_PH = {"n", "price", "x", "xr", "rate", "cost", "mult", "pmult", "s", "d", "h", "m", "mmss", "owned",
               "qty", "pending", "needed", "seats", "version", "date", "pct", "k", "lv", "max", "count",
-              "total", "thumbs", "now", "after", "next", "r", "c"}
+              "total", "thumbs", "now", "after", "next", "r", "c", "val", "goal"}
 
 HEB = re.compile(r"[א-ת]")
 
@@ -161,6 +167,16 @@ PH.update({
     "banner": _widest([t.get("frenzyBanner") for t in _TAPS], "טורבו בסירובים!"),
     "rule": _widest([L.get("rule", {}).get("name") for L in LEADERS if isinstance(L.get("rule"), dict)], "לוח הזמנים"),
     "postpone": _widest([h.get("postponeVerb") for h in _HAZ], "לא יושב באולפן"),
+})
+# missions (content missions.ranks / missions.list): the widest rank title and mission text, the text's
+# {verbPlural} / {critPlural} filled with the widest leader words; the progress numbers at the formatter's worst
+_MIS = json.load(open(_CJ, encoding="utf-8")).get("missions", {}) if os.path.exists(_CJ) else {}
+def _mis_fill(t):
+    return str(t).replace("{verbPlural}", PH["verbPlural"]).replace("{critPlural}", PH["critPlural"])
+PH.update({
+    "rankTitle": _widest([r.get("title") for r in _MIS.get("ranks", [])], "עוזר פרלמנטרי"),
+    "mission": _widest([_mis_fill(m.get("text", "")) for m in _MIS.get("list", [])], "לגייס 10 משלמי מסים. הם לא שאלו"),
+    "val": "8.88mm", "goal": "8.88mm",
 })
 
 # ---------------------------------------------------------------- entries
@@ -785,6 +801,24 @@ e("MERGE_PICK_TITLE", "לאחד עם…", "modal.title", "", "leaders.golan.rule
 e("CHAT_SYS_MERGED", "{a} ו{b} התאחדו. מעכשיו: {a}־{b}.", "chat.sys", "*", "leaders.golan.rule.copy.sys", "Gender-free: one key")
 e("CHAT_SYS_MERGE_READY", "{a} ו{b} יכולים להתאחד", "chat.sys", "*", "ux mobile-first-layout §5.5", "The thread's merge-ready notice (Golan's round): a system line with the לאחד pill under it; posted when a pair first qualifies with the cooldown at 0, again after each cooldown (≥ 120 s apart). Gender-free: one key")
 
+# ================= missions + ranks (Bar 2026-10-02; sim game/scripts/sim/missions.gd, content `missions`) =================
+e("MIS_CHIP", "משימות", "stage.missions", "", "missions.chip", "The stage's missions entry (MissionsChip, the top-left sky); a gold badge counts the missions done")
+e("MIS_CHIP_READY", "לקחת!", "stage.missions", "", "missions.chip.ready", "The chip's second line while a mission is done (else the nearest mission's MIS_PROGRESS)")
+e("MIS_TITLE", "משימות", "modal.title", "", "missions.title")
+e("MIS_RANK", "דרגה ⟦{n}⟧: {rankTitle}", "modal.body", "", "missions.rank", "Gold, centred, over the rank's progress bar; rankTitle = missions.ranks[].title")
+e("MIS_NEXT_ONE", "עוד משימה אחת לדרגת {rankTitle}: ⟦+{pct}%⟧ הכנסה", "modal.body", "", "missions.next")
+e("MIS_NEXT_OTHER", "עוד ⟦{n}⟧ משימות לדרגת {rankTitle}: ⟦+{pct}%⟧ הכנסה", "modal.body", "", "missions.next")
+e("MIS_BONUS", "בונוס הדרגה: ⟦+{pct}%⟧ הכנסה, לתמיד", "modal.body", "", "missions.bonus", "The sum of the ranks reached (a global income multiplier in Economy.derive)")
+e("MIS_TOP", "אין לאן לעלות. רק להישאר.", "modal.body", "*", "missions.top", "The last rank, every mission claimed")
+e("MIS_EMPTY", "אין משימות פתוחות. הלשכה בפגרה.", "modal.body", "*", "missions.empty")
+e("MIS_CLAIM", "לקחת", "mis.btn", "", "missions.claim", "Gold kit button on a done mission's row: pays the reward, the next mission takes the row")
+e("MIS_PROGRESS", "⟦{val}/{goal}⟧", "mis.progress", "", "missions.progress", "Counts as integers, money (earnRun, bpsAtLeast) through Fmt.amount")
+e("MIS_REWARD_CASH", "⟦+{x}⟧~₪", "mis.reward", "", "missions.reward.cash", "reward cash {sec}: sec × ₪/s now (at least the floor), priced live")
+e("MIS_REWARD_FRENZY", "הכנסה ⟦×{mult}⟧ · ⟦{s}⟧ שנ׳", "mis.reward", "", "missions.reward.frenzy", "The Suitcase's income frenzy (golden bpsFrenzy's multiplier)")
+e("MIS_REWARD_BASE", "⟦+{pct}%⟧ לבסיס", "mis.reward", "", "missions.reward.basePct", "+pct on this round's base payout")
+e("F_MISSION_DONE", "משימה הושלמה: {mission}", "ticker.crawl", "", "missions.done", "Ticker milestone line + the milestone cue when a mission's goal is met")
+e("F_RANK_UP", "עלית בדרגה: {rankTitle} · ⟦+{pct}%⟧ הכנסה", "stage.toast", "", "missions.rankUp", "The rank-up toast (lane dock) and ticker milestone, with confetti and the trophy cue")
+
 # ---------------------------------------------------------------- content names (copy deck §C, §D)
 PRODUCERS = [  # fork id -> (deck name, plural)
     ("intern", "משלם המסים", "משלמי המסים"),
@@ -1061,6 +1095,12 @@ if os.path.exists(CONTENT):
         box = "stage.ability" if ck.startswith("btn") else "stage.toast"
         lint_content(f"leaderSelect.unityOffer.copy.{ck}", cv, box, True); nl += 1
     print("leader words linted:", nl)
+
+    # ---- missions (content missions.list[].text in the sheet's mis.text box; rank titles via MIS_RANK's PH)
+    nm = 0
+    for m in (cj.get("missions") or {}).get("list", []):
+        lint_content(f"missions.{m.get('id')}.text", _mis_fill(m.get("text", "")), "mis.text", True); nm += 1
+    print("mission texts linted:", nm)
 
     # ---- drift: the UI keys that mirror the designer's leader-select copy must say the same thing
     ls = cj.get("leaderSelect", {})

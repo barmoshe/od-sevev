@@ -42,6 +42,7 @@ var events: Dictionary = {}         # Events: scheduler, cooldowns, live effects
 var album: Dictionary = {}          # Events: the photobomb album (lifetime)
 var calendar: Dictionary = {}       # Calendar: the clock's high-water mark, mode, notices
 var spins: Dictionary = {}          # Spins: consumable buys and live timers, line levels, flights (round)
+var missions: Dictionary = {}       # Missions: rank, the 3 slots, claimed ids (meta: persists across elections)
 
 # ---- leader select (save v4; Leaders owns the shape: fresh_into, sanitize_into, to_dict) ----
 var leader := ""                    # the round's leader (fixed for the round; "" without leader content)
@@ -73,6 +74,7 @@ static func fresh() -> GameState:
 	s.album = Events.fresh_album()
 	s.calendar = Calendar.fresh_state()
 	s.spins = Spins.fresh_state()
+	s.missions = Missions.fresh_state()
 	Leaders.fresh_into(s)
 	return s
 
@@ -109,7 +111,7 @@ func to_dict() -> Dictionary:
 		"ftue": ftue.duplicate(true), "ui": ui.duplicate(), "stats": stats.duplicate(),
 		"coalition": coalition.duplicate(true), "investigation": investigation.duplicate(true),
 		"events": events.duplicate(true), "album": album.duplicate(), "calendar": calendar.duplicate(),
-		"spins": spins.duplicate(true),
+		"spins": spins.duplicate(true), "missions": missions.duplicate(true),
 	}.merged(Leaders.to_dict(self))
 
 
@@ -185,6 +187,7 @@ static func from_dict(raw: Variant) -> GameState:
 	s.album = Events.sanitize_album(r.get("album"))
 	s.calendar = Calendar.sanitize(r.get("calendar"))
 	s.spins = Spins.sanitize(r.get("spins"))
+	s.missions = Missions.sanitize(r.get("missions"))   # an older save: rank 1, fresh slots
 	Meta.seed_stats(s)
 	return s
 

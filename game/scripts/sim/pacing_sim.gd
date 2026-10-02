@@ -135,6 +135,16 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 				play_politics(s, strat)
 		for a in Meta.check_achievements(s, d):
 			events.append([t, "achievement:" + a])
+		# Missions (missions.gd): the player claims whatever is done (its rewards are part of the pace).
+		# The claims go to the events only with player.log_missions, so the "something new" gap gate
+		# keeps measuring the content's own beats.
+		if Missions.active():
+			Missions.tick(s, d)
+			for i in range((s.missions["slots"] as Array).size() - 1, -1, -1):
+				if bool((s.missions["slots"][i] as Dictionary).get("done", false)):
+					var mc := Missions.claim(s, i, d)
+					if player.get("log_missions", false):
+						events.append([t, "mission:" + str(mc["id"]) + ("" if (mc["rankUp"] as Dictionary).is_empty() else " rank:%d" % int(mc["rankUp"]["rank"]))])
 		for id in Content.producer_ids():
 			var nm := Meta.next_milestone(s.owned_of(id))
 			var key := "%s>%d" % [id, s.owned_of(id)]

@@ -598,6 +598,41 @@
       "lines": 6,
       "linesLarge": 8,
       "where": "Leader card (long-press / I): rule text; the card grows"
+    },
+    "stage.missions": {
+      "widthPx": 94,
+      "scale": 3,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Missions chip word / second line (MissionsChip 152 wide: a 40 badge, 18 of pads; PxText fit_width may step down)"
+    },
+    "mis.text": {
+      "widthPx": 560,
+      "scale": 4,
+      "lines": 2,
+      "linesLarge": 3,
+      "where": "Missions sheet: a mission's text (content missions.list[].text), right-aligned in the modal.body box, <= 2 lines"
+    },
+    "mis.progress": {
+      "widthPx": 200,
+      "scale": 3,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Missions sheet row: the progress (x3) over its bar, x 440-640 (MissionsSheet.RIGHT_W)"
+    },
+    "mis.reward": {
+      "widthPx": 336,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Missions sheet row: the reward label, x 88-424 (gold; the claim button takes its place once done)"
+    },
+    "mis.btn": {
+      "widthPx": 192,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Missions sheet 'לקחת' (the 224-wide gold kit button, 16 pads)"
     }
   },
   "worstCasePlaceholders": {
@@ -662,7 +697,11 @@
     "critPlural": "שיחות מסדרון",
     "banner": "טורבו בהעברות!",
     "rule": "לוח הזמנים",
-    "postpone": "אין תקציב לתגובה"
+    "postpone": "אין תקציב לתגובה",
+    "rankTitle": "עוזר פרלמנטרי",
+    "mission": "1,500 מקורות הכנסה. כולם חוקיים, כמעט",
+    "val": "8.88mm",
+    "goal": "8.88mm"
   },
   "numericPlaceholders": [
     "after",
@@ -671,6 +710,7 @@
     "count",
     "d",
     "date",
+    "goal",
     "h",
     "k",
     "lv",
@@ -694,6 +734,7 @@
     "seats",
     "thumbs",
     "total",
+    "val",
     "version",
     "x",
     "xr"
@@ -5876,6 +5917,174 @@
       "worstPx": {
         "4": 576,
         "5": 720
+      }
+    },
+    "MIS_CHIP": {
+      "surface": "label",
+      "spec": "missions.chip",
+      "note": "The stage's missions entry (MissionsChip, the top-left sky); a gold badge counts the missions done",
+      "box": "stage.missions",
+      "maxChars": 5,
+      "worstPx": {
+        "3": 90
+      }
+    },
+    "MIS_CHIP_READY": {
+      "surface": "label",
+      "spec": "missions.chip.ready",
+      "note": "The chip's second line while a mission is done (else the nearest mission's MIS_PROGRESS)",
+      "box": "stage.missions",
+      "maxChars": 5,
+      "worstPx": {
+        "3": 78
+      }
+    },
+    "MIS_TITLE": {
+      "surface": "label",
+      "spec": "missions.title",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 120,
+        "5": 150
+      }
+    },
+    "MIS_RANK": {
+      "surface": "label",
+      "spec": "missions.rank",
+      "note": "Gold, centred, over the rank's progress bar; rankTitle = missions.ranks[].title",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 436,
+        "5": 545
+      }
+    },
+    "MIS_NEXT_ONE": {
+      "surface": "label",
+      "spec": "missions.next",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 908,
+        "5": 1135
+      }
+    },
+    "MIS_NEXT_OTHER": {
+      "surface": "label",
+      "spec": "missions.next",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 908,
+        "5": 1135
+      }
+    },
+    "MIS_BONUS": {
+      "surface": "label",
+      "spec": "missions.bonus",
+      "note": "The sum of the ranks reached (a global income multiplier in Economy.derive)",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 588,
+        "5": 735
+      }
+    },
+    "MIS_TOP": {
+      "surface": "label",
+      "spec": "missions.top",
+      "joke": true,
+      "note": "The last rank, every mission claimed",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 468,
+        "5": 585
+      }
+    },
+    "MIS_EMPTY": {
+      "surface": "label",
+      "spec": "missions.empty",
+      "joke": true,
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 596,
+        "5": 745
+      }
+    },
+    "MIS_CLAIM": {
+      "surface": "label",
+      "spec": "missions.claim",
+      "note": "Gold kit button on a done mission's row: pays the reward, the next mission takes the row",
+      "box": "mis.btn",
+      "maxChars": 8,
+      "worstPx": {
+        "4": 96,
+        "5": 120
+      }
+    },
+    "MIS_PROGRESS": {
+      "surface": "label",
+      "spec": "missions.progress",
+      "note": "Counts as integers, money (earnRun, bpsAtLeast) through Fmt.amount",
+      "box": "mis.progress",
+      "maxChars": 11,
+      "worstPx": {
+        "3": 186
+      }
+    },
+    "MIS_REWARD_CASH": {
+      "surface": "label",
+      "spec": "missions.reward.cash",
+      "note": "reward cash {sec}: sec × ₪/s now (at least the floor), priced live",
+      "box": "mis.reward",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 200,
+        "5": 250
+      }
+    },
+    "MIS_REWARD_FRENZY": {
+      "surface": "label",
+      "spec": "missions.reward.frenzy",
+      "note": "The Suitcase's income frenzy (golden bpsFrenzy's multiplier)",
+      "box": "mis.reward",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 328,
+        "5": 410
+      },
+      "largeText": "step-down"
+    },
+    "MIS_REWARD_BASE": {
+      "surface": "label",
+      "spec": "missions.reward.basePct",
+      "note": "+pct on this round's base payout",
+      "box": "mis.reward",
+      "maxChars": 14,
+      "worstPx": {
+        "4": 216,
+        "5": 270
+      }
+    },
+    "F_MISSION_DONE": {
+      "surface": "label",
+      "spec": "missions.done",
+      "note": "Ticker milestone line + the milestone cue when a mission's goal is met",
+      "box": "ticker.crawl",
+      "maxChars": 60
+    },
+    "F_RANK_UP": {
+      "surface": "label",
+      "spec": "missions.rankUp",
+      "note": "The rank-up toast (lane dock) and ticker milestone, with confetti and the trophy cue",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 744,
+        "5": 930
       }
     },
     "HUD_RATE": {
