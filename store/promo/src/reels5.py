@@ -8,7 +8,8 @@ one end card (the wordmark, "בקרוב", @od.sevev) while each Reel wears its o
 
     ghost    15 s  "דברים שכדאי לגוסט": October's sheet-ghost trend (signs, one per beat); a pixel
                    ghost in sunglasses, a leader's pose answers each sign. Night purple.
-    patch    15 s  "עדכון 3.0: הערות גרסה": the leaders-v3 abilities as patch notes. A dark launcher.
+    patch    15 s  "מה יש במשחק": the leaders' abilities as patch notes, with known bugs. A dark launcher.
+                   No version numbers (Bar: nothing is released yet; it's all בקרוב).
     loading  15 s  "סופר את הקולות…": the game's real loading line, tips, characters you have never seen
                    before; 99%, the Knesset dissolves, 0%. A 16-bit console, a clean loop.
     match    30 s  "אחדות": a dating app. Netanyahu's unity card; every opposition leader swipes left;
@@ -245,18 +246,18 @@ def ghost_audio(path):
 
 N_DUR = 15.0
 N_T0, N_STEP = 1.1, 1.55
-N_ITEMS = [  # (tag, icon, title, note): the leaders-v3 abilities, as the game's patch notes
-    ("חדש", "dubi", "לכל ראש רשימה: יכולת.", "8 יכולות. 0 שיתופי פעולה."),
-    ("חדש", "bengvir", "בן גביר: ׳אני פורש׳.", "חוזר אחרי 20 שניות. זה פיצ׳ר."),
-    ("איזון", "smotrich", "סמוטריץ׳: תקציב בדקה ה־90.", "אישור מוקדם הוסר. לא היה בשימוש."),
-    ("חדש", "liberman", "ליברמן: ׳לא אשב׳ = סעיף.", "חמישה סירובים: מסמך עקרונות."),
-    ("חדש", "deri", "דרעי: ׳למסדרון׳.", "הדרישות נסגרות מחוץ לפרוטוקול."),
+N_ITEMS = [  # (tag, icon, title, note): what's in the game, as patch notes; no versions, nothing is out yet
+    ("במשחק", "dubi", "לכל ראש רשימה: יכולת.", "8 יכולות. 0 שיתופי פעולה."),
+    ("במשחק", "bengvir", "בן גביר: ׳אני פורש׳.", "חוזר אחרי 20 שניות. זה פיצ׳ר."),
+    ("במשחק", "smotrich", "סמוטריץ׳: תקציב בדקה ה־90.", "אישור מוקדם: לא נתמך."),
+    ("במשחק", "liberman", "ליברמן: ׳לא אשב׳ = סעיף.", "חמישה סירובים: מסמך עקרונות."),
+    ("במשחק", "deri", "דרעי: ׳למסדרון׳.", "הדרישות נסגרות מחוץ לפרוטוקול."),
     ("באג ידוע", "gantz", "גנץ מופיע בבוחר.", "אי אפשר לבחור בו. גם הוא מתלבט."),
     ("באג ידוע", "vote", "הבחירות חוזרות.", "נסגר כ׳לא יתוקן׳."),
 ]
 N_ROW, N_TOP, N_ROWS = 200, 410, 5
 N_END = N_DUR - END
-TAGC = {"חדש": (70, 220, 120), "איזון": (250, 190, 60), "באג ידוע": (250, 80, 80)}
+TAGC = {"במשחק": (70, 220, 120), "באג ידוע": (250, 80, 80)}
 
 
 def note_icon(key):
@@ -284,10 +285,10 @@ def patch_frame(t):
     d.rectangle((40, 220, W - 40, 380), fill=(24, 30, 42))       # the header
     d.rectangle((40, 220, W - 40, 228), fill=(70, 220, 120))
     paste(c, img("wordmark", 3), W - 60 - img("wordmark", 3).width // 2, 290)
-    v = text("v3.0", 6, fill=INK, ring=None, shadow=False, rtl=False)
+    v = text("בקרוב", 6, fill=INK, ring=None, shadow=False)
     paste(c, plate(v.width + 30, v.height + 18, (70, 220, 120), INK, 3), 110, 290)
     paste(c, v, 110, 290)
-    hd = text("הערות גרסה", 6, fill=(170, 180, 200), ring=None, shadow=False)
+    hd = text("מה יש במשחק", 6, fill=(170, 180, 200), ring=None, shadow=False)
     paste(c, hd, W - 60 - hd.width // 2, 350)
     shown = sum(1 for j in range(len(N_ITEMS)) if t >= N_T0 + j * N_STEP)
     scroll = sum(ease_out(clamp((t - (N_T0 + j * N_STEP)) / 0.25)) for j in range(N_ROWS, len(N_ITEMS)))
@@ -304,6 +305,7 @@ def patch_frame(t):
         d.rectangle((W - 50, y, W - 40, y + N_ROW - 16), fill=TAGC[tag])
         tg = text(tag, 4, fill=INK, ring=None, shadow=False)
         paste(c, plate(tg.width + 24, tg.height + 14, TAGC[tag], INK, 3), W - 72 - (tg.width + 24) // 2, y + 36)
+        paste(c, tg, W - 72 - (tg.width + 24) // 2, y + 36)
         ti = text(title, 6, fill=WHITE if new else (190, 196, 210), ring=None, shadow=False)
         paste(c, ti, W - 72 - ti.width // 2 + x_off, y + 100)
         if t >= t0 + 0.35:
