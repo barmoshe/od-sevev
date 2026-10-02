@@ -294,6 +294,12 @@ func test_the_header_counts_everyone_in_the_group() -> void:
 	Coalition.ps(m.state, "regev")["status"] = "left"
 	runner.check(ChatView.group_size(m.state) == 3, "a frozen member counts, one who left does not (%d)" % ChatView.group_size(m.state))
 	await _open_chat_now()
+	# coalition UX rev 5: an open line outranks the group size in the status
+	runner.check(m.chat._status.text == Strings.plural("CHAT_OPEN", 1), "his open join demand is the header's news (%s)" % m.chat._status.text)
+	for msg: Dictionary in m.state.coalition["chat"]:
+		if msg["state"] == "open":
+			msg["state"] = "expired"
+	await tree.process_frame
 	runner.check(m.chat._status.text == Strings.plural("CHAT_MEMBERS", 3), "the header reads the group size (%s)" % m.chat._status.text)
 
 
