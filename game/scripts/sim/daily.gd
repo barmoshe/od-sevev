@@ -18,6 +18,11 @@ const DAY_MS := 86400000.0
 const SEED_MAX := 2147483647
 
 
+## The content flag `dailyRound` (off since Bar 2026-10-02): every entry point asks this.
+static func enabled() -> bool:
+	return Events.flag_on("dailyRound")
+
+
 static func _last_sunday_utc_day(year: int, month: int) -> int:
 	# the last day of the month, in unix days, then back to its Sunday
 	var next := Time.get_unix_time_from_datetime_dict({"year": year + (1 if month == 12 else 0), "month": 1 if month == 12 else month + 1, "day": 1, "hour": 0, "minute": 0, "second": 0})
