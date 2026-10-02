@@ -189,13 +189,16 @@ if (only === '' || only === 'offer') {
 	ok(r && r.daily, 'the after-election picker shows the daily entry');
 	await shot(page, 'o1-picker-after');
 	await pickCell('bibi');
-	await page.waitForTimeout(6000);   // the undo chip holds the lane toasts for 5 s
-	await shot(page, 'o2-offer-toast');
+	// the undo chip holds the lane toasts for 5 s of wall time; then the offer's toast docks
+	await page.waitForFunction(() => { const h = window.odDev && window.odDev.hud; return h && !h.undo.on && h.toast && h.toast.length === 4; }, null, { timeout: 20000 }).catch(() => {});
 	const hud = await page.evaluate(() => (window.odDev && window.odDev.hud) || {});
+	// (no shot here: a swiftshader screenshot outlasts the toast; o2 is shot by the "toast" variant)
+	if (process.env.OD_TOAST_SHOT) await shot(page, 'o2-offer-toast');
 	if (hud.toast && hud.toast.length === 4) {
 		await P.tapAt(P.css(hud.toast[0] + hud.toast[2] / 2, hud.toast[1] + hud.toast[3] / 2));
 		await page.waitForTimeout(900);
 	}
+	log(`  toast ${JSON.stringify(hud.toast)}; after the tap: modal ${JSON.stringify(await modal(page))}`);
 	const m = await modal(page);
 	ok(m && m.id === 'CHALLENGE_OFFER', `the toast opens the offer card (${m && m.id})`);
 	await shot(page, 'o3-offer');

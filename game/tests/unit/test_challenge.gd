@@ -277,8 +277,20 @@ func test_the_offer_after_an_election() -> void:
 	var last: Dictionary = m.book.last_round()
 	_check(last.get("leader") == "bibi" and int(last.get("t", 0)) == 461, "the election's round is noted: %s" % last)
 	_check(m.round_offer_ready(), "T4's 'אתגר חבר' shows")
+	var kinds: Array = (m.dossier.buttons() as Array).map(func(b: Dictionary) -> String: return str(b["kind"]))
+	_check(kinds.has("challenge") and kinds.has("daily"), "T4 lists both rounds: %s" % str(kinds))
 	var rb := RoundBook.new(dir).load_book()
 	_check(rb.last_round() == last, "and survives a reload")
-	m.open_challenge_offer()
-	await tree.process_frame
-	_check(m.overlays.top() is RoundCards.ChallengeOffer, "the offer card")
+	m._round_offer_toast()   # what the next pick does
+	var r := Rect2()
+	for i in 240:
+		await tree.process_frame
+		r = m.toasts.covered_rect()
+		if r.has_area():
+			break
+	_check(r.has_area(), "the offer's toast docks")
+	await tree.create_timer(1.1).timeout   # out of the tap burst
+	_touch(r.get_center() + Vector2(m._sx, m._stage_y))
+	for i in 3:
+		await tree.process_frame
+	_check(m.overlays.top() is RoundCards.ChallengeOffer, "a tap on the toast opens the offer card (%s, %s)" % [r, m.overlays.top()])
