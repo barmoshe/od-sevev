@@ -134,3 +134,15 @@ right-aligned, so the right margin bites first: text now ends at x 950 and centr
     python3 src/framecheck.py <scratch> zap zap | reels5 <name> | reels6 <name> | shorts <name> | promo <name> [step]
 
 Sliding cards, walkers crossing the loading screen and the curtain are clipped on purpose.
+
+## "מה אם היה אפשר לשחק בגנץ?" (`src/gantz.py`)
+
+`od-sevev-reel-gantz.mp4`, 31 s, 9:16, in the iPhone of the gameplay reels. A hypothetical round: Gantz
+isn't playable (in the game he only stands on the picker once, as a joke). The screens are the game's
+own Movie Maker frames (the picker from take_bennett, a round's first seconds from take_golan) with the
+leader painted out (the Balfour stage redrawn from its sprite at its exact offset) and Gantz painted in.
+The round: every tap pays "+0", the HUD stays at ₪0; his ability, "לחכות", fills a rotation bar to 99%
+and it's postponed ("מאז 2020", the 2020 rotation that never happened); "שלחתי תזכורת לגבי הרוטציה.
+סטטוס: נקרא." Then the real game: "גנץ לא עבר", בחר שוב, and the cell is הפתעה again.
+
+    python3 src/gantz.py <scratch with take_bennett/, take_golan/> [--stills | --one <sec>]
