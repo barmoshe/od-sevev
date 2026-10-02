@@ -80,3 +80,29 @@ What they rest on (Oct 2026, search results only, page fetches were blocked):
 - 14: the red-square logo, and Walla calling the rebrand suspiciously similar to 12's ("רגע, זה לא 12?"): b.walla.co.il/item/3729452
 
     python3 src/zap.py <scratch> [--stills | --one <sec>]
+
+## Five more Reels: five looks, five jobs (`src/reels5.py`)
+
+Bar: short (15 s, 30 s, never past 45), each one its own style, fit for different jobs. One end card for
+the whole series (the wordmark, "בקרוב", @od.sevev) so the feed still reads as one account.
+
+| File | Length | The idea | The look | The job |
+|---|---|---|---|---|
+| `od-sevev-reel-ghost.mp4` | 15 s | **דברים שכדאי לגוסט**: October's sheet-ghost trend. A pixel ghost in sunglasses holds signs (התחייבות חתומה, מכתב פרישה, לחכות לרוטציה, תקציב בזמן, הצעת אחדות); a leader's new pose answers each. The last sign, הבחירות, can't be ghosted: "הן חוזרות." | night purple, the moon | ride a live trend before 27.10 |
+| `od-sevev-reel-patch.mp4` | 15 s | **עדכון 3.0: הערות גרסה**: the leaders-v3 abilities as patch notes (חדש / איזון / באג ידוע), ending on the known bug: "הבחירות חוזרות. אין תיקון בטווח הנראה לעין." | a dark launcher | show the new update to gamers |
+| `od-sevev-reel-loading.mp4` | 15 s | **סופר את הקולות…**: the game's real loading line, tips, characters you've never seen before crossing the screen; 99%, "הכנסת התפזרה.", 0%. Loops. | a 16-bit console | replays |
+| `od-sevev-reel-match.mp4` | 30 s | **אחדות**: a dating app. Netanyahu's unity card ("מחפש ממשלת אחדות. רק רציניים.") shown to Golan, Bennett, Liberman, Eisenkot: שמאלה, לא, לא אשב, לא. Then the coalition: Ben Gvir and Smotrich swipe left on each other. "0 התאמות. צריך 61." | a glossy pink app | DM sends |
+| `od-sevev-reel-process.mp4` | 30 s | **מהכותרת למכניקה**: four real headlines (design/facts.json), the design note, the ability in the game (Ben Gvir, Smotrich, Golan, Liberman). "העובדות: עם מקור. הבדיחות: שלנו." | newsprint and sticky notes | trust, the making-of |
+
+Research behind it (Oct 2026, search results):
+- Mosseri: watch time, sends per reach and likes per reach lead; sends weigh most for non-followers
+  (socialmediatoday.com/news/instagram-shares-algorithm-insights-2025/738034/, buffer.com/resources/instagram-algorithms/)
+- 7-15 s for completion; the hook has under two seconds (go-viral.app/blog/instagram-reels-algorithm-2026/)
+- raw beats polished; for indie games, behind-the-scenes beats trailers (presskit.gg/field-guides/tiktok-indie-game-marketing)
+- October's trends: "Things You Should Definitely Ghost", "The Process" (newengen.com/insights/instagram-trends/)
+- the loading-screen meme (knowyourmeme.com/memes/when-the-loading-screen-takes-so-long-you-start-seeing-characters-youve-never-seen-before)
+- **the political-content limit**: Instagram doesn't recommend political content to non-followers by
+  default (whyy.org/npr-story/meta-limit-political-content-instagram-facebook-opt-out). So every Reel
+  opens as a game or a joke, and the caption should too; test reach with Trial Reels.
+
+    python3 src/reels5.py <scratch> ghost|patch|loading|match|process [--stills | --one <sec>]
