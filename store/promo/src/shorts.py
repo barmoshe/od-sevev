@@ -34,7 +34,7 @@ from teaser import (INK, NIGHT, GOLD, GOLD_HI, GOLD_SH, WHITE, RED, W, H, FPS, i
                     coins_burst, burst_bg, shake, speedlines, vignette, rnd)
 
 OUT = P.OUT
-CTA = "לשחק בחינם · הלינק בביו"
+CTA = "בקרוב · עקבו @od.sevev"           # Bar: no link yet, it's all בקרוב
 ORDER = ["bibi", "bennett", "bengvir", "liberman", "smotrich", "eisenkot", "deri", "golan"]
 
 
@@ -431,7 +431,8 @@ def main():
         k.stills([round(x * dur / 11, 2) for x in range(12)], os.path.join(OUT, "_stills_%s.png" % which))
         return
     if "--one" in sys.argv:
-        frame(float(sys.argv[sys.argv.index("--one") + 1])).save(os.path.join(OUT, "_one.png"))
+        from safefit import fit
+        fit(frame(float(sys.argv[sys.argv.index("--one") + 1]))).save(os.path.join(OUT, "_one.png"))
         return
     wav = os.path.join(P.SCRATCH, "_short_%s.wav" % which)
     audio(wav)
@@ -442,9 +443,10 @@ def main():
            "-profile:v", "high", "-movflags", "+faststart", "-af", "loudnorm=I=-14:TP=-1.0:LRA=11",
            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-t", str(dur), video]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    frame(cover_t).save(os.path.join(OUT, name + "-cover.png"))
+    from safefit import fit                         # inside Instagram's safe area (safefit.py)
+    fit(frame(cover_t)).save(os.path.join(OUT, name + "-cover.png"))
     for i in range(int(dur * FPS)):                 # loops: no cover frames up front, the start is the loop
-        p.stdin.write(frame(i / FPS).tobytes())
+        p.stdin.write(fit(frame(i / FPS)).tobytes())
     p.stdin.close()
     if p.wait() != 0:
         raise SystemExit("ffmpeg failed")
