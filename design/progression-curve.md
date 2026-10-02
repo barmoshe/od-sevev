@@ -42,6 +42,7 @@ the default (`PacingSim.POLITICS`).
 | S5 | median round 2 between 3:00 and round 1 | pitch §11 Q8 note ("base growth makes later rounds faster") + §9 (a suitcase every 2-4 min must fit in a round) | 2:36 ✗ | 4:30 ✓ |
 | S6 | median rounds 1-5 each ≥ 3:00 | pitch §9 cadence: each round holds a story flash, a suitcase and ~90 s partner messages | shortest 1:30 ✗ | shortest 4:05 ✓ |
 | S7 | median reaches Washington (the 5th election, `eras.list`) within the hour | pitch §4 (four eras) + §8/§9 (one story beat per election) | ✓ (by 13 min) | ✓ (5th at 27:03; 8 in the hour) |
+| S8 | median rounds get faster: the per-round median over seeds 3-11, rounds 2-8 each ≤ the previous + 0:15, rounds 6-8 ≤ 6:00, none under 2:00 | the idle-genre rule (each prestige loop reaches the gate faster than the last) + pitch §11 Q8 note | new gate (2026-10-02) | see §0.4 |
 | — | engaged ≥ 3, casual ≥ 2, idle ≥ 1 elections/hour; no round < 1:00; nothing-new gap ≤ 5:00 in runs 1-3 | fork gates kept (pitch §9) | ✓ | ✓ (8 / 8 / 8; gaps ≤ 1:47) |
 | G1-G4 | the triangle (`test_politics_balance.gd`, engaged, seed 11) | pitch §10 | ✓ | ✓ (below) |
 
@@ -58,6 +59,8 @@ Removed: the old gate "first Evolve in 9:30-15 min", which is Monkey Bananas' nu
 - Rounds 2-5 run 4-6 min.
 - From round 6 the late money thresholds (× 5^n) outgrow the multiplier, and rounds lengthen to
   about 9-10 min. That is pitch §5's "later rounds lengthen".
+- **Superseded 2026-10-02 (§0.4):** later rounds now get faster, each round no slower than the
+  last, toward a floor of about 3:00.
 - Base after an hour: median 42K (was about 205K on engaged).
 
 **Seed spread (round 1, seeds 1-9, fixed clock, a scratch probe running `PacingSim.run`):**
@@ -126,6 +129,75 @@ Removed: the old gate "first Evolve in 9:30-15 min", which is Monkey Bananas' nu
 - Adding the round-clock floors (L 200K / 225K / 250K / 300K): 7:11 / 7:46 / 8:30 / 8:31 median
   (old clock). 225K is the one centred in 7-9 across seeds, and gives 8:01 on the fixed clock.
 - All candidates were probed on the old bench clock (about 5% fast).
+
+### 0.4 Later rounds get faster (2026-10-02)
+**The rule.** Each election should reach the 61 gate faster than the one before (the idle-genre
+rule, and pitch §11 Q8's note that "base growth makes later rounds faster"). Before this retune the
+median's rounds 2-8 sat flat at 5-6 min, with spikes of 9-12 min. Bench gate S8 now holds the curve.
+
+**Why rounds did not speed up.** Three causes, measured with a round-by-round probe of
+`PacingSim.run` (who arrived, who was still unpaid, every walkout):
+1. **Partner prices are seconds of income.** A demand costs `demandSec` (45) × current ₪/s, so the
+   base never makes it cheaper. A late round brings about 13 partners in a 90 s window. With 45 s
+   each, the median player spent 1-2 min paying the queue. The unpaid demands turned into
+   ultimatums, and walkouts cascaded: one round 8 lost Ben Gvir, Smotrich, Gafni and May Golan and
+   ran 9:03.
+2. **The round clock barely eased.** `runSecAtLeast` × 0.9^n. Once the queue was paid, the gate
+   still waited for Gotliv (5:00 × factor) or Deri (6:00 × factor).
+3. **Goldknopf's lifetime price.** His `priceGrowth` 1.3 counts every payment ever, so in some late
+   rounds he stays unpaid. Deri then closes the round instead of Gotliv, and his later floor (360 s
+   against 300 s) put a 30-40 s bump into every such round (rounds 4 and 5 in most seeds).
+
+The money thresholds were not the brake in this build: from round 3 the round earned 100-10,000×
+the threshold. At × 5^n they caught up again around round 14, and rounds 14-15 ran 4-7 min.
+
+**The fix (`coalition.gd` + `content.json`).**
+- `Coalition.unlock_of` eases `runSecAtLeast` toward a floor instead of toward zero:
+  × (`unlockTimeScaleMin` + (1 - min) × `unlockTimeScalePerElection`^n). Without the min key it is
+  the old scale^n.
+- `Coalition.demand_price` (and the poach price) take the same ease on `demandSec` / `poachSec`:
+  × (`demandSecScaleMin` + (1 - min) × `demandSecScalePerElection`^n). Rejoins follow, at 1.5× the
+  price. A veteran's deals cost fewer seconds of income, so the coalition stops eating the speed that
+  the base buys. Round 1 pays the full 45 s, so the FTUE and the round-1 politics are untouched.
+
+| Field | Before | After | Why |
+|---|---|---|---|
+| `coalition.unlockTimeScalePerElection` | 0.9 | 0.6 | the clock factor: 1, 0.83, 0.73, 0.67, 0.63, 0.61, 0.60, … |
+| `coalition.unlockTimeScaleMin` | (absent = 0) | 0.58 | the floor: Gotliv's 5:00 never falls below 2:54, so no round collapses |
+| `coalition.demandSecScalePerElection` | (absent = 1) | 0.5 | a demand costs 45 s, 25 s, 14 s, 9 s, 7 s, … of income |
+| `coalition.demandSecScaleMin` | (absent) | 0.1 | at least 4.5 s of income, so a demand still costs something |
+| `coalition.unlockScalePerElection` | 5 | 2 | below the base's growth, so earnings never gate a late round (× 5^n caught up at round 14) |
+| `deri.unlock.runSecAtLeast` (+ slot L6) | 360 | 320 | Deri's floor no longer adds 30-40 s when he closes instead of Gotliv; round 1 still waits for his 360K |
+
+**Median rounds (m:ss), the per-round median over seeds 3, 5, 7, 9 and 11 (probe of
+`PacingSim.session`, the S8 seeds):**
+| Round | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9-16 |
+|---|---|---|---|---|---|---|---|---|---|
+| Before | 8:00 | 5:08 | 5:29 | 5:38 | 4:54 | 5:27 | 5:06 | 6:02 | 4:43-9:12 |
+| After | 8:00 | 4:10 | 3:47 | 3:29 | 3:26 | 3:04 | 3:00 | 3:03 | 2:56-3:11 |
+
+- After the retune most seeds land within 30 s of the median in every round. Before, rounds 2-8
+  ranged 3:32-11:45 across the five seeds.
+- The median plays 16 elections an hour (was 9-10). Rounds 9-16 hold at 2:55-3:15, each one still a
+  full round: the queue of demands, an ultimatum, a court day.
+- Round 1 is unchanged for every leader (L1). Rounds 1-5 stay ≥ 3:00 for every leader (S6):
+  BENCH_LEADERS.
+
+**Candidates tried (probe, seeds 3-11 median unless noted):**
+- Clock only (0.75 / min 0.3, price unchanged): the spikes stayed (seeds 1-7: rounds of 7-10 min).
+  The demand queue was the brake.
+- Clock 0.75 / min 0.4, price 0.8 / min 0.5: 4:34, 4:22, 4:42, 4:21, 4:14 (seeds 1-7). The walkouts
+  were fewer but still set the round.
+- Clock 0.7 / min 0.5, price 0.7 / min 0.25: 4:31, 4:12, 4:26, 3:50, 3:28, 3:26, 3:13. Round 4 was
+  14 s over round 3 (Goldknopf's bump).
+- Price 0.5 / min 0.1 (the payment lag mostly gone), clock 0.65 / min 0.5: 4:22, 3:41, 3:23, 3:26,
+  2:51, 2:41, 2:39. Smooth, but the floor is too low.
+- Clock 0.6 / min 0.58: 4:22, 3:47, 3:34, 3:48, 3:04, 3:00, 2:58. Round 5 was 14 s over round 4
+  because Deri closed it. With Goldknopf at `priceGrowth` 1.15 instead: the same bump. With Deri at
+  320 s: 3:34 → 3:33, and the bump was gone.
+- Clock 0.7 / min 0.57 (a gentler curve): round 4 was 4:16 against round 3's 3:54, so it was
+  rejected.
+- Money × 5^n: rounds 14-15 ran 3:19-7:27. With × 2^n they hold at about 3:10.
 
 # progression-curve — Monkey Bananas
 
