@@ -216,8 +216,11 @@ the fixtures) turns it off. The content's `_doc` has the shape; `design/sim/cont
 - **Pacing** (bench, `PacingSim.run` claims whatever is done each tick; `player.log_missions` adds the
   claims to the events). Round 1's rewards are mostly basePct: cash or a frenzy in the first minutes
   compounds, and the first cut (cash 30-60 s, a 50 ₪ floor) moved the median first election from
-  8:04 to 6:25. The shipped list: rank 1 inside the first ~3 minutes, rank 2 by round 2, then a
-  mission every ~3-8 min; the median player reaches the top rank in about two hours.
+  8:04 to 6:25. Shipped list, median hour (seed 7): the first four missions inside 1:10 (the
+  onboarding), rank 2 at 2:36, rank 3 at 13:44 (the first election is a rank-2 mission), rank 4 at
+  20:06, rank 5 at 41:00, rank 6 at 58:32; then a mission every ~3-9 min, rank 7 after ~1:45 h.
+  Bench (2026-10-02): median first election 7:14 (was 7:55), engaged 6:53, casual 6:53, idle 9:10;
+  every leader's median over seeds 1-9 in 7:28-8:30 (`test_leaders_balance`).
 - **Save.** `GameState.missions {rank, slots [{id, base, done}], claimed, bought}` (additive, no
   version bump); `Missions.sanitize` drops unknown, duplicate, claimed and other-rank slots; a save
   without the section starts at rank 1 (its old counters become the first slots' bases).
