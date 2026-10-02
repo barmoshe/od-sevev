@@ -193,6 +193,20 @@
       "linesLarge": 1,
       "where": "Owned badge on the plate corner (PxText)"
     },
+    "card.ms": {
+      "widthPx": 248,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Source milestone progress on the name row, left-aligned at the text box's left edge (x 220 - grow); drawn only where it clears the name by 16, else the short form, else not at all (the bar under line 2 stays)"
+    },
+    "card.msTag": {
+      "widthPx": 72,
+      "scale": 4,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Source milestone multiplier: the gold chip after line 2's rate (chip = text + 16, min 48, h 40)"
+    },
     "perk.level": {
       "widthPx": 120,
       "scale": 4,
@@ -628,6 +642,7 @@
     "count": "9",
     "total": "5",
     "thumbs": "9999",
+    "gmult": "9.99",
     "now": "999.9",
     "after": "999.9",
     "next": "999",
@@ -671,6 +686,7 @@
     "count",
     "d",
     "date",
+    "gmult",
     "h",
     "k",
     "lv",
@@ -1050,7 +1066,7 @@
     },
     "ROW_OWNED_NEXT": {
       "surface": "unused",
-      "note": "No milestone counter on the card at x4; milestones announce on the ticker (F_MILESTONE)"
+      "note": "Superseded by CARD_MS_NEXT / CARD_MS_SHORT (the card's milestone label, Bar 2026-10-02)"
     },
     "ROW_LOCKED_NAME": {
       "surface": "label",
@@ -2829,6 +2845,52 @@
         "5": 115
       },
       "largeText": "step-down"
+    },
+    "CARD_MS_NEXT": {
+      "surface": "label",
+      "spec": "new: source milestone",
+      "note": "Bar 2026-10-02: owned / the next content milestones.perProducer count, then that milestone's own factor; the arrow points the reading direction. Gold on the card's name row over the progress bar's goal end",
+      "box": "card.ms",
+      "maxChars": 10,
+      "worstPx": {
+        "4": 248,
+        "5": 310
+      },
+      "largeText": "step-down"
+    },
+    "CARD_MS_SHORT": {
+      "surface": "label",
+      "spec": "new: source milestone",
+      "note": "CARD_MS_NEXT's fallback where the full form would come within 16 px of a long name",
+      "box": "card.ms",
+      "maxChars": 10,
+      "worstPx": {
+        "4": 136,
+        "5": 170
+      }
+    },
+    "CARD_MS_MULT": {
+      "surface": "pxtext",
+      "spec": "new: source milestone",
+      "note": "The source's milestone multiplier so far (shown when > 1), a gold chip after its rate",
+      "box": "card.msTag",
+      "maxChars": 3,
+      "worstPx": {
+        "4": 68,
+        "5": 85
+      },
+      "largeText": "step-down"
+    },
+    "SHOP_ALL_MS": {
+      "surface": "label",
+      "spec": "new: all-sources milestone",
+      "note": "Line 2 of the buy-mode row (the list's head): every source at {n} multiplies all income by {gmult} (content milestones.allProducers); one bar segment per source under it",
+      "box": "card.line2wide",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 340,
+        "5": 425
+      }
     },
     "CARD_SHADY_TAG": {
       "surface": "html",
