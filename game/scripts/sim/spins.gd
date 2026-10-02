@@ -189,7 +189,7 @@ static func _apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 	for a: Dictionary in s.spins.get("active", []):
 		match str(a["type"]):
 			"tapBuff":
-				d.tap_mult *= maxf(1.0, float(a.get("mult", 1.0)))
+				d.tap_boost *= maxf(1.0, float(a.get("mult", 1.0)))
 			"idleToTap":
 				d.tap_pour_sec = maxf(d.tap_pour_sec, float(a.get("pour", 0.0)))
 	var lv: Dictionary = s.spins.get("levels", {})

@@ -298,13 +298,11 @@ static func _apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 		match str(a["type"]):
 			"noCrit":
 				d.no_crit = true
-			"kaiaBuff":
-				d.tap_mult *= float(a.get("tapMult", 1.0))
-			"leaderBuff":
-				d.tap_mult *= maxf(1.0, float(a.get("tapMult", 1.0)))
+			"kaiaBuff", "leaderBuff":
+				d.tap_boost *= maxf(1.0, float(a.get("tapMult", 1.0)))
 			"screenBlock":
 				if str(a.get("mode", "block")) == "tapBuff" and _phase_of(a) == "block":
-					d.tap_mult *= maxf(1.0, float(a.get("tapMult", 1.0)))
+					d.tap_boost *= maxf(1.0, float(a.get("tapMult", 1.0)))
 
 
 ## A leader rule's timed tap buff (Deri's ☕ onDemandPaid {type: tapBuff, mult, durationSec}):

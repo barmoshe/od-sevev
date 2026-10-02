@@ -76,6 +76,7 @@ func test_consumable_tap_buff_fades_and_comes_back() -> void:
 	runner.check(Economy.buy_upgrade(s, "t_buff"), "S02 bought")
 	_eq(s.bananas, 900.0, "for its cost")
 	_eq(Economy.derive(s).tap_value_no_crit, base * 1.5, "taps ×1.5 while live")
+	runner.check(bool(Economy.tap(s, func() -> float: return 1.0).get("boosted", false)), "a tap paid under the buff is flagged boosted (the big floater)")
 	runner.check(not s.upgrades.has("t_buff") and not _shelf(s).has("t_buff"), "off the shelf while live, never in s.upgrades")
 	runner.check(not Economy.buy_upgrade(s, "t_buff"), "can't stack it")
 	var c := Spins.card(s, "t_buff")

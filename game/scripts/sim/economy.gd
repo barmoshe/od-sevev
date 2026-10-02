@@ -22,7 +22,10 @@ class Derived:
 	var producer_bps: Dictionary = {}       # id -> bps this producer adds, frenzy excluded
 	var bps := 0.0                          # WITHOUT frenzy (tapPctOfBps, offline, Lucky Bunch)
 	var frenzy_mult := 1.0
-	var tap_frenzy_mult := 1.0
+	# The timed tap buffs' product (the Suitcase frenzy, a ×N spin, Kaia's cucumber, a leader's buff,
+	# Mordechai's cheer). Every tap multiplier, timed or not (tap_mult), multiplies the whole tap; a
+	# tap paid while tap_boost > 1 shows big (Economy.tap "boosted"), so a live buff reads on every tap.
+	var tap_boost := 1.0
 	var bps_effective := 0.0                # what actually accrues per second
 	var tap_value_no_crit := 0.0
 	var thumbs_total := 0
@@ -210,15 +213,16 @@ static func derive(s: GameState) -> Derived:
 		raw += add
 	d.bps = clampf_num(raw * inc)
 	d.frenzy_mult = float(Content.outcome_of_type("bpsFrenzy").get("mult", 1.0)) if s.buff_frenzy > 0.0 else 1.0
-	d.tap_frenzy_mult = float(Content.outcome_of_type("tapFrenzy").get("mult", 1.0)) if s.buff_tap_frenzy > 0.0 else 1.0
+	if s.buff_tap_frenzy > 0.0:
+		d.tap_boost *= float(Content.outcome_of_type("tapFrenzy").get("mult", 1.0))
 	d.bps_effective = clampf_num(d.bps * d.frenzy_mult)
-	# tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult × tapFrenzy.
+	# tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult × tapBoost.
 	# One rule (Bar 2026-10-02): every "taps ×N" (a spin, a card, a partner, a leader's buff) multiplies
 	# the WHOLE tap. It used to multiply only the flat base, so once the bps share dominated, the
 	# pistachio's ×1.5 paid ×1.04. Court day's incomeMult is already inside bps; the base part takes it here.
 	var base_tap := float(c["tap"]["baseValue"]) + d.tap_add
 	var pct := d.tap_pct_of_bps + float(c["tap"].get("pctOfBpsBase", 0.0))
-	d.tap_value_no_crit = clampf_num((base_tap * d.prestige_mult * maxf(0.0, d.income_mult) + pct * d.bps) * d.tap_mult * d.tap_frenzy_mult)
+	d.tap_value_no_crit = clampf_num((base_tap * d.prestige_mult * maxf(0.0, d.income_mult) + pct * d.bps) * d.tap_mult * d.tap_boost)
 	if d.tap_pour_sec > 0.0:
 		# S07: the passive income is poured into the taps instead (tapValue + bps × pourSecPerTap).
 		d.bps_effective = 0.0
@@ -327,9 +331,10 @@ static func tap(s: GameState, rng: Callable = randf) -> Dictionary:
 	if crit:
 		s.crits_lifetime += 1
 	Leaders.on_tap(s, crit)   # the leader's taps / crits; the first tap closes the picker
+	var boosted := d.tap_boost > 1.0
 	if tap7:
-		return {"value": value, "crit": false, "tap7": true}
-	return {"value": value, "crit": crit}
+		return {"value": value, "crit": false, "tap7": true, "boosted": boosted}
+	return {"value": value, "crit": crit, "boosted": boosted}
 
 
 # ---------------------------------------------------------------------------------------------

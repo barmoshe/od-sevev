@@ -1444,11 +1444,7 @@ func _run_automation(dt: float, modal: bool) -> void:
 		_auto_tap_acc += rate * dt / 1000.0
 		while _auto_tap_acc >= 1.0:
 			_auto_tap_acc -= 1.0
-			var r := Economy.tap(state, _rng("tap"))   # seeded rounds: _rng
-			top_bar.note_tap(float(r["value"]))   # the live rate line (display only)
-			bb.tap(r["crit"])
-			floaters.spawn(L.magician_hit().get_center().x + randf_range(-60, 60), L.magician_hit().get_center().y - 40.0,
-				Strings.s("FLOATER_CRIT" if r["crit"] else "FLOATER", {"n": Fmt.amount(float(r["value"]))}), r["crit"], state.buff_tap_frenzy > 0.0)
+			_pay_tap(L.magician_hit().get_center() + Vector2(randf_range(-60, 60), -40.0), false)
 	_butler_ms += dt * float(_dev["speed"])
 	if _butler_ms >= 1000.0:
 		_butler_ms = 0.0
@@ -2223,15 +2219,11 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if share_desk.chip_takes(sp) and not Ui.in_rect(toasts.covered_rect(), sp):   # share platform: the 📣 chip
 		_presses[idx] = {"kind": "shareChip"}
 		return
-	if sara.tappable() and Ui.in_rect(sara.hit_rect(), sp):
-		_tap_sara()
-		return
-	if herzog.tappable() and Ui.in_rect(herzog.hit_rect(), sp):
-		_accept_mediation()
-		return
-	if kaia.tappable() and Ui.in_rect(kaia.hit_rect(), sp):
-		_feed_kaia()
-		return
+	# the figures that take a tap on the stage (each one's own box; they never overlap)
+	for fig: Array in [[sara, _tap_sara], [herzog, _accept_mediation], [kaia, _feed_kaia]]:
+		if fig[0].tappable() and Ui.in_rect(fig[0].hit_rect(), sp):
+			(fig[1] as Callable).call()
+			return
 	# mobile-first §3.4: during a tap burst (the last leader tap < 1 s ago) a toast takes no tap, so
 	# a toast over the leader's head never eats the rapid taps (it stays visible)
 	if not tap_burst() and toasts.tap(sp):
@@ -2419,21 +2411,32 @@ func _on_key(e: InputEventKey) -> void:
 # ================================================================== verbs
 
 ## The core verb (mechanic rules 1-2): award on pointer-down, the global 16/s cap, full juice at f0.
+## A tap on the leader (the pointer, Space, the title's first tap): Sara takes it while she waits,
+## the limiter caps the rate, then the shared payout with the player's feedback.
 func _handle_tap(at: Vector2) -> void:
 	if sara.tappable():
 		_on_sara_block()   # Bar 2026-10-02: while Sara is on the stage the tap is hers
 		return
 	if not _limiter.try_register(Time.get_ticks_msec()):
 		return
-	var r := Economy.tap(state, _rng("tap"))   # seeded rounds: _rng
 	_last_tap_ms = _now
+	_pay_tap(at, true)
+
+
+## Every paid tap, the player's and the auto-tap perks': Economy.tap, the live rate line, the
+## leader's squash and the floater (big while a timed tap buff is live, so the buff reads on every
+## tap). `manual` adds the player's feedback: the hush on a paused day, sound, the first-tap beats,
+## the crit word, haptics and shake, the FTUE.
+func _pay_tap(at: Vector2, manual: bool) -> void:
+	var r := Economy.tap(state, _rng("tap"))   # seeded rounds: _rng
 	if bool(r.get("paused", false)):
 		# the court / press day (content court.courtPausesTaps, Bar 2026-10-01): no taps while he testifies;
 		# no +0, no coin, just the hush and, at most every 4 s, why
-		bb.tap(false, true)
-		if _now - _paused_toast_ms >= 4000.0:
-			_paused_toast_ms = _now
-			toasts.show_toast(LeaderUi.tap_paused_line(state), "", "lane", func() -> bool: return d.taps_paused)
+		if manual:
+			bb.tap(false, true)
+			if _now - _paused_toast_ms >= 4000.0:
+				_paused_toast_ms = _now
+				toasts.show_toast(LeaderUi.tap_paused_line(state), "", "lane", func() -> bool: return d.taps_paused)
 		return
 	var crit: bool = r["crit"]
 	top_bar.note_tap(float(r["value"]))   # the live rate line (display only)
@@ -2442,7 +2445,11 @@ func _handle_tap(at: Vector2) -> void:
 		state.stats["bestTapFrenzyTaps"] = maxf(float(state.stats.get("bestTapFrenzyTaps", 0.0)), float(_tap_frenzy_taps))
 	else:
 		_tap_frenzy_taps = 0
-	bb.tap(crit, bool(r.get("paused", false)))
+	bb.tap(crit)
+	floaters.spawn(at.x, at.y, Strings.s("FLOATER_CRIT" if crit else "FLOATER", {"n": Fmt.amount(float(r["value"]))}), crit,
+		bool(r.get("boosted", false)))
+	if not manual:
+		return
 	_coin_batch += 1
 	_audio("tapCrit" if crit else "tap")
 	_audio("coin", 3 if crit else 1)   # Bar: a money "ching" on every tap of the character (a crit pays 3)
@@ -2457,8 +2464,6 @@ func _handle_tap(at: Vector2) -> void:
 		_audio("babble", _first_squawk())
 	top_bar.set_bank(state.bananas)
 	top_bar.pop_bank()
-	var n := Fmt.amount(float(r["value"]))
-	floaters.spawn(at.x, at.y, Strings.s("FLOATER_CRIT" if crit else "FLOATER", {"n": n}), crit, state.buff_tap_frenzy > 0.0)
 	if crit and not LeaderUi.is_default() and str(LeaderUi.tap()["critName"]) != "":
 		floaters.spawn(at.x, at.y - 56.0, str(LeaderUi.tap()["critName"]), true, false)   # spec §5.2: the crit word
 	if r.get("tap7", false) == true:

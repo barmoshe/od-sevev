@@ -21,7 +21,7 @@
    "randomCritsFromTap": 16,
    "_why": "Pitch §11 Q1/Q5: taps 1-6 = 6 ₪, tap 7 rabbit ×4 = 4 ₪, taps 8-12 = 5 ₪, so 15 ₪ lands on tap 12. Random crits start at tap 16 so a lucky rabbit never skips the H2/H3 beats."
   },
-  "_formula": "tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult × (tapFrenzy ? mult : 1) × (crit ? critMult : 1). bps excludes the production-frenzy multiplier. Random crits are off before tap firstCrit.randomCritsFromTap (lifetime taps)."
+  "_formula": "tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult (permanent: perks, partners, Eisenkot) × tapBoost (timed: tap frenzy, a ×N spin, Kaia, a leader buff, Mordechai; taps show big while > 1) × (crit ? critMult : 1). bps excludes the production-frenzy multiplier. Random crits are off before tap firstCrit.randomCritsFromTap (lifetime taps)."
  },
  "producers": [
   {
