@@ -4,6 +4,8 @@ Bar stopped the session ("תעצור הכל, תרשום handoff, נמשיך עו
 their work is pushed as **WIP branches** (not merged, not deployed).
 
 ## Live (od-sevev.vercel.app)
+**Update, same day:** `c18c982` is live (web-dist `fef4282`, Vercel `dpl_AYHHV1YKofHCTLfmsVPLnNTzezhx`): main's milestones, live ₪/s and coalition UX, plus `wip/missions` and `wip/challenge-daily` merged. `wip/share-platform` is merged on main after it (`d07ed78`), not deployed. The list below is the state before.
+
 **`38f6916`** (web-dist `cc38ead`, Vercel `dpl_ByzTLVU8T2DE6WiXHWoF4SJEkkJ5`):
 - the postpone floor at 25 s of income (G1 fixed);
 - the LayerHistory race fix;
