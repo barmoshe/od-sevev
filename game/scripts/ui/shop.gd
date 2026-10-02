@@ -67,6 +67,32 @@ const THUMB_X := 0.0
 const THUMB_W := 12.0
 const SPIN_BAR_PUBLIC := "e"
 const SPIN_BAR_FRIENDLY := "O"
+## Milestones on the source card (Bar 2026-10-02: the ×2 bonuses were invisible; content
+## milestones, applied in sim/meta.gd). An owned source shows, card-local on the R side:
+## - a 2-art-px progress track under line 2 (the spin bars' slot, y 104), from the text box's left
+##   edge to 8 px clear of the owned chip, filled from the right (RTL) by owned / next;
+## - the label "12/25 ← ×2" (CARD_MS_NEXT) on the name row at the box's left edge, over the bar's
+##   goal end; where it would come within 16 px of the name, the count alone (CARD_MS_SHORT), else
+##   nothing (the bar stays);
+## - its milestone multiplier so far as a gold chip "×4" (CARD_MS_MULT) after line 2's rate.
+## Crossing a milestone pulses the card gold twice and slams the chip (×6 → ×5 → ×4); reduced
+## motion: one soft gold fade. The buy-mode row (the list's head) carries the all-sources goal:
+## line 2 "כולם ב־10 ← ×1.25" (SHOP_ALL_MS) over one segment per source, each filled by
+## min(owned, n) / n.
+const MS_BAR_Y := 104.0
+const MS_BAR_H := 8.0
+const MS_BAR_RIGHT := 564.0           # the owned chip starts at x 572
+const MS_BAR_RIGHT_WIDE := 580.0      # the buy-mode row has no owned chip
+const MS_GAP := 16.0
+const MS_SEG_GAP := 4.0
+const MS_TAG_H := 40.0
+const MS_LABEL_W := 248.0             # string-budgets card.ms
+const MS_CELEB_MS := 800.0            # two pulses (150 on, 150 off, 150 on), then the fade
+const MS_CELEB_REDUCED_MS := 400.0
+const C_MS_GOLD := Color("#ffd23a")   # Y: the pill's gold
+const C_MS_GOLD_DIM := Color("#d9a21c")   # y: on the unaffordable (slate) card
+const C_MS_INK := Color("#0f2350")    # U on the gold chip
+const C_MS_TRACK := Color(0.059, 0.137, 0.314, 0.45)   # U at 45%: a groove on the card
 
 var tab := "producers"
 ## The tall tab currently open over the panel ("" = none): its slot shows as the active one.
@@ -372,10 +398,23 @@ func _make_row(list: Node2D, k: int) -> Dictionary:
 	var bar_fr := Ui.rect(rside, Rect2(sb.position, Vector2(0, sb.size.y)), Art.col(SPIN_BAR_FRIENDLY))
 	bar_pub.visible = false
 	bar_fr.visible = false
+	# the milestone pieces (MS_*): the track and its fill, the label, the gold chip, the gold pulse
+	var ms_track := Ui.rect(rside, Rect2(SPIN_BARS.position.x, MS_BAR_Y, 8, MS_BAR_H), C_MS_TRACK)
+	var ms_fill := Ui.rect(rside, Rect2(SPIN_BARS.position.x, MS_BAR_Y, 0, MS_BAR_H), C_MS_GOLD)
+	var ms_label := PxText.make(rside, Vector2(SPIN_BARS.position.x, float(R["nameY"])), "", L.TEXT, "plain", C_MS_GOLD)
+	ms_label.max_lines = 1
+	ms_label.fit_width = MS_LABEL_W
+	var ms_tag_bg := Ui.rect(rside, Rect2(0, 0, 48, MS_TAG_H), C_MS_GOLD)
+	var ms_tag := PxText.make(rside, Vector2.ZERO, "", L.TEXT, "plain", C_MS_INK)
+	var ms_flash := Ui.rect(c, Rect2(lx, 0, lw, row_h), C_MS_GOLD, 0.0)
+	for n: CanvasItem in [ms_track, ms_fill, ms_label, ms_tag_bg, ms_tag]:
+		n.visible = false
 	c.visible = false
 	return {
 		"c": c, "panel": panel, "content": content, "rside": rside, "plate": plate, "icon": icon, "iconFlash": icon_flash,
 		"barPublic": bar_pub, "barFriendly": bar_fr, "tag": tag, "tagBg": tag_bg,
+		"msTrack": ms_track, "msFill": ms_fill, "msLabel": ms_label, "msTagBg": ms_tag_bg, "msTag": ms_tag, "msFlash": ms_flash,
+		"msSegs": [], "msMult": -1.0, "msCelebT": -1.0,
 		"name": name, "line2": line2, "owned": owned, "ownedBg": owned_bg, "pill": pill, "fill": fill, "pill1": pill1, "pill2": pill2,
 		"flash": flash, "dim": dim, "glint": glint, "index": k, "model": {"kind": "none", "id": ""}, "key": "",
 		"afford": null, "glintReadyAt": 0.0, "pressP": 0.0, "pressed": false, "shakeT": -1.0, "hopT": -1.0,
@@ -395,7 +434,7 @@ func _layout_row(v: Dictionary) -> void:
 	var grow := L.dx - _pill_g
 	(v["rside"] as Node2D).position.x = L.dx
 	(v["name"] as PxText).wrap_width = float(R["nameW"]) + grow
-	for k in ["flash", "dim"]:
+	for k in ["flash", "dim", "msFlash"]:
 		var r: ColorRect = v[k]
 		r.position = Vector2(lx, 0)
 		r.size = Vector2(lw, row_h)
@@ -662,6 +701,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	var wide := false
 	var bars: Dictionary = {}
 	var tag_s := ""
+	var ms: Dictionary = {}
 	var id: String = m["id"]
 	match String(m["kind"]):
 		"producer":
@@ -672,6 +712,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			icon = Art.sprite_or(str(ska["icon"]) if not ska.is_empty() else String(Content.producer(id).get("icon", Art.source(id).get("icon", "icon_" + id))))
 			nm = Strings.producer_name(id)
 			var owned := s.owned_of(id)
+			ms = milestone_model(owned)
 			if owned > 0:
 				line2 = Strings.s("ROW_OWNED_BPS", {"rate": Fmt.rate(float(d.producer_bps.get(id, 0.0)))})
 				owned_s = Strings.s("CARD_OWNED", {"n": Fmt.owned(owned)})
@@ -704,6 +745,11 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			afford = true
 			var bm2: Variant = s.buy_mode
 			l2 = Strings.s("BUYMODE_1" if (bm2 is int and bm2 == 1) else ("BUYMODE_10" if (bm2 is int and bm2 == 10) else "BUYMODE_MAX"))
+			# the list's head carries the all-sources goal (MS_*): its line 2 and one segment per source
+			ms = all_milestone_model(s)
+			if int(ms["next"]) > 0:
+				line2 = Strings.s("SHOP_ALL_MS", {"n": str(int(ms["next"])), "gmult": ms_mult_text(float(ms["nextMult"]))})
+			wide = true
 		_:
 			# the sim's price and buy rule (sim/README "Buy a spin"): a line's next level, S07's
 			# income-scaled price; never u.cost / s.upgrades (a consumable or a line is never there)
@@ -728,7 +774,9 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	# opacity (a 50% card would put its white text straight on white); it reads dim by its sprite,
 	# its muted icon and name, and the missing pill
 	(v["c"] as Node2D).modulate.a = teaser_alpha(int(m.get("t", 0))) if teaser else 1.0   # B9: fading down
+	var fresh := false
 	if v["key"] != key:
+		fresh = true
 		v["key"] = key
 		v["model"] = m
 		v["afford"] = null
@@ -814,6 +862,8 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 		(v["line2"] as PxText).tint = C_SIL_TEXT
 	(v["owned"] as PxText).tint = Color(0.827, 0.839, 0.875)
 	_render_bars(v, bars)
+	_watch_milestone(v, ms, fresh)
+	_render_ms(v, ms, afford)
 	var tg: PxText = v["tag"]
 	# the stamp on the ballot slip (animator wave B): a tag that appears or changes on the same card
 	# (a line's "1/5" → "2/5" after a buy, "שחוק") slams like the chat's pay-pill stamp; a card that
@@ -873,6 +923,200 @@ func _render_bars(v: Dictionary, bars: Dictionary) -> void:
 	fr.size = Vector2(wf, sb.size.y)
 
 
+## MS_*: a source's milestone state from the sim's reads ({} before the first one is owned):
+## {kind "one", owned, mult (the ×2s so far), next (-1 past the last), nextMult (that milestone's own factor)}.
+static func milestone_model(owned: int) -> Dictionary:
+	if owned <= 0:
+		return {}
+	var nxt := Meta.next_milestone(owned)
+	var nm := 1.0
+	for e: Dictionary in Content.data().get("milestones", {}).get("perProducer", []):
+		if int(e["owned"]) == nxt:
+			nm = float(e["mult"])
+			break
+	return {"kind": "one", "owned": owned, "mult": Meta.milestone_mult(owned), "next": nxt, "nextMult": nm}
+
+
+## MS_*: the all-sources goal: {kind "all", mult (so far), next (the next allProducers count above
+## the lowest owned, -1 past the last), nextMult, fracs (per source, content order: min(owned, next) / next)}.
+static func all_milestone_model(s: GameState) -> Dictionary:
+	var lo := Meta.min_owned(s)
+	var nxt := -1
+	var nm := 1.0
+	for e: Dictionary in Content.data().get("milestones", {}).get("allProducers", []):
+		if lo < int(e["owned"]):
+			nxt = int(e["owned"])
+			nm = float(e["mult"])
+			break
+	var fr: Array = []
+	if nxt > 0:
+		for pid: String in Content.producer_ids():
+			fr.append(clampf(float(s.owned_of(pid)) / float(nxt), 0.0, 1.0))
+	return {"kind": "all", "mult": Meta.all_producers_mult(s), "next": nxt, "nextMult": nm, "fracs": fr}
+
+
+## "2", "32", "1.25": a multiplier without trailing zeros (the ×N chips and labels).
+static func ms_mult_text(m: float) -> String:
+	if is_equal_approx(m, roundf(m)):
+		return str(int(roundf(m)))
+	return ("%.2f" % m).rstrip("0").rstrip(".")
+
+
+## A row whose milestone multiplier grew since the last frame (same card, same model) celebrates;
+## a row that just took a new model (a scroll, a reveal shift, a load, a new round) only learns it.
+func _watch_milestone(v: Dictionary, ms: Dictionary, fresh: bool) -> void:
+	if ms.is_empty():
+		v["msMult"] = -1.0
+		return
+	var mm := float(ms["mult"])
+	var was := float(v["msMult"])
+	v["msMult"] = mm
+	if not fresh and was > 0.0 and mm > was + 1e-9:
+		_start_ms_celeb(v)
+
+
+func _start_ms_celeb(v: Dictionary) -> void:
+	v["msCelebT"] = 0.0
+
+
+func ms_celebrating(v: Dictionary) -> bool:
+	return float(v.get("msCelebT", -1.0)) >= 0.0
+
+
+## The milestone pieces of one row (MS_*): the source's track, label and chip, or the head row's
+## segments; everything hidden on any other row.
+func _render_ms(v: Dictionary, ms: Dictionary, afford: bool) -> void:
+	var track: ColorRect = v["msTrack"]
+	var fill: ColorRect = v["msFill"]
+	var lab: PxText = v["msLabel"]
+	var tag: PxText = v["msTag"]
+	var tag_bg: ColorRect = v["msTagBg"]
+	var kind := str(ms.get("kind", ""))
+	var nxt := int(ms.get("next", -1))
+	var R: Dictionary = L.ROW
+	var box_l := float(R["nameRight"]) - float(R["nameW"]) - (L.dx - _pill_g)   # the text box's left edge (220 − grow)
+	var gold := C_MS_GOLD if afford else C_MS_GOLD_DIM
+	# a crossing (not under reduced motion): the bar shows the goal reached, full and pale, for the
+	# two pulses, then drops to the next goal's progress
+	var full := ms_celebrating(v) and not reduced_motion and float(v["msCelebT"]) < 450.0
+	var bar_col := Art.col("w") if full else gold
+	_render_segments(v, Rect2(box_l, MS_BAR_Y, MS_BAR_RIGHT_WIDE - box_l, MS_BAR_H), ms.get("fracs", []) if (kind == "all" and nxt > 0) else [], bar_col, full)
+	var one := kind == "one"
+	track.visible = one and nxt > 0
+	fill.visible = track.visible
+	lab.visible = false
+	tag.visible = false
+	tag_bg.visible = false
+	if kind == "all":
+		(v["line2"] as PxText).tint = gold
+		return
+	if not one:
+		return
+	if nxt > 0:
+		var bar := Rect2(box_l, MS_BAR_Y, MS_BAR_RIGHT - box_l, MS_BAR_H)
+		track.position = bar.position
+		track.size = bar.size
+		var w := bar.size.x if full else Ui.snap(bar.size.x * clampf(float(ms["owned"]) / float(nxt), 0.0, 1.0), 4)
+		fill.position = Vector2(L.bar_x(bar, w), bar.position.y)
+		fill.size = Vector2(w, bar.size.y)
+		fill.color = bar_col
+		# the label: the full form where it clears the name by 16, else the count, else nothing
+		var nm: PxText = v["name"]
+		var room := float(R["nameRight"]) - (float(nm.width()) if nm.text != "" else 0.0) - MS_GAP - box_l
+		var p := {"owned": Fmt.owned(int(ms["owned"])), "next": str(nxt), "mult": ms_mult_text(float(ms["nextMult"]))}
+		for k: String in ["CARD_MS_NEXT", "CARD_MS_SHORT"]:
+			lab.text = Strings.s(k, p)
+			if float(lab.width()) <= room:
+				lab.visible = true
+				break
+		lab.h_anchor = 0
+		lab.position = Vector2(box_l, float(R["nameY"]))
+		lab.tint = gold
+	var mm := float(ms["mult"])
+	if mm <= 1.0 + 1e-9:
+		return
+	# the chip: after line 2's rate in reading order (to its left), 12 px clear of it; where a long
+	# rate leaves no room, the name row's left slot when the label is not using it (past the last
+	# milestone it never is); else no chip (the rate already includes it)
+	tag.text = Strings.s("CARD_MS_MULT", {"mult": ms_mult_text(mm)})
+	var l2: PxText = v["line2"]
+	var cw := maxf(48.0, Ui.snap(float(tag.width()) + 16.0, 4))
+	var cx := floorf((l2.position.x - float(l2.width()) - 12.0 - cw) / 4.0) * 4.0
+	var cy := float(R["line2Y"]) - 4.0
+	if cx < box_l:
+		var nmw := float((v["name"] as PxText).width())
+		if lab.visible or box_l + cw + MS_GAP > float(R["nameRight"]) - nmw:
+			return
+		cx = box_l
+		cy = float(R["nameY"]) - 4.0
+	v["msTagRect"] = Rect2(cx, cy, cw, MS_TAG_H)
+	tag.visible = true
+	tag_bg.visible = true
+	tag_bg.color = gold
+	_place_ms_tag(v)
+
+
+## The chip at rest, or at its slam step while a crossing plays (×6 → ×5 → ×4 over 90 ms, the
+## backing growing around its centre in 4-px steps, as the spin slip's stamp).
+func _place_ms_tag(v: Dictionary) -> void:
+	var r: Rect2 = v.get("msTagRect", Rect2())
+	var tag: PxText = v["msTag"]
+	var bg: ColorRect = v["msTagBg"]
+	var px := tag_slam_px(float(v["msCelebT"])) if (ms_celebrating(v) and not reduced_motion) else L.TEXT
+	var c := r.get_center()
+	var sz := Vector2(Ui.snap(r.size.x * float(px) / float(L.TEXT), 4), Ui.snap(r.size.y * float(px) / float(L.TEXT), 4))
+	bg.position = Vector2(Ui.snap(c.x - sz.x / 2.0, 4), Ui.snap(c.y - sz.y / 2.0, 4))
+	bg.size = sz
+	if tag.px != px:
+		tag.px = px
+	tag.center_in(bg.position.x, bg.size.x)
+	tag.position.y = bg.position.y + Ui.snap((sz.y - 9.0 * float(tag.eff_px())) / 2.0, 2)
+
+
+## The head row's segments: one per source, right to left in content order (RTL), 4 px apart.
+func _render_segments(v: Dictionary, bar: Rect2, fracs: Array, col: Color, full: bool) -> void:
+	var segs: Array = v["msSegs"]
+	var n := fracs.size()
+	var rside: Node2D = v["rside"]
+	while segs.size() < n:
+		var tr := Ui.rect(rside, Rect2(0, MS_BAR_Y, 8, MS_BAR_H), C_MS_TRACK)
+		var fl := Ui.rect(rside, Rect2(0, MS_BAR_Y, 0, MS_BAR_H), C_MS_GOLD)
+		segs.append([tr, fl])
+	for i in segs.size():
+		for r: ColorRect in segs[i]:
+			r.visible = i < n
+	if n == 0:
+		return
+	var sw := floorf((bar.size.x - MS_SEG_GAP * float(n - 1)) / float(n) / 4.0) * 4.0
+	for i in n:
+		var x := bar.end.x - float(i + 1) * sw - float(i) * MS_SEG_GAP if L.RTL else bar.position.x + float(i) * (sw + MS_SEG_GAP)
+		var seg := Rect2(x, bar.position.y, sw, bar.size.y)
+		var tr: ColorRect = segs[i][0]
+		var fl: ColorRect = segs[i][1]
+		tr.position = seg.position
+		tr.size = seg.size
+		var w := sw if full else Ui.snap(sw * float(fracs[i]), 4)
+		fl.position = Vector2(L.bar_x(seg, w), seg.position.y)
+		fl.size = Vector2(w, seg.size.y)
+		fl.color = col
+
+
+## The gold pulse's alpha `t` ms into a crossing: on 150, off 150, on 150, then a 350-ms fade
+## (two flashes in 0.8 s, under the three-a-second line). Reduced motion: one 400-ms fade.
+static func ms_pulse_alpha(t: float, reduced: bool) -> float:
+	if t < 0.0:
+		return 0.0
+	if reduced:
+		return 0.4 * maxf(0.0, 1.0 - t / MS_CELEB_REDUCED_MS)
+	if t < 150.0:
+		return 0.5
+	if t < 300.0:
+		return 0.0
+	if t < 450.0:
+		return 0.4
+	return 0.4 * maxf(0.0, 1.0 - (t - 450.0) / (MS_CELEB_MS - 450.0))
+
+
 ## A spin card's line 2 (rtl-map §6.1): the effect label; S08 (the split bars) at level ≥ 1 reads
 ## SPIN_BARS_LINE "ערוץ ידידותי: {pct}%" instead, naming the part of the bar that grows (R14).
 static func spin_line2(id: String, card: Dictionary) -> String:
@@ -911,6 +1155,16 @@ func _start_hello(v: Dictionary) -> void:
 
 
 func _animate_row(v: Dictionary, dt_ms: float) -> void:
+	if ms_celebrating(v):
+		v["msCelebT"] = float(v["msCelebT"]) + dt_ms
+		var tc: float = v["msCelebT"]
+		var mf: ColorRect = v["msFlash"]
+		mf.color.a = ms_pulse_alpha(tc, reduced_motion)
+		if tc >= (MS_CELEB_REDUCED_MS if reduced_motion else MS_CELEB_MS):
+			v["msCelebT"] = -1.0
+			mf.color.a = 0.0
+		if (v["msTag"] as PxText).visible:
+			_place_ms_tag(v)
 	if float(v.get("tagSlam", -1.0)) >= 0.0:
 		v["tagSlam"] = float(v["tagSlam"]) + dt_ms
 		if float(v["tagSlam"]) >= 3.0 * TAG_SLAM_STEP_MS:
@@ -1447,3 +1701,6 @@ func reset_run() -> void:
 		for r: Dictionary in _rows[t]:
 			r["key"] = ""
 			r["afford"] = null
+			r["msMult"] = -1.0
+			r["msCelebT"] = -1.0
+			(r["msFlash"] as ColorRect).color.a = 0.0

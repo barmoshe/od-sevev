@@ -47,6 +47,8 @@ BOXES = {
     "card.line2wide": (360, 4, 1, 2, "Card line 2 when no owned badge shows, x 220-580"),
     "card.pill":      (168, 4, 1, 1, "Pill line (verb or price), pill 184 wide"),
     "card.owned":     (96, 4, 1, 1, "Owned badge on the plate corner (PxText)"),
+    "card.ms":        (248, 4, 1, 1, "Source milestone progress on the name row, left-aligned at the text box's left edge (x 220 - grow); drawn only where it clears the name by 16, else the short form, else not at all (the bar under line 2 stays)"),
+    "card.msTag":     (72, 4, 1, 1, "Source milestone multiplier: the gold chip after line 2's rate (chip = text + 16, min 48, h 40)"),
     "perk.level":     (120, 4, 1, 1, "Clause level on an agreement row (PxText)"),
     "list.buyLabel":  (384, 4, 1, 2, "Buy-mode row label"),
     "list.buyBtn":    (168, 4, 1, 1, "Buy-mode button (visual 184)"),
@@ -119,7 +121,7 @@ PH = {
     "pmult": "999.9", "s": "60", "d": "29", "h": "24", "m": "59", "mmss": "88:88", "owned": "999",
     "qty": "99", "pending": "9999", "needed": "9999", "seats": "99", "version": "1.10.10",
     "date": "28.09.2026", "pct": "100", "k": "12", "lv": "10", "max": "10", "count": "9", "total": "5",
-    "thumbs": "9999", "now": "999.9", "after": "999.9", "next": "999", "r": "99", "c": "99",
+    "thumbs": "9999", "gmult": "9.99", "now": "999.9", "after": "999.9", "next": "999", "r": "99", "c": "99",
     "name": "גלית דיסטל־אטבריאן", "a": "אמסלם", "b": "סמוטריץ׳", "who": "היועצים המשפטיים",
     "to": "עוצמה יהודית", "from": "הליכוד", "era": "וושינגטון", "outlet": "ידיעות אחרונות",
     "NAME": "פנקס הצ׳קים הזהוב", "UPGRADE_NAME": "הוחלט להקים ועדה", "FLAVOR": "",
@@ -128,7 +130,7 @@ PH = {
 }
 NUMERIC_PH = {"n", "price", "x", "xr", "rate", "cost", "mult", "pmult", "s", "d", "h", "m", "mmss", "owned",
               "qty", "pending", "needed", "seats", "version", "date", "pct", "k", "lv", "max", "count",
-              "total", "thumbs", "now", "after", "next", "r", "c"}
+              "total", "thumbs", "gmult", "now", "after", "next", "r", "c"}
 
 HEB = re.compile(r"[א-ת]")
 
@@ -211,7 +213,7 @@ e("ROW_NEED", "חסר", "card.pill")
 e("ROW_COST", "⟦{cost}⟧~₪", "card.pill")
 e("ROW_OWNED", "×{owned}", "card.owned")
 e("ROW_OWNED_BPS", "⟦+{rate}⟧~₪ לשנייה", "card.line2", "", "card.yield", "The owned count is its own node (CARD_OWNED)")
-e("ROW_OWNED_NEXT", "{owned}/{next}", "unused", note="No milestone counter on the card at x4; milestones announce on the ticker (F_MILESTONE)")
+e("ROW_OWNED_NEXT", "{owned}/{next}", "unused", note="Superseded by CARD_MS_NEXT / CARD_MS_SHORT (the card's milestone label, Bar 2026-10-02)")
 e("ROW_LOCKED_NAME", "מקור עלום", "card.name", "*", "card.locked.name")
 e("ROW_TEASER_HINT", "עוד מקורות ייפתחו", "card.name", "", "card.teaser.hint", "B9 (mobile-first §5.4): the name line of the first teaser row only (ui_panel on the pale slip); the teasers under it are wordless slips fading down")
 e("UPG_EMPTY_1", "אין ספינים כרגע.", "list.empty")
@@ -422,6 +424,10 @@ e("CARD_VERB_MORE", "עוד אחד", "card.pill", "*", "card.buy.more (pill line
 e("CARD_PRICE", "⟦{price}⟧~₪", "card.pill", "", "pill line 2")
 e("CARD_YIELD", "⟦+{n}⟧~₪ לשנייה", "card.line2", "", "card.yield")
 e("CARD_OWNED", "×{n}", "card.owned", "", "card.owned")
+e("CARD_MS_NEXT", "⟦{owned}/{next}⟧ ← ⟦×{mult}⟧", "card.ms", "", "new: source milestone", "Bar 2026-10-02: owned / the next content milestones.perProducer count, then that milestone's own factor; the arrow points the reading direction. Gold on the card's name row over the progress bar's goal end")
+e("CARD_MS_SHORT", "⟦{owned}/{next}⟧", "card.ms", "", "new: source milestone", "CARD_MS_NEXT's fallback where the full form would come within 16 px of a long name")
+e("CARD_MS_MULT", "×{mult}", "card.msTag", "", "new: source milestone", "The source's milestone multiplier so far (shown when > 1), a gold chip after its rate")
+e("SHOP_ALL_MS", "כולם ב־⟦{n}⟧ ← ⟦×{gmult}⟧", "card.line2wide", "", "new: all-sources milestone", "Line 2 of the buy-mode row (the list's head): every source at {n} multiplies all income by {gmult} (content milestones.allProducers); one bar segment per source under it")
 e("CARD_SHADY_TAG", "מעלה חשד", "html:12", "", "new", "Accessible label of the magnifier badge on shady cards; the badge shape is the non-colour channel")
 e("CARD_LOCKED_CAP", "יתגלה כשיהיה מספיק", "card.line2wide", "", "card.locked.cap")
 e("BUYMODE_LABEL", "כמות בכל קנייה", "list.buyLabel", "", "rtl-map §6.1")

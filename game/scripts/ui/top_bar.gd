@@ -29,6 +29,24 @@ const RATE_DIM_AFTER_MS := 3000.0
 ## rate green #8fe052 at 0.6 blends to #569d7b, 2.9:1 (fails AA); at 0.9 it is #81cf5c, 4.9:1
 ## (UX review 2026-09-30, U4).
 const RATE_DIM_ALPHA := 0.9
+## The live rate (Bar 2026-10-02: "the money per second on screen should follow the tap speed"):
+## the line shows the passive rate PLUS what taps actually paid lately (Economy.tap's value, crits
+## and frenzies included, manual and auto taps; note_tap()). The taps' rate is their sum over the
+## last TAP_WINDOW_MS, divided by the window (or by the burst's age, at least TAP_MIN_SPAN_MS, while
+## a burst is younger than the window, so it rises within a second), then smoothed (exponential,
+## TAP_SMOOTH_MS). After the last tap it slides to 0 as the taps leave the window and is exactly 0
+## by TAP_ZERO_MS. Display only: nothing in the sim reads it (prices, away pay and the bench still
+## read Economy.Derived.bps). The text changes at most every RATE_TEXT_MS (5 a second) and only by
+## more than RATE_DEADBAND of itself, so the digits don't shimmer; while taps carry at least
+## TAP_CUE_SHARE of it, the line takes the tap tint (pale gold) at full alpha.
+const TAP_WINDOW_MS := 2000.0
+const TAP_MIN_SPAN_MS := 1000.0
+const TAP_SMOOTH_MS := 300.0
+const TAP_ZERO_MS := 3000.0
+const RATE_TEXT_MS := 200.0
+const RATE_DEADBAND := 0.02
+const TAP_CUE_SHARE := 0.15
+const C_RATE_TAP := Color("#fff3a0")   # h: pale gold on flag blue (12.6:1)
 
 var reduced_motion := false
 var evo_state := "hidden"          # kept for the controller's API; the Evolve button is gone
@@ -61,6 +79,18 @@ var _rate_changed_at := -1e9
 var _prev_rate := -1.0
 var _frenzy := false
 var _bps_hop: Array = []
+# the live rate (TAP_*): the window's taps [t_ms, value], their sum, the burst's start, the last tap
+var _taps: Array = []
+var _tap_sum := 0.0
+var _burst_at := -1e9
+var _last_tap_at := -1e9
+var _tap_rate := 0.0               # smoothed ₪/s from taps
+var _tap_shown := 0.0              # the tap part the text shows (throttled, dead-banded)
+var _rate_text_at := -1e9
+var _passive := 0.0                # rate_bps × frenzy_mult from the last set_bps
+var _base_bps := 0.0
+var _frenzy_mult := 1.0
+var _pour := false
 var _track: NinePatchRect
 var _fill: NinePatchRect
 var _goal: NinePatchRect
@@ -349,20 +379,22 @@ func roll_bank(award: float) -> void:
 
 
 ## `pour`: S07 (idleToTap) is live, so passive income is 0 and every tap pours it instead. The
-## line then reads HUD_BPS_POUR in the frenzy tint rather than "+0.0 ₪ לשנייה" (review R24).
+## line then reads HUD_BPS_POUR in the frenzy tint rather than "+0.0 ₪ לשנייה" (review R24); while
+## taps are paying it shows what they pay (the live rate) in the same tint.
+## The hop and the juiceGain tint answer the PASSIVE rate only (a buy, a frenzy): the taps' part
+## moves the number, never the hop (TAP_*).
 func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
-	var th := Art.theme
-	var rb0: Rect2 = rate_box()
+	var changed := pour != _pour or rate_bps != _base_bps or frenzy_mult != _frenzy_mult or bps.text == ""
+	_base_bps = rate_bps
+	_frenzy_mult = frenzy_mult
+	_pour = pour
 	if pour:
 		_frenzy = true
 		_prev_rate = -1.0
-		bps.text = Strings.s("HUD_BPS_POUR")
-		bps.center_in(rb0.position.x, rb0.size.x)
-		bps.tint = Art.col(th["statText"]["bpsFrenzy"])
-		bps.self_modulate.a = 1.0
+		_passive = 0.0
+		_render_rate(changed)
 		return
 	var rate := rate_bps * frenzy_mult
-	var rb: Rect2 = rate_box()
 	if _prev_rate >= 0.0 and absf(rate - _prev_rate) > 1e-9:
 		_rate_changed_at = _now
 		if rate > _prev_rate:
@@ -373,20 +405,91 @@ func set_bps(rate_bps: float, frenzy_mult: float, pour: bool = false) -> void:
 					func() -> void: bps.position.y = y0)
 	_prev_rate = rate
 	_frenzy = frenzy_mult > 1.0
-	if _frenzy:
-		var m := str(int(frenzy_mult)) if is_equal_approx(frenzy_mult, roundf(frenzy_mult)) else str(frenzy_mult)
-		bps.text = Strings.s("HUD_BPS_FRENZY", {"rate": Fmt.rate(rate), "mult": m})
+	_passive = rate if _frenzy else rate_bps   # as before: the plain line shows the unmultiplied bps
+	_render_rate(changed)
+
+
+## One paid tap (manual or auto, crit and frenzy included): Economy.tap's value. Display only.
+func note_tap(value: float) -> void:
+	if not (value > 0.0) or is_inf(value) or is_nan(value):
+		return
+	if _taps.is_empty():
+		_burst_at = _now
+	_taps.append([_now, value])
+	_tap_sum += value
+	_last_tap_at = _now
+
+
+## The taps' smoothed ₪/s now (tests, window.odDev).
+func tap_rate() -> float:
+	return _tap_rate
+
+
+## The rate the line shows now: the passive part + the taps' part (as last drawn).
+func shown_rate() -> float:
+	return _tap_shown if _pour else _passive + _tap_shown
+
+
+## TAP_*: drop the taps older than the window, then ease the smoothed rate toward the window's.
+func _tick_taps(dt_ms: float) -> void:
+	while not _taps.is_empty() and _now - float(_taps[0][0]) >= TAP_WINDOW_MS:
+		_tap_sum -= float(_taps[0][1])
+		_taps.pop_front()
+	var raw := 0.0
+	if _taps.is_empty():
+		_tap_sum = 0.0
 	else:
-		bps.text = Strings.s("HUD_BPS", {"rate": Fmt.rate(rate_bps)})
+		raw = maxf(0.0, _tap_sum) / (clampf(_now - _burst_at, TAP_MIN_SPAN_MS, TAP_WINDOW_MS) / 1000.0)
+	if _now - _last_tap_at >= TAP_ZERO_MS:
+		_tap_rate = 0.0
+	else:
+		_tap_rate += (raw - _tap_rate) * (1.0 - exp(-maxf(0.0, dt_ms) / TAP_SMOOTH_MS))
+
+
+func _tap_cue() -> bool:
+	return _tap_shown > 0.0 and _tap_shown >= TAP_CUE_SHARE * shown_rate()
+
+
+## Draws the line from the stored passive rate and the taps' part. `force` (the passive rate or
+## the mode changed) redraws now; otherwise the taps' part changes at most every RATE_TEXT_MS and
+## only past the dead band (or to exactly 0).
+func _render_rate(force: bool) -> void:
+	if force or _now - _rate_text_at >= RATE_TEXT_MS:
+		var old := shown_rate()
+		var want := _tap_rate
+		var total := want if _pour else _passive + want
+		if force or (want == 0.0 and _tap_shown != 0.0) or absf(total - old) > RATE_DEADBAND * maxf(old, 1e-6):
+			if want != _tap_shown:
+				_rate_text_at = _now
+			_tap_shown = want
+	var th := Art.theme
+	var rb: Rect2 = rate_box()
+	if _pour:
+		bps.text = Strings.s("HUD_BPS", {"rate": Fmt.rate(_tap_shown)}) if _tap_shown > 0.0 else Strings.s("HUD_BPS_POUR")
+		bps.center_in(rb.position.x, rb.size.x)
+		bps.tint = Art.col(th["statText"]["bpsFrenzy"])
+		bps.self_modulate.a = 1.0
+		return
+	var shown := shown_rate()
+	if _frenzy:
+		var m := str(int(_frenzy_mult)) if is_equal_approx(_frenzy_mult, roundf(_frenzy_mult)) else str(_frenzy_mult)
+		bps.text = Strings.s("HUD_BPS_FRENZY", {"rate": Fmt.rate(shown), "mult": m})
+	else:
+		bps.text = Strings.s("HUD_BPS", {"rate": Fmt.rate(shown)})
 	bps.center_in(rb.position.x, rb.size.x)
-	var tint: Variant = th["statText"]["bpsFrenzy"] if _frenzy else (th["juiceGain"] if _now < _bps_tint_until else th["statText"]["bps"])
-	bps.tint = Art.col(tint)
-	# 100% for 3 s after a change, then 60% (first-minute §3.2 #1b)
-	bps.self_modulate.a = 1.0 if (_frenzy or _now - _rate_changed_at < RATE_DIM_AFTER_MS) else RATE_DIM_ALPHA
+	var cue := _tap_cue()
+	bps.tint = Art.col(th["statText"]["bpsFrenzy"]) if _frenzy else (C_RATE_TAP if cue else Art.col(th["juiceGain"] if _now < _bps_tint_until else th["statText"]["bps"]))
+	# 100% for 3 s after a change (and while taps carry it), then the settled alpha (first-minute §3.2 #1b)
+	bps.self_modulate.a = 1.0 if (_frenzy or cue or _now - _rate_changed_at < RATE_DIM_AFTER_MS) else RATE_DIM_ALPHA
 
 
 func reset_rate() -> void:
 	_prev_rate = -1.0
+	_taps.clear()
+	_tap_sum = 0.0
+	_tap_rate = 0.0
+	_tap_shown = 0.0
+	_last_tap_at = -1e9
 
 
 # ------------------------------------------------------------------ Row B seats
@@ -475,8 +578,9 @@ func update_view(dt_ms: float) -> void:
 		if p >= 1.0:
 			_pop_t = -1.0
 			bank.scale = Vector2.ONE
-	if _rate_on and not _frenzy and _now - _rate_changed_at >= RATE_DIM_AFTER_MS:
-		bps.self_modulate.a = RATE_DIM_ALPHA
+	_tick_taps(dt_ms)
+	if bps.text != "":
+		_render_rate(false)   # the live rate's throttled redraw (TAP_*); also settles the alpha
 	# the width guard: the counter or the rate line grew into the name's slot (or left it again)
 	if _id_on and _name_want and (_name_tw == null or not _name_tw.is_running()) and leader_name.visible != name_fits():
 		_apply_identity(not reduced_motion)

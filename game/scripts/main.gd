@@ -1387,6 +1387,7 @@ func _run_automation(dt: float, modal: bool) -> void:
 		while _auto_tap_acc >= 1.0:
 			_auto_tap_acc -= 1.0
 			var r := Economy.tap(state)
+			top_bar.note_tap(float(r["value"]))   # the live rate line (display only)
 			bb.tap(r["crit"])
 			floaters.spawn(L.magician_hit().get_center().x + randf_range(-60, 60), L.magician_hit().get_center().y - 40.0,
 				Strings.s("FLOATER_CRIT" if r["crit"] else "FLOATER", {"n": Fmt.amount(float(r["value"]))}), r["crit"], state.buff_tap_frenzy > 0.0)
@@ -2310,6 +2311,7 @@ func _handle_tap(at: Vector2) -> void:
 			toasts.show_toast(LeaderUi.tap_paused_line(state), "", "lane", func() -> bool: return d.taps_paused)
 		return
 	var crit: bool = r["crit"]
+	top_bar.note_tap(float(r["value"]))   # the live rate line (display only)
 	if state.buff_tap_frenzy > 0.0:
 		_tap_frenzy_taps += 1
 		state.stats["bestTapFrenzyTaps"] = maxf(float(state.stats.get("bestTapFrenzyTaps", 0.0)), float(_tap_frenzy_taps))
