@@ -444,6 +444,38 @@ func test_round_time_unlocks_and_their_scale() -> void:
 	runner.check(Coalition._next_join(s, {}) == "smotrich", "two elections later: 100 × 0.9² = 81 s")
 	s.run_time_sec = 80.0
 	runner.check(Coalition._next_join(s, {}) != "smotrich", "and not before")
+	# unlockTimeScaleMin: the clock eases toward a floor instead of to zero (later rounds get faster
+	# and never collapse): 100 × (0.5 + 0.5 × 0.8²) = 82 s after two elections, ≥ 50 s forever.
+	Content.data()["coalition"]["unlockTimeScalePerElection"] = 0.8
+	Content.data()["coalition"]["unlockTimeScaleMin"] = 0.5
+	s.run_time_sec = 82.0
+	runner.check(Coalition._next_join(s, {}) == "smotrich", "eased: 100 × (0.5 + 0.5 × 0.8²) = 82 s")
+	s.run_time_sec = 81.5
+	runner.check(Coalition._next_join(s, {}) != "smotrich", "and not before 82 s")
+	var prev := 2.0
+	for n in 40:
+		var f := Coalition.time_scale(n)
+		runner.check(f <= prev and f >= 0.5, "the clock factor falls every election and stays ≥ the floor (n %d: %.3f)" % [n, f])
+		prev = f
+
+
+func test_demand_seconds_ease_per_election() -> void:
+	# demandSecScalePerElection / demandSecScaleMin: a veteran's deals cost fewer seconds of income,
+	# so the coalition does not eat the speed the base buys (the 45 s demand is round 1's price).
+	var s := _with(["bengvir"], 0.0, 0, true)
+	s.owned[_p1()] = 400
+	var d := Economy.derive(s)
+	var p0 := Coalition.demand_price(s, "bengvir", d)
+	runner.check(d.bps * Coalition._num("demandSec", 45.0) > Coalition._num("minPrice", 10.0) * 2.0, "the test state earns above the price floor (%s/s)" % d.bps)
+	Content.data()["coalition"]["demandSecScalePerElection"] = 0.8
+	Content.data()["coalition"]["demandSecScaleMin"] = 0.5
+	runner.check(Coalition.demand_price(s, "bengvir", d) == p0, "round 1 pays the full demandSec")
+	s.evolutions = 1
+	var want := ceilf(maxf(Coalition._num("minPrice", 10.0), Coalition._num("demandSec", 45.0) * 0.9 * d.bps))
+	runner.check(is_equal_approx(Coalition.demand_price(s, "bengvir", d), want), "after one election: × (0.5 + 0.5 × 0.8) = 0.9 (%s)" % want)
+	runner.check(is_equal_approx(Coalition.price_scale(60), 0.5 + 0.5 * pow(0.8, 60)), "and it eases toward the floor, never below")
+	Content.data()["coalition"].erase("demandSecScalePerElection")
+	runner.check(Coalition.price_scale(5) == 1.0, "without the key the price never eases")
 
 
 func test_lines_variants_rotate_without_repeats() -> void:

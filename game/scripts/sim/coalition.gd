@@ -280,20 +280,22 @@ static func c1_ready(s: GameState) -> bool:
 		and s.bananas >= _num("firstDemandPrice", 60.0)
 
 
-## demandSec seconds of current ₪/s × priceMult × priceGrowth^level (Goldknopf), at least minPrice.
+## demandSec seconds of current ₪/s (× price_scale: fewer seconds each election) × priceMult ×
+## priceGrowth^level (Goldknopf), at least minPrice.
 ## A ceremony (Regev) costs nothing. Whole shekels, rounded up.
 static func demand_price(s: GameState, id: String, d: Economy.Derived) -> float:
 	var p := partner(id)
 	if p.get("demandKind", "money") == "ceremony":
 		return 0.0
 	var lv := int(_c(s)["levels"].get(id, 0))
-	var v := _num("demandSec", 45.0) * d.bps * float(p.get("priceMult", 1.0)) * pow(float(p.get("priceGrowth", 1.0)), lv)
+	var sec := _num("demandSec", 45.0) * price_scale(s.evolutions)
+	var v := sec * d.bps * float(p.get("priceMult", 1.0)) * pow(float(p.get("priceGrowth", 1.0)), lv)
 	# Golan's merge: one demand stream for the pair, at the higher of their prices.
 	for cid: Variant in ps(s, id)["carry"]:
 		if status(s, str(cid)) == "merged":
 			var q := partner(str(cid))
 			var lq := int(_c(s)["levels"].get(str(cid), 0))
-			v = maxf(v, _num("demandSec", 45.0) * d.bps * float(q.get("priceMult", 1.0)) * pow(float(q.get("priceGrowth", 1.0)), lq))
+			v = maxf(v, sec * d.bps * float(q.get("priceMult", 1.0)) * pow(float(q.get("priceGrowth", 1.0)), lq))
 	# The p_deal perk (demandDiscountPct) and Smotrich's "אין כסף" (adds to it).
 	var disc := clampf(Meta.effect_value(s, "demandDiscountPct") + Leaders.demand_discount_pct(), 0.0, 90.0)
 	if disc > 0.0:
@@ -314,7 +316,9 @@ static func next_price(s: GameState, id: String, d: Economy.Derived) -> float:
 ## A partner's unlock with coalition.unlockScalePerElection applied: runBananasAtLeast grows
 ## ×scale per election, so each round asks for more earnings than the last (the Designer's rule).
 ## Also coalition.unlockTimeScalePerElection: runSecAtLeast (round time, the arrival cadence)
-## × scale^evolutions, never below unlockTimeMinGapSec × the partner's place in line.
+## eases per election toward coalition.unlockTimeScaleMin (the share of the round-1 clock a late
+## round keeps): × (min + (1 - min) × scale^evolutions). Without unlockTimeScaleMin (0) it is the
+## plain scale^evolutions. Each round is faster than the last, and no round collapses.
 static func unlock_of(s: GameState, p: Dictionary) -> Dictionary:
 	var u: Variant = p.get("unlock", {})
 	if not u is Dictionary:
@@ -327,8 +331,28 @@ static func unlock_of(s: GameState, p: Dictionary) -> Dictionary:
 		out["runBananasAtLeast"] = float(u["runBananasAtLeast"]) * pow(scale, s.evolutions)
 	var tscale := _num("unlockTimeScalePerElection", 1.0)
 	if tscale != 1.0 and out.has("runSecAtLeast"):
-		out["runSecAtLeast"] = float(u["runSecAtLeast"]) * pow(tscale, s.evolutions)
+		out["runSecAtLeast"] = float(u["runSecAtLeast"]) * time_scale(s.evolutions)
 	return out
+
+
+## The round-clock factor on runSecAtLeast after `evolutions` elections: min + (1 - min) × scale^n.
+static func time_scale(evolutions: int) -> float:
+	return _ease(evolutions, "unlockTimeScalePerElection", "unlockTimeScaleMin")
+
+
+## The price factor on demandSec / poachSec after `evolutions` elections (a veteran's deals cost
+## fewer seconds of income): min + (1 - min) × demandSecScalePerElection^n; 1 when the key is absent.
+static func price_scale(evolutions: int) -> float:
+	return _ease(evolutions, "demandSecScalePerElection", "demandSecScaleMin")
+
+
+## min + (1 - min) × scale^n: eases from 1 toward `min` per election (min 0: the plain scale^n).
+static func _ease(evolutions: int, scale_key: String, min_key: String) -> float:
+	var sc := _num(scale_key, 1.0)
+	if sc == 1.0 or evolutions <= 0:
+		return 1.0
+	var lo := clampf(_num(min_key, 0.0), 0.0, 1.0)
+	return lo + (1.0 - lo) * pow(sc, evolutions)
 
 
 static func message(s: GameState, seq: int) -> Dictionary:
@@ -620,7 +644,7 @@ static func _post_join(s: GameState, id: String, d: Economy.Derived, rng: Callab
 	if p.get("rebel", false):
 		# Almog Cohen: "הוסר על ידי מנהל" elsewhere, waiting to be poached (deck §E).
 		st["status"] = "removed"
-		var price := ceilf(maxf(_num("minPrice", 10.0), _num("poachSec", 60.0) * d.bps))
+		var price := ceilf(maxf(_num("minPrice", 10.0), _num("poachSec", 60.0) * price_scale(s.evolutions) * d.bps))
 		_sys(s, "chat.sys.removed", {"partner": id, "payable": "poach", "price": price, "state": "open"}, out)
 		return
 	st["status"] = "pending"

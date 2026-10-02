@@ -681,10 +681,13 @@
   "negotiation": {
    "demandGapMult": 0.6
   },
-  "unlockScalePerElection": 5,
-  "unlockTimeScalePerElection": 0.9,
-  "_unlockScalePerElection": "Money: a partner's runBananasAtLeast × 5^evolutions, so each round asks for more earnings than the last. Time: the late partners also carry runSecAtLeast (the arrival cadence, pitch §9 'every ~90 s at first'), × 0.9^evolutions, so the round clock sets a floor that eases 10% per election (pitch §11 Q8 note: 'base growth makes later rounds faster'). Measured by tools/balance.sh (PacingSim on the shipped code); design/sim/economy-sim.mjs is retired as non-authoritative.",
-  "_tuning": "Retuned 2026-09-29 against tools/balance.sh (the sim developer's objection, STATUS.md). Early partners (bengvir, regev 1K, smotrich 2.5K, levin 6K, amsalem 9K) keep the pitch §5 first-five-minutes beats; the late ones unlock at L = 225K run earnings × (goldknopf 1, gotliv 1.1, distel 1.2, gafni 1.3, abbas 1.5, deri 1.6, maygolan 2, almog 2.5) and not before round time 4:00-7:00. Bench, seed 7: first election median 8:01 (1.5 taps/s), engaged 7:28, casual 7:35, idle 10:07; median rounds 2-5 4:30, 5:37, 4:05, 4:50. Across seeds 1-9 the median lands 7:34-8:25. Gates and sources: design/progression-curve.md §0."
+  "unlockScalePerElection": 2,
+  "unlockTimeScalePerElection": 0.6,
+  "unlockTimeScaleMin": 0.58,
+  "demandSecScalePerElection": 0.5,
+  "demandSecScaleMin": 0.1,
+  "_unlockScalePerElection": "Each election makes the next round faster (the idle-genre rule; pitch §11 Q8 note: 'base growth makes later rounds faster'). Time: the late partners carry runSecAtLeast (the arrival cadence, pitch §9), × (unlockTimeScaleMin + (1 - min) × unlockTimeScalePerElection^evolutions) = 0.58 + 0.42 × 0.6^n, so the round clock eases toward 58% of round 1's and never collapses (gotliv's 5:00 floors at 2:54). Price: a demand costs demandSec × (demandSecScaleMin + (1 - min) × demandSecScalePerElection^n) = 45 s × (0.1 + 0.9 × 0.5^n) of income (also poachSec; rejoins follow), because a price in seconds of income never shrinks with the base: at a flat 45 s the late rounds spent 1-2 min paying the queue and walked into ultimatums. Money: runBananasAtLeast × 2^evolutions, below the base's growth so earnings never gate a late round (at × 5^n they caught up again by round 14). Measured by tools/balance.sh S8 (design/progression-curve.md §0); design/sim/economy-sim.mjs is retired as non-authoritative.",
+  "_tuning": "Retuned 2026-09-29 against tools/balance.sh (the sim developer's objection, STATUS.md). Early partners (bengvir, regev 1K, smotrich 2.5K, levin 6K, amsalem 9K) keep the pitch §5 first-five-minutes beats; the late ones unlock at L = 225K run earnings × (goldknopf 1, gotliv 1.1, distel 1.2, gafni 1.3, abbas 1.5, deri 1.6, maygolan 2, almog 2.5) and not before round time 4:00-7:00. Bench, seed 7: first election median 8:01 (1.5 taps/s), engaged 7:28, casual 7:35, idle 10:07; median rounds 2-5 4:30, 5:37, 4:05, 4:50. Across seeds 1-9 the median lands 7:34-8:25. Gates and sources: design/progression-curve.md §0. Retuned 2026-10-02 (later rounds faster, bench S8): unlockScalePerElection 5 → 2, unlockTimeScalePerElection 0.9 → 0.6 with unlockTimeScaleMin 0.58, demandSecScalePerElection 0.5 / demandSecScaleMin 0.1 (new), deri runSecAtLeast 360 → 320 (when Goldknopf's lifetime price leaves him unpaid, Deri closes the round instead of Gotliv, and at 360 his floor added about 30 s to every such round; round 1 still waits for his 360K). Median of seeds 3-11: rounds 8:00, 4:10, 3:47, 3:29, 3:26, 3:04, 3:00, 3:03, then about 3:00-3:10 (was 8:00, 5:08, 5:29, 5:38, 4:54, 5:27, 5:06, 6:02)."
  },
  "partners": [
   {
@@ -922,7 +925,7 @@
    "statusLine": true,
    "unlock": {
     "runBananasAtLeast": 360000,
-    "runSecAtLeast": 360
+    "runSecAtLeast": 320
    },
    "avatar": "deri_avatar",
    "src": [
@@ -5135,7 +5138,7 @@
     "threatChance": 0.2,
     "unlock": {
      "runBananasAtLeast": 360000,
-     "runSecAtLeast": 360
+     "runSecAtLeast": 320
     },
     "_from": "deri (threatChance 0 comes from his cannotLeave trait)"
    },
