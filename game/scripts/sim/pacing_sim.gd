@@ -66,6 +66,12 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_
 	var r := func() -> float: return rng.randf()
+	# Politics draws from its own stream: taps (crits) and the Suitcase consume `r` at rates that
+	# differ by strategy, and a shared stream re-dealt every card after the first difference, so G1's
+	# strategy-vs-default ratios swung ±40% per seed on noise (2026-10-02 probes)
+	var prng := RandomNumberGenerator.new()
+	prng.seed = seed_ * 7919 + 29
+	var rp := func() -> float: return prng.randf()
 	var tps := minf(float(player["tps"]), float(Content.data()["tap"]["maxRegisteredTapsPerSec"]))
 	var crit_mult := float(Content.data()["tap"]["critMult"])
 	var first := {}
@@ -115,7 +121,7 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 			Economy.schedule_next_golden(s, r)
 		if pol:
 			ctx["allowPing"] = ping_gap <= 0.0 or t - last_buy >= ping_gap
-			for e: Dictionary in Politics.tick(s, dt, d, ctx, r):
+			for e: Dictionary in Politics.tick(s, dt, d, ctx, rp):
 				if e["ev"] == "event":
 					events.append([t, "event:" + String(e["id"])])
 				elif e["ev"] == "courtStart":
