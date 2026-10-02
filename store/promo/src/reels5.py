@@ -715,7 +715,7 @@ def process_audio(path):
         m.cue(t0 + 0.1, "slipStamp", -4)
         m.cue(t0 + 1.5, "slipStamp", -7)
         m.cue(t0 + 3.0, "leaderPick_D", -6)
-        if R_ITEMS[j][5]:
+        if R_ITEMS[j][4]:
             m.cue(t0 + 4.4, "critReact_D_land", -6)
     m.cue(R_OUT + 0.8, "stamp", -2)
     end_audio(m, R_END)
