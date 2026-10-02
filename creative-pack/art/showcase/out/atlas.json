@@ -8044,6 +8044,426 @@
      }
     }
    }
+  },
+  "rothman": {
+   "frameW": 201,
+   "frameH": 317,
+   "anchor": [
+    100,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "rothman_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "rothman_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 134,
+     "frameH": 211,
+     "anchor": [
+      67,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "rothman_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "rothman_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "bismuth": {
+   "frameW": 153,
+   "frameH": 317,
+   "anchor": [
+    76,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "bismuth_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "bismuth_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 102,
+     "frameH": 211,
+     "anchor": [
+      51,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "bismuth_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "bismuth_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "feiglin": {
+   "frameW": 246,
+   "frameH": 317,
+   "anchor": [
+    123,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "feiglin_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "feiglin_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 164,
+     "frameH": 211,
+     "anchor": [
+      82,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "feiglin_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "feiglin_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "hendel": {
+   "frameW": 158,
+   "frameH": 317,
+   "anchor": [
+    79,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "hendel_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "hendel_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 105,
+     "frameH": 211,
+     "anchor": [
+      52,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "hendel_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "hendel_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "zelekha": {
+   "frameW": 227,
+   "frameH": 317,
+   "anchor": [
+    113,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "zelekha_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "zelekha_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 151,
+     "frameH": 211,
+     "anchor": [
+      75,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "zelekha_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "zelekha_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "winter": {
+   "frameW": 210,
+   "frameH": 317,
+   "anchor": [
+    105,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "winter_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "winter_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 140,
+     "frameH": 211,
+     "anchor": [
+      70,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "winter_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "winter_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
+    }
+   }
+  },
+  "haddad": {
+   "frameW": 177,
+   "frameH": 317,
+   "anchor": [
+    88,
+    316
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "file": "haddad_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3
+    },
+    "react": {
+     "file": "haddad_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 118,
+     "frameH": 211,
+     "anchor": [
+      59,
+      210
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "file": "haddad_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2
+      },
+      "react": {
+       "file": "haddad_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2
+      }
+     }
+    }
+   }
   }
  },
  "props": {
