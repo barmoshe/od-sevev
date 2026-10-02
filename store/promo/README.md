@@ -135,14 +135,29 @@ right-aligned, so the right margin bites first: text now ends at x 950 and centr
 
 Sliding cards, walkers crossing the loading screen and the curtain are clipped on purpose.
 
-## "מה אם היה אפשר לשחק בגנץ?" (`src/gantz.py`)
+## "בחרתם בגנץ." (`src/gantz.py`)
 
-`od-sevev-reel-gantz.mp4`, 31 s, 9:16, in the iPhone of the gameplay reels. A hypothetical round: Gantz
-isn't playable (in the game he only stands on the picker once, as a joke). The screens are the game's
-own Movie Maker frames (the picker from take_bennett, a round's first seconds from take_golan) with the
-leader painted out (the Balfour stage redrawn from its sprite at its exact offset) and Gantz painted in.
-The round: every tap pays "+0", the HUD stays at ₪0; his ability, "לחכות", fills a rotation bar to 99%
-and it's postponed ("מאז 2020", the 2020 rotation that never happened); "שלחתי תזכורת לגבי הרוטציה.
-סטטוס: נקרא." Then the real game: "גנץ לא עבר", בחר שוב, and the cell is הפתעה again.
+`od-sevev-reel-gantz.mp4`, 31 s, 9:16, in the iPhone of the gameplay reels. A teaser like the rest (Bar:
+nothing is out yet, so it never says "hypothetical"). In the game Gantz only stands on the picker once,
+as a joke; here he gets a round. The screens are the game's own Movie Maker frames (the picker from
+take_bennett, a round's first seconds from take_golan) with the leader painted out (the Balfour stage
+redrawn from its sprite at its exact offset) and Gantz painted in. "בחרתם בגנץ. בהצלחה." Every tap pays
+"+0", the HUD stays at ₪0; his ability, "לחכות", fills a rotation bar to 99% and it's postponed ("מאז
+2020", the 2020 rotation that never happened); "שלחתי תזכורת לגבי הרוטציה. סטטוס: נקרא." Then the game's
+own decoy: "גנץ לא עבר", בחר שוב, "סוף הסבב.", and the cell is הפתעה again.
 
     python3 src/gantz.py <scratch with take_bennett/, take_golan/> [--stills | --one <sec>]
+
+## The social kit beyond Reels (`src/social.py`, output in `social/`)
+
+Bar: more marketing content, several types. Research (Oct 2026): carousels are saved about 35% more than
+single images, the first slide decides, 7-10 slides (adpicto.com/en/blog/instagram-carousel-best-practices-2026,
+krumzi.com/blog/15-instagram-carousel-ideas-that-actually-drive-engagement-in-2026); Stories with native
+stickers get about twice the interactions, 3-7 frames (skedsocial.com/blog/ideas-to-boost-interactions-on-instagram-stories-in-2026);
+WhatsApp stickers are 512x512 WebP under 100 KB, 3-30 a pack, a 96x96 tray (sticko.app/guides/whatsapp-sticker-size-and-format).
+
+18 WhatsApp stickers, two carousels (the abilities; "מילון עוד סבב"), 5 Story frames with room for
+Instagram's own stickers, 4 memes, 5 highlight covers, and a posting plan to 27.10 with captions:
+`social/PLAN.md`.
+
+    python3 src/social.py [all|stickers|abilities|dictionary|stories|memes|highlights]
