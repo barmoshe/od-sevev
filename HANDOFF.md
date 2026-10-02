@@ -5,8 +5,8 @@ into main and deployed: missions and ranks, "תעבור אותי", the share pla
 rounds. **"הסבב היומי" is off** (Bar: "לא צריך הסבב היומי"; content `flags.dailyRound` false, the code stays); plus card milestones, live ₪/s and the coalition chat UX. Details: `STATUS.md` (2026-10-02).
 
 ## Open
-1. **The full bench** (`tools/balance.sh`) ran during the deploy: read its result (S1-S8, L1, G1, the browser replay).
-   Missions (rank income bonus) and faster rounds both move pacing; if a gate is red, root-cause before tuning.
+1. **The full bench is green** on `bad2aa2` (STATUS 2026-10-02). `tools/balance.sh` in one process now passes an hour:
+   run the four bench files in parallel (`tools/godot.sh --headless --path game -s res://tests/run_tests.gd -- --dir=bench --only=test_session`, and the same with `test_politics_balance`, `test_leaders_balance` and `test_web_driver`; import once first).
 2. **Election silence** (Fri 23.10 to 27.10 22:00): the breaking card hides 61, but the challenge return lines (`CHALLENGE_SHARE_LOSE` "הגעתי ל־61…") still print 61; decide whether the
    gate count counts as a seat number there.
 3. **Visual pass on a phone** (Bar): the 📣 chip under the missions chip, the drawer, the missions sheet.
