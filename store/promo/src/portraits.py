@@ -3,7 +3,7 @@ Yair Golan and Ben Gvir). The game's own pixel sprites, no copy beyond the name,
 
     cards     one 1080x1350 PNG per leader: sunburst, the sprite big, a name plate  (social/portraits/)
     cutouts   the same sprite on a transparent PNG                                   (social/portraits/cutout/)
-    group     all five on one 1600x900 stage                                        (social/portraits/)
+    group     all five on one 1600x900 stage, and on a transparent PNG              (social/portraits/, cutout/)
 
     python3 store/promo/src/portraits.py [bibi eisenkot ...]
 """
@@ -117,6 +117,21 @@ def group():
     return c.convert("RGB")
 
 
+def group_cutout():
+    """the group's five on a transparent PNG, no rays, no plates."""
+    order = ["golan", "eisenkot", "bibi", "bennett", "bengvir"]
+    figs = [sprite(lid, 1.8) for lid in order]
+    gap = 34
+    w = sum(f.width for f in figs) + gap * (len(figs) - 1)
+    h = max(f.height for f in figs)
+    c = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    x = 0
+    for f in figs:
+        c.alpha_composite(f, (x, h - f.height))
+        x += f.width + gap
+    return c
+
+
 def main():
     who = [a for a in sys.argv[1:] if a in WHO] or WHO
     for lid in who:
@@ -124,6 +139,7 @@ def main():
         print(save(sprite(lid, 3), "portraits", "cutout", "%s.png" % FILE[lid]))
     if who == WHO:
         print(save(group(), "portraits", "group.png"))
+        print(save(group_cutout(), "portraits", "cutout", "group.png"))
 
 
 if __name__ == "__main__":
