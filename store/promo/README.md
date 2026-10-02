@@ -135,6 +135,15 @@ right-aligned, so the right margin bites first: text now ends at x 950 and centr
 
 Sliding cards, walkers crossing the loading screen and the curtain are clipped on purpose.
 
+### The older videos: `src/safefit.py`
+
+The first wave (promo.py's three, shorts.py's four, the gameplay reels and both teasers) was laid out
+edge to edge. Rather than redraw thirteen layouts, `fit()` shrinks each finished frame to 84% and
+centres it inside the safe area (x 52-959, y 120-1733) as a rounded card over a blurred, dimmed copy of
+itself. Every one of those scripts writes `fit(frame(t))`, cover included. In the same pass the shorts'
+CTA became "בקרוב · עקבו @od.sevev" (no link) and the mivzak date chip became "בחירות: 27.10", a date
+that doesn't go stale like a countdown does.
+
 ## "בחרתם בגנץ." (`src/gantz.py`)
 
 `od-sevev-reel-gantz.mp4`, 31 s, 9:16, in the iPhone of the gameplay reels. A teaser like the rest (Bar:

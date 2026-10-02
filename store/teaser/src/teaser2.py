@@ -28,6 +28,8 @@ from teaser import (INK, NIGHT, NAVY, GOLD, GOLD_HI, GOLD_SH, WHITE, RED, W, H, 
                     ripple, floaty, shake, flash, pop_scale, caption, stamp_img, badge, slam, clamp, ease_out,
                     ease_inout, SPRITES)
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "promo", "src"))
+from safefit import fit  # noqa: E402  inside Instagram's safe area (store/promo/src/safefit.py)
 OUT = k.OUT
 MUSIC = os.path.join(OUT, "music", "soundtrack.wav")
 DUR = 41.0
@@ -526,11 +528,11 @@ def main():
            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-shortest", video]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     nf = int(DUR * FPS)
-    cover = frame((nf - 1) / FPS)
+    cover = fit(frame((nf - 1) / FPS))
     for i in range(nf):
         # the first COVER_FRAMES frames repeat the last one, so a platform that takes frame 0 as the
         # thumbnail still shows Mordechai David blocking "coming soon"
-        p.stdin.write((cover if i < COVER_FRAMES else frame(i / FPS)).tobytes())
+        p.stdin.write((cover if i < COVER_FRAMES else fit(frame(i / FPS))).tobytes())
         if i % 120 == 0:
             print(f"frame {i}/{nf}", flush=True)
     p.stdin.close()

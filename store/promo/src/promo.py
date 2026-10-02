@@ -214,7 +214,7 @@ def m_studio(c, t):
     # the channel bug and the countdown chip
     paste(c, plate(250, 76, RED, INK, 6), 175, 165)
     paste(c, text("ערוץ 61", 6), 175, 165)
-    chip = text("26 ימים לבחירות", 5, fill=GOLD_HI)
+    chip = text("בחירות: 27.10", 5, fill=GOLD_HI)       # a date, not a countdown that goes stale
     paste(c, plate(chip.width + 40, 66, NIGHT, GOLD_SH, 5), W - 40 - (chip.width + 40) // 2, 165)
     paste(c, chip, W - 40 - (chip.width + 40) // 2, 165)
 
@@ -782,7 +782,8 @@ def main():
         k.stills(ts, os.path.join(OUT, "_stills_%s.png" % which))
         return
     if "--one" in sys.argv:
-        frame(float(sys.argv[sys.argv.index("--one") + 1])).save(os.path.join(OUT, "_one.png"))
+        from safefit import fit
+        fit(frame(float(sys.argv[sys.argv.index("--one") + 1]))).save(os.path.join(OUT, "_one.png"))
         return
     wav = os.path.join(SCRATCH, "_%s.wav" % which)
     audio(wav)
@@ -794,10 +795,11 @@ def main():
            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-t", str(dur), video]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     nf = int(dur * FPS)
-    cover = frame(cover_t)              # also frames 0-1, so the feed's first frame is the cover
+    from safefit import fit             # inside Instagram's safe area (store/promo/src/safefit.py)
+    cover = fit(frame(cover_t))         # also frames 0-1, so the feed's first frame is the cover
     cover.save(os.path.join(OUT, name + "-cover.png"))
     for i in range(nf):
-        p.stdin.write((cover if i < 2 else frame(i / FPS)).tobytes())
+        p.stdin.write((cover if i < 2 else fit(frame(i / FPS))).tobytes())
         if i % 300 == 0:
             print(f"{which}: frame {i}/{nf}", flush=True)
     p.stdin.close()

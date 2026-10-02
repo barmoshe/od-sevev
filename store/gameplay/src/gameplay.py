@@ -17,6 +17,8 @@ import wave
 import numpy as np
 from PIL import Image, ImageDraw
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "promo", "src"))
+from safefit import fit  # noqa: E402  inside Instagram's safe area (store/promo/src/safefit.py)
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "teaser", "src"))
 import teaser as k  # noqa: E402
@@ -208,10 +210,10 @@ def main():
            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-t", str(DUR), video]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     nf = int(DUR * FPS)
-    cover = frame((nf - 1) / FPS)
+    cover = fit(frame((nf - 1) / FPS))
     cover.save(os.path.join(OUT, "od-sevev-gameplay-cover.png"))
     for i in range(nf):
-        p.stdin.write((cover if i < 2 else frame(i / FPS)).tobytes())
+        p.stdin.write((cover if i < 2 else fit(frame(i / FPS))).tobytes())
         if i % 300 == 0:
             print(f"frame {i}/{nf}", flush=True)
     p.stdin.close()
