@@ -69,6 +69,28 @@ const C_INK := Color("#061029")       # ink (on gold)
 const C_ALERT := Color("#ffaa9f")     # red_hi ("אולטימטום", the last seconds)
 const C_GOLD_HI := Color("#fff1a6")
 const C_SKY := Color("#8fc0ff")       # the seats fill (pips)
+const C_TRACK := Color("#061029")     # ink: the patience bar's track
+const C_PATIENCE := Color("#ffd23f")  # gold: the patience bar's fill (red_hi under a third)
+
+## Coalition UX rev 5 (Bar 2026-10-02, "improve the coalition tasks", ux/rtl-map.md §6.3): every
+## open line says what it is worth (ChatStakes) on a stake line over its pill; a member demand that
+## can escalate shows its patience as a draining bar; an unaffordable pill counts down to the
+## moment the bank covers it; the composer becomes one gold pill that pays every line the bank
+## covers ("לסגור עם כולם"); the brawl names the seats it froze; the header sums it up.
+const STAKE_BAR_H := 8.0
+const PAY_ETA_MAX_SEC := 900.0        # past 15:00 the pill says "חסר X ₪" (an ETA that far is noise)
+const PAY_ALL_MIN := 2                # one line has its own pill; the composer pill is for two or more
+const PAY_ALL_REFRESH_MS := 200.0
+## The entry points Bar's playtest missed (2026-10-02): the avatar's "i" badge (a pixel stand-in
+## until the kit ships `chat_icon_info`) bobs until the first partner card is opened
+## (state.ui.partnerCardSeen); the pinned bar, once it opens the agreement, gets the "‹" chevron, a
+## white label and the free base in its badge.
+const INFO_ICON := [
+	"..wwwww..", ".wbbbbbw.", "wbbbwbbbw", "wbbbbbbbw", "wbbwwbbbw",
+	"wbbbwbbbw", "wbbbwbbbw", ".wbbwwbw.", "..wwwww.."]
+const INFO_AT := Vector2(568, 92)     # the avatar's lower-left corner (avatar x 576-704, y 0-128)
+const HINT_PERIOD_MS := 1400.0
+const HINT_BOB_MS := 180.0
 
 ## motion-spec.yaml motion-constants (Tune.MC wins once the engine mirrors them)
 const MC_DEFAULTS := {
@@ -109,6 +131,14 @@ var _clip := Control.new()
 var _content := Node2D.new()
 var _composer: NinePatchRect
 var _composer_text: PxText
+var _pay_all_nine: NinePatchRect      # the composer's "לסגור עם כולם" pill (rev 5)
+var _pay_all_text: PxText
+var _pay_all_plan: Array = []
+var _pay_all_rect := Rect2()          # tall-local visual; "" when hidden
+var _pay_all_pressed := false
+var _pay_all_t := 1e9                 # ms since the plan was last computed
+var _pin_chev: Sprite2D               # the pinned bar's "‹" once it opens the agreement
+var _pin_pressed := false
 var _thumb: ColorRect
 var _fx := Node2D.new()               # seat pips (above everything in the tab)
 
@@ -250,6 +280,15 @@ func _ready() -> void:
 	_composer_text.wrap_width = 640.0
 	_composer_text.max_lines = 1
 	_composer_text.right_at(680)
+	_pay_all_nine = Ui.nine(_panel, Rect2(16, _h - COMPOSER_H + 10, 688, PILL_H), Art.sprite_or("pay_pill_default"))
+	_pay_all_nine.visible = false
+	_pay_all_text = PxText.make(_panel, Vector2(0, _h - COMPOSER_H + 22), "", L.TEXT, "plain", C_INK)
+	_pay_all_text.fit_width = 640.0   # chat.composer
+	_pay_all_text.visible = false
+	var chev_l := Art.sprite_or("chat_icon_chevron")
+	_pin_chev = Ui.img(_panel, Vector2(20, PINNED_Y + 10), chev_l, 0, 4)
+	_pin_chev.flip_h = true   # "‹": in RTL the way forward, into the agreement
+	_pin_chev.visible = false
 	_panel.add_child(_fx)
 	relayout()
 
@@ -280,6 +319,8 @@ func relayout() -> void:
 	_composer_text.wrap_width = 640.0 + dx
 	_composer_text.right_at(680.0 + dx)
 	_composer_text.position.y = _h - COMPOSER_H + 24
+	_pay_all_rect = Rect2()   # re-placed by _update_pay_all on the next frame
+	_pay_all_t = 1e9
 	_cameo.position.x = L.sox()   # the cameo stands in the stage column
 	if _state != null:
 		_update_header()
@@ -334,6 +375,8 @@ func close() -> void:
 		return
 	_open = false
 	_press = {}
+	_pin_pressed = false
+	_pay_all_pressed = false
 	_typing = {}
 	_ribbon = {}
 	_anim = {"kind": "close", "t": 0.0}
@@ -402,6 +445,7 @@ func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = 
 	if _panel.visible:
 		_update_header()
 		_update_rows(dt)
+		_update_pay_all(dt)
 		_update_scroll(dt)
 		_update_pending()
 		_update_pips()
@@ -734,6 +778,12 @@ func _signature() -> String:
 	for pid: String in _statuses():
 		parts.append(pid)
 	parts.append("L" if PxText.large_text else "")
+	if _state != null and Coalition.active():
+		# rev 5: the stake lines hide their numerals in the blackout, and a member demand's patience
+		# bar exists only once ultimatums are unlocked
+		parts.append("B" if Calendar.seats_numeral_hidden(_state) else "")
+		parts.append("U" if Coalition.ultimatums_unlocked(_state) else "")
+		parts.append(str(Coalition.seat_info(_state)["effective"]))
 	return ",".join(parts)
 
 
@@ -860,6 +910,15 @@ func _build_bubble(row: Dictionary, y: float) -> Dictionary:
 		if gone:
 			img.modulate = Color(0.45, 0.45, 0.5)
 		r["avatar"] = img
+		# rev 5: the avatar opens the partner card; its "i" says so (Bar's playtest 2026-10-02)
+		var info := Sprite2D.new()
+		info.texture = info_texture()
+		info.centered = false
+		info.scale = Vector2(4, 4)
+		info.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		info.position = INFO_AT
+		root.add_child(info)
+		r["info"] = info
 		var nm := _text(root, partner_name(pid), C_NAME, NAME_HIT_W, 1)
 		nm.right_at(BUBBLE_RIGHT)
 		_hits.append({"rect": Rect2(AVATAR_RIGHT - AVATAR_BOX, y, AVATAR_BOX, AVATAR_BOX), "kind": "partner", "partner": pid})
@@ -891,7 +950,8 @@ func _build_bubble(row: Dictionary, y: float) -> Dictionary:
 		w = maxf(w, float(fw.width()))
 		cy += _lh(fw)
 	var body := Strings.s("CHAT_DELETED") if kind == "deleted" else line_text(m, _state, _d)
-	var dimmed := (ult and st == "expired") or (kind == "in" and st == "expired")
+	# rev 5: a declined demand (Liberman) or one closed by a merge (Golan) dims like an expired one
+	var dimmed := (ult and st == "expired") or (kind == "in" and ["expired", "declined", "resolved"].has(st))
 	var tx := _text(root, body, C_MUTED if kind == "deleted" else Color.WHITE, TEXT_W, 99, kind != "deleted" and not dimmed)
 	tx.right_at(inner_r)
 	tx.position.y = cy
@@ -900,8 +960,16 @@ func _build_bubble(row: Dictionary, y: float) -> Dictionary:
 	w = maxf(w, float(tx.width()))
 	cy += _lh(tx) * maxf(1.0, float(tx.line_count()))
 	var payable := Coalition.is_payable(m) and (st == "open" or st == "paid" or st == "deleted")
+	var staked := false
+	if payable and kind != "deleted" and st == "open":
+		var sk := _build_stake(root, m, inner_r, cy + 8.0, false)
+		if not sk.is_empty():
+			r["stakes"] = [sk]
+			w = maxf(w, float(sk["w"]))
+			cy += 8.0 + float(sk["h"])
+			staked = true
 	if payable and kind != "deleted":
-		cy += 16.0
+		cy += 12.0 if staked else 16.0
 		var pr := Rect2(inner_r - PILL_W, cy, PILL_W, PILL_H)
 		var pill := _make_pill(root, pr, int(m["seq"]), false)
 		pill["key"] = "CHAT_CEREMONY" if str(m.get("kind", "")) == "ceremony" else ""   # UX: a 0 ₪ ceremony is not "סגרנו · 0 ₪"
@@ -931,6 +999,118 @@ func _build_bubble(row: Dictionary, y: float) -> Dictionary:
 	r["bubbleRect"] = Rect2(BUBBLE_RIGHT - bw, top, bw, bh)
 	r["h"] = maxf(top + bh, AVATAR_BOX if row["first"] else 0.0)
 	return r
+
+
+## The stake line of an open line (rev 5): [text, colour], or ["", null] when it has none. `sk` is
+## ChatStakes.stake (computed when not given). In the blackout the seat numerals go (the HUD's
+## stamp, Calendar.seats_numeral_hidden): a join says nothing, an ultimatum says the partner walks.
+static func stake_line(s: GameState, m: Dictionary, sk: Dictionary = {}) -> Array:
+	if s == null:
+		return ["", null]
+	if sk.is_empty():
+		sk = ChatStakes.stake(s, m)
+	var g := str(Coalition.partner(str(m.get("partner", ""))).get("g", "m"))
+	var hidden := Calendar.seats_numeral_hidden(s)
+	var n := int(sk.get("n", 0))
+	match str(sk.get("kind", "")):
+		"join":
+			if n > 0 and not hidden:
+				return [Strings.plural("CHAT_STAKE_JOIN", n, {"n": str(n)}), C_SKY]
+		"walk":
+			if hidden:
+				return [Strings.gendered("CHAT_STAKE_WALK_X", g), C_ALERT]
+			if n > 0:
+				return [Strings.s("CHAT_STAKE_WALK_%s_%s" % ["ONE" if n == 1 else "OTHER", "F" if g == "f" else "M"], {"n": str(n)}), C_ALERT]
+		"patience":
+			if bool(sk.get("ondeck", false)):
+				return [Strings.s("CHAT_STAKE_ONDECK"), C_ALERT]
+			var left := float(sk.get("left", 0.0))
+			return [Strings.s("CHAT_STAKE_PATIENCE", {"mmss": mmss(left)}), C_ALERT if left <= 15.0 else C_MUTED]
+	return ["", null]
+
+
+## Builds a stake line (and a member demand's patience bar under it) at content-local y, its right
+## edge at `right_x` (a bubble's inner edge), or centred on the canvas (a system line's pill).
+## Returns {} when the line has no stake, else {label, seq, kind, w, h, track?, fill?, bar?}.
+func _build_stake(parent: Node2D, m: Dictionary, right_x: float, y: float, centred: bool) -> Dictionary:
+	var sk := ChatStakes.stake(_state, m)
+	var line := stake_line(_state, m, sk)
+	if str(line[0]) == "":
+		return {}
+	var t := _text(parent, str(line[0]), line[1], TEXT_W, 1)
+	t.fit_width = TEXT_W   # large text: ×5 only when it fits the column (chat.name), else ×4
+	t.position.y = y
+	if centred:
+		t.center_in(0, L.cw)
+	else:
+		t.right_at(right_x)
+	var h := _lh(t)
+	var out := {"label": t, "seq": int(m["seq"]), "kind": str(sk["kind"]), "w": float(t.width()), "h": h, "right": right_x, "centred": centred}
+	if str(sk["kind"]) == "patience":
+		var br := Rect2(right_x - PILL_W, y + h + 4.0, PILL_W, STAKE_BAR_H)
+		out["track"] = Ui.rect(parent, br, C_TRACK)
+		out["fill"] = Ui.rect(parent, br, C_PATIENCE)
+		out["bar"] = br
+		out["h"] = h + 4.0 + STAKE_BAR_H
+		out["w"] = maxf(float(out["w"]), PILL_W)
+		_set_patience_bar(out, float(sk["frac"]), float(sk["left"]))
+	return out
+
+
+## The bar drains from the left (RTL: it empties toward the reading start), whole art px.
+func _set_patience_bar(sk: Dictionary, frac: float, left: float) -> void:
+	var br: Rect2 = sk["bar"]
+	var fill: ColorRect = sk["fill"]
+	var w := Ui.snap(br.size.x * clampf(frac, 0.0, 1.0), 4)
+	fill.visible = w > 0.0
+	fill.position = Vector2(L.bar_x(br, w), br.position.y)
+	fill.size = Vector2(w, br.size.y)
+	fill.color = C_ALERT if left <= 15.0 else C_PATIENCE
+
+
+## Per frame: a patience line counts down; a line whose message closed hides (its row rebuilds).
+func _update_stake(sk: Dictionary) -> void:
+	var m := Coalition.message(_state, int(sk["seq"]))
+	var t: PxText = sk["label"]
+	if str(m.get("state", "")) != "open":
+		t.visible = false
+		if sk.has("track"):
+			(sk["track"] as ColorRect).visible = false
+			(sk["fill"] as ColorRect).visible = false
+		return
+	if str(sk["kind"]) != "patience":
+		return
+	var pt := ChatStakes.patience(_state, m)
+	pt["kind"] = "patience"
+	var line := stake_line(_state, m, pt)
+	if t.text != str(line[0]):
+		t.text = str(line[0])
+		t.right_at(float(sk["right"]))
+	if line[1] != null:
+		t.tint = line[1]
+	if sk.has("bar"):
+		_set_patience_bar(sk, float(pt["frac"]), float(pt["left"]) if not bool(pt["ondeck"]) else 0.0)
+
+
+## The "i" on an avatar (rev 5) as a 9×9 pixel icon: flag blue disc, white rim and letter.
+static var _info_tex: Texture2D
+
+
+static func info_texture() -> Texture2D:
+	if Art.has_sprite("chat_icon_info"):
+		return Art.tex("chat_icon_info", 0)
+	if _info_tex == null:
+		var img := Image.create(9, 9, false, Image.FORMAT_RGBA8)
+		img.fill(Color(0, 0, 0, 0))
+		for y in INFO_ICON.size():
+			for x in 9:
+				var ch: String = INFO_ICON[y][x]
+				if ch == "w":
+					img.set_pixel(x, y, Color("#f7f4ec"))
+				elif ch == "b":
+					img.set_pixel(x, y, Color("#0038b8"))
+		_info_tex = ImageTexture.create_from_image(img)
+	return _info_tex
 
 
 func _forwarded(pid: String) -> bool:
@@ -1034,6 +1214,11 @@ func _build_sys(text: String, m: Dictionary, y: float) -> Dictionary:
 	var cy := h
 	var payable := str(m.get("payable", ""))
 	var st := str(m.get("state", ""))
+	if payable != "" and st == "open":
+		var sk := _build_stake(root, m, L.cx(WIDE_PILL.end.x), cy + 12.0, true)
+		if not sk.is_empty():
+			r["stakes"] = [sk]
+			cy += 12.0 + float(sk["h"])
 	if payable != "" and (st == "open" or st == "paid"):
 		cy += 16.0
 		var pr := Rect2(L.cx(WIDE_PILL.position.x), cy, WIDE_PILL.size.x, WIDE_PILL.size.y)
@@ -1086,7 +1271,18 @@ func _build_brawl(row: Dictionary, y: float) -> Dictionary:
 	var cloud := Ui.img(root, Vector2(256, 0), Art.sprite_or("brawl_cloud"), 0, 4)
 	var btn := PxButton.make(root, Rect2(204, 168, 312, 80), {"hit": Rect2(192, 164, 336, 88), "label": Strings.s("CHAT_BRAWL_BTN"), "kind": "kit_secondary"})
 	_hits.append({"rect": Rect2(192, y + 164, 336, 88), "kind": "brawl", "seq": int(row["seq"]), "button": btn})
-	return {"root": root, "pills": [], "h": 256.0, "cloud": cloud, "cloudAt": cloud.position, "button": btn}
+	var h := 256.0
+	# rev 5: the seats the brawl keeps out of the 61 (the "44/61 stall": nothing said so)
+	var m: Dictionary = row["msg"]
+	var n := ChatStakes.frozen_seats(_state, str(m.get("a", "")), str(m.get("b", ""))) if _state != null else 0
+	var frozen: PxText = null
+	if n > 0 and _state != null and not Calendar.seats_numeral_hidden(_state):
+		frozen = _text(root, Strings.plural("CHAT_BRAWL_FROZEN", n, {"n": str(n)}), C_ALERT, SYS_TEXT_W, 1)
+		frozen.fit_width = SYS_TEXT_W
+		frozen.center_in(0, 720)
+		frozen.position.y = h + 4.0
+		h += 4.0 + _lh(frozen)
+	return {"root": root, "pills": [], "h": h, "cloud": cloud, "cloudAt": cloud.position, "button": btn, "frozen": frozen}
 
 
 ## The boil pose at `t_ms`: {frame, off (ap)}. Pure (tests: whole px, the rest, reduced motion).
@@ -1118,19 +1314,57 @@ func _update_header() -> void:
 		var pid := str(_typing["partner"])
 		txt = Strings.gendered("CHAT_TYPING", str(Coalition.partner(pid).get("g", "m")), {"name": partner_name(pid)})
 	else:
-		var k := Coalition.threat_count(_state) if Coalition.active() else 0
-		if k > 0:
-			txt = Strings.plural("CHAT_THREATS", k, {"k": str(k)})
-		else:
-			txt = Strings.plural("CHAT_MEMBERS", group_size(_state))
-	_status.text = txt
+		txt = header_status(_state)
+	if _status.text != txt:
+		_status.text = txt
+	_status.tint = C_ALERT if (_typing.is_empty() and header_urgent(_state)) else C_NAME
 	_status.right_at(TITLE_RIGHT + L.dx)
 	_lock.position = Vector2(Ui.snap(TITLE_RIGHT + L.dx - float(_title.width()) - 12.0 - float(Art.sprite_size(_lock.get_meta("sprite")).x) * 4.0, 4), 20)
 	_pinned_text.text = Strings.s("CHAT_PINNED", {"n": str(_state.evolutions + 1)})
 	var agreement := _state.evolutions >= 1
 	var badge := agreement and Meta.can_buy_any_perk(_state)
+	# rev 5 (Bar's playtest: the bar "doesn't read as a button"): once it opens the agreement it
+	# gets the "‹" at its left, a white label, the free base in its badge (bobbing while a clause
+	# is affordable), and it dims while pressed
+	_pin_chev.visible = agreement
+	_pinned_text.tint = Color.WHITE if agreement else C_NAME
+	_pinned.modulate = Color(0.75, 0.75, 0.8) if (agreement and _pin_pressed) else Color.WHITE
 	_pinned_badge.visible = badge
 	_pinned_badge_text.visible = badge
+	if badge:
+		var free := int(_state.thumbs_available())
+		var bt := "9+" if free > 9 else str(free)
+		if _pinned_badge_text.text != bt:
+			_pinned_badge_text.text = bt
+		var bx := 52.0
+		var bob := 0.0 if reduced_motion else (-4.0 if fmod(_now, HINT_PERIOD_MS) < HINT_BOB_MS else 0.0)
+		Ui.set_nine_rect(_pinned_badge, Rect2(bx, 110.0 + bob, 44, 44))
+		_pinned_badge_text.position.y = 110.0 + bob
+		_pinned_badge_text.center_in(bx, 44)
+
+
+## The header's status line when nobody is typing (rev 5): a brawl's frozen seats first (it holds
+## the 61 until "צאו החוצה"), then open threats, then the open lines, else the group size.
+static func header_status(s: GameState) -> String:
+	if s == null or not Coalition.active():
+		return Strings.plural("CHAT_MEMBERS", group_size(s))
+	var sm := ChatStakes.summary(s)
+	if int(sm["brawl"]) >= 0:
+		var n := int(sm["brawl"])
+		if Calendar.seats_numeral_hidden(s) or n <= 0:
+			return Strings.s("CHAT_FROZEN_X")
+		return Strings.plural("CHAT_FROZEN", n, {"n": str(n)})
+	var k := Coalition.threat_count(s)
+	if k > 0:
+		return Strings.plural("CHAT_THREATS", k, {"k": str(k)})
+	if int(sm["open"]) > 0:
+		return Strings.plural("CHAT_OPEN", int(sm["open"]))
+	return Strings.plural("CHAT_MEMBERS", group_size(s))
+
+
+## A brawl or a threat is open: the status line reads in the alert colour.
+static func header_urgent(s: GameState) -> bool:
+	return s != null and Coalition.active() and (Coalition.threat_count(s) > 0 or not Coalition.open_brawl(s).is_empty())
 
 
 func _update_rows(dt: float) -> void:
@@ -1166,6 +1400,12 @@ func _update_rows(dt: float) -> void:
 		root.modulate.a = a
 		for pill: Dictionary in r["pills"]:
 			_update_pill(pill, bps)
+		for sk: Dictionary in r.get("stakes", []):
+			_update_stake(sk)
+		if r.has("info"):
+			# until the first partner card: the "i" bobs one art px (a 180 ms hop every 1.4 s)
+			var hop := not reduced_motion and not card_seen(_state) and fmod(_now, HINT_PERIOD_MS) < HINT_BOB_MS
+			(r["info"] as Sprite2D).position = INFO_AT + Vector2(0, -4.0 if hop else 0.0)
 		for dc: Dictionary in r.get("declines", []):
 			_update_decline(dc)
 		for mg: Dictionary in r.get("merges", []):
@@ -1183,6 +1423,11 @@ func _update_rows(dt: float) -> void:
 			(r["corridor"] as PxText).center_in(0, L.cw)
 		if r.has("cloud"):
 			_boil(r["cloud"], r["cloudAt"], 4.0)
+
+
+## The player has opened a partner card at least once (state.ui.partnerCardSeen, saved).
+static func card_seen(s: GameState) -> bool:
+	return s != null and bool(s.ui.get("partnerCardSeen", false))
 
 
 ## A member demand Liberman may decline (Coalition.can_decline without the cooldown): the pill is
@@ -1303,12 +1548,23 @@ func _update_pill(pill: Dictionary, _bps: float) -> void:
 		text = Strings.s("CHAT_CEREMONY_CUTTING")   # rtl-map §6.3: "גוזרים…" while the ribbon fills
 	elif afford or ribbon:
 		text = Strings.s(key if key != "" else "CHAT_PAY", {"price": Fmt.cost(price)})
+	elif key == "":
+		text = pay_short_text(have, price, _d.bps if _d != null else 0.0)
 	else:
-		text = Strings.s("CHAT_PAY_SHORT", {"n": Fmt.cost(ceilf(price - have))}) if key == "" else Strings.s(key, {"price": Fmt.cost(price)})
+		text = Strings.s(key, {"price": Fmt.cost(price)})
 	lab.text = text
 	lab.tint = C_INK if afford else Color.WHITE
 	lab.center_in(pr.position.x + dx, pr.size.x)
 	lab.position.y = pr.position.y + 12.0 + dy / 2.0
+
+
+## An unaffordable money pill (rev 5): "נסגור בעוד 0:42" while the bank covers it within
+## PAY_ETA_MAX_SEC at the current ₪/s, else "חסר X ₪".
+static func pay_short_text(have: float, price: float, bps: float) -> String:
+	var eta := ChatStakes.eta_sec(have, price, bps)
+	if eta > 0.0 and eta <= PAY_ETA_MAX_SEC:
+		return Strings.s("CHAT_PAY_ETA", {"mmss": mmss(eta)})
+	return Strings.s("CHAT_PAY_SHORT", {"n": Fmt.cost(ceilf(price - have))})
 
 
 ## The ultimatum chip (motion chat-ultimatum-countdown): digits cut once per displayed second;
@@ -1408,9 +1664,79 @@ func _update_ribbon(dt: float) -> void:
 
 # ------------------------------------------------------------------ player actions
 
+## The composer's "לסגור עם כולם" pill (rev 5): shown while the bank covers PAY_ALL_MIN or more
+## open lines (ChatStakes.pay_all_plan, refreshed every PAY_ALL_REFRESH_MS); it replaces the
+## composer's line ("פה מדברים רק בשקלים": now it does).
+func _update_pay_all(dt: float) -> void:
+	_pay_all_t += dt
+	if _pay_all_t >= PAY_ALL_REFRESH_MS or _pay_all_rect == Rect2():
+		_pay_all_t = 0.0
+		_pay_all_plan = ChatStakes.pay_all_plan(_state) if _state != null else []
+	var show := _open and _pay_all_plan.size() >= PAY_ALL_MIN
+	_pay_all_nine.visible = show
+	_pay_all_text.visible = show
+	_composer_text.visible = not show
+	if not show:
+		_pay_all_rect = Rect2()
+		_pay_all_pressed = false
+		return
+	var n := _pay_all_plan.size()
+	var total := ChatStakes.plan_total(_state, _pay_all_plan)
+	var t := Strings.s("CHAT_PAY_ALL", {"price": Fmt.cost(total)}) if n >= ChatStakes.open_lines(_state) \
+		else Strings.s("CHAT_PAY_SOME", {"n": str(n), "price": Fmt.cost(total)})
+	if _pay_all_text.text != t:
+		_pay_all_text.text = t
+	_pay_all_rect = Rect2(16, _h - COMPOSER_H + 10, L.cw - 32.0, PILL_H)
+	var dy := 8.0 if _pay_all_pressed else 0.0
+	Ui.set_nine_frame(_pay_all_nine, Art.sprite_or("pay_pill_pressed" if _pay_all_pressed else "pay_pill_default"), 0)
+	Ui.set_nine_rect(_pay_all_nine, Rect2(_pay_all_rect.position + Vector2(0, dy / 2.0), _pay_all_rect.size - Vector2(0, dy / 2.0)))
+	_pay_all_text.center_in(_pay_all_rect.position.x, _pay_all_rect.size.x)
+	_pay_all_text.position.y = _pay_all_rect.position.y + 12.0 + dy / 2.0
+
+
+## The composer pill's hit (tall-local): the whole composer, Rect2() while hidden.
+func pay_all_hit() -> Rect2:
+	if _pay_all_rect == Rect2():
+		return Rect2()
+	return Rect2(0, _h - COMPOSER_H, L.cw, COMPOSER_H)
+
+
+## Test / driver hook: {visible, n, total, rect (tall-local), plan}.
+func pay_all_info() -> Dictionary:
+	return {"visible": _pay_all_rect != Rect2(), "n": _pay_all_plan.size(), "plan": _pay_all_plan.duplicate(),
+		"total": ChatStakes.plan_total(_state, _pay_all_plan) if _state != null else 0.0, "rect": _pay_all_rect}
+
+
+## "לסגור עם כולם": pays the plan in order through the sim, one stamp and one sound for the lot;
+## each line is re-checked before it is paid (a newcomer may have sent a smaller one out).
+## Returns how many lines it paid.
+func pay_all() -> int:
+	if _state == null:
+		return 0
+	var plan := ChatStakes.pay_all_plan(_state)
+	var n := 0
+	var ult := false
+	for seq: Variant in plan:
+		var m := Coalition.message(_state, int(seq))
+		if not Coalition.can_pay(_state, int(seq)):
+			continue
+		ult = ult or str(m.get("type", "")) == "ultimatum"
+		if pay(int(seq), false, true):
+			n += 1
+	if n > 0:
+		_audio("stamp")
+		if ult:
+			_audio("ultimatumPaid")
+	else:
+		_audio("cantAfford")
+	_pay_all_t = 1e9
+	return n
+
+
 ## Pays an open demand / ultimatum / rejoin / poach line through the sim. A ceremony (Regev)
 ## first runs its 3 s ribbon on the pill, then pays. Returns true when the sim took the money.
-func pay(seq: int, ceremony_done: bool = false) -> bool:
+## `quiet`: no sound (pay_all plays one for the lot).
+func pay(seq: int, ceremony_done: bool = false, quiet: bool = false) -> bool:
 	if _state == null:
 		return false
 	var m := Coalition.message(_state, seq)
@@ -1426,11 +1752,13 @@ func pay(seq: int, ceremony_done: bool = false) -> bool:
 	if not r.get("ok", false):
 		if r.get("reason", "") == "funds":
 			_shake[seq] = _now
-			_audio("cantAfford")
+			if not quiet:
+				_audio("cantAfford")
 		return false
-	_audio("stamp")
-	if was_ult:
-		_audio("ultimatumPaid")
+	if not quiet:
+		_audio("stamp")
+		if was_ult:
+			_audio("ultimatumPaid")
 	_stamp_at[seq] = _now
 	_tick_sec.erase(seq)
 	_next_at = _now + mc("chatReplyDelayMs")
@@ -1671,9 +1999,14 @@ func pointer_down(p: Vector2) -> bool:
 		return true
 	if Ui.in_rect(pinned_hit(), q) and q.y < THREAD_Y:
 		_press["kind"] = "pinned"
+		_pin_pressed = true
 		return true
 	if _pending_root.visible and ready and Ui.in_rect(pending_hit(), q):
 		_press["kind"] = "pending"
+		return true
+	if ready and Ui.in_rect(pay_all_hit(), q):
+		_press["kind"] = "payAll"
+		_pay_all_pressed = true
 		return true
 	var c := _content_pt(q)
 	if c.y < 0.0 or not ready:
@@ -1709,10 +2042,15 @@ func pointer_move(p: Vector2) -> void:
 func pointer_up(p: Vector2) -> void:
 	var pr := _press
 	_press = {}
+	_pin_pressed = false
 	if pr.is_empty():
 		return
 	var q := _tall(p)
 	match String(pr["kind"]):
+		"payAll":
+			_pay_all_pressed = false
+			if Ui.in_rect(pay_all_hit(), q):
+				pay_all()
 		"cameo":
 			if Ui.in_rect(_cameo_rect, q):
 				open(_cameo_seq)
@@ -1786,6 +2124,8 @@ func open_partner_card(pid: String) -> void:
 	if mgr == null or mgr.is_open():
 		return
 	_audio("panelOpen")
+	if _state != null:
+		_state.ui["partnerCardSeen"] = true   # rev 5: the avatars' "i" stops bobbing
 	var chat := self
 	mgr.request(func() -> Overlay:
 		var o := PartnerCard.new()
@@ -1894,6 +2234,14 @@ func _update_pending() -> void:
 	_pending_root.modulate.a = pin
 	var n := _pend_items.size()
 	var t := Strings.plural("CHAT_PENDING", n, {"n": str(n)})
+	# rev 5: an open ultimatum above the viewport outranks the rest: the chip names it in the alert
+	# colour and a tap goes to it first
+	var ui := ultimatum_index(_pend_items, _state)
+	if ui >= 0:
+		if ui > 0:
+			_pend_items.push_front(_pend_items.pop_at(ui))
+		t = Strings.s("CHAT_ULTIMATUM")
+	_pending_text.tint = C_ALERT if ui >= 0 else Color.WHITE
 	if _pending_text.text != t:
 		_pending_text.text = t
 	var tw := float(_pending_text.width())
@@ -1906,6 +2254,20 @@ func _update_pending() -> void:
 	var x1 := Ui.snap((w + tw + 12.0 + 28.0) / 2.0, 4)
 	_pending_text.right_at(x1)
 	_pending_arrow.position = Vector2(Ui.snap(x1 - tw - 12.0 - 28.0, 4), 8.0)
+
+
+## The index in `items` (pending_above) of an open ultimatum's pill, or -1.
+static func ultimatum_index(items: Array, s: GameState) -> int:
+	if s == null:
+		return -1
+	for i in items.size():
+		var it: Dictionary = items[i]
+		if str(it.get("kind", "")) != "pay":
+			continue
+		var m := Coalition.message(s, int(it.get("seq", -1)))
+		if str(m.get("type", "")) == "ultimatum" and str(m.get("state", "")) == "open":
+			return i
+	return -1
 
 
 ## The chip's hit (tall-local): its visual grown to 88 tall and 16 wider.

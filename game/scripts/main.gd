@@ -575,6 +575,8 @@ func _build_chat() -> void:
 	toasts.on_tap = func(tag: String) -> void:
 		if tag == "chat" and _gameplay_input():
 			chat.open()
+		elif tag == "perks" and _gameplay_input():
+			_open_perks()
 
 
 ## The investigation cluster: the thermometer and the sweat on the stage (rtl-map §4, just above
@@ -1419,7 +1421,9 @@ func _check_meta() -> void:
 		_audio("milestone")
 	if state.bananas >= 0.0 and state.evolutions >= 1 and not state.ui.get("perksHinted", false) and Meta.can_buy_any_perk(state):
 		state.ui["perksHinted"] = true
-		ticker.enqueue("ftue", Strings.s("F_PERKS_HINT"))
+		# coalition UX rev 5 (Bar's playtest: the agreement's entry was not found): the nudge is a toast
+		# (its string's box, stage.toast) and a tap on it opens the agreement itself; it was a ticker line
+		toasts.show_toast(Strings.s("F_PERKS_HINT"), "perks")
 
 
 ## A producer crossing a per-tier milestone: a ticker line and a sound.

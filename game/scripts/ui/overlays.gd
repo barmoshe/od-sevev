@@ -306,6 +306,17 @@ static func list_row(o: Overlay, y: float, k: int, icon: String, plate: int, nam
 	return {"panel": panel, "plate": pl, "icon": ic, "name": n, "line2": l2}
 
 
+## A clause's icon (coalition UX rev 5, Bar's playtest: most rows drew the "?" placeholder). The
+## content names fork ids (icon_wand, icon_aide, ...) that only partly exist; the od-sevev kit draws
+## the same objects as the trophies (trophy_wand, trophy_aide, ..., 15×15 art), so a clause takes
+## its trophy twin when there is one, else its own id, else the placeholder.
+static func perk_icon(icon: String) -> String:
+	var twin := "trophy_" + icon.trim_prefix("icon_")
+	if icon.begins_with("icon_") and Art.has_sprite(twin):
+		return twin
+	return Art.sprite_or(icon)
+
+
 class PerksOverlay:
 	extends Overlay
 	var _rows := {}
@@ -325,7 +336,7 @@ class PerksOverlay:
 		var k := 0
 		for p: Dictionary in Meta.perks():
 			var id_: String = p["id"]
-			var r := Overlays.list_row(self, y, k, p["icon"], int(th["plate"]["frames"]["upgradeGlobal"]), p["name"], "", false)
+			var r := Overlays.list_row(self, y, k, Overlays.perk_icon(str(p["icon"])), int(th["plate"]["frames"]["upgradeGlobal"]), p["name"], "", false)
 			var b := body_button(Rect2(488, y + 8, 160, 80), Rect2(472, y, 184, 96), "", func() -> void: _buy(id_), "pill", 3)
 			var cost := PxText.make(body, Vector2(488, y + 52), "", 3, "plain", th["pill"]["labelBuy"])
 			r["button"] = b

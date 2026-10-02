@@ -7,8 +7,9 @@ extends RefCounted
 ##   bank, seats {effective, gate}, evolutions, runSec, cta (the "עוד סבב!" CTA is up), ready
 ##   (the election can be called), ctaAt [x, y] (the CTA's centre), modal (the top overlay's id or "")
 ##   chat {open, thread [top, bottom], pills [[x, y, seq, afford, ceremony]], brawls [[x, y, seq]],
-##        avatars [[x, y, id]] (in view), openBrawl}: every open pay pill and "צאו החוצה" button, in
-##        or out of view (the driver drags the thread to bring one into view)
+##        avatars [[x, y, id]] (in view), openBrawl, payAll {visible, n, total, x, y}}: every open pay
+##        pill and "צאו החוצה" button, in or out of view (the driver drags the thread to bring one
+##        into view); payAll is the composer's "לסגור עם כולם" pill
 ##   coal {lines, afford, ultLeft, save, vote}: the open pay lines, how many the bank covers, the
 ##        nearest ultimatum (s, -1 none), the biggest ultimatum / rejoin price, the election card holding
 ##   shop {tab, list [top, bottom], rows [[x, y, id, afford]]}: the source cards in view
@@ -108,6 +109,10 @@ static func snapshot(host: Node) -> Dictionary:
 	var pi := chat.pending_info()
 	var pc := (pi["rect"] as Rect2).get_center() + chat.position + o
 	out["chat"]["pending"] = {"visible": pi["visible"], "n": pi["n"], "seq": pi["seq"], "x": pc.x, "y": pc.y}
+	# coalition UX rev 5: the composer's "לסגור עם כולם" pill (n lines, total ₪), centre in viewport px
+	var pa := chat.pay_all_info()
+	var pac := (pa["rect"] as Rect2).get_center() + chat.position + o
+	out["chat"]["payAll"] = {"visible": pa["visible"], "n": pa["n"], "total": pa["total"], "x": pac.x, "y": pac.y}
 	var bc := ChatView.BRAWL_CUE.get_center() + chat.position + o
 	out["brawlCue"] = {"visible": chat.brawl_cue_visible(), "x": bc.x, "y": bc.y}
 	var shop: Shop = host.get("shop")
