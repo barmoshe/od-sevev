@@ -152,7 +152,7 @@ The court chip is **not** on the stage any more: during court day it takes the t
 | Count | at most one (the newest ultimatum); hidden while a tall tab or overlay covers the stage |
 | Never | inside the Suitcase band, the Magician's hit, the toast dock, or during the first-minute FTUE (U1 gates it anyway) |
 
-**Sara's mark (Balfour era only):** the same right column, feet at (652, S−140), art ×2 (a depth cue: she is behind the Magician's plane), not a tap target. When a cameo enters she fades out (150 ms) and returns after it leaves. Hidden in eras 2-4.
+**Sara's mark (Balfour era only):** the same right column, feet at (652, S−140), art ×2 (a depth cue: she is behind the Magician's plane). Bar 2026-10-02: while she is on the stage she is the tap target (the leader takes none) under a bobbing gold arrow, until tapped. When a cameo enters she fades out (150 ms) and returns after it leaves. Hidden in eras 2-4.
 
 **Idle coin-peek invite (the Magician, main mode): accepted only while `evolutions == 0 and owned_total < 3`**, i.e. while tapping is still the main income. After that tapping is optional (accessibility §7.3 of first-minute), and a recurring peek would read as a nag. Reduced motion as the Animator specifies.
 

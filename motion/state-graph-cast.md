@@ -187,7 +187,9 @@ red lines.
 - **(1)** The bottle-deposit spin **S01** is bought (commit f0). S01 is her only reference in the game (pitch §6), and
   her huff at the purchase is the joke without naming her.
 - **(2)** The pistachio spin is bought. This is optional and is the Game Designer's call.
-- She is **not** a tap target. Making the player poke her would move the joke from the record to the person.
+- **Bar, 2026-10-02: she IS the tap target while she is on the stage** (this replaces "not a tap target"). A tap on the
+  leader earns nothing while she waits (she huffs, a toast says to tap her); a gold arrow bobs over her head; a tap on her
+  sends her off. She stays until tapped (`ui/sara_mark.gd`).
 - There is a **cooldown of 8000 ms**: triggers inside it are dropped.
 - There is a **delay of 150 ms after the commit** (reaction time), so the buy feedback reads first and her huff second.
 

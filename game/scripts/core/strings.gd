@@ -51,11 +51,11 @@ static func upgrade_name(id: String) -> String:
 
 ## The spin's short effect line: slots A, B and E through the _LEADER keys (the round's verb and
 ## crit name, for every leader: Bibi's kit words equal the shipped lines), else upgradeEffects.
-static func upgrade_effect(id: String) -> String:
-	var le := LeaderUi.spin_effect(id)
+static func upgrade_effect(id: String, params: Dictionary = {}) -> String:
+	var le := LeaderUi.spin_effect(id, params)
 	if le != "":
 		return le
-	return data().get("upgradeEffects", {}).get(id, "")
+	return Bidi.fill(str(data().get("upgradeEffects", {}).get(id, "")), params)
 
 
 ## ux/ui-strings.json rule 3: plural variants are sibling keys (CLDR he): BASE_ZERO only when it

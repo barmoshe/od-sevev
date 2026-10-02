@@ -401,8 +401,7 @@ func _build() -> void:
 	street.on_marker = func(n: String) -> void: _audio(n)
 	sara = SaraMark.new()
 	diorama.street_layer().add_child(sara)
-	sara.on_arrive = func() -> void:
-		toasts.show_toast(Strings.s("SARA_ARRIVE"), "", "lane", func() -> bool: return sara.tappable())
+	sara.on_arrive = _sara_toast.bind("SARA_ARRIVE")
 	herzog = HerzogFigure.new()
 	diorama.street_layer().add_child(herzog)
 	kaia = KaiaFigure.new()
@@ -1438,7 +1437,7 @@ func _run_automation(dt: float, modal: bool) -> void:
 	if _input_blocked():
 		return   # the block holds the player's hands, and the perks' too
 	var rate := Meta.auto_tap_rate(state) * float(_dev["speed"])
-	if d.taps_paused:
+	if d.taps_paused or sara.tappable():   # Sara waits for a real tap: the perks' taps wait too
 		rate = 0.0   # the court day / walk-off: no taps, no "+0", the hat stays hushed (as a manual tap)
 		_auto_tap_acc = 0.0
 	if rate > 0.0:
@@ -1843,6 +1842,11 @@ func _tap_sara() -> void:
 var _sara_toast_at := -1.0e9
 
 
+## A Sara line in the lane, dropped as soon as she no longer takes the tap.
+func _sara_toast(key: String) -> void:
+	toasts.show_toast(Strings.s(key), "", "lane", sara.tappable)
+
+
 ## A tap on the leader while Sara waits: no coin, no +N. She huffs, the arrow pulses, and at most
 ## every 2.5 s the toast says whom to tap.
 func _on_sara_block() -> void:
@@ -1851,7 +1855,7 @@ func _on_sara_block() -> void:
 	if _now - _sara_toast_at >= 2500.0:
 		_sara_toast_at = _now
 		_audio("cantAfford")
-		toasts.show_toast(Strings.s("SARA_BLOCK"), "", "lane", func() -> bool: return sara.tappable())
+		_sara_toast("SARA_BLOCK")
 
 
 ## A tap on Kaia while she is out (KaiaFigure): the cucumber. Events.act("kaia", "feed") swaps her nip
@@ -2233,9 +2237,6 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if not tap_burst() and toasts.tap(sp):
 		return
 	if Ui.in_rect(bb.hit_rect(), sp):
-		if sara.tappable():
-			_on_sara_block()   # Bar 2026-10-02: while Sara is on the stage the tap is hers
-			return
 		_handle_tap(sp)
 		return
 	if ticker.visible and ticker.cta_on() and ticker.cta.contains(lp):
@@ -2419,6 +2420,9 @@ func _on_key(e: InputEventKey) -> void:
 
 ## The core verb (mechanic rules 1-2): award on pointer-down, the global 16/s cap, full juice at f0.
 func _handle_tap(at: Vector2) -> void:
+	if sara.tappable():
+		_on_sara_block()   # Bar 2026-10-02: while Sara is on the stage the tap is hers
+		return
 	if not _limiter.try_register(Time.get_ticks_msec()):
 		return
 	var r := Economy.tap(state, _rng("tap"))   # seeded rounds: _rng

@@ -173,6 +173,8 @@ func test_live_spin_chip() -> void:
 	var t := BuffViews.spin_chip_text({"id": "s07", "type": "idleToTap"}, 12.2, 368.0)
 	runner.check(t.contains(Strings.s("SPIN_ACTIVE", {"s": "13"})), "SPIN_ACTIVE with the seconds left: %s" % t)
 	runner.check(PxText.measure(t, BuffViews.CHIP_SCALE) <= 368, "it fits the chip")
+	var line := Shop.spin_line2("s02", Shop.spin_card(s, "s02"))
+	runner.check(line.contains("60") and not line.contains("{s}"), "the pistachio's card names the next buy's seconds (no buy yet: 60): %s" % line)
 	var tp := BuffViews.spin_chip_text(Spins.live(s, "s02"), 42.0, 368.0)
 	runner.check(tp.contains("1.5") and tp.contains("42"), "the pistachio's chip says what it does: %s" % tp)
 	runner.check(PxText.measure(tp, BuffViews.CHIP_SCALE) <= 368, "and fits the chip")

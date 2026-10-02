@@ -13,8 +13,8 @@ release_ms = 160.0
 
 [sub_resource type="AudioEffectHardLimiter" id="AudioEffectHardLimiter_master"]
 resource_name = "Limiter"
-pre_gain_db = 2.0
 ceiling_db = -1.0
+pre_gain_db = 2.0
 
 [sub_resource type="AudioEffectEQ6" id="AudioEffectEQ6_music"]
 resource_name = "MusicEQ"
@@ -28,6 +28,7 @@ room_size = 0.3
 damping = 0.7
 spread = 0.6
 hipass = 0.3
+dry = 1.0
 wet = 0.1
 
 [sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_outside"]

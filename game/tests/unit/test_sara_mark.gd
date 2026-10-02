@@ -49,12 +49,17 @@ func _start_round(id := "bibi") -> bool:
 		return false
 	_frames(2)
 	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
+	_touch(at)
+	return m.mode == "main"
+
+
+## One finger down and up at `at` (viewport px).
+func _touch(at: Vector2) -> void:
 	for pressed in [true, false]:
 		var e := InputEventScreenTouch.new()
 		e.position = at
 		e.pressed = pressed
 		m._unhandled_input(e)
-	return m.mode == "main"
 
 
 func _frames(n: int, ms := 16.0) -> void:
@@ -140,29 +145,17 @@ func test_while_she_is_on_stage_the_tap_is_hers() -> void:
 	runner.check(sara.tappable(), "she walks in and takes the tap")
 	var bank: float = m.state.bananas
 	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
-	for pressed in [true, false]:
-		var e := InputEventScreenTouch.new()
-		e.position = at
-		e.pressed = pressed
-		m._unhandled_input(e)
+	_touch(at)
 	_frames(2)
 	runner.check(m.state.bananas == bank, "a tap on the leader pays nothing while she waits")
 	runner.check(sara.strip.anim == "offended", "she huffs at it")
 	var hr := sara.hit_rect()
 	runner.check(not hr.has_area() or not hr.has_point(L.magician_hit().get_center()), "her tap box is not on the leader")
 	var on_her := hr.get_center() + Vector2(m._sx, m._stage_y)
-	for pressed in [true, false]:
-		var e2 := InputEventScreenTouch.new()
-		e2.position = on_her
-		e2.pressed = pressed
-		m._unhandled_input(e2)
+	_touch(on_her)
 	_frames(2)
 	runner.check(not sara.tappable() and not sara.showing(), "a tap on her sends her off")
 	m._last_tap_ms = -1.0e9
 	m._limiter = TapLimiter.new()
-	for pressed in [true, false]:
-		var e3 := InputEventScreenTouch.new()
-		e3.position = at
-		e3.pressed = pressed
-		m._unhandled_input(e3)
+	_touch(at)
 	runner.check(m.state.bananas > bank, "and the leader pays again")

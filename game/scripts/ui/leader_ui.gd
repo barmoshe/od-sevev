@@ -204,14 +204,14 @@ static func spin_icon(upgrade_id: String) -> String:
 
 ## The effect line of a skinned spin: the _LEADER key of slots A, B and E (rtl-map §4.3), filled
 ## with the round's verb / crit name; "" = the shipped upgradeEffects line.
-static func spin_effect(upgrade_id: String) -> String:
+static func spin_effect(upgrade_id: String, params: Dictionary = {}) -> String:
 	if not Leaders.active():
 		return ""
 	var key: String = {"s01": "SPIN_EFFECT_S01_LEADER", "s02": "SPIN_EFFECT_S02_LEADER", "s11": "SPIN_EFFECT_S11_LEADER"}.get(upgrade_id, "")
 	if key == "" or not Strings.has(key):
 		return ""
 	var t := tap()
-	return Strings.s(key, {"verb": str(t["verb"]), "critName": str(t["critName"])})
+	return Strings.s(key, params.merged({"verb": str(t["verb"]), "critName": str(t["critName"])}))
 
 
 ## Dubi's first-tap squawk for a leader (ux/ftue.md H1 / H1L): Bibi's DUBI_FIRSTTAP, else the

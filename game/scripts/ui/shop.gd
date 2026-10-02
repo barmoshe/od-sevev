@@ -1124,7 +1124,7 @@ static func spin_line2(id: String, card: Dictionary) -> String:
 	if not bars.is_empty() and int(card.get("level", 0)) >= 1:
 		return Strings.s("SPIN_BARS_LINE", {"pct": int(roundf(float(bars.get("friendly", 0.0))))})
 	# a consumable's line names what the next buy lasts (fatigue shortens a rebuy: 60, 48, 38 s)
-	return Strings.upgrade_effect(id).replace("{s}", str(int(roundf(float(card.get("nextSec", 0.0))))))
+	return Strings.upgrade_effect(id, {"s": int(roundf(float(card.get("nextSec", 0.0))))} if card.has("nextSec") else {})
 
 
 ## The spin card's model (rtl-map §6.1 "Spin card"), from the sim's reads only:
@@ -1145,6 +1145,8 @@ static func spin_card(s: GameState, id: String, d: Economy.Derived = null) -> Di
 		out["bars"] = c["bars"]
 	if c.has("flightPct"):
 		out["flightPct"] = c["flightPct"]
+	if c.has("nextSec"):
+		out["nextSec"] = c["nextSec"]
 	return out
 
 

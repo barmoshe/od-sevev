@@ -112,12 +112,12 @@ static func first_spin(spins: Array) -> Dictionary:
 ## was not clear). Any other spin: "{name} · SPIN_ACTIVE" when it fits the chip's text box at the
 ## chip scale, else SPIN_ACTIVE alone.
 static func spin_chip_text(spin: Dictionary, left_sec: float, box_w: float) -> String:
-	var id := str(spin.get("id", ""))
+	var sec := Fmt.secs(left_sec).replace("S", "")
 	if str(spin.get("type", "")) == "tapBuff":
-		return Strings.s("BUFF_CHIP_TAPFRENZY_LEADER", {"mult": Fmt.mult(float(spin.get("mult", 1.0))),
-			"s": Fmt.secs(left_sec).replace("S", ""), "verb": str(LeaderUi.tap()["verb"])})
-	var active := Strings.s("SPIN_ACTIVE", {"s": Fmt.secs(left_sec).replace("S", "")})
-	var full := Strings.upgrade_name(id) + " · " + active
+		return Strings.s("BUFF_CHIP_TAPFRENZY_LEADER", {"mult": Fmt.mult(float(spin.get("mult", 1.0))), "s": sec,
+			"verb": str(LeaderUi.tap()["verb"])})
+	var active := Strings.s("SPIN_ACTIVE", {"s": sec})
+	var full := Strings.upgrade_name(str(spin.get("id", ""))) + " · " + active
 	return full if PxText.measure(full, CHIP_SCALE) <= box_w else active
 
 

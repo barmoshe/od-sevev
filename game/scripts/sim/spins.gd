@@ -108,15 +108,19 @@ static func ceil_sig(v: float, digits: int) -> float:
 	return ceilf(v / step - 1e-9) * step
 
 
+## What a consumable's next buy lasts: durationSec × fatigue^(buys this round). One rule (Bar
+## 2026-10-02): fatigue shortens a repeat buy, never weakens it, so "×1.5" stays true.
+static func next_sec(s: GameState, u: Dictionary) -> float:
+	var f := pow(clampf(float(u.get("fatigue", 1.0)), 0.0, 1.0), buys(s, u["id"]))
+	return float((u.get("effect", {}) as Dictionary).get("durationSec", 0.0)) * f
+
+
 ## The effect of a consumable's next buy with fatigue applied: {effect, durationSec, n}.
 static func faded(s: GameState, u: Dictionary) -> Dictionary:
 	var e: Dictionary = (u.get("effect", {}) as Dictionary).duplicate()
-	var n := buys(s, u["id"])
-	var f := pow(clampf(float(u.get("fatigue", 1.0)), 0.0, 1.0), n)
-	# one rule (Bar 2026-10-02): fatigue shortens a repeat buy, never weakens it, so "×1.5" stays true
 	if e.has("durationSec"):
-		e["durationSec"] = float(e["durationSec"]) * f
-	return {"effect": e, "durationSec": float(e.get("durationSec", 0.0)), "n": n}
+		e["durationSec"] = next_sec(s, u)
+	return {"effect": e, "durationSec": float(e.get("durationSec", 0.0)), "n": buys(s, u["id"])}
 
 
 ## Economy.buy_upgrade's second half, after the price is paid: the kind's bookkeeping and the
@@ -162,7 +166,7 @@ static func card(s: GameState, id: String, d: Economy.Derived = null) -> Diction
 	var out := {"kind": kind(u), "price": price(s, u, d), "level": level(s, id), "levels": levels_of(u).size(),
 		"worn": kind(u) == "consumable" and buys(s, id) > 0, "liveSec": float(live(s, id).get("leftSec", 0.0))}
 	if kind(u) == "consumable":
-		out["nextSec"] = float(faded(s, u)["durationSec"])   # the "{s}" of its effect line: what the next buy lasts
+		out["nextSec"] = next_sec(s, u)   # the "{s}" of its effect line
 	if e.get("type", "") == "karhiLine":
 		var drained := minf(100.0, float(e.get("broadcasterDrainPct", 20.0)) * level(s, id))
 		out["bars"] = {"public": 100.0 - drained, "friendly": drained}
