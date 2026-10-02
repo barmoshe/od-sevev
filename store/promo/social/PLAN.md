@@ -60,7 +60,20 @@ The poll and the quiz are about the game and a public fact, never about who to v
 | Tue 20.10 | Reel: `od-sevev-reel-process.mp4` | | "כל יכולת מתחילה בכותרת אמיתית." |
 | Wed 21.10 | Carousel: dictionary (repost as Trial) | 03 quiz | |
 | Thu 22.10 | Reel: the best performer so far, again as a Trial Reel | 01 countdown | |
-| Fri 23.10 - Mon 26.10 | One Reel a day from the strongest three; Stories daily | | |
-| Tue 27.10 | Election day: a light post only, or nothing | | Check the election-day rules on publishing before posting anything. |
+| Fri 23.10 - Mon 26.10 | Blackout: one Reel a day from the blackout-safe set only (below); Stories daily, never the quiz | | No numbers in the caption either. |
+| Tue 27.10 | Election day: a light post only, or nothing, until 22:00 | | Check the election-day rules on publishing before posting anything. |
+
+## The blackout, Fri 23.10 to 27.10 22:00
+
+The game itself hides its seat numbers in this window (HANDOFF: no seat or poll numbers framed as
+public). The kit follows it. Anything that shows 61, a seat count or a hemicycle waits until after 22:00
+on the 27th:
+
+- **Hold:** match ("צריך 61"), starter ("לא כלול: 61 מנדטים."), search ("איך מגיעים ל־61"), trailer
+  (the hemicycle, "מנדט אחד חסר."), loading and patch (the "אין 61?" tip), zap ("הקוסם שלף 61"), the older
+  select, mivzak and speedrun, the dictionary carousel (the 61 entries), the "אין 61." sticker, Story 03 (the quiz).
+- **Safe:** gantz, doc, ghost, family, process, the abilities carousel, the memes, Stories 01, 02, 04, 05.
+
+Check any new post the same way before it goes up in that window.
 
 Reading the numbers: sends per reach matter most (DM shares). Whatever gets sent, make another one like it.
