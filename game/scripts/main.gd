@@ -3559,7 +3559,7 @@ func round_arrive(kind: String, params: Dictionary = {}) -> void:
 		var ch := Challenge.parse(params)
 		if not ch.is_empty():
 			_arrival = {"kind": kind, "ch": ch}
-	elif kind == "daily":
+	elif kind == "daily" and DailyRound.enabled():
 		_arrival = {"kind": kind}
 
 
@@ -3581,7 +3581,7 @@ func _round_frame(dt: float) -> void:
 	if bool(_dev["on"]) and OS.has_feature("web"):
 		_round_publish(dt)
 	# once a day, a returning player in their own game hears about the daily round (a tap opens it)
-	if not in_round() and mode == "main" and free and state.taps_lifetime > 0 and Leaders.active():
+	if DailyRound.enabled() and not in_round() and mode == "main" and free and state.taps_lifetime > 0 and Leaders.active():
 		_round_toast_ms += dt
 		var today := _round_today()
 		if _round_toast_ms > 4000.0 and not book.played(today) and str(book.data.get("toastDay", "")) != today and toasts.idle():
@@ -3611,7 +3611,7 @@ func _sync_round_chip() -> void:
 ## The picker's entry (its sky above the title), with a dot while today's round is unplayed.
 func _sync_daily_btn() -> void:
 	var sky: Vector2 = picker.sky
-	var on := mode == "pick" and picker.visible and not in_round() and Leaders.active() and sky.y - sky.x >= 96.0 and not overlays.is_open()
+	var on := DailyRound.enabled() and mode == "pick" and picker.visible and not in_round() and Leaders.active() and sky.y - sky.x >= 96.0 and not overlays.is_open()
 	_daily_layer.visible = on
 	if not on:
 		return
@@ -3719,7 +3719,7 @@ func round_decline_arrival() -> void:
 
 ## "הסבב היומי": the day's card (unplayed: GO; played: the grid, the streak, SHARE, REPLAY).
 func open_daily() -> void:
-	if in_round() or overlays.is_open() or book == null:
+	if not DailyRound.enabled() or in_round() or overlays.is_open() or book == null:
 		return
 	var today := _round_today()
 	var yd := book.daily_result(DailyRound.prev_key(today))
@@ -3729,7 +3729,7 @@ func open_daily() -> void:
 
 
 func daily_ready() -> bool:
-	return book != null and not in_round() and Leaders.active()
+	return DailyRound.enabled() and book != null and not in_round() and Leaders.active()
 
 
 ## DailyCard's GO / REPLAY: today's seed and leader; official only while the day has no result.

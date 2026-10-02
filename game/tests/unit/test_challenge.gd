@@ -278,7 +278,7 @@ func test_the_offer_after_an_election() -> void:
 	_check(last.get("leader") == "bibi" and int(last.get("t", 0)) == 461, "the election's round is noted: %s" % last)
 	_check(m.round_offer_ready(), "T4's 'אתגר חבר' shows")
 	var kinds: Array = (m.dossier.buttons() as Array).map(func(b: Dictionary) -> String: return str(b["kind"]))
-	_check(kinds.has("challenge") and kinds.has("daily"), "T4 lists both rounds: %s" % str(kinds))
+	_check(kinds.has("challenge") and not kinds.has("daily"), "T4 lists the challenge, not the daily round (off): %s" % str(kinds))
 	var rb := RoundBook.new(dir).load_book()
 	_check(rb.last_round() == last, "and survives a reload")
 	m._round_offer_toast()   # what the next pick does

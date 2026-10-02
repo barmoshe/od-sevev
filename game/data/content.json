@@ -626,7 +626,9 @@
   "postLaunch": false,
   "easterEggs": false,
   "mordechaiDavid": true,
-  "yairNetanyahu": false
+  "yairNetanyahu": false,
+  "dailyRound": false,
+  "_dailyRound": "הסבב היומי (seeded rounds): off by Bar 2026-10-02 ('לא צריך הסבב היומי'). Off closes every entry: the picker's button, T4's row, the once-a-day toast and a /s/daily link's arrival (it lands in the player's own game). The code stays (sim/daily.gd, RoundCards.DailyCard); true brings it back."
  },
  "seats": {
   "_doc": "Display rules for the seats bar. The gate and the own-seat formula are coalition.gateSeats / coalition.ownSeats (sim contract v1); prestige.gate.type 'seats' reads them.",

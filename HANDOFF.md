@@ -1,4 +1,19 @@
-# HANDOFF: idle-genre upgrade + reinvented sharing, PAUSED mid-flight (2026-10-02; read this first)
+# HANDOFF: idle-genre upgrade + reinvented sharing, LIVE (2026-10-02 evening; read this first)
+
+**Live: `293d85a`** (web-dist `7159192`, Vercel `dpl_2bVnZjN47Q481iLDqyZnm5ymbvBX`). All four WIP branches are merged
+into main and deployed: missions and ranks, "תעבור אותי" and "הסבב היומי", the share platform (drawer, cards, OG
+stubs), faster later rounds; plus card milestones, live ₪/s and the coalition chat UX. Details: `STATUS.md` (2026-10-02).
+
+## Open
+1. **The full bench** (`tools/balance.sh`) ran during the deploy: read its result (S1-S8, L1, G1, the browser replay).
+   Missions (rank income bonus) and faster rounds both move pacing; if a gate is red, root-cause before tuning.
+2. **Election silence** (Fri 23.10 to 27.10 22:00): the daily grid swaps 61 for ✅ and the breaking card hides 61,
+   but the challenge return lines (`CHALLENGE_SHARE_LOSE` "הגעתי ל־61…") still print 61; decide whether the
+   gate count counts as a seat number there.
+3. **Visual pass on a phone** (Bar): the 📣 chip under the missions chip, the drawer, the missions sheet.
+4. Older items below (unwired props, the Ben Gvir walk-out pose, Bar-only items) still stand.
+
+# HANDOFF (history): idle-genre upgrade + reinvented sharing, paused mid-flight (2026-10-02)
 
 Bar stopped the session ("תעצור הכל, תרשום handoff, נמשיך עוד מעט"). Four agents were stopped mid-task;
 their work is pushed as **WIP branches** (not merged, not deployed).

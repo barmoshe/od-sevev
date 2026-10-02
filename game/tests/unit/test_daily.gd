@@ -14,9 +14,16 @@ func setup(r: Object) -> void:
 	tree = r as SceneTree
 	dir = "user://test_daily_%d" % Time.get_ticks_usec()
 	DirAccess.make_dir_recursive_absolute(dir)
+	_flag(true)   # the daily round is off in content (Bar 2026-10-02); its code is still tested here
+
+
+## The content flag `dailyRound` for this test (teardown puts it back off).
+func _flag(on: bool) -> void:
+	(Content.data()["flags"] as Dictionary)["dailyRound"] = on
 
 
 func teardown() -> void:
+	_flag(false)
 	if m and is_instance_valid(m):
 		m.set_process(false)
 		if m.get_parent():
@@ -194,3 +201,20 @@ func test_daily_from_the_picker_for_a_new_player() -> void:
 	m._finish_round()
 	_check(int(m.book.daily_result(today)["sec"]) == 252, "and does not replace the day's result")
 	m.leave_round()
+
+
+## Off (the shipped content): no picker entry, no T4 row, no daily card, and a /s/daily link lands in
+## the player's own game.
+func test_off_the_daily_round_has_no_entry() -> void:
+	_flag(false)
+	await _boot()
+	for i in 2:
+		await tree.process_frame
+	_check(not DailyRound.enabled(), "the flag is off")
+	_check(not m.daily_btn_rect().has_area(), "no entry in the picker's sky")
+	_check(not m.daily_ready(), "no T4 row")
+	m.open_daily()
+	await tree.process_frame
+	_check(not (m.overlays.top() is RoundCards.DailyCard), "no daily card")
+	m.round_arrive("daily")
+	_check(m._arrival.is_empty(), "a daily link's arrival is dropped")

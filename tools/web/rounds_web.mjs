@@ -139,7 +139,9 @@ if (only === '' || only === 'challenge') {
 	await ctx.close();
 }
 
-if (only === '' || only === 'daily') {
+// the daily round is off in content (flags.dailyRound, Bar 2026-10-02): its section runs only when asked for
+// (`only` = daily) on a build with the flag on
+if (only === 'daily') {
 	log('daily');
 	const { ctx, page, P, errors } = await open('');
 	let r = await round(page);
@@ -203,7 +205,7 @@ if (only === '' || only === 'offer') {
 	}
 	await page.waitForTimeout(1500);
 	const r = await round(page);
-	ok(r && r.daily, 'the after-election picker shows the daily entry');
+	ok(r && !r.daily, 'the after-election picker has no daily entry (the daily round is off)');
 	await shot(page, 'o1-picker-after');
 	await pickCell('bibi');
 	// the undo chip holds the lane toasts for 5 s of wall time; then the offer's toast docks
