@@ -147,3 +147,17 @@ redrawn from its sprite at its exact offset) and Gantz painted in. "בחרתם �
 own decoy: "גנץ לא עבר", בחר שוב, "סוף הסבב.", and the cell is הפתעה again.
 
     python3 src/gantz.py <scratch with take_bennett/, take_golan/> [--stills | --one <sec>]
+
+## The social kit beyond Reels (`src/social.py`, output in `social/`)
+
+Bar: more marketing content, several types. Research (Oct 2026): carousels are saved about 35% more than
+single images, the first slide decides, 7-10 slides (adpicto.com/en/blog/instagram-carousel-best-practices-2026,
+krumzi.com/blog/15-instagram-carousel-ideas-that-actually-drive-engagement-in-2026); Stories with native
+stickers get about twice the interactions, 3-7 frames (skedsocial.com/blog/ideas-to-boost-interactions-on-instagram-stories-in-2026);
+WhatsApp stickers are 512x512 WebP under 100 KB, 3-30 a pack, a 96x96 tray (sticko.app/guides/whatsapp-sticker-size-and-format).
+
+18 WhatsApp stickers, two carousels (the abilities; "מילון עוד סבב"), 5 Story frames with room for
+Instagram's own stickers, 4 memes, 5 highlight covers, and a posting plan to 27.10 with captions:
+`social/PLAN.md`.
+
+    python3 src/social.py [all|stickers|abilities|dictionary|stories|memes|highlights]
