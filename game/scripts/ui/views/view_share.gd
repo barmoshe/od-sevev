@@ -47,7 +47,9 @@ const C_STATUS := Color("#0038b8")
 const ENVELOPE_AT := Vector2(38, 197)
 const ENVELOPE_GAP := 16.0
 
-var kind := "receipt"                         # "receipt" (O4) | "result" (O5)
+var kind := "receipt"                         # "receipt" (O4) | "result" (O5) | a ShareCards kind (the share platform)
+var ext: Dictionary = {}                      # the caller's model (challenge / daily, ShareKit.request)
+var model: Dictionary = {}                    # ShareKit.model for a ShareCards kind
 var art_px := 2.0                             # the preview's logical px per art px
 var png := PackedByteArray()
 var text_to_share := ""
@@ -71,7 +73,7 @@ var _card_root: Node2D
 ## full width (the main channel, nearest the thumb), "לשתף" / "לשמור תמונה" side by side, the
 ## status line; every row stretches with the canvas (anchor S), the preview is centred.
 func build() -> ShareSheet:
-	id = "SHARE_RECEIPT" if kind == "receipt" else "SHARE_RESULT"
+	id = "SHARE_RECEIPT" if kind == "receipt" else ("SHARE_RESULT" if kind == "result" else "SHARE_" + kind.to_upper())
 	full_bleed = true
 	var th := Art.theme
 	var vs := Vector2(L.W, L.H)
@@ -90,7 +92,7 @@ func build() -> ShareSheet:
 	h = minf(h, Ui.snap(content, 4))
 	var pr := Rect2(0, vs.y - inset - h - ovl_y, L.cw, h + inset)
 	make_panel(pr)
-	var title := text(Vector2(0, pr.position.y + 24.0), Strings.s("SHARE_RECEIPT_TITLE" if kind == "receipt" else "SHARE_RESULT_TITLE"), L.TEXT, th["modal"]["title"])
+	var title := text(Vector2(0, pr.position.y + 24.0), title_text(), L.TEXT, th["modal"]["title"])
 	title.fit_width = 432.0   # sheet.title
 	title.center_in(pr.position.x + 144.0, pr.size.x - 288.0)
 	var close := close_button(Rect2(pr.position.x + 16, pr.position.y + 16, 64, 64), Rect2(pr.position.x, pr.position.y, 104, 104), func() -> void: cancel("close"))
@@ -144,7 +146,12 @@ func build() -> ShareSheet:
 	var st: GameState = host.get("state") if host != null else GameState.fresh()
 	var d: Economy.Derived = host.get("d") if host != null else null
 	var now := now_ms()
-	text_to_share = ShareKit.share_text(kind, st, d, now)
+	if ShareCards.KINDS.has(kind):
+		# the share platform's cards off the web: the drawer's message, the link to the kind's stub
+		model = ShareKit.model(kind, st, d, ext)
+		text_to_share = ShareKit.compose(str(model.get("text", "")), ShareKit.site_url() + str(model.get("stub", "")))
+	else:
+		text_to_share = ShareKit.share_text(kind, st, d, now)
 	_start_render(st, d, now)
 	return self
 
@@ -320,7 +327,10 @@ func _start_render(s: GameState, d: Economy.Derived, now: float) -> void:
 	_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_card_root = Node2D.new()
 	_vp.add_child(_card_root)
-	build_card(_card_root, kind, s, d, now)
+	if ShareCards.KINDS.has(kind):
+		ShareCards.build(_card_root, kind, model, "sq")
+	else:
+		build_card(_card_root, kind, s, d, now)
 	add_child(_vp)
 	_capture.call_deferred()
 
@@ -369,7 +379,16 @@ func card_root() -> Node2D:
 # ------------------------------------------------------------------ actions
 
 func file_name() -> String:
-	return ShareKit.FILE_RECEIPT if kind == "receipt" else ShareKit.FILE_RESULT
+	return ShareKit.file_name(kind)
+
+
+## The sheet's title: O4 / O5's own, else the drawer's kind label (the share platform).
+func title_text() -> String:
+	if kind == "receipt":
+		return Strings.s("SHARE_RECEIPT_TITLE")
+	if kind == "result":
+		return Strings.s("SHARE_RESULT_TITLE")
+	return Strings.s("SHARE_KIND_" + kind.to_upper()) if Strings.has("SHARE_KIND_" + kind.to_upper()) else Strings.s("SHARE_RESULT_TITLE")
 
 
 func share() -> void:

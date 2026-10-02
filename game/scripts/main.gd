@@ -134,6 +134,9 @@ var _undo_in_row := false
 var _undo_ms := 0.0                 # wall ms left on the undo chip
 var _undo_full := 5000.0
 var court_echo: CourtEcho            # the courthouse window on the stage (Bibi's rounds; ui/court_echo.gd)
+# ---- share platform (ui/share_desk.gd, ui/share_cards.gd; Bar 2026-10-02) ----
+var share_desk: ShareDesk           # the share drawer's session, the card renders, the 📣 chips, the prompt
+# ---- /share platform ----
 ## Every cue sent to the Audio, by name (tests and tools listen; nothing in the game does).
 signal audio_sent(name: String, arg: Variant)
 ## Every funnel event (_funnel), on every platform: tests listen; the web build also reports it.
@@ -336,8 +339,10 @@ func _dev_poll_event() -> void:
 
 
 func _default_settings() -> Dictionary:
-	return {"sfx": true, "music": true, "reducedMotion": _os_reduced_motion(), "reducedMotionFollowsOs": true,
+	var out := {"sfx": true, "music": true, "reducedMotion": _os_reduced_motion(), "reducedMotionFollowsOs": true,
 		"haptics": true, "notation": "letters", "sfxVolume": 1.0, "musicVolume": 1.0, "shake": 1.0, "largeText": false}
+	out["share"] = {}   # share platform: ShareDesk's prefs (the prompt's back-off, the format, the family-safe toggle)
+	return out
 
 
 func _os_reduced_motion() -> bool:
@@ -456,6 +461,13 @@ func _build() -> void:
 	shop.nudge_blocked = func() -> bool: return overlays.is_open() or tx.running or _tx_locked or ftue.pointer_visible()
 	_build_chat()
 	_build_investigation()
+	# ---- share platform: the desk (ShareKit.request goes through it), the 📣 on the stage and in T3 ----
+	share_desk = ShareDesk.new().setup(self)
+	add_child(share_desk)
+	share_desk.build_chips(_stage, chat.get("_panel"))
+	share_desk.share_done.connect(func(k: String, ch: String, r: String) -> void:
+		_funnel("share_done", {"kind": k, "channel": ch, "result": r}))
+	# ---- /share platform ----
 	fx_ui = FxPlayer.new()
 	_ui.add_child(fx_ui)
 	ftue = Ftue.new()
@@ -521,12 +533,17 @@ func layer_depth() -> int:
 		n += 1
 	if court.expanded():
 		n += 1
+	if share_desk != null and share_desk.drawer_open:
+		n += 1   # share platform: the HTML share drawer is a layer (back closes it)
 	return n
 
 
 ## Closes the top layer exactly as its ✕ / Esc does (browser back, Android back, Esc). False when
 ## nothing is open.
 func back_layer() -> bool:
+	if share_desk != null and share_desk.drawer_open:
+		share_desk.close_drawer()   # share platform: the drawer is the top layer
+		return true
 	if overlays.is_open():
 		return overlays.back()
 	if tx.running or _tx_locked:
@@ -581,6 +598,8 @@ func _build_chat() -> void:
 			chat.open()
 		elif tag == "perks" and _gameplay_input():
 			_open_perks()
+		elif tag == "share" and _gameplay_input():
+			share_desk.open_prompted()   # share platform: the media advisor's prompt
 		else:
 			_round_toast_tap(tag)   # seeded rounds: "challenge" / "daily"
 
@@ -959,13 +978,32 @@ func open_result_card() -> void:
 func _open_share(kind: String) -> void:
 	if overlays.is_open():
 		return
+	# share platform: the HTML drawer on the web (ShareDesk), the canvas sheet elsewhere
+	if share_desk != null and share_desk.drawer_available():
+		share_desk.open_menu(kind)
+		return
+	open_share_sheet(kind, {})
+
+
+## The canvas share sheet (ShareSheet) on any kind: O4 / O5, and the share platform's cards off the
+## web (ShareDesk._open_sheet); `ext` is the caller's model (challenge / daily).
+func open_share_sheet(kind: String, ext: Dictionary = {}) -> bool:
+	if overlays.is_open():
+		return false
 	_audio("panelOpen")
 	ShareKit.listen(_on_share_result)   # a bound method: a static lambda would outlive this node
 	overlays.request(func() -> Overlay:
 		var o := ShareSheet.new()
 		o.setup(self, overlays)
 		o.kind = kind
+		o.ext = ext
 		return o.build())
+	return true
+
+
+## T4's "סיכום כל הסבבים" row (share platform): the career card.
+func open_career_card() -> void:
+	_open_share("career")
 
 
 ## The shell's share result (window.odShareDone): the open sheet shows it in its status line.
@@ -1207,6 +1245,12 @@ func _process(delta: float) -> void:
 	overlays.update_view(dt)
 	tx.update_view(dt)
 	_sync_history()
+	# ---- share platform: the prompt's clock, the moments, the 📣 chips ----
+	share_desk.tick(dt, _share_calm(running), running and not chat.is_open() and not dossier.is_open() and not tx.running and not _tx_locked,
+		running and chat.is_open() and not tx.running)
+	if bool(_dev["on"]):
+		_dev_poll_share()
+	# ---- /share platform ----
 	ftue.update_view(dt, state, d, _ftue_ctx(running))
 	_update_shake(dt)
 	if bool(_dev["on"]):
@@ -1375,6 +1419,7 @@ func _poll_handoff() -> void:
 	if v == null or float(v) <= 0.0:
 		return
 	ftue.handoff_ms = float(v)
+	share_desk.on_handoff()   # share platform: a player who came from a shared link
 	if not _settings_existed:
 		var snd: Variant = JavaScriptBridge.eval("window.odSound || ''", true)
 		if str(snd) == "off" or str(snd) == "on":
@@ -1553,6 +1598,8 @@ func on_partner_paid(id: String, payable: String) -> String:
 
 func _on_politics_event(e: Dictionary) -> void:
 	chat.on_politics_event(e)   # chat pings, toasts, chatLeft / ultimatumZero
+	if share_desk != null:
+		share_desk.on_politics_event(e)   # share platform: a juicy chat line / the court day is a moment
 	court.on_politics_event(e)  # the court card and chip (the card now carries the summons text)
 	thermo.on_politics_event(e) # the summons gulp
 	match String(e.get("ev", "")):
@@ -2123,6 +2170,11 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if dossier.pointer_down(lp):
 		_presses[idx] = {"kind": "dossier"}
 		return
+	# ---- share platform: T3's 📣 (its header's left end) ----
+	if share_desk.chat_btn_takes(chat, lp):
+		_presses[idx] = {"kind": "share"}
+		return
+	# ---- /share platform ----
 	if chat.pointer_down(lp):
 		_presses[idx] = {"kind": "chat"}
 		return
@@ -2139,6 +2191,9 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	# never through a toast that covers it
 	if ability_chip.takes_tap(sp) and not Ui.in_rect(toasts.covered_rect(), sp):
 		_use_ability()
+		return
+	if share_desk.chip_takes(sp) and not Ui.in_rect(toasts.covered_rect(), sp):   # share platform: the 📣 chip
+		_presses[idx] = {"kind": "shareChip"}
 		return
 	if herzog.tappable() and Ui.in_rect(herzog.hit_rect(), sp):
 		_accept_mediation()
@@ -2227,6 +2282,10 @@ func _pointer_up(idx: int, p: Vector2) -> void:
 		"mute":
 			if top_bar.mute_contains(tp) and _hud_input():
 				_toggle_mute()
+		"share", "shareChip":   # share platform: the 📣 opens the share drawer
+			var inside: bool = share_desk.chat_btn_takes(chat, lp) if String(pr["kind"]) == "share" else share_desk.chip_takes(_in_stage(p))
+			if inside and _gameplay_input():
+				share_desk.open_menu()
 		_:
 			_round_pointer_up(String(pr["kind"]), p)   # seeded rounds
 
@@ -2821,6 +2880,7 @@ func _start_evolve(dev_force := false) -> void:
 	_audio("evolveConfirm")
 	_audio("electionConfirm", nxt.evolutions)
 	_funnel("election_called", {"n": nxt.evolutions})
+	share_desk.on_election(nxt.evolutions)   # share platform: the term summary (the career at 3/5/10)
 	_trick_fired = false
 	_haptic(60)
 	var top := overlays.top()
@@ -3930,3 +3990,49 @@ func _round_share_result(kind: String, result: String) -> void:
 	if t is RoundCards.RoundCard:
 		(t as RoundCards.RoundCard).on_share_result(result)
 # END seeded rounds
+# ================================================================== share platform (Bar 2026-10-02)
+
+## The prompt's calm beat: the round is up, nothing over the stage, no transition, no tap burst
+## (and 1.5 s since the last tap), the toast dock idle.
+func _share_calm(running: bool) -> bool:
+	return running and mode == "main" and not overlays.is_open() and not tx.running and not _tx_locked \
+		and not chat.is_open() and not dossier.is_open() and not court.expanded() and not Leaders.pick_pending(state) \
+		and _now - _last_tap_ms > ShareDesk.QUIET_AFTER_TAP_MS and toasts.idle()
+
+
+## Dev only (web, ?dev=1; tools/web/share_web.mjs): `window.odDevShare = "leak"` opens the drawer on
+## that kind; `window.odDevHistory = N` writes N made-up past rounds (the career card);
+## `window.odDevMoment = "leak"` lights a moment (the prompt follows by its rules);
+## `window.odDevChat = 1` seeds the group (ShareDesk.seed_demo_chat), after the pick. window.odShareState mirrors
+## the desk.
+func _dev_poll_share() -> void:
+	if not OS.has_feature("web") or mode != "main":
+		return
+	var raw: Variant = JavaScriptBridge.eval("(function () { var o = {s: window.odDevShare || '', h: window.odDevHistory || 0, m: window.odDevMoment || '', c: window.odDevChat || 0}; window.odDevShare = ''; window.odDevHistory = 0; window.odDevMoment = ''; window.odDevChat = 0; return JSON.stringify(o); })()", true)
+	var o: Variant = JSON.parse_string(str(raw)) if raw != null else null
+	if o is Dictionary:
+		if int((o as Dictionary).get("c", 0)) > 0:
+			ShareDesk.seed_demo_chat(state)   # a demand, an ultimatum, a walkout, a brawl
+		var h := int((o as Dictionary).get("h", 0))
+		if h > 0:
+			var ids: Array = ShareKit.STUB_LEADERS
+			for i in h:
+				state.history.append({"n": state.history.size() + 1, "leader": ids[(i * 3) % ids.size()], "sec": 300.0 + 97.0 * i,
+					"gate": 240.0 + 61.0 * i, "earned": 2.0e6 * (i + 1), "top": Content.producer_ids()[mini(i, Content.producer_ids().size() - 1)],
+					"topPct": 0.4 + 0.05 * (i % 5), "paid": 3 + i % 6, "mvp": "smotrich" if i % 2 == 0 else "deri", "left": i % 3,
+					"court": i % 2, "post": i % 4})
+			state.evolutions = maxi(state.evolutions, state.history.size())
+		if str((o as Dictionary).get("m", "")) != "":
+			share_desk.note_moment(str(o["m"]), "gate" if str(o["m"]) == "breaking" else "")
+		if str((o as Dictionary).get("s", "")) != "":
+			share_desk.open_menu(str(o["s"]))
+	var info := share_desk.debug_info()
+	# the 📣 targets' centres in viewport logical px (the stage chip; T3's header button)
+	var ch := share_desk.chip
+	info["chip"] = [ch.visible, ch.position.x + ch.rect.get_center().x + _sx, ch.position.y + ch.rect.get_center().y + _stage_y] if ch != null else [false, 0, 0]
+	var cb := share_desk.chat_btn
+	if cb != null:
+		var c := cb.rect.get_center() + chat.position + (chat.get("_panel") as Node2D).position + Vector2(_ox, _lower_y)
+		info["chatBtn"] = [cb.visible and chat.is_open(), c.x, c.y]
+	JavaScriptBridge.eval("window.odShareState = %s" % JSON.stringify(info), true)
+

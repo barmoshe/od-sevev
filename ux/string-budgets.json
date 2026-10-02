@@ -557,6 +557,48 @@
       "linesLarge": 1,
       "where": "Result footer band line"
     },
+    "card.wide": {
+      "widthPx": 196,
+      "scale": 1,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Share card full line (196 art px)"
+    },
+    "card.wrap2": {
+      "widthPx": 196,
+      "scale": 1,
+      "lines": 2,
+      "linesLarge": 2,
+      "where": "Share card line allowed to wrap to 2"
+    },
+    "card.label": {
+      "widthPx": 120,
+      "scale": 1,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Share card label / chip"
+    },
+    "card.stamp": {
+      "widthPx": 100,
+      "scale": 1,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "Share card satire stamp"
+    },
+    "card.big": {
+      "widthPx": 196,
+      "scale": 2,
+      "lines": 2,
+      "linesLarge": 2,
+      "where": "Share card headline at scale 2 (2 lines)"
+    },
+    "stage.shareChip": {
+      "widthPx": 88,
+      "scale": 3,
+      "lines": 1,
+      "linesLarge": 1,
+      "where": "The share chip's label under its icon (ShareDesk chip 104 wide, 8 px pads)"
+    },
     "pick.title": {
       "widthPx": 656,
       "scale": 4,
@@ -713,6 +755,11 @@
     "mood": "",
     "mine": "88:88",
     "theirs": "88:88",
+    "time": "1:23:45",
+    "source": "פנקס הצ׳קים הזהוב",
+    "text": "",
+    "grid": "",
+    "paid": "99",
     "short": "סמוטריץ׳",
     "party": "הציונות הדתית",
     "verb": "העברה",
@@ -749,6 +796,7 @@
     "next",
     "now",
     "owned",
+    "paid",
     "pct",
     "pending",
     "pmult",
@@ -760,6 +808,7 @@
     "seats",
     "theirs",
     "thumbs",
+    "time",
     "total",
     "val",
     "version",
@@ -5414,6 +5463,1115 @@
       "joke": true,
       "note": "The picker shipped (2026-09-29): was SHARE_TEXT_INVITE_NEXT. game/tests/unit/test_share_view.gd pins 'תורכם להקים ממשלה'",
       "maxChars": 70
+    },
+    "SHARE_DRAWER_TITLE": {
+      "surface": "html",
+      "spec": "share drawer h2",
+      "joke": true,
+      "maxChars": 24
+    },
+    "SHARE_DRAWER_PREVIEW": {
+      "surface": "html",
+      "spec": "share drawer: the caption over the WhatsApp-bubble mock",
+      "maxChars": 30
+    },
+    "SHARE_FMT_SQUARE": {
+      "surface": "html",
+      "spec": "share drawer format toggle: 1080×1350",
+      "maxChars": 10
+    },
+    "SHARE_FMT_STORY": {
+      "surface": "html",
+      "spec": "share drawer format toggle: 1080×1920",
+      "maxChars": 10
+    },
+    "SHARE_FMT_TEXT": {
+      "surface": "html",
+      "spec": "share drawer format toggle: the text and the link (the link preview carries the picture)",
+      "maxChars": 12
+    },
+    "SHARE_FMT_LABEL": {
+      "surface": "html",
+      "spec": "share drawer: the format group's accessible name",
+      "maxChars": 12
+    },
+    "SHARE_NEUTRAL": {
+      "surface": "html",
+      "spec": "share drawer: the family-safe toggle",
+      "joke": true,
+      "maxChars": 24
+    },
+    "SHARE_NEUTRAL_CAP": {
+      "surface": "html",
+      "spec": "share drawer: the family-safe toggle's caption",
+      "maxChars": 32
+    },
+    "SHARE_KINDS_LABEL": {
+      "surface": "html",
+      "spec": "share drawer: the kind tabs' accessible name",
+      "maxChars": 16
+    },
+    "SHARE_CH_WA": {
+      "surface": "html",
+      "spec": "share drawer channel row",
+      "maxChars": 10
+    },
+    "SHARE_CH_TG": {
+      "surface": "html",
+      "spec": "share drawer channel row",
+      "maxChars": 10
+    },
+    "SHARE_CH_X": {
+      "surface": "html",
+      "spec": "share drawer channel row (the network's own name)",
+      "maxChars": 4
+    },
+    "SHARE_CH_COPY": {
+      "surface": "html",
+      "spec": "share drawer channel row: the text and the link to the clipboard",
+      "maxChars": 10
+    },
+    "SHARE_CH_SAVE": {
+      "surface": "html",
+      "spec": "share drawer channel row: the image as a download",
+      "maxChars": 10
+    },
+    "SHARE_MORE": {
+      "surface": "html",
+      "spec": "share drawer: the label over the channel row",
+      "maxChars": 16
+    },
+    "SHARE_INAPP_HINT": {
+      "surface": "html",
+      "spec": "share drawer: Instagram / Facebook in-app browsers (no navigator.share)",
+      "maxChars": 110
+    },
+    "SHARE_TEXT_COPIED": {
+      "surface": "html",
+      "spec": "share drawer, iPhone: WhatsApp drops a caption sent with an image, so the caption is copied first",
+      "maxChars": 44
+    },
+    "SHARE_COPIED_ALL": {
+      "surface": "html",
+      "spec": "share drawer: copy",
+      "maxChars": 30
+    },
+    "SHARE_SENT": {
+      "surface": "label",
+      "spec": "share result 'shared' (the drawer and the canvas sheet's status line)",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 612,
+        "5": 765
+      }
+    },
+    "SHARE_KIND_LEAK": {
+      "surface": "html",
+      "spec": "share drawer kind tab",
+      "joke": true,
+      "maxChars": 12
+    },
+    "SHARE_KIND_BREAKING": {
+      "surface": "html",
+      "spec": "share drawer kind tab",
+      "maxChars": 12
+    },
+    "SHARE_KIND_TERM": {
+      "surface": "html",
+      "spec": "share drawer kind tab",
+      "maxChars": 14
+    },
+    "SHARE_KIND_CAREER": {
+      "surface": "html",
+      "spec": "share drawer kind tab: every round so far",
+      "maxChars": 14
+    },
+    "SHARE_KIND_RECEIPT": {
+      "surface": "html",
+      "spec": "share drawer kind tab (O4)",
+      "joke": true,
+      "maxChars": 12
+    },
+    "SHARE_KIND_RESULT": {
+      "surface": "html",
+      "spec": "share drawer kind tab (O5)",
+      "maxChars": 12
+    },
+    "SHARE_KIND_CHALLENGE": {
+      "surface": "html",
+      "spec": "share drawer kind tab (the challenge agent's card)",
+      "maxChars": 12
+    },
+    "SHARE_KIND_DAILY": {
+      "surface": "html",
+      "spec": "share drawer kind tab (the daily round)",
+      "maxChars": 14
+    },
+    "SHARE_CHIP": {
+      "surface": "label",
+      "spec": "the 📣 chip on the stage and in T3's header (ui/share_desk.gd)",
+      "joke": true,
+      "box": "stage.shareChip",
+      "maxChars": 4,
+      "worstPx": {
+        "3": 69
+      }
+    },
+    "SHARE_CAREER_BTN": {
+      "surface": "label",
+      "spec": "T4 row: the career card",
+      "box": "dos.btn",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 308,
+        "5": 385
+      }
+    },
+    "ADVISOR_HEAD": {
+      "surface": "label",
+      "spec": "the media advisor's chat toast (ShareDesk prompt)",
+      "joke": true,
+      "box": "stage.toastHead",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 348,
+        "5": 435
+      }
+    },
+    "ADVISOR_LEAK": {
+      "surface": "label",
+      "spec": "ShareDesk prompt after a juicy chat moment",
+      "joke": true,
+      "box": "stage.toastChat",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 392,
+        "5": 490
+      }
+    },
+    "ADVISOR_BREAKING": {
+      "surface": "label",
+      "spec": "ShareDesk prompt: 61 / a court day",
+      "joke": true,
+      "box": "stage.toastChat",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 376,
+        "5": 470
+      }
+    },
+    "ADVISOR_TERM": {
+      "surface": "label",
+      "spec": "ShareDesk prompt after the election ceremony",
+      "joke": true,
+      "box": "stage.toastChat",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 544,
+        "5": 680
+      }
+    },
+    "ADVISOR_CAREER": {
+      "surface": "label",
+      "spec": "ShareDesk prompt at round 3 / 5 / 10; {rounds} = ROUNDS_*",
+      "joke": true,
+      "box": "stage.toastChat",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 660,
+        "5": 825
+      }
+    },
+    "CHAT_SYS_ADVISOR": {
+      "surface": "label",
+      "spec": "the advisor's line in T3 (the header's 📣 lights up)",
+      "joke": true,
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 748,
+        "5": 935
+      }
+    },
+    "CARD_SATIRE": {
+      "surface": "label",
+      "spec": "the stamp on every share image",
+      "legal": true,
+      "box": "card.stamp",
+      "maxChars": 16,
+      "worstPx": {
+        "1": 79
+      }
+    },
+    "CARD_URL": {
+      "surface": "label",
+      "spec": "the URL on every share image (iOS WhatsApp drops the caption)",
+      "legal": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 92
+      }
+    },
+    "LEAK_CARD_TOP": {
+      "surface": "label",
+      "spec": "the leak card's header",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 79
+      }
+    },
+    "LEAK_CARD_MEMBERS": {
+      "surface": "label",
+      "spec": "the leak card's group status",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 58
+      }
+    },
+    "LEAK_CARD_FOOT": {
+      "surface": "label",
+      "spec": "the leak card's footer line",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 138
+      }
+    },
+    "SHARE_ANON_1": {
+      "surface": "label",
+      "spec": "the family-safe leak: the first partner's stand-in name",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 32
+      }
+    },
+    "SHARE_ANON_2": {
+      "surface": "label",
+      "spec": "the family-safe leak: the second partner",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 32
+      }
+    },
+    "SHARE_ANON_3": {
+      "surface": "label",
+      "spec": "the family-safe leak: the third partner",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 30
+      }
+    },
+    "SHARE_ANON_4": {
+      "surface": "label",
+      "spec": "the family-safe leak: the fourth partner",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 32
+      }
+    },
+    "LEAK_CARD_LINE": {
+      "surface": "unused",
+      "note": "The leak card builds its bubbles from the round's real chat lines (ChatView.line_text / sys_text)"
+    },
+    "BREAK_CHANNEL": {
+      "surface": "label",
+      "spec": "the breaking card's invented channel (never a real channel's name or logo)",
+      "joke": true,
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 32
+      }
+    },
+    "BREAK_CHANNEL_QUIET": {
+      "surface": "label",
+      "spec": "the channel name in the election silence (no 61)",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 60
+      }
+    },
+    "BREAK_LIVE": {
+      "surface": "label",
+      "spec": "the breaking card's live bug",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 36
+      }
+    },
+    "BREAK_HEAD_GATE": {
+      "surface": "label",
+      "spec": "breaking: the gate",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 302
+      }
+    },
+    "BREAK_HEAD_GATE_N": {
+      "surface": "label",
+      "spec": "breaking: the gate, family-safe",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 234
+      }
+    },
+    "BREAK_HEAD_COURT": {
+      "surface": "label",
+      "spec": "breaking: a court day",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 236
+      }
+    },
+    "BREAK_HEAD_COURT_N": {
+      "surface": "label",
+      "spec": "breaking: a court day, family-safe",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 230
+      }
+    },
+    "BREAK_HEAD_ELECTION": {
+      "surface": "label",
+      "spec": "breaking: the election called",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 244
+      }
+    },
+    "BREAK_HEAD_ELECTION_N": {
+      "surface": "label",
+      "spec": "breaking: the election called, family-safe",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 176
+      }
+    },
+    "BREAK_SUB_1": {
+      "surface": "label",
+      "spec": "breaking sub-line (rotates)",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 63
+      }
+    },
+    "BREAK_SUB_2": {
+      "surface": "label",
+      "spec": "breaking sub-line (rotates)",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 109
+      }
+    },
+    "BREAK_SUB_3": {
+      "surface": "label",
+      "spec": "breaking sub-line (rotates)",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 61
+      }
+    },
+    "BREAK_SUB_4": {
+      "surface": "label",
+      "spec": "breaking sub-line (rotates)",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 65
+      }
+    },
+    "BREAK_CRAWL": {
+      "surface": "label",
+      "spec": "breaking: the crawl band",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 125
+      }
+    },
+    "TERM_HEAD": {
+      "surface": "label",
+      "spec": "term summary title",
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 130
+      }
+    },
+    "TERM_ROUND": {
+      "surface": "label",
+      "spec": "term summary: the round and the leader",
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 134
+      }
+    },
+    "TERM_ROUND_N": {
+      "surface": "label",
+      "spec": "term summary, family-safe",
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 88
+      }
+    },
+    "TERM_GATE": {
+      "surface": "label",
+      "spec": "term summary: the label under the big time",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 55
+      }
+    },
+    "TERM_TOP": {
+      "surface": "label",
+      "spec": "term summary: the top source's share",
+      "joke": true,
+      "box": "card.wrap2",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 156
+      }
+    },
+    "TERM_PAID": {
+      "surface": "label",
+      "spec": "term summary stat",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 97
+      }
+    },
+    "TERM_LEFT": {
+      "surface": "label",
+      "spec": "term / career stat: walkouts",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 85
+      }
+    },
+    "TERM_COURT": {
+      "surface": "label",
+      "spec": "term / career stat: court + press days (leader-neutral, like DAYS_*)",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 78
+      }
+    },
+    "TERM_POST": {
+      "surface": "label",
+      "spec": "term summary stat",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 76
+      }
+    },
+    "TERM_TITLE_LABEL": {
+      "surface": "label",
+      "spec": "term summary: the run's title label",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 28
+      }
+    },
+    "TERM_TITLE_FAST": {
+      "surface": "label",
+      "spec": "term title: the gate in under 5 minutes",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 184
+      }
+    },
+    "TERM_TITLE_COURT": {
+      "surface": "label",
+      "spec": "term title: 2+ days in the headlines",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 230
+      }
+    },
+    "TERM_TITLE_PAID": {
+      "surface": "label",
+      "spec": "term title: 8+ payments",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 146
+      }
+    },
+    "TERM_TITLE_LEFT": {
+      "surface": "label",
+      "spec": "term title: 2+ walkouts",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 138
+      }
+    },
+    "TERM_TITLE_SLOW": {
+      "surface": "label",
+      "spec": "term title: over 30 minutes to the gate",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 140
+      }
+    },
+    "TERM_TITLE_PLAIN": {
+      "surface": "label",
+      "spec": "term title: the default",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 140
+      }
+    },
+    "CAREER_HEAD": {
+      "surface": "label",
+      "spec": "career card title",
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 154
+      }
+    },
+    "CAREER_SURVIVED": {
+      "surface": "label",
+      "spec": "career card: {rounds} = ROUNDS_*",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 196
+      }
+    },
+    "CAREER_AS": {
+      "surface": "label",
+      "spec": "career card: the favourite leader (by rounds played)",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 60
+      }
+    },
+    "CAREER_TOTAL": {
+      "surface": "label",
+      "spec": "career card: every round's income (Hebrew units)",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 99
+      }
+    },
+    "CAREER_FAST": {
+      "surface": "label",
+      "spec": "career card: the fastest gate",
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 129
+      }
+    },
+    "CAREER_PARTNER": {
+      "surface": "label",
+      "spec": "career card: the partner paid the most, most often",
+      "joke": true,
+      "box": "card.wrap2",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 158
+      }
+    },
+    "CAREER_RANK": {
+      "surface": "label",
+      "spec": "career card: the rank label",
+      "box": "card.label",
+      "maxChars": 20,
+      "worstPx": {
+        "1": 29
+      }
+    },
+    "CAREER_TITLE_1": {
+      "surface": "label",
+      "spec": "career rank: 1-2 rounds",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 148
+      }
+    },
+    "CAREER_TITLE_2": {
+      "surface": "label",
+      "spec": "career rank: 3-4 rounds",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 132
+      }
+    },
+    "CAREER_TITLE_3": {
+      "surface": "label",
+      "spec": "career rank: 5-9 rounds",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 202
+      }
+    },
+    "CAREER_TITLE_4": {
+      "surface": "label",
+      "spec": "career rank: 10-24 rounds",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 154
+      }
+    },
+    "CAREER_TITLE_5": {
+      "surface": "label",
+      "spec": "career rank: 25+ rounds",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 98
+      }
+    },
+    "CHAL_HEAD": {
+      "surface": "label",
+      "spec": "challenge card title",
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 42
+      }
+    },
+    "CHAL_LINE": {
+      "surface": "label",
+      "spec": "challenge card: over the big time",
+      "joke": true,
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 121
+      }
+    },
+    "CHAL_LINE_N": {
+      "surface": "label",
+      "spec": "challenge card, family-safe",
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 51
+      }
+    },
+    "CHAL_DARE": {
+      "surface": "label",
+      "spec": "challenge card: the dare",
+      "joke": true,
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 104
+      }
+    },
+    "DAILY_HEAD": {
+      "surface": "label",
+      "spec": "daily card title",
+      "box": "card.big",
+      "maxChars": 16,
+      "worstPx": {
+        "2": 124
+      }
+    },
+    "DAILY_SUB": {
+      "surface": "label",
+      "spec": "daily card sub-line",
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 52
+      }
+    },
+    "DAILY_DARE": {
+      "surface": "label",
+      "spec": "daily card: the dare",
+      "box": "card.wide",
+      "maxChars": 32,
+      "worstPx": {
+        "1": 74
+      }
+    },
+    "SHARE_ARRIVED": {
+      "surface": "label",
+      "spec": "the toast for a player who arrived from a shared link",
+      "joke": true,
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 616,
+        "5": 770
+      }
+    },
+    "SHARE_LEAK_1": {
+      "surface": "share-text",
+      "spec": "share text: leak",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_LEAK_2": {
+      "surface": "share-text",
+      "spec": "share text: leak",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_LEAK_3": {
+      "surface": "share-text",
+      "spec": "share text: leak",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_LEAK_4": {
+      "surface": "share-text",
+      "spec": "share text: leak",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_LEAK_N1": {
+      "surface": "share-text",
+      "spec": "share text: leak, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_LEAK_N2": {
+      "surface": "share-text",
+      "spec": "share text: leak, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_LEAK_N3": {
+      "surface": "share-text",
+      "spec": "share text: leak, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_GATE_1": {
+      "surface": "share-text",
+      "spec": "share text: breaking, the gate",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_GATE_2": {
+      "surface": "share-text",
+      "spec": "share text: breaking, the gate",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_GATE_3": {
+      "surface": "share-text",
+      "spec": "share text: breaking, the gate",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_COURT_1": {
+      "surface": "share-text",
+      "spec": "share text: breaking, a court day",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_COURT_2": {
+      "surface": "share-text",
+      "spec": "share text: breaking, a court day",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_ELECTION_1": {
+      "surface": "share-text",
+      "spec": "share text: breaking, the election",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_ELECTION_2": {
+      "surface": "share-text",
+      "spec": "share text: breaking, the election",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_N1": {
+      "surface": "share-text",
+      "spec": "share text: breaking, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_N2": {
+      "surface": "share-text",
+      "spec": "share text: breaking, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_BREAK_N3": {
+      "surface": "share-text",
+      "spec": "share text: breaking, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_TERM_1": {
+      "surface": "share-text",
+      "spec": "share text: term summary",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_TERM_2": {
+      "surface": "share-text",
+      "spec": "share text: term summary",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_TERM_3": {
+      "surface": "share-text",
+      "spec": "share text: term summary ({source} = the producer's name)",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_TERM_N1": {
+      "surface": "share-text",
+      "spec": "share text: term summary, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_TERM_N2": {
+      "surface": "share-text",
+      "spec": "share text: term summary, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_CAREER_1": {
+      "surface": "share-text",
+      "spec": "share text: career",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_CAREER_2": {
+      "surface": "share-text",
+      "spec": "share text: career",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_CAREER_3": {
+      "surface": "share-text",
+      "spec": "share text: career",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_CAREER_N1": {
+      "surface": "share-text",
+      "spec": "share text: career, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_CAREER_N2": {
+      "surface": "share-text",
+      "spec": "share text: career, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_CHAL_1": {
+      "surface": "share-text",
+      "spec": "share text: challenge",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_CHAL_2": {
+      "surface": "share-text",
+      "spec": "share text: challenge",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_CHAL_N1": {
+      "surface": "share-text",
+      "spec": "share text: challenge, family-safe",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_DAILY": {
+      "surface": "share-text",
+      "spec": "share text: the daily round ({grid} = the challenge agent's emoji grid)",
+      "maxChars": 200
+    },
+    "SHARE_RESULT_2": {
+      "surface": "share-text",
+      "spec": "share text: result (drawer form, the link on its own line)",
+      "joke": true,
+      "maxChars": 200
+    },
+    "SHARE_RECEIPT_2": {
+      "surface": "share-text",
+      "spec": "share text: receipt (drawer form)",
+      "joke": true,
+      "legal": true,
+      "maxChars": 200
+    },
+    "OG_S_GATE": {
+      "surface": "og",
+      "spec": "stub og:title: <leader>-61",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_S_LEAK": {
+      "surface": "og",
+      "spec": "stub og:title: <leader>-leak",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_S_BREAKING": {
+      "surface": "og",
+      "spec": "stub og:title: <leader>-breaking",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_S_TERM": {
+      "surface": "og",
+      "spec": "stub og:title: <leader>-term",
+      "maxChars": 60
+    },
+    "OG_S_CAREER": {
+      "surface": "og",
+      "spec": "stub og:title: <leader>-career",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_S_CHALLENGE": {
+      "surface": "og",
+      "spec": "stub og:title: <leader>-challenge",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_S_RESULT": {
+      "surface": "og",
+      "spec": "stub og:title: <leader>-result",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_N_LEAK": {
+      "surface": "og",
+      "spec": "stub og:title: all-leak",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_N_BREAKING": {
+      "surface": "og",
+      "spec": "stub og:title: all-breaking",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_N_TERM": {
+      "surface": "og",
+      "spec": "stub og:title: all-term",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_N_CAREER": {
+      "surface": "og",
+      "spec": "stub og:title: all-career",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_N_RECEIPT": {
+      "surface": "og",
+      "spec": "stub og:title: all-receipt",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_N_RESULT": {
+      "surface": "og",
+      "spec": "stub og:title: all-result",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_N_CHALLENGE": {
+      "surface": "og",
+      "spec": "stub og:title: all-challenge",
+      "joke": true,
+      "maxChars": 60
+    },
+    "OG_DAILY": {
+      "surface": "og",
+      "spec": "stub og:title: daily",
+      "maxChars": 60
+    },
+    "OG_S_DESC": {
+      "surface": "og",
+      "spec": "stub og:description (every variant)",
+      "joke": true,
+      "legal": true,
+      "maxChars": 110
+    },
+    "OG_S_ALT": {
+      "surface": "og",
+      "spec": "stub og:image:alt with a leader",
+      "maxChars": 90
+    },
+    "OG_N_ALT": {
+      "surface": "og",
+      "spec": "stub og:image:alt without a leader",
+      "maxChars": 90
     },
     "OG_TITLE": {
       "surface": "og",

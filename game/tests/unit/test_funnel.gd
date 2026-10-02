@@ -80,6 +80,23 @@ func test_a_share_result_is_reported() -> void:
 		"the share result is reported with its kind (%s)" % [sh])
 
 
+## The share platform: the drawer's results come back as share_done with their channel (the shell
+## already sent share/<kind>/<channel>/<result>, so odTrackFunnel skips an event with a channel), and
+## a real share resets the prompt's back-off.
+func test_a_drawer_result_is_reported_with_its_channel() -> void:
+	await _boot()
+	m.commit_pick("bibi")
+	m.share_desk.share_prefs()["dismiss"] = 2
+	m.share_desk.session = {"kind": "leak"}
+	m.share_desk._on_js("result", "wa/opened")
+	var sh := _named("share_done")
+	runner.check(sh.size() == 1 and sh[0][1].get("kind") == "leak" and sh[0][1].get("channel") == "wa" and sh[0][1].get("result") == "opened",
+		"the drawer's result is reported with its kind and channel (%s)" % [sh])
+	runner.check(int(m.share_desk.share_prefs().get("dismiss", -1)) == 0, "a share resets the prompt's back-off")
+	m.share_desk._on_js("result", "img/cancel")
+	runner.check(int(m.share_desk.share_prefs().get("shares", 0)) == 1, "a cancel is reported but is not a share")
+
+
 func test_the_first_pick_says_first() -> void:
 	await _boot()
 	m.commit_pick("golan")
