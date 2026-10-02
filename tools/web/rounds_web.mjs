@@ -84,6 +84,23 @@ async function playRound(P, page, chipShot) {
 	return null;
 }
 
+// The share drawer (the share platform's HTML sheet, ShareKit.request): wait for it, read its
+// message (the text, then the link alone on the last line), close it. '' when it never opened.
+async function drawerMsg(page) {
+	await page.waitForFunction(() => window.odShareUI && window.odShareUI.state && window.odShareUI.state.open, null, { timeout: 8000 }).catch(() => {});
+	const r = await page.evaluate(() => {
+		const st = window.odShareUI && window.odShareUI.state;
+		const el = document.getElementById('od-sh-msg');
+		return st && st.open ? { kind: st.p && st.p.kind, msg: el ? el.textContent : '' } : null;
+	});
+	if (r) {
+		await page.waitForTimeout(400);
+		if (await page.isVisible('#od-sh-x')) await page.click('#od-sh-x');
+		await page.waitForTimeout(700);
+	}
+	return r || { kind: '', msg: '' };
+}
+
 if (only === '' || only === 'challenge') {
 	log('challenge');
 	const { ctx, page, P, errors } = await open(`#k=challenge&l=${process.env.OD_LEADER || 'bibi'}&s=31337&t=300&r=abcd1234`);
@@ -108,9 +125,9 @@ if (only === '' || only === 'challenge') {
 	const ev = (await P.probe()).evolutions;
 	ok(ev === 0, 'no election happened in the round');
 	await tapModalButton(P, page, 0);
-	const copied = await page.evaluate(() => window.__copied || []);
-	log(`  share text: ${JSON.stringify(copied[copied.length - 1] || '')}`);
-	ok(copied.length > 0 && /#k=challenge&l=[a-z]+&s=31337&t=\d+&r=[a-z0-9]{8}&vs=300/.test(copied[copied.length - 1]), 'the return link carries my time and vs=300');
+	const sh1 = await drawerMsg(page);
+	log(`  share: ${JSON.stringify(sh1)}`);
+	ok(sh1.kind === 'challenge' && /\/s\/[a-z]+-challenge\/\?via=[a-z]+#r=[a-z0-9]{8}&k=challenge&l=[a-z]+&s=31337&t=\d+&vs=300$/.test(sh1.msg), 'the drawer: the return link carries my time and vs=300');
 	await shot(page, 'c5-sent');
 	await tapModalButton(P, page, 1);
 	await page.waitForTimeout(1500);
@@ -146,9 +163,9 @@ if (only === '' || only === 'daily') {
 		ok(m1 && m1.id === 'DAILY_RESULT', 'the daily result card');
 		await shot(page, 'd4-result');
 		await tapModalButton(P, page, 0);
-		const copied = await page.evaluate(() => window.__copied || []);
-		log(`  share text:\n${copied[copied.length - 1] || ''}`);
-		ok(copied.length > 0 && copied[copied.length - 1].startsWith('עוד סבב #'), 'the grid text starts with a Hebrew word');
+		const sh2 = await drawerMsg(page);
+		log(`  share (${sh2.kind}):\n${sh2.msg}`);
+		ok(sh2.kind === 'daily' && sh2.msg.startsWith('עוד סבב #') && /\/s\/daily\/\?via=[a-z]+#r=[a-z0-9]{8}&k=daily$/.test(sh2.msg), 'the drawer: the grid text starts with a Hebrew word, the daily stub link last');
 		await tapModalButton(P, page, 1);
 		await page.waitForTimeout(1500);
 		r = await round(page);
@@ -204,9 +221,9 @@ if (only === '' || only === 'offer') {
 	await shot(page, 'o3-offer');
 	if (m && m.id === 'CHALLENGE_OFFER') {
 		await tapModalButton(P, page, 0);
-		const copied = await page.evaluate(() => window.__copied || []);
-		log(`  share text: ${JSON.stringify(copied[copied.length - 1] || '')}`);
-		ok(copied.length > 0 && /#k=challenge&l=bibi&s=\d+&t=\d+&r=[a-z0-9]{8}$/.test(copied[copied.length - 1]), 'the challenge link');
+		const sh3 = await drawerMsg(page);
+		log(`  share: ${JSON.stringify(sh3)}`);
+		ok(sh3.kind === 'challenge' && /\/s\/bibi-challenge\/\?via=[a-z]+#r=[a-z0-9]{8}&k=challenge&l=bibi&s=\d+&t=\d+$/.test(sh3.msg), 'the drawer: the challenge link');
 		await shot(page, 'o4-offer-sent');
 	}
 	ok(!errors.length, `page errors: ${errors.length ? JSON.stringify(errors.slice(0, 3)) : 'none'}`);
