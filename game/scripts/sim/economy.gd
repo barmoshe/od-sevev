@@ -255,6 +255,7 @@ static func tick(s: GameState, dt: float, d: Derived = null) -> Dictionary:
 	s.run_time_sec += dt
 	s.stats["playtimeSec"] = float(s.stats.get("playtimeSec", 0.0)) + dt
 	Leaders.on_play(s, dt)
+	RoundLog.on_tick(s, d)   # the share platform: the gate's first second this round
 	if d.bps > float(s.stats.get("bestBps", 0.0)):
 		s.stats["bestBps"] = d.bps
 	var ev := {"frenzyEnded": false, "tapFrenzyEnded": false, "spinsEnded": Spins.tick(s, dt)}
@@ -576,10 +577,12 @@ static func evolve(s: GameState) -> Dictionary:
 	if fastest <= 0.0 or run_sec < fastest:
 		s.stats["fastestRunSec"] = run_sec
 	Meta.on_round_end(s, run_sec)   # the round's trophy stats, before the run resets
+	RoundLog.record(s, d)            # the share platform: the round's record, before the run resets
 	s.thumbs_owned += d.pending
 	s.evolutions += 1
 	reset_run(s)
 	Politics.on_election(s)   # coalition and round state reset, suspicion to the new floor
+	RoundLog.start_round(s)
 	var after := derive(s).prestige_mult
 	return {"gained": d.pending, "multBefore": mult_before, "multAfter": after, "runSec": run_sec}
 

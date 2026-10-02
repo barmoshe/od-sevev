@@ -50,6 +50,11 @@ var leader_history: PackedStringArray = []   # the last 10 rounds' leaders; the 
 var leaders: Dictionary = {}        # id -> {rounds, elections, taps, crits, declines, bestRunSec, playSec}
 var seat_deal: Dictionary = {}      # this round's slot per partner (a reload can't reroll it)
 var leader_round: Dictionary = {}   # {prev, switched, fresh, freshPct, lastPlayed, begun, salt}
+
+# ---- the share platform (additive to save v4: no bump; RoundLog owns the shapes): one record per election, and the live
+# round's marks (the gate's first second, the lifetime counters at the round start). Old saves: [] / fresh.
+var history: Array = []
+var round_log: Dictionary = {}
 ## Not saved: bumped whenever the leader or the deal changes (Leaders.ensure's cache key).
 var leader_ver := 0
 
@@ -74,6 +79,7 @@ static func fresh() -> GameState:
 	s.album = Events.fresh_album()
 	s.calendar = Calendar.fresh_state()
 	s.spins = Spins.fresh_state()
+	s.round_log = RoundLog.fresh()
 	Leaders.fresh_into(s)
 	return s
 
@@ -111,6 +117,7 @@ func to_dict() -> Dictionary:
 		"coalition": coalition.duplicate(true), "investigation": investigation.duplicate(true),
 		"events": events.duplicate(true), "album": album.duplicate(), "calendar": calendar.duplicate(),
 		"spins": spins.duplicate(true),
+		"history": history.duplicate(true), "roundLog": round_log.duplicate(),
 	}.merged(Leaders.to_dict(self))
 
 
@@ -186,6 +193,8 @@ static func from_dict(raw: Variant) -> GameState:
 	s.album = Events.sanitize_album(r.get("album"))
 	s.calendar = Calendar.sanitize(r.get("calendar"))
 	s.spins = Spins.sanitize(r.get("spins"))
+	s.history = RoundLog.sanitize_history(r.get("history"))
+	s.round_log = RoundLog.sanitize(r.get("roundLog"))
 	Meta.seed_stats(s)
 	return s
 
