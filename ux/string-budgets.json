@@ -2002,11 +2002,13 @@
     },
     "F_PERKS_HINT": {
       "surface": "label",
+      "spec": "coalition UX rev 5",
+      "note": "A toast once (state.ui.perksHinted); a tap on it opens the agreement",
       "box": "stage.toast",
       "maxChars": 26,
       "worstPx": {
-        "4": 768,
-        "5": 960
+        "4": 876,
+        "5": 1095
       }
     },
     "F_PERK_BOUGHT": {
@@ -3512,6 +3514,238 @@
       "spec": "rtl-map §6.3",
       "note": "Accessible label of the chevron (not drawn)",
       "maxChars": 16
+    },
+    "CHAT_OPEN_ONE": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5: header status",
+      "note": "While payable lines are open and no ultimatum or brawl is: demands, join / rejoin / poach pills",
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 316,
+        "5": 395
+      }
+    },
+    "CHAT_OPEN_TWO": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 328,
+        "5": 410
+      }
+    },
+    "CHAT_OPEN_OTHER": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 328,
+        "5": 410
+      }
+    },
+    "CHAT_FROZEN_ONE": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5: header status while a brawl is open",
+      "note": "The seats the brawl keeps out of the 61 (the '44/61 stall', STATUS 2026-09-29)",
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 436,
+        "5": 545
+      }
+    },
+    "CHAT_FROZEN_OTHER": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 496,
+        "5": 620
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_FROZEN_X": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "note": "The blackout form: no seat numeral (Calendar.seats_numeral_hidden)",
+      "box": "tall.status",
+      "maxChars": 24,
+      "worstPx": {
+        "4": 464,
+        "5": 580
+      }
+    },
+    "CHAT_STAKE_JOIN_ONE": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5: stake line over a join / rejoin / poach pill",
+      "note": "Net seats on the HUD's bar (abstentions and a partner who walks out on the newcomer included); hidden in the blackout",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 332,
+        "5": 415
+      }
+    },
+    "CHAT_STAKE_JOIN_OTHER": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 412,
+        "5": 515
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_STAKE_WALK_ONE_M": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5: stake line over an ultimatum's pill",
+      "note": "The seats that walk out with the partner when the timer runs out (net on the HUD's bar). Plural _ONE/_OTHER, then the partner's gender _M/_F",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 348,
+        "5": 435
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_STAKE_WALK_ONE_F": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 360,
+        "5": 450
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_STAKE_WALK_OTHER_M": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 372,
+        "5": 465
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_STAKE_WALK_OTHER_F": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 384,
+        "5": 480
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_STAKE_WALK_X_M": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "note": "The blackout form (no seat numeral)",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 288,
+        "5": 360
+      }
+    },
+    "CHAT_STAKE_WALK_X_F": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 312,
+        "5": 390
+      }
+    },
+    "CHAT_STAKE_PATIENCE": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5: a member demand's patience (coalition.patienceSec)",
+      "note": "Only when the demand can escalate (ultimatums unlocked, the partner can leave); a draining bar under it",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 384,
+        "5": 480
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_STAKE_ONDECK": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "note": "Patience ran out; it escalates as soon as the open ultimatum closes (ultimatum.maxOpen)",
+      "box": "chat.name",
+      "maxChars": 17,
+      "worstPx": {
+        "4": 388,
+        "5": 485
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_PAY_ETA": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5: an unaffordable pill",
+      "note": "When the bank covers the price at the current ₪/s within 15:00; else CHAT_PAY_SHORT",
+      "box": "chat.pill",
+      "maxChars": 12,
+      "worstPx": {
+        "4": 292,
+        "5": 365
+      },
+      "largeText": "step-down"
+    },
+    "CHAT_PAY_ALL": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5: the composer as one gold pill",
+      "joke": true,
+      "note": "Two or more open lines the bank covers: one press pays them, most urgent first (ultimatums, seats, patience); never a ceremony. The composer only talks in shekels",
+      "box": "chat.composer",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 464,
+        "5": 580
+      }
+    },
+    "CHAT_PAY_SOME": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "joke": true,
+      "note": "The same pill when the bank covers only some of the open lines",
+      "box": "chat.composer",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 440,
+        "5": 550
+      }
+    },
+    "CHAT_BRAWL_FROZEN_ONE": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5: under 'צאו החוצה'",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 488,
+        "5": 610
+      }
+    },
+    "CHAT_BRAWL_FROZEN_OTHER": {
+      "surface": "label",
+      "spec": "rtl-map §6.3 rev 5",
+      "box": "chat.sys",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 548,
+        "5": 685
+      }
     },
     "AIDE_HOLDS": {
       "surface": "label",
