@@ -202,11 +202,11 @@ def ghost_frame(t):
         paste(c, ghost_img(), gx + dx, gy + dy)
         sg = flip_in(sign_img("הבחירות"), t, G_LAST)
         if sg:
-            paste(c, sg, 400 + dx, 780 + bob + dy)
+            paste(c, sg, 480 + dx, 620 + bob + dy)
         if t >= G_LAST + 1.0:
-            slam(c, sign_img("הן חוזרות.", red=True), t, G_LAST + 1.0, 560, 840, angle=-5, frm=2.0)
+            slam(c, sign_img("הן חוזרות.", red=True), t, G_LAST + 1.0, 520, 700, angle=-5, frm=1.6)
         if t >= G_LAST + 1.7:
-            slam(c, badge("עוד סבב", 12), t, G_LAST + 1.7, 700, 1300, angle=-4, frm=2.4)
+            slam(c, badge("עוד סבב", 12), t, G_LAST + 1.7, 600, 1330, angle=-4, frm=1.8)
             flash(c, t, G_LAST + 1.7, 0.12, 0.6)
         return c.convert("RGB")
     paste(c, ghost_img(), gx, gy)
@@ -215,14 +215,14 @@ def ghost_frame(t):
         t0 = G_T0 + i * G_STEP
         sg = flip_in(sign_img(line), t, t0)
         if sg:
-            paste(c, sg, 400, 780 + bob)
+            paste(c, sg, 480, 620 + bob)
         if t >= t0 + 0.45:
             s = pop_scale(t, t0 + 0.45, 0.14, 0.4)
             fr = Image.new("RGBA", (440, 640), (0, 0, 0, 0))
             pose(fr, who, 220, 620, 2, t)
-            paste(c, scaled(fr, s), 850, 1440 - 320)
+            paste(c, scaled(fr, s), 800, 1440 - 320)
         if t >= t0 + 0.75:
-            paste(c, scaled(bubble(says, 6), pop_scale(t, t0 + 0.75, 0.12, 1.4)), 880, 700)
+            paste(c, scaled(bubble(says, 6), pop_scale(t, t0 + 0.75, 0.12, 1.4)), 590, 815)
     return c.convert("RGB")
 
 
@@ -286,8 +286,8 @@ def patch_frame(t):
     d.rectangle((40, 220, W - 40, 228), fill=(70, 220, 120))
     paste(c, img("wordmark", 3), W - 60 - img("wordmark", 3).width // 2, 290)
     v = text("בקרוב", 6, fill=INK, ring=None, shadow=False)
-    paste(c, plate(v.width + 30, v.height + 18, (70, 220, 120), INK, 3), 110, 290)
-    paste(c, v, 110, 290)
+    paste(c, plate(v.width + 30, v.height + 18, (70, 220, 120), INK, 3), 160, 290)
+    paste(c, v, 160, 290)
     hd = text("מה יש במשחק", 6, fill=(170, 180, 200), ring=None, shadow=False)
     paste(c, hd, W - 60 - hd.width // 2, 350)
     shown = sum(1 for j in range(len(N_ITEMS)) if t >= N_T0 + j * N_STEP)
@@ -300,29 +300,29 @@ def patch_frame(t):
             continue
         new = j == shown - 1
         a_ = ease_out(clamp((t - t0) / 0.18))
-        x_off = int((1 - a_) * 80)
-        d.rectangle((40 + x_off, y, W - 40, y + N_ROW - 16), fill=(34, 42, 58) if new else (22, 27, 37))
-        d.rectangle((W - 50, y, W - 40, y + N_ROW - 16), fill=TAGC[tag])
+        x_off = -int((1 - a_) * 80)                               # slides in from the left, never under the icons
+        d.rectangle((40 + x_off, y, 970, y + N_ROW - 16), fill=(34, 42, 58) if new else (22, 27, 37))
+        d.rectangle((960, y, 970, y + N_ROW - 16), fill=TAGC[tag])
         tg = text(tag, 4, fill=INK, ring=None, shadow=False)
-        paste(c, plate(tg.width + 24, tg.height + 14, TAGC[tag], INK, 3), W - 72 - (tg.width + 24) // 2, y + 36)
-        paste(c, tg, W - 72 - (tg.width + 24) // 2, y + 36)
+        paste(c, plate(tg.width + 24, tg.height + 14, TAGC[tag], INK, 3), W - 130 - (tg.width + 24) // 2, y + 36)
+        paste(c, tg, W - 130 - (tg.width + 24) // 2, y + 36)
         ti = text(title, 6, fill=WHITE if new else (190, 196, 210), ring=None, shadow=False)
-        paste(c, ti, W - 72 - ti.width // 2 + x_off, y + 100)
+        paste(c, ti, W - 130 - ti.width // 2 + x_off, y + 100)
         if t >= t0 + 0.35:
             sb = text(sub, 5, fill=TAGC[tag] if new else (120, 130, 150), ring=None, shadow=False)
-            paste(c, sb, W - 72 - sb.width // 2, y + 152)
+            paste(c, sb, W - 130 - sb.width // 2, y + 152)
         paste(c, note_icon(icon), 120 + x_off, y + 92)
     d.rectangle((0, 0, W, N_TOP - 12), fill=(14, 17, 24))       # the header sits over the scroll
     d.rectangle((40, 220, W - 40, 380), fill=(24, 30, 42))
     d.rectangle((40, 220, W - 40, 228), fill=(70, 220, 120))
     paste(c, img("wordmark", 3), W - 60 - img("wordmark", 3).width // 2, 290)
-    paste(c, plate(v.width + 30, v.height + 18, (70, 220, 120), INK, 3), 110, 290)
-    paste(c, v, 110, 290)
+    paste(c, plate(v.width + 30, v.height + 18, (70, 220, 120), INK, 3), 160, 290)
+    paste(c, v, 160, 290)
     paste(c, hd, W - 60 - hd.width // 2, 350)
     if int(t * 2) % 2 and shown < len(N_ITEMS):                  # the cursor
         y = int(N_TOP + (shown - scroll) * N_ROW)
         if y < N_TOP + N_ROWS * N_ROW:
-            d.rectangle((W - 90, y + 20, W - 70, y + 70), fill=(70, 220, 120))
+            d.rectangle((920, y + 20, 940, y + 70), fill=(70, 220, 120))
     return c.convert("RGB")
 
 
@@ -344,8 +344,8 @@ L_DUR = 15.0
 L_FULL = 12.2                       # 99% from here
 L_DROP = 13.0                       # the Knesset dissolves
 L_TIPS = [
-    "טיפ: בן גביר פרש? אל תמחקו את המספר.",
-    "טיפ: תקציב מאשרים בדקה ה־90. לא לפני.",
+    "טיפ: בן גביר פרש? שמרו את המספר.",
+    "טיפ: תקציב מאשרים בדקה ה־90.",
     "טיפ: כל ׳לא אשב׳ של ליברמן נשמר.",
     "טיפ: גנץ מופיע בבוחר. אל תתאהבו.",
     "טיפ: דרעי לא סוגר בחדרים. רק במסדרון.",
@@ -389,15 +389,15 @@ def loading_frame(t):
         ln = text("סופר את הקולות" + dots, 6, fill=(200, 200, 210), ring=None, shadow=False)
         paste(c, ln, x1 - ln.width // 2, y0 - 70)
     else:
-        slam(c, text("הכנסת התפזרה.", 9, fill=(250, 80, 80)), t, L_DROP, W // 2, 660, frm=2.0)
+        slam(c, text("הכנסת התפזרה.", 9, fill=(250, 80, 80)), t, L_DROP, 510, 660, frm=1.25)
         if t >= L_DROP + 0.7:
             paste(c, text("עוד סבב.", 8, grad=True), W // 2, 1080)
     if t < L_DROP:                                               # the tips
         j = min(len(L_TIPS) - 1, int(t / (L_DROP / len(L_TIPS))))
         tp = text(L_TIPS[j], 5, fill=(150, 200, 255), ring=None, shadow=False)
-        d.rectangle((60, 1080, W - 60, 1200), fill=(14, 16, 26))
-        d.rectangle((60, 1080, W - 60, 1084), fill=(150, 200, 255))
-        paste(c, tp, W // 2, 1142)
+        d.rectangle((50, 1080, 970, 1200), fill=(14, 16, 26))
+        d.rectangle((50, 1080, 970, 1084), fill=(150, 200, 255))
+        paste(c, tp, 510, 1142)
     for t0, t1, who, anim, sc, y in L_GUESTS:                    # someone you've never seen before
         if t0 <= t < t1:
             u = (t - t0) / (t1 - t0)
@@ -464,18 +464,18 @@ def card_img(cid):
     key = ("card", cid)
     if key not in _c:
         who, name, bio = CARD[cid]
-        w, h = 820, 1000
+        w, h = 820, 880
         im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         m = Image.new("L", (w, h), 0)
         ImageDraw.Draw(m).rounded_rectangle((0, 0, w - 1, h - 1), radius=48, fill=255)
         body = Image.new("RGBA", (w, h), WHITE + (255,))
-        body.alpha_composite(grad((120, 170, 255), (255, 200, 220), w, 700))
-        pose(body, who, w // 2, 690, 2, 0.0)
-        body.alpha_composite(grad((0, 0, 0), (0, 0, 0), w, 10), (0, 690))
+        body.alpha_composite(grad((120, 170, 255), (255, 200, 220), w, 610))
+        pose(body, who, w // 2, 600, 2, 0.0)
+        body.alpha_composite(grad((0, 0, 0), (0, 0, 0), w, 10), (0, 600))
         nm = text(name, 9, fill=INK, ring=None, shadow=False)
-        body.alpha_composite(nm, (w - 50 - nm.width, 740))
+        body.alpha_composite(nm, (w - 50 - nm.width, 645))
         bi = text(bio, 5, fill=(90, 90, 110), ring=None, shadow=False)
-        body.alpha_composite(bi, (w - 50 - bi.width, 880))
+        body.alpha_composite(bi, (w - 50 - bi.width, 780))
         im.paste(body, (0, 0), m)
         _c[key] = im
     return _c[key]
@@ -530,7 +530,7 @@ def match_frame(t):
     paste(c, lab, W // 2 - 40, 380)
     card = card_img(cid)
     land = ease_out(clamp(u / 0.25))
-    cx, cy, ang = W // 2, 950 + int((1 - land) * 300), 0
+    cx, cy, ang = W // 2, 900 + int((1 - land) * 300), 0
     if u > sw:
         v = ease_inout(clamp((u - sw - 0.35) / 0.4))
         cx -= int(v * 1300)
@@ -543,11 +543,11 @@ def match_frame(t):
     for bx, sym, col in ((W // 2 - 170, "X", (230, 60, 80)), (W // 2 + 170, None, PINK)):   # the buttons
         hot = sym == "X" and sw - 0.15 < u < sw + 0.35
         r = 92 if hot else 80
-        d.ellipse((bx - r, 1560 - r, bx + r, 1560 + r), fill=WHITE, outline=(240, 200, 210), width=6)
+        d.ellipse((bx - r, 1430 - r, bx + r, 1430 + r), fill=WHITE, outline=(240, 200, 210), width=6)
         if sym:
-            paste(c, text("X", 9, fill=col, ring=None, shadow=False, rtl=False), bx, 1560)
+            paste(c, text("X", 9, fill=col, ring=None, shadow=False, rtl=False), bx, 1430)
         else:
-            paste(c, heart(9), bx, 1560)
+            paste(c, heart(9), bx, 1430)
     return c.convert("RGB")
 
 
@@ -621,7 +621,7 @@ def sticky(title, lines):
     key = ("sticky", title, lines)
     if key not in _c:
         lab = text("יכולת:", 5, fill=(110, 90, 30), ring=None, shadow=False)
-        a = text(title, 6, fill=INK, ring=None, shadow=False)
+        a = text(title, 5, fill=INK, ring=None, shadow=False)
         bs = [text(x, 5, fill=(60, 50, 20), ring=None, shadow=False) for x in lines]
         w = max([a.width, lab.width] + [x.width for x in bs]) + 80
         h = 150 + 64 * len(bs) + 30
@@ -689,15 +689,10 @@ def process_frame(t):
     cl = clipping(hl)                                            # 1: the headline, across the top
     s = pop_scale(u, 0.1, 0.16, 1.3)
     if s:
-        paste(c, scaled(cl, s), W // 2 + 10, 400 + cl.height // 2)
-    yb = 440 + cl.height
-    arrow(c, 800, yb, yb + 60, (u - 1.2) / 0.3)
-    if u > 1.5:                                                  # 2: the note, on the right
-        st = sticky(ab, notes)
-        paste(c, scaled(st, pop_scale(u, 1.5, 0.14, 1.3)), 800, yb + 110 + st.height // 2)
-    harrow(c, 600, 540, yb + 330, (u - 2.7) / 0.3)
-    if u > 3.0:                                                  # 3: the game, on the left
-        y0, x0, pw = yb + 90, 40, 480
+        paste(c, scaled(cl, s), 520, 390 + cl.height // 2)
+    yb = 390 + cl.height
+    if u > 3.0:                                                  # 3: the game, lower right
+        x0, y0, pw = 520, yb + 40, 430
         d.rectangle((x0, y0, x0 + pw, 1480), fill=INK)
         ph = 1476 - (y0 + 4)
         stg = k.stage("balfour", 6)
@@ -706,6 +701,9 @@ def process_frame(t):
         who = p2 if (p2 and u > 4.4) else p1
         pose(c, who, x0 + pw // 2, 1470, 2, u)
         flash(c, u, 3.0, 0.1, 0.5)
+    if u > 1.5:                                                  # 2: the note, stuck on the clipping's corner
+        st = sticky(ab, notes)
+        paste(c, scaled(st, pop_scale(u, 1.5, 0.14, 1.3)), 60 + st.width // 2, yb - 30 + st.height // 2)
     return c.convert("RGB")
 
 
