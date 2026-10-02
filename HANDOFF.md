@@ -1,3 +1,122 @@
+# HANDOFF: idle-genre upgrade + reinvented sharing, PAUSED mid-flight (2026-10-02; read this first)
+
+Bar stopped the session ("תעצור הכל, תרשום handoff, נמשיך עוד מעט"). Four agents were stopped mid-task;
+their work is pushed as **WIP branches** (not merged, not deployed).
+
+## Live (od-sevev.vercel.app)
+**`38f6916`** (web-dist `cc38ead`, Vercel `dpl_ByzTLVU8T2DE6WiXHWoF4SJEkkJ5`):
+- the postpone floor at 25 s of income (G1 fixed);
+- the LayerHistory race fix;
+- the bench green 11/11 (G1 is now the median of seeds 11-19, on a split politics rng stream);
+- the browser trace re-recorded.
+
+## On `main`, not deployed yet (merged and tested: `tools/test.sh` 528/528)
+- **Card milestones** (`20db7f3`): each source card shows "12/25 ← ×2" with a bar, a gold ×N chip
+  and a celebration when the milestone lands; an all-sources ×1.25 row sits on the buy-mode row.
+- **Live ₪/s** (`656c8d4`): Row A's rate = passive + the live tap rate (2 s window, smoothed, back to
+  passive within 3 s); display only.
+- **Coalition chat UX** (`3864d4f`, `e29405f`):
+  - every open pill says what it is worth ("+12 מנדטים לקואליציה", "יפרוש עם 12 מנדטים",
+    "אולטימטום בעוד 0:42" with a bar);
+  - "נסגור בעוד 0:42" when it can't be afforded yet;
+  - pay-all "לסגור עם כולם · X ₪";
+  - a brawl shows the seats it froze;
+  - the pending chip flags an ultimatum;
+  - the pinned agreement bar is a real button with ‹ and a free-base badge;
+  - "i" badges on avatars;
+  - real perk icons;
+  - the one-time perks toast.
+  - Helper: `ui/views/chat_stakes.gd`.
+- Store Reels from the store session (merged as-is).
+
+**To deploy main now:** `tools/build_web.sh` → commit `build/web` onto `web-dist` (keep its
+README; copy `tools/web/vercel.json` and `.vercelignore`) → push → Vercel connector
+`create_deployment` (team `team_ok1MqoSMeupTyBE6CXAR91UT`, project `prj_ZbQ1ubW0AU5hfhSVnVtcsgmm6BVA`,
+target production, gitSource github barmoshe/od-sevev ref `web-dist` sha <the real web-dist sha>) →
+`get_deployment` until READY.
+
+## WIP branches (pushed; each from `38f6916` or `7003dd0`; merge into main, finish, test)
+1. **`wip/missions`**: AdCom-style missions and ranks.
+   - `efcb378` is the feature (3 concurrent missions, claim, ranks with a permanent income bonus,
+     content `missions`, `sim/missions.gd`, HUD entry, sheet).
+   - `d6b7a6c` is bench pacing notes.
+   - `6a29e75` is the WIP tail: the agent was building the web export for screenshots.
+   - **Left:** a visual check of the HUD entry and sheet on a phone layout; run `tools/test.sh` and
+     the bench S-gates after merging.
+2. **`wip/faster-rounds`**: make each election faster than the last (rounds 6+ currently stretch to
+   about 10 min).
+   - `13e689b` is only WIP: probes plus content edits mid-way. **Not validated.**
+   - Next: finish tuning `coalition.unlockScalePerElection` (5), `unlockTimeScalePerElection` (0.9)
+     and prestige.
+   - Add the bench gate "rounds 2-8 each ≤ the previous + 15 s, rounds 6-8 ≤ 6:00".
+   - Run `tools/balance.sh` (25-40 min, background).
+   - Update `design/progression-curve.md` §0.
+3. **`wip/challenge-daily`**: "תעבור אותי" challenge links and "הסבב היומי".
+   - `7ebc649` is the feature: seeded fresh rounds, ghost timer, return link, the daily emoji grid,
+     streak.
+   - `92b89ed` holds fixes plus a STATUS line.
+   - `8863e99` is the WIP tail: it was fixing a template literal in a web driver (rounds_web).
+   - It talks to the share platform through an adapter (`ShareKit.request` if present, else the old
+     text path) and reads `window.odArrival` if present, else parses `location.hash`.
+   - **Left:** finish the web driver, run the tests, take screenshots.
+4. **`wip/share-platform`**: the reinvented sharing. This is the biggest piece and is mid-build.
+   - `33429c4` is RoundLog: a per-round history for the share cards.
+   - `82bdc71` is a large WIP (26 files): the HTML share drawer, `ShareKit.request`, cards, stubs. The
+     agent was adding funnel tests for the drawer's channel results.
+   - **Left:** finish and verify everything below.
+
+## The sharing design Bar approved (from three research reports; build against this)
+- **Platform:**
+  - a persistent **📣 "הדלף"** button;
+  - in-chat prompts from the coalition's media advisor ("יש לנו כותרת. להדליף?"), at most 1
+    proactive prompt per session, never during tapping;
+  - an **HTML share drawer** over the canvas: pre-rendered PNG, a live preview plus a
+    WhatsApp-bubble mock, formats square 1080×1350 / story 1080×1920 / text-only, a
+    neutral/family-safe toggle;
+  - navigator.share with files, then fallbacks wa.me / t.me / X / copy / save;
+  - in-app-browser detection (Android WebViews have no `navigator.share`);
+  - iOS drops the caption on image shares, so print the URL and hook on the image and copy the
+    caption to the clipboard.
+- **Cards:**
+  - **הדלפה:** a fake coalition WhatsApp-group crop with real lines from the round;
+  - **מבזק:** a red ticker, invented channel "ערוץ 61";
+  - **סיכום קדנציה:** Wrapped-style story cards on "עוד סבב";
+  - **סיכום כל הסבבים** (Bar's own ask): a career card across all rounds, from round 3+, also in
+    📣 and the dossier;
+  - every card carries a "סאטירה · עוד סבב" stamp and the short URL; preset lines only.
+- **Previews and attribution:**
+  - pre-rendered static stubs `/s/<leader>-<kind>/index.html` with their own og:title/og:image
+    (≤ 250 KB, 1200×630, the key content in the centre square, title starting with a Hebrew
+    word);
+  - no @vercel/og (Satori can't do Hebrew bidi);
+  - state goes in the URL **hash** (`#k=…&r=<ref>&…`), with `?via=wa|tg|x|copy|img`;
+  - the shell parses arrivals into `window.odArrival` and sends `arrive/<kind>/<via>` and
+    `share/<kind>/<channel>/<result>` (cancel included) as virtual page views within the Hobby 50K
+    cap.
+- **Mechanics:**
+  - **"תעבור אותי":** same leader + seed, ghost timer, "שלח לו בחזרה";
+  - **"הסבב היומי":** Israel-date seed, the same for everyone, a spoiler-free emoji grid as text,
+    one official try a day, streak.
+- **Rules:**
+  - election silence from Fri 23.10 to 27.10 22:00: no seat or poll numbers framed as public
+    opinion;
+  - no "who I vote for": the copy says "שיחקתי את…";
+  - Hebrew copy starts with a Hebrew word, link alone on the last line, ≤ 200 chars, no em dashes.
+
+## Order to resume
+1. Merge `wip/challenge-daily` and `wip/missions` (most complete) into main. Resolve conflicts in
+   `main.gd`, `content.json` (round-trip with `json.dumps(indent=1, ensure_ascii=False)`, no
+   trailing newline), `gen_strings.py` / `ui-strings.json` (re-run `python3 ux/tools/gen_strings.py`)
+   and the shell analytics allowlist.
+2. Finish `wip/share-platform` on top. Wire challenge/daily to `ShareKit.request`.
+3. Finish `wip/faster-rounds`.
+4. Full checks: `tools/test.sh`, content lint, gen_strings, lint_text, `tools/balance.sh`
+   (background), the web drivers.
+5. Deploy. Log in STATUS.md. Tell Bar.
+- Godot 4.7.2 goes in the scratchpad (`tools/godot.sh` finds it). Pillow + numpy for art.
+- `.claude/worktrees/` is excluded locally (`.git/info/exclude`). Never `git add` those
+  directories.
+
 # HANDOFF: leaders v3 phase 3 + Bar's playtest asks, all live (2026-10-01 night, cloud session; read this first)
 
 **Live: `c726a5e`** (web-dist `3e8ed88`, Vercel `dpl_5aWgDf3DQSifGJU3ZSSB4CR54Wj4`). Tests 497/497, content lint 0,
