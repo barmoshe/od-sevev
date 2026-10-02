@@ -1804,6 +1804,36 @@
       "box": "ticker.crawl",
       "maxChars": 60
     },
+    "SARA_ARRIVE": {
+      "surface": "label",
+      "note": "Bar 2026-10-02: Sara walks in; the tap is hers until she is tapped (SaraMark)",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 552,
+        "5": 690
+      }
+    },
+    "SARA_BLOCK": {
+      "surface": "label",
+      "note": "A tap on the leader while Sara waits: swallowed (main._on_sara_block)",
+      "box": "stage.toast",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 428,
+        "5": 535
+      }
+    },
+    "SARA_DONE": {
+      "surface": "label",
+      "note": "The floater when Sara is tapped and walks off",
+      "box": "stage.floater",
+      "maxChars": 16,
+      "worstPx": {
+        "4": 188,
+        "5": 235
+      }
+    },
     "F_NO_SAVE": {
       "surface": "label",
       "box": "stage.toast",
@@ -7063,11 +7093,12 @@
     "SPIN_EFFECT_S02_LEADER": {
       "surface": "label",
       "spec": "spec §10.3 spin s02 (slot B)",
+      "note": "{s} = the next buy's seconds (Spins.card nextSec; fatigue shortens a rebuy, never weakens it)",
       "box": "card.line2wide",
       "maxChars": 15,
       "worstPx": {
-        "4": 304,
-        "5": 380
+        "4": 336,
+        "5": 420
       }
     },
     "SPIN_EFFECT_S11_LEADER": {

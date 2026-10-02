@@ -7,8 +7,8 @@ extends RefCounted
 ##   once        bought once per round (the fork's upgrade). It goes into s.upgrades.
 ##   consumable  rebuyable in a round. Each buy starts a timed effect; while it runs, the card is
 ##               off the shelf (it comes back when the effect ends). The n-th rebuy in a round is
-##               faded by fatigue^n: the effect's bonus when the effect has a `mult`, otherwise its
-##               duration (`fatigueScales: "effect" | "duration"` overrides). Never in s.upgrades.
+##               faded by fatigue^n: its duration, never its strength (Bar 2026-10-02: one rule, so
+##               the card's "×1.5" is always true; the card shows the next buy's seconds). Never in s.upgrades.
 ##   line        `levels[]` bought in order, each at its own cost. Leaves the shelf (and enters
 ##               s.upgrades) at the last level. Resets with the round.
 ## Price: `cost`, or for a consumable with `costBpsSeconds` the larger of `cost` and that many
@@ -113,10 +113,8 @@ static func faded(s: GameState, u: Dictionary) -> Dictionary:
 	var e: Dictionary = (u.get("effect", {}) as Dictionary).duplicate()
 	var n := buys(s, u["id"])
 	var f := pow(clampf(float(u.get("fatigue", 1.0)), 0.0, 1.0), n)
-	var scales := str(u.get("fatigueScales", "effect" if e.has("mult") else "duration"))
-	if scales == "effect" and e.has("mult"):
-		e["mult"] = 1.0 + (float(e["mult"]) - 1.0) * f
-	elif e.has("durationSec"):
+	# one rule (Bar 2026-10-02): fatigue shortens a repeat buy, never weakens it, so "×1.5" stays true
+	if e.has("durationSec"):
 		e["durationSec"] = float(e["durationSec"]) * f
 	return {"effect": e, "durationSec": float(e.get("durationSec", 0.0)), "n": n}
 
@@ -163,6 +161,8 @@ static func card(s: GameState, id: String, d: Economy.Derived = null) -> Diction
 	var e: Dictionary = u.get("effect", {})
 	var out := {"kind": kind(u), "price": price(s, u, d), "level": level(s, id), "levels": levels_of(u).size(),
 		"worn": kind(u) == "consumable" and buys(s, id) > 0, "liveSec": float(live(s, id).get("leftSec", 0.0))}
+	if kind(u) == "consumable":
+		out["nextSec"] = float(faded(s, u)["durationSec"])   # the "{s}" of its effect line: what the next buy lasts
 	if e.get("type", "") == "karhiLine":
 		var drained := minf(100.0, float(e.get("broadcasterDrainPct", 20.0)) * level(s, id))
 		out["bars"] = {"public": 100.0 - drained, "friendly": drained}

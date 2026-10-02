@@ -170,12 +170,15 @@ func test_live_spin_chip() -> void:
 	s.spins["active"].append({"id": "s02", "type": "tapBuff", "leftSec": 50.0, "durationSec": 60.0, "mult": 1.5, "pour": 0.0})
 	var f := BuffViews.first_spin(Spins.active_effects(s))
 	runner.check(f.get("id") == "s07", "the chip shows the spin that ends first")
-	var t := BuffViews.spin_chip_text("s07", 12.2, 368.0)
+	var t := BuffViews.spin_chip_text({"id": "s07", "type": "idleToTap"}, 12.2, 368.0)
 	runner.check(t.contains(Strings.s("SPIN_ACTIVE", {"s": "13"})), "SPIN_ACTIVE with the seconds left: %s" % t)
 	runner.check(PxText.measure(t, BuffViews.CHIP_SCALE) <= 368, "it fits the chip")
+	var tp := BuffViews.spin_chip_text(Spins.live(s, "s02"), 42.0, 368.0)
+	runner.check(tp.contains("1.5") and tp.contains("42"), "the pistachio's chip says what it does: %s" % tp)
+	runner.check(PxText.measure(tp, BuffViews.CHIP_SCALE) <= 368, "and fits the chip")
 	var bv: BuffViews = m.buffs
 	bv.update_chip(0.0, 0.0, true, Spins.active_effects(s))
-	runner.check(bv._chip_text.visible and bv._chip_text.text == BuffViews.spin_chip_text("s07", float(Spins.live(s, "s07")["leftSec"]), 368.0),
+	runner.check(bv._chip_text.visible and bv._chip_text.text == BuffViews.spin_chip_text(Spins.live(s, "s07"), float(Spins.live(s, "s07")["leftSec"]), 368.0),
 		"the chip is up for S07: %s" % bv._chip_text.text)
 	bv.update_chip(5.0, 0.0, true, Spins.active_effects(s))
 	runner.check(bv._chip_text.text.contains("×"), "a Suitcase frenzy wins the one chip (E5)")

@@ -314,6 +314,9 @@ e("F6_EVOLVE_READY", "יש רוב. אפשר לפזר את הכנסת.", "ticker.
 e("F7_RUN2", "סבב חדש! כל שקל שווה עכשיו ⟦×{pmult}⟧.", "ticker.crawl")
 e("F7_RUN2_GATE", "הבסיס נשאר. הקואליציה מתחילה מאפס.", "ticker.crawl", "*")
 e("F8_BULK", "אפשר לקנות בכמויות. הכפתור בראש רשימת המקורות.", "ticker.crawl")
+e("SARA_ARRIVE", "שרה על הבמה. לגעת בה, לא בו.", "stage.toast", note="Bar 2026-10-02: Sara walks in; the tap is hers until she is tapped (SaraMark)")
+e("SARA_BLOCK", "לא בו. קודם לגעת בשרה.", "stage.toast", note="A tap on the leader while Sara waits: swallowed (main._on_sara_block)")
+e("SARA_DONE", "שרה מרוצה", "stage.floater", note="The floater when Sara is tapped and walks off")
 e("F_NO_SAVE", "שים לב: הדפדפן הזה לא שומר. ההתקדמות תיעלם כשתצא.", "stage.toast")
 e("F_SAVE_CORRUPT", "השמירה הישנה לא נקראה. מתחילים סבב חדש.", "stage.toast")
 e("F_UPGRADE_FLAVOR", "{UPGRADE_NAME}: {FLAVOR}", "ticker.crawl")
@@ -964,7 +967,7 @@ e("DOS_LEADER_TAPS", "{verbPlural}: ⟦{n}⟧ · {critPlural}: ⟦{c}⟧", "dos.
 e("BUFF_CHIP_TAPFRENZY_LEADER", "{verb} ⟦×{mult}⟧ · ⟦{s}⟧ שנ׳", "stage.buffChip", "", "spec §10.3 BUFF_CHIP_TAPFRENZY", "{verb} = kit.tap.verb")
 e("BANNER_FRENZY_LEADER", "{banner} ⟦×{mult}⟧", "stage.banner", "*", "spec §10.3 BANNER_FRENZY", "{banner} = kit.tap.frenzyBanner")
 e("SPIN_EFFECT_S01_LEADER", "⟦+0.30⟧~₪ לכל {verb}", "card.line2wide", "", "spec §10.3 spin s01 (slot A)", "Replaces upgradeEffects.s01 for every leader once the picker ships")
-e("SPIN_EFFECT_S02_LEADER", "{verb} ⟦×1.5⟧ לדקה", "card.line2wide", "", "spec §10.3 spin s02 (slot B)")
+e("SPIN_EFFECT_S02_LEADER", "{verb} ⟦×1.5⟧ · ⟦{s}⟧ שנ׳", "card.line2wide", "", "spec §10.3 spin s02 (slot B)", "{s} = the next buy's seconds (Spins.card nextSec; fatigue shortens a rebuy, never weakens it)")
 e("SPIN_EFFECT_S11_LEADER", "{critName}: סיכוי ⟦+5%⟧", "card.line2wide", "", "spec §10.3 spin s11 (slot E)", "s07 is Bibi-only, so upgradeEffects.s07 keeps 'שליפה'")
 # --- the press skin (every leader but Bibi; spec §5.6, leaderSelect.hazardSkins.press). Same geometry as the court.
 e("PRESS_SUSP", "כותרות", "stage.thermo", "", "hazardSkins.press.meterName")
@@ -1085,17 +1088,17 @@ PRODUCERS = [  # fork id -> (deck name, plural)
 ]
 SPINS = [  # deck id -> (name, short effect label from the designer's effect column)
     ("s01", "פיקדון על בקבוקים", "⟦+0.30⟧~₪ לכל שליפה"),
-    ("s02", "גלידת פיסטוק", "שליפה ⟦×1.5⟧ לדקה"),
+    ("s02", "גלידת פיסטוק", "שליפה ⟦×1.5⟧ · ⟦{s}⟧ שנ׳"),
     ("s03", "ביביסיטר", "כשאתה לא פה: ⟦×2⟧"),
     ("s04", "לא יהיה כלום", "חשד ⟦−25%⟧"),
     ("s05", "ציד מכשפות", "קלף נגדך: ⟦+1⟧ בסיס"),
     ("s06", "כנף ציון", "פותח את וושינגטון"),
-    ("s07", "סופר־ספרטה", "⟦30⟧ שנ׳: הכול לשליפה"),
+    ("s07", "סופר־ספרטה", "⟦{s}⟧ שנ׳: הכול לשליפה"),
     ("s08", "השלט", "יותר בסיס, יותר חשד"),
     ("s09", "פייג׳ר זהב", "פנקס הצ׳קים ⟦×1.5⟧"),
     ("s10", "מזוודות כביסה", "כל טיסה: ⟦+5%⟧ הכנסה"),
     ("s11", "באגס באני", "סיכוי לארנב ⟦+5%⟧"),
-    ("s12", "הוחלט להקים ועדה", "החשד קפוא ⟦60⟧ שנ׳"),
+    ("s12", "הוחלט להקים ועדה", "החשד קפוא ⟦{s}⟧ שנ׳"),
     ("s13", "ראיון בערוץ ידידותי", "בסיס ⟦+10%⟧ לסבב"),
     ("s14", "סרטון ויראלי", "צפיות ⟦×10⟧, לייקים ⟦+1⟧"),
     ("s15", "ביקור ממלכתי", "מוחק חשד סיגרים"),

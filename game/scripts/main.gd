@@ -401,6 +401,8 @@ func _build() -> void:
 	street.on_marker = func(n: String) -> void: _audio(n)
 	sara = SaraMark.new()
 	diorama.street_layer().add_child(sara)
+	sara.on_arrive = func() -> void:
+		toasts.show_toast(Strings.s("SARA_ARRIVE"), "", "lane", func() -> bool: return sara.tappable())
 	herzog = HerzogFigure.new()
 	diorama.street_layer().add_child(herzog)
 	kaia = KaiaFigure.new()
@@ -1830,6 +1832,28 @@ func _on_ability_event(e: Dictionary) -> void:
 		toasts.show_toast(Bidi.fill(line, fill), "", "lane", alive)
 
 
+## A tap on Sara while she is on the stage (SaraMark, Bar 2026-10-02): she walks off and the leader
+## takes taps again.
+func _tap_sara() -> void:
+	sara.tap()
+	floaters.spawn(sara.position.x, sara.position.y - 140.0, Strings.s("SARA_DONE"), false, false)
+	_audio("stamp")
+
+
+var _sara_toast_at := -1.0e9
+
+
+## A tap on the leader while Sara waits: no coin, no +N. She huffs, the arrow pulses, and at most
+## every 2.5 s the toast says whom to tap.
+func _on_sara_block() -> void:
+	sara.nudge()
+	bb.tap(false, true)
+	if _now - _sara_toast_at >= 2500.0:
+		_sara_toast_at = _now
+		_audio("cantAfford")
+		toasts.show_toast(Strings.s("SARA_BLOCK"), "", "lane", func() -> bool: return sara.tappable())
+
+
 ## A tap on Kaia while she is out (KaiaFigure): the cucumber. Events.act("kaia", "feed") swaps her nip
 ## for the kaiaBuff tap multiplier; she trots off and the toast says how long it lasts.
 func _feed_kaia() -> void:
@@ -2195,6 +2219,9 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if share_desk.chip_takes(sp) and not Ui.in_rect(toasts.covered_rect(), sp):   # share platform: the 📣 chip
 		_presses[idx] = {"kind": "shareChip"}
 		return
+	if sara.tappable() and Ui.in_rect(sara.hit_rect(), sp):
+		_tap_sara()
+		return
 	if herzog.tappable() and Ui.in_rect(herzog.hit_rect(), sp):
 		_accept_mediation()
 		return
@@ -2206,6 +2233,9 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if not tap_burst() and toasts.tap(sp):
 		return
 	if Ui.in_rect(bb.hit_rect(), sp):
+		if sara.tappable():
+			_on_sara_block()   # Bar 2026-10-02: while Sara is on the stage the tap is hers
+			return
 		_handle_tap(sp)
 		return
 	if ticker.visible and ticker.cta_on() and ticker.cta.contains(lp):
@@ -2362,7 +2392,10 @@ func _on_key(e: InputEventKey) -> void:
 	match e.keycode:
 		KEY_SPACE, KEY_ENTER:
 			if not chat.is_open() and not dossier.is_open():   # rtl-map §6.3: a tall tab covers the Magician
-				_handle_tap(L.magician_hit().get_center())
+				if sara.tappable():
+					_tap_sara()   # Space is the keyboard's tap: while Sara waits it is hers
+				else:
+					_handle_tap(L.magician_hit().get_center())
 		KEY_S:
 			if golden.on_screen() and not chat.is_open() and not dossier.is_open():
 				_catch_golden()

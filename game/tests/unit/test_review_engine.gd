@@ -302,7 +302,7 @@ func test_r14_s08_line_two_names_the_growing_part() -> void:
 	runner.check(Shop.spin_line2("s08", card) == Strings.upgrade_effect("s08"), "level 0: the effect label")
 	card = {"level": 2, "bars": {"public": 60.0, "friendly": 40.0}}
 	runner.check(Shop.spin_line2("s08", card) == Strings.s("SPIN_BARS_LINE", {"pct": 40}), "level 2: SPIN_BARS_LINE with the friendly share (%s)" % Shop.spin_line2("s08", card))
-	runner.check(Shop.spin_line2("s02", {"level": 1}) == Strings.upgrade_effect("s02"), "a spin without bars keeps its effect")
+	runner.check(Shop.spin_line2("s02", {"level": 1, "nextSec": 48.0}) == Strings.upgrade_effect("s02").replace("{s}", "48"), "a spin without bars keeps its effect, with the next buy's seconds")
 
 
 func test_r15_the_scrim_is_the_outline_swatch() -> void:

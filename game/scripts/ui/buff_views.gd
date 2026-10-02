@@ -75,7 +75,7 @@ func update_chip(frenzy: float, tap_frenzy: float, stage_visible: bool, spins: A
 	if kind == "":
 		rem = float(spin["leftSec"])
 		total = maxf(1e-3, float(spin.get("durationSec", rem)))
-		_chip_text.text = spin_chip_text(String(spin["id"]), rem, (L.BUFF["chipBar"] as Rect2).size.x)
+		_chip_text.text = spin_chip_text(spin, rem, (L.BUFF["chipBar"] as Rect2).size.x)
 	else:
 		var o := Content.outcome_of_type("bpsFrenzy" if kind == "frenzy" else "tapFrenzy")
 		rem = frenzy if kind == "frenzy" else tap_frenzy
@@ -108,8 +108,14 @@ static func first_spin(spins: Array) -> Dictionary:
 	return out
 
 
-## "{name} · SPIN_ACTIVE" when it fits the chip's text box at the chip scale, else SPIN_ACTIVE alone.
-static func spin_chip_text(id: String, left_sec: float, box_w: float) -> String:
+## A live tap buff (the pistachio) says what it does: "{verb} ×1.5 · 42 שנ׳" (Bar 2026-10-02: it
+## was not clear). Any other spin: "{name} · SPIN_ACTIVE" when it fits the chip's text box at the
+## chip scale, else SPIN_ACTIVE alone.
+static func spin_chip_text(spin: Dictionary, left_sec: float, box_w: float) -> String:
+	var id := str(spin.get("id", ""))
+	if str(spin.get("type", "")) == "tapBuff":
+		return Strings.s("BUFF_CHIP_TAPFRENZY_LEADER", {"mult": Fmt.mult(float(spin.get("mult", 1.0))),
+			"s": Fmt.secs(left_sec).replace("S", ""), "verb": str(LeaderUi.tap()["verb"])})
 	var active := Strings.s("SPIN_ACTIVE", {"s": Fmt.secs(left_sec).replace("S", "")})
 	var full := Strings.upgrade_name(id) + " · " + active
 	return full if PxText.measure(full, CHIP_SCALE) <= box_w else active

@@ -86,11 +86,14 @@ func test_consumable_tap_buff_fades_and_comes_back() -> void:
 	runner.check((ended["spinsEnded"] as Array).has("t_buff"), "Economy.tick reports it ending")
 	_eq(Economy.derive(s).tap_value_no_crit, base, "then taps are back to normal")
 	runner.check(_shelf(s).has("t_buff"), "and the card is back on the shelf")
+	runner.check(is_equal_approx(float(Spins.card(s, "t_buff")["nextSec"]), 48.0), "the card names the rebuy's seconds: 60 × 0.8")
 	Economy.buy_upgrade(s, "t_buff")
-	_eq(Economy.derive(s).tap_value_no_crit, base * 1.4, "the rebuy is faded: 1 + 0.5 × 0.8")
-	_tick(s, 60.0)
+	# Bar 2026-10-02: fatigue shortens a rebuy, never weakens it ("×1.5" on the card stays true)
+	_eq(Economy.derive(s).tap_value_no_crit, base * 1.5, "the rebuy is still ×1.5")
+	runner.check(is_equal_approx(float(Spins.live(s, "t_buff")["leftSec"]), 48.0), "for 60 × 0.8 = 48 s")
+	_tick(s, 48.0)
 	Economy.buy_upgrade(s, "t_buff")
-	_eq(Economy.derive(s).tap_value_no_crit, base * 1.32, "and again: 1 + 0.5 × 0.8²")
+	runner.check(is_equal_approx(float(Spins.live(s, "t_buff")["leftSec"]), 38.4), "and again: 60 × 0.8² = 38.4 s")
 	Economy.reset_run(s)   # what an election does to the run
 	runner.check(Spins.buys(s, "t_buff") == 0 and Spins.active_effects(s).is_empty(), "the round's fatigue and timers reset")
 

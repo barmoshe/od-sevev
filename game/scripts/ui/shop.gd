@@ -1117,13 +1117,14 @@ static func ms_pulse_alpha(t: float, reduced: bool) -> float:
 	return 0.4 * maxf(0.0, 1.0 - (t - 450.0) / (MS_CELEB_MS - 450.0))
 
 
-## A spin card's line 2 (rtl-map §6.1): the effect label; S08 (the split bars) at level ≥ 1 reads
+## A spin card's line 2 (rtl-map §6.1): the effect label ({s} = a consumable's next duration); S08 (the split bars) at level ≥ 1 reads
 ## SPIN_BARS_LINE "ערוץ ידידותי: {pct}%" instead, naming the part of the bar that grows (R14).
 static func spin_line2(id: String, card: Dictionary) -> String:
 	var bars: Dictionary = card.get("bars", {})
 	if not bars.is_empty() and int(card.get("level", 0)) >= 1:
 		return Strings.s("SPIN_BARS_LINE", {"pct": int(roundf(float(bars.get("friendly", 0.0))))})
-	return Strings.upgrade_effect(id)
+	# a consumable's line names what the next buy lasts (fatigue shortens a rebuy: 60, 48, 38 s)
+	return Strings.upgrade_effect(id).replace("{s}", str(int(roundf(float(card.get("nextSec", 0.0))))))
 
 
 ## The spin card's model (rtl-map §6.1 "Spin card"), from the sim's reads only:

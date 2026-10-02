@@ -212,11 +212,13 @@ static func derive(s: GameState) -> Derived:
 	d.frenzy_mult = float(Content.outcome_of_type("bpsFrenzy").get("mult", 1.0)) if s.buff_frenzy > 0.0 else 1.0
 	d.tap_frenzy_mult = float(Content.outcome_of_type("tapFrenzy").get("mult", 1.0)) if s.buff_tap_frenzy > 0.0 else 1.0
 	d.bps_effective = clampf_num(d.bps * d.frenzy_mult)
-	# tapValue = ((baseValue + tapAdd) × tapMult × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps)
-	#            × tapFrenzy. Court day's incomeMult is already inside bps; the base part takes it here.
+	# tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult × tapFrenzy.
+	# One rule (Bar 2026-10-02): every "taps ×N" (a spin, a card, a partner, a leader's buff) multiplies
+	# the WHOLE tap. It used to multiply only the flat base, so once the bps share dominated, the
+	# pistachio's ×1.5 paid ×1.04. Court day's incomeMult is already inside bps; the base part takes it here.
 	var base_tap := float(c["tap"]["baseValue"]) + d.tap_add
 	var pct := d.tap_pct_of_bps + float(c["tap"].get("pctOfBpsBase", 0.0))
-	d.tap_value_no_crit = clampf_num((base_tap * d.tap_mult * d.prestige_mult * maxf(0.0, d.income_mult) + pct * d.bps) * d.tap_frenzy_mult)
+	d.tap_value_no_crit = clampf_num((base_tap * d.prestige_mult * maxf(0.0, d.income_mult) + pct * d.bps) * d.tap_mult * d.tap_frenzy_mult)
 	if d.tap_pour_sec > 0.0:
 		# S07: the passive income is poured into the taps instead (tapValue + bps × pourSecPerTap).
 		d.bps_effective = 0.0

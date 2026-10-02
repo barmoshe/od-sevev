@@ -163,8 +163,8 @@ An unknown key is false, and the lint flags it.
 
 ### Spins (`upgrades[]`, `spins.gd`)
 - `kind`: `once` (default; into `s.upgrades`), `consumable` (rebuyable; each buy starts a timer and
-  the card leaves the shelf until it ends; the n-th rebuy in a round fades by `fatigue`^n: the
-  effect's bonus when it has `mult`, else its duration; `fatigueScales` overrides), `line`
+  the card leaves the shelf until it ends; the n-th rebuy in a round lasts `fatigue`^n of its
+  `durationSec`, at full strength), `line`
   (`levels[{cost}]` in order; into `s.upgrades` at the last level).
 - `costBpsSeconds`: a consumable's price is max(`cost`, that many seconds of ₪/s, 3 significant digits up).
 - Effects: `tapBuff {mult, durationSec}`, `idleToTap {durationSec, pourSecPerTap}` (income stops, each

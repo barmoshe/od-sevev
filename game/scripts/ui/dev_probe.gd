@@ -13,6 +13,7 @@ extends RefCounted
 ##   coal {lines, afford, ultLeft, save, vote}: the open pay lines, how many the bank covers, the
 ##        nearest ultimatum (s, -1 none), the biggest ultimatum / rejoin price, the election card holding
 ##   shop {tab, list [top, bottom], rows [[x, y, id, afford]]}: the source cards in view
+##   sara [x, y]: Sara's centre while she takes the tap (absent otherwise)
 
 static var _ms := 0.0
 
@@ -143,6 +144,11 @@ static func snapshot(host: Node) -> Dictionary:
 	out["court"] = {"card": court.card_visible(), "mode": court.mode(), "phase": court.phase(), "testify": [ct.x, ct.y]}
 	# views wave 6: the thermometer (a tap opens T4) and T4's full-width rows (the share cards)
 	var th: Thermo = host.get("thermo")
+	# Bar 2026-10-02: while Sara is on the stage the tap is hers (the driver taps her, not the leader)
+	var sm: Variant = host.get("sara")
+	if sm is SaraMark and (sm as SaraMark).tappable():
+		var sc := (sm as SaraMark).hit_rect().get_center() + Vector2(float(host.get("_sx")), float(host.get("_stage_y")))
+		out["sara"] = [sc.x, sc.y]
 	var tc := th.hit_rect().get_center() + Vector2(float(host.get("_sx")), float(host.get("_stage_y")))
 	out["thermo"] = {"shown": th.is_shown(), "x": tc.x, "y": tc.y}
 	var dv: DossierView = host.get("dossier")

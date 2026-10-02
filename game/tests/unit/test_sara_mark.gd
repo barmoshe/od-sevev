@@ -94,8 +94,11 @@ func test_she_visits_to_huff_at_the_bottle_deposits() -> void:
 	m._on_politics_event(Events.fire(m.state, "mordechai", m.d, func() -> float: return 0.0))
 	_frames(2)
 	runner.check(sara.showing(), "Mordechai David comes from the left now: she stays")
-	_frames(int(SaraMark.VISIT_MS / 16.0) + 10)
-	runner.check(not sara.showing(), "after the visit she leaves")
+	_frames(int(9000.0 / 16.0) + 10)
+	runner.check(sara.showing(), "Bar 2026-10-02: she stays until she is tapped")
+	sara.tap()
+	_frames(2)
+	runner.check(not sara.showing(), "a tap sends her off")
 
 
 func test_she_drops_by_for_a_cameo_now_and_then() -> void:
@@ -108,9 +111,11 @@ func test_she_drops_by_for_a_cameo_now_and_then() -> void:
 	sara.update_view(1200.0, m.state, true)
 	sara.update_view(16.0, m.state, true)
 	runner.check(sara.showing(), "then a passing cameo")
-	sara.update_view(SaraMark.VISIT_MS + 100.0, m.state, true)
+	sara.update_view(60000.0, m.state, true)
+	runner.check(sara.showing() and sara.tappable(), "who waits for her tap")
+	sara.tap()
 	sara.update_view(16.0, m.state, true)
-	runner.check(not sara.showing(), "which ends after the visit")
+	runner.check(not sara.showing(), "which ends the visit")
 	sara.update_view(SaraMark.CAMEO_EVERY_MS / 2.0, m.state, true)
 	runner.check(not sara.showing(), "and the next one waits its turn")
 
@@ -120,3 +125,44 @@ func test_not_in_another_leaders_round() -> void:
 	runner.check(_start_round("bennett"), "Bennett's round starts")
 	_frames(30)
 	runner.check(not m.sara.showing(), "no Sara outside Bibi's round")
+
+
+## Bar 2026-10-02: while she is on the stage the tap is hers. A tap on the leader pays nothing (she
+## huffs, the toast says whom to tap); a tap on her sends her off and the leader pays again.
+func test_while_she_is_on_stage_the_tap_is_hers() -> void:
+	await _boot(true)
+	runner.check(_start_round(), "the pick and tap 1 start the round")
+	_frames(30)
+	var sara: SaraMark = m.sara
+	sara.reduced_motion = true
+	sara.update_view(SaraMark.CAMEO_FIRST_MS + 100.0, m.state, true)
+	_frames(2)
+	runner.check(sara.tappable(), "she walks in and takes the tap")
+	var bank: float = m.state.bananas
+	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
+	for pressed in [true, false]:
+		var e := InputEventScreenTouch.new()
+		e.position = at
+		e.pressed = pressed
+		m._unhandled_input(e)
+	_frames(2)
+	runner.check(m.state.bananas == bank, "a tap on the leader pays nothing while she waits")
+	runner.check(sara.strip.anim == "offended", "she huffs at it")
+	var hr := sara.hit_rect()
+	runner.check(not hr.has_area() or not hr.has_point(L.magician_hit().get_center()), "her tap box is not on the leader")
+	var on_her := hr.get_center() + Vector2(m._sx, m._stage_y)
+	for pressed in [true, false]:
+		var e2 := InputEventScreenTouch.new()
+		e2.position = on_her
+		e2.pressed = pressed
+		m._unhandled_input(e2)
+	_frames(2)
+	runner.check(not sara.tappable() and not sara.showing(), "a tap on her sends her off")
+	m._last_tap_ms = -1.0e9
+	m._limiter = TapLimiter.new()
+	for pressed in [true, false]:
+		var e3 := InputEventScreenTouch.new()
+		e3.position = at
+		e3.pressed = pressed
+		m._unhandled_input(e3)
+	runner.check(m.state.bananas > bank, "and the leader pays again")

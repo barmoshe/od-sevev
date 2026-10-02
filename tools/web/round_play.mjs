@@ -190,6 +190,8 @@ export function makePlayer({ page, cdp, DPR, out, wh, log }) {
 			if (!clear(s)) { await wait(200); continue; }
 			// taps: the leader matters early; once sources pay, two taps a loop keep the verb alive
 			const nTaps = s.groupOpen ? 2 : 4;
+			// Sara on the stage (Bibi's round): the tap is hers until she is tapped
+			if (s.sara) { act('tap Sara'); await tapAt(css(s.sara[0], s.sara[1])); await wait(120); s = await probe(); }
 			for (let i = 0; i < nTaps; i++) { await tapAt(hat(), 40); await wait(50); st.hatTaps++; }
 			act(`${nTaps} taps`);
 			s = await probe();
