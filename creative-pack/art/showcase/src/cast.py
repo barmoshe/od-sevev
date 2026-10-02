@@ -88,6 +88,24 @@ CAST = {
     # sits under the hand and the forearm crossing the chest rides the chest band.
     'tibi': dict(neck=540, waist=900, eyes=[(407, 235, 20, 9), (508, 264, 20, 9)],
                  arm=None, react='no', head=(270, 40, 760, 560)),
+    # The new right-bloc and third-bloc partners (ChatGPT batch 2026-10-02, keyed out with cutout.py; the originals are
+    # refs/candidates/<id>.png). Where a held prop or a raised arm crosses the chest, the neck cut drops under it so no
+    # breath tears it: Rothman's raised finger and book, Zelekha's calculator and ledger, Hendel's phone arm, Winter's
+    # wave. Winter's waist sits under his hanging hand; Hendel's under the hand in his pocket.
+    'rothman': dict(neck=930, waist=1050, eyes=[(410, 224, 22, 10), (505, 243, 22, 10)],
+                    arm=None, react='no', head=(300, 10, 740, 480)),
+    'bismuth': dict(neck=400, waist=960, eyes=[(450, 239, 22, 10), (575, 232, 22, 10)],
+                    arm=None, react='hop', head=(310, 10, 700, 400)),
+    'feiglin': dict(neck=445, waist=890, eyes=[(425, 223, 22, 10), (520, 235, 22, 10)],
+                    arm=None, react='hop', head=(330, 10, 740, 450)),
+    'hendel': dict(neck=560, waist=1000, eyes=[(532, 314, 20, 9), (605, 344, 20, 9)],
+                   arm=None, react='no', head=(440, 130, 820, 510)),
+    'zelekha': dict(neck=815, waist=905, eyes=[(470, 275, 22, 10), (585, 250, 22, 10)],
+                    arm=None, react='no', head=(290, 10, 670, 420)),
+    'winter': dict(neck=600, waist=1050, eyes=[(445, 204, 22, 10), (535, 212, 22, 10)],
+                   arm=None, react='hop', head=(370, 10, 720, 430)),
+    'haddad': dict(neck=480, waist=900, eyes=[(414, 239, 20, 9), (502, 259, 20, 9)],
+                   arm=None, react='hop', head=(330, 10, 680, 460)),
 }
 
 # The two custom-rig leaders (build.py magician / bennett) take the same recipe keys. Bibi's is his approved hat rig

@@ -10378,6 +10378,982 @@
      }
     }
    }
+  },
+  "rothman": {
+   "frameW": 165,
+   "frameH": 289,
+   "anchor": [
+    82,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/rothman_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/rothman_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3,
+     "cols": 5,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      1,
+      0,
+      2,
+      3,
+      4,
+      1,
+      1,
+      0,
+      2,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 110,
+     "frameH": 193,
+     "anchor": [
+      55,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/rothman_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/rothman_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        1,
+        0,
+        2,
+        3,
+        4,
+        1,
+        1,
+        0,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_rothman_d2",
+   "avatar24": "avatar24_rothman",
+   "avatar32": "avatar_rothman",
+   "avatarDensity": 2
+  },
+  "bismuth": {
+   "frameW": 127,
+   "frameH": 310,
+   "anchor": [
+    63,
+    309
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/bismuth_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/bismuth_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3,
+     "cols": 7,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 86,
+     "frameH": 207,
+     "anchor": [
+      43,
+      206
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/bismuth_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/bismuth_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_bismuth_d2",
+   "avatar24": "avatar24_bismuth",
+   "avatar32": "avatar_bismuth",
+   "avatarDensity": 2
+  },
+  "feiglin": {
+   "frameW": 204,
+   "frameH": 309,
+   "anchor": [
+    102,
+    308
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/feiglin_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/feiglin_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3,
+     "cols": 7,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 136,
+     "frameH": 206,
+     "anchor": [
+      68,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/feiglin_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/feiglin_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_feiglin_d2",
+   "avatar24": "avatar24_feiglin",
+   "avatar32": "avatar_feiglin",
+   "avatarDensity": 2
+  },
+  "hendel": {
+   "frameW": 129,
+   "frameH": 289,
+   "anchor": [
+    66,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/hendel_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/hendel_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3,
+     "cols": 5,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      1,
+      0,
+      2,
+      3,
+      4,
+      1,
+      1,
+      0,
+      2,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 87,
+     "frameH": 193,
+     "anchor": [
+      44,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/hendel_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/hendel_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        1,
+        0,
+        2,
+        3,
+        4,
+        1,
+        1,
+        0,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_hendel_d2",
+   "avatar24": "avatar24_hendel",
+   "avatar32": "avatar_hendel",
+   "avatarDensity": 2
+  },
+  "zelekha": {
+   "frameW": 185,
+   "frameH": 289,
+   "anchor": [
+    92,
+    288
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/zelekha_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/zelekha_react.png",
+     "frames": 12,
+     "fps": 10,
+     "loop": false,
+     "events": {
+      "no": 1
+     },
+     "density": 3,
+     "cols": 5,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      1,
+      0,
+      2,
+      3,
+      4,
+      1,
+      1,
+      0,
+      2,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 125,
+     "frameH": 193,
+     "anchor": [
+      62,
+      192
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/zelekha_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/zelekha_react_d2.png",
+       "frames": 12,
+       "fps": 10,
+       "loop": false,
+       "events": {
+        "no": 1
+       },
+       "density": 2,
+       "cols": 5,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        1,
+        0,
+        2,
+        3,
+        4,
+        1,
+        1,
+        0,
+        2,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_zelekha_d2",
+   "avatar24": "avatar24_zelekha",
+   "avatar32": "avatar_zelekha",
+   "avatarDensity": 2
+  },
+  "winter": {
+   "frameW": 174,
+   "frameH": 310,
+   "anchor": [
+    87,
+    309
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/winter_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/winter_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3,
+     "cols": 7,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 116,
+     "frameH": 206,
+     "anchor": [
+      58,
+      205
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/winter_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/winter_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_winter_d2",
+   "avatar24": "avatar24_winter",
+   "avatar32": "avatar_winter",
+   "avatarDensity": 2
+  },
+  "haddad": {
+   "frameW": 147,
+   "frameH": 310,
+   "anchor": [
+    73,
+    309
+   ],
+   "density": 3,
+   "anims": {
+    "idle": {
+     "texture": "cast/haddad_idle.png",
+     "frames": 20,
+     "fps": 10,
+     "loop": true,
+     "events": {},
+     "density": 3,
+     "cols": 6,
+     "rows": 1,
+     "frameMap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      2,
+      5,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "react": {
+     "texture": "cast/haddad_react.png",
+     "frames": 8,
+     "fps": 14,
+     "loop": false,
+     "events": {
+      "land": 6
+     },
+     "density": 3,
+     "cols": 7,
+     "rows": 1,
+     "frameMap": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      0
+     ]
+    }
+   },
+   "densities": {
+    "2": {
+     "frameW": 99,
+     "frameH": 207,
+     "anchor": [
+      49,
+      206
+     ],
+     "density": 2,
+     "anims": {
+      "idle": {
+       "texture": "cast/haddad_idle_d2.png",
+       "frames": 20,
+       "fps": 10,
+       "loop": true,
+       "events": {},
+       "density": 2,
+       "cols": 6,
+       "rows": 1,
+       "frameMap": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        2,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "react": {
+       "texture": "cast/haddad_react_d2.png",
+       "frames": 8,
+       "fps": 14,
+       "loop": false,
+       "events": {
+        "land": 6
+       },
+       "density": 2,
+       "cols": 7,
+       "rows": 1,
+       "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "avatar": "avatar_haddad_d2",
+   "avatar24": "avatar24_haddad",
+   "avatar32": "avatar_haddad",
+   "avatarDensity": 2
   }
  },
  "aliases": {
@@ -20582,6 +21558,398 @@
     64,
     64
    ]
+  },
+  "avatar24_bismuth.png": {
+   "bytes": 1012,
+   "sha": "1ac395b30fedc81f",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_feiglin.png": {
+   "bytes": 988,
+   "sha": "0c41401404528290",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_haddad.png": {
+   "bytes": 942,
+   "sha": "7896173a1f7f1c92",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_hendel.png": {
+   "bytes": 943,
+   "sha": "72a51d616273428b",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_rothman.png": {
+   "bytes": 932,
+   "sha": "c87200f68dfb9319",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_winter.png": {
+   "bytes": 914,
+   "sha": "ab84fbece56bc392",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar24_zelekha.png": {
+   "bytes": 882,
+   "sha": "5aea7d443f0bb08f",
+   "size": [
+    24,
+    24
+   ]
+  },
+  "avatar_bismuth.png": {
+   "bytes": 1542,
+   "sha": "f4a98391d9f8e06a",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_bismuth_d2.png": {
+   "bytes": 4329,
+   "sha": "a1e66b0adffce03f",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_feiglin.png": {
+   "bytes": 1613,
+   "sha": "6ce73c6fbd00fc87",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_feiglin_d2.png": {
+   "bytes": 4641,
+   "sha": "21cc3151de1c35fc",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_haddad.png": {
+   "bytes": 1575,
+   "sha": "3fd25817f31dfd16",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_haddad_d2.png": {
+   "bytes": 4283,
+   "sha": "e78c7f96912515db",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_hendel.png": {
+   "bytes": 1550,
+   "sha": "327806cf4de55e25",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_hendel_d2.png": {
+   "bytes": 4470,
+   "sha": "e79cdac6b7d64b31",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_rothman.png": {
+   "bytes": 1443,
+   "sha": "81290da4a2cf2be7",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_rothman_d2.png": {
+   "bytes": 4046,
+   "sha": "c27155be74037148",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_winter.png": {
+   "bytes": 1494,
+   "sha": "c7bdd35d1eb9c4ae",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_winter_d2.png": {
+   "bytes": 3995,
+   "sha": "81f65ade9c5af2e3",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "avatar_zelekha.png": {
+   "bytes": 1434,
+   "sha": "66d949b2e6f91535",
+   "size": [
+    32,
+    32
+   ]
+  },
+  "avatar_zelekha_d2.png": {
+   "bytes": 3873,
+   "sha": "e0452a98f93d20a2",
+   "size": [
+    64,
+    64
+   ]
+  },
+  "cast/bismuth_idle.png": {
+   "bytes": 69102,
+   "sha": "36eb4d4d906b4a23",
+   "size": [
+    762,
+    310
+   ]
+  },
+  "cast/bismuth_idle_d2.png": {
+   "bytes": 35063,
+   "sha": "79cc148189d66fd7",
+   "size": [
+    516,
+    207
+   ]
+  },
+  "cast/bismuth_react.png": {
+   "bytes": 220310,
+   "sha": "efd8e17d26185ebd",
+   "size": [
+    889,
+    310
+   ]
+  },
+  "cast/bismuth_react_d2.png": {
+   "bytes": 109578,
+   "sha": "3a21bac9b66fd654",
+   "size": [
+    602,
+    207
+   ]
+  },
+  "cast/feiglin_idle.png": {
+   "bytes": 80676,
+   "sha": "3e2cd05a5521767f",
+   "size": [
+    1224,
+    309
+   ]
+  },
+  "cast/feiglin_idle_d2.png": {
+   "bytes": 39009,
+   "sha": "6f0b5e84a95a0450",
+   "size": [
+    816,
+    206
+   ]
+  },
+  "cast/feiglin_react.png": {
+   "bytes": 255836,
+   "sha": "3c9871154dbf3f97",
+   "size": [
+    1428,
+    309
+   ]
+  },
+  "cast/feiglin_react_d2.png": {
+   "bytes": 122653,
+   "sha": "bf71aff9ae41d53e",
+   "size": [
+    952,
+    206
+   ]
+  },
+  "cast/haddad_idle.png": {
+   "bytes": 73108,
+   "sha": "66133de20a39396c",
+   "size": [
+    882,
+    310
+   ]
+  },
+  "cast/haddad_idle_d2.png": {
+   "bytes": 35903,
+   "sha": "c8114cb27c7e7b3b",
+   "size": [
+    594,
+    207
+   ]
+  },
+  "cast/haddad_react.png": {
+   "bytes": 226282,
+   "sha": "ea4cfea434818a92",
+   "size": [
+    1029,
+    310
+   ]
+  },
+  "cast/haddad_react_d2.png": {
+   "bytes": 112555,
+   "sha": "c0cc72caa97c0c7a",
+   "size": [
+    693,
+    207
+   ]
+  },
+  "cast/hendel_idle.png": {
+   "bytes": 74833,
+   "sha": "36a934c2694969a7",
+   "size": [
+    774,
+    289
+   ]
+  },
+  "cast/hendel_idle_d2.png": {
+   "bytes": 35652,
+   "sha": "13041a1658b90767",
+   "size": [
+    522,
+    193
+   ]
+  },
+  "cast/hendel_react.png": {
+   "bytes": 62187,
+   "sha": "d2d505659f0aabbb",
+   "size": [
+    645,
+    289
+   ]
+  },
+  "cast/hendel_react_d2.png": {
+   "bytes": 29680,
+   "sha": "7a92589caebc454f",
+   "size": [
+    435,
+    193
+   ]
+  },
+  "cast/rothman_idle.png": {
+   "bytes": 87075,
+   "sha": "4f4a8e207f243747",
+   "size": [
+    990,
+    289
+   ]
+  },
+  "cast/rothman_idle_d2.png": {
+   "bytes": 43545,
+   "sha": "5389a948be5848d0",
+   "size": [
+    660,
+    193
+   ]
+  },
+  "cast/rothman_react.png": {
+   "bytes": 85922,
+   "sha": "21ec3e8358580f11",
+   "size": [
+    825,
+    289
+   ]
+  },
+  "cast/rothman_react_d2.png": {
+   "bytes": 40901,
+   "sha": "edfa40d840c9c856",
+   "size": [
+    550,
+    193
+   ]
+  },
+  "cast/winter_idle.png": {
+   "bytes": 87609,
+   "sha": "1124eac551c2edb9",
+   "size": [
+    1044,
+    310
+   ]
+  },
+  "cast/winter_idle_d2.png": {
+   "bytes": 43328,
+   "sha": "13a24f203ed68a42",
+   "size": [
+    696,
+    206
+   ]
+  },
+  "cast/winter_react.png": {
+   "bytes": 250346,
+   "sha": "328377d959f5797c",
+   "size": [
+    1218,
+    310
+   ]
+  },
+  "cast/winter_react_d2.png": {
+   "bytes": 123961,
+   "sha": "b8eb95d9fa94c8af",
+   "size": [
+    812,
+    206
+   ]
+  },
+  "cast/zelekha_idle.png": {
+   "bytes": 99123,
+   "sha": "7328ad621f39ad3e",
+   "size": [
+    1110,
+    289
+   ]
+  },
+  "cast/zelekha_idle_d2.png": {
+   "bytes": 46389,
+   "sha": "7d6696f976de24cd",
+   "size": [
+    750,
+    193
+   ]
+  },
+  "cast/zelekha_react.png": {
+   "bytes": 90874,
+   "sha": "c3bfc8e58b774901",
+   "size": [
+    925,
+    289
+   ]
+  },
+  "cast/zelekha_react_d2.png": {
+   "bytes": 42299,
+   "sha": "657e1b47d04a801f",
+   "size": [
+    625,
+    193
+   ]
   }
  },
  "provenance": {
@@ -20648,7 +22016,14 @@
    "pledge-scroll.png": "4c0d9cbe0c970092",
    "podium.png": "db06751e2479b0d5",
    "round-table.png": "80a527d56e8e4849",
-   "smotrich-budget.png": "03ac4fbaa2641555"
+   "smotrich-budget.png": "03ac4fbaa2641555",
+   "bismuth.png": "e657a2dac5eee9f1",
+   "feiglin.png": "eefbe97fbf894c47",
+   "haddad.png": "6c396483f893fb38",
+   "hendel.png": "168208ec5c9ea4e0",
+   "rothman.png": "b84a91fae8dc33c2",
+   "winter.png": "899f89d18cca732c",
+   "zelekha.png": "2aa857561bc3b249"
   },
   "renderDown": "creative-pack art/showcase/src (rig.py, build.py, cast.py)",
   "stagesAndWordmark": "creative-pack art/src (locations.py, wordmark.py)",

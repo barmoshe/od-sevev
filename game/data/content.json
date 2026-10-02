@@ -5931,8 +5931,8 @@
     "name": "שמחה רוטמן",
     "short": "רוטמן",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "rothman_avatar",
+    "art": "rothman",
     "bloc": "right",
     "lines": {
      "demand": "יש לי תיקון לחוק יסוד. הוא עולה {price} ₪.",
@@ -5950,7 +5950,7 @@
      "rothman-slate",
      "rothman-constitution"
     ],
-    "_note": "Real person (Religious Zionism No. 4, fact rothman-slate; Constitution Committee chair, fact rothman-constitution). Joke: the committee, Basic-Law amendments and the override clause, all public legislative acts; never his faith or community. Mechanics: none. Takes Regev's S2 in Smotrich's round (same numbers), as a same-list partner who can't walk out, like Gotliv in Ben Gvir's. Art pending (ChatGPT batch, Bar's approval): nophoto until then.",
+    "_note": "Real person (Religious Zionism No. 4, fact rothman-slate; Constitution Committee chair, fact rothman-constitution). Joke: the committee, Basic-Law amendments and the override clause, all public legislative acts; never his faith or community. Mechanics: none. Takes Regev's S2 in Smotrich's round (same numbers), as a same-list partner who can't walk out, like Gotliv in Ben Gvir's.",
     "copy": {
      "card": {
       "text": "יושב ראש ועדת החוקה, שבה עברה חקיקת הרפורמה המשפטית. מספר 4 ברשימת הציונות הדתית.",
@@ -5967,8 +5967,8 @@
     "name": "בועז ביסמוט",
     "short": "ביסמוט",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "bismuth_avatar",
+    "art": "bismuth",
     "bloc": "right",
     "lines": {
      "demand": "נוסח חדש לחוק הגיוס. {price} ₪.",
@@ -5986,7 +5986,7 @@
      "bismuth-fadc",
      "bismuth-draft-bill"
     ],
-    "_note": "Real person (Likud; Foreign Affairs and Defense Committee chair since Aug 2025, fact bismuth-fadc). Joke: his draft bill's versions, shelving and revivals (fact bismuth-draft-bill), the bill as a legislative object; never Haredim, yeshiva students or soldiers as a punchline. No list position in copy: the Likud primary count was corrected after publication. Mechanics: none. Takes Regev's S2 in Deri's round (same numbers). Art pending (ChatGPT batch, Bar's approval): nophoto until then.",
+    "_note": "Real person (Likud; Foreign Affairs and Defense Committee chair since Aug 2025, fact bismuth-fadc). Joke: his draft bill's versions, shelving and revivals (fact bismuth-draft-bill), the bill as a legislative object; never Haredim, yeshiva students or soldiers as a punchline. No list position in copy: the Likud primary count was corrected after publication. Mechanics: none. Takes Regev's S2 in Deri's round (same numbers).",
     "copy": {
      "card": {
       "text": "יושב ראש ועדת החוץ והביטחון מאוגוסט 2025. חוק הגיוס שקידם נגנז וחזר לסדר היום יותר מפעם אחת.",
@@ -6003,8 +6003,8 @@
     "name": "משה פייגלין",
     "short": "פייגלין",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "feiglin_avatar",
+    "art": "feiglin",
     "bloc": "right",
     "lines": {
      "demand": "פחות מדינה, פחות מסים. ועוד {price} ₪, אחרון.",
@@ -6021,7 +6021,7 @@
     "src": [
      "smotrich-feiglin"
     ],
-    "_note": "Real person (Zehut chairman, No. 2 on the Religious Zionism joint list by a technical bloc, fact smotrich-feiglin). Joke: the 'technical' union and the less-state economics, both on the record; cannabis is deliberately out (Bar's call). Mechanics: none. Takes Amsalem's S5 in Smotrich's round (same numbers) and keeps threatening: the bloc is technical, not a merger. Art pending: nophoto until then.",
+    "_note": "Real person (Zehut chairman, No. 2 on the Religious Zionism joint list by a technical bloc, fact smotrich-feiglin). Joke: the 'technical' union and the less-state economics, both on the record; cannabis is deliberately out (Bar's call). Mechanics: none. Takes Amsalem's S5 in Smotrich's round (same numbers) and keeps threatening: the bloc is technical, not a merger.",
     "copy": {
      "card": {
       "text": "יושב ראש זהות. במקום השני ברשימה של הציונות הדתית, בחיבור טכני ולא באיחוד מלא.",
@@ -6037,8 +6037,8 @@
     "name": "יועז הנדל",
     "short": "הנדל",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "hendel_avatar",
+    "art": "hendel",
     "bloc": "center-right",
     "lines": {
      "demand": "אנחנו הגוש השלישי. גוש שלישי עולה {price} ₪.",
@@ -6056,7 +6056,7 @@
      "hendel-zelekha-list",
      "hendel-communications"
     ],
-    "_note": "Real person (No. 1 on the joint list with Zelekha, fact hendel-zelekha-list; Communications Minister in the Bennett-Lapid government, fact hendel-communications). Joke: the 'third bloc' pitch and the communications ministry (reception); the list's own name and his reservist movement hit the military red line, so they never appear. Mechanics: none. Takes mk_offer's S5 in Bennett's round (same numbers). Art pending: nophoto until then.",
+    "_note": "Real person (No. 1 on the joint list with Zelekha, fact hendel-zelekha-list; Communications Minister in the Bennett-Lapid government, fact hendel-communications). Joke: the 'third bloc' pitch and the communications ministry (reception); the list's own name and his reservist movement hit the military red line, so they never appear. Mechanics: none. Takes mk_offer's S5 in Bennett's round (same numbers).",
     "copy": {
      "card": {
       "text": "שר התקשורת בממשלת בנט ולפיד. עומד בראש רשימה משותפת עם ירון זליכה, שמציגה את עצמה כגוש שלישי.",
@@ -6073,8 +6073,8 @@
     "name": "ירון זליכה",
     "short": "זליכה",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "zelekha_avatar",
+    "art": "zelekha",
     "bloc": "center-right",
     "lines": {
      "demand": "יש פה מונופול. לשבור אותו עולה {price} ₪.",
@@ -6093,7 +6093,7 @@
      "zelekha-accountant-general",
      "ballot-letters-2026"
     ],
-    "_note": "Real person (No. 2 on the joint list with Hendel, fact hendel-zelekha-list; Accountant General 2003-2007, fact zelekha-accountant-general). Joke: monopolies, cost of living, the accountant's books; never the Olmert-era investigations. Mechanics: none. Takes mk_undecided's L1 in Bennett's round (same numbers), beside Hendel. Art pending: nophoto until then.",
+    "_note": "Real person (No. 2 on the joint list with Hendel, fact hendel-zelekha-list; Accountant General 2003-2007, fact zelekha-accountant-general). Joke: monopolies, cost of living, the accountant's books; never the Olmert-era investigations. Mechanics: none. Takes mk_undecided's L1 in Bennett's round (same numbers), beside Hendel.",
     "copy": {
      "card": {
       "text": "החשב הכללי במשרד האוצר בשנים 2003 עד 2007. מספר 2 ברשימה המשותפת עם יועז הנדל.",
@@ -6110,8 +6110,8 @@
     "name": "עופר וינטר",
     "short": "וינטר",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "winter_avatar",
+    "art": "winter",
     "bloc": "right",
     "lines": {
      "demand": "אני רץ לבד. אבל {price} ₪ זה לא איחוד.",
@@ -6130,7 +6130,7 @@
      "smotrich-winter",
      "ballot-letters-2026"
     ],
-    "_note": "Real person (chairman of Amcha Israel, which filed alone on 7 Sep 2026 after Smotrich courted it: facts winter-amcha, smotrich-winter; ballot letter ך, fact ballot-letters-2026). Joke: running alone, the ballot letter, Smotrich's held seat. Never his army career, rank or any security topic (military red line); no poll or threshold numbers. Mechanics: none. Takes Amsalem's S5 in Ben Gvir's round (same numbers), beside Haddad. Art pending: nophoto until then.",
+    "_note": "Real person (chairman of Amcha Israel, which filed alone on 7 Sep 2026 after Smotrich courted it: facts winter-amcha, smotrich-winter; ballot letter ך, fact ballot-letters-2026). Joke: running alone, the ballot letter, Smotrich's held seat. Never his army career, rank or any security topic (military red line); no poll or threshold numbers. Mechanics: none. Takes Amsalem's S5 in Ben Gvir's round (same numbers), beside Haddad.",
     "copy": {
      "card": {
       "text": "יושב ראש עמך ישראל. הגיש רשימה עצמאית לכנסת ה־26, אחרי שסמוטריץ׳ חיזר אחריו לריצה משותפת.",
@@ -6147,8 +6147,8 @@
     "name": "יוסף חדאד",
     "short": "חדאד",
     "g": "m",
-    "avatar": "avatar_nophoto",
-    "art": "nophoto",
+    "avatar": "haddad_avatar",
+    "art": "haddad",
     "bloc": "right",
     "lines": {
      "demand": "כל המפלגות פנו אליי עם הצעות. ההצעה שלך: {price} ₪.",
@@ -6166,7 +6166,7 @@
      "haddad-offers",
      "winter-amcha"
     ],
-    "_note": "Real person (No. 2 on Winter's Amcha Israel; turned down offers, Netanyahu's office among them: fact haddad-offers). Joke: the offers he says every party made him, and 'a new spirit', his own phrase paraphrased. Never his community, faith or origin as a punchline; never his army service or injury (military red line). Mechanics: none. Takes Regev's S4 in Ben Gvir's round (same numbers), beside Winter. Art pending: nophoto until then.",
+    "_note": "Real person (No. 2 on Winter's Amcha Israel; turned down offers, Netanyahu's office among them: fact haddad-offers). Joke: the offers he says every party made him, and 'a new spirit', his own phrase paraphrased. Never his community, faith or origin as a punchline; never his army service or injury (military red line). Mechanics: none. Takes Regev's S4 in Ben Gvir's round (same numbers), beside Winter.",
     "copy": {
      "card": {
       "text": "מספר 2 ברשימת עמך ישראל של עופר וינטר. לפי הדיווחים, לשכת ראש הממשלה ניסתה לגייס אותו לליכוד עד הרגע האחרון.",
