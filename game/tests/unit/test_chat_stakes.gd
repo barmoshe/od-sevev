@@ -315,3 +315,22 @@ func test_the_pinned_bar_reads_as_a_button_after_the_first_election() -> void:
 		var free := int(m.state.thumbs_available())
 		runner.check(chat._pinned_badge.visible and chat._pinned_badge_text.text == ("9+" if free > 9 else str(free)),
 			"the badge shows the free base (%s)" % chat._pinned_badge_text.text)
+
+
+func test_a_tap_on_the_avatar_opens_the_card() -> void:
+	await _boot()
+	_open_group()
+	m.state.coalition["nextDemandSec"] = 1e12
+	await _open_chat_now()
+	var chat: ChatView = m.chat
+	var hit: Dictionary = {}
+	for h: Dictionary in chat.hits():
+		if h["kind"] == "partner":
+			hit = h
+	runner.check(not hit.is_empty(), "the thread has an avatar hit")
+	if hit.is_empty():
+		return
+	var p := chat.content_to_tall((hit["rect"] as Rect2).get_center()) + chat.position + Vector2(m._ox, m._lower_y)
+	_touch(p.x, p.y)
+	await tree.process_frame
+	runner.check(m.overlays.is_open() and m.overlays.top().id == "PARTNER_CARD", "a tap on the avatar opens the partner card (%s)" % (m.overlays.top().id if m.overlays.is_open() else "none"))
