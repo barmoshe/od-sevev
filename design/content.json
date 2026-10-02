@@ -5925,6 +5925,78 @@
       "poll_like": false
      }
     }
+   },
+   {
+    "id": "rothman",
+    "name": "שמחה רוטמן",
+    "short": "רוטמן",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "right",
+    "lines": {
+     "demand": "יש לי תיקון לחוק יסוד. הוא עולה {price} ₪.",
+     "threat": "זה לא עובר? אכנס את ועדת החוקה. גם בלילה.",
+     "thanks": "התקבל. עבר בוועדה, בקריאה ראשונה.",
+     "return": "חזרתי. גם הרפורמה חזרה. היא לא הלכה לשום מקום."
+    },
+    "linesVariants": {
+     "demand": [
+      "יש לי תיקון לחוק יסוד. הוא עולה {price} ₪.",
+      "פסקת התגברות. רוב של 61, ועוד {price} ₪."
+     ]
+    },
+    "src": [
+     "rothman-slate",
+     "rothman-constitution"
+    ],
+    "_note": "Real person (Religious Zionism No. 4, fact rothman-slate; Constitution Committee chair, fact rothman-constitution). Joke: the committee, Basic-Law amendments and the override clause, all public legislative acts; never his faith or community. Mechanics: none. Takes Regev's S2 in Smotrich's round (same numbers), as a same-list partner who can't walk out, like Gotliv in Ben Gvir's. Art pending (ChatGPT batch, Bar's approval): nophoto until then.",
+    "copy": {
+     "card": {
+      "text": "יושב ראש ועדת החוקה, שבה עברה חקיקת הרפורמה המשפטית. מספר 4 ברשימת הציונות הדתית.",
+      "src": [
+       "rothman-constitution",
+       "rothman-slate"
+      ],
+      "poll_like": false
+     }
+    }
+   },
+   {
+    "id": "bismuth",
+    "name": "בועז ביסמוט",
+    "short": "ביסמוט",
+    "g": "m",
+    "avatar": "avatar_nophoto",
+    "art": "nophoto",
+    "bloc": "right",
+    "lines": {
+     "demand": "נוסח חדש לחוק הגיוס. {price} ₪.",
+     "threat": "זה לא עובר? אגנוז את החוק. שוב.",
+     "thanks": "התקבל. סיימנו להקריא את כל הסעיפים.",
+     "return": "חזרתי. גם חוק הגיוס חזר לסדר היום."
+    },
+    "linesVariants": {
+     "demand": [
+      "נוסח חדש לחוק הגיוס. {price} ₪.",
+      "סיימנו להקריא את הסעיפים. ההצבעה עולה {price} ₪."
+     ]
+    },
+    "src": [
+     "bismuth-fadc",
+     "bismuth-draft-bill"
+    ],
+    "_note": "Real person (Likud; Foreign Affairs and Defense Committee chair since Aug 2025, fact bismuth-fadc). Joke: his draft bill's versions, shelving and revivals (fact bismuth-draft-bill), the bill as a legislative object; never Haredim, yeshiva students or soldiers as a punchline. No list position in copy: the Likud primary count was corrected after publication. Mechanics: none. Takes Regev's S2 in Deri's round (same numbers). Art pending (ChatGPT batch, Bar's approval): nophoto until then.",
+    "copy": {
+     "card": {
+      "text": "יושב ראש ועדת החוץ והביטחון מאוגוסט 2025. חוק הגיוס שקידם נגנז וחזר לסדר היום יותר מפעם אחת.",
+      "src": [
+       "bismuth-fadc",
+       "bismuth-draft-bill"
+      ],
+      "poll_like": false
+     }
+    }
    }
   ],
   "cardProfiles": [
@@ -9221,8 +9293,20 @@
       "slot": "S1"
      },
      {
-      "id": "regev",
-      "slot": "S2"
+      "id": "rothman",
+      "slot": "S2",
+      "traits": {
+       "cannotLeave": true,
+       "statusLine": true,
+       "threatChance": 0
+      },
+      "lines": {
+       "status": "מקום רביעי ברשימה של סמוטריץ׳. אני לא הולך לשום מקום."
+      },
+      "src": [
+       "rothman-slate"
+      ],
+      "_why": "No. 4 on his list (fact rothman-slate): same list, can't walk out. Replaces Regev's S2 (Bar, 2026-10-02: minimal lineup change)."
      },
      {
       "id": "bengvir",
@@ -9775,8 +9859,15 @@
       "slot": "S1"
      },
      {
-      "id": "regev",
-      "slot": "S2"
+      "id": "bismuth",
+      "slot": "S2",
+      "lines": {
+       "demand": "דרעי, חוק הגיוס כמעט מוכן. עוד נוסח אחד, {price} ₪."
+      },
+      "src": [
+       "bismuth-draft-bill"
+      ],
+      "_why": "The draft bill is the Shas round's issue (fact bismuth-draft-bill). Replaces Regev's S2, same numbers (Bar, 2026-10-02: minimal lineup change)."
      },
      {
       "id": "smotrich",

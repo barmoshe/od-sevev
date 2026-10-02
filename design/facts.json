@@ -3126,6 +3126,96 @@
    "usedIn": [
     "leaders.golan.kit.story"
    ]
+  },
+  {
+   "id": "rothman-slate",
+   "label": "F",
+   "text": "Religious Zionism's joint list for the 26th Knesset (Ynet, 8 Sep 2026): Smotrich, Moshe Feiglin (No. 2 by their agreement), Orit Strock, Simcha Rothman No. 4, then Tzvika Mor. Rothman had placed second in the party's July 2026 primary, behind Strock.",
+   "aboutHe": "ברשימת הציונות הדתית לכנסת ה־26 שובץ שמחה רוטמן במקום הרביעי, אחרי בצלאל סמוטריץ׳, משה פייגלין ואורית סטרוק.",
+   "notUsed": false,
+   "outlet": "Ynet; Walla",
+   "url": "https://www.ynet.co.il/news/elections2026/article/hytc0wadmx",
+   "url2": "https://news.walla.co.il/item/3856372",
+   "moreUrls": [
+    "https://www.ynet.co.il/news/article/sy2mgcxhzl"
+   ],
+   "date": "2026-09-08",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verificationNote": "Page opened and read on 2026-10-02 (WebFetch), not only the search result. Ynet: \"השרה אורית סטרוק במקום השלישי ולאחריה: שמחה רוטמן\".",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.rothman",
+    "leaderSelect.partnerProfiles.rothman.copy.card",
+    "leaders.smotrich.coalition.lineup.rothman"
+   ]
+  },
+  {
+   "id": "rothman-constitution",
+   "label": "F",
+   "text": "Rothman has chaired the Knesset Constitution, Law and Justice Committee since the 37th government formed (2023) and led the judicial overhaul legislation there with Justice Minister Yariv Levin. In the 2026 campaign he and Smotrich presented Religious Zionism's judicial plan as a coalition condition, including an override clause letting the Knesset re-enact a law struck down by the Supreme Court with 61 votes.",
+   "aboutHe": "שמחה רוטמן עומד בראש ועדת החוקה של הכנסת מ־2023 והוביל בה עם יריב לוין את חקיקת הרפורמה המשפטית; בבחירות 2026 הציג עם בצלאל סמוטריץ׳ תוכנית שכוללת פסקת התגברות ברוב של 61 חברי כנסת.",
+   "notUsed": false,
+   "outlet": "Ynetnews; Wikipedia",
+   "url": "https://www.ynetnews.com/article/hkcjtk1cme",
+   "url2": "https://en.wikipedia.org/wiki/Simcha_Rothman",
+   "moreUrls": [
+    "https://www.zman.co.il/726369/"
+   ],
+   "date": "2026",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verificationNote": "Page opened and read on 2026-10-02 (WebFetch), not only the search result. Ynetnews names Smotrich and Rothman as presenting the plan (61-vote override, a coalition condition); the committee chair since 2023 is from Wikipedia (Ynetnews doesn't state it).",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.rothman",
+    "leaderSelect.partnerProfiles.rothman.copy.card"
+   ]
+  },
+  {
+   "id": "bismuth-fadc",
+   "label": "F",
+   "text": "In August 2025 Likud removed Yuli Edelstein as chairman of the Knesset Foreign Affairs and Defense Committee over the Haredi draft law; the committee voted 9-7 to install Likud MK Boaz Bismuth.",
+   "aboutHe": "באוגוסט 2025 מונה ח״כ בועז ביסמוט מהליכוד ליושב ראש ועדת החוץ והביטחון במקום יולי אדלשטיין, על רקע המחלוקת על חוק הגיוס.",
+   "notUsed": false,
+   "outlet": "ToI; Ynetnews",
+   "url": "https://timesofisrael.com/amid-haredi-draft-controversy-likud-votes-for-mk-boaz-bismuth-to-head-key-knesset-panel/",
+   "url2": "https://www.ynetnews.com/article/3a14e6jb9",
+   "moreUrls": [
+    "https://www.timesofisrael.com/liveblog_entry/foreign-affairs-and-defense-committee-votes-to-accept-bismuth-as-new-head/"
+   ],
+   "date": "2025-08",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verificationNote": "Found by web search (headline + indexed text), as facts-verification.md describes; ToI liveblog headline gives the 9-7 vote.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.bismuth",
+    "leaderSelect.partnerProfiles.bismuth.copy.card"
+   ]
+  },
+  {
+   "id": "bismuth-draft-bill",
+   "label": "F",
+   "text": "Bismuth's committee finished reading the draft bill's clauses (he said on 27 Jan 2026: 'we finished reading the clauses of the draft law, soon we will vote'). The bill was shelved in March 2026 when the Iran war broke out, stalled in April over a disagreement with Degel HaTorah's rabbinic leadership, and the coalition put it back on the committee's agenda in May 2026.",
+   "aboutHe": "ועדת החוץ והביטחון בראשות בועז ביסמוט סיימה בינואר 2026 להקריא את סעיפי חוק הגיוס; החוק נגנז במרץ, נתקע באפריל והוחזר לסדר היום של הוועדה במאי.",
+   "notUsed": false,
+   "outlet": "Davar; ToI; N12",
+   "url": "https://www.davar1.co.il/651351/",
+   "url2": "https://www.timesofisrael.com/as-coalition-collapses-around-him-netanyahu-revives-haredi-draft-exemption-bill/",
+   "moreUrls": [
+    "https://www.mako.co.il/news-politics/2026_q1/Article-e742681056fdc91026.htm"
+   ],
+   "date": "2026-05-17",
+   "verification": "verified",
+   "verifiedAt": "2026-10-02",
+   "verifiedHe": "סיימנו להקריא את סעיפי חוק הגיוס, בקרוב נצביע על החוק",
+   "verifiedHeSrc": "https://www.davar1.co.il/651351/",
+   "heStatus": "verified",
+   "gameRendering": "paraphrase: \"סיימנו להקריא את כל הסעיפים\" in his thanks line and a demand variant, close to his own words; not presented as a quote.",
+   "verificationNote": "Page opened and read on 2026-10-02 (WebFetch), not only the search result.",
+   "usedIn": [
+    "leaderSelect.partnerProfiles.bismuth",
+    "leaderSelect.partnerProfiles.bismuth.copy.card",
+    "leaders.deri.coalition.lineup.bismuth"
+   ]
   }
  ],
  "deliberatelyOut": [
