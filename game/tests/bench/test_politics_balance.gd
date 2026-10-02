@@ -9,7 +9,7 @@ extends RefCounted
 ##   - aideDropper: drops the aide whenever it can.
 ## Gates, all falsifiable:
 ##   G1 no pure strategy beats the default's base-per-hour by more than 5% in the MEDIAN of seeds
-##      11-15 (no dominant strategy). One seed is one chaotic hour: on seed 11 alone the verdict
+##      11-19 (no dominant strategy). One seed is one chaotic hour: on seed 11 alone the verdict
 ##      flipped with unrelated changes (before the leader sim the aide dropper lost by 42% on
 ##      seed 11 and won by 38% on seed 13; after the p_deal perk started working it won by 52% on
 ##      seed 11 and lost by 8% on seed 12). "Dominant" means better in most hours, so the median
@@ -20,7 +20,7 @@ extends RefCounted
 ##      an hour, or the default's maintenance spend is ≥ 5% of what it earns.
 
 const SEED := 11
-const G1_SEEDS := [11, 12, 13, 14, 15]
+const G1_SEEDS := [11, 12, 13, 14, 15, 16, 17, 18, 19]   # 9 hours: one is chaotic (2026-10-02 probes)
 
 var runner: Object
 var _rows := {}
@@ -64,7 +64,7 @@ func test_triangle_has_no_dominant_strategy() -> void:
 		sorted.sort()
 		var med := float(sorted[sorted.size() / 2])
 		print("  G1 %-15s base / default per seed %s: median %.2f" % [name, ", ".join(ratios.map(func(x: float) -> String: return "%.2f" % x)), med])
-		runner.check(med <= 1.05, "G1: %s must not dominate (median base ratio %.2f over seeds 11-15)" % [name, med])
+		runner.check(med <= 1.05, "G1: %s must not dominate (median base ratio %.2f over seeds 11-19)" % [name, med])
 	var clean := _hour("clean")
 	runner.check(int(clean["runs"]) >= 2, "G2: the clean route is viable (%d elections an hour)" % clean["runs"])
 	runner.check(int(clean["base"]) < int(base["base"]), "G2: and slower than dealing (base %d vs %d)" % [clean["base"], base["base"]])
