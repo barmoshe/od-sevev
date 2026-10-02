@@ -15,6 +15,9 @@ extends RefCounted
 ##   S6 median rounds 1-5 each ≥ 3:00 ......................... pitch §9 cadence (story flash, suitcase, ~90 s partner
 ##                                                              messages per round)
 ##   S7 median reaches the last era (Washington) in the hour . pitch §4 (4 eras) + §8/§9 (a story beat per election)
+##   S8 median rounds get faster: the per-round median over ... the idle-genre rule (each prestige loop reaches the
+##      seeds 3-11, rounds 2-8 each ≤ the previous + 0:15,      gate faster than the last) + pitch §11 Q8 note;
+##      rounds 6-8 ≤ 6:00, none under 2:00                      2:00 keeps a round's partners, demands and court
 ##   plus the fork's liveness gates, kept: engaged ≥ 3 / casual ≥ 2 / idle ≥ 1 elections an hour, no round under a
 ##   minute, and something new at least every 5 min in runs 1-3 (pitch §9, "something new every few minutes").
 
@@ -100,3 +103,35 @@ func test_median_later_rounds_and_eras() -> void:
 	var last_era := int((eras.back() as Dictionary)["fromEvolutions"])
 	runner.check(runs.size() >= last_era, "S7: median reaches the %s era (%d elections) in the hour, got %d" % [(eras.back() as Dictionary)["id"], last_era, runs.size()])
 	runner.check(float(r["maxGap"]) <= 300.0, "median: something new at least every 5 min in runs 1-3 (longest gap %s)" % PacingSim.fmt_t(r["maxGap"]))
+
+
+## S8: the idle-genre rule, each prestige loop reaches the gate faster than the last. One hour is
+## one chaotic draw (a walkout cascade can add minutes to any round), so the curve is the per-round
+## MEDIAN over CURVE_SEEDS. Rounds 2-8 each at most the previous + 15 s, rounds 6-8 at most 6:00,
+## and no round of the curve under 2:00 (every round keeps its partners, demands and court).
+const CURVE_SEEDS := [3, 5, 7, 9, 11]
+const CURVE_ROUNDS := 8
+
+
+func test_median_rounds_get_faster() -> void:
+	var lists: Array = []
+	for sd: int in CURVE_SEEDS:
+		var r: Dictionary = _session("median") if sd == 7 else PacingSim.session(PacingSim.PLAYERS["median"], 3600.0, sd, 0.25)
+		lists.append(r["runs"])
+		if sd != 7:
+			print("  median s%-3d runs %s" % [sd, ", ".join((r["runs"] as Array).map(func(x: float) -> String: return PacingSim.fmt_t(x)))])
+	var curve: Array = []
+	for k in CURVE_ROUNDS:
+		var vals: Array = []
+		for l: Array in lists:
+			vals.append(float(l[k]) if l.size() > k else INF)
+		vals.sort()
+		curve.append(float(vals[vals.size() / 2]))
+	print("  median curve (seeds %s): %s" % [str(CURVE_SEEDS), ", ".join(curve.map(func(x: float) -> String: return PacingSim.fmt_t(x)))])
+	for k in range(1, CURVE_ROUNDS):
+		runner.check(float(curve[k]) <= float(curve[k - 1]) + 15.0,
+			"S8: round %d (%s) no slower than round %d (%s) + 0:15" % [k + 1, PacingSim.fmt_t(curve[k]), k, PacingSim.fmt_t(curve[k - 1])])
+	for k in range(5, CURVE_ROUNDS):
+		runner.check(float(curve[k]) <= 360.0, "S8: round %d at most 6:00, got %s" % [k + 1, PacingSim.fmt_t(curve[k])])
+	for k in CURVE_ROUNDS:
+		runner.check(float(curve[k]) >= 120.0, "S8: round %d keeps its content (≥ 2:00), got %s" % [k + 1, PacingSim.fmt_t(curve[k])])
