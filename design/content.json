@@ -1564,7 +1564,7 @@
    "treasuryPct": 5,
    "growth": 2,
    "maxPct": 100,
-   "minCostBpsSec": 10,
+   "minCostBpsSec": 25,
    "cooldownSec": [
     120,
     90,

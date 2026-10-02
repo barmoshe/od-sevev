@@ -13,7 +13,7 @@ extends RefCounted
 ##   coalition: "subset" pays join / rejoin / poach offers when affordable, keeps members whose
 ##              maintenance costs ≤ keepFrac of the bank, lets the rest walk; "all" pays everything.
 ##   court:     "testify" | "postpone" (whenever affordable) | "mixed" (postpone while it costs
-##              ≤ postponeFrac of the bank).
+##              no more than the court day it skips: courtDaySec × (1 − courtBpsMult) × ₪/s).
 ##   shady:     false never buys a court.sources producer (the clean route).
 ##   aide:      "drop" presses "אני לא מכיר אותו" whenever it can at ≥ 70% suspicion.
 
@@ -90,12 +90,13 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 	var last_buy := -INF
 	var last_pol := -INF
 	while t < max_t:
-		var tapping := tps if t < float(player["tap_until"]) else 0.0
+		# Mordechai David's block (Events.screen_blocked): nothing takes a tap, the player's or the perks'
+		var tapping := tps if t < float(player["tap_until"]) and not Events.screen_blocked(s) else 0.0
 		acc += tapping * dt
 		while acc >= 1.0:
 			acc -= 1.0
 			Economy.tap(s, r)
-		auto_acc += Meta.auto_tap_rate(s) * dt
+		auto_acc += Meta.auto_tap_rate(s) * dt if not Events.screen_blocked(s) else 0.0
 		while auto_acc >= 1.0:
 			auto_acc -= 1.0
 			Economy.tap(s, r)
@@ -277,7 +278,11 @@ static func play_politics(s: GameState, strat: Dictionary) -> void:
 	if Investigation.phase(s) == "summons":
 		var mode: String = strat.get("court", "mixed")
 		var cost := Investigation.postpone_cost(s, d)
-		var go: bool = mode == "postpone" or (mode == "mixed" and cost >= 0.0 and cost <= float(strat.get("postponeFrac", 0.15)) * s.bananas)
+		# "mixed" postpones while it is cheaper than the court day it skips (courtDaySec at income ×
+		# courtBpsMult): the reference player takes a postponement when it pays, so always-postpone can
+		# at best tie it (G1). The old rule (≤ postponeFrac of the bank) never fired for a greedy buyer.
+		var day_cost := Investigation._num("courtDaySec", 30.0) * (1.0 - Investigation._num("courtBpsMult", 0.5)) * d.bps
+		var go: bool = mode == "postpone" or (mode == "mixed" and cost >= 0.0 and cost <= day_cost)
 		if go and Investigation.can_postpone(s, d):
 			Investigation.postpone(s, d)
 		else:
