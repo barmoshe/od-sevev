@@ -264,7 +264,7 @@ func _ready() -> void:
 	_title.right_at(TITLE_RIGHT)
 	_lock = Ui.img(_panel, Vector2.ZERO, Art.sprite_or("chat_icon_lock"), 0, 4)
 	_status = PxText.make(_panel, Vector2(0, 56), "", L.TEXT, "plain", C_NAME)
-	_status.wrap_width = TITLE_RIGHT - 32.0
+	_status.wrap_width = TITLE_RIGHT - 32.0 - 96.0   # share platform: the header's 📣 (ShareDesk) holds x 12-100
 	_status.max_lines = 1
 	_pinned = Ui.nine(_panel, Rect2(0, PINNED_Y, L.W, PINNED_H), Art.sprite_or("chat_pinned"))
 	_pin = Ui.img(_panel, Vector2(676, PINNED_Y + 10), Art.sprite_or("chat_icon_pin"), 0, 4)

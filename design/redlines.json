@@ -303,6 +303,20 @@
    "why": "Bar 2026-09-29: the same label on About's invite link (wa.me). Functional, not styling (see SHARE_WA)."
   },
   {
+   "id": "SHARE_CH_WA",
+   "terms": [
+    "וואטסאפ"
+   ],
+   "why": "Bar 2026-10-02 (the share drawer): the channel row names where the link goes (wa.me). A functional label in the HTML drawer only, like SHARE_WA; never in the game's chat."
+  },
+  {
+   "id": "SHARE_CH_TG",
+   "terms": [
+    "טלגרם"
+   ],
+   "why": "Bar 2026-10-02 (the share drawer): the channel row's Telegram link (t.me/share/url). A functional label in the HTML drawer only, like SHARE_WA."
+  },
+  {
    "id": "mordechai",
    "terms": [
     "מרדכי דוד"

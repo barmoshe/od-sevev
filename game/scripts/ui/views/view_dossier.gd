@@ -322,6 +322,9 @@ func buttons() -> Array:
 		out.append({"kind": "receipt", "key": "SHARE_RECEIPT_TITLE"})
 	if host != null and host.has_method("open_result_card"):
 		out.append({"kind": "result", "key": "SHARE_RESULT_BTN"})
+	# share platform: every round so far, once there was an election
+	if host != null and host.has_method("open_career_card") and _state != null and maxi(_state.evolutions, _state.history.size()) >= 1:
+		out.append({"kind": "career", "key": "SHARE_CAREER_BTN"})
 	# seeded rounds (main.gd): "אתגר חבר" once the main game has an election to send, "הסבב היומי"
 	if host != null and host.has_method("round_offer_ready") and bool(host.call("round_offer_ready")):
 		out.append({"kind": "challenge", "key": "CHALLENGE_DOS_BTN"})
@@ -490,6 +493,8 @@ func act(kind: String) -> void:
 			host.call("open_challenge_offer")   # seeded rounds
 		"daily":
 			host.call("open_daily")   # seeded rounds
+		"career":
+			host.call("open_career_card")   # share platform
 
 
 ## O15: the pardon desk, a modal over T4 through the overlay stack.

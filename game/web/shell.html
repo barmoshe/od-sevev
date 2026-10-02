@@ -81,7 +81,10 @@
 					'(picked|switch|stay)/[a-z0-9_-]{1,24}', 'feature/(chat|court|mordechai)',
 					'share/(receipt|result|invite)/(shared|saved|copied|whatsapp|fallback)',
 					// seeded rounds (main.gd): the challenge link and the daily round, a handful per session
-					'challenge/(start|win|lose|tie|share)', 'daily/(start|done|share)'].join('|') + ')$');
+					'challenge/(start|win|lose|tie|share)', 'daily/(start|done|share)',
+					// the share platform: the drawer's channel and result, and the arrivals from a shared link
+					'share/(leak|breaking|term|career|receipt|result|challenge|daily|invite)/(native|img|wa|tg|x|copy|share)/(shared|cancel|fail|opened|copied|saved)',
+					'arrive/(leak|breaking|term|career|receipt|result|challenge|daily|site)/(wa|tg|x|copy|img|share|na)'].join('|') + ')$');
 				// once per device: a milestone family (first-tap/on and first-tap/off share one key), or
 				// each feature/<id>
 				var ONCE = { 'first-tap': 1, 'first-election': 1, 'elections-5': 1 };
@@ -144,7 +147,8 @@
 						window.odTrack('feature/mordechai');
 					} else if (e.ev === 'election_called' && e.n === 5) {
 						window.odTrack('elections-5');
-					} else if (e.ev === 'share_done') {
+					} else if (e.ev === 'share_done' && !e.channel) {
+						// the canvas sheet's results (the drawer's own go out as share/<kind>/<channel>/<result>)
 						window.odTrack('share/' + e.kind + '/' + e.result);
 					} else if (e.ev === 'challenge_start' || e.ev === 'challenge_share' || e.ev === 'daily_start' || e.ev === 'daily_done' || e.ev === 'daily_share') {
 						// seeded rounds: challenge/start, challenge/share, daily/start, daily/done, daily/share
@@ -226,6 +230,29 @@
 					el.onerror = fallback ? function () { load(fallback, '', '', onload); } : null;
 					document.head.appendChild(el);
 				}
+				// The share platform's arrival (a /s/<variant>/ stub forwards here with ?via=<channel> and
+				// #r=<ref>&k=<kind>[&...]): window.odArrival = {kind, via, ref, params} (the engine reads
+				// it, ShareDesk.read_arrival; the challenge agent reads params), one arrive/<kind>/<via>
+				// step, and the query's via and the hash leave the address bar (the visit counts as /).
+				window.odArrival = null;
+				try {
+					var KINDS = /^(leak|breaking|term|career|receipt|result|challenge|daily)$/;
+					var q = new URLSearchParams(location.search);
+					var via = q.get('via') || '';
+					var hs = location.hash.replace(/^#/, '');
+					var hp = new URLSearchParams(hs);
+					if (via || hp.get('k')) {
+						var k = hp.get('k') || '';
+						var params = {};
+						hp.forEach(function (v, key) { if (key !== 'k' && key !== 'r' && Object.keys(params).length < 16) params[key.slice(0, 16)] = v.slice(0, 64); });
+						window.odArrival = { kind: KINDS.test(k) ? k : 'site', via: /^(wa|tg|x|copy|img|share)$/.test(via) ? via : 'na',
+							ref: (hp.get('r') || '').replace(/[^a-z0-9]/gi, '').slice(0, 12), params: params };
+						q.delete('via');
+						var qs = q.toString();
+						history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : ''));
+						window.odTrack('arrive/' + window.odArrival.kind + '/' + window.odArrival.via);
+					}
+				} catch (x) { /* a malformed link plays as a plain visit */ }
 				if (live) {
 					load('/_vercel/insights/script.js', '', '', function () {
 						ready = true;
@@ -451,6 +478,75 @@ html.od-framed, html.od-framed body {
 html.od-framed #od-phone {
 	display: block;
 }
+
+/* od-sevev share drawer (the share platform, Bar 2026-10-02): HTML over the canvas so a real
+   <button> calls navigator.share inside the player's tap (Safari's transient activation); the engine
+   (ui/share_desk.gd) pre-renders the card and hands the PNG over before. RTL; the flag-blue notice
+   look of the gate and About. window.odShareUI below. */
+#od-share { position: fixed; inset: 0; z-index: 25; display: none; direction: rtl;
+	font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #0f2350; }
+#od-share.od-open { display: block; }
+#od-share .od-sh-back { position: absolute; inset: 0; background: rgba(6, 16, 41, 0.62); }
+#od-share .od-sh-sheet { position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; max-width: 480px;
+	max-height: calc(100% - env(safe-area-inset-top, 0px) - 8px); overflow-y: auto; overscroll-behavior: contain;
+	background: #f7f4ec; border-radius: 16px 16px 0 0; box-shadow: 0 -3px 0 0 #061029, 0 -12px 40px rgba(0, 0, 0, 0.35);
+	padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px)); box-sizing: border-box; touch-action: pan-y; }
+#od-share .od-sh-sheet::before { content: ""; display: block; height: 6px; background: #0038b8; margin: 0 -16px 8px;
+	border-radius: 16px 16px 0 0; border-bottom: 3px solid #f7f4ec; box-shadow: 0 3px 0 0 #0038b8; }
+#od-share .od-sh-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 2px 0 6px; }
+#od-share h2 { font-size: 19px; margin: 0; }
+#od-share .od-sh-x { flex: none; width: 44px; height: 44px; font: inherit; font-size: 22px; line-height: 1; color: #0f2350;
+	background: transparent; border: 2px solid #c9d6f2; border-radius: 22px; cursor: pointer; }
+#od-share .od-sh-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 6px; margin: 0 -16px; padding-inline: 16px;
+	scrollbar-width: none; }
+#od-share .od-sh-tabs::-webkit-scrollbar { display: none; }
+#od-share .od-sh-tab { flex: none; min-height: 38px; padding: 0 14px; font: inherit; font-size: 15px; font-weight: 600;
+	color: #0038b8; background: #fff; border: 2px solid #0038b8; border-radius: 20px; cursor: pointer; }
+#od-share .od-sh-tab[aria-selected="true"] { color: #f7f4ec; background: #0038b8; }
+#od-share .od-sh-cap { font-size: 13px; color: #34466e; margin: 2px 0 6px; }
+#od-share .od-sh-chat { background: #e8e1d6; border-radius: 10px; padding: 8px; border: 1px solid #d4cabb;
+	background-image: radial-gradient(rgba(15, 35, 80, 0.06) 1px, transparent 1px); background-size: 12px 12px; }
+#od-share .od-sh-bubble { margin-inline-start: auto; margin-inline-end: 0; max-width: 86%; width: fit-content; background: #d9fdd3;
+	border-radius: 10px 10px 10px 2px; padding: 4px 4px 6px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.13); }
+#od-share .od-sh-img { display: block; width: auto; max-width: 100%; max-height: min(27vh, 300px); border-radius: 7px;
+	image-rendering: pixelated; background: #00237a; min-width: 160px; min-height: 120px; object-fit: contain; }
+#od-share .od-sh-print { display: flex; align-items: center; justify-content: center; min-width: 200px; min-height: 200px;
+	border-radius: 7px; background: #00237a; color: #f7f4ec; font-size: 15px; }
+#od-share .od-sh-lp { display: none; border-radius: 7px; overflow: hidden; background: #f0f2ec; border-inline-start: 4px solid #25a35a; }
+#od-share .od-sh-lp img { display: block; width: 100%; aspect-ratio: 1200 / 630; object-fit: cover; image-rendering: pixelated; background: #0038b8; }
+#od-share .od-sh-lp b { display: block; font-size: 14px; padding: 6px 8px 0; }
+#od-share .od-sh-lp span { display: block; font-size: 12px; color: #667; padding: 2px 8px 6px; direction: ltr; text-align: right; }
+#od-share.od-text .od-sh-lp { display: block; }
+#od-share.od-text .od-sh-img, #od-share.od-text .od-sh-print { display: none; }
+#od-share .od-sh-msg { font-size: 14px; line-height: 1.35; padding: 6px 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+#od-share .od-sh-msg a { color: #027eb5; direction: ltr; unicode-bidi: isolate; }
+#od-share .od-sh-row { display: flex; align-items: center; justify-content: space-between; gap: 8px 10px; margin: 10px 0 0; flex-wrap: wrap; }
+#od-share .od-sh-seg { display: inline-flex; border: 2px solid #0038b8; border-radius: 8px; overflow: hidden; }
+#od-share .od-sh-seg button { min-height: 40px; padding: 0 12px; font: inherit; font-size: 14px; font-weight: 600; color: #0038b8;
+	background: #fff; border: 0; border-inline-start: 2px solid #0038b8; cursor: pointer; }
+#od-share .od-sh-seg button:first-child { border-inline-start: 0; }
+#od-share .od-sh-seg button[aria-pressed="true"] { color: #f7f4ec; background: #0038b8; }
+#od-share .od-sh-seg button:disabled { color: #9aa6c4; cursor: default; }
+#od-share label.od-sh-neutral { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+#od-share label.od-sh-neutral small { display: block; font-weight: 400; font-size: 12px; color: #34466e; }
+#od-share label.od-sh-neutral input { width: 22px; height: 22px; accent-color: #0038b8; margin: 0; }
+#od-share label.od-sh-neutral.od-off { opacity: 0.45; pointer-events: none; }
+#od-share .od-sh-go { display: block; width: 100%; min-height: 54px; margin: 10px 0 0; font: inherit; font-size: 19px; font-weight: 700;
+	color: #f7f4ec; background: #0038b8; border: 3px solid #061029; border-radius: 10px; cursor: pointer; text-decoration: none;
+	text-align: center; line-height: 50px; box-sizing: border-box; }
+#od-share .od-sh-go:disabled { opacity: 0.55; cursor: wait; }
+#od-share .od-sh-more { font-size: 13px; color: #34466e; margin: 8px 0 4px; }
+#od-share .od-sh-ch { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+#od-share .od-sh-ch a, #od-share .od-sh-ch button { display: flex; flex-direction: column; align-items: center; justify-content: center;
+	gap: 2px; min-height: 54px; padding: 3px 2px; font: inherit; font-size: 12px; font-weight: 600; color: #0f2350; background: #fff;
+	border: 2px solid #c9d6f2; border-radius: 10px; text-decoration: none; cursor: pointer; box-sizing: border-box; }
+#od-share .od-sh-ch i { display: block; width: 26px; height: 26px; border-radius: 13px; font-style: normal; color: #fff;
+	font-size: 14px; line-height: 26px; text-align: center; font-weight: 700; }
+#od-share .od-sh-inapp { display: none; margin: 10px 0 0; padding: 8px 10px; font-size: 13px; background: #fff4e0; border: 2px solid #f0c060; border-radius: 8px; }
+#od-share.od-inapp .od-sh-inapp { display: block; }
+#od-share .od-sh-status { min-height: 22px; margin: 8px 0 0; font-size: 14px; color: #0038b8; font-weight: 600; }
+#od-share .od-sh-disc { font-size: 12px; color: #34466e; margin: 4px 0 0; }
+#od-share button:focus-visible, #od-share a:focus-visible { outline: 3px solid #0f2350; outline-offset: 2px; }
 		</style>
 		<link rel="manifest" href="index.manifest.json">
 		$GODOT_HEAD_INCLUDE
@@ -546,6 +642,42 @@ html.od-framed #od-phone {
 				<p><a href="about.html">{{ABOUT_MORE}}</a></p>
 				<h2>{{ABOUT_SOURCES}}</h2>
 				<ul dir="rtl">{{ABOUT_SOURCES_LIST}}</ul>
+			</div>
+		</div>
+
+		<!-- the share drawer (the share platform; window.odShareUI, ui/share_desk.gd) -->
+		<div id="od-share" role="dialog" aria-modal="true" aria-labelledby="od-sh-title" dir="rtl">
+			<div class="od-sh-back" id="od-sh-back"></div>
+			<div class="od-sh-sheet">
+				<div class="od-sh-head"><h2 id="od-sh-title">{{SHARE_DRAWER_TITLE}}</h2><button class="od-sh-x" id="od-sh-x" type="button" aria-label="{{SHARE_CLOSE}}">✕</button></div>
+				<div class="od-sh-tabs" id="od-sh-tabs" role="tablist" aria-label="{{SHARE_KINDS_LABEL}}"></div>
+				<div class="od-sh-cap">{{SHARE_DRAWER_PREVIEW}}</div>
+				<div class="od-sh-chat">
+					<div class="od-sh-bubble">
+						<div class="od-sh-print" id="od-sh-print">{{SHARE_PRINTING}}</div>
+						<img class="od-sh-img" id="od-sh-img" alt="" hidden>
+						<div class="od-sh-lp" id="od-sh-lp"><img id="od-sh-lp-img" alt=""><b id="od-sh-lp-t"></b><span id="od-sh-lp-u"></span></div>
+						<div class="od-sh-msg" id="od-sh-msg"></div>
+					</div>
+				</div>
+				<div class="od-sh-row">
+					<div class="od-sh-seg" role="group" aria-label="{{SHARE_FMT_LABEL}}">
+						<button type="button" data-fmt="sq">{{SHARE_FMT_SQUARE}}</button><button type="button" data-fmt="story">{{SHARE_FMT_STORY}}</button><button type="button" data-fmt="text">{{SHARE_FMT_TEXT}}</button>
+					</div>
+					<label class="od-sh-neutral" id="od-sh-neutral-l"><input type="checkbox" id="od-sh-neutral"><span>{{SHARE_NEUTRAL}}<small>{{SHARE_NEUTRAL_CAP}}</small></span></label>
+				</div>
+				<button class="od-sh-go" id="od-sh-go" type="button">{{SHARE_BTN}}</button>
+				<div class="od-sh-more">{{SHARE_MORE}}</div>
+				<div class="od-sh-ch" id="od-sh-ch">
+					<a id="od-sh-wa" href="https://wa.me/" target="_blank" rel="noopener"><i style="background:#25a35a">W</i>{{SHARE_CH_WA}}</a>
+					<a id="od-sh-tg" href="https://t.me/" target="_blank" rel="noopener"><i style="background:#2a9fd8">T</i>{{SHARE_CH_TG}}</a>
+					<a id="od-sh-x2" href="https://x.com/" target="_blank" rel="noopener"><i style="background:#111">X</i>{{SHARE_CH_X}}</a>
+					<button id="od-sh-copy" type="button"><i style="background:#0038b8">⧉</i>{{SHARE_CH_COPY}}</button>
+					<button id="od-sh-save" type="button"><i style="background:#d02a36">↓</i>{{SHARE_CH_SAVE}}</button>
+				</div>
+				<div class="od-sh-inapp" id="od-sh-inapp">{{SHARE_INAPP_HINT}}</div>
+				<div class="od-sh-status" id="od-sh-status" aria-live="polite"></div>
+				<div class="od-sh-disc">{{RESULT_DISC}}</div>
 			</div>
 		</div>
 
@@ -685,6 +817,276 @@ window.odSiteUrl = '__OD_SITE_URL__';
 		copy,
 		mobile,
 	};
+}());
+
+// ---- the share drawer (the share platform, Bar 2026-10-02) ----
+// The engine (game/scripts/ui/share_desk.gd) opens it with odShareUI.open(payload), hands each
+// rendered card over with odShareUI.image(key, base64) BEFORE the player's tap, and hears back
+// through window.odShareEvent(type, value): kind | fmt | neutral (the toggles), result
+// ("<channel>/<result>") and close. The button below calls navigator.share synchronously inside the
+// tap with a File built in advance (Safari's transient activation). Back / Esc / ✕ close it (the
+// engine counts it as a layer: its history entry is the engine's). iPhone: WhatsApp drops a caption
+// sent with an image, so the caption goes to the clipboard first ("הטקסט הועתק"). No navigator.share
+// (Instagram / Facebook in-app browsers, a desktop): the primary button is WhatsApp, the channel row
+// stays, and in an in-app browser a hint says how to save the image or open a browser.
+// The link: <site>s/<variant>/?via=<channel>#r=<ref>&k=<kind>[&<extra>]; ref = an 8-char random id
+// kept on this device (localStorage odsevev.ref: not personal, it only tells shares apart).
+// Analytics: share/<kind>/<channel>/<result> (virtual page views, window.odTrack).
+(function () {
+	const el = (id) => document.getElementById(id);
+	const root = el('od-share');
+	if (!root) {
+		return;
+	}
+	const S = {
+		copied: '{{SHARE_COPIED_ALL_JS}}', textCopied: '{{SHARE_TEXT_COPIED_JS}}', saved: '{{SHARE_SAVED_JS}}',
+		fail: '{{SHARE_FAIL_JS}}', sent: '{{SHARE_SENT_JS}}', wa: '{{SHARE_WA_JS}}', share: '{{SHARE_BTN_JS}}',
+	};
+	const ua = navigator.userAgent || '';
+	const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+	const inapp = /FBAN|FBAV|FB_IAB|Instagram|Line\/|TikTok|Snapchat|musical_ly|; wv\)/.test(ua);
+	let ref = '';
+	try { ref = localStorage.getItem('odsevev.ref') || ''; } catch (e) { /* private mode */ }
+	if (!/^[a-z0-9]{8}$/.test(ref)) {
+		ref = Array.from({ length: 8 }, () => 'abcdefghijkmnpqrstuvwxyz23456789'[Math.floor(Math.random() * 32)]).join('');
+		try { localStorage.setItem('odsevev.ref', ref); } catch (e) { /* ignore */ }
+	}
+	const st = { open: false, p: null, files: {}, urls: {} };
+	window.odShareUI = { state: st, ref };
+	const send = (t, v) => { try { if (typeof window.odShareEvent === 'function') window.odShareEvent(t, v); } catch (e) { /* ignore */ } };
+	const site = () => {
+		const s = (st.p && st.p.site) || window.odSiteUrl || '';
+		return /^https?:\/\//.test(s) ? (s.endsWith('/') ? s : s + '/') : location.origin + '/';
+	};
+	function link(via) {
+		const p = st.p;
+		return site() + p.stub + '?via=' + via + '#r=' + ref + '&k=' + p.kind + (p.hash ? '&' + p.hash : '');
+	}
+	const message = (via) => (st.p.text ? st.p.text.trim() + '\n' : '') + link(via);
+	function done(ch, r) {
+		const k = st.p ? st.p.kind : '';
+		(window.odShareLog = window.odShareLog || []).push([k, ch + '/' + r]);
+		if (window.odTrack) window.odTrack('share/' + k + '/' + ch + '/' + r);
+		send('result', ch + '/' + r);
+	}
+	function status(t) { el('od-sh-status').textContent = t || ''; }
+	function blob(b64) {
+		const bin = atob(b64);
+		const a = new Uint8Array(bin.length);
+		for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+		return new Blob([a], { type: 'image/png' });
+	}
+	function copy(text) {
+		const legacy = () => {
+			try {
+				const t = document.createElement('textarea');
+				t.value = text;
+				t.setAttribute('readonly', '');
+				t.style.position = 'fixed';
+				t.style.opacity = '0';
+				document.body.appendChild(t);
+				t.select();
+				const ok = document.execCommand('copy');
+				t.remove();
+				return ok;
+			} catch (e) { return false; }
+		};
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			return navigator.clipboard.writeText(text).then(() => true, () => legacy());
+		}
+		return Promise.resolve(legacy());
+	}
+	const fmt = () => (st.p ? st.p.fmt : 'sq');
+	const curKey = () => st.p.kind + '|' + (fmt() === 'text' ? 'sq' : fmt()) + '|' + (st.p.neutral ? 'n' : 'p');
+	const curFile = () => (fmt() === 'text' ? null : st.files[curKey()] || null);
+	const canFiles = (f) => { try { return !!(f && navigator.canShare && navigator.canShare({ files: [f] })); } catch (e) { return false; } };
+	const native = () => !!navigator.share;
+	function paint() {
+		const p = st.p;
+		if (!p) return;
+		root.classList.toggle('od-text', fmt() === 'text');
+		root.classList.toggle('od-inapp', inapp);
+		// tabs
+		const tabs = el('od-sh-tabs');
+		tabs.textContent = '';
+		(p.tabs || []).forEach(([k, label]) => {
+			const b = document.createElement('button');
+			b.type = 'button';
+			b.className = 'od-sh-tab';
+			b.setAttribute('role', 'tab');
+			b.setAttribute('aria-selected', String(k === p.kind));
+			b.textContent = label;
+			b.dataset.kind = k;
+			b.addEventListener('click', () => { if (k !== st.p.kind) { status(''); send('kind', k); } });
+			tabs.appendChild(b);
+		});
+		root.querySelectorAll('.od-sh-seg button').forEach((b) => {
+			b.setAttribute('aria-pressed', String(b.dataset.fmt === fmt()));
+			b.disabled = b.dataset.fmt === 'story' && !p.storyOk;
+		});
+		const nl = el('od-sh-neutral-l');
+		nl.classList.toggle('od-off', !p.neutralOk);
+		el('od-sh-neutral').checked = !!p.neutral;
+		// the message as it will land: the text, then the link alone on the last line
+		const msg = el('od-sh-msg');
+		msg.textContent = p.text ? p.text.trim() + '\n' : '';
+		const a = document.createElement('a');
+		const via = fmt() === 'text' ? 'share' : 'img';
+		a.href = link(via);
+		a.textContent = link(via);
+		a.target = '_blank';
+		a.rel = 'noopener';
+		msg.appendChild(a);
+		// the link preview (text only): the stub's own og:image and title
+		const variant = (p.stub || '').replace(/^s\//, '').replace(/\/$/, '');
+		el('od-sh-lp-img').src = site() + 'og/' + variant + '.jpg';
+		el('od-sh-lp-t').textContent = p.og || '';
+		el('od-sh-lp-u').textContent = site().replace(/^https?:\/\//, '').replace(/\/$/, '');
+		const url = st.urls[curKey()];
+		const img = el('od-sh-img');
+		if (url && fmt() !== 'text') {
+			img.src = url;
+			img.hidden = false;
+			el('od-sh-print').style.display = 'none';
+		} else {
+			img.hidden = true;
+			el('od-sh-print').style.display = fmt() === 'text' ? 'none' : '';
+		}
+		// the channels (real links: the tap opens them, the game stays in its tab)
+		el('od-sh-wa').href = 'https://wa.me/?text=' + encodeURIComponent(message('wa'));
+		el('od-sh-tg').href = 'https://t.me/share/url?url=' + encodeURIComponent(link('tg')) + '&text=' + encodeURIComponent(p.text || '');
+		el('od-sh-x2').href = 'https://x.com/intent/post?text=' + encodeURIComponent(p.text || '') + '&url=' + encodeURIComponent(link('x'));
+		el('od-sh-save').disabled = fmt() === 'text' || !curFile();
+		// the primary: native share, or WhatsApp where the browser has none
+		const go = el('od-sh-go');
+		if (!native()) {
+			go.textContent = S.wa;
+			go.disabled = false;
+		} else {
+			go.textContent = S.share;
+			go.disabled = fmt() !== 'text' && !curFile();
+		}
+	}
+	function open(p) {
+		st.p = p;
+		if (!st.open) {
+			st.open = true;
+			root.classList.add('od-open');
+			status('');
+			setTimeout(() => { const x = el('od-sh-x'); if (x) x.focus({ preventScroll: true }); }, 0);
+		}
+		paint();
+	}
+	function close(silent) {
+		if (!st.open) return;
+		st.open = false;
+		root.classList.remove('od-open');
+		Object.values(st.urls).forEach((u) => { try { URL.revokeObjectURL(u); } catch (e) { /* ignore */ } });
+		st.urls = {};
+		st.files = {};
+		if (!silent) send('close', '');
+		const c = document.getElementById('canvas');
+		if (c) c.focus();
+	}
+	window.odShareUI.open = (p) => open(p);
+	window.odShareUI.update = (p) => { if (st.open) { st.p = p; paint(); } };
+	window.odShareUI.close = () => close(true);
+	window.odShareUI.isOpen = () => st.open;
+	window.odShareUI.image = (key, b64) => {
+		try {
+			const parts = String(key).split('|');
+			const name = st.p ? (parts[1] === 'story' ? 'od-sevev-' + parts[0] + '-story.png' : (st.p.file || 'od-sevev.png').replace('-story', '')) : 'od-sevev.png';
+			const b = blob(b64);
+			st.files[key] = new File([b], name, { type: 'image/png' });
+			if (st.urls[key]) URL.revokeObjectURL(st.urls[key]);
+			st.urls[key] = URL.createObjectURL(b);
+			paint();
+		} catch (e) { /* the text still shares */ }
+	};
+	// the history: the drawer is one of the engine's layers (main.gd layer_depth / back_layer: the
+	// engine pushes its entry, and the browser's back closes it through window.odOnPop)
+	el('od-sh-x').addEventListener('click', () => close(false));
+	el('od-sh-back').addEventListener('click', () => close(false));
+	window.addEventListener('keydown', (e) => {
+		if (st.open && e.key === 'Escape') {
+			e.stopPropagation();
+			e.preventDefault();
+			close(false);
+		}
+	}, true);
+	root.querySelectorAll('.od-sh-seg button').forEach((b) => b.addEventListener('click', () => {
+		if (!st.p || b.disabled || b.dataset.fmt === fmt()) return;
+		st.p.fmt = b.dataset.fmt;
+		status('');
+		paint();
+		send('fmt', b.dataset.fmt);
+	}));
+	el('od-sh-neutral').addEventListener('change', (e) => {
+		if (!st.p) return;
+		st.p.neutral = e.target.checked;
+		status('');
+		paint();
+		send('neutral', e.target.checked ? 'true' : 'false');
+	});
+	// the primary: inside the tap, no await before navigator.share
+	el('od-sh-go').addEventListener('click', () => {
+		if (!st.p) return;
+		if (!native()) {
+			const u = 'https://wa.me/?text=' + encodeURIComponent(message('wa'));
+			const w = window.open(u, '_blank');
+			if (w) { try { w.opener = null; } catch (e) { /* ignore */ } } else { location.href = u; }
+			done('wa', 'opened');
+			return;
+		}
+		const f = curFile();
+		const files = f && canFiles(f) ? [f] : null;
+		const via = files ? 'img' : 'share';
+		const text = message(via);
+		let data = files ? { files, text } : { text };
+		if (files && ios) {
+			// iPhone WhatsApp drops the caption of a shared image: the text waits on the clipboard
+			copy(text).then((ok) => { if (ok) status(S.textCopied); });
+		}
+		const ch = files ? 'img' : 'native';
+		try {
+			navigator.share(data).then(() => { status(S.sent); done(ch, 'shared'); }, (e) => {
+				if (e && e.name === 'AbortError') {
+					done(ch, 'cancel');
+				} else {
+					done(ch, 'fail');
+					status(S.fail);
+				}
+			});
+		} catch (e) {
+			done(ch, 'fail');
+			status(S.fail);
+		}
+	});
+	el('od-sh-wa').addEventListener('click', () => done('wa', 'opened'));
+	el('od-sh-tg').addEventListener('click', () => done('tg', 'opened'));
+	el('od-sh-x2').addEventListener('click', () => done('x', 'opened'));
+	el('od-sh-copy').addEventListener('click', () => {
+		if (!st.p) return;
+		copy(message('copy')).then((ok) => { status(ok ? S.copied : S.fail); done('copy', ok ? 'copied' : 'fail'); });
+	});
+	el('od-sh-save').addEventListener('click', () => {
+		const f = curFile();
+		if (!f) return;
+		try {
+			const a = document.createElement('a');
+			a.href = st.urls[curKey()];
+			a.download = f.name;
+			a.rel = 'noopener';
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(() => a.remove(), 1000);
+			status(S.saved);
+			done('img', 'saved');
+		} catch (e) {
+			status(S.fail);
+			done('img', 'fail');
+		}
+	});
 }());
 
 // The game has no service worker. Drop any left on this origin, so a phone never keeps
