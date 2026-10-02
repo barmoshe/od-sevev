@@ -300,8 +300,11 @@ static func golden_lifetime(s: GameState) -> float:
 ## od-sevev: on a court day taps register nothing and return {value: 0, crit: false, paused: true}.
 ## od-sevev tap.firstCrit {atTap, mult, randomCritsFromTap}: the scripted first rabbit on lifetime tap
 ## atTap in round 1 pays ×mult, and random rabbits start at randomCritsFromTap (pitch §11 Q5).
-static func tap(s: GameState, rng: Callable = randf) -> Dictionary:
-	var d := derive(s)
+## `d`: the caller's derive of this frame (main passes its own; a tap changes nothing a tap reads),
+## else a fresh one.
+static func tap(s: GameState, rng: Callable = randf, d: Derived = null) -> Dictionary:
+	if d == null:
+		d = derive(s)
 	if d.taps_paused:
 		return {"value": 0.0, "crit": false, "paused": true}
 	var t: Dictionary = Content.data()["tap"]
@@ -331,10 +334,7 @@ static func tap(s: GameState, rng: Callable = randf) -> Dictionary:
 	if crit:
 		s.crits_lifetime += 1
 	Leaders.on_tap(s, crit)   # the leader's taps / crits; the first tap closes the picker
-	var boosted := d.tap_boost > 1.0
-	if tap7:
-		return {"value": value, "crit": false, "tap7": true, "boosted": boosted}
-	return {"value": value, "crit": crit, "boosted": boosted}
+	return {"value": value, "crit": crit, "tap7": tap7, "boosted": d.tap_boost > 1.0}
 
 
 # ---------------------------------------------------------------------------------------------

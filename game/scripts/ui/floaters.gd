@@ -24,15 +24,20 @@ func _ready() -> void:
 
 func spawn(x: float, y: float, text: String, crit: bool, tap_frenzy: bool) -> void:
 	var cap := mini(REDUCED_MAX, _pool.size()) if reduced_motion else _pool.size()
-	var actives := _pool.filter(func(f: Dictionary) -> bool: return f["active"])
+	# one pass, no allocation (a tap spawns up to ~20 a second): the first free slot, the oldest live one
 	var f: Dictionary = {}
-	for p in _pool:
+	var oldest: Dictionary = {}
+	var n_active := 0
+	for p: Dictionary in _pool:
 		if not p["active"]:
-			f = p
-			break
-	if actives.size() >= cap or f.is_empty():
-		actives.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["born"]) < int(b["born"]))
-		f = actives[0]
+			if f.is_empty():
+				f = p
+		else:
+			n_active += 1
+			if oldest.is_empty() or int(p["born"]) < int(oldest["born"]):
+				oldest = p
+	if n_active >= cap or f.is_empty():
+		f = oldest
 	var c: Dictionary = L.floater_clamp()
 	var jitter := randf_range(-1.0, 1.0) * float(Tune.T["floaterJitterXPx"])
 	f["active"] = true

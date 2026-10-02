@@ -46,8 +46,7 @@ var _vout := WALK_AP_S * AP / 1000.0  # px per ms: the walk out, paced to be off
 ## The feet mark, stage-local (the diorama's coordinates): the stage art is placed so its
 ## magicianFeet slot lands on the leader's feet.
 static func mark() -> Vector2:
-	var mf: Array = SpriteStrip.manifest().get("magicianFeet", [94, 219])
-	return L.magician_feet() + (MARK_ART - Vector2(float(mf[0]), float(mf[1]))) * AP
+	return StageFigure.stage_at(MARK_ART)
 
 
 ## Fully off the canvas on the left (the stage column sits at canvas x L.sox(), so the canvas's left

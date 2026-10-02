@@ -82,11 +82,12 @@ var _modal := Node2D.new()          # overlays + EVOLVE_TX
 var diorama: Diorama
 var street: StreetFigure        # Mordechai David on the Balfour stage (design/mordechai-david-spec.md)
 var sara: SaraMark              # Sara on the Balfour stage, Bibi's round (motion/state-graph-cast.md §3)
-var _paused_toast_ms := -1.0e9     # the last "no taps on the court day" toast
+var _throttled := {}               # _throttle: key -> the last time it let a line through
 var herzog: HerzogFigure        # President Herzog's compromise outline (events.herzog, effect "mediation")
 var ability_chip: AbilityChip   # leaders v3: the round's active ability (sim Ability)
 var missions_chip: MissionsChip # missions + ranks: the stage's top-left entry (sim Missions, glue MissionsUi)
-var kaia: KaiaFigure            # Kaia on the Balfour stage (events.kaia): a tap feeds her (placeholder art)
+var kaia: KaiaFigure            # Kaia on the Balfour stage (events.kaia): a tap feeds her
+var _figures: Array[StageFigure] = []   # the stage figures that take a tap (_figure_at)
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
 var bb: BigBanana
 var prop_fx: PropFx                 # the Magician's coins and rabbit
@@ -406,6 +407,7 @@ func _build() -> void:
 	diorama.street_layer().add_child(herzog)
 	kaia = KaiaFigure.new()
 	diorama.street_layer().add_child(kaia)
+	_figures = [sara, herzog, kaia]
 	bb = BigBanana.new()
 	_stage.add_child(bb)
 	prop_fx = PropFx.new()
@@ -1437,8 +1439,8 @@ func _run_automation(dt: float, modal: bool) -> void:
 	if _input_blocked():
 		return   # the block holds the player's hands, and the perks' too
 	var rate := Meta.auto_tap_rate(state) * float(_dev["speed"])
-	if d.taps_paused or sara.tappable():   # Sara waits for a real tap: the perks' taps wait too
-		rate = 0.0   # the court day / walk-off: no taps, no "+0", the hat stays hushed (as a manual tap)
+	if _leader_tap_gate() != "":
+		rate = 0.0   # the perks' taps wait like the player's (no "+0"; Sara waits for a real tap)
 		_auto_tap_acc = 0.0
 	if rate > 0.0:
 		_auto_tap_acc += rate * dt / 1000.0
@@ -1615,10 +1617,10 @@ func _on_politics_event(e: Dictionary) -> void:
 		"eventEnd":
 			if str(e.get("type", "")) == "mediation":
 				# nobody took Herzog's outline: it lapses (he shrugs on his own, HerzogFigure)
-				toasts.show_toast(str((Events.event("herzog").get("copy", {}) as Dictionary).get("rejectText", "")), "", "lane")
+				toasts.show_toast(str(Events.copy("herzog").get("rejectText", "")), "", "lane")
 			if str(e.get("type", "")) == "pledge":
 				# Bennett's pledge flips when its timer runs out (his card elsewhere, his own rule in his round)
-				var flip := str((Events.event("bennett").get("copy", {}) as Dictionary).get("flipText", ""))
+				var flip := str(Events.copy("bennett").get("flipText", ""))
 				if flip != "":
 					toasts.show_toast(flip)
 			if str(e.get("type", "")) == "blockade" and _street_partner != "":
@@ -1627,7 +1629,7 @@ func _on_politics_event(e: Dictionary) -> void:
 				_street_partner = ""
 		"kaiaNip":
 			# Kaia was ignored: a minister got nipped and misses the vote (Events._tick_active)
-			var kc: Dictionary = Events.event("kaia").get("copy", {}) if Events.event("kaia").get("copy") is Dictionary else {}
+			var kc := Events.copy("kaia")
 			toasts.show_toast(Bidi.fill(str(kc.get("nipText", "")), {"name": ChatView.partner_name(str(e.get("partner", "")))}), "", "lane")
 			if str(kc.get("nipTicker", "")) != "":
 				ticker.enqueue("flavor", str(kc["nipTicker"]))
@@ -1705,7 +1707,7 @@ func _accept_mediation() -> void:
 	if r.is_empty():
 		return
 	herzog.accept()
-	var c: Dictionary = Events.event("herzog").get("copy", {}) if Events.event("herzog").get("copy") is Dictionary else {}
+	var c := Events.copy("herzog")
 	var key := "acceptText" if int(r.get("cut", 0)) > 0 else "acceptNone"
 	toasts.show_toast(Bidi.fill(str(c.get(key, "")), {"pct": str(int(r.get("pct", 0)))}), "", "lane")
 	_audio("stamp")
@@ -1724,7 +1726,6 @@ func herzog_from_pardon() -> void:
 	_on_politics_event(e)
 
 
-var _ability_squawk_at := -1.0e9
 var _pose_due := ""            # a pose that couldn't play yet (he was walking back): tried until _pose_due_until
 var _pose_due_until := 0.0
 
@@ -1734,13 +1735,10 @@ var _pose_due_until := 0.0
 func _ability_squawk(kind: String) -> void:
 	if not ["unite", "roundTable", "corridor", "sign", "flip", "walkout", "clausesDone", "budgetPaid", "swipe"].has(kind):
 		return
-	if _now - _ability_squawk_at < 20000.0:
-		return
 	var a := get_node_or_null("/root/Audio")
 	var text := str(a.call("squawk_text", Leaders.current(state), "ability")) if a != null and a.has_method("squawk_text") else ""
-	if text == "":
+	if text == "" or not _throttle("abilitySquawk", 20000.0):
 		return
-	_ability_squawk_at = _now
 	toasts.say(text, L.magician_feet() - Vector2(0, 380), 1600.0)
 	_audio("squawk", "ability")
 
@@ -1827,6 +1825,23 @@ func _on_ability_event(e: Dictionary) -> void:
 		toasts.show_toast(Bidi.fill(line, fill), "", "lane", alive)
 
 
+## The stage figure (Sara, Herzog, Kaia) whose tap box holds `sp`, or null.
+func _figure_at(sp: Vector2) -> StageFigure:
+	for f: StageFigure in _figures:
+		if Ui.in_rect(f.hit_rect(), sp):
+			return f
+	return null
+
+
+func _tap_figure(f: StageFigure) -> void:
+	if f == sara:
+		_tap_sara()
+	elif f == herzog:
+		_accept_mediation()
+	elif f == kaia:
+		_feed_kaia()
+
+
 ## A tap on Sara while she is on the stage (SaraMark, Bar 2026-10-02): she walks off and the leader
 ## takes taps again.
 func _tap_sara() -> void:
@@ -1835,23 +1850,45 @@ func _tap_sara() -> void:
 	_audio("stamp")
 
 
-var _sara_toast_at := -1.0e9
-
-
 ## A Sara line in the lane, dropped as soon as she no longer takes the tap.
 func _sara_toast(key: String) -> void:
 	toasts.show_toast(Strings.s(key), "", "lane", sara.tappable)
 
 
-## A tap on the leader while Sara waits: no coin, no +N. She huffs, the arrow pulses, and at most
-## every 2.5 s the toast says whom to tap.
-func _on_sara_block() -> void:
-	sara.nudge()
+## True at most once every `ms` per key: the lines and sounds that answer a repeated action.
+func _throttle(key: String, ms: float) -> bool:
+	if _now - float(_throttled.get(key, -1.0e9)) < ms:
+		return false
+	_throttled[key] = _now
+	return true
+
+
+## Why the leader takes no tap right now ("" = he does): "sara" while she waits on the stage for her
+## tap (Bar 2026-10-02), "paused" on the court / press day or a walk-off (Economy.Derived.taps_paused).
+## Mordechai's screen block sits above this: it swallows every input at pointer-down (_input_blocked).
+## The player's taps and the auto-tap perks both read it.
+func _leader_tap_gate() -> String:
+	if sara.tappable():
+		return "sara"
+	if d != null and d.taps_paused:
+		return "paused"
+	return ""
+
+
+## A tap on the leader that the gate refuses: no coin, no +N, the hat's hush; then why, at most once
+## in a while. Sara huffs and her arrow pulses on every one.
+func _refuse_tap(why: String) -> void:
 	bb.tap(false, true)
-	if _now - _sara_toast_at >= 2500.0:
-		_sara_toast_at = _now
-		_audio("cantAfford")
-		_sara_toast("SARA_BLOCK")
+	match why:
+		"sara":
+			sara.nudge()
+			if _throttle("tapSara", 2500.0):
+				_audio("cantAfford")
+				_sara_toast("SARA_BLOCK")
+		"paused":
+			# the court / press day (content court.courtPausesTaps, Bar 2026-10-01): no taps while he testifies
+			if _throttle("tapPaused", 4000.0):
+				toasts.show_toast(LeaderUi.tap_paused_line(state), "", "lane", func() -> bool: return d.taps_paused)
 
 
 ## A tap on Kaia while she is out (KaiaFigure): the cucumber. Events.act("kaia", "feed") swaps her nip
@@ -1861,7 +1898,7 @@ func _feed_kaia() -> void:
 	if r.is_empty():
 		return
 	kaia.feed()
-	var c: Dictionary = Events.event("kaia").get("copy", {}) if Events.event("kaia").get("copy") is Dictionary else {}
+	var c := Events.copy("kaia")
 	toasts.show_toast(Bidi.fill(str(c.get("feedText", "")), {"sec": str(int(r.get("buffSec", 0)))}), "", "lane")
 	_audio("stamp")
 	_mark_dirty()
@@ -2030,7 +2067,6 @@ func _input_blocked() -> bool:
 	return mode == "main" and state != null and Events.screen_blocked(state)
 
 
-var _blocked_toast_at := -1.0e9
 var _was_blocked := false
 
 
@@ -2049,8 +2085,7 @@ func _on_block_edge(on: bool) -> void:
 ## once. Never a toast: the FIFO showed "חוסם" lines long after he had gone.
 func _on_blocked_tap() -> void:
 	ability_chip.nudge()
-	if _now - _blocked_toast_at >= 600.0:
-		_blocked_toast_at = _now
+	if _throttle("tapBlocked", 600.0):
 		_audio("cantAfford")
 
 
@@ -2219,11 +2254,11 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	if share_desk.chip_takes(sp) and not Ui.in_rect(toasts.covered_rect(), sp):   # share platform: the 📣 chip
 		_presses[idx] = {"kind": "shareChip"}
 		return
-	# the figures that take a tap on the stage (each one's own box; they never overlap)
-	for fig: Array in [[sara, _tap_sara], [herzog, _accept_mediation], [kaia, _feed_kaia]]:
-		if fig[0].tappable() and Ui.in_rect(fig[0].hit_rect(), sp):
-			(fig[1] as Callable).call()
-			return
+	# the figures that take a tap on the stage (each one's own box, empty unless it takes one)
+	var fig := _figure_at(sp)
+	if fig != null:
+		_tap_figure(fig)
+		return
 	# mobile-first §3.4: during a tap burst (the last leader tap < 1 s ago) a toast takes no tap, so
 	# a toast over the leader's head never eats the rapid taps (it stays visible)
 	if not tap_burst() and toasts.tap(sp):
@@ -2336,9 +2371,10 @@ func _update_hover(p: Vector2) -> void:
 		var tp := _in_top(p)
 		var lp := _in_lower(p)
 		var on_golden := golden.hit_test(sp)
-		var on_banana := not on_golden and Ui.in_rect(bb.hit_rect(), sp)
+		var on_fig := not on_golden and _figure_at(sp) != null
+		var on_banana := not on_golden and not on_fig and _leader_tap_gate() == "" and Ui.in_rect(bb.hit_rect(), sp)
 		_set_hover_banana(on_banana)
-		pointer = on_golden or on_banana or top_bar.gear_contains(tp) or top_bar.mute_contains(tp) or cottage.contains(tp) or shop.in_list(lp) \
+		pointer = on_golden or on_fig or on_banana or top_bar.gear_contains(tp) or top_bar.mute_contains(tp) or cottage.contains(tp) or shop.in_list(lp) \
 			or (shop.visible and Ui.in_rect(Rect2(0, L.tabs_y(), L.cw, L.TABS_H), lp)) or (ticker.cta_on() and ticker.cta.contains(lp))
 	if not _gameplay_input():
 		_set_hover_banana(false)
@@ -2385,7 +2421,7 @@ func _on_key(e: InputEventKey) -> void:
 	match e.keycode:
 		KEY_SPACE, KEY_ENTER:
 			if not chat.is_open() and not dossier.is_open():   # rtl-map §6.3: a tall tab covers the Magician
-				if sara.tappable():
+				if _leader_tap_gate() == "sara":
 					_tap_sara()   # Space is the keyboard's tap: while Sara waits it is hers
 				else:
 					_handle_tap(L.magician_hit().get_center())
@@ -2411,33 +2447,26 @@ func _on_key(e: InputEventKey) -> void:
 # ================================================================== verbs
 
 ## The core verb (mechanic rules 1-2): award on pointer-down, the global 16/s cap, full juice at f0.
-## A tap on the leader (the pointer, Space, the title's first tap): Sara takes it while she waits,
-## the limiter caps the rate, then the shared payout with the player's feedback.
+## A tap on the leader (the pointer, Space, the title's first tap): the gate (Sara, the court day),
+## the limiter's rate cap, then the shared payout with the player's feedback.
 func _handle_tap(at: Vector2) -> void:
-	if sara.tappable():
-		_on_sara_block()   # Bar 2026-10-02: while Sara is on the stage the tap is hers
+	_last_tap_ms = _now   # a tap burst even when refused: a toast never eats the next rapid tap
+	var why := _leader_tap_gate()
+	if why != "":
+		_refuse_tap(why)
 		return
-	if not _limiter.try_register(Time.get_ticks_msec()):
-		return
-	_last_tap_ms = _now
-	_pay_tap(at, true)
+	if _limiter.try_register(Time.get_ticks_msec()):
+		_pay_tap(at, true)
 
 
 ## Every paid tap, the player's and the auto-tap perks': Economy.tap, the live rate line, the
 ## leader's squash and the floater (big while a timed tap buff is live, so the buff reads on every
-## tap). `manual` adds the player's feedback: the hush on a paused day, sound, the first-tap beats,
-## the crit word, haptics and shake, the FTUE.
+## tap). `manual` adds the player's feedback: sound, the first-tap beats,
+## the crit word, haptics and shake, the FTUE. The caller has passed the gate.
 func _pay_tap(at: Vector2, manual: bool) -> void:
-	var r := Economy.tap(state, _rng("tap"))   # seeded rounds: _rng
+	var r := Economy.tap(state, _rng("tap"), d)   # the frame's derive; seeded rounds: _rng
 	if bool(r.get("paused", false)):
-		# the court / press day (content court.courtPausesTaps, Bar 2026-10-01): no taps while he testifies;
-		# no +0, no coin, just the hush and, at most every 4 s, why
-		if manual:
-			bb.tap(false, true)
-			if _now - _paused_toast_ms >= 4000.0:
-				_paused_toast_ms = _now
-				toasts.show_toast(LeaderUi.tap_paused_line(state), "", "lane", func() -> bool: return d.taps_paused)
-		return
+		return   # the gate stops these first (_leader_tap_gate); this is the sim's own guard
 	var crit: bool = r["crit"]
 	top_bar.note_tap(float(r["value"]))   # the live rate line (display only)
 	if state.buff_tap_frenzy > 0.0:

@@ -191,6 +191,12 @@ static func active_effects(s: GameState) -> Array:
 	return _st(s)["active"]
 
 
+## An event's copy block ({} when it has none).
+static func copy(id: String) -> Dictionary:
+	var c: Variant = event(id).get("copy")
+	return c if c is Dictionary else {}
+
+
 ## Mordechai David's visit (effect screenBlock): "" when none is live, else approach | block | exit.
 ## "block" is the time he stands on his mark, whatever he does there (mode).
 static func block_phase(s: GameState) -> String:

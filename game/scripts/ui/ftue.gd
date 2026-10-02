@@ -264,13 +264,17 @@ func _set_pulse(hz: float) -> void:
 		on_pulse.call(hz)
 
 
+## The "point here" bob, `t_ms` into it, along `v` (a unit direction), snapped to the art grid: the
+## FTUE hand's, and Sara's arrow's.
+static func hand_bob(t_ms: float, v: Vector2) -> Vector2:
+	var k := (1.0 - cos(TAU * float(Tune.MC["ftueHandBobHz"]) * (t_ms / 1000.0))) / 2.0
+	var px := float(Tune.MC["ftueHandBobPx"]) * k
+	return Vector2(Ui.snap(v.x * px, 4), Ui.snap(v.y * px, 4))
+
+
 func _point(pos: Vector2, dir: String) -> void:
 	var dd: Dictionary = DIRS[dir]
-	var off := Vector2.ZERO
-	if not reduced_motion:
-		var k := (1.0 - cos(TAU * float(Tune.MC["ftueHandBobHz"]) * (_t / 1000.0))) / 2.0
-		var v: Vector2 = dd["v"]
-		off = Vector2(Ui.snap(v.x * float(Tune.MC["ftueHandBobPx"]) * k, 4), Ui.snap(v.y * float(Tune.MC["ftueHandBobPx"]) * k, 4))
+	var off := Vector2.ZERO if reduced_motion else hand_bob(_t, dd["v"])
 	Ui.set_frame(hand, "ui_pointer", dd["frame"])
 	hand.rotation_degrees = dd["angle"]
 	hand.position = pos + off
