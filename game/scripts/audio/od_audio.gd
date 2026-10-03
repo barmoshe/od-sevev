@@ -10,16 +10,22 @@ extends RefCounted
 const MANIFEST := "res://assets/audio/od/od_manifest.json"
 const DIR := "res://assets/audio/od/"
 
-## The tap walk (A3): up the era's scale one rendered step per tap, wrapping; the streak resets
-## after this long without a tap (cue-spec §4 `tap`). The steps are the manifest's `tap` pitches
-## (s0..sN-1): no scale data lives in code, so a re-scored scale ships as data.
-const TAP_STREAK_GAP_MS := 400.0
+## v1.10 (Bar, 2026-10-03: "each tap is a note"): the tap plays the next note of the song the era is
+## playing (the era's `tapLine`). After a pause this long, the next tap joins the note the music is on.
+const TAP_REJOIN_MS := 2500.0
 const TAP_JITTER_DB := 1.5
-## L2 (the lead) plays while the last Magician tap is younger than this (cue-spec §2.1).
-const L2_TAP_WINDOW_MS := 3000.0
-## v1.6 mix pass: when the tap plays HaTikva, the lead (L2) steps back 6 dB so the bell leads and the
-## two melodies don't fight in the same register.
-const L2_UNDER_BELL := 0.5
+## The music's lead (L2) steps back while the player taps (the player plays the song now), over this
+## long, and comes back at a bar line this long after the last tap.
+const L2_STEP_BACK_MS := 120.0
+const L2_REST_MS := 2000.0
+## The phrases of a tap line are this many bars (compose_od TAP_PHRASE_BARS); the phrase bonus pays at
+## most once in 1.5 of them.
+const PHRASE_BARS := 2
+## A stolen voice fades out over this long instead of stopping on a click.
+const STEAL_FADE_MS := 30.0
+## The fallback melody (HaTikva, `tap.melody`, for a manifest without tap lines): its root's octave.
+const ANTHEM_OCTAVE := 5
+const KEY_PC := {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
 ## Dubi (cue-spec §4 `dubiBlip`): 8 syllables a second, a 1.6 s cap, a doubled canned line
 ## repeats its contour after 150 ms.
 const BABBLE_RATE_HZ := 8.0
@@ -136,51 +142,115 @@ static func bars_per_loop(man: Dictionary, era_id: String) -> int:
 	return maxi(1, roundi(float(e.get("loopSamples", 2112000)) / maxf(1.0, float(e.get("barSamples", 66000)))))
 
 
-# ------------------------------------------------------------------ the tap walk (A3)
+# ------------------------------------------------------------------ the tap: the era's song
 
-## The streak index after a tap at `now` (ms), given the previous tap time and index: +1 while
-## taps come within 400 ms of each other, 0 after a gap.
-static func tap_streak(prev_index: int, prev_ms: float, now: float) -> int:
-	return prev_index + 1 if now - prev_ms < TAP_STREAK_GAP_MS else 0
-
-
-## How many steps the tap walk has: the `s<n>` pitches rendered for `tap` (8 in the brief).
-static func tap_steps(man: Dictionary) -> int:
-	var n := 0
-	for k: String in cue_pitches(man, "tap"):
-		if k.begins_with("s") and k.substr(1).is_valid_int():
-			n += 1
-	return maxi(1, n)
-
-
-## The pitch file key of a streak index: walk up and wrap ("s0" .. "s<steps-1>").
-static func tap_pitch(streak_index: int, steps: int) -> String:
-	return "s%d" % posmod(streak_index, maxi(1, steps))
-
-
-## v1.5 (Bar, 2026-09-30): the tap plays HaTikva. The manifest's `tap.melody` is one pitch key per
-## tap and `tap.phrases` the note indexes a streak may open on. Empty = no melody (the walk above).
-static func tap_melody(man: Dictionary) -> Array:
-	return man.get("cues", {}).get("tap", {}).get("melody", [])
-
-
-static func tap_phrases(man: Dictionary) -> Array:
+static func _ints(v: Variant) -> Array:
 	var out: Array = []
-	for v: Variant in man.get("cues", {}).get("tap", {}).get("phrases", []):
-		out.append(int(v))   # JSON numbers load as floats
-	return out if not out.is_empty() else [0]
+	if v is Array:
+		for x: Variant in v:
+			out.append(int(x))   # JSON numbers load as floats
+	return out
 
 
-## The next [phrase, note] after a tap: a streak's first tap (streak index 0) opens the next phrase
-## (phrase -1 = none yet, so the first streak opens phrase 0); every later tap of the streak is the
-## next note, wrapping at the end of the melody.
-static func melody_step(streak_index: int, phrase: int, note: int, melody_size: int, phrases: Array) -> Vector2i:
-	if melody_size <= 0:
-		return Vector2i(phrase, note)
-	if streak_index == 0 or note < 0:
-		var ph := posmod(phrase + 1, maxi(1, phrases.size()))
-		return Vector2i(ph, posmod(int(phrases[ph]), melody_size))
-	return Vector2i(phrase, posmod(note + 1, melody_size))
+## The tap's melody for a track: {midi, steps, phrases, stepSeconds}. `steps` (note onsets from bar 1)
+## is empty for the fallback (HaTikva in the track's key), which then never follows the music.
+static func tap_line(man: Dictionary, track: String) -> Dictionary:
+	var e: Dictionary = man.get("eras", {}).get(track, {})
+	var tl: Variant = e.get("tapLine")
+	if tl is Dictionary and not _ints((tl as Dictionary).get("midi")).is_empty():
+		var ph := _ints(tl.get("phrases"))
+		return {"midi": _ints(tl.get("midi")), "steps": _ints(tl.get("steps")), "phrases": ph if not ph.is_empty() else [0],
+			"stepSeconds": float(e.get("stepSamples", 0)) / maxf(1.0, float(e.get("rate", 31900)))}
+	var tap: Dictionary = man.get("cues", {}).get("tap", {})
+	var root := (ANTHEM_OCTAVE + 1) * 12 + int(KEY_PC.get(era_key(man, track), 2))
+	var mel: Array = []
+	for lab: Variant in tap.get("melody", []):
+		mel.append(root + int(String(lab).substr(1)))
+	var ph2 := _ints(tap.get("phrases"))
+	return {"midi": mel, "steps": [], "phrases": ph2 if not ph2.is_empty() else [0], "stepSeconds": 0.0}
+
+
+## The step of the loop the music is on (`pos` seconds into it), for a line; -1 when it cannot follow.
+static func song_step(line: Dictionary, pos: float) -> int:
+	var ss := float(line.get("stepSeconds", 0.0))
+	if ss <= 0.0 or (line.get("steps", []) as Array).is_empty() or pos < 0.0:
+		return -1
+	return int(floor(pos / ss + 1e-6))
+
+
+## The phrase (an index into `phrases`) note `i` belongs to.
+static func phrase_of(phrases: Array, i: int) -> int:
+	var p := 0
+	for k in phrases.size():
+		if int(phrases[k]) <= i:
+			p = k
+	return p
+
+
+## The first note at or after `step` (wrapping to note 0 past the last one).
+static func note_at(steps: Array, step: int) -> int:
+	for i in steps.size():
+		if int(steps[i]) >= step:
+			return i
+	return 0
+
+
+## The next tap on a line. `cur` is the last note played (-1: none yet), `run` how many notes of its
+## phrase the player has played in one go from the phrase's first note (0: joined midway), `gap_ms`
+## the time since the last tap, `music_step` the music's step (-1: no music to follow).
+## - After a pause (or on the first tap) the tap joins the note the music is on.
+## - Otherwise it is the next note. At a phrase's end, a tap more than a phrase ahead of the music, or
+##   behind it, jumps to the start of the phrase the music plays.
+## Returns {i, run, done}: done when this note ends a phrase the player played whole.
+static func tap_next(line: Dictionary, cur: int, run: int, gap_ms: float, music_step: int) -> Dictionary:
+	var midi: Array = line.get("midi", [])
+	var steps: Array = line.get("steps", [])
+	var ph: Array = line.get("phrases", [0])
+	var n := midi.size()
+	if n == 0:
+		return {"i": -1, "run": 0, "done": false}
+	var follow := music_step >= 0 and steps.size() == n
+	var nxt := posmod(cur + 1, n)
+	var cont := cur >= 0 and gap_ms <= TAP_REJOIN_MS
+	if not cont and follow:
+		nxt = note_at(steps, music_step)
+	elif cont and follow and ph.has(nxt):
+		var pm := 0   # the phrase the music plays: the last one that has started
+		for k in ph.size():
+			if int(steps[int(ph[k])]) <= music_step:
+				pm = k
+		if posmod(ph.find(nxt) - pm, ph.size()) > 1:
+			nxt = int(ph[pm])
+	var r := 0
+	if ph.has(nxt):
+		r = 1
+	elif cont and run > 0 and nxt == posmod(cur + 1, n):
+		r = run + 1
+	var p := phrase_of(ph, nxt)
+	var end_i := (int(ph[p + 1]) if p + 1 < ph.size() else n) - 1
+	return {"i": nxt, "run": r, "done": nxt == end_i and r == end_i - int(ph[p]) + 1 and r >= 3}
+
+
+## The bell roots the tap is rendered at (its variants r<midi>), low to high.
+static func bell_roots(man: Dictionary) -> Array:
+	var out: Array = []
+	for v in cue_variants(man, "tap"):
+		if v.begins_with("r") and v.substr(1).is_valid_int():
+			out.append(int(v.substr(1)))
+	out.sort()
+	return out
+
+
+## The bell root nearest a note (the lower one on a tie).
+static func bell_root(roots: Array, note: int) -> int:
+	var best := note
+	var bd := 1 << 20
+	for r: Variant in roots:
+		var d := absi(int(r) - note)
+		if d < bd:
+			bd = d
+			best = int(r)
+	return best
 
 
 ## The pitch keys a cue is rendered at (in its first key), unsorted.
@@ -210,11 +280,6 @@ static func _blip_semis(k: String, degrees: Dictionary) -> float:
 	if i < 0:
 		return 0.0
 	return float(k.substr(i + 1).to_int()) * 12.0 + float(degrees.get(k.substr(0, i), 0.0))
-
-
-## The duty variant of the n-th tap: d25 and d12 alternate.
-static func tap_variant(n: int) -> String:
-	return "d25" if posmod(n, 2) == 0 else "d12"
 
 
 # ------------------------------------------------------------------ anti-fatigue (O-A1)

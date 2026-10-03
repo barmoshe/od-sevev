@@ -571,7 +571,7 @@
  },
  "cues": {
   "tap": {
-   "meaning": "The trick worked; money came out, to the next note of HaTikva.",
+   "meaning": "The trick worked; money came out, to the next note of the era's song.",
    "bus": "SFX-Frequent",
    "priority": 2,
    "poly": 6,
@@ -579,19 +579,7 @@
    "ducks": [],
    "jitterDb": 1.5,
    "pitch": {
-    "type": "semis",
-    "rootOctave": 5,
-    "semis": {
-     "n-5": -5,
-     "n0": 0,
-     "n2": 2,
-     "n3": 3,
-     "n5": 5,
-     "n7": 7,
-     "n8": 8,
-     "n10": 10,
-     "n12": 12
-    }
+    "type": "none"
    },
    "melody": [
     "n0",
@@ -657,7 +645,7 @@
     38
    ],
    "variants": {
-    "bell": [
+    "r60": [
      {
       "id": "puff",
       "wave": "noiseMetal",
@@ -677,7 +665,7 @@
      {
       "id": "bell0",
       "wave": "sine",
-      "freqStart": 440.0,
+      "freqStart": 261.6255653005986,
       "attack": 0.002,
       "decay": 0.55,
       "sustain": 0.0,
@@ -688,7 +676,7 @@
      {
       "id": "bell1",
       "wave": "sine",
-      "freqStart": 880.0,
+      "freqStart": 523.2511306011972,
       "attack": 0.002,
       "decay": 0.26,
       "sustain": 0.0,
@@ -699,7 +687,262 @@
      {
       "id": "bell2",
       "wave": "sine",
-      "freqStart": 1320.0,
+      "freqStart": 784.8766959017959,
+      "attack": 0.002,
+      "decay": 0.09,
+      "sustain": 0.0,
+      "duration": 0.09,
+      "release": 0.04,
+      "gain": 0.12
+     }
+    ],
+    "r66": [
+     {
+      "id": "puff",
+      "wave": "noiseMetal",
+      "clockStart": 40000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 5000,
+       "Q": 0.9
+      },
+      "attack": 0.001,
+      "decay": 0.015,
+      "sustain": 0.0,
+      "duration": 0.015,
+      "release": 0.004,
+      "gain": 0.35
+     },
+     {
+      "id": "bell0",
+      "wave": "sine",
+      "freqStart": 369.9944227116344,
+      "attack": 0.002,
+      "decay": 0.55,
+      "sustain": 0.0,
+      "duration": 0.55,
+      "release": 0.04,
+      "gain": 1.0
+     },
+     {
+      "id": "bell1",
+      "wave": "sine",
+      "freqStart": 739.9888454232688,
+      "attack": 0.002,
+      "decay": 0.26,
+      "sustain": 0.0,
+      "duration": 0.26,
+      "release": 0.04,
+      "gain": 0.3
+     },
+     {
+      "id": "bell2",
+      "wave": "sine",
+      "freqStart": 1109.9832681349033,
+      "attack": 0.002,
+      "decay": 0.09,
+      "sustain": 0.0,
+      "duration": 0.09,
+      "release": 0.04,
+      "gain": 0.12
+     }
+    ],
+    "r72": [
+     {
+      "id": "puff",
+      "wave": "noiseMetal",
+      "clockStart": 40000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 5000,
+       "Q": 0.9
+      },
+      "attack": 0.001,
+      "decay": 0.015,
+      "sustain": 0.0,
+      "duration": 0.015,
+      "release": 0.004,
+      "gain": 0.35
+     },
+     {
+      "id": "bell0",
+      "wave": "sine",
+      "freqStart": 523.2511306011972,
+      "attack": 0.002,
+      "decay": 0.55,
+      "sustain": 0.0,
+      "duration": 0.55,
+      "release": 0.04,
+      "gain": 1.0
+     },
+     {
+      "id": "bell1",
+      "wave": "sine",
+      "freqStart": 1046.5022612023945,
+      "attack": 0.002,
+      "decay": 0.26,
+      "sustain": 0.0,
+      "duration": 0.26,
+      "release": 0.04,
+      "gain": 0.3
+     },
+     {
+      "id": "bell2",
+      "wave": "sine",
+      "freqStart": 1569.7533918035917,
+      "attack": 0.002,
+      "decay": 0.09,
+      "sustain": 0.0,
+      "duration": 0.09,
+      "release": 0.04,
+      "gain": 0.12
+     }
+    ],
+    "r78": [
+     {
+      "id": "puff",
+      "wave": "noiseMetal",
+      "clockStart": 40000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 5000,
+       "Q": 0.9
+      },
+      "attack": 0.001,
+      "decay": 0.015,
+      "sustain": 0.0,
+      "duration": 0.015,
+      "release": 0.004,
+      "gain": 0.35
+     },
+     {
+      "id": "bell0",
+      "wave": "sine",
+      "freqStart": 739.9888454232688,
+      "attack": 0.002,
+      "decay": 0.55,
+      "sustain": 0.0,
+      "duration": 0.55,
+      "release": 0.04,
+      "gain": 1.0
+     },
+     {
+      "id": "bell1",
+      "wave": "sine",
+      "freqStart": 1479.9776908465376,
+      "attack": 0.002,
+      "decay": 0.26,
+      "sustain": 0.0,
+      "duration": 0.26,
+      "release": 0.04,
+      "gain": 0.3
+     },
+     {
+      "id": "bell2",
+      "wave": "sine",
+      "freqStart": 2219.9665362698065,
+      "attack": 0.002,
+      "decay": 0.09,
+      "sustain": 0.0,
+      "duration": 0.09,
+      "release": 0.04,
+      "gain": 0.12
+     }
+    ],
+    "r84": [
+     {
+      "id": "puff",
+      "wave": "noiseMetal",
+      "clockStart": 40000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 5000,
+       "Q": 0.9
+      },
+      "attack": 0.001,
+      "decay": 0.015,
+      "sustain": 0.0,
+      "duration": 0.015,
+      "release": 0.004,
+      "gain": 0.35
+     },
+     {
+      "id": "bell0",
+      "wave": "sine",
+      "freqStart": 1046.5022612023945,
+      "attack": 0.002,
+      "decay": 0.55,
+      "sustain": 0.0,
+      "duration": 0.55,
+      "release": 0.04,
+      "gain": 1.0
+     },
+     {
+      "id": "bell1",
+      "wave": "sine",
+      "freqStart": 2093.004522404789,
+      "attack": 0.002,
+      "decay": 0.26,
+      "sustain": 0.0,
+      "duration": 0.26,
+      "release": 0.04,
+      "gain": 0.3
+     },
+     {
+      "id": "bell2",
+      "wave": "sine",
+      "freqStart": 3139.5067836071835,
+      "attack": 0.002,
+      "decay": 0.09,
+      "sustain": 0.0,
+      "duration": 0.09,
+      "release": 0.04,
+      "gain": 0.12
+     }
+    ],
+    "r90": [
+     {
+      "id": "puff",
+      "wave": "noiseMetal",
+      "clockStart": 40000,
+      "filter": {
+       "type": "bandpass",
+       "freq": 5000,
+       "Q": 0.9
+      },
+      "attack": 0.001,
+      "decay": 0.015,
+      "sustain": 0.0,
+      "duration": 0.015,
+      "release": 0.004,
+      "gain": 0.35
+     },
+     {
+      "id": "bell0",
+      "wave": "sine",
+      "freqStart": 1479.9776908465376,
+      "attack": 0.002,
+      "decay": 0.55,
+      "sustain": 0.0,
+      "duration": 0.55,
+      "release": 0.04,
+      "gain": 1.0
+     },
+     {
+      "id": "bell1",
+      "wave": "sine",
+      "freqStart": 2959.955381693075,
+      "attack": 0.002,
+      "decay": 0.26,
+      "sustain": 0.0,
+      "duration": 0.26,
+      "release": 0.04,
+      "gain": 0.3
+     },
+     {
+      "id": "bell2",
+      "wave": "sine",
+      "freqStart": 4439.933072539613,
       "attack": 0.002,
       "decay": 0.09,
       "sustain": 0.0,
@@ -709,7 +952,7 @@
      }
     ]
    },
-   "runtime": "Each tap plays the next note of `melody`. A streak (taps under 400 ms apart) walks on and wraps; after a gap the next streak starts on the next entry of `phrases`, so each streak opens on a different phrase. A new round starts again at phrase 0. Gain jitter +-1.5 dB.",
+   "runtime": "Each tap plays the next note of the playing era's tapLine (music.json), from the bell root (variant r<midi>) nearest the note, at pitch_scale 2^(semitones/12). The taps follow the music: after a pause the next tap joins the note the music is on, and at each phrase's end a tap that has fallen behind (or run more than a phrase ahead) jumps to the phrase the music plays. Without music the line runs on by itself. `melody` (HaTikva, semitones above the key's root in octave 5) is the fallback for a manifest without tap lines. A stolen voice fades over 30 ms. Gain jitter +-1.5 dB.",
    "lengthMs": 640,
    "target": {
     "type": "stream",
@@ -4580,6 +4823,111 @@
    "target": {
     "type": "burst",
     "lufs": -19.0
+   }
+  },
+  "phraseDone": {
+   "meaning": "The taps played a whole phrase of the era's song (the phrase bonus).",
+   "bus": "SFX-Frequent",
+   "priority": 2,
+   "poly": 1,
+   "steal": "oldest",
+   "ducks": [],
+   "pitch": {
+    "type": "key",
+    "rootOctave": 5
+   },
+   "variants": {
+    "": [
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 7000,
+       "Q": 0.7
+      },
+      "delay": 0.08,
+      "attack": 0.0008,
+      "decay": 0.02,
+      "sustain": 0.0,
+      "duration": 0.02,
+      "release": 0.004,
+      "gain": 0.4
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E5",
+      "delay": 0.08,
+      "attack": 0.001,
+      "decay": 0.05,
+      "sustain": 0.2,
+      "duration": 0.05,
+      "release": 0.03,
+      "gain": 0.4,
+      "duty": 0.5
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 7000,
+       "Q": 0.7
+      },
+      "delay": 0.14,
+      "attack": 0.0008,
+      "decay": 0.02,
+      "sustain": 0.0,
+      "duration": 0.02,
+      "release": 0.004,
+      "gain": 0.15
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A5",
+      "delay": 0.14,
+      "attack": 0.001,
+      "decay": 0.06,
+      "sustain": 0.15,
+      "duration": 0.06,
+      "release": 0.03,
+      "gain": 0.45,
+      "duty": 0.5
+     },
+     {
+      "wave": "noiseMetal",
+      "clockStart": 44000,
+      "filter": {
+       "type": "highpass",
+       "freq": 7000,
+       "Q": 0.7
+      },
+      "delay": 0.2,
+      "attack": 0.0008,
+      "decay": 0.02,
+      "sustain": 0.0,
+      "duration": 0.02,
+      "release": 0.004,
+      "gain": 0.12
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "E6",
+      "delay": 0.2,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.1,
+      "duration": 0.12,
+      "release": 0.06,
+      "gain": 0.5,
+      "duty": 0.5
+     }
+    ]
+   },
+   "runtime": "audio.gd: on the last note of a phrase the taps played whole, at most once in 1.5 phrases.",
+   "target": {
+    "type": "burst",
+    "lufs": -21.0
    }
   },
   "leaderPick": {

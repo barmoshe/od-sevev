@@ -522,6 +522,8 @@ func _build() -> void:
 					_audio("ceremonyEnd"))
 		if a.has_signal("dubi_blip"):
 			a.connect("dubi_blip", func(_bank: String) -> void: ticker.dubi_talk())
+		if a.has_signal("phrase_done"):
+			a.connect("phrase_done", func(_notes: int) -> void: _on_phrase_done())
 
 
 ## The wizard overlay: the root's last child (over the picker, the overlays and the transition, so a
@@ -1262,6 +1264,8 @@ func _process(delta: float) -> void:
 	var walked := Ability.walked_out(state)
 	bb.set_away_kind("box" if walked and not BigBanana.wants_court(state) else "")
 	bb.court_sync(running and (BigBanana.wants_court(state) or walked), tx.running)
+	var au := get_node_or_null("/root/Audio")
+	bb.beat_phase = float(au.call("beat_phase")) if au != null and au.has_method("beat_phase") else -1.0
 	bb.update_view(dt)
 	if _pose_due != "":
 		if _now > _pose_due_until or bb.flash_pose(_pose_due, 1400.0):
@@ -2599,6 +2603,23 @@ func _pay_tap(at: Vector2, manual: bool) -> void:
 		if not settings["reducedMotion"]:
 			_start_shake(float(Tune.T["critShakePx"]), float(Tune.T["critShakeMs"]))
 	ftue.on_registered_action()
+
+
+## v1.10 (Bar: "each tap is a note"): the taps played a whole phrase of the era's song. The phrase
+## bonus (Economy.phrase_bonus), its amount as a big floater over the leader and a burst of sparks;
+## the Audio has already played its sparkle.
+func _on_phrase_done() -> void:
+	if mode != "main" or _leader_tap_gate() != "":
+		return
+	var v := Economy.phrase_bonus(state, d)
+	if v <= 0.0:
+		return
+	var at := L.magician_hit().get_center() - Vector2(0.0, 64.0)
+	floaters.spawn(at.x, at.y, Strings.s("FLOATER_CRIT", {"n": Fmt.amount(v)}), true, false)
+	fx_stage.play("critBurst", at.x, at.y)
+	top_bar.set_bank(state.bananas)
+	top_bar.pop_bank()
+	_mark_dirty()
 
 
 ## Dubi's first-tap line for the round's leader: the Audio's own lookup (v1.3 squawk_text, the

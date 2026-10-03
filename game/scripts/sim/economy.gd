@@ -337,6 +337,20 @@ static func tap(s: GameState, rng: Callable = randf, d: Derived = null) -> Dicti
 	return {"value": value, "crit": crit, "tap7": tap7, "boosted": d.tap_boost > 1.0}
 
 
+## v1.10 (Bar, 2026-10-03): the phrase bonus. The player's taps played a whole phrase of the era's song
+## (the Audio's phrase_done): content tap.phraseBonusMult taps' worth, never a crit, never S07's pour
+## (income moved, not earned by the tap). Nothing while the taps are paused.
+static func phrase_bonus(s: GameState, d: Derived = null) -> float:
+	if d == null:
+		d = derive(s)
+	if d.taps_paused:
+		return 0.0
+	var pour := d.tap_pour_sec * d.bps
+	var value := clampf_num((d.tap_value_no_crit - pour) * float(Content.data()["tap"].get("phraseBonusMult", 0.0)))
+	add_bananas(s, value)
+	return value
+
+
 # ---------------------------------------------------------------------------------------------
 # Producers
 # ---------------------------------------------------------------------------------------------

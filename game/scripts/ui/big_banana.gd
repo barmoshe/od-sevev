@@ -305,7 +305,10 @@ func tap(crit: bool, paused: bool = false) -> void:
 		if crit and hero.has_anim(crit_anim):
 			hero.play(crit_anim, true, 1)
 		elif not in_react:
-			hero.play(tap_anim if hero.has_anim(tap_anim) else "idle", true, 1)
+			# v1.10: a tap on f1-f2 of the tap strip merges into it (motion spec): the strip runs on to
+			# its coins frame instead of restarting, so fast taps still pour coins
+			var merge := hero.anim == tap_anim and hero.frame >= 1 and hero.frame <= 2
+			hero.play(tap_anim if hero.has_anim(tap_anim) else "idle", not merge, 1)
 	var sy := float(Tune.T["squashScaleY"])
 	var smin := float(Tune.T["squashMinScaleY"])
 	var target: float
@@ -544,6 +547,11 @@ func set_pulse(hz: float) -> void:
 
 var _pulse_hz := 0.0
 var _pulse_t := 0.0
+## v1.10 (Bar: the beat glow): the music's beat phase (Audio.beat_phase(), -1 without music), set by
+## main every frame. The figure brightens a little on each beat and fades by the next; visual only,
+## off under reduced motion.
+var beat_phase := -1.0
+const BEAT_GLOW := 0.14
 
 
 func _sync_halo() -> void:
@@ -552,6 +560,8 @@ func _sync_halo() -> void:
 		var pulse := 0.0
 		if _pulse_hz > 0.0:
 			pulse = 0.35 if reduced_motion else 0.35 * (0.5 - 0.5 * cos(TAU * _pulse_hz * _pulse_t / 1000.0))
+		if beat_phase >= 0.0 and not reduced_motion:
+			pulse = maxf(pulse, BEAT_GLOW * pow(1.0 - beat_phase, 3.0))
 		var k := maxf(maxf(_aura_alpha, _hover_alpha), pulse)
 		hero.modulate = Color(1, 1, 1).lerp(Color(1.3, 1.25, 1.05), k)
 		hero.modulate.a = figure_alpha()

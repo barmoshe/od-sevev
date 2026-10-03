@@ -321,10 +321,12 @@ func _render_era(eid: String, e: Dictionary, target: float) -> Dictionary:
 	var lf := _lufs_int(full, rate)
 	var play_db := snappedf(target - lf, 0.01)
 	var sum_pk := D.lin2db(D.peak(full)) + play_db
-	var info := {"key": e["key"], "mode": e["mode"], "tempoBpm": e["tempoBpm"], "rate": rate, "stepsPerBar": spb,
+	var info := {"key": e["key"], "mode": e["mode"], "tempoBpm": e["tempoBpm"], "rate": rate, "stepsPerBar": spb, "beatsPerBar": int(e["beatsPerBar"]),
 		"stepSamples": int(roundf(step_n)), "barSamples": spb * int(roundf(step_n)), "loopSamples": loop_n,
 		"loopSeconds": snappedf(float(loop_n) / rate, 0.0001), "play_db": play_db, "layers": {}, "lufs": {"full": snappedf(lf + play_db, 0.01)},
 		"sumPeakDbfs": snappedf(sum_pk, 0.01)}
+	if e.has("tapLine"):
+		info["tapLine"] = e["tapLine"]   # v1.10: the tap's melody (the runtime plays it note by note)
 	for layer: String in LAYERS:
 		var name := "music_%s_%s.res" % [eid, layer]
 		var bytes := _save(stems[layer], scale, rate, name, loop_n)

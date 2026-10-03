@@ -634,6 +634,8 @@ def stingers():
 
 def music():
     eras = {"balfour": balfour(), "knesset": knesset(), "courthouse": courthouse(), "washington": washington()}
+    for eid, e in eras.items():
+        e["tapLine"] = tap_line(eid, e)
     return {
         "version": "od-1",
         "_doc": "עוד סבב: the era themes, the Outside drum line and the tempo-bound stingers. Owner: Audio "
@@ -727,6 +729,7 @@ MODES = {"minor": [0, 2, 3, 5, 7, 8, 10], "mixolydian": [0, 2, 4, 5, 7, 9, 10],
 # anthem as it is sung, with no source reachable from the build container. Two lines a step apart
 # (repeated note, upper and lower neighbour), the high line on the octave, and the close on the
 # verified cadence of bar 3-4. Replace it from a verified score when one is at hand.
+TAP_BELL_ROOTS = [60, 66, 72, 78, 84, 90]   # v1.10: C4 F#4 C5 F#5 C6 F#6
 TAP_ANTHEM = {
     "melody": ["n0", "n2", "n3", "n5", "n7", "n7", "n8", "n7", "n8", "n12", "n7",   # כל עוד בלבב פנימה
                "n5", "n5", "n5", "n3", "n3", "n2", "n0", "n2", "n3", "n0", "n-5",   # נפש יהודי הומיה
@@ -812,18 +815,28 @@ def cues():
     # The melody is data (TAP_ANTHEM below): pitch labels n<semitones above the key's root>, rendered in
     # every key as natural minor intervals (F included: the anthem is never re-moded to Mixolydian).
     # The walk's blip is retired from the tap; its helpers stay for the other cues.
-    bell = [puff] + [L(id="bell%d" % i, wave="sine", freqStart=440.0 * mult, attack=0.002, decay=dec, sustain=0.0,
-                       duration=dec, release=0.04, gain=g)
-                     for i, (mult, g, dec) in enumerate([(1, 1.0, 0.55), (2, 0.3, 0.26), (3, 0.12, 0.09)])]
-    labels = sorted(set(TAP_ANTHEM["melody"]), key=lambda s: int(s[1:]))
-    C["tap"] = {"meaning": "The trick worked; money came out, to the next note of HaTikva.", "bus": "SFX-Frequent",
+    # v1.10 (2026-10-03, Bar: "each tap is a note"): the tap plays the next note of the song the era is
+    # playing (each era's tapLine in music.json), so the bell is no longer rendered per key and pitch.
+    # It is rendered at six roots a tritone apart (C4 .. F#6) and the runtime plays a note from the
+    # nearest root with pitch_scale (3 semitones at most, so the bell's decay moves by under 19%).
+    # HaTikva (TAP_ANTHEM) stays the fallback melody for a manifest without tap lines.
+    def bell(root):
+        hz = 440.0 * 2 ** ((root - 69) / 12)
+        return [puff] + [L(id="bell%d" % i, wave="sine", freqStart=hz * mult, attack=0.002, decay=dec, sustain=0.0,
+                           duration=dec, release=0.04, gain=g)
+                         for i, (mult, g, dec) in enumerate([(1, 1.0, 0.55), (2, 0.3, 0.26), (3, 0.12, 0.09)])]
+    C["tap"] = {"meaning": "The trick worked; money came out, to the next note of the era's song.", "bus": "SFX-Frequent",
                 "priority": 2, "poly": 6, "steal": "oldest", "ducks": [], "jitterDb": 1.5,
-                "pitch": {"type": "semis", "rootOctave": 5, "semis": {s: int(s[1:]) for s in labels}},
+                "pitch": {"type": "none"},
                 "melody": TAP_ANTHEM["melody"], "phrases": TAP_ANTHEM["phrases"],
-                "variants": {"bell": bell},
-                "runtime": "Each tap plays the next note of `melody`. A streak (taps under 400 ms apart) walks on and "
-                           "wraps; after a gap the next streak starts on the next entry of `phrases`, so each streak "
-                           "opens on a different phrase. A new round starts again at phrase 0. Gain jitter +-1.5 dB.",
+                "variants": {"r%d" % r: bell(r) for r in TAP_BELL_ROOTS},
+                "runtime": "Each tap plays the next note of the playing era's tapLine (music.json), from the bell "
+                           "root (variant r<midi>) nearest the note, at pitch_scale 2^(semitones/12). The taps follow "
+                           "the music: after a pause the next tap joins the note the music is on, and at each phrase's "
+                           "end a tap that has fallen behind (or run more than a phrase ahead) jumps to the phrase the "
+                           "music plays. Without music the line runs on by itself. `melody` (HaTikva, semitones above "
+                           "the key's root in octave 5) is the fallback for a manifest without tap lines. A stolen "
+                           "voice fades over 30 ms. Gain jitter +-1.5 dB.",
                 "lengthMs": 640, "target": {"type": "stream", "rateHz": 5, "lufs": -21.0}}
     # 2. rabbit crit
     def rabbit(slide):
@@ -1103,6 +1116,15 @@ def cues():
                                     tone("E6", 0.045, 0.08, duty=0.5, gain=0.5, decay=0.08, sustain=0.1, release=0.03)]},
                  "runtime": "The deadpan rule: the payout never scales loudness or count (<= 6 coins per tap, whatever the sum).",
                  "target": {"type": "burst", "lufs": -19.0}}
+    # v1.10: the player's taps played a whole phrase of the song: a quiet sparkle up the open fifth
+    # (5, 8, 5'; no third, so it agrees with every era's mode), 80 ms after the phrase's last note
+    C["phraseDone"] = {"meaning": "The taps played a whole phrase of the era's song (the phrase bonus).", "bus": "SFX-Frequent",
+                       "priority": 2, "poly": 1, "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 5},
+                       "variants": {"": glint(0.08, "E5", 0.4, dur=0.05, decay=0.05, sustain=0.2)
+                                    + glint(0.14, "A5", 0.45, dur=0.06, decay=0.06, sustain=0.15, noise_gain=0.15)
+                                    + glint(0.2, "E6", 0.5, dur=0.12, decay=0.1, sustain=0.1, release=0.06, noise_gain=0.12)},
+                       "runtime": "audio.gd: on the last note of a phrase the taps played whole, at most once in 1.5 phrases.",
+                       "target": {"type": "burst", "lufs": -21.0}}
 
     # ---------------------------------------------------------------- v1.3 (2026-09-29): leader select
     # and the views added in session 2 (cue-spec §4.1, §5.8). Every new cue is its own family (own
@@ -1519,6 +1541,59 @@ def form_bars(era, ch):
     return bars
 
 
+# v1.10 (Bar, 2026-10-03: "each tap is a note"): the tap plays the song the era is playing. tapLine is
+# the melody of the loop, one entry per note: its onset (steps from bar 1), its midi pitch (the bell's
+# register: a section that sits low goes up an octave), and the 2-bar phrases (note indexes) the
+# runtime follows the music by and pays the phrase bonus on. The lead carries the song, except in the
+# Knesset's A' hocket, where P2 has the melody (an octave down, so it comes back up).
+TAP_SOURCE = {("knesset", "A2"): ("p2", 12)}
+TAP_PHRASE_BARS = 2
+TAP_FLOOR = midi("D4")      # the lowest bell note
+TAP_LOW_SECTION = midi("F5")  # a section whose top is at or under this plays an octave up
+
+
+def tap_line(eid, e):
+    spb = e["stepsPerBeat"] * e["beatsPerBar"]
+    sb = e["form"]["sectionBars"] if "form" in e else 8
+    steps, notes = [], []
+    for si, sec in enumerate(["A", "A2", "B", "T"]):
+        ch, shift = TAP_SOURCE.get((eid, sec), ("lead", 0))
+        bars = e["channels"][ch]["sections"][sec]
+        toks = " ".join(bars[i % len(bars)] for i in range(sb)).split()
+        sec_notes = []
+        for i, t in enumerate(toks):
+            if t in (".", "-") or not re.match(r"[A-G]", t):
+                continue
+            sec_notes.append((si * sb * spb + i, midi(re.split(r"[~<@+]", t)[0]) + shift))
+        if sec_notes and max(n for _, n in sec_notes) <= TAP_LOW_SECTION:
+            sec_notes = [(st, n + 12) for st, n in sec_notes]
+        for st, n in sec_notes:
+            steps.append(st)
+            notes.append(n + 12 if n < TAP_FLOOR else n)
+    phrases = []
+    for ph in range(4 * sb // TAP_PHRASE_BARS):
+        first = next((i for i, st in enumerate(steps) if st >= ph * TAP_PHRASE_BARS * spb), None)
+        if first is not None and first not in phrases and steps[first] < (ph + 1) * TAP_PHRASE_BARS * spb:
+            phrases.append(first)
+    return {"_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note "
+                    "indexes where each %d-bar phrase starts." % TAP_PHRASE_BARS,
+            "steps": steps, "midi": notes, "phrases": phrases, "stepsPerBar": spb}
+
+
+def check_tap_lines(m):
+    for eid, e in m["eras"].items():
+        tl = e["tapLine"]
+        if len(tl["phrases"]) < 12:
+            err("%s tapLine: only %d phrases" % (eid, len(tl["phrases"])))
+        bounds = tl["phrases"] + [len(tl["midi"])]
+        for a, b in zip(bounds, bounds[1:]):
+            if not 3 <= b - a <= 18:
+                err("%s tapLine: a phrase of %d notes at note %d" % (eid, b - a, a))
+        lo, hi = min(tl["midi"]), max(tl["midi"])
+        if lo < TAP_FLOOR or hi > midi("A6"):
+            err("%s tapLine: range %s-%s" % (eid, nm(lo), nm(hi)))
+
+
 def check_music(m):
     for eid, e in m["eras"].items():
         spb = e["stepsPerBeat"] * e["beatsPerBar"]
@@ -1630,8 +1705,8 @@ def check_cues(c):
     for s_ in tap["phrases"]:
         if not 0 <= s_ < len(mel):
             err("tap: phrase start %d is outside the melody" % s_)
-    if set(tap["melody"]) != set(tap["pitch"]["semis"]):
-        err("tap: every melody label needs a rendered pitch, and no extra pitches")
+    if sorted(tap["variants"]) != sorted("r%d" % r for r in TAP_BELL_ROOTS):
+        err("tap: the variants are the bell roots r<midi>")
     # v1.3: Dubi's canned lines stay off the anthem: bank degrees only (no 2, no b6), no 5 -> 5' leap
     bank = {"1", "3", "4", "5", "b7"}
     for line, contour in c["babbleContours"].items():
@@ -1676,6 +1751,7 @@ def main():
     c = cues()
     check_music(m)
     check_tunes(m)
+    check_tap_lines(m)
     check_cues(c)
     if CHECK_ERRORS:
         for e in CHECK_ERRORS:

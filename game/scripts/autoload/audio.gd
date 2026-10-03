@@ -60,6 +60,8 @@ extends Node
 signal marker(cue_id: String, name: String)
 signal dubi_blip(bank: String)
 signal pink_front_beat(on_beat: bool, offset_ms: float)
+## v1.10: the player's taps played a whole phrase of the era's song (at most one per phrase of music).
+signal phrase_done(notes: int)
 
 const POOL := 24
 const VOICE_CAP := 20
@@ -78,6 +80,7 @@ const RABBIT_FALLBACK_MS := 250.0
 const BEAT_TOLERANCE_MS := 120.0       # tap-to-beat: a hit within this of a judge beat
 const COIN_MAX := 6
 const COIN_GAP_MS := 60.0
+const COIN_SINGLE_GAP_MS := 250.0      # v1.10: a plain tap's coin rings at most 4 times a second
 const LAYERS := ["L0", "L1", "L2"]
 const SFX_BUSES := ["SFX-Critical", "SFX-Frequent", "UI", "Voice"]
 ## [bus, send] in layout order (default_bus_layout.tres; recreated here if a layout lacks one).
@@ -139,6 +142,7 @@ var _dummy := false
 var _clock := 0.0                     # ms; stops while paused
 var _players: Array[AudioStreamPlayer] = []
 var _voices: Array = []               # {p, cue, start, end, prio}
+var _fading: Array = []               # {p, db, t0}: stolen voices fading out (STEAL_FADE_MS)
 var _sched: Array = []                # {at, fn}
 var _alt: Dictionary = {}             # cue -> the next index into ALTERNATE[cue]
 var _last_var: Dictionary = {}        # cue -> the last random variant
@@ -157,13 +161,13 @@ var _sources := 0
 var _reduced_motion := false
 var _last_tap := -1e12
 var _tap_prev := -1e12
-var _tap_streak := -1
-var _tap_n := 0
-var _tap_steps := 8                   # read from the manifest (the rendered tap pitches)
-var _tap_melody: Array = []           # v1.5: HaTikva, one pitch key per tap (manifest tap.melody)
-var _tap_phrases: Array = [0]
-var _tap_phrase := -1                 # the phrase the current streak opened on (-1: none yet this round)
-var _tap_note := -1
+var _tap_line: Dictionary = {}        # v1.10: the song the taps play (OdAudio.tap_line)
+var _tap_line_of := ""                # the track that line belongs to
+var _tap_i := -1                      # the last note played (-1: none yet this round)
+var _tap_run := 0                     # notes of its phrase played in one go from the phrase's start
+var _bell_roots: Array = []           # the tap bell's rendered roots (midi)
+var _phrase_paid_at := -1e12
+var _coin_last := -1e12
 var _rabbit_due := -1.0               # a crit's cue is due then (the rabbit, or the leader's react event)
 var _rabbit_n := 0
 var _leader := ""                     # set_leader(); "" reads the scene state's leader (default bibi)
@@ -274,9 +278,7 @@ func _ensure() -> void:
 		o.bus = "Outside"
 		add_child(o)
 		_op.append(o)
-	_tap_steps = OdAudio.tap_steps(_man)
-	_tap_melody = OdAudio.tap_melody(_man)
-	_tap_phrases = OdAudio.tap_phrases(_man)
+	_bell_roots = OdAudio.bell_roots(_man)
 	_warm()
 	_apply_buses()
 
@@ -311,12 +313,8 @@ func _warm() -> void:
 				var f := OdAudio.cue_file(_man, id, key, "_", v)
 				if f != "":
 					_stream(f)
-	for key: String in ["D", "E", "F", "G"]:
-		for pitch in OdAudio.cue_pitches(_man, "tap"):
-			for v in OdAudio.cue_variants(_man, "tap", key, pitch):
-				var f := OdAudio.cue_file(_man, "tap", key, pitch, v)
-				if f != "":
-					_stream(f)
+	for v in OdAudio.cue_variants(_man, "tap"):
+		_stream(OdAudio.cue_file(_man, "tap", "_", "_", v))
 	_sync_for(_track_of(_era))
 	_prefetch("courthouse")
 
@@ -836,21 +834,62 @@ func _on_tap(now: float, crit: bool) -> void:
 		_restart_on_tap = false
 		if _music_on and not _music_live:
 			_begin_music(0.0)
-	_tap_streak = OdAudio.tap_streak(_tap_streak, _tap_prev, now)
+	var gap := now - _tap_prev
 	_tap_prev = now
-	var v := OdAudio.tap_variant(_tap_n)
-	_tap_n += 1
-	var pitch := OdAudio.tap_pitch(_tap_streak, _tap_steps)
-	if not _tap_melody.is_empty():
-		var st := OdAudio.melody_step(_tap_streak, _tap_phrase, _tap_note, _tap_melody.size(), _tap_phrases)
-		_tap_phrase = st.x
-		_tap_note = st.y
-		pitch = String(_tap_melody[_tap_note])
-	_cue("tap", now, v, pitch, _rng.randf_range(-OdAudio.TAP_JITTER_DB, OdAudio.TAP_JITTER_DB))
+	_tap_note_play(now, gap)
 	if crit:
 		_rabbit_due = now + _rabbit_ms()
 	if _pink_on:
 		judge_tap()
+
+
+## v1.10 (Bar: "each tap is a note"): the tap plays the next note of the song the era is playing
+## (OdAudio.tap_next follows the music), from the nearest bell root at pitch_scale. The music's own
+## lead steps back at once: the player plays the song now.
+func _tap_note_play(now: float, gap_ms: float) -> void:
+	var tr := _track if _music_live and _track != "" else _track_want()
+	if tr != _tap_line_of:
+		_tap_line = OdAudio.tap_line(_man, tr)
+		_tap_line_of = tr
+		_tap_i = -1
+		_tap_run = 0
+	var ms := OdAudio.song_step(_tap_line, _pos_prev) if _music_live else -1
+	var st := OdAudio.tap_next(_tap_line, _tap_i, _tap_run, gap_ms, ms)
+	_tap_i = int(st["i"])
+	_tap_run = int(st["run"])
+	if _tap_i < 0:
+		return
+	var note := int(_tap_line["midi"][_tap_i])
+	var root := OdAudio.bell_root(_bell_roots, note)
+	_cue("tap", now, "r%d" % root, "_", _rng.randf_range(-OdAudio.TAP_JITTER_DB, OdAudio.TAP_JITTER_DB), "",
+		pow(2.0, float(note - root) / 12.0))
+	_l2_step_back(now)
+	if bool(st["done"]):
+		# one bonus per phrase of music at most (1.5 phrases' time, so a player in time never misses one)
+		var gap := OdAudio.bar_seconds(_man, tr) * 1000.0 * OdAudio.PHRASE_BARS * 0.75
+		if now - _phrase_paid_at >= gap:
+			_phrase_paid_at = now
+			_cue("phraseDone", now)
+			phrase_done.emit(_tap_run)
+
+
+## The lead steps back over L2_STEP_BACK_MS (not at the bar line): the bell is the lead while the
+## player taps. It comes back at a bar line once the taps rest (_layer_want).
+func _l2_step_back(now: float) -> void:
+	if float(_lt["L2"]) <= 0.0 and float(_lg["L2"]) <= 0.0:
+		return
+	_lt["L2"] = 0.0
+	_lramp["L2"] = {"from": float(_lg["L2"]), "to": 0.0, "t0": now, "ms": OdAudio.L2_STEP_BACK_MS}
+
+
+## The music's beat as a phase (0 on the beat, rising to 1 just before the next), -1 while no music
+## plays. The leader's beat glow reads it (visual only).
+func beat_phase() -> float:
+	if not _music_live or not _music_on or _paused or _track == "":
+		return -1.0
+	var e: Dictionary = _man.get("eras", {}).get(_track, {})
+	var beat_s := OdAudio.bar_seconds(_man, _track) / maxf(1.0, float(e.get("beatsPerBar", 4)))
+	return fposmod(_pos_prev / beat_s, 1.0)
 
 
 ## The motif, then the music at bar 1 exactly where its ♭2 resolves.
@@ -937,7 +976,7 @@ func _random_variant(id: String) -> String:
 
 ## Plays a manifest cue now in the current key. Returns false when it is dropped (the first-tap
 ## gate, the web lock, polyphony, the voice cap, or a missing file).
-func _cue(id: String, now: float, variant := "_", pitch := "_", extra_db := 0.0, bus := "") -> bool:
+func _cue(id: String, now: float, variant := "_", pitch := "_", extra_db := 0.0, bus := "", rate := 1.0) -> bool:
 	var c: Dictionary = _man.get("cues", {}).get(id, {})
 	var first := bool(c.get("firstSound", false))   # plays before the first tap (see the header)
 	if not _gate_open() and not first:
@@ -948,7 +987,7 @@ func _cue(id: String, now: float, variant := "_", pitch := "_", extra_db := 0.0,
 			if _held_first.size() > HELD_FIRST_MAX:
 				_held_first.pop_front()
 		else:
-			_held = {"id": id, "variant": variant, "pitch": pitch, "db": extra_db, "bus": bus, "t": now}
+			_held = {"id": id, "variant": variant, "pitch": pitch, "db": extra_db, "bus": bus, "t": now, "rate": rate}
 		return false
 	if c.is_empty():
 		_warn_once("unknown cue '%s'" % id)
@@ -960,7 +999,7 @@ func _cue(id: String, now: float, variant := "_", pitch := "_", extra_db := 0.0,
 	var b := bus if bus != "" else String(c.get("bus", "UI"))
 	var len_ms := float(c.get("lengthMs", 100.0))
 	if not _voice(id, file, b, float(c.get("play_db", 0.0)) + extra_db, int(c.get("priority", 1)),
-			int(c.get("poly", 1)), String(c.get("steal", "oldest")), now, len_ms):
+			int(c.get("poly", 1)), String(c.get("steal", "oldest")), now, len_ms, rate):
 		return false
 	for dk: Dictionary in c.get("ducks", []):
 		_duck("music" if String(dk.get("bus", "Music")) == "Music" else "voice", float(dk["db"]),
@@ -1006,13 +1045,13 @@ func _stinger(id: String, now: float, key_ := "", tags := "_") -> bool:
 
 ## Starts one voice: per-cue polyphony (steal the oldest, or drop the new one for "never"), the
 ## global cap by priority (5 is never stolen), then the file.
-func _voice(id: String, file: String, bus: String, db: float, prio: int, poly: int, steal: String, now: float, len_ms: float) -> bool:
+func _voice(id: String, file: String, bus: String, db: float, prio: int, poly: int, steal: String, now: float, len_ms: float, rate := 1.0) -> bool:
 	_active(now)
 	var mine := _voices.filter(func(v: Dictionary) -> bool: return v["cue"] == id)
 	if mine.size() >= maxi(1, poly):
 		if steal == "never":
 			return false
-		_steal(mine[0])
+		_steal(mine[0], true)
 	if not _room_under_cap(prio):
 		return false
 	var stream := _stream(file)
@@ -1023,11 +1062,11 @@ func _voice(id: String, file: String, bus: String, db: float, prio: int, poly: i
 	p.stream = stream
 	p.bus = bus
 	p.volume_db = db
-	p.pitch_scale = 1.0   # never: every pitch is its own file
+	p.pitch_scale = rate   # 1 but for the tap bell (v1.10: a note from the nearest rendered root)
 	p.stream_paused = _paused
 	if p.is_inside_tree():
 		p.play()
-	var length := stream.get_length() * 1000.0
+	var length := stream.get_length() * 1000.0 / maxf(0.01, rate)
 	if length <= 0.0:
 		length = len_ms
 	_voices.append({"p": p, "cue": id, "start": now, "end": now + length, "prio": prio})
@@ -1051,7 +1090,7 @@ func _room_under_cap(prio: int) -> bool:
 			victim = v
 	if victim.is_empty():
 		return false
-	_steal(victim)
+	_steal(victim, true)
 	return true
 
 
@@ -1061,11 +1100,25 @@ func _active(now: float) -> Array:
 	return _voices
 
 
-func _steal(v: Dictionary) -> void:
+## Stops a voice: at once, or (`fade`, v1.10) over STEAL_FADE_MS so a stolen note never clicks.
+func _steal(v: Dictionary, fade := false) -> void:
 	var p: AudioStreamPlayer = v["p"]
-	if p.playing:
-		p.stop()
 	_voices.erase(v)
+	if fade and p.playing:
+		_fading.append({"p": p, "db": p.volume_db, "t0": _now()})
+	elif p.playing:
+		p.stop()
+
+
+func _update_fades(now: float) -> void:
+	for f: Dictionary in _fading.duplicate():
+		var p: AudioStreamPlayer = f["p"]
+		var k := clampf((now - float(f["t0"])) / OdAudio.STEAL_FADE_MS, 0.0, 1.0)
+		if k >= 1.0 or not p.playing:
+			p.stop()
+			_fading.erase(f)
+		else:
+			p.volume_db = float(f["db"]) + linear_to_db(1.0 - k)
 
 
 func _free_player() -> AudioStreamPlayer:
@@ -1075,8 +1128,16 @@ func _free_player() -> AudioStreamPlayer:
 			if v["p"] == p:
 				busy = true
 				break
+		for f in _fading:
+			if f["p"] == p:
+				busy = true
+				break
 		if not busy:
 			return p
+	if _voices.is_empty():
+		var f0: Dictionary = _fading.pop_front()
+		(f0["p"] as AudioStreamPlayer).stop()
+		return f0["p"]
 	var oldest: Dictionary = _voices[0]
 	_steal(oldest)
 	return oldest["p"]
@@ -1129,6 +1190,11 @@ func _suitcase_spawn(now: float, arg: Variant) -> void:
 
 func _coins(now: float, arg: Variant) -> void:
 	var n := clampi(int(arg) if (arg is int or arg is float) else 1, 1, COIN_MAX)
+	if n == 1:
+		# v1.10: fast taps thin to 4 rings a second (the bell carries every tap); a crit's 3 always ring
+		if now - _coin_last < COIN_SINGLE_GAP_MS:
+			return
+		_coin_last = now
 	for i in n:
 		_sched_at(now + i * COIN_GAP_MS, func() -> void: _cue_alt("coin", _now()))
 
@@ -1191,10 +1257,8 @@ func _game_reset(_now_ms: float) -> void:
 	_ping_q = {"n": 0, "variant": "", "left": false}
 	_first_tap = false
 	_gesture = false
-	_tap_streak = -1
 	_tap_prev = -1e12
-	_tap_phrase = -1
-	_tap_note = -1
+	_tap_line_of = ""   # the next tap starts the song again
 	_sources = 0
 	_leader = ""
 
@@ -1212,9 +1276,7 @@ func _collapse(_now_ms: float) -> void:
 ## The election fanfare (§2.4): on the confirm frame, in the incoming era's key, tags by the
 ## election number; the bed stops in 30 ms; the incoming era starts at bar 1 after musicalSamples.
 func _election(now: float, arg: Variant) -> void:
-	# v1.5: a new round starts HaTikva again from its first phrase
-	_tap_phrase = -1
-	_tap_note = -1
+	_tap_line_of = ""   # a new round: the taps join the new era's song
 	var n := _evolutions + 1
 	if (arg is int or arg is float) and int(arg) > 0:
 		n = int(arg)
@@ -1472,17 +1534,16 @@ func _layer_want(layer: String, bar_n: int) -> bool:
 		"L1":
 			on = _sources >= 1
 		"L2":
-			on = _now() - _last_tap < OdAudio.L2_TAP_WINDOW_MS and not _court and not _ult_force
+			# v1.10: the lead plays the song while the player rests, and steps back while they tap
+			on = _now() - _last_tap >= OdAudio.L2_REST_MS and not _court and not _ult_force
 	if not on or layer == "L0":
 		return on
 	return not OdAudio.af_off_during(_man, layer, _loop, bar_n, OdAudio.bars_per_loop(_man, _track))
 
 
-## A layer's gain when it sounds: 1, except the lead under the tap's HaTikva (v1.6).
+## A layer's gain at a bar line: 1 when it sounds, else 0.
 func _layer_level(layer: String, bar_n: int) -> float:
-	if not _layer_want(layer, bar_n):
-		return 0.0
-	return OdAudio.L2_UNDER_BELL if layer == "L2" and not _tap_melody.is_empty() else 1.0
+	return 1.0 if _layer_want(layer, bar_n) else 0.0
 
 
 func _snap_layers(bar_n: int) -> void:
@@ -1708,6 +1769,7 @@ func _process(dt: float) -> void:
 				cur = tgt
 			_toggle[g] = cur
 	_active(now)
+	_update_fades(now)
 	if not _paused:
 		if not _sched.is_empty():
 			var due := _sched.filter(func(s: Dictionary) -> bool: return float(s["at"]) <= now)
@@ -1749,7 +1811,8 @@ func _update_web(now: float, dt: float) -> void:
 					_play_intro(now)
 				_held_motif = -1.0
 			if not _held.is_empty() and now - float(_held["t"]) <= HOLD_MAX_MS:
-				_cue(String(_held["id"]), now, String(_held["variant"]), String(_held["pitch"]), float(_held["db"]), String(_held["bus"]))
+				_cue(String(_held["id"]), now, String(_held["variant"]), String(_held["pitch"]), float(_held["db"]), String(_held["bus"]),
+					float(_held.get("rate", 1.0)))
 			_held = {}
 	_pub_t -= dt
 	if _pub_t > 0.0:

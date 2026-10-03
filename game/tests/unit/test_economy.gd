@@ -85,6 +85,20 @@ func test_tap_crit_and_limiter() -> void:
 	runner.check(lim.try_register(2100.0), "the window slides after a second")
 
 
+func test_the_phrase_bonus_pays_three_taps() -> void:
+	TestFixture.use_game_content()
+	var s := GameState.fresh()
+	var d := Economy.derive(s)
+	var mult := float(Content.data()["tap"]["phraseBonusMult"])
+	var before := s.bananas
+	var v := Economy.phrase_bonus(s, d)
+	_eq(v, d.tap_value_no_crit * mult, "a whole phrase pays phraseBonusMult taps")
+	_eq(s.bananas - before, v, "into the bank")
+	runner.check(mult >= 2.0 and mult <= 4.0, "a small bonus, not a crit (x%s)" % mult)
+	runner.check(s.taps_lifetime == 0 and s.crits_lifetime == 0, "it is not a tap")
+	TestFixture.use_fork_content()
+
+
 func test_golden_outcomes_do_not_stack() -> void:
 	var s := GameState.fresh()
 	s.owned["tree"] = 10

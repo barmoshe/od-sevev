@@ -56,6 +56,16 @@
 > - **Level:** music −19.3 LUFS (v1.7: −18.3). Payload unchanged (music 8.81 MB).
 > - **v1.9 (same day), the traditional songs** (Bar: "try again" once the sheet-music sites were reachable; his mapping, with Ma'oz Tzur for the Courthouse so Shalom Chaverim plays once). Every era plays two tunes people know: Balfour A HaTikva, B **Hava Nagila** (parts A and B, its own key D freygish); Knesset A **Hevenu Shalom Aleichem** (Dm → Em), A' the same fought over (P2 the melody, P1 snatching every pickup), B **Shalom Chaverim** as a round (P2 two bars behind); Courthouse B **Ma'oz Tzur** (D major → G minor, the leading tone kept); Washington A **Dayenu**'s verse (twice, the second an octave up), A' its chorus, B **Siman Tov u'Mazal Tov** (the freilach, Gm → D minor). Sources (all public-domain melodies) are in compose_od.py `TUNES`: flutetunes.com (Hava Nagila, Dayenu, Ma'oz Tzur), John Chambers' ABC (Hava Nagila, Hevenu, Siman Tov), Musica Viva (Shalom Chaverim). `check_tunes` holds each home (`TUNE_HOMES`) to its source note for note; the quote check skips a tune only in its home; bar 1 now resolves onto the tonic chord (Hevenu enters on 5, Dayenu on 3). Payload unchanged.
 
+> **v1.10 (2026-10-03, Bar: "improve the tapping mechanism and music while tapping. Each tap is note."; ADR 0009), the tap soloist:**
+> - **Each tap is the next note of the song the era is playing.** Every era carries a `tapLine` in `music.json` (and the manifest's era entry): the loop's melody note by note (onset in steps from bar 1, midi pitch, 2-bar phrases), from the lead, or P2 where it has the tune (the Knesset's A′). A section that sits low plays an octave up, so the bell stays in D4–A6.
+> - **The taps follow the music:** inside a phrase a tap is always the next note; at a phrase's end, a player who has fallen behind, or run more than a phrase ahead, jumps to the start of the phrase the music plays; after 2.5 s without a tap the next one joins the note the music is on. Without music (before the motif ends, during the fanfare, music off) the line runs on by itself.
+> - **The bell, from six roots:** `tap` is rendered at r60 r66 r72 r78 r84 r90 (C4 to F#6, no key) and the runtime plays each note from the nearest root at `pitch_scale` (3 semitones at most). 6 files replace 36; HaTikva (`tap.melody`) stays as the fallback for a manifest without tap lines.
+> - **The lead steps back while the player taps:** L2 (the P1 lead) now plays while the taps rest (2 s after the last one, at a bar line) and ramps out in 120 ms on a tap, so the player plays the melody the lead was playing. The v1.6 −6 dB under the bell is gone.
+> - **Feel:** a stolen voice fades over 30 ms (no click at 16 taps/s); a plain tap's coin rings at most 4 times a second (a crit's three always); the tap strip merges a tap on f1–f2 so fast taps still reach its coins frame.
+> - **The phrase bonus:** the last note of a phrase the player played whole plays `phraseDone` (a quiet 5-8-5′ sparkle, no third, so it fits every mode) and pays `tap.phraseBonusMult` (3) taps' worth, at most once per 1.5 phrases of music (`Audio.phrase_done`).
+> - **The beat glow:** `Audio.beat_phase()` (0 on the beat, −1 without music); the leader brightens a little on each beat and fades by the next. Visual only, off in reduced motion.
+> - Payload: sfx 1.17 → 0.96 MB (the folder 11.45 → 11.24 MB). Music unchanged.
+
 **Brief:** `sonic-brief` v1.1 (`artifacts/creative-pack/od-sevev/audio/sonic-brief.md`), with the resolutions in `engine/feasibility.md` (O-A1, O-A2, A3, A12, A13, A14, A18).
 
 ## Sources of truth
@@ -128,7 +138,7 @@
 |---|---|---|
 | L0 | TRI bass, darbuka | always, while music plays |
 | L1 | P2: stabs and comp in A/A′/T, **the complete B melody** | `sources_owned >= 1` (the first money source is bought); it then stays on |
-| L2 | P1 lead | the last Magician tap was < 3000 ms ago |
+| L2 | P1 lead | **v1.10:** the taps rest: the last Magician tap was ≥ 2000 ms ago. A tap ramps it out in 120 ms (the player plays the song); it comes back at a bar line. (Was: < 3000 ms after a tap.) |
 
 **L2 is forced off:**
 - during court day;
@@ -336,7 +346,8 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 
 | id | Event (trigger intent is the designer's) | Bus / priority / poly | Variant rule |
 |---|---|---|---|
-| `tap` | Magician tap | SFX-Frequent / 2 / 4, steal oldest | **Pitch:** `s<n>` with n = streak index mod 8 (walk and wrap). The streak resets after 400 ms without a tap. This is the strict walk mode (A3), not `_scale_pick`'s random window.<br>**Variant:** `d25` / `d12` alternate per tap.<br>**Gain:** ±1.5 dB jitter. |
+| `tap` | Magician tap | SFX-Frequent / 2 / 6, steal oldest (30 ms fade) | **v1.10:** the next note of the playing era's `tapLine` (see the v1.10 note), from the nearest bell root `r<midi>` at `pitch_scale`. The taps follow the music at phrase ends and after a 2.5 s pause.<br>**Gain:** ±1.5 dB jitter.<br>(v1.0–v1.4: the strict scale walk `s<n>`; v1.5–v1.9: HaTikva.) |
+| `phraseDone` (v1.10) | the last note of a phrase the taps played whole | SFX-Frequent / 2 / 1 | Key. A quiet 5-8-5′ glint 80 ms after the note; at most once per 1.5 phrases. Main pays the phrase bonus on `Audio.phrase_done`. |
 | `rabbitCrit` | a crit ("the rabbit") | SFX-Critical / 5 / 1, never | Round-robin `s120` → `s150` → `s180` |
 | `suitcaseSpawn` | a suitcase appears | SFX-Critical / 4 / 1, on the Suitcase bus | Random `g25` / `g28` / `g31`. Set the pan at spawn. |
 | `suitcaseCatch` | a catch | SFX-Critical / 4 / 1 | none |
@@ -436,7 +447,7 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 - Visuals anchored to audio read these values; they never hard-code them.
 
 **The checklist:**
-1. **The tap cue** is `tap`. A crit's f0 **does** play `tap`, so the scale walk never skips a step.
+1. **The tap cue** is `tap`. A crit's f0 **does** play `tap`, so the song never skips a note (v1.10: the next note of the era's `tapLine`).
 2. **`rabbitCrit`** is one cue. It fires at `crit.rabbit` (+250 ms), or +83 ms in reduced motion. It is not split, and the strip's `sting` event (f5) has no cue: the slide and head land inside the wink.
 3. **The fanfare** starts on confirm f0 (§2.4).
    - `rollEnd` = IMPACT (the motif downbeat and the crash).
@@ -460,10 +471,11 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
    - Each would add a sound whose meaning is already carried: by the gavel, the courtIn/courtOut pair, the stamp, the chat ping, or the visual twin.
    - At 5 taps per second the mix has no free slot for decoration. The brief's "polite in the pocket" pillar wins.
    **v1.3:** the strip events `whoosh`, `shout`, `no` and `land` sound only as a crit's react event (`critReact`, §4.2). Anywhere else (a walk-in, a non-crit react) they stay null. The brawl bed and the brawl exit click stay null: the brawl has its ping (`chatPing:brawl`), not a bed.
-8. **Polyphony:** `tap` has poly 4 with steal-oldest, and fires once per registered tap. The files are 68 ms, so even at 16 taps/s at most 2 overlap.
+8. **Polyphony:** `tap` has poly 6 with steal-oldest (v1.10: the stolen bell fades over 30 ms), and fires once per registered tap.
 
 ## 6. HaTikva: where it is, and the guardrail (v1.2)
 
+> **v1.10 (2026-10-03, ADR 0009):** the tap plays the song the era is playing (its `tapLine`), not HaTikva; HaTikva is the tap only where the music plays it (Balfour's A) and in the fallback melody. The guardrail is unchanged.
 > **v1.7 (2026-09-30, Bar: "refine the background music"):** the Music bus gets an EQ6 (-2.5 dB at 3.2 kHz, the SFX slot; -2 dB at 10 kHz, the pulse fizz) and a small room (wet 0.1, hipass 0.3, 25 ms predelay); the music target moves to -18.3 LUFS. Measured on a recorded session: highs -1.1 dB, 1.5-4 kHz -0.4 dB on the full mix, width +2 dB, integrated unchanged (-16.4 LUFS).
 > **v1.6 (2026-09-30, Bar, ADR 0005):** HaTikva's second section joins the tap (written from the anthem as sung, not a score); files normalise to -3 dBFS with a DC blocker and a 1.5 ms fade-in on every one-shot; the master is HPF 35 Hz, 2:1 glue, limiter -1 dB with +2 dB; L2 sits 6 dB down while the bell plays.
 > **v1.5 (2026-09-30, Bar, ADR 0004):** the tap plays HaTikva, one note per tap, on a bell, in phrases (`tap.melody`, `tap.phrases`). The 2-bar cap below is lifted for the tap only; every other rule stands.
@@ -488,8 +500,8 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 - **Everything else stays:** no sirens, no bugle calls (the fanfare keeps a chromatic C#-D step and stepwise motion), and no other quoted tunes (8 incipits are checked).
 
 **Keys and scales:**
-- **The tap walk and Dubi's bank** follow the key's mode. That is D, E and G natural minor; the walk from degree 5 is 5 ♭6 ♭7 1′ 2′ ♭3′ 4′ 5′, so a streak of taps climbs the anthem's rise.
-- **F stays Mixolydian,** so Washington's taps agree with its stride body.
+- **Dubi's bank** follows the key's mode: D, E and G natural minor. (v1.10: the tap plays the era's own song, so it is always in the music's key and mode, Hava Nagila's freygish included.)
+- **F stays Mixolydian,** so Dubi agrees with Washington's stride body.
 
 ## 7. Payload
 

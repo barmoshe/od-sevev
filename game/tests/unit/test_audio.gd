@@ -87,7 +87,7 @@ func test_every_manifest_file_exists_and_loads() -> void:
 			runner.check(w.loop_mode == AudioStreamWAV.LOOP_FORWARD and w.loop_end == int(e["loopSamples"]),
 				"%s %s loops forward over the whole song" % [era, l])
 		runner.check(OdAudio.bars_per_loop(_man, era) == 32, "%s has 32 bars" % era)
-	var tap: AudioStreamWAV = load(OdAudio.DIR + OdAudio.cue_file(_man, "tap", "D", String(OdAudio.tap_melody(_man)[0]), "bell"))
+	var tap: AudioStreamWAV = load(OdAudio.DIR + OdAudio.cue_file(_man, "tap", "_", "_", "r72"))
 	runner.check(tap.loop_mode == AudioStreamWAV.LOOP_DISABLED, "cues are one-shots")
 	runner.check(not ResourceLoader.exists("res://assets/audio/sfx_tap.wav"), "the fork's sounds are out of the build")
 
@@ -177,61 +177,132 @@ func test_first_tap_plays_the_motif_then_the_music_at_bar_one() -> void:
 	await _release()
 
 
-func test_tap_walk_is_strict_and_wraps() -> void:
-	# v1.5: the manifest's tap plays HaTikva (test_tap_plays_hatikva_*); the walk stays the fallback rule
-	var steps := 8
-	var s := -1
-	var t := -1e12
-	var got: Array[String] = []
-	for i in 10:
-		s = OdAudio.tap_streak(s, t, 100.0 * i)
-		t = 100.0 * i
-		got.append(OdAudio.tap_pitch(s, steps))
-	runner.check(got == ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s0", "s1"], "walk up and wrap, got %s" % str(got))
-	runner.check(OdAudio.tap_streak(5, 0.0, 400.0) == 0, "400 ms without a tap resets the walk")
-	runner.check(OdAudio.tap_streak(5, 0.0, 399.0) == 6, "under 400 ms it climbs")
-	runner.check(OdAudio.tap_variant(0) == "d25" and OdAudio.tap_variant(1) == "d12" and OdAudio.tap_variant(2) == "d25", "d25 / d12 alternate")
+func test_every_era_has_a_tap_line() -> void:
+	for era: String in ["balfour", "knesset", "courthouse", "washington"]:
+		var tl := OdAudio.tap_line(_man, era)
+		var mid: Array = tl["midi"]
+		var st: Array = tl["steps"]
+		runner.check(mid.size() >= 100 and st.size() == mid.size(), "%s: the song has its notes and onsets (%d)" % [era, mid.size()])
+		runner.check((tl["phrases"] as Array).size() >= 12 and int(tl["phrases"][0]) == 0, "%s: 2-bar phrases from note 0" % era)
+		var asc := true
+		for k in st.size() - 1:
+			asc = asc and int(st[k]) < int(st[k + 1])
+		runner.check(asc and float(tl["stepSeconds"]) > 0.0, "%s: onsets rise, steps have a length" % era)
+		var lo := 999
+		var hi := 0
+		for m: Variant in mid:
+			lo = mini(lo, int(m))
+			hi = maxi(hi, int(m))
+		runner.check(lo >= 62 and hi <= 93, "%s: the bell's register D4-A6, got %d-%d" % [era, lo, hi])
+	# the fallback (a manifest without tap lines): HaTikva in the track's key, never following the music
+	var bare := {"cues": _man["cues"], "eras": {"knesset": {"key": "E"}}}
+	var fb := OdAudio.tap_line(bare, "knesset")
+	runner.check(int(fb["midi"][0]) == 76 and (fb["steps"] as Array).is_empty(), "fallback: HaTikva from E5, got %s" % str(fb["midi"].slice(0, 3)))
+	runner.check(OdAudio.song_step(fb, 3.0) == -1, "the fallback never follows the music")
 
 
-func test_tap_plays_hatikva_one_note_per_tap() -> void:
-	var mel := OdAudio.tap_melody(_man)
-	var ph := OdAudio.tap_phrases(_man)
-	runner.check(mel.size() == 56 and ph == [0, 22, 38], "the manifest carries HaTikva in three 4-bar phrases, got %d notes %s" % [mel.size(), str(ph)])
-	var iv: Array[int] = []
-	for i in 10:
-		iv.append(int(String(mel[i + 1]).substr(1)) - int(String(mel[i]).substr(1)))
-	runner.check(iv == [2, 1, 2, 2, 0, 1, -1, 1, 4, -5], "it opens with the anthem's first two bars, got %s" % str(iv))
-	# pure: a streak opens the next phrase, then walks on and wraps
-	runner.check(OdAudio.melody_step(0, -1, -1, 56, ph) == Vector2i(0, 0), "the first streak opens phrase 0")
-	runner.check(OdAudio.melody_step(1, 0, 0, 56, ph) == Vector2i(0, 1), "the streak walks on")
-	runner.check(OdAudio.melody_step(5, 2, 55, 56, ph) == Vector2i(2, 0), "and wraps at the end of the melody")
-	runner.check(OdAudio.melody_step(0, 0, 7, 56, ph) == Vector2i(1, 22), "after a pause the next streak opens the next phrase")
-	runner.check(OdAudio.melody_step(0, 2, 40, 56, ph) == Vector2i(0, 0), "and the phrases rotate")
+func test_tap_next_follows_the_music() -> void:
+	# 12 notes, one every 4 steps, three phrases of four (they start on steps 0, 16 and 32)
+	var line := {"midi": [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79], "steps": [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44],
+		"phrases": [0, 4, 8], "stepSeconds": 0.1}
+	var r := OdAudio.tap_next(line, -1, 0, 0.0, 9)
+	runner.check(r["i"] == 3 and r["run"] == 0, "the first tap joins the note the music is on (step 9 -> note 3), got %s" % str(r))
+	r = OdAudio.tap_next(line, -1, 0, 0.0, 0)
+	runner.check(r["i"] == 0 and r["run"] == 1, "on a phrase's first note the run starts, got %s" % str(r))
+	r = OdAudio.tap_next(line, 0, 1, 150.0, 30)
+	runner.check(r["i"] == 1 and r["run"] == 2, "inside a phrase it is always the next note (even far from the music), got %s" % str(r))
+	r = OdAudio.tap_next(line, 2, 3, 150.0, 12)
+	runner.check(r["i"] == 3 and r["done"] == true, "the phrase's last note, played whole: done, got %s" % str(r))
+	r = OdAudio.tap_next(line, 2, 0, 150.0, 12)
+	runner.check(r["i"] == 3 and r["done"] == false, "joined midway: no bonus, got %s" % str(r))
+	r = OdAudio.tap_next(line, 3, 4, 150.0, 5)
+	runner.check(r["i"] == 4 and r["run"] == 1, "a phrase ahead of the music is fine, got %s" % str(r))
+	r = OdAudio.tap_next(line, 7, 4, 150.0, 2)
+	runner.check(r["i"] == 0, "more than a phrase ahead: back to the phrase the music plays, got %s" % str(r))
+	r = OdAudio.tap_next(line, 3, 4, 150.0, 40)
+	runner.check(r["i"] == 8 and r["run"] == 1, "behind the music: on to its phrase, got %s" % str(r))
+	r = OdAudio.tap_next(line, 9, 2, OdAudio.TAP_REJOIN_MS + 1.0, 16)
+	runner.check(r["i"] == 4 and r["run"] == 1, "after a pause: the music's note again, got %s" % str(r))
+	r = OdAudio.tap_next(line, 11, 4, 150.0, -1)
+	runner.check(r["i"] == 0 and r["run"] == 1, "no music: the line runs on and wraps, got %s" % str(r))
+	var roots := OdAudio.bell_roots(_man)
+	runner.check(roots == [60, 66, 72, 78, 84, 90], "the bell is rendered at six roots, got %s" % str(roots))
+	runner.check(OdAudio.bell_root(roots, 75) == 72 and OdAudio.bell_root(roots, 76) == 78 and OdAudio.bell_root(roots, 62) == 60,
+		"a note plays from the nearest root (3 semitones at most)")
+
+
+func test_each_tap_is_the_next_note_of_the_eras_song() -> void:
+	var line := OdAudio.tap_line(_man, "balfour")
+	var mid: Array = line["midi"]
 	var a := _audio()
 	a.set_evolutions(0)
 	a.event("tap")   # the motif
-	var files: Array[String] = []
+	var got: Array = []
 	for i in 3:
+		a._clock += 120.0
 		a.event("tap")
-		files.append(_last(a))
-	runner.check(files == ["tap_D_%s_bell.res" % mel[0], "tap_D_%s_bell.res" % mel[1], "tap_D_%s_bell.res" % mel[2]],
-		"taps play HaTikva in D, got %s" % str(files))
-	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
-	a.event("tap")
-	runner.check(_last(a) == "tap_D_%s_bell.res" % mel[22], "a pause, then the next phrase (עוד לא אבדה), got %s" % _last(a))
-	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
-	a.event("tap")
-	runner.check(_last(a) == "tap_D_%s_bell.res" % mel[38], "then the third (להיות עם חופשי), got %s" % _last(a))
-	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
-	a.event("tap")
-	runner.check(_last(a) == "tap_D_%s_bell.res" % mel[0], "then back to the first phrase, got %s" % _last(a))
+		var v: Dictionary = a._voices.back()
+		var p: AudioStreamPlayer = v["p"]
+		got.append(roundi(OdAudio.bell_root(OdAudio.bell_roots(_man), int(mid[i])) + 12.0 * log(p.pitch_scale) / log(2.0)))
+	runner.check(got == mid.slice(0, 3), "before the music starts the taps play the song's opening, got %s want %s" % [str(got), str(mid.slice(0, 3))])
+	runner.check(_last(a) == "tap_r%d.res" % OdAudio.bell_root(OdAudio.bell_roots(_man), int(mid[2])), "from the nearest root, got %s" % _last(a))
 	for i in 30:
 		a.event("tap")
-	runner.check(a.active_voices("tap") <= 6, "poly 6, steal oldest: got %d" % a.active_voices("tap"))
+	runner.check(a.active_voices("tap") <= 6, "poly 6, the oldest fades out: got %d" % a.active_voices("tap"))
 	a.event("electionConfirm", 1)
-	a._clock += OdAudio.TAP_STREAK_GAP_MS + 100.0
+	a._clock += 120.0
 	a.event("tap")
-	runner.check(_last(a).ends_with("_%s_bell.res" % mel[0]), "a new round starts at the first phrase, got %s" % _last(a))
+	runner.check(a._tap_i == 0, "a new round starts its song from the top, got %d" % a._tap_i)
+	await _release()
+
+
+func test_taps_join_the_music_and_the_lead_steps_back() -> void:
+	var a: Node = await _playing()
+	var bar_s := OdAudio.bar_seconds(_man, "balfour")
+	var line := OdAudio.tap_line(_man, "balfour")
+	a._clock += OdAudio.TAP_REJOIN_MS + 100.0
+	a.debug_seek(8.0 * bar_s + 0.01)   # bar 9, A'
+	await _frames(2)
+	a.event("tap")
+	var want := OdAudio.note_at(line["steps"], 8 * int(_man["eras"]["balfour"]["stepsPerBar"]))
+	runner.check(a._tap_i == want, "after a pause the tap joins the music's note (bar 9 -> note %d), got %d" % [want, a._tap_i])
+	runner.check(a.layer_target("L2") == 0.0, "a tap: the lead steps back at once")
+	await (runner as SceneTree).create_timer(0.25).timeout
+	runner.check(a.layer_gain("L2") == 0.0, "within %d ms" % int(OdAudio.L2_STEP_BACK_MS))
+	await _release()
+
+
+func test_a_whole_phrase_pays_once() -> void:
+	var a := _audio()
+	a.set_evolutions(0)
+	a.event("tap")   # the motif; the music waits for it, so the taps run the line by themselves
+	var paid: Array = []
+	a.phrase_done.connect(func(n: int) -> void: paid.append(n))
+	var ph: Array = OdAudio.tap_line(_man, "balfour")["phrases"]
+	var n0 := int(ph[1]) - int(ph[0])
+	for i in n0:
+		a._clock += 100.0
+		a.event("tap")
+	runner.check(paid == [n0], "the phrase's last note pays (%d notes), got %s" % [n0, str(paid)])
+	runner.check(_last(a) == "phraseDone_D.res", "with its sparkle, got %s" % _last(a))
+	for i in int(ph[2]) - int(ph[1]):
+		a._clock += 100.0
+		a.event("tap")
+	runner.check(paid.size() == 1, "the next phrase, too soon after: no second bonus (got %s)" % str(paid))
+	await _release()
+
+
+func test_plain_tap_coins_thin_to_four_a_second() -> void:
+	var a := _audio()
+	a.event("tap")
+	var n: int = a._sched.size()
+	a.event("coin")
+	a.event("coin")
+	runner.check(a._sched.size() == n + 1, "two plain coins in the same moment: one rings")
+	a._clock += 260.0
+	a.event("coin")
+	a.event("coin", 3)
+	runner.check(a._sched.size() == n + 5, "after 250 ms the next one rings, and a crit's three always do")
 	await _release()
 
 
@@ -239,7 +310,7 @@ func test_crit_plays_tap_then_the_rabbit_on_its_frame() -> void:
 	var a := _audio()
 	a.event("tap")
 	a.event("tapCrit")
-	runner.check(_last(a) == "tap_D_%s_bell.res" % OdAudio.tap_melody(_man)[0], "a crit's f0 plays the tap (the melody never skips), got %s" % _last(a))
+	runner.check(_last(a).begins_with("tap_r"), "a crit's f0 plays the tap's note, got %s" % _last(a))
 	runner.check(a.active_voices("rabbitCrit") == 0, "the rabbit waits for its frame")
 	await (runner as SceneTree).create_timer(0.32).timeout
 	runner.check(a.active_voices("rabbitCrit") == 1 and _last(a) == "rabbitCrit_D_s120.res", "rabbitCrit at +250 ms, got %s" % _last(a))
@@ -256,17 +327,17 @@ func test_layers_follow_sources_taps_and_the_bar_line() -> void:
 	var a: Node = await _playing()
 	var bar_s := OdAudio.bar_seconds(_man, "balfour")
 	runner.check(a.layer_target("L1") == 0.0, "no source yet: L1 off")
-	runner.check(a.layer_target("L2") == OdAudio.L2_UNDER_BELL, "tapped under 3 s ago: L2 on, 6 dB under the bell (v1.6)")
+	runner.check(a.layer_target("L2") == 0.0, "tapped under 2 s ago: the player plays the song, the lead rests (v1.10)")
 	a.event("buy")
 	runner.check(a.layer_target("L1") == 0.0, "L1 waits for the next bar line")
 	a.debug_seek(bar_s + 0.01)
 	await _frames(2)
 	runner.check(a.bar() == 2 and a.layer_target("L1") == 1.0, "bar 2: L1 on (ramps over the bar)")
 	runner.check(a.layer_gain("L1") < 0.5, "the ramp takes a bar, not a frame: %.2f" % a.layer_gain("L1"))
-	await (runner as SceneTree).create_timer(3.1).timeout   # no tap for 3 s
+	await (runner as SceneTree).create_timer(2.1).timeout   # no tap for 2 s
 	a.debug_seek(3.0 * bar_s + 0.01)
 	await _frames(2)
-	runner.check(a.layer_target("L2") == 0.0, "3 s without a tap: L2 off at the bar line")
+	runner.check(a.layer_target("L2") == 1.0, "2 s without a tap: the lead comes back at the bar line")
 	await _release()
 
 
@@ -305,7 +376,7 @@ func test_era_switch_crossfades_on_the_bar_line() -> void:
 	runner.check(a.track_name().begins_with("knesset") and a.key() == "E", "the Knesset (E) from bar 5, got %s" % a.track_name())
 	runner.check(a.bar() == 5 and a.loop_index() == 1, "onto the same bar, loop counter reset: bar %d loop %d" % [a.bar(), a.loop_index()])
 	a.event("tap")
-	runner.check(_last(a).begins_with("tap_E_"), "the taps follow the key, got %s" % _last(a))
+	runner.check(a._tap_line_of == "knesset", "the taps follow the track: the Knesset's song, got %s" % a._tap_line_of)
 	var want := {0: "balfour", 1: "knesset", 2: "knesset", 3: "courthouse", 5: "washington", 9: "washington"}
 	for n: int in want:
 		runner.check(a.era_for(n) == want[n], "era_for(%d) is %s" % [n, want[n]])
@@ -326,7 +397,7 @@ func test_court_day() -> void:
 	runner.check(a.active_voices("courtIn") == 1, "courtIn on the bar line")
 	a.event("tap")
 	runner.check(a.layer_target("L2") == 0.0, "L2 is forced off on court day")
-	runner.check(_last(a).begins_with("tap_G_"), "taps use the G files, got %s" % _last(a))
+	runner.check(a._tap_line_of == "courthouse", "taps play the Courthouse's song, got %s" % a._tap_line_of)
 	a.event("courtEnd", "postponed")
 	runner.check(a.active_voices("gavelWeak") == 1 and not a.court_active(), "a postponement: gavelWeak alone, then back")
 	a.debug_seek(4.0 * OdAudio.bar_seconds(_man, "courthouse") + 0.01)

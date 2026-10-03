@@ -257,6 +257,38 @@ func test_bibis_court_day_on_the_stage() -> void:
 
 ## Bar, 2026-10-01 ("not only Bibi"): every leader leaves the stage on the hazard day. Bibi leaves
 ## the hat (court skin); Bennett's press day leaves a podium (LeaderUi.stage_skin).
+## v1.10: a tap on f1-f2 of the tap strip merges into it, so fast taps still reach the coins frame;
+## the beat glow brightens the figure on the music's beat (not under reduced motion).
+func test_fast_taps_merge_and_the_beat_glows() -> void:
+	await _boot()
+	var bb: BigBanana = m.bb
+	for i in 30:
+		bb.update_view(16.0)
+	var coins: Array = []   # (a lambda captures an int by value)
+	bb.on_hero_event = func(ev: String, _at: Vector2) -> void:
+		if ev == "coins":
+			coins.append(ev)
+	for i in 6:   # 10 taps a second: a new tap every 100 ms, always before the strip's coins frame
+		bb.tap(false)
+		for k in 6:
+			bb.update_view(16.0)
+	runner.check(coins.size() >= 2, "taps at 10/s still pour coins (merged into the strip), got %d" % coins.size())
+	for i in 120:
+		bb.update_view(16.0)
+	bb.beat_phase = 0.0
+	bb.update_view(1.0)
+	var on := bb.hero.modulate.r
+	bb.beat_phase = 0.95
+	bb.update_view(1.0)
+	var off := bb.hero.modulate.r
+	runner.check(on > off + 0.03, "the figure brightens on the beat (%.3f vs %.3f)" % [on, off])
+	bb.set_reduced_motion(true)
+	bb.beat_phase = 0.0
+	bb.update_view(1.0)
+	runner.check(is_equal_approx(bb.hero.modulate.r, off), "no beat glow under reduced motion")
+	bb.set_reduced_motion(false)
+
+
 func test_every_leader_leaves_on_the_hazard_day() -> void:
 	var s := GameState.fresh()
 	Leaders.set_salt(s, 3)
