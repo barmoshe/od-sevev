@@ -578,7 +578,7 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 		var img := Ui.img(content, Vector2(Ui.snap((w - asz.x) / 2.0, 4), top), av, 0, 4)
 		img.scale = Vector2(sc, sc)
 		if shut:
-			img.material = blur_material(img.texture)   # Bar 2026-10-03: the leaders not open yet, blurred
+			img.texture = blurred(av, img.texture)   # Bar 2026-10-03: the leaders not open yet, really blurred
 	var nm := PxText.make(content, Vector2(0, top + avatar + 8.0), str(t.get("short", id)), L.TEXT, "plain", C_NAME)
 	nm.wrap_width = w - 24.0
 	nm.max_lines = 1
@@ -599,6 +599,13 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 	if shut:
 		# the roster ladder: a blurred face, greyed, the round it opens in; a tap only says so in the strip
 		content.modulate = LOCKED_TINT
+		# the name too (Bar): a patch that blurs what is drawn under it, so the letters run together
+		var patch := ColorRect.new()
+		patch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		patch.position = Vector2(8.0, nm.position.y - 8.0)
+		patch.size = Vector2(w - 16.0, LH + 16.0)
+		patch.material = screen_blur_material()
+		content.add_child(patch)
 		plate.modulate = Color(0.62, 0.62, 0.7)
 		c["locked"] = true
 		c["blurb"] = Strings.s("LEADER_PICK_LOCKED_CAP", {"short": str(t.get("short", id)), "n": int(t.get("round", 0))})
@@ -613,10 +620,61 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 
 
 static var _blur_shader: Shader
+static var _blurred := {}
+static var _screen_blur: ShaderMaterial
+
+
+## Blurs the screen under a rect (a locked leader's name): reads what is already drawn there.
+static func screen_blur_material() -> ShaderMaterial:
+	if _screen_blur == null:
+		var sh := Shader.new()
+		sh.code = """shader_type canvas_item;
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
+uniform float reach = 7.0;
+void fragment() {
+	vec4 sum = vec4(0.0);
+	for (int x = -4; x <= 4; x++) {
+		for (int y = -2; y <= 2; y++) {
+			sum += texture(screen_tex, SCREEN_UV + vec2(float(x), float(y) * 0.6) * SCREEN_PIXEL_SIZE * reach);
+		}
+	}
+	COLOR = vec4(sum.rgb / 45.0, 1.0);
+}
+"""
+		_screen_blur = ShaderMaterial.new()
+		_screen_blur.shader = sh
+	return _screen_blur
+
+
+## A locked leader's face, blurred for real (Bar: "ממש מטושטש, לא סתם מעומעם"): the image shrunk to
+## a few texels a side and grown back with bilinear filtering, cached per sprite. The texture's own
+## pixels, so no atlas or density can thin it out.
+static func blurred(id: String, tex: Texture2D) -> Texture2D:
+	if _blurred.has(id):
+		return _blurred[id]
+	var im: Image = tex.get_image() if tex != null else null
+	if im == null or im.is_empty():
+		return tex
+	im = im.duplicate()
+	if im.is_compressed():
+		im.decompress()
+	im.convert(Image.FORMAT_RGBA8)
+	var w := im.get_width()
+	var h := im.get_height()
+	var s := maxi(3, w / 12)
+	im.resize(s, maxi(3, h * s / maxi(1, w)), Image.INTERPOLATE_BILINEAR)
+	im.resize(w, h, Image.INTERPOLATE_CUBIC)
+	var out := ImageTexture.create_from_image(im)
+	_blurred[id] = out
+	return out
 
 ## A box blur over the sprite's own frame (clamped to its atlas region, so no neighbour bleeds in):
 ## a locked leader's face (Bar 2026-10-03: "שיראו מטושטש את המתמודדים שאי אפשר לבחור").
-static func blur_material(tex: Texture2D) -> ShaderMaterial:
+## The blur's reach on screen (logical px), whatever the art's scale.
+const BLUR_PX := 20.0
+
+
+static func blur_material(tex: Texture2D, radius_texels: float = 2.5) -> ShaderMaterial:
 	if _blur_shader == null:
 		_blur_shader = Shader.new()
 		_blur_shader.code = """shader_type canvas_item;
@@ -637,6 +695,7 @@ void fragment() {
 """
 	var m := ShaderMaterial.new()
 	m.shader = _blur_shader
+	m.set_shader_parameter("radius", radius_texels)
 	if tex is AtlasTexture and (tex as AtlasTexture).atlas != null:
 		var at := tex as AtlasTexture
 		var sz := Vector2(at.atlas.get_size())

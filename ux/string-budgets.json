@@ -7025,8 +7025,8 @@
       "box": "pick.strip",
       "maxChars": 27,
       "worstPx": {
-        "4": 1052,
-        "5": 1315
+        "4": 1092,
+        "5": 1365
       },
       "largeText": "step-down"
     },

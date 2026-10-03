@@ -702,7 +702,7 @@
     "LEADER_PICK_FRESH_CHIP": "פנים חדשות: ⁦+{pct}%⁩ בונוס בחירות",
     "LEADER_PICK_AGAIN": "עוד סבב עם {short}",
     "LEADER_PICK_LOCKED": "בסבב ⁦{n}⁩",
-    "LEADER_PICK_LOCKED_CAP": "{short} מצטרף לבחירות בסבב ⁦{n}⁩. כל סבב נפתח עוד אחד.",
+    "LEADER_PICK_LOCKED_CAP": "עוד מתמודד מצטרף בסבב ⁦{n}⁩. כל סבב בחירות נפתח עוד אחד.",
     "LEADER_PICK_NEW": "חדש!",
     "WIZ_SKIP": "דלג",
     "LEADER_PICK_RANDOM": "הפתעה",

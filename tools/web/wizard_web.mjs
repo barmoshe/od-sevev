@@ -46,7 +46,17 @@ const wiz = (page) => page.evaluate(() => window.odWizard || { flow: '' });
 	const budget = Number(budgetArg) * 1000;
 	let swallowChecked = false;
 	let lastBuy = 0;
-	while (Date.now() - t0 < budget) {
+	if (process.env.R2_ONLY) {   // round 2 only: pick, tap, the dev election (window.odDevElect)
+		await page.waitForFunction(() => window.odPick && window.odPick.open, null, { timeout: 15000 }).catch(() => {});
+		const pk = await page.evaluate(() => window.odPick || null);
+		const c = pk && pk.cells.find((x) => x[2] === 'bibi');
+		if (c) await tapAt(css(c[0], c[1]));
+		await wait(1200);
+		for (let i = 0; i < 4; i++) { await tapAt(P.hat(), 40); await wait(100); }
+		await page.evaluate(() => { window.odDevElect = 1; });
+		await page.waitForFunction(() => window.odDev && window.odDev.evolutions >= 1, null, { timeout: 15000 }).catch(() => {});
+	}
+	while (!process.env.R2_ONLY && Date.now() - t0 < budget) {
 		const w = await wiz(page);
 		const s = await probe();
 		if (!s) { await wait(300); continue; }
@@ -113,18 +123,30 @@ const wiz = (page) => page.evaluate(() => window.odWizard || { flow: '' });
 	const s = await probe();
 	log(`  steps seen: ${seen.join(' → ')} in ${Math.round((Date.now() - t0) / 1000)} s wall`);
 	const order = seen.filter((x) => FIRST.includes(x));
-	check(order[0] === 'pick' && order[1] === 'tap' && order[2] === 'buy', `the first steps: pick → tap → buy (${order.join(' → ')})`);
-	for (const st of ['chat', 'pay', 'seats', 'elect']) check(order.includes(st), `the wizard showed "${st}"`);
+	if (!process.env.R2_ONLY) check(order[0] === 'pick' && order[1] === 'tap' && order[2] === 'buy', `the first steps: pick → tap → buy (${order.join(' → ')})`);
+	if (!process.env.R2_ONLY) for (const st of ['chat', 'pay', 'seats', 'elect']) check(order.includes(st), `the wizard showed "${st}"`);
 	check(s && s.evolutions >= 1, `the first election through the wizard (evolutions ${s && s.evolutions})`);
 	// round 2: the picker's new leader (soft) and the spins wizard
 	if (s && s.evolutions >= 1) {
 		const t1 = Date.now();
 		let sawLeaders = false;
 		let sawSpins = false;
+		// the ceremony, the flash, then the picker: no taps until the picker is up (a tap on the leader's
+		// spot lands on a tile once the picker opens)
+		for (let k = 0; k < 60; k++) {
+			const pk = await page.evaluate(() => window.odPick || null);
+			if (pk && pk.open) break;
+			const fl = await page.evaluate(() => window.odFlash || null);
+			if (fl && fl.open) { await wait(800); await P.refresh(); await tapAt(css(fl.next[0], fl.next[1])); }
+			await wait(700);
+		}
+		await wait(1200);
 		while (Date.now() - t1 < 120000 && !(sawLeaders && sawSpins)) {
 			const fl = await page.evaluate(() => window.odFlash || null);
 			if (fl && fl.open) { await P.refresh(); await tapAt(css(fl.next[0], fl.next[1])); await wait(800); continue; }
 			const w = await wiz(page);
+			const q0 = await probe();
+			if (process.env.WIZ_LOG) log(`  r2: wizard ${w.flow}/${w.step || ''}, mode ${q0 && q0.mode}, modal ${q0 && q0.modal}, pick ${JSON.stringify(((await page.evaluate(() => window.odPick || null)) || {}).variant || null)}`);
 			if (w.flow === 'leaders' && !sawLeaders) {
 				sawLeaders = true;
 				await wait(400);
