@@ -882,7 +882,8 @@ func web_info() -> Dictionary:
 	if go_btn != null:
 		var q := go_btn.visual.get_center() + off
 		go = [q.x, q.y, go_btn.is_enabled()]
-	return {"open": visible, "variant": variant, "cells": cs, "go": go, "again": go if variant == "after" else [],
+	return {"open": visible, "variant": variant, "cells": cs, "go": go,
+		"again": [go[0], go[1], again_id] if variant == "after" and again_id != "" and not go.is_empty() else [],
 		"chosen": str(cells[focus]["id"]) if focus >= 0 and focus < cells.size() else null, "avatar": avatar,
 		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y],
 		"card": [card_rect.position.x + off.x, card_rect.position.y + off.y, card_rect.size.x, card_rect.size.y],

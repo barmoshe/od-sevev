@@ -323,43 +323,24 @@ for (const spec of list.split(',')) {
 	let pk = await page.evaluate(() => window.odPick || null);
 	if (pk && pk.open) {
 		const buf = await shot('pick');
-		const tw = floor4((E.cw - 72) / 3);
-		check('spec', !!(pk.tile && pk.tile[0] === tw), `pick tiles are fluid: ${tw} wide (got ${JSON.stringify(pk.tile)})`);
+		// the ballot booth (ADR 0007): the big card over the booth, the booth over the vote button, the
+		// booth across the canvas, the button inside the band, the slips inside the margins
 		const H0 = floor4(disp.logical[1]);
-		const bottoms = pk.cells.map((c) => c[1]);
-		const lastRow = Math.max(...bottoms);
-		const th = pk.tile ? pk.tile[1] : 0;
-		const stripTop = H0 - 16 - 112;
-		// §5.14.2 (F15): the booth frames the grid wherever it costs no tile pixel (the tall phones and
-		// the desktop frame), never at the SE or the toolbar viewports; with it the grid sits 20 over
-		// the strip (the booth's bottom 8 over it), without it 12
-		const wantBooth = framed || (H >= 780 && !(W === 375 && H === 667));
-		const booth = pk.booth || null;
-		check('spec', !!booth === wantBooth, `the booth is ${wantBooth ? 'on' : 'off'} here (${JSON.stringify(booth)})`);
-		const gap = booth ? 20 : 12;
-		check('spec', pk.tile && Math.abs(lastRow + th / 2 + gap - stripTop) <= 4, `the grid is bottom-anchored: last row bottom ${Math.round(lastRow + th / 2)} + ${gap} = the strip top ${stripTop}`);
-		if (booth) {
-			check('width', booth[0] <= 0.5 && booth[2] >= disp.cw - 0.5, `the booth spans the canvas (${booth[0]}, ${booth[2]} of ${disp.cw})`);
-			check('spec', Math.abs(booth[1] + booth[3] - (stripTop - 8)) <= 4, `the booth's bottom is 8 over the strip (${booth[1] + booth[3]} vs ${stripTop - 8})`);
-		}
-		// §5.8 avatar choice: the largest of 192 (even k only), 128, 96, 64 whose 3 × 3 fits `avail`
-		const header = pk.variant === 'after' ? 132 : (12 + (H0 >= 1280 ? 116 : 64) + 12 + 44 + 12);
-		const avail = H0 - header - 112 - (pk.variant === 'after' ? 116 : 16);
-		const wantA = ([...(disp.k % 2 === 0 ? [192] : []), 128, 96, 64]).find((a) => a + 24 <= tw && 3 * (156 + a) + 24 <= avail) || 64;
-		check('spec', pk.avatar === wantA, `the avatar is the largest crisp size that fits: ${wantA} (got ${pk.avatar})`);
-		const gridTop = Math.min(...pk.cells.map((c) => c[1])) - (th || 0) / 2;
-		const gx0 = Math.min(...pk.cells.map((c) => c[0])) - (pk.tile ? pk.tile[0] : 0) / 2;
-		const gx1 = Math.max(...pk.cells.map((c) => c[0])) + (pk.tile ? pk.tile[0] : 0) / 2;
-		check('width', (gx1 - gx0) >= 0.92 * disp.cw, `the picker grid spans ${Math.round(gx1 - gx0)} of ${disp.cw} (≥ 92%)`);
-		await bandCheck('pick', buf, 'grid, strip and foot; the scrimmed stage above the title line is the exempt sky', { exempt: [[0, gridTop - 72]] });
-		// A3 (mobile-first §5.8.1): the caption strip sits on a full-bleed navy plate, its text inside it
-		const sp = pk.strip || [];
-		const st = pk.stripText || [];
-		check('spec', sp.length === 4 && sp[0] <= 0.5 && sp[2] >= disp.logical[0] - 0.5 && st.length === 2 && st[0] >= sp[1] && st[1] <= sp[1] + sp[3],
-			`A3: the caption is on its full-bleed plate (plate ${JSON.stringify(sp)}, text ${JSON.stringify(st)})`);
-		// pick הפתעה (the centre cell, id "")
+		const card = pk.card || [];
+		const booth = pk.booth || [];
+		check('width', booth.length === 4 && booth[0] <= 0.5 && booth[2] >= disp.cw - 0.5, `the booth spans the canvas (${JSON.stringify(booth)} of ${disp.cw})`);
+		check('spec', card.length === 4 && booth.length === 4 && card[1] + card[3] <= booth[1] + 0.5 && pk.go && booth[1] + booth[3] <= pk.go[1], `card, booth and the vote button stack (${JSON.stringify([card, booth, pk.go])})`);
+		check('spec', pk.go && pk.go[1] <= H0 - 16, `the vote button sits in the band (${JSON.stringify(pk.go)}, H ${H0})`);
+		const tw = pk.tile ? pk.tile[0] : 0;
+		const xs = pk.cells.map((c) => c[0]);
+		check('width', Math.min(...xs) - tw / 2 >= 15.5 && Math.max(...xs) + tw / 2 <= disp.cw - 15.5, `the slips sit inside the margins (${tw} wide)`);
+		check('width', card[2] >= 0.92 * disp.cw, `the big card spans ${Math.round(card[2])} of ${disp.cw} (≥ 92%)`);
+		await bandCheck('pick', buf, 'the header plate, the big card, the booth and the vote button; the scrimmed stage above the header is the exempt sky', { exempt: [[0, card[1] - 140]] });
+		// vote the blank slip (הפתעה, id "")
 		const rnd = pk.cells.find((c) => c[2] === '') || pk.cells[0];
 		await s18Start();
+		await tap(css(rnd[0], rnd[1]));   // the ballot booth: choose the blank slip, then vote
+		await wait(400);
 		await tap(css(rnd[0], rnd[1]));
 		await page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 8000 }).catch(() => {});
 		await wait(1200);
@@ -521,7 +502,7 @@ for (const spec of list.split(',')) {
 		{
 			const p0 = await page.evaluate(() => window.odPick || null);
 			const bc = p0 && p0.open ? p0.cells.find((c) => c[2] === 'bibi') : null;
-			if (bc) { await wait(600); await refresh(); await tap(css(bc[0], bc[1])); }
+			if (bc) { await wait(600); await refresh(); await tap(css(bc[0], bc[1])); await wait(400); await tap(css(bc[0], bc[1])); }   // choose, vote
 		}
 		await page.waitForFunction(() => window.odDev && window.odDev.mode === 'title', null, { timeout: 8000 }).catch(() => {});
 		await wait(1200);
@@ -543,9 +524,11 @@ for (const spec of list.split(',')) {
 		if (pk2 && pk2.open && pk2.variant === 'after') {
 			await refresh();
 			const bank = Number(((await probe()) || {}).bank || 0);
-			const other = pk2.cells.find((c) => c[2] !== '' && c[2] !== first[2] && !c[3]) || pk2.cells[0];   // an open tile
+			const other = pk2.cells.find((c) => c[2] !== '' && c[2] !== first[2] && c[2] !== 'gantz' && !c[3]) || pk2.cells[0];   // an open slip
 			await s18Start();
 			const t0 = Date.now();
+			await tap(css(other[0], other[1]));   // choose, vote
+			await wait(400);
 			await tap(css(other[0], other[1]));
 			await page.waitForFunction(() => window.odDev && window.odDev.mode === 'main', null, { timeout: 8000 }).catch(() => {});
 			await wait(1300);

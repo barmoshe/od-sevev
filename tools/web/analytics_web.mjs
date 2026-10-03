@@ -128,6 +128,8 @@ const pk = await page.evaluate(() => window.odPick || null);
 const cell = ((pk && pk.cells) || []).find((c) => c[2] === 'bennett');
 check(!!cell, 'the picker shows בנט');
 if (cell) {
+	await tapAt(css(cell[0], cell[1]));   // the ballot booth (ADR 0007): a tap chooses the slip, a second tap votes
+	await wait(400);
 	await tapAt(css(cell[0], cell[1]));
 	await page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 8000 }).catch(() => {});
 	await wait(400);

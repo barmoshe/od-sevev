@@ -190,7 +190,7 @@ if (only === '' || only === 'offer') {
 	const pickCell = async (id) => {
 		const pk = await page.evaluate(() => window.odPick || null);
 		const c = pk && pk.cells && pk.cells.find((x) => x[2] === id);
-		if (c) await P.tapAt(P.css(c[0], c[1]));
+		if (c) { await P.tapAt(P.css(c[0], c[1])); await page.waitForTimeout(400); await P.tapAt(P.css(c[0], c[1])); }   // the ballot booth (ADR 0007): a tap chooses the slip, a second tap votes
 		await page.waitForTimeout(2500);
 	};
 	await pickCell('bibi');

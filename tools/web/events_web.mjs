@@ -30,6 +30,8 @@ await P.refresh();
 const pk = await page.evaluate(() => window.odPick || null);
 if (pk && pk.open) {
 	const c = pk.cells.find((x) => x[2] === (process.env.LEADER || 'bibi')) || pk.cells[4];
+	await P.tapAt(P.css(c[0], c[1]));   // the ballot booth (ADR 0007): a tap chooses the slip, a second tap votes
+	await wait(400);
 	await P.tapAt(P.css(c[0], c[1]));
 	await page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 8000 }).catch(() => {});
 	await wait(600);

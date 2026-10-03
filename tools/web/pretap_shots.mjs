@@ -95,6 +95,8 @@ for (const spec of list.split(',')) {
 	let pk = await page.evaluate(() => window.odPick);
 	const cell = pk.cells.find((c) => c[2] === leader) || pk.cells[0];
 	await s18Start();
+	await tap(css(cell[0], cell[1]));   // the ballot booth (ADR 0007): a tap chooses the slip, a second tap votes
+	await wait(400);
 	await tap(css(cell[0], cell[1]));
 	await page.waitForFunction(() => window.odDev && window.odDev.mode === 'title', null, { timeout: 8000 }).catch(() => {});
 	await wait(1100);
@@ -134,9 +136,11 @@ for (const spec of list.split(',')) {
 		// round 2 starts: a different leader (the name back in Row A, the undo chip in the lane)
 		await refresh();
 		const bank = Number(((await page.evaluate(() => window.odDev)) || {}).bank || 0);
-		const other = pk.cells.find((c) => c[2] !== '' && c[2] !== leader) || pk.cells[0];
+		const other = pk.cells.find((c) => c[2] !== '' && c[2] !== leader && c[2] !== 'gantz' && !c[3]) || pk.cells[0];   // an open slip
 		await s18Start();
 		const t0 = Date.now();
+		await tap(css(other[0], other[1]));
+		await wait(400);
 		await tap(css(other[0], other[1]));
 		await page.waitForFunction(() => window.odDev && window.odDev.mode === 'main', null, { timeout: 8000 }).catch(() => {});
 		await wait(1300);

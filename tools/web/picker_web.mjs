@@ -55,10 +55,16 @@ await shot('p1-first-launch');
 	const lk = ((p && p.cells) || []).find((c) => c[3]);
 	if (lk) { await tapAt(css(lk[0], lk[1])); await wait(700); }
 	s = await probe();
-	check(s && s.mode === 'pick', `a tap on a locked tile starts nothing (mode ${s && s.mode})`);
+	const pl = await pick();
+	check(s && s.mode === 'pick' && pl && pl.go && pl.go[2] === false, `a slip in print: shown, never voted (mode ${s && s.mode}, vote ${JSON.stringify(pl && pl.go)})`);
 	await shot('p2-locked-tap');
 	const bc = cellOf(p, 'bibi');
-	await tapAt(css(bc[0], bc[1]));
+	await tapAt(css(bc[0], bc[1]));   // the ballot booth: choose Bibi's slip
+	await wait(600);
+	const pb = await pick();
+	check(pb && pb.chosen === 'bibi' && pb.go && pb.go[2] === true && (await probe()).mode === 'pick', `choosing is not voting: Bibi in the big card, the vote button on (${JSON.stringify(pb && pb.go)})`);
+	await shot('p3-bibi-chosen');
+	await tapAt(css(pb.go[0], pb.go[1]));   // "לשים בקלפי: ביבי"
 	await page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 8000 }).catch(() => {});
 	await wait(900);
 	s = await probe();

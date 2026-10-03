@@ -17,7 +17,7 @@ const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=sw
 const checks = [];
 const log = (...a) => console.log(...a);
 const check = (ok, what) => { checks.push([ok, what]); log(`  ${ok ? 'ok  ' : 'FAIL'} ${what}`); };
-const FIRST = ['pick', 'tap', 'buy', 'suitcase', 'chat', 'pay', 'seats', 'elect'];
+const FIRST = ['slip', 'vote', 'tap', 'buy', 'suitcase', 'chat', 'pay', 'seats', 'elect'];
 
 async function boot() {
 	const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: true, hasTouch: true });
@@ -41,7 +41,7 @@ const R2 = !!process.env.R2_ONLY;   // round 2 only: pick, tap, the dev election
 async function pickLeader(page, P, id) {
 	const pk = await page.evaluate(() => window.odPick || null);
 	const c = pk && pk.open ? pk.cells.find((x) => x[2] === id) : null;
-	if (c) await P.tapAt(P.css(c[0], c[1]));
+	if (c) { await P.tapAt(P.css(c[0], c[1])); await P.wait(400); await P.tapAt(P.css(c[0], c[1])); }   // choose, then vote
 	return !!c;
 }
 
@@ -54,9 +54,14 @@ async function pickLeader(page, P, id) {
 	const budget = Number(budgetArg) * 1000;
 	let swallowChecked = false;
 	let lastBuy = 0;
-	if (R2) {   // round 2 only: pick, tap, the dev election (window.odDevElect)
+	if (R2) {   // round 2 only: pick (the wizard's slip, then its vote button), tap, the dev election
 		await page.waitForFunction(() => window.odPick && window.odPick.open, null, { timeout: 15000 }).catch(() => {});
-		await pickLeader(page, P, 'bibi');
+		const pk = await page.evaluate(() => window.odPick || null);
+		const c = pk && pk.cells.find((x) => x[2] === 'bibi');
+		if (c) await tapAt(css(c[0], c[1]));
+		await wait(600);
+		const go = (await page.evaluate(() => window.odPick || {})).go;
+		if (go) await tapAt(css(go[0], go[1]));
 		await wait(1200);
 		for (let i = 0; i < 4; i++) { await tapAt(P.hat(), 40); await wait(100); }
 		await page.evaluate(() => { window.odDevElect = 1; });
@@ -86,8 +91,10 @@ async function pickLeader(page, P, id) {
 				const w1 = await wiz(page);
 				check(w1.flow === 'first' && w1.step === 'tap' && s1.bank === b0, `a press outside the hole does nothing (bank ${b0} → ${s1.bank}, step ${w1.step})`);
 			}
-			if (w.step === 'pick') {
-				await pickLeader(page, P, 'bibi');
+			if (w.step === 'slip') {   // the booth: choose Bibi's slip (the vote step then puts it in the box)
+				const pk = await page.evaluate(() => window.odPick || null);
+				const c = pk && pk.cells.find((x) => x[2] === 'bibi');
+				if (c) await tapAt(css(c[0], c[1]));
 				await wait(900);
 			} else if (w.step === 'elect') {
 				const r = await P.callElection({ card: 'w-election-card' });
@@ -127,7 +134,7 @@ async function pickLeader(page, P, id) {
 	const s = await probe();
 	log(`  steps seen: ${seen.join(' → ')} in ${Math.round((Date.now() - t0) / 1000)} s wall`);
 	const order = seen.filter((x) => FIRST.includes(x));
-	if (!R2) check(order[0] === 'pick' && order[1] === 'tap' && order[2] === 'buy', `the first steps: pick → tap → buy (${order.join(' → ')})`);
+	if (!R2) check(order[0] === 'slip' && order[1] === 'vote' && order[2] === 'tap' && order[3] === 'buy', `the first steps: slip → vote → tap → buy (${order.join(' → ')})`);
 	if (!R2) for (const st of ['chat', 'pay', 'seats', 'elect']) check(order.includes(st), `the wizard showed "${st}"`);
 	check(s && s.evolutions >= 1, `the first election through the wizard (evolutions ${s && s.evolutions})`);
 	// round 2: the picker's new leader (soft) and the spins wizard
@@ -199,15 +206,13 @@ async function pickLeader(page, P, id) {
 	const { wait, probe, shot, css, tapAt } = P;
 	await page.waitForFunction(() => window.odWizard && window.odWizard.flow === 'first', null, { timeout: 15000 }).catch(() => {});
 	const w = await wiz(page);
-	check(w.flow === 'first' && w.step === 'pick', `a fresh game opens on the wizard's pick step (${w.flow}/${w.step})`);
+	check(w.flow === 'first' && w.step === 'slip', `a fresh game opens on the wizard's slip step (${w.flow}/${w.step})`);
 	await tapAt(css(w.skip[0], w.skip[1]));
 	await wait(600);
 	const w2 = await wiz(page);
 	check(w2.flow === '', `דלג ends the wizard (${w2.flow})`);
 	await shot('w-skip');
-	const pk = await page.evaluate(() => window.odPick || null);
-	const c = pk && pk.cells.find((x) => x[2] === 'bennett');
-	if (c) await tapAt(css(c[0], c[1]));
+	await pickLeader(page, P, 'bennett');   // no wizard now: choose, then vote
 	await wait(1000);
 	await tapAt(P.hat());
 	await wait(600);

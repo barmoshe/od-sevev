@@ -89,6 +89,8 @@ async function pickBibi(P) {
 	if (!pk || !pk.open) return;
 	const c = pk.cells.find((q) => q[2] === 'bibi') || pk.cells[0];
 	await P.wait(500);
+	await tap(P, css(P, c[0], c[1]));   // the ballot booth (ADR 0007): a tap chooses the slip, a second tap votes
+	await P.wait(400);
 	await tap(P, css(P, c[0], c[1]));
 	await P.page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
 	await P.wait(1200);

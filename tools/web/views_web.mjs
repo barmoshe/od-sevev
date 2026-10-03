@@ -71,6 +71,8 @@ for (const d of DEVICES) {
 		const c = pk.cells.find((q) => q[2] === '') || pk.cells[0];
 		await page.waitForTimeout(500);
 		const [px, py] = css(c[0], c[1]);
+		await tap(px, py, 90);   // the ballot booth (ADR 0007): a tap chooses the slip, a second tap votes
+		await page.waitForTimeout(400);
 		await tap(px, py, 90);
 		await page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
 		await page.waitForTimeout(1500);
