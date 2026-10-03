@@ -266,6 +266,11 @@ static func _apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 # ---------------------------------------------------------------------------------------------
 
 ## UX U1: no ultimatum before 3:00 of active play and 2 paid demands (pitch §11 Q3).
+## An ultimatum's seconds: content ultimatum.sec plus the p_patience perk (ultimatumPlusSec).
+static func ult_sec(s: GameState) -> float:
+	return float(_ult().get("sec", 90.0)) + Meta.effect_value(s, "ultimatumPlusSec")
+
+
 static func ultimatums_unlocked(s: GameState) -> bool:
 	var u := _ult()
 	return int(_c(s)["paidLifetime"]) >= int(u.get("minDemandsPaid", 2)) \
@@ -620,7 +625,7 @@ static func _tick_messages(s: GameState, dt: float, out: Array) -> void:
 		if _can_threaten(s, str(m["partner"])):
 			m["state"] = "expired"
 			_post(s, {"type": "ultimatum", "partner": m["partner"], "price": m["price"], "kind": m.get("kind", "money"),
-				"leftSec": float(_ult().get("sec", 90.0)), "state": "open", "line": "threat", "variant": _variant(s, str(m["partner"]), "threat")}, out)
+				"leftSec": ult_sec(s), "state": "open", "line": "threat", "variant": _variant(s, str(m["partner"]), "threat")}, out)
 
 
 static func _can_threaten(s: GameState, id: String) -> bool:
@@ -693,7 +698,7 @@ static func _tick_demands(s: GameState, dt: float, d: Economy.Derived, rng: Call
 	# escalation below is not a chance, so an unpaid demand still turns into an ultimatum (spec L6).
 	if _can_threaten(s, id) and float(rng.call()) < float(pick.get("threatChance", 0.0)) * Leaders.threat_mult():
 		_post(s, {"type": "ultimatum", "partner": id, "price": price, "kind": kind,
-			"leftSec": float(_ult().get("sec", 90.0)), "state": "open", "line": "threat", "variant": _variant(s, id, "threat")}, out)
+			"leftSec": ult_sec(s), "state": "open", "line": "threat", "variant": _variant(s, id, "threat")}, out)
 	else:
 		_post(s, {"type": "demand", "partner": id, "price": price, "kind": kind, "join": false, "ageSec": 0.0,
 			"state": "open", "line": "demand", "variant": _variant(s, id, "demand")}, out)
@@ -737,7 +742,7 @@ static func _tick_transfers(s: GameState, dt: float, d: Economy.Derived, out: Ar
 		for i: int in _script_lines(p, to, "welcome"):   # the target's welcome lines (copy.transferWindow.script)
 			_post(s, {"type": "thanks", "partner": to, "scriptFrom": id, "scriptIdx": i}, out)
 		_post(s, {"type": "ultimatum", "partner": to, "price": demand_price(s, to, d), "kind": "money",
-			"leftSec": float(_ult().get("sec", 90.0)), "state": "open", "line": "threat", "variant": 0, "transfer": id}, out)
+			"leftSec": ult_sec(s), "state": "open", "line": "threat", "variant": 0, "transfer": id}, out)
 		out.append({"ev": "transfer", "partner": id, "to": to})
 		return
 
@@ -1050,7 +1055,7 @@ static func open_demands(s: GameState, include_ultimatums: bool = true) -> Array
 static func refill_patience(s: GameState) -> void:
 	for m: Dictionary in open_demands(s):
 		if m["type"] == "ultimatum":
-			m["leftSec"] = maxf(float(m["leftSec"]), float(_ult().get("sec", 90.0)))
+			m["leftSec"] = maxf(float(m["leftSec"]), ult_sec(s))
 		else:
 			m["ageSec"] = 0.0
 

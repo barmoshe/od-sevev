@@ -68,8 +68,10 @@ static func keep_pct(s: GameState, d: Economy.Derived) -> float:
 	return maxf(0.0, after * 100.0)
 
 
+## The income multiplier after this election, as Economy.derive will compute it (the aide drops'
+## ×0.97 each stay in d.base_mult across elections).
 static func mult_after(s: GameState, d: Economy.Derived) -> float:
-	return 1.0 + Economy.mult_per_base() * float(s.thumbs_owned + (d.pending if d.evolve_enabled else d.needed))
+	return (1.0 + Economy.mult_per_base() * float(s.thumbs_owned + (d.pending if d.evolve_enabled else d.needed))) * d.base_mult
 
 
 func build() -> ElectionCard:

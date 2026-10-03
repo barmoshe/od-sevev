@@ -384,9 +384,9 @@ func _build() -> void:
 	var hd := _text(_content, Strings.s("BOOK_TROPHIES"), C_LABEL, 656.0, 1)
 	hd.right_at(label_right())
 	hd.position.y = y + 8.0
-	var n := Meta.trophy_count(_state)
-	var pct := Meta.achievement_pct(_state) * n * 100.0
-	var sm := _text(_content, Strings.s("TROPHY_SUMMARY", {"n": n, "total": Meta.achievements().size(), "pct": Fmt.mult(pct).trim_suffix(".0")}), C_MUTED, 656.0, 1)
+	var tc := ViewRules.trophy_counts(_state)   # the shipped list: never "43 מתוך 40"
+	var pct := Meta.achievement_pct(_state) * Meta.trophy_count(_state) * 100.0
+	var sm := _text(_content, Strings.s("TROPHY_SUMMARY", {"n": tc.x, "total": tc.y, "pct": Fmt.mult(pct).trim_suffix(".0")}), C_MUTED, 656.0, 1)
 	sm.right_at(label_right())
 	sm.position.y = y + 52.0
 	y += ROW_H + 8.0

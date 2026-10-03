@@ -244,3 +244,16 @@ func test_court_end_says_why() -> void:
 	s.investigation["courtReason"] = "served"
 	var l := GameState.from_dict(JSON.parse_string(JSON.stringify(s.to_dict())))
 	runner.check(l.investigation["courtReason"] == "served", "the reason survives a reload mid-court")
+
+
+## The election card's "×after" now carries the aide drops' ×0.97 each (Economy.derive's
+## prestige_mult does); it used to promise more than the next round paid.
+func test_the_election_card_counts_aide_drops() -> void:
+	var s := GameState.fresh()
+	s.thumbs_owned = 10
+	var d0 := Economy.derive(s)
+	var clean := ElectionCard.mult_after(s, d0)
+	s.investigation["aideDrops"] = 2
+	var d2 := Economy.derive(s)
+	runner.check(is_equal_approx(ElectionCard.mult_after(s, d2), clean * pow(0.97, 2)), "two drops: ×0.97² (%s vs %s)" % [ElectionCard.mult_after(s, d2), clean])
+	runner.check(is_equal_approx(d2.prestige_mult, (1.0 + Economy.mult_per_base() * 10.0) * pow(0.97, 2)), "and that is what derive pays now")

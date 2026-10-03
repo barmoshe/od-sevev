@@ -30,6 +30,7 @@ const CHIP_H := 80.0
 const CHIP_Y := 2.0
 const CHIP_MIN_W := 212.0
 const TINT := Color("#d02a36")        # the court red (steady: a tint, never a strobe)
+const SCRIM := Color(0.043, 0.039, 0.07, 0.7)   # under the summons card over T3/T4 (#0b0a12 at 70%)
 
 ## motion-spec.yaml motion-constants (Tune.MC wins once the engine mirrors them)
 const MC_DEFAULTS := {
@@ -61,6 +62,7 @@ var _tint_a := 0.0
 var _card := Node2D.new()            # carries the motion offsets only
 var _inner: Node2D                   # the card-local content, placed at the card's top
 var _frame: NinePatchRect
+var _scrim: ColorRect
 var _close_icon: Sprite2D
 var _gavel: Sprite2D
 var _title: PxText
@@ -106,6 +108,9 @@ func setup(host_: Node) -> CourtView:
 func _ready() -> void:
 	_tint = Ui.rect(self, Rect2(0, -L.stage_h, L.W, L.stage_h), TINT, 0.0)
 	_tint.visible = false
+	# the summons card over a tall tab (T3/T4): the pane dims under it, so the chat never reads through
+	_scrim = Ui.rect(self, Rect2(0, 0, L.W, L.tabs_y()), SCRIM, 0.0)
+	_scrim.visible = false
 	add_child(_card)
 	_card.visible = false
 	add_child(_chip)
@@ -127,6 +132,8 @@ func relayout() -> void:
 		return
 	_tint.position = Vector2(-_ox - 8.0, -L.stage_h)
 	_tint.size = Vector2(_vs_w + 16.0, L.stage_h)
+	_scrim.position = Vector2(-_ox - 8.0, 0.0)
+	_scrim.size = Vector2(_vs_w + 16.0, L.tabs_y())
 	_layout_sig = ""
 	_place_card()
 
@@ -256,6 +263,8 @@ func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = 
 	_update_pp(dt)
 	_update_anim(dt)
 	_update_tint(dt, live and ph == "court")
+	_scrim.visible = _covered and _card.visible
+	_scrim.color.a = SCRIM.a * _card.modulate.a
 	_sync_card()
 	_sync_chip()
 

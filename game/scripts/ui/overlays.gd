@@ -530,8 +530,9 @@ class BookOverlay:
 		set_scroll(0.0)
 		var s: GameState = host.state
 		if t == "trophies":
-			var pct := Meta.achievement_pct(s) * s.achievements.size() * 100.0
-			_summary.text = Strings.s("TROPHY_SUMMARY", {"n": s.achievements.size(), "total": Meta.achievements().size(), "pct": Fmt.mult(pct).trim_suffix(".0")})
+			var tc := ViewRules.trophy_counts(s)   # the shipped list: never "43 מתוך 40"
+			var pct := Meta.achievement_pct(s) * Meta.trophy_count(s) * 100.0
+			_summary.text = Strings.s("TROPHY_SUMMARY", {"n": tc.x, "total": tc.y, "pct": Fmt.mult(pct).trim_suffix(".0")})
 		else:
 			_summary.text = ""
 		_summary.center_in(panel_rect.position.x, panel_rect.size.x)

@@ -526,3 +526,4 @@ func test_gotliv_card_only_hides_in_the_blackout() -> void:
 	Coalition.partner("gotliv").erase("copy")
 	s.calendar["mode"] = "negotiation"
 	runner.check(not Coalition.card_hidden(s, "gotliv"), "after the polls close it shows again")
+
