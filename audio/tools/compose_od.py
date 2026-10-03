@@ -929,8 +929,8 @@ def cues():
     buy_glint = [noise_burst(0.07, 7000, 0.28, dur=0.025), tone("E6", 0.08, 0.07, duty=0.5, gain=0.28, decay=0.06, sustain=0.1, release=0.03)]
     C["buy"] = {"meaning": "Bought a source or a spin.", "bus": "SFX-Frequent", "priority": 3, "poly": 2, "steal": "oldest", "ducks": [],
                 "pitch": {"type": "key", "rootOctave": 4},
-                "variants": {"d25": [puff, buy_body, dict(blip(0.25), freqStart="E5"), tone("A5", 0.07, 0.1, duty=0.25, gain=0.9, decay=0.08, sustain=0.4, release=0.04)] + buy_glint,
-                             "d12": [puff, buy_body, dict(blip(0.125), freqStart="E5"), tone("A5", 0.07, 0.1, duty=0.125, gain=0.9, decay=0.08, sustain=0.4, release=0.04)] + buy_glint},
+                "variants": {v: [puff, buy_body, dict(blip(d), freqStart="E5"), tone("A5", 0.07, 0.1, duty=d, gain=0.9, decay=0.08, sustain=0.4, release=0.04)] + buy_glint
+                             for v, d in (("d25", 0.25), ("d12", 0.125))},
                 "runtime": "The tap blip on 5 over a low body, then the motif's first bar note (1') on P1 with a glint. "
                            "Alternate d25 / d12. A bulk buy (x10, max) plays buyBig instead.",
                 "target": {"type": "burst", "lufs": -16.0}}
@@ -988,12 +988,11 @@ def cues():
                                       tone("E5", 0.045, 0.045, duty=0.25, gain=0.75, decay=0.04, sustain=0.25, release=0.025)]},
                     "runtime": "panelClose, evolveClose.", "target": {"type": "burst", "lufs": -22.0}}
     # a switch: a click and a two-step blip, up (on) then down (off) on alternate presses
+    step2 = lambda a, b, g: [click, tone(a, 0.0, 0.025, duty=0.5, gain=0.8, decay=0.02, sustain=0.0, release=0.006),
+                             tone(b, 0.03, 0.03, duty=0.5, gain=g, decay=0.025, sustain=0.0, release=0.008)]
     C["uiToggle"] = {"meaning": "A switch or a mode cycles (settings toggles, the buy-mode chip).", "bus": "UI", "priority": 1, "poly": 1,
                      "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 6},
-                     "variants": {"on": [click, tone("D4", 0.0, 0.025, duty=0.5, gain=0.8, decay=0.02, sustain=0.0, release=0.006),
-                                         tone("A4", 0.03, 0.03, duty=0.5, gain=0.9, decay=0.025, sustain=0.0, release=0.008)],
-                                  "off": [click, tone("A4", 0.0, 0.025, duty=0.5, gain=0.8, decay=0.02, sustain=0.0, release=0.006),
-                                          tone("D4", 0.03, 0.03, duty=0.5, gain=0.8, decay=0.025, sustain=0.0, release=0.008)]},
+                     "variants": {"on": step2("D4", "A4", 0.9), "off": step2("A4", "D4", 0.8)},
                      "runtime": "uiToggle, buyModeCycle. Alternates on / off.", "target": {"type": "burst", "lufs": -21.5}}
     C["coin"] = {"meaning": "Coins (the settings 'צ'ינג' preview; payout sparkle, at most 6 per tap).", "bus": "SFX-Frequent",
                  "priority": 1, "poly": 3, "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 5},
@@ -1156,7 +1155,7 @@ def cues():
     # joke about bounced requests; a payment is the opposite, money going out and a deal closed. The slip's
     # rubber thunk, then a cash-register ka-ching: the drawer (a metal noise burst), 5 and 1' bells on P2
     # 50 % with a sine 1' ringing over them. Unpitched thunk, keyed bells.
-    paid = [dict(L_, delay=round(L_.get("delay", 0.0), 4)) for L_ in slip[:3]]
+    paid = [dict(b, delay=b.get("delay", 0.0)) for b in slip[:3]]
     paid += [noise_burst(0.06, 6000, 0.55, dur=0.03),
              tone("E5", 0.07, 0.1, duty=0.5, gain=0.6, decay=0.09, sustain=0.2, release=0.03),
              tone("A5", 0.13, 0.18, duty=0.5, gain=0.55, decay=0.15, sustain=0.2, release=0.08),
@@ -1180,8 +1179,7 @@ def cues():
                        "runtime": "Alternates a / b.", "target": {"type": "burst", "lufs": -21.5}}
     C["slipLocked"] = {"meaning": "A slip still in print is chosen (it can't be voted yet).", "bus": "UI", "priority": 1, "poly": 1,
                        "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 4},
-                       "variants": {"": [L(id="muffled", wave="noise", clockStart=22000, filter={"type": "lowpass", "freq": 700, "Q": 0.0},
-                                           attack=0.003, decay=0.04, sustain=0.0, duration=0.04, release=0.01, gain=0.8),
+                       "variants": {"": [dict(flick, id="muffled", filter={"type": "lowpass", "freq": 700, "Q": 0.0}, attack=0.003, duration=0.04),
                                          L(id="bwomp", wave="triangle", crush=4, freqStart="A4", freqEnd="Ab4", freqCurve="exp", glide=0.08,
                                            delay=0.01, attack=0.003, decay=0.09, sustain=0.2, duration=0.1, release=0.03, gain=0.6)]},
                        "firstSound": True,

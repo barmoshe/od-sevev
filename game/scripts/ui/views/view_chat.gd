@@ -23,7 +23,7 @@ extends Node2D
 ## Audio (Audio autoload through host.audio_event): chatPing(partner) on a bubble landing while
 ## open or on the preview toast while closed; ultimatumTick(seconds) once per displayed second
 ## (the Audio doubles the last 3 s); ultimatumZero when an ultimatum runs out (instead of
-## chatLeft); chatLeft when a partner leaves otherwise; stamp + ultimatumPaid on paying;
+## chatLeft); chatLeft when a partner leaves otherwise; partnerPaid + ultimatumPaid on paying;
 ## panelOpen / panelClose.
 
 signal open_changed(open: bool)
@@ -1724,7 +1724,7 @@ func pay_all() -> int:
 		if pay(int(seq), false, true):
 			n += 1
 	if n > 0:
-		_audio("partnerPaid")   # the ka-ching (cue paid), not Herzog's deadpan stamp
+		_audio("partnerPaid")
 		if ult:
 			_audio("ultimatumPaid")
 	else:

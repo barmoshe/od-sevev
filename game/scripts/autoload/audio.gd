@@ -291,8 +291,13 @@ func _warm() -> void:
 		var e := OdAudio.stinger_entry(_man, "motif", key)
 		if not e.is_empty():
 			_stream(String(e["file"]))
-	for key: String in ["D", "E", "F", "G"]:   # v1.3: the first sounds (the pick, the return card)
-		for id: String in ["leaderPick", "returnAway"]:
+	var firsts: Array = []   # the cues flagged firstSound (the pick, the return card, the booth, the wizard)
+	var cues: Dictionary = _man.get("cues", {})
+	for id: String in cues:
+		if bool(cues[id].get("firstSound", false)):
+			firsts.append(id)
+	for key: String in ["D", "E", "F", "G"]:
+		for id: String in firsts:
 			for v in OdAudio.cue_variants(_man, id, key):
 				var f := OdAudio.cue_file(_man, id, key, "_", v)
 				if f != "":
@@ -917,7 +922,7 @@ func _random_variant(id: String) -> String:
 ## gate, the web lock, polyphony, the voice cap, or a missing file).
 func _cue(id: String, now: float, variant := "_", pitch := "_", extra_db := 0.0, bus := "") -> bool:
 	var c: Dictionary = _man.get("cues", {}).get(id, {})
-	var first := bool(c.get("firstSound", false))   # leaderPick, returnAway: the first gesture's own sound
+	var first := bool(c.get("firstSound", false))   # plays before the first tap (see the header)
 	if not _gate_open() and not first:
 		return false
 	if _locked():
