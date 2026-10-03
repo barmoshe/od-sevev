@@ -56,6 +56,12 @@
 > - **Level:** music −19.3 LUFS (v1.7: −18.3). Payload unchanged (music 8.81 MB).
 > - **v1.9 (same day), the traditional songs** (Bar: "try again" once the sheet-music sites were reachable; his mapping, with Ma'oz Tzur for the Courthouse so Shalom Chaverim plays once). Every era plays two tunes people know: Balfour A HaTikva, B **Hava Nagila** (parts A and B, its own key D freygish); Knesset A **Hevenu Shalom Aleichem** (Dm → Em), A' the same fought over (P2 the melody, P1 snatching every pickup), B **Shalom Chaverim** as a round (P2 two bars behind); Courthouse B **Ma'oz Tzur** (D major → G minor, the leading tone kept); Washington A **Dayenu**'s verse (twice, the second an octave up), A' its chorus, B **Siman Tov u'Mazal Tov** (the freilach, Gm → D minor). Sources (all public-domain melodies) are in compose_od.py `TUNES`: flutetunes.com (Hava Nagila, Dayenu, Ma'oz Tzur), John Chambers' ABC (Hava Nagila, Hevenu, Siman Tov), Musica Viva (Shalom Chaverim). `check_tunes` holds each home (`TUNE_HOMES`) to its source note for note; the quote check skips a tune only in its home; bar 1 now resolves onto the tonic chord (Hevenu enters on 5, Dayenu on 3). Payload unchanged.
 
+> **v1.11 (2026-10-03, Bar: "it should play HaTikva when you tap the character, every tap a note"; ADR 0010):**
+> - **Every tap on the character is the next note of HaTikva, in every era.** Each era's `tapLine` is now the whole anthem (105 notes: the first section and its repeat, "עוד לא אבדה", and the last two lines twice), from the Hatikvah score on English Wikipedia (the LilyPond block; section A is the same score anthem-scores converted), checked by parsing it and the Hebrew Wikipedia score. v1.6's section B, written from memory, was wrong and is gone.
+> - **Its key per era:** Balfour D, Knesset E, Courthouse G (from G4), Washington **D minor** (the relative minor of its F, so no A-flat against the stride). It runs on through pauses and court day (the next note, in the new key) and wraps at its end; a new round starts it from the top. It no longer follows the music's position.
+> - **Kept from v1.10:** the bell's six roots at `pitch_scale`, the lead (L2) stepping back while the player taps, the 30 ms steal fades, the coin cap, the tap-strip merge, the beat glow, and the phrase bonus, now on the anthem's ten 2-bar lines (`tapLine.phrases`).
+> - Payload unchanged (the bell files are the same); `tap.melody` / `tap.phrases` and the follow-the-music logic are removed.
+
 > **v1.10 (2026-10-03, Bar: "improve the tapping mechanism and music while tapping. Each tap is note."; ADR 0009), the tap soloist:**
 > - **Each tap is the next note of the song the era is playing.** Every era carries a `tapLine` in `music.json` (and the manifest's era entry): the loop's melody note by note (onset in steps from bar 1, midi pitch, 2-bar phrases), from the lead, or P2 where it has the tune (the Knesset's A′). A section that sits low plays an octave up, so the bell stays in D4–A6.
 > - **The taps follow the music:** inside a phrase a tap is always the next note; at a phrase's end, a player who has fallen behind, or run more than a phrase ahead, jumps to the start of the phrase the music plays; after 2.5 s without a tap the next one joins the note the music is on. Without music (before the motif ends, during the fanfare, music off) the line runs on by itself.
@@ -346,7 +352,7 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 
 | id | Event (trigger intent is the designer's) | Bus / priority / poly | Variant rule |
 |---|---|---|---|
-| `tap` | Magician tap | SFX-Frequent / 2 / 6, steal oldest (30 ms fade) | **v1.10:** the next note of the playing era's `tapLine` (see the v1.10 note), from the nearest bell root `r<midi>` at `pitch_scale`. The taps follow the music at phrase ends and after a 2.5 s pause.<br>**Gain:** ±1.5 dB jitter.<br>(v1.0–v1.4: the strict scale walk `s<n>`; v1.5–v1.9: HaTikva.) |
+| `tap` | Magician tap | SFX-Frequent / 2 / 6, steal oldest (30 ms fade) | **v1.11:** the next note of HaTikva (the playing era's `tapLine`, in its anthem key), from the nearest bell root `r<midi>` at `pitch_scale`. Runs on through pauses and key changes, wraps; a new round starts it from the top.<br>**Gain:** ±1.5 dB jitter.<br>(v1.0–v1.4: the strict scale walk `s<n>`; v1.5–v1.9: HaTikva per key; v1.10: the era's song.) |
 | `phraseDone` (v1.10) | the last note of a phrase the taps played whole | SFX-Frequent / 2 / 1 | Key. A quiet 5-8-5′ glint 80 ms after the note; at most once per 1.5 phrases. Main pays the phrase bonus on `Audio.phrase_done`. |
 | `rabbitCrit` | a crit ("the rabbit") | SFX-Critical / 5 / 1, never | Round-robin `s120` → `s150` → `s180` |
 | `suitcaseSpawn` | a suitcase appears | SFX-Critical / 4 / 1, on the Suitcase bus | Random `g25` / `g28` / `g31`. Set the pan at spawn. |
@@ -475,7 +481,8 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 
 ## 6. HaTikva: where it is, and the guardrail (v1.2)
 
-> **v1.10 (2026-10-03, ADR 0009):** the tap plays the song the era is playing (its `tapLine`), not HaTikva; HaTikva is the tap only where the music plays it (Balfour's A) and in the fallback melody. The guardrail is unchanged.
+> **v1.11 (2026-10-03, ADR 0010):** the tap is HaTikva again, the whole anthem from a verified score, in each era's anthem key. The 2-bar cap stays lifted for the tap only (ADR 0004); every other rule stands.
+> **v1.10 (2026-10-03, ADR 0009, superseded by 0010):** the tap played the song the era is playing.
 > **v1.7 (2026-09-30, Bar: "refine the background music"):** the Music bus gets an EQ6 (-2.5 dB at 3.2 kHz, the SFX slot; -2 dB at 10 kHz, the pulse fizz) and a small room (wet 0.1, hipass 0.3, 25 ms predelay); the music target moves to -18.3 LUFS. Measured on a recorded session: highs -1.1 dB, 1.5-4 kHz -0.4 dB on the full mix, width +2 dB, integrated unchanged (-16.4 LUFS).
 > **v1.6 (2026-09-30, Bar, ADR 0005):** HaTikva's second section joins the tap (written from the anthem as sung, not a score); files normalise to -3 dBFS with a DC blocker and a 1.5 ms fade-in on every one-shot; the master is HPF 35 Hz, 2:1 glue, limiter -1 dB with +2 dB; L2 sits 6 dB down while the bell plays.
 > **v1.5 (2026-09-30, Bar, ADR 0004):** the tap plays HaTikva, one note per tap, on a bell, in phrases (`tap.melody`, `tap.phrases`). The 2-bar cap below is lifted for the tap only; every other rule stands.
@@ -500,7 +507,7 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 - **Everything else stays:** no sirens, no bugle calls (the fanfare keeps a chromatic C#-D step and stepwise motion), and no other quoted tunes (8 incipits are checked).
 
 **Keys and scales:**
-- **Dubi's bank** follows the key's mode: D, E and G natural minor. (v1.10: the tap plays the era's own song, so it is always in the music's key and mode, Hava Nagila's freygish included.)
+- **Dubi's bank** follows the key's mode: D, E and G natural minor. (v1.11: the tap's HaTikva is natural minor in each era's anthem key; Washington's is D, the relative minor of its F.)
 - **F stays Mixolydian,** so Dubi agrees with Washington's stride body.
 
 ## 7. Payload

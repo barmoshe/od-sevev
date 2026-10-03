@@ -721,24 +721,32 @@ MODES = {"minor": [0, 2, 3, 5, 7, 8, 10], "mixolydian": [0, 2, 4, 5, 7, 9, 10],
                  "Washington (F) stays Mixolydian so its taps agree with its stride body."}
 
 
-# HaTikva for the tap (v1.5, Bar 2026-09-30). Semitones above the key's root, one entry per tap.
-# Section A (bars 1-4, "כל עוד בלבב פנימה / נפש יהודי הומיה", with the pickup A into the repeat) is
-# verified: the Hatikvah score on English Wikipedia (rev 1375885586, CC BY-SA 4.0, melody Samuel Cohen
-# 1888, public domain), as converted by the npm package anthem-scores 0.1.1 (anthems/IL.json, D minor).
-# Section B (v1.6, Bar: "think of the notes yourself") is NOT from a score: it is written from the
-# anthem as it is sung, with no source reachable from the build container. Two lines a step apart
-# (repeated note, upper and lower neighbour), the high line on the octave, and the close on the
-# verified cadence of bar 3-4. Replace it from a verified score when one is at hand.
+# HaTikva for the tap (v1.11, Bar 2026-10-03: "it should play HaTikva when you tap the character, every
+# tap a note"). The whole anthem, one entry per tap, in semitones above the key's root. Source: the
+# Hatikvah score on English Wikipedia ("Hatikvah", the <score> LilyPond block, \relative d' in D minor;
+# CC BY-SA 4.0, melody Samuel Cohen 1888, public domain), the same score anthem-scores 0.1.1 converted
+# for section A (IL.json). Cross-checked by parsing both LilyPond blocks: the Hebrew Wikipedia score
+# ("התקווה", \relative c' in A minor) has the same intervals for the first 77 notes; from "ארץ ציון" it
+# sets "וירושלים" (one note fewer than "ויְרושלים") and starts the repeat of the last two lines lower. The
+# English score repeats them as written (volta), which is what is followed here. Replaces v1.6's section B, which was written from memory and was wrong
+# ("עוד לא אבדה" leaps to the octave: 1 8 8 8, not 5 5 5 5).
 TAP_BELL_ROOTS = [60, 66, 72, 78, 84, 90]   # v1.10: C4 F#4 C5 F#5 C6 F#6
 TAP_ANTHEM = {
-    "melody": ["n0", "n2", "n3", "n5", "n7", "n7", "n8", "n7", "n8", "n12", "n7",   # כל עוד בלבב פנימה
-               "n5", "n5", "n5", "n3", "n3", "n2", "n0", "n2", "n3", "n0", "n-5",   # נפש יהודי הומיה
-               "n7", "n7", "n7", "n7", "n8", "n7", "n5", "n7",                        # עוד לא אבדה תקוותנו
-               "n5", "n5", "n5", "n5", "n7", "n5", "n3", "n5",                        # התקווה בת שנות אלפיים
-               "n12", "n12", "n12", "n12", "n10", "n8", "n7", "n8",                   # להיות עם חופשי בארצנו
-               "n5", "n5", "n5", "n3", "n3", "n2", "n0", "n2", "n3", "n0"],           # ארץ ציון וירושלים
-    "phrases": [0, 22, 38],   # three 4-bar phrases: A, B's first two lines, B's last two
+    "semis": [0, 2, 3, 5, 7, 7, 8, 7, 8, 12, 7,           # כל עוד בלבב פנימה
+              5, 5, 5, 3, 3, 2, 0, 2, 3, 0, -5,           # נפש יהודי הומיה
+              0, 2, 3, 5, 7, 7, 8, 7, 8, 12, 7,           # ולפאתי מזרח קדימה
+              5, 5, 5, 3, 3, 2, 0, 2, 3, 0,               # עין לציון צופיה
+              0, 12, 12, 12, 10, 12, 10, 8, 7,            # עוד לא אבדה תקוותנו
+              0, 12, 12, 12, 10, 12, 10, 8, 7,            # התקווה בת שנות אלפיים
+              10, 10, 10, 3, 3, 5, 7, 8, 10, 7, 5, 3,     # להיות עם חופשי בארצנו
+              5, 5, 3, 3, 3, 2, 0, 2, 3, 0,               # ארץ ציון וירושלים
+              10, 10, 10, 3, 3, 5, 7, 8, 10, 7, 5, 3,     # להיות עם חופשי בארצנו
+              5, 5, 3, 3, 3, 2, 0, 2, 3, 0],              # ארץ ציון וירושלים
+    "phrases": [0, 11, 22, 33, 43, 52, 61, 73, 83, 95],    # the ten lines (2 bars each)
 }
+# The anthem's key per era: the music's own key, except Washington (F Mixolydian), where HaTikva
+# plays in its relative minor, D (natural minor on F would put A-flat against the stride's A).
+TAP_ANTHEM_ROOT = {"balfour": "D5", "knesset": "E5", "courthouse": "G4", "washington": "D5"}
 
 
 def noise_burst(delay, hp, gain, dur=0.018, metal=True, bp=None):
@@ -805,39 +813,30 @@ def ui_cue(meaning, octave, variants, runtime, lufs, priority=1, poly=1, ducks=(
 
 def cues():
     C = {}
-    # 1. tap: 15 ms NOI-S cloth puff, then a bell on the next note of the era's song (v1.10, below);
+    # 1. tap: 15 ms NOI-S cloth puff, then a bell on the next note of HaTikva (v1.11, below);
     #    `blip` is the pre-v1.5 tap voice, kept for the other cues
     puff = L(id="puff", wave="noiseMetal", clockStart=40000, filter={"type": "bandpass", "freq": 5000, "Q": 0.9},
              attack=0.001, decay=0.015, sustain=0.0, duration=0.015, release=0.004, gain=0.35)
     blip = lambda duty: L(id="blip", wave="pulse", duty=duty, freqStart="A4", delay=0.012, attack=0.001, decay=0.03,
                           sustain=0.45, duration=0.04, release=0.012, gain=1.0,
                           filter={"type": "highpass", "freq": 1000, "Q": -3.0103})
-    # v1.5 (2026-09-30, Bar): every tap is the next note of HaTikva, on a bell, played straight.
-    # The melody is data (TAP_ANTHEM below): pitch labels n<semitones above the key's root>, rendered in
-    # every key as natural minor intervals (F included: the anthem is never re-moded to Mixolydian).
-    # The walk's blip is retired from the tap; its helpers stay for the other cues.
-    # v1.10 (2026-10-03, Bar: "each tap is a note"): the tap plays the next note of the song the era is
-    # playing (each era's tapLine in music.json), so the bell is no longer rendered per key and pitch.
-    # It is rendered at six roots a tritone apart (C4 .. F#6) and the runtime plays a note from the
-    # nearest root with pitch_scale (3 semitones at most, so the bell's decay moves by under 19%).
-    # HaTikva (TAP_ANTHEM) stays the fallback melody for a manifest without tap lines.
+    # Every tap is the next note of HaTikva on a bell, played straight (v1.5; v1.11: the whole anthem from
+    # a verified score, each era's tapLine in music.json). The bell is rendered at six roots a tritone apart
+    # (C4 .. F#6, v1.10) and the runtime plays each note from the nearest root with pitch_scale (3
+    # semitones at most, so the bell's decay moves by under 19%).
     def bell(root):
         hz = 440.0 * 2 ** ((root - 69) / 12)
         return [puff] + [L(id="bell%d" % i, wave="sine", freqStart=hz * mult, attack=0.002, decay=dec, sustain=0.0,
                            duration=dec, release=0.04, gain=g)
                          for i, (mult, g, dec) in enumerate([(1, 1.0, 0.55), (2, 0.3, 0.26), (3, 0.12, 0.09)])]
-    C["tap"] = {"meaning": "The trick worked; money came out, to the next note of the era's song.", "bus": "SFX-Frequent",
+    C["tap"] = {"meaning": "The trick worked; money came out, to the next note of HaTikva.", "bus": "SFX-Frequent",
                 "priority": 2, "poly": 6, "steal": "oldest", "ducks": [], "jitterDb": 1.5,
                 "pitch": {"type": "none"},
-                "melody": TAP_ANTHEM["melody"], "phrases": TAP_ANTHEM["phrases"],
                 "variants": {"r%d" % r: bell(r) for r in TAP_BELL_ROOTS},
-                "runtime": "Each tap plays the next note of the playing era's tapLine (music.json), from the bell "
-                           "root (variant r<midi>) nearest the note, at pitch_scale 2^(semitones/12). The taps follow "
-                           "the music: after a pause the next tap joins the note the music is on, and at each phrase's "
-                           "end a tap that has fallen behind (or run more than a phrase ahead) jumps to the phrase the "
-                           "music plays. Without music the line runs on by itself. `melody` (HaTikva, semitones above "
-                           "the key's root in octave 5) is the fallback for a manifest without tap lines. A stolen "
-                           "voice fades over 30 ms. Gain jitter +-1.5 dB.",
+                "runtime": "Each tap plays the next note of the playing era's tapLine (HaTikva in the era's anthem "
+                           "key, music.json), from the bell root (variant r<midi>) nearest the note, at pitch_scale "
+                           "2^(semitones/12). The anthem runs on through pauses and court day and wraps at its end; a "
+                           "new round starts it from the top. A stolen voice fades over 30 ms. Gain jitter +-1.5 dB.",
                 "lengthMs": 640, "target": {"type": "stream", "rateHz": 5, "lufs": -21.0}}
     # 2. rabbit crit
     def rabbit(slide):
@@ -1119,7 +1118,7 @@ def cues():
                  "target": {"type": "burst", "lufs": -19.0}}
     # v1.10: the player's taps played a whole phrase of the song: a quiet sparkle up the open fifth
     # (5, 8, 5'; no third, so it agrees with every era's mode), 80 ms after the phrase's last note
-    C["phraseDone"] = {"meaning": "The taps played a whole phrase of the era's song (the phrase bonus).", "bus": "SFX-Frequent",
+    C["phraseDone"] = {"meaning": "The taps played a whole line of HaTikva (the phrase bonus).", "bus": "SFX-Frequent",
                        "priority": 2, "poly": 1, "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 5},
                        "variants": {"": glint(0.08, "E5", 0.4, dur=0.05, decay=0.05, sustain=0.2)
                                     + glint(0.14, "A5", 0.45, dur=0.06, decay=0.06, sustain=0.15, noise_gain=0.15)
@@ -1518,8 +1517,8 @@ def longest_anthem_run(iv):
     return best
 
 
-def line_events(bars):
-    """Monophonic notes (onset step, midi, steps) from bar strings (first note of a chord, no ornaments)."""
+def line_notes(bars):
+    """Monophonic note list (midi, steps) from bar strings (first note of a chord)."""
     out = []
     toks = " ".join(bars).split()
     for i, t in enumerate(toks):
@@ -1528,13 +1527,9 @@ def line_events(bars):
         n = 1
         while i + n < len(toks) and toks[i + n] == "-":
             n += 1
-        out.append((i, midi(re.split(r"[~<@+]", t)[0]), n))
+        name = re.split(r"[~<@+]", t)[0]
+        out.append((midi(name), n))
     return out
-
-
-def line_notes(bars):
-    """Monophonic note list (midi, steps) from bar strings (first note of a chord)."""
-    return [(m, n) for _, m, n in line_events(bars)]
 
 
 def form_bars(era, ch):
@@ -1546,50 +1541,32 @@ def form_bars(era, ch):
     return bars
 
 
-# v1.10 (Bar, 2026-10-03: "each tap is a note"): the tap plays the song the era is playing. tapLine is
-# the melody of the loop, one entry per note: its onset (steps from bar 1), its midi pitch (the bell's
-# register: a section that sits low goes up an octave), and the 2-bar phrases (note indexes) the
-# runtime follows the music by and pays the phrase bonus on. The lead carries the song, except in the
-# Knesset's A' hocket, where P2 has the melody (an octave down, so it comes back up).
-TAP_SOURCE = {("knesset", "A2"): ("p2", 12)}
+# v1.11: every era's tapLine is HaTikva (TAP_ANTHEM) in that era's anthem key: one midi note per tap and
+# the note indexes where each of its 2-bar lines starts (the phrase bonus).
 TAP_PHRASE_BARS = 2
-TAP_FLOOR = midi("D4")      # the lowest bell note
-TAP_LOW_SECTION = midi("F5")  # a section whose top is at or under this plays an octave up
 
 
 def tap_line(eid, e):
-    spb = e["stepsPerBeat"] * e["beatsPerBar"]
-    sb = 8   # form_bars' section length (music()["form"]["sectionBars"])
-    steps, notes = [], []
-    for si, sec in enumerate(["A", "A2", "B", "T"]):
-        ch, shift = TAP_SOURCE.get((eid, sec), ("lead", 0))
-        bars = form_bars(e, ch)[si * sb:(si + 1) * sb]
-        sec_notes = [(si * sb * spb + st, m + shift) for st, m, _ in line_events(bars)]
-        if sec_notes and max(n for _, n in sec_notes) <= TAP_LOW_SECTION:
-            sec_notes = [(st, n + 12) for st, n in sec_notes]
-        for st, n in sec_notes:
-            steps.append(st)
-            notes.append(n + 12 if n < TAP_FLOOR else n)
-    phrases = []
-    for ph in range(4 * sb // TAP_PHRASE_BARS):
-        first = next((i for i, st in enumerate(steps) if st >= ph * TAP_PHRASE_BARS * spb), None)
-        if first is not None and first not in phrases and steps[first] < (ph + 1) * TAP_PHRASE_BARS * spb:
-            phrases.append(first)
-    return {"steps": steps, "midi": notes, "phrases": phrases, "phraseBars": TAP_PHRASE_BARS}
+    root = midi(TAP_ANTHEM_ROOT[eid])
+    return {"midi": [root + x for x in TAP_ANTHEM["semis"]], "phrases": TAP_ANTHEM["phrases"],
+            "phraseBars": TAP_PHRASE_BARS}
 
 
 def check_tap_lines(m):
+    sm = TAP_ANTHEM["semis"]
+    if [b - a for a, b in zip(sm, sm[1:])][:len(ANTHEM)] != ANTHEM:
+        err("tap: HaTikva does not open with the anthem's verified first two bars")
+    if TAP_ANTHEM["phrases"][0] != 0 or sorted(set(TAP_ANTHEM["phrases"])) != TAP_ANTHEM["phrases"] \
+            or TAP_ANTHEM["phrases"][-1] >= len(sm):
+        err("tap: the phrase starts are not rising note indexes inside the anthem")
     for eid, e in m["eras"].items():
         tl = e["tapLine"]
-        if len(tl["phrases"]) < 12:
-            err("%s tapLine: only %d phrases" % (eid, len(tl["phrases"])))
-        bounds = tl["phrases"] + [len(tl["midi"])]
-        for a, b in zip(bounds, bounds[1:]):
-            if not 3 <= b - a <= 18:
-                err("%s tapLine: a phrase of %d notes at note %d" % (eid, b - a, a))
         lo, hi = min(tl["midi"]), max(tl["midi"])
-        if lo < TAP_FLOOR or hi > midi("A6"):
+        if lo < midi("D4") or hi > midi("A6"):
             err("%s tapLine: range %s-%s" % (eid, nm(lo), nm(hi)))
+        far = [n for n in tl["midi"] if min(abs(n - r) for r in TAP_BELL_ROOTS) > 3]
+        if far:
+            err("%s tapLine: %s more than 3 semitones from a bell root" % (eid, nm(far[0])))
 
 
 def check_music(m):
@@ -1695,14 +1672,7 @@ def check_cues(c):
                     err("%s: a first sound must start at t=0 (no silent lead-in)" % cid)
                 if end > 1.0:
                     err("%s: %.2f s > 1 s" % (cid, end))
-    # v1.5: the tap's HaTikva opens with the anthem's verified first two bars (catches a typo in the data)
     tap = c["cues"]["tap"]
-    mel = [int(x[1:]) for x in tap["melody"]]
-    if [b_ - a_ for a_, b_ in zip(mel, mel[1:])][:len(ANTHEM)] != ANTHEM:
-        err("tap: the melody does not open with the anthem's first two bars")
-    for s_ in tap["phrases"]:
-        if not 0 <= s_ < len(mel):
-            err("tap: phrase start %d is outside the melody" % s_)
     if sorted(tap["variants"]) != sorted("r%d" % r for r in TAP_BELL_ROOTS):
         err("tap: the variants are the bell roots r<midi>")
     # v1.3: Dubi's canned lines stay off the anthem: bank degrees only (no 2, no b6), no 5 -> 5' leap
