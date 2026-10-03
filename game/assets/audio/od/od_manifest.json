@@ -2440,9 +2440,9 @@
 			"loopSamples": 2112000,
 			"loopSeconds": 66.2069,
 			"lufs": {
-				"L0": -23.01,
-				"L1": -25.84,
-				"L2": -22.29,
+				"L0": -22.83,
+				"L1": -26.29,
+				"L2": -22.09,
 				"full": -19.3
 			},
 			"mode": "minor",
@@ -2456,13 +2456,13 @@
 					99000
 				],
 				"loopSamples": 132000,
-				"play_db": -8.13
+				"play_db": -7.95
 			},
-			"play_db": -4.21,
+			"play_db": -4.03,
 			"rate": 31900,
 			"stepSamples": 4125,
 			"stepsPerBar": 16,
-			"sumPeakDbfs": -3.42,
+			"sumPeakDbfs": -3.24,
 			"tempoBpm": 116.0
 		},
 		"courthouse": {
@@ -2476,17 +2476,17 @@
 			"loopSamples": 1923840,
 			"loopSeconds": 87.2727,
 			"lufs": {
-				"L0": -24.57,
-				"L1": -27.97,
-				"L2": -21.51,
+				"L0": -24.84,
+				"L1": -31.8,
+				"L2": -21.72,
 				"full": -20.3
 			},
 			"mode": "minor",
-			"play_db": -5.1,
+			"play_db": -5.37,
 			"rate": 22044,
 			"stepSamples": 5010,
 			"stepsPerBar": 12,
-			"sumPeakDbfs": -1.81,
+			"sumPeakDbfs": -2.08,
 			"tempoBpm": 88.0
 		},
 		"knesset": {
@@ -2500,17 +2500,17 @@
 			"loopSamples": 1863680,
 			"loopSeconds": 58.1818,
 			"lufs": {
-				"L0": -22.27,
-				"L1": -26.62,
-				"L2": -21.91,
+				"L0": -22.53,
+				"L1": -28.38,
+				"L2": -22.32,
 				"full": -19.3
 			},
 			"mode": "minor",
-			"play_db": -4.86,
+			"play_db": -5.12,
 			"rate": 32032,
 			"stepSamples": 3640,
 			"stepsPerBar": 16,
-			"sumPeakDbfs": -3.88,
+			"sumPeakDbfs": -3.11,
 			"tempoBpm": 132.0
 		},
 		"washington": {
@@ -2524,17 +2524,17 @@
 			"loopSamples": 1704960,
 			"loopSeconds": 53.3333,
 			"lufs": {
-				"L0": -22.8,
-				"L1": -26.59,
-				"L2": -21.0,
+				"L0": -23.03,
+				"L1": -28.43,
+				"L2": -21.14,
 				"full": -19.3
 			},
 			"mode": "mixolydian",
-			"play_db": -4.18,
+			"play_db": -4.56,
 			"rate": 31968,
 			"stepSamples": 3330,
 			"stepsPerBar": 16,
-			"sumPeakDbfs": -3.27,
+			"sumPeakDbfs": -3.4,
 			"tempoBpm": 144.0
 		}
 	},

@@ -144,6 +144,9 @@ INSTRUMENTS = {
     # P2: counter-line. 12.5% = the nasal answer, 50% = the brass.
     "p2n": {"gate": 0.88, "layers": [L(id="p2", wave="pulse", duty=0.125, freqStart="A4", attack=0.002, decay=0.1,
                                         sustain=0.55, duration="note", release=0.04, filter={"type": "lowpass", "freq": 3500, "Q": 0.7}, gain=1.0, vibrato={"rateHz": 5.0, "depthCents": 10, "delay": 0.3})]},
+    # v1.9: the counter-line with the lead's short gate (p1s), for a canon's long notes (<= 1.0 s steady)
+    "p2ns": {"gate": 0.72, "layers": [L(id="p2", wave="pulse", duty=0.125, freqStart="A4", attack=0.002, decay=0.1,
+                                         sustain=0.55, duration="note", release=0.04, filter={"type": "lowpass", "freq": 3500, "Q": 0.7}, gain=1.0)]},
     "p2b": {"gate": 0.82, "layers": [L(id="p2", wave="pulse", duty=0.5, freqStart="A4", attack=0.002, decay=0.1,
                                         sustain=0.5, duration="note", release=0.04, filter={"type": "lowpass", "freq": 4000, "Q": 0.7}, gain=0.8)]},
     "p2stab": {"gate": 1.0, "layers": [L(id="p2", wave="pulse", duty=0.5, freqStart="A4", attack=0.001, decay=0.08,
@@ -266,21 +269,23 @@ def balfour():
                  "G5:4 G5:2 G5:2 F5:4 F5:4 | E5:2 D5:2 E5:2 F5:2 D5:8", S),
         "A2": seq("D5~E5:6 F5:6 G5:4 | A5:6 A5:6 G5:2 A5:2 | Bb5:6 A5:6 Bb5:4 | D6:6 A5:6 F5:4 |"
                   "F5:6 Bb5:6 D6:4 | C6:6 E6:6 D6:4 | C#6:6 E6:6 A5:4 | E6:4 D6:2 C#6:6 .:4", S),
-        "B": seq("A5:4 .:2 A5:2 C6:4 A5:4 | G5:4 .:2 G5:2 E5:4 G5:4 | A5:4 .:2 A5:2 G5:4 A5:4 |"
-                 "A5:4 .:2 A5:2 G5:4 E5:4 | D6:4 .:2 D6:2 Bb5:4 D6:4 | Bb5:4 .:2 Bb5:2 A5:4 Bb5:4 |"
-                 "C#6:4 .:2 C#6:2 A5:4 E5:4 | E5:4 .:2 A5:2 C#6:4 E6:2 D6:2", S),
+        # v1.9: B is Hava Nagila (TUNES["havaNagila"]), part A "הבה נגילה ×3, ונשמחה" and part B "הבה
+        # נרננה", in its own key D (freygish: D Eb F# G A Bb C), the F# the B section's colour
+        "B": seq("D5:4 D5:6 F#5:2 Eb5:2 D5:2 | F#5:4 F#5:6 A5:2 G5:2 F#5:2 | G5:4 G5:6 Bb5:2 A5:2 G5:2 |"
+                 "F#5:4 Eb5:4 D5:8 | F#5:2 F#5:4 Eb5:2 D5:2 D5:2 D5:4 | Eb5:2 Eb5:4 D5:2 C5:2 C5:2 C5:4 |"
+                 "C5:4 Eb5:3 D5:1 C5:4 G5:4 | F#5:4 Eb5:4 D5:8", S),
         "T": seq("A5:6 F5:6 D5:4 | G5:6 Bb5:6 G5:4 | E5:6 G5:6 C6:4 | A5:6 C6:6 A5:4 |"
                  "Bb5:6 A5:6 G5:4 | G5:6 F5:6 E5:4 | E5:6 C#5:2 E5:4 .:2 D5:2 | E5:4 F5:2 G5:6 A5:4", S),
     }
     def stabs(a, b):
         return ". . %s . . . %s . . . %s . . . %s ." % (a, b, a, b)
     ST = {"Dm": stabs("F4", "A4"), "Gm": stabs("Bb4", "D5"), "A": stabs("C#5", "E5"), "Bb": stabs("D5", "F4"),
-          "C": stabs("E4", "G4"), "F": stabs("A4", "C5")}
+          "C": stabs("E4", "G4"), "F": stabs("A4", "C5"), "D": stabs("F#4", "A4"), "Cm": stabs("Eb4", "G4")}
     # A: the anthem's own harmony, a chord per half bar where the melody turns (bar 2: Gm under the
     # b6 neighbour, Dm under the held 5; bar 4: A under the 2-1-2, Dm under the close)
     A = ["Dm", "Gm|Dm", "Gm", "A|Dm", "Dm", "Gm|Dm", "Gm", "A|Dm"]
     A2 = ["Dm", "Dm", "Gm", "Dm", "Bb", "C", "A", "A"]
-    B = ["F", "C", "Dm", "A", "Bb", "Gm", "A", "A"]
+    B = ["D", "D", "Gm", "D", "D", "Cm", "Cm", "D"]   # Hava Nagila: the source's chords (John Chambers' ABC)
     T = ["Dm", "Gm", "C", "F", "Bb", "Gm", "A"]
     def st2(c):   # a bar's stabs, split at the half bar for "X|Y"
         a, b = (c.split("|") + [c])[:2]
@@ -288,16 +293,16 @@ def balfour():
     p2 = {
         "A": [st2(c) for c in A],
         "A2": [ST[c] for c in A2],
-        "B": seq("C5:6 A4:6 F4:4 | G4:6 C5:6 E5:4 | F5:6 E5:6 D5:4 | C#5:4 D5:2 E5:6 A4:4 |"
-                 "Bb4:6 D5:6 F5:4 | G5:6 F5:6 D5:4 | E5:4 F5:2 E5:6 C#5:4 | A4:6 E4:6 .:4", S),
+        "B": [ST[c] for c in B],   # the hora's off-beat stabs under Hava Nagila
         # T: stabs; bar 31 stops before the pickup; bar 32 harmonises the motif a sixth below (the
         # raised leading tone C# under the held 5)
         "T": [ST[c] for c in T[:6]] + [". . C#5 . . . E5 . . . C#5 . . . . .",
                                        " ".join(seq("G4:4 A4:2 Bb4:6 C#5:4", S))],
     }
-    p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2n", "T": "p2stab"}
+    p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2stab", "T": "p2stab"}
     BASS = {"Dm": "D3:3 .:5 A2:3 .:5", "Gm": "G3:3 .:5 D3:3 .:5", "A": "A2:3 .:5 E3:3 .:5",
-            "Bb": "Bb2:3 .:5 F3:3 .:5", "C": "C3:3 .:5 G3:3 .:5", "F": "F3:3 .:5 C3:3 .:5"}
+            "Bb": "Bb2:3 .:5 F3:3 .:5", "C": "C3:3 .:5 G3:3 .:5", "F": "F3:3 .:5 C3:3 .:5",
+            "D": "D3:3 .:5 A2:3 .:5", "Cm": "C3:3 .:5 G3:3 .:5"}
     def bass2(c):   # root on beat 1, and on beat 3 the fifth, or the second chord's root for "X|Y"
         if "|" not in c:
             return BASS[c]
@@ -326,7 +331,7 @@ def balfour():
             "bass": {"instrument": "tri", "layer": "L0", "gain": 0.46, "sections": {k: with_click(v, "triOne") for k, v in bass.items()}},
             "drums": {"kit": "darbuka", "layer": "L0", "gain": 0.42, "sections": kit},
             "p2": {"instrument": "p2stab", "layer": "L1", "gain": 0.5, "sectionInstrument": p2_inst,
-                   "sectionGain": {"A": 2.0, "A2": 2.0, "T": 2.0}, "sections": p2},
+                   "sectionGain": {"A": 2.0, "A2": 2.0, "B": 2.0, "T": 2.0}, "sections": p2},
             "lead": {"instrument": "p1", "layer": "L2", "gain": 0.36, "sections": lead, "fx": LEAD_FX},
         },
         "outside": {"kit": "outside", "bars": outside, "gain": 0.6},
@@ -337,16 +342,19 @@ def balfour():
 
 def knesset():
     S = 16
-    # P1 (L2) and P2 (L1) argue in 2-bar call-and-response and cut each other off at step 12. What they
-    # argue over is the anthem's contour: P1's rise never reaches its 5 before P2 cuts in with the
-    # b6-5-b6 neighbour; in A' P2 takes the rise and P1 the leap. In B, P2 has the complete melody.
+    # v1.9 (Bar: traditional songs; the Knesset argues): A is Hevenu Shalom Aleichem (TUNES["hevenu"],
+    # Dm -> Em, up an octave), "הבאנו שלום עליכם" sung through. In A' they argue over it: P2 takes the
+    # melody an octave down and P1 snatches every pickup before P2 can (a hocket), until both land on
+    # the cadence together. B is Shalom Chaverim (TUNES["shalomChaverim"], its own key Em) as the round
+    # it is: P1 leads, P2 enters two bars later in canon, and neither ever finishes first.
     lead = {
-        "A": seq("E5:3 F#5:3 G5:2 A5:4 .:4 | .:12 A5:2 B5:2 | B5:6 B5:2 C6:2 B5:2 .:4 | .:12 E6:2 D6:2 |"
-                 "C6:3 B5:3 A5:2 G5:4 .:4 | .:12 C6:2 E6:2 | D#6:3 C6:3 B5:2 F#5:4 .:4 | .:12 B5:4", S),
-        "A2": seq(".:12 B5:2 A5:2 | G5~A5:3 F#5:3 E5:2 D#5:4 .:4 | .:12 A5:2 C6:2 | B5:3 G5:3 E5:2 D5:4 .:4 |"
-                  ".:12 A5:2 B5:2 | C6:3 B5:3 A5:2 E6:4 .:4 | .:12 B5:2 A5:2 | B5:3 D#6:3 F#6:2 .:8", S),
-        "B": seq(".:12 B5:2 D6:2 | .:12 A5:2 F#5:2 | .:12 B5:2 G5:2 | .:8 F#5:2 B5:2 D#6:4 |"
-                 ".:12 E6:2 C6:2 | .:12 C6:2 A5:2 | .:12 D#6:2 B5:2 | .:8 B5:2 D#6:2 F#6:2 .:2", S),
+        "A": seq("B5:8 G5:6 F#5:2 | F#5:4 E5:4 .:2 E5:2 G5:2 B5:2 | E6:8 C6:6 B5:2 | B5:4 A5:4 .:2 A5:2 B5:2 C6:2 |"
+                 "B5:6 F#5:2 B5:6 A5:2 | A5:4 G5:4 .:2 F#5:2 G5:2 A5:2 | B5:4 B5:4 B5:4 B5:4 |"
+                 "B5:3 A5:1 G5:2 A5:2 B5:2 B4:2 E5:2 G5:2", S),
+        "A2": seq(".:16 | .:10 E5:2 G5:2 B5:2 | .:16 | .:10 A5:2 B5:2 C6:2 | .:16 | .:10 F#5:2 G5:2 A5:2 | .:16 |"
+                  "B5:3 A5:1 G5:2 F#5:2 E5:8", S),
+        "B": seq("E5:4 E5:2 F#5:2 G5:4 E5:4 | G5:4 G5:2 A5:2 B5:4 B5:4 | E6:12 D6:4 | B5:12 B5:4 |"
+                 "E6:4 B5:2 A5:2 G5:4 A5:4 | B5:4 G5:2 F#5:2 E5:4 B4:4 | E5:12 F#5:2 G5:2 | G5:12 B4:4", S),
         "T": seq("E5:3 G5:3 B5:2 E6:4 D6:2 B5:2 | C6:3 B5:3 C6:2 B5:4 A5:4 | A5:3 F#5:3 D5:2 F#5:4 A5:4 |"
                  "B5:3 G5:3 D5:2 G5:4 .:4 | E5:3 G5:3 C6:2 B5:4 A5:4 | A5:3 C6:3 E6:2 D#6:4 B5:4 |"
                  "F#5:6 D#5:2 F#5:4 .:2 E5:2 | F#5:4 G5:2 A5:6 B5:4", S),
@@ -355,26 +363,34 @@ def knesset():
         return ". . %s . . . %s . . . . . %s . . ." % (a, b, c)
     MQ = {"Em": mq("G4", "B4", "G4"), "Am": mq("C5", "E5", "C5"), "D": mq("F#4", "A4", "F#4"),
           "G": mq("B4", "D5", "B4"), "C": mq("E5", "G4", "E5"), "B": mq("D#5", "F#5", "D#5")}
+    def mq2(c):   # a bar's maqsum stabs, split at the half bar for "X|Y"
+        a, b = (c.split("|") + [c])[:2]
+        return " ".join(MQ[a].split(" ")[:8] + MQ[b].split(" ")[8:])
+    A = ["Em|B", "Em", "Am|B", "Am", "B", "Em", "B", "B"]          # Hevenu: the source's chords, Dm -> Em
+    A2 = ["Em|B", "Em", "Am|B", "Am", "B", "Em", "B", "B|Em"]
+    B = ["Em", "G", "C", "B", "C", "Em", "Am", "Em"]               # Shalom Chaverim (the round agrees with them)
     p2 = {
-        "A": seq(".:12 C5:2 B4:2 | C5:3 B4:3 C5:2 E5:4 .:4 | .:12 C5:2 A4:2 | B4:3 G4:3 E4:2 F#4:4 .:4 |"
-                 ".:12 E4:2 G4:2 | A4:3 C5:3 E5:2 C5:4 .:4 | .:12 D#5:2 F#5:2 | E5:3 B4:3 G4:2 E4:2 .:6", S),
-        "A2": seq("E4:3 F#4:3 G4:2 A4:2 B4:2 .:4 | .:12 B4:2 C5:2 | C5:3 B4:3 C5:2 B4:2 .:6 | .:12 B4:2 C5:2 |"
-                  "A4:3 C5:3 E5:2 D5:2 .:6 | .:12 C5:2 E5:2 | F#4:3 A4:3 B4:2 D#5:2 .:6 | .:12 D#5:2 F#5:2", S),
-        "B": seq("B4:3 D5:3 G5:2 F#5:4 E5:2 D5:2 | A4:3 D5:3 F#5:2 E5:4 D5:2 C5:2 | B4:3 E5:3 G5:2 F#5:4 E5:4 |"
-                 "D#5:6 B4:2 F#4:4 .:4 | E5:3 G5:3 C5:2 E5:2 G5:2 A5:4 | C5:3 E5:3 A5:2 G5:4 E5:2 C5:2 |"
-                 "B4:3 D#5:3 F#5:2 A5:4 G5:2 F#5:2 | F#5:6 .:2 B4:4 .:4", S),
+        "A": [mq2(c) for c in A],
+        # the melody an octave down, the pickups left to P1 (the hocket)
+        "A2": seq("B4:8 G4:6 F#4:2 | F#4:4 E4:4 .:8 | E5:8 C5:6 B4:2 | B4:4 A4:4 .:8 | B4:6 F#4:2 B4:6 A4:2 |"
+                  "A4:4 G4:4 .:8 | B4:4 B4:4 B4:4 B4:4 | B4:3 A4:1 G4:2 F#4:2 E4:8", S),
+        # the round: P2 enters two bars after P1, an octave down
+        "B": seq(".:16 | .:16 | E4:4 E4:2 F#4:2 G4:4 E4:4 | G4:4 G4:2 A4:2 B4:4 B4:4 | E5:12 D5:4 | B4:12 B4:4 |"
+                 "E5:4 B4:2 A4:2 G4:4 A4:4 | B4:4 G4:2 F#4:2 E4:4 B3:4", S),
         "T": [MQ[c] for c in ["Em", "Am", "D", "G", "C", "Am"]] + [". . D#5 . . . F#5 . . . . . . . . .",
                                                                      " ".join(seq("A4:4 B4:2 C5:6 D#5:4", S))],
     }
-    p2_inst = {"A": "p2n", "A2": "p2n", "B": "p2n", "T": "p2stab"}
+    p2_inst = {"A": "p2stab", "A2": "p2n", "B": "p2ns", "T": "p2stab"}
     BASS = {"Em": "E3:3 .:3 E3:2 B2:3 .:1 E3:2 .:2", "Am": "A2:3 .:3 A2:2 E3:3 .:1 A2:2 .:2",
             "D": "D3:3 .:3 D3:2 A2:3 .:1 D3:2 .:2", "G": "G3:3 .:3 G3:2 D3:3 .:1 G3:2 .:2",
             "C": "C3:3 .:3 C3:2 G3:3 .:1 C3:2 .:2", "B": "B2:3 .:3 B2:2 F#3:3 .:1 B2:2 .:2"}
-    A = ["Em", "Em", "Am", "Em", "C", "Am", "B", "Em"]
-    A2 = ["Em", "Em", "Am", "Em", "C", "Am", "B", "B"]
-    B = ["G", "D", "Em", "B", "C", "Am", "B", "B"]
     T = ["Em", "Am", "D", "G", "C", "Am", "B"]
-    bass = {k: seq(" | ".join(BASS[c] for c in v), S) for k, v in {"A": A, "A2": A2, "B": B}.items()}
+    def kb(c):   # the maqsum bass, its second half from the second chord for "X|Y"
+        if "|" not in c:
+            return BASS[c]
+        x, y = c.split("|")
+        return " ".join(BASS[x].split(" ")[:3] + BASS[y].split(" ")[3:])
+    bass = {k: seq(" | ".join(kb(c) for c in v), S) for k, v in {"A": A, "A2": A2, "B": B}.items()}
     bass["T"] = seq(" | ".join(BASS[c] for c in T) + " | E3:3 .:3 A2:3 .:3 B2:3 .:1", S)
     mq1 = drums(S, D="x.......x.......", T="..x...x.....x...", k="....x.....x....x", j="x.x.x.x.x.x.x.x.")
     mq2 = drums(S, D="x.......x.....x.", T="..x...x.....x...", k=".x..x.....x.....", j="x.x.x.x.x.x.x.x.")
@@ -384,14 +400,14 @@ def knesset():
     return {
         "title": "המליאה (Knesset)",
         "tempoBpm": 132, "beatsPerBar": 4, "stepsPerBeat": 4, "rate": 32032, "key": "E", "mode": "minor",
-        "mood": "A plenum haggle over the anthem itself: P1 and P2 pass its contour back and forth and never let the other finish.",
+        "mood": "A plenum haggle: Hevenu Shalom Aleichem fought over pickup by pickup, then Shalom Chaverim as a round nobody finishes first.",
         "chords": {"A": A, "A2": A2, "B": B, "T": T + ["Em|B"]},
         "channels": {
             "bass": {"instrument": "tri", "layer": "L0", "gain": 0.44, "sections": {k: with_click(v, "triOne") for k, v in bass.items()}},
             "drums": {"kit": "darbuka", "layer": "L0", "gain": 0.42, "sections": kit},
             "p2": {"instrument": "p2n", "layer": "L1", "gain": 0.4, "sectionInstrument": p2_inst,
-                   "sectionGain": {"T": 1.4}, "sections": p2},
-            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.36, "sections": lead, "fx": LEAD_FX},
+                   "sectionGain": {"A": 1.4, "T": 1.4}, "sections": p2},
+            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.36, "sectionInstrument": {"B": "p1s"}, "sections": lead, "fx": LEAD_FX},
         },
     }
 
@@ -411,8 +427,10 @@ def courthouse():
                   "Eb5:1 .:1 Eb5:1 F5:1 .:1 Eb5:1 C6:3 .:3 | Bb5:1 .:1 Bb5:1 C6:1 .:1 Bb5:1 G5:3 .:3 |"
                   "G5:1 .:1 G5:1 F5:1 .:1 Eb5:1 Bb4:3 .:3 | Eb5:1 .:1 Eb5:1 D5:1 .:1 C5:1 G4:3 .:3 |"
                   "A4:2 C5:1 F#5:2 C5:1 A4:2 C5:1 F#4:3 | D5:2 A4:1 F#4:2 A4:1 D5:3 .:3", S),
-        "B": seq(".:6 G5:1 .:1 G5:1 .:3 | .:6 G5:1 .:1 Bb5:1 .:3 | .:6 A5:1 .:1 C6:1 D6:1 .:2 | .:3 D5:1 .:1 Bb4:1 .:6 |"
-                 ".:6 Bb5:1 .:1 Bb5:1 .:3 | .:6 C6:1 .:1 G5:1 .:3 | .:9 D6:1 C6:1 A5:1 | D5:1 .:2 A4:1 .:2 F#4:1 .:2 D4:1 .:2", S),
+        # v1.9: B is Ma'oz Tzur (TUNES["maozTzur"]), its first section, D major -> G minor (3 -> b3,
+        # 6 -> b6, the leading tone kept): a hymn for the trial, slow and straight
+        "B": seq("G4:3 D4:3 G4:3 C5:3 | Bb4:3 A4:3 G4:6 | D5:3 Eb5:3 A4:3 Bb4:2 C5:1 | Bb4:3 A4:3 G4:6 |"
+                 "G4:3 D4:3 G4:3 C5:3 | Bb4:3 A4:3 G4:6 | D5:3 Eb5:3 A4:3 Bb4:2 C5:1 | Bb4:3 A4:3 G4:6", S),
         "T": seq("D5:1 .:1 D5:1 C5:1 .:1 D5:1 Bb4:3 .:3 | Eb5:1 .:1 Eb5:1 G5:1 .:1 Eb5:1 Bb4:3 .:3 |"
                  "C5:1 .:1 Eb5:1 G5:1 .:1 Eb5:1 C5:3 .:3 | D5:2 Bb4:1 G4:3 .:6 | Eb5:1 .:1 Eb5:1 D5:1 .:1 C5:1 G4:3 .:3 |"
                  "G4:2 Bb4:1 Eb5:2 Bb4:1 G4:3 .:3 | F#4:2 A4:1 D5:3 .:5 G4:1 | A4@p1:3 Bb4@p1:2 C5@p1:4 D5@p1:3", S),
@@ -422,23 +440,24 @@ def courthouse():
     CP = {"Gm": comp("Bb4", "D5"), "Cm": comp("Eb5", "G4"), "D": comp("F#4", "C5"), "Eb": comp("G4", "Bb4")}
     A = ["Gm", "Gm", "Cm", "Gm", "Cm", "Eb", "D", "Gm"]
     A2 = ["Gm", "Gm", "Cm", "Gm", "Eb", "Cm", "D", "D"]
-    B = ["Cm", "Eb", "D", "Gm", "Eb", "Cm", "D", "D"]
+    B = ["Gm|Cm", "Gm|D", "Cm|D", "Gm", "Gm|Cm", "Gm|D", "Cm|D", "Gm"]   # Ma'oz Tzur, the source's harmony in G minor
     T = ["Gm", "Eb", "Cm", "Gm", "Cm", "Eb", "D"]
+    def cp2(c):
+        a, b = (c.split("|") + [c])[:2]
+        return " ".join(CP[a].split(" ")[:6] + CP[b].split(" ")[6:])
     p2 = {
         "A": [CP[c] for c in A], "A2": [CP[c] for c in A2],
-        "B": seq("C5:3 Eb5:2 D5:1 C5:3 G4:3 | Bb4:3 Eb5:2 D5:1 Bb4:3 G4:3 | F#4:2 G4:1 A4:2 Bb4:1 C5:3 D5:3 |"
-                 "Bb4:3 A4:3 G4:3 .:3 | G4:3 Bb4:2 Eb5:1 D5:3 Bb4:3 | Eb5:3 G5:2 F5:1 Eb5:3 C5:3 |"
-                 "A4:2 Bb4:1 C5:2 D5:1 C5:2 Bb4:1 A4:3 | F#4:3 .:3 D4:3 .:3", S),
+        "B": [cp2(c) for c in B],
         "T": [CP[c] for c in T[:6]] + [". . . F#4 . . . . . . . .", " ".join(seq("C4:3 D4:2 Eb4:4 F#4:3", S))],
     }
-    p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2n", "T": "p2stab"}
+    p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2stab", "T": "p2stab"}
     BASS = {"Gm": "G3:1 .:2 D3:1 .:2 Bb2:1 .:2 D3:1 .:2", "Cm": "C3:1 .:2 Eb3:1 .:2 G3:1 .:2 Eb3:1 .:2",
             "D": "D3:1 .:2 F#3:1 .:2 A3:1 .:2 F#3:1 .:2", "Eb": "Eb3:1 .:2 Bb2:1 .:2 G3:1 .:2 Bb2:1 .:2",
             "Gm>Cm": "G3:1 .:2 D3:1 .:2 Bb2:1 .:2 B2:1 .:2"}
     bass = {
         "A": seq(" | ".join(BASS[c] for c in ["Gm", "Gm>Cm", "Cm", "Gm>Cm", "Cm", "Eb", "D", "Gm"]), S),
         "A2": seq(" | ".join(BASS[c] for c in ["Gm", "Gm>Cm", "Cm", "Gm", "Eb", "Cm", "D", "D"]), S),
-        "B": seq(" | ".join(BASS[c] for c in B), S),
+        "B": seq(" | ".join((BASS[c] if "|" not in c else " ".join(BASS[c.split("|")[0]].split(" ")[:4] + BASS[c.split("|")[1]].split(" ")[4:])) for c in B), S),
         "T": seq(" | ".join(BASS[c] for c in ["Gm", "Eb", "Cm", "Gm>Cm", "Cm", "Eb", "D"]) + " | G3:1 .:2 D3:1 .:2 C3:1 .:2 D3:1 .:2", S),
     }
     bass = {k: with_click(v, "triTipOne") for k, v in bass.items()}
@@ -460,7 +479,7 @@ def courthouse():
             "bass": {"instrument": "triTip", "layer": "L0", "gain": 0.42, "sections": bass},
             "drums": {"kit": "darbukaCourt", "layer": "L0", "gain": 0.42, "sections": kit},
             "p2": {"instrument": "p2nstab", "layer": "L1", "gain": 0.27, "sectionInstrument": p2_inst,
-                   "sectionGain": {"A": 1.3, "A2": 1.3, "T": 1.3}, "sections": p2},
+                   "sectionGain": {"A": 1.3, "A2": 1.3, "B": 1.3, "T": 1.3}, "sections": p2},
             "lead": {"instrument": "p1s", "layer": "L2", "gain": 0.34, "sections": lead, "fx": {"double": {"cents": 6, "db": -9.0}}},
         },
     }
@@ -475,14 +494,21 @@ def washington():
     # the motif in F minor over V (C, with the raised E). No anthem contour in the ragtime major: a
     # major-key stride anthem would read as parody (the guardrail).
     lead = {
-        "A": seq("F5:3 A5:3 C6:2 D6:3 C6:3 A5:2 | Eb6:3 D6:3 C6:2 A5:4 F5:4 | G5:3 Bb5:3 Eb6:2 D6:2 C6:2 Bb5:4 |"
-                 "A5:3 C6:3 A5:2 F5:4 .:4 | D6:3 Bb5:3 F5:2 G5:2 A5:2 Bb5:4 | G5:3 Bb5:3 D6:2 C6:2 Bb5:2 A5:4 |"
-                 "Db6:3 C6:3 Db6:2 C6:4 .:4 | C6:3 F6:3 C6:2 A5:4 .:4", S),
-        "A2": seq("F5~G5:3 A5:3 C6:2 D6:3 C6:3 A5:2 | Eb6:3 D6:3 C6:2 D6:2 Eb6:2 F6:4 | G6:3 F6:3 Eb6:2 D6:2 C6:2 Bb5:4 |"
-                  "C6:3 A5:3 F5:2 A5:4 .:4 | F5:3 Bb5:3 D6:2 F6:4 D6:4 | Eb6:3 C6:3 G5:2 Bb5:4 C6:4 |"
-                  "Bb5:3 G5:3 Eb5:2 G5:2 Bb5:2 Eb6:4 | D6:3 C6:3 A5:2 F#5:4 .:4", S),
-        "B": seq(".:12 G5:2 A5:2 | .:12 D6:2 C6:2 | .:12 Bb5:2 A5:2 | .:12 Eb6:2 D6:2 |"
-                 ".:12 D6:2 Bb5:2 | .:12 F6:2 Eb6:2 | .:12 G5:2 F5:2 | .:12 G5:2 Bb5:2", S),
+        # v1.9 (Bar: traditional songs; the money): A is Dayenu's verse "אילו הוציאנו" (TUNES["dayenu"],
+        # G -> F), the second time an octave up; A' is its chorus "דיינו" in full: it would have been
+        # enough, and the cheques keep coming. B is Siman Tov u'Mazal Tov (TUNES["simanTov"], the
+        # freilach, Gm -> D minor, F's relative minor): the wedding toast at the gala.
+        "A": seq("A4:2 C5:2 C5:2 C5:2 C5:2 D5:2 C5:2 Bb4:2 | A4:2 C5:2 C5:2 C5:2 C5:2 D5:2 C5:2 Bb4:2 |"
+                 "A4:2 C5:2 G4:2 Bb4:2 A4:2 C5:2 G4:2 Bb4:2 | A4:4 G4:4 F4:4 .:4 |"
+                 "A5:2 C6:2 C6:2 C6:2 C6:2 D6:2 C6:2 Bb5:2 | A5:2 C6:2 C6:2 C6:2 C6:2 D6:2 C6:2 Bb5:2 |"
+                 "A5:2 C6:2 G5:2 Bb5:2 A5:2 C6:2 G5:2 Bb5:2 | A5:4 G5:4 F5:4 .:4", S),
+        "A2": seq("A4:4 A4:4 C5:2 Bb4:4 G4:2 | Bb4:4 Bb4:4 D5:2 C5:4 A4:2 | C5:4 C5:4 F5:2 E5:4 E5:2 |"
+                  "E5:2 C5:2 D5:2 E5:2 F5:2 C5:2 A4:2 F4:2 | A4:4 A4:4 C5:2 Bb4:4 G4:2 | Bb4:4 Bb4:4 D5:2 C5:4 A4:2 |"
+                  "C5:4 C5:4 F5:2 E5:4 E5:2 | E5:2 C5:2 D5:2 E5:2 F5:4 .:4", S),
+        "B": seq("D5:2 D5:2 D5:2 A4:2 D5:2 D5:2 D5:2 A4:2 | D5:2 D5:2 D5:2 A4:2 D5:2 D5:2 D5:4 |"
+                 "F5:2 F5:2 F5:2 D5:2 F5:2 F5:2 F5:2 D5:2 | F5:2 F5:2 F5:2 D5:2 F5:2 F5:2 F5:4 |"
+                 "G5:2 G5:2 G5:2 F5:2 G5:2 G5:2 G5:2 F5:2 | G5:2 G5:2 G5:2 A5:2 F5:2 E5:2 D5:4 |"
+                 "D5:4 G5:4 G5:4 F5:2 E5:2 | D5:8 .:8", S),
         "T": seq("F5:3 A5:3 C6:2 D6:3 C6:3 A5:2 | G5:3 Bb5:3 Eb6:2 D6:3 C6:3 Bb5:2 | D6:3 F6:3 D6:2 Bb5:4 F5:4 |"
                  "A5:3 C6:3 Eb6:2 D6:4 C6:4 | Bb5:3 G5:3 D5:2 G5:2 A5:2 Bb5:4 | C6:3 Bb5:3 G5:2 Eb5:4 G5:4 |"
                  "A5:3 G5:3 C5:2 .:6 F5:2 | G5:4 Ab5:2 Bb5:6 C6:4", S),
@@ -490,23 +516,29 @@ def washington():
     def oompah(a, b):
         return ". . . . %s . . . . . . . %s . . ." % (a, b)
     OP = {"F": oompah("A4", "Eb5"), "Eb": oompah("G4", "Bb4"), "Bb": oompah("F4", "D5"), "Gm": oompah("Bb4", "D5"),
-          "Cm": oompah("Eb5", "G4"), "D7": oompah("F#4", "C5"), "Db": oompah("F4", "Ab4")}
-    A = ["F", "F", "Eb", "F", "Bb", "Gm", "Db", "F"]
-    A2 = ["F", "F", "Eb", "F", "Bb", "Cm", "Eb", "D7"]
+          "Cm": oompah("Eb5", "G4"), "D7": oompah("F#4", "C5"), "Db": oompah("F4", "Ab4"),
+          "C7": oompah("E4", "Bb4"), "Dm": oompah("F4", "A4"), "A7": oompah("C#5", "G4")}
+    def op2(c):
+        a, b = (c.split("|") + [c])[:2]
+        return " ".join(OP[a].split(" ")[:8] + OP[b].split(" ")[8:])
+    A = ["F", "F", "F|C7", "F", "F", "F", "F|C7", "F"]                       # Dayenu's verse, I / V7
+    A2 = ["F|C7", "Bb|F", "C7", "C7|F", "F|C7", "Bb|F", "C7", "C7|F"]        # its chorus
+    B = ["Dm", "Dm", "Dm", "Dm", "Gm", "A7|Dm", "Gm|A7", "Dm"]               # Siman Tov: the source's chords, Gm -> Dm
     T = ["F", "Eb", "Bb", "F", "Gm", "Eb", "F"]
     p2 = {
-        "A": [OP[c] for c in A], "A2": [OP[c] for c in A2],
-        "B": seq("G4:3 A4:3 Bb4:2 D5:4 C5:2 Bb4:2 | A4:3 F#4:3 A4:2 C5:4 Bb4:2 A4:2 | Bb4:3 D5:3 Eb5:2 F#5:2 G5:2 D5:4 |"
-                 "Eb5:3 D5:3 C5:2 G4:4 .:4 | F5:3 D5:3 Bb4:2 C5:2 D5:2 F5:4 | A5:3 G5:3 F5:2 C5:4 A4:4 |"
-                 "G4:3 Bb4:3 Eb5:2 D5:2 C5:2 Bb4:4 | C5:3 Bb4:3 G4:2 C5:4 .:4", S),
+        "A": [op2(c) for c in A], "A2": [op2(c) for c in A2], "B": [op2(c) for c in B],
         "T": [OP[c] for c in T] + [" ".join(seq("Bb4:4 C5:2 Db5:6 E5:4", S))],
     }
-    p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2b", "T": "p2stab"}
+    p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2stab", "T": "p2stab"}
     BASS = {"F": "F3:2 .:6 C3:2 .:6", "Eb": "Eb3:2 .:6 Bb2:2 .:6", "Bb": "Bb2:2 .:6 F3:2 .:6",
             "Gm": "G3:2 .:6 D3:2 .:6", "Cm": "C3:2 .:6 G3:2 .:6", "D7": "D3:2 .:6 A2:2 .:4 C3:2",
-            "Db": "Db3:2 .:6 Ab3:2 .:6"}
-    B = ["Gm", "D7", "Gm", "Cm", "Bb", "F", "Eb", "Cm"]
-    bass = {k: seq(" | ".join(BASS[c] for c in v), S) for k, v in {"A": A, "A2": A2, "B": B}.items()}
+            "Db": "Db3:2 .:6 Ab3:2 .:6", "C7": "C3:2 .:6 G3:2 .:6", "Dm": "D3:2 .:6 A2:2 .:6", "A7": "A2:2 .:6 E3:2 .:6"}
+    def wb(c):   # the stride bass, the second half from the second chord for "X|Y"
+        if "|" not in c:
+            return BASS[c]
+        x, y = c.split("|")
+        return BASS[x].split(" ")[0] + " .:6 " + BASS[y].split(" ")[0] + " .:6"
+    bass = {k: seq(" | ".join(wb(c) for c in v), S) for k, v in {"A": A, "A2": A2, "B": B}.items()}
     bass["T"] = seq(" | ".join(BASS[c] for c in T) + " | F3:2 .:4 Db3:2 .:4 C3:2 .:2", S)
     bass = {k: with_click(v, "triOne") for k, v in bass.items()}
     st1 = drums(S, D="x.......x.......", T="....x.......x...", j="x.x.x.x.x.x.x.x.")
@@ -517,13 +549,13 @@ def washington():
     return {
         "title": "וושינגטון (Washington)",
         "tempoBpm": 144, "beatsPerBar": 4, "stepsPerBeat": 4, "rate": 31968, "key": "F", "mode": "mixolydian",
-        "mood": "Showbiz glitz on Broadway; the anthem's minor follows him abroad at the cadences only (A bar 7, bar 32).",
+        "mood": "Showbiz glitz on Broadway: Dayenu over the stride (it would have been enough), Siman Tov at the gala; the anthem's minor follows him abroad at bar 32.",
         "chords": {"A": A, "A2": A2, "B": B, "T": T + ["Fm|C"]},
         "channels": {
             "bass": {"instrument": "tri", "layer": "L0", "gain": 0.46, "sections": bass},
             "drums": {"kit": "darbuka", "layer": "L0", "gain": 0.38, "sections": kit},
             "p2": {"instrument": "p2stab", "layer": "L1", "gain": 0.24, "sectionInstrument": p2_inst,
-                   "sectionGain": {"A": 2.8, "A2": 2.8, "T": 2.8}, "sections": p2},
+                   "sectionGain": {"A": 2.8, "A2": 2.8, "B": 2.8, "T": 2.8}, "sections": p2},
             "lead": {"instrument": "p1", "layer": "L2", "gain": 0.33, "sections": lead, "fx": LEAD_FX},
         },
     }
@@ -1389,6 +1421,57 @@ ANTHEM_RUNS = {}
 ANTHEM_PHRASE = ANTHEM + [-2, 0, 0, -2, 0, -1, -2, 2, 1, -3, -5]
 ANTHEM_HOME = {("balfour", "lead", "A")}
 
+# v1.9 (Bar 2026-10-03: "HaTikva and more traditional songs"): the traditional tunes the eras play on
+# purpose, as their sources give them (pitch names in the source key, the sounding order; rests and
+# rhythm live in the scores). All public domain: traditional melodies, none with a living composer.
+# TUNE_HOMES says where each is played and how it is transposed; check_tunes holds every home's
+# notes to its source, note for note, and the quote check (QUOTES) skips a tune only in its home.
+TUNES = {
+    "havaNagila": {"src": "flutetunes.com hava-nagila.mid (= John Chambers, trillian.mit.edu ~jc/music/abc/Klezmer/HavaNagila.abc, D phrygian); "
+                          "trad. Sadigura niggun (1840s), A. Z. Idelsohn (d. 1938)",
+                   "notes": "D5 D5 F#5 Eb5 D5 F#5 F#5 A5 G5 F#5 G5 G5 Bb5 A5 G5 F#5 Eb5 D5 "
+                            "F#5 F#5 Eb5 D5 D5 D5 Eb5 Eb5 D5 C5 C5 C5 C5 Eb5 D5 C5 G5 F#5 Eb5 D5"},
+    "hevenu": {"src": "John Chambers, trillian.mit.edu ~jc/music/abc/Klezmer/HeveynuShalomAleychem.abc (X:2, Dm, with the words); "
+                      "trad. Hasidic melody",
+               "notes": "A4 F4 E4 E4 D4 D4 F4 A4 D5 Bb4 A4 A4 G4 G4 A4 Bb4 A4 E4 A4 G4 G4 F4 E4 F4 G4 A4 A4 A4 A4 "
+                        "A4 G4 F4 G4 A4 A3 D4 F4"},
+    "shalomChaverim": {"src": "Musica Viva (musicaviva.com/israel/shalom-shaverim.abc, via abcnotation.com), anon., Em",
+                       "notes": "E4 E4 F#4 G4 E4 G4 G4 A4 B4 B4 E5 D5 B4 B4 E5 B4 A4 G4 A4 B4 G4 F#4 E4 B3 E4 F#4 G4 G4 B3"},
+    "maozTzur": {"src": "flutetunes.com maoz-tzur.mid (Trad. German), the melody track, D major", 
+                 "notes": "D5 A4 D5 G5 F#5 E5 D5 A5 B5 E5 F#5 G5 F#5 E5 D5 D5 A4 D5 G5 F#5 E5 D5 A5 B5 E5 F#5 G5 F#5 E5 D5"},
+    "dayenuVerse": {"src": "flutetunes.com dayenu.mid (Trad. Jewish), G major, the verse",
+                    "notes": "B4 D5 D5 D5 D5 E5 D5 C5 B4 D5 D5 D5 D5 E5 D5 C5 B4 D5 A4 C5 B4 D5 A4 C5 B4 A4 G4"},
+    "dayenuChorus": {"src": "flutetunes.com dayenu.mid (Trad. Jewish), G major, the chorus",
+                     "notes": "B4 B4 D5 C5 A4 C5 C5 E5 D5 B4 D5 D5 G5 F#5 F#5 F#5 D5 E5 F#5 G5 D5 B4 G4 "
+                              "B4 B4 D5 C5 A4 C5 C5 E5 D5 B4 D5 D5 G5 F#5 F#5 F#5 D5 E5 F#5 G5"},
+    "simanTov": {"src": "John Chambers (trillian.mit.edu ~jc/music/abc/Klezmer/SimanTov_Gm.abc; allklez 0577-0579), the freilach, Gm",
+                 "notes": "G4 G4 G4 D4 G4 G4 G4 D4 G4 G4 G4 D4 G4 G4 G4 Bb4 Bb4 Bb4 G4 Bb4 Bb4 Bb4 G4 Bb4 Bb4 Bb4 G4 Bb4 Bb4 Bb4 "
+                          "C5 C5 C5 Bb4 C5 C5 C5 Bb4 C5 C5 C5 D5 Bb4 A4 G4 G4 C5 C5 Bb4 A4 G4"},
+}
+MAJ_TO_MIN = {0: 0, 2: 2, 4: 3, 5: 5, 7: 7, 9: 8, 11: 11}   # the leading tone kept (Ma'oz Tzur's cadences)
+# (era, channel, section) -> [(tune, transform)], played in order; a transform maps a source MIDI note
+TUNE_HOMES = {
+    ("balfour", "lead", "B"): [("havaNagila", lambda m: m)],
+    ("knesset", "lead", "A"): [("hevenu", lambda m: m + 14)],
+    ("knesset", "lead", "B"): [("shalomChaverim", lambda m: m + 12)],
+    ("courthouse", "lead", "B"): [("maozTzur", lambda m: m - 7 + MAJ_TO_MIN[(m - midi("D4")) % 12] - (m - midi("D4")) % 12)],
+    ("washington", "lead", "A"): [("dayenuVerse", lambda m: m - 2), ("dayenuVerse", lambda m: m + 10)],
+    ("washington", "lead", "A2"): [("dayenuChorus", lambda m: m - 2)],
+    ("washington", "lead", "B"): [("simanTov", lambda m: m + 7)],
+}
+TUNE_QUOTES = {"havaNagila": "Hava Nagila (verse: 3 2 1 3 3 3)"}   # the QUOTES entry a tune's home may play
+
+
+def check_tunes(m):
+    for (eid, cid, sec), parts in TUNE_HOMES.items():
+        want = [f(midi(n)) for t, f in parts for n in TUNES[t]["notes"].split()]
+        got = [n for n, _ in line_notes(m["eras"][eid]["channels"][cid]["sections"][sec])]
+        if got != want:
+            k = next((i for i, (a, b) in enumerate(zip(got, want)) if a != b), min(len(got), len(want)))
+            err("%s/%s/%s: not the source of %s at note %d (%s vs %s; %d vs %d notes)" % (
+                eid, cid, sec, "+".join(t for t, _ in parts), k, nm(got[k]) if k < len(got) else "-",
+                nm(want[k]) if k < len(want) else "-", len(got), len(want)))
+
 
 def longest_phrase_run(iv):
     best = 0
@@ -1484,10 +1567,15 @@ def check_music(m):
                 if run > ANTHEM_MAX:
                     err("%s/%s: %d consecutive anthem intervals (> %d, about 2 bars)" % (eid, cid, run, ANTHEM_MAX))
                 iv = [b[0] - a[0] for a, b in zip(notes, notes[1:])]
+                # the quote check: a listed tune is allowed only in its own home (TUNE_HOMES)
+                homes = {sec: [TUNE_QUOTES.get(t) for t, _ in TUNE_HOMES.get((eid, cid, sec), [])] for sec in ["A", "A2", "B", "T"]}
                 for q, pat in QUOTES.items():
                     k = len(pat)
-                    for i in range(len(iv) - k + 1):
-                        if iv[i:i + k] == pat:
+                    qbars = [b for i, b in enumerate(bars) if q not in homes[["A", "A2", "B", "T"][i // 8]]]
+                    qn = line_notes(qbars)
+                    qiv = [b[0] - a[0] for a, b in zip(qn, qn[1:])]
+                    for i in range(len(qiv) - k + 1):
+                        if qiv[i:i + k] == pat:
                             err("%s/%s: quote check hit %s at note %d" % (eid, cid, q, i))
         # the motif at bar 32 on the lead, pickup on bar 31
         root = midi(e["key"] + "4")
@@ -1501,9 +1589,11 @@ def check_music(m):
         tok31 = lead[30].split()
         if tok31[spb - spb // 8] == "." and e["stepsPerBeat"] == 4:
             err("%s: pickup is not on bar 31 beat 4&" % eid)
+        # v1.9: bar 1 resolves the motif onto the tonic chord (Hevenu enters on its 5, Dayenu on its 3)
         bar1 = line_notes([lead[0]])[0][0]
-        if (bar1 - root) % 12 != 0:
-            err("%s: bar 1 does not resolve the b2 onto 1 (%s)" % (eid, nm(bar1)))
+        triad = (0, 3, 7) if e["mode"] == "minor" else (0, 4, 7)
+        if (bar1 - root) % 12 not in triad:
+            err("%s: bar 1 does not resolve onto the tonic chord (%s)" % (eid, nm(bar1)))
 
 
 def check_cues(c):
@@ -1585,6 +1675,7 @@ def main():
     check_fanfare(m)
     c = cues()
     check_music(m)
+    check_tunes(m)
     check_cues(c)
     if CHECK_ERRORS:
         for e in CHECK_ERRORS:
