@@ -1,20 +1,16 @@
 extends RefCounted
-## The money sources on the stage (ux/review-2026-09-29.md R17; content producers[].slot → the
-## diorama's L.DIORAMA rows and xs). Geometry only, from the real constants and the TA's sprite
-## sizes (sprites.json sources: frameW / density, pivot bottom-centre at slot x + 32):
-##   - no critter under the thermometer column (Thermo.WORD_BOX x 12-132), wandering included;
-##   - no critter above the stage top + 8 (the sky row at y 168 put 88 px of a 160-px source under
-##     Row B, so no source uses it);
-##   - every critter inside the 720 design width, one critter per slot;
-##   - the first critter of the three shared sources (every leader's round starts with them) sits
-##     right of the Magician's feet, and the taxpayer's clears his hit entirely: the right half
-##     of the stage carries the early round.
-## A leader's generic tier sprite (leaderSelect.sourceTiers.genericSprites) is checked in the same
-## slot, since the diorama will draw it there once the picker ships (spec §10.1 ui/diorama.gd).
+## The money sources on the stage, layout v2 ("groups in the wings", Bar 2026-10-03): for every
+## leader and owned sets from the first source to every source at 25:
+##   - no source's opaque box (its wander included) enters the leader's keep-out band;
+##   - every source inside the stage: right of the thermometer column (Thermo.WORD_BOX, x 12-132),
+##     inside the 720 design width, the paving row's feet above the stage bottom;
+##   - within a row, a neighbour covers at most half of the narrower figure;
+##   - every owned tier shows (copy 1) before any tier shows twice, and copies 2 / 3 show in an
+##     ordinary round ("לא רואים פה כפול 2");
+##   - the round's first source (the taxpayer) stands right of the leader (review R17); the wings
+##     balance after it.
 
 var runner: Object
-
-const WANDER := 16.0   # Diorama._start_hop: a wandering critter hops within homeX ± 16
 
 
 func setup(_r: Object) -> void:
@@ -25,75 +21,111 @@ func teardown() -> void:
 	TestFixture.use_game_content()
 
 
-static func _sources() -> Dictionary:
-	var j: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/sprites/sprites.json"))
-	return (j as Dictionary).get("sources", {}) if j is Dictionary else {}
+func _diorama() -> Diorama:
+	var d := Diorama.new()
+	(runner as SceneTree).root.add_child(d)
+	return d
 
 
-## (half-width left of the pivot, full width, height) in logical px for a sprite key.
-static func _extent(sources: Dictionary, sprite: String) -> Vector3:
-	for k: Variant in sources:
-		var e: Dictionary = sources[k]
-		if str(e.get("sprite", "")) == sprite:
-			var sc := 4.0 / float(e.get("density", 1))
-			var fw := float(e["frameW"])
-			return Vector3(floorf(fw / 2.0) * sc, fw * sc, float(e["frameH"]) * sc)
-	return Vector3.ZERO
+func _round(id: String) -> GameState:
+	var s := GameState.fresh()
+	s.leader = id
+	s.leader_ver += 1
+	Leaders.ensure(s)
+	return s
 
 
-## Every sprite a producer's slot may draw: its own and, for tiers 4-8, the leaders' generic one.
-static func _sprites_of(id: String) -> Array:
-	var out: Array = [str(Content.producer(id).get("sprite", ""))]
-	var st: Variant = Leaders.ls().get("sourceTiers", {})
-	if st is Dictionary:
-		var tiers: Dictionary = (st as Dictionary).get("tiers", {})
-		for t: Variant in tiers:
-			if str(tiers[t]) == id:
-				var g: Variant = (st as Dictionary).get("genericSprites", {}).get(t)
-				if g is Dictionary:
-					out.append(str((g as Dictionary).get("sprite", "")))
+func _owned(counts: Array) -> Dictionary:
+	var out := {}
+	var ids := Content.producer_ids()
+	for i in ids.size():
+		out[ids[i]] = int(counts[i]) if i < counts.size() else 0
 	return out
 
 
-func test_sources_clear_the_thermometer_and_the_stage_top() -> void:
-	var src := _sources()
-	runner.check(not src.is_empty(), "sprites.json sources readable")
+## Every placed critter with its box: [critter, row, left, right].
+func _boxes(d: Diorama) -> Array:
+	var out: Array = []
+	for c: Dictionary in d._critters:
+		if not bool(c.get("placed", false)) or not d._wanted(c):
+			continue
+		var half := d._half_of(String(c["type"]))
+		var w := Diorama.WANDER if c["wander"] or c["piece"] == "blink" else 0.0
+		out.append([c, String(c["row"]), float(c["homeX"]) - half - w, float(c["homeX"]) + half + w])
+	return out
+
+
+func test_no_source_stands_behind_any_leader() -> void:
+	var d := _diorama()
+	await (runner as SceneTree).process_frame
+	var sets := [[1], [14, 9, 4, 1], [33, 19, 13, 15, 1], [10, 10, 10, 10, 10, 10, 10, 10], [25, 25, 25, 25, 25, 25, 25, 25],
+		[260, 210, 160, 120, 90, 60, 30, 12]]
 	var thermo_right: float = Thermo.WORD_BOX.x + Thermo.WORD_BOX.y
-	var used := {}
-	for id: String in Content.producer_ids():
-		var codes: Array = Content.producer(id).get("slot", [])
-		runner.check(not codes.is_empty() and codes.size() <= 3, "%s: 1-3 slot codes from content (%s)" % [id, str(codes)])
-		var wander := WANDER if Content.producer(id).get("wander", false) == true else 0.0
-		for code: Variant in codes:
-			var c := str(code)
-			runner.check(L._valid_slot(c), "%s: %s is a diorama slot" % [id, c])
-			runner.check(not used.has(c), "%s: slot %s is not shared (with %s)" % [id, c, used.get(c, "")])
-			used[c] = id
-			var row := c.substr(0, 1)
-			var cx := float(L.DIORAMA["xs"][row][int(c.substr(1))]) + 32.0
-			var bottom := float(L.DIORAMA["rows"][row]) + 64.0
-			for sp: String in _sprites_of(id):
-				var ex := _extent(src, sp)
-				if ex == Vector3.ZERO:
-					continue   # a sprite the TA hasn't delivered: the diorama leaves the slot empty
-				var left := cx - ex.x
-				runner.check(left - wander >= thermo_right, "%s (%s) at %s: left edge %d clears the thermometer column (x ≤ %d)" % [id, sp, c, int(left - wander), int(thermo_right)])
-				runner.check(left + ex.y + wander <= float(L.W), "%s (%s) at %s: right edge %d inside the 720 stage" % [id, sp, c, int(left + ex.y + wander)])
-				runner.check(bottom - ex.z >= float(L.STAGE["y"]) + 8.0, "%s (%s) at %s: sprite top %d under the stage top + 8 (not clipped by Row B)" % [id, sp, c, int(bottom - ex.z)])
+	var bottom_p := float(Diorama.ROW_FEET["P"])
+	for L0: Variant in Leaders.list():
+		var id := str((L0 as Dictionary)["id"])
+		_round(id)
+		d.update_view(16.0)
+		var bands := {}
+		for row: String in ["B", "F", "P"]:
+			bands[row] = Diorama.leader_band(LeaderUi.art(), row)
+			var band: Vector2 = bands[row]
+			runner.check(band.y - band.x >= 120.0 and band.x > thermo_right and band.y < float(L.W),
+				"%s: a sane keep-out band %s on row %s" % [id, str(band), row])
+		for counts: Array in sets:
+			d.sync(_owned(counts), false)
+			var bx := _boxes(d)
+			var bad: Array = []
+			for b: Array in bx:
+				var c: Dictionary = b[0]
+				var tag := "%s#%d@%s" % [c["type"], int(c["slot"]), b[1]]
+				var band: Vector2 = bands[b[1]]
+				if float(b[3]) > band.x and float(b[2]) < band.y:
+					bad.append(tag + " in the band")
+				if float(b[2]) < thermo_right - 0.5 or float(b[3]) > float(L.W) + 0.5:
+					bad.append(tag + " off the wings")
+			for i in bx.size():
+				for j in range(i + 1, bx.size()):
+					if bx[i][1] != bx[j][1]:
+						continue
+					var ov := minf(float(bx[i][3]), float(bx[j][3])) - maxf(float(bx[i][2]), float(bx[j][2]))
+					var mw := minf(float(bx[i][3]) - float(bx[i][2]), float(bx[j][3]) - float(bx[j][2]))
+					if ov > (1.0 - Diorama.STEP) * mw + 0.5:
+						bad.append("%s#%d covers %s#%d" % [bx[i][0]["type"], int(bx[i][0]["slot"]), bx[j][0]["type"], int(bx[j][0]["slot"])])
+			runner.check(bad.is_empty(), "%s %s: %s" % [id, str(counts), "clear" if bad.is_empty() else str(bad.slice(0, 4))])
+			# every owned tier is on stage (copy 1), whatever else has to give
+			var missing: Array = []
+			var ids := Content.producer_ids()
+			for t in ids.size():
+				if t < counts.size() and int(counts[t]) > 0 and not bx.any(func(b: Array) -> bool: return b[0]["type"] == ids[t] and int(b[0]["slot"]) == 0):
+					missing.append(ids[t])
+			runner.check(missing.is_empty(), "%s %s: every owned source shows (%s)" % [id, str(counts), str(missing)])
+		runner.check(bottom_p <= float(L.STAGE["y"]) + float(L.S_PREF) - 8.0, "the paving row's feet stay on the visible floor")
+	d.queue_free()
+	await (runner as SceneTree).process_frame
 
 
-func test_the_early_round_fills_the_right_half() -> void:
-	var src := _sources()
-	var feet := float(L.MAGICIAN["feetX"])
-	var hit_right := float(L.MAGICIAN["feetX"]) + float(L.MAGICIAN["hitW"]) / 2.0
-	for id: String in ["taxpayer", "hitech", "vat"]:
-		var c := str((Content.producer(id)["slot"] as Array)[0])
-		var cx := float(L.DIORAMA["xs"][c.substr(0, 1)][int(c.substr(1))]) + 32.0
-		runner.check(cx > feet, "%s's first critter (%s, x %d) stands right of the Magician (feet x %d)" % [id, c, int(cx), int(feet)])
-	var t := str((Content.producer("taxpayer")["slot"] as Array)[0])
-	var tx := float(L.DIORAMA["xs"][t.substr(0, 1)][int(t.substr(1))]) + 32.0
-	var left := tx - _extent(src, str(Content.producer("taxpayer")["sprite"])).x - WANDER
-	runner.check(left >= hit_right, "the first taxpayer (%s, wandering) clears the Magician's hit (x ≥ %d, got %d)" % [t, int(hit_right), int(left)])
+## The screenshot's round (Bennett, 33 / 19 / 13 / 15 / 1): every copy the counts earn shows.
+func test_a_sources_copies_show_in_an_ordinary_round() -> void:
+	var d := _diorama()
+	await (runner as SceneTree).process_frame
+	for id: String in ["bennett", "bibi", "golan"]:
+		_round(id)
+		d.update_view(16.0)
+		d.sync(_owned([33, 19, 13, 15, 1]), false)
+		var shown := {}
+		for b: Array in _boxes(d):
+			var k := String(b[0]["type"])
+			shown[k] = int(shown.get(k, 0)) + 1
+		# every source once, and the ×2 the counts earn for the first three (the screenshot's complaint)
+		var least := {"taxpayer": 2, "hitech": 2, "vat": 2, "cigars": 1, "submarine": 1}
+		var short := least.keys().filter(func(k: String) -> bool: return int(shown.get(k, 0)) < int(least[k]))
+		runner.check(short.is_empty(), "%s: copies on stage %s (at least %s)" % [id, str(shown), str(least)])
+		# review R17: the round's first source stands right of the leader (the right half carries it)
+		var c1: Array = d._critters.filter(func(c: Dictionary) -> bool: return c["type"] == "taxpayer" and int(c["slot"]) == 0)
+		runner.check(float(c1[0]["homeX"]) > float(L.MAGICIAN["feetX"]), "%s: the taxpayer stands right of the leader (x %d)" % [id, int(c1[0]["homeX"])])
+	d.queue_free()
+	await (runner as SceneTree).process_frame
 
 
 ## UX mobile-first-layout §5.4 G1 (producerReveal.fillSilhouettes): after the first reveal, the
@@ -128,3 +160,34 @@ func test_the_pane_fills_with_silhouettes() -> void:
 	c["producerReveal"]["fillSilhouettes"] = false
 	Content.replace(c)
 	runner.check((Economy.producer_rows(s)["fill"] as PackedStringArray).is_empty(), "off: today's single silhouette")
+
+
+## Bar 2026-10-03 (a phone screenshot): Bennett's round drew Bibi's cigar friend on stage while the
+## shop card showed Bennett's donor. The critters are built at boot, before the pick, so the stage
+## re-skins tiers 4-8 when the round's leader changes (Diorama.update_view → _repick_density).
+func test_the_stage_reskins_the_sources_when_the_leader_changes() -> void:
+	var tree := runner as SceneTree
+	var s := GameState.fresh()
+	Leaders.ensure(s)   # the default round (Bibi's), as at boot before the picker
+	var d := Diorama.new()
+	tree.root.add_child(d)
+	await tree.process_frame
+	d.update_view(16.0)
+	var cig: Array = d._critters.filter(func(c: Dictionary) -> bool: return c["type"] == "cigars")
+	runner.check(not cig.is_empty() and String(cig[0]["sprite"]).begins_with("source_cigars"),
+		"Bibi's round: the cigar friend (%s)" % ("none" if cig.is_empty() else str(cig[0]["sprite"])))
+	s.leader = "bennett"
+	s.leader_ver += 1
+	Leaders.ensure(s)
+	d.update_view(16.0)
+	var tex: Texture2D = (cig[0]["s"] as Sprite2D).texture if not cig.is_empty() else null
+	runner.check(not cig.is_empty() and String(cig[0]["sprite"]).begins_with("source_donor"),
+		"Bennett's round: tier 4 draws his donor, like the card (%s)" % ("none" if cig.is_empty() else str(cig[0]["sprite"])))
+	runner.check(tex != null, "the critter has a texture after the re-skin")
+	s.leader = "bibi"
+	s.leader_ver += 1
+	Leaders.ensure(s)
+	d.update_view(16.0)
+	runner.check(String(cig[0]["sprite"]).begins_with("source_cigars"), "back to Bibi: the cigar friend again")
+	d.queue_free()
+	await tree.process_frame

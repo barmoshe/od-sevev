@@ -276,74 +276,8 @@ const BUFF := {
 	"bannerTextY": 344,
 }
 
-const DIORAMA := {
-	"rows": {"S": 168, "B": 536, "F": 584},
-	"xs": {
-		"S": [40, 112, 184, 256, 328, 400, 472, 544, 616],
-		"B": [88, 168, 248, 328, 408, 488, 568],
-		"F": [48, 128, 208, 288, 368, 448, 528, 608],
-	},
-	"thresholds": [1, 10, 25],
-}
-
-## od-sevev: a producer's diorama slots come from content (producers[].slot: up to three slot
-## codes, row letter S | B | F + index into DIORAMA.xs, one per threshold 1/10/25). Content
-## without `slot` keeps the fork's placement (FORK_SLOTS), and any other producer gets three
-## free slots in tier order, so a new id never crashes the stage.
-const FORK_SLOTS := {
-	"intern": ["F4", "F3", "B3"],
-	"tree": ["B1", "B6", "B0"],
-	"hardhat": ["F2", "F5", "B2"],
-	"bureaucrat": ["F6", "F1", "B4"],
-	"catapult": ["F7", "F0", "B5"],
-	"rocket": ["S1", "S0", "S2"],
-	"timechimp": ["S4", "S3", "S5"],
-	"moon": ["S7", "S8", "S6"],
-}
-
-
-static func slots_for(id: String) -> Array:
-	return slot_table().get(id, [])
-
-
-## Every producer's slots: content `slot` first, then FORK_SLOTS, then the first free slots in
-## producer order (front row, back row, sky).
-static func slot_table() -> Dictionary:
-	var out := {}
-	var used := {}
-	var pending: Array = []
-	for id: String in Content.producer_ids():
-		var v: Variant = Content.producer(id).get("slot", FORK_SLOTS.get(id))
-		if v is String:
-			v = [v]
-		elif v is int or v is float:
-			# a tier index: that tier's fork placement (0 = the first tier's three slots)
-			var sets: Array = FORK_SLOTS.values()
-			v = sets[clampi(int(v), 0, sets.size() - 1)]
-		if v is Array:
-			var codes: Array = (v as Array).map(func(x: Variant) -> String: return str(x)).filter(_valid_slot)
-			out[id] = codes
-			for c: String in codes:
-				used[c] = true
-		else:
-			pending.append(id)
-	for id: String in pending:
-		var codes: Array = []
-		for row: String in ["F", "B", "S"]:
-			for i in (DIORAMA["xs"][row] as Array).size():
-				var code := "%s%d" % [row, i]
-				if codes.size() < 3 and not used.has(code):
-					codes.append(code)
-					used[code] = true
-		out[id] = codes
-	return out
-
-
-static func _valid_slot(code: String) -> bool:
-	if code.length() < 2 or not DIORAMA["xs"].has(code.substr(0, 1)):
-		return false
-	var i := int(code.substr(1))
-	return code.substr(1).is_valid_int() and i >= 0 and i < (DIORAMA["xs"][code.substr(0, 1)] as Array).size()
+## The diorama's money sources are placed by Diorama._layout (layout v2, "groups in the wings"):
+## rows, the leader's keep-out band and the wings live there.
 
 
 const TITLE := {

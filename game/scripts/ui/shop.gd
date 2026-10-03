@@ -766,7 +766,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			l1 = Strings.s("SPIN_VERB")
 			l2 = Strings.s("CARD_PRICE", {"price": Fmt.cost(price)}) if price >= 0.0 else Strings.s("SPIN_OWNED")
 			bars = card.get("bars", {})
-	var key := "%s:%s" % [m["kind"], id]
+	var key := "%s:%s:%s" % [m["kind"], id, LeaderUi.id()]   # the leader: tiers 4-8 and spins are skinned per round
 	var ic: Sprite2D = v["icon"]
 	var is_btn: bool = m["kind"] == "buymode"
 	var teaser: bool = m["kind"] == "teaser"

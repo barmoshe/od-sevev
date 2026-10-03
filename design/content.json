@@ -262,10 +262,6 @@
    "icon": "source_taxpayer_icon",
    "silhouette": "source_taxpayer_icon_sil",
    "revealAtRunEarned": 0,
-   "slot": [
-    "F7",
-    "F3"
-   ],
    "wander": true,
    "name": "משלם המסים",
    "flavor": "משלם, נאנח, משלם.",
@@ -282,10 +278,6 @@
    "sprite": "source_hitech",
    "icon": "source_hitech_icon",
    "silhouette": "source_hitech_icon_sil",
-   "slot": [
-    "B6",
-    "F4"
-   ],
    "wander": true,
    "name": "ההייטקיסט",
    "flavor": "מממן חצי מדינה. טאב של ליסבון פתוח ברקע.",
@@ -303,10 +295,6 @@
    "sprite": "source_vat",
    "icon": "source_vat_icon",
    "silhouette": "source_vat_icon_sil",
-   "slot": [
-    "F6",
-    "B4"
-   ],
    "setPiece": "lob",
    "name": "המע״מ",
    "flavor": "18% מכל דבר. כולל הקוטג׳.",
@@ -325,10 +313,6 @@
    "sprite": "source_cigars",
    "icon": "source_cigars_icon",
    "silhouette": "source_cigars_icon_sil",
-   "slot": [
-    "B1",
-    "B3"
-   ],
    "name": "החבר הנדיב",
    "flavor": "סיגרים, שמפניה ורודה וחברות אמיצה. כתב אישום בנפרד.",
    "levelUp": "הגיע ארגז. \"סתם, מחברות.\"",
@@ -348,9 +332,6 @@
    "sprite": "source_submarine",
    "icon": "source_submarine_icon",
    "silhouette": "source_submarine_icon_sil",
-   "slot": [
-    "F2"
-   ],
    "setPiece": "bob",
    "name": "הצוללת",
    "flavor": "יורדת עמוק, עולה עם עמלות.",
@@ -370,9 +351,6 @@
    "sprite": "source_qatari",
    "icon": "source_qatari_icon",
    "silhouette": "source_qatari_icon_sil",
-   "slot": [
-    "B5"
-   ],
    "setPiece": "blink",
    "name": "היועצים הקטאריים",
    "flavor": "מקדמים מסר, מקבלים דרך מתווך. החשודים: הם. אתה: לא.",
@@ -392,9 +370,6 @@
    "sprite": "source_poison",
    "icon": "source_poison_icon",
    "silhouette": "source_poison_icon_sil",
-   "slot": [
-    "F5"
-   ],
    "setPiece": "bob",
    "name": "מכונת הרעל",
    "flavor": "10,000 חשבונות. דעה אחת.",
@@ -412,9 +387,6 @@
    "sprite": "source_checkbook",
    "icon": "source_checkbook_icon",
    "silhouette": "source_checkbook_icon_sil",
-   "slot": [
-    "B2"
-   ],
    "setPiece": "lob",
    "name": "פנקס הצ׳קים הזהוב",
    "flavor": "מוושינגטון באהבה. חתום בטוש, הכי עבה שיש.",

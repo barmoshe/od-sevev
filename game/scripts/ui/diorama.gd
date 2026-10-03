@@ -27,6 +27,10 @@ var _bg := Node2D.new()
 var _env := Node2D.new()
 var _back := Node2D.new()
 var _front := Node2D.new()
+## The paving row (layout v2): money sources standing in front of the leader. main.gd reparents it
+## above the leader (near_layer()); the diorama still owns its sprites.
+var _near := Node2D.new()
+var _layout_key := ""            # the wanted set + leader + device scale the layout was made for
 var _extend_x := 0.0
 var _extend_top := 0.0
 var _sky: Array[ColorRect] = []
@@ -46,6 +50,7 @@ var _has_bg := false
 ## producers[].setPiece; the first-run delays keep the fork's per-kind values).
 var _piece_timers := {}
 var _density_k := -1              # the Display.k the critters' density variants were picked for
+var _skin_leader := "?"           # the leader whose source skins the critters draw (LeaderUi.id())
 const PIECE_FIRST_MS := {"lob": 4000.0, "launch": 9000.0, "blink": 6000.0}
 
 
@@ -57,33 +62,29 @@ func _ready() -> void:
 	add_child(_back)
 	add_child(_front)
 	add_child(_fx)
+	add_child(_near)
 	_build_backdrop()
-	var th: Array = L.DIORAMA["thresholds"]
-	var slot_table := L.slot_table()
-	for id in Content.producer_ids():
-		var slots: Array = slot_table.get(id, [])
-		if _sprite_of(id) == Art.PLACEHOLDER:
-			continue   # no stage art for this source yet: an empty slot beats a "?" card on stage
+	# every source gets its copies (COPY_AT) and its crowd (CROWD_AT) up front; _layout() places the
+	# ones owned. Placeholder art is decided per round (_art_ok), so a tier whose art only the
+	# round's leader skin has still shows.
+	var ids := Content.producer_ids()
+	for ti in ids.size():
+		var id: String = ids[ti]
 		var piece := Tune.set_piece(id)
 		if PIECE_FIRST_MS.has(piece):
 			_piece_timers[id] = PIECE_FIRST_MS[piece]
-		for slot in mini(slots.size(), th.size()):
-			var slot_name: String = slots[slot]
-			var row := slot_name.substr(0, 1)
-			var x := float(L.DIORAMA["xs"][row][int(slot_name.substr(1))])
-			var y := float(L.DIORAMA["rows"][row])
-			var s := Sprite2D.new()
-			s.texture = Art.tex(_sprite_of(id), 0)
-			s.centered = false
-			s.offset = _pivot_of(id)       # pivot bottom-centre of the critter
-			_scale_sprite(s, id)
-			s.position = Vector2(x + 32, y + 64)
-			s.visible = false
-			(_front if row == "F" else _back).add_child(s)
-			var cr := _critter(s, id, slot, int(th[slot]), x + 32, y + 64)
-			cr["ground"] = row != "S"
+		var ats: Array = COPY_AT + CROWD_AT
+		for slot in ats.size():
+			var sp := Sprite2D.new()
+			sp.texture = Art.tex(_sprite_of(id), 0)
+			sp.centered = false
+			sp.offset = _pivot_of(id)       # pivot bottom-centre of the critter
+			_scale_sprite(sp, id)
+			sp.visible = false
+			_front.add_child(sp)
+			var cr := _critter(sp, id, slot, int(ats[slot]), 0.0, float(ROW_FEET["F"]))
+			cr["tier"] = ti
 			_critters.append(cr)
-		_add_crowd(id, slots)
 
 
 ## v2 eras: recolours the sky and places the era's props (huts, towers, stars and a planet).
@@ -297,40 +298,237 @@ func _place_prop(sp: Dictionary) -> void:
 		img.modulate = tint
 
 
-## v2 crowd: the troop visibly grows past v1's three critters per tier. Extra critters appear at
-## CROWD_AT owned, placed with a per-tier seed so the crowd is the same every session.
+## v2 crowd: the troop visibly grows past the three copies per tier. Extra critters appear at
+## CROWD_AT owned, behind their group, where the back row has room.
 const CROWD_AT := [50, 75, 100, 150, 200, 250]
+## A source's copies: copy 1 at 1 owned, copy 2 at 10, copy 3 at 25.
+const COPY_AT := [1, 10, 25]
+
+# ------------------------------------------------------------------ layout v2: groups in the wings
+## Bar 2026-10-03 ("לא רואים פה כפול 2"; "groups in the wings"): nothing stands behind the leader.
+## A keep-out band covers the round's leader's lower body (leader_band); the wings either side of it
+## hold the sources, the shared tiers (taxpayer, hitech, vat) on the right first (review R17). Copy 1
+## of a source stands on the ground row (F); its copies 2 and 3 stand just behind it on the back row
+## (B), shifted out and in by COPY_SHIFT of its width, so their heads show over the front row. When a
+## row runs out of width the next figure goes to the paving row in front of the leader (P, the
+## near layer), and then to the back row. Within a row a neighbour may cover at most 1 - STEP of
+## the narrower figure, nearer the leader in front. Copy 1 of every owned tier is placed before any
+## copy 2, so every source you own is on stage before any source shows twice.
+## Feet y per row, stage-local at S = S_PREF (the ground rows follow the stage bottom, _anchor_rows).
+const ROW_FEET := {"B": 600.0, "F": 648.0, "P": 772.0}
+const BAND_MARGIN := 8.0     # px between the leader's body and a source's opaque edge
+## Logical px above the leader's feet each row's band covers: a figure 160 px tall on that row reaches
+## this high up the leader (the back row stands 48 px higher, so it meets his elbows).
+const BAND_ROWS := {"B": 204.0, "F": 160.0, "P": 160.0}
+const WING_EDGE := 8.0       # the right wing stops this far from the stage's right edge
+const STEP := 0.5            # a neighbour may cover at most half of the narrower figure
+const COPY_SHIFT := 0.45     # copies 2 / 3 stand this share of copy 1's width out / in
+const COPY_MIN_SHIFT := 0.25 # never closer than this: a copy straight behind its first reads as a tower
+const WANDER := 4.0          # a wandering critter hops within homeX ± WANDER (its box includes it)
+
+static var _band_cache := {}
+static var _half_cache := {}
 
 
-func _add_crowd(id: String, slots: Array) -> void:
-	var sky := String(slots[0]).begins_with("S") if not slots.is_empty() else false
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(id)
-	# never under the thermometer column (Thermo.WORD_BOX, canvas x 12-132, L-anchored: the stage
-	# column only moves right of it on a wider canvas): the sprite's left edge stays ≥ 132
-	var half := floorf(float(Art.tex(_sprite_of(id), 0).get_size().x) / 2.0) * _scale_of(id).x
-	var wander := 16.0 if Tune.critter_wanders(id) else 0.0   # _start_hop: homeX ± 16
-	var x_min := ceilf(maxf(24.0, Thermo.WORD_BOX.x + Thermo.WORD_BOX.y + half + wander - 32.0) / 4.0) * 4.0
-	for i in CROWD_AT.size():
-		var x := maxf(x_min, Ui.snap(rng.randf_range(24, L.W - 88), 4))
-		var y: float
-		var front := rng.randf() < 0.5
-		if sky:
-			y = Ui.snap(rng.randf_range(float(L.DIORAMA["rows"]["S"]) + 8, float(L.DIORAMA["rows"]["S"]) + 120), 4)
-			front = false
-		else:
-			y = float(L.DIORAMA["rows"]["F" if front else "B"]) + Ui.snap(rng.randf_range(-8, 8), 4)
-		var s := Sprite2D.new()
-		s.texture = Art.tex(_sprite_of(id), 0)
-		s.centered = false
-		s.offset = _pivot_of(id)
-		_scale_sprite(s, id)
-		s.position = Vector2(x + 32, y + 64)
-		s.visible = false
-		(_front if front else _back).add_child(s)
-		var cr := _critter(s, id, 3 + i, int(CROWD_AT[i]), x + 32, y + 64)
-		cr["ground"] = not sky
-		_critters.append(cr)
+## The near layer (the paving row): main.gd puts it above the leader.
+func near_layer() -> Node2D:
+	return _near
+
+
+## The keep-out band of a leader's art for a row (stage-local x, lo..hi): the union of the opaque
+## columns of its idle frames over the row's BAND_ROWS px above the feet, plus BAND_MARGIN. Falls
+## back to the hit box.
+static func leader_band(slug: String, row: String = "B") -> Vector2:
+	var ck := slug + "|" + row
+	if _band_cache.has(ck):
+		return _band_cache[ck]
+	var hit := L.magician_hit()
+	var out := Vector2(hit.position.x + 40.0, hit.end.x - 40.0)
+	var c: Dictionary = SpriteStrip.manifest().get("chars", {}).get(slug, {})
+	var idle: Dictionary = c.get("anims", {}).get("idle", {})
+	if not c.is_empty() and not idle.is_empty():
+		var tex := load(SpriteStrip.MANIFEST.get_base_dir() + "/" + String(idle["texture"])) as Texture2D
+		var img: Image = tex.get_image() if tex != null else null
+		if img != null and not img.is_empty():
+			if img.is_compressed():
+				img.decompress()
+			var fw := int(c["frameW"])
+			var fh := int(c["frameH"])
+			var cols := maxi(1, int(idle.get("cols", idle.get("frames", 1))))
+			var n := int(idle.get("frames", 1))
+			if idle.get("frameMap") is Array and not (idle["frameMap"] as Array).is_empty():
+				n = int((idle["frameMap"] as Array).max()) + 1
+			var sc := SpriteStrip.scale_of(c)
+			var rows := mini(fh, int(ceilf(float(BAND_ROWS.get(row, BAND_ROWS["B"])) / sc)))
+			var lo := fw
+			var hi := -1
+			for f in n:
+				var r := img.get_region(Rect2i((f % cols) * fw, (f / cols) * fh + fh - rows, fw, rows)).get_used_rect()
+				if r.size.x > 0:
+					lo = mini(lo, r.position.x)
+					hi = maxi(hi, r.end.x)
+			if hi > lo:
+				var ax := float((c.get("anchor", [fw / 2, fh]) as Array)[0])
+				var fx := float(L.MAGICIAN["feetX"])
+				out = Vector2(fx + (float(lo) - ax) * sc, fx + (float(hi) - ax) * sc)
+	out = Vector2(floorf((out.x - BAND_MARGIN) / 4.0) * 4.0, ceilf((out.y + BAND_MARGIN) / 4.0) * 4.0)
+	_band_cache[ck] = out
+	return out
+
+
+## Half the opaque width of a critter sprite, in logical px (its pivot is the frame's bottom centre).
+func _half_of(id: String) -> float:
+	var key := _sprite_of(id)
+	if _half_cache.has(key):
+		return _half_cache[key]
+	var tex := Art.tex(key, 0)
+	var sc := _scale_of(id).x
+	var w := float(tex.get_size().x) if tex != null else 64.0
+	var half := floorf(w / 2.0) * sc * 0.8
+	var img: Image = tex.get_image() if tex != null else null
+	if img != null and not img.is_empty():
+		if img.is_compressed():
+			img.decompress()
+		var r := img.get_used_rect()
+		if r.size.x > 0:
+			var px := floorf(w / 2.0)
+			half = maxf(px - float(r.position.x), float(r.end.x) - px) * sc
+	_half_cache[key] = half
+	return half
+
+
+func _art_ok(c: Dictionary) -> bool:
+	return String(c["sprite"]) != Art.PLACEHOLDER
+
+
+func _wanted(c: Dictionary) -> bool:
+	return _owned_of(_owned, c["type"]) >= int(c["th"]) and _art_ok(c)
+
+
+func _layer_of(row: String) -> Node2D:
+	return _near if row == "P" else (_back if row == "B" else _front)
+
+
+## The first x near `want` where a figure of opaque half-width `half` fits row `row` inside
+## [lo, hi], covering no neighbour past the STEP rule and at least `min_dx` from `away`; NAN when
+## there is none.
+func _fit(occ: Array, half: float, want: float, lo: float, hi: float, away := 0.0, min_dx := 0.0) -> float:
+	var a := ceilf((lo + half) / 4.0) * 4.0
+	var b := floorf((hi - half) / 4.0) * 4.0
+	if a > b:
+		return NAN
+	var x0 := clampf(Ui.snap(want, 4), a, b)
+	for k in int((b - a) / 4.0) + 1:
+		for sgn: float in ([1.0] if k == 0 else [1.0, -1.0]):
+			var x := x0 + sgn * 4.0 * k
+			if x < a or x > b or absf(x - away) < min_dx:
+				continue
+			var free := true
+			for iv: Vector2 in occ:
+				var ov := minf(x + half, iv.y) - maxf(x - half, iv.x)
+				if ov > (1.0 - STEP) * minf(2.0 * half, iv.y - iv.x):
+					free = false
+					break
+			if free:
+				return x
+	return NAN
+
+
+## Places every wanted critter (see the layout notes above). Stable for a given wanted set and
+## leader, so a buy that adds no new figure moves nothing.
+func _layout() -> void:
+	var wings := {}   # row -> side -> Vector2(lo, hi)
+	for row: String in ["F", "B", "P"]:
+		var band := leader_band(LeaderUi.art(), row)
+		wings[row] = {"R": Vector2(band.y, float(L.W) - WING_EDGE), "L": Vector2(Thermo.WORD_BOX.x + Thermo.WORD_BOX.y, band.x)}
+	var occ := {"F": [], "B": [], "P": []}
+	var homes := {}
+	var order := _critters.filter(func(c: Dictionary) -> bool: return _wanted(c))
+	order.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a["slot"]) < int(b["slot"]) or (int(a["slot"]) == int(b["slot"]) and int(a["tier"]) < int(b["tier"])))
+	for c in _critters:
+		c["placed"] = false
+	var dy := L.stage_h - float(L.S_PREF)
+	for c: Dictionary in order:
+		var id: String = c["type"]
+		var body := _half_of(id)
+		var half := body + (WANDER if c["wander"] or c["piece"] == "blink" else 0.0)
+		var tries: Array = []   # [row, side, want]
+		var away := 0.0
+		var min_dx := 0.0
+		if int(c["slot"]) == 0:
+			var sides := ["R", "L"]
+			if int(c["tier"]) >= 3 and _room(occ["F"], wings["F"]["L"]) > _room(occ["F"], wings["F"]["R"]):
+				sides = ["L", "R"]
+			for row: String in ["F", "P", "B"]:
+				for side: String in sides:
+					var sv: Vector2 = wings[row][side]
+					tries.append([row, side, sv.x if side == "R" else sv.y])
+		elif homes.has(id):
+			var h: Dictionary = homes[id]
+			var dir := 1.0 if h["side"] == "R" else -1.0
+			var k := 1.0 if int(c["slot"]) == 1 else (-1.0 if int(c["slot"]) == 2 else float(int(c["slot"]) - 1) * (1.0 if int(c["slot"]) % 2 == 1 else -1.0))
+			var want := float(h["x"]) + dir * k * COPY_SHIFT * 2.0 * body
+			away = float(h["x"])
+			min_dx = COPY_MIN_SHIFT * 2.0 * body
+			var rows: Array = ["B", "P"] if int(c["slot"]) < COPY_AT.size() else ["B"]
+			for row: String in rows:
+				tries.append([row, h["side"], want])
+			if int(c["slot"]) < COPY_AT.size():
+				# no room beside its group (a narrow wing): the other wing, rather than a tower or nothing
+				var other := "L" if h["side"] == "R" else "R"
+				for row: String in rows:
+					var ov: Vector2 = wings[row][other]
+					tries.append([row, other, ov.x if other == "R" else ov.y])
+		for t: Array in tries:
+			var wv: Vector2 = wings[t[0]][t[1]]
+			var x := _fit(occ[t[0]], half, float(t[2]), wv.x, wv.y, away, min_dx)
+			if is_nan(x):
+				continue
+			(occ[t[0]] as Array).append(Vector2(x - half, x + half))
+			if int(c["slot"]) == 0:
+				homes[id] = {"x": x, "side": t[1]}
+			_place(c, String(t[0]), x, dy)
+			break
+	for row: String in ["B", "F", "P"]:
+		_depth_sort(_layer_of(row))
+
+
+func _room(occ: Array, wv: Vector2) -> float:
+	var used := 0.0
+	for iv: Vector2 in occ:
+		if iv.x >= wv.x - 1.0 and iv.y <= wv.y + 1.0:
+			used += iv.y - iv.x
+	return (wv.y - wv.x) - used
+
+
+func _place(c: Dictionary, row: String, x: float, dy: float) -> void:
+	var s: Sprite2D = c["s"]
+	var layer := _layer_of(row)
+	if s.get_parent() != layer:
+		if s.get_parent() != null:
+			s.get_parent().remove_child(s)
+		layer.add_child(s)
+	c["placed"] = true
+	c["row"] = row
+	c["homeX"] = x
+	c["x"] = x
+	c["yBase"] = float(ROW_FEET[row])
+	c["y"] = float(ROW_FEET[row]) + dy
+	if (c["hop"] as Dictionary).get("kind", "") != "poof":
+		c["hopping"] = false
+		c["hop"] = {}
+	s.position = Vector2(x, float(c["y"]))
+
+
+## Within a row the figure nearer the leader draws in front (the last child).
+func _depth_sort(layer: Node2D) -> void:
+	var fx := float(L.MAGICIAN["feetX"])
+	var kids := layer.get_children()
+	kids.sort_custom(func(a: Node, b: Node) -> bool:
+		return absf((a as Node2D).position.x - fx) > absf((b as Node2D).position.x - fx))
+	for i in kids.size():
+		layer.move_child(kids[i], i)
 
 
 ## The critter sprite of a producer: producers[].sprite, else "critter_<id>", else the neutral
@@ -377,7 +575,8 @@ func _pivot_of(id: String) -> Vector2:
 func _critter(s: Sprite2D, id: String, slot: int, th: int, x: float, y: float) -> Dictionary:
 	return {"s": s, "type": id, "sprite": _sprite_of(id), "frameMs": Tune.critter_frame_ms(id), "wander": Tune.critter_wanders(id),
 		"piece": Tune.set_piece(id), "slot": slot, "th": th, "homeX": x, "x": x, "y": y, "yBase": y, "ground": true,
-		"visible": false, "hopping": false, "nextHop": 0.0, "frame": 0, "frameT": 0.0, "rate": 1.0, "anim": false, "hop": {}}
+		"visible": false, "hopping": false, "nextHop": 0.0, "frame": 0, "frameT": 0.0, "rate": 1.0, "anim": false, "hop": {},
+		"placed": false, "row": "F", "tier": 0}
 
 
 ## mobile-first §3.2: the stage height follows the split, and the stage art is placed on the
@@ -476,9 +675,16 @@ func _owned_of(owned: Dictionary, id: String) -> int:
 ## Shows slot n of a tier when owned >= [1, 10, 25][n]. `animate` = a buy just happened.
 func sync(owned: Dictionary, animate: bool) -> void:
 	_owned = owned
+	var key := "%s|%d|" % [LeaderUi.id(), Display.k]
+	for c in _critters:
+		if _wanted(c):
+			key += "%s%d," % [c["type"], c["slot"]]
+	if key != _layout_key:
+		_layout_key = key
+		_layout()
 	var shown: Array[Dictionary] = []
 	for c in _critters:
-		var want := _owned_of(owned, c["type"]) >= int(c["th"])
+		var want := _wanted(c) and bool(c.get("placed", false))
 		if want and not c["visible"]:
 			c["visible"] = true
 			shown.append(c)
@@ -584,9 +790,12 @@ func clear_all() -> void:
 
 func update_view(dt_ms: float) -> void:
 	_now += dt_ms
-	if Display.k != _density_k:
+	var lid := LeaderUi.id()
+	if Display.k != _density_k or lid != _skin_leader:
 		_density_k = Display.k
+		_skin_leader = lid   # the critters are built at boot, before the pick: re-skin tiers 4-8 for the round's leader
 		_repick_density()
+		sync(_owned, false)   # the leader's band and the skins' widths: a new layout
 	if not reduced_motion:
 		for st in _stars:
 			st["t"] = float(st["t"]) + dt_ms
@@ -623,9 +832,10 @@ func update_view(dt_ms: float) -> void:
 		_start_hop(c)
 
 
-## The device scale changed (or the critters were built before it was known): a TA source with
-## density variants draws the one crisp at the new k (Art.source → SpriteStrip.pick_variant,
-## CONTRACT.md §4b), so re-point each critter at it: texture, pivot, scale and filter.
+## The device scale or the round's leader changed (or the critters were built before either was
+## known): re-point each critter at the sprite it draws now (the leader's skin for tiers 4-8, and a
+## TA source's density variant crisp at k: Art.source → SpriteStrip.pick_variant, CONTRACT.md §4b):
+## texture, pivot, scale and filter.
 func _repick_density() -> void:
 	for c in _critters:
 		var id := String(c["type"])
@@ -700,8 +910,8 @@ func _update_plops(dt_ms: float) -> void:
 func _start_hop(c: Dictionary) -> void:
 	var opts := [-8.0, -4.0, 4.0, 8.0]
 	var dx: float = opts[randi() % opts.size()]
-	var lo := float(c["homeX"]) - 16.0
-	var hi := float(c["homeX"]) + 16.0
+	var lo := float(c["homeX"]) - WANDER   # layout v2: the group's box includes the wander
+	var hi := float(c["homeX"]) + WANDER
 	if float(c["x"]) + dx < lo or float(c["x"]) + dx > hi:
 		dx = -dx
 	if float(c["x"]) + dx < lo or float(c["x"]) + dx > hi:
@@ -801,7 +1011,10 @@ func _start_piece(id: String) -> void:
 				"x1": (L.W + 80.0) if right else -120.0, "h": 260.0})
 		"launch":
 			_piece_timers[id] = randf_range(10000, 16000)
-			var x := Ui.snap(randf_range(40, L.W - 104), 4)
+			var ls := _visible_of(id)
+			if ls.is_empty():
+				return
+			var x := float((ls[0] as Dictionary)["x"]) - 32.0   # from its group (layout v2), not anywhere on stage
 			var r := Ui.img(_fx, Vector2(x, ground_y - 64), _sprite_of(id), 0, 4)
 			_scale_sprite(r, id)
 			if play_fx.is_valid():
@@ -823,7 +1036,7 @@ func _start_piece(id: String) -> void:
 				tw.tween_callback(func() -> void: sp2.visible = not sp2.visible)
 				tw.tween_interval(0.06)
 			tw.tween_callback(func() -> void:
-				c2["x"] = clampf(float(c2["homeX"]) + randf_range(-40, 40), 40.0, L.W - 40.0)
+				c2["x"] = clampf(float(c2["homeX"]) + Ui.snap(randf_range(-WANDER, WANDER), 4), float(c2["homeX"]) - WANDER, float(c2["homeX"]) + WANDER)
 				sp2.position.x = Ui.snap(float(c2["x"]), 4)
 				sp2.visible = c2["visible"]
 				c2["hopping"] = false)

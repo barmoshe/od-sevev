@@ -83,6 +83,9 @@ var _prop_frame := 0
 var _prop_squash_ms := 0.0
 
 
+## A loose prop held in the hand draws at this scale (logical px per art px; the art scale is 4).
+const HELD_PROP_SCALE := 2
+
 func _ready() -> void:
 	var sc := int(L.BB["scale"])
 	var pivot := Vector2(L.BB["pivotX"], L.BB["pivotY"])
@@ -175,7 +178,12 @@ func set_leader(slug: String, kit: Dictionary) -> void:
 		prop.texture = Art.tex(pid, 0)
 		var pv: Array = Art.kit(pid).get("pivot", [0, 0])
 		prop.offset = -Vector2(float(pv[0]), float(pv[1]))
-		prop.scale = Vector2(4, 4)
+		# held in the hand (pen, phone, stapler): hand-sized, ×2, its grip (the pivot) on the palm; a
+		# prop on the floor or in the air (chair, ruler) keeps the art scale (Bar 2026-10-03: the pen
+		# floated beside Bennett's hand at twice its size)
+		var held := str(_prop_info.get("path", "held")) == "held"
+		prop.scale = Vector2.ONE * (float(HELD_PROP_SCALE) if held else 4.0)
+		SpriteStrip.apply_filter(prop, prop.scale.x)
 		body.add_child(prop)   # above the figure: it is in their hand
 	hero.finished.connect(func(_a: String) -> void:
 		_suppress_coins = false

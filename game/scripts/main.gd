@@ -165,6 +165,8 @@ var _layers_sent := -1
 
 func _ready() -> void:
 	_read_shot_args()
+	if not _shot.is_empty():
+		Wizard.enabled = false   # a store / stage shot shows the game, not the tutorial's dim
 	if _shot.has("device") and not get_parent() is SubViewport:
 		_enter_device_viewport.call_deferred()
 		return
@@ -418,6 +420,8 @@ func _build() -> void:
 	_figures = [sara, herzog, kaia]
 	bb = BigBanana.new()
 	_stage.add_child(bb)
+	diorama.near_layer().reparent(_stage, false)   # the paving row stands in front of the leader (layout v2)
+	_stage.move_child(diorama.near_layer(), bb.get_index() + 1)
 	prop_fx = PropFx.new()
 	_stage.add_child(prop_fx)
 	bb.on_hero_event = _on_hero_event
@@ -2882,7 +2886,8 @@ func import_save() -> void:
 func _apply_import(loaded: GameState) -> void:
 	overlays.close_all()
 	state = loaded
-	d = Economy.derive(state)
+	d = Economy.derive(state)   # installs the save's leader (Leaders.ensure)
+	bb.set_leader(LeaderUi.art(), LeaderUi.tap())   # an imported save with another leader swaps the figure, prop and court skin
 	golden.clear()
 	diorama.clear_all()
 	diorama.sync(state.owned, false)
@@ -3535,9 +3540,9 @@ func _update_shake(dt: float) -> void:
 
 
 # ================================================================== store screenshots
-## `godot --path game -- --shot=<preset> --out=<png> [--frames=N]`: stage a preset state, let it
-## animate, save the viewport as a PNG and quit. Presets: era<N> (the Nth content era, 0-based;
-## an era id works too), perks, book, story.
+## `godot --path game -- --shot=<preset> --out=<png> [--frames=N] [--leader=<id>]`: stage a preset
+## state, let it animate, save the viewport as a PNG and quit. Presets: era<N> (the Nth content era,
+## 0-based; an era id works too), perks, book, story. --leader plays the round as that leader.
 
 func _read_shot_args() -> void:
 	for a in OS.get_cmdline_user_args():
@@ -3552,6 +3557,8 @@ func _read_shot_args() -> void:
 			_shot["fork_scale"] = true
 		elif a.begins_with("--frames="):
 			_shot["frames"] = int(a.substr(9))
+		elif a.begins_with("--leader="):
+			_shot["leader"] = a.substr(9)   # the round's leader (dev: every leader's stage in every era)
 		elif a.begins_with("--target="):
 			var wh := a.substr(9).split("x")
 			_shot["target"] = Vector2i(int(wh[0]), int(wh[1]))
@@ -3609,6 +3616,10 @@ func _shot_state() -> GameState:
 	if ei == 2:
 		s.buff_frenzy = 12.0
 	s.stats = {"playtimeSec": 5400.0 * (evo + 1), "bestBps": 0.0, "fastestRunSec": 420.0 if evo > 0 else 0.0, "goldenMissed": 2}
+	if _shot.has("leader") and Leaders.playable(String(_shot["leader"])):
+		s.leader = String(_shot["leader"])
+		s.leader_ver += 1
+		s.leader_pick_pending = false
 	return s
 
 
