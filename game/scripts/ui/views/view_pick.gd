@@ -709,6 +709,8 @@ func pointer_up(p: Vector2) -> void:
 func choose(i: int) -> void:
 	if locked or i < 0 or i >= cells.size():
 		return
+	if i != focus and host != null and host.has_method("_audio"):
+		host.call("_audio", "slipLocked" if cells[i].get("locked", false) == true else "slipChoose")   # a paper flick / muffled
 	focus = i
 	_refresh()
 

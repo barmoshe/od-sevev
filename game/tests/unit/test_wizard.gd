@@ -217,3 +217,19 @@ func test_every_hook_runs_on_the_live_scene() -> void:
 		WizardHooks.cond(m, n)
 	for n: String in ["payPill", "perks"]:
 		WizardHooks.anchor(m, n)
+
+
+func test_the_wizard_sounds_a_step_its_done_and_a_skip() -> void:
+	var heard: Array = []
+	var conds := {"w": true, "d": false}
+	var s := _bare({"on": "", "steps": [{"id": "x", "anchor": "a", "when": "w", "done": "d", "text": "x"},
+		{"id": "y", "anchor": "a", "when": "w", "done": "d2", "text": "y"}]}, conds)
+	w.on_sound = func(ev: String) -> void: heard.append(ev)
+	w.update_view(16.0, s)
+	w.update_view(16.0, s)
+	runner.check(heard == ["wizardStep"], "a step shows: one chime, not one per frame (%s)" % str(heard))
+	conds["d"] = true
+	w.update_view(16.0, s)
+	runner.check(heard == ["wizardStep", "wizardDone", "wizardStep"], "done by the player: the 'yes', then the next step's chime (%s)" % str(heard))
+	w.skip(s)
+	runner.check(heard.back() == "wizardSkip", "דלג: the swoosh (%s)" % str(heard))

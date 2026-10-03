@@ -870,3 +870,27 @@ func test_the_shop_hook_reaches_the_audio_host() -> void:
 		for f in d.get_files():
 			d.remove(f)
 	DirAccess.remove_absolute(dir)
+
+
+## v1.6 (2026-10-03, Bar: "improve the SFX"): the UI's events reach their own cues, a bulk buy and a
+## partner's payment sound like rewards, and the ballot booth and the wizard have sounds that play
+## before the first tap (first sounds, like leaderPick).
+func test_v16_routes_and_first_sounds() -> void:
+	var a := _audio()
+	var want := {"panelOpen": "cue:uiOpen", "evolveOpen": "cue:uiOpen", "panelClose": "cue:uiClose", "evolveClose": "cue:uiClose",
+		"uiToggle": "cue:uiToggle", "buyModeCycle": "cue:uiToggle", "partnerPaid": "cue:paid", "pardonStamp": "cue:stamp",
+		"slipChoose": "cue:slipChoose", "slipLocked": "cue:slipLocked", "wizardStep": "cue:wizardStep",
+		"wizardDone": "cue:wizardDone", "wizardSkip": "cue:wizardSkip"}
+	for ev: String in want:
+		runner.check(a.route(ev) == want[ev], "%s -> %s (got %s)" % [ev, want[ev], a.route(ev)])
+	runner.check(AudioScript.EVENT_CUE["buyBulk"] == "buyBig" and AudioScript.EVENT_CUE["buy"] == "buy", "a bulk buy plays buyBig")
+	for id: String in ["uiOpen", "uiClose", "uiToggle", "buyBig", "paid", "slipChoose", "slipLocked", "wizardStep", "wizardDone", "wizardSkip"]:
+		runner.check(_man["cues"].has(id), "v1.6 cue %s is in the manifest" % id)
+		for k: String in LEADER_KEYS:
+			runner.check(not OdAudio.cue_variants(_man, id, k).is_empty() or str(_man["cues"][id]["pitch"]["type"]) == "none", "%s renders in %s" % [id, k])
+	for id: String in ["slipChoose", "slipLocked", "wizardStep", "wizardDone", "wizardSkip"]:
+		runner.check(OdAudio.is_first_sound(_man, id), "%s plays before the first tap (the booth and the wizard come first)" % id)
+	# the reward is louder than the UI around it, and the bulk buy louder than one buy
+	var burst := func(id: String) -> float: return float(_man["cues"][id].get("burstMax", -99.0))
+	runner.check(burst.call("buyBig") > burst.call("buy"), "buyBig is bigger than buy (%.1f vs %.1f)" % [burst.call("buyBig"), burst.call("buy")])
+	runner.check(burst.call("paid") > burst.call("uiClick") and burst.call("wizardStep") < burst.call("buy"), "a payment over a click; the wizard's chime under a purchase")

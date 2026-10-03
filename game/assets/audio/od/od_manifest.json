@@ -586,14 +586,54 @@
 			"lengthMs": 214.0,
 			"limitedBy": "target",
 			"meaning": "Bought a source or a spin.",
-			"momentaryMax": -20.73,
-			"play_db": -4.95,
+			"momentaryMax": -20.44,
+			"play_db": -3.47,
 			"poly": 2.0,
 			"priority": 3.0,
-			"runtime": "The tap blip on 5, then the motif's first bar note (1') on P1. Alternate d25 / d12.",
+			"runtime": "The tap blip on 5 over a low body, then the motif's first bar note (1') on P1 with a glint. Alternate d25 / d12. A bulk buy (x10, max) plays buyBig instead.",
 			"steal": "oldest",
 			"target": {
 				"lufs": -16.0,
+				"type": "burst"
+			}
+		},
+		"buyBig": {
+			"burstMax": -14.5,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "buyBig_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "buyBig_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "buyBig_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "buyBig_G.res"
+					}
+				}
+			},
+			"lengthMs": 374.0,
+			"limitedBy": "target",
+			"meaning": "A bulk purchase (x10 or max).",
+			"momentaryMax": -17.28,
+			"play_db": -2.02,
+			"poly": 1.0,
+			"priority": 3.0,
+			"runtime": "Instead of buy on a bulk purchase (main.gd sends buyBulk when the quantity is over one).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -14.5,
 				"type": "burst"
 			}
 		},
@@ -1288,8 +1328,8 @@
 				}
 			},
 			"meaning": "You picked this round's leader (the picker's commit).",
-			"momentaryMax": -17.93,
-			"play_db": -2.83,
+			"momentaryMax": -17.95,
+			"play_db": -2.97,
 			"poly": 1.0,
 			"priority": 5.0,
 			"runtime": "On the picker's commit (and again on a re-pick inside the undo window). It is the game's first sound now: it plays before the first-tap gate, and while the web audio context is still locked it is held (up to 5 s) and plays on the unlock, like the motif. It does not open the first-tap gate: the first tap still plays the motif.",
@@ -1333,6 +1373,46 @@
 			"poly": 1.0,
 			"priority": 2.0,
 			"runtime": "On the merge pill's commit (Coalition.merge).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -16.0,
+				"type": "burst"
+			}
+		},
+		"paid": {
+			"burstMax": -16.0,
+			"bus": "SFX-Frequent",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "paid_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "paid_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "paid_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "paid_G.res"
+					}
+				}
+			},
+			"lengthMs": 434.0,
+			"limitedBy": "target",
+			"meaning": "A partner's demand is paid (the chat's pay pill or 'pay all').",
+			"momentaryMax": -20.21,
+			"play_db": -7.17,
+			"poly": 1.0,
+			"priority": 3.0,
+			"runtime": "partnerPaid (view_chat.gd: a pay, or one per 'pay all'). Herzog's desk keeps stamp.",
 			"steal": "oldest",
 			"target": {
 				"lufs": -16.0,
@@ -1445,8 +1525,8 @@
 			"lengthMs": 844.0,
 			"limitedBy": "target",
 			"meaning": "While you were away (the return).",
-			"momentaryMax": -17.65,
-			"play_db": -7.62,
+			"momentaryMax": -17.41,
+			"play_db": -5.58,
 			"poly": 1.0,
 			"priority": 3.0,
 			"runtime": "The catch's cha-ching, then the motif head (5-1). v1.3: a first sound like leaderPick (the return card comes before any tap after a reload, so the first-tap gate used to swallow it).",
@@ -1480,6 +1560,92 @@
 			"steal": "oldest",
 			"target": {
 				"lufs": -16.0,
+				"type": "burst"
+			}
+		},
+		"slipChoose": {
+			"burstMax": -22.71,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"a": "slipChoose_D_a.res",
+						"b": "slipChoose_D_b.res"
+					}
+				},
+				"E": {
+					"_": {
+						"a": "slipChoose_E_a.res",
+						"b": "slipChoose_E_b.res"
+					}
+				},
+				"F": {
+					"_": {
+						"a": "slipChoose_F_a.res",
+						"b": "slipChoose_F_b.res"
+					}
+				},
+				"G": {
+					"_": {
+						"a": "slipChoose_G_a.res",
+						"b": "slipChoose_G_b.res"
+					}
+				}
+			},
+			"firstSound": true,
+			"lengthMs": 59.0,
+			"limitedBy": "ceiling",
+			"meaning": "A slip is chosen in the ballot booth (the big card shows it).",
+			"momentaryMax": -28.73,
+			"play_db": -3.0,
+			"poly": 1.0,
+			"priority": 1.0,
+			"runtime": "Alternates a / b.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -21.5,
+				"type": "burst"
+			}
+		},
+		"slipLocked": {
+			"burstMax": -23.0,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "slipLocked_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "slipLocked_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "slipLocked_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "slipLocked_G.res"
+					}
+				}
+			},
+			"firstSound": true,
+			"lengthMs": 144.0,
+			"limitedBy": "target",
+			"meaning": "A slip still in print is chosen (it can't be voted yet).",
+			"momentaryMax": -28.95,
+			"play_db": -11.29,
+			"poly": 1.0,
+			"priority": 1.0,
+			"runtime": "Once per choice of a locked slip.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -23.0,
 				"type": "burst"
 			}
 		},
@@ -1567,7 +1733,7 @@
 					}
 				}
 			},
-			"lengthMs": 424.0,
+			"lengthMs": 544.0,
 			"limitedBy": "target",
 			"markers": {
 				"_": {
@@ -1577,8 +1743,8 @@
 				}
 			},
 			"meaning": "Got it.",
-			"momentaryMax": -16.7,
-			"play_db": -5.6,
+			"momentaryMax": -16.42,
+			"play_db": -3.43,
 			"poly": 1.0,
 			"priority": 4.0,
 			"runtime": "Also the first half of the 'while you were away' return (returnAway).",
@@ -1946,7 +2112,7 @@
 			}
 		},
 		"uiClick": {
-			"burstMax": -21.0,
+			"burstMax": -21.25,
 			"bus": "UI",
 			"ducks": [],
 			"files": {
@@ -1971,17 +2137,141 @@
 					}
 				}
 			},
-			"lengthMs": 38.0,
-			"limitedBy": "target",
+			"lengthMs": 53.0,
+			"limitedBy": "ceiling",
 			"meaning": "A UI press.",
-			"momentaryMax": -27.02,
-			"play_db": -3.35,
+			"momentaryMax": -27.27,
+			"play_db": -3.0,
 			"poly": 2.0,
 			"priority": 1.0,
-			"runtime": "One P2 blip on degree 1 in octave 6 (1.2-1.6 kHz).",
+			"runtime": "One P2 blip on degree 1 in octave 6 (1.2-1.6 kHz) with a click and a sine octave.",
 			"steal": "oldest",
 			"target": {
 				"lufs": -21.0,
+				"type": "burst"
+			}
+		},
+		"uiClose": {
+			"burstMax": -22.0,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "uiClose_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "uiClose_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "uiClose_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "uiClose_G.res"
+					}
+				}
+			},
+			"lengthMs": 119.0,
+			"limitedBy": "target",
+			"meaning": "A panel, sheet or menu closes.",
+			"momentaryMax": -28.02,
+			"play_db": -11.67,
+			"poly": 1.0,
+			"priority": 1.0,
+			"runtime": "panelClose, evolveClose.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -22.0,
+				"type": "burst"
+			}
+		},
+		"uiOpen": {
+			"burstMax": -20.5,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "uiOpen_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "uiOpen_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "uiOpen_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "uiOpen_G.res"
+					}
+				}
+			},
+			"lengthMs": 129.0,
+			"limitedBy": "target",
+			"meaning": "A panel, sheet or menu opens.",
+			"momentaryMax": -26.52,
+			"play_db": -10.61,
+			"poly": 1.0,
+			"priority": 1.0,
+			"runtime": "panelOpen, evolveOpen.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -20.5,
+				"type": "burst"
+			}
+		},
+		"uiToggle": {
+			"burstMax": -21.5,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"off": "uiToggle_D_off.res",
+						"on": "uiToggle_D_on.res"
+					}
+				},
+				"E": {
+					"_": {
+						"off": "uiToggle_E_off.res",
+						"on": "uiToggle_E_on.res"
+					}
+				},
+				"F": {
+					"_": {
+						"off": "uiToggle_F_off.res",
+						"on": "uiToggle_F_on.res"
+					}
+				},
+				"G": {
+					"_": {
+						"off": "uiToggle_G_off.res",
+						"on": "uiToggle_G_on.res"
+					}
+				}
+			},
+			"lengthMs": 72.0,
+			"limitedBy": "target",
+			"meaning": "A switch or a mode cycles (settings toggles, the buy-mode chip).",
+			"momentaryMax": -27.53,
+			"play_db": -5.2,
+			"poly": 1.0,
+			"priority": 1.0,
+			"runtime": "uiToggle, buyModeCycle. Alternates on / off.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -21.5,
 				"type": "burst"
 			}
 		},
@@ -2063,6 +2353,136 @@
 			"steal": "oldest",
 			"target": {
 				"lufs": -14.0,
+				"type": "burst"
+			}
+		},
+		"wizardDone": {
+			"burstMax": -21.0,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "wizardDone_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "wizardDone_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "wizardDone_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "wizardDone_G.res"
+					}
+				}
+			},
+			"firstSound": true,
+			"lengthMs": 374.0,
+			"limitedBy": "target",
+			"meaning": "A wizard step the player saw is done.",
+			"momentaryMax": -24.89,
+			"play_db": -10.58,
+			"poly": 1.0,
+			"priority": 2.0,
+			"runtime": "Starts 100 ms in (baked into the file), so it follows the action's own cue.",
+			"steal": "oldest",
+			"target": {
+				"lufs": -21.0,
+				"type": "burst"
+			}
+		},
+		"wizardSkip": {
+			"burstMax": -22.0,
+			"bus": "UI",
+			"ducks": [],
+			"files": {
+				"D": {
+					"_": {
+						"_": "wizardSkip_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "wizardSkip_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "wizardSkip_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "wizardSkip_G.res"
+					}
+				}
+			},
+			"firstSound": true,
+			"lengthMs": 154.0,
+			"limitedBy": "target",
+			"meaning": "The wizard is skipped ('דלג').",
+			"momentaryMax": -27.95,
+			"play_db": -7.95,
+			"poly": 1.0,
+			"priority": 1.0,
+			"runtime": "On 'דלג' (or Esc).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -22.0,
+				"type": "burst"
+			}
+		},
+		"wizardStep": {
+			"burstMax": -20.0,
+			"bus": "UI",
+			"ducks": [
+				{
+					"attackMs": 40.0,
+					"bus": "Music",
+					"db": -3.0,
+					"releaseMs": 300.0
+				}
+			],
+			"files": {
+				"D": {
+					"_": {
+						"_": "wizardStep_D.res"
+					}
+				},
+				"E": {
+					"_": {
+						"_": "wizardStep_E.res"
+					}
+				},
+				"F": {
+					"_": {
+						"_": "wizardStep_F.res"
+					}
+				},
+				"G": {
+					"_": {
+						"_": "wizardStep_G.res"
+					}
+				}
+			},
+			"firstSound": true,
+			"lengthMs": 374.0,
+			"limitedBy": "target",
+			"meaning": "A wizard step appears (the dim, the hole, Dubi's bubble).",
+			"momentaryMax": -24.54,
+			"play_db": -7.86,
+			"poly": 1.0,
+			"priority": 2.0,
+			"runtime": "When a step first shows (not again on a re-show).",
+			"steal": "oldest",
+			"target": {
+				"lufs": -20.0,
 				"type": "burst"
 			}
 		}
@@ -2255,12 +2675,12 @@
 		"files": {
 			"music": 12,
 			"outside": 1,
-			"sfx": 242,
+			"sfx": 290,
 			"stingers": 37
 		},
 		"music_bytes": 9237588,
 		"outside_bytes": 53847,
-		"sfx_bytes": 1113510,
+		"sfx_bytes": 1262486,
 		"stinger_bytes": 1486635
 	},
 	"stingers": {

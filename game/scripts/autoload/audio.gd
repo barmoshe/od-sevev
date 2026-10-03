@@ -37,7 +37,7 @@ extends Node
 ##   content's easterEggs flag, with tap-to-beat judging (§2.5).
 ##
 ## v1.3 (Audio Director, 2026-09-29: leader select and the session-2 views, cue-spec §4.1):
-## - First sounds: a cue flagged `firstSound` (leaderPick, returnAway) plays before the first-tap
+## - First sounds: a cue flagged `firstSound` (leaderPick, returnAway, the booth's and the wizard's cues) plays before the first-tap
 ##   gate, because it IS the first gesture (the picker's commit; the return card after a reload).
 ##   It does not open the gate: the first Magician tap still plays the motif. Under a locked web
 ##   context it is held like the motif (up to 5 s) and plays on the unlock (iOS: touchend).
@@ -84,14 +84,18 @@ const DUBI_CUES := ["dubiSquawk", "dubiBlip", "dubiFlash"]
 
 ## The controller's (fork) event names -> the od cue they play.
 const EVENT_CUE := {
-	"buy": "buy", "buyBulk": "buy", "upgradeBuy": "buy", "perkBuy": "buy",
+	"buy": "buy", "buyBulk": "buyBig", "upgradeBuy": "buy", "perkBuy": "buy",
 	"cantAfford": "cantAfford",
 	"fail": "fail",   # Gantz on the picker: the sad trombone
-	"uiClick": "uiClick", "uiToggle": "uiClick", "buyModeCycle": "uiClick", "panelOpen": "uiClick",
-	"panelClose": "uiClick", "evolveOpen": "uiClick", "evolveClose": "uiClick",
+	# v1.6 (Bar: "UI sounds thin and the same"): opening, closing and switching each have their own cue
+	"uiClick": "uiClick", "uiToggle": "uiToggle", "buyModeCycle": "uiToggle", "panelOpen": "uiOpen",
+	"panelClose": "uiClose", "evolveOpen": "uiOpen", "evolveClose": "uiClose",
 	"goldenCatch": "suitcaseCatch", "goldenDespawn": "suitcaseMiss",
 	"offlineCollect": "returnAway",
-	"partnerPaid": "stamp", "pardonStamp": "stamp",
+	"partnerPaid": "paid", "pardonStamp": "stamp",
+	# v1.6: the ballot booth (ADR 0008) and the wizard (ADR 0007)
+	"slipChoose": "slipChoose", "slipLocked": "slipLocked",
+	"wizardStep": "wizardStep", "wizardDone": "wizardDone", "wizardSkip": "wizardSkip",
 	"photobomb": "shutter", "transfer": "transferWhistle", "postponement": "gavelWeak",
 }
 ## Event names -> a stinger.
@@ -113,7 +117,8 @@ const SILENT := ["frenzyStart", "frenzyEnd", "tapFrenzyStart", "tapFrenzyEnd", "
 ## Cues whose variant is random (never the same one twice in a row).
 const RANDOM_VARIANT := ["suitcaseSpawn", "gavel", "transferWhistle", "shutter"]
 ## Cues whose variant alternates.
-const ALTERNATE := {"buy": ["d25", "d12"], "ultimatumTick": ["tick", "tock"], "coin": ["a", "b"]}
+const ALTERNATE := {"buy": ["d25", "d12"], "ultimatumTick": ["tick", "tock"], "coin": ["a", "b"],
+	"uiToggle": ["on", "off"], "slipChoose": ["a", "b"]}
 
 var _ok := false
 var _man: Dictionary = {}
@@ -341,7 +346,7 @@ func event(name: String, arg: Variant = null) -> void:
 			_ping(now, "brawl")
 		"buy", "buyBulk":
 			set_sources_owned(maxi(_sources, 1))
-			_cue_alt("buy", now)
+			_cue_alt(EVENT_CUE[name], now)   # a bulk purchase sounds bigger (buyBig)
 		"evolveConfirm", "electionConfirm":
 			_election(now, arg)
 		"era":

@@ -37,6 +37,7 @@ var cond: Callable                 # func(name: String) -> bool
 var anchor: Callable               # func(name: String) -> Rect2 (root space)
 var fill: Callable                 # func(text: String) -> String (placeholders: the leader's names)
 var on_event: Callable             # func(flow: String, what: String): the funnel (step id | skip | done)
+var on_sound: Callable             # func(event: String): wizardStep | wizardDone | wizardSkip (Audio)
 var reduced_motion := false
 ## The screen in root space (the dim covers it) and the canvas column with its safe band (the bubble
 ## and the skip stay inside it).
@@ -198,6 +199,8 @@ func pick(s: GameState) -> Array:
 			if float(st.get("sec", 0.0)) > 0.0 and float(_shown.get(key, 0.0)) >= float(st["sec"]) * 1000.0:
 				passed = true
 			if passed or _test(str(st.get("done", "")), key):
+				if not passed and _shown.has(key):
+					_sound("wizardDone")   # a step the player saw, done by them (not a moment that passed)
 				mark(s, f, i)
 				_report(f, str(st.get("id", i)))
 				if _tapped == key:
@@ -244,6 +247,8 @@ func update_view(dt_ms: float, s: GameState) -> void:
 		flow = f
 		step_i = i
 		_step = (flows()[f]["steps"] as Array)[i]
+		if not _shown.has(key):
+			_sound("wizardStep")   # first time this step shows
 		_shown[key] = 0.0
 		_tapped = ""
 		_fade = 0.0
@@ -354,7 +359,13 @@ func skip(s: GameState) -> void:
 		return
 	finish(s, flow)
 	_report(flow, "skip")
+	_sound("wizardSkip")
 	_clear()
+
+
+func _sound(ev: String) -> void:
+	if on_sound.is_valid():
+		on_sound.call(ev)
 
 
 func _report(f: String, what: String) -> void:

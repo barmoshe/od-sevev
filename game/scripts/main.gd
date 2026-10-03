@@ -532,6 +532,7 @@ func _build_wizard() -> void:
 		var nw := _new_tile()
 		return Bidi.fill(tx_, {"leader": LeaderUi.short(cur) if cur != "" else "", "new": str(nw.get("short", "")),
 			"newRule": str(Leaders.rule(str(nw.get("id", ""))).get("summary", "")) if not nw.is_empty() else ""})
+	wizard.on_sound = func(ev: String) -> void: _audio(ev)
 	wizard.on_event = func(f: String, what: String) -> void:
 		_funnel("wizard", {"flow": f, "step": what})
 		_mark_dirty()

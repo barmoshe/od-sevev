@@ -35,6 +35,14 @@
 > - Hook: one line in `ui/shop.gd` where the spin tag's slam starts (§4.1).
 > - Nothing else changed: every v1.3 id, file and level, and the music. `stamp` stays Herzog's desk only (§5.6).
 
+> **v1.6 (2026-10-03, Bar: "improve the sfx"), the Audio Director: 8-bit, but fuller.**
+> - **The brief:** UI presses all sounded the same, rewards didn't pay off, and the ballot booth and wizard were silent. Same chip palette and keys; each cue gains a body (triangle under it) and a glint (noise + a high E/A on top).
+> - **Reworked:** `buy` (tri A3 body + glint), `suitcaseCatch` / `returnAway` (two crushed A3 hits + an E6/A6 sparkle), `uiClick` (a 6 ms band-passed click + a sine under the blip), `leaderPick` (a paper slide, then a box thump and wood knock at the drop).
+> - **New cues (×4 keys):** `buyBig` (×10/max: A-C-E 16ths + a coin shower), `paid` (a partner paid; replaces `stamp` in the chat), `uiOpen` / `uiClose` (a swish up / down), `uiToggle` (`on` / `off`, a fifth up / down), `slipChoose` (`a` / `b` alternate), `slipLocked`, `wizardStep` (ducks Music 3 dB), `wizardDone`, `wizardSkip`.
+> - **Routes (`audio.gd` EVENT_CUE):** `buyBulk`→`buyBig`; `panelOpen`/`evolveOpen`→`uiOpen`; `panelClose`/`evolveClose`→`uiClose`; `uiToggle`/`buyModeCycle`→`uiToggle`; `partnerPaid`→`paid`. The booth sends `slipChoose`/`slipLocked` on a focus change; the wizard sends `wizardStep` (a step's first show), `wizardDone` (finished by its action) and `wizardSkip`.
+> - **First sounds:** the booth and wizard cues carry `firstSound`, so they play before the first tap of a fresh launch (the picker now opens first).
+> - **Payload:** see §7 v1.6. `stamp` stays Herzog's desk; the music is unchanged.
+
 **Brief:** `sonic-brief` v1.1 (`artifacts/creative-pack/od-sevev/audio/sonic-brief.md`), with the resolutions in `engine/feasibility.md` (O-A1, O-A2, A3, A12, A13, A14, A18).
 
 ## Sources of truth
@@ -489,6 +497,8 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 - **The web export:** `index.pck` grew from 18,327,576 to 18,535,096 bytes (+207,520, +1.1 %); `index.wasm` is unchanged.
 
 **Totals (v1.4):** +1 file, `slipStamp.res`, 1,551 bytes: SFX 817,279 → 818,830 bytes. The folder stays at 11.06 MB.
+
+**Totals (v1.6):** SFX 242 → 290 files, 1,113,510 → 1,262,486 bytes (+148,976: 10 new cues ×4 keys, plus variants). The folder is **11.48 MB** (12,100,132 bytes with the manifest), about 0.2 MB over the soft ~11.3 MB budget; music and stingers are unchanged, so the boot pack grows by the same 0.15 MB.
 
 **How it fits:**
 - The courthouse stems render at 22,044 Hz, where a step is 5,010 samples.

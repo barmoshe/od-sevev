@@ -1724,7 +1724,7 @@ func pay_all() -> int:
 		if pay(int(seq), false, true):
 			n += 1
 	if n > 0:
-		_audio("stamp")
+		_audio("partnerPaid")   # the ka-ching (cue paid), not Herzog's deadpan stamp
 		if ult:
 			_audio("ultimatumPaid")
 	else:
@@ -1756,7 +1756,7 @@ func pay(seq: int, ceremony_done: bool = false, quiet: bool = false) -> bool:
 				_audio("cantAfford")
 		return false
 	if not quiet:
-		_audio("stamp")
+		_audio("partnerPaid")
 		if was_ult:
 			_audio("ultimatumPaid")
 	_stamp_at[seq] = _now
