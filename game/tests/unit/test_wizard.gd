@@ -123,6 +123,18 @@ func test_gone_sec_soft_hold_and_skip() -> void:
 	runner.check(Wizard.finished(s2, "t") and not w.showing(), "דלג ends the flow")
 
 
+func test_a_seen_step_ends_only_after_it_showed() -> void:
+	var conds := {"w": false, "d": true}
+	var s := _bare({"on": "", "steps": [{"id": "x", "anchor": "a", "when": "w", "done": "d", "seen": true, "text": "x"}]}, conds)
+	w.update_view(16.0, s)
+	runner.check(not Wizard.finished(s, "t"), "its done was true before its moment: it waits")
+	conds["w"] = true
+	w.update_view(16.0, s)
+	runner.check(w.showing(), "it shows when its moment comes")
+	w.update_view(16.0, s)
+	runner.check(Wizard.finished(s, "t"), "and ends on its done once shown")
+
+
 func test_a_mechanic_flow_waits_for_its_round() -> void:
 	var conds := {"w": true}
 	var s := _bare({"on": "suspicion", "steps": [{"id": "x", "anchor": "a", "when": "w", "done": "tapHole", "text": "x"}]}, conds)

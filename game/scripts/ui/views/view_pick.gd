@@ -572,15 +572,17 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 		av = dense
 		sc = avatar / float(maxi(1, Art.sprite_size(dense).x))
 	var top := _block_top(r.size.y) if three else 12.0
+	var shut: bool = t.get("locked", false) == true
 	if Art.has_sprite(av):
 		var asz := Vector2(Art.sprite_size(av)) * sc
 		var img := Ui.img(content, Vector2(Ui.snap((w - asz.x) / 2.0, 4), top), av, 0, 4)
 		img.scale = Vector2(sc, sc)
+		if shut:
+			img.material = blur_material(img.texture)   # Bar 2026-10-03: the leaders not open yet, blurred
 	var nm := PxText.make(content, Vector2(0, top + avatar + 8.0), str(t.get("short", id)), L.TEXT, "plain", C_NAME)
 	nm.wrap_width = w - 24.0
 	nm.max_lines = 1
 	nm.center_in(12.0, w - 24.0)
-	var shut: bool = t.get("locked", false) == true
 	var second := Strings.s("LEADER_PICK_LOCKED", {"n": int(t.get("round", 0))}) if shut else str(t.get("party", ""))
 	var pt := PxText.make(content, Vector2(0, nm.position.y + LH), second, L.TEXT, "plain", C_PARTY)
 	pt.wrap_width = w - 24.0
@@ -595,7 +597,7 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 	var rs := str(Leaders.rule(str(t.get("id", ""))).get("summary", "")) if str(t.get("id", "")) != "" else ""
 	c["blurb"] = rs if rs != "" else str(t.get("blurb", ""))
 	if shut:
-		# the roster ladder: greyed, the round it opens in; a tap only says so in the strip
+		# the roster ladder: a blurred face, greyed, the round it opens in; a tap only says so in the strip
 		content.modulate = LOCKED_TINT
 		plate.modulate = Color(0.62, 0.62, 0.7)
 		c["locked"] = true
@@ -608,6 +610,38 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 		root.move_child(pill, tag.get_index())
 		tag.position.x = w - tw_ - 8.0 + 12.0
 	return c
+
+
+static var _blur_shader: Shader
+
+## A box blur over the sprite's own frame (clamped to its atlas region, so no neighbour bleeds in):
+## a locked leader's face (Bar 2026-10-03: "שיראו מטושטש את המתמודדים שאי אפשר לבחור").
+static func blur_material(tex: Texture2D) -> ShaderMaterial:
+	if _blur_shader == null:
+		_blur_shader = Shader.new()
+		_blur_shader.code = """shader_type canvas_item;
+uniform vec4 region = vec4(0.0, 0.0, 1.0, 1.0);
+uniform float radius = 2.5;
+void fragment() {
+	vec2 lo = region.xy + TEXTURE_PIXEL_SIZE * 0.5;
+	vec2 hi = region.xy + region.zw - TEXTURE_PIXEL_SIZE * 0.5;
+	vec4 sum = vec4(0.0);
+	for (int x = -3; x <= 3; x++) {
+		for (int y = -3; y <= 3; y++) {
+			vec2 uv = clamp(UV + vec2(float(x), float(y)) * TEXTURE_PIXEL_SIZE * radius / 3.0, lo, hi);
+			sum += texture(TEXTURE, uv);
+		}
+	}
+	COLOR = sum / 49.0 * COLOR;
+}
+"""
+	var m := ShaderMaterial.new()
+	m.shader = _blur_shader
+	if tex is AtlasTexture and (tex as AtlasTexture).atlas != null:
+		var at := tex as AtlasTexture
+		var sz := Vector2(at.atlas.get_size())
+		m.set_shader_parameter("region", Vector4(at.region.position.x / sz.x, at.region.position.y / sz.y, at.region.size.x / sz.x, at.region.size.y / sz.y))
+	return m
 
 
 ## The content block's top in a tile of height h: (h − (A + 8 + 44 + 80)) / 2, at least 12.

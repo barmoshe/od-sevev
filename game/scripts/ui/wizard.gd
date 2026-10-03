@@ -18,6 +18,8 @@ extends Node2D
 ##   gone                  once shown, the moment passing (`when` false) counts as done (the Suitcase)
 ##   hold                  holds the round's clock while it shows (an ultimatum, main.clock_held)
 ##   sec                   once shown this long, done (a soft hint never lingers)
+##   seen                  `done` counts only once the step has shown (a `done` already true before
+##                         its moment: the new leader's "picked")
 ##   text                  the bubble; "@reveal.<key>" = the reveal ladder's announcement
 ## State: stats "wiz_<flow>" = the bitmask of the steps done, FINISHED once the flow ends or is skipped
 ## (stats persist any plain number; the save keeps only the fixed boolean UI flags).
@@ -186,7 +188,8 @@ func pick(s: GameState) -> Array:
 			var passed: bool = st.get("gone", false) == true and _shown.has(key) and not _test(str(st.get("when", "")), key)
 			if float(st.get("sec", 0.0)) > 0.0 and float(_shown.get(key, 0.0)) >= float(st["sec"]) * 1000.0:
 				passed = true
-			if _test(str(st.get("done", "")), key) or passed:
+			var can_end: bool = st.get("seen", false) != true or _shown.has(key)
+			if (can_end and _test(str(st.get("done", "")), key)) or passed:
 				mark(s, f, i)
 				_report(f, str(st.get("id", i)))
 				if _tapped == key:

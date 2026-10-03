@@ -123,7 +123,7 @@ const wiz = (page) => page.evaluate(() => window.odWizard || { flow: '' });
 		let sawSpins = false;
 		while (Date.now() - t1 < 120000 && !(sawLeaders && sawSpins)) {
 			const fl = await page.evaluate(() => window.odFlash || null);
-			if (fl && fl.open) { await P.refresh(); const b = fl.skip && fl.skip[0] >= 0 ? fl.skip : fl.next; await tapAt(css(b[0], b[1])); await wait(800); continue; }
+			if (fl && fl.open) { await P.refresh(); await tapAt(css(fl.next[0], fl.next[1])); await wait(800); continue; }
 			const w = await wiz(page);
 			if (w.flow === 'leaders' && !sawLeaders) {
 				sawLeaders = true;

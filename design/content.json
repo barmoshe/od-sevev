@@ -98,6 +98,7 @@
      "anchor": "pickNew",
      "when": "newTile",
      "done": "picked",
+     "seen": true,
      "soft": true,
      "text": "חדש בבחירות: {new}. {newRule}"
     }
