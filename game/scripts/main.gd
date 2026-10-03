@@ -118,6 +118,8 @@ var dossier: DossierView            # T4 "תיקים" + the pardon desk (ui/view
 var court: CourtView                # the O2 court card + its ticker chip (ui/views/view_court.gd)
 var thermo: Thermo                  # the suspicion thermometer + the sweat (ui/views/view_thermo.gd)
 var picker: PickView                # LEADER_PICK (ui/views/view_pick.gd)
+var wizard: Wizard                  # the wizard overlay (ui/wizard.gd, content `wizard`; ADR 0007)
+var wiz_event_ms := -1.0e9          # the last card/street event's frame time (the events wizard waits for one)
 var _pick_res: Dictionary = {}      # the last commit's Leaders.start_round result + {via}
 var _pick_seq: Array = []           # [{at (ms, _now), fn}]: the round-start sequence (rtl-map §8.6)
 var _fresh_due := ""                # D62: the LEADER_PICK_FRESH text, waiting for the undo chip to go
@@ -502,6 +504,7 @@ func _build() -> void:
 		_mark_dirty()
 		_open_decoy_card(line)
 	_build_undo_chip()
+	_build_wizard()
 	title_view.build(bool(settings["reducedMotion"]), show_key_hints())
 	var a := get_node_or_null("/root/Audio")
 	if a:
@@ -512,6 +515,35 @@ func _build() -> void:
 					_audio("ceremonyEnd"))
 		if a.has_signal("dubi_blip"):
 			a.connect("dubi_blip", func(_bank: String) -> void: ticker.dubi_talk())
+
+
+## The wizard overlay: the root's last child (over the picker, the overlays and the transition, so a
+## hole can sit on a tile, a pay pill or a chip). WizardHooks speaks its content's vocabulary.
+func _build_wizard() -> void:
+	wizard = Wizard.new()
+	wizard.host = self
+	_root.add_child(wizard)
+	wizard.cond = func(n: String) -> bool: return WizardHooks.cond(self, n)
+	wizard.anchor = func(n: String) -> Rect2: return WizardHooks.anchor(self, n)
+	wizard.fill = func(tx_: String) -> String:
+		var cur := Leaders.current(state)
+		var nw := ""
+		for t_: Variant in picker.model.get("tiles", []):
+			if (t_ as Dictionary).get("new", false):
+				nw = str((t_ as Dictionary).get("short", ""))
+		return Bidi.fill(tx_, {"leader": LeaderUi.short(cur) if cur != "" else "", "new": nw,
+			"newRule": _new_rule()})
+	wizard.on_event = func(f: String, what: String) -> void:
+		_funnel("wizard", {"flow": f, "step": what})
+		_mark_dirty()
+
+
+## The new tile's one-line rule (the leaders wizard's bubble).
+func _new_rule() -> String:
+	for t_: Variant in picker.model.get("tiles", []):
+		if (t_ as Dictionary).get("new", false):
+			return str(Leaders.rule(str((t_ as Dictionary)["id"])).get("summary", ""))
+	return ""
 
 
 ## R9 (rtl-map §7.1 "History"): the shell forwards every popstate that is not About's own to
@@ -598,6 +630,7 @@ func _build_chat() -> void:
 		shop.tall = "coalition" if on else ""
 		shop.cancel_press()
 		if on:
+			state.ui["chatOpened"] = true   # the first wizard's "open the group" step
 			_funnel("chat_opened", {}))
 	toasts.on_tap = func(tag: String) -> void:
 		if tag == "chat" and _gameplay_input():
@@ -1267,7 +1300,9 @@ func _process(delta: float) -> void:
 	if bool(_dev["on"]):
 		_dev_poll_share()
 	# ---- /share platform ----
+	ftue.suppressed = Wizard.first_running(state)   # the first wizard teaches; the old prompts stand down
 	ftue.update_view(dt, state, d, _ftue_ctx(running))
+	_update_wizard(dt)
 	_update_shake(dt)
 	if bool(_dev["on"]):
 		DevProbe.publish(self, dt)   # window.odDev for the browser drivers (tools/web/round_web.mjs)
@@ -1284,6 +1319,15 @@ func _process(delta: float) -> void:
 		_save_cooldown -= dt
 		if _save_dirty and _save_cooldown <= 0.0:
 			_save_now()
+
+
+func _update_wizard(dt: float) -> void:
+	wizard.reduced_motion = bool(settings.get("reducedMotion", false))
+	wizard.screen = Rect2(-_root.position - Vector2(64, 64), _vs + Vector2(128, 128))
+	wizard.column = Rect2(_ox, _top_y, L.cw, _vs.y - _bottom_inset - _top_y)
+	wizard.update_view(dt, state)
+	if bool(_dev["on"]) and OS.has_feature("web"):
+		JavaScriptBridge.eval("window.odWizard = %s" % JSON.stringify(wizard.web_info(_root.position)), true)
 
 
 ## Clock-driven Audio hooks: the Magician's trick lands 333 ms before the fanfare's roll end
@@ -1538,7 +1582,7 @@ func _follow_os_motion(dt: float) -> void:
 ## ultimatum). Play layers keep it running: the coalition chat, the shop tabs, the summons card and
 ## the overlays that are play themselves (Overlay.holds_clock false).
 func clock_held() -> bool:
-	return vote_open() or menu_open()
+	return vote_open() or menu_open() or (wizard != null and wizard.holds())
 
 
 func menu_open() -> bool:
@@ -1691,6 +1735,7 @@ func _on_politics_event(e: Dictionary) -> void:
 ## event's line crawls in the ticker; the leak posts its screenshot into the chat (Coalition.post_leak).
 ## The pardon desk and the chat-only brawl carry no card text, so they show nothing here.
 func _on_card_event(e: Dictionary) -> void:
+	wiz_event_ms = _now   # the events wizard waits for the first one
 	var id := str(e.get("id", ""))
 	var ev := Events.event(id)
 	var c: Dictionary = ev.get("copy", {}) if ev.get("copy") is Dictionary else {}
@@ -2163,7 +2208,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e is InputEventKey:
 		var k := e as InputEventKey
 		if k.pressed and not k.echo:
-			if _input_blocked():
+			if wizard.swallows_key(k, state):
+				pass
+			elif _input_blocked():
 				_on_blocked_tap()
 			else:
 				_on_key(k)
@@ -2195,6 +2242,8 @@ func _notification(what: int) -> void:
 func _pointer_down(idx: int, p: Vector2) -> void:
 	_first_input = true
 	_keyboard_active = false
+	if wizard.swallows(p - _root.position, state):
+		return   # the wizard: only the hole (and "דלג") takes a press while a step shows
 	if _input_blocked():
 		_on_blocked_tap()
 		return
@@ -3190,12 +3239,15 @@ func _dock_toasts() -> void:
 ## (rule.name: rule.summary; the stat ruleSeen_<id> persists it).
 static func round_news(s: GameState, leader_id: String) -> PackedStringArray:
 	var out := PackedStringArray()
+	var wiz := Wizard.flows() if Wizard.enabled else {}
 	for k: String in Reveal.new_this_round(s):
 		var line := Reveal.announcement(k)
-		if line != "":
+		if line != "" and not wiz.has(k):   # a mechanic with a wizard is taught when it shows up (ADR 0007)
 			out.append(line)
 	var r: Dictionary = Leaders.rule(leader_id)
 	var key := "ruleSeen_" + leader_id
+	if Wizard.first_running(s):
+		return out   # the first wizard has the screen; the picker's strip already said the rule
 	if str(r.get("summary", "")) != "" and float(s.stats.get(key, 0.0)) <= 0.0:
 		out.append("%s: %s" % [str(r.get("name", "")), str(r["summary"])])
 		s.stats[key] = 1.0

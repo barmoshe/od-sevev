@@ -30,6 +30,9 @@ func _initialize() -> void:
 			# the reveal ladder (sim/reveal.gd): unit tests pin each system itself, so it is off unless a
 			# test turns it on (test_reveal.gd); the bench plays the game as shipped, ladder on
 			Reveal.force_all = folder == "unit"
+			# the wizard overlay covers the screens tests pin; test_wizard.gd turns it on (loaded here: the
+			# runner compiles before the autoloads its class needs)
+			(load("res://scripts/ui/wizard.gd") as GDScript).set("enabled", false)
 			var inst: Object = script.new()
 			if inst.has_method("setup"):
 				inst.call("setup", self)

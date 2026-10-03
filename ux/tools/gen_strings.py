@@ -963,6 +963,7 @@ e("LEADER_PICK_AGAIN", "עוד סבב עם {short}", "pick.again", "", "leaderSe
 e("LEADER_PICK_LOCKED", "בסבב ⟦{n}⟧", "pick.party", "", "roster ladder (2026-10-03)", "A locked tile's second line instead of the party: the round its leader opens in (leaderSelect.unlockRound + 1)")
 e("LEADER_PICK_LOCKED_CAP", "{short} מצטרף לבחירות בסבב ⟦{n}⟧. כל סבב נפתח עוד אחד.", "pick.strip", "", "roster ladder (2026-10-03)", "The strip line while a locked tile is pressed or focused")
 e("LEADER_PICK_NEW", "חדש!", "pick.name", "", "roster ladder (2026-10-03)", "The tag on a tile that opened this round")
+e("WIZ_SKIP", "דלג", "pick.name", "", "wizard overlay (ADR 0007)", "The wizard's skip, top-left of the column (kit chat_system_pill 136 x 64): ends the running wizard")
 e("LEADER_PICK_RANDOM", "הפתעה", "pick.name", "*", "leaderSelect.pick.copy.random", "The random tile: the grid centre (3x3) or the full-width bar (wave 1, 2x2)")
 e("LEADER_PICK_RANDOM_CAP", "דובי בוחר בשבילך. גם הוא עוד לא יודע את מי.", "pick.strip", "*", "rtl-map §8.4", "The strip line while the random tile is focused or pressed (its 'blurb')")
 e("LEADER_PICK_RANDOM_LINE", "דובי בחר. הוא יחזור על זה.", "stage.toast", "*", "leaderSelect.pick.copy.randomLine", "Dubi's bubble after a random pick, instead of DUBI_LEARNED")

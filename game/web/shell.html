@@ -139,6 +139,9 @@
 							var m = (Date.now() - t0) / 6e4;
 							window.odTrack('first-election/' + (m < 15 ? 'lt15m' : m < 60 ? '15-60m' : m < 360 ? '1-6h' : m < 1440 ? '6-24h' : 'gt1d'));
 						}
+					} else if (e.ev === 'wizard' && typeof e.flow === 'string' && typeof e.step === 'string') {
+						// the wizard overlay (ADR 0007): each step done, a skip, a flow done (drop-off per step)
+						window.odTrack('wizard/' + e.flow + '/' + e.step);
 					} else if (e.ev === 'chat_opened') {
 						window.odTrack('feature/chat');
 					} else if (e.ev === 'court_start') {

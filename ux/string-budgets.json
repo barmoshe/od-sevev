@@ -7041,6 +7041,17 @@
         "5": 100
       }
     },
+    "WIZ_SKIP": {
+      "surface": "label",
+      "spec": "wizard overlay (ADR 0007)",
+      "note": "The wizard's skip, top-left of the column (kit chat_system_pill 136 x 64): ends the running wizard",
+      "box": "pick.name",
+      "maxChars": 8,
+      "worstPx": {
+        "4": 64,
+        "5": 80
+      }
+    },
     "LEADER_PICK_RANDOM": {
       "surface": "label",
       "spec": "leaderSelect.pick.copy.random",

@@ -25,6 +25,214 @@
  },
  "saveEpoch": 1,
  "_saveEpoch": "Pre-launch wipes (Bar 2026-10-03): a save written under another epoch is deleted on load and the game starts clean (SaveStore.parse). Bump by one and deploy to wipe everyone's progress again; settings stay. Stop bumping after the official launch.",
+ "wizard": {
+  "_doc": "The wizard overlay (ADR 0007; Bar 2026-10-03: the first two minutes clear with a guided do-it wizard, and every new mechanic gets its own). ui/wizard.gd: a step shows while `when` holds and `done` doesn't (state, not a forced chain), a dim with a hole on `anchor`, Dubi's bubble, 'דלג'. Names: WizardHooks.CONDS / ANCHORS. soft = no swallowing; gone = the moment passing counts as done; sec = done after that long shown; hold = the clock holds. text '@reveal.<key>' = reveal.copy.",
+  "first": {
+   "on": "",
+   "until": "elected",
+   "steps": [
+    {
+     "id": "pick",
+     "anchor": "pickOpen",
+     "when": "picking",
+     "done": "picked",
+     "text": "בוחרים מי מוביל. בהתחלה יש שניים, וכל סבב בחירות נפתח עוד אחד."
+    },
+    {
+     "id": "tap",
+     "anchor": "leader",
+     "when": "stage",
+     "done": "tapped3",
+     "text": "לוחצים על {leader}. כל לחיצה מכניסה כסף."
+    },
+    {
+     "id": "buy",
+     "anchor": "card1Pill",
+     "when": "card1Afford",
+     "done": "owns1",
+     "text": "קונים מקור הכנסה. הוא מכניס כסף גם כשלא לוחצים."
+    },
+    {
+     "id": "suitcase",
+     "anchor": "suitcase",
+     "when": "suitcase",
+     "done": "caught",
+     "gone": true,
+     "text": "מזוודה! תופסים אותה לפני שהיא בורחת."
+    },
+    {
+     "id": "chat",
+     "anchor": "coalitionTab",
+     "when": "chatWaiting",
+     "done": "chatOpened",
+     "text": "השותפים בקואליציה רוצים משהו. פותחים את הקבוצה."
+    },
+    {
+     "id": "pay",
+     "anchor": "payPill",
+     "when": "payVisible",
+     "done": "paid1",
+     "text": "משלמים, והשותף נשאר איתך."
+    },
+    {
+     "id": "seats",
+     "anchor": "seats",
+     "when": "seatsShown",
+     "done": "tapHole",
+     "text": "זה הרוב שלך. כשמגיעים ל־61, הולכים לבחירות."
+    },
+    {
+     "id": "elect",
+     "anchor": "cta",
+     "when": "ctaUp",
+     "done": "elected",
+     "text": "יש רוב! לוחצים כאן, ועוד סבב מתחיל."
+    }
+   ]
+  },
+  "leaders": {
+   "on": "",
+   "steps": [
+    {
+     "id": "new",
+     "anchor": "pickNew",
+     "when": "newTile",
+     "done": "picked",
+     "soft": true,
+     "text": "חדש בבחירות: {new}. {newRule}"
+    }
+   ]
+  },
+  "spins": {
+   "on": "spins",
+   "steps": [
+    {
+     "id": "tab",
+     "anchor": "spinsTab",
+     "when": "spinsTab",
+     "done": "spinsOpened|tapHole",
+     "text": "@reveal.spins"
+    }
+   ]
+  },
+  "suspicion": {
+   "on": "suspicion",
+   "steps": [
+    {
+     "id": "thermo",
+     "anchor": "thermo",
+     "when": "thermo",
+     "done": "tapHole",
+     "text": "@reveal.suspicion"
+    }
+   ]
+  },
+  "ultimatums": {
+   "on": "ultimatums",
+   "steps": [
+    {
+     "id": "cameo",
+     "anchor": "ultimatum",
+     "when": "ultCameo",
+     "done": "tapHole",
+     "gone": true,
+     "hold": true,
+     "text": "@reveal.ultimatums"
+    }
+   ]
+  },
+  "events": {
+   "on": "events",
+   "steps": [
+    {
+     "id": "first",
+     "anchor": "event",
+     "when": "event",
+     "done": "tapHole",
+     "gone": true,
+     "soft": true,
+     "sec": 7,
+     "text": "@reveal.events"
+    }
+   ]
+  },
+  "abilities": {
+   "on": "abilities",
+   "steps": [
+    {
+     "id": "chip",
+     "anchor": "ability",
+     "when": "ability",
+     "done": "tapHole",
+     "text": "@reveal.abilities"
+    }
+   ]
+  },
+  "missions": {
+   "on": "missions",
+   "steps": [
+    {
+     "id": "chip",
+     "anchor": "missions",
+     "when": "missions",
+     "done": "tapHole",
+     "text": "@reveal.missions"
+    }
+   ]
+  },
+  "perks": {
+   "on": "perks",
+   "steps": [
+    {
+     "id": "row",
+     "anchor": "perks",
+     "when": "perks",
+     "done": "tapHole",
+     "text": "@reveal.perks"
+    }
+   ]
+  },
+  "mordechai": {
+   "on": "mordechai",
+   "steps": [
+    {
+     "id": "him",
+     "anchor": "mordechai",
+     "when": "mordechai",
+     "done": "",
+     "gone": true,
+     "soft": true,
+     "text": "@reveal.mordechai"
+    }
+   ]
+  },
+  "share": {
+   "on": "share",
+   "steps": [
+    {
+     "id": "chip",
+     "anchor": "share",
+     "when": "share",
+     "done": "tapHole",
+     "text": "@reveal.share"
+    }
+   ]
+  },
+  "milestones": {
+   "on": "milestones",
+   "steps": [
+    {
+     "id": "row",
+     "anchor": "milestone",
+     "when": "milestone",
+     "done": "tapHole",
+     "soft": true,
+     "sec": 7,
+     "text": "@reveal.milestones"
+    }
+   ]
+  }
+ },
  "reveal": {
   "_doc": "The reveal ladder (2026-10-03, Bar: one new system per round; Reveal.on). Each key opens at that election count: round 1 (0) is the tap, sources, the chat's demands, 61 and the Suitcase. copy = the one-line announcement at the start of the round it opens in.",
   "spins": 1,

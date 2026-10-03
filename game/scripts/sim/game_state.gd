@@ -70,7 +70,7 @@ static func fresh() -> GameState:
 	s.golden_timer_sec = float(Content.data()["golden"]["firstSpawnDelaySec"])
 	s.ftue = new_ftue()
 	# perksHinted: the one F_PERKS_HINT nudge; partnerCardSeen: the chat avatars stop hinting (rev 5)
-	s.ui = {"buyModeRevealed": false, "evolveRevealed": false, "tabsTouched": false, "perksHinted": false, "partnerCardSeen": false}
+	s.ui = {"buyModeRevealed": false, "evolveRevealed": false, "tabsTouched": false, "perksHinted": false, "partnerCardSeen": false, "chatOpened": false}
 	s.stats = {"playtimeSec": 0.0, "bestBps": 0.0, "fastestRunSec": 0.0, "goldenMissed": 0.0, "streakUnder240sNow": 0.0}
 	for k: String in Meta.STATS:
 		s.stats[k] = 0.0
