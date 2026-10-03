@@ -136,6 +136,13 @@ func cancel(_via: String) -> void:
 	mgr.close(self, _via)
 
 
+## True while this layer is open the round's clock holds (main.clock_held, 2026-10-03: reading a
+## menu never costs seats). A layer that is play itself (a partner's card, a merge, the aide
+## confirm, the pardon desk) returns false: the round runs under it.
+func holds_clock() -> bool:
+	return true
+
+
 func update_view(_dt_ms: float) -> void:
 	pass
 

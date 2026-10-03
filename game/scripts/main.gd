@@ -1183,16 +1183,17 @@ func _process(delta: float) -> void:
 	# spec §3.1: the round's clock starts on the pick frame, never during the flash or the picker
 	var running := mode == "main" and not Leaders.pick_pending(state)
 	var modal := overlays.is_open() or tx.running
-	var vote := vote_open()
+	var held := clock_held()
+	var fdt := 0.0 if held else dt   # the stage figures' clocks hold with the round's
 	if running and not _economy_frozen:
 		_acc += dt * float(_dev["speed"])
 		var guard := 0
 		while _acc >= STEP_MS and guard < 2000:
 			_acc -= STEP_MS
 			guard += 1
-			_step_economy(STEP_MS / 1000.0, modal, vote)
+			_step_economy(STEP_MS / 1000.0, modal, held)
 	d = Economy.derive(state)
-	if running and not _economy_frozen and not vote:
+	if running and not _economy_frozen and not held:
 		_run_automation(dt, modal)
 		_meta_check_ms += dt
 		if _meta_check_ms >= 250.0:
@@ -1224,14 +1225,14 @@ func _process(delta: float) -> void:
 	prop_fx.update_view(dt)
 	golden.update_view(dt, modal or not running or Events.screen_blocked(state))   # a flight waits out the block
 	diorama.update_view(dt)
-	street.update_view(dt, state, running)   # any stage since 2026-10-01 (Bar): he comes every minute, 45%
+	street.update_view(fdt, state, running)   # any stage since 2026-10-01 (Bar): he comes every minute, 45%
 	var blk := running and Events.screen_blocked(state)
 	if blk != _was_blocked:
 		_was_blocked = blk
 		_on_block_edge(blk)
-	sara.update_view(dt, state, running and diorama.era_id() == "balfour")
-	herzog.update_view(dt, state, running)
-	kaia.update_view(dt, state, running and diorama.era_id() == "balfour")
+	sara.update_view(fdt, state, running and diorama.era_id() == "balfour")
+	herzog.update_view(fdt, state, running)
+	kaia.update_view(fdt, state, running and diorama.era_id() == "balfour")
 	floaters.update_view(dt)
 	fx_stage.update_view(dt)
 	fx_ui.update_view(dt)
@@ -1519,6 +1520,26 @@ func _follow_os_motion(dt: float) -> void:
 ## The vote stops the clock (Game Designer; sim/politics.gd): from the press on "עוד סבב!" until
 ## the election card is confirmed or closed, the round holds. The seats the player saw when they opened it are the
 ## seats they vote on, and nothing is lost behind a card that covers the chat.
+## The round's clock holds (economy, politics, events, cooldowns, automation, the stage figures):
+## the vote (vote_open), or a menu the player is reading (2026-10-03, the overwhelm report: in a
+## five-round playthrough a glance at the missions sheet or the dossier cost 8-20 seats to an unseen
+## ultimatum). Play layers keep it running: the coalition chat, the shop tabs, the summons card and
+## the overlays that are play themselves (Overlay.holds_clock false).
+func clock_held() -> bool:
+	return vote_open() or menu_open()
+
+
+func menu_open() -> bool:
+	if mode != "main":
+		return false
+	if share_desk != null and share_desk.drawer_open:
+		return true
+	if dossier.is_open():
+		return true
+	var t := overlays.top()
+	return t != null and not t.closing and t.holds_clock()
+
+
 func vote_open() -> bool:
 	for pr: Variant in _presses.values():
 		if pr is Dictionary and str((pr as Dictionary).get("kind", "")) == "cta":

@@ -865,6 +865,10 @@ class AideConfirm:
 	extends Overlay
 	var court: CourtView
 
+	func holds_clock() -> bool:
+		return false   # play, not a menu: the round runs under it
+
+
 	func build() -> AideConfirm:
 		id = "AIDE_CONFIRM"
 		backdrop_closes = false

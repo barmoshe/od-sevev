@@ -663,6 +663,10 @@ func pointer_up(p: Vector2) -> void:
 
 class PardonDesk:
 	extends Overlay
+
+	func holds_clock() -> bool:
+		return false   # play, not a menu: the round runs under it
+
 	## The desk is a paper modal: the kit's `_paper` stamps and the `stamp` ink (style guide §2:
 	## #5b3b9e, 5.6:1 on paper; the `_dark` / stamp_lt pair is for dark surfaces).
 	const STAMP_INK := Color("#5b3b9e")

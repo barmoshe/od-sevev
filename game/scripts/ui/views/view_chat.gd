@@ -2412,6 +2412,10 @@ func cameo_rect() -> Rect2:
 class PartnerCard:
 	extends Overlay
 	var chat: ChatView
+
+	func holds_clock() -> bool:
+		return false   # play, not a menu: the round runs under it
+
 	var partner_id := ""
 	var _strip: SpriteStrip
 	var _pay: PxButton
@@ -2587,6 +2591,10 @@ class PartnerCard:
 ## Golan's pair prompt (a SheetCard): "לאחד עם…", then one full-width button per candidate.
 class MergeCard extends SheetCard:
 	var chat: ChatView
+
+	func holds_clock() -> bool:
+		return false   # play, not a menu: the round runs under it
+
 	var partner_id := ""
 	var picked := ""
 	## The pair's other member to list first (the thread's merge-ready line, mobile-first §5.5).
