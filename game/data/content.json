@@ -23,7 +23,7 @@
   },
   "_formula": "tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult (permanent: perks, partners, Eisenkot) × tapBoost (timed: tap frenzy, a ×N spin, Kaia, a leader buff, Mordechai; taps show big while > 1) × (crit ? critMult : 1). bps excludes the production-frenzy multiplier. Random crits are off before tap firstCrit.randomCritsFromTap (lifetime taps)."
  },
- "saveEpoch": 4,
+ "saveEpoch": 5,
  "_saveEpoch": "Pre-launch wipes (Bar 2026-10-03: reset all the users data): a save or a settings file written under another epoch is deleted on load (SaveStore), and the web shell clears every odsevev.* browser key (the analytics memory, the sound choice, the disclaimer, the share ref) on a device last seen under another epoch (tools/build_web.sh writes the epoch in). Bump by one and deploy to wipe everyone again. Stop bumping after the official launch.",
  "wizard": {
   "_doc": "The wizard overlay (ADR 0007; Bar 2026-10-03: the first two minutes clear with a guided do-it wizard, and every new mechanic gets its own). ui/wizard.gd: a step shows while `when` holds and `done` doesn't (state, not a forced chain), a dim with a hole on `anchor`, Dubi's bubble, 'דלג'. Names: WizardHooks.CONDS / ANCHORS. soft = no swallowing; gone = the moment passing counts as done; sec = done after that long shown; hold = the clock holds. text '@reveal.<key>' = reveal.copy. `on` (the reveal key a flow waits for) defaults to the flow's id when that is a reveal key.",
