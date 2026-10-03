@@ -6,7 +6,7 @@ Branch `wizard-roster` (ADR 0007). Bar: no fixed Bibi start, a guided "do-it" wi
 - **Tune in content only:** the `wizard` table (texts, order, soft / gone / sec / hold) and `unlockRound`. A new mechanic needs a reveal rung, a `reveal.copy` line and a wizard flow.
 - **Tests:** unit tests run with the wizard off (`run_tests.gd`); `?dev=1` builds have it off unless `wiz=1`; `tools/web/wizard_web.mjs` plays the first round through it.
 - **The picker is the ballot booth** (ADR 0008): slips in a tray, a big card, select then vote. `PickView.plan()` is the layout; the drivers choose then vote (two taps).
-- **Wipe #2:** `saveEpoch` 2 ships with this.
+- **Wipe #3** (`saveEpoch` 3; Bar: "reset all the users data"): the wipe now takes everything: the save, the settings file (it carries the epoch) and every `odsevev.*` browser key (the shell compares `odsevev.epoch` with the epoch the build writes in).
 
 # HANDOFF: the reveal ladder, LIVE (2026-10-03; read this first)
 

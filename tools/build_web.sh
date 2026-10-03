@@ -68,6 +68,10 @@ done
 STAMP="$(git -C "$HERE" rev-parse --short HEAD 2>/dev/null || echo dev)"
 git -C "$HERE" diff --quiet HEAD -- "$GAME" 2>/dev/null || STAMP="$STAMP+"
 sed_inplace "s|__MB_BUILD__|$STAMP|" "$OUT/index.html"
+# the pre-launch wipe's epoch (content saveEpoch): the shell clears its own keys on a change
+EPOCH="$(python3 -c "import json,sys; print(int(json.load(open(sys.argv[1]))['saveEpoch']))" "$HERE/../design/content.json")"
+sed_inplace "s|__OD_SAVE_EPOCH__|$EPOCH|" "$OUT/index.html"
+grep -q "var E = '$EPOCH'" "$OUT/index.html" || { log "save epoch missing from index.html"; exit 1; }
 # Link previews need absolute og:url / og:image URLs (WhatsApp, the main share channel, skips a
 # relative one): OD_SITE_URL (with a trailing slash) is the deployed origin. It defaults to the
 # game's one constant, ShareKit.SITE_URL (game/scripts/ui/share_kit.gd), which is also the link on

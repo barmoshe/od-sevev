@@ -116,3 +116,19 @@ func test_a_save_from_another_epoch_is_wiped() -> void:
 	runner.check(str(r["kind"]) == "none" and bool(r.get("wiped", false)), "an old epoch's save: a new game (%s)" % str(r))
 	runner.check(not FileAccess.file_exists(st.path), "and the old save is gone")
 	DirAccess.remove_absolute(dir)
+
+
+## Bar 2026-10-03, "reset all the users data": the wipe takes the settings too. A settings file of
+## another epoch, or one from before settings carried an epoch, is deleted: the defaults come back.
+func test_settings_from_another_epoch_are_wiped() -> void:
+	var st := _store()
+	var defaults := {"sfx": true, "music": true}
+	st.save_settings({"sfx": false, "music": false})
+	runner.check(st.load_settings(defaults)["sfx"] == false, "this epoch's settings load")
+	for old: Dictionary in [{"sfx": false, "music": false, "epoch": SaveStore.epoch() - 1}, {"sfx": false, "music": false}]:
+		var f := FileAccess.open(st.settings_path, FileAccess.WRITE)
+		f.store_string(JSON.stringify(old))
+		f.close()
+		var got := st.load_settings(defaults)
+		runner.check(got["sfx"] == true and got["music"] == true, "an old epoch's settings: the defaults (%s)" % str(old))
+		runner.check(not FileAccess.file_exists(st.settings_path), "and the old file is gone")

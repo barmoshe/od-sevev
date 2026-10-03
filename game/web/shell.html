@@ -34,6 +34,33 @@
 {"@context":"https://schema.org","@type":["VideoGame","WebApplication"],"name":"עוד סבב","alternateName":"עוד סבב: הבחירות שלא נגמרות","url":"__OD_SITE_URL__","image":"__OD_SITE_URL__og.jpg","description":{{META_DESCRIPTION_JSON}},"inLanguage":"he","genre":["Idle","Satire"],"gamePlatform":"Web browser","playMode":"SinglePlayer","applicationCategory":"GameApplication","operatingSystem":"Any","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"ILS"},"author":{"@type":"Person","name":"בר משה"},"publisher":{"@type":"Person","name":"בר משה"},"dateModified":"{{BUILD_DATE_ISO}}","about":{"@type":"Event","name":"הבחירות לכנסת ה־26","startDate":"2026-10-27"},"subjectOf":{"@type":"WebPage","url":"__OD_SITE_URL__about.html"}}
 		</script>
 		<script>
+			// Pre-launch wipes (content saveEpoch, written in by tools/build_web.sh; Bar 2026-10-03: "reset all
+			// the users data"): a device last here under another epoch keeps nothing of ours. Every odsevev.*
+			// key goes before anything below reads one: the analytics memory (seen, t0, first, last), the
+			// sound choice, the accepted disclaimer, the share ref. The engine wipes its own save and settings
+			// (SaveStore).
+			(function () {
+				var E = '__OD_SAVE_EPOCH__';
+				try {
+					if (localStorage.getItem('odsevev.epoch') !== E) {
+						for (var i = localStorage.length - 1; i >= 0; i--) {
+							var k = localStorage.key(i);
+							if (k && k.indexOf('odsevev.') === 0) {
+								localStorage.removeItem(k);
+							}
+						}
+						for (var j = sessionStorage.length - 1; j >= 0; j--) {
+							var sk = sessionStorage.key(j);
+							if (sk && sk.indexOf('odsevev.') === 0) {
+								sessionStorage.removeItem(sk);
+							}
+						}
+						localStorage.setItem('odsevev.epoch', E);
+					}
+				} catch (e) { /* private mode: nothing is kept anyway */ }
+			})();
+		</script>
+		<script>
 			// Analytics (Vercel Web Analytics; Speed Insights is off: Hobby allows it on one project only): cookieless, no ids, read in the Vercel
 			// dashboard. Loaded on the deployed host only, so local runs never report (the script also
 			// skips webdriver/headless browsers). A visit is the page view of `/`; the milestones of play
@@ -82,15 +109,17 @@
 					'share/(receipt|result|invite)/(shared|saved|copied|whatsapp|fallback)',
 					// seeded rounds (main.gd): the challenge link and the daily round, a handful per session
 					'challenge/(start|win|lose|tie|share)', 'daily/(start|done|share)',
+					// the wizard overlay (ADR 0007): each step done, a skip, a flow done (drop-off per step)
+					'wizard/[a-z]{1,16}/[a-z0-9_]{1,16}',
 					// the share platform: the drawer's channel and result, and the arrivals from a shared link
 					'share/(leak|breaking|term|career|receipt|result|challenge|daily|invite)/(native|img|wa|tg|x|copy|share)/(shared|cancel|fail|opened|copied|saved)',
 					'arrive/(leak|breaking|term|career|receipt|result|challenge|daily|site)/(wa|tg|x|copy|img|share|na)'].join('|') + ')$');
 				// once per device: a milestone family (first-tap/on and first-tap/off share one key), or
-				// each feature/<id>
+				// each feature/<id> and each wizard/<flow>/<step>
 				var ONCE = { 'first-tap': 1, 'first-election': 1, 'elections-5': 1 };
 				function onceKey(step) {
 					var base = step.split('/')[0];
-					return ONCE[base] ? base : (base === 'feature' ? step : '');
+					return ONCE[base] ? base : (base === 'feature' || base === 'wizard' ? step : '');
 				}
 				window.odTrackLog = [];
 				window.odTrack = function (step) {

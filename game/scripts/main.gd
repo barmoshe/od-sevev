@@ -192,8 +192,8 @@ func _boot() -> void:
 	randomize()
 	_read_content_override()
 	_limiter = TapLimiter.new()
+	settings = store.load_settings(_default_settings())   # first: a stale file (a pre-launch wipe) is gone after it
 	_settings_existed = FileAccess.file_exists(store.settings_path)
-	settings = store.load_settings(_default_settings())
 	var res := store.load_game() if _shot.is_empty() else {"kind": "ok", "state": _shot_state(), "lastSaveTime": SaveStore.now_ms()}
 	_load_kind = res["kind"]
 	if res["kind"] == "ok":

@@ -125,11 +125,18 @@ static func export_code(s: GameState, now: float = now_ms()) -> String:
 	return EXPORT_PREFIX + Marshalls.utf8_to_base64(json)
 
 
+## The player's settings over `defaults`. A pre-launch wipe takes them too (Bar 2026-10-03: "reset all
+## the users data"): a settings file of another epoch (or from before settings carried one) is deleted
+## and the defaults come back.
 func load_settings(defaults: Dictionary) -> Dictionary:
 	var out := defaults.duplicate()
 	if not FileAccess.file_exists(settings_path):
 		return out
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(settings_path))
+	var ep: Variant = (parsed as Dictionary).get("epoch") if parsed is Dictionary else null
+	if not (ep is float or ep is int) or int(ep) != epoch():
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(settings_path) if settings_path.begins_with("user://") else settings_path)
+		return out
 	if parsed is Dictionary:
 		for k: String in defaults:
 			var v: Variant = (parsed as Dictionary).get(k)
@@ -139,7 +146,9 @@ func load_settings(defaults: Dictionary) -> Dictionary:
 
 
 func save_settings(settings: Dictionary) -> bool:
-	return _write_atomic(settings_path, JSON.stringify(settings))
+	var out := settings.duplicate()
+	out["epoch"] = epoch()
+	return _write_atomic(settings_path, JSON.stringify(out))
 
 
 func _backup(text: String) -> String:
