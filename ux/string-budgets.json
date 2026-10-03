@@ -7007,6 +7007,40 @@
         "5": 465
       }
     },
+    "LEADER_PICK_LOCKED": {
+      "surface": "label",
+      "spec": "roster ladder (2026-10-03)",
+      "note": "A locked tile's second line instead of the party: the round its leader opens in (leaderSelect.unlockRound + 1)",
+      "box": "pick.party",
+      "maxChars": 8,
+      "worstPx": {
+        "4": 172,
+        "5": 215
+      }
+    },
+    "LEADER_PICK_LOCKED_CAP": {
+      "surface": "label",
+      "spec": "roster ladder (2026-10-03)",
+      "note": "The strip line while a locked tile is pressed or focused",
+      "box": "pick.strip",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 1052,
+        "5": 1315
+      },
+      "largeText": "step-down"
+    },
+    "LEADER_PICK_NEW": {
+      "surface": "label",
+      "spec": "roster ladder (2026-10-03)",
+      "note": "The tag on a tile that opened this round",
+      "box": "pick.name",
+      "maxChars": 8,
+      "worstPx": {
+        "4": 80,
+        "5": 100
+      }
+    },
     "LEADER_PICK_RANDOM": {
       "surface": "label",
       "spec": "leaderSelect.pick.copy.random",

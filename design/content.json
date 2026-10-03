@@ -28,7 +28,7 @@
  "reveal": {
   "_doc": "The reveal ladder (2026-10-03, Bar: one new system per round; Reveal.on). Each key opens at that election count: round 1 (0) is the tap, sources, the chat's demands, 61 and the Suitcase. copy = the one-line announcement at the start of the round it opens in.",
   "spins": 1,
-  "picker": 1,
+  "picker": 0,
   "suspicion": 2,
   "ultimatums": 3,
   "events": 3,
@@ -40,7 +40,6 @@
   "milestones": 4,
   "copy": {
    "spins": "חדש בסבב הבחירות הזה: ספינים. לשונית שנייה, קונים מסר והוא עובד בשבילך.",
-   "picker": "מעכשיו בוחרים ראש רשימה לכל סבב בחירות. לכל אחד חוק משלו.",
    "suspicion": "חדש: מדחום החשד. מקורות מפוקפקים מחממים אותו, ובמאה יש יום משפט.",
    "ultimatums": "חדש: אולטימטומים. דרישה שמחכה יותר מדי הופכת לשעון, ושותף שלא קיבל עוזב.",
    "events": "חדש: אירועים. כל כמה דקות קורה משהו בבמה או בכותרות.",
@@ -5023,6 +5022,17 @@
   },
   "shipRule": "The picker ships with at least the 4 contentReady leaders; a roster leader shows in the picker only when its kit passes the lint's completeness check.",
   "defaultLeader": "bibi",
+  "unlockRound": {
+   "_doc": "The roster ladder (2026-10-03, Bar: first launch offers Bibi or Bennett, every round adds options; Leaders.unlock_round). The election count a leader's tile opens at; locked tiles show greyed with their round. Forced rounds (challenge, daily, bench) ignore it.",
+   "bibi": 0,
+   "bennett": 0,
+   "bengvir": 1,
+   "liberman": 2,
+   "eisenkot": 3,
+   "smotrich": 4,
+   "deri": 5,
+   "golan": 6
+  },
   "pick": {
    "firstLaunch": "beforeFirstTap",
    "afterElection": true,

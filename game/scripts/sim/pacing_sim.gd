@@ -388,7 +388,7 @@ static func session(player: Dictionary, total_sec: float, seed_: int = 7, dt: fl
 	pick_rng.seed = seed_ * 7919 + 17
 	Leaders.set_salt(s, seed_)
 	while t0 < total_sec - 1.0:
-		var who := pick_leader(str(player.get("leader", "")), func() -> float: return pick_rng.randf())
+		var who := pick_leader(str(player.get("leader", "")), func() -> float: return pick_rng.randf(), s)
 		if who != "" and Reveal.on(s, "picker"):   # the reveal ladder: round 1 is the default leader's
 			Leaders.start_round(s, who)
 		played.append(Leaders.current(s))
@@ -428,12 +428,13 @@ static func session(player: Dictionary, total_sec: float, seed_: int = 7, dt: fl
 	return {"runs": runs, "events": events, "thumbs": s.thumbs_owned, "maxGap": gap, "state": s, "leaders": played}
 
 
-## "" (no pick: the round keeps its leader), a leader id, or "mixed" (uniform among the pickable).
-static func pick_leader(mode: String, rng: Callable) -> String:
+## "" (no pick: the round keeps its leader), a leader id, or "mixed" (uniform among the tiles open
+## this round, the roster ladder).
+static func pick_leader(mode: String, rng: Callable, s: GameState = null) -> String:
 	if mode == "" or not Leaders.active():
 		return ""
 	if mode == "mixed":
-		return Leaders.random_pick(rng)
+		return Leaders.random_pick(rng, s)
 	return mode
 
 

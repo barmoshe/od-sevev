@@ -30,6 +30,8 @@ const SCRIM := Color(0.043, 0.039, 0.071, 0.6)    # #0b0a12 at 60% (rtl-map §7.
 const C_NAME := Color("#fff8ec")
 const C_PARTY := Color("#c9d6f2")
 const C_STRIP := Color("#f7f4ec")
+const C_NEW := Color("#ffd23f")
+const LOCKED_TINT := Color(0.42, 0.42, 0.5, 0.85)
 const LH := 44.0                   # the line pitch at ×4
 const HOLD_MS := 600.0             # §8.4: a hold opens the leader card
 const SLOP := 10.0
@@ -193,6 +195,17 @@ func tile_of(id: String) -> Dictionary:
 ## is one bloc: 3 × 3 with 4 + 4 is a checkerboard (a coin flip gives one bloc the corners), 2 × 2
 ## with 2 + 2 the diagonals; anything else is a shuffle that rejects a one-bloc side column.
 static func arrange(tiles: Array, rng: Callable) -> Array:
+	# the roster ladder: the open tiles first (shuffled), then the locked ones by the round they open
+	# in, so the open leaders sit together at the top of the grid (one spotlight)
+	var shut := tiles.filter(func(x: Variant) -> bool: return (x as Dictionary).get("locked", false) == true)
+	if not shut.is_empty():
+		var open_ids: Array = []
+		for x: Variant in tiles:
+			if not (x as Dictionary).get("locked", false):
+				open_ids.append(str((x as Dictionary)["id"]))
+		_shuffle(open_ids, rng)
+		shut.sort_custom(func(a: Variant, b: Variant) -> bool: return int((a as Dictionary).get("round", 0)) < int((b as Dictionary).get("round", 0)))
+		return open_ids + shut.map(func(x: Variant) -> String: return str((x as Dictionary)["id"]))
 	var by := {}
 	for t: Variant in tiles:
 		var sd := str((t as Dictionary).get("side", ""))
@@ -567,7 +580,9 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 	nm.wrap_width = w - 24.0
 	nm.max_lines = 1
 	nm.center_in(12.0, w - 24.0)
-	var pt := PxText.make(content, Vector2(0, nm.position.y + LH), str(t.get("party", "")), L.TEXT, "plain", C_PARTY)
+	var shut: bool = t.get("locked", false) == true
+	var second := Strings.s("LEADER_PICK_LOCKED", {"n": int(t.get("round", 0))}) if shut else str(t.get("party", ""))
+	var pt := PxText.make(content, Vector2(0, nm.position.y + LH), second, L.TEXT, "plain", C_PARTY)
 	pt.wrap_width = w - 24.0
 	pt.max_lines = 2 if three else 1
 	pt.line_pitch = 40   # rtl-map §8.3: party lines at pitch 40
@@ -579,6 +594,19 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 	# says the focused leader's rule in one line (rule.summary); the long-press card keeps the joke
 	var rs := str(Leaders.rule(str(t.get("id", ""))).get("summary", "")) if str(t.get("id", "")) != "" else ""
 	c["blurb"] = rs if rs != "" else str(t.get("blurb", ""))
+	if shut:
+		# the roster ladder: greyed, the round it opens in; a tap only says so in the strip
+		content.modulate = LOCKED_TINT
+		plate.modulate = Color(0.62, 0.62, 0.7)
+		c["locked"] = true
+		c["blurb"] = Strings.s("LEADER_PICK_LOCKED_CAP", {"short": str(t.get("short", id)), "n": int(t.get("round", 0))})
+	elif t.get("new", false) == true:
+		var tag := PxText.make(root, Vector2(0, 8.0), Strings.s("LEADER_PICK_NEW"), L.TEXT, "plain", C_NEW)
+		tag.max_lines = 1
+		var tw_ := Ui.snap(float(tag.width()) + 24.0, 4)
+		var pill := Ui.nine(root, Rect2(w - tw_ - 8.0, 4.0, tw_, 52.0), Art.sprite_or("chat_system_pill"))
+		root.move_child(pill, tag.get_index())
+		tag.position.x = w - tw_ - 8.0 + 12.0
 	return c
 
 
@@ -736,7 +764,7 @@ func key(e: InputEventKey) -> bool:
 				commit_cell(focus, "key")
 			return true
 		KEY_I:
-			if focus >= 0 and focus < n and str(cells[focus]["id"]) != "" and not tile_of(str(cells[focus]["id"])).get("decoy", false) and on_card.is_valid():
+			if focus >= 0 and focus < n and str(cells[focus]["id"]) != "" and not tile_of(str(cells[focus]["id"])).get("decoy", false) and not cells[focus].get("locked", false) and on_card.is_valid():
 				on_card.call(str(cells[focus]["id"]), "key")
 		KEY_ESCAPE:
 			if variant == "after" and has_again:
@@ -813,10 +841,25 @@ func commit_cell(i: int, via: String) -> void:
 	if tile_of(id).get("decoy", false):
 		_tap_decoy()
 		return
+	if cells[i].get("locked", false) == true:
+		_press = {}
+		focus = i
+		show_focus = true   # its line ("מצטרף בסבב N") stays in the strip
+		_refresh()
+		return
 	if id == "":
-		id = Leaders.random_pick(randf)
+		id = random_open(randf)
 		via = "random"
 	_start_commit(i, id, via)
+
+
+## הפתעה: a uniform pick among the open tiles (the roster ladder).
+func random_open(rng: Callable) -> String:
+	var ids: Array = []
+	for tl: Variant in model.get("tiles", []):
+		if not (tl as Dictionary).get("locked", false):
+			ids.append(str((tl as Dictionary)["id"]))
+	return str(ids[int(float(rng.call()) * ids.size()) % ids.size()]) if not ids.is_empty() else Leaders.default_leader()
 
 
 ## The commit frame: input locks, the controller writes the pick and plays the sting; then the pop
@@ -853,7 +896,7 @@ func update_view(dt: float) -> void:
 		if float(_press["t"]) >= HOLD_MS and _press.get("moved", false) != true:
 			_press["card"] = true
 			var id := str(cells[int(_press["cell"])]["id"])
-			if id != "" and not tile_of(id).get("decoy", false) and on_card.is_valid():
+			if id != "" and not tile_of(id).get("decoy", false) and not tile_of(id).get("locked", false) and on_card.is_valid():
 				on_card.call(id, "hold")
 	if _commit.is_empty():
 		return
@@ -903,7 +946,7 @@ func web_info() -> Dictionary:
 	var cs: Array = []
 	for c: Dictionary in cells:
 		var q := (c["rect"] as Rect2).get_center() + off
-		cs.append([q.x, q.y, str(c["id"])])
+		cs.append([q.x, q.y, str(c["id"]), c.get("locked", false) == true])
 	var ag: Array = []
 	if again_btn != null:
 		var q := again_btn.visual.get_center() + off

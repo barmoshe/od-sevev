@@ -114,6 +114,28 @@ static func pickable() -> PackedStringArray:
 	return out
 
 
+## The roster ladder (2026-10-03, Bar: "בהתחלה ביבי או בנט, וכל סבב עוד אופציות"): content
+## leaderSelect.unlockRound maps a leader to the election count his tile opens at (Bibi and Bennett
+## at 0, one more each round). A leader without an entry is open from the start. Only the picker
+## and הפתעה ask; a forced round (a challenge, the daily, the bench) plays any leader.
+static func unlock_round(id: String) -> int:
+	var u: Variant = ls().get("unlockRound")
+	return int((u as Dictionary).get(id, 0)) if u is Dictionary else 0
+
+
+static func is_unlocked(s: GameState, id: String) -> bool:
+	return Reveal.force_all or s == null or s.evolutions >= unlock_round(id)
+
+
+## The pickable leaders whose tile is open this round, in roster order.
+static func unlocked(s: GameState) -> PackedStringArray:
+	var out := PackedStringArray()
+	for id in pickable():
+		if is_unlocked(s, id):
+			out.append(id)
+	return out
+
+
 static func kit(id: String) -> Dictionary:
 	var k: Variant = leader(id).get("kit")
 	return k if k is Dictionary else {}
@@ -476,7 +498,13 @@ static func picker(s: GameState, rng: Callable = randf) -> Dictionary:
 		ids[j] = t
 	var tiles: Array = []
 	for id: Variant in ids:
-		tiles.append(tile(str(id)))
+		var tl := tile(str(id))
+		if not is_unlocked(s, str(id)):
+			tl["locked"] = true   # the roster ladder: drawn greyed with the round it opens in
+			tl["round"] = unlock_round(str(id)) + 1
+		elif s.evolutions > 0 and unlock_round(str(id)) == s.evolutions:
+			tl["new"] = true      # opened this round
+		tiles.append(tl)
 	var again := str(s.leader_round.get("prev", ""))
 	if s.evolutions > 0 and again == "":
 		again = current(s)
@@ -501,9 +529,9 @@ static func pick_copy() -> Dictionary:
 	return c if c is Dictionary else {}
 
 
-## "הפתעה": a uniform pick among the tiles.
-static func random_pick(rng: Callable = randf) -> String:
-	var ids := pickable()
+## "הפתעה": a uniform pick among the open tiles (all of them without a state).
+static func random_pick(rng: Callable = randf, s: GameState = null) -> String:
+	var ids := unlocked(s)
 	return ids[int(float(rng.call()) * ids.size()) % ids.size()] if not ids.is_empty() else default_leader()
 
 

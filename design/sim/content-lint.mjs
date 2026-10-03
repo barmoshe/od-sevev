@@ -341,6 +341,12 @@ if (C.leaderSelect || C.leaders) {
   for (const id of LS.roster || []) if (!leaderIds.has(id)) err('leaderSelect.roster', `no leaders[] entry for ${id}`);
   for (const id of LS.contentReady || []) if (!(LS.roster || []).includes(id)) err('leaderSelect.contentReady', `${id} is not in the roster`);
   if (LS.defaultLeader && !leaderIds.has(LS.defaultLeader)) err('leaderSelect.defaultLeader', `unknown ${LS.defaultLeader}`);
+  for (const [id, r] of Object.entries(LS.unlockRound || {})) {
+    if (id.startsWith('_')) continue;
+    if (!(LS.roster || []).includes(id)) err(`leaderSelect.unlockRound.${id}`, 'not in the roster');
+    if (!Number.isInteger(r) || r < 0) err(`leaderSelect.unlockRound.${id}`, 'must be an election count ≥ 0');
+  }
+  if (LS.unlockRound && (LS.roster || []).filter(id => (LS.unlockRound[id] ?? 0) === 0).length < 2) err('leaderSelect.unlockRound', 'the first picker needs at least two open leaders');
   // shared maps point at shipped content
   const upIds = new Set(C.upgrades.map(u => u.id));
   const slotsSpin = Object.entries(LS.spinSlots || {}).filter(([k]) => /^[A-Z]$/.test(k));

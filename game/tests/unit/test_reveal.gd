@@ -38,9 +38,10 @@ func _at(evo: int) -> GameState:
 
 func test_one_new_system_per_round() -> void:
 	var r1 := _at(0)
-	for k: String in ["spins", "picker", "suspicion", "ultimatums", "events", "abilities", "missions", "perks", "mordechai", "share", "milestones"]:
+	runner.check(Reveal.on(r1, "picker"), "the picker opens on the first launch (the roster ladder)")
+	for k: String in ["spins", "suspicion", "ultimatums", "events", "abilities", "missions", "perks", "mordechai", "share", "milestones"]:
 		runner.check(not Reveal.on(r1, k), "round 1 is calm: no %s" % k)
-	runner.check(Reveal.on(_at(1), "spins") and Reveal.on(_at(1), "picker") and not Reveal.on(_at(1), "suspicion"), "round 2: spins and the picker")
+	runner.check(Reveal.on(_at(1), "spins") and not Reveal.on(_at(1), "suspicion"), "round 2: spins")
 	runner.check(Reveal.on(_at(2), "suspicion") and not Reveal.on(_at(2), "ultimatums"), "round 3: suspicion and the court")
 	runner.check(Reveal.on(_at(3), "ultimatums") and Reveal.on(_at(3), "events") and Reveal.on(_at(3), "abilities") and not Reveal.on(_at(3), "missions"), "round 4: ultimatums, events, abilities")
 	runner.check(Reveal.on(_at(4), "missions") and Reveal.on(_at(4), "mordechai"), "round 5: missions, perks, Mordechai, share, milestones")
@@ -56,7 +57,6 @@ func test_the_sim_gates_follow_the_ladder() -> void:
 	s.stats["playtimeSec"] = 600.0
 	s.coalition["paidLifetime"] = 10
 	runner.check(not Coalition.ultimatums_unlocked(s), "no ultimatum in round 1, however long")
-	runner.check(not Leaders.pick_pending(s), "no picker on a new game: the default leader's round")
 	runner.check(Ability.def(s).is_empty(), "no ability in round 1")
 	var u := Content.upgrade("s01")
 	s.run_bananas = 1.0e9
@@ -72,19 +72,55 @@ func test_the_sim_gates_follow_the_ladder() -> void:
 	runner.check(Investigation.floor_pct(_at(3)) > 0.0, "and the floor climbs from the round after")
 
 
-func test_a_new_game_starts_as_the_default_leader_without_the_picker() -> void:
+func test_a_new_game_opens_the_picker_with_two_open_leaders() -> void:
 	m = load("res://scenes/main.tscn").instantiate()
 	m.store = SaveStore.new(dir)
 	tree.root.add_child(m)
 	for i in 3:
 		await tree.process_frame
-	runner.check(m.mode != "pick", "no picker on the first launch (mode %s)" % m.mode)
-	runner.check(Leaders.current(m.state) == Leaders.default_leader(), "the default leader's round")
+	runner.check(m.mode == "pick", "the picker on the first launch (mode %s)" % m.mode)
+	var open: Array = []
+	var shut: Array = []
+	for c: Dictionary in m.picker.cells:
+		if str(c["id"]) == "" or m.picker.tile_of(str(c["id"])).get("decoy", false):
+			continue
+		(shut if c.get("locked", false) else open).append(str(c["id"]))
+	open.sort()
+	runner.check(open == ["bennett", "bibi"], "Bibi and Bennett are open (%s)" % str(open))
+	runner.check(shut.size() == Leaders.pickable().size() - 2, "the rest are locked (%s)" % str(shut))
+	var first_two := [str(m.picker.cells[0]["id"]), str(m.picker.cells[1]["id"])]
+	first_two.sort()
+	runner.check(first_two == ["bennett", "bibi"], "the open tiles sit first, side by side (%s)" % str(first_two))
+	# a tap on a locked tile starts nothing
+	var li := -1
+	for i in m.picker.cells.size():
+		if m.picker.cells[i].get("locked", false):
+			li = i
+	m.picker._age = 1000.0
+	m.picker.commit_cell(li, "tile")
+	runner.check(m.mode == "pick" and Leaders.pick_pending(m.state), "a locked tile starts no round")
+	for i in 20:
+		runner.check(["bibi", "bennett"].has(m.picker.random_open(func() -> float: return float(i) / 20.0)), "הפתעה picks an open leader")
+
+
+func test_every_round_opens_one_more_leader() -> void:
+	var prev := 0
+	for evo in 7:
+		var n := Leaders.unlocked(_at(evo)).size()
+		runner.check(n == 2 + evo, "round %d: %d leaders open (%d)" % [evo + 1, 2 + evo, n])
+		runner.check(n > prev, "more than the round before")
+		prev = n
+	var p := Leaders.picker(_at(1))
+	var news := (p["tiles"] as Array).filter(func(x: Variant) -> bool: return (x as Dictionary).get("new", false))
+	runner.check(news.size() == 1 and str(news[0]["id"]) == "bengvir", "round 2's new tile is Ben Gvir (%s)" % str(news))
+	for i in 30:
+		runner.check(Leaders.unlocked(_at(1)).has(Leaders.random_pick(func() -> float: return float(i) / 30.0, _at(1))), "random_pick only picks open leaders")
+	runner.check(Leaders.unlocked(_at(1)).has(PacingSim.pick_leader("mixed", func() -> float: return 0.99, _at(1))), "the bench's mixed player too")
 
 
 func test_the_round_news_names_what_opens_and_the_rule_once() -> void:
 	var s := _at(1)
 	var news: PackedStringArray = load("res://scripts/main.gd").round_news(s, "bennett")
-	runner.check(news.size() >= 3, "spins + picker + Bennett's rule (%s)" % str(news))
+	runner.check(news.size() >= 2, "spins + Bennett's rule (%s)" % str(news))
 	var again: PackedStringArray = load("res://scripts/main.gd").round_news(s, "bennett")
 	runner.check(again.size() == news.size() - 1, "the rule is said once per leader")
