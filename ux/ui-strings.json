@@ -711,6 +711,7 @@
     "LEADER_PICK_LOCKED_BTN": "הפתק הזה בדפוס",
     "LEADER_PICK_INTRO": "הקלפי פתוחה. בוחרים פתק מהמגש, ושמים אותו בקלפי.",
     "LEADER_PICK_BLANK": "פתק לבן",
+    "LEADER_PICK_SECRET": "מתמודד סודי",
     "LEADER_PICK_RANDOM": "הפתעה",
     "LEADER_PICK_RANDOM_CAP": "דובי בוחר בשבילך. גם הוא עוד לא יודע את מי.",
     "LEADER_PICK_RANDOM_LINE": "דובי בחר. הוא יחזור על זה.",

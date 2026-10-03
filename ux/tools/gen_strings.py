@@ -970,6 +970,7 @@ e("LEADER_PICK_CHOOSE", "בוחרים פתק מהמגש", "pick.again", "", "the
 e("LEADER_PICK_LOCKED_BTN", "הפתק הזה בדפוס", "pick.again", "", "the ballot booth (2026-10-03)", "The primary button, disabled, while a locked slip is chosen")
 e("LEADER_PICK_INTRO", "הקלפי פתוחה. בוחרים פתק מהמגש, ושמים אותו בקלפי.", "pick.card", "", "the ballot booth (2026-10-03)", "The big card before any slip is chosen (first launch)")
 e("LEADER_PICK_BLANK", "פתק לבן", "pick.name", "", "the ballot booth (2026-10-03)", "The big card's name for the blank slip (הפתעה)")
+e("LEADER_PICK_SECRET", "מתמודד סודי", "pick.name", "", "the ballot booth (2026-10-03, Bar: no name on a blurred card)", "The big card's name line for a slip in print: never the leader's name")
 e("LEADER_PICK_RANDOM", "הפתעה", "pick.name", "*", "leaderSelect.pick.copy.random", "The random tile: the grid centre (3x3) or the full-width bar (wave 1, 2x2)")
 e("LEADER_PICK_RANDOM_CAP", "דובי בוחר בשבילך. גם הוא עוד לא יודע את מי.", "pick.strip", "*", "rtl-map §8.4", "The strip line while the random tile is focused or pressed (its 'blurb')")
 e("LEADER_PICK_RANDOM_LINE", "דובי בחר. הוא יחזור על זה.", "stage.toast", "*", "leaderSelect.pick.copy.randomLine", "Dubi's bubble after a random pick, instead of DUBI_LEARNED")

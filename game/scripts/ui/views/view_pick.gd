@@ -501,7 +501,8 @@ func _build_card() -> void:
 	var fx := r.end.x - 24.0 - a   # RTL: the face on the right, the words to its left
 	var tx := inner_x
 	var tw := fx - 16.0 - inner_x
-	var name_t := Strings.s("LEADER_PICK_BLANK") if id == "" else str(t.get("short", id))
+	# a slip in print never shows its name on the card (Bar), only "מתמודד סודי" and its round
+	var name_t := Strings.s("LEADER_PICK_BLANK") if id == "" else (Strings.s("LEADER_PICK_SECRET") if shut else str(t.get("short", id)))
 	if id == "":
 		var ic := Art.sprite_or("pick_random")
 		var isz := Vector2(Art.sprite_size(ic))
@@ -514,9 +515,6 @@ func _build_card() -> void:
 	nm.wrap_width = tw
 	nm.max_lines = 1
 	nm.align = 1
-	if shut:
-		nm.visible = false
-		smear(_card_layer, nm.position, name_t, tx, tw, C_NAME)
 	var sub := Strings.s("LEADER_PICK_LOCKED", {"n": int(t.get("round", 0))}) if shut else ("" if id == "" else str(t.get("party", "")))
 	var pt := PxText.make(_card_layer, Vector2(tx, ny + LH + 12.0), sub, L.TEXT, "plain", C_PARTY)
 	pt.wrap_width = tw

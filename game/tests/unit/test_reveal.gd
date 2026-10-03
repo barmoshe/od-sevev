@@ -99,6 +99,12 @@ func test_a_new_game_opens_the_picker_with_two_open_leaders() -> void:
 	m.picker._age = 1000.0
 	m.picker.choose(li)
 	runner.check(not m.picker.go_btn.is_enabled(), "a slip in print can't be voted (%s)" % m.picker.go_btn.label.text)
+	var shut_id := str(m.picker.cells[li]["id"])
+	var shown: Array = []
+	for n: Node in m.picker._card_layer.find_children("*", "PxText", true, false):
+		shown.append((n as PxText).text)
+	runner.check(not shown.has(str(Leaders.leader(shut_id).get("short", ""))) and shown.has(Strings.s("LEADER_PICK_SECRET")),
+		"the card never names a slip in print (%s)" % str(shown))
 	m.picker.commit_cell(li, "tile")
 	runner.check(m.mode == "pick" and Leaders.pick_pending(m.state), "a locked tile starts no round")
 	# select, then vote: an open slip enables the button with its name; the button votes

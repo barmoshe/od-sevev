@@ -7118,6 +7118,17 @@
         "5": 185
       }
     },
+    "LEADER_PICK_SECRET": {
+      "surface": "label",
+      "spec": "the ballot booth (2026-10-03, Bar: no name on a blurred card)",
+      "note": "The big card's name line for a slip in print: never the leader's name",
+      "box": "pick.name",
+      "maxChars": 8,
+      "worstPx": {
+        "4": 220,
+        "5": 275
+      }
+    },
     "LEADER_PICK_RANDOM": {
       "surface": "label",
       "spec": "leaderSelect.pick.copy.random",
