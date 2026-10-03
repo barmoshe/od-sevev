@@ -18,9 +18,6 @@ const TAP_JITTER_DB := 1.5
 ## long, and comes back at a bar line this long after the last tap.
 const L2_STEP_BACK_MS := 120.0
 const L2_REST_MS := 2000.0
-## The phrases of a tap line are this many bars (compose_od TAP_PHRASE_BARS); the phrase bonus pays at
-## most once in 1.5 of them.
-const PHRASE_BARS := 2
 ## A stolen voice fades out over this long instead of stopping on a click.
 const STEAL_FADE_MS := 30.0
 ## The fallback melody (HaTikva, `tap.melody`, for a manifest without tap lines): its root's octave.
@@ -152,22 +149,32 @@ static func _ints(v: Variant) -> Array:
 	return out
 
 
-## The tap's melody for a track: {midi, steps, phrases, stepSeconds}. `steps` (note onsets from bar 1)
-## is empty for the fallback (HaTikva in the track's key), which then never follows the music.
+## The tap's melody for a track: {midi, steps, phrases, phraseSteps, phraseBars, stepSeconds}. `steps`
+## (note onsets from bar 1) is empty for the fallback (HaTikva in the track's key), which then never
+## follows the music.
 static func tap_line(man: Dictionary, track: String) -> Dictionary:
 	var e: Dictionary = man.get("eras", {}).get(track, {})
 	var tl: Variant = e.get("tapLine")
+	var line := {"midi": [], "steps": [], "phrases": [0], "phraseSteps": [], "phraseBars": 2, "stepSeconds": 0.0}
 	if tl is Dictionary and not _ints((tl as Dictionary).get("midi")).is_empty():
+		line["midi"] = _ints(tl.get("midi"))
+		line["steps"] = _ints(tl.get("steps"))
+		line["phraseBars"] = int(tl.get("phraseBars", 2))
+		line["stepSeconds"] = bar_seconds(man, track) / maxf(1.0, float(e.get("stepsPerBar", 16)))
 		var ph := _ints(tl.get("phrases"))
-		return {"midi": _ints(tl.get("midi")), "steps": _ints(tl.get("steps")), "phrases": ph if not ph.is_empty() else [0],
-			"stepSeconds": float(e.get("stepSamples", 0)) / maxf(1.0, float(e.get("rate", 31900)))}
+		if not ph.is_empty():
+			line["phrases"] = ph
+		for i: int in line["phrases"]:
+			(line["phraseSteps"] as Array).append(int(line["steps"][i]))
+		return line
 	var tap: Dictionary = man.get("cues", {}).get("tap", {})
 	var root := (ANTHEM_OCTAVE + 1) * 12 + int(KEY_PC.get(era_key(man, track), 2))
-	var mel: Array = []
 	for lab: Variant in tap.get("melody", []):
-		mel.append(root + int(String(lab).substr(1)))
+		(line["midi"] as Array).append(root + int(String(lab).substr(1)))
 	var ph2 := _ints(tap.get("phrases"))
-	return {"midi": mel, "steps": [], "phrases": ph2 if not ph2.is_empty() else [0], "stepSeconds": 0.0}
+	if not ph2.is_empty():
+		line["phrases"] = ph2
+	return line
 
 
 ## The step of the loop the music is on (`pos` seconds into it), for a line; -1 when it cannot follow.
@@ -178,21 +185,16 @@ static func song_step(line: Dictionary, pos: float) -> int:
 	return int(floor(pos / ss + 1e-6))
 
 
-## The phrase (an index into `phrases`) note `i` belongs to.
-static func phrase_of(phrases: Array, i: int) -> int:
-	var p := 0
-	for k in phrases.size():
-		if int(phrases[k]) <= i:
-			p = k
-	return p
+## The phrase (an index into `starts`) that `x` falls in: the last start at or before it. `starts` are
+## the phrases' first notes (for a note index) or their onsets (for a music step); sorted.
+static func phrase_of(starts: Array, x: int) -> int:
+	return maxi(0, starts.bsearch(x, false) - 1)
 
 
 ## The first note at or after `step` (wrapping to note 0 past the last one).
 static func note_at(steps: Array, step: int) -> int:
-	for i in steps.size():
-		if int(steps[i]) >= step:
-			return i
-	return 0
+	var i := steps.bsearch(step)
+	return i if i < steps.size() else 0
 
 
 ## The next tap on a line. `cur` is the last note played (-1: none yet), `run` how many notes of its
@@ -215,10 +217,7 @@ static func tap_next(line: Dictionary, cur: int, run: int, gap_ms: float, music_
 	if not cont and follow:
 		nxt = note_at(steps, music_step)
 	elif cont and follow and ph.has(nxt):
-		var pm := 0   # the phrase the music plays: the last one that has started
-		for k in ph.size():
-			if int(steps[int(ph[k])]) <= music_step:
-				pm = k
+		var pm := phrase_of(line.get("phraseSteps", []), music_step)   # the phrase the music plays
 		if posmod(ph.find(nxt) - pm, ph.size()) > 1:
 			nxt = int(ph[pm])
 	var r := 0
@@ -243,12 +242,9 @@ static func bell_roots(man: Dictionary) -> Array:
 
 ## The bell root nearest a note (the lower one on a tie).
 static func bell_root(roots: Array, note: int) -> int:
-	var best := note
-	var bd := 1 << 20
+	var best := int(roots[0]) if not roots.is_empty() else note
 	for r: Variant in roots:
-		var d := absi(int(r) - note)
-		if d < bd:
-			bd = d
+		if absi(int(r) - note) < absi(best - note):
 			best = int(r)
 	return best
 

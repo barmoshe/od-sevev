@@ -39,7 +39,7 @@ func _boot(reduced := false) -> void:
 	m.ftue.handoff_ms = 1.0
 	m.set_process(false)   # the test drives the clock itself
 	m.settings["reducedMotion"] = reduced
-	m.bb.set_reduced_motion(reduced)
+	m.magician.set_reduced_motion(reduced)
 	m.picker.reduced_motion = reduced
 	m.street.reduced_motion = reduced
 

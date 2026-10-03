@@ -177,7 +177,7 @@ func test_the_first_launch_opens_on_the_picker_step() -> void:
 		await tree.process_frame
 	runner.check(not Leaders.pick_pending(m.state), "the pick is made")
 	runner.check(m.wizard.showing() and str(m.wizard._step.get("id")) == "tap", "then the tap step (%s)" % str(m.wizard.web_info(Vector2.ZERO)))
-	runner.check(m.wizard.hole.encloses(Rect2(m.bb.hit_rect().position + Vector2(m._sx, m._stage_y), m.bb.hit_rect().size)), "on the leader")
+	runner.check(m.wizard.hole.encloses(Rect2(m.magician.hit_rect().position + Vector2(m._sx, m._stage_y), m.magician.hit_rect().size)), "on the leader")
 
 
 ## Every condition and anchor the content may name runs on the live scene without an error, in the
@@ -199,7 +199,7 @@ func test_every_hook_runs_on_the_live_scene() -> void:
 	m.picker._age = 1000.0
 	m.picker.commit_cell(0, "tile")
 	m.picker.finish_now()
-	m._start_from_title(m.bb.hit_rect().get_center(), true)
+	m._start_from_title(m.magician.hit_rect().get_center(), true)
 	m.state.evolutions = 4
 	for i in 4:
 		await tree.process_frame

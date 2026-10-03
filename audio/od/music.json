@@ -1209,7 +1209,6 @@
     "gain": 0.6
    },
    "tapLine": {
-    "_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note indexes where each 2-bar phrase starts.",
     "steps": [
      0,
      2,
@@ -1496,7 +1495,7 @@
      118,
      124
     ],
-    "stepsPerBar": 16
+    "phraseBars": 2
    }
   },
   "knesset": {
@@ -1765,7 +1764,6 @@
     }
    },
    "tapLine": {
-    "_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note indexes where each 2-bar phrase starts.",
     "steps": [
      0,
      8,
@@ -2046,7 +2044,7 @@
      111,
      121
     ],
-    "stepsPerBar": 16
+    "phraseBars": 2
    }
   },
   "courthouse": {
@@ -2315,7 +2313,6 @@
     }
    },
    "tapLine": {
-    "_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note indexes where each 2-bar phrase starts.",
     "steps": [
      0,
      3,
@@ -2620,7 +2617,7 @@
      123,
      133
     ],
-    "stepsPerBar": 12
+    "phraseBars": 2
    }
   },
   "washington": {
@@ -2888,7 +2885,6 @@
     }
    },
    "tapLine": {
-    "_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note indexes where each 2-bar phrase starts.",
     "steps": [
      0,
      2,
@@ -3289,7 +3285,7 @@
      170,
      181
     ],
-    "stepsPerBar": 16
+    "phraseBars": 2
    }
   }
  },

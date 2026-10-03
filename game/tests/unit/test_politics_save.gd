@@ -105,12 +105,12 @@ func test_v2_save_migrates_to_v4() -> void:
 	runner.check(not l.coalition["opened"] and l.investigation["phase"] == "idle" and l.calendar["mode"] == "campaign", "politics start fresh")
 	st.save_game(l, 6.0)
 	# leader select: a v2 file goes through v3 to v4 (the v3 -> v4 step is tested in test_leaders.gd)
-	runner.check(int(JSON.parse_string(FileAccess.get_file_as_string(st.path))["version"]) == 4, "the next save writes v4")
+	runner.check(int(JSON.parse_string(FileAccess.get_file_as_string(st.path))["version"]) == SaveStore.VERSION, "the next save writes the current version")
 
 
-func test_newer_than_v4_is_kept_aside() -> void:
-	var r := SaveStore.parse(JSON.stringify({"version": 5, "state": {}}))
-	runner.check(r["kind"] == "newer", "a v5 save is newer, never overwritten")
+func test_newer_than_current_is_kept_aside() -> void:
+	var r := SaveStore.parse(JSON.stringify({"version": SaveStore.VERSION + 1, "state": {}}))
+	runner.check(r["kind"] == "newer", "a save from a newer version is never overwritten")
 
 
 func test_broken_sections_are_sanitized() -> void:

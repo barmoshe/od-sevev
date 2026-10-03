@@ -320,21 +320,21 @@ func test_every_leader_leaves_the_stage_on_the_hazard_day() -> void:
 		for i in 180:
 			m._process(0.016)
 		var skin := LeaderUi.stage_skin(lid)
-		runner.check(m.bb.court.in_court(), "%s: off the stage on the hazard day" % lid)
-		runner.check(m.bb.court_skin == skin, "%s: the mark holds %s (got %s)" % [lid, skin, m.bb.court_skin])
-		var desk: PressDesk = m.bb.desk_node()
+		runner.check(m.magician.court.in_court(), "%s: off the stage on the hazard day" % lid)
+		runner.check(m.magician.court_skin == skin, "%s: the mark holds %s (got %s)" % [lid, skin, m.magician.court_skin])
+		var desk: PressDesk = m.magician.desk_node()
 		if skin == "court":
-			runner.check(m.bb.hat_node().visible and not desk.visible, "%s: the hat on the mark, no desk" % lid)
+			runner.check(m.magician.hat_node().visible and not desk.visible, "%s: the hat on the mark, no desk" % lid)
 		else:
-			runner.check(desk.visible and desk.kind == skin and not m.bb.hat_node().visible, "%s: the %s on the mark, no hat" % [lid, skin])
+			runner.check(desk.visible and desk.kind == skin and not m.magician.hat_node().visible, "%s: the %s on the mark, no hat" % [lid, skin])
 		m._last_tap_ms = -1.0e9
 		_tap_leader()
-		runner.check(m.bb.hero.anim != "tap" and m.bb.court.hat == "hatHush", "%s: a tap hushes the mark, the strip stays still" % lid)
+		runner.check(m.magician.hero.anim != "tap" and m.magician.court.hat == "hatHush", "%s: a tap hushes the mark, the strip stays still" % lid)
 		s.investigation["phase"] = "idle"
 		m.d = Economy.derive(s)
 		for i in 120:
 			m._process(0.016)
-		runner.check(not m.bb.court.in_court(), "%s: back on the mark when the day ends" % lid)
+		runner.check(not m.magician.court.in_court(), "%s: back on the mark when the day ends" % lid)
 		runner.check(lid != "deri" or skin == "bench", "deri sits on the corridor bench")
 
 
@@ -355,7 +355,7 @@ func test_the_ability_chip_walks_ben_gvir_out() -> void:
 	runner.check(Ability.walked_out(m.state), "a tap on the chip: he walks out")
 	for i in 180:
 		m._process(0.016)
-	runner.check(m.bb.court.in_court() and m.bb.desk_node().visible and m.bb.desk_node().kind == "box", "off the stage, his box on the mark")
+	runner.check(m.magician.court.in_court() and m.magician.desk_node().visible and m.magician.desk_node().kind == "box", "off the stage, his box on the mark")
 	m.toasts._queue.clear()
 	m._last_tap_ms = -1.0e9
 	_tap_leader()

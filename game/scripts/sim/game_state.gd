@@ -130,9 +130,8 @@ static func from_dict(raw: Variant) -> GameState:
 		return null
 	var r: Dictionary = raw
 	var s := GameState.fresh()
-	# saves from before the rename (2026-10-03) carry the fork's keys: bananas, runBananas, allTimeBananas
-	s.money = _num(r.get("money", r.get("bananas")))
-	s.run_money = maxf(_num(r.get("runMoney", r.get("runBananas"))), s.money)
+	s.money = _num(r.get("money"))
+	s.run_money = maxf(_num(r.get("runMoney")), s.money)
 	var o: Variant = r.get("owned")
 	if o is Dictionary:
 		for id in Content.producer_ids():
@@ -146,7 +145,7 @@ static func from_dict(raw: Variant) -> GameState:
 	s.golden_timer_sec = _num(r.get("goldenTimerSec"), s.golden_timer_sec)
 	s.evolve_ready_announced = r.get("evolveReadyAnnounced") == true
 	s.run_time_sec = _num(r.get("runTimeSec"))
-	s.all_time_money = maxf(_num(r.get("allTimeMoney", r.get("allTimeBananas"))), s.run_money)
+	s.all_time_money = maxf(_num(r.get("allTimeMoney")), s.run_money)
 	# The base can never exceed what the all-time total could have paid (a hand-edited save).
 	s.thumbs_owned = mini(int(_num(r.get("thumbsOwned"))), Economy.base_cap(s.all_time_money, int(_num(r.get("evolutions")))))
 	s.thumbs_spent = mini(int(_num(r.get("thumbsSpent"))), s.thumbs_owned)

@@ -107,7 +107,7 @@ func test_a_fresh_game_opens_the_picker_before_the_first_tap() -> void:
 	await _boot()
 	var p: PickView = m.picker
 	runner.check(m.mode == "pick" and p.visible and p.variant == "first", "LEADER_PICK (first) replaces the title (mode %s)" % m.mode)
-	runner.check(not m._top.visible and not m._lower.visible and not m.bb.visible, "rows A/B, the ticker, the panel and the stage figure are hidden")
+	runner.check(not m._top.visible and not m._lower.visible and not m.magician.visible, "rows A/B, the ticker, the panel and the stage figure are hidden")
 	runner.check(p.cells.size() == 10 and _cell_of(p, "gantz") == 8 and str(p.cells[9]["id"]) == "", "the tray: the 8 leaders, Gantz (the first time) and the blank slip (%d slips)" % p.cells.size())
 	runner.check(p.again_btn == null and p.go_btn != null and not p.go_btn.is_enabled(), "no again on the first picker; the vote waits for a slip")
 	runner.check(p.focus == -1, "nothing is chosen for the player: the big card shows the booth's line")
@@ -143,8 +143,8 @@ func test_picking_bennett_puts_him_on_stage_and_saves() -> void:
 	runner.check(m.commit_pick("bennett"), "the pick commits")
 	runner.check(Leaders.current(m.state) == "bennett" and not Leaders.pick_pending(m.state), "the round is Bennett's")
 	runner.check(m.mode == "title", "a first-launch pick lands in the pre-tap state (mode %s)" % m.mode)
-	runner.check(m.bb.visible and m.bb.leader_slug() == "bennett", "his figure is on the stage (%s)" % m.bb.leader_slug())
-	runner.check(m.bb.prop != null, "his pen is drawn at propMouth (not baked into the render)")
+	runner.check(m.magician.visible and m.magician.leader_slug() == "bennett", "his figure is on the stage (%s)" % m.magician.leader_slug())
+	runner.check(m.magician.prop != null, "his pen is drawn at propMouth (not baked into the render)")
 	var saved: Dictionary = SaveStore.new(dir).load_game()
 	runner.check(saved.get("kind", "") == "ok" and (saved["state"] as GameState).leader == "bennett" and not (saved["state"] as GameState).leader_pick_pending,
 		"the pick is saved before the stage returns")
@@ -158,7 +158,7 @@ func test_picking_bennett_puts_him_on_stage_and_saves() -> void:
 		e.pressed = pressed
 		m._unhandled_input(e)
 	runner.check(m.mode == "main" and m.state.taps_lifetime == 1, "tap 1 starts the round")
-	runner.check(m.bb.prop_squashed(), "the tap squashes the prop on the pointer-down frame")
+	runner.check(m.magician.prop_squashed(), "the tap squashes the prop on the pointer-down frame")
 	runner.check(Leaders.stat(m.state, "bennett", "taps") == 1.0, "the tap is his")
 	await _frames(2)
 	runner.check(not m.undo_visible(), "the undo chip goes with the first tap")
@@ -167,8 +167,8 @@ func test_picking_bennett_puts_him_on_stage_and_saves() -> void:
 func test_a_prop_baked_into_the_render_draws_no_loose_prop() -> void:
 	await _boot()
 	m.commit_pick("smotrich")
-	runner.check(m.bb.leader_slug() == "smotrich" and m.bb.prop == null, "Smotrich's calculator is in the render: no loose prop")
-	var mp: Vector2 = m.bb.mouth_point()
+	runner.check(m.magician.leader_slug() == "smotrich" and m.magician.prop == null, "Smotrich's calculator is in the render: no loose prop")
+	var mp: Vector2 = m.magician.mouth_point()
 	runner.check(Ui.in_rect(Rect2(0, 0, L.W, L.stage_bottom() + 200.0), mp), "the coins leave from his propMouth (%s)" % mp)
 
 
@@ -226,7 +226,7 @@ func test_the_picker_follows_an_election() -> void:
 	var bank: float = m.state.money
 	await _frames(10)
 	runner.check(m.state.money == bank, "the new round's economy waits for the pick")
-	runner.check(m.commit_pick("liberman") and m.bb.leader_slug() == "liberman", "the new leader walks in")
+	runner.check(m.commit_pick("liberman") and m.magician.leader_slug() == "liberman", "the new leader walks in")
 
 
 func test_bibi_only_views_are_hidden_for_liberman() -> void:
@@ -255,7 +255,7 @@ func test_bibi_keeps_the_court() -> void:
 	m.commit_pick("bibi")
 	runner.check(LeaderUi.court() and m.dossier.buttons().any(func(b: Dictionary) -> bool: return b["kind"] == "pardon"), "Bibi's round keeps the court and the pardon row")
 	runner.check(LeaderUi.s("HUD_SUSP") == Strings.s("HUD_SUSP"), "חשד")
-	runner.check(m.bb.leader_slug() == "bibi" and m.bb.prop == null, "his hat is baked into his strips")
+	runner.check(m.magician.leader_slug() == "bibi" and m.magician.prop == null, "his hat is baked into his strips")
 
 
 func test_libermans_decline_pill() -> void:

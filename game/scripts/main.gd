@@ -89,7 +89,7 @@ var missions_chip: MissionsChip # missions + ranks: the stage's top-left entry (
 var kaia: KaiaFigure            # Kaia on the Balfour stage (events.kaia): a tap feeds her
 var _figures: Array[StageFigure] = []   # the stage figures that take a tap (_figure_at)
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
-var bb: Magician
+var magician: Magician
 var prop_fx: PropFx                 # the Magician's coins and rabbit
 var toasts: Toasts                  # the toast dock + Dubi's bubble (ux/ftue.md)
 var _reveals: Dictionary = {}       # Ftue.reveals(state), refreshed every frame
@@ -418,14 +418,14 @@ func _build() -> void:
 	kaia = KaiaFigure.new()
 	diorama.street_layer().add_child(kaia)
 	_figures = [sara, herzog, kaia]
-	bb = Magician.new()
-	_stage.add_child(bb)
+	magician = Magician.new()
+	_stage.add_child(magician)
 	diorama.near_layer().reparent(_stage, false)   # the paving row stands in front of the leader (layout v2)
-	_stage.move_child(diorama.near_layer(), bb.get_index() + 1)
+	_stage.move_child(diorama.near_layer(), magician.get_index() + 1)
 	prop_fx = PropFx.new()
 	_stage.add_child(prop_fx)
-	bb.on_hero_event = _on_hero_event
-	bb.on_court_fx = _on_court_fx
+	magician.on_hero_event = _on_hero_event
+	magician.on_court_fx = _on_court_fx
 	fx_stage = FxPlayer.new()
 	_stage.add_child(fx_stage)
 	diorama.play_fx = func(id: String, x: float, y: float) -> void: fx_stage.play(id, x, y)
@@ -488,8 +488,8 @@ func _build() -> void:
 	ftue = Ftue.new()
 	_ui.add_child(ftue)
 	ftue.ticker = func(t: String) -> void: ticker.enqueue("ftue", t)
-	ftue.on_magician_emphasis = func() -> void: bb.emphasize(1200)
-	ftue.on_pulse = func(hz: float) -> void: bb.set_pulse(hz)
+	ftue.on_magician_emphasis = func() -> void: magician.emphasize(1200)
+	ftue.on_pulse = func(hz: float) -> void: magician.set_pulse(hz)
 	ftue.toasts = toasts
 	overlays = OverlayManager.new()
 	_modal.add_child(overlays)
@@ -653,12 +653,12 @@ func _build_chat() -> void:
 ## the Magician), T4 over the stage, ticker and panel (§6.3), the court card over the panel and its
 ## chip in the ticker (§6.4, §5.1). T3 and T4 are one layer: opening one closes the other.
 func _build_investigation() -> void:
-	thermo = Thermo.new().setup(self, bb)
+	thermo = Thermo.new().setup(self, magician)
 	_stage.add_child(thermo)
-	_stage.move_child(thermo, bb.get_index() + 1)
+	_stage.move_child(thermo, magician.get_index() + 1)
 	court_echo = CourtEcho.new()
 	_stage.add_child(court_echo)
-	_stage.move_child(court_echo, bb.get_index())   # over the stage art, behind the Magician
+	_stage.move_child(court_echo, magician.get_index())   # over the stage art, behind the Magician
 	dossier = DossierView.new().setup(self)
 	_lower.add_child(dossier)
 	court = CourtView.new().setup(self)
@@ -778,7 +778,7 @@ func _relayout() -> void:
 	thermo.relayout()
 	court_echo.relayout()
 	buffs.set_stage_rect(-_sx, float(L.STAGE["y"]), _vs.x, L.stage_h)
-	bb.relayout()
+	magician.relayout()
 	overlays.relayout()
 	tx.position.x = L.sox()   # EVOLVE_TX: full bleed, its lines centred on the canvas (§5.13)
 	# TITLE: the dirt continues to the bottom of the screen (the fork's jungle; hidden under stage art)
@@ -852,7 +852,7 @@ func hud_info() -> Dictionary:
 	if undo_visible():
 		ur = _undo_btn.visual
 	var uo := Vector2(_ox, _lower_y) if _undo_in_row else sto
-	return {"leaderHit": r2a.call(bb.hit_rect(), sto), "top": _top.visible,
+	return {"leaderHit": r2a.call(magician.hit_rect(), sto), "top": _top.visible,
 		"identity": {"leader": top_bar.leader_shown(), "rect": r2a.call(idr, tpo), "name": r2a.call(nm, tpo),
 			"face": r2a.call(TopBar.face_rect() if top_bar.face != null and top_bar.face.visible else Rect2(), tpo)},
 		"undo": {"on": undo_visible(), "home": undo_home(), "rect": r2a.call(ur, uo),
@@ -925,7 +925,7 @@ func _in_pick(p: Vector2) -> Vector2:
 func _apply_settings() -> void:
 	var rm := bool(settings["reducedMotion"])
 	Juice.reduced = rm
-	bb.set_reduced_motion(rm)
+	magician.set_reduced_motion(rm)
 	prop_fx.reduced_motion = rm
 	if wizard != null:
 		wizard.reduced_motion = rm
@@ -1146,7 +1146,7 @@ func _set_mode(m: String, animate: bool) -> void:
 		picker.publish_closed()
 	if m == "pick":
 		# rtl-map §8: the HUD is hidden, the stage is empty behind the scrim
-		bb.visible = false
+		magician.visible = false
 		title_view.show_title(false)
 		_top.visible = false
 		_lower.visible = false
@@ -1156,7 +1156,7 @@ func _set_mode(m: String, animate: bool) -> void:
 		_title_floor.modulate.a = 1.0
 		_place_title_floor()
 		return
-	bb.visible = true
+	magician.visible = true
 	_bg.visible = main
 	_title_ground.visible = not main and not diorama.has_background()
 	_place_title_floor()
@@ -1262,15 +1262,13 @@ func _process(delta: float) -> void:
 	# the hazard day on the stage (the exit, the hat or the press desk, the return): polled from the sim's phase
 	# leaders v3: Ben Gvir's walkout walks him off the same way and leaves his cardboard box
 	var walked := Ability.walked_out(state)
-	bb.set_away_kind("box" if walked and not Magician.wants_court(state) else "")
-	bb.court_sync(running and (Magician.wants_court(state) or walked), tx.running)
-	var au := get_node_or_null("/root/Audio")
-	bb.beat_phase = float(au.call("beat_phase")) if au != null and au.has_method("beat_phase") else -1.0
-	bb.update_view(dt)
+	magician.set_away_kind("box" if walked and not Magician.wants_court(state) else "")
+	magician.court_sync(running and (Magician.wants_court(state) or walked), tx.running)
+	magician.update_view(dt)
 	if _pose_due != "":
-		if _now > _pose_due_until or bb.flash_pose(_pose_due, 1400.0):
+		if _now > _pose_due_until or magician.flash_pose(_pose_due, 1400.0):
 			_pose_due = ""
-	if _after_walk.is_valid() and not bb.walking():
+	if _after_walk.is_valid() and not magician.walking():
 		var after := _after_walk
 		_after_walk = Callable()
 		after.call()
@@ -1346,14 +1344,16 @@ func _update_wizard(dt: float) -> void:
 func _audio_clocks(dt: float) -> void:
 	var a := get_node_or_null("/root/Audio")
 	if a == null:
+		magician.beat_phase = -1.0
 		return
+	magician.beat_phase = float(a.call("beat_phase")) if a.has_method("beat_phase") else -1.0   # the beat glow
 	if tx.running and not _trick_fired and a.has_method("fanfare_clock_ms") and a.has_method("fanfare_markers"):
 		var mk: Dictionary = a.call("fanfare_markers")
 		if mk.has("rollEnd") and float(a.call("fanfare_clock_ms")) >= float(mk["rollEnd"]) * 1000.0 - float(Tune.MC.get("trickLeadMs", 333)):
 			_trick_fired = true
 			_audio("trickCue")
-			if bb.hero != null and not bb.walking() and not bb.walked_off():
-				bb.hero.play(str(LeaderUi.tap()["critAnim"]), true, 1)   # the round's crit (Bibi: "crit"); never on a walked-off leader
+			if magician.hero != null and not magician.walking() and not magician.walked_off():
+				magician.hero.play(str(LeaderUi.tap()["critAnim"]), true, 1)   # the round's crit (Bibi: "crit"); never on a walked-off leader
 	_progress_ms += dt
 	if _progress_ms >= 1000.0 and mode == "main" and Coalition.active():
 		_progress_ms = 0.0
@@ -1374,7 +1374,7 @@ func _ftue_ctx(running: bool) -> Dictionary:
 		"hat": L.magician_feet() - Vector2(0, 380), "pill": pill,
 		# M4 (merge review; ftue.md P0): the hand points at the pulse's own point, the tap object
 		# (the prop at `propMouth`; Bibi's hat at `hatMouth`); H1's squawk keeps the head point
-		"tapPoint": bb.pulse_point() if bb.hero != null else L.magician_feet() - Vector2(0, 380),
+		"tapPoint": magician.pulse_point() if magician.hero != null else L.magician_feet() - Vector2(0, 380),
 		"price": Economy.producer_cost(state, first, 1),
 		"bounce": func() -> void: shop.bounce_row(k),
 		"gateOpen": ticker.cta_on(), "ctaPoint": Vector2(360, L.stage_bottom() - 8.0),
@@ -1723,7 +1723,7 @@ func _on_politics_event(e: Dictionary) -> void:
 				ticker.enqueue("flavor", str(kc["nipTicker"]))
 		"summons":
 			_audio("courtSummons")
-			bb.court_flinch()   # the summons flinch (motion/state-graph-magician.md §1.3), every leader
+			magician.court_flinch()   # the summons flinch (motion/state-graph-magician.md §1.3), every leader
 		"courtStart":
 			_audio("courtStart")
 			_funnel("court_start", {})
@@ -1868,7 +1868,7 @@ func _on_ability_event(e: Dictionary) -> void:
 	var poses: Variant = Ability.def(state).get("poses")
 	if poses is Dictionary and (poses as Dictionary).has(str(e.get("kind", ""))):
 		var pid := str(poses[str(e["kind"])])
-		if not bb.flash_pose(pid, 1400.0):
+		if not magician.flash_pose(pid, 1400.0):
 			_pose_due = pid
 			_pose_due_until = _now + 4000.0
 	var c := Ability.copy(state)
@@ -1966,7 +1966,7 @@ func _leader_tap_gate() -> String:
 ## A tap on the leader that the gate refuses: no coin, no +N, the hat's hush; then why, at most once
 ## in a while. Sara huffs and her arrow pulses on every one.
 func _refuse_tap(why: String) -> void:
-	bb.tap(false, true)
+	magician.tap(false, true)
 	match why:
 		"sara":
 			sara.nudge()
@@ -2044,7 +2044,7 @@ func _spawn_suitcase() -> void:
 func _check_buff_edges() -> void:
 	var fr := state.buff_frenzy > 0.0
 	var tf := state.buff_tap_frenzy > 0.0
-	bb.set_aura("tapFrenzy" if tf else ("frenzy" if fr else "plain"))
+	magician.set_aura("tapFrenzy" if tf else ("frenzy" if fr else "plain"))
 	diorama.set_frenzy(fr)
 	if tf != bool(_prev_buffs["tapFrenzy"]):
 		diorama.set_tap_frenzy(tf)
@@ -2131,7 +2131,7 @@ func _refresh_all(dt: float) -> void:
 	_evolve_was_visible = vis
 	top_bar.set_evolve_badge(Ftue.badge_on(state) and vis)
 	buffs.update_chip(state.buff_frenzy, state.buff_tap_frenzy, main, Spins.active_effects(state))
-	ability_chip.update_view(dt, _chip_view(), main and (bb.walk.state() == "home" or Events.screen_blocked(state)))
+	ability_chip.update_view(dt, _chip_view(), main and (magician.walk.state() == "home" or Events.screen_blocked(state)))
 	# missions: from the first tap on (the pre-tap stage stays bare), beside the thermometer's column
 	missions_chip.update_view(dt, MissionsUi.chip_view(state, d), main and state.taps_lifetime > 0 and not Leaders.pick_pending(state),
 		thermo.icon_top() if thermo.is_shown() else INF, L.magician_hit().position.x)
@@ -2295,7 +2295,7 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 		if pretap_hud() and top_bar.mute_contains(tp):
 			_presses[idx] = {"kind": "mute"}
 			return
-		var on_hat := Ui.in_rect(bb.hit_rect(), sp)
+		var on_hat := Ui.in_rect(magician.hit_rect(), sp)
 		if on_hat:
 			_start_from_title(sp, true)
 		return
@@ -2354,7 +2354,7 @@ func _pointer_down(idx: int, p: Vector2) -> void:
 	# a toast over the leader's head never eats the rapid taps (it stays visible)
 	if not tap_burst() and toasts.tap(sp):
 		return
-	if Ui.in_rect(bb.hit_rect(), sp):
+	if Ui.in_rect(magician.hit_rect(), sp):
 		_handle_tap(sp)
 		return
 	if ticker.visible and ticker.cta_on() and ticker.cta.contains(lp):
@@ -2456,14 +2456,14 @@ func _update_hover(p: Vector2) -> void:
 	elif mode == "pick":
 		pointer = picker.hover(_in_pick(p))
 	elif mode == "title":
-		pointer = Ui.in_rect(bb.hit_rect(), _in_stage(p))
+		pointer = Ui.in_rect(magician.hit_rect(), _in_stage(p))
 	elif _gameplay_input():
 		var sp := _in_stage(p)
 		var tp := _in_top(p)
 		var lp := _in_lower(p)
 		var on_golden := golden.hit_test(sp)
 		var on_fig := not on_golden and _figure_at(sp) != null
-		var on_magician := not on_golden and not on_fig and _leader_tap_gate() == "" and Ui.in_rect(bb.hit_rect(), sp)
+		var on_magician := not on_golden and not on_fig and _leader_tap_gate() == "" and Ui.in_rect(magician.hit_rect(), sp)
 		_set_hover_magician(on_magician)
 		pointer = on_golden or on_fig or on_magician or top_bar.gear_contains(tp) or top_bar.mute_contains(tp) or cottage.contains(tp) or shop.in_list(lp) \
 			or (shop.visible and Ui.in_rect(Rect2(0, L.tabs_y(), L.cw, L.TABS_H), lp)) or (ticker.cta_on() and ticker.cta.contains(lp))
@@ -2481,7 +2481,7 @@ func _set_hover_magician(on: bool) -> void:
 	if _hover_magician == on:
 		return
 	_hover_magician = on
-	bb.set_hover(on)
+	magician.set_hover(on)
 
 
 func _on_key(e: InputEventKey) -> void:
@@ -2566,7 +2566,7 @@ func _pay_tap(at: Vector2, manual: bool) -> void:
 		state.stats["bestTapFrenzyTaps"] = maxf(float(state.stats.get("bestTapFrenzyTaps", 0.0)), float(_tap_frenzy_taps))
 	else:
 		_tap_frenzy_taps = 0
-	bb.tap(crit)
+	magician.tap(crit)
 	floaters.spawn(at.x, at.y, Strings.s("FLOATER_CRIT" if crit else "FLOATER", {"n": Fmt.amount(float(r["value"]))}), crit,
 		bool(r.get("boosted", false)))
 	if not manual:
@@ -2592,9 +2592,9 @@ func _pay_tap(at: Vector2, manual: bool) -> void:
 		if t7 != "":
 			floaters.spawn(at.x, at.y - 56.0, t7, true, false)   # Eisenkot's tap 7: "בלי קסמים. רק ישר."
 			var ca := str(LeaderUi.tap()["critAnim"])
-			if bb.hero != null and bb.hero.has_anim(ca):
-				bb.hero.play(ca, true, 1)   # his react plays the beat the rabbit would
-	if bb.hero == null:
+			if magician.hero != null and magician.hero.has_anim(ca):
+				magician.hero.play(ca, true, 1)   # his react plays the beat the rabbit would
+	if magician.hero == null:
 		fx_stage.play("critBurst" if crit else "tapChips", at.x, at.y)
 	elif crit:
 		fx_stage.play("critBurst", at.x, at.y)   # the coins come from the strip's own "coins" frame
@@ -2683,7 +2683,7 @@ func _on_hero_event(ev: String, at: Vector2) -> void:
 	match ev:
 		"coins":
 			# motion/event-markers.md: min(base + batch - 1, cap), batch = taps since the last burst
-			var crit := bb._state == "crit"
+			var crit := magician._state == "crit"
 			var base := int(Tune.MC["critCoinBase" if crit else "coinBurstBase"])
 			var cap := int(Tune.MC["critCoinCap" if crit else "coinBurstCap"])
 			prop_fx.coins(at, mini(base + maxi(1, _coin_batch) - 1, cap))
@@ -2695,7 +2695,7 @@ func _on_hero_event(ev: String, at: Vector2) -> void:
 			# a leader's react (spec §5.2, CONTRACT §4c): its event (whoosh / shout / no / land) is
 			# the crit's frame. The coins burst there, and the Audio plays crit_for(leader)'s cue
 			# (spec §9.5, audio/od/cue-spec.md §4.2).
-			if not LeaderUi.is_default() and ev == str(LeaderUi.tap().get("critEvent", "")) and bb._state == "crit":
+			if not LeaderUi.is_default() and ev == str(LeaderUi.tap().get("critEvent", "")) and magician._state == "crit":
 				prop_fx.coins(at, int(Tune.MC["critCoinBase"]))
 				_audio("heroEvent", ev)   # Audio v1.3 (cue-spec §4.2): the leader's crit cue on its frame
 			# "sting" stays silent (cue-spec §5)
@@ -2908,7 +2908,7 @@ func _apply_import(loaded: GameState) -> void:
 	overlays.close_all()
 	state = loaded
 	d = Economy.derive(state)   # installs the save's leader (Leaders.ensure)
-	bb.set_leader(LeaderUi.art(), LeaderUi.tap())   # an imported save with another leader swaps the figure, prop and court skin
+	magician.set_leader(LeaderUi.art(), LeaderUi.tap())   # an imported save with another leader swaps the figure, prop and court skin
 	golden.clear()
 	diorama.clear_all()
 	diorama.sync(state.owned, false)
@@ -3014,8 +3014,8 @@ func _do_reset() -> void:
 	shop.reset_run()
 	top_bar.reset_rate()
 	shop.switch_tab("producers")
-	bb.set_aura("plain")
-	bb.court_reset()
+	magician.set_aura("plain")
+	magician.court_reset()
 	_audio_call("set_evolutions", [0])
 	_evolve_was_visible = false
 	_autosave_ms = 0.0
@@ -3070,7 +3070,7 @@ func _start_evolve(dev_force := false) -> void:
 		(top as Overlays.EvolutionOverlay).close_for_confirm()
 	overlays.tx_active = true
 	shop.cancel_press()
-	bb.lock()
+	magician.lock()
 	_set_hover_magician(false)
 	diorama.poof_all()
 	var new_era := Story.era_for(nxt.evolutions)
@@ -3078,7 +3078,7 @@ func _start_evolve(dev_force := false) -> void:
 	# the leader swap (spec §9.3.4, motion/state-graph-magician.md §9 rev 2; manual test A5): when a
 	# pick follows, the old leader walks off the OLD stage first; the card waits for him, and the new
 	# round's state and stage swap under its opaque page
-	var lead := EvolveTx.lead_ms(bool(settings["reducedMotion"])) if Leaders.pick_pending(nxt) and bb.hero != null else 0.0
+	var lead := EvolveTx.lead_ms(bool(settings["reducedMotion"])) if Leaders.pick_pending(nxt) and magician.hero != null else 0.0
 	if lead > 0.0:
 		_pick_seq.clear()        # no round line pops over the walk-out (A4: one text at a time)
 		toasts.clear_bubble()
@@ -3095,7 +3095,7 @@ func _start_evolve(dev_force := false) -> void:
 			prop_fx.clear()
 			shop.reset_run()
 			top_bar.reset_rate()
-			bb.set_aura("plain")
+			magician.set_aura("plain")
 			_audio_call("set_evolutions", [state.evolutions])
 			_seed_milestones()
 			diorama.sync(state.owned, false)
@@ -3111,8 +3111,8 @@ func _start_evolve(dev_force := false) -> void:
 			_acc = 0.0,
 		# the leader swap: f0 of the ceremony (only with a lead), before the card, on the old stage, so
 		# the flash and the picker open on the new round's empty stage
-		"walk": func() -> void: bb.walk_out(),
-		"hello": func() -> void: bb.hello(),
+		"walk": func() -> void: magician.walk_out(),
+		"hello": func() -> void: magician.hello(),
 		"unlock": func() -> void:
 			_audio("evolveTransitionEnd")
 			if not _ceremony_on_marker:
@@ -3120,7 +3120,7 @@ func _start_evolve(dev_force := false) -> void:
 			ticker.defer_until(ticker.now_ms() + float(Tune.MC["headlineDeferAfterEvolveMs"]))
 			# input stays locked until the stage is clear (the walk-out ran before the card now, so
 			# this only waits on a caller that skipped ahead); the flash, the FTUE and the picker follow
-			if bb.walking():
+			if magician.walking():
 				_after_walk = _tx_release
 			else:
 				_tx_release(),
@@ -3133,8 +3133,8 @@ func _start_evolve(dev_force := false) -> void:
 func _tx_release() -> void:
 	_tx_locked = false
 	overlays.tx_active = false
-	if not bb.walked_off():
-		bb.unlock()
+	if not magician.walked_off():
+		magician.unlock()
 	ftue.on_tx_done(state, Economy.derive(state))
 	_show_story_beat()
 	_save_now()
@@ -3210,10 +3210,10 @@ func _on_pick_commit(id: String, via: String) -> bool:
 ## once he has landed, the fresh toast and the 5 s undo chip (rtl-map §8.6).
 func _on_pick_done() -> void:
 	picker.publish_closed()
-	bb.modulate.a = 1.0
-	bb.set_leader(LeaderUi.art(), LeaderUi.tap())
-	bb.walk_in()
-	bb.unlock()
+	magician.modulate.a = 1.0
+	magician.set_leader(LeaderUi.art(), LeaderUi.tap())
+	magician.walk_in()
+	magician.unlock()
 	var first := state.evolutions == 0 and state.taps_lifetime == 0
 	_set_mode("title" if first else "main", not first)
 	if not first:
@@ -3226,7 +3226,7 @@ func _on_pick_done() -> void:
 	var random := str(_pick_res.get("via", "")) == "random"
 	# Dubi's bubble follows the landing (a 120 ms settle after the walk, so the eye is on the still
 	# figure when the line pops); the leader's own line 1.7 s after it, as before
-	var at := _now + bb.walk_left_ms() + PICK_LINE_AFTER_LAND_MS
+	var at := _now + magician.walk_left_ms() + PICK_LINE_AFTER_LAND_MS
 	_pick_seq = [{"at": at, "fn": func() -> void:
 		_say_pick(Strings.s("LEADER_PICK_RANDOM_LINE" if random else "DUBI_LEARNED"), dubi_at)}]
 	var line := str(Leaders.leader(id).get("pick", {}).get("line", "")) if Leaders.leader(id).get("pick") is Dictionary else ""
@@ -3331,7 +3331,7 @@ func commit_pick(id: String, walk := false) -> bool:
 		return false
 	picker.finish_now()
 	if not walk:
-		bb.walk_land()
+		magician.walk_land()
 	return true
 
 
@@ -4066,8 +4066,8 @@ func _round_swap_views() -> void:
 	if shop.tab != "producers":
 		shop.switch_tab("producers")   # (only then: a switch marks the state's tabsTouched)
 	top_bar.reset_rate()
-	bb.set_aura("plain")
-	bb.court_reset()
+	magician.set_aura("plain")
+	magician.court_reset()
 	toasts.clear_bubble()
 	_seed_milestones()
 	diorama.set_era(Story.era_for(state.evolutions))
@@ -4088,11 +4088,11 @@ func _round_swap_views() -> void:
 ## The round's leader on the stage, before tap 1 (a fresh round: the pre-tap state; the clock
 ## starts at the first tap) or in play (the main game coming back).
 func _round_stage() -> void:
-	bb.modulate.a = 1.0
-	bb.set_leader(LeaderUi.art(), LeaderUi.tap())
-	bb.walk_in()
-	bb.walk_land()
-	bb.unlock()
+	magician.modulate.a = 1.0
+	magician.set_leader(LeaderUi.art(), LeaderUi.tap())
+	magician.walk_in()
+	magician.walk_land()
+	magician.unlock()
 	var pre := state.taps_lifetime == 0
 	_set_mode("title" if pre else "main", false)
 	_apply_identity(true)

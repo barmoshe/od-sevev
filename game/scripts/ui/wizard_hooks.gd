@@ -137,7 +137,7 @@ static func anchor(host: Node, name: String) -> Rect2:
 			var pk: PickView = host.get("picker")
 			return Rect2(pk.go_btn.hit.position + pk.position, pk.go_btn.hit.size) if pk.go_btn != null else Rect2()
 		"leader":
-			var r := (host.get("bb") as Magician).hit_rect()
+			var r := (host.get("magician") as Magician).hit_rect()
 			return Rect2(r.position + stage, r.size)
 		"card1Pill":
 			var k := _first_k(host)

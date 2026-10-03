@@ -62,7 +62,7 @@ func _top_rect(r: Rect2) -> Rect2:
 
 
 func _leader_hit() -> Rect2:
-	return Rect2(m.bb.hit_rect().position + Vector2(m._sx, m._stage_y), m.bb.hit_rect().size)
+	return Rect2(m.magician.hit_rect().position + Vector2(m._sx, m._stage_y), m.magician.hit_rect().size)
 
 
 # ------------------------------------------------------------------ A2
@@ -269,7 +269,7 @@ func test_d62_the_pretap_toast_docks_in_the_lane_band_clear_of_the_leader() -> v
 	runner.check(r.has_area() and tt.dock() == "lane", "Dubi's pick toast shows, in the lane band (%s, %s)" % [tt.dock(), r])
 	runner.check(is_equal_approx(r.position.y, L.stage_bottom() - 136.0) and r.end.y <= L.stage_bottom(),
 		"at S − 136, inside the stage (%s; stage bottom %s)" % [r, L.stage_bottom()])
-	runner.check(not r.intersects(m.bb.hit_rect()), "clear of the leader's hit (%s vs %s)" % [r, m.bb.hit_rect()])
+	runner.check(not r.intersects(m.magician.hit_rect()), "clear of the leader's hit (%s vs %s)" % [r, m.magician.hit_rect()])
 	runner.check(is_equal_approx(r.position.x, Toasts.dock_x()) and is_equal_approx(r.size.x, Toasts.dock_w()), "the dock's width (cw − 32)")
 	var sh := tt.shown()
 	runner.check(sh["head"] != "" and tt._head.position.y >= r.position.y and tt._preview.position.y + 44.0 <= r.end.y,
@@ -278,7 +278,7 @@ func test_d62_the_pretap_toast_docks_in_the_lane_band_clear_of_the_leader() -> v
 	var bad := 0
 	for i in 12:
 		_pump_toasts(250.0)
-		if _toast_rect().intersects(m.bb.hit_rect()):
+		if _toast_rect().intersects(m.magician.hit_rect()):
 			bad += 1
 	runner.check(bad == 0, "S18: no sample over the leader's hit (%d)" % bad)
 	# after the first tap the dock returns to the stage top
@@ -318,7 +318,7 @@ func test_d62_the_fresh_toast_waits_for_the_undo_chip_then_docks_in_the_lane() -
 	_pump_toasts(300.0)
 	var r := _toast_rect()
 	runner.check(tt._text.text == want and tt.dock() == "lane" and r.has_area(), "it shows in the lane band (%s)" % tt.dock())
-	runner.check(not r.intersects(m.bb.hit_rect()), "clear of the new leader's hit (%s vs %s)" % [r, m.bb.hit_rect()])
+	runner.check(not r.intersects(m.magician.hit_rect()), "clear of the new leader's hit (%s vs %s)" % [r, m.magician.hit_rect()])
 
 
 func test_d62_an_undo_drops_the_waiting_fresh_toast() -> void:
@@ -361,7 +361,7 @@ func test_d62_the_first_tap_ends_the_chip_and_the_fresh_toast_still_docks_in_the
 
 
 func bb_land() -> void:
-	m.bb.walk_land()
+	m.magician.walk_land()
 
 
 # ------------------------------------------------------------------ merge review M4
@@ -374,9 +374,9 @@ func test_m4_the_p0_hand_points_at_the_pulse_on_the_tap_object() -> void:
 	var ctx: Dictionary = m._ftue_ctx(true)
 	var tp: Vector2 = ctx["tapPoint"]
 	var head: Vector2 = ctx["hat"]
-	runner.check(tp == m.bb.pulse_point(), "the ctx carries the pulse's own point")
+	runner.check(tp == m.magician.pulse_point(), "the ctx carries the pulse's own point")
 	runner.check(tp.distance_to(head) >= 40.0, "for a leader with a prop it is not the head (%s vs %s)" % [tp, head])
-	runner.check(m.bb.hit_rect().has_point(tp), "and it is on the leader (inside his hit)")
+	runner.check(m.magician.hit_rect().has_point(tp), "and it is on the leader (inside his hit)")
 	var f: Ftue = m.ftue
 	f.reduced_motion = true
 	f._idle_ms = 10000.0

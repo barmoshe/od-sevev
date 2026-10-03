@@ -529,7 +529,7 @@ func test_v3_save_migrates_as_bibis_round() -> void:
 	var b: Dictionary = l.leaders["bibi"]
 	runner.check(b["rounds"] == 4.0 and b["elections"] == 3.0 and b["taps"] == 1234.0 and b["crits"] == 21.0, "leaders.bibi seeded (%s)" % str(b))
 	st.save_game(l, 6.0)
-	runner.check(int(JSON.parse_string(FileAccess.get_file_as_string(st.path))["version"]) == 4, "the next save writes v4")
+	runner.check(int(JSON.parse_string(FileAccess.get_file_as_string(st.path))["version"]) == SaveStore.VERSION, "the next save writes the current version")
 	_elect(l)
 	runner.check(Leaders.pick_pending(l) and l.leader_round["prev"] == "bibi", "the next election opens the picker")
 	runner.check(Politics.install(l, "liberman")["fresh"] == true, "and a switch from Bibi is a fresh face")

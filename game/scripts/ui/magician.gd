@@ -305,9 +305,9 @@ func tap(crit: bool, paused: bool = false) -> void:
 		if crit and hero.has_anim(crit_anim):
 			hero.play(crit_anim, true, 1)
 		elif not in_react:
-			# v1.10: a tap on f1-f2 of the tap strip merges into it (motion spec): the strip runs on to
-			# its coins frame instead of restarting, so fast taps still pour coins
-			var merge := hero.anim == tap_anim and hero.frame >= 1 and hero.frame <= 2
+			# v1.10: a tap before the tap strip's coins frame merges into it (motion spec: f1-f2): the
+			# strip runs on to its coins instead of restarting, so fast taps still pour coins
+			var merge := hero.anim == tap_anim and hero.frame >= 1 and hero.frame < hero.event_frame("coins")
 			hero.play(tap_anim if hero.has_anim(tap_anim) else "idle", not merge, 1)
 	var sy := float(Tune.T["squashScaleY"])
 	var smin := float(Tune.T["squashMinScaleY"])

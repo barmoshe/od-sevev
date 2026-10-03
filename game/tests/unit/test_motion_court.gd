@@ -205,42 +205,42 @@ func test_reset_cuts_home() -> void:
 
 func test_bibis_court_day_on_the_stage() -> void:
 	await _boot()
-	var bb: Magician = m.bb
-	if bb.hero == null:
+	var magician: Magician = m.magician
+	if magician.hero == null:
 		runner.check(false, "the Magician strip loads")
 		return
 	for i in 40:
-		bb.update_view(16.0)   # the boot tap's strip ends on idle
+		magician.update_view(16.0)   # the boot tap's strip ends on idle
 	m.state.investigation["revealed"] = true
 	m.state.investigation["phase"] = "summons"
 	Investigation.testify(m.state)
 	runner.check(Magician.wants_court(m.state), "Bibi's round in court: the stage wants him gone")
 	var feet := L.magician_feet()
-	bb.court_sync(true)
-	bb.update_view(16.0)
-	runner.check(bb.court.in_court() and bb.hero.visible and bb.hero.anim == "tap" and bb.hero.frame == 1, "f0: the startle frame")
+	magician.court_sync(true)
+	magician.update_view(16.0)
+	runner.check(magician.court.in_court() and magician.hero.visible and magician.hero.anim == "tap" and magician.hero.frame == 1, "f0: the startle frame")
 	var off := false
 	for i in 40:
-		bb.court_sync(true)
-		bb.update_view(16.0)
-		var x := bb.hero.position.x - feet.x
-		off = off or not bb.hero.visible
+		magician.court_sync(true)
+		magician.update_view(16.0)
+		var x := magician.hero.position.x - feet.x
+		off = off or not magician.hero.visible
 		runner.check(is_equal_approx(fmod(absf(x), 4.0), 0.0), "the body moves in whole art px (dx %.1f)" % x)
-		if not bb.hero.visible:
+		if not magician.hero.visible:
 			break
-	runner.check(off and not bb.on_stage(), "he has left the stage")
+	runner.check(off and not magician.on_stage(), "he has left the stage")
 	for i in 60:
-		bb.court_sync(true)
-		bb.update_view(16.0)
-	var hat := bb.hat_node()
-	runner.check(hat.visible and hat.position.x + hat.texture.get_size().x * 2.0 == bb.hat_mark().x, "the hat hovers with its mouth on his mark")
-	runner.check(is_equal_approx(fmod(hat.position.y, 4.0), fmod(bb.hat_mark().y, 4.0)), "on the art grid")
+		magician.court_sync(true)
+		magician.update_view(16.0)
+	var hat := magician.hat_node()
+	runner.check(hat.visible and hat.position.x + hat.texture.get_size().x * 2.0 == magician.hat_mark().x, "the hat hovers with its mouth on his mark")
+	runner.check(is_equal_approx(fmod(hat.position.y, 4.0), fmod(magician.hat_mark().y, 4.0)), "on the art grid")
 	var burst: Array = []
-	bb.on_court_fx = func(kind: String, _at: Vector2, n: int) -> void: burst.append([kind, n])
-	bb.tap(false)
-	runner.check(bb.hero.anim != "tap" or not bb.hero.visible, "a tap in court does not play his tap (he is away)")
+	magician.on_court_fx = func(kind: String, _at: Vector2, n: int) -> void: burst.append([kind, n])
+	magician.tap(false)
+	runner.check(magician.hero.anim != "tap" or not magician.hero.visible, "a tap in court does not play his tap (he is away)")
 	for i in 10:
-		bb.update_view(16.0)
+		magician.update_view(16.0)
 	runner.check(burst.any(func(b: Array) -> bool: return b[0] == "coins"), "the hat pays its coins (%s)" % str(burst))
 	# the sweat never beads on the empty stage
 	m.thermo._next_drop = 0.0
@@ -250,9 +250,9 @@ func test_bibis_court_day_on_the_stage() -> void:
 	# testimony over
 	m.state.investigation["phase"] = "idle"
 	for i in 60:
-		bb.court_sync(Magician.wants_court(m.state))
-		bb.update_view(16.0)
-	runner.check(not bb.court.in_court() and bb.hero.visible and bb.hero.position == feet and not hat.visible, "back on his mark, the hat gone")
+		magician.court_sync(Magician.wants_court(m.state))
+		magician.update_view(16.0)
+	runner.check(not magician.court.in_court() and magician.hero.visible and magician.hero.position == feet and not hat.visible, "back on his mark, the hat gone")
 
 
 ## Bar, 2026-10-01 ("not only Bibi"): every leader leaves the stage on the hazard day. Bibi leaves
@@ -261,32 +261,32 @@ func test_bibis_court_day_on_the_stage() -> void:
 ## the beat glow brightens the figure on the music's beat (not under reduced motion).
 func test_fast_taps_merge_and_the_beat_glows() -> void:
 	await _boot()
-	var bb: Magician = m.bb
+	var magician: Magician = m.magician
 	for i in 30:
-		bb.update_view(16.0)
+		magician.update_view(16.0)
 	var coins: Array = []   # (a lambda captures an int by value)
-	bb.on_hero_event = func(ev: String, _at: Vector2) -> void:
+	magician.on_hero_event = func(ev: String, _at: Vector2) -> void:
 		if ev == "coins":
 			coins.append(ev)
 	for i in 6:   # 10 taps a second: a new tap every 100 ms, always before the strip's coins frame
-		bb.tap(false)
+		magician.tap(false)
 		for k in 6:
-			bb.update_view(16.0)
+			magician.update_view(16.0)
 	runner.check(coins.size() >= 2, "taps at 10/s still pour coins (merged into the strip), got %d" % coins.size())
 	for i in 120:
-		bb.update_view(16.0)
-	bb.beat_phase = 0.0
-	bb.update_view(1.0)
-	var on := bb.hero.modulate.r
-	bb.beat_phase = 0.95
-	bb.update_view(1.0)
-	var off := bb.hero.modulate.r
+		magician.update_view(16.0)
+	magician.beat_phase = 0.0
+	magician.update_view(1.0)
+	var on := magician.hero.modulate.r
+	magician.beat_phase = 0.95
+	magician.update_view(1.0)
+	var off := magician.hero.modulate.r
 	runner.check(on > off + 0.03, "the figure brightens on the beat (%.3f vs %.3f)" % [on, off])
-	bb.set_reduced_motion(true)
-	bb.beat_phase = 0.0
-	bb.update_view(1.0)
-	runner.check(is_equal_approx(bb.hero.modulate.r, off), "no beat glow under reduced motion")
-	bb.set_reduced_motion(false)
+	magician.set_reduced_motion(true)
+	magician.beat_phase = 0.0
+	magician.update_view(1.0)
+	runner.check(is_equal_approx(magician.hero.modulate.r, off), "no beat glow under reduced motion")
+	magician.set_reduced_motion(false)
 
 
 func test_every_leader_leaves_on_the_hazard_day() -> void:

@@ -275,6 +275,11 @@ func play(name: String, restart: bool = true, from_frame: int = 0) -> bool:
 	return true
 
 
+## The frame an event of the playing anim fires on (-1 when it has none).
+func event_frame(ev: String) -> int:
+	return int((_a.get("events", {}) as Dictionary).get(ev, -1))
+
+
 func fps() -> float:
 	return maxf(1.0, float(_a.get("fps", 10)))
 

@@ -204,7 +204,7 @@ func test_every_era_has_a_tap_line() -> void:
 func test_tap_next_follows_the_music() -> void:
 	# 12 notes, one every 4 steps, three phrases of four (they start on steps 0, 16 and 32)
 	var line := {"midi": [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79], "steps": [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44],
-		"phrases": [0, 4, 8], "stepSeconds": 0.1}
+		"phrases": [0, 4, 8], "phraseSteps": [0, 16, 32], "stepSeconds": 0.1}
 	var r := OdAudio.tap_next(line, -1, 0, 0.0, 9)
 	runner.check(r["i"] == 3 and r["run"] == 0, "the first tap joins the note the music is on (step 9 -> note 3), got %s" % str(r))
 	r = OdAudio.tap_next(line, -1, 0, 0.0, 0)

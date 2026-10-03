@@ -103,32 +103,32 @@ func test_the_press_desk_draws_the_prop_sprites() -> void:
 func test_flash_pose_stands_in_for_the_hero_and_gives_the_stage_back() -> void:
 	await _boot()
 	runner.check(_start_round("bennett"), "Bennett's round starts")
-	var bb: Magician = m.bb
+	var magician: Magician = m.magician
 	for i in 80:   # the walk-in lands and the boot tap's strip ends on idle
-		bb.update_view(16.0)
-	bb.walk_land()
-	var hero: SpriteStrip = bb.hero
-	runner.check(not bb.flash_pose("no-such-pose"), "an unknown pose: false, nothing changes")
-	runner.check(hero.visible and not bb.posing(), "the hero is still up")
-	runner.check(bb.flash_pose("bennett-sign", 300.0), "bennett-sign flashes")
-	var p := bb.pose_node()
+		magician.update_view(16.0)
+	magician.walk_land()
+	var hero: SpriteStrip = magician.hero
+	runner.check(not magician.flash_pose("no-such-pose"), "an unknown pose: false, nothing changes")
+	runner.check(hero.visible and not magician.posing(), "the hero is still up")
+	runner.check(magician.flash_pose("bennett-sign", 300.0), "bennett-sign flashes")
+	var p := magician.pose_node()
 	runner.check(p != null and p.visible and not hero.visible and p.position == hero.position and p.anim == "pose",
 		"the pose stands on the hero's feet, the hero hidden")
-	runner.check(bb.on_stage(), "posing is still on the stage")
-	bb.update_view(200.0)
-	runner.check(bb.flash_pose("bennett-sign", 300.0) and bb.pose_node() == p, "again: the same strip, the timer restarts")
-	bb.update_view(200.0)
-	runner.check(bb.posing(), "still posing 200 ms after the restart")
-	bb.update_view(150.0)
-	runner.check(not bb.posing() and hero.visible, "the timer ran out: the hero is back")
+	runner.check(magician.on_stage(), "posing is still on the stage")
+	magician.update_view(200.0)
+	runner.check(magician.flash_pose("bennett-sign", 300.0) and magician.pose_node() == p, "again: the same strip, the timer restarts")
+	magician.update_view(200.0)
+	runner.check(magician.posing(), "still posing 200 ms after the restart")
+	magician.update_view(150.0)
+	runner.check(not magician.posing() and hero.visible, "the timer ran out: the hero is back")
 	# the court day takes the figure: a running pose ends, and none starts while he is away
-	runner.check(bb.flash_pose("bennett-sign", 5000.0), "a long pose")
-	bb.court_sync(true)
-	runner.check(not bb.posing(), "the press day ends the pose")
+	runner.check(magician.flash_pose("bennett-sign", 5000.0), "a long pose")
+	magician.court_sync(true)
+	runner.check(not magician.posing(), "the press day ends the pose")
 	for i in 60:
-		bb.court_sync(true)
-		bb.update_view(16.0)
-	runner.check(bb.court.in_court() and not bb.flash_pose("bennett-sign"), "no pose while he is away")
+		magician.court_sync(true)
+		magician.update_view(16.0)
+	runner.check(magician.court.in_court() and not magician.flash_pose("bennett-sign"), "no pose while he is away")
 
 
 func test_kaia_plays_her_strip() -> void:

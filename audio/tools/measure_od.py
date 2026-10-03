@@ -12,9 +12,9 @@ Reports:
      "L1 carries B alone" check for anti-fatigue loop 2
   2. the loop seams: the step across the wrap (last sample -> first sample) against the stem's own
      typical sample-to-sample step, and the level either side
-  3. the tap walk: the measured fundamental of every tap file against the scale it should play
+  3. the tap bell: the measured fundamental of each bell root (r<midi>) against its pitch
   4. per cue: the spectral centroid and the 10 dB band against the slot in the sonic brief
-  5. the full mix, 60 s per era: all three layers + 5 taps/s (the walk, alternating duty, +-1.5 dB
+  5. the full mix, 60 s per era: all three layers + 5 taps/s (the r72 bell, +-1.5 dB
      jitter) + a chat ping, a Dubi squawk and babble (Music ducked -6 dB), a suitcase spawn and catch
      (Music ducked -4 dB) - integrated loudness and true peak before the master chain
   6. the no-go scan on every render: longest steady tonal segment, and pitch glides
@@ -113,27 +113,15 @@ def f0(x, sr, t0=0.014, t1=0.05):
     return fr[idx]
 
 
-def tap_walk():
-    print("\n3. Tap walk: measured fundamental vs expected (cents off)")
-    keys = MAN["keys"]
-    modes = {"minor": [0, 2, 3, 5, 7, 8, 10], "hijaz": [0, 1, 4, 5, 7, 8, 10], "mixolydian": [0, 2, 4, 5, 7, 9, 10]}
-    pc = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
+def tap_bell():
+    print("\n3. Tap bell roots (v1.10): measured fundamental vs the root's pitch (cents off)")
     worst = 0
-    for k, kd in keys.items():
-        if k.startswith("_"):
-            continue
-        sc = modes[kd["mode"]]
-        row = []
-        for s in range(8):
-            idx = 4 + s
-            m = (4 + 1) * 12 + pc[k] + sc[idx % 7] + 12 * (idx // 7)
-            want = 440 * 2 ** ((m - 69) / 12)
-            x, sr = read(MAN["cues"]["tap"]["files"][k]["s%d" % s]["d25"])
-            got = f0(x, sr)
-            c = 1200 * np.log2(got / want)
-            worst = max(worst, abs(c))
-            row.append("%.0f" % got)
-        print("   %s %-10s %s Hz" % (k, kd["mode"], " ".join(row)))
+    for v, f in sorted(MAN["cues"]["tap"]["files"]["_"]["_"].items()):
+        want = 440 * 2 ** ((int(v[1:]) - 69) / 12)
+        x, sr = read(f)
+        c = 1200 * np.log2(f0(x, sr) / want)
+        worst = max(worst, abs(c))
+        print("   %s %7.1f Hz  %+5.1f cents" % (v, want, c))
     print("   worst deviation %.1f cents (FFT bin resolution at 32 kHz / 65536 is ~0.5 Hz)" % worst)
 
 
@@ -199,11 +187,11 @@ def mix():
             env[t1:t1 + rr] = np.linspace(g, 1, rr)[:len(env[t1:t1 + rr])]
             np.minimum(duck, env, out=duck)
 
-        taps = MAN["cues"]["tap"]["files"][key]
+        taps = MAN["cues"]["tap"]["files"]["_"]["_"]
         i = 0
         t = 0.5
         while t < T - 0.2:
-            put(taps["s%d" % (i % 8)]["d25" if i % 2 == 0 else "d12"], t, rng.uniform(-1.5, 1.5))
+            put(taps["r72"], t, rng.uniform(-1.5, 1.5))   # the bell's middle root (pitch_scale is runtime)
             i += 1
             t += 0.2
         ping = MAN["cues"]["chatPing"]["files"][key]["_"]["benGvir"]
@@ -261,13 +249,13 @@ def nogo():
 if __name__ == "__main__":
     if not PRE:
         sys.exit("usage: measure_od.py <preview dir>")
-    which = sys.argv[2:] or ["sections", "seams", "walk", "slots", "mix", "nogo"]
+    which = sys.argv[2:] or ["sections", "seams", "bell", "slots", "mix", "nogo"]
     if "sections" in which:
         section_loudness()
     if "seams" in which:
         seams()
-    if "walk" in which:
-        tap_walk()
+    if "bell" in which:
+        tap_bell()
     if "slots" in which:
         slots()
     if "mix" in which:

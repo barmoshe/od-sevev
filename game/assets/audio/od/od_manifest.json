@@ -2399,7 +2399,6 @@
 			"stepsPerBar": 16,
 			"sumPeakDbfs": -3.24,
 			"tapLine": {
-				"_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note indexes where each 2-bar phrase starts.",
 				"midi": [
 					74.0,
 					76.0,
@@ -2534,6 +2533,7 @@
 					79.0,
 					81.0
 				],
+				"phraseBars": 2.0,
 				"phrases": [
 					0.0,
 					11.0,
@@ -2685,8 +2685,7 @@
 					500.0,
 					502.0,
 					508.0
-				],
-				"stepsPerBar": 16.0
+				]
 			},
 			"tempoBpm": 116.0
 		},
@@ -2714,7 +2713,6 @@
 			"stepsPerBar": 12,
 			"sumPeakDbfs": -2.08,
 			"tapLine": {
-				"_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note indexes where each 2-bar phrase starts.",
 				"midi": [
 					67.0,
 					69.0,
@@ -2858,6 +2856,7 @@
 					72.0,
 					74.0
 				],
+				"phraseBars": 2.0,
 				"phrases": [
 					0.0,
 					6.0,
@@ -3018,8 +3017,7 @@
 					375.0,
 					377.0,
 					381.0
-				],
-				"stepsPerBar": 12.0
+				]
 			},
 			"tempoBpm": 88.0
 		},
@@ -3047,7 +3045,6 @@
 			"stepsPerBar": 16,
 			"sumPeakDbfs": -3.11,
 			"tapLine": {
-				"_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note indexes where each 2-bar phrase starts.",
 				"midi": [
 					83.0,
 					79.0,
@@ -3179,6 +3176,7 @@
 					81.0,
 					83.0
 				],
+				"phraseBars": 2.0,
 				"phrases": [
 					0.0,
 					8.0,
@@ -3327,8 +3325,7 @@
 					500.0,
 					502.0,
 					508.0
-				],
-				"stepsPerBar": 16.0
+				]
 			},
 			"tempoBpm": 132.0
 		},
@@ -3356,7 +3353,6 @@
 			"stepsPerBar": 16,
 			"sumPeakDbfs": -3.4,
 			"tapLine": {
-				"_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note indexes where each 2-bar phrase starts.",
 				"midi": [
 					69.0,
 					72.0,
@@ -3548,6 +3544,7 @@
 					82.0,
 					84.0
 				],
+				"phraseBars": 2.0,
 				"phrases": [
 					0.0,
 					16.0,
@@ -3756,8 +3753,7 @@
 					500.0,
 					502.0,
 					508.0
-				],
-				"stepsPerBar": 16.0
+				]
 			},
 			"tempoBpm": 144.0
 		}

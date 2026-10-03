@@ -14,8 +14,8 @@ extends Node
 ## Rules implemented here (cue-spec section in brackets):
 ## - Nothing plays before the first Magician tap. That tap plays the `motif` stinger instead of
 ##   `tap`, and the music starts at bar 1 exactly where the motif's ♭2 resolves (§2.6, A15).
-## - The strict tap walk: pitch = streak mod the rendered steps (8), reset after 400 ms; d25/d12
-##   alternate; ±1.5 dB (§4, A3). A crit plays `tap` at f0 and `rabbitCrit` on the crit strip's
+## - The tap soloist (v1.10, ADR 0009): each tap is the next note of the era's song (`tapLine`),
+##   following the music at phrase ends; ±1.5 dB. A crit plays `tap` at f0 and `rabbitCrit` on the crit strip's
 ##   rabbit frame (+250 ms, +83 in reduced motion), or at once on event("rabbit").
 ## - Unity buses under a limiter-only master; the slider's default position is 0 dB (§3).
 ## - Ducks from `cues.<id>.ducks` (and per bus for the stingers), deepest wins (§3).
@@ -160,13 +160,14 @@ var _era := ""                        # the era the music plays (or will play on
 var _sources := 0
 var _reduced_motion := false
 var _last_tap := -1e12
-var _tap_prev := -1e12
 var _tap_line: Dictionary = {}        # v1.10: the song the taps play (OdAudio.tap_line)
 var _tap_line_of := ""                # the track that line belongs to
 var _tap_i := -1                      # the last note played (-1: none yet this round)
 var _tap_run := 0                     # notes of its phrase played in one go from the phrase's start
 var _bell_roots: Array = []           # the tap bell's rendered roots (midi)
 var _phrase_paid_at := -1e12
+var _beat_track := ""                 # beat_phase()'s cache: the track _beat_s belongs to
+var _beat_s := 0.5
 var _coin_last := -1e12
 var _rabbit_due := -1.0               # a crit's cue is due then (the rabbit, or the leader's react event)
 var _rabbit_n := 0
@@ -653,7 +654,7 @@ func judge_tap() -> float:
 	if out.is_empty():
 		return INF
 	var rate := float(bal.get("rate", 31900))
-	var heard := _pos_prev - AudioServer.get_output_latency()
+	var heard := _heard_pos()
 	var loop_n := float(out.get("loopSamples", 132000))
 	var off := OdAudio.beat_offset_ms(fposmod(heard * rate, loop_n), out.get("judgeSamples", []), loop_n, rate)
 	pink_front_beat.emit(absf(off) <= BEAT_TOLERANCE_MS, off)
@@ -758,7 +759,7 @@ func track_name() -> String:
 	var s := _track + ":"
 	var on: Array[String] = []
 	for l: String in LAYERS:
-		if float(_lt[l]) > 0.01:   # v1.6: the lead under the bell sits at 0.5, and is on
+		if float(_lt[l]) > 0.01:
 			on.append(l)
 	return s + "+".join(on)
 
@@ -819,6 +820,7 @@ func _dubi_clear_at() -> float:
 # ================================================================== the tap and the first sound
 
 func _on_tap(now: float, crit: bool) -> void:
+	var gap := now - _last_tap
 	_last_tap = now
 	if not _first_tap:
 		_first_tap = true
@@ -834,8 +836,6 @@ func _on_tap(now: float, crit: bool) -> void:
 		_restart_on_tap = false
 		if _music_on and not _music_live:
 			_begin_music(0.0)
-	var gap := now - _tap_prev
-	_tap_prev = now
 	_tap_note_play(now, gap)
 	if crit:
 		_rabbit_due = now + _rabbit_ms()
@@ -853,7 +853,7 @@ func _tap_note_play(now: float, gap_ms: float) -> void:
 		_tap_line_of = tr
 		_tap_i = -1
 		_tap_run = 0
-	var ms := OdAudio.song_step(_tap_line, _pos_prev) if _music_live else -1
+	var ms := OdAudio.song_step(_tap_line, _heard_pos()) if _music_live else -1
 	var st := OdAudio.tap_next(_tap_line, _tap_i, _tap_run, gap_ms, ms)
 	_tap_i = int(st["i"])
 	_tap_run = int(st["run"])
@@ -866,8 +866,8 @@ func _tap_note_play(now: float, gap_ms: float) -> void:
 	_l2_step_back(now)
 	if bool(st["done"]):
 		# one bonus per phrase of music at most (1.5 phrases' time, so a player in time never misses one)
-		var gap := OdAudio.bar_seconds(_man, tr) * 1000.0 * OdAudio.PHRASE_BARS * 0.75
-		if now - _phrase_paid_at >= gap:
+		var min_gap := OdAudio.bar_seconds(_man, tr) * 1000.0 * float(_tap_line["phraseBars"]) * 0.75
+		if now - _phrase_paid_at >= min_gap:
 			_phrase_paid_at = now
 			_cue("phraseDone", now)
 			phrase_done.emit(_tap_run)
@@ -876,10 +876,7 @@ func _tap_note_play(now: float, gap_ms: float) -> void:
 ## The lead steps back over L2_STEP_BACK_MS (not at the bar line): the bell is the lead while the
 ## player taps. It comes back at a bar line once the taps rest (_layer_want).
 func _l2_step_back(now: float) -> void:
-	if float(_lt["L2"]) <= 0.0 and float(_lg["L2"]) <= 0.0:
-		return
-	_lt["L2"] = 0.0
-	_lramp["L2"] = {"from": float(_lg["L2"]), "to": 0.0, "t0": now, "ms": OdAudio.L2_STEP_BACK_MS}
+	_ramp_layer("L2", _layer_level("L2", _bar_i + 1), now, OdAudio.L2_STEP_BACK_MS)
 
 
 ## The music's beat as a phase (0 on the beat, rising to 1 just before the next), -1 while no music
@@ -887,9 +884,16 @@ func _l2_step_back(now: float) -> void:
 func beat_phase() -> float:
 	if not _music_live or not _music_on or _paused or _track == "":
 		return -1.0
-	var e: Dictionary = _man.get("eras", {}).get(_track, {})
-	var beat_s := OdAudio.bar_seconds(_man, _track) / maxf(1.0, float(e.get("beatsPerBar", 4)))
-	return fposmod(_pos_prev / beat_s, 1.0)
+	if _beat_track != _track:
+		_beat_track = _track
+		var e: Dictionary = _man.get("eras", {}).get(_track, {})
+		_beat_s = OdAudio.bar_seconds(_man, _track) / maxf(1.0, float(e.get("beatsPerBar", 4)))
+	return fposmod(_heard_pos() / _beat_s, 1.0)
+
+
+## The song position the player hears now (the mixer's position less the output latency), in the loop.
+func _heard_pos() -> float:
+	return fposmod(_pos_prev - AudioServer.get_output_latency(), OdAudio.loop_seconds(_man, _track))
 
 
 ## The motif, then the music at bar 1 exactly where its ♭2 resolves.
@@ -1111,6 +1115,8 @@ func _steal(v: Dictionary, fade := false) -> void:
 
 
 func _update_fades(now: float) -> void:
+	if _fading.is_empty():
+		return
 	for f: Dictionary in _fading.duplicate():
 		var p: AudioStreamPlayer = f["p"]
 		var k := clampf((now - float(f["t0"])) / OdAudio.STEAL_FADE_MS, 0.0, 1.0)
@@ -1122,19 +1128,13 @@ func _update_fades(now: float) -> void:
 
 
 func _free_player() -> AudioStreamPlayer:
+	var busy := {}
+	for v in _voices + _fading:
+		busy[v["p"]] = true
 	for p in _players:
-		var busy := false
-		for v in _voices:
-			if v["p"] == p:
-				busy = true
-				break
-		for f in _fading:
-			if f["p"] == p:
-				busy = true
-				break
-		if not busy:
+		if not busy.has(p):
 			return p
-	if _voices.is_empty():
+	if not _fading.is_empty():   # a voice already fading out goes first
 		var f0: Dictionary = _fading.pop_front()
 		(f0["p"] as AudioStreamPlayer).stop()
 		return f0["p"]
@@ -1257,7 +1257,7 @@ func _game_reset(_now_ms: float) -> void:
 	_ping_q = {"n": 0, "variant": "", "left": false}
 	_first_tap = false
 	_gesture = false
-	_tap_prev = -1e12
+	_last_tap = -1e12
 	_tap_line_of = ""   # the next tap starts the song again
 	_sources = 0
 	_leader = ""
@@ -1664,10 +1664,14 @@ func _on_bar_line(now: float, bar_n: int) -> void:
 	_court_stinger = ""
 	var bar_ms := OdAudio.bar_seconds(_man, _track) * 1000.0
 	for l: String in LAYERS:
-		var to := _layer_level(l, bar_n)
-		if to != float(_lt[l]):
-			_lt[l] = to
-			_lramp[l] = {"from": float(_lg[l]), "to": to, "t0": now, "ms": bar_ms}
+		_ramp_layer(l, _layer_level(l, bar_n), now, bar_ms)
+
+
+## A layer ramps from where it is to `to` over `ms` (nothing when that is already its target).
+func _ramp_layer(l: String, to: float, now: float, ms: float) -> void:
+	if to != float(_lt[l]):
+		_lt[l] = to
+		_lramp[l] = {"from": float(_lg[l]), "to": to, "t0": now, "ms": ms}
 
 
 func _push_deck_volumes() -> void:

@@ -121,9 +121,9 @@ func test_the_sweat_rides_the_temple_landmark() -> void:
 	var th: Thermo = m.thermo
 	m.state.investigation["revealed"] = true
 	_thermo_settle(80.0)
-	var bb: Magician = m.bb
-	bb._state = "idle"   # the boot tap's squash has settled (the spawn gate wants the idle body)
-	bb.hero.play("idle")
+	var magician: Magician = m.magician
+	magician._state = "idle"   # the boot tap's squash has settled (the spawn gate wants the idle body)
+	magician.hero.play("idle")
 	th._next_drop = 0.0
 	th.update_view(16.0, m.state, {"main": true})
 	runner.check(not th.drops().is_empty(), "at 75%+ the Magician sweats")
@@ -131,11 +131,11 @@ func test_the_sweat_rides_the_temple_landmark() -> void:
 		return
 	# the manifest's own numbers: temple[frame] in sprite px, drawn at artScale / density
 	var c: Dictionary = SpriteStrip.manifest()["chars"]["bibi"]
-	var a: Dictionary = c["anims"][bb.hero.anim]
-	var tp: Array = a["temple"][bb.hero.frame]
+	var a: Dictionary = c["anims"][magician.hero.anim]
+	var tp: Array = a["temple"][magician.hero.frame]
 	var anchor := Vector2(float(c["anchor"][0]), float(c["anchor"][1]))
 	var sc := float(SpriteStrip.art_scale()) / float(SpriteStrip.density_of(c))
-	var want := bb.hero.position + (Vector2(float(tp[0]), float(tp[1])) - anchor) * sc
+	var want := magician.hero.position + (Vector2(float(tp[0]), float(tp[1])) - anchor) * sc
 	runner.check(th.temple().is_equal_approx(want), "the drop anchors on temple[frame] × artScale/density (%s vs %s)" % [str(th.temple()), str(want)])
 	var spr: Sprite2D = th.drops()[0]["spr"]
 	var piv: Array = Art.kit("sweat_drop")["pivot"]

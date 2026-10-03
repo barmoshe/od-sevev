@@ -12,6 +12,7 @@ OUT="$HERE/../build/web"
 VER="4.7.2"
 TPL_DIR="$GODOT_TPL_ROOT/${VER}.stable"
 CACHE="${MB_BUILD_CACHE:-$HOME/.cache/od-sevev-build}"   # shared with the fork: same Godot templates
+adopt_legacy_dir "$HOME/.cache/od-sevev-build" "$HOME/.cache/monkey-bananas-build"
 
 log() { echo "[build_web] $*"; }
 

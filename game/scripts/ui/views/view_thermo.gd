@@ -47,7 +47,7 @@ const BRIGHT_MS := 3000.0
 const AP := 4.0                      # one art px in logical px (the kit's ×4)
 
 var host: Node
-var bb: Magician
+var magician: Magician
 var reduced_motion := false
 
 var _state: GameState
@@ -88,7 +88,7 @@ var _body_idle := true
 
 func setup(host_: Node, bb_: Magician) -> Thermo:
 	host = host_
-	bb = bb_
+	magician = bb_
 	return self
 
 
@@ -151,8 +151,8 @@ func _ready() -> void:
 	_word.max_lines = 1
 	_root.visible = false
 	_drops_root.name = "SweatDrops"
-	if bb != null and bb.hero != null:
-		bb.body.add_child(_drops_root)   # after the hero: the drops draw in front of his face
+	if magician != null and magician.hero != null:
+		magician.body.add_child(_drops_root)   # after the hero: the drops draw in front of his face
 	else:
 		add_child(_drops_root)
 	_bead = Ui.img(_drops_root, Vector2.ZERO, Art.sprite_or("sweat_drop"), 0, 4)
@@ -400,12 +400,12 @@ func _update_alpha(dt: float, p: float) -> void:
 
 # ------------------------------------------------------------------ sweat (magician-sweat)
 
-## The temple landmark this frame, in the drops' space (bb.body-local), with the fallback the
+## The temple landmark this frame, in the drops' space (magician.body-local), with the fallback the
 ## animator specifies (eyes outer corner + (3, −2) ap) when the strip has no `temple`.
 func temple() -> Vector2:
-	if bb == null or bb.hero == null:
+	if magician == null or magician.hero == null:
 		return Vector2.ZERO
-	var h := bb.hero
+	var h := magician.hero
 	var fb := Vector2(h.frame_size().x * 0.35, -h.frame_size().y * 0.72)
 	return h.position + h.point("temple", fb)
 
@@ -428,7 +428,7 @@ func bead_visible() -> bool:
 
 ## A court summons: the gulp, two drops at once whatever the suspicion (not under reduced motion).
 func gulp() -> void:
-	if reduced_motion or bb == null or bb.hero == null or not _shown or not bb.on_stage():
+	if reduced_motion or magician == null or magician.hero == null or not _shown or not magician.on_stage():
 		return
 	for i in 2:
 		_spawn(Vector2(-2.0 * AP, AP) if i == 1 else Vector2.ZERO)
@@ -440,7 +440,7 @@ func on_politics_event(e: Dictionary) -> void:
 
 
 func _body_is_idle() -> bool:
-	return bb != null and bb.hero != null and bb._state == "idle" and bb.hero.anim == "idle" and bb.on_stage()
+	return magician != null and magician.hero != null and magician._state == "idle" and magician.hero.anim == "idle" and magician.on_stage()
 
 
 func _spawn(off: Vector2) -> void:
@@ -455,13 +455,13 @@ func _drop_pivot() -> Vector2:
 
 
 func _update_sweat(dt: float, p: float) -> void:
-	if bb == null or bb.hero == null:
+	if magician == null or magician.hero == null:
 		return
 	var st := sweat_state(p) if _shown else "dry"
 	var idle := _body_is_idle()
 	# reduced motion: one static bead tracking the temple
 	# (never on an empty stage: court day takes him off, motion/state-graph-magician.md §5.1)
-	_bead.visible = reduced_motion and st != "dry" and _shown and bb.on_stage()
+	_bead.visible = reduced_motion and st != "dry" and _shown and magician.on_stage()
 	if _bead.visible:
 		_bead.position = (temple() - _drop_pivot()).snapped(Vector2(AP, AP))
 	if reduced_motion:

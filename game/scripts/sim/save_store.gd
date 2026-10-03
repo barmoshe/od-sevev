@@ -15,8 +15,11 @@ extends RefCounted
 ## Leader select (game-developer sim): v4 adds leader, leaderPickPending, leaderHistory, leaders,
 ## seatDeal and leaderRound (GameState, Leaders). A v3 file migrates as the default leader's (Bibi's)
 ## round with the picker closed: it opens at the next election (spec §6.3).
+## v5 (2026-10-03): the fork's money keys are renamed (RENAMED_V5); nothing else changes.
 
-const VERSION := 4
+const VERSION := 5
+## v5: the state keys the fork named after bananas, old -> new.
+const RENAMED_V5 := {"bananas": "money", "runBananas": "runMoney", "allTimeBananas": "allTimeMoney"}
 const EXPORT_PREFIX := "HK1:"
 
 
@@ -108,6 +111,17 @@ static func migrate(file: Dictionary) -> Dictionary:
 		Leaders.migrate_v3(st4)
 		f["version"] = 4
 		v = 4
+	if v == 4:
+		# v4 -> v5: the fork's money keys renamed (2026-10-03, no bananas in the code)
+		var st5: Variant = f.get("state")
+		if not st5 is Dictionary:
+			return {}
+		for old: String in RENAMED_V5:
+			if (st5 as Dictionary).has(old):
+				(st5 as Dictionary)[RENAMED_V5[old]] = (st5 as Dictionary)[old]
+				(st5 as Dictionary).erase(old)
+		f["version"] = 5
+		v = 5
 	return f
 
 

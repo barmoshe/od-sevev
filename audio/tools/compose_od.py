@@ -805,7 +805,8 @@ def ui_cue(meaning, octave, variants, runtime, lufs, priority=1, poly=1, ducks=(
 
 def cues():
     C = {}
-    # 1. tap: 15 ms NOI-S cloth puff, then a 40 ms P1 blip that walks up the key's scale from degree 5
+    # 1. tap: 15 ms NOI-S cloth puff, then a bell on the next note of the era's song (v1.10, below);
+    #    `blip` is the pre-v1.5 tap voice, kept for the other cues
     puff = L(id="puff", wave="noiseMetal", clockStart=40000, filter={"type": "bandpass", "freq": 5000, "Q": 0.9},
              attack=0.001, decay=0.015, sustain=0.0, duration=0.015, release=0.004, gain=0.35)
     blip = lambda duty: L(id="blip", wave="pulse", duty=duty, freqStart="A4", delay=0.012, attack=0.001, decay=0.03,
@@ -1517,8 +1518,8 @@ def longest_anthem_run(iv):
     return best
 
 
-def line_notes(bars):
-    """Monophonic note list (midi, steps) from bar strings (first note of a chord)."""
+def line_events(bars):
+    """Monophonic notes (onset step, midi, steps) from bar strings (first note of a chord, no ornaments)."""
     out = []
     toks = " ".join(bars).split()
     for i, t in enumerate(toks):
@@ -1527,9 +1528,13 @@ def line_notes(bars):
         n = 1
         while i + n < len(toks) and toks[i + n] == "-":
             n += 1
-        name = re.split(r"[~<@+]", t)[0]
-        out.append((midi(name), n))
+        out.append((i, midi(re.split(r"[~<@+]", t)[0]), n))
     return out
+
+
+def line_notes(bars):
+    """Monophonic note list (midi, steps) from bar strings (first note of a chord)."""
+    return [(m, n) for _, m, n in line_events(bars)]
 
 
 def form_bars(era, ch):
@@ -1554,17 +1559,12 @@ TAP_LOW_SECTION = midi("F5")  # a section whose top is at or under this plays an
 
 def tap_line(eid, e):
     spb = e["stepsPerBeat"] * e["beatsPerBar"]
-    sb = e["form"]["sectionBars"] if "form" in e else 8
+    sb = 8   # form_bars' section length (music()["form"]["sectionBars"])
     steps, notes = [], []
     for si, sec in enumerate(["A", "A2", "B", "T"]):
         ch, shift = TAP_SOURCE.get((eid, sec), ("lead", 0))
-        bars = e["channels"][ch]["sections"][sec]
-        toks = " ".join(bars[i % len(bars)] for i in range(sb)).split()
-        sec_notes = []
-        for i, t in enumerate(toks):
-            if t in (".", "-") or not re.match(r"[A-G]", t):
-                continue
-            sec_notes.append((si * sb * spb + i, midi(re.split(r"[~<@+]", t)[0]) + shift))
+        bars = form_bars(e, ch)[si * sb:(si + 1) * sb]
+        sec_notes = [(si * sb * spb + st, m + shift) for st, m, _ in line_events(bars)]
         if sec_notes and max(n for _, n in sec_notes) <= TAP_LOW_SECTION:
             sec_notes = [(st, n + 12) for st, n in sec_notes]
         for st, n in sec_notes:
@@ -1575,9 +1575,7 @@ def tap_line(eid, e):
         first = next((i for i, st in enumerate(steps) if st >= ph * TAP_PHRASE_BARS * spb), None)
         if first is not None and first not in phrases and steps[first] < (ph + 1) * TAP_PHRASE_BARS * spb:
             phrases.append(first)
-    return {"_doc": "The tap's melody (v1.10): note onsets in steps from bar 1, midi pitches, and the note "
-                    "indexes where each %d-bar phrase starts." % TAP_PHRASE_BARS,
-            "steps": steps, "midi": notes, "phrases": phrases, "stepsPerBar": spb}
+    return {"steps": steps, "midi": notes, "phrases": phrases, "phraseBars": TAP_PHRASE_BARS}
 
 
 def check_tap_lines(m):

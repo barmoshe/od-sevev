@@ -18,3 +18,11 @@ else
   file_size() { stat -c %s "$1"; }
   sha256() { sha256sum "$1" | cut -d' ' -f1; }
 fi
+
+# adopt_legacy_dir NEW OLD: a directory the fork named (monkey-bananas) moves once to its od-sevev name,
+# so nothing is downloaded or regenerated again (the build cache holds the Android debug keystore: a
+# new key would not install over the sideloaded APKs).
+adopt_legacy_dir() {
+  if [ -e "$2" ] && [ ! -e "$1" ]; then mkdir -p "$(dirname "$1")" && mv "$2" "$1"; fi
+  return 0
+}

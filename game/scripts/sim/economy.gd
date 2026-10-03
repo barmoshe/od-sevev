@@ -327,7 +327,7 @@ static func tap(s: GameState, rng: Callable = randf, d: Derived = null) -> Dicti
 			crit = false
 	# A rabbit multiplies the tap, never S07's pour (the pour is income moved, not earned by the tap).
 	var pour := d.tap_pour_sec * d.bps
-	var value := clampf_num((d.tap_value_no_crit - pour) * (cm if crit else 1.0) + pour)
+	var value := clampf_num(tap_earned(d) * (cm if crit else 1.0) + pour)
 	add_money(s, value)
 	s.run_taps += 1
 	s.taps_lifetime += 1
@@ -335,6 +335,12 @@ static func tap(s: GameState, rng: Callable = randf, d: Derived = null) -> Dicti
 		s.crits_lifetime += 1
 	Leaders.on_tap(s, crit)   # the leader's taps / crits; the first tap closes the picker
 	return {"value": value, "crit": crit, "tap7": tap7, "boosted": d.tap_boost > 1.0}
+
+
+## What a tap earns by itself: its value without a crit, less S07's pour (income moved, not earned),
+## the base every tap multiplier and reward scales.
+static func tap_earned(d: Derived) -> float:
+	return d.tap_value_no_crit - d.tap_pour_sec * d.bps
 
 
 ## v1.10 (Bar, 2026-10-03): the phrase bonus. The player's taps played a whole phrase of the era's song
@@ -345,8 +351,7 @@ static func phrase_bonus(s: GameState, d: Derived = null) -> float:
 		d = derive(s)
 	if d.taps_paused:
 		return 0.0
-	var pour := d.tap_pour_sec * d.bps
-	var value := clampf_num((d.tap_value_no_crit - pour) * float(Content.data()["tap"].get("phraseBonusMult", 0.0)))
+	var value := clampf_num(tap_earned(d) * float(Content.data()["tap"].get("phraseBonusMult", 0.0)))
 	add_money(s, value)
 	return value
 

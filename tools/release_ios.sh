@@ -29,9 +29,8 @@ xcodebuild -version >/dev/null 2>&1 || fail "Xcode not found (xcode-select -p)."
 [ -f "$GODOT_TPL_ROOT/4.7.2.stable/ios.zip" ] || fail "Godot 4.7.2 iOS templates missing (see tools/build_web.sh for the download)."
 
 TEAM="${MB_TEAM_ID:-}"
-for f in "$HOME/.config/od-sevev/team_id" "$HOME/.config/monkey-bananas/team_id"; do   # the fork's path still works
-  [ -z "$TEAM" ] && [ -f "$f" ] && TEAM="$(tr -d '[:space:]' < "$f")"
-done
+adopt_legacy_dir "$HOME/.config/od-sevev" "$HOME/.config/monkey-bananas"
+[ -z "$TEAM" ] && [ -f "$HOME/.config/od-sevev/team_id" ] && TEAM="$(tr -d '[:space:]' < "$HOME/.config/od-sevev/team_id")"
 if [ "$MODE" != "--check" ] && [ "$MODE" != "--sim" ]; then
   [[ "$TEAM" =~ ^[A-Z0-9]{10}$ ]] || fail "No Team ID. Put the 10-character Team ID from developer.apple.com > Membership in ~/.config/od-sevev/team_id (or \$MB_TEAM_ID)."
 fi

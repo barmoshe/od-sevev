@@ -44,6 +44,21 @@ func test_round_trip() -> void:
 	runner.check(float(r["lastSaveTime"]) == 1000.0, "last save time survives")
 
 
+func test_v4_save_keeps_its_money_through_the_rename() -> void:
+	var s := GameState.fresh()
+	s.money = 77.0
+	s.run_money = 300.0
+	s.all_time_money = 9000.0
+	var old := s.to_dict()
+	for k: String in SaveStore.RENAMED_V5:
+		old[k] = old[SaveStore.RENAMED_V5[k]]
+		old.erase(SaveStore.RENAMED_V5[k])
+	var f := SaveStore.migrate({"version": 4, "state": old})
+	runner.check(int(f["version"]) == SaveStore.VERSION, "v4 migrates to the current version")
+	var l := GameState.from_dict(f["state"])
+	runner.check(l.money == 77.0 and l.run_money == 300.0 and l.all_time_money == 9000.0, "bananas, runBananas, allTimeBananas carry over")
+
+
 func test_corrupt_save_is_backed_up_not_lost() -> void:
 	var st := _store()
 	var f := FileAccess.open(st.path, FileAccess.WRITE)

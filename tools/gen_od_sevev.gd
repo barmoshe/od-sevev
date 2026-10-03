@@ -492,24 +492,6 @@ func _pitches(cue: Dictionary) -> Array:
 				if k.begins_with("_"):
 					continue
 				out.append({"key": k, "pitch": "_", "ratio": _hz(_key_root(k, int(p["rootOctave"]))) / _a4})
-		"walk":
-			var start := int(p["fromDegree"]) - 1
-			for k: String in keys:
-				if k.begins_with("_"):
-					continue
-				var sc: Array = _c["modes"][keys[k]["mode"]]
-				for s in int(p["steps"]):
-					var idx := start + s
-					var semis := int(sc[idx % 7]) + 12 * (idx / 7)
-					out.append({"key": k, "pitch": "s%d" % s, "ratio": _hz(_key_root(k, int(p["rootOctave"])) + semis) / _a4})
-		"semis":
-			# v1.5: fixed semitones above the key's root (the tap's HaTikva: natural minor in every key,
-			# F included, so the anthem is never re-moded)
-			for k: String in keys:
-				if k.begins_with("_"):
-					continue
-				for lab: String in p["semis"]:
-					out.append({"key": k, "pitch": lab, "ratio": _hz(_key_root(k, int(p["rootOctave"])) + int(p["semis"][lab])) / _a4})
 		"degrees":
 			for k: String in keys:
 				if k.begins_with("_"):
