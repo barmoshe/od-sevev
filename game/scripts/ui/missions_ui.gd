@@ -49,8 +49,8 @@ static func chip_view(s: GameState, d: Economy.Derived) -> Dictionary:
 	for v: Dictionary in Missions.slots_view(s, d):
 		if best.is_empty() or float(v["frac"]) > float(best["frac"]):
 			best = v
-	return {"show": true, "claimable": Missions.claimable(s), "frac": float(best.get("frac", 0.0)),
-		"sub": progress_text(best) if not best.is_empty() else ""}
+	# the bar carries the progress; no "1/100 → 3/10" fraction that changes its own scale (report W6)
+	return {"show": true, "claimable": Missions.claimable(s), "frac": float(best.get("frac", 0.0)), "sub": ""}
 
 
 ## 4× a second: finished goals roll on the ticker (the chip's badge and pulse do the rest).

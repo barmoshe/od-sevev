@@ -1447,8 +1447,8 @@
       "box": "modal.body",
       "maxChars": 23,
       "worstPx": {
-        "4": 212,
-        "5": 265
+        "4": 220,
+        "5": 275
       }
     },
     "EVO_BONUS_PREVIEW": {
@@ -3279,8 +3279,8 @@
       "box": "chat.pill",
       "maxChars": 12,
       "worstPx": {
-        "4": 292,
-        "5": 365
+        "4": 276,
+        "5": 345
       },
       "largeText": "step-down"
     },
@@ -4136,10 +4136,9 @@
       "box": "court.btn",
       "maxChars": 16,
       "worstPx": {
-        "4": 320,
-        "5": 400
-      },
-      "largeText": "step-down"
+        "4": 108,
+        "5": 135
+      }
     },
     "COURT_TESTIFY": {
       "surface": "label",
@@ -4403,11 +4402,12 @@
     "ELECT_KEEP": {
       "surface": "label",
       "spec": "elect.keep",
+      "note": "{n} = the base after this election (one unit: בסיס is the permanent count; the multiplier is EVO_MULT)",
       "box": "modal.body",
       "maxChars": 23,
       "worstPx": {
-        "4": 900,
-        "5": 1125
+        "4": 432,
+        "5": 540
       }
     },
     "ELECT_KEEP_CASES": {
@@ -6836,8 +6836,8 @@
       "box": "pick.chip",
       "maxChars": 23,
       "worstPx": {
-        "4": 516,
-        "5": 645
+        "4": 552,
+        "5": 690
       },
       "largeText": "step-down"
     },
@@ -6896,8 +6896,8 @@
       "box": "pick.strip",
       "maxChars": 27,
       "worstPx": {
-        "4": 764,
-        "5": 955
+        "4": 688,
+        "5": 860
       }
     },
     "LEADER_PICK_UNDO": {
@@ -6920,8 +6920,8 @@
       "box": "stage.toast",
       "maxChars": 26,
       "worstPx": {
-        "4": 788,
-        "5": 985
+        "4": 900,
+        "5": 1125
       }
     },
     "LEADER_PICK_PLATE": {
@@ -8065,9 +8065,10 @@
       "box": "mis.reward",
       "maxChars": 14,
       "worstPx": {
-        "4": 216,
-        "5": 270
-      }
+        "4": 328,
+        "5": 410
+      },
+      "largeText": "step-down"
     },
     "F_MISSION_DONE": {
       "surface": "label",

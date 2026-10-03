@@ -272,7 +272,7 @@ e("EVO_TITLE", "בחירות מוקדמות", "modal.title", note="Param-free le
 e("EVO_NEXT", "הסבב הבא", "modal.body")
 e("EVO_THUMBS_GAIN", "⟦+{pending}⟧ לבסיס", "modal.body")
 e("EVO_THUMBS_PROGRESS", "⟦{pending}/{needed}⟧ לבסיס", "modal.body")
-e("EVO_BONUS", "בונוס הבסיס", "modal.body")
+e("EVO_BONUS", "בונוס בחירות", "modal.body")
 e("EVO_BONUS_PREVIEW", "הבונוס יתגלה ברוב", "modal.body")
 e("EVO_MULT", "⟦×{now}⟧ ← ⟦×{after}⟧", "modal.body", note="Arrow is mirror-glyph: ← points to the new value")
 e("EVO_RESETS", "מתאפס", "modal.body")
@@ -348,7 +348,7 @@ e("ST_THUMBS", "בסיס שנצבר", "dos.row")
 e("ST_SPENT", "בסיס שנחתם בהסכם", "dos.row")
 e("ST_SPECIES", "תחנות בדרך", "dos.row")
 e("ST_NONE", "-", "dos.row")
-e("F_TROPHY", "נפתח תיק: {NAME}.", "stage.toast", "*")
+e("F_TROPHY", "גביע חדש: {NAME}.", "stage.toast", "*")
 e("F_MILESTONE", "{NAME} · ⟦{n}⟧ בבעלותך: הכנסה ⟦×2⟧!", "ticker.crawl")
 e("F_ALL_MILESTONE", "כל המקורות ב־⟦{n}⟧: כל ההכנסה עולה.", "ticker.crawl")
 e("F_PERKS_HINT", "הבסיס מחכה לחתימות. ההסכם נעוץ בראש הקבוצה.", "stage.toast", "", "coalition UX rev 5", "A toast once (state.ui.perksHinted); a tap on it opens the agreement")
@@ -486,7 +486,7 @@ e("CHAT_PINNED", "ההסכם הקואליציוני · טיוטה ⟦{n}⟧", "c
 e("CHAT_TODAY", "היום", "chat.divider", "", "chat.today")
 e("CHAT_UNREAD_ONE", "הודעה אחת שלא נקראה", "chat.divider", "", "chat.unread")
 e("CHAT_UNREAD_OTHER", "⟦{n}⟧ הודעות שלא נקראו", "chat.divider", "", "chat.unread")
-e("CHAT_PAY", "סגרנו · ⟦{price}⟧~₪", "chat.pill", "*", "chat.pay")
+e("CHAT_PAY", "לשלם ⟦{price}⟧~₪", "chat.pill", "*", "chat.pay")
 e("CHAT_PAY_SHORT", "חסר ⟦{n}⟧~₪", "chat.pill", "", "chat.pay.short")
 e("CHAT_CEREMONY", "לגזור סרט ✂", "chat.pill", "*", "ceremony demand pill (Regev)", "A ceremony costs 0 ₪, so the money pill read 'סגרנו · 0 ₪'. Tap starts the 3 s ribbon fill")
 e("CHAT_CEREMONY_CUTTING", "גוזרים…", "chat.pill", "*", "ceremony pill while the ribbon fills")
@@ -571,7 +571,7 @@ e("COURT_BODY", "ביבי בדוכן העדים. ההכנסות מואטות.", 
 e("COURT_EFFECT", "הכנסות ⟦×0.5⟧, בלי הקשות, עד סוף העדות", "court.body", "", "new: legible effect (pitch §10)")
 e("COURT_TIMER", "עדות: ⟦{mmss}⟧", "court.body", "", "court.timer")
 e("COURT_POSTPONE", "התייעצות ביטחונית · ⟦{price}⟧~₪", "html:40", "*", "court.postpone", "Accessible label; drawn as COURT_POSTPONE_VERB over CARD_PRICE")
-e("COURT_POSTPONE_VERB", "התייעצות ביטחונית", "court.btn", "*", "court.postpone line 1")
+e("COURT_POSTPONE_VERB", "לדחות", "court.btn", "*", "court.postpone line 1")
 e("COURT_TESTIFY", "להעיד", "court.btn2", "", "court.testify")
 e("COURT_CHIP", "יום משפט · ⟦{mmss}⟧", "html:20", "", "court.chip", "Accessible label; drawn as COURT_CHIP_TITLE over COURT_CHIP_TIMER in the ticker chip")
 e("COURT_CHIP_TITLE", "יום משפט", "ticker.chip", "", "court.chip line 1")
@@ -600,7 +600,7 @@ e("PARDON_NOTE", "זה אף פעם לא עובד. תמיד אפשר לנסות."
 # --- election card, flash, transition
 e("ELECT_TITLE", "סבב בחירות מס׳ ⟦{n}⟧", "modal.title", "", "elect.title")
 e("ELECT_RESET", "מתאפס: הכסף, המקורות, הספינים והקואליציה.", "modal.body", "", "elect.reset")
-e("ELECT_KEEP", "נשאר: הבסיס הנאמן (⟦+{x}%⟧ לכל הכנסה, לתמיד).", "modal.body", "", "elect.keep")
+e("ELECT_KEEP", "נשאר לתמיד: הבסיס, ⟦{n}⟧.", "modal.body", "", "elect.keep", "{n} = the base after this election (one unit: בסיס is the permanent count; the multiplier is EVO_MULT)")
 e("ELECT_KEEP_CASES", "וגם התיקים.", "modal.body", "*", "elect.keep.cases")
 e("ELECT_GO", "לפזר את הכנסת", "modal.btnFull", "", "elect.go")
 e("ELECT_CANCEL", "עוד לא", "modal.btnFull", "", "elect.cancel")
@@ -943,14 +943,14 @@ e("SYS_ERA_PACK_LATE", "הכנסת בשיפוצים. הממשלה עובדת מ�
 # --- the picker screen (LEADER_PICK)
 e("LEADER_PICK_TITLE", "מי מקים את הממשלה הפעם?", "pick.title", "", "leaderSelect.pick.copy.title", "First launch: under the wordmark")
 e("LEADER_PICK_TITLE_AFTER", "סבב בחירות חדש. מי בראש הרשימה?", "pick.title", "", "leaderSelect.pick.copy.titleAfter", "After every election")
-e("LEADER_PICK_FRESH_CHIP", "ראש רשימה חדש: ⟦+{pct}%⟧ לבסיס", "pick.chip", "", "spec §3.3 fresh face (D9); Bar 2026-09-29 keeps +10%", "After an election only: ONE chip under the title, never on a tile (a percent beside a face reads as a poll swing). {pct} = leaderSelect.pick.freshFaceBasePct")
+e("LEADER_PICK_FRESH_CHIP", "פנים חדשות: ⟦+{pct}%⟧ בונוס בחירות", "pick.chip", "", "spec §3.3 fresh face (D9); Bar 2026-09-29 keeps +10%", "After an election only: ONE chip under the title, never on a tile (a percent beside a face reads as a poll swing). {pct} = leaderSelect.pick.freshFaceBasePct")
 e("LEADER_PICK_AGAIN", "עוד סבב עם {short}", "pick.again", "", "leaderSelect.pick.copy.again", "The last round's leader, with their 24 avatar at x2 as the leading icon. Esc / back = this button")
 e("LEADER_PICK_RANDOM", "הפתעה", "pick.name", "*", "leaderSelect.pick.copy.random", "The random tile: the grid centre (3x3) or the full-width bar (wave 1, 2x2)")
 e("LEADER_PICK_RANDOM_CAP", "דובי בוחר בשבילך. גם הוא עוד לא יודע את מי.", "pick.strip", "*", "rtl-map §8.4", "The strip line while the random tile is focused or pressed (its 'blurb')")
 e("LEADER_PICK_RANDOM_LINE", "דובי בחר. הוא יחזור על זה.", "stage.toast", "*", "leaderSelect.pick.copy.randomLine", "Dubi's bubble after a random pick, instead of DUBI_LEARNED")
-e("LEADER_PICK_DISCLAIMER", "כולם מקבלים אותו משחק. אף אחד לא מנצח.", "pick.strip", "L", "leaderSelect.pick.copy.disclaimer", "The strip's default line (nothing focused or pressed)")
+e("LEADER_PICK_DISCLAIMER", "לכל מנהיג חוק משלו. אף אחד לא מנצח.", "pick.strip", "L", "leaderSelect.pick.copy.disclaimer", "The strip's default line (nothing focused or pressed)")
 e("LEADER_PICK_UNDO", "להחליף ראש רשימה", "pick.undo", "", "leaderSelect.pick.copy.undo ('להחליף'); rtl-map §8.6", "The stage chip for undoSec after a pick, until the first tap. 'להחליף' alone does not say what changes, at the bottom of a stage")
-e("LEADER_PICK_FRESH", "פנים חדשות: ⟦+{pct}%⟧ לבסיס בסבב הבחירות הזה", "stage.toast", "*", "leaderSelect.pick.copy.freshFace", "Toast after a pick that differs from the last round's leader")
+e("LEADER_PICK_FRESH", "פנים חדשות: ⟦+{pct}%⟧ בונוס בחירות בסבב הבחירות הזה", "stage.toast", "*", "leaderSelect.pick.copy.freshFace", "Toast after a pick that differs from the last round's leader")
 e("LEADER_PICK_PLATE", "{short} · {party}", "stage.toast", "", "rtl-map §8.6 (the round-start lower third)", "The first toast of a round, as the leader walks in")
 e("LEADER_PICK_CARD_RULE", "הכלל המיוחד: {rule}", "modal.body", "", "spec §5.1 (rule.name; rule.text under it, box pick.card)", "Leader card only; hidden for a leader without a `rule` (Bibi: his signature is the court)")
 e("LEADER_PICK_CARD_GO", "לשחק בתור {short}", "modal.btnFull", "", "rtl-map §8.5", "Role play, never 'לבחור ב…' (reads as 'elect X': an endorsement)")
@@ -1071,7 +1071,7 @@ e("MIS_CLAIM", "לקחת", "mis.btn", "", "missions.claim", "Gold kit button on 
 e("MIS_PROGRESS", "⟦{val}/{goal}⟧", "mis.progress", "", "missions.progress", "Counts as integers, money (earnRun, bpsAtLeast) through Fmt.amount")
 e("MIS_REWARD_CASH", "⟦+{x}⟧~₪", "mis.reward", "", "missions.reward.cash", "reward cash {sec}: sec × ₪/s now (at least the floor), priced live")
 e("MIS_REWARD_FRENZY", "הכנסה ⟦×{mult}⟧ · ⟦{s}⟧ שנ׳", "mis.reward", "", "missions.reward.frenzy", "The Suitcase's income frenzy (golden bpsFrenzy's multiplier)")
-e("MIS_REWARD_BASE", "⟦+{pct}%⟧ לבסיס", "mis.reward", "", "missions.reward.basePct", "+pct on this round's base payout")
+e("MIS_REWARD_BASE", "⟦+{pct}%⟧ בונוס בחירות", "mis.reward", "", "missions.reward.basePct", "+pct on this round's base payout")
 e("F_MISSION_DONE", "משימה הושלמה: {mission}", "ticker.crawl", "", "missions.done", "Ticker milestone line + the milestone cue when a mission's goal is met")
 e("F_RANK_UP", "עלית בדרגה: {rankTitle} · ⟦+{pct}%⟧ הכנסה", "stage.toast", "", "missions.rankUp", "The rank-up toast (lane dock) and ticker milestone, with confetti and the trophy cue")
 
@@ -1092,15 +1092,15 @@ SPINS = [  # deck id -> (name, short effect label from the designer's effect col
     ("s03", "ביביסיטר", "כשאתה לא פה: ⟦×2⟧"),
     ("s04", "לא יהיה כלום", "חשד ⟦−25%⟧"),
     ("s05", "ציד מכשפות", "קלף נגדך: ⟦+1⟧ בסיס"),
-    ("s06", "כנף ציון", "פותח את וושינגטון"),
+    ("s06", "כנף ציון", "הכנסה ⟦×1.5⟧"),
     ("s07", "סופר־ספרטה", "⟦{s}⟧ שנ׳: הכול לשליפה"),
-    ("s08", "השלט", "יותר בסיס, יותר חשד"),
+    ("s08", "השלט", "בונוס בחירות + חשד"),
     ("s09", "פייג׳ר זהב", "פנקס הצ׳קים ⟦×1.5⟧"),
     ("s10", "מזוודות כביסה", "כל טיסה: ⟦+5%⟧ הכנסה"),
     ("s11", "באגס באני", "סיכוי לארנב ⟦+5%⟧"),
     ("s12", "הוחלט להקים ועדה", "החשד קפוא ⟦{s}⟧ שנ׳"),
-    ("s13", "ראיון בערוץ ידידותי", "בסיס ⟦+10%⟧ לסבב"),
-    ("s14", "סרטון ויראלי", "צפיות ⟦×10⟧, לייקים ⟦+1⟧"),
+    ("s13", "ראיון בערוץ ידידותי", "בונוס בחירות ⟦+10%⟧"),
+    ("s14", "סרטון ויראלי", "מכונות הרעל ⟦×2⟧"),
     ("s15", "ביקור ממלכתי", "מוחק חשד סיגרים"),
 ]
 

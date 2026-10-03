@@ -7,7 +7,7 @@ extends SheetCard
 ##   title        ELECT_TITLE "סבב בחירות מס׳ {n}" (n = the round being called: evolutions + 1)
 ##   mood         MOOD_* for that round (the title state's line 2), muted, centred
 ##   the number   EVO_MULT "×now ← ×after" in money gold, centred (the loyal base's multiplier)
-##   body         ELECT_RESET, ELECT_KEEP (+{x}% = the base after this election), ELECT_KEEP_CASES
+##   body         ELECT_RESET, ELECT_KEEP ({n} = the base after this election), ELECT_KEEP_CASES
 ##   not ready    EVO_NEED in red_hi, and "לפזר את הכנסת" disabled (E or a stale CTA)
 ##   buttons      §7.1 STACKED: ELECT_GO (kit primary) over ELECT_CANCEL (secondary); ✕ top-left
 ## Backdrop, Esc and back = "עוד לא". The confirm is idempotent (E7): the first press commits.
@@ -62,12 +62,6 @@ static func mood_key(n: int) -> String:
 	return best
 
 
-## ELECT_KEEP's {x}: the loyal base's bonus on every income after this election, in percent.
-static func keep_pct(s: GameState, d: Economy.Derived) -> float:
-	var after := Economy.mult_per_base() * float(s.thumbs_owned + (d.pending if d.evolve_enabled else 0))
-	return maxf(0.0, after * 100.0)
-
-
 ## The income multiplier after this election, as Economy.derive will compute it (the aide drops'
 ## ×0.97 each stay in d.base_mult across elections).
 static func mult_after(s: GameState, d: Economy.Derived) -> float:
@@ -93,7 +87,7 @@ func build() -> ElectionCard:
 	para(Strings.s("EVO_MULT", {"now": Fmt.mult(d.prestige_mult), "after": Fmt.mult(mult_after(s, d))}), C_GOLD, true, 1)
 	gap(8.0)
 	para(Strings.s("ELECT_RESET"))
-	para(Strings.s("ELECT_KEEP", {"x": Fmt.amount(keep_pct(s, d))}))
+	para(Strings.s("ELECT_KEEP", {"n": Fmt.thumbs(float(s.thumbs_owned + (d.pending if d.evolve_enabled else 0)))}))
 	para(Strings.s("ELECT_KEEP_CASES"))
 	if not ready_state:
 		need_text = para(Strings.s("EVO_NEED"), C_ALERT)
