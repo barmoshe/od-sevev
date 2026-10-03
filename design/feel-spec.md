@@ -38,7 +38,7 @@ Everything fires on **pointer-down**, never on pointer-up.
 | Tap chips | f0 | 3 pixel chips (banana-yellow, 2×2 art px), speed 220 px/s in the upper 180° arc, gravity 600 px/s², life 350 ms |
 | Tap SFX | f0 | Audio Director owns the sound; the frame is fixed here |
 | Hit-stop | none | **0 frames by design.** Freezing would drop feedback at 16 taps/s and make the tap feel sticky |
-| Hover (mouse only) | on hover | No scale change (`bigBananaHoverScale` 1.0, which keeps the banana at an integer scale; Animator O2). A halo sprite fades to alpha 0.3 over 100 ms, and the cursor becomes a hand |
+| Hover (mouse only) | on hover | No scale change (`magicianHoverScale` 1.0, which keeps the banana at an integer scale; Animator O2). A halo sprite fades to alpha 0.3 over 100 ms, and the cursor becomes a hand |
 
 ### Crit tap (a variant of the tap; chance and multiplier come from content.json)
 | Component | Fires | Numbers |
@@ -135,10 +135,10 @@ feel-tunables:
     - { param: squashDownMs,             value: 40,   unit: ms,     source_ref: CookieClicker-bigCookie, range: [30, 60],     frozen: false }
     - { param: squashReturnMs,           value: 140,  unit: ms,     source_ref: CookieClicker-bigCookie, range: [100, 200],   frozen: false }
     - { param: squashReturnOvershoot,    value: 2.2 ,  unit: ratio,  source_ref: Disney-squash-stretch,   range: [1.0, 2.5],   frozen: false }
-    - { param: bigBananaHitPadPx,        value: 16,   unit: px,     source_ref: AppleHIG-44pt,           range: [8, 24],      frozen: false }
-    - { param: bigBananaHoverScale,      value: 1.0 , unit: ratio,  source_ref: CookieClicker-bigCookie, range: [1.0, 1.06],  frozen: false }
-    - { param: bigBananaHoverHaloAlpha,  value: 0.3,  unit: ratio,  source_ref: CookieClicker-bigCookie, range: [0.0, 0.5],   frozen: false }
-    - { param: bigBananaHoverMs,         value: 100,  unit: ms,     source_ref: CookieClicker-bigCookie, range: [60, 150],    frozen: false }
+    - { param: magicianHitPadPx,        value: 16,   unit: px,     source_ref: AppleHIG-44pt,           range: [8, 24],      frozen: false }
+    - { param: magicianHoverScale,      value: 1.0 , unit: ratio,  source_ref: CookieClicker-bigCookie, range: [1.0, 1.06],  frozen: false }
+    - { param: magicianHoverHaloAlpha,  value: 0.3,  unit: ratio,  source_ref: CookieClicker-bigCookie, range: [0.0, 0.5],   frozen: false }
+    - { param: magicianHoverMs,         value: 100,  unit: ms,     source_ref: CookieClicker-bigCookie, range: [60, 150],    frozen: false }
     - { param: bankPopScale,             value: 1.06, unit: ratio,  source_ref: CookieClicker-bigCookie, range: [1.0, 1.10],  frozen: false }
     - { param: bankPopMs,                value: 80,   unit: ms,     source_ref: CookieClicker-bigCookie, range: [50, 120],    frozen: false }
     - { param: floaterJitterXPx,         value: 24,   unit: px,     source_ref: CookieClicker-bigCookie, range: [0, 40],      frozen: false }
@@ -174,7 +174,7 @@ feel-tunables:
     - { param: goldenSpawnXMax,          value: 0.88, unit: frac-W, source_ref: CookieClicker-goldenCookie, range: [0.80, 0.92], frozen: false }
     - { param: goldenSpawnYMin,          value: 0.20, unit: frac-H, source_ref: CookieClicker-goldenCookie, range: [0.15, 0.30], frozen: false }
     - { param: goldenSpawnYMax,          value: 0.50, unit: frac-H, source_ref: CookieClicker-goldenCookie, range: [0.50, 0.68], frozen: false }
-    - { param: goldenBigBananaExclusion, value: 0.25, unit: frac-W, source_ref: CookieClicker-goldenCookie, range: [0.16, 0.30], frozen: false }
+    - { param: goldenMagicianExclusion, value: 0.25, unit: frac-W, source_ref: CookieClicker-goldenCookie, range: [0.16, 0.30], frozen: false }
     - { param: goldenSpawnMaxTries,      value: 20,   unit: count,  source_ref: CookieClicker-goldenCookie, range: [10, 40],    frozen: false }
     - { param: goldenHitRadiusPx,        value: 56,   unit: px,     source_ref: AppleHIG-44pt,             range: [44, 72],     frozen: false }
     - { param: goldenFadeInMs,           value: 300,  unit: ms,     source_ref: CookieClicker-goldenCookie, range: [150, 500],  frozen: false }

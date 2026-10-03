@@ -79,7 +79,7 @@ func test_a_paid_demand_emits_partner_paid() -> void:
 	await _boot()
 	runner.check(_start_round(), "Bibi's round starts")
 	m.state.coalition["opened"] = true
-	m.state.bananas = 1.0e9
+	m.state.money = 1.0e9
 	var out: Array = []
 	Coalition._post(m.state, {"type": "demand", "partner": "gafni", "price": 10.0, "state": "open", "payable": "demand"}, out)
 	var seq := int((m.state.coalition["chat"] as Array).back()["seq"])
@@ -105,7 +105,7 @@ func test_gotlivs_transfer_window_speaks_its_script() -> void:
 	runner.check(_start_round(), "Bibi's round starts")
 	var s: GameState = m.state
 	s.coalition["opened"] = true
-	s.bananas = 1.0e9
+	s.money = 1.0e9
 	for pid: String in ["gotliv", "bengvir"]:
 		Coalition.ps(s, pid)["status"] = "member"
 	Coalition.ps(s, "gotliv")["meter"] = 100.0

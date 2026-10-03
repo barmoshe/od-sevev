@@ -113,7 +113,7 @@ func test_a_fresh_game_opens_the_picker_before_the_first_tap() -> void:
 	runner.check(p.focus == -1, "nothing is chosen for the player: the big card shows the booth's line")
 	var t0: float = m.state.play_time_sec if "play_time_sec" in m.state else 0.0
 	await _frames(20)
-	runner.check(m.state.taps_lifetime == 0 and m.state.bananas == 0.0, "the economy is frozen while the picker shows")
+	runner.check(m.state.taps_lifetime == 0 and m.state.money == 0.0, "the economy is frozen while the picker shows")
 	if "play_time_sec" in m.state:
 		runner.check(m.state.play_time_sec == t0, "playtime does not tick under the picker")
 	for c: Dictionary in p.cells:
@@ -223,9 +223,9 @@ func test_the_picker_follows_an_election() -> void:
 	Politics.on_election(m.state)
 	await _frames(3)
 	runner.check(m.mode == "pick" and m.picker.variant == "after" and m.picker.again_id == "bennett", "the picker opens after the election (mode %s)" % m.mode)
-	var bank: float = m.state.bananas
+	var bank: float = m.state.money
 	await _frames(10)
-	runner.check(m.state.bananas == bank, "the new round's economy waits for the pick")
+	runner.check(m.state.money == bank, "the new round's economy waits for the pick")
 	runner.check(m.commit_pick("liberman") and m.bb.leader_slug() == "liberman", "the new leader walks in")
 
 

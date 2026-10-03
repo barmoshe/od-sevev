@@ -218,12 +218,12 @@ static func postpone_cost(s: GameState, d: Economy.Derived) -> float:
 	var pct := float(p.get("treasuryPct", 5.0)) * g
 	if pct > float(p.get("maxPct", 100.0)):
 		return -1.0
-	return ceilf(maxf(s.bananas * pct / 100.0, float(p.get("minCostBpsSec", 0.0)) * g * d.bps))
+	return ceilf(maxf(s.money * pct / 100.0, float(p.get("minCostBpsSec", 0.0)) * g * d.bps))
 
 
 static func can_postpone(s: GameState, d: Economy.Derived) -> bool:
 	var c := postpone_cost(s, d)
-	return phase(s) == "summons" and c >= 0.0 and s.bananas >= c
+	return phase(s) == "summons" and c >= 0.0 and s.money >= c
 
 
 ## "התייעצות ביטחונית": pay, and the summons comes back after a cooldown that shrinks each time.
@@ -233,7 +233,7 @@ static func postpone(s: GameState, d: Economy.Derived) -> Dictionary:
 		return {}
 	var cost := postpone_cost(s, d)
 	var st := _i(s)
-	s.bananas = maxf(0.0, s.bananas - cost)
+	s.money = maxf(0.0, s.money - cost)
 	st["postponements"] = int(st["postponements"]) + 1
 	st["postponementsLifetime"] = int(st["postponementsLifetime"]) + 1
 	var cds: Array = _pp().get("cooldownSec", [60])

@@ -153,7 +153,7 @@ The first intern lands at F4, directly under the banana (x 368–432), so the pl
 
 | State | Condition | Visual | Line 1 (×3) | Line 2 | Tap |
 |---|---|---|---|---|---|
-| hidden | `allTimeBananas < 250,000` (and never reached) | nothing; hit disabled | — | — | — |
+| hidden | `allTimeMoney < 250,000` (and never reached) | nothing; hit disabled | — | — | — |
 | revealing | first frame at ≥ 250K | Animator pop-in (reduced motion: 200 ms fade) | — | — | — |
 | disabled | `pending < needed`, where `needed = max(10, thumbsOwned)` | **sunken** panel, no drop shadow | thumb icon ×2 @ (416,32) + "EVOLVE" @ (456,36) | progress bar 400,68,184,8 (fill = pending/needed, clamped to 1; fill vs track ≥ 3:1) + ×3 "6/10" centred @ y80 | opens `EVOLUTION` in `preview` |
 | enabled | `pending ≥ needed` | **raised** panel with a 4-px drop shadow, a highlight edge, and a slow glint (reduced motion: none) | thumb icon @ (408,32) + "EVOLVE!" @ (448,36) | ×3 "+12" centred @ y80 (bar hidden) | opens `EVOLUTION` in `ready` |
@@ -170,7 +170,7 @@ Non-colour channels: raised vs sunken (shape), "!" and the "+N" text (label), an
 - **Drift reflects** off the area rectangle **and** off the exclusion circle (reflect the velocity about the circle normal). With 18 px/s × 10 s = 180 px of travel, the Golden can otherwise drift onto the banana.
 - **Spawn sampling:** rejection-sample uniformly in the rectangle until the exclusion test passes (at most 20 tries, then use the nearest corner of the rect, (86,256) or (634,256), whichever is farther from the last spawn).
 - **Hit-test where the areas overlap (Game Designer rule, adopted):** a tap goes to the Golden only if it lands inside the Golden's drawn 64×64 bounds; otherwise it goes to the Big Banana.
-- Accepted in round 2: feel-spec `goldenSpawnYMax` 0.62 → 0.50 and `goldenBigBananaExclusion` 0.20 → 0.25 (both within their declared ranges). See **OBJ-1**. At 0.62 H the hit circle reaches y = 850, over the tabs and row 0, so Golden taps and buy taps would compete.
+- Accepted in round 2: feel-spec `goldenSpawnYMax` 0.62 → 0.50 and `goldenMagicianExclusion` 0.20 → 0.25 (both within their declared ranges). See **OBJ-1**. At 0.62 H the hit circle reaches y = 850, over the tabs and row 0, so Golden taps and buy taps would compete.
 
 ## 8. Shop rows (both tabs share one template)
 

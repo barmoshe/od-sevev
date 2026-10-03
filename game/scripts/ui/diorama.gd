@@ -637,7 +637,7 @@ func _build_backdrop() -> void:
 			_ground_tiles.append(Ui.img(_bg, Vector2(gx, y), "env_ground"))
 			y += 64.0
 		gx += 64.0
-	# Decorative palms at the stage edges (no bananas: yellow means a producer or the hero).
+	# Decorative palms at the stage edges (no money: yellow means a producer or the hero).
 	for px: float in [8.0, 648.0]:
 		var y := float(ground_y) - 64.0
 		while y >= ground_y - 64.0 * 3:
@@ -728,7 +728,7 @@ func _show_idle(c: Dictionary) -> void:
 	c["frameT"] = randf() * float(c["frameMs"])
 	c["rate"] = randf_range(0.9, 1.1)
 	c["nextHop"] = _now + _hop_interval()
-	_face_banana(c)
+	_face_magician(c)
 
 
 func _hop_interval() -> float:
@@ -737,7 +737,7 @@ func _hop_interval() -> float:
 	return randf_range(lo / 2.0, hi / 2.0) if _frenzy else randf_range(lo, hi)
 
 
-func _face_banana(c: Dictionary) -> void:
+func _face_magician(c: Dictionary) -> void:
 	if not c["wander"]:
 		return
 	if _tap_frenzy and not reduced_motion:
@@ -753,7 +753,7 @@ func set_tap_frenzy(on: bool) -> void:
 	for c in _critters:
 		if c["visible"]:
 			if on:
-				_face_banana(c)
+				_face_magician(c)
 			else:
 				(c["s"] as Sprite2D).flip_h = false
 
@@ -945,7 +945,7 @@ func _update_hop(c: Dictionary, dt_ms: float) -> void:
 				s.position = Vector2(c["x"], c["y"])
 				c["hopping"] = false
 				c["hop"] = {}
-				_face_banana(c)
+				_face_magician(c)
 		"poof":
 			if reduced_motion:
 				s.modulate.a = maxf(0.0, 1.0 - t / float(Tune.MC["critterReducedFadeMs"]))
@@ -960,7 +960,7 @@ func _update_hop(c: Dictionary, dt_ms: float) -> void:
 
 
 # ------------------------------------------------------------------ v2 set pieces (object motion)
-## Tier set pieces: catapults lob bananas across the sky, rockets launch, time chimps flicker and
+## Tier set pieces: catapults lob money across the sky, rockets launch, time chimps flicker and
 ## jump, moons bob. Each runs only when that tier is owned; reduced motion turns them all off.
 
 func _update_set_pieces(dt_ms: float) -> void:

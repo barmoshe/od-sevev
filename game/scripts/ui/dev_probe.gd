@@ -30,7 +30,7 @@ static func snapshot(host: Node) -> Dictionary:
 	var s: GameState = host.get("state")
 	var d: Economy.Derived = host.get("d")
 	var o := Vector2(float(host.get("_ox")), float(host.get("_lower_y")))
-	var out := {"bank": s.bananas, "evolutions": s.evolutions, "runSec": s.run_time_sec,
+	var out := {"bank": s.money, "evolutions": s.evolutions, "runSec": s.run_time_sec,
 		"ready": d.evolve_enabled if d != null else false, "cta": (host.get("ticker") as Ticker).cta_on(),
 		"modal": "", "groupOpen": bool(s.coalition.get("opened", false)) if s.coalition is Dictionary else false,
 		# leader select: the controller's mode (pick | title | main) and the round's leader
@@ -86,7 +86,7 @@ static func snapshot(host: Node) -> Dictionary:
 			if h["kind"] != "pay":
 				continue
 			var m := Coalition.message(s, int(h["seq"]))
-			pills.append([c.x, c.y, int(h["seq"]), s.bananas >= float(m.get("price", 0.0)), str(m.get("kind", "")) == "ceremony"])
+			pills.append([c.x, c.y, int(h["seq"]), s.money >= float(m.get("price", 0.0)), str(m.get("kind", "")) == "ceremony"])
 	out["chat"] = {"open": chat.is_open(), "thread": [top, bottom], "pills": pills, "avatars": avatars, "brawls": brawls,
 		"openBrawl": not Coalition.open_brawl(s).is_empty()}
 	# the sim's open lines whether or not T3 is open (the driver saves for an ultimatum like a player)
@@ -99,7 +99,7 @@ static func snapshot(host: Node) -> Dictionary:
 			if m["state"] != "open" or not Coalition.is_payable(m):
 				continue
 			lines += 1
-			if s.bananas >= float(m.get("price", 0.0)):
+			if s.money >= float(m.get("price", 0.0)):
 				n_afford += 1
 			if m["type"] == "ultimatum" or str(m.get("payable", "")) == "rejoin":
 				ult_price = maxf(ult_price, float(m.get("price", 0.0)))
@@ -126,7 +126,7 @@ static func snapshot(host: Node) -> Dictionary:
 			if mk["kind"] != "producer":
 				continue
 			var id := str(mk["id"])
-			var afford := s.bananas >= Economy.producer_cost(s, id, 1)
+			var afford := s.money >= Economy.producer_cost(s, id, 1)
 			var yt := shop._row_top(k, "producers")
 			all_rows.append([360.0 + o.x, yt + float(L.SHOP["rowVisualH"]) / 2.0 + o.y, id, afford])
 			var y := shop.row_screen_y(k, "producers")

@@ -11,7 +11,7 @@ GAME="$HERE/../game"
 OUT="$HERE/../build/web"
 VER="4.7.2"
 TPL_DIR="$GODOT_TPL_ROOT/${VER}.stable"
-CACHE="${MB_BUILD_CACHE:-$HOME/.cache/monkey-bananas-build}"   # shared with the fork: same Godot templates
+CACHE="${MB_BUILD_CACHE:-$HOME/.cache/od-sevev-build}"   # shared with the fork: same Godot templates
 
 log() { echo "[build_web] $*"; }
 
@@ -55,7 +55,7 @@ log "exporting to $OUT"
 
 # Home Screen app files (the engine's PWA export is off: no service worker) and the build
 # stamp the settings screen shows. Icons come from pipeline/od-sevev/build.py (art/od-sevev/src/logo.py).
-# (privacy.html / support.html are the fork's Monkey Bananas store pages: not shipped. The
+# (privacy.html / support.html are the fork's store pages: not shipped. The
 # game's About page (O8) is its own HTML surface, a later wave.)
 cp "$HERE/web/index.manifest.json" "$OUT/"
 for n in 144 180 512; do

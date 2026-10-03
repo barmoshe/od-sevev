@@ -281,11 +281,11 @@ func _hazard_day_blocks_taps(leader: String, want: String) -> void:
 	s.investigation["leftSec"] = 30.0
 	m.d = Economy.derive(s)
 	m.toasts._queue.clear()
-	var bank := s.bananas
+	var bank := s.money
 	var taps := s.taps_lifetime
 	m._last_tap_ms = -1.0e9
 	_tap_leader()
-	runner.check(s.bananas == bank and s.taps_lifetime == taps, "%s: a tap on the hazard day earns and counts nothing" % leader)
+	runner.check(s.money == bank and s.taps_lifetime == taps, "%s: a tap on the hazard day earns and counts nothing" % leader)
 	runner.check(m.toasts._queue.has(want), "%s: the toast says why (%s)" % [leader, str(m.toasts._queue)])
 	m._last_tap_ms = -1.0e9
 	_tap_leader()

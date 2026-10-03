@@ -218,8 +218,8 @@ static func _earned(s: GameState, d: Economy.Derived, t: Dictionary) -> bool:
 			return s.crits_lifetime >= v
 		"goldenCaughtLifetime":
 			return s.golden_caught_lifetime >= v
-		"allTimeBananas":
-			return s.all_time_bananas >= v
+		"allTimeMoney":
+			return s.all_time_money >= v
 		"bps":
 			return d.bps >= v
 		"owned":
@@ -237,8 +237,8 @@ static func _earned(s: GameState, d: Economy.Derived, t: Dictionary) -> bool:
 			return s.evolutions >= 1 and f > 0.0 and f < v
 		"stat":
 			return float(s.stats.get(t["key"], 0.0)) >= v
-		"bananasAtOnce":
-			return s.bananas >= v
+		"moneyAtOnce":
+			return s.money >= v
 		"never":
 			return false
 		"leaderStat":
@@ -303,7 +303,7 @@ static func away_award(s: GameState, elapsed_sec: float) -> Dictionary:
 	return Economy.away_award(s, elapsed_sec, away_cap_sec(s), away_efficiency(s))
 
 
-## Evolve with the run-start perks (Head Start bananas, Tool Belt tap upgrades) and the
+## Evolve with the run-start perks (Head Start money, Tool Belt tap upgrades) and the
 ## union-buster stat. Use this instead of Economy.evolve() everywhere.
 static func evolve(s: GameState) -> Dictionary:
 	if s.owned_of(Content.producer_ids()[0]) == 0 and Economy.derive(s).evolve_enabled:
@@ -318,10 +318,10 @@ static func evolve(s: GameState) -> Dictionary:
 	if r.is_empty():
 		return r
 	s.upgrades = keep
-	var start := effect_value(s, "startBananas")
+	var start := effect_value(s, "startMoney")
 	if start > 0.0:
-		s.bananas = start
-		s.run_bananas = start
+		s.money = start
+		s.run_money = start
 	return r
 
 
@@ -333,7 +333,7 @@ static func auto_tap_rate(s: GameState) -> float:
 	return effect_value(s, "autoTapPerSec")
 
 
-## Banana Butler: buys one unit of the cheapest revealed producer when it costs no more than
+## The Butler: buys one unit of the cheapest revealed producer when it costs no more than
 ## perks.butlerSpendFrac of the bank (pocket change). Returns its id.
 static func auto_buy(s: GameState) -> String:
 	if not has_effect(s, "autoBuy"):
@@ -348,7 +348,7 @@ static func auto_buy(s: GameState) -> String:
 			best_cost = c
 			best = id
 	var frac := float(_c().get("perks", {}).get("butlerSpendFrac", 1.0))
-	if best != "" and best_cost <= s.bananas * frac:
+	if best != "" and best_cost <= s.money * frac:
 		Economy.buy_producer(s, best, 1)
 		return best
 	return ""

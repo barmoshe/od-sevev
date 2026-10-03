@@ -59,7 +59,7 @@ static func stage_skin(leader_id: String = "") -> String:
 	return "bench" if str(h.get("stage", "podium")) == "bench" else "podium"
 
 
-## stage_skin for a manifest slug (BigBanana knows the figure, not the leader): the round's leader
+## stage_skin for a manifest slug (Magician knows the figure, not the leader): the round's leader
 ## when the slug is theirs, else the first playable leader drawn with it.
 static func stage_skin_for_art(slug: String) -> String:
 	if slug == art():

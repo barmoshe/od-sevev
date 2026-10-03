@@ -313,7 +313,7 @@ func _device_tap_and_buy(dev: Vector2i, k: int) -> void:
 	for i in 2:
 		_touch(hat + Vector2(0, 12 * i), k, i)
 	runner.check(m.state.taps_lifetime == 3, "%s: taps 2 and 3 land (%d)" % [dev, m.state.taps_lifetime])
-	Economy.add_bananas(m.state, 100.0)
+	Economy.add_money(m.state, 100.0)
 	for i in 3:
 		await tree.process_frame
 	var row: int = m.shop.row_index_of(m.state, "producer", "intern")

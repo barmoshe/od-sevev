@@ -184,7 +184,7 @@ static func _when(s: GameState, w: Dictionary, era_id: String, hour: int) -> boo
 		return false
 	if w.has("trophiesAtLeast") and Meta.trophy_count(s) < int(w["trophiesAtLeast"]):
 		return false
-	if w.has("allTimeAtLeast") and s.all_time_bananas < float(w["allTimeAtLeast"]):
+	if w.has("allTimeAtLeast") and s.all_time_money < float(w["allTimeAtLeast"]):
 		return false
 	if w.has("goldenAtLeast") and s.golden_caught_lifetime < int(w["goldenAtLeast"]):
 		return false

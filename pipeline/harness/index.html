@@ -70,10 +70,10 @@ class Harness extends Phaser.Scene {
 
     // --- Big Banana x5 with halo, pivot bottom-centre on the 20-px grid.
     const bbX = 360, bbY = 540;
-    const halo = this.add.image(bbX, bbY - (49 - 26.5) * 5, A, fk("bigBanana_halo")).setScale(5).setAlpha(0.35);
-    const bb = this.add.image(bbX, bbY, A, fk("bigBanana", 0)).setOrigin(0.5, 1).setScale(5);
+    const halo = this.add.image(bbX, bbY - (49 - 26.5) * 5, A, fk("magicianStandIn_halo")).setScale(5).setAlpha(0.35);
+    const bb = this.add.image(bbX, bbY, A, fk("magicianStandIn", 0)).setOrigin(0.5, 1).setScale(5);
     this.bb = bb;
-    this.anims.create({ key: "bbSquash", frames: B.animFrames("bigBanana"), frameRate: 10, repeat: -1, yoyo: true });
+    this.anims.create({ key: "bbSquash", frames: B.animFrames("magicianStandIn"), frameRate: 10, repeat: -1, yoyo: true });
     bb.setInteractive(new Phaser.Geom.Rectangle(4, 0, 40, 49), Phaser.Geom.Rectangle.Contains);
     let taps = 0;
     bb.on("pointerdown", (p) => {
@@ -81,14 +81,14 @@ class Harness extends Phaser.Scene {
       const crit = taps % 4 === 0;
       this.fx.play(crit ? "critBurst" : "tapChips", p.worldX, p.worldY);
       this.floater(p.worldX, p.worldY, crit);
-      bb.setFrame(fk("bigBanana", crit ? 3 : 2));
-      this.time.delayedCall(90, () => bb.setFrame(fk("bigBanana", 4)));
-      this.time.delayedCall(180, () => bb.setFrame(fk("bigBanana", 0)));
+      bb.setFrame(fk("magicianStandIn", crit ? 3 : 2));
+      this.time.delayedCall(90, () => bb.setFrame(fk("magicianStandIn", 4)));
+      this.time.delayedCall(180, () => bb.setFrame(fk("magicianStandIn", 0)));
     });
 
     // --- Golden banana x4 cycling its frames; critters x4 with 2-frame idles.
-    const gold = this.add.sprite(160, 360, A, fk("goldenBanana", 0)).setScale(4);
-    this.anims.create({ key: "gold", frames: B.animFrames("goldenBanana"), frameRate: 3.2, repeat: -1 });
+    const gold = this.add.sprite(160, 360, A, fk("suitcaseStandIn", 0)).setScale(4);
+    this.anims.create({ key: "gold", frames: B.animFrames("suitcaseStandIn"), frameRate: 3.2, repeat: -1 });
     gold.play("gold");
     const critters = Object.keys(art.SPRITES).filter((k) => k.startsWith("critter_"));
     critters.forEach((id, i) => {
@@ -101,7 +101,7 @@ class Harness extends Phaser.Scene {
 
     // --- Top bar panel 9-slice + HUD text.
     B.addPixelNineSlice(this, 0, 0, "ui_panel", 0, W, 160, 4);
-    this.add.image(24, 24, A, fk("icon_banana")).setOrigin(0).setScale(4);
+    this.add.image(24, 24, A, fk("icon_crescent")).setOrigin(0).setScale(4);
     B.addPixelText(this, 72, 28, "123,456", { scale: 4, tint: "Y" });
     B.addPixelText(this, 72, 72, "4.86K PER SEC ×5", { scale: 3, tint: "w" });
     B.addPixelText(this, 72, 112, "12  ×2.2 → ×4.0", { scale: 3, tint: "s" });

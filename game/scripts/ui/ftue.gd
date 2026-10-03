@@ -36,8 +36,8 @@ const DIRS := {
 
 var reduced_motion := false
 var ticker: Callable            # func(text: String)
-var on_banana_emphasis: Callable
-## func(hz: float): the hat pulse (BigBanana.set_pulse)
+var on_magician_emphasis: Callable
+## func(hz: float): the hat pulse (Magician.set_pulse)
 var on_pulse: Callable
 var toasts: Toasts
 var hand: Sprite2D
@@ -177,7 +177,7 @@ static func reveals(s: GameState) -> Dictionary:
 		"single": not played and owned == 0,                      # only card 1, named
 		"rate": played or owned >= 1,
 		"tabs": tabs,                                             # C1: the tab bar appears with it
-		"spins": Reveal.on(s, "spins") and (played or (tabs and s.all_time_bananas >= SPINS_AT and c1_settled(s))),   # K3 (+ the reveal ladder)
+		"spins": Reveal.on(s, "spins") and (played or (tabs and s.all_time_money >= SPINS_AT and c1_settled(s))),   # K3 (+ the reveal ladder)
 		"seats": played or paid >= 1,                             # C2
 		"buyMode": bool(s.ui.get("buyModeRevealed", false)),      # B1 (the fork's rule, in the controller)
 		"suitcase": played or owned >= 2,                         # S1: no Suitcase before 2 sources
@@ -235,7 +235,7 @@ func update_view(dt_ms: float, s: GameState, _d: Economy.Derived, ctx: Dictionar
 	# P1: the first buy
 	var first: String = Content.producer_ids()[0]
 	var price := float(ctx.get("price", 0.0))
-	if s.evolutions == 0 and s.owned_of(first) == 0 and price > 0.0 and s.bananas >= price:
+	if s.evolutions == 0 and s.owned_of(first) == 0 and price > 0.0 and s.money >= price:
 		_p1_ms += dt_ms
 		var pill: Variant = ctx.get("pill")
 		if _p1_ms >= 5000.0 and not _p1_f1 and toasts and pill is Vector2:
@@ -245,7 +245,7 @@ func update_view(dt_ms: float, s: GameState, _d: Economy.Derived, ctx: Dictionar
 			_point((pill as Vector2) + Vector2(96, -8), "left")
 			var windows := int((_p1_ms - 13000.0) / 8000.0)
 			if windows >= 2:
-				var mult := int(floorf(s.bananas / price))
+				var mult := int(floorf(s.money / price))
 				if mult > _p1_mult and ctx.has("bounce"):
 					(ctx["bounce"] as Callable).call()
 				_p1_mult = mult

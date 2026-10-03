@@ -114,7 +114,7 @@ func test_postponement_ladder() -> void:
 	var cds: Array = []
 	var steps: Array = []
 	for i in 6:
-		s.bananas = 1000000.0
+		s.money = 1000000.0
 		s.investigation["phase"] = "summons"
 		var want := Investigation.postpone_cost(s, d)
 		var r := Investigation.postpone(s, d)
@@ -136,7 +136,7 @@ func test_postponement_is_never_free() -> void:
 	var s := GameState.fresh()
 	s.owned[_id(1)] = 10
 	var d := Economy.derive(s)
-	s.bananas = 0.0
+	s.money = 0.0
 	s.investigation["phase"] = "summons"
 	_eq(Investigation.postpone_cost(s, d), ceilf(10.0 * d.bps), "an empty treasury still pays 10 s of ₪/s")
 	runner.check(not Investigation.can_postpone(s, d), "and can't afford it")
@@ -144,7 +144,7 @@ func test_postponement_is_never_free() -> void:
 
 func test_postponed_summons_comes_back() -> void:
 	var s := GameState.fresh()
-	s.bananas = 100.0
+	s.money = 100.0
 	s.investigation["phase"] = "summons"
 	s.investigation["suspicion"] = 100.0
 	Investigation.postpone(s, Economy.derive(s))
@@ -171,7 +171,7 @@ func test_aide_catch_and_drop() -> void:
 	Investigation.aide_catch(s, 5.0)
 	Investigation.drop_aide(s)
 	_eq(Economy.derive(s).prestige_mult, base * 0.97 * 0.97, "and it compounds, permanently")
-	s.all_time_bananas = 0.0
+	s.all_time_money = 0.0
 	Investigation.on_election(s)
 	_eq(Economy.derive(s).prestige_mult, base * 0.97 * 0.97, "an election doesn't restore it")
 	Investigation.aide_catch(s, 5.0)
@@ -236,7 +236,7 @@ func test_court_end_says_why() -> void:
 	runner.check(ev.any(func(e: Dictionary) -> bool: return e["ev"] == "courtStart" and e["reason"] == "served"), "an ignored summons is served")
 	ev = _tick(s, 30.0)
 	runner.check(ev.any(func(e: Dictionary) -> bool: return e["ev"] == "courtEnd" and e["reason"] == "served"), "and ends as served")
-	s.bananas = 1e6
+	s.money = 1e6
 	s.investigation["phase"] = "summons"
 	var r := Investigation.postpone(s, Economy.derive(s))
 	runner.check(r["events"] == [{"ev": "courtEnd", "reason": "postponed"}], "a postponement returns courtEnd postponed")

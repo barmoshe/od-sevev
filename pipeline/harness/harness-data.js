@@ -48,9 +48,9 @@ const SKY_BANDS                                                = [{"color":"#1f4
 
 /** Per-sprite notes: pivots, tiling axes, 9-slice insets, frame meanings. */
 const SPRITE_META                                          = {
-  bigBanana: {"pivot":[0.5,1],"frames":["rest","squash 0.94","squash 0.88 (happy squint)","deep squash 0.84 / crit (> < squeeze)","stretch 1.02 (overshoot)"],"visibleWxH":[[28,45],[28,42],[30,39],[32,38],[26,46]],"heightRatio":[1,0.933,0.867,0.844,1.022],"restBounds":{"w":28,"h":45,"x0":10,"y0":4,"x1":37,"y1":48},"note":"Canvas 48x49, all frames share the bottom baseline (ink on row 48). Pivot bottom-centre. Hit area = restBounds + pad (never follows the frame). Row heights include the 1-px ink; compare retunes against heightRatio, not 48 rows."},
-  bigBanana_halo: {"pivot":[0.5,0.5],"alignTo":{"sprite":"bigBanana","canvasPx":[24,26.5]},"note":"Draw BEHIND bigBanana at the same scale, origin (0.5,0.5), centred on the banana rest bbox centre: bigBanana canvas px alignTo.canvasPx (from its top-left). Alpha by code. Never follows the squash frames."},
-  goldenBanana: {"pivot":[0.5,0.5],"frames":["idle (upright, sparkle)","sparkle flare (upright)","tilt -8 deg (counter-clockwise)","tilt +8 deg (clockwise)"],"note":"Amber O/o body, k outline, w halo (halo is exclusive to the Golden Banana). Tilt frames replace runtime rotation; sequence up, +8, up, -8 per motion/object-motion.md section 2."},
+  magicianStandIn: {"pivot":[0.5,1],"frames":["rest","squash 0.94","squash 0.88 (happy squint)","deep squash 0.84 / crit (> < squeeze)","stretch 1.02 (overshoot)"],"visibleWxH":[[28,45],[28,42],[30,39],[32,38],[26,46]],"heightRatio":[1,0.933,0.867,0.844,1.022],"restBounds":{"w":28,"h":45,"x0":10,"y0":4,"x1":37,"y1":48},"note":"Canvas 48x49, all frames share the bottom baseline (ink on row 48). Pivot bottom-centre. Hit area = restBounds + pad (never follows the frame). Row heights include the 1-px ink; compare retunes against heightRatio, not 48 rows."},
+  magicianStandIn_halo: {"pivot":[0.5,0.5],"alignTo":{"sprite":"magicianStandIn","canvasPx":[24,26.5]},"note":"Draw BEHIND magicianStandIn at the same scale, origin (0.5,0.5), centred on the banana rest bbox centre: magicianStandIn canvas px alignTo.canvasPx (from its top-left). Alpha by code. Never follows the squash frames."},
+  suitcaseStandIn: {"pivot":[0.5,0.5],"frames":["idle (upright, sparkle)","sparkle flare (upright)","tilt -8 deg (counter-clockwise)","tilt +8 deg (clockwise)"],"note":"Amber O/o body, k outline, w halo (halo is exclusive to the Golden Banana). Tilt frames replace runtime rotation; sequence up, +8, up, -8 per motion/object-motion.md section 2."},
   env_grass: {"tile":"horizontal","note":"Ground top edge. Tile along x. Below it fill with env_ground."},
   env_ground: {"tile":"both","note":"Dirt fill, tiles in x and y."},
   env_foliage_a: {"note":"small bush clump, decorative"},
@@ -73,7 +73,7 @@ const SPRITE_META                                          = {
 };
 
 const SPRITES                                                               = {
-  bigBanana: {
+  magicianStandIn: {
     w: 48,
     h: 49,
     frames: [
@@ -334,7 +334,7 @@ const SPRITES                                                               = {
       ],
     ],
   },
-  bigBanana_halo: {
+  magicianStandIn_halo: {
     w: 44,
     h: 56,
     frames: [
@@ -398,7 +398,7 @@ const SPRITES                                                               = {
       ],
     ],
   },
-  goldenBanana: {
+  suitcaseStandIn: {
     w: 16,
     h: 16,
     frames: [
@@ -1052,7 +1052,7 @@ const SPRITES                                                               = {
       ],
     ],
   },
-  icon_banana: {
+  icon_crescent: {
     w: 10,
     h: 10,
     frames: [
@@ -4481,7 +4481,7 @@ return { ATLAS_KEY, FONT_KEYS, frameKey, fontFrameKey, MASK_CHAR, MASK_COLOR, EX
       "anchor": "the row icon centre in the shop",
       "layer": "ui",
       "vehicle": "particle",
-      "vehicle_rationale": "Small confetti pop that survives 10 buys/s hold-repeat without piling up (6 per buy, 36 alive cap). Colours are red, leaf-highlight and warm white only: yellow means bananas and blue is reserved for the intern (style-guide hue rules), so neither appears.",
+      "vehicle_rationale": "Small confetti pop that survives 10 buys/s hold-repeat without piling up (6 per buy, 36 alive cap). Colours are red, leaf-highlight and warm white only: yellow means money and blue is reserved for the intern (style-guide hue rules), so neither appears.",
       "anticipation": { "duration": 0 },
       "impact": { "frame": 0 },
       "decay": { "duration": 560 },

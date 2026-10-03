@@ -798,7 +798,7 @@ def check_content_sources(manifest, content_path=CONTENT, art_path=FORK_ART):
 
 def import_icons(log):
     """App icons from the 2D Artist's master (64 art px at d 2 = 128 px), nearest-neighbour, into the file names the
-    export presets already reference. Replaces the fork's banana icons (tools/icon.sh must not run)."""
+    export presets already reference. Replaces the fork's app icons (tools/icon.sh must not run)."""
     if not os.path.exists(ICON_MASTER):
         log("icons: no master at " + ICON_MASTER + " (kept the existing icons)")
         return []

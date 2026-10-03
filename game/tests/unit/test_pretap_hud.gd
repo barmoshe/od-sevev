@@ -120,10 +120,10 @@ func test_b10_the_name_width_guard_at_dx_0() -> void:
 	await _frames(3)
 	var tb: TopBar = m.top_bar
 	runner.check(L.dx >= 0.0, "the canvas")
-	m.state.bananas = 504.0
+	m.state.money = 504.0
 	await _frames(2)
 	runner.check(tb.name_visible() and tb.name_fits(), "round 1: the name fits beside the counter (dx %d)" % int(L.dx))
-	m.state.bananas = 8.888e15
+	m.state.money = 8.888e15
 	await _frames(12)
 	var fits := tb.name_fits()
 	runner.check(tb.name_visible() == fits, "a counter that reaches the name's slot hides the name (fits %s, shown %s)" % [fits, tb.name_visible()])
@@ -146,7 +146,7 @@ func test_b10_the_name_yields_to_the_cottage_after_the_round_starts() -> void:
 	m.ftue.handoff_ms = 1.0
 	m.commit_pick("bibi")
 	await _frames(2)
-	m.state.all_time_bananas = 5000.0   # Q1 already reached (a later round, or a big away credit)
+	m.state.all_time_money = 5000.0   # Q1 already reached (a later round, or a big away credit)
 	await _frames(3)
 	var tb: TopBar = m.top_bar
 	var c: CottageCup = m.cottage
@@ -424,14 +424,14 @@ func test_m2_a_round_begun_with_an_empty_purse_shows_card_1_and_the_teasers() ->
 		Economy.tap(s)
 	s.evolutions = 1
 	s.run_taps = 0
-	s.run_bananas = 0.0
+	s.run_money = 0.0
 	Politics.on_election(s)
-	s.bananas = 3.0
+	s.money = 3.0
 	SaveStore.new(dir).save_game(s)
 	await _boot()
 	m.commit_pick("liberman")
 	await _frames(3)
-	runner.check(m.state.bananas <= 5.0 and m.shop.visible, "round 2, ≤ 5 ₪ in hand, the pane up (%s ₪)" % m.state.bananas)
+	runner.check(m.state.money <= 5.0 and m.shop.visible, "round 2, ≤ 5 ₪ in hand, the pane up (%s ₪)" % m.state.money)
 	var models: Array = m.shop._models(m.state, "producers")
 	var kinds: Array = models.map(func(x: Dictionary) -> String: return str(x["kind"]))
 	var first := kinds.find("producer")

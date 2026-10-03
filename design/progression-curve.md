@@ -210,7 +210,7 @@ Verification: `node design/sim/economy-sim.mjs` reads content.json and reproduce
 | Currency | Earned by | Spent on | Resets on Evolve |
 |---|---|---|---|
 | Bananas | tapping, producers, Golden Bunch, offline credit | producers, upgrades | yes |
-| Opposable Thumbs ("Thumbs") | Evolving: `floor(cbrt(allTimeBananas / 1000))` minus the Thumbs already owned | never spent. Each owned Thumb adds a passive +10% | no |
+| Opposable Thumbs ("Thumbs") | Evolving: `floor(cbrt(allTimeMoney / 1000))` minus the Thumbs already owned | never spent. Each owned Thumb adds a passive +10% | no |
 
 ## 2. Producers
 
@@ -227,19 +227,19 @@ All producers use `costGrowth = 1.15`. Cost of the next unit is `baseCost × 1.1
 | 7 | `timechimp` | Time-Traveling Chimp | Steals bananas from the past. The past is furious. | chimp with green swirl goggles and a clock | 20M | 20,000 | 1,000 s |
 | 8 | `moon` | The Banana Moon | It was always a banana. Astronomers: "In hindsight, obviously." | banana crescent moon with a stem and a tiny flag | 330M | 120,000 | 2,750 s |
 
-Reveal: a row appears at `runBananas ≥ 0.5 × baseCost`. One further row is shown as a black silhouette "???" with its cost, which gives the player a legible next goal. In run 1 the player reaches tiers 1–5, and tier 6 appears as the silhouette. That silhouette is the run-2 promise.
+Reveal: a row appears at `runMoney ≥ 0.5 × baseCost`. One further row is shown as a black silhouette "???" with its cost, which gives the player a legible next goal. In run 1 the player reaches tiers 1–5, and tier 6 appears as the silhouette. That silhouette is the run-2 promise.
 
 ## 3. Upgrades (15)
 
 | id | Name | Flavor | 16×16 visual hook | Cost | Effect | Unlock (AND) | Class |
 |---|---|---|---|---|---|---|---|
-| `glove` | Grippy Gloves | Twice the grip. Twice the banana. | one white cartoon glove | 100 | tap ×2 | runBananas ≥ 50 | knob |
-| `bothhands` | Two-Handed Technique | A breakthrough 40 million years in the making. | two brown monkey hands, palms out | 1,500 | tap ×2 | runBananas ≥ 1,000 | knob |
-| `workout` | Thumb Workout | Every tap now carries the weight of the economy. | flexing thumb in a red sweatband | 5,000 | each tap +2% of bps | runBananas ≥ 3,000 | **new combination** (couples tap to production) |
-| `luckypeel` | Lucky Peel | Found on the ground. Obviously lucky. | peel with a four-leaf-clover spot | 7,500 | crit chance 5% → 10% | runBananas ≥ 5,000 | knob |
-| `radar` | Golden Banana Radar | Beeps near gold. Also near regular bananas. Also always. | grey radar dish with a golden blip | 15,000 | Golden interval ×0.75 | runBananas ≥ 10,000 AND goldenCaughtLifetime ≥ 1 | **new combination** (turns the attention reward into a build) |
-| `futures` | Banana Futures Market | Selling bananas that don't exist yet. Profitably. | green rising chart arrow over a banana | 150,000 | all production ×1.5 | runBananas ≥ 100,000 | knob |
-| `hammer` | Banana Hammer | Structurally unsound. Economically devastating. | mallet with a banana head | 250,000 | each tap +4% of bps | runBananas ≥ 150,000 | **new combination** (active-tapper build payoff) |
+| `glove` | Grippy Gloves | Twice the grip. Twice the banana. | one white cartoon glove | 100 | tap ×2 | runMoney ≥ 50 | knob |
+| `bothhands` | Two-Handed Technique | A breakthrough 40 million years in the making. | two brown monkey hands, palms out | 1,500 | tap ×2 | runMoney ≥ 1,000 | knob |
+| `workout` | Thumb Workout | Every tap now carries the weight of the economy. | flexing thumb in a red sweatband | 5,000 | each tap +2% of bps | runMoney ≥ 3,000 | **new combination** (couples tap to production) |
+| `luckypeel` | Lucky Peel | Found on the ground. Obviously lucky. | peel with a four-leaf-clover spot | 7,500 | crit chance 5% → 10% | runMoney ≥ 5,000 | knob |
+| `radar` | Golden Banana Radar | Beeps near gold. Also near regular bananas. Also always. | grey radar dish with a golden blip | 15,000 | Golden interval ×0.75 | runMoney ≥ 10,000 AND goldenCaughtLifetime ≥ 1 | **new combination** (turns the attention reward into a build) |
+| `futures` | Banana Futures Market | Selling bananas that don't exist yet. Profitably. | green rising chart arrow over a banana | 150,000 | all production ×1.5 | runMoney ≥ 100,000 | knob |
+| `hammer` | Banana Hammer | Structurally unsound. Economically devastating. | mallet with a banana head | 250,000 | each tap +4% of bps | runMoney ≥ 150,000 | **new combination** (active-tapper build payoff) |
 | `internx2` | Coffee for Interns | Interns now vibrate at harvest frequency. | steaming mug with a banana handle | 150 | intern ×2 | own 10 intern | knob |
 | `treex2` | Banana Fertilizer | Ingredients: bananas. | burlap sack with a banana label | 1,200 | tree ×2 | own 10 tree | knob |
 | `hardhatx2` | Taller Ladders | OSHA has been notified. OSHA is also a monkey. | ladder with a banana on top | 11,000 | hardhat ×2 | own 10 hardhat | knob |
@@ -271,13 +271,13 @@ Crit: 5% base (10% with `luckypeel`) × 10 gives an expected tap multiplier of �
 
 | Parameter | Value |
 |---|---|
-| Thumbs earned (cumulative) | `floor(cbrt(allTimeBananas / 1000))`. Use `Math.cbrt` plus a 1e-9 epsilon |
+| Thumbs earned (cumulative) | `floor(cbrt(allTimeMoney / 1000))`. Use `Math.cbrt` plus a 1e-9 epsilon |
 | Pending | `thumbsTotalEarned − thumbsOwned` |
 | Multiplier | `prestigeMult = 1 + 0.10 × thumbsOwned`, applied to all production and to the base tap |
 | Gate (minimum threshold) | `pending ≥ max(10, thumbsOwned)`. Every Evolve at least doubles your Thumbs. The **first Evolve needs 1,000,000 all-time bananas → 10 Thumbs → ×2.0** |
-| Button reveal | hidden until allTimeBananas ≥ 250,000; then disabled, showing `pending / needed` |
-| Resets | bananas, runBananas, all producers, all upgrades, run taps, active buffs, the Golden timer (the first Golden again arrives at 75 s) |
-| Persists | Thumbs, allTimeBananas, evolutions count, lifetime Golden catches, lifetime taps and crits, headlines seen, settings, buy mode |
+| Button reveal | hidden until allTimeMoney ≥ 250,000; then disabled, showing `pending / needed` |
+| Resets | bananas, runMoney, all producers, all upgrades, run taps, active buffs, the Golden timer (the first Golden again arrives at 75 s) |
+| Persists | Thumbs, allTimeMoney, evolutions count, lifetime Golden catches, lifetime taps and crits, headlines seen, settings, buy mode |
 | Species title | `speciesTitles[min(evolutions, 7)]`: Monkeys → Slightly Smarter Monkeys → Banana Sapiens → Peel-Dwelling Philosophers → The Banana Bureaucracy → Post-Banana Primates → Galactic Banana Council → Ascended Bunch Mk N |
 
 Thumbs by all-time bananas: 1M → 10 · 8M → 20 · 64M → 40 · 512M → 80 · 4.1B → 160 · 32.8B → 320 · about 262B → 640 · 2.1T → 1,280.

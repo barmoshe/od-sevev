@@ -58,11 +58,11 @@ static func play_round(every: float, newest: int, seed_: int, max_t: float = 120
 			if newest > 0:
 				open = open.slice(maxi(0, open.size() - newest))
 			for m: Dictionary in open:
-				if s.bananas >= float(m.get("price", 0.0)):
+				if s.money >= float(m.get("price", 0.0)):
 					Coalition.pay(s, int(m["seq"]), true)
 		d = Economy.derive(s)
-		var best := {} if s.bananas < PacingSim._cheapest(s, d) else PacingSim._best_buy(s, d, 1.5, true, 10.0, {})
-		if not best.is_empty() and s.bananas >= float(best["cost"]) and not best.has("upgrade"):
+		var best := {} if s.money < PacingSim._cheapest(s, d) else PacingSim._best_buy(s, d, 1.5, true, 10.0, {})
+		if not best.is_empty() and s.money >= float(best["cost"]) and not best.has("upgrade"):
 			var id: String = best["producer"]
 			var n := Economy.max_affordable(s, id)
 			Economy.buy_producer(s, id, maxi(1, n / 2) if n >= 10 else 1)

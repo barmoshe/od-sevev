@@ -162,7 +162,7 @@ Every node reaches `MAIN` in ≤ 2 player steps. Every modal except `RESET_CONFI
 
 **Evolve is idempotent.** EVOLVE! locks input on its first frame, the save completes, and then `EVOLVE_TX` starts (mechanic E7). A second press is ignored.
 
-**Offline = credit, then receipt (data-integrity rule).** Credit the award to `bananas/runBananas/allTimeBananas` and **save at the moment it is detected**, before the modal renders. The modal is a receipt, and every exit path is a "collect" that only plays feedback.
+**Offline = credit, then receipt (data-integrity rule).** Credit the award to `bananas/runMoney/allTimeMoney` and **save at the moment it is detected**, before the modal renders. The modal is a receipt, and every exit path is a "collect" that only plays feedback.
 
 **Offline roll timing (accepted from the Audio Director).**
 - **Cold load:** the modal opens with the amount showing **+0** and the COLLECT button ready. The COLLECT press (pointer, Enter or Space) is the gesture that resumes the AudioContext. That same press starts the 800 ms roll (0 → award, display only, because the credit already happened) and `offlineCollect` fires when the roll ends. The modal closes 300 ms later, or immediately if the player taps again during the roll (the cue still plays).

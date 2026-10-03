@@ -207,7 +207,7 @@ func test_the_tab_bar_counts_sources_owned_in_total() -> void:
 	s.owned[first] = open_at
 	runner.check(Ftue.reveals(s)["tabs"], "%d taxpayers (one kind): the tab bar, as C1 opens the group" % open_at)
 	runner.check(Ftue.owned_total(s) == Conditions.sources_owned(s), "Ftue and the sim count the same")
-	s.bananas = 1e6
+	s.money = 1e6
 	runner.check(Coalition.c1_ready(s) == Ftue.reveals(s)["tabs"], "the sim's C1 and the tab slot agree")
 
 

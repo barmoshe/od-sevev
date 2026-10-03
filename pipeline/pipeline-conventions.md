@@ -12,7 +12,7 @@ Files: [`texture-baker.ts`](texture-baker.ts) · [`pixel-font.ts`](pixel-font.ts
 | Thing | Key | Example |
 |---|---|---|
 | The atlas texture | `ATLAS_KEY` = `"mb_atlas"` | `scene.add.image(x, y, ATLAS_KEY, frameKey("icon_intern"))` |
-| A sprite frame | `` `${spriteId}/${frameIndex}` ``, from `frameKey(id, i = 0)` | `critter_intern/1`, `bigBanana/4`, `ui_button/2` |
+| A sprite frame | `` `${spriteId}/${frameIndex}` ``, from `frameKey(id, i = 0)` | `critter_intern/1`, `magicianStandIn/4`, `ui_button/2` |
 | A font glyph block | `font_<variant>/0` (reserved `font_` prefix) | `font_outline/0` |
 | BitmapText fonts | `FONT_KEYS.plain` = `"mb_font"`, `.outline` = `"mb_font_outline"`, `.crit` = `"mb_font_crit"` | |
 | Pipeline-owned frames | `fx_*` ids | `fx_px/0` (white mask), `fx_confetti/0-1`, `fx_poof/0-2`, `fx_dust/0-1` |
@@ -54,7 +54,7 @@ planAtlas()  →  rasterizeAtlas()  →  canvas → scene.textures.addCanvas("mb
 
 | Asset | Scale | Snap grid g (logical px) |
 |---|---|---|
-| Big Banana, `bigBanana_halo` | ×5 | 5 (rest position on the 20-px grid) |
+| Big Banana, `magicianStandIn_halo` | ×5 | 5 (rest position on the 20-px grid) |
 | Golden Banana, critters, env, `ui_*` 9-slices, glyph sprites, `fx_*` | ×4 | 4 |
 | Shop and upgrade icons in rows | ×3 (style guide) | 3 |
 | Pixel text | ×2 / ×3 / ×4 / ×6 / ×8 | = the text scale |

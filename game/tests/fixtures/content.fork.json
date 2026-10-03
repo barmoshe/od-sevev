@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "_doc": "Single source of truth for Monkey Bananas economy + content. Owned by Game Designer. Mirrors design/progression-curve.md; feel numbers live in design/feel-spec.md (feel-tunables block). Import directly; do not hand-copy numbers into code.",
+  "_doc": "Single source of truth for Member Shekels economy + content. Owned by Game Designer. Mirrors design/progression-curve.md; feel numbers live in design/feel-spec.md (feel-tunables block). Import directly; do not hand-copy numbers into code.",
   "currency": {
-    "id": "bananas",
-    "name": "Bananas",
-    "icon": "banana"
+    "id": "money",
+    "name": "Shekels",
+    "icon": "crescent"
   },
   "tap": {
     "baseValue": 1,
@@ -16,18 +16,18 @@
   "producers": [
     {
       "id": "intern",
-      "name": "Intern Monkey",
-      "flavor": "Unpaid. Paid in bananas. Eats the pay.",
-      "visualHook": "monkey face wearing a blue lanyard with a white ID badge",
+      "name": "Intern Member",
+      "flavor": "Unpaid. Paid in money. Eats the pay.",
+      "visualHook": "member face wearing a blue lanyard with a white ID badge",
       "baseCost": 15,
       "costGrowth": 1.15,
       "baseBps": 0.4
     },
     {
       "id": "tree",
-      "name": "Banana Tree",
-      "flavor": "Grows bananas. The monkeys still suspect witchcraft.",
-      "visualHook": "stubby brown palm trunk, green fronds, yellow banana bunch hanging",
+      "name": "Shekel Tree",
+      "flavor": "Grows money. The members still suspect witchcraft.",
+      "visualHook": "stubby brown palm trunk, green fronds, yellow shekel bunch hanging",
       "baseCost": 120,
       "costGrowth": 1.15,
       "baseBps": 2.4
@@ -36,34 +36,34 @@
       "id": "hardhat",
       "name": "Hard-Hat Crew",
       "flavor": "Climbs taller trees. Unionized. Demands smaller hats.",
-      "visualHook": "monkey head in a white dome hard hat with a grey ridge, holding a tiny pickaxe",
+      "visualHook": "member head in a white dome hard hat with a grey ridge, holding a tiny pickaxe",
       "baseCost": 1100,
       "costGrowth": 1.15,
       "baseBps": 16
     },
     {
       "id": "bureaucrat",
-      "name": "Banana Bureaucrat",
-      "flavor": "Files each banana in triplicate. Now there are three.",
-      "visualHook": "monkey in a red necktie holding a banana-shaped rubber stamp",
+      "name": "Shekel Bureaucrat",
+      "flavor": "Files each shekel in triplicate. Now there are three.",
+      "visualHook": "member in a red necktie holding a shekel-shaped rubber stamp",
       "baseCost": 12000,
       "costGrowth": 1.15,
       "baseBps": 96
     },
     {
       "id": "catapult",
-      "name": "Banana Catapult",
-      "flavor": "Imports bananas from other islands at 200 km/h. No refunds.",
-      "visualHook": "wooden catapult with its arm cocked, one banana in the bucket",
+      "name": "Shekel Catapult",
+      "flavor": "Imports money from other islands at 200 km/h. No refunds.",
+      "visualHook": "wooden catapult with its arm cocked, one shekel in the bucket",
       "baseCost": 130000,
       "costGrowth": 1.15,
       "baseBps": 560
     },
     {
       "id": "rocket",
-      "name": "Monkey Space Program",
-      "flavor": "Searching the cosmos for bananas. Found: one (1) banana.",
-      "visualHook": "white rocket with a yellow banana nose cone and a monkey in the porthole",
+      "name": "Member Space Program",
+      "flavor": "Searching the cosmos for money. Found: one (1) shekel.",
+      "visualHook": "white rocket with a yellow shekel nose cone and a member in the porthole",
       "baseCost": 1400000,
       "costGrowth": 1.15,
       "baseBps": 3200
@@ -71,7 +71,7 @@
     {
       "id": "timechimp",
       "name": "Time-Traveling Chimp",
-      "flavor": "Steals bananas from the past. The past is furious.",
+      "flavor": "Steals money from the past. The past is furious.",
       "visualHook": "chimp face with green swirl goggles and a small clock beside it",
       "baseCost": 20000000,
       "costGrowth": 1.15,
@@ -79,24 +79,24 @@
     },
     {
       "id": "moon",
-      "name": "The Banana Moon",
-      "flavor": "It was always a banana. Astronomers: 'In hindsight, obviously.'",
-      "visualHook": "banana-shaped crescent moon with a stem and a tiny planted flag",
+      "name": "The Shekel Moon",
+      "flavor": "It was always a shekel. Astronomers: 'In hindsight, obviously.'",
+      "visualHook": "shekel-shaped crescent moon with a stem and a tiny planted flag",
       "baseCost": 330000000,
       "costGrowth": 1.15,
       "baseBps": 120000
     }
   ],
   "producerReveal": {
-    "revealAtRunBananasFracOfBaseCost": 0.5,
+    "revealAtRunMoneyFracOfBaseCost": 0.5,
     "showNextAsSilhouette": true,
-    "_rule": "A producer row is revealed when runBananas >= 0.5 * baseCost OR owned > 0 this run. Exactly one further unrevealed producer shows as a silhouette '???' row with its cost visible."
+    "_rule": "A producer row is revealed when runMoney >= 0.5 * baseCost OR owned > 0 this run. Exactly one further unrevealed producer shows as a silhouette '???' row with its cost visible."
   },
   "upgrades": [
     {
       "id": "glove",
       "name": "Grippy Gloves",
-      "flavor": "Twice the grip. Twice the banana.",
+      "flavor": "Twice the grip. Twice the shekel.",
       "visualHook": "one white cartoon glove",
       "cost": 100,
       "effect": {
@@ -104,21 +104,21 @@
         "mult": 2
       },
       "unlock": {
-        "runBananasAtLeast": 50
+        "runMoneyAtLeast": 50
       }
     },
     {
       "id": "bothhands",
       "name": "Two-Handed Technique",
       "flavor": "A breakthrough 40 million years in the making.",
-      "visualHook": "two brown monkey hands side by side, palms out",
+      "visualHook": "two brown member hands side by side, palms out",
       "cost": 1500,
       "effect": {
         "type": "tapMult",
         "mult": 2
       },
       "unlock": {
-        "runBananasAtLeast": 1000
+        "runMoneyAtLeast": 1000
       }
     },
     {
@@ -132,27 +132,27 @@
         "add": 0.02
       },
       "unlock": {
-        "runBananasAtLeast": 3000
+        "runMoneyAtLeast": 3000
       }
     },
     {
       "id": "luckypeel",
       "name": "Lucky Peel",
       "flavor": "Found on the ground. Obviously lucky.",
-      "visualHook": "banana peel with a green four-leaf-clover spot",
+      "visualHook": "shekel peel with a green four-leaf-clover spot",
       "cost": 7500,
       "effect": {
         "type": "critChance",
         "set": 0.1
       },
       "unlock": {
-        "runBananasAtLeast": 5000
+        "runMoneyAtLeast": 5000
       }
     },
     {
       "id": "radar",
-      "name": "Golden Banana Radar",
-      "flavor": "Beeps near gold. Also near regular bananas. Also always.",
+      "name": "Golden Shekel Radar",
+      "flavor": "Beeps near gold. Also near regular money. Also always.",
       "visualHook": "grey radar dish with one golden blip",
       "cost": 15000,
       "effect": {
@@ -160,43 +160,43 @@
         "mult": 0.75
       },
       "unlock": {
-        "runBananasAtLeast": 10000,
+        "runMoneyAtLeast": 10000,
         "goldenCaughtLifetimeAtLeast": 1
       }
     },
     {
       "id": "futures",
-      "name": "Banana Futures Market",
-      "flavor": "Selling bananas that don't exist yet. Profitably.",
-      "visualHook": "green zig-zag chart arrow rising over a banana",
+      "name": "Shekel Futures Market",
+      "flavor": "Selling money that don't exist yet. Profitably.",
+      "visualHook": "green zig-zag chart arrow rising over a shekel",
       "cost": 150000,
       "effect": {
         "type": "globalMult",
         "mult": 1.5
       },
       "unlock": {
-        "runBananasAtLeast": 100000
+        "runMoneyAtLeast": 100000
       }
     },
     {
       "id": "hammer",
-      "name": "Banana Hammer",
+      "name": "Shekel Hammer",
       "flavor": "Structurally unsound. Economically devastating.",
-      "visualHook": "wooden mallet whose head is a banana",
+      "visualHook": "wooden mallet whose head is a shekel",
       "cost": 250000,
       "effect": {
         "type": "tapPctOfBps",
         "add": 0.04
       },
       "unlock": {
-        "runBananasAtLeast": 150000
+        "runMoneyAtLeast": 150000
       }
     },
     {
       "id": "internx2",
       "name": "Coffee for Interns",
       "flavor": "Interns now vibrate at harvest frequency.",
-      "visualHook": "steaming brown mug with a banana handle",
+      "visualHook": "steaming brown mug with a shekel handle",
       "cost": 150,
       "effect": {
         "type": "producerMult",
@@ -212,9 +212,9 @@
     },
     {
       "id": "treex2",
-      "name": "Banana Fertilizer",
-      "flavor": "Ingredients: bananas.",
-      "visualHook": "burlap sack with a yellow banana label",
+      "name": "Shekel Fertilizer",
+      "flavor": "Ingredients: money.",
+      "visualHook": "burlap sack with a yellow shekel label",
       "cost": 1200,
       "effect": {
         "type": "producerMult",
@@ -231,8 +231,8 @@
     {
       "id": "hardhatx2",
       "name": "Taller Ladders",
-      "flavor": "OSHA has been notified. OSHA is also a monkey.",
-      "visualHook": "brown ladder with a banana balanced on top",
+      "flavor": "OSHA has been notified. OSHA is also a member.",
+      "visualHook": "brown ladder with a shekel balanced on top",
       "cost": 11000,
       "effect": {
         "type": "producerMult",
@@ -250,7 +250,7 @@
       "id": "bureaucratx2",
       "name": "Form B-4-NANA",
       "flavor": "Approved in record time: nine months.",
-      "visualHook": "clipboard with a red stamped banana on white paper",
+      "visualHook": "clipboard with a red stamped shekel on white paper",
       "cost": 120000,
       "effect": {
         "type": "producerMult",
@@ -267,8 +267,8 @@
     {
       "id": "catapultx2",
       "name": "Double-Barrel Catapult",
-      "flavor": "Twice the bananas. Twice the property damage.",
-      "visualHook": "two bananas crossed like an X over a coiled spring",
+      "flavor": "Twice the money. Twice the property damage.",
+      "visualHook": "two money crossed like an X over a coiled spring",
       "cost": 1300000,
       "effect": {
         "type": "producerMult",
@@ -284,9 +284,9 @@
     },
     {
       "id": "rocketx2",
-      "name": "Banana Fuel",
+      "name": "Shekel Fuel",
       "flavor": "Smells amazing at 3,000 degrees.",
-      "visualHook": "red fuel canister with a banana-peel logo",
+      "visualHook": "red fuel canister with a shekel-peel logo",
       "cost": 14000000,
       "effect": {
         "type": "producerMult",
@@ -303,8 +303,8 @@
     {
       "id": "timechimpx2",
       "name": "Paradox Insurance",
-      "flavor": "Covers grandfathers, butterflies, and bananas.",
-      "visualHook": "hourglass with a tiny banana inside the sand",
+      "flavor": "Covers grandfathers, butterflies, and money.",
+      "visualHook": "hourglass with a tiny shekel inside the sand",
       "cost": 200000000,
       "effect": {
         "type": "producerMult",
@@ -322,7 +322,7 @@
       "id": "moonx2",
       "name": "A Second Moon",
       "flavor": "Tides are now 'confused'.",
-      "visualHook": "two small banana crescents side by side",
+      "visualHook": "two small shekel crescents side by side",
       "cost": 3300000000,
       "effect": {
         "type": "producerMult",
@@ -342,21 +342,21 @@
     "currencyId": "thumbs",
     "name": "Opposable Thumbs",
     "shortName": "Thumbs",
-    "visualHook": "brown monkey thumbs-up, upright, 16x16",
+    "visualHook": "brown member thumbs-up, upright, 16x16",
     "rootDegree": 3,
     "divisor": 1000,
     "epsilon": 1e-09,
-    "_formula": "thumbsTotalEarned = floor(cbrt(allTimeBananas / divisor) + epsilon); pendingThumbs = thumbsTotalEarned - thumbsOwned. Use Math.cbrt, never Math.pow(x, 1/3).",
+    "_formula": "thumbsTotalEarned = floor(cbrt(allTimeMoney / divisor) + epsilon); pendingThumbs = thumbsTotalEarned - thumbsOwned. Use Math.cbrt, never Math.pow(x, 1/3).",
     "multPerThumb": 0.1,
-    "_mult": "prestigeMult = 1 + multPerThumb * thumbsOwned (additive per thumb, multiplies ALL banana income: producers and base tap).",
+    "_mult": "prestigeMult = 1 + multPerThumb * thumbsOwned (additive per thumb, multiplies ALL shekel income: producers and base tap).",
     "minPendingFloor": 10,
     "minPendingRatioOfOwned": 1.0,
-    "_gate": "Evolve is enabled when pendingThumbs >= max(minPendingFloor, ceil(minPendingRatioOfOwned * thumbsOwned)). First Evolution therefore needs allTimeBananas >= 1,000,000 (-> 10 Thumbs, x2.0).",
-    "showEvolveButtonAtAllTimeBananas": 250000,
-    "_show": "The Evolve button is hidden until allTimeBananas >= 250,000 (6 pending Thumbs), then visible-but-disabled with pending/needed progress until the gate opens.",
+    "_gate": "Evolve is enabled when pendingThumbs >= max(minPendingFloor, ceil(minPendingRatioOfOwned * thumbsOwned)). First Evolution therefore needs allTimeMoney >= 1,000,000 (-> 10 Thumbs, x2.0).",
+    "showEvolveButtonAtAllTimeMoney": 250000,
+    "_show": "The Evolve button is hidden until allTimeMoney >= 250,000 (6 pending Thumbs), then visible-but-disabled with pending/needed progress until the gate opens.",
     "resets": [
-      "bananas",
-      "runBananas",
+      "money",
+      "runMoney",
       "producersOwned",
       "upgradesBought",
       "runTaps",
@@ -365,7 +365,7 @@
     ],
     "persists": [
       "thumbsOwned",
-      "allTimeBananas",
+      "allTimeMoney",
       "evolutions",
       "goldenCaughtLifetime",
       "tapsLifetime",
@@ -375,13 +375,13 @@
       "buyMode"
     ],
     "speciesTitles": [
-      "Monkeys",
-      "Slightly Smarter Monkeys",
-      "Banana Sapiens",
+      "Members",
+      "Slightly Smarter Members",
+      "Shekel Sapiens",
       "Peel-Dwelling Philosophers",
-      "The Banana Bureaucracy",
-      "Post-Banana Primates",
-      "Galactic Banana Council",
+      "The Shekel Bureaucracy",
+      "Post-Shekel Primates",
+      "Galactic Shekel Council",
       "Ascended Bunch"
     ],
     "_speciesRule": "Title index = min(evolutions, 7). At index 7 append a roman-free counter: 'Ascended Bunch Mk ' + (evolutions - 6)."
@@ -399,14 +399,14 @@
         "id": "bunch",
         "weight": 0.4,
         "name": "Lucky Bunch",
-        "_reward": "instant bananas = max(bunchBpsSeconds * bps, bunchMinTaps * tapValueNoCrit)",
+        "_reward": "instant money = max(bunchBpsSeconds * bps, bunchMinTaps * tapValueNoCrit)",
         "bunchBpsSeconds": 60,
         "bunchMinTaps": 30
       },
       {
         "id": "frenzy",
         "weight": 0.4,
-        "name": "Banana Frenzy",
+        "name": "Shekel Frenzy",
         "_reward": "production (bps) x mult for durationSec",
         "mult": 5,
         "durationSec": 15
@@ -426,7 +426,7 @@
     "efficiency": 0.5,
     "capSec": 28800,
     "minAwaySec": 60,
-    "_formula": "award = clamp(now - lastSaveTime, 0, capSec) * bpsNoBuffs * efficiency, only if elapsed >= minAwaySec. Negative elapsed (clock moved back) => 0 and lastSaveTime := now. Award adds to bananas, runBananas and allTimeBananas."
+    "_formula": "award = clamp(now - lastSaveTime, 0, capSec) * bpsNoBuffs * efficiency, only if elapsed >= minAwaySec. Negative elapsed (clock moved back) => 0 and lastSaveTime := now. Award adds to money, runMoney and allTimeMoney."
   },
   "autosaveSec": 10,
   "buyModes": [
@@ -480,15 +480,15 @@
         "type": "tapsLifetime",
         "value": 1
       },
-      "text": "LOCAL MONKEY DISCOVERS BANANA. \"IT'S BIG,\" HE REPORTS."
+      "text": "LOCAL MEMBER DISCOVERS SHEKEL. \"IT'S BIG,\" HE REPORTS."
     },
     {
       "id": "h_100",
       "trigger": {
-        "type": "allTimeBananas",
+        "type": "allTimeMoney",
         "value": 100
       },
-      "text": "Troop declares 100 bananas \"a lot.\" Economists disagree."
+      "text": "Troop declares 100 money \"a lot.\" Economists disagree."
     },
     {
       "id": "h_intern",
@@ -496,7 +496,7 @@
         "type": "firstOwned",
         "value": "intern"
       },
-      "text": "Intern hired. Salary: bananas. Productivity: eats salary."
+      "text": "Intern hired. Salary: money. Productivity: eats salary."
     },
     {
       "id": "h_tree",
@@ -504,15 +504,15 @@
         "type": "firstOwned",
         "value": "tree"
       },
-      "text": "Tree produces bananas. Monkeys call it witchcraft, then Tuesday."
+      "text": "Tree produces money. Members call it witchcraft, then Tuesday."
     },
     {
       "id": "h_1k",
       "trigger": {
-        "type": "allTimeBananas",
+        "type": "allTimeMoney",
         "value": 1000
       },
-      "text": "1,000 bananas reached. Peel pile now \"a structural concern.\""
+      "text": "1,000 money reached. Peel pile now \"a structural concern.\""
     },
     {
       "id": "h_first_crit",
@@ -536,7 +536,7 @@
         "type": "goldenCaughtLifetime",
         "value": 1
       },
-      "text": "Golden banana sighted. Troop worships it, then eats it."
+      "text": "Golden shekel sighted. Troop worships it, then eats it."
     },
     {
       "id": "h_1000_taps",
@@ -544,7 +544,7 @@
         "type": "tapsLifetime",
         "value": 1000
       },
-      "text": "Big Banana files complaint: tapped 1,000 times, never asked how it feels."
+      "text": "Big Shekel files complaint: tapped 1,000 times, never asked how it feels."
     },
     {
       "id": "h_bureaucrat",
@@ -552,15 +552,15 @@
         "type": "firstOwned",
         "value": "bureaucrat"
       },
-      "text": "Bureaucrat files banana in triplicate. There are now three bananas."
+      "text": "Bureaucrat files shekel in triplicate. There are now three money."
     },
     {
       "id": "h_100k",
       "trigger": {
-        "type": "allTimeBananas",
+        "type": "allTimeMoney",
         "value": 100000
       },
-      "text": "Banana GDP passes a small island. The island is also bananas."
+      "text": "Shekel GDP passes a small island. The island is also money."
     },
     {
       "id": "h_catapult",
@@ -573,10 +573,10 @@
     {
       "id": "h_1m",
       "trigger": {
-        "type": "allTimeBananas",
+        "type": "allTimeMoney",
         "value": 1000000
       },
-      "text": "ONE MILLION BANANAS. Elders whisper of \"The Thumb.\""
+      "text": "ONE MILLION SHEKELS. Elders whisper of \"The Thumb.\""
     },
     {
       "id": "h_evolve_1",
@@ -584,7 +584,7 @@
         "type": "evolutions",
         "value": 1
       },
-      "text": "Monkeys evolve! First act as a thinking species: more bananas."
+      "text": "Members evolve! First act as a thinking species: more money."
     },
     {
       "id": "h_rocket",
@@ -592,7 +592,7 @@
         "type": "firstOwned",
         "value": "rocket"
       },
-      "text": "Space Program reaches orbit. Reports \"no bananas up here. Yet.\""
+      "text": "Space Program reaches orbit. Reports \"no money up here. Yet.\""
     },
     {
       "id": "h_evolve_3",
@@ -600,7 +600,7 @@
         "type": "evolutions",
         "value": 3
       },
-      "text": "Banana Sapiens invent philosophy. First question: why not more bananas?"
+      "text": "Shekel Sapiens invent philosophy. First question: why not more money?"
     },
     {
       "id": "h_timechimp",
@@ -608,15 +608,15 @@
         "type": "firstOwned",
         "value": "timechimp"
       },
-      "text": "Chimp returns from 1492 with a boat of bananas and zero regrets."
+      "text": "Chimp returns from 1492 with a boat of money and zero regrets."
     },
     {
       "id": "h_1b",
       "trigger": {
-        "type": "allTimeBananas",
+        "type": "allTimeMoney",
         "value": 1000000000
       },
-      "text": "One billion bananas. Gravity now measured in bunches."
+      "text": "One billion money. Gravity now measured in bunches."
     },
     {
       "id": "h_moon",
@@ -624,7 +624,7 @@
         "type": "firstOwned",
         "value": "moon"
       },
-      "text": "Moon confirmed to be a banana. Astronomers: \"In hindsight, obviously.\""
+      "text": "Moon confirmed to be a shekel. Astronomers: \"In hindsight, obviously.\""
     },
     {
       "id": "h_golden_25",
@@ -632,24 +632,24 @@
         "type": "goldenCaughtLifetime",
         "value": 25
       },
-      "text": "Golden banana hunters form a guild. Dues payable in golden bananas."
+      "text": "Golden shekel hunters form a guild. Dues payable in golden money."
     },
     {
       "id": "h_1t",
       "trigger": {
-        "type": "allTimeBananas",
+        "type": "allTimeMoney",
         "value": 1000000000000
       },
-      "text": "One trillion bananas. The concept of \"enough\" is officially abolished."
+      "text": "One trillion money. The concept of \"enough\" is officially abolished."
     }
   ],
   "ambientHeadlines": [
-    "Weather: 80% chance of bananas.",
-    "Poll: 9 out of 10 monkeys prefer bananas. The 10th was also a banana.",
-    "Banana prices steady at one (1) banana per banana.",
+    "Weather: 80% chance of money.",
+    "Poll: 9 out of 10 members prefer money. The 10th was also a shekel.",
+    "Shekel prices steady at one (1) shekel per shekel.",
     "Local tree denies all involvement.",
-    "Study finds tapping the Big Banana \"very good, actually.\"",
-    "Breaking: nothing is happening. It is happening to bananas."
+    "Study finds tapping the Big Shekel \"very good, actually.\"",
+    "Breaking: nothing is happening. It is happening to money."
   ],
   "ticker": {
     "_rule": "Milestone headlines fire once ever (persist headlinesSeen) and pre-empt the ticker. When the queue is empty, show a random ambient headline (no immediate repeat).",
@@ -700,7 +700,7 @@
     ]
   },
   "achievements": {
-    "_doc": "v2 Troop Morale (Cookie Clicker milk / Antimatter Dimensions): each earned achievement adds bonusPct to all production, raised by the Troop Spirit perk. Secret ones show ??? until earned. Trigger types: tapsLifetime, critsLifetime, goldenCaughtLifetime, allTimeBananas, bps, owned {producer}, ownedEach, evolutions, allUpgradesInRun, perksBought, fastestRunUnder (sec), stat {key} (GameState.stats), bananasAtOnce.",
+    "_doc": "v2 Troop Morale (Cookie Clicker milk / Antimatter Dimensions): each earned achievement adds bonusPct to all production, raised by the Troop Spirit perk. Secret ones show ??? until earned. Trigger types: tapsLifetime, critsLifetime, goldenCaughtLifetime, allTimeMoney, bps, owned {producer}, ownedEach, evolutions, allUpgradesInRun, perksBought, fastestRunUnder (sec), stat {key} (GameState.stats), moneyAtOnce.",
     "bonusPct": 0.015,
     "list": [
       {
@@ -735,7 +735,7 @@
       },
       {
         "id": "a_tap_100000",
-        "name": "BANANA WHISPERER",
+        "name": "SHEKEL WHISPERER",
         "desc": "TAP 100,000 TIMES",
         "icon": "icon_glove",
         "trigger": {
@@ -777,7 +777,7 @@
         "id": "a_gold_1",
         "name": "SHINY!",
         "desc": "CATCH A GOLDEN",
-        "icon": "goldenBanana",
+        "icon": "suitcaseStandIn",
         "trigger": {
           "type": "goldenCaughtLifetime",
           "value": 1
@@ -787,7 +787,7 @@
         "id": "a_gold_10",
         "name": "GOLD RUSH",
         "desc": "CATCH 10 GOLDENS",
-        "icon": "goldenBanana",
+        "icon": "suitcaseStandIn",
         "trigger": {
           "type": "goldenCaughtLifetime",
           "value": 10
@@ -797,7 +797,7 @@
         "id": "a_gold_50",
         "name": "GOLDEN GLOVES",
         "desc": "CATCH 50 GOLDENS",
-        "icon": "goldenBanana",
+        "icon": "suitcaseStandIn",
         "trigger": {
           "type": "goldenCaughtLifetime",
           "value": 50
@@ -805,9 +805,9 @@
       },
       {
         "id": "a_gold_200",
-        "name": "MIDAS MONKEY",
+        "name": "MIDAS MEMBER",
         "desc": "CATCH 200 GOLDENS",
-        "icon": "goldenBanana",
+        "icon": "suitcaseStandIn",
         "trigger": {
           "type": "goldenCaughtLifetime",
           "value": 200
@@ -817,49 +817,49 @@
         "id": "a_bank_1000",
         "name": "SNACK STASH",
         "desc": "HARVEST 1,000",
-        "icon": "icon_banana",
+        "icon": "icon_crescent",
         "trigger": {
-          "type": "allTimeBananas",
+          "type": "allTimeMoney",
           "value": 1000.0
         }
       },
       {
         "id": "a_bank_1000000",
-        "name": "BANANA MILLIONAIRE",
-        "desc": "HARVEST 1M BANANAS",
-        "icon": "icon_banana",
+        "name": "SHEKEL MILLIONAIRE",
+        "desc": "HARVEST 1M SHEKELS",
+        "icon": "icon_crescent",
         "trigger": {
-          "type": "allTimeBananas",
+          "type": "allTimeMoney",
           "value": 1000000.0
         }
       },
       {
         "id": "a_bank_1000000000",
         "name": "BUNCH BARON",
-        "desc": "HARVEST 1B BANANAS",
-        "icon": "icon_banana",
+        "desc": "HARVEST 1B SHEKELS",
+        "icon": "icon_crescent",
         "trigger": {
-          "type": "allTimeBananas",
+          "type": "allTimeMoney",
           "value": 1000000000.0
         }
       },
       {
         "id": "a_bank_1000000000000",
         "name": "PEEL EMPIRE",
-        "desc": "HARVEST 1T BANANAS",
-        "icon": "icon_banana",
+        "desc": "HARVEST 1T SHEKELS",
+        "icon": "icon_crescent",
         "trigger": {
-          "type": "allTimeBananas",
+          "type": "allTimeMoney",
           "value": 1000000000000.0
         }
       },
       {
         "id": "a_bank_1000000000000000",
-        "name": "BANANA SINGULARITY",
-        "desc": "HARVEST 1AA BANANAS",
-        "icon": "icon_banana",
+        "name": "SHEKEL SINGULARITY",
+        "desc": "HARVEST 1AA SHEKELS",
+        "icon": "icon_crescent",
         "trigger": {
-          "type": "allTimeBananas",
+          "type": "allTimeMoney",
           "value": 1000000000000000.0
         }
       },
@@ -875,7 +875,7 @@
       },
       {
         "id": "a_bps_10000",
-        "name": "BANANA RIVER",
+        "name": "SHEKEL RIVER",
         "desc": "REACH 10K PER SEC",
         "icon": "icon_futures",
         "trigger": {
@@ -885,7 +885,7 @@
       },
       {
         "id": "a_bps_1000000",
-        "name": "BANANA WATERFALL",
+        "name": "SHEKEL WATERFALL",
         "desc": "REACH 1M PER SEC",
         "icon": "icon_futures",
         "trigger": {
@@ -1110,9 +1110,9 @@
         "id": "a_s_hoard",
         "name": "HOARDER",
         "desc": "HOLD 1B AT ONCE",
-        "icon": "icon_banana",
+        "icon": "icon_crescent",
         "trigger": {
-          "type": "bananasAtOnce",
+          "type": "moneyAtOnce",
           "value": 1000000000.0
         },
         "secret": true
@@ -1121,7 +1121,7 @@
         "id": "a_s_miss",
         "name": "IT GOT AWAY",
         "desc": "MISS A GOLDEN",
-        "icon": "goldenBanana",
+        "icon": "suitcaseStandIn",
         "trigger": {
           "type": "stat",
           "key": "goldenMissed",
@@ -1132,7 +1132,7 @@
     ]
   },
   "perks": {
-    "_doc": "v2 Thumb Perks (Cookie Clicker heavenly upgrades): permanent, bought with Thumbs. Spending raises thumbsSpent only; the prestige multiplier keeps counting every Thumb ever earned, so spending never lowers income. desc takes {v} = the next level's value and must stay within 18 characters (the row beside the price pill). Costs are per level. The Banana Butler buys the cheapest producer only when it costs at most butlerSpendFrac of the bank (pocket change), so it never drains a run.",
+    "_doc": "v2 Thumb Perks (Cookie Clicker heavenly upgrades): permanent, bought with Thumbs. Spending raises thumbsSpent only; the prestige multiplier keeps counting every Thumb ever earned, so spending never lowers income. desc takes {v} = the next level's value and must stay within 18 characters (the row beside the price pill). Costs are per level. The Shekel Butler buys the cheapest producer only when it costs at most butlerSpendFrac of the bank (pocket change), so it never drains a run.",
     "list": [
       {
         "id": "p_autotap",
@@ -1153,7 +1153,7 @@
       },
       {
         "id": "p_butler",
-        "name": "BANANA BUTLER",
+        "name": "SHEKEL BUTLER",
         "icon": "icon_intern",
         "desc": "AUTO-BUYS CHEAPLY",
         "levels": [
@@ -1210,7 +1210,7 @@
       {
         "id": "p_start",
         "name": "HEAD START",
-        "icon": "icon_banana",
+        "icon": "icon_crescent",
         "desc": "START WITH {v}",
         "levels": [
           1000,
@@ -1222,12 +1222,12 @@
           60,
           600
         ],
-        "effect": "startBananas"
+        "effect": "startMoney"
       },
       {
         "id": "p_magnet",
         "name": "GOLDEN MAGNET",
-        "icon": "goldenBanana",
+        "icon": "suitcaseStandIn",
         "desc": "GOLDENS {v}% SOONER",
         "levels": [
           15,
@@ -1288,7 +1288,7 @@
   "narrator": {
     "_doc": "v2 story: the ticker's host. Working name; rename here and in ux/ui-strings.json (STORY_* strings) if Bar picks another.",
     "name": "CHIP",
-    "title": "BANANA NEWS ANCHOR"
+    "title": "SHEKEL NEWS ANCHOR"
   },
   "eras": {
     "_doc": "v2: four eras tied to the species titles. An era starts at an evolution count; the diorama sky, props and music follow it. skyBands replace art SKY_BANDS colours (same from/to).",
@@ -1306,7 +1306,7 @@
       },
       {
         "id": "village",
-        "name": "BANANA VILLAGE",
+        "name": "SHEKEL VILLAGE",
         "fromEvolutions": 2,
         "skyBands": [
           "#1f7fc6",
@@ -1332,7 +1332,7 @@
       },
       {
         "id": "orbit",
-        "name": "BANANA ORBIT",
+        "name": "SHEKEL ORBIT",
         "fromEvolutions": 6,
         "skyBands": [
           "#2b1b24",
@@ -1352,42 +1352,42 @@
       [
         "GOOD EVENING, I'M CHIP.",
         "TONIGHT: THE TROOP GREW THUMBS.",
-        "THE BANANA HAS NO COMMENT."
+        "THE SHEKEL HAS NO COMMENT."
       ],
       [
         "BREAKING: THE TROOP INVENTED",
-        "HUTS. MADE OF BANANAS.",
+        "HUTS. MADE OF SHEKELS.",
         "LUNCH IS NOW ALSO THE HOUSE."
       ],
       [
         "PHILOSOPHERS ASK: IS THE BIG",
-        "BANANA REAL? THEY TAPPED IT.",
+        "SHEKEL REAL? THEY TAPPED IT.",
         "IT IS. DEBATE CLOSED."
       ],
       [
         "THE VILLAGE IS NOW A CITY.",
         "TAPPING NOW REQUIRES FORM B-4.",
-        "FORM B-4 IS A BANANA."
+        "FORM B-4 IS A SHEKEL."
       ],
       [
         "SCIENTISTS WARN OF TOO MANY",
-        "BANANAS. THEY WERE PAID IN",
-        "BANANAS. THE WARNING STANDS."
+        "SHEKELS. THEY WERE PAID IN",
+        "SHEKELS. THE WARNING STANDS."
       ],
       [
         "WE ARE IN SPACE NOW. THE MOON",
         "ACCEPTED OUR INVITATION.",
-        "IT WAS ALWAYS A BANANA."
+        "IT WAS ALWAYS A SHEKEL."
       ],
       [
         "THE TROOP HAS ASCENDED.",
-        "WE ARE BANANA. BANANA IS US.",
+        "WE ARE SHEKEL. SHEKEL IS US.",
         "I'M CHIP. GOODNIGHT."
       ]
     ],
     "encore": [
       "ASCENDED BUNCH MK {n}.",
-      "SAME STORY. MORE BANANAS.",
+      "SAME STORY. MORE SHEKELS.",
       "STAY TUNED. STAY PEELED."
     ]
   },
@@ -1396,103 +1396,103 @@
     "noRepeatWindow": 12,
     "list": [
       {
-        "text": "Weather: 80% chance of bananas."
+        "text": "Weather: 80% chance of money."
       },
       {
-        "text": "Poll: 9 out of 10 monkeys prefer bananas. The 10th was also a banana."
+        "text": "Poll: 9 out of 10 members prefer money. The 10th was also a shekel."
       },
       {
-        "text": "Banana prices steady at one (1) banana per banana."
+        "text": "Shekel prices steady at one (1) shekel per shekel."
       },
       {
         "text": "Local tree denies all involvement."
       },
       {
-        "text": "Study finds tapping the Big Banana \"very good, actually.\""
+        "text": "Study finds tapping the Big Shekel \"very good, actually.\""
       },
       {
-        "text": "Breaking: nothing is happening. It is happening to bananas."
+        "text": "Breaking: nothing is happening. It is happening to money."
       },
       {
-        "text": "Big Banana voted Most Tappable for the ninth year running. There was no vote."
+        "text": "Big Shekel voted Most Tappable for the ninth year running. There was no vote."
       },
       {
-        "text": "Monkey claims he saw the Big Banana blink. Big Banana: \"I did not.\""
+        "text": "Member claims he saw the Big Shekel blink. Big Shekel: \"I did not.\""
       },
       {
         "text": "Peel recycling program recycles peels into more peels."
       },
       {
-        "text": "Troop meeting ends early. Someone brought bananas."
+        "text": "Troop meeting ends early. Someone brought money."
       },
       {
-        "text": "Reminder: the Big Banana is not a phone. Please stop talking to it."
+        "text": "Reminder: the Big Shekel is not a phone. Please stop talking to it."
       },
       {
-        "text": "Forecast: sunny, with a strong chance of the same banana."
+        "text": "Forecast: sunny, with a strong chance of the same shekel."
       },
       {
-        "text": "Monkey tries apple. Reports \"too round.\""
+        "text": "Member tries apple. Reports \"too round.\""
       },
       {
-        "text": "Traffic update: a banana is blocking the path. It is being eaten."
+        "text": "Traffic update: a shekel is blocking the path. It is being eaten."
       },
       {
-        "text": "Sports: the banana toss is postponed. The banana was eaten."
+        "text": "Sports: the shekel toss is postponed. The shekel was eaten."
       },
       {
-        "text": "Opinion: \"We should save some bananas for later.\" Author has been escorted out."
+        "text": "Opinion: \"We should save some money for later.\" Author has been escorted out."
       },
       {
-        "text": "Local monkey writes a novel. It is one word long. The word is banana."
+        "text": "Local member writes a novel. It is one word long. The word is shekel."
       },
       {
-        "text": "Health tip: bananas are 100% banana."
+        "text": "Health tip: money are 100% shekel."
       },
       {
-        "text": "Troop census: everyone present. Everyone holding a banana."
+        "text": "Troop census: everyone present. Everyone holding a shekel."
       },
       {
         "text": "New study: tapping faster makes you tap faster."
       },
       {
-        "text": "Jungle council votes to rename the jungle \"the banana place.\" Motion passes.",
+        "text": "Jungle council votes to rename the jungle \"the shekel place.\" Motion passes.",
         "when": {
           "era": "jungle"
         }
       },
       {
-        "text": "Vines report record traffic. Everyone swinging toward the Big Banana.",
+        "text": "Vines report record traffic. Everyone swinging toward the Big Shekel.",
         "when": {
           "era": "jungle"
         }
       },
       {
-        "text": "A parrot repeats \"banana\" 400 times. Hired as a consultant.",
+        "text": "A parrot repeats \"shekel\" 400 times. Hired as a consultant.",
         "when": {
           "era": "jungle"
         }
       },
       {
-        "text": "Rain in the jungle today. The bananas are wet but morale is dry.",
+        "text": "Rain in the jungle today. The money are wet but morale is dry.",
         "when": {
           "era": "jungle"
         }
       },
       {
-        "text": "Mystery solved: the rustling in the bushes was a banana.",
+        "text": "Mystery solved: the rustling in the bushes was a shekel.",
         "when": {
           "era": "jungle"
         }
       },
       {
-        "text": "Village well now dispenses bananas. Water relocated to a smaller well.",
+        "text": "Village well now dispenses money. Water relocated to a smaller well.",
         "when": {
           "era": "village"
         }
       },
       {
-        "text": "Village fair opens. Every stall sells bananas. Every stall is sold out.",
+        "text": "Village fair opens. Every stall sells money. Every stall is sold out.",
         "when": {
           "era": "village"
         }
@@ -1504,91 +1504,91 @@
         }
       },
       {
-        "text": "Village elders issue a proverb: \"A banana in the hand is a banana.\"",
+        "text": "Village elders issue a proverb: \"A shekel in the hand is a shekel.\"",
         "when": {
           "era": "village"
         }
       },
       {
-        "text": "New school opens. First lesson: counting to banana.",
+        "text": "New school opens. First lesson: counting to shekel.",
         "when": {
           "era": "village"
         }
       },
       {
-        "text": "Peel City traffic: 40 minutes from anywhere to the Big Banana.",
+        "text": "Peel City traffic: 40 minutes from anywhere to the Big Shekel.",
         "when": {
           "era": "city"
         }
       },
       {
-        "text": "City hall approves a skyscraper shaped like a banana. Architects: \"What else?\"",
+        "text": "City hall approves a skyscraper shaped like a shekel. Architects: \"What else?\"",
         "when": {
           "era": "city"
         }
       },
       {
-        "text": "Stock market rises on news that bananas are still popular.",
+        "text": "Stock market rises on news that money are still popular.",
         "when": {
           "era": "city"
         }
       },
       {
-        "text": "Subway line opens. Every stop is called Banana Street.",
+        "text": "Subway line opens. Every stop is called Shekel Street.",
         "when": {
           "era": "city"
         }
       },
       {
-        "text": "Rush hour: everyone rushing to the Big Banana. It is always rush hour.",
+        "text": "Rush hour: everyone rushing to the Big Shekel. It is always rush hour.",
         "when": {
           "era": "city"
         }
       },
       {
-        "text": "City installs banana-scented streetlights. Nobody can see anything. Nobody minds.",
+        "text": "City installs shekel-scented streetlights. Nobody can see anything. Nobody minds.",
         "when": {
           "era": "city"
         }
       },
       {
-        "text": "Mission control reports all systems nominal. Nominal means banana.",
+        "text": "Mission control reports all systems nominal. Nominal means shekel.",
         "when": {
           "era": "orbit"
         }
       },
       {
-        "text": "Astronauts plant a flag on the moon. The flag is a banana.",
+        "text": "Astronauts plant a flag on the moon. The flag is a shekel.",
         "when": {
           "era": "orbit"
         }
       },
       {
-        "text": "Orbit update: 14 satellites, all of them bananas.",
+        "text": "Orbit update: 14 satellites, all of them money.",
         "when": {
           "era": "orbit"
         }
       },
       {
-        "text": "First contact made. The aliens also want bananas.",
+        "text": "First contact made. The aliens also want money.",
         "when": {
           "era": "orbit"
         }
       },
       {
-        "text": "Zero gravity tapping trials: the banana floats away. Trial ongoing.",
+        "text": "Zero gravity tapping trials: the shekel floats away. Trial ongoing.",
         "when": {
           "era": "orbit"
         }
       },
       {
-        "text": "Space weather: a light banana shower expected over the dark side.",
+        "text": "Space weather: a light shekel shower expected over the dark side.",
         "when": {
           "era": "orbit"
         }
       },
       {
-        "text": "Interns request a break room. Given a banana instead. Satisfied.",
+        "text": "Interns request a break room. Given a shekel instead. Satisfied.",
         "when": {
           "owned": {
             "producer": "intern",
@@ -1597,7 +1597,7 @@
         }
       },
       {
-        "text": "Intern of the month: all of them. It is a tie. They split a banana.",
+        "text": "Intern of the month: all of them. It is a tie. They split a shekel.",
         "when": {
           "owned": {
             "producer": "intern",
@@ -1606,7 +1606,7 @@
         }
       },
       {
-        "text": "Tree whispers \"more water.\" Troop gives it a banana. Tree confused but grateful.",
+        "text": "Tree whispers \"more water.\" Troop gives it a shekel. Tree confused but grateful.",
         "when": {
           "owned": {
             "producer": "tree",
@@ -1624,7 +1624,7 @@
         }
       },
       {
-        "text": "Hard-Hat Crew completes a safety audit. Hazards found: bananas, everywhere.",
+        "text": "Hard-Hat Crew completes a safety audit. Hazards found: money, everywhere.",
         "when": {
           "owned": {
             "producer": "hardhat",
@@ -1633,7 +1633,7 @@
         }
       },
       {
-        "text": "Crew foreman insists on smaller hard hats. Hats now banana-sized.",
+        "text": "Crew foreman insists on smaller hard hats. Hats now shekel-sized.",
         "when": {
           "owned": {
             "producer": "hardhat",
@@ -1642,7 +1642,7 @@
         }
       },
       {
-        "text": "Bureaucrats file a form to reduce forms. Form rejected: wrong color banana.",
+        "text": "Bureaucrats file a form to reduce forms. Form rejected: wrong color shekel.",
         "when": {
           "owned": {
             "producer": "bureaucrat",
@@ -1651,7 +1651,7 @@
         }
       },
       {
-        "text": "New regulation: all bananas must be curved. Compliance: 100%.",
+        "text": "New regulation: all money must be curved. Compliance: 100%.",
         "when": {
           "owned": {
             "producer": "bureaucrat",
@@ -1669,7 +1669,7 @@
         }
       },
       {
-        "text": "Airspace warning: flying bananas at 200 km/h. Duck or catch.",
+        "text": "Airspace warning: flying money at 200 km/h. Duck or catch.",
         "when": {
           "owned": {
             "producer": "catapult",
@@ -1678,7 +1678,7 @@
         }
       },
       {
-        "text": "Space Program budget approved. Budget is a banana. It is a big banana.",
+        "text": "Space Program budget approved. Budget is a shekel. It is a big shekel.",
         "when": {
           "owned": {
             "producer": "rocket",
@@ -1687,7 +1687,7 @@
         }
       },
       {
-        "text": "Rocket launch delayed. Someone ate the fuel. The fuel was bananas.",
+        "text": "Rocket launch delayed. Someone ate the fuel. The fuel was money.",
         "when": {
           "owned": {
             "producer": "rocket",
@@ -1696,7 +1696,7 @@
         }
       },
       {
-        "text": "Time chimp returns from next week. Reports: \"more bananas.\"",
+        "text": "Time chimp returns from next week. Reports: \"more money.\"",
         "when": {
           "owned": {
             "producer": "timechimp",
@@ -1705,7 +1705,7 @@
         }
       },
       {
-        "text": "Historians complain their history keeps getting more bananas in it.",
+        "text": "Historians complain their history keeps getting more money in it.",
         "when": {
           "owned": {
             "producer": "timechimp",
@@ -1714,7 +1714,7 @@
         }
       },
       {
-        "text": "Tides confused by the Banana Moon. Ocean now slightly curved.",
+        "text": "Tides confused by the Shekel Moon. Ocean now slightly curved.",
         "when": {
           "owned": {
             "producer": "moon",
@@ -1723,7 +1723,7 @@
         }
       },
       {
-        "text": "Werewolves report transforming into bananas. They seem fine.",
+        "text": "Werewolves report transforming into money. They seem fine.",
         "when": {
           "owned": {
             "producer": "moon",
@@ -1732,7 +1732,7 @@
         }
       },
       {
-        "text": "LIVE: a Banana Frenzy is under way. Monkeys advised to hold on to their bananas.",
+        "text": "LIVE: a Shekel Frenzy is under way. Members advised to hold on to their money.",
         "when": {
           "frenzy": true
         }
@@ -1750,7 +1750,7 @@
         }
       },
       {
-        "text": "Good morning. Breakfast is a banana. So is second breakfast.",
+        "text": "Good morning. Breakfast is a shekel. So is second breakfast.",
         "when": {
           "hour": [
             5,
@@ -1759,7 +1759,7 @@
         }
       },
       {
-        "text": "Afternoon slump? Science recommends one (1) banana.",
+        "text": "Afternoon slump? Science recommends one (1) shekel.",
         "when": {
           "hour": [
             12,
@@ -1768,7 +1768,7 @@
         }
       },
       {
-        "text": "Evening news: the Big Banana is still big. More at eleven.",
+        "text": "Evening news: the Big Shekel is still big. More at eleven.",
         "when": {
           "hour": [
             18,
@@ -1777,7 +1777,7 @@
         }
       },
       {
-        "text": "It is very late. The Big Banana is still awake. So are you.",
+        "text": "It is very late. The Big Shekel is still awake. So are you.",
         "when": {
           "hour": [
             23,
@@ -1786,25 +1786,25 @@
         }
       },
       {
-        "text": "Thumbs found to be opposable. Monkeys oppose everything now, except bananas.",
+        "text": "Thumbs found to be opposable. Members oppose everything now, except money.",
         "when": {
           "evolutionsAtLeast": 1
         }
       },
       {
-        "text": "Evolution experts agree: the next species will like bananas even more.",
+        "text": "Evolution experts agree: the next species will like money even more.",
         "when": {
           "evolutionsAtLeast": 2
         }
       },
       {
-        "text": "Museum opens an exhibit on the old days, when there were only a few bananas.",
+        "text": "Museum opens an exhibit on the old days, when there were only a few money.",
         "when": {
           "evolutionsAtLeast": 3
         }
       },
       {
-        "text": "Troop elders recall evolving into this. They say it was worth it. Bananas.",
+        "text": "Troop elders recall evolving into this. They say it was worth it. Shekels.",
         "when": {
           "evolutionsAtLeast": 5
         }
@@ -1816,31 +1816,31 @@
         }
       },
       {
-        "text": "Banana Butler buys an intern. Intern buys a smaller butler. Investigation ongoing.",
+        "text": "Shekel Butler buys an intern. Intern buys a smaller butler. Investigation ongoing.",
         "when": {
           "perk": "p_butler"
         }
       },
       {
-        "text": "Golden Net catches a Golden Banana, a pigeon and one surprised cloud.",
+        "text": "Golden Net catches a Golden Shekel, a pigeon and one surprised cloud.",
         "when": {
           "perk": "p_net"
         }
       },
       {
-        "text": "Longer Naps approved. Troop productivity while asleep: still bananas.",
+        "text": "Longer Naps approved. Troop productivity while asleep: still money.",
         "when": {
           "perk": "p_nap"
         }
       },
       {
-        "text": "Night Shift reports the moon is also working. The moon is a banana.",
+        "text": "Night Shift reports the moon is also working. The moon is a shekel.",
         "when": {
           "perk": "p_shift"
         }
       },
       {
-        "text": "Head Start program: every run now begins with a small banana pile and a big grin.",
+        "text": "Head Start program: every run now begins with a small shekel pile and a big grin.",
         "when": {
           "perk": "p_start"
         }
@@ -1858,13 +1858,13 @@
         }
       },
       {
-        "text": "Trophy cabinet installed. It is a banana crate with good lighting.",
+        "text": "Trophy cabinet installed. It is a shekel crate with good lighting.",
         "when": {
           "trophiesAtLeast": 5
         }
       },
       {
-        "text": "Troop morale hits a record high. Record is written on a banana.",
+        "text": "Troop morale hits a record high. Record is written on a shekel.",
         "when": {
           "trophiesAtLeast": 15
         }
@@ -1876,79 +1876,79 @@
         }
       },
       {
-        "text": "Economists predict bananas will continue. Economists correct again.",
+        "text": "Economists predict money will continue. Economists correct again.",
         "when": {
           "allTimeAtLeast": 1000000.0
         }
       },
       {
-        "text": "Banana reserves now visible from the next island. The next island is jealous.",
+        "text": "Shekel reserves now visible from the next island. The next island is jealous.",
         "when": {
           "allTimeAtLeast": 1000000000.0
         }
       },
       {
-        "text": "Counting all the bananas now takes longer than growing them. Counting cancelled.",
+        "text": "Counting all the money now takes longer than growing them. Counting cancelled.",
         "when": {
           "allTimeAtLeast": 1000000000000.0
         }
       },
       {
-        "text": "Mathematicians run out of numbers for bananas. They invent AA. Then AB.",
+        "text": "Mathematicians run out of numbers for money. They invent AA. Then AB.",
         "when": {
           "allTimeAtLeast": 1000000000000000.0
         }
       },
       {
-        "text": "Golden Banana spotted again. Troop pretends to be calm. Troop is not calm.",
+        "text": "Golden Shekel spotted again. Troop pretends to be calm. Troop is not calm.",
         "when": {
           "goldenAtLeast": 3
         }
       },
       {
-        "text": "Golden Banana fan club reaches 1 million members. All are the same monkey.",
+        "text": "Golden Shekel fan club reaches 1 million members. All are the same member.",
         "when": {
           "goldenAtLeast": 20
         }
       },
       {
-        "text": "Jungle tour guide retires. Every tour ended at the Big Banana anyway.",
+        "text": "Jungle tour guide retires. Every tour ended at the Big Shekel anyway.",
         "when": {
           "era": "jungle"
         }
       },
       {
-        "text": "Monkey swings from vine to vine. Arrives at banana. Story ends there.",
+        "text": "Member swings from vine to vine. Arrives at shekel. Story ends there.",
         "when": {
           "era": "jungle"
         }
       },
       {
-        "text": "Village baker bakes banana bread. The bread is a banana.",
+        "text": "Village baker bakes shekel bread. The bread is a shekel.",
         "when": {
           "era": "village"
         }
       },
       {
-        "text": "Village festival crowns a Banana King. The crown is also a banana. So is the king.",
+        "text": "Village festival crowns a Shekel King. The crown is also a shekel. So is the king.",
         "when": {
           "era": "village"
         }
       },
       {
-        "text": "City council debates a second Big Banana. Motion defeated: \"there can be only one.\"",
+        "text": "City council debates a second Big Shekel. Motion defeated: \"there can be only one.\"",
         "when": {
           "era": "city"
         }
       },
       {
-        "text": "Taxi drivers accept bananas. Fares have never been so sticky.",
+        "text": "Taxi drivers accept money. Fares have never been so sticky.",
         "when": {
           "era": "city"
         }
       },
       {
-        "text": "Space station reports a banana-shaped comet. It is a banana.",
+        "text": "Space station reports a shekel-shaped comet. It is a shekel.",
         "when": {
           "era": "orbit"
         }
@@ -1960,28 +1960,28 @@
         }
       },
       {
-        "text": "Poll: the Big Banana remains the most popular banana."
+        "text": "Poll: the Big Shekel remains the most popular shekel."
       },
       {
-        "text": "Recipe of the day: banana. Serves one monkey. Or one banana, reversed."
+        "text": "Recipe of the day: shekel. Serves one member. Or one shekel, reversed."
       },
       {
-        "text": "Lost and found: one peel. Please describe the banana you were wearing."
+        "text": "Lost and found: one peel. Please describe the shekel you were wearing."
       },
       {
-        "text": "Correction: yesterday's headline said \"banana.\" It should have said \"BANANA.\""
+        "text": "Correction: yesterday's headline said \"shekel.\" It should have said \"SHEKEL.\""
       },
       {
-        "text": "Sleep scientists confirm monkeys dream of bananas. Bananas unavailable for comment."
+        "text": "Sleep scientists confirm members dream of money. Shekels unavailable for comment."
       },
       {
-        "text": "Troop adopts a mission statement: \"More.\" Draft two: \"More bananas.\""
+        "text": "Troop adopts a mission statement: \"More.\" Draft two: \"More money.\""
       },
       {
         "text": "Breaking: someone said \"apple\" in a meeting. The meeting has been cancelled."
       },
       {
-        "text": "Motivational poster of the week: a banana, captioned \"a banana.\""
+        "text": "Motivational poster of the week: a shekel, captioned \"a shekel.\""
       }
     ]
   }

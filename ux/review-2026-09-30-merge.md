@@ -48,7 +48,7 @@
 - **Where:** the start of round 2 and every later round, at 390×844, 375×667 and 430×932, whenever the player carries less than 7.5 ₪ into the new round.
   - The pane shows the buy-mode row and then the first source as a *locked* priced row ("מקור עלום / יתגלה כשיהיה מספיק", ₪ 15), with no teaser rows. The white field below it is empty: about 40% (375×667) to 65% (430×932) of the pane.
   - **Cause:**
-    - `producerReveal` reveals a source at `runBananas ≥ 0.5 × baseCost`, and `runBananas` restarts with the run;
+    - `producerReveal` reveals a source at `runMoney ≥ 0.5 × baseCost`, and `runMoney` restarts with the run;
     - the fill (D57) draws only "after the first reveal";
     - D51's "card 1 is up from the pick" is wired to round 1's pre-tap only.
   - My drive, which carried 23 ₪ into round 2, shows card 1 and the teasers correctly. `pretap_shots`, which carried 3 ₪, shows the defect. A player who pays a last demand to reach 61 and votes with an empty purse gets this screen.
@@ -88,7 +88,7 @@
 - **What it breaks:** `ftue.md` P0 (the pulse is on "the hat for Bibi, the prop at `propMouth` for every other leader"; the hand points at that tap object).
 - **Owner:** Game Developer.
 - **Fix:**
-  - Pass the pulse's own point as `ctx.hat`: `big_banana`'s tracked prop point (`propMouth`; Bibi `hatMouth`).
+  - Pass the pulse's own point as `ctx.hat`: `magician`'s tracked prop point (`propMouth`; Bibi `hatMouth`).
   - Keep the `upleft` hand at its right side.
   - H1's squawk anchor can keep the head point.
 

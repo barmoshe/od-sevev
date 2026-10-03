@@ -109,7 +109,7 @@ A "hand" is the 16×16 pointer-hand sprite drawn ×4 (64×64) at z 70.
 ### P5 — Evolve introduction (reveal at 250K)
 | Field | Value |
 |---|---|
-| Trigger | `allTimeBananas >= prestige.showEvolveButtonAtAllTimeBananas AND evolutions == 0 AND NOT ftue.p5 == 'done'` |
+| Trigger | `allTimeMoney >= prestige.showEvolveButtonAtAllTimeMoney AND evolutions == 0 AND NOT ftue.p5 == 'done'` |
 | Shows | The Evolve button reveals (disabled, "6/10"). Hand `↑` at 460,124, pointing at the button from below (top-bar overlap is allowed at z 70). Ticker `F5_EVOLVE_SEEN` |
 | Auto-dismiss | tap on the Evolve button → opens `EVOLUTION` in `preview`, which *is* the lesson: "NEED 10 NEW THUMBS", "EACH EVOLUTION MUST AT LEAST DOUBLE YOUR THUMBS", the progress bar, and the RESETS/KEEPS lists. Then `ftue.p5 = 'done'` |
 | Failure branch | `mechanic_attempts_count(buyAny, ">=", 3)` since the hand appeared → hide the hand, show a "!" badge on the button (a 32×32 chip at 564,20, ×3 "!" centred, inside the Evolve visual and hit rects), set `ftue.p5 = 'badge'`. The badge persists until the first overlay open → `'done'` |

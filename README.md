@@ -5,7 +5,7 @@ pulling shekels out of a hat, paying coalition partners, dodging court days, and
 forever. Everything here is **Hebrew, RTL, portrait, mobile-first web**.
 
 **Engine:** a fork of Monkey Bananas v2.1.0 (Godot 4.7.2, web export). The original README is
-`README.monkey-bananas.md`, and the engine notes are in `HOW-TO-RUN.md` and `decisions/`.
+`README.fork.md`, and the engine notes are in `HOW-TO-RUN.md` and `decisions/`.
 
 **Location:** Bar's plan said `~/hakosem`. The studio's output rule (I13) puts it here instead.
 Deploy is out of studio scope (I5): the gated Vercel deploy stays Bar's call.

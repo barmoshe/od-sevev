@@ -1,4 +1,4 @@
-// Monkey Bananas texture baker. Owner: Technical Artist. Consumer: Game Developer (Boot scene).
+// The fork's texture baker. Owner: Technical Artist. Consumer: Game Developer (Boot scene).
 //
 // Turns the palette-indexed string grids (art/sprites.ts) and the 5×7 pixel font
 // (pipeline/pixel-font.ts) into ONE Phaser texture at boot, plus three BitmapText fonts that
@@ -193,7 +193,7 @@ export interface BakeInput {
 // ---------------------------------------------------------------------------------------------
 
 export interface PlannedFrame {
-  /** Frame key, e.g. "bigBanana/3". */
+  /** Frame key, e.g. "magicianStandIn/3". */
   key: string;
   sprite: string;
   index: number;

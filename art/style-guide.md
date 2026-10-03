@@ -132,7 +132,7 @@ Computed live by `node art/verify-sprites.mjs`, which fails the build on any mis
 
 ## 7. Components and states
 
-**Big Banana `bigBanana` (48×49 ×5).** Every frame shares the bottom baseline: the ink sits on row 48 and row 0 is spare, so the stretch fits. The pivot is bottom-centre. The widths follow X ≈ 2 − Y.
+**Big Banana `magicianStandIn` (48×49 ×5).** Every frame shares the bottom baseline: the ink sits on row 48 and row 0 is spare, so the stretch fits. The pivot is bottom-centre. The widths follow X ≈ 2 − Y.
 
 | Frame | Pose | Visible W×H (art px, incl. ink) | Height ratio | Face |
 |---|---|---|---|---|
@@ -142,11 +142,11 @@ Computed live by `node art/verify-sprites.mjs`, which fails the build on any mis
 | 3 | deep squash 0.84 / crit | 32×38 | 0.844 | squeeze > < |
 | 4 | stretch 1.02 (overshoot) | 26×46 | 1.022 | open eyes |
 
-Each ratio sits inside the Animator's quantize band (§1.1), and `verify-sprites.mjs` asserts this. The hit area is the **rest** bounds (`SPRITE_META.bigBanana.restBounds`) + 16 px and never follows the frame. The ratios are measured on the 45-row rest, not on 48: the 1-px ink doesn't scale. A dev-mode drift check should compare against `SPRITE_META.bigBanana.heightRatio`.
+Each ratio sits inside the Animator's quantize band (§1.1), and `verify-sprites.mjs` asserts this. The hit area is the **rest** bounds (`SPRITE_META.magicianStandIn.restBounds`) + 16 px and never follows the frame. The ratios are measured on the 45-row rest, not on 48: the 1-px ink doesn't scale. A dev-mode drift check should compare against `SPRITE_META.magicianStandIn.heightRatio`.
 
-**Big Banana halo `bigBanana_halo` (44×56).** A soft pixel oval in `h`: a solid core plus two dithered rings (50% checker, then 25%). It is drawn **behind** the banana at the same ×5 scale, with origin (0.5, 0.5), centred on the banana's rest-bbox centre (`SPRITE_META.bigBanana_halo.alignTo.canvasPx` = [24, 26.5] from the banana canvas top-left). Code sets the alpha: 0.3 on hover, 0.35–0.85 for the Tap Frenzy pulse. It never follows the squash frames.
+**Big Banana halo `magicianStandIn_halo` (44×56).** A soft pixel oval in `h`: a solid core plus two dithered rings (50% checker, then 25%). It is drawn **behind** the banana at the same ×5 scale, with origin (0.5, 0.5), centred on the banana's rest-bbox centre (`SPRITE_META.magicianStandIn_halo.alignTo.canvasPx` = [24, 26.5] from the banana canvas top-left). Code sets the alpha: 0.3 on hover, 0.35–0.85 for the Tap Frenzy pulse. It never follows the squash frames.
 
-**Golden Banana `goldenBanana` (16×16 ×4).** Frames: 0 idle (upright, sparkle), 1 sparkle flare, 2 tilt −8° (counter-clockwise, the right tip rises), 3 tilt +8° (clockwise, the stem side rises). The tilts are hand-cleaned nearest-neighbour rotations, not flipX, because the crescent is asymmetric. They replace runtime rotation. All four frames keep the halo, and the idle sparkle stays in place so the tilt loop doesn't add a shimmer. The pivot is centre.
+**Golden Banana `suitcaseStandIn` (16×16 ×4).** Frames: 0 idle (upright, sparkle), 1 sparkle flare, 2 tilt −8° (counter-clockwise, the right tip rises), 3 tilt +8° (clockwise, the stem side rises). The tilts are hand-cleaned nearest-neighbour rotations, not flipX, because the crescent is asymmetric. They replace runtime rotation. All four frames keep the halo, and the idle sparkle stays in place so the tilt loop doesn't add a shimmer. The pivot is centre.
 
 **Critters `critter_<id>` (16×16 ×2).** Frame 0 is the rest pose. Frame 1 has the head down 1 px, the tail flicks, and the prop acts: the pickaxe drops, the stamp comes down, the goggle swirl turns, the clock ticks, the intern blinks, the fronds sway, the catapult arm dips, the rocket flame flickers, the moon's flag waves and a star twinkles. Each monkey has one unique primary feature: the intern a blue lanyard and badge, the hard-hat crew a white hard hat and pickaxe, the bureaucrat a white collar, red tie, stern brows and banana stamp, and the time chimp green goggles and a clock.
 

@@ -58,7 +58,7 @@ func _veteran() -> GameState:
 	s.evolutions = 3
 	s.investigation = {"courtDays": 2, "postponementsLifetime": 9}
 	s.golden_caught_lifetime = 12
-	s.run_bananas = 4200000.0
+	s.run_money = 4200000.0
 	s.coalition = {"chat": [
 		{"seq": 1, "type": "demand", "partner": "bengvir", "state": "paid", "price": 1000000.0},
 		{"seq": 2, "type": "ultimatum", "partner": "smotrich", "state": "deleted", "price": 500000.0},
@@ -175,7 +175,7 @@ func test_the_result_card_model() -> void:
 
 func test_the_receipt_fits_the_kits_print_column() -> void:
 	var s := _veteran()
-	s.run_bananas = 98765432.0   # the widest amounts: the bank format past 10M
+	s.run_money = 98765432.0   # the widest amounts: the bank format past 10M
 	var root := Node2D.new()
 	ShareSheet.build_card(root, "receipt", s, _derived(s), 1790000000000.0)
 	var texts := root.get_children().filter(func(n: Node) -> bool: return n is PxText)

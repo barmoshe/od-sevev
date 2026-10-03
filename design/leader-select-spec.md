@@ -710,12 +710,12 @@ The checklist is §10.
 Tick each one when the picker lands. File:line as of e8f636d.
 
 ### 10.1 Engine and views
-- [x] `ui/big_banana.gd:84`: **Done (game-developer engine, 2026-09-29):** `BigBanana.set_leader(LeaderUi.art(), LeaderUi.tap())`: the round's figure, only its strips resident; every leader now has a `tap` anim (CONTRACT §4c), so a tap plays it and a loose prop (pen, phone, ruler, chair, stapler) is drawn at `propMouth` and squashes on the pointer-down frame; baked props (hat, calculator, cup) draw none; the crit plays `kit.tap.critAnim`; coins leave the prop's `mouth`, else the track.
+- [x] `ui/magician.gd:84`: **Done (game-developer engine, 2026-09-29):** `Magician.set_leader(LeaderUi.art(), LeaderUi.tap())`: the round's figure, only its strips resident; every leader now has a `tap` anim (CONTRACT §4c), so a tap plays it and a loose prop (pen, phone, ruler, chair, stapler) is drawn at `propMouth` and squashes on the pointer-down frame; baked props (hat, calculator, cup) draw none; the crit plays `kit.tap.critAnim`; coins leave the prop's `mouth`, else the track.
   - The hero id comes from `Content.data().hero.char` (default "bibi"); it should be `leaders[leader].art`.
   - With no `tap` anim, play idle and drive the prop (§5.2).
   - The crit anim is `kit.tap.critAnim`.
   - `hatMouth` → `propMouth` (fallback: a fixed offset until the TA lands it).
-- [x] `ui/prop_fx.gd:3,36`: `prop_hat` / `prop_rabbit` are Bibi's. For other leaders, spawn coins from the leader's prop and skip the rabbit. **Done (game-developer engine, 2026-09-29):** coins spawn at `BigBanana.mouth_point()`; the rabbit only fires on Bibi's crit event. A leader's react event bursts the crit coins.
+- [x] `ui/prop_fx.gd:3,36`: `prop_hat` / `prop_rabbit` are Bibi's. For other leaders, spawn coins from the leader's prop and skip the rabbit. **Done (game-developer engine, 2026-09-29):** coins spawn at `Magician.mouth_point()`; the rabbit only fires on Bibi's crit event. A leader's react event bursts the crit coins.
 - [x] `ui/floaters.gd`: the crit floater label → `critName`. **Done (game-developer engine, 2026-09-29):** a non-Bibi crit adds the `critName` floater (main.gd `_handle_tap`); Eisenkot's tap 7 shows `rule.copy.tap7` with his react.
 - [x] `ui/title_view.gd`: TITLE becomes `LEADER_PICK` on first launch (§3.1). **Done (game-developer engine, 2026-09-29):** `ui/views/view_pick.gd` (PickView, rtl-map §8) replaces it on a fresh game and after RESET; the title lines are not drawn when leader select is active (D26).
 - [x] `ui/ftue.gd:14-17`: P0 targets the leader; H1 shows the leader's `firsttap` squawk. **Done (game-developer engine, 2026-09-29):** P0 keeps the leader's hit (the pulse also lights the prop); H1 / H1L say `LeaderUi.firsttap()`.

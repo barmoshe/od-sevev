@@ -49,7 +49,7 @@ func test_achievements_pay_and_persist() -> void:
 
 func test_perks_spend_without_lowering_the_multiplier() -> void:
 	var s := GameState.fresh()
-	s.all_time_bananas = 1e6
+	s.all_time_money = 1e6
 	s.thumbs_owned = 10
 	var before := Economy.derive(s).prestige_mult
 	runner.check(Meta.buy_perk(s, "p_autotap"), "5 Thumbs buy Lazy Fingers")
@@ -81,25 +81,25 @@ func test_away_perks() -> void:
 
 func test_evolve_keeps_tool_belt_and_head_start() -> void:
 	var s := GameState.fresh()
-	s.all_time_bananas = 1e6
+	s.all_time_money = 1e6
 	s.upgrades = PackedStringArray(["glove", "internx2", "luckypeel"])
 	s.shop["p_toolbelt"] = 1
 	s.shop["p_start"] = 1
 	var r := Meta.evolve(s)
 	runner.check(not r.is_empty(), "evolved")
 	runner.check(s.upgrades.has("glove") and s.upgrades.has("luckypeel") and not s.upgrades.has("internx2"), "tap upgrades kept, producer upgrade reset")
-	runner.check(is_equal_approx(s.bananas, 1000.0), "Head Start I: 1,000 bananas")
+	runner.check(is_equal_approx(s.money, 1000.0), "Head Start I: 1,000 money")
 	runner.check(s.stats.get("evolvedNoInterns", 0.0) == 1.0, "Union Buster stat")
 
 
 func test_butler_buys_the_cheapest() -> void:
 	var s := GameState.fresh()
-	s.bananas = 200.0
-	s.run_bananas = 200.0
+	s.money = 200.0
+	s.run_money = 200.0
 	runner.check(Meta.auto_buy(s) == "", "no butler without the perk")
 	s.shop["p_butler"] = 1
 	runner.check(Meta.auto_buy(s) == "intern", "butler buys the cheapest (an intern)")
-	s.bananas = 100.0
+	s.money = 100.0
 	runner.check(Meta.auto_buy(s) == "", "butler only spends pocket change (17 of 100 is too much)")
 
 

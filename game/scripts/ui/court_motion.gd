@@ -3,13 +3,13 @@ extends RefCounted
 ## Bibi's court day on the stage (motion/state-graph-magician.md §1.3, §2 `court` states, §3 `hat-prop`,
 ## §5.1-5.2): he takes a startle, zips off screen-left (the forward direction in RTL), his hat zips back
 ## alone and hovers on his mark, taps hit the hat; at the end the hat fetches him and he zips back in and
-## lands. A pure timeline over scene ms: no nodes, no clock, no Hebrew. BigBanana reads the pose every
+## lands. A pure timeline over scene ms: no nodes, no clock, no Hebrew. Magician reads the pose every
 ## frame (body offset / frame / alpha, hat and rabbit offsets) and drains `take_events()` (dust, coins,
 ## rabbit, land). Every offset is in whole ART px (ap) of the stage (×4 logical), snapped after easing,
 ## so nothing lands between device px at any integer scale.
 ##
 ## Every leader (Bar, 2026-10-01): Bibi's court day leaves the hat on the mark; every other leader's
-## press day runs the same timeline and BigBanana draws a PressDesk on the hat's track instead.
+## press day runs the same timeline and Magician draws a PressDesk on the hat's track instead.
 ##
 ## Reduced motion (motion/README rule 5) changes parameters, never the routing: the exit is a 150 ms
 ## fade of the body, then the hat fades in on the mark (150 ms); the return is the hat fading out,
@@ -51,7 +51,7 @@ const WIGGLE_MS := 40.0               # hat x +1, −1, +1, 0 ap (Stepped)
 const SPILL_GAP_MS := 67.0            # hatCrit: a tap spills 1 coin, at most one per 67 ms
 const RM_FADE_MS := 150.0
 
-## Screen-left of the mark, far enough that the whole figure is off the canvas (BigBanana sets it
+## Screen-left of the mark, far enough that the whole figure is off the canvas (Magician sets it
 ## from the layout; negative = left).
 var off_ap := -170.0
 var reduced := false

@@ -58,7 +58,7 @@ func test_the_cup_appears_at_1000_and_loses_a_pixel_per_x10() -> void:
 	await _frames(2)
 	var c: CottageCup = m.cottage
 	runner.check(not c.visible and not c.shown(), "hidden before 1,000 ₪ lifetime")
-	m.state.all_time_bananas = 1500.0
+	m.state.all_time_money = 1500.0
 	await _frames(2)
 	runner.check(c.visible and c.shown() and c.frame() == 1, "Q1: the cup appears on frame 1 (frame %d)" % c.frame())
 	runner.check(c.events.has("appear") and c.events.has("drop:1"), "it appears and drops its first pixel (%s)" % str(c.events))
@@ -69,15 +69,15 @@ func test_the_cup_appears_at_1000_and_loses_a_pixel_per_x10() -> void:
 	var cup: Sprite2D = c._cup
 	var sz := Vector2(Art.sprite_size(cup.get_meta("sprite"))) * cup.scale
 	runner.check(sz == Vector2(64, 72) and cup.position + c.position == Vector2(548, 12), "the kit cup at ×4: 64×72 at (548, 12) in Row A, got %s at %s" % [sz, cup.position + c.position])
-	m.state.all_time_bananas = 2.0e4
+	m.state.all_time_money = 2.0e4
 	await _frames(2)
 	runner.check(c.frame() == 2 and c.events.has("drop:2"), "10,000 ₪: frame 2 (frame %d)" % c.frame())
-	m.state.all_time_bananas = 2.0e14
+	m.state.all_time_money = 2.0e14
 	await _frames(2)
 	runner.check(c.frame() == 12, "10^14 ₪: frame 12, every pixel gone (frame %d)" % c.frame())
 	# an election keeps the lifetime treasury: the cup stays
 	var s2 := GameState.fresh()
-	s2.all_time_bananas = 2.0e14
+	s2.all_time_money = 2.0e14
 	c.update_view(16.0, s2, true)
 	runner.check(c.frame() == 12 and c.shown(), "a fresh round with the same lifetime keeps the frame")
 
@@ -86,11 +86,11 @@ func test_opacity_rests_at_half_and_lights_on_a_change() -> void:
 	var c := CottageCup.new()
 	tree.root.add_child(c)
 	var s := GameState.fresh()
-	s.all_time_bananas = 5.0e6
+	s.all_time_money = 5.0e6
 	c.update_view(16.0, s, true)
 	runner.check(c.shown() and c.frame() == 4 and c.events == ["show"], "a save that loads revealed just shows it (%s)" % str(c.events))
 	runner.check(is_equal_approx(c.alpha(), 0.5), "50%% at rest (%s)" % c.alpha())
-	s.all_time_bananas = 5.0e7
+	s.all_time_money = 5.0e7
 	c.update_view(16.0, s, true)
 	c.update_view(200.0, s, true)
 	runner.check(c.frame() == 5 and is_equal_approx(c.alpha(), 1.0), "a lost pixel: 100%% (%s)" % c.alpha())
@@ -105,7 +105,7 @@ func test_opacity_rests_at_half_and_lights_on_a_change() -> void:
 
 func test_a_tap_opens_the_tooltip_toast() -> void:
 	await _boot()
-	m.state.all_time_bananas = 1500.0
+	m.state.all_time_money = 1500.0
 	await _frames(3)
 	var c: CottageCup = m.cottage
 	var p: Vector2 = c.hit_rect().get_center() + Vector2(m._ox, m._top_y)

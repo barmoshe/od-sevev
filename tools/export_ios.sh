@@ -2,7 +2,7 @@
 # Exports the iOS Xcode project for a TEST build on your own iPhone (no App Store).
 # Runs on the Mac. Guide: store/release.md.
 #
-#   tools/export_ios.sh            export to ~/monkey-bananas-ios and open it in Xcode
+#   tools/export_ios.sh            export to ~/od-sevev-ios and open it in Xcode
 #   OUT=/some/dir tools/export_ios.sh
 #
 # Godot only generates the Xcode project (preset: export_project_only). Signing happens in
@@ -12,7 +12,7 @@
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 GAME="$HERE/../game"
-OUT="${OUT:-$HOME/monkey-bananas-ios}"
+OUT="${OUT:-$HOME/od-sevev-ios}"
 VER="4.7.2"
 
 say() { echo "[export_ios] $*"; }
@@ -42,9 +42,9 @@ mkdir -p "$OUT"
 say "importing the project"
 "$HERE/godot.sh" --headless --path "$GAME" --import >/dev/null 2>&1 || true
 say "exporting the Xcode project to $OUT"
-"$HERE/godot.sh" --headless --path "$GAME" --export-debug "iOS" "$OUT/MonkeyBananas.ipa" 2>&1 | tee "$OUT/export.log" | grep -E "ERROR|error:" || true
+"$HERE/godot.sh" --headless --path "$GAME" --export-debug "iOS" "$OUT/OdSevev.ipa" 2>&1 | tee "$OUT/export.log" | grep -E "ERROR|error:" || true
 PROJ="$(ls -d "$OUT"/*.xcodeproj 2>/dev/null | head -1)"
 [ -n "$PROJ" ] || fail "Export failed, see $OUT/export.log"
 say "done: $PROJ"
-say "In Xcode: target MonkeyBananas > Signing & Capabilities > Automatically manage signing > your Personal Team. Plug in the iPhone, pick it, press Run."
+say "In Xcode: target OdSevev > Signing & Capabilities > Automatically manage signing > your Personal Team. Plug in the iPhone, pick it, press Run."
 open "$PROJ"

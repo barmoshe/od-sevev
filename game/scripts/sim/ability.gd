@@ -181,7 +181,7 @@ static func block(s: GameState, d: Economy.Derived = null) -> String:
 		"budget":
 			if str(a["phase"]) != "offer":
 				return "nooffer"
-			return "" if s.bananas >= float(a["price"]) else "cost"
+			return "" if s.money >= float(a["price"]) else "cost"
 		"swipeLeft":
 			return "" if str(a["phase"]) == "offer" else "nooffer"
 	return "none"
@@ -218,7 +218,7 @@ static func use(s: GameState, d: Economy.Derived) -> Dictionary:
 					if x["type"] == "pledge":
 						act.erase(x)
 				var cash := maxf(1.0, ceilf((d.bps if d != null else 0.0) * _n(e, "flipBpsSec", 20.0)))
-				Economy.add_bananas(s, cash)
+				Economy.add_money(s, cash)
 				if Investigation.active():
 					Investigation.add(s, _n(e, "flipHeadlines", 8.0))
 				kind = "flip"
@@ -255,7 +255,7 @@ static func use(s: GameState, d: Economy.Derived) -> Dictionary:
 			out.append({"ev": "ability", "kind": "corridor", "partner": pid})
 		"budget":
 			var price := float(a["price"])
-			s.bananas -= price
+			s.money -= price
 			var late := float(a["t"]) <= _n(e, "lastSec", 10.0)
 			var pct := _n(e, "lastBasePct" if late else "basePct", 5.0)
 			a["basePct"] = float(a["basePct"]) + pct

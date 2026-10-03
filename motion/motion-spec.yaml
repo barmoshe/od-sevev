@@ -105,7 +105,7 @@ motion-constants:          # Animator-owned (not feel tunables). Mirror to game/
 ---
 motion-id: _carryover
 type: rules
-source: motion/legacy/motion-spec.monkey-bananas.yaml + motion/legacy/ui-juice.monkey-bananas.yaml
+source: motion/legacy/motion-spec.fork.yaml + motion/legacy/ui-juice.fork.yaml
 rule: "Only the ids below bind. KEEP = binding as written there, with the note applied. ADAPT = re-specified in this file. RETIRE = gone."
 table:
   button-press:        { verdict: KEEP, note: "every ui_button; plus J1 variant A" }

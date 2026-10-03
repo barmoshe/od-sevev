@@ -113,7 +113,7 @@ static func court_days(s: GameState) -> int:
 ## {round, date, head, total, lines: [{key, label, amount}], countdown}: every value a string ready
 ## for its row (amounts through receipt_amount). `now_ms` is the resolved clock (the calendar).
 static func receipt(s: GameState, d: Economy.Derived, now_ms: float) -> Dictionary:
-	var income := maxf(0.0, s.run_bananas)
+	var income := maxf(0.0, s.run_money)
 	var share := source_shares(d)
 	var vat := income * float(share.get("vat", 0.0))
 	var people := income * (float(share.get("taxpayer", 0.0)) + float(share.get("hitech", 0.0)))

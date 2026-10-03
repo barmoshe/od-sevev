@@ -50,8 +50,8 @@ func _veteran() -> GameState:
 	Politics.install(s, "bibi")
 	s.evolutions = 4
 	s.run_time_sec = 700.0
-	s.run_bananas = 3.0e6
-	s.all_time_bananas = 5.0e7
+	s.run_money = 3.0e6
+	s.all_time_money = 5.0e7
 	for id in Content.producer_ids().slice(0, 4):
 		s.owned[id] = 10
 	ShareDesk.seed_demo_chat(s)
@@ -68,7 +68,7 @@ func test_an_election_writes_a_record_and_the_save_keeps_it() -> void:
 	var s := GameState.fresh()
 	Politics.install(s, "bibi")
 	s.run_time_sec = 321.0
-	s.run_bananas = 99000.0
+	s.run_money = 99000.0
 	var d := Economy.derive(s)
 	d.seats_gate_open = true
 	s.run_time_sec = 200.0

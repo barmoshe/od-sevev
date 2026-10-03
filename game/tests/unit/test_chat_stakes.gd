@@ -148,13 +148,13 @@ func test_pay_all_goes_by_urgency_and_never_spends_an_ultimatums_money() -> void
 	var u := _ult(s, "amsalem", 50.0, 20.0)
 	var c := _post(s, {"type": "demand", "partner": "regev", "price": 0.0, "kind": "ceremony", "join": false, "ageSec": 0.0,
 		"state": "open", "line": "demand", "variant": 0})
-	s.bananas = 1000.0
+	s.money = 1000.0
 	var plan := ChatStakes.pay_all_plan(s)
 	runner.check(plan == [int(u["seq"]), int(j["seq"]), int(dl["seq"]), int(ds["seq"])],
 		"ultimatum, then seats, then the least patience; never the ceremony (%s)" % str(plan))
 	runner.check(not plan.has(int(c["seq"])), "Regev's ribbon is hers to cut")
 	runner.check(ChatStakes.plan_total(s, plan) == 150.0, "the total is the plan's prices")
-	s.bananas = 45.0
+	s.money = 45.0
 	runner.check(ChatStakes.pay_all_plan(s).is_empty(), "an ultimatum the bank can't cover stops the plan: that money is its (%s)" % str(ChatStakes.pay_all_plan(s)))
 	u["state"] = "deleted"
 	runner.check(ChatStakes.pay_all_plan(s) == [int(j["seq"])], "a smaller line it can't cover is skipped: %s" % str(ChatStakes.pay_all_plan(s)))
@@ -166,7 +166,7 @@ func test_pay_all_takes_one_of_two_who_wont_sit_together() -> void:
 	Coalition.ps(s, "abbas")["status"] = "pending"
 	var jb := _demand(s, "bengvir", 10.0, true)
 	var ja := _demand(s, "abbas", 10.0, true)
-	s.bananas = 1000.0
+	s.money = 1000.0
 	var plan := ChatStakes.pay_all_plan(s)
 	runner.check(plan.size() == 1 and (plan[0] == int(jb["seq"]) or plan[0] == int(ja["seq"])), "never both (%s)" % str(plan))
 
@@ -235,7 +235,7 @@ func _open_group() -> void:
 	var ids := Content.producer_ids()
 	for i in 3:
 		m.state.owned[ids[i]] = 1
-	Economy.add_bananas(m.state, 500.0)
+	Economy.add_money(m.state, 500.0)
 	m.d = Economy.derive(m.state)
 	Coalition.open_group(m.state, m.d, func() -> float: return 0.0)
 
@@ -258,7 +258,7 @@ func test_the_composer_pays_every_line_in_one_press() -> void:
 	Coalition.ps(m.state, "smotrich")["status"] = "member"
 	var d := Coalition._post(m.state, {"type": "demand", "partner": "smotrich", "price": 25.0, "kind": "money", "join": false,
 		"ageSec": 0.0, "state": "open", "line": "demand", "variant": 0}, [])
-	m.state.bananas = 1000.0
+	m.state.money = 1000.0
 	await _open_chat_now()
 	await tree.process_frame
 	var chat: ChatView = m.chat
@@ -268,11 +268,11 @@ func test_the_composer_pays_every_line_in_one_press() -> void:
 		"it reads לסגור עם כולם with the total (%s)" % chat._pay_all_text.text)
 	var hit := chat.pay_all_hit()
 	var p := hit.get_center() + chat.position + Vector2(m._ox, m._lower_y)
-	var bank: float = m.state.bananas
+	var bank: float = m.state.money
 	_touch(p.x, p.y)
 	runner.check(str(Coalition.message(m.state, int(d["seq"]))["state"]) == "paid" and Coalition.status(m.state, "bengvir") == "member",
 		"one tap paid both, through the sim")
-	runner.check(is_equal_approx(m.state.bananas, bank - 85.0), "and charged their prices (%s, from %s)" % [m.state.bananas, bank])
+	runner.check(is_equal_approx(m.state.money, bank - 85.0), "and charged their prices (%s, from %s)" % [m.state.money, bank])
 	await tree.process_frame
 	await tree.process_frame
 	runner.check(not bool(chat.pay_all_info()["visible"]) and chat._composer_text.visible, "nothing left: the composer's line is back")

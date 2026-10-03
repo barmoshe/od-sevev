@@ -143,10 +143,10 @@ func _play(leader: String, seed_: int, secs: float, tps: float) -> Dictionary:
 			if Economy.is_revealed(s, id) and Economy.producer_cost(s, id, 1) < cost:
 				cost = Economy.producer_cost(s, id, 1)
 				best = id
-		if best != "" and s.bananas >= cost:
+		if best != "" and s.money >= cost:
 			Economy.buy_producer(s, best, 1)
 		t += dt
-	return {"log": log, "deal": s.seat_deal.duplicate(), "cells": SeededRound.cells(rec), "bank": s.bananas, "salt": s.events.get("everySalt")}
+	return {"log": log, "deal": s.seat_deal.duplicate(), "cells": SeededRound.cells(rec), "bank": s.money, "salt": s.events.get("everySalt")}
 
 
 func test_same_seed_same_round() -> void:
@@ -208,7 +208,7 @@ func _touch(p: Vector2, idx: int = 0) -> void:
 func test_a_round_never_touches_the_main_save() -> void:
 	await _boot()
 	var main_state: GameState = m.state
-	main_state.bananas = 1234.0
+	main_state.money = 1234.0
 	main_state.thumbs_owned = 3
 	var path: String = (m.store as SaveStore).path
 	m.round_arrive("challenge", {"k": "challenge", "l": "bennett", "s": "31337", "t": "462", "r": "abcd1234"})
@@ -222,14 +222,14 @@ func test_a_round_never_touches_the_main_save() -> void:
 	_check(m.in_round() and m.state != main_state, "the round runs on its own state")
 	_check(m.store is RoundBook.Sandbox, "and its own store")
 	_check(Leaders.current(m.state) == "bennett" and int(m.state.leader_round["salt"]) == 31337, "the link's leader and seed")
-	_check(m.state.thumbs_owned == 0 and m.state.bananas == 0.0, "nothing of the main game")
+	_check(m.state.thumbs_owned == 0 and m.state.money == 0.0, "nothing of the main game")
 	_check(m.mode == "title", "the round starts before tap 1 (the clock with it)")
 	await tree.create_timer(0.3).timeout   # the intro card's input lock
 	_touch(L.magician_hit().get_center() + Vector2(m._sx, m._stage_y))
 	for i in 10:
 		await tree.process_frame
 	_check(m.mode == "main" and m.state.taps_lifetime >= 1, "tap 1 starts the round")
-	m.state.bananas = 9.0e9
+	m.state.money = 9.0e9
 	m.state.thumbs_owned = 999
 	m._save_now()
 	m._flush_save()

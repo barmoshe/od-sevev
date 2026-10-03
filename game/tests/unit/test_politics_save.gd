@@ -29,9 +29,9 @@ func _busy() -> GameState:
 	s.owned[Content.producer_ids()[0]] = 12
 	s.owned[Content.producer_ids()[3]] = 2
 	s.stats["playtimeSec"] = 400.0
-	s.bananas = 1000.0
-	s.run_bananas = 50000.0
-	s.all_time_bananas = 50000.0
+	s.money = 1000.0
+	s.run_money = 50000.0
+	s.all_time_money = 50000.0
 	var d := Economy.derive(s)
 	Coalition.open_group(s, d)
 	Coalition.pay(s, int(Coalition.open_msg(s, "bengvir")["seq"]))   # one open message per partner
@@ -96,12 +96,12 @@ func test_duplicate_state_keeps_politics() -> void:
 func test_v2_save_migrates_to_v4() -> void:
 	var st := SaveStore.new(dir)
 	var f := FileAccess.open(st.path, FileAccess.WRITE)
-	f.store_string(JSON.stringify({"version": 2, "lastSaveTime": 5.0, "state": {"bananas": 77.0, "evolutions": 2, "allTimeBananas": 1e7}}))
+	f.store_string(JSON.stringify({"version": 2, "lastSaveTime": 5.0, "state": {"money": 77.0, "evolutions": 2, "allTimeMoney": 1e7}}))
 	f.close()
 	var r := st.load_game()
 	runner.check(r["kind"] == "ok", "a v2 save loads")
 	var l: GameState = r["state"]
-	runner.check(l.bananas == 77.0 and l.evolutions == 2, "its fields survive")
+	runner.check(l.money == 77.0 and l.evolutions == 2, "its fields survive")
 	runner.check(not l.coalition["opened"] and l.investigation["phase"] == "idle" and l.calendar["mode"] == "campaign", "politics start fresh")
 	st.save_game(l, 6.0)
 	# leader select: a v2 file goes through v3 to v4 (the v3 -> v4 step is tested in test_leaders.gd)
@@ -145,7 +145,7 @@ func test_evolve_resets_the_round_but_keeps_the_lifetime() -> void:
 		s.owned[id] = 1
 	for id in ["deri", "levin", "regev"]:
 		Coalition.ps(s, id)["status"] = "member"
-	s.all_time_bananas = 1e7
+	s.all_time_money = 1e7
 	Coalition.resolve_brawl(s, int(Coalition.open_brawl(s)["seq"]))
 	var r := Meta.evolve(s)
 	runner.check(not r.is_empty(), "61 seats and enough base: the election runs")

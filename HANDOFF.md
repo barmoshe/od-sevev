@@ -179,7 +179,7 @@ Every item of the leaders-v3 handoff below (phases 3a/3b, trophies and squawks, 
 - **Phase 3b:** a countdown and a negotiation line per leader (`priorityOnce`; it also wakes cal08).
 - **Ability trophies** (`kit.abilityTrophy`) and Dubi's ability squawk.
 - **The GPT art** is rigged (no drift):
-  - 9 pose chars, played on each use via `rule.active.poses` / `BigBanana.flash_pose`;
+  - 9 pose chars, played on each use via `rule.active.poses` / `Magician.flash_pose`;
   - 7 props (PressDesk draws the podium, bench and box);
   - 8 icons;
   - Kaia (still flag-off).
@@ -691,7 +691,7 @@ The repo is now a **bar_builds sibling at `~/od-sevev`** (moved out of `~/base67
 | `tools/web/mobile_web.mjs`, full default matrix | **PASS in one run.** 0/0/0 on all 9 devices: 375×667@2, 390×844@3, 393×852@3, 430×932@3, 360×780@3, 412×915@2.625, frame-1440×900@1, 390×664@3, 375×548@2. Includes S17 (settings reach), S18 (no toast over the leader) and the round-2 M2/S8 checks |
 | `tools/web/motion_web.mjs` | **PASS** (936 s; the old 15-min cap problem is gone) |
 | `round_web` / `picker_web` ×3 each | **NOT RUN.** Stopped at `round_web` run 1 |
-| `tools/balance.sh` | **NOT RUN after M2.** It takes about 95 min here. The Game Developer argues M2's pacing delta is 0 by invariant (`bananas ≤ run_bananas`); the bench was 11/11 before M2 |
+| `tools/balance.sh` | **NOT RUN after M2.** It takes about 95 min here. The Game Developer argues M2's pacing delta is 0 by invariant (`bananas ≤ run_money`); the bench was 11/11 before M2 |
 
 ## What session 5 did (details in `STATUS.md` and the commit messages)
 **The session-4 merge:**

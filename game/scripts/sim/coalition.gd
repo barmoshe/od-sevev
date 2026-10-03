@@ -282,7 +282,7 @@ static func ultimatums_unlocked(s: GameState) -> bool:
 static func c1_ready(s: GameState) -> bool:
 	return active() and not _c(s)["opened"] \
 		and Conditions.sources_owned(s) >= int(_num("openAtSourcesOwned", 3)) \
-		and s.bananas >= _num("firstDemandPrice", 60.0)
+		and s.money >= _num("firstDemandPrice", 60.0)
 
 
 ## demandSec seconds of current ₪/s (× price_scale: fewer seconds each election) × priceMult ×
@@ -318,7 +318,7 @@ static func next_price(s: GameState, id: String, d: Economy.Derived) -> float:
 	return v
 
 
-## A partner's unlock with coalition.unlockScalePerElection applied: runBananasAtLeast grows
+## A partner's unlock with coalition.unlockScalePerElection applied: runMoneyAtLeast grows
 ## ×scale per election, so each round asks for more earnings than the last (the Designer's rule).
 ## Also coalition.unlockTimeScalePerElection: runSecAtLeast (round time, the arrival cadence)
 ## eases per election toward coalition.unlockTimeScaleMin (the share of the round-1 clock a late
@@ -332,8 +332,8 @@ static func unlock_of(s: GameState, p: Dictionary) -> Dictionary:
 		return u
 	var out: Dictionary = (u as Dictionary).duplicate()
 	var scale := _num("unlockScalePerElection", 1.0)
-	if scale != 1.0 and out.has("runBananasAtLeast"):
-		out["runBananasAtLeast"] = float(u["runBananasAtLeast"]) * pow(scale, s.evolutions)
+	if scale != 1.0 and out.has("runMoneyAtLeast"):
+		out["runMoneyAtLeast"] = float(u["runMoneyAtLeast"]) * pow(scale, s.evolutions)
 	var tscale := _num("unlockTimeScalePerElection", 1.0)
 	if tscale != 1.0 and out.has("runSecAtLeast"):
 		out["runSecAtLeast"] = float(u["runSecAtLeast"]) * time_scale(s.evolutions)
@@ -816,7 +816,7 @@ static func _stand_in(s: GameState, out: Array) -> void:
 ## Whether `pay` would succeed now (for the pill's state; a ceremony also needs the ribbon).
 static func can_pay(s: GameState, seq: int) -> bool:
 	var m := message(s, seq)
-	return not m.is_empty() and m["state"] == "open" and is_payable(m) and s.bananas >= float(m.get("price", 0.0))
+	return not m.is_empty() and m["state"] == "open" and is_payable(m) and s.money >= float(m.get("price", 0.0))
 
 
 ## Pays an open demand, ultimatum, rejoin or poach line. A ceremony (Regev) needs
@@ -832,9 +832,9 @@ static func pay(s: GameState, seq: int, ceremony_done: bool = false) -> Dictiona
 	if m.get("kind", "money") == "ceremony" and not ceremony_done:
 		return {"ok": false, "reason": "ceremony"}
 	var price := float(m.get("price", 0.0))
-	if s.bananas < price:
+	if s.money < price:
 		return {"ok": false, "reason": "funds"}
-	s.bananas = maxf(0.0, s.bananas - price)
+	s.money = maxf(0.0, s.money - price)
 	var out: Array = []
 	var st := ps(s, id)
 	var was := str(st["status"])

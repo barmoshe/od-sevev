@@ -1,4 +1,4 @@
-// Monkey Bananas procedural 5×7 pixel font. PURE DATA: no imports, no Phaser, no functions.
+// The fork's procedural 5×7 pixel font. PURE DATA: no imports, no Phaser, no functions.
 // Owner: Technical Artist (pipeline/). Consumer: pipeline/texture-baker.ts, which bakes these
 // grids into the shared atlas and registers three BitmapText fonts at boot.
 //

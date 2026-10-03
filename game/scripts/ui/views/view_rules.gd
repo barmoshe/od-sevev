@@ -82,19 +82,19 @@ static func cottage_steps() -> Array:
 	return out
 
 
-## The trigger kinds the cottage thresholds use (content: allTimeBananas; the treasury kinds are
+## The trigger kinds the cottage thresholds use (content: allTimeMoney; the treasury kinds are
 ## accepted too so the designer can switch the cup to the live treasury as data).
 static func _trigger_met(s: GameState, t: Variant) -> bool:
 	if not t is Dictionary:
 		return false
 	var v := float((t as Dictionary).get("value", INF))
 	match String((t as Dictionary).get("type", "")):
-		"allTimeBananas":
-			return s.all_time_bananas >= v
-		"bananasAtOnce", "treasury":
-			return s.bananas >= v
-		"runBananas":
-			return s.run_bananas >= v
+		"allTimeMoney":
+			return s.all_time_money >= v
+		"moneyAtOnce", "treasury":
+			return s.money >= v
+		"runMoney":
+			return s.run_money >= v
 	return false
 
 
@@ -239,7 +239,7 @@ static func dossier_stats(s: GameState, d: Economy.Derived) -> Array:
 		["DOS_ROUNDS", {"n": s.evolutions}],
 		["DOS_COURT_DAYS", {"n": int(st.get("courtDays", 0))}],
 		["DOS_POSTPONES", {"n": int(st.get("postponementsLifetime", 0))}],
-		["DOS_TOTAL", {"x": Fmt.amount(s.all_time_bananas)}],
+		["DOS_TOTAL", {"x": Fmt.amount(s.all_time_money)}],
 		["DOS_CAUGHT", {"n": s.golden_caught_lifetime}],
 		["DOS_ARRIVED", {"n": int(float(s.stats.get("goldenMissed", 0.0)))}],
 		["DOS_BASE", {"n": Fmt.thumbs(s.thumbs_owned), "pct": Fmt.mult(base_pct).trim_suffix(".0")}],

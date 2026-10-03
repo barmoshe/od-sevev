@@ -744,10 +744,10 @@ The TA has nothing more to render for them.
 
 Every leader, not only Bibi. The round's leader leaves the stage at the election and the picked one arrives after the
 pick. **No walk strip exists or is requested:** a walk is the leader's own `idle` strip carried across at an even pace,
-with a stepped 1-ap bob. Code: `ui/leader_walk.gd` (the pose), `BigBanana.walk_out` / `walk_in` / `_apply_figure`
+with a stepped 1-ap bob. Code: `ui/leader_walk.gd` (the pose), `Magician.walk_out` / `walk_in` / `_apply_figure`
 (the wiring), `EvolveTx` `walk` cue, `MainController._tx_release` / `_on_pick_done`.
 
-**One owner of the figure's position.** `BigBanana._apply_figure` is the only writer of the figure's position,
+**One owner of the figure's position.** `Magician._apply_figure` is the only writer of the figure's position,
 visibility and alpha. It sums the mark, the court day's zip offset (§2) and the walk's travel and bob, each in whole ap,
 and multiplies the two alphas. The walk and the court never both move him:
 - a walk-out cuts a running court day home first (hat hidden, `court.reset()`), on the old stage, before the card;

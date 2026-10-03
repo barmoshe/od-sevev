@@ -41,7 +41,7 @@ var _save_cooldown := 0.0
 var _last_wall := 0.0
 var _prev_buffs := {"frenzy": false, "tapFrenzy": false}
 var _evolve_was_visible := false
-var _hover_banana := false
+var _hover_magician := false
 var _first_input := false
 var _pending_offline: Dictionary = {}
 var _limiter: TapLimiter
@@ -89,7 +89,7 @@ var missions_chip: MissionsChip # missions + ranks: the stage's top-left entry (
 var kaia: KaiaFigure            # Kaia on the Balfour stage (events.kaia): a tap feeds her
 var _figures: Array[StageFigure] = []   # the stage figures that take a tap (_figure_at)
 var _street_partner := ""       # the partner his blockade stuck, for the end toast
-var bb: BigBanana
+var bb: Magician
 var prop_fx: PropFx                 # the Magician's coins and rabbit
 var toasts: Toasts                  # the toast dock + Dubi's bubble (ux/ftue.md)
 var _reveals: Dictionary = {}       # Ftue.reveals(state), refreshed every frame
@@ -209,7 +209,7 @@ func _boot() -> void:
 		mode = "pick"   # a new game, or a reload mid-pick (leaderPickPending)
 	_read_dev_params()
 	if float(_dev["grant"]) > 0.0:
-		Economy.add_bananas(state, float(_dev["grant"]))
+		Economy.add_money(state, float(_dev["grant"]))
 	if float(_dev["evo"]) >= 0.0:
 		state.evolutions = int(_dev["evo"])
 		if _shot.is_empty() and Leaders.pick_pending(state):
@@ -297,7 +297,7 @@ func _read_content_override() -> void:
 
 
 ## Dev-only URL params on the web build (all ignored without ?dev=1): &speed=N multiplies game
-## time, &grant=N adds bananas at boot, &evo=N sets the evolution count (era checks). Same contract as v1.1 (HOW-TO-RUN.md).
+## time, &grant=N adds money at boot, &evo=N sets the evolution count (era checks). Same contract as v1.1 (HOW-TO-RUN.md).
 ## &forkscale=1 shows the fork's fractional stretch (the "before" of integer art scaling).
 ## &sharp=0 draws every reading text on Sevev 9 (the "before" of the @2 reading cut, PxText.reading).
 ## &flash=N opens Dubi's news flash for round N on the first tap (view checks).
@@ -418,7 +418,7 @@ func _build() -> void:
 	kaia = KaiaFigure.new()
 	diorama.street_layer().add_child(kaia)
 	_figures = [sara, herzog, kaia]
-	bb = BigBanana.new()
+	bb = Magician.new()
 	_stage.add_child(bb)
 	diorama.near_layer().reparent(_stage, false)   # the paving row stands in front of the leader (layout v2)
 	_stage.move_child(diorama.near_layer(), bb.get_index() + 1)
@@ -488,7 +488,7 @@ func _build() -> void:
 	ftue = Ftue.new()
 	_ui.add_child(ftue)
 	ftue.ticker = func(t: String) -> void: ticker.enqueue("ftue", t)
-	ftue.on_banana_emphasis = func() -> void: bb.emphasize(1200)
+	ftue.on_magician_emphasis = func() -> void: bb.emphasize(1200)
 	ftue.on_pulse = func(hz: float) -> void: bb.set_pulse(hz)
 	ftue.toasts = toasts
 	overlays = OverlayManager.new()
@@ -1262,8 +1262,8 @@ func _process(delta: float) -> void:
 	# the hazard day on the stage (the exit, the hat or the press desk, the return): polled from the sim's phase
 	# leaders v3: Ben Gvir's walkout walks him off the same way and leaves his cardboard box
 	var walked := Ability.walked_out(state)
-	bb.set_away_kind("box" if walked and not BigBanana.wants_court(state) else "")
-	bb.court_sync(running and (BigBanana.wants_court(state) or walked), tx.running)
+	bb.set_away_kind("box" if walked and not Magician.wants_court(state) else "")
+	bb.court_sync(running and (Magician.wants_court(state) or walked), tx.running)
 	var au := get_node_or_null("/root/Audio")
 	bb.beat_phase = float(au.call("beat_phase")) if au != null and au.has_method("beat_phase") else -1.0
 	bb.update_view(dt)
@@ -1502,7 +1502,7 @@ func _poll_handoff() -> void:
 			_apply_settings()
 
 
-## v2 automation from Thumb Perks: auto-taps, the Banana Butler and the Golden Net.
+## v2 automation from Thumb Perks: auto-taps, the Butler and the Golden Net.
 func _run_automation(dt: float, modal: bool) -> void:
 	if _input_blocked():
 		return   # the block holds the player's hands, and the perks' too
@@ -1544,7 +1544,7 @@ func _check_meta() -> void:
 	MissionsUi.check(self)   # missions: finished goals latch and roll on the ticker
 	if bool(_dev["on"]):
 		MissionsUi.publish_web(self, missions_chip)
-	if state.bananas >= 0.0 and Reveal.on(state, "perks") and not state.ui.get("perksHinted", false) and Meta.can_buy_any_perk(state):
+	if state.money >= 0.0 and Reveal.on(state, "perks") and not state.ui.get("perksHinted", false) and Meta.can_buy_any_perk(state):
 		state.ui["perksHinted"] = true
 		# coalition UX rev 5 (Bar's playtest: the agreement's entry was not found): the nudge is a toast
 		# (its string's box, stage.toast) and a tap on it opens the agreement itself; it was a ticker line
@@ -1863,7 +1863,7 @@ func _use_ability() -> void:
 ## The ability's toasts (Ability events {ev: "ability", kind}): the leader's own lines, rule.active.copy.
 func _on_ability_event(e: Dictionary) -> void:
 	_ability_squawk(str(e.get("kind", "")))
-	# the leader's GPT pose for this use (rule.active.poses {kind: art id}, BigBanana.flash_pose);
+	# the leader's GPT pose for this use (rule.active.poses {kind: art id}, Magician.flash_pose);
 	# Ben Gvir's "back" waits until he has landed on his mark (_pose_due, polled in _process)
 	var poses: Variant = Ability.def(state).get("poses")
 	if poses is Dictionary and (poses as Dictionary).has(str(e.get("kind", ""))):
@@ -2022,7 +2022,7 @@ func _on_street_event(result: Dictionary) -> void:
 		toasts.show_toast(StreetFigure.fill(line, _street_partner), "", "lane", here)
 
 
-## The court day's stage FX from the Magician (BigBanana.on_court_fx): the zip's dust at his feet, the
+## The court day's stage FX from the Magician (Magician.on_court_fx): the zip's dust at his feet, the
 ## hat's coins (fewer than his: the ×0.5 income, shown) and the rabbit's cue on a hat crit.
 func _on_court_fx(kind: String, at: Vector2, n: int) -> void:
 	match kind:
@@ -2067,8 +2067,8 @@ func _check_headlines() -> void:
 		match String(tr["type"]):
 			"tapsLifetime":
 				hit = state.taps_lifetime >= int(v)
-			"allTimeBananas":
-				hit = state.all_time_bananas >= float(v)
+			"allTimeMoney":
+				hit = state.all_time_money >= float(v)
 			"critsLifetime":
 				hit = state.crits_lifetime >= int(v)
 			"goldenCaughtLifetime":
@@ -2116,7 +2116,7 @@ func _check_reveals() -> void:
 
 func _refresh_all(dt: float) -> void:
 	var main := mode == "main"
-	top_bar.set_bank(state.bananas)
+	top_bar.set_bank(state.money)
 	top_bar.set_bps(d.bps, d.frenzy_mult, d.tap_pour_sec > 0.0)   # S07 pours the income into taps (HUD_BPS_POUR)
 	top_bar.set_thumbs(state.thumbs_owned, d.prestige_mult)
 	var vis := Economy.evolve_visible(state) and main
@@ -2463,12 +2463,12 @@ func _update_hover(p: Vector2) -> void:
 		var lp := _in_lower(p)
 		var on_golden := golden.hit_test(sp)
 		var on_fig := not on_golden and _figure_at(sp) != null
-		var on_banana := not on_golden and not on_fig and _leader_tap_gate() == "" and Ui.in_rect(bb.hit_rect(), sp)
-		_set_hover_banana(on_banana)
-		pointer = on_golden or on_fig or on_banana or top_bar.gear_contains(tp) or top_bar.mute_contains(tp) or cottage.contains(tp) or shop.in_list(lp) \
+		var on_magician := not on_golden and not on_fig and _leader_tap_gate() == "" and Ui.in_rect(bb.hit_rect(), sp)
+		_set_hover_magician(on_magician)
+		pointer = on_golden or on_fig or on_magician or top_bar.gear_contains(tp) or top_bar.mute_contains(tp) or cottage.contains(tp) or shop.in_list(lp) \
 			or (shop.visible and Ui.in_rect(Rect2(0, L.tabs_y(), L.cw, L.TABS_H), lp)) or (ticker.cta_on() and ticker.cta.contains(lp))
 	if not _gameplay_input():
-		_set_hover_banana(false)
+		_set_hover_magician(false)
 	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND if pointer else Input.CURSOR_ARROW)
 
 
@@ -2477,10 +2477,10 @@ func tap_burst() -> bool:
 	return _now - _last_tap_ms < 1000.0
 
 
-func _set_hover_banana(on: bool) -> void:
-	if _hover_banana == on:
+func _set_hover_magician(on: bool) -> void:
+	if _hover_magician == on:
 		return
-	_hover_banana = on
+	_hover_magician = on
 	bb.set_hover(on)
 
 
@@ -2583,7 +2583,7 @@ func _pay_tap(at: Vector2, manual: bool) -> void:
 		# ux/ftue.md H1L: a leader's first laugh, the first tap of their first round (D31)
 		toasts.say(LeaderUi.firsttap(), L.magician_feet() - Vector2(0, 380), 1600.0)
 		_audio("babble", _first_squawk())
-	top_bar.set_bank(state.bananas)
+	top_bar.set_bank(state.money)
 	top_bar.pop_bank()
 	if crit and not LeaderUi.is_default() and str(LeaderUi.tap()["critName"]) != "":
 		floaters.spawn(at.x, at.y - 56.0, str(LeaderUi.tap()["critName"]), true, false)   # spec §5.2: the crit word
@@ -2617,7 +2617,7 @@ func _on_phrase_done() -> void:
 	var at := L.magician_hit().get_center() - Vector2(0.0, 64.0)
 	floaters.spawn(at.x, at.y, Strings.s("FLOATER_CRIT", {"n": Fmt.amount(v)}), true, false)
 	fx_stage.play("critBurst", at.x, at.y)
-	top_bar.set_bank(state.bananas)
+	top_bar.set_bank(state.money)
 	top_bar.pop_bank()
 	_mark_dirty()
 
@@ -2961,7 +2961,7 @@ func _credit_away(elapsed_sec: float, cold: bool) -> void:
 	if r["capped"] and r["showReceipt"]:
 		target.stats["capHits"] = float(target.stats.get("capHits", 0.0)) + 1.0
 	if float(r["award"]) > 0.0:
-		Economy.add_bananas(target, float(r["award"]))
+		Economy.add_money(target, float(r["award"]))
 		store.save_game(target)
 		if r["showReceipt"] and target == state:
 			_pending_offline = {"award": r["award"], "away": r["elapsedSec"], "capped": r["capped"], "cold": cold}
@@ -3071,7 +3071,7 @@ func _start_evolve(dev_force := false) -> void:
 	overlays.tx_active = true
 	shop.cancel_press()
 	bb.lock()
-	_set_hover_banana(false)
+	_set_hover_magician(false)
 	diorama.poof_all()
 	var new_era := Story.era_for(nxt.evolutions)
 	var era_name: String = new_era.get("name", "") if new_era.get("id", "") != Story.era_for(state.evolutions).get("id", "") else ""
@@ -3618,9 +3618,9 @@ func _shot_state() -> GameState:
 	for i in ids.size():
 		s.owned[ids[i]] = int(owned[i]) if i < owned.size() else 0
 	s.thumbs_owned = [0, 10, 20, 40, 80, 160, 320, 640][mini(evo, 7)]
-	s.all_time_bananas = maxf(1000.0 * pow(float(s.thumbs_owned) * 2.0, 3.0), 5000.0)
-	s.bananas = s.all_time_bananas * 0.02
-	s.run_bananas = s.bananas * 4.0
+	s.all_time_money = maxf(1000.0 * pow(float(s.thumbs_owned) * 2.0, 3.0), 5000.0)
+	s.money = s.all_time_money * 0.02
+	s.run_money = s.money * 4.0
 	var ups: Array = Content.upgrades().map(func(u: Dictionary) -> String: return u["id"])
 	s.upgrades = PackedStringArray(ups.slice(0, 5 if evo > 0 else 1))
 	s.taps_lifetime = 3000 * (evo + 1)

@@ -70,7 +70,7 @@ func _open_group() -> void:
 	var ids := Content.producer_ids()
 	for i in 3:
 		m.state.owned[ids[i]] = 1
-	Economy.add_bananas(m.state, 500.0)
+	Economy.add_money(m.state, 500.0)
 	m.d = Economy.derive(m.state)
 	Coalition.open_group(m.state, m.d, func() -> float: return 0.0)
 
@@ -166,11 +166,11 @@ func test_tapping_the_pay_pill_pays_through_the_sim() -> void:
 	if hit.is_empty():
 		return
 	var seq: int = hit["seq"]
-	var before: float = m.state.bananas
+	var before: float = m.state.money
 	_touch(_chat_pt((hit["rect"] as Rect2).get_center()))
 	var msg := Coalition.message(m.state, seq)
 	runner.check(msg.get("state", "") == "paid", "the tap commits Coalition.pay (state %s)" % msg.get("state", ""))
-	runner.check(is_equal_approx(before - m.state.bananas, 60.0), "the fixed first demand cost 60 ₪ (%s)" % str(before - m.state.bananas))
+	runner.check(is_equal_approx(before - m.state.money, 60.0), "the fixed first demand cost 60 ₪ (%s)" % str(before - m.state.money))
 	runner.check(int(m.state.coalition["paidLifetime"]) == 1, "the sim counted the payment")
 	runner.check(Coalition.status(m.state, "bengvir") == "member", "Ben Gvir joined")
 	for i in 2:
@@ -186,7 +186,7 @@ func test_tapping_the_pay_pill_pays_through_the_sim() -> void:
 func test_an_unaffordable_pill_does_not_pay() -> void:
 	await _boot()
 	_open_group()
-	m.state.bananas = 5.0
+	m.state.money = 5.0
 	await _open_chat_now()
 	var seq := -1
 	for h: Dictionary in m.chat.hits():
@@ -250,7 +250,7 @@ func test_the_group_opens_now_that_the_chat_exists() -> void:
 	var ids := Content.producer_ids()
 	for i in 3:
 		m.state.owned[ids[i]] = 1
-	Economy.add_bananas(m.state, 500.0)
+	Economy.add_money(m.state, 500.0)
 	m.d = Economy.derive(m.state)
 	m.toasts._queue.clear()
 	m.toasts._t = -1.0

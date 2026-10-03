@@ -103,8 +103,8 @@ func _veteran(leader: String) -> GameState:
 	Politics.install(s, leader)
 	s.evolutions = 4
 	s.run_time_sec = 640.0
-	s.run_bananas = 4.2e6
-	s.all_time_bananas = 9.9e7
+	s.run_money = 4.2e6
+	s.all_time_money = 9.9e7
 	for id in Content.producer_ids().slice(0, 5):
 		s.owned[id] = 12
 	ShareDesk.seed_demo_chat(s)

@@ -602,7 +602,7 @@ static func act(s: GameState, type: String, action: String, d: Economy.Derived) 
 		if type == "drumline" and action == "beat":
 			(st["active"] as Array).erase(a)
 			var award := Economy.clampf_num(float(e.get("bpsSec", 0.0)) * d.bps)
-			Economy.add_bananas(s, award)
+			Economy.add_money(s, award)
 			return {"award": award}
 		if type == "pardonDesk" and action == "request":
 			return {"stamp": Investigation.request_pardon(s)}

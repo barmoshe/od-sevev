@@ -23,16 +23,16 @@ The verb deliberately hands its weight over from *tap* to *buy* during a run. Th
 
 ## 2. Rules
 
-1. **Tap.** Each registered pointer-down on the Big Banana hit area adds `tapValue` to `bananas`, `runBananas` and `allTimeBananas`. The award happens on pointer-down, not pointer-up.
+1. **Tap.** Each registered pointer-down on the Big Banana hit area adds `tapValue` to `bananas`, `runMoney` and `allTimeMoney`. The award happens on pointer-down, not pointer-up.
    `tapValue = (tap.baseValue × tapMult × prestigeMult + tapPctOfBps × bps) × tapFrenzyMult × (crit ? tap.critMult : 1)`.
    Crit is rolled on each registered tap with probability `critChance` (starts at `tap.critChance`; the upgrade `luckypeel` sets it higher).
 2. **Tap-rate cap.** At most `tap.maxRegisteredTapsPerSec` taps register per second, counted globally across all pointers and the Space key. Excess taps are dropped with **no award and no feedback**, so that feedback never lies about income.
 3. **Production.** `bps = Σ(producer.baseBps × owned × producerMult) × globalMult × prestigeMult`. It accrues every frame as `bps × frenzyMult × dt`.
 4. **Buy producer.** Cost of the next unit is `baseCost × costGrowth^owned`. The purchase deducts the cost at once and the unit produces from the next frame. Bulk cost uses `bulkCostFormula`. MAX buys `maxAffordable`, and never 0 units: if 0 units are affordable, MAX behaves like a can't-afford tap.
 5. **Buy upgrade.** One-time per run. Its effect applies at once. Effect types are `tapMult`, `tapPctOfBps`, `critChance`, `goldenIntervalMult`, `globalMult` and `producerMult`.
-6. **Reveal.** A producer row appears when `runBananas ≥ 0.5 × baseCost` or when you own at least one this run. Exactly one further row shows as a silhouette ("???") with its cost. An upgrade appears on the shelf when all its unlock conditions are true, and it stays until bought.
+6. **Reveal.** A producer row appears when `runMoney ≥ 0.5 × baseCost` or when you own at least one this run. Exactly one further row shows as a silhouette ("???") with its cost. An upgrade appears on the shelf when all its unlock conditions are true, and it stays until bought.
 7. **Golden Banana.** The first one spawns `golden.firstSpawnDelaySec` into each run, and later ones follow a uniform interval `[spawnIntervalMinSec, spawnIntervalMaxSec] × goldenIntervalMult`. It lives for `lifetimeSec`. A tap on its hit area rolls a weighted outcome: Lucky Bunch (instant bananas), Banana Frenzy (bps ×5) or Tap Frenzy (tap ×10). If it is missed it simply despawns; nothing is lost. Its spawn timer and its on-screen lifetime run only while the page is visible **and no modal is open** (Settings, Evolution, Offline). A modal pauses both, while production and buffs keep running, so opening Settings never silently costs a Golden.
-8. **Evolve (prestige).** `thumbsTotalEarned = floor(cbrt(allTimeBananas / divisor))`, and `pending = thumbsTotalEarned − thumbsOwned`. The Evolve button is enabled when `pending ≥ max(10, thumbsOwned)`. Evolving adds `pending` to `thumbsOwned` and resets the items in `prestige.resets`. It keeps `prestige.persists`. `prestigeMult = 1 + 0.10 × thumbsOwned`.
+8. **Evolve (prestige).** `thumbsTotalEarned = floor(cbrt(allTimeMoney / divisor))`, and `pending = thumbsTotalEarned − thumbsOwned`. The Evolve button is enabled when `pending ≥ max(10, thumbsOwned)`. Evolving adds `pending` to `thumbsOwned` and resets the items in `prestige.resets`. It keeps `prestige.persists`. `prestigeMult = 1 + 0.10 × thumbsOwned`.
 9. **Offline.** On load, `min(elapsed, 8 h) × bpsNoBuffs × 0.5` is awarded if `elapsed ≥ 60 s`. Any in-session gap longer than 60 s (a backgrounded tab) is also credited through this formula rather than at the full rate.
 10. **Autosave** runs every `autosaveSec`, on `visibilitychange → hidden`, and right after every purchase and every Evolve.
 
@@ -40,8 +40,8 @@ The verb deliberately hands its weight over from *tap* to *buy* during a run. Th
 
 | Scope | Fields |
 |---|---|
-| Run (reset on Evolve) | `bananas`, `runBananas`, `owned[producerId]`, `upgradesBought[]`, `runTaps`, `activeBuffs{frenzy, tapFrenzy: remainingSec}`, `goldenTimerSec`, `goldenOnScreen{x, y, ageSec}` |
-| Persistent | `thumbsOwned`, `allTimeBananas`, `evolutions`, `goldenCaughtLifetime`, `tapsLifetime`, `critsLifetime`, `headlinesSeen[]`, `settings{sfx, music}`, `buyMode`, `lastSaveTime` |
+| Run (reset on Evolve) | `bananas`, `runMoney`, `owned[producerId]`, `upgradesBought[]`, `runTaps`, `activeBuffs{frenzy, tapFrenzy: remainingSec}`, `goldenTimerSec`, `goldenOnScreen{x, y, ageSec}` |
+| Persistent | `thumbsOwned`, `allTimeMoney`, `evolutions`, `goldenCaughtLifetime`, `tapsLifetime`, `critsLifetime`, `headlinesSeen[]`, `settings{sfx, music}`, `buyMode`, `lastSaveTime` |
 | Derived (never saved) | `bps`, `tapValue`, `prestigeMult`, `pendingThumbs`, `evolveEnabled`, `speciesTitle` |
 
 ## 4. Expressive depth: four distinguishable shapes of play
@@ -70,7 +70,7 @@ The verb deliberately hands its weight over from *tap* to *buy* during a run. Th
 | E3 | Floating-point overflow in the endless late game | The simulation reaches about 8e13 all-time bananas after 3 h. The formatter handles up to 1e308. Beyond `Number.MAX_VALUE`, clamp the value and keep the game running (no Infinity or NaN). All arithmetic stays in plain doubles; do not use BigInt. |
 | E4 | "Can afford" shown but the purchase fails because of rounding | The displayed bank is floored: shown as a full integer with thousands separators below 1M, and to 4 significant digits above that. The displayed cost is ceiled, to 3 significant digits. The affordability check uses raw values (`bananas >= cost`). |
 | E5 | Two buffs stacking multiplicatively (Frenzy × Tap Frenzy) | Rolling the same buff refreshes its timer and never stacks. Different buffs cannot overlap, because the minimum interval of 67.5 s (with radar) is longer than the longest buff (15 s). `tapPctOfBps` reads bps **without** the Frenzy multiplier. |
-| E6 | Golden despawns during a tap / a tap lands on the Golden and the Big Banana at once | A tap never counts for both. The Golden spawns and drifts only at least 0.25 W from the banana center (feel-spec `goldenBigBananaExclusion`, rejection-sampled, and drift bounces off that circle). If a tap lands in both hit areas, it goes to the Golden only when it is inside the Golden's drawn 64×64 bounds; otherwise the Big Banana takes it. |
+| E6 | Golden despawns during a tap / a tap lands on the Golden and the Big Banana at once | A tap never counts for both. The Golden spawns and drifts only at least 0.25 W from the banana center (feel-spec `goldenMagicianExclusion`, rejection-sampled, and drift bounces off that circle). If a tap lands in both hit areas, it goes to the Golden only when it is inside the Golden's drawn 64×64 bounds; otherwise the Big Banana takes it. |
 | E7 | Evolve pressed twice / during a transition | Evolve is idempotent per open dialog. Input locks for the duration of the transition, and the save happens before the transition starts. |
 | E8 | Evolve pressed at the gate with a Frenzy active | Buffs are reset. The confirmation shows ×now → ×after only; buffs are not part of the value shown. |
 | E9 | Multi-touch "piano" on the Big Banana | Every pointer-down counts, but all of them go through the one global 16/s cap. |
@@ -91,7 +91,7 @@ The verb deliberately hands its weight over from *tap* to *buy* during a run. Th
 [Tap] --source--> (Bananas) <--source-- [Producers] <--converter-- (Bananas)   (reinforcing loop R1: buy -> more bps)
 (Bananas) --converter--> [Upgrades] --multiplier--> [Tap], [Producers]        (R2)
 [Golden gate, variable interval] --source/buff--> (Bananas)                   (attention reward)
-(allTimeBananas) --cbrt--> (Thumbs) --multiplier--> everything                (R3: meta loop, damped by the cube root + doubling gate)
+(allTimeMoney) --cbrt--> (Thumbs) --multiplier--> everything                (R3: meta loop, damped by the cube root + doubling gate)
 costGrowth 1.15^n  --drain--> R1                                               (balancing loop B1: the cost wall that makes Evolve correct)
 ```
 
@@ -101,4 +101,4 @@ costGrowth 1.15^n  --drain--> R1                                               (
 - **Animator.** The tap squash starts on the pointer-down frame. The Golden needs a readable spawn fade-in, idle bob and wobble, and a 2 s despawn blink (the numbers are in the feel-spec).
 - **2D Artist.** Draw every producer and upgrade icon at 16×16 from its `visualHook`. The Golden Banana must never be confusable with the Big Banana: it needs a distinct gold hue, a sparkle, and to be at most 0.35× the Big Banana's on-screen size. Crit floaters need a distinct color from normal floaters.
 - **Audio Director.** Cue events: `tap`, `tapCrit`, `buy`, `buyBulk`, `cantAfford`, `upgradeBuy`, `goldenSpawn`, `goldenCatch`, `goldenDespawn` (soft), `frenzyStart`, `frenzyEnd`, `tapFrenzyStart`, `tapFrenzyEnd`, `milestoneHeadline`, `evolveOpen`, `evolveConfirm`, `offlineCollect`. The tap cue fires on the pointer-down frame. The tap cue can fire up to 16 times per second, so it needs a polyphony and fatigue plan.
-- **UX Designer.** Owns how the gate is taught: the Evolve button stays hidden until `allTimeBananas ≥ 250,000`, then appears disabled with its progress shown as `pending / needed`. Owns the Evolution screen, which must show Thumbs gained, ×now → ×after, what resets and what persists, and the next species title.
+- **UX Designer.** Owns how the gate is taught: the Evolve button stays hidden until `allTimeMoney ≥ 250,000`, then appears disabled with its progress shown as `pending / needed`. Owns the Evolution screen, which must show Thumbs gained, ×now → ×after, what resets and what persists, and the next species title.

@@ -1,6 +1,6 @@
 extends RefCounted
 ## Motion with logic (animator, 2026-09-29): Bibi's court-day exit and return (ui/court_motion.gd,
-## BigBanana.court_*; motion/state-graph-magician.md §1.3, §3, §5), the court window's echo
+## Magician.court_*; motion/state-graph-magician.md §1.3, §3, §5), the court window's echo
 ## (ui/court_echo.gd), the brawl cloud's boil (ChatView.brawl_boil), the toast's exit fade and the
 ## prepared leader walk (ui/leader_walk.gd). Each has a reduced-motion path; every offset is a whole
 ## art px. The integration cases boot the real scene on the game content.
@@ -201,11 +201,11 @@ func test_reset_cuts_home() -> void:
 	runner.check(not c.in_court() and not c.hat_visible() and c.body_dx_ap() == 0 and c.body_alpha() == 1.0, "a progress reset: home, hat gone")
 
 
-# ------------------------------------------------------------------ on the stage (BigBanana)
+# ------------------------------------------------------------------ on the stage (Magician)
 
 func test_bibis_court_day_on_the_stage() -> void:
 	await _boot()
-	var bb: BigBanana = m.bb
+	var bb: Magician = m.bb
 	if bb.hero == null:
 		runner.check(false, "the Magician strip loads")
 		return
@@ -214,7 +214,7 @@ func test_bibis_court_day_on_the_stage() -> void:
 	m.state.investigation["revealed"] = true
 	m.state.investigation["phase"] = "summons"
 	Investigation.testify(m.state)
-	runner.check(BigBanana.wants_court(m.state), "Bibi's round in court: the stage wants him gone")
+	runner.check(Magician.wants_court(m.state), "Bibi's round in court: the stage wants him gone")
 	var feet := L.magician_feet()
 	bb.court_sync(true)
 	bb.update_view(16.0)
@@ -250,7 +250,7 @@ func test_bibis_court_day_on_the_stage() -> void:
 	# testimony over
 	m.state.investigation["phase"] = "idle"
 	for i in 60:
-		bb.court_sync(BigBanana.wants_court(m.state))
+		bb.court_sync(Magician.wants_court(m.state))
 		bb.update_view(16.0)
 	runner.check(not bb.court.in_court() and bb.hero.visible and bb.hero.position == feet and not hat.visible, "back on his mark, the hat gone")
 
@@ -261,7 +261,7 @@ func test_bibis_court_day_on_the_stage() -> void:
 ## the beat glow brightens the figure on the music's beat (not under reduced motion).
 func test_fast_taps_merge_and_the_beat_glows() -> void:
 	await _boot()
-	var bb: BigBanana = m.bb
+	var bb: Magician = m.bb
 	for i in 30:
 		bb.update_view(16.0)
 	var coins: Array = []   # (a lambda captures an int by value)
@@ -297,7 +297,7 @@ func test_every_leader_leaves_on_the_hazard_day() -> void:
 		runner.check(true, "no leader select in this content")
 		return
 	s.investigation["phase"] = "court"
-	runner.check(BigBanana.wants_court(s), "Bennett's press day takes him off the stage too")
+	runner.check(Magician.wants_court(s), "Bennett's press day takes him off the stage too")
 	runner.check(LeaderUi.stage_skin("bennett") == "podium" and LeaderUi.stage_skin("deri") == "bench" and LeaderUi.stage_skin("bibi") == "court",
 		"what holds the mark: Bibi's hat, a podium, Deri's bench")
 	var e := CourtEcho.level(true, 100.0, "court")
@@ -305,7 +305,7 @@ func test_every_leader_leaves_on_the_hazard_day() -> void:
 	var s2 := GameState.fresh()
 	Politics.install(s2, "bibi")
 	s2.investigation["phase"] = "court"
-	runner.check(BigBanana.wants_court(s2), "Bibi's court day takes him off")
+	runner.check(Magician.wants_court(s2), "Bibi's court day takes him off")
 
 
 # ------------------------------------------------------------------ the court window echo

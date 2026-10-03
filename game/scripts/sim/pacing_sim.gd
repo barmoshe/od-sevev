@@ -156,8 +156,8 @@ static func run(s: GameState, player: Dictionary, seed_: int, max_t: float = 360
 				events.append([t, "milestone:" + key])
 		d = Economy.derive(s)
 		# Nothing is affordable -> the greedy player can't buy this frame; skip ranking (same result).
-		var best := {} if s.bananas < _cheapest(s, d) or t - last_buy < buy_every else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {}, player)
-		if not best.is_empty() and s.bananas >= float(best["cost"]):
+		var best := {} if s.money < _cheapest(s, d) or t - last_buy < buy_every else _best_buy(s, d, tapping, player["catch_golden"], crit_mult, strat if pol else {}, player)
+		if not best.is_empty() and s.money >= float(best["cost"]):
 			last_buy = t
 			if best.has("upgrade"):
 				Economy.buy_upgrade(s, best["upgrade"])
@@ -207,7 +207,7 @@ static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_go
 		var top := -1.0
 		for id in Content.producer_ids():
 			var c := Economy.producer_cost(s, id, 1)
-			if Economy.is_revealed(s, id) and not shady.has(id) and c <= s.bananas and c > top:
+			if Economy.is_revealed(s, id) and not shady.has(id) and c <= s.money and c > top:
 				top = c
 				best = {"producer": id, "cost": c}
 		return best
@@ -219,7 +219,7 @@ static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_go
 		var d2 := Economy.derive(s)
 		s.owned[id] = s.owned_of(id) - 1
 		var gain := d2.bps + tapping * d2.tap_value_no_crit - inc0
-		var pb := c / maxf(gain, 1e-12) + maxf(0.0, c - s.bananas) / maxf(inc0, 1e-9)
+		var pb := c / maxf(gain, 1e-12) + maxf(0.0, c - s.money) / maxf(inc0, 1e-9)
 		if pb < best_pb:
 			best_pb = pb
 			best = {"producer": id, "cost": c}
@@ -231,7 +231,7 @@ static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_go
 		if Spins.kind(u) == "consumable":
 			# A timed burst is not a payback investment: buy it the moment it is affordable and its
 			# own timer returns at least twice its price (the fatigue fades each rebuy).
-			if s.bananas >= c and _burst_return(s, u, d, tapping) >= 2.0 * c:
+			if s.money >= c and _burst_return(s, u, d, tapping) >= 2.0 * c:
 				return {"upgrade": u["id"], "cost": c}
 			continue
 		var gain := 0.0
@@ -245,7 +245,7 @@ static func _best_buy(s: GameState, d: Economy.Derived, tapping: float, catch_go
 				var d2 := Economy.derive(s)
 				s.upgrades.remove_at(s.upgrades.size() - 1)
 				gain = d2.bps + tapping * d2.tap_value_no_crit - inc0
-		var pb := c / maxf(gain, 1e-12) + maxf(0.0, c - s.bananas) / maxf(inc0, 1e-9)
+		var pb := c / maxf(gain, 1e-12) + maxf(0.0, c - s.money) / maxf(inc0, 1e-9)
 		if pb < best_pb:
 			best_pb = pb
 			best = {"upgrade": u["id"], "cost": c}
@@ -342,12 +342,12 @@ static func play_politics(s: GameState, strat: Dictionary) -> void:
 		if m["state"] != "open" or not Coalition.is_payable(m):
 			continue
 		var price := float(m.get("price", 0.0))
-		if s.bananas < price:
+		if s.money < price:
 			continue
 		var pay := all
 		if not all:
 			var joining: bool = m.get("join", false) == true or str(m.get("payable", "")) != ""
-			pay = joining or price <= keep * s.bananas
+			pay = joining or price <= keep * s.money
 			if joining and _join_costs_seats(s, str(m.get("partner", ""))):
 				pay = false   # e.g. Gafni's join would push Liberman (12) out of Bennett's round
 		if pay:

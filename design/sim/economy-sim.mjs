@@ -13,7 +13,7 @@
 //
 // Modelled: taps (scripted tap-7 rabbit, random crits from randomCritsFromTap), sources with the
 // milestone doublings and the reveal rule, C1 (openAtSourcesOwned + firstDemandPrice), money-gated
-// partner joins (unlock.runBananasAtLeast, joinGapSec), join and member demands (demandSec × ₪/s ×
+// partner joins (unlock.runMoneyAtLeast, joinGapSec), join and member demands (demandSec × ₪/s ×
 // priceMult, Goldknopf's priceGrowth, Regev's ceremony = free), upkeep (upkeepPct of ₪/s, capped at
 // upkeepMaxPct), own seats, Gafni's abstention (majority floor((120 - a)/2) + 1), Smotrich's VAT
 // effect, suspicion from shady income share (court.sources) × Levin, onPay suspicion, summons then
@@ -72,7 +72,7 @@ function round({ tps, k, base, clean = false, seed = 1 }) {
       c1 = true; mark('C1 chat ping'); queue.push({ id: CO.firstPartner, price: k === 0 ? CO.firstDemandPrice : price(eff(CO.firstPartner)) }); lastJoin = s.t; }
     if (c1 && queue.length === 0 && s.t - lastJoin >= CO.joinGapSec) {
       const cand = C.partners.find(p => p.id !== CO.firstPartner && !p.standIn && !p.rebel && !s.members.has(p.id) && s.beats['asked ' + p.id] === undefined
-        && s.run >= (p.unlock?.runBananasAtLeast ?? 0) * Math.pow(CO.unlockScalePerElection || 1, k) && (p.unlock?.evolutionsAtLeast ?? 0) <= k && !(p.excludes || []).some(x => s.members.has(x)));
+        && s.run >= (p.unlock?.runMoneyAtLeast ?? 0) * Math.pow(CO.unlockScalePerElection || 1, k) && (p.unlock?.evolutionsAtLeast ?? 0) <= k && !(p.excludes || []).some(x => s.members.has(x)));
       if (cand) { s.beats['asked ' + cand.id] = s.t; queue.push({ id: cand.id, price: price(cand) }); lastJoin = s.t; }
     }
     if (queue.length && s.bank >= queue[0].price) {
@@ -89,7 +89,7 @@ function round({ tps, k, base, clean = false, seed = 1 }) {
     }
     // greedy buyer
     if (!queue.length) { let best = null, bp = Infinity;
-      P.forEach((p, i) => { if (clean && p.shady) return; const reveal = p.revealAtRunEarned ?? C.producerReveal.revealAtRunBananasFracOfBaseCost * p.baseCost;
+      P.forEach((p, i) => { if (clean && p.shady) return; const reveal = p.revealAtRunEarned ?? C.producerReveal.revealAtRunMoneyFracOfBaseCost * p.baseCost;
         if (s.run < reveal && s.own[i] === 0) return; const c = cost(i);
         const pb = c / (p.baseBps * pm * mMult(s.own[i] + 1)) + Math.max(0, c - s.bank) / Math.max(bps() + tps, 1e-9);
         if (pb < bp) { bp = pb; best = i; } });

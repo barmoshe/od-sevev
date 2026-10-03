@@ -279,7 +279,7 @@ static func rows(s: GameState, d: Economy.Derived) -> Array:
 		out.append({"key": "PRESS_DAYS", "text": Strings.s("PRESS_DAYS", {"n": str(press_n)})})
 	out.append_array([
 		{"key": "DOS_POSTPONES", "text": Strings.s("DOS_POSTPONES", {"n": str(int(inv.get("postponementsLifetime", 0)))})},
-		{"key": "DOS_TOTAL", "text": Strings.s("DOS_TOTAL", {"x": Fmt.amount(s.all_time_bananas)})},
+		{"key": "DOS_TOTAL", "text": Strings.s("DOS_TOTAL", {"x": Fmt.amount(s.all_time_money)})},
 		{"key": "DOS_CAUGHT", "text": Strings.s("DOS_CAUGHT", {"n": str(s.golden_caught_lifetime)})},
 		{"key": "DOS_ARRIVED", "text": Strings.s("DOS_ARRIVED", {"n": str(int(float(s.stats.get("goldenMissed", 0.0))))})},
 		{"key": "DOS_INCOME", "text": Strings.s("DOS_INCOME", {"x": Fmt.mult(income_mult(s))})},

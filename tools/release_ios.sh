@@ -9,7 +9,7 @@
 #   tools/release_ios.sh --upload     the same, then upload it to App Store Connect (TestFlight)
 #   tools/release_ios.sh --sim        build for the iOS Simulator (unsigned, any simulated iPhone)
 #
-# The Team ID comes from $MB_TEAM_ID or ~/.config/monkey-bananas/team_id (10 characters,
+# The Team ID comes from $MB_TEAM_ID or ~/.config/od-sevev/team_id (10 characters,
 # from developer.apple.com > Membership). It is written into the iOS preset only for the
 # export and the file is restored after, so it never reaches git. Signing and the upload use
 # the Apple ID signed in to Xcode (Settings > Accounts); this script never asks for it and
@@ -29,15 +29,17 @@ xcodebuild -version >/dev/null 2>&1 || fail "Xcode not found (xcode-select -p)."
 [ -f "$GODOT_TPL_ROOT/4.7.2.stable/ios.zip" ] || fail "Godot 4.7.2 iOS templates missing (see tools/build_web.sh for the download)."
 
 TEAM="${MB_TEAM_ID:-}"
-[ -z "$TEAM" ] && [ -f "$HOME/.config/monkey-bananas/team_id" ] && TEAM="$(tr -d '[:space:]' < "$HOME/.config/monkey-bananas/team_id")"
+for f in "$HOME/.config/od-sevev/team_id" "$HOME/.config/monkey-bananas/team_id"; do   # the fork's path still works
+  [ -z "$TEAM" ] && [ -f "$f" ] && TEAM="$(tr -d '[:space:]' < "$f")"
+done
 if [ "$MODE" != "--check" ] && [ "$MODE" != "--sim" ]; then
-  [[ "$TEAM" =~ ^[A-Z0-9]{10}$ ]] || fail "No Team ID. Put the 10-character Team ID from developer.apple.com > Membership in ~/.config/monkey-bananas/team_id (or \$MB_TEAM_ID)."
+  [[ "$TEAM" =~ ^[A-Z0-9]{10}$ ]] || fail "No Team ID. Put the 10-character Team ID from developer.apple.com > Membership in ~/.config/od-sevev/team_id (or \$MB_TEAM_ID)."
 fi
 
 VER="$(grep '^config/version=' "$GAME/project.godot" | cut -d'"' -f2)"
 BUILD="$(grep '^application/version=' "$GAME/export_presets.cfg" | cut -d'"' -f2)"
-say "MonkeyBananas $VER (build $BUILD), mode $MODE"
-rm -rf "$OUT/project" "$OUT/MonkeyBananas.xcarchive" "$OUT/export"
+say "OdSevev $VER (build $BUILD), mode $MODE"
+rm -rf "$OUT/project" "$OUT/OdSevev.xcarchive" "$OUT/export"
 mkdir -p "$OUT/project"
 
 # the Team ID goes into the preset for this export only
@@ -48,7 +50,7 @@ sed_inplace "s/^application\/app_store_team_id=\".*\"/application\/app_store_tea
 
 "$HERE/godot.sh" --headless --path "$GAME" --import >/dev/null 2>&1 || true
 say "exporting the Xcode project"
-"$HERE/godot.sh" --headless --path "$GAME" --export-release "iOS" "$OUT/project/MonkeyBananas.ipa" > "$OUT/export.log" 2>&1
+"$HERE/godot.sh" --headless --path "$GAME" --export-release "iOS" "$OUT/project/OdSevev.ipa" > "$OUT/export.log" 2>&1
 PROJ="$(ls -d "$OUT"/project/*.xcodeproj 2>/dev/null | head -1)"
 [ -n "$PROJ" ] || { tail -20 "$OUT/export.log"; fail "Godot did not write an Xcode project (build/ios/export.log)."; }
 SCHEME="$(basename "$PROJ" .xcodeproj)"
@@ -99,10 +101,10 @@ case "$MODE" in
 PLIST
     say "archiving (automatic signing with team $TEAM)"
     xcodebuild -project "$PROJ" -scheme "$SCHEME" -configuration Release -destination "generic/platform=iOS" \
-      -archivePath "$OUT/MonkeyBananas.xcarchive" -allowProvisioningUpdates DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic \
+      -archivePath "$OUT/OdSevev.xcarchive" -allowProvisioningUpdates DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic \
       archive > "$OUT/archive.log" 2>&1 || { grep -E "error:" "$OUT/archive.log" | head; fail "archive failed (build/ios/archive.log)"; }
     say "exporting ($DEST)"
-    xcodebuild -exportArchive -archivePath "$OUT/MonkeyBananas.xcarchive" -exportOptionsPlist "$OUT/ExportOptions.plist" \
+    xcodebuild -exportArchive -archivePath "$OUT/OdSevev.xcarchive" -exportOptionsPlist "$OUT/ExportOptions.plist" \
       -exportPath "$OUT/export" -allowProvisioningUpdates > "$OUT/exportArchive.log" 2>&1 \
       || { grep -E "error:" "$OUT/exportArchive.log" | head; fail "export failed (build/ios/exportArchive.log)"; }
     if [ "$DEST" = "upload" ]; then

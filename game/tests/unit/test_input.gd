@@ -101,7 +101,7 @@ func test_buy_a_producer_by_touch() -> void:
 	_touch(_stage_pt(_hat()))
 	for i in 2:
 		_touch(_stage_pt(_hat()))   # ux/ftue.md: card 1 appears at tap 3
-	Economy.add_bananas(m.state, 100.0)
+	Economy.add_money(m.state, 100.0)
 	for i in 3:
 		await tree.process_frame
 	var k: int = m.shop.row_index_of(m.state, "producer", "intern")
@@ -114,7 +114,7 @@ func test_buy_a_producer_by_touch() -> void:
 func test_keyboard_opens_evolution_and_back_closes() -> void:
 	await _boot()
 	_touch(_stage_pt(_hat()))
-	Economy.add_bananas(m.state, 2_000_000.0)
+	Economy.add_money(m.state, 2_000_000.0)
 	for i in 3:
 		await tree.process_frame
 	_key(KEY_E)
@@ -126,7 +126,7 @@ func test_keyboard_opens_evolution_and_back_closes() -> void:
 func test_modal_scrim_is_visible_once_open() -> void:
 	await _boot()
 	_touch(_stage_pt(_hat()))
-	Economy.add_bananas(m.state, 2_000_000.0)
+	Economy.add_money(m.state, 2_000_000.0)
 	for i in 3:
 		await tree.process_frame
 	_key(KEY_E)
@@ -146,7 +146,7 @@ func test_hold_to_buy_stops_behind_a_modal() -> void:
 	_touch(_stage_pt(_hat()))
 	for i in 2:
 		_touch(_stage_pt(_hat()))
-	Economy.add_bananas(m.state, 1e6)
+	Economy.add_money(m.state, 1e6)
 	for i in 3:
 		await tree.process_frame
 	var e := InputEventScreenTouch.new()

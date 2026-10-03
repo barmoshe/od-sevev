@@ -138,7 +138,7 @@ func test_leaks_play_in_order_then_loop() -> void:
 func test_interview_raises_the_base_payout_for_the_round() -> void:
 	var s := _rich()
 	Content.data()["prestige"]["payout"] = {"scope": "round", "rootDegree": 3, "divisor": 50, "epsilon": 1e-9}
-	s.run_bananas = 50.0 * pow(40.0, 3.0)   # cbrt(run / 50) = 40
+	s.run_money = 50.0 * pow(40.0, 3.0)   # cbrt(run / 50) = 40
 	runner.check(Economy.derive(s).pending == 40, "round payout 40 (got %d)" % Economy.derive(s).pending)
 	Events.fire(s, "interview", Economy.derive(s))
 	runner.check(Economy.derive(s).pending == 44, "+10%% on this round's payout (got %d)" % Economy.derive(s).pending)
@@ -257,7 +257,7 @@ func test_blockade_only_on_its_stage_and_never_at_the_gate() -> void:
 	for p: Dictionary in Coalition.partners():
 		if not p.get("standIn", false) and p.get("side", "coalition") == "coalition":
 			Coalition.ps(s, str(p["id"]))["status"] = "member"
-	Economy.add_bananas(s, 5e9)
+	Economy.add_money(s, 5e9)
 	runner.check(Coalition.gate_open(s) and not Events.eligible(s, e), "never while the 61 gate is open")
 	_flags([])
 	runner.check(not Events.eligible(_md_state(), e), "never with the flag off")

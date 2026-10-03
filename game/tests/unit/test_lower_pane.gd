@@ -95,7 +95,7 @@ func test_b11_the_thread_starts_under_the_header() -> void:
 	var ids := Content.producer_ids()
 	for i in 3:
 		m.state.owned[ids[i]] = 1
-	Economy.add_bananas(m.state, 500.0)
+	Economy.add_money(m.state, 500.0)
 	m.d = Economy.derive(m.state)
 	Coalition.open_group(m.state, m.d, func() -> float: return 0.0)
 	Coalition._post(m.state, {"type": "reply", "n": 1, "state": "", "partner": ""}, [])

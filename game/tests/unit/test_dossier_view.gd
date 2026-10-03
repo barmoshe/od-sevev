@@ -92,7 +92,7 @@ func test_rows_are_the_sims_counters() -> void:
 	s.investigation["postponementsLifetime"] = 4
 	s.golden_caught_lifetime = 5
 	s.stats["goldenMissed"] = 7.0
-	s.all_time_bananas = 1234.0
+	s.all_time_money = 1234.0
 	s.thumbs_owned = 12
 	var d := Economy.derive(s)
 	var rows := DossierView.rows(s, d)

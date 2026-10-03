@@ -23,7 +23,7 @@ Every view from the session-2 build, checked against the motion rules in `README
 | Sweat (drops, bead, summons gulp) | slide 300 ms, fall 250 ms | Quad.In | snapped to ap | one static bead | **Fixed:** court day now takes Bibi off the stage, and drops, the bead and the gulp no longer appear on an empty stage (`bb.on_stage()`) |
 | Court card O2 | in 280 ms from 24 px with a 1-ap jolt at 180; out 180 ms; collapse 200 / expand 240 | Back.Out / Quad.In / Quad.In / Quad.Out | snapped to 4 | 150 / 120 ms fades | OK |
 | Court chip | its entry is the card's collapse, which lands in it; it cuts out on the expand's f0 | – | – | – | OK by design |
-| **Court day on the stage** | did not exist | – | – | – | **Fixed:** new (`ui/court_motion.gd`, `BigBanana.court_*`); see below |
+| **Court day on the stage** | did not exist | – | – | – | **Fixed:** new (`ui/court_motion.gd`, `Magician.court_*`); see below |
 | **Court-window echo** | not wired | – | – | – | **Fixed:** new (`ui/court_echo.gd`); see below |
 | Dubi's news flash | Overlay; the lines stagger 150 ms and fade in over 120 ms; Dubi at a crisp art scale, talk frames per blip | Linear alpha | snapped to 4 | lines at once | OK |
 | Cottage cup | appears in 200 ms; a 1-ap hop that cuts; the pixel particle and the "−1" snapped | Quad.Out / Cubic.Out | snapped to 4 | a cut, and a static "−1" fading | OK |
@@ -44,7 +44,7 @@ Every view from the session-2 build, checked against the motion rules in `README
 ## New motion in this change
 
 ### Bibi's court-day exit and return (`state-graph-magician.md` §1.3, §2, §3, §5)
-- **Scope:** Bibi only (`BigBanana.wants_court` requires `Leaders.has_court()`). A press-day leader never leaves the stage.
+- **Scope:** Bibi only (`Magician.wants_court` requires `Leaders.has_court()`). A press-day leader never leaves the stage.
 - **Exit:** the `tap.f1` startle; `tap.f2` at 180 ms with a 1-ap lean; at 330 ms a 200 ms Quad.In zip screen-left, with 2 after-images and dust. At 780 ms `prop_hat` zips back (300 ms Quad.Out) and hovers on his mark (idle f0 `hatMouth`), bobbing 0 → −2 ap every 1.6 s. The rabbit peeks every 6-9 s.
 - **Taps:** they hit the hat. The hop is −4 ap (80 + 120 ms), with coins at the peak (2 + the merged taps, max 4). A crit brings the rabbit up 12 ap with 6 coins. A paused tap gets the ears and a wiggle, with no coins.
 - **Return:** the hat fetches him (150 ms, or 120 quick), 150 ms of empty stage, then a 220 ms Quad.Out zip back on `tap.f2` and the land (tap from f1, coins suppressed, dust).
@@ -84,7 +84,7 @@ Whoever wires EVOLVE_TX calls `walk_out()` on the fade and `walk_in()` on the fa
 
 **Update to "Prepared for slice 2":** `LeaderWalk` is now wired. The state graph, the timelines and the interplay with
 the court day are in [`state-graph-magician.md` §9](state-graph-magician.md). The API changed: it is now a pose
-provider (`advance`, `dx_ap`, `dy_ap`, `alpha`, `shows`), and `BigBanana._apply_figure` is the one writer of the
+provider (`advance`, `dx_ap`, `dy_ap`, `alpha`, `shows`), and `Magician._apply_figure` is the one writer of the
 figure's position.
 
 | Piece | Entry / exit | Easing | Whole px | Reduced motion | Verdict |

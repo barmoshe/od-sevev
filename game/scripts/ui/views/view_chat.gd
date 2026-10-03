@@ -1518,7 +1518,7 @@ func _update_pill(pill: Dictionary, _bps: float) -> void:
 	nine.visible = true
 	lab.visible = true
 	var price := float(m.get("price", 0.0))
-	var have := _state.bananas
+	var have := _state.money
 	var afford := have >= price
 	var ribbon := not _ribbon.is_empty() and int(_ribbon["seq"]) == seq
 	var sprite := "pay_pill_pressed" if (afford and pill["pressed"]) else ("pay_pill_default" if afford else "pay_pill_track")

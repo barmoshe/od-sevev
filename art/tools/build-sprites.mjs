@@ -10,7 +10,7 @@
 // Authoring rules (see art/style-guide.md):
 // - Draw fills only on grids marked OUTLINE; the pass adds a 1-px outline on
 //   every transparent pixel 4-adjacent to a filled pixel. Leave a 1-px margin.
-// - Figure sprites (bananas, critters, icons, UI glyphs) outline in `k`.
+// - Figure sprites (money, critters, icons, UI glyphs) outline in `k`.
 //   Environment sprites outline in the darkest tone of their own ramp so they
 //   recede behind the figure layer.
 // - Light comes from the top-left. Shade = bottom/right, highlight = top/left.
@@ -30,7 +30,7 @@ const PALETTE = {
   k: '#2b1b24', // outline / ink — warm plum-black, never pure #000
   w: '#fff8ec', // warm white — sparkle, badge, hard hat, UI glyphs, text
   h: '#fff3a0', // BANANA highlight
-  Y: '#ffd23a', // BANANA yellow — reserved: bananas + banana currency only
+  Y: '#ffd23a', // BANANA yellow — reserved: money + banana currency only
   y: '#d9a21c', // BANANA shade
   O: '#ff8f1f', // GOLDEN amber — reserved: Golden Banana + its blip/burst
   o: '#b8481a', // GOLDEN shade
@@ -174,7 +174,7 @@ const BB_OFF = (() => {
   }
   return [24 - (minX + maxX) / 2, 47.9 - maxY];
 })();
-function bigBanana(sx, sy, happy) {
+function magicianStandIn(sx, sy, happy) {
   const W = 48, H = 49;
   const g = blank(W, H);
   const pivX = 24, pivY = 47.5;
@@ -230,13 +230,13 @@ const BB_FRAMES = [
   { name: 'stretch102', sx: 0.965, sy: 1.021, happy: false },
 ];
 {
-  const frames = BB_FRAMES.map((f) => bigBanana(f.sx, f.sy, f.happy));
+  const frames = BB_FRAMES.map((f) => magicianStandIn(f.sx, f.sy, f.happy));
   const bounds = frames.map((fr) => {
     let x0 = 99, x1 = -1, y0 = 99, y1 = -1;
     fr.forEach((r, y) => [...r].forEach((c, x) => { if (c !== '.') { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); } }));
     return { w: x1 - x0 + 1, h: y1 - y0 + 1, x0, y0, x1, y1 };
   });
-  add('bigBanana', frames, {
+  add('magicianStandIn', frames, {
     pivot: [0.5, 1],
     frames: ['rest', 'squash 0.94', 'squash 0.88 (happy squint)', 'deep squash 0.84 / crit (> < squeeze)', 'stretch 1.02 (overshoot)'],
     visibleWxH: bounds.map((b) => [b.w, b.h]),
@@ -258,10 +258,10 @@ const BB_FRAMES = [
     else if (e <= 1.0 && sparse) halo[y][x] = 'h';
   }
   const b0 = bounds[0];
-  add('bigBanana_halo', [toRows(halo)], {
+  add('magicianStandIn_halo', [toRows(halo)], {
     pivot: [0.5, 0.5],
-    alignTo: { sprite: 'bigBanana', canvasPx: [(b0.x0 + b0.x1 + 1) / 2, (b0.y0 + b0.y1 + 1) / 2] },
-    note: 'Draw BEHIND bigBanana at the same scale, origin (0.5,0.5), centred on the banana rest bbox centre: bigBanana canvas px alignTo.canvasPx (from its top-left). Alpha by code. Never follows the squash frames.',
+    alignTo: { sprite: 'magicianStandIn', canvasPx: [(b0.x0 + b0.x1 + 1) / 2, (b0.y0 + b0.y1 + 1) / 2] },
+    note: 'Draw BEHIND magicianStandIn at the same scale, origin (0.5,0.5), centred on the banana rest bbox centre: magicianStandIn canvas px alignTo.canvasPx (from its top-left). Alpha by code. Never follows the squash frames.',
   });
 }
 
@@ -297,7 +297,7 @@ function halo(g, ink = 'w') {
   return out;
 }
 {
-  const base = halo(outline(toGrid(goldenBase, 'goldenBanana'), 'k'));
+  const base = halo(outline(toGrid(goldenBase, 'suitcaseStandIn'), 'k'));
   const f0 = stamp(base.map((r) => r.slice()), ['.w.', 'wOw', '.w.'], 11, 0);
   const f1 = stamp(base.map((r) => r.slice()), ['..w..', '..w..', 'wwOww', '..w..', '..w..'], 10, -1);
   stamp(f1, ['w'], 1, 12);
@@ -341,9 +341,9 @@ function halo(g, ink = 'w') {
     '................',
     '................',
   ];
-  const f2 = stamp(halo(outline(toGrid(tiltCCW, 'goldenBanana/tiltCCW'), 'k')), ['.w.', 'wOw', '.w.'], 8, 0);
-  const f3 = stamp(halo(outline(toGrid(tiltCW, 'goldenBanana/tiltCW'), 'k')), ['.w.', 'wOw', '.w.'], 11, 1);
-  add('goldenBanana', [toRows(f0), toRows(f1), toRows(f2), toRows(f3)], {
+  const f2 = stamp(halo(outline(toGrid(tiltCCW, 'suitcaseStandIn/tiltCCW'), 'k')), ['.w.', 'wOw', '.w.'], 8, 0);
+  const f3 = stamp(halo(outline(toGrid(tiltCW, 'suitcaseStandIn/tiltCW'), 'k')), ['.w.', 'wOw', '.w.'], 11, 1);
+  add('suitcaseStandIn', [toRows(f0), toRows(f1), toRows(f2), toRows(f3)], {
     pivot: [0.5, 0.5],
     frames: ['idle (upright, sparkle)', 'sparkle flare (upright)', 'tilt -8 deg (counter-clockwise)', 'tilt +8 deg (clockwise)'],
     note: 'Amber O/o body, k outline, w halo (halo is exclusive to the Golden Banana). Tilt frames replace runtime rotation; sequence up, +8, up, -8 per motion/object-motion.md section 2.',
@@ -819,7 +819,7 @@ add('icon_thumb', [F([
   '................',
 ], 'icon_thumb')]);
 
-add('icon_banana', [F([
+add('icon_crescent', [F([
   '..........',
   '.......bb.',
   '.......Yy.',
@@ -830,7 +830,7 @@ add('icon_banana', [F([
   '..yyyy....',
   '..........',
   '..........',
-], 'icon_banana')]);
+], 'icon_crescent')]);
 
 // ---------------------------------------------------------------------------
 // SCENE CRITTERS (16×16, 2 idle frames each)
@@ -1602,7 +1602,7 @@ const UI_THEME = {
   // od-sevev: the kit's 16x16 round ✕ (TA PNG, game/assets/sprites), one ✕ style for every card
   // (review R26; the court card already uses it). `ui_close16` stays in SPRITES for the fork.
   close: { sprite: 'icon_close', frame: 0 },
-  offline: { amount: C('k'), amountIcon: 'icon_banana' },
+  offline: { amount: C('k'), amountIcon: 'icon_crescent' },
   evolveTx: { card: C('w'), text: C('k'), reducedMotionCard: C('U'), reducedMotionText: C('w') },
   // ---- title (hud-layout §10): all title text is over the stage -> outline font variant ----
   title: { text: C('w'), outline: C('k') },
@@ -1747,10 +1747,10 @@ for (const [k, v] of Object.entries(PALETTE)) { if (k === '.') continue;
   d.innerHTML = '<div class="sw" style="background:' + v + '"></div><div class="swl">' + k + ' ' + v + '</div>'; pal.appendChild(d); }
 // groups
 const groups = [
-  ['Hero', (id) => id === 'bigBanana' || id === 'goldenBanana'],
+  ['Hero', (id) => id === 'magicianStandIn' || id === 'suitcaseStandIn'],
   ['Producer icons', (id) => ['intern','tree','hardhat','bureaucrat','catapult','rocket','timechimp','moon'].some(p => id === 'icon_' + p)],
   ['Upgrade icons', (id) => id.startsWith('icon_') && !['intern','tree','hardhat','bureaucrat','catapult','rocket','timechimp','moon','thumb','banana'].some(p => id === 'icon_' + p)],
-  ['Currency', (id) => id === 'icon_thumb' || id === 'icon_banana'],
+  ['Currency', (id) => id === 'icon_thumb' || id === 'icon_crescent'],
   ['Critters (2-frame idle)', (id) => id.startsWith('critter_')],
   ['Environment', (id) => id.startsWith('env_')],
   ['UI', (id) => id.startsWith('ui_')],
@@ -1784,10 +1784,10 @@ function scene(frame) {
   for (let i = 0; i < AW; i += 16) draw(x, 'env_grass', 0, i * u, 160 * u, u);
   for (let i = 0; i < AW; i += 16) for (let j = 176; j < AH; j += 16) draw(x, 'env_ground', 0, i * u, j * u, u);
   // big banana ×5 art px → render at 5/4 of stage unit; here stage unit=2px so draw at 2.5 → use 2 and 3 alternately? keep integer: 2px per banana px (=×4 logical-ish)
-  draw(x, 'bigBanana', frame, 66 * u, 70 * u, u * 1);
+  draw(x, 'magicianStandIn', frame, 66 * u, 70 * u, u * 1);
   const B = 1; // critters at 1 art px here = x4 logical; banana shown at same stage scale
   ['intern','tree','hardhat','bureaucrat','catapult','rocket','timechimp','moon'].forEach((p, i) => draw(x, 'critter_' + p, frame, (8 + i * 21) * u, 146 * u, u));
-  draw(x, 'goldenBanana', frame, 140 * u, 60 * u, u);
+  draw(x, 'suitcaseStandIn', frame, 140 * u, 60 * u, u);
   return c;
 }
 function filtered(src, mode) {
@@ -1849,8 +1849,8 @@ function stage(x) {
   [['rocket', 112, 168], ['rocket', 40, 168], ['timechimp', 328, 168], ['moon', 544, 168]].forEach(([p, cx, cy]) => spr(x, 'critter_' + p, 0, cx, cy, 4));
   [['tree', 168, 536], ['intern', 328, 536], ['bureaucrat', 408, 536], ['tree', 568, 536]].forEach(([p, cx, cy]) => spr(x, 'critter_' + p, 1, cx, cy, 4));
   [['catapult', 48, 584], ['hardhat', 208, 584], ['intern', 288, 584], ['intern', 368, 584], ['hardhat', 448, 584], ['bureaucrat', 528, 584], ['catapult', 608, 584]].forEach(([p, cx, cy]) => spr(x, 'critter_' + p, 0, cx, cy, 4));
-  spr(x, 'bigBanana', 0, 240, 291, 5);
-  spr(x, 'goldenBanana', 0, 560, 330, 4);
+  spr(x, 'magicianStandIn', 0, 240, 291, 5);
+  spr(x, 'suitcaseStandIn', 0, 560, 330, 4);
   text(x, '+128', 470, 330, 4, CH(T.floater.fill), CH(T.floater.outline));
   text(x, '+1.2K!', 150, 300, 6, CH(T.floaterCrit.fill), CH(T.floaterCrit.outline));
   spr(x, 'ui_pointer', 1, 460, 470, 4);
@@ -1864,7 +1864,7 @@ function stage(x) {
 function topbar(x) {
   nine(x, T.topBar.sprite, 0, [0, 0, 720, 160]);
   nine(x, T.statWindow.sprite, T.statWindow.frames.frenzy, T.statWindow.suggestedRect);
-  spr(x, 'icon_banana', 0, 25, 25, 3);
+  spr(x, 'icon_crescent', 0, 25, 25, 3);
   text(x, '123,456', 64, 28, 4, CH(T.statText.bank));
   text(x, '24.3K PER SEC ×5', 64, 72, 3, CH(T.statText.bpsFrenzy));
   spr(x, 'icon_thumb', 0, 24, 104, 2); text(x, '12  ×2.2', 64, 112, 3, CH(T.statText.thumbs));

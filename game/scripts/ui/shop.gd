@@ -826,7 +826,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 	(v["pill"] as NinePatchRect).visible = not teaser
 	if fill.visible:
 		var inner := Rect2(PILL_RECT.position + Vector2(8, 8), PILL_RECT.size - Vector2(16, 24))
-		var w := maxf(8.0, Ui.snap(inner.size.x * clampf(s.bananas / price, 0.0, 1.0), 4))
+		var w := maxf(8.0, Ui.snap(inner.size.x * clampf(s.money / price, 0.0, 1.0), 4))
 		Ui.set_nine_rect(fill, Rect2(L.bar_x(inner, w), inner.position.y, w, inner.size.y))
 	var ink := Art.col("w") if (afford or is_btn) else Color(0.78, 0.74, 0.62)
 	var p1: PxText = v["pill1"]

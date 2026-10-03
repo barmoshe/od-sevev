@@ -60,7 +60,7 @@ func test_contract_lint() -> void:
 	var err := Politics.validate()
 	runner.check(err.is_empty(), "the placeholder politics content passes the lint: %s" % str(err))
 	var bad := Content.data().duplicate(true)
-	(bad["partners"][0] as Dictionary)["unlock"] = {"runBananasAtLeats": 5}
+	(bad["partners"][0] as Dictionary)["unlock"] = {"runMoneyAtLeats": 5}
 	(bad["partners"][1] as Dictionary)["effects"] = [{"type": "nope"}]
 	(bad["partners"][2] as Dictionary)["excludes"] = ["ghost"]
 	var e2 := Politics.validate(bad)
@@ -79,13 +79,13 @@ func test_game_content_passes_the_lint() -> void:
 func test_c1_opens_the_group_with_the_fixed_first_demand() -> void:
 	var s := GameState.fresh()
 	s.owned[_p1()] = 2
-	s.bananas = 100.0
+	s.money = 100.0
 	runner.check(_tick(s, 1.0).is_empty() and not s.coalition["opened"], "2 sources owned: no ping yet (C1 needs 3)")
 	s.owned[_p1()] = 3
-	s.bananas = 59.0
+	s.money = 59.0
 	_tick(s, 1.0)
 	runner.check(not s.coalition["opened"], "the first demand isn't affordable yet: no ping")
-	s.bananas = 60.0
+	s.money = 60.0
 	var blocked := Coalition.tick(s, 0.5, Economy.derive(s), {"allowPing": false})
 	runner.check(blocked.is_empty(), "a modal open (allowPing false) holds the ping")
 	var ev := _tick(s, 0.5)
@@ -99,12 +99,12 @@ func test_c1_opens_the_group_with_the_fixed_first_demand() -> void:
 func test_first_payment_reveals_34_of_61() -> void:
 	var s := GameState.fresh()
 	s.owned[_p1()] = 3
-	s.bananas = 75.0
+	s.money = 75.0
 	_tick(s, 0.5)
 	var m := _open_of(s, "bengvir", "demand")
 	var r := Coalition.pay(s, int(m["seq"]))
 	runner.check(r["ok"] and r["joined"], "paying the join demand makes him a member")
-	runner.check(is_equal_approx(s.bananas, 15.0), "60 ₪ spent")
+	runner.check(is_equal_approx(s.money, 15.0), "60 ₪ spent")
 	var si := Coalition.seat_info(s)
 	runner.check(int(si["effective"]) == 34 and int(si["gateSeats"]) == 61, "one source + Ben Gvir = 34/61 (UX §2.3), got %d" % int(si["effective"]))
 	var tail: Array = (s.coalition["chat"] as Array).slice(-2)
@@ -181,9 +181,9 @@ func test_ultimatum_marks_expiry_and_rejoin() -> void:
 	runner.check(Coalition.status(s, "gantz") == "member", "Gantz walks in as the stand-in")
 	var after := int(Coalition.seat_info(s)["effective"])
 	runner.check(after == before - 12 + 4, "seats: −12 Ben Gvir, +4 Gantz (%d → %d)" % [before, after])
-	s.bananas = 299.0
+	s.money = 299.0
 	runner.check(not Coalition.pay(s, int(left["seq"]))["ok"], "short of the rejoin price")
-	s.bananas = 300.0
+	s.money = 300.0
 	var r := Coalition.pay(s, int(left["seq"]))
 	runner.check(r["ok"] and Coalition.status(s, "bengvir") == "member", "rejoined (every timer loss recoverable)")
 	runner.check(int(s.coalition["rejoinsLifetime"]) == 1 and int(s.coalition["leftLifetime"]) == 1, "counted")
@@ -191,7 +191,7 @@ func test_ultimatum_marks_expiry_and_rejoin() -> void:
 
 func test_paying_an_ultimatum_deletes_it() -> void:
 	var s := _with(["bengvir"], 300.0, 3, true)
-	s.bananas = 500.0
+	s.money = 500.0
 	var m := Coalition._post(s, {"type": "ultimatum", "partner": "bengvir", "price": 200.0, "kind": "money", "leftSec": 90.0, "state": "open"}, [])
 	var r := Coalition.pay(s, int(m["seq"]))
 	runner.check(r["ok"] and m["state"] == "deleted", "a paid ultimatum reads 'ההודעה נמחקה' (UX §4.2)")
@@ -203,7 +203,7 @@ func test_paying_an_ultimatum_deletes_it() -> void:
 func test_goldknopf_price_only_climbs() -> void:
 	var s := _with(["goldknopf"])
 	s.owned[_p1()] = 200
-	s.bananas = 1e12
+	s.money = 1e12
 	var d := Economy.derive(s)
 	var p0 := Coalition.demand_price(s, "goldknopf", d)
 	var nxt := Coalition.next_price(s, "goldknopf", d)
@@ -213,7 +213,7 @@ func test_goldknopf_price_only_climbs() -> void:
 	var p3 := Coalition.demand_price(s, "goldknopf", d)
 	runner.check(absf(nxt - p0 * 1.3) <= 2.0, "next price = ×1.3 (deck: 'עכשיו זה {next_price}')")
 	runner.check(absf(p3 - p0 * pow(1.3, 3)) <= 2.0, "three payments: ×1.3³ (%s vs %s)" % [p3, p0 * pow(1.3, 3)])
-	s.all_time_bananas = 1e9
+	s.all_time_money = 1e9
 	Coalition.on_election(s)
 	runner.check(int(s.coalition["levels"]["goldknopf"]) == 3, "his bar never resets, not even on election")
 
@@ -229,7 +229,7 @@ func test_gafni_turns_a_lost_vote_into_a_tie() -> void:
 
 func test_seats_gate_blocks_the_election() -> void:
 	var s := GameState.fresh()
-	s.all_time_bananas = 1e7
+	s.all_time_money = 1e7
 	runner.check(not Economy.derive(s).evolve_enabled, "enough base pending but no coalition: no 'עוד סבב!'")
 	for id in Content.producer_ids():
 		s.owned[id] = 1
@@ -258,7 +258,7 @@ func test_gotliv_transfer_window() -> void:
 	_tick(s, 91.0, 1.0, _one)
 	runner.check(int(Coalition.seat_info(s)["effective"]) == seats0 - 14 + 4, "unpaid: Ben Gvir leaves and takes her seats (−14; Gantz stands in +4)")
 	var left := Coalition.open_msg(s, "bengvir")
-	s.bananas = float(left["price"])
+	s.money = float(left["price"])
 	Coalition.pay(s, int(left["seq"]))
 	runner.check(int(Coalition.seat_info(s)["effective"]) == seats0 + 4, "rejoining brings both back (Gantz stays for the round)")
 	_tick(s, 400.0, 1.0, _one)
@@ -267,13 +267,13 @@ func test_gotliv_transfer_window() -> void:
 
 func test_poach_a_rebel() -> void:
 	var s := _with(["bengvir"])
-	s.run_bananas = 40000.0
+	s.run_money = 40000.0
 	s.owned[_p1()] = 10
 	_tick(s, 200.0, 1.0, _one)
 	runner.check(Coalition.status(s, "almog") == "removed", "Almog shows up removed by an admin (deck §E)")
 	var m := Coalition.open_msg(s, "almog")
 	runner.check(m.get("key", "") == "chat.sys.removed" and m.get("payable", "") == "poach", "his line carries the poach pill")
-	s.bananas = float(m["price"])
+	s.money = float(m["price"])
 	var r := Coalition.pay(s, int(m["seq"]))
 	runner.check(r["ok"] and Coalition.status(s, "almog") == "member", "poached")
 	var last: Dictionary = (s.coalition["chat"] as Array).back()
@@ -285,12 +285,12 @@ func test_poach_a_rebel() -> void:
 ## and a member who excludes a smaller partner keeps that partner from asking.
 func test_wont_sit_with_the_bigger_side_first() -> void:
 	var s := _with(["smotrich"], 0.0, 0, true)
-	s.run_bananas = 60000.0
+	s.run_money = 60000.0
 	Coalition.ps(s, "abbas")["status"] = "left"
 	var am := Coalition._post(s, {"type": "sys", "key": "chat.sys.left", "partner": "abbas", "payable": "rejoin", "price": 10.0, "state": "open"}, [])
 	Coalition.ps(s, "bengvir")["status"] = "left"
 	var bm := Coalition._post(s, {"type": "sys", "key": "chat.sys.left", "partner": "bengvir", "payable": "rejoin", "price": 10.0, "state": "open"}, [])
-	s.bananas = 10.0
+	s.money = 10.0
 	Coalition.pay(s, int(bm["seq"]))
 	runner.check(Coalition.status(s, "bengvir") == "member" and am["state"] == "expired" and Coalition.status(s, "abbas") == "absent",
 		"Ben Gvir back: Abbas's rejoin pill closes (a pill never trades 12 seats for 4)")
@@ -304,7 +304,7 @@ func test_wont_sit_with_the_bigger_side_first() -> void:
 
 func test_abbas_sits_only_while_ben_gvir_is_out() -> void:
 	var s := _with([], 0.0, 0, true)
-	s.run_bananas = 60000.0
+	s.run_money = 60000.0
 	Coalition.ps(s, "bengvir")["status"] = "member"
 	_tick(s, 300.0, 1.0, _one)
 	runner.check(Coalition.status(s, "abbas") == "absent", "with Ben Gvir in, Abbas never joins")
@@ -312,10 +312,10 @@ func test_abbas_sits_only_while_ben_gvir_is_out() -> void:
 	_tick(s, 20.0, 1.0, _one)
 	runner.check(Coalition.status(s, "abbas") == "pending", "with Ben Gvir out, Abbas joins the chat")
 	var m := Coalition.open_msg(s, "abbas")
-	s.bananas = float(m["price"])
+	s.money = float(m["price"])
 	runner.check(Coalition.pay(s, int(m["seq"]))["joined"], "and sits")
 	var lm := Coalition._post(s, {"type": "sys", "key": "chat.sys.left", "partner": "bengvir", "payable": "rejoin", "price": 10.0, "state": "open"}, [])
-	s.bananas = 10.0
+	s.money = 10.0
 	Coalition.pay(s, int(lm["seq"]))
 	runner.check(Coalition.status(s, "bengvir") == "member" and Coalition.status(s, "abbas") == "absent", "Ben Gvir back: Abbas leaves")
 
@@ -349,14 +349,14 @@ func test_deri_cannot_leave_and_golan_adds_suspicion() -> void:
 	runner.check(Coalition.status(s, "deri") == "member", "Deri never walks: 'יצאנו מהממשלה, לא מהקבוצה'")
 	var s2 := _with(["golan"])
 	var m := Coalition._post(s2, {"type": "demand", "partner": "golan", "price": 10.0, "kind": "money", "state": "open"}, [])
-	s2.bananas = 10.0
+	s2.money = 10.0
 	Coalition.pay(s2, int(m["seq"]))
 	runner.check(is_equal_approx(Investigation.suspicion(s2), 4.0), "each phantom employee adds suspicion (+4)")
 
 
 func test_partners_join_one_at_a_time_as_they_unlock() -> void:
 	var s := _with([])
-	s.run_bananas = 1e9
+	s.run_money = 1e9
 	s.owned[_p1()] = 10
 	_tick(s, 7.5, 0.5)
 	var joined := 0
@@ -399,7 +399,7 @@ func test_no_coalition_content_means_no_gate() -> void:
 	PF.restore()
 	TestFixture.use_fork_content()
 	var s := GameState.fresh()
-	s.all_time_bananas = 1e6
+	s.all_time_money = 1e6
 	runner.check(not Coalition.active() and Economy.derive(s).evolve_enabled, "fork content: the gate is the base gate only")
 	runner.check(Coalition.tick(s, 1.0, Economy.derive(s)).is_empty(), "and the coalition is a no-op")
 
@@ -500,7 +500,7 @@ func test_first_demand_is_variant_zero_then_the_rotation_continues() -> void:
 	Coalition.partner(first)["linesVariants"] = {"demand": ["C1", "second", "third"]}
 	var s := GameState.fresh()
 	s.owned[_p1()] = 3
-	s.bananas = 1000.0
+	s.money = 1000.0
 	Coalition.open_group(s, Economy.derive(s))
 	runner.check(int(Coalition.open_msg(s, first)["variant"]) == 0, "C1 is the deck's first bubble")
 	runner.check(Coalition._variant(s, first, "demand") == 1, "the next demand is the second variant")
@@ -517,7 +517,7 @@ func test_gotliv_card_only_hides_in_the_blackout() -> void:
 	runner.check(row["cardHidden"] and row["counts"] and row["status"] == "member", "blackout: card hidden, still a member who counts")
 	runner.check(int(Coalition.seat_info(s)["effective"]) == seats, "her seats still count")
 	runner.check(not Coalition.card_hidden(s, "bengvir"), "a partner without pollLike keeps his card")
-	s.bananas = 1e9
+	s.money = 1e9
 	Coalition._post(s, {"type": "demand", "partner": "gotliv", "price": 5.0, "kind": "money", "join": false, "ageSec": 0.0,
 		"state": "open", "line": "demand", "variant": 0}, [])
 	runner.check(Coalition.pay(s, int(Coalition.open_msg(s, "gotliv")["seq"]))["ok"], "her bubbles and pills still work")

@@ -10,7 +10,7 @@ extends RefCounted
 ##   leader  the round's leader id ("" without leader content)
 ##   sec     the round's run seconds (pick to "עוד סבב!")
 ##   gate    seconds to the coalition gate (61), −1 when the round never logged it (an old save)
-##   earned  the round's income (run_bananas)
+##   earned  the round's income (run_money)
 ##   top     the producer that earned the most this round ("" = none), topPct its share 0..1
 ##   paid    paid lines this round (demands, ultimatums, rejoins), mvp the partner paid the most
 ##   left    partners who walked out this round, court the court + press days this round
@@ -94,7 +94,7 @@ static func current(s: GameState, d: Economy.Derived = null) -> Dictionary:
 	var court_now := int(inv.get("courtDays", 0)) + int(inv.get("pressDays", 0))
 	return {
 		"n": s.evolutions + 1, "leader": s.leader, "sec": s.run_time_sec,
-		"gate": float(lg.get("gateSec", -1.0)), "earned": s.run_bananas,
+		"gate": float(lg.get("gateSec", -1.0)), "earned": s.run_money,
 		"top": top, "topPct": top_pct,
 		"paid": int(co.get("paidRound", 0)), "mvp": mvp(s),
 		"left": maxi(0, int(co.get("leftLifetime", 0)) - int(lg.get("left0", 0))),
@@ -181,7 +181,7 @@ static func career(s: GameState) -> Dictionary:
 	var court := int(float(s.stats.get("hazardDays", 0.0)))
 	if court <= 0:
 		court = Investigation.hazard_days(s)
-	return {"rounds": rounds, "earned": s.all_time_bananas, "fastest": fastest, "leader": fav,
+	return {"rounds": rounds, "earned": s.all_time_money, "fastest": fastest, "leader": fav,
 		"partner": partner, "court": court, "walked": walked, "best": best, "fromHistory": not h.is_empty()}
 
 

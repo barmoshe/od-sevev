@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Monkey Bananas pipeline verification. Owner: Technical Artist.
+// The fork's pipeline verification. Owner: Technical Artist.
 //   node pipeline/verify-pipeline.mjs
 // Needs Node >= 22.18 / 23.6 (native TypeScript type stripping: imports the .ts data modules directly).
 // No dependencies. Exits non-zero on any failure; prints a report either way.

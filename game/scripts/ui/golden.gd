@@ -1,6 +1,6 @@
 class_name GoldenView
 extends Node2D
-## The Suitcase (ux/rtl-map.md §4.1, first-minute §3.4), the fork's Golden Banana repurposed.
+## The Suitcase (ux/rtl-map.md §4.1, first-minute §3.4), the fork's golden pickup repurposed.
 ## It flies through the bottom band of the stage (centre y S-60) instead of drifting:
 ## - the first flight enters at x 760 and exits at x -104 (right → left), 6.0 s; while nothing has
 ##   been caught every flight keeps that speed and a sparkle trail (S1);
@@ -23,7 +23,7 @@ var on_despawn_start: Callable
 var first_flight := true
 ## ux/ftue.md S1 fallback: hover mid-band for 1 s on this flight
 var hover_mid := false
-var key := "goldenBanana"
+var key := "suitcaseStandIn"
 
 var _half := Vector2(8, 8)
 var _dir := -1.0                 # -1 right → left
@@ -38,7 +38,7 @@ var _trail_ms := 0.0
 
 
 func _ready() -> void:
-	var want := String(Content.data().get("golden", {}).get("sprite", "suitcase" if Art.has_sprite("suitcase") else "goldenBanana"))
+	var want := String(Content.data().get("golden", {}).get("sprite", "suitcase" if Art.has_sprite("suitcase") else "suitcaseStandIn"))
 	key = Art.sprite_or(want)
 	_half = Vector2(Art.sprite_size(key)) / 2.0
 	for i in 8:
@@ -119,7 +119,7 @@ func spawn() -> void:
 
 
 ## The 136x120 hit rect around the sprite (the Magician's hit ends ≥ 20 px above the band).
-func hit_test(p: Vector2, _banana_hit: Rect2 = Rect2()) -> bool:
+func hit_test(p: Vector2, _magician_hit: Rect2 = Rect2()) -> bool:
 	return on_screen() and Ui.in_rect(hit_rect(), p)
 
 

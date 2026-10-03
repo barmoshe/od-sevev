@@ -467,7 +467,7 @@ class BookOverlay:
 		var rows := [
 			["ST_SPECIES", Content.species_title(s.evolutions).to_upper()],
 			["ST_PLAYTIME", Fmt.clock(float(s.stats.get("playtimeSec", 0.0)))],
-			["ST_ALLTIME", Fmt.amount(s.all_time_bananas)],
+			["ST_ALLTIME", Fmt.amount(s.all_time_money)],
 			["ST_BESTBPS", Fmt.rate(maxf(float(s.stats.get("bestBps", 0.0)), d.bps))],
 			["ST_TAPS", Fmt.amount(float(s.taps_lifetime))],
 			["ST_CRITS", Fmt.amount(float(s.crits_lifetime))],

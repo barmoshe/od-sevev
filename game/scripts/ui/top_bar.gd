@@ -340,8 +340,8 @@ func _apply_identity(fade: bool) -> void:
 
 # ------------------------------------------------------------------ counter / rate
 
-func set_bank(bananas: float) -> void:
-	bank.text = Strings.s("HUD_BANK", {"n": Fmt.bank(maxf(0.0, bananas - _roll_remainder))})
+func set_bank(money: float) -> void:
+	bank.text = Strings.s("HUD_BANK", {"n": Fmt.bank(maxf(0.0, money - _roll_remainder))})
 	bank.center_in(counter_box().position.x, counter_box().size.x)
 	var th := Art.theme
 	var tint: Variant = th["statText"]["bankGoldenRoll"] if (_roll_tw and _roll_tw.is_valid() and _roll_tw.is_running()) \

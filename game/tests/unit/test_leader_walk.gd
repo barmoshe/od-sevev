@@ -176,7 +176,7 @@ func test_the_tx_walks_out_before_the_card_and_lifts_empty() -> void:
 func test_the_pick_walks_the_leader_in_and_dubi_waits_for_the_landing() -> void:
 	await _boot()
 	runner.check(m.commit_pick("bennett", true), "the pick commits")
-	var bb: BigBanana = m.bb
+	var bb: Magician = m.bb
 	runner.check(bb.walking() and bb.leader_slug() == "bennett" and bb.hero.visible, "Bennett walks in")
 	var feet := L.magician_feet()
 	runner.check(bb.hero.position.x + bb.hero.rect().end.x <= -float(m._sx), "f0: fully off the canvas at screen-left (x %.0f)" % bb.hero.position.x)
@@ -202,7 +202,7 @@ func test_the_pick_walks_the_leader_in_and_dubi_waits_for_the_landing() -> void:
 func test_a_tap_during_the_walk_in_plays_on_the_moving_figure() -> void:
 	await _boot()
 	m.commit_pick("liberman", true)
-	var bb: BigBanana = m.bb
+	var bb: Magician = m.bb
 	_frames(10)
 	var x0: float = _off().x
 	m._start_from_title(L.magician_hit().get_center(), true)
@@ -235,7 +235,7 @@ func test_the_election_walks_the_leader_out_before_the_flash_or_picker() -> void
 	m.commit_pick("bennett")
 	m._set_mode("main", false)
 	m._dev["on"] = true   # the dev-forced ceremony (no 61 gate); the flow after it is the real one
-	var bb: BigBanana = m.bb
+	var bb: Magician = m.bb
 	var old_era := str(m.diorama._era.get("id", ""))
 	m._start_evolve(true)
 	runner.check(m.tx.running and m._tx_locked, "the ceremony runs, input locked")
@@ -281,7 +281,7 @@ func test_the_court_yields_to_the_walk() -> void:
 	await _boot()
 	m.commit_pick("bibi")
 	m._set_mode("main", false)
-	var bb: BigBanana = m.bb
+	var bb: Magician = m.bb
 	for i in 40:
 		bb.update_view(16.0)
 	# a court day that starts while he walks in waits for the landing
@@ -320,7 +320,7 @@ func test_the_court_yields_to_the_walk() -> void:
 func test_reduced_motion_the_swap_fades_on_the_mark() -> void:
 	await _boot(true)
 	m.commit_pick("deri", true)
-	var bb: BigBanana = m.bb
+	var bb: Magician = m.bb
 	runner.check(bb.walking() and _off() == Vector2.ZERO and bb.figure_alpha() == 0.0, "walk-in: on the mark, faded out")
 	var seq: Array = m._pick_seq
 	runner.check(not seq.is_empty() and absf(float(seq[0]["at"]) - m._now - LeaderWalk.RM_FADE_MS - 120.0) < 1.0, "Dubi's line 120 ms after the 150 ms fade")

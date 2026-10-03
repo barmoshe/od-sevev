@@ -121,7 +121,7 @@ func test_the_sweat_rides_the_temple_landmark() -> void:
 	var th: Thermo = m.thermo
 	m.state.investigation["revealed"] = true
 	_thermo_settle(80.0)
-	var bb: BigBanana = m.bb
+	var bb: Magician = m.bb
 	bb._state = "idle"   # the boot tap's squash has settled (the spawn gate wants the idle body)
 	bb.hero.play("idle")
 	th._next_drop = 0.0
@@ -198,18 +198,18 @@ func test_a_summons_left_alone_is_served() -> void:
 
 func test_postpone_pays_stamps_and_fires_court_end_postponed() -> void:
 	await _boot()
-	Economy.add_bananas(m.state, 1.0e6)
+	Economy.add_money(m.state, 1.0e6)
 	await _summon()
 	var cv: CourtView = m.court
 	m.d = Economy.derive(m.state)
 	var cost := Investigation.postpone_cost(m.state, m.d)
-	var before: float = m.state.bananas
+	var before: float = m.state.money
 	m.toasts._queue.clear()
 	heard.clear()
 	_touch(_lower_pt(cv.button_rect("primary").get_center()))
 	runner.check(Investigation.phase(m.state) == "postponed" and int(m.state.investigation["postponements"]) == 1,
 		"'התייעצות ביטחונית' is Investigation.postpone (phase %s)" % Investigation.phase(m.state))
-	runner.check(is_equal_approx(before - m.state.bananas, cost), "it cost the sim's price (%s of %s)" % [str(before - m.state.bananas), str(cost)])
+	runner.check(is_equal_approx(before - m.state.money, cost), "it cost the sim's price (%s of %s)" % [str(before - m.state.money), str(cost)])
 	runner.check(cv.mode() == "postponed", "the card shows the postponement")
 	runner.check(_heard("courtEnd").is_empty(), "courtEnd waits for the stamp's impact")
 	await tree.process_frame
@@ -231,7 +231,7 @@ func test_postponing_without_the_money_does_not_pay() -> void:
 	m.state.owned[Content.producer_ids()[0]] = 10   # some income: the price floor is seconds of ₪/s
 	await _summon()
 	var cv: CourtView = m.court
-	m.state.bananas = 0.0
+	m.state.money = 0.0
 	m.d = Economy.derive(m.state)
 	runner.check(Investigation.postpone_cost(m.state, m.d) > 0.0, "the postponement has a price")
 	await tree.process_frame

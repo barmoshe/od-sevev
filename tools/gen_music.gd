@@ -294,7 +294,7 @@ func _play(m: Dictionary, inst_name: String, ratio: float, note_s: float, at: in
 
 ## A stable resource UID per file name, so re-saving writes the same bytes.
 func _uid_for(name: String) -> int:
-	var hi := hash("monkey-bananas/music/" + name) & 0x7FFFFFFF
+	var hi := hash("od-sevev/legacy-music/" + name) & 0x7FFFFFFF
 	var lo := hash(name + "/uid") & 0xFFFFFFFF
 	return (hi << 32) | lo
 

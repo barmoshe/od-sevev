@@ -1,7 +1,7 @@
 {
  "version": 2,
  "contentId": "od-sevev",
- "_doc": "Single source of truth for 'עוד סבב' economy and content (Game Designer). Engine keys keep the Monkey Bananas v2 shape (producers, upgrades, prestige, golden, headlines, ambientHeadlinesV2, achievements, perks, eras, story) so the fork keeps loading; politics sections (flags, coalition, partners, court, eventsConfig, events, calendar) follow the simulation developer's binding politics contract v1 (STATUS.md; field reference game/scripts/sim/README.md); copy with no contract field sits under copy / linesVariants / underscore keys. Game strings are Hebrew. Every string presented as real carries src (ids in design/facts.json). poll_like is on every ticker, story and card line; true lines never show 23.10 00:00 to 27.10 22:00. Red lines: design/redlines.json. Lint: node design/sim/content-lint.mjs. Pacing check: node design/sim/economy-sim.mjs.",
+ "_doc": "Single source of truth for 'עוד סבב' economy and content (Game Designer). Engine keys keep the forked idle engine's v2 shape (producers, upgrades, prestige, golden, headlines, ambientHeadlinesV2, achievements, perks, eras, story) so the fork keeps loading; politics sections (flags, coalition, partners, court, eventsConfig, events, calendar) follow the simulation developer's binding politics contract v1 (STATUS.md; field reference game/scripts/sim/README.md); copy with no contract field sits under copy / linesVariants / underscore keys. Game strings are Hebrew. Every string presented as real carries src (ids in design/facts.json). poll_like is on every ticker, story and card line; true lines never show 23.10 00:00 to 27.10 22:00. Red lines: design/redlines.json. Lint: node design/sim/content-lint.mjs. Pacing check: node design/sim/economy-sim.mjs.",
  "currency": {
   "id": "shekels",
   "name": "שקלים",
@@ -402,11 +402,11 @@
   }
  ],
  "producerReveal": {
-  "revealAtRunBananasFracOfBaseCost": 0.5,
+  "revealAtRunMoneyFracOfBaseCost": 0.5,
   "showNextAsSilhouette": true,
   "fillSilhouettes": true,
   "silhouetteName": "מקור עלום",
-  "_rule": "A source is revealed when runBananas >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
+  "_rule": "A source is revealed when runMoney >= 0.5 × baseCost (or revealAtRunEarned when the source sets it) OR owned > 0 this round. One further source shows as the silhouette 'מקור עלום' (UX §2.3) with its cost visible.",
   "_fillRule": "UX mobile-first-layout §5.4 / §10 G1 (game-designer 2026-09-29): after the first reveal, every source not yet revealed and past the silhouette draws as a dim priceless row ('מקור עלום', no price, no pill, not a target), so the pane is never shorter than its content early on. Economy.producer_rows(s).fill lists them in tier order; false = today's single silhouette."
  },
  "upgrades": [
@@ -422,7 +422,7 @@
     "add": 0.3
    },
    "unlock": {
-    "runBananasAtLeast": 1500
+    "runMoneyAtLeast": 1500
    },
    "visualHook": "one small glass bottle with a '0.30' tag",
    "src": [
@@ -443,7 +443,7 @@
    },
    "fatigue": 0.8,
    "unlock": {
-    "runBananasAtLeast": 5000
+    "runMoneyAtLeast": 5000
    },
    "visualHook": "a pistachio-green ice-cream cone, melting",
    "src": [
@@ -462,7 +462,7 @@
     "mult": 2
    },
    "unlock": {
-    "runBananasAtLeast": 12000
+    "runMoneyAtLeast": 12000
    },
    "visualHook": "a baby monitor with a tiny hat on it",
    "src": [
@@ -482,7 +482,7 @@
    },
    "unlock": {
     "shadyOwnedAtLeast": 1,
-    "runBananasAtLeast": 20000
+    "runMoneyAtLeast": 20000
    },
    "visualHook": "an empty speech bubble with a red stamp",
    "src": [
@@ -544,7 +544,7 @@
    },
    "fatigue": 0.8,
    "unlock": {
-    "runBananasAtLeast": 50000
+    "runMoneyAtLeast": 50000
    },
    "visualHook": "a single finger in a gladiator helmet",
    "src": [
@@ -653,7 +653,7 @@
     "set": 0.07
    },
    "unlock": {
-    "runBananasAtLeast": 1500
+    "runMoneyAtLeast": 1500
    },
    "visualHook": "the game's own rabbit (never the licensed character) holding a tiny carrot microphone",
    "src": [
@@ -780,7 +780,7 @@
   "epsilon": 1e-09,
   "minPendingFloor": 10,
   "minPendingRatioOfOwned": 1.0,
-  "showEvolveButtonAtAllTimeBananas": 50000,
+  "showEvolveButtonAtAllTimeMoney": 50000,
   "_legacy": "rootDegree/divisor/epsilon/minPending*/showEvolveButton* keep the fork's cumulative gate working until the seats gate and the per-round payout land: cbrt(50,000/50) = 10 pending at about the moment round 1 reaches 61.",
   "resets": [
    "shekels",
@@ -894,7 +894,7 @@
   "unlockTimeScaleMin": 0.58,
   "demandSecScalePerElection": 0.5,
   "demandSecScaleMin": 0.1,
-  "_unlockScalePerElection": "Each election makes the next round faster (the idle-genre rule; pitch §11 Q8 note: 'base growth makes later rounds faster'). Time: the late partners carry runSecAtLeast (the arrival cadence, pitch §9), × (unlockTimeScaleMin + (1 - min) × unlockTimeScalePerElection^evolutions) = 0.58 + 0.42 × 0.6^n, so the round clock eases toward 58% of round 1's and never collapses (gotliv's 5:00 floors at 2:54). Price: a demand costs demandSec × (demandSecScaleMin + (1 - min) × demandSecScalePerElection^n) = 45 s × (0.1 + 0.9 × 0.5^n) of income (also poachSec; rejoins follow), because a price in seconds of income never shrinks with the base: at a flat 45 s the late rounds spent 1-2 min paying the queue and walked into ultimatums. Money: runBananasAtLeast × 2^evolutions, below the base's growth so earnings never gate a late round (at × 5^n they caught up again by round 14). Measured by tools/balance.sh S8 (design/progression-curve.md §0); design/sim/economy-sim.mjs is retired as non-authoritative.",
+  "_unlockScalePerElection": "Each election makes the next round faster (the idle-genre rule; pitch §11 Q8 note: 'base growth makes later rounds faster'). Time: the late partners carry runSecAtLeast (the arrival cadence, pitch §9), × (unlockTimeScaleMin + (1 - min) × unlockTimeScalePerElection^evolutions) = 0.58 + 0.42 × 0.6^n, so the round clock eases toward 58% of round 1's and never collapses (gotliv's 5:00 floors at 2:54). Price: a demand costs demandSec × (demandSecScaleMin + (1 - min) × demandSecScalePerElection^n) = 45 s × (0.1 + 0.9 × 0.5^n) of income (also poachSec; rejoins follow), because a price in seconds of income never shrinks with the base: at a flat 45 s the late rounds spent 1-2 min paying the queue and walked into ultimatums. Money: runMoneyAtLeast × 2^evolutions, below the base's growth so earnings never gate a late round (at × 5^n they caught up again by round 14). Measured by tools/balance.sh S8 (design/progression-curve.md §0); design/sim/economy-sim.mjs is retired as non-authoritative.",
   "_tuning": "Retuned 2026-09-29 against tools/balance.sh (the sim developer's objection, STATUS.md). Early partners (bengvir, regev 1K, smotrich 2.5K, levin 6K, amsalem 9K) keep the pitch §5 first-five-minutes beats; the late ones unlock at L = 225K run earnings × (goldknopf 1, gotliv 1.1, distel 1.2, gafni 1.3, abbas 1.5, deri 1.6, maygolan 2, almog 2.5) and not before round time 4:00-7:00. Bench, seed 7: first election median 8:01 (1.5 taps/s), engaged 7:28, casual 7:35, idle 10:07; median rounds 2-5 4:30, 5:37, 4:05, 4:50. Across seeds 1-9 the median lands 7:34-8:25. Gates and sources: design/progression-curve.md §0. Retuned 2026-10-02 (later rounds faster, bench S8): unlockScalePerElection 5 → 2, unlockTimeScalePerElection 0.9 → 0.6 with unlockTimeScaleMin 0.58, demandSecScalePerElection 0.5 / demandSecScaleMin 0.1 (new), deri runSecAtLeast 360 → 320 (when Goldknopf's lifetime price leaves him unpaid, Deri closes the round instead of Gotliv, and at 360 his floor added about 30 s to every such round; round 1 still waits for his 360K). Median of seeds 3-11: rounds 8:00, 4:10, 3:47, 3:29, 3:26, 3:04, 3:00, 3:03, then about 3:00-3:10 (was 8:00, 5:08, 5:29, 5:38, 4:54, 5:27, 5:06, 6:02)."
  },
  "partners": [
@@ -953,7 +953,7 @@
    "threatChance": 0.2,
    "demandKind": "ceremony",
    "unlock": {
-    "runBananasAtLeast": 1000
+    "runMoneyAtLeast": 1000
    },
    "avatar": "regev_avatar",
    "lines": {
@@ -996,7 +996,7 @@
     }
    ],
    "unlock": {
-    "runBananasAtLeast": 2500
+    "runMoneyAtLeast": 2500
    },
    "avatar": "smotrich_avatar",
    "lines": {
@@ -1036,7 +1036,7 @@
    "demandWeight": 1,
    "threatChance": 0.3,
    "unlock": {
-    "runBananasAtLeast": 9000
+    "runMoneyAtLeast": 9000
    },
    "avatar": "amsalem_avatar",
    "lines": {
@@ -1084,7 +1084,7 @@
     }
    ],
    "unlock": {
-    "runBananasAtLeast": 6000
+    "runMoneyAtLeast": 6000
    },
    "avatar": "levin_avatar",
    "lines": {
@@ -1132,7 +1132,7 @@
    "cannotLeave": true,
    "statusLine": true,
    "unlock": {
-    "runBananasAtLeast": 360000,
+    "runMoneyAtLeast": 360000,
     "runSecAtLeast": 320
    },
    "avatar": "deri_avatar",
@@ -1185,7 +1185,7 @@
     "suspicion": 4
    },
    "unlock": {
-    "runBananasAtLeast": 450000,
+    "runMoneyAtLeast": 450000,
     "runSecAtLeast": 390
    },
    "avatar": "may-golan_avatar",
@@ -1233,7 +1233,7 @@
    "threatChance": 0.3,
    "priceGrowth": 1.3,
    "unlock": {
-    "runBananasAtLeast": 225000,
+    "runMoneyAtLeast": 225000,
     "runSecAtLeast": 270
    },
    "avatar": "goldknopf_avatar",
@@ -1282,7 +1282,7 @@
    },
    "unlock": {
     "evolutionsAtLeast": 2,
-    "runBananasAtLeast": 247500,
+    "runMoneyAtLeast": 247500,
     "runSecAtLeast": 300
    },
    "avatar": "gotliv_avatar",
@@ -1379,7 +1379,7 @@
    "threatChance": 0.3,
    "rebel": true,
    "unlock": {
-    "runBananasAtLeast": 562500,
+    "runMoneyAtLeast": 562500,
     "runSecAtLeast": 420
    },
    "avatar": "almog_avatar",
@@ -1429,7 +1429,7 @@
    "threatChance": 0.5,
    "priceMult": 0.5,
    "unlock": {
-    "runBananasAtLeast": 292500,
+    "runMoneyAtLeast": 292500,
     "runSecAtLeast": 300
    },
    "avatar": "gafni_avatar",
@@ -1484,7 +1484,7 @@
    ],
    "unlock": {
     "evolutionsAtLeast": 1,
-    "runBananasAtLeast": 337500,
+    "runMoneyAtLeast": 337500,
     "runSecAtLeast": 330
    },
    "avatar": "abbas_avatar",
@@ -1536,7 +1536,7 @@
    "threatChance": 0.2,
    "unlock": {
     "evolutionsAtLeast": 1,
-    "runBananasAtLeast": 3000
+    "runMoneyAtLeast": 3000
    },
    "avatar": "karhi_avatar",
    "src": [
@@ -1593,7 +1593,7 @@
    "mutedLine": true,
    "unlock": {
     "evolutionsAtLeast": 1,
-    "runBananasAtLeast": 270000,
+    "runMoneyAtLeast": 270000,
     "runSecAtLeast": 240
    },
    "avatar": "distel_avatar",
@@ -2816,7 +2816,7 @@
   {
    "id": "h_cottage_0",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 1000.0
    },
    "text": "הקופה עברה 1,000 ₪. הקוטג׳ איבד פיקסל.",
@@ -2830,7 +2830,7 @@
   {
    "id": "h_cottage_1",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 10000.0
    },
    "text": "הקופה עברה 10,000 ₪. הקוטג׳ איבד פיקסל.",
@@ -2844,7 +2844,7 @@
   {
    "id": "h_cottage_2",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 100000.0
    },
    "text": "הקופה עברה 100,000 ₪. הקוטג׳ איבד פיקסל.",
@@ -2858,7 +2858,7 @@
   {
    "id": "h_cottage_3",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 1000000.0
    },
    "text": "הקופה עברה מיליון ₪. הקוטג׳ איבד פיקסל ושוקל רילוקיישן.",
@@ -2871,7 +2871,7 @@
   {
    "id": "h_cottage_4",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 10000000.0
    },
    "text": "הקופה עברה 10 מיליון ₪. הקוטג׳ איבד פיקסל.",
@@ -2885,7 +2885,7 @@
   {
    "id": "h_cottage_5",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 100000000.0
    },
    "text": "הקופה עברה 100 מיליון ₪. הקוטג׳ כבר מתכווץ מעצמו.",
@@ -2898,7 +2898,7 @@
   {
    "id": "h_cottage_6",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 1000000000.0
    },
    "text": "הקופה עברה מיליארד ₪. הקוטג׳ עבר לגביע של יוגורט.",
@@ -2911,7 +2911,7 @@
   {
    "id": "h_cottage_7",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 10000000000.0
    },
    "text": "הקופה עברה 10 מיליארד ₪. הקוטג׳ איבד פיקסל.",
@@ -2925,7 +2925,7 @@
   {
    "id": "h_cottage_8",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 100000000000.0
    },
    "text": "הקופה עברה 100 מיליארד ₪. הקוטג׳ איבד פיקסל.",
@@ -2939,7 +2939,7 @@
   {
    "id": "h_cottage_9",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 1000000000000.0
    },
    "text": "הקופה עברה טריליון ₪. הקוטג׳ נמכר עכשיו לפי פיקסל.",
@@ -2952,7 +2952,7 @@
   {
    "id": "h_cottage_10",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 10000000000000.0
    },
    "text": "הקופה עברה 10 טריליון ₪. הקוטג׳ איבד פיקסל.",
@@ -2966,7 +2966,7 @@
   {
    "id": "h_cottage_11",
    "trigger": {
-    "type": "allTimeBananas",
+    "type": "allTimeMoney",
     "value": 100000000000000.0
    },
    "text": "הקופה עברה 100 טריליון ₪. מהקוטג׳ נשאר רק המכסה.",
@@ -3052,7 +3052,7 @@
     "desc": "הרווחת את ה־1,000 ₪ הראשונים.",
     "icon": "icon_folder",
     "trigger": {
-     "type": "allTimeBananas",
+     "type": "allTimeMoney",
      "value": 1000
     },
     "src": [
@@ -3066,7 +3066,7 @@
     "desc": "מיליון ₪. התיק מתעבה.",
     "icon": "icon_folder",
     "trigger": {
-     "type": "allTimeBananas",
+     "type": "allTimeMoney",
      "value": 1000000.0
     }
    },
@@ -3076,7 +3076,7 @@
     "desc": "מיליארד ₪. צריך ארון.",
     "icon": "icon_folder",
     "trigger": {
-     "type": "allTimeBananas",
+     "type": "allTimeMoney",
      "value": 1000000000.0
     }
    },
@@ -3086,7 +3086,7 @@
     "desc": "טריליון ₪. צריך בניין.",
     "icon": "icon_folder",
     "trigger": {
-     "type": "allTimeBananas",
+     "type": "allTimeMoney",
      "value": 1000000000000.0
     }
    },
@@ -3351,7 +3351,7 @@
     "desc": "הקוטג׳ איבד את כל הפיקסלים.",
     "icon": "icon_cottage",
     "trigger": {
-     "type": "allTimeBananas",
+     "type": "allTimeMoney",
      "value": 100000000000000.0
     },
     "src": [
@@ -3441,7 +3441,7 @@
     "desc": "מיליארד ₪ בקופה בבת אחת.",
     "icon": "icon_coin",
     "trigger": {
-     "type": "bananasAtOnce",
+     "type": "moneyAtOnce",
      "value": 1000000000.0
     },
     "secret": true
@@ -3606,7 +3606,7 @@
      60,
      600
     ],
-    "effect": "startBananas"
+    "effect": "startMoney"
    },
    {
     "id": "p_magnet",
@@ -5247,7 +5247,7 @@
     "demandWeight": 1,
     "threatChance": 0.2,
     "unlock": {
-     "runBananasAtLeast": 1000
+     "runMoneyAtLeast": 1000
     },
     "_from": "regev"
    },
@@ -5257,7 +5257,7 @@
     "demandWeight": 2,
     "threatChance": 0.35,
     "unlock": {
-     "runBananasAtLeast": 2500
+     "runMoneyAtLeast": 2500
     },
     "_from": "smotrich"
    },
@@ -5267,7 +5267,7 @@
     "demandWeight": 1,
     "threatChance": 0.2,
     "unlock": {
-     "runBananasAtLeast": 6000
+     "runMoneyAtLeast": 6000
     },
     "_from": "levin"
    },
@@ -5277,7 +5277,7 @@
     "demandWeight": 1,
     "threatChance": 0.3,
     "unlock": {
-     "runBananasAtLeast": 9000
+     "runMoneyAtLeast": 9000
     },
     "_from": "amsalem"
    },
@@ -5288,7 +5288,7 @@
     "threatChance": 0.2,
     "unlock": {
      "evolutionsAtLeast": 1,
-     "runBananasAtLeast": 3000
+     "runMoneyAtLeast": 3000
     },
     "_from": "karhi"
    },
@@ -5298,7 +5298,7 @@
     "demandWeight": 2,
     "threatChance": 0.3,
     "unlock": {
-     "runBananasAtLeast": 225000,
+     "runMoneyAtLeast": 225000,
      "runSecAtLeast": 270
     },
     "_from": "goldknopf"
@@ -5310,7 +5310,7 @@
     "threatChance": 0.3,
     "unlock": {
      "evolutionsAtLeast": 2,
-     "runBananasAtLeast": 247500,
+     "runMoneyAtLeast": 247500,
      "runSecAtLeast": 300
     },
     "_from": "gotliv"
@@ -5322,7 +5322,7 @@
     "threatChance": 0.2,
     "unlock": {
      "evolutionsAtLeast": 1,
-     "runBananasAtLeast": 270000,
+     "runMoneyAtLeast": 270000,
      "runSecAtLeast": 240
     },
     "_from": "distel"
@@ -5333,7 +5333,7 @@
     "demandWeight": 2,
     "threatChance": 0.5,
     "unlock": {
-     "runBananasAtLeast": 292500,
+     "runMoneyAtLeast": 292500,
      "runSecAtLeast": 300
     },
     "_from": "gafni (seats 0 + abstain 4 when gafni holds it)"
@@ -5345,7 +5345,7 @@
     "threatChance": 0.2,
     "unlock": {
      "evolutionsAtLeast": 1,
-     "runBananasAtLeast": 337500,
+     "runMoneyAtLeast": 337500,
      "runSecAtLeast": 330
     },
     "_from": "abbas"
@@ -5356,7 +5356,7 @@
     "demandWeight": 1,
     "threatChance": 0.2,
     "unlock": {
-     "runBananasAtLeast": 360000,
+     "runMoneyAtLeast": 360000,
      "runSecAtLeast": 320
     },
     "_from": "deri (threatChance 0 comes from his cannotLeave trait)"
@@ -5367,7 +5367,7 @@
     "demandWeight": 1,
     "threatChance": 0.3,
     "unlock": {
-     "runBananasAtLeast": 450000,
+     "runMoneyAtLeast": 450000,
      "runSecAtLeast": 390
     },
     "_from": "maygolan"
@@ -5378,7 +5378,7 @@
     "demandWeight": 1,
     "threatChance": 0.3,
     "unlock": {
-     "runBananasAtLeast": 562500,
+     "runMoneyAtLeast": 562500,
      "runSecAtLeast": 420
     },
     "_from": "almog"

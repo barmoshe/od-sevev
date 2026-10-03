@@ -48,6 +48,6 @@ func test_ambient_conditions_and_no_repeat() -> void:
 	s.evolutions = 6
 	var orbit := false
 	for i in 300:
-		if Story.pick_ambient(s, recent, 14).contains("banana shower") or Story.pick_ambient(s, recent, 14).contains("Mission control"):
+		if Story.pick_ambient(s, recent, 14).contains("shekel shower") or Story.pick_ambient(s, recent, 14).contains("Mission control"):
 			orbit = true
 	runner.check(orbit, "orbit lines show in orbit")

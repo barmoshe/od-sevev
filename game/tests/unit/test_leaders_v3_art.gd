@@ -2,7 +2,7 @@ extends RefCounted
 ## Leaders v3 art (creative-pack/art/briefs/leaders-v3-gpt.md, rigged 2026-10-01): the nine pose
 ## characters (`<leader>-<pose>`, each at its leader's scale and feet line), the stage props, the ability
 ## icons and Kaia ship in the manifest; PressDesk draws the prop sprites; KaiaFigure plays her strip;
-## BigBanana.flash_pose stands a pose in for the hero and gives the stage back.
+## Magician.flash_pose stands a pose in for the hero and gives the stage back.
 
 var runner: Object
 var tree: SceneTree
@@ -103,7 +103,7 @@ func test_the_press_desk_draws_the_prop_sprites() -> void:
 func test_flash_pose_stands_in_for_the_hero_and_gives_the_stage_back() -> void:
 	await _boot()
 	runner.check(_start_round("bennett"), "Bennett's round starts")
-	var bb: BigBanana = m.bb
+	var bb: Magician = m.bb
 	for i in 80:   # the walk-in lands and the boot tap's strip ends on idle
 		bb.update_view(16.0)
 	bb.walk_land()

@@ -61,11 +61,11 @@ func test_bennett_signs_then_flips() -> void:
 	var d := _d(s)
 	runner.check(Ability.use(s, d).get("kind", "") == "sign" and Events.gate_plus(s) == 1, "לחתום: the pledge is up, the gate +1")
 	runner.check(str(Ability.view(s, d)["label"]) == str(Ability.copy(s)["btnFlip"]), "the chip now says להפוך")
-	var bank := s.bananas
+	var bank := s.money
 	var susp := Investigation.suspicion(s)
 	var f := Ability.use(s, d)
 	runner.check(f.get("kind", "") == "flip" and Events.gate_plus(s) == 0, "להפוך: the gate drops now")
-	runner.check(s.bananas > bank and (not Investigation.active() or Investigation.suspicion(s) > susp), "cash now, headlines too")
+	runner.check(s.money > bank and (not Investigation.active() or Investigation.suspicion(s) > susp), "cash now, headlines too")
 	runner.check(Ability.block(s, d) == "cooldown", "then the pen rests")
 
 
@@ -122,7 +122,7 @@ func test_smotrich_budget_paid_late_or_missed() -> void:
 		ev.append_array(Ability.tick(s, 1.0, d))
 	runner.check(ev.any(func(e: Dictionary) -> bool: return str(e.get("kind", "")) == "offer"), "a budget comes up after 120 s")
 	var price := float(Ability.st(s)["price"])
-	s.bananas = price + 1000.0
+	s.money = price + 1000.0
 	for i in 52:
 		Ability.tick(s, 1.0, d)
 	var r := Ability.use(s, d)

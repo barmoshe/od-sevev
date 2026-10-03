@@ -275,12 +275,12 @@ for (const s of C.upgrades) if (s.followUp?.ticker && !tickerIds.has(s.followUp.
 for (const w of C.calendar.windows) for (const l of w.lines) if (!tickerIds.has(l)) err(`calendar.${w.id}`, `line ${l} missing`);
 // engine-safety checks (the fork engine reads these keys directly)
 for (const u of C.upgrades) if (typeof u.cost !== 'number') err(`upgrades.${u.id}`, 'cost missing (Economy reads u["cost"])');
-for (const k of ['multPerThumb', 'minPendingFloor', 'minPendingRatioOfOwned', 'showEvolveButtonAtAllTimeBananas', 'divisor', 'epsilon', 'speciesTitles'])
+for (const k of ['multPerThumb', 'minPendingFloor', 'minPendingRatioOfOwned', 'showEvolveButtonAtAllTimeMoney', 'divisor', 'epsilon', 'speciesTitles'])
   if (!(k in C.prestige)) err('prestige', `${k} missing (the fork engine reads it directly)`);
 const storyKeys = new Set(['era', 'owned', 'frenzy', 'tapFrenzy', 'hour', 'evolutionsAtLeast', 'perk', 'trophiesAtLeast', 'allTimeAtLeast', 'goldenAtLeast']);
 for (const o of C.ambientHeadlinesV2.list) for (const k of Object.keys(o.when || {})) if (!storyKeys.has(k)) err(o.id, `when key ${k} is not Story's; move the line to listPolitics`);
 // politics contract v1 (binding, STATUS.md): an unknown key or type fails Politics.validate()
-const condKeys = new Set(['era', 'evolutionsAtLeast', 'evolutionsBelow', 'runBananasAtLeast', 'allTimeAtLeast', 'ownedAtLeast', 'sourcesOwnedAtLeast', 'shadyOwnedAtLeast',
+const condKeys = new Set(['era', 'evolutionsAtLeast', 'evolutionsBelow', 'runMoneyAtLeast', 'allTimeAtLeast', 'ownedAtLeast', 'sourcesOwnedAtLeast', 'shadyOwnedAtLeast',
   'seatsAtLeast', 'seatsBelow', 'membersAtLeast', 'partnerMember', 'partnerNotMember', 'suspicionAtLeast', 'suspicionBelow', 'courtDaysAtLeast', 'critsLifetimeAtLeast',
   'goldenCaughtLifetimeAtLeast', 'playSecAtLeast', 'runSecAtLeast', 'partnersInAtLeast', 'weekday', 'hour', 'mode', 'pendingEngine']);
 const eventEffects = new Set(['none', 'blockade', 'screenBlock', 'suspicion', 'noCrit', 'brawl', 'leak', 'interview', 'pardonDesk', 'seatDrain', 'roulette', 'kaia', 'drumline', 'loseRandomPartner', 'pledge', 'mediation']);

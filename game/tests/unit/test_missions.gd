@@ -95,10 +95,10 @@ func test_claim_pays_cash_from_the_income_with_a_floor() -> void:
 	var s := GameState.fresh()
 	Missions.tick(s)
 	s.missions["slots"][0]["done"] = true
-	var before := s.bananas
+	var before := s.money
 	var r := Missions.claim(s, 0)
 	runner.check(bool(r["ok"]), "claimed")
-	_eq(s.bananas - before, 50.0, "no income yet: the cash floor (cashFloor 50)")
+	_eq(s.money - before, 50.0, "no income yet: the cash floor (cashFloor 50)")
 	# with income: sec × ₪/s
 	var s2 := GameState.fresh()
 	s2.owned[Content.producer_ids()[0]] = 40
@@ -106,10 +106,10 @@ func test_claim_pays_cash_from_the_income_with_a_floor() -> void:
 	runner.check(d.bps * 10.0 > 50.0, "the fixture's income beats the floor")
 	Missions.tick(s2, d)
 	s2.missions["slots"][0]["done"] = true
-	var b2 := s2.bananas
+	var b2 := s2.money
 	Missions.claim(s2, 0, d)
-	_eq(s2.bananas - b2, ceilf(10.0 * d.bps), "10 s of ₪/s")
-	runner.check(s2.run_bananas >= s2.bananas and s2.all_time_bananas >= s2.bananas, "the cash counts as earned")
+	_eq(s2.money - b2, ceilf(10.0 * d.bps), "10 s of ₪/s")
+	runner.check(s2.run_money >= s2.money and s2.all_time_money >= s2.money, "the cash counts as earned")
 
 
 func test_claim_pays_frenzy_and_base_pct() -> void:
@@ -145,7 +145,7 @@ func test_claim_refills_the_slot_with_the_next_mission() -> void:
 	runner.check((s.missions["claimed"] as Array) == ["ms_t_own"], "claimed")
 	# the refilled mission counts from now
 	var id := Content.producer_ids()[0]
-	s.bananas = 1.0e9
+	s.money = 1.0e9
 	for i in 3:
 		Economy.buy_producer(s, id, 1)
 	runner.check(Missions.tick(s).is_empty(), "3 of 4 sources bought")

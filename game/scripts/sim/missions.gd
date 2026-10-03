@@ -19,7 +19,7 @@ extends RefCounted
 ## Goals. Counted ones run from the moment the mission became active (`base` = the lifetime counter
 ## then), read off counters the sim already keeps, so the only hook is the source purchase count:
 ##   taps {n}          s.taps_lifetime                crits {n}        s.crits_lifetime
-##   earnRun {amount}  s.all_time_bananas (₪ earned)  suitcases {n}    s.golden_caught_lifetime
+##   earnRun {amount}  s.all_time_money (₪ earned)  suitcases {n}    s.golden_caught_lifetime
 ##   payDemands {n}    stats.demandsPaid              courtDays {n}    stats.hazardDays (court + press days)
 ##   elections {n}     s.evolutions                   buySpins {n}     s.upgrades_bought_lifetime
 ##   useAbility {n}    every leader's abilityUses + unityRefusals (Liberman's ability has no button)
@@ -121,7 +121,7 @@ static func counter(s: GameState, type: String) -> float:
 		"sourcesTotal":
 			return float(_st(s).get("bought", 0.0))
 		"earnRun":
-			return s.all_time_bananas
+			return s.all_time_money
 		"taps":
 			return float(s.taps_lifetime)
 		"crits":
@@ -273,7 +273,7 @@ static func claim(s: GameState, i: int, d: Economy.Derived = null) -> Dictionary
 	var r := reward_now(s, mission(id).get("reward", {}), d)
 	match str(r["type"]):
 		"cash":
-			Economy.add_bananas(s, float(r["cash"]))
+			Economy.add_money(s, float(r["cash"]))
 		"frenzy":
 			s.buff_frenzy = maxf(s.buff_frenzy, float(r["sec"]))
 		"basePct":

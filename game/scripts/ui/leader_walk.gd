@@ -13,9 +13,9 @@ extends RefCounted
 ## mark, the last beat flat so he lands on idle's own frame). Reduced motion: no travel and no bob;
 ## the figure fades out / in on the mark over 150 ms.
 ##
-## One owner of the figure's position: a walk never writes the strip itself when BigBanana drives it.
-## BigBanana advances it (`advance`) and composes its pose (`dx_ap`, `dy_ap`, `alpha`, `shows`) with
-## the court day's in one place (`BigBanana._apply_figure`). The court yields while a walk runs.
+## One owner of the figure's position: a walk never writes the strip itself when Magician drives it.
+## Magician advances it (`advance`) and composes its pose (`dx_ap`, `dy_ap`, `alpha`, `shows`) with
+## the court day's in one place (`Magician._apply_figure`). The court yields while a walk runs.
 ## A standalone strip (tools, a preview) can still use `tick`, which advances and writes.
 ##
 ## States: home (on the mark, still) → out → gone (off the canvas, hidden) → in → home. `home()` cuts
@@ -156,7 +156,7 @@ func done() -> bool:
 
 # ------------------------------------------------------------------ time
 
-## Advances the walk; never writes the strip (BigBanana composes the pose).
+## Advances the walk; never writes the strip (Magician composes the pose).
 func advance(dt: float) -> void:
 	if not walking():
 		return

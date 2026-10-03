@@ -58,25 +58,25 @@ const need = (id, pred, why) => {
   if (!s) return fail(`missing sprite '${id}'`);
   if (pred && !pred(s)) fail(`${id}: ${why}`);
 };
-need('bigBanana', (s) => s.w === 48 && s.h === 49 && s.frames.length === 5, '48×49 with 5 frames (rest, 0.94, 0.88, 0.84, stretch)');
-need('bigBanana_halo', (s) => s.frames.length === 1 && s.w >= 36 && s.h >= 48, 'single soft halo frame about 40×56');
-need('goldenBanana', (s) => s.w <= 16 && s.h <= 16 && s.frames.length === 4, '≤16×16 with 4 frames (idle, flare, tilt -8, tilt +8)');
+need('magicianStandIn', (s) => s.w === 48 && s.h === 49 && s.frames.length === 5, '48×49 with 5 frames (rest, 0.94, 0.88, 0.84, stretch)');
+need('magicianStandIn_halo', (s) => s.frames.length === 1 && s.w >= 36 && s.h >= 48, 'single soft halo frame about 40×56');
+need('suitcaseStandIn', (s) => s.w <= 16 && s.h <= 16 && s.frames.length === 4, '≤16×16 with 4 frames (idle, flare, tilt -8, tilt +8)');
 // Big Banana: every frame shares the baseline (bottom ink row 48) and its height falls in the
 // Animator's quantize band (motion/object-motion.md §1.1) relative to the rest frame.
-if (SPRITES.bigBanana?.frames.length === 5) {
-  const rows = SPRITES.bigBanana.frames.map((fr) => {
+if (SPRITES.magicianStandIn?.frames.length === 5) {
+  const rows = SPRITES.magicianStandIn.frames.map((fr) => {
     const filled = fr.map((r, y) => (/[^.]/.test(r) ? y : -1)).filter((y) => y >= 0);
     return { top: Math.min(...filled), bottom: Math.max(...filled) };
   });
-  rows.forEach((r, i) => { if (r.bottom !== 48) fail(`bigBanana[${i}] baseline is row ${r.bottom}, expected 48`); });
+  rows.forEach((r, i) => { if (r.bottom !== 48) fail(`magicianStandIn[${i}] baseline is row ${r.bottom}, expected 48`); });
   const h = rows.map((r) => r.bottom - r.top + 1);
   const ratio = h.map((x) => x / h[0]);
   const bands = [[0.9688, 1.0104], [0.9167, 0.9688], [0.8646, 0.9167], [0, 0.8646], [1.0104, 9]];
-  ratio.forEach((q, i) => { if (!(q >= bands[i][0] && q < bands[i][1])) fail(`bigBanana[${i}] height ratio ${q.toFixed(3)} outside band [${bands[i]}]`); });
-  console.log('bigBanana heights (rows):', h.join(' / '), ' ratios:', ratio.map((q) => q.toFixed(3)).join(' / '));
+  ratio.forEach((q, i) => { if (!(q >= bands[i][0] && q < bands[i][1])) fail(`magicianStandIn[${i}] height ratio ${q.toFixed(3)} outside band [${bands[i]}]`); });
+  console.log('magicianStandIn heights (rows):', h.join(' / '), ' ratios:', ratio.map((q) => q.toFixed(3)).join(' / '));
 }
 need('icon_thumb', (s) => s.w === 16 && s.h === 16, '16×16');
-need('icon_banana', (s) => (s.w === 8 && s.h === 8) || (s.w === 10 && s.h === 10), '8×8 or 10×10');
+need('icon_crescent', (s) => (s.w === 8 && s.h === 8) || (s.w === 10 && s.h === 10), '8×8 or 10×10');
 for (const p of content.producers) {
   need(`icon_${p.id}`, (s) => s.w === 16 && s.h === 16, '16×16');
   need(`critter_${p.id}`, (s) => s.w === 16 && s.h === 16 && s.frames.length === 2, '16×16 with 2 idle frames');
@@ -92,14 +92,14 @@ for (const id of ['env_grass', 'env_ground', 'env_palm_trunk']) need(id, (s) => 
 for (const id of ['env_foliage_a', 'env_palm_crown', 'env_cloud']) need(id);
 
 // Golden size rule (feel-spec): ≤ 0.35× the Big Banana's on-screen size at the same scale
-const gb = SPRITES.goldenBanana, bb = SPRITES.bigBanana;
-if (gb && bb && Math.max(gb.w, gb.h) / Math.max(bb.w, bb.h) > 0.35) fail('goldenBanana exceeds 0.35× Big Banana');
+const gb = SPRITES.suitcaseStandIn, bb = SPRITES.magicianStandIn;
+if (gb && bb && Math.max(gb.w, gb.h) / Math.max(bb.w, bb.h) > 0.35) fail('suitcaseStandIn exceeds 0.35× Big Banana');
 
 // Hue reservation: the Golden Banana never uses Big-Banana yellows and the Big Banana never uses golden amber
 const uses = (s, chars) => s.frames.some((fr) => fr.some((r) => [...r].some((c) => chars.includes(c))));
-if (gb && uses(gb, ['Y', 'y', 'h'])) fail('goldenBanana uses banana-yellow chars');
-if (bb && uses(bb, ['O', 'o'])) fail('bigBanana uses golden-amber chars');
-if (SPRITES.bigBanana_halo && uses(SPRITES.bigBanana_halo, ['O', 'o'])) fail('bigBanana_halo uses golden-amber chars');
+if (gb && uses(gb, ['Y', 'y', 'h'])) fail('suitcaseStandIn uses banana-yellow chars');
+if (bb && uses(bb, ['O', 'o'])) fail('magicianStandIn uses golden-amber chars');
+if (SPRITES.magicianStandIn_halo && uses(SPRITES.magicianStandIn_halo, ['O', 'o'])) fail('magicianStandIn_halo uses golden-amber chars');
 
 // Tile seams: horizontal tiles must match colour classes at the left/right edge in ≥ 75% of rows
 for (const id of ['env_grass', 'env_ground']) {

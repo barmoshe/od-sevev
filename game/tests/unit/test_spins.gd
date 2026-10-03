@@ -62,7 +62,7 @@ func test_the_fixture_passes_the_contract_lint() -> void:
 
 func test_pending_engine_holds_a_spin_off_the_shelf() -> void:
 	var s := GameState.fresh()
-	s.bananas = 1e9
+	s.money = 1e9
 	runner.check(not _shelf(s).has("t_held") and not Economy.buy_upgrade(s, "t_held"), "unlock.pendingEngine: true never unlocks")
 	var bad := PF.build()
 	(bad["upgrades"] as Array).append({"id": "t_bad", "cost": 1, "unlock": {}, "effect": {"type": "notBuiltYet"}})
@@ -71,10 +71,10 @@ func test_pending_engine_holds_a_spin_off_the_shelf() -> void:
 
 func test_consumable_tap_buff_fades_and_comes_back() -> void:
 	var s := GameState.fresh()
-	s.bananas = 1000.0
+	s.money = 1000.0
 	var base := Economy.derive(s).tap_value_no_crit
 	runner.check(Economy.buy_upgrade(s, "t_buff"), "S02 bought")
-	_eq(s.bananas, 900.0, "for its cost")
+	_eq(s.money, 900.0, "for its cost")
 	_eq(Economy.derive(s).tap_value_no_crit, base * 1.5, "taps ×1.5 while live")
 	runner.check(bool(Economy.tap(s, func() -> float: return 1.0).get("boosted", false)), "a tap paid under the buff is flagged boosted (the big floater)")
 	runner.check(not s.upgrades.has("t_buff") and not _shelf(s).has("t_buff"), "off the shelf while live, never in s.upgrades")
@@ -105,18 +105,18 @@ func test_idle_to_tap_pours_the_income_into_taps() -> void:
 	var d := Economy.derive(s)
 	var bps := d.bps
 	var tap0 := d.tap_value_no_crit
-	s.bananas = 1e9
+	s.money = 1e9
 	var want := maxf(100.0, Spins.ceil_sig(60.0 * bps, 3))
 	_eq(Economy.upgrade_price(s, "t_pour"), want, "costBpsSeconds: 60 s of ₪/s (3 significant digits), at least cost")
 	runner.check(Economy.buy_upgrade(s, "t_pour"), "S07 bought")
-	_eq(s.bananas, 1e9 - want, "for that price")
+	_eq(s.money, 1e9 - want, "for that price")
 	var d2 := Economy.derive(s)
 	_eq(d2.bps_effective, 0.0, "passive income stops")
 	_eq(d2.bps, bps, "but ₪/s itself (prices, suspicion shares) is unchanged")
 	_eq(d2.tap_value_no_crit, tap0 + 0.5 * bps, "each tap pays tapValue + bps × 0.5")
-	var before := s.bananas
+	var before := s.money
 	Economy.tick(s, 1.0)
-	_eq(s.bananas, before, "no accrual while it runs")
+	_eq(s.money, before, "no accrual while it runs")
 	var r := Economy.tap(s, func() -> float: return 0.0)   # a rabbit
 	var cm := float(Content.data()["tap"]["critMult"])
 	runner.check(r["crit"] == true, "a rabbit")
@@ -129,7 +129,7 @@ func test_idle_to_tap_pours_the_income_into_taps() -> void:
 
 func test_consumable_freeze_fades_its_duration() -> void:
 	var s := GameState.fresh()
-	s.bananas = 1000.0
+	s.money = 1000.0
 	Economy.buy_upgrade(s, "t_freeze")
 	_eq(float(s.investigation["frozenSec"]), 60.0, "S12: suspicion frozen 60 s")
 	_tick(s, 60.0)
@@ -140,7 +140,7 @@ func test_consumable_freeze_fades_its_duration() -> void:
 
 func test_line_levels_in_order() -> void:
 	var s := GameState.fresh()
-	s.bananas = 20000.0
+	s.money = 20000.0
 	_eq(Economy.upgrade_price(s, "t_line"), 100.0, "level 1 costs 100")
 	runner.check(Economy.buy_upgrade(s, "t_line"), "level 1 bought")
 	_eq(Economy.upgrade_price(s, "t_line"), 1000.0, "level 2 costs 1,000")
@@ -149,7 +149,7 @@ func test_line_levels_in_order() -> void:
 	runner.check(_shelf(s).has("t_line") and not s.upgrades.has("t_line"), "still on the shelf")
 	Economy.buy_upgrade(s, "t_line")
 	Economy.buy_upgrade(s, "t_line")
-	_eq(s.bananas, 20000.0 - 11100.0, "each level at its own cost")
+	_eq(s.money, 20000.0 - 11100.0, "each level at its own cost")
 	_eq(Economy.derive(s).base_pct_round, 6.0, "3 levels: +6%")
 	var c := Spins.card(s, "t_line")
 	runner.check(int(c["level"]) == 3 and is_equal_approx(float(c["bars"]["public"]), 40.0) and is_equal_approx(float(c["bars"]["friendly"]), 60.0),
@@ -166,7 +166,7 @@ func test_flight_income_counts_catches_after_buying() -> void:
 	var bps := Economy.derive(s).bps
 	var bunch: String = Content.data()["golden"]["outcomes"][0]["id"]
 	Economy.apply_golden(s, bunch)
-	s.bananas = 100.0
+	s.money = 100.0
 	Economy.buy_upgrade(s, "t_flight")
 	_eq(Economy.derive(s).bps, bps, "no flight yet: nothing")
 	Economy.apply_golden(s, bunch)
@@ -185,7 +185,7 @@ func test_opposition_cards_pay_base_with_the_witch_hunt() -> void:
 	var d := Economy.derive(s)
 	Events.fire(s, "liberman", d)
 	runner.check(s.thumbs_owned == 0, "without S05 an opposition card pays nothing")
-	s.bananas = 100.0
+	s.money = 100.0
 	Economy.buy_upgrade(s, "t_witch")
 	var r := Events.fire(s, "liberman", d)
 	runner.check(s.thumbs_owned == 1 and int(r["result"]["baseAdd"]) == 1, "with S05 it adds +1 base")
@@ -195,7 +195,7 @@ func test_opposition_cards_pay_base_with_the_witch_hunt() -> void:
 
 func test_spins_survive_the_save_and_are_sanitized() -> void:
 	var s := GameState.fresh()
-	s.bananas = 1e6
+	s.money = 1e6
 	Economy.buy_upgrade(s, "t_buff")
 	Economy.buy_upgrade(s, "t_line")
 	Economy.buy_upgrade(s, "t_flight")
@@ -223,8 +223,8 @@ func test_shipped_content_has_no_held_spin() -> void:
 	for u: Dictionary in Content.upgrades():
 		runner.check(not Spins.held(u), "%s is not held any more" % u["id"])
 	var s := GameState.fresh()
-	s.run_bananas = 60000.0
-	s.bananas = 1e6
+	s.run_money = 60000.0
+	s.money = 1e6
 	var shelf := _shelf(s)
 	runner.check(shelf.has("s02") and shelf.has("s07"), "S02 and S07 reach the shelf in round 1: %s" % str(shelf))
 	runner.check(Economy.buy_upgrade(s, "s02") and _shelf(s).has("s07"), "S02 is bought as a consumable")

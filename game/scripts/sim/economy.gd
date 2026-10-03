@@ -84,7 +84,7 @@ static var _warned: Dictionary = {}
 ## Upgrade unlock conditions: key in upgrade.unlock -> func(value, s: GameState) -> bool (all must pass).
 ## od-sevev: any other key is looked up in the shared Conditions vocabulary (era, shadyOwnedAtLeast, …).
 static var UNLOCKS: Dictionary = {
-	"runBananasAtLeast": func(v: Variant, s: GameState) -> bool: return s.run_bananas >= float(v),
+	"runMoneyAtLeast": func(v: Variant, s: GameState) -> bool: return s.run_money >= float(v),
 	"goldenCaughtLifetimeAtLeast": func(v: Variant, s: GameState) -> bool: return s.golden_caught_lifetime >= int(v),
 	"ownedAtLeast": func(v: Variant, s: GameState) -> bool: return s.owned_of(v["producer"]) >= int(v["count"]),
 	"evolutionsAtLeast": func(v: Variant, s: GameState) -> bool: return s.evolutions >= int(v),
@@ -100,12 +100,12 @@ static func clampf_num(v: float) -> float:
 	return v
 
 
-static func add_bananas(s: GameState, n: float) -> void:
+static func add_money(s: GameState, n: float) -> void:
 	if not (n > 0.0):
 		return
-	s.bananas = clampf_num(s.bananas + n)
-	s.run_bananas = clampf_num(s.run_bananas + n)
-	s.all_time_bananas = clampf_num(s.all_time_bananas + n)
+	s.money = clampf_num(s.money + n)
+	s.run_money = clampf_num(s.run_money + n)
+	s.all_time_money = clampf_num(s.all_time_money + n)
 
 
 static func thumbs_for(all_time: float) -> int:
@@ -149,7 +149,7 @@ static func mult_per_base() -> float:
 static func round_payout(s: GameState, base_pct: float) -> int:
 	var p := _payout()
 	var root := float(p.get("rootDegree", 3))
-	var v := floorf(pow(maxf(0.0, s.run_bananas) / float(p.get("divisor", 1000)), 1.0 / root) + float(p.get("epsilon", 1e-9)))
+	var v := floorf(pow(maxf(0.0, s.run_money) / float(p.get("divisor", 1000)), 1.0 / root) + float(p.get("epsilon", 1e-9)))
 	return int(minf(floorf(v * (1.0 + base_pct / 100.0)), 9.0e15))
 
 
@@ -233,7 +233,7 @@ static func derive(s: GameState) -> Derived:
 		d.thumbs_total = s.thumbs_owned + d.pending
 		d.needed = maxi(1, int(_payout().get("minGain", 1)))
 	else:
-		d.thumbs_total = thumbs_for(s.all_time_bananas)
+		d.thumbs_total = thumbs_for(s.all_time_money)
 		d.pending = maxi(0, d.thumbs_total - s.thumbs_owned)
 		d.needed = maxi(int(p.get("minPendingFloor", 1)), ceili(float(p.get("minPendingRatioOfOwned", 0.0)) * s.thumbs_owned))
 	d.evolve_enabled = d.pending >= d.needed and d.seats_gate_open
@@ -247,7 +247,7 @@ static func evolve_visible(s: GameState) -> bool:
 		return true
 	if seats_gated():
 		return Coalition.gate_open(s)
-	return s.all_time_bananas >= float(_prestige().get("showEvolveButtonAtAllTimeBananas", 0.0))
+	return s.all_time_money >= float(_prestige().get("showEvolveButtonAtAllTimeMoney", 0.0))
 
 
 # ---------------------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ static func evolve_visible(s: GameState) -> bool:
 static func tick(s: GameState, dt: float, d: Derived = null) -> Dictionary:
 	if d == null:
 		d = derive(s)
-	add_bananas(s, d.bps_effective * dt)
+	add_money(s, d.bps_effective * dt)
 	s.run_time_sec += dt
 	s.stats["playtimeSec"] = float(s.stats.get("playtimeSec", 0.0)) + dt
 	Leaders.on_play(s, dt)
@@ -328,7 +328,7 @@ static func tap(s: GameState, rng: Callable = randf, d: Derived = null) -> Dicti
 	# A rabbit multiplies the tap, never S07's pour (the pour is income moved, not earned by the tap).
 	var pour := d.tap_pour_sec * d.bps
 	var value := clampf_num((d.tap_value_no_crit - pour) * (cm if crit else 1.0) + pour)
-	add_bananas(s, value)
+	add_money(s, value)
 	s.run_taps += 1
 	s.taps_lifetime += 1
 	if crit:
@@ -347,7 +347,7 @@ static func phrase_bonus(s: GameState, d: Derived = null) -> float:
 		return 0.0
 	var pour := d.tap_pour_sec * d.bps
 	var value := clampf_num((d.tap_value_no_crit - pour) * float(Content.data()["tap"].get("phraseBonusMult", 0.0)))
-	add_bananas(s, value)
+	add_money(s, value)
 	return value
 
 
@@ -368,15 +368,15 @@ static func max_affordable(s: GameState, id: String) -> int:
 	var p := Content.producer(id)
 	var g := float(p["costGrowth"])
 	var unit := float(p["baseCost"]) * pow(g, s.owned_of(id))
-	if is_inf(unit) or unit >= MAX or s.bananas < unit:
+	if is_inf(unit) or unit >= MAX or s.money < unit:
 		return 0
-	var n := int(minf(floorf(log(s.bananas * (g - 1.0) / unit + 1.0) / log(g)), 1.0e6))
+	var n := int(minf(floorf(log(s.money * (g - 1.0) / unit + 1.0) / log(g)), 1.0e6))
 	var guard := 0
-	while n > 0 and producer_cost(s, id, n) > s.bananas and guard < 4:
+	while n > 0 and producer_cost(s, id, n) > s.money and guard < 4:
 		n -= 1
 		guard += 1
 	guard = 0
-	while producer_cost(s, id, n + 1) <= s.bananas and guard < 4 and n < 1000000:
+	while producer_cost(s, id, n + 1) <= s.money and guard < 4 and n < 1000000:
 		n += 1
 		guard += 1
 	return maxi(n, 0)
@@ -393,14 +393,14 @@ static func quote(s: GameState, id: String, mode: Variant = null) -> Dictionary:
 		return {"qty": n, "cost": producer_cost(s, id, n), "affordable": true}
 	var q := int(mode)
 	var cost := producer_cost(s, id, q)
-	return {"qty": q, "cost": cost, "affordable": s.bananas >= cost}
+	return {"qty": q, "cost": cost, "affordable": s.money >= cost}
 
 
 static func buy_producer(s: GameState, id: String, mode: Variant = null) -> Dictionary:
 	var q := quote(s, id, mode)
 	if not q["affordable"]:
 		return {}
-	s.bananas = maxf(0.0, s.bananas - float(q["cost"]))
+	s.money = maxf(0.0, s.money - float(q["cost"]))
 	var before := s.owned_of(id)
 	s.owned[id] = before + int(q["qty"])
 	Investigation.on_buy(s, id, int(q["qty"]), before)   # shady sources feed suspicion per unit
@@ -411,9 +411,9 @@ static func buy_producer(s: GameState, id: String, mode: Variant = null) -> Dict
 static func is_revealed(s: GameState, id: String) -> bool:
 	var p := Content.producer(id)
 	if p.has("revealAtRunEarned"):
-		return s.owned_of(id) > 0 or s.run_bananas >= float(p["revealAtRunEarned"])
-	var frac := float(Content.data()["producerReveal"]["revealAtRunBananasFracOfBaseCost"])
-	return s.owned_of(id) > 0 or s.run_bananas >= frac * float(p["baseCost"])
+		return s.owned_of(id) > 0 or s.run_money >= float(p["revealAtRunEarned"])
+	var frac := float(Content.data()["producerReveal"]["revealAtRunMoneyFracOfBaseCost"])
+	return s.owned_of(id) > 0 or s.run_money >= frac * float(p["baseCost"])
 
 
 ## Revealed producer ids in tier order, the single silhouette id ("" if none: a real row with its
@@ -477,7 +477,7 @@ static func affordable_upgrade_count(s: GameState) -> int:
 	var n := 0
 	for u: Dictionary in available_upgrades(s):
 		var p := Spins.price(s, u)   # derives only for a costBpsSeconds spin
-		if p >= 0.0 and s.bananas >= p:
+		if p >= 0.0 and s.money >= p:
 			n += 1
 	return n
 
@@ -495,14 +495,14 @@ static func can_buy_upgrade(s: GameState, id: String) -> bool:
 	if u.is_empty() or not Spins.on_shelf(s, u) or not upgrade_unlocked(s, u):
 		return false
 	var p := Spins.price(s, u)
-	return p >= 0.0 and s.bananas >= p
+	return p >= 0.0 and s.money >= p
 
 
 static func buy_upgrade(s: GameState, id: String) -> bool:
 	if not can_buy_upgrade(s, id):
 		return false
 	var u := Content.upgrade(id)
-	s.bananas = maxf(0.0, s.bananas - Spins.price(s, u))
+	s.money = maxf(0.0, s.money - Spins.price(s, u))
 	s.upgrades_bought_lifetime += 1
 	Spins.on_bought(s, u)
 	Meta.count(s, "countUpgrade", id)
@@ -513,7 +513,7 @@ static func buy_upgrade(s: GameState, id: String) -> bool:
 
 
 # ---------------------------------------------------------------------------------------------
-# Golden Banana
+# The Suitcase (the golden pickup)
 # ---------------------------------------------------------------------------------------------
 
 ## od-sevev: pass the state so outcomes tagged `era` (the Washington laundry) only roll in that era.
@@ -561,7 +561,7 @@ static func apply_golden(s: GameState, id: String) -> float:
 	if kind == "instant":
 		var d := derive(s)
 		var award := clampf_num(maxf(float(o.get("bunchBpsSeconds", 0)) * d.bps, float(o.get("bunchMinTaps", 0)) * d.tap_value_no_crit))
-		add_bananas(s, award)
+		add_money(s, award)
 		if o.get("parksOnAide", o.get("aide", false)) == true:
 			Investigation.aide_catch(s, award, float(o.get("suspicionAdd", -1.0)))   # deck §G: the money lands on an aide's card
 		return award
@@ -577,8 +577,8 @@ static func apply_golden(s: GameState, id: String) -> float:
 # ---------------------------------------------------------------------------------------------
 
 static func reset_run(s: GameState) -> void:
-	s.bananas = 0.0
-	s.run_bananas = 0.0
+	s.money = 0.0
+	s.run_money = 0.0
 	for id in Content.producer_ids():
 		s.owned[id] = 0
 	s.upgrades = PackedStringArray()

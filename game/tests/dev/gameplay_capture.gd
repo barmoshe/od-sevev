@@ -95,8 +95,8 @@ func _run(what: String, a: Dictionary) -> void:
 			_taps.sort()
 		"grant":
 			var st: GameState = h.get("state")
-			st.bananas += float(a.get("amount", 0))
-			st.all_time_bananas += float(a.get("amount", 0))
+			st.money += float(a.get("amount", 0))
+			st.all_time_money += float(a.get("amount", 0))
 		"buy":
 			var rows: Array = s.get("shop", {}).get("rows", [])
 			var want := String(a.get("id", ""))

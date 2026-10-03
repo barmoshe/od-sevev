@@ -60,7 +60,7 @@ func test_an_ultimatum_never_runs_out_under_the_open_card() -> void:
 
 func test_nothing_ages_joins_or_transfers_under_the_card() -> void:
 	var s := _with(["bengvir", "gotliv"])
-	s.run_bananas = 1e9   # every partner unlocked: they'd join one per joinGapSec
+	s.run_money = 1e9   # every partner unlocked: they'd join one per joinGapSec
 	s.coalition["joinCooldownSec"] = 0.0
 	s.coalition["nextDemandSec"] = 0.1
 	var d := Coalition._post(s, {"type": "demand", "partner": "bengvir", "price": 10.0, "kind": "money", "join": false, "ageSec": 59.0, "state": "open"}, [])

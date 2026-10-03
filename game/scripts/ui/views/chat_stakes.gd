@@ -148,7 +148,7 @@ static func pay_all_plan(s: GameState) -> Array:
 		if float(a["key"]) != float(b["key"]):
 			return float(a["key"]) < float(b["key"])
 		return int(a["m"]["seq"]) < int(b["m"]["seq"]))
-	var bank := s.bananas
+	var bank := s.money
 	var joining: Array = []
 	for r: Dictionary in rows:
 		var m: Dictionary = r["m"]

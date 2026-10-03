@@ -26,7 +26,7 @@ Assets: `creative-pack/art/briefs/leaders-v3-gpt.md`.
 
 ## Phase 1 (this change)
 1. **The busy moment, for every leader.**
-   - On the hazard day the leader zips off like Bibi does: `BigBanana.wants_court` is no longer Bibi
+   - On the hazard day the leader zips off like Bibi does: `Magician.wants_court` is no longer Bibi
      only.
    - What holds the mark is `LeaderUi.stage_skin`: Bibi's hat (`court`), a press podium (`podium`, 6
      leaders) or Deri's corridor bench (`bench`). The podium and bench are drawn by `PressDesk` until
@@ -119,7 +119,7 @@ Assets: `creative-pack/art/briefs/leaders-v3-gpt.md`.
   once a round (`leader_round.tickOnce`), which also wakes `calendar.negotiation.opener` (cal08).
 - **Ability trophies**: `kit.abilityTrophy` (abilityUses: Bibi 5, Liberman 5, Deri 25, Golan 15,
   the rest 10). **Dubi** squawks `kit.dubi.squawks.ability` on a use (every 20 s at most).
-- **The GPT art**: each ability plays the leader's pose (`rule.active.poses`, `BigBanana.flash_pose`);
+- **The GPT art**: each ability plays the leader's pose (`rule.active.poses`, `Magician.flash_pose`);
   the chip shows the cut icon; PressDesk draws the podium, bench and box; Kaia is a sprite.
 - **Mordechai David by leader** (Bar): he never blocks Ben Gvir (taps ×3 while he stands), Bibi (×2) or
   Smotrich (he just stands there): `effect.byLeader`. Everyone else: approach 2 s, block 6 s, exit 2 s.

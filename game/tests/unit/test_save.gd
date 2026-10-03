@@ -27,9 +27,9 @@ func _store() -> SaveStore:
 func test_round_trip() -> void:
 	var st := _store()
 	var s := GameState.fresh()
-	s.bananas = 1234.5
-	s.run_bananas = 2000.0
-	s.all_time_bananas = 2_000_000.0
+	s.money = 1234.5
+	s.run_money = 2000.0
+	s.all_time_money = 2_000_000.0
 	s.owned["tree"] = 7
 	s.upgrades.append("glove")
 	s.thumbs_owned = 12
@@ -39,7 +39,7 @@ func test_round_trip() -> void:
 	var r := st.load_game()
 	runner.check(r["kind"] == "ok", "loads ok")
 	var l: GameState = r["state"]
-	runner.check(l.bananas == 1234.5 and l.owned_of("tree") == 7 and l.upgrades.has("glove"), "fields survive")
+	runner.check(l.money == 1234.5 and l.owned_of("tree") == 7 and l.upgrades.has("glove"), "fields survive")
 	runner.check(l.thumbs_owned == 12 and l.buy_mode == "max" and l.achievements.has("a_test"), "persistent fields survive")
 	runner.check(float(r["lastSaveTime"]) == 1000.0, "last save time survives")
 
@@ -69,7 +69,7 @@ func test_v1_save_is_not_migrated() -> void:
 	# aside as corrupt, never loaded as this game's progress.
 	var st := _store()
 	var f := FileAccess.open(st.path, FileAccess.WRITE)
-	f.store_string(JSON.stringify({"version": 1, "lastSaveTime": 42.0, "state": {"bananas": 5.0, "owned": [20, 13]}}))
+	f.store_string(JSON.stringify({"version": 1, "lastSaveTime": 42.0, "state": {"money": 5.0, "owned": [20, 13]}}))
 	f.close()
 	var r := st.load_game()
 	runner.check(r["kind"] == "corrupt", "a v1 save does not load, got %s" % r["kind"])
@@ -77,13 +77,13 @@ func test_v1_save_is_not_migrated() -> void:
 
 
 func test_thumbs_cannot_exceed_all_time() -> void:
-	var s := GameState.from_dict({"allTimeBananas": 1_000_000.0, "thumbsOwned": 5000})
+	var s := GameState.from_dict({"allTimeMoney": 1_000_000.0, "thumbsOwned": 5000})
 	runner.check(s.thumbs_owned == 10, "hand-edited Thumbs clamp to what all-time earned (%d)" % s.thumbs_owned)
 
 
 func test_export_import_code() -> void:
 	var s := GameState.fresh()
-	s.bananas = 77.0
+	s.money = 77.0
 	s.owned["moon"] = 2
 	var code := SaveStore.export_code(s)
 	runner.check(code.begins_with("HK1:"), "export code prefix")
@@ -106,7 +106,7 @@ func test_a_save_from_another_epoch_is_wiped() -> void:
 	DirAccess.make_dir_recursive_absolute(dir)
 	var st := SaveStore.new(dir)
 	var s := GameState.fresh()
-	s.bananas = 12345.0
+	s.money = 12345.0
 	runner.check(st.save_game(s), "saved")
 	runner.check(str(st.load_game()["kind"]) == "ok", "the same epoch loads")
 	var f := FileAccess.open(st.path, FileAccess.WRITE)

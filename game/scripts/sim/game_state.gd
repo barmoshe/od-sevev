@@ -5,8 +5,8 @@ extends RefCounted
 ## content.json never scrambles a save.
 
 # ---- run (reset on Evolve) ----
-var bananas := 0.0
-var run_bananas := 0.0
+var money := 0.0
+var run_money := 0.0
 var owned: Dictionary = {}          # producer id -> int
 var upgrades: PackedStringArray = []
 var run_taps := 0
@@ -20,7 +20,7 @@ var run_time_sec := 0.0
 var thumbs_owned := 0               # lifetime Thumbs earned: drives the prestige multiplier
 var thumbs_spent := 0               # spent in the Thumbs shop (never lowers the multiplier)
 var shop: Dictionary = {}           # thumbs-shop node id -> level
-var all_time_bananas := 0.0
+var all_time_money := 0.0
 var evolutions := 0
 var golden_caught_lifetime := 0
 var taps_lifetime := 0
@@ -104,13 +104,13 @@ func duplicate_state() -> GameState:
 
 func to_dict() -> Dictionary:
 	return {
-		"bananas": bananas, "runBananas": run_bananas, "owned": owned.duplicate(),
+		"money": money, "runMoney": run_money, "owned": owned.duplicate(),
 		"upgrades": Array(upgrades), "runTaps": run_taps,
 		"buffs": {"frenzy": buff_frenzy, "tapFrenzy": buff_tap_frenzy},
 		"goldenTimerSec": golden_timer_sec, "evolveReadyAnnounced": evolve_ready_announced,
 		"runTimeSec": run_time_sec,
 		"thumbsOwned": thumbs_owned, "thumbsSpent": thumbs_spent, "shop": shop.duplicate(),
-		"allTimeBananas": all_time_bananas, "evolutions": evolutions,
+		"allTimeMoney": all_time_money, "evolutions": evolutions,
 		"goldenCaughtLifetime": golden_caught_lifetime, "tapsLifetime": taps_lifetime,
 		"critsLifetime": crits_lifetime, "upgradesBoughtLifetime": upgrades_bought_lifetime,
 		"headlinesSeen": Array(headlines_seen), "achievements": Array(achievements),
@@ -130,8 +130,9 @@ static func from_dict(raw: Variant) -> GameState:
 		return null
 	var r: Dictionary = raw
 	var s := GameState.fresh()
-	s.bananas = _num(r.get("bananas"))
-	s.run_bananas = maxf(_num(r.get("runBananas")), s.bananas)
+	# saves from before the rename (2026-10-03) carry the fork's keys: bananas, runBananas, allTimeBananas
+	s.money = _num(r.get("money", r.get("bananas")))
+	s.run_money = maxf(_num(r.get("runMoney", r.get("runBananas"))), s.money)
 	var o: Variant = r.get("owned")
 	if o is Dictionary:
 		for id in Content.producer_ids():
@@ -145,9 +146,9 @@ static func from_dict(raw: Variant) -> GameState:
 	s.golden_timer_sec = _num(r.get("goldenTimerSec"), s.golden_timer_sec)
 	s.evolve_ready_announced = r.get("evolveReadyAnnounced") == true
 	s.run_time_sec = _num(r.get("runTimeSec"))
-	s.all_time_bananas = maxf(_num(r.get("allTimeBananas")), s.run_bananas)
+	s.all_time_money = maxf(_num(r.get("allTimeMoney", r.get("allTimeBananas"))), s.run_money)
 	# The base can never exceed what the all-time total could have paid (a hand-edited save).
-	s.thumbs_owned = mini(int(_num(r.get("thumbsOwned"))), Economy.base_cap(s.all_time_bananas, int(_num(r.get("evolutions")))))
+	s.thumbs_owned = mini(int(_num(r.get("thumbsOwned"))), Economy.base_cap(s.all_time_money, int(_num(r.get("evolutions")))))
 	s.thumbs_spent = mini(int(_num(r.get("thumbsSpent"))), s.thumbs_owned)
 	var sh: Variant = r.get("shop")
 	if sh is Dictionary:

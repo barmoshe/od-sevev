@@ -111,7 +111,7 @@ runs it on the design content.
 | `patienceSec` | An unpaid member demand escalates to an ultimatum after this (once unlocked) |
 | `ultimatum {sec 90, minPlaySec 180, minDemandsPaid 2, marksSec [60,30], maxOpen 1}` | UX U1 |
 | `rejoinMult` 1.5, `poachSec`, `upkeepMaxPct`, `chatMax`, `corridorMsgsPerOpen` | |
-| `unlockScalePerElection`, `unlockTimeScalePerElection` | partners' `runBananasAtLeast` / `runSecAtLeast` × scale^evolutions |
+| `unlockScalePerElection`, `unlockTimeScalePerElection` | partners' `runMoneyAtLeast` / `runSecAtLeast` × scale^evolutions |
 | `negotiation {demandGapMult}` | Post-election mode: partners ask more often |
 
 ### `partners[]`
@@ -144,7 +144,7 @@ Effect types: `none {sec}`, `suspicion {add}`, `noCrit {sec}`, `brawl {pairs, an
 `postLaunch`, `easterEggs`, `mordechaiDavid`, `yairNetanyahu`. All ship `false`; an unknown flag is off.
 
 ### Conditions (`unlock`, `when`, upgrade `unlock`)
-`era, evolutionsAtLeast, evolutionsBelow, runBananasAtLeast, allTimeAtLeast, ownedAtLeast {producer,count},
+`era, evolutionsAtLeast, evolutionsBelow, runMoneyAtLeast, allTimeAtLeast, ownedAtLeast {producer,count},
 sourcesOwnedAtLeast, shadyOwnedAtLeast, seatsAtLeast, seatsBelow, membersAtLeast (partnersInAtLeast),
 partnerMember, partnerNotMember, suspicionAtLeast, suspicionBelow, courtDaysAtLeast, critsLifetimeAtLeast,
 goldenCaughtLifetimeAtLeast, playSecAtLeast, runSecAtLeast, weekday [0=Sun…], hour [from,to], mode, pendingEngine`.

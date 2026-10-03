@@ -10,7 +10,7 @@ const PAIRS := {
 }
 
 
-## The Monkey Bananas audio specs moved to audio/legacy/ (Audio Director's legacy move): nothing
+## The fork's audio specs moved to audio/legacy/ (Audio Director's legacy move): nothing
 ## copies them into the game any more, so no stale copy can ship or drift.
 func test_legacy_audio_specs_are_not_copied() -> void:
 	var root := ProjectSettings.globalize_path("res://").path_join("..")

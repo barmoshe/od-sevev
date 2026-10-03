@@ -1,15 +1,15 @@
-class_name BigBanana
+class_name Magician
 extends Node2D
-## The Big Banana: motion/state-graph-spec.md §1-3 (body, aura and hover as orthogonal regions)
+## The Magician (the leader on the stage): motion/state-graph-spec.md §1-3 (body, aura and hover as orthogonal regions)
 ## and motion/object-motion.md §1. The squash is a quantized driver: a number y is eased and mapped
-## to one of the 5 drawn frames. No scale is ever applied to the banana itself.
+## to one of the 5 drawn frames. No scale is ever applied to the figure itself.
 ##
 ## od-sevev: when the TA's cast strips are present, the round's leader (SpriteStrip, set_leader:
-## leaders[].art, default "bibi") stands in for the banana: idle loops, a tap plays `tap`, a crit
+## leaders[].art, default "bibi") stands in for the fork's procedural sprite (magicianStandIn): idle loops, a tap plays `tap`, a crit
 ## plays `crit`, and each one-shot returns to idle. The strip's frame events (coins, rabbit,
 ## sting, ...) go to on_hero_event(name, stage_point), with the hat's mouth as the point when the
 ## anim carries `hatMouth`. The body/aura/hover graph still runs; the Magician shows the aura and
-## hover as a brightness lift instead of the banana's halo sprite.
+## hover as a brightness lift instead of the stand-in's halo sprite.
 
 const DEPTH_RANK := {4: 0, 0: 1, 1: 2, 2: 3, 3: 4}
 const BY_RANK := [4, 0, 1, 2, 3]
@@ -29,7 +29,7 @@ var on_court_fx: Callable
 var hero: SpriteStrip
 ## Bibi's court-day exit and return (CourtMotion; motion/state-graph-magician.md §1.3, §3, §5).
 var court := CourtMotion.new()
-## The leader swap's walk-out / walk-in (LeaderWalk; spec §9.3.4). BigBanana is the one owner of the
+## The leader swap's walk-out / walk-in (LeaderWalk; spec §9.3.4). Magician is the one owner of the
 ## figure's position, visibility and alpha: `_apply_figure` composes the walk's pose with the court
 ## day's every frame, and the court yields while a walk runs (it neither starts nor ticks the body).
 var walk := LeaderWalk.new()
@@ -91,16 +91,16 @@ func _ready() -> void:
 	var pivot := Vector2(L.BB["pivotX"], L.BB["pivotY"])
 	var canvas_top := pivot.y - 49 * sc
 	add_child(body)
-	var hmeta: Dictionary = Art.meta["bigBanana_halo"]
+	var hmeta: Dictionary = Art.meta["magicianStandIn_halo"]
 	var hp: Array = hmeta["alignTo"]["canvasPx"]
 	halo = Sprite2D.new()
-	halo.texture = Art.tex("bigBanana_halo")
+	halo.texture = Art.tex("magicianStandIn_halo")
 	halo.scale = Vector2(sc, sc)
 	halo.position = Vector2(pivot.x - 24 * sc + float(hp[0]) * sc, canvas_top + float(hp[1]) * sc)
 	halo.modulate.a = 0.0
 	body.add_child(halo)
 	sprite = Sprite2D.new()
-	sprite.texture = Art.tex("bigBanana", 0)
+	sprite.texture = Art.tex("magicianStandIn", 0)
 	sprite.centered = false
 	sprite.offset = Vector2(-24, -49)
 	sprite.scale = Vector2(sc, sc)
@@ -117,7 +117,7 @@ func _ready() -> void:
 	fidget = Ui.img(body, Vector2(pivot.x - 24 * sc + 20 * sc, canvas_top + 15 * sc), "particle_sparkle", 0, sc)
 	fidget.visible = false
 	set_leader(LeaderUi.art(), LeaderUi.tap())
-	var hr: Array = Art.meta["bigBanana"]["heightRatio"]
+	var hr: Array = Art.meta["magicianStandIn"]["heightRatio"]
 	var mid := func(a: int, b: int) -> float: return (float(hr[a]) + float(hr[b])) / 2.0
 	_bands = [mid.call(4, 0), mid.call(0, 1), mid.call(1, 2), mid.call(2, 3)]
 	_enter_idle()
@@ -164,7 +164,7 @@ func set_leader(slug: String, kit: Dictionary) -> void:
 	walk.home()
 	var on := hero != null
 	for n: CanvasItem in [halo, sprite, flash, fidget]:
-		n.visible = not on and (n == sprite or n == halo)   # the banana stands in (flash/fidget show on demand)
+		n.visible = not on and (n == sprite or n == halo)   # the stand-in sprite (flash/fidget show on demand)
 		n.set_process(not on)
 	if not on:
 		return
@@ -222,7 +222,7 @@ func _rebuild_court() -> void:
 		_build_court()
 
 
-## The manifest slug on stage ("" when the banana stands in).
+## The manifest slug on stage ("" when the stand-in sprite is up).
 func leader_slug() -> String:
 	return hero.char_id if hero != null else ""
 
@@ -272,11 +272,11 @@ func prop_squashed() -> bool:
 	return prop != null and _prop_frame == 1
 
 
-## Hit area = the drawn sprite rect + bigBananaHitPadPx on every side. Never follows the frame.
+## Hit area = the drawn sprite rect + magicianHitPadPx on every side. Never follows the frame.
 func hit_rect() -> Rect2:
 	if hero != null:
 		return L.magician_hit()   # rtl-map §4: 376x416, bottom 20 px clear of the Suitcase band
-	var p := float(Tune.T["bigBananaHitPadPx"])
+	var p := float(Tune.T["magicianHitPadPx"])
 	var r: Rect2 = L.BB["sprite"]
 	return Rect2(r.position.x - p, r.position.y - p, r.size.x + 2 * p, r.size.y + 2 * p)
 
@@ -379,9 +379,9 @@ func _show(f: int) -> void:
 	_frame = f
 	if hero != null:
 		return
-	Ui.set_frame(sprite, "bigBanana", f)
+	Ui.set_frame(sprite, "magicianStandIn", f)
 	if flash.visible:
-		flash.texture = Art.mask("bigBanana", f)
+		flash.texture = Art.mask("magicianStandIn", f)
 
 
 func _apply_flash() -> void:
@@ -391,7 +391,7 @@ func _apply_flash() -> void:
 	if on != flash.visible:
 		flash.visible = on
 		if on:
-			flash.texture = Art.mask("bigBanana", _frame)
+			flash.texture = Art.mask("magicianStandIn", _frame)
 
 
 func update_view(dt_ms: float) -> void:
@@ -526,11 +526,11 @@ func _enter_aura(next: String, force: bool) -> void:
 # ------------------------------------------------------------------ hover graph (mouse only)
 
 func set_hover(on: bool) -> void:
-	var target := float(Tune.T["bigBananaHoverHaloAlpha"]) if (on and _state != "locked") else 0.0
+	var target := float(Tune.T["magicianHoverHaloAlpha"]) if (on and _state != "locked") else 0.0
 	if _hover_tw:
 		_hover_tw.kill()
 	_hover_tw = create_tween()
-	_hover_tw.tween_property(self, "_hover_alpha", target, float(Tune.T["bigBananaHoverMs"]) / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_hover_tw.tween_property(self, "_hover_alpha", target, float(Tune.T["magicianHoverMs"]) / 1000.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 ## The stage height changed (the flex rule): the Magician's feet are bottom-anchored.
@@ -572,7 +572,7 @@ func _sync_halo() -> void:
 			_pose.modulate = hero.modulate
 
 
-## FTUE failure branch: a pulsed emphasis on the banana (through the halo).
+## FTUE failure branch: a pulsed emphasis on the figure (through the halo).
 func emphasize(ms: float) -> void:
 	if _hover_tw:
 		_hover_tw.kill()
@@ -680,7 +680,7 @@ func _figure_rect() -> Rect2:
 
 ## EVOLVE_TX, the card lifting: the leader walks off screen-right (560 ms Sine.In; reduced motion a
 ## 150 ms fade on the mark). A court day is cut home first (he is under the card when it ends).
-## False without a figure (the banana stand-in has no walk).
+## False without a figure (the stand-in sprite has no walk).
 func walk_out() -> bool:
 	if hero == null:
 		return false

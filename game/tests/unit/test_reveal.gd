@@ -59,8 +59,8 @@ func test_the_sim_gates_follow_the_ladder() -> void:
 	runner.check(not Coalition.ultimatums_unlocked(s), "no ultimatum in round 1, however long")
 	runner.check(Ability.def(s).is_empty(), "no ability in round 1")
 	var u := Content.upgrade("s01")
-	s.run_bananas = 1.0e9
-	s.all_time_bananas = 1.0e9
+	s.run_money = 1.0e9
+	s.all_time_money = 1.0e9
 	runner.check(not Economy.upgrade_unlocked(s, u), "no spins in round 1")
 	Investigation.add(s, 50.0)
 	runner.check(Investigation.suspicion(s) == 0.0, "no suspicion before its round")

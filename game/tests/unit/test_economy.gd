@@ -30,18 +30,18 @@ func test_bulk_cost_and_quotes() -> void:
 	var s := GameState.fresh()
 	_eq(Economy.producer_cost(s, "intern", 1), 15.0, "first intern")
 	_eq(Economy.producer_cost(s, "intern", 10), 15.0 * (pow(1.15, 10) - 1.0) / 0.15, "ten interns")
-	s.bananas = 14.0
+	s.money = 14.0
 	var q := Economy.quote(s, "intern", "max")
 	runner.check(q["qty"] == 1 and not q["affordable"], "MAX with nothing affordable quotes 1, unaffordable")
-	s.bananas = Economy.producer_cost(s, "intern", 10)
+	s.money = Economy.producer_cost(s, "intern", 10)
 	runner.check(Economy.max_affordable(s, "intern") == 10, "max affordable is exactly 10 at the 10-unit price")
-	s.bananas = Economy.producer_cost(s, "intern", 10) - 0.001
+	s.money = Economy.producer_cost(s, "intern", 10) - 0.001
 	runner.check(Economy.max_affordable(s, "intern") == 9, "a hair short of 10 buys 9")
 
 
 func test_max_affordable_at_the_double_ceiling_is_instant() -> void:
 	var s := GameState.fresh()
-	s.bananas = Economy.MAX
+	s.money = Economy.MAX
 	var t0 := Time.get_ticks_usec()
 	for id in Content.producer_ids():
 		var n := Economy.max_affordable(s, id)
@@ -51,12 +51,12 @@ func test_max_affordable_at_the_double_ceiling_is_instant() -> void:
 
 func test_buy_and_upgrades() -> void:
 	var s := GameState.fresh()
-	s.bananas = 200.0
-	s.run_bananas = 200.0
+	s.money = 200.0
+	s.run_money = 200.0
 	var q := Economy.buy_producer(s, "intern", 1)
 	runner.check(not q.is_empty() and s.owned_of("intern") == 1, "bought one intern")
 	_eq(Economy.derive(s).bps, 0.4, "one intern = 0.4 bps")
-	runner.check(Economy.available_upgrades(s).map(func(u: Dictionary) -> String: return u["id"]).has("glove"), "glove on the shelf at 50 run bananas")
+	runner.check(Economy.available_upgrades(s).map(func(u: Dictionary) -> String: return u["id"]).has("glove"), "glove on the shelf at 50 run money")
 	runner.check(Economy.buy_upgrade(s, "glove"), "glove bought")
 	runner.check(not Economy.buy_upgrade(s, "glove"), "an upgrade is bought once")
 	_eq(Economy.derive(s).tap_value_no_crit, 2.0, "glove doubles the tap")
@@ -90,10 +90,10 @@ func test_the_phrase_bonus_pays_three_taps() -> void:
 	var s := GameState.fresh()
 	var d := Economy.derive(s)
 	var mult := float(Content.data()["tap"]["phraseBonusMult"])
-	var before := s.bananas
+	var before := s.money
 	var v := Economy.phrase_bonus(s, d)
 	_eq(v, d.tap_value_no_crit * mult, "a whole phrase pays phraseBonusMult taps")
-	_eq(s.bananas - before, v, "into the bank")
+	_eq(s.money - before, v, "into the bank")
 	runner.check(mult >= 2.0 and mult <= 4.0, "a small bonus, not a crit (x%s)" % mult)
 	runner.check(s.taps_lifetime == 0 and s.crits_lifetime == 0, "it is not a tap")
 	TestFixture.use_fork_content()
@@ -115,14 +115,14 @@ func test_golden_outcomes_do_not_stack() -> void:
 
 func test_evolve_gate_and_reset() -> void:
 	var s := GameState.fresh()
-	s.all_time_bananas = 999_000.0   # cbrt(999) = 9.99 -> 9 Thumbs, under the floor of 10
+	s.all_time_money = 999_000.0   # cbrt(999) = 9.99 -> 9 Thumbs, under the floor of 10
 	runner.check(Economy.evolve(s).is_empty(), "the gate is closed below 10 pending")
-	s.all_time_bananas = 1_000_000.0
-	s.bananas = 5.0
+	s.all_time_money = 1_000_000.0
+	s.money = 5.0
 	s.owned["intern"] = 3
 	var r := Economy.evolve(s)
 	runner.check(r.get("gained") == 10, "evolve grants 10 Thumbs at 1M all-time")
-	runner.check(s.thumbs_owned == 10 and s.evolutions == 1 and s.owned_of("intern") == 0 and s.bananas == 0.0, "run reset, thumbs kept")
+	runner.check(s.thumbs_owned == 10 and s.evolutions == 1 and s.owned_of("intern") == 0 and s.money == 0.0, "run reset, thumbs kept")
 	_eq(Economy.derive(s).prestige_mult, 2.0, "10 Thumbs = x2")
 	runner.check(Economy.derive(s).needed == 10, "the doubling gate needs max(10, owned)")
 
@@ -143,6 +143,6 @@ func test_away_award_is_continuous_and_capped() -> void:
 
 
 func test_species_titles() -> void:
-	runner.check(Content.species_title(0) == "Monkeys", "run 1 title")
+	runner.check(Content.species_title(0) == "Members", "run 1 title")
 	runner.check(Content.species_title(7) == "Ascended Bunch Mk 1", "last title gets Mk 1")
 	runner.check(Content.species_title(9) == "Ascended Bunch Mk 3", "and counts up")

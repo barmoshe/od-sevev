@@ -47,7 +47,7 @@ const BRIGHT_MS := 3000.0
 const AP := 4.0                      # one art px in logical px (the kit's ×4)
 
 var host: Node
-var bb: BigBanana
+var bb: Magician
 var reduced_motion := false
 
 var _state: GameState
@@ -86,7 +86,7 @@ var _bead: Sprite2D                  # reduced motion's static bead
 var _body_idle := true
 
 
-func setup(host_: Node, bb_: BigBanana) -> Thermo:
+func setup(host_: Node, bb_: Magician) -> Thermo:
 	host = host_
 	bb = bb_
 	return self

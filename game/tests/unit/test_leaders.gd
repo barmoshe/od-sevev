@@ -144,7 +144,7 @@ func test_install_bengvir() -> void:
 ## (or Abbas's) join demand came while Liberman sat, and paying it threw him out with no pill.
 func test_bennett_round_never_trades_liberman_away() -> void:
 	var s := _round("bennett", 2)   # this deal has Gafni and Abbas in round 1
-	s.run_bananas = 1e9
+	s.run_money = 1e9
 	s.run_time_sec = 900.0
 	s.stats["playtimeSec"] = 900.0
 	s.coalition["opened"] = true
@@ -160,7 +160,7 @@ func test_bennett_round_never_trades_liberman_away() -> void:
 		Coalition.tick(s, 1.0, Economy.derive(s), {}, func() -> float: return 0.5)
 	runner.check(Coalition.status(s, "gafni") == "pending", "Liberman out: Gafni asks (%s)" % Coalition.status(s, "gafni"))
 	var g := Coalition.open_msg(s, "gafni")
-	s.bananas = 1e12
+	s.money = 1e12
 	Coalition.pay(s, int(g["seq"]))
 	var pill := Coalition.open_msg(s, "liberman")
 	runner.check(Coalition.status(s, "gafni") == "member" and str(pill.get("payable", "")) == "rejoin", "paying Gafni keeps Liberman's rejoin pill open (the bigger side's offer stays)")
@@ -306,7 +306,7 @@ func test_self_event_is_his_own_card() -> void:
 
 func test_spin_shelf_per_leader() -> void:
 	var b := _round("bibi")
-	b.run_bananas = 60000.0
+	b.run_money = 60000.0
 	b.evolutions = 1
 	runner.check(Spins.on_shelf(b, Content.upgrade("s07")) and Economy.upgrade_unlocked(b, Content.upgrade("s07")), "Bibi: s07 on the shelf")
 	runner.check(Spins.on_shelf(b, Content.upgrade("s08")), "Bibi: s08 as shipped")
@@ -328,8 +328,8 @@ func test_skinned_g_has_no_invoice() -> void:
 	for id: String in ["bibi", "bennett"]:
 		var s := _round(id)
 		s.evolutions = 2
-		s.bananas = 2e6
-		s.run_bananas = 2e6
+		s.money = 2e6
+		s.run_money = 2e6
 		runner.check(Economy.buy_upgrade(s, "s13"), "%s buys s13" % id)
 		var fu := (s.events["followUps"] as Array).size()
 		runner.check(fu == (1 if id == "bibi" else 0), "%s: s13's next-morning invoice is Bibi's only (%d)" % [id, fu])
@@ -675,7 +675,7 @@ func test_leader_effects_deri() -> void:
 	runner.check(Coalition._num("rejoinMult", 1.5) == 1.0, "Deri: rejoin at 1.0×")
 	s.coalition["opened"] = true
 	_member(s, "bibi")
-	s.bananas = 1e6
+	s.money = 1e6
 	var d0 := Economy.derive(s)
 	var r := Coalition.pay(s, _demand(s, "bibi"))
 	runner.check(r["ok"] == true and (r["events"] as Array).any(func(e: Dictionary) -> bool: return e.get("ev", "") == "leaderBuff"), "a paid demand pours coffee")

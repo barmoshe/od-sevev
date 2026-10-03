@@ -68,7 +68,7 @@ func _gate_open() -> void:
 	for p: Dictionary in Coalition.partners():
 		if not p.get("standIn", false) and p.get("side", "coalition") == "coalition":
 			Coalition.ps(m.state, str(p["id"]))["status"] = "member"
-	Economy.add_bananas(m.state, 5e9)
+	Economy.add_money(m.state, 5e9)
 	m.d = Economy.derive(m.state)
 
 
@@ -177,12 +177,12 @@ func test_the_open_election_card_holds_the_round() -> void:
 	m._open_evolution()
 	await _wait(0.4)
 	runner.check(m.vote_open(), "O3 is up: the vote is on")
-	var bank := s.bananas
+	var bank := s.money
 	var run := s.run_time_sec
 	var seats := int(Coalition.seat_info(s)["effective"])
 	for i in 20:
 		m._process(0.1)
-	runner.check(s.bananas == bank and s.run_time_sec == run, "the money and the run clock hold (%.0f → %.0f)" % [bank, s.bananas])
+	runner.check(s.money == bank and s.run_time_sec == run, "the money and the run clock hold (%.0f → %.0f)" % [bank, s.money])
 	runner.check(u["state"] == "open" and is_equal_approx(float(u["leftSec"]), 0.3) and Coalition.status(s, who) == "member", "the 0.3 s ultimatum stands: %s stays" % who)
 	runner.check(int(Coalition.seat_info(s)["effective"]) == seats and m.d.evolve_enabled, "the gate the card opened on still holds")
 	var c := m.overlays.top() as ElectionCard

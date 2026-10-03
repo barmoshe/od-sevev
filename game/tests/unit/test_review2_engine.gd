@@ -79,7 +79,7 @@ func test_u6_a_cut_row_draws_no_pill() -> void:
 	m.commit_pick("bibi")
 	await _frames(2)
 	m.state.taps_lifetime = 3
-	Economy.add_bananas(m.state, 1e6)
+	Economy.add_money(m.state, 1e6)
 	m._set_mode("main", false)
 	await _frames(6)
 	var shop: Shop = m.shop

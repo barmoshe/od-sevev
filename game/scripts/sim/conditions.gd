@@ -10,8 +10,8 @@ static var KEYS: Dictionary = {
 		return _in(Story.era_for(s.evolutions).get("id", ""), v),
 	"evolutionsAtLeast": func(v: Variant, s: GameState, _ctx: Dictionary) -> bool: return s.evolutions >= int(v),
 	"evolutionsBelow": func(v: Variant, s: GameState, _ctx: Dictionary) -> bool: return s.evolutions < int(v),
-	"runBananasAtLeast": func(v: Variant, s: GameState, _ctx: Dictionary) -> bool: return s.run_bananas >= float(v),
-	"allTimeAtLeast": func(v: Variant, s: GameState, _ctx: Dictionary) -> bool: return s.all_time_bananas >= float(v),
+	"runMoneyAtLeast": func(v: Variant, s: GameState, _ctx: Dictionary) -> bool: return s.run_money >= float(v),
+	"allTimeAtLeast": func(v: Variant, s: GameState, _ctx: Dictionary) -> bool: return s.all_time_money >= float(v),
 	"ownedAtLeast": func(v: Variant, s: GameState, _ctx: Dictionary) -> bool:
 		return v is Dictionary and s.owned_of(str(v.get("producer", ""))) >= int(v.get("count", 0)),
 	"sourcesOwnedAtLeast": func(v: Variant, s: GameState, _ctx: Dictionary) -> bool: return sources_owned(s) >= int(v),

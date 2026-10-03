@@ -189,7 +189,7 @@
       "anchor": "the row icon centre in the shop",
       "layer": "ui",
       "vehicle": "particle",
-      "vehicle_rationale": "Small confetti pop that survives 10 buys/s hold-repeat without piling up (6 per buy, 36 alive cap). Colours are red, leaf-highlight and warm white only: yellow means bananas and blue is reserved for the intern (style-guide hue rules), so neither appears.",
+      "vehicle_rationale": "Small confetti pop that survives 10 buys/s hold-repeat without piling up (6 per buy, 36 alive cap). Colours are red, leaf-highlight and warm white only: yellow means money and blue is reserved for the intern (style-guide hue rules), so neither appears.",
       "anticipation": { "duration": 0 },
       "impact": { "frame": 0 },
       "decay": { "duration": 560 },

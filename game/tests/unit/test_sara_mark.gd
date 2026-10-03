@@ -139,11 +139,11 @@ func test_while_she_is_on_stage_the_tap_is_hers() -> void:
 	sara.update_view(SaraMark.CAMEO_FIRST_MS + 100.0, m.state, true)
 	_frames(2)
 	runner.check(sara.tappable(), "she walks in and takes the tap")
-	var bank: float = m.state.bananas
+	var bank: float = m.state.money
 	var at: Vector2 = L.magician_hit().get_center() + Vector2(m._sx, m._stage_y)
 	_touch(at)
 	_frames(2)
-	runner.check(m.state.bananas == bank, "a tap on the leader pays nothing while she waits")
+	runner.check(m.state.money == bank, "a tap on the leader pays nothing while she waits")
 	runner.check(sara.strip.anim == "offended", "she huffs at it")
 	var hr := sara.hit_rect()
 	runner.check(not hr.has_area() or not hr.has_point(L.magician_hit().get_center()), "her tap box is not on the leader")
@@ -154,4 +154,4 @@ func test_while_she_is_on_stage_the_tap_is_hers() -> void:
 	m._last_tap_ms = -1.0e9
 	m._limiter = TapLimiter.new()
 	_touch(at)
-	runner.check(m.state.bananas > bank, "and the leader pays again")
+	runner.check(m.state.money > bank, "and the leader pays again")

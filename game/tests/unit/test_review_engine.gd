@@ -179,15 +179,15 @@ func test_r3_settings_rows_grow_under_large_text() -> void:
 func test_r4_spins_unlock_at_1500_and_not_inside_c1() -> void:
 	var s := GameState.fresh()
 	s.taps_lifetime = 3
-	s.all_time_bananas = 2000.0
+	s.all_time_money = 2000.0
 	var rv := Ftue.reveals(s)
 	runner.check(not rv["spins"] and not rv["tabs"], "2,000 ₪ lifetime before C1: no spins, no tab bar (was spins at 300)")
 	var ids := Content.producer_ids()
 	for i in 3:
 		s.owned[ids[i]] = 1
-	s.all_time_bananas = 1400.0
+	s.all_time_money = 1400.0
 	runner.check(not Ftue.reveals(s)["spins"] and Ftue.reveals(s)["tabs"], "C1's tab bar; spins wait for 1,500 ₪")
-	s.all_time_bananas = 1600.0
+	s.all_time_money = 1600.0
 	s.stats["playtimeSec"] = 100.0
 	s.coalition["opened"] = true
 	Ftue.stamp_c1(s)
@@ -211,7 +211,7 @@ func test_r4_the_tab_bar_appears_only_with_c1() -> void:
 	m._set_mode("main", false)
 	var s: GameState = m.state
 	s.taps_lifetime = 3
-	s.all_time_bananas = 5000.0
+	s.all_time_money = 5000.0
 	s.owned[Content.producer_ids()[0]] = 1
 	await tree.process_frame
 	runner.check(not m.shop._tabbar.visible, "5,000 ₪ lifetime, one source: no tab bar")

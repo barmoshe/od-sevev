@@ -1,5 +1,5 @@
 extends SceneTree
-## Procedural app icon (phase 8): the Big Banana on the deep-grape ground with a pink rim, drawn
+## Procedural app icon (phase 8): the fork's stand-in sprite on the deep-grape ground with a pink rim, drawn
 ## from the same sprite grid as the game (res://data/art.json). Writes every size the exports need
 ## into res://assets/icon/. Run: tools/icon.sh. Deterministic.
 
@@ -12,9 +12,9 @@ func _initialize() -> void:
 	for c: String in art["palette"]:
 		var hex: String = art["palette"][c]
 		pal[c] = Color(0, 0, 0, 0) if hex == "transparent" else Color.html(hex)
-	var bb: Dictionary = art["sprites"]["bigBanana"]
+	var bb: Dictionary = art["sprites"]["magicianStandIn"]
 	var rows: Array = bb["frames"][0]
-	# 64x64 art canvas: grape ground, a pink ring, the banana centred.
+	# 64x64 art canvas: grape ground, a pink ring, the sprite centred.
 	var n := 64
 	var img := Image.create_empty(n, n, false, Image.FORMAT_RGBA8)
 	img.fill(pal["U"])
@@ -42,7 +42,7 @@ func _initialize() -> void:
 		var o := img.duplicate() as Image
 		o.resize(sizes[f], sizes[f], Image.INTERPOLATE_NEAREST)
 		o.save_png(OUT + f)
-	# Android adaptive: the background is flat grape, the foreground is the banana alone (66% safe zone).
+	# Android adaptive: the background is flat grape, the foreground is the sprite alone (66% safe zone).
 	var bg := Image.create_empty(432, 432, false, Image.FORMAT_RGBA8)
 	bg.fill(pal["U"])
 	bg.save_png(OUT + "android_bg_432.png")

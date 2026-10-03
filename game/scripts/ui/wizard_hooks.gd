@@ -55,7 +55,7 @@ static func cond(host: Node, name: String) -> bool:
 			return s.taps_lifetime >= 3
 		"card1Afford":
 			var first: String = Content.producer_ids()[0]
-			return _free(host) and s.owned_of(first) == 0 and s.bananas >= Economy.producer_cost(s, first, 1)
+			return _free(host) and s.owned_of(first) == 0 and s.money >= Economy.producer_cost(s, first, 1)
 		"owns1":
 			return Ftue.owned_total(s) >= 1
 		"suitcase":
@@ -137,7 +137,7 @@ static func anchor(host: Node, name: String) -> Rect2:
 			var pk: PickView = host.get("picker")
 			return Rect2(pk.go_btn.hit.position + pk.position, pk.go_btn.hit.size) if pk.go_btn != null else Rect2()
 		"leader":
-			var r := (host.get("bb") as BigBanana).hit_rect()
+			var r := (host.get("bb") as Magician).hit_rect()
 			return Rect2(r.position + stage, r.size)
 		"card1Pill":
 			var k := _first_k(host)

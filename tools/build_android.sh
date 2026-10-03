@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Builds an installable Android APK from the Godot project.
 #
-#   tools/build_android.sh            set up (first run only) and export build/monkey-bananas-<ver>.apk
+#   tools/build_android.sh            set up (first run only) and export build/od-sevev-<ver>.apk
 #   tools/build_android.sh --debug    export the debug-template build instead (bigger, slower, has logs)
 #   tools/build_android.sh --setup    only download and set up the toolchain
 #
 # The default build uses Godot's RELEASE template (about half the size and faster on the phone)
 # but is still signed with the throwaway sideload key, so it is for testing only, never the store.
 #
-# Everything heavy lives OUTSIDE the repo in ~/.cache/monkey-bananas-build (Godot export templates,
+# Everything heavy lives OUTSIDE the repo in ~/.cache/od-sevev-build (Godot export templates,
 # Android SDK command-line tools, build-tools, a debug keystore). Nothing here is committed.
 # The debug keystore is a throwaway for sideloading; the Play Store release key is Bar's and
 # never touches this repo (CLAUDE.md: secrets stay off git).
@@ -17,7 +17,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 source "$HERE/lib/platform.sh"
 GAME="$HERE/../game"
 OUT="$HERE/../build"
-CACHE="${MB_BUILD_CACHE:-$HOME/.cache/monkey-bananas-build}"
+CACHE="${MB_BUILD_CACHE:-$HOME/.cache/od-sevev-build}"
 GODOT_VER="4.7.2"
 TPL_DIR="$GODOT_TPL_ROOT/${GODOT_VER}.stable"
 SDK="$CACHE/android-sdk"
@@ -93,7 +93,7 @@ setup_editor_settings
 
 MODE="release"; [ "${1:-}" = "--debug" ] && MODE="debug"
 VER="$(grep '^config/version=' "$GAME/project.godot" | cut -d'"' -f2)"
-if [ "$MODE" = "debug" ]; then APK="$OUT/monkey-bananas-${VER:-dev}-debug.apk"; else APK="$OUT/monkey-bananas-${VER:-dev}.apk"; fi
+if [ "$MODE" = "debug" ]; then APK="$OUT/od-sevev-${VER:-dev}-debug.apk"; else APK="$OUT/od-sevev-${VER:-dev}.apk"; fi
 rm -f "$APK" "$APK.idsig"
 "$HERE/godot.sh" --headless --path "$GAME" --import >/dev/null 2>&1 || true
 log "exporting $APK ($MODE template)"

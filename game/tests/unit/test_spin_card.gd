@@ -64,8 +64,8 @@ func _boot() -> GameState:
 func _rich(s: GameState = null) -> GameState:
 	if s == null:
 		s = GameState.fresh()
-	s.run_bananas = 1e7
-	s.all_time_bananas = 1e7
+	s.run_money = 1e7
+	s.all_time_money = 1e7
 	s.owned["qatari"] = 40
 	return s
 
@@ -88,7 +88,7 @@ func test_s07_pill_shows_the_income_scaled_price() -> void:
 	var real := Economy.upgrade_price(s, "s07", d)
 	var cost := float(Content.upgrade("s07")["cost"])
 	runner.check(real > cost, "the fixture makes costBpsSeconds win (%s > %s)" % [real, cost])
-	s.bananas = cost + 1.0   # enough for u.cost, not for the real price: the old pill was gold here
+	s.money = cost + 1.0   # enough for u.cost, not for the real price: the old pill was gold here
 	sh.refresh(s, 16.0, false, d)
 	var v := _row(sh, s, "s07")
 	runner.check(not v.is_empty(), "S07 is on the shelf")
@@ -100,7 +100,7 @@ func test_s07_pill_shows_the_income_scaled_price() -> void:
 	sh.cant_afford.connect(func() -> void: said[0] = true)
 	sh._commit(v, s)
 	runner.check(said[0] and Spins.buys(s, "s07") == 0, "a tap below the real price says 'can't afford', never a silent nothing")
-	s.bananas = real
+	s.money = real
 	sh.refresh(s, 16.0, false, d)
 	runner.check(v["afford"] == true and v["afford"] == Economy.can_buy_upgrade(s, "s07"), "gold exactly when the sim would sell it")
 	sh._commit(v, s)
@@ -113,7 +113,7 @@ func test_s08_line_pill_walks_its_levels_and_the_card_stays() -> void:
 	s.evolutions = 1   # S08 unlocks from round 2
 	var lv: Array = Content.upgrade("s08")["levels"]
 	var d := Economy.derive(s)
-	s.bananas = 1e12
+	s.money = 1e12
 	for n in 3:
 		sh.refresh(s, 16.0, false, d)
 		var v := _row(sh, s, "s08")
@@ -135,7 +135,7 @@ func test_s08_line_pill_walks_its_levels_and_the_card_stays() -> void:
 
 func test_spin_card_model_tags_and_extras() -> void:
 	var s := _rich()
-	s.bananas = 1e12
+	s.money = 1e12
 	var c := Shop.spin_card(s, "s07")
 	runner.check(c["tag"] == "" and c["kind"] == "consumable", "a fresh consumable has no tag")
 	Economy.buy_upgrade(s, "s07")
@@ -152,7 +152,7 @@ func test_spin_card_model_tags_and_extras() -> void:
 func test_s08_flavor_follows_its_level() -> void:
 	var s := _rich()
 	s.evolutions = 1
-	s.bananas = 1e12
+	s.money = 1e12
 	var lv: Array = Content.upgrade("s08")["levels"]
 	Economy.buy_upgrade(s, "s08")
 	Economy.buy_upgrade(s, "s08")
@@ -164,7 +164,7 @@ func test_s08_flavor_follows_its_level() -> void:
 
 func test_live_spin_chip() -> void:
 	var s: GameState = await _boot()
-	s.bananas = 1e12
+	s.money = 1e12
 	runner.check(BuffViews.first_spin(Spins.active_effects(s)).is_empty(), "no live spin, no chip")
 	Economy.buy_upgrade(s, "s07")
 	s.spins["active"].append({"id": "s02", "type": "tapBuff", "leftSec": 50.0, "durationSec": 60.0, "mult": 1.5, "pour": 0.0})
@@ -230,7 +230,7 @@ func test_view_rules_trophy_model_compiles_and_models() -> void:
 func test_touching_an_s08_card_buys_a_level_in_the_real_scene() -> void:
 	var s: GameState = await _boot()
 	s.evolutions = 1
-	s.bananas = 1e7
+	s.money = 1e7
 	m.shop.switch_tab("upgrades")
 	for i in 30:
 		await tree.process_frame

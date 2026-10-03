@@ -28,7 +28,7 @@ func _stat(s: GameState, k: String) -> float:
 
 func _group(s: GameState) -> void:
 	s.owned[Content.producer_ids()[0]] = 3
-	s.bananas = 1e9
+	s.money = 1e9
 	Coalition.open_group(s, Economy.derive(s))
 
 
@@ -79,12 +79,12 @@ func test_court_counts() -> void:
 	runner.check(_stat(s, "courtDays") == 1.0, "courtDays")
 	s.investigation["phase"] = "summons"
 	for i in 3:
-		s.bananas = 1e9
+		s.money = 1e9
 		s.investigation["phase"] = "summons"
 		Investigation.postpone(s, Economy.derive(s))
 	runner.check(_stat(s, "maxPostponesInRound") == 3.0, "maxPostponesInRound 3")
 	Investigation.on_election(s)
-	s.bananas = 1e9
+	s.money = 1e9
 	s.investigation["phase"] = "summons"
 	Investigation.postpone(s, Economy.derive(s))
 	runner.check(_stat(s, "maxPostponesInRound") == 3.0, "a smaller round never lowers the max")
@@ -103,8 +103,8 @@ func test_content_driven_counters() -> void:
 	Events.fire(s, "liberman", d)
 	Events.fire(s, "lapid", d)
 	runner.check(_stat(s, "lapidCards") == 2.0, "countEvent: lapidCards counts Lapid's card only")
-	s.run_bananas = 1e6
-	s.bananas = 1e6
+	s.run_money = 1e6
+	s.money = 1e6
 	Economy.buy_upgrade(s, "glove")
 	runner.check(_stat(s, "wingOfZionBought") == 1.0, "countUpgrade: wingOfZionBought")
 	runner.check(Meta.check_achievements(s, Economy.derive(s)).has("t_lapid"), "and the trophy reads the stat")

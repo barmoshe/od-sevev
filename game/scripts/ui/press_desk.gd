@@ -3,7 +3,7 @@ extends Node2D
 ## What stands on the leader's mark while he or she is off answering the press day (Bar, 2026-10-01:
 ## "not only Bibi"). Bibi's court day keeps the hat (CourtMotion); every other leader zips off the
 ## same way and this slides in on the feet instead: a press podium with two microphones, or Deri's
-## corridor bench (kit.hazard.stage). BigBanana drives position and visibility from CourtMotion's hat
+## corridor bench (kit.hazard.stage). Magician drives position and visibility from CourtMotion's hat
 ## track, so it zips in, wiggles on a paused tap (hatHush) and zips out exactly like the hat.
 ##
 ## The art (leaders v3 B1/B2/B4): the GPT refs rendered 1x as `prop_podium`, `prop_corridor-bench` and

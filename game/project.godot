@@ -1,5 +1,5 @@
 ; Engine configuration file.
-; "עוד סבב" (od-sevev): a fork of Monkey Bananas v2.1.0, Godot 4.7 project. Portrait base
+; "עוד סבב" (od-sevev): a fork of an idle-clicker engine (v2.1.0), Godot 4.7 project. Portrait base
 ; 720x1280 (= the 180x320 art canvas at x4), stretch aspect "expand" so tall phones grow the
 ; stage instead of letterboxing. Hebrew, RTL: text shaping and bidi go through TextServer
 ; (TextServerAdvanced, the default driver). include_text_server_data stays off: Hebrew needs no

@@ -3,7 +3,7 @@
 # the screen, there are no page errors, and sound really comes out after the first tap
 # (tools/web/webtest.mjs).
 #   tools/webtest.sh                  test build/web (from tools/build_web.sh)
-#   tools/webtest.sh <url>            test a deployed copy, e.g. https://monkey-bananas.vercel.app/
+#   tools/webtest.sh <url>            test a deployed copy, e.g. https://od-sevev.vercel.app/
 # Needs node and Playwright with Chromium (PLAYWRIGHT_MODULE overrides the module path).
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
