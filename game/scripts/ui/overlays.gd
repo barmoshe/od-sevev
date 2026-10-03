@@ -40,7 +40,7 @@ class SettingsOverlay:
 			["g", "SET_GROUP_A11Y"], ["t", "reducedMotion", "SET_REDUCED_MOTION", "SET_MOTION_CAP"]]
 		if host.haptics_available():
 			rows.append(["t", "haptics", "SET_HAPTICS", ""])
-		rows += [["t", "largeText", "SET_LARGE", "SET_LARGE_CAP"], ["g", "SET_GROUP_GAME"], ["about"], ["reset"]]
+		rows += [["t", "largeText", "SET_LARGE", "SET_LARGE_CAP"], ["g", "SET_GROUP_GAME"], ["help"], ["about"], ["reset"]]
 		# rtl-map §0.2: every row grows to its measured line count at the scale actually drawn, so
 		# the content height is only known once the texts exist: build the rows first (in the body,
 		# from y 0), then size the sheet and move the body under the header.
@@ -78,6 +78,12 @@ class SettingsOverlay:
 					g.right_at(656.0 + L.dx)
 				"t":
 					_toggle(ry, h, r[1], r[2], r[3])
+				"help":
+					_row_button(ry, h, Strings.s("HELP_ROW"), func() -> void:
+						host.audio_event("uiClick")
+						host.open_help(true), null, -1.0, "help")
+					var chev_h := PxText.make(body, Vector2(40, ry + LABEL_DY), "<", L.TEXT, "plain", th["modal"]["body"])
+					chev_h.h_anchor = 0
 				"about":
 					_row_button(ry, h, Strings.s("SET_ABOUT"), func() -> void:
 						host.audio_event("uiClick")
@@ -127,8 +133,8 @@ class SettingsOverlay:
 				var g := PxText.make(probe_parent, Vector2.ZERO, Strings.s(r[1]), L.TEXT, "plain", th["modal"]["groupLabel"])
 				g.fit_width = TEXT_W
 				h = (GROUP_TIGHT if compact else GROUP) + (_lh(g) - 44.0)
-			"t", "about", "reset":
-				var key: String = r[2] if r[0] == "t" else ("SET_ABOUT" if r[0] == "about" else "SET_RESET")
+			"t", "about", "reset", "help":
+				var key: String = r[2] if r[0] == "t" else {"about": "SET_ABOUT", "reset": "SET_RESET", "help": "HELP_ROW"}[r[0]]
 				var t := _sheet_text(probe_parent, Vector2.ZERO, Strings.s(key), th["modal"]["body"], false)
 				var label_h := _lh(t) * float(maxi(1, t.line_count()))
 				h = maxf(ROW, LABEL_DY + label_h + 18.0)

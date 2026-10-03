@@ -4612,6 +4612,17 @@
         "5": 250
       }
     },
+    "RET_RECAP": {
+      "surface": "label",
+      "spec": "ret.recap",
+      "note": "2026-10-03: where the round stands on a return (the leader, the seats)",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 496,
+        "5": 620
+      }
+    },
     "RET_CHAT_ONE": {
       "surface": "label",
       "spec": "ret.chat",
@@ -4739,6 +4750,139 @@
       "worstPx": {
         "4": 240,
         "5": 300
+      }
+    },
+    "HELP_ROW": {
+      "surface": "label",
+      "spec": "help.row",
+      "note": "2026-10-03: the settings row that opens the how-it-works sheet (HelpCard)",
+      "box": "sheet.label",
+      "maxChars": 15,
+      "worstPx": {
+        "4": 212,
+        "5": 265
+      }
+    },
+    "HELP_TITLE": {
+      "surface": "label",
+      "spec": "help.title",
+      "box": "modal.title",
+      "maxChars": 18,
+      "worstPx": {
+        "4": 212,
+        "5": 265
+      }
+    },
+    "HELP_BTN": {
+      "surface": "label",
+      "spec": "help.dossier",
+      "note": "The dossier's button to the same sheet",
+      "box": "dos.btn",
+      "maxChars": 26,
+      "worstPx": {
+        "4": 212,
+        "5": 265
+      }
+    },
+    "HELP_TAP": {
+      "surface": "label",
+      "spec": "help.tap",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1260,
+        "5": 1575
+      }
+    },
+    "HELP_61": {
+      "surface": "label",
+      "spec": "help.61",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1428,
+        "5": 1785
+      }
+    },
+    "HELP_ELECT": {
+      "surface": "label",
+      "spec": "help.elect",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1408,
+        "5": 1760
+      }
+    },
+    "HELP_SPINS": {
+      "surface": "label",
+      "spec": "help.spins",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1296,
+        "5": 1620
+      }
+    },
+    "HELP_PICKER": {
+      "surface": "label",
+      "spec": "help.picker",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 996,
+        "5": 1245
+      }
+    },
+    "HELP_RULE": {
+      "surface": "label",
+      "spec": "help.rule",
+      "note": "The round's leader: rule.name + rule.summary (content)",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 400,
+        "5": 500
+      }
+    },
+    "HELP_SUSP": {
+      "surface": "label",
+      "spec": "help.susp",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1536,
+        "5": 1920
+      }
+    },
+    "HELP_ULT": {
+      "surface": "label",
+      "spec": "help.ult",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1488,
+        "5": 1860
+      }
+    },
+    "HELP_MISSIONS": {
+      "surface": "label",
+      "spec": "help.missions",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 1116,
+        "5": 1395
+      }
+    },
+    "HELP_PAUSE": {
+      "surface": "label",
+      "spec": "help.pause",
+      "box": "modal.body",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 676,
+        "5": 845
       }
     },
     "ABOUT_TITLE": {
@@ -6708,6 +6852,17 @@
       "worstPx": {
         "4": 308,
         "5": 385
+      }
+    },
+    "DOS_INCOME": {
+      "surface": "label",
+      "spec": "dos.income",
+      "note": "2026-10-03: one number for every multiplier on income (₪/s over the sources' own yield)",
+      "box": "dos.row",
+      "maxChars": 27,
+      "worstPx": {
+        "4": 376,
+        "5": 470
       }
     },
     "DOS_BASE": {

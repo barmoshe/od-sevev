@@ -282,6 +282,7 @@ static func rows(s: GameState, d: Economy.Derived) -> Array:
 		{"key": "DOS_TOTAL", "text": Strings.s("DOS_TOTAL", {"x": Fmt.amount(s.all_time_bananas)})},
 		{"key": "DOS_CAUGHT", "text": Strings.s("DOS_CAUGHT", {"n": str(s.golden_caught_lifetime)})},
 		{"key": "DOS_ARRIVED", "text": Strings.s("DOS_ARRIVED", {"n": str(int(float(s.stats.get("goldenMissed", 0.0))))})},
+		{"key": "DOS_INCOME", "text": Strings.s("DOS_INCOME", {"x": Fmt.mult(income_mult(s))})},
 		{"key": "DOS_BASE", "text": Strings.s("DOS_BASE", {"n": Fmt.thumbs(s.thumbs_owned), "pct": Fmt.amount(base_pct)})},
 	])
 	var fl := Investigation.floor_pct(s) if Investigation.active() else 0.0
@@ -314,6 +315,18 @@ static func leader_rows(s: GameState) -> Array:
 	return out
 
 
+## DOS_INCOME (2026-10-03, the overwhelm report: five bonus ladders, no single number): every
+## multiplier on income at once, ₪/s over the sources' own yield (milestones, the base, ranks,
+## trophies, spins, upkeep, the court day: all of it). 1 with no source owned.
+static func income_mult(s: GameState) -> float:
+	var raw := 0.0
+	for p: Dictionary in Content.producers():
+		raw += float(p["baseBps"]) * s.owned_of(p["id"])
+	if raw <= 0.0:
+		return 1.0
+	return Economy.derive(s).bps / raw
+
+
 ## The full-width buttons, in order. The receipt (O4) and the result card (O5) show once the
 ## controller can open them.
 func buttons() -> Array:
@@ -333,6 +346,8 @@ func buttons() -> Array:
 	if LeaderUi.court():   # Bibi-only: hidden, not disabled, in every other round (rtl-map §4.3)
 		out.append({"kind": "pardon", "key": "PARDON_ROW"})
 	out.append({"kind": "story", "key": "BOOK_STORY"})
+	if host != null and host.has_method("open_help"):
+		out.append({"kind": "help", "key": "HELP_BTN"})
 	return out
 
 
@@ -495,6 +510,8 @@ func act(kind: String) -> void:
 			host.call("open_daily")   # seeded rounds
 		"career":
 			host.call("open_career_card")   # share platform
+		"help":
+			host.call("open_help", false)
 
 
 ## O15: the pardon desk, a modal over T4 through the overlay stack.

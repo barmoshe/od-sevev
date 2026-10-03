@@ -30,3 +30,34 @@ func test_the_trophy_count_never_passes_its_total() -> void:
 		s.achievements.append(a["id"])
 	var tc := ViewRules.trophy_counts(s)
 	runner.check(tc.x <= tc.y and tc.y > 0, "earned %d of %d" % [tc.x, tc.y])
+
+
+## The how-it-works sheet says only what the player has met, and always that a menu stops the clock.
+func test_the_help_sheet_follows_the_ladder() -> void:
+	Reveal.force_all = false
+	var s := GameState.fresh()
+	var r1 := HelpCard.lines(s)
+	runner.check(not r1.has(Strings.s("HELP_SUSP")) and not r1.has(Strings.s("HELP_ULT")), "round 1: no suspicion or ultimatum lines")
+	runner.check(r1.has(Strings.s("HELP_PAUSE")), "the clock line is always there")
+	s.evolutions = 3
+	var r4 := HelpCard.lines(s)
+	runner.check(r4.has(Strings.s("HELP_SUSP")) and r4.has(Strings.s("HELP_ULT")), "round 4: both")
+	Reveal.force_all = true
+
+
+## Every leader's one-line rule fits the picker's strip (pick.strip: 656 px, 2 lines at ×4).
+func test_every_rule_summary_fits_the_picker_strip() -> void:
+	for l: Dictionary in Content.data().get("leaders", []):
+		var sm := str(Leaders.rule(str(l["id"])).get("summary", ""))
+		runner.check(sm != "", "%s has a summary" % l["id"])
+		var lines := Ticker.wrap_lines_px(sm, 656.0, 4)
+		runner.check(lines.size() <= 2, "%s: %d lines (%s)" % [l["id"], lines.size(), sm])
+
+
+## DOS_INCOME: one number for every multiplier on income.
+func test_one_income_number() -> void:
+	var s := GameState.fresh()
+	runner.check(is_equal_approx(DossierView.income_mult(s), 1.0), "nothing owned: ×1")
+	s.owned[Content.producer_ids()[0]] = 30
+	s.thumbs_owned = 10
+	runner.check(DossierView.income_mult(s) > 1.5, "30 of a source and 10 base: more than ×1.5 (%s)" % DossierView.income_mult(s))

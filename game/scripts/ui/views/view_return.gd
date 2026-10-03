@@ -51,6 +51,10 @@ func build() -> ReturnCard:
 	amount_text = para(_gain(award if cold else 0.0), C_GOLD, true, 1)
 	if cold:
 		_rolled = true
+	# 2026-10-03 (the overwhelm report): a return says where the round stands, not just the jokes
+	if s != null and Leaders.active() and s.taps_lifetime > 0:
+		var si := Coalition.seat_info(s)
+		para(Strings.s("RET_RECAP", {"short": LeaderUi.short(Leaders.current(s)), "seats": str(int(si["effective"])), "gate": str(int(si["gateSeats"]))}), C_MUTED)
 	var unread := int(s.coalition.get("unread", 0)) if s != null and s.coalition is Dictionary else 0
 	if unread > 0:
 		para(Strings.plural("RET_CHAT", unread, {"n": str(unread)}))

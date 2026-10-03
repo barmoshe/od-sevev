@@ -1020,6 +1020,15 @@ func _on_share_result(kind: String, result: String) -> void:
 
 
 ## O8 About is HTML over the canvas (shell.html odOpenAbout).
+## "איך זה עובד" (HelpCard): from the settings row (over the sheet) or the dossier.
+func open_help(over_settings: bool = false) -> void:
+	_audio("panelOpen")
+	overlays.request(func() -> Overlay:
+		var o := HelpCard.new()
+		o.setup(self, overlays)
+		return o.build(), over_settings)
+
+
 func open_about() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.odOpenAbout && window.odOpenAbout()", true)

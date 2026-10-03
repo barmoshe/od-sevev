@@ -575,7 +575,10 @@ func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
 	pt.center_in(12.0, w - 24.0)
 	c["name"] = nm
 	c["party"] = pt
-	c["blurb"] = str(t.get("blurb", ""))
+	# 2026-10-03 (the overwhelm report: the rules hid behind a long-press): the strip under the grid
+	# says the focused leader's rule in one line (rule.summary); the long-press card keeps the joke
+	var rs := str(Leaders.rule(str(t.get("id", ""))).get("summary", "")) if str(t.get("id", "")) != "" else ""
+	c["blurb"] = rs if rs != "" else str(t.get("blurb", ""))
 	return c
 
 

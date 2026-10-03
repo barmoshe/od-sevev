@@ -14,7 +14,7 @@ var sv: SubViewport
 var m: Node
 var _saved := {}
 
-const ROWS := ["sfx", "music", "reducedMotion", "largeText", "about", "reset"]
+const ROWS := ["sfx", "music", "reducedMotion", "largeText", "help", "about", "reset"]
 
 
 func setup(r: Object) -> void:
@@ -136,7 +136,8 @@ func test_the_short_375x548_tightens_and_every_row_fits() -> void:
 	var o := await _open()
 	runner.check(o != null, "375×548: the sheet opens")
 	if o != null:
-		_check_reach(o, "375×548@2", true)
+		# 2026-10-03: the "איך זה עובד" row makes the shortest phone scroll; every row stays reachable
+		_check_reach(o, "375×548@2", false)
 		runner.check((o as Overlays.SettingsOverlay).compact, "375×548: the group headers tighten")
 		var short_rows: Array = o.body_focusables.filter(func(b: PxButton) -> bool: return b.hit.size.y < 88.0)
 		runner.check(short_rows.is_empty(), "375×548: every row keeps its 88 touch height (44 CSS)")

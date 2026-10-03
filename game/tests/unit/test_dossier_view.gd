@@ -97,7 +97,7 @@ func test_rows_are_the_sims_counters() -> void:
 	var d := Economy.derive(s)
 	var rows := DossierView.rows(s, d)
 	var keys: Array = rows.map(func(r: Dictionary) -> String: return r["key"])
-	runner.check(keys == ["DOS_ROUNDS", "DOS_COURT_DAYS", "DOS_POSTPONES", "DOS_TOTAL", "DOS_CAUGHT", "DOS_ARRIVED", "DOS_BASE", "DOS_SUSP_FLOOR"],
+	runner.check(keys == ["DOS_ROUNDS", "DOS_COURT_DAYS", "DOS_POSTPONES", "DOS_TOTAL", "DOS_CAUGHT", "DOS_ARRIVED", "DOS_INCOME", "DOS_BASE", "DOS_SUSP_FLOOR"],
 		"the dossier lists the rounds, court days, postponements, total, caught, arrived, base and the carried floor (%s)" % str(keys))
 	var by := {}
 	for r: Dictionary in rows:
