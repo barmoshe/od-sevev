@@ -89,8 +89,7 @@ static func claim(host: Node, i: int) -> Dictionary:
 	var up: Dictionary = r.get("rankUp", {})
 	if not up.is_empty():
 		var line := Strings.s("F_RANK_UP", {"rankTitle": str(up["title"]), "pct": str(int(up["incomePct"]))})
-		(host.get("ticker") as Ticker).enqueue("milestone", line, true)
-		(host.get("toasts") as Toasts).show_toast(line, "", "lane")
+		(host.get("ticker") as Ticker).enqueue("milestone", line, true)   # one channel: the milestone ticker
 		var fx: FxPlayer = host.get("fx_stage")
 		if fx != null:
 			fx.play("purchaseConfetti", 64.0, 224.0, "bulk")

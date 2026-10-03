@@ -1671,16 +1671,15 @@ func _on_card_event(e: Dictionary) -> void:
 		for pe: Variant in Coalition.post_leak(state, int(result.get("leak", 0)), lines.size(), skin):
 			if pe is Dictionary:
 				_on_politics_event(pe)
-		if str(lc.get("ticker", "")) != "":
-			ticker.enqueue("flavor", str(lc["ticker"]))
-		toasts.show_toast(Strings.s("LEAK_FRAME"), "chat")
+		toasts.show_toast(Strings.s("LEAK_FRAME"), "chat")   # one channel: the toast points at the chat
 		return
-	if str(c.get("ticker", "")) != "":
-		ticker.enqueue("flavor", str(c["ticker"]))
-	if str(c.get("system", "")) != "":
-		toasts.show_toast(str(c["system"]))
+	# one channel per event (2026-10-03, the overwhelm report): a card with a line is a chat toast;
+	# anything else is one ticker line (its own, else its system line)
 	var text := str(c.get("text", ""))
 	if (str(e.get("kind", "")) != "card" and not bool(c.get("toast", false))) or text == "":
+		var line := str(c.get("ticker", "")) if str(c.get("ticker", "")) != "" else str(c.get("system", ""))
+		if line != "":
+			ticker.enqueue("flavor", line)
 		return
 	var person := str(ev.get("person", id))
 	var face := ChatView.toast_avatar(person)
@@ -1913,7 +1912,7 @@ func _art_face(art: String) -> Array:
 	return [art, sc, maxi(1, int(roundf(float(SpriteStrip.art_scale()) / maxf(0.001, sc))))]
 
 
-## Mordechai David's blockade fired (spec §7.2): the figure walks in, Dubi's ticker runs the headline,
+## Mordechai David's blockade fired (spec §7.2): the figure walks in,
 ## and a chat-style toast carries his face, name, role and the round's skinned line; then who is stuck
 ## (or nobody). No buttons, no tap target on him.
 func _on_street_event(result: Dictionary) -> void:
@@ -1922,18 +1921,16 @@ func _on_street_event(result: Dictionary) -> void:
 	var c := StreetFigure.copy_for(lid, str(Leaders.leader(lid).get("side", "")))
 	_street_partner = str(result.get("partner", ""))
 	street.on_fire()
-	ticker.enqueue("flavor", str(c.get("ticker", "")), true)
 	# the lane band (D62): mid-round a top-dock toast covers the leader's head on short stages; the lane
 	# is clear of his hit on every device, and the ticker right under it names Mordechai David
 	# his line stays only while he is on the stage (walking in or blocking): a backlog drops it
 	var here := func() -> bool: return ["approach", "block"].has(Events.block_phase(state)) or Events.is_active(state, "blockade")
 	toasts.show_chat_toast("", str(c.get("text", "")), StreetFigure.toast_avatar(), "", false, 2, "lane", here)
+	# one more line only when it names who is stuck (the old seat blockade); the block and the cheer
+	# are counted on the chip (2026-10-03: one channel per event, no ticker line, no buff toast)
 	if not Events.is_active(state, "screenBlock"):
 		var line := str(c.get("blockedText", "")) if _street_partner != "" else str(c.get("aloneText", ""))
 		toasts.show_toast(StreetFigure.fill(line, _street_partner), "", "lane", here)
-	elif str(result.get("mode", "")) == "tapBuff" and str(c.get("buffText", "")) != "":
-		# Ben Gvir's / Bibi's round (effect.byLeader): he cheers, taps count more while he stands there
-		toasts.show_toast(Bidi.fill(str(c["buffText"]), {"mult": str(int(float(result.get("mult", 1.0))))}), "", "lane", here)
 
 
 ## The court day's stage FX from the Magician (BigBanana.on_court_fx): the zip's dust at his feet, the

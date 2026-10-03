@@ -2784,7 +2784,7 @@
  "ticker": {
   "_rule": "Milestone headlines fire once ever (headlinesSeen) and pre-empt the queue. Event lines (suitcase, court, chat events) jump the queue. Otherwise draw a random eligible ambient line, skipping the last noRepeatWindow. During the blackout draw only poll_like:false.",
   "headlineHoldSec": 6,
-  "ambientIntervalSec": 10,
+  "ambientIntervalSec": 25,
   "crawlPxPerSec": 40,
   "ambientFrom": "C1",
   "_ambientFrom": "No ambient lines before the first chat ping (UX C1): the first minute carries only H1-H3, H-catch and H-miss (UX §2, one headline at a time).",

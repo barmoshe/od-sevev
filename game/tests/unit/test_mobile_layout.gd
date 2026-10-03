@@ -233,3 +233,20 @@ func test_boot_at_430x932_at_3() -> void:
 
 func test_boot_at_412x915_at_2_625() -> void:
 	await _check_booted(Vector2i(1081, 2401), "412×915@2.625")
+
+
+## 2026-10-03 (the overwhelm report): a page holds whole sentences where they fit, and never a tail of
+## fewer than three words alone ("בראש רשימת המקורות." stood alone on the court-day clip).
+func test_the_pager_never_leaves_a_fragment() -> void:
+	var text := Strings.s("F8_BULK")
+	for clip: float in [280.0, 302.0, 324.0, 464.0]:
+		var pages := Ticker.paginate(text, clip, 4, 2)
+		var words := 0
+		for pg: Variant in pages:
+			var n := 0
+			for ln: String in pg:
+				n += ln.split(" ", false).size()
+			words += n
+			runner.check(n >= Ticker.MIN_TAIL_WORDS or pages.size() == 1, "%d: no fragment page (%s)" % [int(clip), str(pages)])
+		runner.check(words == text.split(" ", false).size(), "%d: nothing lost" % int(clip))
+	runner.check(Ticker.split_sentences("אחת. שתיים! שלוש") == PackedStringArray(["אחת.", "שתיים!", "שלוש"]), "sentences keep their marks")

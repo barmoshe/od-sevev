@@ -374,15 +374,70 @@ static func wrap_lines_px(text: String, max_px: float, scale_px: int) -> PackedS
 	return out
 
 
-## mobile-first §5.2: the pages of a headline, `per` lines each.
+## mobile-first §5.2: the pages of a headline, at most `per` lines each. Pages hold whole sentences
+## where they fit (a sentence never starts at the bottom of a page and runs over), and a sentence
+## longer than a page never leaves a tail of fewer than MIN_TAIL_WORDS words alone on its page
+## (2026-10-03, the overwhelm report: "בראש רשימת המקורות." stood alone on a page).
+const MIN_TAIL_WORDS := 3
+
+
 static func paginate(text: String, max_px: float, scale_px: int, per: int) -> Array:
-	var lines := wrap_lines_px(Bidi.glue(text), max_px, scale_px)   # §5.2.1: the glue, then the pages
 	var pages: Array = []
-	var i := 0
-	while i < lines.size():
-		pages.append(lines.slice(i, i + per))
-		i += per
+	var cur := PackedStringArray()
+	for sentence: String in split_sentences(Bidi.glue(text)):   # §5.2.1: the glue, then the pages
+		var lines := wrap_lines_px(sentence, max_px, scale_px)
+		if lines.size() <= per - cur.size():
+			cur.append_array(lines)
+			continue
+		if not cur.is_empty():
+			pages.append(cur)
+			cur = PackedStringArray()
+		var chunks := _chunk(lines, per, max_px, scale_px)
+		for k in chunks.size() - 1:
+			pages.append(chunks[k])
+		cur = chunks[chunks.size() - 1]
+	if not cur.is_empty() or pages.is_empty():
+		pages.append(cur if not cur.is_empty() else PackedStringArray([""]))
 	return pages
+
+
+## A headline's sentences, each keeping its end mark (". ", "! ", "? " end one; the last runs to the end).
+static func split_sentences(text: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	var start := 0
+	for i in text.length() - 1:
+		if text[i] in [".", "!", "?"] and text[i + 1] == " ":
+			out.append(text.substr(start, i + 1 - start).strip_edges())
+			start = i + 2
+	var tail := text.substr(start).strip_edges()
+	if tail != "" or out.is_empty():
+		out.append(tail)
+	return out
+
+
+## One sentence's lines in pages of `per`; a short last page borrows words from the line above it
+## (only while that line keeps a word and the tail still fits the clip).
+static func _chunk(lines: PackedStringArray, per: int, max_px: float, scale_px: int) -> Array:
+	var ls := Array(lines)
+	var tail_i := (ls.size() - 1) / per * per   # the last page's first line
+	if ls.size() > per and tail_i == ls.size() - 1:
+		var prev: PackedStringArray = (ls[tail_i - 1] as String).split(" ", false)
+		var last: PackedStringArray = (ls[tail_i] as String).split(" ", false)
+		while last.size() < MIN_TAIL_WORDS and prev.size() > 1:
+			var w := prev[prev.size() - 1]
+			var trial := w + " " + " ".join(last)
+			if PxText.measure(trial, scale_px) > max_px:
+				break
+			prev.remove_at(prev.size() - 1)
+			last.insert(0, w)
+		ls[tail_i - 1] = " ".join(prev)
+		ls[tail_i] = " ".join(last)
+	var out: Array = []
+	var i := 0
+	while i < ls.size():
+		out.append(PackedStringArray(ls.slice(i, i + per)))
+		i += per
+	return out
 
 
 ## Kept for the fork's callers: one-line pages by measured width.
