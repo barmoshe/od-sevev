@@ -99,11 +99,8 @@ func test_she_visits_to_huff_at_the_bottle_deposits() -> void:
 	m._on_politics_event(Events.fire(m.state, "mordechai", m.d, func() -> float: return 0.0))
 	_frames(2)
 	runner.check(sara.showing(), "Mordechai David comes from the left now: she stays")
-	_frames(int(9000.0 / 16.0) + 10)
-	runner.check(sara.showing(), "Bar 2026-10-02: she stays until she is tapped")
-	sara.tap()
-	_frames(2)
-	runner.check(not sara.showing(), "a tap sends her off")
+	_frames(int(SaraMark.VISIT_MS / 16.0) + 10)
+	runner.check(not sara.showing(), "2026-10-03: untapped, she leaves after the visit")
 
 
 func test_she_drops_by_for_a_cameo_now_and_then() -> void:
@@ -116,11 +113,10 @@ func test_she_drops_by_for_a_cameo_now_and_then() -> void:
 	sara.update_view(1200.0, m.state, true)
 	sara.update_view(16.0, m.state, true)
 	runner.check(sara.showing(), "then a passing cameo")
-	sara.update_view(60000.0, m.state, true)
-	runner.check(sara.showing() and sara.tappable(), "who waits for her tap")
+	runner.check(sara.tappable(), "who takes the tap")
 	sara.tap()
 	sara.update_view(16.0, m.state, true)
-	runner.check(not sara.showing(), "which ends the visit")
+	runner.check(not sara.showing(), "a tap ends the visit")
 	sara.update_view(SaraMark.CAMEO_EVERY_MS / 2.0, m.state, true)
 	runner.check(not sara.showing(), "and the next one waits its turn")
 

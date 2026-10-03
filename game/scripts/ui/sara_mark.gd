@@ -7,11 +7,12 @@ extends StageFigure
 ## Bar, 2026-10-02: she IS the tap target while she is on the stage (this overrides the cast spec's
 ## "not a tap target"). From the moment she walks in, a tap on the leader earns nothing: it is
 ## swallowed, she huffs and the toast says to tap her (main._on_sara_block). A tap on her (or Space)
-## sends her off (main._tap_sara) and the leader takes taps again. She stays until she is tapped, so
+## sends her off (main._tap_sara) and the leader takes taps again. 2026-10-03 (gentler, the overwhelm
+## report): untapped she leaves after VISIT_MS, and she comes for one cameo a round plus the S01 joke, so
 ## the cue must be unmissable: a gold arrow bobs over her head and pulses on every wrong tap.
 ##
 ## Bar, 2026-10-01: not on stage the whole round. She comes for VISITS: she walks in from the right,
-## stays until she is tapped and walks out. A visit starts on her joke, the bottle-deposit spin S01 (she
+## stays until she is tapped (or VISIT_MS) and walks out. A visit starts on her joke, the bottle-deposit spin S01 (she
 ## huffs, `offended`, 150 ms after she arrives or after the purchase if she is already there; an 8 s
 ## cooldown drops triggers inside it), and as a passing cameo every CAMEO_EVERY_MS of eligible play
 ## (the first after CAMEO_FIRST_MS). The old seat `blockade` and Herzog's outline both stand on her mark,
@@ -22,7 +23,8 @@ const OFFEND_DELAY_MS := 150.0
 const OFFEND_COOLDOWN_MS := 8000.0
 const TRIGGER_UPGRADE := "s01"
 const CAMEO_FIRST_MS := 45000.0           # eligible play before the first cameo
-const CAMEO_EVERY_MS := 90000.0           # then between cameos (counted while she is away)
+const VISIT_MS := 9000.0                  # 2026-10-03 (gentler): untapped, she leaves after this
+const CAMEO_EVERY_MS := 1.0e12            # one cameo a round (2026-10-03, was every 90 s)
 const ARROW_GAP := 12.0                   # logical px between her head and the arrow's tip
 const NUDGE_MS := 420.0                   # the arrow's pulse after a wrong tap
 const ARROW := "ui_arrow_up"              # the kit's 8 x 8 arrow, flipped to point down at her, in gold
@@ -130,7 +132,10 @@ func update_view(dt_ms: float, s: GameState, on_stage: bool) -> void:
 			if _walk_in(m):
 				_go("stay")
 		"stay":
-			position = m   # until she is tapped (tap())
+			position = m   # until she is tapped (tap()), or VISIT_MS: a missed tap costs nothing more
+			if _t >= VISIT_MS and _pending_ms < 0.0 and strip.anim != "offended":
+				_go("exit")
+				_arrow.visible = false
 			if _pending_ms >= 0.0:
 				_pending_ms -= dt_ms
 				if _pending_ms < 0.0:

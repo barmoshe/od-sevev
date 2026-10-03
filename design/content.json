@@ -681,14 +681,14 @@
   "minPrice": 10,
   "joinGapSec": 8,
   "demandGapSec": [
-   60,
-   120
+   90,
+   150
   ],
   "demandGapPerMember": 0.93,
   "demandGapMinSec": 30,
-  "patienceSec": 60,
+  "patienceSec": 90,
   "ultimatum": {
-   "sec": 90,
+   "sec": 150,
    "minPlaySec": 180,
    "minDemandsPaid": 2,
    "marksSec": [
@@ -726,7 +726,7 @@
    "seats": 12,
    "upkeepPct": 4,
    "demandWeight": 3,
-   "threatChance": 0.6,
+   "threatChance": 0.25,
    "unlock": {},
    "avatar": "ben-gvir_avatar",
    "lines": {
@@ -5047,7 +5047,7 @@
     "seats": 12,
     "upkeepPct": 4,
     "demandWeight": 3,
-    "threatChance": 0.6,
+    "threatChance": 0.25,
     "unlock": {},
     "_from": "bengvir"
    },

@@ -2660,7 +2660,7 @@ func _on_buy_upgrade(id: String, result: Array) -> void:
 	fx_ui.play("purchaseConfetti", ip.x, ip.y, "upgrade")
 	ticker.enqueue("flavor", Strings.s("F_UPGRADE_FLAVOR", {"UPGRADE_NAME": Strings.upgrade_name(id), "FLAVOR": spin_flavor(state, id)}))
 	ftue.on_buy_upgrade()
-	if id == SaraMark.TRIGGER_UPGRADE:
+	if id == SaraMark.TRIGGER_UPGRADE and diorama.era_id() == "balfour" and SaraMark.wanted(state, mode == "main"):
 		sara.offend()
 	_mark_dirty()
 

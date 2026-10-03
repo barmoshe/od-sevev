@@ -240,7 +240,7 @@ func _roll_at(id: String, member: String) -> String:
 			Coalition.ps(s, p["id"])["status"] = "absent"
 	_member(s, member)
 	var out: Array = []
-	Coalition._tick_demands(s, 0.1, d, func() -> float: return 0.4, out)
+	Coalition._tick_demands(s, 0.1, d, func() -> float: return 0.2, out)
 	for e: Dictionary in out:
 		if e["ev"] == "message":
 			return str(e["msg"]["type"])
@@ -248,8 +248,9 @@ func _roll_at(id: String, member: String) -> String:
 
 
 func test_partner_threat_mult() -> void:
-	runner.check(_roll_at("bibi", "bengvir") == "ultimatum", "Bibi's round: 0.6 > 0.4 → an ultimatum")
-	runner.check(_roll_at("bengvir", "bibi") == "demand", "Ben Gvir's round: 0.6 × 0.5 = 0.3 < 0.4 → a demand")
+	# 2026-10-03 (the overwhelm report): the big partner threatens at 0.25 (was 0.6)
+	runner.check(_roll_at("bibi", "bengvir") == "ultimatum", "Bibi's round: 0.25 > 0.2 → an ultimatum")
+	runner.check(_roll_at("bengvir", "bibi") == "demand", "Ben Gvir's round: 0.25 × 0.5 = 0.125 < 0.2 → a demand")
 	_round("bibi")
 	runner.check(Leaders.threat_mult() == 1.0, "no knob outside his round")
 
