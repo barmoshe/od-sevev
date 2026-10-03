@@ -219,6 +219,7 @@ func test_b10_mute_and_settings_work_before_tap_1() -> void:
 
 # ------------------------------------------------------------------ A3
 
+## The ballot booth (2026-10-03): the title and the hint sit on the header's full-bleed navy plate.
 func test_a3_the_picker_caption_sits_on_a_navy_plate() -> void:
 	await _boot()
 	var p: PickView = m.picker

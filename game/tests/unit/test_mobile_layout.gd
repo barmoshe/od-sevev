@@ -109,16 +109,16 @@ func test_tab_slots_per_device() -> void:
 		runner.check(covered == L.cw, "%s: the slots cover the canvas" % row["name"])
 
 
-## §5.8: the picker's tiles, avatar and tile height (the table's first / after columns).
+## The ballot booth (2026-10-03): on every device of the matrix the booth fits its safe band, first
+## and after an election: the big card at least CARD_MIN, two rows of slips at least 88 wide.
 func test_picker_plan_per_device() -> void:
 	for row: Dictionary in _matrix():
 		var ins: Array = row["insets"]
 		var H := L.floor4(float(row["logical"][1])) - float(ins[0]) - float(ins[1])
 		for v in ["first", "after"]:
-			var want: Dictionary = row["pickFirst" if v == "first" else "pickAfter"]
-			var got := PickView.grid_plan(H, float(row["cw"]), int(row["k"]), v)
-			runner.check(float(got["tw"]) == float(want["tw"]) and float(got["A"]) == float(want["A"]) and float(got["th"]) == float(want["th"]) and float(got["avail"]) == float(want["avail"]),
-				"%s %s: tw %d, A %d, th %d, avail %d (got %s)" % [row["name"], v, int(want["tw"]), int(want["A"]), int(want["th"]), int(want["avail"]), str(got)])
+			var got := PickView.plan(H, float(row["cw"]), v, 10)
+			runner.check(bool(got["fits"]) and float(got["cardH"]) >= PickView.CARD_MIN and float(got["sw"]) >= 88.0 and int(got["rows"]) == 2,
+				"%s %s: the booth fits (%s)" % [row["name"], v, str(got)])
 
 
 ## §5.2: the ticker clip is 324 + dx (the anchor R-anchored at 700 + dx, the clip from x 192).
@@ -194,25 +194,17 @@ func _check_booted(dev: Vector2i, name: String) -> void:
 	runner.check(m._lower_y == float(row["lowerY"]), "%s: lowerY %d (got %d)" % [name, int(row["lowerY"]), m._lower_y])
 	runner.check(m.ticker.clip_rect().size.x == float(row["clip"]), "%s: the ticker clip %d (got %d)" % [name, int(row["clip"]), m.ticker.clip_rect().size.x])
 	runner.check(m.mode == "pick" and m.picker.visible, "%s: a fresh game boots into LEADER_PICK" % name)
-	var pf: Dictionary = row["pickFirst"]
-	# th: §5.8's value, or up to 16 less where the tiles fill `avail` (the spec's header counts 12 under
-	# the title and not the 12 above the strip; the engine keeps the title clear of the wordmark)
-	var th_ok: bool = m.picker.tile.y <= float(pf["th"]) and m.picker.tile.y >= float(pf["th"]) - 16.0
-	runner.check(m.picker.tile.x == float(pf["tw"]) and th_ok and m.picker.avatar == float(pf["A"]), "%s: pick tiles %s, A %d (got %s, %d)" % [name, [pf["tw"], pf["th"]], int(pf["A"]), m.picker.tile, m.picker.avatar])
-	# §5.14.2: the booth frames the grid on the tall phones (free: tiles unchanged), never at the SE
-	var bo: Rect2 = m.picker.booth
-	var want_booth := not name.begins_with("SE")
-	runner.check(bo.has_area() == want_booth, "%s: the booth is %s (%s)" % [name, "on" if want_booth else "off", bo])
-	var title_top: float = (bo.position.y if bo.has_area() else m.picker.grid.x) - 16.0 - 44.0
-	runner.check(title_top >= 12.0 + (116.0 if m._vs.y >= 1280.0 else 64.0) + 12.0 - 0.5, "%s: the title line clears the wordmark (%d)" % [name, title_top])
+	# the ballot booth: the header, the card, the booth with its tray and the vote button stack inside
+	# the safe band, in that order, and the booth spans the canvas
+	var p: PickView = m.picker
 	var H: float = float(m._vs.y) - float(m._bottom_inset)
-	var gap := PickView.BOOTH_GRID_GAP if bo.has_area() else 12.0
-	runner.check(m.picker.grid.y + gap == H - 16.0 - PickView.STRIP_H, "%s: the grid sits on the strip (bottom %d, + %d)" % [name, m.picker.grid.y, gap])
-	if bo.has_area():
-		runner.check(bo.position.x == 0.0 and bo.size.x == L.cw and bo.position.y == m.picker.grid.x - 36.0 and bo.end.y == m.picker.grid.y + 12.0,
-			"%s: the booth spans the canvas, 36 above and 12 below the grid (%s)" % [name, bo])
-		var xs: Array = m.picker.cells.map(func(c: Dictionary) -> float: return (c["rect"] as Rect2).position.x)
-		runner.check(xs.min() == 20.0 and abs(xs.max() + m.picker.tile.x - (L.cw - 20.0)) < 0.5, "%s: the columns move in to 20" % name)
+	var bo: Rect2 = p.booth
+	runner.check(bo.position.x == 0.0 and bo.size.x == L.cw, "%s: the booth spans the canvas (%s)" % [name, bo])
+	runner.check(p.strip_rect.end.y <= p.card_rect.position.y and p.card_rect.end.y <= bo.position.y and bo.end.y <= p.go_btn.hit.position.y and p.go_btn.hit.end.y <= H,
+		"%s: header, card, booth and button stack in the band (%s, %s, %s, %s, H %d)" % [name, p.strip_rect, p.card_rect, bo, p.go_btn.hit, H])
+	runner.check(p.strip_rect.position.y >= m._top_y - 0.5, "%s: the header clears the safe top" % name)
+	var xs: Array = p.cells.map(func(c: Dictionary) -> float: return (c["rect"] as Rect2).position.x)
+	runner.check(float(xs.min()) >= 16.0 and float(xs.max()) + p.tile.x <= L.cw - 16.0, "%s: the slips sit inside the margins" % name)
 	var cb := TopBar.counter_box()
 	runner.check(cb.size.x == 328.0 + L.dx and TopBar.COUNTER_SCALE == 6, "%s: the counter ×6 in a stretched box (%d)" % [name, cb.size.x])
 	var p0: Rect2 = m.shop.PILL_RECT

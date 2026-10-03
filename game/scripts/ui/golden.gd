@@ -120,10 +120,12 @@ func spawn() -> void:
 
 ## The 136x120 hit rect around the sprite (the Magician's hit ends ≥ 20 px above the band).
 func hit_test(p: Vector2, _banana_hit: Rect2 = Rect2()) -> bool:
-	if not on_screen():
-		return false
+	return on_screen() and Ui.in_rect(hit_rect(), p)
+
+
+func hit_rect() -> Rect2:
 	var h := L.SUITCASE_HIT
-	return Ui.in_rect(Rect2(gx - h.x / 2.0, gy - h.y / 2.0, h.x, h.y), p)
+	return Rect2(gx - h.x / 2.0, gy - h.y / 2.0, h.x, h.y)
 
 
 func catch_it() -> bool:

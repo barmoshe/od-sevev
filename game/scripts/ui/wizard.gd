@@ -6,11 +6,11 @@ extends Node2D
 ## player does it. "דלג" skips the flow.
 ##
 ## Flows are content (`wizard`): {flowId: {on, until, steps: [{id, anchor, when, done, text, soft,
-## gone, hold}]}}. Steps are triggered by state, not a forced chain: a step shows only while its
-## `when` holds and its `done` doesn't, so between steps the game plays undimmed (an idle game earns
+## gone, hold, sec}]}}; `on` defaults to the flow's id when that is a reveal key. Steps are
+## triggered by state, not a forced chain: a step shows only while its `when` holds and its `done` doesn't, so between steps the game plays undimmed (an idle game earns
 ## between them), and a mechanic's flow waits for its reveal-ladder key (`on`) and for the moment the
 ## mechanic first shows up (just-in-time teaching). One step shows at a time, the table's order first.
-##   when / done / until   condition names (`a|b` = either, `!a` = not), the controller's vocabulary
+##   when / done / until   condition names (`a|b` = either), the controller's vocabulary
 ##                         (WizardHooks.cond); `tapHole` = the player tapped inside the hole
 ##   anchor                a target name (WizardHooks.anchor: a root-space Rect2, empty = off screen)
 ##   soft                  no swallowing, a lighter dim: a hint over a choice (the new leader) or a
@@ -18,8 +18,6 @@ extends Node2D
 ##   gone                  once shown, the moment passing (`when` false) counts as done (the Suitcase)
 ##   hold                  holds the round's clock while it shows (an ultimatum, main.clock_held)
 ##   sec                   once shown this long, done (a soft hint never lingers)
-##   seen                  `done` counts only once the step has shown (a `done` already true before
-##                         its moment: the new leader's "picked")
 ##   text                  the bubble; "@reveal.<key>" = the reveal ladder's announcement
 ## State: stats "wiz_<flow>" = the bitmask of the steps done, FINISHED once the flow ends or is skipped
 ## (stats persist any plain number; the save keeps only the fixed boolean UI flags).
@@ -28,7 +26,6 @@ const FINISHED := 1 << 20
 const DIM := Color(0.02, 0.02, 0.06, 0.68)
 const SOFT_DIM := Color(0.02, 0.02, 0.06, 0.3)
 const C_FRAME := Color("#ffd23f")
-const BUBBLE_INK := Color("#1b1b2a")
 const PAD := 12.0
 const BUBBLE_W := 560.0
 const SKIP := Vector2(136, 64)
@@ -36,7 +33,6 @@ const SKIP := Vector2(136, 64)
 ## Unit tests switch it off (run_tests.gd) so no wizard covers the screen they pin; test_wizard.gd on.
 static var enabled := true
 
-var host: Node
 var cond: Callable                 # func(name: String) -> bool
 var anchor: Callable               # func(name: String) -> Rect2 (root space)
 var fill: Callable                 # func(text: String) -> String (placeholders: the leader's names)
@@ -75,20 +71,11 @@ func _ready() -> void:
 func _ensure() -> void:
 	if _bubble != null:
 		return
-	for i in 4:
-		var r := ColorRect.new()
-		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(r)
-		_dim.append(r)
-	for i in 4:
-		var r := ColorRect.new()
-		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		r.color = C_FRAME
-		add_child(r)
-		_frame.append(r)
+	_dim = _rects(DIM)
+	_frame = _rects(C_FRAME)
 	_bubble = Ui.nine(self, Rect2(0, 0, 64, 64), Art.sprite_or("chat_bubble_in"))
-	_text = PxText.make(self, Vector2.ZERO, "", L.TEXT, "plain", BUBBLE_INK)
-	_text.wrap_width = BUBBLE_W - 48.0
+	_text = PxText.make(self, Vector2.ZERO, "", L.TEXT, "plain", Toasts.BUBBLE_INK)   # Dubi's bubble, as Toasts.say
+	_text.reading = true
 	_text.max_lines = 4
 	_text.align = 1
 	_count = PxText.make(self, Vector2.ZERO, "", L.TEXT, "plain", Color("#c9d6f2"))
@@ -99,19 +86,44 @@ func _ensure() -> void:
 	hand = Sprite2D.new()
 	hand.texture = Art.tex("ui_pointer", 0)
 	hand.scale = Vector2(4, 4)
+	Ui.set_frame(hand, "ui_pointer", int(Ftue.DIRS["upleft"]["frame"]))   # into the hole from its lower right
 	add_child(hand)
+
+
+func _rects(c: Color) -> Array[ColorRect]:
+	var out: Array[ColorRect] = []
+	for i in 4:
+		out.append(Ui.rect(self, Rect2(), c, c.a))
+	return out
 
 
 # ------------------------------------------------------------------ the table and the state
 
+static var _flows := {}
+static var _flows_of: Dictionary = {}
+
+
+## The content's flows (cached per content: the frame asks every time).
 static func flows() -> Dictionary:
-	var w: Variant = Content.data().get("wizard")
-	var out := {}
-	if w is Dictionary:
-		for k: Variant in w:
-			if not str(k).begins_with("_") and w[k] is Dictionary:
-				out[str(k)] = w[k]
-	return out
+	if not is_same(_flows_of, Content.data()):
+		_flows_of = Content.data()
+		_flows = {}
+		var w: Variant = _flows_of.get("wizard")
+		if w is Dictionary:
+			for k: Variant in w:
+				if not str(k).begins_with("_") and w[k] is Dictionary:
+					_flows[str(k)] = w[k]
+	return _flows
+
+
+## The reveal key a flow waits for: its own `on`, else its id when that is a reveal-ladder key.
+static func on_of(f: String) -> String:
+	return str(flows().get(f, {}).get("on", f if Reveal.table().has(f) else ""))
+
+
+## A reveal-ladder mechanic the wizard teaches (its round-start line and the old toasts stand down).
+static func teaches(key: String) -> bool:
+	return enabled and flows().has(key)
 
 
 static func bits(s: GameState, f: String) -> int:
@@ -153,10 +165,7 @@ func _test(expr: String, key: String) -> bool:
 	if expr == "":
 		return false
 	for part: String in expr.split("|"):
-		var neg := part.begins_with("!")
-		var name := part.substr(1) if neg else part
-		var v := (_tapped == key) if name == "tapHole" else (cond.is_valid() and bool(cond.call(name)))
-		if v != neg:
+		if (_tapped == key) if part == "tapHole" else (cond.is_valid() and bool(cond.call(part))):
 			return true
 	return false
 
@@ -170,12 +179,11 @@ func pick(s: GameState) -> Array:
 		if finished(s, f):
 			continue
 		var F: Dictionary = fs[f]
-		var on := str(F.get("on", ""))
+		var on := on_of(f)
 		if on != "" and not Reveal.on(s, on):
 			continue
 		if _test(str(F.get("until", "")), ""):
-			finish(s, f)
-			_report(f, "done")
+			_end(s, f)
 			continue
 		var steps: Array = F.get("steps", [])
 		var left := 0
@@ -185,28 +193,39 @@ func pick(s: GameState) -> Array:
 				continue
 			var st: Dictionary = steps[i]
 			var key := "%s/%d" % [f, i]
-			var passed: bool = st.get("gone", false) == true and _shown.has(key) and not _test(str(st.get("when", "")), key)
+			var now := _test(str(st.get("when", "")), key)
+			var passed: bool = st.get("gone", false) == true and _shown.has(key) and not now
 			if float(st.get("sec", 0.0)) > 0.0 and float(_shown.get(key, 0.0)) >= float(st["sec"]) * 1000.0:
 				passed = true
-			var can_end: bool = st.get("seen", false) != true or _shown.has(key)
-			if (can_end and _test(str(st.get("done", "")), key)) or passed:
+			if passed or _test(str(st.get("done", "")), key):
 				mark(s, f, i)
 				_report(f, str(st.get("id", i)))
 				if _tapped == key:
 					_tapped = ""
 				continue
 			left += 1
-			if show.is_empty() and _test(str(st.get("when", "")), key):
+			if show.is_empty() and now:
 				var r: Rect2 = anchor.call(str(st.get("anchor", ""))) if anchor.is_valid() else Rect2()
 				if r.has_area():
 					show = [f, i, r]
 		if left == 0:
-			finish(s, f)
-			_report(f, "done")
+			_end(s, f)
 			continue
 		if not show.is_empty():
 			return show
 	return []
+
+
+func _end(s: GameState, f: String) -> void:
+	finish(s, f)
+	_report(f, "done")
+
+
+func _clear() -> void:
+	visible = false
+	flow = ""
+	step_i = -1
+	_step = {}
 
 
 func update_view(dt_ms: float, s: GameState) -> void:
@@ -214,20 +233,18 @@ func update_view(dt_ms: float, s: GameState) -> void:
 	_t += dt_ms
 	var p := pick(s)
 	if p.is_empty():
-		if visible:
-			visible = false
-			flow = ""
-			step_i = -1
-			_step = {}
+		if showing():
+			_clear()
 		return
 	var f := str(p[0])
 	var i := int(p[1])
+	var key := "%s/%d" % [f, i]
 	hole = (p[2] as Rect2).grow(PAD)
 	if f != flow or i != step_i:
 		flow = f
 		step_i = i
 		_step = (flows()[f]["steps"] as Array)[i]
-		_shown["%s/%d" % [f, i]] = 0.0
+		_shown[key] = 0.0
 		_tapped = ""
 		_fade = 0.0
 		var t := text_of(_step)
@@ -235,7 +252,7 @@ func update_view(dt_ms: float, s: GameState) -> void:
 		var steps: Array = flows()[f]["steps"]
 		_count.text = "%d/%d" % [i + 1, steps.size()] if steps.size() > 1 else ""
 	visible = true
-	_shown["%s/%d" % [f, i]] = float(_shown.get("%s/%d" % [f, i], 0.0)) + dt_ms
+	_shown[key] = float(_shown[key]) + dt_ms
 	_fade = minf(1.0, _fade + dt_ms / 160.0)
 	modulate.a = 1.0 if reduced_motion else _fade
 	_layout()
@@ -244,29 +261,20 @@ func update_view(dt_ms: float, s: GameState) -> void:
 func _layout() -> void:
 	var soft := soft()
 	var c := SOFT_DIM if soft else DIM
-	var sc := screen
 	var h := hole
-	var parts := [Rect2(sc.position.x, sc.position.y, sc.size.x, maxf(0.0, h.position.y - sc.position.y)),
-		Rect2(sc.position.x, h.end.y, sc.size.x, maxf(0.0, sc.end.y - h.end.y)),
-		Rect2(sc.position.x, h.position.y, maxf(0.0, h.position.x - sc.position.x), h.size.y),
-		Rect2(h.end.x, h.position.y, maxf(0.0, sc.end.x - h.end.x), h.size.y)]
-	for k in 4:
-		_dim[k].color = c
-		_dim[k].position = parts[k].position
-		_dim[k].size = parts[k].size
+	_around(_dim, h, screen)
+	for r in _dim:
+		r.color = c
 	# the frame: 4 px of gold around the hole, breathing (still under reduced motion)
+	_around(_frame, h, h.grow(4))
 	var a := 1.0 if reduced_motion else 0.55 + 0.45 * (0.5 + 0.5 * sin(_t / 1000.0 * TAU * 1.2))
-	var fr := [Rect2(h.position.x - 4, h.position.y - 4, h.size.x + 8, 4), Rect2(h.position.x - 4, h.end.y, h.size.x + 8, 4),
-		Rect2(h.position.x - 4, h.position.y, 4, h.size.y), Rect2(h.end.x, h.position.y, 4, h.size.y)]
-	for k in 4:
-		_frame[k].position = fr[k].position
-		_frame[k].size = fr[k].size
-		_frame[k].modulate.a = a
+	for r in _frame:
+		r.modulate.a = a
 	# the bubble: above the hole if it fits under the skip row, else below it; inside the column
-	var lines := maxf(1.0, float(_text.line_count()))
-	var bh := Ui.snap(float(HeFont.line_height()) * _text.eff_px() * lines + 32.0, 4)
 	var bw := minf(BUBBLE_W, column.size.x - 32.0)
 	_text.wrap_width = bw - 48.0
+	var lines := maxf(1.0, float(_text.line_count()))
+	var bh := Ui.snap(float(HeFont.line_height()) * _text.eff_px() * lines + 32.0, 4)
 	var bx := clampf(Ui.snap(h.get_center().x - bw / 2.0, 4), column.position.x + 16.0, column.end.x - 16.0 - bw)
 	var top_min := column.position.y + SKIP.y + 24.0
 	var by := h.position.y - 24.0 - bh
@@ -288,16 +296,26 @@ func _layout() -> void:
 	# the hand: at the hole's lower right, pointing in (none on a soft step)
 	hand.visible = not soft
 	if hand.visible:
-		Ui.set_frame(hand, "ui_pointer", 1)
-		var off := Vector2.ZERO if reduced_motion else Ftue.hand_bob(_t, Vector2(-0.7071, -0.7071))
+		var off := Vector2.ZERO if reduced_motion else Ftue.hand_bob(_t, Ftue.DIRS["upleft"]["v"])
 		var hp := h.get_center() + Vector2(minf(56.0, h.size.x / 2.0), minf(40.0, h.size.y / 2.0))
 		hand.position = hp + off
+
+
+## Four rects filling `outer` around `inner` (the dim around the hole; the frame around it).
+static func _around(rs: Array[ColorRect], inner: Rect2, outer: Rect2) -> void:
+	var parts := [Rect2(outer.position.x, outer.position.y, outer.size.x, maxf(0.0, inner.position.y - outer.position.y)),
+		Rect2(outer.position.x, inner.end.y, outer.size.x, maxf(0.0, outer.end.y - inner.end.y)),
+		Rect2(outer.position.x, inner.position.y, maxf(0.0, inner.position.x - outer.position.x), inner.size.y),
+		Rect2(inner.end.x, inner.position.y, maxf(0.0, outer.end.x - inner.end.x), inner.size.y)]
+	for k in 4:
+		rs[k].position = parts[k].position
+		rs[k].size = parts[k].size
 
 
 # ------------------------------------------------------------------ input (root space)
 
 func showing() -> bool:
-	return visible and flow != ""
+	return flow != ""
 
 
 func soft() -> bool:
@@ -336,10 +354,7 @@ func skip(s: GameState) -> void:
 		return
 	finish(s, flow)
 	_report(flow, "skip")
-	visible = false
-	flow = ""
-	step_i = -1
-	_step = {}
+	_clear()
 
 
 func _report(f: String, what: String) -> void:

@@ -91,16 +91,26 @@ func test_a_new_game_opens_the_picker_with_two_open_leaders() -> void:
 	var first_two := [str(m.picker.cells[0]["id"]), str(m.picker.cells[1]["id"])]
 	first_two.sort()
 	runner.check(first_two == ["bennett", "bibi"], "the open tiles sit first, side by side (%s)" % str(first_two))
-	# a tap on a locked tile starts nothing
+	# a slip in print: chosen, it shows blurred in the big card and the vote button stays off
 	var li := -1
 	for i in m.picker.cells.size():
 		if m.picker.cells[i].get("locked", false):
 			li = i
 	m.picker._age = 1000.0
+	m.picker.choose(li)
+	runner.check(not m.picker.go_btn.is_enabled(), "a slip in print can't be voted (%s)" % m.picker.go_btn.label.text)
 	m.picker.commit_cell(li, "tile")
 	runner.check(m.mode == "pick" and Leaders.pick_pending(m.state), "a locked tile starts no round")
+	# select, then vote: an open slip enables the button with its name; the button votes
+	var bi := -1
+	for i in m.picker.cells.size():
+		if str(m.picker.cells[i]["id"]) == "bennett":
+			bi = i
+	m.picker.choose(bi)
+	runner.check(m.picker.go_btn.is_enabled() and m.picker.go_btn.label.text.contains("בנט"), "Bennett chosen: '%s'" % m.picker.go_btn.label.text)
+	runner.check(m.mode == "pick", "choosing is not voting")
 	for i in 20:
-		runner.check(["bibi", "bennett"].has(m.picker.random_open(func() -> float: return float(i) / 20.0)), "הפתעה picks an open leader")
+		runner.check(["bibi", "bennett"].has(Leaders.random_pick(func() -> float: return float(i) / 20.0, m.state)), "הפתעה picks an open leader")
 
 
 func test_every_round_opens_one_more_leader() -> void:

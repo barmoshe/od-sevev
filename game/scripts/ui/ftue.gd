@@ -43,8 +43,6 @@ var toasts: Toasts
 var hand: Sprite2D
 ## The hand-off time (ms, JS performance clock); 0 = the disclaimer is still up.
 var handoff_ms := 0.0
-## The first wizard is teaching (Wizard.first_running): P0, P1 and E1 stand down; H1 stays.
-var suppressed := false
 
 var _idle_ms := 0.0
 var _t := 0.0
@@ -216,12 +214,12 @@ func update_view(dt_ms: float, s: GameState, _d: Economy.Derived, ctx: Dictionar
 	# reveal edges that carry a line (K3 toast, B1 ticker)
 	var rv := reveals(s)
 	if not _prev_reveals.is_empty():
-		if rv["spins"] and not _prev_reveals.get("spins", false) and toasts and not (Wizard.enabled and Wizard.flows().has("spins")):
+		if rv["spins"] and not _prev_reveals.get("spins", false) and toasts and not Wizard.teaches("spins"):
 			toasts.show_toast(Strings.s("TOAST_SPINS"))
 		if rv["buyMode"] and not _prev_reveals.get("buyMode", false) and ticker.is_valid():
 			ticker.call(Strings.s("F8_BULK"))
 	_prev_reveals = rv
-	if suppressed:
+	if Wizard.first_running(s):   # the first wizard teaches: P0, P1 and E1 stand down; H1 stays
 		_set_pulse(0.0)
 		return
 	# P0: tap the hat (title state)

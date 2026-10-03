@@ -68,14 +68,26 @@ func _key(k: Key) -> void:
 
 # ---------------------------------------------------------------------------------------------
 
-## Bar 2026-10-01: Gantz is on the picker, as a joke. A tap shows a line about the threshold in the
-## caption strip and the picker stays open: pick again.
+func _cell_of(p: PickView, id: String) -> int:
+	for i in p.cells.size():
+		if str(p.cells[i]["id"]) == id:
+			return i
+	return -1
+
+
+## Bar 2026-10-01: Gantz is on the picker, as a joke. A vote for him shows a line about the threshold
+## and the picker stays open: pick again. (The ballot booth: a slip on the tray; a tap chooses it, a
+## second tap votes.)
 func test_gantz_is_on_the_picker_and_sends_you_to_pick_again() -> void:
 	await _boot()
 	var p: PickView = m.picker
 	p._age = 1000.0   # past the tap guard
-	runner.check(str(p.cells[4]["id"]) == "gantz" and p.cells[4].has("party"), "the first time Gantz stands in the centre as a leader tile")
-	var at: Vector2 = (p.cells[4]["rect"] as Rect2).get_center()
+	var gi := _cell_of(p, "gantz")
+	runner.check(gi >= 0, "the first time Gantz is a slip on the tray")
+	var at: Vector2 = (p.cells[gi]["rect"] as Rect2).get_center()
+	p.pointer_down(at)
+	p.pointer_up(at)
+	runner.check(p.focus == gi and not p.locked, "the first tap chooses his slip (the big card shows him)")
 	p.pointer_down(at)
 	p.pointer_up(at)
 	runner.check(m.mode == "pick" and p.visible and not p.locked, "no round starts: the picker stays open")
@@ -85,7 +97,7 @@ func test_gantz_is_on_the_picker_and_sends_you_to_pick_again() -> void:
 	(top as PickView.DecoyCard).ok_button.on_commit.call()
 	await _frames(30)
 	runner.check(not m.overlays.is_open(), "בחר שוב closes it, back to the picker")
-	runner.check(str(p.cells[4]["id"]) == "", "the centre turns back into הפתעה")
+	runner.check(_cell_of(p, "gantz") < 0 and _cell_of(p, "") >= 0, "his slip is gone; the blank slip (הפתעה) stays")
 	runner.check(float(m.state.stats.get("gantzFooled", 0.0)) == 1.0, "counted: he fools a save once")
 	runner.check((Leaders.picker(m.state)["decoy"] as Dictionary).is_empty(), "the next picker has no Gantz")
 	runner.check(m.commit_pick("bennett"), "and the player picks again")
@@ -96,9 +108,9 @@ func test_a_fresh_game_opens_the_picker_before_the_first_tap() -> void:
 	var p: PickView = m.picker
 	runner.check(m.mode == "pick" and p.visible and p.variant == "first", "LEADER_PICK (first) replaces the title (mode %s)" % m.mode)
 	runner.check(not m._top.visible and not m._lower.visible and not m.bb.visible, "rows A/B, the ticker, the panel and the stage figure are hidden")
-	runner.check(p.cells.size() == 9 and str(p.cells[4]["id"]) == "gantz", "3 × 3: the 8 leaders and, the first time, Gantz standing in for הפתעה in the centre (%d cells)" % p.cells.size())
-	runner.check(p.again_btn == null, "no again button on the first picker")
-	runner.check(p.focus == 4, "the initial focus is הפתעה, never a face (rtl-map §8.5)")
+	runner.check(p.cells.size() == 10 and _cell_of(p, "gantz") == 8 and str(p.cells[9]["id"]) == "", "the tray: the 8 leaders, Gantz (the first time) and the blank slip (%d slips)" % p.cells.size())
+	runner.check(p.again_btn == null and p.go_btn != null and not p.go_btn.is_enabled(), "no again on the first picker; the vote waits for a slip")
+	runner.check(p.focus == -1, "nothing is chosen for the player: the big card shows the booth's line")
 	var t0: float = m.state.play_time_sec if "play_time_sec" in m.state else 0.0
 	await _frames(20)
 	runner.check(m.state.taps_lifetime == 0 and m.state.bananas == 0.0, "the economy is frozen while the picker shows")
@@ -120,10 +132,10 @@ func test_the_order_is_bloc_balanced() -> void:
 		rng.seed = seed_ + 1
 		var order := PickView.arrange(tiles, func() -> float: return rng.randf())
 		runner.check(order.size() == 8, "every leader placed")
-		var corners := [0, 2, 5, 7].map(func(i: int) -> String: return side[order[i]])
-		var edges := [1, 3, 4, 6].map(func(i: int) -> String: return side[order[i]])
-		runner.check(corners.all(func(x: String) -> bool: return x == corners[0]) and edges.all(func(x: String) -> bool: return x == edges[0]) and corners[0] != edges[0],
-			"a checkerboard: one bloc on the corners, the other on the edges (seed %d)" % seed_)
+		var turns := true
+		for i in range(1, order.size()):
+			turns = turns and side[order[i]] != side[order[i - 1]]
+		runner.check(turns, "the blocs take turns along the tray: no stretch reads as one camp (seed %d: %s)" % [seed_, str(order)])
 
 
 func test_picking_bennett_puts_him_on_stage_and_saves() -> void:

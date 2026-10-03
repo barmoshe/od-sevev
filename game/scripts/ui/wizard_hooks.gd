@@ -14,21 +14,16 @@ static func _s(host: Node) -> GameState:
 
 ## The round is up, nothing over the stage or the panel, nobody blocking the screen.
 static func _free(host: Node) -> bool:
-	var mgr: OverlayManager = host.get("overlays")
-	return str(host.get("mode")) == "main" and not mgr.is_open() and not (host.get("tx") as EvolveTx).running \
-		and not bool(host.get("_tx_locked")) and not (host.get("chat") as ChatView).is_open() \
-		and not (host.get("dossier") as DossierView).is_open() and not bool(host.call("_input_blocked")) \
-		and not Leaders.pick_pending(_s(host))
+	return bool(host.call("_gameplay_input")) and not (host.get("chat") as ChatView).is_open() \
+		and not (host.get("dossier") as DossierView).is_open() and not Leaders.pick_pending(_s(host))
 
 
 static func _first_k(host: Node) -> int:
 	var shop: Shop = host.get("shop")
-	var s := _s(host)
-	var first: String = Content.producer_ids()[0]
-	var k := shop.row_index_of(s, "producer", first)
-	if k < 0 or shop.tab != "producers" or not shop.visible or shop.row_screen_y(k, "producers") < 0.0:
-		return -1
-	return k
+	if shop.tab != "producers" or not shop.visible:
+		return -1   # the cheap checks first: the row lookup rebuilds the row models
+	var k := shop.row_index_of(_s(host), "producer", Content.producer_ids()[0])
+	return k if k >= 0 and shop.row_screen_y(k, "producers") >= 0.0 else -1
 
 
 static func _rv(host: Node, k: String) -> bool:
@@ -45,6 +40,12 @@ static func cond(host: Node, name: String) -> bool:
 			var pk: PickView = host.get("picker")
 			return str(host.get("mode")) == "pick" and pk.visible and not pk.locked and not mgr.is_open() \
 				and (host.get("ftue") as Ftue).handoff_ms > 0.0
+		"slipChosen":
+			var pk: PickView = host.get("picker")
+			if pk.focus < 0 or pk.focus >= pk.cells.size():
+				return false
+			var id := str(pk.cells[pk.focus]["id"])
+			return id == "" or (not pk.cells[pk.focus].get("locked", false) and not pk.tile_of(id).get("decoy", false))
 		"picked":
 			return not Leaders.pick_pending(s)
 		"stage":
@@ -54,7 +55,7 @@ static func cond(host: Node, name: String) -> bool:
 			return s.taps_lifetime >= 3
 		"card1Afford":
 			var first: String = Content.producer_ids()[0]
-			return _free(host) and s.owned_of(first) == 0 and _first_k(host) >= 0 and s.bananas >= Economy.producer_cost(s, first, 1)
+			return _free(host) and s.owned_of(first) == 0 and s.bananas >= Economy.producer_cost(s, first, 1)
 		"owns1":
 			return Ftue.owned_total(s) >= 1
 		"suitcase":
@@ -66,7 +67,7 @@ static func cond(host: Node, name: String) -> bool:
 		"chatOpened":
 			return bool(s.ui.get("chatOpened", false))
 		"payVisible":
-			return chat.is_open() and not mgr.is_open() and not anchor(host, "payPill").size.is_zero_approx()
+			return chat.is_open() and not mgr.is_open()
 		"paid1":
 			return s.coalition is Dictionary and int(float((s.coalition as Dictionary).get("paidLifetime", 0))) >= 1
 		"seatsShown":
@@ -77,7 +78,7 @@ static func cond(host: Node, name: String) -> bool:
 			return s.evolutions >= 1
 		# the reveal ladder's mechanics
 		"newTile":
-			return cond(host, "picking") and not anchor(host, "pickNew").size.is_zero_approx()
+			return cond(host, "picking")   # the anchor (the new tile) decides
 		"spinsTab":
 			return _free(host) and _rv(host, "spins") and bool(host.get("_tabs_up")) and (host.get("shop") as Shop).tab != "upgrades"
 		"spinsOpened":
@@ -100,16 +101,16 @@ static func cond(host: Node, name: String) -> bool:
 			var sd: ShareDesk = host.get("share_desk")
 			return _free(host) and sd != null and sd.chip != null and sd.chip.visible
 		"milestone":
-			return _free(host) and Reveal.on(s, "milestones") and _first_k(host) >= 0 and s.owned_of(Content.producer_ids()[0]) >= 1
+			return _free(host) and s.owned_of(Content.producer_ids()[0]) >= 1
 	push_error("WizardHooks.cond: unknown %s" % name)
 	return false
 
 
 ## Every name the content may use (test_wizard checks the table against it).
-const CONDS := ["picking", "picked", "stage", "tapped3", "card1Afford", "owns1", "suitcase", "caught", "chatWaiting",
+const CONDS := ["picking", "slipChosen", "picked", "stage", "tapped3", "card1Afford", "owns1", "suitcase", "caught", "chatWaiting",
 	"chatOpened", "payVisible", "paid1", "seatsShown", "ctaUp", "elected", "newTile", "spinsTab", "spinsOpened",
 	"thermo", "ultCameo", "event", "ability", "missions", "perks", "mordechai", "share", "milestone", "tapHole"]
-const ANCHORS := ["pickOpen", "pickNew", "leader", "card1Pill", "coalitionTab", "payPill", "seats", "suitcase", "cta",
+const ANCHORS := ["pickOpen", "pickGo", "pickNew", "leader", "card1Pill", "coalitionTab", "payPill", "seats", "suitcase", "cta",
 	"spinsTab", "thermo", "ultimatum", "event", "ability", "missions", "perks", "mordechai", "share", "milestone"]
 
 
@@ -125,13 +126,16 @@ static func anchor(host: Node, name: String) -> Rect2:
 			for c: Dictionary in pk.cells:
 				var id := str(c["id"])
 				var t := pk.tile_of(id)
-				if id == "" or t.get("decoy", false) or c.get("locked", false):
+				if id == "" or t.get("decoy", false) or t.get("locked", false):
 					continue
 				if name == "pickNew" and not t.get("new", false):
 					continue
 				var cr := (c["rect"] as Rect2)
 				r = cr if not r.has_area() else r.merge(cr)
 			return Rect2(r.position + pk.position, r.size) if r.has_area() else Rect2()
+		"pickGo":
+			var pk: PickView = host.get("picker")
+			return Rect2(pk.go_btn.hit.position + pk.position, pk.go_btn.hit.size) if pk.go_btn != null else Rect2()
 		"leader":
 			var r := (host.get("bb") as BigBanana).hit_rect()
 			return Rect2(r.position + stage, r.size)
@@ -143,7 +147,7 @@ static func anchor(host: Node, name: String) -> Rect2:
 			var c := shop.pill_pos(k)
 			return Rect2(c - shop.PILL_RECT.size / 2.0 + lower, shop.PILL_RECT.size)
 		"coalitionTab", "spinsTab":
-			var r := L.tab_rect(3 if name == "coalitionTab" else 2)
+			var r := L.tab_rect(Shop.TABS.find("coalition" if name == "coalitionTab" else "upgrades") + 1)
 			return Rect2(r.position + lower, r.size)
 		"payPill":
 			if not chat.is_open():
@@ -164,10 +168,7 @@ static func anchor(host: Node, name: String) -> Rect2:
 			return Rect2(r.position + top, r.size)
 		"suitcase":
 			var g: GoldenView = host.get("golden")
-			if not g.on_screen():
-				return Rect2()
-			var h := L.SUITCASE_HIT
-			return Rect2(Vector2(g.gx - h.x / 2.0, g.gy - h.y / 2.0) + g.position + stage, h)
+			return Rect2(g.hit_rect().position + g.position + stage, L.SUITCASE_HIT) if g.on_screen() else Rect2()
 		"cta":
 			var tk: Ticker = host.get("ticker")
 			var r := tk.cta.visual

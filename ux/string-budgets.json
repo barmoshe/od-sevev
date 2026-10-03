@@ -7052,6 +7052,72 @@
         "5": 80
       }
     },
+    "LEADER_PICK_VOTE": {
+      "surface": "label",
+      "spec": "the ballot booth (2026-10-03)",
+      "note": "The booth's primary button once a slip is chosen: the slip goes into the envelope and the ballot box",
+      "box": "pick.again",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 376,
+        "5": 470
+      }
+    },
+    "LEADER_PICK_VOTE_BLANK": {
+      "surface": "label",
+      "spec": "the ballot booth (2026-10-03)",
+      "note": "The primary button when the blank slip (הפתעה) is chosen",
+      "box": "pick.again",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 340,
+        "5": 425
+      }
+    },
+    "LEADER_PICK_CHOOSE": {
+      "surface": "label",
+      "spec": "the ballot booth (2026-10-03)",
+      "note": "The primary button, disabled, before any slip is chosen",
+      "box": "pick.again",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 332,
+        "5": 415
+      }
+    },
+    "LEADER_PICK_LOCKED_BTN": {
+      "surface": "label",
+      "spec": "the ballot booth (2026-10-03)",
+      "note": "The primary button, disabled, while a locked slip is chosen",
+      "box": "pick.again",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 300,
+        "5": 375
+      }
+    },
+    "LEADER_PICK_INTRO": {
+      "surface": "label",
+      "spec": "the ballot booth (2026-10-03)",
+      "note": "The big card before any slip is chosen (first launch)",
+      "box": "pick.card",
+      "maxChars": 23,
+      "worstPx": {
+        "4": 928,
+        "5": 1160
+      }
+    },
+    "LEADER_PICK_BLANK": {
+      "surface": "label",
+      "spec": "the ballot booth (2026-10-03)",
+      "note": "The big card's name for the blank slip (הפתעה)",
+      "box": "pick.name",
+      "maxChars": 8,
+      "worstPx": {
+        "4": 148,
+        "5": 185
+      }
+    },
     "LEADER_PICK_RANDOM": {
       "surface": "label",
       "spec": "leaderSelect.pick.copy.random",

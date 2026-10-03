@@ -1,83 +1,83 @@
 class_name PickView
 extends Node2D
-## LEADER_PICK, the leader picker (ux/rtl-map.md §8, ux/screen-graph.md §0,
-## design/leader-select-spec.md §3). A mode of the stage (`mode == "pick"`), not an overlay: Rows
-## A/B, the ticker, the panel and the tabs are hidden, the stage is empty behind the modal scrim,
-## and the economy is frozen (the controller's rule). It replaces the title state on first launch
-## and follows EVOLVE_TX (and the O3b flash) after every election.
+## LEADER_PICK, the ballot booth (2026-10-03, Bar: "תעצב מחדש לגמרי את מסך הבחירה"; the earlier 3 × 3
+## grid: ux/rtl-map.md §8, design/leader-select-spec.md §3). A mode of the stage (`mode == "pick"`),
+## not an overlay: the stage is scrimmed behind it and the economy is frozen (the controller's rule).
+## It replaces the title state on first launch and follows EVOLVE_TX after every election.
 ##
-## A child of the controller's root at (ox, 0): x is the 720 column, y is screen-logical. The
-## controller hands it the safe band (`layout(top, bot, ...)`) and the tiles (`Leaders.picker`);
-## it draws, takes the input and calls back:
-##   on_commit(id, via) -> bool   at the commit frame (via tile | random | again | key | card);
-##                                the controller writes the pick (Politics.install) and plays the
-##                                `leaderPick` sting there. false = refused (the view unlocks).
-##   on_done()                    ≈ 520 ms later (the pop, the dim, the hold, the fade): the stage
+## The screen is the Israeli voting booth: a tray of paper slips (פתקים), one per leader, in the booth
+## frame; a big card above it shows the chosen slip (the face, the party, the leader's rule); the
+## primary button puts the slip in the ballot box. Select, then vote (a second tap on the chosen slip
+## also votes). Leaders not open yet (Leaders.unlock_round) are slips "in print": a blurred face and
+## name, their round. הפתעה is the blank slip (Dubi writes a name on it); Gantz, the decoy, is a slip
+## until he has fooled the player once.
+##
+## A child of the controller's root at (ox, 0): x is the canvas column, y is screen-logical. The
+## controller hands it the safe band (`layout(top, bot, ...)`) and the model (`Leaders.picker`); it
+## draws, takes the input and calls back:
+##   on_commit(id, via) -> bool   the vote (via tile | random | again | key | card); false = refused
+##   on_done()                    after the slip's flight and the fade (commit_ms)
 ##   on_card(id, via)             the leader card (long-press ≥ 600 ms or `I`)
-##
-## Layout (ux/mobile-first-layout.md §5.8, D42, replaces rtl-map §8.2-8.3's placement): the
-## wordmark (first launch) pinned at the top, the caption strip and the foot (after: the again
-## button) pinned to the bottom, the grid BOTTOM-anchored on the strip (the thumb zone), the title
-## line (+ the fresh chip) attached to the grid; the scrimmed stage above is the exempt "sky".
-## Tiles are fluid: tw = floor4((cw − 72) / 3), growing in height to fill up to a 1.6:1 card, the
-## content block centred in the tile. 8 leaders: 3 × 3 with הפתעה in the centre cell; 4: 2 × 2 and
-## a full-width הפתעה bar. The avatar A is the first of [192 (even k only), 128, 96, 64] whose grid
-## fits. The order is drawn on every open, balanced by bloc
-## (§8.3.1: a checkerboard / the diagonals; no left/right cue), and kept by an undo reopen.
-## No number anywhere but the fresh chip's +10% (§8.8).
+##   on_decoy(id, line)           Gantz voted for: the controller's sound, the stat and DecoyCard
 
 const SCRIM := Color(0.043, 0.039, 0.071, 0.6)    # #0b0a12 at 60% (rtl-map §7.1)
 const C_NAME := Color("#fff8ec")
 const C_PARTY := Color("#c9d6f2")
 const C_STRIP := Color("#f7f4ec")
+const STRIP_PLATE := Color("#072a7a")
+const C_PAPER := Color("#f7f4ec")
+const C_PAPER_EDGE := Color("#b9b19c")
+const C_INK := Color("#1b1b2a")
+const C_INK_MUTED := Color("#5d5a6e")
+const C_PICKED := Color("#ffd23f")
 const C_NEW := Color("#ffd23f")
-const LOCKED_TINT := Color(0.42, 0.42, 0.5, 0.85)
 const LH := 44.0                   # the line pitch at ×4
-const HOLD_MS := 600.0             # §8.4: a hold opens the leader card
+const HOLD_MS := 600.0             # a hold opens the leader card
 const SLOP := 10.0
 const GUARD_MS := 300.0            # screen-graph §0.2 rule 3: the tap-burst guard
-const POP_MS := 120.0
-const DIM_MS := 150.0
-const HOLD_AFTER_MS := 250.0
+const FLY_MS := 380.0              # the slip flies into the envelope
+const HOLD_AFTER_MS := 150.0
 const FADE_MS := 250.0
-const ROW_GAP := 12.0
-const STRIP_H := 112.0              # 12 + 2 lines × 44 + 12
-## A3 (mobile-first §5.8.1): the caption strip sits on a full-bleed navy plate, the ticker's panel
-## colour, so its white text never lies on the plaza stone (#f7f4ec on #072a7a is 12.9:1).
-const STRIP_PLATE := Color("#072a7a")
-## mobile-first §5.8 A3: the XL pick avatar (96×96 at d3, drawn 2 logical px per sprite px); until
-## the 2D Artist's piece lands (manifest chars.<art>.avatarPickXL, else this id) the 32-px pick
-## avatar draws at ×6 (1.5 art px per sprite px: whole device px at every even k).
-const XL_PREFIX := "avatar_pick_xl_"   # only when the manifest names no avatarPickXL (it ships avatar_pick_<c>_d3)
-## mobile-first §5.14.2 (F15): the booth frame (kit `booth_frame` at ×4, content box [5, 9, 30, 28]
-## → insets left 20, top 36, right 20, bottom 12) around the grid, where it costs no tile pixel.
-const BOOTH_TOP := 36.0
+const PAD := 16.0                  # the canvas side margin
+const GAP := 12.0                  # between slips
+const COLS := 5                    # slips per row of the tray
+const SLIP_H := 176.0              # 12 + face 64 + 8 + name 44 + sub 36 + 12
+const FACE := 64.0                 # a slip's face
+const BTN_H := 88.0                # the vote button (visual 80, hit 88)
+const BOOTH_TOP := 36.0            # the booth frame around the tray (kit booth_frame at ×4)
 const BOOTH_BOTTOM := 12.0
-const BOOTH_SIDE := 20.0           # the tile columns move in from 16 to 20
-const BOOTH_GRID_GAP := 20.0       # the grid bottom = the strip top − 20 (the booth's bottom = − 8)
+const CARD_MIN := 232.0            # the big card's least height (face 96 + name, party, two rule lines)
+const XL_PREFIX := "avatar_pick_xl_"
+## A locked name's smear: BLUR_RING faint copies BLUR_R logical px around it.
+const BLUR_RING := 12
+const BLUR_R := 9.0
 
 var host: Node
 var reduced_motion := false
 var on_commit: Callable
 var on_done: Callable
 var on_card: Callable
+var on_decoy: Callable
 
 var variant := "first"             # first | after
 var model: Dictionary = {}          # Leaders.picker(...)
-var order: Array = []               # leader ids in cell order (the undo reopen keeps it)
+var order: Array = []               # leader ids in slip order (the undo reopen keeps it)
 var again_id := ""
 var fresh_pct := 0.0
-var lp := false                     # ftue.md LP: F9_PICK is the strip's default line
-var cells: Array[Dictionary] = []   # {id ("" = הפתעה), rect, root, plate, name, party, blurb}
-var again_btn: PxButton
-var focus := -1                     # a cell index, cells.size() = the again button
+var lp := false                     # ftue.md LP: F9_PICK is the hint's default line
+var cells: Array[Dictionary] = []   # the slips: {id ("" = הפתעה), rect, root, locked, name}
+var focus := -1                     # the chosen slip (-1 none)
 var show_focus := false
-var locked := false
-var avatar := 128.0                 # the avatar size drawn (XL 192 / L 128 / M 96 / S 64)
-var tile := Vector2(216, 284)       # the 3 × 3 tile [tw, th] (window.odPick.tile)
-var grid := Vector2.ZERO            # the grid's [top, bottom], picker-local (window.odPick.grid)
-var booth := Rect2()                # the booth frame, picker-local (empty = no booth; window.odPick.booth)
-var _booth_node: NinePatchRect
+var locked := false                 # the vote is under way (input locked)
+var go_btn: PxButton                # the vote button
+var again_btn: PxButton             # = go_btn after an election (it reads "עוד סבב עם …" on the last leader)
+var card_rect := Rect2()            # the big card, picker-local
+var strip_rect := Rect2()           # the header's navy plate (the title, the hint), picker-local
+var tray := Rect2()                 # the slips' bounding box, picker-local
+var booth := Rect2()                # the booth frame, picker-local
+var avatar := 128.0                 # the big card's face size
+var tile := Vector2(128, SLIP_H)    # a slip's size (window.odPick.tile)
+var grid := Vector2.ZERO            # the tray's [top, bottom], picker-local
 ## The free sky above the title [top, bottom], picker-local (seeded rounds: the controller puts the
 ## Daily Round's entry there when it fits; main.gd _sync_daily_btn).
 var sky := Vector2.ZERO
@@ -86,27 +86,20 @@ var _top := 0.0
 var _bot := float(L.H)
 var _full_w := float(L.W)
 var _ox := 0.0
-var _press: Dictionary = {}         # {cell, at, t, card}
+var _press: Dictionary = {}         # {cell (-2 = the button), at, t, card, moved}
 var _hover := -1
 var _age := 0.0
-var _commit: Dictionary = {}        # {cell, t, id}
-var _strip: PxText
-var _strip_plate: ColorRect
-var strip_rect := Rect2()           # the navy plate, picker-local (window.odPick.strip)
+var _commit: Dictionary = {}        # {cell, t, id, from, to}
+var _strip: PxText                  # the hint under the title (the disclaimer, F9_PICK, Gantz's line)
 var _scrim: ColorRect
 var _layer := Node2D.new()
-var _again_group: Array[CanvasItem] = []
-## Gantz, the decoy (content leaderSelect.decoy, Bar 2026-10-01): until he has fooled the player once
-## (the controller drops model.decoy after that), he stands in the centre cell instead of הפתעה,
-## drawn as a leader tile. A tap never starts a round: the caption strip says why (DECOY_MS), the
-## cell turns back into הפתעה and the player picks again. `on_decoy(id)`: the controller's sound
-## and the "fooled" stat.
-const DECOY_MS := 3500.0
-var on_decoy: Callable
+var _card_layer := Node2D.new()
 var _decoy_revealed := false
 var _decoy_ms := 0.0
 var _decoy_n := 0
 var _decoy_line := ""
+const DECOY_MS := 3500.0
+static var _blurred := {}
 
 
 func _ready() -> void:
@@ -118,8 +111,7 @@ func _ready() -> void:
 	visible = false
 
 
-## The safe band in screen-logical y (top = the safe top, bot = the screen bottom − the bottom
-## inset), the full viewport width and the column's x offset (the scrim spans the whole width).
+## The safe band in screen-logical y, the full viewport width and the column's x offset.
 func layout(top: float, bot: float, full_w: float, ox: float) -> void:
 	_top = top
 	_bot = bot
@@ -131,8 +123,8 @@ func layout(top: float, bot: float, full_w: float, ox: float) -> void:
 		_build()
 
 
-## Opens the picker. `keep_order` (the undo) redraws the previous order; `focus_id` is the tile to
-## focus (the undo: the one just picked).
+## Opens the booth. `keep_order` (the undo) redraws the previous order; `focus_id` is the slip to
+## choose (the undo: the one just voted for; after an election: the last round's leader).
 func open(variant_: String, model_: Dictionary, keep_order: Array = [], focus_id: String = "", fresh: float = 0.0, lp_: bool = false) -> void:
 	variant = variant_
 	model = model_
@@ -155,14 +147,12 @@ func open(variant_: String, model_: Dictionary, keep_order: Array = [], focus_id
 	_decoy_ms = 0.0
 	modulate.a = 1.0
 	visible = true
-	_build()
 	focus = -1
-	if focus_id != "":
-		for i in cells.size():
-			if str(cells[i]["id"]) == focus_id:
-				focus = i
-	if focus < 0:
-		focus = cells.size() if (variant == "after" and again_btn != null) else _random_index()
+	_build()
+	var want := focus_id if focus_id != "" else again_id
+	for i in cells.size():
+		if want != "" and str(cells[i]["id"]) == want:
+			focus = i
 	_refresh()
 
 
@@ -177,7 +167,7 @@ func is_open() -> bool:
 	return visible
 
 
-## The tile model of a leader id ({} for הפתעה; the decoy's while he stands in the centre).
+## The tile model of a leader id ({} for הפתעה; the decoy's while he is on the tray).
 func tile_of(id: String) -> Dictionary:
 	var dt_ := _decoy_tile()
 	if not dt_.is_empty() and str(dt_["id"]) == id:
@@ -188,57 +178,37 @@ func tile_of(id: String) -> Dictionary:
 	return {}
 
 
-# ------------------------------------------------------------------ the order (§8.3.1)
+# ------------------------------------------------------------------ the order
 
-## Leader ids in cell order (reading order: right → left, top → bottom, the centre skipped). The
-## blocs (`side`) are balanced so the right and the left columns hold the same mix and no column
-## is one bloc: 3 × 3 with 4 + 4 is a checkerboard (a coin flip gives one bloc the corners), 2 × 2
-## with 2 + 2 the diagonals; anything else is a shuffle that rejects a one-bloc side column.
+## Leader ids in slip order: the open leaders first, the two blocs (`side`) taking turns so no stretch
+## of the tray reads as one camp (a shuffle within each bloc); then the slips in print, by the round
+## they open in.
 static func arrange(tiles: Array, rng: Callable) -> Array:
-	# the roster ladder: the open tiles first (shuffled), then the locked ones by the round they open
-	# in, so the open leaders sit together at the top of the grid (one spotlight)
-	var shut := tiles.filter(func(x: Variant) -> bool: return (x as Dictionary).get("locked", false) == true)
-	if not shut.is_empty():
-		var open_ids: Array = []
-		for x: Variant in tiles:
-			if not (x as Dictionary).get("locked", false):
-				open_ids.append(str((x as Dictionary)["id"]))
-		_shuffle(open_ids, rng)
-		shut.sort_custom(func(a: Variant, b: Variant) -> bool: return int((a as Dictionary).get("round", 0)) < int((b as Dictionary).get("round", 0)))
-		return open_ids + shut.map(func(x: Variant) -> String: return str((x as Dictionary)["id"]))
 	var by := {}
+	var shut: Array = []
 	for t: Variant in tiles:
-		var sd := str((t as Dictionary).get("side", ""))
+		var d := t as Dictionary
+		if d.get("locked", false) == true:
+			shut.append(d)
+			continue
+		var sd := str(d.get("side", ""))
 		if not by.has(sd):
 			by[sd] = []
-		(by[sd] as Array).append(str((t as Dictionary)["id"]))
-	for k: Variant in by:
-		_shuffle(by[k], rng)
-	var n := tiles.size()
+		(by[sd] as Array).append(str(d["id"]))
 	var sides: Array = by.keys()
-	if sides.size() == 2 and (by[sides[0]] as Array).size() == (by[sides[1]] as Array).size():
-		var first: Array = by[sides[0]] if float(rng.call()) < 0.5 else by[sides[1]]
-		var second: Array = by[sides[1]] if first == by[sides[0]] else by[sides[0]]
-		var out: Array = []
-		out.resize(n)
-		var a_cells: Array = [0, 2, 5, 7] if n == 8 else ([0, 3] if n == 4 else [])
-		var b_cells: Array = [1, 3, 4, 6] if n == 8 else ([1, 2] if n == 4 else [])
-		if not a_cells.is_empty():
-			for i in a_cells.size():
-				out[a_cells[i]] = first[i]
-				out[b_cells[i]] = second[i]
-			return out
-	var ids: Array = []
-	for t: Variant in tiles:
-		ids.append(str((t as Dictionary)["id"]))
-	var side_of := {}
-	for t: Variant in tiles:
-		side_of[str((t as Dictionary)["id"])] = str((t as Dictionary).get("side", ""))
-	for _i in 60:
-		_shuffle(ids, rng)
-		if _columns_mixed(ids, side_of, n):
-			break
-	return ids
+	for k: Variant in sides:
+		_shuffle(by[k], rng)
+	_shuffle(sides, rng)
+	var out: Array = []
+	var more := true
+	while more:
+		more = false
+		for k: Variant in sides:
+			if not (by[k] as Array).is_empty():
+				out.append((by[k] as Array).pop_front())
+				more = true
+	shut.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a.get("round", 0)) < int(b.get("round", 0)))
+	return out + shut.map(func(d: Dictionary) -> String: return str(d["id"]))
 
 
 static func _shuffle(a: Array, rng: Callable) -> void:
@@ -249,67 +219,38 @@ static func _shuffle(a: Array, rng: Callable) -> void:
 		a[j] = t
 
 
-## The cell (row, col) of order index i: 3 × 3 skips the centre; 2 × 2 is plain; col 0 = right.
-static func cell_rc(i: int, n: int) -> Vector2i:
-	if n <= 4:
-		return Vector2i(i / 2, i % 2)
-	var k := i if i < 4 else i + 1
-	return Vector2i(k / 3, k % 3)
-
-
-static func _columns_mixed(ids: Array, side_of: Dictionary, n: int) -> bool:
-	var cols := {}
-	for i in ids.size():
-		var c := cell_rc(i, n).y
-		if n > 4 and c == 1:
-			continue
-		if not cols.has(c):
-			cols[c] = {}
-		(cols[c] as Dictionary)[side_of.get(ids[i], "")] = true
-	for c: Variant in cols:
-		if (cols[c] as Dictionary).size() < 2:
-			return false
-	return true
-
-
-# ------------------------------------------------------------------ layout (§8.2-8.3)
+# ------------------------------------------------------------------ layout
 
 func _title_text() -> String:
 	return Strings.s("LEADER_PICK_TITLE_AFTER" if variant == "after" else "LEADER_PICK_TITLE")
 
 
-func _strip_default() -> String:
+func _hint_text() -> String:
+	if _decoy_ms > 0.0:
+		return _decoy_line
 	return Strings.s("F9_PICK") if lp else Strings.s("LEADER_PICK_DISCLAIMER")
 
 
-## The minimum tile height for an avatar: the content block (A + 8 + 44 + 80) + 24 of padding (3 × 3),
-## or A + 120 (2 × 2).
-static func tile_h(a: float, three: bool) -> float:
-	return (156.0 if three else 120.0) + a
-
-
-static func grid_h(a: float, three: bool) -> float:
-	return 3.0 * tile_h(a, true) + 2.0 * ROW_GAP if three else 2.0 * tile_h(a, false) + ROW_GAP + 12.0 + 96.0
-
-
-## mobile-first §5.8, pure (tests pin the table): for a safe height H, a canvas width cw, the art
-## scale k and the variant ("first" | "after", with or without the again foot), returns
-## {tw, A, th, avail, header, foot}. header = 12 + wordmark + 12 + 44 + 12 (first) or
-## 12 + 44 + 8 + 56 + 12 (after); strip 112; foot 16 (first) or 116 (the again button).
-static func grid_plan(H: float, cw: float, k: int, variant_: String, again: bool = true) -> Dictionary:
-	var wm := 116.0 if H >= 1280.0 else 64.0
-	var header := (12.0 + wm + 12.0 + 44.0 + 12.0) if variant_ == "first" else (12.0 + 44.0 + 8.0 + 56.0 + 12.0)
-	var foot := 116.0 if (variant_ == "after" and again) else 16.0
-	var avail := H - header - STRIP_H - foot
-	var tw := L.floor4((cw - 32.0 - 40.0) / 3.0)
-	var sizes: Array = ([192.0] if k % 2 == 0 else []) + [128.0, 96.0, 64.0]
-	var a := 64.0
-	for x: float in sizes:
-		if x + 24.0 <= tw and 3.0 * (156.0 + x) + 24.0 <= avail:
+## The booth's plan for a safe height H and canvas width cw (pure; tests pin it): the slip size and
+## rows, and the big card's height and face. Bottom-up: the button, the tray in its booth, the card,
+## the header (title, hint, the fresh chip after an election, the wordmark on a first launch if it fits).
+static func plan(H: float, cw: float, variant_: String, n_slips: int) -> Dictionary:
+	var sw := L.floor4((cw - 2.0 * PAD - float(COLS - 1) * GAP) / float(COLS))
+	var rows := int(ceilf(float(n_slips) / float(COLS)))
+	var tray_h := float(rows) * SLIP_H + float(rows - 1) * GAP
+	var header := 12.0 + LH + 8.0 + 2.0 * LH + 12.0 + (64.0 if variant_ == "after" else 0.0)
+	var bottom := 16.0 + BTN_H + 16.0
+	var avail := H - header - bottom - (tray_h + BOOTH_TOP + BOOTH_BOTTOM) - 16.0
+	var card_h := clampf(avail, CARD_MIN, 380.0)
+	var a := 96.0
+	for x: float in [192.0, 128.0]:
+		if card_h >= x + 48.0 + 2.0 * LH:
 			a = x
 			break
-	var th := maxf(156.0 + a, minf(L.floor4((avail - 24.0) / 3.0), L.floor4(1.6 * tw)))
-	return {"tw": tw, "A": a, "th": th, "avail": avail, "header": header, "foot": foot, "wm": wm}
+	var wm := 0.0
+	if variant_ == "first" and avail - card_h >= 64.0 + 24.0:
+		wm = 116.0 if avail - card_h >= 116.0 + 24.0 and H >= 1280.0 else 64.0
+	return {"sw": sw, "rows": rows, "trayH": tray_h, "cardH": card_h, "A": a, "wordmark": wm, "fits": avail >= CARD_MIN}
 
 
 func _build() -> void:
@@ -317,135 +258,96 @@ func _build() -> void:
 		_layer.remove_child(c)
 		c.queue_free()
 	cells.clear()
-	_booth_node = null
+	go_btn = null
 	again_btn = null
-	_again_group.clear()
-	var H := _bot - _top
 	var cw := L.cw
-	var has_again := variant == "after" and again_id != ""
-	var plan := grid_plan(H, cw, Display.k if Display.integer else 2, variant, has_again)
-	var wm_bottom := _top
-	# the wordmark (first launch), pinned at top + 12, centred on the canvas
-	if variant == "first":
-		var wm := Art.sprite_or("wordmark" if H >= 1280.0 else "wordmark_small")
+	var ids: Array = order.duplicate()
+	var dt_ := _decoy_tile()
+	if not dt_.is_empty():
+		ids.append(str(dt_["id"]))
+	if model.get("random", true) == true:
+		ids.append("")
+	var H := _bot - _top
+	var pl := plan(H, cw, variant, ids.size())
+	var sw := float(pl["sw"])
+	tile = Vector2(sw, SLIP_H)
+	avatar = float(pl["A"])
+	# bottom-up: the vote button in the thumb zone, the tray in its booth over it
+	var by := _bot - 16.0 - BTN_H
+	var bvis := Rect2(PAD + 8.0, by + 4.0, cw - 2.0 * PAD - 16.0, BTN_H - 8.0)
+	go_btn = PxButton.make(_layer, bvis, {"hit": Rect2(PAD, by, cw - 2.0 * PAD, BTN_H), "kind": "kit_primary",
+		"label": Strings.s("LEADER_PICK_CHOOSE"), "on_commit": func() -> void: _vote("tile")})
+	if variant == "after":
+		again_btn = go_btn
+	var rows := int(pl["rows"])
+	var tray_bottom := by - 16.0 - BOOTH_BOTTOM
+	var tray_top := tray_bottom - float(pl["trayH"])
+	grid = Vector2(tray_top, tray_bottom)
+	booth = Rect2(0.0, tray_top - BOOTH_TOP, cw, float(pl["trayH"]) + BOOTH_TOP + BOOTH_BOTTOM)
+	if Art.has_sprite("booth_frame"):
+		Ui.nine(_layer, booth, "booth_frame")
+	var row_w := func(r: int) -> float:
+		var n_in := mini(COLS, ids.size() - r * COLS)
+		return float(n_in) * sw + float(n_in - 1) * GAP
+	tray = Rect2()
+	for i in ids.size():
+		var r := i / COLS
+		var c := i % COLS
+		var x0 := (cw + float(row_w.call(r))) / 2.0 - sw   # RTL: the first slip of a row on the right
+		var rect := Rect2(Ui.snap(x0 - float(c) * (sw + GAP), 4), tray_top + float(r) * (SLIP_H + GAP), sw, SLIP_H)
+		cells.append(_make_slip(str(ids[i]), rect))
+		tray = rect if not tray.has_area() else tray.merge(rect)
+	# the big card over the booth
+	var card_h := float(pl["cardH"])
+	card_rect = Rect2(PAD, booth.position.y - 16.0 - card_h, cw - 2.0 * PAD, card_h)
+	_card_layer = Node2D.new()   # the old one went with the layer's children
+	_layer.add_child(_card_layer)
+	# the header: the title (+ the fresh chip after an election), the hint, the wordmark if it fits
+	var y := card_rect.position.y - 12.0
+	var plate := Ui.rect(_layer, Rect2(-_ox, 0, _full_w, 0), STRIP_PLATE)   # sized once the header is laid out
+	plate.modulate.a = 0.92
+	_strip = PxText.make(_layer, Vector2(0, y - 2.0 * LH), _hint_text(), L.TEXT, "plain", C_PARTY)
+	_strip.wrap_width = cw - 64.0
+	_strip.max_lines = 2
+	_strip.align = 1
+	balance_wrap(_strip, cw - 64.0)
+	_strip.center_in(32.0, cw - 64.0)
+	if _strip.line_count() < 2:
+		_strip.position.y += LH / 2.0
+	y -= 2.0 * LH + 8.0
+	if variant == "after":
+		var chip_t := Strings.s("LEADER_PICK_FRESH_CHIP", {"pct": int(roundf(fresh_pct))})
+		var ct := PxText.make(_layer, Vector2(0, y - 56.0 + 10.0), chip_t, L.TEXT, "plain", "w")
+		ct.max_lines = 1
+		var chw := minf(592.0, Ui.snap(float(ct.width()) + 32.0, 4))
+		var chx := Ui.snap((cw - chw) / 2.0, 4)
+		var chip := Ui.nine(_layer, Rect2(chx, y - 56.0, chw, 56.0), Art.sprite_or("chat_system_pill"))
+		_layer.move_child(chip, ct.get_index())
+		ct.center_in(chx, chw)
+		y -= 64.0
+	var title := PxText.make(_layer, Vector2(0, y - LH), _title_text(), L.TEXT, "plain", C_NAME)
+	title.wrap_width = cw - 64.0
+	title.max_lines = 1
+	title.center_in(32.0, cw - 64.0)
+	y -= LH
+	plate.position.y = y - 12.0
+	plate.size.y = card_rect.position.y - 4.0 - plate.position.y
+	strip_rect = Rect2(plate.position, plate.size)
+	var sky_top := _top + 12.0
+	if float(pl["wordmark"]) > 0.0:
+		var wm := Art.sprite_or("wordmark" if float(pl["wordmark"]) >= 116.0 else "wordmark_small")
 		if not Art.has_sprite("wordmark_small"):
 			wm = Art.sprite_or("wordmark")
 		var wsz := Vector2(Art.sprite_size(wm)) * 4.0
 		Ui.img(_layer, Vector2(Ui.snap((cw - wsz.x) / 2.0, 4), _top + 12.0), wm, 0, 4)
-		wm_bottom = _top + 12.0 + wsz.y
-	# the caption strip and the foot, pinned to the bottom
-	var foot := float(plan["foot"])
-	var sy := _bot - foot - STRIP_H
-	strip_rect = Rect2(-_ox, sy, _full_w, STRIP_H)
-	_strip_plate = Ui.rect(_layer, strip_rect, STRIP_PLATE)
-	_strip = PxText.make(_layer, Vector2(0, sy + 12.0), _strip_default(), L.TEXT, "plain", C_STRIP)
-	_strip.reading = true
-	_strip.wrap_width = 656.0 + L.dx
-	_strip.max_lines = 2
-	_strip.align = 1
-	_place_strip()
-	if has_again:
-		var vis := Rect2(24, _bot - 100.0, 672.0 + L.dx, 80)
-		again_btn = PxButton.make(_layer, vis, {"hit": Rect2(16, _bot - 104.0, 688.0 + L.dx, 88), "kind": "kit_primary",
-			"on_commit": func() -> void: commit_again("again")})
-		var lab := PxText.make(_layer, Vector2(0, vis.position.y + 20.0), Strings.s("LEADER_PICK_AGAIN", {"short": LeaderUi.short(again_id)}), L.TEXT, "plain", PxButton.label_color("kit_primary"))   # U2: flag on the white primary
-		lab.wrap_width = 560.0
-		lab.max_lines = 1
-		var art := LeaderUi.art(again_id)
-		var av_id := str(SpriteStrip.manifest().get("chars", {}).get(art, {}).get("avatar24Pick", "avatar24_pick_" + art))
-		var gw := float(lab.width()) + (64.0 if Art.has_sprite(av_id) else 0.0)
-		var gx := Ui.snap((cw - gw) / 2.0, 4)
-		lab.position.x = gx
-		_again_group.append(lab)
-		if Art.has_sprite(av_id):
-			var img := Ui.img(_layer, Vector2(gx + float(lab.width()) + 16.0, vis.position.y + 16.0), av_id, 0, 2)
-			_again_group.append(img)
-	# the grid, bottom-anchored on the strip (its bottom = the strip top − 12)
-	var n := order.size()
-	var three := n > 4
-	var gb := sy - 12.0
-	var tw := float(plan["tw"])
-	var th := float(plan["th"])
-	var gh := 3.0 * th + 2.0 * ROW_GAP
-	avatar = float(plan["A"])
-	if not three:
-		tw = L.floor4((cw - 48.0) / 2.0)
-		var avail := float(plan["avail"])
-		avatar = 64.0
-		for a2: float in ([192.0] if (Display.k % 2 == 0 and Display.integer) else []) + [128.0, 96.0, 64.0]:
-			if a2 + 24.0 <= tw and grid_h(a2, false) <= avail:
-				avatar = a2
-				break
-		th = maxf(tile_h(avatar, false), minf(L.floor4((avail - ROW_GAP - 12.0 - 96.0) / 2.0), L.floor4(1.6 * tw)))
-		gh = 2.0 * th + ROW_GAP + 12.0 + 96.0
-	# the title (and chip) never ride up into the wordmark: §5.8's `avail` leaves out the 12 above the
-	# strip and counts 12 (not 16) under the title, so where the tile height is capped by avail (the SE,
-	# the toolbar viewports) the tiles give back those 16 px instead
-	var tl_est := clampf(ceilf(float(PxText.measure(_title_text(), L.TEXT)) / (656.0 + L.dx)), 1.0, 2.0)
-	var gmin := wm_bottom + 12.0 + LH * tl_est + 16.0 + (64.0 if variant == "after" else 0.0)
-	var shrunk := false
-	if three and gb - gh < gmin:
-		th = maxf(tile_h(avatar, true), L.floor4((gb - gmin - 2.0 * ROW_GAP) / 3.0))
-		gh = 3.0 * th + 2.0 * ROW_GAP
-		shrunk = true
-	# the title (measured now: the booth's room depends on its lines)
-	var title := PxText.make(_layer, Vector2.ZERO, _title_text(), L.TEXT, "plain", C_NAME)
-	title.wrap_width = 656.0 + L.dx
-	title.max_lines = 2
-	title.align = 1
-	var tlines := maxf(1.0, float(title.line_count()))
-	var chip_h := 64.0 if variant == "after" else 0.0   # the fresh chip (56) + 8
-	# mobile-first §5.14.2: the booth never costs a tile pixel. tw, th and A stay; it takes 36 above
-	# the grid and 8 below it from the sky, and is drawn only if the title's top still clears the
-	# wordmark (first) or the safe top (after) by 12
-	var sky_top := (wm_bottom + 12.0) if variant == "first" else (_top + 12.0)
-	booth = Rect2()
-	if not shrunk and Art.has_sprite("booth_frame"):
-		var gy_b := sy - BOOTH_GRID_GAP - gh
-		if gy_b - BOOTH_TOP - 16.0 - chip_h - LH * tlines >= sky_top:
-			booth = Rect2(0.0, gy_b - BOOTH_TOP, cw, gh + BOOTH_TOP + BOOTH_BOTTOM)
-			gb = sy - BOOTH_GRID_GAP
-	var gy := gb - gh
-	tile = Vector2(tw, th)
-	grid = Vector2(gy, gb)
-	var side := BOOTH_SIDE if booth.has_area() else 16.0
-	if booth.has_area():
-		_booth_node = Ui.nine(_layer, booth, "booth_frame")
-	var cols: Array = [cw - side - tw, L.floor4((cw - tw) / 2.0), side] if three else [cw - side - tw, side]
-	for i in n:
-		var rc := cell_rc(i, n)
-		var r := Rect2(cols[rc.y], gy + rc.x * (th + ROW_GAP), tw, th)
-		cells.append(_make_cell(str(order[i]), r, three))
-	# הפתעה: the centre cell (3 × 3) or the full-width bar under a 2 × 2
-	if model.get("random", true) == true:
-		var rr := Rect2(cols[1], gy + th + ROW_GAP, tw, th) if three else Rect2(side, gy + 2.0 * (th + ROW_GAP), cw - 2.0 * side, 96)
-		var dt_ := _decoy_tile()
-		var rc_cell := _make_cell(str(dt_["id"]) if three and not dt_.is_empty() else "", rr, three)
-		if three:
-			cells.insert(4, rc_cell)   # reading order: the centre is 5th (§8.5)
-		else:
-			cells.append(rc_cell)
-	# the title line (+ the fresh chip after an election), attached to the grid: the title's cell
-	# bottom 16 above the grid (after: title, 8, the chip, 16, the grid); with the booth, 16 above it
-	var ty := (booth.position.y if booth.has_area() else gy) - 16.0
-	if variant == "after":
-		var chip_t := Strings.s("LEADER_PICK_FRESH_CHIP", {"pct": int(roundf(fresh_pct))})
-		var cy := ty - 56.0
-		var ct := PxText.make(_layer, Vector2(0, cy + 10.0), chip_t, L.TEXT, "plain", "w")
-		ct.max_lines = 1
-		var chw := minf(592.0, Ui.snap(float(ct.width()) + 32.0, 4))
-		var chx := Ui.snap((cw - chw) / 2.0, 4)
-		var chip := Ui.nine(_layer, Rect2(chx, cy, chw, 56.0), Art.sprite_or("chat_system_pill"))
-		_layer.move_child(chip, ct.get_index())
-		ct.center_in(chx, chw)
-		ty = cy - 8.0
-	title.position.y = ty - LH * tlines
-	title.center_in(32.0, 656.0 + L.dx)
-	sky = Vector2(sky_top, title.position.y - 12.0)   # seeded rounds: the daily entry's band
+		sky_top = _top + 12.0 + wsz.y + 12.0
+	sky = Vector2(sky_top, y - 12.0)   # seeded rounds: the daily entry's band
 	_publish()
 
 
-## The decoy's tile model (Gantz, content leaderSelect.decoy) while he still stands in for הפתעה, else {}.
+# ------------------------------------------------------------------ the slips
+
+## The decoy's tile model (Gantz, content leaderSelect.decoy) while he is still on the tray, else {}.
 func _decoy_tile() -> Dictionary:
 	var dec: Dictionary = model.get("decoy", {}) if model.get("decoy") is Dictionary else {}
 	if dec.is_empty() or _decoy_revealed:
@@ -454,8 +356,223 @@ func _decoy_tile() -> Dictionary:
 		"art": str(dec.get("art", "")), "blurb": str(dec.get("blurb", "")), "decoy": true}
 
 
-## Gantz picked: no round. His line in the caption strip (DECOY_MS), and the centre cell turns back
-## into הפתעה: the player picks again.
+func _art_of(id: String) -> String:
+	var t := tile_of(id)
+	if not t.get("decoy", false):
+		return LeaderUi.art(id)
+	var a := SpriteStrip.resolve(str(t["art"]))
+	return a if a != "" else str(t["art"])
+
+
+## A face `size` logical px wide at (x, y) in `parent`: the denser heads where the manifest has them.
+func _face(parent: Node, id: String, size: float, pos: Vector2, blur: bool) -> Sprite2D:
+	var art := _art_of(id)
+	var ch: Dictionary = SpriteStrip.manifest().get("chars", {}).get(art, {})
+	var av := str(ch.get("avatarPick", "avatar_pick_" + art))
+	var dense := str(ch.get("avatarPickXL", XL_PREFIX + art)) if size >= 192.0 else str(ch.get("avatarPick64", ""))
+	if dense != "" and Art.has_sprite(dense):
+		av = dense
+	if not Art.has_sprite(av):
+		return null
+	var img := Ui.img(parent, pos, av, 0, 1)
+	var sc := size / float(maxi(1, Art.sprite_size(av).x))
+	img.scale = Vector2(sc, sc)
+	if blur:
+		# Bar 2026-10-03: the leaders not open yet, really blurred (not darkened): a few-texel face grown
+		# back by the GPU's linear filter
+		var bt := blurred(av, img.texture)
+		if bt != img.texture:
+			img.scale *= float(img.texture.get_width()) / float(bt.get_width())
+			img.texture = bt
+			img.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	return img
+
+
+## A name, smeared: BLUR_RING faint copies around its place (a locked slip, the big card for one).
+static func smear(parent: Node, at: Vector2, text: String, box_x: float, box_w: float, ink: Color) -> void:
+	for k in BLUR_RING:
+		var off := Vector2(BLUR_R, 0).rotated(TAU * k / BLUR_RING)
+		var g := PxText.make(parent, at + off, text, L.TEXT, "plain", ink)
+		g.wrap_width = box_w
+		g.max_lines = 1
+		g.center_in(box_x + off.x, box_w)
+		g.modulate.a = 2.0 / BLUR_RING
+
+
+func _make_slip(id: String, r: Rect2) -> Dictionary:
+	var root := Node2D.new()
+	root.position = r.position
+	_layer.add_child(root)
+	var w := r.size.x
+	var t := tile_of(id)
+	var shut: bool = t.get("locked", false) == true
+	# the paper: an edge, the sheet, a fold shadow at the bottom (flat pixel colours)
+	var edge := Ui.rect(root, Rect2(Vector2.ZERO, r.size), C_PAPER_EDGE)
+	var paper := Ui.rect(root, Rect2(4, 4, w - 8.0, r.size.y - 12.0), C_PAPER)
+	paper.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW   # a smeared name stays on its slip
+	var c := {"id": id, "rect": r, "root": root, "edge": edge, "locked": shut}
+	if id == "":
+		# הפתעה: the blank slip, a big question mark Dubi will answer
+		var q := PxText.make(root, Vector2(0, 28.0), "?", 8, "plain", C_INK_MUTED)
+		q.center_in(0.0, w)
+		var nm := PxText.make(root, Vector2(0, SLIP_H - 12.0 - 36.0 - LH), Strings.s("LEADER_PICK_RANDOM"), L.TEXT, "plain", C_INK)
+		nm.wrap_width = w - 12.0
+		nm.max_lines = 1
+		nm.center_in(6.0, w - 12.0)
+		c["name"] = nm
+		return c
+	_face(root, id, FACE, Vector2(Ui.snap((w - FACE) / 2.0, 4), 12.0), shut)
+	var name_y := 12.0 + FACE + 8.0
+	var short := str(t.get("short", id))
+	var nm := PxText.make(root, Vector2(0, name_y), short, L.TEXT, "plain", C_INK)
+	nm.wrap_width = w - 12.0
+	nm.max_lines = 1
+	nm.center_in(6.0, w - 12.0)
+	c["name"] = nm
+	var sub := Strings.s("LEADER_PICK_LOCKED", {"n": int(t.get("round", 0))}) if shut else str(t.get("party", ""))
+	var pt := PxText.make(root, Vector2(0, name_y + LH - 4.0), sub, 3, "plain", C_INK_MUTED)
+	pt.wrap_width = w - 12.0
+	pt.max_lines = 1
+	pt.center_in(6.0, w - 12.0)
+	if shut:
+		nm.visible = false
+		smear(paper, nm.position - paper.position, short, 2.0, w - 12.0, C_INK)
+	elif t.get("new", false) == true:
+		# a ribbon over the slip's top edge (never over the face)
+		var tag := PxText.make(root, Vector2(0, -20.0), Strings.s("LEADER_PICK_NEW"), 3, "plain", C_INK)
+		tag.max_lines = 1
+		var tw_ := Ui.snap(float(tag.width()) + 16.0, 4)
+		var pill := Ui.rect(root, Rect2(Ui.snap((w - tw_) / 2.0, 4), -24.0, tw_, 36.0), C_NEW)
+		root.move_child(pill, tag.get_index())
+		tag.center_in(pill.position.x, tw_)
+	return c
+
+
+## A locked leader's face, blurred for real (Bar: "ממש מטושטש, לא סתם מעומעם"): the image shrunk to
+## a few texels a side (cached per sprite); the caller draws it scaled up with linear filtering.
+static func blurred(id: String, tex: Texture2D) -> Texture2D:
+	if _blurred.has(id):
+		return _blurred[id]
+	var im: Image = tex.get_image() if tex != null else null
+	if im == null or im.is_empty():
+		return tex
+	im = im.duplicate()
+	if im.is_compressed():
+		im.decompress()
+	im.convert(Image.FORMAT_RGBA8)
+	var w := im.get_width()
+	var s := maxi(3, w / 12)
+	im.resize(s, maxi(3, im.get_height() * s / maxi(1, w)), Image.INTERPOLATE_BILINEAR)
+	_blurred[id] = ImageTexture.create_from_image(im)
+	return _blurred[id]
+
+
+# ------------------------------------------------------------------ the big card
+
+## The chosen slip, large: the face, the name and party, the rule. Before a choice (first launch) the
+## booth's one line; a slip in print shows blurred; the blank slip says Dubi picks.
+func _build_card() -> void:
+	for ch in _card_layer.get_children():
+		_card_layer.remove_child(ch)
+		ch.queue_free()
+	var r := card_rect
+	Ui.nine(_card_layer, r, Art.sprite_or("pick_tile_selected" if focus >= 0 else "pick_tile_idle"))
+	var inner_x := r.position.x + 24.0
+	var inner_w := r.size.x - 48.0
+	if focus < 0 or focus >= cells.size():
+		# before a choice: Dubi, the booth's host, says what to do
+		var dw := 0.0
+		if Art.has_sprite("avatar_dubi"):
+			var dsz := Vector2(Art.sprite_size("avatar_dubi"))
+			var dsc := maxf(1.0, floorf(minf(160.0, r.size.y - 48.0) / maxf(1.0, dsz.y)))
+			dw = dsz.x * dsc
+			Ui.img(_card_layer, Vector2(r.end.x - 24.0 - dw, r.position.y + Ui.snap((r.size.y - dsz.y * dsc) / 2.0, 4)), "avatar_dubi", 0, int(dsc))
+		var iw := inner_w - (dw + 16.0 if dw > 0.0 else 0.0)
+		var intro := PxText.make(_card_layer, Vector2(inner_x, r.position.y + (r.size.y - 2.0 * LH) / 2.0), Strings.s("LEADER_PICK_INTRO"), L.TEXT, "plain", C_NAME)
+		intro.wrap_width = iw
+		intro.max_lines = 3
+		intro.align = 1
+		return
+	var id := str(cells[focus]["id"])
+	var t := tile_of(id)
+	var shut: bool = t.get("locked", false) == true
+	var a := avatar
+	var fy := r.position.y + 20.0
+	var fx := r.end.x - 24.0 - a   # RTL: the face on the right, the words to its left
+	var tx := inner_x
+	var tw := fx - 16.0 - inner_x
+	var name_t := Strings.s("LEADER_PICK_BLANK") if id == "" else str(t.get("short", id))
+	if id == "":
+		var ic := Art.sprite_or("pick_random")
+		var isz := Vector2(Art.sprite_size(ic))
+		var sc := maxf(1.0, floorf(a / maxf(1.0, isz.x)))
+		Ui.img(_card_layer, Vector2(fx + Ui.snap((a - isz.x * sc) / 2.0, 4), fy + Ui.snap((a - isz.y * sc) / 2.0, 4)), ic, 0, int(sc))
+	else:
+		_face(_card_layer, id, a, Vector2(fx, fy), shut)
+	var ny := fy + maxf(0.0, (a - 2.0 * LH) / 2.0) if a <= 128.0 else fy + 24.0
+	var nm := PxText.make(_card_layer, Vector2(tx, ny), name_t, 5, "plain", C_NAME)
+	nm.wrap_width = tw
+	nm.max_lines = 1
+	nm.align = 1
+	if shut:
+		nm.visible = false
+		smear(_card_layer, nm.position, name_t, tx, tw, C_NAME)
+	var sub := Strings.s("LEADER_PICK_LOCKED", {"n": int(t.get("round", 0))}) if shut else ("" if id == "" else str(t.get("party", "")))
+	var pt := PxText.make(_card_layer, Vector2(tx, ny + LH + 12.0), sub, L.TEXT, "plain", C_PARTY)
+	pt.wrap_width = tw
+	pt.max_lines = 2
+	pt.line_pitch = 40
+	pt.align = 1
+	# the rule (rule.summary), under the face, the card's width
+	var line := ""
+	if shut:
+		line = Strings.s("LEADER_PICK_LOCKED_CAP", {"n": int(t.get("round", 0))})
+	elif id == "":
+		line = Strings.s("LEADER_PICK_RANDOM_CAP")
+	elif t.get("decoy", false):
+		line = str(t.get("blurb", ""))
+	else:
+		var rs := str(Leaders.rule(id).get("summary", ""))
+		line = rs if rs != "" else str(t.get("blurb", ""))
+	var ry := maxf(fy + a + 16.0, pt.position.y + 2.0 * 40.0 + 8.0)
+	var room := int(floorf((r.end.y - 16.0 - ry) / LH))
+	if room >= 1 and line != "":
+		var rl := PxText.make(_card_layer, Vector2(inner_x, ry), line, L.TEXT, "plain", C_STRIP)
+		rl.reading = true
+		rl.wrap_width = inner_w
+		rl.max_lines = mini(3, room)
+		rl.align = 1
+		# the ability (rule.active), muted, if the card has a line left for it
+		var ab := str(t.get("abilityText", "")) if not shut else ""
+		var left := room - rl.line_count()
+		if ab != "" and left >= 1:
+			var al := PxText.make(_card_layer, Vector2(inner_x, ry + float(rl.line_count()) * LH + 8.0), ab, L.TEXT, "plain", C_PARTY)
+			al.reading = true
+			al.wrap_width = inner_w
+			al.max_lines = left
+			al.align = 1
+
+
+## The vote button's label and state for the chosen slip.
+func _sync_button() -> void:
+	if go_btn == null:
+		return
+	if focus < 0 or focus >= cells.size():
+		go_btn.set_label(Strings.s("LEADER_PICK_CHOOSE")).set_enabled(false)
+		return
+	var id := str(cells[focus]["id"])
+	var t := tile_of(id)
+	if t.get("locked", false) == true:
+		go_btn.set_label(Strings.s("LEADER_PICK_LOCKED_BTN")).set_enabled(false)
+	elif id == "":
+		go_btn.set_label(Strings.s("LEADER_PICK_VOTE_BLANK")).set_enabled(true)
+	elif variant == "after" and id == again_id:
+		go_btn.set_label(Strings.s("LEADER_PICK_AGAIN", {"short": LeaderUi.short(id)})).set_enabled(true)
+	else:
+		go_btn.set_label(Strings.s("LEADER_PICK_VOTE", {"short": str(t.get("short", id))})).set_enabled(true)
+
+
+## Gantz voted for: no round. His line in the hint, he leaves the tray, the player chooses again.
 func _tap_decoy() -> void:
 	var dec: Dictionary = model.get("decoy", {}) if model.get("decoy") is Dictionary else {}
 	var lines: Array = dec.get("lines", []) if dec.get("lines") is Array else []
@@ -463,16 +580,37 @@ func _tap_decoy() -> void:
 	_decoy_n += 1
 	_decoy_revealed = true
 	_press = {}
+	focus = -1
 	_build()
-	focus = _random_index()
 	_refresh()
-	# the controller plays the fail and opens DecoyCard (the line, "בחר שוב"); with no controller
-	# the line goes in the caption strip
 	if on_decoy.is_valid():
 		on_decoy.call(str(dec.get("id", "")), _decoy_line)
 	else:
 		_decoy_ms = DECOY_MS if _decoy_line != "" else 0.0
 		_refresh()
+
+
+# ------------------------------------------------------------------ states
+
+## Every slip by its state (chosen: lifted and framed gold; pressed: down 4; hovered: the edge
+## darkens), the big card and the button for the choice, the hint line.
+func _refresh() -> void:
+	for i in cells.size():
+		var c: Dictionary = cells[i]
+		var root: Node2D = c["root"]
+		var chosen := i == focus
+		var pressed := not _press.is_empty() and int(_press.get("cell", -9)) == i
+		var base := (c["rect"] as Rect2).position
+		root.position = base + Vector2(0, -12.0 if chosen else (4.0 if pressed else 0.0))
+		(c["edge"] as ColorRect).color = C_PICKED if chosen else (C_INK_MUTED if (_hover == i or (show_focus and focus == i)) else C_PAPER_EDGE)
+	_build_card()
+	_sync_button()
+	if _strip != null:
+		var txt := _hint_text()
+		if _strip.text != txt:
+			_strip.text = txt
+			_strip.center_in(32.0, L.cw - 64.0)
+	_publish()
 
 
 ## D64 (mobile-first §5.8.1): a two-line caption breaks balanced, its second line ≥ 40% of its
@@ -510,261 +648,6 @@ static func balance_wrap(t: PxText, full_w: float) -> void:
 	t.wrap_width = best_w
 
 
-## The strip's text, centred in its navy plate (A3: one line or two) and on the canvas.
-func _place_strip() -> void:
-	if _strip == null:
-		return
-	balance_wrap(_strip, 656.0 + L.dx)   # D64
-	var sy := _bot - (116.0 if (variant == "after" and again_id != "") else 16.0) - STRIP_H
-	var lines := clampf(float(_strip.line_count()), 1.0, 2.0)
-	# A3: the plate hugs the text: the Hebrew body's ink sits in rows +4 … +24 of a 44 cell at ×4, so a
-	# plate of 44·lines + 24 with the cell top 20 below its top leaves 24 of navy above and below the
-	# ink (112 for two lines: the whole strip; 68 for one, centred in the strip's box)
-	var ph := LH * lines + 24.0
-	strip_rect = Rect2(-_ox, sy + Ui.snap((STRIP_H - ph) / 2.0, 4), _full_w, ph)
-	if _strip_plate != null:
-		_strip_plate.position = strip_rect.position
-		_strip_plate.size = strip_rect.size
-	_strip.position.y = strip_rect.position.y + 20.0
-	_strip.center_in(32.0, 656.0 + L.dx)
-
-
-func _make_cell(id: String, r: Rect2, three: bool) -> Dictionary:
-	var root := Node2D.new()
-	root.position = r.position
-	_layer.add_child(root)
-	var plate := Ui.nine(root, Rect2(Vector2.ZERO, r.size), Art.sprite_or("pick_tile_idle"))
-	var content := Node2D.new()
-	root.add_child(content)
-	var c := {"id": id, "rect": r, "root": root, "plate": plate, "content": content, "blurb": ""}
-	var w := r.size.x
-	if id == "":
-		var bar := not three
-		var ic := Art.sprite_or("pick_random")
-		var sc := 2 if (bar or avatar <= 64.0) else (6 if avatar == 192.0 else 4)
-		var isz := Vector2(Art.sprite_size(ic)) * float(sc)
-		var nm := PxText.make(content, Vector2.ZERO, Strings.s("LEADER_PICK_RANDOM"), L.TEXT, "plain", C_NAME)
-		nm.max_lines = 1
-		if bar:
-			var gw := isz.x + 16.0 + float(nm.width())
-			var gx := Ui.snap((w - gw) / 2.0, 4)
-			nm.position = Vector2(gx, Ui.snap((r.size.y - LH) / 2.0, 4) + 4.0)
-			Ui.img(content, Vector2(gx + float(nm.width()) + 16.0, Ui.snap((r.size.y - isz.y) / 2.0, 4)), ic, 0, sc)
-		else:
-			# mobile-first §5.8: the content block (A + 8 + 44 + 80) centred in the tile
-			var top := _block_top(r.size.y)
-			Ui.img(content, Vector2(Ui.snap((w - isz.x) / 2.0, 4), top + Ui.snap((avatar - isz.y) / 2.0, 4)), ic, 0, sc)
-			nm.wrap_width = w - 24.0
-			nm.center_in(12.0, w - 24.0)
-			nm.position.y = top + avatar + 8.0
-		c["blurb"] = Strings.s("LEADER_PICK_RANDOM_CAP")
-		c["name"] = nm
-		return c
-	var t := tile_of(id)
-	var art := LeaderUi.art(id) if not t.get("decoy", false) else (SpriteStrip.resolve(str(t["art"])) if SpriteStrip.resolve(str(t["art"])) != "" else str(t["art"]))
-	var ch: Dictionary = SpriteStrip.manifest().get("chars", {}).get(art, {})
-	var av := str(ch.get("avatar24Pick", "avatar24_pick_" + art)) if avatar == 96.0 else str(ch.get("avatarPick", "avatar_pick_" + art))
-	var sc := 2.0 if avatar == 64.0 else (6.0 if avatar == 192.0 else 4.0)
-	# the 2D Artist's denser heads (A3): 96×96 d3 for A 192, 64×64 d2 for A 128 (at an even k), at
-	# 2 logical px per sprite px; else the 32-px head at ×6 / ×4
-	var dense := str(ch.get("avatarPickXL", XL_PREFIX + art)) if avatar == 192.0 else (str(ch.get("avatarPick64", "")) if avatar == 128.0 else "")
-	if dense != "" and Art.has_sprite(dense) and (avatar == 192.0 or Display.k % 2 == 0):
-		av = dense
-		sc = avatar / float(maxi(1, Art.sprite_size(dense).x))
-	var top := _block_top(r.size.y) if three else 12.0
-	var shut: bool = t.get("locked", false) == true
-	if Art.has_sprite(av):
-		var asz := Vector2(Art.sprite_size(av)) * sc
-		var img := Ui.img(content, Vector2(Ui.snap((w - asz.x) / 2.0, 4), top), av, 0, 4)
-		img.scale = Vector2(sc, sc)
-		if shut:
-			img.texture = blurred(av, img.texture)   # Bar 2026-10-03: the leaders not open yet, really blurred
-	var nm := PxText.make(content, Vector2(0, top + avatar + 8.0), str(t.get("short", id)), L.TEXT, "plain", C_NAME)
-	nm.wrap_width = w - 24.0
-	nm.max_lines = 1
-	nm.center_in(12.0, w - 24.0)
-	var second := Strings.s("LEADER_PICK_LOCKED", {"n": int(t.get("round", 0))}) if shut else str(t.get("party", ""))
-	var pt := PxText.make(content, Vector2(0, nm.position.y + LH), second, L.TEXT, "plain", C_PARTY)
-	pt.wrap_width = w - 24.0
-	pt.max_lines = 2 if three else 1
-	pt.line_pitch = 40   # rtl-map §8.3: party lines at pitch 40
-	pt.align = 1
-	pt.center_in(12.0, w - 24.0)
-	c["name"] = nm
-	c["party"] = pt
-	# 2026-10-03 (the overwhelm report: the rules hid behind a long-press): the strip under the grid
-	# says the focused leader's rule in one line (rule.summary); the long-press card keeps the joke
-	var rs := str(Leaders.rule(str(t.get("id", ""))).get("summary", "")) if str(t.get("id", "")) != "" else ""
-	c["blurb"] = rs if rs != "" else str(t.get("blurb", ""))
-	if shut:
-		# the roster ladder: a blurred face, greyed, the round it opens in; a tap only says so in the strip
-		content.modulate = LOCKED_TINT
-		# the name too (Bar): a patch that blurs what is drawn under it, so the letters run together
-		var patch := ColorRect.new()
-		patch.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		patch.position = Vector2(8.0, nm.position.y - 8.0)
-		patch.size = Vector2(w - 16.0, LH + 16.0)
-		patch.material = screen_blur_material()
-		content.add_child(patch)
-		plate.modulate = Color(0.62, 0.62, 0.7)
-		c["locked"] = true
-		c["blurb"] = Strings.s("LEADER_PICK_LOCKED_CAP", {"short": str(t.get("short", id)), "n": int(t.get("round", 0))})
-	elif t.get("new", false) == true:
-		var tag := PxText.make(root, Vector2(0, 8.0), Strings.s("LEADER_PICK_NEW"), L.TEXT, "plain", C_NEW)
-		tag.max_lines = 1
-		var tw_ := Ui.snap(float(tag.width()) + 24.0, 4)
-		var pill := Ui.nine(root, Rect2(w - tw_ - 8.0, 4.0, tw_, 52.0), Art.sprite_or("chat_system_pill"))
-		root.move_child(pill, tag.get_index())
-		tag.position.x = w - tw_ - 8.0 + 12.0
-	return c
-
-
-static var _blur_shader: Shader
-static var _blurred := {}
-static var _screen_blur: ShaderMaterial
-
-
-## Blurs the screen under a rect (a locked leader's name): reads what is already drawn there.
-static func screen_blur_material() -> ShaderMaterial:
-	if _screen_blur == null:
-		var sh := Shader.new()
-		sh.code = """shader_type canvas_item;
-uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
-uniform float reach = 7.0;
-void fragment() {
-	vec4 sum = vec4(0.0);
-	for (int x = -4; x <= 4; x++) {
-		for (int y = -2; y <= 2; y++) {
-			sum += texture(screen_tex, SCREEN_UV + vec2(float(x), float(y) * 0.6) * SCREEN_PIXEL_SIZE * reach);
-		}
-	}
-	COLOR = vec4(sum.rgb / 45.0, 1.0);
-}
-"""
-		_screen_blur = ShaderMaterial.new()
-		_screen_blur.shader = sh
-	return _screen_blur
-
-
-## A locked leader's face, blurred for real (Bar: "ממש מטושטש, לא סתם מעומעם"): the image shrunk to
-## a few texels a side and grown back with bilinear filtering, cached per sprite. The texture's own
-## pixels, so no atlas or density can thin it out.
-static func blurred(id: String, tex: Texture2D) -> Texture2D:
-	if _blurred.has(id):
-		return _blurred[id]
-	var im: Image = tex.get_image() if tex != null else null
-	if im == null or im.is_empty():
-		return tex
-	im = im.duplicate()
-	if im.is_compressed():
-		im.decompress()
-	im.convert(Image.FORMAT_RGBA8)
-	var w := im.get_width()
-	var h := im.get_height()
-	var s := maxi(3, w / 12)
-	im.resize(s, maxi(3, h * s / maxi(1, w)), Image.INTERPOLATE_BILINEAR)
-	im.resize(w, h, Image.INTERPOLATE_CUBIC)
-	var out := ImageTexture.create_from_image(im)
-	_blurred[id] = out
-	return out
-
-## A box blur over the sprite's own frame (clamped to its atlas region, so no neighbour bleeds in):
-## a locked leader's face (Bar 2026-10-03: "שיראו מטושטש את המתמודדים שאי אפשר לבחור").
-## The blur's reach on screen (logical px), whatever the art's scale.
-const BLUR_PX := 20.0
-
-
-static func blur_material(tex: Texture2D, radius_texels: float = 2.5) -> ShaderMaterial:
-	if _blur_shader == null:
-		_blur_shader = Shader.new()
-		_blur_shader.code = """shader_type canvas_item;
-uniform vec4 region = vec4(0.0, 0.0, 1.0, 1.0);
-uniform float radius = 2.5;
-void fragment() {
-	vec2 lo = region.xy + TEXTURE_PIXEL_SIZE * 0.5;
-	vec2 hi = region.xy + region.zw - TEXTURE_PIXEL_SIZE * 0.5;
-	vec4 sum = vec4(0.0);
-	for (int x = -3; x <= 3; x++) {
-		for (int y = -3; y <= 3; y++) {
-			vec2 uv = clamp(UV + vec2(float(x), float(y)) * TEXTURE_PIXEL_SIZE * radius / 3.0, lo, hi);
-			sum += texture(TEXTURE, uv);
-		}
-	}
-	COLOR = sum / 49.0 * COLOR;
-}
-"""
-	var m := ShaderMaterial.new()
-	m.shader = _blur_shader
-	m.set_shader_parameter("radius", radius_texels)
-	if tex is AtlasTexture and (tex as AtlasTexture).atlas != null:
-		var at := tex as AtlasTexture
-		var sz := Vector2(at.atlas.get_size())
-		m.set_shader_parameter("region", Vector4(at.region.position.x / sz.x, at.region.position.y / sz.y, at.region.size.x / sz.x, at.region.size.y / sz.y))
-	return m
-
-
-## The content block's top in a tile of height h: (h − (A + 8 + 44 + 80)) / 2, at least 12.
-func _block_top(h: float) -> float:
-	return maxf(12.0, Ui.snap((h - (avatar + 8.0 + LH + 80.0)) / 2.0, 4))
-
-
-func _random_index() -> int:
-	for i in cells.size():
-		if str(cells[i]["id"]) == "" or tile_of(str(cells[i]["id"])).get("decoy", false):
-			return i
-	return 0
-
-
-# ------------------------------------------------------------------ states
-
-## The plate of every cell by its state: selected (the commit), pressed, focus (keyboard or
-## hover), idle; the strip shows the pressed / focused / hovered tile's blurb, else the default.
-func _refresh() -> void:
-	var active := -1
-	for i in cells.size():
-		var c: Dictionary = cells[i]
-		var st := "idle"
-		var sel := not _commit.is_empty() and int(_commit["cell"]) == i
-		if sel:
-			st = "selected"
-		elif not _press.is_empty() and int(_press["cell"]) == i:
-			st = "pressed"
-			active = i
-		elif (show_focus and focus == i) or _hover == i:
-			st = "focus"
-			if active < 0:
-				active = i
-		var sprite := Art.sprite_or("pick_tile_" + st)
-		var r: Rect2 = Rect2(Vector2.ZERO, (c["rect"] as Rect2).size)
-		if st == "selected":
-			r = r.grow(4.0)
-		var plate: NinePatchRect = c["plate"]
-		if str(plate.get_meta("sprite", "")) != sprite:
-			_set_nine_sprite(plate, sprite)
-		Ui.set_nine_rect(plate, r)
-		(c["content"] as Node2D).position.y = 4.0 if st == "pressed" else 0.0
-	if again_btn != null:
-		again_btn.hover(show_focus and focus == cells.size())
-	if _strip != null:
-		var txt := _strip_default()
-		if _decoy_ms > 0.0:
-			txt = _decoy_line   # Gantz's line wins over a hovered tile's caption while it shows
-		elif active >= 0 and str(cells[active]["blurb"]) != "":
-			txt = str(cells[active]["blurb"])
-		if _strip.text != txt:
-			_strip.text = txt
-			_place_strip()
-
-
-## A 9-slice's sprite and its own slice margins (the selected plate's rim is 1 art px wider).
-static func _set_nine_sprite(n: NinePatchRect, id: String) -> void:
-	n.texture = Art.tex(id, 0)
-	var ins: Dictionary = Art.insets(id)
-	n.patch_margin_left = int(ins["left"])
-	n.patch_margin_right = int(ins["right"])
-	n.patch_margin_top = int(ins["top"])
-	n.patch_margin_bottom = int(ins["bottom"])
-	n.set_meta("sprite", id)
 
 
 func cell_at(p: Vector2) -> int:
@@ -774,7 +657,7 @@ func cell_at(p: Vector2) -> int:
 	return -1
 
 
-# ------------------------------------------------------------------ input (§8.4-8.5), picker-local
+# ------------------------------------------------------------------ input (picker-local)
 
 func pointer_down(p: Vector2) -> bool:
 	show_focus = false
@@ -785,82 +668,87 @@ func pointer_down(p: Vector2) -> bool:
 		_press = {"cell": i, "at": p, "t": 0.0, "card": false}
 		_refresh()
 		return true
-	if again_btn != null and again_btn.contains(p):
-		again_btn.down()
+	if go_btn != null and go_btn.contains(p):
+		go_btn.down()
 		_press = {"cell": -2, "at": p, "t": 0.0, "card": false}
-		return true
 	return true
 
 
 func pointer_move(p: Vector2) -> void:
-	if _press.is_empty():
-		return
-	if int(_press["cell"]) < 0:
+	if _press.is_empty() or int(_press["cell"]) < 0:
 		return
 	if not Ui.in_rect(cells[int(_press["cell"])]["rect"], p):
-		_press = {}   # slid off: cancel, the strip returns to its default
+		_press = {}   # slid off: cancel
 		_refresh()
 	elif p.distance_to(_press["at"]) >= SLOP:
 		_press["moved"] = true
 
 
+## A slip: the first tap chooses it, a tap on the chosen slip votes; the button votes.
 func pointer_up(p: Vector2) -> void:
 	if _press.is_empty():
 		return
 	var pr := _press
 	_press = {}
 	if int(pr["cell"]) == -2:
-		var inside := again_btn != null and again_btn.contains(p)
-		if again_btn != null:
-			again_btn.up(inside)   # on_commit → commit_again
+		if go_btn != null:
+			go_btn.up(go_btn.contains(p))   # on_commit → _vote
 		return
-
 	if pr.get("card", false) == true:
 		_refresh()
 		return
 	var i := int(pr["cell"])
-	if Ui.in_rect(cells[i]["rect"], p):
-		commit_cell(i, "tile")
-	else:
+	if not Ui.in_rect(cells[i]["rect"], p):
 		_refresh()
+		return
+	if i == focus:
+		_vote("tile")
+	else:
+		choose(i)
 
 
-## Mouse hover (fine pointer): the focus state and the blurb. True = a pointer cursor.
+## Chooses slip i (the big card and the button follow).
+func choose(i: int) -> void:
+	if locked or i < 0 or i >= cells.size():
+		return
+	focus = i
+	_refresh()
+
+
+## Mouse hover (fine pointer): the slip's edge. True = a pointer cursor.
 func hover(p: Vector2) -> bool:
 	var i := cell_at(p)
 	if i != _hover:
 		_hover = i
 		_refresh()
-	var on_again := again_btn != null and again_btn.contains(p)
-	return i >= 0 or on_again
+	return i >= 0 or (go_btn != null and go_btn.contains(p))
 
 
-## Keys (§8.5). True = handled. Focus moves in reading order: the grid right → left, top →
-## bottom (the 3 × 3 centre is 5th), then the again button. ← is forward in RTL (mirror).
+## Keys: arrows / Tab move the choice over the tray (← is forward in RTL), Enter / Space vote, I the
+## leader card, Esc after an election votes the last leader again.
 func key(e: InputEventKey) -> bool:
 	if locked:
 		return true
 	show_focus = true
 	var n := cells.size()
-	var has_again := again_btn != null
+	var f := maxi(focus, 0)
 	match e.keycode:
 		KEY_TAB:
-			focus = posmod(focus + (-1 if e.shift_pressed else 1), n + (1 if has_again else 0))
+			focus = posmod((focus if focus >= 0 else -1) + (-1 if e.shift_pressed else 1), n)
 		KEY_LEFT, KEY_RIGHT:
-			focus = _move(focus, 0, 1 if e.keycode == KEY_LEFT else -1)
+			focus = clampi(f + (1 if e.keycode == KEY_LEFT else -1), 0, n - 1)
 		KEY_UP, KEY_DOWN:
-			focus = _move(focus, 1 if e.keycode == KEY_DOWN else -1, 0)
+			var nf := f + (COLS if e.keycode == KEY_DOWN else -COLS)
+			focus = nf if nf >= 0 and nf < n else f
 		KEY_ENTER, KEY_SPACE, KEY_KP_ENTER:
-			if focus == n and has_again:
-				commit_again("key")
-			elif focus >= 0 and focus < n:
-				commit_cell(focus, "key")
+			_vote("key")
 			return true
 		KEY_I:
-			if focus >= 0 and focus < n and str(cells[focus]["id"]) != "" and not tile_of(str(cells[focus]["id"])).get("decoy", false) and not cells[focus].get("locked", false) and on_card.is_valid():
+			if focus >= 0 and str(cells[focus]["id"]) != "" and not tile_of(str(cells[focus]["id"])).get("decoy", false) \
+					and not cells[focus].get("locked", false) and on_card.is_valid():
 				on_card.call(str(cells[focus]["id"]), "key")
 		KEY_ESCAPE:
-			if variant == "after" and has_again:
+			if variant == "after" and again_id != "":
 				commit_again("key")
 		_:
 			return false
@@ -868,100 +756,54 @@ func key(e: InputEventKey) -> bool:
 	return true
 
 
-## The grid position of a focus index: [row, col] (col 0 = right); the 2 × 2 bar is row 2, col 0;
-## the again button is the row under the grid.
-func _rc(f: int) -> Vector2i:
-	var n := cells.size()
-	var cols := 3 if n > 5 else 2
-	if f >= n:
-		return Vector2i(3, 0)
-	if cols == 2 and f >= 4:
-		return Vector2i(2, 0)
-	return Vector2i(f / cols, f % cols)
-
-
-func _index(rc: Vector2i) -> int:
-	var n := cells.size()
-	var cols := 3 if n > 5 else 2
-	if cols == 2 and rc.x == 2:
-		return 4 if n > 4 else -1
-	if rc.x == 3:
-		return n if again_btn != null else -1
-	var i := rc.x * cols + rc.y
-	return i if i >= 0 and i < n else -1
-
-
-## One step: dr rows down, dc columns toward the left. No wrap; ↓ from the bottom row reaches the
-## again button, ↑ from it the grid's bottom row.
-func _move(f: int, dr: int, dc: int) -> int:
-	if f < 0:
-		return _random_index()
-	var rc := _rc(f)
-	var cols := 3 if cells.size() > 5 else 2
-	if dc != 0:
-		if rc.x >= (3 if cols == 3 else 2):
-			return f
-		var nc := rc.y + dc
-		if nc < 0 or nc >= cols:
-			return f
-		var j := _index(Vector2i(rc.x, nc))
-		return j if j >= 0 else f
-	var nr := rc.x + dr
-	var last := 2   # the grid's bottom row (3 × 3 row 2; the 2 × 2 bar)
-	if nr > last:
-		return _index(Vector2i(3, 0)) if again_btn != null and dr > 0 else f
-	if nr < 0:
-		return f
-	var col := rc.y if nr < (3 if cols == 3 else 2) else 0
-	if rc.x == 3:
-		col = 1 if cols == 3 else 0
-	var i := _index(Vector2i(nr, col))
-	return i if i >= 0 else f
-
-
-# ------------------------------------------------------------------ commit (§8.4)
+# ------------------------------------------------------------------ the vote
 
 func commit_again(via: String) -> void:
 	if locked or again_id == "":
 		return
-	_start_commit(cells.size(), again_id, via)
+	for i in cells.size():
+		if str(cells[i]["id"]) == again_id:
+			focus = i
+	_start_commit(focus, again_id, via if via != "key" else "again")
 
 
+func _vote(via: String) -> void:
+	if focus >= 0:
+		commit_cell(focus, via)
+
+
+## Votes slip i now (the button, a second tap, the keys, the leader card, the controller's
+## commit_pick). A slip in print never votes; Gantz fools; the blank slip draws an open leader.
 func commit_cell(i: int, via: String) -> void:
 	if locked or i < 0 or i >= cells.size():
 		return
 	var id := str(cells[i]["id"])
+	focus = i
+	if cells[i].get("locked", false) == true:
+		_refresh()
+		return
 	if tile_of(id).get("decoy", false):
 		_tap_decoy()
 		return
-	if cells[i].get("locked", false) == true:
-		_press = {}
-		focus = i
-		show_focus = true   # its line ("מצטרף בסבב N") stays in the strip
-		_refresh()
-		return
 	if id == "":
-		id = random_open(randf)
+		id = Leaders.random_pick(randf, host.get("state") if host != null else null)
 		via = "random"
+	elif variant == "after" and id == again_id and via == "tile":
+		via = "again"
 	_start_commit(i, id, via)
 
 
-## הפתעה: a uniform pick among the open tiles (the roster ladder).
-func random_open(rng: Callable) -> String:
-	var ids: Array = []
-	for tl: Variant in model.get("tiles", []):
-		if not (tl as Dictionary).get("locked", false):
-			ids.append(str((tl as Dictionary)["id"]))
-	return str(ids[int(float(rng.call()) * ids.size()) % ids.size()]) if not ids.is_empty() else Leaders.default_leader()
-
-
-## The commit frame: input locks, the controller writes the pick and plays the sting; then the pop
-## (120 ms), the others dim to 40% (150 ms), a 250 ms hold and a 250 ms fade (≈ 520 ms). Reduced
-## motion: the selected rim for 250 ms, then a 150 ms cross-fade.
+## The vote: input locks, the controller writes the pick; the slip flies into the envelope on the
+## button (FLY_MS), a short hold, the booth fades. Reduced motion: the hold and a cross-fade.
 func _start_commit(cell: int, id: String, via: String) -> void:
 	locked = true
 	_press = {}
-	_commit = {"cell": cell, "t": 0.0, "id": id, "via": via}
+	var from := Vector2.ZERO
+	var to := Vector2.ZERO
+	if cell >= 0 and cell < cells.size():
+		from = (cells[cell]["root"] as Node2D).position
+		to = go_btn.visual.get_center() - (cells[cell]["rect"] as Rect2).size * 0.2 if go_btn != null else from
+	_commit = {"cell": cell, "t": 0.0, "id": id, "via": via, "from": from, "to": to}
 	var ok := true
 	if on_commit.is_valid():
 		ok = bool(on_commit.call(id, via))
@@ -971,9 +813,9 @@ func _start_commit(cell: int, id: String, via: String) -> void:
 	_refresh()
 
 
-## Total ms from the commit to the stage.
+## Total ms from the vote to the stage.
 func commit_ms() -> float:
-	return (HOLD_AFTER_MS + DIM_MS) if reduced_motion else (maxf(POP_MS, DIM_MS) + HOLD_AFTER_MS + FADE_MS)
+	return (HOLD_AFTER_MS + FADE_MS) if reduced_motion else (FLY_MS + HOLD_AFTER_MS + FADE_MS)
 
 
 func update_view(dt: float) -> void:
@@ -983,13 +825,13 @@ func update_view(dt: float) -> void:
 	if _decoy_ms > 0.0:
 		_decoy_ms -= dt
 		if _decoy_ms <= 0.0:
-			_refresh()   # the caption strip returns to its default
+			_refresh()
 	if not _press.is_empty() and int(_press["cell"]) >= 0 and _press.get("card", false) != true:
 		_press["t"] = float(_press["t"]) + dt
 		if float(_press["t"]) >= HOLD_MS and _press.get("moved", false) != true:
 			_press["card"] = true
 			var id := str(cells[int(_press["cell"])]["id"])
-			if id != "" and not tile_of(id).get("decoy", false) and not tile_of(id).get("locked", false) and on_card.is_valid():
+			if id != "" and not tile_of(id).get("decoy", false) and not cells[int(_press["cell"])].get("locked", false) and on_card.is_valid():
 				on_card.call(id, "hold")
 	if _commit.is_empty():
 		return
@@ -997,19 +839,15 @@ func update_view(dt: float) -> void:
 	_commit["t"] = t
 	var ci := int(_commit["cell"])
 	if not reduced_motion:
-		for i in cells.size():
-			var root: Node2D = cells[i]["root"]
-			if i == ci:
-				root.position.y = (cells[i]["rect"] as Rect2).position.y - (4.0 if t < POP_MS else 0.0)
-			else:
-				root.modulate.a = lerpf(1.0, 0.4, clampf(t / DIM_MS, 0.0, 1.0))
-		for n: CanvasItem in _again_group:
-			if ci != cells.size():
-				n.modulate.a = lerpf(1.0, 0.4, clampf(t / DIM_MS, 0.0, 1.0))
-		var f0 := maxf(POP_MS, DIM_MS) + HOLD_AFTER_MS
-		modulate.a = 1.0 - clampf((t - f0) / FADE_MS, 0.0, 1.0)
+		if ci >= 0 and ci < cells.size():
+			var k := Ui.quad_in(clampf(t / FLY_MS, 0.0, 1.0))
+			var root: Node2D = cells[ci]["root"]
+			root.position = (_commit["from"] as Vector2).lerp(_commit["to"], k)
+			root.scale = Vector2.ONE * lerpf(1.0, 0.4, k)
+			root.modulate.a = 1.0 - clampf((t - FLY_MS * 0.8) / (FLY_MS * 0.2), 0.0, 1.0)
+		modulate.a = 1.0 - clampf((t - FLY_MS - HOLD_AFTER_MS) / FADE_MS, 0.0, 1.0)
 	else:
-		modulate.a = 1.0 - clampf((t - HOLD_AFTER_MS) / DIM_MS, 0.0, 1.0)
+		modulate.a = 1.0 - clampf((t - HOLD_AFTER_MS) / FADE_MS, 0.0, 1.0)
 	if t >= commit_ms():
 		_commit = {}
 		visible = false
@@ -1017,7 +855,7 @@ func update_view(dt: float) -> void:
 			on_done.call()
 
 
-## Finishes a running commit now (tests; the controller's instant path).
+## Finishes a running vote now (tests; the controller's instant path).
 func finish_now() -> void:
 	if not _commit.is_empty():
 		_commit["t"] = commit_ms()
@@ -1026,10 +864,10 @@ func finish_now() -> void:
 
 # ------------------------------------------------------------------ web debug
 
-## window.odPick: the open picker's cells and the again button in viewport logical px (the
-## browser driver aims with them, as window.odModal).
+## window.odPick: the open booth's slips and the vote button in viewport logical px (the drivers aim
+## with them). cells: [x, y, id, locked]; go: the button's centre; chosen: the chosen slip's id.
 func _publish() -> void:
-	if not OS.has_feature("web"):
+	if not OS.has_feature("web") or not visible:
 		return
 	JavaScriptBridge.eval("window.odPick = %s" % JSON.stringify(web_info()), true)
 
@@ -1040,17 +878,15 @@ func web_info() -> Dictionary:
 	for c: Dictionary in cells:
 		var q := (c["rect"] as Rect2).get_center() + off
 		cs.append([q.x, q.y, str(c["id"]), c.get("locked", false) == true])
-	var ag: Array = []
-	if again_btn != null:
-		var q := again_btn.visual.get_center() + off
-		ag = [q.x, q.y, again_id]
-	var bo: Variant = null
-	if booth.has_area():
-		bo = [booth.position.x + off.x, booth.position.y + off.y, booth.size.x, booth.size.y]
-	return {"open": visible, "variant": variant, "cells": cs, "again": ag, "avatar": avatar,
-		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y], "booth": bo,
-		"strip": [strip_rect.position.x + off.x, strip_rect.position.y + off.y, strip_rect.size.x, strip_rect.size.y],
-		"stripText": [_strip.position.y + off.y, _strip.position.y + off.y + LH * clampf(float(_strip.line_count()), 1.0, 2.0)] if _strip != null else []}
+	var go: Array = []
+	if go_btn != null:
+		var q := go_btn.visual.get_center() + off
+		go = [q.x, q.y, go_btn.is_enabled()]
+	return {"open": visible, "variant": variant, "cells": cs, "go": go, "again": go if variant == "after" else [],
+		"chosen": str(cells[focus]["id"]) if focus >= 0 and focus < cells.size() else null, "avatar": avatar,
+		"tile": [tile.x, tile.y], "grid": [grid.x + off.y, grid.y + off.y],
+		"card": [card_rect.position.x + off.x, card_rect.position.y + off.y, card_rect.size.x, card_rect.size.y],
+		"booth": [booth.position.x + off.x, booth.position.y + off.y, booth.size.x, booth.size.y]}
 
 
 func publish_closed() -> void:

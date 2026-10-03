@@ -46,7 +46,7 @@ func test_the_table_speaks_the_hooks_vocabulary() -> void:
 		runner.check(fs.has(k), "every reveal-ladder mechanic has its wizard: %s" % k)
 	for f: String in fs:
 		var F: Dictionary = fs[f]
-		var on := str(F.get("on", ""))
+		var on := Wizard.on_of(f)
 		runner.check(on == "" or Reveal.table().has(on), "%s: on %s is a reveal key" % [f, on])
 		for st: Dictionary in F.get("steps", []):
 			runner.check(WizardHooks.ANCHORS.has(str(st.get("anchor", ""))), "%s/%s: anchor %s" % [f, st.get("id"), st.get("anchor")])
@@ -123,18 +123,6 @@ func test_gone_sec_soft_hold_and_skip() -> void:
 	runner.check(Wizard.finished(s2, "t") and not w.showing(), "דלג ends the flow")
 
 
-func test_a_seen_step_ends_only_after_it_showed() -> void:
-	var conds := {"w": false, "d": true}
-	var s := _bare({"on": "", "steps": [{"id": "x", "anchor": "a", "when": "w", "done": "d", "seen": true, "text": "x"}]}, conds)
-	w.update_view(16.0, s)
-	runner.check(not Wizard.finished(s, "t"), "its done was true before its moment: it waits")
-	conds["w"] = true
-	w.update_view(16.0, s)
-	runner.check(w.showing(), "it shows when its moment comes")
-	w.update_view(16.0, s)
-	runner.check(Wizard.finished(s, "t"), "and ends on its done once shown")
-
-
 func test_a_mechanic_flow_waits_for_its_round() -> void:
 	var conds := {"w": true}
 	var s := _bare({"on": "suspicion", "steps": [{"id": "x", "anchor": "a", "when": "w", "done": "tapHole", "text": "x"}]}, conds)
@@ -155,8 +143,8 @@ func test_the_first_launch_opens_on_the_picker_step() -> void:
 	for i in 3:
 		await tree.process_frame
 	runner.check(m.mode == "pick", "the picker first")
-	runner.check(m.wizard.showing() and m.wizard.flow == "first" and str(m.wizard._step.get("id")) == "pick", "the wizard's pick step (%s)" % str(m.wizard.web_info(Vector2.ZERO)))
-	runner.check(Wizard.first_running(m.state) and m.ftue.suppressed, "the old FTUE prompts stand down")
+	runner.check(m.wizard.showing() and m.wizard.flow == "first" and str(m.wizard._step.get("id")) == "slip", "the wizard's slip step (%s)" % str(m.wizard.web_info(Vector2.ZERO)))
+	runner.check(Wizard.first_running(m.state), "the first wizard runs (the old FTUE prompts stand down)")
 	var hole: Rect2 = m.wizard.hole
 	for c: Dictionary in m.picker.cells:
 		var cr := Rect2((c["rect"] as Rect2).position + m.picker.position, (c["rect"] as Rect2).size)
@@ -177,6 +165,13 @@ func test_the_first_launch_opens_on_the_picker_step() -> void:
 	m._pointer_down(1, in_hole)
 	runner.check(m._presses.has(1), "inside the hole: the picker takes it")
 	m._pointer_up(1, in_hole)
+	for i in 2:
+		await tree.process_frame
+	runner.check(str(m.wizard._step.get("id")) == "vote" and m.wizard.hole.encloses(Rect2(m.picker.go_btn.hit.position + m.picker.position, m.picker.go_btn.hit.size)),
+		"a slip chosen: the vote step, on the button (%s)" % str(m.wizard.web_info(Vector2.ZERO)))
+	var go: Vector2 = m.picker.go_btn.visual.get_center() + m.picker.position + m._root.position
+	m._pointer_down(2, go)
+	m._pointer_up(2, go)
 	m.picker.finish_now()
 	for i in 4:
 		await tree.process_frame

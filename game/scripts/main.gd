@@ -119,7 +119,8 @@ var court: CourtView                # the O2 court card + its ticker chip (ui/vi
 var thermo: Thermo                  # the suspicion thermometer + the sweat (ui/views/view_thermo.gd)
 var picker: PickView                # LEADER_PICK (ui/views/view_pick.gd)
 var wizard: Wizard                  # the wizard overlay (ui/wizard.gd, content `wizard`; ADR 0007)
-var wiz_event_ms := -1.0e9          # the last card/street event's frame time (the events wizard waits for one)
+var wiz_event_ms := -1.0e9
+var _wiz_js := ""          # the last card/street event's frame time (the events wizard waits for one)
 var _pick_res: Dictionary = {}      # the last commit's Leaders.start_round result + {via}
 var _pick_seq: Array = []           # [{at (ms, _now), fn}]: the round-start sequence (rtl-map §8.6)
 var _fresh_due := ""                # D62: the LEADER_PICK_FRESH text, waiting for the undo chip to go
@@ -523,29 +524,25 @@ func _build() -> void:
 ## hole can sit on a tile, a pay pill or a chip). WizardHooks speaks its content's vocabulary.
 func _build_wizard() -> void:
 	wizard = Wizard.new()
-	wizard.host = self
 	_root.add_child(wizard)
 	wizard.cond = func(n: String) -> bool: return WizardHooks.cond(self, n)
 	wizard.anchor = func(n: String) -> Rect2: return WizardHooks.anchor(self, n)
 	wizard.fill = func(tx_: String) -> String:
 		var cur := Leaders.current(state)
-		var nw := ""
-		for t_: Variant in picker.model.get("tiles", []):
-			if (t_ as Dictionary).get("new", false):
-				nw = str((t_ as Dictionary).get("short", ""))
-		return Bidi.fill(tx_, {"leader": LeaderUi.short(cur) if cur != "" else "", "new": nw,
-			"newRule": _new_rule()})
+		var nw := _new_tile()
+		return Bidi.fill(tx_, {"leader": LeaderUi.short(cur) if cur != "" else "", "new": str(nw.get("short", "")),
+			"newRule": str(Leaders.rule(str(nw.get("id", ""))).get("summary", "")) if not nw.is_empty() else ""})
 	wizard.on_event = func(f: String, what: String) -> void:
 		_funnel("wizard", {"flow": f, "step": what})
 		_mark_dirty()
 
 
-## The new tile's one-line rule (the leaders wizard's bubble).
-func _new_rule() -> String:
+## The picker's tile that opened this round ({} none): the leaders wizard's bubble.
+func _new_tile() -> Dictionary:
 	for t_: Variant in picker.model.get("tiles", []):
 		if (t_ as Dictionary).get("new", false):
-			return str(Leaders.rule(str((t_ as Dictionary)["id"])).get("summary", ""))
-	return ""
+			return t_
+	return {}
 
 
 ## R9 (rtl-map §7.1 "History"): the shell forwards every popstate that is not About's own to
@@ -923,6 +920,8 @@ func _apply_settings() -> void:
 	Juice.reduced = rm
 	bb.set_reduced_motion(rm)
 	prop_fx.reduced_motion = rm
+	if wizard != null:
+		wizard.reduced_motion = rm
 	golden.reduced_motion = rm
 	diorama.set_reduced_motion(rm)
 	street.reduced_motion = rm
@@ -1302,7 +1301,6 @@ func _process(delta: float) -> void:
 	if bool(_dev["on"]):
 		_dev_poll_share()
 	# ---- /share platform ----
-	ftue.suppressed = Wizard.first_running(state)   # the first wizard teaches; the old prompts stand down
 	ftue.update_view(dt, state, d, _ftue_ctx(running))
 	_update_wizard(dt)
 	_update_shake(dt)
@@ -1324,12 +1322,14 @@ func _process(delta: float) -> void:
 
 
 func _update_wizard(dt: float) -> void:
-	wizard.reduced_motion = bool(settings.get("reducedMotion", false))
 	wizard.screen = Rect2(-_root.position - Vector2(64, 64), _vs + Vector2(128, 128))
 	wizard.column = Rect2(_ox, _top_y, L.cw, _vs.y - _bottom_inset - _top_y)
 	wizard.update_view(dt, state)
 	if bool(_dev["on"]) and OS.has_feature("web"):
-		JavaScriptBridge.eval("window.odWizard = %s" % JSON.stringify(wizard.web_info(_root.position)), true)
+		var js := JSON.stringify(wizard.web_info(_root.position))
+		if js != _wiz_js:   # only on a change (it would be a JS round trip every frame)
+			_wiz_js = js
+			JavaScriptBridge.eval("window.odWizard = %s" % js, true)
 
 
 ## Clock-driven Audio hooks: the Magician's trick lands 333 ms before the fanfare's roll end
@@ -3241,10 +3241,9 @@ func _dock_toasts() -> void:
 ## (rule.name: rule.summary; the stat ruleSeen_<id> persists it).
 static func round_news(s: GameState, leader_id: String) -> PackedStringArray:
 	var out := PackedStringArray()
-	var wiz := Wizard.flows() if Wizard.enabled else {}
 	for k: String in Reveal.new_this_round(s):
 		var line := Reveal.announcement(k)
-		if line != "" and not wiz.has(k):   # a mechanic with a wizard is taught when it shows up (ADR 0007)
+		if line != "" and not Wizard.teaches(k):   # a mechanic with a wizard is taught when it shows up (ADR 0007)
 			out.append(line)
 	var r: Dictionary = Leaders.rule(leader_id)
 	var key := "ruleSeen_" + leader_id

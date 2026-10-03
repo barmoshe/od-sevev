@@ -36,6 +36,14 @@ async function boot() {
 	return { ctx, page, P, errors };
 }
 const wiz = (page) => page.evaluate(() => window.odWizard || { flow: '' });
+const R2 = !!process.env.R2_ONLY;   // round 2 only: pick, tap, the dev election (window.odDevElect)
+// taps a leader's tile in the open picker
+async function pickLeader(page, P, id) {
+	const pk = await page.evaluate(() => window.odPick || null);
+	const c = pk && pk.open ? pk.cells.find((x) => x[2] === id) : null;
+	if (c) await P.tapAt(P.css(c[0], c[1]));
+	return !!c;
+}
 
 // ---- 1. the first round, through the wizard
 {
@@ -46,17 +54,15 @@ const wiz = (page) => page.evaluate(() => window.odWizard || { flow: '' });
 	const budget = Number(budgetArg) * 1000;
 	let swallowChecked = false;
 	let lastBuy = 0;
-	if (process.env.R2_ONLY) {   // round 2 only: pick, tap, the dev election (window.odDevElect)
+	if (R2) {   // round 2 only: pick, tap, the dev election (window.odDevElect)
 		await page.waitForFunction(() => window.odPick && window.odPick.open, null, { timeout: 15000 }).catch(() => {});
-		const pk = await page.evaluate(() => window.odPick || null);
-		const c = pk && pk.cells.find((x) => x[2] === 'bibi');
-		if (c) await tapAt(css(c[0], c[1]));
+		await pickLeader(page, P, 'bibi');
 		await wait(1200);
 		for (let i = 0; i < 4; i++) { await tapAt(P.hat(), 40); await wait(100); }
 		await page.evaluate(() => { window.odDevElect = 1; });
 		await page.waitForFunction(() => window.odDev && window.odDev.evolutions >= 1, null, { timeout: 15000 }).catch(() => {});
 	}
-	while (!process.env.R2_ONLY && Date.now() - t0 < budget) {
+	while (!R2 && Date.now() - t0 < budget) {
 		const w = await wiz(page);
 		const s = await probe();
 		if (!s) { await wait(300); continue; }
@@ -81,9 +87,7 @@ const wiz = (page) => page.evaluate(() => window.odWizard || { flow: '' });
 				check(w1.flow === 'first' && w1.step === 'tap' && s1.bank === b0, `a press outside the hole does nothing (bank ${b0} → ${s1.bank}, step ${w1.step})`);
 			}
 			if (w.step === 'pick') {
-				const pk = await page.evaluate(() => window.odPick || null);
-				const c = pk && pk.cells.find((x) => x[2] === 'bibi');
-				if (c) await tapAt(css(c[0], c[1]));
+				await pickLeader(page, P, 'bibi');
 				await wait(900);
 			} else if (w.step === 'elect') {
 				const r = await P.callElection({ card: 'w-election-card' });
@@ -123,8 +127,8 @@ const wiz = (page) => page.evaluate(() => window.odWizard || { flow: '' });
 	const s = await probe();
 	log(`  steps seen: ${seen.join(' → ')} in ${Math.round((Date.now() - t0) / 1000)} s wall`);
 	const order = seen.filter((x) => FIRST.includes(x));
-	if (!process.env.R2_ONLY) check(order[0] === 'pick' && order[1] === 'tap' && order[2] === 'buy', `the first steps: pick → tap → buy (${order.join(' → ')})`);
-	if (!process.env.R2_ONLY) for (const st of ['chat', 'pay', 'seats', 'elect']) check(order.includes(st), `the wizard showed "${st}"`);
+	if (!R2) check(order[0] === 'pick' && order[1] === 'tap' && order[2] === 'buy', `the first steps: pick → tap → buy (${order.join(' → ')})`);
+	if (!R2) for (const st of ['chat', 'pay', 'seats', 'elect']) check(order.includes(st), `the wizard showed "${st}"`);
 	check(s && s.evolutions >= 1, `the first election through the wizard (evolutions ${s && s.evolutions})`);
 	// round 2: the picker's new leader (soft) and the spins wizard
 	if (s && s.evolutions >= 1) {
@@ -153,9 +157,7 @@ const wiz = (page) => page.evaluate(() => window.odWizard || { flow: '' });
 				await P.refresh();
 				await shot('w-r2-new-leader');
 				check(w.soft === true && /חדש בבחירות/.test(w.text), `round 2's picker shows the new leader, soft ("${w.text}")`);
-				const pk = await page.evaluate(() => window.odPick || null);
-				const c = pk && pk.cells.find((x) => x[2] === 'bibi');
-				if (c) await tapAt(css(c[0], c[1]));
+				await pickLeader(page, P, 'bibi');
 				await wait(1200);
 				continue;
 			}
