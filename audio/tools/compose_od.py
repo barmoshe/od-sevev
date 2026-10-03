@@ -691,6 +691,39 @@ def tone(note, delay, dur, wave="pulse", duty=0.125, gain=1.0, decay=None, susta
     return d
 
 
+def swish(f0, f1, gain, dur, attack, decay, release, Q=1.2, clock=16000, id="swish"):
+    """Air: band-passed noise sweeping f0 -> f1 (the spawn whoosh, a panel, a paper slide or flick)."""
+    return L(id=id, wave="noise", clockStart=clock, filter={"type": "bandpass", "freq": f0, "freqEnd": f1, "Q": Q},
+             attack=attack, decay=decay, sustain=0.0, duration=dur, release=release, gain=gain)
+
+
+def body(delay, dur, gain, decay, sustain=0.2, release=0.02):
+    """Weight under a reward: a crushed TRI root an octave down (A3 = degree 1, one octave under the cue)."""
+    return tone("A3", delay, dur, wave="triangle", crush=4, gain=gain, decay=decay, sustain=sustain, release=release)
+
+
+def glint(delay, note, gain, hp=7000, dur=0.06, decay=0.05, sustain=0.1, release=0.03, noise_at=None, noise_gain=None, noise_dur=0.02):
+    """A coin's glint: a high noise tick and a quiet P2 50 % sparkle on a chord note."""
+    return [noise_burst(delay if noise_at is None else noise_at, hp, gain if noise_gain is None else noise_gain, dur=noise_dur),
+            tone(note, delay, dur, duty=0.5, gain=gain, decay=decay, sustain=sustain, release=release)]
+
+
+def arp(start, step, dur, gain, decay, sustain, release, notes=("A4", "C5", "E5")):
+    """The rising 1-b3-5 on P1 (the 'yes' under a bulk buy and a finished wizard step)."""
+    return [tone(n, start + i * step, dur, duty=0.25, gain=gain, decay=decay, sustain=sustain, release=release)
+            for i, n in enumerate(notes)]
+
+
+def ui_cue(meaning, octave, variants, runtime, lufs, priority=1, poly=1, ducks=(), first=False, pitch=None):
+    """A cue on the UI bus (quiet, short, oldest stolen)."""
+    c = {"meaning": meaning, "bus": "UI", "priority": priority, "poly": poly, "steal": "oldest", "ducks": list(ducks),
+         "pitch": pitch or {"type": "key", "rootOctave": octave}, "variants": variants}
+    if first:
+        c["firstSound"] = True
+    c.update({"runtime": runtime, "target": {"type": "burst", "lufs": lufs}})
+    return c
+
+
 def cues():
     C = {}
     # 1. tap: 15 ms NOI-S cloth puff, then a 40 ms P1 blip that walks up the key's scale from degree 5
@@ -740,13 +773,14 @@ def cues():
                                   "the whole cue stays <= 600 ms (brief §5 cue 2).",
                        "target": {"type": "burst", "lufs": -12.0}}
     # 3. suitcase
+    spawn_air = swish(700, 2400, 0.45, 0.18, 0.12, 0.08, 0.03, id="whoosh")
     C["suitcaseSpawn"] = {"meaning": "A catchable opportunity is on screen.", "bus": "SFX-Critical", "priority": 4, "poly": 1,
                           "steal": "never", "ducks": [{"bus": "Music", "db": -4, "attackMs": 50, "releaseMs": 200}],
                           "pan": "the suitcase's x mapped to -0.4..+0.4 on the 'Suitcase' bus panner, set at spawn",
                           "pitch": {"type": "none"},
-                          "variants": {"g25": [L(id="whoosh", wave="noise", clockStart=16000, filter={"type": "bandpass", "freq": 700, "freqEnd": 2400, "Q": 1.2}, attack=0.12, decay=0.08, sustain=0.0, duration=0.18, release=0.03, gain=0.45)] + [dict(b, delay=round(b["delay"] + 0.15, 4)) for b in zipper(25)],
-                                       "g28": [L(id="whoosh", wave="noise", clockStart=16000, filter={"type": "bandpass", "freq": 700, "freqEnd": 2400, "Q": 1.2}, attack=0.12, decay=0.08, sustain=0.0, duration=0.18, release=0.03, gain=0.45)] + [dict(b, delay=round(b["delay"] + 0.15, 4)) for b in zipper(28)],
-                                       "g31": [L(id="whoosh", wave="noise", clockStart=16000, filter={"type": "bandpass", "freq": 700, "freqEnd": 2400, "Q": 1.2}, attack=0.12, decay=0.08, sustain=0.0, duration=0.18, release=0.03, gain=0.45)] + [dict(b, delay=round(b["delay"] + 0.15, 4)) for b in zipper(31)]},
+                          "variants": {"g25": [spawn_air] + [dict(b, delay=round(b["delay"] + 0.15, 4)) for b in zipper(25)],
+                                       "g28": [spawn_air] + [dict(b, delay=round(b["delay"] + 0.15, 4)) for b in zipper(28)],
+                                       "g31": [spawn_air] + [dict(b, delay=round(b["delay"] + 0.15, 4)) for b in zipper(31)]},
                           "runtime": "Random variant (gate rate 25/28/31 Hz). The whoosh is UX's spawn twin (first-minute §3).",
                           "target": {"type": "burst", "lufs": -14.0}}
     catch = [dict(b, delay=round(b["delay"], 4)) for b in zipper(33, length=0.12, hp0=6500, hp1=2800, gain=(0.2, 0.85))]
@@ -756,11 +790,9 @@ def cues():
     # v1.6 (2026-10-03, Bar: "rewards not satisfying"): weight under the cha-ching (a crushed TRI root an
     # octave down on each hit) and a sparkle tail after it (5' and 1'' on P2 50 %, a high glint), so the
     # catch lands and then rings out. The ending stays 1' (the motif head's resolution is returnAway's).
-    catch += [tone("A3", 0.13, 0.08, wave="triangle", crush=4, gain=0.55, decay=0.07, sustain=0.2, release=0.02),
-              tone("A3", 0.2, 0.12, wave="triangle", crush=4, gain=0.6, decay=0.1, sustain=0.25, release=0.04),
-              tone("E6", 0.3, 0.07, duty=0.5, gain=0.3, decay=0.06, sustain=0.2, release=0.03),
-              tone("A6", 0.36, 0.12, duty=0.5, gain=0.26, decay=0.1, sustain=0.15, release=0.06),
-              noise_burst(0.36, 7500, 0.25, dur=0.02)]
+    catch += [body(0.13, 0.08, 0.55, 0.07), body(0.2, 0.12, 0.6, 0.1, sustain=0.25, release=0.04),
+              tone("E6", 0.3, 0.07, duty=0.5, gain=0.3, decay=0.06, sustain=0.2, release=0.03)]
+    catch += glint(0.36, "A6", 0.26, hp=7500, dur=0.12, decay=0.1, sustain=0.15, release=0.06, noise_gain=0.25)
     C["suitcaseCatch"] = {"meaning": "Got it.", "bus": "SFX-Critical", "priority": 4, "poly": 1, "steal": "oldest",
                           "ducks": [{"bus": "Music", "db": -4, "attackMs": 50, "releaseMs": 200}],
                           "pitch": {"type": "key", "rootOctave": 5}, "variants": {"": catch},
@@ -925,8 +957,8 @@ def cues():
     # v1.6: a purchase gets a body (a crushed TRI root an octave down under the blip: the coin hits the
     # counter) and a glint on the 1' (a high noise tick and a quiet 5'' sparkle), so it reads as money
     # changing hands rather than a menu blip.
-    buy_body = tone("A3", 0.0, 0.07, wave="triangle", crush=4, gain=0.5, decay=0.06, sustain=0.2, release=0.02)
-    buy_glint = [noise_burst(0.07, 7000, 0.28, dur=0.025), tone("E6", 0.08, 0.07, duty=0.5, gain=0.28, decay=0.06, sustain=0.1, release=0.03)]
+    buy_body = body(0.0, 0.07, 0.5, 0.06)
+    buy_glint = glint(0.08, "E6", 0.28, dur=0.07, decay=0.06, noise_at=0.07, noise_dur=0.025)
     C["buy"] = {"meaning": "Bought a source or a spin.", "bus": "SFX-Frequent", "priority": 3, "poly": 2, "steal": "oldest", "ducks": [],
                 "pitch": {"type": "key", "rootOctave": 4},
                 "variants": {v: [puff, buy_body, dict(blip(d), freqStart="E5"), tone("A5", 0.07, 0.1, duty=d, gain=0.9, decay=0.08, sustain=0.4, release=0.04)] + buy_glint
@@ -937,13 +969,11 @@ def cues():
     # v1.6: a bulk buy (x10 / max) is a bigger purchase, so it sounds bigger: the buy's opening, then a
     # rising 1-b3-5-1' arpeggio in 16ths on P1 over the body, and a short coin shower (three glints on
     # the chord's notes). Still under the purchase's deadpan rule: no fanfare, no anthem.
-    big = [puff, tone("A3", 0.0, 0.1, wave="triangle", crush=4, gain=0.6, decay=0.09, sustain=0.2, release=0.02)]
-    big += [tone(n, i * 0.045, 0.05, duty=0.25, gain=0.85, decay=0.045, sustain=0.4, release=0.02)
-            for i, n in enumerate(["A4", "C5", "E5"])]
+    big = [puff, body(0.0, 0.1, 0.6, 0.09)] + arp(0.0, 0.045, 0.05, 0.85, 0.045, 0.4, 0.02)
     big += [tone("A5", 0.135, 0.14, duty=0.25, gain=0.95, decay=0.1, sustain=0.45, release=0.05),
-            tone("A3", 0.135, 0.12, wave="triangle", crush=4, gain=0.55, decay=0.1, sustain=0.25, release=0.04)]
+            body(0.135, 0.12, 0.55, 0.1, sustain=0.25, release=0.04)]
     for j, (n, t) in enumerate([("E6", 0.19), ("A6", 0.235), ("C6", 0.28)]):
-        big += [noise_burst(t, 7000 + 400 * j, 0.24, dur=0.02), tone(n, t, 0.06, duty=0.5, gain=0.26, decay=0.05, sustain=0.1, release=0.03)]
+        big += glint(t, n, 0.26, hp=7000 + 400 * j, noise_gain=0.24)
     C["buyBig"] = {"meaning": "A bulk purchase (x10 or max).", "bus": "SFX-Frequent", "priority": 3, "poly": 1, "steal": "oldest",
                    "ducks": [], "pitch": {"type": "key", "rootOctave": 4}, "variants": {"": big},
                    "runtime": "Instead of buy on a bulk purchase (main.gd sends buyBulk when the quantity is over one).",
@@ -968,32 +998,27 @@ def cues():
     # click) and a faint sine octave over the blip; opening, closing and toggling get their own cues
     # (uiOpen, uiClose, uiToggle below), so a menu reads by ear.
     click = noise_burst(0.0, 0, 0.45, dur=0.006, metal=False, bp=3600)
-    C["uiClick"] = {"meaning": "A UI press.", "bus": "UI", "priority": 1, "poly": 2, "steal": "oldest", "ducks": [],
-                    "pitch": {"type": "key", "rootOctave": 6},
-                    "variants": {"": [click, tone("A4", 0.0, 0.025, duty=0.5, gain=1.0, decay=0.025, sustain=0.0, release=0.008),
-                                      tone("A5", 0.003, 0.035, wave="sine", gain=0.22, decay=0.035, sustain=0.0, release=0.01)]},
-                    "runtime": "One P2 blip on degree 1 in octave 6 (1.2-1.6 kHz) with a click and a sine octave.",
-                    "target": {"type": "burst", "lufs": -21.0}}
+    C["uiClick"] = ui_cue("A UI press.", 6, {"": [click, tone("A4", 0.0, 0.025, duty=0.5, gain=1.0, decay=0.025, sustain=0.0, release=0.008),
+                                                   tone("A5", 0.003, 0.035, wave="sine", gain=0.22, decay=0.035, sustain=0.0, release=0.01)]},
+                          "One P2 blip on degree 1 in octave 6 (1.2-1.6 kHz) with a click and a sine octave.", -21.0, poly=2)
     # a panel opens: a short rising air swish and 5 -> 1' up on P1; it closes: the mirror, softer
-    swish = lambda f0, f1, g: L(id="swish", wave="noise", clockStart=18000, filter={"type": "bandpass", "freq": f0, "freqEnd": f1, "Q": 1.1},
-                                attack=0.02, decay=0.05, sustain=0.0, duration=0.07, release=0.015, gain=g)
-    C["uiOpen"] = {"meaning": "A panel, sheet or menu opens.", "bus": "UI", "priority": 1, "poly": 1, "steal": "oldest", "ducks": [],
-                   "pitch": {"type": "key", "rootOctave": 5},
-                   "variants": {"": [click, swish(900, 3000, 0.4), tone("E5", 0.0, 0.035, duty=0.25, gain=0.8, decay=0.03, sustain=0.3),
-                                     tone("A5", 0.045, 0.05, duty=0.25, gain=0.9, decay=0.045, sustain=0.3, release=0.03)]},
-                   "runtime": "panelOpen, evolveOpen.", "target": {"type": "burst", "lufs": -20.5}}
-    C["uiClose"] = {"meaning": "A panel, sheet or menu closes.", "bus": "UI", "priority": 1, "poly": 1, "steal": "oldest", "ducks": [],
-                    "pitch": {"type": "key", "rootOctave": 5},
-                    "variants": {"": [click, swish(3000, 900, 0.32), tone("A5", 0.0, 0.035, duty=0.25, gain=0.75, decay=0.03, sustain=0.3),
-                                      tone("E5", 0.045, 0.045, duty=0.25, gain=0.75, decay=0.04, sustain=0.25, release=0.025)]},
-                    "runtime": "panelClose, evolveClose.", "target": {"type": "burst", "lufs": -22.0}}
-    # a switch: a click and a two-step blip, up (on) then down (off) on alternate presses
+    panel = lambda f0, f1, g: swish(f0, f1, g, 0.07, 0.02, 0.05, 0.015, Q=1.1, clock=18000)
+    C["uiOpen"] = ui_cue("A panel, sheet or menu opens.", 5,
+                         {"": [click, panel(900, 3000, 0.4), tone("E5", 0.0, 0.035, duty=0.25, gain=0.8, decay=0.03, sustain=0.3),
+                               tone("A5", 0.045, 0.05, duty=0.25, gain=0.9, decay=0.045, sustain=0.3, release=0.03)]},
+                         "panelOpen, evolveOpen.", -20.5)
+    C["uiClose"] = ui_cue("A panel, sheet or menu closes.", 5,
+                          {"": [click, panel(3000, 900, 0.32), tone("A5", 0.0, 0.035, duty=0.25, gain=0.75, decay=0.03, sustain=0.3),
+                                tone("E5", 0.045, 0.045, duty=0.25, gain=0.75, decay=0.04, sustain=0.25, release=0.025)]},
+                          "panelClose, evolveClose.", -22.0)
+    # a switch: a click and a two-step blip, up (on) then down (off) on alternate presses. The UI's quiet
+    # ticks (this, the booth's slips, the wizard's skip) are unpitched: one file each, written at the
+    # boot key's pitches (D: 1 = D6 here), so they don't cost four keys of payload.
     step2 = lambda a, b, g: [click, tone(a, 0.0, 0.025, duty=0.5, gain=0.8, decay=0.02, sustain=0.0, release=0.006),
                              tone(b, 0.03, 0.03, duty=0.5, gain=g, decay=0.025, sustain=0.0, release=0.008)]
-    C["uiToggle"] = {"meaning": "A switch or a mode cycles (settings toggles, the buy-mode chip).", "bus": "UI", "priority": 1, "poly": 1,
-                     "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 6},
-                     "variants": {"on": step2("D4", "A4", 0.9), "off": step2("A4", "D4", 0.8)},
-                     "runtime": "uiToggle, buyModeCycle. Alternates on / off.", "target": {"type": "burst", "lufs": -21.5}}
+    C["uiToggle"] = ui_cue("A switch or a mode cycles (settings toggles, the buy-mode chip).", 6,
+                           {"on": step2("G5", "D6", 0.9), "off": step2("D6", "G5", 0.8)},
+                           "uiToggle, buyModeCycle. Alternates on / off.", -21.5, pitch={"type": "none"})
     C["coin"] = {"meaning": "Coins (the settings 'צ'ינג' preview; payout sparkle, at most 6 per tap).", "bus": "SFX-Frequent",
                  "priority": 1, "poly": 3, "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 5},
                  "variants": {"a": [noise_burst(0.0, 7000, 0.4, dur=0.04), tone("E6", 0.0, 0.05, duty=0.5, gain=0.5, decay=0.05, sustain=0.2),
@@ -1032,8 +1057,7 @@ def cues():
     # paper slide over the roll (a band-passed swish rising 1.4 -> 4 kHz), and the slip landing in the
     # box on the downbeat: a dull low thunk (TRI 150 -> 70 Hz and low-passed noise) and a short wooden
     # knock for the phone speaker, under the crash.
-    pick += [L(id="slide", wave="noise", clockStart=20000, filter={"type": "bandpass", "freq": 1400, "freqEnd": 4000, "Q": 1.3},
-               attack=0.04, decay=0.12, sustain=0.0, duration=0.18, release=0.03, gain=0.32),
+    pick += [swish(1400, 4000, 0.32, 0.18, 0.04, 0.12, 0.03, Q=1.3, clock=20000, id="slide"),
              L(id="box", wave="triangle", freqStart=150, freqEnd=70, freqCurve="exp", glide=0.08, followPitch=False, delay=round(down, 4),
                attack=0.001, decay=0.1, sustain=0.0, duration=0.1, release=0.015, gain=0.45),
              L(id="boxNoise", wave="noise", clockStart=14000, filter={"type": "lowpass", "freq": 520, "Q": 0.0}, delay=round(down, 4),
@@ -1069,8 +1093,7 @@ def cues():
                 tone("G3", 0.14, 0.09, wave="triangle", crush=4, gain=1.0 * g, decay=0.08, sustain=0.2, release=0.03),
                 noise_burst(0.14, 0, 0.35 * g, dur=0.012, metal=False, bp=900)]
 
-    whoosh = [L(id="whoosh", wave="noise", clockStart=16000, filter={"type": "bandpass", "freq": 600, "freqEnd": 3200, "Q": 1.2},
-                attack=0.06, decay=0.08, sustain=0.0, duration=0.12, release=0.02, gain=0.55)]
+    whoosh = [swish(600, 3200, 0.55, 0.12, 0.06, 0.08, 0.02, id="whoosh")]
     shout = [tone("A4", 0.0, 0.09, duty=0.5, gain=0.7, decay=0.08, sustain=0.5, release=0.02),
              tone("E5", 0.0, 0.09, duty=0.5, gain=0.55, decay=0.08, sustain=0.5, release=0.02),
              noise_burst(0.0, 0, 0.5, dur=0.03, metal=False, bp=1500)]
@@ -1169,54 +1192,40 @@ def cues():
     # noise rising 1.8 -> 3.6 kHz, 45 ms) and a tiny pick tick on 1 or 5, alternating, so browsing the
     # tray doesn't repeat one sound. slipLocked: a slip still at the printer: the flick muffled (low-passed)
     # and a dull TRI bwomp down a semitone, quiet. Neither is a reward: the vote is (leaderPick).
-    flick = L(id="flick", wave="noise", clockStart=22000, filter={"type": "bandpass", "freq": 1800, "freqEnd": 3600, "Q": 1.4},
-              attack=0.004, decay=0.04, sustain=0.0, duration=0.045, release=0.01, gain=0.8)
-    C["slipChoose"] = {"meaning": "A slip is chosen in the ballot booth (the big card shows it).", "bus": "UI", "priority": 1, "poly": 1,
-                       "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 6},
-                       "variants": {"a": [flick, tone("A4", 0.012, 0.022, duty=0.125, gain=0.4, decay=0.02, sustain=0.0, release=0.006)],
-                                    "b": [flick, tone("E4", 0.012, 0.022, duty=0.125, gain=0.4, decay=0.02, sustain=0.0, release=0.006)]},
-                       "firstSound": True,
-                       "runtime": "Alternates a / b.", "target": {"type": "burst", "lufs": -21.5}}
-    C["slipLocked"] = {"meaning": "A slip still in print is chosen (it can't be voted yet).", "bus": "UI", "priority": 1, "poly": 1,
-                       "steal": "oldest", "ducks": [], "pitch": {"type": "key", "rootOctave": 4},
-                       "variants": {"": [dict(flick, id="muffled", filter={"type": "lowpass", "freq": 700, "Q": 0.0}, attack=0.003, duration=0.04),
-                                         L(id="bwomp", wave="triangle", crush=4, freqStart="A4", freqEnd="Ab4", freqCurve="exp", glide=0.08,
-                                           delay=0.01, attack=0.003, decay=0.09, sustain=0.2, duration=0.1, release=0.03, gain=0.6)]},
-                       "firstSound": True,
-                       "runtime": "Once per choice of a locked slip.", "target": {"type": "burst", "lufs": -23.0}}
+    flick = swish(1800, 3600, 0.8, 0.045, 0.004, 0.04, 0.01, Q=1.4, clock=22000, id="flick")
+    tick = lambda n: tone(n, 0.012, 0.022, duty=0.125, gain=0.4, decay=0.02, sustain=0.0, release=0.006)
+    C["slipChoose"] = ui_cue("A slip is chosen in the ballot booth (the big card shows it).", 6,
+                             {"a": [flick, tick("D6")], "b": [flick, tick("A5")]}, "Alternates a / b.", -21.5, pitch={"type": "none"})
+    C["slipLocked"] = ui_cue("A slip still in print is chosen (it can't be voted yet).", 4,
+                             {"": [dict(flick, id="muffled", filter={"type": "lowpass", "freq": 700, "Q": 0.0}, attack=0.003, duration=0.04),
+                                   L(id="bwomp", wave="triangle", crush=4, freqStart="D4", freqEnd="C#4", freqCurve="exp", glide=0.08,
+                                     delay=0.01, attack=0.003, decay=0.09, sustain=0.2, duration=0.1, release=0.03, gain=0.6)]},
+                             "Once per choice of a locked slip.", -23.0, pitch={"type": "none"})
 
-    # The booth and the wizard come before the first tap on a first launch, so these five are first
-    # sounds (like leaderPick): they play before the first-tap gate, which stays the motif's.
+    # The booth and the wizard come before the first tap on a first launch. Their sounds answer a gesture,
+    # which opens the SFX gate (audio.gd gesture()), except wizardStep: a step shows on its own, so it is a
+    # first sound (like leaderPick and returnAway) and plays before any gesture.
     # the wizard (ADR 0007): a step appears: a soft two-bell 'notice' (sine 5 -> 1', a glint), a gentle
     # duck under it; a step is done: a quick 1-b3-5-1' on P1 (a small 'yes'); 'דלג': an air swish falling
     # 3.2 -> 0.7 kHz over a TRI 5 -> 1 slide down. Quiet: the game's own sound for the action plays too.
-    C["wizardStep"] = {"meaning": "A wizard step appears (the dim, the hole, Dubi's bubble).", "bus": "UI", "priority": 2, "poly": 1,
-                       "steal": "oldest", "ducks": [{"bus": "Music", "db": -3, "attackMs": 40, "releaseMs": 300}],
-                       "pitch": {"type": "key", "rootOctave": 5},
-                       "variants": {"": [tone("E5", 0.0, 0.16, wave="sine", gain=0.75, decay=0.15, sustain=0.0, release=0.04),
+    C["wizardStep"] = ui_cue("A wizard step appears (the dim, the hole, Dubi's bubble).", 5, {"": [tone("E5", 0.0, 0.16, wave="sine", gain=0.75, decay=0.15, sustain=0.0, release=0.04),
                                          tone("E6", 0.0, 0.06, wave="sine", gain=0.15, decay=0.06, sustain=0.0, release=0.02),
                                          tone("A5", 0.09, 0.22, wave="sine", gain=0.85, decay=0.2, sustain=0.0, release=0.06),
                                          tone("A6", 0.09, 0.08, wave="sine", gain=0.16, decay=0.08, sustain=0.0, release=0.03),
                                          noise_burst(0.09, 7000, 0.15, dur=0.02)]},
-                       "firstSound": True,
-                       "runtime": "When a step first shows (not again on a re-show).", "target": {"type": "burst", "lufs": -20.0}}
-    C["wizardDone"] = {"meaning": "A wizard step the player saw is done.", "bus": "UI", "priority": 2, "poly": 1, "steal": "oldest",
-                       "ducks": [], "pitch": {"type": "key", "rootOctave": 5},
-                       "variants": {"": [tone(n, 0.1 + i * 0.04, 0.045, duty=0.25, gain=0.75, decay=0.04, sustain=0.3, release=0.015)
-                                         for i, n in enumerate(["A4", "C5", "E5"])]
-                                    + [tone("A5", 0.22, 0.1, duty=0.25, gain=0.85, decay=0.08, sustain=0.3, release=0.05),
-                                       noise_burst(0.22, 7500, 0.2, dur=0.02)]},
-                       "firstSound": True,
-                       "runtime": "Starts 100 ms in (baked into the file), so it follows the action's own cue.",
-                       "target": {"type": "burst", "lufs": -21.0}}
-    C["wizardSkip"] = {"meaning": "The wizard is skipped ('דלג').", "bus": "UI", "priority": 1, "poly": 1, "steal": "oldest", "ducks": [],
-                       "pitch": {"type": "key", "rootOctave": 4},
-                       "variants": {"": [L(id="swoosh", wave="noise", clockStart=16000, filter={"type": "bandpass", "freq": 3200, "freqEnd": 700, "Q": 1.2},
-                                           attack=0.015, decay=0.1, sustain=0.0, duration=0.12, release=0.02, gain=0.55),
-                                         L(id="slide", wave="triangle", crush=4, freqStart="E5", freqEnd="A4", freqCurve="exp", glide=0.1,
-                                           delay=0.01, attack=0.003, decay=0.1, sustain=0.2, duration=0.11, release=0.03, gain=0.45)]},
-                       "firstSound": True,
-                       "runtime": "On 'דלג' (or Esc).", "target": {"type": "burst", "lufs": -22.0}}
+                             "When a step first shows (not again on a re-show).", -20.0, priority=2,
+                             ducks=[{"bus": "Music", "db": -3, "attackMs": 40, "releaseMs": 300}], first=True)
+    C["wizardDone"] = ui_cue("A wizard step the player saw is done.", 5,
+                             {"": arp(0.0, 0.04, 0.045, 0.75, 0.04, 0.3, 0.015)
+                                  + [tone("A5", 0.12, 0.1, duty=0.25, gain=0.85, decay=0.08, sustain=0.3, release=0.05),
+                                     noise_burst(0.12, 7500, 0.2, dur=0.02)]},
+                             "Plays 100 ms after the event (audio.gd WIZARD_DONE_DELAY_MS), so it follows the action's own cue.",
+                             -21.0, priority=2)
+    C["wizardSkip"] = ui_cue("The wizard is skipped ('דלג').", 4,
+                             {"": [swish(3200, 700, 0.55, 0.12, 0.015, 0.1, 0.02, id="swoosh"),
+                                   L(id="slide", wave="triangle", crush=4, freqStart="A4", freqEnd="D4", freqCurve="exp", glide=0.1,
+                                     delay=0.01, attack=0.003, decay=0.1, sustain=0.2, duration=0.11, release=0.03, gain=0.45)]},
+                             "On 'דלג' (or Esc).", -22.0, pitch={"type": "none"})
     return {
         "version": "od-1",
         "_doc": "עוד סבב SFX cues. Owner: Audio Director. Written by audio/tools/compose_od.py; rendered by "
@@ -1442,7 +1451,7 @@ def check_cues(c):
                 err("%s/%s: UI cue ends at %.2f s (> 0.4 s tail)" % (cid, vid, end))
             if cid == "slipStamp" and end > 0.25:                # v1.4: a stamp that can repeat stays a thunk
                 err("%s/%s: ends at %.2f s (> 0.25 s)" % (cid, vid, end))
-            if cue.get("firstSound") and cid == "leaderPick":
+            if cue.get("firstSound"):
                 if min(Lr.get("delay", 0) for Lr in layers) > 0.0005:
                     err("%s: a first sound must start at t=0 (no silent lead-in)" % cid)
                 if end > 1.0:

@@ -1525,7 +1525,7 @@
 			"lengthMs": 844.0,
 			"limitedBy": "target",
 			"meaning": "While you were away (the return).",
-			"momentaryMax": -17.41,
+			"momentaryMax": -17.42,
 			"play_db": -5.58,
 			"poly": 1.0,
 			"priority": 3.0,
@@ -1564,40 +1564,21 @@
 			}
 		},
 		"slipChoose": {
-			"burstMax": -22.71,
+			"burstMax": -21.77,
 			"bus": "UI",
 			"ducks": [],
 			"files": {
-				"D": {
+				"_": {
 					"_": {
-						"a": "slipChoose_D_a.res",
-						"b": "slipChoose_D_b.res"
-					}
-				},
-				"E": {
-					"_": {
-						"a": "slipChoose_E_a.res",
-						"b": "slipChoose_E_b.res"
-					}
-				},
-				"F": {
-					"_": {
-						"a": "slipChoose_F_a.res",
-						"b": "slipChoose_F_b.res"
-					}
-				},
-				"G": {
-					"_": {
-						"a": "slipChoose_G_a.res",
-						"b": "slipChoose_G_b.res"
+						"a": "slipChoose_a.res",
+						"b": "slipChoose_b.res"
 					}
 				}
 			},
-			"firstSound": true,
 			"lengthMs": 59.0,
 			"limitedBy": "ceiling",
 			"meaning": "A slip is chosen in the ballot booth (the big card shows it).",
-			"momentaryMax": -28.73,
+			"momentaryMax": -27.79,
 			"play_db": -3.0,
 			"poly": 1.0,
 			"priority": 1.0,
@@ -1613,33 +1594,17 @@
 			"bus": "UI",
 			"ducks": [],
 			"files": {
-				"D": {
+				"_": {
 					"_": {
-						"_": "slipLocked_D.res"
-					}
-				},
-				"E": {
-					"_": {
-						"_": "slipLocked_E.res"
-					}
-				},
-				"F": {
-					"_": {
-						"_": "slipLocked_F.res"
-					}
-				},
-				"G": {
-					"_": {
-						"_": "slipLocked_G.res"
+						"_": "slipLocked.res"
 					}
 				}
 			},
-			"firstSound": true,
 			"lengthMs": 144.0,
 			"limitedBy": "target",
 			"meaning": "A slip still in print is chosen (it can't be voted yet).",
 			"momentaryMax": -28.95,
-			"play_db": -11.29,
+			"play_db": -11.68,
 			"poly": 1.0,
 			"priority": 1.0,
 			"runtime": "Once per choice of a locked slip.",
@@ -2236,36 +2201,18 @@
 			"bus": "UI",
 			"ducks": [],
 			"files": {
-				"D": {
+				"_": {
 					"_": {
-						"off": "uiToggle_D_off.res",
-						"on": "uiToggle_D_on.res"
-					}
-				},
-				"E": {
-					"_": {
-						"off": "uiToggle_E_off.res",
-						"on": "uiToggle_E_on.res"
-					}
-				},
-				"F": {
-					"_": {
-						"off": "uiToggle_F_off.res",
-						"on": "uiToggle_F_on.res"
-					}
-				},
-				"G": {
-					"_": {
-						"off": "uiToggle_G_off.res",
-						"on": "uiToggle_G_on.res"
+						"off": "uiToggle_off.res",
+						"on": "uiToggle_on.res"
 					}
 				}
 			},
 			"lengthMs": 72.0,
 			"limitedBy": "target",
 			"meaning": "A switch or a mode cycles (settings toggles, the buy-mode chip).",
-			"momentaryMax": -27.53,
-			"play_db": -5.2,
+			"momentaryMax": -27.52,
+			"play_db": -5.06,
 			"poly": 1.0,
 			"priority": 1.0,
 			"runtime": "uiToggle, buyModeCycle. Alternates on / off.",
@@ -2382,15 +2329,14 @@
 					}
 				}
 			},
-			"firstSound": true,
-			"lengthMs": 374.0,
+			"lengthMs": 274.0,
 			"limitedBy": "target",
 			"meaning": "A wizard step the player saw is done.",
-			"momentaryMax": -24.89,
+			"momentaryMax": -24.9,
 			"play_db": -10.58,
 			"poly": 1.0,
 			"priority": 2.0,
-			"runtime": "Starts 100 ms in (baked into the file), so it follows the action's own cue.",
+			"runtime": "Plays 100 ms after the event (audio.gd WIZARD_DONE_DELAY_MS), so it follows the action's own cue.",
 			"steal": "oldest",
 			"target": {
 				"lufs": -21.0,
@@ -2402,33 +2348,17 @@
 			"bus": "UI",
 			"ducks": [],
 			"files": {
-				"D": {
+				"_": {
 					"_": {
-						"_": "wizardSkip_D.res"
-					}
-				},
-				"E": {
-					"_": {
-						"_": "wizardSkip_E.res"
-					}
-				},
-				"F": {
-					"_": {
-						"_": "wizardSkip_F.res"
-					}
-				},
-				"G": {
-					"_": {
-						"_": "wizardSkip_G.res"
+						"_": "wizardSkip.res"
 					}
 				}
 			},
-			"firstSound": true,
 			"lengthMs": 154.0,
 			"limitedBy": "target",
 			"meaning": "The wizard is skipped ('דלג').",
-			"momentaryMax": -27.95,
-			"play_db": -7.95,
+			"momentaryMax": -27.93,
+			"play_db": -7.5,
 			"poly": 1.0,
 			"priority": 1.0,
 			"runtime": "On 'דלג' (or Esc).",
@@ -2675,12 +2605,12 @@
 		"files": {
 			"music": 12,
 			"outside": 1,
-			"sfx": 290,
+			"sfx": 272,
 			"stingers": 37
 		},
 		"music_bytes": 9237588,
 		"outside_bytes": 53847,
-		"sfx_bytes": 1262486,
+		"sfx_bytes": 1228200,
 		"stinger_bytes": 1486635
 	},
 	"stingers": {

@@ -42,6 +42,12 @@
 > - **Routes (`audio.gd` EVENT_CUE):** `buyBulk`→`buyBig`; `panelOpen`/`evolveOpen`→`uiOpen`; `panelClose`/`evolveClose`→`uiClose`; `uiToggle`/`buyModeCycle`→`uiToggle`; `partnerPaid`→`paid`. The booth sends `slipChoose`/`slipLocked` on a focus change; the wizard sends `wizardStep` (a step's first show), `wizardDone` (finished by its action) and `wizardSkip`.
 > - **First sounds:** the booth and wizard cues carry `firstSound`, so they play before the first tap of a fresh launch (the picker now opens first).
 > - **Payload:** see §7 v1.6. `stamp` stays Herzog's desk; the music is unchanged.
+> - **v1.6.1 (the /simplify follow-ups, same day):**
+>   - **The gate:** sound effects open on the player's first gesture (main sends `gesture()` on any press or key), not on the first Magician tap. The motif and the music still wait for that tap, and `gameReset` closes the gate again.
+>   - **First sounds:** `firstSound` now marks only the cues that play before any gesture: `leaderPick`, `returnAway`, `wizardStep`. The booth's and the wizard's other cues answer a press. Under a locked web context the held first sounds are a queue (up to 4), not one slot. The composer's "starts at t=0, ends inside 1 s" check covers every first sound, not just `leaderPick`, and `_warm()` preloads whatever is flagged.
+>   - **Unpitched ticks:** `uiToggle`, `slipChoose`, `slipLocked` and `wizardSkip` are `pitch: none`, one file per variant at the boot key D's pitches (−21 files).
+>   - **`wizardDone`:** rendered from t=0 and played 100 ms after its event (`audio.gd` `CUE_DELAY_MS`).
+>   - **Routing:** `buy` and `buyBulk` now route through EVENT_CUE (`route()` reports `cue:buy` / `cue:buyBig`). Their L1 side effect is in `SOURCE_EVENTS`.
 
 **Brief:** `sonic-brief` v1.1 (`artifacts/creative-pack/od-sevev/audio/sonic-brief.md`), with the resolutions in `engine/feasibility.md` (O-A1, O-A2, A3, A12, A13, A14, A18).
 
@@ -499,6 +505,8 @@ Levels, files and lengths are in the manifest. Bus and priority are repeated her
 **Totals (v1.4):** +1 file, `slipStamp.res`, 1,551 bytes: SFX 817,279 → 818,830 bytes. The folder stays at 11.06 MB.
 
 **Totals (v1.6):** SFX 242 → 290 files, 1,113,510 → 1,262,486 bytes (+148,976: 10 new cues ×4 keys, plus variants). The folder is **11.48 MB** (12,100,132 bytes with the manifest), about 0.2 MB over the soft ~11.3 MB budget; music and stingers are unchanged, so the boot pack grows by the same 0.15 MB.
+
+**Totals (v1.6.1):** SFX 290 → 272 files, 1,262,486 → 1,228,200 bytes (−34 KB, the unpitched ticks and wizardDone's lead-in). The folder is **11.45 MB** (12,064,743 bytes), still about 0.15 MB over the soft ~11.3 MB budget.
 
 **How it fits:**
 - The courthouse stems render at 22,044 Hz, where a step is 5,010 samples.

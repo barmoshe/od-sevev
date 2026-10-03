@@ -2244,6 +2244,7 @@ func _notification(what: int) -> void:
 
 func _pointer_down(idx: int, p: Vector2) -> void:
 	_first_input = true
+	_audio_call("gesture", [])   # the SFX gate opens on the first press (the motif waits for the first tap)
 	_keyboard_active = false
 	if wizard.swallows(p - _root.position, state):
 		return   # the wizard: only the hole (and "דלג") takes a press while a step shows
@@ -2477,6 +2478,7 @@ func _set_hover_banana(on: bool) -> void:
 
 func _on_key(e: InputEventKey) -> void:
 	_first_input = true
+	_audio_call("gesture", [])
 	if e.keycode in [KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_ENTER, KEY_SPACE, KEY_ESCAPE]:
 		_keyboard_active = true
 	ftue.on_input()

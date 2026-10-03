@@ -392,8 +392,8 @@ static func ping_variant(man: Dictionary, partner: String) -> String:
 	return "default"
 
 
-## v1.3: a cue the game's first gesture may play before the first tap (manifest `firstSound`:
-## leaderPick, returnAway). It is held through a locked web context like the motif.
+## A cue that may play before the player's first gesture (manifest `firstSound`: leaderPick,
+## returnAway, wizardStep). It is held through a locked web context like the motif.
 static func is_first_sound(man: Dictionary, cue_id: String) -> bool:
 	return bool(man.get("cues", {}).get(cue_id, {}).get("firstSound", false))
 

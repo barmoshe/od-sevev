@@ -37,10 +37,13 @@ extends Node
 ##   content's easterEggs flag, with tap-to-beat judging (§2.5).
 ##
 ## v1.3 (Audio Director, 2026-09-29: leader select and the session-2 views, cue-spec §4.1):
-## - First sounds: a cue flagged `firstSound` (leaderPick, returnAway, the booth's and the wizard's cues) plays before the first-tap
-##   gate, because it IS the first gesture (the picker's commit; the return card after a reload).
-##   It does not open the gate: the first Magician tap still plays the motif. Under a locked web
-##   context it is held like the motif (up to 5 s) and plays on the unlock (iOS: touchend).
+## - The gate (v1.6): no sound effect plays before the player's first gesture (gesture(), sent by main on
+##   any press or key; a tap is one too), and the first Magician tap plays the motif and starts the
+##   music, whatever came before it. So the picker, the booth and the wizard answer their presses.
+## - First sounds: a cue flagged `firstSound` (leaderPick, returnAway, wizardStep) plays even before
+##   any gesture (the return card and a wizard step show on their own). It does not open the gate.
+##   Under a locked web context first sounds are queued like the motif (up to 5 s) and play on the
+##   unlock (iOS: touchend).
 ## - Crits by leader: set_leader(id) (or the scene state's `leader`); a crit plays the leader's
 ##   react-event cue (crit_for(id), manifest `crits`) on that event's strip frame, or at once on
 ##   event(<the event>) / event("heroEvent", <the event>) / event("crit"). Bibi keeps rabbitCrit.
@@ -104,7 +107,7 @@ const EVENT_CUE := {
 const EVENT_STINGER := {"milestone": "milestone", "evolveReady": "milestone", "electionReady": "milestone",
 	"achievement": "milestone", "storyCard": "dubiFlash", "trophy": "trophy"}
 ## Event names with their own handler in event() (state only, or a rule beyond "play the cue").
-const HANDLED := ["tap", "tapCrit", "rabbit", "heroEvent", "crit", "buy", "buyBulk", "evolveConfirm",
+const HANDLED := ["tap", "tapCrit", "rabbit", "heroEvent", "crit", "evolveConfirm",
 	"electionConfirm", "era", "courtSummons", "courtStart", "courtEnd", "chatPing", "chatLeft", "chatBrawl",
 	"ultimatumTick", "ultimatumZero", "ultimatumEnd", "ultimatumPaid", "stamp", "coin", "coalitionCollapse",
 	"pinkFront", "drumBeat", "babble", "squawk", "headline", "dubiHeadline", "dubiSquawk", "goldenSpawn",
@@ -114,6 +117,10 @@ const HANDLED := ["tap", "tapCrit", "rabbit", "heroEvent", "crit", "buy", "buyBu
 const SILENT := ["frenzyStart", "frenzyEnd", "tapFrenzyStart", "tapFrenzyEnd", "milestoneHeadline",
 	"becameAffordable", "producerReveal", "trickCue", "ceremonyEnd", "evolveTransitionEnd", "spinEnd",
 	"cottagePixel", "leaderSwap", "leaderUndo"]
+## Events that mean a source was bought: the music's L1 follows at once (main also syncs the count).
+const SOURCE_EVENTS := ["buy", "buyBulk"]
+## Event cues that play a beat after their event, so they follow the action's own sound (ms).
+const CUE_DELAY_MS := {"wizardDone": 100.0}
 ## Cues whose variant is random (never the same one twice in a row).
 const RANDOM_VARIANT := ["suitcaseSpawn", "gavel", "transferWhistle", "shutter"]
 ## Cues whose variant alternates.
@@ -142,6 +149,7 @@ var _log_t: Array[float] = []         # when each was played, audio clock ms (we
 
 # ---- the player's state as the audio sees it
 var _first_tap := false
+var _gesture := false                 # the player has pressed something (the SFX gate is open)
 var _evolutions := 0
 var _evo_known := false
 var _era := ""                        # the era the music plays (or will play on its next start)
@@ -161,7 +169,8 @@ var _rabbit_n := 0
 var _leader := ""                     # set_leader(); "" reads the scene state's leader (default bibi)
 var _crit_cache: Dictionary = {}      # leader id -> crit_for() result
 var _sprites: Dictionary = {}         # sprites.json, read once (the react event frames)
-var _held_first: Dictionary = {}      # a first sound made while the web context is locked
+var _held_first: Array = []           # first sounds made while the web context is locked, oldest first
+const HELD_FIRST_MAX := 4
 var _stamp_n := 0
 var _court := false
 var _court_stinger := ""              # "in" | "out": plays on the next bar line
@@ -331,6 +340,8 @@ func _warn_once(msg: String) -> void:
 func event(name: String, arg: Variant = null) -> void:
 	_ensure()
 	var now := _now()
+	if SOURCE_EVENTS.has(name):
+		set_sources_owned(maxi(_sources, 1))
 	match name:
 		"tap":
 			_on_tap(now, false)
@@ -349,9 +360,6 @@ func event(name: String, arg: Variant = null) -> void:
 			_game_reset(now)
 		"chatBrawl":
 			_ping(now, "brawl")
-		"buy", "buyBulk":
-			set_sources_owned(maxi(_sources, 1))
-			_cue_alt(EVENT_CUE[name], now)   # a bulk purchase sounds bigger (buyBig)
 		"evolveConfirm", "electionConfirm":
 			_election(now, arg)
 		"era":
@@ -399,6 +407,9 @@ func event(name: String, arg: Variant = null) -> void:
 			if _crit_events().has(name):
 				if name == String(crit_for(leader_id())["event"]):
 					_rabbit_now(now)   # the leader's react event, reported by the engine on its frame
+			elif CUE_DELAY_MS.has(name):
+				var id := String(EVENT_CUE[name])
+				_sched_at(now + float(CUE_DELAY_MS[name]), func() -> void: _cue_alt(id, _now()))
 			elif EVENT_CUE.has(name):
 				_cue_alt(EVENT_CUE[name], now)
 			elif EVENT_STINGER.has(name):
@@ -715,6 +726,12 @@ func first_tap_done() -> bool:
 	return _first_tap
 
 
+## The player pressed something (main, on any press or key): sound effects may play from now on.
+## The motif and the music still wait for the first Magician tap.
+func gesture() -> void:
+	_gesture = true
+
+
 func court_active() -> bool:
 	return _court
 
@@ -886,9 +903,9 @@ func _probe_sources() -> void:
 
 # ================================================================== cues and stingers
 
-## The first-tap gate: nothing plays before the first Magician tap.
+## The gate: no sound effect before the player's first gesture (a tap is one).
 func _gate_open() -> bool:
-	return _first_tap
+	return _gesture or _first_tap
 
 
 func _locked() -> bool:
@@ -927,7 +944,9 @@ func _cue(id: String, now: float, variant := "_", pitch := "_", extra_db := 0.0,
 		return false
 	if _locked():
 		if first:
-			_held_first = {"id": id, "variant": variant, "t": now}   # waits for the unlock like the motif
+			_held_first.append({"id": id, "variant": variant, "t": now})   # waits for the unlock like the motif
+			if _held_first.size() > HELD_FIRST_MAX:
+				_held_first.pop_front()
 		else:
 			_held = {"id": id, "variant": variant, "pitch": pitch, "db": extra_db, "bus": bus, "t": now}
 		return false
@@ -1167,10 +1186,11 @@ func _game_reset(_now_ms: float) -> void:
 	_ult_force = false
 	_rabbit_due = -1.0
 	_held = {}
-	_held_first = {}
+	_held_first = []
 	_held_motif = -1.0
 	_ping_q = {"n": 0, "variant": "", "left": false}
 	_first_tap = false
+	_gesture = false
 	_tap_streak = -1
 	_tap_prev = -1e12
 	_tap_phrase = -1
@@ -1719,10 +1739,11 @@ func _update_web(now: float, dt: float) -> void:
 		_web_running = running
 		if first:
 			_unlocked = true
-			if not _held_first.is_empty():
-				if now - float(_held_first["t"]) <= MOTIF_HOLD_MAX_MS:
-					_cue(String(_held_first["id"]), now, String(_held_first["variant"]))
-				_held_first = {}
+			var firsts := _held_first
+			_held_first = []
+			for h: Dictionary in firsts:
+				if now - float(h["t"]) <= MOTIF_HOLD_MAX_MS:
+					_cue(String(h["id"]), now, String(h["variant"]))
 			if _held_motif >= 0.0:
 				if now - _held_motif <= MOTIF_HOLD_MAX_MS:
 					_play_intro(now)

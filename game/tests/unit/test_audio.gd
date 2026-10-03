@@ -709,7 +709,7 @@ func test_leader_pick_is_a_safe_first_sound() -> void:
 		runner.check(f != "" and a._streams.has(f) and a._streams[f] != null, "leaderPick_%s is warmed before any gesture" % k)
 	a.set_evolutions(0)
 	a.event("uiClick")
-	runner.check(a.recent_files().is_empty(), "the picker's browsing is silent (the first-tap gate)")
+	runner.check(a.recent_files().is_empty(), "no gesture yet: silent (the gate)")
 	a.event("leaderPick", "bennett")
 	runner.check(_last(a) == "leaderPick_D.res", "the pick is the first sound, in the boot key D, got %s" % _last(a))
 	runner.check(a.leader_id() == "bennett", "the pick sets the leader")
@@ -883,14 +883,54 @@ func test_v16_routes_and_first_sounds() -> void:
 		"wizardDone": "cue:wizardDone", "wizardSkip": "cue:wizardSkip"}
 	for ev: String in want:
 		runner.check(a.route(ev) == want[ev], "%s -> %s (got %s)" % [ev, want[ev], a.route(ev)])
-	runner.check(AudioScript.EVENT_CUE["buyBulk"] == "buyBig" and AudioScript.EVENT_CUE["buy"] == "buy", "a bulk buy plays buyBig")
+	runner.check(a.route("buyBulk") == "cue:buyBig" and a.route("buy") == "cue:buy", "a bulk buy plays buyBig (%s)" % a.route("buyBulk"))
 	for id: String in ["uiOpen", "uiClose", "uiToggle", "buyBig", "paid", "slipChoose", "slipLocked", "wizardStep", "wizardDone", "wizardSkip"]:
 		runner.check(_man["cues"].has(id), "v1.6 cue %s is in the manifest" % id)
 		for k: String in LEADER_KEYS:
-			runner.check(not OdAudio.cue_variants(_man, id, k).is_empty() or str(_man["cues"][id]["pitch"]["type"]) == "none", "%s renders in %s" % [id, k])
-	for id: String in ["slipChoose", "slipLocked", "wizardStep", "wizardDone", "wizardSkip"]:
-		runner.check(OdAudio.is_first_sound(_man, id), "%s plays before the first tap (the booth and the wizard come first)" % id)
+			runner.check(not OdAudio.cue_variants(_man, id, k).is_empty() or (_man["cues"][id]["files"] as Dictionary).has("_"), "%s renders in %s" % [id, k])
+	runner.check(OdAudio.is_first_sound(_man, "wizardStep"), "a wizard step shows on its own: a first sound")
+	for id: String in ["slipChoose", "slipLocked", "wizardDone", "wizardSkip"]:
+		runner.check(not OdAudio.is_first_sound(_man, id), "%s answers a press: the gesture gate covers it" % id)
+	for id: String in ["slipChoose", "slipLocked", "uiToggle", "wizardSkip"]:
+		runner.check((_man["cues"][id]["files"] as Dictionary).keys() == ["_"], "%s is unpitched: no per-key files (a quiet tick)" % id)
 	# the reward is louder than the UI around it, and the bulk buy louder than one buy
 	var burst := func(id: String) -> float: return float(_man["cues"][id].get("burstMax", -99.0))
 	runner.check(burst.call("buyBig") > burst.call("buy"), "buyBig is bigger than buy (%.1f vs %.1f)" % [burst.call("buyBig"), burst.call("buy")])
 	runner.check(burst.call("paid") > burst.call("uiClick") and burst.call("wizardStep") < burst.call("buy"), "a payment over a click; the wizard's chime under a purchase")
+
+
+## v1.6 /simplify: the gate opens on the player's first gesture (main sends gesture() on any press),
+## so the picker, the booth and the wizard answer their presses; the motif and the music still wait
+## for the first Magician tap, and a reset closes the gate again.
+func test_a_gesture_opens_the_sfx_but_not_the_music() -> void:
+	var a := _audio()
+	a.set_evolutions(0)
+	a.event("uiClick")
+	runner.check(a.recent_files().is_empty(), "before any gesture: silent")
+	a.gesture()
+	a.event("uiClick")
+	runner.check(_last(a) == "uiClick_D.res", "after a press: the click plays, got %s" % _last(a))
+	a.event("slipChoose")
+	runner.check(_last(a).begins_with("slipChoose_"), "the booth answers, got %s" % _last(a))
+	runner.check(not a.first_tap_done() and not a.is_music_playing(), "no motif, no music before the first tap")
+	a.event("wizardDone")
+	runner.check(not a.recent_files().has("wizardDone_D.res"), "the step's 'yes' waits a beat after its event")
+	await (runner as SceneTree).create_timer(0.2).timeout
+	runner.check(a.recent_files().has("wizardDone_D.res"), "and then plays: %s" % str(a.recent_files()))
+	a.event("tap")
+	runner.check(_last(a) == "stinger_motif_D.res", "the first tap still plays the motif, got %s" % _last(a))
+	a.event("gameReset")
+	var n: int = a.recent_files().size()
+	a.event("uiClick")
+	runner.check(a.recent_files().size() == n, "a reset closes the gate again")
+	await _release()
+	# a locked web context: several first sounds are queued, and all play on the unlock
+	var b := _audio()
+	b._web = true
+	b._web_running = false
+	b.event("wizardStep")
+	b.event("leaderPick")
+	await _frames(3)   # the headless bridge answers "running": the unlock
+	runner.check(b.recent_files().has("wizardStep_D.res") and b.recent_files().has("leaderPick_D.res"),
+		"both held first sounds play on the unlock: %s" % str(b.recent_files()))
+	await _release()

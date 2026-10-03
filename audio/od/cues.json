@@ -1702,18 +1702,6 @@
       "duty": 0.5
      },
      {
-      "wave": "pulse",
-      "freqStart": "A6",
-      "delay": 0.36,
-      "attack": 0.001,
-      "decay": 0.1,
-      "sustain": 0.15,
-      "duration": 0.12,
-      "release": 0.06,
-      "gain": 0.26,
-      "duty": 0.5
-     },
-     {
       "wave": "noiseMetal",
       "clockStart": 44000,
       "filter": {
@@ -1728,6 +1716,18 @@
       "duration": 0.02,
       "release": 0.004,
       "gain": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A6",
+      "delay": 0.36,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.15,
+      "duration": 0.12,
+      "release": 0.06,
+      "gain": 0.26,
+      "duty": 0.5
      }
     ]
    },
@@ -3590,18 +3590,6 @@
       "duty": 0.5
      },
      {
-      "wave": "pulse",
-      "freqStart": "A6",
-      "delay": 0.36,
-      "attack": 0.001,
-      "decay": 0.1,
-      "sustain": 0.15,
-      "duration": 0.12,
-      "release": 0.06,
-      "gain": 0.26,
-      "duty": 0.5
-     },
-     {
       "wave": "noiseMetal",
       "clockStart": 44000,
       "filter": {
@@ -3616,6 +3604,18 @@
       "duration": 0.02,
       "release": 0.004,
       "gain": 0.25
+     },
+     {
+      "wave": "pulse",
+      "freqStart": "A6",
+      "delay": 0.36,
+      "attack": 0.001,
+      "decay": 0.1,
+      "sustain": 0.15,
+      "duration": 0.12,
+      "release": 0.06,
+      "gain": 0.26,
+      "duty": 0.5
      },
      {
       "wave": "pulse",
@@ -4385,8 +4385,7 @@
    "steal": "oldest",
    "ducks": [],
    "pitch": {
-    "type": "key",
-    "rootOctave": 6
+    "type": "none"
    },
    "variants": {
     "on": [
@@ -4408,7 +4407,7 @@
      },
      {
       "wave": "pulse",
-      "freqStart": "D4",
+      "freqStart": "G5",
       "delay": 0.0,
       "attack": 0.001,
       "decay": 0.02,
@@ -4420,7 +4419,7 @@
      },
      {
       "wave": "pulse",
-      "freqStart": "A4",
+      "freqStart": "D6",
       "delay": 0.03,
       "attack": 0.001,
       "decay": 0.025,
@@ -4450,7 +4449,7 @@
      },
      {
       "wave": "pulse",
-      "freqStart": "A4",
+      "freqStart": "D6",
       "delay": 0.0,
       "attack": 0.001,
       "decay": 0.02,
@@ -4462,7 +4461,7 @@
      },
      {
       "wave": "pulse",
-      "freqStart": "D4",
+      "freqStart": "G5",
       "delay": 0.03,
       "attack": 0.001,
       "decay": 0.025,
@@ -5820,8 +5819,7 @@
    "steal": "oldest",
    "ducks": [],
    "pitch": {
-    "type": "key",
-    "rootOctave": 6
+    "type": "none"
    },
    "variants": {
     "a": [
@@ -5844,7 +5842,7 @@
      },
      {
       "wave": "pulse",
-      "freqStart": "A4",
+      "freqStart": "D6",
       "delay": 0.012,
       "attack": 0.001,
       "decay": 0.02,
@@ -5875,7 +5873,7 @@
      },
      {
       "wave": "pulse",
-      "freqStart": "E4",
+      "freqStart": "A5",
       "delay": 0.012,
       "attack": 0.001,
       "decay": 0.02,
@@ -5887,7 +5885,6 @@
      }
     ]
    },
-   "firstSound": true,
    "runtime": "Alternates a / b.",
    "target": {
     "type": "burst",
@@ -5902,8 +5899,7 @@
    "steal": "oldest",
    "ducks": [],
    "pitch": {
-    "type": "key",
-    "rootOctave": 4
+    "type": "none"
    },
    "variants": {
     "": [
@@ -5927,8 +5923,8 @@
       "id": "bwomp",
       "wave": "triangle",
       "crush": 4,
-      "freqStart": "A4",
-      "freqEnd": "Ab4",
+      "freqStart": "D4",
+      "freqEnd": "C#4",
       "freqCurve": "exp",
       "glide": 0.08,
       "delay": 0.01,
@@ -5941,7 +5937,6 @@
      }
     ]
    },
-   "firstSound": true,
    "runtime": "Once per choice of a locked slip.",
    "target": {
     "type": "burst",
@@ -6053,7 +6048,7 @@
      {
       "wave": "pulse",
       "freqStart": "A4",
-      "delay": 0.1,
+      "delay": 0.0,
       "attack": 0.001,
       "decay": 0.04,
       "sustain": 0.3,
@@ -6065,7 +6060,7 @@
      {
       "wave": "pulse",
       "freqStart": "C5",
-      "delay": 0.14,
+      "delay": 0.04,
       "attack": 0.001,
       "decay": 0.04,
       "sustain": 0.3,
@@ -6077,7 +6072,7 @@
      {
       "wave": "pulse",
       "freqStart": "E5",
-      "delay": 0.18,
+      "delay": 0.08,
       "attack": 0.001,
       "decay": 0.04,
       "sustain": 0.3,
@@ -6089,7 +6084,7 @@
      {
       "wave": "pulse",
       "freqStart": "A5",
-      "delay": 0.22,
+      "delay": 0.12,
       "attack": 0.001,
       "decay": 0.08,
       "sustain": 0.3,
@@ -6106,7 +6101,7 @@
        "freq": 7500,
        "Q": 0.7
       },
-      "delay": 0.22,
+      "delay": 0.12,
       "attack": 0.0008,
       "decay": 0.02,
       "sustain": 0.0,
@@ -6116,8 +6111,7 @@
      }
     ]
    },
-   "firstSound": true,
-   "runtime": "Starts 100 ms in (baked into the file), so it follows the action's own cue.",
+   "runtime": "Plays 100 ms after the event (audio.gd WIZARD_DONE_DELAY_MS), so it follows the action's own cue.",
    "target": {
     "type": "burst",
     "lufs": -21.0
@@ -6131,8 +6125,7 @@
    "steal": "oldest",
    "ducks": [],
    "pitch": {
-    "type": "key",
-    "rootOctave": 4
+    "type": "none"
    },
    "variants": {
     "": [
@@ -6157,8 +6150,8 @@
       "id": "slide",
       "wave": "triangle",
       "crush": 4,
-      "freqStart": "E5",
-      "freqEnd": "A4",
+      "freqStart": "A4",
+      "freqEnd": "D4",
       "freqCurve": "exp",
       "glide": 0.1,
       "delay": 0.01,
@@ -6171,7 +6164,6 @@
      }
     ]
    },
-   "firstSound": true,
    "runtime": "On 'דלג' (or Esc).",
    "target": {
     "type": "burst",
