@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <!-- "הקואליציה לא מגיבה": the game runs in an old desktop window, hangs, offers to wait for the
+         rotation, fails, blue-screens and reboots into another round. All Hebrew is the game's own
+         Sevev 9 lettering, pre-rendered by src/assets.py; this page only composes it. -->
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      :root {
+        --desk: #23317a;
+        --face: #c9cbd6;      /* window chrome */
+        --hi: #f1f2f8;
+        --lo: #5b5e72;
+        --ink: #0b0a12;
+        --title-a: #0d1a66;
+        --title-b: #3555d4;
+        --bsod: #1f45c4;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--desk); }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden;
+        background: var(--desk) repeating-conic-gradient(#26358a 0 25%, var(--desk) 0 50%) 0 0 / 8px 8px; }
+      .clip, #desk { position: absolute; inset: 0; }
+      img.px { image-rendering: pixelated; display: block; }
+      .bevel { background: var(--face); box-shadow: inset 4px 4px 0 var(--hi), inset -4px -4px 0 var(--lo), 0 0 0 4px var(--ink); }
+      .sunk { background: #fff; box-shadow: inset 4px 4px 0 var(--lo), inset -4px -4px 0 var(--hi); }
+      .titlebar { position: absolute; left: 8px; right: 8px; top: 8px; height: 72px;
+        background: linear-gradient(270deg, var(--title-a), var(--title-b)); }
+      .titlebar .t { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); }
+      .tb-btns { position: absolute; left: 12px; top: 12px; display: flex; gap: 8px; }
+      .tb-btn { width: 48px; height: 48px; position: relative; }
+      .tb-btn i { position: absolute; background: var(--ink); }
+
+      /* the game window */
+      #win { position: absolute; left: 92px; top: 236px; width: 896px; height: 1132px; }
+      #content { position: absolute; left: 8px; top: 88px; width: 880px; height: 1036px; overflow: hidden; background: #000; }
+      #content video, #content img { position: absolute; left: 0; top: 0; width: 880px; height: 1036px; }
+      #haze { position: absolute; inset: 0; background: #fff; opacity: 0; }
+
+      /* taskbar */
+      #taskbar { position: absolute; left: 0; right: 0; top: 1436px; height: 92px; }
+      #start { position: absolute; right: 18px; top: 14px; height: 64px; padding: 0 22px; display: flex; align-items: center; }
+      #clock { position: absolute; left: 18px; top: 14px; height: 64px; padding: 0 18px; display: flex; align-items: center; }
+      #task-win { position: absolute; right: 210px; top: 14px; height: 64px; width: 360px; padding: 0 18px;
+        display: flex; align-items: center; justify-content: flex-end; }
+      #task-win img { height: 45px; width: auto; }
+
+      /* dialogs */
+      .dlg { position: absolute; left: 100px; top: 560px; width: 860px; height: 540px; }
+      .dlg .body { position: absolute; left: 8px; right: 8px; top: 80px; bottom: 8px; }
+      .warn { position: absolute; right: 28px; top: 36px; width: 96px; height: 88px; }
+      #dlg .lines { position: absolute; right: 150px; top: 30px; display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
+      .btns { position: absolute; left: 0; right: 0; bottom: 34px; display: flex; justify-content: center; gap: 34px; flex-direction: row-reverse; }
+      .btn { height: 96px; padding: 0 28px; display: flex; align-items: center; position: relative; }
+      .btn.focus::after { content: ""; position: absolute; inset: 12px; border: 3px dotted var(--ink); }
+      .btn.down { box-shadow: inset 4px 4px 0 var(--lo), inset -4px -4px 0 var(--hi), 0 0 0 4px var(--ink); }
+      .btn.down img { transform: translate(3px, 3px); }
+      #prog .lines { position: absolute; right: 40px; top: 36px; display: flex; flex-direction: column; align-items: flex-end; gap: 26px; }
+      #track { position: absolute; left: 40px; right: 40px; top: 150px; height: 70px; }
+      #fill { position: absolute; right: 10px; top: 10px; bottom: 10px; width: 0;
+        background: repeating-linear-gradient(270deg, #1f3fbf 0 28px, transparent 28px 34px); }
+      #eta, #fail { position: absolute; right: 40px; top: 250px; }
+
+      /* cursor */
+      #cursor, #hourglass { position: absolute; left: 0; top: 0; width: 48px; height: 72px; transform-origin: 50% 50%; }
+
+      /* blue screen */
+      #bsod { position: absolute; inset: 0; background: var(--bsod); }
+      #bs-col { position: absolute; right: 130px; top: 260px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+      #bs-col .gap { height: 60px; }
+      #bs-prog { display: flex; gap: 22px; align-items: center; position: relative; height: 75px; }
+      #bs-num { position: relative; width: 125px; height: 75px; }
+      #bs-num img { position: absolute; right: 0; top: 0; opacity: 0; }
+
+      /* boot */
+      #boot { position: absolute; inset: 0; background: #000; }
+      #boot-mark { position: absolute; left: 50%; top: 760px; transform: translateX(-50%); }
+      #boot-line { position: absolute; left: 50%; top: 980px; transform: translateX(-50%); }
+      #dots { position: absolute; left: 50%; top: 1100px; transform: translateX(-50%); display: flex; gap: 18px; }
+      #dots i { width: 18px; height: 18px; background: #fff1a6; opacity: 0.2; }
+
+      #endcard { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1080" data-height="1920">
+
+      <!-- desktop + game window + taskbar: 0 to 9.6, then again 12.3 to 12.8 -->
+      <section id="desk">
+        <div id="win" class="bevel">
+          <div class="titlebar">
+            <img class="px t" id="t-ok" src="assets/gen/text/win-title.png" alt="עוד סבב" />
+            <img class="px t" id="t-hung" src="assets/gen/text/win-title-hung.png" alt="עוד סבב · לא מגיב" style="opacity:0" />
+            <div class="tb-btns">
+              <div class="tb-btn bevel"><i style="left:13px;top:13px;width:22px;height:5px;transform:translateY(9px) rotate(45deg)"></i><i style="left:13px;top:13px;width:22px;height:5px;transform:translateY(9px) rotate(-45deg)"></i></div>
+              <div class="tb-btn bevel"><i style="left:12px;top:12px;width:24px;height:6px"></i><i style="left:12px;top:12px;width:4px;height:22px"></i><i style="left:32px;top:12px;width:4px;height:22px"></i><i style="left:12px;top:30px;width:24px;height:4px"></i></div>
+              <div class="tb-btn bevel"><i style="left:12px;top:30px;width:22px;height:5px"></i></div>
+            </div>
+          </div>
+          <div id="content">
+            <img id="frozen" class="clip" src="assets/gen/img/picker-frozen.png" alt="" data-start="0" data-duration="12.8" />
+            <video id="v1" class="clip" src="assets/gen/video/play-bennett.mp4" muted playsinline data-start="0" data-duration="0.55"></video>
+            <video id="v2" class="clip" src="assets/gen/video/play-deri.mp4" muted playsinline data-start="0.55" data-duration="0.55"></video>
+            <video id="v3" class="clip" src="assets/gen/video/play-golan.mp4" muted playsinline data-start="1.1" data-duration="0.53"></video>
+            <video id="v4" class="clip" src="assets/gen/video/picker.mp4" muted playsinline data-start="1.63" data-duration="0.57"></video>
+            <video id="v5" class="clip" src="assets/gen/video/play-bennett.mp4" muted playsinline data-start="12.3" data-duration="0.5"></video>
+            <div id="haze"></div>
+          </div>
+        </div>
+        <div id="taskbar" class="bevel">
+          <div id="start" class="bevel"><img class="px" src="assets/gen/text/start.png" alt="התחל" /></div>
+          <div id="task-win" class="sunk" style="background: var(--face)"><img class="px" src="assets/gen/text/win-title.png" alt="" /></div>
+          <div id="clock" class="sunk" style="background: var(--face)"><img class="px" src="assets/gen/text/clock.png" alt="27.10" /></div>
+        </div>
+
+        <!-- the hang dialog -->
+        <div id="dlg" class="dlg bevel" style="opacity:0">
+          <div class="titlebar"><img class="px t" src="assets/gen/text/dlg-title.png" alt="עוד סבב" /></div>
+          <div class="body">
+            <svg class="warn" width="110" height="100" viewBox="0 0 22 20" shape-rendering="crispEdges">
+              <path d="M11 1 L21 19 L1 19 Z" fill="#f5c542" stroke="#0b0a12" stroke-width="1.4" />
+              <rect x="10" y="7" width="2" height="7" fill="#0b0a12" /><rect x="10" y="15" width="2" height="2" fill="#0b0a12" />
+            </svg>
+            <div class="lines">
+              <img class="px" src="assets/gen/text/dlg-l1.png" alt="הקואליציה לא מגיבה." />
+              <img class="px" src="assets/gen/text/dlg-l2.png" alt="אפשר לחכות לרוטציה," />
+              <img class="px" src="assets/gen/text/dlg-l3.png" alt="או לפזר את הכנסת." />
+            </div>
+            <div class="btns">
+              <div id="btn-wait" class="btn bevel focus"><img class="px" src="assets/gen/text/btn-wait.png" alt="לחכות לרוטציה" /></div>
+              <div class="btn bevel"><img class="px" src="assets/gen/text/btn-dissolve.png" alt="לפזר את הכנסת" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- waiting for the rotation -->
+        <div id="prog" class="dlg bevel" style="opacity:0; height: 440px">
+          <div class="titlebar"><img class="px t" src="assets/gen/text/prog-title.png" alt="מחכה לרוטציה…" /></div>
+          <div class="body">
+            <div class="lines"><img class="px" src="assets/gen/text/prog-l1.png" alt="מחכה לרוטציה…" /></div>
+            <div id="track" class="sunk"><div id="fill"></div></div>
+            <img id="eta" class="px" src="assets/gen/text/prog-eta.png" alt="הזמן שנותר: חצי קדנציה" />
+            <img id="fail" class="px" src="assets/gen/text/prog-fail.png" alt="הרוטציה נדחתה." style="opacity:0" />
+          </div>
+        </div>
+
+        <svg id="cursor" viewBox="0 0 12 18" shape-rendering="crispEdges">
+          <path d="M0 0 L0 15 L4 11 L7 17 L9 16 L6 10 L11 10 Z" fill="#fff" stroke="#000" stroke-width="1" />
+        </svg>
+        <svg id="hourglass" viewBox="0 0 12 18" shape-rendering="crispEdges" style="opacity:0">
+          <path d="M1 0 H11 V2 H10 V5 L7 9 L10 13 V16 H11 V18 H1 V16 H2 V13 L5 9 L2 5 V2 H1 Z" fill="#fff" stroke="#000" stroke-width="1" />
+          <path d="M4 5 H8 L6 8 Z M4 15 H8 L6 12 Z" fill="#c68a2b" />
+        </svg>
+      </section>
+
+      <!-- blue screen -->
+      <section id="s-bsod" class="clip" data-start="9.6" data-duration="1.8" data-track-index="1">
+        <div id="bsod">
+          <div id="bs-col">
+            <img class="px" src="assets/gen/text/bs-face.png" alt=":(" />
+            <div class="gap"></div>
+            <img class="px" src="assets/gen/text/bs-l1.png" alt="המדינה נתקלה בבעיה" />
+            <img class="px" src="assets/gen/text/bs-l2.png" alt="וצריכה לאתחל." />
+            <div class="gap"></div>
+            <img class="px" src="assets/gen/text/bs-l3.png" alt="אנחנו אוספים קצת מידע," />
+            <img class="px" src="assets/gen/text/bs-l4.png" alt="ואז יוצאים לבחירות." />
+            <div class="gap"></div>
+            <div id="bs-prog">
+              <img class="px" src="assets/gen/text/bs-done.png" alt="הושלם" />
+              <div id="bs-num">
+                <img class="px" id="p0" src="assets/gen/text/bs-p0.png" alt="0%" />
+                <img class="px" id="p1" src="assets/gen/text/bs-p1.png" alt="27%" />
+                <img class="px" id="p2" src="assets/gen/text/bs-p2.png" alt="64%" />
+                <img class="px" id="p3" src="assets/gen/text/bs-p3.png" alt="100%" />
+              </div>
+            </div>
+            <div class="gap"></div>
+            <img class="px" src="assets/gen/text/bs-code.png" alt="קוד עצירה: עוד_סבב" />
+          </div>
+        </div>
+      </section>
+
+      <!-- reboot -->
+      <section id="s-boot" class="clip" data-start="11.4" data-duration="0.9" data-track-index="1">
+        <div id="boot">
+          <img id="boot-mark" class="px" src="assets/gen/img/wordmark.png" alt="עוד סבב" />
+          <img id="boot-line" class="px" src="assets/gen/text/boot.png" alt="מאתחל…" />
+          <div id="dots"><i></i><i></i><i></i><i></i></div>
+        </div>
+      </section>
+
+      <!-- the series' shared end card (with its own stinger) -->
+      <video id="endcard" class="clip" src="assets/gen/video/endcard.mp4" playsinline data-has-audio="true"
+        data-start="12.8" data-duration="2.2" data-track-index="2" data-volume="0.7"></video>
+
+      <audio id="soundtrack" src="assets/gen/audio/soundtrack.wav" data-start="0" data-duration="12.8" data-track-index="3" data-volume="1"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const E = "power2.out";
+      const at = (x, y) => ({ x, y });
+
+      // 0 to 1.63: tapping on the leader, cut between three rounds
+      tl.set("#cursor", at(560, 760), 0);
+      for (let t = 0.1; t < 1.6; t += 0.18) {
+        tl.to("#cursor", { x: "+=6", y: "+=8", duration: 0.05, ease: "none" }, t)
+          .to("#cursor", { x: "-=6", y: "-=8", duration: 0.07, ease: "none" }, t + 0.06);
+      }
+      tl.to("#cursor", { ...at(700, 500), duration: 0.4, ease: E }, 1.65);
+
+      // 2.2: it hangs
+      tl.set("#t-ok", { opacity: 0 }, 2.2).set("#t-hung", { opacity: 1 }, 2.2);
+      tl.to("#haze", { opacity: 0.45, duration: 0.7, ease: "none" }, 2.25);
+      tl.set("#cursor", { opacity: 0 }, 2.35).set("#hourglass", { opacity: 1, ...at(700, 500) }, 2.35);
+      tl.to("#hourglass", { rotation: 180, duration: 0.4, ease: "power1.inOut", repeat: 1, repeatDelay: 0.3 }, 2.5);
+
+      // 3.3: the dialog
+      tl.fromTo("#dlg", { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.12, ease: "none" }, 3.3);
+      tl.set("#hourglass", { opacity: 0 }, 3.9).set("#cursor", { opacity: 1, ...at(700, 500) }, 3.9);
+      tl.to("#cursor", { ...at(820, 1010), duration: 1.1, ease: "power2.inOut" }, 4.1);
+      tl.set("#btn-wait", { className: "btn bevel focus down" }, 5.45).set("#btn-wait", { className: "btn bevel focus" }, 5.6);
+
+      // 5.75: waiting for the rotation (the bar fills, then runs backwards)
+      tl.set("#dlg", { opacity: 0 }, 5.75).set("#prog", { opacity: 1 }, 5.75);
+      tl.set("#cursor", { opacity: 0 }, 5.75).set("#hourglass", { opacity: 1, ...at(820, 1010) }, 5.75);
+      tl.fromTo("#fill", { width: 0 }, { width: "74%", duration: 2.4, ease: "steps(18)" }, 5.9);
+      tl.to("#fill", { width: 0, duration: 0.45, ease: "power3.in" }, 8.3);
+      tl.set("#eta", { opacity: 0 }, 8.75).set("#fail", { opacity: 1 }, 8.75);
+      tl.fromTo("#prog", { x: -10 }, { x: 0, duration: 0.25, ease: "elastic.out(2, 0.3)" }, 8.75);
+
+      // 9.6: blue screen, counting to 100
+      [["#p0", 9.6], ["#p1", 10.1], ["#p2", 10.5], ["#p3", 10.9]].forEach(([id, t], i, a) => {
+        tl.set(id, { opacity: 1 }, t);
+        if (i < a.length - 1) tl.set(id, { opacity: 0 }, a[i + 1][1]);
+      });
+
+      // 11.4: reboot
+      tl.fromTo("#boot-mark", { opacity: 0 }, { opacity: 1, duration: 0.25 }, 11.55);
+      tl.fromTo("#boot-line", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 11.7);
+      tl.to("#dots i", { opacity: 1, duration: 0.06, stagger: 0.12 }, 11.75);
+
+      // 12.3: and the round starts again
+      tl.set("#t-hung", { opacity: 0 }, 12.3).set("#t-ok", { opacity: 1 }, 12.3);
+      tl.set("#haze", { opacity: 0 }, 12.3).set("#prog", { opacity: 0 }, 12.3);
+      tl.set("#hourglass", { opacity: 0 }, 12.3).set("#cursor", { opacity: 1, ...at(560, 760) }, 12.3);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "od-sevev-calendar",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "npx --yes hyperframes@0.8.114 check",
+    "snapshot": "npx --yes hyperframes@0.8.114 snapshot",
+    "render": "npx --yes hyperframes@0.8.114 render -q high -f 30 -o out/od-sevev-reel-calendar.mp4"
+  }
+}

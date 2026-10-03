@@ -170,3 +170,11 @@ Instagram's own stickers, 4 memes, 5 highlight covers, and a posting plan to 27.
 `social/PLAN.md`.
 
     python3 src/social.py [all|stickers|abilities|dictionary|stories|memes|highlights]
+
+## Three more, made in HyperFrames (`hyperframes/`)
+
+`od-sevev-reel-crash.mp4` (15 s, "הקואליציה לא מגיבה", an old desktop that hangs, waits for the rotation
+and blue-screens), `od-sevev-reel-calendar.mp4` (13 s, "לוח השנה", every election since 2019 torn off a
+calendar) and `od-sevev-reel-howto.mp4` (13.8 s, "איך משחקים בעוד סבב", five steps, "זה כל המשחק.").
+Same lettering and end card as the rest; built as HTML pages rendered by HyperFrames. Crash and calendar
+are blackout-safe, howto is not. Details and the build steps: `hyperframes/README.md`.
