@@ -1,3 +1,12 @@
+# HANDOFF: the wizard overlay + the roster ladder (2026-10-03; read this first)
+
+Branch `wizard-roster` (ADR 0007). Bar: no fixed Bibi start, a guided "do-it" wizard for the first two minutes, a new wizard for every mechanic that joins; then merge, deploy and wipe again.
+- **The first launch** opens the picker with Bibi and Bennett open; `leaderSelect.unlockRound` opens one more leader per round (Ben Gvir in round 2 … Golan in round 7). Locked tiles stay greyed with their round.
+- **The wizard** (`ui/wizard.gd`, content `wizard`, vocabulary `ui/wizard_hooks.gd`): dim + hole + Dubi's bubble + "דלג". Steps follow state (`when` / `done`), so the game plays undimmed between them. Flow `first` = pick → tap → buy → Suitcase → open the coalition → pay → 61 → call the election. One flow per reveal rung, shown when the mechanic first appears; its bubble is `reveal.copy`. Funnel `wizard/<flow>/<step>`.
+- **Tune in content only:** the `wizard` table (texts, order, soft / gone / sec / hold) and `unlockRound`. A new mechanic needs a reveal rung, a `reveal.copy` line and a wizard flow.
+- **Tests:** unit tests run with the wizard off (`run_tests.gd`); `?dev=1` builds have it off unless `wiz=1`; `tools/web/wizard_web.mjs` plays the first round through it.
+- **Wipe #2:** `saveEpoch` 2 ships with this.
+
 # HANDOFF: the reveal ladder, LIVE (2026-10-03; read this first)
 
 **Live: `b228961`** (web-dist `db1dabb`, Vercel `dpl_8Y1DkntmkCGn9TcNv9qJLofdq7Wp`). The game now opens one system per round (ADR 0006, `design/overwhelm-report-2026-10-03.html`). Details in STATUS 2026-10-03.
