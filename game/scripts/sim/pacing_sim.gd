@@ -36,6 +36,9 @@ const PLAYERS := {
 	"casual": {"tps": 2.0, "tap_until": INF, "catch_golden": true},
 	"idle": {"tps": 3.0, "tap_until": 120.0, "catch_golden": false},
 	"spammer": {"tps": 30.0, "tap_until": INF, "catch_golden": true},
+	# 2026-10-03 (the overwhelm report): a person, not a bot, looks at the chat now and then; the
+	# 7-9 min gate was only ever met by a player who answers every demand on the frame it lands
+	"slow": {"tps": 1.5, "tap_until": INF, "catch_golden": true, "politics_every": 45.0},
 }
 
 ## The default politics strategy (an attentive, sensible player) and the bench's pure strategies.

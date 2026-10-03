@@ -67,6 +67,16 @@ func test_median_first_election() -> void:
 	runner.check(u >= 180.0 - 0.25,"Q3: no ultimatum before 3:00 (pitch §11 Q3), first at %s" % PacingSim.fmt_t(u))
 
 
+## SL (2026-10-03, the overwhelm report): a person looks at the chat every 45 s, not every frame.
+## With the reveal ladder (no ultimatums before round 4) and the clock held under menus, their first
+## election must land within 12 min (the browser driver needed 25-34 before).
+func test_slow_player_first_election() -> void:
+	var r := _session("slow")
+	var t := _first(r)
+	print("    slow (chat every 45 s) first election ", PacingSim.fmt_t(t))
+	runner.check(t <= 12.0 * 60.0, "SL: a player who checks the chat every 45 s votes within 12 min, got %s" % PacingSim.fmt_t(t))
+
+
 func test_engaged_session() -> void:
 	var r := _session("engaged")
 	var runs: Array = r["runs"]
