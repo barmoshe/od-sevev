@@ -334,6 +334,9 @@ static func eligible(s: GameState, e: Dictionary, ctx: Dictionary = {}) -> bool:
 	var st := _st(s)
 	if e.has("flag") and not flag_on(str(e["flag"])):
 		return false
+	# the reveal ladder: Mordechai David opens on his own round, every other card and stage event on `events`
+	if not Reveal.on(s, "mordechai" if str(e.get("effect", {}).get("type", "")) == "screenBlock" else "events"):
+		return false
 	if e.get("pollLike", e.get("poll_like", false)) == true and not Calendar.poll_like_allowed(s):
 		return false
 	if float(st["cooldowns"].get(e["id"], 0.0)) > 0.0:

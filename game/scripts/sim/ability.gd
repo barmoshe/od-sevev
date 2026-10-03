@@ -39,7 +39,7 @@ const PHASES := ["", "out", "offer"]
 
 ## The round's ability definition (rule.active), {} when the leader has none.
 static func def(s: GameState) -> Dictionary:
-	if s == null or not Leaders.active():
+	if s == null or not Leaders.active() or not Reveal.on(s, "abilities"):
 		return {}
 	var a: Variant = Leaders.rule(Leaders.current(s)).get("active")
 	return a if a is Dictionary and TYPES.has(str((a as Dictionary).get("type", ""))) else {}

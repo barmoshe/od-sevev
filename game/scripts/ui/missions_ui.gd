@@ -43,6 +43,8 @@ static func reward_text(s: GameState, r: Dictionary, d: Economy.Derived) -> Stri
 
 
 static func chip_view(s: GameState, d: Economy.Derived) -> Dictionary:
+	if not Reveal.on(s, "missions"):
+		return {"show": false, "claimable": 0, "frac": 0.0, "sub": ""}   # the reveal ladder
 	if not Missions.active() or (s.missions.get("slots", []) as Array).is_empty() and Missions.rank_view(s)["top"]:
 		return {"show": Missions.active(), "claimable": 0, "frac": 1.0, "sub": ""}
 	var best := {}

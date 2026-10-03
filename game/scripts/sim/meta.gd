@@ -105,6 +105,8 @@ static func perk_maxed(s: GameState, id: String) -> bool:
 
 
 static func buy_perk(s: GameState, id: String) -> bool:
+	if not Reveal.on(s, "perks"):
+		return false
 	var cost := next_cost(s, id)
 	if cost < 0 or s.thumbs_available() < cost:
 		return false
@@ -123,6 +125,8 @@ static func cheapest_perk_cost(s: GameState) -> int:
 
 
 static func can_buy_any_perk(s: GameState) -> bool:
+	if not Reveal.on(s, "perks"):
+		return false
 	var c := cheapest_perk_cost(s)
 	return c >= 0 and s.thumbs_available() >= c
 

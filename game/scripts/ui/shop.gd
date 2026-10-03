@@ -712,7 +712,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			icon = Art.sprite_or(str(ska["icon"]) if not ska.is_empty() else String(Content.producer(id).get("icon", Art.source(id).get("icon", "icon_" + id))))
 			nm = Strings.producer_name(id)
 			var owned := s.owned_of(id)
-			ms = milestone_model(owned)
+			ms = milestone_model(owned) if Reveal.on(s, "milestones") else {}   # the reveal ladder
 			if owned > 0:
 				line2 = Strings.s("ROW_OWNED_BPS", {"rate": Fmt.rate(float(d.producer_bps.get(id, 0.0)))})
 				owned_s = Strings.s("CARD_OWNED", {"n": Fmt.owned(owned)})
@@ -746,7 +746,7 @@ func _render_row(s: GameState, d: Economy.Derived, v: Dictionary, m: Dictionary,
 			var bm2: Variant = s.buy_mode
 			l2 = Strings.s("BUYMODE_1" if (bm2 is int and bm2 == 1) else ("BUYMODE_10" if (bm2 is int and bm2 == 10) else "BUYMODE_MAX"))
 			# the list's head carries the all-sources goal (MS_*): its line 2 and one segment per source
-			ms = all_milestone_model(s)
+			ms = all_milestone_model(s) if Reveal.on(s, "milestones") else {"kind": "all", "mult": 1.0, "next": -1, "nextMult": 1.0, "fracs": []}
 			if int(ms["next"]) > 0:
 				line2 = Strings.s("SHOP_ALL_MS", {"n": str(int(ms["next"])), "gmult": ms_mult_text(float(ms["nextMult"]))})
 			wide = true

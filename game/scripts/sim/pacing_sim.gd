@@ -386,7 +386,7 @@ static func session(player: Dictionary, total_sec: float, seed_: int = 7, dt: fl
 	Leaders.set_salt(s, seed_)
 	while t0 < total_sec - 1.0:
 		var who := pick_leader(str(player.get("leader", "")), func() -> float: return pick_rng.randf())
-		if who != "":
+		if who != "" and Reveal.on(s, "picker"):   # the reveal ladder: round 1 is the default leader's
 			Leaders.start_round(s, who)
 		played.append(Leaders.current(s))
 		var ev: Array = []

@@ -1321,7 +1321,7 @@ func _update_header() -> void:
 	_status.right_at(TITLE_RIGHT + L.dx)
 	_lock.position = Vector2(Ui.snap(TITLE_RIGHT + L.dx - float(_title.width()) - 12.0 - float(Art.sprite_size(_lock.get_meta("sprite")).x) * 4.0, 4), 20)
 	_pinned_text.text = Strings.s("CHAT_PINNED", {"n": str(_state.evolutions + 1)})
-	var agreement := _state.evolutions >= 1
+	var agreement := Reveal.on(_state, "perks") and _state.evolutions >= 1
 	var badge := agreement and Meta.can_buy_any_perk(_state)
 	# rev 5 (Bar's playtest: the bar "doesn't read as a button"): once it opens the agreement it
 	# gets the "‹" at its left, a white label, the free base in its badge (bobbing while a clause
@@ -2066,7 +2066,7 @@ func pointer_up(p: Vector2) -> void:
 			if Ui.in_rect(chevron_hit(), q):
 				close()
 		"pinned":
-			if Ui.in_rect(pinned_hit(), q) and _state != null and _state.evolutions >= 1 and host != null and host.has_method("_open_perks"):
+			if Ui.in_rect(pinned_hit(), q) and _state != null and Reveal.on(_state, "perks") and _state.evolutions >= 1 and host != null and host.has_method("_open_perks"):
 				host.call("_open_perks")   # rtl-map §7.3: the agreement's home after the first election
 		"thread":
 			if pr["dragging"]:

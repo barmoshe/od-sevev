@@ -144,9 +144,9 @@ func is_open() -> bool:
 ## The case is open: the thermometer has been revealed (K1) and the suspicion is above 0, or the
 ## player has been through a round already (the flags persist per ux/ftue.md §1.1).
 static func case_open(s: GameState) -> bool:
-	if s == null or not Investigation.active():
-		return false
-	if s.evolutions >= 1:
+	if s == null or not Investigation.active() or not Reveal.on(s, "suspicion"):
+		return false   # the reveal ladder: the case opens on its own round
+	if Reveal.past(s, "suspicion"):
 		return true
 	return bool(s.investigation.get("revealed", false)) and Investigation.suspicion(s) > 0.0
 

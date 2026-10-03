@@ -177,7 +177,7 @@ static func reveals(s: GameState) -> Dictionary:
 		"single": not played and owned == 0,                      # only card 1, named
 		"rate": played or owned >= 1,
 		"tabs": tabs,                                             # C1: the tab bar appears with it
-		"spins": played or (tabs and s.all_time_bananas >= SPINS_AT and c1_settled(s)),   # K3
+		"spins": Reveal.on(s, "spins") and (played or (tabs and s.all_time_bananas >= SPINS_AT and c1_settled(s))),   # K3 (+ the reveal ladder)
 		"seats": played or paid >= 1,                             # C2
 		"buyMode": bool(s.ui.get("buyModeRevealed", false)),      # B1 (the fork's rule, in the controller)
 		"suitcase": played or owned >= 2,                         # S1: no Suitcase before 2 sources

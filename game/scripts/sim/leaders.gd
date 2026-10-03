@@ -443,7 +443,8 @@ static func current(s: GameState) -> String:
 
 ## The picker is open now: after an election, or on a new game, until the round starts.
 static func pick_pending(s: GameState) -> bool:
-	return active() and s.leader_pick_pending and can_repick(s)
+	# the reveal ladder: the first round is the default leader's; the picker opens after it
+	return active() and s.leader_pick_pending and can_repick(s) and Reveal.on(s, "picker")
 
 
 ## A pick (or the 5 s undo) may still replace this round's leader: nothing has happened in the

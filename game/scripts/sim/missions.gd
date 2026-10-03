@@ -214,7 +214,7 @@ static func _next_ids(s: GameState, n: int) -> PackedStringArray:
 
 ## Fills empty slots from the current rank (each new mission's base is the counter now).
 static func ensure(s: GameState) -> void:
-	if not active():
+	if not active() or not Reveal.on(s, "missions"):
 		return
 	var st := _st(s)
 	var slots: Array = st["slots"]
@@ -233,7 +233,7 @@ static func _new_slot(s: GameState, id: String) -> Dictionary:
 ## just finished (the view's "משימה הושלמה" toast).
 static func tick(s: GameState, d: Economy.Derived = null) -> PackedStringArray:
 	var out := PackedStringArray()
-	if not active():
+	if not active() or not Reveal.on(s, "missions"):
 		return out
 	ensure(s)
 	for sl: Dictionary in _st(s)["slots"]:

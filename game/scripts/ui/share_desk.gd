@@ -431,7 +431,7 @@ func tick(dt_ms: float, calm: bool, stage_up: bool, chat_open: bool) -> void:
 	if prompt_open_pending and _now - prompt_ms > IGNORED_MS:
 		prompt_open_pending = false
 		note_dismissed()
-	var revealed := s != null and (s.evolutions >= 1 or (s.coalition is Dictionary and bool(s.coalition.get("opened", false))))
+	var revealed := s != null and Reveal.on(s, "share") and (s.evolutions >= 1 or (s.coalition is Dictionary and bool(s.coalition.get("opened", false))))
 	if chip != null:
 		_place_chip()
 		chip.dot = moment != ""

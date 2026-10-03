@@ -178,7 +178,9 @@ static func court_model(s: GameState, d: Economy.Derived) -> Dictionary:
 ## K2: the dossier exists once a case was ever opened. Derived from persisted sim state only
 ## (GameState.ui keeps just its fresh() keys across a save), so a reload agrees with the session.
 static func dossier_revealed(s: GameState) -> bool:
-	if s.evolutions >= 1:
+	if not Reveal.on(s, "suspicion"):
+		return false   # the reveal ladder: the dossier opens with the case
+	if Reveal.past(s, "suspicion"):
 		return true
 	if not Investigation.active():
 		return false

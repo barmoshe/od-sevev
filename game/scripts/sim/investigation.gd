@@ -75,7 +75,9 @@ static func phase(s: GameState) -> String:
 ## pitch §11 Q8: after election n, suspicion starts at min(floorPerRoundPct × n, floorMaxPct).
 ## The thermometer draws this as the hatched segment.
 static func floor_pct(s: GameState) -> float:
-	return minf(_num("floorPerRoundPct", 0.0) * s.evolutions, _num("floorMaxPct", 0.0))
+	# counted from the round suspicion opens in (the reveal ladder): it starts that round at 0
+	var rounds := maxi(0, s.evolutions - Reveal.round_of("suspicion")) if not Reveal.force_all else s.evolutions
+	return minf(_num("floorPerRoundPct", 0.0) * rounds, _num("floorMaxPct", 0.0))
 
 
 static func shady_owned(s: GameState) -> int:
@@ -103,7 +105,7 @@ static func gain_rate(s: GameState, d: Economy.Derived) -> float:
 
 ## Economy.buy_producer's hook: producers[].suspicionPerBuy (optional) per unit bought.
 static func on_buy(s: GameState, id: String, qty: int, owned_before: int) -> void:
-	if not active() or qty <= 0:
+	if not active() or not Reveal.on(s, "suspicion") or qty <= 0:
 		return
 	var spb := float(Content.producer(id).get("suspicionPerBuy", 0.0))
 	if spb <= 0.0:
@@ -135,7 +137,7 @@ static func _apply_modifiers(s: GameState, d: Economy.Derived) -> void:
 ## postpone()'s result, since it is the player's action, not the clock's.
 static func tick(s: GameState, dt: float, d: Economy.Derived) -> Array:
 	var out: Array = []
-	if not active():
+	if not active() or not Reveal.on(s, "suspicion"):
 		return out
 	var st := _i(s)
 	if not st["revealed"] and shady_owned(s) > 0:
@@ -250,7 +252,7 @@ static func excuse_step(s: GameState) -> int:
 
 ## Suspicion from an outside source (Lapid's audit, Golan's and Distel's payments, the aide).
 static func add(s: GameState, pts: float) -> void:
-	if not active() or phase(s) == "court" or pts <= 0.0:
+	if not active() or not Reveal.on(s, "suspicion") or phase(s) == "court" or pts <= 0.0:
 		return
 	var st := _i(s)
 	st["suspicion"] = minf(_num("max", 100.0), float(st["suspicion"]) + pts)
@@ -270,7 +272,7 @@ static func to_floor(s: GameState) -> void:
 ## A caught suitcase whose money lands on an aide (golden outcome with `aide: true`).
 ## `pts` < 0: use court.aide.suspicion.
 static func aide_catch(s: GameState, award: float, pts: float = -1.0) -> void:
-	if not active():
+	if not active() or not Reveal.on(s, "suspicion"):
 		return
 	var st := _i(s)
 	st["aideHolding"] = float(st["aideHolding"]) + maxf(0.0, award)

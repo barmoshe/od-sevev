@@ -23,6 +23,33 @@
   },
   "_formula": "tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult (permanent: perks, partners, Eisenkot) × tapBoost (timed: tap frenzy, a ×N spin, Kaia, a leader buff, Mordechai; taps show big while > 1) × (crit ? critMult : 1). bps excludes the production-frenzy multiplier. Random crits are off before tap firstCrit.randomCritsFromTap (lifetime taps)."
  },
+ "reveal": {
+  "_doc": "The reveal ladder (2026-10-03, Bar: one new system per round; Reveal.on). Each key opens at that election count: round 1 (0) is the tap, sources, the chat's demands, 61 and the Suitcase. copy = the one-line announcement at the start of the round it opens in.",
+  "spins": 1,
+  "picker": 1,
+  "suspicion": 2,
+  "ultimatums": 3,
+  "events": 3,
+  "abilities": 3,
+  "missions": 4,
+  "perks": 4,
+  "mordechai": 4,
+  "share": 4,
+  "milestones": 4,
+  "copy": {
+   "spins": "חדש בסבב הבחירות הזה: ספינים. לשונית שנייה, קונים מסר והוא עובד בשבילך.",
+   "picker": "מעכשיו בוחרים ראש רשימה לכל סבב בחירות. לכל אחד חוק משלו.",
+   "suspicion": "חדש: מדחום החשד. מקורות מפוקפקים מחממים אותו, ובמאה יש יום משפט.",
+   "ultimatums": "חדש: אולטימטומים. דרישה שמחכה יותר מדי הופכת לשעון, ושותף שלא קיבל עוזב.",
+   "events": "חדש: אירועים. כל כמה דקות קורה משהו בבמה או בכותרות.",
+   "abilities": "חדש: יכולת של ראש הרשימה. הכפתור למעלה מימין.",
+   "missions": "חדש: משימות ודרגות. כל דרגה מעלה את ההכנסה.",
+   "perks": "חדש: ההסכם הקואליציוני. הבסיס קונה סעיפים קבועים, בראש קבוצת הקואליציה.",
+   "mordechai": "חדש: מבקרים ברחוב. מרדכי דוד בא לפעמים, ולא תמיד לעזור.",
+   "share": "חדש: הדלף. כפתור לשתף את הרגעים הטובים.",
+   "milestones": "חדש: אבני דרך. 25 מכל מקור מכפילים אותו."
+  }
+ },
  "producers": [
   {
    "id": "taxpayer",
@@ -6507,6 +6534,7 @@
     "id": "court",
     "name": "המשפט",
     "text": "רק לך יש משפט: בזימון מעידים או דוחים, כל דחייה עולה כפול, ואפשר גם לבקש חנינה.",
+    "summary": "יש לך תיקים: כשהחשד מתמלא, יום בבית המשפט. אפשר לדחות, וזה עולה.",
     "effect": {
      "type": "court",
      "_note": "Nothing to install: his round is the shipped game, and the shipped court (content.court) is his hazard. The aide drop and the pardon desk are his (Leaders.has_court). Leaders.validate skips the default leader, so this type is documentation, not a knob."
@@ -6676,6 +6704,7 @@
     "id": "selfPledge",
     "name": "ההתחייבות",
     "text": "פעם בכמה דקות אתה חותם על התחייבות: לרגע צריך עוד מנדט לרוב, ואז היא מתהפכת ומוסיפה לבסיס.",
+    "summary": "כל כמה דקות התחייבות: לרגע צריך עוד מנדט, ואחר כך היא מוסיפה לבסיס.",
     "effect": {
      "type": "selfEvent",
      "event": "bennett",
@@ -7282,6 +7311,7 @@
     "id": "threatener",
     "name": "לוח הזמנים",
     "text": "אף אחד לא מאיים על מי שמאיים: השותפים מאיימים לפרוש חצי מהרגיל.",
+    "summary": "השותפים מאיימים עליך חצי פחות.",
     "effect": {
      "type": "partnerThreatMult",
      "mult": 0.5
@@ -7894,6 +7924,7 @@
     "id": "decline",
     "name": "לא אשב",
     "text": "על דרישה פתוחה אפשר ללחוץ ״לא אשב״: הדרישה נסגרת בלי תשלום והשותף נשאר. פעם ב־90 שניות, לא על אולטימטום.",
+    "summary": "מותר לסרב לדרישה אחת כל דקה וחצי: ״לא אשב״.",
     "effect": {
      "type": "declineDemand",
      "cooldownSec": 90,
@@ -8477,6 +8508,7 @@
     "id": "straight",
     "name": "ישר",
     "text": "בלי קסמים: אין הקשות מוגדלות. במקום זה כל הקשה מקבלת מראש את הממוצע שלהן. אותו כסף, בלי הפתעות.",
+    "summary": "בלי ארנבים: כל הקשה שווה קצת יותר, תמיד.",
     "effect": {
      "type": "straightTaps",
      "critChance": 0,
@@ -9053,6 +9085,7 @@
     "id": "treasury",
     "name": "שר האוצר",
     "text": "אתה שר האוצר: המע״מ מכניס ⁦×1.18⁩, וכל דרישה של שותף זולה ב־10%. יש כסף. לא להם.",
+    "summary": "מע״מ ×1.18, ודרישות זולות ב־10%.",
     "effect": {
      "type": "leaderEffects",
      "effects": [
@@ -9642,6 +9675,7 @@
     "id": "friend",
     "name": "המסדרון",
     "text": "שותף שיצא חוזר במחיר רגיל, בלי תוספת. וכל דרישה ששילמת נסגרת במסדרון: 30 שניות של ⁦×1.2⁩ ☕",
+    "summary": "שותף שעזב חוזר בלי קנס, וכל תשלום מאיץ את ההקשות.",
     "effect": {
      "type": "leaderEffects",
      "coalition": {
@@ -10217,6 +10251,7 @@
     "id": "merge",
     "name": "איחוד",
     "text": "שני שותפים שבקבוצה 60 שניות ומעלה אפשר לאחד: המושבים מתחברים, ויש רק דרישה אחת, במחיר הגבוה מביניהם.",
+    "summary": "אפשר לאחד שני שותפים בקבוצה למפלגה אחת.",
     "effect": {
      "type": "mergeMembers",
      "minMemberSec": 60,

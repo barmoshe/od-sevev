@@ -121,6 +121,7 @@ var picker: PickView                # LEADER_PICK (ui/views/view_pick.gd)
 var _pick_res: Dictionary = {}      # the last commit's Leaders.start_round result + {via}
 var _pick_seq: Array = []           # [{at (ms, _now), fn}]: the round-start sequence (rtl-map §8.6)
 var _fresh_due := ""                # D62: the LEADER_PICK_FRESH text, waiting for the undo chip to go
+var _round_news := PackedStringArray()   # the round's news after the fresh toast: what opens (Reveal), the leader's rule
 var _pick_shown_ms := 0.0
 var _undo_btn: PxButton             # "להחליף ראש רשימה" (rtl-map §8.6): the one on screen now
 var _undo_bar: ColorRect
@@ -1477,7 +1478,7 @@ func _check_meta() -> void:
 	MissionsUi.check(self)   # missions: finished goals latch and roll on the ticker
 	if bool(_dev["on"]):
 		MissionsUi.publish_web(self, missions_chip)
-	if state.bananas >= 0.0 and state.evolutions >= 1 and not state.ui.get("perksHinted", false) and Meta.can_buy_any_perk(state):
+	if state.bananas >= 0.0 and Reveal.on(state, "perks") and not state.ui.get("perksHinted", false) and Meta.can_buy_any_perk(state):
 		state.ui["perksHinted"] = true
 		# coalition UX rev 5 (Bar's playtest: the agreement's entry was not found): the nudge is a toast
 		# (its string's box, stage.toast) and a tap on it opens the agreement itself; it was a ticker line
@@ -1737,7 +1738,7 @@ func _accept_mediation() -> void:
 ## Leaders v3 (Bibi): the pardon desk's plea-talks stamp brings Herzog with his outline (fact
 ## pardon-shelved: the president froze the request and called for plea talks). Not while he is out.
 func herzog_from_pardon() -> void:
-	if Events.is_active(state, "mediation"):
+	if Events.is_active(state, "mediation") or not Reveal.on(state, "events"):
 		return
 	var e := Events.fire(state, "herzog", d)
 	if e.is_empty():
@@ -2934,6 +2935,7 @@ func _do_reset() -> void:
 	_undo_ms = 0.0
 	_pick_seq.clear()
 	_fresh_due = ""
+	_round_news = PackedStringArray()
 	if Leaders.pick_pending(state):
 		_open_picker()   # screen-graph §0: O10 → LEADER_PICK (first)
 	else:
@@ -3079,7 +3081,8 @@ func _open_picker(keep: Array = [], focus_id: String = "") -> void:
 	var lp := variant == "after" and str(state.ui.get("lp", "")) == ""
 	_undo_ms = 0.0
 	_pick_seq.clear()
-	_fresh_due = ""   # an undo reverts the bonus: its toast never shows
+	_fresh_due = ""
+	_round_news = PackedStringArray()   # an undo reverts the bonus: its toast never shows
 	toasts.clear_bubble()
 	shop.cancel_press()
 	_presses.clear()
@@ -3142,6 +3145,7 @@ func _on_pick_done() -> void:
 	# the first tap or buy): the +10% is only final then; it docks in the lane band (_dock_toasts)
 	_fresh_due = Strings.s("LEADER_PICK_FRESH", {"pct": int(roundf(float(_pick_res.get("freshPct", 0.0))))}) \
 		if _pick_res.get("fresh", false) == true else ""
+	_round_news = round_news(state, id)
 	var pk: Variant = Leaders.ls().get("pick", {})
 	_undo_full = 1000.0 * (float((pk as Dictionary).get("undoSec", 5.0)) if pk is Dictionary else 5.0)
 	_undo_ms = _undo_full
@@ -3164,6 +3168,27 @@ func _dock_toasts() -> void:
 	if _fresh_due != "" and mode != "pick" and not undo_visible() and not tx.running:
 		toasts.show_toast(_fresh_due, "", "lane")
 		_fresh_due = ""
+	if not _round_news.is_empty() and mode != "pick" and not undo_visible() and not tx.running:
+		for line: String in _round_news:
+			toasts.show_toast(line, "", "lane")
+		_round_news = PackedStringArray()
+
+
+## The round's news, once (2026-10-03, the overwhelm report): one line per system that opens this
+## round (Reveal, the Papers-Please bulletin), then the leader's rule the first round they lead
+## (rule.name: rule.summary; the stat ruleSeen_<id> persists it).
+static func round_news(s: GameState, leader_id: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	for k: String in Reveal.new_this_round(s):
+		var line := Reveal.announcement(k)
+		if line != "":
+			out.append(line)
+	var r: Dictionary = Leaders.rule(leader_id)
+	var key := "ruleSeen_" + leader_id
+	if str(r.get("summary", "")) != "" and float(s.stats.get(key, 0.0)) <= 0.0:
+		out.append("%s: %s" % [str(r.get("name", "")), str(r["summary"])])
+		s.stats[key] = 1.0
+	return out
 
 
 ## Review U9: a pick line of Dubi's. Before tap 1 (ftue P0) Dubi is not on screen (he lives in the
@@ -3955,6 +3980,7 @@ func _round_swap_views() -> void:
 	_undo_ms = 0.0
 	_pick_seq.clear()
 	_fresh_due = ""
+	_round_news = PackedStringArray()
 	_pending_offline = {}
 	_autosave_ms = 0.0
 	_acc = 0.0

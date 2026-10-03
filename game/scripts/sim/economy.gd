@@ -432,6 +432,8 @@ static func producer_rows(s: GameState, card1_shown := false) -> Dictionary:
 # ---------------------------------------------------------------------------------------------
 
 static func upgrade_unlocked(s: GameState, u: Dictionary) -> bool:
+	if not Reveal.on(s, "spins"):
+		return false   # the reveal ladder: the spins open on their own round
 	var k: Dictionary = u.get("unlock", {})
 	for key: String in k:
 		var h: Variant = UNLOCKS.get(key)

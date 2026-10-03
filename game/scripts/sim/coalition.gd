@@ -273,7 +273,7 @@ static func ult_sec(s: GameState) -> float:
 
 static func ultimatums_unlocked(s: GameState) -> bool:
 	var u := _ult()
-	return int(_c(s)["paidLifetime"]) >= int(u.get("minDemandsPaid", 2)) \
+	return Reveal.on(s, "ultimatums") and int(_c(s)["paidLifetime"]) >= int(u.get("minDemandsPaid", 2)) \
 		and float(s.stats.get("playtimeSec", 0.0)) >= float(u.get("minPlaySec", 180.0))
 
 

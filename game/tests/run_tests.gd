@@ -27,6 +27,9 @@ func _initialize() -> void:
 			var name: String = m["name"]
 			if not name.begins_with("test_"):
 				continue
+			# the reveal ladder (sim/reveal.gd): unit tests pin each system itself, so it is off unless a
+			# test turns it on (test_reveal.gd); the bench plays the game as shipped, ladder on
+			Reveal.force_all = folder == "unit"
 			var inst: Object = script.new()
 			if inst.has_method("setup"):
 				inst.call("setup", self)
