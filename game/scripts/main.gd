@@ -207,6 +207,8 @@ func _boot() -> void:
 		Economy.add_bananas(state, float(_dev["grant"]))
 	if float(_dev["evo"]) >= 0.0:
 		state.evolutions = int(_dev["evo"])
+		if _shot.is_empty() and Leaders.pick_pending(state):
+			mode = "pick"   # the reveal ladder: &evo=N past the picker's round opens it, as a reload would
 	if float(_dev["susp"]) >= 0.0:   # the investigation views (&susp=100 summons on the first step)
 		state.investigation["revealed"] = true
 		state.investigation["suspicion"] = minf(100.0, float(_dev["susp"]))

@@ -499,8 +499,9 @@ for (const spec of list.split(',')) {
 	check('base', errors.length === 0, `no page errors ${errors.length ? JSON.stringify(errors.slice(0, 3)) : ''}`);
 	await ctx.close();
 
-	// ---- round 2 with an empty purse (merge review M1 S18 + M2 S8/S15): a second page, no grant
-	if (pk && pk.open) {
+	// ---- round 2 with an empty purse (merge review M1 S18 + M2 S8/S15): a second page, no grant.
+	// The reveal ladder (ADR 0006): round 1 is Bibi's with no picker; the picker opens after it.
+	{
 		ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: !framed, hasTouch: !framed });
 		page = await ctx.newPage();
 		const errors2 = [];
@@ -510,13 +511,12 @@ for (const spec of list.split(',')) {
 		if (!framed) await page.evaluate(() => { document.documentElement.style.background = '#ff00ff'; document.body.style.background = '#ff00ff'; });
 		await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
 		await page.click('#od-quiet');
-		await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay && window.odPick && window.odPick.open, null, { timeout: 120000 });
+		await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
 		await wait(1500);
 		await refresh();
 		cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, bw: c.width, bh: c.height }; });
-		let pk2 = await page.evaluate(() => window.odPick);
-		const first = pk2.cells.find((c) => c[2] !== '') || pk2.cells[0];
-		await tap(css(first[0], first[1]));
+		let pk2 = null;
+		const first = [0, 0, 'bibi'];   // round 1 is the default leader's (no picker on a new game)
 		await page.waitForFunction(() => window.odDev && window.odDev.mode === 'title', null, { timeout: 8000 }).catch(() => {});
 		await wait(1200);
 		await refresh();

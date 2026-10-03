@@ -1,9 +1,8 @@
-// LEADER_PICK in the runtime origin (game-developer engine, leader select 2026-09-29): a fresh game
-// shows the picker before the first tap, the long-press leader card, a pick of בנט, the pre-tap
-// stage with the undo chip, tap 1, a whole round to the election through the real UI (the shared
+// LEADER_PICK in the runtime origin (leader select 2026-09-29; the reveal ladder 2026-10-03, ADR
+// 0006): a fresh game is Bibi's round with no picker, tap 1, a whole round to the election through the real UI (the shared
 // player of tools/web/round_play.mjs: taps, the chat first, buys, the brawl, the court), O3 (the
 // round holds under the open card: "the vote stops the clock", spec §7.4) → EVOLVE_TX → the flash,
-// the picker again (after: the again button), a reload mid-pick, a pick of ליברמן, round 2 live.
+// the picker (after: the again button), a reload mid-pick, the long-press card, a pick of בנט, round 2 live.
 // Positions come from window.odPick (ui/views/view_pick.gd), window.odDev (ui/dev_probe.gd) and
 // window.odModal / window.odFlash, in viewport logical px.
 //   node tools/web/picker_web.mjs <url> <out dir> [WxH@DPR] [speed] [budget s]
@@ -42,45 +41,24 @@ await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, n
 await wait(1200);
 await P.refresh();
 
-// 1. the first picker
+// 1. a fresh game: no picker (the reveal ladder, ADR 0006): round 1 is the default leader's
 let p = await pick();
-check(!!(p && p.open && p.variant === 'first' && p.cells.length === 9 && p.cells[4][2] === ''), `a fresh game opens LEADER_PICK (first), 3 × 3 with הפתעה in the centre (${p && p.cells.length} cells, avatar ${p && p.avatar})`);
-await shot('p1-picker-first');
-if (process.env.PICK_ONLY) {   // the first picker at this viewport only (the M / S avatar sizes)
+let s = await probe();
+check(!(p && p.open) && s && s.leader === 'bibi', `a fresh game starts as Bibi without the picker (pick ${p && p.open}, leader ${s && s.leader})`);
+await shot('p1-first-launch');
+if (process.env.PICK_ONLY) {   // the first launch at this viewport only
 	log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
 	await browser.close();
 	process.exit(checks.every((x) => x[0]) && !errors.length ? 0 : 1);
 }
-// the leader card: a long press on Bennett's tile
-let c = cellOf(p, 'bennett');
-{
-	// hold until the card is up (at least 900 ms): on a loaded machine a slow frame could see the
-	// press and the release together and read a tap (a pick) instead of the long press
-	const [x, y] = css(c[0], c[1]);
-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 900 }] });
-	await wait(900);
-	await page.waitForFunction(() => window.odModal && window.odModal.open && window.odModal.id === 'LEADER_CARD', null, { timeout: 6000 }).catch(() => {});
-	await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-	await wait(500);
-}
-let md = await modal();
-check(!!(md && md.open && md.id === 'LEADER_CARD'), `a long press opens the leader card (${md && md.id})`);
-await shot('p2-leader-card');
-if (md && md.open) {
-	await tapAt(css(md.buttons[0][0], md.buttons[0][1]));   // "לשחק בתור בנט"
-	await page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 8000 }).catch(() => {});
-	await wait(400);
-}
-let s = await probe();
-check(s && s.leader === 'bennett' && s.mode === 'title', `"לשחק בתור בנט" picks him: the pre-tap state (leader ${s && s.leader}, mode ${s && s.mode})`);
-check(s && s.undo, 'the undo chip is up');
-await shot('p3-bennett-pretap');
 // tap 1
 await tapAt(P.hat());
 await wait(700);
 s = await probe();
-check(s && s.mode === 'main' && !s.undo, `tap 1 starts Bennett's round (mode ${s && s.mode}), the chip goes`);
-await shot('p4-bennett-tap1');
+check(s && s.mode === 'main', `tap 1 starts Bibi's round (mode ${s && s.mode})`);
+await shot('p4-bibi-tap1');
+let c;
+let md;
 
 // 2. the round, to the election (the shared player); the gate can fall between the CTA and the card
 // (a walkout before the vote): play on and try again. Under the open card it must hold.
@@ -89,8 +67,8 @@ const budget = Number(budgetArg) * 1000;
 let shotRound = false;
 let shotPress = false;
 const hooks = {
-	loop: async (q) => { if (!shotRound && q.runSec > 60) { shotRound = true; await shot('p5-bennett-round'); } },
-	summons: async () => { if (!shotPress) { shotPress = true; await shot('p5-bennett-press-card'); } },
+	loop: async (q) => { if (!shotRound && q.runSec > 60) { shotRound = true; await shot('p5-bibi-round'); } },
+	summons: async () => { if (!shotPress) { shotPress = true; await shot('p5-bibi-press-card'); } },
 };
 let called = false;
 let held = true;
@@ -110,7 +88,7 @@ for (let attempt = 0; attempt < 6 && !called && Date.now() - P.st.t0 < budget; a
 }
 log(`  ${P.cadence(speed)}`);
 check(held, 'the round holds under the open election card (the vote stops the clock)');
-check(called, 'Bennett calls the election (O3 "לפזר את הכנסת")');
+check(called, 'Bibi calls the election (O3 "לפזר את הכנסת")');
 if (called) {
 	await page.waitForFunction(() => (window.odFlash && window.odFlash.open) || (window.odPick && window.odPick.open), null, { timeout: 40000 }).catch(() => {});
 	await wait(1500);
@@ -124,7 +102,7 @@ if (called) {
 	await wait(600);
 	p = await pick();
 	s = await probe();
-	check(!!(p && p.open && p.variant === 'after' && p.again && p.again[2] === 'bennett'), `the picker follows the election: after, "עוד סבב עם בנט" (${JSON.stringify(p && p.again)})`);
+	check(!!(p && p.open && p.variant === 'after' && p.again && p.again[2] === 'bibi'), `the picker opens after the first election: after, "עוד סבב עם ביבי" (${JSON.stringify(p && p.again)})`);
 	check(s && s.evolutions === 1 && s.pickPending, `round 2 waits for the pick (evolutions ${s && s.evolutions})`);
 	await shot('p8-picker-after');
 	// a reload mid-pick lands in the picker again (the driver's own navigation: not logged as one)
@@ -136,19 +114,33 @@ if (called) {
 	p = await pick();
 	check(!!(p && p.open && p.variant === 'after'), 'a reload mid-pick shows the picker again (leaderPickPending)');
 	await shot('p9-picker-after-reload');
-	c = cellOf(p, 'liberman');
-	await tapAt(css(c[0], c[1]));
-	await page.waitForFunction(() => window.odDev && window.odDev.mode === 'main', null, { timeout: 8000 }).catch(() => {});
-	await wait(1200);
+	// the leader card: a long press on Bennett's tile, then "לשחק בתור בנט"
+	c = cellOf(p, 'bennett');
+	{
+		const [x, y] = css(c[0], c[1]);
+		await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y, id: 900 }] });
+		await wait(900);
+		await page.waitForFunction(() => window.odModal && window.odModal.open && window.odModal.id === 'LEADER_CARD', null, { timeout: 6000 }).catch(() => {});
+		await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+		await wait(500);
+	}
+	md = await modal();
+	check(!!(md && md.open && md.id === 'LEADER_CARD'), `a long press opens the leader card (${md && md.id})`);
+	await shot('p10-leader-card');
+	if (md && md.open) {
+		await tapAt(css(md.buttons[0][0], md.buttons[0][1]));   // "לשחק בתור בנט"
+		await page.waitForFunction(() => window.odDev && window.odDev.mode === 'main', null, { timeout: 8000 }).catch(() => {});
+		await wait(1200)
+	}
 	s = await probe();
-	check(s && s.leader === 'liberman' && s.mode === 'main' && s.evolutions === 1, `pick ליברמן: round 2 is his (leader ${s && s.leader}, mode ${s && s.mode})`);
-	await shot('p10-liberman-round2');
+	check(s && s.leader === 'bennett' && s.mode === 'main' && s.evolutions === 1, `pick בנט: round 2 is his (leader ${s && s.leader}, mode ${s && s.mode})`);
+	await shot('p11-bennett-round2');
 	const run0 = s ? s.runSec : 0;
 	for (let i = 0; i < 8; i++) { await tapAt(P.hat(), 40); await wait(90); }
 	await wait(600);
 	s = await probe();
-	check(s && s.leader === 'liberman' && s.runSec > run0 && s.bank > 0, `Liberman's round 2 runs: taps pay, the clock moves (run ${s && s.runSec.toFixed(1)} s, bank ${s && Math.round(s.bank)})`);
-	await shot('p11-liberman-taps');
+	check(s && s.leader === 'bennett' && s.runSec > run0 && s.bank > 0, `Bennett's round 2 runs: taps pay, the clock moves (run ${s && s.runSec.toFixed(1)} s, bank ${s && Math.round(s.bank)})`);
+	await shot('p12-bennett-taps');
 }
 if (Object.keys(P.st.modals).length) log(`  overlays closed on the way: ${JSON.stringify(P.st.modals)}`);
 if (P.st.summonsWaits) log(`  summonses left to serve themselves under T3 (the LayerHistory race, a game bug): ${P.st.summonsWaits}`);
