@@ -1,7 +1,7 @@
 # Playtest kit: 3-5 people, no explanation
 
 Goal: see where a real person gets lost in the first 3 minutes and the first round, after the reveal
-ladder (ADR 0006). Bots answer the chat on the frame it lands; people don't. This is the check the
+ladder (ADR 0006) and the wizard overlay (ADR 0007). Bots answer the chat on the frame it lands; people don't. This is the check the
 bench can't do.
 
 ## Who
@@ -15,12 +15,14 @@ or a reel, and who don't call themselves gamers. Not the team, not developers.
   loud if you can." Then stay quiet.
 
 ## Watch (write the time next to each)
-1. First 10 seconds: do they laugh? Do they know what to tap?
+0. The wizard: do they read Dubi's bubble or tap through it? Do they press "דלג", and at which step?
+   Does anyone tap outside the spotlight and look stuck?
+1. First 10 seconds: do they laugh? Do they know what to tap? Bibi or Bennett, and why?
 2. First purchase: when, and did they find the card on their own?
 3. The chat ping (around 0:30): do they open it? Do they understand that paying keeps a partner?
 4. 61: do they know what it is before the "עוד סבב!" button appears?
 5. The first election: when (clock time), and what they said on the news flash.
-6. Round 2: did they read the "חדש בסבב הבחירות הזה" line? Did they pick a leader on purpose?
+6. Round 2: did they notice the new leader tile ("חדש!") and the spins wizard? Did they pick a leader on purpose?
 7. Any moment they said "what?" or "מה זה?" — the exact screen and words.
 8. When they stopped, and why (bored, confused, done, interrupted).
 

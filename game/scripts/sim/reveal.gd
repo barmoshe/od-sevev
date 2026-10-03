@@ -2,8 +2,9 @@ class_name Reveal
 extends RefCounted
 ## The reveal ladder (2026-10-03, design/overwhelm-report-2026-10-03.html; Bar: "one new system per
 ## round"). Content `reveal` maps a system to the election count (s.evolutions) it opens at:
-## round 1 (evolutions 0) is the tap, the sources, the chat's demands, 61 and the Suitcase; each
-## election after it adds one system, announced once at the round's start (`reveal.copy`).
+## round 1 (evolutions 0) is the picker (two open leaders, ADR 0007), the tap, the sources, the chat's
+## demands, 61 and the Suitcase; each election after it adds one system, taught by its wizard when it
+## first shows up (ui/wizard.gd; the bubble is `reveal.copy`).
 ## One table, one helper: every gate in the sim and the views asks Reveal.on(s, key). A content
 ## without the table (the fork fixture, old saves' tests) has everything on, as before.
 

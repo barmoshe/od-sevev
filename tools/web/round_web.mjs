@@ -46,7 +46,7 @@ await P.refresh();
 // default, or LEADER=<id> picks that one; then tap 1 starts the round
 let pk = await page.evaluate(() => window.odPick || null);
 if (pk && pk.open) {
-	const c = pk.cells.find((x) => x[2] === (process.env.LEADER || '')) || pk.cells[4];
+	const c = pk.cells.find((x) => x[2] === (process.env.LEADER || '') && !x[3]) || pk.cells[0];   // the first open tile (ADR 0007)
 	await P.tapAt(P.css(c[0], c[1]));
 	await page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 8000 }).catch(() => {});
 	await wait(600);

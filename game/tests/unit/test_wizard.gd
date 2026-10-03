@@ -171,3 +171,42 @@ func test_the_first_launch_opens_on_the_picker_step() -> void:
 	runner.check(not Leaders.pick_pending(m.state), "the pick is made")
 	runner.check(m.wizard.showing() and str(m.wizard._step.get("id")) == "tap", "then the tap step (%s)" % str(m.wizard.web_info(Vector2.ZERO)))
 	runner.check(m.wizard.hole.encloses(Rect2(m.bb.hit_rect().position + Vector2(m._sx, m._stage_y), m.bb.hit_rect().size)), "on the leader")
+
+
+## Every condition and anchor the content may name runs on the live scene without an error, in the
+## picker and in a round-5 round (where every mechanic is open).
+func test_every_hook_runs_on_the_live_scene() -> void:
+	m = load("res://scenes/main.tscn").instantiate()
+	m.store = SaveStore.new(dir)
+	tree.root.add_child(m)
+	for i in 3:
+		await tree.process_frame
+	m.ftue.handoff_ms = 1.0
+	await tree.process_frame
+	for n: String in WizardHooks.CONDS:
+		if n != "tapHole":
+			WizardHooks.cond(m, n)
+	for n: String in WizardHooks.ANCHORS:
+		WizardHooks.anchor(m, n)
+	runner.check(WizardHooks.anchor(m, "pickOpen").has_area(), "the picker's open tiles have a rect")
+	m.picker._age = 1000.0
+	m.picker.commit_cell(0, "tile")
+	m.picker.finish_now()
+	m._start_from_title(m.bb.hit_rect().get_center(), true)
+	m.state.evolutions = 4
+	for i in 4:
+		await tree.process_frame
+	for n: String in WizardHooks.CONDS:
+		if n != "tapHole":
+			WizardHooks.cond(m, n)
+	for n: String in WizardHooks.ANCHORS:
+		WizardHooks.anchor(m, n)
+	runner.check(m.mode == "main", "a round is up (%s)" % m.mode)
+	runner.check(WizardHooks.anchor(m, "leader").has_area() and WizardHooks.anchor(m, "seats").has_area(), "the leader and the seats bar have rects")
+	m.chat.open()
+	for i in 3:
+		await tree.process_frame
+	for n: String in ["payVisible", "perks"]:
+		WizardHooks.cond(m, n)
+	for n: String in ["payPill", "perks"]:
+		WizardHooks.anchor(m, n)

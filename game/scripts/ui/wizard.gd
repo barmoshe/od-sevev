@@ -275,10 +275,10 @@ func _layout() -> void:
 	Ui.set_nine_rect(_bubble, br)
 	_text.position = Vector2(br.position.x + 24.0, br.position.y + 16.0)
 	_text.center_in(br.position.x + 24.0, bw - 48.0)
-	_count.position = Vector2(br.position.x + 8.0, br.end.y + 4.0)
-	_count.visible = _count.text != ""
-	# "דלג": the column's top-left corner (RTL: away from the reading start)
+	# "דלג": the column's top-left corner (RTL: away from the reading start), the step count beside it
 	skip_rect = Rect2(column.position.x + 16.0, column.position.y + 12.0, SKIP.x, SKIP.y)
+	_count.position = Vector2(skip_rect.end.x + 16.0, skip_rect.position.y + 10.0)
+	_count.visible = _count.text != ""
 	Ui.set_nine_rect(_skip_plate, skip_rect)
 	_skip_text.position = Vector2(0, skip_rect.position.y + 10.0)
 	_skip_text.center_in(skip_rect.position.x, skip_rect.size.x)

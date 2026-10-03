@@ -1,5 +1,5 @@
-// LEADER_PICK in the runtime origin (leader select 2026-09-29; the reveal ladder 2026-10-03, ADR
-// 0006): a fresh game is Bibi's round with no picker, tap 1, a whole round to the election through the real UI (the shared
+// LEADER_PICK in the runtime origin (leader select 2026-09-29; the roster ladder 2026-10-03, ADR
+// 0007): a fresh game opens the picker with Bibi and Bennett open (the rest locked), pick Bibi, tap 1, a whole round to the election through the real UI (the shared
 // player of tools/web/round_play.mjs: taps, the chat first, buys, the brawl, the court), O3 (the
 // round holds under the open card: "the vote stops the clock", spec §7.4) → EVOLVE_TX → the flash,
 // the picker (after: the again button), a reload mid-pick, the long-press card, a pick of בנט, round 2 live.
@@ -41,11 +41,29 @@ await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, n
 await wait(1200);
 await P.refresh();
 
-// 1. a fresh game: no picker (the reveal ladder, ADR 0006): round 1 is the default leader's
+// 1. a fresh game opens the picker with two open tiles (the roster ladder, ADR 0007): Bibi and
+// Bennett side by side, the rest locked with the round they open in; pick Bibi
+await page.waitForFunction(() => window.odPick && window.odPick.open, null, { timeout: 15000 }).catch(() => {});
 let p = await pick();
 let s = await probe();
-check(!(p && p.open) && s && s.leader === 'bibi', `a fresh game starts as Bibi without the picker (pick ${p && p.open}, leader ${s && s.leader})`);
+const openIds = ((p && p.cells) || []).filter((c) => ['bibi', 'bennett'].includes(c[2])).map((c) => c[3]);
+const lockedN = ((p && p.cells) || []).filter((c) => c[3]).length;
+check(!!(p && p.open && p.variant === 'first'), `a fresh game opens the picker (${p && p.open})`);
+check(openIds.length === 2 && openIds.every((x) => !x) && lockedN >= 5, `Bibi and Bennett are open, ${lockedN} tiles locked`);
 await shot('p1-first-launch');
+{
+	const lk = ((p && p.cells) || []).find((c) => c[3]);
+	if (lk) { await tapAt(css(lk[0], lk[1])); await wait(700); }
+	s = await probe();
+	check(s && s.mode === 'pick', `a tap on a locked tile starts nothing (mode ${s && s.mode})`);
+	await shot('p2-locked-tap');
+	const bc = cellOf(p, 'bibi');
+	await tapAt(css(bc[0], bc[1]));
+	await page.waitForFunction(() => window.odDev && window.odDev.mode !== 'pick', null, { timeout: 8000 }).catch(() => {});
+	await wait(900);
+	s = await probe();
+	check(s && s.leader === 'bibi' && s.mode === 'title', `pick Bibi: the pre-tap stage (leader ${s && s.leader}, mode ${s && s.mode})`);
+}
 if (process.env.PICK_ONLY) {   // the first launch at this viewport only
 	log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
 	await browser.close();

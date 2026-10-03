@@ -500,7 +500,7 @@ for (const spec of list.split(',')) {
 	await ctx.close();
 
 	// ---- round 2 with an empty purse (merge review M1 S18 + M2 S8/S15): a second page, no grant.
-	// The reveal ladder (ADR 0006): round 1 is Bibi's with no picker; the picker opens after it.
+	// The roster ladder (ADR 0007): the first picker offers Bibi and Bennett; the after picker one more.
 	{
 		ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: !framed, hasTouch: !framed });
 		page = await ctx.newPage();
@@ -516,7 +516,13 @@ for (const spec of list.split(',')) {
 		await refresh();
 		cv = await page.evaluate(() => { const c = document.querySelector('canvas'); const r = c.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, bw: c.width, bh: c.height }; });
 		let pk2 = null;
-		const first = [0, 0, 'bibi'];   // round 1 is the default leader's (no picker on a new game)
+		const first = [0, 0, 'bibi'];   // the roster ladder (ADR 0007): the first picker opens Bibi and Bennett; pick Bibi
+		await page.waitForFunction(() => window.odPick && window.odPick.open, null, { timeout: 8000 }).catch(() => {});
+		{
+			const p0 = await page.evaluate(() => window.odPick || null);
+			const bc = p0 && p0.open ? p0.cells.find((c) => c[2] === 'bibi') : null;
+			if (bc) { await wait(600); await refresh(); await tap(css(bc[0], bc[1])); }
+		}
 		await page.waitForFunction(() => window.odDev && window.odDev.mode === 'title', null, { timeout: 8000 }).catch(() => {});
 		await wait(1200);
 		await refresh();
@@ -537,7 +543,7 @@ for (const spec of list.split(',')) {
 		if (pk2 && pk2.open && pk2.variant === 'after') {
 			await refresh();
 			const bank = Number(((await probe()) || {}).bank || 0);
-			const other = pk2.cells.find((c) => c[2] !== '' && c[2] !== first[2]) || pk2.cells[0];
+			const other = pk2.cells.find((c) => c[2] !== '' && c[2] !== first[2] && !c[3]) || pk2.cells[0];   // an open tile
 			await s18Start();
 			const t0 = Date.now();
 			await tap(css(other[0], other[1]));

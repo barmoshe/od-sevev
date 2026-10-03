@@ -315,6 +315,8 @@ func _read_dev_params() -> void:
 		RenderingServer.set_default_clear_color(Diorama.clear_override)
 	if q.contains("sharp=0"):
 		PxText.set_sharp_text(get_tree(), false)
+	if not q.contains("wiz=1"):
+		Wizard.enabled = false   # the drivers play the round their own way; wizard_web.mjs passes wiz=1
 	for part in q.trim_prefix("?").split("&"):
 		var kv := part.split("=")
 		if kv.size() == 2 and kv[0] in ["speed", "grant", "evo", "flash", "susp", "aide", "chat", "court", "slow"]:

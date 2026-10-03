@@ -23,7 +23,7 @@
   },
   "_formula": "tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult (permanent: perks, partners, Eisenkot) × tapBoost (timed: tap frenzy, a ×N spin, Kaia, a leader buff, Mordechai; taps show big while > 1) × (crit ? critMult : 1). bps excludes the production-frenzy multiplier. Random crits are off before tap firstCrit.randomCritsFromTap (lifetime taps)."
  },
- "saveEpoch": 1,
+ "saveEpoch": 2,
  "_saveEpoch": "Pre-launch wipes (Bar 2026-10-03): a save written under another epoch is deleted on load and the game starts clean (SaveStore.parse). Bump by one and deploy to wipe everyone's progress again; settings stay. Stop bumping after the official launch.",
  "wizard": {
   "_doc": "The wizard overlay (ADR 0007; Bar 2026-10-03: the first two minutes clear with a guided do-it wizard, and every new mechanic gets its own). ui/wizard.gd: a step shows while `when` holds and `done` doesn't (state, not a forced chain), a dim with a hole on `anchor`, Dubi's bubble, 'דלג'. Names: WizardHooks.CONDS / ANCHORS. soft = no swallowing; gone = the moment passing counts as done; sec = done after that long shown; hold = the clock holds. text '@reveal.<key>' = reveal.copy.",
