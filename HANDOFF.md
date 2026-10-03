@@ -1,3 +1,10 @@
+# HANDOFF: the reveal ladder, LIVE (2026-10-03; read this first)
+
+**Live: `b228961`** (web-dist `db1dabb`, Vercel `dpl_8Y1DkntmkCGn9TcNv9qJLofdq7Wp`). The game now opens one system per round (ADR 0006, `design/overwhelm-report-2026-10-03.html`). Details in STATUS 2026-10-03.
+- **Tune the ladder in content only:** `reveal` (thresholds by election count) and `reveal.copy` (the announcements). A system's gate is `Reveal.on(s, key)`; a new system must get a rung and a line (complexity budget until 27.10).
+- **Tests:** unit tests run with the ladder off (`run_tests.gd` sets `Reveal.force_all` for `unit`); the bench runs it on. Run the bench as four parallel files (see below).
+- **Open:** run `--dir=bench --only=test_session` again for the new SL gate (slow player, ≤ 12 min); the politics G1 result from the deploy-time run; round_web / picker_web / mobile_web on this build; the analytics funnel in the Vercel dashboard; a 3-5 person playtest (`design/playtest-kit.md`).
+
 # HANDOFF: five new MKs on `mk-rothman-bismuth`, PAUSED (2026-10-02; read this first)
 
 Bar stopped ("אני סוגר את המחשב"). Branch `mk-rothman-bismuth` is pushed (`2db6fed`, `89eac8c`, STATUS `ede1282`), not merged, not deployed. Tests 577/577, lints clean.
