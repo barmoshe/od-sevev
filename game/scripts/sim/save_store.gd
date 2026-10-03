@@ -19,6 +19,13 @@ extends RefCounted
 const VERSION := 4
 const EXPORT_PREFIX := "HK1:"
 
+
+## The save epoch (content saveEpoch; Bar 2026-10-03, before the official launch): a save written
+## under another epoch is deleted on load and the game starts clean. Bump it in content to wipe every
+## player's progress with a deploy. A save without the field is epoch 0.
+static func epoch() -> int:
+	return int(Content.data().get("saveEpoch", 0))
+
 var path: String
 var settings_path: String
 
@@ -28,7 +35,7 @@ func _init(dir: String = "user://") -> void:
 	settings_path = dir.path_join("settings.json")
 
 
-## {kind: "none" | "ok" | "corrupt" | "newer", state, lastSaveTime (ms), backup}
+## {kind: "none" | "ok" | "corrupt" | "newer", state, lastSaveTime (ms), backup, wiped (an old epoch's save was deleted)}
 func load_game() -> Dictionary:
 	var text := ""
 	if FileAccess.file_exists(path):
@@ -36,6 +43,9 @@ func load_game() -> Dictionary:
 	else:
 		return {"kind": "none"}
 	var res := parse(text)
+	if res["kind"] == "stale":
+		wipe_game()   # a pre-launch wipe: the old progress goes, no .bak, no "corrupt" toast
+		return {"kind": "none", "wiped": true}
 	if res["kind"] == "corrupt" or res["kind"] == "newer":
 		res["backup"] = _backup(text)
 	return res
@@ -58,6 +68,9 @@ static func parse(text: String) -> Dictionary:
 		return {"kind": "corrupt"}
 	if int(v) > VERSION:
 		return {"kind": "newer", "version": int(v)}
+	var ep: Variant = file.get("epoch", 0)
+	if not (ep is float or ep is int) or int(ep) != epoch():
+		return {"kind": "stale", "epoch": int(ep) if (ep is float or ep is int) else -1}
 	var migrated := migrate(file)
 	if migrated.is_empty():
 		return {"kind": "corrupt"}
@@ -99,7 +112,7 @@ static func migrate(file: Dictionary) -> Dictionary:
 
 
 func save_game(s: GameState, now: float = now_ms()) -> bool:
-	return _write_atomic(path, JSON.stringify({"version": VERSION, "lastSaveTime": now, "state": s.to_dict()}))
+	return _write_atomic(path, JSON.stringify({"version": VERSION, "epoch": epoch(), "lastSaveTime": now, "state": s.to_dict()}))
 
 
 func wipe_game() -> void:
@@ -108,7 +121,7 @@ func wipe_game() -> void:
 
 
 static func export_code(s: GameState, now: float = now_ms()) -> String:
-	var json := JSON.stringify({"version": VERSION, "lastSaveTime": now, "state": s.to_dict()})
+	var json := JSON.stringify({"version": VERSION, "epoch": epoch(), "lastSaveTime": now, "state": s.to_dict()})
 	return EXPORT_PREFIX + Marshalls.utf8_to_base64(json)
 
 

@@ -98,3 +98,21 @@ func test_settings_keep_types() -> void:
 	var got := st.load_settings({"sfx": true, "music": false, "notation": "letters"})
 	runner.check(got["sfx"] == false and got["music"] == true, "bool settings load")
 	runner.check(got["notation"] == "letters", "a wrong-typed value falls back to the default")
+
+
+## Pre-launch wipes (content saveEpoch): a save from another epoch is deleted and the game starts clean.
+func test_a_save_from_another_epoch_is_wiped() -> void:
+	var dir := "user://test_epoch_%d" % Time.get_ticks_usec()
+	DirAccess.make_dir_recursive_absolute(dir)
+	var st := SaveStore.new(dir)
+	var s := GameState.fresh()
+	s.bananas = 12345.0
+	runner.check(st.save_game(s), "saved")
+	runner.check(str(st.load_game()["kind"]) == "ok", "the same epoch loads")
+	var f := FileAccess.open(st.path, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"version": SaveStore.VERSION, "epoch": SaveStore.epoch() - 1, "lastSaveTime": 0, "state": s.to_dict()}))
+	f.close()
+	var r := st.load_game()
+	runner.check(str(r["kind"]) == "none" and bool(r.get("wiped", false)), "an old epoch's save: a new game (%s)" % str(r))
+	runner.check(not FileAccess.file_exists(st.path), "and the old save is gone")
+	DirAccess.remove_absolute(dir)

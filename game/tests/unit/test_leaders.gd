@@ -520,7 +520,7 @@ func test_v3_save_migrates_as_bibis_round() -> void:
 	for k in ["leader", "leaderPickPending", "leaderHistory", "leaders", "seatDeal", "leaderRound"]:
 		raw.erase(k)
 	var f := FileAccess.open(st.path, FileAccess.WRITE)
-	f.store_string(JSON.stringify({"version": 3, "lastSaveTime": 5.0, "state": raw}))
+	f.store_string(JSON.stringify({"version": 3, "epoch": SaveStore.epoch(), "lastSaveTime": 5.0, "state": raw}))
 	f.close()
 	var r := st.load_game()
 	runner.check(r["kind"] == "ok", "a v3 save loads")

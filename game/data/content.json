@@ -23,6 +23,8 @@
   },
   "_formula": "tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult (permanent: perks, partners, Eisenkot) × tapBoost (timed: tap frenzy, a ×N spin, Kaia, a leader buff, Mordechai; taps show big while > 1) × (crit ? critMult : 1). bps excludes the production-frenzy multiplier. Random crits are off before tap firstCrit.randomCritsFromTap (lifetime taps)."
  },
+ "saveEpoch": 1,
+ "_saveEpoch": "Pre-launch wipes (Bar 2026-10-03): a save written under another epoch is deleted on load and the game starts clean (SaveStore.parse). Bump by one and deploy to wipe everyone's progress again; settings stay. Stop bumping after the official launch.",
  "reveal": {
   "_doc": "The reveal ladder (2026-10-03, Bar: one new system per round; Reveal.on). Each key opens at that election count: round 1 (0) is the tap, sources, the chat's demands, 61 and the Suitcase. copy = the one-line announcement at the start of the round it opens in.",
   "spins": 1,

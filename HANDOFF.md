@@ -2,6 +2,7 @@
 
 **Live: `b228961`** (web-dist `db1dabb`, Vercel `dpl_8Y1DkntmkCGn9TcNv9qJLofdq7Wp`). The game now opens one system per round (ADR 0006, `design/overwhelm-report-2026-10-03.html`). Details in STATUS 2026-10-03.
 - **Tune the ladder in content only:** `reveal` (thresholds by election count) and `reveal.copy` (the announcements). A system's gate is `Reveal.on(s, key)`; a new system must get a rung and a line (complexity budget until 27.10).
+- **Pre-launch wipes (Bar 2026-10-03):** to wipe every player's progress, bump `saveEpoch` in `design/content.json` by one, `tools/sync_data.sh`, build, deploy. A save from another epoch is deleted on load (SaveStore.parse "stale"); settings stay; old export codes are refused. Epoch 1 = the wipe that shipped with the reveal ladder. Stop bumping after the official launch.
 - **Tests:** unit tests run with the ladder off (`run_tests.gd` sets `Reveal.force_all` for `unit`); the bench runs it on. Run the bench as four parallel files (see below).
 - **Open:** run `--dir=bench --only=test_session` again for the new SL gate (slow player, ≤ 12 min); the politics G1 result from the deploy-time run; round_web / picker_web / mobile_web on this build; the analytics funnel in the Vercel dashboard; a 3-5 person playtest (`design/playtest-kit.md`).
 
