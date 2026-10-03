@@ -2440,10 +2440,10 @@
 			"loopSamples": 2112000,
 			"loopSeconds": 66.2069,
 			"lufs": {
-				"L0": -21.23,
-				"L1": -24.33,
-				"L2": -22.03,
-				"full": -18.3
+				"L0": -23.01,
+				"L1": -25.84,
+				"L2": -22.29,
+				"full": -19.3
 			},
 			"mode": "minor",
 			"outside": {
@@ -2456,13 +2456,13 @@
 					99000
 				],
 				"loopSamples": 132000,
-				"play_db": -6.35
+				"play_db": -8.13
 			},
-			"play_db": -2.96,
+			"play_db": -4.21,
 			"rate": 31900,
 			"stepSamples": 4125,
 			"stepsPerBar": 16,
-			"sumPeakDbfs": -1.97,
+			"sumPeakDbfs": -3.42,
 			"tempoBpm": 116.0
 		},
 		"courthouse": {
@@ -2476,17 +2476,17 @@
 			"loopSamples": 1923840,
 			"loopSeconds": 87.2727,
 			"lufs": {
-				"L0": -22.96,
-				"L1": -26.71,
-				"L2": -21.05,
-				"full": -19.3
+				"L0": -24.57,
+				"L1": -27.97,
+				"L2": -21.51,
+				"full": -20.3
 			},
 			"mode": "minor",
-			"play_db": -2.61,
+			"play_db": -5.1,
 			"rate": 22044,
 			"stepSamples": 5010,
 			"stepsPerBar": 12,
-			"sumPeakDbfs": -1.47,
+			"sumPeakDbfs": -1.81,
 			"tempoBpm": 88.0
 		},
 		"knesset": {
@@ -2500,17 +2500,17 @@
 			"loopSamples": 1863680,
 			"loopSeconds": 58.1818,
 			"lufs": {
-				"L0": -20.73,
-				"L1": -25.45,
-				"L2": -21.68,
-				"full": -18.3
+				"L0": -22.27,
+				"L1": -26.62,
+				"L2": -21.91,
+				"full": -19.3
 			},
 			"mode": "minor",
-			"play_db": -2.8,
+			"play_db": -4.86,
 			"rate": 32032,
 			"stepSamples": 3640,
 			"stepsPerBar": 16,
-			"sumPeakDbfs": -2.62,
+			"sumPeakDbfs": -3.88,
 			"tempoBpm": 132.0
 		},
 		"washington": {
@@ -2524,17 +2524,17 @@
 			"loopSamples": 1704960,
 			"loopSeconds": 53.3333,
 			"lufs": {
-				"L0": -21.02,
-				"L1": -24.93,
-				"L2": -20.67,
-				"full": -18.3
+				"L0": -22.8,
+				"L1": -26.59,
+				"L2": -21.0,
+				"full": -19.3
 			},
 			"mode": "mixolydian",
-			"play_db": -1.69,
+			"play_db": -4.18,
 			"rate": 31968,
 			"stepSamples": 3330,
 			"stepsPerBar": 16,
-			"sumPeakDbfs": -1.77,
+			"sumPeakDbfs": -3.27,
 			"tempoBpm": 144.0
 		}
 	},
@@ -2985,7 +2985,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -0.61,
+			"play_db": -1.47,
 			"target": {
 				"lufs": -17.0,
 				"type": "integrated"
@@ -3028,7 +3028,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -10.74,
+			"play_db": -9.31,
 			"target": {
 				"lufs": -15.0,
 				"type": "burst"
@@ -3071,7 +3071,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -6.28,
+			"play_db": -5.5,
 			"target": {
 				"lufs": -15.0,
 				"type": "momentary"

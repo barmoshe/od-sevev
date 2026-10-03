@@ -202,7 +202,7 @@ func _compile(bars: PackedStringArray, ch: Dictionary, sec_of_bar: PackedStringA
 
 
 ## Renders events into `out` (step positions from step_s at the current D.sr).
-func _render_events(ev: Array, step_s: float, out: PackedFloat32Array, seed_pre: String, limit_steps := -1) -> void:
+func _render_events(ev: Array, step_s: float, out: PackedFloat32Array, seed_pre: String, limit_steps := -1, detune := 1.0) -> void:
 	for s in ev.size():
 		if limit_steps >= 0 and s >= limit_steps:
 			break
@@ -218,7 +218,7 @@ func _render_events(ev: Array, step_s: float, out: PackedFloat32Array, seed_pre:
 			continue
 		var ni := 0
 		for n: int in e["notes"]:
-			_play(String(e["inst"]), _hz(n) / _a4, int(e["len"]) * step_s, at, out, "%s/%d/%d" % [seed_pre, s, ni], e["orn"], float(e["g"]))
+			_play(String(e["inst"]), _hz(n) / _a4 * detune, int(e["len"]) * step_s, at, out, "%s/%d/%d" % [seed_pre, s, ni], e["orn"], float(e["g"]))
 			ni += 1
 
 
@@ -243,6 +243,29 @@ func _play(inst_name: String, ratio: float, note_s: float, at: int, out: PackedF
 				L["freqCurve"] = "exp"
 		var x := D.render_layer(L, ratio, note_s * gate, D.rng_for(seed_key, 0, li), _a4)
 		D.mix_at(out, x, at + int(roundf(float(L.get("delay", 0.0)) * D.sr)), g)
+
+
+## v1.8 (Bar: "thin / harsh, tiring"): a channel's `fx`. `double` {cents, db}: the line again, detuned,
+## under it (the chip chorus: two pulse channels a few cents apart). `echo` {steps, db, repeats}: the
+## line delayed by `steps` and `db` quieter per repeat (the chip echo channel). Both wrap with the loop.
+func _channel_fx(x: PackedFloat32Array, ev: Array, fx: Dictionary, step_s: float, seed_pre: String) -> PackedFloat32Array:
+	if fx.is_empty():
+		return x
+	var y := x
+	if fx.has("double"):
+		var dbl: Dictionary = fx["double"]
+		var z := D.zeros(x.size())
+		_render_events(ev, step_s, z, seed_pre + "/dbl", -1, pow(2.0, float(dbl["cents"]) / 1200.0))
+		y = x.duplicate()
+		D.mix_at(y, z, 0, D.db2lin(float(dbl["db"])))
+	if fx.has("echo"):
+		var ec: Dictionary = fx["echo"]
+		var src := y
+		y = src.duplicate()
+		var gap := int(roundf(float(ec["steps"]) * step_s * D.sr))
+		for r in int(ec.get("repeats", 1)):
+			D.mix_at(y, src, gap * (r + 1), D.db2lin(float(ec["db"]) * float(r + 1)))
+	return y
 
 
 func _slap(x: PackedFloat32Array, sb: Dictionary) -> PackedFloat32Array:
@@ -282,6 +305,7 @@ func _render_era(eid: String, e: Dictionary, target: float) -> Dictionary:
 		var ev := _compile(bars, ch, secs, 0)
 		var x := D.zeros(loop_n + int(TAIL_S * rate))
 		_render_events(ev, step_s, x, "%s/%s" % [eid, cid])
+		x = _channel_fx(x, ev, ch.get("fx", {}), step_s, "%s/%s" % [eid, cid])
 		x = _slap(x, sb)
 		D.mix_at(stems[ch["layer"]], x, 0, float(ch["gain"]))
 	var pk := 0.0

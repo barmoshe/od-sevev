@@ -49,6 +49,13 @@
 >   - **`wizardDone`:** rendered from t=0 and played 100 ms after its event (`audio.gd` `CUE_DELAY_MS`).
 >   - **Routing:** `buy` and `buyBulk` now route through EVENT_CUE (`route()` reports `cue:buy` / `cue:buyBig`). Their L1 side effect is in `SOURCE_EVENTS`.
 
+> **v1.8 (2026-10-03, Bar: "research composition and sound and improve the music"; pain points: repetitive, thin / harsh, melodies don't stick, tiring; direction: "HaTikva and more traditional songs"), the Audio Director:**
+> - **HaTikva, the full first phrase:** Balfour's A section is now the anthem's first section as written ("כל עוד בלבב פנימה / נפש יהודי הומיה" and its repeat), from the verified score (anthem-scores 0.1.1, IL.json, rhythm to the 16th), legato on P1. The guardrail (§6) allows the phrase in exactly one declared place, `ANTHEM_HOME` (balfour/lead/A), and checks the respect rules there: a legato voice, no ornaments, no overrides. Everywhere else the 2-bar cap stands, measured against the whole phrase.
+> - **The kit by section** (`kit_form`): A is light (riq on the off-beats only), A' is the full groove, B is half time (no riq, one tek), T is the full groove into the motif. It replaces one 2-bar groove for all 32 bars.
+> - **A fuller, softer lead:** a chip echo channel (3 steps, −11 dB, 2 repeats) and a detuned double (+7 cents, −8 dB) on the lead (Courthouse: the double only, it has its slapback). Every pulse voice is low-passed (lead 4.5 kHz, counter-lines 3.5–4 kHz); the riq is 3 dB down. Energy above 5 kHz is down about 70% in every era.
+> - **Level:** music −19.3 LUFS (v1.7: −18.3). Payload unchanged (music 8.81 MB).
+> - **Pending:** the traditional songs Bar picked as the eras' second tunes (Balfour: Hava Nagila; Knesset: Hevenu Shalom Aleichem + Shalom Chaverim; Courthouse: Shalom Chaverim in minor + a slow HaTikva phrase; Washington: Dayenu + Siman Tov u'Mazal Tov). All public domain (traditional or 19th century). None is written in from memory: they wait for a verified score, since the build container cannot reach the sheet-music sites.
+
 **Brief:** `sonic-brief` v1.1 (`artifacts/creative-pack/od-sevev/audio/sonic-brief.md`), with the resolutions in `engine/feasibility.md` (O-A1, O-A2, A3, A12, A13, A14, A18).
 
 ## Sources of truth

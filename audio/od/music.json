@@ -102,7 +102,7 @@
  },
  "targets": {
   "_doc": "Loudness targets (K-weighted BS.1770, dual mono) that set each item's play_db. music = all three layers of an era together (every era lands on the same value, so era changes do not jump). Stingers: integrated = over the whole stinger; momentary = the loudest 400 ms.",
-  "music": -18.3,
+  "music": -19.3,
   "fanfare": {
    "type": "integrated",
    "lufs": -17.0
@@ -143,6 +143,11 @@
      "sustain": 0.62,
      "duration": "note",
      "release": 0.035,
+     "filter": {
+      "type": "lowpass",
+      "freq": 4500,
+      "Q": 0.7
+     },
      "gain": 1.0,
      "vibrato": {
       "rateHz": 5.5,
@@ -165,6 +170,11 @@
      "sustain": 0.55,
      "duration": "note",
      "release": 0.03,
+     "filter": {
+      "type": "lowpass",
+      "freq": 4500,
+      "Q": 0.7
+     },
      "gain": 1.0
     }
    ]
@@ -182,6 +192,11 @@
      "sustain": 0.55,
      "duration": "note",
      "release": 0.04,
+     "filter": {
+      "type": "lowpass",
+      "freq": 3500,
+      "Q": 0.7
+     },
      "gain": 1.0,
      "vibrato": {
       "rateHz": 5.0,
@@ -204,6 +219,11 @@
      "sustain": 0.5,
      "duration": "note",
      "release": 0.04,
+     "filter": {
+      "type": "lowpass",
+      "freq": 4000,
+      "Q": 0.7
+     },
      "gain": 0.8
     }
    ]
@@ -221,6 +241,11 @@
      "sustain": 0.0,
      "duration": 0.085,
      "release": 0.015,
+     "filter": {
+      "type": "lowpass",
+      "freq": 4000,
+      "Q": 0.7
+     },
      "gain": 1.0
     }
    ]
@@ -238,6 +263,11 @@
      "sustain": 0.0,
      "duration": 0.085,
      "release": 0.015,
+     "filter": {
+      "type": "lowpass",
+      "freq": 3500,
+      "Q": 0.7
+     },
      "gain": 1.0
     }
    ]
@@ -556,7 +586,7 @@
      "sustain": 0.0,
      "duration": 0.045,
      "release": 0.015,
-     "gain": 0.55
+     "gain": 0.38
     }
    ]
   },
@@ -577,7 +607,7 @@
      "sustain": 0.0,
      "duration": 0.12,
      "release": 0.03,
-     "gain": 0.5
+     "gain": 0.36
     }
    ]
   },
@@ -896,13 +926,13 @@
    "chords": {
     "A": [
      "Dm",
-     "Dm",
+     "Gm|Dm",
      "Gm",
+     "A|Dm",
      "Dm",
-     "Bb",
+     "Gm|Dm",
      "Gm",
-     "A",
-     "Dm"
+     "A|Dm"
     ],
     "A2": [
      "Dm",
@@ -943,13 +973,13 @@
      "sections": {
       "A": [
        "D3@triOne - - . . . . . A2 - - . . . . .",
+       "G3@triOne - - . . . . . D3 - - . . . . .",
+       "G3@triOne - - . . . . . D3 - - . . . . .",
+       "A2@triOne - - . . . . . D3 - - . . . . .",
        "D3@triOne - - . . . . . A2 - - . . . . .",
        "G3@triOne - - . . . . . D3 - - . . . . .",
-       "D3@triOne - - . . . . . A2 - - . . . . .",
-       "Bb2@triOne - - . . . . . F3 - - . . . . .",
        "G3@triOne - - . . . . . D3 - - . . . . .",
-       "A2@triOne - - . . . . . E3 - - . . . . .",
-       "D3@triOne - - . . . . . A2 - - . . . . ."
+       "A2@triOne - - . . . . . D3 - - . . . . ."
       ],
       "A2": [
        "D3@triOne - - . . . . . A2 - - . . . C#3 -",
@@ -989,13 +1019,13 @@
      "gain": 0.42,
      "sections": {
       "A": [
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
+       "D . j . T . j . D . kj . T . j k",
+       "D . j . T . kj . D . kj . T . j k",
+       "D . j . T . j . D . kj . T . j k",
+       "D . j . T . kj . D . kj . T . j k",
+       "D . j . T . j . D . kj . T . j k",
+       "D . j . T . kj . D . kj . T . j k",
+       "D . j . T . j . D . kj . T . j k",
        "Do . j . Tj . j . Dj . kj . Tk . T k"
       ],
       "A2": [
@@ -1009,12 +1039,12 @@
        "Do . j . Tj . j . Dj . kj . Tk . T k"
       ],
       "B": [
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
+       "D . . . . . . . D . k . T . . k",
+       "D . . . . . k . D . k . T . . k",
+       "D . . . . . . . D . k . T . . k",
+       "D . . . . . k . D . k . T . . k",
+       "D . . . . . . . D . k . T . . k",
+       "D . . . . . k . D . k . T . . k",
        "Dj . j . Tj . j . Dj . kj . Tj . j k",
        "Do . j . Tj . j . Dj . kj . Tk . T k"
       ],
@@ -1048,13 +1078,13 @@
      "sections": {
       "A": [
        ". . F4 . . . A4 . . . F4 . . . A4 .",
-       ". . F4 . . . A4 . . . F4 . . . A4 .",
+       ". . Bb4 . . . D5 . . . F4 . . . A4 .",
        ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
+       ". . C#5 . . . E5 . . . F4 . . . A4 .",
        ". . F4 . . . A4 . . . F4 . . . A4 .",
-       ". . D5 . . . F4 . . . D5 . . . F4 .",
+       ". . Bb4 . . . D5 . . . F4 . . . A4 .",
        ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
-       ". . C#5 . . . E5 . . . C#5 . . . E5 .",
-       ". . F4 . . . A4 . . . F4 . . . A4 ."
+       ". . C#5 . . . E5 . . . F4 . . . A4 ."
       ],
       "A2": [
        ". . F4 . . . A4 . . . F4 . . . A4 .",
@@ -1094,14 +1124,14 @@
      "gain": 0.36,
      "sections": {
       "A": [
-       "D5 - - - - - E5 - - - - - F5 - - -",
-       "G5 - - - - - A5 - - - - - A5 - - -",
-       "Bb5 - - - - - A5 - - - - - Bb5 - - -",
-       "D6 - - - - - A5 - - - - - . . . .",
-       "D6 - - - - - C6 - - - - - Bb5 - - -",
-       "A5 - - - - - G5 - - - - - F5 - G5 -",
-       "E5 - - - - - C#5 - - - - - E5 - - -",
-       "D5 - - - - - A4 - D5 - - - . . . ."
+       "D5 - E5 - F5 - G5 - A5 - - - A5 - - -",
+       "Bb5 - A5 - Bb5 - D6 - A5 - - - - - - -",
+       "G5 - - - G5 - G5 - F5 - - - F5 - - -",
+       "E5 - D5 - E5 - F5 - D5 - - - - - A4 -",
+       "D5 - E5 - F5 - G5 - A5 - - - A5 - - -",
+       "Bb5 - A5 - Bb5 - D6 - A5 - - - - - - -",
+       "G5 - - - G5 - G5 - F5 - - - F5 - - -",
+       "E5 - D5 - E5 - F5 - D5 - - - - - - -"
       ],
       "A2": [
        "D5~E5 - - - - - F5 - - - - - G5 - - -",
@@ -1133,6 +1163,17 @@
        "E5 - - - - - C#5 - E5 - - - . . D5 -",
        "E5 - - - F5 - G5 - - - - - A5 - - -"
       ]
+     },
+     "fx": {
+      "double": {
+       "cents": 7,
+       "db": -8.0
+      },
+      "echo": {
+       "steps": 3,
+       "db": -11.0,
+       "repeats": 2
+      }
      }
     }
    },
@@ -1250,13 +1291,13 @@
      "gain": 0.42,
      "sections": {
       "A": [
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
+       "D . Tj . k . Tj . D . kj . T . j k",
+       "D k Tj . k . Tj . D . kj . T . Dj .",
+       "D . Tj . k . Tj . D . kj . T . j k",
+       "D k Tj . k . Tj . D . kj . T . Dj .",
+       "D . Tj . k . Tj . D . kj . T . j k",
+       "D k Tj . k . Tj . D . kj . T . Dj .",
+       "D . Tj . k . Tj . D . kj . T . j k",
        "Do . Tj . kj . Tj . Dj . kj . Tk . T k"
       ],
       "A2": [
@@ -1270,12 +1311,12 @@
        "Do . Tj . kj . Tj . Dj . kj . Tk . T k"
       ],
       "B": [
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
+       "D . . . k . . . D . k . T . . k",
+       "D k . . k . . . D . k . T . D .",
+       "D . . . k . . . D . k . T . . k",
+       "D k . . k . . . D . k . T . D .",
+       "D . . . k . . . D . k . T . . k",
+       "D k . . k . . . D . k . T . D .",
        "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
        "Do . Tj . kj . Tj . Dj . kj . Tk . T k"
       ],
@@ -1392,6 +1433,17 @@
        "F#5 - - - - - D#5 - F#5 - - - . . E5 -",
        "F#5 - - - G5 - A5 - - - - - B5 - - -"
       ]
+     },
+     "fx": {
+      "double": {
+       "cents": 7,
+       "db": -8.0
+      },
+      "echo": {
+       "steps": 3,
+       "db": -11.0,
+       "repeats": 2
+      }
      }
     }
    }
@@ -1507,13 +1559,13 @@
      "gain": 0.42,
      "sections": {
       "A": [
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
+       "D . . . . j T . . . . j",
+       "D . . . . j T . k . . Dj",
+       "D . . . . j T . . . . j",
+       "D . . . . j T . k . . Dj",
+       "D . . . . j T . . . . j",
+       "D . . . . j T . k . . Dj",
+       "D . . . . j T . . . . j",
        "Djo . . j . j Tj . . T . T"
       ],
       "A2": [
@@ -1527,12 +1579,12 @@
        "Djo . . j . j Tj . . T . T"
       ],
       "B": [
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
+       "D . . . . . T . . . . .",
+       "D . . . . . T . k . . D",
+       "D . . . . . T . . . . .",
+       "D . . . . . T . k . . D",
+       "D . . . . . T . . . . .",
+       "D . . . . . T . k . . D",
        "Dj . . j . j Tj . . j . j",
        "Djo . . j . j Tj . . T . T"
       ],
@@ -1651,6 +1703,12 @@
        "F#4 - A4 D5 - - . . . . . G4",
        "A4@p1 - - Bb4@p1 - C5@p1 - - - D5@p1 - -"
       ]
+     },
+     "fx": {
+      "double": {
+       "cents": 6,
+       "db": -9.0
+      }
      }
     }
    }
@@ -1760,13 +1818,13 @@
      "gain": 0.38,
      "sections": {
       "A": [
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
+       "D . j . T . j . D . j . T . j .",
+       "D . j . T . j . D . jk . T k j .",
+       "D . j . T . j . D . j . T . j .",
+       "D . j . T . j . D . jk . T k j .",
+       "D . j . T . j . D . j . T . j .",
+       "D . j . T . j . D . jk . T k j .",
+       "D . j . T . j . D . j . T . j .",
        "Do . j . Tj . j . Dj . kj . Tk . T k"
       ],
       "A2": [
@@ -1780,12 +1838,12 @@
        "Do . j . Tj . j . Dj . kj . Tk . T k"
       ],
       "B": [
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
+       "D . . . . . . . D . . . T . . .",
+       "D . . . . . . . D . k . T k . .",
+       "D . . . . . . . D . . . T . . .",
+       "D . . . . . . . D . k . T k . .",
+       "D . . . . . . . D . . . T . . .",
+       "D . . . . . . . D . k . T k . .",
        "Dj . j . Tj . j . Dj . j . Tj . j .",
        "Do . j . Tj . j . Dj . kj . Tk . T k"
       ],
@@ -1904,6 +1962,17 @@
        "A5 - - G5 - - C5 - . . . . . . F5 -",
        "G5 - - - Ab5 - Bb5 - - - - - C6 - - -"
       ]
+     },
+     "fx": {
+      "double": {
+       "cents": 7,
+       "db": -8.0
+      },
+      "echo": {
+       "steps": 3,
+       "db": -11.0,
+       "repeats": 2
+      }
      }
     }
    }

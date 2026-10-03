@@ -89,6 +89,37 @@ def with_click(bars, inst_one):
     return out
 
 
+# v1.8 (Bar: "repetitive, thin, tiring"): the kit changes by section instead of one 2-bar groove for all
+# 32 bars. A is light (the riq only on the off-beats), A' is the full groove, B drops to half time (no
+# riq, one tek per bar), T is the full groove into the motif. `beat` = steps per beat.
+def _kit_bar(bar, keep):
+    out = []
+    for i, st in enumerate(bar.split(" ")):
+        k = "".join(c for c in st if c != "." and keep(i, c))
+        out.append(k if k else ".")
+    return " ".join(out)
+
+
+def thin(bar, beat):
+    off = beat // 2 if beat % 2 == 0 else beat - 1
+    return _kit_bar(bar, lambda i, c: c != "j" or i % beat == off)
+
+
+def half(bar, beat):
+    return _kit_bar(bar, lambda i, c: c != "j" and not (c == "T" and i < 2 * beat))
+
+
+def kit_form(g1, g2, fill, last, beat):
+    return {"A": [thin(g1, beat), thin(g2, beat)] * 3 + [thin(g1, beat), fill],
+            "A2": [g1, g2] * 3 + [g1, fill],
+            "B": [half(g1, beat), half(g2, beat)] * 3 + [g1, fill],
+            "T": [g1, g2] * 3 + [g1, last]}
+
+
+# the lead's chip echo channel and detuned double (gen_od_sevev.gd _channel_fx): fuller, less beepy
+LEAD_FX = {"double": {"cents": 7, "db": -8.0}, "echo": {"steps": 3, "db": -11.0, "repeats": 2}}
+
+
 # ============================================================ instruments (lib_dsp layer schema, A4 = root)
 
 VIB = {"rateHz": 5.5, "depthCents": 15, "delay": 0.25}
@@ -103,20 +134,22 @@ INSTRUMENTS = {
             "note played; 'gate' shortens a held note (noteSeconds = steps * stepSeconds * gate). Voice "
             "names follow the brief §3: P1 pulse 25%, P2 pulse 12.5%/50%, TRI (4-bit crushed triangle), "
             "NOI-L (LFSR long mode, wave 'noise'), NOI-S (LFSR short/metallic, wave 'noiseMetal'), BLIP.",
-    # P1: the Magician's hand. 0 ms attack, vibrato 5.5 Hz +-15 cents after 250 ms.
+    # P1: the Magician's hand. 0 ms attack, vibrato 5.5 Hz +-15 cents after 250 ms. v1.8 (Bar: "thin /
+    # harsh, tiring"): every pulse voice of the music is low-passed (lead 4.5 kHz, counter-line 3.5-4 kHz),
+    # so the buzz above the phone's presence band goes; the riq is 3 dB down.
     "p1": {"gate": 0.9, "layers": [L(id="p1", wave="pulse", duty=0.25, freqStart="A4", attack=0.001, decay=0.09,
-                                      sustain=0.62, duration="note", release=0.035, gain=1.0, vibrato=VIB)]},
+                                      sustain=0.62, duration="note", release=0.035, filter={"type": "lowpass", "freq": 4500, "Q": 0.7}, gain=1.0, vibrato=VIB)]},
     "p1s": {"gate": 0.72, "layers": [L(id="p1", wave="pulse", duty=0.25, freqStart="A4", attack=0.001, decay=0.08,
-                                       sustain=0.55, duration="note", release=0.03, gain=1.0)]},
+                                       sustain=0.55, duration="note", release=0.03, filter={"type": "lowpass", "freq": 4500, "Q": 0.7}, gain=1.0)]},
     # P2: counter-line. 12.5% = the nasal answer, 50% = the brass.
     "p2n": {"gate": 0.88, "layers": [L(id="p2", wave="pulse", duty=0.125, freqStart="A4", attack=0.002, decay=0.1,
-                                        sustain=0.55, duration="note", release=0.04, gain=1.0, vibrato={"rateHz": 5.0, "depthCents": 10, "delay": 0.3})]},
+                                        sustain=0.55, duration="note", release=0.04, filter={"type": "lowpass", "freq": 3500, "Q": 0.7}, gain=1.0, vibrato={"rateHz": 5.0, "depthCents": 10, "delay": 0.3})]},
     "p2b": {"gate": 0.82, "layers": [L(id="p2", wave="pulse", duty=0.5, freqStart="A4", attack=0.002, decay=0.1,
-                                        sustain=0.5, duration="note", release=0.04, gain=0.8)]},
+                                        sustain=0.5, duration="note", release=0.04, filter={"type": "lowpass", "freq": 4000, "Q": 0.7}, gain=0.8)]},
     "p2stab": {"gate": 1.0, "layers": [L(id="p2", wave="pulse", duty=0.5, freqStart="A4", attack=0.001, decay=0.08,
-                                          sustain=0.0, duration=0.085, release=0.015, gain=1.0)]},
+                                          sustain=0.0, duration=0.085, release=0.015, filter={"type": "lowpass", "freq": 4000, "Q": 0.7}, gain=1.0)]},
     "p2nstab": {"gate": 1.0, "layers": [L(id="p2", wave="pulse", duty=0.125, freqStart="A4", attack=0.001, decay=0.08,
-                                           sustain=0.0, duration=0.085, release=0.015, gain=1.0)]},
+                                           sustain=0.0, duration=0.085, release=0.015, filter={"type": "lowpass", "freq": 3500, "Q": 0.7}, gain=1.0)]},
     # TRI: bass, A2-C4. 4-bit crush for the chip staircase and for phone-speaker harmonics.
     "tri": {"gate": 0.8, "layers": [L(id="tri", wave="triangle", crush=4, freqStart="A4", attack=0.002, decay=0.07,
                                        sustain=0.8, duration="note", release=0.02, gain=1.0)]},
@@ -161,10 +194,10 @@ INSTRUMENTS = {
           attack=0.0005, decay=0.025, sustain=0.0, duration=0.025, release=0.008, gain=0.38)]},
     "riq": {"gate": 1.0, "layers": [
         L(id="jingle", wave="noiseMetal", clockStart=44000, filter={"type": "highpass", "freq": 6000, "Q": 0.7},
-          attack=0.001, decay=0.045, sustain=0.0, duration=0.045, release=0.015, gain=0.55)]},
+          attack=0.001, decay=0.045, sustain=0.0, duration=0.045, release=0.015, gain=0.38)]},
     "riqO": {"gate": 1.0, "layers": [
         L(id="jingle", wave="noiseMetal", clockStart=44000, filter={"type": "highpass", "freq": 5500, "Q": 0.7},
-          attack=0.002, decay=0.12, sustain=0.0, duration=0.12, release=0.03, gain=0.5)]},
+          attack=0.002, decay=0.12, sustain=0.0, duration=0.12, release=0.03, gain=0.36)]},
     # OUT: the protest drum line outside the window (rendered full band; the Outside bus low-passes it)
     "outThump": {"gate": 1.0, "layers": [
         L(id="body", wave="triangle", crush=4, freqStart=92, freqEnd=80, freqCurve="exp", glide=0.03, followPitch=False,
@@ -222,10 +255,15 @@ KITS = {
 def balfour():
     S = 16
     lead = {
-        # bars 1-4: the anthem's opening contour (1 2 b3 4 5 5 | b6 5 b6 1' 5) re-phrased in the hora's
-        # 3+3+2; then Balfour's own tune
-        "A": seq("D5:6 E5:6 F5:4 | G5:6 A5:6 A5:4 | Bb5:6 A5:6 Bb5:4 | D6:6 A5:6 .:4 | D6:6 C6:6 Bb5:4 |"
-                 "A5:6 G5:6 F5:2 G5:2 | E5:6 C#5:6 E5:4 | D5:6 A4:2 D5:4 .:4", S),
+        # v1.8 (Bar 2026-10-03: "HaTikva and more traditional songs"; the full first phrase, respectfully):
+        # A is the anthem's first section as written, "כל עוד בלבב פנימה / נפש יהודי הומיה" and its
+        # repeat, "ולפאתי מזרח קדימה / עין לציון צופיה". Verified: the Hatikvah score (English
+        # Wikipedia rev 1375885586, CC BY-SA 4.0; melody Samuel Cohen 1888, public domain) via the npm
+        # package anthem-scores 0.1.1 (anthems/IL.json, D minor), its rhythm to the 16th. Played
+        # straight: legato on P1, no ornaments, no bends, never cut short (ANTHEM_HOME, check_music).
+        "A": seq("D5:2 E5:2 F5:2 G5:2 A5:4 A5:4 | Bb5:2 A5:2 Bb5:2 D6:2 A5:8 | G5:4 G5:2 G5:2 F5:4 F5:4 |"
+                 "E5:2 D5:2 E5:2 F5:2 D5:6 A4:2 | D5:2 E5:2 F5:2 G5:2 A5:4 A5:4 | Bb5:2 A5:2 Bb5:2 D6:2 A5:8 |"
+                 "G5:4 G5:2 G5:2 F5:4 F5:4 | E5:2 D5:2 E5:2 F5:2 D5:8", S),
         "A2": seq("D5~E5:6 F5:6 G5:4 | A5:6 A5:6 G5:2 A5:2 | Bb5:6 A5:6 Bb5:4 | D6:6 A5:6 F5:4 |"
                   "F5:6 Bb5:6 D6:4 | C6:6 E6:6 D6:4 | C#6:6 E6:6 A5:4 | E6:4 D6:2 C#6:6 .:4", S),
         "B": seq("A5:4 .:2 A5:2 C6:4 A5:4 | G5:4 .:2 G5:2 E5:4 G5:4 | A5:4 .:2 A5:2 G5:4 A5:4 |"
@@ -238,12 +276,17 @@ def balfour():
         return ". . %s . . . %s . . . %s . . . %s ." % (a, b, a, b)
     ST = {"Dm": stabs("F4", "A4"), "Gm": stabs("Bb4", "D5"), "A": stabs("C#5", "E5"), "Bb": stabs("D5", "F4"),
           "C": stabs("E4", "G4"), "F": stabs("A4", "C5")}
-    A = ["Dm", "Dm", "Gm", "Dm", "Bb", "Gm", "A", "Dm"]
+    # A: the anthem's own harmony, a chord per half bar where the melody turns (bar 2: Gm under the
+    # b6 neighbour, Dm under the held 5; bar 4: A under the 2-1-2, Dm under the close)
+    A = ["Dm", "Gm|Dm", "Gm", "A|Dm", "Dm", "Gm|Dm", "Gm", "A|Dm"]
     A2 = ["Dm", "Dm", "Gm", "Dm", "Bb", "C", "A", "A"]
     B = ["F", "C", "Dm", "A", "Bb", "Gm", "A", "A"]
     T = ["Dm", "Gm", "C", "F", "Bb", "Gm", "A"]
+    def st2(c):   # a bar's stabs, split at the half bar for "X|Y"
+        a, b = (c.split("|") + [c])[:2]
+        return " ".join(ST[a].split(" ")[:8] + ST[b].split(" ")[8:])
     p2 = {
-        "A": [ST[c] for c in A],
+        "A": [st2(c) for c in A],
         "A2": [ST[c] for c in A2],
         "B": seq("C5:6 A4:6 F4:4 | G4:6 C5:6 E5:4 | F5:6 E5:6 D5:4 | C#5:4 D5:2 E5:6 A4:4 |"
                  "Bb4:6 D5:6 F5:4 | G5:6 F5:6 D5:4 | E5:4 F5:2 E5:6 C#5:4 | A4:6 E4:6 .:4", S),
@@ -255,8 +298,13 @@ def balfour():
     p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2n", "T": "p2stab"}
     BASS = {"Dm": "D3:3 .:5 A2:3 .:5", "Gm": "G3:3 .:5 D3:3 .:5", "A": "A2:3 .:5 E3:3 .:5",
             "Bb": "Bb2:3 .:5 F3:3 .:5", "C": "C3:3 .:5 G3:3 .:5", "F": "F3:3 .:5 C3:3 .:5"}
+    def bass2(c):   # root on beat 1, and on beat 3 the fifth, or the second chord's root for "X|Y"
+        if "|" not in c:
+            return BASS[c]
+        a, b = c.split("|")
+        return BASS[a].split(" ")[0] + " .:5 " + BASS[b].split(" ")[0] + " .:5"
     bass = {
-        "A": seq(" | ".join(BASS[c] for c in A), S),
+        "A": seq(" | ".join(bass2(c) for c in A), S),
         "A2": seq("D3:3 .:5 A2:3 .:3 C#3:2 | D3:3 .:5 A2:3 .:3 F3:2 | G3:3 .:5 D3:3 .:3 C#3:2 | D3:3 .:5 A2:3 .:3 A2:2 |"
                   "Bb2:3 .:5 F3:3 .:3 B2:2 | C3:3 .:5 G3:3 .:3 Bb2:2 | A2:3 .:5 E3:3 .:5 | A2:3 .:5 E3:3 .:3 E3:2", S),
         "B": seq(" | ".join(BASS[c] for c in B), S),
@@ -266,8 +314,7 @@ def balfour():
     groove2 = drums(S, D="x.......x.......", T="....x.......x...", k="......x...x....x", j="x.x.x.x.x.x.x.x.")
     fill = drums(S, D="x.......x.......", T="....x.......x.x.", k="..........x.x..x", o="x...............", j="..x.x.x.x.x.....")
     last = drums(S, D="x.......x.......", T="....x.......x...", k="..........x.....", o="x...............", j="..x.x.x.x.x.x...")
-    kit = {"A": [groove, groove2] * 3 + [groove, fill], "A2": [groove, groove2] * 3 + [groove, fill],
-           "B": [groove, groove2] * 3 + [groove, fill], "T": [groove, groove2] * 3 + [groove, last]}
+    kit = kit_form(groove, groove2, fill, last, 4)
     outside = [drums(S, B="x.....x.....x...", S="....x.......x...", g="..x......x.....x"),
                drums(S, B="x.....x.....x...", S="....x.......x...", g=".......x..x...x.")]
     return {
@@ -280,7 +327,7 @@ def balfour():
             "drums": {"kit": "darbuka", "layer": "L0", "gain": 0.42, "sections": kit},
             "p2": {"instrument": "p2stab", "layer": "L1", "gain": 0.5, "sectionInstrument": p2_inst,
                    "sectionGain": {"A": 2.0, "A2": 2.0, "T": 2.0}, "sections": p2},
-            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.36, "sections": lead},
+            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.36, "sections": lead, "fx": LEAD_FX},
         },
         "outside": {"kit": "outside", "bars": outside, "gain": 0.6},
     }
@@ -333,8 +380,7 @@ def knesset():
     mq2 = drums(S, D="x.......x.....x.", T="..x...x.....x...", k=".x..x.....x.....", j="x.x.x.x.x.x.x.x.")
     fill = drums(S, D="x.......x.......", T="..x...x.....x.x.", k="....x.....x.x..x", o="x...............", j="..x.x.x.x.x.....")
     last = drums(S, D="x.......x.......", T="..x...x.....x...", k="....x.....x.....", o="x...............", j="..x.x.x.x.x.x...")
-    kit = {"A": [mq1, mq2] * 3 + [mq1, fill], "A2": [mq1, mq2] * 3 + [mq1, fill],
-           "B": [mq1, mq2] * 3 + [mq1, fill], "T": [mq1, mq2] * 3 + [mq1, last]}
+    kit = kit_form(mq1, mq2, fill, last, 4)
     return {
         "title": "המליאה (Knesset)",
         "tempoBpm": 132, "beatsPerBar": 4, "stepsPerBeat": 4, "rate": 32032, "key": "E", "mode": "minor",
@@ -345,7 +391,7 @@ def knesset():
             "drums": {"kit": "darbuka", "layer": "L0", "gain": 0.42, "sections": kit},
             "p2": {"instrument": "p2n", "layer": "L1", "gain": 0.4, "sectionInstrument": p2_inst,
                    "sectionGain": {"T": 1.4}, "sections": p2},
-            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.36, "sections": lead},
+            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.36, "sections": lead, "fx": LEAD_FX},
         },
     }
 
@@ -400,8 +446,7 @@ def courthouse():
     sw2 = drums(S, D="x..........x", T="......x.....", j="x..x.xx..x.x", k="........x...")
     fill = drums(S, D="x...........", T="......x..x.x", j="x..x.xx.....", o="x...........")
     last = drums(S, D="x...........", T="......x.....", j="x..x.xx..x..", o="x...........")
-    kit = {"A": [sw1, sw2] * 3 + [sw1, fill], "A2": [sw1, sw2] * 3 + [sw1, fill],
-           "B": [sw1, sw2] * 3 + [sw1, fill], "T": [sw1, sw2] * 3 + [sw1, last]}
+    kit = kit_form(sw1, sw2, fill, last, 3)
     return {
         "title": "בית המשפט (Courthouse)",
         "tempoBpm": 88, "beatsPerBar": 4, "stepsPerBeat": 3, "rate": 22044, "key": "G", "mode": "minor",
@@ -416,7 +461,7 @@ def courthouse():
             "drums": {"kit": "darbukaCourt", "layer": "L0", "gain": 0.42, "sections": kit},
             "p2": {"instrument": "p2nstab", "layer": "L1", "gain": 0.27, "sectionInstrument": p2_inst,
                    "sectionGain": {"A": 1.3, "A2": 1.3, "T": 1.3}, "sections": p2},
-            "lead": {"instrument": "p1s", "layer": "L2", "gain": 0.34, "sections": lead},
+            "lead": {"instrument": "p1s", "layer": "L2", "gain": 0.34, "sections": lead, "fx": {"double": {"cents": 6, "db": -9.0}}},
         },
     }
 
@@ -468,8 +513,7 @@ def washington():
     st2 = drums(S, D="x.......x.......", T="....x.......x...", j="x.x.x.x.x.x.x.x.", k="..........x..x..")
     fill = drums(S, D="x.......x.......", T="....x.......x.x.", k="..........x.x..x", o="x...............", j="..x.x.x.x.x.....")
     last = drums(S, D="x.......x.......", T="....x.......x...", o="x...............", j="..x.x.x.x.x.x...")
-    kit = {"A": [st1, st2] * 3 + [st1, fill], "A2": [st1, st2] * 3 + [st1, fill],
-           "B": [st1, st2] * 3 + [st1, fill], "T": [st1, st2] * 3 + [st1, last]}
+    kit = kit_form(st1, st2, fill, last, 4)
     return {
         "title": "וושינגטון (Washington)",
         "tempoBpm": 144, "beatsPerBar": 4, "stepsPerBeat": 4, "rate": 31968, "key": "F", "mode": "mixolydian",
@@ -480,7 +524,7 @@ def washington():
             "drums": {"kit": "darbuka", "layer": "L0", "gain": 0.38, "sections": kit},
             "p2": {"instrument": "p2stab", "layer": "L1", "gain": 0.24, "sectionInstrument": p2_inst,
                    "sectionGain": {"A": 2.8, "A2": 2.8, "T": 2.8}, "sections": p2},
-            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.33, "sections": lead},
+            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.33, "sections": lead, "fx": LEAD_FX},
         },
     }
 
@@ -613,7 +657,7 @@ def music():
             "_doc": "Loudness targets (K-weighted BS.1770, dual mono) that set each item's play_db. music = all "
                     "three layers of an era together (every era lands on the same value, so era changes do not jump). "
                     "Stingers: integrated = over the whole stinger; momentary = the loudest 400 ms.",
-            "music": -18.3,   # v1.7: 1 dB further back, under the gameplay SFX
+            "music": -19.3,   # v1.8 (Bar: "tiring"): 1 dB further back again (v1.7 was -18.3)
             "fanfare": {"type": "integrated", "lufs": -17.0},
             "courtIn": {"type": "momentary", "lufs": -16.0},
             "motif": {"type": "momentary", "lufs": -15.0},
@@ -1336,6 +1380,25 @@ QUOTES = {
 ANTHEM = [2, 1, 2, 2, 0, 1, -1, 1, 4, -5]
 ANTHEM_MAX = 10
 ANTHEM_RUNS = {}
+# v1.8 (Bar 2026-10-03: "HaTikva and more traditional songs"; "the full first phrase, respectfully"):
+# the anthem's whole first section (bars 1-4 of the verified score, 21 intervals) may sound in full,
+# in one declared place only: ANTHEM_HOME (era/channel/section). There it is held to the respect
+# rules: the legato lead voice (gate >= 0.85, a "note"-length envelope), no ornaments (~ mordent,
+# < scoop), no instrument overrides (no stab, no click). Everywhere else the 2-bar cap stands,
+# measured against the full phrase.
+ANTHEM_PHRASE = ANTHEM + [-2, 0, 0, -2, 0, -1, -2, 2, 1, -3, -5]
+ANTHEM_HOME = {("balfour", "lead", "A")}
+
+
+def longest_phrase_run(iv):
+    best = 0
+    for i in range(len(iv)):
+        for j in range(len(ANTHEM_PHRASE)):
+            k = 0
+            while i + k < len(iv) and j + k < len(ANTHEM_PHRASE) and iv[i + k] == ANTHEM_PHRASE[j + k]:
+                k += 1
+            best = max(best, k)
+    return best
 
 
 def longest_anthem_run(iv):
@@ -1403,11 +1466,24 @@ def check_music(m):
                     if held > 1.0:
                         err("%s/%s/%s: %s held %.2f s (> 1.0 s steady tone)" % (eid, cid, sec, nm(mn), held))
             if cid in ("lead", "p2"):
-                iv = [b[0] - a[0] for a, b in zip(notes, notes[1:])]
-                run = longest_anthem_run(iv)
+                # the anthem's home section is checked on its own (the phrase in full, played straight);
+                # the rest of the line, with the home section left out, keeps the 2-bar cap
+                home = [sec for sec in ["A", "A2", "B", "T"] if (eid, cid, sec) in ANTHEM_HOME]
+                for sec in home:
+                    ins = ch.get("sectionInstrument", {}).get(sec, ch.get("instrument"))
+                    if INSTRUMENTS[ins]["gate"] < 0.85 or INSTRUMENTS[ins]["layers"][0]["duration"] != "note":
+                        err("%s/%s/%s: the anthem is played legato (%s is not)" % (eid, cid, sec, ins))
+                    for b in ch["sections"][sec]:
+                        if "~" in b or "<" in b or "@" in b:
+                            err("%s/%s/%s: no ornament or override on the anthem (%s)" % (eid, cid, sec, b))
+                rest = [b for i, b in enumerate(bars) if ["A", "A2", "B", "T"][i // 8] not in home]
+                rnotes = line_notes(rest)
+                iv = [b[0] - a[0] for a, b in zip(rnotes, rnotes[1:])]
+                run = longest_phrase_run(iv)
                 ANTHEM_RUNS["%s/%s" % (eid, cid)] = run
                 if run > ANTHEM_MAX:
                     err("%s/%s: %d consecutive anthem intervals (> %d, about 2 bars)" % (eid, cid, run, ANTHEM_MAX))
+                iv = [b[0] - a[0] for a, b in zip(notes, notes[1:])]
                 for q, pat in QUOTES.items():
                     k = len(pat)
                     for i in range(len(iv) - k + 1):
