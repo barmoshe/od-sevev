@@ -5,6 +5,7 @@ Branch `wizard-roster` (ADR 0007). Bar: no fixed Bibi start, a guided "do-it" wi
 - **The wizard** (`ui/wizard.gd`, content `wizard`, vocabulary `ui/wizard_hooks.gd`): dim + hole + Dubi's bubble + "דלג". Steps follow state (`when` / `done`), so the game plays undimmed between them. Flow `first` = pick → tap → buy → Suitcase → open the coalition → pay → 61 → call the election. One flow per reveal rung, shown when the mechanic first appears; its bubble is `reveal.copy`. Funnel `wizard/<flow>/<step>`.
 - **Tune in content only:** the `wizard` table (texts, order, soft / gone / sec / hold) and `unlockRound`. A new mechanic needs a reveal rung, a `reveal.copy` line and a wizard flow.
 - **Tests:** unit tests run with the wizard off (`run_tests.gd`); `?dev=1` builds have it off unless `wiz=1`; `tools/web/wizard_web.mjs` plays the first round through it.
+- **The picker is the ballot booth** (ADR 0008): slips in a tray, a big card, select then vote. `PickView.plan()` is the layout; the drivers choose then vote (two taps).
 - **Wipe #2:** `saveEpoch` 2 ships with this.
 
 # HANDOFF: the reveal ladder, LIVE (2026-10-03; read this first)

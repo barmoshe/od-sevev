@@ -7122,8 +7122,8 @@
       "surface": "label",
       "spec": "the ballot booth (2026-10-03, Bar: no name on a blurred card)",
       "note": "The big card's name line for a slip in print: never the leader's name",
-      "box": "pick.name",
-      "maxChars": 8,
+      "box": "pick.chip",
+      "maxChars": 23,
       "worstPx": {
         "4": 220,
         "5": 275
