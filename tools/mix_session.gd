@@ -65,10 +65,11 @@ func _process(delta: float) -> bool:
 		if _era != "":
 			_a.call("set_era", _era, true)
 		if _raw:
-			AudioServer.set_bus_effect_enabled(0, 1, false)
-			AudioServer.set_bus_effect_enabled(0, 2, false)
+			for fx: String in ["Glue", "Limiter"]:
+				AudioServer.set_bus_effect_enabled(0, OdAudio.bus_fx(0, fx), false)
 		if _noduck:
-			AudioServer.set_bus_effect_enabled(AudioServer.get_bus_index("Music"), 3, false)
+			var mu := AudioServer.get_bus_index("Music")
+			AudioServer.set_bus_effect_enabled(mu, OdAudio.bus_fx(mu, "TapDuck"), false)
 		if _mute == "music":
 			_a.call("set_music_enabled", false)
 		elif _mute == "sfx":

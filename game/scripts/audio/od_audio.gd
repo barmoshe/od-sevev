@@ -21,7 +21,7 @@ const L2_REST_MS := 2000.0
 ## v2.2 (Bar: "don't completely mute the melody of the background music"): while the player taps, the
 ## lead steps back to this gain (-8 dB) instead of out: the song stays audible under the taps, and the
 ## Music bus's TapDuck compressor (side-chained from SFX-Frequent) dips the whole bed under each tap.
-const L2_UNDER_TAPS := 0.398
+const L2_UNDER_TAPS_DB := -8.0
 ## A stolen voice fades out over this long instead of stopping on a click.
 const STEAL_FADE_MS := 30.0
 ## The fallback melody (HaTikva, `tap.melody`, for a manifest without tap lines): its root's octave.
@@ -138,6 +138,17 @@ static func loop_seconds(man: Dictionary, era_id: String) -> float:
 	return float(e.get("loopSamples", 2112000)) / maxf(1.0, float(e.get("rate", 31900)))
 
 
+## v2.2: a bus effect's index by its resource_name (default_bus_layout.tres names each one), -1 if
+## absent, so a reordered layout never retargets the runtime's moves.
+static func bus_fx(bus: int, fx_name: String) -> int:
+	if bus < 0:
+		return -1
+	for i in AudioServer.get_bus_effect_count(bus):
+		if AudioServer.get_bus_effect(bus, i).resource_name == fx_name:
+			return i
+	return -1
+
+
 static func bars_per_loop(man: Dictionary, era_id: String) -> int:
 	var e: Dictionary = man.get("eras", {}).get(era_id, {})
 	return maxi(1, roundi(float(e.get("loopSamples", 2112000)) / maxf(1.0, float(e.get("barSamples", 66000)))))
@@ -160,8 +171,9 @@ static func tap_line(man: Dictionary, track: String) -> Dictionary:
 	var e: Dictionary = man.get("eras", {}).get(track, {})
 	var tl: Variant = e.get("tapLine")
 	var line := {"midi": [], "steps": [], "phrases": [0], "phraseSteps": [], "phraseBars": 2, "stepSeconds": 0.0}
-	if tl is Dictionary and not _ints((tl as Dictionary).get("midi")).is_empty():
-		line["midi"] = _ints(tl.get("midi"))
+	var tm := _ints((tl as Dictionary).get("midi")) if tl is Dictionary else []
+	if not tm.is_empty():
+		line["midi"] = tm
 		line["steps"] = _ints(tl.get("steps"))
 		line["phraseBars"] = int(tl.get("phraseBars", 2))
 		line["stepSeconds"] = bar_seconds(man, track) / maxf(1.0, float(e.get("stepsPerBar", 16)))

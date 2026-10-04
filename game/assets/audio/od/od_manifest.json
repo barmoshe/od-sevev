@@ -3846,17 +3846,17 @@
 		"L0": {
 			"default": true,
 			"rule": "always on while music plays",
-			"voices": "TRI bass + darbuka (NOI-L tek, NOI-S riq, TRI dum)"
+			"voices": "v2.0: the 808, the trap kit, the hats"
 		},
 		"L1": {
 			"default": false,
 			"rule": "on once the first money source is bought (sources_owned >= 1); stays on",
-			"voices": "P2 (hora/maqsum/stride stabs; the complete B melody)"
+			"voices": "v2.0: keys, bells, the counter-line"
 		},
 		"L2": {
 			"default": false,
-			"rule": "on while the last tap was < 3000 ms ago; off otherwise. Forced off during court day and during the ultimatum's last 3 s",
-			"voices": "P1 lead"
+			"rule": "on while the taps rest (2 s); under the taps -8 dB (v2.2). Forced off during court day and during the ultimatum's last 3 s",
+			"voices": "v2.0: the lead (flute; the Courthouse a pluck)"
 		},
 		"fade": {
 			"_doc": "Every layer change starts at the next bar line and ramps linearly over one bar.",

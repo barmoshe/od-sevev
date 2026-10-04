@@ -11,7 +11,7 @@ extends SceneTree
 ## era, one key per era. Each era renders at its own rate so that one grid step is a whole number of
 ## samples (31,900 / 32,032 / 31,944 / 31,968 Hz): the loop is sample-exact. Notes ringing past
 ## bar 32 wrap onto bar 1 (lib_dsp.loop_wrap); each stem carries one guard sample (ADR 0002).
-## Balfour also gets the 2-bar Outside drum loop. A slapback may sit on the era or (v2.0) on one channel.
+## Balfour also gets the 2-bar Outside drum loop. An era may carry a slapback (none does since v2.0).
 ##
 ## Stingers (music.json "stingers"): tempo-bound one-shots written in D and transposed per key,
 ## rendered at the key's era tempo and rate. The fanfare renders five lengths (0-4 tags) per key.
@@ -193,10 +193,14 @@ func _compile(bars: PackedStringArray, ch: Dictionary, sec_of_bar: PackedStringA
 			continue
 		if ch.has("kit"):
 			var hits: Array = []
+			var vels: Array = []
 			for c in tok:
 				if kit.has(c):
-					hits.append(kit[c])
-			ev[i] = {"hits": hits, "g": float((ch.get("sectionGain", {}) as Dictionary).get(sec_of_tok[i], 1.0))}
+					# v2.0: a kit entry may carry a velocity, "hat@0.55"
+					var parts := String(kit[c]).split("@")
+					hits.append(parts[0])
+					vels.append(float(parts[1]) if parts.size() > 1 else 1.0)
+			ev[i] = {"hits": hits, "vel": vels, "g": float((ch.get("sectionGain", {}) as Dictionary).get(sec_of_tok[i], 1.0))}
 			continue
 		var e := _note_token(tok, semis)
 		var n := 1
@@ -221,13 +225,9 @@ func _render_events(ev: Array, step_s: float, out: PackedFloat32Array, seed_pre:
 			continue
 		var at := int(roundf(s * step_s * D.sr))
 		if (e as Dictionary).has("hits"):
-			var hi := 0
-			for hit: String in e["hits"]:
-				# v2.0: a kit entry may carry a velocity, "hat@0.55"
-				var parts := hit.split("@")
-				var vel := float(parts[1]) if parts.size() > 1 else 1.0
-				_play(parts[0], 1.0, step_s, at, out, "%s/%d/%d" % [seed_pre, s, hi], {}, float(e["g"]) * vel)
-				hi += 1
+			var hits: Array = e["hits"]
+			for hi in hits.size():
+				_play(String(hits[hi]), 1.0, step_s, at, out, "%s/%d/%d" % [seed_pre, s, hi], {}, float(e["g"]) * float(e["vel"][hi]))
 			continue
 		var ni := 0
 		for n: int in e["notes"]:
@@ -305,11 +305,7 @@ func _duck(x: PackedFloat32Array, by_ev: Array, by_step_s: float, dk: Dictionary
 		var e: Variant = by_ev[s]
 		if e == null or not (e as Dictionary).has("hits"):
 			continue
-		var hit := false
-		for h: String in e["hits"]:
-			if want.has(h.split("@")[0]):
-				hit = true
-		if not hit:
+		if not (e["hits"] as Array).any(func(h: String) -> bool: return want.has(h)):
 			continue
 		# the hit, and its copy one loop later (the tail past bar 32 folds back onto bar 1)
 		for at: int in [int(roundf(s * by_step_s * D.sr)), int(roundf(s * by_step_s * D.sr)) + loop_n]:
@@ -323,10 +319,14 @@ func _duck(x: PackedFloat32Array, by_ev: Array, by_step_s: float, dk: Dictionary
 				else:
 					v = 1.0 - (1.0 - floor_g) * exp(-float(t - hold) / rel)
 				g[i] = minf(g[i], v)
-	var y := x.duplicate()
 	for i in n:
-		y[i] *= g[i]
-	return y
+		x[i] *= g[i]
+	return x
+
+
+## v2.1: a {thresholdDb, ratio, attackMs, releaseMs} compressor (a channel's `comp`, a stem's `busComp`).
+func _comp(x: PackedFloat32Array, cp: Dictionary) -> PackedFloat32Array:
+	return D.compress(x, float(cp["thresholdDb"]), float(cp["ratio"]), float(cp["attackMs"]), float(cp["releaseMs"]))
 
 
 # ================================================================== era tracks
@@ -344,6 +344,7 @@ func _render_era(eid: String, e: Dictionary, target: float) -> Dictionary:
 	var loop_n := int(_m["form"]["totalBars"]) * spb * int(roundf(step_n))
 	var stems := {}
 	var sends := {}
+	var sent := {}
 	for layer: String in LAYERS:
 		stems[layer] = D.zeros(loop_n + int(TAIL_S * rate))
 		sends[layer] = D.zeros(loop_n + int(TAIL_S * rate))
@@ -369,29 +370,26 @@ func _render_era(eid: String, e: Dictionary, target: float) -> Dictionary:
 		var x := D.zeros(loop_n + int(TAIL_S * rate))
 		_render_events(ev, ch_step_s, x, "%s/%s" % [eid, cid])
 		x = _channel_fx(x, ev, ch.get("fx", {}), ch_step_s, "%s/%s" % [eid, cid])
-		x = _slap(x, ch.get("slapback", e.get("slapback", {})))
+		x = _slap(x, e.get("slapback", {}))
 		if ch.has("eq"):
 			x = D.eq(x, ch["eq"])   # v2.1: the channel's EQ
 		if ch.has("comp"):
-			var cp: Dictionary = ch["comp"]
-			x = D.compress(x, float(cp["thresholdDb"]), float(cp["ratio"]), float(cp["attackMs"]), float(cp["releaseMs"]))
+			x = _comp(x, ch["comp"])
 		if ch.has("duck"):
 			var dk: Dictionary = ch["duck"]
 			x = _duck(x, evs[dk["by"]], steps[dk["by"]], dk, loop_n)
-		if ch.has("sat"):
-			x = D.soft_clip(x, float(ch["sat"]))
 		D.mix_at(stems[ch["layer"]], x, 0, float(ch["gain"]))
-		if _preview != "" and OS.get_environment("OD_AUDIO_CHANNELS") != "":
+		if OS.get_environment("OD_AUDIO_CHANNELS") != "":
 			_dump("chan_%s_%s.res" % [eid, cid], x.slice(0, loop_n), float(ch["gain"]), rate)   # v2.1: mix by channel
 		if ch.has("reverb"):
 			D.mix_at(sends[ch["layer"]], x, 0, float(ch["gain"]) * D.db2lin(float(ch["reverb"])))
+			sent[ch["layer"]] = true
 	# v2.0: one reverb per layer (Freeverb, the send high-passed so the low end stays dry), then the
 	# bus clipper (the drum-bus glue of a trap mix: L0's peaks rounded before the stems are scaled)
 	var rv: Dictionary = e.get("reverb", {})
 	for layer: String in LAYERS:
-		if not rv.is_empty() and D.peak(sends[layer]) > 0.0:
-			var snd: PackedFloat32Array = sends[layer]
-			snd = D._biquad(snd, {"type": "highpass", "freq": float(rv.get("hpHz", 250.0)), "Q": -3.0103}, float(snd.size()) / rate)
+		if not rv.is_empty() and sent.has(layer):
+			var snd := D.eq(sends[layer], [{"type": "highpass", "freq": float(rv.get("hpHz", 250.0)), "Q": -3.0103}])
 			var wet := D.reverb(snd, float(rv["size"]), float(rv["damp"]))
 			D.mix_at(stems[layer], wet, int(roundf(float(rv.get("predelayMs", 0.0)) / 1000.0 * rate)), 1.0)
 		# v2.1, the stem master: EQ, glue compression, then the clipper
@@ -400,11 +398,10 @@ func _render_era(eid: String, e: Dictionary, target: float) -> Dictionary:
 			stems[layer] = D.eq(stems[layer], se[layer])
 		var sg: Dictionary = e.get("busComp", {})
 		if sg.has(layer):
-			var cp: Dictionary = sg[layer]
-			stems[layer] = D.compress(stems[layer], float(cp["thresholdDb"]), float(cp["ratio"]), float(cp["attackMs"]), float(cp["releaseMs"]))
+			stems[layer] = _comp(stems[layer], sg[layer])
 		var bc: Dictionary = e.get("busClip", {})
 		if bc.has(layer):
-			stems[layer] = D.soft_clip(stems[layer], float(bc[layer]))
+			D.soft_clip(stems[layer], float(bc[layer]))
 	var pk := 0.0
 	for layer: String in LAYERS:
 		var y := D.loop_wrap(stems[layer], loop_n)

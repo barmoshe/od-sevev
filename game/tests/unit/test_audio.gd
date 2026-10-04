@@ -117,10 +117,11 @@ func test_bus_layout_is_the_od_topology() -> void:
 	runner.check(eq != null and absf(eq.get_band_gain_db(4) + 1.5) < 1e-3 and absf(eq.get_band_gain_db(5)) < 1e-3, "music EQ: -1.5 dB at 3.2 kHz, flat at 10 kHz")
 	runner.check(room != null and room.wet <= 0.15 and room.hipass >= 0.2, "music room: a light wet, the bass kept dry")
 	# v2.2: the music ducks under the taps (a compressor side-chained from SFX-Frequent), the taps are glued
-	var duck := AudioServer.get_bus_effect(mu, 3) as AudioEffectCompressor
+	var duck := AudioServer.get_bus_effect(mu, OdAudio.bus_fx(mu, "TapDuck")) as AudioEffectCompressor
 	runner.check(duck != null and String(duck.sidechain) == "SFX-Frequent" and duck.ratio <= 3.0 and duck.release_ms >= 300.0,
 		"TapDuck: a gentle compressor on the Music bus, side-chained from the taps' bus")
-	var glue_t := AudioServer.get_bus_effect(AudioServer.get_bus_index("SFX-Frequent"), 0) as AudioEffectCompressor
+	var sf := AudioServer.get_bus_index("SFX-Frequent")
+	var glue_t := AudioServer.get_bus_effect(sf, OdAudio.bus_fx(sf, "TapGlue")) as AudioEffectCompressor
 	runner.check(glue_t != null and String(glue_t.sidechain) == "", "TapGlue: the taps' own bus compressor")
 	var o := AudioServer.get_bus_index("Outside")
 	var lpf := AudioServer.get_bus_effect(o, 0) as AudioEffectLowPassFilter
@@ -273,9 +274,9 @@ func test_taps_join_the_music_and_the_lead_steps_back() -> void:
 	a.event("tap")
 	var want := OdAudio.note_at(line["steps"], 8 * int(_man["eras"]["balfour"]["stepsPerBar"]))
 	runner.check(a._tap_i == want, "after a pause the tap joins the music's note (bar 9 -> note %d), got %d" % [want, a._tap_i])
-	runner.check(is_equal_approx(a.layer_target("L2"), OdAudio.L2_UNDER_TAPS), "a tap: the lead steps back at once (v2.2: to -8 dB, not out)")
+	runner.check(is_equal_approx(a.layer_target("L2"), db_to_linear(OdAudio.L2_UNDER_TAPS_DB)), "a tap: the lead steps back at once (v2.2: to -8 dB, not out)")
 	await (runner as SceneTree).create_timer(0.25).timeout
-	runner.check(is_equal_approx(a.layer_gain("L2"), OdAudio.L2_UNDER_TAPS), "within %d ms" % int(OdAudio.L2_STEP_BACK_MS))
+	runner.check(is_equal_approx(a.layer_gain("L2"), db_to_linear(OdAudio.L2_UNDER_TAPS_DB)), "within %d ms" % int(OdAudio.L2_STEP_BACK_MS))
 	await _release()
 
 
@@ -334,7 +335,7 @@ func test_layers_follow_sources_taps_and_the_bar_line() -> void:
 	var a: Node = await _playing()
 	var bar_s := OdAudio.bar_seconds(_man, "balfour")
 	runner.check(a.layer_target("L1") == 0.0, "no source yet: L1 off")
-	runner.check(is_equal_approx(a.layer_target("L2"), OdAudio.L2_UNDER_TAPS), "tapped under 2 s ago: the player plays the song, the lead sits under it at -8 dB (v2.2)")
+	runner.check(is_equal_approx(a.layer_target("L2"), db_to_linear(OdAudio.L2_UNDER_TAPS_DB)), "tapped under 2 s ago: the player plays the song, the lead sits under it at -8 dB (v2.2)")
 	a.event("buy")
 	runner.check(a.layer_target("L1") == 0.0, "L1 waits for the next bar line")
 	a.debug_seek(bar_s + 0.01)
@@ -628,20 +629,20 @@ func test_cue_variant_rules() -> void:
 func test_dynamic_mix_tap_slot_and_ultimatum_tension() -> void:
 	var a: Node = await _playing()
 	var mu := AudioServer.get_bus_index("Music")
-	var lpf := AudioServer.get_bus_effect(mu, 2) as AudioEffectLowPassFilter
-	runner.check(lpf != null and not AudioServer.is_bus_effect_enabled(mu, 2), "music v2.1: the tension low-pass sits bypassed on the Music bus")
+	var lp_i := OdAudio.bus_fx(mu, "MusicTension")
+	runner.check(lp_i >= 0 and not AudioServer.is_bus_effect_enabled(mu, lp_i), "music v2.1: the tension low-pass sits bypassed on the Music bus")
 	for i in 6:
 		a.event("tap")
 		await (runner as SceneTree).create_timer(0.08).timeout
-	runner.check(a.slot_db() < -1.0, "tapping dips the music's 1 kHz band (the bell's slot), at %.1f dB" % a.slot_db())
+	runner.check(a.slot_db() < a.SLOT_DB * 0.66, "tapping dips the music's 1 kHz band (the bell's slot), at %.1f dB" % a.slot_db())
 	await (runner as SceneTree).create_timer(1.6).timeout
-	runner.check(a.slot_db() > -0.3, "the slot recovers when the taps rest, at %.2f dB" % a.slot_db())
+	runner.check(a.slot_db() > a.SLOT_DB * 0.2, "the slot recovers when the taps rest, at %.2f dB" % a.slot_db())
 	a.event("ultimatumTick", 3)
 	await (runner as SceneTree).create_timer(1.2).timeout
-	runner.check(a.tension_hz() < 8000.0 and AudioServer.is_bus_effect_enabled(mu, 2), "the last 3 s close the music into the low-pass, at %.0f Hz" % a.tension_hz())
+	runner.check(a.tension_hz() < a.OPEN_HZ * 0.4 and AudioServer.is_bus_effect_enabled(mu, lp_i), "the last 3 s close the music into the low-pass, at %.0f Hz" % a.tension_hz())
 	a.event("ultimatumPaid")
 	await (runner as SceneTree).create_timer(0.4).timeout
-	runner.check(a.tension_hz() > 18000.0, "paid: it opens again, at %.0f Hz" % a.tension_hz())
+	runner.check(a.tension_hz() > a.OPEN_HZ * 0.9, "paid: it opens again, at %.0f Hz" % a.tension_hz())
 	await _release()
 
 

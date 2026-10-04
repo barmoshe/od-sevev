@@ -330,13 +330,11 @@ static func reverb(x: PackedFloat32Array, size: float, damp: float) -> PackedFlo
 	return y
 
 
-## music v2.0: a soft clipper (tanh), unity gain for small signals: y = tanh(x * drive) / drive.
-static func soft_clip(x: PackedFloat32Array, drive: float) -> PackedFloat32Array:
-	var y := x.duplicate()
+## music v2.0: a soft clipper (tanh), unity gain for small signals: x = tanh(x * drive) / drive, in place.
+static func soft_clip(x: PackedFloat32Array, drive: float) -> void:
 	var inv := 1.0 / drive
-	for i in y.size():
-		y[i] = tanh(y[i] * drive) * inv
-	return y
+	for i in x.size():
+		x[i] = tanh(x[i] * drive) * inv
 
 
 ## The end of a layer relative to its cue's start, in seconds (delay + duration + release).
@@ -431,8 +429,8 @@ static func _freqs(L: Dictionary, k: float, n: int, dur: float, t_end: float, a4
 
 ## v2.1: the sample player. A layer {wave: "sample", file: <name in sample_dir>} plays a one-shot (a
 ## 16-bit PCM WAV, mono). `rootHz` set: it is tuned, the playback rate following the layer's frequency
-## (freqStart / freqEnd / glide, like an oscillator: a sampled 808 can still slide); otherwise
-## `semis` transposes it. 4-point Hermite interpolation. Silence past the sample's end.
+## (freqStart / freqEnd / glide, like an oscillator: a sampled 808 can still slide); otherwise it
+## plays at its own pitch. 4-point Hermite interpolation. Silence past the sample's end.
 static var sample_dir := ""
 static var _samples: Dictionary = {}   # file -> [PackedFloat32Array, rate]
 
@@ -473,16 +471,17 @@ static func _sample(L: Dictionary, k: float, n: int, dur: float, t_end: float, a
 	var m := src.size()
 	var base := float(sm[1]) / float(sr)
 	var x := zeros(n)
+	var tuned := L.has("rootHz")
 	var rate := PackedFloat32Array()
-	if L.has("rootHz"):
+	# an untuned one-shot plays at its own pitch: one rate, kept at float32 precision (the precision the
+	# renders were made with) so the files stay byte for byte
+	var step: float = PackedFloat32Array([base * pow(2.0, det / 1200.0)])[0]
+	if tuned:
 		rate = _freqs(L, k, n, dur, t_end, a4, det)
 		var inv := base / float(L["rootHz"])
 		for i in n:
 			rate[i] *= inv
-	else:
-		rate.resize(n)
-		rate.fill(base * pow(2.0, (float(L.get("semis", 0.0)) * 100.0 + det) / 1200.0))
-	var pos := float(L.get("offset", 0.0)) * float(sm[1])
+	var pos := 0.0
 	for i in n:
 		var j := int(pos)
 		if j + 2 >= m:
@@ -496,7 +495,7 @@ static func _sample(L: Dictionary, k: float, n: int, dur: float, t_end: float, a
 		var c2 := y0 - 2.5 * y1 + 2.0 * y2 - 0.5 * y3
 		var c3 := 0.5 * (y3 - y0) + 1.5 * (y1 - y2)
 		x[i] = ((c3 * t + c2) * t + c1) * t + y1
-		pos += rate[i]
+		pos += rate[i] if tuned else step
 	return x
 
 
@@ -597,10 +596,9 @@ static func eq(x: PackedFloat32Array, chain: Array) -> PackedFloat32Array:
 
 
 ## v2.1: a feed-forward compressor. The detector follows |x| (attack / release one-pole); above the
-## threshold (dB under the buffer's peak) the gain falls by (1 - 1/ratio) of the overshoot. With
-## keep_rms the result is scaled back to the input's RMS (the balance stays where the mix set it).
-static func compress(x: PackedFloat32Array, thr_db: float, ratio: float, attack_ms: float, release_ms: float,
-		keep_rms := true) -> PackedFloat32Array:
+## threshold (dB under the buffer's peak) the gain falls by (1 - 1/ratio) of the overshoot. The result
+## is scaled back to the input's RMS (the balance stays where the mix set it).
+static func compress(x: PackedFloat32Array, thr_db: float, ratio: float, attack_ms: float, release_ms: float) -> PackedFloat32Array:
 	var n := x.size()
 	var pk := peak(x)
 	if pk <= 0.0:
@@ -615,12 +613,13 @@ static func compress(x: PackedFloat32Array, thr_db: float, ratio: float, attack_
 	var expo := 1.0 / ratio - 1.0
 	for i in n:
 		var a := absf(x[i])
-		e = (ka if a > e else kr) * e + (1.0 - (ka if a > e else kr)) * a
+		var c := ka if a > e else kr
+		e = c * e + (1.0 - c) * a
 		var g := 1.0 if e <= thr else pow(e / thr, expo)
 		y[i] = x[i] * g
 		s_in += x[i] * x[i]
 		s_out += y[i] * y[i]
-	if keep_rms and s_out > 0.0:
+	if s_out > 0.0:
 		var k := sqrt(s_in / s_out)
 		for i in n:
 			y[i] *= k

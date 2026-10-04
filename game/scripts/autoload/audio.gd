@@ -196,6 +196,7 @@ const TENSION_CLOSE_MS := 2400.0
 const TENSION_OPEN_MS := 150.0
 var _slot_db := 0.0
 var _tension_hz := OPEN_HZ
+var _mix_fx := {}   # the Music bus's MusicEQ and MusicTension, found by name once
 var _era_progress := 0.0
 var _pink_on := false
 var _pink_k := 0.0
@@ -892,7 +893,7 @@ func _tap_note_play(now: float, gap_ms: float) -> void:
 			phrase_done.emit(_tap_run)
 
 
-## The lead steps back over L2_STEP_BACK_MS (not at the bar line), to L2_UNDER_TAPS (v2.2; it used to go
+## The lead steps back over L2_STEP_BACK_MS (not at the bar line), to L2_UNDER_TAPS_DB (v2.2; it used to go
 ## out): the bell is the lead while the player taps. It comes back at a bar line once the taps rest.
 func _l2_step_back(now: float) -> void:
 	_ramp_layer("L2", _layer_level("L2", _bar_i + 1), now, OdAudio.L2_STEP_BACK_MS)
@@ -1545,30 +1546,18 @@ func _sync_for(track: String) -> AudioStreamSynchronized:
 	return sync
 
 
-## Whether a layer should sound during `bar` of the current loop: its rule, the forced mutes
-## (court day, an ultimatum's last 3 s: L2) and the 4-loop cycle.
-func _layer_want(layer: String, bar_n: int) -> bool:
-	var on := true
-	match layer:
-		"L1":
-			on = _sources >= 1
-		"L2":
-			# v1.10: the lead plays the song while the player rests, and steps back while they tap
-			on = _now() - _last_tap >= OdAudio.L2_REST_MS and not _court and not _ult_force
-	if not on or layer == "L0":
-		return on
-	return not OdAudio.af_off_during(_man, layer, _loop, bar_n, OdAudio.bars_per_loop(_man, _track))
-
-
-## A layer's gain at a bar line: 1 when it sounds, else 0; v2.2: the lead under the taps keeps
-## OdAudio.L2_UNDER_TAPS (-8 dB) when tapping is the only reason it steps back.
+## A layer's gain during `bar` of the current loop: its rule, the forced mutes (court day, an
+## ultimatum's last 3 s: L2) and the 4-loop cycle. The lead plays the song while the player rests
+## (v1.10) and sits under the taps at L2_UNDER_TAPS_DB while they tap (v2.2; it used to go out).
 func _layer_level(layer: String, bar_n: int) -> float:
-	if _layer_want(layer, bar_n):
+	if layer == "L0":
 		return 1.0
-	if layer == "L2" and _now() - _last_tap < OdAudio.L2_REST_MS and not _court and not _ult_force \
-			and not OdAudio.af_off_during(_man, "L2", _loop, bar_n, OdAudio.bars_per_loop(_man, _track)):
-		return OdAudio.L2_UNDER_TAPS
-	return 0.0
+	if (layer == "L1" and _sources < 1) or (layer == "L2" and (_court or _ult_force)) \
+			or OdAudio.af_off_during(_man, layer, _loop, bar_n, OdAudio.bars_per_loop(_man, _track)):
+		return 0.0
+	if layer == "L2" and _now() - _last_tap < OdAudio.L2_REST_MS:
+		return db_to_linear(OdAudio.L2_UNDER_TAPS_DB)
+	return 1.0
 
 
 func _snap_layers(bar_n: int) -> void:
@@ -1822,25 +1811,37 @@ func _process(dt: float) -> void:
 
 
 ## v2.1: the tap slot (MusicEQ 1 kHz) and the ultimatum tension (MusicTension low-pass), each a one-pole
-## glide toward its target; the low-pass is bypassed while it is open.
+## glide toward its target that snaps when within reach, so a settled mix writes nothing; the low-pass
+## is bypassed while it is open.
 func _update_dynamic_mix(now: float, dt_ms: float) -> void:
-	var mu := AudioServer.get_bus_index("Music")
-	if mu < 0 or AudioServer.get_bus_effect_count(mu) < 3:
-		return
-	var tapping := _first_tap and now - _last_tap < SLOT_HOLD_MS
-	var want := SLOT_DB if tapping else 0.0
-	var tc := SLOT_ATTACK_MS if want < _slot_db else SLOT_RELEASE_MS
-	_slot_db += (want - _slot_db) * (1.0 - exp(-dt_ms / (tc / 3.0)))
-	var eq := AudioServer.get_bus_effect(mu, 0) as AudioEffectEQ6
-	if eq != null:
-		eq.set_band_gain_db(3, _slot_db)
+	if _mix_fx.is_empty():
+		var mu := AudioServer.get_bus_index("Music")
+		var eq_i := OdAudio.bus_fx(mu, "MusicEQ")
+		var lp_i := OdAudio.bus_fx(mu, "MusicTension")
+		if eq_i < 0 or lp_i < 0:
+			return
+		_mix_fx = {"bus": mu, "eq": AudioServer.get_bus_effect(mu, eq_i), "lp": AudioServer.get_bus_effect(mu, lp_i), "lp_i": lp_i, "lp_on": false}
+	var want := SLOT_DB if _first_tap and now - _last_tap < SLOT_HOLD_MS else 0.0
+	if _slot_db != want:
+		_slot_db = _glide(_slot_db, want, SLOT_ATTACK_MS if want < _slot_db else SLOT_RELEASE_MS, dt_ms, 0.01)
+		(_mix_fx["eq"] as AudioEffectEQ6).set_band_gain_db(3, _slot_db)
 	var hz := TENSION_HZ if _ult_force else OPEN_HZ
-	var tt := TENSION_CLOSE_MS if hz < _tension_hz else TENSION_OPEN_MS
-	_tension_hz = exp(lerpf(log(_tension_hz), log(hz), 1.0 - exp(-dt_ms / (tt / 3.0))))
-	var lpf := AudioServer.get_bus_effect(mu, 2) as AudioEffectLowPassFilter
-	if lpf != null:
-		lpf.cutoff_hz = _tension_hz
-		AudioServer.set_bus_effect_enabled(mu, 2, _tension_hz < OPEN_HZ * 0.95)
+	if _tension_hz != hz:
+		var tt := TENSION_CLOSE_MS if hz < _tension_hz else TENSION_OPEN_MS
+		_tension_hz = exp(_glide(log(_tension_hz), log(hz), tt, dt_ms, 0.001))
+		if absf(_tension_hz - hz) < 1.0:
+			_tension_hz = hz
+		(_mix_fx["lp"] as AudioEffectLowPassFilter).cutoff_hz = _tension_hz
+		var on := _tension_hz < OPEN_HZ * 0.95
+		if on != bool(_mix_fx["lp_on"]):
+			_mix_fx["lp_on"] = on
+			AudioServer.set_bus_effect_enabled(int(_mix_fx["bus"]), int(_mix_fx["lp_i"]), on)
+
+
+## A one-pole glide from `cur` toward `want` with time constant tc_ms / 3, snapping inside `eps`.
+static func _glide(cur: float, want: float, tc_ms: float, dt_ms: float, eps: float) -> float:
+	var v := cur + (want - cur) * (1.0 - exp(-dt_ms / (tc_ms / 3.0)))
+	return want if absf(want - v) < eps else v
 
 
 func slot_db() -> float:
