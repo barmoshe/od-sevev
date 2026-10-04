@@ -150,6 +150,7 @@ var _ducks: Dictionary = {}           # "music" | "voice" -> Array of {db, start
 var _duck_db: Dictionary = {"music": 0.0, "voice": 0.0}
 var _log: Array[String] = []          # the last played files (web: window.odCueLog)
 var _log_t: Array[float] = []         # when each was played, audio clock ms (web: window.odCueLogMs)
+var _tap_notes: Array[int] = []       # the last taps' notes, midi (web: window.odTapNotes)
 
 # ---- the player's state as the audio sees it
 var _first_tap := false
@@ -862,6 +863,9 @@ func _tap_note_play(now: float, gap_ms: float) -> void:
 	if _tap_i < 0:
 		return
 	var note := int(_tap_line["midi"][_tap_i])
+	_tap_notes.append(note)
+	if _tap_notes.size() > 32:
+		_tap_notes.pop_front()
 	var root := OdAudio.bell_root(_bell_roots, note)
 	_cue("tap", now, "r%d" % root, "_", _rng.randf_range(-OdAudio.TAP_JITTER_DB, OdAudio.TAP_JITTER_DB), "",
 		pow(2.0, float(note - root) / 12.0))
@@ -1826,5 +1830,5 @@ func _update_web(now: float, dt: float) -> void:
 	_pub_t = WEB_POLL_S
 	var bus := AudioServer.get_bus_index("Music")
 	var db := maxf(AudioServer.get_bus_peak_volume_left_db(bus, 0), -200.0) if bus >= 0 else -200.0
-	JavaScriptBridge.eval("window.mbMusicPeak = %.1f; window.mbMusicTrack = %s; window.odCueLogMs = %s; window.odCueLog = %s; window.odAudioKey = %s;"
-		% [db, JSON.stringify(track_name()), JSON.stringify(_log_t), JSON.stringify(_log), JSON.stringify(key())], true)
+	JavaScriptBridge.eval("window.mbMusicPeak = %.1f; window.mbMusicTrack = %s; window.odCueLogMs = %s; window.odCueLog = %s; window.odAudioKey = %s; window.odTapNotes = %s; window.odTapIndex = %d;"
+		% [db, JSON.stringify(track_name()), JSON.stringify(_log_t), JSON.stringify(_log), JSON.stringify(key()), JSON.stringify(_tap_notes), _tap_i], true)

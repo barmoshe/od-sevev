@@ -4,7 +4,7 @@
   "installCommand": "",
   "outputDirectory": ".",
   "headers": [
-    { "source": "/(.*)\\.wasm", "headers": [ { "key": "Content-Type", "value": "application/wasm" }, { "key": "Cache-Control", "value": "public, max-age=600" } ] },
-    { "source": "/(.*)\\.pck", "headers": [ { "key": "Cache-Control", "value": "public, max-age=600" } ] }
+    { "source": "/(.*)\\.wasm", "headers": [ { "key": "Content-Type", "value": "application/wasm" }, { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" } ] },
+    { "source": "/(.*)\\.pck", "headers": [ { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" } ] }
   ]
 }
