@@ -216,3 +216,13 @@ Bar, after the 15 s SaaS cut: the whole video in English, an English voiceover w
     node store/promo/saas/music.mjs
     ~/.cache/kokoro-tts/venv/bin/python store/promo/saas/mix.py
     node <bar_builds>/jobs/honeybook/gtm-content/engine/motion/render.mjs store/promo/saas/launch.html --audio store/promo/saas/.out/launch.wav
+
+### LinkedIn (`od-sevev-launch-linkedin.mp4` + `.srt`, 4:5, 25 s)
+
+The English cut reflowed (not cropped) to 1080x1350: `launch.html#li` swaps the layout, `saas/render.mjs`
+renders at any size. 4:5 is LinkedIn's feed default and fills the most of it on desktop and mobile; about
+80% of LinkedIn video autoplays muted, so `od-sevev-launch-linkedin.srt` carries the voiceover as captions
+(upload it with the video). Sources (Oct 2026): contentin.io/blog/linkedin-post-specs,
+blog.sendspark.com/linkedin-video-specs, postfa.st/sizes/linkedin/video.
+
+    node store/promo/saas/render.mjs store/promo/saas/launch.html --size 1080x1350 --hash li --name li --audio store/promo/saas/.out/launch.wav

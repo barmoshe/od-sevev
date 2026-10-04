@@ -83,6 +83,28 @@
   #cta .arr { width: 66px; height: 66px; border-radius: 50%; background: var(--blue); display: grid; place-items: center; }
   #free { top: 1220px; font: 400 40px "Inter"; color: var(--ink); letter-spacing: -.015em; }
   #disc { top: 1295px; font: 400 27px "Inter"; color: var(--mute); }
+  /* LinkedIn 4:5 (launch.html#li, 1080x1350): the same film reflowed, not cropped */
+  body.li, html.li { height: 1350px; }
+  body.li .head { top: 100px; }
+  body.li h1 { font-size: 96px; }
+  body.li .sub { font-size: 36px; margin-top: 20px; }
+  body.li .eyebrow { margin-bottom: 26px; }
+  body.li #s0 .dev3d { left: 345px !important; top: 520px !important; width: 390px !important; }
+  body.li #s1 .dev3d { left: 230px !important; top: 430px !important; width: 360px !important; }
+  body.li #s1 .chip { left: 540px !important; top: 720px !important; }
+  body.li #s2 .dev3d { left: 210px !important; top: 430px !important; width: 390px !important; }
+  body.li #s2 .toast:nth-of-type(3) { left: 420px !important; top: 680px !important; }
+  body.li #s2 .toast:nth-of-type(4) { left: 480px !important; top: 830px !important; }
+  body.li #s3 .dev3d { left: 230px !important; top: 330px !important; width: 620px !important; }
+  body.li #s3 .chip { left: 540px !important; top: 950px !important; }
+  body.li #s4 .dev3d { left: 160px !important; top: 470px !important; width: 760px !important; }
+  body.li #s4 .toast { left: 470px !important; top: 960px !important; }
+  body.li #icon { top: 200px; width: 200px; height: 200px; margin-left: -100px; border-radius: 50px; }
+  body.li #wm { top: 450px; font-size: 124px; }
+  body.li #live { top: 605px; font-size: 44px; }
+  body.li #cta { top: 730px; }
+  body.li #free { top: 900px; font-size: 38px; }
+  body.li #disc { top: 970px; }
 </style>
 </head>
 <body>
@@ -182,6 +204,8 @@
 </div>
 
 <script>
+if (location.hash === "#li") { document.documentElement.classList.add("li"); document.body.classList.add("li"); }
+const H = location.hash === "#li" ? 1350 : 1920;
 const BEAT = 60 / 115.2, BAR = 4 * BEAT, DUR = 12 * BAR;
 const SCENES = [0, 8, 15, 24, 29, 36, 48];      // beats (music.mjs and mix.py use the same)
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -228,7 +252,7 @@ const dot = document.querySelector("#live .dot"), arr = document.querySelector("
 function seek(T) {
   const t = T < 2 / 30 ? DUR - 0.04 : T;      // frames 0-1: the finished end card (the cover)
   g1.style.transform = `translate(${-260 + 140 * Math.sin(t * 0.3)}px, ${-200 + 120 * Math.cos(t * 0.24)}px)`;
-  g2.style.transform = `translate(${560 - 120 * Math.cos(t * 0.26)}px, ${1300 - 140 * Math.sin(t * 0.28)}px)`;
+  g2.style.transform = `translate(${560 - 120 * Math.cos(t * 0.26)}px, ${H - 620 - 140 * Math.sin(t * 0.28)}px)`;
 
   S.forEach((s, i) => {
     const last = i === S.length - 1;
