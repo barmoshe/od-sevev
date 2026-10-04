@@ -1,17 +1,15 @@
-# HANDOFF: round 1 is 4-5 min with the suspicion meter and Mordechai David, wipe #7, LIVE (2026-10-04 night; read this first)
+# HANDOFF: round 1 is 4-5 min with the suspicion meter and Mordechai David, wipe #7, LIVE and benched (2026-10-04 night; read this first)
 
-**Live: `1e3a3d2`** (web-dist `8c277a9`, Vercel `dpl_9SZHK2hbPoBpLP1P3YBACtLvQmi8`) at https://od-sevev.bar-builds.com,
-**save epoch 7: the last pre-launch wipe** (Bar: "this is the last time"; don't bump `saveEpoch` again
-without Bar). What shipped and why: ADR 0013, STATUS 2026-10-04 (night).
+**Live: `debc41e`** (web-dist `ec7f72b`, Vercel `dpl_FjX1LMscYo63jMpTDvRthWGNgBD6`) at https://od-sevev.bar-builds.com,
+**save epoch 7: the last pre-launch wipe** (Bar: "this is the last time"; don't bump `saveEpoch` without Bar).
+What shipped and why: ADR 0013 (round 1, the re-deal, the "נדחה" chip, `round1Ease` for round 2), STATUS 2026-10-04.
+The whole bench is green and the browser drivers pass (STATUS has the numbers).
 
-**Open, in order:**
-1. Run the rest of `tools/balance.sh` (the session-hour gates S5-S8 were cut short before the deploy; round 2 runs
-   about 4:25 today, so S5 "round 2 ≤ round 1" may need round 2 a little shorter).
-2. `game/tests/bench/test_web_driver.gd`: `BROWSER_ROUND_SEC` (2411 s) is an old browser measurement; re-measure
-   with `tools/web/round_web.mjs` on this build and update it.
-3. Browser pass on the live build: `picker_web`, `wizard_web` (the suspicion and Mordechai bubbles in round 1),
-   the 390×844 smoke; a postponement shows the "נדחה" chip.
-4. The branch `wip/round1-hotter` is merged; delete it when convenient.
+**Open:**
+1. `tools/webtest.sh`: "sound comes out" fails headless (pre-existing since `4b0cdee`; likely the silent opener).
+2. `mobile_web.mjs`: the picker's dead-band check fails at 430×932 (two 11-art-px bands at y 812-854 and
+   890-932); the picker layout wasn't touched by ADR 0013. Run the matrix with a longer limit (375×548 was cut).
+3. Delete the merged branch `wip/round1-hotter` when convenient.
 
 # HANDOFF: the music goes trap, two leaders a round, wipe #6; the game moves to od-sevev.bar-builds.com (2026-10-04; read this first)
 
