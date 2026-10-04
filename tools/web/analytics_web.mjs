@@ -185,6 +185,18 @@ await wait(500);
 const bad = await page.evaluate(() => window.odTrackLog.filter((x) => x.startsWith('from/')));
 check(bad.join() === 'from/none', `a malformed tag is dropped, the visit stays from/none (${bad})`);
 
+// 7. the maker's own browser: ?me=1 marks it (odsevev.me), shows the note, leaves the address bar; ?me=0 undoes it
+await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&me=1`);
+await wait(500);
+const meOn = await page.evaluate(() => ({ flag: localStorage.getItem('odsevev.me'), me: window.odMe, search: location.search,
+	note: (document.getElementById('od-me-note') || {}).textContent || '', va: !!document.querySelector('script[src*="_vercel/insights"]') }));
+check(meOn.flag === '1' && meOn.me === true && !/[?&]me=/.test(meOn.search) && /לא נספר/.test(meOn.note) && !meOn.va,
+	`?me=1 marks this browser, shows the note, and leaves the address bar (${JSON.stringify(meOn)})`);
+await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&me=0`);
+await wait(500);
+const meOff = await page.evaluate(() => ({ flag: localStorage.getItem('odsevev.me'), me: window.odMe }));
+check(meOff.flag === null && meOff.me === false, `?me=0 undoes it (${JSON.stringify(meOff)})`);
+
 log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
 await browser.close();
 log(failed ? `FAIL (${failed})` : 'PASS');
