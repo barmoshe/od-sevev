@@ -1,3 +1,41 @@
+# HANDOFF: the music goes trap, two leaders a round, wipe #6; the domain is pending (2026-10-04; read this first)
+
+**Live: `4b0cdee`** (web-dist `1116270`, Vercel `dpl_A65CXtZS7o5XyfAZAkAEH9STrEqY`) at https://od-sevev.vercel.app,
+save epoch 6. `main` is at `2cf53e0` (the domain handoff on top of the live build). Tests 612/612.
+
+**Open: the game on od-sevev.bar-builds.com.** Handed to the local agent with Chrome, all of it:
+`handoff-wip/domain-od-sevev-bar-builds.md` (GoDaddy CNAME `od-sevev` → `cname.vercel-dns.com`, then
+`ShareKit.SITE_URL`, build, deploy, a 308 from od-sevev.vercel.app keeping the path, Search Console). Done
+from the cloud: the domain is added to the Vercel project and verified; **no code changed yet**.
+
+**What this session shipped** (details in STATUS 2026-10-04, ADR 0011 and 0012, `audio/od/cue-spec.md` v2.0-v2.2):
+- **The music is trap** (Bar: "less 8-bit, more trap hip-hop"): same tunes, tempos, form and keys. A tuned
+  CC0 808 sample with legato glides (the Knesset: drill drums and a distorted drill 808), a sampled CC0 kit
+  (`audio/od/samples/`, sources and licences in `SOURCES.md`), flute lead, bells, keys. The render mixes and
+  masters each era: sidechain, reverb per layer, channel EQ/compression, stem EQ + glue + clipper
+  (`compose_od.py` `MIX` / `STEM_EQ` / `BUS_COMP`; `lib_dsp.gd` gained drive, a sample player, Freeverb,
+  RBJ EQ, a compressor).
+- **The tap** is a marimba with a mallet and a thud, and plays the next note of **the song the era is
+  playing** (ADR 0012 brings back ADR 0009's rule); coins sit 7 LU back.
+- **The game's own mix:** music target −20.5 LUFS; master HPF 28 Hz, limiter −1.5 dB; on the Music bus
+  `TapDuck` (side-chained from SFX-Frequent, about −3 dB while tapping) and the ultimatum low-pass
+  `MusicTension`; `TapGlue` on SFX-Frequent; the lead stays at −8 dB under the taps. In the game:
+  −18.0 LUFS, peak −1.4 dBFS. Bus effects are found by name (`OdAudio.bus_fx`).
+- **Two leaders open each round** (Bibi + Bennett, then Ben Gvir + Liberman, Eisenkot + Smotrich,
+  Deri + Golan); the leaders wizard names both newcomers. **Wipe #6** (`saveEpoch` 6).
+
+**Tools this session added:**
+- `tools/mix_session.gd`: a scripted 95 s play session through the real Audio autoload and buses,
+  recorded with Movie Maker (`--mute=music|sfx`, `--raw`, `--noduck`; needs `xvfb-run` and
+  `--rendering-driver opengl3` in a container).
+- `OD_AUDIO_ERA=<era>` renders one era only; `OD_AUDIO_CHANNELS=1` with `OD_AUDIO_PREVIEW` dumps each
+  channel (mix by measurement).
+
+**Not done / next:**
+- The domain (above).
+- The other SFX (UI, Dubi, rewards) are still 8-bit.
+- `picker_web` was stopped before the round-2 picker on this build; run it once.
+
 # HANDOFF: the wizard overlay + the roster ladder (2026-10-03; read this first)
 
 Branch `wizard-roster` (ADR 0007). Bar: no fixed Bibi start, a guided "do-it" wizard for the first two minutes, a new wizard for every mechanic that joins; then merge, deploy and wipe again.
