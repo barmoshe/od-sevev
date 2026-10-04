@@ -1,12 +1,12 @@
-# HANDOFF: the music goes trap, two leaders a round, wipe #6; the domain is pending (2026-10-04; read this first)
+# HANDOFF: the music goes trap, two leaders a round, wipe #6; the game moves to od-sevev.bar-builds.com (2026-10-04; read this first)
 
-**Live: `4b0cdee`** (web-dist `1116270`, Vercel `dpl_A65CXtZS7o5XyfAZAkAEH9STrEqY`) at https://od-sevev.vercel.app,
-save epoch 6. `main` is at `2cf53e0` (the domain handoff on top of the live build). Tests 612/612.
+**Live: `095bcf0`** (web-dist `26607a7`, Vercel `dpl_8vpiFTS6BBwBoFU6W4oHoteywL9Y`) at https://od-sevev.bar-builds.com,
+save epoch 6. Tests 612/612.
 
-**Open: the game on od-sevev.bar-builds.com.** Handed to the local agent with Chrome, all of it:
-`handoff-wip/domain-od-sevev-bar-builds.md` (GoDaddy CNAME `od-sevev` → `cname.vercel-dns.com`, then
-`ShareKit.SITE_URL`, build, deploy, a 308 from od-sevev.vercel.app keeping the path, Search Console). Done
-from the cloud: the domain is added to the Vercel project and verified; **no code changed yet**.
+**Done (local agent, 04/10): the game is on od-sevev.bar-builds.com.** GoDaddy CNAME `od-sevev` →
+`fd66a42e95bc2f2a.vercel-dns-017.com`; `ShareKit.SITE_URL` moved (`095bcf0`); od-sevev.vercel.app is a 308
+to the new host, path kept; Search Console property verified, sitemap submitted, `/` and `/about.html`
+indexing requested; IndexNow pinged. Detail and what's left: `handoff-wip/domain-od-sevev-bar-builds.md`.
 
 **What this session shipped** (details in STATUS 2026-10-04, ADR 0011 and 0012, `audio/od/cue-spec.md` v2.0-v2.2):
 - **The music is trap** (Bar: "less 8-bit, more trap hip-hop"): same tunes, tempos, form and keys. A tuned
@@ -234,7 +234,7 @@ Every item of the leaders-v3 handoff below (phases 3a/3b, trophies and squawks, 
 3. Push, then deploy with the Vercel connector: `create_deployment` with team
    `team_ok1MqoSMeupTyBE6CXAR91UT`, project `prj_ZbQ1ubW0AU5hfhSVnVtcsgmm6BVA`, `target: production`,
    and `gitSource {type: github, org: barmoshe, repo: od-sevev, ref: web-dist, sha: <the real sha>}`.
-4. `get_deployment` until it's READY on od-sevev.vercel.app.
+4. `get_deployment` until it's READY on od-sevev.bar-builds.com.
 
 ## Art pipeline notes (cloud)
 - Set up with `pip install --user pillow numpy`.
@@ -1122,7 +1122,7 @@ xvfb-run -a python3 pipeline/od-sevev/build.py --no-render --godot   # re-import
 
 ## Deploy
 There is no Vercel CLI token in the container, and the connector can't upload the 40 MB wasm, so the deploy goes through git:
-1. Run `tools/build_web.sh`. It is strict, and `OD_SITE_URL` defaults to `https://od-sevev.vercel.app/`, so the OG tags come out absolute.
+1. Run `tools/build_web.sh`. It is strict, and `OD_SITE_URL` defaults to `https://od-sevev.bar-builds.com/`, so the OG tags come out absolute.
 2. Replace the `web-dist` branch's files with `build/web/*` + `tools/web/vercel.json` and a README, commit and push. A worktree of `web-dist` works well for this.
 3. Vercel connector `create_deployment`, team above, `name: "od-sevev"`, `gitSource {type: github, org: barmoshe, repo: od-sevev, ref: web-dist, sha: <commit>}`, `projectSettings {framework: null, buildCommand: "", installCommand: "", outputDirectory: "."}`. A deploy to the project goes to production.
 
@@ -1189,7 +1189,7 @@ On Bar's Mac, `OD_VERCEL_PROJECT=od-sevev tools/deploy_web.sh` still works with 
 
 ## Before a real launch (Bar's calls, not code)
 - **Publisher and contact.** The disclaimer shows "מאת base67" with no mail. Set `OD_PUBLISHER` / `OD_CONTACT_MAIL` for the build.
-- **Domain.** Today it is `od-sevev.vercel.app`, and `OD_SITE_URL` and `ShareKit.SITE_URL` must follow a change.
+- **Domain.** Done 04/10: `od-sevev.bar-builds.com` (od-sevev.vercel.app 308s to it). `OD_SITE_URL` and `ShareKit.SITE_URL` must follow any further change.
 - **Sources.** All launch facts plus the 21 new leader facts were verified from search results only, because the sandbox blocked opening pages. Open each link once.
 - **Legal reads:**
   - Deri's kit (the 2022 tax plea and "חוק דרעי");
