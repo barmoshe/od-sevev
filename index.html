@@ -81,6 +81,38 @@
 			(function () {
 				var live = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
 				var dev = /[?&]dev=1/.test(location.search);
+				// The maker's own devices (2026-10-04): opening the site once with ?me=1 marks this browser
+				// (localStorage odsevev.me) and it never reports again, here, on about.html or the share
+				// stubs; ?me=0 undoes it. The steps still land in odTrackLog. ?me leaves the address bar,
+				// and a short note says which way it went.
+				var me = false;
+				try {
+					var mq = new URLSearchParams(location.search);
+					var meSet = mq.get('me');
+					if (meSet === '1') {
+						localStorage.setItem('odsevev.me', '1');
+					} else if (meSet === '0') {
+						localStorage.removeItem('odsevev.me');
+					}
+					if (mq.has('me')) {
+						mq.delete('me');
+						var mqs = mq.toString();
+						history.replaceState(history.state, '', location.pathname + (mqs ? '?' + mqs : '') + location.hash);
+						var note = meSet === '1' ? 'המכשיר הזה לא נספר יותר באנליטיקות' : 'המכשיר הזה נספר שוב באנליטיקות';
+						document.addEventListener('DOMContentLoaded', function () {
+							var n = document.createElement('div');
+							n.id = 'od-me-note';
+							n.dir = 'rtl';
+							n.textContent = note;
+							n.style.cssText = 'position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);z-index:99;'
+								+ 'background:#f7f4ec;color:#0f2350;border:3px solid #061029;border-radius:6px;padding:8px 14px;font:600 16px system-ui,sans-serif';
+							document.body.appendChild(n);
+							setTimeout(function () { n.remove(); }, 4000);
+						});
+					}
+					me = localStorage.getItem('odsevev.me') === '1';
+				} catch (x) { /* private mode: counted as anyone */ }
+				window.odMe = me;
 				var ready = false;
 				var held = [];
 				// The script reads window.vaq before it sends the visit's own page view, and a queued
@@ -139,7 +171,7 @@
 							store('odsevev.seen', JSON.stringify(seen));
 						}
 						window.odTrackLog.push(step);
-						if (live && !dev) {
+						if (live && !dev && !me) {
 							if (ready) {
 								send(step);
 							} else {
@@ -317,7 +349,7 @@
 					}
 				} catch (x) { /* plays as none */ }
 				window.odTrack('from/' + window.odSource);
-				if (live) {
+				if (live && !me) {
 					load('/_vercel/insights/script.js', '', '', function () {
 						ready = true;
 						held.splice(0).forEach(send);
@@ -906,7 +938,7 @@ html.od-framed #od-phone {
 
 		<script>
 // Build stamp (the git commit), written in by tools/build_web.sh; Settings shows it.
-window.mbBuild = '16b8cc6+';
+window.mbBuild = '910ebf6+';
 // The deployed origin (OD_SITE_URL, tools/build_web.sh; its default is ShareKit.SITE_URL): the link
 // on the share cards, in the share texts and in the OG tags above.
 window.odSiteUrl = 'https://od-sevev.bar-builds.com/';

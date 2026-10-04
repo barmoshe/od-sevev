@@ -35,6 +35,7 @@
 		location.replace('/' + location.search + h + 'v=' + v);
 	};
 	var live = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+	try { if (localStorage.getItem('odsevev.me') === '1') live = false; } catch (x) { /* counted */ }
 	if (live) {
 		window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 		var s = document.createElement('script');

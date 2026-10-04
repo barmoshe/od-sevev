@@ -34,8 +34,10 @@
 		</script>
 		<script>
 			// visits of this page (Vercel Web Analytics, cookieless; shell.html has the whole layer),
-			// the deployed host only
-			if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+			// the deployed host only, and not the maker's own browsers (?me=1 in shell.html)
+			var me = false;
+			try { me = localStorage.getItem('odsevev.me') === '1'; } catch (x) { /* counted */ }
+			if (!me && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
 				var el = document.createElement('script');
 				el.defer = true;
 				el.src = '/_vercel/insights/script.js';
