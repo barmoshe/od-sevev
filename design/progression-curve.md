@@ -34,7 +34,8 @@ the default (`PacingSim.POLITICS`).
 Bar: round 1 "lost interest after about 5 min". Round 1 now opens the suspicion meter and Mordechai David
 and runs **4-5 min** for the median player (gates S1/L1 4:00-5:00, S2 3:00-5:00, S3 3:30-5:30, S4 and SL by
 8:00; the rest unchanged). The knobs are round-1-only: `coalition.round1MoneyScale` 0.115 and
-`round1TimeScale` 0.5 on the late partners, `round1DemandScale` 0.5 on demand prices; shuffled deals are
+`round1TimeScale` 0.5 on the late partners, `round1DemandScale` 0.5 on demand prices, eased out over the
+next rounds by `round1Ease` 0.5 (round 2 3:20-4:03 for every leader, below round 1); shuffled deals are
 re-dealt until `lineupRules.minRoundSeats` (35) reachable seats. Per-leader medians and the before/after
 table: `decisions/0013-2026-10-04-round-one-is-shorter-and-hotter.md`. The S1-S4 rows below are the
 2026-09-29 tuning, kept as the record.

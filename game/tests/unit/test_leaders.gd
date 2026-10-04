@@ -817,7 +817,10 @@ func test_round_one_has_its_own_pace() -> void:
 	runner.check(is_equal_approx(Coalition.price_scale(0), float(co["round1DemandScale"])), "round 1's demands cost round1DemandScale × demandSec")
 	s.evolutions = 1
 	var u1 := Coalition.unlock_of(s, late)
-	runner.check(is_equal_approx(float(u1["runSecAtLeast"]), float(raw["runSecAtLeast"]) * Coalition.time_scale(1)), "round 2 is back on the election scaling")
+	runner.check(is_equal_approx(float(u1["runSecAtLeast"]), float(raw["runSecAtLeast"]) * Coalition.time_scale(1) * Coalition.early_time_scale(1))
+		and is_equal_approx(float(u1["runMoneyAtLeast"]), float(raw["runMoneyAtLeast"]) * pow(float(co["unlockScalePerElection"]), 1) * Coalition.early_money_scale(1)),
+		"round 2: the election scaling, with round 1's discount easing back (%s)" % str(u1))
+	runner.check(Coalition.early_money_scale(1) > float(co["round1MoneyScale"]) and Coalition.early_money_scale(8) > 0.99, "the discount eases back to full price")
 
 
 ## "Make sure all leaders work" (Bar): a shuffled deal never leaves a round short of 61. Bennett's seeds

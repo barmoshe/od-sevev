@@ -112,7 +112,7 @@ runs it on the design content.
 | `ultimatum {sec 90, minPlaySec 180, minDemandsPaid 2, marksSec [60,30], maxOpen 1}` | UX U1 |
 | `rejoinMult` 1.5, `poachSec`, `upkeepMaxPct`, `chatMax`, `corridorMsgsPerOpen` | |
 | `unlockScalePerElection`, `unlockTimeScalePerElection` | partners' `runMoneyAtLeast` / `runSecAtLeast` × scale^evolutions |
-| `round1MoneyScale`, `round1TimeScale`, `round1DemandScale` | round 1 only (ADR 0013): the late partners' (those with `runSecAtLeast`) money and time thresholds, and `price_scale(0)` |
+| `round1MoneyScale`, `round1TimeScale`, `round1DemandScale`, `round1Ease` | ADR 0013: in round 1 the late partners' (those with `runSecAtLeast`) money and time thresholds and `price_scale(0)`; from round 2 the money/time discount eases out, `1 - (1 - scale) × round1Ease^n` |
 | `negotiation {demandGapMult}` | Post-election mode: partners ask more often |
 
 ### `partners[]`

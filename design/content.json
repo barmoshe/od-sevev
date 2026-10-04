@@ -890,10 +890,11 @@
    "demandGapMult": 0.6
   },
   "unlockScalePerElection": 2,
-  "_round1": "ADR 0013 (Bar 2026-10-04: round 1 lost interest after ~5 min; target 4-5 min): round 1 only, the late partners (those with runSecAtLeast) unlock at runMoneyAtLeast × round1MoneyScale and runSecAtLeast × round1TimeScale, and demands cost demandSec × round1DemandScale. Measured with PacingSim, seeds 1-9, median: every leader 4:26-4:53 (was 8:14-9:42 with the suspicion meter and Mordechai in round 1). Money held round 1, not the time floors (0.5 alone changed nothing). From round 2 the election scaling below applies.",
+  "_round1": "ADR 0013 (Bar 2026-10-04: round 1 lost interest after ~5 min; target 4-5 min): round 1 only, the late partners (those with runSecAtLeast) unlock at runMoneyAtLeast × round1MoneyScale and runSecAtLeast × round1TimeScale, and demands cost demandSec × round1DemandScale. Measured with PacingSim, seeds 1-9, median: every leader 4:26-4:53 (was 8:14-9:42 with the suspicion meter and Mordechai in round 1). Money held round 1, not the time floors (0.5 alone changed nothing). From round 2 the discount eases out: round1Ease 0.5, so the late partners carry 1 - (1 - round1XScale) × 0.5^n on top of the election scaling below (round 2 had run 5:05-5:38 at full price, longer than round 1; now 3:20-4:03).",
   "round1TimeScale": 0.5,
   "round1MoneyScale": 0.115,
   "round1DemandScale": 0.5,
+  "round1Ease": 0.5,
   "unlockTimeScalePerElection": 0.6,
   "unlockTimeScaleMin": 0.58,
   "demandSecScalePerElection": 0.5,

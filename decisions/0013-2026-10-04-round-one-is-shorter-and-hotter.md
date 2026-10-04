@@ -25,8 +25,12 @@ round): after a postponement the meter stays full until the summons comes back, 
 - **Round 1 is shorter, for every leader:** three round-1-only knobs in `coalition` (`sim/coalition.gd`):
   `round1MoneyScale` 0.115 and `round1TimeScale` 0.5 on the late partners' unlock (the ones with a time
   floor; the early five keep the first minutes' beats), and `round1DemandScale` 0.5 on a demand's price
-  (`price_scale(0)`). Measured first, the time floors alone changed nothing: money held round 1. From round
-  2 the election scaling applies as before.
+  (`price_scale(0)`). Measured first, the time floors alone changed nothing: money held round 1.
+- **The discount eases out over the next rounds** (`coalition.round1Ease` 0.5): from round 2 the late
+  partners' money and time thresholds carry `1 - (1 - round1XScale) × 0.5^n` on top of the election
+  scaling (`Coalition.early_money_scale` / `early_time_scale`). Without it round 2 paid full price on round
+  1's smaller base and ran 5:05-5:38, longer than round 1 (gate S5 failed for every leader); with it every
+  leader's round 2 runs 3:20-4:03 and the rounds keep getting shorter.
 - **Every leader's deal can close 61 in its round:** a shuffled seat deal is re-dealt (from the next seed)
   until the partner seats that can open this round, and sit with the first partner and with each other,
   reach `leaderSelect.lineupRules.minRoundSeats` (35) (`Leaders.deal(id, seed, evolutions)`,
@@ -46,6 +50,9 @@ round): after a postponement the meter stays full until the summons comes back, 
 | casual | 8:30 | 4:35, 4:24 |
 | idle | 10:57 | 5:25, 5:53 |
 | chat every 45 s | 11:15 | 6:00 |
+
+Whole hour, median player, seed 7 (`tools/balance.sh`): 4:20, 3:47, 3:12, 3:36, 3:16, 3:22, then about
+3:00; per-round median over seeds 3-11: 4:24, 3:58, 3:15, 3:24, 3:16, 3:17, 2:58, 2:57.
 
 Mordechai David visits in 6-8 of 9 first rounds; the meter reaches 100 in most first rounds, so a press or
 court day usually lands before the vote. The bench gates move with it (`game/tests/bench/`,

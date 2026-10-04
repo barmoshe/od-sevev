@@ -347,10 +347,32 @@ static func unlock_of(s: GameState, p: Dictionary) -> Dictionary:
 	var scale := _num("unlockScalePerElection", 1.0)
 	if scale != 1.0 and out.has("runMoneyAtLeast"):
 		out["runMoneyAtLeast"] = float(u["runMoneyAtLeast"]) * pow(scale, s.evolutions)
+	# the round-1 money discount eases back over the next rounds (coalition.round1Ease), so round 2
+	# doesn't pay full price on round 1's smaller base (ADR 0013: round 2 ran 5:05-5:38, longer than round 1)
+	if out.has("runMoneyAtLeast") and out.has("runSecAtLeast"):
+		out["runMoneyAtLeast"] = float(out["runMoneyAtLeast"]) * early_money_scale(s.evolutions)
 	var tscale := _num("unlockTimeScalePerElection", 1.0)
 	if tscale != 1.0 and out.has("runSecAtLeast"):
-		out["runSecAtLeast"] = float(u["runSecAtLeast"]) * time_scale(s.evolutions)
+		out["runSecAtLeast"] = float(u["runSecAtLeast"]) * time_scale(s.evolutions) * early_time_scale(s.evolutions)
 	return out
+
+
+## The late partners' money discount after `evolutions` elections: round1MoneyScale in round 1, easing
+## back to 1 by round1Ease per election: 1 - (1 - round1MoneyScale) × ease^n (ease 0: round 1 only).
+static func early_money_scale(evolutions: int) -> float:
+	return _early("round1MoneyScale", evolutions)
+
+
+## The same easing for the late partners' time floors (round1TimeScale), on top of time_scale.
+static func early_time_scale(evolutions: int) -> float:
+	return _early("round1TimeScale", evolutions)
+
+
+static func _early(key: String, evolutions: int) -> float:
+	var r1 := _num(key, 1.0)
+	if evolutions <= 0:
+		return r1
+	return 1.0 - (1.0 - r1) * pow(_num("round1Ease", 0.0), evolutions)
 
 
 ## The round-clock factor on runSecAtLeast after `evolutions` elections: min + (1 - min) × scale^n.
