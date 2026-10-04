@@ -116,6 +116,217 @@ def kit_form(g1, g2, fill, last, beat):
             "T": [g1, g2] * 3 + [g1, last]}
 
 
+# ============================================================ v2.0 trap helpers
+
+HAT_SPB = 24   # the hats' grid: 24 steps a beat holds 8ths (12), 16ths (6), 16th triplets (4), 32nds (3), 32nd triplets (2)
+HAT_HALF = {"-": [], "8": [0], "16": [0, 6], "t": [0, 4, 8], "32": [0, 3, 6, 9], "48": [0, 2, 4, 6, 8, 10],
+            "o": ["o"], "s": [0], "S": [0, 8]}
+
+
+def hats(*beats):
+    """One bar of hats on the 24-step grid. Each beat is a code, or "a|b" for its two halves:
+    - none, 8 an 8th, 16 16ths, t 16th triplets, 32 32nds, 48 32nd triplets, o an open hat.
+    Swung codes for the triplet eras: "s" (the beat), "S" (beat + its last triplet, the swing)."""
+    out = ["."] * (HAT_SPB * len(beats))
+    for bi, code in enumerate(beats):
+        if code in ("s", "S", "T"):   # whole-beat swing codes (Courthouse): 8th triplets
+            pos = {"s": [0], "S": [0, 16], "T": [0, 8, 16]}[code]
+            for p in pos:
+                out[bi * HAT_SPB + p] = "h" if p == 0 else "g"
+            continue
+        halves = code.split("|") if "|" in code else [code, code if code in ("16", "t", "32", "48") else "-"]
+        if code == "8":
+            halves = ["8", "8"]
+        for hi, h in enumerate(halves):
+            pos = HAT_HALF[h]
+            for k, p in enumerate(pos):
+                if p == "o":
+                    out[bi * HAT_SPB + hi * 12] = "o"
+                    continue
+                out[bi * HAT_SPB + hi * 12 + p] = _vel(k, len(pos), hi)
+    return " ".join(out)
+
+
+def _vel(k, n, half):
+    """v2.1: a hat's velocity: the beat 'h', the offbeat 8th 'm', a roll swelling q -> g -> m."""
+    if k == 0:
+        return "h" if half == 0 else "m"
+    f = k / max(1, n - 1)
+    return "q" if f < 0.34 else "g" if f < 0.67 else "m"
+
+
+def hats_tresillo(roll=None):
+    """v2.1: the drill hat: 3+3+2 per half bar (16ths 1, 4, 7 at velocities 100 / 87 / 52, Native
+    Instruments' drill walkthrough), as a bar on the 24-step grid. `roll` replaces beat 4's second half
+    with a hats() half code (t, 32, 48) swelling into the next bar."""
+    out = ["."] * (HAT_SPB * 4)
+    for half in (0, 8):
+        for p, v in ((0, "h"), (3, "m"), (6, "q")):
+            out[(half + p) * 6] = v
+    if roll:
+        for i in range(HAT_SPB * 3 + 12, HAT_SPB * 4):
+            out[i] = "."
+        pos = HAT_HALF[roll]
+        for k, p in enumerate(pos):
+            out[HAT_SPB * 3 + 12 + p] = _vel(k, len(pos), 1) if k else "g"
+    return " ".join(out)
+
+
+def chord_pcs(name):
+    """'Dm' -> [2, 5, 9]; 'A7' -> [9, 1, 4, 7]; 'Bb' -> [10, 2, 5]."""
+    m = re.fullmatch(r"([A-G])([#b]?)(m?)(7?)", name)
+    r = (PC[m.group(1)] + (1 if m.group(2) == "#" else -1 if m.group(2) == "b" else 0)) % 12
+    pcs = [r, (r + (3 if m.group(3) else 4)) % 12, (r + 7) % 12]
+    if m.group(4):
+        pcs.append((r + 10) % 12)
+    return pcs
+
+
+def _place(pc, lo):
+    """The pitch class pc at or above midi lo (within an octave)."""
+    return lo + (pc - lo) % 12
+
+
+def _halves(c):
+    a, b = (c.split("|") + [c])[:2]
+    return a, b
+
+
+def _bar(spb, events):
+    """events: (step, len, token) -> one bar string; later events cut earlier ones short."""
+    t = ["."] * spb
+    for st, ln, tok in sorted(events):
+        t[st] = tok
+        for i in range(st + 1, min(spb, st + ln)):
+            t[i] = "-"
+    return " ".join(t)
+
+
+def bass808(chords, rhythm, spb, lo=29, prev=None, inst="808"):
+    """The 808 line. `rhythm`: a bar's (step, len, kind), or a list of such bars cycled bar by bar.
+    kind: R the root, punched (a fresh hit); r the root, gliding from the previous note (legato, the
+    trap/drill slide, 808u<n> / 808d<n>); O the octave above, gliding up into it; F the fifth above,
+    gliding. The chord's root (X|Y splits at the half bar) sits in F1-E2 (midi 29-40)."""
+    if rhythm and isinstance(rhythm[0], tuple):
+        rhythm = [rhythm]
+    bars = []
+    for bi, c in enumerate(chords):
+        a, b = _halves(c)
+        ev = []
+        for st, ln, kind in rhythm[bi % len(rhythm)]:
+            r = _place(chord_pcs(a if st < spb // 2 else b)[0], lo)
+            n = {"R": r, "r": r, "O": r + 12, "F": r + 7}[kind]
+            if kind != "R" and prev is not None and prev != n and abs(prev - n) <= 24:
+                ov = "@%s%s%d" % (inst, "d" if prev > n else "u", abs(prev - n))
+            else:
+                ov = ""
+            ev.append((st, ln, nm(n) + ov))
+            prev = n
+        bars.append(_bar(spb, ev))
+    return bars
+
+
+def keys_part(chords, hits, spb, lo=55):
+    """Soft keys: the chord, closed in G3-F#4, struck at each (step, len) of hits."""
+    bars = []
+    for c in chords:
+        ev = []
+        for st, ln in hits:
+            ch = (_halves(c))[0 if st < spb // 2 else 1]
+            notes = sorted(_place(pc, lo) for pc in chord_pcs(ch)[:3])
+            ev.append((st, ln, "+".join(nm(n) for n in notes)))
+        bars.append(_bar(spb, ev))
+    return bars
+
+
+def bells_part(chords, pattern, spb, lo=72):
+    """Dark bells: an arpeggio over the chord in C5-B5 (+ the root's octave). pattern: (step, index)
+    with index into [root, third, fifth, root']."""
+    bars = []
+    for c in chords:
+        ev = []
+        for st, ix in pattern:
+            ch = (_halves(c))[0 if st < spb // 2 else 1]
+            p = chord_pcs(ch)
+            r = _place(p[0], lo)
+            tones = [r, _place(p[1], r), _place(p[2], r), r + 12]
+            ev.append((st, 1, nm(tones[ix])))
+        bars.append(_bar(spb, ev))
+    return bars
+
+
+# the lead's echo: a dotted-8th throw (3 steps), no detuned double (that was the chip chorus)
+TRAP_FX = {"echo": {"steps": 3, "db": -10.0, "repeats": 2}}
+
+
+def kit_split(sections, keep):
+    """The kit's bars with only the characters in `keep` (the snares get their own channel and its
+    reverb send; the kick, rim and perc stay dry)."""
+    return {sec: [" ".join(("".join(c for c in st if c in keep) or ".") for st in b.split(" ")) for b in bars]
+            for sec, bars in sections.items()}
+
+
+# v2.1, the mix (the trap/drill mix guides): the 808 ducks 5 dB under every kick (2 ms down, 15 ms
+# hold, 120 ms back); the snares, bells, keys and lead send to one Freeverb room per layer (the send
+# high-passed at 250 Hz: the low end stays dry and mono); L0 goes through a soft clipper (the drum-bus
+# clipper: peaks rounded, density up, the same LUFS hits harder)
+# v2.1, the channel balance, set by measuring each channel's RMS (OD_AUDIO_CHANNELS dumps) against the
+# trap balance the mix guides give: the 808 loudest, the kick about 6 dB under it, the snares about 10,
+# the melody about 6, the hats 15-20, the keys and bells far back (texture, not a part)
+MIX = {"bass": 0.56, "drums": 0.9, "snares": 1.5, "hats": 0.62, "keys": 0.055, "bells": 0.25, "p2": 0.22, "lead": 0.19}
+# v2.1, the master pass (measured against a trap reference curve, octave bands relative to 1 kHz: the
+# first mix sat 5-8 dB light in the sub and 63-250 Hz, 8 dB light at 2-4 kHz, heavy around 1 kHz where
+# the flute and keys live). Channel moves: the 808 evened out by a slow low compressor (the mix guides'
+# "each 808 note lands with the same weight"), the lead and keys dipped at 1 kHz, the snares given
+# presence. Stem moves: L0 a low shelf for the sub and a presence shelf, glue (2:1, 10 ms / 120 ms)
+# before the clipper; L1 / L2 the 1 kHz dip and a little air.
+EQ_LEAD = [{"type": "peaking", "freq": 1100, "Q": 0.8, "gainDb": -3.0}, {"type": "highshelf", "freq": 4500, "Q": 0.7, "gainDb": 2.5}]
+EQ_KEYS = [{"type": "peaking", "freq": 900, "Q": 0.8, "gainDb": -4.0}, {"type": "highpass", "freq": 160, "Q": -3.0103}]
+EQ_SNARES = [{"type": "peaking", "freq": 3200, "Q": 0.9, "gainDb": 3.0}, {"type": "highpass", "freq": 150, "Q": -3.0103}]
+COMP_808 = {"thresholdDb": -9.0, "ratio": 3.0, "attackMs": 30, "releaseMs": 200}
+STEM_EQ = {"L0": [{"type": "highpass", "freq": 26, "Q": -3.0103}, {"type": "lowshelf", "freq": 90, "Q": 0.7, "gainDb": 3.0},
+                  {"type": "peaking", "freq": 170, "Q": 0.9, "gainDb": 3.5}, {"type": "peaking", "freq": 2000, "Q": 1.0, "gainDb": 2.5},
+                  {"type": "highshelf", "freq": 2500, "Q": 0.7, "gainDb": 3.0}],
+           "L1": [{"type": "peaking", "freq": 1000, "Q": 0.7, "gainDb": -2.0}, {"type": "highshelf", "freq": 6000, "Q": 0.7, "gainDb": 1.5}],
+           "L2": [{"type": "highshelf", "freq": 6000, "Q": 0.7, "gainDb": 1.5}]}
+# the Courthouse renders at 22 kHz with triplet hats on every beat: it measured 4-7 dB bright at 4-8 kHz,
+# so its L0 keeps the body moves and drops the presence shelf
+STEM_EQ_COURT = dict(STEM_EQ, L0=[f for f in STEM_EQ["L0"] if f["type"] != "highshelf"])
+BUS_COMP = {"L0": {"thresholdDb": -10.0, "ratio": 2.0, "attackMs": 10, "releaseMs": 120}}
+DUCK = {"by": "drums", "hits": ["kick"], "db": -5.0, "attackMs": 2, "holdMs": 15, "releaseMs": 120}
+ROOM = {"size": 0.72, "damp": 0.45, "predelayMs": 18, "hpHz": 250}
+BUS = {"L0": 1.8}
+SENDS = {"snares": -7.0, "keys": -9.0, "bells": -5.0, "p2": -9.0, "lead": -11.0}
+
+
+def trap_channels(bass, kit, hat, keys, bells, p2, lead, lead_inst, gains, p2_inst="pluck", lead_section_inst=None,
+                  lead_fx=TRAP_FX, kit_name="trap", bass_inst="808"):
+    """The v2.0 layer map: L0 = the 808 + the kit + the hats (always on), L1 = keys + bells + the
+    counter-line (from the first source), L2 = the lead (while the taps rest)."""
+    gains = dict(MIX, **gains)
+    ch = {
+        "bass": {"instrument": bass_inst, "layer": "L0", "gain": gains["bass"], "sections": bass, "duck": DUCK},
+        "drums": {"kit": kit_name, "layer": "L0", "gain": gains["drums"], "sections": kit_split(kit, "KRtTX")},
+        "snares": {"kit": kit_name, "layer": "L0", "gain": gains["snares"], "sections": kit_split(kit, "CSsN")},
+        "hats": {"kit": "trapHats", "layer": "L0", "gain": gains["hats"], "stepsPerBeat": HAT_SPB, "sections": hat},
+        "keys": {"instrument": "keys", "layer": "L1", "gain": gains["keys"], "sections": keys},
+        "bells": {"instrument": "bell", "layer": "L1", "gain": gains["bells"], "sections": bells},
+        "p2": {"instrument": p2_inst if isinstance(p2_inst, str) else "pluck", "layer": "L1", "gain": gains["p2"], "sections": p2},
+        "lead": {"instrument": lead_inst, "layer": "L2", "gain": gains["lead"], "sections": lead, "fx": lead_fx},
+    }
+    for cid, db in SENDS.items():
+        ch[cid]["reverb"] = db
+    ch["lead"]["eq"] = EQ_LEAD
+    ch["keys"]["eq"] = EQ_KEYS
+    ch["snares"]["eq"] = EQ_SNARES
+    ch["bass"]["comp"] = COMP_808
+    if isinstance(p2_inst, dict):
+        ch["p2"]["sectionInstrument"] = p2_inst
+    if lead_section_inst:
+        ch["lead"]["sectionInstrument"] = lead_section_inst
+    return ch
+
+
 # the lead's chip echo channel and detuned double (gen_od_sevev.gd _channel_fx): fuller, less beepy
 LEAD_FX = {"double": {"cents": 7, "db": -8.0}, "echo": {"steps": 3, "db": -11.0, "repeats": 2}}
 
@@ -233,6 +444,187 @@ INSTRUMENTS = {
         L(id="pip", wave="pulse", duty=0.25, freqStart=4000, followPitch=False, delay=0.075, attack=0.001, decay=0.03, sustain=0.0, duration=0.03, release=0.008, gain=0.35)]},
 }
 
+# ============================================================ v2.0 (2026-10-04): the trap palette
+# Bar: "less 8-bit and more trap hip-hop". The tunes, chords, tempos and form stay; the voices change.
+# The 808 is a driven sine (tanh: its harmonics carry it on a phone speaker) with a 35 ms pitch punch
+# and a short knock an octave up (the phone click of brief §8, now built into every 808 note). The
+# lead is a breathy flute (the trap flute), the harmony dark bells and soft keys, the kit a kick,
+# clap + snare, rim and white-noise hats with rolls on their own 24-steps-a-beat grid.
+SUB = {"type": "lowpass", "freq": 1800, "Q": 0.0}
+
+
+SAMPLE_DIR = os.path.join(HERE, "..", "od", "samples")
+
+
+def sample_len(f):
+    import wave
+    with wave.open(os.path.join(SAMPLE_DIR, f)) as w:
+        return w.getnframes() / w.getframerate()
+
+
+def samp(f, gain=1.0, **k):
+    """v2.1: a one-shot from audio/od/samples (CC0, SOURCES.md), played whole at its own pitch."""
+    d = sample_len(f)
+    return L(id=f[:-4], wave="sample", file=f, followPitch=False, attack=0.0005, decay=0.0, sustain=1.0, duration=round(d, 4),
+             release=0.01, gain=gain, **k)
+
+
+# v2.1 (Bar: "download free cc0 drum samples one shots to improve"): the 808 is a real 808 sample, tuned
+# to every note (rootHz: its measured pitch; the playback rate follows the note and the glides), with
+# the driven-sine grit band above 140 Hz kept under it for the phone speaker
+S808 = {"808": ("808_c2.wav", 65.42, 0.34), "808x": ("808_drill_c1.wav", 32.73, 0.16)}
+
+
+def _808s(name, slide=0, glide=0.11):
+    f, root, grit = S808[name]
+    start, g = ("A4", 0.0) if slide == 0 else (nm(69 + slide), glide)
+    pitch = dict(freqStart=start, freqEnd="A4", freqCurve="exp", glide=g) if slide else dict(freqStart="A4")
+    env = dict(attack=0.002 if slide == 0 else 0.01, decay=0.0, sustain=1.0, duration="note", release=0.06)
+    return {"gate": 0.92, "layers": [
+        L(id="s808", wave="sample", file=f, rootHz=root, gain=1.0, **pitch, **env),
+        L(id="grit", wave="sine", drive=6.0, filter={"type": "highpass", "freq": 140, "Q": -3.0103}, gain=grit,
+          **pitch, **dict(env, decay=0.9, sustain=0.5))]}
+
+
+def _808(slide=0, glide=0.11):
+    """v2.1 (Bar: "חסר לי סאבים מגניבים"): the 808 in two bands, as the mix guides split it. `sub`: a
+    clean sine, the deep weight (40-80 Hz), untouched. `grit`: the same sine driven hard (tanh x6) and
+    high-passed at 140 Hz, so its 3rd and 5th harmonics carry the bass line on a phone speaker while
+    the sub stays clean; `oct` adds the 2nd harmonic. A plain note opens with the punch (an octave
+    above, falling in 40 ms: the knock that makes an 808 read as a hit). `slide` != 0: a legato glide
+    from `slide` semitones away (the previous note) over `glide` s, no punch (a slide never re-attacks)."""
+    start, g = ("A5", 0.04) if slide == 0 else (nm(69 + slide), glide)
+    env = dict(attack=0.003 if slide == 0 else 0.012, decay=0.9, sustain=0.55, duration="note", release=0.09)
+    pitch = dict(freqStart=start, freqEnd="A4", freqCurve="exp", glide=g)
+    return {"gate": 0.92, "layers": [
+        L(id="sub", wave="sine", gain=1.0, **pitch, **env),
+        L(id="grit", wave="sine", drive=6.0, filter={"type": "highpass", "freq": 140, "Q": -3.0103}, gain=0.5, **pitch, **env),
+        L(id="oct", wave="sine", drive=2.0, filter={"type": "highpass", "freq": 140, "Q": -3.0103}, gain=0.16,
+          **dict(pitch, freqStart=nm(81 + slide) if slide else "A6", freqEnd="A5"), **env)]}
+
+
+# the 808 hat (TR-808 circuit): six square oscillators at the 808's metal frequencies, band-passed
+# high; plus a little white noise for air (Cherry Audio's Transistor 808 notes, the 808 service notes)
+HAT_OSC = [205.3, 304.4, 369.6, 522.7, 540.0, 800.0]
+
+
+def _hat(decay, gain, bp=10000):
+    return {"gate": 1.0, "layers": [
+        L(id="o%d" % i, wave="square", freqStart=f, followPitch=False, filter={"type": "bandpass", "freq": bp, "Q": 1.2},
+          attack=0.0005, decay=decay, sustain=0.0, duration=decay, release=0.008, gain=gain * 1.6)
+        for i, f in enumerate(HAT_OSC)] + [
+        L(id="air", wave="noise", clockStart=44000, filter={"type": "highpass", "freq": 7500, "Q": -3.0103},
+          attack=0.0005, decay=decay * 0.8, sustain=0.0, duration=decay * 0.8, release=0.008, gain=gain * 0.35)]}
+
+
+def _flute(gate, sustain, decay, release, vib=True):
+    v = {"rateHz": 5.0, "depthCents": 14, "delay": 0.22} if vib else None
+    tone = L(id="tone", wave="sine", freqStart="A4", attack=0.022, decay=decay, sustain=sustain, duration="note",
+             release=release, gain=1.0)
+    body = L(id="body", wave="triangle", freqStart="A4", attack=0.03, decay=decay, sustain=sustain * 0.85,
+             duration="note", release=release, filter={"type": "lowpass", "freq": 4000, "Q": 0.0}, gain=0.4)
+    over = L(id="over", wave="sine", freqStart="A5", attack=0.02, decay=decay, sustain=sustain * 0.6, duration="note",
+             release=release, gain=0.14)
+    third = L(id="third", wave="sine", freqStart="E6", attack=0.02, decay=decay, sustain=sustain * 0.4, duration="note",
+              release=release, gain=0.07)
+    breath = L(id="breath", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 3200, "Q": 1.0},
+               attack=0.004, decay=0.07, sustain=0.08, duration="note", release=release, gain=0.24)
+    if v:
+        for x in (tone, body, over, third):
+            x["vibrato"] = v
+    return {"gate": gate, "layers": [tone, body, over, third, breath]}
+
+
+def _bell(ring, gain=1.0):
+    return {"gate": 1.0, "layers": [
+        L(id="p1", wave="sine", freqStart="A4", attack=0.002, decay=ring, sustain=0.0, duration=ring, release=0.08, gain=gain),
+        L(id="p2", wave="sine", freqStart="A5", attack=0.001, decay=ring * 0.4, sustain=0.0, duration=ring * 0.4, release=0.05, gain=0.32 * gain),
+        L(id="p3", wave="sine", freqStart="E6", attack=0.001, decay=ring * 0.15, sustain=0.0, duration=ring * 0.15, release=0.03, gain=0.14 * gain),
+        L(id="tine", wave="sine", freqStart="E7", attack=0.0005, decay=0.02, sustain=0.0, duration=0.02, release=0.01, gain=0.12 * gain)]}
+
+
+TRAP = {
+    "808": _808(),
+    # the lead: legato flute (the anthem's home voice: gate >= 0.85, "note" length) and a short one
+    "flute": _flute(0.92, 0.78, 0.18, 0.08),
+    "fluteS": _flute(0.7, 0.55, 0.12, 0.06, vib=False),
+    # the counter-line voice (Knesset's hocket and round): a marimba-ish pluck, a sine and its octave
+    "pluck": {"gate": 0.8, "layers": [
+        L(id="tone", wave="sine", freqStart="A4", attack=0.002, decay=0.22, sustain=0.25, duration="note", release=0.06, gain=1.0),
+        L(id="oct", wave="sine", freqStart="A5", attack=0.001, decay=0.07, sustain=0.0, duration=0.07, release=0.02, gain=0.3),
+        L(id="body", wave="triangle", freqStart="A4", attack=0.002, decay=0.12, sustain=0.15, duration="note", release=0.05,
+          filter={"type": "lowpass", "freq": 2000, "Q": 0.0}, gain=0.3)]},
+    "bell": _bell(0.55),
+    "bellLong": _bell(0.9),
+    # soft keys: a sine and a low-passed triangle, slow attack, re-struck (never over 1.0 s)
+    "keys": {"gate": 0.9, "layers": [
+        L(id="tone", wave="sine", freqStart="A4", attack=0.035, decay=0.35, sustain=0.55, duration="note", release=0.14, gain=1.0),
+        L(id="body", wave="triangle", freqStart="A4", attack=0.04, decay=0.3, sustain=0.45, duration="note", release=0.14,
+          filter={"type": "lowpass", "freq": 1500, "Q": 0.0}, gain=0.45),
+        L(id="tine", wave="sine", freqStart="A6", attack=0.001, decay=0.04, sustain=0.0, duration=0.04, release=0.02, gain=0.08)]},
+    # the kit
+    # the kick: a sine falling 210 -> 48 Hz in 60 ms (the punch), driven, a click on top. It owns the
+    # attack; the 808 ducks under it (the sidechain, gen_od_sevev.gd _duck)
+    "kick": {"gate": 1.0, "layers": [
+        L(id="body", wave="sine", freqStart=210, freqEnd=48, freqCurve="exp", glide=0.06, followPitch=False, drive=2.2,
+          attack=0.0008, decay=0.28, sustain=0.0, duration=0.28, release=0.02, gain=1.0),
+        L(id="click", wave="noise", clockStart=26000, filter={"type": "bandpass", "freq": 3500, "Q": 0.8},
+          attack=0.0003, decay=0.005, sustain=0.0, duration=0.005, release=0.003, gain=0.5)]},
+    # the 808 clap: band-passed noise (1.1 kHz) retriggered four times 11 ms apart, then the tail;
+    # a high crack for the phone. The room comes from the snares channel's reverb send.
+    "clap": {"gate": 1.0, "layers": [
+        L(id="c%d" % i, wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 1100, "Q": 1.0}, delay=0.011 * i,
+          attack=0.0004, decay=0.009, sustain=0.0, duration=0.009, release=0.002, gain=0.75 + 0.05 * i) for i in range(3)] + [
+        L(id="tail", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 1250, "Q": 0.9}, delay=0.033,
+          attack=0.0004, decay=0.19, sustain=0.0, duration=0.19, release=0.03, gain=0.95),
+        L(id="crack", wave="noise", clockStart=44000, filter={"type": "highpass", "freq": 3000, "Q": -3.0103}, delay=0.033,
+          attack=0.0004, decay=0.07, sustain=0.0, duration=0.07, release=0.02, gain=0.5)]},
+    # the snare: two drum-head tones and the snappy (high-passed noise), tight (a trap snare is dry)
+    "snare": {"gate": 1.0, "layers": [
+        L(id="head1", wave="sine", freqStart=330, freqEnd=185, freqCurve="exp", glide=0.02, followPitch=False,
+          attack=0.0005, decay=0.07, sustain=0.0, duration=0.07, release=0.01, gain=0.55),
+        L(id="head2", wave="triangle", freqStart=480, freqEnd=330, freqCurve="exp", glide=0.015, followPitch=False,
+          attack=0.0005, decay=0.04, sustain=0.0, duration=0.04, release=0.01, gain=0.25),
+        L(id="snappy", wave="noise", clockStart=44000, filter={"type": "highpass", "freq": 1800, "Q": -3.0103},
+          attack=0.0005, decay=0.15, sustain=0.0, duration=0.15, release=0.02, gain=0.7)]},
+    "snareG": {"gate": 1.0, "layers": [
+        L(id="snappy", wave="noise", clockStart=44000, filter={"type": "highpass", "freq": 2000, "Q": -3.0103},
+          attack=0.0005, decay=0.05, sustain=0.0, duration=0.05, release=0.01, gain=0.26)]},
+    "rim": {"gate": 1.0, "layers": [
+        L(id="click", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 2600, "Q": 3.0},
+          attack=0.0005, decay=0.018, sustain=0.0, duration=0.018, release=0.005, gain=0.7),
+        L(id="tone", wave="triangle", freqStart=1650, followPitch=False, attack=0.0005, decay=0.016, sustain=0.0,
+          duration=0.016, release=0.005, gain=0.25)]},
+    "hat": _hat(0.04, 1.0),
+    "hatO": _hat(0.26, 0.8, 9000),
+    # the fanfare's snare roll in four dynamic steps
+    "sroll1": {"gate": 1.0, "layers": [L(id="n", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 1900, "Q": 0.7}, attack=0.0005, decay=0.045, sustain=0.0, duration=0.045, release=0.01, gain=0.2)]},
+    "sroll2": {"gate": 1.0, "layers": [L(id="n", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 1900, "Q": 0.7}, attack=0.0005, decay=0.045, sustain=0.0, duration=0.045, release=0.01, gain=0.36)]},
+    "sroll3": {"gate": 1.0, "layers": [L(id="n", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 2000, "Q": 0.7}, attack=0.0005, decay=0.04, sustain=0.0, duration=0.04, release=0.01, gain=0.58)]},
+    "sroll4": {"gate": 1.0, "layers": [L(id="n", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 2100, "Q": 0.7}, attack=0.0005, decay=0.035, sustain=0.0, duration=0.035, release=0.01, gain=0.85)]},
+}
+# v2.1: the 808's legato glides, one instrument per interval from the previous note: 808u<n> slides UP
+# into the note from n semitones below, 808d<n> slides DOWN from n above (bass808 picks them)
+for _name in S808:
+    TRAP[_name] = _808s(_name)
+    for _n in range(1, 25):
+        TRAP["%su%d" % (_name, _n)] = _808s(_name, -_n)
+        TRAP["%sd%d" % (_name, _n)] = _808s(_name, _n)
+# the kit, sampled (audio/od/samples/SOURCES.md); the synthesized voices above stay as the fallback
+TRAP.update({
+    "kick": {"gate": 1.0, "layers": [samp("kick.wav", 1.0)]},
+    "clap": {"gate": 1.0, "layers": [samp("clap.wav", 1.0)]},
+    "snare": {"gate": 1.0, "layers": [samp("snare.wav", 0.9)]},
+    "snareG": {"gate": 1.0, "layers": [samp("snare.wav", 0.28)]},
+    "rim": {"gate": 1.0, "layers": [samp("rim.wav", 0.8)]},
+    "snap": {"gate": 1.0, "layers": [samp("snap.wav", 0.9)]},
+    "hat": {"gate": 1.0, "layers": [samp("hat.wav", 1.0)]},
+    "hatO": {"gate": 1.0, "layers": [samp("hat_open.wav", 0.8)]},
+    "tablaG": {"gate": 1.0, "layers": [samp("tabla_te.wav", 0.5)]},
+    "tabla": {"gate": 1.0, "layers": [samp("tabla_na.wav", 0.6)]},
+})
+INSTRUMENTS.update(TRAP)
+
 KITS = {
     "darbuka": {"D": "dum", "d": "dumG", "T": "tek", "k": "tekG", "j": "riq", "o": "riqO"},
     # the courthouse tiptoes: a brushed, softer darbuka (lower crest factor in the sparsest era)
@@ -240,6 +632,12 @@ KITS = {
     "outside": {"B": "outThump", "S": "outSnare", "g": "outGhost"},
     "fanfare": {"1": "roll1", "2": "roll2", "3": "roll3", "4": "roll4", "X": "crash", "D": "dum"},
     "shutter": {"Z": "shutter"},
+    # v2.0: the trap kit (K kick, C clap, S snare, s ghost snare, R rim, t the darbuka tek as a ghost
+    # perc, o the open riq) and the hats on their own grid (h hat, g ghost, o open)
+    "trap": {"K": "kick", "C": "clap", "S": "snare", "s": "snareG", "R": "rim", "t": "tablaG", "T": "tabla", "N": "snap", "X": "crash"},
+    # v2.1: the hats with velocity: h 100, m 85, g 55, q 35 (rolls swell q -> m), o the open hat
+    "trapHats": {"h": "hat", "m": "hat@0.85", "g": "hat@0.55", "q": "hat@0.35", "o": "hatO"},
+    "trapFanfare": {"1": "sroll1", "2": "sroll2", "3": "sroll3", "4": "sroll4", "X": "crash", "K": "kick"},
 }
 
 # ============================================================ v1.2 (2026-09-29): HaTikva's minor
@@ -277,63 +675,55 @@ def balfour():
         "T": seq("A5:6 F5:6 D5:4 | G5:6 Bb5:6 G5:4 | E5:6 G5:6 C6:4 | A5:6 C6:6 A5:4 |"
                  "Bb5:6 A5:6 G5:4 | G5:6 F5:6 E5:4 | E5:6 C#5:2 E5:4 .:2 D5:2 | E5:4 F5:2 G5:6 A5:4", S),
     }
-    def stabs(a, b):
-        return ". . %s . . . %s . . . %s . . . %s ." % (a, b, a, b)
-    ST = {"Dm": stabs("F4", "A4"), "Gm": stabs("Bb4", "D5"), "A": stabs("C#5", "E5"), "Bb": stabs("D5", "F4"),
-          "C": stabs("E4", "G4"), "F": stabs("A4", "C5"), "D": stabs("F#4", "A4"), "Cm": stabs("Eb4", "G4")}
     # A: the anthem's own harmony, a chord per half bar where the melody turns (bar 2: Gm under the
     # b6 neighbour, Dm under the held 5; bar 4: A under the 2-1-2, Dm under the close)
     A = ["Dm", "Gm|Dm", "Gm", "A|Dm", "Dm", "Gm|Dm", "Gm", "A|Dm"]
     A2 = ["Dm", "Dm", "Gm", "Dm", "Bb", "C", "A", "A"]
     B = ["D", "D", "Gm", "D", "D", "Cm", "Cm", "D"]   # Hava Nagila: the source's chords (John Chambers' ABC)
     T = ["Dm", "Gm", "C", "F", "Bb", "Gm", "A"]
-    def st2(c):   # a bar's stabs, split at the half bar for "X|Y"
-        a, b = (c.split("|") + [c])[:2]
-        return " ".join(ST[a].split(" ")[:8] + ST[b].split(" ")[8:])
-    p2 = {
-        "A": [st2(c) for c in A],
-        "A2": [ST[c] for c in A2],
-        "B": [ST[c] for c in B],   # the hora's off-beat stabs under Hava Nagila
-        # T: stabs; bar 31 stops before the pickup; bar 32 harmonises the motif a sixth below (the
-        # raised leading tone C# under the held 5)
-        "T": [ST[c] for c in T[:6]] + [". . C#5 . . . E5 . . . C#5 . . . . .",
-                                       " ".join(seq("G4:4 A4:2 Bb4:6 C#5:4", S))],
-    }
-    p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2stab", "T": "p2stab"}
-    BASS = {"Dm": "D3:3 .:5 A2:3 .:5", "Gm": "G3:3 .:5 D3:3 .:5", "A": "A2:3 .:5 E3:3 .:5",
-            "Bb": "Bb2:3 .:5 F3:3 .:5", "C": "C3:3 .:5 G3:3 .:5", "F": "F3:3 .:5 C3:3 .:5",
-            "D": "D3:3 .:5 A2:3 .:5", "Cm": "C3:3 .:5 G3:3 .:5"}
-    def bass2(c):   # root on beat 1, and on beat 3 the fifth, or the second chord's root for "X|Y"
-        if "|" not in c:
-            return BASS[c]
-        a, b = c.split("|")
-        return BASS[a].split(" ")[0] + " .:5 " + BASS[b].split(" ")[0] + " .:5"
-    bass = {
-        "A": seq(" | ".join(bass2(c) for c in A), S),
-        "A2": seq("D3:3 .:5 A2:3 .:3 C#3:2 | D3:3 .:5 A2:3 .:3 F3:2 | G3:3 .:5 D3:3 .:3 C#3:2 | D3:3 .:5 A2:3 .:3 A2:2 |"
-                  "Bb2:3 .:5 F3:3 .:3 B2:2 | C3:3 .:5 G3:3 .:3 Bb2:2 | A2:3 .:5 E3:3 .:5 | A2:3 .:5 E3:3 .:3 E3:2", S),
-        "B": seq(" | ".join(BASS[c] for c in B), S),
-        "T": seq(" | ".join(BASS[c] for c in T) + " | D3:3 .:3 G3:3 .:3 A2:3 .:1", S),
-    }
-    groove = drums(S, D="x.......x.......", T="....x.......x...", k="..........x....x", j="x.x.x.x.x.x.x.x.")
-    groove2 = drums(S, D="x.......x.......", T="....x.......x...", k="......x...x....x", j="x.x.x.x.x.x.x.x.")
-    fill = drums(S, D="x.......x.......", T="....x.......x.x.", k="..........x.x..x", o="x...............", j="..x.x.x.x.x.....")
-    last = drums(S, D="x.......x.......", T="....x.......x...", k="..........x.....", o="x...............", j="..x.x.x.x.x.x...")
-    kit = kit_form(groove, groove2, fill, last, 4)
+    # v2.0 (Bar: "less 8-bit, more trap"): melodic trap at 116, half time (the clap on 3). A is held
+    # back under the anthem (kick, clap, 8th hats, the 808 on 1 and 3); A' bounces (the 808 jumps the
+    # octave on the "a" of 2, hats roll); B drops out for two bars under Hava Nagila, then builds;
+    # T is the full beat into the motif.
+    r_a = [(0, 8, "R"), (10, 6, "R")]
+    r_main = [(0, 6, "R"), (7, 2, "O"), (10, 4, "R"), (14, 2, "F")]
+    r_b = [(0, 7, "R"), (8, 4, "r"), (12, 4, "O")]
+    bass = {"A": bass808(A, r_a, S), "A2": bass808(A2, r_main, S), "B": bass808(B, r_b, S),
+            "T": bass808(T, r_main, S) + bass808(["Dm|A"], [(0, 7, "R"), (8, 8, "R")], S)}
+    g_a = drums(S, K="x.........x.....", N="........x.......", t="......x.......x.")   # v2.1: finger snaps under the anthem
+    g1 = drums(S, K="x......x..x.....", C="........x.......", S="........x.......", t="...x......x...x.")
+    g2 = drums(S, K="x......x..x...x.", C="........x.......", S="........x.......", R="....x.......x...", s=".............x..")
+    drop = drums(S, C="........x.......")
+    fill = drums(S, K="x......x........", C="........x.......", S="........x.......", s="...........x.xxx")
+    last = drums(S, K="x.......x.......", C="........x.......", s="............xxxx")
+    kit = {"A": [g_a] * 7 + [fill], "A2": [g1, g2] * 3 + [g1, fill],
+           "B": [drop, drop, g1, g2, g1, g2, g1, fill], "T": [g1, g2] * 3 + [g1, last]}
+    h_a = hats("8", "8", "8", "8")
+    h1 = hats("8", "16", "8", "16|t")
+    h2 = hats("8", "8", "t", "32|o")
+    h3 = hats("16", "8", "16", "48")
+    h_fill = hats("16", "t", "32", "48")
+    none = hats("-", "-", "-", "-")
+    hat = {"A": [h_a] * 7 + [h1], "A2": [h1, h2, h1, h3, h1, h2, h1, h_fill],
+           "B": [none, none, h_a, h_a, h1, h2, h1, h_fill], "T": [h1, h2, h3, h2, h1, h2, h1, hats("8", "8", "t", "32")]}
+    half = [(0, 8), (8, 8)]
+    keys = {k: keys_part(v, half, S) for k, v in {"A": A, "A2": A2, "B": B, "T": T + ["Dm|A"]}.items()}
+    bounce = [(0, 0), (3, 2), (6, 1), (8, 3), (11, 2), (14, 1)]   # 3+3+2: the trap bell bounce
+    bells = {"A": [_bar(S, [])] * 8, "A2": bells_part(A2, bounce, S), "B": [_bar(S, [])] * 4 + bells_part(B[4:], bounce, S),
+             "T": bells_part(T, bounce, S) + [_bar(S, [])]}
+    # bar 32 harmonises the motif a sixth below (the raised leading tone C# under the held 5)
+    p2 = {"A": [_bar(S, [])], "A2": [_bar(S, [])], "B": [_bar(S, [])],
+          "T": [_bar(S, [])] * 7 + [" ".join(seq("G4:4 A4:2 Bb4:6 C#5:4", S))]}
     outside = [drums(S, B="x.....x.....x...", S="....x.......x...", g="..x......x.....x"),
                drums(S, B="x.....x.....x...", S="....x.......x...", g=".......x..x...x.")]
     return {
         "title": "הכובע של בלפור (Balfour)",
         "tempoBpm": 116, "beatsPerBar": 4, "stepsPerBeat": 4, "rate": 31900, "key": "D", "mode": "minor",
-        "mood": "Smug domestic comfort in HaTikva's minor, played straight; protest drums leak through the window.",
+        "mood": "Melodic trap in HaTikva's minor, the anthem on a flute, played straight; protest drums leak through the window.",
         "chords": {"A": A, "A2": A2, "B": B, "T": T + ["Dm|A"]},
-        "channels": {
-            "bass": {"instrument": "tri", "layer": "L0", "gain": 0.46, "sections": {k: with_click(v, "triOne") for k, v in bass.items()}},
-            "drums": {"kit": "darbuka", "layer": "L0", "gain": 0.42, "sections": kit},
-            "p2": {"instrument": "p2stab", "layer": "L1", "gain": 0.5, "sectionInstrument": p2_inst,
-                   "sectionGain": {"A": 2.0, "A2": 2.0, "B": 2.0, "T": 2.0}, "sections": p2},
-            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.36, "sections": lead, "fx": LEAD_FX},
-        },
+        "reverb": ROOM, "busClip": BUS, "stemEq": STEM_EQ, "busComp": BUS_COMP,
+        "channels": trap_channels(bass, kit, hat, keys, bells, p2, lead, "flute",
+                                  gains={}),
         "outside": {"kit": "outside", "bars": outside, "gain": 0.6},
     }
 
@@ -359,56 +749,63 @@ def knesset():
                  "B5:3 G5:3 D5:2 G5:4 .:4 | E5:3 G5:3 C6:2 B5:4 A5:4 | A5:3 C6:3 E6:2 D#6:4 B5:4 |"
                  "F#5:6 D#5:2 F#5:4 .:2 E5:2 | F#5:4 G5:2 A5:6 B5:4", S),
     }
-    def mq(a, b, c):
-        return ". . %s . . . %s . . . . . %s . . ." % (a, b, c)
-    MQ = {"Em": mq("G4", "B4", "G4"), "Am": mq("C5", "E5", "C5"), "D": mq("F#4", "A4", "F#4"),
-          "G": mq("B4", "D5", "B4"), "C": mq("E5", "G4", "E5"), "B": mq("D#5", "F#5", "D#5")}
-    def mq2(c):   # a bar's maqsum stabs, split at the half bar for "X|Y"
-        a, b = (c.split("|") + [c])[:2]
-        return " ".join(MQ[a].split(" ")[:8] + MQ[b].split(" ")[8:])
     A = ["Em|B", "Em", "Am|B", "Am", "B", "Em", "B", "B"]          # Hevenu: the source's chords, Dm -> Em
     A2 = ["Em|B", "Em", "Am|B", "Am", "B", "Em", "B", "B|Em"]
     B = ["Em", "G", "C", "B", "C", "Em", "Am", "Em"]               # Shalom Chaverim (the round agrees with them)
+    T = ["Em", "Am", "D", "G", "C", "Am", "B"]
+    # v2.0: the plenum goes drill. The 808 slides (up into the octave, down into the root), the hats
+    # run in triplets, a second, late snare argues at the end of every other bar.
     p2 = {
-        "A": [mq2(c) for c in A],
-        # the melody an octave down, the pickups left to P1 (the hocket)
+        "A": [_bar(S, [])],
+        # the melody an octave down, the pickups left to the lead (the hocket)
         "A2": seq("B4:8 G4:6 F#4:2 | F#4:4 E4:4 .:8 | E5:8 C5:6 B4:2 | B4:4 A4:4 .:8 | B4:6 F#4:2 B4:6 A4:2 |"
                   "A4:4 G4:4 .:8 | B4:4 B4:4 B4:4 B4:4 | B4:3 A4:1 G4:2 F#4:2 E4:8", S),
-        # the round: P2 enters two bars after P1, an octave down
+        # the round: the second voice enters two bars after the lead, an octave down
         "B": seq(".:16 | .:16 | E4:4 E4:2 F#4:2 G4:4 E4:4 | G4:4 G4:2 A4:2 B4:4 B4:4 | E5:12 D5:4 | B4:12 B4:4 |"
                  "E5:4 B4:2 A4:2 G4:4 A4:4 | B4:4 G4:2 F#4:2 E4:4 B3:4", S),
-        "T": [MQ[c] for c in ["Em", "Am", "D", "G", "C", "Am"]] + [". . D#5 . . . F#5 . . . . . . . . .",
-                                                                     " ".join(seq("A4:4 B4:2 C5:6 D#5:4", S))],
+        "T": [_bar(S, [])] * 6 + [". . D#5 . . . F#5 . . . . . . . . .", " ".join(seq("A4:4 B4:2 C5:6 D#5:4", S))],
     }
-    p2_inst = {"A": "p2stab", "A2": "p2n", "B": "p2ns", "T": "p2stab"}
-    BASS = {"Em": "E3:3 .:3 E3:2 B2:3 .:1 E3:2 .:2", "Am": "A2:3 .:3 A2:2 E3:3 .:1 A2:2 .:2",
-            "D": "D3:3 .:3 D3:2 A2:3 .:1 D3:2 .:2", "G": "G3:3 .:3 G3:2 D3:3 .:1 G3:2 .:2",
-            "C": "C3:3 .:3 C3:2 G3:3 .:1 C3:2 .:2", "B": "B2:3 .:3 B2:2 F#3:3 .:1 B2:2 .:2"}
-    T = ["Em", "Am", "D", "G", "C", "Am", "B"]
-    def kb(c):   # the maqsum bass, its second half from the second chord for "X|Y"
-        if "|" not in c:
-            return BASS[c]
-        x, y = c.split("|")
-        return " ".join(BASS[x].split(" ")[:3] + BASS[y].split(" ")[3:])
-    bass = {k: seq(" | ".join(kb(c) for c in v), S) for k, v in {"A": A, "A2": A2, "B": B}.items()}
-    bass["T"] = seq(" | ".join(BASS[c] for c in T) + " | E3:3 .:3 A2:3 .:3 B2:3 .:1", S)
-    mq1 = drums(S, D="x.......x.......", T="..x...x.....x...", k="....x.....x....x", j="x.x.x.x.x.x.x.x.")
-    mq2 = drums(S, D="x.......x.....x.", T="..x...x.....x...", k=".x..x.....x.....", j="x.x.x.x.x.x.x.x.")
-    fill = drums(S, D="x.......x.......", T="..x...x.....x.x.", k="....x.....x.x..x", o="x...............", j="..x.x.x.x.x.....")
-    last = drums(S, D="x.......x.......", T="..x...x.....x...", k="....x.....x.....", o="x...............", j="..x.x.x.x.x.x...")
-    kit = kit_form(mq1, mq2, fill, last, 4)
+    p2_inst = {"A": "pluck", "A2": "pluck", "B": "fluteS", "T": "pluck"}
+    # v2.1: real drill (Native Instruments' drill walkthrough, Attack's UK drill dissection). Two-bar
+    # cells: the snare on beat 3 of bar 1 and SHIFTED to beat 4 in bar 2; sparse kicks (bar 1: 1 and
+    # the last 8th; bar 2: 16ths 1, 4, 7 and the last 8th); tresillo hats (3+3+2) with rolls into the
+    # cell; the 808 follows the kicks and glides, and climbs the octave on bar 2's last two 8ths.
+    k1 = drums(S, K="x.............x.", C="........x.......", S="........x.......", t="..........x.....")
+    k2 = drums(S, K="x..x..x.......x.", C="............x...", S="............x...", R="........x.......", s="..........x.....")
+    k1g = drums(S, K="x.............x.", C="........x.......", S="........x.......", s="...........x..x.", t="..........x.....")
+    k2g = drums(S, K="x..x..x.......x.", C="............x...", S="............x...", R="........x.......", s="......x...x....x")
+    a1 = drums(S, K="x.............x.", S="........x.......")
+    a2 = drums(S, K="x..x..x.........", S="............x...")
+    drop = drums(S, S="........x.......")
+    fill = drums(S, K="x..x..x.........", C="............x...", S="............x...", s="........x.x.xxxx")
+    last = drums(S, K="x.......x.......", S="........x.......", s="............xxxx")
+    kit = {"A": [a1, a2] * 3 + [a1, fill], "A2": [k1, k2, k1g, k2g] * 2,
+           "B": [drop, drop, k1, k2, k1g, k2g, k1, fill], "T": [k1, k2, k1g, k2g, k1, k2, k1g, last]}
+    kit["A2"][-1] = fill
+    r1 = [(0, 9, "R"), (14, 2, "r")]
+    r2 = [(0, 3, "R"), (3, 3, "r"), (6, 6, "F"), (12, 2, "O"), (14, 2, "O")]
+    bass = {"A": bass808(A, [[(0, 9, "R"), (14, 2, "r")], [(0, 3, "R"), (3, 3, "r"), (6, 8, "r")]], S, inst="808x"),
+            "A2": bass808(A2, [r1, r2], S, inst="808x"), "B": bass808(B, [[(0, 9, "R")], [(0, 9, "R")], r1, r2], S, inst="808x"),
+            "T": bass808(T, [r1, r2], S, inst="808x") + bass808(["Em|B"], [(0, 7, "R"), (8, 8, "r")], S, inst="808x")}
+    tr = hats_tresillo()
+    hat = {"A": [tr] * 7 + [hats_tresillo("t")], "A2": [tr, hats_tresillo("t"), tr, hats_tresillo("32")] * 2,
+           "B": [hats("-", "-", "-", "-")] * 2 + [tr, hats_tresillo("t"), tr, hats_tresillo("32"), tr, hats_tresillo("48")],
+           "T": [tr, hats_tresillo("t"), tr, hats_tresillo("32"), tr, hats_tresillo("t"), tr, hats_tresillo("48")]}
+    half = [(0, 8), (8, 8)]
+    keys = {k: keys_part(v, half, S) for k, v in {"A": A, "A2": A2, "B": B, "T": T + ["Em|B"]}.items()}
+    dark = [(0, 3), (3, 2), (6, 0), (8, 1), (11, 2), (14, 0)]
+    bells = {"A": bells_part(A, dark, S), "A2": [_bar(S, [])], "B": [_bar(S, [])] * 4 + bells_part(B[4:], dark, S),
+             "T": bells_part(T, dark, S) + [_bar(S, [])]}
     return {
         "title": "המליאה (Knesset)",
         "tempoBpm": 132, "beatsPerBar": 4, "stepsPerBeat": 4, "rate": 32032, "key": "E", "mode": "minor",
-        "mood": "A plenum haggle: Hevenu Shalom Aleichem fought over pickup by pickup, then Shalom Chaverim as a round nobody finishes first.",
+        "mood": "A plenum haggle gone drill: shifting snares, tresillo hats, gliding 808s under Hevenu Shalom Aleichem, "
+                "then Shalom Chaverim as a round nobody finishes first.",
         "chords": {"A": A, "A2": A2, "B": B, "T": T + ["Em|B"]},
-        "channels": {
-            "bass": {"instrument": "tri", "layer": "L0", "gain": 0.44, "sections": {k: with_click(v, "triOne") for k, v in bass.items()}},
-            "drums": {"kit": "darbuka", "layer": "L0", "gain": 0.42, "sections": kit},
-            "p2": {"instrument": "p2n", "layer": "L1", "gain": 0.4, "sectionInstrument": p2_inst,
-                   "sectionGain": {"A": 1.4, "T": 1.4}, "sections": p2},
-            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.36, "sectionInstrument": {"B": "p1s"}, "sections": lead, "fx": LEAD_FX},
-        },
+        "reverb": ROOM, "busClip": BUS, "stemEq": STEM_EQ, "busComp": BUS_COMP,
+        "channels": trap_channels(bass, kit, hat, keys, bells, p2, lead, "flute", p2_inst=p2_inst,
+                                  lead_section_inst={"B": "fluteS"}, bass_inst="808x",
+                                  gains={"p2": 0.24}),
     }
 
 
@@ -417,11 +814,11 @@ def knesset():
 def courthouse():
     S = 12   # triplet 8ths: a swung 8th pair is 2 + 1
     lead = {
-        # bars 1-4: the anthem's contour in half time, legato on P1 (@p1) and dead straight over the
+        # bars 1-4: the anthem's contour in half time, legato on P1 (@flute) and dead straight over the
         # tiptoe bass: the mock-solemn register is the sincerity. Then the noir tiptoe resumes. The
         # staccato tiptoe never carries the anthem contour (the guardrail: never mocked).
-        "A": seq("G4@p1:3 A4@p1:3 Bb4@p1:3 C5@p1:3 | D5@p1:4 .:2 D5@p1:3 .:3 | Eb5@p1:3 D5@p1:3 Eb5@p1:3 G5@p1:3 |"
-                 "D5@p1:4 .:2 Bb4:1 .:1 G4:1 .:3 | G5:1 .:1 F5:1 Eb5:1 .:1 D5:1 C5:3 .:3 |"
+        "A": seq("G4@flute:3 A4@flute:3 Bb4@flute:3 C5@flute:3 | D5@flute:4 .:2 D5@flute:3 .:3 | Eb5@flute:3 D5@flute:3 Eb5@flute:3 G5@flute:3 |"
+                 "D5@flute:4 .:2 Bb4:1 .:1 G4:1 .:3 | G5:1 .:1 F5:1 Eb5:1 .:1 D5:1 C5:3 .:3 |"
                  "Bb4:1 .:1 C5:1 D5:1 .:1 Eb5:1 G5:3 .:3 | F#5:2 Eb5:1 D5:2 C5:1 A4:3 .:3 | Bb4:2 A4:1 G4:3 .:6", S),
         "A2": seq("G5:1 .:1 D5:1 C5:1 .:1 D5:1 Bb4:3 .:3 | C5:1 .:1 C5:1 D5:1 .:1 C5:1 Bb4:1 .:1 A4:1 G4:3 |"
                   "Eb5:1 .:1 Eb5:1 F5:1 .:1 Eb5:1 C6:3 .:3 | Bb5:1 .:1 Bb5:1 C6:1 .:1 Bb5:1 G5:3 .:3 |"
@@ -433,55 +830,52 @@ def courthouse():
                  "G4:3 D4:3 G4:3 C5:3 | Bb4:3 A4:3 G4:6 | D5:3 Eb5:3 A4:3 Bb4:2 C5:1 | Bb4:3 A4:3 G4:6", S),
         "T": seq("D5:1 .:1 D5:1 C5:1 .:1 D5:1 Bb4:3 .:3 | Eb5:1 .:1 Eb5:1 G5:1 .:1 Eb5:1 Bb4:3 .:3 |"
                  "C5:1 .:1 Eb5:1 G5:1 .:1 Eb5:1 C5:3 .:3 | D5:2 Bb4:1 G4:3 .:6 | Eb5:1 .:1 Eb5:1 D5:1 .:1 C5:1 G4:3 .:3 |"
-                 "G4:2 Bb4:1 Eb5:2 Bb4:1 G4:3 .:3 | F#4:2 A4:1 D5:3 .:5 G4:1 | A4@p1:3 Bb4@p1:2 C5@p1:4 D5@p1:3", S),
+                 "G4:2 Bb4:1 Eb5:2 Bb4:1 G4:3 .:3 | F#4:2 A4:1 D5:3 .:5 G4:1 | A4@flute:3 Bb4@flute:2 C5@flute:4 D5@flute:3", S),
     }
-    def comp(a, b):
-        return ". . . %s . . . . . %s . ." % (a, b)
-    CP = {"Gm": comp("Bb4", "D5"), "Cm": comp("Eb5", "G4"), "D": comp("F#4", "C5"), "Eb": comp("G4", "Bb4")}
     A = ["Gm", "Gm", "Cm", "Gm", "Cm", "Eb", "D", "Gm"]
     A2 = ["Gm", "Gm", "Cm", "Gm", "Eb", "Cm", "D", "D"]
     B = ["Gm|Cm", "Gm|D", "Cm|D", "Gm", "Gm|Cm", "Gm|D", "Cm|D", "Gm"]   # Ma'oz Tzur, the source's harmony in G minor
     T = ["Gm", "Eb", "Cm", "Gm", "Cm", "Eb", "D"]
-    def cp2(c):
-        a, b = (c.split("|") + [c])[:2]
-        return " ".join(CP[a].split(" ")[:6] + CP[b].split(" ")[6:])
-    p2 = {
-        "A": [CP[c] for c in A], "A2": [CP[c] for c in A2],
-        "B": [cp2(c) for c in B],
-        "T": [CP[c] for c in T[:6]] + [". . . F#4 . . . . . . . .", " ".join(seq("C4:3 D4:2 Eb4:4 F#4:3", S))],
-    }
-    p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2stab", "T": "p2stab"}
-    BASS = {"Gm": "G3:1 .:2 D3:1 .:2 Bb2:1 .:2 D3:1 .:2", "Cm": "C3:1 .:2 Eb3:1 .:2 G3:1 .:2 Eb3:1 .:2",
-            "D": "D3:1 .:2 F#3:1 .:2 A3:1 .:2 F#3:1 .:2", "Eb": "Eb3:1 .:2 Bb2:1 .:2 G3:1 .:2 Bb2:1 .:2",
-            "Gm>Cm": "G3:1 .:2 D3:1 .:2 Bb2:1 .:2 B2:1 .:2"}
-    bass = {
-        "A": seq(" | ".join(BASS[c] for c in ["Gm", "Gm>Cm", "Cm", "Gm>Cm", "Cm", "Eb", "D", "Gm"]), S),
-        "A2": seq(" | ".join(BASS[c] for c in ["Gm", "Gm>Cm", "Cm", "Gm", "Eb", "Cm", "D", "D"]), S),
-        "B": seq(" | ".join((BASS[c] if "|" not in c else " ".join(BASS[c.split("|")[0]].split(" ")[:4] + BASS[c.split("|")[1]].split(" ")[4:])) for c in B), S),
-        "T": seq(" | ".join(BASS[c] for c in ["Gm", "Eb", "Cm", "Gm>Cm", "Cm", "Eb", "D"]) + " | G3:1 .:2 D3:1 .:2 C3:1 .:2 D3:1 .:2", S),
-    }
-    bass = {k: with_click(v, "triTipOne") for k, v in bass.items()}
-    sw1 = drums(S, D="x...........", T="......x.....", j="x..x.xx..x.x")
-    sw2 = drums(S, D="x..........x", T="......x.....", j="x..x.xx..x.x", k="........x...")
-    fill = drums(S, D="x...........", T="......x..x.x", j="x..x.xx.....", o="x...........")
-    last = drums(S, D="x...........", T="......x.....", j="x..x.xx..x..", o="x...........")
-    kit = kit_form(sw1, sw2, fill, last, 3)
+    # v2.0: the courthouse is the slow, swung trap (the triplet grid is native here): claps on 2 and
+    # 4, triplet hats with 16th-triplet rolls, a sparse 808. The anthem's contour on the flute, the
+    # tiptoe on the pluck, Ma'oz Tzur on the short flute over the keys.
+    p2 = {"A": [_bar(S, [])], "A2": [_bar(S, [])], "B": [_bar(S, [])],
+          "T": [_bar(S, [])] * 6 + [". . . F#4 . . . . . . . .", " ".join(seq("C4:3 D4:2 Eb4:4 F#4:3", S))]}
+    r_a = [(0, 4, "R"), (6, 4, "R")]
+    r_main = [(0, 4, "R"), (5, 2, "O"), (8, 4, "r")]
+    bass = {"A": bass808(A, r_a, S), "A2": bass808(A2, r_main, S), "B": bass808(B, r_a, S),
+            "T": bass808(T, r_main, S) + bass808(["Gm|D"], r_a, S)}
+    g_a = drums(S, K="x.......x...", C="...x.....x..")
+    g1 = drums(S, K="x....x..x...", C="...x.....x..", S=".........x..", t=".......x....")
+    g2 = drums(S, K="x....x....x.", C="...x.....x..", S=".........x..", s="...........x")
+    drop = drums(S, C="...x.....x..")
+    fill = drums(S, K="x....x......", C="...x.....x..", S=".........x..", s=".......x.xxx")
+    last = drums(S, K="x.....x.....", C="...x.....x..", s="..........xx")
+    kit = {"A": [g_a] * 7 + [fill], "A2": [g1, g2] * 3 + [g1, fill],
+           "B": [drop, drop, g1, g2, g1, g2, g1, fill], "T": [g1, g2] * 3 + [g1, last]}
+    h_a = hats("S", "S", "S", "S")
+    h1 = hats("T", "S", "T", "t")
+    h2 = hats("S", "T", "S", "48")
+    h3 = hats("T", "T", "t", "48")
+    none = hats("-", "-", "-", "-")
+    hat = {"A": [h_a] * 7 + [h1], "A2": [h1, h2, h1, h3, h1, h2, h1, hats("t", "t", "48", "48")],
+           "B": [none, none, h_a, h_a, h1, h2, h1, h3], "T": [h1, h2, h3, h2, h1, h2, h1, hats("S", "S", "T", "48")]}
+    half = [(0, 4), (6, 4)]
+    keys = {k: keys_part(v, half, S) for k, v in {"A": A, "A2": A2, "B": B, "T": T + ["Gm|D"]}.items()}
+    swing = [(0, 0), (2, 2), (3, 1), (5, 3), (6, 2), (8, 1), (9, 0), (11, 2)]
+    bells = {"A": [_bar(S, [])] * 4 + bells_part(A[4:], swing, S), "A2": bells_part(A2, swing, S), "B": [_bar(S, [])],
+             "T": bells_part(T, swing, S) + [_bar(S, [])]}
     return {
         "title": "בית המשפט (Courthouse)",
         "tempoBpm": 88, "beatsPerBar": 4, "stepsPerBeat": 3, "rate": 22044, "key": "G", "mode": "minor",
-        "mood": "Mock-solemn noir: the anthem's contour stated straight in half time, then sneaking past the bench. The only room with a slapback.",
-        "slapback": {"ms": 180, "db": -12},
+        "mood": "Mock-solemn swung trap: the anthem's contour stated straight on the flute, then sneaking past the bench on a pluck.",
         "targetOffsetDb": -1.0,
-        "_targetOffset": "The court hush: 1 LU under the other eras (mock-solemn), which also keeps the sparsest, "
-                         "highest-crest track's summed stems near -1 dBFS before the master limiter.",
+        "_targetOffset": "The court hush: 1 LU under the other eras (mock-solemn).",
         "chords": {"A": A, "A2": A2, "B": B, "T": T + ["Gm|D"]},
-        "channels": {
-            "bass": {"instrument": "triTip", "layer": "L0", "gain": 0.42, "sections": bass},
-            "drums": {"kit": "darbukaCourt", "layer": "L0", "gain": 0.42, "sections": kit},
-            "p2": {"instrument": "p2nstab", "layer": "L1", "gain": 0.27, "sectionInstrument": p2_inst,
-                   "sectionGain": {"A": 1.3, "A2": 1.3, "B": 1.3, "T": 1.3}, "sections": p2},
-            "lead": {"instrument": "p1s", "layer": "L2", "gain": 0.34, "sections": lead, "fx": {"double": {"cents": 6, "db": -9.0}}},
-        },
+        "reverb": ROOM, "busClip": BUS, "stemEq": STEM_EQ_COURT, "busComp": BUS_COMP,
+        "channels": trap_channels(bass, kit, hat, keys, bells, p2, lead, "pluck", lead_section_inst={"B": "fluteS"},
+                                  lead_fx={"echo": {"steps": 2, "db": -10.0, "repeats": 2}},
+                                  gains={"p2": 0.26, "lead": 0.23, "drums": 1.0, "hats": 0.42}),
     }
 
 
@@ -513,51 +907,46 @@ def washington():
                  "A5:3 C6:3 Eb6:2 D6:4 C6:4 | Bb5:3 G5:3 D5:2 G5:2 A5:2 Bb5:4 | C6:3 Bb5:3 G5:2 Eb5:4 G5:4 |"
                  "A5:3 G5:3 C5:2 .:6 F5:2 | G5:4 Ab5:2 Bb5:6 C6:4", S),
     }
-    def oompah(a, b):
-        return ". . . . %s . . . . . . . %s . . ." % (a, b)
-    OP = {"F": oompah("A4", "Eb5"), "Eb": oompah("G4", "Bb4"), "Bb": oompah("F4", "D5"), "Gm": oompah("Bb4", "D5"),
-          "Cm": oompah("Eb5", "G4"), "D7": oompah("F#4", "C5"), "Db": oompah("F4", "Ab4"),
-          "C7": oompah("E4", "Bb4"), "Dm": oompah("F4", "A4"), "A7": oompah("C#5", "G4")}
-    def op2(c):
-        a, b = (c.split("|") + [c])[:2]
-        return " ".join(OP[a].split(" ")[:8] + OP[b].split(" ")[8:])
     A = ["F", "F", "F|C7", "F", "F", "F", "F|C7", "F"]                       # Dayenu's verse, I / V7
     A2 = ["F|C7", "Bb|F", "C7", "C7|F", "F|C7", "Bb|F", "C7", "C7|F"]        # its chorus
     B = ["Dm", "Dm", "Dm", "Dm", "Gm", "A7|Dm", "Gm|A7", "Dm"]               # Siman Tov: the source's chords, Gm -> Dm
     T = ["F", "Eb", "Bb", "F", "Gm", "Eb", "F"]
-    p2 = {
-        "A": [op2(c) for c in A], "A2": [op2(c) for c in A2], "B": [op2(c) for c in B],
-        "T": [OP[c] for c in T] + [" ".join(seq("Bb4:4 C5:2 Db5:6 E5:4", S))],
-    }
-    p2_inst = {"A": "p2stab", "A2": "p2stab", "B": "p2stab", "T": "p2stab"}
-    BASS = {"F": "F3:2 .:6 C3:2 .:6", "Eb": "Eb3:2 .:6 Bb2:2 .:6", "Bb": "Bb2:2 .:6 F3:2 .:6",
-            "Gm": "G3:2 .:6 D3:2 .:6", "Cm": "C3:2 .:6 G3:2 .:6", "D7": "D3:2 .:6 A2:2 .:4 C3:2",
-            "Db": "Db3:2 .:6 Ab3:2 .:6", "C7": "C3:2 .:6 G3:2 .:6", "Dm": "D3:2 .:6 A2:2 .:6", "A7": "A2:2 .:6 E3:2 .:6"}
-    def wb(c):   # the stride bass, the second half from the second chord for "X|Y"
-        if "|" not in c:
-            return BASS[c]
-        x, y = c.split("|")
-        return BASS[x].split(" ")[0] + " .:6 " + BASS[y].split(" ")[0] + " .:6"
-    bass = {k: seq(" | ".join(wb(c) for c in v), S) for k, v in {"A": A, "A2": A2, "B": B}.items()}
-    bass["T"] = seq(" | ".join(BASS[c] for c in T) + " | F3:2 .:4 Db3:2 .:4 C3:2 .:2", S)
-    bass = {k: with_click(v, "triOne") for k, v in bass.items()}
-    st1 = drums(S, D="x.......x.......", T="....x.......x...", j="x.x.x.x.x.x.x.x.")
-    st2 = drums(S, D="x.......x.......", T="....x.......x...", j="x.x.x.x.x.x.x.x.", k="..........x..x..")
-    fill = drums(S, D="x.......x.......", T="....x.......x.x.", k="..........x.x..x", o="x...............", j="..x.x.x.x.x.....")
-    last = drums(S, D="x.......x.......", T="....x.......x...", o="x...............", j="..x.x.x.x.x.x...")
-    kit = kit_form(st1, st2, fill, last, 4)
+    # v2.0: showbiz trap at 144, the classic tempo: the 808 walks the stride's roots, open hats lift
+    # every other beat, a rim keeps the old backbeat under the clap on 3; bright bells in the major.
+    p2 = {"A": [_bar(S, [])], "A2": [_bar(S, [])], "B": [_bar(S, [])],
+          "T": [_bar(S, [])] * 7 + [" ".join(seq("Bb4:4 C5:2 Db5:6 E5:4", S))]}
+    r_a = [(0, 7, "R"), (8, 7, "R")]
+    r_main = [(0, 6, "R"), (7, 2, "O"), (10, 3, "R"), (13, 3, "r")]
+    bass = {"A": bass808(A, r_a, S), "A2": bass808(A2, r_main, S), "B": bass808(B, r_main, S),
+            "T": bass808(T, r_main, S) + bass808(["Fm|C"], [(0, 7, "R"), (8, 8, "R")], S)}
+    g_a = drums(S, K="x.........x.....", C="........x.......", R="....x.......x...")
+    g1 = drums(S, K="x......x..x.....", C="........x.......", S="........x.......", R="....x...........", s="..............x.")
+    g2 = drums(S, K="x......x..x...x.", C="........x.......", S="........x.......", R="....x.......x...")
+    drop = drums(S, C="........x.......", R="....x.......x...")
+    fill = drums(S, K="x......x........", C="........x.......", S="........x.......", s="..........x.xxxx")
+    last = drums(S, K="x.......x.......", C="........x.......", s="............xxxx")
+    kit = {"A": [g_a] * 7 + [fill], "A2": [g1, g2] * 3 + [g1, fill],
+           "B": [drop, drop, g1, g2, g1, g2, g1, fill], "T": [g1, g2] * 3 + [g1, last]}
+    h_a = hats("8", "8|o", "8", "8|o")
+    h1 = hats("16", "8|o", "16", "16|t")
+    h2 = hats("8", "16", "8|o", "32")
+    h3 = hats("16", "16", "t", "48")
+    none = hats("-", "-", "-", "-")
+    hat = {"A": [h_a] * 7 + [h1], "A2": [h1, h2, h1, h3, h1, h2, h1, hats("16", "t", "32", "48")],
+           "B": [none, none, h_a, h_a, h1, h2, h1, h3], "T": [h1, h2, h3, h2, h1, h2, h1, hats("8", "8", "t", "32")]}
+    half = [(0, 8), (8, 8)]
+    keys = {k: keys_part(v, half, S) for k, v in {"A": A, "A2": A2, "B": B, "T": T + ["Fm|C"]}.items()}
+    bright = [(0, 0), (2, 1), (4, 2), (6, 3), (10, 2), (12, 1)]
+    bells = {"A": [_bar(S, [])] * 4 + bells_part(A[4:], bright, S), "A2": bells_part(A2, bright, S),
+             "B": [_bar(S, [])] * 4 + bells_part(B[4:], bright, S), "T": bells_part(T, bright, S) + [_bar(S, [])]}
     return {
         "title": "וושינגטון (Washington)",
         "tempoBpm": 144, "beatsPerBar": 4, "stepsPerBeat": 4, "rate": 31968, "key": "F", "mode": "mixolydian",
-        "mood": "Showbiz glitz on Broadway: Dayenu over the stride (it would have been enough), Siman Tov at the gala; the anthem's minor follows him abroad at bar 32.",
+        "mood": "Showbiz trap: Dayenu over a strutting 808 (it would have been enough), Siman Tov at the gala; the anthem's minor follows him abroad at bar 32.",
         "chords": {"A": A, "A2": A2, "B": B, "T": T + ["Fm|C"]},
-        "channels": {
-            "bass": {"instrument": "tri", "layer": "L0", "gain": 0.46, "sections": bass},
-            "drums": {"kit": "darbuka", "layer": "L0", "gain": 0.38, "sections": kit},
-            "p2": {"instrument": "p2stab", "layer": "L1", "gain": 0.24, "sectionInstrument": p2_inst,
-                   "sectionGain": {"A": 2.8, "A2": 2.8, "B": 2.8, "T": 2.8}, "sections": p2},
-            "lead": {"instrument": "p1", "layer": "L2", "gain": 0.33, "sections": lead, "fx": LEAD_FX},
-        },
+        "reverb": ROOM, "busClip": BUS, "stemEq": STEM_EQ, "busComp": BUS_COMP,
+        "channels": trap_channels(bass, kit, hat, keys, bells, p2, lead, "flute",
+                                  gains={"lead": 0.18}),
     }
 
 
@@ -569,29 +958,31 @@ KEY_ERA = {"D": "balfour", "E": "knesset", "G": "courthouse", "F": "washington"}
 
 def stingers():
     S = 32   # 32nds
-    # Fanfare, played straight: 1 bar of darbuka roll (crescendo) whose last beat carries the pickup
+    # Fanfare, played straight: 1 bar of snare roll (crescendo; a darbuka roll before v2.0) whose last beat carries the pickup
     # (a C#-D leading-tone lift into 1: stepwise chromatic, so never a bugle call); then the motif,
     # the anthem's rise 2-b3-4-5 on P1 with P2 a sixth below at 50% (the raised leading tone C# under
     # the held 5), TRI i - bVI - V, the crash on the downbeat. Then up to 4 half-bar P2 "ta-da" tags,
     # the anthem's other two gestures, one more per round: b6-5, b6-5, the leap up to the octave 5-5',
     # b6'-5'. Every cut ends on 5 over V: unresolved; the new loop's bar-1 downbeat (i) resolves it.
-    roll = "1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 4 4 4 4 4 4 4 4"
+    # v2.0: the trap snare roll, accelerating: 8ths, 16ths, then 32nds in two dynamic steps
+    roll = "1 . . . 1 . . . 2 . 2 . 2 . 2 . 3 3 3 3 3 3 3 3 4 4 4 4 4 4 4 4"
     fan = {
         "lead": [". " * 28 + "C#5 - D5 -", " ".join(seq("E5:8 F5:4 G5:12 A5:8", S)), ". " * 31 + ".", ". " * 31 + "."],
         "p2": [". " * 28 + "F4 - - -", " ".join(seq("G4:8 A4:4 Bb4:12 C#5:8", S)),
                " ".join(seq("Bb4:4 A4:12 Bb4:4 A4:12", S)), " ".join(seq("A4:4 A5:12 Bb5:4 A5:12", S))],
-        "bass": [". " * 32, " ".join(seq("D3:6 .:6 Bb2:10 .:2 A2:8", S)),
-                 " ".join(seq(".:4 A2:10 .:2 .:4 A2:10 .:2", S)), " ".join(seq(".:4 A2:10 .:2 .:4 A2:10 .:2", S))],
-        "kit": [roll, "X D . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .", ". " * 31 + ".", ". " * 31 + "."],
+        # v2.0: the 808 an octave under the old TRI line; the kick under the crash
+        "bass": [". " * 32, " ".join(seq("D2:6 .:6 Bb1:10 .:2 A1:8", S)),
+                 " ".join(seq(".:4 A1:10 .:2 .:4 A1:10 .:2", S)), " ".join(seq(".:4 A1:10 .:2 .:4 A1:10 .:2", S))],
+        "kit": [roll, "X K . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .", ". " * 31 + ".", ". " * 31 + "."],
     }
     fan = {k: [b.strip() for b in v] for k, v in fan.items()}
-    # Court day: the motif augmented (double durations) on TRI alone at 88 BPM in G, legato and
+    # Court day: the motif augmented (double durations) on the keys alone (TRI before v2.0) at 88 BPM in G, legato and
     # solemn (long notes re-struck in quarters: a held TRI tone over 1 s would be a steady tone).
     # Not the v1 staccato tiptoe: a tiptoed anthem contour would read as mocking it.
     court = {"bass": [" ".join(seq(".:9 G3:3", 12)),
                       " ".join(seq("A3:3 A3:3 Bb3:3 C4:3", 12)),
                       " ".join(seq("C4:3 C4:3 D4:3 D4:3", 12))]}
-    # The motif alone on P1: the first sound of the game (the unlock tap). Pickup, one bar, held 5.
+    # The motif alone on the flute (P1 before v2.0): the first sound of the game (the unlock tap). Pickup, one bar, held 5.
     # (v1.2 fix: the file starts ON the pickup, not a bar early: no silent lead-in on the first tap)
     motif = {"lead": ["D5 -", " ".join(seq("E5:4 F5:2 G5:6 A5:4", 16))]}
     # Photobomb trophy: the shutter, then a BLIP "ta-da" (5 b7 1'). Never the anthem on Dubi's chip
@@ -599,7 +990,7 @@ def stingers():
     trophy = {"blip": [". . A5 - C6 - D6 - - - . ."], "kit": ["Z . . . . . . . . . . ."]}
     # Dubi's news flash: 5-1-5 on BLIP, staccato (neutral: no anthem contour on the parrot).
     flash = {"blip": [" ".join(seq("A5:1 .:1 D6:1 .:1 A6:1 .:11", 16))]}
-    # Milestone (order of magnitude): the rise begins, 1-2-b3, on P2 50% brass.
+    # Milestone (order of magnitude): the rise begins, 1-2-b3, on the bells (P2 brass before v2.0).
     head = {"p2": [" ".join(seq("D5:2 E5:4 F5:2 .:8", 16))]}
     fix = lambda d: {k: [" ".join(b.split()) for b in v] for k, v in d.items()}
     return {
@@ -612,23 +1003,24 @@ def stingers():
                     "markerSteps": {"pickup": 28, "rollEnd": 32},
                     "_markers": "rollEnd = the motif downbeat + crash (the visual IMPACT); pickup = the C#-D lift; "
                                 "tagOnsets = each tag's start; fanfareEnd = musicalSamples (the new loop's bar 1).",
-                    "channels": {"lead": {"instrument": "p1", "gain": 0.34, "bars": fan["lead"]},
-                                 "p2": {"instrument": "p2b", "gain": 0.26, "bars": fan["p2"]},
-                                 "bass": {"instrument": "tri", "gain": 0.46, "bars": fan["bass"]},
-                                 "kit": {"kit": "fanfare", "gain": 0.45, "bars": fan["kit"]}}},
+                    "channels": {"lead": {"instrument": "flute", "gain": 0.4, "bars": fan["lead"]},
+                                 "p2": {"instrument": "keys", "gain": 0.3, "bars": fan["p2"]},
+                                 "bass": {"instrument": "808", "gain": 0.5, "bars": fan["bass"]},
+                                 "kit": {"kit": "trapFanfare", "gain": 0.5, "bars": fan["kit"]}}},
         "courtIn": {"stepsPerBeat": 3, "rate": 22050, "bus": "SFX-Critical", "keys": ["G"], "writtenIn": "G",
-                    "channels": {"bass": {"instrument": "tri", "gain": 0.6, "bars": fix(court)["bass"]}},
+                    "_v2": "v2.0: the augmented motif on the soft keys (was TRI), the slapback kept.",
+                    "channels": {"bass": {"instrument": "keys", "gain": 0.6, "bars": fix(court)["bass"]}},
                     "slapback": {"ms": 180, "db": -12},
-                    "_note": "TRI reaches D4 (294 Hz) here, 2 semitones over the bass rule, to keep the rise in one octave."},
+                    "_note": "The keys play the rise G3-D4 in one octave."},
         "motif": {"stepsPerBeat": 4, "rate": 22050, "bus": "SFX-Critical", "keys": ["D", "E", "G", "F"],
-                  "channels": {"lead": {"instrument": "p1", "gain": 0.36, "bars": fix(motif)["lead"]}}},
+                  "channels": {"lead": {"instrument": "flute", "gain": 0.4, "bars": fix(motif)["lead"]}}},
         "trophy": {"stepsPerBeat": 4, "rate": 22050, "bus": "UI", "keys": ["D", "E", "G", "F"],
                    "channels": {"blip": {"instrument": "blip", "gain": 0.34, "bars": fix(trophy)["blip"]},
                                 "kit": {"kit": "shutter", "gain": 0.5, "bars": fix(trophy)["kit"]}}},
         "dubiFlash": {"stepsPerBeat": 4, "rate": 22050, "bus": "Voice", "keys": ["D", "E", "G", "F"],
                       "channels": {"blip": {"instrument": "blip", "gain": 0.36, "bars": flash["blip"]}}},
         "milestone": {"stepsPerBeat": 4, "rate": 22050, "bus": "SFX-Critical", "keys": ["D", "E", "G", "F"],
-                      "channels": {"p2": {"instrument": "p2b", "gain": 0.34, "bars": head["p2"]}}},
+                      "channels": {"p2": {"instrument": "bell", "gain": 0.34, "bars": head["p2"]}}},
     }
 
 
@@ -691,7 +1083,10 @@ def music():
             "_doc": "Loudness targets (K-weighted BS.1770, dual mono) that set each item's play_db. music = all "
                     "three layers of an era together (every era lands on the same value, so era changes do not jump). "
                     "Stingers: integrated = over the whole stinger; momentary = the loudest 400 ms.",
-            "music": -19.3,   # v1.8 (Bar: "tiring"): 1 dB further back again (v1.7 was -18.3)
+            # v2.1 (Bar: "mix and master it together with the SFX"): measured in the game (tools/mix_session.gd),
+            # music alone -18.0 and SFX alone -18.6 LUFS: the dense trap bed sat level with the taps. 1.2 LU back,
+            # so the HaTikva bell and the coins sit on top (game-mix guidance: effects at or above the music)
+            "music": -20.5,
             "fanfare": {"type": "integrated", "lufs": -17.0},
             "courtIn": {"type": "momentary", "lufs": -16.0},
             "motif": {"type": "momentary", "lufs": -15.0},
@@ -813,7 +1208,8 @@ def ui_cue(meaning, octave, variants, runtime, lufs, priority=1, poly=1, ducks=(
 
 def cues():
     C = {}
-    # 1. tap: 15 ms NOI-S cloth puff, then a bell on the next note of HaTikva (v1.11, below);
+    # 1. tap: a mallet, a thud and a marimba tone on the next note of HaTikva (v2.1, below; the 15 ms NOI-S
+    #    cloth puff before it is kept for the other cues that use it);
     #    `blip` is the pre-v1.5 tap voice, kept for the other cues
     puff = L(id="puff", wave="noiseMetal", clockStart=40000, filter={"type": "bandpass", "freq": 5000, "Q": 0.9},
              attack=0.001, decay=0.015, sustain=0.0, duration=0.015, release=0.004, gain=0.35)
@@ -824,11 +1220,27 @@ def cues():
     # a verified score, each era's tapLine in music.json). The bell is rendered at six roots a tritone apart
     # (C4 .. F#6, v1.10) and the runtime plays each note from the nearest root with pitch_scale (3
     # semitones at most, so the bell's decay moves by under 19%).
+    # v2.1 (Bar: "improve the tapping sound effect"): the tap leaves the chip. A soft mallet transient
+    # (noise at 2 kHz, 6 ms: soft and brief, a tick that can fire thousands of times without grating,
+    # in place of the 5 kHz metal puff), a deep gentle thud for the finger's weight (a sine falling
+    # 120 -> 70 Hz), and a marimba / kalimba tone: the fundamental with a pluck's 25-cent fall into
+    # pitch, a double 6 cents up (the beating that makes it rich), the octave, a fast 4th partial (the
+    # mallet) and a low-passed triangle for warmth. 0.42 s, not 0.55: at 5 taps/s over the 808 it stays clear.
     def bell(root):
         hz = 440.0 * 2 ** ((root - 69) / 12)
-        return [puff] + [L(id="bell%d" % i, wave="sine", freqStart=hz * mult, attack=0.002, decay=dec, sustain=0.0,
-                           duration=dec, release=0.04, gain=g)
-                         for i, (mult, g, dec) in enumerate([(1, 1.0, 0.55), (2, 0.3, 0.26), (3, 0.12, 0.09)])]
+        fall = 2 ** (25 / 1200)
+        tone = lambda i, mult, g, dec, det=1.0: L(id="tone%d" % i, wave="sine", freqStart=hz * mult * det * fall,
+                                                   freqEnd=hz * mult * det, freqCurve="exp", glide=0.025, attack=0.0015,
+                                                   decay=dec, sustain=0.0, duration=dec, release=0.04, gain=g)
+        return [
+            L(id="mallet", wave="noise", clockStart=30000, filter={"type": "bandpass", "freq": 2000, "Q": 1.2},
+              attack=0.0005, decay=0.006, sustain=0.0, duration=0.006, release=0.003, gain=0.22),
+            L(id="thud", wave="sine", freqStart=120, freqEnd=70, freqCurve="exp", glide=0.04, followPitch=False,
+              attack=0.001, decay=0.06, sustain=0.0, duration=0.06, release=0.01, gain=0.3),
+            tone(0, 1, 1.0, 0.42), tone(1, 1, 0.32, 0.36, 2 ** (6 / 1200)), tone(2, 2, 0.2, 0.18),
+            tone(3, 4, 0.1, 0.035),
+            L(id="warm", wave="triangle", freqStart=hz, filter={"type": "lowpass", "freq": 1800, "Q": -3.0103},
+              attack=0.002, decay=0.25, sustain=0.0, duration=0.25, release=0.04, gain=0.18)]
     C["tap"] = {"meaning": "The trick worked; money came out, to the next note of HaTikva.", "bus": "SFX-Frequent",
                 "priority": 2, "poly": 6, "steal": "oldest", "ducks": [], "jitterDb": 1.5,
                 "pitch": {"type": "none"},
@@ -837,7 +1249,7 @@ def cues():
                            "key, music.json), from the bell root (variant r<midi>) nearest the note, at pitch_scale "
                            "2^(semitones/12). The anthem runs on through pauses and court day and wraps at its end; a "
                            "new round starts it from the top. A stolen voice fades over 30 ms. Gain jitter +-1.5 dB.",
-                "lengthMs": 640, "target": {"type": "stream", "rateHz": 5, "lufs": -21.0}}
+                "lengthMs": 460, "target": {"type": "stream", "rateHz": 5, "lufs": -21.0}}
     # 2. rabbit crit
     def rabbit(slide):
         head_t = 0.12 + slide + 0.01
@@ -1406,7 +1818,8 @@ def cues():
 
 # ============================================================ checks
 
-RANGES = {"lead": ("D4", "A6"), "p2": ("A3", "E6"), "bass": ("A2", "C4"), "blip": ("C5", "B6")}
+RANGES = {"lead": ("D4", "A6"), "p2": ("A3", "E6"), "bass": ("F1", "E3"), "blip": ("C5", "B6"),
+          "keys": ("F3", "D5"), "bells": ("C5", "C7")}   # v2.0: the 808 (bass) F1-E3, the keys and bells
 CHECK_ERRORS = []
 
 
@@ -1577,9 +1990,10 @@ def check_music(m):
         if abs(step_n - round(step_n)) > 1e-6:
             err("%s: a step is %.4f samples at %d Hz" % (eid, step_n, e["rate"]))
         for cid, ch in e["channels"].items():
+            cspb = ch.get("stepsPerBeat", e["stepsPerBeat"]) * e["beatsPerBar"]   # v2.0: the hats' own grid
             for sec, bars in ch["sections"].items():
                 for b in bars:
-                    if len(b.split()) != spb:
+                    if len(b.split()) != cspb:
                         err("%s/%s/%s: bar of %d tokens" % (eid, cid, sec, len(b.split())))
             if "kit" in ch:
                 continue

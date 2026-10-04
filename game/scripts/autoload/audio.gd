@@ -181,6 +181,21 @@ var _stamp_n := 0
 var _court := false
 var _court_stinger := ""              # "in" | "out": plays on the next bar line
 var _ult_force := false
+## v2.1 (Bar: "mix and master it together with the SFX"), the dynamic mix: while the player taps, the
+## Music bus dips its 1 kHz band (MusicEQ band 3), the HaTikva bell's register, so the melody the
+## player plays sits in a slot of its own (frequency-based side-chaining, as Baldur's Gate 3 mixes
+## its critical cues); in an ultimatum's last 3 s the music closes into a low-pass (MusicTension,
+## the trap filter-down) and opens again when it is paid or runs out.
+const SLOT_DB := -3.0
+const SLOT_HOLD_MS := 250.0
+const SLOT_ATTACK_MS := 30.0
+const SLOT_RELEASE_MS := 600.0
+const TENSION_HZ := 900.0
+const OPEN_HZ := 20000.0
+const TENSION_CLOSE_MS := 2400.0
+const TENSION_OPEN_MS := 150.0
+var _slot_db := 0.0
+var _tension_hz := OPEN_HZ
 var _era_progress := 0.0
 var _pink_on := false
 var _pink_k := 0.0
@@ -1796,9 +1811,40 @@ func _process(dt: float) -> void:
 	_apply_buses()
 	_update_music(now, dt if not _paused else 0.0)
 	_update_pink(dt)
+	_update_dynamic_mix(now, dt_ms)
 	_push_deck_volumes()
 	if _web:
 		_update_web(now, dt)
+
+
+## v2.1: the tap slot (MusicEQ 1 kHz) and the ultimatum tension (MusicTension low-pass), each a one-pole
+## glide toward its target; the low-pass is bypassed while it is open.
+func _update_dynamic_mix(now: float, dt_ms: float) -> void:
+	var mu := AudioServer.get_bus_index("Music")
+	if mu < 0 or AudioServer.get_bus_effect_count(mu) < 3:
+		return
+	var tapping := _first_tap and now - _last_tap < SLOT_HOLD_MS
+	var want := SLOT_DB if tapping else 0.0
+	var tc := SLOT_ATTACK_MS if want < _slot_db else SLOT_RELEASE_MS
+	_slot_db += (want - _slot_db) * (1.0 - exp(-dt_ms / (tc / 3.0)))
+	var eq := AudioServer.get_bus_effect(mu, 0) as AudioEffectEQ6
+	if eq != null:
+		eq.set_band_gain_db(3, _slot_db)
+	var hz := TENSION_HZ if _ult_force else OPEN_HZ
+	var tt := TENSION_CLOSE_MS if hz < _tension_hz else TENSION_OPEN_MS
+	_tension_hz = exp(lerpf(log(_tension_hz), log(hz), 1.0 - exp(-dt_ms / (tt / 3.0))))
+	var lpf := AudioServer.get_bus_effect(mu, 2) as AudioEffectLowPassFilter
+	if lpf != null:
+		lpf.cutoff_hz = _tension_hz
+		AudioServer.set_bus_effect_enabled(mu, 2, _tension_hz < OPEN_HZ * 0.95)
+
+
+func slot_db() -> float:
+	return _slot_db
+
+
+func tension_hz() -> float:
+	return _tension_hz
 
 
 func _update_web(now: float, dt: float) -> void:

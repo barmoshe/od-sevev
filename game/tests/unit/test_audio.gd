@@ -101,19 +101,20 @@ func test_bus_layout_is_the_od_topology() -> void:
 		if i >= 0:
 			runner.check(String(AudioServer.get_bus_send(i)) == sends[b], "%s sends to %s" % [b, sends[b]])
 			runner.check(absf(AudioServer.get_bus_volume_db(i)) < 0.01, "%s sits at unity" % b)
-	# v1.6 mix pass: HPF 35 Hz (below what a phone plays), a 2:1 glue compressor, then the limiter
+	# v1.6 mix pass: an HPF (v2.1: 28 Hz, under the 808's lowest root, F1 44 Hz), a 2:1 glue compressor, then the limiter
 	runner.check(AudioServer.get_bus_effect_count(0) == 3, "the master chain is HPF, glue, limiter")
 	var hpf := AudioServer.get_bus_effect(0, 0) as AudioEffectHighPassFilter
 	var glue := AudioServer.get_bus_effect(0, 1) as AudioEffectCompressor
 	var lim := AudioServer.get_bus_effect(0, 2) as AudioEffectHardLimiter
-	runner.check(hpf != null and absf(hpf.cutoff_hz - 35.0) < 1e-3, "master HPF at 35 Hz")
+	runner.check(hpf != null and absf(hpf.cutoff_hz - 28.0) < 1e-3, "master HPF at 28 Hz")
 	runner.check(glue != null and absf(glue.ratio - 2.0) < 1e-4 and absf(glue.threshold + 14.0) < 1e-4, "glue: 2:1 from -14 dB")
-	runner.check(lim != null and absf(lim.ceiling_db + 1.0) < 1e-4 and absf(lim.pre_gain_db - 2.0) < 1e-4, "HardLimiter at -1 dB, +2 dB pre-gain")
-	# v1.7: the music bus is refined: a presence dip for the SFX slot, a softer top, a small room
+	runner.check(lim != null and absf(lim.ceiling_db + 1.5) < 1e-4 and absf(lim.pre_gain_db - 2.0) < 1e-4, "HardLimiter at -1.5 dB (v2.1: true peak under -1 dBTP), +2 dB pre-gain")
+	# v1.7: the music bus is refined: a presence dip for the SFX slot, a small room (v2.1: the dip
+	# 1.5 dB, the 10 kHz cut gone: the trap hats live up there)
 	var mu := AudioServer.get_bus_index("Music")
 	var eq := AudioServer.get_bus_effect(mu, 0) as AudioEffectEQ6
 	var room := AudioServer.get_bus_effect(mu, 1) as AudioEffectReverb
-	runner.check(eq != null and absf(eq.get_band_gain_db(4) + 2.5) < 1e-3 and absf(eq.get_band_gain_db(5) + 2.0) < 1e-3, "music EQ: -2.5 dB at 3.2 kHz, -2 dB at 10 kHz")
+	runner.check(eq != null and absf(eq.get_band_gain_db(4) + 1.5) < 1e-3 and absf(eq.get_band_gain_db(5)) < 1e-3, "music EQ: -1.5 dB at 3.2 kHz, flat at 10 kHz")
 	runner.check(room != null and room.wet <= 0.15 and room.hipass >= 0.2, "music room: a light wet, the bass kept dry")
 	var o := AudioServer.get_bus_index("Outside")
 	var lpf := AudioServer.get_bus_effect(o, 0) as AudioEffectLowPassFilter
@@ -603,6 +604,26 @@ func test_cue_variant_rules() -> void:
 	a.event("goldenSpawn", 1.0)
 	var pan := AudioServer.get_bus_effect(AudioServer.get_bus_index("Suitcase"), 0) as AudioEffectPanner
 	runner.check(absf(pan.pan - 0.4) < 1e-4 and _last(a).begins_with("suitcaseSpawn_g"), "the Suitcase pans at spawn (x 1.0 -> +0.4)")
+	await _release()
+
+
+func test_dynamic_mix_tap_slot_and_ultimatum_tension() -> void:
+	var a: Node = await _playing()
+	var mu := AudioServer.get_bus_index("Music")
+	var lpf := AudioServer.get_bus_effect(mu, 2) as AudioEffectLowPassFilter
+	runner.check(lpf != null and not AudioServer.is_bus_effect_enabled(mu, 2), "music v2.1: the tension low-pass sits bypassed on the Music bus")
+	for i in 6:
+		a.event("tap")
+		await (runner as SceneTree).create_timer(0.08).timeout
+	runner.check(a.slot_db() < -2.0, "tapping dips the music's 1 kHz band (the bell's slot), at %.1f dB" % a.slot_db())
+	await (runner as SceneTree).create_timer(1.6).timeout
+	runner.check(a.slot_db() > -0.3, "the slot recovers when the taps rest, at %.2f dB" % a.slot_db())
+	a.event("ultimatumTick", 3)
+	await (runner as SceneTree).create_timer(1.2).timeout
+	runner.check(a.tension_hz() < 8000.0 and AudioServer.is_bus_effect_enabled(mu, 2), "the last 3 s close the music into the low-pass, at %.0f Hz" % a.tension_hz())
+	a.event("ultimatumPaid")
+	await (runner as SceneTree).create_timer(0.4).timeout
+	runner.check(a.tension_hz() > 18000.0, "paid: it opens again, at %.0f Hz" % a.tension_hz())
 	await _release()
 
 

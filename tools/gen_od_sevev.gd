@@ -11,7 +11,7 @@ extends SceneTree
 ## era, one key per era. Each era renders at its own rate so that one grid step is a whole number of
 ## samples (31,900 / 32,032 / 31,944 / 31,968 Hz): the loop is sample-exact. Notes ringing past
 ## bar 32 wrap onto bar 1 (lib_dsp.loop_wrap); each stem carries one guard sample (ADR 0002).
-## Balfour also gets the 2-bar Outside drum loop. Courthouse stems carry a 180 ms / -12 dB slapback.
+## Balfour also gets the 2-bar Outside drum loop. A slapback may sit on the era or (v2.0) on one channel.
 ##
 ## Stingers (music.json "stingers"): tempo-bound one-shots written in D and transposed per key,
 ## rendered at the key's era tempo and rate. The fanfare renders five lengths (0-4 tags) per key.
@@ -58,6 +58,7 @@ func _initialize() -> void:
 		quit(1)
 		return
 	_a4 = float(_m["a4Hz"])
+	D.sample_dir = _root.path_join("audio/od/samples")   # v2.1: the CC0 one-shots (SOURCES.md)
 	_preview = OS.get_environment("OD_AUDIO_PREVIEW")
 	if _preview != "":
 		DirAccess.make_dir_recursive_absolute(_preview)
@@ -67,12 +68,21 @@ func _initialize() -> void:
 		"keys": _c["keys"], "degrees": _c["degrees"], "buses": _c["buses"], "babbleContours": _c["babbleContours"],
 		"crits": _c.get("crits", {}), "eras": {}, "stingers": {}, "cues": {}}
 	var targets: Dictionary = _m["targets"]
+	# v2.1, a mixing aid: OD_AUDIO_ERA=<era> renders only that era's stems (and previews), then stops
+	# before the manifest, the stingers, the cues and the retiring of files. Never in the build.
+	var only := OS.get_environment("OD_AUDIO_ERA")
 	for eid: String in _m["eras"]:
+		if only != "" and eid != only:
+			continue
 		var r := _render_era(eid, _m["eras"][eid], float(targets["music"]) + float(_m["eras"][eid].get("targetOffsetDb", 0.0)))
 		if r.is_empty():
 			quit(1)
 			return
 		man["eras"][eid] = r
+	if only != "":
+		print("gen_od_sevev: OD_AUDIO_ERA=%s only (no manifest written)" % only)
+		quit()
+		return
 	for sid: String in _m["stingers"]:
 		if sid.begins_with("_"):
 			continue
@@ -212,8 +222,11 @@ func _render_events(ev: Array, step_s: float, out: PackedFloat32Array, seed_pre:
 		var at := int(roundf(s * step_s * D.sr))
 		if (e as Dictionary).has("hits"):
 			var hi := 0
-			for inst: String in e["hits"]:
-				_play(inst, 1.0, step_s, at, out, "%s/%d/%d" % [seed_pre, s, hi], {}, float(e["g"]))
+			for hit: String in e["hits"]:
+				# v2.0: a kit entry may carry a velocity, "hat@0.55"
+				var parts := hit.split("@")
+				var vel := float(parts[1]) if parts.size() > 1 else 1.0
+				_play(parts[0], 1.0, step_s, at, out, "%s/%d/%d" % [seed_pre, s, hi], {}, float(e["g"]) * vel)
 				hi += 1
 			continue
 		var ni := 0
@@ -276,6 +289,46 @@ func _slap(x: PackedFloat32Array, sb: Dictionary) -> PackedFloat32Array:
 	return y
 
 
+## v2.0: the sidechain. The channel ducks by `db` under every hit of `hits` in the `by` channel's
+## events: a `attackMs` ramp down, held for `holdMs`, then an exponential `releaseMs` back; it wraps.
+func _duck(x: PackedFloat32Array, by_ev: Array, by_step_s: float, dk: Dictionary, loop_n: int) -> PackedFloat32Array:
+	var n := x.size()
+	var g := PackedFloat32Array()
+	g.resize(n)
+	g.fill(1.0)
+	var floor_g := D.db2lin(float(dk["db"]))
+	var att := maxi(1, int(float(dk.get("attackMs", 3.0)) / 1000.0 * D.sr))
+	var hold := int(float(dk.get("holdMs", 20.0)) / 1000.0 * D.sr)
+	var rel := float(dk.get("releaseMs", 140.0)) / 1000.0 * D.sr
+	var want: Array = dk["hits"]
+	for s in by_ev.size():
+		var e: Variant = by_ev[s]
+		if e == null or not (e as Dictionary).has("hits"):
+			continue
+		var hit := false
+		for h: String in e["hits"]:
+			if want.has(h.split("@")[0]):
+				hit = true
+		if not hit:
+			continue
+		# the hit, and its copy one loop later (the tail past bar 32 folds back onto bar 1)
+		for at: int in [int(roundf(s * by_step_s * D.sr)), int(roundf(s * by_step_s * D.sr)) + loop_n]:
+			for i in range(maxi(0, at - att), mini(n, at + hold + int(rel * 5.0))):
+				var t := i - at
+				var v: float
+				if t < 0:
+					v = 1.0 + (floor_g - 1.0) * float(t + att) / att
+				elif t < hold:
+					v = floor_g
+				else:
+					v = 1.0 - (1.0 - floor_g) * exp(-float(t - hold) / rel)
+				g[i] = minf(g[i], v)
+	var y := x.duplicate()
+	for i in n:
+		y[i] *= g[i]
+	return y
+
+
 # ================================================================== era tracks
 
 func _render_era(eid: String, e: Dictionary, target: float) -> Dictionary:
@@ -289,10 +342,14 @@ func _render_era(eid: String, e: Dictionary, target: float) -> Dictionary:
 	var spb := int(e["stepsPerBeat"]) * int(e["beatsPerBar"])
 	var sec_bars := int(_m["form"]["sectionBars"])
 	var loop_n := int(_m["form"]["totalBars"]) * spb * int(roundf(step_n))
-	var sb: Dictionary = e.get("slapback", {})
 	var stems := {}
+	var sends := {}
 	for layer: String in LAYERS:
 		stems[layer] = D.zeros(loop_n + int(TAIL_S * rate))
+		sends[layer] = D.zeros(loop_n + int(TAIL_S * rate))
+	# pass 1: every channel's events (v2.0: the 808's sidechain reads the kick's)
+	var evs := {}
+	var steps := {}
 	for cid: String in e["channels"]:
 		var ch: Dictionary = e["channels"][cid]
 		var bars: PackedStringArray = []
@@ -302,12 +359,52 @@ func _render_era(eid: String, e: Dictionary, target: float) -> Dictionary:
 			for i in sec_bars:
 				bars.append(String(sbars[i % sbars.size()]))
 				secs.append(sec)
-		var ev := _compile(bars, ch, secs, 0)
+		evs[cid] = _compile(bars, ch, secs, 0)
+		# music v2.0: a channel may run on its own grid (the trap hats: 24 steps a beat, for rolls)
+		steps[cid] = 60.0 / float(e["tempoBpm"]) / float(ch.get("stepsPerBeat", e["stepsPerBeat"]))
+	for cid: String in e["channels"]:
+		var ch: Dictionary = e["channels"][cid]
+		var ev: Array = evs[cid]
+		var ch_step_s: float = steps[cid]
 		var x := D.zeros(loop_n + int(TAIL_S * rate))
-		_render_events(ev, step_s, x, "%s/%s" % [eid, cid])
-		x = _channel_fx(x, ev, ch.get("fx", {}), step_s, "%s/%s" % [eid, cid])
-		x = _slap(x, sb)
+		_render_events(ev, ch_step_s, x, "%s/%s" % [eid, cid])
+		x = _channel_fx(x, ev, ch.get("fx", {}), ch_step_s, "%s/%s" % [eid, cid])
+		x = _slap(x, ch.get("slapback", e.get("slapback", {})))
+		if ch.has("eq"):
+			x = D.eq(x, ch["eq"])   # v2.1: the channel's EQ
+		if ch.has("comp"):
+			var cp: Dictionary = ch["comp"]
+			x = D.compress(x, float(cp["thresholdDb"]), float(cp["ratio"]), float(cp["attackMs"]), float(cp["releaseMs"]))
+		if ch.has("duck"):
+			var dk: Dictionary = ch["duck"]
+			x = _duck(x, evs[dk["by"]], steps[dk["by"]], dk, loop_n)
+		if ch.has("sat"):
+			x = D.soft_clip(x, float(ch["sat"]))
 		D.mix_at(stems[ch["layer"]], x, 0, float(ch["gain"]))
+		if _preview != "" and OS.get_environment("OD_AUDIO_CHANNELS") != "":
+			_dump("chan_%s_%s.res" % [eid, cid], x.slice(0, loop_n), float(ch["gain"]), rate)   # v2.1: mix by channel
+		if ch.has("reverb"):
+			D.mix_at(sends[ch["layer"]], x, 0, float(ch["gain"]) * D.db2lin(float(ch["reverb"])))
+	# v2.0: one reverb per layer (Freeverb, the send high-passed so the low end stays dry), then the
+	# bus clipper (the drum-bus glue of a trap mix: L0's peaks rounded before the stems are scaled)
+	var rv: Dictionary = e.get("reverb", {})
+	for layer: String in LAYERS:
+		if not rv.is_empty() and D.peak(sends[layer]) > 0.0:
+			var snd: PackedFloat32Array = sends[layer]
+			snd = D._biquad(snd, {"type": "highpass", "freq": float(rv.get("hpHz", 250.0)), "Q": -3.0103}, float(snd.size()) / rate)
+			var wet := D.reverb(snd, float(rv["size"]), float(rv["damp"]))
+			D.mix_at(stems[layer], wet, int(roundf(float(rv.get("predelayMs", 0.0)) / 1000.0 * rate)), 1.0)
+		# v2.1, the stem master: EQ, glue compression, then the clipper
+		var se: Dictionary = e.get("stemEq", {})
+		if se.has(layer):
+			stems[layer] = D.eq(stems[layer], se[layer])
+		var sg: Dictionary = e.get("busComp", {})
+		if sg.has(layer):
+			var cp: Dictionary = sg[layer]
+			stems[layer] = D.compress(stems[layer], float(cp["thresholdDb"]), float(cp["ratio"]), float(cp["attackMs"]), float(cp["releaseMs"]))
+		var bc: Dictionary = e.get("busClip", {})
+		if bc.has(layer):
+			stems[layer] = D.soft_clip(stems[layer], float(bc[layer]))
 	var pk := 0.0
 	for layer: String in LAYERS:
 		var y := D.loop_wrap(stems[layer], loop_n)

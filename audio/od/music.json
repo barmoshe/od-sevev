@@ -102,7 +102,7 @@
  },
  "targets": {
   "_doc": "Loudness targets (K-weighted BS.1770, dual mono) that set each item's play_db. music = all three layers of an era together (every era lands on the same value, so era changes do not jump). Stingers: integrated = over the whole stinger; momentary = the loudest 400 ms.",
-  "music": -19.3,
+  "music": -20.5,
   "fanfare": {
    "type": "integrated",
    "lufs": -17.0
@@ -900,6 +900,4610 @@
      "gain": 0.35
     }
    ]
+  },
+  "808": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "flute": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "tone",
+     "wave": "sine",
+     "freqStart": "A4",
+     "attack": 0.022,
+     "decay": 0.18,
+     "sustain": 0.78,
+     "duration": "note",
+     "release": 0.08,
+     "gain": 1.0,
+     "vibrato": {
+      "rateHz": 5.0,
+      "depthCents": 14,
+      "delay": 0.22
+     }
+    },
+    {
+     "id": "body",
+     "wave": "triangle",
+     "freqStart": "A4",
+     "attack": 0.03,
+     "decay": 0.18,
+     "sustain": 0.663,
+     "duration": "note",
+     "release": 0.08,
+     "filter": {
+      "type": "lowpass",
+      "freq": 4000,
+      "Q": 0.0
+     },
+     "gain": 0.4,
+     "vibrato": {
+      "rateHz": 5.0,
+      "depthCents": 14,
+      "delay": 0.22
+     }
+    },
+    {
+     "id": "over",
+     "wave": "sine",
+     "freqStart": "A5",
+     "attack": 0.02,
+     "decay": 0.18,
+     "sustain": 0.46799999999999997,
+     "duration": "note",
+     "release": 0.08,
+     "gain": 0.14,
+     "vibrato": {
+      "rateHz": 5.0,
+      "depthCents": 14,
+      "delay": 0.22
+     }
+    },
+    {
+     "id": "third",
+     "wave": "sine",
+     "freqStart": "E6",
+     "attack": 0.02,
+     "decay": 0.18,
+     "sustain": 0.31200000000000006,
+     "duration": "note",
+     "release": 0.08,
+     "gain": 0.07,
+     "vibrato": {
+      "rateHz": 5.0,
+      "depthCents": 14,
+      "delay": 0.22
+     }
+    },
+    {
+     "id": "breath",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 3200,
+      "Q": 1.0
+     },
+     "attack": 0.004,
+     "decay": 0.07,
+     "sustain": 0.08,
+     "duration": "note",
+     "release": 0.08,
+     "gain": 0.24
+    }
+   ]
+  },
+  "fluteS": {
+   "gate": 0.7,
+   "layers": [
+    {
+     "id": "tone",
+     "wave": "sine",
+     "freqStart": "A4",
+     "attack": 0.022,
+     "decay": 0.12,
+     "sustain": 0.55,
+     "duration": "note",
+     "release": 0.06,
+     "gain": 1.0
+    },
+    {
+     "id": "body",
+     "wave": "triangle",
+     "freqStart": "A4",
+     "attack": 0.03,
+     "decay": 0.12,
+     "sustain": 0.4675,
+     "duration": "note",
+     "release": 0.06,
+     "filter": {
+      "type": "lowpass",
+      "freq": 4000,
+      "Q": 0.0
+     },
+     "gain": 0.4
+    },
+    {
+     "id": "over",
+     "wave": "sine",
+     "freqStart": "A5",
+     "attack": 0.02,
+     "decay": 0.12,
+     "sustain": 0.33,
+     "duration": "note",
+     "release": 0.06,
+     "gain": 0.14
+    },
+    {
+     "id": "third",
+     "wave": "sine",
+     "freqStart": "E6",
+     "attack": 0.02,
+     "decay": 0.12,
+     "sustain": 0.22000000000000003,
+     "duration": "note",
+     "release": 0.06,
+     "gain": 0.07
+    },
+    {
+     "id": "breath",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 3200,
+      "Q": 1.0
+     },
+     "attack": 0.004,
+     "decay": 0.07,
+     "sustain": 0.08,
+     "duration": "note",
+     "release": 0.06,
+     "gain": 0.24
+    }
+   ]
+  },
+  "pluck": {
+   "gate": 0.8,
+   "layers": [
+    {
+     "id": "tone",
+     "wave": "sine",
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.22,
+     "sustain": 0.25,
+     "duration": "note",
+     "release": 0.06,
+     "gain": 1.0
+    },
+    {
+     "id": "oct",
+     "wave": "sine",
+     "freqStart": "A5",
+     "attack": 0.001,
+     "decay": 0.07,
+     "sustain": 0.0,
+     "duration": 0.07,
+     "release": 0.02,
+     "gain": 0.3
+    },
+    {
+     "id": "body",
+     "wave": "triangle",
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.12,
+     "sustain": 0.15,
+     "duration": "note",
+     "release": 0.05,
+     "filter": {
+      "type": "lowpass",
+      "freq": 2000,
+      "Q": 0.0
+     },
+     "gain": 0.3
+    }
+   ]
+  },
+  "bell": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "p1",
+     "wave": "sine",
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.55,
+     "sustain": 0.0,
+     "duration": 0.55,
+     "release": 0.08,
+     "gain": 1.0
+    },
+    {
+     "id": "p2",
+     "wave": "sine",
+     "freqStart": "A5",
+     "attack": 0.001,
+     "decay": 0.22000000000000003,
+     "sustain": 0.0,
+     "duration": 0.22000000000000003,
+     "release": 0.05,
+     "gain": 0.32
+    },
+    {
+     "id": "p3",
+     "wave": "sine",
+     "freqStart": "E6",
+     "attack": 0.001,
+     "decay": 0.0825,
+     "sustain": 0.0,
+     "duration": 0.0825,
+     "release": 0.03,
+     "gain": 0.14
+    },
+    {
+     "id": "tine",
+     "wave": "sine",
+     "freqStart": "E7",
+     "attack": 0.0005,
+     "decay": 0.02,
+     "sustain": 0.0,
+     "duration": 0.02,
+     "release": 0.01,
+     "gain": 0.12
+    }
+   ]
+  },
+  "bellLong": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "p1",
+     "wave": "sine",
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.9,
+     "sustain": 0.0,
+     "duration": 0.9,
+     "release": 0.08,
+     "gain": 1.0
+    },
+    {
+     "id": "p2",
+     "wave": "sine",
+     "freqStart": "A5",
+     "attack": 0.001,
+     "decay": 0.36000000000000004,
+     "sustain": 0.0,
+     "duration": 0.36000000000000004,
+     "release": 0.05,
+     "gain": 0.32
+    },
+    {
+     "id": "p3",
+     "wave": "sine",
+     "freqStart": "E6",
+     "attack": 0.001,
+     "decay": 0.135,
+     "sustain": 0.0,
+     "duration": 0.135,
+     "release": 0.03,
+     "gain": 0.14
+    },
+    {
+     "id": "tine",
+     "wave": "sine",
+     "freqStart": "E7",
+     "attack": 0.0005,
+     "decay": 0.02,
+     "sustain": 0.0,
+     "duration": 0.02,
+     "release": 0.01,
+     "gain": 0.12
+    }
+   ]
+  },
+  "keys": {
+   "gate": 0.9,
+   "layers": [
+    {
+     "id": "tone",
+     "wave": "sine",
+     "freqStart": "A4",
+     "attack": 0.035,
+     "decay": 0.35,
+     "sustain": 0.55,
+     "duration": "note",
+     "release": 0.14,
+     "gain": 1.0
+    },
+    {
+     "id": "body",
+     "wave": "triangle",
+     "freqStart": "A4",
+     "attack": 0.04,
+     "decay": 0.3,
+     "sustain": 0.45,
+     "duration": "note",
+     "release": 0.14,
+     "filter": {
+      "type": "lowpass",
+      "freq": 1500,
+      "Q": 0.0
+     },
+     "gain": 0.45
+    },
+    {
+     "id": "tine",
+     "wave": "sine",
+     "freqStart": "A6",
+     "attack": 0.001,
+     "decay": 0.04,
+     "sustain": 0.0,
+     "duration": 0.04,
+     "release": 0.02,
+     "gain": 0.08
+    }
+   ]
+  },
+  "kick": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "kick",
+     "wave": "sample",
+     "file": "kick.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.1489,
+     "release": 0.01,
+     "gain": 1.0
+    }
+   ]
+  },
+  "clap": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "clap",
+     "wave": "sample",
+     "file": "clap.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.4289,
+     "release": 0.01,
+     "gain": 1.0
+    }
+   ]
+  },
+  "snare": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "snare",
+     "wave": "sample",
+     "file": "snare.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.1318,
+     "release": 0.01,
+     "gain": 0.9
+    }
+   ]
+  },
+  "snareG": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "snare",
+     "wave": "sample",
+     "file": "snare.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.1318,
+     "release": 0.01,
+     "gain": 0.28
+    }
+   ]
+  },
+  "rim": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "rim",
+     "wave": "sample",
+     "file": "rim.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.2047,
+     "release": 0.01,
+     "gain": 0.8
+    }
+   ]
+  },
+  "hat": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "hat",
+     "wave": "sample",
+     "file": "hat.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.0422,
+     "release": 0.01,
+     "gain": 1.0
+    }
+   ]
+  },
+  "hatO": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "hat_open",
+     "wave": "sample",
+     "file": "hat_open.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.2507,
+     "release": 0.01,
+     "gain": 0.8
+    }
+   ]
+  },
+  "sroll1": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "n",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 1900,
+      "Q": 0.7
+     },
+     "attack": 0.0005,
+     "decay": 0.045,
+     "sustain": 0.0,
+     "duration": 0.045,
+     "release": 0.01,
+     "gain": 0.2
+    }
+   ]
+  },
+  "sroll2": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "n",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 1900,
+      "Q": 0.7
+     },
+     "attack": 0.0005,
+     "decay": 0.045,
+     "sustain": 0.0,
+     "duration": 0.045,
+     "release": 0.01,
+     "gain": 0.36
+    }
+   ]
+  },
+  "sroll3": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "n",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 2000,
+      "Q": 0.7
+     },
+     "attack": 0.0005,
+     "decay": 0.04,
+     "sustain": 0.0,
+     "duration": 0.04,
+     "release": 0.01,
+     "gain": 0.58
+    }
+   ]
+  },
+  "sroll4": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "n",
+     "wave": "noise",
+     "clockStart": 30000,
+     "filter": {
+      "type": "bandpass",
+      "freq": 2100,
+      "Q": 0.7
+     },
+     "attack": 0.0005,
+     "decay": 0.035,
+     "sustain": 0.0,
+     "duration": 0.035,
+     "release": 0.01,
+     "gain": 0.85
+    }
+   ]
+  },
+  "808u1": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Ab4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Ab4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d1": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Bb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Bb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u2": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "G4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "G4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d2": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "B4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "B4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u3": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Gb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Gb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d3": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "C5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "C5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u4": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "F4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "F4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d4": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Db5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Db5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u5": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "E4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "E4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d5": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "D5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "D5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u6": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Eb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Eb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d6": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Eb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Eb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u7": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "D4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "D4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d7": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "E5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "E5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u8": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Db4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Db4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d8": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "F5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "F5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u9": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "C4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "C4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d9": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Gb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Gb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u10": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "B3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "B3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d10": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "G5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "G5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u11": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Bb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Bb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d11": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Ab5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Ab5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u12": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "A3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "A3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d12": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "A5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "A5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u13": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Ab3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Ab3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d13": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Bb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Bb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u14": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "G3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "G3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d14": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "B5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "B5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u15": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Gb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Gb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d15": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "C6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "C6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u16": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "F3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "F3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d16": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Db6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Db6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u17": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "E3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "E3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d17": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "D6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "D6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u18": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Eb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Eb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d18": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Eb6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Eb6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u19": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "D3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "D3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d19": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "E6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "E6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u20": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Db3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Db3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d20": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "F6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "F6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u21": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "C3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "C3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d21": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Gb6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Gb6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u22": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "B2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "B2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d22": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "G6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "G6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u23": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Bb2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Bb2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d23": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "Ab6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "Ab6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808u24": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "A2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "A2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808d24": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_c2.wav",
+     "rootHz": 65.42,
+     "gain": 1.0,
+     "freqStart": "A6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.34,
+     "freqStart": "A6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808x": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "A4",
+     "attack": 0.002,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu1": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Ab4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Ab4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd1": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Bb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Bb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu2": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "G4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "G4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd2": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "B4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "B4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu3": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Gb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Gb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd3": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "C5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "C5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu4": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "F4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "F4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd4": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Db5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Db5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu5": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "E4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "E4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd5": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "D5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "D5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu6": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Eb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Eb4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd6": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Eb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Eb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu7": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "D4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "D4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd7": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "E5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "E5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu8": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Db4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Db4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd8": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "F5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "F5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu9": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "C4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "C4",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd9": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Gb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Gb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu10": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "B3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "B3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd10": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "G5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "G5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu11": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Bb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Bb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd11": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Ab5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Ab5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu12": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "A3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "A3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd12": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "A5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "A5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu13": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Ab3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Ab3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd13": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Bb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Bb5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu14": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "G3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "G3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd14": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "B5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "B5",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu15": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Gb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Gb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd15": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "C6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "C6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu16": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "F3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "F3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd16": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Db6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Db6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu17": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "E3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "E3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd17": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "D6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "D6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu18": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Eb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Eb3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd18": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Eb6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Eb6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu19": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "D3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "D3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd19": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "E6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "E6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu20": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Db3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Db3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd20": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "F6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "F6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu21": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "C3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "C3",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd21": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Gb6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Gb6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu22": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "B2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "B2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd22": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "G6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "G6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu23": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Bb2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Bb2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd23": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "Ab6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "Ab6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xu24": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "A2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "A2",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "808xd24": {
+   "gate": 0.92,
+   "layers": [
+    {
+     "id": "s808",
+     "wave": "sample",
+     "file": "808_drill_c1.wav",
+     "rootHz": 32.73,
+     "gain": 1.0,
+     "freqStart": "A6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": "note",
+     "release": 0.06
+    },
+    {
+     "id": "grit",
+     "wave": "sine",
+     "drive": 6.0,
+     "filter": {
+      "type": "highpass",
+      "freq": 140,
+      "Q": -3.0103
+     },
+     "gain": 0.16,
+     "freqStart": "A6",
+     "freqEnd": "A4",
+     "freqCurve": "exp",
+     "glide": 0.11,
+     "attack": 0.01,
+     "decay": 0.9,
+     "sustain": 0.5,
+     "duration": "note",
+     "release": 0.06
+    }
+   ]
+  },
+  "snap": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "snap",
+     "wave": "sample",
+     "file": "snap.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.2901,
+     "release": 0.01,
+     "gain": 0.9
+    }
+   ]
+  },
+  "tablaG": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "tabla_te",
+     "wave": "sample",
+     "file": "tabla_te.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.0942,
+     "release": 0.01,
+     "gain": 0.5
+    }
+   ]
+  },
+  "tabla": {
+   "gate": 1.0,
+   "layers": [
+    {
+     "id": "tabla_na",
+     "wave": "sample",
+     "file": "tabla_na.wav",
+     "followPitch": false,
+     "attack": 0.0005,
+     "decay": 0.0,
+     "sustain": 1.0,
+     "duration": 0.4406,
+     "release": 0.01,
+     "gain": 0.6
+    }
+   ]
   }
  },
  "kits": {
@@ -933,6 +5537,32 @@
   },
   "shutter": {
    "Z": "shutter"
+  },
+  "trap": {
+   "K": "kick",
+   "C": "clap",
+   "S": "snare",
+   "s": "snareG",
+   "R": "rim",
+   "t": "tablaG",
+   "T": "tabla",
+   "N": "snap",
+   "X": "crash"
+  },
+  "trapHats": {
+   "h": "hat",
+   "m": "hat@0.85",
+   "g": "hat@0.55",
+   "q": "hat@0.35",
+   "o": "hatO"
+  },
+  "trapFanfare": {
+   "1": "sroll1",
+   "2": "sroll2",
+   "3": "sroll3",
+   "4": "sroll4",
+   "X": "crash",
+   "K": "kick"
   }
  },
  "eras": {
@@ -944,7 +5574,7 @@
    "rate": 31900,
    "key": "D",
    "mode": "minor",
-   "mood": "Smug domestic comfort in HaTikva's minor, played straight; protest drums leak through the window.",
+   "mood": "Melodic trap in HaTikva's minor, the anthem on a flute, played straight; protest drums leak through the window.",
    "chords": {
     "A": [
      "Dm",
@@ -987,164 +5617,438 @@
      "Dm|A"
     ]
    },
+   "reverb": {
+    "size": 0.72,
+    "damp": 0.45,
+    "predelayMs": 18,
+    "hpHz": 250
+   },
+   "busClip": {
+    "L0": 1.8
+   },
+   "stemEq": {
+    "L0": [
+     {
+      "type": "highpass",
+      "freq": 26,
+      "Q": -3.0103
+     },
+     {
+      "type": "lowshelf",
+      "freq": 90,
+      "Q": 0.7,
+      "gainDb": 3.0
+     },
+     {
+      "type": "peaking",
+      "freq": 170,
+      "Q": 0.9,
+      "gainDb": 3.5
+     },
+     {
+      "type": "peaking",
+      "freq": 2000,
+      "Q": 1.0,
+      "gainDb": 2.5
+     },
+     {
+      "type": "highshelf",
+      "freq": 2500,
+      "Q": 0.7,
+      "gainDb": 3.0
+     }
+    ],
+    "L1": [
+     {
+      "type": "peaking",
+      "freq": 1000,
+      "Q": 0.7,
+      "gainDb": -2.0
+     },
+     {
+      "type": "highshelf",
+      "freq": 6000,
+      "Q": 0.7,
+      "gainDb": 1.5
+     }
+    ],
+    "L2": [
+     {
+      "type": "highshelf",
+      "freq": 6000,
+      "Q": 0.7,
+      "gainDb": 1.5
+     }
+    ]
+   },
+   "busComp": {
+    "L0": {
+     "thresholdDb": -10.0,
+     "ratio": 2.0,
+     "attackMs": 10,
+     "releaseMs": 120
+    }
+   },
    "channels": {
     "bass": {
-     "instrument": "tri",
+     "instrument": "808",
      "layer": "L0",
-     "gain": 0.46,
+     "gain": 0.56,
      "sections": {
       "A": [
-       "D3@triOne - - . . . . . A2 - - . . . . .",
-       "G3@triOne - - . . . . . D3 - - . . . . .",
-       "G3@triOne - - . . . . . D3 - - . . . . .",
-       "A2@triOne - - . . . . . D3 - - . . . . .",
-       "D3@triOne - - . . . . . A2 - - . . . . .",
-       "G3@triOne - - . . . . . D3 - - . . . . .",
-       "G3@triOne - - . . . . . D3 - - . . . . .",
-       "A2@triOne - - . . . . . D3 - - . . . . ."
+       "D2 - - - - - - - . . D2 - - - - -",
+       "G1 - - - - - - - . . D2 - - - - -",
+       "G1 - - - - - - - . . G1 - - - - -",
+       "A1 - - - - - - - . . D2 - - - - -",
+       "D2 - - - - - - - . . D2 - - - - -",
+       "G1 - - - - - - - . . D2 - - - - -",
+       "G1 - - - - - - - . . G1 - - - - -",
+       "A1 - - - - - - - . . D2 - - - - -"
       ],
       "A2": [
-       "D3@triOne - - . . . . . A2 - - . . . C#3 -",
-       "D3@triOne - - . . . . . A2 - - . . . F3 -",
-       "G3@triOne - - . . . . . D3 - - . . . C#3 -",
-       "D3@triOne - - . . . . . A2 - - . . . A2 -",
-       "Bb2@triOne - - . . . . . F3 - - . . . B2 -",
-       "C3@triOne - - . . . . . G3 - - . . . Bb2 -",
-       "A2@triOne - - . . . . . E3 - - . . . . .",
-       "A2@triOne - - . . . . . E3 - - . . . E3 -"
+       "D2 - - - - - . D3@808u12 - . D2 - - - A2@808u7 -",
+       "D2 - - - - - . D3@808u12 - . D2 - - - A2@808u7 -",
+       "G1 - - - - - . G2@808u12 - . G1 - - - D2@808u7 -",
+       "D2 - - - - - . D3@808u12 - . D2 - - - A2@808u7 -",
+       "Bb1 - - - - - . Bb2@808u12 - . Bb1 - - - F2@808u7 -",
+       "C2 - - - - - . C3@808u12 - . C2 - - - G2@808u7 -",
+       "A1 - - - - - . A2@808u12 - . A1 - - - E2@808u7 -",
+       "A1 - - - - - . A2@808u12 - . A1 - - - E2@808u7 -"
       ],
       "B": [
-       "D3@triOne - - . . . . . A2 - - . . . . .",
-       "D3@triOne - - . . . . . A2 - - . . . . .",
-       "G3@triOne - - . . . . . D3 - - . . . . .",
-       "D3@triOne - - . . . . . A2 - - . . . . .",
-       "D3@triOne - - . . . . . A2 - - . . . . .",
-       "C3@triOne - - . . . . . G3 - - . . . . .",
-       "C3@triOne - - . . . . . G3 - - . . . . .",
-       "D3@triOne - - . . . . . A2 - - . . . . ."
+       "D2 - - - - - - . D2 - - - D3@808u12 - - -",
+       "D2 - - - - - - . D2 - - - D3@808u12 - - -",
+       "G1 - - - - - - . G1 - - - G2@808u12 - - -",
+       "D2 - - - - - - . D2 - - - D3@808u12 - - -",
+       "D2 - - - - - - . D2 - - - D3@808u12 - - -",
+       "C2 - - - - - - . C2 - - - C3@808u12 - - -",
+       "C2 - - - - - - . C2 - - - C3@808u12 - - -",
+       "D2 - - - - - - . D2 - - - D3@808u12 - - -"
       ],
       "T": [
-       "D3@triOne - - . . . . . A2 - - . . . . .",
-       "G3@triOne - - . . . . . D3 - - . . . . .",
-       "C3@triOne - - . . . . . G3 - - . . . . .",
-       "F3@triOne - - . . . . . C3 - - . . . . .",
-       "Bb2@triOne - - . . . . . F3 - - . . . . .",
-       "G3@triOne - - . . . . . D3 - - . . . . .",
-       "A2@triOne - - . . . . . E3 - - . . . . .",
-       "D3@triOne - - . . . G3 - - . . . A2 - - ."
+       "D2 - - - - - . D3@808u12 - . D2 - - - A2@808u7 -",
+       "G1 - - - - - . G2@808u12 - . G1 - - - D2@808u7 -",
+       "C2 - - - - - . C3@808u12 - . C2 - - - G2@808u7 -",
+       "F1 - - - - - . F2@808u12 - . F1 - - - C2@808u7 -",
+       "Bb1 - - - - - . Bb2@808u12 - . Bb1 - - - F2@808u7 -",
+       "G1 - - - - - . G2@808u12 - . G1 - - - D2@808u7 -",
+       "A1 - - - - - . A2@808u12 - . A1 - - - E2@808u7 -",
+       "D2 - - - - - - . A1 - - - - - - -"
       ]
+     },
+     "duck": {
+      "by": "drums",
+      "hits": [
+       "kick"
+      ],
+      "db": -5.0,
+      "attackMs": 2,
+      "holdMs": 15,
+      "releaseMs": 120
+     },
+     "comp": {
+      "thresholdDb": -9.0,
+      "ratio": 3.0,
+      "attackMs": 30,
+      "releaseMs": 200
      }
     },
     "drums": {
-     "kit": "darbuka",
+     "kit": "trap",
      "layer": "L0",
-     "gain": 0.42,
+     "gain": 0.9,
      "sections": {
       "A": [
-       "D . j . T . j . D . kj . T . j k",
-       "D . j . T . kj . D . kj . T . j k",
-       "D . j . T . j . D . kj . T . j k",
-       "D . j . T . kj . D . kj . T . j k",
-       "D . j . T . j . D . kj . T . j k",
-       "D . j . T . kj . D . kj . T . j k",
-       "D . j . T . j . D . kj . T . j k",
-       "Do . j . Tj . j . Dj . kj . Tk . T k"
+       "K . . . . . t . . . K . . . t .",
+       "K . . . . . t . . . K . . . t .",
+       "K . . . . . t . . . K . . . t .",
+       "K . . . . . t . . . K . . . t .",
+       "K . . . . . t . . . K . . . t .",
+       "K . . . . . t . . . K . . . t .",
+       "K . . . . . t . . . K . . . t .",
+       "K . . . . . . K . . . . . . . ."
       ],
       "A2": [
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Do . j . Tj . j . Dj . kj . Tk . T k"
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . . . . K . . . . . . . ."
       ],
       "B": [
-       "D . . . . . . . D . k . T . . k",
-       "D . . . . . k . D . k . T . . k",
-       "D . . . . . . . D . k . T . . k",
-       "D . . . . . k . D . k . T . . k",
-       "D . . . . . . . D . k . T . . k",
-       "D . . . . . k . D . k . T . . k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Do . j . Tj . j . Dj . kj . Tk . T k"
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . . . . K . . . . . . . ."
       ],
       "T": [
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Dj . j . Tj . kj . Dj . kj . Tj . j k",
-       "Dj . j . Tj . j . Dj . kj . Tj . j k",
-       "Do . j . Tj . j . Dj . kj . Tj . . ."
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . t . . . K . . Kt . . . t .",
+       "K . . . . . . . K . . . . . . ."
       ]
      }
+    },
+    "snares": {
+     "kit": "trap",
+     "layer": "L0",
+     "gain": 1.5,
+     "sections": {
+      "A": [
+       ". . . . . . . . N . . . . . . .",
+       ". . . . . . . . N . . . . . . .",
+       ". . . . . . . . N . . . . . . .",
+       ". . . . . . . . N . . . . . . .",
+       ". . . . . . . . N . . . . . . .",
+       ". . . . . . . . N . . . . . . .",
+       ". . . . . . . . N . . . . . . .",
+       ". . . . . . . . CS . . s . s s s"
+      ],
+      "A2": [
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . s . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . s . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . s . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . s . s s s"
+      ],
+      "B": [
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . s . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . s . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . s . s s s"
+      ],
+      "T": [
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . s . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . s . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . s . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . C . . . s s s s"
+      ]
+     },
+     "reverb": -7.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 3200,
+       "Q": 0.9,
+       "gainDb": 3.0
+      },
+      {
+       "type": "highpass",
+       "freq": 150,
+       "Q": -3.0103
+      }
+     ]
+    },
+    "hats": {
+     "kit": "trapHats",
+     "layer": "L0",
+     "gain": 0.62,
+     "stepsPerBeat": 24,
+     "sections": {
+      "A": [
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . ."
+      ],
+      "A2": [
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . m . . q . . g . . m . . h . q . g . g . m . m . m . q . g . g . m . m ."
+      ],
+      "B": [
+       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . m . . q . . g . . m . . h . q . g . g . m . m . m . q . g . g . m . m ."
+      ],
+      "T": [
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . o . . . . . . . . . . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . m . . q . . g . . m . ."
+      ]
+     }
+    },
+    "keys": {
+     "instrument": "keys",
+     "layer": "L1",
+     "gain": 0.055,
+     "sections": {
+      "A": [
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - G3+Bb3+D4 - - - - - - -",
+       "A3+Db4+E4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - G3+Bb3+D4 - - - - - - -",
+       "A3+Db4+E4 - - - - - - - A3+D4+F4 - - - - - - -"
+      ],
+      "A2": [
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - G3+Bb3+D4 - - - - - - -",
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "Bb3+D4+F4 - - - - - - - Bb3+D4+F4 - - - - - - -",
+       "G3+C4+E4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "A3+Db4+E4 - - - - - - - A3+Db4+E4 - - - - - - -",
+       "A3+Db4+E4 - - - - - - - A3+Db4+E4 - - - - - - -"
+      ],
+      "B": [
+       "A3+D4+Gb4 - - - - - - - A3+D4+Gb4 - - - - - - -",
+       "A3+D4+Gb4 - - - - - - - A3+D4+Gb4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - G3+Bb3+D4 - - - - - - -",
+       "A3+D4+Gb4 - - - - - - - A3+D4+Gb4 - - - - - - -",
+       "A3+D4+Gb4 - - - - - - - A3+D4+Gb4 - - - - - - -",
+       "G3+C4+Eb4 - - - - - - - G3+C4+Eb4 - - - - - - -",
+       "G3+C4+Eb4 - - - - - - - G3+C4+Eb4 - - - - - - -",
+       "A3+D4+Gb4 - - - - - - - A3+D4+Gb4 - - - - - - -"
+      ],
+      "T": [
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - G3+Bb3+D4 - - - - - - -",
+       "G3+C4+E4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "Bb3+D4+F4 - - - - - - - Bb3+D4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - G3+Bb3+D4 - - - - - - -",
+       "A3+Db4+E4 - - - - - - - A3+Db4+E4 - - - - - - -",
+       "A3+D4+F4 - - - - - - - A3+Db4+E4 - - - - - - -"
+      ]
+     },
+     "reverb": -9.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 900,
+       "Q": 0.8,
+       "gainDb": -4.0
+      },
+      {
+       "type": "highpass",
+       "freq": 160,
+       "Q": -3.0103
+      }
+     ]
+    },
+    "bells": {
+     "instrument": "bell",
+     "layer": "L1",
+     "gain": 0.25,
+     "sections": {
+      "A": [
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . ."
+      ],
+      "A2": [
+       "D5 . . A5 . . F5 . D6 . . A5 . . F5 .",
+       "D5 . . A5 . . F5 . D6 . . A5 . . F5 .",
+       "G5 . . D6 . . Bb5 . G6 . . D6 . . Bb5 .",
+       "D5 . . A5 . . F5 . D6 . . A5 . . F5 .",
+       "Bb5 . . F6 . . D6 . Bb6 . . F6 . . D6 .",
+       "C5 . . G5 . . E5 . C6 . . G5 . . E5 .",
+       "A5 . . E6 . . Db6 . A6 . . E6 . . Db6 .",
+       "A5 . . E6 . . Db6 . A6 . . E6 . . Db6 ."
+      ],
+      "B": [
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       "D5 . . A5 . . Gb5 . D6 . . A5 . . Gb5 .",
+       "C5 . . G5 . . Eb5 . C6 . . G5 . . Eb5 .",
+       "C5 . . G5 . . Eb5 . C6 . . G5 . . Eb5 .",
+       "D5 . . A5 . . Gb5 . D6 . . A5 . . Gb5 ."
+      ],
+      "T": [
+       "D5 . . A5 . . F5 . D6 . . A5 . . F5 .",
+       "G5 . . D6 . . Bb5 . G6 . . D6 . . Bb5 .",
+       "C5 . . G5 . . E5 . C6 . . G5 . . E5 .",
+       "F5 . . C6 . . A5 . F6 . . C6 . . A5 .",
+       "Bb5 . . F6 . . D6 . Bb6 . . F6 . . D6 .",
+       "G5 . . D6 . . Bb5 . G6 . . D6 . . Bb5 .",
+       "A5 . . E6 . . Db6 . A6 . . E6 . . Db6 .",
+       ". . . . . . . . . . . . . . . ."
+      ]
+     },
+     "reverb": -5.0
     },
     "p2": {
-     "instrument": "p2stab",
+     "instrument": "pluck",
      "layer": "L1",
-     "gain": 0.5,
-     "sectionInstrument": {
-      "A": "p2stab",
-      "A2": "p2stab",
-      "B": "p2stab",
-      "T": "p2stab"
-     },
-     "sectionGain": {
-      "A": 2.0,
-      "A2": 2.0,
-      "B": 2.0,
-      "T": 2.0
-     },
+     "gain": 0.22,
      "sections": {
       "A": [
-       ". . F4 . . . A4 . . . F4 . . . A4 .",
-       ". . Bb4 . . . D5 . . . F4 . . . A4 .",
-       ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
-       ". . C#5 . . . E5 . . . F4 . . . A4 .",
-       ". . F4 . . . A4 . . . F4 . . . A4 .",
-       ". . Bb4 . . . D5 . . . F4 . . . A4 .",
-       ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
-       ". . C#5 . . . E5 . . . F4 . . . A4 ."
+       ". . . . . . . . . . . . . . . ."
       ],
       "A2": [
-       ". . F4 . . . A4 . . . F4 . . . A4 .",
-       ". . F4 . . . A4 . . . F4 . . . A4 .",
-       ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
-       ". . F4 . . . A4 . . . F4 . . . A4 .",
-       ". . D5 . . . F4 . . . D5 . . . F4 .",
-       ". . E4 . . . G4 . . . E4 . . . G4 .",
-       ". . C#5 . . . E5 . . . C#5 . . . E5 .",
-       ". . C#5 . . . E5 . . . C#5 . . . E5 ."
+       ". . . . . . . . . . . . . . . ."
       ],
       "B": [
-       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
-       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
-       ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
-       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
-       ". . F#4 . . . A4 . . . F#4 . . . A4 .",
-       ". . Eb4 . . . G4 . . . Eb4 . . . G4 .",
-       ". . Eb4 . . . G4 . . . Eb4 . . . G4 .",
-       ". . F#4 . . . A4 . . . F#4 . . . A4 ."
+       ". . . . . . . . . . . . . . . ."
       ],
       "T": [
-       ". . F4 . . . A4 . . . F4 . . . A4 .",
-       ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
-       ". . E4 . . . G4 . . . E4 . . . G4 .",
-       ". . A4 . . . C5 . . . A4 . . . C5 .",
-       ". . D5 . . . F4 . . . D5 . . . F4 .",
-       ". . Bb4 . . . D5 . . . Bb4 . . . D5 .",
-       ". . C#5 . . . E5 . . . C#5 . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
        "G4 - - - A4 - Bb4 - - - - - C#5 - - -"
       ]
-     }
+     },
+     "reverb": -9.0
     },
     "lead": {
-     "instrument": "p1",
+     "instrument": "flute",
      "layer": "L2",
-     "gain": 0.36,
+     "gain": 0.19,
      "sections": {
       "A": [
        "D5 - E5 - F5 - G5 - A5 - - - A5 - - -",
@@ -1188,16 +6092,27 @@
       ]
      },
      "fx": {
-      "double": {
-       "cents": 7,
-       "db": -8.0
-      },
       "echo": {
        "steps": 3,
-       "db": -11.0,
+       "db": -10.0,
        "repeats": 2
       }
-     }
+     },
+     "reverb": -11.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 1100,
+       "Q": 0.8,
+       "gainDb": -3.0
+      },
+      {
+       "type": "highshelf",
+       "freq": 4500,
+       "Q": 0.7,
+       "gainDb": 2.5
+      }
+     ]
     }
    },
    "outside": {
@@ -1339,7 +6254,7 @@
    "rate": 32032,
    "key": "E",
    "mode": "minor",
-   "mood": "A plenum haggle: Hevenu Shalom Aleichem fought over pickup by pickup, then Shalom Chaverim as a round nobody finishes first.",
+   "mood": "A plenum haggle gone drill: shifting snares, tresillo hats, gliding 808s under Hevenu Shalom Aleichem, then Shalom Chaverim as a round nobody finishes first.",
    "chords": {
     "A": [
      "Em|B",
@@ -1382,125 +6297,407 @@
      "Em|B"
     ]
    },
+   "reverb": {
+    "size": 0.72,
+    "damp": 0.45,
+    "predelayMs": 18,
+    "hpHz": 250
+   },
+   "busClip": {
+    "L0": 1.8
+   },
+   "stemEq": {
+    "L0": [
+     {
+      "type": "highpass",
+      "freq": 26,
+      "Q": -3.0103
+     },
+     {
+      "type": "lowshelf",
+      "freq": 90,
+      "Q": 0.7,
+      "gainDb": 3.0
+     },
+     {
+      "type": "peaking",
+      "freq": 170,
+      "Q": 0.9,
+      "gainDb": 3.5
+     },
+     {
+      "type": "peaking",
+      "freq": 2000,
+      "Q": 1.0,
+      "gainDb": 2.5
+     },
+     {
+      "type": "highshelf",
+      "freq": 2500,
+      "Q": 0.7,
+      "gainDb": 3.0
+     }
+    ],
+    "L1": [
+     {
+      "type": "peaking",
+      "freq": 1000,
+      "Q": 0.7,
+      "gainDb": -2.0
+     },
+     {
+      "type": "highshelf",
+      "freq": 6000,
+      "Q": 0.7,
+      "gainDb": 1.5
+     }
+    ],
+    "L2": [
+     {
+      "type": "highshelf",
+      "freq": 6000,
+      "Q": 0.7,
+      "gainDb": 1.5
+     }
+    ]
+   },
+   "busComp": {
+    "L0": {
+     "thresholdDb": -10.0,
+     "ratio": 2.0,
+     "attackMs": 10,
+     "releaseMs": 120
+    }
+   },
    "channels": {
     "bass": {
-     "instrument": "tri",
+     "instrument": "808x",
      "layer": "L0",
-     "gain": 0.44,
+     "gain": 0.56,
      "sections": {
       "A": [
-       "E3@triOne - - . . . E3 - F#3 - - . B2 - . .",
-       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
-       "A2@triOne - - . . . A2 - F#3 - - . B2 - . .",
-       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
-       "B2@triOne - - . . . B2 - F#3 - - . B2 - . .",
-       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
-       "B2@triOne - - . . . B2 - F#3 - - . B2 - . .",
-       "B2@triOne - - . . . B2 - F#3 - - . B2 - . ."
+       "E2 - - - - - - - - . . . . . B1@808xd5 -",
+       "E2 - - E2 - - E2 - - - - - - - . .",
+       "A1 - - - - - - - - . . . . . B1@808xu2 -",
+       "A1 - - A1 - - A1 - - - - - - - . .",
+       "B1 - - - - - - - - . . . . . B1 -",
+       "E2 - - E2 - - E2 - - - - - - - . .",
+       "B1 - - - - - - - - . . . . . B1 -",
+       "B1 - - B1 - - B1 - - - - - - - . ."
       ],
       "A2": [
-       "E3@triOne - - . . . E3 - F#3 - - . B2 - . .",
-       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
-       "A2@triOne - - . . . A2 - F#3 - - . B2 - . .",
-       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
-       "B2@triOne - - . . . B2 - F#3 - - . B2 - . .",
-       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
-       "B2@triOne - - . . . B2 - F#3 - - . B2 - . .",
-       "B2@triOne - - . . . B2 - B2 - - . E3 - . ."
+       "E2 - - - - - - - - . . . . . B1@808xd5 -",
+       "E2 - - E2 - - B2@808xu7 - - - - - E3@808xu5 - E3 -",
+       "A1 - - - - - - - - . . . . . B1@808xu2 -",
+       "A1 - - A1 - - E2@808xu7 - - - - - A2@808xu5 - A2 -",
+       "B1 - - - - - - - - . . . . . B1 -",
+       "E2 - - E2 - - B2@808xu7 - - - - - E3@808xu5 - E3 -",
+       "B1 - - - - - - - - . . . . . B1 -",
+       "B1 - - B1 - - Gb2@808xu7 - - - - - E3@808xu10 - E3 -"
       ],
       "B": [
-       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
-       "G3@triOne - - . . . G3 - D3 - - . G3 - . .",
-       "C3@triOne - - . . . C3 - G3 - - . C3 - . .",
-       "B2@triOne - - . . . B2 - F#3 - - . B2 - . .",
-       "C3@triOne - - . . . C3 - G3 - - . C3 - . .",
-       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
-       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
-       "E3@triOne - - . . . E3 - B2 - - . E3 - . ."
+       "E2 - - - - - - - - . . . . . . .",
+       "G1 - - - - - - - - . . . . . . .",
+       "C2 - - - - - - - - . . . . . C2 -",
+       "B1 - - B1 - - Gb2@808xu7 - - - - - B2@808xu5 - B2 -",
+       "C2 - - - - - - - - . . . . . . .",
+       "E2 - - - - - - - - . . . . . . .",
+       "A1 - - - - - - - - . . . . . A1 -",
+       "E2 - - E2 - - B2@808xu7 - - - - - E3@808xu5 - E3 -"
       ],
       "T": [
-       "E3@triOne - - . . . E3 - B2 - - . E3 - . .",
-       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
-       "D3@triOne - - . . . D3 - A2 - - . D3 - . .",
-       "G3@triOne - - . . . G3 - D3 - - . G3 - . .",
-       "C3@triOne - - . . . C3 - G3 - - . C3 - . .",
-       "A2@triOne - - . . . A2 - E3 - - . A2 - . .",
-       "B2@triOne - - . . . B2 - F#3 - - . B2 - . .",
-       "E3@triOne - - . . . A2 - - . . . B2 - - ."
+       "E2 - - - - - - - - . . . . . E2 -",
+       "A1 - - A1 - - E2@808xu7 - - - - - A2@808xu5 - A2 -",
+       "D2 - - - - - - - - . . . . . D2 -",
+       "G1 - - G1 - - D2@808xu7 - - - - - G2@808xu5 - G2 -",
+       "C2 - - - - - - - - . . . . . C2 -",
+       "A1 - - A1 - - E2@808xu7 - - - - - A2@808xu5 - A2 -",
+       "B1 - - - - - - - - . . . . . B1 -",
+       "E2 - - - - - - . B1@808xd5 - - - - - - -"
       ]
+     },
+     "duck": {
+      "by": "drums",
+      "hits": [
+       "kick"
+      ],
+      "db": -5.0,
+      "attackMs": 2,
+      "holdMs": 15,
+      "releaseMs": 120
+     },
+     "comp": {
+      "thresholdDb": -9.0,
+      "ratio": 3.0,
+      "attackMs": 30,
+      "releaseMs": 200
      }
     },
     "drums": {
-     "kit": "darbuka",
+     "kit": "trap",
      "layer": "L0",
-     "gain": 0.42,
+     "gain": 0.9,
      "sections": {
       "A": [
-       "D . Tj . k . Tj . D . kj . T . j k",
-       "D k Tj . k . Tj . D . kj . T . Dj .",
-       "D . Tj . k . Tj . D . kj . T . j k",
-       "D k Tj . k . Tj . D . kj . T . Dj .",
-       "D . Tj . k . Tj . D . kj . T . j k",
-       "D k Tj . k . Tj . D . kj . T . Dj .",
-       "D . Tj . k . Tj . D . kj . T . j k",
-       "Do . Tj . kj . Tj . Dj . kj . Tk . T k"
+       "K . . . . . . . . . . . . . K .",
+       "K . . K . . K . . . . . . . . .",
+       "K . . . . . . . . . . . . . K .",
+       "K . . K . . K . . . . . . . . .",
+       "K . . . . . . . . . . . . . K .",
+       "K . . K . . K . . . . . . . . .",
+       "K . . . . . . . . . . . . . K .",
+       "K . . K . . K . . . . . . . . ."
       ],
       "A2": [
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Do . Tj . kj . Tj . Dj . kj . Tk . T k"
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . R . . . . . K .",
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . R . . . . . K .",
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . R . . . . . K .",
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . . . . . . . . ."
       ],
       "B": [
-       "D . . . k . . . D . k . T . . k",
-       "D k . . k . . . D . k . T . D .",
-       "D . . . k . . . D . k . T . . k",
-       "D k . . k . . . D . k . T . D .",
-       "D . . . k . . . D . k . T . . k",
-       "D k . . k . . . D . k . T . D .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Do . Tj . kj . Tj . Dj . kj . Tk . T k"
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . R . . . . . K .",
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . R . . . . . K .",
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . . . . . . . . ."
       ],
       "T": [
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Dj k Tj . kj . Tj . Dj . kj . Tj . Dj .",
-       "Dj . Tj . kj . Tj . Dj . kj . Tj . j k",
-       "Do . Tj . kj . Tj . Dj . kj . Tj . . ."
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . R . . . . . K .",
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . R . . . . . K .",
+       "K . . . . . . . . . t . . . K .",
+       "K . . K . . K . R . . . . . K .",
+       "K . . . . . . . . . t . . . K .",
+       "K . . . . . . . K . . . . . . ."
       ]
      }
     },
-    "p2": {
-     "instrument": "p2n",
-     "layer": "L1",
-     "gain": 0.4,
-     "sectionInstrument": {
-      "A": "p2stab",
-      "A2": "p2n",
-      "B": "p2ns",
-      "T": "p2stab"
-     },
-     "sectionGain": {
-      "A": 1.4,
-      "T": 1.4
-     },
+    "snares": {
+     "kit": "trap",
+     "layer": "L0",
+     "gain": 1.5,
      "sections": {
       "A": [
-       ". . G4 . . . B4 . . . . . D#5 . . .",
-       ". . G4 . . . B4 . . . . . G4 . . .",
-       ". . C5 . . . E5 . . . . . D#5 . . .",
-       ". . C5 . . . E5 . . . . . C5 . . .",
-       ". . D#5 . . . F#5 . . . . . D#5 . . .",
-       ". . G4 . . . B4 . . . . . G4 . . .",
-       ". . D#5 . . . F#5 . . . . . D#5 . . .",
-       ". . D#5 . . . F#5 . . . . . D#5 . . ."
+       ". . . . . . . . S . . . . . . .",
+       ". . . . . . . . . . . . S . . .",
+       ". . . . . . . . S . . . . . . .",
+       ". . . . . . . . . . . . S . . .",
+       ". . . . . . . . S . . . . . . .",
+       ". . . . . . . . . . . . S . . .",
+       ". . . . . . . . S . . . . . . .",
+       ". . . . . . . . s . s . CSs s s s"
+      ],
+      "A2": [
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . . . s . CS . . .",
+       ". . . . . . . . CS . . s . . s .",
+       ". . . . . . s . . . s . CS . . s",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . . . s . CS . . .",
+       ". . . . . . . . CS . . s . . s .",
+       ". . . . . . . . s . s . CSs s s s"
+      ],
+      "B": [
+       ". . . . . . . . S . . . . . . .",
+       ". . . . . . . . S . . . . . . .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . . . s . CS . . .",
+       ". . . . . . . . CS . . s . . s .",
+       ". . . . . . s . . . s . CS . . s",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . s . s . CSs s s s"
+      ],
+      "T": [
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . . . s . CS . . .",
+       ". . . . . . . . CS . . s . . s .",
+       ". . . . . . s . . . s . CS . . s",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . . . s . CS . . .",
+       ". . . . . . . . CS . . s . . s .",
+       ". . . . . . . . S . . . s s s s"
+      ]
+     },
+     "reverb": -7.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 3200,
+       "Q": 0.9,
+       "gainDb": 3.0
+      },
+      {
+       "type": "highpass",
+       "freq": 150,
+       "Q": -3.0103
+      }
+     ]
+    },
+    "hats": {
+     "kit": "trapHats",
+     "layer": "L0",
+     "gain": 0.62,
+     "stepsPerBeat": 24,
+     "sections": {
+      "A": [
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . . g . . . m . . ."
+      ],
+      "A2": [
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . q . . g . . m . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . q . . g . . m . ."
+      ],
+      "B": [
+       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . q . . g . . m . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . q . g . g . m . m ."
+      ],
+      "T": [
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . q . . g . . m . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . q . . . . . . . . . . . h . . . . . . . . . . . . . . . . . m . . . . . . . . . . . . . . . . . g . q . g . g . m . m ."
+      ]
+     }
+    },
+    "keys": {
+     "instrument": "keys",
+     "layer": "L1",
+     "gain": 0.055,
+     "sections": {
+      "A": [
+       "G3+B3+E4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "G3+B3+E4 - - - - - - - G3+B3+E4 - - - - - - -",
+       "A3+C4+E4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "A3+C4+E4 - - - - - - - A3+C4+E4 - - - - - - -",
+       "B3+Eb4+Gb4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "G3+B3+E4 - - - - - - - G3+B3+E4 - - - - - - -",
+       "B3+Eb4+Gb4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "B3+Eb4+Gb4 - - - - - - - B3+Eb4+Gb4 - - - - - - -"
+      ],
+      "A2": [
+       "G3+B3+E4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "G3+B3+E4 - - - - - - - G3+B3+E4 - - - - - - -",
+       "A3+C4+E4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "A3+C4+E4 - - - - - - - A3+C4+E4 - - - - - - -",
+       "B3+Eb4+Gb4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "G3+B3+E4 - - - - - - - G3+B3+E4 - - - - - - -",
+       "B3+Eb4+Gb4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "B3+Eb4+Gb4 - - - - - - - G3+B3+E4 - - - - - - -"
+      ],
+      "B": [
+       "G3+B3+E4 - - - - - - - G3+B3+E4 - - - - - - -",
+       "G3+B3+D4 - - - - - - - G3+B3+D4 - - - - - - -",
+       "G3+C4+E4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "B3+Eb4+Gb4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "G3+C4+E4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "G3+B3+E4 - - - - - - - G3+B3+E4 - - - - - - -",
+       "A3+C4+E4 - - - - - - - A3+C4+E4 - - - - - - -",
+       "G3+B3+E4 - - - - - - - G3+B3+E4 - - - - - - -"
+      ],
+      "T": [
+       "G3+B3+E4 - - - - - - - G3+B3+E4 - - - - - - -",
+       "A3+C4+E4 - - - - - - - A3+C4+E4 - - - - - - -",
+       "A3+D4+Gb4 - - - - - - - A3+D4+Gb4 - - - - - - -",
+       "G3+B3+D4 - - - - - - - G3+B3+D4 - - - - - - -",
+       "G3+C4+E4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "A3+C4+E4 - - - - - - - A3+C4+E4 - - - - - - -",
+       "B3+Eb4+Gb4 - - - - - - - B3+Eb4+Gb4 - - - - - - -",
+       "G3+B3+E4 - - - - - - - B3+Eb4+Gb4 - - - - - - -"
+      ]
+     },
+     "reverb": -9.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 900,
+       "Q": 0.8,
+       "gainDb": -4.0
+      },
+      {
+       "type": "highpass",
+       "freq": 160,
+       "Q": -3.0103
+      }
+     ]
+    },
+    "bells": {
+     "instrument": "bell",
+     "layer": "L1",
+     "gain": 0.25,
+     "sections": {
+      "A": [
+       "E6 . . B5 . . E5 . Eb6 . . Gb6 . . B5 .",
+       "E6 . . B5 . . E5 . G5 . . B5 . . E5 .",
+       "A6 . . E6 . . A5 . Eb6 . . Gb6 . . B5 .",
+       "A6 . . E6 . . A5 . C6 . . E6 . . A5 .",
+       "B6 . . Gb6 . . B5 . Eb6 . . Gb6 . . B5 .",
+       "E6 . . B5 . . E5 . G5 . . B5 . . E5 .",
+       "B6 . . Gb6 . . B5 . Eb6 . . Gb6 . . B5 .",
+       "B6 . . Gb6 . . B5 . Eb6 . . Gb6 . . B5 ."
+      ],
+      "A2": [
+       ". . . . . . . . . . . . . . . ."
+      ],
+      "B": [
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       "C6 . . G5 . . C5 . E5 . . G5 . . C5 .",
+       "E6 . . B5 . . E5 . G5 . . B5 . . E5 .",
+       "A6 . . E6 . . A5 . C6 . . E6 . . A5 .",
+       "E6 . . B5 . . E5 . G5 . . B5 . . E5 ."
+      ],
+      "T": [
+       "E6 . . B5 . . E5 . G5 . . B5 . . E5 .",
+       "A6 . . E6 . . A5 . C6 . . E6 . . A5 .",
+       "D6 . . A5 . . D5 . Gb5 . . A5 . . D5 .",
+       "G6 . . D6 . . G5 . B5 . . D6 . . G5 .",
+       "C6 . . G5 . . C5 . E5 . . G5 . . C5 .",
+       "A6 . . E6 . . A5 . C6 . . E6 . . A5 .",
+       "B6 . . Gb6 . . B5 . Eb6 . . Gb6 . . B5 .",
+       ". . . . . . . . . . . . . . . ."
+      ]
+     },
+     "reverb": -5.0
+    },
+    "p2": {
+     "instrument": "pluck",
+     "layer": "L1",
+     "gain": 0.24,
+     "sections": {
+      "A": [
+       ". . . . . . . . . . . . . . . ."
       ],
       "A2": [
        "B4 - - - - - - - G4 - - - - - F#4 -",
@@ -1523,24 +6720,28 @@
        "B4 - - - G4 - F#4 - E4 - - - B3 - - -"
       ],
       "T": [
-       ". . G4 . . . B4 . . . . . G4 . . .",
-       ". . C5 . . . E5 . . . . . C5 . . .",
-       ". . F#4 . . . A4 . . . . . F#4 . . .",
-       ". . B4 . . . D5 . . . . . B4 . . .",
-       ". . E5 . . . G4 . . . . . E5 . . .",
-       ". . C5 . . . E5 . . . . . C5 . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
        ". . D#5 . . . F#5 . . . . . . . . .",
        "A4 - - - B4 - C5 - - - - - D#5 - - -"
       ]
+     },
+     "reverb": -9.0,
+     "sectionInstrument": {
+      "A": "pluck",
+      "A2": "pluck",
+      "B": "fluteS",
+      "T": "pluck"
      }
     },
     "lead": {
-     "instrument": "p1",
+     "instrument": "flute",
      "layer": "L2",
-     "gain": 0.36,
-     "sectionInstrument": {
-      "B": "p1s"
-     },
+     "gain": 0.19,
      "sections": {
       "A": [
        "B5 - - - - - - - G5 - - - - - F#5 -",
@@ -1584,15 +6785,29 @@
       ]
      },
      "fx": {
-      "double": {
-       "cents": 7,
-       "db": -8.0
-      },
       "echo": {
        "steps": 3,
-       "db": -11.0,
+       "db": -10.0,
        "repeats": 2
       }
+     },
+     "reverb": -11.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 1100,
+       "Q": 0.8,
+       "gainDb": -3.0
+      },
+      {
+       "type": "highshelf",
+       "freq": 4500,
+       "Q": 0.7,
+       "gainDb": 2.5
+      }
+     ],
+     "sectionInstrument": {
+      "B": "fluteS"
      }
     }
    },
@@ -1727,13 +6942,9 @@
    "rate": 22044,
    "key": "G",
    "mode": "minor",
-   "mood": "Mock-solemn noir: the anthem's contour stated straight in half time, then sneaking past the bench. The only room with a slapback.",
-   "slapback": {
-    "ms": 180,
-    "db": -12
-   },
+   "mood": "Mock-solemn swung trap: the anthem's contour stated straight on the flute, then sneaking past the bench on a pluck.",
    "targetOffsetDb": -1.0,
-   "_targetOffset": "The court hush: 1 LU under the other eras (mock-solemn), which also keeps the sparsest, highest-crest track's summed stems near -1 dBFS before the master limiter.",
+   "_targetOffset": "The court hush: 1 LU under the other eras (mock-solemn).",
    "chords": {
     "A": [
      "Gm",
@@ -1776,170 +6987,431 @@
      "Gm|D"
     ]
    },
+   "reverb": {
+    "size": 0.72,
+    "damp": 0.45,
+    "predelayMs": 18,
+    "hpHz": 250
+   },
+   "busClip": {
+    "L0": 1.8
+   },
+   "stemEq": {
+    "L0": [
+     {
+      "type": "highpass",
+      "freq": 26,
+      "Q": -3.0103
+     },
+     {
+      "type": "lowshelf",
+      "freq": 90,
+      "Q": 0.7,
+      "gainDb": 3.0
+     },
+     {
+      "type": "peaking",
+      "freq": 170,
+      "Q": 0.9,
+      "gainDb": 3.5
+     },
+     {
+      "type": "peaking",
+      "freq": 2000,
+      "Q": 1.0,
+      "gainDb": 2.5
+     }
+    ],
+    "L1": [
+     {
+      "type": "peaking",
+      "freq": 1000,
+      "Q": 0.7,
+      "gainDb": -2.0
+     },
+     {
+      "type": "highshelf",
+      "freq": 6000,
+      "Q": 0.7,
+      "gainDb": 1.5
+     }
+    ],
+    "L2": [
+     {
+      "type": "highshelf",
+      "freq": 6000,
+      "Q": 0.7,
+      "gainDb": 1.5
+     }
+    ]
+   },
+   "busComp": {
+    "L0": {
+     "thresholdDb": -10.0,
+     "ratio": 2.0,
+     "attackMs": 10,
+     "releaseMs": 120
+    }
+   },
    "channels": {
     "bass": {
-     "instrument": "triTip",
+     "instrument": "808",
      "layer": "L0",
-     "gain": 0.42,
+     "gain": 0.56,
      "sections": {
       "A": [
-       "G3@triTipOne . . D3 . . Bb2 . . D3 . .",
-       "G3@triTipOne . . D3 . . Bb2 . . B2 . .",
-       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
-       "G3@triTipOne . . D3 . . Bb2 . . B2 . .",
-       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
-       "Eb3@triTipOne . . Bb2 . . G3 . . Bb2 . .",
-       "D3@triTipOne . . F#3 . . A3 . . F#3 . .",
-       "G3@triTipOne . . D3 . . Bb2 . . D3 . ."
+       "G1 - - - . . G1 - - - . .",
+       "G1 - - - . . G1 - - - . .",
+       "C2 - - - . . C2 - - - . .",
+       "G1 - - - . . G1 - - - . .",
+       "C2 - - - . . C2 - - - . .",
+       "Eb2 - - - . . Eb2 - - - . .",
+       "D2 - - - . . D2 - - - . .",
+       "G1 - - - . . G1 - - - . ."
       ],
       "A2": [
-       "G3@triTipOne . . D3 . . Bb2 . . D3 . .",
-       "G3@triTipOne . . D3 . . Bb2 . . B2 . .",
-       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
-       "G3@triTipOne . . D3 . . Bb2 . . D3 . .",
-       "Eb3@triTipOne . . Bb2 . . G3 . . Bb2 . .",
-       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
-       "D3@triTipOne . . F#3 . . A3 . . F#3 . .",
-       "D3@triTipOne . . F#3 . . A3 . . F#3 . ."
+       "G1 - - - . G2@808u12 - . G1@808d12 - - -",
+       "G1 - - - . G2@808u12 - . G1@808d12 - - -",
+       "C2 - - - . C3@808u12 - . C2@808d12 - - -",
+       "G1 - - - . G2@808u12 - . G1@808d12 - - -",
+       "Eb2 - - - . Eb3@808u12 - . Eb2@808d12 - - -",
+       "C2 - - - . C3@808u12 - . C2@808d12 - - -",
+       "D2 - - - . D3@808u12 - . D2@808d12 - - -",
+       "D2 - - - . D3@808u12 - . D2@808d12 - - -"
       ],
       "B": [
-       "G3@triTipOne . . D3 . . G3 . . Eb3 . .",
-       "G3@triTipOne . . D3 . . A3 . . F#3 . .",
-       "C3@triTipOne . . Eb3 . . A3 . . F#3 . .",
-       "G3@triTipOne . . D3 . . Bb2 . . D3 . .",
-       "G3@triTipOne . . D3 . . G3 . . Eb3 . .",
-       "G3@triTipOne . . D3 . . A3 . . F#3 . .",
-       "C3@triTipOne . . Eb3 . . A3 . . F#3 . .",
-       "G3@triTipOne . . D3 . . Bb2 . . D3 . ."
+       "G1 - - - . . C2 - - - . .",
+       "G1 - - - . . D2 - - - . .",
+       "C2 - - - . . D2 - - - . .",
+       "G1 - - - . . G1 - - - . .",
+       "G1 - - - . . C2 - - - . .",
+       "G1 - - - . . D2 - - - . .",
+       "C2 - - - . . D2 - - - . .",
+       "G1 - - - . . G1 - - - . ."
       ],
       "T": [
-       "G3@triTipOne . . D3 . . Bb2 . . D3 . .",
-       "Eb3@triTipOne . . Bb2 . . G3 . . Bb2 . .",
-       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
-       "G3@triTipOne . . D3 . . Bb2 . . B2 . .",
-       "C3@triTipOne . . Eb3 . . G3 . . Eb3 . .",
-       "Eb3@triTipOne . . Bb2 . . G3 . . Bb2 . .",
-       "D3@triTipOne . . F#3 . . A3 . . F#3 . .",
-       "G3@triTipOne . . D3 . . C3 . . D3 . ."
+       "G1 - - - . G2@808u12 - . G1@808d12 - - -",
+       "Eb2 - - - . Eb3@808u12 - . Eb2@808d12 - - -",
+       "C2 - - - . C3@808u12 - . C2@808d12 - - -",
+       "G1 - - - . G2@808u12 - . G1@808d12 - - -",
+       "C2 - - - . C3@808u12 - . C2@808d12 - - -",
+       "Eb2 - - - . Eb3@808u12 - . Eb2@808d12 - - -",
+       "D2 - - - . D3@808u12 - . D2@808d12 - - -",
+       "G1 - - - . . D2 - - - . ."
       ]
+     },
+     "duck": {
+      "by": "drums",
+      "hits": [
+       "kick"
+      ],
+      "db": -5.0,
+      "attackMs": 2,
+      "holdMs": 15,
+      "releaseMs": 120
+     },
+     "comp": {
+      "thresholdDb": -9.0,
+      "ratio": 3.0,
+      "attackMs": 30,
+      "releaseMs": 200
      }
     },
     "drums": {
-     "kit": "darbukaCourt",
+     "kit": "trap",
      "layer": "L0",
-     "gain": 0.42,
+     "gain": 1.0,
      "sections": {
       "A": [
-       "D . . . . j T . . . . j",
-       "D . . . . j T . k . . Dj",
-       "D . . . . j T . . . . j",
-       "D . . . . j T . k . . Dj",
-       "D . . . . j T . . . . j",
-       "D . . . . j T . k . . Dj",
-       "D . . . . j T . . . . j",
-       "Djo . . j . j Tj . . T . T"
+       "K . . . . . . . K . . .",
+       "K . . . . . . . K . . .",
+       "K . . . . . . . K . . .",
+       "K . . . . . . . K . . .",
+       "K . . . . . . . K . . .",
+       "K . . . . . . . K . . .",
+       "K . . . . . . . K . . .",
+       "K . . . . K . . . . . ."
       ],
       "A2": [
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Djo . . j . j Tj . . T . T"
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . K .",
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . K .",
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . K .",
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . . ."
       ],
       "B": [
-       "D . . . . . T . . . . .",
-       "D . . . . . T . k . . D",
-       "D . . . . . T . . . . .",
-       "D . . . . . T . k . . D",
-       "D . . . . . T . . . . .",
-       "D . . . . . T . k . . D",
-       "Dj . . j . j Tj . . j . j",
-       "Djo . . j . j Tj . . T . T"
+       ". . . . . . . . . . . .",
+       ". . . . . . . . . . . .",
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . K .",
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . K .",
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . . ."
       ],
       "T": [
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Dj . . j . j Tj . k j . Dj",
-       "Dj . . j . j Tj . . j . j",
-       "Djo . . j . j Tj . . j . ."
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . K .",
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . K .",
+       "K . . . . K . t K . . .",
+       "K . . . . K . . . . K .",
+       "K . . . . K . t K . . .",
+       "K . . . . . K . . . . ."
       ]
      }
     },
-    "p2": {
-     "instrument": "p2nstab",
-     "layer": "L1",
-     "gain": 0.27,
-     "sectionInstrument": {
-      "A": "p2stab",
-      "A2": "p2stab",
-      "B": "p2stab",
-      "T": "p2stab"
-     },
-     "sectionGain": {
-      "A": 1.3,
-      "A2": 1.3,
-      "B": 1.3,
-      "T": 1.3
-     },
+    "snares": {
+     "kit": "trap",
+     "layer": "L0",
+     "gain": 1.5,
      "sections": {
       "A": [
-       ". . . Bb4 . . . . . D5 . .",
-       ". . . Bb4 . . . . . D5 . .",
-       ". . . Eb5 . . . . . G4 . .",
-       ". . . Bb4 . . . . . D5 . .",
-       ". . . Eb5 . . . . . G4 . .",
-       ". . . G4 . . . . . Bb4 . .",
-       ". . . F#4 . . . . . C5 . .",
-       ". . . Bb4 . . . . . D5 . ."
+       ". . . C . . . . . C . .",
+       ". . . C . . . . . C . .",
+       ". . . C . . . . . C . .",
+       ". . . C . . . . . C . .",
+       ". . . C . . . . . C . .",
+       ". . . C . . . . . C . .",
+       ". . . C . . . . . C . .",
+       ". . . C . . . s . CSs s s"
       ],
       "A2": [
-       ". . . Bb4 . . . . . D5 . .",
-       ". . . Bb4 . . . . . D5 . .",
-       ". . . Eb5 . . . . . G4 . .",
-       ". . . Bb4 . . . . . D5 . .",
-       ". . . G4 . . . . . Bb4 . .",
-       ". . . Eb5 . . . . . G4 . .",
-       ". . . F#4 . . . . . C5 . .",
-       ". . . F#4 . . . . . C5 . ."
+       ". . . C . . . . . CS . .",
+       ". . . C . . . . . CS . s",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . . . CS . s",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . . . CS . s",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . s . CSs s s"
       ],
       "B": [
-       ". . . Bb4 . . . . . G4 . .",
-       ". . . Bb4 . . . . . C5 . .",
-       ". . . Eb5 . . . . . C5 . .",
-       ". . . Bb4 . . . . . D5 . .",
-       ". . . Bb4 . . . . . G4 . .",
-       ". . . Bb4 . . . . . C5 . .",
-       ". . . Eb5 . . . . . C5 . .",
-       ". . . Bb4 . . . . . D5 . ."
+       ". . . C . . . . . C . .",
+       ". . . C . . . . . C . .",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . . . CS . s",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . . . CS . s",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . s . CSs s s"
       ],
       "T": [
-       ". . . Bb4 . . . . . D5 . .",
-       ". . . G4 . . . . . Bb4 . .",
-       ". . . Eb5 . . . . . G4 . .",
-       ". . . Bb4 . . . . . D5 . .",
-       ". . . Eb5 . . . . . G4 . .",
-       ". . . G4 . . . . . Bb4 . .",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . . . CS . s",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . . . CS . s",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . . . CS . s",
+       ". . . C . . . . . CS . .",
+       ". . . C . . . . . C s s"
+      ]
+     },
+     "reverb": -7.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 3200,
+       "Q": 0.9,
+       "gainDb": 3.0
+      },
+      {
+       "type": "highpass",
+       "freq": 150,
+       "Q": -3.0103
+      }
+     ]
+    },
+    "hats": {
+     "kit": "trapHats",
+     "layer": "L0",
+     "gain": 0.42,
+     "stepsPerBeat": 24,
+     "sections": {
+      "A": [
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . ."
+      ],
+      "A2": [
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . .",
+       "h . . . g . . . m . . . m . . . g . . . m . . . h . . . g . . . m . . . m . . . g . . . m . . . h . q . g . g . m . m . m . q . g . g . m . m . h . q . g . g . m . m . m . q . g . g . m . m ."
+      ],
+      "B": [
+       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . q . g . g . m . m . m . q . g . g . m . m ."
+      ],
+      "T": [
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . g . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . . . . . . . . . g . . . . . . . h . . . . . . . g . . . . . . . g . . . . . . . h . q . g . g . m . m . m . q . g . g . m . m ."
+      ]
+     }
+    },
+    "keys": {
+     "instrument": "keys",
+     "layer": "L1",
+     "gain": 0.055,
+     "sections": {
+      "A": [
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . .",
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . .",
+       "G3+C4+Eb4 - - - . . G3+C4+Eb4 - - - . .",
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . .",
+       "G3+C4+Eb4 - - - . . G3+C4+Eb4 - - - . .",
+       "G3+Bb3+Eb4 - - - . . G3+Bb3+Eb4 - - - . .",
+       "A3+D4+Gb4 - - - . . A3+D4+Gb4 - - - . .",
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . ."
+      ],
+      "A2": [
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . .",
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . .",
+       "G3+C4+Eb4 - - - . . G3+C4+Eb4 - - - . .",
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . .",
+       "G3+Bb3+Eb4 - - - . . G3+Bb3+Eb4 - - - . .",
+       "G3+C4+Eb4 - - - . . G3+C4+Eb4 - - - . .",
+       "A3+D4+Gb4 - - - . . A3+D4+Gb4 - - - . .",
+       "A3+D4+Gb4 - - - . . A3+D4+Gb4 - - - . ."
+      ],
+      "B": [
+       "G3+Bb3+D4 - - - . . G3+C4+Eb4 - - - . .",
+       "G3+Bb3+D4 - - - . . A3+D4+Gb4 - - - . .",
+       "G3+C4+Eb4 - - - . . A3+D4+Gb4 - - - . .",
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . .",
+       "G3+Bb3+D4 - - - . . G3+C4+Eb4 - - - . .",
+       "G3+Bb3+D4 - - - . . A3+D4+Gb4 - - - . .",
+       "G3+C4+Eb4 - - - . . A3+D4+Gb4 - - - . .",
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . ."
+      ],
+      "T": [
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . .",
+       "G3+Bb3+Eb4 - - - . . G3+Bb3+Eb4 - - - . .",
+       "G3+C4+Eb4 - - - . . G3+C4+Eb4 - - - . .",
+       "G3+Bb3+D4 - - - . . G3+Bb3+D4 - - - . .",
+       "G3+C4+Eb4 - - - . . G3+C4+Eb4 - - - . .",
+       "G3+Bb3+Eb4 - - - . . G3+Bb3+Eb4 - - - . .",
+       "A3+D4+Gb4 - - - . . A3+D4+Gb4 - - - . .",
+       "G3+Bb3+D4 - - - . . A3+D4+Gb4 - - - . ."
+      ]
+     },
+     "reverb": -9.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 900,
+       "Q": 0.8,
+       "gainDb": -4.0
+      },
+      {
+       "type": "highpass",
+       "freq": 160,
+       "Q": -3.0103
+      }
+     ]
+    },
+    "bells": {
+     "instrument": "bell",
+     "layer": "L1",
+     "gain": 0.25,
+     "sections": {
+      "A": [
+       ". . . . . . . . . . . .",
+       ". . . . . . . . . . . .",
+       ". . . . . . . . . . . .",
+       ". . . . . . . . . . . .",
+       "C5 . G5 Eb5 . C6 G5 . Eb5 C5 . G5",
+       "Eb5 . Bb5 G5 . Eb6 Bb5 . G5 Eb5 . Bb5",
+       "D5 . A5 Gb5 . D6 A5 . Gb5 D5 . A5",
+       "G5 . D6 Bb5 . G6 D6 . Bb5 G5 . D6"
+      ],
+      "A2": [
+       "G5 . D6 Bb5 . G6 D6 . Bb5 G5 . D6",
+       "G5 . D6 Bb5 . G6 D6 . Bb5 G5 . D6",
+       "C5 . G5 Eb5 . C6 G5 . Eb5 C5 . G5",
+       "G5 . D6 Bb5 . G6 D6 . Bb5 G5 . D6",
+       "Eb5 . Bb5 G5 . Eb6 Bb5 . G5 Eb5 . Bb5",
+       "C5 . G5 Eb5 . C6 G5 . Eb5 C5 . G5",
+       "D5 . A5 Gb5 . D6 A5 . Gb5 D5 . A5",
+       "D5 . A5 Gb5 . D6 A5 . Gb5 D5 . A5"
+      ],
+      "B": [
+       ". . . . . . . . . . . ."
+      ],
+      "T": [
+       "G5 . D6 Bb5 . G6 D6 . Bb5 G5 . D6",
+       "Eb5 . Bb5 G5 . Eb6 Bb5 . G5 Eb5 . Bb5",
+       "C5 . G5 Eb5 . C6 G5 . Eb5 C5 . G5",
+       "G5 . D6 Bb5 . G6 D6 . Bb5 G5 . D6",
+       "C5 . G5 Eb5 . C6 G5 . Eb5 C5 . G5",
+       "Eb5 . Bb5 G5 . Eb6 Bb5 . G5 Eb5 . Bb5",
+       "D5 . A5 Gb5 . D6 A5 . Gb5 D5 . A5",
+       ". . . . . . . . . . . ."
+      ]
+     },
+     "reverb": -5.0
+    },
+    "p2": {
+     "instrument": "pluck",
+     "layer": "L1",
+     "gain": 0.26,
+     "sections": {
+      "A": [
+       ". . . . . . . . . . . ."
+      ],
+      "A2": [
+       ". . . . . . . . . . . ."
+      ],
+      "B": [
+       ". . . . . . . . . . . ."
+      ],
+      "T": [
+       ". . . . . . . . . . . .",
+       ". . . . . . . . . . . .",
+       ". . . . . . . . . . . .",
+       ". . . . . . . . . . . .",
+       ". . . . . . . . . . . .",
+       ". . . . . . . . . . . .",
        ". . . F#4 . . . . . . . .",
        "C4 - - D4 - Eb4 - - - F#4 - -"
       ]
-     }
+     },
+     "reverb": -9.0
     },
     "lead": {
-     "instrument": "p1s",
+     "instrument": "pluck",
      "layer": "L2",
-     "gain": 0.34,
+     "gain": 0.23,
      "sections": {
       "A": [
-       "G4@p1 - - A4@p1 - - Bb4@p1 - - C5@p1 - -",
-       "D5@p1 - - - . . D5@p1 - - . . .",
-       "Eb5@p1 - - D5@p1 - - Eb5@p1 - - G5@p1 - -",
-       "D5@p1 - - - . . Bb4 . G4 . . .",
+       "G4@flute - - A4@flute - - Bb4@flute - - C5@flute - -",
+       "D5@flute - - - . . D5@flute - - . . .",
+       "Eb5@flute - - D5@flute - - Eb5@flute - - G5@flute - -",
+       "D5@flute - - - . . Bb4 . G4 . . .",
        "G5 . F5 Eb5 . D5 C5 - - . . .",
        "Bb4 . C5 D5 . Eb5 G5 - - . . .",
        "F#5 - Eb5 D5 - C5 A4 - - . . .",
@@ -1973,14 +7445,33 @@
        "Eb5 . Eb5 D5 . C5 G4 - - . . .",
        "G4 - Bb4 Eb5 - Bb4 G4 - - . . .",
        "F#4 - A4 D5 - - . . . . . G4",
-       "A4@p1 - - Bb4@p1 - C5@p1 - - - D5@p1 - -"
+       "A4@flute - - Bb4@flute - C5@flute - - - D5@flute - -"
       ]
      },
      "fx": {
-      "double": {
-       "cents": 6,
-       "db": -9.0
+      "echo": {
+       "steps": 2,
+       "db": -10.0,
+       "repeats": 2
       }
+     },
+     "reverb": -11.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 1100,
+       "Q": 0.8,
+       "gainDb": -3.0
+      },
+      {
+       "type": "highshelf",
+       "freq": 4500,
+       "Q": 0.7,
+       "gainDb": 2.5
+      }
+     ],
+     "sectionInstrument": {
+      "B": "fluteS"
      }
     }
    },
@@ -2115,7 +7606,7 @@
    "rate": 31968,
    "key": "F",
    "mode": "mixolydian",
-   "mood": "Showbiz glitz on Broadway: Dayenu over the stride (it would have been enough), Siman Tov at the gala; the anthem's minor follows him abroad at bar 32.",
+   "mood": "Showbiz trap: Dayenu over a strutting 808 (it would have been enough), Siman Tov at the gala; the anthem's minor follows him abroad at bar 32.",
    "chords": {
     "A": [
      "F",
@@ -2158,164 +7649,438 @@
      "Fm|C"
     ]
    },
+   "reverb": {
+    "size": 0.72,
+    "damp": 0.45,
+    "predelayMs": 18,
+    "hpHz": 250
+   },
+   "busClip": {
+    "L0": 1.8
+   },
+   "stemEq": {
+    "L0": [
+     {
+      "type": "highpass",
+      "freq": 26,
+      "Q": -3.0103
+     },
+     {
+      "type": "lowshelf",
+      "freq": 90,
+      "Q": 0.7,
+      "gainDb": 3.0
+     },
+     {
+      "type": "peaking",
+      "freq": 170,
+      "Q": 0.9,
+      "gainDb": 3.5
+     },
+     {
+      "type": "peaking",
+      "freq": 2000,
+      "Q": 1.0,
+      "gainDb": 2.5
+     },
+     {
+      "type": "highshelf",
+      "freq": 2500,
+      "Q": 0.7,
+      "gainDb": 3.0
+     }
+    ],
+    "L1": [
+     {
+      "type": "peaking",
+      "freq": 1000,
+      "Q": 0.7,
+      "gainDb": -2.0
+     },
+     {
+      "type": "highshelf",
+      "freq": 6000,
+      "Q": 0.7,
+      "gainDb": 1.5
+     }
+    ],
+    "L2": [
+     {
+      "type": "highshelf",
+      "freq": 6000,
+      "Q": 0.7,
+      "gainDb": 1.5
+     }
+    ]
+   },
+   "busComp": {
+    "L0": {
+     "thresholdDb": -10.0,
+     "ratio": 2.0,
+     "attackMs": 10,
+     "releaseMs": 120
+    }
+   },
    "channels": {
     "bass": {
-     "instrument": "tri",
+     "instrument": "808",
      "layer": "L0",
-     "gain": 0.46,
+     "gain": 0.56,
      "sections": {
       "A": [
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . ."
+       "F1 - - - - - - . F1 - - - - - - .",
+       "F1 - - - - - - . F1 - - - - - - .",
+       "F1 - - - - - - . C2 - - - - - - .",
+       "F1 - - - - - - . F1 - - - - - - .",
+       "F1 - - - - - - . F1 - - - - - - .",
+       "F1 - - - - - - . F1 - - - - - - .",
+       "F1 - - - - - - . C2 - - - - - - .",
+       "F1 - - - - - - . F1 - - - - - - ."
       ],
       "A2": [
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "Bb2@triOne - . . . . . . F3 - . . . . . .",
-       "C3@triOne - . . . . . . G3 - . . . . . .",
-       "C3@triOne - . . . . . . F3 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "Bb2@triOne - . . . . . . F3 - . . . . . .",
-       "C3@triOne - . . . . . . G3 - . . . . . .",
-       "C3@triOne - . . . . . . F3 - . . . . . ."
+       "F1 - - - - - . F2@808u12 - . C2 - - C2 - -",
+       "Bb1 - - - - - . Bb2@808u12 - . F1 - - F1 - -",
+       "C2 - - - - - . C3@808u12 - . C2 - - C2 - -",
+       "C2 - - - - - . C3@808u12 - . F1 - - F1 - -",
+       "F1 - - - - - . F2@808u12 - . C2 - - C2 - -",
+       "Bb1 - - - - - . Bb2@808u12 - . F1 - - F1 - -",
+       "C2 - - - - - . C3@808u12 - . C2 - - C2 - -",
+       "C2 - - - - - . C3@808u12 - . F1 - - F1 - -"
       ],
       "B": [
-       "D3@triOne - . . . . . . A2 - . . . . . .",
-       "D3@triOne - . . . . . . A2 - . . . . . .",
-       "D3@triOne - . . . . . . A2 - . . . . . .",
-       "D3@triOne - . . . . . . A2 - . . . . . .",
-       "G3@triOne - . . . . . . D3 - . . . . . .",
-       "A2@triOne - . . . . . . D3 - . . . . . .",
-       "G3@triOne - . . . . . . A2 - . . . . . .",
-       "D3@triOne - . . . . . . A2 - . . . . . ."
+       "D2 - - - - - . D3@808u12 - . D2 - - D2 - -",
+       "D2 - - - - - . D3@808u12 - . D2 - - D2 - -",
+       "D2 - - - - - . D3@808u12 - . D2 - - D2 - -",
+       "D2 - - - - - . D3@808u12 - . D2 - - D2 - -",
+       "G1 - - - - - . G2@808u12 - . G1 - - G1 - -",
+       "A1 - - - - - . A2@808u12 - . D2 - - D2 - -",
+       "G1 - - - - - . G2@808u12 - . A1 - - A1 - -",
+       "D2 - - - - - . D3@808u12 - . D2 - - D2 - -"
       ],
       "T": [
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "Eb3@triOne - . . . . . . Bb2 - . . . . . .",
-       "Bb2@triOne - . . . . . . F3 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "G3@triOne - . . . . . . D3 - . . . . . .",
-       "Eb3@triOne - . . . . . . Bb2 - . . . . . .",
-       "F3@triOne - . . . . . . C3 - . . . . . .",
-       "F3@triOne - . . . . Db3 - . . . . C3 - . ."
+       "F1 - - - - - . F2@808u12 - . F1 - - F1 - -",
+       "Eb2 - - - - - . Eb3@808u12 - . Eb2 - - Eb2 - -",
+       "Bb1 - - - - - . Bb2@808u12 - . Bb1 - - Bb1 - -",
+       "F1 - - - - - . F2@808u12 - . F1 - - F1 - -",
+       "G1 - - - - - . G2@808u12 - . G1 - - G1 - -",
+       "Eb2 - - - - - . Eb3@808u12 - . Eb2 - - Eb2 - -",
+       "F1 - - - - - . F2@808u12 - . F1 - - F1 - -",
+       "F1 - - - - - - . C2 - - - - - - -"
       ]
+     },
+     "duck": {
+      "by": "drums",
+      "hits": [
+       "kick"
+      ],
+      "db": -5.0,
+      "attackMs": 2,
+      "holdMs": 15,
+      "releaseMs": 120
+     },
+     "comp": {
+      "thresholdDb": -9.0,
+      "ratio": 3.0,
+      "attackMs": 30,
+      "releaseMs": 200
      }
     },
     "drums": {
-     "kit": "darbuka",
+     "kit": "trap",
      "layer": "L0",
-     "gain": 0.38,
+     "gain": 0.9,
      "sections": {
       "A": [
-       "D . j . T . j . D . j . T . j .",
-       "D . j . T . j . D . jk . T k j .",
-       "D . j . T . j . D . j . T . j .",
-       "D . j . T . j . D . jk . T k j .",
-       "D . j . T . j . D . j . T . j .",
-       "D . j . T . j . D . jk . T k j .",
-       "D . j . T . j . D . j . T . j .",
-       "Do . j . Tj . j . Dj . kj . Tk . T k"
+       "K . . . R . . . . . K . R . . .",
+       "K . . . R . . . . . K . R . . .",
+       "K . . . R . . . . . K . R . . .",
+       "K . . . R . . . . . K . R . . .",
+       "K . . . R . . . . . K . R . . .",
+       "K . . . R . . . . . K . R . . .",
+       "K . . . R . . . . . K . R . . .",
+       "K . . . . . . K . . . . . . . ."
       ],
       "A2": [
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Do . j . Tj . j . Dj . kj . Tk . T k"
+       "K . . . R . . K . . K . . . . .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . . R . . K . . K . . . . .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . . R . . K . . K . . . . .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . . R . . K . . K . . . . .",
+       "K . . . . . . K . . . . . . . ."
       ],
       "B": [
-       "D . . . . . . . D . . . T . . .",
-       "D . . . . . . . D . k . T k . .",
-       "D . . . . . . . D . . . T . . .",
-       "D . . . . . . . D . k . T k . .",
-       "D . . . . . . . D . . . T . . .",
-       "D . . . . . . . D . k . T k . .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Do . j . Tj . j . Dj . kj . Tk . T k"
+       ". . . . R . . . . . . . R . . .",
+       ". . . . R . . . . . . . R . . .",
+       "K . . . R . . K . . K . . . . .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . . R . . K . . K . . . . .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . . R . . K . . K . . . . .",
+       "K . . . . . . K . . . . . . . ."
       ],
       "T": [
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Dj . j . Tj . j . Dj . jk . Tj k j .",
-       "Dj . j . Tj . j . Dj . j . Tj . j .",
-       "Do . j . Tj . j . Dj . j . Tj . . ."
+       "K . . . R . . K . . K . . . . .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . . R . . K . . K . . . . .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . . R . . K . . K . . . . .",
+       "K . . . R . . K . . K . R . K .",
+       "K . . . R . . K . . K . . . . .",
+       "K . . . . . . . K . . . . . . ."
       ]
      }
+    },
+    "snares": {
+     "kit": "trap",
+     "layer": "L0",
+     "gain": 1.5,
+     "sections": {
+      "A": [
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . CS . s . s s s s"
+      ],
+      "A2": [
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . s . s s s s"
+      ],
+      "B": [
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . C . . . . . . .",
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . s . s s s s"
+      ],
+      "T": [
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . CS . . . . . . .",
+       ". . . . . . . . CS . . . . . s .",
+       ". . . . . . . . C . . . s s s s"
+      ]
+     },
+     "reverb": -7.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 3200,
+       "Q": 0.9,
+       "gainDb": 3.0
+      },
+      {
+       "type": "highpass",
+       "freq": 150,
+       "Q": -3.0103
+      }
+     ]
+    },
+    "hats": {
+     "kit": "trapHats",
+     "layer": "L0",
+     "gain": 0.62,
+     "stepsPerBeat": 24,
+     "sections": {
+      "A": [
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . ."
+      ],
+      "A2": [
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . q . . g . . m . . m . . q . . g . . m . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . q . . g . . m . . m . . q . . g . . m . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . m . . q . . g . . m . . h . q . g . g . m . m . m . q . g . g . m . m ."
+      ],
+      "B": [
+       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . o . . . . . . . . . . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . q . . g . . m . . m . . q . . g . . m . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . q . g . g . m . m . m . q . g . g . m . m ."
+      ],
+      "T": [
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . q . . g . . m . . m . . q . . g . . m . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . q . g . g . m . m . m . q . g . g . m . m .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . q . . g . . m . . m . . q . . g . . m . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . q . . g . . m . . m . . q . . g . . m . .",
+       "h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . . . . . . . o . . . . . . . . . . . h . . . . . m . . . . . m . . . . . m . . . . . h . . . . . m . . . . . m . . . g . . . m . . .",
+       "h . . . . . . . . . . . m . . . . . . . . . . . h . . . . . . . . . . . m . . . . . . . . . . . h . . . g . . . m . . . m . . . g . . . m . . . h . . q . . g . . m . . m . . q . . g . . m . ."
+      ]
+     }
+    },
+    "keys": {
+     "instrument": "keys",
+     "layer": "L1",
+     "gain": 0.055,
+     "sections": {
+      "A": [
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -"
+      ],
+      "A2": [
+       "A3+C4+F4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "Bb3+D4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "G3+C4+E4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "G3+C4+E4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "Bb3+D4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "G3+C4+E4 - - - - - - - G3+C4+E4 - - - - - - -",
+       "G3+C4+E4 - - - - - - - A3+C4+F4 - - - - - - -"
+      ],
+      "B": [
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - G3+Bb3+D4 - - - - - - -",
+       "A3+Db4+E4 - - - - - - - A3+D4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - A3+Db4+E4 - - - - - - -",
+       "A3+D4+F4 - - - - - - - A3+D4+F4 - - - - - - -"
+      ],
+      "T": [
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "G3+Bb3+Eb4 - - - - - - - G3+Bb3+Eb4 - - - - - - -",
+       "Bb3+D4+F4 - - - - - - - Bb3+D4+F4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "G3+Bb3+D4 - - - - - - - G3+Bb3+D4 - - - - - - -",
+       "G3+Bb3+Eb4 - - - - - - - G3+Bb3+Eb4 - - - - - - -",
+       "A3+C4+F4 - - - - - - - A3+C4+F4 - - - - - - -",
+       "Ab3+C4+F4 - - - - - - - G3+C4+E4 - - - - - - -"
+      ]
+     },
+     "reverb": -9.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 900,
+       "Q": 0.8,
+       "gainDb": -4.0
+      },
+      {
+       "type": "highpass",
+       "freq": 160,
+       "Q": -3.0103
+      }
+     ]
+    },
+    "bells": {
+     "instrument": "bell",
+     "layer": "L1",
+     "gain": 0.25,
+     "sections": {
+      "A": [
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       "F5 . A5 . C6 . F6 . . . C6 . A5 . . .",
+       "F5 . A5 . C6 . F6 . . . C6 . A5 . . .",
+       "F5 . A5 . C6 . F6 . . . G5 . E5 . . .",
+       "F5 . A5 . C6 . F6 . . . C6 . A5 . . ."
+      ],
+      "A2": [
+       "F5 . A5 . C6 . F6 . . . G5 . E5 . . .",
+       "Bb5 . D6 . F6 . Bb6 . . . C6 . A5 . . .",
+       "C5 . E5 . G5 . C6 . . . G5 . E5 . . .",
+       "C5 . E5 . G5 . C6 . . . C6 . A5 . . .",
+       "F5 . A5 . C6 . F6 . . . G5 . E5 . . .",
+       "Bb5 . D6 . F6 . Bb6 . . . C6 . A5 . . .",
+       "C5 . E5 . G5 . C6 . . . G5 . E5 . . .",
+       "C5 . E5 . G5 . C6 . . . C6 . A5 . . ."
+      ],
+      "B": [
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       "G5 . Bb5 . D6 . G6 . . . D6 . Bb5 . . .",
+       "A5 . Db6 . E6 . A6 . . . A5 . F5 . . .",
+       "G5 . Bb5 . D6 . G6 . . . E6 . Db6 . . .",
+       "D5 . F5 . A5 . D6 . . . A5 . F5 . . ."
+      ],
+      "T": [
+       "F5 . A5 . C6 . F6 . . . C6 . A5 . . .",
+       "Eb5 . G5 . Bb5 . Eb6 . . . Bb5 . G5 . . .",
+       "Bb5 . D6 . F6 . Bb6 . . . F6 . D6 . . .",
+       "F5 . A5 . C6 . F6 . . . C6 . A5 . . .",
+       "G5 . Bb5 . D6 . G6 . . . D6 . Bb5 . . .",
+       "Eb5 . G5 . Bb5 . Eb6 . . . Bb5 . G5 . . .",
+       "F5 . A5 . C6 . F6 . . . C6 . A5 . . .",
+       ". . . . . . . . . . . . . . . ."
+      ]
+     },
+     "reverb": -5.0
     },
     "p2": {
-     "instrument": "p2stab",
+     "instrument": "pluck",
      "layer": "L1",
-     "gain": 0.24,
-     "sectionInstrument": {
-      "A": "p2stab",
-      "A2": "p2stab",
-      "B": "p2stab",
-      "T": "p2stab"
-     },
-     "sectionGain": {
-      "A": 2.8,
-      "A2": 2.8,
-      "B": 2.8,
-      "T": 2.8
-     },
+     "gain": 0.22,
      "sections": {
       "A": [
-       ". . . . A4 . . . . . . . Eb5 . . .",
-       ". . . . A4 . . . . . . . Eb5 . . .",
-       ". . . . A4 . . . . . . . Bb4 . . .",
-       ". . . . A4 . . . . . . . Eb5 . . .",
-       ". . . . A4 . . . . . . . Eb5 . . .",
-       ". . . . A4 . . . . . . . Eb5 . . .",
-       ". . . . A4 . . . . . . . Bb4 . . .",
-       ". . . . A4 . . . . . . . Eb5 . . ."
+       ". . . . . . . . . . . . . . . ."
       ],
       "A2": [
-       ". . . . A4 . . . . . . . Bb4 . . .",
-       ". . . . F4 . . . . . . . Eb5 . . .",
-       ". . . . E4 . . . . . . . Bb4 . . .",
-       ". . . . E4 . . . . . . . Eb5 . . .",
-       ". . . . A4 . . . . . . . Bb4 . . .",
-       ". . . . F4 . . . . . . . Eb5 . . .",
-       ". . . . E4 . . . . . . . Bb4 . . .",
-       ". . . . E4 . . . . . . . Eb5 . . ."
+       ". . . . . . . . . . . . . . . ."
       ],
       "B": [
-       ". . . . F4 . . . . . . . A4 . . .",
-       ". . . . F4 . . . . . . . A4 . . .",
-       ". . . . F4 . . . . . . . A4 . . .",
-       ". . . . F4 . . . . . . . A4 . . .",
-       ". . . . Bb4 . . . . . . . D5 . . .",
-       ". . . . C#5 . . . . . . . A4 . . .",
-       ". . . . Bb4 . . . . . . . G4 . . .",
-       ". . . . F4 . . . . . . . A4 . . ."
+       ". . . . . . . . . . . . . . . ."
       ],
       "T": [
-       ". . . . A4 . . . . . . . Eb5 . . .",
-       ". . . . G4 . . . . . . . Bb4 . . .",
-       ". . . . F4 . . . . . . . D5 . . .",
-       ". . . . A4 . . . . . . . Eb5 . . .",
-       ". . . . Bb4 . . . . . . . D5 . . .",
-       ". . . . G4 . . . . . . . Bb4 . . .",
-       ". . . . A4 . . . . . . . Eb5 . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
+       ". . . . . . . . . . . . . . . .",
        "Bb4 - - - C5 - Db5 - - - - - E5 - - -"
       ]
-     }
+     },
+     "reverb": -9.0
     },
     "lead": {
-     "instrument": "p1",
+     "instrument": "flute",
      "layer": "L2",
-     "gain": 0.33,
+     "gain": 0.18,
      "sections": {
       "A": [
        "A4 - C5 - C5 - C5 - C5 - D5 - C5 - Bb4 -",
@@ -2359,16 +8124,27 @@
       ]
      },
      "fx": {
-      "double": {
-       "cents": 7,
-       "db": -8.0
-      },
       "echo": {
        "steps": 3,
-       "db": -11.0,
+       "db": -10.0,
        "repeats": 2
       }
-     }
+     },
+     "reverb": -11.0,
+     "eq": [
+      {
+       "type": "peaking",
+       "freq": 1100,
+       "Q": 0.8,
+       "gainDb": -3.0
+      },
+      {
+       "type": "highshelf",
+       "freq": 4500,
+       "Q": 0.7,
+       "gainDb": 2.5
+      }
+     ]
     }
    },
    "tapLine": {
@@ -2523,8 +8299,8 @@
    "_markers": "rollEnd = the motif downbeat + crash (the visual IMPACT); pickup = the C#-D lift; tagOnsets = each tag's start; fanfareEnd = musicalSamples (the new loop's bar 1).",
    "channels": {
     "lead": {
-     "instrument": "p1",
-     "gain": 0.34,
+     "instrument": "flute",
+     "gain": 0.4,
      "bars": [
       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . C#5 - D5 -",
       "E5 - - - - - - - F5 - - - G5 - - - - - - - - - - - A5 - - - - - - -",
@@ -2533,8 +8309,8 @@
      ]
     },
     "p2": {
-     "instrument": "p2b",
-     "gain": 0.26,
+     "instrument": "keys",
+     "gain": 0.3,
      "bars": [
       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . F4 - - -",
       "G4 - - - - - - - A4 - - - Bb4 - - - - - - - - - - - C#5 - - - - - - -",
@@ -2543,21 +8319,21 @@
      ]
     },
     "bass": {
-     "instrument": "tri",
-     "gain": 0.46,
+     "instrument": "808",
+     "gain": 0.5,
      "bars": [
       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
-      "D3 - - - - - . . . . . . Bb2 - - - - - - - - - . . A2 - - - - - - -",
-      ". . . . A2 - - - - - - - - - . . . . . . A2 - - - - - - - - - . .",
-      ". . . . A2 - - - - - - - - - . . . . . . A2 - - - - - - - - - . ."
+      "D2 - - - - - . . . . . . Bb1 - - - - - - - - - . . A1 - - - - - - -",
+      ". . . . A1 - - - - - - - - - . . . . . . A1 - - - - - - - - - . .",
+      ". . . . A1 - - - - - - - - - . . . . . . A1 - - - - - - - - - . ."
      ]
     },
     "kit": {
-     "kit": "fanfare",
-     "gain": 0.45,
+     "kit": "trapFanfare",
+     "gain": 0.5,
      "bars": [
-      "1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 4 4 4 4 4 4 4 4",
-      "X D . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+      "1 . . . 1 . . . 2 . 2 . 2 . 2 . 3 3 3 3 3 3 3 3 4 4 4 4 4 4 4 4",
+      "X K . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
       ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."
      ]
@@ -2572,9 +8348,10 @@
     "G"
    ],
    "writtenIn": "G",
+   "_v2": "v2.0: the augmented motif on the soft keys (was TRI), the slapback kept.",
    "channels": {
     "bass": {
-     "instrument": "tri",
+     "instrument": "keys",
      "gain": 0.6,
      "bars": [
       ". . . . . . . . . G3 - -",
@@ -2587,7 +8364,7 @@
     "ms": 180,
     "db": -12
    },
-   "_note": "TRI reaches D4 (294 Hz) here, 2 semitones over the bass rule, to keep the rise in one octave."
+   "_note": "The keys play the rise G3-D4 in one octave."
   },
   "motif": {
    "stepsPerBeat": 4,
@@ -2601,8 +8378,8 @@
    ],
    "channels": {
     "lead": {
-     "instrument": "p1",
-     "gain": 0.36,
+     "instrument": "flute",
+     "gain": 0.4,
      "bars": [
       "D5 -",
       "E5 - - - F5 - G5 - - - - - A5 - - -"
@@ -2669,7 +8446,7 @@
    ],
    "channels": {
     "p2": {
-     "instrument": "p2b",
+     "instrument": "bell",
      "gain": 0.34,
      "bars": [
       "D5 - E5 - - - F5 - . . . . . . . ."

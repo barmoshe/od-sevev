@@ -1875,7 +1875,7 @@
 			}
 		},
 		"tap": {
-			"burstMax": -16.92,
+			"burstMax": -17.91,
 			"bus": "SFX-Frequent",
 			"ducks": [],
 			"files": {
@@ -1891,11 +1891,11 @@
 				}
 			},
 			"jitterDb": 1.5,
-			"lengthMs": 596.0,
+			"lengthMs": 465.5,
 			"limitedBy": "target",
 			"meaning": "The trick worked; money came out, to the next note of HaTikva.",
-			"momentaryMax": -22.79,
-			"play_db": -8.23,
+			"momentaryMax": -23.88,
+			"play_db": -6.47,
 			"poly": 6.0,
 			"priority": 2.0,
 			"runtime": "Each tap plays the next note of the playing era's tapLine (HaTikva in the era's anthem key, music.json), from the bell root (variant r<midi>) nearest the note, at pitch_scale 2^(semitones/12). The anthem runs on through pauses and court day and wraps at its end; a new round starts it from the top. A stolen voice fades over 30 ms. Gain jitter +-1.5 dB.",
@@ -2094,7 +2094,7 @@
 			}
 		},
 		"ultimatumTick": {
-			"burstMax": -22.92,
+			"burstMax": -23.91,
 			"bus": "SFX-Critical",
 			"ducks": [],
 			"files": {
@@ -2108,8 +2108,8 @@
 			"lengthMs": 15.5,
 			"limitedBy": "target",
 			"meaning": "Pay before zero or they walk.",
-			"momentaryMax": -28.94,
-			"play_db": -1.81,
+			"momentaryMax": -29.93,
+			"play_db": -2.8,
 			"poly": 1.0,
 			"priority": 3.0,
 			"runtime": "One per displayed second, alternating tick/tock. In the last 3 s: two per second, and force L2 off (tension by subtraction). No duck (a tick every 500 ms would pump the music).",
@@ -2312,10 +2312,10 @@
 			"loopSamples": 2112000,
 			"loopSeconds": 66.2069,
 			"lufs": {
-				"L0": -22.83,
-				"L1": -26.29,
-				"L2": -22.09,
-				"full": -19.3
+				"L0": -21.71,
+				"L1": -33.78,
+				"L2": -27.85,
+				"full": -20.5
 			},
 			"mode": "minor",
 			"outside": {
@@ -2328,13 +2328,13 @@
 					99000
 				],
 				"loopSamples": 132000,
-				"play_db": -7.95
+				"play_db": -6.83
 			},
-			"play_db": -4.03,
+			"play_db": -13.28,
 			"rate": 31900,
 			"stepSamples": 4125,
 			"stepsPerBar": 16,
-			"sumPeakDbfs": -3.24,
+			"sumPeakDbfs": -11.09,
 			"tapLine": {
 				"midi": [
 					74.0,
@@ -2471,17 +2471,17 @@
 			"loopSamples": 1923840,
 			"loopSeconds": 87.2727,
 			"lufs": {
-				"L0": -24.84,
-				"L1": -31.8,
-				"L2": -21.72,
-				"full": -20.3
+				"L0": -22.39,
+				"L1": -34.49,
+				"L2": -29.34,
+				"full": -21.5
 			},
 			"mode": "minor",
-			"play_db": -5.37,
+			"play_db": -13.62,
 			"rate": 22044,
 			"stepSamples": 5010,
 			"stepsPerBar": 12,
-			"sumPeakDbfs": -2.08,
+			"sumPeakDbfs": -10.97,
 			"tapLine": {
 				"midi": [
 					67.0,
@@ -2618,17 +2618,17 @@
 			"loopSamples": 1863680,
 			"loopSeconds": 58.1818,
 			"lufs": {
-				"L0": -22.53,
-				"L1": -28.38,
-				"L2": -22.32,
-				"full": -19.3
+				"L0": -21.44,
+				"L1": -30.91,
+				"L2": -29.35,
+				"full": -20.5
 			},
 			"mode": "minor",
-			"play_db": -5.12,
+			"play_db": -13.62,
 			"rate": 32032,
 			"stepSamples": 3640,
 			"stepsPerBar": 16,
-			"sumPeakDbfs": -3.11,
+			"sumPeakDbfs": -10.51,
 			"tapLine": {
 				"midi": [
 					76.0,
@@ -2765,17 +2765,17 @@
 			"loopSamples": 1704960,
 			"loopSeconds": 53.3333,
 			"lufs": {
-				"L0": -23.03,
-				"L1": -28.43,
-				"L2": -21.14,
-				"full": -19.3
+				"L0": -21.68,
+				"L1": -33.14,
+				"L2": -27.98,
+				"full": -20.5
 			},
 			"mode": "mixolydian",
-			"play_db": -4.56,
+			"play_db": -13.01,
 			"rate": 31968,
 			"stepSamples": 3330,
 			"stepsPerBar": 16,
-			"sumPeakDbfs": -3.4,
+			"sumPeakDbfs": -11.34,
 			"tapLine": {
 				"midi": [
 					74.0,
@@ -2973,8 +2973,8 @@
 		},
 		"music_bytes": 9237588,
 		"outside_bytes": 53847,
-		"sfx_bytes": 1006162,
-		"stinger_bytes": 1486635
+		"sfx_bytes": 995986,
+		"stinger_bytes": 1532611
 	},
 	"stingers": {
 		"courtIn": {
@@ -2990,7 +2990,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -8.73,
+			"play_db": -9.2,
 			"target": {
 				"lufs": -16.0,
 				"type": "momentary"
@@ -3348,7 +3348,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -1.47,
+			"play_db": -1.76,
 			"target": {
 				"lufs": -17.0,
 				"type": "integrated"
@@ -3391,7 +3391,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -9.31,
+			"play_db": -5.44,
 			"target": {
 				"lufs": -15.0,
 				"type": "burst"
@@ -3434,7 +3434,7 @@
 				}
 			},
 			"limitedBy": "target",
-			"play_db": -5.5,
+			"play_db": -9.59,
 			"target": {
 				"lufs": -15.0,
 				"type": "momentary"

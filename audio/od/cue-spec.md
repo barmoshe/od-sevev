@@ -56,6 +56,23 @@
 > - **Level:** music −19.3 LUFS (v1.7: −18.3). Payload unchanged (music 8.81 MB).
 > - **v1.9 (same day), the traditional songs** (Bar: "try again" once the sheet-music sites were reachable; his mapping, with Ma'oz Tzur for the Courthouse so Shalom Chaverim plays once). Every era plays two tunes people know: Balfour A HaTikva, B **Hava Nagila** (parts A and B, its own key D freygish); Knesset A **Hevenu Shalom Aleichem** (Dm → Em), A' the same fought over (P2 the melody, P1 snatching every pickup), B **Shalom Chaverim** as a round (P2 two bars behind); Courthouse B **Ma'oz Tzur** (D major → G minor, the leading tone kept); Washington A **Dayenu**'s verse (twice, the second an octave up), A' its chorus, B **Siman Tov u'Mazal Tov** (the freilach, Gm → D minor). Sources (all public-domain melodies) are in compose_od.py `TUNES`: flutetunes.com (Hava Nagila, Dayenu, Ma'oz Tzur), John Chambers' ABC (Hava Nagila, Hevenu, Siman Tov), Musica Viva (Shalom Chaverim). `check_tunes` holds each home (`TUNE_HOMES`) to its source note for note; the quote check skips a tune only in its home; bar 1 now resolves onto the tonic chord (Hevenu enters on 5, Dayenu on 3). Payload unchanged.
 
+> **v2.1 (2026-10-04, Bar: "the subs", "CC0 one-shots", "mix and master it, in the game, with the SFX"; ADR 0011):**
+> - **Samples:** the kit and the 808 are CC0 one-shots (`audio/od/samples/SOURCES.md`); the 808 sample is tuned per note and glides legato from the previous note (110 ms). The Knesset is drill (shifted snare, tresillo hats, a distorted drill 808).
+> - **The render's mix:** the 808 ducks 5 dB under the kick; one reverb per layer; per-channel EQ and compression; per-stem EQ, glue and a soft clipper (`gen_od_sevev.gd`, `compose_od.py` `MIX` / `STEM_EQ` / `BUS_COMP`).
+> - **Levels:** the music target is now **−20.5 LUFS** (all three layers; the Courthouse −21.5). In the game (tools/mix_session.gd): music + SFX −17.4 LUFS integrated (mobile guidance −18 ± 2), true peak −1.1 dBTP; music alone −18.9, SFX alone −18.6.
+> - **Buses:** master HPF 28 Hz; limiter ceiling −1.5 dB; MusicEQ 3.2 kHz −1.5 dB, 10 kHz flat; a new `MusicTension` low-pass (Music effect 2, bypassed while open).
+> - **Dynamic (`audio.gd`):** while the player taps (last tap < 250 ms ago), MusicEQ's 1 kHz band dips −3 dB (30 ms in, 600 ms back): the HaTikva bell's slot. In an ultimatum's last 3 s MusicTension glides down to 900 Hz (2.4 s) and opens in 150 ms when it ends, is paid or hits zero.
+> - **The tap** (Bar: "improve the tapping sound effect"): still the next note of HaTikva from the six bell roots, now a soft mallet tick (noise at 2 kHz, 6 ms, in place of the 5 kHz metal puff), a gentle thud (120 → 70 Hz) and a marimba / kalimba tone (a 25-cent pluck fall into pitch, a double 6 cents up, the octave, a fast 4th partial, a warm triangle); 0.42 s instead of 0.55 (`lengthMs` 466).
+> - **Check it in the game:** `tools/mix_session.gd` (Movie Maker; see its header) records a scripted 95 s session through the real runtime.
+
+> **v2.0 (2026-10-04, Bar: "reinvent the music style ... less 8-bit and more trap hip-hop"; ADR 0011), the Audio Director:**
+> - **Kept:** every tune and its chords (HaTikva in Balfour A, Hava Nagila, Hevenu, Shalom Chaverim, Ma'oz Tzur, Dayenu, Siman Tov), the tempos, keys, the 32-bar A/A′/B/T form, the bar-32 motif cadence, the tap's HaTikva and bell, the Outside drum line, court day, the anti-fatigue plan, every file name and the manifest schema. No runtime change.
+> - **The voices:** L0 = a driven-sine **808** (a 35 ms pitch punch, slides `@808up` / `@808dn`, a knock an octave up for phone speakers) + the **trap kit** (kick, clap + snare on the backbeat, ghost snares, rim, the darbuka tek kept as a ghost perc) + **hats** on their own 24-steps-a-beat grid (8ths, 16ths, 16th-triplet and 32nd rolls, open hats). L1 = soft **keys** (re-struck chords) + dark **bells** (a 3+3+2 arpeggio bounce) + the counter-line on a pluck or short flute. L2 = the lead on a breathy **flute** (Courthouse: a pluck, the anthem contour on the flute).
+> - **Per era:** Balfour melodic trap, clap on 3, A held back under the anthem, B drops out for two bars under Hava Nagila; Knesset drill-leaning (sliding 808s, triplet hats, a late second snare); Courthouse slow swung trap (claps on 2 and 4, triplet hats; the era slapback is gone, the lead has a 2-step echo); Washington showbiz trap at 144 (open-hat lifts, a rim under the clap).
+> - **Stingers:** `motif` on the flute; `fanfare` a trap snare roll (8ths → 16ths → 32nds, same markers), the kick under the crash, the 808 an octave down, P2 on the keys; `courtIn` on the keys; `milestone` on the bells. `trophy` and `dubiFlash` (Dubi's chip voice) and every SFX cue are unchanged.
+> - **Tools:** `lib_dsp.gd` gains an optional `drive` (tanh); `gen_od_sevev.gd` lets a channel carry its own `stepsPerBeat` and its own `slapback`.
+> - **Level:** music still −19.3 LUFS (Courthouse −20.3); layers L0 ≈ L2, L1 about 5-6 LU under them. Payload unchanged (music 8.81 MB).
+
 > **v1.11 (2026-10-03, Bar: "it should play HaTikva when you tap the character, every tap a note"; ADR 0010):**
 > - **Every tap on the character is the next note of HaTikva, in every era.** Each era's `tapLine` is now the whole anthem (105 notes: the first section and its repeat, "עוד לא אבדה", and the last two lines twice), from the Hatikvah score on English Wikipedia (the LilyPond block; section A is the same score anthem-scores converted), checked by parsing it and the Hebrew Wikipedia score. v1.6's section B, written from memory, was wrong and is gone.
 > - **Its key per era:** Balfour D, Knesset E, Courthouse G (from G4), Washington **D minor** (the relative minor of its F, so no A-flat against the stride). It runs on through pauses and court day (the next note, in the new key) and wraps at its end; a new round starts it from the top. It no longer follows the music's position.
@@ -129,10 +146,10 @@
 
   | Era | Key and mode | Tempo | Groove |
   |---|---|---|---|
-  | balfour | D minor | 116 BPM | hora |
-  | knesset | E minor | 132 BPM | maqsum |
-  | courthouse | G minor | 88 BPM | half-time swing, 180 ms slapback baked in |
-  | washington | F Mixolydian, with a minor turn at the cadences | 144 BPM | stride |
+  | balfour | D minor | 116 BPM | melodic trap, clap on 3 (v2.0; was hora) |
+  | knesset | E minor | 132 BPM | drill-leaning trap, sliding 808s (v2.0; was maqsum) |
+  | courthouse | G minor | 88 BPM | slow swung trap, claps on 2 and 4 (v2.0; was half-time swing with a slapback) |
+  | washington | F Mixolydian, with a minor turn at the cadences | 144 BPM | showbiz trap, open-hat lifts (v2.0; was stride) |
 
 - **Form:** every era is 32 bars, A(1-8) A′(9-16) B(17-24) T(25-32). Bar 32 is the motif.
   - The motif rises 1-2-♭3-4 to a held 5 over V. That 5 resolves onto the i chord at the downbeat of the loop's own bar 1, so the seam is a cadence.
@@ -142,9 +159,9 @@
 
 | Layer | Voices | On when |
 |---|---|---|
-| L0 | TRI bass, darbuka | always, while music plays |
-| L1 | P2: stabs and comp in A/A′/T, **the complete B melody** | `sources_owned >= 1` (the first money source is bought); it then stays on |
-| L2 | P1 lead | **v1.10:** the taps rest: the last Magician tap was ≥ 2000 ms ago. A tap ramps it out in 120 ms (the player plays the song); it comes back at a bar line. (Was: < 3000 ms after a tap.) |
+| L0 | **v2.0:** the 808, the trap kit, the hats (was TRI bass, darbuka) | always, while music plays |
+| L1 | **v2.0:** keys, bells, the counter-line (Knesset: its A′ hocket and B round) | `sources_owned >= 1` (the first money source is bought); it then stays on |
+| L2 | the lead (**v2.0:** flute; was P1) | **v1.10:** the taps rest: the last Magician tap was ≥ 2000 ms ago. A tap ramps it out in 120 ms (the player plays the song); it comes back at a bar line. (Was: < 3000 ms after a tap.) |
 
 **L2 is forced off:**
 - during court day;
