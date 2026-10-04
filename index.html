@@ -38,14 +38,15 @@
 			// the users data"): a device last here under another epoch keeps nothing of ours. Every odsevev.*
 			// key goes before anything below reads one: the analytics memory (seen, t0, first, last), the
 			// sound choice, the accepted disclaimer, the share ref. The engine wipes its own save and settings
-			// (SaveStore).
+			// (SaveStore). The one key that stays is odsevev.me, the maker's ?me=1 mark.
 			(function () {
 				var E = '7';
 				try {
 					if (localStorage.getItem('odsevev.epoch') !== E) {
 						for (var i = localStorage.length - 1; i >= 0; i--) {
 							var k = localStorage.key(i);
-							if (k && k.indexOf('odsevev.') === 0) {
+							// odsevev.me (the maker's ?me=1 mark) is about the browser, not the game: it stays
+							if (k && k.indexOf('odsevev.') === 0 && k !== 'odsevev.me') {
 								localStorage.removeItem(k);
 							}
 						}
@@ -938,7 +939,7 @@ html.od-framed #od-phone {
 
 		<script>
 // Build stamp (the git commit), written in by tools/build_web.sh; Settings shows it.
-window.mbBuild = '1e3a3d2';
+window.mbBuild = 'e16b799+';
 // The deployed origin (OD_SITE_URL, tools/build_web.sh; its default is ShareKit.SITE_URL): the link
 // on the share cards, in the share texts and in the OG tags above.
 window.odSiteUrl = 'https://od-sevev.bar-builds.com/';
