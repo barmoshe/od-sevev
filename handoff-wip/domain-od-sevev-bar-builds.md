@@ -23,7 +23,7 @@ CLI deploy from the Mac, `window.mbBuild` = `095bcf0`). Steps 1-4 done, 5 half d
 - [x] **5. Search Console:** property verified, `sitemap.xml` submitted (second try took), indexing requested
   for `/` (already "on Google", 1 invalid **Events** structured-data item flagged) and `/about.html`.
   IndexNow 202, Bing ping 200. **Left:** Bing Webmaster → Add a site → Import from GSC stops at a Google
-  view-only grant to Bing; waiting for Bar's OK (or Bar clicks Continue himself).
+  view-only grant to Bing; waiting for Bar's OK (or Bar clicks Continue).
 - [x] **When done:** `STATUS.md` line, `HANDOFF.md` host lines (`f1bca3a`); web-dist `26607a7` = the live build.
 
 ## 1. DNS in GoDaddy (Chrome, Bar's logged-in session)
