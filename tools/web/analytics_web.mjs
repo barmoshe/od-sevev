@@ -205,6 +205,16 @@ await wait(500);
 const meOff = await page.evaluate(() => ({ flag: localStorage.getItem('odsevev.me'), me: window.odMe }));
 check(meOff.flag === null && meOff.me === false, `?me=0 undoes it (${JSON.stringify(meOff)})`);
 
+// 8. a pre-launch wipe (a device last here under another save epoch) keeps the ?me=1 mark
+await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&me=1`);
+await page.evaluate(() => { localStorage.setItem('odsevev.epoch', 'stale'); localStorage.setItem('odsevev.first', 'x'); });
+await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1`);
+await wait(500);
+const kept = await page.evaluate(() => ({ me: localStorage.getItem('odsevev.me'), odMe: window.odMe, epoch: localStorage.getItem('odsevev.epoch'), first: localStorage.getItem('odsevev.first') }));
+check(kept.me === '1' && kept.odMe === true && kept.epoch !== 'stale' && kept.first !== 'x',
+	`a wipe clears the game's keys but keeps the ?me=1 mark (${JSON.stringify(kept)})`);
+await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&me=0`);
+
 log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
 await browser.close();
 log(failed ? `FAIL (${failed})` : 'PASS');
