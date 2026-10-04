@@ -20,26 +20,11 @@ CLI deploy from the Mac, `window.mbBuild` = `095bcf0`). Steps 1-4 done, 5 half d
   Likely the headless tap misses the new sound/silent opening screen. Bar: listen once on a phone.
 - [x] **4. Redirect:** `od-sevev.vercel.app` → `od-sevev.bar-builds.com`, 308, set in the dashboard.
   Checked: `/s/bibi-leak/` → 308 → `https://od-sevev.bar-builds.com/s/bibi-leak/` → 200.
-- [~] **5. Search Console:** URL-prefix property `https://od-sevev.bar-builds.com/` added and **auto
-  verified** (HTML file). **Next:** the sitemap submit did not register (the list stayed empty);
-  resubmit `sitemap.xml`, then import into Bing Webmaster Tools, Request Indexing for `/` and
-  `/about.html`, and ping IndexNow for the new host.
-- [ ] **When done:** the `STATUS.md` line (date · agent · what · `095bcf0` · `dpl_8vpiFTS6BBwBoFU6W4oHoteywL9Y`),
-  the `HANDOFF.md` host lines, commit, push.
-
-Bar (2026-10-04): "I want the game to be in the url od-sevev.bar-builds.com", then: "let the local agent
-do it all". You run on Bar's machine with Chrome. Do the whole thing: DNS, code, build, deploy, redirect.
-Repo: `barmoshe/od-sevev`, branch `main` (pull first). Read `HANDOFF.md` §Deploy and `HOW-TO-RUN.md`.
-
-## Where things stand (done from the cloud session)
-- **Vercel:** `od-sevev.bar-builds.com` is already added to the project `od-sevev`
-  (`prj_ZbQ1ubW0AU5hfhSVnVtcsgmm6BVA`, team `team_ok1MqoSMeupTyBE6CXAR91UT`) and shows **verified**
-  (bar-builds.com is in the same Vercel team). It only needs DNS.
-- **DNS for bar-builds.com is at GoDaddy** (nameservers ns75/ns76.domaincontrol.com), not at Vercel.
-  `od-sevev.bar-builds.com` does not resolve yet. The apex and `www` already point at Vercel.
-- **Live today:** https://od-sevev.vercel.app (build `4b0cdee`, save epoch 6).
-- **No code is changed yet.** The address is one constant: `ShareKit.SITE_URL` in
-  `game/scripts/ui/share_kit.gd`.
+- [x] **5. Search Console:** property verified, `sitemap.xml` submitted (second try took), indexing requested
+  for `/` (already "on Google", 1 invalid **Events** structured-data item flagged) and `/about.html`.
+  IndexNow 202, Bing ping 200. **Left:** Bing Webmaster → Add a site → Import from GSC stops at a Google
+  view-only grant to Bing; waiting for Bar's OK (or Bar clicks Continue himself).
+- [x] **When done:** `STATUS.md` line, `HANDOFF.md` host lines (`f1bca3a`); web-dist `26607a7` = the live build.
 
 ## 1. DNS in GoDaddy (Chrome, Bar's logged-in session)
 1. GoDaddy → My Products → `bar-builds.com` → DNS → Add New Record.
