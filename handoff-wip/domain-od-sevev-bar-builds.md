@@ -1,5 +1,32 @@
 # Handoff: put the game on od-sevev.bar-builds.com (for the local agent, with Chrome)
 
+## Progress (2026-10-04, local agent; paused on Bar's word)
+**Live: https://od-sevev.bar-builds.com serves `095bcf0`** (Vercel `dpl_8vpiFTS6BBwBoFU6W4oHoteywL9Y`,
+CLI deploy from the Mac, `window.mbBuild` = `095bcf0`). Steps 1-4 done, 5 half done.
+- [x] **1. DNS:** GoDaddy CNAME `od-sevev` → `fd66a42e95bc2f2a.vercel-dns-017.com` (Vercel's recommended
+  project value; it briefly held `cname.vercel-dns.com`). No other record touched. GoDaddy's NS still
+  answered the old value right after the edit (1 h TTL); Vercel's "DNS Change Recommended" banner should
+  clear once it propagates. Either value works.
+- [x] **2. Code** `095bcf0` on `main`, pushed: `SITE_URL`, the `display_host` comment, `gen_strings.py` +
+  `string-budgets.json`, `share_web.mjs`, `webtest.sh`, `HOW-TO-RUN.md`, `playtest-kit.md`. The 22-glyph
+  guard in `test_share_view.gd` became 25 (the box's `maxChars`; the host is 23 glyphs, lint 111 px).
+  `tools/test.sh` 612/612, content-lint 0, `lint_text` 0/0. **Not yet updated:** `HANDOFF.md` lines naming
+  the live host (3, 8, 83, 237, 783, 1125, 1192) and the `web-dist` branch (this deploy went by CLI, so
+  `web-dist` still holds `4b0cdee`'s build).
+- [x] **3. Build + deploy:** `og:url`, sitemap and robots carry the new host. In Chrome: loads, no console
+  errors, plays after the tap. **Open:** `tools/webtest.sh` (with `PLAYWRIGHT_MODULE` pointed at
+  `~/claude-creative-stack/node_modules/playwright/index.mjs`) fails "sound comes out" + "music bus plays"
+  (peak 0). Pre-existing: the previous build `4b0cdee` fails the same way, and so does the local build.
+  Likely the headless tap misses the new sound/silent opening screen. Bar: listen once on a phone.
+- [x] **4. Redirect:** `od-sevev.vercel.app` → `od-sevev.bar-builds.com`, 308, set in the dashboard.
+  Checked: `/s/bibi-leak/` → 308 → `https://od-sevev.bar-builds.com/s/bibi-leak/` → 200.
+- [~] **5. Search Console:** URL-prefix property `https://od-sevev.bar-builds.com/` added and **auto
+  verified** (HTML file). **Next:** the sitemap submit did not register (the list stayed empty);
+  resubmit `sitemap.xml`, then import into Bing Webmaster Tools, Request Indexing for `/` and
+  `/about.html`, and ping IndexNow for the new host.
+- [ ] **When done:** the `STATUS.md` line (date · agent · what · `095bcf0` · `dpl_8vpiFTS6BBwBoFU6W4oHoteywL9Y`),
+  the `HANDOFF.md` host lines, commit, push.
+
 Bar (2026-10-04): "I want the game to be in the url od-sevev.bar-builds.com", then: "let the local agent
 do it all". You run on Bar's machine with Chrome. Do the whole thing: DNS, code, build, deploy, redirect.
 Repo: `barmoshe/od-sevev`, branch `main` (pull first). Read `HANDOFF.md` §Deploy and `HOW-TO-RUN.md`.
