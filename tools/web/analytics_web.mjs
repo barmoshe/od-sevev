@@ -156,6 +156,9 @@ const sess = await page.evaluate(() => {
 	return window.odTrackLog.filter((x) => x.startsWith('session/'));
 });
 check(sess.length === 1 && /^session\/(lt1|1-3|3-10|10-30|gt30)m$/.test(sess[0]), `hiding the page logs one session step (${sess})`);
+const src = await page.evaluate(() => window.odTrackLog.filter((x) => /^(from|played-from)\//.test(x)));
+check(src[0] === 'from/none' && src.filter((x) => x.startsWith('played-from/')).join() === 'played-from/none',
+	`a visit with no referrer is from/none, and the session carries played-from/none once (${src})`);
 const funnel = await page.evaluate(() => (window.odFunnel || []).map((e) => e.ev));
 check(funnel.includes('first_tap') && funnel.includes('leader_pick_committed'), `window.odFunnel keeps the engine's events (${funnel})`);
 
@@ -170,6 +173,17 @@ st = await steps();
 check(!st.some((x) => x.startsWith('return/')), `the same day again reports no return (${st})`);
 check(st.includes('reload-after-crash'), `a playing page reloaded without pagehide reports reload-after-crash (${st})`);
 await P.shot('a1-after-reload');
+
+// 6. a link Bar shares with ?s=wa: from/wa, and the tag leaves the address bar (dev=1 stays)
+await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&s=WA`);
+await wait(500);
+const tagged = await page.evaluate(() => ({ src: window.odSource, log: window.odTrackLog.filter((x) => x.startsWith('from/')), search: location.search }));
+check(tagged.src === 'wa' && tagged.log.join() === 'from/wa', `?s=WA reports from/wa (${JSON.stringify(tagged)})`);
+check(!/[?&]s=/.test(tagged.search) && /dev=1/.test(tagged.search), `?s leaves the address bar, dev=1 stays (${tagged.search})`);
+await page.goto(`${base}${base.includes('?') ? '&' : '?'}dev=1&s=bad%20tag!`);
+await wait(500);
+const bad = await page.evaluate(() => window.odTrackLog.filter((x) => x.startsWith('from/')));
+check(bad.join() === 'from/none', `a malformed tag is dropped, the visit stays from/none (${bad})`);
 
 log(`  page errors: ${errors.length ? JSON.stringify(errors.slice(0, 5)) : 'none'}`);
 await browser.close();

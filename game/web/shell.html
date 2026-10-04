@@ -113,7 +113,9 @@
 					'wizard/[a-z]{1,16}/[a-z0-9_]{1,16}',
 					// the share platform: the drawer's channel and result, and the arrivals from a shared link
 					'share/(leak|breaking|term|career|receipt|result|challenge|daily|invite)/(native|img|wa|tg|x|copy|share)/(shared|cancel|fail|opened|copied|saved)',
-					'arrive/(leak|breaking|term|career|receipt|result|challenge|daily|site)/(wa|tg|x|copy|img|share|na)'].join('|') + ')$');
+					'arrive/(leak|breaking|term|career|receipt|result|challenge|daily|site)/(wa|tg|x|copy|img|share|na)',
+					// where the visit came from (window.odSource below): every page load, and again with the session
+					'(from|played-from)/[a-z0-9]{1,12}'].join('|') + ')$');
 				// once per device: a milestone family (first-tap/on and first-tap/off share one key), or
 				// each feature/<id> and each wizard/<flow>/<step>
 				var ONCE = { 'first-tap': 1, 'first-election': 1, 'elections-5': 1 };
@@ -239,6 +241,8 @@
 					}
 					var m = (performance.now() - window.mbHandoffDone) / 6e4;
 					window.odTrack('session/' + (m < 1 ? 'lt1' : m < 3 ? '1-3' : m < 10 ? '3-10' : m < 30 ? '10-30' : 'gt30') + 'm');
+					// the players' sources: Web Analytics can't cross a session with the visit's referrer
+					window.odTrack('played-from/' + (window.odSource || 'none'));
 				}
 				document.addEventListener('visibilitychange', onExit);
 				window.addEventListener('pagehide', onExit);
@@ -285,6 +289,34 @@
 						window.odTrack('arrive/' + window.odArrival.kind + '/' + window.odArrival.via);
 					}
 				} catch (x) { /* a malformed link plays as a plain visit */ }
+				// Where the visit came from (2026-10-04): a ?s=<tag> on a link Bar shares (wa, ig, fb, tg…),
+				// else a share stub's via, else the referrer's host, else an in-app browser's user agent, else
+				// none (WhatsApp, a typed address and most apps send no referrer). One from/<src> step per
+				// page load; ?s leaves the address bar so a copied link doesn't carry it on. UTM fields would
+				// do this, but Vercel's Hobby plan doesn't report them.
+				window.odSource = 'none';
+				try {
+					var sq = new URLSearchParams(location.search);
+					var tag = (sq.get('s') || '').toLowerCase();
+					var host = '';
+					try { host = document.referrer ? new URL(document.referrer).hostname : ''; } catch (y) { /* no referrer */ }
+					var HOSTS = [[/instagram\./, 'ig'], [/(^|\.)(facebook\.com|fb\.com|fb\.me)$/, 'fb'], [/(^|\.)(t\.co|twitter\.com|x\.com)$/, 'x'],
+						[/(^|\.)(t\.me|telegram\.(org|me))$/, 'tg'], [/whatsapp|(^|\.)wa\.me$/, 'wa'], [/(^|\.)google\./, 'google'],
+						[/(^|\.)bing\.com$/, 'bing'], [/linkedin\.com$|(^|\.)lnkd\.in$/, 'li'], [/tiktok\.com$/, 'tt'], [/(^|\.)reddit\.com$/, 'reddit'],
+						[/(^|\.)(youtube\.com|youtu\.be)$/, 'yt'], [/(^|\.)(bar-builds\.com|vercel\.app)$/, 'site']];
+					var UA = [[/Instagram/, 'ig'], [/FBAN|FBAV|FB_IAB/, 'fb'], [/WhatsApp/, 'wa'], [/Telegram/, 'tg'], [/TikTok|musical_ly|BytedanceWebview/, 'tt'], [/LinkedInApp/, 'li']];
+					var pick = function (list, v) { for (var i = 0; i < list.length; i++) { if (list[i][0].test(v)) { return list[i][1]; } } return ''; };
+					window.odSource = /^[a-z0-9]{1,12}$/.test(tag) ? tag
+						: (window.odArrival && window.odArrival.via !== 'na') ? window.odArrival.via
+						: host ? (pick(HOSTS, host) || 'web')
+						: (pick(UA, navigator.userAgent) || 'none');
+					if (sq.has('s')) {
+						sq.delete('s');
+						var sqs = sq.toString();
+						history.replaceState(history.state, '', location.pathname + (sqs ? '?' + sqs : '') + location.hash);
+					}
+				} catch (x) { /* plays as none */ }
+				window.odTrack('from/' + window.odSource);
 				if (live) {
 					load('/_vercel/insights/script.js', '', '', function () {
 						ready = true;
