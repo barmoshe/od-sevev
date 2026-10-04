@@ -170,3 +170,14 @@ Instagram's own stickers, 4 memes, 5 highlight covers, and a posting plan to 27.
 `social/PLAN.md`.
 
     python3 src/social.py [all|stickers|abilities|dictionary|stories|memes|highlights]
+
+## "עכשיו באוויר": the launch share (`src/launch.py`)
+
+`od-sevev-launch.mp4`, 15 s, 9:16. The first video with the link instead of "בקרוב": six bars of the
+real game cut a bar at a time from `store/gameplay/od-sevev-teaser-mix.mp4` (its captions ride along:
+the eight, a tap is a shekel, the coalition, "לא אשב", the Knesset dissolves), then the curtain card
+with the eight, "עכשיו באוויר", `od-sevev.bar-builds.com` and "לשחק בחינם, בדפדפן. בלי הורדה.".
+Glitch Warfare from the montage's bar 6, so the drop lands on the first cut. The cover (also frames
+0-1) is the finished end card, so the thumbnail carries the address. Reads the montage mp4, needs no takes.
+
+    python3 src/launch.py [--stills | --one <sec>]
