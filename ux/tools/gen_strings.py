@@ -586,6 +586,7 @@ e("COURT_SUMMONS_BODY", "ביבי זומן לדוכן העדים. אפשר לד�
 e("COURT_SUMMONS_EFFECT", "בזמן העדות: הכנסות ⟦×0.5⟧, בלי הקשות", "court.body", "", "court card effect line while phase == summons")
 e("COURT_SUMMONS_TIMER", "העדות מתחילה בעוד ⟦{mmss}⟧", "court.body", "", "court card timer while phase == summons (the auto-testify countdown)")
 e("COURT_CHIP_SUMMONS", "זימון", "ticker.chip", "", "court chip line 1 while phase == summons")
+e("COURT_CHIP_POSTPONED", "נדחה", "ticker.chip", "", "court/press chip line 1 while phase == postponed (line 2: the wait until the summons returns); new 2026-10-04 (Bar: the full meter didn't say why it stayed)")
 # --- pardon desk (the "stamp mini-game", launch as text)
 e("PARDON_ROW", "בקשת חנינה", "dos.btn", "", "pitch §2 launch spine", "Bibi-only: the T4 row is hidden in every other leader's round (leader-select-spec §5.6)")
 e("PARDON_TITLE", "בקשת חנינה", "modal.title")

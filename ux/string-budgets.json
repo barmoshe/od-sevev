@@ -4281,6 +4281,16 @@
         "5": 95
       }
     },
+    "COURT_CHIP_POSTPONED": {
+      "surface": "label",
+      "spec": "court/press chip line 1 while phase == postponed (line 2: the wait until the summons returns); new 2026-10-04 (Bar: the full meter didn't say why it stayed)",
+      "box": "ticker.chip",
+      "maxChars": 6,
+      "worstPx": {
+        "4": 88,
+        "5": 110
+      }
+    },
     "PARDON_ROW": {
       "surface": "label",
       "spec": "pitch §2 launch spine",

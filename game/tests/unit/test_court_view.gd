@@ -287,6 +287,32 @@ func test_the_summons_and_the_testimony_have_their_own_texts() -> void:
 		and cv._timer.text == Strings.s("COURT_TIMER", {"mmss": ChatView.mmss(sec)}), "the card rebuilt on the phase edge: the testimony texts and its own timer (%s)" % cv._timer.text)
 
 
+## Bar 2026-10-04 ("the meter doesn't go down"): after a postponement the meter stays full until the
+## summons comes back, and nothing on screen said so. The ticker chip now reads COURT_CHIP_POSTPONED and
+## counts down the wait; it can't be expanded (there is nothing to choose yet), and the summons returns.
+func test_a_postponement_shows_its_wait_on_the_chip() -> void:
+	await _boot()
+	await _summon()
+	var cv: CourtView = m.court
+	m.state.money = 1.0e9
+	runner.check(cv.postpone(), "the postponement goes through")
+	for i in 400:
+		cv.skip_reading()
+		cv.update_view(50.0, m.state, m.d, {"main": true})
+		if cv.chip_visible():
+			break
+	runner.check(Investigation.phase(m.state) == "postponed", "the sim waits out the postponement")
+	runner.check(cv.chip_visible() and cv._chip_title.text == Strings.s("COURT_CHIP_POSTPONED"), "the chip says it was postponed (%s)" % cv._chip_title.text)
+	var left := float(m.state.investigation.get("leftSec", 0.0))
+	runner.check(left > 0.0 and cv._chip_timer.text == Strings.s("COURT_CHIP_TIMER", {"mmss": ChatView.mmss(left)}), "and counts down to the summons (%s)" % cv._chip_timer.text)
+	cv.expand()
+	runner.check(not cv.expanded(), "a tap on the postponed chip opens nothing")
+	m.state.investigation["leftSec"] = 0.01
+	m._step_economy(0.05, false)
+	cv.update_view(16.0, m.state, m.d, {"main": true})
+	runner.check(Investigation.phase(m.state) == "summons", "the summons comes back when the wait ends")
+
+
 func test_the_court_card_over_a_tall_tab_pads_it_and_esc_folds_it_first() -> void:
 	await _boot()
 	await _summon()

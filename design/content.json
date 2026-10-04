@@ -232,27 +232,27 @@
   }
  },
  "reveal": {
-  "_doc": "The reveal ladder (2026-10-03, Bar: one new system per round; Reveal.on). Each key opens at that election count: round 1 (0) is the tap, sources, the chat's demands, 61 and the Suitcase. copy = the one-line announcement at the start of the round it opens in.",
+  "_doc": "The reveal ladder (2026-10-03, Bar: one new system per round; Reveal.on). Each key opens at that election count: round 1 (0) is the tap, sources, the chat's demands, 61, the Suitcase, the suspicion meter and Mordechai David (Bar 2026-10-04: round 1 lost interest after ~5 min; ADR 0013). copy = the one-line announcement at the start of the round it opens in.",
   "spins": 1,
   "picker": 0,
-  "suspicion": 2,
+  "suspicion": 0,
   "ultimatums": 3,
-  "events": 3,
+  "events": 2,
   "abilities": 3,
   "missions": 4,
   "perks": 4,
-  "mordechai": 4,
+  "mordechai": 0,
   "share": 4,
   "milestones": 4,
   "copy": {
    "spins": "חדש בסבב הבחירות הזה: ספינים. לשונית שנייה, קונים מסר והוא עובד בשבילך.",
-   "suspicion": "חדש: מדחום החשד. מקורות מפוקפקים מחממים אותו, ובמאה יש יום משפט.",
+   "suspicion": "מדחום החשד: מקורות מפוקפקים מחממים אותו, ובמאה יש יום משפט.",
    "ultimatums": "חדש: אולטימטומים. דרישה שמחכה יותר מדי הופכת לשעון, ושותף שלא קיבל עוזב.",
    "events": "חדש: אירועים. כל כמה דקות קורה משהו בבמה או בכותרות.",
    "abilities": "חדש: יכולת של ראש הרשימה. הכפתור למעלה מימין.",
    "missions": "חדש: משימות ודרגות. כל דרגה מעלה את ההכנסה.",
    "perks": "חדש: ההסכם הקואליציוני. הבסיס קונה סעיפים קבועים, בראש קבוצת הקואליציה.",
-   "mordechai": "חדש: מבקרים ברחוב. מרדכי דוד בא לפעמים, ולא תמיד לעזור.",
+   "mordechai": "מבקרים ברחוב: מרדכי דוד בא לפעמים, ולא תמיד לעזור.",
    "share": "חדש: הדלף. כפתור לשתף את הרגעים הטובים.",
    "milestones": "חדש: אבני דרך. 25 מכל מקור מכפילים אותו."
   }
@@ -890,6 +890,7 @@
    "demandGapMult": 0.6
   },
   "unlockScalePerElection": 2,
+  "round1TimeScale": 0.5,
   "unlockTimeScalePerElection": 0.6,
   "unlockTimeScaleMin": 0.58,
   "demandSecScalePerElection": 0.5,

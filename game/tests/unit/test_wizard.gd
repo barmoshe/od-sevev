@@ -125,10 +125,10 @@ func test_gone_sec_soft_hold_and_skip() -> void:
 
 func test_a_mechanic_flow_waits_for_its_round() -> void:
 	var conds := {"w": true}
-	var s := _bare({"on": "suspicion", "steps": [{"id": "x", "anchor": "a", "when": "w", "done": "tapHole", "text": "x"}]}, conds)
+	var s := _bare({"on": "ultimatums", "steps": [{"id": "x", "anchor": "a", "when": "w", "done": "tapHole", "text": "x"}]}, conds)
 	w.update_view(16.0, s)
 	runner.check(not w.showing(), "no wizard before its reveal round")
-	s.evolutions = Reveal.round_of("suspicion")
+	s.evolutions = Reveal.round_of("ultimatums")
 	w.update_view(16.0, s)
 	runner.check(w.showing(), "it shows in the round its mechanic opens")
 

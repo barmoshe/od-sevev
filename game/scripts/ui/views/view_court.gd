@@ -192,9 +192,15 @@ func timer_sec() -> float:
 	match phase():
 		"summons":
 			return maxf(0.0, float(Investigation.cfg().get("summonsAutoTestifySec", 0.0)) - float(_state.investigation.get("summonsSec", 0.0)))
-		"court":
+		"court", "postponed":
 			return float(_state.investigation.get("leftSec", 0.0))
 	return 0.0
+
+
+## The phases the ticker chip shows in: the summons, the testimony, and a postponement (its timer is
+## the wait until the summons comes back).
+static func chip_phase(ph: String) -> bool:
+	return ph == "summons" or ph == "court" or ph == "postponed"
 
 
 ## The card's and the chip's texts by phase (rtl-map §6.4 "Two phases, two texts", review R10):
@@ -250,8 +256,12 @@ func update_view(dt: float, s: GameState, d: Economy.Derived, ctx: Dictionary = 
 		_hide_now()
 	else:
 		# the sim moved on without an event we saw (a load, an aide drop, an election)
-		if _mode in ["open", "chip"] and not (ph == "summons" or ph == "court"):
+		if (_mode == "open" and not (ph == "summons" or ph == "court")) or (_mode == "chip" and not chip_phase(ph)):
 			_start_exit()
+		# a postponement keeps the meter full until the summons comes back: the chip says so and counts
+		# down (Bar 2026-10-04, "the meter doesn't go down": nothing on screen said why)
+		if _mode == "hidden" and ph == "postponed":
+			_set_mode("chip")
 		if _mode == "hidden" and (ph == "summons" or ph == "court") and not _pending_open:
 			_pending_open = true
 		if _pending_open and _tap_guard_clear():
@@ -276,7 +286,7 @@ func _on_new_state(s: GameState) -> void:
 	_pending_open = false
 	_state = s
 	var ph := phase()
-	_set_mode("chip" if (ph == "summons" or ph == "court") else "hidden")
+	_set_mode("chip" if chip_phase(ph) else "hidden")
 	_tint_a = mc("courtTintAlpha") if ph == "court" else 0.0
 
 
@@ -324,7 +334,7 @@ func collapse() -> void:
 
 ## A tap on the chip: the card unfolds (the chip cuts out at f0).
 func expand() -> void:
-	if _mode != "chip":
+	if _mode != "chip" or phase() == "postponed":
 		return
 	_set_mode("open")
 	_anim = {"kind": "expand", "t": 0.0}
@@ -550,10 +560,10 @@ func _update_card_live() -> void:
 func _sync_chip() -> void:
 	var ticker: Ticker = host.get("ticker") if host != null and "ticker" in host else null
 	var ph := phase()
-	var show := _mode == "chip" and (ph == "summons" or ph == "court") and not _covered \
+	var show := _mode == "chip" and chip_phase(ph) and not _covered \
 		and not (ticker != null and ticker.cta_on())
 	if show:
-		var ct := LeaderUi.s(phase_keys(ph)["chip"])
+		var ct := Strings.s("COURT_CHIP_POSTPONED") if ph == "postponed" else LeaderUi.s(phase_keys(ph)["chip"])
 		if _chip_title.text != ct:
 			_chip_title.text = ct
 		var cid := "chip_icon_gavel" if LeaderUi.court() or LeaderUi.press_icon("chip") == "" else LeaderUi.press_icon("chip")

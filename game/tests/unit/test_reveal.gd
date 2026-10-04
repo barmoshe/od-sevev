@@ -39,12 +39,15 @@ func _at(evo: int) -> GameState:
 func test_one_new_system_per_round() -> void:
 	var r1 := _at(0)
 	runner.check(Reveal.on(r1, "picker"), "the picker opens on the first launch (the roster ladder)")
-	for k: String in ["spins", "suspicion", "ultimatums", "events", "abilities", "missions", "perks", "mordechai", "share", "milestones"]:
-		runner.check(not Reveal.on(r1, k), "round 1 is calm: no %s" % k)
-	runner.check(Reveal.on(_at(1), "spins") and not Reveal.on(_at(1), "suspicion"), "round 2: spins")
-	runner.check(Reveal.on(_at(2), "suspicion") and not Reveal.on(_at(2), "ultimatums"), "round 3: suspicion and the court")
-	runner.check(Reveal.on(_at(3), "ultimatums") and Reveal.on(_at(3), "events") and Reveal.on(_at(3), "abilities") and not Reveal.on(_at(3), "missions"), "round 4: ultimatums, events, abilities")
-	runner.check(Reveal.on(_at(4), "missions") and Reveal.on(_at(4), "mordechai"), "round 5: missions, perks, Mordechai, share, milestones")
+	# ADR 0013 (Bar 2026-10-04: round 1 lost interest after ~5 min): the suspicion meter and Mordechai
+	# David open in round 1; the rest of the ladder still opens one system per round
+	runner.check(Reveal.on(r1, "suspicion") and Reveal.on(r1, "mordechai"), "round 1: the suspicion meter and Mordechai David")
+	for k: String in ["spins", "ultimatums", "events", "abilities", "missions", "perks", "share", "milestones"]:
+		runner.check(not Reveal.on(r1, k), "round 1: no %s yet" % k)
+	runner.check(Reveal.on(_at(1), "spins") and not Reveal.on(_at(1), "events"), "round 2: spins")
+	runner.check(Reveal.on(_at(2), "events") and not Reveal.on(_at(2), "ultimatums"), "round 3: events")
+	runner.check(Reveal.on(_at(3), "ultimatums") and Reveal.on(_at(3), "abilities") and not Reveal.on(_at(3), "missions"), "round 4: ultimatums, abilities")
+	runner.check(Reveal.on(_at(4), "missions") and Reveal.on(_at(4), "share"), "round 5: missions, perks, share, milestones")
 	for evo in range(1, 5):
 		var news := Reveal.new_this_round(_at(evo))
 		runner.check(not news.is_empty(), "round %d opens something" % (evo + 1))
@@ -63,13 +66,13 @@ func test_the_sim_gates_follow_the_ladder() -> void:
 	s.all_time_money = 1.0e9
 	runner.check(not Economy.upgrade_unlocked(s, u), "no spins in round 1")
 	Investigation.add(s, 50.0)
-	runner.check(Investigation.suspicion(s) == 0.0, "no suspicion before its round")
+	runner.check(Investigation.suspicion(s) > 0.0, "suspicion counts from round 1 (ADR 0013)")
 	var s3 := _at(3)
 	s3.stats["playtimeSec"] = 600.0
 	s3.coalition["paidLifetime"] = 10
 	runner.check(Coalition.ultimatums_unlocked(s3), "ultimatums from round 4")
-	runner.check(Investigation.floor_pct(_at(2)) == 0.0, "suspicion opens at 0 in its own round")
-	runner.check(Investigation.floor_pct(_at(3)) > 0.0, "and the floor climbs from the round after")
+	runner.check(Investigation.floor_pct(_at(0)) == 0.0, "suspicion opens at 0 in its own round")
+	runner.check(Investigation.floor_pct(_at(1)) > 0.0, "and the floor climbs from the round after")
 
 
 func test_a_new_game_opens_the_picker_with_two_open_leaders() -> void:

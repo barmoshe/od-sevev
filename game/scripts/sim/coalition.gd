@@ -329,7 +329,14 @@ static func unlock_of(s: GameState, p: Dictionary) -> Dictionary:
 	if not u is Dictionary:
 		return {"<invalid>": true}
 	if s.evolutions == 0:
-		return u
+		# round 1's own clock (ADR 0013, Bar 2026-10-04: round 1 lost interest after ~5 min): the late
+		# partners' time floors × coalition.round1TimeScale; later rounds keep their eased floors
+		var r1 := _num("round1TimeScale", 1.0)
+		if r1 == 1.0 or not (u as Dictionary).has("runSecAtLeast"):
+			return u
+		var o1: Dictionary = (u as Dictionary).duplicate()
+		o1["runSecAtLeast"] = float(u["runSecAtLeast"]) * r1
+		return o1
 	var out: Dictionary = (u as Dictionary).duplicate()
 	var scale := _num("unlockScalePerElection", 1.0)
 	if scale != 1.0 and out.has("runMoneyAtLeast"):

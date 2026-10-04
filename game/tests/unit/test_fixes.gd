@@ -37,7 +37,7 @@ func test_the_help_sheet_follows_the_ladder() -> void:
 	Reveal.force_all = false
 	var s := GameState.fresh()
 	var r1 := HelpCard.lines(s)
-	runner.check(not r1.has(Strings.s("HELP_SUSP")) and not r1.has(Strings.s("HELP_ULT")), "round 1: no suspicion or ultimatum lines")
+	runner.check(r1.has(Strings.s("HELP_SUSP")) and not r1.has(Strings.s("HELP_ULT")), "round 1: the suspicion line, no ultimatum line (ADR 0013)")
 	runner.check(r1.has(Strings.s("HELP_PAUSE")), "the clock line is always there")
 	s.evolutions = 3
 	var r4 := HelpCard.lines(s)

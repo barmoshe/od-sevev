@@ -368,6 +368,7 @@
     "COURT_SUMMONS_EFFECT": "בזמן העדות: הכנסות ⁦×0.5⁩, בלי הקשות",
     "COURT_SUMMONS_TIMER": "העדות מתחילה בעוד ⁦{mmss}⁩",
     "COURT_CHIP_SUMMONS": "זימון",
+    "COURT_CHIP_POSTPONED": "נדחה",
     "PARDON_ROW": "בקשת חנינה",
     "PARDON_TITLE": "בקשת חנינה",
     "PARDON_FORM": "טופס בקשה לחנינה · עותק ⁦{n}⁩",

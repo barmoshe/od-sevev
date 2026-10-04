@@ -1631,7 +1631,9 @@ func _step_economy(dt_sec: float, modal: bool, vote: bool = false) -> void:
 	# the politics sim (sim/politics.gd): calendar, coalition, court, events. C1's controller half
 	# (ux/ftue.md): no modal, the last purchase ≥ 2 s ago, no toast showing, Dubi not speaking.
 	var ping := not modal and _now - _last_buy_ms >= 2000.0 and toasts.idle() and not toasts.saying()
-	var hidden := modal or chat.is_open() or dossier.is_open()
+	# a wizard bubble on screen counts as covered too: Mordechai David opens in round 1 (ADR 0013) and
+	# never blocks a step the player is being taught
+	var hidden := modal or chat.is_open() or dossier.is_open() or wizard.showing()
 	for pe: Variant in Politics.tick(state, dt_sec, d, _round_ctx(politics_ctx(SaveStore.now_ms(), ping, Time.get_datetime_dict_from_system(), false, hidden)), _rng("politics")):   # seeded rounds
 		if pe is Dictionary:
 			_on_politics_event(pe)
