@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>עוד סבב · מרדכי דוד</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@700;800;900&display=swap" rel="stylesheet">
+<!-- Instagram feed post, 1080x1350. Render: node render.mjs (Playwright), see README.md. -->
+<style>
+  :root {
+    --navy: #0e1a3d;
+    --navy2: #1b2c66;
+    --blue: #1f4fd1;
+    --gold: #f4c247;
+    --gold-dk: #a8651c;
+    --white: #ffffff;
+    --orange: #ff5a12;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body, .poster { width: 1080px; height: 1350px; overflow: hidden; }
+  body { background: var(--navy); font-family: 'Heebo', sans-serif; }
+  img { image-rendering: pixelated; display: block; }
+
+  .poster { position: relative; }
+  /* the game's Knesset stage, 180x320 art px at 6x */
+  .stage {
+    position: absolute; inset: 0;
+    background: url(assets/stage_knesset.png) 0 -150px / 1080px 1920px no-repeat;
+    image-rendering: pixelated;
+  }
+  /* darken the top for the headline, and the ground for the CTA */
+  .shade {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(14,26,61,.92) 0%, rgba(14,26,61,.78) 26%, rgba(14,26,61,0) 44%),
+      linear-gradient(0deg, rgba(14,26,61,.95) 0%, rgba(14,26,61,.6) 12%, rgba(14,26,61,0) 22%);
+  }
+
+  .logo { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 380px; }
+
+  .headline {
+    position: absolute; top: 176px; left: 0; right: 0; text-align: center;
+    color: var(--white); font-weight: 900; line-height: 1.02; letter-spacing: -1px;
+    text-shadow: 0 6px 0 var(--navy), 0 0 24px rgba(0,0,0,.45);
+  }
+  .headline .l1 { font-size: 88px; }
+  .headline .l2 { font-size: 96px; }
+  .headline .name { color: var(--orange); -webkit-text-stroke: 0; }
+
+  /* the leaders, stuck behind him */
+  .crowd {
+    position: absolute; left: 0; right: 0; top: 760px; height: 300px;
+    display: flex; justify-content: center; align-items: flex-end;
+    filter: brightness(.72) saturate(.85);
+  }
+  .crowd img { height: 288px; margin: 0 -18px; }
+  .crowd img:nth-child(odd) { transform: translateY(-14px); }
+
+  .md {
+    position: absolute; left: 50%; bottom: 196px; transform: translateX(-50%);
+    width: 560px; height: 776px;
+    filter: drop-shadow(0 14px 0 rgba(0,0,0,.28));
+  }
+
+  .cta {
+    position: absolute; left: 0; right: 0; bottom: 34px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .pill {
+    background: var(--gold); color: var(--navy); font-weight: 900; font-size: 58px; line-height: 1;
+    padding: 18px 56px 22px; border: 6px solid var(--navy);
+    box-shadow: 8px 8px 0 var(--navy);
+  }
+  .url { color: var(--white); font-weight: 700; font-size: 30px; opacity: .92; }
+  .en { direction: ltr; unicode-bidi: isolate; }
+</style>
+</head>
+<body>
+<div class="poster">
+  <div class="stage"></div>
+  <div class="shade"></div>
+
+  <img class="logo" src="assets/logo-horizontal.png" alt="עוד סבב">
+
+  <div class="headline">
+    <div class="l1">האם <span class="name">מרדכי דוד</span></div>
+    <div class="l2">יצליח להקים ממשלה?</div>
+  </div>
+
+  <div class="crowd">
+    <img src="assets/golan.png" alt="">
+    <img src="assets/eisenkot.png" alt="">
+    <img src="assets/bennett.png" alt="">
+    <img src="assets/bibi.png" alt="">
+    <img src="assets/ben-gvir.png" alt="">
+    <img src="assets/deri.png" alt="">
+    <img src="assets/smotrich.png" alt="">
+    <img src="assets/liberman.png" alt="">
+  </div>
+
+  <img class="md" src="assets/md_block.png" alt="מרדכי דוד">
+
+  <div class="cta">
+    <div class="pill">שחקו עכשיו ◀</div>
+    <div class="url en">od-sevev.vercel.app</div>
+  </div>
+</div>
+</body>
+</html>
