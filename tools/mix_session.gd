@@ -6,7 +6,7 @@ extends SceneTree
 ## which mixes the audio offline at a fixed frame rate and writes it next to the frames:
 ##
 ##     tools/godot.sh --headless --path game --fixed-fps 30 --write-movie /tmp/s/mix.png \
-##         -s $PWD/tools/mix_session.gd -- [--era=knesset] [--seconds=95] [--mute=music|sfx]
+##         -s $PWD/tools/mix_session.gd -- [--era=knesset] [--seconds=95] [--mute=music|sfx] [--raw]
 ## (needs a renderer for the frames: on a server, run it under xvfb-run with --rendering-driver opengl3)
 ##
 ## then read /tmp/s/mix.wav (audio/tools/measure_session.py measures it). Never part of the build.
@@ -21,6 +21,8 @@ var _tap_until := 0.0
 var _tap_rate := 0.0
 var _next_tap := 0.0
 var _mute := ""
+var _raw := false
+var _noduck := false
 
 
 func _initialize() -> void:
@@ -31,6 +33,10 @@ func _initialize() -> void:
 			_end = float(a.substr(10))
 		elif a.begins_with("--mute="):
 			_mute = a.substr(7)   # music | sfx: measure the other alone, same session
+		elif a == "--raw":
+			_raw = true   # bypass the master glue and limiter: (full - SFX alone) is then exactly the music
+		elif a == "--noduck":
+			_noduck = true   # bypass the Music bus's TapDuck (A/B the side-chain)
 	# [time s, event, arg] (a "taps" entry: [t, "taps", [rate per s, seconds]])
 	_tl = [
 		[0.3, "gesture", null], [0.5, "tap", null],                       # the motif, then the music at bar 1
@@ -58,6 +64,11 @@ func _process(delta: float) -> bool:
 			return true
 		if _era != "":
 			_a.call("set_era", _era, true)
+		if _raw:
+			AudioServer.set_bus_effect_enabled(0, 1, false)
+			AudioServer.set_bus_effect_enabled(0, 2, false)
+		if _noduck:
+			AudioServer.set_bus_effect_enabled(AudioServer.get_bus_index("Music"), 3, false)
 		if _mute == "music":
 			_a.call("set_music_enabled", false)
 		elif _mute == "sfx":

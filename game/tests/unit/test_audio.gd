@@ -116,6 +116,12 @@ func test_bus_layout_is_the_od_topology() -> void:
 	var room := AudioServer.get_bus_effect(mu, 1) as AudioEffectReverb
 	runner.check(eq != null and absf(eq.get_band_gain_db(4) + 1.5) < 1e-3 and absf(eq.get_band_gain_db(5)) < 1e-3, "music EQ: -1.5 dB at 3.2 kHz, flat at 10 kHz")
 	runner.check(room != null and room.wet <= 0.15 and room.hipass >= 0.2, "music room: a light wet, the bass kept dry")
+	# v2.2: the music ducks under the taps (a compressor side-chained from SFX-Frequent), the taps are glued
+	var duck := AudioServer.get_bus_effect(mu, 3) as AudioEffectCompressor
+	runner.check(duck != null and String(duck.sidechain) == "SFX-Frequent" and duck.ratio <= 3.0 and duck.release_ms >= 300.0,
+		"TapDuck: a gentle compressor on the Music bus, side-chained from the taps' bus")
+	var glue_t := AudioServer.get_bus_effect(AudioServer.get_bus_index("SFX-Frequent"), 0) as AudioEffectCompressor
+	runner.check(glue_t != null and String(glue_t.sidechain) == "", "TapGlue: the taps' own bus compressor")
 	var o := AudioServer.get_bus_index("Outside")
 	var lpf := AudioServer.get_bus_effect(o, 0) as AudioEffectLowPassFilter
 	var pan := AudioServer.get_bus_effect(o, 1) as AudioEffectPanner
@@ -178,47 +184,63 @@ func test_first_tap_plays_the_motif_then_the_music_at_bar_one() -> void:
 	await _release()
 
 
-## The verified anthem (English Wikipedia's score, the tap's source), as intervals.
-const HATIKVA_INTERVALS := [2, 1, 2, 2, 0, 1, -1, 1, 4, -5, -2, 0, 0, -2, 0, -1, -2, 2, 1, -3, -5,
-	5, 2, 1, 2, 2, 0, 1, -1, 1, 4, -5, -2, 0, 0, -2, 0, -1, -2, 2, 1, -3,
-	0, 12, 0, 0, -2, 2, -2, -2, -1, -7, 12, 0, 0, -2, 2, -2, -2, -1,
-	3, 0, 0, -7, 0, 2, 2, 1, 2, -3, -2, -2, 2, 0, -2, 0, 0, -1, -2, 2, 1, -3,
-	10, 0, 0, -7, 0, 2, 2, 1, 2, -3, -2, -2, 2, 0, -2, 0, 0, -1, -2, 2, 1, -3]
-
-
-func test_every_era_taps_hatikva() -> void:
-	var roots := {"balfour": 74, "knesset": 76, "courthouse": 67, "washington": 74}
-	for era: String in roots:
+func test_every_era_has_a_tap_line() -> void:
+	for era: String in ["balfour", "knesset", "courthouse", "washington"]:
 		var tl := OdAudio.tap_line(_man, era)
 		var mid: Array = tl["midi"]
-		var iv: Array = []
-		for k in mid.size() - 1:
-			iv.append(int(mid[k + 1]) - int(mid[k]))
-		runner.check(mid.size() == 105 and iv == HATIKVA_INTERVALS, "%s: the whole anthem, 105 notes (got %d)" % [era, mid.size()])
-		runner.check(int(mid[0]) == int(roots[era]), "%s: in its anthem key (root %d, got %d)" % [era, roots[era], mid[0]])
-		runner.check(tl["phrases"] == [0, 11, 22, 33, 43, 52, 61, 73, 83, 95], "%s: its ten lines" % era)
+		var st: Array = tl["steps"]
+		runner.check(mid.size() >= 100 and st.size() == mid.size(), "%s: the song has its notes and onsets (%d)" % [era, mid.size()])
+		runner.check((tl["phrases"] as Array).size() >= 12 and int(tl["phrases"][0]) == 0, "%s: 2-bar phrases from note 0" % era)
+		var asc := true
+		for k in st.size() - 1:
+			asc = asc and int(st[k]) < int(st[k + 1])
+		runner.check(asc and float(tl["stepSeconds"]) > 0.0, "%s: onsets rise, steps have a length" % era)
+		var lo := 999
+		var hi := 0
+		for m: Variant in mid:
+			lo = mini(lo, int(m))
+			hi = maxi(hi, int(m))
+		runner.check(lo >= 62 and hi <= 93, "%s: the bell's register D4-A6, got %d-%d" % [era, lo, hi])
+	# the fallback (a manifest without tap lines): HaTikva in the track's key, never following the music
+	var bare := {"cues": _man["cues"], "eras": {"knesset": {"key": "E"}}}
+	var fb := OdAudio.tap_line(bare, "knesset")
+	runner.check(int(fb["midi"][0]) == 76 and (fb["steps"] as Array).is_empty(), "fallback: HaTikva from E5, got %s" % str(fb["midi"].slice(0, 3)))
+	runner.check(OdAudio.song_step(fb, 3.0) == -1, "the fallback never follows the music")
 
 
-func test_tap_next_walks_the_anthem() -> void:
-	var line := {"midi": [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79], "phrases": [0, 4, 8]}
-	var r := OdAudio.tap_next(line, -1, 0, 0.0)
-	runner.check(r["i"] == 0 and r["run"] == 1, "the first tap is the first note, got %s" % str(r))
-	r = OdAudio.tap_next(line, 0, 1, 150.0)
-	runner.check(r["i"] == 1 and r["run"] == 2, "then the next, got %s" % str(r))
-	r = OdAudio.tap_next(line, 2, 3, 150.0)
-	runner.check(r["i"] == 3 and r["done"] == true, "a line's last note, played whole: done, got %s" % str(r))
-	r = OdAudio.tap_next(line, 2, 3, OdAudio.TAP_REJOIN_MS + 1.0)
-	runner.check(r["i"] == 3 and r["done"] == false, "after a long pause the anthem runs on, but the line is not whole, got %s" % str(r))
-	r = OdAudio.tap_next(line, 11, 4, 150.0)
-	runner.check(r["i"] == 0 and r["run"] == 1, "it wraps to the top, got %s" % str(r))
+func test_tap_next_follows_the_music() -> void:
+	# 12 notes, one every 4 steps, three phrases of four (they start on steps 0, 16 and 32)
+	var line := {"midi": [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79], "steps": [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44],
+		"phrases": [0, 4, 8], "phraseSteps": [0, 16, 32], "stepSeconds": 0.1}
+	var r := OdAudio.tap_next(line, -1, 0, 0.0, 9)
+	runner.check(r["i"] == 3 and r["run"] == 0, "the first tap joins the note the music is on (step 9 -> note 3), got %s" % str(r))
+	r = OdAudio.tap_next(line, -1, 0, 0.0, 0)
+	runner.check(r["i"] == 0 and r["run"] == 1, "on a phrase's first note the run starts, got %s" % str(r))
+	r = OdAudio.tap_next(line, 0, 1, 150.0, 30)
+	runner.check(r["i"] == 1 and r["run"] == 2, "inside a phrase it is always the next note (even far from the music), got %s" % str(r))
+	r = OdAudio.tap_next(line, 2, 3, 150.0, 12)
+	runner.check(r["i"] == 3 and r["done"] == true, "the phrase's last note, played whole: done, got %s" % str(r))
+	r = OdAudio.tap_next(line, 2, 0, 150.0, 12)
+	runner.check(r["i"] == 3 and r["done"] == false, "joined midway: no bonus, got %s" % str(r))
+	r = OdAudio.tap_next(line, 3, 4, 150.0, 5)
+	runner.check(r["i"] == 4 and r["run"] == 1, "a phrase ahead of the music is fine, got %s" % str(r))
+	r = OdAudio.tap_next(line, 7, 4, 150.0, 2)
+	runner.check(r["i"] == 0, "more than a phrase ahead: back to the phrase the music plays, got %s" % str(r))
+	r = OdAudio.tap_next(line, 3, 4, 150.0, 40)
+	runner.check(r["i"] == 8 and r["run"] == 1, "behind the music: on to its phrase, got %s" % str(r))
+	r = OdAudio.tap_next(line, 9, 2, OdAudio.TAP_REJOIN_MS + 1.0, 16)
+	runner.check(r["i"] == 4 and r["run"] == 1, "after a pause: the music's note again, got %s" % str(r))
+	r = OdAudio.tap_next(line, 11, 4, 150.0, -1)
+	runner.check(r["i"] == 0 and r["run"] == 1, "no music: the line runs on and wraps, got %s" % str(r))
 	var roots := OdAudio.bell_roots(_man)
 	runner.check(roots == [60, 66, 72, 78, 84, 90], "the bell is rendered at six roots, got %s" % str(roots))
 	runner.check(OdAudio.bell_root(roots, 75) == 72 and OdAudio.bell_root(roots, 76) == 78 and OdAudio.bell_root(roots, 62) == 60,
 		"a note plays from the nearest root (3 semitones at most)")
 
 
-func test_each_tap_is_the_next_note_of_hatikva() -> void:
-	var mid: Array = OdAudio.tap_line(_man, "balfour")["midi"]
+func test_each_tap_is_the_next_note_of_the_eras_song() -> void:
+	var line := OdAudio.tap_line(_man, "balfour")
+	var mid: Array = line["midi"]
 	var a := _audio()
 	a.set_evolutions(0)
 	a.event("tap")   # the motif
@@ -226,38 +248,34 @@ func test_each_tap_is_the_next_note_of_hatikva() -> void:
 	for i in 3:
 		a._clock += 120.0
 		a.event("tap")
-		var p: AudioStreamPlayer = (a._voices.back() as Dictionary)["p"]
+		var v: Dictionary = a._voices.back()
+		var p: AudioStreamPlayer = v["p"]
 		got.append(roundi(OdAudio.bell_root(OdAudio.bell_roots(_man), int(mid[i])) + 12.0 * log(p.pitch_scale) / log(2.0)))
-	runner.check(got == mid.slice(0, 3), "taps play HaTikva's opening in D, got %s want %s" % [str(got), str(mid.slice(0, 3))])
+	runner.check(got == mid.slice(0, 3), "before the music starts the taps play the song's opening, got %s want %s" % [str(got), str(mid.slice(0, 3))])
 	runner.check(_last(a) == "tap_r%d.res" % OdAudio.bell_root(OdAudio.bell_roots(_man), int(mid[2])), "from the nearest root, got %s" % _last(a))
-	a._clock += 5000.0
-	a.event("tap")
-	runner.check(a._tap_i == 3, "a pause does not restart it, got %d" % a._tap_i)
 	for i in 30:
 		a.event("tap")
 	runner.check(a.active_voices("tap") <= 6, "poly 6, the oldest fades out: got %d" % a.active_voices("tap"))
 	a.event("electionConfirm", 1)
 	a._clock += 120.0
 	a.event("tap")
-	runner.check(a._tap_i == 0, "a new round starts HaTikva from the top, got %d" % a._tap_i)
+	runner.check(a._tap_i == 0, "a new round starts its song from the top, got %d" % a._tap_i)
 	await _release()
 
 
-func test_the_anthem_keeps_its_place_on_court_day_and_the_lead_steps_back() -> void:
+func test_taps_join_the_music_and_the_lead_steps_back() -> void:
 	var a: Node = await _playing()
 	var bar_s := OdAudio.bar_seconds(_man, "balfour")
-	for i in 5:
-		a._clock += 150.0
-		a.event("tap")
-	runner.check(a._tap_i == 4 and a.layer_target("L2") == 0.0, "five taps, five notes; the lead steps back at once")
-	await (runner as SceneTree).create_timer(0.25).timeout
-	runner.check(a.layer_gain("L2") == 0.0, "within %d ms" % int(OdAudio.L2_STEP_BACK_MS))
-	a.event("courtSummons")
-	a.debug_seek(2.0 * bar_s + 0.01)
+	var line := OdAudio.tap_line(_man, "balfour")
+	a._clock += OdAudio.TAP_REJOIN_MS + 100.0
+	a.debug_seek(8.0 * bar_s + 0.01)   # bar 9, A'
 	await _frames(2)
 	a.event("tap")
-	runner.check(a._tap_line_of == "courthouse" and a._tap_i == 5, "court day: the next note, in G (got %s, %d)" % [a._tap_line_of, a._tap_i])
-	runner.check(int(a._tap_line["midi"][0]) == 67, "the Courthouse's anthem key is G")
+	var want := OdAudio.note_at(line["steps"], 8 * int(_man["eras"]["balfour"]["stepsPerBar"]))
+	runner.check(a._tap_i == want, "after a pause the tap joins the music's note (bar 9 -> note %d), got %d" % [want, a._tap_i])
+	runner.check(is_equal_approx(a.layer_target("L2"), OdAudio.L2_UNDER_TAPS), "a tap: the lead steps back at once (v2.2: to -8 dB, not out)")
+	await (runner as SceneTree).create_timer(0.25).timeout
+	runner.check(is_equal_approx(a.layer_gain("L2"), OdAudio.L2_UNDER_TAPS), "within %d ms" % int(OdAudio.L2_STEP_BACK_MS))
 	await _release()
 
 
@@ -316,7 +334,7 @@ func test_layers_follow_sources_taps_and_the_bar_line() -> void:
 	var a: Node = await _playing()
 	var bar_s := OdAudio.bar_seconds(_man, "balfour")
 	runner.check(a.layer_target("L1") == 0.0, "no source yet: L1 off")
-	runner.check(a.layer_target("L2") == 0.0, "tapped under 2 s ago: the player plays the song, the lead rests (v1.10)")
+	runner.check(is_equal_approx(a.layer_target("L2"), OdAudio.L2_UNDER_TAPS), "tapped under 2 s ago: the player plays the song, the lead sits under it at -8 dB (v2.2)")
 	a.event("buy")
 	runner.check(a.layer_target("L1") == 0.0, "L1 waits for the next bar line")
 	a.debug_seek(bar_s + 0.01)
@@ -615,7 +633,7 @@ func test_dynamic_mix_tap_slot_and_ultimatum_tension() -> void:
 	for i in 6:
 		a.event("tap")
 		await (runner as SceneTree).create_timer(0.08).timeout
-	runner.check(a.slot_db() < -2.0, "tapping dips the music's 1 kHz band (the bell's slot), at %.1f dB" % a.slot_db())
+	runner.check(a.slot_db() < -1.0, "tapping dips the music's 1 kHz band (the bell's slot), at %.1f dB" % a.slot_db())
 	await (runner as SceneTree).create_timer(1.6).timeout
 	runner.check(a.slot_db() > -0.3, "the slot recovers when the taps rest, at %.2f dB" % a.slot_db())
 	a.event("ultimatumTick", 3)

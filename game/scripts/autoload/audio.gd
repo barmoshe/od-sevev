@@ -14,8 +14,8 @@ extends Node
 ## Rules implemented here (cue-spec section in brackets):
 ## - Nothing plays before the first Magician tap. That tap plays the `motif` stinger instead of
 ##   `tap`, and the music starts at bar 1 exactly where the motif's ♭2 resolves (§2.6, A15).
-## - The tap (v1.11, ADR 0010): each tap is the next note of HaTikva (the era's `tapLine`, in its
-##   anthem key); ±1.5 dB. A crit plays `tap` at f0 and `rabbitCrit` on the crit strip's
+## - The tap soloist (v1.10, ADR 0009): each tap is the next note of the era's song (`tapLine`),
+##   following the music at phrase ends; ±1.5 dB. A crit plays `tap` at f0 and `rabbitCrit` on the crit strip's
 ##   rabbit frame (+250 ms, +83 in reduced motion), or at once on event("rabbit").
 ## - Unity buses under a limiter-only master; the slider's default position is 0 dB (§3).
 ## - Ducks from `cues.<id>.ducks` (and per bus for the stingers), deepest wins (§3).
@@ -60,7 +60,7 @@ extends Node
 signal marker(cue_id: String, name: String)
 signal dubi_blip(bank: String)
 signal pink_front_beat(on_beat: bool, offset_ms: float)
-## v1.10: the player's taps played a whole line of HaTikva (at most one per 1.5 lines' time).
+## v1.10: the player's taps played a whole phrase of the era's song (at most one per phrase of music).
 signal phrase_done(notes: int)
 
 const POOL := 24
@@ -186,7 +186,7 @@ var _ult_force := false
 ## player plays sits in a slot of its own (frequency-based side-chaining, as Baldur's Gate 3 mixes
 ## its critical cues); in an ultimatum's last 3 s the music closes into a low-pass (MusicTension,
 ## the trap filter-down) and opens again when it is paid or runs out.
-const SLOT_DB := -3.0
+const SLOT_DB := -1.5   # v2.2: -3 -> -1.5, the TapDuck compressor does most of the work now
 const SLOT_HOLD_MS := 250.0
 const SLOT_ATTACK_MS := 30.0
 const SLOT_RELEASE_MS := 600.0
@@ -859,20 +859,18 @@ func _on_tap(now: float, crit: bool) -> void:
 		judge_tap()
 
 
-## v1.11 (Bar: "HaTikva when you tap the character, every tap a note"): the next note of HaTikva in the
-## playing track's anthem key, from the nearest bell root at pitch_scale. The music's own lead steps
-## back at once: the player plays the melody now. The anthem keeps its place across a key change
-## (court day, an era's track); a new round starts it from the top (_tap_line_of = "").
+## v1.10 (Bar: "each tap is a note"): the tap plays the next note of the song the era is playing
+## (OdAudio.tap_next follows the music), from the nearest bell root at pitch_scale. The music's own
+## lead steps back at once: the player plays the song now.
 func _tap_note_play(now: float, gap_ms: float) -> void:
 	var tr := _track if _music_live and _track != "" else _track_want()
 	if tr != _tap_line_of:
-		var fresh := _tap_line_of == ""
 		_tap_line = OdAudio.tap_line(_man, tr)
 		_tap_line_of = tr
-		if fresh or _tap_i >= (_tap_line["midi"] as Array).size():
-			_tap_i = -1
-			_tap_run = 0
-	var st := OdAudio.tap_next(_tap_line, _tap_i, _tap_run, gap_ms)
+		_tap_i = -1
+		_tap_run = 0
+	var ms := OdAudio.song_step(_tap_line, _heard_pos()) if _music_live else -1
+	var st := OdAudio.tap_next(_tap_line, _tap_i, _tap_run, gap_ms, ms)
 	_tap_i = int(st["i"])
 	_tap_run = int(st["run"])
 	if _tap_i < 0:
@@ -894,8 +892,8 @@ func _tap_note_play(now: float, gap_ms: float) -> void:
 			phrase_done.emit(_tap_run)
 
 
-## The lead steps back over L2_STEP_BACK_MS (not at the bar line): the bell is the lead while the
-## player taps. It comes back at a bar line once the taps rest (_layer_want).
+## The lead steps back over L2_STEP_BACK_MS (not at the bar line), to L2_UNDER_TAPS (v2.2; it used to go
+## out): the bell is the lead while the player taps. It comes back at a bar line once the taps rest.
 func _l2_step_back(now: float) -> void:
 	_ramp_layer("L2", _layer_level("L2", _bar_i + 1), now, OdAudio.L2_STEP_BACK_MS)
 
@@ -1297,7 +1295,7 @@ func _collapse(_now_ms: float) -> void:
 ## The election fanfare (§2.4): on the confirm frame, in the incoming era's key, tags by the
 ## election number; the bed stops in 30 ms; the incoming era starts at bar 1 after musicalSamples.
 func _election(now: float, arg: Variant) -> void:
-	_tap_line_of = ""   # a new round: HaTikva from the top
+	_tap_line_of = ""   # a new round: the taps join the new era's song
 	var n := _evolutions + 1
 	if (arg is int or arg is float) and int(arg) > 0:
 		n = int(arg)
@@ -1562,9 +1560,15 @@ func _layer_want(layer: String, bar_n: int) -> bool:
 	return not OdAudio.af_off_during(_man, layer, _loop, bar_n, OdAudio.bars_per_loop(_man, _track))
 
 
-## A layer's gain at a bar line: 1 when it sounds, else 0.
+## A layer's gain at a bar line: 1 when it sounds, else 0; v2.2: the lead under the taps keeps
+## OdAudio.L2_UNDER_TAPS (-8 dB) when tapping is the only reason it steps back.
 func _layer_level(layer: String, bar_n: int) -> float:
-	return 1.0 if _layer_want(layer, bar_n) else 0.0
+	if _layer_want(layer, bar_n):
+		return 1.0
+	if layer == "L2" and _now() - _last_tap < OdAudio.L2_REST_MS and not _court and not _ult_force \
+			and not OdAudio.af_off_during(_man, "L2", _loop, bar_n, OdAudio.bars_per_loop(_man, _track)):
+		return OdAudio.L2_UNDER_TAPS
+	return 0.0
 
 
 func _snap_layers(bar_n: int) -> void:

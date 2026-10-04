@@ -2605,7 +2605,7 @@ func _pay_tap(at: Vector2, manual: bool) -> void:
 	ftue.on_registered_action()
 
 
-## v1.10 (Bar: "each tap is a note"): the taps played a whole line of HaTikva (v1.11). The phrase
+## v1.10 (Bar: "each tap is a note"): the taps played a whole phrase of the era's song. The phrase
 ## bonus (Economy.phrase_bonus), its amount as a big floater over the leader and a burst of sparks;
 ## the Audio has already played its sparkle.
 func _on_phrase_done() -> void:

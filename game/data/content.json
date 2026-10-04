@@ -16,7 +16,7 @@
   "maxRegisteredTapsPerSec": 16,
   "pctOfBpsBase": 0.02,
   "phraseBonusMult": 3,
-  "_phraseBonus": "v1.11 (Bar, 2026-10-03): every tap is the next note of HaTikva; a whole 2-bar line of it played in one go pays phraseBonusMult taps' worth (no crit), at most once per 1.5 phrases of music (about every 3-6 s), so a steady tapper earns about +10-25% on taps.",
+  "_phraseBonus": "v1.10 (Bar, 2026-10-03): every tap is the next note of the era's song; a whole 2-bar phrase played in one go pays phraseBonusMult taps' worth (no crit), at most once per 1.5 phrases of music (about every 3-6 s), so a steady tapper earns about +10-25% on taps.",
   "firstCrit": {
    "atTap": 7,
    "mult": 4,

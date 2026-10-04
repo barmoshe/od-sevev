@@ -343,7 +343,7 @@ static func tap_earned(d: Derived) -> float:
 	return d.tap_value_no_crit - d.tap_pour_sec * d.bps
 
 
-## v1.10 (Bar, 2026-10-03): the phrase bonus. The player's taps played a whole line of HaTikva
+## v1.10 (Bar, 2026-10-03): the phrase bonus. The player's taps played a whole phrase of the era's song
 ## (the Audio's phrase_done): content tap.phraseBonusMult taps' worth, never a crit, never S07's pour
 ## (income moved, not earned by the tap). Nothing while the taps are paused.
 static func phrase_bonus(s: GameState, d: Derived = null) -> float:

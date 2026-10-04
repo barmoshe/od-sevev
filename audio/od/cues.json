@@ -571,7 +571,7 @@
  },
  "cues": {
   "tap": {
-   "meaning": "The trick worked; money came out, to the next note of HaTikva.",
+   "meaning": "The trick worked; money came out, to the next note of the song the era is playing.",
    "bus": "SFX-Frequent",
    "priority": 2,
    "poly": 6,
@@ -581,6 +581,125 @@
    "pitch": {
     "type": "none"
    },
+   "melody": [
+    "n0",
+    "n2",
+    "n3",
+    "n5",
+    "n7",
+    "n7",
+    "n8",
+    "n7",
+    "n8",
+    "n12",
+    "n7",
+    "n5",
+    "n5",
+    "n5",
+    "n3",
+    "n3",
+    "n2",
+    "n0",
+    "n2",
+    "n3",
+    "n0",
+    "n-5",
+    "n0",
+    "n2",
+    "n3",
+    "n5",
+    "n7",
+    "n7",
+    "n8",
+    "n7",
+    "n8",
+    "n12",
+    "n7",
+    "n5",
+    "n5",
+    "n5",
+    "n3",
+    "n3",
+    "n2",
+    "n0",
+    "n2",
+    "n3",
+    "n0",
+    "n0",
+    "n12",
+    "n12",
+    "n12",
+    "n10",
+    "n12",
+    "n10",
+    "n8",
+    "n7",
+    "n0",
+    "n12",
+    "n12",
+    "n12",
+    "n10",
+    "n12",
+    "n10",
+    "n8",
+    "n7",
+    "n10",
+    "n10",
+    "n10",
+    "n3",
+    "n3",
+    "n5",
+    "n7",
+    "n8",
+    "n10",
+    "n7",
+    "n5",
+    "n3",
+    "n5",
+    "n5",
+    "n3",
+    "n3",
+    "n3",
+    "n2",
+    "n0",
+    "n2",
+    "n3",
+    "n0",
+    "n10",
+    "n10",
+    "n10",
+    "n3",
+    "n3",
+    "n5",
+    "n7",
+    "n8",
+    "n10",
+    "n7",
+    "n5",
+    "n3",
+    "n5",
+    "n5",
+    "n3",
+    "n3",
+    "n3",
+    "n2",
+    "n0",
+    "n2",
+    "n3",
+    "n0"
+   ],
+   "phrases": [
+    0,
+    11,
+    22,
+    33,
+    43,
+    52,
+    61,
+    73,
+    83,
+    95
+   ],
    "variants": {
     "r60": [
      {
@@ -1213,7 +1332,7 @@
      }
     ]
    },
-   "runtime": "Each tap plays the next note of the playing era's tapLine (HaTikva in the era's anthem key, music.json), from the bell root (variant r<midi>) nearest the note, at pitch_scale 2^(semitones/12). The anthem runs on through pauses and court day and wraps at its end; a new round starts it from the top. A stolen voice fades over 30 ms. Gain jitter +-1.5 dB.",
+   "runtime": "v2.2 (Bar: \"the tapping notes should change according to the song that is playing\"; ADR 0012): each tap plays the next note of the playing era's tapLine (music.json): the song the loop plays (HaTikva, Hava Nagila, Hevenu, ...), from the bell root (variant r<midi>) nearest the note, at pitch_scale 2^(semitones/12). The taps follow the music: after a pause the next tap joins the note the music is on, and at each phrase's end a tap that has fallen behind (or run more than a phrase ahead) jumps to the phrase the music plays. Without music the line runs on by itself. `melody` (the whole of HaTikva, semitones above the key's root in octave 5) is the fallback for a manifest without tap lines. A stolen voice fades over 30 ms. Gain jitter +-1.5 dB.",
    "lengthMs": 460,
    "target": {
     "type": "stream",
@@ -4997,23 +5116,23 @@
    "variants": {
     "a": [
      {
-      "wave": "noiseMetal",
-      "clockStart": 44000,
+      "wave": "noise",
+      "clockStart": 30000,
       "filter": {
        "type": "highpass",
-       "freq": 7000,
+       "freq": 8000,
        "Q": 0.7
       },
       "delay": 0.0,
       "attack": 0.0008,
-      "decay": 0.04,
+      "decay": 0.03,
       "sustain": 0.0,
-      "duration": 0.04,
+      "duration": 0.03,
       "release": 0.004,
-      "gain": 0.4
+      "gain": 0.18
      },
      {
-      "wave": "pulse",
+      "wave": "sine",
       "freqStart": "E6",
       "delay": 0.0,
       "attack": 0.001,
@@ -5021,41 +5140,39 @@
       "sustain": 0.2,
       "duration": 0.05,
       "release": 0.02,
-      "gain": 0.5,
-      "duty": 0.5
+      "gain": 0.5
      },
      {
-      "wave": "pulse",
+      "wave": "sine",
       "freqStart": "A6",
       "delay": 0.045,
       "attack": 0.001,
       "decay": 0.08,
       "sustain": 0.1,
       "duration": 0.08,
-      "release": 0.03,
-      "gain": 0.5,
-      "duty": 0.5
+      "release": 0.04,
+      "gain": 0.45
      }
     ],
     "b": [
      {
-      "wave": "noiseMetal",
-      "clockStart": 44000,
+      "wave": "noise",
+      "clockStart": 30000,
       "filter": {
        "type": "highpass",
-       "freq": 7500,
+       "freq": 8500,
        "Q": 0.7
       },
       "delay": 0.0,
       "attack": 0.0008,
-      "decay": 0.04,
+      "decay": 0.03,
       "sustain": 0.0,
-      "duration": 0.04,
+      "duration": 0.03,
       "release": 0.004,
-      "gain": 0.4
+      "gain": 0.18
      },
      {
-      "wave": "pulse",
+      "wave": "sine",
       "freqStart": "C6",
       "delay": 0.0,
       "attack": 0.001,
@@ -5063,31 +5180,29 @@
       "sustain": 0.2,
       "duration": 0.05,
       "release": 0.02,
-      "gain": 0.5,
-      "duty": 0.5
+      "gain": 0.5
      },
      {
-      "wave": "pulse",
+      "wave": "sine",
       "freqStart": "E6",
       "delay": 0.045,
       "attack": 0.001,
       "decay": 0.08,
       "sustain": 0.1,
       "duration": 0.08,
-      "release": 0.03,
-      "gain": 0.5,
-      "duty": 0.5
+      "release": 0.04,
+      "gain": 0.45
      }
     ]
    },
    "runtime": "The deadpan rule: the payout never scales loudness or count (<= 6 coins per tap, whatever the sum).",
    "target": {
     "type": "burst",
-    "lufs": -19.0
+    "lufs": -26.0
    }
   },
   "phraseDone": {
-   "meaning": "The taps played a whole line of HaTikva (the phrase bonus).",
+   "meaning": "The taps played a whole phrase of the era's song (the phrase bonus).",
    "bus": "SFX-Frequent",
    "priority": 2,
    "poly": 1,
