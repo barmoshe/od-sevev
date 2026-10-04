@@ -44,4 +44,4 @@ func test_the_browser_driver_is_a_slow_player_not_a_slow_game() -> void:
 		PacingSim.fmt_t(BROWSER_ROUND_SEC), PacingSim.fmt_t(median_player)])
 	runner.check(med >= BROWSER_ROUND_SEC * 0.7 and med <= BROWSER_ROUND_SEC * 1.3,
 		"the bench replays the browser round within ±30%% (bench %s, browser %s)" % [PacingSim.fmt_t(med), PacingSim.fmt_t(BROWSER_ROUND_SEC)])
-	runner.check(median_player >= 7.0 * 60.0 and median_player <= 9.0 * 60.0, "and the median player still calls it in 7-9 min (%s)" % PacingSim.fmt_t(median_player))
+	runner.check(median_player >= 4.0 * 60.0 and median_player <= 5.0 * 60.0, "and the median player still calls it in 4-5 min (ADR 0013) (%s)" % PacingSim.fmt_t(median_player))

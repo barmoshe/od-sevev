@@ -661,9 +661,9 @@ func test_leader_effects_smotrich() -> void:
 	runner.check(is_equal_approx(float(d.producer_mult["vat"]), float(db.producer_mult["vat"]) * 1.18), "VAT ×1.18 from t 0")
 	runner.check(is_equal_approx(Leaders.demand_discount_pct(), 10.0), "demands −10%")
 	_member(s, "bengvir")
-	runner.check(is_equal_approx(Coalition.demand_price(s, "bengvir", d), ceilf(maxf(10.0, 45.0 * d.bps * 0.9))), "a demand at 90%")
+	runner.check(is_equal_approx(Coalition.demand_price(s, "bengvir", d), ceilf(maxf(10.0, 45.0 * Coalition.price_scale(s.evolutions) * d.bps * 0.9))), "a demand at 90%")
 	s.shop["p_deal"] = 1   # the perk's 10% adds to his
-	runner.check(is_equal_approx(Coalition.demand_price(s, "bengvir", d), ceilf(maxf(10.0, 45.0 * d.bps * 0.8))), "perk + rule: 20% off")
+	runner.check(is_equal_approx(Coalition.demand_price(s, "bengvir", d), ceilf(maxf(10.0, 45.0 * Coalition.price_scale(s.evolutions) * d.bps * 0.8))), "perk + rule: 20% off")
 	var ids := _ids(Coalition.partners())
 	runner.check(ids.has("karhi") and not ids.has("abbas") and not ids.has("smotrich"), "Karhi in, Abbas out, never himself")
 
@@ -795,3 +795,42 @@ func test_shared_perks_and_trophies_read_neutral_copy_outside_bibis_round() -> v
 	_round("bibi")
 	var shipped: Dictionary = (Content.data()["perks"]["list"] as Array).filter(func(x: Dictionary) -> bool: return x["id"] == "p_magnet")[0]
 	runner.check(str(Meta.perk("p_magnet")["name"]) == str(shipped["name"]), "Bibi's round keeps the shipped texts")
+
+
+# ---------------------------------------------------------------------------------------------
+# ADR 0013: round 1 shorter, for every leader
+# ---------------------------------------------------------------------------------------------
+
+## Round 1's own pace: the late partners (the ones with a time floor) get their floor × round1TimeScale
+## and their money threshold × round1MoneyScale, the early five keep theirs, demands cost
+## round1DemandScale × demandSec; from round 2 the election scaling applies as before.
+func test_round_one_has_its_own_pace() -> void:
+	var s := _round("bibi")
+	var co: Dictionary = Content.data()["coalition"]
+	var late := Coalition.partner("goldknopf")
+	var raw: Dictionary = late["unlock"]
+	var u := Coalition.unlock_of(s, late)
+	runner.check(is_equal_approx(float(u["runSecAtLeast"]), float(raw["runSecAtLeast"]) * float(co["round1TimeScale"]))
+		and is_equal_approx(float(u["runMoneyAtLeast"]), float(raw["runMoneyAtLeast"]) * float(co["round1MoneyScale"])), "a late partner comes sooner in round 1 (%s)" % str(u))
+	var early := Coalition.partner("smotrich")
+	runner.check(Coalition.unlock_of(s, early) == early["unlock"], "an early partner keeps the first minutes' beat")
+	runner.check(is_equal_approx(Coalition.price_scale(0), float(co["round1DemandScale"])), "round 1's demands cost round1DemandScale × demandSec")
+	s.evolutions = 1
+	var u1 := Coalition.unlock_of(s, late)
+	runner.check(is_equal_approx(float(u1["runSecAtLeast"]), float(raw["runSecAtLeast"]) * Coalition.time_scale(1)), "round 2 is back on the election scaling")
+
+
+## "Make sure all leaders work" (Bar): a shuffled deal never leaves a round short of 61. Bennett's seeds
+## 1 and 9 used to deal 33 partner seats that could open in round 1 and took 15-16 min to vote.
+func test_every_deal_can_reach_the_gate_in_its_round() -> void:
+	var need := float(Leaders.ls()["lineupRules"]["minRoundSeats"])
+	for id: String in Leaders.pickable():
+		var worst := INF
+		for salt in range(1, 41):
+			for evo: int in [0, 1, 2]:
+				var s := GameState.fresh()
+				Leaders.set_salt(s, salt)
+				s.evolutions = evo
+				var dl := Leaders.deal(id, Leaders.deal_seed(s, id), evo)
+				worst = minf(worst, Leaders.reachable_seats(id, dl, evo) if Leaders.shuffles(id) else need)
+		runner.check(worst >= need, "%s: every deal (40 salts, rounds 1-3) leaves at least %.0f reachable seats, worst %.0f" % [id, need, worst])

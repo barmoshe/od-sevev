@@ -329,13 +329,19 @@ static func unlock_of(s: GameState, p: Dictionary) -> Dictionary:
 	if not u is Dictionary:
 		return {"<invalid>": true}
 	if s.evolutions == 0:
-		# round 1's own clock (ADR 0013, Bar 2026-10-04: round 1 lost interest after ~5 min): the late
-		# partners' time floors × coalition.round1TimeScale; later rounds keep their eased floors
-		var r1 := _num("round1TimeScale", 1.0)
-		if r1 == 1.0 or not (u as Dictionary).has("runSecAtLeast"):
+		# round 1's own pace (ADR 0013, Bar 2026-10-04: round 1 lost interest after ~5 min): the late
+		# partners (the ones with a time floor, the L slots) get their floor × coalition.round1TimeScale
+		# and their money threshold × coalition.round1MoneyScale; the early five keep the first-minutes
+		# beats, and later rounds keep their own scaling (below)
+		var r1t := _num("round1TimeScale", 1.0)
+		var r1m := _num("round1MoneyScale", 1.0)
+		if (r1t == 1.0 and r1m == 1.0) or not (u as Dictionary).has("runSecAtLeast"):
 			return u
 		var o1: Dictionary = (u as Dictionary).duplicate()
-		o1["runSecAtLeast"] = float(u["runSecAtLeast"]) * r1
+		if r1t != 1.0 and o1.has("runSecAtLeast"):
+			o1["runSecAtLeast"] = float(u["runSecAtLeast"]) * r1t
+		if r1m != 1.0 and o1.has("runMoneyAtLeast"):
+			o1["runMoneyAtLeast"] = float(u["runMoneyAtLeast"]) * r1m
 		return o1
 	var out: Dictionary = (u as Dictionary).duplicate()
 	var scale := _num("unlockScalePerElection", 1.0)
@@ -355,6 +361,8 @@ static func time_scale(evolutions: int) -> float:
 ## The price factor on demandSec / poachSec after `evolutions` elections (a veteran's deals cost
 ## fewer seconds of income): min + (1 - min) × demandSecScalePerElection^n; 1 when the key is absent.
 static func price_scale(evolutions: int) -> float:
+	if evolutions <= 0:
+		return _num("round1DemandScale", 1.0)   # round 1's own price (ADR 0013)
 	return _ease(evolutions, "demandSecScalePerElection", "demandSecScaleMin")
 
 

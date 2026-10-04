@@ -298,7 +298,49 @@ static func shuffles(id: String) -> bool:
 ## This round's slot deal {partnerId: slot} (spec §5.5, L4). S1 and SI stay put; the other members'
 ## slots are permuted by a seed (the round, the leader, the save's salt), so a reload never rerolls
 ## (the deal is saved) and an undo keeps the same seed. The default leader deals nothing: {}.
-static func deal(id: String, seed_: int) -> Dictionary:
+static func deal(id: String, seed_: int, evolutions: int = -1) -> Dictionary:
+	var out := _deal_once(id, seed_)
+	# ADR 0013 (Bar 2026-10-04, "make sure all leaders work"): a deal that hands the seats a round needs
+	# to slots that can't open this round (evolutionsAtLeast) left 61 out of reach for 15 min (Bennett,
+	# seeds 1 and 9). Re-deal from the next seeds until this round's reachable seats can close the gate.
+	if evolutions >= 0 and shuffles(id):
+		for k in range(1, 33):
+			if reachable_seats(id, out, evolutions) >= int(ls().get("lineupRules", {}).get("minRoundSeats", 0)):
+				break
+			out = _deal_once(id, seed_ + k * 7919)
+	return out
+
+
+## The partner seats a deal can bring in a round at `evolutions`: each member whose dealt slot opens
+## by then (its unlock's evolutionsAtLeast), counted as Coalition.weight (seats, or half the
+## abstentions), minus those who won't sit with the fixed first partner (S1 is always in).
+static func reachable_seats(id: String, deal_: Dictionary, evolutions: int) -> float:
+	var roster := build_roster(id, deal_)
+	var first: Dictionary = {}
+	for p: Dictionary in roster:
+		if str(p.get("slot", "")) == "S1":
+			first = p
+	var n := 0.0
+	var counted: Array = []
+	for p: Dictionary in roster:
+		if p.get("standIn", false):
+			continue
+		var u: Variant = p.get("unlock", {})
+		if u is Dictionary and int((u as Dictionary).get("evolutionsAtLeast", 0)) > evolutions:
+			continue
+		if not first.is_empty() and p != first and Coalition.wont_sit(p, first):
+			continue
+		n += Coalition.weight(p)
+		counted.append(p)
+	# two others who won't sit together: only one of them counts (the smaller one is the one to lose)
+	for i in counted.size():
+		for j in range(i + 1, counted.size()):
+			if Coalition.wont_sit(counted[i], counted[j]):
+				n -= minf(Coalition.weight(counted[i]), Coalition.weight(counted[j]))
+	return n
+
+
+static func _deal_once(id: String, seed_: int) -> Dictionary:
 	var out := {}
 	if is_default(id):
 		return out
@@ -624,7 +666,7 @@ static func _begin(s: GameState, id: String, prev: String) -> Dictionary:
 	s.leader_round["picked"] = false   # start_round marks a pick
 	s.leader_round["tickOnce"] = []    # Ambient.pick: each priorityOnce line once a round
 	s.leader_round.erase("undo")
-	s.seat_deal = deal(id, deal_seed(s, id))
+	s.seat_deal = deal(id, deal_seed(s, id), s.evolutions)
 	s.leader_ver += 1
 	ensure(s)
 	return {"leader": id, "fresh": pct > 0.0, "freshPct": pct, "switched": switched}
@@ -1162,7 +1204,7 @@ static func sanitize_into(s: GameState, r: Dictionary) -> void:
 ## A saved deal is kept only when it is a permutation of the lineup's slots with S1 and SI in place
 ## (a hand-edited save can't deal the 12-seat slot twice); otherwise the round is re-dealt.
 static func _valid_deal(id: String, raw: Variant, s: GameState) -> Dictionary:
-	var want := deal(id, deal_seed(s, id))
+	var want := deal(id, deal_seed(s, id), s.evolutions)
 	if not raw is Dictionary or is_default(id):
 		return want
 	var got: Dictionary = raw

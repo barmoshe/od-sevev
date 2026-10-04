@@ -5,11 +5,12 @@ extends RefCounted
 ## The od-sevev gates (each with its source; the table is in design/progression-curve.md §0):
 ##   S0 median: the chat pings (C1) at 0:20-1:15 ............ pitch §11 Q2 ("first demand ~45 s")
 ##   Q3 no ultimatum before 3:00 of play ...................... pitch §11 Q3
-##   S1 median (1.5 taps/s) first election 7:00-9:00 ......... pitch §5 Targets ("about 7-9 minutes")
-##   S2 engaged (4 taps/s) first election 5:00-9:00 .......... the sim developer's objection (STATUS.md), accepted
-##   S3 casual (2 taps/s) first election 5:00-9:00 ........... between S1 and S2 in tap rate, so inside their union
-##   S4 idle first election later than the median, ≤ 16:00 .. pitch §10.3's rule for a style: "viable but slower,
-##                                                              not a trap" (at most 2× the median's 8-min center)
+##   S1 median (1.5 taps/s) first election 4:00-5:00 ......... ADR 0013 (Bar 2026-10-04: round 1 lost interest
+##                                                              after ~5 min; was 7-9, pitch §5)
+##   S2 engaged (4 taps/s) first election 3:00-5:00 .......... ADR 0013 (was 5-9)
+##   S3 casual (2 taps/s) first election 3:30-5:30 ........... between S1 and S2 in tap rate (was 5-9)
+##   S4 idle first election later than the median, ≤ 8:00 ... pitch §10.3's rule for a style: "viable but slower,
+##                                                              not a trap" (was 16, 2× the old 8-min center)
 ##   S5 median second election 3:00 ≤ round 2 ≤ round 1 ..... pitch §11 Q8 note ("base growth makes later rounds
 ##                                                              faster") + §9 (a round holds a suitcase, every 2-4 min)
 ##   S6 median rounds 1-5 each ≥ 3:00 ......................... pitch §9 cadence (story flash, suitcase, ~90 s partner
@@ -58,7 +59,7 @@ static func _in(t: float, lo_min: float, hi_min: float) -> bool:
 func test_median_first_election() -> void:
 	var r := _session("median")
 	var t := _first(r)
-	runner.check(_in(t, 7.0, 9.0), "S1: median first election in 7-9 min (pitch §5), got %s" % PacingSim.fmt_t(t))
+	runner.check(_in(t, 4.0, 5.0), "S1: median first election in 4-5 min (ADR 0013; was 7-9, pitch §5), got %s" % PacingSim.fmt_t(t))
 	var c1 := _first_event(r, "c1")
 	runner.check(_in(c1, 20.0 / 60.0, 1.25), "S0: median C1 chat ping at 0:20-1:15 (pitch §11 Q2), got %s" % PacingSim.fmt_t(c1))
 	var u := _first_event(r, "ultimatum")
@@ -74,13 +75,13 @@ func test_slow_player_first_election() -> void:
 	var r := _session("slow")
 	var t := _first(r)
 	print("    slow (chat every 45 s) first election ", PacingSim.fmt_t(t))
-	runner.check(t <= 12.0 * 60.0, "SL: a player who checks the chat every 45 s votes within 12 min, got %s" % PacingSim.fmt_t(t))
+	runner.check(t <= 8.0 * 60.0, "SL: a player who checks the chat every 45 s votes within 8 min (ADR 0013), got %s" % PacingSim.fmt_t(t))
 
 
 func test_engaged_session() -> void:
 	var r := _session("engaged")
 	var runs: Array = r["runs"]
-	runner.check(_in(_first(r), 5.0, 9.0), "S2: engaged first election in 5-9 min, got %s" % PacingSim.fmt_t(_first(r)))
+	runner.check(_in(_first(r), 3.0, 5.0), "S2: engaged first election in 3-5 min (ADR 0013), got %s" % PacingSim.fmt_t(_first(r)))
 	runner.check(runs.size() >= 3, "engaged player calls at least 3 elections in an hour (%d)" % runs.size())
 	var shortest := 1e9
 	for x: float in runs:
@@ -93,9 +94,9 @@ func test_casual_and_idle_sessions() -> void:
 	var c := _session("casual")
 	var i := _session("idle")
 	var m := _session("median")
-	runner.check(_in(_first(c), 5.0, 9.0), "S3: casual first election in 5-9 min, got %s" % PacingSim.fmt_t(_first(c)))
-	runner.check(_first(i) > _first(m) and _first(i) <= 16.0 * 60.0,
-		"S4: idle first election later than the median (%s) and by 16 min, got %s" % [PacingSim.fmt_t(_first(m)), PacingSim.fmt_t(_first(i))])
+	runner.check(_in(_first(c), 3.5, 5.5), "S3: casual first election in 3:30-5:30 (ADR 0013), got %s" % PacingSim.fmt_t(_first(c)))
+	runner.check(_first(i) > _first(m) and _first(i) <= 8.0 * 60.0,
+		"S4: idle first election later than the median (%s) and by 8 min (ADR 0013), got %s" % [PacingSim.fmt_t(_first(m)), PacingSim.fmt_t(_first(i))])
 	runner.check((c["runs"] as Array).size() >= 2, "casual player calls at least 2 elections in an hour")
 	runner.check((i["runs"] as Array).size() >= 1, "idle player calls an election in an hour")
 

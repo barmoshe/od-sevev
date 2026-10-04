@@ -25,8 +25,8 @@
   },
   "_formula": "tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult (permanent: perks, partners, Eisenkot) × tapBoost (timed: tap frenzy, a ×N spin, Kaia, a leader buff, Mordechai; taps show big while > 1) × (crit ? critMult : 1). bps excludes the production-frenzy multiplier. Random crits are off before tap firstCrit.randomCritsFromTap (lifetime taps)."
  },
- "saveEpoch": 6,
- "_saveEpoch": "Pre-launch wipes (Bar 2026-10-03: reset all the users data): a save or a settings file written under another epoch is deleted on load (SaveStore), and the web shell clears every odsevev.* browser key (the analytics memory, the sound choice, the disclaimer, the share ref) on a device last seen under another epoch (tools/build_web.sh writes the epoch in). Bump by one and deploy to wipe everyone again. Stop bumping after the official launch.",
+ "saveEpoch": 7,
+ "_saveEpoch": "Pre-launch wipes (Bar 2026-10-03: reset all the users data): a save or a settings file written under another epoch is deleted on load (SaveStore), and the web shell clears every odsevev.* browser key (the analytics memory, the sound choice, the disclaimer, the share ref) on a device last seen under another epoch (tools/build_web.sh writes the epoch in). Bump by one and deploy to wipe everyone again. Stop bumping after the official launch. Wipe #7 (Bar 2026-10-04, the round-1 update, ADR 0013): \"this is the last time\".",
  "wizard": {
   "_doc": "The wizard overlay (ADR 0007; Bar 2026-10-03: the first two minutes clear with a guided do-it wizard, and every new mechanic gets its own). ui/wizard.gd: a step shows while `when` holds and `done` doesn't (state, not a forced chain), a dim with a hole on `anchor`, Dubi's bubble, 'דלג'. Names: WizardHooks.CONDS / ANCHORS. soft = no swallowing; gone = the moment passing counts as done; sec = done after that long shown; hold = the clock holds. text '@reveal.<key>' = reveal.copy. `on` (the reveal key a flow waits for) defaults to the flow's id when that is a reveal key.",
   "first": {
@@ -890,7 +890,10 @@
    "demandGapMult": 0.6
   },
   "unlockScalePerElection": 2,
+  "_round1": "ADR 0013 (Bar 2026-10-04: round 1 lost interest after ~5 min; target 4-5 min): round 1 only, the late partners (those with runSecAtLeast) unlock at runMoneyAtLeast × round1MoneyScale and runSecAtLeast × round1TimeScale, and demands cost demandSec × round1DemandScale. Measured with PacingSim, seeds 1-9, median: every leader 4:26-4:53 (was 8:14-9:42 with the suspicion meter and Mordechai in round 1). Money held round 1, not the time floors (0.5 alone changed nothing). From round 2 the election scaling below applies.",
   "round1TimeScale": 0.5,
+  "round1MoneyScale": 0.115,
+  "round1DemandScale": 0.5,
   "unlockTimeScalePerElection": 0.6,
   "unlockTimeScaleMin": 0.58,
   "demandSecScalePerElection": 0.5,
@@ -5401,6 +5404,8 @@
    ],
    "minLateSlots": 2,
    "minSeatCapacity": 40,
+   "minRoundSeats": 35,
+   "_minRoundSeats": "ADR 0013 (Bar 2026-10-04, make sure all leaders work): a shuffled deal must leave at least this many partner seats (Coalition.weight) that can open in the round being dealt (the slot's unlock evolutionsAtLeast) and sit with the first partner; otherwise Leaders.deal re-deals from the next seed. Bennett's seeds 1 and 9 dealt 33 (Gafni, whom Liberman won't sit with, on the 9-seat L6; Lapid or Golan on L5, closed in round 1) and took 15-16 min to reach 61; every deal of 35+ closes in time.",
    "shuffleSeatsExceptFirst": true,
    "_rule": "S1 is the FTUE C1 partner (fixed, variant 0 first). Every other member's slot numbers are dealt at random each round (seeded by round), so a partner's seats never read as a poll. Bibi's lineup ships with shuffle off (tuned, and the C1 beats name Ben Gvir); Bar may turn it on."
   },

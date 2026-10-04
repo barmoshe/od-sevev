@@ -64,7 +64,7 @@ static func _t(r: Dictionary) -> float:
 	return float(r["gate_t"]) if float(r["gate_t"]) >= 0.0 else INF
 
 
-func test_every_leader_first_election_median_7_to_9() -> void:
+func test_every_leader_first_election_median_4_to_5() -> void:
 	if not Leaders.active():
 		print("  (content has no leader select: skipped)")
 		return
@@ -77,7 +77,7 @@ func test_every_leader_first_election_median_7_to_9() -> void:
 		var med := float(sorted[sorted.size() / 2])
 		print("  %-9s median first election %s (seeds 1-9: %s)" % [id, PacingSim.fmt_t(med),
 			", ".join(ts.map(func(x: float) -> String: return PacingSim.fmt_t(x)))])
-		runner.check(_in(med, 7.0, 9.0), "L1 %s: the median first election over seeds 1-9 in 7-9 min, got %s" % [id, PacingSim.fmt_t(med)])
+		runner.check(_in(med, 4.0, 5.0), "L1 %s: the median first election over seeds 1-9 in 4-5 min (ADR 0013), got %s" % [id, PacingSim.fmt_t(med)])
 		# Mordechai David's dose (design/mordechai-david-spec.md §6): the seeds where his blockade fired
 		# before the first election (Balfour is round 1 only)
 		var md := 0
@@ -112,9 +112,9 @@ func test_every_leader_profiles() -> void:
 		var c := _median_first("casual", id)
 		var i := _median_first("idle", id)
 		print("  %-9s first election (median of seeds 1-9): median %s, engaged %s, casual %s, idle %s" % [id, PacingSim.fmt_t(m), PacingSim.fmt_t(e), PacingSim.fmt_t(c), PacingSim.fmt_t(i)])
-		runner.check(_in(e, 5.0, 9.0), "S2 %s: engaged first election in 5-9 min, got %s" % [id, PacingSim.fmt_t(e)])
-		runner.check(_in(c, 5.0, 9.0), "S3 %s: casual first election in 5-9 min, got %s" % [id, PacingSim.fmt_t(c)])
-		runner.check(i > m and i <= 16.0 * 60.0, "S4 %s: idle later than the median (%s) and by 16 min, got %s" % [id, PacingSim.fmt_t(m), PacingSim.fmt_t(i)])
+		runner.check(_in(e, 3.0, 5.0), "S2 %s: engaged first election in 3-5 min (ADR 0013), got %s" % [id, PacingSim.fmt_t(e)])
+		runner.check(_in(c, 3.5, 5.5), "S3 %s: casual first election in 3:30-5:30 (ADR 0013), got %s" % [id, PacingSim.fmt_t(c)])
+		runner.check(i > m and i <= 8.0 * 60.0, "S4 %s: idle later than the median (%s) and by 8 min (ADR 0013), got %s" % [id, PacingSim.fmt_t(m), PacingSim.fmt_t(i)])
 
 
 static func _session_gates(runner_: Object, name: String, r: Dictionary) -> void:
