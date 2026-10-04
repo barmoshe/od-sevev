@@ -181,3 +181,22 @@ Glitch Warfare from the montage's bar 6, so the drop lands on the first cut. The
 0-1) is the finished end card, so the thumbnail carries the address. Reads the montage mp4, needs no takes.
 
     python3 src/launch.py [--stills | --one <sec>]
+
+## "הבחירות עברו לענן.": the launch share, SaaS cut (`saas/`)
+
+`od-sevev-launch-saas.mp4`, 15 s, 9:16. Bar didn't like the chiptune and asked for "marketing for an
+elegant hi-tech SaaS company". The research (Oct 2026): one idea per shot, empty space, one accent colour,
+one sans with tight tracking, word-by-word blur-in type, the real product UI floating in a device with a
+soft 3D tilt, KPI chips, the CTA as a button; the music a soft steady pulse, a simple diatonic piano,
+warm pads, 105-120 BPM, clean swells at the cuts (moonb.io/blog/product-launch-video,
+motion.so/learn/apple-style-product-launch-video, hera.video/blog/kinetic-typography-video-generator-guide,
+atomikgrowth.com/blog/best-saas-product-launch-videos-of-2026-with-actionable-tips-real-examples).
+
+The joke is the game sold like a dashboard: "Elections as a Service", "צמיחה מהלחיצה הראשונה" with a
+revenue counter, "קואליציה, בזמן אמת" with join toasts, "כמעט 61" on a KPI bar that stalls at 60,
+"סנכרון אוטומטי לבחירות הבאות", then the app icon (Dubi), "עכשיו באוויר" and the address as a button
+a cursor clicks. The screens in `saas/ui/` are crops of the iPhone montage. Heebo + Inter Tight, the
+game's blue as the one accent. Music synthesized in `saas/music.mjs` (112 BPM, seven bars = 15.0 s).
+
+    node store/promo/saas/music.mjs
+    node <bar_builds>/jobs/honeybook/gtm-content/engine/motion/render.mjs store/promo/saas/launch.html --audio store/promo/saas/.out/launch.wav
