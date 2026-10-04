@@ -748,7 +748,7 @@
     "rounds": "99 סבבי בחירות",
     "days": "ו־99 ימי משפט",
     "amount": "999.9 מיליון",
-    "url": "od-sevev.vercel.app",
+    "url": "od-sevev.bar-builds.com",
     "publisher": "",
     "mail": "",
     "preview": "",
@@ -5542,11 +5542,11 @@
     "RECEIPT_FOOT_URL": {
       "surface": "label",
       "legal": true,
-      "note": "MUST be on the image: iOS WhatsApp drops the share text when an image is attached (first-minute §5.1). URL <= 22 chars",
+      "note": "MUST be on the image: iOS WhatsApp drops the share text when an image is attached (first-minute §5.1). URL <= 25 chars",
       "box": "receipt.line",
       "maxChars": 25,
       "worstPx": {
-        "1": 92
+        "1": 111
       }
     },
     "RECEIPT_THANKS": {
@@ -5605,7 +5605,7 @@
       "box": "result.foot",
       "maxChars": 33,
       "worstPx": {
-        "1": 162
+        "1": 181
       }
     },
     "RESULT_DISC": {
@@ -5886,7 +5886,7 @@
       "box": "card.wide",
       "maxChars": 32,
       "worstPx": {
-        "1": 92
+        "1": 111
       }
     },
     "LEAK_CARD_TOP": {

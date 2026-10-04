@@ -115,7 +115,7 @@ func test_word_amounts_and_the_receipt_column() -> void:
 	runner.check(ShareKit.word_amount(999960.0) == "1 מיליון", "rounding up a tier (%s)" % ShareKit.word_amount(999960.0))
 	runner.check(ShareKit.receipt_amount(4213000.0) == "4,213,000", "the receipt groups in full under 10M")
 	runner.check(ShareKit.display_host("https://od-sevev.vercel.app/") == "od-sevev.vercel.app", "the card prints the host")
-	runner.check(ShareKit.display_host(ShareKit.SITE_URL).length() <= 22, "RECEIPT_FOOT_URL's 22-glyph budget holds")
+	runner.check(ShareKit.display_host(ShareKit.SITE_URL).length() <= 25, "RECEIPT_FOOT_URL's 25-glyph box holds the host")
 
 
 # ------------------------------------------------------------------ the models

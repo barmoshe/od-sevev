@@ -142,7 +142,7 @@ PH = {
     "to": "עוצמה יהודית", "from": "הליכוד", "era": "וושינגטון", "outlet": "ידיעות אחרונות",
     "NAME": "פנקס הצ׳קים הזהוב", "UPGRADE_NAME": "הוחלט להקים ועדה", "FLAVOR": "",
     "title": "הקוסם", "dur": "23 שע׳ 59 דק׳", "rounds": "99 סבבי בחירות", "days": "ו־99 ימי משפט",
-    "amount": "999.9 מיליון", "url": "od-sevev.vercel.app", "publisher": "", "mail": "", "preview": "", "mood": "",
+    "amount": "999.9 מיליון", "url": "od-sevev.bar-builds.com", "publisher": "", "mail": "", "preview": "", "mood": "",
     "mine": "88:88", "theirs": "88:88",
     # the share platform (ui/share_cards.gd, ShareKit): a run time, a source's name, a payment count
     "time": "1:23:45", "source": "פנקס הצ׳קים הזהוב", "text": "", "grid": "", "paid": "99",
@@ -751,7 +751,7 @@ e("RECEIPT_COUNTDOWN_TODAY", "הבחירות: היום", "receipt.line")
 e("RECEIPT_COUNTDOWN_AFTER", "הבחירות: נגמרו. הקואליציה: עוד לא.", "receipt.wrap", "*")
 e("RECEIPT_FOOT_REAL", "* הנתון אמיתי. הסכום מהמשחק.", "receipt.line", "L")
 e("RECEIPT_FOOT_DISC", "סאטירה. לא קשור לאף מפלגה או מועמד.", "receipt.wrap", "L", note="Never shorten: 'או מועמד' is the legal half")
-e("RECEIPT_FOOT_URL", "{url}", "receipt.line", "L", note="MUST be on the image: iOS WhatsApp drops the share text when an image is attached (first-minute §5.1). URL <= 22 chars")
+e("RECEIPT_FOOT_URL", "{url}", "receipt.line", "L", note="MUST be on the image: iOS WhatsApp drops the share text when an image is attached (first-minute §5.1). URL <= 25 chars")
 e("RECEIPT_THANKS", "*** תודה שבחרתם. שוב. ***", "receipt.line", "*")
 # --- result card (216x270 art at x5)
 e("RESULT_HEADLINE", "שרדתי {rounds} {days}", "result.head", "*", "§5.2")

@@ -9,7 +9,7 @@ bench can't do.
 or a reel, and who don't call themselves gamers. Not the team, not developers.
 
 ## Setup
-- Their own phone, the live link (od-sevev.vercel.app), a fresh browser (or a private tab).
+- Their own phone, the live link (od-sevev.bar-builds.com), a fresh browser (or a private tab).
 - Sound as they like it. Screen recording on if they agree (iPhone: Control Center → Screen Recording).
 - Say only: "This is a short game. Play it like you would if a friend sent it. I won't help. Think out
   loud if you can." Then stay quiet.

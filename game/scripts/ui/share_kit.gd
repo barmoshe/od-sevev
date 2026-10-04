@@ -17,7 +17,7 @@ extends RefCounted
 ##   the same URL in place on a phone (the app takes it). Results come back through
 ##   `window.odShareDone(kind, result)` → ShareKit.on_result.
 
-const SITE_URL := "https://od-sevev.vercel.app/"
+const SITE_URL := "https://od-sevev.bar-builds.com/"
 const WA := "https://wa.me/?text="
 const LRI := "\u2066"
 const PDI := "\u2069"
@@ -42,8 +42,8 @@ static func site_url() -> String:
 	return _site
 
 
-## The URL as printed on a card: no scheme, no trailing slash ("od-sevev.vercel.app", 19 glyphs;
-## RECEIPT_FOOT_URL's budget is 22).
+## The URL as printed on a card: no scheme, no trailing slash ("od-sevev.bar-builds.com", 23 glyphs;
+## RECEIPT_FOOT_URL's box takes 25; tools/lint_text.sh measures it: 111 px).
 static func display_host(url: String) -> String:
 	var h := url
 	for p in ["https://", "http://"]:

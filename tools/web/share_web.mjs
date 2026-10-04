@@ -22,7 +22,7 @@ fs.mkdirSync(out, { recursive: true });
 const [wh, dprS] = dev.split('@');
 const [W, H] = wh.split('x').map(Number);
 const DPR = Number(dprS);
-const SITE = 'https://od-sevev.vercel.app/';
+const SITE = 'https://od-sevev.bar-builds.com/';
 const ORIGIN = new URL(base).origin;
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 let failed = 0;
