@@ -1,16 +1,16 @@
 // The soundtrack for saas/launch.html, synthesized from nothing: no samples, no licence question.
 // The brief (Bar, Oct 2026): "an elegant hi-tech SaaS launch", not the chiptune. The research says a
 // premium product bed is restraint: a steady soft pulse, a simple diatonic piano line, warm pads,
-// 105-120 BPM, clean swells at the cut points. So: 112 BPM, seven bars = 15.0 s exactly, one scene per
-// bar and two for the end card, Am9 | Fmaj7 | Cmaj7 | Am9 | G6 | Cmaj9 | Fmaj9/C, drums from bar 2, a
-// breath and a swell before the card, half-time under it, the last chord left ringing.
-//   node store/promo/saas/music.mjs  ->  store/promo/saas/.out/launch.wav (-14 LUFS)
+// 105-120 BPM, clean swells at the cut points. So: 115.2 BPM, twelve bars = 25.0 s exactly (the 25 s
+// cut with a voiceover), scenes on beats, the end card on bar 9, drums from the second scene, a breath and
+// a swell before the card, half-time under it, the last chord left ringing.
+//   node store/promo/saas/music.mjs  ->  store/promo/saas/.out/bed.wav (-14 LUFS; mix.py lays the voice on it)
 import { writeFile, mkdir } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const SR = 48000, BPM = 112, BEAT = 60 / BPM, BAR = 4 * BEAT, DUR = 7 * BAR, N = Math.ceil(SR * DUR);
+const SR = 48000, BPM = 115.2, BEAT = 60 / BPM, BAR = 4 * BEAT, DUR = 12 * BAR, N = Math.ceil(SR * DUR);
 const L = new Float32Array(N), R = new Float32Array(N);       // dry
 const SL = new Float32Array(N), SR_ = new Float32Array(N);    // reverb send
 const at = (t) => Math.round(t * SR);
@@ -124,50 +124,47 @@ function chime(t0, n, g = 1) {                  // a UI glint: a glassy sine pai
 }
 
 // --- the arrangement ----------------------------------------------------------------------------
-const CH = [ // pad voicing, sub root, the piano's arpeggio (low to high)
-  { pad: [57, 60, 64, 71], root: 45, arp: [69, 72, 76, 79, 83] },     // Am9    the hook
-  { pad: [53, 57, 60, 64], root: 41, arp: [65, 69, 72, 76, 77] },     // Fmaj7  taps
-  { pad: [55, 60, 64, 71], root: 48, arp: [67, 71, 72, 76, 79] },     // Cmaj7  the coalition
-  { pad: [57, 60, 64, 71], root: 45, arp: [69, 72, 76, 79, 83] },     // Am9    almost 61
-  { pad: [55, 59, 62, 64], root: 43, arp: [62, 67, 71, 74, 76] },     // G6     the Knesset dissolves
-  { pad: [48, 55, 59, 62, 64], root: 36, arp: [72, 74, 76, 79, 84] }, // Cmaj9  the end card
-  { pad: [53, 57, 60, 64, 67], root: 36, arp: [65, 69, 72, 76, 79] }, // Fmaj9/C, left ringing
-];
+const A9 = { pad: [57, 60, 64, 71], root: 45, arp: [69, 72, 76, 79, 83] };
+const F7 = { pad: [53, 57, 60, 64], root: 41, arp: [65, 69, 72, 76, 77] };
+const C7 = { pad: [55, 60, 64, 71], root: 48, arp: [67, 71, 72, 76, 79] };
+const G6 = { pad: [55, 59, 62, 64], root: 43, arp: [62, 67, 71, 74, 76] };
+const C9 = { pad: [48, 55, 59, 62, 64], root: 36, arp: [72, 74, 76, 79, 84] };
+const F9 = { pad: [53, 57, 60, 64, 67], root: 36, arp: [65, 69, 72, 76, 79] };
+const CH = [A9, F7, C7, G6, A9, F7, C7, G6, F7, C9, F9, C9];       // a chord a bar; the card lands on bar 9
 const ARP = [0, 2, 1, 3, 2, 4, 3, 1];          // eight eighths a bar
 const bar = (j) => j * BAR;
-const END = 5;                                  // the end card's bar
+const SCENES = [0, 8, 15, 24, 29, 36];          // scene starts in beats (launch.html reads the same)
+const END = 9;                                  // the end card's bar (beat 36)
 
-// drums first (they write the pump the tonal voices read)
-for (let j = 1; j < END; j++) {
-  for (let b = 0; b < 4; b++) {
-    const t = bar(j) + b * BEAT;
-    if (j === END - 1 && b === 3) break;        // the breath before the end card
-    kick(t, j === 1 && b === 0 ? 1 : 0.85);
-    if (b % 2 === 1) rim(t, 0.8);
-    shaker(t + BEAT / 2, 0.9, 0.3); shaker(t + BEAT / 4, 0.35, -0.3); shaker(t + (3 * BEAT) / 4, 0.35, -0.3);
-  }
+// drums first (they write the pump the tonal voices read): from the second scene to the card
+for (let q = SCENES[1]; q < END * 4; q++) {
+  const t = q * BEAT, b = q % 4;
+  if (q === END * 4 - 1) break;                 // the breath before the end card
+  kick(t, q === SCENES[1] ? 1 : 0.8);
+  if (b % 2 === 1) rim(t, 0.75);
+  shaker(t + BEAT / 2, 0.9, 0.3); shaker(t + BEAT / 4, 0.35, -0.3); shaker(t + (3 * BEAT) / 4, 0.35, -0.3);
 }
-for (let b = 0; b < 4; b++) {                   // under the card: half-time, then nothing
-  if (b % 2 === 0) kick(bar(END) + b * BEAT, 0.6);
-  shaker(bar(END) + b * BEAT + BEAT / 2, 0.6, 0.3);
+for (let q = END * 4; q < END * 4 + 8; q++) {   // under the card: half-time for two bars, then the ring
+  if (q % 2 === 0) kick(q * BEAT, 0.55);
+  shaker(q * BEAT + BEAT / 2, 0.55, 0.3);
 }
 
-for (let j = 0; j < 7; j++) {
-  const c = CH[j], last = j === 6;
-  pad(bar(j), c.pad, last ? 2.6 : BAR - 0.05, j === 0 ? 0.9 : 1, j === 0 ? 1000 : j >= END ? 2200 : 1500, j === 0 ? 1.0 : 0.3);
-  if (j > 0) sub(bar(j), c.root, last ? 2.5 : BAR - 0.02, 0.8);
+for (let j = 0; j < CH.length; j++) {
+  const c = CH[j], last = j === CH.length - 1;
+  pad(bar(j), c.pad, last ? 2.4 : BAR - 0.05, j === 0 ? 0.9 : 1, j === 0 ? 1000 : j >= END ? 2200 : 1500, j === 0 ? 1.0 : 0.3);
+  if (j > 0) sub(bar(j), c.root, last ? 2.2 : BAR - 0.02, 0.8);
   const notes = last ? [0, 2, 4] : ARP;
   notes.forEach((k, i) => {
     const t = bar(j) + i * (last ? BEAT : BEAT / 2);
-    piano(t, c.arp[k], i % 2 ? 0.6 : 0.85, last ? 2.4 : 0.9, (k - 2) * 0.12);
+    piano(t, c.arp[k], (i % 2 ? 0.6 : 0.85) * (j === 0 ? 0.9 : 1), last ? 2.0 : 0.9, (k - 2) * 0.12);
   });
   if (!last) piano(bar(j), c.root + 12, 0.5, BAR, -0.05);
 }
-// cut points: a swell into every bar, a glint on each headline, the bloom on the card
-for (let j = 1; j <= END; j++) swell(bar(j) - 0.45, 0.45, j === END ? 1.6 : 0.6);
-for (let j = 0; j < END; j++) chime(bar(j) + 0.12, 88 + (j % 3) * 2, 0.8);
+// cut points: a swell into every scene, a glint on each headline, the bloom on the card
+SCENES.slice(1).forEach((q, i) => swell(q * BEAT - 0.45, 0.45, i === SCENES.length - 2 ? 1.6 : 0.6));
+SCENES.slice(0, -1).forEach((q, i) => chime(q * BEAT + 0.12, 88 + (i % 3) * 2, 0.8));
 bloom(bar(END), 1);
-chime(bar(END) + BEAT, 91, 1);                  // the address lands
+chime(bar(END) + 2 * BEAT, 91, 1);              // the CTA lands
 
 // --- reverb (Schroeder: four combs, two allpasses a side) on the send ----------------------------
 function reverb(inp, offs) {
@@ -202,6 +199,6 @@ buf.writeUInt32LE(SR * 4, 28); buf.writeUInt16LE(4, 32); buf.writeUInt16LE(16, 3
 for (let i = 0; i < N; i++) { buf.writeInt16LE(Math.round(L[i] * g * 32767), 44 + i * 4); buf.writeInt16LE(Math.round(R[i] * g * 32767), 46 + i * 4); }
 const out = join(dirname(fileURLToPath(import.meta.url)), ".out");
 await mkdir(out, { recursive: true });
-await writeFile(join(out, "launch.raw.wav"), buf);
-const r = spawnSync(process.env.FFMPEG ?? "ffmpeg", ["-y", "-loglevel", "error", "-i", join(out, "launch.raw.wav"), "-af", "loudnorm=I=-14:TP=-1.0:LRA=11", "-ar", "48000", join(out, "launch.wav")], { stdio: "inherit" });
-console.log(r.status === 0 ? `${join(out, "launch.wav")} (${DUR.toFixed(2)} s, -14 LUFS)` : "ffmpeg loudnorm failed");
+await writeFile(join(out, "bed.raw.wav"), buf);
+const r = spawnSync(process.env.FFMPEG ?? "ffmpeg", ["-y", "-loglevel", "error", "-i", join(out, "bed.raw.wav"), "-af", "loudnorm=I=-14:TP=-1.0:LRA=11", "-ar", "48000", join(out, "bed.wav")], { stdio: "inherit" });
+console.log(r.status === 0 ? `${join(out, "bed.wav")} (${DUR.toFixed(2)} s, -14 LUFS)` : "ffmpeg loudnorm failed");
