@@ -1,66 +1,17 @@
-# HANDOFF: round 1 shorter and hotter + the postponed-meter fix, WIP, PAUSED (2026-10-04 evening; read this first)
+# HANDOFF: round 1 is 4-5 min with the suspicion meter and Mordechai David, wipe #7, LIVE (2026-10-04 night; read this first)
 
-**Live: `16b8cc6+`** (the window's `mbBuild` on https://od-sevev.bar-builds.com at 21:5x; a local build after
-`095bcf0`), save epoch 6. Main is at `8ce3638` (promo + analytics). **This work is NOT committed to main**: it sits on the branch
-**`wip/round1-hotter`** (pushed). Bar said: stop and wait; do not deploy it until Bar says go.
+**Live: `1e3a3d2`** (web-dist `8c277a9`, Vercel `dpl_9SZHK2hbPoBpLP1P3YBACtLvQmi8`) at https://od-sevev.bar-builds.com,
+**save epoch 7: the last pre-launch wipe** (Bar: "this is the last time"; don't bump `saveEpoch` again
+without Bar). What shipped and why: ADR 0013, STATUS 2026-10-04 (night).
 
-**What Bar asked (04/10, after playing):**
-1. "Round 1 lacks dopamine and is too slow; after about 5 min it loses interest." Target picked: **round 1 =
-   4-5 min** for the median player. The excitement: **the suspicion meter (חשד) in round 1**, and
-   **Mordechai David in round 1** too.
-2. **Bug:** "the meter doesn't go down" (screenshot: Eisenkot's round, the meter at רותח, no card, no chip).
-3. "Make sure all leaders work"; then push to main and deploy.
-4. **Saves (Bar, before the push): do NOT wipe.** Adapt existing saves to the new rules and **give existing
-   players an award/gift for it**. So: no `saveEpoch` bump; a save migration instead (below).
-
-**Done on `wip/round1-hotter` (`tools/test.sh` 613/613; the bench NOT yet retuned, its 7-9 min gates will fail):**
-- `reveal.suspicion` 2 → 0 and `reveal.mordechai` 4 → 0 (both open in round 1); `reveal.events` 3 → 2 so
-  round 3 still opens something. Their wizard bubbles drop "חדש:" (`reveal.copy`). Tests:
-  `test_reveal.gd`, `test_fixes.gd` (help sheet), `test_wizard.gd` (now waits on `ultimatums`).
-- `main.gd` `_step_economy`: the stage counts as hidden while a wizard bubble shows, so Mordechai David
-  never blocks a step the player is being taught.
-- **The meter bug, root cause:** reproduced in the real scene (Bibi and Eisenkot): 100 → summons → 30 s →
-  press/court day → back to the floor works. What looks stuck is **a postponement** ("לדבר ישר" /
-  "התייעצות ביטחונית"): the meter stays at 100 for the cooldown (120, 90, 60 … s) and **nothing on screen
-  showed it**. Fix (`ui/views/view_court.gd`): in phase `postponed` the ticker chip reads **"נדחה"**
-  (`COURT_CHIP_POSTPONED`, new in `ux/tools/gen_strings.py`, lint 0/0) with the countdown to the summons;
-  the chip can't be expanded. New test `test_a_postponement_shows_its_wait_on_the_chip`.
-- `coalition.round1TimeScale` (new knob, `sim/coalition.gd` `unlock_of`): × on the late partners'
-  `runSecAtLeast` in round 1 only; set to 0.5 in content. Add it to `game/scripts/sim/README.md`'s table.
-- Draft ADR `decisions/0013-2026-10-04-round-one-is-shorter-and-hotter.md` (fill in the bench numbers).
-
-**Measured (PacingSim first_round, seeds 1-9, median profile 1.5 taps/s):**
-- Before (live content): bibi 8:14, bennett 8:51 (two seeds at 13-15 min).
-- With suspicion + Mordechai in round 1: bibi 9:05, bennett 9:38, bengvir 9:03, liberman 8:27, eisenkot
-  9:09, smotrich 8:39, deri 9:12, golan 9:42; engaged 7:45, casual 8:30, idle 10:57, slow 11:15.
-  Mordechai visits in 8-9 of 9 first rounds; court/press days happen.
-- **With `round1TimeScale` 0.5: bibi still 9:05, bennett 9:38 (unchanged).** So the time floors are NOT
-  what holds round 1; it is **money**: the late partners' `runMoneyAtLeast` (goldknopf 225K, gafni 292.5K,
-  abbas 337.5K (needs evolutions ≥ 1), deri 360K, maygolan 450K, almog 562.5K) against round-1 income.
-  Round 1 needs about 11 seats beyond the early five partners (bengvir, regev, smotrich, levin, amsalem = 25)
-  and own seats (21-27).
-
-**Next, in order:**
-1. **Round 1 to 4-5 min:** add `coalition.round1MoneyScale` beside `round1TimeScale` (same spot in
-   `unlock_of`, `runMoneyAtLeast` × it in round 1 only) and/or cheaper/earlier round-1 income; tune with a
-   probe over **every leader** (`Leaders.pickable()`, seeds 1-9) until each median lands 4:00-5:00. The probe
-   used this session is in the scratchpad only; rebuild it from `game/tests/bench/test_leaders_balance.gd`
-   `_first()` (`PacingSim.first_round(id, PacingSim.PLAYERS[profile], seed, 1800.0, 0.25, ev)`).
-   Watch bennett's 13-15 min outlier seeds (1 and 9).
-2. **Bench gates** (`game/tests/bench/test_session.gd`, `test_leaders_balance.gd` L1, the doc table in
-   `design/progression-curve.md` §0.2): S1/L1 7-9 → 4-5 min; S2/S3 5-9 → 3:30-5:30; S4 idle ≤ 10 min;
-   SL slow ≤ 8 min; keep S5 (round 2 ≤ round 1) and S8 green: rounds 2+ run about 4:25, 3:42, 4:11, 3:20…
-   today, so round 2 may need shortening too. Run `tools/balance.sh` (about 10 min; run it in the background).
-3. **Saves, no wipe (Bar):** `SaveStore` VERSION 5 → 6 with a migration step (`save_store.gd` `migrate`,
-   one step per version). Adapt: a save past round 1 now has suspicion on with a floor of
-   `floorPerRoundPct × evolutions` (`Investigation.floor_pct`), events from round 3, Mordechai for everyone;
-   the wizard flows `suspicion` / `mordechai` will teach them on first sight (check they fire for old saves).
-   **Gift:** a one-time award on migration, e.g. a toast/Dubi line plus a grant (base `הבסיס`, or shekels,
-   or a new trophy "ותיק/ה"). **Ask Bar which award** before building it. Test the migration in
-   `game/tests/unit/test_politics_save.gd` style (a v5 save at evolutions 0, 2 and 5).
-4. Check all leaders in the browser (`tools/web/picker_web.mjs`, `wizard_web`, the 390×844 smoke), then
-   STATUS line, ADR 0013 numbers, merge into main, push, deploy (HANDOFF §Deploy / the Vercel connector),
-   verify `mbBuild` live.
+**Open, in order:**
+1. Run the rest of `tools/balance.sh` (the session-hour gates S5-S8 were cut short before the deploy; round 2 runs
+   about 4:25 today, so S5 "round 2 ≤ round 1" may need round 2 a little shorter).
+2. `game/tests/bench/test_web_driver.gd`: `BROWSER_ROUND_SEC` (2411 s) is an old browser measurement; re-measure
+   with `tools/web/round_web.mjs` on this build and update it.
+3. Browser pass on the live build: `picker_web`, `wizard_web` (the suspicion and Mordechai bubbles in round 1),
+   the 390×844 smoke; a postponement shows the "נדחה" chip.
+4. The branch `wip/round1-hotter` is merged; delete it when convenient.
 
 # HANDOFF: the music goes trap, two leaders a round, wipe #6; the game moves to od-sevev.bar-builds.com (2026-10-04; read this first)
 
