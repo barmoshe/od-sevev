@@ -22,16 +22,24 @@ await ctx.addInitScript(() => {
 		sessionStorage.setItem('odsevev.playing', '1');
 	}
 });
-// a returning player: first played 3 days ago, last seen yesterday → return/d2-7
-await ctx.addInitScript(() => {
+// a returning player: first played 3 days ago, last seen yesterday → return/d2-7. The device carries
+// the build's save epoch too: without it the shell's pre-launch wipe (saveEpoch, 5e67c0a) clears every
+// odsevev.* key on load, and the seeded device plays as new.
+const EPOCH = ((await (await fetch(base)).text()).match(/var E = '([^']*)'/) || [])[1] || '';
+if (!EPOCH) {
+	console.log('  FAIL the page carries no save epoch (var E) to seed a returning device with');
+	process.exit(1);
+}
+await ctx.addInitScript((epoch) => {
 	if (sessionStorage.getItem('seeded')) {
 		return;
 	}
 	sessionStorage.setItem('seeded', '1');
 	const day = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
+	localStorage.setItem('odsevev.epoch', epoch);
 	localStorage.setItem('odsevev.first', day(3));
 	localStorage.setItem('odsevev.last', day(1));
-});
+}, EPOCH);
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
