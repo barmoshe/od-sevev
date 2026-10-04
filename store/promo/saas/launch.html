@@ -1,20 +1,21 @@
 <!doctype html>
 <!--
-  "עוד סבב" as an elegant SaaS launch (Bar, Oct 2026: "feels like marketing for a hi-tech SaaS company").
+  "Od Sevev" as an elegant SaaS launch, in English (Bar, Oct 2026: "marketing for a hi-tech SaaS company",
+  then: English throughout with a voiceover, 25 s so it reads slower, the link in the first comment).
   The research (store/promo/README.md): one idea per shot, lots of empty space, one accent colour, one clean
   sans with tight tracking, word-by-word blur-in type, the real product UI floating in a device with a soft
   3D tilt, KPI chips, one smooth camera language, the CTA as a button. The product is the game; the joke is
-  that it is sold like a dashboard.
-  Seven bars at 112 BPM = 15.0 s (music.mjs): a scene a bar, the end card two bars. Frames 0-1 are the
-  finished end card, so the thumbnail carries the address.
+  that it is sold like a dashboard. The game's own screens stay Hebrew: they are the product.
+  Twelve bars at 115.2 BPM = 25.0 s (music.mjs); scenes start on the beats in SCENES, matching the voice
+  (vo.py, mix.py). Frames 0-1 are the finished end card, so the thumbnail carries the CTA.
   Render: node <honeybook engine>/motion/render.mjs store/promo/saas/launch.html --audio store/promo/saas/.out/launch.wav
 -->
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&family=Inter+Tight:wght@500;600;700&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600&display=block" rel="stylesheet">
 <style>
   :root {
     --bg: #f4f3ef; --ink: #0e1016; --mute: #5d616d; --line: rgba(14, 16, 22, .07);
@@ -22,7 +23,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
-  body { font-family: "Heebo", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  body { font-family: "Inter", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
   #stage { position: absolute; inset: 0; overflow: hidden; }
   .glow { position: absolute; border-radius: 50%; filter: blur(90px); will-change: transform; }
   #g1 { width: 900px; height: 900px; background: radial-gradient(circle, rgba(39, 71, 224, .30), rgba(39, 71, 224, 0) 70%); }
@@ -31,18 +32,17 @@
     background-image: radial-gradient(rgba(14, 16, 22, .11) 1.6px, transparent 1.7px); background-size: 36px 36px;
     -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 45%, #000 30%, transparent 75%); }
   .scene { position: absolute; inset: 0; opacity: 0; }
-  .head { position: absolute; right: 130px; left: 90px; top: 250px; text-align: right; }
-  .eyebrow { display: inline-flex; align-items: center; gap: 14px; padding: 12px 24px 12px 22px; border-radius: 99px;
+  .head { position: absolute; left: 90px; right: 130px; top: 250px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 14px; padding: 12px 24px 12px 14px; border-radius: 99px;
     background: #fff; border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(20, 30, 80, .08);
-    font: 500 27px "Heebo"; color: var(--mute); margin-bottom: 34px; }
-  .eyebrow b { font: 600 22px "Inter Tight"; letter-spacing: .02em; color: #fff; background: var(--blue);
-    padding: 4px 12px; border-radius: 99px; }
-  .eyebrow .en { font: 600 25px "Inter Tight"; color: var(--ink); direction: ltr; }
-  h1 { font-weight: 800; font-size: 108px; line-height: 1.02; letter-spacing: -.035em; }
-  h1 .w { display: inline-block; white-space: pre; }
-  .accent { background: linear-gradient(100deg, var(--blue) 10%, var(--blue2) 90%); -webkit-background-clip: text; color: transparent; }
-  .sub { margin-top: 26px; font: 400 40px/1.35 "Heebo"; color: var(--mute); letter-spacing: -.01em; }
-  .sub .w { display: inline-block; white-space: pre; }
+    font: 600 26px "Inter Tight"; color: var(--ink); margin-bottom: 34px; }
+  .eyebrow b { font: 700 21px "Inter Tight"; letter-spacing: .04em; color: #fff; background: var(--blue);
+    padding: 5px 13px; border-radius: 99px; }
+  h1 { font-family: "Inter Tight"; font-weight: 800; font-size: 112px; line-height: 1.0; letter-spacing: -.045em; }
+  .w { display: inline-block; white-space: pre; }
+  .accent { background: linear-gradient(100deg, var(--blue) 10%, var(--blue2) 90%); -webkit-background-clip: text; color: transparent;
+    padding-right: .04em; }
+  .sub { margin-top: 30px; font: 400 40px/1.35 "Inter"; color: var(--mute); letter-spacing: -.015em; }
 
   .dev3d { position: absolute; perspective: 2200px; }
   .device { position: relative; border-radius: 64px; padding: 16px; background: linear-gradient(160deg, #fff, #e9e9ef);
@@ -53,37 +53,36 @@
   .card { border-radius: 36px; padding: 14px; }
   .card .scr { border-radius: 26px; }
 
-  .chip { position: absolute; background: rgba(255, 255, 255, .92); border: 1px solid var(--line); border-radius: 28px;
-    box-shadow: 0 24px 60px rgba(20, 30, 80, .16), 0 4px 12px rgba(20, 30, 80, .06); padding: 24px 30px; text-align: right;
-    backdrop-filter: blur(10px); }
-  .chip .lab { font: 500 25px "Heebo"; color: var(--mute); }
-  .chip .val { font: 800 58px/1.1 "Heebo"; letter-spacing: -.03em; font-variant-numeric: tabular-nums; direction: ltr; text-align: right; }
-  .chip .delta { font: 600 25px "Inter Tight"; color: var(--green); direction: ltr; text-align: right; margin-top: 2px; }
+  .chip { position: absolute; background: rgba(255, 255, 255, .93); border: 1px solid var(--line); border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(20, 30, 80, .16), 0 4px 12px rgba(20, 30, 80, .06); padding: 24px 30px; }
+  .chip .lab { font: 500 25px "Inter"; color: var(--mute); }
+  .chip .val { font: 800 58px/1.1 "Inter Tight"; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+  .chip .delta { font: 600 25px "Inter Tight"; color: var(--green); margin-top: 2px; }
   .toast { position: absolute; display: flex; align-items: center; gap: 18px; background: rgba(255, 255, 255, .95);
-    border: 1px solid var(--line); border-radius: 26px; padding: 18px 26px 18px 18px;
-    box-shadow: 0 24px 60px rgba(20, 30, 80, .16); font: 500 29px "Heebo"; white-space: nowrap; }
+    border: 1px solid var(--line); border-radius: 26px; padding: 18px 28px 18px 18px;
+    box-shadow: 0 24px 60px rgba(20, 30, 80, .16); font: 600 28px "Inter"; letter-spacing: -.01em; white-space: nowrap; }
   .toast i { width: 50px; height: 50px; border-radius: 15px; background: var(--blue); flex: none; display: grid; place-items: center; }
   .toast i svg { width: 28px; height: 28px; }
-  .toast small { display: block; font: 400 23px "Heebo"; color: var(--mute); }
-  .bar { height: 18px; border-radius: 99px; background: #e7e8ee; overflow: hidden; margin-top: 16px; width: 380px; }
-  .bar div { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--blue2), var(--blue)); width: 0; margin-right: auto; }
+  .toast small { display: block; font: 400 22px "Inter"; color: var(--mute); margin-top: 2px; }
+  .bar { height: 18px; border-radius: 99px; background: #e7e8ee; overflow: hidden; margin-top: 16px; width: 360px; }
+  .bar div { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--blue), var(--blue2)); width: 0; }
 
   /* end card */
   #end .center { position: absolute; left: 0; right: 0; text-align: center; }
-  #icon { position: absolute; left: 50%; top: 440px; width: 230px; height: 230px; margin-left: -115px; border-radius: 58px;
+  #icon { position: absolute; left: 50%; top: 430px; width: 230px; height: 230px; margin-left: -115px; border-radius: 58px;
     overflow: hidden; box-shadow: 0 40px 90px rgba(20, 30, 80, .28), 0 0 0 1px rgba(255, 255, 255, .6) inset; }
   #icon img { width: 100%; height: 100%; display: block; }
-  #wm { top: 720px; font: 900 132px/1 "Heebo"; letter-spacing: -.045em; }
-  #live { top: 895px; font: 500 52px "Heebo"; color: var(--mute); }
+  #wm { top: 710px; font: 800 136px/1 "Inter Tight"; letter-spacing: -.05em; }
+  #live { top: 880px; font: 500 48px "Inter"; color: var(--mute); letter-spacing: -.01em; }
   #live .dot { display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: var(--green);
-    margin-left: 14px; vertical-align: 6px; box-shadow: 0 0 0 0 rgba(24, 160, 88, .5); }
-  #cta { position: absolute; left: 50%; top: 1045px; transform: translateX(-50%); display: flex; align-items: center; gap: 22px;
-    padding: 34px 50px; border-radius: 99px; background: var(--ink); color: #fff; white-space: nowrap; direction: ltr;
-    font: 600 46px "Inter Tight"; letter-spacing: -.01em; box-shadow: 0 30px 70px rgba(14, 16, 22, .28); }
-  #cta .arr { width: 58px; height: 58px; border-radius: 50%; background: var(--blue); display: grid; place-items: center; }
-  #free { top: 1230px; font: 400 40px "Heebo"; color: var(--ink); }
-  #disc { top: 1305px; font: 400 28px "Heebo"; color: var(--mute); }
-  #cursor { position: absolute; width: 54px; height: 54px; pointer-events: none; }
+    margin-right: 16px; vertical-align: 6px; }
+  #cta { position: absolute; left: 50%; top: 1030px; transform: translateX(-50%); display: flex; align-items: center; gap: 24px;
+    padding: 26px 30px 26px 30px; border-radius: 99px; background: var(--ink); color: #fff; white-space: nowrap;
+    font: 600 46px "Inter Tight"; letter-spacing: -.02em; box-shadow: 0 30px 70px rgba(14, 16, 22, .28); }
+  #cta .ic { width: 66px; height: 66px; border-radius: 50%; background: rgba(255, 255, 255, .12); display: grid; place-items: center; }
+  #cta .arr { width: 66px; height: 66px; border-radius: 50%; background: var(--blue); display: grid; place-items: center; }
+  #free { top: 1220px; font: 400 40px "Inter"; color: var(--ink); letter-spacing: -.015em; }
+  #disc { top: 1295px; font: 400 27px "Inter"; color: var(--mute); }
 </style>
 </head>
 <body>
@@ -93,11 +92,11 @@
   <!-- 0 · the hook: the headline, then the picker rises -->
   <section class="scene" id="s0">
     <div class="head">
-      <div class="eyebrow a" data-k="rise" data-d="0"><b>NEW</b><span class="en">Elections as a Service</span></div>
-      <h1 data-words="0.08">הבחירות עברו <span class="accent">לענן.</span></h1>
-      <p class="sub" data-words="0.75" data-step="0.05">8 ראשי רשימה. 0 קואליציות.</p>
+      <div class="eyebrow a" data-k="rise" data-d="0"><b>NEW</b>Elections as a Service</div>
+      <h1 data-words="0.12">Elections moved to the <span class="accent">cloud.</span></h1>
+      <p class="sub" data-words="1.5" data-step="0.07">8 party leaders. 0 coalitions.</p>
     </div>
-    <div class="dev3d a" data-k="device" data-d="0.55" data-sign="-1" style="left:260px; top:810px; width:560px">
+    <div class="dev3d a" data-k="device" data-d="0.8" data-sign="1" style="left:290px; top:840px; width:500px">
       <div class="device"><div class="scr"><img src="ui/picker.png"></div></div>
     </div>
   </section>
@@ -105,15 +104,15 @@
   <!-- 1 · taps: growth from the first click -->
   <section class="scene" id="s1">
     <div class="head">
-      <h1 data-words="0.05">צמיחה מהלחיצה <span class="accent">הראשונה.</span></h1>
-      <p class="sub" data-words="0.45" data-step="0.05">כל לחיצה: שקל. בלי ועדת כספים.</p>
+      <h1 data-words="0.08">Growth from the <span class="accent">first click.</span></h1>
+      <p class="sub" data-words="0.75" data-step="0.07">Every tap is a shekel. No budget committee.</p>
     </div>
-    <div class="dev3d a" data-k="device" data-d="0.15" data-sign="1" style="left:330px; top:700px; width:470px">
+    <div class="dev3d a" data-k="device" data-d="0.3" data-sign="-1" style="left:200px; top:720px; width:470px">
       <div class="device"><div class="scr"><img src="ui/tap.png"></div></div>
     </div>
-    <div class="chip a" data-k="pop" data-d="0.7" style="left:70px; top:1030px; width:360px">
-      <div class="lab">הכנסות</div>
-      <div class="val">₪<span data-count="0,5358000,0.7,1.25"></span></div>
+    <div class="chip a" data-k="pop" data-d="1.1" style="left:590px; top:1050px; width:350px">
+      <div class="lab">Revenue</div>
+      <div class="val">₪<span data-count="0,5358000,1.1,1.9"></span></div>
       <div class="delta">▲ +767 / sec</div>
     </div>
   </section>
@@ -121,34 +120,34 @@
   <!-- 2 · the coalition, in real time -->
   <section class="scene" id="s2">
     <div class="head">
-      <h1 data-words="0.05">קואליציה, <span class="accent">בזמן אמת.</span></h1>
-      <p class="sub" data-words="0.45" data-step="0.05">כל שותף מגיע עם דרישה. בתשלום.</p>
+      <h1 data-words="0.08">Coalitions, in <span class="accent">real time.</span></h1>
+      <p class="sub" data-words="0.75" data-step="0.07">Every partner joins. For a price.</p>
     </div>
-    <div class="dev3d a" data-k="device" data-d="0.15" data-sign="-1" style="left:300px; top:700px; width:500px">
+    <div class="dev3d a" data-k="device" data-d="0.3" data-sign="1" style="left:200px; top:720px; width:500px">
       <div class="device"><div class="scr"><img src="ui/chat.png"></div></div>
     </div>
-    <div class="toast a" data-k="pop" data-d="0.65" style="left:60px; top:1010px">
+    <div class="toast a" data-k="pop" data-d="1.2" style="left:400px; top:1020px">
       <i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i>
-      <div>בנימין נתניהו הצטרף לקבוצה<small>קואליציה 61 · עכשיו</small></div>
+      <div>Benjamin Netanyahu joined<small>Coalition 61 · just now</small></div>
     </div>
-    <div class="toast a" data-k="pop" data-d="1.0" style="left:110px; top:1160px">
+    <div class="toast a" data-k="pop" data-d="2.0" style="left:470px; top:1180px">
       <i style="background:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>
-      <div>סגרנו · ₪60<small>תעביר לליכוד. אין כלום.</small></div>
+      <div>Deal closed · ₪60<small>Paid in full. Again.</small></div>
     </div>
   </section>
 
   <!-- 3 · almost 61: the KPI that never closes -->
   <section class="scene" id="s3">
     <div class="head">
-      <h1 data-words="0.05">כמעט <span class="accent">61.</span></h1>
-      <p class="sub" data-words="0.4" data-step="0.05">כמו תמיד.</p>
+      <h1 data-words="0.06">Almost <span class="accent">61.</span></h1>
+      <p class="sub" data-words="0.6" data-step="0.07">As always.</p>
     </div>
-    <div class="dev3d a" data-k="device" data-d="0.12" data-sign="1" style="left:170px; top:640px; width:740px">
+    <div class="dev3d a" data-k="device" data-d="0.15" data-sign="-1" style="left:170px; top:640px; width:740px">
       <div class="device card"><div class="scr"><img src="ui/meter.png"></div></div>
     </div>
-    <div class="chip a" data-k="pop" data-d="0.55" style="left:70px; top:1300px; width:440px">
-      <div class="lab">מנדטים</div>
-      <div class="val"><span data-count="0,60,0.55,1.0"></span><span style="color:#b6b9c4">/61</span></div>
+    <div class="chip a" data-k="pop" data-d="0.55" style="left:520px; top:1300px; width:420px">
+      <div class="lab">Seats</div>
+      <div class="val"><span data-count="0,60,0.55,1.1"></span><span style="color:#b6b9c4">/61</span></div>
       <div class="bar"><div id="meterbar"></div></div>
     </div>
   </section>
@@ -156,46 +155,47 @@
   <!-- 4 · auto-sync to the next election -->
   <section class="scene" id="s4">
     <div class="head">
-      <h1 data-words="0.05">סנכרון אוטומטי <span class="accent">לבחירות הבאות.</span></h1>
+      <h1 data-words="0.08">Auto-sync to the <span class="accent">next election.</span></h1>
     </div>
-    <div class="dev3d a" data-k="device" data-d="0.2" data-sign="-1" style="left:150px; top:820px; width:780px">
+    <div class="dev3d a" data-k="device" data-d="0.35" data-sign="1" style="left:150px; top:840px; width:780px">
       <div class="device card"><div class="scr"><img src="ui/dissolve.png"></div></div>
     </div>
-    <div class="toast a" data-k="pop" data-d="0.85" style="left:90px; top:1330px">
+    <div class="toast a" data-k="pop" data-d="1.4" style="left:470px; top:1340px">
       <i style="background:var(--gold)"><svg viewBox="0 0 24 24" fill="none" stroke="#0e1016" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4"/></svg></i>
-      <div>סבב בחירות מס׳ 2 התחיל<small>אוטומטית. כמו תמיד.</small></div>
+      <div>Election round #2 started<small>Automatically. As always.</small></div>
     </div>
   </section>
 
-  <!-- 5-6 · the end card -->
+  <!-- 5 · the end card -->
   <section class="scene" id="end">
     <div id="icon" class="a" data-k="icon" data-d="0"><img src="ui/icon.png"></div>
-    <div class="center a" id="wm" data-k="rise" data-d="0.15">עוד סבב</div>
-    <div class="center a" id="live" data-k="rise" data-d="0.32"><span class="dot"></span>עכשיו באוויר.</div>
-    <div id="cta" class="a" data-k="cta" data-d="0.5">od-sevev.bar-builds.com
-      <span class="arr"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    <div class="center a" id="wm" data-k="rise" data-d="0.2">Od Sevev</div>
+    <div class="center a" id="live" data-k="rise" data-d="0.45"><span class="dot"></span>Live now.</div>
+    <div id="cta" class="a" data-k="cta" data-d="0.95">
+      <span class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg></span>
+      Link in the first comment
+      <span class="arr"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span>
     </div>
-    <div class="center a" id="free" data-k="rise" data-d="0.85">לשחק בחינם. בדפדפן. בלי הורדה.</div>
-    <div class="center a" id="disc" data-k="rise" data-d="1.05">סאטירה. לא מטעם אף מפלגה.</div>
-    <svg id="cursor" class="a" data-k="cursor" data-d="1.35" viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.6L10 19z" fill="#0e1016" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    <div class="center a" id="free" data-k="rise" data-d="1.4">Free. In your browser. No download.</div>
+    <div class="center a" id="disc" data-k="rise" data-d="1.65">Satire. Not affiliated with any party.</div>
   </section>
 </div>
 
 <script>
-const BEAT = 60 / 112, BAR = 4 * BEAT, DUR = 7 * BAR;
+const BEAT = 60 / 115.2, BAR = 4 * BEAT, DUR = 12 * BAR;
+const SCENES = [0, 8, 15, 24, 29, 36, 48];      // beats (music.mjs and mix.py use the same)
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const expo = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
 const back = (x, s = 1.5) => { x = clamp(x) - 1; return x * x * ((s + 1) * x + s) + 1; };
 const inout = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 const tw = (t, t0, d) => clamp((t - t0) / d);
 
-// the scenes: [element, start, end]; the end card holds to the last frame
-const S = [["s0", 0, 1], ["s1", 1, 2], ["s2", 2, 3], ["s3", 3, 4], ["s4", 4, 5], ["end", 5, 7]]
-  .map(([id, a, b]) => ({ el: document.getElementById(id), t0: a * BAR, t1: b * BAR }));
+const S = ["s0", "s1", "s2", "s3", "s4", "end"]
+  .map((id, i) => ({ el: document.getElementById(id), t0: SCENES[i] * BEAT, t1: SCENES[i + 1] * BEAT }));
 
-// split every [data-words] block into words (keeping the accent span's colour)
+// split every [data-words] block into words (the accent span's words keep the gradient)
 document.querySelectorAll("[data-words]").forEach((el) => {
-  const d0 = parseFloat(el.dataset.words), step = parseFloat(el.dataset.step || "0.075");
+  const d0 = parseFloat(el.dataset.words), step = parseFloat(el.dataset.step || "0.09");
   let k = 0;
   const wrap = (text, parent, acc) => {
     text.split(/(\s+)/).forEach((part) => {
@@ -223,60 +223,55 @@ const COUNT = [...document.querySelectorAll("[data-count]")].map((el) => {
   return { el, a, b, d, dur, scene: S.find((s) => s.el.contains(el)) };
 });
 const g1 = document.getElementById("g1"), g2 = document.getElementById("g2"), mbar = document.getElementById("meterbar");
-const dot = document.querySelector("#live .dot");
+const dot = document.querySelector("#live .dot"), arr = document.querySelector("#cta .arr svg");
 
 function seek(T) {
   const t = T < 2 / 30 ? DUR - 0.04 : T;      // frames 0-1: the finished end card (the cover)
-  // the light drifts the whole time: one camera language
-  g1.style.transform = `translate(${-260 + 140 * Math.sin(t * 0.35)}px, ${-200 + 120 * Math.cos(t * 0.28)}px)`;
-  g2.style.transform = `translate(${560 - 120 * Math.cos(t * 0.3)}px, ${1300 - 140 * Math.sin(t * 0.33)}px)`;
+  g1.style.transform = `translate(${-260 + 140 * Math.sin(t * 0.3)}px, ${-200 + 120 * Math.cos(t * 0.24)}px)`;
+  g2.style.transform = `translate(${560 - 120 * Math.cos(t * 0.26)}px, ${1300 - 140 * Math.sin(t * 0.28)}px)`;
 
-  for (const s of S) {
-    const on = t >= s.t0 - 0.001 && t < s.t1 + (s.el.id === "end" ? 1 : 0);
-    if (!on) { s.el.style.opacity = 0; continue; }
-    const out = s.el.id === "end" ? 0 : inout(tw(t, s.t1 - 0.3, 0.3));
+  S.forEach((s, i) => {
+    const last = i === S.length - 1;
+    const on = t >= s.t0 - 0.001 && (last || t < s.t1);
+    if (!on) { s.el.style.opacity = 0; return; }
+    const out = last ? 0 : inout(tw(t, s.t1 - 0.4, 0.4));
     s.el.style.opacity = 1 - out;
     s.el.style.transform = `translateY(${-50 * out}px) scale(${1 - 0.02 * out})`;
     s.el.style.filter = out > 0.001 ? `blur(${10 * out}px)` : "none";
-  }
+  });
   for (const a of ANIM) {
     const u = t - a.scene.t0 - a.d, st = a.el.style;
     if (a.k === "word" || a.k === "rise") {
-      const e = expo(tw(u, 0, a.k === "word" ? 0.7 : 0.8)), dy = a.k === "word" ? 44 : 34;
+      const e = expo(tw(u, 0, a.k === "word" ? 0.9 : 1.0)), dy = a.k === "word" ? 44 : 34;
       st.opacity = e; st.transform = `translateY(${(1 - e) * dy}px)`; st.filter = e < 0.999 ? `blur(${(1 - e) * 16}px)` : "none";
     } else if (a.k === "device") {
-      const e = expo(tw(u, 0, 1.0)), p = clamp((t - a.scene.t0) / (a.scene.t1 - a.scene.t0));
+      const e = expo(tw(u, 0, 1.3)), p = clamp((t - a.scene.t0) / (a.scene.t1 - a.scene.t0));
       st.opacity = clamp(e * 1.6);
-      const dev = a.el.firstElementChild;
-      dev.style.transform = `translateY(${(1 - e) * 260}px) rotateX(${(1 - e) * 30 + 9 - 5 * p}deg) ` +
+      a.el.firstElementChild.style.transform = `translateY(${(1 - e) * 260}px) rotateX(${(1 - e) * 30 + 9 - 5 * p}deg) ` +
         `rotateY(${a.sign * (12 - 7 * p)}deg) rotateZ(${a.sign * -1.2 * (1 - p)}deg) scale(${0.95 + 0.06 * p})`;
     } else if (a.k === "pop") {
-      const e = back(tw(u, 0, 0.55)), o = tw(u, 0, 0.2);
+      const e = back(tw(u, 0, 0.65)), o = tw(u, 0, 0.25);
       st.opacity = o; st.transform = `translateY(${(1 - e) * 40}px) scale(${0.86 + 0.14 * e})`; st.filter = o < 1 ? `blur(${(1 - o) * 8}px)` : "none";
     } else if (a.k === "icon") {
-      const e = back(tw(u, 0, 0.7), 1.3), o = tw(u, 0, 0.25);
+      const e = back(tw(u, 0, 0.8), 1.3), o = tw(u, 0, 0.3);
       st.opacity = o; st.transform = `scale(${0.6 + 0.4 * e}) rotate(${(1 - e) * -8}deg)`;
     } else if (a.k === "cta") {
-      const e = back(tw(u, 0, 0.6), 1.2), o = tw(u, 0, 0.25);
-      const press = u > 1.0 ? 1 - 0.04 * Math.sin(Math.PI * clamp((u - 1.0) / 0.2)) : 1;   // the cursor clicks it
-      st.opacity = o; st.transform = `translateX(-50%) translateY(${(1 - e) * 50}px) scale(${(0.9 + 0.1 * e) * press})`;
-    } else if (a.k === "cursor") {
-      const e = inout(tw(u, -0.35, 0.65));
-      st.opacity = tw(u, -0.35, 0.2);
-      st.left = `${900 - 110 * e}px`; st.top = `${1330 - 220 * e}px`;
+      const e = back(tw(u, 0, 0.7), 1.2), o = tw(u, 0, 0.3);
+      st.opacity = o; st.transform = `translateX(-50%) translateY(${(1 - e) * 50}px) scale(${0.9 + 0.1 * e})`;
     }
   }
   for (const c of COUNT) {
     const u = t - c.scene.t0 - c.d, e = 1 - Math.pow(1 - tw(u, 0, c.dur), 3);
     c.el.textContent = Math.round(c.a + (c.b - c.a) * e).toLocaleString("en-US");
   }
-  const s3 = S[3], um = t - s3.t0 - 0.55;                       // the bar fills to 60/61, then stalls on a shiver
-  const fill = (60 / 61) * (1 - Math.pow(1 - tw(um, 0, 1.0), 3));
-  mbar.style.width = `${100 * fill}%`;
-  mbar.style.transform = um > 1.0 ? `translateX(${Math.sin(um * 70) * 3 * Math.exp(-(um - 1.0) * 5)}px)` : "none";
-  const ue = t - S[5].t0 - 0.32;                                 // the live dot breathes
-  const r = (ue > 0 ? (ue % 1.2) / 1.2 : 0);
+  const um = t - S[3].t0 - 0.55;                                 // the bar fills to 60/61, then stalls on a shiver
+  mbar.style.width = `${100 * (60 / 61) * (1 - Math.pow(1 - tw(um, 0, 1.1), 3))}%`;
+  mbar.style.transform = um > 1.1 ? `translateX(${Math.sin(um * 70) * 3 * Math.exp(-(um - 1.1) * 5)}px)` : "none";
+  const ue = t - S[5].t0 - 0.45;                                 // the live dot breathes
+  const r = ue > 0 ? (ue % 1.2) / 1.2 : 0;
   dot.style.boxShadow = `0 0 0 ${18 * r}px rgba(24, 160, 88, ${0.45 * (1 - r)})`;
+  const ua = t - S[5].t0 - 1.7;                                  // the arrow nudges down, toward the comments
+  arr.style.transform = ua > 0 ? `translateY(${6 * Math.abs(Math.sin(ua * Math.PI / (2 * BEAT)))}px)` : "none";
 }
 
 window.__duration = DUR;

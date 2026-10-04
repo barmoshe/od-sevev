@@ -200,3 +200,19 @@ game's blue as the one accent. Music synthesized in `saas/music.mjs` (112 BPM, s
 
     node store/promo/saas/music.mjs
     node <bar_builds>/jobs/honeybook/gtm-content/engine/motion/render.mjs store/promo/saas/launch.html --audio store/promo/saas/.out/launch.wav
+
+### The English cut with a voiceover (`od-sevev-launch-en.mp4`, 25 s)
+
+Bar, after the 15 s SaaS cut: the whole video in English, an English voiceover with a brisk marketing read,
+25 s so the picture moves slower and reads clearer, and "Link in the first comment" instead of the address.
+`saas/launch.html` is now this cut (the 15 s Hebrew one stays as `od-sevev-launch-saas.mp4`, at 16b8cc6).
+
+- Voice: Kokoro-82M (Apache-2.0, local, `af_heart`, 1.12x), `saas/vo.py`; "Od Sevev" is spoken from
+  written phonemes. Every line was checked by transcribing it back with local Whisper.
+- Music: `saas/music.mjs` at 115.2 BPM, twelve bars = 25.0 s; scenes start on beats 0, 8, 15, 24, 29, 36
+  (sized to the lines), the end card on bar 9. `saas/mix.py` lays each line on its scene and ducks the bed 8 dB.
+
+    ~/.cache/kokoro-tts/venv/bin/python store/promo/saas/vo.py
+    node store/promo/saas/music.mjs
+    ~/.cache/kokoro-tts/venv/bin/python store/promo/saas/mix.py
+    node <bar_builds>/jobs/honeybook/gtm-content/engine/motion/render.mjs store/promo/saas/launch.html --audio store/promo/saas/.out/launch.wav
