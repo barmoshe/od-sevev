@@ -535,21 +535,26 @@ func _build_wizard() -> void:
 	wizard.anchor = func(n: String) -> Rect2: return WizardHooks.anchor(self, n)
 	wizard.fill = func(tx_: String) -> String:
 		var cur := Leaders.current(state)
-		var nw := _new_tile()
-		return Bidi.fill(tx_, {"leader": LeaderUi.short(cur) if cur != "" else "", "new": str(nw.get("short", "")),
-			"newRule": str(Leaders.rule(str(nw.get("id", ""))).get("summary", "")) if not nw.is_empty() else ""})
+		var nws := _new_tiles()
+		# two leaders open a round (Bar 2026-10-04): both named; a lone newcomer's rule is spelled out
+		var names := PackedStringArray()
+		for t_: Dictionary in nws:
+			names.append(("ו" if not names.is_empty() else "") + str(t_.get("short", "")))
+		return Bidi.fill(tx_, {"leader": LeaderUi.short(cur) if cur != "" else "", "new": " ".join(names),
+			"newRule": str(Leaders.rule(str(nws[0].get("id", ""))).get("summary", "")) if nws.size() == 1 else ""})
 	wizard.on_sound = audio_event
 	wizard.on_event = func(f: String, what: String) -> void:
 		_funnel("wizard", {"flow": f, "step": what})
 		_mark_dirty()
 
 
-## The picker's tile that opened this round ({} none): the leaders wizard's bubble.
-func _new_tile() -> Dictionary:
+## The picker's tiles that opened this round (none: []): the leaders wizard's bubble.
+func _new_tiles() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
 	for t_: Variant in picker.model.get("tiles", []):
 		if (t_ as Dictionary).get("new", false):
-			return t_
-	return {}
+			out.append(t_)
+	return out
 
 
 ## R9 (rtl-map §7.1 "History"): the shell forwards every popstate that is not About's own to

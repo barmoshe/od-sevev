@@ -119,16 +119,17 @@ func test_a_new_game_opens_the_picker_with_two_open_leaders() -> void:
 		runner.check(["bibi", "bennett"].has(Leaders.random_pick(func() -> float: return float(i) / 20.0, m.state)), "הפתעה picks an open leader")
 
 
-func test_every_round_opens_one_more_leader() -> void:
-	var prev := 0
-	for evo in 7:
+func test_every_round_opens_two_more_leaders() -> void:
+	var all := Leaders.pickable().size()
+	for evo in 5:
 		var n := Leaders.unlocked(_at(evo)).size()
-		runner.check(n == 2 + evo, "round %d: %d leaders open (%d)" % [evo + 1, 2 + evo, n])
-		runner.check(n > prev, "more than the round before")
-		prev = n
+		var want := mini(2 + 2 * evo, all)
+		runner.check(n == want, "round %d: %d leaders open (%d)" % [evo + 1, want, n])
 	var p := Leaders.picker(_at(1))
 	var news := (p["tiles"] as Array).filter(func(x: Variant) -> bool: return (x as Dictionary).get("new", false))
-	runner.check(news.size() == 1 and str(news[0]["id"]) == "bengvir", "round 2's new tile is Ben Gvir (%s)" % str(news))
+	var ids := news.map(func(x: Variant) -> String: return str((x as Dictionary)["id"]))
+	ids.sort()
+	runner.check(ids == ["bengvir", "liberman"], "round 2's new tiles are Ben Gvir and Liberman (%s)" % str(ids))
 	for i in 30:
 		runner.check(Leaders.unlocked(_at(1)).has(Leaders.random_pick(func() -> float: return float(i) / 30.0, _at(1))), "random_pick only picks open leaders")
 	runner.check(Leaders.unlocked(_at(1)).has(PacingSim.pick_leader("mixed", func() -> float: return 0.99, _at(1))), "the bench's mixed player too")

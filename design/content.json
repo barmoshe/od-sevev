@@ -25,7 +25,7 @@
   },
   "_formula": "tapValue = ((baseValue + tapAdd) × prestigeMult + (pctOfBpsBase + tapPctOfBps) × bps) × tapMult (permanent: perks, partners, Eisenkot) × tapBoost (timed: tap frenzy, a ×N spin, Kaia, a leader buff, Mordechai; taps show big while > 1) × (crit ? critMult : 1). bps excludes the production-frenzy multiplier. Random crits are off before tap firstCrit.randomCritsFromTap (lifetime taps)."
  },
- "saveEpoch": 5,
+ "saveEpoch": 6,
  "_saveEpoch": "Pre-launch wipes (Bar 2026-10-03: reset all the users data): a save or a settings file written under another epoch is deleted on load (SaveStore), and the web shell clears every odsevev.* browser key (the analytics memory, the sound choice, the disclaimer, the share ref) on a device last seen under another epoch (tools/build_web.sh writes the epoch in). Bump by one and deploy to wipe everyone again. Stop bumping after the official launch.",
  "wizard": {
   "_doc": "The wizard overlay (ADR 0007; Bar 2026-10-03: the first two minutes clear with a guided do-it wizard, and every new mechanic gets its own). ui/wizard.gd: a step shows while `when` holds and `done` doesn't (state, not a forced chain), a dim with a hole on `anchor`, Dubi's bubble, 'דלג'. Names: WizardHooks.CONDS / ANCHORS. soft = no swallowing; gone = the moment passing counts as done; sec = done after that long shown; hold = the clock holds. text '@reveal.<key>' = reveal.copy. `on` (the reveal key a flow waits for) defaults to the flow's id when that is a reveal key.",
@@ -37,7 +37,7 @@
      "anchor": "pickOpen",
      "when": "picking",
      "done": "slipChosen",
-     "text": "זה תא הקלפי. בוחרים פתק: בהתחלה יש שניים, וכל סבב בחירות נפתח עוד אחד."
+     "text": "זה תא הקלפי. בוחרים פתק: בהתחלה יש שניים, ובכל סבב בחירות נפתחים עוד שניים."
     },
     {
      "id": "vote",
@@ -5201,15 +5201,15 @@
   "shipRule": "The picker ships with at least the 4 contentReady leaders; a roster leader shows in the picker only when its kit passes the lint's completeness check.",
   "defaultLeader": "bibi",
   "unlockRound": {
-   "_doc": "The roster ladder (2026-10-03, Bar: first launch offers Bibi or Bennett, every round adds options; Leaders.unlock_round). The election count a leader's tile opens at; locked tiles show greyed with their round. Forced rounds (challenge, daily, bench) ignore it.",
+   "_doc": "The roster ladder (2026-10-03, Bar: first launch offers Bibi or Bennett, every round adds options; 2026-10-04, Bar: two more each round, not one; Leaders.unlock_round). The election count a leader's tile opens at; locked tiles show greyed with their round. Forced rounds (challenge, daily, bench) ignore it.",
    "bibi": 0,
    "bennett": 0,
    "bengvir": 1,
-   "liberman": 2,
-   "eisenkot": 3,
-   "smotrich": 4,
-   "deri": 5,
-   "golan": 6
+   "liberman": 1,
+   "eisenkot": 2,
+   "smotrich": 2,
+   "deri": 3,
+   "golan": 3
   },
   "pick": {
    "firstLaunch": "beforeFirstTap",

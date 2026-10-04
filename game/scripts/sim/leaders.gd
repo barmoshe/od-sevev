@@ -116,7 +116,7 @@ static func pickable() -> PackedStringArray:
 
 ## The roster ladder (2026-10-03, Bar: "בהתחלה ביבי או בנט, וכל סבב עוד אופציות"): content
 ## leaderSelect.unlockRound maps a leader to the election count his tile opens at (Bibi and Bennett
-## at 0, one more each round). A leader without an entry is open from the start. Only the picker
+## at 0, two more each round since 2026-10-04). A leader without an entry is open from the start. Only the picker
 ## and הפתעה ask; a forced round (a challenge, the daily, the bench) plays any leader.
 static func unlock_round(id: String) -> int:
 	var u: Variant = ls().get("unlockRound")
