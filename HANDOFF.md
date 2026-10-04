@@ -433,6 +433,8 @@ Live at `7578546` (web-dist `5dab84a`). Details and hashes in `STATUS.md` (2026-
   - The allowlist is `STEP`, and once-per-device steps are deduped in localStorage `odsevev.seen`.
   - `window.odTrackFunnel` maps `main.gd _funnel()` events (signal `funnel_sent`) to steps.
   - Nothing is sent on localhost or with `?dev=1`. `window.odTrackLog` keeps every step for the drivers.
+  - **Bar's own devices (04/10):** opening the site once with `?me=1` sets localStorage `odsevev.me`, and that browser never reports again (the shell, `about.html`, the share stubs); `?me=0` undoes it, a note confirms. The pre-launch wipe keeps `odsevev.me`. An incognito window forgets it when it closes. Link: https://od-sevev.bar-builds.com/?me=1
+  - **Where a visit came from (04/10):** `window.odSource`: a `?s=<tag>` on a shared link wins (`wa`, `ig`, `fb`, `tg`, `li` or any 1-12 a-z0-9), then a share stub's `via`, the referrer's host, an in-app browser's user agent, else `none`. WhatsApp sends no referrer, so a WhatsApp link needs `?s=wa`. `?s` leaves the address bar. UTM fields would do this, but Hobby doesn't report them (402).
 - **Steps:**
   - `loaded/<new|back>/<time>s`, `load-error`
   - `return/d1|d2-7|d8-30|d30+`
@@ -442,14 +444,16 @@ Live at `7578546` (web-dist `5dab84a`). Details and hashes in `STATUS.md` (2026-
   - `feature/chat|court|mordechai`
   - `share/<kind>/<result>`
   - `reload-after-crash`, `ctx-lost`
+  - `from/<src>` (every load) and `played-from/<src>` (with the session step), the source above
 - **Constraints:**
   - The 50K events a month are shared across Bar's whole Vercel account. Add new steps sparingly.
   - No seat or poll numbers in any path (the 23.10 blackout).
   - Speed Insights is off: Hobby allows it on one project only, and enabling it here needs Plus (CLI, 01/10). The script was removed from the shell; `loaded/<new|back>/<time>s` covers load time.
 - **Don't retry:**
   - A `vercel.json` rewrite into `/_vercel/*` returns 404 on this static deploy.
-  - The Vercel analytics API/MCP returns 404 on Hobby. Read the numbers in the dashboard instead.
-- **Test:** `tools/web/analytics_web.mjs` (Playwright; it also checks the head and `about.html`), plus `game/tests/unit/test_funnel.gd`.
+  - The claude.ai Vercel connector's analytics tools return 404 ("Web Analytics not found"). The REST API itself works with the Vercel CLI login token: `bar_builds/lab/personal/od-sevev/analytics/pull.mjs` reads it (the token is never printed), `build.mjs` bakes the Hebrew dashboard artifact. The API rounds `since`/`until` to the query's granularity (a count or by-day query to the UTC day, by-hour or by-dimension to the hour).
+- **Bar's counting (04/10):** the dashboard counts from **04/10 23:00 Israel time** (Bar: everything before doesn't matter), leads with new devices (`loaded/new`, the one count Bar's devices never inflate), and subtracts known test visits (an `EXCLUDE` list in `pull.mjs`: a time window plus a device filter).
+- **Test:** `tools/web/analytics_web.mjs` (Playwright; it also checks the head and `about.html`, the sources, `?me=1` and the wipe keeping it), plus `game/tests/unit/test_funnel.gd`. Its returning-device seed carries the build's save epoch (`var E`), or the wipe clears it (fixed `7a5eb5e`).
 
 ## Search (SEO/AEO)
 - **Head:**
@@ -853,7 +857,8 @@ git am --3way "handoff-wip/s5-design (Mordechai spec + content).patch"    # 2 co
 
 ## Environment (this Mac)
 - **Godot:** 4.7.2 at `/usr/local/bin/godot`; `tools/godot.sh` finds it. The export templates are in `~/Library/Application Support/Godot/export_templates/4.7.2.stable`.
-- **Playwright:** `mobile_web.mjs` and friends default to `/opt/node22/...`. Set `PLAYWRIGHT_MODULE=/Users/barmoshe/fretboard-897887/node_modules/playwright/index.mjs` (v1.62.1, which matches the installed chromium-headless-shell).
+- **Playwright:** `mobile_web.mjs` and friends default to `/opt/node22/...`. `~/fretboard-897887` is gone (deleted 04/10). Install `playwright@1.62.1` in a scratch folder with `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` (it matches the installed `chromium_headless_shell-1234`) and point `PLAYWRIGHT_MODULE` at its `node_modules/playwright/index.mjs`.
+- **Deploy from this Mac:** `OD_VERCEL_PROJECT=od-sevev tools/deploy_web.sh`. Never a bare `vercel deploy` in `build/web`: `build_web.sh` wipes the `.vercel` link, and the CLI then creates a new project named "web" (happened 04/10, deleted).
 - **Run times:**
 
   | Job | Time |
