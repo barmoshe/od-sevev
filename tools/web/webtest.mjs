@@ -2,7 +2,7 @@
 // what a tester would notice first. Run through tools/webtest.sh.
 //   1. the canvas fills the window          2. no page errors
 //   3. after a first tap (an iPhone-style touch id), sound really comes out: every connection to an AudioContext's destination is also
-//   4. the Music bus itself plays (window.mbMusicPeak from the Audio autoload)
+//   4. after the pick and a first tap on the leader, the Music bus itself plays (window.mbMusicPeak)
 //      tapped into an AnalyserNode and the peak level measured (a "running" context alone
 //      proves nothing: 0.4.1's first web builds were silent while reporting "running").
 const PW = process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright/index.mjs';
@@ -49,14 +49,33 @@ await page.waitForFunction(() => !document.getElementById('status'), null, { tim
 await page.waitForTimeout(3000);
 const box = await page.locator('canvas').boundingBox();
 check(box && box.x === 0 && box.y === 0 && box.width === 390 && box.height === 844, `canvas fills the window (${JSON.stringify(box)})`);
-// the title card takes a tap anywhere (also the tap iOS needs before sound); iPhone-style large touch id
-await tap(390 * 0.5, 844 * 0.5, 1234567);
+// the opener's "with sound" button (also the tap iOS needs before sound); iPhone-style large touch id
+await page.waitForSelector('#od-sound', { state: 'visible', timeout: 90000 });
+const sb = await page.locator('#od-sound').boundingBox();
+await tap(sb.x + sb.width / 2, sb.y + sb.height / 2, 1234567);
 let peak = 0;
 for (let i = 0; i < 30; i++) {
 	await page.waitForTimeout(100);
 	peak = Math.max(peak, await page.evaluate(() => window.__peak()));
 }
 check(peak > 0.01, `sound comes out (peak level ${peak.toFixed(3)})`);
+// the music waits for the first tap on the leader (Audio.start_music): in the ballot booth choose the
+// first open slip and press vote (odPick.cells: [x, y, id, locked]; go: the button), then tap the leader
+await page.waitForFunction(() => window.mbHandoffDone > 0 && window.odDisplay, null, { timeout: 120000 });
+let disp = await page.evaluate(() => window.odDisplay);
+const css = (x, y) => [x * disp.f, y * disp.f];   // the canvas sits at 0,0, DPR 1
+const pk = await page.evaluate(() => window.odPick || null);
+if (pk && pk.open) {
+	const slip = pk.cells.find((c) => !c[3]) || pk.cells[0];
+	await tap(...css(slip[0], slip[1]), 1234568);
+	await page.waitForTimeout(400);
+	const go = (await page.evaluate(() => window.odPick)).go;
+	await tap(...css(go[0], go[1]), 1234569);
+	await page.waitForFunction(() => !(window.odPick && window.odPick.open), null, { timeout: 8000 }).catch(() => {});
+	await page.waitForTimeout(1500);
+	disp = await page.evaluate(() => window.odDisplay);
+}
+await tap(...css(disp.hat[0], disp.hat[1]), 1234570);
 // the music bus itself
 let music = -200;
 let track = '';
