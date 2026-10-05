@@ -234,3 +234,23 @@ and blue-screens), `od-sevev-reel-calendar.mp4` (13 s, "לוח השנה", every 
 calendar) and `od-sevev-reel-howto.mp4` (13.8 s, "איך משחקים בעוד סבב", five steps, "זה כל המשחק.").
 Same lettering and end card as the rest; built as HTML pages rendered by HyperFrames. Crash and calendar
 are blackout-safe, howto is not. Details and the build steps: `hyperframes/README.md`.
+
+## TikTok: three posts (`src/tiktok.py`, output in `tiktok/`)
+
+Bar: three more posts for TikTok, video or images, all new (no recorded footage). Laid out for
+TikTok's own safe area (For You bar ~150 px on top, caption ~450 px at the bottom, the icon column
+~130 px on the right), so nothing is shrunk with safefit. The game is live, so each one ends on the
+address (a TikTok link in bio needs 1,000 followers).
+
+| Post | What | Blackout 23-27.10 |
+|---|---|---|
+| `od-sevev-tiktok-guess.mp4` (25 s) | **נחשו מי זה**: four leaders as black silhouettes of their ability pose, the clue in the game's own ability copy (אני פורש, החלקה, המסמך, לחתום ולהפוך), three seconds, the reveal; the other four stay dark, "כמה ניחשתם? כתבו בתגובות." | safe |
+| `od-sevev-tiktok-night.mp4` (16 s) | **עוד סבב אחד ואני הולך לישון.**: the game on a phone in a dark bedroom, 23:00 → 01:17 → 03:42 → 05:58, a new leader each round, the shekels growing, moon to dawn, the 07:00 alarm: "קוראים לו עוד סבב. לא סתם." The phone screen is drawn from the game's art (stage, tap strips, HUD). | safe (no seats) |
+| `truth/01-12.png` (photo mode) | **אמת או המצאה?**: five things that sound made up, each answered on the next slide with its source from `design/facts.json` (the 800 million voted by mistake, Gafni's five days, the pistachio budget, the disposables tax, five elections in under four years). All five are true: "הבדיחות: שלנו." | safe |
+
+Captions (first line is the hook; game and comedy hashtags only):
+- guess: "3 שניות לכל אחד. כמה ניחשתם? 👇 #עודסבב #משחק #פיקסלארט #אתגר #indiegame"
+- night: "עוד סבב אחד ואני הולך לישון. (לא הלכתי) #עודסבב #גיימינג #פיקסלארט #הומור #indiegame"
+- truth: "אמת או המצאה? החליקו לפני שאתם עונים. #עודסבב #אמתאוהמצאה #סאטירה #הומור"
+
+    python3 store/promo/src/tiktok.py guess|night|truth [--stills | --one <sec>]
