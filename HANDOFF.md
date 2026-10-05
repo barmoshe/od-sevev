@@ -1,12 +1,12 @@
 # HANDOFF: round 1 is 4-5 min with the suspicion meter and Mordechai David, wipe #7, LIVE and benched (2026-10-04 night; read this first)
 
-**Live: `debc41e`** (web-dist `ec7f72b`, Vercel `dpl_FjX1LMscYo63jMpTDvRthWGNgBD6`) at https://od-sevev.bar-builds.com,
+**Live: `322b4b5`** (web-dist `63397d1`, Vercel `dpl_DknS1ahaGzaaPFXLfHFLi14MxGxD`) at https://od-sevev.bar-builds.com (`debc41e` + the Event JSON-LD fix; game unchanged),
 **save epoch 7: the last pre-launch wipe** (Bar: "this is the last time"; don't bump `saveEpoch` without Bar).
 What shipped and why: ADR 0013 (round 1, the re-deal, the "נדחה" chip, `round1Ease` for round 2), STATUS 2026-10-04.
 The whole bench is green and the browser drivers pass (STATUS has the numbers).
 
 **Open:**
-1. `tools/webtest.sh`: "sound comes out" fails headless (pre-existing since `4b0cdee`; likely the silent opener).
+1. ~~`tools/webtest.sh` sound~~ fixed `322b4b5` (05/10): it tapped the opener's text; now `#od-sound`, the booth, a first tap. PASS live (peak 0.293, balfour −13.1 dB). Needs `PLAYWRIGHT_MODULE` on the Mac.
 2. `mobile_web.mjs`: the picker's dead-band check fails at 430×932 (two 11-art-px bands at y 812-854 and
    890-932); the picker layout wasn't touched by ADR 0013. Run the matrix with a longer limit (375×548 was cut).
 3. Delete the merged branch `wip/round1-hotter` when convenient.
