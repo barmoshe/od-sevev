@@ -69,10 +69,10 @@ The game itself hides its seat numbers in this window (HANDOFF: no seat or poll 
 public). The kit follows it. Anything that shows 61, a seat count or a hemicycle waits until after 22:00
 on the 27th:
 
-- **Hold:** match ("צריך 61"), starter ("לא כלול: 61 מנדטים."), search ("איך מגיעים ל־61"), trailer
+- **Hold:** howto (the seat bar behind the election card), match ("צריך 61"), starter ("לא כלול: 61 מנדטים."), search ("איך מגיעים ל־61"), trailer
   (the hemicycle, "מנדט אחד חסר."), loading and patch (the "אין 61?" tip), zap ("הקוסם שלף 61"), the older
   select, mivzak and speedrun, the dictionary carousel (the 61 entries), the "אין 61." sticker, Story 03 (the quiz).
-- **Safe:** gantz, doc, ghost, family, process, the abilities carousel, the memes, Stories 01, 02, 04, 05.
+- **Safe:** gantz, doc, ghost, family, process, crash, calendar, the abilities carousel, the memes, Stories 01, 02, 04, 05.
 
 Check any new post the same way before it goes up in that window.
 

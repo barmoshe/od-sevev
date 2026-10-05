@@ -226,3 +226,11 @@ renders at any size. 4:5 is LinkedIn's feed default and fills the most of it on 
 blog.sendspark.com/linkedin-video-specs, postfa.st/sizes/linkedin/video.
 
     node store/promo/saas/render.mjs store/promo/saas/launch.html --size 1080x1350 --hash li --name li --audio store/promo/saas/.out/launch.wav
+
+## Three more, made in HyperFrames (`hyperframes/`)
+
+`od-sevev-reel-crash.mp4` (15 s, "הקואליציה לא מגיבה", an old desktop that hangs, waits for the rotation
+and blue-screens), `od-sevev-reel-calendar.mp4` (13 s, "לוח השנה", every election since 2019 torn off a
+calendar) and `od-sevev-reel-howto.mp4` (13.8 s, "איך משחקים בעוד סבב", five steps, "זה כל המשחק.").
+Same lettering and end card as the rest; built as HTML pages rendered by HyperFrames. Crash and calendar
+are blackout-safe, howto is not. Details and the build steps: `hyperframes/README.md`.

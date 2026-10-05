@@ -1,0 +1,4 @@
+**/assets/gen/
+**/out/
+**/snapshots/
+__pycache__/

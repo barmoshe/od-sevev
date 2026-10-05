@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <!-- "איך משחקים בעוד סבב": the whole loop in five steps on clean Movie Maker footage (Bennett's
+         round for the pick, taps and buys; Golan's for the election card), ending deadpan on
+         "זה כל המשחק." Shows the seat bar, so it is NOT blackout-safe. -->
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      :root { --night: #0e1234; --gold: #f5c542; --gold-sh: #c68a2b; --ink: #0b0a12; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--night); }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden;
+        background: radial-gradient(ellipse 70% 40% at 50% 55%, #263070 0%, #141a48 60%, var(--night) 100%); }
+      .clip { position: absolute; inset: 0; }
+      img.px { image-rendering: pixelated; display: block; }
+
+      #eyebrow { position: absolute; right: 130px; top: 205px; }
+      .step { position: absolute; right: 130px; top: 290px; width: 900px; height: 230px; opacity: 0; }
+      .chip { position: absolute; right: 0; top: 0; width: 120px; height: 120px; background: var(--gold);
+        box-shadow: 0 0 0 6px var(--ink), inset 0 -10px 0 var(--gold-sh); display: flex; align-items: center; justify-content: center; }
+      .step .t { position: absolute; right: 140px; top: 0; }
+      .step .s { position: absolute; right: 140px; top: 130px; }
+
+      #frame { position: absolute; left: 94px; top: 545px; width: 832px; height: 980px; overflow: hidden;
+        box-shadow: 0 0 0 8px var(--ink), 0 0 0 14px var(--gold-sh), 0 24px 60px rgba(0,0,0,0.6); background: #000; }
+      #frame video { position: absolute; left: 0; top: 0; width: 832px; height: 980px; }
+      .tap { position: absolute; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%;
+        border: 6px solid #fff; background: rgba(255,255,255,0.25); opacity: 0; }
+
+      #endcard { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="13.8" data-width="1080" data-height="1920">
+      <section id="stage">
+        <img id="eyebrow" class="px" src="assets/gen/text/eyebrow.png" alt="איך משחקים בעוד סבב" />
+        <div class="step" id="st1"><div class="chip"><img class="px" src="assets/gen/text/n1.png" alt="1" /></div>
+          <img class="px t" src="assets/gen/text/t1.png" alt="בוחרים ראש רשימה." /><img class="px s" src="assets/gen/text/s1.png" alt="לכל אחד יש תרגיל." /></div>
+        <div class="step" id="st2"><div class="chip"><img class="px" src="assets/gen/text/n2.png" alt="2" /></div>
+          <img class="px t" src="assets/gen/text/t2.png" alt="לוחצים." /><img class="px s" src="assets/gen/text/s2.png" alt="כל לחיצה: עוד שקל." /></div>
+        <div class="step" id="st3"><div class="chip"><img class="px" src="assets/gen/text/n3.png" alt="3" /></div>
+          <img class="px t" src="assets/gen/text/t3.png" alt="קונים מקורות הכנסה." /><img class="px s" src="assets/gen/text/s3.png" alt="הכסף מתחיל לעבוד לבד." /></div>
+        <div class="step" id="st4"><div class="chip"><img class="px" src="assets/gen/text/n4.png" alt="4" /></div>
+          <img class="px t" src="assets/gen/text/t4.png" alt="הולכים לבחירות." /><img class="px s" src="assets/gen/text/s4.png" alt="ומקבלים מבזק." /></div>
+        <div class="step" id="st5"><div class="chip"><img class="px" src="assets/gen/text/n5.png" alt="5" /></div>
+          <img class="px t" src="assets/gen/text/t5.png" alt="ומתחילים מחדש." /><img class="px s" src="assets/gen/text/s5.png" alt="זה כל המשחק." /></div>
+
+        <div id="frame">
+          <video id="v-pick" class="clip" src="assets/gen/video/pick.mp4" muted playsinline data-start="0" data-duration="2.2"></video>
+          <video id="v-tap" class="clip" src="assets/gen/video/tap.mp4" muted playsinline data-start="2.2" data-duration="2.6"></video>
+          <video id="v-buy" class="clip" src="assets/gen/video/buy.mp4" muted playsinline data-start="4.8" data-duration="2.6"></video>
+          <video id="v-elect" class="clip" src="assets/gen/video/elect.mp4" muted playsinline data-start="7.4" data-duration="2.6"></video>
+          <video id="v-again" class="clip" src="assets/gen/video/again.mp4" muted playsinline data-start="10" data-duration="1.6"></video>
+          <div class="tap" id="tap"></div>
+        </div>
+      </section>
+
+      <video id="endcard" class="clip" src="assets/gen/video/endcard.mp4" playsinline data-has-audio="true"
+        data-start="11.6" data-duration="2.2" data-track-index="2" data-volume="0.7"></video>
+      <audio id="soundtrack" src="assets/gen/audio/soundtrack.wav" data-start="0" data-duration="11.6" data-track-index="3" data-volume="1"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      // Step boundaries match STEPS in src/assets.py (frame counts / 30).
+      const STEP = [0, 2.2, 4.8, 7.4, 10.0, 11.6];
+      for (let i = 1; i <= 5; i++) {
+        const t0 = STEP[i - 1], t1 = STEP[i];
+        tl.fromTo("#st" + i, { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.25, ease: "power3.out" }, t0 + 0.02);
+        tl.fromTo("#st" + i + " .chip", { scale: 0.4 }, { scale: 1, duration: 0.3, ease: "back.out(3)" }, t0 + 0.02);
+        if (i < 5) tl.set("#st" + i, { opacity: 0 }, t1);
+      }
+      // Tap ripples in frame coordinates (832x980 crop), as [time, x, y].
+      const TAPS = [[0.85, 143, 870]];
+      for (let t = 2.45; t < 4.7; t += 0.32) TAPS.push([t, 410, 400]);
+      [5.1, 5.7, 6.3].forEach((t) => TAPS.push([t, 136, 368]));
+      TAPS.forEach(([t, x, y]) => {
+        tl.set("#tap", { left: x, top: y }, t);
+        tl.fromTo("#tap", { opacity: 0.95, scale: 0.6 }, { opacity: 0, scale: 1.5, duration: 0.3, ease: "power2.out" }, t);
+      });
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

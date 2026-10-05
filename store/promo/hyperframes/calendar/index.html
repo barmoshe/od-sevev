@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <!-- "לוח השנה": a tear-off calendar through every election since 2019 (public dates, and the
+         Knesset each one elected), ending on 27.10.2026 and the game's wordmark. No seat numbers, so
+         it is blackout-safe. Lettering is pre-rendered Sevev 9 (src/assets.py). -->
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      :root { --paper: #ece4cd; --paper-lo: #d6ccb0; --ink: #0b0a12; --red: #d62839; --bind: #a51d2e; --night: #0e1234; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--night); }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden;
+        background: radial-gradient(ellipse 60% 45% at 50% 38%, #2a3170 0%, #161b4a 55%, var(--night) 100%); }
+      .clip { position: absolute; inset: 0; }
+      img.px { image-rendering: pixelated; display: block; }
+      .c { position: absolute; left: 50%; transform: translateX(-50%); }
+
+      #nail { position: absolute; left: 508px; top: 250px; width: 24px; height: 24px; background: #8d8fa8; box-shadow: 0 0 0 4px var(--ink), 4px 4px 0 4px #05060f; }
+      #string { position: absolute; left: 380px; top: 262px; width: 280px; height: 60px; border-top: 6px solid #3a2a12; border-radius: 50% 50% 0 0; }
+      #cal { position: absolute; left: 140px; top: 300px; width: 760px; height: 1020px; }
+      #bind { position: absolute; left: 0; right: 0; top: 0; height: 120px; background: var(--bind); box-shadow: 0 0 0 6px var(--ink), inset 0 -10px 0 #7d1422; z-index: 20; }
+      #bind img { position: absolute; left: 50%; top: 22px; transform: translateX(-50%); }
+      .ring { position: absolute; top: -22px; width: 34px; height: 56px; border: 6px solid #c9cbd6; border-radius: 18px; box-shadow: 0 0 0 4px var(--ink); z-index: 21; }
+      .under { position: absolute; left: 0; right: 0; top: 120px; height: 900px; background: var(--paper-lo); box-shadow: 0 0 0 6px var(--ink); }
+      .page { position: absolute; left: 0; right: 0; top: 120px; height: 900px; background: var(--paper);
+        box-shadow: 0 0 0 6px var(--ink); transform-origin: 50% 0; overflow: hidden; }
+      .page::before { content: ""; position: absolute; left: 0; right: 0; top: 10px; border-top: 5px dashed #b9ae8f; }
+      .page .day { top: 40px; }
+      .page .month { top: 450px; }
+      .page .kn { top: 585px; }
+      .stamp { position: absolute; padding: 10px 26px 16px; border: 8px solid var(--red); opacity: 0; }
+      .row { position: absolute; left: 0; right: 0; top: 690px; display: flex; justify-content: center; }
+      .row .stamp { position: relative; }
+      #st5a { right: 40px; top: 190px; }
+      
+      #st6 { left: 0; right: 0; top: 700px; border: none; padding: 0; }
+      #st6 img { margin: 0 auto; }
+      #tag { position: absolute; left: 50%; top: 1370px; transform: translateX(-50%); opacity: 0; }
+      #endcard { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="13" data-width="1080" data-height="1920">
+      <section id="wall">
+        <div id="string"></div>
+        <div id="nail"></div>
+        <div id="cal">
+          <div class="under" style="transform: translate(8px, 10px)"></div>
+          <div class="under" style="transform: translate(4px, 5px)"></div>
+          <!-- page 6 is at the bottom of the pad, page 1 on top -->
+          <div class="page" id="pg6">
+            <img class="px c day" src="assets/gen/text/day6.png" alt="27" />
+            <img class="px c month" src="assets/gen/text/month6.png" alt="באוקטובר 2026" />
+            <img class="px c kn" src="assets/gen/text/kn6.png" alt="לכנסת ה־26" />
+            <div class="stamp" id="st6"><img class="px" src="assets/gen/img/wordmark.png" alt="עוד סבב" /></div>
+          </div>
+          <div class="page" id="pg5">
+            <img class="px c day" src="assets/gen/text/day5.png" alt="1" />
+            <img class="px c month" src="assets/gen/text/month5.png" alt="בנובמבר 2022" />
+            <img class="px c kn" src="assets/gen/text/kn5.png" alt="לכנסת ה־25" />
+            <div class="stamp" id="st5a"><img class="px" src="assets/gen/text/word5.png" alt="אחרונות." /></div>
+            <div class="row"><div class="stamp" id="st5b"><img class="px" src="assets/gen/text/sure.png" alt="בטוח." /></div></div>
+          </div>
+          <div class="page" id="pg4">
+            <img class="px c day" src="assets/gen/text/day4.png" alt="23" />
+            <img class="px c month" src="assets/gen/text/month4.png" alt="במרץ 2021" />
+            <img class="px c kn" src="assets/gen/text/kn4.png" alt="לכנסת ה־24" />
+            <div class="row"><div class="stamp" id="st4"><img class="px" src="assets/gen/text/word4.png" alt="עוד פעם." /></div></div>
+          </div>
+          <div class="page" id="pg3">
+            <img class="px c day" src="assets/gen/text/day3.png" alt="2" />
+            <img class="px c month" src="assets/gen/text/month3.png" alt="במרץ 2020" />
+            <img class="px c kn" src="assets/gen/text/kn3.png" alt="לכנסת ה־23" />
+            <div class="row"><div class="stamp" id="st3"><img class="px" src="assets/gen/text/word3.png" alt="ושוב." /></div></div>
+          </div>
+          <div class="page" id="pg2">
+            <img class="px c day" src="assets/gen/text/day2.png" alt="17" />
+            <img class="px c month" src="assets/gen/text/month2.png" alt="בספטמבר 2019" />
+            <img class="px c kn" src="assets/gen/text/kn2.png" alt="לכנסת ה־22" />
+            <div class="row"><div class="stamp" id="st2"><img class="px" src="assets/gen/text/word2.png" alt="שוב." /></div></div>
+          </div>
+          <div class="page" id="pg1">
+            <img class="px c day" src="assets/gen/text/day1.png" alt="9" />
+            <img class="px c month" src="assets/gen/text/month1.png" alt="באפריל 2019" />
+            <img class="px c kn" src="assets/gen/text/kn1.png" alt="לכנסת ה־21" />
+            <div class="row"><div class="stamp" id="st1"><img class="px" src="assets/gen/text/word1.png" alt="בחירות." /></div></div>
+          </div>
+          <div id="bind"><img class="px" src="assets/gen/text/head.png" alt="לוח שנה" /></div>
+          <div class="ring" style="left: 200px"></div>
+          <div class="ring" style="left: 526px"></div>
+        </div>
+        <img id="tag" class="px" src="assets/gen/text/tag.png" alt="הבחירות שלא נגמרות" />
+      </section>
+
+      <video id="endcard" class="clip" src="assets/gen/video/endcard.mp4" playsinline data-has-audio="true"
+        data-start="10.8" data-duration="2.2" data-track-index="2" data-volume="0.7"></video>
+      <audio id="soundtrack" src="assets/gen/audio/soundtrack.wav" data-start="0" data-duration="10.8" data-track-index="3" data-volume="1"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      // Stamp times must match the stamp sounds in src/assets.py (calendar()).
+      const STAMPS = [["#st1", 0.3, -4], ["#st2", 2.0, 5], ["#st3", 3.35, -6], ["#st4", 4.5, 4], ["#st5a", 5.7, -9], ["#st5b", 6.45, 4], ["#st6", 8.35, -3]];
+      const TEARS = [["#pg1", 1.7, -16], ["#pg2", 3.1, 14], ["#pg3", 4.3, -12], ["#pg4", 5.4, 18], ["#pg5", 7.8, -20]];
+
+      STAMPS.forEach(([id, t, rot]) => {
+        tl.fromTo(id, { opacity: 0, scale: 1.7, rotation: rot }, { opacity: 1, scale: 1, rotation: rot, duration: 0.12, ease: "power4.in" }, t);
+        tl.fromTo("#cal", { x: 0, y: 0 }, { x: 4, y: 6, duration: 0.05, yoyo: true, repeat: 1, ease: "none" }, t + 0.12);
+      });
+      TEARS.forEach(([id, t, rot]) => {
+        tl.to(id, { rotation: rot * 0.15, y: 14, duration: 0.08, ease: "power1.out" }, t - 0.08);
+        tl.to(id, { rotation: rot, y: -1500, x: rot * 14, duration: 0.5, ease: "power2.in" }, t);
+      });
+      tl.fromTo("#tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 9.0);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
